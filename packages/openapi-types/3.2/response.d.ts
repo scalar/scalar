@@ -12,8 +12,8 @@ import type { ReferenceObject } from './reference'
 export type ResponseObject = {
   /** A short summary of the meaning of the response. */
   summary?: string
-  /** A description of the response. [CommonMark syntax](https://spec.commonmark.org/) MAY be used for rich text representation. */
-  description?: string
+  /** **REQUIRED**. A description of the response. [CommonMark syntax](https://spec.commonmark.org/) MAY be used for rich text representation. */
+  description: string
   /** Maps a header name to its definition. [RFC9110](https://www.rfc-editor.org/rfc/rfc9110.html#section-5.1) states header names are case-insensitive. If a response header is defined with the name `"Content-Type"`, it SHALL be ignored. */
   headers?: Record<string, HeaderObject | ReferenceObject>
   /** A map containing descriptions of potential response payloads. The key is a media type or [media type range](https://www.rfc-editor.org/rfc/rfc9110.html#appendix-A) and the value describes it. For responses that match multiple keys, only the most specific key is applicable. e.g. `"text/plain"` overrides `"text/*"` */

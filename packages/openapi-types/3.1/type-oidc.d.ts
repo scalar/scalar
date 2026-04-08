@@ -10,4 +10,6 @@ export type TypeOidcObject = {
   type: 'openIdConnect'
   /** **REQUIRED**. [Well-known URL](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) to discover the [[OpenID-Connect-Discovery]] [provider metadata](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata). */
   openIdConnectUrl: string
-}
+  /** A description for the security scheme. [CommonMark syntax](https://spec.commonmark.org/) MAY be used for rich text representation. */
+  description?: string
+} & Record<`x-${string}`, unknown>

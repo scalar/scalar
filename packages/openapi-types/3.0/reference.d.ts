@@ -5,4 +5,6 @@
  *
  * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.4.md#reference-object}
  */
-export type ReferenceObject = Record<string, string>
+export type ReferenceObject = {
+  $ref: string
+}

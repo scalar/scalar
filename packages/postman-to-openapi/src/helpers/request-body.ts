@@ -114,7 +114,7 @@ function handleUrlEncodedBody(
   requestBody: OpenAPIV3_1.RequestBodyObject,
   exampleName: string,
 ): void {
-  const schema: OpenAPIV3_1.SchemaObject = {
+  const schema: OpenAPIV3_1.MultiTypeObject = {
     type: 'object',
     properties: {},
     required: [],
@@ -122,7 +122,7 @@ function handleUrlEncodedBody(
   urlencoded.forEach((item: UrlEncodedParameter) => {
     if (schema.properties) {
       const paramObject = createParameterObject(item, 'query', exampleName)
-      const property: OpenAPIV3_1.SchemaObject = {
+      const property: OpenAPIV3_1.MultiTypeObject = {
         type: 'string',
         examples: [item.value],
         description: paramObject.description,

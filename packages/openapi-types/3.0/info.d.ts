@@ -20,4 +20,4 @@ export type InfoObject = {
   license?: LicenseObject
   /** **REQUIRED**. The version of the OpenAPI Document (which is distinct from the [OpenAPI Specification version](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.4.md#oas-version) or the version of the API being described or the version of the OpenAPI Description). */
   version: string
-}
+} & Record<`x-${string}`, unknown>

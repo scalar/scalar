@@ -1,6 +1,6 @@
-import type { ReferenceObject } from './reference'
 import type { ExampleObject } from './example'
+import type { ReferenceObject } from './reference'
 export type ExamplesObject = {
-  example?: boolean
+  example?: unknown
   examples?: Record<string, ExampleObject | ReferenceObject>
 }

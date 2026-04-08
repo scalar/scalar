@@ -10,4 +10,4 @@ export type LicenseObject = {
   name: string
   /** A URL for the license used for the API. This MUST be in the form of a URL. */
   url?: string
-}
+} & Record<`x-${string}`, unknown>

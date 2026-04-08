@@ -11,4 +11,6 @@ export type TypeOauth2Object = {
   type: 'oauth2'
   /** **REQUIRED**. An object containing configuration information for the flow types supported. */
   flows: OauthFlowsObject
-}
+  /** A description for the security scheme. [CommonMark syntax](https://spec.commonmark.org/) MAY be used for rich text representation. */
+  description?: string
+} & Record<`x-${string}`, unknown>

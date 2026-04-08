@@ -14,4 +14,4 @@ export type HttpSecuritySchemeObject = {
   description?: string
   /** **REQUIRED**. The type of the security scheme. Valid values are `"apiKey"`, `"http"`, `"oauth2"`, `"openIdConnect"`. */
   type: 'http'
-}
+} & Record<`x-${string}`, unknown>

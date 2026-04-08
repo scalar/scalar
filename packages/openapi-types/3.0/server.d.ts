@@ -13,4 +13,4 @@ export type ServerObject = {
   description?: string
   /** A map between a variable name and its value. The value is used for substitution in the server's URL template. */
   variables?: Record<string, ServerVariableObject>
-}
+} & Record<`x-${string}`, unknown>

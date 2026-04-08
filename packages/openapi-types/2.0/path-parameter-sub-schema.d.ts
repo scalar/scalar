@@ -24,13 +24,13 @@ export type PathParameterSubSchemaObject = {
   /** Determines whether this parameter is mandatory. If the parameter is [`in`](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#parameterIn) "path", this property is **required** and its value MUST be `true`. Otherwise, the property MAY be included and its default value is `false`. */
   required: true
   /** **Required.** The location of the parameter. Possible values are "query", "header", "path", "formData" or "body". */
-  in?: 'path'
+  in: 'path'
   /** A brief description of the parameter. This could contain examples of use.  [GFM syntax](https://guides.github.com/features/mastering-markdown/#GitHub-flavored-markdown) can be used for rich text representation. */
   description?: string
   /** **Required.** The name of the parameter. Parameter names are *case sensitive*. <ul><li>If [`in`](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#parameterIn) is `"path"`, the `name` field MUST correspond to the associated path segment from the [path](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#pathsPath) field in the [Paths Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#paths-object). See [Path Templating](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#path-templating) for further information.<li>For all other cases, the `name` corresponds to the parameter name used based on the [`in`](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#parameterIn) property.</ul> */
-  name?: string
+  name: string
   /** **Required.** The type of the parameter. Since the parameter is not located at the request body, it is limited to simple types (that is, not an object). The value MUST be one of `"string"`, `"number"`, `"integer"`, `"boolean"`, `"array"` or `"file"`. If `type` is `"file"`, the [`consumes`](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#operationConsumes) MUST be either `"multipart/form-data"`, `" application/x-www-form-urlencoded"` or both and the parameter MUST be [`in`](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#parameterIn) `"formData"`. */
-  type?: 'string' | 'number' | 'boolean' | 'integer' | 'array'
+  type: 'string' | 'number' | 'boolean' | 'integer' | 'array'
   /** The extending format for the previously mentioned [`type`](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#parameterType). See [Data Type Formats](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#dataTypeFormat) for further details. */
   format?: string
   /** **Required if [`type`](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#parameterType) is "array".** Describes the type of items in the array. */

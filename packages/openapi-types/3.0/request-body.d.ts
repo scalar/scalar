@@ -13,4 +13,4 @@ export type RequestBodyObject = {
   content: Record<string, MediaTypeObject>
   /** Determines if the request body is required in the request. Defaults to `false`. */
   required?: boolean
-}
+} & Record<`x-${string}`, unknown>

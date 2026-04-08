@@ -1,6 +1,7 @@
 import type { TypeApikeyObject } from './type-apikey'
 import type { TypeHttpObject } from './type-http'
 import type { TypeHttpBearerObject } from './type-http-bearer'
+import type { TypeMutualTlsObject } from './type-mutual-tls'
 import type { TypeOauth2Object } from './type-oauth2'
 import type { TypeOidcObject } from './type-oidc'
 /**
@@ -14,5 +15,6 @@ export type SecuritySchemeObject =
   | TypeApikeyObject
   | TypeHttpObject
   | TypeHttpBearerObject
+  | TypeMutualTlsObject
   | TypeOauth2Object
   | TypeOidcObject

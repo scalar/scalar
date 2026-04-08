@@ -11,7 +11,7 @@ import type { SchemaObject } from './schema'
  */
 export type MediaTypeObject = {
   /** Example of the media type; see [Working With Examples](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#working-with-examples). */
-  example?: boolean
+  example?: unknown
   /** Examples of the media type; see [Working With Examples](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#working-with-examples). */
   examples?: Record<string, ExampleObject | ReferenceObject>
   description?: string

@@ -18,4 +18,4 @@ export type ResponseObject = {
   content?: Record<string, MediaTypeObject>
   /** A map of operations links that can be followed from the response. The key of the map is a short name for the link, following the naming constraints of the names for [Component Objects](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.4.md#components-object). */
   links?: Record<string, LinkObject | ReferenceObject>
-}
+} & Record<`x-${string}`, unknown>

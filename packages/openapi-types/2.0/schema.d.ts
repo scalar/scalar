@@ -1,158 +1,43 @@
-import type { ReferenceObject } from './reference'
-export type PrimitiveSchemaType = 'null' | 'boolean' | 'string' | 'number' | 'integer' | 'object' | 'array'
-export type StringFormat =
-  | 'date'
-  | 'date-time'
-  | 'date-time-local'
-  | 'time'
-  | 'time-local'
-  | 'duration'
-  | 'http-date'
-  | 'email'
-  | 'idn-email'
-  | 'hostname'
-  | 'idn-hostname'
-  | 'ipv4'
-  | 'ipv6'
-  | 'uri'
-  | 'uri-reference'
-  | 'uri-template'
-  | 'iri'
-  | 'iri-reference'
-  | 'uuid'
-  | 'binary'
-  | 'byte'
-  | 'base64url'
-  | 'html'
-  | 'commonmark'
-  | 'password'
-  | 'regex'
-  | 'json-pointer'
-  | 'relative-json-pointer'
-  | 'media-range'
-  | 'char'
-  | 'sf-string'
-  | 'sf-token'
-  | 'sf-binary'
-  | 'sf-boolean'
-export type NumericFormat =
-  | 'int8'
-  | 'int16'
-  | 'int32'
-  | 'int64'
-  | 'uint8'
-  | 'uint16'
-  | 'uint32'
-  | 'uint64'
-  | 'double-int'
-  | 'float'
-  | 'double'
-  | 'decimal'
-  | 'decimal128'
-  | 'sf-integer'
-  | 'sf-decimal'
-export type SchemaReferenceType<Value> = Value | ReferenceObject
+import type { ExternalDocsObject } from './external-docs'
+import type { XmlObject } from './xml'
 export type Extensions = Record<`x-${string}`, unknown>
-type SharedProperties = {
-  name?: string
+/**
+ * Schema object
+ *
+ * A deterministic version of a JSON Schema object as defined by the Swagger 2.0 specification. Supports a subset of JSON Schema draft-04 properties plus Swagger-specific extensions.
+ *
+ * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#schema-object}
+ */
+export type SchemaObject = {
+  $ref?: string
+  format?: string
   title?: string
   description?: string
   default?: unknown
-  enum?: unknown[]
-  const?: unknown
-  examples?: unknown[]
-  example?: unknown
-  deprecated?: boolean
-  discriminator?: Record<string, unknown>
-  readOnly?: boolean
-  writeOnly?: boolean
-  xml?: Record<string, unknown>
-  externalDocs?: Record<string, unknown>
-  allOf?: SchemaReferenceType<SchemaObject>[]
-  oneOf?: SchemaReferenceType<SchemaObject>[]
-  anyOf?: SchemaReferenceType<SchemaObject>[]
-  not?: SchemaReferenceType<SchemaObject>
-  if?: SchemaReferenceType<SchemaObject>
-  then?: SchemaReferenceType<SchemaObject>
-  else?: SchemaReferenceType<SchemaObject>
-  $defs?: Record<string, SchemaReferenceType<SchemaObject>>
-}
-type NumericKeywords = {
   multipleOf?: number
   maximum?: number
-  exclusiveMaximum?: number
+  exclusiveMaximum?: boolean
   minimum?: number
-  exclusiveMinimum?: number
-}
-type StringKeywords = {
+  exclusiveMinimum?: boolean
   maxLength?: number
   minLength?: number
   pattern?: string
-  contentMediaType?: string
-  contentEncoding?: string
-  contentSchema?: SchemaReferenceType<SchemaObject>
-}
-type ArrayKeywords = {
-  items?: SchemaReferenceType<SchemaObject>
-  prefixItems?: SchemaReferenceType<SchemaObject>[]
   maxItems?: number
   minItems?: number
   uniqueItems?: boolean
-  contains?: SchemaReferenceType<SchemaObject>
-  maxContains?: number
-  minContains?: number
-  unevaluatedItems?: boolean | SchemaReferenceType<SchemaObject>
-}
-type ObjectKeywords = {
   maxProperties?: number
   minProperties?: number
   required?: string[]
-  properties?: Record<string, SchemaReferenceType<SchemaObject>>
-  additionalProperties?: boolean | SchemaReferenceType<SchemaObject>
-  patternProperties?: Record<string, SchemaReferenceType<SchemaObject>>
-  dependentSchemas?: Record<string, SchemaReferenceType<SchemaObject>>
-  propertyNames?: SchemaReferenceType<SchemaObject>
-  unevaluatedProperties?: boolean | SchemaReferenceType<SchemaObject>
-}
-type UntypedObject = SharedProperties & {
-  type?: undefined
-  format?: StringFormat | NumericFormat
+  enum?: unknown[]
+  additionalProperties?: SchemaObject | boolean
+  type?: string | string[]
+  items?: SchemaObject | SchemaObject[]
+  allOf?: SchemaObject[]
+  properties?: Record<string, SchemaObject>
+  /** The name of the discriminator property. In Swagger 2.0, discriminator is a plain string (the property name), not an object. */
+  discriminator?: string
+  readOnly?: boolean
+  xml?: XmlObject
+  externalDocs?: ExternalDocsObject
+  example?: unknown
 } & Extensions
-type OtherTypes = SharedProperties & {
-  type: 'null' | 'boolean'
-} & Extensions
-type NumericObject = SharedProperties &
-  NumericKeywords & {
-    type: 'number' | 'integer'
-    format?: NumericFormat
-  } & Extensions
-type StringObject = SharedProperties &
-  StringKeywords & {
-    type: 'string'
-    format?: StringFormat
-  } & Extensions
-type ArrayObject = SharedProperties &
-  ArrayKeywords & {
-    type: 'array'
-  } & Extensions
-type ObjectObject = SharedProperties &
-  ObjectKeywords & {
-    type: 'object'
-  } & Extensions
-export type MultiTypeObject = SharedProperties &
-  NumericKeywords &
-  StringKeywords &
-  ArrayKeywords &
-  ObjectKeywords & {
-    type?: PrimitiveSchemaType | PrimitiveSchemaType[]
-    format?: StringFormat | NumericFormat
-  } & Extensions
-export type SchemaObject =
-  | UntypedObject
-  | OtherTypes
-  | NumericObject
-  | StringObject
-  | ObjectObject
-  | ArrayObject
-  | MultiTypeObject
-export {}

@@ -49,15 +49,7 @@ export type { ResponseObject } from './response'
 export type { ResponseDefinitionsObject } from './response-definitions'
 export type { ResponseValueObject } from './response-value'
 export type { ResponsesObject } from './responses'
-export type {
-  Extensions,
-  MultiTypeObject,
-  NumericFormat,
-  PrimitiveSchemaType,
-  SchemaObject,
-  SchemaReferenceType,
-  StringFormat,
-} from './schema'
+export type { Extensions, SchemaObject } from './schema'
 export type { SchemesListObject } from './schemes-list'
 export type { SecurityObject } from './security'
 export type { SecurityDefinitionsObject } from './security-definitions'

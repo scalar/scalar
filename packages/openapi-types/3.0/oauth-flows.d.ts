@@ -18,4 +18,4 @@ export type OauthFlowsObject = {
   clientCredentials?: ClientCredentialsFlowObject
   /** Configuration for the OAuth Authorization Code flow. Previously called `accessCode` in OpenAPI 2.0. */
   authorizationCode?: AuthorizationCodeOauthFlowObject
-}
+} & Record<`x-${string}`, unknown>

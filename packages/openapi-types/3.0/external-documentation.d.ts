@@ -10,4 +10,4 @@ export type ExternalDocumentationObject = {
   description?: string
   /** **REQUIRED**. The URL for the target documentation. This MUST be in the form of a URL. */
   url: string
-}
+} & Record<`x-${string}`, unknown>

@@ -12,4 +12,6 @@ export type TypeApikeyObject = {
   name: string
   /** **REQUIRED**. The location of the API key. Valid values are `"query"`, `"header"`, or `"cookie"`. */
   in: 'query' | 'header' | 'cookie'
-}
+  /** A description for the security scheme. [CommonMark syntax](https://spec.commonmark.org/) MAY be used for rich text representation. */
+  description?: string
+} & Record<`x-${string}`, unknown>

@@ -11,11 +11,11 @@ import type { SchemaObject } from './schema'
  */
 export type MediaTypeObject = {
   /** Example of the media type; see [Working With Examples](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.2.md#working-with-examples). */
-  example?: boolean
+  example?: unknown
   /** Examples of the media type; see [Working With Examples](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.2.md#working-with-examples). */
   examples?: Record<string, ExampleObject | ReferenceObject>
   /** The schema defining the content of the request, response, parameter, or header. */
   schema?: SchemaObject
   /** A map between a property name and its encoding information. The key, being the property name, MUST exist in the schema as a property. The `encoding` field SHALL only apply to [Request Body Objects](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.2.md#request-body-object), and only when the media type is `multipart` or `application/x-www-form-urlencoded`. If no Encoding Object is provided for a property, the behavior is determined by the default values documented for the Encoding Object. */
   encoding?: Record<string, EncodingObject>
-}
+} & Record<`x-${string}`, unknown>

@@ -13,4 +13,6 @@ export type TypeOauth2Object = {
   flows: OauthFlowsObject
   /** URL to the OAuth2 authorization server metadata [RFC8414](https://datatracker.ietf.org/doc/html/rfc8414). TLS is required. */
   oauth2MetadataUrl: string
-}
+  /** A description for the security scheme. [CommonMark syntax](https://spec.commonmark.org/) MAY be used for rich text representation. */
+  description?: string
+} & Record<`x-${string}`, unknown>

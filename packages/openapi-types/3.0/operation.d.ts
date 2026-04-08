@@ -38,4 +38,4 @@ export type OperationObject = {
   security?: SecurityRequirementObject[]
   /** An alternative `servers` array to service this operation. If a `servers` array is specified at the [Path Item Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.4.md#path-item-servers) or [OpenAPI Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.4.md#oas-servers) level, it will be overridden by this value. */
   servers?: ServerObject[]
-}
+} & Record<`x-${string}`, unknown>

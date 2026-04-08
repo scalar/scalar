@@ -19,4 +19,5 @@ export type MediaTypeObject = {
   examples?: Record<string, ExampleObject | ReferenceObject>
   /** A map between a property name and its encoding information. The key, being the property name, MUST exist in the schema as a property. The `encoding` field SHALL only apply to [Request Body Objects](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.4.md#request-body-object), and only when the media type is `multipart` or `application/x-www-form-urlencoded`. If no Encoding Object is provided for a property, the behavior is determined by the default values documented for the Encoding Object. */
   encoding?: Record<string, EncodingObject>
-} & ExampleXorExamplesObject
+} & ExampleXorExamplesObject &
+  Record<`x-${string}`, unknown>

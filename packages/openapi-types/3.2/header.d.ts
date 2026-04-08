@@ -11,7 +11,7 @@ import type { SchemaObject } from './schema'
  */
 export type HeaderObject = {
   /** Example of the header's potential value; see [Working With Examples](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#working-with-examples). */
-  example?: boolean
+  example?: unknown
   /** Examples of the header's potential value; see [Working With Examples](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#working-with-examples). */
   examples?: Record<string, ExampleObject | ReferenceObject>
   /** A brief description of the header. This could contain examples of use. [CommonMark syntax](https://spec.commonmark.org/) MAY be used for rich text representation. */

@@ -10,4 +10,6 @@ export type TypeHttpObject = {
   type: 'http'
   /** **REQUIRED**. The name of the HTTP Authentication scheme to be used in the [Authorization header as defined in RFC9110](https://www.rfc-editor.org/rfc/rfc9110.html#section-16.4.1). The values used SHOULD be registered in the [IANA Authentication Scheme registry](https://www.iana.org/assignments/http-authschemes/http-authschemes.xhtml). The value is case-insensitive, as defined in [RFC9110](https://www.rfc-editor.org/rfc/rfc9110.html#section-11.1). */
   scheme: string
-}
+  /** A description for the security scheme. [CommonMark syntax](https://spec.commonmark.org/) MAY be used for rich text representation. */
+  description?: string
+} & Record<`x-${string}`, unknown>

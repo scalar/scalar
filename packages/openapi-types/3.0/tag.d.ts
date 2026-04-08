@@ -13,4 +13,4 @@ export type TagObject = {
   description?: string
   /** Additional external documentation for this tag. */
   externalDocs?: ExternalDocumentationObject
-}
+} & Record<`x-${string}`, unknown>

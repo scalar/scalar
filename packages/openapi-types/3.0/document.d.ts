@@ -29,4 +29,4 @@ export type Document = {
   paths: PathsObject
   /** An element to hold various Objects for the OpenAPI Description. */
   components?: ComponentsObject
-}
+} & Record<`x-${string}`, unknown>

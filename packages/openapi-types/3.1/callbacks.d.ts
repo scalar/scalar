@@ -8,4 +8,4 @@ import type { PathItemObject } from './path-item'
  */
 export type CallbacksObject = {
   [key: string]: PathItemObject
-}
+} & Record<`x-${string}`, unknown>

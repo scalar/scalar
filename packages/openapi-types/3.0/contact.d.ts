@@ -12,4 +12,4 @@ export type ContactObject = {
   url?: string
   /** The email address of the contact person/organization. This MUST be in the form of an email address. */
   email?: string
-}
+} & Record<`x-${string}`, unknown>

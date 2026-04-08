@@ -13,4 +13,4 @@ export type Oauth2SecuritySchemeObject = {
   flows: OauthFlowsObject
   /** A description for security scheme. [CommonMark syntax](https://spec.commonmark.org/) MAY be used for rich text representation. */
   description?: string
-}
+} & Record<`x-${string}`, unknown>

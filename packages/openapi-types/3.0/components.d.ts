@@ -34,4 +34,4 @@ export type ComponentsObject = {
   links?: Record<string, ReferenceObject | LinkObject>
   /** An object to hold reusable [Callback Objects](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.4.md#callback-object). */
   callbacks?: Record<string, ReferenceObject | CallbackObject>
-}
+} & Record<`x-${string}`, unknown>

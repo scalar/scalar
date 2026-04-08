@@ -19,4 +19,4 @@ export type LinkObject = {
   description?: string
   /** A server object to be used by the target operation. */
   server?: ServerObject
-}
+} & Record<`x-${string}`, unknown>

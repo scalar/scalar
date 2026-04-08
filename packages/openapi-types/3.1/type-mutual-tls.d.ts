@@ -5,11 +5,9 @@
  *
  * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.2.md#security-scheme-object}
  */
-export type TypeHttpObject = {
+export type TypeMutualTlsObject = {
   /** **REQUIRED**. The type of the security scheme. Valid values are `"apiKey"`, `"http"`, `"mutualTLS"`, `"oauth2"`, `"openIdConnect"`. */
-  type: 'http'
-  /** **REQUIRED**. The name of the HTTP Authentication scheme to be used in the [Authorization header as defined in RFC7235](https://tools.ietf.org/html/rfc7235#section-5.1). The values used SHOULD be registered in the [IANA Authentication Scheme registry](https://www.iana.org/assignments/http-authschemes/http-authschemes.xhtml). The value is case-insensitive, as defined in [RFC7235](https://datatracker.ietf.org/doc/html/rfc7235#section-2.1). */
-  scheme: string
+  type: 'mutualTLS'
   /** A description for the security scheme. [CommonMark syntax](https://spec.commonmark.org/) MAY be used for rich text representation. */
   description?: string
 } & Record<`x-${string}`, unknown>

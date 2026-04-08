@@ -1,3 +1,5 @@
+import type { PathItemObject } from './path-item'
+
 /**
  * Callback object
  *
@@ -5,4 +7,4 @@
  *
  * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.4.md#callback-object}
  */
-export type CallbackObject = Record<string, unknown>
+export type CallbackObject = Record<string, PathItemObject>
