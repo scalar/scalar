@@ -10,12 +10,12 @@ const createFactory = (overrides: Partial<RequestFactory> = {}): RequestFactory 
   baseUrl: 'https://api.example.com',
   body: null,
   cache: 'default',
-  cookies: { list: [] },
+  cookies: [],
   headers: new Headers(),
   method: 'GET',
   path: { raw: '/users', variables: {} },
-  proxy: { proxyUrl: '' },
-  query: { params: new URLSearchParams() },
+  proxyUrl: '',
+  query: new URLSearchParams(),
   security: [],
   ...overrides,
 })
@@ -157,7 +157,7 @@ describe('buildRequest', () => {
   it('sets security API key headers using env-substituted header names and values', () => {
     const { request } = buildRequest(
       createFactory({
-        security: [{ in: 'header', name: '{{hdr}}', type: 'simple', value: '{{tok}}' }],
+        security: [{ in: 'header', name: '{{hdr}}', value: '{{tok}}' }],
       }),
       { envVariables: { hdr: 'X-Key', tok: 'secret' } },
     )
@@ -168,7 +168,7 @@ describe('buildRequest', () => {
   it('prefixes Basic auth with base64-encoded credentials after env substitution', () => {
     const { request } = buildRequest(
       createFactory({
-        security: [{ in: 'header', name: 'Authorization', type: 'basic', value: '{{u}}:{{p}}' }],
+        security: [{ in: 'header', name: 'Authorization', format: 'basic', value: '{{u}}:{{p}}' }],
       }),
       { envVariables: { u: 'alice', p: 'bob' } },
     )
@@ -179,7 +179,7 @@ describe('buildRequest', () => {
   it('prefixes bearer tokens after env substitution', () => {
     const { request } = buildRequest(
       createFactory({
-        security: [{ in: 'header', name: 'Authorization', type: 'bearer', value: '{{jwt}}' }],
+        security: [{ in: 'header', name: 'Authorization', format: 'bearer', value: '{{jwt}}' }],
       }),
       { envVariables: { jwt: 'eyJ' } },
     )
@@ -190,8 +190,8 @@ describe('buildRequest', () => {
   it('merges security query parameters with env substitution into the request URL', () => {
     const { request } = buildRequest(
       createFactory({
-        security: [{ in: 'query', name: '{{q}}', type: 'simple', value: '{{v}}' }],
-        query: { params: new URLSearchParams() },
+        security: [{ in: 'query', name: '{{q}}', value: '{{v}}' }],
+        query: new URLSearchParams(),
       }),
       { envVariables: { q: 'token', v: 'abc' } },
     )
@@ -206,8 +206,8 @@ describe('buildRequest', () => {
 
     const { request } = buildRequest(
       createFactory({
-        security: [{ in: 'query', name: 'token', type: 'simple', value: 'from-security' }],
-        query: { params: query },
+        security: [{ in: 'query', name: 'token', value: 'from-security' }],
+        query,
       }),
       { envVariables: {} },
     )
@@ -219,7 +219,7 @@ describe('buildRequest', () => {
     const query = new URLSearchParams()
     query.set('{{k}}', '{{v}}')
 
-    const { request } = buildRequest(createFactory({ query: { params: query } }), {
+    const { request } = buildRequest(createFactory({ query }), {
       envVariables: { k: 'sort', v: 'name' },
     })
 
@@ -259,9 +259,7 @@ describe('buildRequest', () => {
     const { request } = buildRequest(
       createFactory({
         headers,
-        cookies: {
-          list: [{ name: 'next', value: '2', domain: 'api.example.com' }],
-        },
+        cookies: [{ name: 'next', value: '2', domain: 'api.example.com' }],
         baseUrl: 'https://api.example.com',
         path: { raw: '/', variables: {} },
       }),
@@ -276,7 +274,7 @@ describe('buildRequest', () => {
   it('includes security scheme cookies in the Cookie header', () => {
     const { request } = buildRequest(
       createFactory({
-        security: [{ in: 'cookie', name: 'session', type: 'simple', value: 'sid-1' }],
+        security: [{ in: 'cookie', name: 'session', value: 'sid-1' }],
       }),
       { envVariables: {} },
     )
@@ -287,12 +285,10 @@ describe('buildRequest', () => {
   it('filters disabled cookies out of the Cookie header', () => {
     const { request } = buildRequest(
       createFactory({
-        cookies: {
-          list: [
-            { name: 'a', value: '1', domain: 'api.example.com', isDisabled: false },
-            { name: 'b', value: '2', domain: 'api.example.com', isDisabled: true },
-          ],
-        },
+        cookies: [
+          { name: 'a', value: '1', domain: 'api.example.com', isDisabled: false },
+          { name: 'b', value: '2', domain: 'api.example.com', isDisabled: true },
+        ],
         baseUrl: 'https://api.example.com',
         path: { raw: '/', variables: {} },
       }),
@@ -307,9 +303,7 @@ describe('buildRequest', () => {
   it('substitutes environment variables in cookie names and values before building the header', () => {
     const { request } = buildRequest(
       createFactory({
-        cookies: {
-          list: [{ name: '{{n}}', value: '{{v}}', domain: 'api.example.com' }],
-        },
+        cookies: [{ name: '{{n}}', value: '{{v}}', domain: 'api.example.com' }],
         baseUrl: 'https://api.example.com',
         path: { raw: '/', variables: {} },
       }),
@@ -322,12 +316,10 @@ describe('buildRequest', () => {
   it('uses X-Scalar-Cookie when the proxy is used', () => {
     const { request, isUsingProxy } = buildRequest(
       createFactory({
-        proxy: { proxyUrl: 'https://proxy.scalar.com' },
+        proxyUrl: 'https://proxy.scalar.com',
         baseUrl: 'https://api.example.com',
         path: { raw: '/', variables: {} },
-        cookies: {
-          list: [{ name: 'c', value: '1', domain: 'api.example.com' }],
-        },
+        cookies: [{ name: 'c', value: '1', domain: 'api.example.com' }],
       }),
       { envVariables: {} },
     )
@@ -343,9 +335,7 @@ describe('buildRequest', () => {
         options: { isElectron: true },
         baseUrl: 'https://api.example.com',
         path: { raw: '/', variables: {} },
-        cookies: {
-          list: [{ name: 'c', value: '1', domain: 'api.example.com' }],
-        },
+        cookies: [{ name: 'c', value: '1', domain: 'api.example.com' }],
       }),
       { envVariables: {} },
     )
@@ -356,7 +346,7 @@ describe('buildRequest', () => {
   it('rewrites the request URL through the proxy when shouldUseProxy is true', () => {
     const { request, isUsingProxy } = buildRequest(
       createFactory({
-        proxy: { proxyUrl: 'https://proxy.scalar.com' },
+        proxyUrl: 'https://proxy.scalar.com',
         baseUrl: 'https://api.example.com',
         path: { raw: '/r', variables: {} },
       }),
@@ -375,7 +365,7 @@ describe('buildRequest', () => {
 
     const { request } = buildRequest(
       createFactory({
-        query: { params: query },
+        query,
         allowedReservedQueryParameters: new Set(['sort']),
       }),
       { envVariables: {} },

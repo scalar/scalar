@@ -67,24 +67,27 @@ export const buildRequest = (
   // Build the request security
   request.security.forEach((security) => {
     const name = replaceEnvVariables(security.name, options.envVariables)
-    const securityValue = replaceEnvVariables(security.value, options.envVariables)
+
+    // Format the security value based on its authentication scheme.
+    // - For 'basic': prefix with 'Basic' and base64-encode the value (username:password).
+    // - For 'bearer': prefix with 'Bearer'.
+    // - Otherwise: use the substituted value as is (for API keys, etc).
+    const securityValue = (() => {
+      const substitutedValue = replaceEnvVariables(security.value, options.envVariables)
+      if (security.format === 'basic') {
+        return `Basic ${encodeBase64(substitutedValue)}`
+      }
+
+      if (security.format === 'bearer') {
+        return `Bearer ${substitutedValue}`
+      }
+
+      return substitutedValue
+    })()
 
     if (security.in === 'header') {
-      // Build the value for the header
-      const buildValue = (() => {
-        if (security.type === 'basic') {
-          return `Basic ${encodeBase64(securityValue)}`
-        }
-
-        if (security.type === 'bearer') {
-          return `Bearer ${securityValue}`
-        }
-
-        return securityValue
-      })()
-
       // Set the header (use replaced header name so {{ env }} placeholders work)
-      headers.set(name, buildValue)
+      headers.set(name, securityValue)
       return
     }
 
@@ -131,7 +134,7 @@ export const buildRequest = (
     }
 
     // Replace the query params with the environment variables
-    for (const [key, value] of request.query.params.entries()) {
+    for (const [key, value] of request.query.entries()) {
       url.searchParams.set(
         replaceEnvVariables(key, options.envVariables),
         replaceEnvVariables(value, options.envVariables),
@@ -140,9 +143,9 @@ export const buildRequest = (
     return url.toString()
   })()
 
-  const isUsingProxy = shouldUseProxy(request.proxy.proxyUrl, requestUrl)
+  const isUsingProxy = shouldUseProxy(request.proxyUrl, requestUrl)
 
-  const cookies: XScalarCookie[] = [...request.cookies.list, ...securityCookies].map((c) => ({
+  const cookies: XScalarCookie[] = [...request.cookies, ...securityCookies].map((c) => ({
     ...c,
     name: replaceEnvVariables(c.name, options.envVariables),
     value: replaceEnvVariables(c.value, options.envVariables),
@@ -162,7 +165,7 @@ export const buildRequest = (
 
   // final url
   const encodedUrl = applyAllowReservedToUrl(requestUrl, request.allowedReservedQueryParameters ?? new Set())
-  const finalUrl = isUsingProxy ? redirectToProxy(request.proxy.proxyUrl, encodedUrl) : encodedUrl
+  const finalUrl = isUsingProxy ? redirectToProxy(request.proxyUrl, encodedUrl) : encodedUrl
 
   return {
     request: new Request(finalUrl, {
