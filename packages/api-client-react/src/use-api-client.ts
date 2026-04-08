@@ -36,7 +36,11 @@ const documentDict: Record<string, true> = {}
  * Subsequent calls from any component share the same instance of the client but can use the same
  * or different documents
  */
-export const useApiClient = ({ configuration }: UseApiClientModalProps = {}): ApiClientModal | undefined => {
+export const useApiClient = ({
+  configuration,
+}: UseApiClientModalProps = {}):
+  | (Omit<ApiClientModal, 'open'> & { open: (payload: RoutePayload) => void })
+  | undefined => {
   const [client, setClient] = useState<ApiClientModal | undefined>(undefined)
   const [workspaceStore, setWorkspaceStore] = useState<WorkspaceStore | undefined>(undefined)
   const [documentSlug, setDocumentSlug] = useState('')
