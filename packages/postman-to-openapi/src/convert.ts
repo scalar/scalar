@@ -515,8 +515,9 @@ export function convert(
       }
       for (const [method, servers] of methods.entries()) {
         if (method in pathItem) {
-          const operation: OpenAPIV3_1.OperationObject = pathItem[method as keyof typeof pathItem]
-          if (operation && typeof operation === 'object' && 'responses' in operation) {
+          const maybeOperation = pathItem[method as keyof typeof pathItem]
+          if (maybeOperation && typeof maybeOperation === 'object' && 'responses' in maybeOperation) {
+            const operation = maybeOperation as OpenAPIV3_1.OperationObject
             operation.servers = isMergingIntoBase ? mergeServerLists(operation.servers, servers) : servers
           }
         }
