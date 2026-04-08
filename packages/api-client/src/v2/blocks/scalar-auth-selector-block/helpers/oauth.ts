@@ -408,7 +408,7 @@ const authorizeServers = async (
 
     // Use custom token name if specified, otherwise default to access_token
     const tokenName = flow['x-tokenName'] || 'access_token'
-    const accessToken = responseData[tokenName]
+    const accessToken = responseData[tokenName] as string
     const refreshToken = responseData.refresh_token
 
     return [null, { accessToken, ...(typeof refreshToken === 'string' ? { refreshToken } : {}) }]

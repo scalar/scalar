@@ -388,7 +388,7 @@ export const authorizeServers = async (
 
     // Use custom token name if specified, otherwise default to access_token
     const tokenName = flow['x-tokenName'] || 'access_token'
-    const accessToken = responseData[tokenName]
+    const accessToken = responseData[tokenName] as string | null
 
     return [null, accessToken]
   } catch {
