@@ -51,14 +51,3 @@ If your cell content includes `|`, escape it with `\|`.
 | `A \| B` | A \| B |
 | `1 \| 2 \| 3` | 1 \| 2 \| 3 |
 ```
-
-## When to Use Tables
-
-Tables work best for short, scannable comparisons such as:
-
-- Feature matrices
-- Plan comparisons
-- Field summaries
-- Parameter overviews
-
-For complex layouts or interactive behavior, consider writing custom HTML/JS in MDX.
