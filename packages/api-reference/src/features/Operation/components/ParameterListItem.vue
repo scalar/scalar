@@ -34,6 +34,9 @@ const { name, parameter, options, collapsableItems } = defineProps<{
   >
 }>()
 
+/** Whether the markdown summary is being truncated */
+const truncated = ref(false)
+
 /** Responses and params may both have a schema */
 const schema = computed<SchemaObject | null>(() =>
   'schema' in parameter && parameter.schema
@@ -116,18 +119,19 @@ const value = computed(() => {
  * content to display (content types, headers, or schema details).
  */
 const shouldCollapse = computed<boolean>(() =>
-  Boolean(collapsableItems && (content.value || headers.value || schema.value)),
+  Boolean(content.value || headers.value || schema.value || truncated.value),
 )
 </script>
 <template>
   <li class="parameter-item group/parameter-item">
     <Disclosure v-slot="{ open }">
-      <DisclosureButton
-        v-if="shouldCollapse"
+      <component
+        :is="shouldCollapse && collapsableItems ? DisclosureButton : 'div'"
         class="parameter-item-trigger"
         :class="{ 'parameter-item-trigger-open': open }">
         <div class="parameter-item-name min-w-0">
           <ScalarIconCaretRight
+            v-if="shouldCollapse && collapsableItems"
             class="parameter-item-icon size-3 transition-transform duration-100"
             :class="{ 'rotate-90': open }"
             weight="bold" />
@@ -138,14 +142,15 @@ const shouldCollapse = computed<boolean>(() =>
           </div>
         </div>
         <ScalarMarkdownSummary
-          v-if="!open && parameter.description"
+          v-if="!open && parameter.description && collapsableItems"
+          v-model:truncated="truncated"
           class="parameter-item-description-summary min-w-0 flex-1"
           controlled
           :value="parameter.description" />
         <div
           v-else
           class="flex-1" />
-      </DisclosureButton>
+      </component>
       <div
         v-if="shouldCollapse && content"
         class="absolute top-[calc(10px+0.5lh)] right-0 z-0 flex -translate-y-1/2 items-center text-base"
@@ -161,9 +166,9 @@ const shouldCollapse = computed<boolean>(() =>
       </div>
       <DisclosurePanel
         class="parameter-item-container parameter-item-container-markdown"
-        :static="!shouldCollapse">
+        :static="!collapsableItems">
         <ScalarMarkdown
-          v-if="shouldCollapse && parameter.description"
+          v-if="parameter.description"
           class="parameter-item-description"
           :value="parameter.description" />
         <!-- Headers -->
@@ -180,11 +185,9 @@ const shouldCollapse = computed<boolean>(() =>
           is="div"
           :breadcrumb="breadcrumb"
           compact
-          :description="shouldCollapse ? '' : parameter.description"
           :eventBus="eventBus"
           :hideWriteOnly="true"
           :modelName="schemaModelName"
-          :name="shouldCollapse ? '' : name"
           :noncollapsible="true"
           :options="{
             hideWriteOnly: true,
@@ -234,7 +237,7 @@ const shouldCollapse = computed<boolean>(() =>
 }
 
 .parameter-item-description-summary.parameter-item-description-summary > * {
-  --markdown-line-height: 1;
+  --markdown-line-height: var(--scalar-line-height-5);
 }
 
 /* Match font size of markdown for property-detail-value since first child within accordian is displayed as if it were in the markdown section */
