@@ -3,7 +3,7 @@
  *
  * License information for the exposed API.
  *
- * @see {@link https://swagger.io/specification/v2/#license-object}
+ * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#license-object}
  */
 export type LicenseObject = {
   /** **Required.** The license name used for the API. */

@@ -5,7 +5,7 @@ import type { LicenseObject } from './license'
  *
  * The object provides metadata about the API. The metadata can be used by the clients if needed, and can be presented in the Swagger-UI for convenience.
  *
- * @see {@link https://swagger.io/specification/v2/#info-object}
+ * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#info-object}
  */
 export type InfoObject = {
   /** **Required.** The title of the application. */

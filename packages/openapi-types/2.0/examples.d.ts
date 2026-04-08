@@ -3,6 +3,6 @@
  *
  * Allows sharing examples for operation responses.
  *
- * @see {@link https://swagger.io/specification/v2/#example-object}
+ * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#example-object}
  */
 export type ExamplesObject = {}

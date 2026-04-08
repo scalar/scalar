@@ -3,7 +3,7 @@
  *
  * Allows the definition of a security scheme that can be used by the operations. Supported schemes are basic authentication, an API key (either as a header or as a query parameter) and OAuth2's common flows (implicit, password, application and access code).
  *
- * @see {@link https://swagger.io/specification/v2/#security-scheme-object}
+ * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#security-scheme-object}
  */
 export type ApiKeySecurityObject = {
   /** **Required.** The type of the security scheme. Valid values are `"basic"`, `"apiKey"` or `"oauth2"`. */

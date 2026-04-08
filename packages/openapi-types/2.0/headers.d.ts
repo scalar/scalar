@@ -4,7 +4,7 @@ import type { HeaderObject } from './header'
  *
  * Lists the headers that can be sent as part of a response.
  *
- * @see {@link https://swagger.io/specification/v2/#headers-object}
+ * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#headers-object}
  */
 export type HeadersObject = {
   [key: string]: HeaderObject

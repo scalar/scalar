@@ -3,7 +3,7 @@
  *
  * Contact information for the exposed API.
  *
- * @see {@link https://swagger.io/specification/v2/#contact-object}
+ * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#contact-object}
  */
 export type ContactObject = {
   /** The identifying name of the contact person/organization. */
