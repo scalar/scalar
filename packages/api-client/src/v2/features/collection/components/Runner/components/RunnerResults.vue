@@ -6,6 +6,8 @@ import {
   ScalarIconTrash,
   ScalarIconXCircle,
 } from '@scalar/icons'
+import { cva } from '@scalar/use-hooks/useBindCx'
+import { computed } from 'vue'
 
 import type { RunResult, RunSummary, SelectedItem, TestResult } from '../hooks'
 import RunnerResultRow from './RunnerResultRow.vue'
@@ -29,19 +31,66 @@ const {
 const emit = defineEmits<{
   (e: 'clear'): void
 }>()
+
+type SummaryStatus = 'passed' | 'failed' | 'skipped'
+
+const summaryPillVariants = cva({
+  base: 'inline-flex items-center gap-1 rounded-full px-2 py-1 text-[0.6875rem] font-medium',
+  variants: {
+    status: {
+      passed: 'text-green bg-green/10',
+      failed: 'text-red bg-red/10',
+      skipped: 'text-c-3 bg-b-3',
+    },
+  },
+})
+
+const summaryBannerVariants = cva({
+  base: 'overflow-hidden rounded-xl border',
+  variants: {
+    outcome: {
+      passed: 'border-green/30',
+      failed: 'border-red/30',
+    },
+  },
+})
+
+const summaryHeaderVariants = cva({
+  base: 'flex items-center gap-3 border-b px-4 py-3.5',
+  variants: {
+    outcome: {
+      passed: 'bg-green/10 border-green/15',
+      failed: 'bg-red/10 border-red/15',
+    },
+  },
+})
+
+const pills = computed<
+  Array<{ status: SummaryStatus; count: number; label: string }>
+>(() =>
+  [
+    { status: 'passed' as const, count: summary.passed, label: 'passed' },
+    { status: 'failed' as const, count: summary.failed, label: 'failed' },
+    { status: 'skipped' as const, count: summary.skipped, label: 'skipped' },
+  ].filter((p) => p.status === 'passed' || p.count > 0),
+)
+
+const pillIcon = {
+  passed: ScalarIconCheckCircle,
+  failed: ScalarIconXCircle,
+  skipped: ScalarIconMinusCircle,
+} as const
+
+const outcome = computed<'passed' | 'failed'>(() =>
+  summary.allPassed ? 'passed' : 'failed',
+)
 </script>
 
 <template>
   <div
-    class="bg-b-2 overflow-hidden rounded-xl border"
-    :class="[summary.allPassed ? 'border-green/30' : 'border-red/30']">
-    <div
-      class="flex items-center gap-3 border-b px-4 py-3.5"
-      :class="[
-        summary.allPassed
-          ? 'bg-green/10 border-green/15'
-          : 'bg-red/10 border-red/15',
-      ]">
+    class="bg-b-2"
+    :class="summaryBannerVariants({ outcome: outcome })">
+    <div :class="summaryHeaderVariants({ outcome: outcome })">
       <div
         class="flex shrink-0 items-center justify-center"
         :class="summary.allPassed ? 'text-green' : 'text-red'">
@@ -75,21 +124,13 @@ const emit = defineEmits<{
     <div
       class="border-border-color bg-b-1 flex flex-wrap items-center gap-2 border-b px-4 py-3">
       <span
-        class="text-green bg-green/10 inline-flex items-center gap-1 rounded-full px-2 py-1 text-[0.6875rem] font-medium">
-        <ScalarIconCheckCircle class="size-3.5" />
-        {{ summary.passed }} passed
-      </span>
-      <span
-        v-if="summary.failed > 0"
-        class="text-red bg-red/10 inline-flex items-center gap-1 rounded-full px-2 py-1 text-[0.6875rem] font-medium">
-        <ScalarIconXCircle class="size-3.5" />
-        {{ summary.failed }} failed
-      </span>
-      <span
-        v-if="summary.skipped > 0"
-        class="text-c-3 bg-b-3 inline-flex items-center gap-1 rounded-full px-2 py-1 text-[0.6875rem] font-medium">
-        <ScalarIconMinusCircle class="size-3.5" />
-        {{ summary.skipped }} skipped
+        v-for="pill in pills"
+        :key="pill.status"
+        :class="summaryPillVariants({ status: pill.status })">
+        <component
+          :is="pillIcon[pill.status]"
+          class="size-3.5" />
+        {{ pill.count }} {{ pill.label }}
       </span>
     </div>
 
