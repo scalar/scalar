@@ -1,9 +1,11 @@
 import type { RequestFactory, VariableEntry, VariablesStore } from '@scalar/workspace-store/request-example'
 import { describe, expect, it } from 'vitest'
+import type { Ref } from 'vue'
 
 import type { TestResult } from '@/libs/execute-scripts'
 import { executePostResponseScript } from '@/libs/execute-scripts/execute-post-response-script'
 import { executePreRequestScript } from '@/libs/execute-scripts/execute-pre-request-script'
+import { requestScriptsPlugin } from '@/plugins/request-scripts/request-scripts-plugin'
 
 const createRequestBuilder = (): RequestFactory => ({
   baseUrl: 'https://example.com',
@@ -233,5 +235,109 @@ describe('request-scripts-plugin', () => {
         status: 'passed',
       },
     ])
+  })
+
+  it('does not duplicate test results when onTestResultsUpdate is called multiple times', async () => {
+    const plugin = requestScriptsPlugin()
+    const variablesStore = createVariablesStore()
+    const requestBuilder = createRequestBuilder()
+    const document = {
+      'x-pre-request': 'pm.test("pre-request test", () => pm.expect(true).to.be.true)',
+      'x-post-response': `
+        pm.test("post-response test 1", () => pm.expect(true).to.be.true)
+        pm.test("post-response test 2", () => pm.expect(true).to.be.true)
+      `,
+    }
+    const operation = {}
+
+    // Run beforeRequest hook (pre-request script with 1 test)
+    await plugin.hooks?.beforeRequest?.({
+      requestBuilder,
+      document,
+      operation,
+      variablesStore,
+    } as never)
+
+    // Run responseReceived hook (post-response script with 2 tests)
+    const response = new Response('{}', { status: 200 })
+    await plugin.hooks?.responseReceived?.({
+      requestBuilder,
+      response,
+      document,
+      operation,
+      variablesStore,
+    } as never)
+
+    // Get results from the plugin's response component props
+    const results = plugin.components?.response?.additionalProps?.results as Ref<TestResult[]> | undefined
+    expect(results).toBeDefined()
+    expect(results?.value).toHaveLength(3) // 1 pre-request + 2 post-response
+
+    const titles = results?.value.map((r) => r.title)
+    expect(titles).toStrictEqual(['pre-request test', 'post-response test 1', 'post-response test 2'])
+  })
+
+  it('preserves pre-request results when post-response script runs', async () => {
+    const plugin = requestScriptsPlugin()
+    const variablesStore = createVariablesStore()
+    const requestBuilder = createRequestBuilder()
+    const document = {
+      'x-pre-request': 'pm.test("pre-request assertion", () => pm.expect(1).to.eq(1))',
+      'x-post-response': 'pm.test("post-response assertion", () => pm.expect(2).to.eq(2))',
+    }
+    const operation = {}
+
+    await plugin.hooks?.beforeRequest?.({
+      requestBuilder,
+      document,
+      operation,
+      variablesStore,
+    } as never)
+
+    const response = new Response('{}', { status: 200 })
+    await plugin.hooks?.responseReceived?.({
+      requestBuilder,
+      response,
+      document,
+      operation,
+      variablesStore,
+    } as never)
+
+    const results = plugin.components?.response?.additionalProps?.results as Ref<TestResult[]> | undefined
+    expect(results?.value).toHaveLength(2)
+    expect(results?.value?.[0]?.title).toBe('pre-request assertion')
+    expect(results?.value?.[1]?.title).toBe('post-response assertion')
+  })
+
+  it('resets results on new request', async () => {
+    const plugin = requestScriptsPlugin()
+    const variablesStore = createVariablesStore()
+    const requestBuilder = createRequestBuilder()
+    const document = {
+      'x-pre-request': 'pm.test("test", () => pm.expect(true).to.be.true)',
+      'x-post-response': '',
+    }
+    const operation = {}
+
+    // First request
+    await plugin.hooks?.beforeRequest?.({
+      requestBuilder,
+      document,
+      operation,
+      variablesStore,
+    } as never)
+
+    const results = plugin.components?.response?.additionalProps?.results as Ref<TestResult[]> | undefined
+    expect(results?.value).toHaveLength(1)
+
+    // Second request should reset results
+    await plugin.hooks?.beforeRequest?.({
+      requestBuilder,
+      document,
+      operation,
+      variablesStore,
+    } as never)
+
+    expect(results?.value).toHaveLength(1) // Still 1, not 2 (reset happened)
   })
 })

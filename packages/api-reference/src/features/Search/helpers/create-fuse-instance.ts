@@ -15,6 +15,8 @@ export function createFuseInstance(): Fuse<FuseData> {
       { name: 'title', weight: 0.7 },
       // Medium weight - helpful but often verbose
       { name: 'description', weight: 0.3 },
+      // Lowest weight - parameters are searchable but they can be very long and noisy
+      { name: 'parameters', weight: 0.2 },
       // Lowest weight - can be very long and noisy
       { name: 'body', weight: 0.2 },
       // Low-medium weight - response examples can help full-text matching

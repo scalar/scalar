@@ -9,7 +9,6 @@
     "examples/react/**",
     "examples/react-webpack/**",
     "examples/ssg/**",
-    "examples/vue-ssr/**",
     "examples/sveltekit/**",
     "examples/web/**",
     "projects/proxy-scalar-com/**"
@@ -374,7 +373,9 @@
         "src/runtime/pages/ScalarPage.vue",
         "playground/nuxt.config.ts",
         "playground/layouts/default.vue",
-        "playground/pages/index.vue"
+        "playground/pages/index.vue",
+        "playground/pages/docs-keys.vue",
+        "playground/pages/docs-reference.vue"
       ],
       "ignoreDependencies": [
         "@scalar/api-client" // referenced in /src/runtime/components/nuxt-theme.css

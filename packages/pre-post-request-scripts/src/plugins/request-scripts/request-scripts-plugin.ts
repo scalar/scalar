@@ -57,10 +57,13 @@ export const requestScriptsPlugin = (): ClientPlugin => {
 
       responseReceived: async ({ requestBuilder, response, operation, document, variablesStore }) => {
         const script = getScript(document['x-post-response'], operation['x-post-response'])
+        // Snapshot pre-request results before running post-response script
+        const preRequestResults = [...results.value]
         await executePostResponseScript(script, {
           requestBuilder,
           response,
-          onTestResultsUpdate: (newResults) => (results.value = [...results.value, ...newResults]),
+          onTestResultsUpdate: (postResponseResults) =>
+            (results.value = [...preRequestResults, ...postResponseResults]),
           variablesStore,
         })
       },
