@@ -1,5 +1,5 @@
 import { useLoadingState } from '@scalar/components'
-import { executePostResponseScript, executePreRequestScript } from '@scalar/pre-post-request-scripts'
+import { executePostResponseScript, executePreRequestScript, getScript } from '@scalar/pre-post-request-scripts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import {
   buildRequest,
@@ -14,7 +14,6 @@ import { type ComputedRef, type Ref, computed, ref } from 'vue'
 import { isElectron } from '@/libs/electron'
 import { type ResponseInstance, sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
 import { APP_VERSION } from '@/v2/constants'
-import { getScript } from '@/v2/features/collection/components/Runner/helpers/get-script'
 
 import type { SelectedItem } from './use-runner-selection'
 
@@ -197,7 +196,7 @@ export function useRunnerExecution({
 
         if (!contextResult.ok) {
           runResult.error = new Error(contextResult.error)
-          runResults.value = [...runResults.value, runResult]
+          runResults.value.push(runResult)
           continue
         }
 

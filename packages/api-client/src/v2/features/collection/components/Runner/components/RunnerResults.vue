@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatMilliseconds } from '@scalar/helpers/formatters/format-milliseconds'
 import {
   ScalarIconCheckCircle,
   ScalarIconMinusCircle,
@@ -6,7 +7,6 @@ import {
   ScalarIconXCircle,
 } from '@scalar/icons'
 
-import { formatDuration } from '../helpers/format-duration'
 import type { RunResult, RunSummary, SelectedItem, TestResult } from '../hooks'
 import RunnerResultRow from './RunnerResultRow.vue'
 
@@ -59,7 +59,7 @@ const emit = defineEmits<{
         <span class="text-c-3 text-xs">
           {{ summary.passed }}/{{ summary.total }} passed
           <template v-if="summary.duration">
-            · {{ formatDuration(summary.duration) }}
+            · {{ formatMilliseconds(summary.duration) }}
           </template>
         </span>
       </div>

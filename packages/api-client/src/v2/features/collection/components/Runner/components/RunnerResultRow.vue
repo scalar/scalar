@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCheck, ScalarIconMinus, ScalarIconX } from '@scalar/icons'
+import { cva } from '@scalar/use-hooks/useBindCx'
 import { computed } from 'vue'
 
 import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
@@ -40,44 +41,48 @@ const status = computed(() => {
   return 'pending'
 })
 
-const statusConfig = {
-  passed: {
-    bg: 'bg-green/8',
-    border: 'border-green/20',
-    icon: 'bg-green text-white',
+const containerVariants = cva({
+  base: 'group flex gap-3 rounded-lg border p-3 transition-colors duration-100',
+  variants: {
+    status: {
+      passed: 'bg-green/8 border-green/20',
+      failed: 'bg-red/8 border-red/20',
+      skipped: 'bg-b-2 border-border-color',
+      pending: 'bg-b-1 border-border-color',
+    },
+    hasBody: {
+      true: 'items-start',
+      false: 'items-center',
+    },
   },
-  failed: {
-    bg: 'bg-red/8',
-    border: 'border-red/20',
-    icon: 'bg-red text-white',
+  defaultVariants: {
+    status: 'pending',
+    hasBody: false,
   },
-  skipped: {
-    bg: 'bg-b-2',
-    border: 'border-border-color',
-    icon: 'bg-b-3 text-c-3',
-  },
-  pending: {
-    bg: 'bg-b-1',
-    border: 'border-border-color',
-    icon: 'bg-b-3 text-c-3',
-  },
-}
+})
 
-const hasBody = computed(() => result?.error || failedTests.length > 0)
+const iconVariants = cva({
+  base: 'flex size-5 shrink-0 items-center justify-center rounded-full',
+  variants: {
+    status: {
+      passed: 'bg-green text-white',
+      failed: 'bg-red text-white',
+      skipped: 'bg-b-3 text-c-3',
+      pending: 'bg-b-3 text-c-3',
+    },
+  },
+  defaultVariants: {
+    status: 'pending',
+  },
+})
+
+const hasBody = computed(() => Boolean(result?.error) || failedTests.length > 0)
 </script>
 
 <template>
-  <li
-    class="group flex gap-3 rounded-lg border p-3 transition-colors duration-100"
-    :class="[
-      statusConfig[status].bg,
-      statusConfig[status].border,
-      hasBody ? 'items-start' : 'items-center',
-    ]">
+  <li :class="containerVariants({ status: status, hasBody: hasBody })">
     <!-- Status icon -->
-    <div
-      class="flex size-5 shrink-0 items-center justify-center rounded-full"
-      :class="statusConfig[status].icon">
+    <div :class="iconVariants({ status: status })">
       <ScalarIconCheck
         v-if="status === 'passed'"
         class="size-3" />

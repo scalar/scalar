@@ -172,7 +172,7 @@ const getGroupStats = (entry: TraversedEntry): GroupStats => {
 <template>
   <ul
     class="flex list-none flex-col gap-2 p-0"
-    :class="[disabled && 'pointer-events-none opacity-60']">
+    :class="[disabled && 'pointer-events-none']">
     <template
       v-for="entry in filteredEntries"
       :key="entry.id">

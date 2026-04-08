@@ -1,23 +1,11 @@
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ref } from 'vue'
 
+import { getScript } from '@/helpers/get-script'
 import { type TestResult, executePostResponseScript, executePreRequestScript } from '@/libs/execute-scripts'
 import { TestResults } from '@/plugins/request-scripts/components/TestResults'
 
 import ScriptsSection from './components/ScriptsSection.vue'
-
-/**
- * Concatenates any number of pre/post-request scripts into a single string,
- * trimming empty/undefined values and separating them with newlines.
- *
- * Useful for merging scripts defined at different levels (document, operation, etc.).
- */
-const getScript = (...args: (string | undefined | null)[]): string => {
-  return args
-    .map((script) => script?.trim())
-    .filter((script) => typeof script === 'string' && script.length > 0)
-    .join('\n')
-}
 
 /**
  * Unified request scripts plugin for client V2. Provides a single "Scripts"

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarIconCaretRight } from '@scalar/icons'
+import { cva } from '@scalar/use-hooks/useBindCx'
 import { computed, ref } from 'vue'
 
 const { title, selectedCount, totalCount } = defineProps<{
@@ -14,6 +15,32 @@ const hasSelection = computed(() => selectedCount > 0)
 const isFullySelected = computed(
   () => selectedCount === totalCount && totalCount > 0,
 )
+
+type SelectionState = 'full' | 'partial' | 'none'
+
+const selectionState = computed<SelectionState>(() => {
+  if (isFullySelected.value) {
+    return 'full'
+  }
+  if (hasSelection.value) {
+    return 'partial'
+  }
+  return 'none'
+})
+
+const badgeVariants = cva({
+  base: 'rounded-full px-1.5 py-0.5 text-[0.6rem] font-medium tabular-nums transition-colors duration-100',
+  variants: {
+    selection: {
+      full: 'bg-green/15 text-green',
+      partial: 'bg-accent-color/15 text-accent-color',
+      none: 'bg-b-3 text-c-3',
+    },
+  },
+  defaultVariants: {
+    selection: 'none',
+  },
+})
 
 function toggle(): void {
   isCollapsed.value = !isCollapsed.value
@@ -44,15 +71,7 @@ function toggle(): void {
       </span>
 
       <!-- Counter badge -->
-      <span
-        class="rounded-full px-1.5 py-0.5 text-[0.6rem] font-medium tabular-nums transition-colors duration-100"
-        :class="[
-          isFullySelected
-            ? 'bg-green/15 text-green'
-            : hasSelection
-              ? 'bg-accent-color/15 text-accent-color'
-              : 'bg-b-3 text-c-3',
-        ]">
+      <span :class="badgeVariants({ selection: selectionState })">
         {{ selectedCount }}/{{ totalCount }}
       </span>
     </button>

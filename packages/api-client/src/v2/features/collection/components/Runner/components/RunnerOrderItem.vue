@@ -32,12 +32,13 @@ const emit = defineEmits<{
 <template>
   <div
     class="group after:bg-blue relative flex h-8 items-center rounded-md after:pointer-events-none after:absolute after:inset-x-0 after:block after:rounded after:opacity-0"
-    :class="[
-      isLocked ? 'bg-b-2 cursor-default' : 'bg-b-1 cursor-grab',
-      isDragging && 'opacity-40',
-      isDragBefore && 'after:-top-0.5 after:h-1 after:opacity-100',
-      isDragAfter && 'after:-bottom-0.5 after:h-1 after:opacity-100',
-    ]">
+    :class="{
+      'bg-b-2 cursor-default': isLocked,
+      'bg-b-1 cursor-grab': !isLocked,
+      'opacity-40': isDragging,
+      'after:-top-0.5 after:h-1 after:opacity-100': isDragBefore,
+      'after:-bottom-0.5 after:h-1 after:opacity-100': isDragAfter,
+    }">
     <!-- Drag handle -->
     <div
       v-if="!isLocked"
