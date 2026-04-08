@@ -126,12 +126,13 @@ const shouldCollapse = computed<boolean>(() =>
   <li class="parameter-item group/parameter-item">
     <Disclosure v-slot="{ open }">
       <component
-        :is="shouldCollapse && collapsableItems ? DisclosureButton : 'div'"
+        :is="shouldCollapse ? DisclosureButton : 'div'"
+        v-if="collapsableItems"
         class="parameter-item-trigger"
         :class="{ 'parameter-item-trigger-open': open }">
         <div class="parameter-item-name min-w-0">
           <ScalarIconCaretRight
-            v-if="shouldCollapse && collapsableItems"
+            v-if="shouldCollapse"
             class="parameter-item-icon size-3 transition-transform duration-100"
             :class="{ 'rotate-90': open }"
             weight="bold" />
@@ -142,7 +143,7 @@ const shouldCollapse = computed<boolean>(() =>
           </div>
         </div>
         <ScalarMarkdownSummary
-          v-if="!open && parameter.description && collapsableItems"
+          v-if="!open && parameter.description"
           v-model:truncated="truncated"
           class="parameter-item-description-summary min-w-0 flex-1"
           controlled
@@ -168,7 +169,7 @@ const shouldCollapse = computed<boolean>(() =>
         class="parameter-item-container parameter-item-container-markdown"
         :static="!collapsableItems">
         <ScalarMarkdown
-          v-if="parameter.description"
+          v-if="collapsableItems && parameter.description"
           class="parameter-item-description"
           :value="parameter.description" />
         <!-- Headers -->
@@ -185,9 +186,11 @@ const shouldCollapse = computed<boolean>(() =>
           is="div"
           :breadcrumb="breadcrumb"
           compact
+          :description="collapsableItems ? '' : parameter.description"
           :eventBus="eventBus"
           :hideWriteOnly="true"
           :modelName="schemaModelName"
+          :name="collapsableItems ? '' : name"
           :noncollapsible="true"
           :options="{
             hideWriteOnly: true,
