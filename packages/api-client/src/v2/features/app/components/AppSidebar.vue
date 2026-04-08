@@ -31,6 +31,7 @@ import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebar
 import { Sidebar } from '@/v2/components/sidebar'
 import DownloadAppButton from '@/v2/features/app/components/DownloadAppButton.vue'
 import SidebarItemMenu from '@/v2/features/app/components/SidebarItemMenu.vue'
+import { createTempOperation } from '@/v2/features/app/helpers/create-temp-operation'
 import { dragHandleFactory } from '@/v2/helpers/drag-handle-factory'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -244,19 +245,22 @@ const closeMenu = () => {
   }
 }
 
-/** Opens the command palette with the payload needed to create a request */
+/**
+ * Creates a new operation directly from the empty folder slot.
+ * Uses a unique temporary path to avoid conflicts, then navigates to the operation,
+ * updates the path to `/`, and focuses the address bar so the user can immediately start typing.
+ */
 const handleAddEmptyFolder = (item: TraversedEntry) => {
-  const itemWithParent = sidebarState.getEntryById(item.id)
-  const documentEntry = getParentEntry('document', itemWithParent)
-  const tag = getParentEntry('tag', itemWithParent)
-
-  eventBus.emit('ui:open:command-palette', {
-    action: 'create-request',
-    payload: {
-      documentName: documentEntry?.name,
-      tagId: tag?.name,
-    },
-  })
+  const documentName = getParentEntry('document', item)?.name
+  if (!documentName) {
+    console.error('Document name not found')
+    return
+  }
+  createTempOperation(
+    documentName,
+    new Set(Object.keys(store.workspace.documents[documentName]?.paths ?? {})),
+    eventBus,
+  )
 }
 
 /**
@@ -447,6 +451,7 @@ const navigateToOperationsPage = (item: TraversedOperation) => {
       :item="menuTarget.item"
       :sidebarState="sidebarState"
       :target="menuTarget.el"
+      :workspaceStore="store"
       @closeMenu="closeMenu"
       @showDeleteModal="deleteModalState.show()" />
 

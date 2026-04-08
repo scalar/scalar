@@ -268,6 +268,10 @@ const handleFocusAddressBar = (
 
   addressBarRef.value?.focus('end')
 
+  if (payload && 'clear' in payload && payload.clear) {
+    addressBarRef.value?.setCodeMirrorContent('/')
+  }
+
   if (payload && 'event' in payload) {
     payload.event.preventDefault()
   }
