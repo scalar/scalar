@@ -1,3 +1,4 @@
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 
 import type { Request } from '@/types'
@@ -109,8 +110,9 @@ describe('parameters', () => {
       const result = extractParameters(request, 'default')
 
       expect(result).toHaveLength(1)
-      expect(result[0]?.schema?.type).toBe('string')
-      expect(dereference(result[0]?.examples?.default)?.value).toBe('123')
+      const res = result[0] as OpenAPIV3_1.ParameterWithSchemaObject
+      expect(res?.schema?.type).toBe('string')
+      expect(dereference(res?.examples?.default)?.value).toBe('123')
     })
 
     it('keeps path parameters as strings for empty values', () => {
@@ -130,8 +132,9 @@ describe('parameters', () => {
       const result = extractParameters(request, 'default')
 
       expect(result).toHaveLength(1)
-      expect(result[0]?.schema?.type).toBe('string')
-      expect(dereference(result[0]?.examples?.default)?.value).toBe('')
+      const res = result[0] as OpenAPIV3_1.ParameterWithSchemaObject
+      expect(res?.schema?.type).toBe('string')
+      expect(dereference(res?.examples?.default)?.value).toBe('')
     })
 
     it('extracts path parameters from path array', () => {
