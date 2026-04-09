@@ -375,6 +375,99 @@ describe('buildRequest', () => {
     expect(new URL(request.url).searchParams.get('sort')).toBe('name:asc')
   })
 
+  it('skips security header when disableSecurity is true', () => {
+    const { request } = buildRequest(
+      createFactory({
+        security: [{ in: 'header', name: 'Authorization', format: 'bearer', value: 'my-token' }],
+        options: { disableSecurity: true },
+      }),
+      { envVariables: {} },
+    )
+
+    expect(request.headers.get('Authorization')).toBe(null)
+  })
+
+  it('skips security query params when disableSecurity is true', () => {
+    const { request } = buildRequest(
+      createFactory({
+        security: [{ in: 'query', name: 'api_key', value: 'secret' }],
+        options: { disableSecurity: true },
+      }),
+      { envVariables: {} },
+    )
+
+    expect(new URL(request.url).searchParams.get('api_key')).toBe(null)
+  })
+
+  it('skips security cookies when disableSecurity is true', () => {
+    const { request } = buildRequest(
+      createFactory({
+        security: [{ in: 'cookie', name: 'session', value: 'sid-1' }],
+        options: { disableSecurity: true },
+      }),
+      { envVariables: {} },
+    )
+
+    expect(request.headers.get('Cookie')).toBe(null)
+  })
+
+  it('still applies security when disableSecurity is false', () => {
+    const { request } = buildRequest(
+      createFactory({
+        security: [{ in: 'header', name: 'Authorization', format: 'bearer', value: 'tok' }],
+        options: { disableSecurity: false },
+      }),
+      { envVariables: {} },
+    )
+
+    expect(request.headers.get('Authorization')).toBe('Bearer tok')
+  })
+
+  it('still applies security when options is undefined', () => {
+    const { request } = buildRequest(
+      createFactory({
+        security: [{ in: 'header', name: 'X-Key', value: 'val' }],
+      }),
+      { envVariables: {} },
+    )
+
+    expect(request.headers.get('X-Key')).toBe('val')
+  })
+
+  it('preserves non-security headers when disableSecurity is true', () => {
+    const headers = new Headers()
+    headers.set('X-Custom', 'keep-me')
+
+    const { request } = buildRequest(
+      createFactory({
+        headers,
+        security: [{ in: 'header', name: 'Authorization', format: 'bearer', value: 'drop-me' }],
+        options: { disableSecurity: true },
+      }),
+      { envVariables: {} },
+    )
+
+    expect(request.headers.get('X-Custom')).toBe('keep-me')
+    expect(request.headers.get('Authorization')).toBe(null)
+  })
+
+  it('preserves non-security cookies when disableSecurity is true', () => {
+    const { request } = buildRequest(
+      createFactory({
+        cookies: [{ name: 'app', value: 'keep', domain: 'api.example.com' }],
+        security: [{ in: 'cookie', name: 'auth', value: 'drop' }],
+        options: { disableSecurity: true },
+        baseUrl: 'https://api.example.com',
+        path: { raw: '/', variables: {} },
+      }),
+      { envVariables: {} },
+    )
+
+    const cookie = request.headers.get('Cookie') ?? ''
+    expect(cookie).toContain('app=keep')
+    expect(cookie).not.toContain('auth=drop')
+  })
+
   it('forwards cache mode and uppercases the method on the Request', () => {
     const { request } = buildRequest(
       createFactory({

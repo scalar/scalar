@@ -64,46 +64,48 @@ export const buildRequest = (
   const securityQueryParams = new URLSearchParams()
   const securityCookies: XScalarCookie[] = []
 
-  // Build the request security
-  request.security.forEach((security) => {
-    const name = replaceEnvVariables(security.name, options.envVariables)
+  // Build the request security unless the consumer opted out via disableSecurity
+  if (!request.options?.disableSecurity) {
+    request.security.forEach((security) => {
+      const name = replaceEnvVariables(security.name, options.envVariables)
 
-    // Format the security value based on its authentication scheme.
-    // - For 'basic': prefix with 'Basic' and base64-encode the value (username:password).
-    // - For 'bearer': prefix with 'Bearer'.
-    // - Otherwise: use the substituted value as is (for API keys, etc).
-    const securityValue = (() => {
-      const substitutedValue = replaceEnvVariables(security.value, options.envVariables)
-      if (security.format === 'basic') {
-        return `Basic ${encodeBase64(substitutedValue)}`
+      // Format the security value based on its authentication scheme.
+      // - For 'basic': prefix with 'Basic' and base64-encode the value (username:password).
+      // - For 'bearer': prefix with 'Bearer'.
+      // - Otherwise: use the substituted value as is (for API keys, etc).
+      const securityValue = (() => {
+        const substitutedValue = replaceEnvVariables(security.value, options.envVariables)
+        if (security.format === 'basic') {
+          return `Basic ${encodeBase64(substitutedValue)}`
+        }
+
+        if (security.format === 'bearer') {
+          return `Bearer ${substitutedValue}`
+        }
+
+        return substitutedValue
+      })()
+
+      if (security.in === 'header') {
+        // Set the header (use replaced header name so {{ env }} placeholders work)
+        headers.set(name, securityValue)
+        return
       }
 
-      if (security.format === 'bearer') {
-        return `Bearer ${substitutedValue}`
+      if (security.in === 'query') {
+        securityQueryParams.set(name, securityValue)
+        return
       }
 
-      return substitutedValue
-    })()
-
-    if (security.in === 'header') {
-      // Set the header (use replaced header name so {{ env }} placeholders work)
-      headers.set(name, securityValue)
-      return
-    }
-
-    if (security.in === 'query') {
-      securityQueryParams.set(name, securityValue)
-      return
-    }
-
-    if (security.in === 'cookie') {
-      securityCookies.push({
-        name: name,
-        value: securityValue,
-        isDisabled: false,
-      })
-    }
-  })
+      if (security.in === 'cookie') {
+        securityCookies.push({
+          name: name,
+          value: securityValue,
+          isDisabled: false,
+        })
+      }
+    })
+  }
 
   const requestUrl = resolveRequestFactoryUrl(request, {
     envVariables: options.envVariables,
