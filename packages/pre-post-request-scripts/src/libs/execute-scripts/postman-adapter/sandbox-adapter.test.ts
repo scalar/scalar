@@ -22,7 +22,7 @@ vi.mock('postman-sandbox', () => ({
   },
 }))
 
-import { executeInPostmanSandbox } from './postman-sandbox-adapter'
+import { executeInPostmanSandbox } from './sandbox-adapter'
 
 describe('postman-sandbox-adapter', () => {
   beforeEach(() => {
@@ -42,20 +42,23 @@ describe('postman-sandbox-adapter', () => {
 
     await executeInPostmanSandbox({
       script: 'pm.test("noop", () => {})',
-      response,
-      scriptConsole: {
-        log: vi.fn(),
-        error: vi.fn(),
-        warn: vi.fn(),
-        info: vi.fn(),
-        debug: vi.fn(),
-        trace: vi.fn(),
-        table: vi.fn(),
+      type: 'post-response',
+      context: {
+        response,
+        scriptConsole: {
+          log: vi.fn(),
+          error: vi.fn(),
+          warn: vi.fn(),
+          info: vi.fn(),
+          debug: vi.fn(),
+          trace: vi.fn(),
+          table: vi.fn(),
+        },
       },
     })
 
     expect(sandboxContextMock.execute).toHaveBeenCalledWith(
-      expect.any(Object),
+      expect.objectContaining({ listen: 'test' }),
       expect.objectContaining({
         context: expect.objectContaining({
           response: expect.objectContaining({
@@ -70,14 +73,13 @@ describe('postman-sandbox-adapter', () => {
     )
   })
 
-  it('cleans up sandbox listeners and context when response conversion fails', async () => {
-    const response = new Response('payload', { status: 200 })
-    response.text = () => Promise.reject(new Error('Body already used'))
+  it('uses prerequest listener for pre-request scripts and test listener for post-response', async () => {
+    sandboxContextMock.execute.mockImplementation((_target, _options, callback) => callback(undefined))
 
-    await expect(
-      executeInPostmanSandbox({
-        script: 'pm.test("noop", () => {})',
-        response,
+    await executeInPostmanSandbox({
+      script: 'pm.globals.set("a", "1")',
+      type: 'pre-request',
+      context: {
         scriptConsole: {
           log: vi.fn(),
           error: vi.fn(),
@@ -86,6 +88,62 @@ describe('postman-sandbox-adapter', () => {
           debug: vi.fn(),
           trace: vi.fn(),
           table: vi.fn(),
+        },
+      },
+    })
+
+    expect(sandboxContextMock.execute).toHaveBeenCalledWith(
+      expect.objectContaining({ listen: 'prerequest' }),
+      expect.any(Object),
+      expect.any(Function),
+    )
+
+    vi.clearAllMocks()
+    sandboxContextMock.execute.mockImplementation((_target, _options, callback) => callback(undefined))
+
+    await executeInPostmanSandbox({
+      script: 'pm.test("noop", () => {})',
+      type: 'post-response',
+      context: {
+        response: new Response('{}', { status: 200 }),
+        scriptConsole: {
+          log: vi.fn(),
+          error: vi.fn(),
+          warn: vi.fn(),
+          info: vi.fn(),
+          debug: vi.fn(),
+          trace: vi.fn(),
+          table: vi.fn(),
+        },
+      },
+    })
+
+    expect(sandboxContextMock.execute).toHaveBeenCalledWith(
+      expect.objectContaining({ listen: 'test' }),
+      expect.any(Object),
+      expect.any(Function),
+    )
+  })
+
+  it('cleans up sandbox listeners and context when response conversion fails', async () => {
+    const response = new Response('payload', { status: 200 })
+    response.text = () => Promise.reject(new Error('Body already used'))
+
+    await expect(
+      executeInPostmanSandbox({
+        script: 'pm.test("noop", () => {})',
+        type: 'post-response',
+        context: {
+          response,
+          scriptConsole: {
+            log: vi.fn(),
+            error: vi.fn(),
+            warn: vi.fn(),
+            info: vi.fn(),
+            debug: vi.fn(),
+            trace: vi.fn(),
+            table: vi.fn(),
+          },
         },
       }),
     ).rejects.toThrow('Body already used')

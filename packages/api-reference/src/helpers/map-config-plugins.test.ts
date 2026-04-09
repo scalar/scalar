@@ -1,75 +1,105 @@
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
+import type { RequestFactory } from '@scalar/workspace-store/request-example'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { assert, describe, expect, it, vi } from 'vitest'
 import { type ComputedRef, type Ref, computed, nextTick, ref } from 'vue'
 
 import { mapConfigPlugins } from './map-config-plugins'
 
+const document = {} as never
+const operation = {} as never
+
+const createMockEnvironment = (
+  variables: Array<{ name: string; value: string | { default: string; description: string } }> = [],
+): ComputedRef<XScalarEnvironment> =>
+  computed(() => ({
+    color: '#FFFFFF',
+    variables,
+  }))
+
+const createMockFactory = (overrides: Partial<RequestFactory> = {}): RequestFactory => ({
+  baseUrl: 'https://example.com',
+  path: { variables: {}, raw: '/api/test' },
+  method: 'GET',
+  proxy: { proxyUrl: '' },
+  query: { params: new URLSearchParams() },
+  headers: new Headers(),
+  body: null,
+  cookies: { list: [] },
+  cache: 'default',
+  security: [],
+  ...overrides,
+})
+
+const beforePayload = (requestBuilder: RequestFactory) => ({
+  requestBuilder,
+  document,
+  operation,
+})
+
+const responsePayload = (requestBuilder: RequestFactory, fetchRequest: Request) => ({
+  response: new Response('{"data": "test"}', {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  }),
+  requestBuilder,
+  request: fetchRequest,
+  document,
+  operation: {
+    operationId: 'test-operation',
+    method: 'post',
+    path: '/endpoint',
+  } as any,
+})
+
 describe('mapConfigPlugins', () => {
-  /**
-   * Test 1: Type-safe transformation of onBeforeRequest to beforeRequest hook
-   * Critical because this ensures the request modification pipeline works correctly
-   */
-  it('transforms onBeforeRequest callback into a ClientPlugin with beforeRequest hook that returns modified request', async () => {
-    // Arrange: Create a mock config with onBeforeRequest that modifies the request
-    const mockRequest = new Request('https://example.com/api/test', {
-      method: 'GET',
-      headers: { 'X-Original': 'true' },
+  it('transforms onBeforeRequest callback into a ClientPlugin with beforeRequest hook that mutates request builder', async () => {
+    const mockRequestBuilder = createMockFactory({
+      headers: new Headers({ 'X-Original': 'true' }),
     })
 
-    const modifiedRequest = new Request('https://example.com/api/modified', {
-      method: 'POST',
-      headers: { 'X-Modified': 'true' },
+    const onBeforeRequestMock = vi.fn(({ requestBuilder }: { requestBuilder: RequestFactory }) => {
+      requestBuilder.method = 'POST'
+      requestBuilder.path = { ...requestBuilder.path, raw: '/api/modified' }
+      requestBuilder.headers.set('X-Modified', 'true')
     })
-
-    const onBeforeRequestMock = vi.fn(async () => ({
-      request: modifiedRequest,
-    }))
 
     const config = computed(() => ({
       onBeforeRequest: onBeforeRequestMock as any,
     })) as ComputedRef<ApiReferenceConfigurationRaw>
 
-    // Act: Map the config to plugins
-    const plugins: ClientPlugin[] = mapConfigPlugins(config)
+    const plugins: ClientPlugin[] = mapConfigPlugins(config, createMockEnvironment())
 
-    // Assert: Verify plugin structure and behavior
     expect(plugins).toHaveLength(1)
     expect(plugins[0]).toHaveProperty('hooks')
     expect(plugins[0]?.hooks).toHaveProperty('beforeRequest')
 
-    // Type-safe assertion: beforeRequest hook exists and is callable
     const beforeRequestHook = plugins[0]?.hooks?.beforeRequest
     expect(beforeRequestHook).toBeDefined()
 
     if (beforeRequestHook) {
-      const result = await beforeRequestHook({ request: mockRequest })
+      const input = beforePayload(mockRequestBuilder)
+      await beforeRequestHook(input)
 
-      // Verify the original callback was called with correct payload
       expect(onBeforeRequestMock).toHaveBeenCalledTimes(1)
-      expect(onBeforeRequestMock).toHaveBeenCalledWith({ request: mockRequest })
+      expect(onBeforeRequestMock).toHaveBeenCalledWith({
+        request: expect.any(Request),
+        requestBuilder: mockRequestBuilder,
+      })
 
-      // Verify the modified request is returned
-      expect(result).toEqual({ request: modifiedRequest })
-      expect(result?.request.url).toBe('https://example.com/api/modified')
-      expect(result?.request.method).toBe('POST')
+      expect(mockRequestBuilder.method).toBe('POST')
+      expect(mockRequestBuilder.path.raw).toBe('/api/modified')
+      expect(mockRequestBuilder.headers.get('X-Modified')).toBe('true')
     }
   })
 
-  /**
-   * Test 2: Type-safe handling of void return from onBeforeRequest
-   * Critical because onBeforeRequest can return void, and we must handle this edge case
-   * to prevent breaking the request pipeline
-   */
   it('handles void return from onBeforeRequest by returning original payload', async () => {
-    // Arrange: Create a mock config with onBeforeRequest that returns void
-    const mockRequest = new Request('https://example.com/api/test', {
-      method: 'GET',
-      headers: { 'X-Test': 'true' },
+    const mockRequestBuilder = createMockFactory({
+      headers: new Headers({ 'X-Test': 'true' }),
     })
 
     const onBeforeRequestMock = vi.fn(async () => {
-      // Simulate side-effect only callback (e.g., logging)
       await Promise.resolve()
       console.log('Request intercepted')
     })
@@ -78,41 +108,26 @@ describe('mapConfigPlugins', () => {
       onBeforeRequest: onBeforeRequestMock as any,
     })) as ComputedRef<ApiReferenceConfigurationRaw>
 
-    // Act: Map the config to plugins
-    const plugins: ClientPlugin[] = mapConfigPlugins(config)
+    const plugins: ClientPlugin[] = mapConfigPlugins(config, createMockEnvironment())
 
-    // Assert: Verify the hook returns the original payload when callback returns void
     const beforeRequestHook = plugins[0]?.hooks?.beforeRequest
     expect(beforeRequestHook).toBeDefined()
 
     if (beforeRequestHook) {
-      const result = await beforeRequestHook({ request: mockRequest })
+      const input = beforePayload(mockRequestBuilder)
+      await beforeRequestHook(input)
 
-      // Verify the original callback was called
       expect(onBeforeRequestMock).toHaveBeenCalledTimes(1)
-
-      // Critical assertion: original payload is returned when callback returns void
-      expect(result).toEqual({ request: mockRequest })
-      expect(result?.request).toBe(mockRequest)
-      expect(result?.request.url).toBe('https://example.com/api/test')
+      expect(input.requestBuilder).toBe(mockRequestBuilder)
     }
   })
 
-  /**
-   * Test 3: Type-safe transformation of onRequestSent to responseReceived hook
-   * Critical because this ensures the response handling pipeline works correctly
-   * and that the payload transformation (full response object to URL string) is correct
-   */
   it('transforms onRequestSent callback into a ClientPlugin with responseReceived hook that extracts request URL', async () => {
-    // Arrange: Create a mock config with onRequestSent
-    const mockRequest = new Request('https://example.com/api/endpoint', {
+    const requestBuilder = createMockFactory({
+      path: { variables: {}, raw: '/api/endpoint' },
       method: 'POST',
     })
-
-    const mockResponse = new Response('{"data": "test"}', {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    const fetchRequest = new Request('https://example.com/api/endpoint', { method: 'POST' })
 
     const onRequestSentMock = vi.fn()
 
@@ -120,31 +135,17 @@ describe('mapConfigPlugins', () => {
       onRequestSent: onRequestSentMock as any,
     })) as ComputedRef<ApiReferenceConfigurationRaw>
 
-    // Act: Map the config to plugins
-    const plugins: ClientPlugin[] = mapConfigPlugins(config)
+    const plugins: ClientPlugin[] = mapConfigPlugins(config, createMockEnvironment())
 
-    // Assert: Verify plugin structure and behavior
     expect(plugins).toHaveLength(1)
-    expect(plugins[0]).toHaveProperty('hooks')
     expect(plugins[0]?.hooks).toHaveProperty('responseReceived')
 
-    // Type-safe assertion: responseReceived hook exists and is callable
     const responseReceivedHook = plugins[0]?.hooks?.responseReceived
     expect(responseReceivedHook).toBeDefined()
 
     if (responseReceivedHook) {
-      // Call the hook with the full payload structure
-      await responseReceivedHook({
-        response: mockResponse,
-        request: mockRequest,
-        operation: {
-          operationId: 'test-operation',
-          method: 'post',
-          path: '/endpoint',
-        } as any,
-      })
+      await responseReceivedHook(responsePayload(requestBuilder, fetchRequest))
 
-      // Critical assertion: verify only the URL is passed to the original callback
       expect(onRequestSentMock).toHaveBeenCalledTimes(1)
       expect(onRequestSentMock).toHaveBeenCalledWith('https://example.com/api/endpoint')
     }
@@ -153,81 +154,83 @@ describe('mapConfigPlugins', () => {
   it('updates beforeRequest hook when onBeforeRequest callback changes in config', async () => {
     const fn = vi.fn()
 
-    const firstCallback = (it: any) => {
+    const firstCallback = () => {
       fn('first')
-      return it
     }
 
-    const secondCallback = (it: any) => {
+    const secondCallback = () => {
       fn('second')
-      return it
     }
 
     const config = ref({
       onBeforeRequest: firstCallback,
-    }) as Ref<ApiReferenceConfigurationRaw>
+    }) as unknown as Ref<ApiReferenceConfigurationRaw>
 
-    // Act: Map the config to plugins
-    const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value))
+    const plugins: ClientPlugin[] = mapConfigPlugins(
+      computed(() => config.value),
+      createMockEnvironment(),
+    )
 
-    // Assert: Initial callback works
     const hooks = plugins[0]?.hooks
     assert(hooks)
-
     assert(hooks.beforeRequest)
 
-    await hooks.beforeRequest({ request: new Request('https://example.com/api/test', { method: 'GET' }) })
+    await hooks.beforeRequest(beforePayload(createMockFactory()))
     expect(fn).toHaveBeenCalledTimes(1)
 
-    // Act: Change the config to use a different callback
     config.value.onBeforeRequest = secondCallback
     await nextTick()
 
-    // Assert: New callback is now being used, old callback is not called again
-    await hooks.beforeRequest({ request: new Request('https://example.com/api/test', { method: 'GET' }) })
+    await hooks.beforeRequest(beforePayload(createMockFactory()))
     expect(fn).toHaveBeenCalledTimes(2)
     expect(fn).toHaveBeenNthCalledWith(1, 'first')
     expect(fn).toHaveBeenNthCalledWith(2, 'second')
   })
 
   it('updates responseReceived hook when onRequestSent callback changes in config', async () => {
-    const mockRequest = new Request('https://example.com/api/test', { method: 'GET' })
-    const mockResponse = new Response('{"data": "test"}', { status: 200 })
+    const requestBuilder = createMockFactory()
+    const fetchRequest = new Request('https://example.com/api/test', { method: 'GET' })
     const mockOperation = { operationId: 'test-operation', method: 'get', path: '/test' } as any
     const fn = vi.fn()
 
-    const firstCallback = (it: any) => {
+    const firstCallback = (url: string) => {
       fn('first')
-      return it
+      void url
     }
 
-    const secondCallback = (it: any) => {
+    const secondCallback = (url: string) => {
       fn('second')
-      return it
+      void url
     }
 
     const config = ref({
       onRequestSent: firstCallback,
-    }) as Ref<ApiReferenceConfigurationRaw>
+    }) as unknown as Ref<ApiReferenceConfigurationRaw>
 
-    // Act: Map the config to plugins
-    const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value))
+    const plugins: ClientPlugin[] = mapConfigPlugins(
+      computed(() => config.value),
+      createMockEnvironment(),
+    )
 
-    // Assert: Initial callback works
     const hooks = plugins[0]?.hooks
     assert(hooks)
-
     assert(hooks.responseReceived)
 
-    await hooks.responseReceived({ response: mockResponse, request: mockRequest, operation: mockOperation })
+    const payload = {
+      response: new Response('{"data": "test"}', { status: 200 }),
+      requestBuilder,
+      request: fetchRequest,
+      document,
+      operation: mockOperation,
+    }
+
+    await hooks.responseReceived(payload)
     expect(fn).toHaveBeenCalledTimes(1)
 
-    // Act: Change the config to use a different callback
     config.value.onRequestSent = secondCallback
     await nextTick()
 
-    // Assert: New callback is now being used, old callback is not called again
-    await hooks.responseReceived({ response: mockResponse, request: mockRequest, operation: mockOperation })
+    await hooks.responseReceived(payload)
     expect(fn).toHaveBeenCalledTimes(2)
     expect(fn).toHaveBeenNthCalledWith(1, 'first')
     expect(fn).toHaveBeenNthCalledWith(2, 'second')
@@ -236,66 +239,215 @@ describe('mapConfigPlugins', () => {
   it('adds hooks when callbacks are added to an initially empty config', async () => {
     const fn = vi.fn()
 
-    const firstCallback = (it: any) => {
+    const firstCallback = () => {
       fn('first')
-      return it
     }
 
-    const config = ref({}) as Ref<ApiReferenceConfigurationRaw>
+    const config = ref({}) as unknown as Ref<ApiReferenceConfigurationRaw>
 
-    // Act: Map the config to plugins
-    const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value))
+    const plugins: ClientPlugin[] = mapConfigPlugins(
+      computed(() => config.value),
+      createMockEnvironment(),
+    )
 
-    // Assert: Initial callback works
     const hooks = plugins[0]?.hooks
     assert(hooks)
 
     expect(hooks.beforeRequest).toBeUndefined()
 
-    // Act: Change the config to use a different callback
     config.value.onBeforeRequest = firstCallback
     await nextTick()
 
-    // Assert: New callback is now being used, old callback is not called again
-    await hooks.beforeRequest?.({ request: new Request('https://example.com/api/test', { method: 'GET' }) })
+    await hooks.beforeRequest?.(beforePayload(createMockFactory()))
     expect(fn).toHaveBeenCalledTimes(1)
     expect(fn).toHaveBeenNthCalledWith(1, 'first')
   })
 
-  /**
-   * Test 8: Reactivity - hooks continue to work when config changes from having callbacks to not having any
-   * Critical because this ensures the watch mechanism gracefully handles callback removal
-   * and that hooks do not become undefined
-   */
   it('removes hooks when callbacks are removed from config', async () => {
     const fn = vi.fn()
 
-    const firstCallback = (it: any) => {
+    const firstCallback = () => {
       fn('first')
-      return it
     }
 
     const config = ref({
       onBeforeRequest: firstCallback,
-    }) as Ref<ApiReferenceConfigurationRaw>
+    }) as unknown as Ref<ApiReferenceConfigurationRaw>
 
-    // Act: Map the config to plugins
-    const plugins: ClientPlugin[] = mapConfigPlugins(computed(() => config.value))
+    const plugins: ClientPlugin[] = mapConfigPlugins(
+      computed(() => config.value),
+      createMockEnvironment(),
+    )
 
-    // Assert: Initial callback works
     const hooks = plugins[0]?.hooks
     assert(hooks)
-
     assert(hooks.beforeRequest)
 
-    await hooks.beforeRequest?.({ request: new Request('https://example.com/api/test', { method: 'GET' }) })
+    await hooks.beforeRequest?.(beforePayload(createMockFactory()))
     expect(fn).toHaveBeenCalledTimes(1)
     expect(fn).toHaveBeenNthCalledWith(1, 'first')
 
-    // Act: Change the config to use a different callback
     config.value.onBeforeRequest = undefined
     await nextTick()
 
     expect(hooks.beforeRequest).toBeUndefined()
+  })
+
+  it('substitutes environment variables in request headers when building request', async () => {
+    const mockRequestBuilder = createMockFactory({
+      headers: new Headers({ Authorization: 'Bearer {{API_TOKEN}}' }),
+    })
+
+    const environment = createMockEnvironment([{ name: 'API_TOKEN', value: 'secret-token-123' }])
+
+    let capturedRequest: Request | undefined
+
+    const onBeforeRequestMock = vi.fn(({ request }: { request: Request }) => {
+      capturedRequest = request
+    })
+
+    const config = computed(() => ({
+      onBeforeRequest: onBeforeRequestMock as any,
+    })) as ComputedRef<ApiReferenceConfigurationRaw>
+
+    const plugins: ClientPlugin[] = mapConfigPlugins(config, environment)
+
+    const beforeRequestHook = plugins[0]?.hooks?.beforeRequest
+    assert(beforeRequestHook)
+
+    await beforeRequestHook(beforePayload(mockRequestBuilder))
+
+    expect(onBeforeRequestMock).toHaveBeenCalledTimes(1)
+    assert(capturedRequest)
+    expect(capturedRequest.headers.get('Authorization')).toBe('Bearer secret-token-123')
+  })
+
+  it('substitutes multiple environment variables in request', async () => {
+    const mockRequestBuilder = createMockFactory({
+      baseUrl: '{{BASE_URL}}',
+      path: { variables: { version: '{{API_VERSION}}' }, raw: '/{version}/users' },
+      headers: new Headers({
+        'X-Api-Key': '{{API_KEY}}',
+        'X-Custom': '{{CUSTOM_HEADER}}',
+      }),
+    })
+
+    const environment = createMockEnvironment([
+      { name: 'BASE_URL', value: 'https://api.example.com' },
+      { name: 'API_VERSION', value: 'v2' },
+      { name: 'API_KEY', value: 'my-api-key' },
+      { name: 'CUSTOM_HEADER', value: 'custom-value' },
+    ])
+
+    let capturedRequest: Request | undefined
+
+    const onBeforeRequestMock = vi.fn(({ request }: { request: Request }) => {
+      capturedRequest = request
+    })
+
+    const config = computed(() => ({
+      onBeforeRequest: onBeforeRequestMock as any,
+    })) as ComputedRef<ApiReferenceConfigurationRaw>
+
+    const plugins: ClientPlugin[] = mapConfigPlugins(config, environment)
+
+    const beforeRequestHook = plugins[0]?.hooks?.beforeRequest
+    assert(beforeRequestHook)
+
+    await beforeRequestHook(beforePayload(mockRequestBuilder))
+
+    assert(capturedRequest)
+    expect(capturedRequest.url).toBe('https://api.example.com/v2/users')
+    expect(capturedRequest.headers.get('X-Api-Key')).toBe('my-api-key')
+    expect(capturedRequest.headers.get('X-Custom')).toBe('custom-value')
+  })
+
+  it('leaves unmatched environment variable placeholders unchanged', async () => {
+    const mockRequestBuilder = createMockFactory({
+      headers: new Headers({ 'X-Token': '{{UNDEFINED_VAR}}' }),
+    })
+
+    const environment = createMockEnvironment([{ name: 'OTHER_VAR', value: 'some-value' }])
+
+    let capturedRequest: Request | undefined
+
+    const onBeforeRequestMock = vi.fn(({ request }: { request: Request }) => {
+      capturedRequest = request
+    })
+
+    const config = computed(() => ({
+      onBeforeRequest: onBeforeRequestMock as any,
+    })) as ComputedRef<ApiReferenceConfigurationRaw>
+
+    const plugins: ClientPlugin[] = mapConfigPlugins(config, environment)
+
+    const beforeRequestHook = plugins[0]?.hooks?.beforeRequest
+    assert(beforeRequestHook)
+
+    await beforeRequestHook(beforePayload(mockRequestBuilder))
+
+    assert(capturedRequest)
+    expect(capturedRequest.headers.get('X-Token')).toBe('{{UNDEFINED_VAR}}')
+  })
+
+  it('handles environment variables with default values in object format', async () => {
+    const mockRequestBuilder = createMockFactory({
+      headers: new Headers({ 'X-Env': '{{ENV_WITH_DEFAULT}}' }),
+    })
+
+    const environment = createMockEnvironment([
+      {
+        name: 'ENV_WITH_DEFAULT',
+        value: { default: 'default-value', description: 'A variable with default' },
+      },
+    ])
+
+    let capturedRequest: Request | undefined
+
+    const onBeforeRequestMock = vi.fn(({ request }: { request: Request }) => {
+      capturedRequest = request
+    })
+
+    const config = computed(() => ({
+      onBeforeRequest: onBeforeRequestMock as any,
+    })) as ComputedRef<ApiReferenceConfigurationRaw>
+
+    const plugins: ClientPlugin[] = mapConfigPlugins(config, environment)
+
+    const beforeRequestHook = plugins[0]?.hooks?.beforeRequest
+    assert(beforeRequestHook)
+
+    await beforeRequestHook(beforePayload(mockRequestBuilder))
+
+    assert(capturedRequest)
+    expect(capturedRequest.headers.get('X-Env')).toBe('default-value')
+  })
+
+  it('works with empty environment variables array', async () => {
+    const mockRequestBuilder = createMockFactory({
+      headers: new Headers({ 'X-Static': 'static-value' }),
+    })
+
+    const environment = createMockEnvironment([])
+
+    let capturedRequest: Request | undefined
+
+    const onBeforeRequestMock = vi.fn(({ request }: { request: Request }) => {
+      capturedRequest = request
+    })
+
+    const config = computed(() => ({
+      onBeforeRequest: onBeforeRequestMock as any,
+    })) as ComputedRef<ApiReferenceConfigurationRaw>
+
+    const plugins: ClientPlugin[] = mapConfigPlugins(config, environment)
+
+    const beforeRequestHook = plugins[0]?.hooks?.beforeRequest
+    assert(beforeRequestHook)
+
+    await beforeRequestHook(beforePayload(mockRequestBuilder))
+
+    assert(capturedRequest)
+    expect(capturedRequest.headers.get('X-Static')).toBe('static-value')
   })
 })

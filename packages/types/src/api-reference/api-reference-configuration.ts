@@ -142,10 +142,10 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     .optional() as z.ZodType<(() => Promise<void> | void) | undefined>,
   /** Callback fired when the reference is fully loaded */
   onLoaded: z.function().optional() as z.ZodType<((slug: string) => Promise<void> | void) | undefined>,
-  /** onBeforeRequest is fired before the request is sent. You can modify the request here. */
+  /** Fired before the outbound request is built; callback receives a mutable request builder (RequestFactory). Experimental API. */
   onBeforeRequest: z
     .function({
-      input: [z.object({ request: z.instanceof(Request) })],
+      input: [z.object({ request: z.instanceof(Request), requestBuilder: z.unknown() })],
       // Why no output? https://github.com/scalar/scalar/pull/7047
       // output: z.union([z.void(), z.promise(z.void())]),
     })
@@ -398,6 +398,27 @@ export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
    * Use the type `ApiReferenceConfigurationWithSource` instead.
    */
   content?: SourceConfiguration['content']
+  /**
+   * Fired before the outbound request is built and sent. Mutate the **request builder** so the eventual fetch call
+   * reflects your changes (method, path, headers, body, and related fields).
+   *
+   * **Experimental:** The builder matches {@link https://github.com/scalar/scalar/blob/main/packages/workspace-store/src/request-example/builder/request-factory.ts RequestFactory}
+   * (`import type { RequestFactory } from '@scalar/workspace-store/request-example'`). That shape is still experimental and may change in minor releases.
+   *
+   * @param input - Hook argument from the integration layer.
+   * @param input.request - **Deprecated** when treated as a fetch API `Request`. Prefer thinking of this value as the
+   * mutable builder ({@link https://github.com/scalar/scalar/blob/main/packages/workspace-store/src/request-example/builder/request-factory.ts RequestFactory}).
+   * Some call sites only pass this property.
+   * @param input.requestBuilder - The same builder when exposed under this name; **prefer** mutating this when your integration provides it.
+   * @returns void or a promise that resolves when the hook finishes
+   * @example
+   * ```ts
+   * onBeforeRequest: ({ request: builder }) => {
+   *   builder.headers.set('Authorization', 'Bearer <token>')
+   * }
+   * ```
+   */
+  onBeforeRequest?: (input: { request: Request; requestBuilder: any }) => void | Promise<void> | undefined
 }
 
 /** Migrate the configuration through a transform */

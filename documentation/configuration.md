@@ -1292,17 +1292,18 @@ Callback functions that are triggered by user interactions and system events.
 
 #### onBeforeRequest
 
-**Type:** `({ request: Request }) => void | Promise<void>`
+**Type:** `({ request: Request; requestBuilder: RequestFactory }) => void | Promise<void>`
 
-Callback function that is fired before a request is sent through the API client.
+Callback fired before the outbound request is sent from the embedded API client. Mutate **`requestBuilder`** to change method, path, query, headers, body, and related fields. The [`RequestFactory`](https://github.com/scalar/scalar/blob/main/packages/workspace-store/src/request-example/builder/request-factory.ts) shape is available to TypeScript users as `import type { RequestFactory } from '@scalar/workspace-store/request-example'`.
 
-The function receives the request object and can be used to modify the request before it is sent.
+> **Experimental:** `RequestFactory` may change in minor releases; treat its fields as unstable until the API stabilizes.
+
+**`request`** is a fetch API [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) built from the builder for backward compatibility. Using it as the primary way to customize outbound traffic is **deprecated**; prefer **`requestBuilder`**. The API Reference passes both `request` and `requestBuilder` to this callback.
 
 ```javascript
 {
-  onBeforeRequest: ({ request }) => {
-    // Add a custom header to all requests
-    request.headers.set('X-Custom-Header', 'test')
+  onBeforeRequest: ({ requestBuilder }) => {
+    requestBuilder.headers.set('X-Custom-Header', 'test')
   }
 }
 ```

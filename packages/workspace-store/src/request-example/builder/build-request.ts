@@ -1,11 +1,11 @@
-import { replaceEnvVariables, replacePathVariables } from '@scalar/helpers/regex/replace-variables'
-import { mergeUrls } from '@scalar/helpers/url/merge-urls'
+import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { redirectToProxy, shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { encode as encodeBase64 } from 'js-base64'
 
 import { buildRequestCookieHeader } from '@/request-example/builder/header/build-request-cookie-header'
 import { applyAllowReservedToUrl } from '@/request-example/builder/helpers/apply-allow-reserved-to-url'
 import type { RequestFactory } from '@/request-example/builder/request-factory'
+import { resolveRequestFactoryUrl } from '@/request-example/builder/resolve-request-factory-url'
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
 
 export const buildRequest = (
@@ -102,46 +102,13 @@ export const buildRequest = (
         value: securityValue,
         isDisabled: false,
       })
-      return
     }
   })
 
-  const requestUrl = (() => {
-    // construct replaced path variables
-    const pathVariables = Object.fromEntries(
-      Object.entries(request.path.variables).map(([key, value]) => [
-        key,
-        encodeURIComponent(replaceEnvVariables(value, options.envVariables)),
-      ]),
-    )
-
-    const baseUrl = replaceEnvVariables(request.baseUrl, options.envVariables)
-    const path = replacePathVariables(request.path.raw, pathVariables)
-
-    const mergedUrl = mergeUrls(baseUrl, path)
-
-    const urlBase = globalThis.window?.location?.origin ?? 'http://localhost:3000'
-
-    // Replace the path variables with the environment variables and server variables
-    const url = new URL(mergedUrl, urlBase)
-
-    // Merge security query params
-    for (const [key, value] of securityQueryParams.entries()) {
-      url.searchParams.set(
-        replaceEnvVariables(key, options.envVariables),
-        replaceEnvVariables(value, options.envVariables),
-      )
-    }
-
-    // Replace the query params with the environment variables
-    for (const [key, value] of request.query.entries()) {
-      url.searchParams.set(
-        replaceEnvVariables(key, options.envVariables),
-        replaceEnvVariables(value, options.envVariables),
-      )
-    }
-    return url.toString()
-  })()
+  const requestUrl = resolveRequestFactoryUrl(request, {
+    envVariables: options.envVariables,
+    securityQueryParams: securityQueryParams,
+  })
 
   const isUsingProxy = shouldUseProxy(request.proxyUrl, requestUrl)
 
