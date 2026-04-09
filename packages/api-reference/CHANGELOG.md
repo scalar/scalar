@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 1.52.0
+
+### Minor Changes
+
+- [#8750](https://github.com/scalar/scalar/pull/8750): feat: display model name for body section
+- [#8695](https://github.com/scalar/scalar/pull/8695): feat: suport pre/post request scripts
+
+### Patch Changes
+
+- [#8431](https://github.com/scalar/scalar/pull/8431): fix: SSR breaks
+- [#8431](https://github.com/scalar/scalar/pull/8431): fix(api-reference): avoid duplicate app creation during hydration
+- [#8747](https://github.com/scalar/scalar/pull/8747): fix: extract request body from all content types in search index
+
 ## 1.51.0
 
 ### Minor Changes

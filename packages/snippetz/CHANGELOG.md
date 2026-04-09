@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.8.0
+
+### Minor Changes
+
+- [#8748](https://github.com/scalar/scalar/pull/8748): feat: support `allowReserved` for code samples
+
 ## 0.7.8
 
 ### Patch Changes

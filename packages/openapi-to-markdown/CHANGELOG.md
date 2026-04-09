@@ -1,5 +1,11 @@
 # @scalar/openapi-to-markdown
 
+## 0.5.2
+
+### Patch Changes
+
+- [#8757](https://github.com/scalar/scalar/pull/8757): fix: circular references cause max call stack exceeded
+
 ## 0.5.1
 
 ## 0.5.0
