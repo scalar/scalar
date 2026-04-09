@@ -179,12 +179,6 @@ export const ROUTES = [
                 path: 'cookies',
                 component: Cookies,
               },
-              // Document settings
-              {
-                name: 'document.settings',
-                path: 'settings',
-                component: Settings,
-              },
               // Document scripts (pre-request / post-response)
               {
                 name: 'document.scripts',
@@ -196,6 +190,18 @@ export const ROUTES = [
                 name: 'document.runner',
                 path: 'runner',
                 component: Runner,
+              },
+              // Document scripts (pre-request / post-response)
+              {
+                name: 'document.scripts',
+                path: 'scripts',
+                component: () => import('@/v2/features/collection/components/Scripts.vue'),
+              },
+              // Document settings
+              {
+                name: 'document.settings',
+                path: 'settings',
+                component: Settings,
               },
             ],
           },
