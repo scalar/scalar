@@ -3,6 +3,7 @@ import type { AuthMeta, WorkspaceEventBus } from '@scalar/workspace-store/events
 import { buildRequest, requestFactory } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -212,6 +213,7 @@ const createDefaultProps = (): OperationBlockProps => ({
   serverMeta: {
     type: 'document',
   },
+  document: {} as OpenApiDocument,
 })
 
 describe('OperationBlock', () => {

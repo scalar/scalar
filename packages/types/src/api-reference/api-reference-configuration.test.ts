@@ -361,7 +361,7 @@ describe('api-reference-configuration', () => {
       } satisfies Partial<ApiReferenceConfiguration>
       const migratedConfig = apiReferenceConfigurationSchema.parse(config)
 
-      expect(migratedConfig.onBeforeRequest?.({ request: new Request('http://example.org') })).toBeInstanceOf(Promise)
+      expect(migratedConfig.onBeforeRequest?.({ request: new Request('https://example.com') })).toBeInstanceOf(Promise)
     })
 
     it('allows a function as onShowMore', () => {

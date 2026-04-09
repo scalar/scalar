@@ -1,8 +1,12 @@
-import type { SandboxContext } from 'postman-sandbox'
+import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
+import type { ExecutionResult, SandboxContext } from 'postman-sandbox'
 import Sandbox from 'postman-sandbox'
 
-import type { ConsoleContext } from './context/console'
-import type { TestResult } from './execute-post-response-script'
+import { buildSandboxContextFromStore } from '../build-sandbox-context'
+import type { ConsoleContext } from '../context/console'
+import type { TestResult } from '../execute-post-response-script'
+import { toVariableEntries } from '../variables-store'
+import { createPostmanRequestFromFactory, syncPlainPostmanRequestToRequestFactory } from './request-factory-adapter'
 
 type AssertionEvent = {
   name: string
@@ -69,15 +73,21 @@ const upsertTestResult = (testResults: TestResult[], assertion: AssertionEvent, 
 
 export const executeInPostmanSandbox = async ({
   script,
-  response,
+  type,
+  context: { requestBuilder, response, variablesStore, scriptConsole },
   onTestResultsUpdate,
-  scriptConsole,
 }: {
   script: string
-  response: Response
+  type: 'pre-request' | 'post-response'
+  context: {
+    /** Postman Collection request for `pm.request` (not the browser Fetch API Request). */
+    requestBuilder?: RequestFactory
+    response?: Response
+    variablesStore?: VariablesStore
+    scriptConsole: ConsoleContext
+  }
   onTestResultsUpdate?: ((results: TestResult[]) => void) | undefined
-  scriptConsole: ConsoleContext
-}): Promise<void> => {
+}): Promise<VariablesStore | undefined> => {
   const testResults: TestResult[] = []
   let lastAssertionTime = 0
   let scriptExecutionStartedAt = 0
@@ -92,6 +102,8 @@ export const executeInPostmanSandbox = async ({
     onTestResultsUpdate?.([...testResults])
   }
 
+  const variablesContext = variablesStore ? buildSandboxContextFromStore(variablesStore) : undefined
+
   const handleConsole = (_cursor: unknown, level: keyof ConsoleContext, ...args: unknown[]) => {
     const consoleMethod = scriptConsole[level] ?? scriptConsole.log
     ;(consoleMethod as (...params: unknown[]) => void)(...args)
@@ -101,31 +113,73 @@ export const executeInPostmanSandbox = async ({
     sandboxContext.on('execution.assertion', handleAssertion)
     sandboxContext.on('console', handleConsole)
 
-    const postmanResponse = await toPostmanResponse(response)
+    const postmanRequest = requestBuilder ? createPostmanRequestFromFactory(requestBuilder) : undefined
+    const postmanResponse = response ? await toPostmanResponse(response) : undefined
 
     scriptExecutionStartedAt = performance.now()
     lastAssertionTime = scriptExecutionStartedAt
 
+    /**
+     * Lodash `_.has(context, 'response')` is true even when the value is `undefined`,
+     * which makes the sandbox run `new Response(undefined)` and breaks `pm.request`.
+     * Only set keys that are actually present.
+     */
+    const context: Record<string, unknown> = {
+      ...(variablesContext ?? {}),
+    }
+
+    // We need to pass the postman request to the sandbox so it can be mutated by the script.
+    if (postmanRequest !== undefined) {
+      context.request = postmanRequest
+    }
+    // We need to pass the postman response to the sandbox so it can be used by the script.
+    if (postmanResponse !== undefined) {
+      context.response = postmanResponse
+    }
+
+    /** Pre-request scripts must use the prerequest listener so pm.globals / pm.environment / collection mutations appear on ExecutionResult. */
+    const listen = type === 'pre-request' ? 'prerequest' : 'test'
+
     await new Promise<void>((resolve) => {
       sandboxContext.execute(
         {
-          listen: 'test',
+          listen,
           script: {
             exec: [script],
           },
         },
         {
           disableLegacyAPIs: true,
-          context: {
-            response: postmanResponse,
-          },
+          context,
         },
-        (error: unknown) => {
+        (error: unknown, execution?: ExecutionResult) => {
+          if (variablesStore && execution) {
+            if (execution._variables?.values) {
+              const localVariables = toVariableEntries(execution._variables.values)
+              variablesStore.setLocalVariables(localVariables)
+            }
+            if (execution.collectionVariables?.values) {
+              const collectionVariables = toVariableEntries(execution.collectionVariables.values)
+              variablesStore.setCollectionVariables?.(collectionVariables)
+            }
+            if (execution.globals?.values) {
+              const globals = toVariableEntries(execution.globals.values)
+              variablesStore.setGlobals?.(globals)
+            }
+            if (execution.environment?.values) {
+              const environmentVariables = toVariableEntries(execution.environment.values)
+              variablesStore.setEnvironment?.(environmentVariables)
+            }
+          }
+
+          if (!error && type === 'pre-request' && requestBuilder && execution?.request !== undefined) {
+            syncPlainPostmanRequestToRequestFactory(execution.request, requestBuilder)
+          }
           if (error) {
             const duration = Number((performance.now() - scriptExecutionStartedAt).toFixed(2))
             const errorMessage = toErrorMessage(error)
 
-            scriptConsole.error(`[Post-Response Script] Error (${duration}ms):`, errorMessage)
+            scriptConsole.error(`[${type.toUpperCase()} Script] Error (${duration}ms):`, errorMessage)
 
             testResults.push({
               title: 'Script Execution',
@@ -146,4 +200,6 @@ export const executeInPostmanSandbox = async ({
     sandboxContext.off('console', handleConsole)
     sandboxContext.dispose()
   }
+
+  return variablesStore
 }

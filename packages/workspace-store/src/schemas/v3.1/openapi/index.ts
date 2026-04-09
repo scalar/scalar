@@ -26,13 +26,14 @@ import { XScalarSdkInstallation } from '@/schemas/extensions/document/x-scalar-s
 import { XScalarWatchMode } from '@/schemas/extensions/document/x-scalar-watch-mode'
 import { XTags } from '@/schemas/extensions/document/x-tags'
 import { XDisabled } from '@/schemas/extensions/example/x-disabled'
+import { XPostResponse } from '@/schemas/extensions/general/x-post-response'
+import { XPreRequest } from '@/schemas/extensions/general/x-pre-request'
 import { XScalarActiveEnvironment } from '@/schemas/extensions/general/x-scalar-active-environment'
 import { XScalarCookies } from '@/schemas/extensions/general/x-scalar-cookies'
 import { XScalarOrder } from '@/schemas/extensions/general/x-scalar-order'
 import { XBadges } from '@/schemas/extensions/operation/x-badge'
 import { XCodeSamples } from '@/schemas/extensions/operation/x-code-samples'
 import { XDraftExamples } from '@/schemas/extensions/operation/x-draft-examples'
-import { XPostResponse } from '@/schemas/extensions/operation/x-post-response'
 import { XScalarDisableParameters } from '@/schemas/extensions/operation/x-scalar-disable-parameters'
 import { XScalarSelectedContentType } from '@/schemas/extensions/operation/x-scalar-selected-content-type'
 import { XScalarStability } from '@/schemas/extensions/operation/x-scalar-stability'
@@ -957,6 +958,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     XScalarStability,
     XScalarDisableParameters,
     XPostResponse,
+    XPreRequest,
     XDraftExamples,
     XScalarSelectedServer,
   ])
@@ -1082,6 +1084,8 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
       XScalarActiveEnvironment,
       XScalarWatchMode,
       XScalarRegistryMeta,
+      XPreRequest,
+      XPostResponse,
     ],
     {
       typeName: 'OpenApiDocument',

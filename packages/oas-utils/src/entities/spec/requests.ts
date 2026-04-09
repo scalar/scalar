@@ -1,8 +1,8 @@
 import { oasSecurityRequirementSchema } from '@scalar/types/entities'
 import { XScalarStability } from '@scalar/types/legacy'
 import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
+import type { XPostResponse } from '@scalar/workspace-store/schemas/extensions/general/x-post-response'
 import type { XCodeSample, XCodeSamples } from '@scalar/workspace-store/schemas/extensions/operation/x-code-samples'
-import type { XPostResponse } from '@scalar/workspace-store/schemas/extensions/operation/x-post-response'
 import type { ZodSchema } from 'zod'
 import { z } from 'zod'
 
