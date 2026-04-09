@@ -184,6 +184,12 @@ export const ROUTES = [
                 path: 'settings',
                 component: Settings,
               },
+              // Document scripts (pre-request / post-response)
+              {
+                name: 'document.scripts',
+                path: 'scripts',
+                component: () => import('@/v2/features/collection/components/Scripts.vue'),
+              },
             ],
           },
         ],

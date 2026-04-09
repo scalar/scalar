@@ -1,87 +1,92 @@
+import type { RequestFactory } from '@scalar/workspace-store/request-example'
 import { describe, expect, it } from 'vitest'
 
 import type { ClientPlugin } from './client-plugins'
 import { executeHook } from './client-plugins'
 
+const createFactory = (headers?: Record<string, string>): RequestFactory => ({
+  options: {},
+  baseUrl: 'https://example.com',
+  path: { variables: {}, raw: '' },
+  method: 'GET',
+  proxyUrl: '',
+  query: new URLSearchParams(),
+  headers: new Headers(headers ?? {}),
+  body: null,
+  cookies: [],
+  cache: 'default',
+  security: [],
+})
+
+const beforePayload = (requestBuilder: RequestFactory) => ({
+  requestBuilder,
+  document: {} as never,
+  operation: {} as never,
+})
+
 describe('executeHook', () => {
   it('returns the original payload when no plugins are provided', async () => {
-    const request = new Request('https://example.com')
-    const result = await executeHook({ request }, 'beforeRequest', [])
+    const requestBuilder = createFactory()
+    const document = {} as never
+    const operation = {} as never
+    const result = await executeHook({ requestBuilder, document, operation }, 'beforeRequest', [])
 
-    expect(result).toEqual({ request })
+    expect(result.requestBuilder).toBe(requestBuilder)
+    expect(result.document).toBe(document)
+    expect(result.operation).toBe(operation)
   })
 
   it('executes a single plugin hook and returns modified payload', async () => {
-    const request = new Request('https://example.com')
+    const requestBuilder = createFactory()
     const plugin: ClientPlugin = {
       hooks: {
-        beforeRequest: (req) => {
-          const modifiedRequest = new Request(req.request.url, {
-            ...req.request,
-            headers: { 'X-Custom-Header': 'test-value' },
-          })
-          return { request: modifiedRequest }
+        beforeRequest: (payload) => {
+          payload.requestBuilder.headers.set('X-Custom-Header', 'test-value')
         },
       },
     }
 
-    const result = await executeHook({ request }, 'beforeRequest', [plugin])
+    const result = await executeHook(beforePayload(requestBuilder), 'beforeRequest', [plugin])
 
-    expect(result.request.headers.get('X-Custom-Header')).toBe('test-value')
+    expect(result.requestBuilder.headers.get('X-Custom-Header')).toBe('test-value')
   })
 
   it('chains multiple plugins in order and applies all modifications', async () => {
-    const request = new Request('https://example.com')
+    const requestBuilder = createFactory()
 
     const plugin1: ClientPlugin = {
       hooks: {
-        beforeRequest: (req) => {
-          const modifiedRequest = new Request(req.request.url, {
-            ...req.request,
-            headers: { 'X-Plugin-1': 'first' },
-          })
-          return { request: modifiedRequest }
+        beforeRequest: (payload) => {
+          payload.requestBuilder.headers.set('X-Plugin-1', 'first')
         },
       },
     }
 
     const plugin2: ClientPlugin = {
       hooks: {
-        beforeRequest: (req) => {
-          const headers = new Headers(req.request.headers)
-          headers.set('X-Plugin-2', 'second')
-          const modifiedRequest = new Request(req.request.url, {
-            ...req.request,
-            headers,
-          })
-          return { request: modifiedRequest }
+        beforeRequest: (payload) => {
+          payload.requestBuilder.headers.set('X-Plugin-2', 'second')
         },
       },
     }
 
     const plugin3: ClientPlugin = {
       hooks: {
-        beforeRequest: (req) => {
-          const headers = new Headers(req.request.headers)
-          headers.set('X-Plugin-3', 'third')
-          const modifiedRequest = new Request(req.request.url, {
-            ...req.request,
-            headers,
-          })
-          return { request: modifiedRequest }
+        beforeRequest: (payload) => {
+          payload.requestBuilder.headers.set('X-Plugin-3', 'third')
         },
       },
     }
 
-    const result = await executeHook({ request }, 'beforeRequest', [plugin1, plugin2, plugin3])
+    const result = await executeHook(beforePayload(requestBuilder), 'beforeRequest', [plugin1, plugin2, plugin3])
 
-    expect(result.request.headers.get('X-Plugin-1')).toBe('first')
-    expect(result.request.headers.get('X-Plugin-2')).toBe('second')
-    expect(result.request.headers.get('X-Plugin-3')).toBe('third')
+    expect(result.requestBuilder.headers.get('X-Plugin-1')).toBe('first')
+    expect(result.requestBuilder.headers.get('X-Plugin-2')).toBe('second')
+    expect(result.requestBuilder.headers.get('X-Plugin-3')).toBe('third')
   })
 
   it('skips plugins without the specified hook', async () => {
-    const request = new Request('https://example.com')
+    const requestBuilder = createFactory()
 
     const pluginWithoutHook: ClientPlugin = {
       hooks: {
@@ -93,71 +98,68 @@ describe('executeHook', () => {
 
     const pluginWithHook: ClientPlugin = {
       hooks: {
-        beforeRequest: (req) => {
-          const modifiedRequest = new Request(req.request.url, {
-            ...req.request,
-            headers: { 'X-Applied': 'true' },
-          })
-          return { request: modifiedRequest }
+        beforeRequest: (payload) => {
+          payload.requestBuilder.headers.set('X-Applied', 'true')
         },
       },
     }
 
-    const result = await executeHook({ request }, 'beforeRequest', [pluginWithoutHook, pluginWithHook])
+    const result = await executeHook(beforePayload(requestBuilder), 'beforeRequest', [
+      pluginWithoutHook,
+      pluginWithHook,
+    ])
 
-    expect(result.request.headers.get('X-Applied')).toBe('true')
+    expect(result.requestBuilder.headers.get('X-Applied')).toBe('true')
   })
 
   it('handles async hooks and waits for promises to resolve', async () => {
-    const request = new Request('https://example.com')
+    const requestBuilder = createFactory()
 
     const asyncPlugin: ClientPlugin = {
       hooks: {
-        beforeRequest: async (req) => {
-          // Simulate async operation
+        beforeRequest: async (payload) => {
           await new Promise((resolve) => setTimeout(resolve, 10))
 
-          const modifiedRequest = new Request(req.request.url, {
-            ...req.request,
-            headers: { 'X-Async': 'completed' },
-          })
-          return { request: modifiedRequest }
+          payload.requestBuilder.headers.set('X-Async', 'completed')
         },
       },
     }
 
-    const result = await executeHook({ request }, 'beforeRequest', [asyncPlugin])
+    const result = await executeHook(beforePayload(requestBuilder), 'beforeRequest', [asyncPlugin])
 
-    expect(result.request.headers.get('X-Async')).toBe('completed')
+    expect(result.requestBuilder.headers.get('X-Async')).toBe('completed')
   })
 
   it('maintains type safety with HookPayloadMap for different hook types', async () => {
-    // Test beforeRequest hook with Request payload
-    const request = new Request('https://example.com')
+    const requestBuilder = createFactory()
     const beforeRequestPlugin: ClientPlugin = {
       hooks: {
         beforeRequest: (req) => {
-          // Type should be inferred as Request
-          expect(req.request).toBeInstanceOf(Request)
-          return req
+          expect(req.requestBuilder.method).toBe('GET')
         },
       },
     }
 
-    const requestResult = await executeHook({ request }, 'beforeRequest', [beforeRequestPlugin])
-    expect(requestResult.request).toBeInstanceOf(Request)
+    const requestResult = await executeHook(beforePayload(requestBuilder), 'beforeRequest', [beforeRequestPlugin])
+    expect(requestResult.requestBuilder.method).toBe('GET')
 
-    // Test responseReceived hook with different payload structure
     const response = new Response('{}', { status: 200 })
     const operation = { operationId: 'testOp', method: 'GET' }
-    const responsePayload = { response, operation, request }
+    const sentRequest = new Request('https://example.com')
+    const responsePayload = {
+      response,
+      operation,
+      requestBuilder,
+      request: sentRequest,
+      document: {} as never,
+    }
 
     const responsePlugin: ClientPlugin = {
       hooks: {
         responseReceived: (payload) => {
-          // Type should be inferred as { response: Response; operation: Record<string, any> }
           expect(payload.response).toBeInstanceOf(Response)
           expect(payload.operation).toEqual(operation)
+          expect(payload.request).toBe(sentRequest)
         },
       },
     }

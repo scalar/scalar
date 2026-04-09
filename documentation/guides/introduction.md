@@ -484,11 +484,9 @@
 
 <style>
   .t-editor__page-title,
-  .layout-aside-right,
   .t-editor__page-nav,
   .notify-container,
   .subheading,
-  .t-doc__toc,
   .page-nav,
   :not(.introduction).footer,
   .t-editor .page-header {
@@ -515,7 +513,6 @@
   }
   :root {
     --scalar-container-width: 960px;
-    --scalar-toc-width: 0;
   }
   .hero.hero {
     margin-top: 88px;

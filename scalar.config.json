@@ -726,6 +726,9 @@
                     "type": "page",
                     "title": "Getting Started",
                     "description": "Learn how to create and publish stunning developer documentation with Docs in minutes.",
+                    "layout": {
+                      "toc": false
+                    },
                     "head": {
                       "links": [
                         {
@@ -1101,17 +1104,17 @@
                     }
                   },
                   "mcp": {
-                    "title": "MCP",
+                    "title": "MCP Servers",
                     "type": "page",
                     "filepath": "documentation/guides/agent/mcp.md"
                   },
                   "sdk": {
-                    "title": "SDK",
+                    "title": "Agent SDK",
                     "type": "page",
                     "filepath": "documentation/guides/agent/sdk.md"
                   },
                   "api-reference": {
-                    "title": "API Reference",
+                    "title": "Agent in API Reference",
                     "type": "page",
                     "filepath": "documentation/guides/agent/api-reference.md"
                   },
@@ -1121,9 +1124,41 @@
                     "filepath": "documentation/guides/agent/pricing.md"
                   },
                   "key": {
-                    "title": "Key",
+                    "title": "API Keys",
                     "type": "page",
                     "filepath": "documentation/guides/agent/key.md"
+                  },
+                  "examples": {
+                    "title": "Examples",
+                    "type": "group",
+                    "mode": "flat",
+                    "children": {
+                      "incident-monitor": {
+                        "filepath": "documentation/guides/agent/examples/incident-monitor.md",
+                        "type": "page",
+                        "title": "Incident Monitor"
+                      },
+                      "billing-sweep": {
+                        "filepath": "documentation/guides/agent/examples/billing-sweep.md",
+                        "type": "page",
+                        "title": "Billing Sweep"
+                      },
+                      "meeting-scheduler": {
+                        "filepath": "documentation/guides/agent/examples/meeting-scheduler.md",
+                        "type": "page",
+                        "title": "Meeting Scheduler"
+                      },
+                      "revenue-dashboard": {
+                        "filepath": "documentation/guides/agent/examples/revenue-dashboard.md",
+                        "type": "page",
+                        "title": "Revenue Dashboard"
+                      },
+                      "stakeholder-digest": {
+                        "filepath": "documentation/guides/agent/examples/stakeholder-digest.md",
+                        "type": "page",
+                        "title": "Stakeholder Digest"
+                      }
+                    }
                   }
                 }
               },
@@ -1139,6 +1174,9 @@
                     "type": "page",
                     "title": "Getting Started",
                     "description": "Automatically generate type-safe SDKs from OpenAPI specifications in multiple programming languages.",
+                    "layout": {
+                      "toc": false
+                    },
                     "head": {
                       "links": [
                         {
@@ -1233,6 +1271,9 @@
                     "type": "page",
                     "title": "Getting Started",
                     "description": "Store, version, and manage your OpenAPI specifications in a centralized registry with automated CI/CD workflows.",
+                    "layout": {
+                      "toc": false
+                    },
                     "head": {
                       "links": [
                         {

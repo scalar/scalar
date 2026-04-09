@@ -1,7 +1,22 @@
+import type { RequestFactory } from '@scalar/workspace-store/request-example'
 import { describe, expect, it } from 'vitest'
 
 import type { TestResult } from './execute-post-response-script'
 import { executePostResponseScript } from './execute-post-response-script'
+
+const createRequestBuilder = (): RequestFactory => ({
+  options: {},
+  baseUrl: 'https://example.com',
+  path: { variables: {}, raw: '/api/example' },
+  method: 'GET',
+  proxyUrl: '',
+  query: new URLSearchParams(),
+  headers: new Headers(),
+  body: null,
+  cookies: [],
+  cache: 'default',
+  security: [],
+})
 
 const executeScript = async ({
   script,
@@ -22,6 +37,7 @@ const executeScript = async ({
   const latestResults: TestResult[] = []
 
   await executePostResponseScript(script, {
+    requestBuilder: createRequestBuilder(),
     response,
     onTestResultsUpdate: (results) => {
       latestResults.splice(0, latestResults.length, ...results)

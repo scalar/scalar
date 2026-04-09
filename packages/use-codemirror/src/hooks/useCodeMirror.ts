@@ -318,11 +318,37 @@ function getCodeMirrorExtensions({
         lineHeight: '22px',
       },
       '.cm-tooltip': {
-        border: '1px solid #f5c6cb',
+        background: 'var(--scalar-background-1)',
+        border: '1px solid var(--scalar-border-color)',
+        borderRadius: 'var(--scalar-radius)',
+        boxShadow: 'var(--scalar-shadow-2)',
         fontSize: '12px',
+        overflow: 'hidden',
+      },
+      '.cm-tooltip-autocomplete ul': {
+        padding: '6px',
+      },
+      '.cm-tooltip-autocomplete ul li': {
+        padding: '3px 6px',
+        color: 'var(--scalar-color-1)',
+        borderRadius: '3px',
+      },
+      '.cm-tooltip-autocomplete ul li[aria-selected]': {
+        background: 'var(--scalar-background-2)',
+        color: 'var(--scalar-color-1)',
+      },
+      '.cm-tooltip-autocomplete ul li:hover': {
+        background: 'var(--scalar-background-3)',
+        color: 'var(--scalar-color-1)',
+      },
+      '.cm-completionLabel': {
+        color: 'var(--scalar-color-1)',
+      },
+      '.cm-completionDetail': {
+        color: 'var(--scalar-color-3)',
       },
       '.cm-tooltip-lint': {
-        backgroundColor: '#ffffff',
+        backgroundColor: 'var(--scalar-background-1)',
       },
       '.cm-diagnostic-error': {
         borderLeft: '0',

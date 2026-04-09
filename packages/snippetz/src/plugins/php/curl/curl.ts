@@ -29,9 +29,7 @@ export const phpCurl: Plugin = {
       ? '?' +
         normalizedRequest.queryString
           .map((param) => {
-            const encodedName = encodeURIComponent(param.name)
-            const encodedValue = encodeURIComponent(param.value)
-            return `${encodedName}=${encodedValue}`
+            return `${param.name}=${param.value}`
           })
           .join('&')
       : ''

@@ -160,12 +160,12 @@ using var response = await client.SendAsync(request);`)
       url: 'https://example.com/api',
       queryString: [
         { name: 'param1', value: 'value1' },
-        { name: 'param2', value: 'special value' },
+        { name: 'param2', value: 'special%20value' },
         { name: 'param3', value: '123' },
       ],
     })
 
-    expect(result).toContain('"https://example.com/api?param1=value1&param2=special+value&param3=123"')
+    expect(result).toContain('"https://example.com/api?param1=value1&param2=special%20value&param3=123"')
   })
 
   it('handles JSON body with raw string literal', () => {

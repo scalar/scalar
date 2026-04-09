@@ -1,5 +1,7 @@
+import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
+
 import { createConsoleContext } from './context/console'
-import { executeInPostmanSandbox } from './postman-sandbox-adapter'
+import { executeInPostmanSandbox } from './postman-adapter/sandbox-adapter'
 
 export type TestResult = {
   title: string
@@ -12,8 +14,10 @@ export type TestResult = {
 export const executePostResponseScript = async (
   script: string | undefined,
   data: {
+    requestBuilder: RequestFactory
     response: Response
     onTestResultsUpdate?: ((results: TestResult[]) => void) | undefined
+    variablesStore?: VariablesStore
   },
 ): Promise<void> => {
   if (!script) {
@@ -21,8 +25,13 @@ export const executePostResponseScript = async (
   }
   await executeInPostmanSandbox({
     script,
-    response: data.response,
+    type: 'post-response',
+    context: {
+      requestBuilder: data.requestBuilder,
+      response: data.response,
+      scriptConsole: createConsoleContext(),
+      variablesStore: data.variablesStore,
+    },
     onTestResultsUpdate: data.onTestResultsUpdate,
-    scriptConsole: createConsoleContext(),
   })
 }

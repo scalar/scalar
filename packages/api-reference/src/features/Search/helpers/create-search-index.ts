@@ -9,7 +9,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import type { FuseData } from '@/features/Search/types'
-import { createParameterMap, extractRequestBody } from '@/helpers/openapi'
+import { extractParameters, extractRequestBody } from '@/helpers/openapi'
 
 function responseExampleValueToString(value: unknown): string {
   if (typeof value === 'string') {
@@ -104,9 +104,8 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
       parameters: combineParams(pathItem?.parameters, operation.parameters),
     }
 
-    const requestBodyOrParameterMap =
-      extractRequestBody(operationWithPathParams) || createParameterMap(operationWithPathParams)
-    const body = typeof requestBodyOrParameterMap !== 'boolean' ? requestBodyOrParameterMap : null
+    const parameters = extractParameters(operationWithPathParams.parameters ?? [])
+    const body = extractRequestBody(operationWithPathParams)
     const responseExamples = extractResponseExamples(operationWithPathParams.responses)
 
     index.push({
@@ -117,6 +116,7 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
       method: entry.method,
       path: entry.path,
       body: body || '',
+      parameters: parameters ?? '',
       responseExamples,
       operationId: operationWithPathParams.operationId,
       entry,

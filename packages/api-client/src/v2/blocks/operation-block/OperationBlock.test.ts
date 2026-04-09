@@ -3,6 +3,7 @@ import type { AuthMeta, WorkspaceEventBus } from '@scalar/workspace-store/events
 import { buildRequest, requestFactory } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -134,29 +135,22 @@ const createMockOriginalResponse = (): Response =>
 type RequestFactoryPayload = Parameters<typeof buildRequest>[0]
 
 const createDefaultRequestFactoryPayload = (overrides: Partial<RequestFactoryPayload> = {}): RequestFactoryPayload => {
-  const { proxy: proxyOverrides, ...rest } = overrides
   return {
+    options: {},
     baseUrl: 'https://api.example.com',
     method: 'GET',
     headers: new Headers(),
     body: null,
-    cookies: {
-      list: [],
-    },
+    cookies: [],
     cache: 'default',
     security: [],
-    proxy: {
-      proxyUrl: '',
-      ...proxyOverrides,
-    },
+    proxyUrl: '',
     path: {
       variables: {},
       raw: '/api/users',
     },
-    query: {
-      params: new URLSearchParams(),
-    },
-    ...rest,
+    query: new URLSearchParams(),
+    ...overrides,
   }
 }
 
@@ -212,6 +206,7 @@ const createDefaultProps = (): OperationBlockProps => ({
   serverMeta: {
     type: 'document',
   },
+  document: {} as OpenApiDocument,
 })
 
 describe('OperationBlock', () => {
@@ -224,7 +219,7 @@ describe('OperationBlock', () => {
 
     vi.mocked(requestFactory).mockImplementation((args) => ({
       request: createDefaultRequestFactoryPayload({
-        proxy: { proxyUrl: args.proxyUrl },
+        proxyUrl: args.proxyUrl,
       }),
     }))
 
@@ -447,9 +442,7 @@ describe('OperationBlock', () => {
     expect(buildRequest).toHaveBeenCalledWith(
       expect.objectContaining({
         baseUrl: 'https://api.example.com',
-        proxy: {
-          proxyUrl: 'https://proxy.example.com',
-        },
+        proxyUrl: 'https://proxy.example.com',
       }),
       {
         envVariables: {},
@@ -463,7 +456,7 @@ describe('OperationBlock', () => {
 
     vi.mocked(requestFactory).mockReturnValue({
       request: createDefaultRequestFactoryPayload({
-        proxy: { proxyUrl: 'https://proxy.example.com' },
+        proxyUrl: 'https://proxy.example.com',
       }),
     })
 
