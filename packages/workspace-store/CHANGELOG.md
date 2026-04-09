@@ -1,5 +1,16 @@
 # @scalar/workspace-store
 
+## 0.44.0
+
+### Minor Changes
+
+- [#8762](https://github.com/scalar/scalar/pull/8762): feat: request factory interface improvements
+- [#8695](https://github.com/scalar/scalar/pull/8695): feat: support pre/post request script on operation and document level
+
+### Patch Changes
+
+- [#8742](https://github.com/scalar/scalar/pull/8742): fix(workspace-store): openIdConnect retrieve stored token for Authorization header
+
 ## 0.43.1
 
 ### Patch Changes

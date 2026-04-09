@@ -1,5 +1,11 @@
 # @scalar/api-client-react
 
+## 2.0.0
+
+### Major Changes
+
+- [#8760](https://github.com/scalar/scalar/pull/8760): feat: update to use api-client v2 with new hook based api
+
 ## 1.4.20
 
 ## 1.4.19

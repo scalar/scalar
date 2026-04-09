@@ -1,5 +1,11 @@
 # scalar-fastapi
 
+## 1.8.2
+
+### Patch Changes
+
+- [#8764](https://github.com/scalar/scalar/pull/8764): fix(fastapi): include MIT license metadata in PyPI package metadata
+
 ## 1.8.1
 
 ### Patch Changes
