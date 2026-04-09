@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 2.42.0
+
+### Minor Changes
+
+- [#8748](https://github.com/scalar/scalar/pull/8748): feat: support `allowReserved` for code samples
+- [#8695](https://github.com/scalar/scalar/pull/8695): feat: suport pre/post request scripts
+
+### Patch Changes
+
+- [#8760](https://github.com/scalar/scalar/pull/8760): feat: exported routePayload type
+
 ## 2.41.0
 
 ### Minor Changes

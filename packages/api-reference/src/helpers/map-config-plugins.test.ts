@@ -19,14 +19,15 @@ const createMockEnvironment = (
   }))
 
 const createMockFactory = (overrides: Partial<RequestFactory> = {}): RequestFactory => ({
+  options: {},
   baseUrl: 'https://example.com',
   path: { variables: {}, raw: '/api/test' },
   method: 'GET',
-  proxy: { proxyUrl: '' },
-  query: { params: new URLSearchParams() },
+  proxyUrl: '',
+  query: new URLSearchParams(),
   headers: new Headers(),
   body: null,
-  cookies: { list: [] },
+  cookies: [],
   cache: 'default',
   security: [],
   ...overrides,
@@ -84,6 +85,7 @@ describe('mapConfigPlugins', () => {
 
       expect(onBeforeRequestMock).toHaveBeenCalledTimes(1)
       expect(onBeforeRequestMock).toHaveBeenCalledWith({
+        envVariables: expect.any(Object),
         request: expect.any(Request),
         requestBuilder: mockRequestBuilder,
       })

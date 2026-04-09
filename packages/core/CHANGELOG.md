@@ -1,5 +1,11 @@
 # @scalar/core
 
+## 0.5.0
+
+### Minor Changes
+
+- [#8431](https://github.com/scalar/scalar/pull/8431): refactor: use new @scalar/client-side-rendering, deprecate everything
+
 ## 0.4.6
 
 ## 0.4.5

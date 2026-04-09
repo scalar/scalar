@@ -1,5 +1,11 @@
 # @scalar/scripts
 
+## 0.4.0
+
+### Minor Changes
+
+- [#8695](https://github.com/scalar/scalar/pull/8695): feat: support post request scripts
+
 ## 0.3.18
 
 ## 0.3.17

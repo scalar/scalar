@@ -8,14 +8,15 @@ import { executePreRequestScript } from '@/libs/execute-scripts/execute-pre-requ
 import { requestScriptsPlugin } from '@/plugins/request-scripts/request-scripts-plugin'
 
 const createRequestBuilder = (): RequestFactory => ({
+  options: {},
   baseUrl: 'https://example.com',
   path: { variables: {}, raw: '/api/example' },
   method: 'GET',
-  proxy: { proxyUrl: '' },
-  query: { params: new URLSearchParams() },
+  proxyUrl: '',
+  query: new URLSearchParams(),
   headers: new Headers(),
   body: null,
-  cookies: { list: [] },
+  cookies: [],
   cache: 'default',
   security: [],
 })

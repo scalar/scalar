@@ -1,28 +1,16 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 
-import { ApiClientModalProvider } from '../src/ApiClientModalProvider'
 import { App } from './App'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ApiClientModalProvider
-      configuration={{
-        url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
-      }}>
-      <App />
-    </ApiClientModalProvider>
-    <ApiClientModalProvider
-      configuration={{
-        url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
-      }}>
-      <App initialRequest={{ path: '/auth/token', method: 'post' }} />
-    </ApiClientModalProvider>
-    <ApiClientModalProvider
-      configuration={{
-        url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
-      }}>
-      <App initialRequest={{ path: '/planets', method: 'get' }} />
-    </ApiClientModalProvider>
+    <App initialRequest={{ path: '/planets', method: 'get' }} />
+    <App initialRequest={{ path: '/auth/token', method: 'post' }} />
+    <App initialRequest={{ path: '/planets', method: 'get' }} />
+    <App
+      initialRequest={{ path: '/pet', method: 'put' }}
+      url="https://petstore.swagger.io/v2/swagger.json"
+    />
   </React.StrictMode>,
 )

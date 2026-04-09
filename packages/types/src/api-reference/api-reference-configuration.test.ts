@@ -361,7 +361,25 @@ describe('api-reference-configuration', () => {
       } satisfies Partial<ApiReferenceConfiguration>
       const migratedConfig = apiReferenceConfigurationSchema.parse(config)
 
-      expect(migratedConfig.onBeforeRequest?.({ request: new Request('https://example.com') })).toBeInstanceOf(Promise)
+      expect(
+        migratedConfig.onBeforeRequest?.({
+          request: new Request('https://example.com'),
+          requestBuilder: {
+            options: {},
+            baseUrl: 'https://example.com',
+            path: { variables: {}, raw: '/api/test' },
+            method: 'GET',
+            proxyUrl: '',
+            query: new URLSearchParams(),
+            headers: new Headers(),
+            body: null,
+            cookies: [],
+            cache: 'default',
+            security: [],
+          },
+          envVariables: {},
+        }),
+      ).toBeInstanceOf(Promise)
     })
 
     it('allows a function as onShowMore', () => {

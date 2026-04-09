@@ -1298,7 +1298,7 @@ Callback fired before the outbound request is sent from the embedded API client.
 
 > **Experimental:** `RequestFactory` may change in minor releases; treat its fields as unstable until the API stabilizes.
 
-**`request`** is a fetch API [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) built from the builder for backward compatibility. Using it as the primary way to customize outbound traffic is **deprecated**; prefer **`requestBuilder`**. The API Reference passes both `request` and `requestBuilder` to this callback.
+**`request`** is a fetch API [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) built from the builder for backward compatibility. Using it as the primary way to customize outbound traffic is going to be **deprecated**; prefer **`requestBuilder`**. The API Reference passes both `request` and `requestBuilder` to this callback.
 
 ```javascript
 {
@@ -1307,6 +1307,105 @@ Callback fired before the outbound request is sent from the embedded API client.
   }
 }
 ```
+
+##### RequestFactory reference
+
+The `requestBuilder` object exposes the following fields:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `baseUrl` | `string` | The base API server URL (may contain placeholders like `{{version}}`). |
+| `path.raw` | `string` | The raw path string, e.g. `/users/{userId}/settings`. |
+| `path.variables` | `Record<string, string>` | Path variable names and their current values. |
+| `method` | `string` | HTTP method (always uppercase). |
+| `headers` | [`Headers`](https://developer.mozilla.org/en-US/docs/Web/API/Headers) | Headers to send with the request. Supports `.set()`, `.get()`, `.delete()`, `.append()`. |
+| `query` | [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) | Query parameters. Supports `.set()`, `.get()`, `.delete()`, `.append()`. |
+| `body` | `RequestBody \| null` | The request body payload (`raw`, `formdata`, or `urlencoded`), or `null`. |
+| `cookies` | `XScalarCookie[]` | Cookies to include with the request. |
+| `security` | `BuildRequestSecurityResult[]` | The resolved security schemes for this request. Each entry has `in` (`"header"`, `"query"`, or `"cookie"`), `name`, `value`, and an optional `format` (`"basic"` or `"bearer"`). |
+| `options` | `object` | Advanced options (see below). |
+
+**`options`**
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `disableSecurity` | `boolean` | `false` | When `true`, Scalar skips its built-in security handling entirely. Security headers, query parameters, and cookies from the `security` array are **not** applied automatically, giving you full control. |
+| `isElectron` | `boolean` | `false` | Indicates the request runs in an Electron (Node-like) context. |
+
+##### Examples
+
+**Add a custom header**
+
+```javascript
+{
+  onBeforeRequest: ({ requestBuilder }) => {
+    requestBuilder.headers.set('X-Custom-Header', 'my-value')
+  }
+}
+```
+
+**Add a query parameter**
+
+```javascript
+{
+  onBeforeRequest: ({ requestBuilder }) => {
+    requestBuilder.query.set('debug', 'true')
+  }
+}
+```
+
+**Custom auth prefix — disable built-in security and apply your own**
+
+By default, Scalar applies security schemes automatically (e.g. prefixing bearer tokens with `Bearer`). If you need a custom prefix, a different header name, or any other transformation, set `disableSecurity` to `true` and handle the `security` array yourself:
+
+```javascript
+{
+  onBeforeRequest: ({ requestBuilder, envVariables }) => {
+    // Tell Scalar to skip its default security handling
+    requestBuilder.options.disableSecurity = true
+
+    // Apply each security scheme with custom logic
+    for (const security of requestBuilder.security) {
+      const getValue = () => {
+        // use replaced header name so {{ env }} placeholders work
+        const substitutedValue = replaceEnvVariables(security.value, envVariables)
+        if (security.format === 'basic') {
+          return `Basic ${btoa(substitutedValue)}-custom-sufix`
+        }
+
+        if (security.format === 'bearer') {
+          return `MyBearerPrefix <id> ${substitutedValue}`
+        }
+
+        return substitutedValue
+      }
+
+      const value = getValue()
+
+      // Set the security on the correct place
+      if (security.in === 'header') {
+        headers.set(name, securityValue)
+        return
+      }
+
+      if (security.in === 'query') {
+        securityQueryParams.set(name, securityValue)
+        return
+      }
+
+      if (security.in === 'cookie') {
+        securityCookies.push({
+          name: name,
+          value: securityValue,
+          isDisabled: false,
+        })
+      }
+    }
+  }
+}
+```
+
+> When `disableSecurity` is `true`, only the security-related headers, query parameters, and cookies are skipped. All other fields on the request (custom headers, path, body, non-security cookies, etc.) are unaffected.
 
 #### onDocumentSelect
 

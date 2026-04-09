@@ -5,14 +5,15 @@ import type { TestResult } from './execute-post-response-script'
 import { executePostResponseScript } from './execute-post-response-script'
 
 const createRequestBuilder = (): RequestFactory => ({
+  options: {},
   baseUrl: 'https://example.com',
   path: { variables: {}, raw: '/api/example' },
   method: 'GET',
-  proxy: { proxyUrl: '' },
-  query: { params: new URLSearchParams() },
+  proxyUrl: '',
+  query: new URLSearchParams(),
   headers: new Headers(),
   body: null,
-  cookies: { list: [] },
+  cookies: [],
   cache: 'default',
   security: [],
 })

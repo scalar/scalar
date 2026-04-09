@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.8.0
+
+### Minor Changes
+
+- [#8695](https://github.com/scalar/scalar/pull/8695): feat: suport pre/post request scripts
+
 ## 0.7.6
 
 ### Patch Changes
