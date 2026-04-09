@@ -5,6 +5,7 @@ import { type TestResult, executePostResponseScript } from '../libs/execute-scri
 import { EXAMPLE_SCRIPTS } from './example-scripts'
 
 const createRequestBuilder = (): RequestFactory => ({
+  options: {},
   baseUrl: 'https://example.com',
   path: { variables: {}, raw: '/api/example' },
   method: 'GET',

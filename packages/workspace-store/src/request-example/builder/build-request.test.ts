@@ -6,6 +6,7 @@ import type { RequestFactory } from '@/request-example/builder/request-factory'
 import { buildRequest } from './build-request'
 
 const createFactory = (overrides: Partial<RequestFactory> = {}): RequestFactory => ({
+  options: {},
   allowedReservedQueryParameters: new Set(),
   baseUrl: 'https://api.example.com',
   body: null,

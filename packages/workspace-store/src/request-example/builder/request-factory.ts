@@ -88,7 +88,7 @@ export type RequestFactory = {
    * The base API server URL prior to environment or server variable substitution.
    * May still contain placeholders such as `{version}` or `{region}`.
    *
-   * Example: "https://api.example.com/{version}"
+   * @example "https://api.example.com/{version}"
    */
   baseUrl: string
 
@@ -100,14 +100,14 @@ export type RequestFactory = {
      * The variable names and their (unsubstituted) values for all path variables required in this operation.
      * These may still reference environment variables or placeholders if unresolved.
      *
-     * Example: { "userId": "{env.USER_ID}" }
+     * @example { "userId": "{env.USER_ID}" }
      */
     variables: Record<string, string>
     /**
      * The raw request path string, as entered by the user or read from the OpenAPI schema.
      * Placeholders are not yet substituted.
      *
-     * Example: "/users/{userId}/settings"
+     * @example "/users/{userId}/settings"
      */
     raw: string
   }
@@ -115,7 +115,7 @@ export type RequestFactory = {
   /**
    * The HTTP method to be used for the request (always uppercase).
    *
-   * Example: "POST"
+   * @example "POST"
    */
   method: string
 
@@ -124,8 +124,10 @@ export type RequestFactory = {
    * will be routed through a local dev proxy to support features such as cookie management, CORS, or special
    * authentication.
    * This value is unsubstituted and may reflect environment-driven data.
+   *
+   * @example "https://proxy.scalar.com"
    */
-  proxyUrl: string
+  proxyUrl?: string
 
   /**
    * The raw, (unsubstituted) query parameters for this request, including all from spec and user input.
@@ -173,10 +175,10 @@ export type RequestFactory = {
   allowedReservedQueryParameters?: Set<string>
 
   /**
-   * (optional) Advanced request options flag object.
+   * Advanced request options flag object.
    * These options allow downstream handling to detect and apply additional request context such as runtime type or custom security handling.
    */
-  options?: Partial<{
+  options: Partial<{
     /**
      * If true, the request will be made in an Electron context (node-like).
      * This alters certain behaviors, such as file handling or header management.

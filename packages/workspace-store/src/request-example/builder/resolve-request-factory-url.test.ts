@@ -4,6 +4,7 @@ import type { RequestFactory } from './request-factory'
 import { resolveRequestFactoryUrl } from './resolve-request-factory-url'
 
 const createRequestFactory = (overrides: Partial<RequestFactory> = {}): RequestFactory => ({
+  options: {},
   baseUrl: 'https://api.example.com',
   path: {
     raw: '/v1/users',

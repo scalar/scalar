@@ -1298,7 +1298,7 @@ Callback fired before the outbound request is sent from the embedded API client.
 
 > **Experimental:** `RequestFactory` may change in minor releases; treat its fields as unstable until the API stabilizes.
 
-**`request`** is a fetch API [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) built from the builder for backward compatibility. Using it as the primary way to customize outbound traffic is **deprecated**; prefer **`requestBuilder`**. The API Reference passes both `request` and `requestBuilder` to this callback.
+**`request`** is a fetch API [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) built from the builder for backward compatibility. Using it as the primary way to customize outbound traffic is going to be **deprecated**; prefer **`requestBuilder`**. The API Reference passes both `request` and `requestBuilder` to this callback.
 
 ```javascript
 {
@@ -1314,7 +1314,7 @@ The `requestBuilder` object exposes the following fields:
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `baseUrl` | `string` | The base API server URL (may contain placeholders like `{version}`). |
+| `baseUrl` | `string` | The base API server URL (may contain placeholders like `{{version}}`). |
 | `path.raw` | `string` | The raw path string, e.g. `/users/{userId}/settings`. |
 | `path.variables` | `Record<string, string>` | Path variable names and their current values. |
 | `method` | `string` | HTTP method (always uppercase). |
@@ -1360,33 +1360,44 @@ By default, Scalar applies security schemes automatically (e.g. prefixing bearer
 
 ```javascript
 {
-  onBeforeRequest: ({ requestBuilder }) => {
+  onBeforeRequest: ({ requestBuilder, envVariables }) => {
     // Tell Scalar to skip its default security handling
-    requestBuilder.options = { ...requestBuilder.options, disableSecurity: true }
+    requestBuilder.options.disableSecurity = true
 
     // Apply each security scheme with custom logic
     for (const security of requestBuilder.security) {
-      if (security.in === 'header' && security.format === 'bearer') {
-        // Custom prefix instead of the default "Bearer"
-        requestBuilder.headers.set(
-          security.name,
-          `MyApp-Bearer ${security.value}`,
-        )
-      } else if (security.in === 'header' && security.format === 'basic') {
-        // Custom Basic auth with a suffix
-        requestBuilder.headers.set(
-          security.name,
-          `Basic ${btoa(security.value)}-custom-suffix`,
-        )
-      } else if (security.in === 'header') {
-        // API key or other header-based auth — pass through as-is
-        requestBuilder.headers.set(security.name, security.value)
-      } else if (security.in === 'query') {
-        requestBuilder.query.set(security.name, security.value)
-      } else if (security.in === 'cookie') {
-        requestBuilder.cookies.push({
-          name: security.name,
-          value: security.value,
+      const getValue = () => {
+        // use replaced header name so {{ env }} placeholders work
+        const substitutedValue = replaceEnvVariables(security.value, envVariables)
+        if (security.format === 'basic') {
+          return `Basic ${btoa(substitutedValue)}-custom-sufix`
+        }
+
+        if (security.format === 'bearer') {
+          return `MyBearerPrefix <id> ${substitutedValue}`
+        }
+
+        return substitutedValue
+      }
+
+      const value = getValue()
+
+      // Set the security on the correct place
+      if (security.in === 'header') {
+        headers.set(name, securityValue)
+        return
+      }
+
+      if (security.in === 'query') {
+        securityQueryParams.set(name, securityValue)
+        return
+      }
+
+      if (security.in === 'cookie') {
+        securityCookies.push({
+          name: name,
+          value: securityValue,
+          isDisabled: false,
         })
       }
     }

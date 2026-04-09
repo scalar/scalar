@@ -19,6 +19,7 @@ const createMockEnvironment = (
   }))
 
 const createMockFactory = (overrides: Partial<RequestFactory> = {}): RequestFactory => ({
+  options: {},
   baseUrl: 'https://example.com',
   path: { variables: {}, raw: '/api/test' },
   method: 'GET',

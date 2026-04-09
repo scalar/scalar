@@ -145,7 +145,13 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
   /** Fired before the outbound request is built; callback receives a mutable request builder (RequestFactory). Experimental API. */
   onBeforeRequest: z
     .function({
-      input: [z.object({ request: z.instanceof(Request), requestBuilder: z.unknown() })],
+      input: [
+        z.object({
+          request: z.instanceof(Request),
+          requestBuilder: z.unknown(),
+          envVariables: z.record(z.string(), z.string()),
+        }),
+      ],
       // Why no output? https://github.com/scalar/scalar/pull/7047
       // output: z.union([z.void(), z.promise(z.void())]),
     })
@@ -418,7 +424,11 @@ export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
    * }
    * ```
    */
-  onBeforeRequest?: (input: { request: Request; requestBuilder: any }) => void | Promise<void> | undefined
+  onBeforeRequest?: (input: {
+    request: Request
+    requestBuilder: any
+    envVariables: Record<string, string>
+  }) => void | Promise<void> | undefined
 }
 
 /** Migrate the configuration through a transform */

@@ -136,6 +136,7 @@ type RequestFactoryPayload = Parameters<typeof buildRequest>[0]
 
 const createDefaultRequestFactoryPayload = (overrides: Partial<RequestFactoryPayload> = {}): RequestFactoryPayload => {
   return {
+    options: {},
     baseUrl: 'https://api.example.com',
     method: 'GET',
     headers: new Headers(),

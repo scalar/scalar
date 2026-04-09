@@ -5,6 +5,7 @@ import type { ClientPlugin } from './client-plugins'
 import { executeHook } from './client-plugins'
 
 const createFactory = (headers?: Record<string, string>): RequestFactory => ({
+  options: {},
   baseUrl: 'https://example.com',
   path: { variables: {}, raw: '' },
   method: 'GET',
