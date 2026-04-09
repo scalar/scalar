@@ -191,12 +191,6 @@ export const ROUTES = [
                 path: 'runner',
                 component: Runner,
               },
-              // Document scripts (pre-request / post-response)
-              {
-                name: 'document.scripts',
-                path: 'scripts',
-                component: () => import('@/v2/features/collection/components/Scripts.vue'),
-              },
               // Document settings
               {
                 name: 'document.settings',
