@@ -84,9 +84,9 @@ public enum ScalarClient {
     HTTPX_SYNC("httpx_sync"),
 
     /**
-     * httr client.
+     * httr2 client.
      */
-    HTTR("httr"),
+    HTTR2("httr2"),
 
     /**
      * jQuery client.

@@ -32,7 +32,7 @@ export const GROUPED_CLIENTS = {
   php: ['curl', 'guzzle'],
   powershell: ['restmethod', 'webrequest'],
   python: ['python3', 'requests', 'httpx_sync', 'httpx_async'],
-  r: ['httr'],
+  r: ['httr2'],
   ruby: ['native'],
   rust: ['reqwest'],
   shell: ['curl', 'httpie', 'wget'],

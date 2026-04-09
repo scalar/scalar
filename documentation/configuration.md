@@ -712,7 +712,7 @@ Here's a list of all clients that you can potentially hide:
     // Python
     python: ['httpx_async', 'httpx_sync', 'python3', 'requests'],
     // R
-    r: ['httr'],
+    r: ['httr2'],
     // Ruby
     ruby: ['native'],
     // Rust

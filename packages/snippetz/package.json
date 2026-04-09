@@ -191,10 +191,10 @@
       "types": "./dist/plugins/python/requests/index.d.ts",
       "default": "./dist/plugins/python/requests/index.js"
     },
-    "./plugins/r/httr": {
-      "import": "./dist/plugins/r/httr/index.js",
-      "types": "./dist/plugins/r/httr/index.d.ts",
-      "default": "./dist/plugins/r/httr/index.js"
+    "./plugins/r/httr2": {
+      "import": "./dist/plugins/r/httr2/index.js",
+      "types": "./dist/plugins/r/httr2/index.d.ts",
+      "default": "./dist/plugins/r/httr2/index.js"
     },
     "./plugins/ruby/native": {
       "import": "./dist/plugins/ruby/native/index.js",

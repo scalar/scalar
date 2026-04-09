@@ -105,10 +105,10 @@ public enum ScalarClient
     HttpxSync,
 
     /// <summary>
-    /// httr client.
+    /// httr2 client.
     /// </summary>
-    [Description("httr")]
-    Httr,
+    [Description("httr2")]
+    Httr2,
 
     /// <summary>
     /// jQuery client.

@@ -282,7 +282,7 @@
             "type": "string"
           },
           {
-            "const": "r/httr",
+            "const": "r/httr2",
             "type": "string"
           },
           {
