@@ -223,7 +223,7 @@ export function useRunnerExecution({
 
         if (!contextResult.ok) {
           runResult.error = new Error(contextResult.error)
-          runResults.value.push(runResult)
+          runResults.value = [...runResults.value, runResult]
           continue
         }
 
