@@ -253,7 +253,7 @@ function toOpenApiParamSchemaType(s: string | undefined): OpenApiParamSchemaType
   return 'string'
 }
 
-function parameterSchemaFromType(type: OpenApiParamSchemaType): OpenAPIV3_1.ParameterObject['schema'] {
+function parameterSchemaFromType(type: OpenApiParamSchemaType): OpenAPIV3_1.ParameterWithSchemaObject['schema'] {
   if (type === 'array') {
     return { type: 'array' }
   }
@@ -262,7 +262,7 @@ function parameterSchemaFromType(type: OpenApiParamSchemaType): OpenAPIV3_1.Para
 
 function parseParametersFromDescription(description: string): {
   descriptionWithoutTable: string
-  parametersFromTable: OpenAPIV3_1.ParameterObject[]
+  parametersFromTable: OpenAPIV3_1.ParameterWithSchemaObject[]
 } {
   const lines = description.split('\n')
   let inTable = false
@@ -309,7 +309,7 @@ function parseParametersFromDescription(description: string): {
         return undefined
       }
 
-      const param: OpenAPIV3_1.ParameterObject = {
+      const param: OpenAPIV3_1.ParameterWithSchemaObject = {
         name: row.name,
         in: row.object,
         description: row.description,
@@ -323,7 +323,7 @@ function parseParametersFromDescription(description: string): {
 
       return param
     })
-    .filter((param): param is OpenAPIV3_1.ParameterObject => Boolean(param))
+    .filter((param): param is OpenAPIV3_1.ParameterWithSchemaObject => Boolean(param))
 
   const descriptionWithoutTable = descriptionLines.join('\n')
   return { descriptionWithoutTable, parametersFromTable }

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { dereference } from '@/helpers/dereference'
 import type { FormParameter } from '@/types'
 
 import { processFormDataSchema } from './form-data'
@@ -209,8 +210,8 @@ describe('form-data', () => {
 
     const result = processFormDataSchema(formdata)
 
-    expect(result.properties?.name?.['x-scalar-disabled']).toBe(true)
-    expect(result.properties?.email?.['x-scalar-disabled']).toBeUndefined()
+    expect(dereference(result.properties?.name)?.['x-scalar-disabled']).toBe(true)
+    expect(dereference(result.properties?.email)?.['x-scalar-disabled']).toBeUndefined()
   })
 
   it('includes disabled formdata parameters in schema properties', () => {
@@ -226,8 +227,8 @@ describe('form-data', () => {
     const result = processFormDataSchema(formdata)
 
     expect(result.properties?.disabledField).toBeDefined()
-    expect(result.properties?.disabledField?.['x-scalar-disabled']).toBe(true)
-    expect(result.properties?.disabledField?.type).toBe('string')
+    expect(dereference(result.properties?.disabledField)?.['x-scalar-disabled']).toBe(true)
+    expect(dereference(result.properties?.disabledField)?.type).toBe('string')
   })
 
   it('preserves other properties when formdata parameter is disabled', () => {
@@ -243,7 +244,7 @@ describe('form-data', () => {
 
     const result = processFormDataSchema(formdata)
 
-    const property = result.properties?.name
+    const property = dereference(result.properties?.name)
     expect(property?.['x-scalar-disabled']).toBe(true)
     expect(property?.type).toBe('string')
     expect(property?.example).toBe('John Doe')
@@ -262,8 +263,8 @@ describe('form-data', () => {
 
     const result = processFormDataSchema(formdata)
 
-    expect(result.properties?.document?.['x-scalar-disabled']).toBe(true)
-    expect(result.properties?.document?.format).toBe('binary')
+    expect(dereference(result.properties?.document)?.['x-scalar-disabled']).toBe(true)
+    expect(dereference(result.properties?.document)?.format).toBe('binary')
   })
 
   it('does not add x-scalar-disabled extension when disabled is false', () => {
@@ -277,8 +278,7 @@ describe('form-data', () => {
     ]
 
     const result = processFormDataSchema(formdata)
-
-    expect(result.properties?.name?.['x-scalar-disabled']).toBeUndefined()
+    expect(dereference(result.properties?.name)?.['x-scalar-disabled']).toBeUndefined()
   })
 
   it('does not add x-scalar-disabled extension when disabled is undefined', () => {
@@ -291,7 +291,6 @@ describe('form-data', () => {
     ]
 
     const result = processFormDataSchema(formdata)
-
-    expect(result.properties?.name?.['x-scalar-disabled']).toBeUndefined()
+    expect(dereference(result.properties?.name)?.['x-scalar-disabled']).toBeUndefined()
   })
 })

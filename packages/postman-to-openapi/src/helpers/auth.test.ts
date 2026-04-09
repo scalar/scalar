@@ -1,3 +1,4 @@
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 
 import type { Auth } from '@/types'
@@ -79,9 +80,9 @@ describe('auth', () => {
 
     const result = processAuth(auth)
 
-    expect(result.securitySchemes.oauth2Auth?.flows?.authorizationCode?.authorizationUrl).toBe(
-      'https://login.example.com/oauth/authorize',
-    )
+    expect(
+      (result.securitySchemes.oauth2Auth as OpenAPIV3_1.TypeOauth2Object)?.flows?.authorizationCode?.authorizationUrl,
+    ).toBe('https://login.example.com/oauth/authorize')
   })
 
   it('extracts OAuth2 token URL from auth attributes', () => {
@@ -95,9 +96,9 @@ describe('auth', () => {
 
     const result = processAuth(auth)
 
-    expect(result.securitySchemes.oauth2Auth?.flows?.authorizationCode?.tokenUrl).toBe(
-      'https://login.example.com/oauth/token',
-    )
+    expect(
+      (result.securitySchemes.oauth2Auth as OpenAPIV3_1.TypeOauth2Object)?.flows?.authorizationCode?.tokenUrl,
+    ).toBe('https://login.example.com/oauth/token')
   })
 
   it('extracts OAuth2 scopes from auth attributes', () => {
@@ -108,7 +109,7 @@ describe('auth', () => {
 
     const result = processAuth(auth)
 
-    const scopes = result.securitySchemes.oauth2Auth?.flows?.authorizationCode?.scopes
+    const scopes = (result.securitySchemes.oauth2Auth as OpenAPIV3_1.TypeOauth2Object)?.flows?.authorizationCode?.scopes
     expect(scopes).toEqual({
       read: 'read',
       write: 'write',
@@ -125,7 +126,7 @@ describe('auth', () => {
 
     const result = processAuth(auth)
 
-    const scopes = result.securitySchemes.oauth2Auth?.flows?.authorizationCode?.scopes
+    const scopes = (result.securitySchemes.oauth2Auth as OpenAPIV3_1.TypeOauth2Object)?.flows?.authorizationCode?.scopes
     expect(scopes).toEqual({
       read: 'read',
       write: 'write',
@@ -141,9 +142,9 @@ describe('auth', () => {
 
     const result = processAuth(auth)
 
-    expect(result.securitySchemes.oauth2Auth?.flows?.authorizationCode?.tokenUrl).toBe(
-      'https://login.example.com/oauth/token',
-    )
+    expect(
+      (result.securitySchemes.oauth2Auth as OpenAPIV3_1.TypeOauth2Object)?.flows?.authorizationCode?.tokenUrl,
+    ).toBe('https://login.example.com/oauth/token')
   })
 
   it('uses authorizationUrl as fallback for authUrl', () => {
@@ -154,9 +155,9 @@ describe('auth', () => {
 
     const result = processAuth(auth)
 
-    expect(result.securitySchemes.oauth2Auth?.flows?.authorizationCode?.authorizationUrl).toBe(
-      'https://login.example.com/oauth/authorize',
-    )
+    expect(
+      (result.securitySchemes.oauth2Auth as OpenAPIV3_1.TypeOauth2Object)?.flows?.authorizationCode?.authorizationUrl,
+    ).toBe('https://login.example.com/oauth/authorize')
   })
 
   it('returns empty configuration for no authentication', () => {
