@@ -11,34 +11,57 @@
 npm install @scalar/api-client-react
 ```
 
+## ⚠️ Breaking Changes
+
+We have updated the API for the client! Please see the new hook based usage below.
+
 ## Usage
 
-First we need to add the provider, you should add it in the highest place you have a unique spec.
+Call `useApiClient()` from any component. No provider is needed.
+
+The Vue app is created once and appended to `document.body` where it lives for the lifetime of the
+page — it survives client-side navigation without losing state.
+
+The code is ESM lazy loaded with the dynamic import function to make the smallest possible initial bundle size. We also
+handle de-duplication of documents so as long as the URL is the same you will only get one.
 
 ```tsx
-import { ApiClientModalProvider } from '@scalar/api-client-react'
-
+import { useApiClient } from '@scalar/api-client-react'
 import '@scalar/api-client-react/style.css'
-;<ApiClientModalProvider
-  configuration={{
-    url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
-  }}>
-  {children}
-</ApiClientModalProvider>
+
+export const OpenButton = () => {
+  const client = useApiClient({
+    configuration: {
+      url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
+    },
+  })
+
+  return (
+    <button onClick={() => client?.open({ path: '/planets', method: 'get' })}>
+      Open API Client
+    </button>
+  )
+}
 ```
 
-Then you can trigger it from anywhere inside of that provider by calling the `useApiClientModal()`
+### Options
+
+| Option | Type | Description |
+|---|---|---|
+| `configuration.url` | `string` | URL of an OpenAPI document to load |
+| `configuration.content` | `Record<string, unknown>` | Inline OpenAPI document object |
+
+### Routing to a specific request
+
+Pass a `RoutePayload` to `client.open()` to navigate directly to a specific endpoint:
 
 ```tsx
-import { useApiClientModal } from '@scalar/api-client-react'
+const client = useApiClient({
+  configuration: { url: '...' },
+})
 
-const client = useApiClientModal()
-
-return (
-  <button onClick={() => client?.open({ path: '/auth/token', method: 'get' })}>
-    Click me to open the Api Client
-  </button>
-)
+// Open to a specific request
+client?.open({ path: '/auth/token', method: 'post' })
 ```
 
 Check out the playground for a working example.
