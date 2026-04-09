@@ -1323,7 +1323,7 @@ The `requestBuilder` object exposes the following fields:
 | `body` | `RequestBody \| null` | The request body payload (`raw`, `formdata`, or `urlencoded`), or `null`. |
 | `cookies` | `XScalarCookie[]` | Cookies to include with the request. |
 | `security` | `BuildRequestSecurityResult[]` | The resolved security schemes for this request. Each entry has `in` (`"header"`, `"query"`, or `"cookie"`), `name`, `value`, and an optional `format` (`"basic"` or `"bearer"`). |
-| `options` | `object \| undefined` | Advanced options (see below). |
+| `options` | `object` | Advanced options (see below). |
 
 **`options`**
 
