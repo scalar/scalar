@@ -1,7 +1,9 @@
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 
 import type { RequestBody } from '@/types'
 
+import { dereference } from './dereference'
 import { extractRequestBody } from './request-body'
 
 describe('request-body', () => {
@@ -159,7 +161,9 @@ describe('request-body', () => {
 
     const result = extractRequestBody(body, 'default')
 
-    expect(result.content?.['application/x-www-form-urlencoded']?.schema?.required).toEqual(['name'])
+    expect(
+      (result.content?.['application/x-www-form-urlencoded']?.schema as OpenAPIV3_1.MultiTypeObject)?.required,
+    ).toEqual(['name'])
   })
 
   it('returns empty content for unsupported mode', () => {
@@ -218,7 +222,7 @@ describe('request-body', () => {
 
     const result = extractRequestBody(body, 'default')
 
-    expect(result.content?.['application/json']?.examples?.default?.value).toEqual({
+    expect(dereference(result.content?.['application/json']?.examples?.default)?.value).toEqual({
       user: {
         name: 'John',
         address: {
@@ -282,9 +286,13 @@ describe('request-body', () => {
 
     const result = extractRequestBody(body, 'default')
 
-    const schema = result.content?.['application/x-www-form-urlencoded']?.schema
-    expect(schema?.properties?.name?.['x-scalar-disabled']).toBe(true)
-    expect(schema?.properties?.email?.['x-scalar-disabled']).toBeUndefined()
+    const schema = result.content?.['application/x-www-form-urlencoded']?.schema as
+      | OpenAPIV3_1.MultiTypeObject
+      | undefined
+    expect((schema?.properties?.name as OpenAPIV3_1.MultiTypeObject | undefined)?.['x-scalar-disabled']).toBe(true)
+    expect(
+      (schema?.properties?.email as OpenAPIV3_1.MultiTypeObject | undefined)?.['x-scalar-disabled'],
+    ).toBeUndefined()
   })
 
   it('includes disabled urlencoded parameters in schema properties', () => {
@@ -301,10 +309,14 @@ describe('request-body', () => {
 
     const result = extractRequestBody(body, 'default')
 
-    const schema = result.content?.['application/x-www-form-urlencoded']?.schema
+    const schema = result.content?.['application/x-www-form-urlencoded']?.schema as
+      | OpenAPIV3_1.MultiTypeObject
+      | undefined
     expect(schema?.properties?.disabledField).toBeDefined()
-    expect(schema?.properties?.disabledField?.['x-scalar-disabled']).toBe(true)
-    expect(schema?.properties?.disabledField?.type).toBe('string')
+    expect((schema?.properties?.disabledField as OpenAPIV3_1.MultiTypeObject | undefined)?.['x-scalar-disabled']).toBe(
+      true,
+    )
+    expect((schema?.properties?.disabledField as OpenAPIV3_1.MultiTypeObject | undefined)?.type).toBe('string')
   })
 
   it('preserves other properties when urlencoded parameter is disabled', () => {
@@ -322,8 +334,10 @@ describe('request-body', () => {
 
     const result = extractRequestBody(body, 'default')
 
-    const schema = result.content?.['application/x-www-form-urlencoded']?.schema
-    const property = schema?.properties?.name
+    const schema = result.content?.['application/x-www-form-urlencoded']?.schema as
+      | OpenAPIV3_1.MultiTypeObject
+      | undefined
+    const property = schema?.properties?.name as OpenAPIV3_1.MultiTypeObject | undefined
     expect(property?.['x-scalar-disabled']).toBe(true)
     expect(property?.type).toBe('string')
     expect(property?.examples).toEqual(['John'])

@@ -1,7 +1,9 @@
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 
 import type { Item, ItemGroup } from '@/types'
 
+import { dereference } from './dereference'
 import { processItem } from './path-items'
 
 describe('path-items', () => {
@@ -380,7 +382,7 @@ describe('path-items', () => {
     const result = processItem(item)
 
     expect(result.paths['/users']?.post?.requestBody).toBeDefined()
-    expect(result.paths['/users']?.post?.requestBody?.content?.['application/json']).toBeDefined()
+    expect(dereference(result.paths['/users']?.post?.requestBody)?.content?.['application/json']).toBeDefined()
   })
 
   it('processes PUT request with request body', () => {
@@ -443,7 +445,7 @@ describe('path-items', () => {
     const result = processItem(item)
 
     expect(result.paths['/users']?.get?.requestBody).toBeDefined()
-    expect(result.paths['/users']?.get?.requestBody?.content?.['application/json']).toBeDefined()
+    expect(dereference(result.paths['/users']?.get?.requestBody)?.content?.['application/json']).toBeDefined()
   })
 
   it('allows GET requests to have request bodies', () => {
@@ -469,9 +471,10 @@ describe('path-items', () => {
     const result = processItem(item, 'default')
 
     expect(result.paths['/bedrock']?.get?.requestBody).toBeDefined()
-    expect(result.paths['/bedrock']?.get?.requestBody?.content?.['application/json']).toBeDefined()
-    const example = result.paths['/bedrock']?.get?.requestBody?.content?.['application/json']?.examples?.default
-      ?.value as any
+    expect(dereference(result.paths['/bedrock']?.get?.requestBody)?.content?.['application/json']).toBeDefined()
+    const example = dereference(
+      dereference(result.paths['/bedrock']?.get?.requestBody)?.content?.['application/json']?.examples?.default,
+    )?.value as any
     expect(example?.data?.modelId).toBe('mistral.mistral-7b-instruct-v0:2')
   })
 
@@ -820,7 +823,7 @@ describe('path-items', () => {
 
       expect(userIdParam).toBeDefined()
       expect((userIdParam as any)?.['x-scalar-disabled']).toBe(true)
-      expect(userIdParam?.required).toBe(true)
+      expect(dereference(userIdParam)?.required).toBe(true)
     })
 
     it('preserves disabled urlencoded parameters in request body', () => {
@@ -854,11 +857,15 @@ describe('path-items', () => {
       if (!pathKey) {
         throw new Error('Path key not found')
       }
-      const requestBody = result.paths[pathKey!]?.post?.requestBody
-      const schema = requestBody?.content?.['application/x-www-form-urlencoded']?.schema
+      const requestBody = dereference(result.paths[pathKey!]?.post?.requestBody)
+      const schema = requestBody?.content?.['application/x-www-form-urlencoded']?.schema as
+        | OpenAPIV3_1.MultiTypeObject
+        | undefined
 
-      expect(schema?.properties?.name?.['x-scalar-disabled']).toBe(true)
-      expect(schema?.properties?.email?.['x-scalar-disabled']).toBeUndefined()
+      expect((schema?.properties?.name as OpenAPIV3_1.MultiTypeObject | undefined)?.['x-scalar-disabled']).toBe(true)
+      expect(
+        (schema?.properties?.email as OpenAPIV3_1.MultiTypeObject | undefined)?.['x-scalar-disabled'],
+      ).toBeUndefined()
     })
 
     it('preserves disabled formdata parameters in request body', () => {
@@ -894,11 +901,13 @@ describe('path-items', () => {
       if (!pathKey) {
         throw new Error('Path key not found')
       }
-      const requestBody = result.paths[pathKey!]?.post?.requestBody
-      const schema = requestBody?.content?.['multipart/form-data']?.schema
+      const requestBody = dereference(result.paths[pathKey!]?.post?.requestBody)
+      const schema = requestBody?.content?.['multipart/form-data']?.schema as OpenAPIV3_1.MultiTypeObject | undefined
 
-      expect(schema?.properties?.file?.['x-scalar-disabled']).toBe(true)
-      expect(schema?.properties?.description?.['x-scalar-disabled']).toBeUndefined()
+      expect((schema?.properties?.file as OpenAPIV3_1.MultiTypeObject | undefined)?.['x-scalar-disabled']).toBe(true)
+      expect(
+        (schema?.properties?.description as OpenAPIV3_1.MultiTypeObject | undefined)?.['x-scalar-disabled'],
+      ).toBeUndefined()
     })
 
     it('handles mixed enabled and disabled parameters correctly', () => {

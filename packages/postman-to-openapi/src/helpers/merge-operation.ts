@@ -1,5 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
+import { dereference } from '@/helpers/dereference'
+
 /**
  * Merges two OpenAPI OperationObject instances.
  * Assumes that all example names (keys in the 'examples' objects) are unique across both operations.
@@ -69,7 +71,12 @@ export const mergeOperations = (
 
   // Seed parameter list from operation2 (the base)
   if (operation.parameters) {
-    for (const parameter of operation.parameters) {
+    for (const p of operation.parameters) {
+      const parameter = dereference(p)
+      if (!parameter) {
+        continue
+      }
+
       const id = generateParameterId(parameter)
       parameters.set(id, parameter)
     }
@@ -78,11 +85,16 @@ export const mergeOperations = (
   // Merge parameters from operation1 into parameters of operation2.
   // For each parameter, merge their 'examples' objects, assuming example keys are unique.
   if (operation1.parameters) {
-    for (const parameter of operation1.parameters) {
+    for (const p of operation1.parameters) {
+      const parameter = dereference(p)
+      if (!parameter) {
+        continue
+      }
+
       const id = generateParameterId(parameter)
       if (parameters.has(id)) {
         const existingParameter = parameters.get(id)
-        if (existingParameter) {
+        if (existingParameter && 'examples' in existingParameter && 'examples' in parameter) {
           // Example keys are expected to be unique, so shallow merge is safe.
           existingParameter.examples = {
             ...existingParameter.examples,
@@ -100,30 +112,32 @@ export const mergeOperations = (
   }
 
   const contentMediaTypeMap = new Map<string, OpenAPIV3_1.MediaTypeObject>()
+  const content = dereference(operation.requestBody)?.content
 
   // Seed requestBody content from operation2 (the base)
-  if (operation.requestBody?.content) {
-    for (const [contentType, mediaType] of Object.entries(operation.requestBody.content)) {
-      contentMediaTypeMap.set(contentType, mediaType as OpenAPIV3_1.MediaTypeObject)
+  if (content) {
+    for (const [contentType, mediaType] of Object.entries(content)) {
+      contentMediaTypeMap.set(contentType, mediaType)
     }
   }
 
+  const content1 = dereference(operation1.requestBody)?.content
+
   // Merge requestBody content from operation1 into the base.
   // When merging 'examples', we expect example names to be unique (no overwrite).
-  if (operation1.requestBody?.content) {
-    for (const [contentType, mediaType] of Object.entries(operation1.requestBody.content)) {
-      const mediaTypeObj = mediaType as OpenAPIV3_1.MediaTypeObject
+  if (content1) {
+    for (const [contentType, mediaType] of Object.entries(content1)) {
       if (contentMediaTypeMap.has(contentType)) {
         const existingMediaType = contentMediaTypeMap.get(contentType)
-        if (existingMediaType && (existingMediaType.examples || mediaTypeObj.examples)) {
+        if (existingMediaType && (existingMediaType.examples || mediaType.examples)) {
           // Assumption: example names (keys) are unique, so this merge is safe
           existingMediaType.examples = {
             ...existingMediaType.examples,
-            ...mediaTypeObj.examples,
+            ...mediaType.examples,
           }
         }
       } else {
-        contentMediaTypeMap.set(contentType, mediaTypeObj)
+        contentMediaTypeMap.set(contentType, mediaType)
       }
     }
   }

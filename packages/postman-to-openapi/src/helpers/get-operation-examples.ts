@@ -1,6 +1,8 @@
 import { HTTP_METHODS } from '@scalar/helpers/http/http-methods'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
+import { dereference } from './dereference'
+
 /**
  * Collects all example names used on parameters and requestBodies
  * within all operations of a PathItemObject.
@@ -50,8 +52,9 @@ export const getOperationExamples = (path: OpenAPIV3_1.PathItemObject) => {
     const op = operation as OpenAPIV3_1.OperationObject
 
     if ('parameters' in op) {
-      op.parameters?.forEach((parameter) => {
-        if (parameter.examples) {
+      op.parameters?.forEach((rawParameter) => {
+        const parameter = dereference(rawParameter)
+        if (parameter && 'examples' in parameter && parameter.examples) {
           for (const exampleName of Object.keys(parameter.examples)) {
             exampleNames.add(exampleName)
           }
@@ -60,7 +63,7 @@ export const getOperationExamples = (path: OpenAPIV3_1.PathItemObject) => {
     }
 
     if ('requestBody' in op) {
-      const requestBody = op.requestBody
+      const requestBody = dereference(op.requestBody)
       if (requestBody?.content) {
         for (const mediaTypeObject of Object.values(requestBody.content)) {
           const examples =

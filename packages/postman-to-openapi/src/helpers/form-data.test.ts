@@ -1,3 +1,4 @@
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 
 import { dereference } from '@/helpers/dereference'
@@ -264,7 +265,7 @@ describe('form-data', () => {
     const result = processFormDataSchema(formdata)
 
     expect(dereference(result.properties?.document)?.['x-scalar-disabled']).toBe(true)
-    expect(dereference(result.properties?.document)?.format).toBe('binary')
+    expect((dereference(result.properties?.document) as OpenAPIV3_1.MultiTypeObject | null)?.format).toBe('binary')
   })
 
   it('does not add x-scalar-disabled extension when disabled is false', () => {

@@ -1,6 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { assert, expect, it } from 'vitest'
 
+import { dereference } from '@/helpers/dereference'
 import { mergeOperations } from '@/helpers/merge-operation'
 
 it('returns an object based on operation2 with operation2 fields preserved', () => {
@@ -37,8 +38,9 @@ it('merges parameter examples when both operations have a parameter with the sam
   const result = mergeOperations(op1, op2)
   expect(result.parameters).toHaveLength(1)
   assert(result.parameters?.[0])
-  expect(result.parameters[0].name).toBe('id')
-  expect(result.parameters[0].examples).toEqual({
+  const param0 = dereference(result.parameters[0]) as OpenAPIV3_1.ParameterWithSchemaObject
+  expect(param0.name).toBe('id')
+  expect(param0.examples).toEqual({
     incoming: { value: '99' },
     default: { value: '1' },
     other: { value: '2' },
@@ -56,7 +58,7 @@ it('includes parameters only in operation1 in the result', () => {
   }
   const result = mergeOperations(op1, op2)
   expect(result.parameters).toHaveLength(2)
-  const names = result.parameters?.map((p) => p.name).sort() ?? []
+  const names = result.parameters?.map((p) => dereference(p)?.name).sort() ?? []
   expect(names).toEqual(['extra', 'id'])
 })
 
@@ -69,7 +71,7 @@ it('includes parameters only in operation2 in the result', () => {
   const result = mergeOperations(op1, op2)
   expect(result.parameters).toHaveLength(1)
   assert(result.parameters?.[0])
-  expect(result.parameters[0].name).toBe('id')
+  expect(dereference(result.parameters[0])?.name).toBe('id')
 })
 
 it('merges request body examples for the same media type', () => {
@@ -96,7 +98,7 @@ it('merges request body examples for the same media type', () => {
     responses: {},
   }
   const result = mergeOperations(op1, op2)
-  expect(result.requestBody?.content?.['application/json']?.examples).toEqual({
+  expect(dereference(result.requestBody)?.content?.['application/json']?.examples).toEqual({
     second: { value: { b: 2 } },
     first: { value: { a: 1 } },
   })

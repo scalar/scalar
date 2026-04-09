@@ -1,5 +1,7 @@
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 
+import { dereference } from './dereference'
 import { pruneDocument } from './prune-document'
 
 describe('pruneDocument', () => {
@@ -141,8 +143,8 @@ describe('pruneDocument', () => {
 
     const result = pruneDocument(document as any)
     const operation = result.paths?.['/test']?.post
-    const requestBody = operation?.requestBody
-    const response = operation?.responses?.['200']
+    const requestBody = dereference(operation?.requestBody)
+    const response = dereference(operation?.responses?.['200'])
 
     expect(requestBody).toBeDefined()
     expect(requestBody?.description).toBeUndefined()
@@ -271,9 +273,9 @@ describe('pruneDocument', () => {
 
     const result = pruneDocument(document as any)
     const operation = result.paths?.['/test']?.post
-    const schema = operation?.requestBody?.content?.['application/json']?.schema as any
-    const example = operation?.requestBody?.content?.['application/json']?.examples?.example1 as any
-    const responseSchema = operation?.responses?.['200']?.content?.['application/json']?.schema as any
+    const schema = dereference(operation?.requestBody)?.content?.['application/json']?.schema as any
+    const example = dereference(operation?.requestBody)?.content?.['application/json']?.examples?.example1 as any
+    const responseSchema = dereference(operation?.responses?.['200'])?.content?.['application/json']?.schema as any
 
     expect(schema.properties.name.example).toBeUndefined()
     expect(schema.properties.name.description).toBeUndefined()
@@ -291,8 +293,8 @@ describe('pruneDocument', () => {
     expect(responseSchema.example).toBeUndefined()
     expect('example' in responseSchema).toBe(false)
 
-    expect(operation?.responses?.['200']?.content?.['application/json']?.examples).toBeUndefined()
-    expect('examples' in operation!.responses!['200']!.content!['application/json']!).toBe(false)
+    expect(dereference(operation?.responses?.['200'])?.content?.['application/json']?.examples).toBeUndefined()
+    expect('examples' in dereference(operation!.responses!['200'])!.content!['application/json']!).toBe(false)
   })
 
   it('removes undefined values from arrays', () => {
@@ -329,10 +331,12 @@ describe('pruneDocument', () => {
     const operation = result.paths?.['/test']?.get
 
     expect(operation?.parameters).toHaveLength(2)
-    expect(operation?.parameters?.[1]?.description).toBeUndefined()
-    expect(operation?.parameters?.[1]?.example).toBeUndefined()
-    expect('description' in operation!.parameters![1]!).toBe(false)
-    expect('example' in operation!.parameters![1]!).toBe(false)
+    expect(dereference(operation?.parameters?.[1])?.description).toBeUndefined()
+    expect(
+      (dereference(operation?.parameters?.[1]) as OpenAPIV3_1.ParameterWithSchemaObject | null)?.example,
+    ).toBeUndefined()
+    expect('description' in dereference(operation!.parameters![1])!).toBe(false)
+    expect('example' in (dereference(operation!.parameters![1]) as OpenAPIV3_1.ParameterWithSchemaObject)!).toBe(false)
 
     // Arrays with undefined values should have them filtered out
     expect(operation?.tags).toEqual(['tag1', 'tag2'])
@@ -423,7 +427,7 @@ describe('pruneDocument', () => {
     expect('servers' in operation!).toBe(false)
 
     // Response
-    const response = operation?.responses?.['200']
+    const response = dereference(operation?.responses?.['200'])
     expect(response?.headers).toBeUndefined()
     expect(response?.content).toBeUndefined()
     expect('headers' in response!).toBe(false)

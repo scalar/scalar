@@ -1,6 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { expect, it } from 'vitest'
 
+import { dereference } from '@/helpers/dereference'
 import { renameOperationExamples } from '@/helpers/rename-operation-example'
 
 it('renames example in operation parameters', () => {
@@ -16,8 +17,12 @@ it('renames example in operation parameters', () => {
     responses: {},
   }
   renameOperationExamples(operation, 'default', 'renamed')
-  expect(operation.parameters?.[0]?.examples).toEqual({ renamed: { value: '1' } })
-  expect(operation.parameters?.[0]?.examples?.default).toBeUndefined()
+  expect((dereference(operation.parameters?.[0]) as OpenAPIV3_1.ParameterWithSchemaObject | null)?.examples).toEqual({
+    renamed: { value: '1' },
+  })
+  expect(
+    (dereference(operation.parameters?.[0]) as OpenAPIV3_1.ParameterWithSchemaObject | null)?.examples?.default,
+  ).toBeUndefined()
 })
 
 it('renames example in operation requestBody content', () => {
@@ -33,7 +38,7 @@ it('renames example in operation requestBody content', () => {
     responses: {},
   }
   renameOperationExamples(operation, 'default', 'custom')
-  const jsonContent = operation.requestBody?.content?.['application/json']
+  const jsonContent = dereference(operation.requestBody)?.content?.['application/json']
   expect(jsonContent?.examples).toEqual({ custom: { value: { foo: true } } })
   expect(jsonContent?.examples?.default).toBeUndefined()
 })
@@ -54,7 +59,7 @@ it('leaves other example names unchanged when renaming one', () => {
     responses: {},
   }
   renameOperationExamples(operation, 'default', 'renamed')
-  expect(operation.parameters?.[0]?.examples).toEqual({
+  expect((dereference(operation.parameters?.[0]) as OpenAPIV3_1.ParameterWithSchemaObject | null)?.examples).toEqual({
     renamed: { value: '1' },
     other: { value: '2' },
   })
@@ -79,8 +84,12 @@ it('renames in all parameters that have the example', () => {
     responses: {},
   }
   renameOperationExamples(operation, 'default', 'new')
-  expect(operation.parameters?.[0]?.examples).toEqual({ new: { value: 'a' } })
-  expect(operation.parameters?.[1]?.examples).toEqual({ new: { value: 'b' } })
+  expect((dereference(operation.parameters?.[0]) as OpenAPIV3_1.ParameterWithSchemaObject | null)?.examples).toEqual({
+    new: { value: 'a' },
+  })
+  expect((dereference(operation.parameters?.[1]) as OpenAPIV3_1.ParameterWithSchemaObject | null)?.examples).toEqual({
+    new: { value: 'b' },
+  })
 })
 
 it('renames in all requestBody media types that have the example', () => {
@@ -100,10 +109,10 @@ it('renames in all requestBody media types that have the example', () => {
     responses: {},
   }
   renameOperationExamples(operation, 'default', 'renamed')
-  expect(operation.requestBody?.content?.['application/json']?.examples).toEqual({
+  expect(dereference(operation.requestBody)?.content?.['application/json']?.examples).toEqual({
     renamed: { value: {} },
   })
-  expect(operation.requestBody?.content?.['application/xml']?.examples).toEqual({
+  expect(dereference(operation.requestBody)?.content?.['application/xml']?.examples).toEqual({
     renamed: { value: '<root/>' },
   })
 })
@@ -132,5 +141,7 @@ it('does not mutate parameters that have no examples', () => {
     responses: {},
   }
   renameOperationExamples(operation, 'default', 'new')
-  expect(operation.parameters?.[0]?.examples).toBeUndefined()
+  expect(
+    (dereference(operation.parameters?.[0]) as OpenAPIV3_1.ParameterWithSchemaObject | null)?.examples,
+  ).toBeUndefined()
 })

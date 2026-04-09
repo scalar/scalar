@@ -1,5 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
+import { dereference } from './dereference'
+
 /**
  * Renames an example in all parameters and requestBody content of an operation object.
  *
@@ -44,8 +46,9 @@ export const renameOperationExamples = (
 ): void => {
   // Rename in parameter examples (if present)
   if ('parameters' in operation) {
-    operation.parameters?.forEach((parameter) => {
-      if (parameter.examples?.[exampleName] && exampleName !== newExampleName) {
+    operation.parameters?.forEach((rawParameter) => {
+      const parameter = dereference(rawParameter) as OpenAPIV3_1.ParameterWithSchemaObject | null
+      if (parameter?.examples?.[exampleName] && exampleName !== newExampleName) {
         parameter.examples[newExampleName] = parameter.examples[exampleName]
         delete parameter.examples[exampleName]
       }
@@ -54,7 +57,8 @@ export const renameOperationExamples = (
 
   // Rename in requestBody content examples (if present)
   if ('requestBody' in operation) {
-    Object.values(operation.requestBody?.content ?? {}).forEach((mediaTypeObject) => {
+    const requestBody = dereference(operation.requestBody)
+    Object.values(requestBody?.content ?? {}).forEach((mediaTypeObject) => {
       if (
         (mediaTypeObject as OpenAPIV3_1.MediaTypeObject).examples &&
         typeof (mediaTypeObject as OpenAPIV3_1.MediaTypeObject).examples === 'object'

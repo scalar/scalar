@@ -94,8 +94,8 @@ export function createParameterObject(
   param: any,
   paramIn: 'query' | 'path' | 'header',
   exampleName: string,
-): OpenAPIV3_1.ParameterObject {
-  const parameter: OpenAPIV3_1.ParameterObject = {
+): OpenAPIV3_1.ParameterWithSchemaObject {
+  const parameter: Partial<OpenAPIV3_1.ParameterObject> = {
     name: param.key || '',
     in: paramIn,
     description: param.description,
@@ -145,9 +145,8 @@ export function createParameterObject(
 
   // Add x-scalar-disabled extension if parameter is disabled
   if (param.disabled === true) {
-    // @ts-expect-error - x-scalar-disabled is not a valid parameter object property
     parameter['x-scalar-disabled'] = true
   }
 
-  return parameter
+  return parameter as OpenAPIV3_1.ParameterWithSchemaObject
 }

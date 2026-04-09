@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { Item, Response } from '@/types'
 
+import { dereference } from './dereference'
 import { extractResponses } from './responses'
 
 describe('responses', () => {
@@ -52,7 +53,7 @@ describe('responses', () => {
     const result = extractResponses(responses)
 
     // The function infers schema from the string itself, not parsed JSON
-    expect(result?.['200']?.content?.['application/json']?.schema).toEqual({
+    expect(dereference(result?.['200'])?.content?.['application/json']?.schema).toEqual({
       type: 'string',
     })
   })
@@ -67,7 +68,7 @@ describe('responses', () => {
 
     const result = extractResponses(responses)
 
-    expect(result?.['200']?.content?.['application/json']?.examples?.default).toEqual({
+    expect(dereference(result?.['200'])?.content?.['application/json']?.examples?.default).toEqual({
       id: 1,
       name: 'John',
     })
@@ -83,7 +84,7 @@ describe('responses', () => {
 
     const result = extractResponses(responses)
 
-    expect(result?.['200']?.content?.['application/json']?.examples?.default).toEqual({
+    expect(dereference(result?.['200'])?.content?.['application/json']?.examples?.default).toEqual({
       rawContent: 'invalid json',
     })
   })
@@ -107,7 +108,7 @@ describe('responses', () => {
 
     const result = extractResponses(responses)
 
-    expect(result?.['200']?.headers).toEqual({
+    expect(dereference(result?.['200'])?.headers).toEqual({
       'Content-Type': {
         schema: {
           type: 'string',
@@ -133,7 +134,7 @@ describe('responses', () => {
 
     const result = extractResponses(responses)
 
-    expect(result?.['200']?.headers).toBeUndefined()
+    expect(dereference(result?.['200'])?.headers).toBeUndefined()
   })
 
   it('handles null headers', () => {
@@ -146,7 +147,7 @@ describe('responses', () => {
 
     const result = extractResponses(responses)
 
-    expect(result?.['200']?.headers).toBeUndefined()
+    expect(dereference(result?.['200'])?.headers).toBeUndefined()
   })
 
   it('adds status codes from test scripts', () => {
@@ -204,7 +205,7 @@ describe('responses', () => {
     const result = extractResponses(responses, item)
 
     expect(result?.['201']?.description).toBe('Created')
-    expect(result?.['201']?.content).toBeDefined()
+    expect(dereference(result?.['201'])?.content).toBeDefined()
   })
 
   it('handles default status code', () => {
@@ -241,7 +242,7 @@ describe('responses', () => {
 
     const result = extractResponses(responses)
 
-    expect(result?.['204']?.content?.['application/json']?.examples?.default).toEqual({
+    expect(dereference(result?.['204'])?.content?.['application/json']?.examples?.default).toEqual({
       rawContent: '',
     })
   })
@@ -257,7 +258,7 @@ describe('responses', () => {
     const result = extractResponses(responses)
 
     // The function infers schema from the string itself, not parsed JSON
-    expect(result?.['200']?.content?.['application/json']?.schema).toEqual({
+    expect(dereference(result?.['200'])?.content?.['application/json']?.schema).toEqual({
       type: 'string',
     })
   })
