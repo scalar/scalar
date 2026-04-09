@@ -61,46 +61,60 @@ export const buildRequest = (
     return null
   })()
 
+  const securityQueryParams = new URLSearchParams()
   const securityCookies: XScalarCookie[] = []
 
-  // Build the request security (query params are applied in resolveRequestFactoryUrl)
-  request.security.forEach((security) => {
-    const name = replaceEnvVariables(security.name, options.envVariables)
-    const securityValue = replaceEnvVariables(security.value, options.envVariables)
+  // Build the request security unless the consumer opted out via disableSecurity
+  if (!request.options?.disableSecurity) {
+    request.security.forEach((security) => {
+      const name = replaceEnvVariables(security.name, options.envVariables)
 
-    if (security.in === 'header') {
-      // Build the value for the header
-      const buildValue = (() => {
-        if (security.type === 'basic') {
-          return `Basic ${encodeBase64(securityValue)}`
+      // Format the security value based on its authentication scheme.
+      // - For 'basic': prefix with 'Basic' and base64-encode the value (username:password).
+      // - For 'bearer': prefix with 'Bearer'.
+      // - Otherwise: use the substituted value as is (for API keys, etc).
+      const securityValue = (() => {
+        const substitutedValue = replaceEnvVariables(security.value, options.envVariables)
+        if (security.format === 'basic') {
+          return `Basic ${encodeBase64(substitutedValue)}`
         }
 
-        if (security.type === 'bearer') {
-          return `Bearer ${securityValue}`
+        if (security.format === 'bearer') {
+          return `Bearer ${substitutedValue}`
         }
 
-        return securityValue
+        return substitutedValue
       })()
 
-      // Set the header (use replaced header name so {{ env }} placeholders work)
-      headers.set(name, buildValue)
-      return
-    }
+      if (security.in === 'header') {
+        // Set the header (use replaced header name so {{ env }} placeholders work)
+        headers.set(name, securityValue)
+        return
+      }
 
-    if (security.in === 'cookie') {
-      securityCookies.push({
-        name: name,
-        value: securityValue,
-        isDisabled: false,
-      })
-    }
+      if (security.in === 'query') {
+        securityQueryParams.set(name, securityValue)
+        return
+      }
+
+      if (security.in === 'cookie') {
+        securityCookies.push({
+          name: name,
+          value: securityValue,
+          isDisabled: false,
+        })
+      }
+    })
+  }
+
+  const requestUrl = resolveRequestFactoryUrl(request, {
+    envVariables: options.envVariables,
+    securityQueryParams: securityQueryParams,
   })
 
-  const requestUrl = resolveRequestFactoryUrl(request, options)
+  const isUsingProxy = shouldUseProxy(request.proxyUrl, requestUrl)
 
-  const isUsingProxy = shouldUseProxy(request.proxy.proxyUrl, requestUrl)
-
-  const cookies: XScalarCookie[] = [...request.cookies.list, ...securityCookies].map((c) => ({
+  const cookies: XScalarCookie[] = [...request.cookies, ...securityCookies].map((c) => ({
     ...c,
     name: replaceEnvVariables(c.name, options.envVariables),
     value: replaceEnvVariables(c.value, options.envVariables),
@@ -120,7 +134,7 @@ export const buildRequest = (
 
   // final url
   const encodedUrl = applyAllowReservedToUrl(requestUrl, request.allowedReservedQueryParameters ?? new Set())
-  const finalUrl = isUsingProxy ? redirectToProxy(request.proxy.proxyUrl, encodedUrl) : encodedUrl
+  const finalUrl = isUsingProxy ? redirectToProxy(request.proxyUrl, encodedUrl) : encodedUrl
 
   return {
     request: new Request(finalUrl, {

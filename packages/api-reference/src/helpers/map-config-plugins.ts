@@ -43,6 +43,7 @@ export const mapConfigPlugins = (
               // We need to build the request to get the fetch `Request`
               request: buildRequest(payload.requestBuilder, { envVariables }).request,
               requestBuilder: payload.requestBuilder,
+              envVariables,
             })
           }
         : undefined
