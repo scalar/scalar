@@ -4,8 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Mock the style import so it doesn't fail in jsdom
 vi.mock('./style.css', () => ({}))
 
-// Mock get-or-create-api-client so we control the async resolution
-vi.mock('./get-or-create-api-client', () => ({
+// Mock lazy-load so we control the async resolution of getOrCreateApiClient
+vi.mock('./lazy-load', () => ({
   getOrCreateApiClient: vi.fn(),
 }))
 
@@ -30,7 +30,7 @@ describe('use-api-client', () => {
     mockApiClient = makeApiClient()
     mockWorkspaceStore = makeWorkspaceStore()
 
-    const { getOrCreateApiClient } = await import('./get-or-create-api-client')
+    const { getOrCreateApiClient } = await import('./lazy-load')
     vi.mocked(getOrCreateApiClient).mockResolvedValue({
       apiClient: mockApiClient as any,
       workspaceStore: mockWorkspaceStore as any,
@@ -43,7 +43,7 @@ describe('use-api-client', () => {
 
   it('returns undefined before the client is ready', async () => {
     // Make the promise never resolve during this synchronous check
-    const { getOrCreateApiClient } = await import('./get-or-create-api-client')
+    const { getOrCreateApiClient } = await import('./lazy-load')
     // biome-ignore lint/suspicious/noEmptyBlockStatements: intentionally never-resolving promise
     vi.mocked(getOrCreateApiClient).mockReturnValue(new Promise(() => {}))
 
@@ -181,7 +181,7 @@ describe('use-api-client', () => {
   it('uses "default" slug when url changes to empty configuration', async () => {
     vi.resetModules()
 
-    const { getOrCreateApiClient } = await import('./get-or-create-api-client')
+    const { getOrCreateApiClient } = await import('./lazy-load')
     vi.mocked(getOrCreateApiClient).mockResolvedValue({
       apiClient: mockApiClient as any,
       workspaceStore: mockWorkspaceStore as any,
@@ -210,7 +210,7 @@ describe('use-api-client', () => {
     // Reset the module-level documentDict by resetting modules
     vi.resetModules()
 
-    const { getOrCreateApiClient } = await import('./get-or-create-api-client')
+    const { getOrCreateApiClient } = await import('./lazy-load')
     vi.mocked(getOrCreateApiClient).mockResolvedValue({
       apiClient: mockApiClient as any,
       workspaceStore: mockWorkspaceStore as any,
@@ -235,7 +235,7 @@ describe('use-api-client', () => {
   it('adds a new document when the url changes', async () => {
     vi.resetModules()
 
-    const { getOrCreateApiClient } = await import('./get-or-create-api-client')
+    const { getOrCreateApiClient } = await import('./lazy-load')
     vi.mocked(getOrCreateApiClient).mockResolvedValue({
       apiClient: mockApiClient as any,
       workspaceStore: mockWorkspaceStore as any,
@@ -267,7 +267,7 @@ describe('use-api-client', () => {
   it('updates the documentSlug when the url changes', async () => {
     vi.resetModules()
 
-    const { getOrCreateApiClient } = await import('./get-or-create-api-client')
+    const { getOrCreateApiClient } = await import('./lazy-load')
     vi.mocked(getOrCreateApiClient).mockResolvedValue({
       apiClient: mockApiClient as any,
       workspaceStore: mockWorkspaceStore as any,
@@ -312,7 +312,7 @@ describe('use-api-client', () => {
       resolveClient = resolve
     })
 
-    const { getOrCreateApiClient } = await import('./get-or-create-api-client')
+    const { getOrCreateApiClient } = await import('./lazy-load')
     vi.mocked(getOrCreateApiClient).mockReturnValue(pendingPromise as any)
 
     const { useApiClient } = await import('./use-api-client')
@@ -334,7 +334,7 @@ describe('use-api-client', () => {
   })
 
   it('open is a no-op when client is not yet initialized', async () => {
-    const { getOrCreateApiClient } = await import('./get-or-create-api-client')
+    const { getOrCreateApiClient } = await import('./lazy-load')
     // biome-ignore lint/suspicious/noEmptyBlockStatements: intentionally never-resolving promise
     vi.mocked(getOrCreateApiClient).mockReturnValue(new Promise(() => {}))
 
@@ -347,7 +347,7 @@ describe('use-api-client', () => {
   })
 
   it('strips url and content from the options passed to getOrCreateApiClient', async () => {
-    const { getOrCreateApiClient } = await import('./get-or-create-api-client')
+    const { getOrCreateApiClient } = await import('./lazy-load')
     const { useApiClient } = await import('./use-api-client')
 
     renderHook(() =>

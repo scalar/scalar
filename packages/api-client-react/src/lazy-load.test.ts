@@ -17,6 +17,7 @@ describe('lazy-load', () => {
   // Re-import the module fresh for each test to reset the module-level singletons
   beforeEach(() => {
     vi.resetModules()
+    document.body.innerHTML = ''
   })
 
   afterEach(() => {
@@ -77,116 +78,8 @@ describe('lazy-load', () => {
     expect(bus1).toBe(bus2)
   })
 
-  it('createLazyApiClientModal mounts the modal and returns apiClient and workspaceStore', async () => {
-    const { createLazyApiClientModal } = await import('./lazy-load')
-    const el = document.createElement('div')
-    const result = await createLazyApiClientModal({ el })
-
-    expect(result.apiClient).toStrictEqual({ open: expect.any(Function), close: expect.any(Function) })
-    expect(result.workspaceStore).toStrictEqual({ addDocument: expect.any(Function) })
-  })
-
-  it('createLazyApiClientModal passes el and eventBus and workspaceStore to createApiClientModal', async () => {
-    const { createLazyApiClientModal } = await import('./lazy-load')
-    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
-
-    const el = document.createElement('div')
-    await createLazyApiClientModal({ el, options: { proxyUrl: 'https://proxy.example.com' } })
-
-    expect(createApiClientModal).toHaveBeenCalledWith(
-      expect.objectContaining({
-        el,
-        options: { proxyUrl: 'https://proxy.example.com' },
-      }),
-    )
-  })
-
-  it('createLazyApiClientModal defaults options to empty object when not provided', async () => {
-    const { createLazyApiClientModal } = await import('./lazy-load')
-    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
-
-    const el = document.createElement('div')
-    await createLazyApiClientModal({ el })
-
-    expect(createApiClientModal).toHaveBeenCalledWith(
-      expect.objectContaining({
-        el,
-        options: {},
-      }),
-    )
-  })
-
-  it('createLazyApiClientModal reuses the singleton workspace store across calls', async () => {
-    const { createLazyApiClientModal, getWorkspaceStoreSingleton } = await import('./lazy-load')
-
-    const el1 = document.createElement('div')
-    const el2 = document.createElement('div')
-
-    const result1 = await createLazyApiClientModal({ el: el1 })
-    const result2 = await createLazyApiClientModal({ el: el2 })
-
-    // Both should reference the same singleton store
-    expect(result1.workspaceStore).toBe(result2.workspaceStore)
-
-    // And it should be the same as the direct singleton getter
-    const singletonStore = await getWorkspaceStoreSingleton()
-    expect(result1.workspaceStore).toBe(singletonStore)
-  })
-
-  it('createLazyApiClientModal calls createWorkspaceStore only once across multiple calls', async () => {
-    const { createLazyApiClientModal } = await import('./lazy-load')
-    const { createWorkspaceStore } = await import('@scalar/workspace-store/client')
-
-    const el1 = document.createElement('div')
-    const el2 = document.createElement('div')
-
-    await createLazyApiClientModal({ el: el1 })
-    await createLazyApiClientModal({ el: el2 })
-
-    expect(createWorkspaceStore).toHaveBeenCalledTimes(1)
-  })
-
-  it('createLazyApiClientModal calls createWorkspaceEventBus only once across multiple calls', async () => {
-    const { createLazyApiClientModal } = await import('./lazy-load')
-    const { createWorkspaceEventBus } = await import('@scalar/workspace-store/events')
-
-    const el1 = document.createElement('div')
-    const el2 = document.createElement('div')
-
-    await createLazyApiClientModal({ el: el1 })
-    await createLazyApiClientModal({ el: el2 })
-
-    expect(createWorkspaceEventBus).toHaveBeenCalledTimes(1)
-  })
-
-  it('each call to createLazyApiClientModal creates a new modal instance', async () => {
-    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
-    const mockModal1 = { open: vi.fn(), close: vi.fn() }
-    const mockModal2 = { open: vi.fn(), close: vi.fn() }
-    vi.mocked(createApiClientModal)
-      .mockReturnValueOnce(mockModal1 as any)
-      .mockReturnValueOnce(mockModal2 as any)
-
-    const { createLazyApiClientModal } = await import('./lazy-load')
-
-    const el1 = document.createElement('div')
-    const el2 = document.createElement('div')
-
-    const result1 = await createLazyApiClientModal({ el: el1 })
-    const result2 = await createLazyApiClientModal({ el: el2 })
-
-    expect(result1.apiClient).toBe(mockModal1)
-    expect(result2.apiClient).toBe(mockModal2)
-    expect(result1.apiClient).not.toBe(result2.apiClient)
-  })
-
   it('getClientModalCreator clears the cache after rejection and retries on next call', async () => {
     const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
-    // First dynamic import will reject, second will succeed
-    vi.mocked(createApiClientModal) // the mock factory itself is fine; we simulate the import failing
-    // We need to make the dynamic import itself fail then succeed.
-    // Since vi.mock intercepts the module, we simulate by making the module throw on first access.
-    // Instead, test via getClientModalCreator directly with a module that rejects.
 
     // Re-import with a fresh module registry so singletons are reset
     const { getClientModalCreator } = await import('./lazy-load')
@@ -234,5 +127,157 @@ describe('lazy-load', () => {
     const bus = await getWorkspaceEventBusSingleton()
     expect(bus).toBe(successBus)
     expect(createWorkspaceEventBus).toHaveBeenCalledTimes(2)
+  })
+
+  it('getOrCreateApiClient appends a .scalar-app div to document.body', async () => {
+    const { getOrCreateApiClient } = await import('./lazy-load')
+    await getOrCreateApiClient()
+
+    const host = document.body.querySelector('.scalar-app')
+    expect(host).not.toBeNull()
+    expect(host?.className).toBe('scalar-app')
+  })
+
+  it('getOrCreateApiClient returns apiClient and workspaceStore', async () => {
+    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
+    const mockApiClient = { open: vi.fn(), close: vi.fn() }
+    vi.mocked(createApiClientModal).mockReturnValue(mockApiClient as any)
+
+    const { getOrCreateApiClient } = await import('./lazy-load')
+    const result = await getOrCreateApiClient()
+
+    expect(result.apiClient).toBe(mockApiClient)
+    expect(result.workspaceStore).toStrictEqual({ addDocument: expect.any(Function) })
+  })
+
+  it('getOrCreateApiClient returns the same promise on repeated calls (singleton)', async () => {
+    const { getOrCreateApiClient } = await import('./lazy-load')
+    const promise1 = getOrCreateApiClient()
+    const promise2 = getOrCreateApiClient()
+
+    expect(promise1).toBe(promise2)
+  })
+
+  it('getOrCreateApiClient resolves to the same result object on repeated awaits', async () => {
+    const { getOrCreateApiClient } = await import('./lazy-load')
+    const result1 = await getOrCreateApiClient()
+    const result2 = await getOrCreateApiClient()
+
+    expect(result1).toBe(result2)
+  })
+
+  it('getOrCreateApiClient calls createApiClientModal only once across multiple calls', async () => {
+    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
+
+    const { getOrCreateApiClient } = await import('./lazy-load')
+    await getOrCreateApiClient()
+    await getOrCreateApiClient()
+    await getOrCreateApiClient()
+
+    expect(createApiClientModal).toHaveBeenCalledTimes(1)
+  })
+
+  it('getOrCreateApiClient appends only one host element across multiple calls', async () => {
+    const { getOrCreateApiClient } = await import('./lazy-load')
+    await getOrCreateApiClient()
+    await getOrCreateApiClient()
+    await getOrCreateApiClient()
+
+    expect(document.body.querySelectorAll('.scalar-app').length).toBe(1)
+  })
+
+  it('getOrCreateApiClient passes options to createApiClientModal', async () => {
+    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
+
+    const { getOrCreateApiClient } = await import('./lazy-load')
+    await getOrCreateApiClient({ proxyUrl: 'https://proxy.example.com' })
+
+    expect(createApiClientModal).toHaveBeenCalledWith(
+      expect.objectContaining({
+        options: { proxyUrl: 'https://proxy.example.com' },
+      }),
+    )
+  })
+
+  it('getOrCreateApiClient defaults options to empty object when none are provided', async () => {
+    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
+
+    const { getOrCreateApiClient } = await import('./lazy-load')
+    await getOrCreateApiClient()
+
+    expect(createApiClientModal).toHaveBeenCalledWith(
+      expect.objectContaining({
+        options: {},
+      }),
+    )
+  })
+
+  it('getOrCreateApiClient passes el, eventBus, and workspaceStore to createApiClientModal', async () => {
+    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
+
+    const { getOrCreateApiClient } = await import('./lazy-load')
+    await getOrCreateApiClient()
+
+    expect(createApiClientModal).toHaveBeenCalledWith(
+      expect.objectContaining({
+        el: expect.any(HTMLDivElement),
+        eventBus: expect.objectContaining({ emit: expect.any(Function), on: expect.any(Function) }),
+        workspaceStore: expect.objectContaining({ addDocument: expect.any(Function) }),
+      }),
+    )
+  })
+
+  it('getOrCreateApiClient clears the cached promise after rejection so the next call retries', async () => {
+    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
+    const mockApiClient = { open: vi.fn(), close: vi.fn() }
+    vi.mocked(createApiClientModal)
+      .mockImplementationOnce(() => {
+        throw new Error('modal init failed')
+      })
+      .mockReturnValueOnce(mockApiClient as any)
+
+    const { getOrCreateApiClient } = await import('./lazy-load')
+
+    await expect(getOrCreateApiClient()).rejects.toThrow('modal init failed')
+
+    // Cache must be cleared — next call retries and succeeds
+    const result = await getOrCreateApiClient()
+    expect(result.apiClient).toBe(mockApiClient)
+    expect(createApiClientModal).toHaveBeenCalledTimes(2)
+  })
+
+  it('getOrCreateApiClient removes the orphaned host element after a rejection', async () => {
+    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
+    const mockApiClient = { open: vi.fn(), close: vi.fn() }
+    vi.mocked(createApiClientModal)
+      .mockImplementationOnce(() => {
+        throw new Error('chunk load failed')
+      })
+      .mockReturnValueOnce(mockApiClient as any)
+
+    const { getOrCreateApiClient } = await import('./lazy-load')
+
+    await expect(getOrCreateApiClient()).rejects.toThrow('chunk load failed')
+
+    // The orphaned host must have been removed
+    expect(document.body.querySelectorAll('.scalar-app').length).toBe(0)
+
+    // A successful retry appends exactly one new host
+    await getOrCreateApiClient()
+    expect(document.body.querySelectorAll('.scalar-app').length).toBe(1)
+  })
+
+  it('getOrCreateApiClient does not accept url or content (modal-level options only)', async () => {
+    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
+
+    const { getOrCreateApiClient } = await import('./lazy-load')
+    await getOrCreateApiClient({ proxyUrl: 'https://proxy.example.com' })
+
+    const calls = vi.mocked(createApiClientModal).mock.calls
+    expect(calls).toHaveLength(1)
+    const call = calls[0]![0]
+    expect(call.options).not.toHaveProperty('url')
+    expect(call.options).not.toHaveProperty('content')
+    expect(call.options).toMatchObject({ proxyUrl: 'https://proxy.example.com' })
   })
 })

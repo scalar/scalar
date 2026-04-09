@@ -1,15 +1,18 @@
-import type { ApiClientModal } from '@scalar/api-client/v2/features/modal'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 /**
  * Creates a lazy singleton getter: the factory runs at most once, caches the resulting promise,
  * and clears the cache on failure so the next call can retry.
+ *
+ * Optional args are forwarded to the factory on the first (cache-miss) call only.
+ * Subsequent calls return the cached promise regardless of the args passed.
  */
-const makeLazySingleton = <T>(factory: () => Promise<T>): (() => Promise<T>) => {
+const makeLazySingleton = <T, Args extends unknown[] = []>(
+  factory: (...args: Args) => Promise<T>,
+): ((...args: Args) => Promise<T>) => {
   let cached: Promise<T> | undefined
-  return () => {
-    cached ??= factory().catch((error) => {
+  return (...args: Args) => {
+    cached ??= factory(...args).catch((error) => {
       cached = undefined
       throw error
     })
@@ -33,30 +36,37 @@ export const getWorkspaceEventBusSingleton = makeLazySingleton(() =>
 )
 
 /**
- * Lazy-loads modal + workspace singletons, mounts the API client modal, and returns both handles.
- * Reuses the same module-scoped promises as the individual getters.
+ * Lazily creates the singleton Vue app, mounts it as the last child of document.body,
+ * and returns the controller. Subsequent calls return the same promise.
+ *
+ * Only modal-level options (e.g. `proxyUrl`) are accepted here. Document-specific fields
+ * (`url`, `content`) must be registered via `workspaceStore.addDocument` after the client
+ * is ready — they are not part of the modal constructor.
  */
-export const createLazyApiClientModal = async ({
-  el,
-  options = {},
-}: {
-  el: HTMLElement
-  options?: Partial<ApiClientConfiguration>
-}): Promise<{ apiClient: ApiClientModal; workspaceStore: WorkspaceStore }> => {
-  const [createModal, workspaceStore, eventBus] = await Promise.all([
-    getClientModalCreator(),
-    getWorkspaceStoreSingleton(),
-    getWorkspaceEventBusSingleton(),
-  ])
+export const getOrCreateApiClient = makeLazySingleton(async (options: Partial<ApiClientConfiguration> = {}) => {
+  const el = document.createElement('div')
+  el.className = 'scalar-app'
+  document.body.appendChild(el)
 
-  const apiClient = createModal({
-    el,
-    eventBus,
-    workspaceStore,
-    options,
-    // TODO: map plugins from configuration when available
-    // plugins: mapConfigPlugins(options),
-  })
+  try {
+    const [createModal, workspaceStore, eventBus] = await Promise.all([
+      getClientModalCreator(),
+      getWorkspaceStoreSingleton(),
+      getWorkspaceEventBusSingleton(),
+    ])
 
-  return { apiClient, workspaceStore }
-}
+    const apiClient = createModal({
+      el,
+      eventBus,
+      workspaceStore,
+      options,
+      // TODO: map plugins from configuration when available
+      // plugins: mapConfigPlugins(options),
+    })
+
+    return { apiClient, workspaceStore }
+  } catch (error) {
+    el.remove()
+    throw error
+  }
+})

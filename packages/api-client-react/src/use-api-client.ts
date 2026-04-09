@@ -4,11 +4,11 @@ import type { ApiClientModal, RoutePayload } from '@scalar/api-client/v2/feature
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import { useEffect, useState } from 'react'
 
-import type { ApiClientModalOptions } from './get-or-create-api-client'
-import { getOrCreateApiClient } from './get-or-create-api-client'
 import './style.css'
 
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+
+import { getOrCreateApiClient } from './lazy-load'
 
 globalThis.__VUE_OPTIONS_API__ = true
 globalThis.__VUE_PROD_HYDRATION_MISMATCH_DETAILS__ = true
@@ -56,7 +56,7 @@ export const useApiClient = ({
     // `url` and `content` are registered separately via workspaceStore.addDocument.
     const { url, content, ...modalOptions } = configuration ?? {}
 
-    void getOrCreateApiClient(modalOptions as ApiClientModalOptions)?.then((_client) => {
+    void getOrCreateApiClient(modalOptions)?.then((_client) => {
       if (cancelled || !_client) {
         return
       }
