@@ -31,3 +31,8 @@
  * @see https://tailwindcss.com/docs/adding-custom-styles#adding-custom-utilities
  */
 @import "./tailwind/utilities.css";
+
+/*
+ * Scalar Tailwind v3 Reset Styles
+ */
+@import "./tailwind/v3-reset.css";
