@@ -1,5 +1,5 @@
 export { getActiveEnvironment } from './environment'
-export { getRequestExampleContext } from './get-request-example-context'
+export { type BuildRequestExampleContext, getRequestExampleContext } from './get-request-example-context'
 export { combineParams } from './helpers/combine-params'
 export { getActiveProxyUrl } from './proxy'
 export { getSecurityRequirements } from './security/get-security-requirements'

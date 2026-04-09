@@ -2,6 +2,7 @@ import { useLoadingState } from '@scalar/components'
 import { executePostResponseScript, executePreRequestScript, getScript } from '@scalar/pre-post-request-scripts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import {
+  type BuildRequestExampleContext,
   buildRequest,
   createVariablesStoreForRequest,
   getEnvironmentVariables,
@@ -14,6 +15,7 @@ import { type ComputedRef, type Ref, computed, ref } from 'vue'
 import { isElectron } from '@/libs/electron'
 import { type ResponseInstance, sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
 import { APP_VERSION } from '@/v2/constants'
+import { tryCatch } from '@/v2/helpers/safe-run'
 
 import type { SelectedItem } from './use-runner-selection'
 
@@ -155,6 +157,39 @@ export function useRunnerExecution({
     return result.testResults.filter((t) => !t.passed)
   }
 
+  const getContext = (item: SelectedItem) => {
+    const contextResult = getRequestExampleContext(
+      workspaceStore,
+      documentName,
+      { path: item.path, method: item.method, exampleName: item.exampleKey },
+      {
+        fallbackDocument: document,
+        isElectron: isElectron(),
+        layout: isWeb ? 'web' : 'other',
+        appVersion: APP_VERSION,
+      },
+    )
+
+    return contextResult
+  }
+
+  const getRequestFactory = (ctx: BuildRequestExampleContext, item: SelectedItem) => {
+    const globalCookies = [...ctx.cookies.workspace, ...ctx.cookies.document]
+    return requestFactory({
+      defaultHeaders: ctx.headers.default,
+      environment: ctx.environment.environment,
+      exampleName: item.exampleKey,
+      globalCookies,
+      method: item.method,
+      operation: ctx.operation,
+      path: item.path,
+      proxyUrl: ctx.proxy.url ?? '',
+      server: ctx.servers.selected,
+      selectedSecuritySchemes: ctx.security.selectedSchemes,
+      isElectron: isElectron(),
+    })
+  }
+
   const run = async () => {
     if (!document || selectedOrder.value.length === 0) {
       return
@@ -170,10 +205,12 @@ export function useRunnerExecution({
 
     const variablesStore = createVariablesStoreForRequest()
 
+    // Run each item in the selected order
     for (let i = 0; i < selectedOrder.value.length; i++) {
       currentRunIndex.value = i + 1
       const item = selectedOrder.value[i]!
 
+      // Create a run result for the current item
       const runResult: RunResult = {
         item,
         result: null,
@@ -182,17 +219,7 @@ export function useRunnerExecution({
       }
 
       try {
-        const contextResult = getRequestExampleContext(
-          workspaceStore,
-          documentName,
-          { path: item.path, method: item.method, exampleName: item.exampleKey },
-          {
-            fallbackDocument: document,
-            isElectron: isElectron(),
-            layout: isWeb ? 'web' : 'other',
-            appVersion: APP_VERSION,
-          },
-        )
+        const contextResult = getContext(item)
 
         if (!contextResult.ok) {
           runResult.error = new Error(contextResult.error)
@@ -200,25 +227,9 @@ export function useRunnerExecution({
           continue
         }
 
-        const ctx = contextResult.data
-        const globalCookies = [...ctx.cookies.workspace, ...ctx.cookies.document]
+        const { request: requestBuilder } = getRequestFactory(contextResult.data, item)
 
-        const { request: requestBuilder } = requestFactory({
-          defaultHeaders: ctx.headers.default,
-          environment: ctx.environment.environment,
-          exampleName: item.exampleKey,
-          globalCookies,
-          method: item.method,
-          operation: ctx.operation,
-          path: item.path,
-          proxyUrl: ctx.proxy.url ?? '',
-          server: ctx.servers.selected,
-          selectedSecuritySchemes: ctx.security.selectedSchemes,
-          isElectron: isElectron(),
-        })
-
-        const preRequestScript = getScript(document['x-pre-request'], ctx.operation['x-pre-request'])
-
+        const preRequestScript = getScript(document['x-pre-request'], contextResult.data.operation['x-pre-request'])
         await executePreRequestScript(preRequestScript, {
           requestBuilder,
           variablesStore,
@@ -228,21 +239,13 @@ export function useRunnerExecution({
         })
 
         const envVariables = {
-          ...getEnvironmentVariables(ctx.environment.environment),
+          ...getEnvironmentVariables(contextResult.data.environment.environment),
           ...variablesStore.getVariables(),
         }
 
-        const requestResult = (() => {
-          try {
-            return {
-              ok: true,
-              result: buildRequest(requestBuilder, { envVariables }),
-            } as const
-          } catch (error) {
-            const message = error instanceof Error ? error.message : String(error)
-            return { ok: false, error: message } as const
-          }
-        })()
+        const requestResult = await tryCatch(() => {
+          return buildRequest(requestBuilder, { envVariables })
+        })
 
         if (!requestResult.ok) {
           runResult.error = new Error(requestResult.error)
@@ -251,8 +254,8 @@ export function useRunnerExecution({
         }
 
         const [sendError, sendResult] = await sendRequest({
-          isUsingProxy: requestResult.result.isUsingProxy,
-          request: requestResult.result.request,
+          isUsingProxy: requestResult.data.isUsingProxy,
+          request: requestResult.data.request,
         })
 
         if (sendError) {
@@ -263,14 +266,18 @@ export function useRunnerExecution({
 
         runResult.result = sendResult.response
 
-        const postResponseScript = getScript(document['x-post-response'], ctx.operation['x-post-response'])
+        const postResponseScript = getScript(
+          document['x-post-response'],
+          contextResult.data.operation['x-post-response'],
+        )
 
+        const preRequestResults = [...runResult.testResults]
         await executePostResponseScript(postResponseScript, {
           requestBuilder,
           response: sendResult.originalResponse.clone(),
           variablesStore,
-          onTestResultsUpdate: (newResults) => {
-            runResult.testResults = [...runResult.testResults, ...newResults]
+          onTestResultsUpdate: (postResponseResults) => {
+            runResult.testResults = [...preRequestResults, ...postResponseResults]
           },
         })
 
