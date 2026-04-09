@@ -282,14 +282,15 @@ class TestScalarConfig:
         assert config.content == content
 
     def test_with_servers(self):
-        """Test ScalarConfig with custom servers"""
+        """Test ScalarConfig with custom servers (OpenAPI Server Object format)"""
         servers = [
-            {"name": "Production", "url": "https://api.example.com"},
-            {"name": "Development", "url": "http://localhost:8000"},
+            {"url": "https://api.example.com", "description": "Production"},
+            {"url": "http://localhost:8000", "description": "Development"},
         ]
         config = ScalarConfig(servers=servers)
         assert len(config.servers) == 2
-        assert config.servers[0]["name"] == "Production"
+        assert config.servers[0]["url"] == "https://api.example.com"
+        assert config.servers[0]["description"] == "Production"
 
     def test_with_authentication(self):
         """Test ScalarConfig with authentication"""
@@ -392,7 +393,7 @@ class TestGetScalarApiReference:
             dark_mode=False,
             search_hot_key=SearchHotKey.S,
             hidden_clients=["client1", "client2"],
-            servers=[{"name": "Production", "url": "https://api.example.com"}],
+            servers=[{"url": "https://api.example.com", "description": "Production"}],
             default_open_all_tags=True,
             authentication={"apiKey": "test-key"},
             hide_client_button=True,
@@ -414,7 +415,7 @@ class TestGetScalarApiReference:
         assert '"searchHotKey": "s"' in html_content
         assert '"hiddenClients": ["client1", "client2"]' in html_content
         assert (
-            '"servers": [{"name": "Production", "url": "https://api.example.com"}]'
+            '"servers": [{"url": "https://api.example.com", "description": "Production"}]'
             in html_content
         )
         assert '"defaultOpenAllTags": true' in html_content
@@ -766,11 +767,11 @@ class TestEdgeCases:
         assert "hiddenClients" in html_content
 
     def test_servers_parameter(self):
-        """Test servers parameter with multiple servers"""
+        """Test servers parameter with OpenAPI Server Object format"""
         servers = [
-            {"name": "Production", "url": "https://api.example.com"},
-            {"name": "Staging", "url": "https://staging-api.example.com"},
-            {"name": "Development", "url": "http://localhost:8000"},
+            {"url": "https://api.example.com", "description": "Production"},
+            {"url": "https://staging-api.example.com", "description": "Staging"},
+            {"url": "http://localhost:8000", "description": "Development"},
         ]
 
         config = ScalarConfig(openapi_url="/openapi.json", servers=servers)

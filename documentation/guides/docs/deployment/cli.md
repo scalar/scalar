@@ -1,6 +1,13 @@
 # CLI
 
-Publish your Scalar Docs project using the Scalar CLI. The CLI uploads your project configuration and content to Scalar's platform, making your documentation available at a custom domain.
+Publish your Docs project using the Scalar CLI. The CLI uploads your project configuration and content to Scalar's platform, making your documentation available at a custom domain.
+
+## Deployment modes
+
+`scalar project publish` supports two ways to deploy:
+
+- **Default:** The CLI uploads your project configuration and content from your local machine to Scalar. What you have on disk is what gets deployed.
+- **With `--github`:** Use only when your Docs project is connected to a GitHub repository. Scalar pulls the files from GitHub and deploys that. Local changes are ignored. Use this to trigger a deploy from the linked repository.
 
 ## Installation
 
@@ -80,7 +87,9 @@ scalar project publish --slug your-docs --preview
 
 ## Publishing
 
-Publish your project to make it live:
+### Publish from local files
+
+Publish your project by uploading it directly from your machine:
 
 ```bash
 scalar project publish
@@ -92,12 +101,23 @@ Specify a project slug and config file:
 scalar project publish --slug your-docs --config scalar.config.json
 ```
 
-| Option      | Type      | Required | Description                              |
-| ----------- | --------- | -------- | ---------------------------------------- |
-| `--slug`    | `string`  | No       | Project slug identifier                  |
-| `--config`  | `string`  | No       | Path to your scalar.config.json file     |
-| `--preview` | `boolean` | No       | Publish in preview mode (do not go live) |
+### Publish from GitHub
 
-The publish command uploads your project configuration and all referenced content files to Scalar's platform.
+If your project is connected to a GitHub repository, you can deploy from the remote repo instead. Scalar pulls the files from GitHub; local changes are ignored.
+
+```bash
+scalar project publish --github
+```
+
+### Options
+
+| Option      | Type      | Required | Description                                                                                             |
+| ----------- | --------- | -------- | ------------------------------------------------------------------------------------------------------- |
+| `--slug`    | `string`  | No       | Project slug identifier                                                                                 |
+| `--config`  | `string`  | No       | Path to your scalar.config.json file                                                                    |
+| `--preview` | `boolean` | No       | Publish in preview mode (do not go live)                                                                |
+| `--github`  | `boolean` | No       | Publish from the project's linked GitHub repository (Scalar pulls from GitHub; local files are ignored) |
+
+Use `project publish` for ad-hoc or local-first workflows. Use `project publish --github` when the project is connected to GitHub and you want the deployment to reflect the remote repository.
 
 Your documentation will be available at `https://your-subdomain.apidocumentation.com`.

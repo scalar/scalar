@@ -17,6 +17,7 @@ export function initializeAppEventHandlers({
   onAfterExampleCreation,
   onCopyTabUrl,
   onToggleSidebar,
+  closeSidebar,
   renameWorkspace,
 }: {
   eventBus: WorkspaceEventBus
@@ -25,9 +26,10 @@ export function initializeAppEventHandlers({
   rebuildSidebar: (documentName?: string) => void
   navigateToCurrentTab: () => Promise<void>
   onSelectSidebarItem: (id: string) => void
-  onAfterExampleCreation: (o: OperationExampleMeta) => void
+  onAfterExampleCreation: (o: OperationExampleMeta & { documentName?: string }) => void
   onCopyTabUrl: (tabIndex: number) => void
   onToggleSidebar: () => void
+  closeSidebar: () => void
   renameWorkspace: (name: string) => Promise<void>
 }) {
   const currentRoute = computed(() => router.currentRoute?.value)
@@ -90,6 +92,10 @@ export function initializeAppEventHandlers({
           callback: async (status) => {
             // Redirect to the new example if the mutation was successful
             if (status === 'success') {
+              // Rebuild the sidebar with the updated order
+              rebuildSidebar(store.value?.workspace.activeDocument?.['x-scalar-navigation']?.name)
+
+              // Now this redirect works for any example
               await router.replace({
                 name: 'example',
                 params: {
@@ -98,11 +104,9 @@ export function initializeAppEventHandlers({
                   exampleName: currentRoute.value?.params.exampleName,
                 },
               })
-
-              // Rebuild the sidebar with the updated order
-              rebuildSidebar(store.value?.workspace.activeDocument?.['x-scalar-navigation']?.name)
             }
-            payload.callback(status)
+
+            payload.callback(status, payload.blurTargetSelector)
           },
         }),
       },
@@ -115,7 +119,6 @@ export function initializeAppEventHandlers({
       'operation:reload:history': {
         onAfterExecute: (payload) => onAfterExampleCreation({ ...payload.meta, exampleKey: 'draft' }),
       },
-
       'operation:delete:operation': {
         onAfterExecute: async (payload) => {
           rebuildSidebar(payload.documentName)
@@ -178,6 +181,27 @@ export function initializeAppEventHandlers({
                 method,
                 documentSlug: documentName,
                 exampleName: 'default',
+              },
+            })
+          }
+        },
+      },
+      'operation:rename:example': {
+        onAfterExecute: async ({ meta, payload, documentName }) => {
+          // Refresh sidebar
+          onAfterExampleCreation({ ...meta, exampleKey: payload.name, documentName })
+
+          // Redirect to the new example if the mutation was successful and we are currently on the example
+          if (
+            isRouteParamsMatch({ documentName, path: meta.path, method: meta.method, exampleName: meta.exampleKey })
+          ) {
+            await router.replace({
+              name: 'example',
+              params: {
+                documentSlug: documentName,
+                pathEncoded: encodeURIComponent(meta.path),
+                method: meta.method,
+                exampleName: payload.name,
               },
             })
           }
@@ -275,6 +299,8 @@ export function initializeAppEventHandlers({
 
     const execCallback = (result: NavigationFailure | void | undefined) => {
       if (!result) {
+        // Close the sidebar if it is open
+        closeSidebar()
         return payload.callback?.('success')
       }
 
@@ -339,6 +365,25 @@ export function initializeAppEventHandlers({
         exampleName: payload.exampleName,
       } satisfies ValidParams
       return execCallback(await fn({ name: 'example', params }))
+    }
+
+    if (payload.page === 'operation') {
+      const params = {
+        namespace: payload.namespace,
+        workspaceSlug: payload.workspaceSlug,
+        documentSlug: payload.documentSlug,
+        pathEncoded: encodeURIComponent(payload.operationPath),
+        method: payload.method,
+      } satisfies ValidParams
+      if (payload.path === 'overview') {
+        return execCallback(await fn({ name: 'operation.overview', params }))
+      }
+      if (payload.path === 'servers') {
+        return execCallback(await fn({ name: 'operation.servers', params }))
+      }
+      if (payload.path === 'authentication') {
+        return execCallback(await fn({ name: 'operation.authentication', params }))
+      }
     }
   })
 

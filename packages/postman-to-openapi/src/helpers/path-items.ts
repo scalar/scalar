@@ -48,6 +48,7 @@ function ensureRequestBodyContent(requestBody: OpenAPIV3_1.RequestBodyObject): v
  */
 export function processItem(
   item: Item | ItemGroup,
+  exampleName: string = 'default',
   parentTags: string[] = [],
   parentPath: string = '',
 ): {
@@ -62,7 +63,7 @@ export function processItem(
   if ('item' in item && Array.isArray(item.item)) {
     const newParentTags = item.name ? [...parentTags, item.name] : parentTags
     item.item.forEach((childItem) => {
-      const childResult = processItem(childItem, newParentTags, `${parentPath}/${item.name || ''}`)
+      const childResult = processItem(childItem, exampleName, newParentTags, `${parentPath}/${item.name || ''}`)
       // Merge child paths and components
       for (const [pathKey, pathItem] of Object.entries(childResult.paths)) {
         if (!paths[pathKey]) {
@@ -154,7 +155,7 @@ export function processItem(
 
   // Extract parameters from the request (query, path, header)
   // This should always happen, regardless of whether a description exists
-  const extractedParameters = extractParameters(request)
+  const extractedParameters = extractParameters(request, exampleName)
 
   // Merge parameters, giving priority to those from the Markdown table if description exists
   const mergedParameters = new Map<string, OpenAPIV3_1.ParameterObject>()
@@ -210,7 +211,7 @@ export function processItem(
 
   // Allow request bodies for all methods (including GET) if body is present
   if (typeof request !== 'string' && request.body) {
-    const requestBody = extractRequestBody(request.body)
+    const requestBody = extractRequestBody(request.body, exampleName)
     ensureRequestBodyContent(requestBody)
     // Only add requestBody if it has content
     if (requestBody.content && Object.keys(requestBody.content).length > 0) {
@@ -235,6 +236,28 @@ type ParameterRow = {
   required?: string
   type?: string
   example?: string
+}
+
+/** OpenAPI 3.1 parameter schema types (ParameterObject uses OpenAPIV3_1). */
+const OPENAPI_PARAM_SCHEMA_TYPES = ['string', 'number', 'integer', 'boolean', 'object', 'array'] as const
+
+type OpenApiParamSchemaType = (typeof OPENAPI_PARAM_SCHEMA_TYPES)[number]
+
+function toOpenApiParamSchemaType(s: string | undefined): OpenApiParamSchemaType {
+  const value = s ?? 'string'
+  for (const t of OPENAPI_PARAM_SCHEMA_TYPES) {
+    if (t === value) {
+      return t
+    }
+  }
+  return 'string'
+}
+
+function parameterSchemaFromType(type: OpenApiParamSchemaType): OpenAPIV3_1.ParameterObject['schema'] {
+  if (type === 'array') {
+    return { type: 'array' }
+  }
+  return { type }
 }
 
 function parseParametersFromDescription(description: string): {
@@ -291,7 +314,7 @@ function parseParametersFromDescription(description: string): {
         in: row.object,
         description: row.description,
         required: row.required === 'true',
-        schema: { type: row.type || 'string' },
+        schema: parameterSchemaFromType(toOpenApiParamSchemaType(row.type)),
       }
 
       if (row.example) {

@@ -56,4 +56,19 @@ public static class ScalarAspireOptionsExtensions
         options.AllowSelfSignedCertificates = true;
         return options;
     }
+
+    /// <summary>
+    /// Forwards the original incoming <c>Host</c> header through the Scalar proxy.
+    /// </summary>
+    /// <param name="options">The <see cref="ScalarAspireOptions" /> to configure.</param>
+    /// <returns>The <see cref="ScalarAspireOptions" /> so that additional calls can be chained.</returns>
+    /// <remarks>
+    /// By default, the proxy rewrites the outgoing <c>Host</c> header to match the target authority.
+    /// Enable this option only when upstream services require the original incoming host value.
+    /// </remarks>
+    public static ScalarAspireOptions ForwardOriginalHostHeader(this ScalarAspireOptions options)
+    {
+        options.ForwardOriginalHostHeader = true;
+        return options;
+    }
 }

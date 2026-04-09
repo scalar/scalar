@@ -1,0 +1,53 @@
+{
+  "name": "galaxy-scalar-com",
+  "description": "Playground for Scalar Galaxy",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "projects/galaxy-scalar-com"
+  },
+  "keywords": [
+    "openapi",
+    "example",
+    "swagger",
+    "petstore"
+  ],
+  "version": "0.2.20",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "copy:standalone": "LOCAL_JS_BUNDLE=true shx cp ../../packages/api-reference/dist/browser/standalone.js ./src/scalar.js",
+    "dev": "tsx watch src/index.ts",
+    "dev:local": "pnpm copy:standalone && LOCAL_JS_BUNDLE=true tsx watch src/index.ts",
+    "test": "vitest",
+    "types:check": "tsc --noEmit"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "devDependencies": {
+    "@hono/node-server": "catalog:*",
+    "@scalar/hono-api-reference": "workspace:*",
+    "@scalar/mock-server": "workspace:*",
+    "@types/node": "catalog:*",
+    "hono": "catalog:*"
+  }
+}

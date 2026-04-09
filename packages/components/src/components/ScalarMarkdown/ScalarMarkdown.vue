@@ -1,5 +1,23 @@
+<script lang="ts">
+/**
+ * Scalar Markdown component
+ *
+ * Renders a markdown string as styled HTML with support for
+ * headings, links, code blocks, tables, alerts, and more.
+ *
+ * @example
+ * <ScalarMarkdown value="# Hello World" />
+ */
+export default {}
+</script>
+
 <script setup lang="ts">
-import { htmlFromMarkdown } from '@scalar/code-highlight'
+import {
+  type Node,
+  htmlFromMarkdown,
+  isHeading,
+  textFromNode,
+} from '@scalar/code-highlight'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed, useTemplateRef } from 'vue'
 
@@ -21,12 +39,16 @@ defineOptions({ inheritAttrs: false })
 const templateRef = useTemplateRef('div')
 defineExpose({ el: templateRef })
 
-const transformHeading = (node: Record<string, any>) => {
+const transformHeading = (node: Node) => {
   if (!withAnchors) {
     return transform?.(node) || node
   }
 
-  const headingText = node.children?.[0]?.value || ''
+  if (!isHeading(node)) {
+    return node
+  }
+
+  const headingText = textFromNode(node)
 
   /** Basic slugify for the heading text */
   const slug = headingText.toLowerCase().replace(/\s+/g, '-')
@@ -206,7 +228,8 @@ const html = computed(() => {
     table-layout: fixed;
     overflow-x: auto;
     position: relative;
-    width: 100%;
+    width: max-content;
+    max-width: 100%;
     margin: 1em 0;
     border: var(--scalar-border-width) solid var(--scalar-border-color);
     border-radius: var(--scalar-radius);
@@ -468,12 +491,12 @@ const html = computed(() => {
 
   /* Blockquotes */
   .markdown blockquote {
-    border-left: 1px solid var(--scalar-color-1);
-    padding-left: var(--markdown-spacing-md);
-    margin: 0;
-    display: block;
-    font-weight: var(--scalar-bold);
-    font-size: var(--scalar-font-size-2);
+    border-left: 2px solid var(--scalar-border-color);
+    padding-left: var(--markdown-spacing-sm);
+  }
+
+  .markdown blockquote > * {
+    margin-bottom: var(--markdown-spacing-sm);
   }
 
   /* Markdown Checklist */

@@ -96,6 +96,11 @@ describe('create-server-store', () => {
           title: 'Scalar Galaxy',
           children: [
             {
+              id: `${name}/description/introduction`,
+              title: 'Introduction',
+              type: 'text',
+            },
+            {
               'id': `${name}/GET/planets`,
               method: 'get',
               type: 'operation',
@@ -106,7 +111,7 @@ describe('create-server-store', () => {
             },
           ],
         },
-        'x-scalar-order': [`${name}/GET/planets`],
+        'x-scalar-order': [`${name}/description/introduction`, `${name}/GET/planets`],
         'x-scalar-original-document-hash': '',
       })
 
@@ -155,7 +160,7 @@ describe('create-server-store', () => {
             name: 'doc-1',
             document: exampleDocument(),
             meta: {
-              'x-scalar-active-auth': 'test',
+              'x-scalar-selected-server': 'test',
             },
           },
           {
@@ -165,7 +170,11 @@ describe('create-server-store', () => {
         ],
       })
 
-      await store.addDocument({ name: 'doc-3', meta: { 'x-scalar-active-auth': 'test' }, document: exampleDocument() })
+      await store.addDocument({
+        name: 'doc-3',
+        meta: { 'x-scalar-selected-server': 'test' },
+        document: exampleDocument(),
+      })
       const workspace = store.getWorkspace()
 
       expect(workspace.documents['doc-1']).toEqual({
@@ -187,13 +196,18 @@ describe('create-server-store', () => {
             },
           },
         },
-        'x-scalar-active-auth': 'test',
+        'x-scalar-selected-server': 'test',
         'x-scalar-navigation': {
           type: 'document',
           id: 'doc-1',
           name: 'doc-1',
           title: 'Scalar Galaxy',
           children: [
+            {
+              id: 'doc-1/description/introduction',
+              title: 'Introduction',
+              type: 'text',
+            },
             {
               'id': 'doc-1/GET/planets',
               isDeprecated: false,
@@ -205,7 +219,7 @@ describe('create-server-store', () => {
             },
           ],
         },
-        'x-scalar-order': ['doc-1/GET/planets'],
+        'x-scalar-order': ['doc-1/description/introduction', 'doc-1/GET/planets'],
         'x-scalar-original-document-hash': '',
       })
 
@@ -228,13 +242,17 @@ describe('create-server-store', () => {
             },
           },
         },
-        'x-scalar-active-auth': 'test',
         'x-scalar-navigation': {
           type: 'document',
           id: 'doc-3',
           name: 'doc-3',
           title: 'Scalar Galaxy',
           children: [
+            {
+              id: 'doc-3/description/introduction',
+              title: 'Introduction',
+              type: 'text',
+            },
             {
               'id': 'doc-3/GET/planets',
               isDeprecated: false,
@@ -246,9 +264,55 @@ describe('create-server-store', () => {
             },
           ],
         },
-        'x-scalar-order': ['doc-3/GET/planets'],
+        'x-scalar-order': ['doc-3/description/introduction', 'doc-3/GET/planets'],
         'x-scalar-original-document-hash': '',
+        'x-scalar-selected-server': 'test',
       })
+    })
+
+    it('applies workspace navigationOptions when building initial documents', async () => {
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        navigationOptions: {
+          generateOperationSlug: () => 'workspace-operation',
+        },
+        documents: [
+          {
+            name: 'doc-1',
+            document: exampleDocument(),
+          },
+        ],
+      })
+
+      const document = store.getWorkspace().documents['doc-1']
+      expect(document?.['x-scalar-order']).toEqual(['doc-1/description/introduction', 'doc-1/workspace-operation'])
+      expect(document?.['x-scalar-navigation']?.children?.[1]?.id).toBe('doc-1/workspace-operation')
+    })
+
+    it('applies addDocument navigationOptions over workspace defaults', async () => {
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        navigationOptions: {
+          generateOperationSlug: () => 'workspace-operation',
+        },
+        documents: [],
+      })
+
+      await store.addDocument(
+        {
+          name: 'doc-2',
+          document: exampleDocument(),
+        },
+        {
+          generateOperationSlug: () => 'add-document-operation',
+        },
+      )
+
+      const document = store.getWorkspace().documents['doc-2']
+      expect(document?.['x-scalar-order']).toEqual(['doc-2/description/introduction', 'doc-2/add-document-operation'])
+      expect(document?.['x-scalar-navigation']?.children?.[1]?.id).toBe('doc-2/add-document-operation')
     })
   })
 
@@ -264,7 +328,6 @@ describe('create-server-store', () => {
             document: exampleDocument(),
             name: 'doc-1',
             meta: {
-              'x-scalar-active-auth': 'test',
               'x-scalar-selected-server': 'test',
             },
           },
@@ -281,7 +344,6 @@ describe('create-server-store', () => {
         document: exampleDocument(),
         name: 'doc-2',
         meta: {
-          'x-scalar-active-auth': 'test',
           'x-scalar-selected-server': 'test',
         },
       })
@@ -295,7 +357,6 @@ describe('create-server-store', () => {
       expect(JSON.parse(sparseWorkspace)).toEqual({
         documents: {
           'doc-1': {
-            'x-scalar-active-auth': 'test',
             'x-scalar-selected-server': 'test',
             'openapi': '3.1.1',
             'info': {
@@ -319,6 +380,11 @@ describe('create-server-store', () => {
               title: 'Scalar Galaxy',
               children: [
                 {
+                  id: 'doc-1/description/introduction',
+                  title: 'Introduction',
+                  type: 'text',
+                },
+                {
                   'id': 'doc-1/GET/planets',
                   isDeprecated: false,
                   method: 'get',
@@ -329,11 +395,10 @@ describe('create-server-store', () => {
                 },
               ],
             },
-            'x-scalar-order': ['doc-1/GET/planets'],
+            'x-scalar-order': ['doc-1/description/introduction', 'doc-1/GET/planets'],
             'x-scalar-original-document-hash': '',
           },
           'doc-2': {
-            'x-scalar-active-auth': 'test',
             'x-scalar-selected-server': 'test',
             'openapi': '3.1.1',
             'info': {
@@ -350,13 +415,18 @@ describe('create-server-store', () => {
                 planetId: { '$ref': './chunks/doc-2/components/parameters/planetId.json#', $global: true },
               },
             },
-            'x-scalar-order': ['doc-2/GET/planets'],
+            'x-scalar-order': ['doc-2/description/introduction', 'doc-2/GET/planets'],
             'x-scalar-navigation': {
               type: 'document',
               id: 'doc-2',
               name: 'doc-2',
               title: 'Scalar Galaxy',
               children: [
+                {
+                  id: 'doc-2/description/introduction',
+                  title: 'Introduction',
+                  type: 'text',
+                },
                 {
                   'id': 'doc-2/GET/planets',
                   isDeprecated: false,

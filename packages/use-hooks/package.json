@@ -10,17 +10,14 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/use-hooks"
   },
-  "version": "0.3.7",
+  "version": "0.4.2",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "vitest",
-    "types:build": "scalar-types-build-vue",
-    "types:check": "scalar-types-check-vue"
+    "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
   "exports": {
@@ -58,9 +55,7 @@
     "zod": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@vue/test-utils": "catalog:*",
-    "jsdom": "catalog:*",
-    "vite": "catalog:*"
+    "jsdom": "catalog:*"
   }
 }

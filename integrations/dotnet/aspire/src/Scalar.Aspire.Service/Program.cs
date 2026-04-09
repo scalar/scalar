@@ -14,6 +14,7 @@ app.MapHealthChecks(HealthCheckEndpoint);
 
 app.MapApiReference();
 app.MapStaticAssets();
+app.UseOpenApiFiles();
 
 if (app.Configuration.GetValue<bool>(DefaultProxy))
 {

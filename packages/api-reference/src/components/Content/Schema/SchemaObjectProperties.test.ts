@@ -259,6 +259,51 @@ describe('SchemaObjectProperties', () => {
     expect(props[3]?.attributes('data-name')).toBe('zebra')
   })
 
+  it('orders properties by x-order specification extension', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: {
+        zebra: { type: 'string', 'x-order': 3 },
+        alpha: { type: 'number', 'x-order': 1 },
+        beta: { type: 'boolean', 'x-order': 2 },
+      },
+    })
+
+    const wrapper = mount(SchemaObjectProperties, {
+      props: { schema, options: {}, eventBus: null },
+    })
+
+    const props = wrapper.findAll('.schema-property')
+    expect(props).toHaveLength(3)
+    // Properties should be ordered by x-order value
+    expect(props[0]?.attributes('data-name')).toBe('alpha')
+    expect(props[1]?.attributes('data-name')).toBe('beta')
+    expect(props[2]?.attributes('data-name')).toBe('zebra')
+  })
+
+  it('falls back to default sorting for properties without x-order', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: {
+        zebra: { type: 'string', 'x-order': 1 },
+        alpha: { type: 'number' },
+        beta: { type: 'boolean', 'x-order': 2 },
+      },
+    })
+
+    const wrapper = mount(SchemaObjectProperties, {
+      props: { schema, options: {}, eventBus: null },
+    })
+
+    const props = wrapper.findAll('.schema-property')
+    expect(props).toHaveLength(3)
+    // Properties with x-order should come first (sorted by x-order),
+    // then properties without x-order (sorted alphabetically)
+    expect(props[0]?.attributes('data-name')).toBe('zebra')
+    expect(props[1]?.attributes('data-name')).toBe('beta')
+    expect(props[2]?.attributes('data-name')).toBe('alpha')
+  })
+
   it('preserves original property order when orderSchemaPropertiesBy is preserve', () => {
     const schema: SchemaObject = {
       type: 'object',

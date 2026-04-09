@@ -1,7 +1,7 @@
 import type { Plugin, PluginConfiguration } from '@scalar/types/snippetz'
 import { encode } from 'js-base64'
 
-import { createSearchParams } from '@/libs/http'
+import { buildQueryString } from '@/libs/http'
 
 /**
  * csharp/httpclient
@@ -22,8 +22,7 @@ export const csharpHttpclient: Plugin = {
     normalizedRequest.method = normalizedRequest.method.toUpperCase()
 
     // Build URL with query string
-    const searchParams = createSearchParams(normalizedRequest.queryString)
-    const queryString = searchParams.size ? `?${searchParams.toString()}` : ''
+    const queryString = buildQueryString(normalizedRequest.queryString)
 
     const url = `${normalizedRequest.url}${queryString}`
 
@@ -179,13 +178,32 @@ function addBodyContent(lines: string[], request: any): void {
     }
   } else if (mimeType === 'multipart/form-data' && params) {
     lines.push('var content = new MultipartFormDataContent();')
+    let multipartContentIndex = 0
     for (const param of params) {
       if (param.fileName !== undefined) {
-        lines.push(
-          `content.Add(new StreamContent(File.OpenRead("${param.fileName}")), "${param.name}", "${param.fileName}");`,
-        )
+        if (param.contentType) {
+          const contentName = `fileContent${multipartContentIndex++}`
+          lines.push(`var ${contentName} = new StreamContent(File.OpenRead("${escapeCSharpString(param.fileName)}"));`)
+          lines.push(`${contentName}.Headers.ContentType = new MediaTypeHeaderValue("${param.contentType}");`)
+          lines.push(
+            `content.Add(${contentName}, "${escapeCSharpString(param.name)}", "${escapeCSharpString(param.fileName)}");`,
+          )
+        } else {
+          lines.push(
+            `content.Add(new StreamContent(File.OpenRead("${escapeCSharpString(param.fileName)}")), "${escapeCSharpString(param.name)}", "${escapeCSharpString(param.fileName)}");`,
+          )
+        }
       } else {
-        lines.push(`content.Add(new StringContent("${param.value}"), "${param.name}");`)
+        if (param.contentType) {
+          const contentName = `stringContent${multipartContentIndex++}`
+          lines.push(`var ${contentName} = new StringContent("${escapeCSharpString(param.value ?? '')}");`)
+          lines.push(`${contentName}.Headers.ContentType = new MediaTypeHeaderValue("${param.contentType}");`)
+          lines.push(`content.Add(${contentName}, "${escapeCSharpString(param.name)}");`)
+        } else {
+          lines.push(
+            `content.Add(new StringContent("${escapeCSharpString(param.value ?? '')}"), "${escapeCSharpString(param.name)}");`,
+          )
+        }
       }
     }
     lines.push('request.Content = content;')
@@ -216,6 +234,10 @@ function createRawStringLiteral(text: string): string {
 
   const quotes = '"'.repeat(quoteCount)
   return `${quotes}\n${text}\n${quotes}`
+}
+
+function escapeCSharpString(text: string): string {
+  return text.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
 }
 
 /**

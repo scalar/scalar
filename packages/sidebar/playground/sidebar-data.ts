@@ -5,18 +5,20 @@ export const galaxySidebar = [
     'id': 'scalar-galaxy/description/introduction',
     'title': 'Introduction',
     'type': 'text',
-  },
-  {
-    'id': 'scalar-galaxy/description/resources',
-    'title': 'Resources',
-    'type': 'text',
-    'children': [],
-  },
-  {
-    'id': 'scalar-galaxy/description/markdown-support',
-    'title': 'Markdown Support',
-    'type': 'text',
-    'children': [],
+    'children': [
+      {
+        'id': 'scalar-galaxy/description/resources',
+        'title': 'Resources',
+        'type': 'text',
+        'children': [],
+      },
+      {
+        'id': 'scalar-galaxy/description/markdown-support',
+        'title': 'Markdown Support',
+        'type': 'text',
+        'children': [],
+      },
+    ],
   },
   {
     'id': 'scalar-galaxy/tag/authentication',

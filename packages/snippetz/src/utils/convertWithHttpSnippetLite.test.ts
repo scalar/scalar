@@ -41,6 +41,26 @@ describe('convertWithHttpSnippetLite', () => {
     ])
   })
 
+  it('preserves duplicate query parameters as arrays in queryObj', () => {
+    const mockClient = {
+      convert: (request: HarRequest) => JSON.stringify(request, null, 2),
+    }
+
+    const result = convertWithHttpSnippetLite(mockClient, {
+      url: 'https://api.example.com/search?statuses=active&statuses=inactive',
+      method: 'GET',
+    })
+
+    const parsed = JSON.parse(result)
+    expect(parsed.queryObj).toEqual({
+      statuses: ['active', 'inactive'],
+    })
+    expect(parsed.queryString).toEqual([
+      { name: 'statuses', value: 'active' },
+      { name: 'statuses', value: 'inactive' },
+    ])
+  })
+
   it('processes headers correctly', () => {
     const mockClient = {
       convert: (request: HarRequest) => JSON.stringify(request, null, 2),

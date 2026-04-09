@@ -1,5 +1,29 @@
 # scalar_api_reference
 
+## 0.2.2
+
+### Patch Changes
+
+- [#8497](https://github.com/scalar/scalar/pull/8497): fix rust crates.io publish in CI by allowing the workflow's intentional pre-publish file updates.
+
+## 0.2.1
+
+### Patch Changes
+
+- [#8476](https://github.com/scalar/scalar/pull/8476): fix rust publish packaging so `ui/scalar.js` is included in the crate
+
+## 0.2.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.1.5
+
+### Patch Changes
+
+- [#8305](https://github.com/scalar/scalar/pull/8305): fix: assets not published
+
 ## 0.1.4
 
 ### Patch Changes

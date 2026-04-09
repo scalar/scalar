@@ -1,4 +1,4 @@
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { type ApiReferenceEvents, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
@@ -7,7 +7,7 @@ import { type DefineComponent, defineComponent, markRaw } from 'vue'
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 
-import RequestBlock from './RequestBlock.vue'
+import RequestBlock, { type RequestBlockProps } from './RequestBlock.vue'
 
 const defaultProps = {
   method: 'get' as const,
@@ -33,14 +33,15 @@ const defaultProps = {
   eventBus: createWorkspaceEventBus(),
   clientOptions: [],
   selectedClient: 'shell/curl' as const,
-  globalCookies: [],
-}
+  workspaceCookies: [],
+  documentCookies: [],
+  defaultHeaders: {},
+} satisfies RequestBlockProps
 
 describe('RequestBlock', () => {
   it('renders request name input and emits on change for non-modal layout', async () => {
     const eventBus = createWorkspaceEventBus()
     const fn = vi.fn()
-    eventBus.on('operation:update:summary', fn)
     const wrapper = mount(RequestBlock, {
       props: { ...defaultProps, eventBus },
       global: {
@@ -49,6 +50,8 @@ describe('RequestBlock', () => {
         },
       },
     })
+
+    eventBus.on('operation:update:meta', fn)
 
     const input = wrapper.find('input')
     expect(input.exists()).toBe(true)
@@ -94,7 +97,35 @@ describe('RequestBlock', () => {
     expect(wrapper.attributes('aria-label')).toBe('Request: Summary')
   })
 
-  it('shows Auth section in modal layout', () => {
+  it('shows Auth section opened in modal layout when security is required', () => {
+    const wrapper = mount(RequestBlock, {
+      props: {
+        ...defaultProps,
+        layout: 'modal',
+        securityRequirements: [{ a: [] }],
+        securitySchemes: {
+          a: {
+            type: 'apiKey',
+            'x-scalar-secret-token': '',
+            name: 'X-API-Key',
+            in: 'header',
+          },
+        },
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const auth = wrapper.findComponent(AuthSelector)
+    expect(auth.exists()).toBe(true)
+    expect(auth.isVisible()).toBe(true)
+    expect(auth.findComponent({ name: 'RequestAuthDataTable' }).isVisible()).toBe(true)
+  })
+
+  it('shows Auth section collapsed in modal layout when no security requirement is configured', () => {
     const wrapper = mount(RequestBlock, {
       props: {
         ...defaultProps,
@@ -118,6 +149,7 @@ describe('RequestBlock', () => {
     const auth = wrapper.findComponent(AuthSelector)
     expect(auth.exists()).toBe(true)
     expect(auth.isVisible()).toBe(true)
+    expect(auth.findComponent({ name: 'RequestAuthDataTable' }).exists()).toBe(false)
   })
 
   it('hides Auth section in modal layout when no security is configured', () => {
@@ -357,18 +389,20 @@ describe('RequestBlock', () => {
   })
 
   it('renders plugin component when provided', () => {
+    type ExtensionUpdatePayload = ApiReferenceEvents['operation:update:extension']['payload']
+
     const PluginRequestComponent = markRaw(
       defineComponent({
         template: '<div>Plugin Request Component</div>',
       }) as DefineComponent<
-        { operation: OperationObject },
+        { operation?: OperationObject },
         {},
         {},
         {},
         {},
         {},
         {},
-        { 'operation:update:extension': (payload: any) => void }
+        { 'operation:update:extension': (payload: ExtensionUpdatePayload) => void }
       >,
     )
 

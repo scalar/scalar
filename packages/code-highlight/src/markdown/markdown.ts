@@ -1,4 +1,4 @@
-import type { Heading, PhrasingContent, Root, RootContent, Text } from 'mdast'
+import type { Heading, Node, PhrasingContent, Root, RootContent } from 'mdast'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
 import rehypeRaw from 'rehype-raw'
@@ -9,7 +9,6 @@ import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
-import type { Node } from 'unist'
 import { SKIP, visit } from 'unist-util-visit'
 
 import { standardLanguages } from '@/languages'
@@ -17,8 +16,17 @@ import { rehypeAlert } from '@/rehype-alert'
 import { rehypeHighlight } from '@/rehype-highlight'
 
 type Options = {
-  transform?: (node: Record<string, any>) => Record<string, any>
+  transform?: (node: Node) => Node
   type?: string
+}
+
+export type { Node } from 'mdast'
+
+/**
+ * Type-guard to check if a node is a heading.
+ */
+export const isHeading = (node: Node): node is Heading => {
+  return node.type === 'heading' && 'depth' in node && 'children' in node
 }
 
 /**
@@ -48,7 +56,7 @@ export function htmlFromMarkdown(
   options?: {
     removeTags?: string[]
     allowTags?: string[]
-    transform?: (node: Record<string, any>) => Record<string, any>
+    transform?: (node: Node) => Node
     transformType?: string
   },
 ) {
@@ -132,10 +140,10 @@ export function getHeadings(
   }[] = []
 
   visit(tree, 'heading', (node) => {
-    const text = findTextInHeading(node)
+    const text = textFromNode(node)
 
     if (text) {
-      nodes.push({ depth: node.depth ?? depth, value: text.value })
+      nodes.push({ depth: node.depth ?? depth, value: text })
     }
   })
 
@@ -143,24 +151,20 @@ export function getHeadings(
 }
 
 /**
- * Find the text in a Markdown node (recursively).
+ * Extract plain text from a Markdown AST node (recursively).
+ *
+ * Handles headings with nested phrasing content such as links.
  */
-function findTextInHeading(node: Heading | PhrasingContent): Text | null {
+export function textFromNode(node: Heading | PhrasingContent): string {
   if (node.type === 'text') {
-    return node as Text
+    return node.value ?? ''
   }
 
-  if ('children' in node && node.children) {
-    for (const child of node.children) {
-      const text = findTextInHeading(child)
-
-      if (text) {
-        return text
-      }
-    }
+  if ('children' in node && Array.isArray(node.children)) {
+    return node.children.map((child) => textFromNode(child)).join('')
   }
 
-  return null
+  return ''
 }
 
 /**

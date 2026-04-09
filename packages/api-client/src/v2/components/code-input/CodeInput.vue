@@ -141,9 +141,9 @@ const {
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
-  'submit': [value: string]
-  'blur': [value: string]
-  'redirectToEnvironment': []
+  'submit': [value: string, event: KeyboardEvent | FocusEvent]
+  'navigate': [route: { page: 'document'; path: 'environment' }]
+  'blur': [value: string, event: FocusEvent]
 }>()
 
 // ---------------------------------------------------------------------------
@@ -206,25 +206,28 @@ const handleChange = (value: string): void => {
 /**
  * Handles form submission (enter key or blur with emitOnBlur).
  */
-const handleSubmit = (value: string): void => {
+const handleSubmit = (
+  value: string,
+  event: KeyboardEvent | FocusEvent,
+): void => {
   if (handleFieldSubmit) {
     handleFieldSubmit(value)
   } else {
-    emit('submit', value)
+    emit('submit', value, event)
   }
 }
 
 /**
  * Handles input blur event.
  */
-const handleBlur = (value: string): void => {
+const handleBlur = (value: string, event: FocusEvent): void => {
   isFocused.value = false
 
   if (emitOnBlur && modelValue) {
-    handleSubmit(value)
+    handleSubmit(value, event)
   }
 
-  emit('blur', value)
+  emit('blur', value, event)
 }
 
 /**
@@ -279,7 +282,7 @@ const serializeValue = (value: CodeInputModelValue): string => {
   return JSON.stringify(value)
 }
 
-const { codeMirror } = useCodeMirror({
+const { codeMirror, setCodeMirrorContent } = useCodeMirror({
   content: toRef(() => serializeValue(modelValue)),
   onChange: (value) => {
     handleChange(value)
@@ -361,7 +364,7 @@ const handleKeyDown = (key: string, event: KeyboardEvent): void => {
   }
 
   if (key === 'enter' && event.target instanceof HTMLDivElement) {
-    handleSubmit(event.target.textContent ?? '')
+    handleSubmit(event.target.textContent ?? '', event)
   }
 }
 
@@ -406,7 +409,9 @@ defineExpose({
   handleBlur,
   booleanOptions,
   codeMirror,
+  codeMirrorRef,
   modelValue,
+  setCodeMirrorContent,
   cursorPosition: () => codeMirror.value?.state.selection.main.head,
   serializeValue,
 })
@@ -507,7 +512,7 @@ defineExpose({
     :dropdownPosition="dropdownPosition"
     :environment="environment"
     :query="dropdownQuery"
-    @redirect="emit('redirectToEnvironment')"
+    @redirect="emit('navigate', { page: 'document', path: 'environment' })"
     @select="handleDropdownSelect" />
 </template>
 <style scoped>

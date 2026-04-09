@@ -1,3 +1,19 @@
+<script lang="ts">
+/**
+ * Scalar Combobox Popover component
+ *
+ * Wraps combobox content in a floating popover panel.
+ * Handles open/close behavior and keyboard interactions.
+ *
+ * @example
+ * <ScalarComboboxPopover>
+ *   <button>Toggle</button>
+ *   <template #popover="{ close }">Content</template>
+ * </ScalarComboboxPopover>
+ */
+export default {}
+</script>
+
 <script setup lang="ts">
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'

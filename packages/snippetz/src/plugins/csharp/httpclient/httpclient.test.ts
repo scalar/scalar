@@ -160,12 +160,12 @@ using var response = await client.SendAsync(request);`)
       url: 'https://example.com/api',
       queryString: [
         { name: 'param1', value: 'value1' },
-        { name: 'param2', value: 'special value' },
+        { name: 'param2', value: 'special%20value' },
         { name: 'param3', value: '123' },
       ],
     })
 
-    expect(result).toContain('"https://example.com/api?param1=value1&param2=special+value&param3=123"')
+    expect(result).toContain('"https://example.com/api?param1=value1&param2=special%20value&param3=123"')
   })
 
   it('handles JSON body with raw string literal', () => {
@@ -293,6 +293,42 @@ var request = new HttpRequestMessage(HttpMethod.Post, "https://example.com");
 var content = new MultipartFormDataContent();
 content.Add(new StreamContent(File.OpenRead("test.txt")), "file", "test.txt");
 content.Add(new StringContent("value"), "field");
+request.Content = content;
+
+using var response = await client.SendAsync(request);`)
+  })
+
+  it('handles multipart form data with per-part content types', () => {
+    const result = csharpHttpclient.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            fileName: 'test.txt',
+            contentType: 'text/plain',
+          },
+          {
+            name: 'metadata',
+            value: '{"foo":"bar"}',
+            contentType: 'application/json',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`using var client = new HttpClient();
+
+var request = new HttpRequestMessage(HttpMethod.Post, "https://example.com");
+var content = new MultipartFormDataContent();
+var fileContent0 = new StreamContent(File.OpenRead("test.txt"));
+fileContent0.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+content.Add(fileContent0, "file", "test.txt");
+var stringContent1 = new StringContent("{\\"foo\\":\\"bar\\"}");
+stringContent1.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+content.Add(stringContent1, "metadata");
 request.Content = content;
 
 using var response = await client.SendAsync(request);`)

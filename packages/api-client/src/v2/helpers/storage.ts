@@ -1,6 +1,7 @@
 import { safeLocalStorage } from '@scalar/helpers/object/local-storage'
 
 const CURRENT_PATH_KEY = 'scalar.currentPath' as const
+const TELEMETRY_KEY = 'scalar.telemetry' as const
 
 /**
  * Handles persistence of the active workspace ID in localStorage.
@@ -31,5 +32,23 @@ export const workspaceStorage = {
    */
   getLastPath: (): string | null => {
     return safeLocalStorage().getItem(CURRENT_PATH_KEY)
+  },
+
+  /**
+   * Persist the telemetry enabled state
+   */
+  setTelemetry: (enabled: boolean): void => {
+    safeLocalStorage().setItem(TELEMETRY_KEY, String(enabled))
+  },
+
+  /**
+   * Retrieve the persisted telemetry enabled state. Returns null if never set.
+   */
+  getTelemetry: (): boolean | null => {
+    const value = safeLocalStorage().getItem(TELEMETRY_KEY)
+    if (value === null) {
+      return null
+    }
+    return value === 'true'
   },
 } as const

@@ -7,15 +7,6 @@ import ApiReference from './ApiReference.vue'
 
 enableAutoUnmount(afterEach)
 
-vi.mock(import('@scalar/use-hooks/useBreakpoints'), (importOriginal) => ({
-  ...importOriginal(),
-  useBreakpoints: () => ({
-    mediaQueries: {
-      lg: { value: true },
-    },
-  }),
-}))
-
 /** Track all mounted wrappers so we can unmount them after each test */
 const locationMock = {
   href: 'http://localhost:3000/',
@@ -176,8 +167,8 @@ describe('ApiReference Configuration Tests', () => {
     // hideSearch: undefined -> false
     expect(searchButton.exists()).toBe(true)
 
-    // hideClientButton: undefined -> true
-    expect(clientButton.exists()).toBe(true)
+    // hideClientButton: undefined -> false
+    expect(clientButton.exists()).toBe(false)
 
     // defaultOpenAllTags: undefined -> false
     expect(wrapper.findComponent({ name: 'Content' }).text().includes('Get others')).toBe(false)
@@ -313,6 +304,45 @@ describe('ApiReference Configuration Tests', () => {
     const downloadButtons = wrapper.findAll('.download-button')
     expect(downloadButtons).toHaveLength(1)
     expect(downloadButtons[0]?.find('.extension').text()).toBe('json')
+  })
+
+  it('hides authentication when test requests are hidden', async () => {
+    const authentication = {
+      preferredSecurityScheme: 'apiKey',
+      securitySchemes: {
+        apiKey: {
+          type: 'apiKey',
+          name: 'x-api-key',
+          value: 'test-token',
+        },
+      },
+    }
+
+    const visibleWrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          authentication,
+        },
+      },
+    })
+    await flushPromises()
+
+    expect(visibleWrapper.findComponent({ name: 'Auth' }).exists()).toBe(true)
+
+    const hiddenWrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          authentication,
+          hideClientButton: true,
+          hideTestRequestButton: true,
+        },
+      },
+    })
+    await flushPromises()
+
+    expect(hiddenWrapper.findComponent({ name: 'Auth' }).exists()).toBe(false)
   })
 
   it('all callbacks and complex configurations', async () => {

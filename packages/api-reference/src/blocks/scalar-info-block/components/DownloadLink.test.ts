@@ -147,6 +147,28 @@ describe('DownloadLink', () => {
     })
   })
 
+  describe('Direct download type', () => {
+    const documentUrl = 'https://example.com/openapi.json'
+
+    it('renders a direct link (anchor) to the spec URL when documentDownloadType is direct', () => {
+      const wrapper = createWrapper({ documentDownloadType: 'direct' }, { documentUrl })
+
+      const link = wrapper.find('a.download-link')
+      expect(link.exists()).toBe(true)
+      expect(link.attributes('href')).toBe(documentUrl)
+
+      const buttonElement = wrapper.find('button')
+      expect(buttonElement.exists()).toBe(false)
+    })
+
+    it('does not render download container when documentDownloadType is direct and documentUrl is undefined', () => {
+      const wrapper = createWrapper({ documentDownloadType: 'direct' }, { documentUrl: undefined })
+
+      expect(wrapper.find('.download-container').exists()).toBe(false)
+      expect(wrapper.find('a.download-link').exists()).toBe(false)
+    })
+  })
+
   describe('Disabled download', () => {
     it('does not render download buttons when documentDownloadType is none', () => {
       const wrapper = createWrapper({ documentDownloadType: 'none' })

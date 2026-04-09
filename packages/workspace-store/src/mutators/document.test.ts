@@ -6,68 +6,168 @@ import type { WorkspaceDocument } from '@/schemas'
 import {
   createEmptyDocument,
   deleteDocument,
-  toggleSecurity,
+  updateDocumentExtension,
   updateDocumentIcon,
   updateDocumentInfo,
   updateWatchMode,
 } from './document'
 
-function createDocument(initial?: Partial<WorkspaceDocument>): WorkspaceDocument {
+type TestDocument = WorkspaceDocument & Record<string, unknown>
+
+function createDocument(initial?: Partial<WorkspaceDocument> & Record<string, unknown>): TestDocument {
   return {
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },
     ...initial,
     'x-scalar-original-document-hash': '123',
-  }
+  } as TestDocument
 }
 
-describe('toggleSecurity', () => {
+describe('updateDocumentExtension', () => {
   it('does nothing when document is null', () => {
-    toggleSecurity(null)
-    // Should not throw
+    updateDocumentExtension(null, { 'x-pre-request': 'console.log("test")' })
   })
 
-  it('sets x-scalar-set-operation-security to true when undefined', () => {
+  it('adds a new extension field to the document', () => {
     const document = createDocument()
 
-    toggleSecurity(document)
+    updateDocumentExtension(document, { 'x-pre-request': 'console.log("pre")' })
 
-    expect(document['x-scalar-set-operation-security']).toBe(true)
+    expect(document['x-pre-request']).toBe('console.log("pre")')
   })
 
-  it('toggles x-scalar-set-operation-security from false to true', () => {
-    const document = createDocument({
-      'x-scalar-set-operation-security': false,
+  it('adds multiple extension fields at once', () => {
+    const document = createDocument()
+
+    updateDocumentExtension(document, {
+      'x-pre-request': 'console.log("pre")',
+      'x-post-response': 'console.log("post")',
     })
 
-    toggleSecurity(document)
-
-    expect(document['x-scalar-set-operation-security']).toBe(true)
+    expect(document['x-pre-request']).toBe('console.log("pre")')
+    expect(document['x-post-response']).toBe('console.log("post")')
   })
 
-  it('toggles x-scalar-set-operation-security from true to false', () => {
+  it('updates an existing extension field', () => {
     const document = createDocument({
-      'x-scalar-set-operation-security': true,
+      'x-pre-request': 'old script',
     })
 
-    toggleSecurity(document)
+    updateDocumentExtension(document, { 'x-pre-request': 'new script' })
 
-    expect(document['x-scalar-set-operation-security']).toBe(false)
+    expect(document['x-pre-request']).toBe('new script')
   })
 
-  it('toggles multiple times correctly', () => {
+  it('preserves existing document properties when adding extensions', () => {
     const document = createDocument({
-      'x-scalar-set-operation-security': false,
+      info: { title: 'My API', version: '2.0.0' },
+      paths: { '/users': { get: {} } },
     })
 
-    toggleSecurity(document)
-    expect(document['x-scalar-set-operation-security']).toBe(true)
+    updateDocumentExtension(document, { 'x-custom-extension': 'value' })
 
-    toggleSecurity(document)
-    expect(document['x-scalar-set-operation-security']).toBe(false)
+    expect(document.info.title).toBe('My API')
+    expect(document.info.version).toBe('2.0.0')
+    expect(document.paths).toEqual({ '/users': { get: {} } })
+    expect(document['x-custom-extension']).toBe('value')
+  })
 
-    toggleSecurity(document)
-    expect(document['x-scalar-set-operation-security']).toBe(true)
+  it('preserves existing extension fields when adding new ones', () => {
+    const document = createDocument({
+      'x-pre-request': 'existing pre',
+    })
+
+    updateDocumentExtension(document, { 'x-post-response': 'new post' })
+
+    expect(document['x-pre-request']).toBe('existing pre')
+    expect(document['x-post-response']).toBe('new post')
+  })
+
+  it('handles object extension values', () => {
+    const document = createDocument()
+
+    updateDocumentExtension(document, {
+      'x-scalar-config': {
+        theme: 'dark',
+        showSidebar: true,
+      },
+    })
+
+    expect(document['x-scalar-config']).toEqual({
+      theme: 'dark',
+      showSidebar: true,
+    })
+  })
+
+  it('merges nested object extension values', () => {
+    const document = createDocument({
+      'x-scalar-config': {
+        theme: 'light',
+        layout: 'default',
+      },
+    })
+
+    updateDocumentExtension(document, {
+      'x-scalar-config': {
+        theme: 'dark',
+        showSidebar: true,
+      },
+    })
+
+    expect(document['x-scalar-config']).toEqual({
+      theme: 'dark',
+      layout: 'default',
+      showSidebar: true,
+    })
+  })
+
+  it('handles array extension values', () => {
+    const document = createDocument()
+
+    updateDocumentExtension(document, {
+      'x-tags-order': ['users', 'posts', 'comments'],
+    })
+
+    expect(document['x-tags-order']).toEqual(['users', 'posts', 'comments'])
+  })
+
+  it('handles empty payload', () => {
+    const document = createDocument({
+      'x-existing': 'value',
+    })
+
+    updateDocumentExtension(document, {})
+
+    expect(document['x-existing']).toBe('value')
+    expect(document.info.title).toBe('Test')
+  })
+
+  it('handles null and undefined extension values', () => {
+    const document = createDocument({
+      'x-to-nullify': 'existing',
+    })
+
+    updateDocumentExtension(document, {
+      'x-to-nullify': null,
+      'x-undefined-value': undefined,
+    })
+
+    expect(document['x-to-nullify']).toBeNull()
+    expect(document['x-undefined-value']).toBeUndefined()
+  })
+
+  it('updates extensions multiple times correctly', () => {
+    const document = createDocument()
+
+    updateDocumentExtension(document, { 'x-version': 1 })
+    expect(document['x-version']).toBe(1)
+
+    updateDocumentExtension(document, { 'x-version': 2 })
+    expect(document['x-version']).toBe(2)
+
+    updateDocumentExtension(document, { 'x-version': 3, 'x-new-field': 'added' })
+    expect(document['x-version']).toBe(3)
+    expect(document['x-new-field']).toBe('added')
   })
 })
 

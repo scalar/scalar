@@ -16,18 +16,15 @@
     "llm",
     "swagger"
   ],
-  "version": "0.3.49",
+  "version": "0.5.2",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-vite",
-    "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts,vue --quiet --watch ./",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
+    "build": "vite build && vue-tsc -p tsconfig.build.json",
+    "dev": "tsx watch playground/index.ts",
     "test": "vitest",
-    "types:build": "scalar-types-build-vue",
-    "types:check": "scalar-types-check-vue"
+    "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -56,11 +53,9 @@
   "dependencies": {
     "@scalar/components": "workspace:*",
     "@scalar/helpers": "workspace:*",
+    "@scalar/json-magic": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "@scalar/openapi-parser": "workspace:*",
-    "@scalar/openapi-types": "workspace:*",
-    "@scalar/openapi-upgrader": "workspace:*",
-    "@scalar/types": "workspace:*",
+    "@scalar/workspace-store": "workspace:*",
     "html-minifier-terser": "^7.2.0",
     "rehype-parse": "^9.0.1",
     "rehype-remark": "^10.0.1",
@@ -72,7 +67,6 @@
   },
   "devDependencies": {
     "@hono/node-server": "catalog:*",
-    "@scalar/build-tooling": "workspace:*",
     "@scalar/galaxy": "workspace:*",
     "@types/html-minifier-terser": "^7.0.2",
     "@vitejs/plugin-vue": "catalog:*",

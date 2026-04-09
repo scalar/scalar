@@ -1,7 +1,10 @@
 import { CONTENT_TYPES } from '@scalar/helpers/consts/content-types'
+import { createLimiter } from '@scalar/helpers/general/create-limiter'
 import { extractConfigSecrets, removeSecretFields } from '@scalar/helpers/general/extract-config-secrets'
-import { circularToRefs } from '@scalar/helpers/object/circular-to-refs'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
+import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
+import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-path'
+import { type ThemeId, presets } from '@scalar/themes'
 import type { Oauth2Flow } from '@scalar/types/entities'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
@@ -14,24 +17,28 @@ import { xScalarCookieSchema } from '@scalar/workspace-store/schemas/extensions/
 import type { XTagGroup } from '@scalar/workspace-store/schemas/extensions/tag'
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import {
-  OpenAPIDocumentSchema,
-  type OpenApiDocument,
-  type OperationObject,
-  type ParameterObject,
-  type ParameterWithContentObject,
-  type ParameterWithSchemaObject,
-  type PathItemObject,
-  type RequestBodyObject,
-  type TagObject,
+import type {
+  OperationObject,
+  ParameterObject,
+  ParameterWithContentObject,
+  ParameterWithSchemaObject,
+  PathItemObject,
+  RequestBodyObject,
+  ServerObject,
+  TagObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { WorkspaceDocument, WorkspaceExtensions, WorkspaceMeta } from '@scalar/workspace-store/schemas/workspace'
+import type { WorkspaceExtensions, WorkspaceMeta } from '@scalar/workspace-store/schemas/workspace'
 import { ColorModeSchema } from '@scalar/workspace-store/schemas/workspace'
+import GithubSlugger from 'github-slugger'
 
 import type { RequestParameter } from '@/entities/spec/parameters'
-import { DATA_VERSION_LS_LEY } from '@/migrations/data-version'
 import { migrator } from '@/migrations/migrator'
 import type { v_2_5_0 } from '@/migrations/v-2.5.0/types.generated'
+
+const DRAFTS_DOCUMENT_NAME = 'drafts'
+
+const MAX_CONCURRENT_DB_WRITES = 100
+const MAX_CONCURRENT_DATA_TRANSFORMATIONS = 5
 
 /**
  * Migrates localStorage data to IndexedDB workspace structure.
@@ -70,16 +77,20 @@ export const migrateLocalStorageToIndexDb = async () => {
     // Step 2: Transform to new workspace structure
     const workspaces = await transformLegacyDataToWorkspace(legacyData)
 
+    const limit = createLimiter(MAX_CONCURRENT_DB_WRITES)
+
     // Step 3: Save to IndexedDB
     await Promise.all(
       workspaces.map((workspace) =>
-        workspacePersistence.setItem(
-          { namespace: 'local', slug: workspace.slug },
-          {
-            name: workspace.name,
-            workspace: workspace.workspace,
-            teamUid: 'local',
-          },
+        limit(() =>
+          workspacePersistence.setItem(
+            { namespace: 'local', slug: workspace.slug },
+            {
+              name: workspace.name,
+              workspace: workspace.workspace,
+              teamUid: 'local',
+            },
+          ),
         ),
       ),
     )
@@ -139,96 +150,161 @@ export const shouldMigrateToIndexDb = async (
 export const transformLegacyDataToWorkspace = async (legacyData: {
   arrays: v_2_5_0['DataArray']
   records: v_2_5_0['DataRecord']
-}) =>
-  await Promise.all(
-    legacyData.arrays.workspaces.map(async (workspace) => {
-      /** Grab auth from the collections */
-      const workspaceAuth: InMemoryWorkspace['auth'] = {}
+}) => {
+  const limitWorkspaceTransform = createLimiter(MAX_CONCURRENT_DATA_TRANSFORMATIONS)
 
-      /** Each collection becomes a document in the new system and grab the auth as well */
-      const documents: { name: string; document: OpenApiDocument }[] = workspace.collections.flatMap((uid) => {
-        const collection = legacyData.records.collections[uid]
-        if (!collection) {
-          return []
+  return await Promise.all(
+    legacyData.arrays.workspaces.map((workspace) =>
+      limitWorkspaceTransform(async () => {
+        /** Grab auth from the collections */
+        const workspaceAuth: InMemoryWorkspace['auth'] = {}
+
+        /** Create a slugger instance per workspace to handle duplicate document names */
+        const documentSlugger = new GithubSlugger()
+
+        /** Each collection becomes a document in the new system and grab the auth as well */
+        const documents: { name: string; document: Record<string, unknown> }[] = workspace.collections.flatMap(
+          (uid) => {
+            const collection = legacyData.records.collections[uid]
+            if (!collection) {
+              return []
+            }
+
+            const documentName = collection.info?.title || 'api'
+            const { document, auth } = transformCollectionToDocument(documentName, collection, legacyData.records)
+
+            // Normalize document name to match the store (lowercase "Drafts" → "drafts")
+            const normalizedName = documentName === 'Drafts' ? 'drafts' : documentName
+
+            // Use GitHubSlugger to ensure unique document names
+            const uniqueName = documentSlugger.slug(normalizedName, false)
+
+            workspaceAuth[uniqueName] = auth
+
+            return { name: uniqueName, document }
+          },
+        )
+
+        const meta: WorkspaceMeta = {}
+        const extensions: WorkspaceExtensions = {}
+
+        // Add environment
+        const environmentEntries = Object.entries(workspace.environments)
+        if (environmentEntries.length > 0) {
+          extensions['x-scalar-environments'] = {
+            default: coerceValue(xScalarEnvironmentSchema, {
+              variables: environmentEntries.map(([name, value]) => ({
+                name,
+                value,
+              })),
+            }),
+          }
         }
 
-        const documentName = collection.info?.title || collection.uid
-        const { document, auth } = transformCollectionToDocument(documentName, collection, legacyData.records)
-
-        // Normalize document name to match the store (lowercase "Drafts" → "drafts")
-        const normalizedName = documentName === 'Drafts' ? 'drafts' : documentName
-        workspaceAuth[normalizedName] = auth
-
-        return { name: normalizedName, document }
-      })
-
-      const meta: WorkspaceMeta = {}
-      const extensions: WorkspaceExtensions = {}
-
-      // Add environment
-      const environmentEntries = Object.entries(workspace.environments)
-      if (environmentEntries.length > 0) {
-        extensions['x-scalar-environments'] = {
-          default: coerceValue(xScalarEnvironmentSchema, {
-            variables: environmentEntries.map(([name, value]) => ({
-              name,
-              value,
-            })),
-          }),
-        }
-      }
-
-      // Add cookies to meta
-      if (workspace.cookies.length > 0) {
-        extensions['x-scalar-cookies'] = workspace.cookies.flatMap((uid) => {
-          const cookie = legacyData.records.cookies[uid]
-          return cookie ? coerceValue(xScalarCookieSchema, cookie) : []
-        })
-      }
-
-      // Add proxy URL if present
-      if (workspace.proxyUrl) {
-        meta['x-scalar-active-proxy'] = workspace.proxyUrl
-      }
-
-      // Add theme if present
-      if (workspace.themeId) {
-        meta['x-scalar-theme'] = workspace.themeId
-      }
-
-      // Set color mode
-      if (localStorage.getItem('colorMode')) {
-        meta['x-scalar-color-mode'] = coerceValue(ColorModeSchema, localStorage.getItem('colorMode'))
-      }
-
-      const store = createWorkspaceStore({
-        meta,
-      })
-
-      await Promise.all(
-        documents.map(async ({ name, document }) => {
-          await store.addDocument({
-            name,
-            document,
+        // Add cookies to meta
+        if (workspace.cookies.length > 0) {
+          extensions['x-scalar-cookies'] = workspace.cookies.flatMap((uid) => {
+            const cookie = legacyData.records.cookies[uid]
+            return cookie ? coerceValue(xScalarCookieSchema, cookie) : []
           })
-        }),
-      )
+        }
 
-      // Load the auth into the store
-      store.auth.load(workspaceAuth)
+        // Add proxy URL if present
+        if (workspace.proxyUrl) {
+          meta['x-scalar-active-proxy'] = workspace.proxyUrl
+        }
 
-      // Load the extensions into the store
-      objectEntries(extensions).forEach(([key, value]) => {
-        store.update(key, value)
-      })
+        // Add theme if present
+        if (workspace.themeId) {
+          // We use theme slugs on the new system so we need to transform the id to the slug
+          meta['x-scalar-theme'] = transformThemeIdToSlug(workspace.themeId)
+        }
 
-      return {
-        slug: workspace.uid.toString(), // Convert to string to convert it to a simple string type
-        name: workspace.name || 'Untitled Workspace',
-        workspace: store.exportWorkspace(),
-      }
-    }),
+        // Set color mode
+        if (localStorage.getItem('colorMode')) {
+          meta['x-scalar-color-mode'] = coerceValue(ColorModeSchema, localStorage.getItem('colorMode'))
+        }
+
+        const store = createWorkspaceStore({
+          meta,
+        })
+
+        const limitDocumentAdd = createLimiter(MAX_CONCURRENT_DATA_TRANSFORMATIONS)
+
+        await Promise.all(
+          documents.map(({ name, document }) =>
+            limitDocumentAdd(async () => {
+              await store.addDocument({
+                name,
+                document,
+              })
+              // Note: we are breaking the relationship between the document and the originial source url
+            }),
+          ),
+        )
+
+        // Try to always set the drafts / route
+        if (!(DRAFTS_DOCUMENT_NAME in store.workspace.documents)) {
+          await store.addDocument({
+            name: DRAFTS_DOCUMENT_NAME,
+            document: {
+              openapi: '3.1.0',
+              info: {
+                title: 'Drafts',
+                version: '1.0.0',
+              },
+              paths: {
+                '/': {
+                  get: {},
+                },
+              },
+              'x-scalar-icon': 'interface-edit-tool-pencil',
+            },
+          })
+        }
+
+        const drafts = store.workspace.documents[DRAFTS_DOCUMENT_NAME]
+
+        if (drafts) {
+          // Make sure the drafts document has a GET / route cuz that's the first route we navigate the user to
+          drafts.paths ??= {}
+          drafts.paths['/'] ??= {}
+          drafts.paths['/']['get'] ??= {}
+        }
+
+        store.buildSidebar(DRAFTS_DOCUMENT_NAME)
+        // save the document to the store so we don't see the document as dirty
+        await store.saveDocument(DRAFTS_DOCUMENT_NAME)
+
+        // Load the auth into the store
+        store.auth.load(workspaceAuth)
+
+        // Load the extensions into the store
+        objectEntries(extensions).forEach(([key, value]) => {
+          store.update(key, value)
+        })
+
+        return {
+          slug: workspace.uid.toString(), // Convert to string to convert it to a simple string type
+          name: workspace.name || 'Untitled Workspace',
+          workspace: store.exportWorkspace(),
+        }
+      }),
+    ),
   )
+}
+
+/**
+ * Converts a ThemeId to its corresponding theme slug.
+ * If the themeId is 'none', return it as is.
+ * Otherwise, look up the slug in the presets object.
+ */
+const transformThemeIdToSlug = (themeId: ThemeId): string => {
+  if (themeId === 'none') {
+    return themeId
+  }
+  return presets[themeId]?.slug ?? 'default'
+}
 
 /**
  * Converts legacy environment variables from record format to the new array format.
@@ -263,12 +339,16 @@ const transformLegacyEnvironments = (
  *
  * Each request becomes an operation in the paths object.
  * Request examples are merged into parameter examples and request body examples.
+ *
+ * Also extracts servers from paths that contain full URLs (e.g., "https://api.example.com/users")
+ * and returns them separately for deduplication at the document level.
  */
 const transformRequestsToPaths = (
   collection: v_2_5_0['Collection'],
   dataRecords: v_2_5_0['DataRecord'],
-): Record<string, PathItemObject> => {
+): { paths: Record<string, PathItemObject>; extractedServers: ServerObject[] } => {
   const paths = Object.create(null) as Record<string, PathItemObject>
+  const extractedServers: ServerObject[] = []
 
   for (const requestUid of collection.requests || []) {
     const request = dataRecords.requests[requestUid]
@@ -290,9 +370,39 @@ const transformRequestsToPaths = (
       ...rest
     } = request
 
+    let normalizedPath = path || '/'
+
+    /**
+     * Extract server from path if it contains a full URL.
+     * This handles legacy data where users may have entered full URLs as paths.
+     */
+    const extractedServerUrl = extractServerFromPath(normalizedPath)
+    if (extractedServerUrl?.length === 2) {
+      const [serverUrl, remainingPath] = extractedServerUrl
+      extractedServers.push({ url: serverUrl })
+      normalizedPath = remainingPath
+
+      /**
+       * Handle edge case where the path after server is empty or just "/"
+       * Example: "https://api.example.com" → "" → "/"
+       */
+      if (!normalizedPath) {
+        normalizedPath = '/'
+      }
+      // Handle double slashes from malformed URLs like "https://api.example.com//users"
+      else if (normalizedPath.startsWith('//')) {
+        normalizedPath = normalizedPath.slice(1)
+      }
+    }
+
+    // Normalize relative paths to start with a leading slash. OpenAPI paths must start with "/" per the spec
+    if (!normalizedPath.startsWith('/')) {
+      normalizedPath = `/${normalizedPath}`
+    }
+
     // Initialize path object if it doesn't exist
-    if (!paths[path]) {
-      paths[path] = {}
+    if (!paths[normalizedPath]) {
+      paths[normalizedPath] = {}
     }
 
     /** Start building the OAS operation object  */
@@ -330,10 +440,13 @@ const transformRequestsToPaths = (
       })
     }
 
-    paths[path][method] = partialOperation
+    const pathItem = paths[normalizedPath]
+    if (pathItem) {
+      pathItem[method] = partialOperation
+    }
   }
 
-  return paths
+  return { paths, extractedServers }
 }
 
 /**
@@ -346,6 +459,23 @@ const PARAM_TYPE_TO_IN: Record<string, string> = {
   query: 'query',
   headers: 'header',
   cookies: 'cookie',
+}
+
+/**
+ * Ensures unique example names by appending #2, #3, etc. when duplicates are found.
+ * Does not use slugification - preserves the original name with a numeric suffix.
+ */
+const ensureUniqueExampleName = (baseName: string, usedNames: Set<string>): string => {
+  let uniqueName = baseName
+  let counter = 2
+
+  while (usedNames.has(uniqueName)) {
+    uniqueName = `${baseName} #${counter}`
+    counter++
+  }
+
+  usedNames.add(uniqueName)
+  return uniqueName
 }
 
 /**
@@ -418,9 +548,11 @@ const mergeExamplesIntoParameters = (
   }
 
   const paramTypes = Object.keys(PARAM_TYPE_TO_IN)
+  const usedExampleNames = new Set<string>()
 
   for (const requestExample of requestExamples) {
-    const exampleName = requestExample.name || 'Example'
+    const baseName = requestExample.name || 'Example'
+    const exampleName = ensureUniqueExampleName(baseName, usedExampleNames)
 
     for (const paramType of paramTypes) {
       const inValue = PARAM_TYPE_TO_IN[paramType]
@@ -566,13 +698,16 @@ const mergeExamplesIntoRequestBody = (
   /** We track the selected content type for each example */
   const selectedContentTypes = {} as Record<string, string>
 
+  const usedExampleNames = new Set<string>()
+
   for (const example of requestExamples) {
     const extracted = extractBodyExample(example.body)
     if (!extracted) {
       continue
     }
 
-    const name = example.name || 'Example'
+    const baseName = example.name || 'Example'
+    const name = ensureUniqueExampleName(baseName, usedExampleNames)
     const group = groupedByContentType.get(extracted.contentType)
 
     if (group) {
@@ -690,7 +825,7 @@ const transformCollectionToDocument = (
   documentName: string,
   collection: v_2_5_0['Collection'],
   dataRecords: v_2_5_0['DataRecord'],
-): { document: WorkspaceDocument; auth: Auth } => {
+): { document: Record<string, unknown>; auth: Auth } => {
   // Resolve selectedServerUid → server URL for x-scalar-selected-server
   const selectedServerUrl =
     collection.selectedServerUid && dataRecords.servers[collection.selectedServerUid]
@@ -700,8 +835,34 @@ const transformCollectionToDocument = (
   // Transform tags: separate parent tags (groups) from child tags
   const { tags, tagGroups } = transformLegacyTags(collection, dataRecords)
 
-  // Transform requests into paths
-  const paths = transformRequestsToPaths(collection, dataRecords)
+  // Transform requests into paths and extract servers from full URLs
+  const { paths, extractedServers } = transformRequestsToPaths(collection, dataRecords)
+
+  /**
+   * Merge and deduplicate servers:
+   * 1. Start with existing collection servers
+   * 2. Add extracted servers from paths
+   * 3. Deduplicate by URL (keep first occurrence)
+   */
+  const existingServers = collection.servers.flatMap((uid) => {
+    const server = dataRecords.servers[uid]
+    if (!server) {
+      return []
+    }
+
+    const { uid: _, ...rest } = server
+    return [rest]
+  })
+
+  const allServers = [...existingServers, ...extractedServers]
+  const seenUrls = new Set<string>()
+  const deduplicatedServers = allServers.filter((server) => {
+    if (seenUrls.has(server.url)) {
+      return false
+    }
+    seenUrls.add(server.url)
+    return true
+  })
 
   const document: Record<string, unknown> = {
     openapi: collection.openapi || '3.1.0',
@@ -709,15 +870,7 @@ const transformCollectionToDocument = (
       title: documentName,
       version: '1.0',
     },
-    servers: collection.servers.flatMap((uid) => {
-      const server = dataRecords.servers[uid]
-      if (!server) {
-        return []
-      }
-
-      const { uid: _, ...rest } = server
-      return [rest]
-    }),
+    servers: deduplicatedServers,
     paths,
     /**
      * Preserve all component types from the collection and merge with transformed security schemes.
@@ -778,16 +931,12 @@ const transformCollectionToDocument = (
     tags,
     webhooks: collection.webhooks,
     externalDocs: collection.externalDocs,
-    'x-scalar-original-document-hash': '',
 
     // Preserve scalar extensions
     'x-scalar-icon': collection['x-scalar-icon'],
 
     // Convert legacy record-based environment variables to the new array format
     'x-scalar-environments': transformLegacyEnvironments(collection['x-scalar-environments']),
-
-    // useCollectionSecurity → x-scalar-set-operation-security
-    'x-scalar-set-operation-security': collection.useCollectionSecurity ?? false,
   }
 
   // Add x-tagGroups if there are any parent tags
@@ -795,9 +944,9 @@ const transformCollectionToDocument = (
     document['x-tagGroups'] = tagGroups
   }
 
-  // x-scalar-active-environment → x-scalar-client-config-active-environment
+  // x-scalar-active-environment
   if (collection['x-scalar-active-environment']) {
-    document['x-scalar-client-config-active-environment'] = collection['x-scalar-active-environment']
+    document['x-scalar-active-environment'] = collection['x-scalar-active-environment']
   }
 
   // selectedServerUid → x-scalar-selected-server (resolved to URL)
@@ -810,17 +959,11 @@ const transformCollectionToDocument = (
     document['x-scalar-original-source-url'] = collection.documentUrl
   }
 
-  // Break any circular JS object references before coercion.
-  // The legacy client dereferenced $refs inline, creating circular object graphs
-  // that would cause JSON serialization and schema validation to fail.
-  const safeDocument = circularToRefs(document, {
-    '$ref-value': '',
-    '$global': false,
-    'summary': 'This ref was re-created from a circular schema reference',
-  })
+  // Convert circular references to $ref pointers which is safe for JSON serialization
+  const safeDocument = toJsonCompatible(document)
 
   return {
-    document: coerceValue(OpenAPIDocumentSchema, safeDocument),
+    document: safeDocument,
     auth: coerceValue(AuthSchema, {
       secrets: collection.securitySchemes.reduce((acc, uid) => {
         const securityScheme = dataRecords.securitySchemes[uid]
@@ -861,33 +1004,4 @@ const transformCollectionToDocument = (
       selected: {},
     }),
   }
-}
-
-/**
- * Clears legacy localStorage data after successful migration.
- *
- * NOT called automatically - old data is preserved as a safety net for rollback.
- * Call only after migration succeeds and a grace period passes (e.g., 30 days).
- *
- * To rollback: clear IndexedDB and reload - migration will run again automatically.
- */
-export const clearLegacyLocalStorage = (): void => {
-  const keysToRemove = [
-    'collection',
-    'cookie',
-    'environment',
-    'requestExample',
-    'request',
-    'securityScheme',
-    'server',
-    'tag',
-    'workspace',
-    DATA_VERSION_LS_LEY,
-  ]
-
-  keysToRemove.forEach((key) => {
-    localStorage.removeItem(key)
-  })
-
-  console.info('🧹 Cleared legacy localStorage data')
 }

@@ -199,6 +199,7 @@ const handleUpdateRow = (
         :modelValue="name"
         placeholder="Key"
         :required="Boolean(data.isRequired)"
+        @navigate="(route) => emit('navigate', route)"
         @selectVariable="(v: string) => handleUpdateRow({ name: v })"
         @update:modelValue="(v) => handleUpdateRow({ name: v })" />
     </DataTableCell>
@@ -225,6 +226,7 @@ const handleUpdateRow = (
         :modelValue="displayValue"
         placeholder="Value"
         :type="typeValue"
+        @navigate="(route) => emit('navigate', route)"
         @update:modelValue="(v) => handleUpdateRow({ value: v })">
         <template #icon>
           <ScalarButton
@@ -273,7 +275,7 @@ const handleUpdateRow = (
           <span>{{ displayValue }}</span>
         </div>
         <button
-          class="bg-b-2 centered-x centered-y absolute hidden w-[calc(100%_-_8px)] rounded p-0.5 text-center text-xs font-medium group-hover/upload:block"
+          class="bg-b-2 mt-1 block rounded p-0.5 text-center text-xs font-medium md:pointer-events-none md:absolute md:inset-x-1 md:top-1/2 md:mt-0 md:-translate-y-1/2 md:opacity-0 md:group-hover/upload:pointer-events-auto md:group-hover/upload:opacity-100"
           type="button"
           @click="emit('removeFile')">
           Delete

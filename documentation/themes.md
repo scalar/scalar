@@ -14,7 +14,7 @@ You don't like the color scheme? We've prepared some themes for you:
 * `deepSpace`
 * `laserwave`
 
-Just pass the theme name to your [Scalar API Reference configuration](configuration.md):
+Just pass the theme name to your [API Reference configuration](configuration.md):
 
 ```javascript
 {
@@ -35,7 +35,7 @@ We support two layouts at the moment, a `modern` layout (the default) and a Swag
 
 ![layouts](https://github.com/scalar/scalar/assets/6374090/a28b89e0-8d3b-477f-a02f-bcf39f7830f0)
 
-## Advanced: Styling
+## Custom Styling
 
 You can pretty much style everything you see.
 [Here's an extreme example of what's possible.](https://windows98.apidocumentation.com/)
@@ -156,15 +156,84 @@ Or get more advanced by styling our sidebar!
 </style>
 ```
 
-#### Theme Prefix Changes
+## Embedding with CSS Frameworks
 
-We've migrated our `--theme-*` CSS variables to `--scalar-*` to avoid conflicts with other CSS variables in
-applications consuming the Scalar references or themes.
-If you're injecting your custom CSS through the [`customCss`](configuration.md) configuration option we will automatically
-migrate your variable prefixes but display a warning in the console.
+When you embed the Scalar API Reference in an existing application that already has its own CSS (for example, a project using Tailwind), Scalar's styles may interact with your application's styles. This section explains how Scalar's CSS is structured and how to make sure everything works together.
 
-We recommend updating your theme variables as soon as possible:
+### How Scalar CSS Layers Work
 
-- `--theme-*` → `--scalar-*`
-- `--sidebar-*` → `--scalar-sidebar-*`
+Scalar uses [CSS cascade layers](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer) to organize its styles and to make them easy to override.
 
+| Layer | Purpose |
+|-------|---------|
+| `scalar-base` | Core CSS variables and the default theme |
+| `scalar-theme` | Theme-specific overrides (for example, the `moon` or `kepler` themes) |
+| `scalar-config` | Configurable layout variables used by the API Reference component |
+
+Layers defined earlier in the layer order have *lower* cascade priority. Any styles outside of these layers will override them, which makes it easy to customize.
+
+The layer order is declared at the top of the Scalar theme stylesheet:
+
+```css
+@layer scalar-base, scalar-theme;
+```
+
+This works great on a standalone page, but when you embed the API Reference alongside another CSS framework that also uses `@layer`, you need to tell the browser the order of *all* layers so they don't conflict.
+
+### Tailwind CSS
+
+We love Tailwind and use it extensively in the API References. Where possible we've isolated our Tailwind styles and layers inside the API References to avoid conflicts with consuming projects that use Tailwind.
+
+Tailwind CSS v4 introduced its own set of cascade layers (`theme`, `base`, `components`, `utilities`). When Scalar's styles and Tailwind's styles are both on the page, the browser determines layer priority based on [whichever `@layer` declaration it encounters first](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@layer).
+
+If the ordering is not explicitly set, Scalar's layers may end up with *higher* priority than Tailwind's `utilities` layer. This can cause Scalar CSS variables (like `--leading-normal` or `--ease-in`) and other properties to override your Tailwind utility classes.
+
+**The fix:** Declare the full layer order yourself, *before* importing Tailwind, so that Tailwind's layers always win over Scalar's layers.
+
+In your main CSS file (for example, `src/index.css` or `src/app.css`):
+
+```css
+/* Set the layer order: Scalar layers first (lowest priority), then Tailwind layers (highest priority) */
+@layer scalar-base, scalar-theme, scalar-config, theme, base, components, utilities;
+
+/* Then import Tailwind as normal */
+@import "tailwindcss";
+```
+
+This ensures that Tailwind's `utilities` layer has the highest cascade priority and your utility classes always take effect.
+
+> [!NOTE]
+> The `@layer` declaration above must come **before** `@import "tailwindcss"` in your CSS file. Tailwind v4 sets its own layer order [when it's imported](https://github.com/tailwindlabs/tailwindcss/blob/main/packages/tailwindcss/index.css), so you need to declare yours first to take precedence.
+
+### Global HTML and Body Styles
+
+In addition to being embeddable in an existing page, the API Reference is designed to work as a standalone page with no other CSS reset or normalize stylesheet. To support this, Scalar includes a small set of global rules on `html` and `body` (for example, `line-height`, `background-color`).
+
+These rules are intentionally minimal and easy to override. If you set the CSS layer order as described above, Tailwind's preflight will automatically override most of these. For any remaining properties (like `background-color`), you can override them in your own CSS:
+
+```css
+body {
+  background-color: var(--color-slate-900);
+}
+```
+
+### Matching Scalar Colors to Your Theme
+
+To make the API Reference blend in with the rest of your application, you can map Scalar's CSS variables to your own design tokens. For example, with Tailwind CSS:
+
+```css
+:root {
+  --scalar-background-1: var(--color-slate-900);
+  --scalar-background-2: var(--color-slate-800);
+  --scalar-color-1: var(--color-white);
+  --scalar-color-accent: var(--color-indigo-600);
+}
+```
+
+See the full list of [available CSS variables](https://github.com/scalar/scalar/blob/main/packages/themes/src/base/variables.css).
+
+### Other CSS Frameworks
+
+If you use a different CSS framework that also relies on `@layer`, the same principle applies: declare the full layer order before any imports, with Scalar's layers listed first (lowest priority) and your framework's layers listed last (highest priority).
+
+For frameworks that do not use `@layer`, Scalar's layered styles will naturally have lower priority than unlayered styles, so no additional configuration is needed.

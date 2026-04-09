@@ -1,6 +1,6 @@
 # GitLab CI/CD
 
-You can add a GitLab CI/CD pipeline to your GitLab repository to automatically push your OpenAPI documents to the Scalar Registry.
+You can add a GitLab CI/CD pipeline to your GitLab repository to automatically push your OpenAPI documents to the Registry.
 
 ## Basic Pipeline
 

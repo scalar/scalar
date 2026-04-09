@@ -37,9 +37,7 @@ export const httpHttp11: Plugin = {
 
     // Handle query string parameters
     if (normalizedRequest.queryString.length) {
-      const queryString = normalizedRequest.queryString
-        .map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`)
-        .join('&')
+      const queryString = normalizedRequest.queryString.map((param) => `${param.name}=${param.value}`).join('&')
 
       // Append query string to the path
       requestString = `${normalizedRequest.method} ${path}?${queryString} HTTP/1.1\r\n`
@@ -62,9 +60,7 @@ export const httpHttp11: Plugin = {
 
     // Query string parameters
     if (normalizedRequest.queryString.length) {
-      const queryString = normalizedRequest.queryString
-        .map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`)
-        .join('&')
+      const queryString = normalizedRequest.queryString.map((param) => `${param.name}=${param.value}`).join('&')
 
       // Append query string to the path
       requestString = `${normalizedRequest.method} ${path}?${queryString} HTTP/1.1\r\n`
@@ -100,10 +96,12 @@ export const httpHttp11: Plugin = {
         body =
           normalizedRequest.postData.params
             .map((param) => {
+              const contentTypeHeader = param.contentType ? `Content-Type: ${param.contentType}\r\n` : ''
+
               if (param.fileName) {
-                return `--${boundary}\r\nContent-Disposition: form-data; name="${param.name}"; filename="${param.fileName}"\r\n\r\n`
+                return `--${boundary}\r\nContent-Disposition: form-data; name="${param.name}"; filename="${param.fileName}"\r\n${contentTypeHeader}\r\n`
               }
-              return `--${boundary}\r\nContent-Disposition: form-data; name="${param.name}"\r\n\r\n${param.value}\r\n`
+              return `--${boundary}\r\nContent-Disposition: form-data; name="${param.name}"\r\n${contentTypeHeader}\r\n${param.value ?? ''}\r\n`
             })
             .join('') + `--${boundary}--\r\n`
       }

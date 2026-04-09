@@ -1,5 +1,287 @@
 # @scalar/sidebar
 
+## 0.8.19
+
+## 0.8.18
+
+## 0.8.17
+
+### Patch Changes
+
+- [#8716](https://github.com/scalar/scalar/pull/8716): fix: remove smooth scrolling from sidebar
+- [#8715](https://github.com/scalar/scalar/pull/8715): fix: correct main field in package.json to point to .js instead of non-existent .cjs files
+
+## 0.8.16
+
+## 0.8.15
+
+## 0.8.14
+
+## 0.8.13
+
+### Patch Changes
+
+- [#8563](https://github.com/scalar/scalar/pull/8563): fix: type declarations don't use the full path for imports
+
+## 0.8.12
+
+### Patch Changes
+
+- [#8529](https://github.com/scalar/scalar/pull/8529): rewrite declaration aliases in built type files
+
+## 0.8.11
+
+## 0.8.10
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.8.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.40.2**
+  - [#8468](https://github.com/scalar/scalar/pull/8468): fix: ignore response examples when generating navigation
+
+- **@scalar/components@0.20.9**
+  - [#8453](https://github.com/scalar/scalar/pull/8453): refactor: remove @ts-expect-error from ScalarTextArea
+
+## 0.8.8
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.40.1**
+  - [#8424](https://github.com/scalar/scalar/pull/8424): feat: export XScalarCredentialsLocation
+  - [#8445](https://github.com/scalar/scalar/pull/8445): fix: generate unique id for models
+
+- **@scalar/components@0.20.8**
+
+## 0.8.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.40.0**
+  - [#8426](https://github.com/scalar/scalar/pull/8426): feat: interact with the original and intermediate documents
+
+- **@scalar/components@0.20.7**
+
+## 0.8.6
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.20.6**
+  - [#8327](https://github.com/scalar/scalar/pull/8327): fix: markdown tables with specified width attributes in td/th break the layout
+
+- **@scalar/helpers@0.4.1**
+  - [#8420](https://github.com/scalar/scalar/pull/8420): fix TypeScript access to navigator.userAgentData in isMacOS without ts-expect-error
+
+- **@scalar/workspace-store@0.39.2**
+
+## 0.8.5
+
+### Patch Changes
+
+- [#8386](https://github.com/scalar/scalar/pull/8386): feat: add spacer slot to sidebar
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.39.1**
+  - [#8393](https://github.com/scalar/scalar/pull/8393): fix: correctly update active tab on tab close event
+  - [#8403](https://github.com/scalar/scalar/pull/8403): Persist auth url and token url in local storage
+
+- **@scalar/components@0.20.5**
+
+## 0.8.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.39.0**
+  - [#8372](https://github.com/scalar/scalar/pull/8372): fix: avoid inlining $ref path parameters during path parameter sync
+  - [#8349](https://github.com/scalar/scalar/pull/8349): feat: support operation example rename
+  - [#8336](https://github.com/scalar/scalar/pull/8336): fix: sidebar title update and detect delete operaitons for proxy
+  - [#8253](https://github.com/scalar/scalar/pull/8253): feat(api-reference): support propertyNames enum for additionalProperties
+
+- **@scalar/helpers@0.4.0**
+  - [#8336](https://github.com/scalar/scalar/pull/8336): feat: support flushing any pending operations
+
+- **@scalar/components@0.20.4**
+
+## 0.8.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.38.1**
+
+- **@scalar/components@0.20.3**
+
+## 0.8.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.38.0**
+  - [#8347](https://github.com/scalar/scalar/pull/8347): chore: export server workspace type
+  - [#8365](https://github.com/scalar/scalar/pull/8365): feat: store oauth flow refresh tokens on the auth store
+
+- **@scalar/components@0.20.2**
+  - [#8366](https://github.com/scalar/scalar/pull/8366): fix(components): clean up search components and add snapshots
+
+## 0.8.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.37.0**
+  - [#8266](https://github.com/scalar/scalar/pull/8266): support operation level authentication and servers
+
+- **@scalar/components@0.20.1**
+
+## 0.8.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.36.0**
+  - [#8340](https://github.com/scalar/scalar/pull/8340): feat: support navigation options on server store
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+  - [#8340](https://github.com/scalar/scalar/pull/8340): chore: disable perf logs by default
+
+- **@scalar/components@0.20.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+- **@scalar/use-hooks@0.4.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+- **@scalar/helpers@0.3.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+- **@scalar/themes@0.15.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+- **@scalar/icons@0.6.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.7.46
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.15**
+  - [#8319](https://github.com/scalar/scalar/pull/8319): fix(components): fix adjust sidebar section line height
+
+- **@scalar/helpers@0.2.18**
+  - [#8314](https://github.com/scalar/scalar/pull/8314): chore: limit concurrent operations while migrating workspaces
+
+- **@scalar/workspace-store@0.35.3**
+
+## 0.7.45
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/themes@0.14.3**
+  - [#8315](https://github.com/scalar/scalar/pull/8315): feat(theme): standardize tailwind line height behavior
+
+- **@scalar/components@0.19.14**
+
+## 0.7.44
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.35.2**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+  - [#8294](https://github.com/scalar/scalar/pull/8294): default createAnySecurityScheme to false and fix index clamp issue
+  - [#8287](https://github.com/scalar/scalar/pull/8287): consider path-level parameters in syncPathParameters instead of creating bare synthetic ones
+
+- **@scalar/helpers@0.2.17**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+
+- **@scalar/components@0.19.13**
+
+## 0.7.43
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.12**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+- **@scalar/themes@0.14.2**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+- **@scalar/workspace-store@0.35.1**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+## 0.7.42
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.11**
+  - [#8276](https://github.com/scalar/scalar/pull/8276): feat(components): standardize form inputs to have a height of 40px
+
+- **@scalar/themes@0.14.1**
+  - [#8276](https://github.com/scalar/scalar/pull/8276): feat(components): standardize form inputs to have a height of 40px
+
+- **@scalar/workspace-store@0.35.0**
+  - [#8234](https://github.com/scalar/scalar/pull/8234): support operation level authentication and servers
+
+## 0.7.41
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.34.4**
+
+- **@scalar/components@0.19.10**
+
+## 0.7.40
+
+### Patch Changes
+
+- [#8248](https://github.com/scalar/scalar/pull/8248): feat: add optional chevron click handler for the sidebar
+
+#### Updated Dependencies
+
+- **@scalar/workspace-store@0.34.3**
+  - [#8248](https://github.com/scalar/scalar/pull/8248): fix: local storage migration script
+  - [#8248](https://github.com/scalar/scalar/pull/8248): feat: nest description headings in the sidebar
+  - [#8248](https://github.com/scalar/scalar/pull/8248): chore: map themeId to slug and add default operation to drafts
+
+- **@scalar/helpers@0.2.16**
+  - [#8248](https://github.com/scalar/scalar/pull/8248): fix: local storage migration script
+
+- **@scalar/components@0.19.9**
+  - [#8248](https://github.com/scalar/scalar/pull/8248): feat: slugs for headings with nested content
+  - [#8248](https://github.com/scalar/scalar/pull/8248): feat: add optional chevron click handler for the sidebar
+
 ## 0.7.39
 
 ### Patch Changes

@@ -1,5 +1,165 @@
 # @scalar/fastify-api-reference
 
+## 1.52.0
+
+## 1.51.0
+
+## 1.50.0
+
+### Patch Changes
+
+- [#8664](https://github.com/scalar/scalar/pull/8664): refactor: replace wildcard export barrels with explicit named re-exports
+
+## 1.49.8
+
+## 1.49.7
+
+## 1.49.6
+
+## 1.49.5
+
+## 1.49.4
+
+## 1.49.3
+
+## 1.49.2
+
+## 1.49.1
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 1.49.0
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.25.4**
+  - [#8448](https://github.com/scalar/scalar/pull/8448): fix parser validation for unused path parameters
+
+## 1.48.8
+
+## 1.48.7
+
+## 1.48.6
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.25.3**
+
+- **@scalar/core@0.4.3**
+
+## 1.48.5
+
+## 1.48.4
+
+## 1.48.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.25.2**
+  - [#8359](https://github.com/scalar/scalar/pull/8359): fix(openapi-parser): replace $dynamicRef with $ref in v3.2 schema for AJV compatibility
+
+- **@scalar/core@0.4.2**
+
+## 1.48.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.4.1**
+
+- **@scalar/openapi-parser@0.25.1**
+
+## 1.48.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.25.1**
+
+## 1.48.0
+
+## 1.47.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.25.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+- **@scalar/openapi-types@0.6.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+- **@scalar/core@0.4.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 1.46.4
+
+## 1.46.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-types@0.5.4**
+  - [#8275](https://github.com/scalar/scalar/pull/8275): fix(openapi-types): make the `$ref` property in the `ReferenceObject` type required
+
+- **@scalar/openapi-parser@0.24.17**
+
+- **@scalar/core@0.3.45**
+
+## 1.46.2
+
+## 1.46.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.24.16**
+
+- **@scalar/core@0.3.44**
+
+## 1.46.0
+
+## 1.45.0
+
+## 1.44.27
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.43**
+
+- **@scalar/openapi-parser@0.24.15**
+
+## 1.44.26
+
+### Patch Changes
+
+- [#8248](https://github.com/scalar/scalar/pull/8248): fix: local storage migration script
+
+#### Updated Dependencies
+
+- **@scalar/openapi-parser@0.24.14**
+
+- **@scalar/core@0.3.42**
+
 ## 1.44.25
 
 ## 1.44.24

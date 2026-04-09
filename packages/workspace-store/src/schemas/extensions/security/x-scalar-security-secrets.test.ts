@@ -3,7 +3,11 @@ import { describe, expect, it } from 'vitest'
 
 import { coerceValue } from '@/schemas/typebox-coerce'
 
-import { XScalarSecretHTTPSchema, XScalarSecretTokenSchema } from './x-scalar-security-secrets'
+import {
+  XScalarSecretHTTPSchema,
+  XScalarSecretRefreshTokenSchema,
+  XScalarSecretTokenSchema,
+} from './x-scalar-security-secrets'
 
 describe('XScalarSecrets', () => {
   describe('XScalarSecretTokenSchema', () => {
@@ -23,6 +27,22 @@ describe('XScalarSecrets', () => {
       expect(result).toEqual({
         'x-scalar-secret-token': '12345',
       })
+    })
+  })
+
+  describe('XScalarSecretRefreshTokenSchema', () => {
+    it('validates a valid refresh token', () => {
+      const validRefreshToken = {
+        'x-scalar-secret-refresh-token': 'refresh-token-123',
+      }
+
+      const result = Value.Parse(XScalarSecretRefreshTokenSchema, validRefreshToken)
+      expect(result).toEqual(validRefreshToken)
+    })
+
+    it('keeps refresh token optional', () => {
+      const result = coerceValue(XScalarSecretRefreshTokenSchema, {})
+      expect(result).toEqual({})
     })
   })
 

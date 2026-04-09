@@ -229,6 +229,48 @@ describe('shellCurl', () => {
   --form 'field=value'`)
   })
 
+  it('handles multipart form data content types on string parts', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'user',
+            value: '{"name":"scalar"}',
+            contentType: 'application/json;charset=utf-8',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`curl https://example.com \\
+  --request POST \\
+  --form 'user={"name":"scalar"};type=application/json;charset=utf-8'`)
+  })
+
+  it('handles multipart form data content types on files', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            fileName: 'test.txt',
+            contentType: 'text/plain',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`curl https://example.com \\
+  --request POST \\
+  --form 'file=@test.txt;type=text/plain'`)
+  })
+
   it('handles multipart form data with single quotes in parameter name', () => {
     const result = shellCurl.generate({
       url: 'https://example.com',
@@ -365,11 +407,11 @@ describe('shellCurl', () => {
       queryString: [
         {
           name: 'q',
-          value: 'hello world & more',
+          value: 'hello%20world%20%26%20more',
         },
         {
           name: 'special',
-          value: '!@#$%^&*()',
+          value: '!%40%23%24%25%5E%26*()',
         },
       ],
     })
@@ -542,11 +584,11 @@ describe('shellCurl', () => {
       queryString: [
         {
           name: 'price',
-          value: '$100',
+          value: '%24100',
         },
         {
           name: 'currency',
-          value: 'USD$',
+          value: 'USD%24',
         },
       ],
     })
@@ -560,7 +602,7 @@ describe('shellCurl', () => {
       queryString: [
         {
           name: 'amount',
-          value: '$50.00',
+          value: '%2450.00',
         },
       ],
     })

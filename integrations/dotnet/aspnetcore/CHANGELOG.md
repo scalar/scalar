@@ -1,5 +1,253 @@
 # @scalar/aspnetcore
 
+## 2.13.21
+
+## 2.13.20
+
+## 2.13.19
+
+### Patch Changes
+
+- [#8640](https://github.com/scalar/scalar/pull/8640): fix(aspire,aspnetcore): support mcp disabled configuration
+
+## 2.13.18
+
+## 2.13.17
+
+## 2.13.16
+
+## 2.13.15
+
+## 2.13.14
+
+## 2.13.13
+
+## 2.13.12
+
+## 2.13.11
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 2.13.10
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.49.0**
+  - [#8443](https://github.com/scalar/scalar/pull/8443): fix hash-prefixed basePath routing
+  - [#8467](https://github.com/scalar/scalar/pull/8467): feat(api-reference): improve Ask AI button consistency and a11y
+  - [#8409](https://github.com/scalar/scalar/pull/8409): feat: lazy rendering
+  - [#8442](https://github.com/scalar/scalar/pull/8442): fix object schema descriptions in parameter rendering
+
+## 2.13.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.48.8**
+  - [#8425](https://github.com/scalar/scalar/pull/8425): fix auth default OAuth scope fallback
+  - [#8416](https://github.com/scalar/scalar/pull/8416): fix: direct css import breaks build in react, vitepress and others
+  - [#8417](https://github.com/scalar/scalar/pull/8417): fix: document not defined in SSR environments
+
+## 2.13.8
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.48.7**
+
+## 2.13.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.48.6**
+  - [#8414](https://github.com/scalar/scalar/pull/8414): fix(api-reference): limit height of example response descriptions
+
+- **@scalar/dotnet-shared@0.2.0**
+
+## 2.13.6
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.48.5**
+  - [#8406](https://github.com/scalar/scalar/pull/8406): feat: x-order
+  - [#8097](https://github.com/scalar/scalar/pull/8097): fix: lazy load compositions
+  - [#8380](https://github.com/scalar/scalar/pull/8380): feat(api-reference): render `<a>` HTML tag for `documentDownloadType: direct`
+
+- **@scalar/dotnet-shared@0.2.0**
+
+## 2.13.5
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.48.4**
+
+## 2.13.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.48.3**
+  - [#8257](https://github.com/scalar/scalar/pull/8257): fix: display the referenced name
+  - [#8253](https://github.com/scalar/scalar/pull/8253): feat(api-reference): support propertyNames enum for additionalProperties
+  - [#8385](https://github.com/scalar/scalar/pull/8385): fix: relative / invalid URLs being passed to open MCP registration flow
+  - [#8391](https://github.com/scalar/scalar/pull/8391): Create instant MCP in the dashboard in localhost
+
+- **@scalar/dotnet-shared@0.2.0**
+
+## 2.13.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.48.2**
+  - [#8381](https://github.com/scalar/scalar/pull/8381): feat: add mcp config support
+  - [#8375](https://github.com/scalar/scalar/pull/8375): feat(api-reference): export lazy bus queue helper
+  - [#8370](https://github.com/scalar/scalar/pull/8370): fix: hide the authentication panel when test requests are disabled
+
+- **@scalar/dotnet-shared@0.2.0**
+
+## 2.13.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.48.1**
+  - [#8288](https://github.com/scalar/scalar/pull/8288): fix: add consistent border to schema composition components
+  - [#8348](https://github.com/scalar/scalar/pull/8348): fix(api-reference): bump dev tools z index for themes
+  - [#8366](https://github.com/scalar/scalar/pull/8366): fix(components): clean up search components and add snapshots
+
+## 2.13.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.48.0**
+  - [#8266](https://github.com/scalar/scalar/pull/8266): support operation level authentication and servers
+
+## 2.13.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.47.0**
+  - [#8340](https://github.com/scalar/scalar/pull/8340): fix: delay when clicking "show more" button
+  - [#8340](https://github.com/scalar/scalar/pull/8340): refactor(api-reference): update AgentScalarDrawer
+  - [#8340](https://github.com/scalar/scalar/pull/8340): chore: enable perf logs only for dev environment
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+- **@scalar/dotnet-shared@0.2.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 2.12.54
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.4**
+  - [#8330](https://github.com/scalar/scalar/pull/8330): fix: use ref name only as a fallback
+
+## 2.12.53
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.3**
+  - [#8298](https://github.com/scalar/scalar/pull/8298): feat(api-reference): show explicit no-content response tabs for defined response keys
+  - [#8313](https://github.com/scalar/scalar/pull/8313): chore: resolve schemas on demand
+
+- **@scalar/dotnet-shared@0.1.3**
+
+## 2.12.52
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.2**
+
+## 2.12.51
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.1**
+  - [#8294](https://github.com/scalar/scalar/pull/8294): default createAnySecurityScheme to false and fix index clamp issue
+
+- **@scalar/dotnet-shared@0.1.3**
+
+## 2.12.50
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.46.0**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+  - [#8283](https://github.com/scalar/scalar/pull/8283): fix: scrollToLazy can not find id when the browser is busy
+
+## 2.12.49
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.45.0**
+  - [#8255](https://github.com/scalar/scalar/pull/8255): fix: correctly handle circular references when deep resolving references
+  - [#8279](https://github.com/scalar/scalar/pull/8279): fix(api-references): css collision on ask ai input
+  - [#8234](https://github.com/scalar/scalar/pull/8234): support operation level authentication and servers
+
+## 2.12.48
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.27**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+  - [#8260](https://github.com/scalar/scalar/pull/8260): feat: update developer tools
+
+- **@scalar/dotnet-shared@0.1.3**
+
+## 2.12.47
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/api-reference@1.44.26**
+  - [#8248](https://github.com/scalar/scalar/pull/8248): fix: local storage migration script
+  - [#8248](https://github.com/scalar/scalar/pull/8248): feat: slugs for headings with nested content
+  - [#8248](https://github.com/scalar/scalar/pull/8248): chore: correctly display header in classic layout
+  - [#8248](https://github.com/scalar/scalar/pull/8248): feat: always show the schema type
+  - [#8248](https://github.com/scalar/scalar/pull/8248): feat: nest description headings in the sidebar
+  - [#8248](https://github.com/scalar/scalar/pull/8248): feat: add option to open first tag by default
+
+- **@scalar/dotnet-shared@0.1.3**
+
 ## 2.12.46
 
 ### Patch Changes

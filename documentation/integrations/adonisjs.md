@@ -1,4 +1,4 @@
-# Scalar API Reference for AdonisJS
+# API Reference for AdonisJS
 
 AdonisJS is a TypeScript-first web framework for building web apps and API servers. It comes with support for testing, modern tooling, an ecosystem of official packages, and more.
 

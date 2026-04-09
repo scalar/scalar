@@ -1,3 +1,4 @@
+import { getSelector } from '@scalar/helpers/dom/get-selector'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { type ApiReferenceEvents, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { enableConsoleError, enableConsoleWarn } from '@test/vitest.setup'
@@ -7,7 +8,7 @@ import { nextTick } from 'vue'
 
 import type { ClientLayout } from '@/v2/types/layout'
 
-import AddressBar from './AddressBar.vue'
+import AddressBar, { type AddressBarProps } from './AddressBar.vue'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
@@ -28,17 +29,7 @@ describe('AddressBar', () => {
     description: 'Production Server',
   }
 
-  const mountWithProps = (
-    custom: Partial<{
-      path: string
-      method: string
-      server: any
-      servers: any[]
-      history: any[]
-      layout: string
-      percentage: number
-    }> = {},
-  ) => {
+  const mountWithProps = (custom: Partial<AddressBarProps> = {}) => {
     const eventBus = createWorkspaceEventBus()
 
     const wrapper = mount(AddressBar, {
@@ -49,13 +40,40 @@ describe('AddressBar', () => {
         servers: custom.servers ?? [baseServer],
         history: custom.history ?? [],
         layout: (custom.layout ?? 'web') as ClientLayout,
-        percentage: custom.percentage ?? 100,
         eventBus,
         environment: baseEnvironment,
+        serverMeta: {
+          type: 'document',
+        },
       },
     })
 
     return { wrapper, eventBus }
+  }
+
+  /**
+   * Helper to create a FocusEvent whose relatedTarget is a Send button element.
+   * jsdom supports relatedTarget on FocusEvent via the constructor options.
+   * Returns the element so tests can compute the expected CSS selector via getSelector.
+   */
+  const makeSendBlurEvent = () => {
+    const sendEl = document.createElement('button')
+    sendEl.setAttribute('data-addressbar-action', 'send')
+    document.body.appendChild(sendEl)
+    const event = new FocusEvent('blur', { relatedTarget: sendEl })
+    return { event, sendEl, cleanup: () => document.body.removeChild(sendEl) }
+  }
+
+  /**
+   * Helper to create a FocusEvent whose relatedTarget is a sidebar item element.
+   * Returns the element so tests can compute the expected CSS selector via getSelector.
+   */
+  const makeSidebarBlurEvent = (sidebarId = 'sidebar-item-1') => {
+    const sidebarEl = document.createElement('div')
+    sidebarEl.setAttribute('data-sidebar-id', sidebarId)
+    document.body.appendChild(sidebarEl)
+    const event = new FocusEvent('blur', { relatedTarget: sidebarEl })
+    return { event, sidebarEl, cleanup: () => document.body.removeChild(sidebarEl) }
   }
 
   beforeEach(() => {
@@ -99,55 +117,31 @@ describe('AddressBar', () => {
         meta: { method: 'get', path: '/api/test' },
         payload: { method: 'post', path: '/api/test' },
       }),
-      undefined,
     )
   })
 
-  it('emits operation:update:pathMethod via eventBus when CodeInput updates modelValue', async () => {
+  it('emits operation:update:pathMethod with blurTargetSelector for Send button on CodeInput submit', async () => {
     const { wrapper, eventBus } = mountWithProps()
     const emitSpy = vi.spyOn(eventBus, 'emit')
 
     const codeInput = wrapper.findComponent({ name: 'CodeInput' })
-    await codeInput.vm.$emit('update:modelValue', '/api/users')
+    const submitEvent = new KeyboardEvent('keydown', { key: 'Enter' })
+    await codeInput.vm.$emit('submit', '/api/test', submitEvent)
     await nextTick()
 
     expect(emitSpy).toHaveBeenCalledWith(
       'operation:update:pathMethod',
       expect.objectContaining({
-        meta: { method: 'get', path: '/api/test' },
-        payload: { method: 'get', path: '/api/users' },
+        blurTargetSelector: '[data-addressbar-action="send"]',
+        payload: { method: 'get', path: '/api/test' },
       }),
-      { debounceKey: 'operation:update:pathMethod-/api/test-get' },
     )
-  })
-
-  it('emits execute on CodeInput submit and Send button click', async () => {
-    const { wrapper } = mountWithProps()
 
     /**
-     * Test CodeInput submit event triggers execute.
+     * CodeInput submit no longer emits execute directly — execution is
+     * triggered via the event bus after the path update resolves.
      */
-    const codeInput = wrapper.findComponent({ name: 'CodeInput' })
-    await codeInput.vm.$emit('submit')
-    await nextTick()
-
-    const emitted = wrapper.emitted('execute')
-    expect(emitted).toBeTruthy()
-    expect(emitted?.length).toBe(1)
-
-    /**
-     * Test Send button click also triggers execute.
-     * The ScalarButton is bound with @click="emit('execute')".
-     * We directly invoke the handler by finding the native button element.
-     */
-    const buttons = wrapper.findAll('button')
-    const sendButton = buttons.find((btn) => btn.text().includes('Send') || btn.html().includes('Play'))
-
-    expect(sendButton).toBeDefined()
-    await sendButton?.trigger('click')
-    await nextTick()
-
-    expect(wrapper.emitted('execute')?.length).toBe(2)
+    expect(wrapper.emitted('execute')).toBeFalsy()
   })
 
   it('renders ServerDropdown only when servers are provided', () => {
@@ -172,15 +166,9 @@ describe('AddressBar', () => {
     expect(serverDropdown.exists()).toBe(false)
   })
 
-  it('focuses CodeInput on focusAddressBar event in web layout', async () => {
+  it('calls preventDefault on ui:focus:address-bar event', async () => {
     const { eventBus } = mountWithProps({ layout: 'web' })
 
-    /**
-     * We test that the event can be emitted without errors.
-     * The actual focus behavior relies on DOM elements and template refs
-     * that are difficult to test in this environment without causing
-     * issues with jsdom and Vue internals.
-     */
     const mockEvent = {
       preventDefault: vi.fn(),
     } as any
@@ -188,56 +176,6 @@ describe('AddressBar', () => {
     eventBus.emit('ui:focus:address-bar', { event: mockEvent })
     await nextTick()
 
-    /**
-     * Verify preventDefault was called, which indicates the handler processed the event.
-     */
-    expect(mockEvent.preventDefault).toHaveBeenCalled()
-  })
-
-  it('focuses Send button on focusAddressBar event in modal layout', async () => {
-    const { wrapper, eventBus } = mountWithProps({ layout: 'modal' })
-
-    /**
-     * The component uses a template ref for sendButtonRef.
-     * We verify the event handler is registered.
-     */
-    const componentInstance = wrapper.vm as any
-    expect(componentInstance.sendButtonRef).toBeDefined()
-
-    /**
-     * Emit the event and verify no errors occur.
-     */
-    const mockEvent = {
-      preventDefault: vi.fn(),
-    } as any
-
-    eventBus.emit('ui:focus:send-button', { event: mockEvent })
-    await nextTick()
-
-    /**
-     * The event handler is called, and we verify the component handles it gracefully.
-     * In a real DOM environment, this would focus the send button.
-     */
-    expect(wrapper.vm).toBeDefined()
-  })
-
-  it('focuses CodeInput when hotKeys event indicates focusAddressBar', async () => {
-    const { eventBus } = mountWithProps()
-
-    /**
-     * We test that the event can be emitted without errors.
-     * The actual focus behavior relies on DOM elements and template refs.
-     */
-    const mockEvent = {
-      preventDefault: vi.fn(),
-    } as any
-
-    eventBus.emit('ui:focus:address-bar', { event: mockEvent })
-    await nextTick()
-
-    /**
-     * Verify preventDefault was called to stop the default browser behavior.
-     */
     expect(mockEvent.preventDefault).toHaveBeenCalled()
   })
 
@@ -254,7 +192,7 @@ describe('AddressBar', () => {
       vi.spyOn(eventBus, 'emit').mockImplementation((event, _payload) => {
         const payload = _payload as ApiReferenceEvents['operation:update:pathMethod']
         if (event === 'operation:update:pathMethod' && payload?.callback) {
-          payload.callback('conflict')
+          payload.callback('conflict', null)
         }
         return eventBus
       })
@@ -289,6 +227,34 @@ describe('AddressBar', () => {
       expect(addressBar.classes()).toContain('outline-c-danger')
     })
 
+    it('sets methodConflict ref when callback returns conflict status', async () => {
+      const { wrapper, eventBus } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+      })
+
+      vi.spyOn(eventBus, 'emit').mockImplementation((event, _payload) => {
+        const payload = _payload as ApiReferenceEvents['operation:update:pathMethod']
+        if (event === 'operation:update:pathMethod' && payload?.callback) {
+          payload.callback('conflict', null)
+        }
+        return eventBus
+      })
+
+      const httpMethod = wrapper.findComponent({ name: 'HttpMethod' })
+      const button = httpMethod.find('button')
+      await button.trigger('click')
+      await nextTick()
+
+      const listbox = httpMethod.findComponent({ name: 'ScalarListbox' })
+      const postOption = { id: 'post', label: 'POST', color: 'text-method-post' }
+      await listbox.vm.$emit('update:modelValue', postOption)
+      await nextTick()
+
+      const componentInstance = wrapper.vm as any
+      expect(componentInstance.methodConflict).toBe('post')
+    })
+
     it('clears conflict refs when callback returns success status', async () => {
       const { wrapper, eventBus } = mountWithProps({
         path: '/api/test',
@@ -315,7 +281,7 @@ describe('AddressBar', () => {
       vi.spyOn(eventBus, 'emit').mockImplementation((event, _payload) => {
         const payload = _payload as ApiReferenceEvents['operation:update:pathMethod']
         if (event === 'operation:update:pathMethod' && payload?.callback) {
-          payload.callback('success')
+          payload.callback('success', null)
         }
         return eventBus
       })
@@ -335,41 +301,30 @@ describe('AddressBar', () => {
       expect(errorMessage.exists()).toBe(false)
     })
 
-    it('exposes methodConflict and pathConflict refs', async () => {
+    it('sets pathConflict when blur callback returns conflict status', async () => {
       const { wrapper, eventBus } = mountWithProps({
         path: '/api/test',
         method: 'get',
       })
 
-      /**
-       * Mock the eventBus.emit to call the callback with 'conflict' status.
-       */
       vi.spyOn(eventBus, 'emit').mockImplementation((event, _payload) => {
         const payload = _payload as ApiReferenceEvents['operation:update:pathMethod']
         if (event === 'operation:update:pathMethod' && payload?.callback) {
-          payload.callback('conflict')
+          payload.callback('conflict', null)
         }
         return eventBus
       })
 
-      const httpMethod = wrapper.findComponent({ name: 'HttpMethod' })
-      const button = httpMethod.find('button')
-      await button.trigger('click')
+      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const blurEvent = new FocusEvent('blur', { relatedTarget: null })
+      await codeInput.vm.$emit('blur', '/api/users', blurEvent)
       await nextTick()
 
-      const listbox = httpMethod.findComponent({ name: 'ScalarListbox' })
-      const postOption = { id: 'post', label: 'POST', color: 'text-method-post' }
-      await listbox.vm.$emit('update:modelValue', postOption)
-      await nextTick()
-
-      /**
-       * The methodConflict should be set via the exposed ref.
-       */
       const componentInstance = wrapper.vm as any
-      expect(componentInstance.methodConflict).toBe('post')
+      expect(componentInstance.pathConflict).toBe('/api/users')
     })
 
-    it('clears path conflict when callback returns success status', async () => {
+    it('clears path conflict when blur callback returns success status', async () => {
       const { wrapper, eventBus } = mountWithProps({
         path: '/api/test',
         method: 'get',
@@ -395,16 +350,17 @@ describe('AddressBar', () => {
       vi.spyOn(eventBus, 'emit').mockImplementation((event, _payload) => {
         const payload = _payload as ApiReferenceEvents['operation:update:pathMethod']
         if (event === 'operation:update:pathMethod' && payload?.callback) {
-          payload.callback('success')
+          payload.callback('success', null)
         }
         return eventBus
       })
 
       /**
-       * Trigger a path change which should clear the conflict.
+       * Trigger a path blur which should clear the conflict.
        */
       const codeInput = wrapper.findComponent({ name: 'CodeInput' })
-      await codeInput.vm.$emit('update:modelValue', '/api/products')
+      const blurEvent = new FocusEvent('blur', { relatedTarget: null })
+      await codeInput.vm.$emit('blur', '/api/products', blurEvent)
       await nextTick()
 
       /**
@@ -417,7 +373,7 @@ describe('AddressBar', () => {
   })
 
   describe('handleMethodChange', () => {
-    it('emits operation:update:pathMethod when changing method', async () => {
+    it('emits operation:update:pathMethod with new method and current path', async () => {
       const { wrapper, eventBus } = mountWithProps({
         path: '/api/test',
         method: 'get',
@@ -435,50 +391,52 @@ describe('AddressBar', () => {
       await listbox.vm.$emit('update:modelValue', postOption)
       await nextTick()
 
-      /**
-       * Should emit operation:update:pathMethod with new method and current path.
-       */
       expect(emitSpy).toHaveBeenCalledWith(
         'operation:update:pathMethod',
         expect.objectContaining({
           meta: { method: 'get', path: '/api/test' },
           payload: { method: 'post', path: '/api/test' },
         }),
-        undefined,
+      )
+    })
+
+    it('uses pathConflict as path when a path conflict is active', async () => {
+      const { wrapper, eventBus } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+      })
+
+      const componentInstance = wrapper.vm as any
+      componentInstance.pathConflict = '/api/users'
+      await nextTick()
+
+      const emitSpy = vi.spyOn(eventBus, 'emit')
+
+      const httpMethod = wrapper.findComponent({ name: 'HttpMethod' })
+      const button = httpMethod.find('button')
+      await button.trigger('click')
+      await nextTick()
+
+      const listbox = httpMethod.findComponent({ name: 'ScalarListbox' })
+      const postOption = { id: 'post', label: 'POST', color: 'text-method-post' }
+      await listbox.vm.$emit('update:modelValue', postOption)
+      await nextTick()
+
+      /**
+       * When a path conflict is active, the method change should use the conflicting
+       * path so the user can resolve both at once.
+       */
+      expect(emitSpy).toHaveBeenCalledWith(
+        'operation:update:pathMethod',
+        expect.objectContaining({
+          payload: { method: 'post', path: '/api/users' },
+        }),
       )
     })
   })
 
-  describe('handlePathUpdate', () => {
-    it('sets pathConflict when callback returns conflict status', async () => {
-      const { wrapper, eventBus } = mountWithProps({
-        path: '/api/test',
-        method: 'get',
-      })
-
-      /**
-       * Mock the eventBus.emit to call the callback with 'conflict' status.
-       */
-      vi.spyOn(eventBus, 'emit').mockImplementation((event, _payload) => {
-        const payload = _payload as ApiReferenceEvents['operation:update:pathMethod']
-        if (event === 'operation:update:pathMethod' && payload?.callback) {
-          payload.callback('conflict')
-        }
-        return eventBus
-      })
-
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
-      await codeInput.vm.$emit('update:modelValue', '/api/users')
-      await nextTick()
-
-      /**
-       * pathConflict should be set with the conflicting path.
-       */
-      const componentInstance = wrapper.vm as any
-      expect(componentInstance.pathConflict).toBe('/api/users')
-    })
-
-    it('emits operation:update:pathMethod with new path', async () => {
+  describe('handlePathBlur', () => {
+    it('emits operation:update:pathMethod with new path on blur', async () => {
       const { wrapper, eventBus } = mountWithProps({
         path: '/api/test',
         method: 'get',
@@ -487,23 +445,21 @@ describe('AddressBar', () => {
       const emitSpy = vi.spyOn(eventBus, 'emit')
 
       const codeInput = wrapper.findComponent({ name: 'CodeInput' })
-      await codeInput.vm.$emit('update:modelValue', '/api/test')
+      const blurEvent = new FocusEvent('blur', { relatedTarget: null })
+      await codeInput.vm.$emit('blur', '/api/users', blurEvent)
       await nextTick()
 
-      /**
-       * Should emit operation:update:pathMethod with the new path.
-       */
       expect(emitSpy).toHaveBeenCalledWith(
         'operation:update:pathMethod',
         expect.objectContaining({
           meta: { method: 'get', path: '/api/test' },
-          payload: { method: 'get', path: '/api/test' },
+          payload: { method: 'get', path: '/api/users' },
+          blurTargetSelector: null,
         }),
-        { debounceKey: 'operation:update:pathMethod-/api/test-get' },
       )
     })
 
-    it('handles empty path by normalizing to slash', async () => {
+    it('normalizes empty path to slash on blur', async () => {
       const { wrapper, eventBus } = mountWithProps({
         path: '/api/test',
         method: 'get',
@@ -512,26 +468,19 @@ describe('AddressBar', () => {
       const emitSpy = vi.spyOn(eventBus, 'emit')
 
       const codeInput = wrapper.findComponent({ name: 'CodeInput' })
-      await codeInput.vm.$emit('update:modelValue', '')
+      const blurEvent = new FocusEvent('blur', { relatedTarget: null })
+      await codeInput.vm.$emit('blur', '', blurEvent)
       await nextTick()
 
-      /**
-       * Empty path should be normalized to slash.
-       */
       expect(emitSpy).toHaveBeenCalledWith(
         'operation:update:pathMethod',
         expect.objectContaining({
-          meta: { method: 'get', path: '/api/test' },
           payload: { method: 'get', path: '/' },
         }),
-        { debounceKey: 'operation:update:pathMethod-/api/test-get' },
       )
-
-      const componentInstance = wrapper.vm as any
-      expect(componentInstance.pathConflict).toBeNull()
     })
 
-    it('handles paths with special characters', async () => {
+    it('prepends slash to path without leading slash on blur', async () => {
       const { wrapper, eventBus } = mountWithProps({
         path: '/api/test',
         method: 'get',
@@ -540,65 +489,120 @@ describe('AddressBar', () => {
       const emitSpy = vi.spyOn(eventBus, 'emit')
 
       const codeInput = wrapper.findComponent({ name: 'CodeInput' })
-
-      /**
-       * Update to a path with special characters.
-       */
-      await codeInput.vm.$emit('update:modelValue', '/api/users/{name}')
+      const blurEvent = new FocusEvent('blur', { relatedTarget: null })
+      await codeInput.vm.$emit('blur', 'api/users', blurEvent)
       await nextTick()
 
       expect(emitSpy).toHaveBeenCalledWith(
         'operation:update:pathMethod',
         expect.objectContaining({
-          meta: { method: 'get', path: '/api/test' },
+          payload: { method: 'get', path: '/api/users' },
+        }),
+      )
+    })
+
+    it('handles paths with special characters on blur', async () => {
+      const { wrapper, eventBus } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+      })
+
+      const emitSpy = vi.spyOn(eventBus, 'emit')
+
+      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const blurEvent = new FocusEvent('blur', { relatedTarget: null })
+      await codeInput.vm.$emit('blur', '/api/users/{name}', blurEvent)
+      await nextTick()
+
+      expect(emitSpy).toHaveBeenCalledWith(
+        'operation:update:pathMethod',
+        expect.objectContaining({
           payload: { method: 'get', path: '/api/users/{name}' },
         }),
-        { debounceKey: 'operation:update:pathMethod-/api/test-get' },
+      )
+    })
+
+    it('sets blurTargetSelector to the Send button CSS selector when blurring toward the Send button', async () => {
+      const { wrapper, eventBus } = mountWithProps({ path: '/api/test', method: 'get' })
+
+      const emitSpy = vi.spyOn(eventBus, 'emit')
+
+      const { event, sendEl, cleanup } = makeSendBlurEvent()
+      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      await codeInput.vm.$emit('blur', '/api/new-path', event)
+      await nextTick()
+
+      expect(emitSpy).toHaveBeenCalledWith(
+        'operation:update:pathMethod',
+        expect.objectContaining({
+          blurTargetSelector: getSelector(sendEl),
+          payload: { method: 'get', path: '/api/new-path' },
+        }),
+      )
+
+      cleanup()
+    })
+
+    it('sets blurTargetSelector to the sidebar item CSS selector when blurring toward a sidebar item', async () => {
+      const { wrapper, eventBus } = mountWithProps({ path: '/api/test', method: 'get' })
+
+      const emitSpy = vi.spyOn(eventBus, 'emit')
+
+      const { event, sidebarEl, cleanup } = makeSidebarBlurEvent('my-sidebar-item')
+      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      await codeInput.vm.$emit('blur', '/api/new-path', event)
+      await nextTick()
+
+      expect(emitSpy).toHaveBeenCalledWith(
+        'operation:update:pathMethod',
+        expect.objectContaining({
+          blurTargetSelector: getSelector(sidebarEl),
+        }),
+      )
+
+      cleanup()
+    })
+
+    it('uses methodConflict as method when a method conflict is active', async () => {
+      const { wrapper, eventBus } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+      })
+
+      const componentInstance = wrapper.vm as any
+      componentInstance.methodConflict = 'post'
+      await nextTick()
+
+      const emitSpy = vi.spyOn(eventBus, 'emit')
+
+      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const blurEvent = new FocusEvent('blur', { relatedTarget: null })
+      await codeInput.vm.$emit('blur', '/api/users', blurEvent)
+      await nextTick()
+
+      /**
+       * When a method conflict is active, the path blur should use the conflicting
+       * method so the user can resolve both at once.
+       */
+      expect(emitSpy).toHaveBeenCalledWith(
+        'operation:update:pathMethod',
+        expect.objectContaining({
+          payload: { method: 'post', path: '/api/users' },
+        }),
       )
     })
   })
 
-  describe('path normalization', () => {
-    it('keeps path unchanged when it already starts with slash', async () => {
-      const { wrapper, eventBus } = mountWithProps({
-        path: '/api/test',
-        method: 'get',
-      })
+  describe('Send button click behavior', () => {
+    it('emits execute normally when Send is clicked', async () => {
+      const { wrapper } = mountWithProps()
 
-      const emitSpy = vi.spyOn(eventBus, 'emit')
-
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
-      await codeInput.vm.$emit('update:modelValue', '/api/users')
+      const sendButton = wrapper.find('button[data-addressbar-action="send"]')
+      expect(sendButton.exists()).toBe(true)
+      await sendButton.trigger('click')
       await nextTick()
 
-      expect(emitSpy).toHaveBeenCalledWith(
-        'operation:update:pathMethod',
-        expect.objectContaining({
-          payload: { method: 'get', path: '/api/users' },
-        }),
-        { debounceKey: 'operation:update:pathMethod-/api/test-get' },
-      )
-    })
-
-    it('prepends slash to path without leading slash', async () => {
-      const { wrapper, eventBus } = mountWithProps({
-        path: '/api/test',
-        method: 'get',
-      })
-
-      const emitSpy = vi.spyOn(eventBus, 'emit')
-
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
-      await codeInput.vm.$emit('update:modelValue', 'api/users')
-      await nextTick()
-
-      expect(emitSpy).toHaveBeenCalledWith(
-        'operation:update:pathMethod',
-        expect.objectContaining({
-          payload: { method: 'get', path: '/api/users' },
-        }),
-        { debounceKey: 'operation:update:pathMethod-/api/test-get' },
-      )
+      expect(wrapper.emitted('execute')).toHaveLength(1)
     })
   })
 })

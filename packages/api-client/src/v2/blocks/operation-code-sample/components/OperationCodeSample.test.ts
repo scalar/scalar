@@ -1,5 +1,6 @@
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { AvailableClient } from '@scalar/types/snippetz'
+import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -7,7 +8,6 @@ import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 
-import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block'
 import { mockEventBus } from '@/v2/helpers/test-utils'
 
 import type { ClientOptionGroup } from '../types'
@@ -103,6 +103,7 @@ describe('RequestExample', () => {
   const mockClientOptions: ClientOptionGroup[] = [
     {
       label: 'JavaScript',
+      key: 'js',
       options: [
         {
           id: 'js/fetch',
@@ -126,6 +127,7 @@ describe('RequestExample', () => {
     },
     {
       label: 'Python',
+      key: 'python',
       options: [
         {
           id: 'python/requests',
@@ -140,6 +142,7 @@ describe('RequestExample', () => {
     },
     {
       label: 'Shell',
+      key: 'shell',
       options: [
         {
           id: 'shell/curl',
@@ -180,6 +183,7 @@ describe('RequestExample', () => {
       const customClientOptions: ClientOptionGroup[] = [
         {
           label: 'JavaScript',
+          key: 'js',
           options: [
             {
               id: 'js/fetch',
@@ -194,6 +198,7 @@ describe('RequestExample', () => {
         },
         {
           label: 'Python',
+          key: 'python',
           options: [
             {
               id: 'python/requests',
@@ -408,6 +413,52 @@ describe('RequestExample', () => {
       expect(codeBlock.props('content')).toBeTruthy()
     })
 
+    it('uses requestBodyCompositionSelection to generate a non-default request body example', () => {
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          method: 'post' as HttpMethodType,
+          operation: {
+            summary: 'Composed request body',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: coerceValue(SchemaObjectSchema, {
+                    anyOf: [
+                      {
+                        type: 'object',
+                        properties: {
+                          primaryOnlyField: { type: 'string' },
+                        },
+                      },
+                      {
+                        type: 'object',
+                        properties: {
+                          secondaryOnlyField: { type: 'integer' },
+                        },
+                      },
+                    ],
+                  }),
+                },
+              },
+            },
+          },
+          requestBodyCompositionSelection: {
+            'requestBody.anyOf': 1,
+          },
+          selectedClient: 'shell/curl' as AvailableClient,
+          selectedContentType: 'application/json',
+        },
+      })
+
+      const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
+      const content = codeBlock.props('content')
+
+      expect(codeBlock.exists()).toBe(true)
+      expect(content.includes('primaryOnlyField')).toBe(false)
+      expect(content.includes('secondaryOnlyField')).toBe(true)
+    })
+
     it('generates code snippet for custom examples', () => {
       const wrapper = mount(RequestExample, {
         props: {
@@ -461,10 +512,7 @@ describe('RequestExample', () => {
                           type: 'object',
                           properties: {
                             name: {
-                              $ref: '#/components/properties/name',
-                              '$ref-value': {
-                                default: 'The greatest name of all',
-                              },
+                              default: 'The greatest name of all',
                             },
                           },
                         },

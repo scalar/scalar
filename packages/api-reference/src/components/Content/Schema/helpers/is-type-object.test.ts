@@ -1,11 +1,11 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
+
 import { isTypeObject } from './is-type-object'
 
 describe('is-type-object', () => {
   describe('isTypeObject', () => {
     it('returns true for schema with explicit type object', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         type: 'object',
         properties: {
           name: { type: 'string' },
@@ -16,7 +16,7 @@ describe('is-type-object', () => {
     })
 
     it('returns true for schema with properties', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         properties: {
           name: { type: 'string' },
           age: { type: 'number' },
@@ -27,7 +27,7 @@ describe('is-type-object', () => {
     })
 
     it('returns true for schema with additionalProperties', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         additionalProperties: { type: 'string' },
       }
 
@@ -35,7 +35,7 @@ describe('is-type-object', () => {
     })
 
     it('returns true for schema with patternProperties', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         patternProperties: {
           '^[a-z]+$': { type: 'string' },
         },
@@ -45,7 +45,7 @@ describe('is-type-object', () => {
     })
 
     it('returns true for schema with multiple object indicators', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         type: 'object',
         properties: {
           name: { type: 'string' },
@@ -77,7 +77,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with non-object type', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         type: 'string',
         properties: {
           name: { type: 'string' },
@@ -104,7 +104,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with type array', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         type: 'array',
         items: { type: 'string' },
       }
@@ -113,7 +113,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with type string', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         type: 'string',
         minLength: 1,
       }
@@ -122,7 +122,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with type number', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         type: 'number',
         minimum: 0,
       }
@@ -131,7 +131,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with type boolean', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         type: 'boolean',
       }
 
@@ -139,7 +139,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with type integer', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         type: 'integer',
         minimum: 0,
       }
@@ -148,7 +148,7 @@ describe('is-type-object', () => {
     })
 
     it('handles schema with empty properties object', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         properties: {},
       }
 
@@ -156,7 +156,7 @@ describe('is-type-object', () => {
     })
 
     it('handles schema with empty additionalProperties', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         additionalProperties: {},
       }
 
@@ -164,7 +164,7 @@ describe('is-type-object', () => {
     })
 
     it('handles schema with empty patternProperties', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         patternProperties: {},
       }
 
@@ -172,7 +172,7 @@ describe('is-type-object', () => {
     })
 
     it('handles schema with additionalProperties set to false', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         additionalProperties: false,
       }
 
@@ -180,7 +180,7 @@ describe('is-type-object', () => {
     })
 
     it('handles schema with additionalProperties set to true', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         additionalProperties: true,
       }
 
@@ -188,7 +188,7 @@ describe('is-type-object', () => {
     })
 
     it('returns true for schema with union type including object', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         type: ['object', 'null'],
         properties: {
           name: { type: 'string' },
@@ -199,7 +199,7 @@ describe('is-type-object', () => {
     })
 
     it('returns true for schema with union type object first', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         type: ['object', 'string'],
         properties: {
           name: { type: 'string' },
@@ -210,7 +210,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with union type not including object', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         type: ['string', 'null'],
         minLength: 1,
       }
@@ -219,7 +219,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with union type array', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         type: ['array', 'null'],
         items: { type: 'string' },
       }
@@ -228,7 +228,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with oneOf composition', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         oneOf: [{ type: 'string' }, { type: 'number' }],
       }
 
@@ -236,7 +236,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with anyOf composition', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         anyOf: [{ type: 'object', properties: { name: { type: 'string' } } }, { type: 'null' }],
       }
 
@@ -244,7 +244,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with allOf composition', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         allOf: [{ type: 'object' }, { properties: { id: { type: 'string' } } }],
       }
 
@@ -252,7 +252,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with not composition', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         not: { type: 'string' },
       }
 
@@ -260,7 +260,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with multiple composition keywords', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         oneOf: [{ type: 'string' }],
         anyOf: [{ type: 'number' }],
         allOf: [{ type: 'object' }],
@@ -271,7 +271,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with composition and object properties', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         oneOf: [{ type: 'string' }],
         properties: {
           name: { type: 'string' },
@@ -283,7 +283,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with composition and type object', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         type: 'object',
         oneOf: [{ type: 'string' }],
         properties: {
@@ -295,7 +295,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with composition and union type including object', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         type: ['object', 'null'],
         oneOf: [{ type: 'string' }],
         properties: {
@@ -307,7 +307,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with empty oneOf array', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         oneOf: [],
       }
 
@@ -315,7 +315,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with empty anyOf array', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         anyOf: [],
       }
 
@@ -323,7 +323,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with empty allOf array', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         allOf: [],
       }
 
@@ -331,7 +331,7 @@ describe('is-type-object', () => {
     })
 
     it('returns false for schema with composition and other non-object properties', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
+      const schema = {
         oneOf: [{ type: 'string' }],
         title: 'Composition Schema',
         description: 'A schema with composition',

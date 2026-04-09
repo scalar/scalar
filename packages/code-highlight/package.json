@@ -16,20 +16,15 @@
     "lowlight",
     "highlightjs"
   ],
-  "version": "0.2.3",
+  "version": "0.3.2",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && cp -r src/css dist/css",
     "dev": "vite",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -91,21 +86,19 @@
     "rehype-parse": "^9.0.1",
     "rehype-raw": "^7.0.0",
     "rehype-sanitize": "^6.0.0",
-    "rehype-stringify": "^10.0.0",
-    "remark-gfm": "^4.0.0",
+    "rehype-stringify": "^10.0.1",
+    "remark-gfm": "^4.0.1",
     "remark-parse": "^11.0.0",
-    "remark-rehype": "^11.1.0",
+    "remark-rehype": "^11.1.2",
     "remark-stringify": "^11.0.0",
-    "unified": "^11.0.4",
-    "unist-util-visit": "^5.0.0"
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@types/hast": "^3.0.4",
     "@types/mdast": "^4.0.4",
-    "@types/unist": "^3.0.3",
-    "vfile": "^6.0.1",
+    "vfile": "^6.0.3",
     "vite": "catalog:*"
   }
 }

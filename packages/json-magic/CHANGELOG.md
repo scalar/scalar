@@ -1,5 +1,81 @@
 # @scalar/json-magic
 
+## 0.12.5
+
+## 0.12.4
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.12.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.4.1**
+  - [#8420](https://github.com/scalar/scalar/pull/8420): fix TypeScript access to navigator.userAgentData in isMacOS without ts-expect-error
+
+## 0.12.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.4.0**
+  - [#8336](https://github.com/scalar/scalar/pull/8336): feat: support flushing any pending operations
+
+## 0.12.1
+
+### Patch Changes
+
+- [#8357](https://github.com/scalar/scalar/pull/8357): chore: improve performance and memory usage of bundler
+
+## 0.12.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.3.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.11.7
+
+### Patch Changes
+
+- [#8314](https://github.com/scalar/scalar/pull/8314): chore: limit concurrent operations while migrating workspaces
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.18**
+  - [#8314](https://github.com/scalar/scalar/pull/8314): chore: limit concurrent operations while migrating workspaces
+
+## 0.11.6
+
+### Patch Changes
+
+- [#8310](https://github.com/scalar/scalar/pull/8310): fix: properly parse json pointers
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.17**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+
+## 0.11.5
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.16**
+  - [#8248](https://github.com/scalar/scalar/pull/8248): fix: local storage migration script
+
 ## 0.11.4
 
 ### Patch Changes

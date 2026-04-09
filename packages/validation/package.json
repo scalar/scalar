@@ -1,0 +1,41 @@
+{
+  "name": "@scalar/validation",
+  "description": "A lightweight, schema-first validation library for Scalar",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/validation"
+  },
+  "keywords": [
+    "validation",
+    "coerce",
+    "scalar"
+  ],
+  "version": "0.3.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.16.1",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "dev": "tsx playground/index.ts",
+    "test": "vitest",
+    "types:check": "tsc --noEmit"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "devDependencies": {
+    "vite": "catalog:*",
+    "vitest": "catalog:*"
+  }
+}

@@ -4,14 +4,6 @@ import type { SecurityScheme } from '@scalar/types/entities'
 import type { AuthStore, SecretsOAuthFlows, SecretsOpenIdConnect } from '@scalar/workspace-store/entities/auth'
 import type { DeepPartial } from '@scalar/workspace-store/helpers/overrides-proxy'
 import type {
-  OAuthFlowAuthorizationCode,
-  OAuthFlowClientCredentials,
-  OAuthFlowImplicit,
-  OAuthFlowPassword,
-} from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-
-import type {
   ApiKeyObjectSecret,
   HttpObjectSecret,
   OAuth2ObjectSecret,
@@ -22,7 +14,15 @@ import type {
   OAuthFlowsObjectSecret,
   OpenIdConnectObjectSecret,
   SecuritySchemeObjectSecret,
-} from './secret-types'
+} from '@scalar/workspace-store/request-example'
+import type { XScalarCredentialsLocation } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-credentials-location'
+import type {
+  OAuthFlowAuthorizationCode,
+  OAuthFlowClientCredentials,
+  OAuthFlowImplicit,
+  OAuthFlowPassword,
+} from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 /** A combined scheme that includes both the auth store secrets and a deep partial of the config auth */
 export type ConfigAuthScheme = SecuritySchemeObject & DeepPartial<SecurityScheme>
@@ -38,6 +38,8 @@ const SECRET_TO_INPUT_FIELD_MAP = {
   'x-scalar-secret-redirect-uri': 'x-scalar-redirect-uri',
   'x-scalar-secret-token': 'token',
   'x-scalar-secret-username': 'username',
+  'x-scalar-secret-auth-url': 'authorizationUrl',
+  'x-scalar-secret-token-url': 'tokenUrl',
 } as const
 
 const mergeFlowSecrets = <const T extends readonly (keyof typeof SECRET_TO_INPUT_FIELD_MAP)[]>(
@@ -57,6 +59,31 @@ const mergeFlowSecrets = <const T extends readonly (keyof typeof SECRET_TO_INPUT
       return [property, value]
     }),
   ) as Record<T[number], string>
+
+const extractRefreshTokenSecret = (
+  authStoreSecrets: { 'x-scalar-secret-refresh-token'?: string } = {},
+): { 'x-scalar-secret-refresh-token'?: string } => {
+  const refreshToken = authStoreSecrets['x-scalar-secret-refresh-token']
+
+  if (typeof refreshToken === 'string') {
+    return { 'x-scalar-secret-refresh-token': refreshToken }
+  }
+
+  return {}
+}
+
+const extractCredentialsLocation = (
+  configSecrets: Record<string, unknown>,
+  authStoreSecrets: {
+    'x-scalar-credentials-location'?: XScalarCredentialsLocation['x-scalar-credentials-location']
+  } = {},
+): XScalarCredentialsLocation => {
+  const credentialsLocation =
+    authStoreSecrets['x-scalar-credentials-location'] ??
+    (configSecrets['x-scalar-credentials-location'] as XScalarCredentialsLocation['x-scalar-credentials-location'])
+
+  return credentialsLocation ? { 'x-scalar-credentials-location': credentialsLocation } : {}
+}
 
 /**
  * Extract flow secrets and selected scopes for OAuth-like flows.
@@ -87,10 +114,16 @@ const extractOAuthFlowSecrets = (
       acc.implicit = {
         ...(flow as OAuthFlowImplicit),
         ...mergeFlowSecrets(
-          ['x-scalar-secret-client-id', 'x-scalar-secret-redirect-uri', 'x-scalar-secret-token'],
+          [
+            'x-scalar-secret-client-id',
+            'x-scalar-secret-redirect-uri',
+            'x-scalar-secret-token',
+            'x-scalar-secret-auth-url',
+          ],
           flow,
           storeSecrets?.implicit,
         ),
+        ...extractRefreshTokenSecret(storeSecrets?.implicit),
       } satisfies OAuthFlowImplicitSecret
     }
 
@@ -105,10 +138,13 @@ const extractOAuthFlowSecrets = (
             'x-scalar-secret-username',
             'x-scalar-secret-password',
             'x-scalar-secret-token',
+            'x-scalar-secret-token-url',
           ],
           flow,
           storeSecrets?.password,
         ),
+        ...extractCredentialsLocation(flow, storeSecrets?.password),
+        ...extractRefreshTokenSecret(storeSecrets?.password),
       } satisfies OAuthFlowPasswordSecret
     }
 
@@ -117,10 +153,17 @@ const extractOAuthFlowSecrets = (
       acc[key] = {
         ...(flow as OAuthFlowClientCredentials),
         ...mergeFlowSecrets(
-          ['x-scalar-secret-client-id', 'x-scalar-secret-client-secret', 'x-scalar-secret-token'],
+          [
+            'x-scalar-secret-client-id',
+            'x-scalar-secret-client-secret',
+            'x-scalar-secret-token',
+            'x-scalar-secret-token-url',
+          ],
           flow,
           storeSecrets?.clientCredentials,
         ),
+        ...extractCredentialsLocation(flow, storeSecrets?.clientCredentials),
+        ...extractRefreshTokenSecret(storeSecrets?.clientCredentials),
       } satisfies OAuthFlowClientCredentialsSecret
     }
 
@@ -134,10 +177,14 @@ const extractOAuthFlowSecrets = (
             'x-scalar-secret-client-secret',
             'x-scalar-secret-redirect-uri',
             'x-scalar-secret-token',
+            'x-scalar-secret-auth-url',
+            'x-scalar-secret-token-url',
           ],
           flow,
           storeSecrets?.authorizationCode,
         ),
+        ...extractCredentialsLocation(flow, storeSecrets?.authorizationCode),
+        ...extractRefreshTokenSecret(storeSecrets?.authorizationCode),
       } satisfies OAuthFlowAuthorizationCodeSecret
     }
 
@@ -181,11 +228,15 @@ export const extractSecuritySchemeSecrets = (
   if (scheme.type === 'oauth2') {
     const storeSecrets = secrets?.type === 'oauth2' ? secrets : undefined
     const extracted = extractOAuthFlowSecrets(scheme.flows, storeSecrets)
+    const configuredDefaultScopes = Array.isArray(scheme['x-default-scopes'])
+      ? scheme['x-default-scopes'].filter((scope): scope is string => typeof scope === 'string')
+      : []
+    const mergedDefaultScopes = Array.from(new Set([...configuredDefaultScopes, ...extracted.selectedScopes]))
 
     return {
       ...scheme,
       flows: extracted.flows,
-      'x-default-scopes': extracted.selectedScopes,
+      'x-default-scopes': mergedDefaultScopes,
     } satisfies OAuth2ObjectSecret
   }
 

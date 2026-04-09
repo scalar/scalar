@@ -1,4 +1,4 @@
-# Scalar API Reference for ElysiaJS
+# API Reference for ElysiaJS
 
 The `@elysiajs/openapi` plugin uses our API Reference by default:
 

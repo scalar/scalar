@@ -93,6 +93,45 @@ describe('httpHttp11', () => {
     )
   })
 
+  it('handles multipart form data with per-part content types', () => {
+    const result = httpHttp11.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            fileName: 'test.txt',
+            contentType: 'text/plain',
+          },
+          {
+            name: 'metadata',
+            value: '{"foo":"bar"}',
+            contentType: 'application/json',
+          },
+        ],
+      },
+    })
+
+    expect(result).toMatch(
+      'POST / HTTP/1.1\r\n' +
+        'Host: example.com\r\n' +
+        'Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW\r\n' +
+        '\r\n' +
+        '------WebKitFormBoundary7MA4YWxkTrZu0gW\r\n' +
+        'Content-Disposition: form-data; name="file"; filename="test.txt"\r\n' +
+        'Content-Type: text/plain\r\n' +
+        '\r\n' +
+        '------WebKitFormBoundary7MA4YWxkTrZu0gW\r\n' +
+        'Content-Disposition: form-data; name="metadata"\r\n' +
+        'Content-Type: application/json\r\n' +
+        '\r\n' +
+        '{"foo":"bar"}\r\n' +
+        '------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n',
+    )
+  })
+
   it('handles url-encoded form data with special characters', () => {
     const result = httpHttp11.generate({
       url: 'https://example.com',
@@ -212,11 +251,11 @@ describe('httpHttp11', () => {
       queryString: [
         {
           name: 'q',
-          value: 'hello world & more',
+          value: 'hello%20world%20%26%20more',
         },
         {
           name: 'special',
-          value: '!@#$%^&*()',
+          value: '!%40%23%24%25%5E%26*()',
         },
       ],
     })

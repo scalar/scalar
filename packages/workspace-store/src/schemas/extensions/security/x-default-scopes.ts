@@ -1,4 +1,5 @@
 import { Type } from '@scalar/typebox'
+import { array, object, optional, string } from '@scalar/validation'
 
 /**
  * Default selected scopes for the oauth flow
@@ -33,3 +34,13 @@ export type XDefaultScopes = {
    */
   'x-default-scopes'?: string[]
 }
+
+export const XDefaultScopes = object(
+  {
+    'x-default-scopes': optional(array(string())),
+  },
+  {
+    typeName: 'XDefaultScopes',
+    typeComment: 'Default selected OAuth scopes',
+  },
+)

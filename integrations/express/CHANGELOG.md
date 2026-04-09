@@ -1,5 +1,88 @@
 # @scalar/express-api-reference
 
+## 0.9.7
+
+## 0.9.6
+
+## 0.9.5
+
+## 0.9.4
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.9.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.4.3**
+
+## 0.9.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.4.2**
+
+## 0.9.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.4.1**
+
+## 0.9.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.4.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.8.48
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.45**
+
+## 0.8.47
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.44**
+
+## 0.8.46
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.43**
+
+## 0.8.45
+
+### Patch Changes
+
+- [#8248](https://github.com/scalar/scalar/pull/8248): fix(express): remove unused `customTheme`
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.42**
+
 ## 0.8.44
 
 ### Patch Changes

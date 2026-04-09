@@ -44,30 +44,31 @@ describe('Operation', () => {
     'x-scalar-navigation': defaultNavigation,
   }
 
-  const defaultProps: RouteProps = {
-    document: defaultDocument as any,
-    layout: 'web',
-    eventBus,
-    path: '/pets',
-    method: 'get',
-    exampleName: 'default',
-    environment: {
-      color: 'blue',
-      variables: [],
-      description: 'Test Environment',
-    },
-    workspaceStore: createWorkspaceStore(),
-    documentSlug: 'test-document',
-    securitySchemes: {},
-    activeWorkspace: {
-      id: 'test-workspace',
-      label: 'Test Workspace',
-    },
-    plugins: [],
+  const getDefaultProps = (): RouteProps => {
+    return {
+      document: defaultDocument as any,
+      layout: 'web',
+      eventBus,
+      path: '/pets',
+      method: 'get',
+      exampleName: 'default',
+      environment: {
+        color: 'blue',
+        variables: [],
+        description: 'Test Environment',
+      },
+      workspaceStore: createWorkspaceStore(),
+      documentSlug: 'test-document',
+      activeWorkspace: {
+        id: 'test-workspace',
+        label: 'Test Workspace',
+      },
+      plugins: [],
+    }
   }
 
   const render = (overrides: Partial<RouteProps> = {}) => {
-    const props = { ...defaultProps, ...overrides } as RouteProps
+    const props = { ...getDefaultProps(), ...overrides } as RouteProps
 
     return mount(Operation, {
       props,
@@ -99,7 +100,6 @@ describe('Operation', () => {
     const document = {
       ...defaultDocument,
       security: [{ bearerAuth: [] }],
-      'x-scalar-set-operation-security': true,
       paths: {
         '/pets': {
           get: {
@@ -111,6 +111,8 @@ describe('Operation', () => {
       },
     }
 
+    const defaultProps = getDefaultProps()
+
     defaultProps.workspaceStore.auth.setAuthSelectedSchemas(
       { type: 'operation', documentName: defaultProps.documentSlug, path: '/pets', method: 'get' },
       {
@@ -119,16 +121,15 @@ describe('Operation', () => {
       },
     )
 
-    const wrapper = render({ document })
+    const wrapper = render({ ...defaultProps, document })
 
     const oc = wrapper.getComponent({ name: 'OperationBlock' })
     const props = oc.props() as any
-    expect(props.documentSecurity).toEqual([{ bearerAuth: [] }])
-    expect(props.operationSelectedSecurity).toEqual({
+    expect(props.securityRequirements).toEqual([{ apiKeyAuth: [] }])
+    expect(props.selectedSecurity).toEqual({
       selectedIndex: 0,
       selectedSchemes: [{ apiKeyAuth: [] }],
     })
-    expect(props.setOperationSecurity).toBe(true)
     expect(props.authMeta).toEqual({ type: 'operation', path: '/pets', method: 'get' })
   })
 
@@ -142,6 +143,8 @@ describe('Operation', () => {
       },
     }
 
+    const defaultProps = getDefaultProps()
+
     defaultProps.workspaceStore.auth.setAuthSelectedSchemas(
       { type: 'document', documentName: defaultProps.documentSlug },
       {
@@ -150,12 +153,12 @@ describe('Operation', () => {
       },
     )
 
-    const wrapper = render({ document })
+    const wrapper = render({ ...defaultProps, document })
 
     const oc = wrapper.getComponent({ name: 'OperationBlock' })
     const props = oc.props()
-    expect(props.documentSecurity).toEqual([{ bearerAuth: [] }])
-    expect(props.documentSelectedSecurity).toEqual({
+    expect(props.securityRequirements).toEqual([{ bearerAuth: [] }])
+    expect(props.selectedSecurity).toEqual({
       selectedIndex: 0,
       selectedSchemes: [{ bearerAuth: [] }],
     })
@@ -177,6 +180,8 @@ describe('Operation', () => {
       },
     }
 
+    const defaultProps = getDefaultProps()
+
     // Set auth on the auth store
     defaultProps.workspaceStore.auth.setAuthSelectedSchemas(
       { type: 'document', documentName: defaultProps.documentSlug },
@@ -186,12 +191,17 @@ describe('Operation', () => {
       },
     )
 
-    const wrapper = render({ document })
+    const wrapper = render({ ...defaultProps, document })
 
     const oc = wrapper.getComponent({ name: 'OperationBlock' })
     const props = oc.props() as any
-    expect(props.documentSecurity).toEqual([{ bearerAuth: [] }])
-    expect(props.documentSelectedSecurity).toEqual({
+    expect(props.securityRequirements).toEqual([
+      {
+        bearerAuth: [],
+      },
+      {},
+    ])
+    expect(props.selectedSecurity).toEqual({
       selectedIndex: 0,
       selectedSchemes: [{ bearerAuth: [] }],
     })

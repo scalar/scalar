@@ -9,7 +9,7 @@ Set the theme in the `siteConfig` object of your `scalar.config.json` file:
 ```json
 // scalar.config.json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "theme": "purple"

@@ -44,28 +44,33 @@ const handleCopyTabUrl = (index: number): void => {
 </script>
 
 <template>
-  <nav class="t-app__top-nav z-1 flex h-10 items-center gap-2 px-2">
-    <DesktopTab
-      v-for="(tab, index) in tabs"
-      :key="index"
-      :active="index === activeTabIndex"
-      :hotkey="!isSingleTab && index < 9 ? String(index + 1) : undefined"
-      :isSingleTab="isSingleTab"
-      :tab="tab"
-      @click="switchTab(index)"
-      @close="handleCloseTab(index)"
-      @closeOtherTabs="handleCloseOtherTabs(index)"
-      @copyUrl="() => handleCopyTabUrl(index)"
-      @newTab="handleAddTab" />
+  <nav class="t-app__top-nav">
+    <!-- drag region (macos) -->
+    <div class="mac:app-drag-region">
+      <div class="z-1 flex h-10 items-center gap-2 px-2">
+        <DesktopTab
+          v-for="(tab, index) in tabs"
+          :key="index"
+          :active="index === activeTabIndex"
+          :hotkey="!isSingleTab && index < 9 ? String(index + 1) : undefined"
+          :isSingleTab="isSingleTab"
+          :tab="tab"
+          @click="switchTab(index)"
+          @close="handleCloseTab(index)"
+          @closeOtherTabs="handleCloseOtherTabs(index)"
+          @copyUrl="() => handleCopyTabUrl(index)"
+          @newTab="handleAddTab" />
 
-    <button
-      class="text-c-3 hover:bg-b-3 app-no-drag-region rounded p-1.5"
-      type="button"
-      @click="handleAddTab">
-      <ScalarIcon
-        icon="Add"
-        size="sm"
-        thickness="2.5" />
-    </button>
+        <button
+          class="text-c-3 hover:bg-b-3 app-no-drag-region rounded p-1.5"
+          type="button"
+          @click="handleAddTab">
+          <ScalarIcon
+            icon="Add"
+            size="sm"
+            thickness="2.5" />
+        </button>
+      </div>
+    </div>
   </nav>
 </template>

@@ -1,4 +1,4 @@
-import { getHeadings } from '@scalar/code-highlight/markdown'
+import { getMarkdownHeadings } from '@scalar/helpers/markdown/get-markdown-headings'
 import GithubSlugger from 'github-slugger'
 
 import type { Heading } from '@/navigation/types'
@@ -56,7 +56,7 @@ const withSlugs = (headings: Heading[], slugger: GithubSlugger): Heading[] =>
 export function getHeadingsFromMarkdown(input: string): Heading[] {
   const slugger = new GithubSlugger()
 
-  const headings = getHeadings(input)
+  const headings = getMarkdownHeadings(input)
 
   return withSlugs(headings as Heading[], slugger)
 }

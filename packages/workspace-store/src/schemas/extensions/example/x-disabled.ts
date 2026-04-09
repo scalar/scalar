@@ -1,4 +1,5 @@
 import { Type } from '@scalar/typebox'
+import { boolean, object, optional } from '@scalar/validation'
 
 /**
  * OpenAPI extension to control whether a parameter example is enabled (checkbox on) or disabled (checkbox off).
@@ -14,6 +15,20 @@ import { Type } from '@scalar/typebox'
  * x-disabled: false  # Send this parameter example in the request
  * ```
  */
-export const XDisabled = Type.Object({
+export const XDisabledSchema = Type.Object({
   'x-disabled': Type.Optional(Type.Boolean()),
 })
+
+export type XDisabled = {
+  'x-disabled'?: boolean
+}
+
+export const XDisabled = object(
+  {
+    'x-disabled': optional(boolean()),
+  },
+  {
+    typeName: 'XDisabled',
+    typeComment: 'Whether a parameter example is disabled in the API client',
+  },
+)

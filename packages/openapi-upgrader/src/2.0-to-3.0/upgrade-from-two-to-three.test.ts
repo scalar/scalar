@@ -668,6 +668,149 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
+  describe('parameter defaults', () => {
+    it('preserves default on operation-level (inline) parameters', () => {
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'API', version: '1.0' },
+        paths: {
+          '/example': {
+            get: {
+              parameters: [
+                {
+                  in: 'header',
+                  name: 'Authorization',
+                  type: 'string',
+                  required: true,
+                  default: 'Token token=LOCATION_KEY_GOES_HERE, btoken=BUSINESS_KEY_GOES_HERE',
+                  description: 'API key and business key as Authorization header.',
+                },
+                {
+                  in: 'header',
+                  name: 'Accept-Language',
+                  type: 'string',
+                  description: 'Short code for locale variant (e.g., fr-ca, es-ES).',
+                  default: 'en',
+                },
+              ],
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      })
+
+      const params = result.paths?.['/example']?.get?.parameters
+      expect(params).toHaveLength(2)
+
+      const authParam = params?.[0] as OpenAPIV3.ParameterObject
+      expect(authParam.name).toBe('Authorization')
+      expect(authParam.schema?.default).toBe('Token token=LOCATION_KEY_GOES_HERE, btoken=BUSINESS_KEY_GOES_HERE')
+
+      const acceptLangParam = params?.[1] as OpenAPIV3.ParameterObject
+      expect(acceptLangParam.name).toBe('Accept-Language')
+      expect(acceptLangParam.schema?.default).toBe('en')
+    })
+
+    it('preserves default on globally defined parameters', () => {
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'API', version: '1.0' },
+        parameters: {
+          Authorization: {
+            name: 'Authorization',
+            in: 'header',
+            required: true,
+            type: 'string',
+            description: 'API key and business key (UUID) as the Authorization header.',
+            default: 'Token token=LOCATION_KEY_GOES_HERE, btoken=BUSINESS_KEY_GOES_HERE',
+          },
+          'Content-Type': {
+            name: 'Content-Type',
+            in: 'header',
+            required: false,
+            type: 'string',
+            description: 'Set to application/json',
+            default: 'application/json',
+          },
+        },
+        paths: {
+          '/planets/{planetId}': {
+            parameters: [{ $ref: '#/parameters/Authorization' }, { $ref: '#/parameters/Content-Type' }],
+            get: {
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      })
+
+      expect(result.components?.parameters).toMatchObject({
+        Authorization: {
+          name: 'Authorization',
+          in: 'header',
+          required: true,
+          schema: {
+            type: 'string',
+            default: 'Token token=LOCATION_KEY_GOES_HERE, btoken=BUSINESS_KEY_GOES_HERE',
+          },
+        },
+        'Content-Type': {
+          name: 'Content-Type',
+          in: 'header',
+          required: false,
+          schema: {
+            type: 'string',
+            default: 'application/json',
+          },
+        },
+      })
+    })
+
+    it('preserves default on query parameters', () => {
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'API', version: '1.0' },
+        paths: {
+          '/users': {
+            get: {
+              parameters: [
+                {
+                  in: 'query',
+                  name: 'email',
+                  type: 'string',
+                  required: false,
+                  default: 'test@example.com',
+                  description: 'Filter by email address.',
+                },
+                {
+                  in: 'query',
+                  name: 'phone',
+                  type: 'string',
+                  required: false,
+                  default: '1111111111',
+                  description: 'Filter by phone number.',
+                },
+              ],
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      })
+
+      const params = result.paths?.['/users']?.get?.parameters
+      expect(params).toHaveLength(2)
+
+      const emailParam = params?.[0] as OpenAPIV3.ParameterObject
+      expect(emailParam.name).toBe('email')
+      expect(emailParam.in).toBe('query')
+      expect(emailParam.schema?.default).toBe('test@example.com')
+
+      const phoneParam = params?.[1] as OpenAPIV3.ParameterObject
+      expect(phoneParam.name).toBe('phone')
+      expect(phoneParam.in).toBe('query')
+      expect(phoneParam.schema?.default).toBe('1111111111')
+    })
+  })
+
   it('transforms basic security scheme', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
@@ -1597,6 +1740,99 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
+  it('transforms x-examples keyed by example name instead of media type', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-examples keyed by example name', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                name: 'body',
+                in: 'body',
+                required: true,
+                schema: {
+                  type: 'object',
+                  properties: {
+                    email: { type: 'string' },
+                    receipt_amount: { type: 'number' },
+                  },
+                },
+                'x-examples': {
+                  Request: {
+                    email: 'test@example.com',
+                    receipt_amount: 300,
+                  },
+                },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    expect(requestBody?.content?.['application/json']?.examples).toStrictEqual({
+      Request: {
+        value: {
+          email: 'test@example.com',
+          receipt_amount: 300,
+        },
+      },
+    })
+  })
+
+  it('prefers x-examples over x-example when both exist on same body parameter', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'both x-example and x-examples on body', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                name: 'body',
+                in: 'body',
+                required: true,
+                schema: { type: 'object' },
+                'x-example': {
+                  'application/json': { single: 'value' },
+                },
+                'x-examples': {
+                  'application/json': {
+                    named: {
+                      summary: 'Named example',
+                      value: { message: 'OK' },
+                    },
+                  },
+                },
+              },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    const media = requestBody?.content?.['application/json']
+    expect(media?.examples).toStrictEqual({
+      named: {
+        summary: 'Named example',
+        value: { message: 'OK' },
+      },
+    })
+    expect(media?.example).toBeUndefined()
+  })
+
   it('ignores x-example when it contains a non-object value like a string', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
@@ -1916,6 +2152,56 @@ describe('upgradeFromTwoToThree', () => {
     expect(requestBody.content?.['application/json']?.examples).toBeUndefined()
   })
 
+  it('transforms x-examples keyed by example name with mixed object and string values (pos-original shape)', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-examples', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            produces: ['application/json'],
+            parameters: [
+              {
+                name: 'body',
+                in: 'body',
+                required: true,
+                schema: {
+                  type: 'object',
+                },
+                'x-examples': {
+                  Subscription: {
+                    discount_type: 'subscription',
+                    subscription_id: '1111111',
+                    receipt_amount: 10.72,
+                  },
+                  Reward: '{"discount_type":"reward","reward_id":"1399335","receipt_amount":10.72}',
+                },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    expect(requestBody?.content?.['application/json']?.examples).toStrictEqual({
+      Subscription: {
+        value: {
+          discount_type: 'subscription',
+          subscription_id: '1111111',
+          receipt_amount: 10.72,
+        },
+      },
+      Reward: {
+        value: '{"discount_type":"reward","reward_id":"1399335","receipt_amount":10.72}',
+      },
+    })
+  })
+
   it('transforms response examples from Swagger 2.0 to OpenAPI 3.0 format', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
@@ -1988,6 +2274,60 @@ describe('upgradeFromTwoToThree', () => {
     expect((response400 as Record<string, unknown>).examples).toBeUndefined()
   })
 
+  it('upgrades tiny.yml example spec (minimal Swagger 2.0 with response schema and named examples)', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Example', version: '1.0' },
+      paths: {
+        '/example': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                schema: {
+                  type: 'object',
+                  properties: {
+                    user_id: {
+                      type: 'integer',
+                      description: 'Guest user ID',
+                    },
+                  },
+                },
+                examples: {
+                  Example: {
+                    user_id: 11111111,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.openapi).toBe('3.0.4')
+    expect(result.swagger).toBeUndefined()
+    expect(result.info?.title).toBe('Example')
+    expect(result.info?.version).toBe('1.0')
+
+    const responseOk = result.paths?.['/example']?.get?.responses?.['200'] as OpenAPIV3.ResponseObject
+    expect(responseOk.description).toBe('OK')
+    expect(responseOk.content?.['application/json']?.schema).toStrictEqual({
+      type: 'object',
+      properties: {
+        user_id: {
+          type: 'integer',
+          description: 'Guest user ID',
+        },
+      },
+    })
+    expect(responseOk.content?.['application/json']?.examples?.Example?.value).toStrictEqual({
+      user_id: 11111111,
+    })
+    expect(responseOk.content?.['Example']).toBeUndefined()
+    expect(responseOk.examples).toBeUndefined()
+  })
+
   it('transforms response examples with multiple media types', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
@@ -2023,6 +2363,38 @@ describe('upgradeFromTwoToThree', () => {
       message: 'Hello JSON',
     })
     expect(response200.content?.['application/xml']?.example).toBe('<message>Hello XML</message>')
+  })
+
+  it('treats named example keys that contain a slash as named examples, not media types', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Slash in named example key test', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/test': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                schema: { type: 'object', properties: { id: { type: 'integer' } } },
+                examples: {
+                  'application/json': { id: 1 },
+                  'Error 404/Not Found': { id: 0, error: 'Not Found' },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response200 = result.paths?.['/test']?.get?.responses?.['200'] as OpenAPIV3.ResponseObject
+    expect(response200.content?.['application/json']?.example).toStrictEqual({ id: 1 })
+    expect(response200.content?.['Error 404/Not Found']).toBeUndefined()
+    expect(response200.content?.['application/json']?.examples?.['Error 404/Not Found']?.value).toStrictEqual({
+      id: 0,
+      error: 'Not Found',
+    })
   })
 
   it('transforms global responses defined in #/responses with examples', () => {
@@ -2120,5 +2492,123 @@ describe('upgradeFromTwoToThree', () => {
 
     // Ensure the old responses property is removed from document root
     expect((result as Record<string, unknown>).responses).toBeUndefined()
+  })
+
+  it('transforms response examples when example media type differs from produces', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Forgot Passcode test', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/api2/mobile/passcodes/forgot_passcode': {
+          post: {
+            responses: {
+              '200': {
+                description: '',
+                schema: {
+                  type: 'object',
+                  properties: {},
+                },
+                examples: {
+                  'text/plain':
+                    '[\n  "An email has been sent to your registered email address to reset your Passcode."\n]',
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response200 = result.paths?.['/api2/mobile/passcodes/forgot_passcode']?.post?.responses?.[
+      '200'
+    ] as OpenAPIV3.ResponseObject
+
+    // The empty application/json schema-only entry should be removed
+    expect(response200.content?.['application/json']).toBeUndefined()
+
+    // The text/plain example should be placed under content['text/plain'].example
+    expect(response200.content?.['text/plain']?.example).toBe(
+      '[\n  "An email has been sent to your registered email address to reset your Passcode."\n]',
+    )
+
+    // Old examples property should be removed
+    expect((response200 as Record<string, unknown>).examples).toBeUndefined()
+  })
+
+  it('keeps schema-only content entries when schema sets additionalProperties to false', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Schema with additionalProperties false', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/strict-object': {
+          get: {
+            responses: {
+              '200': {
+                description: '',
+                schema: {
+                  type: 'object',
+                  additionalProperties: false,
+                },
+                examples: {
+                  'text/plain': 'ok',
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response200 = result.paths?.['/strict-object']?.get?.responses?.['200'] as OpenAPIV3.ResponseObject
+
+    expect(response200.content?.['application/json']?.schema).toStrictEqual({
+      type: 'object',
+      additionalProperties: false,
+    })
+    expect(response200.content?.['text/plain']?.example).toBe('ok')
+    expect((response200 as Record<string, unknown>).examples).toBeUndefined()
+  })
+
+  it('keeps schema-only content entries when schema contains enum and validation keywords', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Schema with enum and validation keywords', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/status': {
+          get: {
+            responses: {
+              '200': {
+                description: '',
+                schema: {
+                  type: 'string',
+                  enum: ['active', 'inactive'],
+                  minLength: 6,
+                  maxLength: 8,
+                  pattern: '^[a-z]+$',
+                },
+                examples: {
+                  'text/plain': 'active',
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response200 = result.paths?.['/status']?.get?.responses?.['200'] as OpenAPIV3.ResponseObject
+
+    expect(response200.content?.['application/json']?.schema).toStrictEqual({
+      type: 'string',
+      enum: ['active', 'inactive'],
+      minLength: 6,
+      maxLength: 8,
+      pattern: '^[a-z]+$',
+    })
+    expect(response200.content?.['text/plain']?.example).toBe('active')
+    expect((response200 as Record<string, unknown>).examples).toBeUndefined()
   })
 })

@@ -15,6 +15,8 @@ export type ScalarCopyProps = {
    * @default 1500
    */
   duration?: number
+  /** Whether to copy the content immediately on mount */
+  immediate?: boolean
 }
 
 export type ScalarCopySlots = {

@@ -1,3 +1,3 @@
-# Scalar API Reference for Laravel
+# API Reference for Laravel
 
 Read more: https://github.com/scalar/laravel

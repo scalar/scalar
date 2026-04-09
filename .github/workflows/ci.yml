@@ -36,13 +36,13 @@ jobs:
           mkdir -p temp-artifacts
           cp packages/api-reference/dist/browser/standalone.js temp-artifacts/scalar.js
       - name: Upload scalar.js artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
           name: scalar-js
           path: temp-artifacts/scalar.js
           retention-days: 3
       - name: Upload mock server docker entrypoint artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
           name: mock-server-docker-entrypoint
           path: packages/mock-server/docker/dist/docker-entrypoint.js
@@ -157,9 +157,9 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
       - name: Setup Node.js
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -182,9 +182,9 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
       - name: Setup Node.js
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -229,14 +229,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard-index: [1, 2]
-        shard-total: [2]
+        shard-index: [1, 2, 3]
+        shard-total: [3]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Build packages
         uses: ./.github/actions/build
         with:
           packages: './packages/**'
+      - name: Check built declaration alias imports
+        if: matrix.shard-index == 1
+        run: pnpm lint:check:dist-dts-aliases
       - name: Start test servers
         run: pnpm script run test-servers & pnpm script wait -p 5051 5052
         timeout-minutes: 1
@@ -277,12 +280,32 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Setup Go
-        uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
         with:
           go-version-file: projects/proxy-scalar-com/go.mod
           cache: false
       - name: Run tests for the proxy server (Go)
         run: cd projects/proxy-scalar-com && go test -v
+
+  test-server-side-rendering:
+    needs: [build]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Build packages
+        uses: ./.github/actions/build
+        with:
+          packages: '@scalar/server-side-rendering...'
+      - name: Start SSR playground and verify it responds
+        run: |
+          pnpm --filter @scalar/server-side-rendering dev &
+          pnpm script wait -p 5173
+          curl -sSf http://localhost:5173 -o /tmp/response.html
+          grep -q "User account created successfully" /tmp/response.html
+        timeout-minutes: 2
 
   test-e2e-api-reference:
     needs: [build]
@@ -553,30 +576,6 @@ jobs:
           url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference'
           method: 'GET'
 
-  deploy-api-client-preview:
-    # Only run this job for PRs from the same repository
-    if: github.event.pull_request.head.repo.full_name == github.repository
-    needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Check which files were touched
-        id: changed-files
-        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
-        with:
-          files_yaml: |
-            api_client:
-              - packages/api-client/**
-      - name: Add Cloudflare Preview URL to the PR
-        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
-        with:
-          message: |
-            **Cloudflare Preview for the API Client**
-
-            ${{ steps.deploy-client-staging.outputs.deployment-url }}
-          comment-tag: 'cloudflare-preview'
-
   push-to-scalar-registry:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -589,7 +588,6 @@ jobs:
         uses: ./.github/actions/build
         with:
           packages: '@scalar/galaxy...'
-          node-version: 24
       - name: Check whether there's a new version of @scalar/galaxy
         id: changed-files
         uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
@@ -734,7 +732,6 @@ jobs:
         uses: ./.github/actions/build
         with:
           packages: '@scalar/galaxy...'
-          node-version: 24
 
       - name: Extract version and generate preview version
         id: preview-version
@@ -818,7 +815,7 @@ jobs:
   # ---------------------------------------------------------------------------------------------------------
   # Integration builds, tests, and publishes
 
-  docker-build-scan:
+  docker-build:
     if: needs.check-changes.outputs.docker_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
@@ -829,7 +826,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Download scalar.js artifact
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: scalar-js
           path: integrations/docker/assets
@@ -839,27 +836,17 @@ jobs:
         run: gzip --keep --verbose --force scalar.js
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@33fed32c1ba8775f20366ec9e8d0cd9fe8fc1dd3 # v1
+        uses: useblacksmith/setup-docker-builder@5241b2e9423e8b1fa37ed6050ecb62d0fb9a4e38 # v1
         with:
           platforms: linux/amd64
 
       - name: Build Docker image
-        uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
+        uses: useblacksmith/build-push-action@cbd1f60d194a98cb3be5523b15134501eaf0fbf3 # v2
         with:
           context: integrations/docker
           file: integrations/docker/Dockerfile
           load: true
           tags: scalarapi/api-reference:latest
-
-      - name: Scan for vulnerabilities
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
-        with:
-          scan-type: 'image'
-          image-ref: 'scalarapi/api-reference:latest'
-          format: 'table'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
 
   docker-publish:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.docker_package_changed == 'true'
@@ -868,7 +855,7 @@ jobs:
     concurrency:
       group: docker-publish
       cancel-in-progress: false
-    needs: [required-jobs-main, docker-build-scan, check-changes]
+    needs: [required-jobs-main, docker-build, check-changes]
     permissions:
       contents: read
     steps:
@@ -880,7 +867,7 @@ jobs:
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Download scalar.js artifact
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: scalar-js
           path: integrations/docker/assets
@@ -890,7 +877,7 @@ jobs:
         run: gzip --keep --verbose --force scalar.js
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@33fed32c1ba8775f20366ec9e8d0cd9fe8fc1dd3 # v1
+        uses: useblacksmith/setup-docker-builder@5241b2e9423e8b1fa37ed6050ecb62d0fb9a4e38 # v1
         with:
           platforms: |
             linux/amd64
@@ -905,7 +892,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and Push Docker image
-        uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
+        uses: useblacksmith/build-push-action@cbd1f60d194a98cb3be5523b15134501eaf0fbf3 # v2
         with:
           context: integrations/docker
           file: integrations/docker/Dockerfile
@@ -944,13 +931,13 @@ jobs:
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Download mock server docker entrypoint artifact
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: mock-server-docker-entrypoint
           path: packages/mock-server/docker/dist/
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@33fed32c1ba8775f20366ec9e8d0cd9fe8fc1dd3 # v1
+        uses: useblacksmith/setup-docker-builder@5241b2e9423e8b1fa37ed6050ecb62d0fb9a4e38 # v1
         with:
           platforms: |
             linux/amd64
@@ -963,7 +950,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and Push Docker image
-        uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
+        uses: useblacksmith/build-push-action@cbd1f60d194a98cb3be5523b15134501eaf0fbf3 # v2
         with:
           context: packages/mock-server/docker
           file: packages/mock-server/docker/Dockerfile
@@ -994,7 +981,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Download scalar.js artifact
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: scalar-js
           path: temp-assets
@@ -1009,13 +996,13 @@ jobs:
         run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
 
       - name: Cache NuGet packages
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
         with:
           key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Setup .NET
-        uses: fast-actions/setup-dotnet@e93bbf6e68255c6a085279c473bec0f02bda8cfb # v1
+        uses: fast-actions/setup-dotnet@ff62d0d43b74c155b57b842f610b1eeaf39c5897 # v1
         with:
           sdk-version: 10.x.x
           aspnetcore-version: |
@@ -1060,7 +1047,7 @@ jobs:
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Download scalar.js artifact
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: scalar-js
           path: integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets
@@ -1070,13 +1057,13 @@ jobs:
         run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
 
       - name: Cache NuGet packages
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
         with:
           key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Setup .NET
-        uses: fast-actions/setup-dotnet@e93bbf6e68255c6a085279c473bec0f02bda8cfb # v1
+        uses: fast-actions/setup-dotnet@ff62d0d43b74c155b57b842f610b1eeaf39c5897 # v1
         with:
           sdk-version: 10.x.x
 
@@ -1120,7 +1107,7 @@ jobs:
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Download scalar.js artifact
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: scalar-js
           path: integrations/dotnet/aspire/src/Scalar.Aspire.Service/wwwroot
@@ -1135,14 +1122,14 @@ jobs:
         uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@33fed32c1ba8775f20366ec9e8d0cd9fe8fc1dd3 # v1
+        uses: useblacksmith/setup-docker-builder@5241b2e9423e8b1fa37ed6050ecb62d0fb9a4e38 # v1
         with:
           platforms: |
             linux/amd64
             linux/arm64
 
       - name: Build and push Aspire Docker image
-        uses: useblacksmith/build-push-action@30c71162f16ea2c27c3e21523255d209b8b538c1 # v2
+        uses: useblacksmith/build-push-action@cbd1f60d194a98cb3be5523b15134501eaf0fbf3 # v2
         with:
           context: integrations/dotnet
           file: integrations/dotnet/aspire/src/Scalar.Aspire.Service/Dockerfile
@@ -1170,13 +1157,13 @@ jobs:
           cat src/Scalar.Aspire/Constants.cs
 
       - name: Cache NuGet packages
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
         with:
           key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Setup .NET
-        uses: fast-actions/setup-dotnet@e93bbf6e68255c6a085279c473bec0f02bda8cfb # v1
+        uses: fast-actions/setup-dotnet@ff62d0d43b74c155b57b842f610b1eeaf39c5897 # v1
         with:
           sdk-version: 10.x.x
 
@@ -1327,7 +1314,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Download scalar.js artifact
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: scalar-js
           path: integrations/rust/ui
@@ -1339,7 +1326,7 @@ jobs:
           components: rustfmt, clippy
 
       - name: Cache cargo registry
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
         with:
           path: |
             ~/.cargo/registry
@@ -1386,7 +1373,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Download scalar.js artifact
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: scalar-js
           path: integrations/rust/ui
@@ -1398,7 +1385,7 @@ jobs:
           components: rustfmt, clippy
 
       - name: Cache cargo registry
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
         with:
           path: |
             ~/.cargo/registry
@@ -1423,7 +1410,7 @@ jobs:
 
       - name: Publish to crates.io
         working-directory: integrations/rust
-        run: cargo publish
+        run: cargo publish --allow-dirty
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
@@ -1437,7 +1424,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Download scalar.js artifact
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: scalar-js
           path: integrations/java/scalar-core/src/main/resources/META-INF/resources/webjars/scalar
@@ -1465,7 +1452,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Download scalar.js artifact
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: scalar-js
           path: integrations/java/scalar-core/src/main/resources/META-INF/resources/webjars/scalar
@@ -1513,6 +1500,7 @@ jobs:
     needs:
       [
         build,
+        test-server-side-rendering,
         format,
         knip,
         test-packages,
@@ -1530,7 +1518,15 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 1
     permissions: {}
-    needs: [build, test-packages, test-integrations, test-proxy-server, types]
+    needs:
+      [
+        build,
+        test-server-side-rendering,
+        test-packages,
+        test-integrations,
+        test-proxy-server,
+        types,
+      ]
     steps:
       - name: Exit with error if some jobs are not successful
         run: exit 1

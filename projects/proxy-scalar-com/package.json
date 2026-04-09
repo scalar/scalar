@@ -16,7 +16,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "go build main.go",
@@ -32,7 +32,6 @@
   },
   "type": "module",
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "vite": "catalog:*"
   }
 }

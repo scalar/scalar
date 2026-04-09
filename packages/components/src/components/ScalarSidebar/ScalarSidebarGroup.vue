@@ -40,10 +40,11 @@ const {
 } = defineProps<ScalarSidebarGroupProps>()
 
 const emit = defineEmits<{
-  /** Emitted when the group toggle button is clicked */
+  /** Emitted when the group label is clicked */
   (e: 'click', event: MouseEvent): void
   /**
-   * Emitted when the group toggle button is clicked
+   * Emitted when _only_ the group toggle button (caret) is clicked
+   *
    * Note: This is only emitted if the group is discrete
    */
   (e: 'toggle', event: MouseEvent): void
@@ -82,7 +83,7 @@ const handleToggle = (event: MouseEvent) => {
   <component
     v-bind="cx('group/item flex flex-col gap-px')"
     :is="is">
-    <div class="group/group-button relative flex flex-col leading-5">
+    <div class="group/group-button relative flex flex-col text-base">
       <slot
         name="before"
         :open />

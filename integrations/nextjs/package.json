@@ -18,17 +18,13 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.9.22",
+  "version": "0.10.7",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "pnpm types:check && pnpm build-only",
     "build-only": "vite build",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
     "test": "vitest",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
@@ -63,7 +59,6 @@
     "@scalar/core": "workspace:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@types/node": "catalog:*",
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",

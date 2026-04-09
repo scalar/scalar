@@ -8,43 +8,67 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import type { RouteRecordRaw } from 'vue-router'
 
-import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-security'
 import Authentication from '@/v2/features/collection/components/Authentication.vue'
 import Cookies from '@/v2/features/collection/components/Cookies.vue'
+import { Editor } from '@/v2/features/collection/components/Editor'
 import Environment from '@/v2/features/collection/components/Environment.vue'
 import Overview from '@/v2/features/collection/components/Overview.vue'
 import Servers from '@/v2/features/collection/components/Servers.vue'
 import Settings from '@/v2/features/collection/components/Settings.vue'
 import DocumentCollection from '@/v2/features/collection/DocumentCollection.vue'
+import OperationCollection from '@/v2/features/collection/OperationCollection.vue'
 import WorkspaceCollection from '@/v2/features/collection/WorkspaceCollection.vue'
-import Operation from '@/v2/features/operation/Operation.vue'
+import { Operation } from '@/v2/features/operation'
 import { workspaceStorage } from '@/v2/helpers/storage'
+import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
 
 /** These props are provided at the route level */
 export type RouteProps = {
+  /** The slug of the currently selected document in the workspace */
   documentSlug: string
+  /** The currently active document */
   document: WorkspaceDocument | null
+  /** The workspace event bus */
   eventBus: WorkspaceEventBus
+  /** The layout of the client */
   layout: ClientLayout
+  /** The API path currently selected (e.g. "/users/{id}") */
   path?: string
+  /** The HTTP method for the currently selected API path (e.g. GET, POST) */
   method?: HttpMethod
+  /** The name of the currently selected example (for examples within an endpoint) */
   exampleName?: string
+  /** The currently active environment */
   environment: XScalarEnvironment
-  securitySchemes: MergedSecuritySchemes
+  /** The workspace store */
   workspaceStore: WorkspaceStore
+  /** The currently active workspace */
   activeWorkspace: { id: string; label: string }
+  /** Client plugins */
   plugins: ClientPlugin[]
+  /** Custom themes available to the team */
   customThemes?: Theme[]
-  // workspaceSlug: string
-  // documentSlug?: string
+  /** The currently selected theme styles string */
+  currentTheme?: string
+  /** Whether the current color mode is dark */
+  isDarkMode?: boolean
+  /**
+   * Fetches the full document from registry by meta. When provided, registry meta takes priority
+   * over x-scalar-original-source-url when syncing. Returns the document as a plain object.
+   */
+  fetchRegistryDocument?: ImportDocumentFromRegistry
+  /** Whether telemetry is enabled */
+  telemetry?: boolean
+  /** Updates the telemetry enabled state */
+  onUpdateTelemetry?: (value: boolean) => void
 }
 
 /** When in the collections pages */
 export type CollectionProps = RouteProps &
   (
     | {
-        collectionType: 'document'
+        collectionType: 'document' | 'operation'
         document: WorkspaceDocument
       }
     | {
@@ -71,9 +95,44 @@ export const ROUTES = [
         children: [
           // Example page
           {
-            name: 'example',
-            path: 'path/:pathEncoded/method/:method/example/:exampleName',
-            component: Operation,
+            path: 'path/:pathEncoded/method/:method',
+            children: [
+              {
+                name: 'example',
+                path: 'example/:exampleName',
+                component: Operation,
+              },
+              {
+                name: 'operation',
+                path: '',
+                component: OperationCollection,
+                redirect: {
+                  name: 'operation.overview',
+                },
+                children: [
+                  {
+                    name: 'operation.overview',
+                    path: 'overview',
+                    component: Overview,
+                  },
+                  {
+                    name: 'operation.servers',
+                    path: 'servers',
+                    component: Servers,
+                  },
+                  {
+                    name: 'operation.authentication',
+                    path: 'authentication',
+                    component: Authentication,
+                  },
+                  {
+                    name: 'operation.editor',
+                    path: 'editor',
+                    component: Editor,
+                  },
+                ],
+              },
+            ],
           },
           // Document Page
           {
@@ -124,6 +183,12 @@ export const ROUTES = [
                 name: 'document.settings',
                 path: 'settings',
                 component: Settings,
+              },
+              // Document scripts (pre-request / post-response)
+              {
+                name: 'document.scripts',
+                path: 'scripts',
+                component: () => import('@/v2/features/collection/components/Scripts.vue'),
               },
             ],
           },

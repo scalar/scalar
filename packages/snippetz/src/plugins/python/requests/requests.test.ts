@@ -98,6 +98,31 @@ describe('pythonRequests', () => {
 )`)
   })
 
+  it('preserves repeated query parameters as arrays', () => {
+    const result = pythonRequests.generate({
+      url: 'https://example.com',
+      queryString: [
+        {
+          name: 'statuses',
+          value: 'active',
+        },
+        {
+          name: 'statuses',
+          value: 'inactive',
+        },
+      ],
+    })
+
+    expect(result).toBe(`requests.get("https://example.com",
+    params={
+      "statuses": [
+        "active",
+        "inactive"
+      ]
+    }
+)`)
+  })
+
   it('has cookies', () => {
     const result = pythonRequests.generate({
       url: 'https://example.com',
@@ -200,6 +225,64 @@ describe('pythonRequests', () => {
     files=[
       ("file", open("test.txt", "rb")),
       ("file", open("another.txt", "rb"))
+    ]
+)`)
+  })
+
+  it('preserves duplicate multipart field names when values are inline', () => {
+    const result = pythonRequests.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            value: '@first.png',
+          },
+          {
+            name: 'file',
+            value: '@second.png',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`requests.post("https://example.com",
+    data={
+      "file": [
+        "@first.png",
+        "@second.png"
+      ]
+    }
+)`)
+  })
+
+  it('handles multipart form data with per-part content types', () => {
+    const result = pythonRequests.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            fileName: 'test.txt',
+            contentType: 'text/plain',
+          },
+          {
+            name: 'metadata',
+            value: '{"foo":"bar"}',
+            contentType: 'application/json',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`requests.post("https://example.com",
+    files=[
+      ("file", ("test.txt", open("test.txt", "rb"), "text/plain")),
+      ("metadata", (None, "{\\"foo\\":\\"bar\\"}", "application/json"))
     ]
 )`)
   })

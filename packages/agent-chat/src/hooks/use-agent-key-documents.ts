@@ -15,7 +15,7 @@ export function useAgentKeyDocuments() {
     const keyDocumentsResult = await api.getKeyDocuments()
 
     if (!keyDocumentsResult.success) {
-      toast('Unable to fetch registry documents for the provided key', 'error')
+      toast('Failed to fetch your OpenAPI document. The Agent key may be invalid.', 'error')
       return
     }
 

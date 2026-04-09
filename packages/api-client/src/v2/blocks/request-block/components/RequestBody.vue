@@ -4,15 +4,21 @@ import { CONTENT_TYPES } from '@scalar/helpers/consts/content-types'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
+import {
+  getExampleFromBody,
+  getSelectedBodyContentType,
+} from '@scalar/workspace-store/request-example'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  RequestBodyObject,
+  SchemaObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { useFileDialog } from '@/hooks'
-import { getSelectedBodyContentType } from '@/v2/blocks/operation-block/helpers/get-selected-body-content-type'
 import RequestBodyForm from '@/v2/blocks/request-block/components/RequestBodyForm.vue'
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
-import { getExampleFromBody } from '@/v2/blocks/request-block/helpers/get-request-body-example'
 import { CodeInput } from '@/v2/components/code-input'
 import {
   DataTable,
@@ -21,7 +27,13 @@ import {
 } from '@/v2/components/data-table'
 import { CollapsibleSection } from '@/v2/components/layout'
 
-const { requestBody, exampleKey, environment, title } = defineProps<{
+const {
+  requestBody,
+  exampleKey,
+  environment,
+  requestBodyCompositionSelection,
+  title,
+} = defineProps<{
   /** Request body */
   requestBody?: RequestBodyObject
   /** Currently selected example key for the current operation */
@@ -30,6 +42,8 @@ const { requestBody, exampleKey, environment, title } = defineProps<{
   title: string
   /** Selected environment */
   environment: XScalarEnvironment
+  /** Selected anyOf/oneOf request-body variants keyed by schema path */
+  requestBodyCompositionSelection?: Record<string, number>
 }>()
 
 const emits = defineEmits<{
@@ -100,7 +114,12 @@ function handleFileUpload(callback: (file: File) => void) {
 const example = computed(
   () =>
     requestBody &&
-    getExampleFromBody(requestBody, selectedContentType.value, exampleKey),
+    getExampleFromBody(
+      requestBody,
+      selectedContentType.value,
+      exampleKey,
+      requestBodyCompositionSelection,
+    ),
 )
 
 /** Convert the example value to a string for the code editor */
@@ -115,6 +134,13 @@ const bodyValue = computed(() => {
   }
 
   return JSON.stringify(value, null, 2)
+})
+
+/** Resolved schema for the request body */
+const bodySchema = computed<SchemaObject | undefined>(() => {
+  return resolve.schema(
+    requestBody?.content?.[selectedContentType.value]?.schema,
+  )
 })
 </script>
 <template>
@@ -211,6 +237,7 @@ const bodyValue = computed(() => {
             selectedContentType === 'application/x-www-form-urlencoded'
           ">
           <RequestBodyForm
+            :bodySchema
             :environment
             :example
             :selectedContentType

@@ -152,15 +152,28 @@ function generateMultipartFormDataCode(postData: any): string {
   let code = 'let content = new MultipartFormDataContent()\n'
 
   let fileIndex = 0
+  let stringContentIndex = 0
   for (const param of postData.params) {
     if (param.value === 'BINARY') {
       const escapedFileName = escapeString(param.fileName ?? '')
       code += `let fileStreamContent_${fileIndex} = new StreamContent(File.OpenRead("${escapedFileName}"))\n`
-      code += `fileStreamContent_${fileIndex}.Headers.ContentType <- MediaTypeHeaderValue("${escapeString(param.contentType ?? '')}")\n`
+      if (param.contentType) {
+        code += `fileStreamContent_${fileIndex}.Headers.ContentType <- MediaTypeHeaderValue("${escapeString(param.contentType)}")\n`
+      }
       code += `content.Add(fileStreamContent_${fileIndex}, "${escapedFileName}", "${escapedFileName}")\n`
       fileIndex++
     } else {
-      code += `content.Add(new StringContent("${escapeString(param.value ?? '')}"), "${escapeString(param.name ?? '')}")\n`
+      const escapedName = escapeString(param.name ?? '')
+      const escapedValue = escapeString(param.value ?? '')
+
+      if (param.contentType) {
+        code += `let stringContent_${stringContentIndex} = new StringContent("${escapedValue}")\n`
+        code += `stringContent_${stringContentIndex}.Headers.ContentType <- MediaTypeHeaderValue("${escapeString(param.contentType)}")\n`
+        code += `content.Add(stringContent_${stringContentIndex}, "${escapedName}")\n`
+        stringContentIndex++
+      } else {
+        code += `content.Add(new StringContent("${escapedValue}"), "${escapedName}")\n`
+      }
     }
   }
   return code

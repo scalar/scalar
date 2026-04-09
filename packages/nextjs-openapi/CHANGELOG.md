@@ -1,5 +1,108 @@
 # @scalar/nextjs-openapi
 
+## 0.3.7
+
+## 0.3.6
+
+## 0.3.5
+
+## 0.3.4
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.3.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.3**
+
+- **@scalar/nextjs-api-reference@0.10.3**
+
+## 0.3.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.2**
+
+- **@scalar/nextjs-api-reference@0.10.2**
+
+## 0.3.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.1**
+  - [#8381](https://github.com/scalar/scalar/pull/8381): feat: add mcp config support
+
+- **@scalar/nextjs-api-reference@0.10.1**
+
+## 0.3.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/ts-to-openapi@0.2.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+- **@scalar/nextjs-api-reference@0.10.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+- **@scalar/types@0.7.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.2.52
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.10**
+
+- **@scalar/nextjs-api-reference@0.9.26**
+
+## 0.2.51
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.9**
+
+- **@scalar/nextjs-api-reference@0.9.25**
+
+## 0.2.50
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.8**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+
+- **@scalar/nextjs-api-reference@0.9.24**
+
+## 0.2.49
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.7**
+
+- **@scalar/nextjs-api-reference@0.9.23**
+
 ## 0.2.48
 
 ### Patch Changes

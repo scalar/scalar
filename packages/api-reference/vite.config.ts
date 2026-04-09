@@ -1,21 +1,29 @@
-import { URL, fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 
-import { createViteBuildOptions } from '@scalar/build-tooling/vite'
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 
+import {
+  createExternalsFromPackageJson,
+  createLibEntry,
+  createPreserveModulesOutput,
+} from '../../tooling/scripts/vite-lib-config'
 import { version } from './package.json'
 
+const external = createExternalsFromPackageJson()
+
 const entries = [
-  'src/index.ts',
-  'src/components/index.ts',
-  'src/blocks/index.ts',
-  'src/hooks/index.ts',
-  'src/plugins/index.ts',
-  'src/features/index.ts',
-  'src/helpers/index.ts',
+  './src/index.ts',
+  './src/components/index.ts',
+  './src/blocks/index.ts',
+  './src/hooks/index.ts',
+  './src/plugins/index.ts',
+  './src/features/index.ts',
+  './src/helpers/index.ts',
 ]
+
+const entry = createLibEntry(entries, import.meta.dirname)
 
 export default defineConfig({
   plugins: [vue(), tailwindcss()],
@@ -31,20 +39,28 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '@test': fileURLToPath(new URL('./test', import.meta.url)),
+      '@': resolve(import.meta.dirname, './src'),
+      '@test': resolve(import.meta.dirname, './test'),
     },
     dedupe: ['vue'],
   },
-  build: createViteBuildOptions({
-    entry: entries,
-    options: {
-      minify: false,
-      emptyOutDir: true,
-      cssCodeSplit: false,
-      rollupOptions: {
-        plugins: [],
-      },
+  build: {
+    outDir: './dist',
+    minify: false,
+    emptyOutDir: true,
+    cssCodeSplit: false,
+    sourcemap: true,
+    lib: {
+      formats: ['es'],
+      cssFileName: 'style',
+      entry,
     },
-  }),
+    rolldownOptions: {
+      treeshake: {
+        moduleSideEffects: (id) => id.includes('.css'),
+      },
+      external,
+      output: createPreserveModulesOutput(),
+    },
+  },
 })

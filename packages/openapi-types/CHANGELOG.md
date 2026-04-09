@@ -1,5 +1,33 @@
 # @scalar/openapi-types
 
+## 0.7.0
+
+### Minor Changes
+
+- [#8641](https://github.com/scalar/scalar/pull/8641): remove experimental zod schema entrypoints from openapi-types
+
+### Patch Changes
+
+- [#8664](https://github.com/scalar/scalar/pull/8664): refactor: replace wildcard export barrels with explicit named re-exports
+
+## 0.6.1
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.6.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.5.4
+
+### Patch Changes
+
+- [#8275](https://github.com/scalar/scalar/pull/8275): fix(openapi-types): make the `$ref` property in the `ReferenceObject` type required
+
 ## 0.5.3
 
 ### Patch Changes

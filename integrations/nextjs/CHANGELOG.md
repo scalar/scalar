@@ -1,5 +1,86 @@
 # @scalar/nextjs-api-reference
 
+## 0.10.7
+
+## 0.10.6
+
+## 0.10.5
+
+## 0.10.4
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.10.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.4.3**
+
+## 0.10.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.4.2**
+
+## 0.10.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.4.1**
+
+## 0.10.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.4.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.9.26
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.45**
+
+## 0.9.25
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.44**
+
+## 0.9.24
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.43**
+
+## 0.9.23
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.42**
+
 ## 0.9.22
 
 ### Patch Changes

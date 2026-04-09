@@ -49,6 +49,9 @@ const canAddTag = (): boolean => item.type === 'document'
 /** Returns whether the item supports editing tags */
 const canEditTag = (): boolean => item.type === 'tag'
 
+/** Returns whether the item supports editing examples */
+const canEditExample = (): boolean => item.type === 'example'
+
 /** Returns whether the item supports adding examples */
 const canAddExample = (): boolean => item.type === 'operation'
 
@@ -121,6 +124,25 @@ const handleAddExample = () => {
     })
   }
 }
+
+const handleEditExample = () => {
+  if (item.type === 'example') {
+    const itemWithParent = sidebarState.getEntryById(item.id)
+    const parentOperation = getParentEntry('operation', itemWithParent)
+    eventBus.emit(
+      'ui:open:command-palette',
+      {
+        action: 'edit-example',
+        payload: {
+          example: item,
+          documentName: getParentEntry('document', itemWithParent)?.name ?? '',
+          operationId: parentOperation?.id ?? '',
+        },
+      } as any,
+      { skipUnpackProxy: true },
+    )
+  }
+}
 </script>
 <template>
   <ScalarDropdown
@@ -163,6 +185,16 @@ const handleAddExample = () => {
         </div>
       </ScalarDropdownItem>
 
+      <!-- Edit example option for examples only -->
+      <ScalarDropdownItem
+        v-if="canEditExample()"
+        @click="handleEditExample()">
+        <div class="flex items-center gap-2">
+          <ScalarIconPencil size="sm" />
+          Rename Example
+        </div>
+      </ScalarDropdownItem>
+
       <!-- Add example option for operations -->
       <ScalarDropdownItem
         v-if="canAddExample()"
@@ -176,7 +208,11 @@ const handleAddExample = () => {
       </ScalarDropdownItem>
       <ScalarDropdownDivider
         v-if="
-          (canAddExample() || canAddOperation() || canAddTag()) && canDelete()
+          (canAddExample() ||
+            canAddOperation() ||
+            canAddTag() ||
+            canEditExample()) &&
+          canDelete()
         " />
       <ScalarDropdownItem
         v-if="canDelete()"

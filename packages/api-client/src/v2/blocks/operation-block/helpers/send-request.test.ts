@@ -1,5 +1,3 @@
-import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { sendRequest } from './send-request'
@@ -12,17 +10,6 @@ afterEach(() => {
 })
 
 describe('sendRequest', () => {
-  const createMockOperation = (overrides: Partial<OperationObject> = {}): OperationObject =>
-    ({
-      operationId: 'test-operation',
-      summary: 'Test operation',
-      description: 'Test operation description',
-      tags: [],
-      parameters: [],
-      responses: {},
-      ...overrides,
-    }) as OperationObject
-
   /**
    * Adds a URL property to a Response object and ensures it persists through cloning.
    * This is needed because Response objects created in tests don't have a URL by default.
@@ -90,15 +77,12 @@ describe('sendRequest', () => {
 
   it('sends a basic request and returns response data', async () => {
     const request = new Request(MOCK_URL)
-    const operation = createMockOperation()
 
     globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      operation,
       request,
-      plugins: [],
     })
 
     expect(error).toBe(null)
@@ -119,8 +103,6 @@ describe('sendRequest', () => {
       method: 'POST',
       body: JSON.stringify({ test: 'data' }),
     })
-    const operation = createMockOperation()
-
     const mockResponse = addUrlToResponse(
       new Response(
         JSON.stringify({
@@ -140,9 +122,7 @@ describe('sendRequest', () => {
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      operation,
       request,
-      plugins: [],
     })
 
     expect(error).toBe(null)
@@ -162,15 +142,12 @@ describe('sendRequest', () => {
     url.searchParams.set('test', 'value')
 
     const request = new Request(url.toString())
-    const operation = createMockOperation()
 
     globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      operation,
       request,
-      plugins: [],
     })
 
     expect(error).toBe(null)
@@ -191,15 +168,12 @@ describe('sendRequest', () => {
         'Content-Type': 'application/json',
       },
     })
-    const operation = createMockOperation()
 
     globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      operation,
       request,
-      plugins: [],
     })
 
     expect(error).toBe(null)
@@ -226,13 +200,9 @@ describe('sendRequest', () => {
 
     globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
-    const operation = createMockOperation()
-
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      operation,
       request,
-      plugins: [],
     })
 
     expect(error).toBe(null)
@@ -245,7 +215,6 @@ describe('sendRequest', () => {
 
   it('handles 204 No Content responses', async () => {
     const request = new Request(`${MOCK_URL}/204`)
-    const operation = createMockOperation()
 
     const mockResponse = addUrlToResponse(
       new Response(null, {
@@ -259,9 +228,7 @@ describe('sendRequest', () => {
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      operation,
       request,
-      plugins: [],
     })
 
     expect(error).toBe(null)
@@ -284,13 +251,9 @@ describe('sendRequest', () => {
 
     globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
-    const operation = createMockOperation()
-
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      operation,
       request,
-      plugins: [],
     })
 
     expect(error).toBe(null)
@@ -312,13 +275,9 @@ describe('sendRequest', () => {
 
     globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
-    const operation = createMockOperation()
-
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      operation,
       request,
-      plugins: [],
     })
 
     expect(error).toBe(null)
@@ -340,13 +299,9 @@ describe('sendRequest', () => {
 
     globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
-    const operation = createMockOperation()
-
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      operation,
       request,
-      plugins: [],
     })
 
     expect(error).toBe(null)
@@ -368,13 +323,9 @@ describe('sendRequest', () => {
 
     globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
-    const operation = createMockOperation()
-
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      operation,
       request,
-      plugins: [],
     })
 
     expect(error).toBe(null)
@@ -407,13 +358,10 @@ describe('sendRequest', () => {
     globalFetchSpy.mockResolvedValueOnce(mockResponse as Response)
 
     const request = new Request(MOCK_URL)
-    const operation = createMockOperation()
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      operation,
       request,
-      plugins: [],
     })
 
     expect(error).toBe(null)
@@ -425,15 +373,12 @@ describe('sendRequest', () => {
 
   it('calculates response duration', async () => {
     const request = new Request(MOCK_URL)
-    const operation = createMockOperation()
 
     globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      operation,
       request,
-      plugins: [],
     })
 
     expect(error).toBe(null)
@@ -446,15 +391,12 @@ describe('sendRequest', () => {
 
   it('includes response size in bytes', async () => {
     const request = new Request(MOCK_URL)
-    const operation = createMockOperation()
 
     globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      operation,
       request,
-      plugins: [],
     })
 
     expect(error).toBe(null)
@@ -485,13 +427,9 @@ describe('sendRequest', () => {
 
     globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
-    const operation = createMockOperation()
-
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      operation,
       request,
-      plugins: [],
     })
 
     expect(error).toBe(null)
@@ -513,13 +451,9 @@ describe('sendRequest', () => {
 
     globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
-    const operation = createMockOperation()
-
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      operation,
       request,
-      plugins: [],
     })
 
     expect(error).toBe(null)
@@ -554,13 +488,9 @@ describe('sendRequest', () => {
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
-      const operation = createMockOperation()
-
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        operation,
         request,
-        plugins: [],
       })
 
       expect(error).toBe(null)
@@ -598,13 +528,9 @@ describe('sendRequest', () => {
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
-      const operation = createMockOperation()
-
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        operation,
         request,
-        plugins: [],
       })
 
       expect(error).toBe(null)
@@ -628,13 +554,9 @@ describe('sendRequest', () => {
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
-      const operation = createMockOperation()
-
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        operation,
         request,
-        plugins: [],
       })
 
       expect(error).toBe(null)
@@ -647,230 +569,15 @@ describe('sendRequest', () => {
     })
   })
 
-  describe('plugin hooks', () => {
-    it('executes beforeRequest hook when plugins are provided', async () => {
-      const beforeRequestMock = vi.fn().mockResolvedValue(undefined)
-      const mockPlugin: ClientPlugin = {
-        hooks: {
-          beforeRequest: beforeRequestMock,
-        },
-      }
-
-      const request = new Request(MOCK_URL)
-      const operation = createMockOperation()
-
-      globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
-
-      await sendRequest({
-        isUsingProxy: false,
-        operation,
-        request,
-        plugins: [mockPlugin],
-      })
-
-      expect(beforeRequestMock).toHaveBeenCalledWith({ request })
-      expect(beforeRequestMock).toHaveBeenCalledTimes(1)
-    })
-
-    it('executes beforeRequest hook before making the request', async () => {
-      const HEADER_NAME = 'X-Test-Header'
-      const HEADER_VALUE = 'test-value'
-
-      const beforeRequestMock = vi.fn().mockImplementation(async (req: { request: Request }) => {
-        await new Promise((resolve) => setTimeout(resolve, 1))
-        req.request.headers.append(HEADER_NAME, HEADER_VALUE)
-        return req
-      })
-
-      const mockPlugin: ClientPlugin = {
-        hooks: {
-          beforeRequest: beforeRequestMock,
-        },
-      }
-
-      const request = new Request(MOCK_URL)
-      const operation = createMockOperation()
-
-      // Mock fetch to create response dynamically based on the modified request
-      globalFetchSpy.mockImplementation((input: string | Request | URL) => {
-        const req = input instanceof Request ? input : new Request(input.toString())
-        return Promise.resolve(createMockEchoResponse(req))
-      })
-
-      const [error, result] = await sendRequest({
-        isUsingProxy: false,
-        operation,
-        request,
-        plugins: [mockPlugin],
-      })
-
-      expect(error).toBe(null)
-      expect(beforeRequestMock).toHaveBeenCalled()
-      if (!result || !('data' in result.response)) {
-        throw new Error('No data')
-      }
-      const responseData = JSON.parse(result.response.data as string)
-      expect(responseData.headers[HEADER_NAME.toLowerCase()]).toBe(HEADER_VALUE)
-    })
-
-    it('executes responseReceived hook when plugins are provided', async () => {
-      const responseReceivedMock = vi.fn().mockResolvedValue(undefined)
-      const mockPlugin: ClientPlugin = {
-        hooks: {
-          responseReceived: responseReceivedMock,
-        },
-      }
-
-      const request = new Request(MOCK_URL)
-      const operation = createMockOperation()
-
-      globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
-
-      await sendRequest({
-        isUsingProxy: false,
-        operation,
-        request,
-        plugins: [mockPlugin],
-      })
-
-      expect(responseReceivedMock).toHaveBeenCalledWith({
-        response: expect.any(Response),
-        request: expect.any(Request),
-        operation,
-      })
-      expect(responseReceivedMock).toHaveBeenCalledTimes(1)
-    })
-
-    it('executes responseReceived hook after receiving response', async () => {
-      const HEADER_NAME = 'X-Response-Header'
-      const HEADER_VALUE = 'response-value'
-
-      let capturedResponse: Response | undefined
-
-      const responseReceivedMock = vi.fn().mockImplementation(async ({ response }) => {
-        capturedResponse = response
-        await new Promise((resolve) => setTimeout(resolve, 1))
-        response.headers.append(HEADER_NAME, HEADER_VALUE)
-      })
-
-      const mockPlugin: ClientPlugin = {
-        hooks: {
-          responseReceived: responseReceivedMock,
-        },
-      }
-
-      const request = new Request(MOCK_URL)
-      const operation = createMockOperation()
-
-      globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
-
-      const [error] = await sendRequest({
-        isUsingProxy: false,
-        operation,
-        request,
-        plugins: [mockPlugin],
-      })
-
-      expect(error).toBe(null)
-      expect(responseReceivedMock).toHaveBeenCalled()
-      expect(capturedResponse).toBeInstanceOf(Response)
-      expect(capturedResponse!.headers.get(HEADER_NAME)).toBe(HEADER_VALUE)
-    })
-
-    it('executes multiple plugins in order', async () => {
-      const executionOrder: string[] = []
-
-      const plugin1: ClientPlugin = {
-        hooks: {
-          beforeRequest: vi.fn().mockImplementation((req: Request) => {
-            executionOrder.push('plugin-1-before')
-            return req
-          }),
-          responseReceived: vi.fn().mockImplementation(() => {
-            executionOrder.push('plugin-1-after')
-          }),
-        },
-      }
-
-      const plugin2: ClientPlugin = {
-        hooks: {
-          beforeRequest: vi.fn().mockImplementation((req: Request) => {
-            executionOrder.push('plugin-2-before')
-            return req
-          }),
-          responseReceived: vi.fn().mockImplementation(() => {
-            executionOrder.push('plugin-2-after')
-          }),
-        },
-      }
-
-      const request = new Request(MOCK_URL)
-      const operation = createMockOperation()
-
-      globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
-
-      await sendRequest({
-        isUsingProxy: false,
-        operation,
-        request,
-        plugins: [plugin1, plugin2],
-      })
-
-      expect(executionOrder).toEqual(['plugin-1-before', 'plugin-2-before', 'plugin-1-after', 'plugin-2-after'])
-    })
-
-    it('does not fail when plugins array is empty', async () => {
-      const request = new Request(MOCK_URL)
-      const operation = createMockOperation()
-
-      globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
-
-      const [error, result] = await sendRequest({
-        isUsingProxy: false,
-        operation,
-        request,
-        plugins: [],
-      })
-
-      expect(error).toBe(null)
-      expect(result).toBeDefined()
-    })
-
-    it('handles plugin errors gracefully', async () => {
-      const mockPlugin: ClientPlugin = {
-        hooks: {
-          beforeRequest: vi.fn().mockRejectedValue(new Error('Plugin failed')),
-        },
-      }
-
-      const request = new Request(MOCK_URL)
-      const operation = createMockOperation()
-
-      const [error, result] = await sendRequest({
-        isUsingProxy: false,
-        operation,
-        request,
-        plugins: [mockPlugin],
-      })
-
-      expect(error).not.toBe(null)
-      expect(result).toBe(null)
-      expect(error?.message).toContain('Plugin failed')
-    })
-  })
-
   describe('error handling', () => {
     it('handles network errors', async () => {
       globalFetchSpy.mockRejectedValueOnce(new Error('Network error'))
 
       const request = new Request(MOCK_URL)
-      const operation = createMockOperation()
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        operation,
         request,
-        plugins: [],
       })
 
       expect(error).not.toBe(null)
@@ -882,13 +589,10 @@ describe('sendRequest', () => {
       globalFetchSpy.mockRejectedValueOnce(new TypeError('Failed to fetch'))
 
       const request = new Request(MOCK_URL)
-      const operation = createMockOperation()
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        operation,
         request,
-        plugins: [],
       })
 
       expect(error).not.toBe(null)
@@ -907,13 +611,10 @@ describe('sendRequest', () => {
       globalFetchSpy.mockResolvedValueOnce(mockResponse as Response)
 
       const request = new Request(MOCK_URL)
-      const operation = createMockOperation()
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        operation,
         request,
-        plugins: [],
       })
 
       expect(error).not.toBe(null)
@@ -936,13 +637,9 @@ describe('sendRequest', () => {
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
-      const operation = createMockOperation()
-
       const [error, result] = await sendRequest({
         isUsingProxy: true,
-        operation,
         request,
-        plugins: [],
       })
 
       expect(error).toBe(null)
@@ -966,13 +663,9 @@ describe('sendRequest', () => {
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
-      const operation = createMockOperation()
-
       const [error, result] = await sendRequest({
         isUsingProxy: true,
-        operation,
         request,
-        plugins: [],
       })
 
       expect(error).toBe(null)
@@ -998,13 +691,9 @@ describe('sendRequest', () => {
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
-      const operation = createMockOperation()
-
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        operation,
         request,
-        plugins: [],
       })
 
       expect(error).toBe(null)
@@ -1028,13 +717,9 @@ describe('sendRequest', () => {
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
-      const operation = createMockOperation()
-
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        operation,
         request,
-        plugins: [],
       })
 
       expect(error).toBe(null)
@@ -1059,13 +744,9 @@ describe('sendRequest', () => {
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
-      const operation = createMockOperation()
-
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        operation,
         request,
-        plugins: [],
       })
 
       expect(error).toBe(null)
@@ -1090,13 +771,9 @@ describe('sendRequest', () => {
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
-      const operation = createMockOperation()
-
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        operation,
         request,
-        plugins: [],
       })
 
       expect(error).toBe(null)
@@ -1118,13 +795,9 @@ describe('sendRequest', () => {
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
-      const operation = createMockOperation()
-
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        operation,
         request,
-        plugins: [],
       })
 
       expect(error).toBe(null)
@@ -1138,15 +811,11 @@ describe('sendRequest', () => {
   describe('path extraction', () => {
     it('extracts path from response URL', async () => {
       const request = new Request(`${MOCK_URL}/api/users`)
-      const operation = createMockOperation()
-
       globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        operation,
         request,
-        plugins: [],
       })
 
       expect(error).toBe(null)
@@ -1158,15 +827,12 @@ describe('sendRequest', () => {
 
     it('includes query parameters in path', async () => {
       const request = new Request(`${MOCK_URL}/api/users?page=1&limit=10`)
-      const operation = createMockOperation()
 
       globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        operation,
         request,
-        plugins: [],
       })
 
       expect(error).toBe(null)
@@ -1178,15 +844,12 @@ describe('sendRequest', () => {
 
     it('handles root path', async () => {
       const request = new Request(MOCK_URL)
-      const operation = createMockOperation()
 
       globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        operation,
         request,
-        plugins: [],
       })
 
       expect(error).toBe(null)
@@ -1202,15 +865,12 @@ describe('sendRequest', () => {
       const beforeTime = Date.now()
 
       const request = new Request(MOCK_URL)
-      const operation = createMockOperation()
 
       globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        operation,
         request,
-        plugins: [],
       })
 
       const afterTime = Date.now()

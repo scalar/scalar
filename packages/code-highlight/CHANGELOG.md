@@ -1,5 +1,29 @@
 # @scalar/code-highlight
 
+## 0.3.2
+
+### Patch Changes
+
+- [#8664](https://github.com/scalar/scalar/pull/8664): refactor: replace wildcard export barrels with explicit named re-exports
+
+## 0.3.1
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.3.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.2.4
+
+### Patch Changes
+
+- [#8248](https://github.com/scalar/scalar/pull/8248): feat: slugs for headings with nested content
+
 ## 0.2.3
 
 ### Patch Changes

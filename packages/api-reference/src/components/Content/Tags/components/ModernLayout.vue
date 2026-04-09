@@ -3,7 +3,6 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { computed, useId } from 'vue'
 
-import Lazy from '@/components/Lazy/Lazy.vue'
 import { SectionContainer } from '@/components/Section'
 import ShowMoreButton from '@/components/ShowMoreButton.vue'
 
@@ -31,28 +30,25 @@ const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
     :aria-labelledby="headerId"
     class="tag-section-container"
     role="region">
-    <!-- Lazy load this part -->
-    <Lazy :id="tag.id">
-      <TagSection
-        v-if="moreThanOneDefaultTag"
-        :eventBus="eventBus"
-        :headerId="headerId"
-        :isCollapsed="isCollapsed"
-        :isLoading="isLoading"
-        :tag="tag" />
-      <ShowMoreButton
-        v-if="isCollapsed && moreThanOneTag && hasChildren"
-        :id="tag.id"
-        :aria-label="`Show all ${tag.title} endpoints`"
-        @click="
-          () => eventBus?.emit('toggle:nav-item', { id: tag.id, open: true })
-        " />
-    </Lazy>
+    <TagSection
+      v-if="moreThanOneDefaultTag"
+      :eventBus="eventBus"
+      :headerId="headerId"
+      :isCollapsed="isCollapsed"
+      :isLoading="isLoading"
+      :tag="tag" />
+    <ShowMoreButton
+      v-if="isCollapsed && moreThanOneTag && hasChildren"
+      :id="tag.id"
+      :aria-label="`Show all ${tag.title} endpoints`"
+      @click="
+        () => eventBus?.emit('toggle:nav-item', { id: tag.id, open: true })
+      " />
 
-    <!-- We cannot use v-else due to the Lazy wrapper, but its the opposite of above -->
+    <!-- Show slot when section is expanded or single-tag (inverse of ShowMoreButton visibility). -->
     <div
       v-if="!(isCollapsed && moreThanOneTag)"
-      class="contents">
+      class="contents divide-y">
       <slot />
     </div>
   </SectionContainer>

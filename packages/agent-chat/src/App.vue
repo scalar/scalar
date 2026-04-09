@@ -7,6 +7,7 @@ import { type ChatMode } from '@/types'
 
 const {
   dashboardUrl,
+  platformProxyUrl,
   registryDocuments,
   registryUrl,
   baseUrl,
@@ -16,10 +17,12 @@ const {
   getActiveDocumentJson,
   isLoggedIn,
   prefilledMessage,
+  hideAddApi,
 } = defineProps<{
   registryDocuments: RegistryDocument[]
   registryUrl: string
   dashboardUrl: string
+  platformProxyUrl: string
   baseUrl: string
   mode?: ChatMode
   getAccessToken?: () => string
@@ -27,6 +30,7 @@ const {
   getActiveDocumentJson?: () => string
   isLoggedIn?: Ref<boolean>
   prefilledMessage?: Ref<string>
+  hideAddApi?: boolean
 }>()
 
 defineEmits<{
@@ -37,6 +41,7 @@ const state = createState({
   getActiveDocumentJson,
   initialRegistryDocuments: registryDocuments,
   prefilledMessageRef: prefilledMessage,
+  platformProxyUrl,
   registryUrl,
   baseUrl,
   mode,
@@ -44,6 +49,7 @@ const state = createState({
   getAgentKey,
   isLoggedIn,
   dashboardUrl,
+  hideAddApi,
 })
 
 provide(STATE_SYMBOL, state)

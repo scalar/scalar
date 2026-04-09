@@ -4,14 +4,17 @@ import { mergeObjects } from '@/helpers/merge-object'
 import type { WorkspaceDocument } from '@/schemas'
 
 /**
- * Toggle setting selected security schemes at the operation level
+ * Updates extension fields on the document (e.g. x-pre-request, x-post-response).
+ * Merges the payload into the document root.
  */
-export const toggleSecurity = (document: WorkspaceDocument | null) => {
+export const updateDocumentExtension = (
+  document: WorkspaceDocument | null,
+  payload: DocumentEvents['document:update:extension'],
+) => {
   if (!document) {
     return
   }
-
-  document['x-scalar-set-operation-security'] = !document['x-scalar-set-operation-security']
+  mergeObjects(document, payload)
 }
 
 /**
@@ -53,8 +56,9 @@ export const updateDocumentInfo = (
 
   // Update the document title if it is present and the navigation object is present
   // We do this because we don't want to rebuild the entire navigation object if only the title is changed
-  if (payload.title && document['x-scalar-navigation']) {
-    document['x-scalar-navigation'].title = payload.title
+  // Normalize like traverseDocument: trim and treat whitespace-only as empty so we show "Untitled Document"
+  if (document['x-scalar-navigation'] && payload.title !== undefined) {
+    document['x-scalar-navigation'].title = payload.title?.trim() || 'Untitled Document'
   }
 }
 
@@ -140,7 +144,8 @@ export const documentMutatorsFactory = ({
   store: WorkspaceStore | null
 }) => {
   return {
-    toggleSecurity: () => toggleSecurity(document),
+    updateDocumentExtension: (payload: DocumentEvents['document:update:extension']) =>
+      updateDocumentExtension(document, payload),
     updateDocumentInfo: (payload: DocumentEvents['document:update:info']) => updateDocumentInfo(document, payload),
     updateWatchMode: (payload: DocumentEvents['document:update:watch-mode']) => updateWatchMode(document, payload),
     updateDocumentIcon: (payload: DocumentEvents['document:update:icon']) => updateDocumentIcon(document, payload),

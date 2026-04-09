@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { ScalarIconButton, ScalarLoading } from '@scalar/components'
+import {
+  ScalarIconButton,
+  ScalarLoading,
+  ScalarTooltip,
+} from '@scalar/components'
 import {
   ScalarIconArrowUp,
   ScalarIconCheck,
@@ -169,30 +173,32 @@ const chatError = useChatError()
         class="prompt custom-scroll"
         :disabled="state.loading.value"
         name="prompt"
-        placeholder="Ask me anything..."
+        placeholder="Ask me anything…"
         @keydown="handlePromptKeydown" />
       <div class="inputActionsContainer">
         <div class="inputActionsLeft">
-          <SearchPopover v-if="!state.isLoggedIn?.value">
-            <button
-              class="addAPIButton"
-              type="button">
-              <ScalarIconPlus
-                class="size-4"
-                weight="bold" />
-            </button>
-          </SearchPopover>
-          <ActionsDropdown
-            v-else
-            @uploadApi="$emit('uploadApi')">
-            <button
-              class="addAPIButton"
-              type="button">
-              <ScalarIconPlus
-                class="size-4"
-                weight="bold" />
-            </button>
-          </ActionsDropdown>
+          <template v-if="!state.hideAddApi">
+            <SearchPopover v-if="!state.isLoggedIn?.value">
+              <button
+                class="addAPIButton"
+                type="button">
+                <ScalarIconPlus
+                  class="size-4"
+                  weight="bold" />
+              </button>
+            </SearchPopover>
+            <ActionsDropdown
+              v-else
+              @uploadApi="$emit('uploadApi')">
+              <button
+                class="addAPIButton"
+                type="button">
+                <ScalarIconPlus
+                  class="size-4"
+                  weight="bold" />
+              </button>
+            </ActionsDropdown>
+          </template>
           <div
             v-for="document in state.registryDocuments.value"
             :key="document.id"
@@ -215,14 +221,17 @@ const chatError = useChatError()
         </div>
 
         <div class="inputActionsRight">
-          <ScalarIconButton
-            v-if="!state.loading.value"
-            class="settingsButton h-7 w-7 p-1.5"
-            :icon="ScalarIconLockSimple"
-            label="Scalar"
-            size="md"
-            weight="bold"
-            @click="state.settingsModal.show()" />
+          <template v-if="!state.loading.value">
+            <ScalarTooltip content="Settings">
+              <ScalarIconButton
+                class="settingsButton h-7 w-7 p-1.5"
+                :icon="ScalarIconLockSimple"
+                label="Scalar"
+                size="md"
+                weight="bold"
+                @click="state.settingsModal.show()" />
+            </ScalarTooltip>
+          </template>
           <div class="sendCheckboxContinue">
             <div
               v-if="!state.terms.accepted.value && state.mode === 'preview'"
@@ -268,11 +277,11 @@ const chatError = useChatError()
         </div>
       </div>
     </form>
-    <!-- we only show this before the first message gets populated in the chat -->
+
     <div
-      v-show="state.chat.messages.length <= 1"
+      v-if="state.chat.messages.length <= 1 && !state.hideAddApi"
       class="addMoreContext">
-      <span>Add context from dozens of API's</span>
+      <span>Load additional APIs</span>
       <div class="ml-auto flex items-center gap-1">
         <button
           v-for="doc of state.curatedDocuments.value"

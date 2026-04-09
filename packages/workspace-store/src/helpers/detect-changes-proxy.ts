@@ -3,6 +3,9 @@ import { isObject } from '@scalar/helpers/object/is-object'
 const isDetectChangesProxy = Symbol('isDetectChangesProxy')
 const detectChangesProxyTarget = Symbol('detectChangesProxyTarget')
 
+type OnBeforeChangeHook = (path: string[], value?: unknown) => void
+type OnAfterChangeHook = (path: string[], value?: unknown) => void
+
 /**
  * createDetectChangesProxy - Creates a proxy for an object or array that detects and triggers hooks on changes.
  *
@@ -30,8 +33,8 @@ export const createDetectChangesProxy = <T>(
   target: T,
   options?: {
     hooks: Partial<{
-      onBeforeChange: (path: string[], value: unknown) => void
-      onAfterChange: (path: string[], value: unknown) => void
+      onBeforeChange: OnBeforeChangeHook
+      onAfterChange: OnAfterChangeHook
     }>
   },
   args: {
@@ -81,6 +84,13 @@ export const createDetectChangesProxy = <T>(
       const result = Reflect.set(target, prop, value, receiver)
       // Call after-change hook if provided
       options?.hooks?.onAfterChange?.(path, value)
+      return result
+    },
+    deleteProperty(target, prop) {
+      const path = [...args.path, String(prop)]
+      options?.hooks?.onBeforeChange?.(path)
+      const result = Reflect.deleteProperty(target, prop)
+      options?.hooks?.onAfterChange?.(path)
       return result
     },
   })

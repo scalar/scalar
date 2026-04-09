@@ -18,6 +18,7 @@ toTest.forEach((source) => {
     const example = await serveExample(source)
     await page.goto(example)
 
+    await page.goto(`${example}#${slug}/tag/planets`)
     // Expand the tag
     const region = page.getByRole('region', { name: 'Planets' })
     if (isClassic(source)) {

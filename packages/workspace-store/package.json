@@ -16,20 +16,16 @@
     "openapi",
     "scalar"
   ],
-  "version": "0.34.2",
+  "version": "0.44.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "generate-json-schemas": "vite-node ./scripts/generate-json-schemas.ts",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "generate-json-schemas": "tsx ./scripts/generate-json-schemas.ts",
+    "generate-openapi-types": "tsx ./scripts/generate-openapi-types.ts",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "exports": {
@@ -82,6 +78,11 @@
       "import": "./dist/plugins/client/index.js",
       "types": "./dist/plugins/client/index.d.ts",
       "default": "./dist/plugins/client/index.js"
+    },
+    "./request-example": {
+      "import": "./dist/request-example/index.js",
+      "types": "./dist/request-example/index.d.ts",
+      "default": "./dist/request-example/index.js"
     },
     "./resolve": {
       "import": "./dist/resolve.js",
@@ -144,22 +145,21 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@scalar/code-highlight": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
-    "@scalar/object-utils": "workspace:*",
     "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/typebox": "catalog:*",
     "@scalar/types": "workspace:*",
-    "github-slugger": "^2.0.0",
+    "@scalar/validation": "workspace:*",
+    "github-slugger": "catalog:*",
+    "js-base64": "catalog:*",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
     "yaml": "catalog:*"
   },
   "devDependencies": {
     "@google-cloud/storage": "catalog:*",
-    "@scalar/build-tooling": "workspace:*",
     "fake-indexeddb": "catalog:*",
     "fastify": "catalog:*",
     "vite": "catalog:*",

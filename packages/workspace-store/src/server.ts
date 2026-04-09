@@ -1,6 +1,8 @@
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 
+import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
+import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
@@ -20,8 +22,7 @@ import {
   type PathsObject,
 } from '@/schemas/v3.1/strict/openapi-document'
 
-import { getValueByPath, parseJsonPointer } from './helpers/json-path-utils'
-import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/workspace'
+import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/workspace'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'
 export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
@@ -42,7 +43,7 @@ type CreateServerWorkspaceStoreBase = {
   meta?: WorkspaceMeta
   navigationOptions?: NavigationOptions
 }
-type CreateServerWorkspaceStore =
+type CreateServerWorkspaceStoreProps =
   | ({
       directory?: string
       mode: 'static'
@@ -197,6 +198,8 @@ export function externalizePathReferences(
   return result
 }
 
+type ServerWorkspace = Omit<Workspace, 'activeDocument'>
+
 /**
  * Resolves a workspace document from various input sources (URL, local file, or direct document object).
  *
@@ -235,9 +238,105 @@ function loadDocument(workspaceDocument: WorkspaceDocumentInput): ReturnType<Loa
 }
 
 /**
+ * Server workspace store interface
+ */
+export type ServerWorkspaceStore = {
+  /**
+   * Loads and registers a document in the workspace.
+   *
+   * Supported inputs include:
+   * - `url`: fetch and parse an OpenAPI document from a remote URL
+   * - `path`: read and parse an OpenAPI document from the filesystem
+   * - `document`: use an in-memory OpenAPI object directly
+   *
+   * If loading fails, the document is not added.
+   *
+   * @example
+   * ```ts
+   * await store.addDocument({
+   *   url: 'https://example.com/openapi.json',
+   *   name: 'petstore',
+   * })
+   *
+   * await store.addDocument({
+   *   path: './specs/billing.yaml',
+   *   name: 'billing',
+   * })
+   * ```
+   *
+   * @param input - Source and metadata used to load and register the document
+   */
+  addDocument: (input: WorkspaceDocumentInput, navigationOptions?: NavigationOptions) => Promise<void>
+  /**
+   * Generates chunk files for all loaded documents.
+   *
+   * Only available in `static` mode. Writes chunk files for:
+   * - workspace metadata
+   * - components (schemas, parameters, responses, etc.)
+   * - operations (grouped by path and HTTP method)
+   *
+   * After generation, workspace references point to relative file paths.
+   *
+   * @example
+   * ```ts
+   * const store = await createServerWorkspaceStore({
+   *   mode: 'static',
+   *   outputPath: './dist/workspace',
+   *   meta: { title: 'Docs' },
+   * })
+   *
+   * await store.generateWorkspaceChunks()
+   * ```
+   *
+   * @throws {Error} If called when mode is not 'static'
+   */
+  generateWorkspaceChunks: () => Promise<void>
+  /**
+   * Returns the current workspace payload.
+   *
+   * The payload contains workspace metadata plus sparse documents whose heavy
+   * sections are replaced by references:
+   * - in `ssr` mode, references resolve from in-memory assets
+   * - in `static` mode, references point to generated chunk files
+   *
+   * @example
+   * ```ts
+   * const workspace = store.getWorkspace()
+   *
+   * // Read available document names
+   * const names = Object.keys(workspace.documents)
+   * ```
+   *
+   * @returns Workspace metadata and document references used by the client
+   */
+  getWorkspace: () => ServerWorkspace
+  /**
+   * Resolves a chunk by JSON Pointer.
+   *
+   * Pointers can target component and operation chunks for loaded documents.
+   * Returns `undefined` when the pointer does not resolve.
+   *
+   * @example
+   * ```ts
+   * // Resolve a component chunk
+   * const userSchema = store.get('#/petstore/components/schemas/User')
+   *
+   * // Resolve an operation chunk
+   * const listPets = store.get('#/petstore/operations/pets/get')
+   * ```
+   *
+   * @param pointer - JSON Pointer to the desired chunk
+   * @returns The resolved chunk, or `undefined` when not found
+   */
+  get: (pointer: string) => unknown
+}
+
+/**
  * Create server state workspace store
  */
-export async function createServerWorkspaceStore(workspaceProps: CreateServerWorkspaceStore) {
+export async function createServerWorkspaceStore(
+  workspaceProps: CreateServerWorkspaceStoreProps,
+): Promise<ServerWorkspaceStore> {
   /**
    * Base workspace document containing essential metadata and document references.
    *
@@ -247,7 +346,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
    * In SSR mode, references point to API endpoints.
    * In static mode, references point to filesystem chunks.
    */
-  const workspace = {
+  const workspace: ServerWorkspace = {
     ...workspaceProps.meta,
     documents: {} as Record<string, OpenApiDocument & { [extensions.document.navigation]: TraversedDocument }>,
   }
@@ -278,7 +377,11 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
    * @param document - The OpenAPI document to process and add
    * @param meta - Document metadata containing the required name and optional settings
    */
-  const addDocumentSync = (document: Record<string, unknown>, meta: { name: string } & WorkspaceDocumentMeta) => {
+  const addDocumentSync = (
+    document: Record<string, unknown>,
+    meta: { name: string } & WorkspaceDocumentMeta,
+    navigationOptions?: NavigationOptions,
+  ) => {
     const { name, ...documentMeta } = meta
 
     const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document, '3.1'))
@@ -298,7 +401,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
     const paths = externalizePathReferences(documentV3, options)
 
     // Build the sidebar entries
-    const navigation = createNavigation(name, documentV3, workspaceProps.navigationOptions)
+    const navigation = createNavigation(name, documentV3, navigationOptions ?? workspaceProps.navigationOptions)
 
     // The document is now a minimal version with externalized references to components and operations.
     // These references will be resolved asynchronously when needed through the workspace's get() method.
@@ -321,7 +424,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
    *
    * @param input - The document input containing the document source and metadata
    */
-  const addDocument = async (input: WorkspaceDocumentInput) => {
+  const addDocument: ServerWorkspaceStore['addDocument'] = async (input, navigationOptions) => {
     const document = await loadDocument(input)
 
     if (!document.ok) {
@@ -329,25 +432,13 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
       return
     }
 
-    addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta })
+    addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta }, navigationOptions)
   }
 
   // Load and process all initial documents in parallel
   await Promise.all(workspaceProps.documents.map((document) => addDocument(document)))
 
   return {
-    /**
-     * Generates workspace chunks by writing components and operations to the filesystem.
-     *
-     * This method is only available in static mode. It creates a directory structure containing:
-     * - A workspace file with metadata and document references
-     * - Component chunks split by type (schemas, parameters, etc)
-     * - Operation chunks split by path and HTTP method
-     *
-     * The generated workspace references will be relative file paths pointing to these chunks.
-     *
-     * @throws {Error} If called when mode is not 'static'
-     */
     generateWorkspaceChunks: async () => {
       if (workspaceProps.mode !== 'static') {
         throw 'Mode has to be set to `static` to generate filesystem workspace chunks'
@@ -387,51 +478,30 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
         }
       }
     },
-    /**
-     * Returns the workspace document containing metadata and all sparse documents.
-     *
-     * The workspace document includes:
-     * - Global workspace metadata (theme, active document, etc)
-     * - Document metadata and sparse document
-     * - In SSR mode: References point to in-memory chunks
-     * - In static mode: References point to filesystem chunks
-     *
-     * @returns The complete workspace document
-     */
     getWorkspace: () => {
       return workspace
     },
-    /**
-     * Retrieves a chunk of data from the workspace using a JSON Pointer
-     *
-     * A JSON Pointer is a string that references a specific location in a JSON document.
-     * Only components and operations chunks can be retrieved.
-     *
-     * @example
-     * ```ts
-     * // Get a component
-     * get('#/document-name/components/schemas/User')
-     *
-     * // Get an operation
-     * get('#/document-name/operations/pets/get')
-     * ```
-     *
-     * @param pointer - The JSON Pointer string to locate the chunk
-     * @returns The chunk data if found, undefined otherwise
-     */
     get: (pointer: string) => {
-      return getValueByPath(assets, parseJsonPointer(pointer))
+      const pointerPath = (() => {
+        if (pointer.startsWith('#')) {
+          return pointer.slice(1)
+        }
+
+        if (pointer.startsWith('/')) {
+          return pointer
+        }
+
+        try {
+          return new URL(pointer).pathname
+        } catch {
+          return pointer
+        }
+      })()
+
+      // Keep the path segments escaped cuz we store them on the filesystem as escaped sequences
+      const path = parseJsonPointerSegments(pointerPath).map(escapeJsonPointer)
+      return getValueAtPath(assets, path)
     },
-    /**
-     * Adds a new document to the workspace asynchronously.
-     *
-     * This function:
-     * 1. Loads the document using the provided input
-     * 2. Checks if the document loaded successfully
-     * 3. If successful, adds the document to the workspace using addDocumentSync
-     *
-     * @param input - The document input containing the document source and metadata
-     */
     addDocument,
   }
 }

@@ -4,7 +4,7 @@ import json
 from enum import Enum
 from typing_extensions import Annotated, Doc, Literal
 from fastapi.responses import HTMLResponse
-from typing import List, Dict, Any, Union, Optional
+from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -405,10 +405,12 @@ def get_scalar_api_reference(
         ),
     ] = "",
     servers: Annotated[
-        list[dict[str, str]],
+        list[dict[str, Any]],
         Doc(
             """
-            A list of dictionaries with the keys being the server name and the value being the server URL.
+            List of OpenAPI Server Objects. Each item must have a required 'url' (string) and may have
+            optional 'description' (string) and 'variables' (map). Example:
+            [{"url": "https://api.example.com", "description": "Production"}].
             Default is [] which means no servers are provided.
             """
         ),
@@ -449,6 +451,16 @@ def get_scalar_api_reference(
             """
         ),
     ] = True,
+    order_schema_properties_by: Annotated[
+        Literal["alpha", "preserve"],
+        Doc(
+            """
+            The order to use for schema properties.
+            Use 'alpha' to sort alphabetically, or 'preserve' to keep the original order.
+            Default is 'alpha'.
+            """
+        ),
+    ] = "alpha",
     authentication: Annotated[
         dict,
         Doc(
@@ -635,6 +647,9 @@ def get_scalar_api_reference(
 
     if not order_required_properties_first:  # Default is True
         config["orderRequiredPropertiesFirst"] = order_required_properties_first
+
+    if order_schema_properties_by != "alpha":  # Default is alpha
+        config["orderSchemaPropertiesBy"] = order_schema_properties_by
 
     if authentication:  # Default is {}
         config["authentication"] = authentication

@@ -20,9 +20,9 @@
     "testing",
     "vue"
   ],
-  "version": "0.5.82",
+  "version": "0.6.21",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "cross-env NUXT_TELEMETRY_DISABLED=false pnpm dev:prepare && nuxt-module-build build",

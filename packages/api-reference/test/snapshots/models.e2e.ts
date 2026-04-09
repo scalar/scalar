@@ -21,6 +21,9 @@ toTest.forEach((source) => {
     // Narrow the viewport a bit for models
     await page.setViewportSize({ width: 800, height: 600 })
 
+    // Content is virtualized: navigate to the models section by id so it is rendered.
+    await page.goto(`${example}#${slug}/models`)
+
     const region = page.getByRole('region', { name: 'Models' })
     if (isClassic(source)) {
       await region.getByRole('button', { expanded: false }).click()
@@ -34,6 +37,7 @@ toTest.forEach((source) => {
     const models = await page.getByRole('region', { name: 'Models' })
 
     // Simple Model
+    await page.goto(`${example}#${slug}/model/user`)
     await models.getByRole('button', { name: 'User' }).click()
     const userModel = await models.getByRole('region', { name: 'User' })
     await expect(userModel).toHaveScreenshot(`${slug}-model-simple.png`)
@@ -49,6 +53,7 @@ toTest.forEach((source) => {
     await expect(nestedItem).toHaveScreenshot(`${slug}-model-nested.png`)
 
     // Discriminator
+    await page.goto(`${example}#${slug}/model/celestialbody`)
     await models.getByRole('button', { name: 'CelestialBody' }).click()
     const celestialBodyModel = await models.getByRole('region', { name: 'CelestialBody' })
     await celestialBodyModel.getByRole('button', { name: 'One of' }).click()

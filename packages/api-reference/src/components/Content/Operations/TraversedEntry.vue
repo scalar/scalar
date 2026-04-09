@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
-import type { MergedSecuritySchemes } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import type {
   TraversedEntry,
@@ -102,7 +102,8 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
   <Lazy
     v-for="entry in entries"
     :id="entry.id"
-    :key="`${entry.id}-${options.layout}`">
+    :key="`${entry.id}-${options.layout}`"
+    :expanded="!!expandedItems[entry.id]">
     <!-- Operation or Webhook -->
     <SectionContainer
       v-if="isOperation(entry) || isWebhook(entry)"
@@ -124,9 +125,11 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :server="selectedServer" />
     </SectionContainer>
 
-    <!-- Webhook Group or Tag -->
+    <!-- Webhook Group, Tag or Tag Group (only in classic layout) -->
     <Tag
-      v-else-if="isTag(entry)"
+      v-else-if="
+        isTag(entry) || (isTagGroup(entry) && options.layout === 'classic')
+      "
       :eventBus
       :isCollapsed="!expandedItems[entry.id]"
       :isLoading="false"
@@ -150,7 +153,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       </template>
     </Tag>
 
-    <!-- Tag Group -->
+    <!-- Display tag grop entries for modern layout (flattened) -->
     <TraversedEntry
       v-else-if="isTagGroup(entry)"
       :authStore

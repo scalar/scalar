@@ -29,7 +29,8 @@ class ScalarHtmlRendererTest {
                     .contains("<title>Scalar API Reference</title>")
                     .contains("<body>")
                     .contains("<div id=\"app\"></div>")
-                    .contains("Scalar.createApiReference('#app',");
+                    .contains("Scalar.createApiReference('#app',")
+                    .contains("src=\"scalar/scalar.js\"");
         }
 
         @Test
@@ -51,7 +52,18 @@ class ScalarHtmlRendererTest {
             String html = ScalarHtmlRenderer.render(properties);
             assertThat(html)
                     .isNotNull()
-                    .contains("/api/docs/scalar.js");
+                    .contains("src=\"docs/scalar.js\"");
+        }
+
+        @Test
+        @DisplayName("should render script URL with last path segment for context path deployment")
+        void shouldRenderScriptUrlWithLastSegmentForContextPath() throws IOException {
+            ScalarProperties properties = new ScalarProperties();
+            properties.setPath("/myapp/scalar-ui");
+            String html = ScalarHtmlRenderer.render(properties);
+            assertThat(html)
+                    .isNotNull()
+                    .contains("src=\"scalar-ui/scalar.js\"");
         }
 
         @Test
@@ -71,7 +83,7 @@ class ScalarHtmlRendererTest {
             String html = ScalarHtmlRenderer.render(properties);
             assertThat(html)
                     .isNotNull()
-                    .contains("/scalar/scalar.js");
+                    .contains("src=\"scalar/scalar.js\"");
         }
     }
 

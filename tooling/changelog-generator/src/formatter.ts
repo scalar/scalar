@@ -83,16 +83,3 @@ export function formatReleaseLine(changeset: NewChangesetWithCommit, githubInfo:
   const prLink = getPRLink(githubInfo)
   return formatChangelogEntry(changeset.summary, { prLink })
 }
-
-export function formatDependencyHeader(packageName: string, version: string): string {
-  return `- **${packageName}@${version}**`
-}
-
-export function formatDependencyChange(githubInfo: GitHubInfo | null, description: string): string {
-  if (startsWithPRLink(description)) {
-    return formatChangelogEntry(description, { indentLevel: 1 })
-  }
-
-  const prLink = getPRLink(githubInfo)
-  return formatChangelogEntry(description, { prLink, indentLevel: 1 })
-}

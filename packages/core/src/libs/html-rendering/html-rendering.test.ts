@@ -195,9 +195,9 @@ describe('html-rendering', () => {
       // Check that configuration is properly embedded
       expect(html).toContain('"theme": "kepler"')
       expect(html).toContain('"tagsSorter": (a, b) => a.name.localeCompare(b.name)')
-      expect(html).toContain(`"onLoaded": () => {
-          console.log("loaded");
-        }`)
+      // Check the onLoaded callback is included (whitespace may vary)
+      expect(html).toContain('"onLoaded":')
+      expect(html).toContain('console.log("loaded")')
     })
 
     it('handles mixed function and non-function properties', () => {

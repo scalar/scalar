@@ -15,7 +15,7 @@
 /.changeset/*
 
 # Cursor rules
-/.cursor @hanspagel @amritk 
+/.cursor @hanspagel @amritk
 
 # Packages
 /integrations/django-ninja @marclave
@@ -49,9 +49,5 @@
 /packages/use-hooks @hwkr @hanspagel @marclave
 /packages/void-server @hanspagel @marclave
 /packages/workspace-store @DemonHa @amritk
-/projects/scalar-app @hanspagel @marclave
-# /packages/object-utils
-# /packages/use-codemirror
-# /packages/use-modal
-# /packages/use-toasts
+
 

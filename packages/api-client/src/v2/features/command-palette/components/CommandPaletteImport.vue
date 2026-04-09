@@ -2,31 +2,11 @@
 /**
  * Command Palette Import Component
  *
- * Provides a form for importing API specifications from various sources:
- * - OpenAPI/Swagger documents (URL, file, or pasted JSON/YAML)
- * - Postman collections (URL, file, or pasted JSON)
- * - cURL commands (automatically redirects to cURL import command)
+ * Provides a form for importing OpenAPI descriptions from URL, file, or pasted JSON/YAML.
+ * Postman collection JSON and Postman files open {@link CommandPaletteImportPostman}.
+ * cURL commands redirect to {@link CommandPaletteImportCurl}.
  *
  * Supports watch mode for URL imports to automatically update when content changes.
- *
- * @example
- * <CommandPaletteImport
- *   :workspaceStore="workspaceStore"
- *   @close="handleClose"
- *   @back="handleBack"
- *   @open-command="handleOpenCommand"
- * />
- *
- * @example Custom file upload button
- * <CommandPaletteImport
- *   :workspaceStore="workspaceStore"
- *   @close="handleClose">
- *   <template #fileUpload="{ import: importDocument }">
- *     <button @click="() => importDocument(source, 'file')">
- *       Custom Upload
- *     </button>
- *   </template>
- * </CommandPaletteImport>
  */
 export default {
   name: 'CommandPaletteImport',
@@ -54,7 +34,6 @@ import { useRouter } from 'vue-router'
 
 import { useFileDialog } from '@/hooks'
 import { getOpenApiDocumentDetails } from '@/v2/features/command-palette/helpers/get-openapi-document-details'
-import { getPostmanDocumentDetails } from '@/v2/features/command-palette/helpers/get-postman-document-details'
 import { importDocumentToWorkspace } from '@/v2/features/command-palette/helpers/import-document-to-workspace'
 import { isPostmanCollection } from '@/v2/features/command-palette/helpers/is-postman-collection'
 import {
@@ -105,13 +84,9 @@ const isLocalUrlInput = computed<boolean>(
   () => isUrlInput.value && isLocalUrl(inputContent.value),
 )
 
-/** Get document details based on the content type (Postman or OpenAPI) */
-const documentDetails = computed(() => {
-  if (isPostmanCollection(inputContent.value)) {
-    return getPostmanDocumentDetails(inputContent.value)
-  }
-  return getOpenApiDocumentDetails(inputContent.value)
-})
+const documentDetails = computed(() =>
+  getOpenApiDocumentDetails(inputContent.value),
+)
 
 /** Get the document type for syntax highlighting */
 const documentType = computed<string>(() =>
@@ -241,7 +216,16 @@ const { open: openSpecFileDialog } = useFileDialog({
 
     const onLoad = async (event: ProgressEvent<FileReader>): Promise<void> => {
       const text = event.target?.result as string
-      // Import file as raw content since we are in a browser environment
+      if (isPostmanCollection(text)) {
+        eventBus.emit('ui:open:command-palette', {
+          action: 'import-postman-collection',
+          payload: {
+            inputValue: text,
+          },
+        })
+        await loader.clear()
+        return
+      }
       await handleImport(text, 'raw')
     }
 
@@ -258,10 +242,20 @@ const { open: openSpecFileDialog } = useFileDialog({
  * Detects cURL commands and redirects to the cURL import command.
  */
 const handleInput = (value: string): void => {
-  /** Redirect to cURL import command if input starts with 'curl' */
-  if (value.trim().toLowerCase().startsWith('curl')) {
+  const trimmed = value.trim()
+
+  if (trimmed.toLowerCase().startsWith('curl')) {
     return eventBus.emit('ui:open:command-palette', {
       action: 'import-curl-command',
+      payload: {
+        inputValue: value,
+      },
+    })
+  }
+
+  if (isPostmanCollection(trimmed)) {
+    return eventBus.emit('ui:open:command-palette', {
+      action: 'import-postman-collection',
       payload: {
         inputValue: value,
       },

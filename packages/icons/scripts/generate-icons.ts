@@ -1,18 +1,15 @@
 #!/usr/bin/env node
 import fs from 'node:fs'
 import path from 'node:path'
-import * as url from 'node:url'
 
 import { icons } from '@phosphor-icons/core'
 import chalk from 'chalk'
 
-const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
-
 const prefix = 'ScalarIcon'
 
-const ASSETS_PATH = path.join(__dirname, '../node_modules/@phosphor-icons/core/assets')
-const COMPONENTS_PATH = path.join(__dirname, '../src/components')
-const INDEX_PATH = path.join(__dirname, '../src/index.ts')
+const ASSETS_PATH = path.join(import.meta.dirname, '../node_modules/@phosphor-icons/core/assets')
+const COMPONENTS_PATH = path.join(import.meta.dirname, '../src/components')
+const INDEX_PATH = path.join(import.meta.dirname, '../src/index.ts')
 
 if (!fs.existsSync(ASSETS_PATH)) {
   console.error(
@@ -143,27 +140,6 @@ const { bind, weight } = useScalarIcon(props)
 }
 
 function generateExports(mappings: Record<string, Record<string, string>>) {
-  const imports = Object.entries(mappings).map(([name]) => {
-    const pascalName = pascalize(name)
-
-    return `import ${prefix}${pascalName} from "./components/${prefix}${pascalName}.vue";`
-  })
-
-  const installs: string[] = []
-  Object.entries(mappings).forEach(([name]) => {
-    const iconData = icons.find((icon) => icon.name === name)
-
-    if (!iconData) {
-      throw new Error(`Could not find icon data for ${name}`)
-    }
-
-    installs.push(`Vue.component("${prefix}${iconData.pascal_name}", ${prefix}${iconData.pascal_name})`)
-
-    if ('alias' in iconData) {
-      installs.push(`Vue.component("${prefix}${iconData['alias'].pascal_name}", ${prefix}${iconData.pascal_name})`)
-    }
-  })
-
   const exports: string[] = []
 
   Object.entries(mappings).forEach(([name]) => {
@@ -173,27 +149,19 @@ function generateExports(mappings: Record<string, Record<string, string>>) {
       throw new Error(`Could not find icon data for ${name}`)
     }
 
-    exports.push(`${prefix}${iconData.pascal_name}`)
+    const componentPath = `./components/${prefix}${iconData.pascal_name}.vue`
+    exports.push(`export { default as ${prefix}${iconData.pascal_name} } from '${componentPath}'`)
 
     if ('alias' in iconData) {
-      exports.push(`${prefix}${iconData.pascal_name} as ${prefix}${iconData['alias'].pascal_name}`)
+      exports.push(`export { default as ${prefix}${iconData['alias'].pascal_name} } from '${componentPath}'`)
     }
   })
 
   const indexString = `/* GENERATED FILE */
 /* biome-ignore-all assist/source/organizeImports: generated file */
 
-${imports.join('\n')}
-
-export {
-    ${exports.join(',\n\t')}
-}
-  `
-
-  // .reduce(
-  //   (acc, cur) => acc + cur,
-  //   `/* GENERATED FILE */\n/* eslint-disable import/prefer-default-export */\n\n`,
-  // );
+${exports.join('\n')}
+`
 
   try {
     fs.writeFileSync(INDEX_PATH, indexString, {

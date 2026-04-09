@@ -9,7 +9,10 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import type { LifecyclePlugin } from '@scalar/json-magic/bundle'
 
 import { isLocalRef } from '@/helpers/general'
-import { syncParametersForPathChange } from '@/mutators/operation/helpers/sync-path-parameters'
+import {
+  type MinimalParameterObject,
+  syncParametersForPathChange,
+} from '@/mutators/operation/helpers/sync-path-parameters'
 import { getResolvedRef } from '@/plugins/bundler/helpers'
 
 /**
@@ -287,41 +290,87 @@ export const syncPathParameters = (): LifecyclePlugin => {
           continue
         }
 
-        const existingParameters =
+        const isParameterNode = (param: unknown): param is MinimalParameterObject => {
+          const resolved = getResolvedRef(param, context)
+
+          return (
+            isObject(resolved) &&
+            'name' in resolved &&
+            typeof resolved.name === 'string' &&
+            'in' in resolved &&
+            typeof resolved.in === 'string'
+          )
+        }
+
+        const isPathParameterNode = (param: unknown): param is MinimalParameterObject => {
+          const resolved = getResolvedRef(param, context)
+          return isParameterNode(resolved) && resolved.in === 'path'
+        }
+
+        const existingParameters = (
           'parameters' in operation && Array.isArray(operation.parameters) ? operation.parameters : []
+        ).filter(isParameterNode)
 
-        const { path: pathParameters, other: restParameters } = existingParameters.reduce<{
-          path: any[]
-          other: any[]
-        }>(
-          (acc, param) => {
-            const resolved = getResolvedRef(param, context)
-
-            if (!isObject(resolved)) {
-              return acc
-            }
-
-            if (resolved.in === 'path') {
-              acc.path.push(resolved)
-              return acc
-            }
-            acc.other.push(param)
-            return acc
-          },
-          {
-            path: [],
-            other: [],
-          },
+        const existingPathParameters = new Set<string>(
+          existingParameters
+            .map((param) => getResolvedRef(param, context))
+            .filter(isPathParameterNode)
+            .map((param) => param.name),
         )
 
-        // Sync path parameters using the same path for old and new
-        // This ensures parameters match the current path string
-        const syncedParameters = syncParametersForPathChange(pathString, pathString, pathParameters)
+        // Include path-item level path parameters as fallbacks for any that the operation does not declare.
+        // Without this, syncParametersForPathChange would create bare `{ name, in: 'path' }` params,
+        // losing description, schema, required, etc. from the path-item definition.
+        const pathItemParameters = 'parameters' in node && Array.isArray(node.parameters) ? node.parameters : []
 
-        const result = [...syncedParameters, ...restParameters]
+        const pathItemPathParameters = pathItemParameters.filter((param): param is MinimalParameterObject => {
+          const resolved = getResolvedRef(param, context)
 
+          if (!isPathParameterNode(resolved)) {
+            return false
+          }
+
+          const result = !existingPathParameters.has(resolved.name)
+
+          if (result) {
+            existingPathParameters.add(resolved.name)
+          }
+
+          return result
+        })
+
+        const result = syncParametersForPathChange(
+          pathString,
+          pathString,
+          [...existingParameters, ...pathItemPathParameters],
+          (node) => getResolvedRef(node, context) as MinimalParameterObject,
+        )
         if (result.length > 0) {
           operation.parameters = result
+        }
+      }
+    },
+  }
+}
+
+// A list of nested internal keys that should be removed from nodes at any level.
+const NESTED_INTERNAL_KEYS = ['__scalar_', '$status']
+
+/**
+ * Lifecycle plugin to remove extra Scalar internal keys from nodes.
+ *
+ * This plugin is used to remove extra Scalar internal keys from nodes during the bundling process.
+ * These keys are used for internal purposes and are not needed in the final bundled document.
+ */
+export const removeExtraScalarKeys = (): LifecyclePlugin => {
+  return {
+    type: 'lifecycle',
+    onBeforeNodeProcess: (node) => {
+      if (isObject(node)) {
+        for (const key of NESTED_INTERNAL_KEYS) {
+          if (key in node) {
+            delete node[key]
+          }
         }
       }
     },

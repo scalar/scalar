@@ -486,6 +486,76 @@ describe('sortPropertyNames', () => {
     })
   })
 
+  describe('x-order sorting', () => {
+    it('sorts all properties by x-order value', () => {
+      const schema: SchemaObject = {
+        type: 'object',
+        properties: {
+          zebra: { type: 'string', 'x-order': 3 } as any,
+          apple: { type: 'string', 'x-order': 1 } as any,
+          banana: { type: 'string', 'x-order': 2 } as any,
+        },
+      }
+
+      const result = sortPropertyNames(schema)
+
+      expect(result).toEqual(['apple', 'banana', 'zebra'])
+    })
+
+    it('places properties with x-order before those without', () => {
+      const schema: SchemaObject = {
+        type: 'object',
+        properties: {
+          zebra: { type: 'string', 'x-order': 1 } as any,
+          apple: { type: 'string' },
+          banana: { type: 'string', 'x-order': 2 } as any,
+        },
+      }
+
+      const result = sortPropertyNames(schema)
+
+      expect(result).toEqual(['zebra', 'banana', 'apple'])
+    })
+
+    it('respects discriminator over x-order', () => {
+      const schema: SchemaObject = {
+        type: 'object',
+        properties: {
+          type: { type: 'string', 'x-order': 3 } as any,
+          apple: { type: 'string', 'x-order': 1 } as any,
+          banana: { type: 'string', 'x-order': 2 } as any,
+        },
+      }
+      const discriminator: DiscriminatorObject = {
+        propertyName: 'type',
+      }
+
+      const result = sortPropertyNames(schema, discriminator)
+
+      // Discriminator always comes first, even with a higher x-order
+      expect(result).toEqual(['type', 'apple', 'banana'])
+    })
+
+    it('uses x-order before required status', () => {
+      const schema: SchemaObject = {
+        type: 'object',
+        properties: {
+          optional: { type: 'string', 'x-order': 1 } as any,
+          required: { type: 'string', 'x-order': 2 } as any,
+          noOrder: { type: 'string' },
+        },
+        required: ['required', 'noOrder'],
+      }
+
+      const result = sortPropertyNames(schema, undefined, {
+        orderRequiredPropertiesFirst: true,
+      })
+
+      // x-order takes priority over required status
+      expect(result).toEqual(['optional', 'required', 'noOrder'])
+    })
+  })
+
   describe('edge cases', () => {
     it('should handle null schema', () => {
       const result = sortPropertyNames(null as any)

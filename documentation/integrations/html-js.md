@@ -1,4 +1,4 @@
-# Scalar API Reference with HTML/JS
+# API Reference with HTML/JS
 
 To get started, you can use a simple HTML file. It's the easiest, and probably also the quickest way to get up and running, literally in seconds.
 
@@ -6,7 +6,7 @@ To get started, you can use a simple HTML file. It's the easiest, and probably a
 <!doctype html>
 <html>
   <head>
-    <title>Scalar API Reference</title>
+    <title>API Reference</title>
     <meta charset="utf-8" />
     <meta
       name="viewport"
@@ -19,7 +19,7 @@ To get started, you can use a simple HTML file. It's the easiest, and probably a
     <!-- Load the Script -->
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
 
-    <!-- Initialize the Scalar API Reference -->
+    <!-- Initialize the API Reference -->
     <script>
       Scalar.createApiReference('#app', {
         // The URL of the OpenAPI/Swagger document

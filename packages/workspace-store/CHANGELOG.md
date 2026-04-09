@@ -1,5 +1,328 @@
 # @scalar/workspace-store
 
+## 0.44.0
+
+### Minor Changes
+
+- [#8762](https://github.com/scalar/scalar/pull/8762): feat: request factory interface improvements
+- [#8695](https://github.com/scalar/scalar/pull/8695): feat: support pre/post request script on operation and document level
+
+### Patch Changes
+
+- [#8742](https://github.com/scalar/scalar/pull/8742): fix(workspace-store): openIdConnect retrieve stored token for Authorization header
+
+## 0.43.1
+
+### Patch Changes
+
+- [#8728](https://github.com/scalar/scalar/pull/8728): fix: correctly merge security schemes with the config security
+
+## 0.43.0
+
+### Minor Changes
+
+- [#8524](https://github.com/scalar/scalar/pull/8524): feat: move request logic on the store and generate a request builder
+
+### Patch Changes
+
+- [#8633](https://github.com/scalar/scalar/pull/8633): chore: improve performance by factoring out the common fields on schema object
+- [#8650](https://github.com/scalar/scalar/pull/8650): fix: ensure we have a introduction entry on the sidear by default
+- [#8647](https://github.com/scalar/scalar/pull/8647): feat: move addressBar path change from debounce to blur
+- [#8555](https://github.com/scalar/scalar/pull/8555): feat(workspace-store): replace code-highlight with helpers for markdown headings
+- [#8713](https://github.com/scalar/scalar/pull/8713): feat: handle pasting and typing urls in the path box
+- [#8664](https://github.com/scalar/scalar/pull/8664): refactor: replace wildcard export barrels with explicit named re-exports
+
+## 0.42.0
+
+### Minor Changes
+
+- [#8600](https://github.com/scalar/scalar/pull/8600): feat: typegen scripts and new schemas for the validation library
+
+## 0.41.2
+
+### Patch Changes
+
+- [#8596](https://github.com/scalar/scalar/pull/8596): fix: tag group id generation to prevent recursion issues
+
+## 0.41.1
+
+## 0.41.0
+
+### Minor Changes
+
+- [#8511](https://github.com/scalar/scalar/pull/8511): feat: import postman collection custom ui
+
+### Patch Changes
+
+- [#8556](https://github.com/scalar/scalar/pull/8556): feat: inline sortByOrder and remove @scalar/object-utils dep
+
+## 0.40.4
+
+### Patch Changes
+
+- [#8501](https://github.com/scalar/scalar/pull/8501): fix allowReserved query parameter support so reserved characters like colons stay unescaped and parameter typings include allowReserved
+
+## 0.40.3
+
+### Patch Changes
+
+- [#8471](https://github.com/scalar/scalar/pull/8471): chore: clean up the save document and getEditableDocument flows
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.40.2
+
+### Patch Changes
+
+- [#8468](https://github.com/scalar/scalar/pull/8468): fix: ignore response examples when generating navigation
+
+## 0.40.1
+
+### Patch Changes
+
+- [#8424](https://github.com/scalar/scalar/pull/8424): feat: export XScalarCredentialsLocation
+- [#8445](https://github.com/scalar/scalar/pull/8445): fix: generate unique id for models
+
+## 0.40.0
+
+### Minor Changes
+
+- [#8426](https://github.com/scalar/scalar/pull/8426): feat: interact with the original and intermediate documents
+
+## 0.39.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.4.1**
+  - [#8420](https://github.com/scalar/scalar/pull/8420): fix TypeScript access to navigator.userAgentData in isMacOS without ts-expect-error
+
+- **@scalar/json-magic@0.12.3**
+
+- **@scalar/object-utils@1.3.2**
+
+- **@scalar/types@0.7.3**
+
+- **@scalar/openapi-upgrader@0.2.0**
+
+- **@scalar/snippetz@0.7.4**
+
+## 0.39.1
+
+### Patch Changes
+
+- [#8393](https://github.com/scalar/scalar/pull/8393): fix: correctly update active tab on tab close event
+- [#8403](https://github.com/scalar/scalar/pull/8403): Persist auth url and token url in local storage
+
+#### Updated Dependencies
+
+- **@scalar/snippetz@0.7.3**
+  - [#8404](https://github.com/scalar/scalar/pull/8404): Preserve duplicate query parameters in generated code snippets. php/guzzle: preserve duplicate query parameters as arrays.
+
+## 0.39.0
+
+### Minor Changes
+
+- [#8349](https://github.com/scalar/scalar/pull/8349): feat: support operation example rename
+
+### Patch Changes
+
+- [#8372](https://github.com/scalar/scalar/pull/8372): fix: avoid inlining $ref path parameters during path parameter sync
+- [#8336](https://github.com/scalar/scalar/pull/8336): fix: sidebar title update and detect delete operaitons for proxy
+- [#8253](https://github.com/scalar/scalar/pull/8253): feat(api-reference): support propertyNames enum for additionalProperties
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.4.0**
+  - [#8336](https://github.com/scalar/scalar/pull/8336): feat: support flushing any pending operations
+
+- **@scalar/json-magic@0.12.2**
+
+- **@scalar/object-utils@1.3.1**
+
+- **@scalar/types@0.7.2**
+
+- **@scalar/openapi-upgrader@0.2.0**
+
+- **@scalar/snippetz@0.7.2**
+
+## 0.38.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.1**
+  - [#8381](https://github.com/scalar/scalar/pull/8381): feat: add mcp config support
+
+- **@scalar/openapi-upgrader@0.2.0**
+
+- **@scalar/snippetz@0.7.1**
+
+## 0.38.0
+
+### Minor Changes
+
+- [#8365](https://github.com/scalar/scalar/pull/8365): feat: store oauth flow refresh tokens on the auth store
+
+### Patch Changes
+
+- [#8347](https://github.com/scalar/scalar/pull/8347): chore: export server workspace type
+
+#### Updated Dependencies
+
+- **@scalar/json-magic@0.12.1**
+  - [#8357](https://github.com/scalar/scalar/pull/8357): chore: improve performance and memory usage of bundler
+
+## 0.37.0
+
+### Minor Changes
+
+- [#8266](https://github.com/scalar/scalar/pull/8266): support operation level authentication and servers
+
+## 0.36.0
+
+### Minor Changes
+
+- [#8340](https://github.com/scalar/scalar/pull/8340): feat: support navigation options on server store
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+- [#8340](https://github.com/scalar/scalar/pull/8340): chore: disable perf logs by default
+
+#### Updated Dependencies
+
+- **@scalar/openapi-upgrader@0.2.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+- **@scalar/code-highlight@0.3.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+- **@scalar/object-utils@1.3.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+- **@scalar/json-magic@0.12.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+- **@scalar/snippetz@0.7.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+- **@scalar/helpers@0.3.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+- **@scalar/types@0.7.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.35.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-upgrader@0.1.11**
+  - [#8326](https://github.com/scalar/scalar/pull/8326): feat: keep named request examples when upgrading from Swagger 2.0
+
+- **@scalar/json-magic@0.11.7**
+  - [#8314](https://github.com/scalar/scalar/pull/8314): chore: limit concurrent operations while migrating workspaces
+
+- **@scalar/helpers@0.2.18**
+  - [#8314](https://github.com/scalar/scalar/pull/8314): chore: limit concurrent operations while migrating workspaces
+
+- **@scalar/object-utils@1.2.32**
+
+- **@scalar/types@0.6.10**
+
+- **@scalar/snippetz@0.6.19**
+
+## 0.35.2
+
+### Patch Changes
+
+- [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+- [#8294](https://github.com/scalar/scalar/pull/8294): default createAnySecurityScheme to false and fix index clamp issue
+- [#8287](https://github.com/scalar/scalar/pull/8287): consider path-level parameters in syncPathParameters instead of creating bare synthetic ones
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.17**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): refactor: move helpers to the helpers package to share primitive helpers
+
+- **@scalar/openapi-upgrader@0.1.10**
+  - [#8272](https://github.com/scalar/scalar/pull/8272): feat: migrate swagger 2.0 response examples
+
+- **@scalar/json-magic@0.11.6**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): fix: properly parse json pointers
+
+- **@scalar/object-utils@1.2.31**
+
+- **@scalar/types@0.6.9**
+
+- **@scalar/snippetz@0.6.18**
+
+## 0.35.1
+
+### Patch Changes
+
+- [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+#### Updated Dependencies
+
+- **@scalar/code-highlight@0.2.4**
+
+## 0.35.0
+
+### Minor Changes
+
+- [#8234](https://github.com/scalar/scalar/pull/8234): support operation level authentication and servers
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/code-highlight@0.2.4**
+
+## 0.34.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.8**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+
+- **@scalar/openapi-upgrader@0.1.9**
+  - [#8251](https://github.com/scalar/scalar/pull/8251): feat: migrate swagger 2.0 defaults for parameter
+
+- **@scalar/snippetz@0.6.17**
+
+## 0.34.3
+
+### Patch Changes
+
+- [#8248](https://github.com/scalar/scalar/pull/8248): fix: local storage migration script
+- [#8248](https://github.com/scalar/scalar/pull/8248): feat: nest description headings in the sidebar
+- [#8248](https://github.com/scalar/scalar/pull/8248): chore: map themeId to slug and add default operation to drafts
+
+#### Updated Dependencies
+
+- **@scalar/helpers@0.2.16**
+  - [#8248](https://github.com/scalar/scalar/pull/8248): fix: local storage migration script
+
+- **@scalar/code-highlight@0.2.4**
+  - [#8248](https://github.com/scalar/scalar/pull/8248): feat: slugs for headings with nested content
+
+- **@scalar/snippetz@0.6.16**
+  - [#8248](https://github.com/scalar/scalar/pull/8248): fix: duplicate http headers for PHP CURL
+
+- **@scalar/json-magic@0.11.5**
+
+- **@scalar/object-utils@1.2.30**
+
+- **@scalar/types@0.6.7**
+
+- **@scalar/openapi-upgrader@0.1.8**
+
 ## 0.34.2
 
 ### Patch Changes

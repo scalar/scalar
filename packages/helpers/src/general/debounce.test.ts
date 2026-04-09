@@ -176,6 +176,44 @@ describe('debounce', () => {
     expect(() => cleanup()).not.toThrow()
   })
 
+  it('flushes a pending key immediately', () => {
+    const { execute, flush } = debounce({ delay: 100 })
+    const fn = vi.fn()
+
+    execute('test', fn)
+    flush('test')
+
+    expect(fn).toHaveBeenCalledTimes(1)
+
+    // The timer should be cleared when flushed.
+    vi.advanceTimersByTime(100)
+    expect(fn).toHaveBeenCalledTimes(1)
+  })
+
+  it('flushes all pending keys immediately', () => {
+    const { execute, flushAll } = debounce({ delay: 100 })
+    const fn1 = vi.fn()
+    const fn2 = vi.fn()
+
+    execute('first', fn1)
+    execute('second', fn2)
+    flushAll()
+
+    expect(fn1).toHaveBeenCalledTimes(1)
+    expect(fn2).toHaveBeenCalledTimes(1)
+
+    // Timers should be cleared when all keys are flushed.
+    vi.advanceTimersByTime(100)
+    expect(fn1).toHaveBeenCalledTimes(1)
+    expect(fn2).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not throw when flushing a missing key', () => {
+    const { flush } = debounce({ delay: 100 })
+
+    expect(() => flush('missing-key')).not.toThrow()
+  })
+
   it('handles cleanup after executions have completed', () => {
     const { execute, cleanup } = debounce({ delay: 100 })
     const fn = vi.fn()

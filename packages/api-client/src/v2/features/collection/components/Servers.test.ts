@@ -87,7 +87,7 @@ describe('Servers', () => {
 
     await addButton!.trigger('click')
 
-    expect(emitSpy).toHaveBeenCalledWith('server:add:server')
+    expect(emitSpy).toHaveBeenCalledWith('server:add:server', { meta: { type: 'document' } })
   })
 
   it('emits server:delete:server event with correct index when deleting a server', async () => {
@@ -106,7 +106,7 @@ describe('Servers', () => {
       .find('[data-testid="sidebar-list-element-form-submit-button"]')
     await deleteConfirmButton.trigger('click')
 
-    expect(emitSpy).toHaveBeenCalledWith('server:delete:server', { index: 0 })
+    expect(emitSpy).toHaveBeenCalledWith('server:delete:server', { index: 0, meta: { type: 'document' } })
   })
 
   it('emits server:update:server event when server URL or description is updated', async () => {
@@ -129,6 +129,9 @@ describe('Servers', () => {
     expect(emitSpy).toHaveBeenCalledWith('server:update:server', {
       index: 0,
       server: { url: 'https://new-api.example.com' },
+      meta: {
+        type: 'document',
+      },
     })
   })
 
@@ -153,6 +156,9 @@ describe('Servers', () => {
       index: 0,
       key: 'version',
       value: 'v2',
+      meta: {
+        type: 'document',
+      },
     })
   })
 
@@ -208,6 +214,9 @@ describe('Servers', () => {
       {
         index: 0,
         server: { url: 'https://api3.example.com' },
+        meta: {
+          type: 'document',
+        },
       },
     ])
   })
@@ -242,6 +251,9 @@ describe('Servers', () => {
       {
         index: 0,
         server: { url: 'https://new-url.example.com' },
+        meta: {
+          type: 'document',
+        },
       },
     ])
     expect(serverUpdateCalls[1]).toEqual([
@@ -249,6 +261,9 @@ describe('Servers', () => {
       {
         index: 0,
         server: { description: 'New Description' },
+        meta: {
+          type: 'document',
+        },
       },
     ])
   })

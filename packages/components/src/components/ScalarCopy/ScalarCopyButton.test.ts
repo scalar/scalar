@@ -1,4 +1,3 @@
-import { ScalarIconCheck, ScalarIconCopy } from '@scalar/icons'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
@@ -7,36 +6,48 @@ import ScalarCopyButton from './ScalarCopyButton.vue'
 
 describe('ScalarCopyButton', () => {
   describe('rendering', () => {
-    it('renders with copy icon by default', () => {
+    it('renders a button element', () => {
       const wrapper = mount(ScalarCopyButton)
-      const iconComponent = wrapper.findComponent(ScalarIconCopy)
-      expect(iconComponent.exists()).toBeTruthy()
+      expect(wrapper.find('button').exists()).toBeTruthy()
     })
 
-    it('renders with check icon when copied is true', async () => {
+    it('renders an SVG icon', () => {
+      const wrapper = mount(ScalarCopyButton)
+      expect(wrapper.find('svg').exists()).toBeTruthy()
+    })
+
+    it('renders with different styling when copied is true', async () => {
       const wrapper = mount(ScalarCopyButton, {
         props: { copied: true },
       })
       await nextTick()
-      const iconComponent = wrapper.findComponent(ScalarIconCheck)
-      expect(iconComponent.exists()).toBeTruthy()
+      // When copied=true, the button has 'text-c-1' class
+      expect(wrapper.find('button').classes()).toContain('text-c-1')
+    })
+
+    it('renders with default styling when copied is false', () => {
+      const wrapper = mount(ScalarCopyButton, {
+        props: { copied: false },
+      })
+      // When copied=false, the button has 'text-c-2' class
+      expect(wrapper.find('button').classes()).toContain('text-c-2')
     })
   })
 
   describe('click behavior', () => {
-    it('shows check icon when copied model is true', async () => {
+    it('updates styling when copied prop changes', async () => {
       const wrapper = mount(ScalarCopyButton, {
         props: { copied: false },
       })
 
-      expect(wrapper.findComponent(ScalarIconCopy).exists()).toBeTruthy()
-      expect(wrapper.findComponent(ScalarIconCheck).exists()).toBeFalsy()
+      // Initial state: text-c-2 styling
+      expect(wrapper.find('button').classes()).toContain('text-c-2')
 
       await wrapper.setProps({ copied: true })
       await nextTick()
 
-      expect(wrapper.findComponent(ScalarIconCheck).exists()).toBeTruthy()
-      expect(wrapper.findComponent(ScalarIconCopy).exists()).toBeFalsy()
+      // After prop change: text-c-1 styling
+      expect(wrapper.find('button').classes()).toContain('text-c-1')
     })
 
     it('shows copied message when copied is true', async () => {
@@ -89,33 +100,35 @@ describe('ScalarCopyButton', () => {
   })
 
   describe('copied model updates', () => {
-    it('updates icon when copied changes externally', async () => {
+    it('responds to copied prop changes from false to true', async () => {
       const wrapper = mount(ScalarCopyButton, {
         props: { copied: false },
       })
 
-      expect(wrapper.findComponent(ScalarIconCopy).exists()).toBeTruthy()
+      // Initial state
+      expect(wrapper.find('button').classes()).toContain('text-c-2')
 
       await wrapper.setProps({ copied: true })
       await nextTick()
 
-      expect(wrapper.findComponent(ScalarIconCheck).exists()).toBeTruthy()
-      expect(wrapper.findComponent(ScalarIconCopy).exists()).toBeFalsy()
+      // After prop change
+      expect(wrapper.find('button').classes()).toContain('text-c-1')
     })
 
-    it('updates icon when copied changes from true to false', async () => {
+    it('responds to copied prop changes from true to false', async () => {
       const wrapper = mount(ScalarCopyButton, {
         props: { copied: true },
       })
 
       await nextTick()
-      expect(wrapper.findComponent(ScalarIconCheck).exists()).toBeTruthy()
+      // Initial state
+      expect(wrapper.find('button').classes()).toContain('text-c-1')
 
       await wrapper.setProps({ copied: false })
       await nextTick()
 
-      expect(wrapper.findComponent(ScalarIconCopy).exists()).toBeTruthy()
-      expect(wrapper.findComponent(ScalarIconCheck).exists()).toBeFalsy()
+      // After prop change
+      expect(wrapper.find('button').classes()).toContain('text-c-2')
     })
   })
 

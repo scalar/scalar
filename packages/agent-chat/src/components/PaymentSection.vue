@@ -1,23 +1,9 @@
 <script setup lang="ts">
 import { ScalarIconInfo } from '@scalar/icons'
 
-import { useState } from '@/state/state'
+import { useSignupLink } from '@/hooks/use-signup-link'
 
-const { dashboardUrl, mode, uploadedTmpDocumentUrl } = useState()
-
-function handleUpgrade() {
-  if (mode === 'full') {
-    window.location.replace(dashboardUrl)
-  }
-
-  if (mode === 'preview') {
-    window.location.replace(
-      uploadedTmpDocumentUrl.value
-        ? `${dashboardUrl}/register?flow=oss-agent&docUrl=${uploadedTmpDocumentUrl.value}`
-        : dashboardUrl,
-    )
-  }
-}
+const { navigateToSignup } = useSignupLink()
 </script>
 
 <template>
@@ -26,31 +12,32 @@ function handleUpgrade() {
       <ScalarIconInfo
         class="text-blue size-4"
         weight="bold" />
-      You've used up all your free messages, upgrade for $24/mo.
+      You've reached your free message limit. Unlock unlimited access by
+      upgrading now.
     </strong>
     <div class="paymentContainer">
       <button
         class="actionButton approveButton"
         type="button"
-        @click="handleUpgrade">
+        @click="navigateToSignup">
         Upgrade
       </button>
       <div class="paymentInfo">
-        <h3>$24 <span>/ month</span></h3>
+        <h3>$72 <span>/ month</span></h3>
         <div class="paymentInfoSection">
           <div class="paymentInfoItem">
-            <span>Members in your workspace</span>
-            <span>1</span>
+            <span>Seat minimum</span>
+            <span>3</span>
           </div>
           <div class="paymentInfoItem">
-            <span>x $24 / month / member</span>
-            <span>$24.00</span>
+            <span>Base monthly total</span>
+            <span>$72.00</span>
           </div>
         </div>
         <div class="paymentInfoSection">
           <div class="paymentInfoItem">
             <span>Messages</span>
-            <span>1,000</span>
+            <span>250</span>
           </div>
           <div class="paymentInfoItem">
             <span>Additional Messages</span>

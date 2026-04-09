@@ -2,23 +2,32 @@
 import { capitalize, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 
+import type { CollectionProps } from '@/v2/features/app/helpers/routes'
+
 const { type } = defineProps<{
-  type: 'document' | 'workspace'
+  type: CollectionProps['collectionType']
 }>()
 
 /** Different routes for workspace vs document */
-const routes = computed(() =>
-  type === 'workspace'
-    ? ['environment', 'cookies', 'settings']
-    : [
-        'overview',
-        'servers',
-        'authentication',
-        'environment',
-        'cookies',
-        'settings',
-      ],
-)
+const routes = computed(() => {
+  if (type === 'workspace') {
+    return ['environment', 'cookies', 'settings']
+  }
+
+  if (type === 'operation') {
+    return ['overview', 'servers', 'authentication', 'editor']
+  }
+
+  return [
+    'overview',
+    'servers',
+    'authentication',
+    'environment',
+    'cookies',
+    'settings',
+    'scripts',
+  ]
+})
 </script>
 
 <template>

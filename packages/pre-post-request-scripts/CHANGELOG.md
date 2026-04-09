@@ -1,5 +1,236 @@
 # @scalar/scripts
 
+## 0.4.0
+
+### Minor Changes
+
+- [#8695](https://github.com/scalar/scalar/pull/8695): feat: support post request scripts
+
+## 0.3.18
+
+## 0.3.17
+
+## 0.3.16
+
+## 0.3.15
+
+## 0.3.14
+
+## 0.3.13
+
+### Patch Changes
+
+- [#8563](https://github.com/scalar/scalar/pull/8563): fix: type declarations don't use the full path for imports
+
+## 0.3.12
+
+### Patch Changes
+
+- [#8529](https://github.com/scalar/scalar/pull/8529): rewrite declaration aliases in built type files
+
+## 0.3.11
+
+## 0.3.10
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.3.9
+
+### Patch Changes
+
+- [#8463](https://github.com/scalar/scalar/pull/8463): chore: allow publishing package to registry
+
+#### Updated Dependencies
+
+- **@scalar/components@0.20.9**
+  - [#8453](https://github.com/scalar/scalar/pull/8453): refactor: remove @ts-expect-error from ScalarTextArea
+
+- **@scalar/oas-utils@0.10.8**
+
+## 0.3.8
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.10.7**
+
+- **@scalar/components@0.20.8**
+
+## 0.3.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.10.6**
+
+- **@scalar/components@0.20.7**
+
+## 0.3.6
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.20.6**
+  - [#8327](https://github.com/scalar/scalar/pull/8327): fix: markdown tables with specified width attributes in td/th break the layout
+
+- **@scalar/oas-utils@0.10.5**
+
+## 0.3.5
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.10.4**
+
+- **@scalar/components@0.20.5**
+
+## 0.3.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.10.3**
+  - [#8253](https://github.com/scalar/scalar/pull/8253): feat(api-reference): support propertyNames enum for additionalProperties
+
+- **@scalar/components@0.20.4**
+
+## 0.3.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.10.2**
+
+- **@scalar/components@0.20.3**
+
+## 0.3.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.20.2**
+  - [#8366](https://github.com/scalar/scalar/pull/8366): fix(components): clean up search components and add snapshots
+
+- **@scalar/oas-utils@0.10.1**
+
+## 0.3.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.10.0**
+  - [#8266](https://github.com/scalar/scalar/pull/8266): support operation level authentication and servers
+
+- **@scalar/components@0.20.1**
+
+## 0.3.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.20.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+- **@scalar/oas-utils@0.9.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.2.9
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.15**
+  - [#8319](https://github.com/scalar/scalar/pull/8319): fix(components): fix adjust sidebar section line height
+
+- **@scalar/oas-utils@0.8.3**
+  - [#8314](https://github.com/scalar/scalar/pull/8314): chore: limit concurrent operations while migrating workspaces
+
+## 0.2.8
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.14**
+
+- **@scalar/oas-utils@0.8.2**
+
+## 0.2.7
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.8.1**
+  - [#8310](https://github.com/scalar/scalar/pull/8310): fix: correctly handle circular documents during the migration to indexdb
+
+- **@scalar/components@0.19.13**
+
+## 0.2.6
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.8.0**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+- **@scalar/components@0.19.12**
+  - [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+## 0.2.5
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/components@0.19.11**
+  - [#8276](https://github.com/scalar/scalar/pull/8276): feat(components): standardize form inputs to have a height of 40px
+
+- **@scalar/oas-utils@0.7.0**
+  - [#8234](https://github.com/scalar/scalar/pull/8234): support operation level authentication and servers
+
+## 0.2.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.48**
+
+- **@scalar/components@0.19.10**
+
+## 0.2.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/oas-utils@0.6.47**
+  - [#8248](https://github.com/scalar/scalar/pull/8248): fix: local storage migration script
+  - [#8248](https://github.com/scalar/scalar/pull/8248): fix: remove unnecessary property truncation in example generation
+  - [#8248](https://github.com/scalar/scalar/pull/8248): chore: map themeId to slug and add default operation to drafts
+
+- **@scalar/components@0.19.9**
+  - [#8248](https://github.com/scalar/scalar/pull/8248): feat: slugs for headings with nested content
+  - [#8248](https://github.com/scalar/scalar/pull/8248): feat: add optional chevron click handler for the sidebar
+
 ## 0.2.2
 
 ### Patch Changes

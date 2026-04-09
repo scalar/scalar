@@ -17,23 +17,18 @@
     "openapi",
     "swagger"
   ],
-  "version": "1.44.25",
+  "version": "1.52.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild && pnpm copy:standalone",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && pnpm copy:standalone",
     "copy:standalone": "shx mkdir -p ./dist/js && shx cp ../../packages/api-reference/dist/browser/standalone.js ./dist/js/standalone.js",
-    "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet --watch ./",
+    "dev": "tsx watch playground/index.ts",
     "docker:build": "docker build --build-arg BASE_IMAGE=scalar-base -t fastify-api-reference -f Dockerfile .",
     "docker:run": "docker run -p 5053:5053 fastify-api-reference",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -70,14 +65,13 @@
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "fastify-plugin": "catalog:*",
-    "github-slugger": "^2.0.0"
+    "github-slugger": "catalog:*"
   },
   "devDependencies": {
     "@fastify/basic-auth": "catalog:*",
     "@fastify/http-proxy": "catalog:*",
     "@fastify/swagger": "catalog:*",
     "@scalar/api-reference": "workspace:*",
-    "@scalar/build-tooling": "workspace:*",
     "fastify": "^4.0.0",
     "vite": "catalog:*",
     "vitest": "catalog:*",

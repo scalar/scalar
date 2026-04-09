@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { getActiveProxyUrl } from '@scalar/workspace-store/request-example'
 import type { ColorMode } from '@scalar/workspace-store/schemas/workspace'
 
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 import { CollectionSettings, DocumentSettings } from '@/v2/features/settings'
-import { getActiveProxyUrl } from '@/v2/helpers/get-active-proxy-url'
 
 const {
   eventBus,
@@ -11,8 +11,9 @@ const {
   document,
   workspaceStore,
   collectionType,
-  customThemes,
   layout,
+  telemetry,
+  onUpdateTelemetry,
 } = defineProps<CollectionProps>()
 
 const handleUpdateWatchMode = (watchMode: boolean) => {
@@ -46,13 +47,15 @@ const handleUpdateColorMode = (colorMode: ColorMode) => {
     :activeProxyUrl="
       getActiveProxyUrl(
         workspaceStore.workspace['x-scalar-active-proxy'],
-        layout,
+        layout === 'web' ? 'web' : 'other',
       )
     "
     :activeThemeSlug="workspaceStore.workspace['x-scalar-theme'] ?? 'none'"
     :colorMode="workspaceStore.workspace['x-scalar-color-mode'] ?? 'system'"
     :customThemes="customThemes"
+    :telemetry="telemetry"
     @update:colorMode="handleUpdateColorMode"
     @update:proxyUrl="handleUpdateActiveProxy"
+    @update:telemetry="(value) => onUpdateTelemetry?.(value)"
     @update:themeSlug="handleUpdateThemeSlug" />
 </template>

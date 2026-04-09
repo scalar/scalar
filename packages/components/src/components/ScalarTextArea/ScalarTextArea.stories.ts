@@ -10,6 +10,9 @@ const meta: Meta = {
     class: { control: 'text' },
     placeholder: { control: 'text' },
   },
+  args: {
+    placeholder: 'Enter your text here...',
+  },
   render: (args) => ({
     components: { ScalarTextArea },
     setup() {
@@ -27,6 +30,7 @@ export const Base: Story = {}
 
 export const WithMaxHeight: Story = {
   args: {
-    class: 'max-h-20',
+    class: 'max-h-24',
+    placeholder: 'Text you enter here will scroll if it exceeds the max height...',
   },
 }

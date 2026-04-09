@@ -16,13 +16,13 @@ You can upload any version of OpenAPI (even Swagger) or a Postman Collection!
 
 ![Scalar Imported OpenAPI Document](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/glhdU91VygnDIlywcnUsL.png "Scalar Imported OpenAPI Document")
 
-Awesome, now your OpenAPI Document is in the Scalar Registry under your companies namespace!
+Awesome, now your OpenAPI Document is in the Registry under your companies namespace!
 
 
 ## Update an OpenAPI Document
 You can use our [OpenAPI Editor](https://editor.scalar.com) to make changes to your OpenAPI Document, or click Edit Document from the [Registry Page](https://dashboard.scalar.com/registry).
 
-![Scalar Registry Overview](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/glhdU91VygnDIlywcnUsL.png "Scalar Registry Overview")
+![Registry Overview](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/glhdU91VygnDIlywcnUsL.png "Registry Overview")
 
 ![Scalar Document Editor](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/azzKtVC0Ew1_94JdMKTc9.png "Scalar Document Editor")
 

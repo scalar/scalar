@@ -22,23 +22,22 @@ catalogs:
     '@google-cloud/storage': 7.16.0
     '@headlessui/tailwindcss': ^0.2.2
     '@headlessui/vue': 1.7.23
-    '@hono/node-server': ^1.19.7
+    '@hono/node-server': ^1.19.10
     '@modelcontextprotocol/sdk': 1.26.0
     '@nestjs/cli': '^11.0.14'
     '@nestjs/common': '^11.1.11'
     '@nestjs/core': '^11.1.11'
     '@nestjs/platform-express': '^11.1.11'
-    '@nestjs/platform-fastify': '^11.1.11'
+    '@nestjs/platform-fastify': '^11.1.14'
     '@nestjs/schematics': '^11.0.9'
     '@nestjs/swagger': '^7.3.1'
     '@nestjs/testing': '^11.1.11'
     '@playwright/test': 1.56.0
     '@scalar/typebox': 0.1.3
-    '@scalar/agent-chat': 0.2.3
-    '@tailwindcss/vite': ^4.1.18
+    '@tailwindcss/vite': ^4.2.0
     '@types/express': 5.0.3
     '@types/jsdom': 27.0.0
-    '@types/node': ^22.19.3
+    '@types/node': ^24.1.0
     '@types/picomatch': 4.0.2
     '@types/react-dom': ^19.2.3
     '@types/react': ^19.2.7
@@ -46,35 +45,36 @@ catalogs:
     '@types/supertest': 6.0.2
     '@types/whatwg-mimetype': 3.0.2
     '@typescript-eslint/parser': ^8.53.0
-    '@vitejs/plugin-react': 5.0.4
+    '@vitejs/plugin-react': 6.0.1
     '@vitejs/plugin-vue': ^6.0.3
     '@vue/test-utils': 2.4.6
     '@vueuse/core': 13.9.0
     '@vueuse/integrations': 13.9.0
     'fastify-plugin': ^4.5.1
-    'pretty-bytes': ^7.1.0
     ai: 6.0.33
     ansis: 4.1.0
     astro: 5.15.9
-    chokidar: 5.0.0
     commander: 13.1.0
     concurrently: 9.1.2
-    esbuild: 0.25.6
     express: 5.1.0
     fake-indexeddb: 6.2.3
     fast-glob: ^3.3.3
-    fastify: ^5.3.3
+    fastify: ^5.8.1
     flatted: ^3.3.3
     fuse.js: ^7.1.0
-    hono: 4.11.7
+    hono: ^4.12.7
+    github-slugger: 2.0.0
     js-base64: ^3.7.8
     jsdom: 27.4.0
     microdiff: ^1.5.0
+    monaco-editor: 0.54.0
+    monaco-yaml: 5.2.3
     nanoid: ^5.1.6
     next: ^15.5.10
-    neverpanic: 0.0.5
+    neverpanic: 0.0.7
     picomatch: ^4.0.2
     postcss: ^8.4.38
+    radix-vue: ^1.9.17
     react-dom: ^19.2.3
     react: ^19.2.3
     semver: 7.7.2
@@ -83,17 +83,18 @@ catalogs:
     tailwindcss: ^4.1.18
     type-fest: ^5.3.1
     truncate-json: 3.0.1
-    vite-node: 5.2.0
-    vite-ssg: 28.1.0
-    vite-svg-loader: 5.1.0
-    vite: ^7.3.1
-    vitest: 4.0.16
+    tsx: 4.19.4
+    vite-ssg: 28.3.0
+    vite-svg-loader: 5.1.1
+    vite: 8.0.0
+    vitest: 4.1.0
     vue-router: 4.6.2
     vue-tsc: ^3.2.4
-    vue: ^3.5.26
+    vue: ^3.5.30
     whatwg-mimetype: 4.0.0
     yaml: ^2.8.0
     zod: ^4.3.5
+    posthog-js: 1.363.2
 ignoredBuiltDependencies:
   - '@firebase/util'
   - core-js
@@ -105,28 +106,11 @@ ignoredBuiltDependencies:
   - vue-demi
   - workerd
 
-minimumReleaseAge: 10080
-
-minimumReleaseAgeExclude:
-  - '@astrojs/*'
-  - '@next/*'
-  - '@nestjs/*'
-  - astro
-  - hono
-  - next
-  - vite
-  - vite-node
-  - vitest
-  - vue
-  # Renovate security update: @modelcontextprotocol/sdk@1.26.0
-  - '@modelcontextprotocol/sdk@1.26.0'
+# Do not lower this value; add popular packages to minimumReleaseAgeExclude or wait before updating.
+minimumReleaseAge: 7200 # 5 days
 
 onlyBuiltDependencies:
   - '@nestjs/core'
-  - '@parcel/watcher'
   - '@swc/core'
   - '@tailwindcss/oxide'
-  - '@todesktop/cli'
-  - electron
-  - esbuild
   - lefthook

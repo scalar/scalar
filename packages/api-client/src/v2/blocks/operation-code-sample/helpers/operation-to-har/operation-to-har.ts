@@ -1,12 +1,12 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
+import { filterGlobalCookie } from '@scalar/workspace-store/request-example'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
 
-import { filterGlobalCookie } from '@/v2/blocks/operation-block/helpers/filter-global-cookies'
 import { getDefaultHeaders } from '@/v2/blocks/request-block/helpers/get-default-headers'
-import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 import { processBody } from './process-body'
 import { processParameters } from './process-parameters'
@@ -45,6 +45,16 @@ export type OperationToHarProps = {
    * @default true
    */
   includeDefaultHeaders?: boolean
+  /**
+   * Selected oneOf/anyOf variants for nested request body example generation
+   * (e.g. from the schema dropdowns in the API reference).
+   */
+  requestBodyCompositionSelection?: Record<string, number>
+  /**
+   * Whether to disable parameters by default.
+   * @default false
+   */
+  defaultDisabledParameters?: boolean
 }
 
 /**
@@ -79,6 +89,8 @@ export const operationToHar = ({
   example,
   securitySchemes,
   globalCookies,
+  requestBodyCompositionSelection,
+  defaultDisabledParameters = false,
 }: OperationToHarProps): HarRequest => {
   const defaultHeaders = includeDefaultHeaders
     ? getDefaultHeaders({
@@ -113,6 +125,7 @@ export const operationToHar = ({
       harRequest,
       parameters: operation.parameters,
       example,
+      defaultDisabled: defaultDisabledParameters,
     })
 
     // Correctly filter the global cookies by the processed url
@@ -131,7 +144,12 @@ export const operationToHar = ({
 
   // Handle request body
   if (body?.content) {
-    const postData = processBody({ requestBody: body, contentType, example })
+    const postData = processBody({
+      requestBody: body,
+      contentType,
+      example,
+      requestBodyCompositionSelection,
+    })
 
     if (postData) {
       harRequest.postData = postData

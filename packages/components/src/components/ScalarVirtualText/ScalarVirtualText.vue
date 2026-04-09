@@ -1,3 +1,15 @@
+<script lang="ts">
+/**
+ * Scalar Virtual Text component
+ *
+ * Renders large blocks of text efficiently using virtualized scrolling.
+ * Only the visible lines are rendered to the DOM.
+ *
+ * @example
+ * <ScalarVirtualText text="line1\nline2\nline3" :lineHeight="20" />
+ */
+export default {}
+</script>
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watchEffect } from 'vue'
 

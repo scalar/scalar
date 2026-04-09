@@ -1,3 +1,5 @@
+import type { Node } from '@scalar/code-highlight'
+
 export type ScalarMarkdownProps = {
   /**
    * The markdown content to render.
@@ -16,11 +18,11 @@ export type ScalarMarkdownProps = {
    */
   withAnchors?: boolean
   /**
-   * A function to transform the markdown content.
+   * A function to transform the Markdown content.
    *
    * @see https://github.com/remarkjs/remark-rehype
    */
-  transform?: (node: Record<string, any>) => Record<string, any>
+  transform?: (node: Node) => Node
   /**
    * The type of transform to apply.
    *

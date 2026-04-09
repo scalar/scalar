@@ -1,0 +1,41 @@
+{
+  "name": "@scalar/client-side-rendering",
+  "description": "Client-side rendering for the Scalar API Reference using the CDN",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/client-side-rendering"
+  },
+  "keywords": [],
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "test": "vitest",
+    "types:check": "tsc --noEmit"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "dependencies": {
+    "@scalar/types": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "catalog:*"
+  }
+}

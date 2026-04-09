@@ -53,7 +53,7 @@ useTooltip({
 
   padding: calc(var(--scalar-tooltip-padding) + var(--scalar-tooltip-offset));
 
-  @apply z-tooltip text-c-tooltip text-xs font-medium break-words max-w-xs leading-5;
+  @apply z-tooltip text-c-tooltip text-xs/4 font-medium break-words max-w-xs;
 }
 :where(body) > .scalar-tooltip:before {
   content: '';

@@ -58,6 +58,28 @@ export const sortPropertyNames = (
         return 1
       }
 
+      // Sort by x-order specification extension when present
+      const aSchema = schema.properties?.[a]
+      const bSchema = schema.properties?.[b]
+      const aOrder =
+        aSchema && typeof aSchema === 'object' && 'x-order' in aSchema
+          ? (aSchema as Record<string, unknown>)['x-order']
+          : undefined
+      const bOrder =
+        bSchema && typeof bSchema === 'object' && 'x-order' in bSchema
+          ? (bSchema as Record<string, unknown>)['x-order']
+          : undefined
+
+      if (aOrder !== undefined && bOrder !== undefined) {
+        return Number(aOrder) - Number(bOrder)
+      }
+      if (aOrder !== undefined && bOrder === undefined) {
+        return -1
+      }
+      if (aOrder === undefined && bOrder !== undefined) {
+        return 1
+      }
+
       // Order required properties first
       if (orderRequiredPropertiesFirst) {
         // If one is required and the other isn't, required comes first

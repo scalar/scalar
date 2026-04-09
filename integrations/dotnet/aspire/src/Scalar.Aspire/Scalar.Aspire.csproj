@@ -33,8 +33,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting" Version="13.1.0" />
-    <PackageReference Include="NetEscapades.EnumGenerators.Generators" Version="1.0.0-beta20" PrivateAssets="all" ExcludeAssets="runtime" NoWarn="NU5104" />
+    <PackageReference Include="Aspire.Hosting" Version="13.2.1" />
+    <PackageReference Include="NetEscapades.EnumGenerators.Generators" Version="1.0.0-beta21" PrivateAssets="all" ExcludeAssets="runtime" NoWarn="NU5104" />
   </ItemGroup>
 
   <ItemGroup>

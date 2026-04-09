@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Logo from '@/components/Logo.vue'
+import { URLS } from '@/consts/urls'
 import { useState } from '@/state/state'
 import PromptForm from '@/views/PromptForm.vue'
 
@@ -21,22 +22,22 @@ const { mode } = useState()
       @uploadApi="emit('uploadApi')" />
     <p class="disclaimerText">
       <template v-if="mode === 'preview'">
-        By messaging Agent Scalar your OpenAPI Document will be Temporarily
-        uploaded to Scalar's Servers. You must agree to our
+        By messaging Agent Scalar your OpenAPI document will be temporarily
+        uploaded to Scalar's servers. You must agree to our
       </template>
-      <template v-else> By messaging Agent Scalar you agree to our </template>
+      <template v-else>By messaging Agent Scalar you agree to our </template>
       <a
         class="disclaimerLink"
-        href="https://scalar.com/legal/terms-and-conditions"
+        :href="URLS.TERMS_AND_CONDITIONS"
         target="_blank"
-        >Terms
-      </a>
+        >Terms</a
+      >
       and
       <a
         class="disclaimerLink"
-        href="https://scalar.com/legal/privacy-policy"
-        target="_blank">
-        Privacy Policy</a
+        :href="URLS.PRIVACY_POLICY"
+        target="_blank"
+        >Privacy Policy</a
       >.
     </p>
   </div>
@@ -62,14 +63,6 @@ const { mode } = useState()
   font-size: 1.5rem;
   font-weight: var(--scalar-font-bold);
   margin-bottom: 50px;
-}
-
-.suggestionsContainer {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin: 25px 0;
 }
 
 .disclaimerText {

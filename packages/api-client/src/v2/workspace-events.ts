@@ -103,14 +103,14 @@ export function initializeWorkspaceEventHandlers({
   //------------------------------------------------------------------------------------
   // Document Event Handlers
   //------------------------------------------------------------------------------------
+  eventBus.on('document:update:extension', (payload) =>
+    withHook('document:update:extension', mutators.value.active().document.updateDocumentExtension, hooks)(payload),
+  )
   eventBus.on('document:update:icon', (payload) =>
     withHook('document:update:icon', mutators.value.active().document.updateDocumentIcon, hooks)(payload),
   )
   eventBus.on('document:update:info', (payload) =>
     withHook('document:update:info', mutators.value.active().document.updateDocumentInfo, hooks)(payload),
-  )
-  eventBus.on('document:toggle:security', (payload) =>
-    withHook('document:toggle:security', mutators.value.active().document.toggleSecurity, hooks)(payload),
   )
   eventBus.on('document:update:watch-mode', (payload) =>
     withHook('document:update:watch-mode', mutators.value.active().document.updateWatchMode, hooks)(payload),
@@ -178,6 +178,13 @@ export function initializeWorkspaceEventHandlers({
       hooks,
     )(payload),
   )
+  eventBus.on('auth:clear:selected-security-schemes', (payload) =>
+    withHook(
+      'auth:clear:selected-security-schemes',
+      mutators.value.active().auth.clearSelectedSecuritySchemes,
+      hooks,
+    )(payload),
+  )
   eventBus.on('auth:update:security-scheme-secrets', (payload) =>
     withHook(
       'auth:update:security-scheme-secrets',
@@ -196,6 +203,9 @@ export function initializeWorkspaceEventHandlers({
   //------------------------------------------------------------------------------------
   // Server Related Event Handlers
   //------------------------------------------------------------------------------------
+  eventBus.on('server:initialize:servers', (payload) =>
+    withHook('server:initialize:servers', mutators.value.active().server.initializeServers, hooks)(payload),
+  )
   eventBus.on('server:add:server', (payload) =>
     withHook('server:add:server', mutators.value.active().server.addServer, hooks)(payload),
   )
@@ -204,6 +214,9 @@ export function initializeWorkspaceEventHandlers({
   )
   eventBus.on('server:delete:server', (payload) =>
     withHook('server:delete:server', mutators.value.active().server.deleteServer, hooks)(payload),
+  )
+  eventBus.on('server:clear:servers', (payload) =>
+    withHook('server:clear:servers', mutators.value.active().server.clearServers, hooks)(payload),
   )
   eventBus.on('server:update:variables', (payload) =>
     withHook('server:update:variables', mutators.value.active().server.updateServerVariables, hooks)(payload),
@@ -225,8 +238,8 @@ export function initializeWorkspaceEventHandlers({
       hooks,
     )(payload),
   )
-  eventBus.on('operation:update:summary', (payload) =>
-    withHook('operation:update:summary', mutators.value.active().operation.updateOperationSummary, hooks)(payload),
+  eventBus.on('operation:update:meta', (payload) =>
+    withHook('operation:update:meta', mutators.value.active().operation.updateOperationMeta, hooks)(payload),
   )
   eventBus.on('operation:delete:operation', (payload) =>
     withHook('operation:delete:operation', mutators.value.active().operation.deleteOperation, hooks)(payload),
@@ -240,6 +253,9 @@ export function initializeWorkspaceEventHandlers({
   )
   eventBus.on('operation:delete:example', (payload) =>
     withHook('operation:delete:example', mutators.value.active().operation.deleteOperationExample, hooks)(payload),
+  )
+  eventBus.on('operation:rename:example', (payload) =>
+    withHook('operation:rename:example', mutators.value.active().operation.renameOperationExample, hooks)(payload),
   )
   eventBus.on('operation:upsert:parameter', (payload) =>
     withHook('operation:upsert:parameter', mutators.value.active().operation.upsertOperationParameter, hooks)(payload),

@@ -1,5 +1,5 @@
-import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
 import { AVAILABLE_CLIENTS } from '@scalar/snippetz'
+import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import { describe, expect, it } from 'vitest'
 
 import { generateClientOptions, generateCustomId } from './generate-client-options'
@@ -40,6 +40,7 @@ describe('generateClientOptions', () => {
 
       expect(result[0]).toEqual({
         label: 'C',
+        key: 'c',
         options: [
           {
             id: 'c/libcurl',

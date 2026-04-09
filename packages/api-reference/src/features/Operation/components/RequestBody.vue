@@ -7,6 +7,7 @@ import { computed, ref } from 'vue'
 
 import { Schema } from '@/components/Content/Schema'
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
+import { getModelNameFromSchema } from '@/components/Content/Schema/helpers/schema-name'
 import {
   reduceNamesToObject,
   sortPropertyNames,
@@ -41,8 +42,16 @@ if (requestBody?.content) {
   }
 }
 
-const schema = computed(() =>
-  getResolvedRef(requestBody?.content?.[selectedContentType.value]?.schema),
+/** Raw schema (possibly with $ref) for the selected content type */
+const rawSchema = computed(
+  () => requestBody?.content?.[selectedContentType.value]?.schema,
+)
+
+const schema = computed(() => getResolvedRef(rawSchema.value))
+
+/** When the schema is a $ref, preserve its name so the UI can show the ref name instead of just the type. */
+const schemaModelName = computed(
+  () => (rawSchema.value && getModelNameFromSchema(rawSchema.value)) ?? null,
 )
 
 /**
@@ -117,6 +126,12 @@ const shouldRenderRequestBody = computed(
     <div class="request-body-header">
       <div class="request-body-title">
         <slot name="title" />
+        <span
+          v-if="schemaModelName"
+          class="text-c-2 text-xs leading-none font-normal"
+          data-testid="request-body-schema-name">
+          <span class="text-c-3 mx-1.5">·</span>{{ schemaModelName }}
+        </span>
       </div>
       <div class="flex items-center gap-2">
         <div
@@ -142,6 +157,7 @@ const shouldRenderRequestBody = computed(
       <Schema
         :breadcrumb
         compact
+        :compositionPath="['requestBody']"
         :eventBus="eventBus"
         name="Request Body"
         noncollapsible
@@ -150,12 +166,14 @@ const shouldRenderRequestBody = computed(
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
         }"
-        :schema="partitionedSchema.visibleProperties" />
+        :schema="partitionedSchema.visibleProperties"
+        schemaContext="requestBody" />
 
       <Schema
         additionalProperties
         :breadcrumb
         compact
+        :compositionPath="['requestBody']"
         :eventBus="eventBus"
         name="Request Body"
         :options="{
@@ -163,7 +181,8 @@ const shouldRenderRequestBody = computed(
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
         }"
-        :schema="partitionedSchema.collapsedProperties" />
+        :schema="partitionedSchema.collapsedProperties"
+        schemaContext="requestBody" />
     </div>
 
     <!-- Show em all 12 and under -->
@@ -173,6 +192,7 @@ const shouldRenderRequestBody = computed(
       <Schema
         :breadcrumb
         compact
+        :compositionPath="['requestBody']"
         :eventBus="eventBus"
         :hideReadOnly="true"
         name="Request Body"
@@ -182,7 +202,8 @@ const shouldRenderRequestBody = computed(
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
         }"
-        :schema="schema" />
+        :schema="schema"
+        schemaContext="requestBody" />
     </div>
   </div>
 </template>

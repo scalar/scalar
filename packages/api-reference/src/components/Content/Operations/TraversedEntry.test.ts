@@ -9,16 +9,25 @@ import type {
 } from '@scalar/workspace-store/schemas/navigation'
 import type { ComponentProps } from '@test/utils/types'
 import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { computed } from 'vue'
-
-import TraversedEntryComponent from './TraversedEntry.vue'
 
 vi.mock('@/plugins/hooks/usePluginManager', () => ({
   usePluginManager: () => ({
     getSpecificationExtensions: vi.fn(),
   }),
 }))
+
+vi.mock('@/helpers/lazy-bus', () => ({
+  getLazyPlaceholderHeight: () => undefined,
+  requestLazyRender: () => undefined,
+  setLazyPlaceholderHeight: () => undefined,
+  useLazyBus: () => ({
+    isReady: computed(() => true),
+  }),
+}))
+
+const { default: TraversedEntryComponent } = await import('./TraversedEntry.vue')
 
 const mockDocument = {
   'x-scalar-original-document-hash': 'test-hash',
@@ -176,14 +185,7 @@ const createMockWebhookGroup = (overrides: Partial<TraversedTag> = {}): Traverse
 
 afterEach(() => {
   vi.clearAllMocks()
-})
-
-beforeEach(() => {
-  vi.mock('@/helpers/lazy-bus', () => ({
-    useLazyBus: () => ({
-      isReady: computed(() => true),
-    }),
-  }))
+  vi.unstubAllGlobals()
 })
 
 describe('operation rendering', () => {

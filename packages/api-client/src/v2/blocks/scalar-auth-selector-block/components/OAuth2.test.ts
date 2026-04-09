@@ -1,9 +1,11 @@
+import { type ApiClientConfiguration, apiClientConfigurationSchema } from '@scalar/types/api-reference'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OAuthFlowsObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { nextTick, ref } from 'vue'
 
+import { CLIENT_CONFIGURATION_SYMBOL } from '@/hooks/useClientConfig'
 import OAuth2 from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import RequestAuthDataTableInput from '@/v2/blocks/scalar-auth-selector-block/components/RequestAuthDataTableInput.vue'
@@ -27,6 +29,7 @@ describe('OAuth2', () => {
       server: any
       proxyUrl: string
       scheme: any
+      configuration: Partial<ApiClientConfiguration>
     }> = {},
   ) => {
     const flows =
@@ -53,6 +56,14 @@ describe('OAuth2', () => {
         scheme: custom.scheme ?? { type: 'oauth2' },
         eventBus,
         name: 'OAuth2',
+      },
+      global: {
+        provide: {
+          [CLIENT_CONFIGURATION_SYMBOL as symbol]: ref({
+            ...apiClientConfigurationSchema.parse({}),
+            ...(custom.configuration ?? {}),
+          }),
+        },
       },
     })
   }
@@ -83,7 +94,10 @@ describe('OAuth2', () => {
     expect(emitted).toHaveBeenCalledWith({
       payload: {
         type: 'oauth2',
-        authorizationCode: { 'x-scalar-secret-token': '' },
+        authorizationCode: {
+          'x-scalar-secret-token': '',
+          'x-scalar-secret-refresh-token': '',
+        },
       },
       name: 'OAuth2',
     })
@@ -149,6 +163,55 @@ describe('OAuth2', () => {
     })
   })
 
+  it('emits credentials location updates to both the scheme config and auth secrets', async () => {
+    const wrapper = mountWithProps({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          refreshUrl: '',
+          scopes: {},
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-client-secret': '',
+        },
+      },
+    })
+
+    const schemeEmitted = vi.fn()
+    const secretsEmitted = vi.fn()
+    eventBus.on('auth:update:security-scheme', schemeEmitted)
+    eventBus.on('auth:update:security-scheme-secrets', secretsEmitted)
+
+    const credentialsLocationInput = wrapper
+      .findAllComponents(RequestAuthDataTableInput)
+      .find((input) => input.text().includes('Credentials Location'))
+
+    expect(credentialsLocationInput, 'Credentials Location input should exist').toBeTruthy()
+
+    credentialsLocationInput!.vm.$emit('update:modelValue', 'body')
+    await nextTick()
+
+    expect(schemeEmitted).toHaveBeenCalledTimes(1)
+    expect(schemeEmitted).toHaveBeenCalledWith({
+      payload: {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: { 'x-scalar-credentials-location': 'body' },
+        },
+      },
+      name: 'OAuth2',
+    })
+
+    expect(secretsEmitted).toHaveBeenCalledTimes(1)
+    expect(secretsEmitted).toHaveBeenCalledWith({
+      payload: {
+        type: 'oauth2',
+        authorizationCode: { 'x-scalar-credentials-location': 'body' },
+      },
+      name: 'OAuth2',
+    })
+  })
+
   it('re-emits selected scopes from child component', async () => {
     const wrapper = mountWithProps({ selectedScopes: [] })
 
@@ -194,6 +257,81 @@ describe('OAuth2', () => {
         },
       },
       name: 'OAuth2',
+    })
+  })
+
+  it('uses oauth2RedirectUri config when pre-filling redirect URI', async () => {
+    const emitted = vi.fn()
+    eventBus.on('auth:update:security-scheme-secrets', emitted)
+
+    mountWithProps({
+      configuration: {
+        oauth2RedirectUri: 'myapp://oauth/callback',
+      },
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          'x-scalar-secret-token': '',
+          'x-usePkce': 'no',
+          'x-scalar-secret-redirect-uri': '',
+          scopes: {},
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-client-secret': '',
+        },
+      },
+    })
+
+    await nextTick()
+
+    expect(emitted).toHaveBeenCalledTimes(1)
+    expect(emitted).toHaveBeenCalledWith({
+      payload: {
+        type: 'oauth2',
+        authorizationCode: {
+          'x-scalar-secret-redirect-uri': 'myapp://oauth/callback',
+        },
+      },
+      name: 'OAuth2',
+    })
+  })
+
+  it('does not pre-fill redirect URI on file protocol without config override', async () => {
+    const originalLocation = window.location
+    Object.defineProperty(window, 'location', {
+      value: {
+        protocol: 'file:',
+        origin: 'file://',
+        pathname: '/index.html',
+        href: 'file:///index.html',
+      },
+      writable: true,
+    })
+
+    const emitted = vi.fn()
+    eventBus.on('auth:update:security-scheme-secrets', emitted)
+
+    mountWithProps({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          'x-scalar-secret-token': '',
+          'x-usePkce': 'no',
+          'x-scalar-secret-redirect-uri': '',
+          scopes: {},
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-client-secret': '',
+        },
+      },
+    })
+
+    await nextTick()
+    expect(emitted).not.toHaveBeenCalled()
+
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true,
     })
   })
 

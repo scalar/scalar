@@ -1,8 +1,8 @@
-# Scalar API Reference Docker Image
+# API Reference Docker Image
 
 <div class="flex gap-2">
-<a href="https://hub.docker.com/r/scalarapi/api-reference" aria-label="View Scalar API Reference on Docker Hub"><img alt="Docker Image Version" src="https://img.shields.io/docker/v/scalarapi/api-reference?label=Docker%20image"></a>
-<a href="https://hub.docker.com/r/scalarapi/api-reference" aria-label="View Docker pulls for Scalar API Reference"><img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/scalarapi/api-reference?label=Docker%20pulls"></a>
+<a href="https://hub.docker.com/r/scalarapi/api-reference" aria-label="View API Reference on Docker Hub"><img alt="Docker Image Version" src="https://img.shields.io/docker/v/scalarapi/api-reference?label=Docker%20image"></a>
+<a href="https://hub.docker.com/r/scalarapi/api-reference" aria-label="View Docker pulls for API Reference"><img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/scalarapi/api-reference?label=Docker%20pulls"></a>
 <a href="https://discord.gg/scalar" aria-label="Join Scalar community on Discord"><img alt="Discord" src="https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2"></a>
 </div>
 
@@ -94,7 +94,7 @@ services:
 
 | Variable               | Description                                     | Default     |
 | ---------------------- | ----------------------------------------------- | ----------- |
-| `API_REFERENCE_CONFIG` | JSON configuration for the Scalar API Reference | -           |
+| `API_REFERENCE_CONFIG` | JSON configuration for the API Reference | -           |
 | `CDN_URL`              | URL for the API Reference CDN                   | `scalar.js` |
 
 **Note:** Either `API_REFERENCE_CONFIG` must be set OR documents must be mounted to `/docs`

@@ -1,4 +1,4 @@
-# Scalar API Reference for Elixir
+# API Reference for Elixir
 
 ScalarPlug is an Elixir plug to integrate Scalar into your Elixir application:
 

@@ -3,15 +3,20 @@ import { Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import { type XInternal, XInternalSchema } from '@/schemas/extensions/document/x-internal'
 import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
+import { type XPostResponse, XPostResponseSchema } from '@/schemas/extensions/general/x-post-response'
+import { type XPreRequest, XPreRequestSchema } from '@/schemas/extensions/general/x-pre-request'
 import { type XBadges, XBadgesSchema } from '@/schemas/extensions/operation/x-badge'
 import { type XCodeSamples, XCodeSamplesSchema } from '@/schemas/extensions/operation/x-code-samples'
 import { type XDraftExamples, XDraftExamplesSchema } from '@/schemas/extensions/operation/x-draft-examples'
-import { type XPostResponse, XPostResponseSchema } from '@/schemas/extensions/operation/x-post-response'
 import {
   type XScalarDisableParameters,
   XScalarDisableParametersSchema,
 } from '@/schemas/extensions/operation/x-scalar-disable-parameters'
 import { type XScalarStability, XScalarStabilitySchema } from '@/schemas/extensions/operation/x-scalar-stability'
+import {
+  type XScalarSelectedServer,
+  XScalarSelectedServerSchema,
+} from '@/schemas/extensions/server/x-scalar-selected-server'
 
 import type { CallbackObject } from './callback'
 import type { ExternalDocumentationObject } from './external-documentation'
@@ -65,7 +70,9 @@ export const OperationObjectSchemaDefinition = compose(
   XScalarStabilitySchema,
   XScalarDisableParametersSchema,
   XPostResponseSchema,
+  XPreRequestSchema,
   XDraftExamplesSchema,
+  XScalarSelectedServerSchema,
 )
 
 export type OperationObject = {
@@ -100,4 +107,6 @@ export type OperationObject = {
   XScalarStability &
   XScalarDisableParameters &
   XPostResponse &
-  XDraftExamples
+  XPreRequest &
+  XDraftExamples &
+  XScalarSelectedServer

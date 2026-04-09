@@ -16,17 +16,14 @@
     "scalar",
     "references"
   ],
-  "version": "0.6.6",
+  "version": "0.8.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "types": "dist/index.d.ts",
@@ -73,7 +70,6 @@
     "zod": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@types/har-format": "^1.2.16",
     "vite": "catalog:*"
   }

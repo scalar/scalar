@@ -5,6 +5,7 @@ import {
   ScalarFloatingBackdrop,
   ScalarIcon,
 } from '@scalar/components'
+import { formatMilliseconds } from '@scalar/helpers/formatters/format-milliseconds'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
 import { formatMilliseconds } from '@scalar/helpers/number/format-milliseconds'

@@ -7,15 +7,6 @@ import ApiReference from '@/components/ApiReference.vue'
 
 enableAutoUnmount(afterEach)
 
-vi.mock(import('@scalar/use-hooks/useBreakpoints'), (importOriginal) => ({
-  ...importOriginal(),
-  useBreakpoints: () => ({
-    mediaQueries: {
-      lg: { value: true },
-    },
-  }),
-}))
-
 beforeEach(() => {
   vi.resetAllMocks()
   vi.unstubAllGlobals()
@@ -311,6 +302,139 @@ describe('multiple configurations', () => {
     // now onLoaded should have been called
     expect(onLoaded).toHaveBeenCalledOnce()
   })
+
+  it('restores client libraries when switching from hiddenClients=true source', async () => {
+    const createDocument = (title: string) => ({
+      openapi: '3.1.0',
+      info: {
+        title,
+        version: '1.0.0',
+      },
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get users',
+          },
+        },
+      },
+    })
+
+    const wrapper = mount(ApiReference, {
+      props: {
+        configuration: {
+          sources: [
+            {
+              slug: 'all-clients',
+              default: true,
+              content: createDocument('All Clients'),
+            },
+            {
+              slug: 'no-clients',
+              // `sources` typing does not yet include per-source api-reference settings.
+              hiddenClients: true,
+              content: createDocument('No Clients'),
+            } as never,
+          ],
+        },
+      },
+    })
+
+    const getVisibleClientIds = (): string[] => {
+      const clientSelector = wrapper.findComponent({ name: 'ClientSelector' })
+      if (!clientSelector.exists()) {
+        return []
+      }
+
+      const clientOptions = clientSelector.props('clientOptions') as Array<{
+        options: Array<{ id: string }>
+      }>
+
+      return clientOptions.flatMap((group) => group.options.map((option) => option.id))
+    }
+
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+
+    expect(getVisibleClientIds().includes('js/fetch')).toBe(true)
+
+    const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
+    await documentSelector.vm.$emit('update:modelValue', 'no-clients')
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+
+    expect(getVisibleClientIds()).toStrictEqual([])
+
+    await documentSelector.vm.$emit('update:modelValue', 'all-clients')
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+
+    expect(getVisibleClientIds().includes('js/fetch')).toBe(true)
+  })
+
+  it('restores client libraries when switching array-based configurations', async () => {
+    const createDocument = (title: string) => ({
+      openapi: '3.1.0',
+      info: {
+        title,
+        version: '1.0.0',
+      },
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get users',
+          },
+        },
+      },
+    })
+
+    const wrapper = mount(ApiReference, {
+      props: {
+        configuration: [
+          {
+            slug: 'all-clients',
+            default: true,
+            content: createDocument('All Clients'),
+          },
+          {
+            slug: 'no-clients',
+            hiddenClients: true,
+            content: createDocument('No Clients'),
+          },
+        ],
+      },
+    })
+
+    const getVisibleClientIds = (): string[] => {
+      const clientSelector = wrapper.findComponent({ name: 'ClientSelector' })
+      if (!clientSelector.exists()) {
+        return []
+      }
+
+      const clientOptions = clientSelector.props('clientOptions') as Array<{
+        options: Array<{ id: string }>
+      }>
+
+      return clientOptions.flatMap((group) => group.options.map((option) => option.id))
+    }
+
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+
+    expect(getVisibleClientIds().includes('js/fetch')).toBe(true)
+
+    const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
+    await documentSelector.vm.$emit('update:modelValue', 'no-clients')
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+
+    expect(getVisibleClientIds()).toStrictEqual([])
+
+    await documentSelector.vm.$emit('update:modelValue', 'all-clients')
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+
+    expect(getVisibleClientIds().includes('js/fetch')).toBe(true)
+  })
 })
 
 describe('circular documents', () => {
@@ -539,5 +663,57 @@ describe('proxy configuration', () => {
 
     // Verify that fetch was called without the proxied URL
     expect(mockFetch).toHaveBeenCalledWith('https://api.example.com/v1/openapi.yaml', expect.any(Object))
+  })
+})
+
+describe('sidebar introduction toggle behavior', () => {
+  it('collapses introduction when clicked a second time', async () => {
+    const wrapper = mount(ApiReference, {
+      props: {
+        configuration: {
+          content: {
+            openapi: '3.1.0',
+            info: {
+              title: 'My API',
+              version: '1.0.0',
+              description: `
+Welcome to the API.
+
+# Main Section
+## Subsection
+              `,
+            },
+            paths: {},
+          },
+        },
+      },
+    })
+
+    await flushPromises()
+
+    const introduction = wrapper.vm.sidebarItems.find(
+      (item: { type: string; title: string }) => item.type === 'text' && item.title === 'Introduction',
+    )
+    expect(introduction).toBeDefined()
+    if (!introduction) {
+      throw new Error('Expected Introduction entry in sidebar items')
+    }
+
+    const introductionButton = wrapper.find(`[data-sidebar-id="${introduction.id}"] [aria-selected]`)
+    const introductionToggle = wrapper.find(
+      // Make sure we select the toggle not the group button
+      `[data-sidebar-id="${introduction.id}"] [aria-expanded]:not([aria-selected])`,
+    )
+
+    expect(introductionButton.attributes('aria-expanded')).toBe('false')
+    expect(introductionToggle.attributes('aria-expanded')).toBe('false')
+
+    await introductionButton.trigger('click')
+    expect(introductionButton.attributes('aria-expanded')).toBe('true')
+    expect(introductionToggle.attributes('aria-expanded')).toBe('true')
+
+    await introductionToggle.trigger('click')
+    expect(introductionButton.attributes('aria-expanded')).toBe('false')
+    expect(introductionToggle.attributes('aria-expanded')).toBe('false')
   })
 })

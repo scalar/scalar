@@ -1,4 +1,12 @@
-import { type Page, type ViewportSize, devices, expect, test } from '@playwright/test'
+import {
+  type Page,
+  type PageAssertionsToHaveScreenshotOptions as ScreenshotOptions,
+  type ViewportSize,
+  devices,
+  expect,
+  test,
+} from '@playwright/test'
+import { isClassic } from '@test/utils/is-classic'
 import { serveExample } from '@test/utils/serve-example'
 
 import { type Slug, sources } from '../utils/sources'
@@ -39,22 +47,55 @@ const injectHeader = async (page: Page) => {
   })
 }
 
+/** Options for the page screenshots */
+const getScreenshotOptions = (page: Page) =>
+  ({
+    mask: [
+      page.getByRole('region', { name: 'Introduction' }), // Hide the introduction section
+      page.locator('aside > ul'), // Hide the sidebar contents
+    ],
+    maskColor: '#eee',
+  }) satisfies ScreenshotOptions
+
 /**
  * Takes snapshots of the custom header
  */
 toTest.forEach((source) => {
   const { slug } = source
 
-  test(source.title, async ({ page }) => {
-    const example = await serveExample({ ...source, customCss })
-    await page.goto(example)
-    await injectHeader(page)
+  test.describe('Desktop', () => {
+    test(source.title, async ({ page }) => {
+      const example = await serveExample({ ...source, customCss })
+      await page.goto(example)
+      await injectHeader(page)
 
-    await expect(page.locator('.custom-header')).toBeVisible()
-    await expect(page).toHaveScreenshot(`${slug}-header.png`)
+      /** Options for the page screenshots */
+      const opts = getScreenshotOptions(page)
 
-    await page.setViewportSize(mobileViewport)
-    await expect(page.locator('.custom-header')).toBeVisible()
-    await expect(page).toHaveScreenshot(`${slug}-header-mobile.png`)
+      await expect(page.locator('.custom-header')).toBeVisible()
+      await expect(page).toHaveScreenshot(`${slug}-header.png`, opts)
+    })
+  })
+
+  test.describe('Mobile', () => {
+    test.use({ viewport: mobileViewport })
+    test(source.title, async ({ page }) => {
+      const example = await serveExample({ ...source, customCss })
+
+      if (isClassic(source)) {
+        await page.goto(example)
+      } else {
+        // Navigate to a specific section so the breadcrumb is consistent
+        await page.goto(`${example}#description/introduction`)
+      }
+
+      await injectHeader(page)
+
+      /** Options for the page screenshots */
+      const opts = getScreenshotOptions(page)
+
+      await expect(page.locator('.custom-header')).toBeVisible()
+      await expect(page).toHaveScreenshot(`${slug}-header-mobile.png`, opts)
+    })
   })
 })

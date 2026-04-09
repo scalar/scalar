@@ -1,3 +1,4 @@
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it, test } from 'vitest'
 
 import { convert } from './convert'
@@ -49,6 +50,39 @@ describe('fixtures', () => {
 })
 
 describe('convert', () => {
+  it('merges into an existing OpenAPI document', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Postman API',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Echo',
+          request: 'https://api.example.com/v2/echo',
+        },
+      ],
+    }
+
+    const base = {
+      openapi: '3.1.0',
+      info: { title: 'Existing', version: '2.0.0' },
+      paths: {
+        '/health': {
+          get: { responses: { '200': { description: 'ok' } } },
+        },
+      },
+      tags: [{ name: 'Core' }],
+    }
+
+    const result = convert(collection, { document: base as OpenAPIV3_1.Document })
+
+    expect(result.info?.title).toBe('Existing')
+    expect(result.paths?.['/health']).toBeDefined()
+    expect(Object.keys(result.paths ?? {})).toContain('/v2/echo')
+    expect(result.tags?.map((t: OpenAPIV3_1.TagObject) => t.name)).toContain('Core')
+  })
+
   it('creates tags from nested folders without mutating the input collection', () => {
     const collection: PostmanCollection = {
       info: {
@@ -83,6 +117,47 @@ describe('convert', () => {
 
     expect(result.tags).toEqual([{ name: 'Parent', description: 'Parent folder' }, { name: 'Parent > Child' }])
     expect(collection).toEqual(snapshot)
+  })
+
+  it('imports only requests at requestIndexPaths and keeps folder tags for those branches', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Filtered',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Parent',
+          description: 'Parent folder',
+          item: [
+            {
+              name: 'Child',
+              item: [
+                {
+                  name: 'Leaf request',
+                  request: 'https://api.scalar.com/users',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          name: 'Standalone request',
+          request: 'https://api.scalar.com/status',
+        },
+      ],
+    }
+
+    const nestedOnly = convert(collection, { requestIndexPaths: [[0, 0, 0]] })
+    expect(Object.keys(nestedOnly.paths ?? {})).toEqual(['/users'])
+    expect(nestedOnly.tags).toEqual([{ name: 'Parent', description: 'Parent folder' }, { name: 'Parent > Child' }])
+
+    const standaloneOnly = convert(collection, { requestIndexPaths: [[1]] })
+    expect(Object.keys(standaloneOnly.paths ?? {})).toEqual(['/status'])
+    expect(standaloneOnly.tags).toBeUndefined()
+
+    const emptySelection = convert(collection, { requestIndexPaths: [] })
+    expect(Object.keys(emptySelection.paths ?? {})).toEqual([])
   })
 
   it('fails fast when string input is not valid JSON', () => {
@@ -138,7 +213,7 @@ describe('convert', () => {
     })
   })
 
-  it('overwrites duplicate operations with last-write-wins policy', () => {
+  it('overwrites properties other than parameters and requestBody', () => {
     const collection: PostmanCollection = {
       info: {
         name: 'Duplicate operations',

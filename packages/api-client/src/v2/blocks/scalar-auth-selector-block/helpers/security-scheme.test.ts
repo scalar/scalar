@@ -162,7 +162,7 @@ describe('security-scheme', () => {
     it('should return grouped options', () => {
       const security: NonNullable<OpenApiDocument['security']> = [{ apiKey: [] }, { httpBasic: [] }]
 
-      const result = getSecuritySchemeOptions(security, securitySchemes, [])
+      const result = getSecuritySchemeOptions(security, securitySchemes, [], true)
 
       expect(Array.isArray(result)).toBe(true)
       expect(result).toHaveLength(3) // Required, Available, Add new
@@ -195,7 +195,7 @@ describe('security-scheme', () => {
 
     it('should return all options when it has required schemes and no selected schemes', () => {
       const security: NonNullable<OpenApiDocument['security']> = [{ apiKey: [] }]
-      const result = getSecuritySchemeOptions(security, securitySchemes, [])
+      const result = getSecuritySchemeOptions(security, securitySchemes, [], true)
 
       expect(Array.isArray(result)).toBe(true)
       expect(result).toStrictEqual([
@@ -373,7 +373,7 @@ describe('security-scheme', () => {
 
     it('should handle missing security schemes gracefully', () => {
       const security: NonNullable<OpenApiDocument['security']> = [{ nonExistent: [] }]
-      const result = getSecuritySchemeOptions(security, securitySchemes, [])
+      const result = getSecuritySchemeOptions(security, securitySchemes, [], true)
 
       const groups = result as SecuritySchemeGroup[]
       expect(groups[0]!.options).toHaveLength(0) // Should filter out undefined schemes
@@ -381,7 +381,7 @@ describe('security-scheme', () => {
 
     it('should handle empty security array', () => {
       const security: NonNullable<OpenApiDocument['security']> = []
-      const result = getSecuritySchemeOptions(security, securitySchemes, [])
+      const result = getSecuritySchemeOptions(security, securitySchemes, [], true)
 
       const groups = result as SecuritySchemeGroup[]
       expect(groups[0]!.options).toHaveLength(0) // No required schemes
@@ -390,7 +390,7 @@ describe('security-scheme', () => {
 
     it('should handle empty security schemes object', () => {
       const security: NonNullable<OpenApiDocument['security']> = [{ apiKey: [] }]
-      const result = getSecuritySchemeOptions(security, {}, [])
+      const result = getSecuritySchemeOptions(security, {}, [], true)
 
       const groups = result as SecuritySchemeGroup[]
       expect(groups[0]!.options).toHaveLength(0) // No schemes found
@@ -399,7 +399,7 @@ describe('security-scheme', () => {
 
     it('should include all auth options in add new section', () => {
       const security: NonNullable<OpenApiDocument['security']> = []
-      const result = getSecuritySchemeOptions(security, securitySchemes, [])
+      const result = getSecuritySchemeOptions(security, securitySchemes, [], true)
 
       const groups = result as SecuritySchemeGroup[]
       const addNewOptions = groups[2]!.options
@@ -476,7 +476,7 @@ describe('security-scheme', () => {
     it('should create proper value objects for available schemes', () => {
       const security: NonNullable<OpenApiDocument['security']> = []
 
-      const result = getSecuritySchemeOptions(security, securitySchemes, [])
+      const result = getSecuritySchemeOptions(security, securitySchemes, [], true)
 
       const groups = result as SecuritySchemeGroup[]
       const availableOptions = groups[1]!.options
@@ -612,7 +612,7 @@ describe('security-scheme', () => {
         },
       ]
 
-      const result = getSecuritySchemeOptions(security, securitySchemes, selectedSchemes)
+      const result = getSecuritySchemeOptions(security, securitySchemes, selectedSchemes, true)
       expect((result[1] as SecuritySchemeGroup).options).toStrictEqual([
         {
           id: '05f6eac51b164030',
@@ -689,7 +689,7 @@ describe('security-scheme', () => {
         },
       ]
 
-      const result = getSecuritySchemeOptions(security, securitySchemes, selectedSchemes)
+      const result = getSecuritySchemeOptions(security, securitySchemes, selectedSchemes, true)
       expect((result[1] as SecuritySchemeGroup).options).toStrictEqual([
         {
           id: '05f6eac51b164030',
@@ -698,6 +698,40 @@ describe('security-scheme', () => {
           value: { UserAccessToken: [] },
         },
       ])
+    })
+
+    it('hydrates required oauth2 options with selected scopes without adding a duplicate option', () => {
+      const security: NonNullable<OpenApiDocument['security']> = [{ OAuth2: [] }]
+      const securitySchemes: NonNullable<ComponentsObject['securitySchemes']> = {
+        OAuth2: {
+          type: 'oauth2',
+          flows: {
+            authorizationCode: {
+              authorizationUrl: 'https://scalar.com/oauth/authorize',
+              tokenUrl: 'https://scalar.com/oauth/token',
+              scopes: {
+                read: 'Read',
+              },
+              refreshUrl: '',
+              'x-usePkce': 'no',
+            },
+          },
+        },
+        ApiKey: {
+          type: 'apiKey',
+          in: 'header',
+          name: 'X-API-Key',
+        },
+      }
+      const selectedSchemes = [{ OAuth2: ['read'] }]
+
+      const result = getSecuritySchemeOptions(security, securitySchemes, selectedSchemes, true)
+      const groups = result as SecuritySchemeGroup[]
+
+      expect(groups[0]?.options).toHaveLength(1)
+      expect(groups[0]?.options[0]?.label).toBe('OAuth2')
+      expect(groups[0]?.options[0]?.value).toEqual({ OAuth2: ['read'] })
+      expect(groups[1]?.options.some((option) => option.label === 'OAuth2')).toBe(false)
     })
   })
 })

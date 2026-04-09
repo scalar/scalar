@@ -9,8 +9,9 @@ import {
   createOperationDraftExample,
   deleteOperation,
   deleteOperationExample,
+  renameOperationExample,
+  updateOperationMeta,
   updateOperationPathMethod,
-  updateOperationSummary,
 } from './operation'
 
 const createDocument = (initial?: Partial<WorkspaceDocument>): WorkspaceDocument => {
@@ -21,139 +22,6 @@ const createDocument = (initial?: Partial<WorkspaceDocument>): WorkspaceDocument
     'x-scalar-original-document-hash': '123',
   }
 }
-
-describe('updateOperationSummary', () => {
-  it('updates summary for an existing operation', async () => {
-    const store = createWorkspaceStore()
-    await store.addDocument({
-      name: 'test-doc',
-      document: createDocument({
-        paths: {
-          '/users': {
-            get: {
-              summary: 'Old summary',
-            },
-          },
-        },
-      }),
-    })
-
-    const document = store.workspace.documents['test-doc']!
-
-    updateOperationSummary(store, document, {
-      meta: { method: 'get', path: '/users' },
-      payload: { summary: 'New summary' },
-    })
-
-    expect(document.paths?.['/users']?.get?.summary).toBe('New summary')
-  })
-
-  it('no-ops when store is null', () => {
-    const document = createDocument({
-      paths: {
-        '/users': {
-          get: {
-            summary: 'Old summary',
-          },
-        },
-      },
-    })
-
-    expect(() =>
-      updateOperationSummary(null, document, {
-        meta: { method: 'get', path: '/users' },
-        payload: { summary: 'Anything' },
-      }),
-    ).not.toThrow()
-  })
-
-  it('no-ops when document is null', () => {
-    const store = createWorkspaceStore()
-
-    expect(() =>
-      updateOperationSummary(store, null, {
-        meta: { method: 'get', path: '/users' },
-        payload: { summary: 'Anything' },
-      }),
-    ).not.toThrow()
-  })
-
-  it('no-ops when operation does not exist', async () => {
-    const store = createWorkspaceStore()
-    await store.addDocument({
-      name: 'test-doc',
-      document: createDocument({
-        paths: {
-          '/users': {},
-        },
-      }),
-    })
-
-    const document = store.workspace.documents['test-doc']!
-
-    updateOperationSummary(store, document, {
-      meta: { method: 'get', path: '/users' },
-      payload: { summary: 'New summary' },
-    })
-
-    expect(document.paths?.['/users']).toEqual({})
-  })
-
-  it('no-ops when document navigation name is undefined', () => {
-    const store = createWorkspaceStore()
-    const document = createDocument({
-      paths: {
-        '/users': {
-          get: {
-            summary: 'Old summary',
-          },
-        },
-      },
-    })
-
-    /** Document without x-scalar-navigation */
-    expect(() =>
-      updateOperationSummary(store, document, {
-        meta: { method: 'get', path: '/users' },
-        payload: { summary: 'New summary' },
-      }),
-    ).not.toThrow()
-
-    expect(document.paths?.['/users']?.get?.summary).toBe('Old summary')
-  })
-
-  it('rebuilds sidebar after updating summary', async () => {
-    const store = createWorkspaceStore()
-    await store.addDocument({
-      name: 'test-doc',
-      document: createDocument({
-        paths: {
-          '/users': {
-            get: {
-              summary: 'Old summary',
-            },
-          },
-        },
-      }),
-    })
-
-    store.buildSidebar('test-doc')
-    const document = store.workspace.documents['test-doc']!
-
-    /** Store the initial sidebar state */
-    const initialNavigation = document['x-scalar-navigation']
-
-    updateOperationSummary(store, document, {
-      meta: { method: 'get', path: '/users' },
-      payload: { summary: 'Updated summary' },
-    })
-
-    /** Sidebar should be rebuilt (navigation object will have been updated) */
-    expect(document.paths?.['/users']?.get?.summary).toBe('Updated summary')
-    expect(document['x-scalar-navigation']).toBeDefined()
-    expect(initialNavigation).toBeDefined()
-  })
-})
 
 describe('updateOperationPathMethod (method only)', () => {
   const store = createWorkspaceStore()
@@ -180,16 +48,25 @@ describe('updateOperationPathMethod (method only)', () => {
     })
     store.buildSidebar('test')
     const document = store.workspace.documents.test!
-    expect(document['x-scalar-order']).toStrictEqual(['test/GET/users', 'test/POST/users'])
+    expect(document['x-scalar-order']).toStrictEqual([
+      'test/description/introduction',
+      'test/GET/users',
+      'test/POST/users',
+    ])
 
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/users' },
       payload: { method: 'put', path: '/users' },
+      blurTargetSelector: null,
       callback: (_status) => {
         return
       },
     })
-    expect(document['x-scalar-order']).toStrictEqual(['test/PUT/users', 'test/POST/users'])
+    expect(document['x-scalar-order']).toStrictEqual([
+      'test/description/introduction',
+      'test/PUT/users',
+      'test/POST/users',
+    ])
 
     // The operation should now be under 'put'
     expect(document.paths?.['/users']).toStrictEqual({
@@ -252,6 +129,7 @@ describe('updateOperationPathMethod (method only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/products' },
       payload: { method: 'patch', path: '/products' },
+      blurTargetSelector: null,
       callback: (_status) => {
         return
       },
@@ -301,6 +179,7 @@ describe('updateOperationPathMethod (method only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/items' },
       payload: { method: 'post', path: '/items' },
+      blurTargetSelector: null,
       callback: (status) => {
         callbackResult = status
       },
@@ -334,6 +213,7 @@ describe('updateOperationPathMethod (path only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/users' },
       payload: { method: 'get', path: '/api/users' },
+      blurTargetSelector: null,
       callback: () => {
         return
       },
@@ -383,6 +263,7 @@ describe('updateOperationPathMethod (path only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'post', path: '/posts' },
       payload: { method: 'post', path: '/api/v2/posts' },
+      blurTargetSelector: null,
       callback: () => {
         return
       },
@@ -434,6 +315,7 @@ describe('updateOperationPathMethod (path only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/users' },
       payload: { method: 'get', path: '/api/users' },
+      blurTargetSelector: null,
       callback: () => {
         return
       },
@@ -477,6 +359,7 @@ describe('updateOperationPathMethod (path only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/users/{id}' },
       payload: { method: 'get', path: '/events/{id}' },
+      blurTargetSelector: null,
       callback: () => {
         return
       },
@@ -519,6 +402,7 @@ describe('updateOperationPathMethod (path only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/users/{id}' },
       payload: { method: 'get', path: '/events/{id}/started{avar' },
+      blurTargetSelector: null,
       callback: () => {
         return
       },
@@ -562,6 +446,7 @@ describe('updateOperationPathMethod (path only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/users/{id}/{limit}' },
       payload: { method: 'get', path: '/events/{limit}/{id}' },
+      blurTargetSelector: null,
       callback: () => {
         return
       },
@@ -572,8 +457,8 @@ describe('updateOperationPathMethod (path only)', () => {
         get: {
           summary: 'Get users',
           parameters: [
-            { name: 'limit', in: 'path', examples: { test: { value: '10' } } },
             { name: 'id', in: 'path', examples: { test: { value: '1212' } } },
+            { name: 'limit', in: 'path', examples: { test: { value: '10' } } },
             { name: 'name', in: 'query' },
           ],
         },
@@ -605,6 +490,7 @@ describe('updateOperationPathMethod (path only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/users/{id}' },
       payload: { method: 'get', path: '/users/{limit}' },
+      blurTargetSelector: null,
       callback: () => {
         return
       },
@@ -647,6 +533,7 @@ describe('updateOperationPathMethod (path only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/users/{id}' },
       payload: { method: 'get', path: '/users/events/{limit}' },
+      blurTargetSelector: null,
       callback: () => {
         return
       },
@@ -657,8 +544,8 @@ describe('updateOperationPathMethod (path only)', () => {
         get: {
           summary: 'Get users',
           parameters: [
-            { name: 'limit', in: 'path' },
             { name: 'name', in: 'query' },
+            { name: 'limit', in: 'path' },
           ],
         },
       },
@@ -687,6 +574,7 @@ describe('updateOperationPathMethod (path only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/items' },
       payload: { method: 'get', path: '/api/items' },
+      blurTargetSelector: null,
       callback: (status) => {
         callbackResult = status
       },
@@ -724,6 +612,7 @@ describe('updateOperationPathMethod (path only)', () => {
     updateOperationPathMethod(document, store, {
       meta: { method: 'get', path: '/items' },
       payload: { method: 'get', path: '/api/items' },
+      blurTargetSelector: null,
       callback: (status) => {
         callbackResult = status
       },
@@ -1633,5 +1522,334 @@ describe('deleteOperationExample', () => {
     expect(param.examples?.small).toBeUndefined()
     expect(param.examples?.large).toBeDefined()
     expect(operation?.['x-draft-examples']).toEqual(['default', 'large'])
+  })
+})
+
+describe('renameOperationExample', () => {
+  it('renames an example across draft examples, parameters, and request body', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            post: {
+              summary: 'Create user',
+              'x-draft-examples': ['default', 'custom'],
+              parameters: [
+                {
+                  name: 'limit',
+                  in: 'query',
+                  examples: {
+                    default: { value: '10' },
+                    custom: { value: '50' },
+                  },
+                },
+              ],
+              requestBody: {
+                content: {
+                  'application/json': {
+                    examples: {
+                      default: { value: '{}' },
+                      custom: { value: '{"name":"Ada"}' },
+                    },
+                  },
+                },
+                'x-scalar-selected-content-type': {
+                  default: 'application/json',
+                  custom: 'application/json',
+                },
+              },
+            },
+          },
+        },
+      }),
+    })
+
+    renameOperationExample(store, {
+      documentName: 'test-doc',
+      meta: { method: 'post', path: '/users', exampleKey: 'custom' },
+      payload: { name: 'renamed' },
+    })
+
+    const document = store.workspace.documents['test-doc']
+    const operation = getResolvedRef(document?.paths?.['/users']?.post)
+    const parameter = getResolvedRef(operation?.parameters?.[0])
+    const requestBody = getResolvedRef(operation?.requestBody)
+
+    expect(operation?.['x-draft-examples']).toEqual(['default', 'renamed'])
+    assert(parameter && 'examples' in parameter)
+    expect(parameter.examples?.custom).toBeUndefined()
+    expect(parameter.examples?.renamed).toBeDefined()
+    expect(requestBody?.content?.['application/json']?.examples?.custom).toBeUndefined()
+    expect(requestBody?.content?.['application/json']?.examples?.renamed).toBeDefined()
+    expect(requestBody?.['x-scalar-selected-content-type']?.custom).toBeUndefined()
+    expect(requestBody?.['x-scalar-selected-content-type']?.renamed).toBe('application/json')
+  })
+
+  it('does not rename when target example already exists', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get users',
+              'x-draft-examples': ['default', 'custom'],
+              parameters: [
+                {
+                  name: 'limit',
+                  in: 'query',
+                  examples: {
+                    default: { value: '10' },
+                    custom: { value: '50' },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      }),
+    })
+
+    renameOperationExample(store, {
+      documentName: 'test-doc',
+      meta: { method: 'get', path: '/users', exampleKey: 'custom' },
+      payload: { name: 'default' },
+    })
+
+    const document = store.workspace.documents['test-doc']
+    const operation = getResolvedRef(document?.paths?.['/users']?.get)
+    const parameter = getResolvedRef(operation?.parameters?.[0])
+
+    expect(operation?.['x-draft-examples']).toEqual(['default', 'custom'])
+    assert(parameter && 'examples' in parameter)
+    expect(parameter.examples?.custom).toBeDefined()
+    expect(parameter.examples?.default).toBeDefined()
+  })
+
+  it('does not rename when target key exists only in request body examples', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            post: {
+              summary: 'Create user',
+              requestBody: {
+                content: {
+                  'application/json': {
+                    examples: {
+                      custom: { value: '{"name":"Jane"}' },
+                      existing: { value: '{"name":"Ada"}' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+    })
+
+    renameOperationExample(store, {
+      documentName: 'test-doc',
+      meta: { method: 'post', path: '/users', exampleKey: 'custom' },
+      payload: { name: 'existing' },
+    })
+
+    const document = store.workspace.documents['test-doc']
+    const operation = getResolvedRef(document?.paths?.['/users']?.post)
+    const requestBody = getResolvedRef(operation?.requestBody)
+    const examples = requestBody?.content?.['application/json']?.examples
+
+    expect(examples?.custom).toBeDefined()
+    expect(examples?.existing).toBeDefined()
+  })
+})
+
+describe('updateOperationMeta', () => {
+  it('updates operation description when document and operation exist', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'meta-test',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get users',
+              description: 'Retrieve list of users',
+            },
+          },
+        },
+      }),
+    })
+    const document = store.workspace.documents['meta-test']!
+
+    updateOperationMeta(store, document, {
+      meta: { method: 'get', path: '/users' },
+      payload: { description: 'Updated description' },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    expect(operation?.description).toBe('Updated description')
+    expect(operation?.summary).toBe('Get users')
+  })
+
+  it('updates operation summary when provided in payload', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'meta-test-summary',
+      document: createDocument({
+        paths: {
+          '/pets': {
+            get: {
+              summary: 'List pets',
+              description: 'Returns all pets',
+            },
+          },
+        },
+      }),
+    })
+    const document = store.workspace.documents['meta-test-summary']!
+
+    updateOperationMeta(store, document, {
+      meta: { method: 'get', path: '/pets' },
+      payload: { summary: 'Get all pets' },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/pets']?.get)
+    expect(operation?.summary).toBe('Get all pets')
+    expect(operation?.description).toBe('Returns all pets')
+  })
+
+  it('updates operation deprecated flag when provided in payload', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'meta-test-deprecated',
+      document: createDocument({
+        paths: {
+          '/legacy': {
+            get: {
+              summary: 'Legacy endpoint',
+              deprecated: false,
+            },
+          },
+        },
+      }),
+    })
+    const document = store.workspace.documents['meta-test-deprecated']!
+
+    updateOperationMeta(store, document, {
+      meta: { method: 'get', path: '/legacy' },
+      payload: { deprecated: true },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/legacy']?.get)
+    expect(operation?.deprecated).toBe(true)
+    expect(operation?.summary).toBe('Legacy endpoint')
+  })
+
+  it('updates multiple meta fields at once', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'meta-test-multi',
+      document: createDocument({
+        paths: {
+          '/items': {
+            post: {
+              summary: 'Create',
+              description: 'Old description',
+              deprecated: false,
+            },
+          },
+        },
+      }),
+    })
+    const document = store.workspace.documents['meta-test-multi']!
+
+    updateOperationMeta(store, document, {
+      meta: { method: 'post', path: '/items' },
+      payload: {
+        summary: 'Create item',
+        description: 'Creates a new item',
+        deprecated: true,
+      },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/items']?.post)
+    expect(operation?.summary).toBe('Create item')
+    expect(operation?.description).toBe('Creates a new item')
+    expect(operation?.deprecated).toBe(true)
+  })
+
+  it('does not mutate operation when document is null', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'meta-test-null-doc',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: { summary: 'Get users', description: 'Original' },
+          },
+        },
+      }),
+    })
+    store.buildSidebar('meta-test-null-doc')
+    const document = store.workspace.documents['meta-test-null-doc']!
+
+    updateOperationMeta(store, null, {
+      meta: { method: 'get', path: '/users' },
+      payload: { description: 'Should not apply' },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    expect(operation?.description).toBe('Original')
+  })
+
+  it('does not mutate operation when store is null', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'meta-test-null-store',
+      document: createDocument({
+        paths: {
+          '/users': {
+            get: { summary: 'Get users', description: 'Original' },
+          },
+        },
+      }),
+    })
+    const document = store.workspace.documents['meta-test-null-store']!
+
+    updateOperationMeta(null, document, {
+      meta: { method: 'get', path: '/users' },
+      payload: { description: 'Should not apply' },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    expect(operation?.description).toBe('Original')
+  })
+
+  it('does not mutate when operation is not found at path and method', () => {
+    const store = createWorkspaceStore()
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: { summary: 'Get users' },
+        },
+      },
+    })
+
+    updateOperationMeta(store, document, {
+      meta: { method: 'get', path: '/nonexistent' },
+      payload: { description: 'Should not apply' },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    expect(operation?.summary).toBe('Get users')
+
+    expect(Object.keys(document.paths ?? {})).toEqual(['/users'])
   })
 })

@@ -20,15 +20,14 @@
     "openapi 3.0",
     "openapi 3.1"
   ],
-  "version": "0.1.8",
+  "version": "0.2.4",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "main": "./dist/index.js",
@@ -80,7 +79,6 @@
     "@scalar/openapi-types": "workspace:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@scalar/types": "workspace:*",
     "vite": "catalog:*"
   }

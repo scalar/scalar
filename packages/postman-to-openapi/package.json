@@ -19,18 +19,15 @@
     "export",
     "scalar"
   ],
-  "version": "0.4.7",
+  "version": "0.6.1",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
-    "format": "scalar-format",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "generate:textures": "tsx ./scripts/generate-textures.ts",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -51,7 +48,6 @@
     "@scalar/openapi-types": "workspace:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@types/node": "catalog:*",
     "vite": "catalog:*"
   }

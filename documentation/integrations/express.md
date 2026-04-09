@@ -1,4 +1,4 @@
-# Scalar API Reference for Express
+# API Reference for Express
 
 This middleware provides an easy way to render a beautiful API reference based on an OpenAPI/Swagger file with Express.
 

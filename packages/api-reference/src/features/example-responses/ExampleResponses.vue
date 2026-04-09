@@ -1,14 +1,9 @@
 <script lang="ts" setup>
-import { getExample } from '@scalar/api-client/v2/blocks/operation-block'
-import {
-  ExamplePicker,
-  getResolvedRefDeep,
-} from '@scalar/api-client/v2/blocks/operation-code-sample'
+import { ExamplePicker } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import {
   ScalarCard,
   ScalarCardFooter,
   ScalarCardSection,
-  ScalarCodeBlock,
   ScalarIcon,
   ScalarMarkdown,
 } from '@scalar/components'
@@ -16,6 +11,7 @@ import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getExample } from '@scalar/workspace-store/request-example'
 import type {
   MediaTypeObject,
   ResponsesObject,
@@ -23,6 +19,7 @@ import type {
 import { computed, ref, toValue, useId, watch } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
+import ExampleSchema from '@/features/example-responses/ExampleSchema.vue'
 
 import ExampleResponse from './ExampleResponse.vue'
 import ExampleResponseTab from './ExampleResponseTab.vue'
@@ -45,10 +42,10 @@ const orderedStatusCodes = computed<string[]>(() =>
   Object.keys(responses ?? {}).sort(),
 )
 
-// Filter to only status codes that have response content
+// Filter to only valid response keys that should render in the example responses panel
 const statusCodesWithContent = computed<string[]>(() =>
   orderedStatusCodes.value.filter((statusCode) =>
-    hasResponseContent(getResolvedRef(responses?.[statusCode])),
+    hasResponseContent(getResolvedRef(responses?.[statusCode]), statusCode),
   ),
 )
 
@@ -174,12 +171,10 @@ const showSchema = ref(false)
     </ExampleResponseTabList>
     <ScalarCardSection class="grid flex-1">
       <!-- Schema -->
-      <ScalarCodeBlock
-        v-if="showSchema && currentResponseContent?.schema"
+      <ExampleSchema
+        v-if="currentResponseContent?.schema && showSchema"
         :id="id"
-        class="bg-b-2"
-        :content="getResolvedRefDeep(currentResponseContent?.schema)"
-        lang="json" />
+        :schema="currentResponseContent?.schema" />
 
       <!-- Example -->
       <ExampleResponse
@@ -191,18 +186,17 @@ const showSchema = ref(false)
     <ScalarCardFooter
       v-if="currentResponse?.description || hasMultipleExamples"
       class="response-card-footer">
-      <div
-        v-if="currentResponse?.description"
-        class="response-description">
-        <ScalarMarkdown
-          class="markdown"
-          :value="currentResponse.description" />
-      </div>
       <ExamplePicker
         v-if="hasMultipleExamples"
         v-model="selectedExampleKey"
-        class="response-example-selector"
+        class="response-example-selector px-0"
         :examples="currentResponseContent?.examples" />
+      <div class="response-description">
+        <ScalarMarkdown
+          v-if="currentResponse?.description"
+          class="response-description-markdown"
+          :value="currentResponse.description" />
+      </div>
     </ScalarCardFooter>
   </ScalarCard>
 </template>
@@ -212,9 +206,6 @@ const showSchema = ref(false)
   font-size: var(--scalar-font-size-3);
 }
 
-.markdown :deep(*) {
-  margin: 0;
-}
 .code-copy {
   display: flex;
   align-items: center;
@@ -238,14 +229,15 @@ const showSchema = ref(false)
 }
 .response-card-footer {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-direction: row-reverse;
+  flex-wrap: wrap;
+  justify-content: start;
   flex-shrink: 0;
   padding: 7px 12px;
-  gap: 8px;
+  column-gap: 8px;
 }
 .response-example-selector {
-  align-self: flex-start;
+  flex-shrink: 0;
   margin: -4px;
 }
 .response-description {
@@ -253,9 +245,16 @@ const showSchema = ref(false)
   font-size: var(--scalar-small);
   color: var(--scalar-color--1);
 
-  display: flex;
-  align-items: center;
   box-sizing: border-box;
+
+  flex-grow: 1;
+}
+.response-description-markdown {
+  max-height: 3lh;
+}
+
+.response-description-markdown :deep(*) {
+  margin: 0;
 }
 .schema-type {
   font-size: var(--scalar-micro);

@@ -9,9 +9,20 @@ import {
 import { type XScalarIcon, XScalarIconSchema } from '@/schemas/extensions/document/x-scalar-icon'
 import { type XScalarIsDirty, XScalarIsDirtySchema } from '@/schemas/extensions/document/x-scalar-is-dirty'
 import {
-  type XScalarSetOperationSecurity,
-  XScalarSetOperationSecuritySchema,
-} from '@/schemas/extensions/document/x-scalar-set-operation-security'
+  type XScalarOriginalDocumentHash,
+  XScalarOriginalDocumentHashSchema,
+} from '@/schemas/extensions/document/x-scalar-original-document-hash'
+import {
+  type XScalarRegistryMeta,
+  XScalarRegistryMetaSchema,
+} from '@/schemas/extensions/document/x-scalar-registry-meta'
+import { type XScalarWatchMode, XScalarWatchModeSchema } from '@/schemas/extensions/document/x-scalar-watch-mode'
+import { type XPostResponse, XPostResponseSchema } from '@/schemas/extensions/general/x-post-response'
+import { type XPreRequest, XPreRequestSchema } from '@/schemas/extensions/general/x-pre-request'
+import {
+  type XScalarActiveEnvironment,
+  XScalarActiveEnvironmentSchema,
+} from '@/schemas/extensions/general/x-scalar-active-environment'
 import { type XScalarCookies, xScalarCookiesSchema } from '@/schemas/extensions/general/x-scalar-cookies'
 import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/general/x-scalar-order'
 import {
@@ -73,7 +84,6 @@ import { XMLObjectSchemaDefinition } from './xml'
 export const OpenApiExtensionsSchema = compose(
   Type.Partial(
     Type.Object({
-      'x-scalar-client-config-active-environment': Type.String(),
       'x-original-oas-version': Type.String(),
       'x-scalar-original-source-url': Type.String(),
       [extensions.document.navigation]: TraversedDocumentObjectRef,
@@ -82,33 +92,37 @@ export const OpenApiExtensionsSchema = compose(
   XTagGroupsSchema,
   xScalarEnvironmentsSchema,
   XScalarSelectedServerSchema,
-  XScalarSetOperationSecuritySchema,
   XScalarIconSchema,
   XScalarOrderSchema,
   xScalarCookiesSchema,
-  Type.Object({
-    'x-scalar-original-document-hash': Type.String(),
-  }),
+  XScalarOriginalDocumentHashSchema,
   XScalarIsDirtySchema,
+  XScalarActiveEnvironmentSchema,
+  XScalarWatchModeSchema,
+  XScalarRegistryMetaSchema,
+  XPreRequestSchema,
+  XPostResponseSchema,
 )
 
 export type OpenAPIExtensions = Partial<{
-  'x-scalar-client-config-active-environment': string
   'x-original-oas-version': string
   /** Original document source url / when loading a document from an external source */
   'x-scalar-original-source-url': string
   [extensions.document.navigation]: TraversedDocument
-}> & {
-  /** Original input document hash */
-  'x-scalar-original-document-hash': string
-} & XTagGroups &
+}> &
+  XScalarOriginalDocumentHash &
+  XTagGroups &
   XScalarEnvironments &
+  XScalarActiveEnvironment &
   XScalarSelectedServer &
-  XScalarSetOperationSecurity &
   XScalarIcon &
   XScalarOrder &
   XScalarCookies &
-  XScalarIsDirty
+  XScalarIsDirty &
+  XScalarWatchMode &
+  XScalarRegistryMeta &
+  XPreRequest &
+  XPostResponse
 
 const OpenApiDocumentSchemaDefinition = compose(
   Type.Object({

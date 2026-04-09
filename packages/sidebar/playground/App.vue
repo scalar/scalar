@@ -51,8 +51,17 @@ function handleSelectItem(
   sidebar: typeof reference | typeof client,
   id: string,
 ) {
-  sidebar.setExpanded(id, !sidebar.isExpanded(id))
+  if (sidebar.selectedItem.value === id || !sidebar.isExpanded(id)) {
+    sidebar.setExpanded(id, !sidebar.isExpanded(id))
+  }
   sidebar.setSelected(id)
+}
+
+function handleToggleGroup(
+  sidebar: typeof reference | typeof client,
+  id: string,
+) {
+  sidebar.setExpanded(id, !sidebar.isExpanded(id))
 }
 
 const log = (name: string, ...args: any[]) => {
@@ -66,7 +75,8 @@ const log = (name: string, ...args: any[]) => {
     :isSelected="reference.isSelected"
     :items="reference.items.value"
     layout="reference"
-    @selectItem="(id) => handleSelectItem(reference, id)">
+    @selectItem="(id) => handleSelectItem(reference, id)"
+    @toggleGroup="(id) => handleToggleGroup(reference, id)">
     <template #search>
       <div class="bg-sidebar-b-1 sticky top-0 z-1 px-3 pt-3">
         <ScalarSidebarSearchInput />

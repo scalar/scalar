@@ -3,10 +3,10 @@
 </div>
 <div class="flex flex-col gap-3 hero small-test">
   <scalar-heading level="2" slug="scalar-registry" class="text-balance">
-    Scalar Registry
+    Registry
   </scalar-heading>
   <p>
-    Get started with Scalar Registry for managing & versioning OpenAPI Documents, JSON Schema, Spectral Rules as your source of truth with a deep Git integration.
+    Get started with Registry for managing & versioning OpenAPI Documents, JSON Schema, Spectral Rules as your source of truth with a deep Git integration.
   </p>
 </div>
 
@@ -18,11 +18,12 @@
   <div class="full-container-constrained">
 
 ## Create your Scalar Account
-To first access the Scalar Registry you need to [create an account](https://dashboard.scalar.com/register) or [sign in](https://dashboard.scalar.com/login).
+To first access the Registry you need to [create an account](https://dashboard.scalar.com/register) or [sign in](https://dashboard.scalar.com/login).
 
-Once authenticated you will see your dashboard, you have two options to interface with the Scalar Registry:
-- [Scalar dashboard](https://dashboard.scalar.com)
-- [Scalar CLI](cli.md)
+Once authenticated you will see your dashboard, you have two options to interface with the Registry:
+
+- [Dashboard](https://dashboard.scalar.com)
+- [CLI](cli.md)
 - [GitHub Actions](github-actions.md)
 
 <div class="mt-6">
@@ -34,7 +35,7 @@ Managing OpenAPI can be difficult; is the source-of-truth: design, implementatio
 
 Who is going to update the docs when our API has new endpoints or examples?
 
-Scalar handles all this and makes it incredibly easy to get to the exciting stuff! Once a document is in the Scalar Registry we can:
+Scalar handles all this and makes it incredibly easy to get to the exciting stuff! Once a document is in the Registry we can:
 
 ### Create Docs
 World Class API Docs with just a few clicks, all managed by Scalars registry automagically from your OpenAPI document changes.
@@ -103,7 +104,7 @@ All of this with just a couple clicks or a few API requests! You handle making y
   </p>
   <div class="flex gap-2 mb-11">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
-    <a class="t-editor__button" href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank">Book a Demo</a>
+    <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
   </div>
   <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank" aria-label="Join Scalar community on Discord">Community →</a>
   <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank" aria-label="View Scalar on GitHub">GitHub →</a>
@@ -233,8 +234,9 @@ All of this with just a couple clicks or a few API requests! You handle making y
         <div class="w-1/3 flex flex-col gap-2">
           <b>Company</b>
           <a class="text-c-2 hover:text-c-1 font-normal" href="mailto:support@scalar.com" target="_blank">Support</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/terms-and-conditions" target="_blank">Terms of Service</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/privacy-policy" target="_blank">Privacy Policy</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/terms-and-conditions">Terms of Service</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/privacy-policy">Privacy Policy</a>
+          <button class="cky-banner-element text-c-2 hover:text-c-1 font-normal">Cookie Preferences</button>
         </div>
         <div class="w-1/3 flex flex-col gap-2">
           <b>Socials</b>
@@ -299,14 +301,12 @@ All of this with just a couple clicks or a few API requests! You handle making y
     }
   }
   .t-editor__page-title,
-  .layout-aside-right,
   .t-editor__page-nav,
   .notify-container,
   .subheading,
   :not(.getting-started).footer,
   .t-editor .page-header,
-  .content .page-nav,
-  .t-doc__toc {
+  .content .page-nav {
     display: none;
   }
   main.content {
@@ -330,7 +330,6 @@ All of this with just a couple clicks or a few API requests! You handle making y
   }
   :root {
     --scalar-container-width: 960px;
-    --scalar-toc-width: 0;
   }
   .hero.hero {
     margin-top: 88px;
@@ -543,7 +542,8 @@ All of this with just a couple clicks or a few API requests! You handle making y
   }
   .footer-content span,
   .footer-content p,
-  .footer-content a {
+  .footer-content a,
+  .footer-content button {
     position: relative;
     z-index: 1;
   }
@@ -608,7 +608,6 @@ All of this with just a couple clicks or a few API requests! You handle making y
       justify-content: start;
     }
     .logowall-item svg {
-      width: auto;
       max-width: 100%;
       height: 100%;
       max-height: 20px;

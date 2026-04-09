@@ -12,6 +12,8 @@ export type ModalProps = {
   method: ComputedRef<HttpMethod | undefined>
   /** The example name must be initialized and passed in */
   exampleName: ComputedRef<string | undefined>
+  /** Selected anyOf/oneOf request-body variants keyed by schema path */
+  requestBodyCompositionSelection: Ref<Record<string, number>>
   /** Controls the visibility of the modal */
   modalState: ModalState
   /** The sidebar state must be initialized and passed in */
@@ -49,24 +51,23 @@ import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import { ScalarToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getActiveEnvironment } from '@scalar/workspace-store/request-example'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import {
   computed,
   onBeforeUnmount,
   ref,
-  toValue,
   watch,
   type ComputedRef,
   type MaybeRefOrGetter,
+  type Ref,
 } from 'vue'
 
-import { mergeSecurity } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-security'
 import ModalClientContainer from '@/v2/components/modals/ModalClientContainer.vue'
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import { initializeModalEvents } from '@/v2/features/modal/modal-events'
 import Operation from '@/v2/features/operation/Operation.vue'
-import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import { useScrollLock } from '@/v2/hooks/use-scroll-lock'
 
@@ -76,6 +77,7 @@ const {
   modalState,
   options,
   plugins,
+  requestBodyCompositionSelection,
   sidebarState,
   workspaceStore,
 } = defineProps<ModalProps>()
@@ -92,6 +94,7 @@ const isSidebarOpen = ref(false)
 initializeModalEvents({
   eventBus,
   isSidebarOpen,
+  requestBodyCompositionSelection,
   sidebarState,
   modalState,
   store: workspaceStore,
@@ -146,18 +149,8 @@ const handleSidebarWidthUpdate = (width: number) =>
  * Variables from both sources are combined, with document variables
  * taking precedence in case of naming conflicts.
  */
-const environment = computed(() =>
-  getActiveEnvironment(workspaceStore, document.value),
-)
-
-/** Merge authentication config with the document security schemes */
-const securitySchemes = computed(() =>
-  mergeSecurity(
-    document.value?.components?.securitySchemes,
-    toValue(options)?.authentication?.securitySchemes,
-    workspaceStore.auth,
-    document.value?.['x-scalar-navigation']?.name ?? '',
-  ),
+const environment = computed(
+  () => getActiveEnvironment(workspaceStore, document.value).environment,
 )
 
 defineExpose({
@@ -204,7 +197,7 @@ defineExpose({
         :options
         :path="path?.value"
         :plugins
-        :securitySchemes
+        :requestBodyCompositionSelection="requestBodyCompositionSelection.value"
         :workspaceStore />
     </main>
     <!-- Empty state -->

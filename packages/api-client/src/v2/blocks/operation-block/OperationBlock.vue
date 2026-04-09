@@ -15,89 +15,18 @@
 export default {
   name: 'OperationBlock',
 }
-</script>
-<script setup lang="ts">
-import { ERRORS } from '@scalar/helpers/errors/normalize-error'
-import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import { type ClientPlugin } from '@scalar/oas-utils/helpers'
-import {
-  AVAILABLE_CLIENTS,
-  type AvailableClients,
-} from '@scalar/types/snippetz'
-import { useToasts } from '@scalar/use-toasts'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
-import type { HistoryEntry } from '@scalar/workspace-store/entities/history/schema'
-import type {
-  AuthMeta,
-  WorkspaceEventBus,
-} from '@scalar/workspace-store/events'
-import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type {
-  OpenApiDocument,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
-import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
-import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
-import { buildRequest } from '@/v2/blocks/operation-block/helpers/build-request'
-import { getSecuritySchemes } from '@/v2/blocks/operation-block/helpers/build-request-security'
-import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
-import { harToFetchResponse } from '@/v2/blocks/operation-block/helpers/har-to-fetch-response'
-import {
-  sendRequest,
-  type ResponseInstance,
-} from '@/v2/blocks/operation-block/helpers/send-request'
-import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
-import { RequestBlock } from '@/v2/blocks/request-block'
-import type { ExtendedScalarCookie } from '@/v2/blocks/request-block/RequestBlock.vue'
-import { ResponseBlock } from '@/v2/blocks/response-block'
-import { type History } from '@/v2/blocks/scalar-address-bar-block'
-import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-security'
-import {
-  getSecurityRequirements,
-  getSelectedSecurity,
-} from '@/v2/features/operation'
-import type { ClientLayout } from '@/v2/types/layout'
-
-import Header from './components/Header.vue'
-
-const {
-  authMeta,
-  environment,
-  documentSecurity,
-  documentSelectedSecurity,
-  eventBus,
-  exampleKey,
-  globalCookies = [],
-  hideClientButton,
-  httpClients = AVAILABLE_CLIENTS,
-  history = [],
-  method,
-  operation,
-  operationSelectedSecurity,
-  setOperationSecurity,
-  path,
-  plugins = [],
-  proxyUrl,
-  securitySchemes,
-  selectedClient,
-  server,
-  environments,
-  activeEnvironment,
-} = defineProps<{
+export type OperationBlockProps = {
   /** Event bus */
   eventBus: WorkspaceEventBus
-  /** Document defined security */
-  documentSecurity: OpenApiDocument['security']
-  /** Document selected security */
-  documentSelectedSecurity: SelectedSecurity | undefined
   /** Application version */
   appVersion: string
-  /** Workspace/document cookies */
-  globalCookies: ExtendedScalarCookie[]
+  /** Openapi document */
+  document: OpenApiDocument
+  /** Workspace cookies */
+  workspaceCookies: XScalarCookie[]
+  /** Document cookies */
+  documentCookies: XScalarCookie[]
   /** Current request path */
   path: string
   /** Current request method */
@@ -114,6 +43,8 @@ const {
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   /** Server list available for operation/document */
   servers: ServerObject[]
+  /** Meta information for the server */
+  serverMeta: ServerMeta
   /** Hides the client button on the header */
   hideClientButton?: boolean
   /** Client integration  */
@@ -124,10 +55,6 @@ const {
   source?: 'gitbook' | 'api-reference'
   /** Operation object */
   operation: OperationObject
-  /** Operation selected security */
-  operationSelectedSecurity: SelectedSecurity | undefined
-  /** Whether to set security at the operation level */
-  setOperationSecurity: boolean
   /** Currently selected example key for the current operation */
   exampleKey: string
   /** Meta information for the auth update */
@@ -144,35 +71,104 @@ const {
   environment: XScalarEnvironment
   /** The proxy URL for sending requests */
   proxyUrl: string
-}>()
+  /** Currently selected security */
+  selectedSecurity: SelectedSecurity
+  /** Currently selected security schemes */
+  selectedSecuritySchemes: SecuritySchemeObjectSecret[]
+  /** Security requirements */
+  securityRequirements: OpenApiDocument['security']
+  /** Default headers */
+  defaultHeaders: Record<string, string>
+  /** Selected anyOf/oneOf request-body variants keyed by schema path */
+  requestBodyCompositionSelection?: Record<string, number>
+}
+</script>
+<script setup lang="ts">
+import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
+import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
+import { executeHook, type ClientPlugin } from '@scalar/oas-utils/helpers'
+import {
+  AVAILABLE_CLIENTS,
+  type AvailableClients,
+} from '@scalar/types/snippetz'
+import { useToasts } from '@scalar/use-toasts'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
+import type { HistoryEntry } from '@scalar/workspace-store/entities/history/schema'
+import type {
+  AuthMeta,
+  ServerMeta,
+  WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
+import {
+  buildRequest,
+  createVariablesStoreForRequest,
+  getEnvironmentVariables,
+  requestFactory,
+  type MergedSecuritySchemes,
+  type SecuritySchemeObjectSecret,
+} from '@scalar/workspace-store/request-example'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
+import type {
+  OpenApiDocument,
+  ServerObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
-const emit = defineEmits<{
-  /** Route to the appropriate server page */
-  (e: 'update:servers'): void
-}>()
+import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
+import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
+import type { ClientLayout } from '@/hooks'
+import { isElectron } from '@/libs/electron'
+import { ERRORS } from '@/libs/errors'
+import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
+import { harToFetchResponse } from '@/v2/blocks/operation-block/helpers/har-to-fetch-response'
+import {
+  getOperationExampleKey,
+  isStreamingResponse,
+  responseCache,
+} from '@/v2/blocks/operation-block/helpers/response-cache'
+import { sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
+import { validatePathParameters } from '@/v2/blocks/operation-block/helpers/validate-path-parameters'
+import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
+import { RequestBlock } from '@/v2/blocks/request-block'
+import { ResponseBlock } from '@/v2/blocks/response-block'
+import { type History } from '@/v2/blocks/scalar-address-bar-block'
+
+import Header from './components/Header.vue'
+
+const {
+  authMeta,
+  environment,
+  eventBus,
+  exampleKey,
+  document,
+  workspaceCookies = [],
+  documentCookies = [],
+  hideClientButton,
+  httpClients = AVAILABLE_CLIENTS,
+  history = [],
+  method,
+  operation,
+  path,
+  plugins = [],
+  proxyUrl,
+  requestBodyCompositionSelection,
+  securitySchemes,
+  selectedClient,
+  server,
+  environments,
+  activeEnvironment,
+  serverMeta,
+  selectedSecurity,
+  selectedSecuritySchemes,
+  securityRequirements,
+  defaultHeaders,
+} = defineProps<OperationBlockProps>()
 
 /** Hoist up client generation so it doesn't get re-generated on every operation */
 const clientOptions = computed(() => generateClientOptions(httpClients))
-
-/** Compute what the security requirements should be for an operation */
-const securityRequirements = computed(() =>
-  getSecurityRequirements(documentSecurity, operation.security),
-)
-
-/** The selected security for the operation or document */
-const selectedSecurity = computed(() =>
-  getSelectedSecurity(
-    documentSelectedSecurity,
-    operationSelectedSecurity,
-    securityRequirements.value,
-    setOperationSecurity,
-  ),
-)
-
-/** The above selected requirements in scheme form */
-const selectedSecuritySchemes = computed(() =>
-  getSecuritySchemes(securitySchemes, selectedSecurity.value.selectedSchemes),
-)
 
 const { toast } = useToasts()
 
@@ -186,26 +182,31 @@ const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
 
 /** Execute the current operation example */
 const handleExecute = async () => {
-  const [error, result] = buildRequest({
-    environment,
+  const pathValidation = validatePathParameters(
+    operation.parameters ?? [],
     exampleKey,
+  )
+  if (pathValidation.ok === false) {
+    toast('Path parameters must have values.', 'error')
+    return
+  }
+
+  const globalCookies = [...workspaceCookies, ...documentCookies]
+
+  const { request: requestBuilder } = requestFactory({
+    defaultHeaders,
+    environment,
+    exampleName: exampleKey,
     globalCookies,
     method,
     operation,
     path,
-    selectedSecuritySchemes: selectedSecuritySchemes.value,
-    server,
     proxyUrl,
+    server,
+    selectedSecuritySchemes,
+    isElectron: isElectron(),
+    requestBodyCompositionSelection,
   })
-
-  // Toast the error
-  if (error) {
-    toast(error.message, 'error')
-    return
-  }
-
-  // Store the abort controller for cancellation
-  abortController.value = result.controller
 
   // Stop any previous streaming response
   if (response.value && 'reader' in response.value) {
@@ -221,19 +222,78 @@ const handleExecute = async () => {
     },
   })
 
+  const variablesStore = createVariablesStoreForRequest()
+
+  // Execute the beforeRequest hook (plugins receive RequestFactory, not fetch Request)
+  await executeHook(
+    {
+      requestBuilder,
+      document,
+      operation,
+      variablesStore,
+    },
+    'beforeRequest',
+    plugins,
+  )
+
+  const envVariables = {
+    ...getEnvironmentVariables(environment),
+    ...variablesStore.getVariables(),
+  }
+
+  // Build the fetch Request after hooks may have mutated the factory
+  const requestResult = (() => {
+    try {
+      return {
+        ok: true,
+        result: buildRequest(requestBuilder, {
+          envVariables,
+        }),
+      } as const
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      return {
+        ok: false,
+        error: message,
+      } as const
+    }
+  })()
+
+  if (requestResult.ok === false) {
+    toast(requestResult.error, 'error')
+    return
+  }
+
+  // Store the abort controller for cancellation
+  abortController.value = requestResult.result.controller
+
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
-    isUsingProxy: result.isUsingProxy,
-    operation,
-    plugins,
-    request: result.request,
+    isUsingProxy: requestResult.result.isUsingProxy,
+    request: requestResult.result.request,
   })
+
+  if (sendResult) {
+    // Execute the responseReceived hook
+    await executeHook(
+      {
+        response: sendResult.originalResponse.clone(),
+        requestBuilder,
+        request: sendResult.request.clone(),
+        document,
+        operation,
+        variablesStore,
+      },
+      'responseReceived',
+      plugins,
+    )
+  }
 
   // Execute the hooks
   eventBus.emit('hooks:on:request:complete', {
     payload: sendResult
       ? {
-          response: sendResult.originalResponse,
+          response: sendResult.originalResponse.clone(),
           request: sendResult.request.clone(),
           duration: sendResult.response.duration,
           timestamp: sendResult.timestamp,
@@ -246,8 +306,12 @@ const handleExecute = async () => {
     },
   })
 
-  // Toast the execute error
   if (sendError) {
+    // clean up the response and request
+    response.value = null
+    request.value = null
+    abortController.value = null
+
     toast(sendError.message, 'error')
     return
   }
@@ -255,6 +319,14 @@ const handleExecute = async () => {
   // Store the response
   response.value = sendResult.response
   request.value = sendResult.request
+
+  // Cache non-streaming responses so they can be restored when navigating back
+  if (!isStreamingResponse(sendResult.response)) {
+    responseCache.set(getOperationExampleKey(method, path, exampleKey), {
+      response: sendResult.response,
+      request: sendResult.request,
+    })
+  }
 }
 
 onMounted(() => {
@@ -326,16 +398,29 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
 }
 
 /**
- * When the path, method, or example key changes, clear the response and request
+ * When the path, method, or example key changes: save current response to
+ * cache (so it can be restored when navigating back), then restore from cache
+ * for the new operation or clear if no cached response. Response is only
+ * cleared on page refresh or when making a new request for that operation.
  */
-watch([() => path, () => method, () => exampleKey], () => {
-  // We reset the response and request
-  response.value = null
-  request.value = null
+watch(
+  [() => path, () => method, () => exampleKey],
+  ([newPath, newMethod, newExampleKey]) => {
+    const newKey = getOperationExampleKey(newMethod, newPath, newExampleKey)
+    const cached = responseCache.get(newKey)
+    if (cached) {
+      response.value = cached.response
+      request.value = cached.request
+    } else {
+      response.value = null
+      request.value = null
+    }
 
-  // We cancel the request if it is still in progress
-  cancelRequest()
-})
+    // Cancel any in-flight request
+    cancelRequest()
+  },
+  { immediate: true },
+)
 
 onBeforeUnmount(() => {
   // We cancel the request if the component is unmounted
@@ -360,11 +445,11 @@ onBeforeUnmount(() => {
         :method
         :path
         :server
+        :serverMeta
         :servers
         :source
         @execute="handleExecute"
-        @select:history:item="handleSelectHistoryItem"
-        @update:servers="emit('update:servers')" />
+        @select:history:item="handleSelectHistoryItem" />
     </div>
 
     <ViewLayout class="border-t">
@@ -373,22 +458,25 @@ onBeforeUnmount(() => {
         <RequestBlock
           :authMeta
           :clientOptions
+          :defaultHeaders
+          :documentCookies
           :environment
           :eventBus
           :exampleKey
-          :globalCookies
           :layout
           :method
           :operation
           :path
           :plugins
           :proxyUrl
+          :requestBodyCompositionSelection
           :securityRequirements
           :securitySchemes
           :selectedClient
           :selectedSecurity
           :selectedSecuritySchemes
-          :server />
+          :server
+          :workspaceCookies />
 
         <!-- Response Section -->
         <ResponseBlock

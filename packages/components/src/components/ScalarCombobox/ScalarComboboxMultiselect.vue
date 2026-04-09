@@ -1,3 +1,17 @@
+<script lang="ts">
+/**
+ * Scalar Combobox Multiselect component
+ *
+ * A searchable select input that supports selecting multiple options.
+ *
+ * @example
+ * <ScalarComboboxMultiselect v-model="selected" :options="options">
+ *   <ScalarButton>Select items</ScalarButton>
+ * </ScalarComboboxMultiselect>
+ */
+export default {}
+</script>
+
 <!-- prettier-ignore-attribute generic -->
 <script
   setup
@@ -11,6 +25,7 @@ import ComboboxPopover from './ScalarComboboxPopover.vue'
 import type {
   ComboboxEmits,
   ComboboxSlots,
+  FilterFunction,
   Option,
   OptionGroup,
   OptionsOrGroups,
@@ -18,8 +33,16 @@ import type {
 
 defineProps<
   {
+    /** The options to display in the combobox */
     options: OptionsOrGroups<O, G>
+    /** The placeholder text to display in the combobox */
     placeholder?: string
+    /** A function to filter the options based on a query,
+     * if not provided, the options will be filtered by option label
+     *
+     * @see {@link FilterFunction} for more information
+     */
+    filterFn?: FilterFunction<O, G>
   } & ScalarFloatingOptions
 >()
 
@@ -50,6 +73,7 @@ defineExpose({ comboboxPopoverRef })
       <ComboboxOptions
         v-if="options?.length"
         v-model="model"
+        :filterFn
         multiselect
         :open
         :options

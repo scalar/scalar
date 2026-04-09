@@ -1,14 +1,13 @@
 <div class="flex flex-col gap-3 hero small-test">
   <scalar-heading level="2" slug="introduction" class="text-balance">
-    A modern API platform built for the OpenAPI™ standard.
+    Industry leading Developer Docs, SDKs & API Registry
   </scalar-heading>
   <p>
-    Industry leading Developer Docs, SDKs, API Client & Registry that your APIs
-    deserve
+    Purpose-built for the OpenAPI™ standard
   </p>
   <div class="flex gap-2">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
-    <a class="t-editor__button" href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank">Book a Demo</a>
+    <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
   </div>
   <div class="stickers">
     <div class="draggable sticker-5">
@@ -68,7 +67,7 @@
     <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-flyio.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-sfcompute.svg"></scalar-icon>
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-clerk.svg?v=2"></scalar-icon>
   </div>
 </div>
 
@@ -113,7 +112,7 @@
 <div>
   <div class="product product-reversed">
     <div class="product-copy">
-      <span class="font-bold text-green">Scalar Registry</span>
+      <span class="font-bold text-green">Registry</span>
       <h2>
         The Centralized Repository for Your API Definitions
       </h2>
@@ -152,15 +151,15 @@
           Private or Public
         </b>
       </div>
-      <a class="mt-3 t-editor__anchor" href="/products/registry/getting-started" aria-label="Connect your API for free with Scalar Registry">
+      <a class="mt-3 t-editor__anchor" href="/products/registry/getting-started" aria-label="Connect your API for free with Registry">
       Connect Your API for Free
        →
       </a>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
-        <img alt="Scalar Registry" class="light-image" src="/registry-static.svg" />
-        <img alt="Scalar Registry" class="dark-image" src="/registry-static-dark.svg" />
+        <img alt="Registry" class="light-image" src="/registry-static.svg" />
+        <img alt="Registry" class="dark-image" src="/registry-static-dark.svg" />
       </div>
     </div>
     <div class="draggable sticker-4">
@@ -169,7 +168,7 @@
   </div>
   <div class="product">
     <div class="product-copy">
-      <span class="font-bold text-orange">Scalar API Client</span>
+      <span class="font-bold text-orange">API Client</span>
       <scalar-heading level="2" slug="scalar-api-client" class="c">
         The Postman Alternative Your Team Is Dreaming Of
       </scalar-heading>
@@ -216,7 +215,7 @@
   </div>
   <div class="product product-reversed">
     <div class="product-copy">
-      <span class="font-bold text-blue">Scalar Docs</span>
+      <span class="font-bold text-blue">Docs</span>
       <scalar-heading level="2" slug="scalar-docs" class="c">
         The Modern Documentation Platform for Your API and Everything Else
       </scalar-heading>
@@ -253,8 +252,8 @@
     </div>
     <div class="product-image">
       <div class="product-image-transform">
-        <img alt="Scalar Docs" class="light-image" src="/api-docs-static-zoom.svg"/>
-        <img alt="Scalar Docs" class="dark-image" src="/api-docs-static-zoom-dark.svg"/>
+        <img alt="Docs" class="light-image" src="/api-docs-static-zoom.svg"/>
+        <img alt="Docs" class="dark-image" src="/api-docs-static-zoom-dark.svg"/>
       </div>
     </div>
     <div class="draggable sticker-3">
@@ -300,8 +299,8 @@
     </div>
     <div class="product-image">
       <div class="product-image-transform">
-        <img alt="Scalar SDKs" class="light-image" src="/sdks-static.svg" />
-        <img alt="Scalar SDKs" class="dark-image" src="/sdks-static-dark.svg" />
+        <img alt="SDKs" class="light-image" src="/sdks-static.svg" />
+        <img alt="SDKs" class="dark-image" src="/sdks-static-dark.svg" />
       </div>
     </div>
     <div class="draggable sticker-2">
@@ -333,7 +332,7 @@
   </p>
   <br />
   <p>
-    We are fans of “show don't tell here” at Scalar: so try our Docs (this page), our SDKs for our API that includes our API Client, Agent Scalar to chat with APIs, and our GitHub for all our open-source products. As always, we love your feedback so drop us a line in our discord, email, or book a call with me to see how we can help.
+    We are fans of “show don't tell here” at Scalar: so try our Docs (this page), our SDKs for our API that includes our API Client, Agent to chat with APIs, and our GitHub for all our open-source products. As always, we love your feedback so drop us a line in our discord, email, or book a call with me to see how we can help.
   </p>
   <br />
   <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/rzLt5QLobG1QcqnrhdAor.svg"></scalar-icon>
@@ -356,7 +355,7 @@
   </p>
   <div class="flex gap-2 mb-11">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
-    <a class="t-editor__button" href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank">Book a Demo</a>
+    <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
   </div>
   <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank" aria-label="Join Scalar community on Discord">Community →</a>
   <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank" aria-label="View Scalar on GitHub">GitHub →</a>
@@ -460,8 +459,9 @@
         <div class="w-1/3 flex flex-col gap-2">
           <b>Company</b>
           <a class="text-c-2 hover:text-c-1 font-normal" href="mailto:support@scalar.com" target="_blank">Support</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/terms-and-conditions" target="_blank">Terms of Service</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/privacy-policy" target="_blank">Privacy Policy</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/terms-and-conditions">Terms of Service</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/privacy-policy">Privacy Policy</a>
+          <button class="cky-banner-element text-c-2 hover:text-c-1 font-normal">Cookie Preferences</button>
         </div>
         <div class="w-1/3 flex flex-col gap-2">
           <b>Socials</b>
@@ -484,11 +484,9 @@
 
 <style>
   .t-editor__page-title,
-  .layout-aside-right,
   .t-editor__page-nav,
   .notify-container,
   .subheading,
-  .t-doc__toc,
   .page-nav,
   :not(.introduction).footer,
   .t-editor .page-header {
@@ -515,7 +513,6 @@
   }
   :root {
     --scalar-container-width: 960px;
-    --scalar-toc-width: 0;
   }
   .hero.hero {
     margin-top: 88px;
@@ -853,7 +850,8 @@
   }
   .footer-content span,
   .footer-content p,
-  .footer-content a {
+  .footer-content a,
+  .footer-content button {
     position: relative;
     z-index: 1;
   }
@@ -975,7 +973,6 @@
       justify-content: start;
     }
     .logowall-item svg {
-      width: auto;
       max-width: 100%;
       height: 100%;
       max-height: 20px;

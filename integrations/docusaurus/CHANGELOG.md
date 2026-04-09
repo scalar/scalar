@@ -1,5 +1,90 @@
 # @scalar/docusaurus
 
+## 0.8.7
+
+## 0.8.6
+
+## 0.8.5
+
+## 0.8.4
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.8.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.3**
+
+## 0.8.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.2**
+
+## 0.8.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.1**
+  - [#8381](https://github.com/scalar/scalar/pull/8381): feat: add mcp config support
+
+## 0.8.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.7.44
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.10**
+
+## 0.7.43
+
+### Patch Changes
+
+- [#8295](https://github.com/scalar/scalar/pull/8295): fix(docusaurus): remove extra elements around in markdown summary components
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.9**
+
+## 0.7.42
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.8**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+
+## 0.7.41
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.7**
+
 ## 0.7.40
 
 ### Patch Changes

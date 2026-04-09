@@ -305,7 +305,7 @@ function generateForPackage(
   const scalarClientEnum = generateScalarClientEnum(allClients)
 
   // Write files
-  const enumsDir = resolve(__dirname, config.enumsDir)
+  const enumsDir = resolve(import.meta.dirname, config.enumsDir)
 
   writeFileSync(resolve(enumsDir, 'ScalarTarget.java'), scalarTargetEnum)
   writeFileSync(resolve(enumsDir, 'ScalarClient.java'), scalarClientEnum)

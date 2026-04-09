@@ -1,5 +1,61 @@
 # @scalar/openapi-upgrader
 
+## 0.2.4
+
+## 0.2.3
+
+### Patch Changes
+
+- [#8622](https://github.com/scalar/scalar/pull/8622): fix: swagger 2.0 mixed media types for produces & examples
+
+## 0.2.2
+
+### Patch Changes
+
+- [#8502](https://github.com/scalar/scalar/pull/8502): feat: transforms x-examples keyed by example name
+
+## 0.2.1
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.2.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/openapi-types@0.6.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.1.11
+
+### Patch Changes
+
+- [#8326](https://github.com/scalar/scalar/pull/8326): feat: keep named request examples when upgrading from Swagger 2.0
+
+#### Updated Dependencies
+
+- **@scalar/openapi-types@0.5.4**
+  - [#8275](https://github.com/scalar/scalar/pull/8275): fix(openapi-types): make the `$ref` property in the `ReferenceObject` type required
+
+## 0.1.10
+
+### Patch Changes
+
+- [#8272](https://github.com/scalar/scalar/pull/8272): feat: migrate swagger 2.0 response examples
+
+## 0.1.9
+
+### Patch Changes
+
+- [#8251](https://github.com/scalar/scalar/pull/8251): feat: migrate swagger 2.0 defaults for parameter
+
 ## 0.1.8
 
 ### Patch Changes

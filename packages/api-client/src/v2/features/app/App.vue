@@ -14,22 +14,23 @@ import {
   type ModalState,
 } from '@scalar/components'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import { type Theme } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
-import { computed } from 'vue'
+import { computed, toValue } from 'vue'
 import { RouterView } from 'vue-router'
 
-import { mergeSecurity } from '@/v2/blocks/scalar-auth-selector-block'
+import { SidebarToggle } from '@/v2/components/sidebar'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
-import { useTheme } from '@/v2/features/app/hooks/use-theme'
 import type { CommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
+import { useMonacoEditorConfiguration } from '@/v2/features/editor'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
+import { usePosthog } from '@/v2/posthog'
+import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import { type AppState } from './app-state'
@@ -38,18 +39,17 @@ import DesktopTabs from './components/DesktopTabs.vue'
 
 const {
   layout,
-  customThemes = [],
-  fallbackThemeSlug = 'default',
   plugins = [],
   getAppState,
   getCommandPaletteState,
+  fetchRegistryDocument,
 } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
   plugins?: ClientPlugin[]
-  customThemes?: Theme[]
-  fallbackThemeSlug?: string
   getAppState: () => AppState
   getCommandPaletteState: () => CommandPaletteState
+  /** Fetches the full document from registry by meta. Passed through to route props for sync. */
+  fetchRegistryDocument?: ImportDocumentFromRegistry
 }>()
 
 defineSlots<{
@@ -78,6 +78,8 @@ if (typeof window !== 'undefined') {
   window.dumpAppState = () => app
 }
 
+usePosthog(app.telemetry)
+
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */
 useGlobalHotKeys(app.eventBus, layout)
 
@@ -94,10 +96,13 @@ useDocumentWatcher({
 /** Color mode */
 useColorMode({ workspaceStore: app.store })
 
-const { themeStyleTag } = useTheme({
-  fallbackThemeSlug: () => fallbackThemeSlug,
-  customThemes: () => customThemes,
-  store: app.store,
+const currentTheme = computed(() => app.theme.styles.value.themeStyles)
+const isDarkMode = computed(() => app.isDarkMode.value)
+
+/** Setup monaco editor configuration */
+useMonacoEditorConfiguration({
+  theme: currentTheme,
+  darkMode: isDarkMode,
 })
 
 const navigateToWorkspaceOverview = (namespace?: string, slug?: string) => {
@@ -128,30 +133,26 @@ const createWorkspaceModalState = useModal()
 
 /** Props to pass to the RouterView component. */
 const routerViewProps = computed<RouteProps>(() => {
-  /** Ensure we have the auth store */
-  const securitySchemes = app.store.value?.auth
-    ? mergeSecurity(
-        app.document.value?.components?.securitySchemes ?? {},
-        {},
-        app.store.value.auth,
-        app.activeEntities.documentSlug.value ?? '',
-      )
-    : {}
-
   return {
     documentSlug: app.activeEntities.documentSlug.value ?? '',
     document: app.store.value?.workspace.activeDocument ?? null,
     environment: app.environment.value,
     eventBus: app.eventBus,
     exampleName: app.activeEntities.exampleName.value,
+    fetchRegistryDocument,
     layout,
     method: app.activeEntities.method.value,
     path: app.activeEntities.path.value,
     workspaceStore: app.store.value!,
     activeWorkspace: app.workspace.activeWorkspace.value!,
     plugins,
-    securitySchemes,
-    customThemes,
+    isDarkMode: app.isDarkMode.value,
+    currentTheme: app.theme.styles.value.themeStyles,
+    customThemes: toValue(app.theme.customThemes),
+    telemetry: app.telemetry.value,
+    onUpdateTelemetry: (value: boolean) => {
+      app.telemetry.value = value
+    },
   }
 })
 </script>
@@ -159,7 +160,7 @@ const routerViewProps = computed<RouteProps>(() => {
 <template>
   <ScalarTeleportRoot>
     <!-- Theme style tag -->
-    <div v-html="themeStyleTag" />
+    <div v-html="app.theme.themeStyleTag.value" />
 
     <!-- Toasts -->
     <ScalarToasts />
@@ -171,7 +172,10 @@ const routerViewProps = computed<RouteProps>(() => {
         app.workspace.activeWorkspace.value !== null &&
         !app.loading.value
       ">
-      <div class="flex h-dvh w-dvw flex-1 flex-col">
+      <div class="relative flex h-dvh w-dvw flex-1 flex-col">
+        <SidebarToggle
+          v-model="app.sidebar.isOpen.value"
+          class="absolute top-4 left-3 z-[60] md:hidden" />
         <div class="flex min-h-0 flex-1 flex-row">
           <!-- App sidebar -->
           <AppSidebar
@@ -203,7 +207,7 @@ const routerViewProps = computed<RouteProps>(() => {
               :tabs="app.tabs.state.value" />
 
             <!-- Router view min-h-0 is required for scrolling, do not remove it -->
-            <div class="bg-b-1 min-h-0 flex-1">
+            <div class="bg-b-1 relative min-h-0 flex-1">
               <RouterView v-bind="routerViewProps" />
             </div>
           </div>

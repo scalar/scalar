@@ -383,6 +383,46 @@ describe('processBody', () => {
   })
 
   describe('multipart/form-data', () => {
+    it('applies encoding.contentType to multipart example rows', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            user: {
+              contentType: 'application/json;charset=utf-8',
+            },
+          },
+          examples: {
+            default: {
+              value: [
+                {
+                  name: 'user',
+                  value: '{"name":"scalar"}',
+                  isDisabled: false,
+                },
+              ],
+            },
+          },
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+        example: 'default',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'user',
+            value: '{"name":"scalar"}',
+            contentType: 'application/json;charset=utf-8',
+          },
+        ],
+      })
+    })
+
     it('extracts examples from form data schema', () => {
       const content = {
         'multipart/form-data': {
@@ -421,6 +461,46 @@ describe('processBody', () => {
           { name: 'file', value: 'SGVsbG8gV29ybGQ=' },
           { name: 'description', value: 'Test file upload' },
           { name: 'tags', value: 'document' },
+        ],
+      })
+    })
+
+    it('serializes top-level multipart objects when encoding.contentType is set', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            user: {
+              contentType: 'application/json;charset=utf-8',
+            },
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              user: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'Scalar' },
+                  role: { type: 'string', example: 'maintainer' },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'user',
+            value: '{"name":"Scalar","role":"maintainer"}',
+            contentType: 'application/json;charset=utf-8',
+          },
         ],
       })
     })
@@ -1042,6 +1122,29 @@ describe('processBody', () => {
   })
 
   describe('binary files', () => {
+    it('formats raw binary file examples as file references', () => {
+      const mockFile = new File(['binary content'], 'payload.bin', { type: 'application/octet-stream' })
+      const content = {
+        'application/octet-stream': {
+          examples: {
+            default: {
+              value: mockFile,
+            },
+          },
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'application/octet-stream',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'application/octet-stream',
+        text: '@payload.bin',
+      })
+    })
+
     it('extracts binary file examples', () => {
       const content = {
         'image/png': {

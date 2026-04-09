@@ -44,7 +44,7 @@ const { cx } = useBindCx()
 defineOptions({ inheritAttrs: false })
 </script>
 <template>
-  <li v-bind="cx('group/item flex flex-col leading-5')">
+  <li v-bind="cx('group/item flex flex-col text-base')">
     <slot name="before" />
     <slot
       :level="level"

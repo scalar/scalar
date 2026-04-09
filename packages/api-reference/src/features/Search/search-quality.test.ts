@@ -539,4 +539,246 @@ describe('search quality', () => {
 
     expect(result.sort((a, b) => <number>b.score - <number>a.score)[0]?.item?.title).toEqual('Register user')
   })
+
+  it('finds operations by response example content', () => {
+    const query = 'already exists'
+
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/users': {
+          post: {
+            summary: 'Create user',
+            operationId: 'createUser',
+            responses: {
+              409: {
+                description: 'Conflict',
+                content: {
+                  'application/json': {
+                    examples: {
+                      duplicateEmail: {
+                        value: {
+                          code: 'duplicate_email',
+                          message: 'User with this email already exists',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const result = search(query, document)
+
+    expect(result[0]?.item?.type).toEqual('operation')
+    expect(result[0]?.item?.title).toEqual('Create user')
+  })
+
+  it('finds operations by query parameter name', () => {
+    const query = 'limit'
+
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/users': {
+          get: {
+            summary: 'List users',
+            operationId: 'listUsers',
+            parameters: [
+              {
+                in: 'query',
+                name: 'limit',
+                description: 'Maximum number of results',
+                schema: { type: 'integer' },
+              },
+            ],
+          },
+        },
+      },
+    }
+
+    const result = search(query, document)
+
+    expect(result[0]?.item?.type).toEqual('operation')
+    expect(result[0]?.item?.title).toEqual('List users')
+  })
+
+  it('finds operations by parameter description', () => {
+    const query = 'maximum number'
+
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/users': {
+          get: {
+            summary: 'List users',
+            operationId: 'listUsers',
+            parameters: [
+              {
+                in: 'query',
+                name: 'limit',
+                description: 'Maximum number of results to return',
+                schema: { type: 'integer' },
+              },
+            ],
+          },
+        },
+      },
+    }
+
+    const result = search(query, document)
+
+    expect(result[0]?.item?.type).toEqual('operation')
+    expect(result[0]?.item?.title).toEqual('List users')
+  })
+
+  it('finds operations by path parameter', () => {
+    const query = 'userId'
+
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/users/{userId}': {
+          get: {
+            summary: 'Get user by ID',
+            operationId: 'getUserById',
+            parameters: [
+              {
+                in: 'path',
+                name: 'userId',
+                required: true,
+                description: 'Unique user identifier',
+                schema: { type: 'string' },
+              },
+            ],
+          },
+        },
+      },
+    }
+
+    const result = search(query, document)
+
+    expect(result[0]?.item?.type).toEqual('operation')
+    expect(result[0]?.item?.title).toEqual('Get user by ID')
+  })
+
+  it('finds operations by both parameter and request body', () => {
+    const query = 'username'
+
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/users/{userId}': {
+          put: {
+            summary: 'Update user',
+            operationId: 'updateUser',
+            parameters: [
+              {
+                in: 'path',
+                name: 'userId',
+                required: true,
+                schema: { type: 'string' },
+              },
+            ],
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      username: { type: 'string', description: 'New username for the user' },
+                      email: { type: 'string' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/posts': {
+          get: {
+            summary: 'List posts',
+            operationId: 'listPosts',
+          },
+        },
+      },
+    }
+
+    const result = search(query, document)
+
+    expect(result[0]?.item?.type).toEqual('operation')
+    expect(result[0]?.item?.title).toEqual('Update user')
+  })
+
+  it('finds operations with request body from non-json content types', () => {
+    const query = 'xmlField'
+
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/data/import': {
+          post: {
+            summary: 'Import data',
+            operationId: 'importData',
+            requestBody: {
+              content: {
+                'application/xml': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      xmlField: { type: 'string', description: 'XML data field' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const result = search(query, document)
+
+    expect(result[0]?.item?.type).toEqual('operation')
+    expect(result[0]?.item?.title).toEqual('Import data')
+  })
+
+  it('finds operations with multiple content types in request body', () => {
+    const query = 'formField'
+
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/upload': {
+          post: {
+            summary: 'Upload file',
+            operationId: 'uploadFile',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      jsonField: { type: 'string' },
+                    },
+                  },
+                },
+                'multipart/form-data': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      formField: { type: 'string', description: 'Form field for upload' },
+                      file: { type: 'string', format: 'binary' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const result = search(query, document)
+
+    expect(result[0]?.item?.type).toEqual('operation')
+    expect(result[0]?.item?.title).toEqual('Upload file')
+  })
 })

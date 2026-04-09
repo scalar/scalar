@@ -8,6 +8,8 @@ type XExampleExtensions = {
   xExamples: Record<string, unknown> | undefined
 }
 
+const DEFAULT_MEDIA_TYPE = 'application/json'
+
 /** Extracts and removes x-example and x-examples extensions from an object */
 function extractXExampleExtensions(obj: Record<string, unknown>): XExampleExtensions {
   const xExample = obj['x-example'] as Record<string, unknown> | undefined
@@ -35,6 +37,84 @@ function isNamedExamplesCollection(value: unknown): value is Record<string, Reco
     isNonEmptyObject(value) &&
     Object.values(value).every((v) => typeof v === 'object' && v !== null && !Array.isArray(v))
   )
+}
+
+/** Checks if a schema is empty (no meaningful properties defined) */
+function isEmptySchema(schema: unknown): boolean {
+  if (typeof schema !== 'object' || schema === null) {
+    return true
+  }
+
+  const s = schema as Record<string, unknown>
+  const substantiveValidationKeywords = [
+    'enum',
+    'const',
+    'not',
+    'format',
+    'multipleOf',
+    'maximum',
+    'exclusiveMaximum',
+    'minimum',
+    'exclusiveMinimum',
+    'maxLength',
+    'minLength',
+    'pattern',
+    'maxItems',
+    'minItems',
+    'uniqueItems',
+    'maxProperties',
+    'minProperties',
+    'required',
+  ]
+
+  // Has substantive schema keywords — not empty
+  if (
+    s.allOf ||
+    s.oneOf ||
+    s.anyOf ||
+    s.items ||
+    s.$ref ||
+    'additionalProperties' in s ||
+    substantiveValidationKeywords.some((key) => key in s)
+  ) {
+    return false
+  }
+
+  // Has properties with at least one defined property — not empty
+  if (typeof s.properties === 'object' && s.properties !== null && Object.keys(s.properties).length > 0) {
+    return false
+  }
+
+  return true
+}
+
+/**
+ * Removes content entries that only have an empty schema (no example/examples)
+ * when other entries with actual examples exist. This prevents the UI from
+ * selecting a meaningless produces-based entry over one with a real example.
+ */
+function removeEmptySchemaOnlyContentEntries(content: Record<string, unknown>): void {
+  const keys = Object.keys(content)
+  const hasEntryWithExample = keys.some((key) => {
+    const entry = content[key] as Record<string, unknown> | undefined
+    return entry?.example !== undefined || entry?.examples !== undefined
+  })
+
+  if (!hasEntryWithExample) {
+    return
+  }
+
+  for (const key of keys) {
+    const entry = content[key] as Record<string, unknown> | undefined
+    if (!entry) continue
+
+    const hasExample = entry.example !== undefined || entry.examples !== undefined
+    const hasOnlySchema = entry.schema !== undefined && !hasExample && Object.keys(entry).length === 1
+
+    if (hasOnlySchema && isEmptySchema(entry.schema)) {
+      delete content[key]
+    }
+  }
 }
 
 /** The allowed properties for an OpenAPI 3.x ExampleObject */
@@ -67,6 +147,19 @@ function wrapAsExampleObject(value: unknown): OpenAPIV3.ExampleObject {
     return value
   }
   return { value }
+}
+
+/**
+ * True if the key looks like a MIME media type (e.g. application/json, text/plain).
+ * Used to distinguish media-type example keys from named example keys when migrating
+ * Swagger 2.0 examples to OpenAPI 3.0 content. Requires exactly one slash and
+ * token-style type/subtype (no spaces or semicolons) to avoid false positives
+ * for named keys that contain a slash (e.g. "Error 404/Not Found").
+ */
+const MEDIA_TYPE_KEY_PATTERN = /^[a-zA-Z0-9*+.-]+\/[a-zA-Z0-9*+.+-]+$/
+
+function isMediaTypeKey(key: string): boolean {
+  return MEDIA_TYPE_KEY_PATTERN.test(key)
 }
 
 /** Transforms x-example entries to OpenAPI 3.x examples format */
@@ -206,7 +299,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
           if (param.in === 'body') {
             bodyParams[name] = migrateBodyParameter(
               param as OpenAPIV2.ParameterObject,
-              (document.consumes as string[] | undefined) ?? ['application/json'],
+              (document.consumes as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE],
             )
           } else if (param.in === 'formData') {
             bodyParams[name] = migrateFormDataParameter(
@@ -255,7 +348,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
         } else {
           // Transform the response object
           const responseObj = response as Record<string, unknown>
-          const produces = (document.produces as string[] | undefined) ?? ['application/json']
+          const produces = (document.produces as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE]
 
           // Transform schema to content
           if (responseObj.schema) {
@@ -278,15 +371,38 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
               responseObj.content = {}
             }
 
-            for (const [mediaType, exampleValue] of Object.entries(responseObj.examples as Record<string, unknown>)) {
-              if (typeof (responseObj.content as Record<string, unknown>)[mediaType] !== 'object') {
-                ;(responseObj.content as Record<string, unknown>)[mediaType] = {}
+            const defaultMediaType = produces[0] ?? DEFAULT_MEDIA_TYPE
+
+            for (const [key, exampleValue] of Object.entries(responseObj.examples as Record<string, unknown>)) {
+              // Media-type keys (e.g. application/json) go to content[key]; named example keys go to content[defaultMediaType].examples[key].
+              if (isMediaTypeKey(key)) {
+                if (typeof (responseObj.content as Record<string, unknown>)[key] !== 'object') {
+                  ;(responseObj.content as Record<string, unknown>)[key] = {}
+                }
+                ;((responseObj.content as Record<string, unknown>)[key] as Record<string, unknown>).example =
+                  exampleValue
+              } else {
+                if (typeof (responseObj.content as Record<string, unknown>)[defaultMediaType] !== 'object') {
+                  ;(responseObj.content as Record<string, unknown>)[defaultMediaType] = {}
+                }
+                const mediaEntry = (responseObj.content as Record<string, unknown>)[defaultMediaType] as Record<
+                  string,
+                  unknown
+                >
+                if (typeof mediaEntry.examples !== 'object') {
+                  mediaEntry.examples = {}
+                }
+                ;(mediaEntry.examples as Record<string, OpenAPIV3.ExampleObject>)[key] =
+                  wrapAsExampleObject(exampleValue)
               }
-              ;((responseObj.content as Record<string, unknown>)[mediaType] as Record<string, unknown>).example =
-                exampleValue
             }
 
             delete responseObj.examples
+          }
+
+          // Clean up content entries that only have an empty schema when other entries have examples
+          if (responseObj.content && typeof responseObj.content === 'object') {
+            removeEmptySchemaOnlyContentEntries(responseObj.content as Record<string, unknown>)
           }
 
           // Transform headers if present
@@ -336,7 +452,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
           if (methodOrParameters === 'parameters' && Object.hasOwn(pathItem, methodOrParameters)) {
             const pathItemParameters = migrateParameters(
               (pathItem as any).parameters,
-              (document.consumes as string[] | undefined) ?? ['application/json'],
+              (document.consumes as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE],
             )
 
             ;(pathItem as any).parameters = pathItemParameters.parameters
@@ -351,7 +467,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
             if (operationItem.parameters) {
               const migrationResult = migrateParameters(
                 operationItem.parameters,
-                operationItem.consumes ?? document.consumes ?? ['application/json'],
+                operationItem.consumes ?? document.consumes ?? [DEFAULT_MEDIA_TYPE],
               )
 
               operationItem.parameters = migrationResult.parameters
@@ -384,7 +500,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                     )
                   }
                   if (responseItem.schema) {
-                    const produces = document.produces ?? operationItem.produces ?? ['application/json']
+                    const produces = document.produces ?? operationItem.produces ?? [DEFAULT_MEDIA_TYPE]
 
                     if (typeof responseItem.content !== 'object') {
                       responseItem.content = {}
@@ -400,21 +516,40 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                   }
 
                   // Transform response examples from Swagger 2.0 to OpenAPI 3.0 format
-                  // In Swagger 2.0, examples are at response level: examples: { 'application/json': {...} }
-                  // In OpenAPI 3.0, examples move inside content: content: { 'application/json': { example: {...} } }
+                  // In Swagger 2.0, examples are at response level: examples: { DEFAULT_MEDIA_TYPE: {...} } or named: { 'Example': {...} }
+                  // In OpenAPI 3.0, examples move inside content: content: { DEFAULT_MEDIA_TYPE: { example: {...} } } or examples: { Example: { value: {...} } }
                   if (responseItem.examples && typeof responseItem.examples === 'object') {
                     if (typeof responseItem.content !== 'object') {
                       responseItem.content = {}
                     }
 
-                    for (const [mediaType, exampleValue] of Object.entries(responseItem.examples)) {
-                      if (typeof responseItem.content[mediaType] !== 'object') {
-                        responseItem.content[mediaType] = {}
+                    const produces: string[] = document.produces ?? operationItem.produces ?? [DEFAULT_MEDIA_TYPE]
+                    const defaultMediaType = produces[0] ?? DEFAULT_MEDIA_TYPE
+                    for (const [key, exampleValue] of Object.entries(responseItem.examples)) {
+                      // Media-type keys (e.g. application/json) go to content[key]; named example keys go to content[defaultMediaType].examples[key].
+                      if (isMediaTypeKey(key)) {
+                        if (typeof responseItem.content[key] !== 'object') {
+                          responseItem.content[key] = {}
+                        }
+                        responseItem.content[key].example = exampleValue
+                      } else {
+                        if (typeof responseItem.content[defaultMediaType] !== 'object') {
+                          responseItem.content[defaultMediaType] = {}
+                        }
+                        const mediaEntry = responseItem.content[defaultMediaType]
+                        if (typeof mediaEntry.examples !== 'object') {
+                          mediaEntry.examples = {}
+                        }
+                        mediaEntry.examples[key] = wrapAsExampleObject(exampleValue)
                       }
-                      responseItem.content[mediaType].example = exampleValue
                     }
 
                     delete responseItem.examples
+                  }
+
+                  // Clean up content entries that only have an empty schema when other entries have examples
+                  if (responseItem.content && typeof responseItem.content === 'object') {
+                    removeEmptySchemaOnlyContentEntries(responseItem.content)
                   }
                 }
               }
@@ -517,6 +652,7 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
   const schemaProperties = [
     'type',
     'format',
+    'default',
     'items',
     'maximum',
     'exclusiveMaximum',
@@ -555,7 +691,7 @@ function getParameterLocation(location: OpenAPIV2.ParameterLocation): OpenAPIV3.
 function transformParameterObject(
   parameter: OpenAPIV2.ParameterObject | OpenAPIV2.ReferenceObject,
 ): OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject {
-  if (Object.hasOwn(parameter, '$ref') && '$ref' in parameter) {
+  if (Object.hasOwn(parameter, '$ref') && typeof parameter.$ref === 'string') {
     return {
       $ref: parameter.$ref,
     }
@@ -618,7 +754,7 @@ function transformParameterObject(
 function transformResponseHeader(
   header: OpenAPIV2.HeaderObject | OpenAPIV2.ReferenceObject,
 ): OpenAPIV3.HeaderObject | OpenAPIV3.ReferenceObject {
-  if (Object.hasOwn(header, '$ref') && '$ref' in header) {
+  if (Object.hasOwn(header, '$ref') && typeof header.$ref === 'string') {
     return {
       $ref: header.$ref,
     }
@@ -722,14 +858,10 @@ function migrateBodyParameter(
         schema: schema,
       }
 
-      // Handle x-example (singular) - Redocly extension for Swagger 2.0
-      // Transforms to OpenAPI 3.x `example` field
-      if (isNonEmptyObject(xExample) && type in xExample) {
-        requestBodyObject.content[type].example = xExample[type]
-      }
-
-      // Handle x-examples (plural) - Redocly extension for Swagger 2.0
-      // Transforms to OpenAPI 3.x `examples` field (named examples with summary/value)
+      // Handle x-examples (plural) first - Redocly extension for Swagger 2.0
+      // Transforms to OpenAPI 3.x `examples` field (named examples with summary/value).
+      // When both x-example and x-examples exist, we prefer x-examples so each media type
+      // has only one of `example` or `examples` (OpenAPI 3 does not use both on the same type).
       if (isNonEmptyObject(xExamples) && type in xExamples) {
         const examples = xExamples[type]
 
@@ -756,6 +888,23 @@ function migrateBodyParameter(
             default: wrapAsExampleObject(examples),
           }
         }
+      }
+      // Fallback: x-examples keyed by example name instead of media type
+      // e.g. x-examples: { Request: { email: "test@example.com" } }
+      else if (isNonEmptyObject(xExamples) && !Object.keys(xExamples).some(isMediaTypeKey)) {
+        requestBodyObject.content[type].examples = Object.entries(xExamples).reduce(
+          (acc, [key, exampleValue]) => {
+            acc[key] = wrapAsExampleObject(exampleValue)
+            return acc
+          },
+          {} as Record<string, OpenAPIV3.ExampleObject>,
+        )
+      }
+
+      // Handle x-example (singular) only when we did not set examples for this type
+      // (avoids having both example and examples on the same media type)
+      if (!requestBodyObject.content[type].examples && isNonEmptyObject(xExample) && type in xExample) {
+        requestBodyObject.content[type].example = xExample[type]
       }
     }
   }

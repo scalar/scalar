@@ -11,7 +11,7 @@ For a long time Stoplight was the scrappy underdog, taking on confusing unafford
 
 On top of this, Scalar provides added benefits like:
 
-- **Better SaaS pricing.** Most of the features of Scalar can be used for free and the pro plan is only $24/month compared to Stoplight’s $52/month.
+- **Flexible SaaS pricing.** Scalar has a free tier to get started, and the Pro plan starts at $72/mo (3-seat min).
 - **Open Source.** Scalar is fully open source and can be self-hosted, something Stoplight phased out years ago.
 - **Built-in API client.** Scalar has also built an API client into the API reference, enabling users to send test requests straight from the docs.
 
@@ -35,9 +35,9 @@ Some API teams generate OpenAPI from code, whether that's [code annotations/comm
 
 Those documents being generated then committed to Git, by some sort of build script or continuous integration. Scalar can happily read those same committed OpenAPI and Markdown content from Git.
 
-If the generated OpenAPI is being powered by Stoplight CLI without Git then that could be a straight swap to use the Scalar CLI to push documents to the Scalar Registry (or run both for a while and see how things look.) Or you could take the chance to migrate to using Git, as it's generally considered best practice to keep the OpenAPI/Markdown alongside the source code.
+If the generated OpenAPI is being powered by Stoplight CLI without Git then that could be a straight swap to use the Scalar CLI to push documents to the Registry (or run both for a while and see how things look.) Or you could take the chance to migrate to using Git, as it's generally considered best practice to keep the OpenAPI/Markdown alongside the source code.
 
-Teams following the code-first workflow with Stoplight are probably using the OpenAPI editor Stoplight Studio, using either the long discontinued desktop application, or the hosted editor functionality in Stoplight Platform. Scalar has an [Editor interface](https://editor.scalar.com/) which can be used in the same way, allowing for changes to be made and pushed to the Scalar Registry, and/or synced back to Git. The registry makes OpenAPI documents available for other tools in the workflow, so they can access the latest OpenAPI, or peg to a particular version.
+Teams following the code-first workflow with Stoplight are probably using the OpenAPI editor Stoplight Studio, using either the long discontinued desktop application, or the hosted editor functionality in Stoplight Platform. Scalar has an [Editor interface](https://editor.scalar.com/) which can be used in the same way, allowing for changes to be made and pushed to the Registry, and/or synced back to Git. The registry makes OpenAPI documents available for other tools in the workflow, so they can access the latest OpenAPI, or peg to a particular version.
 
 ![](../assets/migration/editor.png)
 
@@ -45,7 +45,7 @@ With that in mind, let's look at how you can switch to a cheaper and better Open
 
 ## Step 1: Create a free Scalar account
 
-Scalar has a free tier, and you can get quite a lot done with it. No credit card needed or gimmick trials that are hard to cancel, just [register over here](https://dashboard.scalar.com/register).
+Scalar has a free tier, and you can get quite a lot done with it. No credit card needed, just [register over here](https://dashboard.scalar.com/register).
 
 ## Step 2: Introduce your OpenAPI to Scalar
 
@@ -85,9 +85,8 @@ Once the project is hooked up to Scalar, the next step is to set up the Scalar c
 
 ```json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
-  "publishOnMerge": true,
   "siteConfig": {
     "subdomain": "name-of-your-api"
   },
@@ -120,7 +119,7 @@ Once the project is hooked up to Scalar, the next step is to set up the Scalar c
 }
 ```
 
-The `"publishOnMerge": true` tells Scalar to publish your documentation when a branch is merged into the selected branch, instead of anyone having to manually publish it.
+Configure automatic deployment (publish when a branch is merged into your selected branch) in the [Scalar Dashboard](https://dashboard.scalar.com) under your project settings.
 
 ![](../assets/migration/git-deployments.png)
 
@@ -153,9 +152,8 @@ Copy and paste that chunk of JSON out of there, and make the following changes.
 
 ```json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
-  "publishOnMerge": true,
   "siteConfig": {
     "subdomain": "name-of-your-api"
   },
@@ -196,7 +194,7 @@ Copy and paste that chunk of JSON out of there, and make the following changes.
 > [!NOTE]
 > You can create more complex sidebars with nested pages and more. See this example [scalar.config.json](https://raw.githubusercontent.com/scalar/scalar/refs/heads/main/scalar.config.json) to see how it works.
 
-Commit this file off to the Git repo and push. If `"publishOnMerge": true,` has been added to the config file then a new entry under Deployments should appear, and when that's done we can go and see how it all looks.
+Commit this file and push. If automatic deployment is enabled in the [Scalar Dashboard](https://dashboard.scalar.com) under your project settings, a new entry under Deployments will appear once the branch is merged; when that is done you can see how it all looks.
 
 ## Step 4: Review The New Documentation
 

@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import {
-  AuthSelector,
-  mergeSecurity,
-} from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
-import {
-  getSecurityRequirements,
-  getSelectedSecurity,
-} from '@scalar/api-client/v2/features/operation'
+import { AuthSelector } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  getSecurityRequirements,
+  getSelectedSecurity,
+  mergeSecurity,
+} from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
@@ -39,21 +37,6 @@ const securityRequirements = computed(() =>
   getSecurityRequirements(document?.security),
 )
 
-/** The selected security keys for the document */
-const selectedSecurity = computed(() =>
-  getSelectedSecurity(
-    authStore.getAuthSelectedSchemas({
-      type: 'document',
-      documentName: name,
-    }),
-    undefined,
-    securityRequirements.value,
-  ),
-)
-
-const focusRef = shallowRef()
-const { focused } = useFocusWithin(focusRef)
-
 /** Merge the security schemes with the authentication config and the auth store */
 const securitySchemes = computed(() =>
   mergeSecurity(
@@ -63,6 +46,23 @@ const securitySchemes = computed(() =>
     name,
   ),
 )
+
+/** The selected security keys for the document */
+const selectedSecurity = computed(() =>
+  getSelectedSecurity(
+    authStore.getAuthSelectedSchemas({
+      type: 'document',
+      documentName: name,
+    }),
+    undefined,
+    securityRequirements.value,
+    securitySchemes.value,
+    options.authentication?.preferredSecurityScheme,
+  ),
+)
+
+const focusRef = shallowRef()
+const { focused } = useFocusWithin(focusRef)
 
 watch(focused, (isFocused) => {
   if (!isFocused) {

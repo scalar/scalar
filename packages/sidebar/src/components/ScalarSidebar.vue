@@ -71,6 +71,12 @@ const emit = defineEmits<{
    * @param id - The id of the selected item.
    */
   (e: 'selectItem', id: string): void
+
+  /**
+   * Emitted when the group is toggled.
+   * @param id - The id of the group.
+   */
+  (e: 'toggleGroup', id: string): void
 }>()
 
 const slots = defineSlots<{
@@ -80,6 +86,8 @@ const slots = defineSlots<{
   decorator?(props: { item: Item }): unknown
   /** Places content at the top of the sidebar outside of the items list */
   header?(): unknown
+  /** Places content between the header and the items list */
+  spacer?(): unknown
   /** Places content at the bottom of the sidebar outside of the items list */
   footer?(): unknown
   /** Places content before the first item in the items list */
@@ -104,12 +112,10 @@ const handleDragEnd = (
 <template>
   <ScalarSidebar
     class="flex min-h-0 flex-col"
-    :style="{
-      '--scalar-sidebar-indent': indent + 'px',
-    }">
+    :style="{ '--scalar-sidebar-indent': indent + 'px' }">
     <slot name="header" />
     <slot>
-      <ScalarSidebarItems class="custom-scroll pt-0">
+      <ScalarSidebarItems class="custom-scroll">
         <!-- First item -->
         <slot name="before" />
         <SidebarItem
@@ -123,7 +129,8 @@ const handleDragEnd = (
           :layout="layout"
           :options="options"
           @onDragEnd="handleDragEnd"
-          @selectItem="(id) => emit('selectItem', id)">
+          @selectItem="(id) => emit('selectItem', id)"
+          @toggleGroup="(id) => emit('toggleGroup', id)">
           <template
             v-if="slots.decorator"
             #decorator="props">
@@ -148,7 +155,9 @@ const handleDragEnd = (
         </SidebarItem>
       </ScalarSidebarItems>
       <!-- Spacer -->
-      <div class="flex-1"></div>
+      <slot name="spacer">
+        <div class="flex-1"></div>
+      </slot>
     </slot>
     <slot name="footer" />
   </ScalarSidebar>

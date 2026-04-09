@@ -34,7 +34,7 @@ For more information about Spectral rules and how to write custom rules, see the
 
 ## Access Control
 
-Just like other resources in the Scalar Registry, you can control who has access to your rules.
+Just like other resources in the Registry, you can control who has access to your rules.
 
 ### Public Rules
 
@@ -56,7 +56,7 @@ You can lint your OpenAPI files using the `scalar document lint` command:
 scalar document lint ./openapi.yaml
 ```
 
-To use a specific rule from the Scalar Registry, use the `--rule` option:
+To use a specific rule from the Registry, use the `--rule` option:
 
 ```bash
 scalar document lint ./openapi.yaml --rule https://registry.scalar.com/@your-team/rules/your-rule
@@ -91,10 +91,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24
 

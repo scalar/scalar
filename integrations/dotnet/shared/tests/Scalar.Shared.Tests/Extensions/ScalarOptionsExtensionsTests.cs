@@ -29,6 +29,24 @@ public class ScalarOptionsExtensionsTests
     }
 
     [Fact]
+    public void WithMcpServer_ShouldPreserveDisabledFlag()
+    {
+        // Arrange
+        var options = new ScalarOptions();
+
+        // Act
+        options
+            .DisableMcp()
+            .WithMcpServer("test-mcp", "https://mcp.example.com");
+
+        // Assert
+        options.Mcp.Should().NotBeNull();
+        options.Mcp!.Disabled.Should().BeTrue();
+        options.Mcp.Name.Should().Be("test-mcp");
+        options.Mcp.Url.Should().Be("https://mcp.example.com");
+    }
+
+    [Fact]
     public void AddDefaultScopes_ShouldAddScopesToScheme()
     {
         // Arrange

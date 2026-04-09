@@ -28,9 +28,7 @@ export const shellCurl: Plugin = {
         normalizedRequest.queryString
           .map((param) => {
             // Ensure both name and value are fully URI encoded
-            const encodedName = encodeURIComponent(param.name)
-            const encodedValue = encodeURIComponent(param.value)
-            return `${encodedName}=${encodedValue}`
+            return `${param.name}=${param.value}`
           })
           .join('&')
       : ''
@@ -112,11 +110,12 @@ export const shellCurl: Plugin = {
         // Handle multipart form data
         normalizedRequest.postData.params.forEach((param) => {
           const escapedName = escapeSingleQuotes(param.name)
+          const multipartValueSuffix = param.contentType ? `;type=${param.contentType}` : ''
           if (param.fileName !== undefined) {
-            const escapedFileName = escapeSingleQuotes(param.fileName)
+            const escapedFileName = escapeSingleQuotes(`${param.fileName}${multipartValueSuffix}`)
             parts.push(`--form '${escapedName}=@${escapedFileName}'`)
           } else {
-            const escapedValue = escapeSingleQuotes(param.value ?? '')
+            const escapedValue = escapeSingleQuotes(`${param.value ?? ''}${multipartValueSuffix}`)
             parts.push(`--form '${escapedName}=${escapedValue}'`)
           }
         })

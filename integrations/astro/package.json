@@ -17,9 +17,9 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.1.20",
+  "version": "0.2.7",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "dev": "cd playground && pnpm dev"

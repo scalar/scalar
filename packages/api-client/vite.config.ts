@@ -1,26 +1,53 @@
-import { fileURLToPath } from 'node:url'
+import { createRequire } from 'node:module'
+import { resolve } from 'node:path'
 
-import { findEntryPoints } from '@scalar/build-tooling'
-import { ViteWatchWorkspace, alias, createViteBuildOptions } from '@scalar/build-tooling/vite'
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import svgLoader from 'vite-svg-loader'
 import { defineConfig } from 'vitest/config'
 
+import {
+  createExternalsFromPackageJson,
+  createLibEntry,
+  createPreserveModulesOutput,
+  findEntryPoints,
+} from '../../tooling/scripts/vite-lib-config'
+
+const require = createRequire(import.meta.url)
+const monacoEditorPlugin = require('vite-plugin-monaco-editor').default
+
+const external = createExternalsFromPackageJson()
+const entryPaths = await findEntryPoints()
+const entry = createLibEntry(entryPaths, import.meta.dirname)
+
 export default defineConfig({
-  plugins: [vue(), tailwindcss(), svgLoader(), ViteWatchWorkspace()],
+  plugins: [
+    vue(),
+    tailwindcss(),
+    svgLoader(),
+    monacoEditorPlugin({
+      languageWorkers: ['json', 'editorWorkerService'],
+      customWorkers: [
+        {
+          label: 'yaml',
+          entry: 'monaco-yaml/yaml.worker',
+        },
+      ],
+    }),
+  ],
   define: {
     PACKAGE_VERSION: JSON.stringify(process.env.npm_package_version),
   },
   resolve: {
     alias: {
-      ...alias(import.meta.url),
-      '@v2': fileURLToPath(new URL('./src/v2', import.meta.url)),
+      '@': resolve(import.meta.dirname, './src'),
+      '@v2': resolve(import.meta.dirname, './src/v2'),
+      '@test': resolve(import.meta.dirname, './test'),
     },
-    dedupe: ['vue'],
+    dedupe: ['vue', 'monaco-editor', 'monaco-yaml'],
   },
   optimizeDeps: {
-    exclude: ['@scalar/*'],
+    exclude: ['@scalar/*', 'monaco-editor', 'monaco-yaml'],
   },
   server: {
     port: 5065,
@@ -31,14 +58,31 @@ export default defineConfig({
       '/void': 'https://void.scalar.com',
     },
   },
-  build: createViteBuildOptions({
-    entry: await findEntryPoints({ allowCss: true }),
-    options: {
-      ssr: false,
+  build: {
+    outDir: './dist',
+    minify: false,
+    sourcemap: true,
+    lib: {
+      formats: ['es'],
+      cssFileName: 'style',
+      entry,
     },
-  }),
+    rolldownOptions: {
+      treeshake: {
+        moduleSideEffects: (id) => id.includes('.css'),
+      },
+      external,
+      output: createPreserveModulesOutput(),
+    },
+  },
   test: {
     environment: 'jsdom',
     setupFiles: './test/vitest.setup.ts',
+    alias: [
+      {
+        find: /^monaco-editor$/,
+        replacement: resolve(import.meta.dirname, 'node_modules/monaco-editor/esm/vs/editor/editor.api'),
+      },
+    ],
   },
 })

@@ -1,4 +1,4 @@
-# Scalar API Reference for Java Spring Boot
+# API Reference for Java Spring Boot
 
 :::scalar-callout{ type=warning }
 **This documentation is obsolete.** The Scalar Java integration has been restructured into a modular approach with separate modules for different Spring Boot variants. Please refer to the [Java integration documentation](java.md) for the current documentation.

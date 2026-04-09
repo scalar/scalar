@@ -890,4 +890,164 @@ describe('CommandPaletteExample', () => {
 
     expect(wrapper.emitted('close')).toHaveLength(1)
   })
+
+  it('renames an example in edit mode', async () => {
+    const document = createMockDocument({
+      paths: {
+        '/api/users': {
+          get: {
+            operationId: 'op1',
+            'x-draft-examples': ['default', 'custom'],
+          },
+        },
+      },
+    })
+    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
+
+    const fn = vi.fn()
+    eventBus.on('operation:rename:example', fn)
+
+    const wrapper = mount(CommandPaletteExample, {
+      props: {
+        workspaceStore,
+        eventBus,
+        documentName: 'doc1',
+        example: {
+          id: 'example-custom',
+          type: 'example',
+          title: 'custom',
+          name: 'custom',
+        },
+      },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', 'renamed')
+    await nextTick()
+
+    const form = wrapper.findComponent({ name: 'CommandActionForm' })
+    await form.vm.$emit('submit')
+    await nextTick()
+
+    expect(fn).toHaveBeenCalledWith({
+      documentName: 'doc1',
+      meta: {
+        path: '/api/users',
+        method: 'get',
+        exampleKey: 'custom',
+      },
+      payload: {
+        name: 'renamed',
+      },
+    })
+    expect(wrapper.emitted('close')).toHaveLength(1)
+  })
+
+  it('disables edit mode submission when the name is unchanged', async () => {
+    const document = createMockDocument({
+      paths: {
+        '/api/users': {
+          get: {
+            operationId: 'op1',
+            'x-draft-examples': ['default', 'custom'],
+          },
+        },
+      },
+    })
+    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
+
+    const wrapper = mount(CommandPaletteExample, {
+      props: {
+        workspaceStore,
+        eventBus,
+        documentName: 'doc1',
+        example: {
+          id: 'example-custom',
+          type: 'example',
+          title: 'custom',
+          name: 'custom',
+        },
+      },
+    })
+
+    const form = wrapper.findComponent({ name: 'CommandActionForm' })
+    expect(form.props('disabled')).toBe(true)
+  })
+
+  it('shows cancel button in edit mode and closes on click', async () => {
+    const document = createMockDocument({
+      paths: {
+        '/api/users': {
+          get: {
+            operationId: 'op1',
+            'x-draft-examples': ['default', 'custom'],
+          },
+        },
+      },
+    })
+    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
+
+    const wrapper = mount(CommandPaletteExample, {
+      props: {
+        workspaceStore,
+        eventBus,
+        documentName: 'doc1',
+        example: {
+          id: 'example-custom',
+          type: 'example',
+          title: 'custom',
+          name: 'custom',
+        },
+      },
+    })
+
+    const cancelButton = wrapper
+      .findAllComponents({ name: 'ScalarButton' })
+      .find((button) => button.text() === 'Cancel')
+    expect(cancelButton).toBeDefined()
+
+    await cancelButton?.trigger('click')
+    await nextTick()
+
+    expect(wrapper.emitted('close')).toHaveLength(1)
+  })
+
+  it('does not emit back while editing an example', async () => {
+    const document = createMockDocument({
+      paths: {
+        '/api/users': {
+          get: {
+            operationId: 'op1',
+            'x-draft-examples': ['default', 'custom'],
+          },
+        },
+      },
+    })
+    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
+
+    const wrapper = mount(CommandPaletteExample, {
+      props: {
+        workspaceStore,
+        eventBus,
+        documentName: 'doc1',
+        example: {
+          id: 'example-custom',
+          type: 'example',
+          title: 'custom',
+          name: 'custom',
+        },
+      },
+    })
+
+    const mockKeyboardEvent = new KeyboardEvent('keydown', { key: 'Backspace' })
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('delete', mockKeyboardEvent)
+    await nextTick()
+
+    expect(wrapper.emitted('back')).toBeFalsy()
+  })
 })

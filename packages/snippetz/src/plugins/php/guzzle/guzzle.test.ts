@@ -110,6 +110,33 @@ $response = $client->request('GET', 'https://example.com', [
 ]);`)
   })
 
+  it('preserves repeated query parameters as arrays', () => {
+    const result = phpGuzzle.generate({
+      url: 'https://example.com',
+      queryString: [
+        {
+          name: 'statuses',
+          value: 'active',
+        },
+        {
+          name: 'statuses',
+          value: 'inactive',
+        },
+      ],
+    })
+
+    expect(result).toBe(`$client = new GuzzleHttp\\Client();
+
+$response = $client->request('GET', 'https://example.com', [
+  'query' => [
+    'statuses' => [
+      'active',
+      'inactive'
+    ]
+  ]
+]);`)
+  })
+
   it('has cookies', () => {
     const result = phpGuzzle.generate({
       url: 'https://example.com',
@@ -283,6 +310,49 @@ $response = $client->request('POST', 'https://example.com', [
     [
       'name' => 'field',
       'contents' => 'value'
+    ]
+  ]
+]);`)
+  })
+
+  it('handles multipart form data with per-part content types', () => {
+    const result = phpGuzzle.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            fileName: 'test.txt',
+            contentType: 'text/plain',
+          },
+          {
+            name: 'metadata',
+            value: '{"foo":"bar"}',
+            contentType: 'application/json',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`$client = new GuzzleHttp\\Client();
+
+$response = $client->request('POST', 'https://example.com', [
+  'multipart' => [
+    [
+      'name' => 'file',
+      'contents' => fopen('test.txt', 'r'),
+      'headers' => [
+        'Content-Type' => 'text/plain'
+      ]
+    ],
+    [
+      'name' => 'metadata',
+      'contents' => '{"foo":"bar"}',
+      'headers' => [
+        'Content-Type' => 'application/json'
+      ]
     ]
   ]
 ]);`)

@@ -1,5 +1,92 @@
 # @scalar/core
 
+## 0.5.0
+
+### Minor Changes
+
+- [#8431](https://github.com/scalar/scalar/pull/8431): refactor: use new @scalar/client-side-rendering, deprecate everything
+
+## 0.4.6
+
+## 0.4.5
+
+## 0.4.4
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.4.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.3**
+
+## 0.4.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.2**
+
+## 0.4.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.1**
+  - [#8381](https://github.com/scalar/scalar/pull/8381): feat: add mcp config support
+
+## 0.4.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.3.45
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.10**
+
+## 0.3.44
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.9**
+
+## 0.3.43
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.8**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+
+## 0.3.42
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.7**
+
 ## 0.3.41
 
 ### Patch Changes

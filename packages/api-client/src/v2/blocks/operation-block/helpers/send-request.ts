@@ -1,9 +1,6 @@
 import { ERRORS, type ErrorResponse, normalizeError } from '@scalar/helpers/errors/normalize-error'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
-import { normalizeHeaders } from '@scalar/helpers/http/normalize-headers'
-import { type ClientPlugin, executeHook } from '@scalar/oas-utils/helpers'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { decodeBuffer } from './decode-buffer'
 import { getCookieHeaderKeys } from './get-cookie-header-keys'
@@ -55,13 +52,9 @@ const NO_BODY_STATUS_CODES = [204, 205, 304]
  */
 export const sendRequest = async ({
   isUsingProxy,
-  operation,
   request,
-  plugins,
 }: {
   isUsingProxy: boolean
-  operation: OperationObject
-  plugins: ClientPlugin[]
   request: Request
 }): Promise<
   ErrorResponse<{
@@ -72,13 +65,11 @@ export const sendRequest = async ({
   }>
 > => {
   try {
-    // Apply any beforeRequest hooks from the plugins
-    const { request: modifiedRequest } = await executeHook({ request }, 'beforeRequest', plugins)
-
     // Execute the request and measure duration
-    const startTime = Date.now()
-    const response = await fetch(modifiedRequest.clone())
-    const endTime = Date.now()
+    const startTime = performance.now()
+    const response = await fetch(request.clone())
+    const endTime = performance.now()
+    const timestamp = Date.now()
     const duration = endTime - startTime
 
     // Extract response metadata early for reuse
@@ -87,7 +78,7 @@ export const sendRequest = async ({
     const responseUrl = new URL(response.url)
     const fullPath = responseUrl.pathname + responseUrl.search
     const statusText = response.statusText || httpStatusCodes[response.status]?.name || ''
-    const method = modifiedRequest.method as HttpMethod
+    const method = request.method as HttpMethod
     const shouldSkipBody = NO_BODY_STATUS_CODES.includes(response.status)
 
     /**
@@ -98,10 +89,8 @@ export const sendRequest = async ({
     if (contentType?.startsWith('text/event-stream') && response.body) {
       return buildStreamingResponse({
         response,
-        modifiedRequest,
-        operation,
-        plugins,
-        endTime,
+        request,
+        timestamp,
         duration,
         responseHeaders,
         statusText,
@@ -112,10 +101,8 @@ export const sendRequest = async ({
 
     return buildStandardResponse({
       response,
-      modifiedRequest,
-      operation,
-      plugins,
-      endTime,
+      request,
+      timestamp,
       duration,
       responseHeaders,
       statusText,
@@ -133,12 +120,10 @@ export const sendRequest = async ({
  * Build a streaming response for server-sent events.
  * Streaming responses use a reader instead of buffering the entire body.
  */
-const buildStreamingResponse = async ({
+const buildStreamingResponse = ({
   response,
-  modifiedRequest,
-  operation,
-  plugins,
-  endTime,
+  request,
+  timestamp,
   duration,
   responseHeaders,
   statusText,
@@ -146,37 +131,32 @@ const buildStreamingResponse = async ({
   fullPath,
 }: {
   response: Response
-  modifiedRequest: Request
-  operation: OperationObject
-  plugins: ClientPlugin[]
-  endTime: number
+  request: Request
+  timestamp: number
   duration: number
   responseHeaders: Record<string, string>
   statusText: string
   method: HttpMethod
   fullPath: string
-}): Promise<
-  ErrorResponse<{
-    response: ResponseInstance
-    request: Request
-    timestamp: number
-    originalResponse: Response
-  }>
-> => {
+}): ErrorResponse<{
+  response: ResponseInstance
+  request: Request
+  timestamp: number
+  originalResponse: Response
+}> => {
   const normalizedResponse = new Response(null, {
     status: response.status,
     statusText,
     headers: response.headers,
   })
 
-  await executeHook({ response: normalizedResponse, request: modifiedRequest, operation }, 'responseReceived', plugins)
   const cookieHeaderKeys = getCookieHeaderKeys(normalizedResponse.headers)
 
   return [
     null,
     {
-      timestamp: endTime,
-      request: modifiedRequest,
+      timestamp,
+      request: request,
       response: {
         ...normalizedResponse,
         headers: responseHeaders,
@@ -197,10 +177,8 @@ const buildStreamingResponse = async ({
  */
 const buildStandardResponse = async ({
   response,
-  modifiedRequest,
-  operation,
-  plugins,
-  endTime,
+  request,
+  timestamp,
   duration,
   responseHeaders,
   statusText,
@@ -210,10 +188,8 @@ const buildStandardResponse = async ({
   shouldSkipBody,
 }: {
   response: Response
-  modifiedRequest: Request
-  operation: OperationObject
-  plugins: ClientPlugin[]
-  endTime: number
+  request: Request
+  timestamp: number
   duration: number
   responseHeaders: Record<string, string>
   statusText: string
@@ -248,14 +224,13 @@ const buildStandardResponse = async ({
     headers: response.headers,
   })
 
-  await executeHook({ response: normalizedResponse, request: modifiedRequest, operation }, 'responseReceived', plugins)
   const cookieHeaderKeys = getCookieHeaderKeys(normalizedResponse.headers)
 
   return [
     null,
     {
-      timestamp: endTime,
-      request: modifiedRequest,
+      timestamp,
+      request: request,
       response: {
         ...normalizedResponse,
         headers: responseHeaders,

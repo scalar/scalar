@@ -1,4 +1,41 @@
 import { afterEach, beforeEach, expect, vi } from 'vitest'
+import { reactive, ref } from 'vue'
+
+import { useLayout } from '@/hooks/useLayout'
+import { useSidebar } from '@/hooks/useSidebar'
+
+// Mock the useLayout hook
+vi.mock('@/hooks/useLayout', () => ({
+  useLayout: vi.fn(),
+}))
+
+vi.mock('monaco-editor', () => ({
+  editor: {
+    create: vi.fn(),
+  },
+}))
+export const mockUseLayout = useLayout
+
+// Prevent v2 editor from loading real monaco (workers and subpath imports fail in test env).
+vi.mock('@/v2/features/editor', () => ({
+  useMonacoEditorConfiguration: vi.fn(),
+  rangeToWholeLine: vi.fn(),
+  useEditor: vi.fn(() => ({
+    editor: null,
+    setValue: vi.fn(),
+    getValue: vi.fn(() => ''),
+    focusPath: vi.fn(),
+    formatDocument: vi.fn(),
+    dispose: vi.fn(),
+  })),
+  useJsonPointerLinkSupport: vi.fn(),
+}))
+
+// Mock the useSidebar hook
+vi.mock('@/hooks/useSidebar', () => ({
+  useSidebar: vi.fn(),
+}))
+export const mockUseSidebar = useSidebar
 
 /** Spy on console.warn */
 export const consoleWarnSpy = vi.spyOn(console, 'warn')

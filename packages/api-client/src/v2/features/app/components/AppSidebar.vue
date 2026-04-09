@@ -8,13 +8,20 @@ import {
   type WorkspaceGroup,
 } from '@scalar/components'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
-import { ScalarIconDotsThree, ScalarIconPlus } from '@scalar/icons'
+import {
+  ScalarIconDotsThree,
+  ScalarIconGearSix,
+  ScalarIconPlus,
+} from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
 import type { DraggingItem, HoveredItem, SidebarState } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
-import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+import type {
+  TraversedEntry,
+  TraversedOperation,
+} from '@scalar/workspace-store/schemas/navigation'
 import { capitalize, computed, nextTick, ref } from 'vue'
 
 import Rabbit from '@/assets/rabbit.ascii?raw'
@@ -251,14 +258,34 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
     },
   })
 }
+
+/**
+ * Navigates to the operations page for the provided operation item.
+ * Emits a navigation event for the operation overview page.
+ */
+const navigateToOperationsPage = (item: TraversedOperation) => {
+  const operationWithParent = sidebarState.getEntryById(item.id)
+  const documentSlug = getParentEntry('document', operationWithParent)?.name
+
+  eventBus.emit('ui:navigate', {
+    page: 'operation',
+    path: 'overview',
+    operationPath: item.path,
+    method: item.method,
+    documentSlug: documentSlug,
+  })
+}
 </script>
 
 <template>
   <div class="flex">
     <Sidebar
-      v-model:isSidebarOpen="isSidebarOpen"
       v-model:sidebarWidth="sidebarWidth"
       :activeWorkspace="activeWorkspace"
+      :class="[
+        'max-md:inset-y-0 max-md:z-2 max-md:w-full!',
+        isSidebarOpen ? 'max-md:fixed! max-md:flex!' : 'max-md:hidden!',
+      ]"
       :documents="Object.values(store.workspace.documents)"
       :isDroppable="isDroppable"
       :layout="layout"
@@ -288,18 +315,29 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
 
       <!-- Decorator dropdown menu -->
       <template #decorator="{ item }">
-        <ScalarIconButton
-          aria-expanded="false"
-          aria-haspopup="menu"
-          :icon="ScalarIconDotsThree"
-          label="More options"
-          size="sm"
-          weight="bold"
-          @click.stop="(e: MouseEvent) => openMenu(e, item)"
-          @keydown.down.stop="(e: KeyboardEvent) => openMenu(e, item)"
-          @keydown.enter.stop="(e: KeyboardEvent) => openMenu(e, item)"
-          @keydown.space.stop="(e: KeyboardEvent) => openMenu(e, item)"
-          @keydown.up.stop="(e: KeyboardEvent) => openMenu(e, item)" />
+        <div class="flex items-center gap-0.5">
+          <ScalarIconButton
+            v-if="item.type === 'operation'"
+            :icon="ScalarIconGearSix"
+            label="Operation settings"
+            size="sm"
+            weight="bold"
+            @click.stop="navigateToOperationsPage(item)"
+            @keydown.enter.stop="navigateToOperationsPage(item)"
+            @keydown.space.stop="navigateToOperationsPage(item)" />
+          <ScalarIconButton
+            aria-expanded="false"
+            aria-haspopup="menu"
+            :icon="ScalarIconDotsThree"
+            label="More options"
+            size="sm"
+            weight="bold"
+            @click.stop="(e: MouseEvent) => openMenu(e, item)"
+            @keydown.down.stop="(e: KeyboardEvent) => openMenu(e, item)"
+            @keydown.enter.stop="(e: KeyboardEvent) => openMenu(e, item)"
+            @keydown.space.stop="(e: KeyboardEvent) => openMenu(e, item)"
+            @keydown.up.stop="(e: KeyboardEvent) => openMenu(e, item)" />
+        </div>
       </template>
 
       <!-- Dirty document icon slot -->
@@ -316,8 +354,8 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
                 ('icon' in item && item.icon) || 'interface-content-folder'
               " />
             <div
-              class="bg-orange absolute -top-1.25 -right-1.25 flex h-2.5 w-2.5 items-center justify-center rounded-full text-[9px] font-bold text-white">
-              !
+              class="bg-c-accent absolute -top-0.5 -right-0.5 size-1.5 rounded-full">
+              <span class="sr-only">Unsaved changes</span>
             </div>
           </div>
         </template>
@@ -356,7 +394,7 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
             </div>
             <div class="mt-2 mb-2 text-center text-sm text-balance">
               <b class="font-medium">Let's Get Started</b>
-              <p class="mt-2 leading-3">
+              <p class="mt-2 leading-5">
                 Create request, folder, collection or import from
                 OpenAPI/Postman
               </p>

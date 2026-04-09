@@ -1,3 +1,16 @@
+<script lang="ts">
+/**
+ * Scalar Listbox Item component
+ *
+ * A single option within a ScalarListbox dropdown.
+ * Handles active, selected, and disabled states.
+ *
+ * @example
+ * <ScalarListboxItem :option="{ id: '1', label: 'Option 1' }" />
+ */
+export default {}
+</script>
+
 <script setup lang="ts">
 import { ListboxOption } from '@headlessui/vue'
 import { cva, cx } from '@scalar/use-hooks/useBindCx'

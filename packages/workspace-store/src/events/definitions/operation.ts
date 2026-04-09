@@ -72,16 +72,14 @@ export type OperationEvents = {
   }
 
   /**
-   * Update the summary for the operation.
-   * Triggers when the user edits the summary/description for an endpoint.
-   * The new summary is provided in the payload, and meta identifies the operation by HTTP method and path.
+   * Update the description for the operation.
+   * Triggers when the user edits the description for an endpoint.
+   * The new description is provided in the payload, and meta identifies the operation by HTTP method and path.
    */
-  'operation:update:summary': {
-    /** The new summary string to set for the operation. */
-    payload: {
-      summary: string
-    }
-    /** Operation identity for which the summary is being updated (method and path) */
+  'operation:update:meta': {
+    /** The new meta properties for the operation */
+    payload: Partial<Pick<OperationObject, 'summary' | 'description' | 'deprecated'>>
+    /** Operation identity for which the meta is being updated (method and path) */
     meta: OperationMeta
   }
 
@@ -99,8 +97,13 @@ export type OperationEvents = {
     }
     /** Identifies the target operation by original method and path */
     meta: OperationMeta
+    /**
+     * The CSS selector of the element that triggered the blur event
+     * Used to re-trigger click events
+     */
+    blurTargetSelector: string | null
     /** Callback, on completion */
-    callback: (status: 'conflict' | 'no-change' | 'success') => void
+    callback: (status: 'conflict' | 'no-change' | 'success', blurTargetSelector: string | null) => void
   }
 
   /**
@@ -136,6 +139,20 @@ export type OperationEvents = {
     documentName: string
     /** Identifies the target operation by original method and path */
     meta: OperationExampleMeta
+  }
+
+  /**
+   * Rename an operation example key.
+   */
+  'operation:rename:example': {
+    /** The document name where the operation example should be renamed */
+    documentName: string
+    /** Identifies the target operation and current example key */
+    meta: OperationExampleMeta
+    /** The new example name */
+    payload: {
+      name: string
+    }
   }
 
   /**

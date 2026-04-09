@@ -9,7 +9,6 @@ import {
   SecretsAuthUnionSchema,
   type SelectedSecurity,
 } from '@/entities/auth/schema'
-import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
 import { safeAssign } from '@/helpers/general'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { coerceValue } from '@/schemas/typebox-coerce'
@@ -66,6 +65,15 @@ export type AuthStore = {
     selectedSchemes: SelectedSecurity,
   ) => void
   /**
+   * Clears the selected schemas for a given document or path.
+   * @param payload - The payload to clear the selected schemas for.
+   */
+  clearAuthSelectedSchemas: (
+    payload:
+      | { type: 'document'; documentName: string }
+      | { type: 'operation'; documentName: string; path: string; method: string },
+  ) => void
+  /**
    * Sets the authentication secrets for a given document and security scheme.
    * @param documentName - Name/id of the OpenAPI document.
    * @param schemeName - Name of the security scheme.
@@ -110,25 +118,7 @@ type CreateAuthStoreOptions = {
  */
 export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthStore => {
   // Vue reactive object to hold all authentication state
-  const auth = reactive<DocumentAuth>(
-    createDetectChangesProxy(
-      {},
-      {
-        hooks: {
-          onAfterChange: (path) => {
-            if (path.length < 1) {
-              return
-            }
-            const [documentName] = path
-            if (typeof documentName !== 'string') {
-              return
-            }
-            hooks?.onAuthChange?.(documentName)
-          },
-        },
-      },
-    ),
-  )
+  const auth = reactive<DocumentAuth>({})
 
   const getAuthSecrets: AuthStore['getAuthSecrets'] = (documentName, schemeName) => {
     return auth[documentName]?.secrets?.[schemeName]
@@ -137,10 +127,14 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
   const setAuthSecrets: AuthStore['setAuthSecrets'] = (documentName, schemeName, data) => {
     auth[documentName] ||= { secrets: {}, selected: { document: undefined, path: undefined } }
     auth[documentName].secrets[schemeName] = coerceValue(SecretsAuthUnionSchema, data)
+
+    hooks?.onAuthChange?.(documentName)
   }
 
-  const clearAuthSecrets: AuthStore['clearAuthSecrets'] = (documentName, schemeName) =>
+  const clearAuthSecrets: AuthStore['clearAuthSecrets'] = (documentName, schemeName) => {
     delete auth[documentName]?.secrets?.[schemeName]
+    hooks?.onAuthChange?.(documentName)
+  }
 
   const getAuthSelectedSchemas: AuthStore['getAuthSelectedSchemas'] = (payload) => {
     if (payload.type === 'document') {
@@ -170,14 +164,47 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
       const pathAuth = documentAuth.selected.path[payload.path]!
       pathAuth[payload.method] = selectedSchemes
     }
+
+    hooks?.onAuthChange?.(payload.documentName)
+  }
+
+  const clearAuthSelectedSchemas: AuthStore['clearAuthSelectedSchemas'] = (payload) => {
+    const documentAuth = auth[payload.documentName]
+    if (!documentAuth) {
+      return
+    }
+
+    if (payload.type === 'document') {
+      delete documentAuth.selected.document
+      hooks?.onAuthChange?.(payload.documentName)
+      return
+    }
+
+    // Prevent altering dangerous keys to the path items object
+    preventPollution(payload.method)
+    preventPollution(payload.path)
+
+    const pathAuth = documentAuth.selected.path?.[payload.path]
+    if (!pathAuth) {
+      return
+    }
+
+    delete pathAuth[payload.method]
+    hooks?.onAuthChange?.(payload.documentName)
   }
 
   const clearDocumentAuth: AuthStore['clearDocumentAuth'] = (documentName) => {
     delete auth[documentName]
+    hooks?.onAuthChange?.(documentName)
   }
 
   const load: AuthStore['load'] = (data) => {
     safeAssign(auth, coerceValue(DocumentAuthSchema, data))
+
+    // Trigger change events for all loaded documents
+    Object.keys(data).forEach((documentName) => {
+      hooks?.onAuthChange?.(documentName)
+    })
   }
 
   const exportAuth: AuthStore['export'] = () => {
@@ -185,6 +212,7 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
   }
 
   return {
+    clearAuthSelectedSchemas,
     getAuthSecrets,
     setAuthSecrets,
     clearAuthSecrets,

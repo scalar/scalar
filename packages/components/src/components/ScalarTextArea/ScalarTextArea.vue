@@ -16,10 +16,9 @@ import { onMounted } from 'vue'
 
 import { ScalarFormInput } from '../ScalarForm'
 
-const model = defineModel<string>()
+const model = defineModel<string>({ default: '' })
 
 const { textarea } = useTextareaAutosize({
-  // @ts-expect-error - unexpected type mismatch
   input: model,
   styleProp: 'minHeight',
 })
@@ -36,7 +35,9 @@ onMounted(() => {
   <ScalarFormInput
     is="div"
     v-bind="
-      stylingAttrsCx('custom-scroll flex text-c-1 min-h-0 shrink cursor-text')
+      stylingAttrsCx(
+        'custom-scroll flex items-start text-c-1 min-h-0 shrink cursor-text leading-snug',
+      )
     "
     @click="textarea?.focus()">
     <textarea

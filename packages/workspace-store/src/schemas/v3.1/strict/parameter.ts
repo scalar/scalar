@@ -3,7 +3,7 @@ import { Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import { type XInternal, XInternalSchema } from '@/schemas/extensions/document/x-internal'
 import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
-import { XGlobal } from '@/schemas/extensions/parameter/x-global'
+import { XGlobalSchema } from '@/schemas/extensions/parameter/x-global'
 import type { ExampleObject } from '@/schemas/v3.1/strict/example'
 import type { MediaTypeObject } from '@/schemas/v3.1/strict/media-type'
 import { ExampleObjectRef, MediaTypeObjectRef, SchemaObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
@@ -27,8 +27,10 @@ const ParameterObjectBaseSchema = compose(
     deprecated: Type.Optional(Type.Boolean()),
     /** If true, clients MAY pass a zero-length string value in place of parameters that would otherwise be omitted entirely, which the server SHOULD interpret as the parameter being unused. Default value is false. If style is used, and if behavior is n/a (cannot be serialized), the value of allowEmptyValue SHALL be ignored. Interactions between this field and the parameter's Schema Object are implementation-defined. This field is valid only for query parameters. Use of this field is NOT RECOMMENDED, and it is likely to be removed in a later revision. */
     allowEmptyValue: Type.Optional(Type.Boolean()),
+    /** When this is true, parameter values are serialized using reserved expansion, as defined by RFC6570, which allows RFC3986's reserved character set, as well as percent-encoded triples, to pass through unchanged, while still percent-encoding all other disallowed characters (including % outside of percent-encoded triples). Applications are still responsible for percent-encoding reserved characters that are not allowed in the query string ([, ], #), or have a special meaning in application/x-www-form-urlencoded (-, &, +); see Appendices C and E for details. This field only applies to parameters with an in value of query. The default value is false. */
+    allowReserved: Type.Optional(Type.Boolean()),
   }),
-  XGlobal,
+  XGlobalSchema,
   XInternalSchema,
   XScalarIgnoreSchema,
 )
@@ -49,6 +51,8 @@ type ParameterObjectBase = {
   deprecated?: boolean
   /** If true, clients MAY pass a zero-length string value in place of parameters that would otherwise be omitted entirely, which the server SHOULD interpret as the parameter being unused. Default value is false. If style is used, and if behavior is n/a (cannot be serialized), the value of allowEmptyValue SHALL be ignored. Interactions between this field and the parameter's Schema Object are implementation-defined. This field is valid only for query parameters. Use of this field is NOT RECOMMENDED, and it is likely to be removed in a later revision. */
   allowEmptyValue?: boolean
+  /** Determines whether the parameter value SHOULD allow reserved characters without percent-encoding. This field is valid only for query parameters. Default value is false. */
+  allowReserved?: boolean
   /**
    * OpenAPI extension used by the api-client application to determine if a parameter is considered global in scope
    * for the entire workspace. When set, this parameter will be injected into every request automatically.

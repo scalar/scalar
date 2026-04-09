@@ -5,6 +5,27 @@
 @import "@scalar/themes/style.css"; /* Theme Base Styles and Reset */
 @import "@scalar/themes/tailwind.css"; /* Tailwind Theme + Config */
 
+/* References Tailwind Theme Extensions */
+@theme inline {
+  /* 
+   * References Spacing Variables
+   * @see components/ApiReference.vue
+   */
+
+  /* The header height */
+  --spacing-header: var(--refs-header-height);
+  /* The offset of visible references content (minus headers) */
+  --spacing-viewport-offset: var(--refs-viewport-offset);
+  /* The calculated height of visible references content (minus headers) */
+  --spacing-viewport-height: var(--refs-viewport-height);
+  /* The width of the sidebar */
+  --spacing-w-sidebar: var(--refs-sidebar-width);
+  /* The height of the sidebar */
+  --spacing-h-sidebar: var(--refs-sidebar-height);
+  /* The maximum width of the content column */
+  --spacing-content-max-width: var(--refs-content-max-width);
+}
+
 .scalar-app {
   @import "tailwindcss/utilities.css";
 }
@@ -12,6 +33,7 @@
 @import "@scalar/components/style.css"; /* Component Library Styles */
 @import "@scalar/sidebar/style.css"; /* Sidebar Styles */
 @import "@scalar/api-client/style.css"; /* API Client Styles */
+@import "@scalar/agent-chat/style.css"; /* Agent Chat Styles */
 
 /* Search for Tailwind classes in the API Reference */
 @source "./";

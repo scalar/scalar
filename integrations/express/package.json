@@ -10,23 +10,18 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/express"
   },
-  "version": "0.8.44",
+  "version": "0.9.7",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "build:playground": "cd playground && pnpm build",
-    "dev": "nodemon --exec \"vite-node playground/index.ts\" --watch playground --ext ts --quiet",
+    "dev": "tsx watch playground/index.ts",
     "docker:build": "docker build --build-arg BASE_IMAGE=scalar-base -t express-api-reference -f Dockerfile .",
     "docker:run": "docker run -p 5055:5055 express-api-reference",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -62,7 +57,6 @@
     "@scalar/core": "workspace:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@types/express": "catalog:*",
     "@types/supertest": "catalog:*",
     "@types/swagger-jsdoc": "^6.0.3",

@@ -298,6 +298,48 @@ let request = client
 let response = request.send().await?;`)
   })
 
+  it('handles multipart form data with per-part content types', () => {
+    const result = rustReqwest.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            fileName: 'test.txt',
+            contentType: 'text/plain',
+          },
+          {
+            name: 'metadata',
+            value: '{"foo":"bar"}',
+            contentType: 'application/json',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`let client = reqwest::Client::new();
+
+let request = client
+    .post("https://example.com")
+    .multipart({
+        let mut form = reqwest::multipart::Form::new();
+        let part = reqwest::multipart::Part::text("")
+            .file_name("test.txt")
+            .mime_str("text/plain")
+            .unwrap();
+        form = form.part("file", part);
+        let part = reqwest::multipart::Part::text("{\\"foo\\":\\"bar\\"}")
+            .mime_str("application/json")
+            .unwrap();
+        form = form.part("metadata", part);
+            form
+        });
+
+let response = request.send().await?;`)
+  })
+
   it('handles url-encoded form data with special characters', () => {
     const result = rustReqwest.generate({
       url: 'https://example.com',
@@ -379,11 +421,11 @@ let response = request.send().await?;`)
       queryString: [
         {
           name: 'q',
-          value: 'hello world & more',
+          value: 'hello%20world%20%26%20more',
         },
         {
           name: 'special',
-          value: '!@#$%^&*()',
+          value: '!%40%23%24%25%5E%26*()',
         },
       ],
     })

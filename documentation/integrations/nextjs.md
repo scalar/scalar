@@ -1,4 +1,4 @@
-# Scalar API Reference for Next.js
+# API Reference for Next.js
 
 Next.js enables you to create high-quality web applications with the power of React components. And Scalar enables you to create high-quality API references. What a match, isn't it?
 
@@ -159,6 +159,17 @@ export const GET = ApiReference(config)
 ```
 
 Open <http://localhost:3000/reference> and there it is: Your new API reference. :)
+
+### Using with Tailwind CSS
+
+If your Next.js project uses Tailwind CSS v4, you need to set the CSS layer order so that Tailwind's utility classes take priority over Scalar's styles. Add this to the top of your global CSS file (for example, `app/globals.css`):
+
+```css
+@layer scalar-base, scalar-theme, scalar-config, theme, base, components, utilities;
+@import "tailwindcss";
+```
+
+For full details, see [Embedding with CSS Frameworks](../themes.md#embedding-with-css-frameworks).
 
 #### Alternative: Pages router
 

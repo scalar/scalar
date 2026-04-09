@@ -1,6 +1,7 @@
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { dereference, escapeJsonPointer } from '@scalar/openapi-parser'
+import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
+import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import type { DragOffset, DraggingItem, HoveredItem, SidebarState } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
@@ -12,11 +13,11 @@ import type {
   TraversedOperation,
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
-import type { OpenApiDocument, TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import { type MaybeRefOrGetter, toValue } from 'vue'
 
-import { removeCircular } from '@/v2/helpers/remove-circular'
+import { getResolvedRefDeep } from '@/v2/blocks/operation-code-sample/helpers/get-resolved-ref-deep'
 
 /**
  * Reorders items in an array by moving an item from one index to another,
@@ -240,10 +241,15 @@ const getDereferencedOperation = (
   path: string,
   method: HttpMethod,
 ): OperationObject | undefined => {
-  const result = dereference(document).schema as OpenApiDocument
-  const operation = result.paths?.[path]?.[method]
+  const operation = document.paths?.[path]?.[method]
 
-  return removeCircular(operation, { prefix: `#/paths/${escapeJsonPointer(path)}/${method}` }) as
+  if (!operation) {
+    return undefined
+  }
+
+  const dereferencedOperation = getResolvedRefDeep(operation) as OperationObject
+
+  return toJsonCompatible(dereferencedOperation, { prefix: `#/paths/${escapeJsonPointer(path)}/${method}` }) as
     | OperationObject
     | undefined
 }
@@ -270,11 +276,7 @@ const handleMoveOperation = (
     return false
   }
 
-  const currentOperation = getDereferencedOperation(
-    unpackProxyObject(draggingDocument),
-    draggingItem.path,
-    draggingItem.method,
-  )
+  const currentOperation = getDereferencedOperation(draggingDocument, draggingItem.path, draggingItem.method)
 
   if (!currentOperation) {
     return false

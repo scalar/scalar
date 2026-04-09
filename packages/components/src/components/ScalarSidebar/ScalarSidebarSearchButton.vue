@@ -1,3 +1,17 @@
+<script lang="ts">
+/**
+ * Scalar Sidebar Search Button component
+ *
+ * A styled button that serves as a search trigger in the sidebar.
+ * Displays a magnifying glass icon and an optional keyboard shortcut.
+ *
+ * @example
+ * <ScalarSidebarSearchButton>
+ *   <template #shortcut>⌘K</template>
+ * </ScalarSidebarSearchButton>
+ */
+export default {}
+</script>
 <script setup lang="ts">
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'

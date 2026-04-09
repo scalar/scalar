@@ -102,6 +102,30 @@ ofetch('https://example.com', {
 })`)
   })
 
+  it('preserves repeated query parameters as arrays', () => {
+    const result = nodeOfetch.generate({
+      url: 'https://example.com',
+      queryString: [
+        {
+          name: 'statuses',
+          value: 'active',
+        },
+        {
+          name: 'statuses',
+          value: 'inactive',
+        },
+      ],
+    })
+
+    expect(result).toBe(`import { ofetch } from 'ofetch'
+
+ofetch('https://example.com', {
+  query: {
+    statuses: ['active', 'inactive']
+  }
+})`)
+  })
+
   it('has cookies', () => {
     const result = nodeOfetch.generate({
       url: 'https://example.com',

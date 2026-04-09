@@ -1,5 +1,30 @@
 # @scalar/use-hooks
 
+## 0.4.2
+
+### Patch Changes
+
+- [#8694](https://github.com/scalar/scalar/pull/8694): feat: add padding utilities to scalar themes
+
+## 0.4.1
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.4.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/use-toasts@0.10.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
 ## 0.3.7
 
 ### Patch Changes

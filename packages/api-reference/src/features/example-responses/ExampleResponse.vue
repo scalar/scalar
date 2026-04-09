@@ -1,14 +1,12 @@
 <script lang="ts" setup>
-import {
-  getExampleFromSchema,
-  getResolvedRefDeep,
-} from '@scalar/api-client/v2/blocks/operation-code-sample'
+import { getResolvedRefDeep } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { ScalarCodeBlock, ScalarVirtualText } from '@scalar/components'
-import { prettyPrintJson } from '@scalar/oas-utils/helpers'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
+import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type {
   ExampleObject,
   MediaTypeObject,
+  SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
@@ -24,44 +22,48 @@ const getContent = () => {
   }
 
   if (response?.schema) {
-    return getExampleFromSchema(getResolvedRef(response.schema), {
-      emptyString: 'string',
-      mode: 'read',
-    })
+    return getExampleFromSchema(
+      // Should be safe to deep resolve the schema here because we don't have to do any sibling resolution for example generation
+      getResolvedRefDeep(response.schema) as SchemaObject,
+      {
+        emptyString: 'string',
+        mode: 'read',
+      },
+    )
   }
 
-  return ''
+  return undefined
 }
+
+/** Pre-pretty printed content string, avoids multiple pretty prints*/
+const prettyPrintedContent = computed(() => {
+  const content = getContent()
+  if (content === undefined) {
+    return undefined
+  }
+  return prettyPrintJson(content)
+})
 
 const VIRTUALIZATION_THRESHOLD = 20_000
 
 // Virtualize the code block if it's too large
-const shouldVirtualize = computed(
-  () => prettyPrintedContent.value.length > VIRTUALIZATION_THRESHOLD,
-)
-
-/** Pre-pretty printed content string, avoids multiple pretty prints*/
-const prettyPrintedContent = computed<string>(() =>
-  prettyPrintJson(getContent()),
-)
+const shouldVirtualize = computed(() => {
+  if (prettyPrintedContent.value === undefined) {
+    return false
+  }
+  return prettyPrintedContent.value.length > VIRTUALIZATION_THRESHOLD
+})
 </script>
 <template>
   <!-- Example -->
   <ScalarCodeBlock
-    v-if="example !== undefined && !shouldVirtualize"
-    class="bg-b-2"
-    lang="json"
-    :prettyPrintedContent="prettyPrintedContent" />
-
-  <!-- Schema -->
-  <ScalarCodeBlock
-    v-else-if="response?.schema && !shouldVirtualize"
+    v-if="prettyPrintedContent !== undefined && !shouldVirtualize"
     class="bg-b-2"
     lang="json"
     :prettyPrintedContent="prettyPrintedContent" />
 
   <ScalarVirtualText
-    v-else-if="(example !== undefined || response?.schema) && shouldVirtualize"
+    v-else-if="prettyPrintedContent !== undefined && shouldVirtualize"
     containerClass="custom-scroll scalar-code-block border rounded-b flex flex-1 max-h-screen"
     contentClass="language-plaintext whitespace-pre font-code text-base"
     :lineHeight="20"

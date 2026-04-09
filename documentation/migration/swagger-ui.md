@@ -1,6 +1,6 @@
-# Scalar API Reference vs. Swagger UI
+# API Reference vs. Swagger UI
 
-Swagger UI used to be the most widely used tool for rendering OpenAPI documentation. It has been around since 2011 and has a massive ecosystem. Scalar API Reference is a modern alternative that offers a more polished developer experience while remaining fully compatible with your existing OpenAPI documents.
+Swagger UI used to be the most widely used tool for rendering OpenAPI documentation. It has been around since 2011 and has a massive ecosystem. API Reference is a modern alternative that offers a more polished developer experience while remaining fully compatible with your existing OpenAPI documents.
 
 When you migrate to Scalar, you unlock additional tools to enhance your API workflow:
 
@@ -92,13 +92,13 @@ Migration is straightforward. In most cases, you can swap out Swagger UI for Sca
 </html>
 ```
 
-**Scalar API Reference**
+**API Reference**
 
 ```html
 <!doctype html>
 <html>
   <head>
-    <title>Scalar API Reference</title>
+    <title>API Reference</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
@@ -213,5 +213,5 @@ These features have no Swagger UI equivalent:
 | `searchHotKey`      | Customize the keyboard shortcut for search     |
 | `baseServerURL`     | Prefix all relative server URLs                |
 | `pathRouting`       | Use path-based routing instead of hash-based   |
-| `onBeforeRequest`   | Modify requests before they are sent           |
+| `onBeforeRequest`   | Run before send; prefer mutating the request builder (`requestBuilder`). See [Configuration: onBeforeRequest](../configuration.md#onbeforerequest). |
 | `authentication`    | Pre-fill authentication credentials            |

@@ -1,10 +1,12 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { AvailableClient, ClientId, TargetId } from '@scalar/snippetz'
+import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
-import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
+import { operationToHar } from '@/v2/blocks/operation-code-sample/helpers/operation-to-har/operation-to-har'
+import { getSnippet } from '@/views/Components/CodeSnippet/helpers/get-snippet'
 
 import { type CustomCodeSampleId, generateCustomId } from './generate-client-options'
 import { getSnippet } from './get-snippet'
@@ -33,6 +35,10 @@ type GenerateCodeSnippetProps = {
   globalCookies?: XScalarCookie[]
   /** Whether to include default headers (e.g., Accept, Content-Type) automatically. */
   includeDefaultHeaders?: boolean
+  /** Selected oneOf/anyOf variants for nested request body example generation. */
+  requestBodyCompositionSelection?: Record<string, number>
+  /** Whether to disable parameters by default. */
+  defaultDisabledParameters?: boolean
 }
 
 /** Generate the code snippet for the selected example OR operation */
@@ -48,6 +54,8 @@ export const generateCodeSnippet = ({
   server,
   securitySchemes,
   globalCookies,
+  requestBodyCompositionSelection,
+  defaultDisabledParameters,
 }: GenerateCodeSnippetProps): string => {
   try {
     if (!clientId) {
@@ -72,6 +80,8 @@ export const generateCodeSnippet = ({
       example,
       globalCookies,
       includeDefaultHeaders,
+      requestBodyCompositionSelection,
+      defaultDisabledParameters,
     })
 
     const [targetKey, clientKey] = clientId.split('/') as [TargetId, ClientId<TargetId>]

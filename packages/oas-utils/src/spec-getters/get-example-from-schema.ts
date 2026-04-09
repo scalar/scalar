@@ -7,12 +7,6 @@ import { unpackOverridesProxy } from '@scalar/workspace-store/helpers/overrides-
 /** Maximum recursion depth to prevent infinite loops in circular references */
 const MAX_LEVELS_DEEP = 10
 
-/**
- * Maximum properties to include after level 3 to prevent exponential growth
- * in deeply nested object structures
- */
-const MAX_PROPERTIES = 10
-
 /** Default name used for additional properties when no custom name is provided */
 const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'additionalProperty'
 
@@ -55,6 +49,23 @@ const genericExampleValues: Record<string, string> = {
   'uri': 'https://example.com',
   'uuid': '123e4567-e89b-12d3-a456-426614174000',
   'object-id': '6592008029c8c3e4dc76256c',
+}
+
+/**
+ * Extract enum values from the propertyNames keyword of an object schema.
+ * JSON Schema's propertyNames constrains which keys are valid in a map/dict.
+ */
+const getPropertyNamesEnumValues = (schema: OpenAPIV3_1.SchemaObject): unknown[] | undefined => {
+  if (!('propertyNames' in schema) || !schema.propertyNames) {
+    return undefined
+  }
+
+  const resolved = getResolvedRef(schema.propertyNames as OpenAPIV3_1.SchemaObject)
+  if (resolved && 'enum' in resolved && Array.isArray(resolved.enum) && resolved.enum.length > 0) {
+    return resolved.enum
+  }
+
+  return undefined
 }
 
 /**
@@ -199,7 +210,7 @@ const handleObjectSchema = (
 
   if ('properties' in schema && schema.properties) {
     const propertyNames = Object.keys(schema.properties)
-    const limit = level > 3 ? Math.min(MAX_PROPERTIES, propertyNames.length) : propertyNames.length
+    const limit = propertyNames.length
 
     for (let i = 0; i < limit; i++) {
       const propertyName = propertyNames[i]!
@@ -219,10 +230,6 @@ const handleObjectSchema = (
       if (typeof value !== 'undefined') {
         response[propertyXmlName ?? propertyName] = value
       }
-    }
-
-    if (level > 3 && propertyNames.length > MAX_PROPERTIES) {
-      response['...'] = '[Additional Properties Truncated]'
     }
   }
 
@@ -251,15 +258,21 @@ const handleObjectSchema = (
       schema.additionalProperties === true ||
       (typeof schema.additionalProperties === 'object' && Object.keys(schema.additionalProperties).length === 0)
 
-    const additionalName =
+    // Check for explicit x-additionalPropertiesName first
+    const hasCustomName =
       typeof additional === 'object' &&
       'x-additionalPropertiesName' in additional &&
       typeof additional['x-additionalPropertiesName'] === 'string' &&
       additional['x-additionalPropertiesName'].trim().length > 0
-        ? additional['x-additionalPropertiesName'].trim()
-        : DEFAULT_ADDITIONAL_PROPERTIES_NAME
 
-    response[additionalName] = isAnyType
+    // Use propertyNames enum values as example keys when no custom name is set
+    const propertyNamesEnum = hasCustomName ? undefined : getPropertyNamesEnumValues(schema)
+
+    const additionalName = hasCustomName
+      ? (additional as Record<string, string>)['x-additionalPropertiesName']!.trim()
+      : DEFAULT_ADDITIONAL_PROPERTIES_NAME
+
+    const additionalValue = isAnyType
       ? 'anything'
       : typeof additional === 'object'
         ? getExampleFromSchema(additional, options, {
@@ -267,6 +280,13 @@ const handleObjectSchema = (
             seen,
           })
         : 'anything'
+
+    if (propertyNamesEnum && propertyNamesEnum.length > 0) {
+      // Use the first enum value as a realistic example key
+      response[String(propertyNamesEnum[0])] = additionalValue
+    } else {
+      response[additionalName] = additionalValue
+    }
   }
 
   // onOf

@@ -70,10 +70,7 @@ export const dartHttp: Plugin = {
 
     // Handle query string
     const queryString = normalizedRequest.queryString?.length
-      ? '?' +
-        normalizedRequest.queryString
-          .map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`)
-          .join('&')
+      ? '?' + normalizedRequest.queryString.map((param) => `${param.name}=${param.value}`).join('&')
       : ''
     const url = `${normalizedRequest.url}${queryString}`
 

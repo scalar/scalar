@@ -46,7 +46,7 @@ After creating the application, assign the users and groups that should have acc
 
 Before configuring SAML settings in your IdP, create a new SSO connection in Scalar:
 
-1. Navigate to [Team > Security](https://dashboard.scalar.com/team/security) in your Scalar dashboard
+1. Navigate to [Team > Security](https://dashboard.scalar.com/team/security) in your Scalar Dashboard
 2. Under **Advanced Security**, enable **Single Sign-On**
 3. Click **Setup Connection** to create a new SSO connection
 

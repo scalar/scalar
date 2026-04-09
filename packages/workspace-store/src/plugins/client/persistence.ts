@@ -3,6 +3,42 @@ import { debounce } from '@scalar/helpers/general/debounce'
 import { createWorkspaceStorePersistence } from '@/persistence'
 import type { WorkspacePlugin } from '@/workspace-plugin'
 
+const pendingFlushes = new Set<() => void>()
+// Flag to ensure lifecycle event listeners are only initialized once
+let persistenceLifecycleListenersInitialized = false
+
+/**
+ * Runs (calls) all pending flush functions.
+ */
+const runPendingFlushes = (): void => {
+  for (const flush of pendingFlushes) {
+    flush() // Call the flush function
+  }
+}
+
+/**
+ * Adds event listeners to ensure flushing on important lifecycle events
+ * (like navigation away or page hide). Ensures they're registered only once.
+ */
+const initializePersistenceLifecycleListeners = (): void => {
+  // Avoid adding listeners multiple times or during SSR/non-browser environments
+  if (persistenceLifecycleListenersInitialized || typeof window === 'undefined' || typeof document === 'undefined') {
+    return
+  }
+
+  persistenceLifecycleListenersInitialized = true
+  // Trigger flush on pagehide (browser is unloading or navigating away)
+  window.addEventListener('pagehide', runPendingFlushes)
+  // Also trigger flush on beforeunload as a fallback
+  window.addEventListener('beforeunload', runPendingFlushes)
+  // For SPAs: trigger flush when the page goes hidden (such as switching tabs)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      runPendingFlushes()
+    }
+  })
+}
+
 /**
  * Plugin to persist workspace state changes with debounced writes.
  * Each type of change (meta, documentConfigs, documents, etc.) is debounced by key (type + workspaceId + optional documentName).
@@ -23,9 +59,21 @@ export const persistencePlugin = async ({
   // Create the persistence instance (e.g., IndexedDB, localForage, etc.)
   const persistence = await createWorkspaceStorePersistence()
   // Debounced execute function for batching similar state changes
-  const { execute } = debounce({ delay: debounceDelay, maxWait })
+  const { execute, flushAll } = debounce({ delay: debounceDelay, maxWait })
+
+  pendingFlushes.add(flushAll)
+  initializePersistenceLifecycleListeners()
+
+  const dispose = (): void => {
+    // Flush any pending writes and clear timers before removing from the set.
+    // Otherwise pending data can be lost if the workspace is torn down and a
+    // lifecycle event (e.g. pagehide) never fires or fires after the callback was removed.
+    flushAll()
+    pendingFlushes.delete(flushAll)
+  }
 
   return {
+    dispose,
     hooks: {
       /**
        * Handles all workspace state change events.

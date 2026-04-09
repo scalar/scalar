@@ -1,4 +1,5 @@
-import prettyBytes from 'pretty-bytes'
+import { formatBytes } from '@scalar/helpers/formatters/format-bytes'
+import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 
 import type { ResponseInstance } from '@/v2/blocks/operation-block/helpers/send-request'
 
@@ -13,5 +14,5 @@ export const getContentLength = (response: ResponseInstance) => {
     return undefined
   }
 
-  return prettyBytes(contentLength)
+  return formatBytes(contentLength)
 }

@@ -428,7 +428,7 @@ export namespace OpenAPIV3_1 {
 
   export type ParameterLocation = OpenAPIV3.ParameterLocation
 
-  export type ParameterObject = OpenAPIV3.ParameterObject
+  export type ParameterObject = Modify<OpenAPIV3.ParameterObject, { schema?: ReferenceObject | SchemaObject }>
 
   export type HeaderObject = Modify<
     OpenAPIV3.HeaderObject,
@@ -775,7 +775,7 @@ export namespace OpenAPIV3 {
   }
 
   export type ReferenceObject = {
-    $ref?: string
+    $ref: string
   } & AnyOtherAttribute
 
   export type ExampleObject = {

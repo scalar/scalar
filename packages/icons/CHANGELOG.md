@@ -1,5 +1,53 @@
 # @scalar/icons
 
+## 0.7.2
+
+### Patch Changes
+
+- [#8715](https://github.com/scalar/scalar/pull/8715): fix: correct main field in package.json to point to .js instead of non-existent .cjs files
+
+## 0.7.1
+
+### Patch Changes
+
+- [#8624](https://github.com/scalar/scalar/pull/8624): fix: use shallowref to prevent vue warning
+
+## 0.7.0
+
+### Minor Changes
+
+- [#8559](https://github.com/scalar/scalar/pull/8559): feat(icons): improve icon generation with direct re-exports and lazy-load library icons with caching
+
+## 0.6.4
+
+### Patch Changes
+
+- [#8563](https://github.com/scalar/scalar/pull/8563): fix: type declarations don't use the full path for imports
+
+## 0.6.3
+
+### Patch Changes
+
+- [#8529](https://github.com/scalar/scalar/pull/8529): rewrite declaration aliases in built type files
+
+## 0.6.2
+
+### Patch Changes
+
+- [#8508](https://github.com/scalar/scalar/pull/8508): fix: add sideEffects: false to enable tree-shaking for Webpack consumers
+
+## 0.6.1
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.6.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
 ## 0.5.3
 
 ### Patch Changes

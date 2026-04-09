@@ -242,6 +242,11 @@ type TagProps = {
   parentId: string
   tag: TagObject
   type: 'tag'
+  /**
+   * Set when `tag` is a `tagGroup` entry so IDs stay distinct from same-named
+   * OpenAPI tags and from other groups.
+   */
+  isGroup?: boolean
 }
 
 type OperationProps = {

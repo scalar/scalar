@@ -13,8 +13,9 @@ import { Badge } from '@/components/Badge'
 import ScreenReader from '@/components/ScreenReader.vue'
 
 import { getSchemaType } from './helpers/get-schema-type'
-import { getModelName } from './helpers/schema-name'
+import { getModelNameFromSchema } from './helpers/schema-name'
 import RenderString from './RenderString.vue'
+import SchemaPropertyDefault from './SchemaPropertyDefault.vue'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
 import SchemaPropertyExamples from './SchemaPropertyExamples.vue'
 
@@ -27,6 +28,8 @@ const props = withDefaults(
     additional?: boolean
     withExamples?: boolean
     hideModelNames?: boolean
+    /** When the schema was resolved from a $ref, pass the ref name so it displays as e.g. "Data" instead of "object". */
+    modelName?: string | null
   }>(),
   {
     isDiscriminator: false,
@@ -184,13 +187,32 @@ const validationProperties = computed(() => {
   return properties
 })
 
-/** Gets the model name */
-const modelName = computed(() => {
+/** Optional schema title/name shown in addition to structural type. */
+const displayTitle = computed(() => {
   if (!props.value) {
     return null
   }
 
-  return getModelName(props.value, props.hideModelNames)
+  if (props.hideModelNames) {
+    return null
+  }
+
+  // Use explicit model name when schema was resolved from a $ref (e.g. in response/param body).
+  if (props.modelName) {
+    return props.modelName
+  }
+
+  const modelName = getModelNameFromSchema(props.value)
+  if (modelName) {
+    return modelName
+  }
+
+  if (isArraySchema(props.value) && props.value.items) {
+    const itemName = getModelNameFromSchema(props.value.items)
+    return itemName ? `${itemName}[]` : null
+  }
+
+  return null
 })
 
 /** Check if we should show the type information */
@@ -213,36 +235,20 @@ const displayType = computed(() => {
   if (!props.value) {
     return ''
   }
-  return modelName.value || getSchemaType(props.value)
+  return getSchemaType(props.value)
 })
 
-/**
- * Flattens default values for display purposes.
- */
-const flattenedDefaultValue = computed(() => {
-  const value = props.value
-
-  if (value?.default === null) {
-    return 'null'
+const exampleValue = computed(() => {
+  if (isDefined(props.value?.example)) {
+    return props.value.example
   }
 
-  if (Array.isArray(value?.default) && value?.default.length === 1) {
-    return String(value?.default[0])
+  if (props.value && isArraySchema(props.value)) {
+    const itemsExample = resolve.schema(props.value.items)?.example
+    return isDefined(itemsExample) ? itemsExample : undefined
   }
 
-  if (typeof value?.default === 'string') {
-    return JSON.stringify(value.default)
-  }
-
-  if (Array.isArray(value?.default)) {
-    return JSON.stringify(value?.default)
-  }
-
-  if (typeof value?.default === 'object') {
-    return JSON.stringify(value?.default)
-  }
-
-  return value?.default
+  return undefined
 })
 </script>
 <template>
@@ -263,7 +269,8 @@ const flattenedDefaultValue = computed(() => {
       <SchemaPropertyDetail
         v-if="shouldShowType"
         truncate>
-        <ScreenReader>Type: </ScreenReader>{{ displayType }}
+        <ScreenReader>Type: </ScreenReader>{{ displayType
+        }}{{ displayTitle ? ` · ${displayTitle}` : '' }}
       </SchemaPropertyDetail>
 
       <!-- Dynamic validation properties from composable -->
@@ -286,13 +293,6 @@ const flattenedDefaultValue = computed(() => {
 
       <!-- Enum indicator -->
       <SchemaPropertyDetail v-if="props.enum">enum</SchemaPropertyDetail>
-
-      <!-- Default value -->
-      <SchemaPropertyDetail
-        v-if="flattenedDefaultValue !== undefined"
-        truncate>
-        <template #prefix>default:</template>{{ flattenedDefaultValue }}
-      </SchemaPropertyDetail>
     </template>
     <div
       v-if="props.additional"
@@ -337,15 +337,10 @@ const flattenedDefaultValue = computed(() => {
       class="property-required">
       required
     </div>
-    <!-- examples -->
+    <SchemaPropertyDefault :value="props.value?.default" />
     <SchemaPropertyExamples
       v-if="props.withExamples"
-      :example="
-        props.value?.example ||
-        (props.value &&
-          isArraySchema(props.value) &&
-          resolve.schema(props.value?.items)?.example)
-      "
+      :example="exampleValue"
       :examples="props.value?.examples" />
   </div>
 </template>

@@ -5,14 +5,13 @@ import {
   createApiClientModal,
   type ApiClientModal,
 } from '@scalar/api-client/v2/features/modal'
-import { getActiveEnvironment, getServers } from '@scalar/api-client/v2/helpers'
 import {
   addScalarClassesToHeadless,
   ScalarColorModeToggleButton,
   ScalarColorModeToggleIcon,
   ScalarSidebarFooter,
 } from '@scalar/components'
-import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
+import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import {
   createSidebarState,
   ScalarSidebar,
@@ -25,16 +24,20 @@ import {
   type ApiReferenceConfiguration,
   type ApiReferenceConfigurationRaw,
 } from '@scalar/types/api-reference'
-import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  getActiveEnvironment,
+  getServers,
+} from '@scalar/workspace-store/request-example'
 import type {
   TraversedEntry,
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
+import { useScrollLock } from '@vueuse/core'
 import diff from 'microdiff'
 import {
   computed,
@@ -49,25 +52,27 @@ import {
   watch,
 } from 'vue'
 
-import { AgentScalarButton, AgentScalarDrawer } from '@/components/AgentScalar'
-import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
-
-import '@scalar/agent-chat/style.css'
-
-import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
-import { useScrollLock } from '@vueuse/core'
-
+import {
+  AgentScalarButton,
+  AgentScalarDrawer,
+  OpenMCPButton,
+} from '@/components/AgentScalar'
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
+import { DeveloperTools } from '@/features/developer-tools'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
-import ApiReferenceToolbar from '@/features/toolbar/ApiReferenceToolbar.vue'
 import { getSystemModePreference } from '@/helpers/color-mode'
 import { downloadDocument } from '@/helpers/download'
-import { getIdFromUrl, makeUrlFromId } from '@/helpers/id-routing'
+import {
+  getIdFromUrl,
+  makeUrlFromId,
+  matchesBasePath,
+} from '@/helpers/id-routing'
 import {
   scrollToLazy as _scrollToLazy,
+  addToPriorityQueue,
   blockIntersection,
   intersectionEnabled,
 } from '@/helpers/lazy-bus'
@@ -81,6 +86,8 @@ import {
   normalizeConfigurations,
   type NormalizedConfiguration,
 } from '@/helpers/normalize-configurations'
+import { safeDeepClone } from '@/helpers/safe-deep-clone'
+import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useIntersection } from '@/hooks/use-intersection'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { persistencePlugin } from '@/plugins/persistance-plugin'
@@ -102,7 +109,6 @@ defineSlots<{
   footer?(): { breadcrumb: string }
 }>()
 
-const { mediaQueries } = useBreakpoints()
 const { copyToClipboard } = useClipboard()
 
 /**
@@ -116,16 +122,6 @@ const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 
 const eventBus = createWorkspaceEventBus({ debug: isDevelopment })
 const isSidebarOpen = ref(false)
-
-watch(
-  () => mediaQueries?.lg?.value,
-  (newValue, oldValue) => {
-    // Close the drawer when we go from desktop to mobile
-    if (oldValue && !newValue) {
-      isSidebarOpen.value = false
-    }
-  },
-)
 
 /**
  * Due to a bug in headless UI, we need to set an ID here that can be shared across server/client
@@ -198,9 +194,7 @@ if (typeof window !== 'undefined') {
 
   const initialId = getIdFromUrl(
     url,
-    basePaths.find(
-      (p) => p && url.pathname.startsWith(p.startsWith('/') ? p : `/${p}`),
-    ),
+    basePaths.find((p) => (p ? matchesBasePath(url, p) : false)),
     isMultiDocument.value ? undefined : activeSlug.value,
   )
   const documentSlug = initialId.split('/')[0]
@@ -224,7 +218,7 @@ const configurationOverrides = ref<
 >({})
 
 /** Any dev toolbar modifications are merged with the active configuration */
-const mergedConfig = computed<ApiReferenceConfigurationRaw>(() => ({
+const mergedConfig = computed<ApiReferenceConfiguration>(() => ({
   // Provides a default set of values when the lookup fails
   ...apiReferenceConfigurationSchema.parse({}),
   // The active configuration based on the slug
@@ -297,6 +291,15 @@ function syncSlugAndUrlWithDocument(
  * Initializes the new client workspace store.
  */
 const workspaceStore = createWorkspaceStore({
+  verbose: isDevelopment,
+})
+
+/**
+ * We need to keep the client store separate from the workspace store
+ * This is because we want the client store to be a playground where users can test out their requests without affecting the references store
+ */
+const clientStore = createWorkspaceStore({
+  verbose: isDevelopment,
   plugins: [
     persistencePlugin({
       prefix: () => activeSlug.value,
@@ -389,7 +392,7 @@ const infoSectionId = computed(
   () =>
     sidebarItems.value.find(
       (item) => item.type === 'text' && item.title === 'Introduction',
-    )?.id,
+    )?.id ?? `${activeSlug.value}/description/introduction`,
 )
 
 /** User for mobile navigation */
@@ -422,12 +425,19 @@ mapConfigToWorkspaceStore({
   isDarkMode,
 })
 
+mapConfigToWorkspaceStore({
+  config: () => mergedConfig.value,
+  store: clientStore,
+  isDarkMode,
+})
+
 /** Merged environment variables from workspace and document levels */
-const environment = computed(() =>
-  getActiveEnvironment(
-    workspaceStore,
-    workspaceStore.workspace.activeDocument ?? null,
-  ),
+const environment = computed(
+  () =>
+    getActiveEnvironment(
+      workspaceStore,
+      workspaceStore.workspace.activeDocument ?? null,
+    ).environment,
 )
 
 if (typeof window !== 'undefined') {
@@ -441,6 +451,34 @@ defineExpose({
   workspaceStore,
   sidebarItems,
 })
+
+const addDocument: typeof workspaceStore.addDocument = async (
+  input,
+  navigationOptions,
+) => {
+  const result = await workspaceStore.addDocument(input, navigationOptions)
+  // Now add it to the client store
+  const state = workspaceStore.exportWorkspace()
+  clientStore.loadWorkspace({
+    auth: {},
+    documents: {
+      [input.name]: safeDeepClone(state.documents[input.name]) ?? {
+        'openapi': '3.1.0',
+        'info': {
+          title: '',
+          version: '',
+        },
+        'x-scalar-original-document-hash': '',
+      },
+    },
+    intermediateDocuments: {},
+    originalDocuments: {},
+    overrides: {},
+    history: {},
+    meta: {},
+  })
+  return result
+}
 
 // ---------------------------------------------------------------------------
 // Document Management
@@ -485,7 +523,7 @@ const changeSelectedDocument = async (
 
   // If the document is not in the store, we asynchronously load it
   if (isFirstLoad) {
-    const result = await workspaceStore.addDocument(
+    const result = await addDocument(
       normalized.source.url
         ? {
             name: slug,
@@ -499,7 +537,7 @@ const changeSelectedDocument = async (
       config,
     )
 
-    const document = workspaceStore.workspace.documents[slug]
+    const document = clientStore.workspace.documents[slug]
 
     // If the document does not have a selected server we set it to the first server
     if (
@@ -516,7 +554,7 @@ const changeSelectedDocument = async (
         },
       )
       if (servers.length > 0) {
-        workspaceStore.updateDocument(
+        clientStore.updateDocument(
           slug,
           'x-scalar-selected-server',
           servers[0]!.url,
@@ -527,10 +565,11 @@ const changeSelectedDocument = async (
 
   // Always set it to active; if the document is null we show a loading state
   workspaceStore.update('x-scalar-active-document', slug)
+  clientStore.update('x-scalar-active-document', slug)
 
   // If the document has persistence enabled we load the auth schemes from storage
   if (config.persistAuth) {
-    loadAuthFromStorage(workspaceStore, slug)
+    loadAuthFromStorage(clientStore, slug)
   }
 
   // ensure that `onLoaded` hook doesn't block execution but is executed after `onDocumentSelect`
@@ -543,8 +582,8 @@ const changeSelectedDocument = async (
   if (elementId && elementId !== slug) {
     scrollToLazyElement(elementId)
   }
-  // If there is no child element of the document specified we expand the first tag
-  else {
+  // If there is no child element of the document specified and defaultOpenFirstTag is enabled, we expand the first tag
+  else if (config.defaultOpenFirstTag) {
     const firstTag = sidebarItems.value.find((item) => item.type === 'tag')
     if (firstTag) {
       sidebarState.setExpanded(firstTag.id, true)
@@ -573,7 +612,7 @@ watch(
       }
       /** If the URL has changed we fetch and rebase */
       if (updated.source.url && updated.source.url !== previous?.source.url) {
-        await workspaceStore.addDocument(
+        await addDocument(
           {
             name: updated.slug,
             url: updated.source.url,
@@ -602,7 +641,7 @@ watch(
             : {},
         ).length
       ) {
-        await workspaceStore.addDocument(
+        await addDocument(
           {
             name: updated.slug,
             document: updated.source.content,
@@ -637,7 +676,8 @@ onServerPrefetch(() => changeSelectedDocument(activeSlug.value))
 
 /** Load the first document on page load */
 onBeforeMount(async () => {
-  loadClientFromStorage(workspaceStore)
+  // We read the client from the client store so we need to set it to the client store
+  loadClientFromStorage(clientStore)
 
   await changeSelectedDocument(
     activeSlug.value,
@@ -694,9 +734,9 @@ onMounted(() => {
   apiClient.value = createApiClientModal({
     el: modal.value,
     eventBus,
-    workspaceStore,
+    workspaceStore: clientStore,
     options: mergedConfig,
-    plugins: mapConfigPlugins(mergedConfig),
+    plugins: mapConfigPlugins(mergedConfig, environment),
   })
 })
 onBeforeUnmount(() => {
@@ -712,30 +752,15 @@ eventBus.on('server:update:selected', ({ url }) =>
 )
 
 /** Download the document from the store */
-eventBus.on('ui:download:document', async ({ format }) => {
-  if (format === 'direct') {
-    const url = configList.value[activeSlug.value]?.source?.url
-    if (!url) {
-      console.error(
-        'Direct download is not supported for documents without a URL source',
-      )
-      return
-    }
-    const result = await fetch(
-      redirectToProxy(mergedConfig.value.proxyUrl, url),
-    ).then((r) => r.text())
-
-    downloadDocument(result, activeSlug.value ?? 'openapi')
-    // Will be handled in the ApiReference component. Only valid for integrations that rely on a configuration with a URL.
-    return
-  }
-
+eventBus.on('ui:download:document', ({ format }) => {
   const document = workspaceStore.exportActiveDocument(format)
+
   if (!document) {
     console.error('No document found to download')
     return
   }
-  downloadDocument(document, activeSlug.value ?? 'openapi', format)
+
+  void downloadDocument(document, activeSlug.value ?? 'openapi', format)
 })
 
 // ---------------------------------------------------------------------------
@@ -751,21 +776,27 @@ eventBus.on('ui:download:document', async ({ format }) => {
  * - Operation:
  *        Open all parents and scroll to the operation
  */
-const handleSelectItem = (id: string, caller?: 'sidebar') => {
+const handleSelectSidebarEntry = (id: string, caller?: 'sidebar') => {
   const item = sidebarState.getEntryById(id)
 
   if (
-    (item?.type === 'tag' || item?.type === 'models') &&
-    sidebarState.isExpanded(id)
+    (item?.type === 'tag' ||
+      item?.type === 'models' ||
+      item?.type === 'text') &&
+    sidebarState.isExpanded(id) && // Only close if the item is expanded
+    sidebarState.selectedItem.value === id // Only close if the item is not the currently selected item
   ) {
     // hack until we fix intersection logic
     const unblock = blockIntersection()
+
     sidebarState.setExpanded(id, false)
+
     unblock()
+
     return
   }
 
-  /** When in mobile menu we close the menu when we select an item that is not a tag */
+  // Close the mobile menu upon selecting any item that's not a tag or model
   if (item?.type !== 'tag' && item?.type !== 'models') {
     isSidebarOpen.value = false
   }
@@ -786,8 +817,14 @@ const handleSelectItem = (id: string, caller?: 'sidebar') => {
     agent.closeAgent()
   }
 }
-eventBus.on('select:nav-item', ({ id }) => handleSelectItem(id))
-eventBus.on('scroll-to:nav-item', ({ id }) => handleSelectItem(id))
+
+/** Handle a navigation item selection event */
+eventBus.on('select:nav-item', ({ id }) => handleSelectSidebarEntry(id))
+
+/** Handle a scroll to navigation item event */
+eventBus.on('scroll-to:nav-item', ({ id }) => handleSelectSidebarEntry(id))
+
+/** Handle an intersecting navigation item event */
 eventBus.on('intersecting:nav-item', ({ id }) => {
   if (!intersectionEnabled.value) {
     return
@@ -804,12 +841,24 @@ eventBus.on('intersecting:nav-item', ({ id }) => {
     window.history.replaceState({}, '', url.toString())
   }
 })
+
 eventBus.on('toggle:nav-item', ({ id, open }) => {
   if (open) {
     mergedConfig.value.onShowMore?.(id)
+
+    // Pre-queue first child so it renders immediately when the tag expands
+    const entry = sidebarState.getEntryById(id)
+    if (entry && 'children' in entry && entry.children) {
+      const first = entry.children[0]
+
+      if (first) {
+        addToPriorityQueue(first.id)
+      }
+    }
   }
   sidebarState.setExpanded(id, open ?? !sidebarState.isExpanded(id))
 })
+
 eventBus.on('copy-url:nav-item', ({ id }) => {
   const url = makeUrlFromId(
     id,
@@ -859,9 +908,27 @@ const colorMode = computed(() => {
   return mode
 })
 
-const bodyScrollLocked = useScrollLock(document.body)
+const bodyScrollLocked = useScrollLock(
+  typeof document !== 'undefined' ? document.body : null,
+)
 
 watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
+
+const showMCPButton = computed(() => {
+  if (mergedConfig.value.mcp?.disabled) {
+    return false
+  }
+
+  if (typeof window !== 'undefined' && isLocalUrl(window.location.href)) {
+    return true
+  }
+
+  if (mergedConfig.value.mcp) {
+    return true
+  }
+
+  return false
+})
 </script>
 
 <template>
@@ -891,6 +958,7 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
         v-if="agent.agentEnabled.value"
         :agentScalarConfiguration="configList[activeSlug]?.agent"
         :eventBus
+        :externalUrls="mergedConfig.externalUrls"
         :workspaceStore />
 
       <!-- Mobile Header and Sidebar when in modern layout -->
@@ -923,7 +991,11 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
             layout="reference"
             :options="mergedConfig"
             role="navigation"
-            @selectItem="(id) => handleSelectItem(id, 'sidebar')">
+            @selectItem="(id) => handleSelectSidebarEntry(id, 'sidebar')"
+            @toggleGroup="
+              (id: string) =>
+                sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
+            ">
             <template #header>
               <!-- Wrap in a div when slot is filled -->
               <DocumentSelector
@@ -935,7 +1007,7 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
               <!-- Search -->
               <div
                 v-if="!mergedConfig.hideSearch"
-                class="flex gap-1.5 p-3 pt-1.5">
+                class="flex gap-1.5 px-3 pt-3">
                 <SearchButton
                   :document="workspaceStore.workspace.activeDocument"
                   :eventBus="eventBus"
@@ -956,11 +1028,18 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
                 <!-- We default the sidebar footer to the standard scalar elements -->
                 <ScalarSidebarFooter class="darklight-reference">
                   <OpenApiClientButton
-                    v-if="!mergedConfig.hideClientButton"
+                    v-if="!mergedConfig.hideClientButton && !showMCPButton"
                     buttonSource="sidebar"
                     :integration="mergedConfig._integration"
                     :isDevelopment="isDevelopment"
                     :url="documentUrl" />
+                  <OpenMCPButton
+                    v-if="showMCPButton"
+                    :config="mergedConfig.mcp"
+                    :externalUrls="mergedConfig.externalUrls"
+                    :isDevelopment="isDevelopment"
+                    :url="documentUrl"
+                    :workspace="workspaceStore" />
                   <!-- Override the dark mode toggle slot to hide it -->
                   <template #toggle>
                     <ScalarColorModeToggleButton
@@ -982,9 +1061,11 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
       <!-- Primary Content -->
       <main
         :aria-label="`Open API Documentation for ${workspaceStore.workspace.activeDocument?.info?.title}`"
-        class="references-rendered">
+        class="references-rendered"
+        :inert="agent.showAgent.value">
         <Content
-          :authStore="workspaceStore.auth"
+          :authStore="clientStore.auth"
+          :clientDocument="clientStore.workspace.activeDocument"
           :document="workspaceStore.workspace.activeDocument"
           :environment
           :eventBus
@@ -993,19 +1074,19 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
             mergedConfig.generateHeadingSlug ??
             ((heading) => `${activeSlug}/description/${heading.slug}`)
           "
-          :infoSectionId="infoSectionId ?? 'description/introduction'"
+          :infoSectionId
           :items="sidebarItems"
           :options="mergedConfig"
           :xScalarDefaultClient="
-            workspaceStore.workspace['x-scalar-default-client']
+            clientStore.workspace['x-scalar-default-client']
           ">
           <template #start>
-            <ApiReferenceToolbar
-              v-if="
-                workspaceStore.workspace.activeDocument && mediaQueries.lg.value
-              "
+            <DeveloperTools
+              v-if="workspaceStore.workspace.activeDocument"
               v-model:overrides="configurationOverrides"
+              class="references-developer-tools"
               :configuration="mergedConfig"
+              :externalUrls="mergedConfig.externalUrls"
               :workspace="workspaceStore" />
 
             <!-- Placeholder intersection observer that emits an empty string to clear the hash when scrolled to the top -->
@@ -1186,6 +1267,11 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
 /* Responsive / Mobile Layout */
 
 @media (max-width: 1000px) {
+  /* Keep toolbar hidden on mobile without forcing desktop display mode. */
+  .references-developer-tools {
+    display: none;
+  }
+
   /* Stack view on mobile */
   .references-layout {
     /* Adjust the sidebar height to the viewport height minus the header height */

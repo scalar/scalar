@@ -1,4 +1,4 @@
-# Scalar API Client
+# API Client
 
 Our Postman-like API Client, based on the OpenAPI standard.
 

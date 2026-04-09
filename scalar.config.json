@@ -1,14 +1,11 @@
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "info": {
     "title": "Scalar Documentation",
     "description": "Guides for Scalar, covering your favorite frameworks, languages and use cases."
   },
-  "publishOnMerge": true,
   "assetsDir": "documentation/assets",
-  "publishPreviews": true,
-  "pullRequestComments": true,
   "insertPageTitles": false,
   "siteConfig": {
     "subdomain": "scalar",
@@ -20,6 +17,12 @@
         },
         {
           "path": "documentation/assets/fathom.js"
+        },
+        {
+          "path": "documentation/assets/apollo.js"
+        },
+        {
+          "url": "https://cdn-cookieyes.com/client_data/3515bc1505967122c1cef7c0f2247082/script.js"
         }
       ],
       "styles": [
@@ -60,10 +63,16 @@
         {
           "property": "og:type",
           "content": "website"
-        }, {
+        },
+        {
+          "name": "twitter:card",
+          "content": "summary"
+        },
+        {
           "name": "twitter:title",
           "content": "Scalar - The OpenAPI Company"
-        }, {
+        },
+        {
           "name": "twitter:description",
           "content": "Industry leading Developer Docs, SDKs, API Client & Registry that your APIs deserve."
         },
@@ -83,6 +92,10 @@
       "links": [
         {
           "rel": "icon",
+          "href": "/favicon.svg"
+        },
+        {
+          "rel": "icon alternate",
           "href": "/favicon.png"
         }
       ]
@@ -216,6 +229,10 @@
         {
           "from": "/scalar/scalar-sdks/getting-started",
           "to": "/products/sdks/getting-started"
+        },
+        {
+          "from": "/scalar/scalar-sdks/publishing",
+          "to": "/products/sdks/publishing"
         },
         {
           "from": "/scalar/scalar-sdks/configuration/typescript",
@@ -479,19 +496,43 @@
         },
         {
           "from": "/scalar/scalar-mock-server/getting-started",
-          "to": "/products/mock-server/getting-started"
+          "to": "/tools/mock-server/getting-started"
         },
         {
           "from": "/scalar/scalar-mock-server/custom-request-handler",
-          "to": "/products/mock-server/custom-request-handler"
+          "to": "/tools/mock-server/custom-request-handler"
         },
         {
           "from": "/scalar/scalar-mock-server/data-seeding",
-          "to": "/products/mock-server/data-seeding"
+          "to": "/tools/mock-server/data-seeding"
         },
         {
           "from": "/scalar/scalar-mock-server/docker",
-          "to": "/products/mock-server/docker"
+          "to": "/tools/mock-server/docker"
+        },
+        {
+          "from": "/products/mock-server",
+          "to": "/tools/mock-server/getting-started"
+        },
+        {
+          "from": "/products/mock-server/getting-started",
+          "to": "/tools/mock-server/getting-started"
+        },
+        {
+          "from": "/products/mock-server/custom-request-handler",
+          "to": "/tools/mock-server/custom-request-handler"
+        },
+        {
+          "from": "/products/mock-server/data-seeding",
+          "to": "/tools/mock-server/data-seeding"
+        },
+        {
+          "from": "/products/mock-server/docker",
+          "to": "/tools/mock-server/docker"
+        },
+        {
+          "from": "/products/mock-server/changelog",
+          "to": "/tools/mock-server/changelog"
         },
         {
           "from": "/download",
@@ -540,12 +581,37 @@
         {
           "from": "/products/docs/redirects",
           "to": "/products/docs/configuration/redirects"
+        },
+        {
+          "from": "/blog/agent-scalar-mcp",
+          "to": "/blog/posts/2026-03-17-agent-mcp"
+        },
+        {
+          "from": "/blog/agent-scalar",
+          "to": "/blog/posts/2026-03-05-agent-scalar"
+        },
+        {
+          "from": "/blog/oss-pledge-2024",
+          "to": "/blog/posts/2024-09-21-oss-pledge"
         }
       ]
     }
   },
   "navigation": {
     "header": [
+      {
+        "type": "link",
+        "title": "Home",
+        "to": "/"
+      },
+      {
+        "type": "link",
+        "title": "Enterprise",
+        "to": "/enterprise"
+      },
+      {
+        "type": "spacer"
+      },
       {
         "type": "link",
         "title": "Log in",
@@ -573,10 +639,12 @@
               "toc": false
             },
             "head": {
-              "links": [{
-                "rel": "canonical",
-                "href": "https://scalar.com"
-              }],
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com"
+                }
+              ],
               "meta": [
                 {
                   "name": "robots",
@@ -589,6 +657,22 @@
               ]
             }
           },
+          "/enterprise": {
+            "title": "Enterprise",
+            "type": "page",
+            "filepath": "documentation/guides/enterprise/enterprise.md",
+            "showInSidebar": false,
+            "head": {
+              "scripts": [
+                {
+                  "path": "documentation/assets/enterprise-contact-form.js"
+                }
+              ]
+            },
+            "layout": {
+              "toc": false
+            }
+          },
           "/pricing": {
             "title": "Pricing",
             "description": "Transparent pricing for developer documentation, SDKs, and API tools. Start free and scale as you grow.",
@@ -599,10 +683,12 @@
               "toc": false
             },
             "head": {
-              "links": [{
-                "rel": "canonical",
-                "href": "https://scalar.com/pricing"
-              }],
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/pricing"
+                }
+              ],
               "meta": [
                 {
                   "name": "description",
@@ -629,7 +715,7 @@
             "mode": "flat",
             "children": {
               "/docs": {
-                "title": "Scalar Docs",
+                "title": "Docs",
                 "description": "Build beautiful, version-controlled developer documentation with Markdown, MDX, and powerful components.",
                 "type": "group",
                 "mode": "nested",
@@ -639,24 +725,29 @@
                     "filepath": "documentation/guides/docs/getting-started.md",
                     "type": "page",
                     "title": "Getting Started",
-                    "description": "Learn how to create and publish stunning developer documentation with Scalar Docs in minutes.",
+                    "description": "Learn how to create and publish stunning developer documentation with Docs in minutes.",
+                    "layout": {
+                      "toc": false
+                    },
                     "head": {
-                      "links": [{
-                        "rel": "canonical",
-                        "href": "https://scalar.com/products/docs/getting-started"
-                      }],
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/docs/getting-started"
+                        }
+                      ],
                       "meta": [
                         {
                           "name": "description",
-                          "content": "Learn how to create and publish stunning developer documentation with Scalar Docs in minutes."
+                          "content": "Learn how to create and publish stunning developer documentation with Docs in minutes."
                         },
                         {
                           "property": "og:title",
-                          "content": "Getting Started with Scalar Docs"
+                          "content": "Getting Started with Docs"
                         },
                         {
                           "property": "og:description",
-                          "content": "Learn how to create and publish stunning developer documentation with Scalar Docs in minutes."
+                          "content": "Learn how to create and publish stunning developer documentation with Docs in minutes."
                         },
                         {
                           "name": "robots",
@@ -665,22 +756,34 @@
                       ]
                     }
                   },
+                  "privacy": {
+                    "title": "Privacy",
+                    "type": "page",
+                    "filepath": "documentation/guides/docs/privacy.md"
+                  },
                   "configuration": {
                     "title": "Configuration",
                     "type": "group",
                     "mode": "flat",
                     "icon": "phosphor/regular/gear",
                     "children": {
+                      "starter-kit": {
+                        "filepath": "documentation/guides/docs/starter-kit.md",
+                        "type": "page",
+                        "title": "Starter Kit"
+                      },
                       "scalar.config.json": {
                         "title": "scalar.config.json",
                         "type": "page",
                         "filepath": "documentation/guides/docs/configuration/scalar.config.json.md",
                         "description": "Complete configuration reference for scalar.config.json including routing, navigation, and site settings.",
                         "head": {
-                          "links": [{
-                            "rel": "canonical",
-                            "href": "https://scalar.com/products/docs/configuration/scalar.config.json"
-                          }],
+                          "links": [
+                            {
+                              "rel": "canonical",
+                              "href": "https://scalar.com/products/docs/configuration/scalar.config.json"
+                            }
+                          ],
                           "meta": [
                             {
                               "name": "description",
@@ -719,10 +822,12 @@
                         "filepath": "documentation/guides/docs/configuration/themes.md",
                         "description": "Customize your documentation appearance with themes, colors, fonts, and CSS variables for perfect brand alignment.",
                         "head": {
-                          "links": [{
-                            "rel": "canonical",
-                            "href": "https://scalar.com/products/docs/configuration/themes"
-                          }],
+                          "links": [
+                            {
+                              "rel": "canonical",
+                              "href": "https://scalar.com/products/docs/configuration/themes"
+                            }
+                          ],
                           "meta": [
                             {
                               "name": "description",
@@ -741,10 +846,12 @@
                         "type": "page",
                         "description": "Control access to your documentation with password protection, SSO, and team-based permissions.",
                         "head": {
-                          "links": [{
-                            "rel": "canonical",
-                            "href": "https://scalar.com/products/docs/configuration/private-docs"
-                          }],
+                          "links": [
+                            {
+                              "rel": "canonical",
+                              "href": "https://scalar.com/products/docs/configuration/private-docs"
+                            }
+                          ],
                           "meta": [
                             {
                               "name": "description",
@@ -786,10 +893,12 @@
                         "title": "GitHub Actions",
                         "description": "Automate documentation deployment with GitHub Actions workflows for continuous delivery and preview environments.",
                         "head": {
-                          "links": [{
-                            "rel": "canonical",
-                            "href": "https://scalar.com/products/docs/deployment/github-actions"
-                          }],
+                          "links": [
+                            {
+                              "rel": "canonical",
+                              "href": "https://scalar.com/products/docs/deployment/github-actions"
+                            }
+                          ],
                           "meta": [
                             {
                               "name": "description",
@@ -849,10 +958,12 @@
                         "title": "Markdown Support",
                         "description": "Full markdown syntax reference including tables, lists, links, images, and GitHub-flavored markdown features.",
                         "head": {
-                          "links": [{
-                            "rel": "canonical",
-                            "href": "https://scalar.com/products/docs/components/markdown-support"
-                          }],
+                          "links": [
+                            {
+                              "rel": "canonical",
+                              "href": "https://scalar.com/products/docs/components/markdown-support"
+                            }
+                          ],
                           "meta": [
                             {
                               "name": "description",
@@ -891,10 +1002,12 @@
                         "title": "Code Blocks",
                         "description": "Syntax highlighting for 100+ programming languages with line numbers, highlighting, and copy-to-clipboard functionality.",
                         "head": {
-                          "links": [{
-                            "rel": "canonical",
-                            "href": "https://scalar.com/products/docs/components/code-blocks"
-                          }],
+                          "links": [
+                            {
+                              "rel": "canonical",
+                              "href": "https://scalar.com/products/docs/components/code-blocks"
+                            }
+                          ],
                           "meta": [
                             {
                               "name": "description",
@@ -951,8 +1064,106 @@
                   }
                 }
               },
+              "/agent": {
+                "title": "MCP & Agent",
+                "description": "OpenAPI-backed MCP servers and SDKs that connect your APIs to LLMs with just-in-time tools and delegated authentication.",
+                "type": "group",
+                "mode": "nested",
+                "icon": "phosphor/regular/sparkle",
+                "children": {
+                  "getting-started": {
+                    "title": "Getting Started",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/getting-started.md",
+                    "description": "Turn OpenAPI into MCP servers and connect APIs to LLMs with minimal context usage, delegated auth, and the Agent SDK or chat UI.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/agent/getting-started"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Turn OpenAPI into MCP servers and connect APIs to LLMs with minimal context usage, delegated auth, and the Agent SDK or chat UI."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Getting Started with Agent — OpenAPI to MCP for LLMs"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Turn OpenAPI into MCP servers and connect APIs to LLMs with minimal context usage, delegated auth, and the Agent SDK or chat UI."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "mcp": {
+                    "title": "MCP Servers",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/mcp.md"
+                  },
+                  "sdk": {
+                    "title": "Agent SDK",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/sdk.md"
+                  },
+                  "api-reference": {
+                    "title": "Agent in API Reference",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/api-reference.md"
+                  },
+                  "pricing": {
+                    "title": "Pricing",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/pricing.md"
+                  },
+                  "key": {
+                    "title": "API Keys",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/key.md"
+                  },
+                  "examples": {
+                    "title": "Examples",
+                    "type": "group",
+                    "mode": "flat",
+                    "children": {
+                      "incident-monitor": {
+                        "filepath": "documentation/guides/agent/examples/incident-monitor.md",
+                        "type": "page",
+                        "title": "Incident Monitor"
+                      },
+                      "billing-sweep": {
+                        "filepath": "documentation/guides/agent/examples/billing-sweep.md",
+                        "type": "page",
+                        "title": "Billing Sweep"
+                      },
+                      "meeting-scheduler": {
+                        "filepath": "documentation/guides/agent/examples/meeting-scheduler.md",
+                        "type": "page",
+                        "title": "Meeting Scheduler"
+                      },
+                      "revenue-dashboard": {
+                        "filepath": "documentation/guides/agent/examples/revenue-dashboard.md",
+                        "type": "page",
+                        "title": "Revenue Dashboard"
+                      },
+                      "stakeholder-digest": {
+                        "filepath": "documentation/guides/agent/examples/stakeholder-digest.md",
+                        "type": "page",
+                        "title": "Stakeholder Digest"
+                      }
+                    }
+                  }
+                }
+              },
               "/sdks": {
-                "title": "Scalar SDKs",
+                "title": "SDKs",
                 "description": "Generate production-ready SDKs in TypeScript, Python, Go, Java, C#, PHP, Ruby, and Swift from your OpenAPI specs.",
                 "type": "group",
                 "mode": "nested",
@@ -963,11 +1174,16 @@
                     "type": "page",
                     "title": "Getting Started",
                     "description": "Automatically generate type-safe SDKs from OpenAPI specifications in multiple programming languages.",
+                    "layout": {
+                      "toc": false
+                    },
                     "head": {
-                      "links": [{
-                        "rel": "canonical",
-                        "href": "https://scalar.com/products/sdks/getting-started"
-                      }],
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/sdks/getting-started"
+                        }
+                      ],
                       "meta": [
                         {
                           "name": "description",
@@ -975,7 +1191,7 @@
                         },
                         {
                           "property": "og:title",
-                          "content": "Getting Started with Scalar SDKs - Generate Client Libraries"
+                          "content": "Getting Started with SDKs - Generate Client Libraries"
                         },
                         {
                           "property": "og:description",
@@ -987,6 +1203,11 @@
                         }
                       ]
                     }
+                  },
+                  "publishing": {
+                    "filepath": "documentation/guides/sdks/publishing.md",
+                    "type": "page",
+                    "title": "Publishing"
                   },
                   "configuration": {
                     "title": "Configuration",
@@ -1039,7 +1260,7 @@
                 }
               },
               "/registry": {
-                "title": "Scalar Registry",
+                "title": "Registry",
                 "description": "Centralized API registry for managing OpenAPI specifications with versioning, validation, and automated workflows.",
                 "type": "group",
                 "mode": "nested",
@@ -1050,11 +1271,16 @@
                     "type": "page",
                     "title": "Getting Started",
                     "description": "Store, version, and manage your OpenAPI specifications in a centralized registry with automated CI/CD workflows.",
+                    "layout": {
+                      "toc": false
+                    },
                     "head": {
-                      "links": [{
-                        "rel": "canonical",
-                        "href": "https://scalar.com/products/registry/getting-started"
-                      }],
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/registry/getting-started"
+                        }
+                      ],
                       "meta": [
                         {
                           "name": "description",
@@ -1062,7 +1288,7 @@
                         },
                         {
                           "property": "og:title",
-                          "content": "Getting Started with Scalar Registry - OpenAPI Management"
+                          "content": "Getting Started with Registry - OpenAPI Management"
                         },
                         {
                           "property": "og:description",
@@ -1108,7 +1334,7 @@
                 }
               },
               "/api-references": {
-                "title": "Scalar API References",
+                "title": "API References",
                 "description": "Generate beautiful, interactive API documentation from OpenAPI and AsyncAPI specifications with customizable themes.",
                 "type": "group",
                 "mode": "nested",
@@ -1120,10 +1346,12 @@
                     "type": "page",
                     "description": "Create stunning API documentation from OpenAPI specs with a modern, customizable interface and built-in request testing.",
                     "head": {
-                      "links": [{
-                        "rel": "canonical",
-                        "href": "https://scalar.com/products/api-references/getting-started"
-                      }],
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-references/getting-started"
+                        }
+                      ],
                       "meta": [
                         {
                           "name": "description",
@@ -1131,7 +1359,7 @@
                         },
                         {
                           "property": "og:title",
-                          "content": "Getting Started with Scalar API References - OpenAPI Documentation"
+                          "content": "Getting Started with API References - OpenAPI Documentation"
                         },
                         {
                           "property": "og:description",
@@ -1150,10 +1378,12 @@
                     "type": "page",
                     "description": "Configure API references with custom layouts, authentication, server URLs, and request customization options.",
                     "head": {
-                      "links": [{
-                        "rel": "canonical",
-                        "href": "https://scalar.com/products/api-references/configuration"
-                      }],
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-references/configuration"
+                        }
+                      ],
                       "meta": [
                         {
                           "name": "description",
@@ -1172,10 +1402,12 @@
                     "type": "page",
                     "description": "Customize API reference appearance with built-in themes, dark mode, and custom CSS for perfect brand matching.",
                     "head": {
-                      "links": [{
-                        "rel": "canonical",
-                        "href": "https://scalar.com/products/api-references/themes"
-                      }],
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-references/themes"
+                        }
+                      ],
                       "meta": [
                         {
                           "name": "description",
@@ -1199,10 +1431,12 @@
                     "type": "page",
                     "description": "Learn how Scalar handles OpenAPI 3.0 and 3.1 specifications including schemas, operations, and extensions.",
                     "head": {
-                      "links": [{
-                        "rel": "canonical",
-                        "href": "https://scalar.com/products/api-references/openapi"
-                      }],
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-references/openapi"
+                        }
+                      ],
                       "meta": [
                         {
                           "name": "description",
@@ -1324,10 +1558,12 @@
                         "type": "page",
                         "description": "Add Scalar API references to Express.js applications with a simple middleware for instant documentation.",
                         "head": {
-                          "links": [{
-                            "rel": "canonical",
-                            "href": "https://scalar.com/products/api-references/integrations/express"
-                          }],
+                          "links": [
+                            {
+                              "rel": "canonical",
+                              "href": "https://scalar.com/products/api-references/integrations/express"
+                            }
+                          ],
                           "meta": [
                             {
                               "name": "description",
@@ -1346,10 +1582,12 @@
                         "type": "page",
                         "description": "Replace Swagger UI with Scalar in your FastAPI application for modern, beautiful API documentation.",
                         "head": {
-                          "links": [{
-                            "rel": "canonical",
-                            "href": "https://scalar.com/products/api-references/integrations/fastapi"
-                          }],
+                          "links": [
+                            {
+                              "rel": "canonical",
+                              "href": "https://scalar.com/products/api-references/integrations/fastapi"
+                            }
+                          ],
                           "meta": [
                             {
                               "name": "description",
@@ -1413,10 +1651,12 @@
                         "type": "page",
                         "description": "Add beautiful API references to your Next.js application with automatic OpenAPI generation and React components.",
                         "head": {
-                          "links": [{
-                            "rel": "canonical",
-                            "href": "https://scalar.com/products/api-references/integrations/nextjs"
-                          }],
+                          "links": [
+                            {
+                              "rel": "canonical",
+                              "href": "https://scalar.com/products/api-references/integrations/nextjs"
+                            }
+                          ],
                           "meta": [
                             {
                               "name": "description",
@@ -1460,10 +1700,12 @@
                         "type": "page",
                         "description": "Embed Scalar API references in React applications with a native component for interactive API documentation.",
                         "head": {
-                          "links": [{
-                            "rel": "canonical",
-                            "href": "https://scalar.com/products/api-references/integrations/react"
-                          }],
+                          "links": [
+                            {
+                              "rel": "canonical",
+                              "href": "https://scalar.com/products/api-references/integrations/react"
+                            }
+                          ],
                           "meta": [
                             {
                               "name": "description",
@@ -1518,6 +1760,11 @@
                         "filepath": "documentation/integrations/spring-boot.md",
                         "type": "page"
                       },
+                      "spry": {
+                        "title": "Spry",
+                        "filepath": "documentation/integrations/spry.md",
+                        "type": "page"
+                      },
                       "sveltekit": {
                         "title": "SvelteKit",
                         "filepath": "documentation/integrations/sveltekit.md",
@@ -1537,57 +1784,8 @@
                   }
                 }
               },
-              "/agent": {
-                "title": "Agent Scalar",
-                "description": "AI-powered customer support agent that understands your API documentation and helps users with technical questions.",
-                "type": "group",
-                "mode": "nested",
-                "icon": "phosphor/regular/headset",
-                "children": {
-                  "getting-started": {
-                    "title": "Getting Started",
-                    "type": "page",
-                    "filepath": "documentation/guides/agent/getting-started.md",
-                    "description": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs.",
-                    "head": {
-                      "links": [{
-                        "rel": "canonical",
-                        "href": "https://scalar.com/products/agent/getting-started"
-                      }],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Getting Started with Agent Scalar - AI-Powered API Support"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
-                  "pricing": {
-                    "title": "Pricing",
-                    "type": "page",
-                    "filepath": "documentation/guides/agent/pricing.md"
-                  },
-                  "key": {
-                    "title": "Key",
-                    "type": "page",
-                    "filepath": "documentation/guides/agent/key.md"
-                  }
-                }
-              },
               "/api-client": {
-                "title": "Scalar API Client",
+                "title": "API Client",
                 "description": "Modern, open-source API testing client with OpenAPI integration, collections, and a beautiful interface.",
                 "type": "group",
                 "mode": "nested",
@@ -1599,10 +1797,12 @@
                     "title": "Getting Started",
                     "description": "Download and start testing APIs with the most beautiful API client built for developers who love great tools.",
                     "head": {
-                      "links": [{
-                        "rel": "canonical",
-                        "href": "https://scalar.com/products/api-client/getting-started"
-                      }],
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/getting-started"
+                        }
+                      ],
                       "meta": [
                         {
                           "name": "description",
@@ -1610,7 +1810,7 @@
                         },
                         {
                           "property": "og:title",
-                          "content": "Getting Started with Scalar API Client - Modern API Testing"
+                          "content": "Getting Started with API Client - Modern API Testing"
                         },
                         {
                           "property": "og:description",
@@ -1622,60 +1822,6 @@
                         }
                       ]
                     }
-                  }
-                }
-              },
-              "/mock-server": {
-                "title": "Scalar Mock Server",
-                "description": "Generate realistic mock API servers from OpenAPI specifications for testing, development, and prototyping.",
-                "type": "group",
-                "mode": "nested",
-                "icon": "phosphor/regular/cloud",
-                "children": {
-                  "getting-started": {
-                    "title": "Getting Started",
-                    "filepath": "documentation/guides/mock-server/getting-started.md",
-                    "type": "page",
-                    "description": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding.",
-                    "head": {
-                      "links": [{
-                        "rel": "canonical",
-                        "href": "https://scalar.com/products/mock-server/getting-started"
-                      }],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Getting Started with Scalar Mock Server - API Mocking"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
-                  "docker": {
-                    "title": "Docker",
-                    "filepath": "documentation/guides/mock-server/docker.md",
-                    "type": "page"
-                  },
-                  "custom-request-handler": {
-                    "title": "Custom Request Handlers",
-                    "filepath": "documentation/guides/mock-server/custom-request-handler.md",
-                    "type": "page"
-                  },
-                  "data-seeding": {
-                    "title": "Data Seeding",
-                    "filepath": "documentation/guides/mock-server/data-seeding.md",
-                    "type": "page"
                   }
                 }
               }
@@ -1699,10 +1845,12 @@
                     "title": "Getting Started",
                     "description": "Install and use the Scalar CLI to validate, bundle, and deploy OpenAPI specifications from your terminal.",
                     "head": {
-                      "links": [{
-                        "rel": "canonical",
-                        "href": "https://scalar.com/tools/cli/getting-started"
-                      }],
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/tools/cli/getting-started"
+                        }
+                      ],
                       "meta": [
                         {
                           "name": "description",
@@ -1730,6 +1878,67 @@
                   }
                 }
               },
+              "/mock-server": {
+                "title": "Mock Server",
+                "description": "Generate realistic mock API servers from OpenAPI specifications for testing, development, and prototyping.",
+                "type": "group",
+                "mode": "nested",
+                "icon": "phosphor/regular/cloud",
+                "children": {
+                  "getting-started": {
+                    "title": "Getting Started",
+                    "filepath": "documentation/guides/mock-server/getting-started.md",
+                    "type": "page",
+                    "description": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/tools/mock-server/getting-started"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Getting Started with Mock Server - API Mocking"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "docker": {
+                    "title": "Docker",
+                    "filepath": "documentation/guides/mock-server/docker.md",
+                    "type": "page"
+                  },
+                  "custom-request-handler": {
+                    "title": "Custom Request Handlers",
+                    "filepath": "documentation/guides/mock-server/custom-request-handler.md",
+                    "type": "page"
+                  },
+                  "data-seeding": {
+                    "title": "Data Seeding",
+                    "filepath": "documentation/guides/mock-server/data-seeding.md",
+                    "type": "page"
+                  },
+                  "changelog": {
+                    "title": "Changelog",
+                    "filepath": "packages/mock-server/CHANGELOG.md",
+                    "type": "page"
+                  }
+                }
+              },
               "/openapi-upgrader": {
                 "title": "OpenAPI Upgrader",
                 "description": "Automatically upgrade your OpenAPI specifications from Swagger 2.0 to OpenAPI 3.0 and 3.1 with zero manual work.",
@@ -1743,10 +1952,12 @@
                     "type": "page",
                     "description": "Migrate legacy Swagger 2.0 specs to modern OpenAPI 3.x formats automatically with our free conversion tool.",
                     "head": {
-                      "links": [{
-                        "rel": "canonical",
-                        "href": "https://scalar.com/tools/openapi-upgrader/getting-started"
-                      }],
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/tools/openapi-upgrader/getting-started"
+                        }
+                      ],
                       "meta": [
                         {
                           "name": "description",
@@ -1766,6 +1977,11 @@
                         }
                       ]
                     }
+                  },
+                  "changelog": {
+                    "title": "Changelog",
+                    "filepath": "packages/openapi-upgrader/CHANGELOG.md",
+                    "type": "page"
                   }
                 }
               },
@@ -1795,16 +2011,18 @@
                     "title": "Swagger UI",
                     "filepath": "documentation/migration/swagger-ui.md",
                     "type": "page",
-                    "description": "Complete guide to migrating from Swagger UI to Scalar API References with modern features and better UX.",
+                    "description": "Complete guide to migrating from Swagger UI to API References with modern features and better UX.",
                     "head": {
-                      "links": [{
-                        "rel": "canonical",
-                        "href": "https://scalar.com/guides/migration/swagger-ui"
-                      }],
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/guides/migration/swagger-ui"
+                        }
+                      ],
                       "meta": [
                         {
                           "name": "description",
-                          "content": "Complete guide to migrating from Swagger UI to Scalar API References with modern features and better UX."
+                          "content": "Complete guide to migrating from Swagger UI to API References with modern features and better UX."
                         },
                         {
                           "property": "og:title",
@@ -1812,7 +2030,7 @@
                         },
                         {
                           "property": "og:description",
-                          "content": "Complete guide to migrating from Swagger UI to Scalar API References with modern features and better UX."
+                          "content": "Complete guide to migrating from Swagger UI to API References with modern features and better UX."
                         },
                         {
                           "name": "robots",
@@ -1856,10 +2074,12 @@
                     "type": "page",
                     "description": "Set up SSO and SAML authentication for Scalar with enterprise identity providers and secure team access.",
                     "head": {
-                      "links": [{
-                        "rel": "canonical",
-                        "href": "https://scalar.com/guides/sso/getting-started"
-                      }],
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/guides/sso/getting-started"
+                        }
+                      ],
                       "meta": [
                         {
                           "name": "description",
@@ -1917,7 +2137,6 @@
                       }
                     }
                   }
-
                 }
               }
             }
@@ -1942,8 +2161,110 @@
               "/demo": {
                 "title": "Book a Demo",
                 "icon": "phosphor/regular/monitor",
-                "url": "https://scalar.cal.com/scalar/chat-with-scalar",
+                "url": "https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a",
                 "type": "link"
+              }
+            }
+          },
+          "/blog": {
+            "title": "Blog",
+            "description": "Scalar blog posts.",
+            "type": "group",
+            "mode": "nested",
+            "icon": "phosphor/regular/books",
+            "children": {
+              "/": {
+                "type": "page",
+                "title": "Overview",
+                "filepath": "documentation/blog/index.md"
+              },
+              "/posts": {
+                "type": "group",
+                "mode": "flat",
+                "title": "Posts",
+                "children": {
+                  "/2026-03-25-scalar-mcp-oauth": {
+                    "type": "page",
+                    "title": "Too Long; Didn't Read; Used MCP",
+                    "filepath": "documentation/blog/2026-03-25-scalar-mcp-oauth.md",
+                    "head": {
+                      "scripts": [{ "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player" }]
+                    }
+                  },
+                  "/2026-03-17-agent-mcp": {
+                    "type": "page",
+                    "title": "Use your API in Cursor",
+                    "filepath": "documentation/blog/2026-03-17-agent-mcp.md",
+                    "head": {
+                      "scripts": [{ "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player" }]
+                    }
+                  },
+                  "/2026-03-05-agent-scalar": {
+                    "type": "page",
+                    "title": "Introducing Agent",
+                    "filepath": "documentation/blog/2026-03-05-agent-scalar.md"
+                  },
+                  "/2025-08-19-how-to-set-up-an-openapi-mock-server": {
+                    "type": "page",
+                    "title": "How to set up an OpenAPI mock server",
+                    "filepath": "documentation/blog/2025-08-19-how-to-set-up-an-openapi-mock-server.md"
+                  },
+                  "/2025-07-07-how-to-do-openapi-validation-and": {
+                    "type": "page",
+                    "title": "How to do OpenAPI validation (and why it matters)",
+                    "filepath": "documentation/blog/2025-07-07-how-to-do-openapi-validation-and.md"
+                  },
+                  "/2025-05-28-how-we-created-an-animated-responsive": {
+                    "type": "page",
+                    "title": "How we created an animated, responsive README",
+                    "filepath": "documentation/blog/2025-05-28-how-we-created-an-animated-responsive.md"
+                  },
+                  "/2025-05-07-how-scalar-themes-work": {
+                    "type": "page",
+                    "title": "How Scalar themes work",
+                    "filepath": "documentation/blog/2025-05-07-how-scalar-themes-work.md"
+                  },
+                  "/2025-04-28-how-cloudinarys-api-docs-create-a": {
+                    "type": "page",
+                    "title": "How Cloudinary’s API docs create a great developer experience",
+                    "filepath": "documentation/blog/2025-04-28-how-cloudinarys-api-docs-create-a.md"
+                  },
+                  "/2025-04-23-an-introduction-to-openapi-variables": {
+                    "type": "page",
+                    "title": "An introduction to OpenAPI variables",
+                    "filepath": "documentation/blog/2025-04-23-an-introduction-to-openapi-variables.md"
+                  },
+                  "/2025-04-06-how-we-extended-the-openapi-specification": {
+                    "type": "page",
+                    "title": "How we extended the OpenAPI specification",
+                    "filepath": "documentation/blog/2025-04-06-how-we-extended-the-openapi-specification.md"
+                  },
+                  "/2025-03-26-a-guide-to-openapi-security-and-how": {
+                    "type": "page",
+                    "title": "A guide to OpenAPI security (and how we handle it in Scalar)",
+                    "filepath": "documentation/blog/2025-03-26-a-guide-to-openapi-security-and-how.md"
+                  },
+                  "/2025-03-19-the-hidden-complexity-of-building": {
+                    "type": "page",
+                    "title": "The hidden complexity of building drag and drop",
+                    "filepath": "documentation/blog/2025-03-19-the-hidden-complexity-of-building.md"
+                  },
+                  "/2025-03-12-how-we-sped-up-our-api-docs-25x": {
+                    "type": "page",
+                    "title": "How we sped up our API docs 25x",
+                    "filepath": "documentation/blog/2025-03-12-how-we-sped-up-our-api-docs-25x.md"
+                  },
+                  "/2025-03-05-how-net-9-and-scalar-solve-the-problem": {
+                    "type": "page",
+                    "title": "How .NET 9 and Scalar solve the problem of under-documented APIs",
+                    "filepath": "documentation/blog/2025-03-05-how-net-9-and-scalar-solve-the-problem.md"
+                  },
+                  "/2024-09-01-oss-pledge": {
+                    "type": "page",
+                    "title": "Scalar Joins the Open-Source Pledge",
+                    "filepath": "documentation/blog/2024-09-01-oss-pledge.md"
+                  }
+                }
               }
             }
           }

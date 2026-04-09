@@ -1,5 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { reduceQueryParams } from '@/libs/http'
 import { objectToString } from '@/libs/javascript'
 
 /**
@@ -26,7 +27,7 @@ export const jsOfetch: Plugin = {
 
     // Query
     if (normalizedRequest.queryString?.length) {
-      options.query = Object.fromEntries(normalizedRequest.queryString.map((q) => [q.name, q.value]))
+      options.query = reduceQueryParams(normalizedRequest.queryString)
     }
 
     // Headers

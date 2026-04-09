@@ -35,7 +35,7 @@ async function fetchExampleSpecification() {
 }
 </script>
 <template>
-  <div class="start custom-scroll">
+  <div class="custom-scroll start">
     <div class="start-copy">
       <div class="start-logo">
         <svg

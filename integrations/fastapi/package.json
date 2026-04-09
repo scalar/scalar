@@ -10,10 +10,10 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/fastapi"
   },
-  "version": "1.6.2",
+  "version": "1.8.2",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "dev": "command -v uvicorn >/dev/null 2>&1 && cd playground && uvicorn main:app --reload || echo '⚠️ uvicorn is not available, skipping the dev server.'",

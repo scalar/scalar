@@ -1,14 +1,7 @@
 import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
-import type { Request, Response } from 'express'
+import type { RequestHandler } from 'express'
 
 import type { ApiReferenceConfiguration } from './types'
-
-/**
- * The custom theme CSS for the Express theme
- *
- * @deprecated we have removed this custom theme, the variable is just here because it is exported
- */
-export const customTheme = ''
 
 /**
  * The default configuration for the API Reference.
@@ -20,7 +13,7 @@ const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
 /**
  * The route handler to render the Scalar API Reference.
  */
-export function apiReference(givenConfiguration: Partial<ApiReferenceConfiguration>) {
+export function apiReference(givenConfiguration: Partial<ApiReferenceConfiguration>): RequestHandler<never, string> {
   // Merge the defaults
   const configuration = {
     ...DEFAULT_CONFIGURATION,
@@ -28,7 +21,7 @@ export function apiReference(givenConfiguration: Partial<ApiReferenceConfigurati
   }
 
   // Respond with the HTML document
-  return (_: Request, res: Response) => {
-    res.type('text/html').send(getHtmlDocument(configuration, customTheme))
+  return (_, res) => {
+    res.type('text/html').send(getHtmlDocument(configuration))
   }
 }

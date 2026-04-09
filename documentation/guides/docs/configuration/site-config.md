@@ -9,7 +9,7 @@ All site settings are configured within the `siteConfig` object in your `scalar.
 ```json
 // scalar.config.json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "logo": "https://example.com/logo.svg",
@@ -27,7 +27,7 @@ The `logo` property defines your site's logo displayed in the navigation. You ca
 ```json
 // scalar.config.json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "logo": "https://example.com/logo.svg"
@@ -42,7 +42,7 @@ For better visibility across themes, provide different logos for light and dark 
 ```json
 // scalar.config.json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "logo": {
@@ -55,11 +55,11 @@ For better visibility across themes, provide different logos for light and dark 
 
 ### Properties
 
-| Property    | Type     | Required | Description                             |
-| ----------- | -------- | -------- | --------------------------------------- |
-| `logo`      | `string` | No       | URL to a single logo for all themes     |
-| `darkMode`  | `string` | No       | URL to the logo displayed in dark mode  |
-| `lightMode` | `string` | No       | URL to the logo displayed in light mode |
+| Property         | Type     | Required | Description                             |
+| ---------------- | -------- | -------- | --------------------------------------- |
+| `logo`           | `string` | No       | URL to a single logo for all themes     |
+| `logo.darkMode`  | `string` | No       | URL to the logo displayed in dark mode  |
+| `logo.lightMode` | `string` | No       | URL to the logo displayed in light mode |
 
 ## Theme
 
@@ -68,7 +68,7 @@ The `theme` property sets a platform-defined theme for your documentation site.
 ```json
 // scalar.config.json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "theme": "purple"
@@ -82,19 +82,19 @@ The `theme` property sets a platform-defined theme for your documentation site.
 | -------- | -------- | -------- | --------------------------------- |
 | `theme`  | `string` | No       | Slug for a platform-defined theme |
 
-## Layout
+## Color Scheme
 
-The `layout` property controls global layout options that apply to all pages unless overridden at the page level.
+The `colorScheme` property controls the light/dark mode appearance and toggle behavior for your documentation site.
 
 ```json
 // scalar.config.json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
-    "layout": {
-      "toc": true,
-      "header": true
+    "colorScheme": {
+      "default": "system",
+      "showToggle": true
     }
   }
 }
@@ -102,10 +102,143 @@ The `layout` property controls global layout options that apply to all pages unl
 
 ### Properties
 
-| Property | Type      | Default | Description                                    |
-| -------- | --------- | ------- | ---------------------------------------------- |
-| `toc`    | `boolean` | `true`  | Whether to show the table of contents globally |
-| `header` | `boolean` | `true`  | Whether to show the header globally            |
+| Property     | Type                             | Default    | Description                                |
+| ------------ | -------------------------------- | ---------- | ------------------------------------------ |
+| `default`    | `"light" \| "dark" \| "system"` | `"system"` | Default color scheme on page load          |
+| `showToggle` | `boolean`                        | `true`     | Whether to show the color scheme toggle    |
+
+### Examples
+
+#### Force Light Mode
+
+Force your documentation to always display in light mode without a toggle:
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "colorScheme": {
+      "default": "light",
+      "showToggle": false
+    }
+  }
+}
+```
+
+#### Force Dark Mode
+
+Force your documentation to always display in dark mode without a toggle:
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "colorScheme": {
+      "default": "dark",
+      "showToggle": false
+    }
+  }
+}
+```
+
+#### System Preference with Toggle
+
+Respect the user's system preference while allowing them to override it:
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "colorScheme": {
+      "default": "system",
+      "showToggle": true
+    }
+  }
+}
+```
+
+## Layout
+
+The `layout` property controls global layout options that apply to all pages unless overridden at the page level.
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "layout": {
+      "toc": true,
+      "header": true,
+      "pageTitle": true,
+      "pageActions": true,
+      "search": {
+        "enabled": true,
+        "position": "header"
+      }
+    }
+  }
+}
+```
+
+### Properties
+
+| Property      | Type      | Default  | Description                                    |
+| ------------- | --------- | -------- | ---------------------------------------------- |
+| `toc`         | `boolean` | `true`   | Whether to show the table of contents globally |
+| `header`      | `boolean` | `true`   | Whether to show the header globally            |
+| `pageTitle`   | `boolean` | `true`   | Whether to show page titles globally           |
+| `pageActions` | `boolean` | `true`   | Whether to show page actions globally          |
+| `search`      | `object`  | —        | Search bar configuration                       |
+
+### Search Configuration
+
+The `search` object within `layout` controls the global search behavior.
+
+| Property   | Type                        | Default    | Description                           |
+| ---------- | --------------------------- | ---------- | ------------------------------------- |
+| `enabled`  | `boolean`                   | `true`     | Enable or disable search globally     |
+| `position` | `"header" \| "sidebar"`    | `"header"` | Where to display the search bar       |
+
+#### Disable Search
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "layout": {
+      "search": {
+        "enabled": false
+      }
+    }
+  }
+}
+```
+
+#### Move Search to Sidebar
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "layout": {
+      "search": {
+        "position": "sidebar"
+      }
+    }
+  }
+}
+```
 
 ## Head
 
@@ -116,7 +249,7 @@ The `head` property allows you to inject custom elements into the HTML `<head>` 
 ```json
 // scalar.config.json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "head": {
@@ -203,10 +336,10 @@ Include custom CSS files in your documentation:
 ]
 ```
 
-| Property      | Type                  | Required | Description                   |
-| ------------- | --------------------- | -------- | ----------------------------- |
-| `path`        | `string`              | Yes      | Relative path to the CSS file |
-| `tagPosition` | `"head" \| "bodyEnd"` | No       | Where to inject the style tag |
+| Property      | Type                                  | Required | Description                   |
+| ------------- | ------------------------------------- | -------- | ----------------------------- |
+| `path`        | `string`                              | Yes      | Relative path to the CSS file |
+| `tagPosition` | `"head" \| "bodyOpen"` \| "bodyClose" | No       | Where to inject the style tag |
 
 ### Scripts
 
@@ -221,10 +354,10 @@ Include custom JavaScript files:
 ]
 ```
 
-| Property      | Type                  | Required | Description                          |
-| ------------- | --------------------- | -------- | ------------------------------------ |
-| `path`        | `string`              | Yes      | Relative path to the JavaScript file |
-| `tagPosition` | `"head" \| "bodyEnd"` | No       | Where to inject the script tag       |
+| Property      | Type                                  | Required | Description                          |
+| ------------- | ------------------------------------- | -------- | ------------------------------------ |
+| `path`        | `string`                              | Yes      | Relative path to the JavaScript file |
+| `tagPosition` | `"head" \| "bodyOpen"` \| "bodyClose" | No       | Where to inject the style tag        |
 
 ### Links
 
@@ -244,11 +377,11 @@ Add link elements for favicons, preloading resources, or other purposes:
 ]
 ```
 
-| Property | Type     | Required | Description                           |
-| -------- | -------- | -------- | ------------------------------------- |
-| `rel`    | `string` | Yes      | The relationship type (icon, preload) |
-| `href`   | `string` | Yes      | The URL or path to the resource       |
-| `type`   | `string` | No       | The MIME type of the resource         |
+| Property | Type     | Description                           |
+| -------- | -------- | ------------------------------------- |
+| `rel`    | `string` | The relationship type (icon, preload) |
+| `href`   | `string` | The URL or path to the resource       |
+| `type`   | `string` | The MIME type of the resource         |
 
 ## Footer
 
@@ -257,12 +390,11 @@ The `footer` property allows you to add a custom footer to your documentation si
 ```json
 // scalar.config.json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "footer": {
-      "filepath": "docs/footer.html",
-      "belowSidebar": true
+      "filepath": "docs/footer.html"
     }
   }
 }
@@ -270,10 +402,9 @@ The `footer` property allows you to add a custom footer to your documentation si
 
 ### Properties
 
-| Property       | Type      | Default | Description                                      |
-| -------------- | --------- | ------- | ------------------------------------------------ |
-| `filepath`     | `string`  | —       | Relative path to a custom HTML footer file       |
-| `belowSidebar` | `boolean` | `false` | Position the footer below the sidebar navigation |
+| Property   | Type     | Description                                |
+| ---------- | -------- | ------------------------------------------ |
+| `filepath` | `string` | Relative path to a custom HTML footer file |
 
 ## Routing
 
@@ -286,7 +417,7 @@ Set up redirects to handle URL changes or aliases:
 ```json
 // scalar.config.json
 {
-  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
   "scalar": "2.0.0",
   "siteConfig": {
     "routing": {
@@ -307,11 +438,11 @@ Set up redirects to handle URL changes or aliases:
 
 ### Properties
 
-| Property               | Type     | Required | Description                         |
-| ---------------------- | -------- | -------- | ----------------------------------- |
-| `redirects`            | `array`  | No       | Array of redirect rules             |
-| `guidePathPattern`     | `string` | No       | URL pattern for guide pages         |
-| `referencePathPattern` | `string` | No       | URL pattern for API reference pages |
+| Property               | Type     | Description                         |
+| ---------------------- | -------- | ----------------------------------- |
+| `redirects`            | `array`  | Array of redirect rules             |
+| `guidePathPattern`     | `string` | URL pattern for guide pages         |
+| `referencePathPattern` | `string` | URL pattern for API reference pages |
 
 ### Redirect Object
 

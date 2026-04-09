@@ -16,6 +16,8 @@ const selectedExampleKey = defineModel<string>({
   required: true,
 })
 
+defineOptions({ inheritAttrs: false })
+
 const exampleOptions = computed<ScalarListboxOption[]>(() =>
   Object.entries(examples).map(([key, example]) => ({
     id: key,
@@ -40,7 +42,8 @@ const selectedExample = computed<ScalarListboxOption | undefined>({
     <ScalarButton
       class="text-c-2 hover:text-c-1 flex h-full w-fit min-w-0 gap-1.5 px-1.5 py-0.75 text-base font-normal"
       data-testid="example-picker"
-      variant="ghost">
+      variant="ghost"
+      v-bind="$attrs">
       <div class="min-w-0 flex-1 truncate">
         {{ selectedExample?.label ?? 'Select an example' }}
       </div>

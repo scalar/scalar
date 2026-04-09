@@ -19,20 +19,16 @@
     "post-response scripts",
     "api client"
   ],
-  "version": "0.2.2",
-  "private": true,
+  "version": "0.4.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-vite",
+    "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "vite",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
     "preview": "vite preview",
     "test": "vitest",
-    "types:build": "scalar-types-build-vue",
-    "types:check": "scalar-types-check-vue"
+    "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -48,25 +44,10 @@
       "require": "./dist/*.css",
       "default": "./dist/*.css"
     },
-    "./libs/execute-scripts": {
-      "import": "./dist/libs/execute-scripts/index.js",
-      "types": "./dist/libs/execute-scripts/index.d.ts",
-      "default": "./dist/libs/execute-scripts/index.js"
-    },
-    "./plugins/post-response-scripts": {
-      "import": "./dist/plugins/post-response-scripts/index.js",
-      "types": "./dist/plugins/post-response-scripts/index.d.ts",
-      "default": "./dist/plugins/post-response-scripts/index.js"
-    },
-    "./plugins/post-response-scripts/components/PostResponseScripts": {
-      "import": "./dist/plugins/post-response-scripts/components/PostResponseScripts/index.js",
-      "types": "./dist/plugins/post-response-scripts/components/PostResponseScripts/index.d.ts",
-      "default": "./dist/plugins/post-response-scripts/components/PostResponseScripts/index.js"
-    },
-    "./plugins/post-response-scripts/components/TestResults": {
-      "import": "./dist/plugins/post-response-scripts/components/TestResults/index.js",
-      "types": "./dist/plugins/post-response-scripts/components/TestResults/index.d.ts",
-      "default": "./dist/plugins/post-response-scripts/components/TestResults/index.js"
+    "./plugins": {
+      "import": "./dist/plugins/index.js",
+      "types": "./dist/plugins/index.d.ts",
+      "default": "./dist/plugins/index.js"
     }
   },
   "files": [
@@ -74,17 +55,18 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@codemirror/lang-javascript": "^6.2.4",
+    "@codemirror/lang-javascript": "^6.2.5",
     "@headlessui/vue": "catalog:*",
     "@scalar/components": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "postman-sandbox": "^6.5.0",
+    "@scalar/use-codemirror": "workspace:*",
+    "@scalar/workspace-store": "workspace:*",
+    "@types/postman-collection": "^3.5.11",
+    "postman-collection": "^5.2.0",
+    "postman-sandbox": "^6.6.1",
     "vue": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
-    "@scalar/types": "workspace:*",
-    "@scalar/use-codemirror": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
     "vite": "catalog:*"

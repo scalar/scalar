@@ -2,11 +2,14 @@
   <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/v1Pu6_BCmly6VhPAuotVZ.svg"></scalar-icon>
 </div>
 <div class="flex flex-col gap-3 hero small-test">
-  <scalar-heading level="2" slug="developer-docs" class="text-balance">
-    Developer Docs
+  <scalar-heading level="2" slug="scalar-docs" class="text-balance">
+    Docs
   </scalar-heading>
   <p>
-    Get started with Scalar Docs, literally in minutes. You don't need anything to get started, not even an account if you just want to play around.
+    Documentation that stays in sync with your API and code. Pull content from GitHub, get previews on every pull request, deploy on merge, or publish from anywhere with the CLI.
+  </p>
+  <p>
+    The site you're looking at was built using Docs. It's not just us, those wonderful folks use it too:
   </p>
 </div>
 <div class="logowall">
@@ -26,7 +29,7 @@
     <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-flyio.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-sfcompute.svg"></scalar-icon>
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-clerk.svg?v=2"></scalar-icon>
   </div>
 </div>
 
@@ -36,50 +39,8 @@
 <div class="flex">
   <div class="full-container-constrained">
 
-  ## Getting Started
-
-  :::scalar-callout{ type=info }
-  Guides are part of our Scalar Pro plan (read below, or [visit our pricing page for more info](https://scalar.com/#pricing)).
-  :::
-  In the top left corner of <https://docs.scalar.com>, you'll see a “Guide” tab. This is where you land by default.
-
-  Guides are basically a blank sheet of paper. These pages are where you will publish your non-reference content (API reference pages are [discussed below](#api-references)). You can start writing your documentation, your guidelines, your knowledge base — whatever you want to write — using our editor. You can alternatively manage your guides using a Git repository.
-
-  If you're serious about this, you can [create an account here](https://docs.scalar.com/register) to make sure your changes are saved.
-
-  ## API References
-
-  :::scalar-callout{ type=neutral }
-  This is a free feature. You'll even get a nice `${whatever-you-like}.apidocumentation.com` subdomain.
-  :::
-
-  Every project can have one, or even multiple API references: In the top left corner, you'll see a “Reference” tab. Try to click on it to switch to our OpenAPI editor.
-
-  OpenAPI is the most popular standard to describe your API in a machine readable format. No matter which languages, libraries or frameworks you're using to build your API, it's very, very likely there's a tool, plugin or package to generate an OpenAPI document for you. If you don't find something which says “OpenAPI”, look for “Swagger”. It's what it used be called a few years ago, before it was an open standard.
-
-  Those OpenAPI documents are what we base all our tools on. So once you've got one, it should be straight-forward to use our tools.
-
-  Scalar Docs offers multiple ways to connect your OpenAPI document. Pick whatever fits your workflow:
-
-  - Paste your OpenAPI document in the editor
-  - Upload an OpenAPI document to the editor
-  - Import an URL (you can even create a “Live Link”, which means it'll fetch updates from the URL vs. just fetching it once)
-  - Sync your OpenAPI document from GitHub
-
-  ## Scalar Pro
-
-  Most of our stuff is actually freely available. Upgrading to Scalar Pro unlocks a set of additional features, including:
-
-  * Custom domains,
-  * GitHub Sync,
-  * Guides (and versioning of your guides),
-  * TypeSense search and
-  * priority support (including a private Discord channel or a dedicated Slack connect channel if you like).
-
-  [Pricing information can be found here](../pricing.md).
-
 <div class="feature">
-  <h2>Features</h2>
+  <h2>Your documentation, always up to date</h2>
   <div class="flex flex-wrap feature-container">
     <div class="feature-item">
       <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-blue">
@@ -95,29 +56,84 @@
     </div>
     <div class="feature-item">
       <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-blue">
-        <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
-        OpenAPI Documents
+        <scalar-icon src="phosphor/bold/cloud-arrow-up"></scalar-icon>
+        Fast CDN
       </b>
     </div>
     <div class="feature-item">
       <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-blue">
-        <scalar-icon src="phosphor/bold/github-logo"></scalar-icon>
-        GitHub Sync
+        <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
+        Multiple API references
       </b>
     </div>
     <div class="feature-item">
       <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-blue">
         <scalar-icon src="phosphor/bold/palette"></scalar-icon>
-        Customize Everything
+        Custom themes & layouts
+      </b>
+    </div>
+    <div class="feature-item">
+      <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-blue">
+        <scalar-icon src="phosphor/bold/globe"></scalar-icon>
+        Custom domains
       </b>
     </div>
     <div class="feature-item">
       <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-blue">
         <scalar-icon src="phosphor/bold/users"></scalar-icon>
-        Fine-grained Access
+        Fine-grained access
+      </b>
+    </div>
+    <div class="feature-item">
+      <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-blue">
+        <scalar-icon src="phosphor/bold/github-logo"></scalar-icon>
+        Sync with GitHub
+      </b>
+    </div>
+    <div class="feature-item">
+      <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-blue">
+        <scalar-icon src="phosphor/bold/headset"></scalar-icon>
+        LLM-chat for your API
+      </b>
+    </div>
+    <div class="feature-item">
+      <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-blue">
+        <scalar-icon src="phosphor/bold/robot"></scalar-icon>
+        CI/CD integration
       </b>
     </div>
   </div>
+</div>
+
+## The modern API documentation
+
+Include interactive API references, for a single API or for hundreds of APIs. All based on the OpenAPI standard. And the best part: Your documentation stays in sync with your actual API.
+
+> [!TIP]
+> Just need an API Reference and that's all? Use the [API Reference](../../guides/api-references/getting-started.md). It is open-source, free, and has integrations for all REST API frameworks.
+
+## Write anywhere
+
+Put your content where you want: in your repository, any folder, or the Scalar Editor.
+
+| Source                   | Description                                                                                                                                                                                                                                                                     |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **GitHub** (recommended) | Content and OpenAPI in your repository. CI/CD: [preview deployments](deployment/preview-deployments.md), [automatic deployment](deployment/automatic-deployment.md), [GitHub Actions](deployment/github-actions.md), [scalar.config.json](configuration/scalar.config.json.md). |
+| **Any folder / CLI**     | No repository access needed. Content in any folder or repository, run [`npx @scalar/cli project publish`](deployment/cli.md).                                                                                                                                                   |
+| **Web editor**           | Edit and store docs at [docs.scalar.com](https://docs.scalar.com). No Git required.                                                                                                                                                                                             |
+
+## Plans: Free, Pro, Enterprise
+
+|                                                                                                  | Free | Pro | Enterprise |
+| ------------------------------------------------------------------------------------------------ | ---- | --- | ---------- |
+| Subdomains, API references, themes, custom HTML/CSS/JS, email domain access                      | ✓    | ✓   | ✓          |
+| Custom domains, Guides, versions, Git Sync, Markdown + MDX, landing pages, full developer portal |      | ✓   | ✓          |
+| SSO/SAML, RBAC, priority support, dedicated Slack/Teams                                          |      |     | ✓          |
+
+
+[See the full comparison](../pricing.md) for Docs and the other Scalar products.
+
+<div class="feature">
   <div class="cta flex flex-col gap-3 small-test">
     <scalar-heading level="2" class="text-balance" slug="what-are-you-waiting-for">What are you waiting for?</scalar-heading>
   <p>
@@ -126,7 +142,7 @@
   </p>
   <div class="flex gap-2 mb-11">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
-    <a class="t-editor__button" href="https://scalar.cal.com/scalar/chat-with-scalar" target="_blank">Book a Demo</a>
+    <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
   </div>
   <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank" aria-label="Join Scalar community on Discord">Community →</a>
   <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank" aria-label="View Scalar on GitHub">GitHub →</a>
@@ -140,10 +156,25 @@
         <b class="font-medium">Additional Reading</b>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/configuration/scalar.config.json"><scalar-icon src="phosphor/bold/git-branch"></scalar-icon> GitHub Sync</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/configuration/scalar.config.json"><scalar-icon src="phosphor/bold/git-branch"></scalar-icon>Configuration</a>
       </p>
       <p>
-        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/components/markdown-support"><scalar-icon src="phosphor/bold/file-md"></scalar-icon> Markdown Support</a>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/deployment/automatic-deployment"><scalar-icon src="phosphor/bold/arrow-square-out"></scalar-icon> Automatic Deployment</a>
+      </p>
+      <p>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/deployment/preview-deployments"><scalar-icon src="phosphor/bold/code"></scalar-icon> Preview Deployments</a>
+      </p>
+      <p>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/deployment/cli"><scalar-icon src="phosphor/bold/terminal"></scalar-icon> CLI</a>
+      </p>
+      <p>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/configuration/starter-kit"><scalar-icon src="phosphor/bold/rocket-launch"></scalar-icon> Starter Kit</a>
+      </p>
+      <p>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/configuration/themes"><scalar-icon src="phosphor/bold/palette"></scalar-icon> Themes</a>
+      </p>
+      <p>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/configuration/private-docs"><scalar-icon src="phosphor/bold/users"></scalar-icon> Private Docs</a>
       </p>
       <p class="mt-3 mb-1 pl-2">
         <b class="font-medium">Community</b>
@@ -228,13 +259,13 @@
       <div class="expander-hover-sticker">
         <object class="sticker-clip-docs" width="113" height="143" data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/HLhbFqJ4vSzo4UDEZX2dq.svg"></object>
       </div>
-      <div class="expander-hover-title">API Docs</div>
+      <div class="expander-hover-title">Docs</div>
       <div class="expander">
         <div class="expander-content">
-          Write beautiful documentation with Markdown + MDX + Git Sync.
+          Documentation that stays in sync with your API. Markdown, MDX, Git Sync, and stunning API references.
         </div>
       </div>
-      <a class="expander-hover-link" href="/products/docs/getting-started" aria-label="Learn more about API Docs">Learn More</a>
+      <a class="expander-hover-link" href="/products/docs/getting-started" aria-label="Learn more about Docs">Learn More</a>
     </div>
   </div>
 </div>
@@ -252,14 +283,15 @@
           <b>Products</b>
           <a class="text-c-2 hover:text-c-1 font-normal" href="/products/api-references/getting-started" target="_blank">API References</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://client.scalar.com/" target="_blank">API Client</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://docs.scalar.com/" target="_blank">API Docs</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="https://docs.scalar.com/" target="_blank">Docs</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="https://editor.scalar.com/" target="_blank">Swagger Editor</a>
         </div>
         <div class="w-1/3 flex flex-col gap-2">
           <b>Company</b>
           <a class="text-c-2 hover:text-c-1 font-normal" href="mailto:support@scalar.com" target="_blank">Support</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/terms-and-conditions" target="_blank">Terms of Service</a>
-          <a class="text-c-2 hover:text-c-1 font-normal" href="https://scalar.com/privacy-policy" target="_blank">Privacy Policy</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/terms-and-conditions">Terms of Service</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/privacy-policy">Privacy Policy</a>
+          <button class="cky-banner-element text-c-2 hover:text-c-1 font-normal">Cookie Preferences</button>
         </div>
         <div class="w-1/3 flex flex-col gap-2">
           <b>Socials</b>
@@ -320,14 +352,12 @@
     }
   }
   .t-editor__page-title,
-  .layout-aside-right,
   .t-editor__page-nav,
   .notify-container,
   .subheading,
   :not(.getting-started).footer,
   .t-editor .page-header,
-  .content .page-nav,
-  .t-doc__toc {
+  .content .page-nav {
     display: none;
   }
   main.content {
@@ -351,7 +381,6 @@
   }
   :root {
     --scalar-container-width: 960px;
-    --scalar-toc-width: 0;
   }
   .hero.hero {
     margin-top: 88px;
@@ -564,7 +593,8 @@
   }
   .footer-content span,
   .footer-content p,
-  .footer-content a {
+  .footer-content a,
+  .footer-content button {
     position: relative;
     z-index: 1;
   }
@@ -629,7 +659,6 @@
       justify-content: start;
     }
     .logowall-item svg {
-      width: auto;
       max-width: 100%;
       height: 100%;
       max-height: 20px;

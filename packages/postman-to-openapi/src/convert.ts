@@ -5,6 +5,7 @@ import { processContact } from '@/helpers/contact'
 import { processExternalDocs } from '@/helpers/external-docs'
 import { processLicense } from '@/helpers/license'
 import { processLogo } from '@/helpers/logo'
+import { DEFAULT_EXAMPLE_NAME, OPERATION_KEYS, mergePathItem } from '@/helpers/merge-path-item'
 import { processItem } from '@/helpers/path-items'
 import { pruneDocument } from '@/helpers/prune-document'
 import { analyzeServerDistribution } from '@/helpers/servers'
@@ -12,16 +13,11 @@ import { normalizePath } from '@/helpers/urls'
 
 import type { Description, Item, ItemGroup, PostmanCollection } from './types'
 
-const OPERATION_KEYS: readonly (keyof OpenAPIV3_1.PathItemObject)[] = [
-  'get',
-  'put',
-  'post',
-  'delete',
-  'options',
-  'head',
-  'patch',
-  'trace',
-]
+/**
+ * Indices from the collection root into nested `item` arrays.
+ * Example: `[0, 2, 1]` → `collection.item[0].item[2].item[1]`.
+ */
+export type PostmanRequestIndexPath = readonly number[]
 
 const normalizeDescription = (description?: Description): string | undefined => {
   if (typeof description === 'string') {
@@ -110,6 +106,123 @@ const extractTags = (items: PostmanCollection['item']): OpenAPIV3_1.TagObject[] 
   return items.flatMap((item) => collectTags(item))
 }
 
+/**
+ * Folder tags for ancestors of each selected path only (same shape as {@link extractTags}).
+ */
+const extractTagsForSelectedPaths = (
+  items: PostmanCollection['item'],
+  paths: readonly PostmanRequestIndexPath[],
+): OpenAPIV3_1.TagObject[] => {
+  const seen = new Set<string>()
+  const result: OpenAPIV3_1.TagObject[] = []
+
+  for (const path of paths) {
+    if (path.length === 0) {
+      continue
+    }
+
+    let list = items
+    let parentPath = ''
+
+    for (let i = 0; i < path.length - 1; i++) {
+      const idx = path[i]
+      if (idx === undefined || idx < 0 || idx >= list.length) {
+        break
+      }
+
+      const node = list[idx]
+      if (node === undefined || !isItemGroup(node)) {
+        break
+      }
+
+      const nextPath = node.name ? (parentPath ? `${parentPath} > ${node.name}` : node.name) : parentPath
+      const description = normalizeDescription(node.description)
+
+      if (node.name?.length && !seen.has(nextPath)) {
+        seen.add(nextPath)
+        result.push({
+          name: nextPath,
+          ...(description && { description }),
+        })
+      }
+
+      parentPath = nextPath
+      list = node.item
+    }
+  }
+
+  return result
+}
+
+const getNodeAtPath = (
+  items: PostmanCollection['item'],
+  path: PostmanRequestIndexPath,
+): Item | ItemGroup | undefined => {
+  if (path.length === 0) {
+    return undefined
+  }
+
+  let list = items
+  let node: Item | ItemGroup | undefined
+
+  for (let i = 0; i < path.length; i++) {
+    const idx = path[i]
+    if (idx === undefined || idx < 0 || idx >= list.length) {
+      return undefined
+    }
+
+    node = list[idx]
+    if (node === undefined) {
+      return undefined
+    }
+
+    if (i < path.length - 1) {
+      if (!isItemGroup(node)) {
+        return undefined
+      }
+      list = node.item
+    }
+  }
+
+  return node
+}
+
+const collectParentTagSegments = (items: PostmanCollection['item'], path: PostmanRequestIndexPath): string[] => {
+  const segments: string[] = []
+  if (path.length <= 1) {
+    return segments
+  }
+
+  let list = items
+  for (let i = 0; i < path.length - 1; i++) {
+    const idx = path[i]
+    if (idx === undefined || idx < 0 || idx >= list.length) {
+      return []
+    }
+
+    const node = list[idx]
+    if (node === undefined || !isItemGroup(node)) {
+      return []
+    }
+
+    if (node.name) {
+      segments.push(node.name)
+    }
+
+    list = node.item
+  }
+
+  return segments
+}
+
+const dedupeIndexPaths = (paths: readonly PostmanRequestIndexPath[]): PostmanRequestIndexPath[] => {
+  const map = new Map<string, PostmanRequestIndexPath>()
+  for (const path of paths) {
+    map.set(JSON.stringify([...path]), path)
+  }
+  return [...map.values()]
+}
+
 const mergeSecuritySchemes = (
   openapi: OpenAPIV3_1.Document,
   securitySchemes?: OpenAPIV3_1.ComponentsObject['securitySchemes'],
@@ -125,34 +238,50 @@ const mergeSecuritySchemes = (
   }
 }
 
-const mergePathItem = (
-  paths: OpenAPIV3_1.PathsObject,
-  normalizedPathKey: string,
-  pathItem: OpenAPIV3_1.PathItemObject,
-): void => {
-  const targetPath = (paths[normalizedPathKey] ?? {}) as OpenAPIV3_1.PathItemObject
-
-  for (const [key, value] of Object.entries(pathItem) as [
-    keyof OpenAPIV3_1.PathItemObject,
-    OpenAPIV3_1.PathItemObject[keyof OpenAPIV3_1.PathItemObject],
-  ][]) {
-    if (value === undefined) {
-      continue
+const mergeServerLists = (
+  existing: OpenAPIV3_1.ServerObject[] | undefined,
+  incoming: OpenAPIV3_1.ServerObject[],
+): OpenAPIV3_1.ServerObject[] => {
+  const seen = new Set((existing ?? []).map((s) => s.url))
+  const out = [...(existing ?? [])]
+  for (const server of incoming) {
+    if (!seen.has(server.url)) {
+      seen.add(server.url)
+      out.push(server)
     }
+  }
+  return out
+}
 
-    const isOperationKey = OPERATION_KEYS.includes(key)
-
-    if (isOperationKey && targetPath[key]) {
-      const operationName = typeof key === 'string' ? key.toUpperCase() : String(key)
-      console.warn(
-        `Duplicate operation detected for ${operationName} ${normalizedPathKey}. Last operation will overwrite previous.`,
-      )
-    }
-
-    targetPath[key] = value
+const mergeTagsIntoDocument = (openapi: OpenAPIV3_1.Document, incoming: OpenAPIV3_1.TagObject[]): void => {
+  if (incoming.length === 0) {
+    return
   }
 
-  paths[normalizedPathKey] = targetPath
+  const existing = openapi.tags ?? []
+  if (existing.length === 0) {
+    openapi.tags = incoming
+    return
+  }
+
+  const names = new Set(existing.map((t: OpenAPIV3_1.TagObject) => t.name))
+  const additions = incoming.filter((t: OpenAPIV3_1.TagObject) => t.name && !names.has(t.name))
+  openapi.tags = additions.length > 0 ? [...existing, ...additions] : existing
+}
+
+const assignTagsFromPostman = (
+  openapi: OpenAPIV3_1.Document,
+  tags: OpenAPIV3_1.TagObject[],
+  isMergingIntoBase: boolean,
+): void => {
+  if (tags.length === 0) {
+    return
+  }
+  if (isMergingIntoBase) {
+    mergeTagsIntoDocument(openapi, tags)
+  } else {
+    openapi.tags = tags
+  }
 }
 
 const cleanupOperations = (paths: OpenAPIV3_1.PathsObject): void => {
@@ -188,12 +317,41 @@ const cleanupOperations = (paths: OpenAPIV3_1.PathsObject): void => {
   })
 }
 
+export type ConvertOptions = {
+  /**
+   * Whether to merge operations with the same path and method.
+   * If true, the operations will be merged into a single operation.
+   * If false, the operations will be kept as separate operations.
+   * Default is true.
+   */
+  mergeOperation?: boolean
+  /**
+   * When set, only items at these paths are converted. Each path is a list of
+   * zero-based indices from `collection.item` through nested `item` arrays.
+   * The last index may point to a request or a folder; folders include every
+   * descendant request. Paths out of range or through non-folders are skipped.
+   * When omitted, the whole collection is converted (existing behavior).
+   */
+  requestIndexPaths?: readonly PostmanRequestIndexPath[]
+  /**
+   * Existing OpenAPI document to merge into. The input is is updated with Postman paths,
+   * tags (union by name), security schemes, and servers.
+   * Root `info` and existing paths are preserved unless Postman adds or merges operations.
+   */
+  document?: OpenAPIV3_1.Document
+}
+
 /**
  * Converts a Postman Collection to an OpenAPI 3.1.0 document.
  * This function processes the collection's information, servers, authentication,
  * and items to create a corresponding OpenAPI structure.
  */
-export function convert(postmanCollection: PostmanCollection | string): OpenAPIV3_1.Document {
+export function convert(
+  postmanCollection: PostmanCollection | string,
+  options: ConvertOptions = { mergeOperation: false },
+): OpenAPIV3_1.Document {
+  const { requestIndexPaths, mergeOperation = false, document: baseDocument } = options
+  const isMergingIntoBase = baseDocument !== undefined
   const collection = validateCollectionShape(parseCollectionInput(postmanCollection))
 
   // Extract title from collection info, fallback to 'API' if not provided
@@ -212,8 +370,8 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
   // Process logo information
   const logo = processLogo(collection)
 
-  // Initialize the OpenAPI document with required fields
-  const openapi: OpenAPIV3_1.Document = {
+  // Initialize the OpenAPI document with required fields (or clone a base document to merge into)
+  const openapi: OpenAPIV3_1.Document = baseDocument ?? {
     openapi: '3.1.0',
     info: {
       title,
@@ -226,9 +384,11 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
     paths: {},
   }
 
+  openapi.paths = openapi.paths ?? {}
+
   // Process external docs
   const externalDocs = processExternalDocs(collection)
-  if (externalDocs) {
+  if (externalDocs && (!isMergingIntoBase || !openapi.externalDocs)) {
     openapi.externalDocs = externalDocs
   }
 
@@ -236,7 +396,13 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
   if (collection.auth) {
     const { securitySchemes, security } = processAuth(collection.auth)
     mergeSecuritySchemes(openapi, securitySchemes)
-    openapi.security = security
+    if (security?.length) {
+      if (isMergingIntoBase && openapi.security?.length) {
+        openapi.security = [...openapi.security, ...security]
+      } else {
+        openapi.security = security
+      }
+    }
   }
 
   // Process each item in the collection and merge into OpenAPI spec
@@ -247,36 +413,67 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
   }> = []
 
   if (collection.item) {
-    // Extract tags from folders
-    const tags = extractTags(collection.item)
-    if (tags.length > 0) {
-      openapi.tags = tags
-    }
+    const usePathFilter = requestIndexPaths !== undefined
 
-    collection.item.forEach((item) => {
-      const { paths: itemPaths, components: itemComponents, serverUsage } = processItem(item)
+    if (usePathFilter) {
+      const uniquePaths = dedupeIndexPaths(requestIndexPaths)
+      const tags = extractTagsForSelectedPaths(collection.item, uniquePaths)
+      assignTagsFromPostman(openapi, tags, isMergingIntoBase)
 
-      // Collect server usage information
-      allServerUsage.push(...serverUsage)
-
-      // Merge paths from the current item
-      openapi.paths = openapi.paths || {}
-      for (const [pathKey, pathItem] of Object.entries(itemPaths)) {
-        // Convert colon-style params to curly brace style
-        const normalizedPathKey = normalizePath(pathKey)
-
-        if (!pathItem) {
+      for (const path of uniquePaths) {
+        const node = getNodeAtPath(collection.item, path)
+        if (!node) {
           continue
         }
 
-        mergePathItem(openapi.paths, normalizedPathKey, pathItem)
-      }
+        const parentTags = collectParentTagSegments(collection.item, path)
+        const {
+          paths: itemPaths,
+          components: itemComponents,
+          serverUsage,
+        } = processItem(node, DEFAULT_EXAMPLE_NAME, parentTags, '')
 
-      // Merge security schemes from the current item
-      if (itemComponents?.securitySchemes) {
-        mergeSecuritySchemes(openapi, itemComponents.securitySchemes)
+        allServerUsage.push(...serverUsage)
+
+        for (const [pathKey, pathItem] of Object.entries(itemPaths)) {
+          const normalizedPathKey = normalizePath(pathKey)
+
+          if (!pathItem) {
+            continue
+          }
+
+          mergePathItem(openapi.paths, normalizedPathKey, pathItem, mergeOperation)
+        }
+
+        if (itemComponents?.securitySchemes) {
+          mergeSecuritySchemes(openapi, itemComponents.securitySchemes)
+        }
       }
-    })
+    } else {
+      const tags = extractTags(collection.item)
+      assignTagsFromPostman(openapi, tags, isMergingIntoBase)
+
+      collection.item.forEach((item) => {
+        const { paths: itemPaths, components: itemComponents, serverUsage } = processItem(item, DEFAULT_EXAMPLE_NAME)
+
+        allServerUsage.push(...serverUsage)
+
+        openapi.paths = openapi.paths || {}
+        for (const [pathKey, pathItem] of Object.entries(itemPaths)) {
+          const normalizedPathKey = normalizePath(pathKey)
+
+          if (!pathItem) {
+            continue
+          }
+
+          mergePathItem(openapi.paths, normalizedPathKey, pathItem, mergeOperation)
+        }
+
+        if (itemComponents?.securitySchemes) {
+          mergeSecuritySchemes(openapi, itemComponents.securitySchemes)
+        }
+      })
+    }
   }
 
   // Extract all unique paths from the document
@@ -292,7 +489,9 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
 
   // Add servers to document level
   if (serverPlacement.document.length > 0) {
-    openapi.servers = serverPlacement.document
+    openapi.servers = isMergingIntoBase
+      ? mergeServerLists(openapi.servers, serverPlacement.document)
+      : serverPlacement.document
   }
 
   // Add servers to path items
@@ -301,7 +500,7 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
       const normalizedPathKey = normalizePath(path)
       const pathItem = openapi.paths[normalizedPathKey]
       if (pathItem) {
-        pathItem.servers = servers
+        pathItem.servers = isMergingIntoBase ? mergeServerLists(pathItem.servers, servers) : servers
       }
     }
 
@@ -316,7 +515,7 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
         if (method in pathItem) {
           const operation = pathItem[method as keyof typeof pathItem]
           if (operation && typeof operation === 'object' && 'responses' in operation) {
-            operation.servers = servers
+            operation.servers = isMergingIntoBase ? mergeServerLists(operation.servers, servers) : servers
           }
         }
       }

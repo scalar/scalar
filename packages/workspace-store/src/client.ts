@@ -1,3 +1,4 @@
+import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import { generateHash } from '@scalar/helpers/string/generate-hash'
@@ -9,20 +10,19 @@ import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { upgrade } from '@scalar/openapi-upgrader'
 import type { Record } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
+import { coerce } from '@scalar/validation'
 import type { PartialDeep } from 'type-fest'
-import { reactive, toRaw } from 'vue'
+import { reactive } from 'vue'
 import YAML from 'yaml'
 
 import { type AuthStore, createAuthStore } from '@/entities/auth'
 import { type HistoryStore, createHistoryStore } from '@/entities/history'
-import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
 import { deepClone } from '@/helpers/deep-clone'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
 import { type UnknownObject, safeAssign } from '@/helpers/general'
 import { getFetch } from '@/helpers/get-fetch'
-import { getValueByPath } from '@/helpers/json-path-utils'
 import { mergeObjects } from '@/helpers/merge-object'
-import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
+import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { createNavigation } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
@@ -32,17 +32,28 @@ import {
   normalizeAuthSchemes,
   normalizeRefs,
   refsEverywhere,
+  removeExtraScalarKeys,
   restoreOriginalRefs,
   syncPathParameters,
 } from '@/plugins/bundler'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import { coerceValue } from '@/schemas/typebox-coerce'
+import { generateSchema } from '@/schemas/v3.1/openapi'
+import { recursiveRef } from '@/schemas/v3.1/openapi/reference'
 import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
+  type OpenAPIExtensions,
   type OpenApiDocument,
 } from '@/schemas/v3.1/strict/openapi-document'
-import type { Workspace, WorkspaceDocumentMeta, WorkspaceExtensions, WorkspaceMeta } from '@/schemas/workspace'
+import type {
+  DocumentMetaExtensions,
+  Workspace,
+  WorkspaceDocument,
+  WorkspaceDocumentMeta,
+  WorkspaceExtensions,
+  WorkspaceMeta,
+} from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import type { WorkspacePlugin, WorkspaceStateChangeEvent } from '@/workspace-plugin'
 
@@ -176,6 +187,11 @@ type WorkspaceProps = {
   meta?: WorkspaceMeta
   /** Fetch function for retrieving documents */
   fetch?: WorkspaceDocumentInput['fetch']
+  /**
+   * Enables internal timing logs for workspace operations.
+   * Disabled by default to avoid noisy console output.
+   */
+  verbose?: boolean
   /** A list of all registered plugins for the current workspace */
   plugins?: WorkspacePlugin[]
   /** A file loader plugin for resolving local file references (for non browser environments) */
@@ -220,15 +236,15 @@ export type WorkspaceStore = {
    * @param value - The new value for the selected metadata field.
    * @returns true if the update was successful, false otherwise.
    * @example
-   * // Update the auth metadata for the active document
-   * updateDocument('active', 'x-scalar-active-auth', 'Bearer')
-   * // Update the auth metadata for a specific document
-   * updateDocument('document-name', 'x-scalar-active-auth', 'Bearer')
+   * // Update the selected server for the active document
+   * updateDocument('active', 'x-scalar-selected-server', 'staging')
+   * // Update the selected server for a specific document
+   * updateDocument('document-name', 'x-scalar-selected-server', 'staging')
    */
-  updateDocument<K extends keyof WorkspaceDocumentMeta>(
+  updateDocument<K extends keyof DocumentMetaExtensions>(
     name: 'active' | (string & {}),
     key: K,
-    value: WorkspaceDocumentMeta[K],
+    value: DocumentMetaExtensions[K],
   ): boolean
   /**
    * Replaces the content of a specific document in the workspace with the provided input.
@@ -272,7 +288,6 @@ export type WorkspaceStore = {
    *     info: { title: 'title' },
    *   },
    *   meta: {
-   *     'x-scalar-active-auth': 'Bearer',
    *     'x-scalar-selected-server': 'production'
    *   }
    * })
@@ -347,6 +362,32 @@ export type WorkspaceStore = {
    */
   exportActiveDocument(format: 'json' | 'yaml', minify?: boolean): string | undefined
   /**
+   * Returns the editable version of the specified document.
+   *
+   * @param documentName - The name of the document to get the editable version of.
+   * @returns The editable version of the document, or undefined if the document does not exist.
+   */
+  getEditableDocument(documentName: string): Promise<WorkspaceDocument | null>
+  /**
+   * Returns the original version of the specified document.
+   *
+   * The original version of the document is the version that was loaded from the source which means the original version that we know of when we started editing the document.
+   *
+   * @param documentName - The name of the document to get the original version of.
+   * @returns The original version of the document, or undefined if the document does not exist.
+   */
+  getOriginalDocument(documentName: string): Record<string, unknown> | null
+  /**
+   * Returns the intermediate version of the specified document.
+   *
+   * The intermediate version of the document is the version that was saved to the intermediate documents map.
+   * It should be used to push a new version of the document to the remote registry.
+   *
+   * @param documentName - The name of the document to get the intermediate version of.
+   * @returns The intermediate version of the document, or undefined if the document does not exist.
+   */
+  getIntermediateDocument(documentName: string): Record<string, unknown> | null
+  /**
    * Saves the current state of the specified document to the intermediate documents map.
    *
    * This function captures the latest (reactive) state of the document from the workspace and
@@ -363,9 +404,14 @@ export type WorkspaceStore = {
    *
    * @example
    * // Save the current state of the document named 'api'
-   * const excludedDiffs = store.saveDocument('api')
+   * const isSuccess = store.saveDocument('api')
+   * if (isSuccess) {
+   *   console.log('Document saved successfully')
+   * } else {
+   *   console.log('Failed to save document')
+   * }
    */
-  saveDocument(documentName: string): Promise<unknown[] | undefined>
+  saveDocument(documentName: string): Promise<boolean>
   /**
    * Builds the sidebar for the specified document.
    *
@@ -391,6 +437,25 @@ export type WorkspaceStore = {
    * store.revertDocumentChanges('api')
    */
   revertDocumentChanges(documentName: string): Promise<void>
+  /**
+   * Promotes the intermediate document to the original document for the given document name.
+   *
+   * The intermediate document (last locally saved version) becomes the new baseline/original.
+   * Use this after syncing or merging when the current intermediate state should be treated
+   * as the new known source (e.g. after resolving rebase conflicts and applying changes).
+   *
+   * @param documentName - The name of the document to update.
+   * @returns boolean indicating if the intermediate document was promoted to the original document.
+   * @example
+   * // Promote the intermediate document to the original document
+   * const result = store.promoteIntermediateToOriginal('api')
+   * if (result) {
+   *   console.log('Intermediate document promoted to original document')
+   * } else {
+   *   console.log('Intermediate document does not exist')
+   * }
+   */
+  promoteIntermediateToOriginal(documentName: string): boolean
   /**
    * Commits the specified document.
    *
@@ -477,11 +542,22 @@ export type WorkspaceStore = {
       }
     | {
         ok: true
+        changes: ReturnType<typeof merge>['diffs']
         conflicts: ReturnType<typeof merge>['conflicts']
-        applyChanges: (resolvedConflicts: Difference<unknown>[]) => Promise<void>
+        applyChanges: (
+          applyChangesInput:
+            | {
+                resolvedConflicts: Difference<unknown>[]
+              }
+            | {
+                resolvedDocument: Record<string, unknown>
+              },
+        ) => Promise<void>
       }
   >
 }
+
+const openapiSchema = generateSchema(recursiveRef)
 
 /**
  * Creates a reactive workspace store that manages documents and their metadata.
@@ -495,6 +571,15 @@ export type WorkspaceStore = {
  * @returns An object containing methods and getters for managing the workspace
  */
 export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): WorkspaceStore => {
+  const { verbose = false } = workspaceProps ?? {}
+
+  const withMeasurementSync = <F extends () => unknown>(
+    name: string,
+    fn: ReturnType<F> extends Promise<unknown> ? never : F,
+  ): ReturnType<F> => (verbose ? measureSync(name, fn) : fn()) as ReturnType<F>
+  const withMeasurementAsync = <T>(name: string, fn: () => Promise<T>): Promise<T> =>
+    verbose ? measureAsync(name, fn) : fn()
+
   /**
    * Holds additional configuration options for each document in the workspace.
    *
@@ -771,37 +856,20 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // applies its changes to the corresponding entry in the `intermediateDocuments` map.
   // The `intermediateDocuments` map represents the most recently "saved" local version of the document,
   // which may include edits not yet synced to the remote registry.
-  async function saveDocument(documentName: string) {
-    const intermediateDocument = intermediateDocuments[documentName]
-    const workspaceDocument = workspace.documents[documentName]
+  const saveDocument: WorkspaceStore['saveDocument'] = async (documentName) => {
+    const activeDocument = workspace.documents[documentName]
+    const newDocument = await getEditableDocument(documentName)
 
-    if (!workspaceDocument) {
-      return
+    if (!activeDocument || !newDocument) {
+      console.warn('Failed to save document, active document is missing')
+      return false
     }
 
-    // Obtain the raw state of the current document to ensure accurate diffing
-    const activeDocumentRaw = unpackProxyObject(workspaceDocument)
-
-    // If either the intermediate or updated document is missing, do nothing
-    if (!intermediateDocument || !activeDocumentRaw) {
-      console.warn('Failed to save document, intermediate document and/or active document is missing')
-      return
-    }
-
-    // Traverse the document and convert refs back to the original shape
-    const updatedWithOriginalRefs = await bundle(deepClone(activeDocumentRaw), {
-      plugins: [restoreOriginalRefs()],
-      treeShake: false,
-      urlMap: true,
-    })
-
-    // Apply changes from the current document to the intermediate document in place
-    const excludedDiffs = applySelectiveUpdates(intermediateDocument, updatedWithOriginalRefs as UnknownObject)
-
+    // Store the new document in the intermediate documents map
+    intermediateDocuments[documentName] = newDocument
     // Mark the document as not dirty since we are saving it
-    workspaceDocument['x-scalar-is-dirty'] = false
-
-    return excludedDiffs
+    activeDocument['x-scalar-is-dirty'] = false
+    return true
   }
 
   // Add a document to the store synchronously from an in-memory OpenAPI document
@@ -810,9 +878,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     navigationOptions?: NavigationOptions,
   ) {
     const { name, meta } = input
-    const clonedRawInputDocument = measureSync('deepClone', () => deepClone(input.document))
+    const clonedRawInputDocument = withMeasurementSync('deepClone', () => deepClone(input.document))
 
-    measureSync('initialize', () => {
+    withMeasurementSync('initialize', () => {
       if (input.initialize !== false) {
         // Store the original document in the originalDocuments map
         // This is used to track the original state of the document as it was loaded into the workspace
@@ -832,7 +900,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
     })
 
-    const inputDocument = measureSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
+    const inputDocument = withMeasurementSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
 
     const strictDocument: UnknownObject = createMagicProxy(
       {
@@ -861,7 +929,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         loaders.push(workspaceProps.fileLoader)
       }
 
-      await measureAsync(
+      await withMeasurementAsync(
         'bundle',
         async () =>
           await bundle(getRaw(strictDocument), {
@@ -880,10 +948,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       )
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
-      const coerced = measureSync('coerceValue', () =>
-        coerceValue(OpenAPIDocumentSchemaStrict, deepClone(strictDocument)),
-      )
-      measureSync('mergeObjects', () => mergeObjects(strictDocument, coerced))
+      const coerced = withMeasurementSync('coerceValue', () => coerce(openapiSchema, deepClone(strictDocument)))
+      withMeasurementSync('mergeObjects', () => mergeObjects(strictDocument, coerced))
     }
 
     const isValid = Value.Check(OpenAPIDocumentSchemaStrict, strictDocument)
@@ -927,13 +993,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       proxyUrl: workspace['x-scalar-active-proxy'] ?? undefined,
     })
 
-    const resolve = await measureAsync(
+    const resolve = await withMeasurementAsync(
       'loadDocument',
       async () => await loadDocument({ ...input, fetch, fileLoader: workspaceProps?.fileLoader }),
     )
 
     // Log the time taken to add a document
-    return await measureAsync('addDocument', async () => {
+    return await withMeasurementAsync('addDocument', async () => {
       if (!resolve.ok) {
         console.error(`Failed to fetch document '${name}': request was not successful`)
 
@@ -978,6 +1044,89 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       return true
     })
+  }
+
+  const getOriginalDocument = (documentName: string) => {
+    const rawDocument = unpackProxyObject(originalDocuments[documentName], { depth: 1 })
+
+    if (!rawDocument) {
+      return null
+    }
+
+    return rawDocument
+  }
+
+  const getIntermediateDocument = (documentName: string) => {
+    const rawDocument = unpackProxyObject(intermediateDocuments[documentName], { depth: 1 })
+
+    if (!rawDocument) {
+      return null
+    }
+
+    return rawDocument
+  }
+
+  /**
+   * Promotes the intermediate document to the original document so the current
+   * intermediate becomes the new baseline. Fires workspace change for persistence.
+   */
+  const promoteIntermediateToOriginal: WorkspaceStore['promoteIntermediateToOriginal'] = (documentName) => {
+    const intermediate = intermediateDocuments[documentName]
+    if (!intermediate) {
+      return false
+    }
+    const cloned = deepClone(unpackProxyObject(intermediate, { depth: 1 }))
+    originalDocuments[documentName] = cloned
+    return true
+  }
+
+  /**
+   * Retrieves an editable clone of a workspace document.
+   *
+   * - Unpacks the proxied document from the workspace.
+   * - Reverses all external references, restoring original $refs.
+   * - Removes transient/in-memory keys defined in EXCLUDE_KEYS.
+   *
+   * @param documentName The name of the document to retrieve.
+   * @returns The editable document object, or null if not found.
+   */
+  const getEditableDocument = async (documentName: string) => {
+    const rawDocument = unpackProxyObject(workspace.documents[documentName], { depth: 1 })
+
+    if (!rawDocument) {
+      // If the document does not exist, return null
+      return null
+    }
+
+    // Reverse all external references and restore original $refs
+    const original = (await bundle(deepClone(rawDocument), {
+      plugins: [restoreOriginalRefs(), removeExtraScalarKeys()],
+      treeShake: false,
+      urlMap: true,
+    })) as WorkspaceDocument & { 'x-ext-urls'?: unknown; 'x-ext'?: unknown }
+
+    type BundlerKeys = 'x-ext' | 'x-ext-urls'
+    // Top level keys that need to be excluded from the original document
+    // Nested keys are removed buring the previous step of the bundler process
+    const EXCLUDE_KEYS = [
+      // Bundler metadata fields added temporarily during document processing
+      'x-ext',
+      'x-ext-urls',
+      // Scalar internal/external metadata fields
+      'x-scalar-navigation',
+      'x-scalar-is-dirty',
+      'x-original-oas-version',
+      'x-scalar-original-document-hash',
+      'x-scalar-original-source-url',
+    ] satisfies (keyof OpenAPIExtensions | BundlerKeys)[] as string[]
+
+    // Remove top level properties that should only exist in memory for the original document
+    // These properties are used for internal purposes and are not needed in the final bundled document
+    for (const property of EXCLUDE_KEYS) {
+      delete original[property as keyof WorkspaceDocument]
+    }
+
+    return original
   }
 
   /**
@@ -1029,10 +1178,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       preventPollution(key)
       Object.assign(workspace, { [key]: value })
     },
-    updateDocument<K extends keyof WorkspaceDocumentMeta>(
+    getEditableDocument,
+    getOriginalDocument,
+    getIntermediateDocument,
+    updateDocument<K extends keyof DocumentMetaExtensions>(
       name: 'active' | (string & {}),
       key: K,
-      value: WorkspaceDocumentMeta[K],
+      value: DocumentMetaExtensions[K],
     ) {
       const currentDocument = workspace.documents[name === 'active' ? getActiveDocumentName() : name]
 
@@ -1059,8 +1211,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         documentSource: currentDocument['x-scalar-original-source-url'],
         documentHash: currentDocument['x-scalar-original-document-hash'],
         meta: {
-          'x-scalar-active-auth': currentDocument['x-scalar-active-auth'],
-          'x-scalar-selected-server': currentDocument['x-scalar-selected-server'],
+          // Set the document as dirty
+          'x-scalar-is-dirty': true,
+          // Clear the navigation to trigger a rebuild
+          'x-scalar-navigation': undefined,
         },
         initialize: false,
       })
@@ -1068,7 +1222,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     resolve: (path) => {
       const activeDocument = workspace.activeDocument
 
-      const target = getValueByPath(activeDocument, path)
+      const target = getValueAtPath(activeDocument, path)
 
       if (!isObject(target)) {
         console.error(
@@ -1130,6 +1284,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     exportActiveDocument: (format, minify) => exportDocument(getActiveDocumentName(), format, minify),
     buildSidebar,
     saveDocument,
+    promoteIntermediateToOriginal,
     async revertDocumentChanges(documentName: string) {
       const workspaceDocument = workspace.documents[documentName]
       const intermediate = intermediateDocuments[documentName]
@@ -1203,15 +1358,15 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         ),
       )
     },
-    rebaseDocument: async (input: WorkspaceDocumentInput) => {
+    rebaseDocument: async (input) => {
       const { name } = input
 
       // ---- Get the current documents
-      const originalDocument = originalDocuments[name]
-      const intermediateDocument = intermediateDocuments[name]
+      const originalDocument = unpackProxyObject(originalDocuments[name], { depth: 1 })
+      const intermediateDocument = unpackProxyObject(intermediateDocuments[name], { depth: 1 })
       // raw version without any proxies
       const activeDocument = workspace.documents[name]
-        ? toRaw(getRaw(unpackOverridesProxy(workspace.documents[name])))
+        ? unpackProxyObject(workspace.documents[name], { depth: 1 })
         : undefined
 
       if (!originalDocument || !intermediateDocument || !activeDocument) {
@@ -1224,7 +1379,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
 
       // ---- Resolve input document
-      const resolve = await measureAsync(
+      const resolve = await withMeasurementAsync(
         'loadDocument',
         async () =>
           await loadDocument({
@@ -1279,11 +1434,22 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return {
         ok: true,
         conflicts: changesA.conflicts,
-        applyChanges: async (resolvedConflicts: Difference<unknown>[]) => {
-          const changesetA = changesA.diffs.concat(resolvedConflicts)
+        changes: changesA.diffs,
+        applyChanges: async (applyChangesInput) => {
+          // Helper function to compute the new intermediate document based on resolved conflicts or a resolved document
+          const getNewIntermediateDocument = () => {
+            if ('resolvedConflicts' in applyChangesInput) {
+              const changesetA = changesA.diffs.concat(applyChangesInput.resolvedConflicts)
 
-          // Apply the changes to the original document to get the new intermediate
-          const newIntermediateDocument = apply(deepClone(originalDocument), changesetA)
+              // Apply the merged changes (diffs + resolved conflicts) to the original document
+              return apply(deepClone(originalDocument), changesetA)
+            }
+
+            // If there are no resolved conflicts, use the provided resolved document
+            return applyChangesInput.resolvedDocument
+          }
+
+          const newIntermediateDocument = getNewIntermediateDocument()
           intermediateDocuments[name] = newIntermediateDocument
 
           // Update the original document

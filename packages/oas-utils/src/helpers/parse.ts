@@ -46,14 +46,11 @@ export const json = {
 }
 
 /**
- * Check if value is a valid JSON string
+ * This helper is used to transform the content of the swagger file to JSON, even it was YAML.
  */
-export const isJsonString = (value?: any) => {
-  if (typeof value !== 'string') {
-    return false
-  }
-
-  return !!json.parseSafe(value, false)
+export const transformToJson = (value: string) => {
+  // Try json, then fallback to yaml, then fallback to string
+  return JSON.stringify(json.parseSafe(value, yaml.parseSafe(value, value)))
 }
 
 /** Validates a JSON string if provided. Otherwise returns the raw YAML */

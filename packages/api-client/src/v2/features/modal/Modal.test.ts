@@ -3,7 +3,7 @@ import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { computed, nextTick } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 
 import 'fake-indexeddb/auto'
 
@@ -67,6 +67,7 @@ const createModalProps = async (documentOverrides: Partial<OpenApiDocument> = {}
 
   const document = computed(() => store.workspace.documents[documentSlug.value ?? ''] ?? null)
   const modalState = useModal()
+  const requestBodyCompositionSelection = ref<Record<string, number>>({})
 
   const sidebarState = useModalSidebar({
     workspaceStore: store,
@@ -94,6 +95,7 @@ const createModalProps = async (documentOverrides: Partial<OpenApiDocument> = {}
       options: {},
       plugins: [],
       exampleName: computed(() => exampleName.value),
+      requestBodyCompositionSelection,
       modalState,
       sidebarState,
       eventBus: mockEventBus,
@@ -179,6 +181,7 @@ describe('Modal', () => {
     modalState.open = true
 
     const emptyDocument = computed(() => null)
+    const requestBodyCompositionSelection = ref<Record<string, number>>({})
     const sidebarState = useModalSidebar({
       workspaceStore: store,
       documentSlug: computed<string | undefined>(() => undefined),
@@ -197,6 +200,7 @@ describe('Modal', () => {
         options: {},
         plugins: [],
         exampleName: computed(() => undefined),
+        requestBodyCompositionSelection,
         modalState,
         sidebarState,
         eventBus: mockEventBus,

@@ -45,4 +45,31 @@ describe('InfoDescription', () => {
     const observer = wrapper.find('[id="description/test-heading"]')
     expect(observer.exists()).toBe(true)
   })
+
+  it('renders heading with link and assigns id from link text', () => {
+    const wrapper = mount(InfoDescription, {
+      props: {
+        eventBus: null,
+        description: '# [Click here](https://example.com)',
+        headingSlugGenerator: (heading) => `description/${heading.slug}`,
+      },
+    })
+    const section = wrapper.find('[id="description/click-here"]')
+    expect(section.exists()).toBe(true)
+  })
+
+  it('assigns unique ids when two headings have the same text', () => {
+    const wrapper = mount(InfoDescription, {
+      props: {
+        eventBus: null,
+        description: '# Foo\n\nContent one\n\n# Foo\n\nContent two',
+        headingSlugGenerator: (heading) => `description/${heading.slug}`,
+      },
+    })
+    const first = wrapper.find('[id="description/foo"]')
+    const second = wrapper.find('[id="description/foo-1"]')
+    expect(first.exists()).toBe(true)
+    expect(second.exists()).toBe(true)
+    expect(first.attributes('id')).not.toBe(second.attributes('id'))
+  })
 })

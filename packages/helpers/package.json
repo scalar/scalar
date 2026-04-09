@@ -14,17 +14,14 @@
     "helpers",
     "js"
   ],
-  "version": "0.2.15",
+  "version": "0.4.3",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
-    "lint:check": "biome lint --diagnostic-level=error",
-    "lint:fix": "biome lint --write",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -60,6 +57,11 @@
       "types": "./dist/file/*.d.ts",
       "default": "./dist/file/*.js"
     },
+    "./formatters/*": {
+      "import": "./dist/formatters/*.js",
+      "types": "./dist/formatters/*.d.ts",
+      "default": "./dist/formatters/*.js"
+    },
     "./general/*": {
       "import": "./dist/general/*.js",
       "types": "./dist/general/*.d.ts",
@@ -69,6 +71,16 @@
       "import": "./dist/http/*.js",
       "types": "./dist/http/*.d.ts",
       "default": "./dist/http/*.js"
+    },
+    "./json/*": {
+      "import": "./dist/json/*.js",
+      "types": "./dist/json/*.d.ts",
+      "default": "./dist/json/*.js"
+    },
+    "./markdown/*": {
+      "import": "./dist/markdown/*.js",
+      "types": "./dist/markdown/*.d.ts",
+      "default": "./dist/markdown/*.js"
     },
     "./node/*": {
       "import": "./dist/node/*.js",
@@ -110,10 +122,9 @@
     "dist",
     "CHANGELOG.md"
   ],
+  "sideEffects": false,
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "jsdom": "catalog:*",
-    "vite": "catalog:*",
     "vitest": "catalog:*"
   }
 }

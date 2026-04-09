@@ -5,6 +5,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { migrateLocalStorageToIndexDb } from '@scalar/oas-utils/migrations'
 import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
+import type { Theme } from '@scalar/themes'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import {
   type OperationExampleMeta,
@@ -15,17 +16,28 @@ import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-un
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import { createWorkspaceStorePersistence, getWorkspaceId } from '@scalar/workspace-store/persistence'
 import { persistencePlugin } from '@scalar/workspace-store/plugins/client'
+import { getActiveEnvironment } from '@scalar/workspace-store/request-example'
 import type { Workspace, WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-scalar-tabs'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import { type ComputedRef, type Ref, type ShallowRef, computed, readonly, ref, shallowRef } from 'vue'
-import type { RouteLocationNormalizedGeneric, Router } from 'vue-router'
+import {
+  type ComputedRef,
+  type MaybeRefOrGetter,
+  type Ref,
+  type ShallowRef,
+  computed,
+  readonly,
+  ref,
+  shallowRef,
+  watch,
+} from 'vue'
+import type { RouteLocationNormalizedGeneric, RouteLocationRaw, Router } from 'vue-router'
 
 import { getRouteParam } from '@/v2/features/app/helpers/get-route-param'
 import { groupWorkspacesByTeam } from '@/v2/features/app/helpers/group-workspaces'
-import { getActiveEnvironment } from '@/v2/helpers/get-active-environment'
+import { useTheme } from '@/v2/features/app/hooks/use-theme'
 import { getTabDetails } from '@/v2/helpers/get-tab-details'
 import { slugify } from '@/v2/helpers/slugify'
 import { workspaceStorage } from '@/v2/helpers/storage'
@@ -135,6 +147,16 @@ export type AppState = {
   document: ComputedRef<WorkspaceDocument | null>
   /** Whether the current color mode is dark */
   isDarkMode: ComputedRef<boolean>
+  /** The currently active theme */
+  theme: {
+    /** The computed CSS styles for the current theme, as a string */
+    styles: ComputedRef<{ themeStyles: string; themeSlug: string }>
+    /** The computed value for the <style> tag containing the current theme styles */
+    themeStyleTag: ComputedRef<string>
+    /** The custom themes to use */
+    customThemes: MaybeRefOrGetter<Theme[]>
+  }
+  telemetry: Ref<boolean>
 }
 
 // ---------------------------------------------------------------------------
@@ -151,9 +173,15 @@ const DEFAULT_SIDEBAR_WIDTH = 288
 export const createAppState = async ({
   router,
   fileLoader,
+  fallbackThemeSlug = () => 'default',
+  customThemes = () => [],
+  telemetryDefault,
 }: {
   router: Router
   fileLoader?: LoaderPlugin
+  customThemes?: MaybeRefOrGetter<Theme[]>
+  fallbackThemeSlug?: MaybeRefOrGetter<string>
+  telemetryDefault?: boolean
 }): Promise<AppState> => {
   /** Workspace event bus for handling workspace-level events. */
   const eventBus = createWorkspaceEventBus({
@@ -196,6 +224,11 @@ export const createAppState = async ({
   const workspaceGroups = computed(() => groupWorkspacesByTeam(filteredWorkspaces.value, teamUid.value))
   const store = shallowRef<WorkspaceStore | null>(null)
 
+  // Load persisted telemetry preference, falling back to the provided default
+  const persistedTelemetry = workspaceStorage.getTelemetry()
+  const telemetry = ref(persistedTelemetry !== null ? persistedTelemetry : Boolean(telemetryDefault))
+  watch(telemetry, (value) => workspaceStorage.setTelemetry(value))
+
   const activeDocument = computed(() => {
     return store.value?.workspace.documents[documentSlug.value ?? ''] || null
   })
@@ -205,7 +238,9 @@ export const createAppState = async ({
    * Variables from both sources are combined, with document variables
    * taking precedence in case of naming conflicts.
    */
-  const environment = computed<XScalarEnvironment>(() => getActiveEnvironment(store.value, activeDocument.value))
+  const environment = computed<XScalarEnvironment>(
+    () => getActiveEnvironment(store.value, activeDocument.value).environment,
+  )
 
   /** Update the workspace list when the component is mounted */
   workspaces.value = await persistence.getAll().then((w) =>
@@ -641,6 +676,12 @@ export const createAppState = async ({
       return
     }
 
+    /** Close sidebar and navigate. Used for every branch that performs navigation. */
+    const navigate = (route: RouteLocationRaw) => {
+      isSidebarOpen.value = false
+      return router.push(route)
+    }
+
     // Navigate to the document overview page
     if (entry.type === 'document') {
       // If we are already in the document, just toggle expansion
@@ -652,17 +693,16 @@ export const createAppState = async ({
       // Otherwise, select it
       sidebarState.setSelected(id)
       sidebarState.setExpanded(id, true)
-      return router.push({
+      return navigate({
         name: 'document.overview',
         params: { documentSlug: entry.name },
       })
     }
 
     // Navigate to the example page
-    // TODO: temporary until we have the operation overview page
     if (entry.type === 'operation') {
-      // If we are already in the operation, just togle the expansion
-      if (sidebarState.isSelected(id)) {
+      // If we are already in an operation child we just want to toggle the explanstion
+      if (sidebarState.isSelected(id) && sidebarState.selectedItem.value !== id) {
         sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
         return
       }
@@ -677,7 +717,7 @@ export const createAppState = async ({
         sidebarState.setSelected(id)
       }
 
-      return router.push({
+      return navigate({
         name: 'example',
         params: {
           documentSlug: getParentEntry('document', entry)?.name,
@@ -692,7 +732,7 @@ export const createAppState = async ({
     if (entry.type === 'example') {
       sidebarState.setSelected(id)
       const operation = getParentEntry('operation', entry)
-      return router.push({
+      return navigate({
         name: 'example',
         params: {
           documentSlug: getParentEntry('document', entry)?.name,
@@ -704,7 +744,7 @@ export const createAppState = async ({
     }
 
     if (entry.type === 'text') {
-      return router.push({
+      return navigate({
         name: 'document.overview',
         params: {
           documentSlug: getParentEntry('document', entry)?.name,
@@ -753,8 +793,8 @@ export const createAppState = async ({
    * this will rebuild the sidebar for the current document. This helps keep the sidebar state
    * consistent (e.g., after adding a new example via the UI).
    */
-  const refreshSidebarAfterExampleCreation = (payload: OperationExampleMeta) => {
-    const documentName = activeDocument.value?.['x-scalar-navigation']?.name
+  const refreshSidebarAfterExampleCreation = (payload: OperationExampleMeta & { documentName?: string }) => {
+    const documentName = payload.documentName ?? activeDocument.value?.['x-scalar-navigation']?.name
     if (!documentName) {
       return
     }
@@ -783,7 +823,7 @@ export const createAppState = async ({
   const handleSidebarWidthUpdate = (width: number) => store.value?.update('x-scalar-sidebar-width', width)
 
   /** Controls the visibility of the sidebar. */
-  const isSidebarOpen = ref(true)
+  const isSidebarOpen = ref(false)
   // ---------------------------------------------------------------------------
   // Tab Management
 
@@ -947,7 +987,14 @@ export const createAppState = async ({
     onSelectSidebarItem: handleSelectItem,
     onCopyTabUrl: (index) => copyTabUrl(index),
     onToggleSidebar: () => (isSidebarOpen.value = !isSidebarOpen.value),
+    closeSidebar: () => (isSidebarOpen.value = false),
     renameWorkspace,
+  })
+
+  const theme = useTheme({
+    fallbackThemeSlug,
+    customThemes,
+    store: store,
   })
 
   const isDarkMode = computed(() => {
@@ -1000,5 +1047,11 @@ export const createAppState = async ({
     environment,
     document: activeDocument,
     isDarkMode,
+    theme: {
+      styles: theme.themeStyles,
+      themeStyleTag: theme.themeStyleTag,
+      customThemes,
+    },
+    telemetry,
   }
 }

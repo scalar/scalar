@@ -18,6 +18,7 @@ const {
   layout,
   eventBus,
   documentDownloadType = 'both',
+  documentUrl,
 } = defineProps<{
   /** Optional unique identifier for the info block. */
   id?: string
@@ -39,6 +40,8 @@ const {
   layout?: 'modern' | 'classic'
   /** The document download type. */
   documentDownloadType?: ApiReferenceConfiguration['documentDownloadType']
+  /** URL of the OpenAPI document. Used when documentDownloadType is 'direct'. */
+  documentUrl?: string
 }>()
 
 /**
@@ -69,6 +72,7 @@ const introCardsSlot = computed(() =>
     <template #download-link>
       <DownloadLink
         :documentDownloadType
+        :documentUrl
         :eventBus />
     </template>
   </IntroductionLayout>

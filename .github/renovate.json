@@ -15,7 +15,7 @@
     {
       "description": "Keep this in sync with package.json minimumReleaseAge",
       "matchDatasources": ["npm"],
-      "minimumReleaseAge": "7 days"
+      "minimumReleaseAge": "5 days"
     },
 
     {
@@ -212,11 +212,6 @@
       "additionalBranchPrefix": "workspace-store"
     },
     {
-      "description": "Packages - Analytics Client",
-      "matchFileNames": ["packages/analytics-client/**"],
-      "additionalBranchPrefix": "analytics-client"
-    },
-    {
       "description": "Packages - OpenAPI Upgrader",
       "matchFileNames": ["packages/openapi-upgrader/**"],
       "additionalBranchPrefix": "openapi-upgrader"
@@ -331,12 +326,6 @@
       "matchFileNames": ["projects/proxy-scalar-com/**"],
       "additionalBranchPrefix": "proxy-scalar-com"
     },
-    {
-      "description": "Projects - Scalar App",
-      "matchFileNames": ["projects/scalar-app/**"],
-      "additionalBranchPrefix": "scalar-app"
-    },
-
     {
       "description": "Scripts",
       "matchFileNames": ["tooling/scripts/**"],

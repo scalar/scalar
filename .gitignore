@@ -30,3 +30,6 @@ rollup.config-*.mjs
 
 .pnpm-store/
 .venv
+
+.idea
+**/.claude/settings.local.json

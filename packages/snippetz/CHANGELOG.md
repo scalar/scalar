@@ -1,5 +1,110 @@
 # @scalar/snippetz
 
+## 0.8.0
+
+### Minor Changes
+
+- [#8748](https://github.com/scalar/scalar/pull/8748): feat: support `allowReserved` for code samples
+
+## 0.7.8
+
+### Patch Changes
+
+- [#8662](https://github.com/scalar/scalar/pull/8662): fix(snippetz): preserve duplicate multipart field names in python request snippets
+
+## 0.7.7
+
+## 0.7.6
+
+### Patch Changes
+
+- [#8465](https://github.com/scalar/scalar/pull/8465): fix multipart encoding.contentType request handling and curl snippets
+
+## 0.7.5
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.7.4
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.3**
+
+## 0.7.3
+
+### Patch Changes
+
+- [#8404](https://github.com/scalar/scalar/pull/8404): Preserve duplicate query parameters in generated code snippets. php/guzzle: preserve duplicate query parameters as arrays.
+
+## 0.7.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.2**
+
+## 0.7.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.1**
+  - [#8381](https://github.com/scalar/scalar/pull/8381): feat: add mcp config support
+
+## 0.7.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.7.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.6.19
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.10**
+
+## 0.6.18
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.9**
+
+## 0.6.17
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.8**
+  - [#8274](https://github.com/scalar/scalar/pull/8274): feat(agent): add config to hide search api
+
+## 0.6.16
+
+### Patch Changes
+
+- [#8248](https://github.com/scalar/scalar/pull/8248): fix: duplicate http headers for PHP CURL
+
+#### Updated Dependencies
+
+- **@scalar/types@0.6.7**
+
 ## 0.6.15
 
 ### Patch Changes

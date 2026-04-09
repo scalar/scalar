@@ -1,3 +1,17 @@
+<script lang="ts">
+/**
+ * Scalar Listbox Checkbox component
+ *
+ * A visual checkbox indicator used within listbox and combobox items
+ * to show selection state. Renders as a circle for single-select
+ * or a rounded square for multi-select.
+ *
+ * @example
+ * <ScalarListboxCheckbox :selected="true" :multiselect="false" />
+ */
+export default {}
+</script>
+
 <script setup lang="ts">
 import { ScalarIconCheck } from '@scalar/icons'
 

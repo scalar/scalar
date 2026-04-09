@@ -1,6 +1,5 @@
 import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
-
-import { PROXY_URL, UPLOAD_TEMP_API_URL } from '@/consts/urls'
+import type { ExternalUrls } from '@scalar/types/api-reference'
 
 /** Type guard for the response body */
 function isResponseBody(data: unknown): data is { url: string } {
@@ -8,11 +7,15 @@ function isResponseBody(data: unknown): data is { url: string } {
 }
 
 /** Upload a document and return a temporary URL */
-export async function uploadTempDocument(document: string): Promise<string> {
+export async function uploadTempDocument(
+  document: string,
+  urls: Pick<ExternalUrls, 'proxyUrl' | 'apiBaseUrl'>,
+): Promise<string> {
   const body = JSON.stringify({ document })
+  const uploadUrl = `${urls.apiBaseUrl}/core/share/upload/apis`
 
   // Proxy the request to avoid localhost CORS issues
-  const response = await fetch(redirectToProxy(PROXY_URL, UPLOAD_TEMP_API_URL), {
+  const response = await fetch(redirectToProxy(urls.proxyUrl, uploadUrl), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body,

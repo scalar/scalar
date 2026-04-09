@@ -7,6 +7,7 @@ import {
   XScalarSecretClientSecretSchema,
   XScalarSecretHTTPSchema,
   XScalarSecretRedirectUriSchema,
+  XScalarSecretRefreshTokenSchema,
   XScalarSecretTokenSchema,
 } from '@/schemas/extensions/security/x-scalar-security-secrets'
 import {
@@ -36,7 +37,11 @@ const SecretsHttpSchema = compose(
 
 export type SecretsHttp = Static<typeof SecretsHttpSchema>
 
-const SecretsOAuthFlowCommonSchema = compose(XScalarSecretClientIdSchema, XScalarSecretTokenSchema)
+const SecretsOAuthFlowCommonSchema = compose(
+  XScalarSecretClientIdSchema,
+  XScalarSecretTokenSchema,
+  XScalarSecretRefreshTokenSchema,
+)
 
 const SecretsOAuthFlowsSchema = Type.Object({
   implicit: Type.Optional(compose(SecretsOAuthFlowCommonSchema, XScalarSecretRedirectUriSchema)),
@@ -130,7 +135,7 @@ export const AuthSchema = Type.Object({
   secrets: SecretsAuthSchema,
   selected: Type.Object({
     document: Type.Optional(SelectedSecuritySchema),
-    path: Type.Optional(Type.Record(Type.String(), Type.Record(Type.String(), SelectedSecuritySchema))),
+    path: Type.Optional(Type.Record(Type.String(), Type.Record(Type.String(), Type.Optional(SelectedSecuritySchema)))),
   }),
 })
 

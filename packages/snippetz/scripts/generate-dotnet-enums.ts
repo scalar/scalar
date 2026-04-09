@@ -323,8 +323,8 @@ function generateForPackage(
   const clientOptionsMapping = generateClientOptionsMapping(targets)
 
   // Write files
-  const enumsDir = resolve(__dirname, config.enumsDir)
-  const mapperDir = resolve(__dirname, config.mapperDir)
+  const enumsDir = resolve(import.meta.dirname, config.enumsDir)
+  const mapperDir = resolve(import.meta.dirname, config.mapperDir)
 
   writeFileSync(resolve(enumsDir, 'ScalarTarget.Generated.cs'), scalarTargetEnum)
   writeFileSync(resolve(enumsDir, 'ScalarClient.Generated.cs'), scalarClientEnum)

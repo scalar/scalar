@@ -18,9 +18,9 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.1.48",
+  "version": "0.2.7",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "svelte-package --input src",
@@ -67,10 +67,10 @@
     "@scalar/core": "workspace:*"
   },
   "devDependencies": {
-    "@sveltejs/kit": "^2.25.0",
+    "@sveltejs/kit": "^2.55.0",
     "@sveltejs/package": "^2.0.0",
     "publint": "^0.3.2",
-    "svelte": "^5.0.0",
+    "svelte": "^5.46.4",
     "svelte-check": "^4.0.0"
   },
   "peerDependencies": {

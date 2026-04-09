@@ -3,7 +3,6 @@ import z from 'zod'
 
 import { createError } from '@/entities/error/helpers'
 import { registryApiMetadata } from '@/entities/registry/document'
-import { makeScalarProxyUrl } from '@/helpers'
 
 export function createAuthorizationHeaders({
   getAccessToken,
@@ -53,7 +52,7 @@ export function createApi({
 
       const fetchResult = await n.fromUnsafe(
         async () =>
-          fetch(makeScalarProxyUrl(url), {
+          fetch(url, {
             method,
             ...(body && { body: JSON.stringify(body) }),
             headers: {

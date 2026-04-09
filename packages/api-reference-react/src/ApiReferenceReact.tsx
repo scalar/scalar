@@ -1,15 +1,12 @@
 'use client'
 
+import './vue-bundler-flags'
+
 import { createApiReference } from '@scalar/api-reference'
 import type { AnyApiReferenceConfiguration, ApiReferenceInstance } from '@scalar/types/api-reference'
 import { useEffect, useRef, useState } from 'react'
 
 import './style.css'
-
-// These are required for the vue bundler version
-globalThis.__VUE_OPTIONS_API__ = true
-globalThis.__VUE_PROD_HYDRATION_MISMATCH_DETAILS__ = true
-globalThis.__VUE_PROD_DEVTOOLS__ = false
 
 /**
  * React wrapper around the Scalar API Reference

@@ -16,6 +16,10 @@ import type {
 } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
+import {
+  isAuthOptional,
+  type MergedSecuritySchemes,
+} from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
   OpenApiDocument,
@@ -25,8 +29,6 @@ import type {
 import { computed, ref, useId } from 'vue'
 
 import DeleteRequestAuthModal from '@/v2/blocks/scalar-auth-selector-block/components/DeleteRequestAuthModal.vue'
-import { isAuthOptional } from '@/v2/blocks/scalar-auth-selector-block/helpers/is-auth-optional'
-import type { MergedSecuritySchemes } from '@/v2/blocks/scalar-auth-selector-block/helpers/merge-security'
 import {
   formatComplexScheme,
   formatScheme,
@@ -40,7 +42,8 @@ import RequestAuthDataTable from './RequestAuthDataTable.vue'
 const {
   environment,
   eventBus,
-  createAnySecurityScheme = true,
+  createAnySecurityScheme = false,
+  defaultOpen = true,
   isStatic = false,
   meta,
   proxyUrl,
@@ -54,6 +57,8 @@ const {
   eventBus: WorkspaceEventBus
   /** Allows adding authentication which is not in the document */
   createAnySecurityScheme?: boolean
+  /** Whether the authentication disclosure should start expanded */
+  defaultOpen?: boolean
   /** Creates a static disclosure that cannot be collapsed */
   isStatic?: boolean
   meta: AuthMeta
@@ -207,6 +212,7 @@ defineExpose({
 <template>
   <CollapsibleSection
     class="group/params relative"
+    :defaultOpen
     :isStatic="isStatic"
     :itemCount="activeSchemeOptions.length"
     @update:modelValue="(open) => (isDisclosureOpen = open)">

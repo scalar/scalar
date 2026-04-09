@@ -19,6 +19,20 @@ const { readonly } = defineProps<{
   readonly?: boolean
 }>()
 
+const emit = defineEmits<{
+  /** Emitted when the input is clicked */
+  (e: 'click', event: MouseEvent): void
+}>()
+
+defineSlots<{
+  /* Text content to display before the input text */
+  prefix?: () => unknown
+  /*Text content to display after the input text */
+  suffix?: () => unknown
+  /* Text content to display to the right of the input */
+  aside?: () => unknown
+}>()
+
 const model = defineModel<string>()
 
 const input = ref<HTMLInputElement>()
@@ -31,7 +45,10 @@ onMounted(() => {
   if ('autofocus' in otherAttrs.value) input.value?.focus()
 })
 
-function handleClick() {
+function handleClick(event: MouseEvent) {
+  // Re-emit the click event to any consumers
+  emit('click', event)
+
   if (readonly) {
     input.value?.select() // If readonly, select the input on click
   } else {
@@ -49,22 +66,22 @@ function handleClick() {
       )
     "
     @click="handleClick">
-    <div class="flex flex-1 relative">
-      <span
+    <div class="flex items-center flex-1 relative">
+      <div
         v-if="$slots.prefix"
-        class="select-none whitespace-nowrap text-sm text-transparent">
+        class="select-none whitespace-nowrap text-transparent">
         <slot name="prefix" />
-      </span>
+      </div>
       <input
         ref="input"
         v-model="model"
         :aria-readonly="readonly || undefined"
-        class="z-1 min-w-0 flex-1 border-none bg-transparent text-sm placeholder:font-[inherit] focus-within:outline-none"
+        class="z-1 min-w-0 flex-1 rounded-none border-none bg-transparent placeholder:font-[inherit] focus-within:outline-none"
         :readonly
         v-bind="otherAttrs" />
       <div
         v-if="$slots.prefix || $slots.suffix"
-        class="absolute inset-0 select-none overflow-hidden whitespace-nowrap text-sm">
+        class="absolute flex items-center inset-0 select-none overflow-hidden whitespace-nowrap">
         <span
           v-if="$slots.prefix"
           class="text-c-2">

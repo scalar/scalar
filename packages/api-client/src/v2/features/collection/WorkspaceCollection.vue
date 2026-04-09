@@ -40,16 +40,17 @@ const handleUpdateWorkspaceTitle = (title: string) => {
 
 <template>
   <div class="custom-scroll h-full">
-    <div class="w-full md:mx-auto md:max-w-180">
+    <div class="w-full px-3 md:mx-auto md:max-w-180">
       <!-- Header -->
       <div
         :aria-label="`title: ${activeWorkspace.label}`"
-        class="mx-auto flex h-fit w-full flex-row items-center gap-2 pt-8 pb-3 md:max-w-180">
+        class="mx-auto flex h-fit w-full flex-row items-center gap-2 pt-14 pb-3 md:max-w-180 md:pt-6">
         <div class="group relative ml-1.25">
           <LabelInput
             v-model="workspaceTitle"
             class="text-xl font-bold"
             inputId="workspaceName"
+            placeholder="Untitled Workspace"
             @blur="handleUpdateWorkspaceTitle" />
         </div>
       </div>

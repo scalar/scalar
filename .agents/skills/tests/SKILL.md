@@ -1,0 +1,107 @@
+---
+name: tests
+description: Write clear, maintainable Vitest and Playwright tests with precise assertions, consistent structure, and strong behavioral coverage.
+---
+
+# Writing Tests
+
+You write tests that are clear, maintainable, and thorough. You optimize for readability and reliability. Tests should be easy to understand and cover both typical use cases and edge cases.
+
+## Setup
+
+* Use Vitest for most tests. Vitest is our primary testing framework.
+*	No globals. Always explicitly import describe, it, and expect from vitest in every test file.
+*	File naming conventions:
+* Unit/integration test files end with .test.ts.
+* Each test file matches the name of the file it tests. Example: If the code is in custom-function.ts, the test file should be named custom-function.test.ts.
+* The test file is located in the same folder as the file under test. This keeps code and tests closely related, improving discoverability and maintainability.
+* Minimize mocking. Only mock when absolutely necessary. Prefer refactoring the code under test to make mocking unnecessary. Aim for simpler, pure functions that are easier to test without mocks.
+* Do not use stubs
+* Every test file has a single top-level describe().
+* The top-level describe() matches the file name under test. Example: describe('custom-function') for custom-function.test.ts.
+* Do not use nested describe() blocks. Keep tests flat within the single describe().
+* Use it() for individual tests.
+* Keep test descriptions concise and direct.
+* Do not start test descriptions with "should."
+  ✅ it('generates a slug from the title')
+  ❌ it('should generate a slug from the title')
+
+## Testing Vue Components
+
+* Don't rely on markup for assertions.
+* Avoid testing the exact structure of the DOM unless necessary.
+* Do not rely on Tailwind CSS classes in assertions.
+* Focus on testing behavior, outputs, and user interactions instead of implementation details.
+
+## Playwright Tests
+
+* Use Playwright for limited end-to-end testing.
+* Playwright tests live in /playwright/test/.
+* Files end with .spec.ts.
+* Example file: @local.spec.ts.
+* Be selective. We intentionally limit the number of Playwright tests to avoid maintenance overhead.
+
+## Assertions
+
+* Use strict, precise assertions. Prefer `toBe`, `toEqual`, and `toStrictEqual` over loose checks.
+* Do not use `toBeDefined`, `toBeTruthy`, `toHaveLength`, or `toMatchObject` when you can assert the exact value instead.
+* Do not use `expect.arrayContaining` or `expect.objectContaining`. Assert the full expected value.
+* Use `toStrictEqual` when checking objects or arrays to catch extra or missing properties.
+* Use `toBe` for primitives (strings, numbers, booleans).
+* Use `toBeUndefined` only when the expected value is genuinely undefined.
+
+```ts
+// ❌ BAD - vague, does not catch wrong values
+expect(result).toBeDefined()
+expect(items).toHaveLength(2)
+expect(user).toMatchObject({ name: 'Alice' })
+
+// ✅ GOOD - exact, catches regressions
+expect(result).toBe('expected-value')
+expect(items).toStrictEqual([{ id: 1 }, { id: 2 }])
+expect(user).toStrictEqual({ name: 'Alice', role: 'admin' })
+```
+
+## Style & Best Practices
+
+* Clarity first. Write tests that are easy to read and understand, even for someone unfamiliar with the code.
+* Think like a QA engineer.
+* Cover all important code paths.
+* Test both the happy path and error handling.
+* Add tests for edge cases and potential failure scenarios.
+* Comments are welcome when they add value.
+* Use comments to explain why a test exists, not what it's doing.
+* Avoid repeating what the code already makes obvious.
+
+## Example Test File Structure
+
+```
+/src
+  /lib
+    custom-lib.ts
+    custom-lib.test.ts
+```
+
+```ts
+import { describe, it, expect } from 'vitest'
+import { generateSlug, doSomething } from './custom-lib'
+
+describe('generateSlug', () => {
+  it('generates a slug from the title', () => {
+    const result = generateSlug('Hello World')
+    expect(result).toBe('hello-world')
+  })
+
+  it('handles empty input gracefully', () => {
+    const result = generateSlug('')
+    expect(result).toBe('')
+  })
+})
+
+describe('doSomething', () => {
+  it('does something really well', () => {
+    const result = doSomething('Hello World')
+    expect(result).toBe('hello-world')
+  })
+})
+```

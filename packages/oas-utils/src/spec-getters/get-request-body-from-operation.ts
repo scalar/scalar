@@ -1,10 +1,11 @@
 import { json2xml } from '@scalar/helpers/file/json2xml'
+import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import type { ContentType } from '@scalar/types/legacy'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
 import type { Operation } from '@/entities/spec'
 import { normalizeMimeTypeObject } from '@/helpers/normalize-mime-type-object'
-import { prettyPrintJson } from '@/helpers/pretty-print-json'
+
 import { getExampleFromSchema } from './get-example-from-schema'
 import { getParametersFromOperation } from './get-parameters-from-operation'
 

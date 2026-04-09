@@ -1,5 +1,86 @@
 # @scalar/nestjs-api-reference
 
+## 1.1.7
+
+## 1.1.6
+
+## 1.1.5
+
+## 1.1.4
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 1.1.3
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.4.3**
+
+## 1.1.2
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.4.2**
+
+## 1.1.1
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.4.1**
+
+## 1.1.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.4.0**
+  - [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 1.0.31
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.45**
+
+## 1.0.30
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.44**
+
+## 1.0.29
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.43**
+
+## 1.0.28
+
+### Patch Changes
+
+#### Updated Dependencies
+
+- **@scalar/core@0.3.42**
+
 ## 1.0.27
 
 ### Patch Changes

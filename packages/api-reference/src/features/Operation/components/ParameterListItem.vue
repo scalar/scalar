@@ -15,6 +15,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref } from 'vue'
 
+import { getRefName } from '@/components/Content/Schema/helpers/get-ref-name'
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 
@@ -54,11 +55,33 @@ const headers = computed<ResponseObject['headers'] | null>(() =>
   'headers' in parameter && parameter.headers ? parameter.headers : null,
 )
 
+/** Raw schema (possibly with $ref) for the selected content type or param. */
+const baseSchema = computed(() =>
+  content.value
+    ? content.value?.[selectedContentType.value]?.schema
+    : 'schema' in parameter && parameter.schema
+      ? parameter.schema
+      : null,
+)
+
+/** When the schema is a $ref, preserve its name so the UI can show the ref name instead of just the type. */
+const schemaModelName = computed(() => {
+  const raw = baseSchema.value
+  if (!raw) {
+    return null
+  }
+
+  if ('$ref' in raw) {
+    return getRefName(raw.$ref)
+  }
+
+  return null
+})
+
 /** Computed value from the combined schema param and content param */
 const value = computed(() => {
-  const baseSchema = content.value
-    ? content.value?.[selectedContentType.value]?.schema
-    : schema.value
+  const base = baseSchema.value
+  const resolvedBase = content.value ? getResolvedRef(base) : schema.value
 
   const deprecated =
     'deprecated' in parameter ? parameter.deprecated : schema.value?.deprecated
@@ -81,7 +104,7 @@ const value = computed(() => {
   const examples = [...recordExamples, ...arrayExamples]
 
   return {
-    ...getResolvedRef(baseSchema),
+    ...resolvedBase,
     deprecated: deprecated,
     examples,
   } as SchemaObject
@@ -122,21 +145,20 @@ const shouldCollapse = computed<boolean>(() =>
         <div
           v-else
           class="flex-1" />
-
-        <div
-          class="absolute top-[calc(9px+0.5lh)] right-0 z-0 flex -translate-y-1/2 items-center"
-          :class="{
-            'opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100':
-              !open,
-          }">
-          <div
-            class="from-b-1 absolute inset-y-0 -left-6 -z-1 w-8 bg-linear-to-l from-40% to-transparent" />
-          <ContentTypeSelect
-            v-if="shouldCollapse && content"
-            v-model="selectedContentType"
-            :content="content" />
-        </div>
       </DisclosureButton>
+      <div
+        v-if="shouldCollapse && content"
+        class="absolute top-[calc(10px+0.5lh)] right-0 z-0 flex -translate-y-1/2 items-center text-base"
+        :class="{
+          'opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100':
+            !open,
+        }">
+        <div
+          class="from-b-1 absolute inset-y-0 -left-6 -z-1 w-8 bg-linear-to-l from-40% to-transparent" />
+        <ContentTypeSelect
+          v-model="selectedContentType"
+          :content="content" />
+      </div>
       <DisclosurePanel
         class="parameter-item-container parameter-item-container-markdown"
         :static="!shouldCollapse">
@@ -161,6 +183,7 @@ const shouldCollapse = computed<boolean>(() =>
           :description="shouldCollapse ? '' : parameter.description"
           :eventBus="eventBus"
           :hideWriteOnly="true"
+          :modelName="schemaModelName"
           :name="shouldCollapse ? '' : name"
           :noncollapsible="true"
           :options="{
@@ -216,7 +239,7 @@ const shouldCollapse = computed<boolean>(() =>
 
 /* Match font size of markdown for property-detail-value since first child within accordian is displayed as if it were in the markdown section */
 .parameter-item-trigger
-  + .parameter-item-container
+  ~ .parameter-item-container
   :deep(.property--level-0 > .property-heading .property-detail-value) {
   font-size: var(--scalar-micro);
 }

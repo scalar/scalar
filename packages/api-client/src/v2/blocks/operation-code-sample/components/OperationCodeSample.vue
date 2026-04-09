@@ -91,6 +91,11 @@ export type OperationCodeSampleProps = {
    * Workspace + document cookies
    */
   globalCookies?: XScalarCookie[]
+  /**
+   * When the request body schema uses oneOf/anyOf, use these selected variants
+   * for the example snippet (e.g. from the schema dropdowns in the API reference).
+   */
+  requestBodyCompositionSelection?: Record<string, number>
 }
 
 /**
@@ -122,6 +127,7 @@ import { ScalarIconCaretDown } from '@scalar/icons'
 import { type AvailableClients } from '@scalar/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type {
   OperationObject,
@@ -138,6 +144,7 @@ import {
 } from 'vue'
 
 import HttpMethod from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
+import { filterClientsByQuery } from '@/v2/blocks/operation-code-sample/helpers/filter-clients-by-query'
 import { findClient } from '@/v2/blocks/operation-code-sample/helpers/find-client'
 import { getClients } from '@/v2/blocks/operation-code-sample/helpers/get-clients'
 import { getCustomCodeSamples } from '@/v2/blocks/operation-code-sample/helpers/get-custom-code-samples'
@@ -147,7 +154,6 @@ import type {
   ClientOptionGroup,
   CustomClientOption,
 } from '@/v2/blocks/operation-code-sample/types'
-import type { SecuritySchemeObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 import { generateCodeSnippet } from '../helpers/generate-code-snippet'
 import ExamplePicker from './ExamplePicker.vue'
@@ -166,6 +172,7 @@ const {
   isWebhook,
   generateLabel,
   globalCookies,
+  requestBodyCompositionSelection,
 } = defineProps<OperationCodeSampleProps>()
 
 defineSlots<{
@@ -228,6 +235,8 @@ const webhookHar = computed(() => {
       method,
       path,
       example: selectedExampleKey.value,
+      requestBodyCompositionSelection,
+      defaultDisabledParameters: false,
     })
   } catch (error) {
     console.error('[webhookHar]', error)
@@ -242,6 +251,7 @@ const generatedCode = computed<string>(() => {
   }
 
   return generateCodeSnippet({
+    defaultDisabledParameters: false,
     includeDefaultHeaders: integration === 'client',
     clientId: localSelectedClient.value?.id,
     customCodeSamples: customCodeSamples.value,
@@ -253,6 +263,7 @@ const generatedCode = computed<string>(() => {
     securitySchemes,
     example: selectedExampleKey.value,
     globalCookies,
+    requestBodyCompositionSelection,
   })
 })
 
@@ -336,6 +347,7 @@ const id = useId()
         #actions>
         <ScalarCombobox
           class="max-h-80"
+          :filterFn="filterClientsByQuery"
           :modelValue="localSelectedClient"
           :options="clients"
           placement="bottom-end"
@@ -347,7 +359,7 @@ const id = useId()
             variant="ghost">
             {{ localSelectedClient?.title }}
             <ScalarIconCaretDown
-              class="ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100"
+              class="ui-open:rotate-180 mt-px size-3 transition-transform duration-100"
               weight="bold" />
           </ScalarButton>
         </ScalarCombobox>

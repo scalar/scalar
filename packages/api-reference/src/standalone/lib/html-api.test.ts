@@ -1,32 +1,25 @@
 import { sleep } from '@scalar/helpers/testing/sleep'
 import { apiReferenceConfigurationSchema, apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
+import { createHead } from '@unhead/vue/client'
+import { renderToString } from '@vue/server-renderer'
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { createSSRApp, h, nextTick } from 'vue'
+
+import ApiReference from '@/components/ApiReference.vue'
 
 import { createApiReference, createContainer, findDataAttributes, getConfigurationFromDataAttributes } from './html-api'
 
+vi.mock('@unhead/vue/client', async () => {
+  const actual = await vi.importActual<typeof import('@unhead/vue/client')>('@unhead/vue/client')
+
+  return {
+    ...actual,
+    createHead: vi.fn(actual.createHead),
+  }
+})
+
 beforeEach(() => {
-  vi.mock('@scalar/use-hooks/useBreakpoints', () => ({
-    useBreakpoints: () => ({
-      mediaQueries: {
-        lg: { value: true },
-        md: { value: true },
-        sm: { value: true },
-        xs: { value: true },
-        zoomed: { value: true },
-        xl: { value: true },
-      },
-      breakpoints: {
-        lg: true,
-        md: true,
-        sm: true,
-        xs: true,
-        zoomed: true,
-        xl: true,
-      },
-    }),
-  }))
   global.document = createHtmlDocument(`
     <html>
       <body>
@@ -73,6 +66,56 @@ describe('createApiReference', () => {
     expect(apiReference.app.mount).toBeDefined()
     expect(apiReference.updateConfiguration).toBeDefined()
     expect(document.getElementById('mount-point')?.innerHTML).toContain('Powered by Scalar')
+  })
+
+  it('creates the head manager once for hydration mounts', () => {
+    const createHeadSpy = vi.mocked(createHead)
+    createHeadSpy.mockClear()
+    const element = document.querySelector('#mount-point')
+    element!.innerHTML = '<div>Server-rendered content</div>'
+
+    const config = { _integration: 'html' }
+    createApiReference(element!, apiReferenceConfigurationSchema.parse(config))
+
+    expect(createHeadSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not log hydration warnings or errors when hydrating server-rendered content', async () => {
+    const element = document.querySelector('#mount-point')
+    expect(element).toBeInstanceOf(HTMLElement)
+
+    const config = apiReferenceConfigurationWithSourceSchema.parse({
+      _integration: 'html',
+      content: JSON.stringify({
+        openapi: '3.1.0',
+        info: { title: 'Hydration Test API', version: '1.0.0' },
+        paths: {},
+      }),
+    })
+
+    const ssrApp = createSSRApp({
+      render: () => h(ApiReference, { configuration: config }),
+    })
+    ssrApp.config.idPrefix = 'scalar-refs'
+    const serverRenderedHtml = await renderToString(ssrApp)
+    element!.innerHTML = serverRenderedHtml
+
+    consoleWarnSpy.mockClear()
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    createApiReference(element!, config)
+
+    await flushPromises()
+    await nextTick()
+
+    const hydrationMessages = [...consoleWarnSpy.mock.calls, ...consoleErrorSpy.mock.calls]
+      .flat()
+      .map((value) => String(value))
+      .filter((message) => /hydration/i.test(message))
+
+    expect(hydrationMessages).toStrictEqual([])
+
+    consoleErrorSpy.mockRestore()
   })
 
   it('handles scalar:reload-references event', () => {

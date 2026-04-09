@@ -1,19 +1,19 @@
 <script setup lang="ts">
+import { ScalarIconButton } from '@scalar/components'
 import { ScalarIconX } from '@scalar/icons'
-import { defineAsyncComponent } from 'vue'
-
-import '@scalar/agent-chat/style.css'
-
-import type { ApiReferenceConfigurationWithSource } from '@scalar/types/api-reference'
+import type {
+  ApiReferenceConfigurationWithSource,
+  ExternalUrls,
+} from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { defineAsyncComponent } from 'vue'
 
 import { useAgentContext } from '@/hooks/use-agent'
 
 defineProps<{
   agentScalarConfiguration: ApiReferenceConfigurationWithSource['agent']
+  externalUrls: ExternalUrls
   workspaceStore: WorkspaceStore
-  eventBus: WorkspaceEventBus
 }>()
 
 const agentContext = useAgentContext()
@@ -24,119 +24,57 @@ const AgentScalarChatInterface = defineAsyncComponent(
 </script>
 
 <template>
-  <div
-    v-show="agentContext?.showAgent.value"
-    class="scalar-app-exit"
-    :class="agentContext?.showAgent.value ? 'scalar-app-exit-animation' : ''"
-    @click="agentContext?.closeAgent()">
-    <button
-      class="app-exit-button zoomed:static zoomed:p-1 fixed top-2 right-2 rounded-full p-2"
-      type="button">
-      <ScalarIconX weight="bold" />
-      <span class="sr-only">Close Client</span>
-    </button>
-  </div>
-  <div
-    v-show="agentContext?.showAgent.value"
-    class="agent-scalar">
+  <Transition
+    enterActiveClass="transition-opacity duration-500"
+    enterFromClass="opacity-0"
+    enterToClass="opacity-100"
+    leaveActiveClass="transition-opacity duration-200"
+    leaveFromClass="opacity-100"
+    leaveToClass="opacity-0">
     <div
-      class="agent-scalar-container custom-scroll custom-scroll-self-contain-overflow">
-      <AgentScalarChatInterface
-        :agentScalarConfiguration
-        :prefilledMessage="agentContext?.prefilledMessage"
-        :workspaceStore />
+      v-show="agentContext?.showAgent.value"
+      class="agent-scalar-overlay bg-backdrop fixed inset-0 z-10 ease-[cubic-bezier(0.77,0,0.175,1)]"
+      @click="agentContext?.closeAgent()" />
+  </Transition>
+  <Transition
+    enterActiveClass="transition-transform duration-300"
+    enterFromClass="-translate-x-full"
+    enterToClass="translate-x-0"
+    leaveActiveClass="transition-transform duration-200"
+    leaveFromClass="translate-x-0"
+    leaveToClass="-translate-x-full">
+    <div
+      v-show="agentContext?.showAgent.value"
+      class="agent-scalar left-w-sidebar bg-b-1 fixed inset-y-0 right-12 z-10 grid border-r shadow-lg"
+      @keydown.escape="agentContext?.closeAgent()">
+      <div
+        class="agent-scalar-container custom-scroll custom-scroll-self-contain-overflow overflow-auto px-6">
+        <AgentScalarChatInterface
+          :agentScalarConfiguration
+          :externalUrls
+          :prefilledMessage="agentContext?.prefilledMessage"
+          :workspaceStore />
+      </div>
+      <ScalarIconButton
+        class="agent-scalar-exit-button absolute top-2 right-2"
+        :icon="ScalarIconX"
+        label="Close Client"
+        weight="bold"
+        @click="agentContext?.closeAgent()" />
     </div>
-  </div>
+  </Transition>
 </template>
 
 <style scoped>
-.agent-scalar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: calc(100% - 50px);
-  height: 100dvh;
-  background: var(--scalar-background-1);
-  border-right: var(--scalar-border-width) solid var(--scalar-border-color);
-  transform: translate3d(
-    calc(-100% + var(--scalar-sidebar-width, 288px)),
-    0,
-    0
-  );
-  z-index: 2;
-  animation: 0.35s forwards scalaragentslidein;
-  box-shadow: var(--scalar-shadow-2);
-}
-.agent-scalar-container {
-  width: calc(100% - var(--scalar-sidebar-width, 288px));
-  height: 100%;
-  margin-left: auto;
-  overflow: auto;
-  padding: 0 24px;
-}
-.scalar-app-exit {
-  cursor: pointer;
-  z-index: 2;
-  width: 100vw;
-  height: 100vh;
-  transition: all 0.3s ease-in-out;
-  position: fixed;
-  top: 0;
-  left: 0;
-}
+@reference "../../style.css";
+
 @media (max-width: 1000px) {
-  .agent-scalar-container {
-    width: 100%;
+  .agent-scalar.agent-scalar {
+    @apply inset-x-0 top-12 rounded-t-lg;
   }
-  .agent-scalar {
-    width: 100%;
-    height: calc(100dvh - 50px);
-    bottom: 0;
-    top: initial;
-    border-radius: var(--scalar-radius-lg) var(--scalar-radius-lg) 0 0;
-    z-index: 12;
+  .agent-scalar.agent-scalar,
+  .agent-scalar-overlay.agent-scalar-overlay {
+    @apply z-15;
   }
-  .scalar-app-exit {
-    z-index: 11;
-  }
-}
-.scalar-app-exit-animation:before {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: #00000038;
-  animation: 0.5s forwards scalardrawerexitfadein;
-  animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
-}
-.dark-mode .scalar .scalar-app-exit-animation:before {
-  background: #00000073;
-}
-@keyframes scalaragentslidein {
-  from {
-    transform: translate3d(
-      calc(-100% + var(--scalar-sidebar-width, 288px)),
-      0,
-      0
-    );
-  }
-  to {
-    transform: translate3d(0, 0, 0);
-  }
-}
-@keyframes scalardrawerexitfadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-.app-exit-button {
-  color: white;
-  background: rgba(0, 0, 0, 0.1);
-}
-.app-exit-button:hover {
-  background: rgba(255, 255, 255, 0.1);
 }
 </style>

@@ -18,15 +18,15 @@
     "rest",
     "testing"
   ],
-  "version": "2.29.2",
+  "version": "2.42.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-vite",
+    "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "pnpm playground:v2:web",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "playground:app": "vite ./playground/app -c ./vite.config.ts",
+    "playground:modal": "vite ./playground/modal -c ./vite.config.ts",
     "playground:v2:app": "vite ./playground/v2/app -c ./vite.config.ts",
     "playground:v2:modal": "vite ./playground/v2/modal -c ./vite.config.ts",
     "playground:v2:web": "vite ./playground/v2/web -c ./vite.config.ts",
@@ -35,8 +35,7 @@
     "test:benchmark": "vitest bench",
     "test:benchmark:compare": "vitest bench --compare test-results/test-benchmark.json",
     "test:benchmark:save": "vitest bench --outputJson test-results/test-benchmark.json",
-    "types:build": "scalar-types-build-vue",
-    "types:check": "scalar-types-check-vue"
+    "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -112,6 +111,11 @@
       "types": "./dist/v2/components/code-input/index.d.ts",
       "default": "./dist/v2/components/code-input/index.js"
     },
+    "./v2/components/context-menu": {
+      "import": "./dist/v2/components/context-menu/index.js",
+      "types": "./dist/v2/components/context-menu/index.d.ts",
+      "default": "./dist/v2/components/context-menu/index.js"
+    },
     "./v2/components/data-table": {
       "import": "./dist/v2/components/data-table/index.js",
       "types": "./dist/v2/components/data-table/index.d.ts",
@@ -157,10 +161,20 @@
       "types": "./dist/v2/features/app/components/index.d.ts",
       "default": "./dist/v2/features/app/components/index.js"
     },
+    "./v2/features/collection/components/Editor": {
+      "import": "./dist/v2/features/collection/components/Editor/index.js",
+      "types": "./dist/v2/features/collection/components/Editor/index.d.ts",
+      "default": "./dist/v2/features/collection/components/Editor/index.js"
+    },
     "./v2/features/command-palette": {
       "import": "./dist/v2/features/command-palette/index.js",
       "types": "./dist/v2/features/command-palette/index.d.ts",
       "default": "./dist/v2/features/command-palette/index.js"
+    },
+    "./v2/features/editor": {
+      "import": "./dist/v2/features/editor/index.js",
+      "types": "./dist/v2/features/editor/index.d.ts",
+      "default": "./dist/v2/features/editor/index.js"
     },
     "./v2/features/environments": {
       "import": "./dist/v2/features/environments/index.js",
@@ -192,10 +206,45 @@
       "types": "./dist/v2/features/settings/index.d.ts",
       "default": "./dist/v2/features/settings/index.js"
     },
-    "./v2/helpers": {
-      "import": "./dist/v2/helpers/index.js",
-      "types": "./dist/v2/helpers/index.d.ts",
-      "default": "./dist/v2/helpers/index.js"
+    "./views/Components/CodeSnippet": {
+      "import": "./dist/views/Components/CodeSnippet/index.js",
+      "types": "./dist/views/Components/CodeSnippet/index.d.ts",
+      "default": "./dist/views/Components/CodeSnippet/index.js"
+    },
+    "./views/Request/components": {
+      "import": "./dist/views/Request/components/index.js",
+      "types": "./dist/views/Request/components/index.d.ts",
+      "default": "./dist/views/Request/components/index.js"
+    },
+    "./views/Request/consts": {
+      "import": "./dist/views/Request/consts/index.js",
+      "types": "./dist/views/Request/consts/index.d.ts",
+      "default": "./dist/views/Request/consts/index.js"
+    },
+    "./views/Request/libs": {
+      "import": "./dist/views/Request/libs/index.js",
+      "types": "./dist/views/Request/libs/index.d.ts",
+      "default": "./dist/views/Request/libs/index.js"
+    },
+    "./views/Request/RequestSection": {
+      "import": "./dist/views/Request/RequestSection/index.js",
+      "types": "./dist/views/Request/RequestSection/index.d.ts",
+      "default": "./dist/views/Request/RequestSection/index.js"
+    },
+    "./views/Request/RequestSection/RequestAuth": {
+      "import": "./dist/views/Request/RequestSection/RequestAuth/index.js",
+      "types": "./dist/views/Request/RequestSection/RequestAuth/index.d.ts",
+      "default": "./dist/views/Request/RequestSection/RequestAuth/index.js"
+    },
+    "./views/Request/ResponseSection": {
+      "import": "./dist/views/Request/ResponseSection/index.js",
+      "types": "./dist/views/Request/ResponseSection/index.d.ts",
+      "default": "./dist/views/Request/ResponseSection/index.js"
+    },
+    "./views/Request/types": {
+      "import": "./dist/views/Request/types/index.js",
+      "types": "./dist/views/Request/types/index.d.ts",
+      "default": "./dist/views/Request/types/index.js"
     }
   },
   "files": [
@@ -210,7 +259,7 @@
     "@scalar/icons": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "@scalar/openapi-parser": "workspace:*",
+    "@scalar/object-utils": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/postman-to-openapi": "workspace:*",
     "@scalar/sidebar": "workspace:*",
@@ -222,16 +271,22 @@
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
-    "@types/har-format": "^1.2.15",
+    "@types/har-format": "^1.2.16",
     "@vueuse/core": "catalog:*",
     "@vueuse/integrations": "catalog:*",
-    "focus-trap": "^7",
+    "focus-trap": "^7.8.0",
     "fuse.js": "catalog:*",
     "js-base64": "catalog:*",
+    "microdiff": "catalog:*",
+    "monaco-editor": "catalog:*",
+    "monaco-yaml": "catalog:*",
     "nanoid": "catalog:*",
-    "pretty-bytes": "catalog:*",
+    "posthog-js": "catalog:*",
     "pretty-ms": "^9.3.0",
-    "shell-quote": "^1.8.1",
+    "radix-vue": "catalog:*",
+    "shell-quote": "^1.8.3",
+    "type-fest": "catalog:*",
+    "vite-plugin-monaco-editor": "^1.1.0",
     "vue": "catalog:*",
     "vue-router": "catalog:*",
     "whatwg-mimetype": "catalog:*",
@@ -239,7 +294,7 @@
     "zod": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
+    "@scalar/galaxy": "workspace:*",
     "@scalar/pre-post-request-scripts": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/shell-quote": "^1.7.5",

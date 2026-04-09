@@ -1,4 +1,4 @@
-# Scalar API Reference for Laravel Scribe
+# API Reference for Laravel Scribe
 
 Laravel Scribe is an amazing package to generate OpenAPI files from your existing code base. Clumsy annotations aren't required, the package will just analyze your code.
 

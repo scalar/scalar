@@ -7,7 +7,15 @@ license = "MIT"
 repository = "https://github.com/scalar/scalar"
 keywords = ["api", "documentation", "openapi", "swagger"]
 categories = ["web-programming", "development-tools"]
-exclude = ["package.json", "CHANGELOG.md"]
+include = [
+    "Cargo.toml",
+    "Cargo.lock",
+    "README.md",
+    "src/**/*",
+    "ui/index.html",
+    "ui/scalar.js",
+    "examples/**/*",
+]
 
 [dependencies]
 rust-embed = "8.11.0"

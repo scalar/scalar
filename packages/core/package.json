@@ -11,17 +11,14 @@
     "directory": "packages/core"
   },
   "keywords": [],
-  "version": "0.3.41",
+  "version": "0.5.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
-    "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "exports": {
@@ -36,10 +33,10 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
+    "@scalar/client-side-rendering": "workspace:*",
     "@scalar/types": "workspace:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "vite": "catalog:*"
   }
 }

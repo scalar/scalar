@@ -1,4 +1,4 @@
-# Scalar API Reference for Java
+# API Reference for Java
 
 The Scalar Java integration provides an easy way to render beautiful API References based on OpenAPI documents in Java applications.
 
@@ -6,7 +6,7 @@ The Scalar Java integration provides an easy way to render beautiful API Referen
 
 The Scalar Java integration consists of **3 separate modules**:
 
-- **`scalar-core`** - Framework-agnostic core module with no dependencies (except Jackson for JSON serialization). Can be used anywhere to display a Scalar API Reference.
+- **`scalar-core`** - Framework-agnostic core module with no dependencies (except Jackson for JSON serialization). Can be used anywhere to display a API Reference.
 - **`scalar-webmvc`** - Spring Boot WebMVC integration module
 - **`scalar-webflux`** - Spring Boot WebFlux integration module
 
@@ -152,7 +152,7 @@ scalar.url=https://api.example.com/openapi.json
 # Custom path for the API Reference (default: /scalar)
 scalar.path=/docs
 
-# Page title (default: "Scalar API Reference")
+# Page title (default: "API Reference")
 scalar.pageTitle=My API Documentation
 ```
 
@@ -238,13 +238,13 @@ Configure a proxy URL for API requests:
 scalar.proxyUrl=https://api-gateway.company.com
 ```
 
-### Agent Scalar
+### Agent
 
-Agent Scalar adds an AI chat interface to your API reference. Users can ask questions about your API and get contextual answers based on your OpenAPI document.
+Agent adds an AI chat interface to your API reference. Users can ask questions about your API and get contextual answers based on your OpenAPI document.
 
 - Enabled by default on `http://localhost` for testing (with limited free messages).
 - In production, the agent does not appear unless you provide a key.
-- To use Agent Scalar in production, configure an [Agent Scalar key](../guides/agent/key.md).
+- To use Agent in production, configure an [Agent key](../guides/agent/key.md).
 
 **Single-URL mode** (when using `scalar.url` without `sources`):
 
@@ -255,7 +255,7 @@ scalar:
     key: put-your-agent-scalar-key-here
 ```
 
-To disable Agent Scalar entirely in single-URL mode:
+To disable Agent entirely in single-URL mode:
 
 ```yaml
 scalar:
@@ -293,7 +293,7 @@ scalar.sources[0].agent.key=put-your-agent-scalar-key-here
 scalar.sources[1].agent.disabled=true
 ```
 
-Related: [How to get an Agent Scalar key](../guides/agent/key.md).
+Related: [How to get an Agent key](../guides/agent/key.md).
 
 ### Authentication
 

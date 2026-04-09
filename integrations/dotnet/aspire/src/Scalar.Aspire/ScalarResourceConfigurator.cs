@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Aspire.Hosting.ApplicationModel;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +31,7 @@ internal static class ScalarResourceConfigurator
         environmentVariables.Add(ApiReferenceConfig, configurations);
         environmentVariables.Add(CdnUrl, scalarAspireOptions.BundleUrl);
         environmentVariables.Add(AllowSelfSignedCertificates, scalarAspireOptions.AllowSelfSignedCertificates);
+        environmentVariables.Add(ForwardOriginalHostHeader, scalarAspireOptions.ForwardOriginalHostHeader);
         environmentVariables.Add(DefaultProxy, scalarAspireOptions.DefaultProxy);
     }
 
@@ -44,6 +45,8 @@ internal static class ScalarResourceConfigurator
             var scalarAspireOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<ScalarAspireOptions>>().Get(scalarResourceName);
             if (scalarAnnotation.ConfigureOptions is not null)
             {
+                // The callback also configures the ResourceBaseUrlExpression captured in the annotation so that
+                // DefaultProxy and PreferHttpsEndpoint are resolved before the expression is evaluated below.
                 await scalarAnnotation.ConfigureOptions.Invoke(scalarAspireOptions, cancellationToken);
             }
 
@@ -52,44 +55,87 @@ internal static class ScalarResourceConfigurator
                 ConfigureProxyUrl(scalarAspireOptions);
             }
 
+            // Endpoint discovery is still used to auto-configure the servers array for the "Try It" feature.
+            // The base URL for the OpenAPI document route pattern comes exclusively from annotation.BaseDocumentUrl
+            // (set by WithApiReference) — no fallback discovery is performed for that purpose.
             var endpoints = scalarAnnotation.Resource.Annotations.OfType<EndpointAnnotation>().ToArray();
-            if (endpoints.Length == 0)
-            {
-                throw new InvalidOperationException($"No endpoints found for resource '{resourceName}'. Ensure that the resource has at least one endpoint.");
-            }
-
             var httpAvailable = endpoints.Any(endpoint => endpoint.UriScheme == "http");
             var httpsAvailable = endpoints.Any(endpoint => endpoint.UriScheme == "https");
-            if (!httpAvailable && !httpsAvailable)
-            {
-                throw new InvalidOperationException($"No HTTP or HTTPS endpoints found for resource '{resourceName}'. Ensure that the resource has at least one HTTP or HTTPS endpoint.");
-            }
-
             var shouldUseHttps = (!httpAvailable || scalarAspireOptions.PreferHttpsEndpoint) && httpsAvailable;
             var resourceUrl = GetResourceUrl(resourceName, shouldUseHttps, scalarAspireOptions.DefaultProxy, endpoints);
 
-            ConfigureOpenApiServers(scalarAspireOptions, resourceName, resourceUrl);
-            ConfigureOpenApiRoutePattern(scalarAspireOptions, resourceUrl);
-            ConfigureDocuments(scalarAspireOptions, resourceName);
+            var baseDocumentUrl = await ResolveBaseDocumentUrlAsync(scalarAspireOptions, scalarAnnotation.BaseDocumentUrl, cancellationToken);
+            ConfigureOpenApiServers(scalarAspireOptions, resourceName, resourceUrl, baseDocumentUrl);
+            ConfigureOpenApiRoutePattern(scalarAspireOptions, baseDocumentUrl);
+            ConfigureDocuments(scalarAspireOptions, resourceName, baseDocumentUrl);
 
             yield return scalarAspireOptions;
         }
     }
 
-    private static void ConfigureOpenApiServers(ScalarOptions scalarOptions, string resourceName, string resourceUrl)
+    private static void ConfigureOpenApiServers(ScalarOptions scalarOptions, string resourceName, string resourceUrl, string? baseDocumentUrl)
     {
-        // Only set OpenAPI servers if not already assigned
+        // Always provide a base server URL so relative servers in API descriptions resolve against the
+        // discovered service address.
+        ConfigureBaseServerUrl(scalarOptions, resourceUrl);
+
+        // For live OpenAPI endpoints we do not inject a servers override; otherwise absolute servers from
+        // the API description (for example http://localhost:65312/api) would be replaced and lose path data.
+        if (baseDocumentUrl is not null)
+        {
+            return;
+        }
+
+        // Static-file mode (BaseDocumentUrl == null) keeps the fallback so "Try It" still has a default target
+        // when the document has no servers section.
         var server = new ScalarServer(resourceUrl, resourceName);
         scalarOptions.Servers ??= [server];
     }
 
-    private static void ConfigureOpenApiRoutePattern(ScalarOptions scalarOptions, string resourceUrl)
+    private static void ConfigureBaseServerUrl(ScalarOptions scalarOptions, string resourceUrl)
     {
-        // Only set the full URL if the OpenAPI route pattern is not a full URL
-        if (!RegexHelper.HttpUrlPattern().IsMatch(scalarOptions.OpenApiRoutePattern))
+        if (!string.IsNullOrEmpty(scalarOptions.BaseServerUrl))
         {
-            scalarOptions.OpenApiRoutePattern = $"{resourceUrl}/{scalarOptions.OpenApiRoutePattern.TrimStart('/')}";
+            return;
         }
+
+        if (!Uri.TryCreate(resourceUrl, UriKind.Absolute, out var resourceUri))
+        {
+            return;
+        }
+
+        scalarOptions.BaseServerUrl = $"{resourceUri.Scheme}://{resourceUri.Authority}";
+    }
+
+    private static async Task<string?> ResolveBaseDocumentUrlAsync(ScalarOptions scalarOptions, ReferenceExpression? annotationBaseDocumentUrl, CancellationToken cancellationToken)
+    {
+        // Priority: user's explicit scalarOptions.BaseDocumentUrl > annotation's BaseDocumentUrl.
+        // annotation.BaseDocumentUrl is always set by WithApiReference — the configurator never sets it.
+        // A null/empty resolved value means "use the pattern as-is" (e.g. ReferenceExpression.Empty
+        // for a static file served from the Scalar container).
+        var baseDocumentUrl = scalarOptions.BaseDocumentUrl ?? annotationBaseDocumentUrl;
+        if (baseDocumentUrl is null)
+        {
+            return null;
+        }
+
+        var baseUrl = await baseDocumentUrl.GetValueAsync(cancellationToken);
+        if (string.IsNullOrEmpty(baseUrl))
+        {
+            return null;
+        }
+
+        return baseUrl;
+    }
+
+    private static void ConfigureOpenApiRoutePattern(ScalarOptions scalarOptions, string? baseDocumentUrl)
+    {
+        if (baseDocumentUrl is null || RegexHelper.HttpUrlPattern().IsMatch(scalarOptions.OpenApiRoutePattern))
+        {
+            return;
+        }
+
+        scalarOptions.OpenApiRoutePattern = $"{baseDocumentUrl.TrimEnd('/')}/{scalarOptions.OpenApiRoutePattern.TrimStart('/')}";
     }
 
     private static void ConfigureProxyUrl(ScalarOptions scalarOptions)
@@ -98,7 +144,7 @@ internal static class ScalarResourceConfigurator
         scalarOptions.ProxyUrl ??= ProxyEndpoint;
     }
 
-    private static void ConfigureDocuments(ScalarOptions scalarOptions, string resourceName)
+    private static void ConfigureDocuments(ScalarOptions scalarOptions, string resourceName, string? baseDocumentUrl)
     {
         // If no document names are provided, fallback to the default document name
         if (scalarOptions.Documents.Count == 0)
@@ -121,9 +167,15 @@ internal static class ScalarResourceConfigurator
             // Only set the full URL if the OpenAPI route pattern is not a full URL
             if (document.RoutePattern is not null && !RegexHelper.HttpUrlPattern().IsMatch(document.RoutePattern))
             {
+                var routePattern = document.RoutePattern;
+                if (!string.IsNullOrEmpty(baseDocumentUrl))
+                {
+                    routePattern = $"{baseDocumentUrl.TrimEnd('/')}/{routePattern.TrimStart('/')}";
+                }
+
                 document = document with
                 {
-                    RoutePattern = $"{scalarOptions.OpenApiRoutePattern}/{document.RoutePattern.TrimStart('/')}"
+                    RoutePattern = routePattern
                 };
             }
 

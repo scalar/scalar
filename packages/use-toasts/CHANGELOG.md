@@ -1,5 +1,17 @@
 # @scalar/use-toasts
 
+## 0.10.1
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.10.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
 ## 0.9.1
 
 ### Patch Changes

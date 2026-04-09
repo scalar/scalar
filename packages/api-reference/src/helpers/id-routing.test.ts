@@ -2,10 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   getIdFromHash,
+  getIdFromHashBasePath,
   getIdFromPath,
   getIdFromUrl,
   getSchemaParamsFromId,
   makeUrlFromId,
+  matchesBasePath,
   sanitizeBasePath,
 } from './id-routing'
 
@@ -449,6 +451,53 @@ describe('getIdFromPath', () => {
   })
 })
 
+describe('getIdFromHashBasePath', () => {
+  it('extracts id from a hash-prefixed basePath', () => {
+    const result = getIdFromHashBasePath(
+      'https://example.com/#/services/petstore/openapi/tag/pet/GET/pet/{petId}',
+      '#/services/petstore/openapi',
+      undefined,
+    )
+    expect(result).toBe('tag/pet/GET/pet/{petId}')
+  })
+
+  it('returns empty string when the hash only contains the basePath', () => {
+    const result = getIdFromHashBasePath(
+      'https://example.com/#/services/petstore/openapi',
+      '#/services/petstore/openapi',
+      undefined,
+    )
+    expect(result).toBe('')
+  })
+
+  it('applies slugPrefix when the hash-prefixed basePath matches', () => {
+    const result = getIdFromHashBasePath(
+      'https://example.com/#/services/petstore/openapi/users',
+      '#/services/petstore/openapi',
+      'doc',
+    )
+    expect(result).toBe('doc/users')
+  })
+})
+
+describe('matchesBasePath', () => {
+  it('matches pathname basePaths', () => {
+    expect(matchesBasePath('https://example.com/api/tag/users', 'api')).toBe(true)
+  })
+
+  it('matches hash-prefixed basePaths', () => {
+    expect(
+      matchesBasePath('https://example.com/#/services/petstore/openapi/tag/users', '#/services/petstore/openapi'),
+    ).toBe(true)
+  })
+
+  it('does not match unrelated hash-prefixed basePaths', () => {
+    expect(
+      matchesBasePath('https://example.com/#/services/other/openapi/tag/users', '#/services/petstore/openapi'),
+    ).toBe(false)
+  })
+})
+
 describe('getIdFromUrl', () => {
   it('uses hash routing when basePath is undefined', () => {
     const result = getIdFromUrl('https://example.com#tag/users', undefined, undefined)
@@ -457,6 +506,15 @@ describe('getIdFromUrl', () => {
 
   it('uses path routing when basePath is a string', () => {
     const result = getIdFromUrl('https://example.com/api/tag/users', 'api', undefined)
+    expect(result).toBe('tag/users')
+  })
+
+  it('uses hash-base routing when basePath starts with a hash', () => {
+    const result = getIdFromUrl(
+      'https://example.com/#/services/petstore/openapi/tag/users',
+      '#/services/petstore/openapi',
+      undefined,
+    )
     expect(result).toBe('tag/users')
   })
 
@@ -570,6 +628,19 @@ describe('makeUrlFromId', () => {
     const result = makeUrlFromId('tag/users', 'api', true)
     expect(result?.pathname).toBe('/api/tag/users')
     expect(result?.hash).toBe('')
+  })
+
+  it('uses hash-base routing when basePath starts with a hash', () => {
+    vi.stubGlobal('window', {
+      location: createLocationMock({
+        href: 'https://example.com/#/services/petstore/openapi',
+        hash: '#/services/petstore/openapi',
+      }) as Location,
+    })
+
+    const result = makeUrlFromId('tag/users', '#/services/petstore/openapi', true)
+    expect(result?.hash).toBe('#/services/petstore/openapi/tag/users')
+    expect(result?.pathname).toBe('/')
   })
 
   it('uses path routing with empty basePath', () => {

@@ -35,7 +35,9 @@ export const httr: Client = {
     // Construct query string
     const qs = queryObj
     delete queryObj.key
-    const entries = Object.entries(qs)
+    const entries = Object.entries(qs).flatMap(([key, value]) =>
+      Array.isArray(value) ? value.map((item) => [key, item] as const) : ([[key, value]] as const),
+    )
     const entriesCount = entries.length
     if (entriesCount === 1) {
       const entry = entries[0]!

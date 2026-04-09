@@ -425,6 +425,28 @@ describe('RequestTableRow', () => {
     expect(fileDeleteButton?.text()).toBe('Delete')
   })
 
+  it('keeps file delete control visible on touch devices', () => {
+    const file = new File(['content'], 'test.txt', { type: 'text/plain' })
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'key', value: file },
+        environment,
+        showUploadButton: true,
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const deleteButtons = wrapper.findAll('button[type="button"]')
+    const fileDeleteButton = deleteButtons.find((btn) => btn.text() === 'Delete')
+
+    expect(fileDeleteButton?.attributes('class')).toContain('block')
+    expect(fileDeleteButton?.attributes('class')).toContain('md:group-hover/upload:opacity-100')
+  })
+
   it('does not show upload button when showUploadButton is false', () => {
     const wrapper = mount(RequestTableRow, {
       props: {

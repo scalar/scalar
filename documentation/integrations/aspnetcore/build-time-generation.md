@@ -3,7 +3,7 @@
 This guide shows you how to generate OpenAPI documents during the build process for your ASP.NET Core application. Build-time generation is useful for:
 
 - Creating OpenAPI documents that are committed to source control
-- Publishing OpenAPI documents to the [Scalar Registry](../../guides/registry/getting-started.md)
+- Publishing OpenAPI documents to the [Registry](../../guides/registry/getting-started.md)
 
 ## Microsoft.AspNetCore.OpenApi
 
@@ -72,9 +72,9 @@ Add the following target to your `.csproj` file to automatically generate the Op
 
 After adding this target, the OpenAPI document will be generated automatically when you build your project in Release configuration.
 
-## Publishing to Scalar Registry
+## Publishing to Registry
 
-Once you have generated your OpenAPI document at build time, you can easily publish it to the Scalar Registry as part of your CI/CD pipeline.
+Once you have generated your OpenAPI document at build time, you can easily publish it to the Registry as part of your CI/CD pipeline.
 
 ### Using GitHub Actions
 
@@ -82,7 +82,7 @@ Create a workflow file `.github/workflows/publish-openapi.yml`:
 
 ```yaml
 # .github/workflows/publish-to-scalar-registry.yml
-name: Publish OpenAPI to Scalar Registry
+name: Publish OpenAPI to Registry
 
 on:
   push:
@@ -92,7 +92,7 @@ jobs:
   build-validate-publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -104,7 +104,7 @@ jobs:
           dotnet build --configuration Release
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24
 
@@ -112,7 +112,7 @@ jobs:
         run: |
           npx @scalar/cli document validate ./openapi.json
 
-      - name: Publish to Scalar Registry
+      - name: Publish to Registry
         run: |
           npx @scalar/cli auth login --token ${{ secrets.SCALAR_API_KEY }}
           npx @scalar/cli registry publish \
@@ -168,4 +168,4 @@ publish_to_scalar:
     - validate_openapi
 ```
 
-[Read more about publishing to the Scalar Registry.](../../guides/registry/getting-started.md).
+[Read more about publishing to the Registry.](../../guides/registry/getting-started.md).

@@ -1,47 +1,13 @@
-<script setup lang="ts">
-import {
-  ScalarButton,
-  ScalarIcon,
-  ScalarWrappingText,
-} from '@scalar/components'
-import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
-import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
-import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import type {
-  ApiReferenceEvents,
-  WorkspaceEventBus,
-} from '@scalar/workspace-store/events'
-import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import {
-  computed,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  useId,
-  useTemplateRef,
-} from 'vue'
-
-import { HttpMethod } from '@/components/HttpMethod'
-import { getResolvedUrl } from '@/v2/blocks/operation-block/helpers/get-resolved-url'
-import { useLoadingAnimation } from '@/v2/blocks/scalar-address-bar-block/hooks/use-loading-animation'
-import { CodeInput } from '@/v2/components/code-input'
-import { ServerDropdown } from '@/v2/components/server'
-import type { ClientLayout } from '@/v2/types/layout'
-
-import AddressBarHistory, { type History } from './AddressBarHistory.vue'
-
-const {
-  path,
-  method,
-  layout,
-  eventBus,
-  history,
-  server,
-  servers,
-  environment,
-} = defineProps<{
+<script lang="ts">
+/**
+ * AddressBar component
+ * This component is used to display the address bar for the operation block
+ * It is used to display the path, method, server, and history for the operation
+ */
+export default {
+  name: 'AddressBar',
+}
+export type AddressBarProps = {
   /** Current request path */
   path: string
   /** Current request method */
@@ -58,13 +24,66 @@ const {
   eventBus: WorkspaceEventBus
   /** Environment */
   environment: XScalarEnvironment
-}>()
+  /** Meta information for the server */
+  serverMeta: ServerMeta
+}
+</script>
+<script setup lang="ts">
+import {
+  ScalarButton,
+  ScalarIcon,
+  ScalarWrappingText,
+} from '@scalar/components'
+import { getSelector } from '@scalar/helpers/dom/get-selector'
+import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
+import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
+import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
+import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-path'
+import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
+import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import type {
+  ApiReferenceEvents,
+  ServerMeta,
+  WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
+import {
+  getEnvironmentVariables,
+  getResolvedUrl,
+} from '@scalar/workspace-store/request-example'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  useId,
+  useTemplateRef,
+} from 'vue'
+
+import { HttpMethod } from '@/components/HttpMethod'
+import { type ClientLayout } from '@/hooks'
+import { useLoadingAnimation } from '@/v2/blocks/scalar-address-bar-block/hooks/use-loading-animation'
+import { CodeInput } from '@/v2/components/code-input'
+import { ServerDropdown } from '@/v2/components/server'
+
+import AddressBarHistory, { type History } from './AddressBarHistory.vue'
+
+const {
+  path,
+  method,
+  layout,
+  eventBus,
+  history,
+  server,
+  servers,
+  environment,
+  serverMeta,
+} = defineProps<AddressBarProps>()
 
 const emit = defineEmits<{
   /** Execute the current operation example */
   (e: 'execute'): void
-  /** Update the server list */
-  (e: 'update:servers'): void
   /** Select a request history item by index */
   (e: 'select:history:item', payload: { index: number }): void
 }>()
@@ -85,58 +104,158 @@ const methodConflict = ref<HttpMethodType | null>(null)
 /** Whether there is a path or method conflict */
 const hasConflict = computed(() => methodConflict.value || pathConflict.value)
 
+/** Check if the path contains a server URL, extract it, and select or add the server */
+const checkForServer = (targetPath: string) => {
+  const extracted = extractServerFromPath(targetPath)
+  if (!extracted) {
+    return targetPath
+  }
+
+  const [url, newPath] = extracted
+
+  // Server is already selected — nothing to change
+  if (url === server?.url) {
+    return newPath
+  }
+
+  const matchingServer = servers.find((s) => s.url === url)
+
+  // Select the server if it already exists in the list
+  if (matchingServer) {
+    eventBus.emit('server:update:selected', {
+      url,
+      meta: serverMeta,
+    })
+  }
+  // Otherwise add it as a new operation-level server
+  else {
+    eventBus.emit('server:add:server', {
+      url,
+      select: true,
+      meta: {
+        type: 'operation',
+        path,
+        method,
+      },
+    })
+  }
+
+  return newPath
+}
+
 /** Emit the path/method update event with conflict handling */
 const emitPathMethodUpdate = (
   targetMethod: HttpMethodType,
   targetPath: string,
-  /** We only want to debounce when the path changes */
-  emitOptions?: { debounceKey?: string },
+  blurTargetSelector: string | null = null,
 ): void => {
-  const position = addressBarRef.value?.cursorPosition()
-  eventBus.emit(
-    'operation:update:pathMethod',
-    {
-      meta: { method, path },
-      payload: { method: targetMethod, path: targetPath },
-      callback: (status) => {
-        // Clear conflicts if the operation was successful or no change was made
-        if (status === 'success' || status === 'no-change') {
-          methodConflict.value = null
-          pathConflict.value = null
+  const newPath = checkForServer(targetPath)
+  const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`
+
+  eventBus.emit('operation:update:pathMethod', {
+    meta: { method, path },
+    blurTargetSelector,
+    payload: { method: targetMethod, path: normalizedPath },
+    callback: (status, blurTargetSelector) => {
+      // Clear conflicts if the operation was successful or no change was made
+      if (status === 'success' || status === 'no-change') {
+        methodConflict.value = null
+        pathConflict.value = null
+      }
+      // Otherwise set the conflict if needed
+      else if (status === 'conflict') {
+        if (targetMethod !== method) {
+          methodConflict.value = targetMethod
         }
-        if (status === 'success') {
-          eventBus.emit('ui:focus:address-bar', { position })
+        if (normalizedPath !== path) {
+          pathConflict.value = normalizedPath
         }
-        // Otherwise set the conflict if needed
-        else if (status === 'conflict') {
-          if (targetMethod !== method) {
-            methodConflict.value = targetMethod
-          }
-          if (targetPath !== path) {
-            pathConflict.value = targetPath
-          }
+      }
+
+      // Edge case: pasting a full URL extracts the server but leaves the path unchanged.
+      // The CodeMirror DOM still shows the full URL, so we force it back to just the path.
+      if (
+        status === 'no-change' &&
+        addressBarRef.value?.codeMirrorRef?.textContent &&
+        addressBarRef.value.codeMirrorRef.textContent !== newPath
+      ) {
+        addressBarRef.value.setCodeMirrorContent(newPath)
+      }
+
+      // Re-trigger the click or focus event if we have a blur target selector
+      if (blurTargetSelector) {
+        const element = document.querySelector(blurTargetSelector)
+
+        // Re-trigger clicks on buttons
+        if (element instanceof HTMLButtonElement) {
+          element.click()
         }
-      },
+
+        // Re-trigger focus on inputs and codeInputs
+        else if (
+          element instanceof HTMLInputElement ||
+          element instanceof HTMLTextAreaElement ||
+          (element instanceof HTMLElement &&
+            element.getAttribute('contenteditable') === 'true')
+        ) {
+          element.focus()
+        }
+      }
     },
-    emitOptions,
-  )
+  })
 }
 
 /** Update the operation's HTTP method, handling conflicts */
 const handleMethodChange = (newMethod: HttpMethodType): void =>
   emitPathMethodUpdate(newMethod, pathConflict.value ?? path)
 
-/** Update the operation's path, handling conflicts */
-const handlePathChange = (newPath: string): void => {
-  const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`
-  emitPathMethodUpdate(methodConflict.value ?? method, normalizedPath, {
-    debounceKey: `operation:update:pathMethod-${path}-${method}`,
-  })
+/**
+ * Update the operation's path, handling conflicts also we extract the blur target selector to re-trigger click events
+ *
+ * We have special handling for the tab key to prevent it from triggering a click on the focused button
+ */
+const handlePathBlur = (newPath: string, event: FocusEvent): void => {
+  const relatedTarget = event.relatedTarget as Element | null
+  const blurTargetSelector = tabbedOut.value ? null : getSelector(relatedTarget)
+
+  tabbedOut.value = false
+
+  emitPathMethodUpdate(
+    methodConflict.value ?? method,
+    newPath,
+    blurTargetSelector,
+  )
+}
+
+/** Lets unset the server when backspace is pressed and the path is empty */
+const handlePathBackspace = (event: KeyboardEvent): void => {
+  if ((event.target as HTMLElement)?.innerText === '\n') {
+    eventBus.emit('server:update:selected', {
+      url: '',
+      meta: serverMeta,
+    })
+  }
+}
+
+/** Handle path submit (Enter key) — saves the path and triggers execution via blurTargetSelector */
+const handlePathSubmit = (
+  newPath: string,
+  event: KeyboardEvent | FocusEvent,
+): void => {
+  // Prevent the global hotkey listener
+  event.stopPropagation()
+
+  emitPathMethodUpdate(
+    methodConflict.value ?? method,
+    newPath,
+    '[data-addressbar-action="send"]',
+  )
 }
 
 /** Handle focus events */
 const sendButtonRef = useTemplateRef('sendButtonRef')
 const addressBarRef = useTemplateRef('addressBarRef')
+const tabbedOut = ref(false)
 const handleFocusSendButton = () => sendButtonRef.value?.$el?.focus()
 
 const handleFocusAddressBar = (
@@ -147,8 +266,7 @@ const handleFocusAddressBar = (
     return
   }
 
-  const position = payload && 'position' in payload ? payload.position : 'end'
-  addressBarRef.value?.focus(position)
+  addressBarRef.value?.focus('end')
 
   if (payload && 'event' in payload) {
     payload.event.preventDefault()
@@ -158,6 +276,7 @@ const handleFocusAddressBar = (
 onMounted(() => {
   eventBus.on('ui:focus:address-bar', handleFocusAddressBar)
   eventBus.on('ui:focus:send-button', handleFocusSendButton)
+  eventBus.on('copy-url:address-bar', copyUrl)
   eventBus.on('hooks:on:request:sent', startLoading)
   eventBus.on('hooks:on:request:complete', stopLoading)
 })
@@ -165,6 +284,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   eventBus.off('ui:focus:address-bar', handleFocusAddressBar)
   eventBus.off('ui:focus:send-button', handleFocusSendButton)
+  eventBus.off('copy-url:address-bar', copyUrl)
   eventBus.off('hooks:on:request:sent', startLoading)
   eventBus.off('hooks:on:request:complete', stopLoading)
 
@@ -175,10 +295,15 @@ onBeforeUnmount(() => {
 
 const { copyToClipboard } = useClipboard()
 
+/** Copy the resolved URL with the environment variables to the clipboard */
 const copyUrl = async () => {
-  await copyToClipboard(
-    getResolvedUrl({ environment, server, path, pathVariables: {} }),
+  const resolvedUrl = getResolvedUrl({ server, path })
+  const environmentVariables = getEnvironmentVariables(environment)
+  const resolvedUrlWithEnvVars = replaceEnvVariables(
+    resolvedUrl,
+    environmentVariables,
   )
+  await copyToClipboard(resolvedUrlWithEnvVars)
 }
 
 const isServerDropdownOpen = ref(false)
@@ -188,6 +313,21 @@ const isHistoryDropdownOpen = ref(false)
 const isDropdownOpen = computed(
   () => isServerDropdownOpen.value || isHistoryDropdownOpen.value,
 )
+
+const navigateToServersPage = () => {
+  if (serverMeta.type === 'operation') {
+    return eventBus.emit('ui:navigate', {
+      page: 'operation',
+      path: 'servers',
+      operationPath: serverMeta.path,
+      method: serverMeta.method,
+    })
+  }
+  return eventBus.emit('ui:navigate', {
+    page: 'document',
+    path: 'servers',
+  })
+}
 
 defineExpose({
   methodConflict,
@@ -229,6 +369,7 @@ defineExpose({
         <ServerDropdown
           v-if="servers.length"
           :layout="layout"
+          :meta="serverMeta"
           :server="server"
           :servers="servers"
           :target="id"
@@ -236,7 +377,7 @@ defineExpose({
           @update:selectedServer="
             (payload) => eventBus.emit('server:update:selected', payload)
           "
-          @update:servers="emit('update:servers')"
+          @update:servers="navigateToServersPage"
           @update:variable="
             (payload) => eventBus.emit('server:update:variables', payload)
           " />
@@ -259,8 +400,10 @@ defineExpose({
           :modelValue="path"
           :placeholder="server ? '' : 'Enter a URL'"
           server
-          @submit="emit('execute')"
-          @update:modelValue="handlePathChange" />
+          @blur="handlePathBlur"
+          @keydown.delete="handlePathBackspace"
+          @keydown.tab="tabbedOut = true"
+          @submit="handlePathSubmit" />
         <div class="fade-right" />
       </div>
 
@@ -282,7 +425,7 @@ defineExpose({
       <!-- Error message -->
       <div
         v-if="hasConflict"
-        class="absolute inset-x-0 top-[calc(100%+4px)] flex flex-col items-center rounded px-6">
+        class="z-context absolute inset-x-0 top-[calc(100%+4px)] flex flex-col items-center rounded px-6">
         <div
           class="text-c-danger bg-b-danger border-c-danger flex items-center gap-1 rounded border p-1">
           <ScalarIconWarningCircle size="sm" />
@@ -295,9 +438,11 @@ defineExpose({
           </div>
         </div>
       </div>
+
       <ScalarButton
         ref="sendButtonRef"
         class="relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
+        data-addressbar-action="send"
         :disabled="isLoading"
         @click="emit('execute')">
         <span

@@ -33,21 +33,26 @@ export function inferSchemaFromExample(example: any): OpenAPIV3_1.SchemaObject {
  * by checking its JavaScript type and attempting to parse it
  * as a number or boolean if it's a string.
  */
-export function inferSchemaType(value: any): OpenAPIV3_1.SchemaObject {
+export function inferSchemaType(value: any): OpenAPIV3_1.NonArraySchemaObject {
   if (typeof value === 'number') {
     return { type: Number.isInteger(value) ? 'integer' : 'number' }
   }
+
   if (typeof value === 'boolean') {
     return { type: 'boolean' }
   }
+
   if (typeof value === 'string') {
     const num = Number(value)
+
     if (!isNaN(num)) {
       return { type: Number.isInteger(num) ? 'integer' : 'number' }
     }
+
     if (value.toLowerCase() === 'true' || value.toLowerCase() === 'false') {
       return { type: 'boolean' }
     }
   }
+
   return { type: 'string' }
 }

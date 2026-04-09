@@ -2,27 +2,15 @@
 import { ScalarIconInfo, ScalarIconX } from '@scalar/icons'
 import { ref } from 'vue'
 
-import { useState } from '@/state/state'
+import { URLS } from '@/consts/urls'
+import { useSignupLink } from '@/hooks/use-signup-link'
 
 const isDismissed = ref(false)
-const { dashboardUrl, mode, uploadedTmpDocumentUrl } = useState()
+const { signupLink } = useSignupLink()
 
-function handleLearnMore() {
-  const path = 'https://scalar.com/products/agent/getting-started'
-  window.open(path, '_blank')
-  if (mode === 'full') {
-    window.location.replace(dashboardUrl)
-  }
-
-  if (mode === 'preview') {
-    window.location.replace(
-      uploadedTmpDocumentUrl.value
-        ? `${dashboardUrl}/register?flow=oss-agent&docUrl=${uploadedTmpDocumentUrl.value}`
-        : dashboardUrl,
-    )
-  }
-}
-
+/**
+ * Dismiss the free messages info section.
+ */
 function dismiss() {
   isDismissed.value = true
 }
@@ -33,18 +21,26 @@ function dismiss() {
     v-show="!isDismissed"
     class="freeMessagesInfoSection">
     <strong class="infoText flex items-center gap-1.5">
+      <!-- Sign up -->
       <ScalarIconInfo
         class="text-blue size-4"
         weight="bold" />
-      Get an API Key to enable Agent Scalar for your docs.
+      <a
+        class="underline"
+        :href="signupLink"
+        target="_blank"
+        >Sign up for Agent Scalar</a
+      >
+      to continue without hitting limits.
     </strong>
     <div class="actionsContainer">
-      <button
+      <a
         class="actionButton upgradeButton"
-        type="button"
-        @click="handleLearnMore">
-        Learn More
-      </button>
+        :href="URLS.AGENT_SCALAR_DOCUMENTATION"
+        target="_blank"
+        type="button">
+        Read more
+      </a>
       <button
         aria-label="Close"
         class="closeButton"

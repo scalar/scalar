@@ -2,9 +2,9 @@
 
 You can pass a - what we call universal - configuration object to fine-tune your API reference.
 
-> **Note:** This page covers the runtime configuration object for the Scalar API Reference used to control how Scalar displays your API docs.
+> **Note:** This page covers the runtime configuration object for the API Reference used to control how Scalar displays your API docs.
 >
-> This is NOT the `scalar.config.json` (used for the [Scalar Docs](guides/docs/configuration/scalar.config.json.md)).
+> This is NOT the `scalar.config.json` (used for the [Docs](guides/docs/configuration/scalar.config.json.md)).
 
 
 ## Universal Configuration
@@ -212,16 +212,16 @@ It is completely up to you whether you want to pass JSON or YAML. None of the di
 * YAML is easier to read for humans
 * YAML documents tend to be a little bit smaller
 
-## Agent Scalar
+## Agent
 
-Agent Scalar adds an AI chat interface to your API reference. Users can ask questions about your API and get contextual answers based on your OpenAPI document.
+Agent adds an AI chat interface to your API reference. Users can ask questions about your API and get contextual answers based on your OpenAPI document.
 
 - Enabled by default on `http://localhost` for testing (10 free messages)
 - Won’t appear in production unless a key is provided
-- Requires an [Agent Scalar key](guides/agent/key.md) for production deployments
+- Requires an [Agent key](guides/agent/key.md) for production deployments
 - Your OpenAPI document is uploaded on first message
 
-Related: [How to get an Agent Scalar key](guides/agent/key.md)
+Related: [How to get an Agent key](guides/agent/key.md)
 
 ```js
 Scalar.createApiReference('#app', {
@@ -236,11 +236,11 @@ Scalar.createApiReference('#app', {
 })
 ```
 
-To disable Agent Scalar:
+To disable Agent:
 
 ```js
 Scalar.createApiReference('#app', {
-  // Disable Agent Scalar entirely
+  // Disable Agent entirely
   agent: {
     disabled: true,
   },
@@ -465,11 +465,25 @@ You can explicitly set the default HTTP client, though:
 }
 ```
 
+#### defaultOpenFirstTag
+
+**Type:** `boolean`
+
+Whether to open the first tag if the URL doesn't contain a specific target.
+
+**Default:** `true`
+
+```javascript
+{
+  defaultOpenFirstTag: false
+}
+```
+
 #### defaultOpenAllTags
 
 **Type:** `boolean`
 
-By default we only open the relevant tag based on the url, however if you want all the tags open by default then set this configuration option.
+Whether to always start with all tags open, regardless of the URL.
 
 **Default:** `false`
 
@@ -623,7 +637,7 @@ Whether to show the sidebar search bar.
 
 **Type:** `boolean`
 
-Whether to show the "Test Request" button.
+Whether to show the "Test Request" button. When `true`, the authentication panel is also hidden, since it is only relevant when test requests are available.
 
 **Default:** `false`
 
@@ -788,6 +802,39 @@ You can pass information to the config object to configure meta information out 
 }
 ```
 
+#### mcp
+
+**Type:** `{ name: string; url: string; disabled?: boolean }` (optional)
+
+MCP (Model Context Protocol) configuration. When provided, enables MCP integration so users can connect their API reference to MCP-compatible tools. Omit this option to leave MCP disabled.
+
+Related: [MCP guide](guides/agent/mcp.md)
+
+- **name** — Display name for the MCP server.
+- **url** — URL of the MCP server.
+- **disabled** — Optional. When `true`, disables the MCP integration.
+
+```javascript
+{
+  mcp: {
+    name: 'My API',
+    url: 'https://mcp.example.com',
+  }
+}
+```
+
+To disable MCP explicitly:
+
+```javascript
+{
+  mcp: {
+    name: 'My API',
+    url: 'https://mcp.example.com',
+    disabled: true,
+  }
+}
+```
+
 #### operationTitleSource
 
 **Type:** `'summary' | 'path'`
@@ -922,6 +969,20 @@ You can use our hosted proxy:
 If you like to run your own, check out our [example proxy written in Go](https://github.com/scalar/scalar/tree/main/projects/proxy-scalar-com).
 
 Please note: You may not use just any reverse proxy, but need to use a proxy that adheres to the Scalar Proxy API. See the example to learn more.
+
+#### oauth2RedirectUri
+
+**Type:** `string`
+
+Default OAuth 2.0 redirect URI used to prefill authorization code and implicit flows in the API client.
+
+This is useful for desktop wrappers like Electron where the page URL is often `file://...`, which OAuth providers usually reject.
+
+```javascript
+{
+  oauth2RedirectUri: 'myapp://oauth/callback'
+}
+```
 
 #### searchHotKey
 
@@ -1231,20 +1292,120 @@ Callback functions that are triggered by user interactions and system events.
 
 #### onBeforeRequest
 
-**Type:** `({ request: Request }) => void | Promise<void>`
+**Type:** `({ request: Request; requestBuilder: RequestFactory }) => void | Promise<void>`
 
-Callback function that is fired before a request is sent through the API client.
+Callback fired before the outbound request is sent from the embedded API client. Mutate **`requestBuilder`** to change method, path, query, headers, body, and related fields. The [`RequestFactory`](https://github.com/scalar/scalar/blob/main/packages/workspace-store/src/request-example/builder/request-factory.ts) shape is available to TypeScript users as `import type { RequestFactory } from '@scalar/workspace-store/request-example'`.
 
-The function receives the request object and can be used to modify the request before it is sent.
+> **Experimental:** `RequestFactory` may change in minor releases; treat its fields as unstable until the API stabilizes.
+
+**`request`** is a fetch API [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) built from the builder for backward compatibility. Using it as the primary way to customize outbound traffic is going to be **deprecated**; prefer **`requestBuilder`**. The API Reference passes both `request` and `requestBuilder` to this callback.
 
 ```javascript
 {
-  onBeforeRequest: ({ request }) => {
-    // Add a custom header to all requests
-    request.headers.set('X-Custom-Header', 'test')
+  onBeforeRequest: ({ requestBuilder }) => {
+    requestBuilder.headers.set('X-Custom-Header', 'test')
   }
 }
 ```
+
+##### RequestFactory reference
+
+The `requestBuilder` object exposes the following fields:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `baseUrl` | `string` | The base API server URL (may contain placeholders like `{{version}}`). |
+| `path.raw` | `string` | The raw path string, e.g. `/users/{userId}/settings`. |
+| `path.variables` | `Record<string, string>` | Path variable names and their current values. |
+| `method` | `string` | HTTP method (always uppercase). |
+| `headers` | [`Headers`](https://developer.mozilla.org/en-US/docs/Web/API/Headers) | Headers to send with the request. Supports `.set()`, `.get()`, `.delete()`, `.append()`. |
+| `query` | [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) | Query parameters. Supports `.set()`, `.get()`, `.delete()`, `.append()`. |
+| `body` | `RequestBody \| null` | The request body payload (`raw`, `formdata`, or `urlencoded`), or `null`. |
+| `cookies` | `XScalarCookie[]` | Cookies to include with the request. |
+| `security` | `BuildRequestSecurityResult[]` | The resolved security schemes for this request. Each entry has `in` (`"header"`, `"query"`, or `"cookie"`), `name`, `value`, and an optional `format` (`"basic"` or `"bearer"`). |
+| `options` | `object` | Advanced options (see below). |
+
+**`options`**
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `disableSecurity` | `boolean` | `false` | When `true`, Scalar skips its built-in security handling entirely. Security headers, query parameters, and cookies from the `security` array are **not** applied automatically, giving you full control. |
+| `isElectron` | `boolean` | `false` | Indicates the request runs in an Electron (Node-like) context. |
+
+##### Examples
+
+**Add a custom header**
+
+```javascript
+{
+  onBeforeRequest: ({ requestBuilder }) => {
+    requestBuilder.headers.set('X-Custom-Header', 'my-value')
+  }
+}
+```
+
+**Add a query parameter**
+
+```javascript
+{
+  onBeforeRequest: ({ requestBuilder }) => {
+    requestBuilder.query.set('debug', 'true')
+  }
+}
+```
+
+**Custom auth prefix — disable built-in security and apply your own**
+
+By default, Scalar applies security schemes automatically (e.g. prefixing bearer tokens with `Bearer`). If you need a custom prefix, a different header name, or any other transformation, set `disableSecurity` to `true` and handle the `security` array yourself:
+
+```javascript
+{
+  onBeforeRequest: ({ requestBuilder, envVariables }) => {
+    // Tell Scalar to skip its default security handling
+    requestBuilder.options.disableSecurity = true
+
+    // Apply each security scheme with custom logic
+    for (const security of requestBuilder.security) {
+      const getValue = () => {
+        // use replaced header name so {{ env }} placeholders work
+        const substitutedValue = replaceEnvVariables(security.value, envVariables)
+        if (security.format === 'basic') {
+          return `Basic ${btoa(substitutedValue)}-custom-sufix`
+        }
+
+        if (security.format === 'bearer') {
+          return `MyBearerPrefix <id> ${substitutedValue}`
+        }
+
+        return substitutedValue
+      }
+
+      const value = getValue()
+
+      // Set the security on the correct place
+      if (security.in === 'header') {
+        headers.set(name, securityValue)
+        return
+      }
+
+      if (security.in === 'query') {
+        securityQueryParams.set(name, securityValue)
+        return
+      }
+
+      if (security.in === 'cookie') {
+        securityCookies.push({
+          name: name,
+          value: securityValue,
+          isDisabled: false,
+        })
+      }
+    }
+  }
+}
+```
+
+> When `disableSecurity` is `true`, only the security-related headers, query parameters, and cookies are skipped. All other fields on the request (custom headers, path, body, non-security cookies, etc.) are unaffected.
 
 #### onDocumentSelect
 

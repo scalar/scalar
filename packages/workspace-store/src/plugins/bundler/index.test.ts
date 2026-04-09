@@ -11,6 +11,7 @@ import {
   normalizeAuthSchemes,
   normalizeRefs,
   refsEverywhere,
+  removeExtraScalarKeys,
   restoreOriginalRefs,
   syncPathParameters,
 } from '@/plugins/bundler'
@@ -1448,19 +1449,85 @@ describe('syncPathParameters', () => {
       plugins: [syncPathParameters()],
     })
 
-    // The $ref gets resolved during bundling, creating the 'id' path parameter
-    // Plus we have the 'format' query parameter
     expect(input.paths['/users/{id}'].get.parameters.length).toBeGreaterThanOrEqual(2)
 
-    // Should have the path parameter (either from $ref or created)
-    const pathParams = input.paths['/users/{id}'].get.parameters.filter((p: any) => p.in === 'path')
-    expect(pathParams).toHaveLength(1)
-    expect(pathParams[0]).toMatchObject({ name: 'id', in: 'path' })
+    // Keep the referenced path parameter as a reference in operation.parameters
+    const refParams = input.paths['/users/{id}'].get.parameters.filter(
+      (p: any) => typeof p?.$ref === 'string' && p.$ref === '#/components/parameters/IdParam',
+    )
+    expect(refParams).toHaveLength(1)
 
     // Should have the query parameter
     const queryParams = input.paths['/users/{id}'].get.parameters.filter((p: any) => p.in === 'query')
     expect(queryParams).toHaveLength(1)
     expect(queryParams[0]).toMatchObject({ name: 'format', in: 'query' })
+  })
+
+  it('keeps operation-level referenced path parameters as $ref entries', async () => {
+    const input = {
+      paths: {
+        '/users/{id}': {
+          get: {
+            parameters: [{ $ref: '#/components/parameters/IdParam' }, { name: 'format', in: 'query' }],
+          },
+        },
+      },
+      components: {
+        parameters: {
+          IdParam: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            description: 'The user identifier',
+          },
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [syncPathParameters()],
+    })
+
+    expect(input.paths['/users/{id}'].get.parameters).toEqual([
+      { $ref: '#/components/parameters/IdParam' },
+      { name: 'format', in: 'query' },
+    ])
+    expect(input.paths['/users/{id}'].get.parameters[0]).not.toHaveProperty('name')
+  })
+
+  it('keeps path-item referenced path parameters as $ref entries when operation does not define them', async () => {
+    const input = {
+      paths: {
+        '/users/{id}': {
+          parameters: [{ $ref: '#/components/parameters/IdParam' }],
+          get: {
+            parameters: [{ name: 'limit', in: 'query' }],
+          },
+        },
+      },
+      components: {
+        parameters: {
+          IdParam: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            description: 'The user identifier',
+          },
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [syncPathParameters()],
+    })
+
+    expect(input.paths['/users/{id}'].get.parameters).toEqual([
+      { name: 'limit', in: 'query' },
+      { $ref: '#/components/parameters/IdParam' },
+    ])
+    expect(input.paths['/users/{id}'].get.parameters[1]).not.toHaveProperty('name')
   })
 
   it('syncs parameters for complex paths with multiple segments', async () => {
@@ -1513,7 +1580,7 @@ describe('syncPathParameters', () => {
     })
   })
 
-  it('preserves parameter order (path parameters first, then others)', async () => {
+  it('preserves parameter order', async () => {
     const input = {
       paths: {
         '/users/{userId}/posts/{postId}': {
@@ -1548,22 +1615,12 @@ describe('syncPathParameters', () => {
 
     // Path parameters should come first, followed by non-path parameters
     expect(input.paths['/users/{userId}/posts/{postId}'].get.parameters).toHaveLength(4)
-    expect(input.paths['/users/{userId}/posts/{postId}'].get.parameters[0]).toMatchObject({
-      name: 'userId',
-      in: 'path',
-    })
-    expect(input.paths['/users/{userId}/posts/{postId}'].get.parameters[1]).toMatchObject({
-      name: 'postId',
-      in: 'path',
-    })
-    expect(input.paths['/users/{userId}/posts/{postId}'].get.parameters[2]).toMatchObject({
-      name: 'format',
-      in: 'query',
-    })
-    expect(input.paths['/users/{userId}/posts/{postId}'].get.parameters[3]).toMatchObject({
-      name: 'limit',
-      in: 'query',
-    })
+    expect(input.paths['/users/{userId}/posts/{postId}'].get.parameters).toEqual([
+      { name: 'format', in: 'query' },
+      { name: 'userId', in: 'path' },
+      { name: 'limit', in: 'query' },
+      { name: 'postId', in: 'path' },
+    ])
   })
 
   it('does not modify non-path items', async () => {
@@ -1662,10 +1719,14 @@ describe('syncPathParameters', () => {
       plugins: [syncPathParameters()],
     })
 
-    const pathParams = input.paths['/users/{userId}/posts/{postId}'].get.parameters.filter((p: any) => p.in === 'path')
-    expect(pathParams).toHaveLength(2)
-    expect(pathParams[0]).toMatchObject({ name: 'userId', in: 'path' })
-    expect(pathParams[1]).toMatchObject({ name: 'postId', in: 'path' })
+    const refParams = input.paths['/users/{userId}/posts/{postId}'].get.parameters.filter(
+      (p: any) => typeof p?.$ref === 'string',
+    )
+    expect(refParams).toHaveLength(2)
+    expect(refParams).toEqual([
+      { $ref: '#/components/parameters/UserIdParam' },
+      { $ref: '#/components/parameters/PostIdParam' },
+    ])
   })
 
   it('handles mix of referenced and inline path parameters', async () => {
@@ -1702,15 +1763,309 @@ describe('syncPathParameters', () => {
       plugins: [syncPathParameters()],
     })
 
-    const pathParams = input.paths['/users/{userId}/posts/{postId}'].get.parameters.filter(
-      (p: any) => p.in === 'path' && 'name' in p,
+    const refParam = input.paths['/users/{userId}/posts/{postId}'].get.parameters.find(
+      (p: any) => p.$ref === '#/components/parameters/UserIdParam',
     )
-    expect(pathParams.length).toBeGreaterThanOrEqual(2)
+    const postIdParam = input.paths['/users/{userId}/posts/{postId}'].get.parameters.find(
+      (p: any) => p.in === 'path' && p.name === 'postId',
+    )
 
-    const userIdParam = pathParams.find((p: any) => p.name === 'userId')
-    const postIdParam = pathParams.find((p: any) => p.name === 'postId')
-
-    expect(userIdParam).toMatchObject({ name: 'userId', in: 'path' })
+    expect(refParam).toEqual({ $ref: '#/components/parameters/UserIdParam' })
     expect(postIdParam).toMatchObject({ name: 'postId', in: 'path', description: 'Inline post ID parameter' })
+  })
+
+  it('uses path-item level parameters when operation does not declare them', async () => {
+    const input = {
+      paths: {
+        '/users/{id}': {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              description: 'The user identifier',
+              schema: { type: 'string' },
+            },
+          ],
+          get: {
+            summary: 'Get user by ID',
+            parameters: [
+              { name: 'limit', in: 'query' },
+              { name: 'offset', in: 'query' },
+            ],
+          },
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [syncPathParameters()],
+    })
+
+    const params = input.paths['/users/{id}'].get.parameters
+    const pathParam = params.find((p: any) => p.in === 'path' && p.name === 'id')
+
+    expect(pathParam).toBeDefined()
+    expect(pathParam).toMatchObject({
+      name: 'id',
+      in: 'path',
+      required: true,
+      description: 'The user identifier',
+      schema: { type: 'string' },
+    })
+  })
+
+  it('prefers operation-level path params over path-item level params', async () => {
+    const input = {
+      paths: {
+        '/users/{id}': {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              description: 'Path-item description',
+            },
+          ],
+          get: {
+            parameters: [
+              {
+                name: 'id',
+                in: 'path',
+                required: true,
+                description: 'Operation-level description',
+              },
+            ],
+          },
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [syncPathParameters()],
+    })
+
+    const params = input.paths['/users/{id}'].get.parameters
+    const pathParam = params.find((p: any) => p.in === 'path' && p.name === 'id')
+
+    expect(pathParam).toMatchObject({
+      name: 'id',
+      in: 'path',
+      required: true,
+      description: 'Operation-level description',
+    })
+  })
+
+  it('uses path-item $ref parameter when operation does not declare it', async () => {
+    const input = {
+      paths: {
+        '/users/{id}': {
+          parameters: [{ $ref: '#/components/parameters/IdParam' }],
+          get: {
+            summary: 'Get user by ID',
+            parameters: [{ name: 'limit', in: 'query' }],
+          },
+        },
+      },
+      components: {
+        parameters: {
+          IdParam: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            description: 'The user identifier',
+            schema: { type: 'string' },
+          },
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [syncPathParameters()],
+    })
+
+    const params = input.paths['/users/{id}'].get.parameters
+    const pathParamRef = params.find((p: any) => p.$ref === '#/components/parameters/IdParam')
+
+    expect(pathParamRef).toBeDefined()
+  })
+
+  it('does not duplicate when operation $ref and path-item inline resolve to the same param', async () => {
+    const input = {
+      paths: {
+        '/users/{id}': {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              description: 'Inline path-item param',
+            },
+          ],
+          get: {
+            parameters: [{ $ref: '#/components/parameters/IdParam' }],
+          },
+        },
+      },
+      components: {
+        parameters: {
+          IdParam: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            description: 'Ref operation param',
+          },
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [syncPathParameters()],
+    })
+
+    const params = input.paths['/users/{id}'].get.parameters
+    const refParams = params.filter((p: any) => p.$ref === '#/components/parameters/IdParam')
+    const inlinePathParams = params.filter((p: any) => p.in === 'path' && p.name === 'id')
+
+    expect(refParams).toHaveLength(1)
+    expect(inlinePathParams).toHaveLength(0)
+  })
+
+  it('does not duplicate when both path-item and operation use the same $ref', async () => {
+    const input = {
+      paths: {
+        '/users/{id}': {
+          parameters: [{ $ref: '#/components/parameters/IdParam' }],
+          get: {
+            parameters: [{ $ref: '#/components/parameters/IdParam' }, { name: 'limit', in: 'query' }],
+          },
+        },
+      },
+      components: {
+        parameters: {
+          IdParam: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            description: 'Shared $ref param',
+          },
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [syncPathParameters()],
+    })
+
+    const params = input.paths['/users/{id}'].get.parameters
+    const refParams = params.filter((p: any) => p.$ref === '#/components/parameters/IdParam')
+
+    expect(refParams).toHaveLength(1)
+  })
+})
+
+describe('removeExtraScalarKeys', () => {
+  it('removes __scalar_ from nodes during bundle', async () => {
+    const input = {
+      openapi: '3.0.0',
+      info: { title: 'API', __scalar_: { some: 'internal' } },
+      paths: {},
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [removeExtraScalarKeys()],
+    })
+
+    expect(input.info).not.toHaveProperty('__scalar_')
+    expect(input.info).toEqual({ title: 'API' })
+  })
+
+  it('removes $status from nodes during bundle', async () => {
+    const input = {
+      responses: {
+        200: {
+          $ref: '#/components/responses/Ok',
+          $status: 'loading',
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [removeExtraScalarKeys()],
+    })
+
+    expect(input.responses['200']).not.toHaveProperty('$status')
+    expect(input.responses['200']).toEqual({ $ref: '#/components/responses/Ok' })
+  })
+
+  it('removes both __scalar_ and $status when present on the same node', async () => {
+    const input = {
+      schema: {
+        $ref: '#/components/schemas/User',
+        __scalar_: {},
+        $status: 'error',
+        type: 'object',
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [removeExtraScalarKeys()],
+    })
+
+    expect(input.schema).not.toHaveProperty('__scalar_')
+    expect(input.schema).not.toHaveProperty('$status')
+    expect(input.schema).toEqual({
+      $ref: '#/components/schemas/User',
+      type: 'object',
+    })
+  })
+
+  it('removes internal keys from nested nodes at any level', async () => {
+    const input = {
+      a: {
+        b: {
+          __scalar_: 'nested',
+          name: 'inner',
+        },
+        $status: 'loading',
+        title: 'mid',
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [removeExtraScalarKeys()],
+    })
+
+    expect(input.a).not.toHaveProperty('$status')
+    expect(input.a.b).not.toHaveProperty('__scalar_')
+    expect(input.a).toEqual({ title: 'mid', b: { name: 'inner' } })
+  })
+
+  it('leaves nodes unchanged when internal keys are absent', async () => {
+    const input = {
+      openapi: '3.0.0',
+      info: { title: 'API', version: '1.0.0' },
+      paths: { '/users': { get: { summary: 'List users' } } },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [removeExtraScalarKeys()],
+    })
+
+    expect(input).toEqual({
+      openapi: '3.0.0',
+      info: { title: 'API', version: '1.0.0' },
+      paths: { '/users': { get: { summary: 'List users' } } },
+    })
   })
 })

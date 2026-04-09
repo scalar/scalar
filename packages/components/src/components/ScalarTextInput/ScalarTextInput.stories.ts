@@ -3,6 +3,7 @@ import { ref } from 'vue'
 
 import ScalarIconButton from '../ScalarIconButton/ScalarIconButton.vue'
 import ScalarTextInput from './ScalarTextInput.vue'
+import ScalarTextInputCopy from './ScalarTextInputCopy.vue'
 
 const meta: Meta = {
   component: ScalarTextInput,
@@ -12,6 +13,9 @@ const meta: Meta = {
     placeholder: { control: 'text' },
     prefix: { control: 'text' },
     suffix: { control: 'text' },
+  },
+  args: {
+    placeholder: 'Placeholder text...',
   },
   render: (args) => ({
     components: { ScalarTextInput },
@@ -56,7 +60,7 @@ export const WithAside: Story = {
   render: (args) => ({
     components: { ScalarTextInput, ScalarIconButton },
     setup() {
-      const model = ref('password')
+      const model = ref('')
       const mask = ref(true)
       return { args, model, mask }
     },
@@ -69,5 +73,17 @@ export const WithAside: Story = {
           @click="mask = !mask" />
       </template>
     </ScalarTextInput>`,
+  }),
+}
+
+export const WithCopy: Story = {
+  render: (args) => ({
+    components: { ScalarTextInputCopy },
+    setup() {
+      const model = ref('https://scalar.com/some/link/we/want/to/copy')
+      const mask = ref(true)
+      return { args, model, mask }
+    },
+    template: `<ScalarTextInputCopy v-model="model" v-bind="args" />`,
   }),
 }

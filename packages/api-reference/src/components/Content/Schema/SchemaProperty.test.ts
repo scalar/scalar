@@ -54,6 +54,33 @@ describe('SchemaProperty', () => {
         expect(schemas).toHaveLength(1)
       })
 
+      it('shows object descriptions without duplicating them after expansion', async () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              description: 'This object groups the available filters.',
+              properties: {
+                test: {
+                  type: 'string',
+                },
+              },
+            }),
+            options: {},
+          },
+        })
+
+        expect(wrapper.text()).toContain('This object groups the available filters.')
+        expect(wrapper.html().match(/This object groups the available filters\./g)).toHaveLength(1)
+
+        const button = wrapper.find('.schema-card-title')
+        await button.trigger('click')
+        await wrapper.vm.$nextTick()
+
+        expect(wrapper.html().match(/This object groups the available filters\./g)).toHaveLength(1)
+      })
+
       it('hides expand button for object without properties or additional properties', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
@@ -636,6 +663,56 @@ describe('SchemaProperty', () => {
 
       expect(html).not.toContain('satellites')
       expect(html).not.toContain('Satellites surrounding the planet')
+    })
+  })
+
+  describe('example values', () => {
+    it('renders a truthy boolean example', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'boolean',
+            example: true,
+          }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.text()).toContain('Example')
+      expect(wrapper.text()).toContain('true')
+    })
+
+    it('renders a falsy boolean example', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'boolean',
+            example: false,
+          }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.text()).toContain('Example')
+      expect(wrapper.text()).toContain('false')
+    })
+
+    it('renders a zero numeric example', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'integer',
+            example: 0,
+          }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.text()).toContain('Example')
+      expect(wrapper.text()).toContain('0')
     })
   })
 })

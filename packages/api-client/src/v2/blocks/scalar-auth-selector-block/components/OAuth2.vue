@@ -7,6 +7,14 @@ import type {
   ApiReferenceEvents,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
+import {
+  getEnvironmentVariables,
+  type OAuthFlowAuthorizationCodeSecret,
+  type OAuthFlowClientCredentialsSecret,
+  type OAuthFlowPasswordSecret,
+  type OAuthFlowsObjectSecret,
+  type SecuritySchemeObjectSecret,
+} from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCredentialsLocation } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-credentials-location'
 import { type XusePkce } from '@scalar/workspace-store/schemas/extensions/security/x-use-pkce'
@@ -17,15 +25,13 @@ import type {
 import { DataTableRow } from '@v2/components/data-table'
 import { computed, ref, watch } from 'vue'
 
+import { DataTableRow } from '@/components/DataTable'
+import {
+  resolveDefaultOAuth2RedirectUri,
+  useClientConfig,
+} from '@/hooks/useClientConfig'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
-import type {
-  OAuthFlowAuthorizationCodeSecret,
-  OAuthFlowClientCredentialsSecret,
-  OAuthFlowPasswordSecret,
-  OAuthFlowsObjectSecret,
-  SecuritySchemeObjectSecret,
-} from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
 
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
@@ -80,6 +86,8 @@ type NonImplicitFlow =
   | OAuthFlowClientCredentialsSecret
   | OAuthFlowAuthorizationCodeSecret
 
+const clientConfig = useClientConfig()
+
 /** We filter selected scopes to only include scopes that are in this flow*/
 const selectedScopes = computed(() =>
   selectedScopesProp.filter((scope) => scope in (flow.value.scopes ?? {})),
@@ -126,6 +134,9 @@ const clearOauth2Secrets = (): void =>
 /** Track if we have set the redirect uri */
 const hasPrefilledRedirectUri = ref(false)
 
+const getDefaultOAuth2RedirectUri = (): string =>
+  resolveDefaultOAuth2RedirectUri(clientConfig.value)
+
 /** Default the redirect-uri to the current origin if we have access to window */
 watch(
   () =>
@@ -133,18 +144,19 @@ watch(
       'x-scalar-secret-redirect-uri'
     ],
   (newRedirectUri) => {
+    const defaultRedirectUri = getDefaultOAuth2RedirectUri()
+
     if (
       hasPrefilledRedirectUri.value ||
       newRedirectUri ||
-      typeof window === 'undefined' ||
+      !defaultRedirectUri ||
       !('x-scalar-secret-redirect-uri' in flow.value)
     ) {
       return
     }
     hasPrefilledRedirectUri.value = true
     handleOauth2SecretsUpdate({
-      'x-scalar-secret-redirect-uri':
-        window.location.origin + window.location.pathname,
+      'x-scalar-secret-redirect-uri': defaultRedirectUri,
     })
   },
   { immediate: true },
@@ -161,18 +173,24 @@ const handleAuthorize = async (): Promise<void> => {
 
   loader.start()
 
-  const [error, accessToken] = await authorizeOauth2(
+  const [error, tokens] = await authorizeOauth2(
     flows,
     type,
     selectedScopes.value,
     server,
     proxyUrl,
+    getEnvironmentVariables(environment),
   )
 
   await loader.clear()
 
-  if (accessToken) {
-    handleOauth2SecretsUpdate({ 'x-scalar-secret-token': accessToken })
+  if (tokens?.accessToken) {
+    handleOauth2SecretsUpdate({
+      'x-scalar-secret-token': tokens.accessToken,
+      ...(tokens.refreshToken
+        ? { 'x-scalar-secret-refresh-token': tokens.refreshToken }
+        : {}),
+    })
   } else {
     console.error(error)
     toast(error?.message ?? 'Failed to authorize', 'error')
@@ -180,10 +198,19 @@ const handleAuthorize = async (): Promise<void> => {
 }
 
 /** Updates the secret location */
-const handleSecretLocationUpdate = (value: string): void =>
-  handleOauth2Update({
-    'x-scalar-credentials-location': value === 'body' ? 'body' : 'header',
+const handleSecretLocationUpdate = (value: string): void => {
+  const credentialsLocation = value === 'body' ? 'body' : 'header'
+
+  if (scheme.type !== 'openIdConnect') {
+    handleOauth2Update({
+      'x-scalar-credentials-location': credentialsLocation,
+    })
+  }
+
+  handleOauth2SecretsUpdate({
+    'x-scalar-credentials-location': credentialsLocation,
   })
+}
 </script>
 
 <template>
@@ -211,7 +238,11 @@ const handleSecretLocationUpdate = (value: string): void =>
           size="sm"
           variant="outlined"
           @click="
-            () => handleOauth2SecretsUpdate({ 'x-scalar-secret-token': '' })
+            () =>
+              handleOauth2SecretsUpdate({
+                'x-scalar-secret-token': '',
+                'x-scalar-secret-refresh-token': '',
+              })
           ">
           Clear
         </ScalarButton>
@@ -226,18 +257,28 @@ const handleSecretLocationUpdate = (value: string): void =>
         v-if="'authorizationUrl' in flow"
         containerClass="border-r-0"
         :environment
-        :modelValue="flow.authorizationUrl"
+        :modelValue="flow['x-scalar-secret-auth-url'] ?? ''"
         placeholder="https://galaxy.scalar.com/authorize"
-        @update:modelValue="(v) => handleOauth2Update({ authorizationUrl: v })">
+        @update:modelValue="
+          (v) => {
+            handleOauth2SecretsUpdate({ 'x-scalar-secret-auth-url': v })
+            handleOauth2Update({ authorizationUrl: v })
+          }
+        ">
         Auth URL
       </RequestAuthDataTableInput>
 
       <RequestAuthDataTableInput
         v-if="'tokenUrl' in flow"
         :environment
-        :modelValue="flow.tokenUrl"
+        :modelValue="flow['x-scalar-secret-token-url'] ?? ''"
         placeholder="https://galaxy.scalar.com/token"
-        @update:modelValue="(v) => handleOauth2Update({ tokenUrl: v })">
+        @update:modelValue="
+          (v) => {
+            handleOauth2SecretsUpdate({ 'x-scalar-secret-token-url': v })
+            handleOauth2Update({ tokenUrl: v })
+          }
+        ">
         Token URL
       </RequestAuthDataTableInput>
     </DataTableRow>
@@ -248,8 +289,9 @@ const handleSecretLocationUpdate = (value: string): void =>
         :modelValue="flow['x-scalar-secret-redirect-uri']"
         placeholder="https://galaxy.scalar.com/callback"
         @update:modelValue="
-          (v) =>
+          (v) => {
             handleOauth2SecretsUpdate({ 'x-scalar-secret-redirect-uri': v })
+          }
         ">
         Redirect URL
       </RequestAuthDataTableInput>

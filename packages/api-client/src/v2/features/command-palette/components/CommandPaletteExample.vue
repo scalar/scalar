@@ -31,6 +31,7 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   TraversedEntry,
+  TraversedExample,
   TraversedOperation,
 } from '@scalar/workspace-store/schemas/navigation'
 import { computed, ref, watch } from 'vue'
@@ -40,16 +41,19 @@ import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMe
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
 
-const { workspaceStore, eventBus, documentName, operationId } = defineProps<{
-  /** The workspace store for accessing documents and operations */
-  workspaceStore: WorkspaceStore
-  /** Event bus for emitting operation creation events */
-  eventBus: WorkspaceEventBus
-  /** Document id to create the example for */
-  documentName?: string
-  /** Preselected path and method to create the example for */
-  operationId?: string
-}>()
+const { workspaceStore, eventBus, documentName, operationId, example } =
+  defineProps<{
+    /** The workspace store for accessing documents and operations */
+    workspaceStore: WorkspaceStore
+    /** Event bus for emitting operation creation events */
+    eventBus: WorkspaceEventBus
+    /** Document id to create the example for */
+    documentName?: string
+    /** Preselected path and method to create the example for */
+    operationId?: string
+    /** Existing example for edit mode */
+    example?: TraversedExample
+  }>()
 
 const emit = defineEmits<{
   /** Emitted when the example is created successfully */
@@ -64,9 +68,12 @@ type OperationOption = {
   label: string
   path: string
   method: HttpMethod
+  exampleNames: string[]
 }
 
-const exampleName = ref('')
+const isEditMode = computed(() => example !== undefined)
+
+const exampleName = ref(example?.name ?? '')
 const exampleNameTrimmed = computed(() => exampleName.value.trim())
 
 /** All available documents (collections) in the workspace */
@@ -125,6 +132,10 @@ const availableOperations = computed(() => {
     label: `${operation.method.toUpperCase()} ${operation.path}`,
     path: operation.path,
     method: operation.method,
+    exampleNames:
+      operation.children
+        ?.filter((child): child is TraversedExample => child.type === 'example')
+        .map((child) => child.name) ?? [],
   }))
 })
 
@@ -169,6 +180,20 @@ const isDisabled = computed<boolean>(() => {
     return true
   }
 
+  if (isEditMode.value && example) {
+    if (exampleNameTrimmed.value === example.name) {
+      return true
+    }
+  }
+
+  if (
+    selectedOperation.value.exampleNames.some(
+      (name) => name === exampleNameTrimmed.value && name !== example?.name,
+    )
+  ) {
+    return true
+  }
+
   return false
 })
 
@@ -176,8 +201,24 @@ const isDisabled = computed<boolean>(() => {
  * Navigate to the example route which will create it automatically.
  * The route handler will create the example with the provided details.
  */
-const createExample = (): void => {
+const handleSubmit = (): void => {
   if (isDisabled.value || !selectedDocument.value || !selectedOperation.value) {
+    return
+  }
+
+  if (isEditMode.value && example) {
+    eventBus.emit('operation:rename:example', {
+      documentName: selectedDocument.value.id,
+      meta: {
+        path: selectedOperation.value.path,
+        method: selectedOperation.value.method,
+        exampleKey: example.name,
+      },
+      payload: {
+        name: exampleNameTrimmed.value,
+      },
+    })
+    emit('close')
     return
   }
 
@@ -195,13 +236,22 @@ const createExample = (): void => {
 
 /** Handle back navigation when user presses backspace on empty input */
 const handleBack = (event: KeyboardEvent): void => {
+  if (isEditMode.value) {
+    return
+  }
+
   emit('back', event)
+}
+
+/** Handle cancel action in edit mode */
+const handleCancel = (): void => {
+  emit('close')
 }
 </script>
 <template>
   <CommandActionForm
     :disabled="isDisabled"
-    @submit="createExample">
+    @submit="handleSubmit">
     <CommandActionInput
       v-model="exampleName"
       label="Example Name"
@@ -210,7 +260,9 @@ const handleBack = (event: KeyboardEvent): void => {
 
     <!-- Selectors for document and operation -->
     <template #options>
-      <div class="flex flex-1 gap-1">
+      <div
+        v-if="!isEditMode"
+        class="flex flex-1 gap-1">
         <!-- Document (collection) selector -->
         <ScalarListbox
           v-model="selectedDocument"
@@ -274,8 +326,16 @@ const handleBack = (event: KeyboardEvent): void => {
           </template>
         </ScalarDropdown>
       </div>
+
+      <ScalarButton
+        v-else
+        class="max-h-8 px-3 text-xs"
+        variant="outlined"
+        @click="handleCancel">
+        Cancel
+      </ScalarButton>
     </template>
 
-    <template #submit>Create Example</template>
+    <template #submit>{{ isEditMode ? 'Save' : 'Create Example' }}</template>
   </CommandActionForm>
 </template>

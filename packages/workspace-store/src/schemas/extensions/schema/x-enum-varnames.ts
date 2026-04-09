@@ -1,4 +1,5 @@
 import { Type } from '@scalar/typebox'
+import { array, object, optional, string } from '@scalar/validation'
 
 /**
  * x-enum-varnames
@@ -60,3 +61,14 @@ export type XEnumVarNames = {
    */
   'x-enumNames'?: string[]
 }
+
+export const XEnumVarNames = object(
+  {
+    'x-enum-varnames': optional(array(string())),
+    'x-enumNames': optional(array(string())),
+  },
+  {
+    typeName: 'XEnumVarNames',
+    typeComment: 'Display names for enum values',
+  },
+)

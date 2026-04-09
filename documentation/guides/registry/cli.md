@@ -98,7 +98,7 @@ You can also lint your document using Spectral rules:
 scalar document lint ./openapi.yaml
 ```
 
-And use Rules from the Scalar Registry:
+And use Rules from the Registry:
 
 ```bash
 scalar document lint ./openapi.yaml --rule https://registry.scalar.com/@your-team/rules/your-rule

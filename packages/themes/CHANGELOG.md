@@ -1,5 +1,42 @@
 # @scalar/themes
 
+## 0.15.2
+
+### Patch Changes
+
+- [#8694](https://github.com/scalar/scalar/pull/8694): feat: add padding utilities to scalar themes
+- [#8634](https://github.com/scalar/scalar/pull/8634): feat: add saving ui component
+
+## 0.15.1
+
+### Patch Changes
+
+- [#8466](https://github.com/scalar/scalar/pull/8466): chore: new build pipeline
+
+## 0.15.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 0.14.3
+
+### Patch Changes
+
+- [#8315](https://github.com/scalar/scalar/pull/8315): feat(theme): standardize tailwind line height behavior
+
+## 0.14.2
+
+### Patch Changes
+
+- [#8290](https://github.com/scalar/scalar/pull/8290): chore: update deps
+
+## 0.14.1
+
+### Patch Changes
+
+- [#8276](https://github.com/scalar/scalar/pull/8276): feat(components): standardize form inputs to have a height of 40px
+
 ## 0.14.0
 
 ### Minor Changes

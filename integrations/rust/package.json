@@ -22,10 +22,10 @@
     "actix-web",
     "warp"
   ],
-  "version": "0.1.4",
+  "version": "0.2.2",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "command -v cargo >/dev/null 2>&1 && cargo build --release || echo 'cargo not found, skipping build'",

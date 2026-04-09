@@ -8,13 +8,18 @@ import type {
   DiscriminatorObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, ref } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 
 import type { SchemaOptions } from '@/components/Content/Schema/types'
+import {
+  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
+  type RequestBodyCompositionSelection,
+} from '@/features/Operation/request-body-composition-index'
 
 import { getSchemaType } from './helpers/get-schema-type'
 import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
 import { type CompositionKeyword } from './helpers/schema-composition'
+import { getModelNameFromSchema } from './helpers/schema-name'
 import Schema from './Schema.vue'
 
 const props = withDefaults(
@@ -39,6 +44,10 @@ const props = withDefaults(
     eventBus: WorkspaceEventBus | null
     /** Move the options into  single prop so they are easy to pass around */
     options: SchemaOptions
+    /** When "requestBody", sync selected index with the example snippet */
+    schemaContext?: string
+    /** Internal path used to sync nested request body compositions with the code sample */
+    compositionPath?: string[]
   }>(),
   {
     compact: false,
@@ -57,20 +66,65 @@ const composition = computed(() =>
 /**
  * Generate listbox options for the composition selector.
  * Each option represents a schema in the composition with a human-readable label.
+ * Prefers schema title/name over structural type when present.
  */
 const listboxOptions = computed((): ScalarListboxOption[] =>
-  composition.value.map((schema, index: number) => ({
-    id: String(index),
-    label: getSchemaType(resolve.schema(schema.original!)) || 'Schema',
-  })),
+  composition.value.map((schema, index: number) => {
+    const resolved = resolve.schema(schema.original!)
+    const label =
+      (getModelNameFromSchema(resolved) ?? getSchemaType(resolved)) || 'Schema'
+    return { id: String(index), label }
+  }),
 )
+
+const compositionSelectionKey = computed(() =>
+  props.compositionPath?.length
+    ? [...props.compositionPath, props.composition].join('.')
+    : '',
+)
+
+/** When this composition is in the request body, sync selection with the example snippet */
+const requestBodyCompositionSelectionRef = inject(
+  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
+  undefined,
+)
+
+const initialSelectedIndex = computed(() => {
+  if (
+    props.schemaContext !== 'requestBody' ||
+    !requestBodyCompositionSelectionRef?.value ||
+    !compositionSelectionKey.value
+  ) {
+    return 0
+  }
+
+  const selectedIndex =
+    requestBodyCompositionSelectionRef.value[compositionSelectionKey.value]
+
+  if (typeof selectedIndex !== 'number' || Number.isNaN(selectedIndex)) {
+    return 0
+  }
+
+  return Math.max(0, Math.min(selectedIndex, listboxOptions.value.length - 1))
+})
 
 /**
  * Two-way computed property for the selected option.
  * Handles conversion between the selected index and the listbox option format.
  */
-const selectedOption = ref<ScalarListboxOption | undefined>(
-  listboxOptions.value[0],
+const selectedOption = ref<ScalarListboxOption | undefined>()
+
+watch(
+  [listboxOptions, initialSelectedIndex],
+  ([options, selectedIndex]) => {
+    if (
+      !selectedOption.value ||
+      !options.some((option) => option.id === selectedOption.value?.id)
+    ) {
+      selectedOption.value = options[selectedIndex] ?? options[0]
+    }
+  },
+  { immediate: true },
 )
 
 /**
@@ -88,6 +142,29 @@ const humanizeType = (type: CompositionKeyword): string =>
 const selectedComposition = computed(
   () => composition.value[Number(selectedOption.value?.id ?? '0')]?.value,
 )
+
+/** Controls whether the nested schema is displayed */
+const showNestedSchema = ref(false)
+
+if (
+  requestBodyCompositionSelectionRef &&
+  props.schemaContext === 'requestBody' &&
+  compositionSelectionKey.value
+) {
+  watch(
+    selectedOption,
+    (option) => {
+      const index = option ? Number(option.id) : 0
+      if (!Number.isNaN(index)) {
+        requestBodyCompositionSelectionRef.value = {
+          ...requestBodyCompositionSelectionRef.value,
+          [compositionSelectionKey.value]: index,
+        } satisfies RequestBodyCompositionSelection
+      }
+    },
+    { immediate: true },
+  )
+}
 </script>
 
 <template>
@@ -97,14 +174,16 @@ const selectedComposition = computed(
       v-if="props.composition === 'allOf'"
       :breadcrumb="breadcrumb"
       :compact="compact"
+      :compositionPath="compositionPath"
       :discriminator="discriminator"
       :eventBus="eventBus"
       :hideHeading="hideHeading"
-      :level="level"
+      :level="level + 1"
       :name="name"
       :noncollapsible="true"
       :options="options"
-      :schema="mergeAllOfSchemas(schema)" />
+      :schema="mergeAllOfSchemas(schema)"
+      :schemaContext="schemaContext" />
 
     <template v-else>
       <!-- Composition selector and panel for nested compositions -->
@@ -133,10 +212,22 @@ const selectedComposition = computed(
       </ScalarListbox>
 
       <div class="composition-panel">
+        <!-- Button to toggle nested schema display -->
+        <button
+          v-if="!showNestedSchema && level > 2"
+          class="bg-b-1 hover:bg-b-2 text-c-1 flex w-full items-center justify-center gap-2 rounded-b-lg border border-t-0 px-2 py-2 text-sm font-medium transition-colors"
+          type="button"
+          @click="showNestedSchema = true">
+          Show Schema Details
+          <ScalarIconCaretDown class="h-3 w-3" />
+        </button>
+
         <!-- Render the selected schema if it has content to display -->
         <Schema
+          v-else
           :breadcrumb="breadcrumb"
           :compact="compact"
+          :compositionPath="compositionPath"
           :discriminator="discriminator"
           :eventBus="eventBus"
           :hideHeading="hideHeading"
@@ -144,7 +235,8 @@ const selectedComposition = computed(
           :name="name"
           :noncollapsible="true"
           :options="options"
-          :schema="selectedComposition" />
+          :schema="selectedComposition"
+          :schemaContext="schemaContext" />
       </div>
     </template>
   </div>

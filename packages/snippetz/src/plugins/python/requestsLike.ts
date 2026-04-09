@@ -1,5 +1,7 @@
 import type { HarRequest, PluginConfiguration } from '@scalar/types/snippetz'
 
+import { accumulateRepeatedValue, reduceQueryParams } from '@/libs/http'
+
 const LENGTH_CONSIDERED_AS_SHORT = 40
 
 // Function to convert JavaScript boolean and null values to Python equivalents
@@ -55,7 +57,7 @@ export function requestsLikeGenerate(
 
   // Add query parameters if present
   if (normalizedRequest.queryString?.length) {
-    options.params = Object.fromEntries(normalizedRequest.queryString.map((q) => [q.name, q.value]))
+    options.params = reduceQueryParams(normalizedRequest.queryString)
   }
 
   // Add cookies if present
@@ -81,25 +83,46 @@ export function requestsLikeGenerate(
     } else if (mimeType === 'application/octet-stream' && text) {
       options.data = text // Store raw text, we'll handle the b"..." formatting later
     } else if (mimeType === 'multipart/form-data' && params) {
-      const files: { key: string; file: string }[] = []
-      const formData: Record<string, string> = {}
+      const files: string[] = []
+      const formData: Record<string, string | string[]> = {}
 
       params.forEach((param) => {
         if (param.fileName !== undefined) {
-          files.push({ key: param.name, file: `open("${param.fileName}", "rb")` })
+          const name = JSON.stringify(param.name)
+          const fileName = JSON.stringify(param.fileName)
+          const file = `open(${fileName}, "rb")`
+
+          if (param.contentType) {
+            const contentType = JSON.stringify(param.contentType)
+            files.push(`(${name}, (${fileName}, ${file}, ${contentType}))`)
+          } else {
+            files.push(`(${name}, ${file})`)
+          }
         } else if (param.value !== undefined) {
-          formData[param.name] = param.value
+          if (param.contentType) {
+            const name = JSON.stringify(param.name)
+            const value = JSON.stringify(param.value)
+            const contentType = JSON.stringify(param.contentType)
+
+            files.push(`(${name}, (None, ${value}, ${contentType}))`)
+          } else {
+            accumulateRepeatedValue(formData, param.name, param.value)
+          }
         }
       })
 
-      if (Object.keys(files).length) {
+      if (files.length) {
         options.files = files
       }
       if (Object.keys(formData).length) {
         options.data = formData
       }
     } else if (mimeType === 'application/x-www-form-urlencoded' && params) {
-      options.data = Object.fromEntries(params.map((p) => [p.name, p.value]))
+      const formData: Record<string, string | string[]> = {}
+      params.forEach((param) => {
+        accumulateRepeatedValue(formData, param.name, param.value ?? '')
+      })
+      options.data = formData
     }
   }
 
@@ -122,7 +145,7 @@ export function requestsLikeGenerate(
         `${key}=(${convertToPythonSyntax(JSON.stringify(value[0]))}, ${convertToPythonSyntax(JSON.stringify(value[1]))})`,
       )
     } else if (key === 'files') {
-      const filesTuples = value.map(({ key, file }: { key: string; file: string }) => `      ("${key}", ${file})`)
+      const filesTuples = value.map((tuple: string) => `      ${tuple}`)
       const filesStr = '[\n' + filesTuples.join(',\n') + '\n    ]'
       formattedParams.push(`${key}=${filesStr}`)
     } else if (key === 'json') {

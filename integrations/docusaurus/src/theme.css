@@ -231,7 +231,7 @@ html[data-theme="light"] body .api-client-drawer {
   user-select: none;
 }
 
-/* Docusaurus base style overrides overrides */
+/* Docusaurus base style overrides */
 :where(.scalar-app) {
   ul,
   ol {
@@ -242,6 +242,11 @@ html[data-theme="light"] body .api-client-drawer {
   table {
     border-collapse: initial;
     overflow: initial;
+  }
+
+  .markdown.markdown-summary:before,
+  .markdown.markdown-summary:after {
+    display: none;
   }
 }
 

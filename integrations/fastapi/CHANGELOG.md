@@ -1,5 +1,29 @@
 # scalar-fastapi
 
+## 1.8.2
+
+### Patch Changes
+
+- [#8764](https://github.com/scalar/scalar/pull/8764): fix(fastapi): include MIT license metadata in PyPI package metadata
+
+## 1.8.1
+
+### Patch Changes
+
+- [#8460](https://github.com/scalar/scalar/pull/8460): add support for `order_schema_properties_by` to pass through Scalar's `orderSchemaPropertiesBy` option (`"alpha"` or `"preserve"`)
+
+## 1.8.0
+
+### Minor Changes
+
+- [#8322](https://github.com/scalar/scalar/pull/8322): chore: bump required node version to >=22 (LTS)
+
+## 1.7.0
+
+### Minor Changes
+
+- [#8304](https://github.com/scalar/scalar/pull/8304): fix: servers had the wrong structure documented, we adhere to the OpenAPI specification now
+
 ## 1.6.2
 
 ### Patch Changes

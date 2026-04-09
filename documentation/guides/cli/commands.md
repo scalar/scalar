@@ -112,23 +112,24 @@ Usage: scalar document [options] [command]
 Manage local openapi file
 
 Options:
-  -h, --help                    display help for command
+  -h, --help                     display help for command
 
 Commands:
-  bundle [options] [file|url]   Bundle an OpenAPI specification by resolving all
-                                references and external dependencies
-  split [options] [file|url]    Split your OpenAPI documents on small chunks
-  join [options] <files...>     Merge multiple OpenAPI documents into a single
-                                unified document
-  format [options] [file|url]   Format an OpenAPI file
-  mock [options] [file|url]     Mock an API from an OpenAPI file
-  serve [options] [file|url]    Serve an API Reference from an OpenAPI file
-  share [options] [file]        Share an OpenAPI file
-  validate [file|url]           Validate an OpenAPI file
-  void [options]                Boot a server to mirror HTTP requests
-  lint [options] [file|url]     Lint your OpenAPI file using spectral rules
-  upgrade [options] [file|url]  Upgrade OpenAPI document to version 3.1
-  help [command]                display help for command
+  bundle [options] [file|url]    Bundle an OpenAPI specification by resolving
+                                 all references and external dependencies
+  split [options] [file|url]     Split your OpenAPI documents on small chunks
+  join [options] <files...>      Merge multiple OpenAPI documents into a single
+                                 unified document
+  format [options] [file|url]    Format an OpenAPI file
+  markdown [options] [file|url]  Generate Markdown from an OpenAPI file
+  mock [options] [file|url]      Mock an API from an OpenAPI file
+  serve [options] [file|url]     Serve an API Reference from an OpenAPI file
+  share [options] [file]         Share an OpenAPI file
+  validate [file|url]            Validate an OpenAPI file
+  void [options]                 Boot a server to mirror HTTP requests
+  lint [options] [file|url]      Lint your OpenAPI file using spectral rules
+  upgrade [options] [file|url]   Upgrade OpenAPI document to version 3.1
+  help [command]                 display help for command
 ```
 
 ### bundle
@@ -190,6 +191,20 @@ Arguments:
 
 Options:
   -o, --output <file>  Output file
+  -h, --help           display help for command
+```
+
+### markdown
+```
+Usage: scalar document markdown [options] [file|url]
+
+Generate Markdown from an OpenAPI file
+
+Arguments:
+  file|url             OpenAPI file path or URL to convert
+
+Options:
+  -o, --output <file>  Output file (defaults to stdout)
   -h, --help           display help for command
 ```
 
@@ -302,8 +317,7 @@ Options:
   -h, --help                  display help for command
 
 Commands:
-  init [options]              Create a new `scalar.config.json` file to
-                              configure where your OpenAPI file is placed.
+  init [options]              Create a new Scalar Docs project.
   check-config [file]         Check a Scalar Configuration file
   create [options]            Create a new project that is not linked to a
                               github project.
@@ -318,8 +332,7 @@ Commands:
 ```
 Usage: scalar project init [options]
 
-Create a new `scalar.config.json` file to configure where your OpenAPI file is
-placed.
+Create a new Scalar Docs project.
 
 Options:
   -s, --subdomain [url]  subdomain to publish on
@@ -388,6 +401,7 @@ Options:
   -s, --slug [slug]      Project slug found in Scalar Dashboard
   -c, --config [config]  Your config file of the project
   -p, --preview          Publish in preview mode
+  -g, --github           Publish from your linked remote GitHub repository
   -h, --help             display help for command
 ```
 

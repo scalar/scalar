@@ -1,13 +1,13 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
-import type { TraversedTag } from '@/schemas/navigation'
+import type { TraversedExample, TraversedTag } from '@/schemas/navigation'
 
 /**
  * Available actions that can be triggered from the command palette.
  * Each action may have an associated payload type.
  */
 export type CommandPalettePayload = {
-  /** Trigger the import flow for OpenAPI, Swagger, Postman, or cURL */
+  /** Trigger the import flow for OpenAPI, Swagger, or cURL (Postman uses import-postman-collection) */
   'import-from-openapi-swagger-postman-curl': undefined
   /** Create a new document in the workspace */
   'create-openapi-document': undefined
@@ -37,10 +37,23 @@ export type CommandPalettePayload = {
     /** The operation id to add the example to */
     operationId?: string
   }
+  'edit-example': {
+    /** The example to edit */
+    example: TraversedExample
+    /** The document name to edit the example in */
+    documentName: string
+    /** The operation id to edit the example in */
+    operationId: string
+  }
   /** Import a request from a cURL command string */
   'import-curl-command': {
     /** The cURL command string to parse and import */
     inputValue: string
+  }
+  /** Import a Postman collection from URL, file, or pasted JSON */
+  'import-postman-collection': {
+    /** Pre-filled collection JSON when opened from file or redirected paste */
+    inputValue?: string
   }
 }
 
@@ -50,7 +63,7 @@ export type CommandPalettePayload = {
  *
  * Example:
  * - { action: 'create-openapi-document', payload: undefined }
- * - { action: 'import-curl-command', payload: { curl: 'curl ...' } }
+ * - { action: 'import-curl-command', payload: { inputValue: 'curl ...' } }
  */
 export type CommandPaletteAction<K extends keyof CommandPalettePayload = keyof CommandPalettePayload> = {
   /** The action to perform */
@@ -93,10 +106,11 @@ export type UIEvents = {
   /**
    * Download the OpenAPI document from the store.
    * Supports multiple export formats for different use cases.
+   * Direct download is handled by a link to the document URL, not this event.
    */
   'ui:download:document': {
     /** Format to download the document in */
-    format: 'json' | 'yaml' | 'direct'
+    format: 'json' | 'yaml'
   }
 
   // ────────────────────────────────────────────────────────────
@@ -107,12 +121,7 @@ export type UIEvents = {
    * Focus the address bar input field.
    * Typically triggered by keyboard shortcuts for quick navigation.
    */
-  'ui:focus:address-bar':
-    | KeyboardEventPayload
-    | {
-        position?: 'start' | 'end' | number
-      }
-    | undefined
+  'ui:focus:address-bar': KeyboardEventPayload | undefined
   /**
    * Focus the send button to execute a request.
    * Useful for keyboard-driven workflows.
@@ -150,6 +159,8 @@ export type UIEvents = {
         id: string
         /** Optional example name to load for this operation */
         exampleName?: string
+        /** Optional selected anyOf/oneOf request-body variants keyed by schema path */
+        requestBodyCompositionSelection?: Record<string, number>
       }
     | {
         /** The HTTP method of the operation to load (e.g., GET, POST) */
@@ -158,6 +169,8 @@ export type UIEvents = {
         path: string
         /** Optional example name to load for this operation */
         exampleName?: string
+        /** Optional selected anyOf/oneOf request-body variants keyed by schema path */
+        requestBodyCompositionSelection?: Record<string, number>
       }
 
   /**
@@ -216,6 +229,11 @@ export type UIEvents = {
   'copy-url:nav-item': NavigationItemPayload
 
   /**
+   * Copies the whole URL in the addressbar including server and path
+   */
+  'copy-url:address-bar': undefined
+
+  /**
    * Used by the api-client to copy the URL for the given tab index.
    */
   'tabs:copy:url': {
@@ -252,6 +270,13 @@ export type UIEvents = {
         path: string
         method: HttpMethod
         exampleName: string
+      }
+    | {
+        page: 'operation'
+        path: 'overview' | 'servers' | 'authentication'
+        operationPath: string
+        method: HttpMethod
+        documentSlug?: string
       }
   )
 }

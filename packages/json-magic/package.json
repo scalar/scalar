@@ -10,15 +10,14 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/json-magic"
   },
-  "version": "0.11.4",
+  "version": "0.12.5",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
-    "build": "scalar-build-esbuild",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "exports": {
@@ -67,6 +66,11 @@
       "types": "./dist/helpers/is-http-url.d.ts",
       "default": "./dist/helpers/is-http-url.js"
     },
+    "./helpers/normalize": {
+      "import": "./dist/helpers/normalize.js",
+      "types": "./dist/helpers/normalize.d.ts",
+      "default": "./dist/helpers/normalize.js"
+    },
     "./helpers/unescape-json-pointer": {
       "import": "./dist/helpers/unescape-json-pointer.js",
       "types": "./dist/helpers/unescape-json-pointer.d.ts",
@@ -88,7 +92,6 @@
     "yaml": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "fastify": "catalog:*",
     "vite": "catalog:*"
   }

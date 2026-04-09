@@ -1,11 +1,13 @@
-import type { ErrorResponse } from '@scalar/helpers/errors/normalize-error'
+import { replaceEnvVariables, replacePathVariables } from '@scalar/helpers/regex/replace-variables'
 import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
+import type { OAuthFlowsObjectSecret } from '@scalar/workspace-store/request-example'
+import { getServerVariables } from '@scalar/workspace-store/request-example'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { encode, fromUint8Array } from 'js-base64'
 
-import type { OAuthFlowsObjectSecret } from '@/v2/blocks/scalar-auth-selector-block/helpers/secret-types'
+import type { ErrorResponse } from '@/libs/errors'
 
 /** Oauth2 security schemes which are not implicit */
 type NonImplicitFlows = Omit<OAuthFlowsObjectSecret, 'implicit'>
@@ -16,8 +18,20 @@ type PKCEState = {
   codeChallengeMethod: string
 }
 
-const getActiveServerBase = (activeServer: ServerObject | null) => {
-  const serverUrl = activeServer?.url
+export type OAuth2Tokens = {
+  accessToken: string
+  refreshToken?: string
+}
+
+const getServerUrl = (activeServer: ServerObject | null, environmentVariables: Record<string, string> = {}) => {
+  return replaceEnvVariables(
+    replacePathVariables(activeServer?.url ?? '', getServerVariables(activeServer)),
+    environmentVariables,
+  )
+}
+
+const getActiveServerBase = (activeServer: ServerObject | null, environmentVariables: Record<string, string> = {}) => {
+  const serverUrl = getServerUrl(activeServer, environmentVariables)
 
   if (!serverUrl) {
     return {}
@@ -70,7 +84,7 @@ const generateCodeChallenge = async (verifier: string, encoding: 'SHA-256' | 'pl
 /**
  * Authorize oauth2 flow
  *
- * @returns the accessToken
+ * @returns the resolved oauth2 tokens
  */
 export const authorizeOauth2 = async (
   flows: OAuthFlowsObjectSecret,
@@ -80,7 +94,9 @@ export const authorizeOauth2 = async (
   activeServer: ServerObject | null,
   /** If we want to use the proxy */
   proxyUrl: string,
-): Promise<ErrorResponse<string>> => {
+  /** Flattened environment variables used to resolve server URL templates like `{protocol}` */
+  environmentVariables: Record<string, string> = {},
+): Promise<ErrorResponse<OAuth2Tokens>> => {
   const flow = flows[type]
 
   try {
@@ -100,13 +116,17 @@ export const authorizeOauth2 = async (
           proxyUrl,
         },
         activeServer,
+        environmentVariables,
       )
     }
 
     // Generate a random state string with the length of 8 characters
     const state = (Math.random() + 1).toString(36).substring(2, 10)
 
-    const authorizationUrl = makeUrlAbsolute(flows[type]!.authorizationUrl, getActiveServerBase(activeServer))
+    const authorizationUrl = makeUrlAbsolute(
+      flows[type]!['x-scalar-secret-auth-url'] ?? flows[type]!.authorizationUrl,
+      getActiveServerBase(activeServer, environmentVariables),
+    )
 
     const url = new URL(authorizationUrl)
 
@@ -143,7 +163,8 @@ export const authorizeOauth2 = async (
 
     // Handle relative redirect uris
     if (typedFlow['x-scalar-secret-redirect-uri'].startsWith('/')) {
-      const baseUrl = activeServer?.url || window.location.origin + window.location.pathname
+      const baseUrl =
+        getServerUrl(activeServer, environmentVariables) || window.location.origin + window.location.pathname
       const redirectUri = new URL(typedFlow['x-scalar-secret-redirect-uri'], baseUrl).toString()
 
       url.searchParams.set('redirect_uri', redirectUri)
@@ -174,9 +195,10 @@ export const authorizeOauth2 = async (
     // Open up a window and poll until closed or we have the data we want
     if (authWindow) {
       // We need to return a promise here due to the setInterval
-      return new Promise<ErrorResponse<string>>((resolve) => {
+      return new Promise<ErrorResponse<OAuth2Tokens>>((resolve) => {
         const checkWindowClosed = setInterval(() => {
           let accessToken: string | null = null
+          let refreshToken: string | null = null
           let code: string | null = null
           let error: string | null = null
           let errorDescription: string | null = null
@@ -185,6 +207,7 @@ export const authorizeOauth2 = async (
             const urlParams = new URL(authWindow.location.href).searchParams
             const tokenName = flow['x-tokenName'] || 'access_token'
             accessToken = urlParams.get(tokenName)
+            refreshToken = urlParams.get('refresh_token')
             code = urlParams.get('code')
 
             error = urlParams.get('error')
@@ -193,6 +216,7 @@ export const authorizeOauth2 = async (
             // We may get the properties in a hash
             const hashParams = new URLSearchParams(authWindow.location.href.split('#')[1])
             accessToken ||= hashParams.get(tokenName)
+            refreshToken ||= hashParams.get('refresh_token')
             code ||= hashParams.get('code')
             error ||= hashParams.get('error')
             errorDescription ||= hashParams.get('error_description')
@@ -215,7 +239,7 @@ export const authorizeOauth2 = async (
               const _state = authWindow.location.href.match(/state=([^&]*)/)?.[1]
 
               if (_state === state) {
-                resolve([null, accessToken])
+                resolve([null, { accessToken, ...(refreshToken ? { refreshToken } : {}) }])
               } else {
                 resolve([new Error('State mismatch'), null])
               }
@@ -237,6 +261,7 @@ export const authorizeOauth2 = async (
                     proxyUrl,
                   },
                   activeServer,
+                  environmentVariables,
                 ).then(resolve)
               } else {
                 resolve([new Error('State mismatch'), null])
@@ -275,7 +300,8 @@ const authorizeServers = async (
     proxyUrl?: string
   } = {},
   activeServer: ServerObject | null,
-): Promise<ErrorResponse<string>> => {
+  environmentVariables: Record<string, string> = {},
+): Promise<ErrorResponse<OAuth2Tokens>> => {
   const flow = flows[type]
 
   if (!flow) {
@@ -291,9 +317,17 @@ const authorizeServers = async (
 
   /** Where to add the credentials */
   const addCredentialsToBody = flow['x-scalar-credentials-location'] === 'body'
+  const hasClientSecret = Boolean(flow['x-scalar-secret-client-secret'])
+  /**
+   * Public authorization-code clients still need client_id in the token body.
+   * We only send it implicitly for that case to avoid conflicting with Basic auth.
+   */
+  const shouldSendClientIdInBody = addCredentialsToBody || (type === 'authorizationCode' && !hasClientSecret)
 
-  if (addCredentialsToBody) {
+  if (shouldSendClientIdInBody) {
     formData.set('client_id', flow['x-scalar-secret-client-id'])
+  }
+  if (addCredentialsToBody && hasClientSecret) {
     formData.set('client_secret', flow['x-scalar-secret-client-secret'])
   }
   if ('x-scalar-secret-redirect-uri' in flow && flow['x-scalar-secret-redirect-uri']) {
@@ -325,8 +359,8 @@ const authorizeServers = async (
   // Additional request body parameters
   if (flow['x-scalar-security-body']) {
     Object.entries(flow['x-scalar-security-body']).forEach(([key, value]) => {
-      if (value) {
-        formData.set(key, value)
+      if (value !== undefined && value !== null) {
+        formData.set(key, String(value))
       }
     })
   }
@@ -336,13 +370,16 @@ const authorizeServers = async (
       'Content-Type': 'application/x-www-form-urlencoded',
     }
 
-    // Add client id + secret to headers
-    if (!addCredentialsToBody) {
+    // Add client id + secret to headers for confidential clients.
+    if (!addCredentialsToBody && hasClientSecret) {
       headers.Authorization = `Basic ${encode(`${flow['x-scalar-secret-client-id']}:${flow['x-scalar-secret-client-secret']}`)}`
     }
 
     // Check if we should use the proxy
-    const tokenUrl = makeUrlAbsolute(flow.tokenUrl, getActiveServerBase(activeServer))
+    const tokenUrl = makeUrlAbsolute(
+      flow['x-scalar-secret-token-url'] ?? flow.tokenUrl,
+      getActiveServerBase(activeServer, environmentVariables),
+    )
     const url = shouldUseProxy(proxyUrl, tokenUrl)
       ? `${proxyUrl}?${new URLSearchParams([['scalar_url', tokenUrl]]).toString()}`
       : tokenUrl
@@ -358,8 +395,9 @@ const authorizeServers = async (
     // Use custom token name if specified, otherwise default to access_token
     const tokenName = flow['x-tokenName'] || 'access_token'
     const accessToken = responseData[tokenName]
+    const refreshToken = responseData.refresh_token
 
-    return [null, accessToken]
+    return [null, { accessToken, ...(typeof refreshToken === 'string' ? { refreshToken } : {}) }]
   } catch {
     return [new Error('Failed to get an access token. Please check your credentials.'), null]
   }

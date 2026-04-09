@@ -1,15 +1,15 @@
 import type { Chat } from '@ai-sdk/vue'
-import { buildRequestSecurity, getResolvedUrl } from '@scalar/api-client/v2/blocks/operation-block'
-import type { SecuritySchemeObjectSecret } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
 import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
+import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
+import { buildRequestSecurity, getResolvedUrl } from '@scalar/workspace-store/request-example'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { UIDataTypes, UIMessage } from 'ai'
+import { encode as encodeBase64 } from 'js-base64'
 import { n } from 'neverpanic'
 import truncateJson from 'truncate-json'
 
-import { EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME, TOOL_NAMESPACE_SLUG_DELIMITER } from '@/entities'
+import { EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME } from '@/entities'
 import { createError } from '@/entities/error/helpers'
-import { createDocumentName } from '@/registry/create-document-name'
 import type { Tools } from '@/state/state'
 
 // The maximum number of bytes the requests response can be.
@@ -66,18 +66,24 @@ const safeFetch = n.safeFn(
   (originalError) => createError('FAILED_TO_FETCH', { originalError }),
 )
 
-function createUrl({ path, activeServer }: { path: string; activeServer: ServerObject | null }) {
+function createUrl({
+  path,
+  activeServer,
+  proxyUrl,
+  queryParams,
+}: {
+  path: string
+  activeServer: ServerObject | null
+  proxyUrl: string
+  queryParams: URLSearchParams
+}) {
   const resolvedUrl = getResolvedUrl({
     path,
     server: activeServer,
-    pathVariables: {},
-    environment: {
-      color: '',
-      variables: [],
-    },
+    urlParams: queryParams,
   })
 
-  return redirectToProxy('https://proxy.scalar.com', resolvedUrl)
+  return redirectToProxy(proxyUrl, resolvedUrl)
 }
 
 /**
@@ -88,7 +94,8 @@ export const executeRequestTool = n.safeFn(
     documentSettings,
     toolCallId,
     chat,
-    input: { method, path, body, headers, documentIdentifier },
+    proxyUrl,
+    input: { method, path, body, headers, documentName },
   }: {
     documentSettings: Record<
       string,
@@ -96,23 +103,15 @@ export const executeRequestTool = n.safeFn(
     >
     toolCallId: string
     chat: Chat<UIMessage<unknown, UIDataTypes, Tools>>
+    proxyUrl: string
     input: {
       method: string
       path: string
       headers?: Record<string, string>
       body?: string
-      documentIdentifier: string
+      documentName: string
     }
   }) => {
-    const [namespace, slug] = documentIdentifier.split(TOOL_NAMESPACE_SLUG_DELIMITER)
-    if (!namespace || !slug) {
-      return {
-        success: false,
-        error: createError('FAILED_TO_DETERMINE_DOCUMENT', { namespace, slug, documentIdentifier }),
-      }
-    }
-
-    const documentName = createDocumentName(namespace, slug)
     const settings = documentSettings[documentName]
 
     if (!settings) {
@@ -120,32 +119,70 @@ export const executeRequestTool = n.safeFn(
         success: false,
         error: createError('DOCUMENT_SETTINGS_COULD_NOT_BE_DETERMINED', {
           documentName,
-          namespace,
-          slug,
         }),
       }
     }
 
     const requestSecurityOptions = buildRequestSecurity(settings.securitySchemes)
 
+    const requestSecurity = requestSecurityOptions.reduce<{
+      headers: Record<string, string>
+      queryParams: URLSearchParams
+      cookies: Record<string, string>
+    }>(
+      (acc, securityOption) => {
+        /** Format the security value based on its authentication scheme. */
+        const securityValue = (() => {
+          if (securityOption.format === 'basic') {
+            return `Basic ${encodeBase64(securityOption.value)}`
+          }
+          if (securityOption.format === 'bearer') {
+            return `Bearer ${securityOption.value}`
+          }
+          return securityOption.value
+        })()
+
+        if (securityOption.in === 'header') {
+          acc.headers[securityOption.name] = securityValue
+        } else if (securityOption.in === 'query') {
+          acc.queryParams.set(securityOption.name, securityValue)
+        } else if (securityOption.in === 'cookie') {
+          acc.cookies[securityOption.name] = securityValue
+        }
+
+        return acc
+      },
+      {
+        headers: {},
+        queryParams: new URLSearchParams(),
+        cookies: {},
+      },
+    )
+
+    const cookieHeader = Object.entries(requestSecurity.cookies)
+      .map(([name, value]) => `${name}=${value}`)
+      .join('; ')
+
     const fetchOptions = {
       method,
       body,
-      ...requestSecurityOptions,
       headers: {
         ...headers,
-        ...requestSecurityOptions.headers,
+        ...requestSecurity.headers,
+        Cookie: cookieHeader,
       },
     }
 
     const url = createUrl({
       path,
       activeServer: settings.activeServer,
+      proxyUrl,
+      queryParams: requestSecurity.queryParams,
     })
 
     const result = await safeFetch(url, fetchOptions)
 
-    chat.addToolOutput({
+    void chat.addToolOutput({
       tool: EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME,
       toolCallId,
       output: result,

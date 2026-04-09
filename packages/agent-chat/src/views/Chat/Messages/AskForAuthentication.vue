@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { getSelectedServer } from '@scalar/api-client/v2/features/operation'
-import { getActiveEnvironment, getServers } from '@scalar/api-client/v2/helpers'
 import { ScalarButton } from '@scalar/components'
 import { ScalarIconArrowRight } from '@scalar/icons'
+import {
+  getActiveEnvironment,
+  getSelectedServer,
+  getServers,
+} from '@scalar/workspace-store/request-example'
 import type { ToolUIPart } from 'ai'
 import { computed, type Ref } from 'vue'
 
 import AuthenticationProvided from '@/components/AuthenticationProvided.vue'
 import AuthenticationRequired from '@/components/AuthenticationRequired.vue'
 import { ASK_FOR_AUTHENTICATION_TOOL_NAME } from '@/entities/tools/ask-for-authentication'
-import { TOOL_NAMESPACE_SLUG_DELIMITER } from '@/entities/tools/constants'
-import { createDocumentName } from '@/registry/create-document-name'
 import { useState, type Tools } from '@/state/state'
 import Auth from '@/views/Settings/Auth.vue'
 
@@ -22,23 +23,7 @@ const { messagePart } = defineProps<{
 
 const { workspaceStore, eventBus, config, chat } = useState()
 
-const documentName = computed(() => {
-  if (
-    !messagePart.value.input?.uniqueIdentifier ||
-    messagePart.value.state !== 'input-available'
-  ) {
-    return
-  }
-
-  const [namespace, slug] = messagePart.value.input.uniqueIdentifier.split(
-    TOOL_NAMESPACE_SLUG_DELIMITER,
-  )
-  if (!namespace || !slug) {
-    return
-  }
-
-  return createDocumentName(namespace, slug)
-})
+const documentName = computed(() => messagePart.value.input?.documentName)
 
 const document = computed(() => {
   if (!documentName.value) {
@@ -53,7 +38,7 @@ const environment = computed(() => {
     return
   }
 
-  return getActiveEnvironment(workspaceStore, document.value)
+  return getActiveEnvironment(workspaceStore, document.value).environment
 })
 
 const selectedServer = computed(() => {
@@ -65,7 +50,7 @@ const selectedServer = computed(() => {
     documentUrl: document.value['x-scalar-original-source-url'],
   })
 
-  return getSelectedServer(document.value, servers)
+  return getSelectedServer(document.value, null, null, servers)
 })
 
 const isAuthenticationExpanded = computed(

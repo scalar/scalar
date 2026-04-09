@@ -82,9 +82,12 @@ public final class ScalarHtmlRenderer {
 
     /**
      * Builds the URL for the Scalar JavaScript bundle based on the base path.
+     * Uses only the last path segment so the relative URL resolves correctly
+     * when the page is at basePath (avoids duplicate segments for multi-segment
+     * paths) and when deployed behind a reverse proxy with a context path.
      *
      * @param basePath the base path
-     * @return the complete URL for the JavaScript bundle
+     * @return the relative path for the JavaScript bundle
      */
     private static String buildJsBundleUrl(String basePath) {
         // Remove trailing slash to avoid double slashes when concatenating
@@ -93,7 +96,9 @@ public final class ScalarHtmlRenderer {
             path = path.substring(0, path.length() - 1);
         }
 
-        return path + "/" + ScalarConstants.JS_FILENAME;
+        int lastSlash = path.lastIndexOf('/');
+        String lastSegment = lastSlash >= 0 ? path.substring(lastSlash + 1) : path;
+        return lastSegment + "/" + ScalarConstants.JS_FILENAME;
     }
 
     /**

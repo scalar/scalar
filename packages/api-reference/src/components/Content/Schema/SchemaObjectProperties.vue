@@ -13,17 +13,20 @@ import type { SchemaOptions } from '@/components/Content/Schema/types'
 
 import SchemaProperty from './SchemaProperty.vue'
 
-const { schema, discriminator, options } = defineProps<{
-  schema: SchemaObject
-  discriminator?: DiscriminatorObject
-  compact?: boolean
-  hideHeading?: boolean
-  level?: number
-  hideModelNames?: boolean
-  breadcrumb?: string[]
-  eventBus: WorkspaceEventBus | null
-  options: SchemaOptions
-}>()
+const { schema, discriminator, options, schemaContext, compositionPath } =
+  defineProps<{
+    schema: SchemaObject
+    discriminator?: DiscriminatorObject
+    compact?: boolean
+    hideHeading?: boolean
+    level?: number
+    hideModelNames?: boolean
+    breadcrumb?: string[]
+    eventBus: WorkspaceEventBus | null
+    options: SchemaOptions
+    schemaContext?: string
+    compositionPath?: string[]
+  }>()
 
 /**
  * Sorts properties by required status first, then alphabetically.
@@ -36,13 +39,15 @@ const sortedProperties = computed(() =>
 /**
  * Get the display name for additional properties.
  *
- * Uses x-additionalPropertiesName extension if available, otherwise falls back to a default name.
+ * Checks x-additionalPropertiesName extension first, then falls back to the
+ * propertyNames schema title if available.
  */
 const getAdditionalPropertiesName = (
   _additionalProperties: Extract<
     SchemaObject,
     { type: 'object' }
   >['additionalProperties'],
+  _propertyNames?: Extract<SchemaObject, { type: 'object' }>['propertyNames'],
 ) => {
   const additionalProperties =
     typeof _additionalProperties === 'boolean'
@@ -57,8 +62,51 @@ const getAdditionalPropertiesName = (
     return `${additionalProperties['x-additionalPropertiesName'].trim()}`
   }
 
+  // Fall back to the propertyNames title when available
+  if (_propertyNames) {
+    const resolved = resolve.schema(_propertyNames)
+    if (resolved?.title) {
+      return resolved.title
+    }
+  }
+
   return 'propertyName'
 }
+
+/**
+ * Extract enum values from the propertyNames schema.
+ *
+ * JSON Schema's propertyNames keyword constrains which keys are valid
+ * in an object with additionalProperties. When it contains an enum,
+ * these are the allowed key names.
+ */
+const getPropertyNamesEnum = (
+  _propertyNames?: Extract<SchemaObject, { type: 'object' }>['propertyNames'],
+): string[] | undefined => {
+  if (!_propertyNames) {
+    return undefined
+  }
+
+  const resolved = resolve.schema(_propertyNames)
+  if (
+    resolved &&
+    'enum' in resolved &&
+    Array.isArray(resolved.enum) &&
+    resolved.enum.length > 0
+  ) {
+    return resolved.enum as string[]
+  }
+
+  return undefined
+}
+
+/** Enum values for the property keys, derived from propertyNames if present. */
+const additionalPropertiesEnum = computed(() => {
+  if (!isTypeObject(schema) || !schema.additionalProperties) {
+    return undefined
+  }
+  return getPropertyNamesEnum(schema.propertyNames)
+})
 
 /**
  * Get the value for additional properties.
@@ -97,6 +145,8 @@ const getAdditionalPropertiesValue = (
       :key="property"
       :breadcrumb
       :compact
+      :compositionPath="compositionPath"
+      :compositionPathSegment="property"
       :discriminator
       :eventBus="eventBus"
       :hideHeading
@@ -105,7 +155,8 @@ const getAdditionalPropertiesValue = (
       :name="property"
       :options="options"
       :required="schema.required?.includes(property)"
-      :schema="resolve.schema(schema.properties[property])" />
+      :schema="resolve.schema(schema.properties[property])"
+      :schemaContext="schemaContext" />
   </template>
 
   <!-- patternProperties -->
@@ -115,6 +166,8 @@ const getAdditionalPropertiesValue = (
       :key="key"
       :breadcrumb
       :compact
+      :compositionPath="compositionPath"
+      :compositionPathSegment="key"
       :discriminator
       :eventBus="eventBus"
       :hideHeading
@@ -122,7 +175,8 @@ const getAdditionalPropertiesValue = (
       :level
       :name="key"
       :options="options"
-      :schema="resolve.schema(property)" />
+      :schema="resolve.schema(property)"
+      :schemaContext="schemaContext" />
   </template>
 
   <!-- additionalProperties -->
@@ -130,15 +184,29 @@ const getAdditionalPropertiesValue = (
     <SchemaProperty
       :breadcrumb
       :compact
+      :compositionPath="compositionPath"
+      :compositionPathSegment="
+        getAdditionalPropertiesName(
+          schema.additionalProperties,
+          schema.propertyNames,
+        )
+      "
       :discriminator
       :eventBus="eventBus"
       :hideHeading
       :hideModelNames
       :level
-      :name="getAdditionalPropertiesName(schema.additionalProperties)"
+      :name="
+        getAdditionalPropertiesName(
+          schema.additionalProperties,
+          schema.propertyNames,
+        )
+      "
       noncollapsible
       :options="options"
+      :propertyNamesEnum="additionalPropertiesEnum"
       :schema="getAdditionalPropertiesValue(schema.additionalProperties)"
+      :schemaContext="schemaContext"
       variant="additionalProperties" />
   </template>
 </template>

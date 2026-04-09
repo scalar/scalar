@@ -26,6 +26,7 @@
 }
 
 .references-classic-header-container {
+  position: relative;
   padding: 0 60px;
 }
 @container narrow-references-container (max-width: 900px) {

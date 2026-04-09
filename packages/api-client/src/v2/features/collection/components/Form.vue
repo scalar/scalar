@@ -14,6 +14,7 @@ defineProps<{
     key: string
     label: string
     placeholder: string
+    lineWrapping?: boolean
   }[]
   data: Record<string, any>
   onUpdate: (key: string, value: string | number) => void
@@ -44,7 +45,7 @@ const id = useId()
             :id="id"
             class="pr-9"
             :environment="environment"
-            lineWrapping
+            :lineWrapping="option.lineWrapping ?? false"
             :modelValue="data[option.key] ?? ''"
             :placeholder="option.placeholder"
             @update:modelValue="onUpdate(option.key, $event)">

@@ -1,5 +1,6 @@
+import { createLimiter } from '@scalar/helpers/general/create-limiter'
+
 import type { LoaderPlugin, ResolveResult } from '@/bundle'
-import { createLimiter } from '@/bundle/create-limiter'
 import { isHttpUrl } from '@/helpers/is-http-url'
 import { normalize } from '@/helpers/normalize'
 
