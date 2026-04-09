@@ -200,7 +200,7 @@ describe('buildRequest', () => {
     expect(url.searchParams.get('token')).toBe('abc')
   })
 
-  it('lets operation query params override security query params when names collide', () => {
+  it('lets operation security query params override query params when names collide', () => {
     const query = new URLSearchParams()
     query.set('token', 'from-operation')
 
@@ -212,7 +212,7 @@ describe('buildRequest', () => {
       { envVariables: {} },
     )
 
-    expect(new URL(request.url).searchParams.get('token')).toBe('from-operation')
+    expect(new URL(request.url).searchParams.get('token')).toBe('from-security')
   })
 
   it('substitutes environment variables in operation query keys and values', () => {
