@@ -85,6 +85,7 @@ describe('mapConfigPlugins', () => {
 
       expect(onBeforeRequestMock).toHaveBeenCalledTimes(1)
       expect(onBeforeRequestMock).toHaveBeenCalledWith({
+        envVariables: expect.any(Object),
         request: expect.any(Request),
         requestBuilder: mockRequestBuilder,
       })

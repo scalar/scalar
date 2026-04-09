@@ -155,7 +155,10 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
       // Why no output? https://github.com/scalar/scalar/pull/7047
       // output: z.union([z.void(), z.promise(z.void())]),
     })
-    .optional() as z.ZodType<((a: { request: Request }) => Promise<void> | void) | undefined>,
+    .optional() as z.ZodType<
+    | ((a: { request: Request; requestBuilder: any; envVariables: Record<string, string> }) => Promise<void> | void)
+    | undefined
+  >,
   /**
    * onShowMore is fired when the user clicks the "Show more" button on the references
    * @param tagId - The ID of the tag that was clicked
