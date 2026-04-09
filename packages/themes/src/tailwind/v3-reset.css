@@ -5,13 +5,13 @@
 */
 
 :where(.scalar-app) {
-  /** 
-  * Transform resets
-  *
-  * Tailwind v3 uses the transform property for all transform utilities, but v4 uses 
-  * the translate, scale and rotate properties. To avoid transforms being applied twice,
-  * we need to reset the transform property for the translate, scale and rotate utilities.
-  */
+  /**
+   * Transform resets
+   *
+   * Tailwind v3 uses the transform property for all transform utilities, but v4 uses
+   * the translate, scale and rotate properties. To avoid transforms being applied twice,
+   * we need to reset the transform property for the translate, scale and rotate utilities.
+   */
   [class*="rotate-"],
   [class*="translate-"],
   [class*="scale-"] {
