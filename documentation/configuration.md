@@ -1308,6 +1308,94 @@ Callback fired before the outbound request is sent from the embedded API client.
 }
 ```
 
+##### RequestFactory reference
+
+The `requestBuilder` object exposes the following fields:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `baseUrl` | `string` | The base API server URL (may contain placeholders like `{version}`). |
+| `path.raw` | `string` | The raw path string, e.g. `/users/{userId}/settings`. |
+| `path.variables` | `Record<string, string>` | Path variable names and their current values. |
+| `method` | `string` | HTTP method (always uppercase). |
+| `headers` | [`Headers`](https://developer.mozilla.org/en-US/docs/Web/API/Headers) | Headers to send with the request. Supports `.set()`, `.get()`, `.delete()`, `.append()`. |
+| `query` | [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) | Query parameters. Supports `.set()`, `.get()`, `.delete()`, `.append()`. |
+| `body` | `RequestBody \| null` | The request body payload (`raw`, `formdata`, or `urlencoded`), or `null`. |
+| `cookies` | `XScalarCookie[]` | Cookies to include with the request. |
+| `security` | `BuildRequestSecurityResult[]` | The resolved security schemes for this request. Each entry has `in` (`"header"`, `"query"`, or `"cookie"`), `name`, `value`, and an optional `format` (`"basic"` or `"bearer"`). |
+| `options` | `object \| undefined` | Advanced options (see below). |
+
+**`options`**
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `disableSecurity` | `boolean` | `false` | When `true`, Scalar skips its built-in security handling entirely. Security headers, query parameters, and cookies from the `security` array are **not** applied automatically, giving you full control. |
+| `isElectron` | `boolean` | `false` | Indicates the request runs in an Electron (Node-like) context. |
+
+##### Examples
+
+**Add a custom header**
+
+```javascript
+{
+  onBeforeRequest: ({ requestBuilder }) => {
+    requestBuilder.headers.set('X-Custom-Header', 'my-value')
+  }
+}
+```
+
+**Add a query parameter**
+
+```javascript
+{
+  onBeforeRequest: ({ requestBuilder }) => {
+    requestBuilder.query.set('debug', 'true')
+  }
+}
+```
+
+**Custom auth prefix — disable built-in security and apply your own**
+
+By default, Scalar applies security schemes automatically (e.g. prefixing bearer tokens with `Bearer`). If you need a custom prefix, a different header name, or any other transformation, set `disableSecurity` to `true` and handle the `security` array yourself:
+
+```javascript
+{
+  onBeforeRequest: ({ requestBuilder }) => {
+    // Tell Scalar to skip its default security handling
+    requestBuilder.options = { ...requestBuilder.options, disableSecurity: true }
+
+    // Apply each security scheme with custom logic
+    for (const security of requestBuilder.security) {
+      if (security.in === 'header' && security.format === 'bearer') {
+        // Custom prefix instead of the default "Bearer"
+        requestBuilder.headers.set(
+          security.name,
+          `MyApp-Bearer ${security.value}`,
+        )
+      } else if (security.in === 'header' && security.format === 'basic') {
+        // Custom Basic auth with a suffix
+        requestBuilder.headers.set(
+          security.name,
+          `Basic ${btoa(security.value)}-custom-suffix`,
+        )
+      } else if (security.in === 'header') {
+        // API key or other header-based auth — pass through as-is
+        requestBuilder.headers.set(security.name, security.value)
+      } else if (security.in === 'query') {
+        requestBuilder.query.set(security.name, security.value)
+      } else if (security.in === 'cookie') {
+        requestBuilder.cookies.push({
+          name: security.name,
+          value: security.value,
+        })
+      }
+    }
+  }
+}
+```
+
+> When `disableSecurity` is `true`, only the security-related headers, query parameters, and cookies are skipped. All other fields on the request (custom headers, path, body, non-security cookies, etc.) are unaffected.
+
 #### onDocumentSelect
 
 **Type:** `() => Promise<void> | void`
