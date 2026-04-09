@@ -17,6 +17,7 @@ describe('upgrade', () => {
       '3.1',
     )
 
+    // @ts-expect-error - we're testing the upgrade function
     expect(document?.swagger).toBeUndefined()
     expect(document?.openapi).toBe('3.1.1')
   })

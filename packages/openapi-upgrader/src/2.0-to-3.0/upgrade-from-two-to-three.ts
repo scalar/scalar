@@ -678,27 +678,27 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
   }, {} as OpenAPIV3.SchemaObject)
 }
 
-function getParameterLocation(location: OpenAPIV2.ParameterLocation): OpenAPIV3.ParameterLocation {
+function getParameterLocation(location: OpenAPIV2.ParameterObject['in']): OpenAPIV3.ParameterObject['in'] {
   if (location === 'formData') {
     throw new Error('Encountered a formData parameter which should have been filtered out by the caller')
   }
   if (location === 'body') {
     throw new Error('Encountered a body parameter which should have been filtered out by the caller')
   }
-  return location as OpenAPIV3.ParameterLocation
+  return location as OpenAPIV3.ParameterObject['in']
 }
 
 function transformParameterObject(
   parameter: OpenAPIV2.ParameterObject | OpenAPIV2.ReferenceObject,
 ): OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject {
-  if (Object.hasOwn(parameter, '$ref') && typeof parameter.$ref === 'string') {
+  if ('$ref' in parameter && typeof parameter.$ref === 'string') {
     return {
       $ref: parameter.$ref,
     }
   }
 
   // it is important to call getParameterSerializationStyle first because transformItemsObject modifies properties on which getParameterSerializationStyle rely on
-  const serializationStyle = getParameterSerializationStyle(parameter)
+  const serializationStyle = getParameterSerializationStyle(parameter as OpenAPIV2.ParameterObject)
   const schema = transformItemsObject(parameter)
 
   const { xExample, xExamples } = extractXExampleExtensions(parameter as Record<string, unknown>)
@@ -720,9 +720,9 @@ function transformParameterObject(
   //     value: 'OK'
 
   // We need to transform the x-example to an examples object and add "value" to the structure
-  if (isNonEmptyObject(xExample)) {
+  if (isNonEmptyObject(xExample) && 'examples' in parameter) {
     parameter.examples = transformXExampleToExamples(xExample)
-  } else if (isNonEmptyObject(xExamples)) {
+  } else if (isNonEmptyObject(xExamples) && 'examples' in parameter) {
     parameter.examples = Object.entries(xExamples).reduce(
       (acc, [key, exampleValue]) => {
         acc[key] = wrapAsExampleObject(exampleValue)

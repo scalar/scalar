@@ -34,5 +34,5 @@ export function upgrade(
     return openapi32 as OpenAPIV3_2.Document
   }
 
-  return openapi32
+  return openapi32 as OpenAPIV3_2.Document
 }
