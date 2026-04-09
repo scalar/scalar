@@ -82,7 +82,9 @@ describe('Tabs', () => {
     expect(hrefs[2]).toContain('authentication')
     expect(hrefs[3]).toContain('environment')
     expect(hrefs[4]).toContain('cookies')
-    expect(hrefs[5]).toContain('settings')
+    expect(hrefs[5]).toContain('scripts')
+    expect(hrefs[6]).toContain('runner')
+    expect(hrefs[7]).toContain('settings')
   })
 
   it('marks the active workspace tab using router state', async () => {
