@@ -8,12 +8,11 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
  * const existingPaths = new Set(['/tempabcd1234', '/tempdeadbeef']);
  * const newPath = generateUniquePath('my-doc', existingPaths); // e.g. "/tempa1b2c3d4"
  *
- * @param documentName - Name of the document (not used here, but for potential future uniqueness)
  * @param existingPaths - Set of paths already present in the document to avoid collisions
  * @param attempts - Used internally to limit recursion (default: 0)
  * @returns A unique operation path (e.g., "/temp1234abcd")
  */
-const generateUniquePath = (documentName: string, existingPaths: Set<string>, attempts: number = 0) => {
+const generateUniquePath = (existingPaths: Set<string>, attempts: number = 0) => {
   if (attempts > 10) {
     // After 10 failed attempts, fallback to a generic path
     return '/temp-path'
@@ -24,7 +23,7 @@ const generateUniquePath = (documentName: string, existingPaths: Set<string>, at
 
   if (existingPaths.has(path)) {
     // If path exists, try again recursively with incremented attempts
-    return generateUniquePath(documentName, existingPaths, attempts + 1)
+    return generateUniquePath(existingPaths, attempts + 1)
   }
 
   return path
@@ -45,7 +44,7 @@ export const createTempOperation = (
     tags?: string[]
   },
 ) => {
-  const uniquePath = generateUniquePath(documentName, options.existingPaths)
+  const uniquePath = generateUniquePath(options.existingPaths)
 
   options.eventBus.emit('operation:create:operation', {
     documentName,
