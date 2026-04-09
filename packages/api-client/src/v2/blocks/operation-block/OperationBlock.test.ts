@@ -135,29 +135,21 @@ const createMockOriginalResponse = (): Response =>
 type RequestFactoryPayload = Parameters<typeof buildRequest>[0]
 
 const createDefaultRequestFactoryPayload = (overrides: Partial<RequestFactoryPayload> = {}): RequestFactoryPayload => {
-  const { proxy: proxyOverrides, ...rest } = overrides
   return {
     baseUrl: 'https://api.example.com',
     method: 'GET',
     headers: new Headers(),
     body: null,
-    cookies: {
-      list: [],
-    },
+    cookies: [],
     cache: 'default',
     security: [],
-    proxy: {
-      proxyUrl: '',
-      ...proxyOverrides,
-    },
+    proxyUrl: '',
     path: {
       variables: {},
       raw: '/api/users',
     },
-    query: {
-      params: new URLSearchParams(),
-    },
-    ...rest,
+    query: new URLSearchParams(),
+    ...overrides,
   }
 }
 
@@ -226,7 +218,7 @@ describe('OperationBlock', () => {
 
     vi.mocked(requestFactory).mockImplementation((args) => ({
       request: createDefaultRequestFactoryPayload({
-        proxy: { proxyUrl: args.proxyUrl },
+        proxyUrl: args.proxyUrl,
       }),
     }))
 
@@ -449,9 +441,7 @@ describe('OperationBlock', () => {
     expect(buildRequest).toHaveBeenCalledWith(
       expect.objectContaining({
         baseUrl: 'https://api.example.com',
-        proxy: {
-          proxyUrl: 'https://proxy.example.com',
-        },
+        proxyUrl: 'https://proxy.example.com',
       }),
       {
         envVariables: {},
@@ -465,7 +455,7 @@ describe('OperationBlock', () => {
 
     vi.mocked(requestFactory).mockReturnValue({
       request: createDefaultRequestFactoryPayload({
-        proxy: { proxyUrl: 'https://proxy.example.com' },
+        proxyUrl: 'https://proxy.example.com',
       }),
     })
 
