@@ -128,20 +128,22 @@ const handleEditExample = () => {
 }
 
 const handleAddOperation = () => {
-  const documentName = getParentEntry('document', item)?.name
+  const itemWithParent = sidebarState.getEntryById(item.id)
+  const documentName = getParentEntry('document', itemWithParent)?.name
+  const tagName = getParentEntry('tag', itemWithParent)?.name
   if (!documentName) {
     console.error('Document name not found')
     return
   }
-  createTempOperation(
-    documentName,
-    new Set(
+  createTempOperation(documentName, {
+    existingPaths: new Set(
       Object.keys(
         workspaceStore.workspace.documents[documentName]?.paths ?? {},
       ),
     ),
     eventBus,
-  )
+    tags: tagName ? [tagName] : undefined,
+  })
 }
 </script>
 <template>

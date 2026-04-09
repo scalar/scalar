@@ -251,16 +251,21 @@ const closeMenu = () => {
  * updates the path to `/`, and focuses the address bar so the user can immediately start typing.
  */
 const handleAddEmptyFolder = (item: TraversedEntry) => {
-  const documentName = getParentEntry('document', item)?.name
+  const itemWithParent = sidebarState.getEntryById(item.id)
+  const documentName = getParentEntry('document', itemWithParent)?.name
+  const tagName = getParentEntry('tag', itemWithParent)?.name
+
   if (!documentName) {
     console.error('Document name not found')
     return
   }
-  createTempOperation(
-    documentName,
-    new Set(Object.keys(store.workspace.documents[documentName]?.paths ?? {})),
+  createTempOperation(documentName, {
+    existingPaths: new Set(
+      Object.keys(store.workspace.documents[documentName]?.paths ?? {}),
+    ),
     eventBus,
-  )
+    tags: tagName ? [tagName] : undefined,
+  })
 }
 
 /**
