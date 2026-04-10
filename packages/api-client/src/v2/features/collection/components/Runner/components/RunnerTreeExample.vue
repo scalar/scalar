@@ -51,7 +51,7 @@ const emit = defineEmits<{
     <span
       class="shrink-0 text-[0.65rem] tabular-nums transition-opacity duration-100"
       :class="
-        isSelected && orderIndex && orderIndex > 0
+        isSelected && orderIndex != null && orderIndex > 0
           ? 'text-c-3 opacity-100'
           : 'opacity-0'
       ">

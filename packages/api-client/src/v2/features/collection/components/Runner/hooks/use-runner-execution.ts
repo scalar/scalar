@@ -191,7 +191,7 @@ export function useRunnerExecution({
   }
 
   const run = async () => {
-    if (!document || selectedOrder.value.length === 0) {
+    if (isRunning.value || !document || selectedOrder.value.length === 0) {
       return
     }
 
