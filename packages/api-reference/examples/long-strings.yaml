@@ -233,6 +233,11 @@ paths:
                     YetAnotherExtremelySuperLongPropertyNameThatTestsWrappingAndOverflowAcrossMultipleLines: true
                     ReallyExtremelySuperLongNestedObjectPropertyThatComprehensivelyTestsPascalCaseNaming:
                       NestedReallyExtremelySuperLongPropertyNameThatDefinitelyWrapsAcrossMultipleLines: 'Nested value'
+        '300':
+          description: |
+            Long response description with a long description but no response body or headers and should wrap properly across multiple lines in the UI. This is a test of the response description truncation logic.
+        '301':
+          description: Shorter text that should not wrap.
         '400':
           $ref: '#/components/responses/ReallyExtremelyLongBadRequestResponseThatTestsWrapping'
   '/another/really/extremely/long/path/{really_extremely_long_snake_case_parameter}/with/more/extremely/long/path/segments':
