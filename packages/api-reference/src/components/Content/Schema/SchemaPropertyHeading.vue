@@ -191,8 +191,8 @@ const validationProperties = computed(() => {
   return properties
 })
 
-/** Optional schema title/name shown in addition to structural type. */
-const displayTitle = computed(() => {
+/** Link data for navigating to the referenced model in the sidebar. */
+const modelLink = computed(() => {
   if (!props.value) {
     return null
   }
@@ -201,19 +201,20 @@ const displayTitle = computed(() => {
     return null
   }
 
-  // Use explicit model name when schema was resolved from a $ref (e.g. in response/param body).
   if (props.modelName) {
-    return { name: props.modelName, display: props.modelName }
+    return { schemaKey: props.modelName, label: props.modelName }
   }
 
   const modelName = getModelNameFromSchema(props.value)
   if (modelName) {
-    return { name: modelName, display: modelName }
+    return { schemaKey: modelName.schemaKey, label: modelName.label }
   }
 
   if (isArraySchema(props.value) && props.value.items) {
     const itemName = getModelNameFromSchema(props.value.items)
-    return itemName ? { name: itemName, display: `${itemName}[]` } : null
+    return itemName
+      ? { schemaKey: itemName.schemaKey, label: `${itemName.label}[]` }
+      : null
   }
 
   return null
@@ -274,18 +275,18 @@ const exampleValue = computed(() => {
         v-if="shouldShowType"
         truncate>
         <ScreenReader>Type: </ScreenReader>{{ displayType
-        }}<template v-if="displayTitle">
+        }}<template v-if="modelLink">
           ·
           <SchemaLinkButton
-            v-if="props.eventBus"
+            v-if="props.eventBus && modelLink.schemaKey"
             @click="
               props.eventBus.emit('scroll-to:model-by-name', {
-                name: displayTitle.name,
+                name: modelLink.schemaKey,
               })
             ">
-            {{ displayTitle.display }}
+            {{ modelLink.label }}
           </SchemaLinkButton>
-          <template v-else>{{ displayTitle.display }}</template>
+          <template v-else>{{ modelLink.label }}</template>
         </template>
       </SchemaPropertyDetail>
 
