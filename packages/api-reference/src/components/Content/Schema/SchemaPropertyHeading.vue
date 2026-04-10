@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import {
@@ -30,12 +31,14 @@ const props = withDefaults(
     hideModelNames?: boolean
     /** When the schema was resolved from a $ref, pass the ref name so it displays as e.g. "Data" instead of "object". */
     modelName?: string | null
+    eventBus?: WorkspaceEventBus | null
   }>(),
   {
     isDiscriminator: false,
     required: false,
     withExamples: true,
     hideModelNames: false,
+    eventBus: null,
   },
 )
 
@@ -199,17 +202,17 @@ const displayTitle = computed(() => {
 
   // Use explicit model name when schema was resolved from a $ref (e.g. in response/param body).
   if (props.modelName) {
-    return props.modelName
+    return { name: props.modelName, display: props.modelName }
   }
 
   const modelName = getModelNameFromSchema(props.value)
   if (modelName) {
-    return modelName
+    return { name: modelName, display: modelName }
   }
 
   if (isArraySchema(props.value) && props.value.items) {
     const itemName = getModelNameFromSchema(props.value.items)
-    return itemName ? `${itemName}[]` : null
+    return itemName ? { name: itemName, display: `${itemName}[]` } : null
   }
 
   return null
@@ -270,7 +273,21 @@ const exampleValue = computed(() => {
         v-if="shouldShowType"
         truncate>
         <ScreenReader>Type: </ScreenReader>{{ displayType
-        }}{{ displayTitle ? ` · ${displayTitle}` : '' }}
+        }}<template v-if="displayTitle">
+          ·
+          <button
+            v-if="props.eventBus"
+            class="model-link"
+            type="button"
+            @click.stop="
+              props.eventBus.emit('scroll-to:model-by-name', {
+                name: displayTitle.name,
+              })
+            ">
+            {{ displayTitle.display }}
+          </button>
+          <template v-else>{{ displayTitle.display }}</template>
+        </template>
       </SchemaPropertyDetail>
 
       <!-- Dynamic validation properties from composable -->
@@ -423,5 +440,19 @@ const exampleValue = computed(() => {
 
 .deprecated {
   text-decoration: line-through;
+}
+
+.model-link {
+  all: unset;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--scalar-border-color);
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+}
+
+.model-link:hover {
+  color: var(--scalar-color-1);
+  text-decoration-color: currentColor;
 }
 </style>

@@ -187,6 +187,7 @@ const isDiscriminatorProperty = computed(() =>
       v-if="shouldDisplayHeadingComputed"
       class="group"
       :enum="hasEnum"
+      :eventBus="eventBus"
       :hideModelNames
       :isDiscriminator="isDiscriminatorProperty"
       :modelName="modelName"

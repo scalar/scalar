@@ -454,6 +454,33 @@ defineExpose({
   sidebarItems,
 })
 
+/**
+ * Computes a mapping from model names to their sidebar entry IDs.
+ * This is used for quick lookups and navigation within the sidebar.
+ */
+const modelsIndex = computed(() => {
+  return sidebarItems.value
+    .filter((item) => item.type === 'models')
+    .flatMap((item) => item.children ?? [])
+    .filter((item) => item.type === 'model')
+    .reduce(
+      (acc, item) => {
+        acc[item.name] = item.id
+        return acc
+      },
+      {} as Record<string, string>,
+    )
+})
+
+eventBus.on('scroll-to:model-by-name', ({ name }) => {
+  /** Find the model in the models index */
+  const model = modelsIndex.value[name]
+
+  if (model) {
+    scrollToLazyElement(model)
+  }
+})
+
 const addDocument: typeof workspaceStore.addDocument = async (
   input,
   navigationOptions,

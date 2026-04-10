@@ -133,7 +133,19 @@ const shouldRenderRequestBody = computed(
           v-if="schemaModelName"
           class="text-c-2 text-xs leading-none font-normal"
           data-testid="request-body-schema-name">
-          <span class="text-c-3 mx-1.5">·</span>{{ schemaModelName }}
+          <span class="text-c-3 mx-1.5">·</span>
+          <button
+            v-if="eventBus"
+            class="model-link"
+            type="button"
+            @click.stop="
+              eventBus.emit('scroll-to:model-by-name', {
+                name: schemaModelName,
+              })
+            ">
+            {{ schemaModelName }}
+          </button>
+          <template v-else>{{ schemaModelName }}</template>
         </span>
       </div>
       <div class="flex items-center gap-2">
@@ -257,5 +269,19 @@ const shouldRenderRequestBody = computed(
 }
 .request-body-description :deep(.markdown) * {
   color: var(--scalar-color-2) !important;
+}
+
+.model-link {
+  all: unset;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--scalar-border-color);
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+}
+
+.model-link:hover {
+  color: var(--scalar-color-1);
+  text-decoration-color: currentColor;
 }
 </style>
