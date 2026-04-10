@@ -7,7 +7,7 @@ defineEmits<{
   <button
     class="property-example-label"
     type="button"
-    @click.stop="$emit('click', $event)">
+    @click="$emit('click', $event)">
     <slot />
   </button>
 </template>
