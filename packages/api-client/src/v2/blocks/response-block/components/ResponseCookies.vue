@@ -26,14 +26,16 @@ defineProps<{
           <DataTableHeader>Cookie Value</DataTableHeader>
         </DataTableRow>
         <DataTableRow
-          v-for="item in cookies"
+          v-for="(item, index) in cookies"
           :key="item.name"
           class="group/row text-c-1">
           <DataTableText
-            class="bg-b-1 sticky left-0 z-1 max-w-full group-first/row:border-t-0"
+            class="bg-b-1 sticky left-0 z-1 max-w-full"
+            :class="{ 'border-t-0': index === 0 }"
             :text="item.name" />
           <DataTableText
-            class="z-0 group-first/row:border-t-0"
+            class="z-0"
+            :class="{ 'border-t-0': index === 0 }"
             :text="item.value" />
         </DataTableRow>
       </DataTable>
