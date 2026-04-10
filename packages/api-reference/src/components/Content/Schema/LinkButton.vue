@@ -17,7 +17,6 @@ defineEmits<{
 }
 .property-example-label {
   color: var(--scalar-color-3);
-  position: relative;
   border-bottom: var(--scalar-border-width) dotted currentColor;
 }
 </style>
