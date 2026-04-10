@@ -16,6 +16,7 @@ import ScreenReader from '@/components/ScreenReader.vue'
 import { getSchemaType } from './helpers/get-schema-type'
 import { getModelNameFromSchema } from './helpers/schema-name'
 import RenderString from './RenderString.vue'
+import SchemaLinkButton from './SchemaLinkButton.vue'
 import SchemaPropertyDefault from './SchemaPropertyDefault.vue'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
 import SchemaPropertyExamples from './SchemaPropertyExamples.vue'
@@ -275,17 +276,15 @@ const exampleValue = computed(() => {
         <ScreenReader>Type: </ScreenReader>{{ displayType
         }}<template v-if="displayTitle">
           ·
-          <button
+          <SchemaLinkButton
             v-if="props.eventBus"
-            class="model-link"
-            type="button"
-            @click.stop="
+            @click="
               props.eventBus.emit('scroll-to:model-by-name', {
                 name: displayTitle.name,
               })
             ">
             {{ displayTitle.display }}
-          </button>
+          </SchemaLinkButton>
           <template v-else>{{ displayTitle.display }}</template>
         </template>
       </SchemaPropertyDetail>
@@ -440,19 +439,5 @@ const exampleValue = computed(() => {
 
 .deprecated {
   text-decoration: line-through;
-}
-
-.model-link {
-  all: unset;
-  cursor: pointer;
-  text-decoration: underline;
-  text-decoration-color: var(--scalar-border-color);
-  text-underline-offset: 2px;
-  transition: color 0.15s ease;
-}
-
-.model-link:hover {
-  color: var(--scalar-color-1);
-  text-decoration-color: currentColor;
 }
 </style>
