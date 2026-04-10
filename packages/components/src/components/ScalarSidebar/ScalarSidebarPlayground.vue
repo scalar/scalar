@@ -19,6 +19,16 @@ defineProps<{
    */
   indent?: number
   /**
+   * Overrides --scalar-sidebar-padding
+   * @default 12 (px)
+   */
+  padding?: number
+  /**
+   * Overrides --scalar-sidebar-width
+   * @default 288 (px)
+   */
+  width?: number
+  /**
    * Sets --scalar-sidebar-background-1
    * @default var(--scalar-background-1)
    */
@@ -95,9 +105,11 @@ const selected = defineModel<string>('selected')
 <template>
   <div class="flex h-screen">
     <ScalarSidebar
-      class="t-doc__sidebar"
+      class="t-doc__sidebar w-(--scalar-sidebar-width)"
       :style="{
+        '--scalar-sidebar-width': width ? width + 'px' : undefined,
         '--scalar-sidebar-indent': indent ? indent + 'px' : undefined,
+        '--scalar-sidebar-padding': padding ? padding + 'px' : undefined,
         '--scalar-sidebar-background-1': backgroundOne,
         '--scalar-sidebar-color-1': colorOne,
         '--scalar-sidebar-color-2': colorTwo,
@@ -112,10 +124,13 @@ const selected = defineModel<string>('selected')
         '--scalar-sidebar-search-background': searchBackground,
         '--scalar-sidebar-search-color': searchColor,
         '--scalar-sidebar-search-border-color': searchBorderColor,
+        '--scalar-sidebar-sticky-offset':
+          'calc(var(--scalar-sidebar-padding) + 32px)',
       }">
       <div class="flex flex-col flex-1 min-h-0 custom-scroll overflow-x-clip">
         <slot name="search">
-          <div class="px-3 pt-3 sticky z-1 top-0 bg-sidebar-b-1">
+          <div
+            class="p-(--scalar-sidebar-padding) pb-0 sticky z-1 top-0 bg-sidebar-b-1">
             <ScalarSidebarSearchInput />
           </div>
         </slot>
