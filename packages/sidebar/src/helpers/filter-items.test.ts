@@ -110,4 +110,50 @@ describe('filter-items', () => {
 
     expect(result.map((item) => item.id)).toEqual(['1', '3', '5'])
   })
+
+  it('hides a single default example when hideOperationDefaultExamples is true', () => {
+    const items: Item[] = [{ id: '1', title: 'Default', type: 'example', name: 'default' }]
+
+    expect(filterItems('client', items, true)).toStrictEqual([])
+    expect(filterItems('reference', items, true)).toStrictEqual([])
+  })
+
+  it('keeps a single default example when hideOperationDefaultExamples is false', () => {
+    const items: Item[] = [{ id: '1', title: 'Default', type: 'example', name: 'default' }]
+
+    expect(filterItems('client', items, false)).toStrictEqual(items)
+    expect(filterItems('reference', items, false)).toStrictEqual(items)
+  })
+
+  it('keeps a single default example when hideOperationDefaultExamples is undefined', () => {
+    const items: Item[] = [{ id: '1', title: 'Default', type: 'example', name: 'default' }]
+
+    expect(filterItems('client', items)).toStrictEqual(items)
+    expect(filterItems('reference', items)).toStrictEqual(items)
+  })
+
+  it('keeps multiple examples even when one is the default and hideOperationDefaultExamples is true', () => {
+    const items: Item[] = [
+      { id: '1', title: 'Default', type: 'example', name: 'default' },
+      { id: '2', title: 'Custom', type: 'example', name: 'custom' },
+    ]
+
+    expect(filterItems('reference', items, true)).toStrictEqual(items)
+    expect(filterItems('client', items, true)).toStrictEqual(items)
+  })
+
+  it('keeps a single non-default example when hideOperationDefaultExamples is true', () => {
+    const items: Item[] = [{ id: '1', title: 'Custom', type: 'example', name: 'custom' }]
+
+    expect(filterItems('reference', items, true)).toStrictEqual(items)
+    expect(filterItems('client', items, true)).toStrictEqual(items)
+  })
+
+  it('keeps a single non-example item when hideOperationDefaultExamples is true', () => {
+    const items: Item[] = [
+      { id: '1', title: 'GET /users', type: 'operation', method: 'get', path: '/users', ref: '' },
+    ]
+
+    expect(filterItems('reference', items, true)).toStrictEqual(items)
+  })
 })

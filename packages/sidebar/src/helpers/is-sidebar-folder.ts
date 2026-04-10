@@ -34,7 +34,6 @@ export const isSidebarFolder = (
     item.children[0]?.type === 'example' &&
     item.children[0]?.name === 'default'
   ) {
-    console.log('we should hide the folder for the operation', item)
     return false
   }
 
