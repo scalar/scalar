@@ -15,6 +15,7 @@ export const isSidebarFolder = (
   layout: Layout,
   item: Item,
   hasEmptySlot: boolean,
+  hideOperationDefaultExamples: boolean,
 ): item is Item & { children?: Item[] } => {
   // If the item has no children, check if there is an empty slot.
   if (!hasChildren(item)) {
@@ -23,6 +24,17 @@ export const isSidebarFolder = (
       return item.type === 'document' || item.type === 'tag'
     }
     // Otherwise, not a folder if it has no children
+    return false
+  }
+
+  if (
+    hideOperationDefaultExamples &&
+    item.type === 'operation' &&
+    item.children?.length === 1 &&
+    item.children[0]?.type === 'example' &&
+    item.children[0]?.name === 'default'
+  ) {
+    console.log('we should hide the folder for the operation', item)
     return false
   }
 
