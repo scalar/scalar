@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
+import type { SchemaObject } from '@/schemas/v3.1/strict/openapi-document'
+
 import { getExampleFromSchema } from './get-example-from-schema'
 
 describe('get-example-from-schema - Issue #8753: allOf with $ref and description', () => {
@@ -7,10 +9,10 @@ describe('get-example-from-schema - Issue #8753: allOf with $ref and description
     const schema = {
       allOf: [
         {
-          type: 'object',
+          type: 'object' as const,
           properties: {
-            name: { type: 'string' },
-            value: { type: 'integer' },
+            name: { type: 'string' as const },
+            value: { type: 'integer' as const },
           },
           required: ['name'],
         },
@@ -18,7 +20,7 @@ describe('get-example-from-schema - Issue #8753: allOf with $ref and description
           description: 'JSON file containing the data.',
         },
       ],
-    }
+    } as SchemaObject
 
     const result = getExampleFromSchema(schema, { emptyString: 'string' })
 
@@ -34,13 +36,13 @@ describe('get-example-from-schema - Issue #8753: allOf with $ref and description
     const schema = {
       allOf: [
         {
-          type: 'string',
+          type: 'string' as const,
         },
         {
           description: 'A string value',
         },
       ],
-    }
+    } as SchemaObject
 
     const result = getExampleFromSchema(schema, { emptyString: 'string' })
 
@@ -52,22 +54,22 @@ describe('get-example-from-schema - Issue #8753: allOf with $ref and description
     const schema = {
       allOf: [
         {
-          type: 'object',
+          type: 'object' as const,
           properties: {
-            id: { type: 'integer' },
+            id: { type: 'integer' as const },
           },
         },
         {
-          type: 'object',
+          type: 'object' as const,
           properties: {
-            name: { type: 'string' },
+            name: { type: 'string' as const },
           },
         },
         {
           description: 'Combined object',
         },
       ],
-    }
+    } as SchemaObject
 
     const result = getExampleFromSchema(schema, { emptyString: 'string' })
 
@@ -80,15 +82,15 @@ describe('get-example-from-schema - Issue #8753: allOf with $ref and description
 
   it('handles nested allOf in properties', () => {
     const schema = {
-      type: 'object',
+      type: 'object' as const,
       properties: {
         file: {
           allOf: [
             {
-              type: 'object',
+              type: 'object' as const,
               properties: {
-                name: { type: 'string' },
-                size: { type: 'integer' },
+                name: { type: 'string' as const },
+                size: { type: 'integer' as const },
               },
             },
             {
@@ -97,7 +99,7 @@ describe('get-example-from-schema - Issue #8753: allOf with $ref and description
           ],
         },
       },
-    }
+    } as unknown as SchemaObject
 
     const result = getExampleFromSchema(schema, { emptyString: 'string' })
 
