@@ -933,10 +933,7 @@ describe('sendRequest', () => {
       if (!result || !('data' in result.response)) {
         throw new Error('No data')
       }
-      expect(result.response.cookieHeaderKeys).toStrictEqual([
-        'a=1; Path=/',
-        'b=2; Path=/api; Secure',
-      ])
+      expect(result.response.cookieHeaderKeys).toStrictEqual(['a=1; Path=/', 'b=2; Path=/api; Secure'])
     })
 
     it('preserves cookie attributes like Domain, Max-Age, and SameSite', async () => {
@@ -1097,9 +1094,7 @@ describe('sendRequest', () => {
       if (!result || !('reader' in result.response)) {
         throw new Error('No reader')
       }
-      expect(result.response.cookieHeaderKeys).toStrictEqual([
-        'stream_sid=s123; Path=/; HttpOnly',
-      ])
+      expect(result.response.cookieHeaderKeys).toStrictEqual(['stream_sid=s123; Path=/; HttpOnly'])
     })
 
     it('handles an empty x-scalar-set-cookie header value', async () => {
