@@ -12,7 +12,7 @@ import {
   reduceNamesToObject,
   sortPropertyNames,
 } from '@/components/Content/Schema/helpers/sort-property-names'
-import SchemaLinkButton from '@/components/Content/Schema/SchemaLinkButton.vue'
+import LinkButton from '@/components/Content/Schema/LinkButton.vue'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 
@@ -135,7 +135,7 @@ const shouldRenderRequestBody = computed(
           class="text-c-2 text-xs leading-none font-normal"
           data-testid="request-body-schema-name">
           <span class="text-c-3 mx-1.5">·</span>
-          <SchemaLinkButton
+          <LinkButton
             v-if="eventBus && modelLink.schemaKey"
             @click="
               eventBus.emit('scroll-to:model-by-name', {
@@ -143,7 +143,7 @@ const shouldRenderRequestBody = computed(
               })
             ">
             {{ modelLink.label }}
-          </SchemaLinkButton>
+          </LinkButton>
           <template v-else>{{ modelLink.label }}</template>
         </span>
       </div>

@@ -11,12 +11,12 @@ import {
 import { computed, toRef } from 'vue'
 
 import { Badge } from '@/components/Badge'
+import LinkButton from '@/components/Content/Schema/LinkButton.vue'
 import ScreenReader from '@/components/ScreenReader.vue'
 
 import { getSchemaType } from './helpers/get-schema-type'
 import { getModelNameFromSchema } from './helpers/schema-name'
 import RenderString from './RenderString.vue'
-import SchemaLinkButton from './SchemaLinkButton.vue'
 import SchemaPropertyDefault from './SchemaPropertyDefault.vue'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
 import SchemaPropertyExamples from './SchemaPropertyExamples.vue'
@@ -277,7 +277,7 @@ const exampleValue = computed(() => {
         <ScreenReader>Type: </ScreenReader>{{ displayType
         }}<template v-if="modelLink">
           ·
-          <SchemaLinkButton
+          <LinkButton
             v-if="props.eventBus && modelLink.schemaKey"
             @click="
               props.eventBus.emit('scroll-to:model-by-name', {
@@ -285,7 +285,7 @@ const exampleValue = computed(() => {
               })
             ">
             {{ modelLink.label }}
-          </SchemaLinkButton>
+          </LinkButton>
           <template v-else>{{ modelLink.label }}</template>
         </template>
       </SchemaPropertyDetail>
