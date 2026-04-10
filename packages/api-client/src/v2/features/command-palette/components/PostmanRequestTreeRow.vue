@@ -44,8 +44,8 @@ const selectedSet = computed(() => new Set(props.selectedKeys))
 const hasChildren = computed(() =>
   Boolean(
     props.node.isFolder &&
-      props.node.children &&
-      props.node.children.length > 0,
+    props.node.children &&
+    props.node.children.length > 0,
   ),
 )
 
