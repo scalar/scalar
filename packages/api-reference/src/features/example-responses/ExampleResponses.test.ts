@@ -785,4 +785,74 @@ describe('ExampleResponses', () => {
     expect(tabs[0]?.text()).toContain('200')
     expect(wrapper.text()).not.toContain('metadata')
   })
+
+  // Issue #8768: Multiple media types should respect order
+  it('shows the first media type in the order defined in OpenAPI spec', () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'Success',
+            content: {
+              'application/hal+json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    _links: { type: 'object' },
+                    data: { type: 'string' },
+                  },
+                },
+              },
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    data: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    // The example should show the hal+json schema (with _links), not the json schema
+    const content = wrapper.text()
+    expect(content).toContain('_links')
+  })
+
+  it('respects media type order when application/json is not first', () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'Success',
+            content: {
+              'application/xml': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    xmlField: { type: 'string' },
+                  },
+                },
+              },
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    jsonField: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    // The example should show the xml schema (with xmlField), not the json schema
+    const content = wrapper.text()
+    expect(content).toContain('xmlField')
+  })
 })

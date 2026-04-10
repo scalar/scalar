@@ -88,17 +88,13 @@ const currentResponseContent = computed<MediaTypeObject | undefined>(() => {
   /** All the keys of the normalized content */
   const keys = getObjectKeys(normalizedContent ?? {})
 
-  return (
-    // OpenAPI 3.x
-    normalizedContent?.['application/json'] ??
-    normalizedContent?.['application/xml'] ??
-    normalizedContent?.['text/plain'] ??
-    normalizedContent?.['text/html'] ??
-    normalizedContent?.['*/*'] ??
-    // Take the first key - in the future we may want to use the selected content type
-    normalizedContent?.[keys[0] ?? ''] ??
-    undefined
-  )
+  // Respect the order defined in the OpenAPI spec
+  // Take the first key from the content object
+  if (keys.length > 0) {
+    return normalizedContent?.[keys[0]!] ?? undefined
+  }
+
+  return undefined
 })
 
 const hasMultipleExamples = computed<boolean>(

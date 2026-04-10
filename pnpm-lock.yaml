@@ -1061,7 +1061,7 @@ importers:
     devDependencies:
       '@nuxt/module-builder':
         specifier: ^1.0.1
-        version: 1.0.1(@nuxt/cli@3.34.0(cac@6.7.14)(commander@13.1.0)(magicast@0.3.5))(@vue/compiler-core@3.5.30)(esbuild@0.27.2)(typescript@5.9.3)(vue-tsc@2.2.12(typescript@5.9.3))(vue@3.5.30(typescript@5.9.3))
+        version: 1.0.1(@nuxt/cli@3.34.0(cac@6.7.14)(commander@13.1.0)(magicast@0.3.5))(@vue/compiler-core@3.5.32)(esbuild@0.27.2)(typescript@5.9.3)(vue-tsc@2.2.12(typescript@5.9.3))(vue@3.5.30(typescript@5.9.3))
       '@types/node':
         specifier: ^24.1.0
         version: 24.10.13
@@ -1489,6 +1489,9 @@ importers:
       '@vitejs/plugin-vue':
         specifier: catalog:*
         version: 6.0.5(vite@8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.30(typescript@5.9.3))
+      '@vue/compiler-dom':
+        specifier: ^3.5.32
+        version: 3.5.32
       '@vue/server-renderer':
         specifier: ^3.5.30
         version: 3.5.30(vue@3.5.30(typescript@5.9.3))
@@ -2976,6 +2979,11 @@ packages:
 
   '@babel/parser@7.29.0':
     resolution: {integrity: sha512-IyDgFV5GeDUVX4YdF/3CPULtVGSXXMLh1xVIgdCgxApktqnQV0r7/8Nqthg+8YLGaAtdyIlo2qIdZrbCv4+7ww==}
+    engines: {node: '>=6.0.0'}
+    hasBin: true
+
+  '@babel/parser@7.29.2':
+    resolution: {integrity: sha512-4GgRzy/+fsBa72/RZVJmGKPmZu9Byn8o4MoLpmNe1m8ZfYnz5emHLQz3U4gLud6Zwl0RZIcgiLD7Uq7ySFuDLA==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -8479,8 +8487,14 @@ packages:
   '@vue/compiler-core@3.5.30':
     resolution: {integrity: sha512-s3DfdZkcu/qExZ+td75015ljzHc6vE+30cFMGRPROYjqkroYI5NV2X1yAMX9UeyBNWB9MxCfPcsjpLS11nzkkw==}
 
+  '@vue/compiler-core@3.5.32':
+    resolution: {integrity: sha512-4x74Tbtqnda8s/NSD6e1Dr5p1c8HdMU5RWSjMSUzb8RTcUQqevDCxVAitcLBKT+ie3o0Dl9crc/S/opJM7qBGQ==}
+
   '@vue/compiler-dom@3.5.30':
     resolution: {integrity: sha512-eCFYESUEVYHhiMuK4SQTldO3RYxyMR/UQL4KdGD1Yrkfdx4m/HYuZ9jSfPdA+nWJY34VWndiYdW/wZXyiPEB9g==}
+
+  '@vue/compiler-dom@3.5.32':
+    resolution: {integrity: sha512-ybHAu70NtiEI1fvAUz3oXZqkUYEe5J98GjMDpTGl5iHb0T15wQYLR4wE3h9xfuTNA+Cm2f4czfe8B4s+CCH57Q==}
 
   '@vue/compiler-sfc@3.5.30':
     resolution: {integrity: sha512-LqmFPDn89dtU9vI3wHJnwaV6GfTRD87AjWpTWpyrdVOObVtjIuSeZr181z5C4PmVx/V3j2p+0f7edFKGRMpQ5A==}
@@ -8559,6 +8573,9 @@ packages:
 
   '@vue/shared@3.5.30':
     resolution: {integrity: sha512-YXgQ7JjaO18NeK2K9VTbDHaFy62WrObMa6XERNfNOkAhD1F1oDSf3ZJ7K6GqabZ0BvSDHajp8qfS5Sa2I9n8uQ==}
+
+  '@vue/shared@3.5.32':
+    resolution: {integrity: sha512-ksNyrmRQzWJJ8n3cRDuSF7zNNontuJg1YHnmWRJd2AMu8Ij2bqwiiri2lH5rHtYPZjj4STkNcgcmiQqlOjiYGg==}
 
   '@vue/test-utils@2.4.6':
     resolution: {integrity: sha512-FMxEjOpYNYiFe0GkaHsnJPXFHxQ6m4t8vI/ElPGpMWxZKpmRvQ33OIrvRXemy6yha03RxhOlQuy+gZMC3CQSow==}
@@ -11262,11 +11279,11 @@ packages:
 
   glob@7.1.6:
     resolution: {integrity: sha512-LwaxwyZ72Lk7vZINtNNrywX0ZuLyStrdDtabefZKAY5ZGJhVtgdznluResxNmPitE0SAO+O26sWTHeKSI2wMBA==}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   global-directory@4.0.1:
     resolution: {integrity: sha512-wHTUcDUoZ1H5/0iVqEudYW4/kAlN5cZ3j/bXn0Dpbizl9iaUVeWSHqiOjsgk6OW2bkLclbBjzewBz6weQ1zA2Q==}
@@ -18663,6 +18680,10 @@ snapshots:
     dependencies:
       '@babel/types': 7.29.0
 
+  '@babel/parser@7.29.2':
+    dependencies:
+      '@babel/types': 7.29.0
+
   '@babel/plugin-bugfix-firefox-class-in-computed-class-key@7.25.9(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
@@ -22647,7 +22668,7 @@ snapshots:
     transitivePeerDependencies:
       - magicast
 
-  '@nuxt/module-builder@1.0.1(@nuxt/cli@3.34.0(cac@6.7.14)(commander@13.1.0)(magicast@0.3.5))(@vue/compiler-core@3.5.30)(esbuild@0.27.2)(typescript@5.9.3)(vue-tsc@2.2.12(typescript@5.9.3))(vue@3.5.30(typescript@5.9.3))':
+  '@nuxt/module-builder@1.0.1(@nuxt/cli@3.34.0(cac@6.7.14)(commander@13.1.0)(magicast@0.3.5))(@vue/compiler-core@3.5.32)(esbuild@0.27.2)(typescript@5.9.3)(vue-tsc@2.2.12(typescript@5.9.3))(vue@3.5.30(typescript@5.9.3))':
     dependencies:
       '@nuxt/cli': 3.34.0(cac@6.7.14)(commander@13.1.0)(magicast@0.3.5)
       citty: 0.1.6
@@ -22655,14 +22676,14 @@ snapshots:
       defu: 6.1.4
       jiti: 2.6.1
       magic-regexp: 0.8.0
-      mkdist: 2.3.0(typescript@5.9.3)(vue-sfc-transformer@0.1.16(@vue/compiler-core@3.5.30)(esbuild@0.27.2)(vue@3.5.30(typescript@5.9.3)))(vue-tsc@2.2.12(typescript@5.9.3))(vue@3.5.30(typescript@5.9.3))
+      mkdist: 2.3.0(typescript@5.9.3)(vue-sfc-transformer@0.1.16(@vue/compiler-core@3.5.32)(esbuild@0.27.2)(vue@3.5.30(typescript@5.9.3)))(vue-tsc@2.2.12(typescript@5.9.3))(vue@3.5.30(typescript@5.9.3))
       mlly: 1.8.0
       pathe: 2.0.3
       pkg-types: 2.3.0
       tsconfck: 3.1.6(typescript@5.9.3)
       typescript: 5.9.3
-      unbuild: 3.5.0(typescript@5.9.3)(vue-sfc-transformer@0.1.16(@vue/compiler-core@3.5.30)(esbuild@0.27.2)(vue@3.5.30(typescript@5.9.3)))(vue-tsc@2.2.12(typescript@5.9.3))(vue@3.5.30(typescript@5.9.3))
-      vue-sfc-transformer: 0.1.16(@vue/compiler-core@3.5.30)(esbuild@0.27.2)(vue@3.5.30(typescript@5.9.3))
+      unbuild: 3.5.0(typescript@5.9.3)(vue-sfc-transformer@0.1.16(@vue/compiler-core@3.5.32)(esbuild@0.27.2)(vue@3.5.30(typescript@5.9.3)))(vue-tsc@2.2.12(typescript@5.9.3))(vue@3.5.30(typescript@5.9.3))
+      vue-sfc-transformer: 0.1.16(@vue/compiler-core@3.5.32)(esbuild@0.27.2)(vue@3.5.30(typescript@5.9.3))
     transitivePeerDependencies:
       - '@vue/compiler-core'
       - esbuild
@@ -25385,10 +25406,23 @@ snapshots:
       estree-walker: 2.0.2
       source-map-js: 1.2.1
 
+  '@vue/compiler-core@3.5.32':
+    dependencies:
+      '@babel/parser': 7.29.2
+      '@vue/shared': 3.5.32
+      entities: 7.0.1
+      estree-walker: 2.0.2
+      source-map-js: 1.2.1
+
   '@vue/compiler-dom@3.5.30':
     dependencies:
       '@vue/compiler-core': 3.5.30
       '@vue/shared': 3.5.30
+
+  '@vue/compiler-dom@3.5.32':
+    dependencies:
+      '@vue/compiler-core': 3.5.32
+      '@vue/shared': 3.5.32
 
   '@vue/compiler-sfc@3.5.30':
     dependencies:
@@ -25483,9 +25517,9 @@ snapshots:
   '@vue/language-core@2.2.12(typescript@5.9.3)':
     dependencies:
       '@volar/language-core': 2.4.15
-      '@vue/compiler-dom': 3.5.30
+      '@vue/compiler-dom': 3.5.32
       '@vue/compiler-vue2': 2.7.16
-      '@vue/shared': 3.5.30
+      '@vue/shared': 3.5.32
       alien-signals: 1.0.13
       minimatch: 9.0.5
       muggle-string: 0.4.1
@@ -25527,6 +25561,8 @@ snapshots:
       vue: 3.5.30(typescript@5.9.3)
 
   '@vue/shared@3.5.30': {}
+
+  '@vue/shared@3.5.32': {}
 
   '@vue/test-utils@2.4.6':
     dependencies:
@@ -31395,7 +31431,7 @@ snapshots:
 
   mkdirp@3.0.1: {}
 
-  mkdist@2.3.0(typescript@5.9.3)(vue-sfc-transformer@0.1.16(@vue/compiler-core@3.5.30)(esbuild@0.27.2)(vue@3.5.30(typescript@5.9.3)))(vue-tsc@2.2.12(typescript@5.9.3))(vue@3.5.30(typescript@5.9.3)):
+  mkdist@2.3.0(typescript@5.9.3)(vue-sfc-transformer@0.1.16(@vue/compiler-core@3.5.32)(esbuild@0.27.2)(vue@3.5.30(typescript@5.9.3)))(vue-tsc@2.2.12(typescript@5.9.3))(vue@3.5.30(typescript@5.9.3)):
     dependencies:
       autoprefixer: 10.4.21(postcss@8.5.8)
       citty: 0.1.6
@@ -31413,7 +31449,7 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
       vue: 3.5.30(typescript@5.9.3)
-      vue-sfc-transformer: 0.1.16(@vue/compiler-core@3.5.30)(esbuild@0.27.2)(vue@3.5.30(typescript@5.9.3))
+      vue-sfc-transformer: 0.1.16(@vue/compiler-core@3.5.32)(esbuild@0.27.2)(vue@3.5.30(typescript@5.9.3))
       vue-tsc: 2.2.12(typescript@5.9.3)
 
   mlly@1.8.0:
@@ -35812,7 +35848,7 @@ snapshots:
 
   unbash@2.2.0: {}
 
-  unbuild@3.5.0(typescript@5.9.3)(vue-sfc-transformer@0.1.16(@vue/compiler-core@3.5.30)(esbuild@0.27.2)(vue@3.5.30(typescript@5.9.3)))(vue-tsc@2.2.12(typescript@5.9.3))(vue@3.5.30(typescript@5.9.3)):
+  unbuild@3.5.0(typescript@5.9.3)(vue-sfc-transformer@0.1.16(@vue/compiler-core@3.5.32)(esbuild@0.27.2)(vue@3.5.30(typescript@5.9.3)))(vue-tsc@2.2.12(typescript@5.9.3))(vue@3.5.30(typescript@5.9.3)):
     dependencies:
       '@rollup/plugin-alias': 5.1.1(rollup@4.50.2)
       '@rollup/plugin-commonjs': 28.0.6(rollup@4.50.2)
@@ -35828,7 +35864,7 @@ snapshots:
       hookable: 5.5.3
       jiti: 2.6.1
       magic-string: 0.30.21
-      mkdist: 2.3.0(typescript@5.9.3)(vue-sfc-transformer@0.1.16(@vue/compiler-core@3.5.30)(esbuild@0.27.2)(vue@3.5.30(typescript@5.9.3)))(vue-tsc@2.2.12(typescript@5.9.3))(vue@3.5.30(typescript@5.9.3))
+      mkdist: 2.3.0(typescript@5.9.3)(vue-sfc-transformer@0.1.16(@vue/compiler-core@3.5.32)(esbuild@0.27.2)(vue@3.5.30(typescript@5.9.3)))(vue-tsc@2.2.12(typescript@5.9.3))(vue@3.5.30(typescript@5.9.3))
       mlly: 1.8.0
       pathe: 2.0.3
       pkg-types: 2.3.0
@@ -36944,10 +36980,10 @@ snapshots:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.30(typescript@5.9.3)
 
-  vue-sfc-transformer@0.1.16(@vue/compiler-core@3.5.30)(esbuild@0.27.2)(vue@3.5.30(typescript@5.9.3)):
+  vue-sfc-transformer@0.1.16(@vue/compiler-core@3.5.32)(esbuild@0.27.2)(vue@3.5.30(typescript@5.9.3)):
     dependencies:
       '@babel/parser': 7.29.0
-      '@vue/compiler-core': 3.5.30
+      '@vue/compiler-core': 3.5.32
       esbuild: 0.27.2
       vue: 3.5.30(typescript@5.9.3)
 

@@ -41,13 +41,8 @@ export function hasResponseContent(response: ResponseObject | undefined, respons
   const normalizedContent = normalizeMimeTypeObject(response?.content)
   const keys = getObjectKeys(normalizedContent ?? {})
 
-  const mediaType =
-    normalizedContent?.['application/json'] ??
-    normalizedContent?.['application/xml'] ??
-    normalizedContent?.['text/plain'] ??
-    normalizedContent?.['text/html'] ??
-    normalizedContent?.['*/*'] ??
-    normalizedContent?.[keys[0] ?? '']
+  // Respect the order defined in the OpenAPI spec - use the first key
+  const mediaType = keys.length > 0 ? normalizedContent?.[keys[0]!] : undefined
 
   return hasMediaTypeContent(mediaType)
 }
