@@ -141,7 +141,6 @@ const getCustomCookie = (response: Response): string[] | null => {
   )
 
   if (result.length) {
-    response.headers.delete(CUSTOM_COOKIE_HEADER)
     return result
   }
 
