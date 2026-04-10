@@ -45,6 +45,6 @@ const words = computed<string[]>(() => {
   <template
     v-for="(word, i) in words"
     :key="i">
-    <wbr />{{ word }}
+    <wbr v-if="i !== 0" />{{ word }}
   </template>
 </template>

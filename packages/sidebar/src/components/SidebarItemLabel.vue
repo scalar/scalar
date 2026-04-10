@@ -15,17 +15,15 @@ const { item } = defineProps<{
 }>()
 </script>
 <template>
-  <template v-if="item.type === 'model'">
-    <ScalarWrappingText
-      preset="property"
-      :text="item.title" />
-  </template>
-  <template v-else>
-    <ScalarWrappingText
-      :text="
-        operationTitleSource === 'path' && 'path' in item
-          ? (item.path as string)
-          : (item.title as string)
-      " />
-  </template>
+  <ScalarWrappingText
+    v-if="item.type === 'model' || item.type === 'example'"
+    preset="property"
+    :text="item.title" />
+  <ScalarWrappingText
+    v-else
+    :text="
+      operationTitleSource === 'path' && 'path' in item
+        ? (item.path as string)
+        : (item.title as string)
+    " />
 </template>
