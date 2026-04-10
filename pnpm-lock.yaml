@@ -126,6 +126,9 @@ catalogs:
     concurrently:
       specifier: 9.1.2
       version: 9.1.2
+    cookie:
+      specifier: 1.1.1
+      version: 1.1.1
     express:
       specifier: 5.1.0
       version: 5.1.0
@@ -198,6 +201,9 @@ catalogs:
     semver:
       specifier: 7.7.2
       version: 7.7.2
+    set-cookie-parser:
+      specifier: 3.1.0
+      version: 3.1.0
     shx:
       specifier: ^0.4.0
       version: 0.4.0
@@ -1252,6 +1258,9 @@ importers:
       '@vueuse/integrations':
         specifier: catalog:*
         version: 13.9.0(axios@1.13.2)(change-case@5.4.4)(focus-trap@7.8.0)(fuse.js@7.1.0)(jwt-decode@4.0.0)(nprogress@0.2.0)(vue@3.5.30(typescript@5.9.3))
+      cookie:
+        specifier: catalog:*
+        version: 1.1.1
       focus-trap:
         specifier: ^7.8.0
         version: 7.8.0
@@ -1282,6 +1291,9 @@ importers:
       radix-vue:
         specifier: catalog:*
         version: 1.9.17(vue@3.5.30(typescript@5.9.3))
+      set-cookie-parser:
+        specifier: catalog:*
+        version: 3.1.0
       shell-quote:
         specifier: ^1.8.3
         version: 1.8.3
@@ -9742,6 +9754,10 @@ packages:
     resolution: {integrity: sha512-9Kr/j4O16ISv8zBBhJoi4bXOYNTkFLOqSL3UDB0njXxCXNezjeyVrJyGOWtgfs/q2km1gwBcfH8q1yEGoMYunA==}
     engines: {node: '>=18'}
 
+  cookie@1.1.1:
+    resolution: {integrity: sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ==}
+    engines: {node: '>=18'}
+
   cookiejar@2.1.4:
     resolution: {integrity: sha512-LDx6oHrK+PhzLKJU9j5S7/Y3jM/mUHvD/DeI1WQmJn652iPC5Y4TBzC9l+5OMOXlyTTA+SmVUPm0HQUwpD5Jqw==}
 
@@ -15688,6 +15704,9 @@ packages:
 
   set-cookie-parser@3.0.1:
     resolution: {integrity: sha512-n7Z7dXZhJbwuAHhNzkTti6Aw9QDDjZtm3JTpTGATIdNzdQz5GuFs22w90BcvF4INfnrL5xrX3oGsuqO5Dx3A1Q==}
+
+  set-cookie-parser@3.1.0:
+    resolution: {integrity: sha512-kjnC1DXBHcxaOaOXBHBeRtltsDG2nUiUni+jP92M9gYdW12rsmx92UsfpH7o5tDRs7I1ZZPSQJQGv3UaRfCiuw==}
 
   set-function-length@1.2.2:
     resolution: {integrity: sha512-pgRc4hJ4/sNjWCSS9AmnS40x3bNMDTknHgL5UaMBTMyJnU90EgWh1Rz+MC9eFu4BuN/UwZjKQuY/1v3rM7HMfg==}
@@ -26956,6 +26975,8 @@ snapshots:
 
   cookie@1.0.2: {}
 
+  cookie@1.1.1: {}
+
   cookiejar@2.1.4: {}
 
   copy-anything@3.0.5:
@@ -30421,7 +30442,7 @@ snapshots:
 
   light-my-request@6.6.0:
     dependencies:
-      cookie: 1.0.2
+      cookie: 1.1.1
       process-warning: 4.0.1
       set-cookie-parser: 2.6.0
 
@@ -34670,6 +34691,8 @@ snapshots:
 
   set-cookie-parser@3.0.1: {}
 
+  set-cookie-parser@3.1.0: {}
+
   set-function-length@1.2.2:
     dependencies:
       define-data-property: 1.1.4
@@ -37489,7 +37512,7 @@ snapshots:
       '@poppinss/colors': 4.1.5
       '@poppinss/dumper': 0.6.4
       '@speed-highlight/core': 1.2.7
-      cookie: 1.0.2
+      cookie: 1.1.1
       youch-core: 0.3.3
 
   z-schema@5.0.5:

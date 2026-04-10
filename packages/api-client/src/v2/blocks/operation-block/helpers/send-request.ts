@@ -1,11 +1,15 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
+import cookie from 'cookie'
+import { parseSetCookie } from 'set-cookie-parser'
 
 import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
 import { normalizeHeaders } from '@/libs/normalize-headers'
+import { getCookieHeaderKeys } from '@/v2/blocks/operation-block/helpers/get-cookie-header-keys'
 
 import { decodeBuffer } from './decode-buffer'
-import { getCookieHeaderKeys } from './get-cookie-header-keys'
+
+const CUSTOM_COOKIE_HEADER = 'x-scalar-set-cookie'
 
 /** A single set of populated values for a sent request */
 export type ResponseInstance = Omit<Response, 'headers'> & {
@@ -119,6 +123,32 @@ export const sendRequest = async ({
 }
 
 /**
+ * Extracts and serializes custom cookies from the response using the custom cookie header.
+ *
+ * This function parses the custom cookie header (if present), serializes each cookie using the
+ * 'cookie' library, and then deletes the custom cookie header from the response.
+ * Returns an array of serialized cookie strings, or null if no cookies were found.
+ *
+ * The @ts-expect-error is present due to a type mismatch between the 'cookie' parsing and serialization libraries.
+ */
+const getCustomCookie = (response: Response): string[] | null => {
+  const result = parseSetCookie(response.headers.get(CUSTOM_COOKIE_HEADER) ?? '').map((c) =>
+    cookie.serialize(c.name, c.value, {
+      ...c,
+      sameSite: c.sameSite as boolean | 'lax' | 'strict' | 'none' | undefined,
+      encode: (str: string) => str,
+    }),
+  )
+
+  if (result.length) {
+    response.headers.delete(CUSTOM_COOKIE_HEADER)
+    return result
+  }
+
+  return null
+}
+
+/**
  * Build a streaming response for server-sent events.
  * Streaming responses use a reader instead of buffering the entire body.
  */
@@ -152,7 +182,8 @@ const buildStreamingResponse = ({
     headers: response.headers,
   })
 
-  const cookieHeaderKeys = getCookieHeaderKeys(normalizedResponse.headers)
+  const customCookie = getCustomCookie(normalizedResponse)
+  const cookieHeaderKeys = customCookie ?? getCookieHeaderKeys(normalizedResponse.headers)
 
   return [
     null,
@@ -226,7 +257,8 @@ const buildStandardResponse = async ({
     headers: response.headers,
   })
 
-  const cookieHeaderKeys = getCookieHeaderKeys(normalizedResponse.headers)
+  const customCookie = getCustomCookie(normalizedResponse)
+  const cookieHeaderKeys = customCookie ?? getCookieHeaderKeys(normalizedResponse.headers)
 
   return [
     null,
