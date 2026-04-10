@@ -6,99 +6,18 @@ settings:
 
 catalogs:
   '*':
-    '@ai-sdk/vue':
-      specifier: 3.0.33
-      version: 3.0.33
-    '@fastify/basic-auth':
-      specifier: ^5.1.1
-      version: 5.1.1
-    '@fastify/http-proxy':
-      specifier: ^9.5.0
-      version: 9.5.0
-    '@fastify/swagger':
-      specifier: ^8.10.1
-      version: 8.14.0
-    '@floating-ui/utils':
-      specifier: 0.2.10
-      version: 0.2.10
-    '@floating-ui/vue':
-      specifier: 1.1.9
-      version: 1.1.9
-    '@google-cloud/storage':
-      specifier: 7.16.0
-      version: 7.16.0
-    '@headlessui/tailwindcss':
-      specifier: ^0.2.2
-      version: 0.2.2
     '@headlessui/vue':
       specifier: 1.7.23
       version: 1.7.23
     '@hono/node-server':
       specifier: ^1.19.10
       version: 1.19.11
-    '@nestjs/cli':
-      specifier: ^11.0.14
-      version: 11.0.14
-    '@nestjs/common':
-      specifier: ^11.1.11
-      version: 11.1.11
-    '@nestjs/core':
-      specifier: ^11.1.11
-      version: 11.1.11
-    '@nestjs/platform-express':
-      specifier: ^11.1.11
-      version: 11.1.11
-    '@nestjs/platform-fastify':
-      specifier: ^11.1.14
-      version: 11.1.14
-    '@nestjs/schematics':
-      specifier: ^11.0.9
-      version: 11.0.9
-    '@nestjs/swagger':
-      specifier: ^7.3.1
-      version: 7.3.1
-    '@nestjs/testing':
-      specifier: ^11.1.11
-      version: 11.1.11
     '@playwright/test':
       specifier: 1.56.0
       version: 1.56.0
-    '@scalar/typebox':
-      specifier: 0.1.3
-      version: 0.1.3
     '@tailwindcss/vite':
       specifier: ^4.2.0
       version: 4.2.1
-    '@types/express':
-      specifier: 5.0.3
-      version: 5.0.3
-    '@types/jsdom':
-      specifier: 27.0.0
-      version: 27.0.0
-    '@types/picomatch':
-      specifier: 4.0.2
-      version: 4.0.2
-    '@types/react':
-      specifier: ^19.2.7
-      version: 19.2.7
-    '@types/react-dom':
-      specifier: ^19.2.3
-      version: 19.2.3
-    '@types/semver':
-      specifier: 7.5.8
-      version: 7.5.8
-    '@types/supertest':
-      specifier: 6.0.2
-      version: 6.0.2
-    '@types/whatwg-mimetype':
-      specifier: 3.0.2
-      version: 3.0.2
-    '@typescript-eslint/parser':
-      specifier: ^8.53.0
-      version: 8.53.0
-    '@vitejs/plugin-react':
-      specifier: 6.0.1
-      version: 6.0.1
     '@vitejs/plugin-vue':
       specifier: ^6.0.3
       version: 6.0.5
@@ -108,42 +27,6 @@ catalogs:
     '@vueuse/core':
       specifier: 13.9.0
       version: 13.9.0
-    '@vueuse/integrations':
-      specifier: 13.9.0
-      version: 13.9.0
-    ai:
-      specifier: 6.0.33
-      version: 6.0.33
-    ansis:
-      specifier: 4.1.0
-      version: 4.1.0
-    astro:
-      specifier: 5.15.9
-      version: 5.15.9
-    commander:
-      specifier: 13.1.0
-      version: 13.1.0
-    concurrently:
-      specifier: 9.1.2
-      version: 9.1.2
-    express:
-      specifier: 5.1.0
-      version: 5.1.0
-    fake-indexeddb:
-      specifier: 6.2.3
-      version: 6.2.3
-    fast-glob:
-      specifier: ^3.3.3
-      version: 3.3.3
-    fastify:
-      specifier: ^5.8.1
-      version: 5.8.4
-    fastify-plugin:
-      specifier: ^4.5.1
-      version: 4.5.1
-    flatted:
-      specifier: ^3.3.3
-      version: 3.3.3
     fuse.js:
       specifier: ^7.1.0
       version: 7.1.0
@@ -153,99 +36,30 @@ catalogs:
     hono:
       specifier: ^4.12.7
       version: 4.12.9
-    js-base64:
-      specifier: ^3.7.8
-      version: 3.7.8
     jsdom:
       specifier: 27.4.0
       version: 27.4.0
     microdiff:
       specifier: ^1.5.0
       version: 1.5.0
-    monaco-editor:
-      specifier: 0.54.0
-      version: 0.54.0
-    monaco-yaml:
-      specifier: 5.2.3
-      version: 5.2.3
     nanoid:
       specifier: ^5.1.6
       version: 5.1.6
-    neverpanic:
-      specifier: 0.0.7
-      version: 0.0.7
-    next:
-      specifier: ^15.5.10
-      version: 15.5.10
-    picomatch:
-      specifier: ^4.0.2
-      version: 4.0.3
-    postcss:
-      specifier: ^8.4.38
-      version: 8.5.8
-    posthog-js:
-      specifier: 1.363.2
-      version: 1.363.2
-    radix-vue:
-      specifier: ^1.9.17
-      version: 1.9.17
-    react:
-      specifier: ^19.2.3
-      version: 19.2.3
-    react-dom:
-      specifier: ^19.2.3
-      version: 19.2.3
-    semver:
-      specifier: 7.7.2
-      version: 7.7.2
-    shx:
-      specifier: ^0.4.0
-      version: 0.4.0
-    supertest:
-      specifier: 7.2.2
-      version: 7.2.2
     tailwindcss:
       specifier: ^4.1.18
       version: 4.2.1
-    truncate-json:
-      specifier: 3.0.1
-      version: 3.0.1
-    tsx:
-      specifier: 4.19.4
-      version: 4.19.4
-    type-fest:
-      specifier: ^5.3.1
-      version: 5.3.1
     vite:
       specifier: 8.0.0
       version: 8.0.0
-    vite-ssg:
-      specifier: 28.3.0
-      version: 28.3.0
-    vite-svg-loader:
-      specifier: 5.1.1
-      version: 5.1.1
     vitest:
       specifier: 4.1.0
       version: 4.1.0
     vue:
       specifier: ^3.5.30
       version: 3.5.30
-    vue-router:
-      specifier: 4.6.2
-      version: 4.6.2
-    vue-tsc:
-      specifier: ^3.2.4
-      version: 3.2.4
-    whatwg-mimetype:
-      specifier: 4.0.0
-      version: 4.0.0
     yaml:
       specifier: ^2.8.0
       version: 2.8.2
-    zod:
-      specifier: ^4.3.5
-      version: 4.3.5
 
 overrides:
   '@types/node': ^24.1.0
@@ -1489,12 +1303,6 @@ importers:
       '@vitejs/plugin-vue':
         specifier: catalog:*
         version: 6.0.5(vite@8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.30(typescript@5.9.3))
-      '@vue/compiler-dom':
-        specifier: ^3.5.32
-        version: 3.5.32
-      '@vue/server-renderer':
-        specifier: ^3.5.30
-        version: 3.5.30(vue@3.5.30(typescript@5.9.3))
       '@vue/test-utils':
         specifier: catalog:*
         version: 2.4.6
@@ -25423,6 +25231,7 @@ snapshots:
     dependencies:
       '@vue/compiler-core': 3.5.32
       '@vue/shared': 3.5.32
+    optional: true
 
   '@vue/compiler-sfc@3.5.30':
     dependencies:

@@ -354,7 +354,15 @@ const handleObjectSchema = (
     for (const item of schema.allOf) {
       const resolved = resolve.schema(item)
       // Skip items that are just metadata (description, title, etc.) without type or properties
-      if (resolved && !('type' in resolved) && !('properties' in resolved) && !('items' in resolved) && !('allOf' in resolved) && !('oneOf' in resolved) && !('anyOf' in resolved)) {
+      if (
+        resolved &&
+        !('type' in resolved) &&
+        !('properties' in resolved) &&
+        !('items' in resolved) &&
+        !('allOf' in resolved) &&
+        !('oneOf' in resolved) &&
+        !('anyOf' in resolved)
+      ) {
         continue
       }
       const ex = getExampleFromSchema(resolved, options, {
@@ -416,7 +424,15 @@ const handleArraySchema = (
         .map((s) => {
           const resolved = resolve.schema(s)
           // Skip items that are just metadata (description, title, etc.) without type or properties
-          if (resolved && !('type' in resolved) && !('properties' in resolved) && !('items' in resolved) && !('allOf' in resolved) && !('oneOf' in resolved) && !('anyOf' in resolved)) {
+          if (
+            resolved &&
+            !('type' in resolved) &&
+            !('properties' in resolved) &&
+            !('items' in resolved) &&
+            !('allOf' in resolved) &&
+            !('oneOf' in resolved) &&
+            !('anyOf' in resolved)
+          ) {
             return undefined
           }
           return getExampleFromSchema(resolved, options, {
@@ -710,7 +726,15 @@ export const getExampleFromSchema = (
     for (const item of items) {
       const resolved = resolve.schema(item)
       // Skip items that are just metadata (description, title, etc.) without type or properties
-      if (resolved && !('type' in resolved) && !('properties' in resolved) && !('items' in resolved) && !('allOf' in resolved) && !('oneOf' in resolved) && !('anyOf' in resolved)) {
+      if (
+        resolved &&
+        !('type' in resolved) &&
+        !('properties' in resolved) &&
+        !('items' in resolved) &&
+        !('allOf' in resolved) &&
+        !('oneOf' in resolved) &&
+        !('anyOf' in resolved)
+      ) {
         continue
       }
       const ex = getExampleFromSchema(resolved, options, {

@@ -161,33 +161,33 @@ describe('has-response-content', () => {
       ).toBe(true)
     })
 
-  it('uses the first mimetype in order (application/json first)', () => {
-    expect(
-      hasResponseContent({
-        description: 'Multiple mimetypes',
-        content: {
-          'application/json': {
-            schema: { type: 'object' },
+    it('uses the first mimetype in order (application/json first)', () => {
+      expect(
+        hasResponseContent({
+          description: 'Multiple mimetypes',
+          content: {
+            'application/json': {
+              schema: { type: 'object' },
+            },
+            'application/xml': {},
           },
-          'application/xml': {},
-        },
-      }),
-    ).toBe(true)
-  })
+        }),
+      ).toBe(true)
+    })
 
-  it('uses the first mimetype in order (application/xml first)', () => {
-    expect(
-      hasResponseContent({
-        description: 'Multiple mimetypes',
-        content: {
-          'application/xml': {
-            schema: { type: 'object' },
+    it('uses the first mimetype in order (application/xml first)', () => {
+      expect(
+        hasResponseContent({
+          description: 'Multiple mimetypes',
+          content: {
+            'application/xml': {
+              schema: { type: 'object' },
+            },
+            'application/json': {},
           },
-          'application/json': {},
-        },
-      }),
-    ).toBe(true)
-  })
+        }),
+      ).toBe(true)
+    })
 
     it('falls back to first available mimetype when preferred ones have no content', () => {
       expect(
