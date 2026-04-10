@@ -42,9 +42,16 @@ const schema = computed<SchemaObject | null>(() =>
 )
 
 /** Response and params may both have content */
-const content = computed(() =>
-  'content' in parameter && parameter.content ? parameter.content : null,
-)
+const content = computed(() => {
+  if (!('content' in parameter) || !parameter.content) {
+    return null
+  }
+  const keys = Object.keys(parameter.content)
+  if (keys.length === 0) {
+    return null
+  }
+  return parameter.content
+})
 
 const selectedContentType = ref<string>(
   Object.keys(content.value || {})[0] ?? '',
