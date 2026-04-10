@@ -150,9 +150,7 @@ describe('filter-items', () => {
   })
 
   it('keeps a single non-example item when hideOperationDefaultExamples is true', () => {
-    const items: Item[] = [
-      { id: '1', title: 'GET /users', type: 'operation', method: 'get', path: '/users', ref: '' },
-    ]
+    const items: Item[] = [{ id: '1', title: 'GET /users', type: 'operation', method: 'get', path: '/users', ref: '' }]
 
     expect(filterItems('reference', items, true)).toStrictEqual(items)
   })
