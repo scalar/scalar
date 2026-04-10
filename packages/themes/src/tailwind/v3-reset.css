@@ -1,0 +1,20 @@
+/*
+ * Scalar Tailwind v3 Reset Styles
+ * When Tailwind v3 and v4 are both on the page, we need to reset the some of the
+ * styles to ensure that the v4 styles are applied correctly.
+*/
+
+:where(.scalar-app) {
+  /**
+   * Transform resets
+   *
+   * Tailwind v3 uses the transform property for all transform utilities, but v4 uses
+   * the translate, scale and rotate properties. To avoid transforms being applied twice,
+   * we need to reset the transform property for the translate, scale and rotate utilities.
+   */
+  [class*="rotate-"],
+  [class*="translate-"],
+  [class*="scale-"] {
+    transform: none;
+  }
+}

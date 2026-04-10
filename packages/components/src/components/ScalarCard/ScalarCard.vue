@@ -50,9 +50,7 @@ const { cx } = useBindCx()
     role="group"
     v-bind="{
       ...labelAttrs,
-      ...cx(
-        'scalar-card bg-b-2 flex flex-col divide-y rounded-xl border *:first:rounded-t-[inherit] *:last:rounded-b-[inherit]',
-      ),
+      ...cx('scalar-card bg-b-2 flex flex-col divide-y rounded-xl border'),
     }">
     <slot />
   </div>
