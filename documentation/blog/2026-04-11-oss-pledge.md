@@ -1,7 +1,5 @@
 # Scalar's 2025 Open Source Pledge
 
-## Apr 11th, 2026
-
 What is OSS Pledge?
 
 You can read more about it [here](https://osspledge.com/), but in short, it's paying Open Source maintainers. The minimum to participate is $2,000 per full-time employed developer per year.
