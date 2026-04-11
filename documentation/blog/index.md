@@ -7,136 +7,161 @@
 -->
 :::scalar-card{title="Too Long; Didn't Read; Used MCP" href="./2026-03-25-scalar-mcp-oauth.md"}
 
-Hey, it's 2026, who does even **read** the documentation for your API anymore. Just boot up a MCP based on your OpenAPI document (using Scalar), and share it with your users or your team[1].
-
-And then enhance any trillion dollar frontier model with your MCP server, that has all the context of how your API is defined. We show exactly how in the UI.
-
 ::scalar-fineprint[Mar 25, 2026]{}
+
+Boot up an MCP based on your OpenAPI document, share it with your users or your team, and let any frontier model work with full API context.
 :::
 
 :::scalar-card{title="Use your API in Cursor (or your favorite LLM)" href="./2026-03-17-agent-mcp.md"}
 
-Agent MCP servers expose your OpenAPI via MCP with all the performance benefits of Agent. Use your API in Cursor or any LLM in minutes, with preconfigured authentication and restricted access by default.
-
 ::scalar-fineprint[Mar 17, 2026]{}
+
+Expose your OpenAPI via MCP with preconfigured authentication and restricted access by default.
 :::
 
 :::scalar-card{title="Your API? 0.2% of your context window" href="./2026-03-05-agent-scalar.md"}
 
-Big APIs blow past context limits with raw OpenAPI and still cost a lot with native MCP. Agent uses three fixed tools and fetches just-in-time details – so your agent uses 0.2% of the context window, fewer steps, and better routing. Benchmarks on Zoom and Notion included.
-
 ::scalar-fineprint[Mar 5, 2026]{}
+
+Agent uses three fixed tools and fetches just-in-time details so your agent uses 0.2% of the context window with fewer steps and better routing.
 :::
 
 :::scalar-card{title="How to set up an OpenAPI mock server" href="./2025-08-19-how-to-set-up-an-openapi-mock-server.md"}
 
-Learn how to spin up a spec-driven OpenAPI mock server with the Scalar CLI in seconds. We cover the key commands, practical workflows, and how the mock server helps teams build, test, and prototype in parallel.
-
 ::scalar-fineprint[Aug 19, 2025]{}
+
+Spin up a spec-driven mock server with the Scalar CLI in seconds for parallel prototyping and testing.
 :::
 
 :::scalar-card{title="How to do OpenAPI validation (and why it matters)" href="./2025-07-07-how-to-do-openapi-validation-and.md"}
 
-Validate your OpenAPI document with the Scalar CLI before it breaks downstream tooling. This guide explains why validation matters, what errors to look for, and how Scalar handles validation under the hood.
-
 ::scalar-fineprint[Jul 7, 2025]{}
+
+Validate your OpenAPI document with the Scalar CLI before it breaks downstream tooling.
 :::
 
 :::scalar-card{title="How we created an animated, responsive README" href="./2025-05-28-how-we-created-an-animated-responsive.md"}
 
-A plain README can be good, but a dynamic one stands out. This post breaks down how we used SVG, `foreignObject`, CSS, and animation techniques to build a responsive, interactive GitHub README.
-
 ::scalar-fineprint[May 28, 2025]{}
+
+SVG, foreignObject, CSS, and animation techniques combined to build a responsive, interactive GitHub README.
 :::
 
 :::scalar-card{title="How Scalar themes work" href="./2025-05-07-how-scalar-themes-work.md"}
 
-See how Scalar themes separate data, functionality, and presentation so teams can fully customize API documentation without rebuilding core behavior. We walk through the architecture and implementation details behind theming.
-
 ::scalar-fineprint[May 7, 2025]{}
+
+How Scalar separates data, functionality, and presentation so teams can fully customize API docs without rebuilding core behavior.
 :::
 
-:::scalar-card{title="How Cloudinary’s API docs create a great developer experience" href="./2025-04-28-how-cloudinarys-api-docs-create-a.md"}
-
-Cloudinary’s API-first strategy is a strong example of developer experience done right. We analyze what makes their API documentation effective and show how Scalar helps teams deliver a similar experience.
+:::scalar-card{title="How Cloudinary's API docs create a great developer experience" href="./2025-04-28-how-cloudinarys-api-docs-create-a.md"}
 
 ::scalar-fineprint[Apr 28, 2025]{}
+
+What makes Cloudinary's API documentation effective and how Scalar helps teams deliver a similar experience.
 :::
 
 :::scalar-card{title="An introduction to OpenAPI variables" href="./2025-04-23-an-introduction-to-openapi-variables.md"}
 
-OpenAPI variables are powerful, but easy to confuse in practice. This introduction clarifies server variables vs parameters, when to use each, and how they shape a cleaner API description.
-
 ::scalar-fineprint[Apr 23, 2025]{}
+
+Server variables vs parameters: when to use each and how they shape a cleaner API description.
 :::
 
 :::scalar-card{title="How we extended the OpenAPI specification" href="./2025-04-06-how-we-extended-the-openapi-specification.md"}
 
-OpenAPI gives you a strong base, but product teams often need more. We share the Scalar-specific extensions we added (environments, code samples, internal endpoints, and more) and how we implemented them.
-
 ::scalar-fineprint[Apr 6, 2025]{}
+
+Environments, code samples, internal endpoints, and more — the Scalar-specific OpenAPI extensions we added and why.
 :::
 
 :::scalar-card{title="A guide to OpenAPI security (and how we handle it in Scalar)" href="./2025-03-26-a-guide-to-openapi-security-and-how.md"}
 
-Security in OpenAPI can be confusing when multiple auth flows meet real-world API usage. This guide explains core security schemes, how they work in documentation, and how Scalar helps users authenticate correctly.
-
 ::scalar-fineprint[Mar 26, 2025]{}
+
+Core security schemes, how they work in documentation, and how Scalar helps users authenticate correctly.
 :::
 
 :::scalar-card{title="The hidden complexity of building drag and drop" href="./2025-03-19-the-hidden-complexity-of-building.md"}
 
-Drag and drop looks simple, but implementation details quickly get complex. We unpack the UX and engineering challenges we hit while building our own package, plus lessons learned along the way.
-
 ::scalar-fineprint[Mar 19, 2025]{}
+
+UX and engineering challenges we hit while building our own drag-and-drop package, plus lessons learned.
 :::
 
 :::scalar-card{title="How we sped up our API docs 25x" href="./2025-03-12-how-we-sped-up-our-api-docs-25x.md"}
 
-Our API docs sidebar became a major performance bottleneck at scale. This deep dive shows how we profiled the issue, redesigned the rendering approach, and achieved a 25x speedup.
-
 ::scalar-fineprint[Mar 12, 2025]{}
+
+How we profiled a major sidebar performance bottleneck, redesigned the rendering approach, and achieved a 25x speedup.
 :::
 
 :::scalar-card{title="How .NET 9 and Scalar solve the problem of under-documented APIs" href="./2025-03-05-how-net-9-and-scalar-solve-the-problem.md"}
 
-.NET 9 introduces a new path for OpenAPI document generation, and Scalar completes the workflow with interactive API docs and testing. Learn how this pairing reduces documentation drift and improves API developer experience.
-
 ::scalar-fineprint[Mar 5, 2025]{}
+
+.NET 9's new OpenAPI document generation paired with Scalar's interactive docs and testing reduces documentation drift.
 :::
 
 :::scalar-card{title="Scalar Joins the Open-Source Pledge" href="./2024-09-01-oss-pledge.md"}
 
-Scalar joined the OSS Pledge: paying open-source maintainers ($2,000+ per developer per year). We shared how much we give, who we support, and why it matters to us.
-
 ::scalar-fineprint[Sep 1, 2024]{}
+
+Paying open-source maintainers $2,000+ per developer per year. How much we give, who we support, and why it matters.
 :::
 <!-- /generated -->
 
 <style>
+/* Blog post card redesign */
+
+/* Base card styling — clean and spacious */
 .t-editor__card.card {
-   border-radius: var(--scalar-radius-xl)
+  border-radius: var(--scalar-radius-xl);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  overflow: hidden;
 }
+.t-editor__card.card:hover {
+  border-color: var(--scalar-color-accent);
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--scalar-color-accent) 8%, transparent);
+}
+
+/* Date label — above the title, subtle and compact */
 .t-editor__card .card-content {
-  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 .t-editor__card .card-title {
-  /* Leave some room for the date */
-  margin-right: 90px;
+  margin-right: 0;
+  order: 2;
 }
 .t-editor__card .t-editor__fine-print {
-  position: absolute;
-  top: 9px;
-  right: 0;
-  margin: 0;
-  translate: 0 -50%;
+  position: static;
+  order: 1;
+  margin: 0 0 6px 0;
+  translate: none;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--scalar-color-accent);
+  font-weight: 500;
 }
 .t-editor__card .t-editor__paragraph {
-   margin-top: 8px;
+  order: 3;
+  margin-top: 8px;
+  color: var(--scalar-color-2);
+  line-height: 1.5;
 }
 .t-editor__card .card-content,
 .t-editor__card .card-title,
 .t-editor__card .t-editor__paragraph {
-   font-size: inherit;
+  font-size: inherit;
+}
+
+/* First card = featured hero post */
+.t-editor__card.card:first-child {
+  border-left: 3px solid var(--scalar-color-accent);
+}
+.t-editor__card.card:first-child .card-title {
+  font-size: 1.15em;
 }
 </style>

@@ -11,7 +11,7 @@ import { getWorkspaceRoot } from '@/helpers'
 const BLOG_DIR = 'documentation/blog'
 const INDEX_FILENAME = 'index.md'
 const CONFIG_FILENAME = 'scalar.config.json'
-const DESCRIPTION_LINES = 5
+const DESCRIPTION_LINES = 3
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const
 
@@ -188,27 +188,40 @@ function formatCard(post: BlogPost): string {
   const escapedTitle = post.title.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
   return `:::scalar-card{title="${escapedTitle}" href="./${post.filename}"}
 
-${post.description}
-
 ::scalar-fineprint[${post.dateLabel}]{}
+
+${post.description}
 :::`
 }
 
 /**
- * Parse existing card descriptions using the :::scalar-card and ::scalar-fineprint
- * boundaries. Text between the card opening and fineprint line is the description.
+ * Parse existing card descriptions from the index.
+ * Supports both old format (description then fineprint) and new format (fineprint then description).
  */
 function parseExistingDescriptions(indexContent: string): Map<string, string> {
   const map = new Map<string, string>()
-  const cardBlock = /:::scalar-card\{[^}]*href="\.\/([^"]+)"[^}]*\}\s*\n([\s\S]*?)\n::scalar-fineprint/g
+
+  const newFormat = /:::scalar-card\{[^}]*href="\.\/([^"]+)"[^}]*\}\s*\n\s*::scalar-fineprint\[[^\]]*\]\{\}\s*\n([\s\S]*?)\n:::/g
   let match: RegExpExecArray | null
-  while ((match = cardBlock.exec(indexContent)) !== null) {
+  while ((match = newFormat.exec(indexContent)) !== null) {
     const filename = match[1]
     const description = match[2]?.trim()
     if (filename && description) {
       map.set(filename, description)
     }
   }
+
+  if (map.size === 0) {
+    const oldFormat = /:::scalar-card\{[^}]*href="\.\/([^"]+)"[^}]*\}\s*\n([\s\S]*?)\n::scalar-fineprint/g
+    while ((match = oldFormat.exec(indexContent)) !== null) {
+      const filename = match[1]
+      const description = match[2]?.trim()
+      if (filename && description) {
+        map.set(filename, description)
+      }
+    }
+  }
+
   return map
 }
 
