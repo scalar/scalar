@@ -22,6 +22,7 @@ const { requestBody, options } = defineProps<{
   options: {
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+    hideModels: boolean | undefined
   }
 }>()
 
@@ -159,6 +160,7 @@ const shouldRenderRequestBody = computed(
         compact
         :compositionPath="['requestBody']"
         :eventBus="eventBus"
+        :hideModelNames="options.hideModels"
         name="Request Body"
         noncollapsible
         :options="{
@@ -175,6 +177,7 @@ const shouldRenderRequestBody = computed(
         compact
         :compositionPath="['requestBody']"
         :eventBus="eventBus"
+        :hideModelNames="options.hideModels"
         name="Request Body"
         :options="{
           hideReadOnly: true,
@@ -194,6 +197,7 @@ const shouldRenderRequestBody = computed(
         compact
         :compositionPath="['requestBody']"
         :eventBus="eventBus"
+        :hideModelNames="options.hideModels"
         :hideReadOnly="true"
         name="Request Body"
         noncollapsible

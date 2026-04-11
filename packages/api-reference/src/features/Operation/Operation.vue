@@ -11,6 +11,7 @@ export type OperationProps = {
   options: Pick<
     ApiReferenceConfigurationRaw,
     | 'expandAllResponses'
+    | 'hideModels'
     | 'hideTestRequestButton'
     | 'layout'
     | 'orderRequiredPropertiesFirst'

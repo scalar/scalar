@@ -30,7 +30,7 @@ const { name, parameter, options, collapsableItems } = defineProps<{
   collapsableItems?: boolean
   options: Pick<
     OperationProps['options'],
-    'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
+    'hideModels' | 'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
   >
 }>()
 
@@ -185,6 +185,7 @@ const shouldCollapse = computed<boolean>(() =>
           :breadcrumb="breadcrumb"
           :eventBus="eventBus"
           :headers="headers"
+          :hideModels="options.hideModels"
           :orderRequiredPropertiesFirst="options.orderRequiredPropertiesFirst"
           :orderSchemaPropertiesBy="options.orderSchemaPropertiesBy" />
 
@@ -195,6 +196,7 @@ const shouldCollapse = computed<boolean>(() =>
           compact
           :description="collapsableItems ? '' : parameter.description"
           :eventBus="eventBus"
+          :hideModelNames="options.hideModels"
           :hideWriteOnly="true"
           :modelName="schemaModelName"
           :name="collapsableItems ? '' : name"

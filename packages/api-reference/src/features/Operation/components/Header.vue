@@ -10,6 +10,7 @@ const { name, header, breadcrumb } = defineProps<{
   name: string
   breadcrumb?: string[]
   eventBus: WorkspaceEventBus | null
+  hideModels: boolean | undefined
   orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   orderRequiredPropertiesFirst: boolean | undefined
 }>()
@@ -20,6 +21,7 @@ const { name, header, breadcrumb } = defineProps<{
     :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
     :description="header.description"
     :eventBus="eventBus"
+    :hideModelNames="hideModels"
     :name="name"
     :options="{
       orderRequiredPropertiesFirst: orderRequiredPropertiesFirst,

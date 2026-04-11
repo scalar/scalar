@@ -14,7 +14,10 @@ const { schema, isCollapsed, id, options, eventBus } = defineProps<{
   name: string
   options: Pick<
     ApiReferenceConfigurationRaw,
-    'layout' | 'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
+    | 'layout'
+    | 'orderRequiredPropertiesFirst'
+    | 'orderSchemaPropertiesBy'
+    | 'hideModels'
   >
   schema: SchemaObject | undefined
   isCollapsed: boolean
