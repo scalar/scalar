@@ -1,5 +1,15 @@
 # @scalar/sidebar
 
+## 0.9.0
+
+### Minor Changes
+
+- [#8778](https://github.com/scalar/scalar/pull/8778): feat: support hiding the default example
+
+### Patch Changes
+
+- [#8779](https://github.com/scalar/scalar/pull/8779): fix(sidebar): treat examples labels as properties
+
 ## 0.8.19
 
 ## 0.8.18

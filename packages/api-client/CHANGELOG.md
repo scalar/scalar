@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 2.43.0
+
+### Minor Changes
+
+- [#8761](https://github.com/scalar/scalar/pull/8761): feat: improve UX for creating a new operation
+- [#8773](https://github.com/scalar/scalar/pull/8773): feat: suport for set-cookie header
+
+### Patch Changes
+
+- [#8778](https://github.com/scalar/scalar/pull/8778): fix: hide examples on modal and always show the http badge on modal
+
 ## 2.42.0
 
 ### Minor Changes
