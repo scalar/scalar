@@ -19,6 +19,9 @@
           "path": "documentation/assets/fathom.js"
         },
         {
+          "path": "documentation/assets/posthog.js"
+        },
+        {
           "path": "documentation/assets/apollo.js"
         },
         {

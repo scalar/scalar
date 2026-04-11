@@ -19,6 +19,7 @@
     // Referenced in scalar.config.json
     "documentation/assets/landing.js",
     "documentation/assets/fathom.js",
+    "documentation/assets/posthog.js",
     "documentation/assets/apollo.js",
     "documentation/assets/enterprise-contact-form.js"
   ],
