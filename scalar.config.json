@@ -2195,6 +2195,11 @@
                 "mode": "flat",
                 "title": "Posts",
                 "children": {
+                  "/2026-04-11-oss-pledge": {
+                    "type": "page",
+                    "title": "Scalar's 2025 Open Source Pledge",
+                    "filepath": "documentation/blog/2026-04-11-oss-pledge.md"
+                  },
                   "/2026-03-25-scalar-mcp-oauth": {
                     "type": "page",
                     "title": "Too Long; Didn't Read; Used MCP",
