@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.15.3
+
+### Patch Changes
+
+- [#8769](https://github.com/scalar/scalar/pull/8769): feat(themes): add Tailwind v3 transform reset
+
 ## 0.15.2
 
 ### Patch Changes

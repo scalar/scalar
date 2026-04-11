@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.45.0
+
+### Minor Changes
+
+- [#8761](https://github.com/scalar/scalar/pull/8761): feat: pass new option on operation create event
+
 ## 0.44.0
 
 ### Minor Changes

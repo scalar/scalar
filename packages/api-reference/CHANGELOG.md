@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.52.1
+
+### Patch Changes
+
+- [#8769](https://github.com/scalar/scalar/pull/8769): feat(themes): add Tailwind v3 transform reset
+- [#8767](https://github.com/scalar/scalar/pull/8767): feat(api-reference): collapse truncated descriptions
+- [#8776](https://github.com/scalar/scalar/pull/8776): fix: hide content type switch when there is no content
+- [#8777](https://github.com/scalar/scalar/pull/8777): fix(api-reference): set example z-index to context layer
+- [#8770](https://github.com/scalar/scalar/pull/8770): fix: generate the response examples by removing the priority order
+
 ## 1.52.0
 
 ### Minor Changes
