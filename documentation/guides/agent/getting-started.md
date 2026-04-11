@@ -222,7 +222,6 @@ Read more: <a href="./mcp.md#api-authentication">API Authentication</a> on the M
     }
   }
   .t-editor__page-title,
-  .layout-aside-right,
   .t-editor__page-nav,
   .notify-container,
   .subheading,
@@ -252,7 +251,6 @@ Read more: <a href="./mcp.md#api-authentication">API Authentication</a> on the M
   }
   :root {
     --scalar-container-width: 960px;
-    --scalar-toc-width: 0;
   }
   .hero.hero {
     margin-top: 88px;
