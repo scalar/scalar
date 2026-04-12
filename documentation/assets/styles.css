@@ -17,8 +17,14 @@ body:has(.blog-intro) {
 
 body:has(.blog-intro) .page-header,
 body:has(.blog-intro) .page-nav,
-body:has(.blog-intro) aside.t-doc__toc-sidebar {
+body:has(.blog-intro) aside.t-doc__toc-sidebar,
+body:has(.blog-intro) .content.content-header.content-toc > aside {
   display: none;
+}
+
+body:has(.blog-intro) .content.content-header.content-toc,
+body:has(.blog-intro) .content.content-header.content-toc .page-content {
+  grid-template-columns: minmax(0, 1fr) !important;
 }
 
 body:has(.blog-intro) .t-editor.page > .editor-content {
