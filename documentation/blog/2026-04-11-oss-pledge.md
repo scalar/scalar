@@ -1,8 +1,8 @@
 # Scalar's 2025 Open Source Pledge
 
-What is OSS Pledge?
+What is Open Source Pledge?
 
-You can read more about it [here](https://osspledge.com/), but in short, it's paying Open Source maintainers. The minimum to participate is $2,000 per full-time employed developer per year.
+You can read more about it [here](https://opensourcepledge.com/), but in short, it's paying Open Source maintainers. The minimum to participate is $2,000 per full-time employed developer per year.
 
 Open source is the foundation everything we build sits on. In **2025**, Scalar is made up of **10 developers** and contributed **$21,232** directly to open source maintainers -- **$2,123 per developer**.
 
