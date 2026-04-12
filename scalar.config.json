@@ -2190,6 +2190,11 @@
                 "title": "Overview",
                 "filepath": "documentation/blog/index.md"
               },
+              "/mockups": {
+                "type": "page",
+                "title": "Mockups",
+                "filepath": "documentation/blog/mockups.md"
+              },
               "/posts": {
                 "type": "group",
                 "mode": "flat",
