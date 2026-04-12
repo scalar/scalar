@@ -1038,7 +1038,7 @@ h4.t-editor__heading {
     position: relative;
     overflow: hidden;
     background: var(--scalar-background-2);
-    padding-bottom: 200px;
+    padding-bottom: 100px;
     margin-top: 100px;
   }
   .footer-animation svg {
