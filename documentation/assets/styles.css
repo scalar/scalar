@@ -16,7 +16,8 @@ body:has(.blog-intro) {
 }
 
 body:has(.blog-intro) .page-header,
-body:has(.blog-intro) .page-nav {
+body:has(.blog-intro) .page-nav,
+body:has(.blog-intro) aside.t-doc__toc-sidebar {
   display: none;
 }
 
@@ -101,7 +102,7 @@ body:has(.blog-intro) .t-editor__card .t-editor__paragraph {
   line-height: 1.65;
 }
 
-body:has(.blog-intro) .t-editor__card:first-of-type {
+body:has(.blog-intro) .blog-intro + .t-editor__card {
   overflow: hidden;
   background:
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 26%),
@@ -110,7 +111,7 @@ body:has(.blog-intro) .t-editor__card:first-of-type {
   color: white;
 }
 
-body:has(.blog-intro) .t-editor__card:first-of-type .card-content {
+body:has(.blog-intro) .blog-intro + .t-editor__card .card-content {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
   gap: 32px;
@@ -118,7 +119,7 @@ body:has(.blog-intro) .t-editor__card:first-of-type .card-content {
   padding: 34px;
 }
 
-body:has(.blog-intro) .t-editor__card:first-of-type .card-content::before {
+body:has(.blog-intro) .blog-intro + .t-editor__card .card-content::before {
   content: 'Featured story';
   position: absolute;
   top: 34px;
@@ -135,13 +136,13 @@ body:has(.blog-intro) .t-editor__card:first-of-type .card-content::before {
   text-transform: uppercase;
 }
 
-body:has(.blog-intro) .t-editor__card:first-of-type .card-title,
-body:has(.blog-intro) .t-editor__card:first-of-type .t-editor__paragraph,
-body:has(.blog-intro) .t-editor__card:first-of-type .t-editor__fine-print {
+body:has(.blog-intro) .blog-intro + .t-editor__card .card-title,
+body:has(.blog-intro) .blog-intro + .t-editor__card .t-editor__paragraph,
+body:has(.blog-intro) .blog-intro + .t-editor__card .t-editor__fine-print {
   grid-column: 1;
 }
 
-body:has(.blog-intro) .t-editor__card:first-of-type .card-title {
+body:has(.blog-intro) .blog-intro + .t-editor__card .card-title {
   margin-top: 48px;
   max-width: 12ch;
   font-size: clamp(34px, 4vw, 52px);
@@ -149,21 +150,21 @@ body:has(.blog-intro) .t-editor__card:first-of-type .card-title {
   letter-spacing: -0.03em;
 }
 
-body:has(.blog-intro) .t-editor__card:first-of-type .t-editor__fine-print {
+body:has(.blog-intro) .blog-intro + .t-editor__card .t-editor__fine-print {
   margin: 18px 0 0;
   width: fit-content;
   color: rgba(255, 255, 255, 0.74);
   background: rgba(255, 255, 255, 0.08);
 }
 
-body:has(.blog-intro) .t-editor__card:first-of-type .t-editor__paragraph {
+body:has(.blog-intro) .blog-intro + .t-editor__card .t-editor__paragraph {
   margin-top: 18px;
   color: rgba(255, 255, 255, 0.88);
   font-size: 17px;
   line-height: 1.75;
 }
 
-body:has(.blog-intro) .t-editor__card:first-of-type .card-content::after {
+body:has(.blog-intro) .blog-intro + .t-editor__card .card-content::after {
   content: '';
   grid-column: 2;
   grid-row: 1 / span 3;
@@ -179,40 +180,48 @@ body:has(.blog-intro) .t-editor__card:first-of-type .card-content::after {
     0 18px 50px rgba(0, 0, 0, 0.28);
 }
 
-body:has(.blog-intro) .t-editor__card + .t-editor__card {
+body:has(.blog-intro) .blog-intro ~ .t-editor__card {
   margin-top: 18px;
 }
 
-body:has(.blog-intro) .t-editor__card:not(:first-of-type) .card-content {
+body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card .card-content,
+body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card ~ .t-editor__card .card-content {
   display: grid;
   grid-template-columns: 120px minmax(0, 1fr);
   gap: 20px;
   align-items: start;
 }
 
-body:has(.blog-intro) .t-editor__card:not(:first-of-type) .t-editor__fine-print,
-body:has(.blog-intro) .t-editor__card:not(:first-of-type) .card-title,
-body:has(.blog-intro) .t-editor__card:not(:first-of-type) .t-editor__paragraph {
+body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card .t-editor__fine-print,
+body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card .card-title,
+body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card .t-editor__paragraph,
+body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card ~ .t-editor__card .t-editor__fine-print,
+body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card ~ .t-editor__card .card-title,
+body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card ~ .t-editor__card .t-editor__paragraph {
   grid-column: 2;
 }
 
-body:has(.blog-intro) .t-editor__card:not(:first-of-type) .t-editor__fine-print {
+body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card .t-editor__fine-print,
+body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card ~ .t-editor__card .t-editor__fine-print {
   margin-bottom: 12px;
 }
 
-body:has(.blog-intro) .t-editor__card:not(:first-of-type) .card-title {
+body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card .card-title,
+body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card ~ .t-editor__card .card-title {
   max-width: 24ch;
   font-size: 20px;
 }
 
-body:has(.blog-intro) .t-editor__card:not(:first-of-type) .t-editor__paragraph {
+body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card .t-editor__paragraph,
+body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card ~ .t-editor__card .t-editor__paragraph {
   margin-top: 10px;
   max-width: 62ch;
   font-size: 15px;
   line-height: 1.58;
 }
 
-body:has(.blog-intro) .t-editor__card:not(:first-of-type) .card-content::before {
+body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card .card-content::before,
+body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card ~ .t-editor__card .card-content::before {
   content: '';
   grid-column: 1;
   grid-row: 1 / span 3;
@@ -231,22 +240,24 @@ body:has(.blog-intro) .t-editor__card:not(:first-of-type) .card-content::before 
     max-width: none;
   }
 
-  body:has(.blog-intro) .t-editor__card:first-of-type .card-content {
+  body:has(.blog-intro) .blog-intro + .t-editor__card .card-content {
     grid-template-columns: 1fr;
   }
 
-  body:has(.blog-intro) .t-editor__card:first-of-type .card-content::after {
+  body:has(.blog-intro) .blog-intro + .t-editor__card .card-content::after {
     grid-column: 1;
     grid-row: auto;
     min-height: 240px;
   }
 
-  body:has(.blog-intro) .t-editor__card:not(:first-of-type) .card-content {
+  body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card .card-content,
+  body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card ~ .t-editor__card .card-content {
     grid-template-columns: 88px minmax(0, 1fr);
     gap: 16px;
   }
 
-  body:has(.blog-intro) .t-editor__card:not(:first-of-type) .card-content::before {
+  body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card .card-content::before,
+  body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card ~ .t-editor__card .card-content::before {
     width: 88px;
     height: 76px;
     border-radius: 14px;
@@ -266,38 +277,44 @@ body:has(.blog-intro) .t-editor__card:not(:first-of-type) .card-content::before 
     padding: 18px;
   }
 
-  body:has(.blog-intro) .t-editor__card:first-of-type .card-content {
+  body:has(.blog-intro) .blog-intro + .t-editor__card .card-content {
     gap: 20px;
     padding: 22px;
   }
 
-  body:has(.blog-intro) .t-editor__card:first-of-type .card-content::before {
+  body:has(.blog-intro) .blog-intro + .t-editor__card .card-content::before {
     top: 22px;
     left: 22px;
   }
 
-  body:has(.blog-intro) .t-editor__card:first-of-type .card-title {
+  body:has(.blog-intro) .blog-intro + .t-editor__card .card-title {
     margin-top: 42px;
     font-size: 32px;
     max-width: none;
   }
 
-  body:has(.blog-intro) .t-editor__card:first-of-type .t-editor__paragraph {
+  body:has(.blog-intro) .blog-intro + .t-editor__card .t-editor__paragraph {
     font-size: 16px;
   }
 
-  body:has(.blog-intro) .t-editor__card:not(:first-of-type) .card-content {
+  body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card .card-content,
+  body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card ~ .t-editor__card .card-content {
     grid-template-columns: 1fr;
   }
 
-  body:has(.blog-intro) .t-editor__card:not(:first-of-type) .card-content::before,
-  body:has(.blog-intro) .t-editor__card:not(:first-of-type) .t-editor__fine-print,
-  body:has(.blog-intro) .t-editor__card:not(:first-of-type) .card-title,
-  body:has(.blog-intro) .t-editor__card:not(:first-of-type) .t-editor__paragraph {
+  body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card .card-content::before,
+  body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card .t-editor__fine-print,
+  body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card .card-title,
+  body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card .t-editor__paragraph,
+  body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card ~ .t-editor__card .card-content::before,
+  body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card ~ .t-editor__card .t-editor__fine-print,
+  body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card ~ .t-editor__card .card-title,
+  body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card ~ .t-editor__card .t-editor__paragraph {
     grid-column: 1;
   }
 
-  body:has(.blog-intro) .t-editor__card:not(:first-of-type) .card-content::before {
+  body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card .card-content::before,
+  body:has(.blog-intro) .blog-intro + .t-editor__card + .t-editor__card ~ .t-editor__card .card-content::before {
     width: 100%;
     height: 150px;
     margin-bottom: 2px;
