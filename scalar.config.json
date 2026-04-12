@@ -2188,7 +2188,10 @@
               "/": {
                 "type": "page",
                 "title": "Overview",
-                "filepath": "documentation/blog/index.md"
+                "filepath": "documentation/blog/index.md",
+                "layout": {
+                  "sidebar": false
+                }
               },
               "/posts": {
                 "type": "group",
