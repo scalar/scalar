@@ -63,9 +63,9 @@ See how Scalar themes separate data, functionality, and presentation so teams ca
 ::scalar-fineprint[May 7, 2025]{}
 :::
 
-:::scalar-card{title="How Cloudinary’s API docs create a great developer experience" href="./2025-04-28-how-cloudinarys-api-docs-create-a.md"}
+:::scalar-card{title="How Cloudinary's API docs create a great developer experience" href="./2025-04-28-how-cloudinarys-api-docs-create-a.md"}
 
-Cloudinary’s API-first strategy is a strong example of developer experience done right. We analyze what makes their API documentation effective and show how Scalar helps teams deliver a similar experience.
+Cloudinary's API-first strategy is a strong example of developer experience done right. We analyze what makes their API documentation effective and show how Scalar helps teams deliver a similar experience.
 
 ::scalar-fineprint[Apr 28, 2025]{}
 :::
@@ -121,29 +121,117 @@ Scalar joined the OSS Pledge: paying open-source maintainers ($2,000+ per develo
 <!-- /generated -->
 
 <style>
-.t-editor__card.card {
-   border-radius: var(--scalar-radius-xl)
+/* ─── Blog Card Redesign ─── */
+
+/* Latest post gets hero treatment */
+.t-editor__card.card:first-child {
+  border-radius: var(--scalar-radius-xl);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 12px;
 }
-.t-editor__card .card-content {
+.t-editor__card.card:first-child::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--scalar-color-1) 80%, var(--scalar-color-accent)),
+    var(--scalar-color-accent, var(--scalar-color-1))
+  );
+  border-radius: var(--scalar-radius-xl) var(--scalar-radius-xl) 0 0;
+}
+.t-editor__card.card:first-child .card-title {
+  font-size: 1.35em;
+  line-height: 1.25;
+}
+.t-editor__card.card:first-child .card-content {
+  padding: 28px 24px 24px;
+}
+
+/* All cards */
+.t-editor__card.card {
+  border-radius: var(--scalar-radius-xl);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
   position: relative;
 }
-.t-editor__card .card-title {
-  /* Leave some room for the date */
-  margin-right: 90px;
+.t-editor__card.card:hover {
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--scalar-color-1) 5%, transparent);
+  border-color: color-mix(in srgb, var(--scalar-border-color) 60%, var(--scalar-color-1));
 }
+
+/* Left accent bar on non-hero cards */
+.t-editor__card.card:not(:first-child) {
+  border-left: 3px solid color-mix(in srgb, var(--scalar-color-accent, var(--scalar-color-1)) 40%, var(--scalar-border-color));
+}
+
+/* Cycle accent colors using nth-child for visual variety */
+.t-editor__card.card:nth-child(4n+2) {
+  border-left-color: color-mix(in srgb, #3b82f6 50%, var(--scalar-border-color));
+}
+.t-editor__card.card:nth-child(4n+3) {
+  border-left-color: color-mix(in srgb, #22c55e 50%, var(--scalar-border-color));
+}
+.t-editor__card.card:nth-child(4n+4) {
+  border-left-color: color-mix(in srgb, #8b5cf6 50%, var(--scalar-border-color));
+}
+.t-editor__card.card:nth-child(4n+5) {
+  border-left-color: color-mix(in srgb, #f97316 50%, var(--scalar-border-color));
+}
+
+/* Card content spacing */
+.t-editor__card .card-content {
+  position: relative;
+  padding: 20px 20px 18px;
+}
+
+/* Title styling — leave room for the date on the right */
+.t-editor__card .card-title {
+  margin-right: 100px;
+  font-size: 1.05em;
+  line-height: 1.3;
+}
+
+/* Description — constrain height so cards stay compact */
+.t-editor__card .t-editor__paragraph {
+  margin-top: 8px;
+  font-size: 0.875em;
+  line-height: 1.55;
+  color: var(--scalar-color-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* De-emphasize the date: smaller, lighter, pinned top-right */
 .t-editor__card .t-editor__fine-print {
   position: absolute;
-  top: 9px;
-  right: 0;
+  top: 22px;
+  right: 20px;
   margin: 0;
-  translate: 0 -50%;
+  font-size: 0.75em;
+  color: var(--scalar-color-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  opacity: 0.7;
 }
-.t-editor__card .t-editor__paragraph {
-   margin-top: 8px;
+.t-editor__card.card:first-child .t-editor__fine-print {
+  top: 32px;
+  right: 24px;
+  font-size: 0.8em;
 }
+
+/* Card spacing — more breathing room */
+.t-editor__card.card + .t-editor__card.card {
+  margin-top: 4px;
+}
+
+/* Consistent card text sizing */
 .t-editor__card .card-content,
-.t-editor__card .card-title,
-.t-editor__card .t-editor__paragraph {
-   font-size: inherit;
+.t-editor__card .card-title {
+  font-size: inherit;
 }
 </style>
