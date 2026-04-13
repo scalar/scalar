@@ -151,7 +151,6 @@
     "@scalar/snippetz": "workspace:*",
     "@scalar/typebox": "catalog:*",
     "@scalar/types": "workspace:*",
-    "@faker-js/faker": "catalog:*",
     "@scalar/validation": "workspace:*",
     "github-slugger": "catalog:*",
     "js-base64": "catalog:*",
