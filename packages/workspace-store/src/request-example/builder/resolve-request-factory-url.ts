@@ -1,5 +1,5 @@
 import { replaceEnvVariables, replacePathVariables } from '@scalar/helpers/regex/replace-variables'
-import { mergeUrls } from '@scalar/helpers/url/merge-urls'
+import { mergeSearchParams, mergeUrls } from '@scalar/helpers/url/merge-urls'
 
 import type { RequestFactory } from '@/request-example/builder/request-factory'
 
@@ -27,15 +27,17 @@ export const resolveRequestFactoryUrl = (
   const urlBase = globalThis.window?.location?.origin ?? 'http://localhost:3000'
   const url = new URL(mergedUrl, urlBase)
 
-  // Merge in operation query params
+  const operationQueryParams = new URLSearchParams()
   for (const [key, value] of request.query.entries()) {
-    url.searchParams.set(replaceEnvVariables(key, variables), replaceEnvVariables(value, variables))
+    operationQueryParams.append(replaceEnvVariables(key, variables), replaceEnvVariables(value, variables))
   }
 
-  // Merge in security query params
+  const securityQueryParams = new URLSearchParams()
   for (const [key, value] of options.securityQueryParams.entries()) {
-    url.searchParams.set(key, value)
+    securityQueryParams.append(key, value)
   }
+
+  url.search = mergeSearchParams(url.searchParams, operationQueryParams, securityQueryParams).toString()
 
   return url.toString()
 }
