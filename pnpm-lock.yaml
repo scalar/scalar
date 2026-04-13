@@ -145,8 +145,8 @@ catalogs:
       specifier: ^4.5.1
       version: 4.5.1
     flatted:
-      specifier: ^3.3.3
-      version: 3.3.3
+      specifier: ^3.4.0
+      version: 3.4.2
     fuse.js:
       specifier: ^7.1.0
       version: 7.1.0
@@ -1967,7 +1967,7 @@ importers:
         version: link:../workspace-store
       flatted:
         specifier: catalog:*
-        version: 3.3.3
+        version: 3.4.2
       github-slugger:
         specifier: catalog:*
         version: 2.0.0
@@ -2007,7 +2007,7 @@ importers:
         version: link:../helpers
       flatted:
         specifier: catalog:*
-        version: 3.3.3
+        version: 3.4.2
       just-clone:
         specifier: ^6.2.0
         version: 6.2.0
@@ -11024,6 +11024,9 @@ packages:
   flatted@3.3.3:
     resolution: {integrity: sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==}
 
+  flatted@3.4.2:
+    resolution: {integrity: sha512-PjDse7RzhcPkIJwy5t7KPWQSZ9cAbzQXcafsetQoD7sOJRQlGikNbx7yZp2OotDnJyrDcbyRq3Ttb18iYOqkxA==}
+
   flattie@1.1.1:
     resolution: {integrity: sha512-9UbaD6XdAL97+k/n+N7JwX46K/M6Zc6KcFYskrYL8wbBV/Uyk0CTAMY0VT+qiK5PM7AIc9aTWYtq65U7T+aCNQ==}
     engines: {node: '>=8'}
@@ -12711,9 +12714,6 @@ packages:
   locate-path@7.2.0:
     resolution: {integrity: sha512-gvVijfZvn7R+2qyPX8mAuKcFGDf6Nc61GdvGafQsHL0sBIxfKzA+usWn4GFC/bk+QdwPUD4kWFJLhElipq+0VA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-
-  lodash-es@4.17.21:
-    resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
 
   lodash-es@4.18.1:
     resolution: {integrity: sha512-J8xewKD/Gk22OZbhpOVSwcs60zhd95ESDwezOFuA3/099925PdHJ7OFHNTGtajL3AlZkykD32HykiMo+BIBI8A==}
@@ -28472,6 +28472,8 @@ snapshots:
 
   flatted@3.3.3: {}
 
+  flatted@3.4.2: {}
+
   flattie@1.1.1: {}
 
   focus-trap@7.8.0:
@@ -30578,9 +30580,6 @@ snapshots:
     dependencies:
       p-locate: 6.0.0
 
-  lodash-es@4.17.21:
-    optional: true
-
   lodash-es@4.18.1: {}
 
   lodash.debounce@4.0.8: {}
@@ -31513,7 +31512,7 @@ snapshots:
   netlify@13.3.5:
     dependencies:
       '@netlify/open-api': 2.37.0
-      lodash-es: 4.17.21
+      lodash-es: 4.18.1
       micro-api-client: 3.3.0
       node-fetch: 3.3.2
       p-wait-for: 5.0.2
