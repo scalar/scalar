@@ -5,7 +5,7 @@ import { respondWithAuthorizePage } from '@/routes/respond-with-authorize-page'
 import { respondWithToken } from '@/routes/respond-with-token'
 
 import { getOpenAuthTokenUrls, getPathFromUrl } from './get-open-auth-token-urls'
-import { isReferenceObject, isSecuritySchemeObject } from './openapi-guards'
+import { isSecuritySchemeObject } from './openapi-guards'
 
 /**
  * Helper function to set up authentication routes for OAuth 2.0 flows
@@ -20,7 +20,7 @@ export function setUpAuthenticationRoutes(app: Hono, schema?: OpenAPI.Document) 
     Object.entries(rawSecuritySchemes).filter(
       (entry): entry is [string, OpenAPIV3.SecuritySchemeObject | OpenAPIV3_1.SecuritySchemeObject] => {
         const [, scheme] = entry
-        return isSecuritySchemeObject(scheme) && !isReferenceObject(scheme)
+        return isSecuritySchemeObject(scheme)
       },
     ),
   )
