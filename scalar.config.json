@@ -143,7 +143,7 @@
         },
         {
           "from": "/download",
-          "to": "/products/api-client/getting-started"
+          "to": "/products/api-client/download"
         },
         {
           "from": "/scalar/introduction",
@@ -543,7 +543,7 @@
         },
         {
           "from": "/download",
-          "to": "/products/api-client/getting-started"
+          "to": "/products/api-client/download"
         },
         {
           "from": "/terms-and-conditions",
@@ -1836,7 +1836,7 @@
                     "filepath": "documentation/guides/app/getting-started.md",
                     "type": "page",
                     "title": "Getting Started",
-                    "description": "Download and start testing APIs with the most beautiful API client built for developers who love great tools.",
+                    "description": "A modern, open-source API client built on the OpenAPI standard with offline-first design and cross-platform support.",
                     "head": {
                       "links": [
                         {
@@ -1847,7 +1847,7 @@
                       "meta": [
                         {
                           "name": "description",
-                          "content": "Download and start testing APIs with the most beautiful API client built for developers who love great tools."
+                          "content": "A modern, open-source API client built on the OpenAPI standard with offline-first design and cross-platform support."
                         },
                         {
                           "property": "og:title",
@@ -1855,7 +1855,71 @@
                         },
                         {
                           "property": "og:description",
-                          "content": "Download and start testing APIs with the most beautiful API client built for developers who love great tools."
+                          "content": "A modern, open-source API client built on the OpenAPI standard with offline-first design and cross-platform support."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "download": {
+                    "filepath": "documentation/guides/app/download.md",
+                    "type": "page",
+                    "title": "Download",
+                    "description": "Download the Scalar API Client for Windows, macOS, or Linux, or use it in the browser.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/download"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Download the Scalar API Client for Windows, macOS, or Linux, or use it in the browser."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Download API Client - Windows, macOS, Linux"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Download the Scalar API Client for Windows, macOS, or Linux, or use it in the browser."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "testing": {
+                    "filepath": "documentation/guides/app/testing.md",
+                    "type": "page",
+                    "title": "Testing",
+                    "description": "Write post-response scripts to automatically validate API responses with Postman-compatible syntax.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/testing"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Write post-response scripts to automatically validate API responses with Postman-compatible syntax."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "API Testing Scripts - Validate Responses Automatically"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Write post-response scripts to automatically validate API responses with Postman-compatible syntax."
                         },
                         {
                           "name": "robots",

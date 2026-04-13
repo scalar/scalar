@@ -382,3 +382,45 @@ info:
 +    source: |-
 +      npm install @your-awesome-company/sdk
 ```
+
+## x-post-response
+
+Add post-response scripts to operations to automatically validate API responses. Scripts use a Postman-compatible syntax and run after each request in the [API Client](/products/api-client/testing).
+
+```diff
+openapi: 3.1.0
+info:
+  title: Example
+  version: 1.0
+paths:
+  '/planets':
+    get:
+      summary: Get all planets
++      x-post-response: |-
++        pm.test("Status code is 200", () => {
++          pm.response.to.have.status(200)
++        })
+```
+
+You can add multiple assertions in a single script:
+
+```diff
+openapi: 3.1.0
+info:
+  title: Example
+  version: 1.0
+paths:
+  '/planets':
+    post:
+      summary: Create a planet
++      x-post-response: |-
++        pm.test("Returns 201", () => {
++          pm.expect(pm.response.code).to.be.oneOf([201, 202])
++        })
++        pm.test("Response is valid JSON", () => {
++          const data = pm.response.json()
++          pm.expect(data).to.be.an('object')
++        })
+```
+
+See [Testing in the API Client](/products/api-client/testing) for all available assertions and the full `pm` API reference.
