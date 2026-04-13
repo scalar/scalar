@@ -1,8 +1,6 @@
 import { Type } from '@scalar/typebox'
 import { literal, object, union } from '@scalar/validation'
 
-export const pkceOptions = ['SHA-256', 'plain', 'no'] as const
-
 export const XusePkceSchema = Type.Object({
   /**
    * Use x-usePkce to enable Proof Key for Code Exchange (PKCE) for the Oauth2 authorization code flow.
