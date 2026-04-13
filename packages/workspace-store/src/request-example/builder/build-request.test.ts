@@ -227,6 +227,20 @@ describe('buildRequest', () => {
     expect(new URL(request.url).searchParams.get('sort')).toBe('name')
   })
 
+  it('preserves repeated query parameters when building the request URL', () => {
+    const query = new URLSearchParams()
+    query.append('bbox', '13')
+    query.append('bbox', '48')
+    query.append('bbox', '18')
+    query.append('bbox', '52')
+
+    const { request } = buildRequest(createFactory({ query }), {
+      envVariables: {},
+    })
+
+    expect(new URL(request.url).searchParams.getAll('bbox')).toEqual(['13', '48', '18', '52'])
+  })
+
   it('encodes path variables after env substitution and substitutes them into the path', () => {
     const { request } = buildRequest(
       createFactory({
