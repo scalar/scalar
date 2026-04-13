@@ -7,7 +7,7 @@ const escapePhpString = (value: string): string => value.replace(/\\/g, '\\\\').
 
 const quotePhpString = (value: string): string => `'${escapePhpString(value)}'`
 
-const escapePhpObjectKey = (value: string): string => value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+const escapePhpObjectKey = escapePhpString
 
 const escapeObjectKeys = (value: unknown): unknown => {
   if (Array.isArray(value)) {
