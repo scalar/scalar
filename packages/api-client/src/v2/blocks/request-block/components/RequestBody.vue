@@ -16,7 +16,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
-import { useFileDialog } from '@/hooks'
+import { useFileDialog } from '@/hooks/use-file-dialog'
 import RequestBodyForm from '@/v2/blocks/request-block/components/RequestBodyForm.vue'
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
 import { CodeInput } from '@/v2/components/code-input'

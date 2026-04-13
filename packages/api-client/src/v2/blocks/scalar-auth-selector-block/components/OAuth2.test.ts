@@ -1,11 +1,10 @@
+import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OAuthFlowsObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { type ApiClientConfiguration, apiClientConfigurationSchema } from '@scalar/types/api-reference'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { nextTick, ref } from 'vue'
+import { nextTick } from 'vue'
 
-import { CLIENT_CONFIGURATION_SYMBOL } from '@/hooks/useClientConfig'
 import OAuth2 from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import RequestAuthDataTableInput from '@/v2/blocks/scalar-auth-selector-block/components/RequestAuthDataTableInput.vue'
@@ -56,14 +55,6 @@ describe('OAuth2', () => {
         scheme: custom.scheme ?? { type: 'oauth2' },
         eventBus,
         name: 'OAuth2',
-      },
-      global: {
-        provide: {
-          [CLIENT_CONFIGURATION_SYMBOL as symbol]: ref({
-            ...apiClientConfigurationSchema.parse({}),
-            ...(custom.configuration ?? {}),
-          }),
-        },
       },
     })
   }

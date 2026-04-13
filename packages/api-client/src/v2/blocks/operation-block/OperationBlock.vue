@@ -81,6 +81,8 @@ export type OperationBlockProps = {
   defaultHeaders: Record<string, string>
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
   requestBodyCompositionSelection?: Record<string, number>
+  /** Subset of config options for the modal */
+  options?: ModalProps['options']
 }
 </script>
 <script setup lang="ts">
@@ -117,7 +119,7 @@ import type {
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, toValue, watch } from 'vue'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
@@ -134,6 +136,7 @@ import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
 import { RequestBlock } from '@/v2/blocks/request-block'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
+import type { ModalProps } from '@/v2/features/modal/Modal.vue'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import Header from './components/Header.vue'
@@ -159,6 +162,7 @@ const {
   selectedClient,
   server,
   environments,
+  options,
   activeEnvironment,
   serverMeta,
   selectedSecurity,
@@ -466,6 +470,7 @@ onBeforeUnmount(() => {
           :layout
           :method
           :operation
+          :options="toValue(options)"
           :path
           :plugins
           :proxyUrl

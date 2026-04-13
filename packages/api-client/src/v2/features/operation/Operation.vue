@@ -154,6 +154,7 @@ const httpClients = computed(() =>
       :layout
       :method
       :operation
+      :options
       :path
       :plugins="plugins"
       :proxyUrl="
