@@ -168,7 +168,7 @@ async function init() {
               }
 
       // Set JSON schema for the editor
-      monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+      monaco.json.jsonDefaults.setDiagnosticsOptions({
         validate: true,
         schemas: [jsonSchema],
       })
