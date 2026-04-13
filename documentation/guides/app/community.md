@@ -10,7 +10,7 @@ Join the Scalar Discord to chat with the team and other users. It is the fastest
 
 ## GitHub
 
-The entire source code for the API Client (and all other Scalar products) is available on GitHub under the MIT license.
+The entire source code for the API Client package is available on GitHub under the MIT license.
 
 - [Browse the repository](https://github.com/scalar/scalar)
 - [Report a bug](https://github.com/scalar/scalar/issues/new/choose)
