@@ -1,7 +1,9 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 
 import { isSchemaPath, upgradeFromThreeToThreeOne } from './upgrade-from-three-to-three-one'
+
+const upgradeToThreeOneDocument = (document: Record<string, unknown>): Record<string, any> =>
+  upgradeFromThreeToThreeOne(document) as Record<string, any>
 
 describe('isSchemaPath', () => {
   it('correctly identifies schema paths', () => {
@@ -25,7 +27,7 @@ describe('isSchemaPath', () => {
 describe('upgradeFromThreeToThreeOne', () => {
   describe('version', () => {
     it(`doesn't modify Swagger 2.0 files`, () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      const result = upgradeToThreeOneDocument({
         swagger: '2.0',
         info: {
           title: 'Hello World',
@@ -38,7 +40,7 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
 
     it('changes the version to from 3.0.0 to 3.1.1', () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      const result = upgradeToThreeOneDocument({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -51,7 +53,7 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
 
     it('changes the version to 3.0.3 to 3.1.1', () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      const result = upgradeToThreeOneDocument({
         openapi: '3.0.3',
         info: {
           title: 'Hello World',
@@ -66,7 +68,7 @@ describe('upgradeFromThreeToThreeOne', () => {
 
   describe('nullable types', () => {
     it('migrates nullable types', () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      const result = upgradeToThreeOneDocument({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -99,7 +101,7 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
 
     it('migrates nullable types with properties', () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      const result = upgradeToThreeOneDocument({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -143,7 +145,7 @@ describe('upgradeFromThreeToThreeOne', () => {
 
   describe('exclusiveMinimum and exclusiveMaximum', () => {
     it('migrate exclusiveMinimum and exclusiveMaximum', () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      const result = upgradeToThreeOneDocument({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -183,7 +185,7 @@ describe('upgradeFromThreeToThreeOne', () => {
 
   describe('migrates example to examples', () => {
     it('uses arrays in schemas', () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      const result = upgradeToThreeOneDocument({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -217,7 +219,7 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
 
     it('uses example objects everywhere else', () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      const result = upgradeToThreeOneDocument({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -260,7 +262,7 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
 
     it(`doesn't transform arrays into objects`, () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      const result = upgradeToThreeOneDocument({
         openapi: '3.0.0',
         info: {
           title: 'Sample API',
@@ -316,7 +318,7 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
 
     it('preserves existing examples map without double nesting', () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      const result = upgradeToThreeOneDocument({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -382,7 +384,7 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
 
     it('converts example to examples outside of examples map while preserving examples map', () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      const result = upgradeToThreeOneDocument({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -445,7 +447,7 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
 
     it('converts example to examples for schema properties named "examples"', () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      const result = upgradeToThreeOneDocument({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -488,7 +490,7 @@ describe('upgradeFromThreeToThreeOne', () => {
 
   describe('describing File Upload Payloads', () => {
     it('removes schema for binary file uploads', () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      const result = upgradeToThreeOneDocument({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -516,7 +518,7 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
 
     it('migrates base64 format to contentEncoding for image uploads', () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      const result = upgradeToThreeOneDocument({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -549,7 +551,7 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
 
     it('migrates binary format for multipart file uploads', () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      const result = upgradeToThreeOneDocument({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -601,7 +603,7 @@ describe('upgradeFromThreeToThreeOne', () => {
   })
 
   it('migrates byte format', () => {
-    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+    const result = upgradeToThreeOneDocument({
       openapi: '3.0.0',
       info: {
         title: 'Hello World',
@@ -636,7 +638,7 @@ describe('upgradeFromThreeToThreeOne', () => {
 
   describe.skip('declaring $schema', () => {
     it('adds a $schema', () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      const result = upgradeToThreeOneDocument({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -651,7 +653,7 @@ describe('upgradeFromThreeToThreeOne', () => {
 
   describe('binary format handling with oneOf', () => {
     it('correctly handles format: binary in oneOf schemas', () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      const result = upgradeToThreeOneDocument({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',
@@ -708,7 +710,7 @@ describe('upgradeFromThreeToThreeOne', () => {
 
   describe('webhooks', () => {
     it('correctly upgrades x-webhooks to webhooks', () => {
-      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      const result = upgradeToThreeOneDocument({
         openapi: '3.0.0',
         info: {
           title: 'Hello World',

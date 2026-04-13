@@ -3,10 +3,13 @@ import { describe, expect, it } from 'vitest'
 
 import { upgradeFromThreeOneToThreeTwo } from '@/3.1-to-3.2/upgrade-from-three-one-to-three-two'
 
+const upgradeToThreeTwoDocument = (document: Record<string, unknown>): Record<string, any> =>
+  upgradeFromThreeOneToThreeTwo(document) as Record<string, any>
+
 describe('upgradeFromThreeOneToThreeTwo', () => {
   describe('version', () => {
     it(`doesn't modify Swagger 2.0 files`, () => {
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo({
+      const result = upgradeToThreeTwoDocument({
         swagger: '2.0',
         info: {
           title: 'Hello World',
@@ -19,7 +22,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
     })
 
     it('changes the version to from 3.1.0 to 3.2.0', () => {
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo({
+      const result = upgradeToThreeTwoDocument({
         openapi: '3.1.0',
         info: {
           title: 'Hello World',
@@ -32,7 +35,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
     })
 
     it('changes the version to 3.1.1 to 3.2.0', () => {
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo({
+      const result = upgradeToThreeTwoDocument({
         openapi: '3.1.1',
         info: {
           title: 'Hello World',
@@ -69,7 +72,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result = upgradeToThreeTwoDocument(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
@@ -114,7 +117,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result = upgradeToThreeTwoDocument(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
@@ -160,7 +163,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result = upgradeToThreeTwoDocument(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
@@ -215,7 +218,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result = upgradeToThreeTwoDocument(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
@@ -257,7 +260,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result = upgradeToThreeTwoDocument(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
@@ -302,7 +305,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result = upgradeToThreeTwoDocument(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
@@ -349,7 +352,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result = upgradeToThreeTwoDocument(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
@@ -392,7 +395,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result = upgradeToThreeTwoDocument(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
@@ -430,7 +433,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result = upgradeToThreeTwoDocument(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result.tags).toBeDefined()
@@ -459,7 +462,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result = upgradeToThreeTwoDocument(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
@@ -484,7 +487,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         'x-tagGroups': [],
       }
 
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result = upgradeToThreeTwoDocument(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
@@ -521,7 +524,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         ],
       }
 
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result = upgradeToThreeTwoDocument(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result['x-tagGroups']).toBeUndefined()
@@ -564,7 +567,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         },
       }
 
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result = upgradeToThreeTwoDocument(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result.components?.schemas?.SampleSchema).toBeDefined()
@@ -602,7 +605,7 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
         },
       }
 
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
+      const result = upgradeToThreeTwoDocument(input)
 
       expect(result.openapi).toBe('3.2.0')
       expect(result.components?.schemas?.SampleSchema).toBeDefined()

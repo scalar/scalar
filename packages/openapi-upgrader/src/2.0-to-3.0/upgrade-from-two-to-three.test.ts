@@ -3,9 +3,12 @@ import { describe, expect, it } from 'vitest'
 
 import { upgradeFromTwoToThree } from './upgrade-from-two-to-three'
 
+const upgradeSwagger2Document = (document: Record<string, unknown>): Record<string, any> =>
+  upgradeFromTwoToThree(document) as Record<string, any>
+
 describe('upgradeFromTwoToThree', () => {
   it('changes the version to from 3.0.0 to 3.1.0', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: {
         title: 'Hello World',
@@ -19,7 +22,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('upgrades URLs to new server syntax', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       basePath: '/v1',
       schemes: ['http'],
@@ -38,7 +41,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('upgrades basePath to new server syntax', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       basePath: '/v2',
     })
@@ -55,7 +58,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('upgrades host to new server syntax', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       host: 'api.example.com',
     })
@@ -72,7 +75,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('moves definitions to components', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       definitions: {
         Category: {
@@ -103,7 +106,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('rewrites $refs to definitions', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       paths: {
         '/planets': {
@@ -127,13 +130,12 @@ describe('upgradeFromTwoToThree', () => {
         },
       },
     })
-    expect(result.paths?.['/planets']?.get?.responses?.['200']?.content['application/json'].schema.$ref).toBe(
-      '#/components/schemas/Planet',
-    )
+    const response200 = result.paths?.['/planets']?.get?.responses?.['200'] as Record<string, any> | undefined
+    expect(response200?.content?.['application/json']?.schema?.$ref).toBe('#/components/schemas/Planet')
   })
 
   it('transforms responses', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       paths: {
         '/planets': {
@@ -187,11 +189,11 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
+    expect((result.paths?.['/planets']?.get as Record<string, any> | undefined)?.produces).toBeUndefined()
   })
 
   it('uses global produces for responses', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       produces: ['application/json', 'application/xml'],
       paths: {
@@ -245,11 +247,11 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
+    expect((result.paths?.['/planets']?.get as Record<string, any> | undefined)?.produces).toBeUndefined()
   })
 
   it('transforms requestBody', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
 
       paths: {
@@ -297,11 +299,11 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
+    expect((result.paths?.['/planets']?.get as Record<string, any> | undefined)?.produces).toBeUndefined()
   })
 
   it('transforms requestBody 2', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
 
       paths: {
@@ -403,7 +405,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('uses global consumes for requestBody', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       produces: ['application/json', 'application/xml'],
       paths: {
@@ -451,11 +453,11 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
+    expect((result.paths?.['/planets']?.get as Record<string, any> | undefined)?.produces).toBeUndefined()
   })
 
   it('migrates formData', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       paths: {
         '/planets': {
@@ -499,7 +501,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
+    expect((result.paths?.['/planets']?.get as Record<string, any> | undefined)?.produces).toBeUndefined()
   })
 
   it('upgrades securityDefinitions from Swagger 2.0 to OpenAPI 3.0', () => {
@@ -554,7 +556,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     }
 
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree(input)
+    const result = upgradeSwagger2Document(input)
 
     expect(result.components?.securitySchemes).toStrictEqual({
       api_key: {
@@ -612,7 +614,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transforms parameter schemas', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       produces: ['application/json', 'application/xml'],
       paths: {
@@ -670,7 +672,7 @@ describe('upgradeFromTwoToThree', () => {
 
   describe('parameter defaults', () => {
     it('preserves default on operation-level (inline) parameters', () => {
-      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      const result = upgradeSwagger2Document({
         swagger: '2.0',
         info: { title: 'API', version: '1.0' },
         paths: {
@@ -702,17 +704,17 @@ describe('upgradeFromTwoToThree', () => {
       const params = result.paths?.['/example']?.get?.parameters
       expect(params).toHaveLength(2)
 
-      const authParam = params?.[0] as OpenAPIV3.ParameterObject
+      const authParam = params?.[0] as OpenAPIV3.ParameterObject & { schema?: Record<string, unknown> }
       expect(authParam.name).toBe('Authorization')
       expect(authParam.schema?.default).toBe('Token token=LOCATION_KEY_GOES_HERE, btoken=BUSINESS_KEY_GOES_HERE')
 
-      const acceptLangParam = params?.[1] as OpenAPIV3.ParameterObject
+      const acceptLangParam = params?.[1] as OpenAPIV3.ParameterObject & { schema?: Record<string, unknown> }
       expect(acceptLangParam.name).toBe('Accept-Language')
       expect(acceptLangParam.schema?.default).toBe('en')
     })
 
     it('preserves default on globally defined parameters', () => {
-      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      const result = upgradeSwagger2Document({
         swagger: '2.0',
         info: { title: 'API', version: '1.0' },
         parameters: {
@@ -766,7 +768,7 @@ describe('upgradeFromTwoToThree', () => {
     })
 
     it('preserves default on query parameters', () => {
-      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      const result = upgradeSwagger2Document({
         swagger: '2.0',
         info: { title: 'API', version: '1.0' },
         paths: {
@@ -799,12 +801,12 @@ describe('upgradeFromTwoToThree', () => {
       const params = result.paths?.['/users']?.get?.parameters
       expect(params).toHaveLength(2)
 
-      const emailParam = params?.[0] as OpenAPIV3.ParameterObject
+      const emailParam = params?.[0] as OpenAPIV3.ParameterObject & { schema?: Record<string, unknown> }
       expect(emailParam.name).toBe('email')
       expect(emailParam.in).toBe('query')
       expect(emailParam.schema?.default).toBe('test@example.com')
 
-      const phoneParam = params?.[1] as OpenAPIV3.ParameterObject
+      const phoneParam = params?.[1] as OpenAPIV3.ParameterObject & { schema?: Record<string, unknown> }
       expect(phoneParam.name).toBe('phone')
       expect(phoneParam.in).toBe('query')
       expect(phoneParam.schema?.default).toBe('1111111111')
@@ -812,7 +814,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transforms basic security scheme', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       paths: {},
       securityDefinitions: {
@@ -824,7 +826,6 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    // @ts-expect-error it's fine
     expect(result.components?.securitySchemes.basic_auth).toStrictEqual({
       type: 'http',
       scheme: 'basic',
@@ -832,7 +833,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transforms file type', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       produces: ['image/png'],
       paths: {
@@ -868,7 +869,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transform response headers', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       produces: ['application/json'],
       paths: {
@@ -924,7 +925,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transform query parameter collectionFormat to new serialization keywords', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       produces: ['application/json'],
       paths: {
@@ -1004,7 +1005,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transform path parameter collectionFormat to new serialization keywords', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       produces: ['application/json'],
       paths: {
@@ -1062,7 +1063,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transform header parameter collectionFormat to new serialization keywords', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       produces: ['application/json'],
       paths: {
@@ -1119,7 +1120,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('upgrades parameters defined globally and path wide - without body and formData', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       produces: ['application/json'],
       parameters: {
@@ -1172,7 +1173,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('upgrades parameters defined globally and path wide - body and formData', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       produces: ['application/json'],
       consumes: ['application/xml'],
@@ -1261,7 +1262,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('upgrades parameters defined globally and correctly update all the references - body', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       produces: ['application/json'],
       consumes: ['application/xml'],
@@ -1356,7 +1357,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('upgrades parameters defined globally and correctly update all the references - parameters', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { version: '1.0.0', title: 'Minimal API' },
       paths: {
@@ -1400,7 +1401,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('deletes consumes array even if no request body parameter is specified', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { version: '1.0.0', title: 'Minimal API' },
       paths: {
@@ -1412,11 +1413,11 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths?.['/noRequestBody']?.post?.consumes).toBeUndefined()
+    expect((result.paths?.['/noRequestBody']?.post as Record<string, any> | undefined)?.consumes).toBeUndefined()
   })
 
   it('migrates parameter reference objects accordingly', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { version: '1.0.0', title: 'Minimal API' },
       parameters: {
@@ -1446,7 +1447,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('allows reference objects in global parameters to be stored in components.parameters', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { version: '1.0.0', title: 'API with $ref parameters' },
       parameters: {
@@ -1515,7 +1516,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transforms x-example on parameters to examples with value structure', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'x-example test', version: '1.0' },
       paths: {
@@ -1563,7 +1564,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transforms x-examples on body parameters with direct value to examples with default key', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'x-examples direct value test', version: '1.0' },
       paths: {
@@ -1611,7 +1612,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transforms x-examples on body parameters with value and summary to named examples', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'x-examples named examples test', version: '1.0' },
       paths: {
@@ -1679,7 +1680,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transforms x-examples on body parameters with named examples without value wrappers', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'x-examples named examples without value wrappers', version: '1.0' },
       paths: {
@@ -1741,7 +1742,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transforms x-examples keyed by example name instead of media type', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'x-examples keyed by example name', version: '1.0' },
       paths: {
@@ -1789,7 +1790,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('prefers x-examples over x-example when both exist on same body parameter', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'both x-example and x-examples on body', version: '1.0' },
       paths: {
@@ -1834,7 +1835,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('ignores x-example when it contains a non-object value like a string', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'x-example non-object test', version: '1.0' },
       paths: {
@@ -1868,7 +1869,7 @@ describe('upgradeFromTwoToThree', () => {
 
   it('ignores x-example on body parameters when it contains a primitive value', () => {
     // This should not throw TypeError from using 'in' operator on a primitive
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'x-example primitive body test', version: '1.0' },
       paths: {
@@ -1903,7 +1904,7 @@ describe('upgradeFromTwoToThree', () => {
 
   it('ignores x-examples on body parameters when it contains a primitive value', () => {
     // This should not throw TypeError from using 'in' operator on a primitive
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'x-examples primitive body test', version: '1.0' },
       paths: {
@@ -1939,7 +1940,7 @@ describe('upgradeFromTwoToThree', () => {
   it('correctly wraps example data that happens to have a value property', () => {
     // This tests the fix for the false positive where example data with a "value" property
     // was incorrectly treated as an already-wrapped ExampleObject
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'x-examples with value property test', version: '1.0' },
       paths: {
@@ -1989,7 +1990,7 @@ describe('upgradeFromTwoToThree', () => {
 
   it('preserves valid ExampleObjects that only have allowed properties', () => {
     // This ensures we still recognize proper ExampleObjects (with summary, description, value, externalValue only)
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'valid ExampleObject test', version: '1.0' },
       paths: {
@@ -2044,7 +2045,7 @@ describe('upgradeFromTwoToThree', () => {
 
   it('correctly wraps parameter x-examples with data that has a value property', () => {
     // This tests the fix for parameters (non-body) with x-examples
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'parameter x-examples with value property test', version: '1.0' },
       paths: {
@@ -2086,7 +2087,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('ignores x-example when it contains an array value', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'x-example array test', version: '1.0' },
       paths: {
@@ -2119,7 +2120,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('ignores x-examples on body parameters when it contains an array value', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'x-examples array body test', version: '1.0' },
       paths: {
@@ -2153,7 +2154,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transforms x-examples keyed by example name with mixed object and string values (pos-original shape)', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'x-examples', version: '1.0' },
       paths: {
@@ -2203,7 +2204,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transforms response examples from Swagger 2.0 to OpenAPI 3.0 format', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'Response examples test', version: '1.0' },
       produces: ['application/json'],
@@ -2275,7 +2276,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('upgrades tiny.yml example spec (minimal Swagger 2.0 with response schema and named examples)', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'Example', version: '1.0' },
       paths: {
@@ -2321,15 +2322,17 @@ describe('upgradeFromTwoToThree', () => {
         },
       },
     })
-    expect(responseOk.content?.['application/json']?.examples?.Example?.value).toStrictEqual({
+    expect(
+      (responseOk.content?.['application/json']?.examples as Record<string, any> | undefined)?.Example?.value,
+    ).toStrictEqual({
       user_id: 11111111,
     })
     expect(responseOk.content?.['Example']).toBeUndefined()
-    expect(responseOk.examples).toBeUndefined()
+    expect((responseOk as Record<string, unknown>).examples).toBeUndefined()
   })
 
   it('transforms response examples with multiple media types', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'Response examples multiple media types test', version: '1.0' },
       produces: ['application/json', 'application/xml'],
@@ -2366,7 +2369,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('treats named example keys that contain a slash as named examples, not media types', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'Slash in named example key test', version: '1.0' },
       produces: ['application/json'],
@@ -2391,14 +2394,17 @@ describe('upgradeFromTwoToThree', () => {
     const response200 = result.paths?.['/test']?.get?.responses?.['200'] as OpenAPIV3.ResponseObject
     expect(response200.content?.['application/json']?.example).toStrictEqual({ id: 1 })
     expect(response200.content?.['Error 404/Not Found']).toBeUndefined()
-    expect(response200.content?.['application/json']?.examples?.['Error 404/Not Found']?.value).toStrictEqual({
+    expect(
+      (response200.content?.['application/json']?.examples as Record<string, any> | undefined)?.['Error 404/Not Found']
+        ?.value,
+    ).toStrictEqual({
       id: 0,
       error: 'Not Found',
     })
   })
 
   it('transforms global responses defined in #/responses with examples', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'Global responses test', version: '1.0' },
       produces: ['application/json'],
@@ -2495,7 +2501,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('transforms response examples when example media type differs from produces', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'Forgot Passcode test', version: '1.0' },
       produces: ['application/json'],
@@ -2537,7 +2543,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('keeps schema-only content entries when schema sets additionalProperties to false', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'Schema with additionalProperties false', version: '1.0' },
       produces: ['application/json'],
@@ -2572,7 +2578,7 @@ describe('upgradeFromTwoToThree', () => {
   })
 
   it('keeps schema-only content entries when schema contains enum and validation keywords', () => {
-    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+    const result = upgradeSwagger2Document({
       swagger: '2.0',
       info: { title: 'Schema with enum and validation keywords', version: '1.0' },
       produces: ['application/json'],

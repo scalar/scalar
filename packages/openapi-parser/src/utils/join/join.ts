@@ -326,17 +326,30 @@ export const join = async (inputs: UnknownObject[], config?: { prefixComponents:
   }
 
   // Return the merged OpenAPI document
+  const document = {
+    ...result,
+    info,
+    paths,
+  } as OpenAPIV3_1.Document
+
+  if (withDefault(webhooks, undefined) !== undefined) {
+    document.webhooks = webhooks
+  }
+
+  if (withDefault(tags, undefined) !== undefined) {
+    document.tags = tags
+  }
+
+  if (withDefault(servers, undefined) !== undefined) {
+    document.servers = servers
+  }
+
+  if (withDefault(components, undefined) !== undefined) {
+    document.components = components
+  }
+
   return {
     ok: true,
-    document: {
-      openapi: '3.1.0',
-      ...result,
-      info,
-      paths,
-      webhooks: withDefault(webhooks, undefined),
-      tags: withDefault(tags, undefined),
-      servers: withDefault(servers, undefined),
-      components: withDefault(components, undefined),
-    },
+    document,
   }
 }
