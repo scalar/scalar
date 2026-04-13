@@ -10,7 +10,10 @@ import type { RequestFactory } from '@/request-example/builder/request-factory'
  */
 export const resolveRequestFactoryUrl = (
   request: RequestFactory,
-  options: { envVariables: Record<string, string> | ((value: string) => string | null); securityQueryParams: URLSearchParams },
+  options: {
+    envVariables: Record<string, string> | ((value: string) => string | null)
+    securityQueryParams: URLSearchParams
+  },
 ): string => {
   const variables = options.envVariables
 

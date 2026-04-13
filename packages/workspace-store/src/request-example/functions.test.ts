@@ -128,9 +128,7 @@ describe('functions', () => {
 
   it('$guid returns a UUID v4 format string', () => {
     for (let i = 0; i < 10; i++) {
-      expect(contextFunctions.$guid.fn()).toMatch(
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
-      )
+      expect(contextFunctions.$guid.fn()).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
     }
   })
 
@@ -156,9 +154,7 @@ describe('functions', () => {
 
   it('$randomMACAddress returns a valid MAC address', () => {
     for (let i = 0; i < 10; i++) {
-      expect(contextFunctions.$randomMACAddress.fn()).toMatch(
-        /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/,
-      )
+      expect(contextFunctions.$randomMACAddress.fn()).toMatch(/^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/)
     }
   })
 
@@ -205,9 +201,7 @@ describe('functions', () => {
 
   it('$randomCreditCardMask returns a masked card number', () => {
     for (let i = 0; i < 10; i++) {
-      expect(contextFunctions.$randomCreditCardMask.fn()).toMatch(
-        /^\*{4} \*{4} \*{4} \d{4}$/,
-      )
+      expect(contextFunctions.$randomCreditCardMask.fn()).toMatch(/^\*{4} \*{4} \*{4} \d{4}$/)
     }
   })
 
@@ -231,9 +225,7 @@ describe('functions', () => {
   })
 
   it('$randomWeekday returns a valid weekday name', () => {
-    const valid = new Set([
-      'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
-    ])
+    const valid = new Set(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
     for (let i = 0; i < 20; i++) {
       expect(valid.has(contextFunctions.$randomWeekday.fn())).toBe(true)
     }
@@ -241,8 +233,18 @@ describe('functions', () => {
 
   it('$randomMonth returns a valid month name', () => {
     const valid = new Set([
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ])
     for (let i = 0; i < 20; i++) {
       expect(valid.has(contextFunctions.$randomMonth.fn())).toBe(true)

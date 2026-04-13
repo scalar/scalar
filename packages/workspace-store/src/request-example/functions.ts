@@ -106,8 +106,7 @@ const pick = <T>(pool: readonly T[]): T => pool[Math.floor(Math.random() * pool.
 const randInt = (min: number, max: number): number => Math.floor(Math.random() * (max - min + 1)) + min
 
 /** Generate a random numeric string of the given length. */
-const numericString = (length: number): string =>
-  Array.from({ length }, () => Math.floor(Math.random() * 10)).join('')
+const numericString = (length: number): string => Array.from({ length }, () => Math.floor(Math.random() * 10)).join('')
 
 /** Generate a random alphanumeric string of the given length. */
 const alphanumeric = (length: number): string =>
