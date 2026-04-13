@@ -4,6 +4,36 @@ import { Raw, objectToString } from '@/libs/javascript'
 import { accumulateRepeatedValue, reduceQueryParams } from '@/libs/http'
 
 type AxiosHeaders = Record<string, string | string[]>
+type Primitive = string | number | boolean | null | undefined
+
+const escapeJsString = (value: string): string =>
+  value
+    .replaceAll('\\', '\\\\')
+    .replaceAll('\n', '\\n')
+    .replaceAll('\r', '\\r')
+    .replaceAll("'", "\\'")
+
+const sanitizeForGeneratedCode = (value: unknown): unknown => {
+  if (typeof value === 'string') {
+    return escapeJsString(value)
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => sanitizeForGeneratedCode(item)) as unknown[]
+  }
+
+  if (value && typeof value === 'object' && !(value instanceof Raw)) {
+    return Object.entries(value).reduce(
+      (acc, [key, objectValue]) => {
+        acc[key] = sanitizeForGeneratedCode(objectValue) as Primitive | Record<string, unknown> | unknown[]
+        return acc
+      },
+      {} as Record<string, Primitive | Record<string, unknown> | unknown[]>,
+    )
+  }
+
+  return value
+}
 
 const addHeaderValue = (headers: AxiosHeaders, name: string, value: string): void => {
   if (value === '') {
@@ -58,7 +88,9 @@ const buildData = (request: Parameters<Plugin['generate']>[0]): { setup: string[
   if (postData.mimeType === 'application/x-www-form-urlencoded' && postData.params?.length) {
     setup.push('const encodedParams = new URLSearchParams()')
     postData.params.forEach((param) => {
-      setup.push(`encodedParams.append('${param.name}', '${param.value ?? ''}')`)
+      const encodedName = escapeJsString(param.name)
+      const encodedValue = escapeJsString(param.value ?? '')
+      setup.push(`encodedParams.append('${encodedName}', '${encodedValue}')`)
     })
 
     return {
@@ -70,22 +102,28 @@ const buildData = (request: Parameters<Plugin['generate']>[0]): { setup: string[
   if (postData.mimeType === 'multipart/form-data' && postData.params?.length) {
     setup.push('const formData = new FormData()')
     postData.params.forEach((param) => {
+      const encodedName = escapeJsString(param.name)
+
       if (param.fileName !== undefined) {
-        const blobWithType = param.contentType ? `, { type: '${param.contentType}' }` : ''
+        const encodedFileName = escapeJsString(param.fileName)
+        const blobWithType = param.contentType ? `, { type: '${escapeJsString(param.contentType)}' }` : ''
         setup.push(
-          `formData.append('${param.name}', new Blob([]${blobWithType}), '${param.fileName}')`,
+          `formData.append('${encodedName}', new Blob([]${blobWithType}), '${encodedFileName}')`,
         )
         return
       }
 
       if (param.contentType) {
+        const encodedContentType = escapeJsString(param.contentType)
+        const encodedValue = escapeJsString(param.value ?? '')
         setup.push(
-          `formData.append('${param.name}', new Blob(['${param.value ?? ''}'], { type: '${param.contentType}' }))`,
+          `formData.append('${encodedName}', new Blob(['${encodedValue}'], { type: '${encodedContentType}' }))`,
         )
         return
       }
 
-      setup.push(`formData.append('${param.name}', '${param.value ?? ''}')`)
+      const encodedValue = escapeJsString(param.value ?? '')
+      setup.push(`formData.append('${encodedName}', '${encodedValue}')`)
     })
 
     return {
@@ -127,29 +165,29 @@ export const jsAxios: Plugin = {
 
     const options: Record<string, unknown> = {
       method: normalizedRequest.method,
-      url: normalizedRequest.url,
+      url: escapeJsString(normalizedRequest.url ?? ''),
     }
 
     const params = reduceQueryParams(normalizedRequest.queryString)
     if (Object.keys(params).length) {
-      options.params = params
+      options.params = sanitizeForGeneratedCode(params)
     }
 
     const headers = buildHeaders(normalizedRequest)
     if (headers) {
-      options.headers = headers
+      options.headers = sanitizeForGeneratedCode(headers)
     }
 
     if (configuration?.auth?.username && configuration?.auth?.password) {
       options.auth = {
-        username: configuration.auth.username,
-        password: configuration.auth.password,
+        username: escapeJsString(configuration.auth.username),
+        password: escapeJsString(configuration.auth.password),
       }
     }
 
     const { setup, data } = buildData(normalizedRequest)
     if (data !== undefined) {
-      options.data = data
+      options.data = data instanceof Raw ? data : sanitizeForGeneratedCode(data)
     }
 
     const setupBlock = setup.length ? `${setup.join('\n')}\n\n` : ''

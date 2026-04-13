@@ -646,4 +646,183 @@ encodedParams.append('special chars!@#', 'value')`,
 }`),
     )
   })
+
+  it('escapes single quotes in invalid JSON body fallback', () => {
+    const result = jsAxios.generate({
+      url: 'https://editor.scalar.com/test',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/json',
+        text: `{"message":"hell'o"`,
+      },
+    })
+
+    expect(result).toBe(
+      createSnippet(`{
+  method: 'POST',
+  url: 'https://editor.scalar.com/test',
+  data: '{"message":"hell\\'o"'
+}`),
+    )
+  })
+
+  it('escapes single quotes in urlencoded params', () => {
+    const result = jsAxios.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          {
+            name: "field'name",
+            value: "value'one",
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(
+      createSnippet(
+        `{
+  method: 'POST',
+  url: 'https://example.com',
+  data: encodedParams
+}`,
+        `const encodedParams = new URLSearchParams()
+encodedParams.append('field\\'name', 'value\\'one')`,
+      ),
+    )
+  })
+
+  it('escapes single quotes in multipart values and names', () => {
+    const result = jsAxios.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: "field'name",
+            value: "value'one",
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(
+      createSnippet(
+        `{
+  method: 'POST',
+  url: 'https://example.com',
+  data: formData
+}`,
+        `const formData = new FormData()
+formData.append('field\\'name', 'value\\'one')`,
+      ),
+    )
+  })
+
+  it('escapes single quotes in multipart content type', () => {
+    const result = jsAxios.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'payload',
+            value: 'value',
+            contentType: "application/x.scalar'json",
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(
+      createSnippet(
+        `{
+  method: 'POST',
+  url: 'https://example.com',
+  data: formData
+}`,
+        `const formData = new FormData()
+formData.append('payload', new Blob(['value'], { type: 'application/x.scalar\\'json' }))`,
+      ),
+    )
+  })
+
+  it('escapes single quotes in file names for multipart data', () => {
+    const result = jsAxios.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            fileName: "te'st.txt",
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(
+      createSnippet(
+        `{
+  method: 'POST',
+  url: 'https://example.com',
+  data: formData
+}`,
+        `const formData = new FormData()
+formData.append('file', new Blob([]), 'te\\'st.txt')`,
+      ),
+    )
+  })
+
+  it('escapes single quotes in query values', () => {
+    const result = jsAxios.generate({
+      url: 'https://example.com',
+      queryString: [
+        {
+          name: 'quote',
+          value: "va'lue",
+        },
+      ],
+    })
+
+    expect(result).toBe(
+      createSnippet(`{
+  method: 'GET',
+  url: 'https://example.com',
+  params: {
+    quote: 'va\\'lue'
+  }
+}`),
+    )
+  })
+
+  it('escapes single quotes in auth credentials', () => {
+    const result = jsAxios.generate(
+      {
+        url: 'https://example.com',
+      },
+      {
+        auth: {
+          username: "user'o",
+          password: "pa'ss",
+        },
+      },
+    )
+
+    expect(result).toBe(
+      createSnippet(`{
+  method: 'GET',
+  url: 'https://example.com',
+  auth: {
+    username: 'user\\'o',
+    password: 'pa\\'ss'
+  }
+}`),
+    )
+  })
 })
