@@ -4,6 +4,12 @@ PostHog analytics plugin for the API Reference. Loading this plugin opts in to a
 
 If the plugin is not loaded, no tracking occurs.
 
+## Installation
+
+```bash
+npm install posthog-js
+```
+
 ## Usage
 
 ```typescript

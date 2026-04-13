@@ -1261,9 +1261,6 @@ importers:
       nanoid:
         specifier: catalog:*
         version: 5.1.6
-      posthog-js:
-        specifier: catalog:*
-        version: 1.363.2
       pretty-ms:
         specifier: ^9.3.0
         version: 9.3.0
@@ -1316,6 +1313,9 @@ importers:
       jsdom:
         specifier: catalog:*
         version: 27.4.0(@noble/hashes@1.8.0)
+      posthog-js:
+        specifier: catalog:*
+        version: 1.363.2
       tailwindcss:
         specifier: catalog:*
         version: 4.2.1
@@ -1443,9 +1443,6 @@ importers:
       nanoid:
         specifier: catalog:*
         version: 5.1.6
-      posthog-js:
-        specifier: catalog:*
-        version: 1.363.2
       vue:
         specifier: catalog:*
         version: 3.5.30(typescript@5.9.3)
@@ -1483,6 +1480,9 @@ importers:
       jsdom:
         specifier: catalog:*
         version: 27.4.0(@noble/hashes@1.8.0)
+      posthog-js:
+        specifier: catalog:*
+        version: 1.363.2
       rollup-plugin-webpack-stats:
         specifier: ^0.2.5
         version: 0.2.6(rollup@4.59.0)

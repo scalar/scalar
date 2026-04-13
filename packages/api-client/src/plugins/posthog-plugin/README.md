@@ -6,6 +6,12 @@ If the plugin is not loaded, no tracking occurs.
 
 > When using the API Reference (which embeds the API Client), use the [API Reference PostHog Plugin](../../../api-reference/src/plugins/posthog-plugin/) instead. It handles both products automatically.
 
+## Installation
+
+```bash
+npm install posthog-js
+```
+
 ## Usage
 
 ```typescript
