@@ -1,10 +1,14 @@
 /**
  * Checks if a key needs to be wrapped in quotes when used as an object property
  *
- * Returns true if the key contains spaces or hyphens
+ * Returns true when the key is not a valid JavaScript identifier.
  */
 function needsQuotes(key: string) {
-  return /\s|-/.test(key)
+  return !/^[$A-Z_][0-9A-Z_$]*$/i.test(key)
+}
+
+function escapeObjectKey(key: string) {
+  return key.replaceAll('\\', '\\\\').replaceAll('\n', '\\n').replaceAll('\r', '\\r').replaceAll("'", "\\'")
 }
 
 /**
@@ -30,7 +34,7 @@ export function objectToString(obj: Record<string, any>, indent = 0): string {
   }
 
   for (const [key, value] of Object.entries(obj)) {
-    const formattedKey = needsQuotes(key) ? `'${key}'` : key
+    const formattedKey = needsQuotes(key) ? `'${escapeObjectKey(key)}'` : key
 
     if (value instanceof Raw) {
       const lines = value.value.split('\n')

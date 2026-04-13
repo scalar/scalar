@@ -150,6 +150,27 @@ describe('nodeAxios', () => {
     )
   })
 
+  it('escapes single quotes in parsed JSON object keys', () => {
+    const result = nodeAxios.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/json',
+        text: `{"it's":"fine"}`,
+      },
+    })
+
+    expect(result).toBe(
+      createSnippet(`{
+  method: 'POST',
+  url: 'https://example.com',
+  data: {
+    'it\\'s': 'fine'
+  }
+}`),
+    )
+  })
+
   it('falls back to raw text when JSON parsing fails', () => {
     const result = nodeAxios.generate({
       url: 'https://example.com',
@@ -184,6 +205,25 @@ describe('nodeAxios', () => {
   method: 'POST',
   url: 'https://example.com',
   data: 'hello world'
+}`),
+    )
+  })
+
+  it('keeps unknown mime payloads as raw strings even when valid JSON', () => {
+    const result = nodeAxios.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'text/plain',
+        text: '{"hello":"world"}',
+      },
+    })
+
+    expect(result).toBe(
+      createSnippet(`{
+  method: 'POST',
+  url: 'https://example.com',
+  data: '{"hello":"world"}'
 }`),
     )
   })
