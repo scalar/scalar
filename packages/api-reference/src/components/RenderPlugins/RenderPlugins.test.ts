@@ -21,6 +21,10 @@ describe('RenderPlugins', () => {
       vi.mocked(usePluginManager).mockReturnValue({
         getViewComponents: vi.fn().mockReturnValue([]),
         getSpecificationExtensions: vi.fn(),
+        notifyInit: vi.fn(),
+        notifyConfigChange: vi.fn(),
+        notifyDestroy: vi.fn(),
+        getApiClientPlugins: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -48,6 +52,10 @@ describe('RenderPlugins', () => {
           },
         ]),
         getSpecificationExtensions: vi.fn(),
+        notifyInit: vi.fn(),
+        notifyConfigChange: vi.fn(),
+        notifyDestroy: vi.fn(),
+        getApiClientPlugins: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -79,6 +87,10 @@ describe('RenderPlugins', () => {
           },
         ]),
         getSpecificationExtensions: vi.fn(),
+        notifyInit: vi.fn(),
+        notifyConfigChange: vi.fn(),
+        notifyDestroy: vi.fn(),
+        getApiClientPlugins: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -115,6 +127,10 @@ describe('RenderPlugins', () => {
           },
         ]),
         getSpecificationExtensions: vi.fn(),
+        notifyInit: vi.fn(),
+        notifyConfigChange: vi.fn(),
+        notifyDestroy: vi.fn(),
+        getApiClientPlugins: vi.fn().mockReturnValue([]),
       })
 
       mount(RenderPlugins, {
@@ -153,6 +169,10 @@ describe('RenderPlugins', () => {
           },
         ]),
         getSpecificationExtensions: vi.fn(),
+        notifyInit: vi.fn(),
+        notifyConfigChange: vi.fn(),
+        notifyDestroy: vi.fn(),
+        getApiClientPlugins: vi.fn().mockReturnValue([]),
       })
 
       mount(RenderPlugins, {
@@ -196,6 +216,10 @@ describe('RenderPlugins', () => {
           },
         ]),
         getSpecificationExtensions: vi.fn(),
+        notifyInit: vi.fn(),
+        notifyConfigChange: vi.fn(),
+        notifyDestroy: vi.fn(),
+        getApiClientPlugins: vi.fn().mockReturnValue([]),
       })
 
       mount(RenderPlugins, {
@@ -240,6 +264,10 @@ describe('RenderPlugins', () => {
             { component: TestComponent3 },
           ]),
         getSpecificationExtensions: vi.fn(),
+        notifyInit: vi.fn(),
+        notifyConfigChange: vi.fn(),
+        notifyDestroy: vi.fn(),
+        getApiClientPlugins: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -278,6 +306,10 @@ describe('RenderPlugins', () => {
           .fn()
           .mockReturnValue([{ component: VueComponent }, { component: ReactComponent, renderer: CustomRenderer }]),
         getSpecificationExtensions: vi.fn(),
+        notifyInit: vi.fn(),
+        notifyConfigChange: vi.fn(),
+        notifyDestroy: vi.fn(),
+        getApiClientPlugins: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -304,6 +336,10 @@ describe('RenderPlugins', () => {
       vi.mocked(usePluginManager).mockReturnValue({
         getViewComponents: vi.fn().mockReturnValue([{ component: TestComponent }]),
         getSpecificationExtensions: vi.fn(),
+        notifyInit: vi.fn(),
+        notifyConfigChange: vi.fn(),
+        notifyDestroy: vi.fn(),
+        getApiClientPlugins: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -330,6 +366,10 @@ describe('RenderPlugins', () => {
       vi.mocked(usePluginManager).mockReturnValue({
         getViewComponents: getViewComponentsMock,
         getSpecificationExtensions: vi.fn(),
+        notifyInit: vi.fn(),
+        notifyConfigChange: vi.fn(),
+        notifyDestroy: vi.fn(),
+        getApiClientPlugins: vi.fn().mockReturnValue([]),
       })
 
       mount(RenderPlugins, {
@@ -349,6 +389,10 @@ describe('RenderPlugins', () => {
       vi.mocked(usePluginManager).mockReturnValue({
         getViewComponents: getViewComponentsMock,
         getSpecificationExtensions: vi.fn(),
+        notifyInit: vi.fn(),
+        notifyConfigChange: vi.fn(),
+        notifyDestroy: vi.fn(),
+        getApiClientPlugins: vi.fn().mockReturnValue([]),
       })
 
       mount(RenderPlugins, {
@@ -373,6 +417,10 @@ describe('RenderPlugins', () => {
       vi.mocked(usePluginManager).mockReturnValue({
         getViewComponents: vi.fn().mockReturnValue([{ component: TestComponent }]),
         getSpecificationExtensions: vi.fn(),
+        notifyInit: vi.fn(),
+        notifyConfigChange: vi.fn(),
+        notifyDestroy: vi.fn(),
+        getApiClientPlugins: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -396,6 +444,10 @@ describe('RenderPlugins', () => {
       vi.mocked(usePluginManager).mockReturnValue({
         getViewComponents: vi.fn().mockReturnValue([{ component: TestComponent }]),
         getSpecificationExtensions: vi.fn(),
+        notifyInit: vi.fn(),
+        notifyConfigChange: vi.fn(),
+        notifyDestroy: vi.fn(),
+        getApiClientPlugins: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -420,6 +472,10 @@ describe('RenderPlugins', () => {
       vi.mocked(usePluginManager).mockReturnValue({
         getViewComponents: vi.fn().mockReturnValue([{ component: TestComponent }]),
         getSpecificationExtensions: vi.fn(),
+        notifyInit: vi.fn(),
+        notifyConfigChange: vi.fn(),
+        notifyDestroy: vi.fn(),
+        getApiClientPlugins: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
