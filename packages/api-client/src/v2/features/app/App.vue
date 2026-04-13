@@ -16,7 +16,7 @@ import {
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
-import { computed, toValue } from 'vue'
+import { computed, onBeforeUnmount, toValue } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { SidebarToggle } from '@/v2/components/sidebar'
@@ -29,7 +29,6 @@ import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.v
 import { useMonacoEditorConfiguration } from '@/v2/features/editor'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
-import { usePosthog } from '@/v2/posthog'
 import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -78,7 +77,15 @@ if (typeof window !== 'undefined') {
   window.dumpAppState = () => app
 }
 
-usePosthog(app.telemetry)
+/** Call lifecycle hooks on plugins */
+for (const plugin of plugins) {
+  plugin.lifecycle?.onInit?.()
+}
+onBeforeUnmount(() => {
+  for (const plugin of plugins) {
+    plugin.lifecycle?.onDestroy?.()
+  }
+})
 
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */
 useGlobalHotKeys(app.eventBus, layout)
@@ -149,10 +156,6 @@ const routerViewProps = computed<RouteProps>(() => {
     isDarkMode: app.isDarkMode.value,
     currentTheme: app.theme.styles.value.themeStyles,
     customThemes: toValue(app.theme.customThemes),
-    telemetry: app.telemetry.value,
-    onUpdateTelemetry: (value: boolean) => {
-      app.telemetry.value = value
-    },
   }
 })
 </script>

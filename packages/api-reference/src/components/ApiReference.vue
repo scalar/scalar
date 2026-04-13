@@ -91,7 +91,6 @@ import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useIntersection } from '@/hooks/use-intersection'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { persistencePlugin } from '@/plugins/persistance-plugin'
-import { usePosthog } from '@/posthog'
 
 const props = defineProps<{
   /**
@@ -228,10 +227,6 @@ const mergedConfig = computed<ApiReferenceConfiguration>(() => ({
   ...configurationOverrides.value,
 }))
 
-/** Wire up PostHog telemetry based on the current configuration */
-const telemetryEnabled = computed(() => mergedConfig.value.telemetry ?? false)
-usePosthog(telemetryEnabled)
-
 /** Convenience break out var to determine which routing mode we are using */
 const basePath = computed(() => mergedConfig.value.pathRouting?.basePath)
 
@@ -242,14 +237,16 @@ const themeStyle = computed(() =>
 )
 
 /** Plugin injection is not reactive. All plugins must be provided at first render */
-provide(
-  PLUGIN_MANAGER_SYMBOL,
-  createPluginManager({
-    plugins: Object.values(configList.value).flatMap(
-      (c) => c.config.plugins ?? [],
-    ),
-  }),
-)
+const pluginManager = createPluginManager({
+  plugins: Object.values(configList.value).flatMap(
+    (c) => c.config.plugins ?? [],
+  ),
+})
+provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
+
+pluginManager.notifyInit(mergedConfig.value)
+
+watch(mergedConfig, (config) => pluginManager.notifyConfigChange(config))
 // ---------------------------------------------------------------------------
 /** Navigation State Handling */
 
@@ -741,10 +738,14 @@ onMounted(() => {
     eventBus,
     workspaceStore: clientStore,
     options: mergedConfig,
-    plugins: mapConfigPlugins(mergedConfig, environment),
+    plugins: [
+      ...pluginManager.getClientPlugins(),
+      ...mapConfigPlugins(mergedConfig, environment),
+    ],
   })
 })
 onBeforeUnmount(() => {
+  pluginManager.notifyDestroy()
   apiClient.value?.app.unmount()
 })
 

@@ -15,6 +15,7 @@ export {
 } from './api-reference-configuration'
 export type {
   ApiReferencePlugin,
+  LifecycleHooks,
   SpecificationExtension,
   ViewComponent,
 } from './api-reference-plugin'

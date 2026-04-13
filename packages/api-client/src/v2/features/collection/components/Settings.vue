@@ -12,8 +12,6 @@ const {
   workspaceStore,
   collectionType,
   layout,
-  telemetry,
-  onUpdateTelemetry,
 } = defineProps<CollectionProps>()
 
 const handleUpdateWatchMode = (watchMode: boolean) => {
@@ -53,9 +51,7 @@ const handleUpdateColorMode = (colorMode: ColorMode) => {
     :activeThemeSlug="workspaceStore.workspace['x-scalar-theme'] ?? 'none'"
     :colorMode="workspaceStore.workspace['x-scalar-color-mode'] ?? 'system'"
     :customThemes="customThemes"
-    :telemetry="telemetry"
     @update:colorMode="handleUpdateColorMode"
     @update:proxyUrl="handleUpdateActiveProxy"
-    @update:telemetry="(value) => onUpdateTelemetry?.(value)"
     @update:themeSlug="handleUpdateThemeSlug" />
 </template>

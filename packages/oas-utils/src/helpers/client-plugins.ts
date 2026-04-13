@@ -75,9 +75,19 @@ type ClientPluginComponents = {
  *   }
  * }
  */
+/** Lifecycle hooks for app-level plugin concerns (analytics, logging, etc.) */
+type ClientPluginLifecycle = {
+  /** Called when the API client is initialized */
+  onInit?: () => void
+  /** Called when the API client is destroyed */
+  onDestroy?: () => void
+}
+
 export type ClientPlugin = {
   hooks?: Partial<ClientPluginHooks>
   components?: Partial<ClientPluginComponents>
+  /** Lifecycle hooks for app-level concerns */
+  lifecycle?: ClientPluginLifecycle
 }
 
 /**

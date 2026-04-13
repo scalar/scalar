@@ -534,18 +534,6 @@ def get_scalar_api_reference(
             """
         )
     ] = "localhost",
-    telemetry: Annotated[
-        bool,
-        Doc(
-            """
-            Whether to enable telemetry. 
-            Only tracks whether a request was sent through the API client.
-            Default is True which means telemetry is enabled.
-
-            See: https://scalar.com/products/api-references/configuration#configuration__configuration-options__properties__telemetry
-            """
-        ),
-    ] = True,
     agent: Annotated[
         AgentScalarConfig | None,
         Doc(
@@ -674,9 +662,6 @@ def get_scalar_api_reference(
 
     if show_developer_tools != "localhost":  # Default is 'localhost'
         config["showDeveloperTools"] = show_developer_tools
-
-    if not telemetry:  # Default is True
-        config["telemetry"] = telemetry
 
     if overrides:  # Default is {}
         config.update(overrides)

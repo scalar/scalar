@@ -83,6 +83,42 @@ export const XCustomExtensionPlugin = (): ApiReferencePlugin => {
 }
 ```
 
+### Lifecycle Hooks
+
+Plugins can hook into the API Reference lifecycle to run code at specific points.
+
+#### Available Hooks
+
+- `onInit({ config })` — Called when the API Reference is initialized. Receives the resolved configuration.
+- `onConfigChange({ config })` — Called when the API Reference configuration changes.
+- `onDestroy()` — Called when the API Reference is destroyed. Use for cleanup.
+
+#### Example
+
+```typescript
+import type { ApiReferencePlugin } from '@scalar/types/api-reference'
+
+export const AnalyticsPlugin = (): ApiReferencePlugin => {
+  return () => {
+    return {
+      name: 'analytics-plugin',
+      extensions: [],
+      hooks: {
+        onInit({ config }) {
+          console.log('API Reference initialized', config)
+        },
+        onConfigChange({ config }) {
+          console.log('Configuration changed', config)
+        },
+        onDestroy() {
+          console.log('API Reference destroyed')
+        },
+      },
+    }
+  }
+}
+```
+
 ### Additional Components
 
 Plugins can inject components at specific locations in the API Reference using views.
