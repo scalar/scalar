@@ -16,6 +16,7 @@ describe('getOpenAuthTokenUrls', () => {
         flows: {
           password: {
             tokenUrl: 'https://api.example.com/oauth/token',
+            scopes: {},
           },
         },
       },
@@ -30,6 +31,7 @@ describe('getOpenAuthTokenUrls', () => {
         flows: {
           clientCredentials: {
             tokenUrl: 'https://api.example.com/oauth/client_token',
+            scopes: {},
           },
         },
       },
@@ -45,6 +47,7 @@ describe('getOpenAuthTokenUrls', () => {
           authorizationCode: {
             authorizationUrl: 'https://api.example.com/oauth/authorize',
             tokenUrl: 'https://api.example.com/oauth/token',
+            scopes: {},
           },
         },
       },
@@ -59,6 +62,7 @@ describe('getOpenAuthTokenUrls', () => {
         flows: {
           password: {
             tokenUrl: 'https://api.example.com/oauth/password_token',
+            scopes: {},
           },
         },
       },
@@ -67,6 +71,7 @@ describe('getOpenAuthTokenUrls', () => {
         flows: {
           clientCredentials: {
             tokenUrl: 'https://api.example.com/oauth/client_token',
+            scopes: {},
           },
         },
       },
@@ -85,6 +90,7 @@ describe('getOpenAuthTokenUrls', () => {
         flows: {
           password: {
             tokenUrl: 'https://api.example.com/oauth/token',
+            scopes: {},
           },
         },
       },
@@ -99,6 +105,7 @@ describe('getOpenAuthTokenUrls', () => {
         flows: {
           password: {
             tokenUrl: 'https://api.example.com/oauth/token',
+            scopes: {},
           },
         },
       },
@@ -107,6 +114,7 @@ describe('getOpenAuthTokenUrls', () => {
         flows: {
           clientCredentials: {
             tokenUrl: 'https://api.example.com/oauth/token',
+            scopes: {},
           },
         },
       },

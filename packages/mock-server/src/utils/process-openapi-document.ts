@@ -68,7 +68,7 @@ export async function processOpenApiDocument(
 
   // Check for dereference errors
   if (dereferenceResult.errors && dereferenceResult.errors.length > 0) {
-    const errorMessages = dereferenceResult.errors.map((err) => err.message).join(', ')
+    const errorMessages = dereferenceResult.errors.map((err: { message: string }) => err.message).join(', ')
     throw new Error(`Failed to dereference OpenAPI document: ${errorMessages}`)
   }
 
