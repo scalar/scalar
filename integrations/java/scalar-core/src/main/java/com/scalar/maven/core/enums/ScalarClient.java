@@ -94,6 +94,11 @@ public enum ScalarClient {
     J_QUERY("jquery"),
 
     /**
+     * Laravel HTTP Client client.
+     */
+    LARAVEL("laravel"),
+
+    /**
      * Libcurl client.
      */
     LIBCURL("libcurl"),

@@ -37,7 +37,7 @@ internal static partial class ScalarOptionsMapper
         { ScalarTarget.Node, [ScalarClient.Axios, ScalarClient.Fetch, ScalarClient.OFetch, ScalarClient.Undici] },
         { ScalarTarget.ObjC, [ScalarClient.NSUrlSession, ScalarClient.Nsurlsession] },
         { ScalarTarget.OCaml, [ScalarClient.CoHttp] },
-        { ScalarTarget.Php, [ScalarClient.Curl, ScalarClient.Guzzle] },
+        { ScalarTarget.Php, [ScalarClient.Curl, ScalarClient.Guzzle, ScalarClient.Laravel] },
         { ScalarTarget.PowerShell, [ScalarClient.RestMethod, ScalarClient.WebRequest] },
         { ScalarTarget.Python, [ScalarClient.HttpxAsync, ScalarClient.HttpxSync, ScalarClient.Python3, ScalarClient.Requests] },
         { ScalarTarget.R, [ScalarClient.Httr] },

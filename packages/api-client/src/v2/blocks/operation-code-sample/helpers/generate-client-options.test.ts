@@ -55,11 +55,11 @@ describe('generateClientOptions', () => {
       })
     })
 
-    it('returns 39 total client options', () => {
+    it('returns 40 total client options', () => {
       const result = generateClientOptions(AVAILABLE_CLIENTS)
       const allOptions = result.flatMap((group) => group.options)
 
-      expect(allOptions).toHaveLength(39)
+      expect(allOptions).toHaveLength(40)
     })
   })
 

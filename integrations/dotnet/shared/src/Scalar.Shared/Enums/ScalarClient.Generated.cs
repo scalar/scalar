@@ -117,6 +117,12 @@ public enum ScalarClient
     JQuery,
 
     /// <summary>
+    /// Laravel HTTP Client client.
+    /// </summary>
+    [Description("laravel")]
+    Laravel,
+
+    /// <summary>
     /// Libcurl client.
     /// </summary>
     [Description("libcurl")]
