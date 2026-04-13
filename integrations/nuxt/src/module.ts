@@ -69,7 +69,6 @@ export default defineNuxtModule<ModuleOptions>({
       '@scalar/nuxt > @scalar/openapi-parser',
       '@scalar/nuxt > debug',
       '@scalar/nuxt > extend',
-      '@scalar/nuxt > highlightjs-curl',
       '@scalar/nuxt > highlight.js',
     )
 
