@@ -1,4 +1,4 @@
-import type { OpenAPI, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Hono } from 'hono'
 
 import { respondWithAuthorizePage } from '@/routes/respond-with-authorize-page'
@@ -18,7 +18,7 @@ export function setUpAuthenticationRoutes(app: Hono, schema?: OpenAPI.Document) 
 
   const securitySchemes = Object.fromEntries(
     Object.entries(rawSecuritySchemes).filter(
-      (entry): entry is [string, OpenAPIV3.SecuritySchemeObject | OpenAPIV3_1.SecuritySchemeObject] => {
+      (entry): entry is [string, OpenAPIV3_1.SecuritySchemeObject] => {
         const [, scheme] = entry
         return isSecuritySchemeObject(scheme)
       },
