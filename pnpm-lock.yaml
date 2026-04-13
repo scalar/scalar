@@ -126,6 +126,9 @@ catalogs:
     cookie:
       specifier: 1.1.1
       version: 1.1.1
+    cross-env:
+      specifier: 10.1.0
+      version: 10.1.0
     express:
       specifier: 5.1.0
       version: 5.1.0
@@ -278,8 +281,8 @@ importers:
         specifier: ^24.1.0
         version: 24.10.13
       cross-env:
-        specifier: ^7.0.3
-        version: 7.0.3
+        specifier: catalog:*
+        version: 10.1.0
       eslint:
         specifier: ^9.38.0
         version: 9.39.2(jiti@2.6.1)
@@ -9810,11 +9813,6 @@ packages:
   cross-env@10.1.0:
     resolution: {integrity: sha512-GsYosgnACZTADcmEyJctkJIoqAhHjttw7RsFrVoJNXbsWWqaq6Ym+7kZjq6mS45O0jij6vtiReppKQEtqWy6Dw==}
     engines: {node: '>=20'}
-    hasBin: true
-
-  cross-env@7.0.3:
-    resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==}
-    engines: {node: '>=10.14', npm: '>=6', yarn: '>=1'}
     hasBin: true
 
   cross-spawn@5.1.0:
@@ -27059,10 +27057,6 @@ snapshots:
   cross-env@10.1.0:
     dependencies:
       '@epic-web/invariant': 1.0.0
-      cross-spawn: 7.0.6
-
-  cross-env@7.0.3:
-    dependencies:
       cross-spawn: 7.0.6
 
   cross-spawn@5.1.0:
