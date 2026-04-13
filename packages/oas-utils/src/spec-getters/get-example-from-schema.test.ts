@@ -1,9 +1,12 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { coerceValue as coerceValueWithSchema } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { getExampleFromSchema } from './get-example-from-schema'
+
+const coerceValue = (schema: typeof SchemaObjectSchema, value: unknown): OpenAPIV3_1.SchemaObject =>
+  coerceValueWithSchema(schema, value) as OpenAPIV3_1.SchemaObject
 
 describe('getExampleFromSchema', () => {
   it('sets example values', () => {

@@ -38,7 +38,7 @@ const dereferenceDocument = async (
   }
 
   let filesystem: LoadResult['filesystem'] | string | UnknownObject = document
-  let loadErrors: LoadResult['errors'] = []
+  let loadErrors: NonNullable<LoadResult['errors']> = []
 
   if (shouldLoad) {
     // TODO: Plugins for URLs and files with the proxy are missing here.
@@ -57,7 +57,9 @@ const dereferenceDocument = async (
   }
 
   const { specification } = upgrade(filesystem)
-  const { schema, errors: derefErrors = [] } = dereference(specification)
+  const dereferenceResult = dereference(specification)
+  const schema = dereferenceResult.schema
+  const derefErrors = dereferenceResult.errors ?? []
 
   return {
     schema,

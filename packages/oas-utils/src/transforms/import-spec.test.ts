@@ -1070,7 +1070,13 @@ describe('parseSchema', () => {
         name: { type: 'string' },
       },
     })
-    expect(schema.paths?.['/foobar']?.get?.responses?.['200']?.content?.['application/json']?.schema).toMatchObject({
+    const response = schema.paths?.['/foobar']?.get?.responses?.['200']
+
+    if (!response || !('content' in response)) {
+      expect.unreachable('Expected /foobar 200 response content')
+    }
+
+    expect(response.content?.['application/json']?.schema).toMatchObject({
       type: 'object',
       properties: {
         name: { type: 'string' },
