@@ -35,8 +35,7 @@ export function getOpenAuthTokenUrls(schema?: OpenAPI.Document): string[] {
   const securitySchemes: Record<
     string,
     OpenAPIV3.SecuritySchemeObject | OpenAPIV3_1.SecuritySchemeObject | OpenAPIV3_1.ReferenceObject
-  > =
-    schema.components.securitySchemes
+  > = schema.components.securitySchemes
 
   // Use Set from the start for better memory efficiency
   const tokenUrls = new Set<string>()

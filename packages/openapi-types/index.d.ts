@@ -4,11 +4,7 @@ export type * as OpenAPIV3_1 from './3.1'
 export type * as OpenAPIV3_2 from './3.2'
 
 export declare namespace OpenAPI {
-  type Document =
-    | OpenAPIV2.Document
-    | OpenAPIV3.Document
-    | OpenAPIV3_1.Document
-    | OpenAPIV3_2.Document
+  type Document = OpenAPIV2.Document | OpenAPIV3.Document | OpenAPIV3_1.Document | OpenAPIV3_2.Document
 
   type Parameter =
     | OpenAPIV2.ParameterObject

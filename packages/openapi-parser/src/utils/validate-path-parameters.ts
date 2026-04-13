@@ -1,8 +1,7 @@
-import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
-
 import type { AnyObject, ErrorObject } from '@/types/index'
 
 const PATH_PARAMETER_PATTERN = /{([^}]+)}/g
+const OPERATION_KEYS = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
 
 type PathParameter = {
   name: string
@@ -26,9 +25,9 @@ export function validatePathParameters(specification: AnyObject): ErrorObject[] 
       continue
     }
 
-    const operations = Object.entries(pathItem).filter(([key, value]) => isHttpMethod(key) && isRecord(value)) as Array<
-      [string, AnyObject]
-    >
+    const operations = Object.entries(pathItem).filter(
+      ([key, value]) => OPERATION_KEYS.has(key) && isRecord(value),
+    ) as Array<[string, AnyObject]>
 
     // Preserve the repo's current behaviour for empty path items.
     if (operations.length === 0) {

@@ -3,6 +3,29 @@ import { describe, expect, it } from 'vitest'
 import { validatePathParameters } from './validate-path-parameters'
 
 describe('validatePathParameters', () => {
+  it('ignores non-spec uppercase operation keys', () => {
+    const errors = validatePathParameters({
+      openapi: '3.1.0',
+      info: {
+        title: 'Test',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets/{petId}': {
+          GET: {
+            responses: {
+              200: {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(errors).toEqual([])
+  })
+
   it('returns an error for unused operation-level path parameters', () => {
     const errors = validatePathParameters({
       openapi: '3.1.0',

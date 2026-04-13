@@ -51,8 +51,7 @@ const genericExampleValues: Record<string, string> = {
   'object-id': '6592008029c8c3e4dc76256c',
 }
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null
 
 const isReferenceObject = (value: unknown): value is OpenAPIV3_1.ReferenceObject =>
   isRecord(value) && typeof value.$ref === 'string'
@@ -345,9 +344,10 @@ const handleObjectSchema = (
   if (options?.xml && 'xml' in schema && schema.xml?.name && level === 0) {
     const wrapped: Record<string, unknown> = {}
     const rootName = typeof schema.xml.name === 'string' ? schema.xml.name : undefined
-    if (rootName) {
-      wrapped[rootName] = response
+    if (!rootName) {
+      return cache(schema, response)
     }
+    wrapped[rootName] = response
     return cache(schema, wrapped)
   }
 
@@ -399,12 +399,12 @@ const handleArraySchema = (
         )
         .filter(isDefined)
       if (wrapItems && itemsXmlTagName) {
-        return cache(schema, (examples as unknown[]).map((e) => ({ [itemsXmlTagName]: e })))
+        return cache(
+          schema,
+          (examples as unknown[]).map((e) => ({ [itemsXmlTagName]: e })),
+        )
       }
-      return cache(
-        schema,
-        examples,
-      )
+      return cache(schema, examples)
     }
 
     const union = items.anyOf || items.oneOf

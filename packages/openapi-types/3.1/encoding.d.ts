@@ -1,6 +1,5 @@
 import type { HeaderObject } from './header'
 import type { ReferenceObject } from './reference'
-import type { StylesForFormObject } from './styles-for-form'
 /**
  * Encoding object
  *
@@ -19,4 +18,4 @@ export type EncodingObject = {
   explode?: boolean
   /** When this is true, parameter values are serialized using reserved expansion, as defined by [RFC6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3), which allows [RFC3986's reserved character set](https://datatracker.ietf.org/doc/html/rfc3986#section-2.2), as well as percent-encoded triples, to pass through unchanged, while still percent-encoding all other disallowed characters (including `%` outside of percent-encoded triples). Applications are still responsible for percent-encoding reserved characters that are [not allowed in the query string](https://datatracker.ietf.org/doc/html/rfc3986#section-3.4) (`[`, `]`, `#`), or have a special meaning in `application/x-www-form-urlencoded` (`-`, `&`, `+`); see [URL Percent-Encoding](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.2.md#url-percent-encoding) for details. The default value is `false`. This field SHALL be ignored if the request body media type is not `application/x-www-form-urlencoded` or `multipart/form-data`. If a value is explicitly defined, then the value of [`contentType`](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.2.md#encoding-content-type) (implicit or explicit) SHALL be ignored. */
   allowReserved?: boolean
-} & StylesForFormObject
+}

@@ -7,11 +7,7 @@ import type { StatusCode } from 'hono/utils/http-status'
 
 import type { MockServerOptions } from '@/types'
 import { findPreferredResponseKey } from '@/utils/find-preferred-response-key'
-import {
-  isReferenceObject,
-  isResponseObject,
-  isHeaderWithSchema,
-} from '@/utils/openapi-guards'
+import { isReferenceObject, isResponseObject, isHeaderWithSchema } from '@/utils/openapi-guards'
 
 /**
  * Mock any response
