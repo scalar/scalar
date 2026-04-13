@@ -65,7 +65,7 @@ catalogs:
     hono: ^4.12.7
     github-slugger: 2.0.0
     js-base64: ^3.7.8
-    jsdom: 27.4.0
+    jsdom: 29.0.2
     microdiff: ^1.5.0
     monaco-editor: 0.55.1
     monaco-yaml: 5.4.1
