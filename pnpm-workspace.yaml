@@ -70,7 +70,7 @@ catalogs:
     monaco-editor: 0.55.1
     monaco-yaml: 5.4.1
     nanoid: ^5.1.6
-    next: ^15.5.10
+    next: ^15.5.13
     neverpanic: 0.0.7
     picomatch: ^4.0.2
     postcss: ^8.4.38
@@ -117,3 +117,5 @@ onlyBuiltDependencies:
 minimumReleaseAgeExclude:
   # Renovate security update: flatted@3.4.0
   - flatted@3.4.0
+  # Renovate security update: next@15.5.13
+  - next@15.5.13
