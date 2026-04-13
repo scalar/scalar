@@ -216,14 +216,7 @@ export const createRequestOperation = ({
 
         const duration = Date.now() - startTime
 
-        // Clone the response before reading it
-        const responseToRead = response.clone()
-
         const responseHeaders = normalizeHeaders(response.headers, shouldUseProxy(proxyUrl, url))
-        const responseType = response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
-
-        const arrayBuffer = await responseToRead.arrayBuffer()
-        const responseData = decodeBuffer(arrayBuffer, responseType)
 
         // Create a new response with the statusText
         const clonedResponse = response.clone()
@@ -270,6 +263,12 @@ export const createRequestOperation = ({
             },
           ]
         }
+
+        // Clone the response before reading it
+        const responseToRead = response.clone()
+        const responseType = response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
+        const arrayBuffer = await responseToRead.arrayBuffer()
+        const responseData = decodeBuffer(arrayBuffer, responseType)
 
         return [
           null,

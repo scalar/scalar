@@ -1348,6 +1348,62 @@ describe('create-request-operation', () => {
 
       expect(chunks).toEqual(['chunk 1', 'chunk 2'])
     })
+
+    it('returns a stream reader without waiting for the full SSE response body', async () => {
+      const encoder = new TextEncoder()
+      let streamController: ReadableStreamDefaultController<Uint8Array> | null = null
+
+      const streamingBody = new ReadableStream<Uint8Array>({
+        start(controller) {
+          streamController = controller
+          controller.enqueue(encoder.encode('data: hello\n\n'))
+        },
+      })
+
+      globalFetchSpy.mockResolvedValueOnce(
+        new Response(streamingBody, {
+          status: 200,
+          headers: new Headers({
+            'content-type': 'text/event-stream',
+          }),
+        }),
+      )
+
+      const [error, requestOperation] = createRequestOperation({
+        ...createRequestPayload({
+          serverPayload: { url: VOID_URL },
+        }),
+      })
+
+      if (error) {
+        throw error
+      }
+
+      const sendRequestResult = await Promise.race([
+        requestOperation.sendRequest().then((value) => ({ type: 'result' as const, value })),
+        new Promise<{ type: 'timeout' }>((resolve) => {
+          setTimeout(() => resolve({ type: 'timeout' }), 300)
+        }),
+      ])
+
+      expect(sendRequestResult.type).toBe('result')
+      if (sendRequestResult.type !== 'result') {
+        throw new Error('sendRequest timed out for SSE response')
+      }
+
+      const [requestError, result] = sendRequestResult.value
+      expect(requestError).toBe(null)
+      if (!result || !('reader' in result.response)) {
+        throw new Error('No reader')
+      }
+
+      const firstChunk = await result.response.reader.read()
+      expect(firstChunk.done).toBe(false)
+      expect(new TextDecoder().decode(firstChunk.value)).toBe('data: hello\n\n')
+
+      await result.response.reader.cancel()
+      streamController?.close()
+    })
   })
 
   it('executes onBeforeRequest hook when plugin manager is provided', async () => {
