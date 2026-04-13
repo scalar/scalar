@@ -10,6 +10,37 @@
   z-index: --value(--z-\*);
 }
 
+/*
+ * Padded width utilities
+ * 
+ * @example max-w-full-padded-4 - Sets the max-width to 100% - 8px
+ * @example max-w-full-padded-[2rem] - Sets the max-width to 100% - 4rem
+ */
+@utility max-w-full-padded-* {
+  max-width: calc(100% - --spacing(--value(integer) * 2));
+  max-width: calc(100% - (--value([length]) * 2));
+}
+@utility w-full-padded-* {
+  width: calc(100% - --spacing(--value(integer) * 2));
+  width: calc(100% - (--value([length]) * 2));
+}
+@utility max-w-screen-padded-* {
+  max-width: calc(100vw - --spacing(--value(integer) * 2));
+  max-width: calc(100vw - (--value([length]) * 2));
+}
+@utility w-screen-padded-* {
+  width: calc(100vw - --spacing(--value(integer) * 2));
+  width: calc(100vw - (--value([length]) * 2));
+}
+@utility max-w-content-padded-* {
+  max-width: calc(var(--container-content) - --spacing(--value(integer) * 2));
+  max-width: calc(var(--container-content) - (--value([length]) * 2));
+}
+@utility w-content-padded-* {
+  width: calc(var(--container-content) - --spacing(--value(integer) * 2));
+  width: calc(var(--container-content) - (--value([length]) * 2));
+}
+
 /* Flex utility for centering */
 @utility flex-center {
   @apply flex items-center justify-center;

@@ -1,5 +1,4 @@
-import { replaceEnvVariables, replacePathVariables } from '@scalar/helpers/regex/replace-variables'
-import { mergeUrls } from '@scalar/helpers/url/merge-urls'
+import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { redirectToProxy, shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { encode as encodeBase64 } from 'js-base64'
 
@@ -7,6 +6,7 @@ import { buildRequestCookieHeader } from '@/request-example/builder/header/build
 import { applyAllowReservedToUrl } from '@/request-example/builder/helpers/apply-allow-reserved-to-url'
 import type { RequestFactory } from '@/request-example/builder/request-factory'
 import { contextFunctions, isContextFunctionName } from '@/request-example/functions'
+import { resolveRequestFactoryUrl } from '@/request-example/builder/resolve-request-factory-url'
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
 
 export const buildRequest = (
@@ -70,79 +70,57 @@ export const buildRequest = (
   const securityQueryParams = new URLSearchParams()
   const securityCookies: XScalarCookie[] = []
 
-  // Build the request security
-  request.security.forEach((security) => {
-    const name = replaceEnvVariables(security.name, replace)
-    const securityValue = replaceEnvVariables(security.value, replace)
+  // Build the request security unless the consumer opted out via disableSecurity
+  if (!request.options?.disableSecurity) {
+    request.security.forEach((security) => {
+      const name = replaceEnvVariables(security.name, replace)
 
-    if (security.in === 'header') {
-      // Build the value for the header
-      const buildValue = (() => {
-        if (security.type === 'basic') {
-          return `Basic ${encodeBase64(securityValue)}`
+      // Format the security value based on its authentication scheme.
+      // - For 'basic': prefix with 'Basic' and base64-encode the value (username:password).
+      // - For 'bearer': prefix with 'Bearer'.
+      // - Otherwise: use the substituted value as is (for API keys, etc).
+      const securityValue = (() => {
+        const substitutedValue = replaceEnvVariables(security.value, replace)
+        if (security.format === 'basic') {
+          return `Basic ${encodeBase64(substitutedValue)}`
         }
 
-        if (security.type === 'bearer') {
-          return `Bearer ${securityValue}`
+        if (security.format === 'bearer') {
+          return `Bearer ${substitutedValue}`
         }
 
-        return securityValue
+        return substitutedValue
       })()
 
-      // Set the header (use replaced header name so {{ env }} placeholders work)
-      headers.set(name, buildValue)
-      return
-    }
+      if (security.in === 'header') {
+        // Set the header (use replaced header name so {{ env }} placeholders work)
+        headers.set(name, securityValue)
+        return
+      }
 
-    if (security.in === 'query') {
-      securityQueryParams.set(name, securityValue)
-      return
-    }
+      if (security.in === 'query') {
+        securityQueryParams.set(name, securityValue)
+        return
+      }
 
-    if (security.in === 'cookie') {
-      securityCookies.push({
-        name: name,
-        value: securityValue,
-        isDisabled: false,
-      })
-      return
-    }
+      if (security.in === 'cookie') {
+        securityCookies.push({
+          name: name,
+          value: securityValue,
+          isDisabled: false,
+        })
+      }
+    })
+  }
+
+  const requestUrl = resolveRequestFactoryUrl(request, {
+    envVariables: replace,
+    securityQueryParams: securityQueryParams,
   })
 
-  const requestUrl = (() => {
-    // construct replaced path variables
-    const pathVariables = Object.fromEntries(
-      Object.entries(request.path.variables).map(([key, value]) => [
-        key,
-        encodeURIComponent(replaceEnvVariables(value, replace)),
-      ]),
-    )
+  const isUsingProxy = shouldUseProxy(request.proxyUrl, requestUrl)
 
-    const baseUrl = replaceEnvVariables(request.baseUrl, replace)
-    const path = replacePathVariables(request.path.raw, pathVariables)
-
-    const mergedUrl = mergeUrls(baseUrl, path)
-
-    const urlBase = globalThis.window?.location?.origin ?? 'http://localhost:3000'
-
-    // Replace the path variables with the environment variables and server variables
-    const url = new URL(mergedUrl, urlBase)
-
-    // Merge security query params
-    for (const [key, value] of securityQueryParams.entries()) {
-      url.searchParams.set(replaceEnvVariables(key, replace), replaceEnvVariables(value, replace))
-    }
-
-    // Replace the query params with the environment variables
-    for (const [key, value] of request.query.params.entries()) {
-      url.searchParams.set(replaceEnvVariables(key, replace), replaceEnvVariables(value, replace))
-    }
-    return url.toString()
-  })()
-
-  const isUsingProxy = shouldUseProxy(request.proxy.proxyUrl, requestUrl)
-
-  const cookies: XScalarCookie[] = [...request.cookies.list, ...securityCookies].map((c) => ({
+  const cookies: XScalarCookie[] = [...request.cookies, ...securityCookies].map((c) => ({
     ...c,
     name: replaceEnvVariables(c.name, replace),
     value: replaceEnvVariables(c.value, replace),
@@ -162,7 +140,7 @@ export const buildRequest = (
 
   // final url
   const encodedUrl = applyAllowReservedToUrl(requestUrl, request.allowedReservedQueryParameters ?? new Set())
-  const finalUrl = isUsingProxy ? redirectToProxy(request.proxy.proxyUrl, encodedUrl) : encodedUrl
+  const finalUrl = isUsingProxy ? redirectToProxy(request.proxyUrl, encodedUrl) : encodedUrl
 
   return {
     request: new Request(finalUrl, {

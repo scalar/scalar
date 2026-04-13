@@ -155,21 +155,43 @@ const handleBack = (event: MouseEvent) => {
         v-if="open"
         class="absolute inset-0 translate-x-full">
         <ScalarSidebarItems v-bind="$attrs">
-          <slot name="back">
-            <ScalarSidebarButton
-              is="button"
-              class="text-sidebar-c-1 font-sidebar-active hover:text-sidebar-c-1"
-              @click="handleBack">
-              <template #icon>
-                <ScalarIconCaretLeft class="size-4 -m-px text-sidebar-c-2" />
-              </template>
-              <slot name="back-label">Back</slot>
-            </ScalarSidebarButton>
-          </slot>
-          <ScalarSidebarSpacer class="h-3" />
+          <div
+            class="flex flex-col gap-px sticky top-(--scalar-sidebar-sticky-offset,0) p-(--scalar-sidebar-padding) -m-(--scalar-sidebar-padding) mb-0 pb-0 bg-sidebar-b-1 z-1 animate-sidebar-border-bottom border-b-sidebar-border">
+            <slot name="back">
+              <ScalarSidebarButton
+                is="button"
+                class="text-sidebar-c-1 font-sidebar-active hover:text-sidebar-c-1"
+                @click="handleBack">
+                <template #icon>
+                  <ScalarIconCaretLeft class="size-4 -m-px text-sidebar-c-2" />
+                </template>
+                <slot name="back-label">Back</slot>
+              </ScalarSidebarButton>
+            </slot>
+            <ScalarSidebarSpacer class="h-3" />
+          </div>
           <slot name="items" />
         </ScalarSidebarItems>
       </div>
     </Transition>
   </li>
 </template>
+
+<style>
+@reference "../../style.css";
+
+.animate-sidebar-border-bottom {
+  animation: border-bottom forwards;
+  animation-timeline: scroll();
+  animation-range-end: 1px;
+}
+
+@keyframes border-bottom {
+  from {
+    border-bottom-width: 0;
+  }
+  to {
+    border-bottom-width: var(--scalar-border-width);
+  }
+}
+</style>

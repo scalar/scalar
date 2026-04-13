@@ -103,6 +103,9 @@ export function initializeWorkspaceEventHandlers({
   //------------------------------------------------------------------------------------
   // Document Event Handlers
   //------------------------------------------------------------------------------------
+  eventBus.on('document:update:extension', (payload) =>
+    withHook('document:update:extension', mutators.value.active().document.updateDocumentExtension, hooks)(payload),
+  )
   eventBus.on('document:update:icon', (payload) =>
     withHook('document:update:icon', mutators.value.active().document.updateDocumentIcon, hooks)(payload),
   )

@@ -28,9 +28,7 @@ export const shellCurl: Plugin = {
         normalizedRequest.queryString
           .map((param) => {
             // Ensure both name and value are fully URI encoded
-            const encodedName = encodeURIComponent(param.name)
-            const encodedValue = encodeURIComponent(param.value)
-            return `${encodedName}=${encodedValue}`
+            return `${param.name}=${param.value}`
           })
           .join('&')
       : ''

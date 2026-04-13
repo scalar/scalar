@@ -1,5 +1,21 @@
 # @scalar/agent-chat
 
+## 0.10.3
+
+## 0.10.2
+
+### Patch Changes
+
+- [#8762](https://github.com/scalar/scalar/pull/8762): fix: support new request factory api
+
+## 0.10.1
+
+## 0.10.0
+
+### Minor Changes
+
+- [#8524](https://github.com/scalar/scalar/pull/8524): feat: move request logic on the store and generate a request builder
+
 ## 0.9.17
 
 ## 0.9.16

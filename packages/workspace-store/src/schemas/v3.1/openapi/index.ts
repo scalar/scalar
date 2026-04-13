@@ -26,13 +26,14 @@ import { XScalarSdkInstallation } from '@/schemas/extensions/document/x-scalar-s
 import { XScalarWatchMode } from '@/schemas/extensions/document/x-scalar-watch-mode'
 import { XTags } from '@/schemas/extensions/document/x-tags'
 import { XDisabled } from '@/schemas/extensions/example/x-disabled'
+import { XPostResponse } from '@/schemas/extensions/general/x-post-response'
+import { XPreRequest } from '@/schemas/extensions/general/x-pre-request'
 import { XScalarActiveEnvironment } from '@/schemas/extensions/general/x-scalar-active-environment'
 import { XScalarCookies } from '@/schemas/extensions/general/x-scalar-cookies'
 import { XScalarOrder } from '@/schemas/extensions/general/x-scalar-order'
 import { XBadges } from '@/schemas/extensions/operation/x-badge'
 import { XCodeSamples } from '@/schemas/extensions/operation/x-code-samples'
 import { XDraftExamples } from '@/schemas/extensions/operation/x-draft-examples'
-import { XPostResponse } from '@/schemas/extensions/operation/x-post-response'
 import { XScalarDisableParameters } from '@/schemas/extensions/operation/x-scalar-disable-parameters'
 import { XScalarSelectedContentType } from '@/schemas/extensions/operation/x-scalar-selected-content-type'
 import { XScalarStability } from '@/schemas/extensions/operation/x-scalar-stability'
@@ -251,7 +252,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     XTags,
   ] as const
 
-  const coreSchemaProperties = {
+  const coreSchemaProperties = object({
     name: optional(string({ typeComment: 'Schema name (extension).' })),
     title: optional(string({ typeComment: 'A title for the schema.' })),
     description: optional(string({ typeComment: 'A description of the schema.' })),
@@ -284,89 +285,71 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     oneOf: optional(array(maybeRef(lazy((): Schema => schema)), { typeName: 'SchemaObjectOneOf' })),
     anyOf: optional(array(maybeRef(lazy((): Schema => schema)), { typeName: 'SchemaObjectAnyOf' })),
     not: optional(maybeRef(lazy((): Schema => schema))),
-  } as const
+  })
 
-  const schemaScalarMarker: Schema = intersection([
-    object({ __scalar_: string({ typeComment: 'Internal marker for schema object disambiguation.' }) }),
-    object(coreSchemaProperties, { typeName: 'JsonSchemaCoreMarked' }),
-    ...schemaExtensionObjects,
-  ])
+  const schemaScalarMarker = object({
+    __scalar_: string({ typeComment: 'Internal marker for schema object disambiguation.' }),
+  })
 
-  const numericSchema: Schema = intersection([
-    object(
-      {
-        ...coreSchemaProperties,
-        type: union([literal('number'), literal('integer')]),
-        format: optional(string({ typeComment: 'Different subtypes.' })),
-        multipleOf: optional(number({ typeComment: 'Number must be a multiple of this value.' })),
-        maximum: optional(number({ typeComment: 'Maximum value (inclusive).' })),
-        exclusiveMaximum: optional(number({ typeComment: 'Maximum value (exclusive).' })),
-        minimum: optional(number({ typeComment: 'Minimum value (inclusive).' })),
-        exclusiveMinimum: optional(number({ typeComment: 'Minimum value (exclusive).' })),
-      },
-      { typeName: 'NumberSchemaObject' },
-    ),
-    ...schemaExtensionObjects,
-  ])
+  const numericSchema: Schema = object(
+    {
+      type: union([literal('number'), literal('integer')]),
+      format: optional(string({ typeComment: 'Different subtypes.' })),
+      multipleOf: optional(number({ typeComment: 'Number must be a multiple of this value.' })),
+      maximum: optional(number({ typeComment: 'Maximum value (inclusive).' })),
+      exclusiveMaximum: optional(number({ typeComment: 'Maximum value (exclusive).' })),
+      minimum: optional(number({ typeComment: 'Minimum value (inclusive).' })),
+      exclusiveMinimum: optional(number({ typeComment: 'Minimum value (exclusive).' })),
+    },
+    { typeName: 'NumberSchemaObject' },
+  )
 
-  const stringSchema: Schema = intersection([
-    object(
-      {
-        ...coreSchemaProperties,
-        type: literal('string'),
-        format: optional(string({ typeComment: 'Different subtypes.' })),
-        maxLength: optional(number({ typeComment: 'Maximum string length.' })),
-        minLength: optional(number({ typeComment: 'Minimum string length.' })),
-        pattern: optional(string({ typeComment: 'Regular expression pattern.' })),
-      },
-      { typeName: 'StringSchemaObject' },
-    ),
-    ...schemaExtensionObjects,
-  ])
+  const stringSchema = object(
+    {
+      type: literal('string'),
+      format: optional(string({ typeComment: 'Different subtypes.' })),
+      maxLength: optional(number({ typeComment: 'Maximum string length.' })),
+      minLength: optional(number({ typeComment: 'Minimum string length.' })),
+      pattern: optional(string({ typeComment: 'Regular expression pattern.' })),
+    },
+    { typeName: 'StringSchemaObject' },
+  )
 
-  const objectSchema: Schema = intersection([
-    object(
-      {
-        ...coreSchemaProperties,
-        type: literal('object'),
-        maxProperties: optional(number({ typeComment: 'Maximum number of properties.' })),
-        minProperties: optional(number({ typeComment: 'Minimum number of properties.' })),
-        properties: optional(
-          record(string(), maybeRef(lazy((): Schema => schema)), { typeName: 'SchemaObjectProperties' }),
-        ),
-        required: optional(array(string(), { typeName: 'SchemaObjectRequired' })),
-        additionalProperties: optional(
-          union([boolean(), maybeRef(lazy((): Schema => schema))], {
-            typeName: 'SchemaObjectAdditionalProperties',
-          }),
-        ),
-        patternProperties: optional(
-          record(string(), maybeRef(lazy((): Schema => schema)), { typeName: 'SchemaObjectPatternProperties' }),
-        ),
-        propertyNames: optional(maybeRef(lazy((): Schema => schema))),
-      },
-      { typeName: 'ObjectSchemaObject' },
-    ),
-    ...schemaExtensionObjects,
-  ])
+  const objectSchema = object(
+    {
+      type: literal('object'),
+      maxProperties: optional(number({ typeComment: 'Maximum number of properties.' })),
+      minProperties: optional(number({ typeComment: 'Minimum number of properties.' })),
+      properties: optional(
+        record(string(), maybeRef(lazy((): Schema => schema)), { typeName: 'SchemaObjectProperties' }),
+      ),
+      required: optional(array(string(), { typeName: 'SchemaObjectRequired' })),
+      additionalProperties: optional(
+        union([boolean(), maybeRef(lazy((): Schema => schema))], {
+          typeName: 'SchemaObjectAdditionalProperties',
+        }),
+      ),
+      patternProperties: optional(
+        record(string(), maybeRef(lazy((): Schema => schema)), { typeName: 'SchemaObjectPatternProperties' }),
+      ),
+      propertyNames: optional(maybeRef(lazy((): Schema => schema))),
+    },
+    { typeName: 'ObjectSchemaObject' },
+  )
 
-  const arraySchema: Schema = intersection([
-    object(
-      {
-        ...coreSchemaProperties,
-        type: literal('array'),
-        maxItems: optional(number({ typeComment: 'Maximum number of items in array.' })),
-        minItems: optional(number({ typeComment: 'Minimum number of items in array.' })),
-        uniqueItems: optional(boolean({ typeComment: 'Whether array items must be unique.' })),
-        items: optional(maybeRef(lazy((): Schema => schema))),
-        prefixItems: optional(
-          array(maybeRef(lazy((): Schema => schema)), { typeComment: 'Schema for tuple validation.' }),
-        ),
-      },
-      { typeName: 'ArraySchemaObject' },
-    ),
-    ...schemaExtensionObjects,
-  ])
+  const arraySchema = object(
+    {
+      type: literal('array'),
+      maxItems: optional(number({ typeComment: 'Maximum number of items in array.' })),
+      minItems: optional(number({ typeComment: 'Minimum number of items in array.' })),
+      uniqueItems: optional(boolean({ typeComment: 'Whether array items must be unique.' })),
+      items: optional(maybeRef(lazy((): Schema => schema))),
+      prefixItems: optional(
+        array(maybeRef(lazy((): Schema => schema)), { typeComment: 'Schema for tuple validation.' }),
+      ),
+    },
+    { typeName: 'ArraySchemaObject' },
+  )
 
   const schemaTypeMulti = union(
     [
@@ -381,22 +364,21 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     { typeName: 'SchemaObjectMultiTypeKeywords' },
   )
 
-  const otherTypeSchema: Schema = intersection([
-    object(
-      {
-        ...coreSchemaProperties,
-        type: union(
-          [literal('null'), literal('boolean'), array(schemaTypeMulti, { typeName: 'SchemaObjectTypeKeywordList' })],
-          { typeName: 'SchemaObjectOtherTypeKeyword' },
-        ),
-      },
-      { typeName: 'MultiTypeSchemaObject' },
-    ),
-    ...schemaExtensionObjects,
-  ])
+  const otherTypeSchema = object(
+    {
+      type: union([literal('null'), literal('boolean'), array(schemaTypeMulti)], {
+        typeName: 'SchemaObjectOtherTypeKeyword',
+      }),
+    },
+    { typeName: 'MultiTypeSchemaObject' },
+  )
 
-  const schema: Schema = union(
-    [schemaScalarMarker, otherTypeSchema, numericSchema, stringSchema, objectSchema, arraySchema],
+  const schema: Schema = intersection(
+    [
+      coreSchemaProperties,
+      ...schemaExtensionObjects,
+      union([schemaScalarMarker, otherTypeSchema, numericSchema, stringSchema, objectSchema, arraySchema]),
+    ],
     { typeName: 'SchemaObject' },
   )
 
@@ -976,6 +958,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     XScalarStability,
     XScalarDisableParameters,
     XPostResponse,
+    XPreRequest,
     XDraftExamples,
     XScalarSelectedServer,
   ])
@@ -1086,7 +1069,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     { typeName: 'OpenApiDocumentCore' },
   )
 
-  const openapi: Schema = intersection(
+  const openapi = intersection(
     [
       openApiDocumentCore,
       openApiExtensionsPartial,
@@ -1101,6 +1084,8 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
       XScalarActiveEnvironment,
       XScalarWatchMode,
       XScalarRegistryMeta,
+      XPreRequest,
+      XPostResponse,
     ],
     {
       typeName: 'OpenApiDocument',

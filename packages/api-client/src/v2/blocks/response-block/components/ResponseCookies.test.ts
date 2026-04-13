@@ -494,7 +494,8 @@ describe('ResponseCookies', () => {
       await expandCookies(wrapper)
 
       const rows = wrapper.findAllComponents(DataTableRow)
-      expect(rows.length).toBe(2)
+      // 2 data rows + 1 screen-reader-only header row
+      expect(rows.length).toBe(3)
     })
 
     it('renders DataTableText components for name and value', async () => {

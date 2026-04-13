@@ -1,5 +1,26 @@
 # @scalar/sidebar
 
+## 0.9.0
+
+### Minor Changes
+
+- [#8778](https://github.com/scalar/scalar/pull/8778): feat: support hiding the default example
+
+### Patch Changes
+
+- [#8779](https://github.com/scalar/scalar/pull/8779): fix(sidebar): treat examples labels as properties
+
+## 0.8.19
+
+## 0.8.18
+
+## 0.8.17
+
+### Patch Changes
+
+- [#8716](https://github.com/scalar/scalar/pull/8716): fix: remove smooth scrolling from sidebar
+- [#8715](https://github.com/scalar/scalar/pull/8715): fix: correct main field in package.json to point to .js instead of non-existent .cjs files
+
 ## 0.8.16
 
 ## 0.8.15

@@ -11,9 +11,9 @@ export type JsonPath = readonly (string | number)[]
  * @returns The AST node at the specified path, or undefined if not found.
  */
 export const getJsonAstNodeAtPath = (
-  node: monaco.languages.json.ASTNode | undefined,
+  node: monaco.json.ASTNode | undefined,
   path: JsonPath,
-): monaco.languages.json.ASTNode | undefined => {
+): monaco.json.ASTNode | undefined => {
   let current = node
 
   for (const segment of path) {
@@ -25,7 +25,7 @@ export const getJsonAstNodeAtPath = (
     if (current.type === 'object') {
       // Traverse object properties using the segment as a key.
       const key = String(segment)
-      const prop = current.properties.find((p) => p.keyNode.value === key)
+      const prop = current.properties.find((property) => property.keyNode.value === key)
       current = prop?.valueNode
       continue
     }

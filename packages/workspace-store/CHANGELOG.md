@@ -1,5 +1,43 @@
 # @scalar/workspace-store
 
+## 0.45.0
+
+### Minor Changes
+
+- [#8761](https://github.com/scalar/scalar/pull/8761): feat: pass new option on operation create event
+
+## 0.44.0
+
+### Minor Changes
+
+- [#8762](https://github.com/scalar/scalar/pull/8762): feat: request factory interface improvements
+- [#8695](https://github.com/scalar/scalar/pull/8695): feat: support pre/post request script on operation and document level
+
+### Patch Changes
+
+- [#8742](https://github.com/scalar/scalar/pull/8742): fix(workspace-store): openIdConnect retrieve stored token for Authorization header
+
+## 0.43.1
+
+### Patch Changes
+
+- [#8728](https://github.com/scalar/scalar/pull/8728): fix: correctly merge security schemes with the config security
+
+## 0.43.0
+
+### Minor Changes
+
+- [#8524](https://github.com/scalar/scalar/pull/8524): feat: move request logic on the store and generate a request builder
+
+### Patch Changes
+
+- [#8633](https://github.com/scalar/scalar/pull/8633): chore: improve performance by factoring out the common fields on schema object
+- [#8650](https://github.com/scalar/scalar/pull/8650): fix: ensure we have a introduction entry on the sidear by default
+- [#8647](https://github.com/scalar/scalar/pull/8647): feat: move addressBar path change from debounce to blur
+- [#8555](https://github.com/scalar/scalar/pull/8555): feat(workspace-store): replace code-highlight with helpers for markdown headings
+- [#8713](https://github.com/scalar/scalar/pull/8713): feat: handle pasting and typing urls in the path box
+- [#8664](https://github.com/scalar/scalar/pull/8664): refactor: replace wildcard export barrels with explicit named re-exports
+
 ## 0.42.0
 
 ### Minor Changes

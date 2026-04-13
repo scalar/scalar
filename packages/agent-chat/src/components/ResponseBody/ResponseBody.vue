@@ -1,16 +1,16 @@
 <script lang="ts" setup>
 import { watch } from 'vue'
-import type MIMEType from 'whatwg-mimetype'
 
 import { type MediaConfig } from '@/components/ResponseBody/helpers/media-types'
 import ResponseBodyInfo from '@/components/ResponseBody/ResponseBodyInfo.vue'
 import ResponseBodyPreview from '@/components/ResponseBody/ResponseBodyPreview.vue'
 import ResponseBodyRaw from '@/components/ResponseBody/ResponseBodyRaw.vue'
+import type { MimeType } from '@/types/mime-type'
 
 const { data, responseBody, mediaConfig, display } = defineProps<{
   data: unknown
   responseBody: {
-    mimeType?: MIMEType
+    mimeType?: MimeType
     attachmentFilename: string
     dataUrl: string
   }

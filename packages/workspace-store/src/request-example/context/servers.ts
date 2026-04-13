@@ -25,12 +25,6 @@ type ServerProcessingOptions = {
  * @returns Array of validated Server entities
  */
 export function getServers(servers: ServerObject[] | undefined, options: ServerProcessingOptions = {}): ServerObject[] {
-  // Handle case where no servers are provided
-  if (!servers?.length) {
-    const fallbackServer = createFallbackServer(options)
-    return fallbackServer ? [fallbackServer] : []
-  }
-
   // Handle invalid server array
   if (!Array.isArray(servers)) {
     return []
@@ -38,13 +32,6 @@ export function getServers(servers: ServerObject[] | undefined, options: ServerP
 
   // Process each server and filter out invalid ones
   const validServers = servers.map((server) => processServerObject(server, options))
-
-  // If all servers were invalid, provide a fallback
-  if (validServers.length === 0) {
-    const fallbackServer = createFallbackServer(options)
-    return fallbackServer ? [fallbackServer] : []
-  }
-
   return validServers
 }
 
@@ -70,37 +57,6 @@ function getFallbackUrl(): string | undefined {
     return undefined
   }
   return window.location.origin
-}
-
-/**
- * Creates a server object from a URL string, with error handling.
- */
-function createServerFromUrl(url: string): ServerObject | undefined {
-  return { url }
-}
-
-/**
- * Creates a default server using the document URL as the base.
- */
-function createDefaultServerFromDocumentUrl(documentUrl: string): ServerObject | undefined {
-  const baseUrl = extractBaseUrlFromDocumentUrl(documentUrl)
-  if (!baseUrl) {
-    return undefined
-  }
-
-  return createServerFromUrl(baseUrl)
-}
-
-/**
- * Creates a default server using the fallback URL (window.location.origin).
- */
-function createDefaultServerFromFallback(): ServerObject | undefined {
-  const fallbackUrl = getFallbackUrl()
-  if (!fallbackUrl) {
-    return undefined
-  }
-
-  return createServerFromUrl(fallbackUrl)
 }
 
 /**
@@ -143,24 +99,6 @@ function processServerObject(server: ServerObject, options: ServerProcessingOpti
   }
 
   return server
-}
-
-/**
- * Creates a fallback server when no valid servers are available.
- * Uses document URL first, then fallback URL.
- */
-function createFallbackServer(options: ServerProcessingOptions): ServerObject | undefined {
-  // Priority 1: Try to create default server from document URL
-  if (options.documentUrl) {
-    const defaultServer = createDefaultServerFromDocumentUrl(options.documentUrl)
-
-    if (defaultServer) {
-      return defaultServer
-    }
-  }
-
-  // Priority 2: Try to create default server from fallback URL
-  return createDefaultServerFromFallback()
 }
 
 export const getSelectedServer = (

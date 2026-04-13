@@ -16,7 +16,7 @@
     "swagger",
     "cli"
   ],
-  "version": "0.9.15",
+  "version": "0.9.19",
   "engines": {
     "node": ">=22"
   },
@@ -53,7 +53,7 @@
         "type": "npm-license"
       }
     ],
-    "documentation": "https://scalar.com/products/mock-server/getting-started"
+    "documentation": "https://scalar.com/tools/mock-server/getting-started"
   },
   "dependencies": {
     "@faker-js/faker": "catalog:*",

@@ -86,6 +86,7 @@ import {
   normalizeConfigurations,
   type NormalizedConfiguration,
 } from '@/helpers/normalize-configurations'
+import { safeDeepClone } from '@/helpers/safe-deep-clone'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useIntersection } from '@/hooks/use-intersection'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
@@ -217,7 +218,7 @@ const configurationOverrides = ref<
 >({})
 
 /** Any dev toolbar modifications are merged with the active configuration */
-const mergedConfig = computed<ApiReferenceConfigurationRaw>(() => ({
+const mergedConfig = computed<ApiReferenceConfiguration>(() => ({
   // Provides a default set of values when the lookup fails
   ...apiReferenceConfigurationSchema.parse({}),
   // The active configuration based on the slug
@@ -290,6 +291,14 @@ function syncSlugAndUrlWithDocument(
  * Initializes the new client workspace store.
  */
 const workspaceStore = createWorkspaceStore({
+  verbose: isDevelopment,
+})
+
+/**
+ * We need to keep the client store separate from the workspace store
+ * This is because we want the client store to be a playground where users can test out their requests without affecting the references store
+ */
+const clientStore = createWorkspaceStore({
   verbose: isDevelopment,
   plugins: [
     persistencePlugin({
@@ -383,7 +392,7 @@ const infoSectionId = computed(
   () =>
     sidebarItems.value.find(
       (item) => item.type === 'text' && item.title === 'Introduction',
-    )?.id,
+    )?.id ?? `${activeSlug.value}/description/introduction`,
 )
 
 /** User for mobile navigation */
@@ -416,6 +425,12 @@ mapConfigToWorkspaceStore({
   isDarkMode,
 })
 
+mapConfigToWorkspaceStore({
+  config: () => mergedConfig.value,
+  store: clientStore,
+  isDarkMode,
+})
+
 /** Merged environment variables from workspace and document levels */
 const environment = computed(
   () =>
@@ -436,6 +451,34 @@ defineExpose({
   workspaceStore,
   sidebarItems,
 })
+
+const addDocument: typeof workspaceStore.addDocument = async (
+  input,
+  navigationOptions,
+) => {
+  const result = await workspaceStore.addDocument(input, navigationOptions)
+  // Now add it to the client store
+  const state = workspaceStore.exportWorkspace()
+  clientStore.loadWorkspace({
+    auth: {},
+    documents: {
+      [input.name]: safeDeepClone(state.documents[input.name]) ?? {
+        'openapi': '3.1.0',
+        'info': {
+          title: '',
+          version: '',
+        },
+        'x-scalar-original-document-hash': '',
+      },
+    },
+    intermediateDocuments: {},
+    originalDocuments: {},
+    overrides: {},
+    history: {},
+    meta: {},
+  })
+  return result
+}
 
 // ---------------------------------------------------------------------------
 // Document Management
@@ -480,7 +523,7 @@ const changeSelectedDocument = async (
 
   // If the document is not in the store, we asynchronously load it
   if (isFirstLoad) {
-    const result = await workspaceStore.addDocument(
+    const result = await addDocument(
       normalized.source.url
         ? {
             name: slug,
@@ -494,7 +537,7 @@ const changeSelectedDocument = async (
       config,
     )
 
-    const document = workspaceStore.workspace.documents[slug]
+    const document = clientStore.workspace.documents[slug]
 
     // If the document does not have a selected server we set it to the first server
     if (
@@ -511,7 +554,7 @@ const changeSelectedDocument = async (
         },
       )
       if (servers.length > 0) {
-        workspaceStore.updateDocument(
+        clientStore.updateDocument(
           slug,
           'x-scalar-selected-server',
           servers[0]!.url,
@@ -522,10 +565,11 @@ const changeSelectedDocument = async (
 
   // Always set it to active; if the document is null we show a loading state
   workspaceStore.update('x-scalar-active-document', slug)
+  clientStore.update('x-scalar-active-document', slug)
 
   // If the document has persistence enabled we load the auth schemes from storage
   if (config.persistAuth) {
-    loadAuthFromStorage(workspaceStore, slug)
+    loadAuthFromStorage(clientStore, slug)
   }
 
   // ensure that `onLoaded` hook doesn't block execution but is executed after `onDocumentSelect`
@@ -568,7 +612,7 @@ watch(
       }
       /** If the URL has changed we fetch and rebase */
       if (updated.source.url && updated.source.url !== previous?.source.url) {
-        await workspaceStore.addDocument(
+        await addDocument(
           {
             name: updated.slug,
             url: updated.source.url,
@@ -597,7 +641,7 @@ watch(
             : {},
         ).length
       ) {
-        await workspaceStore.addDocument(
+        await addDocument(
           {
             name: updated.slug,
             document: updated.source.content,
@@ -632,7 +676,8 @@ onServerPrefetch(() => changeSelectedDocument(activeSlug.value))
 
 /** Load the first document on page load */
 onBeforeMount(async () => {
-  loadClientFromStorage(workspaceStore)
+  // We read the client from the client store so we need to set it to the client store
+  loadClientFromStorage(clientStore)
 
   await changeSelectedDocument(
     activeSlug.value,
@@ -689,9 +734,9 @@ onMounted(() => {
   apiClient.value = createApiClientModal({
     el: modal.value,
     eventBus,
-    workspaceStore,
+    workspaceStore: clientStore,
     options: mergedConfig,
-    plugins: mapConfigPlugins(mergedConfig),
+    plugins: mapConfigPlugins(mergedConfig, environment),
   })
 })
 onBeforeUnmount(() => {
@@ -1020,7 +1065,8 @@ const showMCPButton = computed(() => {
         class="references-rendered"
         :inert="agent.showAgent.value">
         <Content
-          :authStore="workspaceStore.auth"
+          :authStore="clientStore.auth"
+          :clientDocument="clientStore.workspace.activeDocument"
           :document="workspaceStore.workspace.activeDocument"
           :environment
           :eventBus
@@ -1029,11 +1075,11 @@ const showMCPButton = computed(() => {
             mergedConfig.generateHeadingSlug ??
             ((heading) => `${activeSlug}/description/${heading.slug}`)
           "
-          :infoSectionId="infoSectionId ?? 'description/introduction'"
+          :infoSectionId
           :items="sidebarItems"
           :options="mergedConfig"
           :xScalarDefaultClient="
-            workspaceStore.workspace['x-scalar-default-client']
+            clientStore.workspace['x-scalar-default-client']
           ">
           <template #start>
             <DeveloperTools

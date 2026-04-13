@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/icons"
   },
-  "version": "0.7.1",
+  "version": "0.7.2",
   "engines": {
     "node": ">=22"
   },
@@ -23,22 +23,24 @@
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
-  "main": "./dist/index.cjs",
+  "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./types": {
       "types": "./dist/types.d.ts",
       "import": "./dist/types.js",
-      "require": "./dist/types.cjs"
+      "default": "./dist/types.js"
     },
     "./library": {
       "import": "./dist/library/index.js",
-      "require": "./dist/library/index.cjs"
+      "types": "./dist/library/index.d.ts",
+      "default": "./dist/library/index.js"
     }
   },
   "files": [
@@ -48,14 +50,14 @@
   "dependencies": {
     "@phosphor-icons/core": "^2.1.1",
     "@types/node": "catalog:*",
-    "chalk": "^5.4.1",
+    "chalk": "^5.6.2",
     "vue": "catalog:*"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
     "jsdom": "catalog:*",
-    "svglint": "^4.1.2",
+    "svglint": "^4.2.1",
     "vite": "catalog:*",
     "vite-svg-loader": "catalog:*",
     "vitest": "catalog:*"

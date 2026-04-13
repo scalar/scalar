@@ -288,10 +288,54 @@ curl_close($ch);`)
     expect(result).toBe(`$ch = curl_init("https://example.com");
 
 curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: multipart/form-data']);
-curl_setopt($ch, CURLOPT_POSTFIELDS, ['file' => '@test.txt', 'field' => 'value']);
+$mime = curl_mime_init($ch);
+$part0 = curl_mime_addpart($mime);
+curl_mime_name($part0, 'file');
+curl_mime_filedata($part0, 'test.txt');
+$part1 = curl_mime_addpart($mime);
+curl_mime_name($part1, 'field');
+curl_mime_data($part1, 'value');
+curl_setopt($ch, CURLOPT_MIMEPOST, $mime);
 
 curl_exec($ch);
+curl_mime_free($mime);
+
+curl_close($ch);`)
+  })
+
+  it('preserves duplicate multipart field names with curl_mime parts', () => {
+    const result = phpCurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            value: 'first',
+          },
+          {
+            name: 'file',
+            value: 'second',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`$ch = curl_init("https://example.com");
+
+curl_setopt($ch, CURLOPT_POST, true);
+$mime = curl_mime_init($ch);
+$part0 = curl_mime_addpart($mime);
+curl_mime_name($part0, 'file');
+curl_mime_data($part0, 'first');
+$part1 = curl_mime_addpart($mime);
+curl_mime_name($part1, 'file');
+curl_mime_data($part1, 'second');
+curl_setopt($ch, CURLOPT_MIMEPOST, $mime);
+
+curl_exec($ch);
+curl_mime_free($mime);
 
 curl_close($ch);`)
   })
@@ -413,11 +457,11 @@ curl_close($ch);`)
       queryString: [
         {
           name: 'q',
-          value: 'hello world & more',
+          value: 'hello%20world%20%26%20more',
         },
         {
           name: 'special',
-          value: '!@#$%^&*()',
+          value: '!%40%23%24%25%5E%26*()',
         },
       ],
     })
@@ -506,10 +550,14 @@ curl_close($ch);`)
     expect(result).toBe(`$ch = curl_init("https://example.com");
 
 curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: multipart/form-data']);
-curl_setopt($ch, CURLOPT_POSTFIELDS, ['file' => '@']);
+$mime = curl_mime_init($ch);
+$part0 = curl_mime_addpart($mime);
+curl_mime_name($part0, 'file');
+curl_mime_filedata($part0, '');
+curl_setopt($ch, CURLOPT_MIMEPOST, $mime);
 
 curl_exec($ch);
+curl_mime_free($mime);
 
 curl_close($ch);`)
   })

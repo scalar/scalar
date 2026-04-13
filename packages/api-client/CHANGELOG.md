@@ -1,5 +1,59 @@
 # @scalar/api-client
 
+## 2.43.0
+
+### Minor Changes
+
+- [#8761](https://github.com/scalar/scalar/pull/8761): feat: improve UX for creating a new operation
+- [#8773](https://github.com/scalar/scalar/pull/8773): feat: suport for set-cookie header
+
+### Patch Changes
+
+- [#8778](https://github.com/scalar/scalar/pull/8778): fix: hide examples on modal and always show the http badge on modal
+
+## 2.42.0
+
+### Minor Changes
+
+- [#8748](https://github.com/scalar/scalar/pull/8748): feat: support `allowReserved` for code samples
+- [#8695](https://github.com/scalar/scalar/pull/8695): feat: suport pre/post request scripts
+
+### Patch Changes
+
+- [#8760](https://github.com/scalar/scalar/pull/8760): feat: exported routePayload type
+
+## 2.41.0
+
+### Minor Changes
+
+- [#8712](https://github.com/scalar/scalar/pull/8712): feat: use separate stores for client and shared state on the reference
+
+### Patch Changes
+
+- [#8728](https://github.com/scalar/scalar/pull/8728): fix: correctly merge security schemes with the config security
+
+## 2.40.0
+
+### Minor Changes
+
+- [#8524](https://github.com/scalar/scalar/pull/8524): feat: move request logic on the store and generate a request builder
+
+### Patch Changes
+
+- [#8692](https://github.com/scalar/scalar/pull/8692): feat: replace pretty-bytes dependency with internal helper
+- [#8518](https://github.com/scalar/scalar/pull/8518): test(api-client): add regression coverage for oauth2 clientCredentials security body
+
+  Adds a regression test that exercises the full oauth2 merge + authorize path for
+  `clientCredentials` and verifies `x-scalar-security-body` fields (for example
+  `audience`) are preserved and sent in the token request body.
+
+- [#8661](https://github.com/scalar/scalar/pull/8661): fix(api-client): support OAuth redirect callback override for Electron-friendly flows
+- [#8634](https://github.com/scalar/scalar/pull/8634): feat: implement improved saving UI
+- [#8647](https://github.com/scalar/scalar/pull/8647): feat: move addressBar path change from debounce to blur
+- [#8713](https://github.com/scalar/scalar/pull/8713): feat: handle pasting and typing urls in the path box
+- [#8698](https://github.com/scalar/scalar/pull/8698): fix: missing reference parameters by making skipping behavior opt-in
+- [#8652](https://github.com/scalar/scalar/pull/8652): feat: keep form-data file delete action accessible on touch
+
 ## 2.39.4
 
 ### Patch Changes

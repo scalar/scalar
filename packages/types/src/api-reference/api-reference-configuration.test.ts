@@ -20,6 +20,7 @@ describe('api-reference-configuration', () => {
         url: 'https://example.com/openapi.json',
         content: '{"openapi": "3.1.0"}',
         proxyUrl: 'https://proxy.example.com',
+        oauth2RedirectUri: 'myapp://oauth/callback',
         isEditable: true,
         showSidebar: true,
         hideModels: false,
@@ -50,6 +51,14 @@ describe('api-reference-configuration', () => {
       }
 
       expect(() => apiReferenceConfigurationSchema.parse(completeConfig)).not.toThrow()
+    })
+
+    it('validates oauth2RedirectUri configuration', () => {
+      const config = {
+        oauth2RedirectUri: 'myapp://oauth/callback',
+      }
+
+      expect(apiReferenceConfigurationSchema.parse(config)).toMatchObject(config)
     })
 
     it('validates hiddenClients true', () => {
@@ -352,7 +361,25 @@ describe('api-reference-configuration', () => {
       } satisfies Partial<ApiReferenceConfiguration>
       const migratedConfig = apiReferenceConfigurationSchema.parse(config)
 
-      expect(migratedConfig.onBeforeRequest?.({ request: new Request('http://example.org') })).toBeInstanceOf(Promise)
+      expect(
+        migratedConfig.onBeforeRequest?.({
+          request: new Request('https://example.com'),
+          requestBuilder: {
+            options: {},
+            baseUrl: 'https://example.com',
+            path: { variables: {}, raw: '/api/test' },
+            method: 'GET',
+            proxyUrl: '',
+            query: new URLSearchParams(),
+            headers: new Headers(),
+            body: null,
+            cookies: [],
+            cache: 'default',
+            security: [],
+          },
+          envVariables: {},
+        }),
+      ).toBeInstanceOf(Promise)
     })
 
     it('allows a function as onShowMore', () => {

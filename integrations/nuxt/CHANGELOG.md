@@ -1,5 +1,17 @@
 # @scalar/nuxt
 
+## 0.6.22
+
+## 0.6.21
+
+### Patch Changes
+
+- [#8726](https://github.com/scalar/scalar/pull/8726): Fix route pattern construction to include path separator, preventing unrelated routes from being hijacked
+
+## 0.6.20
+
+## 0.6.19
+
 ## 0.6.18
 
 ## 0.6.17

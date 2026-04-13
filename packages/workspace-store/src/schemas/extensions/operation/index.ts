@@ -6,6 +6,7 @@ export {
 } from './x-badge'
 export {
   type XCodeSample,
+  type XCodeSamples,
   XCodeSamplesSchema,
 } from './x-code-samples'
 export {

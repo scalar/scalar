@@ -41,6 +41,7 @@ public class ScalarOptionsMapperTests
         configuration.OrderSchemaPropertiesBy.Should().BeNull();
         configuration.ShowDeveloperTools.Should().BeNull();
         configuration.Agent.Should().BeNull();
+        configuration.Mcp.Should().BeNull();
     }
 
     [Fact]
@@ -86,7 +87,13 @@ public class ScalarOptionsMapperTests
             Telemetry = false,
             OrderRequiredPropertiesFirst = true,
             SchemaPropertyOrder = PropertyOrder.Alpha,
-            ShowDeveloperTools = DeveloperToolsVisibility.Always
+            ShowDeveloperTools = DeveloperToolsVisibility.Always,
+            Mcp = new ScalarMcpOptions
+            {
+                Name = "My MCP",
+                Url = "https://mcp.scalar.com",
+                Disabled = true
+            }
         };
         options.AddDocument("v2");
 
@@ -129,6 +136,10 @@ public class ScalarOptionsMapperTests
         configuration.OrderRequiredPropertiesFirst.Should().BeTrue();
         configuration.OrderSchemaPropertiesBy.Should().Be(PropertyOrder.Alpha);
         configuration.ShowDeveloperTools.Should().Be(DeveloperToolsVisibility.Always);
+        configuration.Mcp.Should().NotBeNull();
+        configuration.Mcp!.Name.Should().Be("My MCP");
+        configuration.Mcp.Url.Should().Be("https://mcp.scalar.com");
+        configuration.Mcp.Disabled.Should().BeTrue();
     }
 
     [Fact]
@@ -290,5 +301,22 @@ public class ScalarOptionsMapperTests
         // Assert
         configuration.Sources.Should().ContainSingle().Which.Agent.Should().NotBeNull();
         configuration.Sources.Should().ContainSingle().Which.Agent!.Key.Should().Be("doc-key");
+    }
+
+    [Fact]
+    public void ToConfiguration_ShouldMapMcp_WhenDisabled()
+    {
+        // Arrange
+        var options = new ScalarOptions
+        {
+            Mcp = new ScalarMcpOptions { Disabled = true }
+        };
+
+        // Act
+        var configuration = options.ToScalarConfiguration();
+
+        // Assert
+        configuration.Mcp.Should().NotBeNull();
+        configuration.Mcp!.Disabled.Should().BeTrue();
     }
 }

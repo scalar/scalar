@@ -5,11 +5,11 @@ import {
   ScalarFloatingBackdrop,
   ScalarIcon,
 } from '@scalar/components'
+import { formatMilliseconds } from '@scalar/helpers/formatters/format-milliseconds'
 import type { Operation, RequestEvent } from '@scalar/oas-utils/entities/spec'
 import { httpStatusCodes } from '@scalar/oas-utils/helpers'
 import { computed } from 'vue'
 
-import { formatMs } from '@/libs/formatters'
 import { useWorkspace } from '@/store'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
@@ -83,7 +83,7 @@ function handleHistoryClick(requestHistoryItem: RequestEvent) {
                 {{ entry.response.path }}
               </div>
             </div>
-            <div>{{ formatMs(entry.response.duration) }}</div>
+            <div>{{ formatMilliseconds(entry.response.duration) }}</div>
             <div :class="[getStatusCodeColor(entry.response.status).color]">
               {{ entry.response.status }}
             </div>

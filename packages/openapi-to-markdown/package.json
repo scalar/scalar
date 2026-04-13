@@ -16,7 +16,7 @@
     "llm",
     "swagger"
   ],
-  "version": "0.4.16",
+  "version": "0.5.3",
   "engines": {
     "node": ">=22"
   },
@@ -53,11 +53,9 @@
   "dependencies": {
     "@scalar/components": "workspace:*",
     "@scalar/helpers": "workspace:*",
+    "@scalar/json-magic": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "@scalar/openapi-parser": "workspace:*",
-    "@scalar/openapi-types": "workspace:*",
-    "@scalar/openapi-upgrader": "workspace:*",
-    "@scalar/types": "workspace:*",
+    "@scalar/workspace-store": "workspace:*",
     "html-minifier-terser": "^7.2.0",
     "rehype-parse": "^9.0.1",
     "rehype-remark": "^10.0.1",

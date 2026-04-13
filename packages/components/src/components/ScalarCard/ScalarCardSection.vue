@@ -20,7 +20,12 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
-  <div v-bind="cx('scalar-card-content flex overflow-auto')">
+  <div
+    v-bind="
+      cx(
+        'scalar-card-content flex overflow-auto first:rounded-t-[inherit] last:rounded-b-[inherit]',
+      )
+    ">
     <slot />
   </div>
 </template>

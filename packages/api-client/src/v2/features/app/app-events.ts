@@ -95,6 +95,7 @@ export function initializeAppEventHandlers({
               // Rebuild the sidebar with the updated order
               rebuildSidebar(store.value?.workspace.activeDocument?.['x-scalar-navigation']?.name)
 
+              // Now this redirect works for any example
               await router.replace({
                 name: 'example',
                 params: {
@@ -104,9 +105,20 @@ export function initializeAppEventHandlers({
                 },
               })
             }
-            payload.callback(status)
+
+            payload.callback(status, payload.blurTargetSelector)
           },
         }),
+      },
+      'operation:create:operation': {
+        onAfterExecute: (payload) => {
+          onAfterExampleCreation({
+            path: payload.path,
+            method: payload.method,
+            exampleKey: 'default',
+            documentName: payload.documentName,
+          })
+        },
       },
       'operation:upsert:parameter': {
         onAfterExecute: (payload) => onAfterExampleCreation(payload.meta),

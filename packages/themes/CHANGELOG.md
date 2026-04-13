@@ -1,5 +1,18 @@
 # @scalar/themes
 
+## 0.15.3
+
+### Patch Changes
+
+- [#8769](https://github.com/scalar/scalar/pull/8769): feat(themes): add Tailwind v3 transform reset
+
+## 0.15.2
+
+### Patch Changes
+
+- [#8694](https://github.com/scalar/scalar/pull/8694): feat: add padding utilities to scalar themes
+- [#8634](https://github.com/scalar/scalar/pull/8634): feat: add saving ui component
+
 ## 0.15.1
 
 ### Patch Changes

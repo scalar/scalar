@@ -146,22 +146,120 @@ describe('generateCodeSnippet', () => {
 )`)
   })
 
+  it('preserves duplicate multipart field names in python snippets', () => {
+    const code = generateCodeSnippet({
+      ...baseParams,
+      clientId: 'python/requests',
+      operation: {
+        ...mockOperation,
+        requestBody: {
+          content: {
+            'multipart/form-data': {
+              examples: {
+                default: {
+                  value: [
+                    { name: 'file', value: '@first.png', isDisabled: false },
+                    { name: 'file', value: '@second.png', isDisabled: false },
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+      method: 'post',
+      path: '/uploads',
+      contentType: 'multipart/form-data',
+      example: 'default',
+      securitySchemes: [],
+    })
+
+    expect(code).toBe(`requests.post("https://api.example.com/uploads",
+    headers={
+      "Content-Type": "multipart/form-data"
+    },
+    data={
+      "file": [
+        "@first.png",
+        "@second.png"
+      ]
+    }
+)`)
+  })
+
   it('generates code snippet with different client formats', () => {
     const code = generateCodeSnippet({
       ...baseParams,
       clientId: 'node/axios',
     })
 
-    expect(code).toBe(`const axios = require('axios').default;
+    expect(code).toBe(`import axios from 'axios'
 
-const options = {method: 'GET', url: 'https://api.example.com/users'};
+const options = {
+  method: 'GET',
+  url: 'https://api.example.com/users'
+}
 
 try {
-  const { data } = await axios.request(options);
-  console.log(data);
+  const { data } = await axios.request(options)
+  console.log(data)
 } catch (error) {
-  console.error(error);
+  console.error(error)
 }`)
+  })
+
+  it('includes optional query parameters in snippets when defaultDisabledParameters is false', () => {
+    const operationWithOptionalQuery: OperationObject = {
+      ...mockOperation,
+      parameters: [
+        {
+          name: 'q',
+          in: 'query',
+          required: false,
+          schema: {
+            type: 'string',
+            example: 'findme',
+          },
+        },
+      ],
+    }
+
+    const withOptional = generateCodeSnippet({
+      ...baseParams,
+      clientId: 'js/fetch',
+      path: '/search',
+      operation: operationWithOptionalQuery,
+      defaultDisabledParameters: false,
+    })
+
+    expect(withOptional).toBe("fetch('https://api.example.com/search?q=findme')")
+  })
+
+  it('omits optional query parameters from snippets when defaultDisabledParameters is true', () => {
+    const operationWithOptionalQuery: OperationObject = {
+      ...mockOperation,
+      parameters: [
+        {
+          name: 'q',
+          in: 'query',
+          required: false,
+          schema: {
+            type: 'string',
+            example: 'findme',
+          },
+        },
+      ],
+    }
+
+    const withoutOptional = generateCodeSnippet({
+      ...baseParams,
+      clientId: 'js/fetch',
+      path: '/search',
+      operation: operationWithOptionalQuery,
+      defaultDisabledParameters: true,
+    })
+
+    expect(withoutOptional).toBe("fetch('https://api.example.com/search')")
   })
 
   it('processes different clientId formats without errors', () => {

@@ -207,7 +207,7 @@ const routerViewProps = computed<RouteProps>(() => {
               :tabs="app.tabs.state.value" />
 
             <!-- Router view min-h-0 is required for scrolling, do not remove it -->
-            <div class="bg-b-1 min-h-0 flex-1">
+            <div class="bg-b-1 relative min-h-0 flex-1">
               <RouterView v-bind="routerViewProps" />
             </div>
           </div>

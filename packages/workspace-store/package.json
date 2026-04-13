@@ -16,7 +16,7 @@
     "openapi",
     "scalar"
   ],
-  "version": "0.42.0",
+  "version": "0.45.0",
   "engines": {
     "node": ">=22"
   },
@@ -145,7 +145,6 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@scalar/code-highlight": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/openapi-upgrader": "workspace:*",
@@ -153,12 +152,12 @@
     "@scalar/typebox": "catalog:*",
     "@scalar/types": "workspace:*",
     "@faker-js/faker": "catalog:*",
+    "@scalar/validation": "workspace:*",
     "github-slugger": "catalog:*",
     "js-base64": "catalog:*",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
-    "yaml": "catalog:*",
-    "@scalar/validation": "workspace:*"
+    "yaml": "catalog:*"
   },
   "devDependencies": {
     "@google-cloud/storage": "catalog:*",

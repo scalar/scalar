@@ -8,7 +8,7 @@ runs:
   using: 'composite'
   steps:
     - name: Install pnpm
-      uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+      uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
     - name: Read Node.js version from .nvmrc
       id: node-version
       shell: bash
@@ -19,13 +19,13 @@ runs:
           echo "version=$(cat .nvmrc | tr -d 'v')" >> $GITHUB_OUTPUT
         fi
     - name: Setup Node.js
-      uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6
+      uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
       with:
         node-version: ${{ steps.node-version.outputs.version }}
         cache: 'pnpm'
     - if: startsWith(runner.name, 'blacksmith')
       name: Setup persistent turbo cache
-      uses: useblacksmith/stickydisk@a652394bf1bf95399f406e648482b41fbd25c51f # v1
+      uses: useblacksmith/stickydisk@41873b1513bb679f9c115504cbd13d3660432504 # v1
       with:
         key: ${{ github.repository }}-${{ github.ref_name }}-turbo-cache-${{ steps.node-version.outputs.version }}
         path: ./.turbo

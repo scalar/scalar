@@ -27,6 +27,25 @@ type ProcessedParameters = {
 const deReferenceParams = (params: OperationObject['parameters']): ParameterObject[] =>
   (params ?? []).map((param) => getResolvedRef(param))
 
+/** Whether the parameter allows reserved characters (from param or schema). */
+const isAllowReserved = (param: ParameterObject): boolean => {
+  if ('allowReserved' in param && param.allowReserved !== undefined) {
+    return param.allowReserved
+  }
+  if ('schema' in param && param.schema && typeof param.schema === 'object' && 'allowReserved' in param.schema) {
+    return (param.schema as { allowReserved?: boolean }).allowReserved === true
+  }
+  return false
+}
+
+/** URL encode a value if allowReserved is not set to true. */
+const encodeQueryValue = (value: string, param: ParameterObject): string => {
+  if (isAllowReserved(param)) {
+    return value
+  }
+  return encodeURIComponent(value)
+}
+
 /**
  * Get the style and explode values for a parameter according to OpenAPI 3.1.1 specification.
  * Handles defaults and validation for parameter location restrictions.
@@ -69,12 +88,13 @@ const getParameterValue = (
   param: ParameterObject,
   example: string | undefined,
   contentType: string | undefined,
+  defaultDisabled: boolean,
 ): unknown => {
   // Try to get value from example first
   const exampleValue = getExample(param, example, contentType)
 
   // If the parameter is disabled, return undefined so we can skip it.
-  if (isParamDisabled(param, exampleValue)) {
+  if (isParamDisabled(param, exampleValue, defaultDisabled)) {
     return undefined
   }
 
@@ -102,11 +122,14 @@ export const processParameters = ({
   harRequest,
   parameters,
   example,
+  defaultDisabled,
 }: {
   harRequest: HarRequest
   parameters: OperationObject['parameters']
   /** The name of the example to use */
   example?: string | undefined
+  /** Whether to disable parameters by default. */
+  defaultDisabled: boolean
 }): ProcessedParameters => {
   // Create copies of the arrays to avoid modifying the input
   const newHeaders = [...harRequest.headers]
@@ -121,7 +144,7 @@ export const processParameters = ({
       continue
     }
 
-    const paramValue = getParameterValue(param, example, undefined)
+    const paramValue = getParameterValue(param, example, undefined, defaultDisabled)
     if (paramValue === undefined) {
       continue
     }
@@ -140,7 +163,7 @@ export const processParameters = ({
           // We grab the first for now but eventually we should support selecting the content type per parameter
           const paramContentType = Object.keys(param.content)[0] ?? 'application/json'
           const serializedValue = serializeContentValue(paramValue, paramContentType)
-          newQueryString.push({ name: param.name, value: serializedValue })
+          newQueryString.push({ name: param.name, value: encodeQueryValue(serializedValue, param) })
           break
         }
 
@@ -153,30 +176,30 @@ export const processParameters = ({
             if (Array.isArray(serialized)) {
               for (const entry of serialized) {
                 const key = entry.key || param.name
-                newQueryString.push({ name: key, value: String(entry.value) })
+                newQueryString.push({ name: key, value: encodeQueryValue(String(entry.value), param) })
               }
             }
             // Otherwise, convert to string
             else {
-              newQueryString.push({ name: param.name, value: String(serialized) })
+              newQueryString.push({ name: param.name, value: encodeQueryValue(String(serialized), param) })
             }
             break
           }
           case 'spaceDelimited': {
             const serialized = serializeSpaceDelimitedStyle(paramValue)
-            newQueryString.push({ name: param.name, value: serialized })
+            newQueryString.push({ name: param.name, value: encodeQueryValue(serialized, param) })
             break
           }
           case 'pipeDelimited': {
             const serialized = serializePipeDelimitedStyle(paramValue)
-            newQueryString.push({ name: param.name, value: serialized })
+            newQueryString.push({ name: param.name, value: encodeQueryValue(serialized, param) })
             break
           }
           case 'deepObject': {
             if (explode) {
               const entries = serializeDeepObjectStyle(param.name, paramValue)
               for (const entry of entries) {
-                newQueryString.push({ name: entry.key, value: entry.value })
+                newQueryString.push({ name: entry.key, value: encodeQueryValue(entry.value, param) })
               }
             }
             break
@@ -184,7 +207,7 @@ export const processParameters = ({
 
           // Default to form style
           default:
-            newQueryString.push({ name: param.name, value: String(paramValue) })
+            newQueryString.push({ name: param.name, value: encodeQueryValue(String(paramValue), param) })
         }
         break
       }

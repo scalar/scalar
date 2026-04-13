@@ -1,10 +1,10 @@
-import type { OpenAPI } from '@scalar/openapi-types'
-import { isDereferenced } from '@scalar/openapi-types/helpers'
-import { type NodeInput, getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-type'
 import type {
+  OpenApiDocument,
   OperationObject,
   ParameterObject,
+  ReferenceType,
   SchemaObject,
   SchemaReferenceType,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -16,12 +16,30 @@ type ObjectSchemaWithProperties = {
   required?: string[]
 }
 
+const isSchemaObject = (value: unknown): value is SchemaObject => typeof value === 'object' && value !== null
+
+const schemaTypeToString = (schema: SchemaObject): string => {
+  if (!('type' in schema)) {
+    return ''
+  }
+
+  if (typeof schema.type === 'string') {
+    return schema.type
+  }
+
+  return Array.isArray(schema.type) ? schema.type.join('|') : ''
+}
+
 /**
  * Resolves a schema reference from workspace-store to a SchemaObject.
- * Bridges SchemaReferenceType (which uses '$ref-value': unknown) to NodeInput (which uses '$ref-value': SchemaObject).
+ * Returns undefined when a reference exists but has not been resolved yet.
  */
-function resolveSchemaRef(ref: SchemaReferenceType<SchemaObject>): SchemaObject {
-  return getResolvedRef(ref as NodeInput<SchemaObject>)
+function resolveSchemaRef(ref: SchemaReferenceType<SchemaObject>): SchemaObject | undefined {
+  if (typeof ref === 'object' && ref !== null && '$ref' in ref) {
+    return isSchemaObject(ref['$ref-value']) ? ref['$ref-value'] : undefined
+  }
+
+  return ref
 }
 
 /**
@@ -32,14 +50,16 @@ function formatProperty(key: string, obj: ObjectSchemaWithProperties): string {
   const isRequired = obj.required?.includes(key)
   output += isRequired ? ' REQUIRED ' : ' optional '
   const propRef = obj.properties[key]
-  if (!propRef) return output
+  if (!propRef) {
+    return output
+  }
   const property = resolveSchemaRef(propRef)
 
-  // Check existence before accessing
-  if (property && typeof property === 'object' && 'type' in property) {
-    output += (property as { type?: string }).type ?? ''
-    if ('description' in property && typeof (property as { description?: string }).description === 'string') {
-      output += ' ' + (property as { description: string }).description
+  if (property) {
+    output += schemaTypeToString(property)
+
+    if ('description' in property && typeof property.description === 'string') {
+      output += ` ${property.description}`
     }
   }
 
@@ -70,16 +90,19 @@ function recursiveLogger(obj: MediaTypeObject): string[] {
     results.push(formatProperty(key, schemaWithProps))
 
     const propRef = properties[key]
-    if (!propRef) return
+    if (!propRef) {
+      return
+    }
     const property = resolveSchemaRef(propRef)
     if (property && isObjectSchema(property) && property.properties) {
       const nestedProperties = property.properties
       Object.keys(nestedProperties).forEach((subKey) => {
         const ref = nestedProperties[subKey]
-        if (!ref) return
+        if (!ref) {
+          return
+        }
         const nested = resolveSchemaRef(ref)
-        const typeStr =
-          nested && typeof nested === 'object' && 'type' in nested ? ((nested as { type?: string }).type ?? '') : ''
+        const typeStr = nested ? schemaTypeToString(nested) : ''
         results.push(`${subKey} ${typeStr}`)
       })
     }
@@ -91,18 +114,44 @@ function recursiveLogger(obj: MediaTypeObject): string[] {
 /**
  * Extracts the request body from an operation.
  */
-export function extractRequestBody(operation: OperationObject): string[] | boolean {
-  try {
-    // TODO: Wait… there's more than just 'application/json' (https://github.com/scalar/scalar/issues/6427)
-    const media = getResolvedRef(operation?.requestBody)?.content?.['application/json']
-    if (!media) {
-      throw new Error('Body not found')
-    }
-
-    return recursiveLogger(media)
-  } catch (_error) {
-    return false
+export function extractRequestBody(operation: OperationObject): string[] | null {
+  const content = getResolvedRef(operation?.requestBody)?.content
+  const contentValue = Object.values(content ?? {})
+  if (contentValue.length === 0) {
+    // No content found
+    return null
   }
+
+  return contentValue.flatMap((media) => recursiveLogger(media))
+}
+
+/**
+ * Formats a parameter into a searchable string.
+ */
+function formatParameter(param: ParameterObject): string {
+  const output = [param.name]
+  output.push(param.required ? 'REQUIRED' : 'optional')
+  output.push(param.in)
+
+  if ('schema' in param && param.schema) {
+    const schema = getResolvedRef(param.schema)
+    if (schema) {
+      output.push(schemaTypeToString(schema))
+    }
+  }
+
+  if (param.description) {
+    output.push(param.description)
+  }
+
+  return output.join(' ')
+}
+
+/**
+ * Extracts parameters from an operation into searchable strings.
+ */
+export function extractParameters(parameters: ReferenceType<ParameterObject>[]): string[] | null {
+  return parameters.map((parameter) => formatParameter(getResolvedRef(parameter)))
 }
 
 /**
@@ -125,8 +174,9 @@ export function deepMerge(source: Record<any, any>, target: Record<any, any>) {
  * Creates an empty specification object.
  * The returning object has the same structure as a valid OpenAPI specification, but everything is empty.
  */
-export function createEmptySpecification(partialSpecification?: Partial<OpenAPI.Document>) {
-  return deepMerge(partialSpecification ?? {}, {
+export function createEmptySpecification(partialSpecification?: Partial<OpenApiDocument>) {
+  const emptySpecification = {
+    openapi: '3.1.0',
     info: {
       title: '',
       description: '',
@@ -142,80 +192,14 @@ export function createEmptySpecification(partialSpecification?: Partial<OpenAPI.
     },
     servers: [],
     tags: [],
-  }) as OpenAPI.Document
-}
-
-export type ParameterMap = {
-  path: ParameterObject[]
-  query: ParameterObject[]
-  header: ParameterObject[]
-  cookie: ParameterObject[]
-  body: ParameterObject[]
-  formData: ParameterObject[]
-}
-
-/**
- * This function creates a parameter map from an Operation Object, that's easier to consume.
- *
- * TODO: Isn't it easier to just stick to the OpenAPI structure, without transforming it?
- */
-export function createParameterMap(operation: OperationObject) {
-  const map: ParameterMap = {
-    path: [],
-    query: [],
-    header: [],
-    cookie: [],
-    body: [],
-    formData: [],
+    'x-scalar-original-document-hash': '',
   }
 
-  // TODO: They are not passed to the function, so we don't need to deal with them yet, but we should.
-  // @see https://github.com/scalar/scalar/issues/6428
-  // if (operation.pathParameters) {
-  //   operation.pathParameters.forEach((parameter: OpenAPIV3_1.ParameterObject) => {
-  //     if (parameter.in === 'path') {
-  //       map.path.push(parameter)
-  //     } else if (parameter.in === 'query') {
-  //       map.query.push(parameter)
-  //     } else if (parameter.in === 'header') {
-  //       map.header.push(parameter)
-  //     } else if (parameter.in === 'cookie') {
-  //       map.cookie.push(parameter)
-  //     } else if (parameter.in === 'body') {
-  //       map.body.push(parameter)
-  //     } else if (parameter.in === 'formData') {
-  //       map.formData.push(parameter)
-  //     }
-  //   })
-  // }
-
-  const parameters = operation.parameters ?? []
-
-  if (parameters) {
-    parameters.forEach((parameter) => {
-      if (!isDereferenced<ParameterObject>(parameter)) {
-        return
-      }
-
-      if (typeof parameter === 'object' && parameter !== null && '$ref' in parameter) {
-        return
-      }
-
-      if (parameter.in === 'path') {
-        map.path.push(parameter)
-      } else if (parameter.in === 'query') {
-        map.query.push(parameter)
-      } else if (parameter.in === 'header') {
-        map.header.push(parameter)
-      } else if (parameter.in === 'cookie') {
-        map.cookie.push(parameter)
-      } else if (parameter.in === 'body') {
-        map.body.push(parameter)
-      } else if (parameter.in === 'formData') {
-        map.formData.push(parameter)
-      }
-    })
+  if (!partialSpecification) {
+    return emptySpecification as OpenApiDocument
   }
 
-  return map
+  deepMerge(partialSpecification, emptySpecification)
+
+  return emptySpecification as OpenApiDocument
 }

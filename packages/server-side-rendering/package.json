@@ -1,0 +1,48 @@
+{
+  "name": "@scalar/server-side-rendering",
+  "description": "Server-side rendering for the Scalar API Reference using bundled JS",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/server-side-rendering"
+  },
+  "keywords": [],
+  "version": "0.1.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "tsx playground/server.ts",
+    "test": "vitest",
+    "types:check": "tsc --noEmit"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "dependencies": {
+    "@scalar/api-reference": "workspace:*",
+    "@scalar/types": "workspace:*",
+    "vue": "catalog:*"
+  },
+  "devDependencies": {
+    "@hono/node-server": "catalog:*",
+    "@vitejs/plugin-vue": "catalog:*",
+    "hono": "catalog:*",
+    "tsx": "catalog:*",
+    "vite": "catalog:*"
+  }
+}

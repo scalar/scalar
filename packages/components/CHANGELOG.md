@@ -1,5 +1,22 @@
 # @scalar/components
 
+## 0.21.4
+
+### Patch Changes
+
+- [#8769](https://github.com/scalar/scalar/pull/8769): feat(themes): add Tailwind v3 transform reset
+- [#8767](https://github.com/scalar/scalar/pull/8767): feat(components): expose summary truncation state
+- [#8779](https://github.com/scalar/scalar/pull/8779): feat(component): don't add word breaks for the start of text
+
+## 0.21.3
+
+### Patch Changes
+
+- [#8692](https://github.com/scalar/scalar/pull/8692): feat: replace pretty-bytes dependency with internal helper
+- [#8715](https://github.com/scalar/scalar/pull/8715): fix: correct main field in package.json to point to .js instead of non-existent .cjs files
+- [#8634](https://github.com/scalar/scalar/pull/8634): feat: add saving ui component
+- [#8664](https://github.com/scalar/scalar/pull/8664): refactor: replace wildcard export barrels with explicit named re-exports
+
 ## 0.21.2
 
 ### Patch Changes

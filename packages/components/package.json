@@ -10,13 +10,14 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/components"
   },
-  "version": "0.21.2",
+  "version": "0.21.4",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "pnpm typegen:icons && vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "build:storybook": "storybook build",
+    "build:watch": "concurrently \"vite build --watch\" \"vue-tsc --watch -p tsconfig.build.json\" \"tsc-alias -p tsconfig.build.json --watch\"",
     "clean:snapshots": "shx rm -rf \"**/snapshots\"",
     "dev": "storybook dev -p 5100 --ci",
     "lint:check": "pnpm lint:icons",
@@ -30,13 +31,14 @@
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
-  "main": "./dist/index.cjs",
+  "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./style.css": "./dist/style.css"
   },
@@ -55,26 +57,26 @@
     "@vueuse/core": "catalog:*",
     "cva": "1.0.0-beta.4",
     "nanoid": "catalog:*",
-    "pretty-bytes": "catalog:*",
     "radix-vue": "catalog:*",
     "vue": "catalog:*",
-    "vue-component-type-helpers": "^3.2.2"
+    "vue-component-type-helpers": "^3.2.6"
   },
   "devDependencies": {
     "@headlessui/tailwindcss": "catalog:*",
     "@playwright/test": "catalog:*",
-    "@storybook/addon-docs": "10.2.19",
-    "@storybook/addon-links": "10.2.19",
-    "@storybook/vue3-vite": "10.2.19",
+    "@storybook/addon-docs": "10.3.5",
+    "@storybook/addon-links": "10.3.5",
+    "@storybook/vue3-vite": "10.3.5",
     "@tailwindcss/vite": "catalog:*",
     "@types/jsdom": "catalog:*",
     "@types/node": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
-    "@vueless/storybook-dark-mode": "^10.0.6",
+    "@vueless/storybook-dark-mode": "^10.0.7",
+    "concurrently": "catalog:*",
     "jsdom": "catalog:*",
-    "storybook": "10.2.19",
-    "svglint": "^4.1.2",
+    "storybook": "10.3.5",
+    "svglint": "^4.2.1",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
     "vite-svg-loader": "catalog:*",

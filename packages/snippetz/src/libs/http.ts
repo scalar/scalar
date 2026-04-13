@@ -18,21 +18,23 @@ export function buildQueryString(queryParams?: Array<{ name: string; value: stri
     return ''
   }
 
-  const queryPairs = queryParams.map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`)
+  const queryPairs = queryParams.map((param) => `${param.name}=${param.value}`)
   return `?${queryPairs.join('&')}`
 }
 
 /**
- * Creates a new URL search params object and sets query params so we can handle arrays
+ * Adds a named value while preserving repeated keys as arrays.
  */
-export const createSearchParams = (query: HarRequest['queryString'] = []) => {
-  const searchParams = new URLSearchParams()
+export const accumulateRepeatedValue = (data: Record<string, string | string[]>, name: string, value: string): void => {
+  const existingValue = data[name]
 
-  query.forEach((q: { name: string; value: string }) => {
-    searchParams.append(q.name, q.value)
-  })
-
-  return searchParams
+  if (existingValue === undefined) {
+    data[name] = value
+  } else if (Array.isArray(existingValue)) {
+    existingValue.push(value)
+  } else {
+    data[name] = [existingValue, value]
+  }
 }
 
 /**
@@ -41,16 +43,7 @@ export const createSearchParams = (query: HarRequest['queryString'] = []) => {
 export function reduceQueryParams(query: HarRequest['queryString'] = []): Record<string, string | string[]> {
   return query.reduce(
     (acc, { name, value }) => {
-      const existingValue = acc[name]
-
-      if (existingValue === undefined) {
-        acc[name] = value
-      } else if (Array.isArray(existingValue)) {
-        existingValue.push(value)
-      } else {
-        acc[name] = [existingValue, value]
-      }
-
+      accumulateRepeatedValue(acc, name, value)
       return acc
     },
     {} as Record<string, string | string[]>,

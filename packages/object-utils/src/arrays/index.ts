@@ -1,2 +1,2 @@
-export * from './sort'
-export * from './types'
+export { alphaSort, sortByOrder, timeSort } from './sort'
+export { keysOf, nonNullable } from './types'

@@ -50,6 +50,7 @@ const {
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'showOperationId'
+    | 'hideModels'
   >
   /** Currently selected server for the document */
   selectedServer: ServerObject | null
@@ -125,9 +126,11 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :server="selectedServer" />
     </SectionContainer>
 
-    <!-- Webhook Group or Tag -->
+    <!-- Webhook Group, Tag or Tag Group (only in classic layout) -->
     <Tag
-      v-else-if="isTag(entry)"
+      v-else-if="
+        isTag(entry) || (isTagGroup(entry) && options.layout === 'classic')
+      "
       :eventBus
       :isCollapsed="!expandedItems[entry.id]"
       :isLoading="false"
@@ -151,7 +154,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       </template>
     </Tag>
 
-    <!-- Tag Group -->
+    <!-- Display tag grop entries for modern layout (flattened) -->
     <TraversedEntry
       v-else-if="isTagGroup(entry)"
       :authStore

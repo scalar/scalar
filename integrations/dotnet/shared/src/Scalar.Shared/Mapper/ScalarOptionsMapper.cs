@@ -63,7 +63,8 @@ internal static partial class ScalarOptionsMapper
             OrderSchemaPropertiesBy = options.SchemaPropertyOrder,
             ShowOperationId = options.ShowOperationId,
             ShowDeveloperTools = options.ShowDeveloperTools,
-            Agent = options.Agent
+            Agent = options.Agent,
+            Mcp = options.Mcp
         };
     }
 

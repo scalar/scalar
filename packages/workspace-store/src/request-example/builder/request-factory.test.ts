@@ -54,10 +54,10 @@ describe('requestFactory', () => {
     expect(request.body).toBe(null)
     expect(request.cache).toBe('default')
     expect(request.security).toEqual([])
-    expect(request.cookies.list).toEqual([])
-    expect(request.query.params.toString()).toBe('')
+    expect(request.cookies).toEqual([])
+    expect(request.query.toString()).toBe('')
     expect(request.path.variables).toEqual({})
-    expect(request.proxy.proxyUrl).toBe('https://proxy.scalar.com')
+    expect(request.proxyUrl).toBe('https://proxy.scalar.com')
     expect(request.options?.isElectron).toBe(false)
     expect(request.allowedReservedQueryParameters?.size).toBe(0)
   })
@@ -351,9 +351,9 @@ describe('requestFactory', () => {
       }),
     )
 
-    expect(request.cookies.list).toHaveLength(2)
-    expect(request.cookies.list[0]).toMatchObject({ name: 'workspace', value: 'w1', isDisabled: false })
-    expect(request.cookies.list[1]).toMatchObject({ name: 'fromParam', value: 'p1' })
+    expect(request.cookies).toHaveLength(2)
+    expect(request.cookies[0]).toMatchObject({ name: 'workspace', value: 'w1', isDisabled: false })
+    expect(request.cookies[1]).toMatchObject({ name: 'fromParam', value: 'p1' })
   })
 
   it('marks a global cookie disabled when x-scalar-disable-parameters targets it for the active example', () => {
@@ -380,7 +380,7 @@ describe('requestFactory', () => {
       }),
     )
 
-    expect(request.cookies.list[0]?.isDisabled).toBe(true)
+    expect(request.cookies[0]?.isDisabled).toBe(true)
   })
 
   it('does not apply global-cookie disables from a different example key', () => {
@@ -407,7 +407,7 @@ describe('requestFactory', () => {
       }),
     )
 
-    expect(request.cookies.list[0]?.isDisabled).toBe(false)
+    expect(request.cookies[0]?.isDisabled).toBe(false)
   })
 
   it('preserves isDisabled on a global cookie when already set', () => {
@@ -424,7 +424,7 @@ describe('requestFactory', () => {
       }),
     )
 
-    expect(request.cookies.list[0]?.isDisabled).toBe(true)
+    expect(request.cookies[0]?.isDisabled).toBe(true)
   })
 
   it('uses no-store cache and no-cache headers when Accept is text/event-stream', () => {
@@ -502,11 +502,11 @@ describe('requestFactory', () => {
     const { request } = requestFactory(createBaseArgs({ selectedSecuritySchemes: selected }))
 
     expect(request.security).toEqual([
-      { in: 'header', name: 'X-Token', type: 'simple', value: 'hdr' },
-      { in: 'query', name: 'token', type: 'simple', value: 'qry' },
-      { in: 'cookie', name: 'sid', type: 'simple', value: 'ck' },
-      { in: 'header', name: 'Authorization', type: 'basic', value: 'u:p' },
-      { in: 'header', name: 'Authorization', type: 'bearer', value: 'jwt' },
+      { in: 'header', name: 'X-Token', value: 'hdr' },
+      { in: 'query', name: 'token', value: 'qry' },
+      { in: 'cookie', name: 'sid', value: 'ck' },
+      { in: 'header', name: 'Authorization', format: 'basic', value: 'u:p' },
+      { in: 'header', name: 'Authorization', format: 'bearer', value: 'jwt' },
     ])
   })
 
@@ -524,7 +524,7 @@ describe('requestFactory', () => {
     )
 
     expect(request.path.variables.id).toBe('42')
-    expect(request.query.params.get('q')).toBe('find')
+    expect(request.query.get('q')).toBe('find')
   })
 
   it('forwards allowReservedQueryParameters from buildRequestParameters', () => {
@@ -548,6 +548,6 @@ describe('requestFactory', () => {
     )
 
     expect(request.allowedReservedQueryParameters?.has('sort')).toBe(true)
-    expect(request.query.params.get('sort')).toBe('name:asc')
+    expect(request.query.get('sort')).toBe('name:asc')
   })
 })

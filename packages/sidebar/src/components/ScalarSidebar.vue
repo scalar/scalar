@@ -37,9 +37,15 @@ const {
    * Sidebar configuration options.
    * - operationTitleSource: sets whether operations show their path or summary as the display title.
    */
-  options?: {
-    operationTitleSource: 'path' | 'summary' | undefined
-  }
+  options?: Partial<{
+    operationTitleSource: 'path' | 'summary'
+    /**
+     * Whether to hide the default examples for operations if there are no other examples.
+     *
+     * @default false
+     */
+    hideOperationDefaultExamples: boolean
+  }>
   /**
    * The indentation in pixels to apply to nested items/groups in the sidebar.
    */

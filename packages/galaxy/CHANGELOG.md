@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.6.2
+
+### Patch Changes
+
+- [#8626](https://github.com/scalar/scalar/pull/8626): fix: add a complex API key authentication requirement to the Galaxy OpenAPI description document
+
 ## 0.6.1
 
 ### Patch Changes

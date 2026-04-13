@@ -67,7 +67,7 @@
     <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-flyio.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-sfcompute.svg"></scalar-icon>
+    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-clerk.svg?v=2"></scalar-icon>
   </div>
 </div>
 
@@ -484,11 +484,9 @@
 
 <style>
   .t-editor__page-title,
-  .layout-aside-right,
   .t-editor__page-nav,
   .notify-container,
   .subheading,
-  .t-doc__toc,
   .page-nav,
   :not(.introduction).footer,
   .t-editor .page-header {
@@ -515,7 +513,6 @@
   }
   :root {
     --scalar-container-width: 960px;
-    --scalar-toc-width: 0;
   }
   .hero.hero {
     margin-top: 88px;
@@ -976,7 +973,6 @@
       justify-content: start;
     }
     .logowall-item svg {
-      width: auto;
       max-width: 100%;
       height: 100%;
       max-height: 20px;

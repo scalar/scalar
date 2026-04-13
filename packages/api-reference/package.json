@@ -20,7 +20,7 @@
     "vue",
     "vue3"
   ],
-  "version": "1.49.8",
+  "version": "1.52.1",
   "engines": {
     "node": ">=22"
   },
@@ -83,11 +83,6 @@
       "types": "./dist/helpers/index.d.ts",
       "default": "./dist/helpers/index.js"
     },
-    "./ssr": {
-      "import": "./dist/ssr.js",
-      "types": "./dist/ssr.d.ts",
-      "default": "./dist/ssr.js"
-    },
     "./style.css": "./dist/style.css",
     "./browser/standalone.js": "./dist/browser/standalone.js"
   },
@@ -109,7 +104,6 @@
     "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "@scalar/openapi-types": "workspace:*",
     "@scalar/sidebar": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/themes": "workspace:*",
@@ -133,7 +127,7 @@
     "@scalar/galaxy": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
-    "@vue/server-renderer": "^3.5.26",
+    "@vue/server-renderer": "^3.5.30",
     "@vue/test-utils": "catalog:*",
     "hono": "catalog:*",
     "jsdom": "catalog:*",

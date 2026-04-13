@@ -301,14 +301,12 @@ All of this with just a couple clicks or a few API requests! You handle making y
     }
   }
   .t-editor__page-title,
-  .layout-aside-right,
   .t-editor__page-nav,
   .notify-container,
   .subheading,
   :not(.getting-started).footer,
   .t-editor .page-header,
-  .content .page-nav,
-  .t-doc__toc {
+  .content .page-nav {
     display: none;
   }
   main.content {
@@ -332,7 +330,6 @@ All of this with just a couple clicks or a few API requests! You handle making y
   }
   :root {
     --scalar-container-width: 960px;
-    --scalar-toc-width: 0;
   }
   .hero.hero {
     margin-top: 88px;
@@ -611,7 +608,6 @@ All of this with just a couple clicks or a few API requests! You handle making y
       justify-content: start;
     }
     .logowall-item svg {
-      width: auto;
       max-width: 100%;
       height: 100%;
       max-height: 20px;

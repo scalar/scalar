@@ -1,3 +1,5 @@
+import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
+
 import type { WorkspaceStore } from '@/client'
 import type { SelectedSecurity } from '@/entities/auth'
 import type { AuthMeta, ServerMeta } from '@/events'
@@ -20,7 +22,7 @@ import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-r
 import type { ServerObject } from '@/schemas/v3.1/strict/server'
 import type { WorkspaceDocument } from '@/schemas/workspace'
 
-type BuildRequestExampleContext = {
+export type BuildRequestExampleContext = {
   operation: OperationObject
   environment: {
     name: string | null
@@ -60,6 +62,8 @@ export const getRequestExampleContext = (
     layout: Layout
     appVersion: string
     isElectron: boolean
+    /** User facing authentication configuration */
+    authentication: AuthenticationConfiguration
     /**
      * When the document is not in `workspace.documents[documentName]` yet, use this copy (same shape as the
      * workspace entry). Callers that already hold the resolved document should pass it so behavior matches
@@ -132,7 +136,7 @@ export const getRequestExampleContext = (
 
   const securitySchemes = mergeSecurity(
     document.components?.securitySchemes ?? {},
-    {},
+    options.authentication?.securitySchemes ?? {},
     workspaceStore.auth,
     documentName,
   )
@@ -143,6 +147,7 @@ export const getRequestExampleContext = (
     operationSelectedSecurity,
     securityRequirements,
     securitySchemes,
+    options.authentication?.preferredSecurityScheme,
   )
 
   /** The above selected requirements in scheme form */

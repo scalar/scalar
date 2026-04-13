@@ -124,9 +124,9 @@ export type UIEvents = {
   'ui:focus:address-bar':
     | KeyboardEventPayload
     | {
-        position?: 'start' | 'end' | number
+        /** Whether to clear the address bar before focusing */
+        clear?: boolean
       }
-    | undefined
   /**
    * Focus the send button to execute a request.
    * Useful for keyboard-driven workflows.
@@ -232,6 +232,11 @@ export type UIEvents = {
    * Useful for sharing direct links to specific sections.
    */
   'copy-url:nav-item': NavigationItemPayload
+
+  /**
+   * Copies the whole URL in the addressbar including server and path
+   */
+  'copy-url:address-bar': undefined
 
   /**
    * Used by the api-client to copy the URL for the given tab index.

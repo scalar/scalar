@@ -21,6 +21,8 @@ export type OperationBlockProps = {
   eventBus: WorkspaceEventBus
   /** Application version */
   appVersion: string
+  /** Openapi document */
+  document: OpenApiDocument
   /** Workspace cookies */
   workspaceCookies: XScalarCookie[]
   /** Document cookies */
@@ -100,6 +102,7 @@ import type {
 } from '@scalar/workspace-store/events'
 import {
   buildRequest,
+  createVariablesStoreForRequest,
   getEnvironmentVariables,
   requestFactory,
   type MergedSecuritySchemes,
@@ -140,6 +143,7 @@ const {
   environment,
   eventBus,
   exampleKey,
+  document,
   workspaceCookies = [],
   documentCookies = [],
   hideClientButton,
@@ -209,13 +213,32 @@ const handleExecute = async () => {
     response.value.reader.cancel()
   }
 
-  // Build the actual request we will send
+  const variablesStore = createVariablesStoreForRequest()
+
+  // Execute the beforeRequest hook (plugins receive RequestFactory, not fetch Request)
+  await executeHook(
+    {
+      requestBuilder,
+      document,
+      operation,
+      variablesStore,
+    },
+    'beforeRequest',
+    plugins,
+  )
+
+  const envVariables = {
+    ...getEnvironmentVariables(environment),
+    ...variablesStore.getVariables(),
+  }
+
+  // Build the fetch Request after hooks may have mutated the factory
   const requestResult = (() => {
     try {
       return {
         ok: true,
         result: buildRequest(requestBuilder, {
-          envVariables: getEnvironmentVariables(environment),
+          envVariables,
         }),
       } as const
     } catch (error) {
@@ -244,17 +267,10 @@ const handleExecute = async () => {
     },
   })
 
-  // Execute the beforeRequest hook
-  const { request: finalRequest } = await executeHook(
-    { request: requestResult.result.request },
-    'beforeRequest',
-    plugins,
-  )
-
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
     isUsingProxy: requestResult.result.isUsingProxy,
-    request: finalRequest,
+    request: requestResult.result.request,
   })
 
   if (sendResult) {
@@ -262,8 +278,11 @@ const handleExecute = async () => {
     await executeHook(
       {
         response: sendResult.originalResponse.clone(),
+        requestBuilder,
         request: sendResult.request.clone(),
+        document,
         operation,
+        variablesStore,
       },
       'responseReceived',
       plugins,

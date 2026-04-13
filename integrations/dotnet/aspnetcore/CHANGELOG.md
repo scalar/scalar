@@ -1,5 +1,17 @@
 # @scalar/aspnetcore
 
+## 2.13.22
+
+## 2.13.21
+
+## 2.13.20
+
+## 2.13.19
+
+### Patch Changes
+
+- [#8640](https://github.com/scalar/scalar/pull/8640): fix(aspire,aspnetcore): support mcp disabled configuration
+
 ## 2.13.18
 
 ## 2.13.17

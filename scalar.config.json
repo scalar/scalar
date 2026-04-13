@@ -19,6 +19,9 @@
           "path": "documentation/assets/fathom.js"
         },
         {
+          "path": "documentation/assets/posthog.js"
+        },
+        {
           "path": "documentation/assets/apollo.js"
         },
         {
@@ -92,6 +95,10 @@
       "links": [
         {
           "rel": "icon",
+          "href": "/favicon.svg"
+        },
+        {
+          "rel": "icon alternate",
           "href": "/favicon.png"
         }
       ]
@@ -201,6 +208,10 @@
         {
           "from": "/scalar/scalar-docs/components/tabs",
           "to": "/products/docs/components/tabs"
+        },
+        {
+          "from": "/scalar/scalar-docs/components/tables",
+          "to": "/products/docs/components/tables"
         },
         {
           "from": "/scalar/scalar-docs/components/steps",
@@ -492,19 +503,43 @@
         },
         {
           "from": "/scalar/scalar-mock-server/getting-started",
-          "to": "/products/mock-server/getting-started"
+          "to": "/tools/mock-server/getting-started"
         },
         {
           "from": "/scalar/scalar-mock-server/custom-request-handler",
-          "to": "/products/mock-server/custom-request-handler"
+          "to": "/tools/mock-server/custom-request-handler"
         },
         {
           "from": "/scalar/scalar-mock-server/data-seeding",
-          "to": "/products/mock-server/data-seeding"
+          "to": "/tools/mock-server/data-seeding"
         },
         {
           "from": "/scalar/scalar-mock-server/docker",
-          "to": "/products/mock-server/docker"
+          "to": "/tools/mock-server/docker"
+        },
+        {
+          "from": "/products/mock-server",
+          "to": "/tools/mock-server/getting-started"
+        },
+        {
+          "from": "/products/mock-server/getting-started",
+          "to": "/tools/mock-server/getting-started"
+        },
+        {
+          "from": "/products/mock-server/custom-request-handler",
+          "to": "/tools/mock-server/custom-request-handler"
+        },
+        {
+          "from": "/products/mock-server/data-seeding",
+          "to": "/tools/mock-server/data-seeding"
+        },
+        {
+          "from": "/products/mock-server/docker",
+          "to": "/tools/mock-server/docker"
+        },
+        {
+          "from": "/products/mock-server/changelog",
+          "to": "/tools/mock-server/changelog"
         },
         {
           "from": "/download",
@@ -578,8 +613,8 @@
       },
       {
         "type": "link",
-        "title": "Agent",
-        "to": "https://agent.scalar.com"
+        "title": "Enterprise",
+        "to": "/enterprise"
       },
       {
         "type": "spacer"
@@ -627,6 +662,22 @@
                   "content": "index, follow, max-image-preview:large"
                 }
               ]
+            }
+          },
+          "/enterprise": {
+            "title": "Enterprise",
+            "type": "page",
+            "filepath": "documentation/guides/enterprise/enterprise.md",
+            "showInSidebar": false,
+            "head": {
+              "scripts": [
+                {
+                  "path": "documentation/assets/enterprise-contact-form.js"
+                }
+              ]
+            },
+            "layout": {
+              "toc": false
             }
           },
           "/pricing": {
@@ -682,6 +733,9 @@
                     "type": "page",
                     "title": "Getting Started",
                     "description": "Learn how to create and publish stunning developer documentation with Docs in minutes.",
+                    "layout": {
+                      "toc": false
+                    },
                     "head": {
                       "links": [
                         {
@@ -988,6 +1042,11 @@
                         "type": "page",
                         "title": "Tabs"
                       },
+                      "tables": {
+                        "filepath": "documentation/guides/docs/components/tables.md",
+                        "type": "page",
+                        "title": "Tables"
+                      },
                       "steps": {
                         "filepath": "documentation/guides/docs/components/steps.md",
                         "type": "page",
@@ -1017,6 +1076,104 @@
                   }
                 }
               },
+              "/agent": {
+                "title": "MCP & Agent",
+                "description": "OpenAPI-backed MCP servers and SDKs that connect your APIs to LLMs with just-in-time tools and delegated authentication.",
+                "type": "group",
+                "mode": "nested",
+                "icon": "phosphor/regular/sparkle",
+                "children": {
+                  "getting-started": {
+                    "title": "Getting Started",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/getting-started.md",
+                    "description": "Turn OpenAPI into MCP servers and connect APIs to LLMs with minimal context usage, delegated auth, and the Agent SDK or chat UI.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/agent/getting-started"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Turn OpenAPI into MCP servers and connect APIs to LLMs with minimal context usage, delegated auth, and the Agent SDK or chat UI."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Getting Started with Agent — OpenAPI to MCP for LLMs"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Turn OpenAPI into MCP servers and connect APIs to LLMs with minimal context usage, delegated auth, and the Agent SDK or chat UI."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "mcp": {
+                    "title": "MCP Servers",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/mcp.md"
+                  },
+                  "sdk": {
+                    "title": "Agent SDK",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/sdk.md"
+                  },
+                  "api-reference": {
+                    "title": "Agent in API Reference",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/api-reference.md"
+                  },
+                  "pricing": {
+                    "title": "Pricing",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/pricing.md"
+                  },
+                  "key": {
+                    "title": "API Keys",
+                    "type": "page",
+                    "filepath": "documentation/guides/agent/key.md"
+                  },
+                  "examples": {
+                    "title": "Examples",
+                    "type": "group",
+                    "mode": "flat",
+                    "children": {
+                      "incident-monitor": {
+                        "filepath": "documentation/guides/agent/examples/incident-monitor.md",
+                        "type": "page",
+                        "title": "Incident Monitor"
+                      },
+                      "billing-sweep": {
+                        "filepath": "documentation/guides/agent/examples/billing-sweep.md",
+                        "type": "page",
+                        "title": "Billing Sweep"
+                      },
+                      "meeting-scheduler": {
+                        "filepath": "documentation/guides/agent/examples/meeting-scheduler.md",
+                        "type": "page",
+                        "title": "Meeting Scheduler"
+                      },
+                      "revenue-dashboard": {
+                        "filepath": "documentation/guides/agent/examples/revenue-dashboard.md",
+                        "type": "page",
+                        "title": "Revenue Dashboard"
+                      },
+                      "stakeholder-digest": {
+                        "filepath": "documentation/guides/agent/examples/stakeholder-digest.md",
+                        "type": "page",
+                        "title": "Stakeholder Digest"
+                      }
+                    }
+                  }
+                }
+              },
               "/sdks": {
                 "title": "SDKs",
                 "description": "Generate production-ready SDKs in TypeScript, Python, Go, Java, C#, PHP, Ruby, and Swift from your OpenAPI specs.",
@@ -1029,6 +1186,9 @@
                     "type": "page",
                     "title": "Getting Started",
                     "description": "Automatically generate type-safe SDKs from OpenAPI specifications in multiple programming languages.",
+                    "layout": {
+                      "toc": false
+                    },
                     "head": {
                       "links": [
                         {
@@ -1123,6 +1283,9 @@
                     "type": "page",
                     "title": "Getting Started",
                     "description": "Store, version, and manage your OpenAPI specifications in a centralized registry with automated CI/CD workflows.",
+                    "layout": {
+                      "toc": false
+                    },
                     "head": {
                       "links": [
                         {
@@ -1306,6 +1469,11 @@
                   "markdown": {
                     "title": "Markdown",
                     "filepath": "documentation/markdown.md",
+                    "type": "page"
+                  },
+                  "server-side-rendering": {
+                    "title": "Server-Side Rendering",
+                    "filepath": "documentation/server-side-rendering.md",
                     "type": "page"
                   },
                   "changelog": {
@@ -1609,6 +1777,11 @@
                         "filepath": "documentation/integrations/spring-boot.md",
                         "type": "page"
                       },
+                      "spry": {
+                        "title": "Spry",
+                        "filepath": "documentation/integrations/spry.md",
+                        "type": "page"
+                      },
                       "sveltekit": {
                         "title": "SvelteKit",
                         "filepath": "documentation/integrations/sveltekit.md",
@@ -1625,67 +1798,6 @@
                         "type": "page"
                       }
                     }
-                  }
-                }
-              },
-              "/agent": {
-                "title": "MCP & Agent",
-                "description": "AI-powered customer support agent that understands your API documentation and helps users with technical questions.",
-                "type": "group",
-                "mode": "nested",
-                "icon": "phosphor/regular/cpu",
-                "children": {
-                  "getting-started": {
-                    "title": "Getting Started",
-                    "type": "page",
-                    "filepath": "documentation/guides/agent/getting-started.md",
-                    "description": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs.",
-                    "head": {
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/products/agent/getting-started"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Getting Started with Agent - AI-Powered API Support"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "Deploy an AI assistant that provides instant, accurate answers based on your API documentation and specs."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
-                  "mcp": {
-                    "title": "MCP",
-                    "type": "page",
-                    "filepath": "documentation/guides/agent/mcp.md"
-                  },
-                  "sdk": {
-                    "title": "SDK",
-                    "type": "page",
-                    "filepath": "documentation/guides/agent/sdk.md"
-                  },
-                  "pricing": {
-                    "title": "Pricing",
-                    "type": "page",
-                    "filepath": "documentation/guides/agent/pricing.md"
-                  },
-                  "key": {
-                    "title": "Key",
-                    "type": "page",
-                    "filepath": "documentation/guides/agent/key.md"
                   }
                 }
               },
@@ -1727,67 +1839,6 @@
                         }
                       ]
                     }
-                  }
-                }
-              },
-              "/mock-server": {
-                "title": "Mock Server",
-                "description": "Generate realistic mock API servers from OpenAPI specifications for testing, development, and prototyping.",
-                "type": "group",
-                "mode": "nested",
-                "icon": "phosphor/regular/cloud",
-                "children": {
-                  "getting-started": {
-                    "title": "Getting Started",
-                    "filepath": "documentation/guides/mock-server/getting-started.md",
-                    "type": "page",
-                    "description": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding.",
-                    "head": {
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/products/mock-server/getting-started"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Getting Started with Mock Server - API Mocking"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
-                  "docker": {
-                    "title": "Docker",
-                    "filepath": "documentation/guides/mock-server/docker.md",
-                    "type": "page"
-                  },
-                  "custom-request-handler": {
-                    "title": "Custom Request Handlers",
-                    "filepath": "documentation/guides/mock-server/custom-request-handler.md",
-                    "type": "page"
-                  },
-                  "data-seeding": {
-                    "title": "Data Seeding",
-                    "filepath": "documentation/guides/mock-server/data-seeding.md",
-                    "type": "page"
-                  },
-                  "changelog": {
-                    "title": "Changelog",
-                    "filepath": "packages/mock-server/CHANGELOG.md",
-                    "type": "page"
                   }
                 }
               }
@@ -1841,6 +1892,67 @@
                     "filepath": "documentation/guides/cli/commands.md",
                     "type": "page",
                     "title": "Commands"
+                  }
+                }
+              },
+              "/mock-server": {
+                "title": "Mock Server",
+                "description": "Generate realistic mock API servers from OpenAPI specifications for testing, development, and prototyping.",
+                "type": "group",
+                "mode": "nested",
+                "icon": "phosphor/regular/cloud",
+                "children": {
+                  "getting-started": {
+                    "title": "Getting Started",
+                    "filepath": "documentation/guides/mock-server/getting-started.md",
+                    "type": "page",
+                    "description": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/tools/mock-server/getting-started"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Getting Started with Mock Server - API Mocking"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Spin up realistic mock API servers instantly from OpenAPI specs with custom handlers and data seeding."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "docker": {
+                    "title": "Docker",
+                    "filepath": "documentation/guides/mock-server/docker.md",
+                    "type": "page"
+                  },
+                  "custom-request-handler": {
+                    "title": "Custom Request Handlers",
+                    "filepath": "documentation/guides/mock-server/custom-request-handler.md",
+                    "type": "page"
+                  },
+                  "data-seeding": {
+                    "title": "Data Seeding",
+                    "filepath": "documentation/guides/mock-server/data-seeding.md",
+                    "type": "page"
+                  },
+                  "changelog": {
+                    "title": "Changelog",
+                    "filepath": "packages/mock-server/CHANGELOG.md",
+                    "type": "page"
                   }
                 }
               },
@@ -2088,6 +2200,11 @@
                 "mode": "flat",
                 "title": "Posts",
                 "children": {
+                  "/2026-04-11-oss-pledge": {
+                    "type": "page",
+                    "title": "Scalar's 2025 Open Source Pledge",
+                    "filepath": "documentation/blog/2026-04-11-oss-pledge.md"
+                  },
                   "/2026-03-25-scalar-mcp-oauth": {
                     "type": "page",
                     "title": "Too Long; Didn't Read; Used MCP",

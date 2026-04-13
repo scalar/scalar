@@ -10,6 +10,7 @@
   "pnpm": {
     "overrides": {
       "@types/node": "catalog:*",
+      "lodash": "4.18.1",
       "undici": "7.24.4"
     }
   },
@@ -21,7 +22,7 @@
     "@playwright/test": "catalog:*",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/node": "catalog:*",
-    "cross-env": "^7.0.3",
+    "cross-env": "catalog:*",
     "eslint": "^9.38.0",
     "eslint-plugin-vue": "^9.31.0",
     "knip": "5.87.0",
@@ -46,8 +47,8 @@
   },
   "scripts": {
     "build": "turbo build",
-    "build:packages": "turbo --filter './packages/**' --concurrency=100% build",
-    "build:integrations": "turbo --filter './integrations/**' build",
+    "build:packages": "turbo --filter \"./packages/**\" --concurrency=100% build",
+    "build:integrations": "turbo --filter \"./integrations/**\" build",
     "clean": "shx rm -rf \"**/dist\" \"**/.turbo\" \"**/.nuxt\" \"**/.next\" \"**/target\" \"**/node_modules\"",
     "clean:build": "pnpm clean && pnpm install && pnpm build:packages",
     "dev:docs": "npx @scalar/cli@latest project preview",
@@ -55,10 +56,10 @@
     "format": "prettier --write . && biome format --write",
     "lint:check": "biome lint --diagnostic-level=error",
     "lint:check:dist-dts-aliases": "tsx ./tooling/scripts/check-dist-dts-aliases.ts",
-    "lint:vue": "pnpm eslint '**/*.vue'",
+    "lint:vue": "pnpm eslint \"**/*.vue\"",
     "lint:markdown": "remark --frail .",
     "lint:knip": "cross-env NODE_ENV=test knip",
-    "lint:fix": "biome lint --write && pnpm eslint '**/*.vue' --fix",
+    "lint:fix": "biome lint --write && pnpm eslint \"**/*.vue\" --fix",
     "test": "vitest",
     "types:check": "turbo types:check",
     "types:check:raw": "pnpm run -r --parallel types:check",

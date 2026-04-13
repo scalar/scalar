@@ -15,7 +15,7 @@ const viewsSchema = z.object({
 export const hooksSchema = z.object({
   onBeforeRequest: z
     .function({
-      input: [z.object({ request: z.instanceof(Request) })],
+      input: [z.object({ request: z.any() })],
       // Why no output? https://github.com/scalar/scalar/pull/7047
       // output: z.union([z.void(), z.promise(z.void())]),
     })

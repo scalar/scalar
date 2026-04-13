@@ -110,6 +110,7 @@ const handleSelectItem = (id: string) => {
         :isSelected="sidebarState.isSelected"
         :items
         layout="client"
+        :options="{ hideOperationDefaultExamples: layout === 'modal' }"
         @reorder="
           (draggingItem, hoveredItem) =>
             emit('reorder', draggingItem, hoveredItem)
@@ -157,7 +158,9 @@ const handleSelectItem = (id: string) => {
           <div class="mac:app-drag-region flex-1"></div>
         </template>
 
-        <template #decorator="decoratorProps">
+        <template
+          v-if="slots.decorator"
+          #decorator="decoratorProps">
           <slot
             v-bind="decoratorProps"
             name="decorator" />

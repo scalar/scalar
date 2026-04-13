@@ -359,7 +359,7 @@ const authorizeServers = async (
   // Additional request body parameters
   if (flow['x-scalar-security-body']) {
     Object.entries(flow['x-scalar-security-body']).forEach(([key, value]) => {
-      if (value) {
+      if (value !== undefined && value !== null) {
         formData.set(key, String(value))
       }
     })

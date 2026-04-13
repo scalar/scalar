@@ -1,5 +1,18 @@
 # @scalar/aspire
 
+## 0.9.22
+
+## 0.9.21
+
+## 0.9.20
+
+## 0.9.19
+
+### Patch Changes
+
+- [#8640](https://github.com/scalar/scalar/pull/8640): fix(aspire,aspnetcore): support mcp disabled configuration
+- [#8660](https://github.com/scalar/scalar/pull/8660): fix(aspire): preserve OpenAPI server base paths when rebasing localhost hosts
+
 ## 0.9.18
 
 ### Patch Changes

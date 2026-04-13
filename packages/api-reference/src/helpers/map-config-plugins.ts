@@ -1,5 +1,7 @@
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import { buildRequest, getEnvironmentVariables } from '@scalar/workspace-store/request-example'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { type ComputedRef, watch } from 'vue'
 
 /**
@@ -17,29 +19,32 @@ import { type ComputedRef, watch } from 'vue'
  * @param config - Reactive configuration object containing optional hook callbacks
  * @returns Array containing a single plugin with the mapped hooks
  */
-export const mapConfigPlugins = (config: ComputedRef<ApiReferenceConfigurationRaw>): ClientPlugin[] => {
+export const mapConfigPlugins = (
+  config: ComputedRef<ApiReferenceConfiguration>,
+  environment: ComputedRef<XScalarEnvironment>,
+): ClientPlugin[] => {
+  // Create a new plugin with the hooks which is going to be updated by the watcher when config changes
   const plugin: ClientPlugin = { hooks: {} }
 
   watch(
-    [() => config.value.onBeforeRequest, () => config.value.onRequestSent],
-    ([onBeforeRequest, onRequestSent]) => {
+    [() => config.value.onBeforeRequest, () => config.value.onRequestSent, () => environment.value],
+    ([onBeforeRequest, onRequestSent, environment]) => {
+      // Get the environment variables for the current environment
+      const envVariables = getEnvironmentVariables(environment)
+
+      // Initialize the hooks object if it doesn't exist
       if (!plugin.hooks) {
         plugin.hooks = {}
       }
 
       plugin.hooks.beforeRequest = onBeforeRequest
         ? async (payload) => {
-            const result = await onBeforeRequest(payload)
-
-            /**
-             * When the callback returns void (for side-effect only callbacks like logging),
-             * we return the original payload to keep the request pipeline working.
-             */
-            if (result === undefined) {
-              return payload
-            }
-
-            return result
+            await onBeforeRequest({
+              // We need to build the request to get the fetch `Request`
+              request: buildRequest(payload.requestBuilder, { envVariables }).request,
+              requestBuilder: payload.requestBuilder,
+              envVariables,
+            })
           }
         : undefined
 

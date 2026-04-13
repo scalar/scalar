@@ -1,20 +1,22 @@
 // @vitest-environment jsdom
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import Schema from './Schema.vue'
 
+const schema = (value: Record<string, unknown>) => value as SchemaObject
+
 describe('Schema', () => {
   it('renders composition keywords (allOf)', () => {
-    const schema: OpenAPIV3_1.SchemaObject = {
+    const schemaValue = schema({
       allOf: [
         { type: 'object', properties: { name: { type: 'string' } } },
         { type: 'object', properties: { age: { type: 'number' } } },
       ],
-    }
+    })
 
     const wrapper = mount(Schema, {
-      props: { schema },
+      props: { schema: schemaValue },
     })
 
     expect(wrapper.text()).toContain('All of:')
@@ -23,12 +25,12 @@ describe('Schema', () => {
   })
 
   it('renders composition keywords (anyOf)', () => {
-    const schema: OpenAPIV3_1.SchemaObject = {
+    const schemaValue = schema({
       anyOf: [{ type: 'string' }, { type: 'number' }],
-    }
+    })
 
     const wrapper = mount(Schema, {
-      props: { schema },
+      props: { schema: schemaValue },
     })
 
     expect(wrapper.text()).toContain('Any of:')
@@ -37,12 +39,12 @@ describe('Schema', () => {
   })
 
   it('renders composition keywords (oneOf)', () => {
-    const schema: OpenAPIV3_1.SchemaObject = {
+    const schemaValue = schema({
       oneOf: [{ type: 'boolean' }, { type: 'integer' }],
-    }
+    })
 
     const wrapper = mount(Schema, {
-      props: { schema },
+      props: { schema: schemaValue },
     })
 
     expect(wrapper.text()).toContain('One of:')
@@ -51,12 +53,12 @@ describe('Schema', () => {
   })
 
   it('renders composition keywords (not)', () => {
-    const schema: OpenAPIV3_1.SchemaObject = {
+    const schemaValue = schema({
       not: { type: 'string' },
-    }
+    })
 
     const wrapper = mount(Schema, {
-      props: { schema },
+      props: { schema: schemaValue },
     })
 
     expect(wrapper.text()).toContain('Not:')
@@ -64,17 +66,17 @@ describe('Schema', () => {
   })
 
   it('renders object type schema with properties', () => {
-    const schema: OpenAPIV3_1.SchemaObject = {
+    const schemaValue = schema({
       type: 'object',
       properties: {
         name: { type: 'string', description: 'User name' },
         age: { type: 'number', description: 'User age' },
       },
       required: ['name'],
-    }
+    })
 
     const wrapper = mount(Schema, {
-      props: { schema },
+      props: { schema: schemaValue },
     })
 
     expect(wrapper.text()).toContain('name')
@@ -85,16 +87,16 @@ describe('Schema', () => {
   })
 
   it('renders array type schema with items', () => {
-    const schema: OpenAPIV3_1.SchemaObject = {
+    const schemaValue = schema({
       type: 'array',
       items: { type: 'string' },
       minItems: 1,
       maxItems: 10,
       uniqueItems: true,
-    }
+    })
 
     const wrapper = mount(Schema, {
-      props: { schema },
+      props: { schema: schemaValue },
     })
 
     expect(wrapper.text()).toContain('Array of:')
@@ -105,16 +107,16 @@ describe('Schema', () => {
   })
 
   it('renders primitive type schema with format and enum', () => {
-    const schema: OpenAPIV3_1.SchemaObject = {
+    const schemaValue = schema({
       type: 'string',
       format: 'email',
       enum: ['user@example.com', 'admin@example.com'],
       default: 'user@example.com',
       description: 'User email address',
-    }
+    })
 
     const wrapper = mount(Schema, {
-      props: { schema },
+      props: { schema: schemaValue },
     })
 
     expect(wrapper.text()).toContain('string')
@@ -125,7 +127,7 @@ describe('Schema', () => {
   })
 
   it('renders nested object schema', () => {
-    const schema: OpenAPIV3_1.SchemaObject = {
+    const schemaValue = schema({
       type: 'object',
       properties: {
         user: {
@@ -142,10 +144,10 @@ describe('Schema', () => {
           },
         },
       },
-    }
+    })
 
     const wrapper = mount(Schema, {
-      props: { schema },
+      props: { schema: schemaValue },
     })
 
     expect(wrapper.text()).toContain('user')
@@ -156,7 +158,7 @@ describe('Schema', () => {
   })
 
   it('renders array of objects schema', () => {
-    const schema: OpenAPIV3_1.SchemaObject = {
+    const schemaValue = schema({
       type: 'array',
       items: {
         type: 'object',
@@ -165,10 +167,10 @@ describe('Schema', () => {
           name: { type: 'string' },
         },
       },
-    }
+    })
 
     const wrapper = mount(Schema, {
-      props: { schema },
+      props: { schema: schemaValue },
     })
 
     expect(wrapper.text()).toContain('Array of:')

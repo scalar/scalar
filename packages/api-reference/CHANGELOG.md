@@ -1,5 +1,52 @@
 # @scalar/api-reference
 
+## 1.52.1
+
+### Patch Changes
+
+- [#8769](https://github.com/scalar/scalar/pull/8769): feat(themes): add Tailwind v3 transform reset
+- [#8767](https://github.com/scalar/scalar/pull/8767): feat(api-reference): collapse truncated descriptions
+- [#8776](https://github.com/scalar/scalar/pull/8776): fix: hide content type switch when there is no content
+- [#8777](https://github.com/scalar/scalar/pull/8777): fix(api-reference): set example z-index to context layer
+- [#8770](https://github.com/scalar/scalar/pull/8770): fix: generate the response examples by removing the priority order
+
+## 1.52.0
+
+### Minor Changes
+
+- [#8750](https://github.com/scalar/scalar/pull/8750): feat: display model name for body section
+- [#8695](https://github.com/scalar/scalar/pull/8695): feat: suport pre/post request scripts
+
+### Patch Changes
+
+- [#8431](https://github.com/scalar/scalar/pull/8431): fix: SSR breaks
+- [#8431](https://github.com/scalar/scalar/pull/8431): fix(api-reference): avoid duplicate app creation during hydration
+- [#8747](https://github.com/scalar/scalar/pull/8747): fix: extract request body from all content types in search index
+
+## 1.51.0
+
+### Minor Changes
+
+- [#8712](https://github.com/scalar/scalar/pull/8712): feat: use separate stores for client and shared state on the reference
+
+### Patch Changes
+
+- [#8728](https://github.com/scalar/scalar/pull/8728): fix: correctly merge security schemes with the config security
+
+## 1.50.0
+
+### Minor Changes
+
+- [#8524](https://github.com/scalar/scalar/pull/8524): feat: move request logic on the store and generate a request builder
+- [#8609](https://github.com/scalar/scalar/pull/8609): feat: display tag groups for classic layout
+
+### Patch Changes
+
+- [#8657](https://github.com/scalar/scalar/pull/8657): test(api-reference): add regression coverage for hiddenClients source switching
+- [#8642](https://github.com/scalar/scalar/pull/8642): refactor(api-reference): remove openapi-types dependency and align with workspace-store types
+- [#8659](https://github.com/scalar/scalar/pull/8659): fix search indexing to include path-level parameters and response examples for operations
+- [#8650](https://github.com/scalar/scalar/pull/8650): fix: ensure we have a introduction entry on the sidear by default
+
 ## 1.49.8
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @scalar/snippetz
 
+## 0.8.0
+
+### Minor Changes
+
+- [#8748](https://github.com/scalar/scalar/pull/8748): feat: support `allowReserved` for code samples
+
+## 0.7.8
+
+### Patch Changes
+
+- [#8662](https://github.com/scalar/scalar/pull/8662): fix(snippetz): preserve duplicate multipart field names in python request snippets
+
 ## 0.7.7
 
 ## 0.7.6

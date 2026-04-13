@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import { formatBytes } from '@scalar/helpers/formatters/format-bytes'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { httpStatusCodes, type HttpStatusCode } from '@scalar/oas-utils/helpers'
-import prettyBytes from 'pretty-bytes'
 import prettyMilliseconds from 'pretty-ms'
 import { computed, ref } from 'vue'
 
@@ -33,7 +33,7 @@ const getContentLength = (response: ResponseInstance) => {
     10,
   )
 
-  return contentLength ? prettyBytes(contentLength) : undefined
+  return contentLength ? formatBytes(contentLength) : undefined
 }
 
 /** Status text for the response */

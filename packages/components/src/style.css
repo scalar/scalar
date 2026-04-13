@@ -5,6 +5,9 @@
 @import "@scalar/themes/style.css"; /* Theme Base Styles and Reset */
 @import "@scalar/themes/tailwind.css"; /* Tailwind Theme + Config */
 
+/* Component Library Specific Tailwind Theme */
+@import "./theme.css";
+
 .scalar-app {
   @import "tailwindcss/utilities.css";
 }

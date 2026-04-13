@@ -131,15 +131,23 @@ export const executeRequestTool = n.safeFn(
       cookies: Record<string, string>
     }>(
       (acc, securityOption) => {
-        if (securityOption.in === 'header') {
-          const prefix = securityOption.type === 'basic' ? 'Basic ' : securityOption.type === 'bearer' ? 'Bearer ' : ''
+        /** Format the security value based on its authentication scheme. */
+        const securityValue = (() => {
+          if (securityOption.format === 'basic') {
+            return `Basic ${encodeBase64(securityOption.value)}`
+          }
+          if (securityOption.format === 'bearer') {
+            return `Bearer ${securityOption.value}`
+          }
+          return securityOption.value
+        })()
 
-          acc.headers[securityOption.name] =
-            `${prefix}${securityOption.type === 'basic' ? encodeBase64(securityOption.value) : securityOption.value}`
+        if (securityOption.in === 'header') {
+          acc.headers[securityOption.name] = securityValue
         } else if (securityOption.in === 'query') {
-          acc.queryParams.set(securityOption.name, securityOption.value)
+          acc.queryParams.set(securityOption.name, securityValue)
         } else if (securityOption.in === 'cookie') {
-          acc.cookies[securityOption.name] = securityOption.value
+          acc.cookies[securityOption.name] = securityValue
         }
 
         return acc

@@ -17,6 +17,8 @@ import {
   XScalarRegistryMetaSchema,
 } from '@/schemas/extensions/document/x-scalar-registry-meta'
 import { type XScalarWatchMode, XScalarWatchModeSchema } from '@/schemas/extensions/document/x-scalar-watch-mode'
+import { type XPostResponse, XPostResponseSchema } from '@/schemas/extensions/general/x-post-response'
+import { type XPreRequest, XPreRequestSchema } from '@/schemas/extensions/general/x-pre-request'
 import {
   type XScalarActiveEnvironment,
   XScalarActiveEnvironmentSchema,
@@ -98,6 +100,8 @@ export const OpenApiExtensionsSchema = compose(
   XScalarActiveEnvironmentSchema,
   XScalarWatchModeSchema,
   XScalarRegistryMetaSchema,
+  XPreRequestSchema,
+  XPostResponseSchema,
 )
 
 export type OpenAPIExtensions = Partial<{
@@ -116,7 +120,9 @@ export type OpenAPIExtensions = Partial<{
   XScalarCookies &
   XScalarIsDirty &
   XScalarWatchMode &
-  XScalarRegistryMeta
+  XScalarRegistryMeta &
+  XPreRequest &
+  XPostResponse
 
 const OpenApiDocumentSchemaDefinition = compose(
   Type.Object({

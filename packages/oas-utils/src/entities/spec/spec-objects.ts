@@ -1,7 +1,18 @@
 import { omitUndefinedValues } from '@scalar/helpers/object/omit-undefined-values'
-import { XScalarSdkInstallationSchema } from '@scalar/openapi-types/schemas/extensions'
 import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 import { z } from 'zod'
+
+const xScalarSdkInstallationSchema = z.object({
+  'x-scalar-sdk-installation': z
+    .object({
+      lang: z.string(),
+      source: z.string().optional().catch(undefined),
+      description: z.string().optional().catch(undefined),
+    })
+    .array()
+    .optional()
+    .catch(undefined),
+})
 
 /**
  * License Object
@@ -69,7 +80,7 @@ export const oasInfoSchema = z
      */
     version: z.string().catch('1.0'),
   })
-  .merge(XScalarSdkInstallationSchema)
+  .merge(xScalarSdkInstallationSchema)
   .transform(omitUndefinedValues)
 
 /**

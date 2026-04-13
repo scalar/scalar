@@ -14,7 +14,7 @@
     "helpers",
     "js"
   ],
-  "version": "0.4.2",
+  "version": "0.4.3",
   "engines": {
     "node": ">=22"
   },
@@ -52,6 +52,11 @@
       "types": "./dist/file/*.d.ts",
       "default": "./dist/file/*.js"
     },
+    "./formatters/*": {
+      "import": "./dist/formatters/*.js",
+      "types": "./dist/formatters/*.d.ts",
+      "default": "./dist/formatters/*.js"
+    },
     "./general/*": {
       "import": "./dist/general/*.js",
       "types": "./dist/general/*.d.ts",
@@ -66,6 +71,11 @@
       "import": "./dist/json/*.js",
       "types": "./dist/json/*.d.ts",
       "default": "./dist/json/*.js"
+    },
+    "./markdown/*": {
+      "import": "./dist/markdown/*.js",
+      "types": "./dist/markdown/*.d.ts",
+      "default": "./dist/markdown/*.js"
     },
     "./node/*": {
       "import": "./dist/node/*.js",
@@ -102,9 +112,9 @@
     "dist",
     "CHANGELOG.md"
   ],
+  "sideEffects": false,
   "devDependencies": {
     "jsdom": "catalog:*",
-    "vite": "catalog:*",
     "vitest": "catalog:*"
   }
 }

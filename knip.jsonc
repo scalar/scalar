@@ -9,7 +9,6 @@
     "examples/react/**",
     "examples/react-webpack/**",
     "examples/ssg/**",
-    "examples/vue-ssr/**",
     "examples/sveltekit/**",
     "examples/web/**",
     "projects/proxy-scalar-com/**"
@@ -20,7 +19,9 @@
     // Referenced in scalar.config.json
     "documentation/assets/landing.js",
     "documentation/assets/fathom.js",
-    "documentation/assets/apollo.js"
+    "documentation/assets/posthog.js",
+    "documentation/assets/apollo.js",
+    "documentation/assets/enterprise-contact-form.js"
   ],
   "ignore": [
     // We will use this in the future, just removed it from the workspace store for now
@@ -46,6 +47,8 @@
     "integrations/docusaurus/src/ScalarDocusaurus.tsx": ["duplicates"],
     // TrieNode is exported for potential external use
     "packages/json-magic/src/diff/trie.ts": ["exports"],
+    // Public OpenAPI type namespaces are consumed by downstream packages, but knip cannot infer external type usage
+    "packages/openapi-types/src/openapi-types.ts": ["types"],
     // Astro component Props interface is used by the framework
     "integrations/astro/src/ScalarComponent.astro": ["types"],
     // setupFiles string path cannot be resolved by knip
@@ -286,6 +289,9 @@
         "./src/resolve.ts"
       ]
     },
+    "packages/pre-post-request-scripts": {
+      "entry": ["src/index.ts", "src/plugins/index.ts"]
+    },
     "integrations/django-ninja": {
       "ignoreBinaries": ["python"]
     },
@@ -368,7 +374,9 @@
         "src/runtime/pages/ScalarPage.vue",
         "playground/nuxt.config.ts",
         "playground/layouts/default.vue",
-        "playground/pages/index.vue"
+        "playground/pages/index.vue",
+        "playground/pages/docs-keys.vue",
+        "playground/pages/docs-reference.vue"
       ],
       "ignoreDependencies": [
         "@scalar/api-client" // referenced in /src/runtime/components/nuxt-theme.css

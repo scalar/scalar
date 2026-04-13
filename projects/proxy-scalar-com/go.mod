@@ -1,3 +1,3 @@
 module github.com/scalar/projects/proxy-scalar-com
 
-go 1.25.6
+go 1.26.2

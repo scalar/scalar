@@ -1,5 +1,17 @@
 # @scalar/oas-utils
 
+## 0.11.1
+
+## 0.11.0
+
+### Minor Changes
+
+- [#8695](https://github.com/scalar/scalar/pull/8695): feat: suport pre/post request scripts
+
+## 0.10.16
+
+## 0.10.15
+
 ## 0.10.14
 
 ## 0.10.13

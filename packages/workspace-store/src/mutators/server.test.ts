@@ -143,6 +143,85 @@ describe('addServer', () => {
     expect(operation?.servers).toHaveLength(1)
     expect(operation?.servers?.[0]).toEqual(result)
   })
+
+  it('adds a server with a prefilled URL', () => {
+    const document = createDocument()
+
+    const result = addServer(document, { url: 'https://api.example.com', meta: { type: 'document' } })
+
+    expect(result).toBeDefined()
+    expect(result?.url).toBe('https://api.example.com')
+    expect(document.servers?.[0]?.url).toBe('https://api.example.com')
+  })
+
+  it('sets x-scalar-selected-server when select is true', () => {
+    const document = createDocument()
+
+    const result = addServer(document, {
+      url: 'https://api.example.com',
+      select: true,
+      meta: { type: 'document' },
+    })
+
+    expect(result?.url).toBe('https://api.example.com')
+    expect(document['x-scalar-selected-server']).toBe('https://api.example.com')
+  })
+
+  it('does not set x-scalar-selected-server when select is false', () => {
+    const document = createDocument()
+
+    addServer(document, {
+      url: 'https://api.example.com',
+      select: false,
+      meta: { type: 'document' },
+    })
+
+    expect(document['x-scalar-selected-server']).toBeUndefined()
+  })
+
+  it('does not set x-scalar-selected-server when select is omitted', () => {
+    const document = createDocument()
+
+    addServer(document, { url: 'https://api.example.com', meta: { type: 'document' } })
+
+    expect(document['x-scalar-selected-server']).toBeUndefined()
+  })
+
+  it('selects the new server when added to an operation with select true', () => {
+    const document = createDocument({
+      paths: {
+        '/users': {
+          get: { summary: 'List users' },
+        },
+      },
+    })
+
+    addServer(document, {
+      url: 'https://api.example.com',
+      select: true,
+      meta: { type: 'operation', path: '/users', method: 'get' },
+    })
+
+    const operation = getResolvedRef(document.paths?.['/users']?.get)
+    expect(operation?.servers?.[0]?.url).toBe('https://api.example.com')
+    expect(operation?.['x-scalar-selected-server']).toBe('https://api.example.com')
+  })
+
+  it('replaces the selected server when a second server is added with select true', () => {
+    const document = createDocument({
+      servers: [{ url: 'https://api.example.com' }],
+      'x-scalar-selected-server': 'https://api.example.com',
+    })
+
+    addServer(document, {
+      url: 'https://staging.example.com',
+      select: true,
+      meta: { type: 'document' },
+    })
+
+    expect(document.servers).toHaveLength(2)
+    expect(document['x-scalar-selected-server']).toBe('https://staging.example.com')
+  })
 })
 
 describe('updateServer', () => {

@@ -1,5 +1,17 @@
 # @scalar/api-reference-react
 
+## 0.9.22
+
+## 0.9.21
+
+## 0.9.20
+
+## 0.9.19
+
+### Patch Changes
+
+- [#8656](https://github.com/scalar/scalar/pull/8656): fix react wrapper production crash by defining Vue bundler flags before importing api-reference
+
 ## 0.9.18
 
 ## 0.9.17

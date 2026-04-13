@@ -76,10 +76,7 @@ describe('ScalarWrappingText', () => {
       })
       const text = wrapper.text()
       expect(text).toBe('Long string that needs to wrap to multiple lines')
-      // Component always renders one <wbr> before each word segment
-      // When there are no matches, there's only one segment
-      const wbrCount = (wrapper.html().match(/<wbr>/g) || []).length
-      expect(wbrCount).toBe(1)
+      expect(wrapper.html()).not.toContain('<wbr>')
     })
 
     it('handles empty string', () => {
@@ -100,10 +97,7 @@ describe('ScalarWrappingText', () => {
       })
       const text = wrapper.text()
       expect(text).toBe('test')
-      // Component always renders one <wbr> before each word segment
-      // When there are no matches, there's only one segment
-      const wbrCount = (wrapper.html().match(/<wbr>/g) || []).length
-      expect(wbrCount).toBe(1)
+      expect(wrapper.html()).not.toContain('<wbr>')
     })
 
     it('handles PascalCase with default settings (should not wrap)', () => {
@@ -114,10 +108,7 @@ describe('ScalarWrappingText', () => {
       })
       const text = wrapper.text()
       expect(text).toBe('LongPascalCaseStringThatNeedsToWrapToMultipleLines')
-      // Component always renders one <wbr> before each word segment
-      // When there are no matches, there's only one segment
-      const wbrCount = (wrapper.html().match(/<wbr>/g) || []).length
-      expect(wbrCount).toBe(1)
+      expect(wrapper.html()).not.toContain('<wbr>')
     })
   })
 
@@ -186,10 +177,7 @@ describe('ScalarWrappingText', () => {
       })
       const text = wrapper.text()
       expect(text).toBe('PascalCase')
-      // Component always renders one <wbr> before each word segment
-      // When there are no matches, there's only one segment
-      const wbrCount = (wrapper.html().match(/<wbr>/g) || []).length
-      expect(wbrCount).toBe(1)
+      expect(wrapper.html()).not.toContain('<wbr>')
     })
 
     it('does not match underscores', () => {
@@ -201,10 +189,7 @@ describe('ScalarWrappingText', () => {
       })
       const text = wrapper.text()
       expect(text).toBe('snake_case')
-      // Component always renders one <wbr> before each word segment
-      // When there are no matches, there's only one segment
-      const wbrCount = (wrapper.html().match(/<wbr>/g) || []).length
-      expect(wbrCount).toBe(1)
+      expect(wrapper.html()).not.toContain('<wbr>')
     })
 
     it('does not match dots', () => {
@@ -215,9 +200,9 @@ describe('ScalarWrappingText', () => {
         },
       })
       const html = wrapper.html()
-      // Path preset matches dots, so this should have multiple segments
+      // Path preset matches dots: two segments, one <wbr> between them
       const wbrCount = (html.match(/<wbr>/g) || []).length
-      expect(wbrCount).toBeGreaterThan(1)
+      expect(wbrCount).toBe(1)
       const text = wrapper.text()
       expect(text).toBe('dot.separated')
     })
@@ -324,10 +309,7 @@ describe('ScalarWrappingText', () => {
       })
       const text = wrapper.text()
       expect(text).toBe('lowercase text')
-      // Component always renders one <wbr> before each word segment
-      // When there are no matches, there's only one segment
-      const wbrCount = (wrapper.html().match(/<wbr>/g) || []).length
-      expect(wbrCount).toBe(1)
+      expect(wrapper.html()).not.toContain('<wbr>')
     })
 
     it('does not match slashes', () => {
@@ -339,10 +321,7 @@ describe('ScalarWrappingText', () => {
       })
       const text = wrapper.text()
       expect(text).toBe('/api/user')
-      // Component always renders one <wbr> before each word segment
-      // When there are no matches, there's only one segment
-      const wbrCount = (wrapper.html().match(/<wbr>/g) || []).length
-      expect(wbrCount).toBe(1)
+      expect(wrapper.html()).not.toContain('<wbr>')
     })
   })
 
@@ -384,10 +363,7 @@ describe('ScalarWrappingText', () => {
       })
       const text = wrapper.text()
       expect(text).toBe('simple text')
-      // Component always renders one <wbr> before each word segment
-      // When there are no matches, there's only one segment
-      const wbrCount = (wrapper.html().match(/<wbr>/g) || []).length
-      expect(wbrCount).toBe(1)
+      expect(wrapper.html()).not.toContain('<wbr>')
     })
 
     it('handles empty regex pattern', () => {
@@ -399,10 +375,7 @@ describe('ScalarWrappingText', () => {
       })
       const text = wrapper.text()
       expect(text).toBe('/test/path')
-      // Component always renders one <wbr> before each word segment
-      // When there are no matches, there's only one segment
-      const wbrCount = (wrapper.html().match(/<wbr>/g) || []).length
-      expect(wbrCount).toBe(1)
+      expect(wrapper.html()).not.toContain('<wbr>')
     })
 
     it('overrides preset when regex is provided', () => {
@@ -416,10 +389,7 @@ describe('ScalarWrappingText', () => {
       const text = wrapper.text()
       expect(text).toBe('/api/user-profile')
       // Custom regex /\./g doesn't match anything in '/api/user-profile'
-      // Component always renders one <wbr> before each word segment
-      // When there are no matches, there's only one segment
-      const wbrCount = (wrapper.html().match(/<wbr>/g) || []).length
-      expect(wbrCount).toBe(1)
+      expect(wrapper.html()).not.toContain('<wbr>')
     })
 
     it('handles PascalCase with custom regex', () => {
@@ -473,7 +443,7 @@ describe('ScalarWrappingText', () => {
         },
       })
       const html = wrapper.html()
-      expect(html).toContain('<wbr>')
+      expect(html).not.toContain('<wbr>')
       expect(html).toContain('/')
     })
 
@@ -484,7 +454,7 @@ describe('ScalarWrappingText', () => {
         },
       })
       const html = wrapper.html()
-      expect(html).toContain('<wbr>')
+      expect(html).not.toContain('<wbr>')
       expect(html).toContain('-')
     })
 
@@ -530,7 +500,7 @@ describe('ScalarWrappingText', () => {
         },
       })
       const html = wrapper.html()
-      expect(html).toContain('<wbr>')
+      expect(html).not.toContain('<wbr>')
       expect(html).toContain('A')
     })
 
@@ -542,7 +512,7 @@ describe('ScalarWrappingText', () => {
         },
       })
       const html = wrapper.html()
-      expect(html).toContain('<wbr>')
+      expect(html).not.toContain('<wbr>')
       expect(html).toContain('_')
     })
 
@@ -554,7 +524,7 @@ describe('ScalarWrappingText', () => {
         },
       })
       const html = wrapper.html()
-      expect(html).toContain('<wbr>')
+      expect(html).not.toContain('<wbr>')
       expect(html).toContain('.')
     })
 
@@ -566,7 +536,7 @@ describe('ScalarWrappingText', () => {
         },
       })
       const html = wrapper.html()
-      expect(html).toContain('<wbr>')
+      expect(html).not.toContain('<wbr>')
       expect(html).toContain('-')
     })
   })

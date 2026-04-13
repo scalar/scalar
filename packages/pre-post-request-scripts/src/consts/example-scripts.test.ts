@@ -1,7 +1,22 @@
+import type { RequestFactory } from '@scalar/workspace-store/request-example'
 import { describe, expect, it } from 'vitest'
 
 import { type TestResult, executePostResponseScript } from '../libs/execute-scripts'
 import { EXAMPLE_SCRIPTS } from './example-scripts'
+
+const createRequestBuilder = (): RequestFactory => ({
+  options: {},
+  baseUrl: 'https://example.com',
+  path: { variables: {}, raw: '/api/example' },
+  method: 'GET',
+  proxyUrl: '',
+  query: new URLSearchParams(),
+  headers: new Headers(),
+  body: null,
+  cookies: [],
+  cache: 'default',
+  security: [],
+})
 
 describe('example scripts', () => {
   it.each(EXAMPLE_SCRIPTS)('execute the $title example', async ({ script, mockResponse }) => {
@@ -12,8 +27,11 @@ describe('example scripts', () => {
 
     const testResults: TestResult[] = []
     await executePostResponseScript(script, {
+      requestBuilder: createRequestBuilder(),
       response,
-      onTestResultsUpdate: (results) => Object.assign(testResults, results),
+      onTestResultsUpdate: (results) => {
+        Object.assign(testResults, results)
+      },
     })
 
     expect(testResults[0]).toMatchObject({

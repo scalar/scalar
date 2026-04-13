@@ -305,14 +305,12 @@ Once created, you will get redirected to the SDK Overview page where you can:
     }
   }
   .t-editor__page-title,
-  .layout-aside-right,
   .t-editor__page-nav,
   .notify-container,
   .subheading,
   :not(.getting-started).footer,
   .t-editor .page-header,
-  .content .page-nav,
-  .t-doc__toc {
+  .content .page-nav {
     display: none;
   }
   main.content {
@@ -336,7 +334,6 @@ Once created, you will get redirected to the SDK Overview page where you can:
   }
   :root {
     --scalar-container-width: 960px;
-    --scalar-toc-width: 0;
   }
   .hero.hero {
     margin-top: 88px;
@@ -615,7 +612,6 @@ Once created, you will get redirected to the SDK Overview page where you can:
       justify-content: start;
     }
     .logowall-item svg {
-      width: auto;
       max-width: 100%;
       height: 100%;
       max-height: 20px;

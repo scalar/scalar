@@ -24,6 +24,8 @@ const routes = computed(() => {
     'authentication',
     'environment',
     'cookies',
+    'scripts',
+    'runner',
     'settings',
   ]
 })

@@ -1,14 +1,27 @@
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
+import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import type { DefineComponent } from 'vue'
 
 /** A type representing the hooks that a client plugin can define */
 type ClientPluginHooks = {
-  beforeRequest: (payload: { request: Request }) => { request: Request } | void | Promise<{ request: Request } | void>
+  beforeRequest: (payload: {
+    /** Workspace-store request spec; mutable by pre-request scripts (headers, method). */
+    requestBuilder: RequestFactory
+    document: OpenApiDocument
+    operation: OperationObject
+    variablesStore?: VariablesStore
+  }) => void | Promise<void>
   responseReceived: (payload: {
     response: Response
+    /** Request builder object that was used to build the request. Mutating this object will not affect the request object. */
+    requestBuilder: RequestFactory
+    /** Request object that was sent to the server. */
     request: Request
+    document: OpenApiDocument
     operation: OperationObject
+    variablesStore?: VariablesStore
   }) => void | Promise<void>
 }
 
@@ -24,7 +37,7 @@ type ClientPluginComponent<
 type ClientPluginComponents = {
   request: ClientPluginComponent<
     {
-      operation: OperationObject
+      operation?: OperationObject
       // We could pre-build the js request and pass it here in the future if needed
       // request: Request
     },
@@ -35,7 +48,7 @@ type ClientPluginComponents = {
   response: ClientPluginComponent<{
     // response: Response
     // request: Request
-    // operation: OperationObject
+    operation?: OperationObject
   }>
 }
 
@@ -46,10 +59,9 @@ type ClientPluginComponents = {
  *
  * const myPlugin: ClientPlugin = {
  *   hooks: {
- *     beforeRequest: (request) => {
- *       // Modify the request before it is sent
+ *     beforeRequest: ({ request }) => {
  *       request.headers.set('X-Custom-Header', 'foo');
- *       return request;
+ *       return { request };
  *     },
  *     responseReceived: async (response, operation) => {
  *       // Handle post-response logic

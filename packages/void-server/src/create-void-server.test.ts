@@ -375,6 +375,15 @@ describe('createVoidServer', () => {
     expect(response.headers.get('Content-Type')).toContain('text/html')
   })
 
+  it('returns an SSE content type for /stream', async () => {
+    const server = await createVoidServer()
+
+    const response = await server.request('/stream')
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('Content-Type')).toContain('text/event-stream')
+  })
+
   it('includes security headers in responses', async () => {
     const server = await createVoidServer()
 

@@ -1,3 +1,8 @@
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { type IncomingMessage, type ServerResponse, createServer } from 'node:http'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
 import { createMarkdownFromOpenApi } from './create-markdown-from-openapi'
@@ -168,6 +173,319 @@ Test description`
     expect(result).toContain('id')
   })
 
+  it('renders only one operation by path and method', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List pets',
+            operationId: 'listPets',
+          },
+          post: {
+            summary: 'Create pet',
+            operationId: 'createPet',
+          },
+        },
+      },
+    }
+
+    const result = await createMarkdownFromOpenApi(content, {
+      operation: {
+        path: '/pets',
+        method: 'POST',
+      },
+    })
+
+    expect(result).toContain('Create pet')
+    expect(result).not.toContain('List pets')
+    expect(result).toContain('- **Method:**\u00a0`POST`')
+  })
+
+  it('renders only one operation by operationId', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List pets',
+            operationId: 'listPets',
+          },
+        },
+        '/pets/{id}': {
+          get: {
+            summary: 'Get pet',
+            operationId: 'getPet',
+          },
+        },
+      },
+    }
+
+    const result = await createMarkdownFromOpenApi(content, {
+      operation: {
+        operationId: 'getPet',
+      },
+    })
+
+    expect(result).toContain('Get pet')
+    expect(result).not.toContain('List pets')
+    expect(result).toContain('- **Path:**\u00a0`/pets/{id}`')
+  })
+
+  it('renders only one operation by JSON pointer', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List pets',
+            operationId: 'listPets',
+          },
+          post: {
+            summary: 'Create pet',
+            operationId: 'createPet',
+          },
+        },
+      },
+    }
+
+    const result = await createMarkdownFromOpenApi(content, {
+      operation: {
+        pointer: '#/paths/~1pets/post',
+      },
+    })
+
+    expect(result).toContain('Create pet')
+    expect(result).not.toContain('List pets')
+    expect(result).toContain('- **Method:**\u00a0`POST`')
+    expect(result).toContain('- **Path:**\u00a0`/pets`')
+  })
+
+  it('throws when operationId does not exist', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List pets',
+            operationId: 'listPets',
+          },
+        },
+      },
+    }
+
+    await expect(
+      createMarkdownFromOpenApi(content, {
+        operation: {
+          operationId: 'unknownOperation',
+        },
+      }),
+    ).rejects.toThrow('Operation with operationId "unknownOperation" was not found')
+  })
+
+  it('throws when operationId is duplicated', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List pets',
+            operationId: 'petsOperation',
+          },
+        },
+        '/pets/{id}': {
+          get: {
+            summary: 'Get pet',
+            operationId: 'petsOperation',
+          },
+        },
+      },
+    }
+
+    await expect(
+      createMarkdownFromOpenApi(content, {
+        operation: {
+          operationId: 'petsOperation',
+        },
+      }),
+    ).rejects.toThrow('Multiple operations found for operationId "petsOperation". Use { path, method } instead.')
+  })
+
+  it('throws when path and method operation is missing', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List pets',
+          },
+        },
+      },
+    }
+
+    await expect(
+      createMarkdownFromOpenApi(content, {
+        operation: {
+          path: '/pets',
+          method: 'post',
+        },
+      }),
+    ).rejects.toThrow('Operation not found for path "/pets" and method "POST"')
+  })
+
+  it('throws when method is invalid', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List pets',
+          },
+        },
+      },
+    }
+
+    await expect(
+      createMarkdownFromOpenApi(content, {
+        operation: {
+          path: '/pets',
+          method: 'fetch' as 'get',
+        },
+      }),
+    ).rejects.toThrow('Invalid HTTP method "fetch".')
+  })
+
+  it('throws when method is connect to avoid silent empty rendering', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/tunnel': {
+          connect: {
+            summary: 'Create tunnel',
+          },
+        },
+      },
+    }
+
+    await expect(
+      createMarkdownFromOpenApi(content, {
+        operation: {
+          path: '/tunnel',
+          method: 'connect' as 'get',
+        },
+      }),
+    ).rejects.toThrow('Invalid HTTP method "connect".')
+  })
+
+  it('supports legacy JSON pointers without "#/" prefix', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List pets',
+          },
+        },
+      },
+    }
+
+    const result = await createMarkdownFromOpenApi(content, {
+      operation: {
+        pointer: '/paths/~1pets/get',
+      },
+    })
+
+    expect(result).toContain('List pets')
+    expect(result).toContain('- **Method:** `GET`')
+    expect(result).toContain('- **Path:** `/pets`')
+  })
+
+  it('throws when JSON pointer does not start with "#/"', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List pets',
+          },
+        },
+      },
+    }
+
+    await expect(
+      createMarkdownFromOpenApi(content, {
+        operation: {
+          pointer: 'paths/~1pets/get',
+        },
+      }),
+    ).rejects.toThrow('Invalid JSON pointer "paths/~1pets/get". JSON pointers must start with "#/"')
+  })
+
+  it('throws when JSON pointer does not target /paths/{path}/{method}', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List pets',
+          },
+        },
+      },
+    }
+
+    await expect(
+      createMarkdownFromOpenApi(content, {
+        operation: {
+          pointer: '/paths/~1pets',
+        },
+      }),
+    ).rejects.toThrow('JSON pointer "/paths/~1pets" must target an operation object under "/paths/{path}/{method}"')
+  })
+
   it('renders response schemas with language identifiers (JSON and XML)', async () => {
     const content = (contentType: 'application/json' | 'application/xml') => ({
       openapi: '3.1.1',
@@ -287,5 +605,354 @@ Test description`
       \`\`\`
       "
     `)
+  })
+
+  it('bundles external file references when input is a file path', async () => {
+    const tempDirectory = await mkdtemp(join(tmpdir(), 'openapi-to-markdown-'))
+    const schemaDirectory = join(tempDirectory, 'schemas')
+    const openApiFile = join(tempDirectory, 'openapi.yaml')
+    const userSchemaFile = join(schemaDirectory, 'user.yaml')
+
+    await mkdir(schemaDirectory, { recursive: true })
+    await writeFile(
+      openApiFile,
+      `openapi: 3.1.1
+info:
+  title: File Ref API
+  version: 1.0.0
+paths:
+  /users/{id}:
+    get:
+      summary: Get user
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/user.yaml#/User'
+`,
+    )
+    await writeFile(
+      userSchemaFile,
+      `User:
+  type: object
+  required:
+    - id
+    - email
+  properties:
+    id:
+      type: string
+    email:
+      type: string
+      format: email
+`,
+    )
+
+    try {
+      const result = await createMarkdownFromOpenApi(openApiFile)
+      expect(result).toContain('Get user')
+      expect(result).toContain('id')
+      expect(result).toContain('email')
+    } finally {
+      await rm(tempDirectory, { recursive: true, force: true })
+    }
+  })
+
+  describe('circular references', () => {
+    it('handles self-referencing schema without hanging', async () => {
+      const content = {
+        openapi: '3.1.1',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/categories': {
+            get: {
+              summary: 'List categories',
+              responses: {
+                '200': {
+                  description: 'Success',
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/Category' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            Category: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                children: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/Category' },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const result = await createMarkdownFromOpenApi(content)
+
+      expect(result).toContain('List categories')
+      expect(result).toContain('name')
+      expect(result).toContain('children')
+    }, 10_000)
+
+    it('handles mutual circular references between schemas', async () => {
+      const content = {
+        openapi: '3.1.1',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/authors': {
+            get: {
+              summary: 'List authors',
+              responses: {
+                '200': {
+                  description: 'Success',
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/Author' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            Author: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                books: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/Book' },
+                },
+              },
+            },
+            Book: {
+              type: 'object',
+              properties: {
+                title: { type: 'string' },
+                author: { $ref: '#/components/schemas/Author' },
+              },
+            },
+          },
+        },
+      }
+
+      const result = await createMarkdownFromOpenApi(content)
+
+      expect(result).toContain('List authors')
+      expect(result).toContain('name')
+      expect(result).toContain('books')
+    }, 10_000)
+
+    it('handles circular reference in request body schema', async () => {
+      const content = {
+        openapi: '3.1.1',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/nodes': {
+            post: {
+              summary: 'Create node',
+              requestBody: {
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/TreeNode' },
+                  },
+                },
+              },
+              responses: {
+                '201': { description: 'Created' },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            TreeNode: {
+              type: 'object',
+              properties: {
+                value: { type: 'string' },
+                parent: { $ref: '#/components/schemas/TreeNode' },
+                children: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/TreeNode' },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const result = await createMarkdownFromOpenApi(content)
+
+      expect(result).toContain('Create node')
+      expect(result).toContain('Request Body')
+      expect(result).toContain('value')
+    }, 10_000)
+
+    it('handles deeply nested circular references (A -> B -> C -> A)', async () => {
+      const content = {
+        openapi: '3.1.1',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/companies': {
+            get: {
+              summary: 'List companies',
+              responses: {
+                '200': {
+                  description: 'Success',
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/Company' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            Company: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                departments: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/Department' },
+                },
+              },
+            },
+            Department: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                lead: { $ref: '#/components/schemas/Employee' },
+              },
+            },
+            Employee: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                company: { $ref: '#/components/schemas/Company' },
+              },
+            },
+          },
+        },
+      }
+
+      const result = await createMarkdownFromOpenApi(content)
+
+      expect(result).toContain('List companies')
+      expect(result).toContain('name')
+      expect(result).toContain('departments')
+    }, 10_000)
+
+    it('renders component schemas section with circular references', async () => {
+      const content = {
+        openapi: '3.1.1',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: {
+            LinkedListNode: {
+              type: 'object',
+              properties: {
+                data: { type: 'string' },
+                next: { $ref: '#/components/schemas/LinkedListNode' },
+              },
+            },
+          },
+        },
+      }
+
+      const result = await createMarkdownFromOpenApi(content)
+
+      expect(result).toContain('Schemas')
+      expect(result).toContain('LinkedListNode')
+      expect(result).toContain('data')
+    }, 10_000)
+  })
+
+  it('bundles external URL references when input is a URL', async () => {
+    const openApiDocument = `openapi: 3.1.1
+info:
+  title: Url Ref API
+  version: 1.0.0
+paths:
+  /users:
+    get:
+      summary: List users
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/user.yaml#/UserList'
+`
+    const userSchema = `UserList:
+  type: array
+  items:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+`
+
+    const server = createServer((request: IncomingMessage, response: ServerResponse) => {
+      if (request.url === '/openapi.yaml') {
+        response.writeHead(200, { 'Content-Type': 'application/yaml' })
+        response.end(openApiDocument)
+        return
+      }
+
+      if (request.url === '/schemas/user.yaml') {
+        response.writeHead(200, { 'Content-Type': 'application/yaml' })
+        response.end(userSchema)
+        return
+      }
+
+      response.writeHead(404)
+      response.end()
+    })
+
+    await new Promise<void>((resolve) => {
+      server.listen(0, '127.0.0.1', () => resolve())
+    })
+
+    const address = server.address()
+    const port = typeof address === 'object' && address ? address.port : 0
+    const documentUrl = `http://127.0.0.1:${port}/openapi.yaml`
+
+    try {
+      const result = await createMarkdownFromOpenApi(documentUrl)
+      expect(result).toContain('List users')
+      expect(result).toContain('id')
+      expect(result).toContain('name')
+    } finally {
+      await new Promise<void>((resolve, reject) => {
+        server.close((error?: Error) => {
+          if (error) {
+            reject(error)
+            return
+          }
+
+          resolve()
+        })
+      })
+    }
   })
 })

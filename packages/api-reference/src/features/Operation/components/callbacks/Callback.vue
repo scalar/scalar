@@ -18,7 +18,7 @@ const { method, name, url, options } = defineProps<{
   eventBus: WorkspaceEventBus | null
   options: Pick<
     OperationProps['options'],
-    'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
+    'hideModels' | 'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
   >
 }>()
 </script>

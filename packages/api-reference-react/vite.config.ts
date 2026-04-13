@@ -1,5 +1,3 @@
-import { resolve } from 'node:path'
-
 import react from '@vitejs/plugin-react'
 import preserveDirective from 'rollup-preserve-directives'
 import { defineConfig } from 'vite'
@@ -23,7 +21,8 @@ export default defineConfig({
     },
     rolldownOptions: {
       treeshake: {
-        moduleSideEffects: (id) => id.includes('.css'),
+        // Keep CSS imports and explicit runtime flag initialization modules.
+        moduleSideEffects: (id) => id.includes('.css') || id.includes('vue-bundler-flags'),
       },
       external,
     },

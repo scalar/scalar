@@ -1,7 +1,7 @@
 import { Value } from '@scalar/typebox/value'
 import { describe, expect, it } from 'vitest'
 
-import { XPostResponseSchema } from './x-post-response'
+import { XPostResponseSchema } from '../general/x-post-response'
 
 describe('x-post-response', () => {
   it('validates a valid post response script', () => {

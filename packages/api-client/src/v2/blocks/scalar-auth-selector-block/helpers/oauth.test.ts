@@ -1,5 +1,6 @@
-import type { OAuthFlowsObjectSecret } from '@scalar/workspace-store/request-example'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { type OAuthFlowsObjectSecret, mergeSecurity } from '@scalar/workspace-store/request-example'
+import type { ComponentsObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { flushPromises } from '@vue/test-utils'
 import { encode } from 'js-base64'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -744,6 +745,32 @@ describe('oauth', () => {
       })
     })
 
+    it('should keep empty x-scalar-security-body values in token request', async () => {
+      const flows = {
+        clientCredentials: {
+          ...scheme.clientCredentials,
+          'x-scalar-security-body': {
+            audience: '',
+            resource: 'https://api.example.com',
+          },
+        },
+      } satisfies OAuthFlowsObjectSecret
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () => Promise.resolve({ access_token: 'access_token_123' }),
+      })
+
+      const [error, result] = await authorizeOauth2(flows, 'clientCredentials', selectedScopes, mockServer, '')
+      expect(error).toBe(null)
+      expect(result).toEqual({ accessToken: 'access_token_123' })
+
+      const callArgs = vi.mocked(global.fetch).mock.calls[0]
+      expect(callArgs).toBeDefined()
+      const body = callArgs![1]?.body as URLSearchParams
+      expect(body.get('audience')).toBe('')
+      expect(body.get('resource')).toBe('https://api.example.com')
+    })
+
     it('should handle client credentials flow with body-only credentials location', async () => {
       const flows = {
         clientCredentials: {
@@ -852,6 +879,122 @@ describe('oauth', () => {
           'Authorization': `Basic ${secretAuth}`,
         },
       })
+    })
+
+    it('keeps x-scalar-security-body in clientCredentials from scheme to token request body', async () => {
+      const documentSlug = 'issue-8516-document'
+      const schemeName = 'OAuth2 Bearer'
+      const securitySchemes: ComponentsObject['securitySchemes'] = {
+        [schemeName]: {
+          type: 'oauth2',
+          flows: {
+            clientCredentials: {
+              scopes: {
+                'user:read': 'TEST',
+              },
+              refreshUrl: '',
+              tokenUrl,
+              'x-scalar-security-body': {
+                audience: 'scalar',
+              },
+              'x-scalar-credentials-location': 'body',
+            },
+          },
+        },
+      }
+
+      const workspaceStore = createWorkspaceStore()
+      workspaceStore.auth.setAuthSecrets(documentSlug, schemeName, {
+        type: 'oauth2',
+        clientCredentials: {
+          'x-scalar-secret-client-id': 'TEST_CLIENT_ID',
+          'x-scalar-secret-client-secret': 'TEST_CLIENT_SECRET',
+        },
+      })
+
+      const merged = mergeSecurity(securitySchemes, {}, workspaceStore.auth, documentSlug)
+      const mergedFlow = merged[schemeName]?.type === 'oauth2' ? merged[schemeName].flows.clientCredentials : undefined
+      if (!mergedFlow) {
+        throw new Error('Expected merged OAuth2 clientCredentials flow')
+      }
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: async () => ({ access_token: 'access_token_123' }),
+      })
+
+      const [error, result] = await authorizeOauth2(
+        merged[schemeName]!.type === 'oauth2' ? merged[schemeName]!.flows : {},
+        'clientCredentials',
+        ['user:read'],
+        mockServer,
+        '',
+      )
+
+      expect(error).toBe(null)
+      expect(result).toEqual({ accessToken: 'access_token_123' })
+      expect(global.fetch).toHaveBeenCalledTimes(1)
+
+      const callArgs = vi.mocked(global.fetch).mock.calls[0]
+      expect(callArgs).toBeDefined()
+      const body = callArgs![1]?.body as URLSearchParams
+      expect(body.get('audience')).toBe('scalar')
+      expect(body.get('grant_type')).toBe('client_credentials')
+      expect(body.get('client_id')).toBe('TEST_CLIENT_ID')
+      expect(body.get('client_secret')).toBe('TEST_CLIENT_SECRET')
+    })
+
+    it('keeps x-scalar-security-body in clientCredentials when refreshUrl is omitted in the input scheme', async () => {
+      const documentSlug = 'issue-8516-document-no-refresh'
+      const schemeName = 'OAuth2 Bearer'
+      const securitySchemes = {
+        [schemeName]: {
+          type: 'oauth2',
+          flows: {
+            clientCredentials: {
+              scopes: {
+                'user:read': 'TEST',
+              },
+              tokenUrl,
+              'x-scalar-security-body': {
+                audience: 'scalar',
+              },
+              'x-scalar-credentials-location': 'body',
+            },
+          },
+        },
+      } as unknown as ComponentsObject['securitySchemes']
+
+      const workspaceStore = createWorkspaceStore()
+      workspaceStore.auth.setAuthSecrets(documentSlug, schemeName, {
+        type: 'oauth2',
+        clientCredentials: {
+          'x-scalar-secret-client-id': 'TEST_CLIENT_ID',
+          'x-scalar-secret-client-secret': 'TEST_CLIENT_SECRET',
+        },
+      })
+
+      const merged = mergeSecurity(securitySchemes, {}, workspaceStore.auth, documentSlug)
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: async () => ({ access_token: 'access_token_123' }),
+      })
+
+      const [error, result] = await authorizeOauth2(
+        merged[schemeName]!.type === 'oauth2' ? merged[schemeName]!.flows : {},
+        'clientCredentials',
+        ['user:read'],
+        mockServer,
+        '',
+      )
+
+      expect(error).toBe(null)
+      expect(result).toEqual({ accessToken: 'access_token_123' })
+      expect(global.fetch).toHaveBeenCalledTimes(1)
+
+      const callArgs = vi.mocked(global.fetch).mock.calls[0]
+      expect(callArgs).toBeDefined()
+      const body = callArgs![1]?.body as URLSearchParams
+      expect(body.get('audience')).toBe('scalar')
     })
   })
 
