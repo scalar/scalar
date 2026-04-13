@@ -18,6 +18,16 @@ try {
 }
 
 describe('jsAxios', () => {
+  it('uses ESM imports and avoids CommonJS require', () => {
+    const result = jsAxios.generate({
+      url: 'https://example.com',
+      method: 'GET',
+    })
+
+    expect(result).toContain(`import axios from 'axios'`)
+    expect(result.includes('require(')).toBe(false)
+  })
+
   it('returns a basic request', () => {
     const result = jsAxios.generate({
       url: 'https://example.com',
