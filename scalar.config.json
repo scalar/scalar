@@ -1471,6 +1471,11 @@
                     "filepath": "documentation/markdown.md",
                     "type": "page"
                   },
+                  "server-side-rendering": {
+                    "title": "Server-Side Rendering",
+                    "filepath": "documentation/server-side-rendering.md",
+                    "type": "page"
+                  },
                   "changelog": {
                     "title": "Changelog",
                     "filepath": "packages/api-reference/CHANGELOG.md",
