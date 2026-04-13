@@ -62,7 +62,7 @@
     "postman-sandbox": "^6.6.1",
     "vue": "catalog:*",
     "@types/postman-collection": "^3.5.11",
-    "postman-collection": "^5.2.0",
+    "postman-collection": "^5.3.0",
     "@scalar/workspace-store": "workspace:*",
     "@scalar/use-codemirror": "workspace:*"
   },
