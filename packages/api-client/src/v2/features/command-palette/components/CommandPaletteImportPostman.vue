@@ -14,6 +14,7 @@ export default {
 import { useLoadingState } from '@scalar/components'
 import type { ConvertOptions } from '@scalar/postman-to-openapi'
 import { useToasts } from '@scalar/use-toasts'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -145,7 +146,7 @@ const handleImport = async (): Promise<void> => {
     : null
 
   const options: ConvertOptions = {
-    document: (targetDocument as unknown) ?? undefined,
+    document: (targetDocument as OpenAPIV3_1.Document | null) ?? undefined,
     mergeOperation: mergeSamePathAndMethod.value,
     requestIndexPaths: pathKeysToRequestIndexPaths(importPathKeys.value),
   }

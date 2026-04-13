@@ -51,6 +51,20 @@ const genericExampleValues: Record<string, string> = {
   'object-id': '6592008029c8c3e4dc76256c',
 }
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null
+
+const isReferenceObject = (value: unknown): value is OpenAPIV3_1.ReferenceObject =>
+  isRecord(value) && typeof value.$ref === 'string'
+
+const asSchemaObject = (value: unknown): OpenAPIV3_1.SchemaObject | undefined => {
+  if (!isRecord(value) || isReferenceObject(value)) {
+    return undefined
+  }
+
+  return value as OpenAPIV3_1.SchemaObject
+}
+
 /**
  * Extract enum values from the propertyNames keyword of an object schema.
  * JSON Schema's propertyNames constrains which keys are valid in a map/dict.
@@ -219,7 +233,10 @@ const handleObjectSchema = (
         continue
       }
 
-      const propertyXmlName = options?.xml && 'xml' in propertySchema ? propertySchema.xml?.name : undefined
+      const propertyXmlName =
+        options?.xml && 'xml' in propertySchema && typeof propertySchema.xml?.name === 'string'
+          ? propertySchema.xml.name
+          : undefined
       const value = getExampleFromSchema(propertySchema, options, {
         level: level + 1,
         parentSchema: schema,
@@ -327,7 +344,10 @@ const handleObjectSchema = (
 
   if (options?.xml && 'xml' in schema && schema.xml?.name && level === 0) {
     const wrapped: Record<string, unknown> = {}
-    wrapped[schema.xml.name] = response
+    const rootName = typeof schema.xml.name === 'string' ? schema.xml.name : undefined
+    if (rootName) {
+      wrapped[rootName] = response
+    }
     return cache(schema, wrapped)
   }
 
@@ -341,15 +361,20 @@ const handleArraySchema = (
   level: number,
   seen: WeakSet<object>,
 ) => {
-  const items = 'items' in schema ? getResolvedRef(schema.items) : undefined
-  const itemsXmlTagName = items && typeof items === 'object' && 'xml' in items ? items.xml?.name : undefined
+  const resolvedItems = 'items' in schema ? getResolvedRef(schema.items) : undefined
+  const items = asSchemaObject(resolvedItems)
+  const itemsXmlTagName =
+    options?.xml && items && 'xml' in items && typeof items.xml?.name === 'string' ? items.xml.name : undefined
   const wrapItems = !!(options?.xml && 'xml' in schema && schema.xml?.wrapped && itemsXmlTagName)
 
   if (schema.example !== undefined) {
-    return cache(schema, wrapItems ? { [itemsXmlTagName as string]: schema.example } : schema.example)
+    if (wrapItems && itemsXmlTagName) {
+      return cache(schema, { [itemsXmlTagName]: schema.example })
+    }
+    return cache(schema, schema.example)
   }
 
-  if (items && typeof items === 'object') {
+  if (items) {
     if (Array.isArray(items.allOf) && items.allOf.length > 0) {
       const allOf = items.allOf.filter(isDefined)
       const first = getResolvedRef(allOf[0])
@@ -373,9 +398,12 @@ const handleArraySchema = (
           }),
         )
         .filter(isDefined)
+      if (wrapItems && itemsXmlTagName) {
+        return cache(schema, (examples as unknown[]).map((e) => ({ [itemsXmlTagName]: e })))
+      }
       return cache(
         schema,
-        wrapItems ? (examples as unknown[]).map((e) => ({ [itemsXmlTagName as string]: e })) : examples,
+        examples,
       )
     }
 
@@ -387,7 +415,10 @@ const handleArraySchema = (
         parentSchema: schema,
         seen,
       })
-      return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex])
+      if (wrapItems && itemsXmlTagName) {
+        return cache(schema, [{ [itemsXmlTagName]: ex }])
+      }
+      return cache(schema, [ex])
     }
   }
 
@@ -397,11 +428,14 @@ const handleArraySchema = (
     items && typeof items === 'object' && (('type' in items && items.type === 'array') || 'items' in items)
 
   if (items && typeof items === 'object' && (('type' in items && items.type) || isObject || isArray)) {
-    const ex = getExampleFromSchema(items as OpenAPIV3_1.SchemaObject, options, {
+    const ex = getExampleFromSchema(items, options, {
       level: level + 1,
       seen,
     })
-    return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex])
+    if (wrapItems && itemsXmlTagName) {
+      return cache(schema, [{ [itemsXmlTagName]: ex }])
+    }
+    return cache(schema, [ex])
   }
 
   return cache(schema, [])
@@ -545,7 +579,8 @@ export const getExampleFromSchema = (
 
   // Handle custom variables (x-variable extension)
   if ('x-variable' in _schema && _schema['x-variable']) {
-    const value = options?.variables?.[_schema['x-variable']]
+    const variableName = typeof _schema['x-variable'] === 'string' ? _schema['x-variable'] : undefined
+    const value = variableName ? options?.variables?.[variableName] : undefined
     if (value !== undefined) {
       // Type coercion for numeric types
       if ('type' in _schema && (_schema.type === 'number' || _schema.type === 'integer')) {

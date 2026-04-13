@@ -5,6 +5,7 @@ import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 
 import { store } from '../libs/store'
+import { isReferenceObject, isResponseObject } from './openapi-guards'
 import { type StoreOperationTracking, createStoreWrapper } from './store-wrapper'
 
 /**
@@ -45,7 +46,7 @@ function getExampleFromResponse(
 
   const response = responses[statusCode] || responses.default
 
-  if (!response) {
+  if (!response || isReferenceObject(response) || !isResponseObject(response)) {
     return null
   }
 

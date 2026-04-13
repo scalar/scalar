@@ -439,10 +439,10 @@ export const mutateRequestDiff = (
     const [firstEntry] = Object.entries(diff.value ?? {})
     const [_method, _operation] = firstEntry ?? []
 
-    const operation: OpenAPIV3_1.OperationObject<{
+    const operation = (method ? diff.value : _operation) as OpenAPIV3_1.OperationObject & {
       tags?: string[]
       security?: OpenAPIV3_1.SecurityRequirementObject[]
-    }> = method ? diff.value : _operation
+    }
     const newMethod = method || _method
 
     // TODO: match servers up and add if we don't have
@@ -452,7 +452,7 @@ export const mutateRequestDiff = (
     const { security: operationSecurity, ...operationWithoutSecurity } = operation
 
     const requestPayload: RequestPayload = {
-      ...operationWithoutSecurity,
+      ...(operationWithoutSecurity as Partial<RequestPayload>),
       method: isHttpMethod(newMethod) ? newMethod : 'get',
       path,
       parameters: (operation.parameters ?? []) as RequestParameterPayload[],
@@ -462,7 +462,7 @@ export const mutateRequestDiff = (
     // Add list of UIDs to associate security schemes
     // As per the spec if there is operation level security we ignore the top level requirements
     if (operationSecurity?.length) {
-      requestPayload.security = operationSecurity.map((s) => {
+      requestPayload.security = operationSecurity.map((s: OpenAPIV3_1.SecurityRequirementObject) => {
         const _keys = Object.keys(s)
 
         // Handle the case of {} for optional

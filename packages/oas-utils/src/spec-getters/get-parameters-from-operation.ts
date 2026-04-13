@@ -1,5 +1,4 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-
 import type { Operation } from '@/entities/spec'
 import { getExampleFromSchema } from './get-example-from-schema'
 
@@ -12,7 +11,7 @@ import { getExampleFromSchema } from './get-example-from-schema'
  */
 export function getParametersFromOperation(
   operationParameters: Operation['parameters'] = [],
-  pathParameters: OpenAPIV3_1.ParameterObject[] = [],
+  pathParameters: Operation['parameters'] = [],
   where: 'query' | 'header' | 'path' | 'cookie' | 'formData' | 'body',
   requiredOnly: boolean = true,
 ) {
@@ -27,11 +26,16 @@ export function getParametersFromOperation(
     .map((parameter) => ({
       name: parameter.name ?? 'Unknown Parameter',
       description: parameter.description ?? null,
-      value: parameter.example
-        ? parameter.example
-        : parameter.schema
-          ? getExampleFromSchema(parameter.schema, { mode: 'write' })
-          : '',
+      value:
+        parameter && typeof parameter === 'object' && 'example' in parameter && parameter.example !== undefined
+          ? parameter.example
+          : parameter &&
+              typeof parameter === 'object' &&
+              'schema' in parameter &&
+              parameter.schema &&
+              typeof parameter.schema === 'object'
+            ? getExampleFromSchema(parameter.schema as OpenAPIV3_1.SchemaObject, { mode: 'write' })
+            : '',
       required: parameter.required ?? false,
       enabled: parameter.required ?? false,
     }))

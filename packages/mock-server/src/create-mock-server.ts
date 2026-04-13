@@ -12,6 +12,7 @@ import { isAuthenticationRequired } from '@/utils/is-authentication-required'
 import { logAuthenticationInstructions } from '@/utils/log-authentication-instructions'
 import { processOpenApiDocument } from '@/utils/process-openapi-document'
 import { setUpAuthenticationRoutes } from '@/utils/set-up-authentication-routes'
+import { isReferenceObject, isSecuritySchemeObject } from '@/utils/openapi-guards'
 
 import { store } from './libs/store'
 import { mockAnyResponse } from './routes/mock-any-response'
@@ -60,9 +61,16 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   /** Authentication methods defined in the OpenAPI document */
   setUpAuthenticationRoutes(app, schema)
 
-  logAuthenticationInstructions(
-    schema?.components?.securitySchemes || ({} as Record<string, OpenAPIV3_1.SecuritySchemeObject>),
-  )
+  const loggableSecuritySchemes = Object.entries(schema?.components?.securitySchemes ?? {}).reduce<
+    Record<string, OpenAPIV3_1.SecuritySchemeObject>
+  >((acc, [name, securityScheme]) => {
+    if (!isReferenceObject(securityScheme) && isSecuritySchemeObject(securityScheme)) {
+      acc[name] = securityScheme
+    }
+    return acc
+  }, {})
+
+  logAuthenticationInstructions(loggableSecuritySchemes)
 
   /** Paths specified in the OpenAPI document */
   const paths = schema?.paths ?? {}

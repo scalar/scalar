@@ -201,7 +201,10 @@ export async function importSpecToWorkspace(
   // ---------------------------------------------------------------------------
   // SECURITY HANDLING
 
-  const security = schema.components?.securitySchemes ?? schema?.securityDefinitions ?? {}
+  const legacyDocument = schema as OpenAPIV3_1.Document & {
+    securityDefinitions?: Record<string, OpenAPIV3_1.SecuritySchemeObject>
+  }
+  const security = schema.components?.securitySchemes ?? legacyDocument.securityDefinitions ?? {}
 
   // @ts-expect-error - Toss out a deprecated warning for the old authentication state
   if (authentication?.oAuth2 || authentication?.apiKey || authentication?.http) {
@@ -384,7 +387,7 @@ export async function importSpecToWorkspace(
           ? getSelectedSecuritySchemeUids(securityRequirements, preferredSecurityNames, securitySchemeMap)
           : []
 
-      const requestPayload: RequestPayload = {
+      const requestPayload = {
         ...operationWithoutSecurity,
         method,
         path: pathString,
@@ -394,7 +397,7 @@ export async function importSpecToWorkspace(
         // Merge path and operation level parameters
         parameters: [...(path?.parameters ?? []), ...(operation.parameters ?? [])] as RequestParameterPayload[],
         servers: [...pathServers, ...operationLevelServers].map((s) => s.uid),
-      }
+      } as RequestPayload
 
       // Remove any examples from the request payload as they conflict with our examples property and are not valid
       if (requestPayload.examples) {
@@ -480,7 +483,7 @@ export async function importSpecToWorkspace(
   // Generate Collection
 
   // Grab the security requirements for this operation
-  const securityRequirements: SelectedSecuritySchemeUids = (schema.security ?? [])
+  const securityRequirements = (schema.security ?? [])
     .map((s: OpenAPIV3_1.SecurityRequirementObject) => {
       const keys = Object.keys(s)
       return keys.length > 1 ? keys : keys[0]
