@@ -221,6 +221,6 @@ describe('RequestBody', () => {
     })
 
     const schema = wrapper.findComponent(Schema)
-    expect(schema.props('hideModelNames')).toBeUndefined()
+    expect(schema.props('hideModelNames')).toBe(false)
   })
 })

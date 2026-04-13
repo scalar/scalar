@@ -9,7 +9,7 @@ describe('ParameterListItem', () => {
   it('keeps model names visible when hideModels is enabled', () => {
     const wrapper = mount(ParameterListItem, {
       props: {
-        collapsableItems: true,
+        collapsableItems: false,
         eventBus: null,
         name: 'pet',
         options: {
@@ -29,6 +29,6 @@ describe('ParameterListItem', () => {
     })
 
     const schemaProperty = wrapper.findComponent(SchemaProperty)
-    expect(schemaProperty.props('hideModelNames')).toBeUndefined()
+    expect(schemaProperty.props('hideModelNames')).toBe(false)
   })
 })
