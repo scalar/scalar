@@ -15,6 +15,7 @@ export const buildRequest = (
     envVariables: Record<string, string>
   },
 ) => {
+  /** Replace the value with the environment variable or context function */
   const replace = (value: string): string | null => {
     if (isContextFunctionName(value)) {
       return contextFunctions[value].fn() ?? null
@@ -22,8 +23,10 @@ export const buildRequest = (
     return options.envVariables[value] ?? null
   }
 
+  /** Create a new abort controller */
   const controller = new AbortController()
 
+  /** Create a new headers object with the replaced values */
   const headers = (() => {
     const headers = new Headers()
 
@@ -34,6 +37,7 @@ export const buildRequest = (
     return headers
   })()
 
+  /** Create a new body object with the replaced values */
   const body: BodyInit | null = (() => {
     if (request.body?.mode === 'raw') {
       if (typeof request.body.value === 'string') {
@@ -70,7 +74,7 @@ export const buildRequest = (
   const securityQueryParams = new URLSearchParams()
   const securityCookies: XScalarCookie[] = []
 
-  // Build the request security unless the consumer opted out via disableSecurity
+  /** Build the request security unless the consumer opted out via disableSecurity  */
   if (!request.options?.disableSecurity) {
     request.security.forEach((security) => {
       const name = replaceEnvVariables(security.name, replace)
@@ -113,19 +117,23 @@ export const buildRequest = (
     })
   }
 
+  /** Resolve the request URL with the replaced values */
   const requestUrl = resolveRequestFactoryUrl(request, {
     envVariables: replace,
     securityQueryParams: securityQueryParams,
   })
 
+  /** Check if the request should be proxied */
   const isUsingProxy = shouldUseProxy(request.proxyUrl, requestUrl)
 
+  /** Create a new cookies array with the replaced values */
   const cookies: XScalarCookie[] = [...request.cookies, ...securityCookies].map((c) => ({
     ...c,
     name: replaceEnvVariables(c.name, replace),
     value: replaceEnvVariables(c.value, replace),
   }))
 
+  /** Build the request cookie header */
   const cookieHeader = buildRequestCookieHeader({
     cookies,
     originalCookieHeader: headers.get('cookie'),
@@ -133,16 +141,17 @@ export const buildRequest = (
     useCustomCookieHeader: (isUsingProxy || request.options?.isElectron) ?? false,
   })
 
-  // Add the cookie header to the headers
+  /** Add the cookie header to the headers */
   if (cookieHeader) {
     headers.set(cookieHeader.name, cookieHeader.value)
   }
 
-  // final url
+  /** Encode the URL with the allowed reserved query parameters */
   const encodedUrl = applyAllowReservedToUrl(requestUrl, request.allowedReservedQueryParameters ?? new Set())
   const finalUrl = isUsingProxy ? redirectToProxy(request.proxyUrl, encodedUrl) : encodedUrl
 
   return {
+    /** Create a new request object with the replaced values ready to be sent to the server */
     request: new Request(finalUrl, {
       /**
        * Ensure that all methods are uppercased (though only needed for patch)
@@ -155,7 +164,9 @@ export const buildRequest = (
       cache: request.cache,
       signal: controller.signal,
     }),
+    /** The abort controller */
     controller,
+    /** The flag indicating if the request is being proxied */
     isUsingProxy,
   }
 }
