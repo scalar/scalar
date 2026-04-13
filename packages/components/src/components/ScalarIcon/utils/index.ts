@@ -1,6 +1,6 @@
 import type { ICONS } from '../icons'
 import type { LOGOS } from '../logos'
-import { markRaw, type Component } from 'vue'
+import { defineComponent, h, markRaw, type Component } from 'vue'
 
 /** @deprecated Use the icons from the `@scalar/icons` package instead. */
 export type Icon = (typeof ICONS)[number]
@@ -14,14 +14,31 @@ const icons = import.meta.glob<SVGElement>('../icons/*.svg', {
   eager: false,
 })
 
-const logos = import.meta.glob<SVGElement>('../logos/*.svg', {
-  query: 'component',
+const logos = import.meta.glob<string>('../logos/*.svg', {
+  query: 'url',
   import: 'default',
-  eager: false,
+  eager: true,
 })
 
 const iconCache = new Map<Icon, Component>()
 const logoCache = new Map<Logo, Component>()
+
+const createLogoComponent = (src: string): Component =>
+  markRaw(
+    defineComponent({
+      name: 'ScalarIconLogo',
+      inheritAttrs: false,
+      setup(_, { attrs }) {
+        const label = typeof attrs['aria-label'] === 'string' ? attrs['aria-label'] : ''
+        return () =>
+          h('img', {
+            ...attrs,
+            alt: label,
+            src,
+          })
+      },
+    }),
+  )
 
 /**
  * Generate a Vue component from the icon SVGs
@@ -59,14 +76,14 @@ export const getLogo = async (name: Logo): Promise<Component | null> => {
   }
 
   const filename = `../logos/${name}.svg`
-  const loader = logos[filename]
+  const logoSrc = logos[filename]
 
-  if (!loader) {
+  if (!logoSrc) {
     console.warn(`Could not find icon: ${name}`)
     return null
   }
 
-  const logo = markRaw(await loader())
+  const logo = createLogoComponent(logoSrc)
   logoCache.set(name, logo)
   return logo
 }

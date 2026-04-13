@@ -7,7 +7,21 @@ import {
   type ClientOptionGroup,
   type CustomClientOption,
 } from '@scalar/api-client/v2/blocks/operation-code-sample'
-import { ScalarCombobox, ScalarIcon } from '@scalar/components'
+import { ScalarCombobox } from '@scalar/components'
+import {
+  ScalarIconFileCSharp,
+  ScalarIconFileHtml,
+  ScalarIconFileJs,
+  ScalarIconFileCode,
+  ScalarIconFilePy,
+  ScalarIconFileRs,
+  ScalarIconFileTs,
+  ScalarIconFileTxt,
+  ScalarIconFileVue,
+  ScalarIconFloppyDisk,
+  ScalarIconGearSix,
+  ScalarIconTerminal,
+} from '@scalar/icons'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { AvailableClients, TargetId } from '@scalar/types/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -29,12 +43,36 @@ const { clientOptions, featuredClients, eventBus, selectedClient } =
 
 const containerRef = ref<HTMLElement>()
 
-/**
- * Icons have longer names to appear in icon searches, e.g. "javascript-js" instead of just "javascript". This function
- * maps the language key to the icon name.
- */
-const getIconByLanguageKey = (targetKey: TargetId) =>
-  `programming-language-${targetKey === 'js' ? 'javascript' : targetKey}` as const
+const LANGUAGE_ICONS = {
+  c: ScalarIconFileTxt,
+  clojure: ScalarIconFileTxt,
+  csharp: ScalarIconFileCSharp,
+  dart: ScalarIconFileTxt,
+  fs: ScalarIconFileTxt,
+  go: ScalarIconFileTxt,
+  html: ScalarIconFileHtml,
+  http: ScalarIconTerminal,
+  java: ScalarIconFileTxt,
+  js: ScalarIconFileJs,
+  json: ScalarIconFileCode,
+  kotlin: ScalarIconFileTxt,
+  node: ScalarIconGearSix,
+  objc: ScalarIconFileTxt,
+  ocaml: ScalarIconFileTxt,
+  php: ScalarIconFileCode,
+  powershell: ScalarIconTerminal,
+  py: ScalarIconFilePy,
+  r: ScalarIconFileTxt,
+  ruby: ScalarIconFileTxt,
+  rs: ScalarIconFileRs,
+  shell: ScalarIconTerminal,
+  swift: ScalarIconFileTxt,
+  ts: ScalarIconFileTs,
+  vue: ScalarIconFileVue,
+} as const satisfies Record<TargetId, unknown>
+
+/** Maps language keys to explicit icon components. */
+const getIconByLanguageKey = (targetKey: TargetId) => LANGUAGE_ICONS[targetKey] ?? ScalarIconFloppyDisk
 
 /** Set custom example, or update the selected HTTP client globally */
 const selectClient = (option: ClientOption | CustomClientOption) => {
@@ -71,9 +109,10 @@ const selectedTargetKey = computed(
         'client-libraries__active': featuredClient.id === selectedClient,
       }">
       <div :class="`client-libraries-icon__${featuredClient.targetKey}`">
-        <ScalarIcon
+        <component
+          :is="getIconByLanguageKey(featuredClient.targetKey)"
           class="client-libraries-icon"
-          :icon="getIconByLanguageKey(featuredClient.targetKey)" />
+          weight="regular" />
       </div>
       <span class="client-libraries-text">{{
         featuredClient.targetTitle
@@ -100,10 +139,11 @@ const selectedTargetKey = computed(
           class="client-libraries-icon__more">
           <template v-if="selectedClient && !isFeaturedClient(selectedClient)">
             <div :class="`client-libraries-icon__${selectedTargetKey}`">
-              <ScalarIcon
+              <component
                 v-if="selectedTargetKey"
+                :is="getIconByLanguageKey(selectedTargetKey)"
                 class="client-libraries-icon"
-                :icon="getIconByLanguageKey(selectedTargetKey)" />
+                weight="regular" />
             </div>
           </template>
           <template v-else>

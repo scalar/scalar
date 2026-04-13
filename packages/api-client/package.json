@@ -62,6 +62,11 @@
       "types": "./dist/components/AddressBar/index.d.ts",
       "default": "./dist/components/AddressBar/index.js"
     },
+    "./components/OpenApiClientButton": {
+      "import": "./dist/components/OpenApiClientButton.js",
+      "types": "./dist/components/OpenApiClientButton.d.ts",
+      "default": "./dist/components/OpenApiClientButton.js"
+    },
     "./components/CodeInput": {
       "import": "./dist/components/CodeInput/index.js",
       "types": "./dist/components/CodeInput/index.d.ts",

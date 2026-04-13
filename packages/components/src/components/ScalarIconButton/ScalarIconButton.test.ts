@@ -1,9 +1,8 @@
 import { ScalarIconAcorn } from '@scalar/icons'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { markRaw, nextTick } from 'vue'
 
-import { ScalarIconLegacyAdapter } from '../ScalarIcon'
 import { ELEMENT_ID } from '../ScalarTooltip/constants'
 import { cleanupTooltipElement } from '../ScalarTooltip/useTooltip'
 import ScalarIconButton from './ScalarIconButton.vue'
@@ -50,11 +49,12 @@ describe('ScalarIconButton', () => {
         },
       })
 
-      expect(wrapper.findComponent(ScalarIconLegacyAdapter).exists()).toBe(true)
+      expect(wrapper.findComponent(ScalarIconAcorn).exists()).toBe(true)
+      expect(wrapper.findComponent({ name: 'ScalarIconLegacyAdapter' }).exists()).toBe(false)
       expect(wrapper.find('.sr-only').text()).toBe('Test Button')
     })
 
-    it('renders with string-based legacy icon', () => {
+    it('renders with string-based legacy icon', async () => {
       const wrapper = mount(ScalarIconButton, {
         props: {
           icon: 'Logo',
@@ -62,8 +62,11 @@ describe('ScalarIconButton', () => {
         },
       })
 
-      expect(wrapper.findComponent(ScalarIconLegacyAdapter).exists()).toBe(true)
-      expect(wrapper.findComponent(ScalarIconLegacyAdapter).props('icon')).toBe('Logo')
+      await flushPromises()
+
+      const legacyAdapter = wrapper.findComponent({ name: 'ScalarIconLegacyAdapter' })
+      expect(legacyAdapter.exists()).toBe(true)
+      expect(legacyAdapter.props('icon')).toBe('Logo')
     })
   })
 
@@ -183,7 +186,7 @@ describe('ScalarIconButton', () => {
   })
 
   describe('Icon properties', () => {
-    it('passes weight prop to icon component', () => {
+    it('passes weight prop to icon component', async () => {
       const wrapper = mount(ScalarIconButton, {
         props: {
           icon: 'Logo',
@@ -192,11 +195,13 @@ describe('ScalarIconButton', () => {
         },
       })
 
-      const iconComponent = wrapper.findComponent(ScalarIconLegacyAdapter)
-      expect(iconComponent.props('weight')).toBe('bold')
+      await flushPromises()
+
+      const legacyAdapter = wrapper.findComponent({ name: 'ScalarIconLegacyAdapter' })
+      expect(legacyAdapter.props('weight')).toBe('bold')
     })
 
-    it('passes thickness prop to icon component (deprecated)', () => {
+    it('passes thickness prop to icon component (deprecated)', async () => {
       const wrapper = mount(ScalarIconButton, {
         props: {
           icon: 'Logo',
@@ -205,11 +210,13 @@ describe('ScalarIconButton', () => {
         },
       })
 
-      const iconComponent = wrapper.findComponent(ScalarIconLegacyAdapter)
-      expect(iconComponent.props('thickness')).toBe('2')
+      await flushPromises()
+
+      const legacyAdapter = wrapper.findComponent({ name: 'ScalarIconLegacyAdapter' })
+      expect(legacyAdapter.props('thickness')).toBe('2')
     })
 
-    it('passes both weight and thickness props', () => {
+    it('passes both weight and thickness props', async () => {
       const wrapper = mount(ScalarIconButton, {
         props: {
           icon: 'Logo',
@@ -219,9 +226,11 @@ describe('ScalarIconButton', () => {
         },
       })
 
-      const iconComponent = wrapper.findComponent(ScalarIconLegacyAdapter)
-      expect(iconComponent.props('weight')).toBe('light')
-      expect(iconComponent.props('thickness')).toBe('1.5')
+      await flushPromises()
+
+      const legacyAdapter = wrapper.findComponent({ name: 'ScalarIconLegacyAdapter' })
+      expect(legacyAdapter.props('weight')).toBe('light')
+      expect(legacyAdapter.props('thickness')).toBe('1.5')
     })
   })
 

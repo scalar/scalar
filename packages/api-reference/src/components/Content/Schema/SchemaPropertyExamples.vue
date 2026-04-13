@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIconClipboard } from '@scalar/icons'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed } from 'vue'
@@ -48,9 +48,8 @@ const multipleExamplesLabel = computed(() =>
           <span>
             {{ formatExample(example) }}
           </span>
-          <ScalarIcon
+          <ScalarIconClipboard
             class="group-hover:text-c-1 text-c-3 ml-auto min-h-3 min-w-3"
-            icon="Clipboard"
             size="xs" />
         </button>
       </div>
@@ -75,9 +74,8 @@ const multipleExamplesLabel = computed(() =>
           type="button"
           @click="copyToClipboard(formatExample(ex))">
           <span>{{ formatExample(ex) }} </span>
-          <ScalarIcon
+          <ScalarIconClipboard
             class="text-c-3 group-hover:text-c-1 ml-auto min-h-3 min-w-3"
-            icon="Clipboard"
             size="xs" />
         </button>
       </div>

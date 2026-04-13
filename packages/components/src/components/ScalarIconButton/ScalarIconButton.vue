@@ -16,10 +16,9 @@ export default {}
 </script>
 <script setup lang="ts">
 import { cva, useBindCx } from '@scalar/use-hooks/useBindCx'
-import { computed, useTemplateRef } from 'vue'
+import { computed, defineAsyncComponent, useTemplateRef } from 'vue'
 
 import { BUTTON_VARIANT_STYLES } from '../ScalarButton/constants'
-import { ScalarIconLegacyAdapter } from '../ScalarIcon'
 import { useTooltip } from '../ScalarTooltip'
 import type { ScalarIconButtonProps } from './types'
 
@@ -28,6 +27,10 @@ const {
   variant = 'ghost',
   size = 'md',
   tooltip,
+  disabled,
+  icon,
+  weight,
+  thickness,
 } = defineProps<ScalarIconButtonProps>()
 
 const variants = cva({
@@ -58,6 +61,12 @@ const variants = cva({
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 
+const ScalarIconLegacyAdapter = defineAsyncComponent(
+  () => import('../ScalarIcon/ScalarIconLegacyAdapter.vue'),
+)
+
+const isLegacyIcon = computed(() => typeof icon === 'string')
+
 const button = useTemplateRef('ref')
 
 useTooltip({
@@ -75,7 +84,14 @@ useTooltip({
     :aria-disabled="disabled"
     type="button"
     v-bind="cx(variants({ size, variant, disabled }))">
+    <component
+      :is="icon"
+      v-if="!isLegacyIcon"
+      :label="label"
+      :weight="weight"
+      v-bind="cx(variants({ size }))" />
     <ScalarIconLegacyAdapter
+      v-else
       :icon="icon"
       :thickness="thickness"
       :weight="weight" />
