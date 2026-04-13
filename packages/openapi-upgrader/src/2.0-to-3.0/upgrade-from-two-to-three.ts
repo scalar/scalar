@@ -10,6 +10,27 @@ type XExampleExtensions = {
 
 const DEFAULT_MEDIA_TYPE = 'application/json'
 
+const isReferenceObject = (value: unknown): value is OpenAPIV2.ReferenceObject =>
+  typeof value === 'object' &&
+  value !== null &&
+  '$ref' in value &&
+  typeof (value as { $ref?: unknown }).$ref === 'string'
+
+const isBodyParameterObject = (parameter: OpenAPIV2.ParameterObject): parameter is OpenAPIV2.BodyParameterObject =>
+  parameter.in === 'body'
+
+const isFormDataParameterObject = (
+  parameter: OpenAPIV2.ParameterObject,
+): parameter is OpenAPIV2.FormDataParameterSubSchemaObject => parameter.in === 'formData'
+
+const isPathQueryOrHeaderParameter = (
+  parameter: OpenAPIV2.ParameterObject,
+): parameter is
+  | OpenAPIV2.HeaderParameterSubSchemaObject
+  | OpenAPIV2.PathParameterSubSchemaObject
+  | OpenAPIV2.QueryParameterSubSchemaObject =>
+  parameter.in === 'header' || parameter.in === 'path' || parameter.in === 'query'
+
 /** Extracts and removes x-example and x-examples extensions from an object */
 function extractXExampleExtensions(obj: Record<string, unknown>): XExampleExtensions {
   const xExample = obj['x-example'] as Record<string, unknown> | undefined
@@ -291,25 +312,21 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
         : {}
     for (const [name, param] of Object.entries(parameters)) {
       if (param && typeof param === 'object') {
-        // Handle reference objects
-        if ('$ref' in param) {
-          const convertedParam = transformParameterObject(param as OpenAPIV2.ReferenceObject)
+        const openApiParameter = param as OpenAPIV2.ParameterObject | OpenAPIV2.ReferenceObject
+
+        if (isReferenceObject(openApiParameter)) {
+          const convertedParam = transformParameterObject(openApiParameter)
           params[name] = convertedParam
-        } else if ('in' in param) {
-          if (param.in === 'body') {
-            bodyParams[name] = migrateBodyParameter(
-              param as OpenAPIV2.ParameterObject,
-              (document.consumes as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE],
-            )
-          } else if (param.in === 'formData') {
-            bodyParams[name] = migrateFormDataParameter(
-              [param as OpenAPIV2.ParameterObject],
-              document.consumes as string[] | undefined,
-            )
-          } else {
-            const convertedParam = transformParameterObject(param as OpenAPIV2.ParameterObject)
-            params[name] = convertedParam
-          }
+        } else if (isBodyParameterObject(openApiParameter)) {
+          bodyParams[name] = migrateBodyParameter(
+            openApiParameter,
+            (document.consumes as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE],
+          )
+        } else if (isFormDataParameterObject(openApiParameter)) {
+          bodyParams[name] = migrateFormDataParameter([openApiParameter], document.consumes as string[] | undefined)
+        } else if (isPathQueryOrHeaderParameter(openApiParameter)) {
+          const convertedParam = transformParameterObject(openApiParameter)
+          params[name] = convertedParam
         }
       }
     }
@@ -668,14 +685,16 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
     'multipleOf',
   ]
 
-  return schemaProperties.reduce((acc, property) => {
+  const schema = schemaProperties.reduce<Record<string, unknown>>((acc, property) => {
     if (Object.hasOwn(obj, property)) {
       acc[property] = obj[property]
       delete obj[property]
     }
 
     return acc
-  }, {} as OpenAPIV3.SchemaObject)
+  }, {})
+
+  return schema as unknown as OpenAPIV3.SchemaObject
 }
 
 function getParameterLocation(location: OpenAPIV2.ParameterObject['in']): OpenAPIV3.ParameterObject['in'] {
@@ -691,15 +710,24 @@ function getParameterLocation(location: OpenAPIV2.ParameterObject['in']): OpenAP
 function transformParameterObject(
   parameter: OpenAPIV2.ParameterObject | OpenAPIV2.ReferenceObject,
 ): OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject {
-  if ('$ref' in parameter && typeof parameter.$ref === 'string') {
+  if (isReferenceObject(parameter)) {
     return {
       $ref: parameter.$ref,
     }
   }
 
+  if (!isPathQueryOrHeaderParameter(parameter)) {
+    throw new Error(
+      `Encountered unsupported parameter location "${parameter.in}" while migrating path/query/header parameters`,
+    )
+  }
+
   // it is important to call getParameterSerializationStyle first because transformItemsObject modifies properties on which getParameterSerializationStyle rely on
-  const serializationStyle = getParameterSerializationStyle(parameter as OpenAPIV2.ParameterObject)
+  const serializationStyle = getParameterSerializationStyle(parameter)
   const schema = transformItemsObject(parameter)
+  const parameterWithExamples = parameter as OpenAPIV2.ParameterObject & {
+    examples?: Record<string, OpenAPIV3.ExampleObject>
+  }
 
   const { xExample, xExamples } = extractXExampleExtensions(parameter as Record<string, unknown>)
 
@@ -720,10 +748,10 @@ function transformParameterObject(
   //     value: 'OK'
 
   // We need to transform the x-example to an examples object and add "value" to the structure
-  if (isNonEmptyObject(xExample) && 'examples' in parameter) {
-    parameter.examples = transformXExampleToExamples(xExample)
-  } else if (isNonEmptyObject(xExamples) && 'examples' in parameter) {
-    parameter.examples = Object.entries(xExamples).reduce(
+  if (isNonEmptyObject(xExample)) {
+    parameterWithExamples.examples = transformXExampleToExamples(xExample)
+  } else if (isNonEmptyObject(xExamples)) {
+    parameterWithExamples.examples = Object.entries(xExamples).reduce(
       (acc, [key, exampleValue]) => {
         acc[key] = wrapAsExampleObject(exampleValue)
         return acc
@@ -734,10 +762,6 @@ function transformParameterObject(
 
   delete parameter.collectionFormat
   delete parameter.default
-
-  if (!parameter.in) {
-    throw new Error('Parameter object must have an "in" property')
-  }
 
   return {
     schema,
@@ -754,7 +778,7 @@ function transformParameterObject(
 function transformResponseHeader(
   header: OpenAPIV2.HeaderObject | OpenAPIV2.ReferenceObject,
 ): OpenAPIV3.HeaderObject | OpenAPIV3.ReferenceObject {
-  if (Object.hasOwn(header, '$ref') && typeof header.$ref === 'string') {
+  if (isReferenceObject(header)) {
     return {
       $ref: header.$ref,
     }
@@ -770,7 +794,13 @@ function transformResponseHeader(
 
 type CollectionFormat = 'csv' | 'ssv' | 'tsv' | 'pipes' | 'multi'
 
-type ParameterSerializationStyle = { style?: OpenAPIV3.ParameterStyle; explode?: boolean }
+type ParameterSerializationStyle = {
+  style?:
+    | OpenAPIV3.QueryParameterObject['style']
+    | OpenAPIV3.PathParameterObject['style']
+    | OpenAPIV3.HeaderParameterObject['style']
+  explode?: boolean
+}
 
 const querySerialization: Record<CollectionFormat, ParameterSerializationStyle> = {
   ssv: {
@@ -809,7 +839,12 @@ const serializationStyles = {
   path: pathAndHeaderSerialization,
 } as const
 
-function getParameterSerializationStyle(parameter: OpenAPIV2.ParameterObject): ParameterSerializationStyle {
+function getParameterSerializationStyle(
+  parameter:
+    | OpenAPIV2.HeaderParameterSubSchemaObject
+    | OpenAPIV2.PathParameterSubSchemaObject
+    | OpenAPIV2.QueryParameterSubSchemaObject,
+): ParameterSerializationStyle {
   if (
     parameter.type !== 'array' ||
     !(parameter.in === 'query' || parameter.in === 'path' || parameter.in === 'header')
@@ -835,64 +870,48 @@ type ParameterMigrationResult = {
 }
 
 function migrateBodyParameter(
-  bodyParameter: OpenAPIV2.ParameterObject,
+  bodyParameter: OpenAPIV2.BodyParameterObject,
   consumes: string[],
 ): OpenAPIV3.RequestBodyObject {
   // Extract x-example and x-examples before deleting other properties
   // @see https://redocly.com/docs-legacy/api-reference-docs/specification-extensions/x-examples
   const { xExample, xExamples } = extractXExampleExtensions(bodyParameter as Record<string, unknown>)
 
-  delete bodyParameter.name
-  delete bodyParameter.in
-
-  const { schema, ...requestBody } = bodyParameter
+  const { description, required, schema } = bodyParameter
 
   const requestBodyObject: OpenAPIV3.RequestBodyObject = {
     content: {},
-    ...requestBody,
+    ...(description ? { description } : {}),
+    ...(required !== undefined ? { required } : {}),
   }
 
-  if (requestBodyObject.content) {
-    for (const type of consumes) {
-      requestBodyObject.content[type] = {
-        schema: schema,
+  const requestBodyContent = requestBodyObject.content ?? {}
+  requestBodyObject.content = requestBodyContent
+
+  for (const type of consumes) {
+    requestBodyContent[type] = {
+      schema: schema as unknown as OpenAPIV3.SchemaObject,
+    }
+
+    const mediaType = requestBodyContent[type]
+
+    // Handle x-examples (plural) first - Redocly extension for Swagger 2.0
+    // Transforms to OpenAPI 3.x `examples` field (named examples with summary/value).
+    // When both x-example and x-examples exist, we prefer x-examples so each media type
+    // has only one of `example` or `examples` (OpenAPI 3 does not use both on the same type).
+    if (isNonEmptyObject(xExamples) && type in xExamples) {
+      const examples = xExamples[type]
+
+      // Check if examples is already in proper OpenAPI 3.x format (object with entries that are valid ExampleObjects)
+      const isExamplesCollection =
+        isNonEmptyObject(examples) && Object.values(examples).every((example) => isExampleObject(example))
+
+      if (isExamplesCollection) {
+        mediaType.examples = examples as Record<string, OpenAPIV3.ExampleObject>
       }
-
-      // Handle x-examples (plural) first - Redocly extension for Swagger 2.0
-      // Transforms to OpenAPI 3.x `examples` field (named examples with summary/value).
-      // When both x-example and x-examples exist, we prefer x-examples so each media type
-      // has only one of `example` or `examples` (OpenAPI 3 does not use both on the same type).
-      if (isNonEmptyObject(xExamples) && type in xExamples) {
-        const examples = xExamples[type]
-
-        // Check if examples is already in proper OpenAPI 3.x format (object with entries that are valid ExampleObjects)
-        const isExamplesCollection =
-          isNonEmptyObject(examples) && Object.values(examples).every((example) => isExampleObject(example))
-
-        if (isExamplesCollection) {
-          requestBodyObject.content[type].examples = examples as Record<string, OpenAPIV3.ExampleObject>
-        }
-        // Named examples without value wrappers - wrap each individually
-        else if (isNamedExamplesCollection(examples)) {
-          requestBodyObject.content[type].examples = Object.entries(examples).reduce(
-            (acc, [key, exampleValue]) => {
-              acc[key] = wrapAsExampleObject(exampleValue)
-              return acc
-            },
-            {} as Record<string, OpenAPIV3.ExampleObject>,
-          )
-        }
-        // Single example value - wrap as default
-        else {
-          requestBodyObject.content[type].examples = {
-            default: wrapAsExampleObject(examples),
-          }
-        }
-      }
-      // Fallback: x-examples keyed by example name instead of media type
-      // e.g. x-examples: { Request: { email: "test@example.com" } }
-      else if (isNonEmptyObject(xExamples) && !Object.keys(xExamples).some(isMediaTypeKey)) {
-        requestBodyObject.content[type].examples = Object.entries(xExamples).reduce(
+      // Named examples without value wrappers - wrap each individually
+      else if (isNamedExamplesCollection(examples)) {
+        mediaType.examples = Object.entries(examples).reduce(
           (acc, [key, exampleValue]) => {
             acc[key] = wrapAsExampleObject(exampleValue)
             return acc
@@ -900,12 +919,29 @@ function migrateBodyParameter(
           {} as Record<string, OpenAPIV3.ExampleObject>,
         )
       }
-
-      // Handle x-example (singular) only when we did not set examples for this type
-      // (avoids having both example and examples on the same media type)
-      if (!requestBodyObject.content[type].examples && isNonEmptyObject(xExample) && type in xExample) {
-        requestBodyObject.content[type].example = xExample[type]
+      // Single example value - wrap as default
+      else {
+        mediaType.examples = {
+          default: wrapAsExampleObject(examples),
+        }
       }
+    }
+    // Fallback: x-examples keyed by example name instead of media type
+    // e.g. x-examples: { Request: { email: "test@example.com" } }
+    else if (isNonEmptyObject(xExamples) && !Object.keys(xExamples).some(isMediaTypeKey)) {
+      mediaType.examples = Object.entries(xExamples).reduce(
+        (acc, [key, exampleValue]) => {
+          acc[key] = wrapAsExampleObject(exampleValue)
+          return acc
+        },
+        {} as Record<string, OpenAPIV3.ExampleObject>,
+      )
+    }
+
+    // Handle x-example (singular) only when we did not set examples for this type
+    // (avoids having both example and examples on the same media type)
+    if (!mediaType.examples && isNonEmptyObject(xExample) && type in xExample) {
+      mediaType.example = xExample[type]
     }
   }
 
@@ -913,7 +949,7 @@ function migrateBodyParameter(
 }
 
 function migrateFormDataParameter(
-  parameters: OpenAPIV2.ParameterObject[],
+  parameters: OpenAPIV2.FormDataParameterSubSchemaObject[],
   consumes: string[] | undefined = ['multipart/form-data'],
 ): OpenAPIV3.RequestBodyObject {
   const requestBodyObject: OpenAPIV3.RequestBodyObject = {
@@ -940,10 +976,13 @@ function migrateFormDataParameter(
       if (formContent?.schema && typeof formContent.schema === 'object' && 'properties' in formContent.schema) {
         for (const param of parameters) {
           if (param.name && formContent.schema.properties) {
+            const schemaType: OpenAPIV3.PrimitiveSchemaType = param.type === 'file' ? 'string' : param.type
+            const schemaFormat = param.type === 'file' ? 'binary' : param.format
+
             formContent.schema.properties[param.name] = {
-              type: param.type,
+              type: schemaType,
               description: param.description,
-              ...(param.format ? { format: param.format } : {}),
+              ...(schemaFormat ? { format: schemaFormat } : {}),
             }
 
             // Add to required array if param is required
@@ -959,22 +998,31 @@ function migrateFormDataParameter(
   return requestBodyObject
 }
 
-function migrateParameters(parameters: OpenAPIV2.ParameterObject[], consumes: string[]): ParameterMigrationResult {
+function migrateParameters(
+  parameters: (OpenAPIV2.ParameterObject | OpenAPIV2.ReferenceObject)[],
+  consumes: string[],
+): ParameterMigrationResult {
   const result: ParameterMigrationResult = {
     parameters: parameters
-      .filter((parameter) => !(parameter.in === 'body' || parameter.in === 'formData'))
+      .filter((parameter) => isReferenceObject(parameter) || isPathQueryOrHeaderParameter(parameter))
       .map((parameter) => transformParameterObject(parameter)),
   }
 
   const bodyParameter = structuredClone(
-    parameters.find((parameter: OpenAPIV2.ParameterObject) => parameter.in === 'body') ?? {},
+    parameters.find(
+      (parameter): parameter is OpenAPIV2.BodyParameterObject =>
+        !isReferenceObject(parameter) && isBodyParameterObject(parameter),
+    ),
   )
 
-  if (bodyParameter && Object.keys(bodyParameter).length) {
+  if (bodyParameter) {
     result.requestBody = migrateBodyParameter(bodyParameter, consumes)
   }
 
-  const formDataParameters = parameters.filter((parameter: OpenAPIV2.ParameterObject) => parameter.in === 'formData')
+  const formDataParameters = parameters.filter(
+    (parameter): parameter is OpenAPIV2.FormDataParameterSubSchemaObject =>
+      !isReferenceObject(parameter) && isFormDataParameterObject(parameter),
+  )
 
   if (formDataParameters.length > 0) {
     const requestBodyObject = migrateFormDataParameter(formDataParameters, consumes)
