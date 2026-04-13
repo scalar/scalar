@@ -121,6 +121,7 @@ const props: ExtractComponentProps<typeof ClassicLayout> = {
   operation,
   options: {
     expandAllResponses: false,
+    hideModels: false,
     hideTestRequestButton: true,
     layout: 'classic',
     orderRequiredPropertiesFirst: false,

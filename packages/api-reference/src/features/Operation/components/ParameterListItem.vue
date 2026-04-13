@@ -30,7 +30,7 @@ const { name, parameter, options, collapsableItems } = defineProps<{
   collapsableItems?: boolean
   options: Pick<
     OperationProps['options'],
-    'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
+    'hideModels' | 'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
   >
 }>()
 

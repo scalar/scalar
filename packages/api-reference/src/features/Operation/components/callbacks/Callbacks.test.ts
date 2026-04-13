@@ -68,6 +68,7 @@ describe('Callbacks', () => {
         callbacks: mockCallbacks,
         eventBus: null,
         options: {
+          hideModels: false,
           orderRequiredPropertiesFirst: false,
           orderSchemaPropertiesBy: 'alpha',
         },

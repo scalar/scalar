@@ -279,6 +279,161 @@ export const sources = [
     },
   },
   {
+    title: 'Model Names',
+    slug: 'model-names',
+    content: {
+      'openapi': '3.0.4',
+      'info': {
+        'title': 'Test API',
+        'description': 'Test API description',
+        'version': 'v1.0',
+      },
+      'paths': {},
+      'components': {
+        'schemas': {
+          'VehicleAddressModel': {
+            'type': 'object',
+            'properties': {
+              'Id': {
+                'type': 'integer',
+                'description': 'Gets or sets the unique identifier for the entity.',
+                'format': 'int32',
+              },
+              'VehicleId': {
+                'type': 'integer',
+                'description': 'Gets or sets the unique identifier for the vehicle.',
+                'format': 'int32',
+              },
+              'AddressLine1': {
+                'type': 'string',
+                'description':
+                  'Gets or sets the first line of the address, typically including the street name and number.',
+                'nullable': true,
+              },
+              'AddressLine2': {
+                'type': 'string',
+                'description':
+                  'Gets or sets the second line of the address, typically used for apartment, suite, or unit information.',
+                'nullable': true,
+              },
+              'City': {
+                'type': 'string',
+                'description': 'Gets or sets the name of the city.',
+                'nullable': true,
+              },
+              'County': {
+                'type': 'string',
+                'description': 'Gets or sets the name of the county associated with the entity.',
+                'nullable': true,
+              },
+              'PostCode': {
+                'type': 'string',
+                'description': 'Gets or sets the postal code associated with the address.',
+                'nullable': true,
+              },
+            },
+            'additionalProperties': false,
+            'description': 'Represents the address information associated with a vehicle.',
+          },
+          'VehicleModel': {
+            'type': 'object',
+            'properties': {
+              'Id': {
+                'type': 'integer',
+                'description': 'Gets or sets the unique identifier for the entity.',
+                'format': 'int32',
+              },
+              'Name': {
+                'type': 'string',
+                'description': 'Gets or sets the name associated with the object.',
+                'nullable': true,
+              },
+              'Model': {
+                'type': 'string',
+                'description': 'Gets or sets the model name associated with the object.',
+                'nullable': true,
+              },
+              'Make': {
+                'type': 'string',
+                'description': 'Gets or sets the make of the vehicle.',
+                'nullable': true,
+              },
+              'Year': {
+                'type': 'integer',
+                'description': 'Gets or sets the year value.',
+                'format': 'int32',
+              },
+              'Colour': {
+                'type': 'string',
+                'description': 'Gets or sets the colour associated with the object.',
+                'nullable': true,
+              },
+              'LicensePlate': {
+                'type': 'string',
+                'description': 'Gets or sets the license plate number of the vehicle.',
+                'nullable': true,
+              },
+              'Services': {
+                'type': 'array',
+                'items': {
+                  '$ref': '#/components/schemas/VehicleServiceModel',
+                },
+                'nullable': true,
+              },
+              'Address': {
+                '$ref': '#/components/schemas/VehicleAddressModel',
+              },
+            },
+            'additionalProperties': false,
+            'description': 'Represents a vehicle with details such as make, model, year, and associated services.',
+          },
+          'VehicleServiceModel': {
+            'type': 'object',
+            'properties': {
+              'Id': {
+                'type': 'integer',
+                'description': 'Gets or sets the unique identifier for the entity.',
+                'format': 'int32',
+              },
+              'VehicleId': {
+                'type': 'integer',
+                'description': 'Gets or sets the unique identifier for a vehicle.',
+                'format': 'int32',
+              },
+              'ServiceName': {
+                'type': 'string',
+                'description': 'Gets or sets the name of the service.',
+                'nullable': true,
+              },
+              'ServiceDescription': {
+                'type': 'string',
+                'description': 'Gets or sets the description of the service.',
+                'nullable': true,
+              },
+              'ServiceDate': {
+                'type': 'string',
+                'description': 'Gets or sets the date of the service.',
+                'format': 'date-time',
+              },
+              'ServiceCost': {
+                'type': 'number',
+                'description': 'Gets or sets the cost of the service.',
+                'format': 'double',
+              },
+              'ServiceProvider': {
+                'type': 'string',
+                'description': 'Gets or sets the name of the service provider.',
+                'nullable': true,
+              },
+            },
+            'additionalProperties': false,
+            'description': 'Holds the details of a vehicle service',
+          },
+        },
+      },
+    },
+  },
+  {
     title: 'Galaxy Live',
     slug: 'galaxy-live',
     url: 'http://localhost:8080/3.1.yaml',

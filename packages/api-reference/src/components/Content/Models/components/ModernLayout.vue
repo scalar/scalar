@@ -16,6 +16,7 @@ const { schema, options } = defineProps<{
   options: {
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+    hideModels: boolean | undefined
   }
 }>()
 </script>
@@ -39,8 +40,8 @@ const { schema, options } = defineProps<{
     <ScalarErrorBoundary>
       <Schema
         :eventBus
+        :hideModelNames="options.hideModels"
         hideHeading
-        hideModelNames
         :level="1"
         noncollapsible
         :options="options"

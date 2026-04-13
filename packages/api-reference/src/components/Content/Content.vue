@@ -59,6 +59,7 @@ const {
     | 'proxyUrl'
     | 'servers'
     | 'showOperationId'
+    | 'hideModels'
   >
   document: WorkspaceDocument | undefined
   clientDocument: WorkspaceDocument | undefined

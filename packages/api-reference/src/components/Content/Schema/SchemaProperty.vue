@@ -254,12 +254,13 @@ const isDiscriminatorProperty = computed(() =>
         :compact="compact"
         :compositionPath="currentCompositionPath"
         :eventBus="eventBus"
+        :hideModelNames
         :level="level + 1"
         :name="name"
         :noncollapsible="noncollapsible"
         :options="options"
-        :schemaContext="schemaContext"
-        :schema="objectSchemaForChildren" />
+        :schema="objectSchemaForChildren"
+        :schemaContext="schemaContext" />
     </div>
 
     <!-- Array of objects or nested arrays -->
@@ -270,12 +271,13 @@ const isDiscriminatorProperty = computed(() =>
         :compact="compact"
         :compositionPath="arrayItemsCompositionPath"
         :eventBus="eventBus"
+        :hideModelNames
         :level="level + 1"
         :name="name"
         :noncollapsible="noncollapsible"
         :options="options"
-        :schemaContext="schemaContext"
-        :schema="resolve.schema(resolvedArrayItems)" />
+        :schema="resolve.schema(resolvedArrayItems)"
+        :schemaContext="schemaContext" />
     </div>
 
     <!-- Compositions -->
@@ -285,14 +287,15 @@ const isDiscriminatorProperty = computed(() =>
       :breadcrumb="breadcrumb"
       :compact="compact"
       :composition="compositionData.composition"
+      :compositionPath="currentCompositionPath"
       :discriminator="schema?.discriminator"
       :eventBus="eventBus"
       :hideHeading="hideHeading"
+      :hideModelNames
       :level="level"
       :name="name"
       :noncollapsible="noncollapsible"
       :options="options"
-      :compositionPath="currentCompositionPath"
       :schema="compositionData.value"
       :schemaContext="schemaContext" />
     <SpecificationExtension :value="optimizedValue" />
