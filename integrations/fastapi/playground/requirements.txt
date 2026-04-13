@@ -11,7 +11,7 @@ python-dotenv==1.2.1
 PyYAML==6.0.3
 scalar-fastapi==1.6.1
 sniffio==1.3.1
-starlette==0.52.1
+starlette==1.0.0
 typing_extensions==4.15.0
 uvicorn==0.40.0
 uvloop==0.22.1
