@@ -2,7 +2,7 @@
 
 The API Client supports keyboard shortcuts to speed up your workflow. On macOS, shortcuts use ⌘ (Cmd). On Windows and Linux, use Ctrl instead.
 
-## General
+## Browser & Desktop App
 
 | Shortcut | Action |
 | --- | --- |
@@ -25,10 +25,3 @@ These shortcuts are available in the desktop app.
 | ⌘ 9 | Jump to last tab |
 | ⌘ ⌥ ← | Previous tab |
 | ⌘ ⌥ → | Next tab |
-
-### Other
-
-| Shortcut | Action |
-| --- | --- |
-| ⌘ N | Open command palette |
-| ⌘ F | Focus search |

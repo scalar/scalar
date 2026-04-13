@@ -1896,30 +1896,30 @@
                       ]
                     }
                   },
-                  "testing": {
-                    "filepath": "documentation/guides/app/testing.md",
+                  "import": {
+                    "filepath": "documentation/guides/app/import.md",
                     "type": "page",
-                    "title": "Testing",
-                    "description": "Write post-response scripts to automatically validate API responses with Postman-compatible syntax.",
+                    "title": "Import",
+                    "description": "Import API collections from OpenAPI, Swagger 2.0, Postman, or cURL into the Scalar API Client.",
                     "head": {
                       "links": [
                         {
                           "rel": "canonical",
-                          "href": "https://scalar.com/products/api-client/testing"
+                          "href": "https://scalar.com/products/api-client/import"
                         }
                       ],
                       "meta": [
                         {
                           "name": "description",
-                          "content": "Write post-response scripts to automatically validate API responses with Postman-compatible syntax."
+                          "content": "Import API collections from OpenAPI, Swagger 2.0, Postman, or cURL into the Scalar API Client."
                         },
                         {
                           "property": "og:title",
-                          "content": "API Testing Scripts - Validate Responses Automatically"
+                          "content": "Import APIs - OpenAPI, Swagger, Postman, cURL"
                         },
                         {
                           "property": "og:description",
-                          "content": "Write post-response scripts to automatically validate API responses with Postman-compatible syntax."
+                          "content": "Import API collections from OpenAPI, Swagger 2.0, Postman, or cURL into the Scalar API Client."
                         },
                         {
                           "name": "robots",
@@ -1960,62 +1960,30 @@
                       ]
                     }
                   },
-                  "import": {
-                    "filepath": "documentation/guides/app/import.md",
+                  "testing": {
+                    "filepath": "documentation/guides/app/testing.md",
                     "type": "page",
-                    "title": "Import",
-                    "description": "Import API collections from OpenAPI, Swagger 2.0, Postman, or cURL into the Scalar API Client.",
+                    "title": "Testing",
+                    "description": "Write post-response scripts to automatically validate API responses with Postman-compatible syntax.",
                     "head": {
                       "links": [
                         {
                           "rel": "canonical",
-                          "href": "https://scalar.com/products/api-client/import"
+                          "href": "https://scalar.com/products/api-client/testing"
                         }
                       ],
                       "meta": [
                         {
                           "name": "description",
-                          "content": "Import API collections from OpenAPI, Swagger 2.0, Postman, or cURL into the Scalar API Client."
+                          "content": "Write post-response scripts to automatically validate API responses with Postman-compatible syntax."
                         },
                         {
                           "property": "og:title",
-                          "content": "Import APIs - OpenAPI, Swagger, Postman, cURL"
+                          "content": "API Testing Scripts - Validate Responses Automatically"
                         },
                         {
                           "property": "og:description",
-                          "content": "Import API collections from OpenAPI, Swagger 2.0, Postman, or cURL into the Scalar API Client."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
-                  "community": {
-                    "filepath": "documentation/guides/app/community.md",
-                    "type": "page",
-                    "title": "Community",
-                    "description": "Join the Scalar community on Discord and GitHub. The API Client is fully open-source.",
-                    "head": {
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/products/api-client/community"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Join the Scalar community on Discord and GitHub. The API Client is fully open-source."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Community - Discord, GitHub, Open Source"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "Join the Scalar community on Discord and GitHub. The API Client is fully open-source."
+                          "content": "Write post-response scripts to automatically validate API responses with Postman-compatible syntax."
                         },
                         {
                           "name": "robots",
@@ -2048,6 +2016,38 @@
                         {
                           "property": "og:description",
                           "content": "Keyboard shortcuts for the Scalar API Client on macOS, Windows, and Linux."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "community": {
+                    "filepath": "documentation/guides/app/community.md",
+                    "type": "page",
+                    "title": "Community",
+                    "description": "Join the Scalar community on Discord and GitHub. The API Client is fully open-source.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/community"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Join the Scalar community on Discord and GitHub. The API Client is fully open-source."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Community - Discord, GitHub, Open Source"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Join the Scalar community on Discord and GitHub. The API Client is fully open-source."
                         },
                         {
                           "name": "robots",

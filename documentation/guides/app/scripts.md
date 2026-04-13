@@ -23,16 +23,6 @@ pm.request.headers.add({
 })
 ```
 
-### Generate an auth token
-
-```js
-const token = 'Bearer ' + pm.environment.get('api_key')
-pm.request.headers.add({
-  key: 'Authorization',
-  value: token
-})
-```
-
 ### Set variables for post-response scripts
 
 Variables set in a pre-request script persist into the post-response script for the same request.
@@ -111,4 +101,4 @@ x-pre-request: |-
   })
 ```
 
-See the [OpenAPI extensions reference](/openapi#x-pre-request) for more details.
+See the [OpenAPI extensions reference](../../openapi.md#x-pre-request) for more details.
