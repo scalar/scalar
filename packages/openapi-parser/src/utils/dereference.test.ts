@@ -470,9 +470,16 @@ describe('dereference', () => {
     expect(result.errors).toStrictEqual([])
 
     // Original
+    const queryResponse = (result.specification as OpenAPIV3_2.Document).paths['/test'].query.responses['200']
+
     expect(
-      (result.specification as OpenAPIV3_2.Document).paths['/test'].query.responses['200'].content['application/json']
-        .schema,
+      'content' in queryResponse &&
+        queryResponse.content &&
+        'application/json' in queryResponse.content &&
+        typeof queryResponse.content['application/json'] === 'object' &&
+        queryResponse.content['application/json'] !== null &&
+        'schema' in queryResponse.content['application/json'] &&
+        (queryResponse.content['application/json'] as Record<string, unknown>).schema,
     ).toEqual({
       $ref: '#/components/schemas/Test',
     })
@@ -524,9 +531,18 @@ describe('dereference', () => {
     expect(result.errors).toStrictEqual([])
 
     // Original
+    const operationResponse = (result.specification as OpenAPIV3_2.Document).paths['/test'].additionalOperations
+      ?.makeUnicorns.responses['200']
+
     expect(
-      (result.specification as OpenAPIV3_2.Document).paths['/test'].additionalOperations?.makeUnicorns.responses['200']
-        .content['application/json'].schema,
+      operationResponse &&
+        'content' in operationResponse &&
+        operationResponse.content &&
+        'application/json' in operationResponse.content &&
+        typeof operationResponse.content['application/json'] === 'object' &&
+        operationResponse.content['application/json'] !== null &&
+        'schema' in operationResponse.content['application/json'] &&
+        (operationResponse.content['application/json'] as Record<string, unknown>).schema,
     ).toEqual({
       $ref: '#/components/schemas/Test',
     })
