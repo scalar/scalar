@@ -12,9 +12,9 @@ export default {
 
 <script setup lang="ts">
 import { useLoadingState } from '@scalar/components'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ConvertOptions } from '@scalar/postman-to-openapi'
 import { useToasts } from '@scalar/use-toasts'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
