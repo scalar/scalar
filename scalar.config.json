@@ -847,6 +847,30 @@
                           ]
                         }
                       },
+                      "ask-ai": {
+                        "title": "Ask AI",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/configuration/ask-ai.md",
+                        "description": "AI-powered assistant that answers questions using your documentation content, with MCP integration for LLMs.",
+                        "head": {
+                          "links": [
+                            {
+                              "rel": "canonical",
+                              "href": "https://scalar.com/products/docs/configuration/ask-ai"
+                            }
+                          ],
+                          "meta": [
+                            {
+                              "name": "description",
+                              "content": "AI-powered assistant that answers questions using your documentation content, with MCP integration for LLMs."
+                            },
+                            {
+                              "name": "robots",
+                              "content": "index, follow"
+                            }
+                          ]
+                        }
+                      },
                       "private-docs": {
                         "title": "Private Docs",
                         "filepath": "documentation/guides/docs/configuration/private-docs.md",
