@@ -193,15 +193,18 @@ describe('generateCodeSnippet', () => {
       clientId: 'node/axios',
     })
 
-    expect(code).toBe(`const axios = require('axios').default;
+    expect(code).toBe(`import axios from 'axios'
 
-const options = {method: 'GET', url: 'https://api.example.com/users'};
+const options = {
+  method: 'GET',
+  url: 'https://api.example.com/users'
+}
 
 try {
-  const { data } = await axios.request(options);
-  console.log(data);
+  const { data } = await axios.request(options)
+  console.log(data)
 } catch (error) {
-  console.error(error);
+  console.error(error)
 }`)
   })
 
