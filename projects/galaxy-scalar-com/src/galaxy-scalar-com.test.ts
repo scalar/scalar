@@ -100,13 +100,16 @@ describe('galaxy-scalar-com', () => {
       } as Context
 
       // Call the callback
-      onRequestCallback?.({
+      const requestData = {
         context: mockContext,
         operation: {
-          path: '/api/test',
-          method: 'GET',
+          responses: {},
         },
-      })
+      }
+
+      onRequestCallback?.({
+        ...requestData,
+      } as Parameters<NonNullable<typeof onRequestCallback>>[0])
 
       expect(console.log).toHaveBeenCalledWith('GET http://localhost:5052/api/test')
     })
