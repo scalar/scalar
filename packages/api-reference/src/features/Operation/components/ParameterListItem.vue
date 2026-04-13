@@ -196,7 +196,6 @@ const shouldCollapse = computed<boolean>(() =>
           compact
           :description="collapsableItems ? '' : parameter.description"
           :eventBus="eventBus"
-          :hideModelNames="options.hideModels"
           :hideWriteOnly="true"
           :modelName="schemaModelName"
           :name="collapsableItems ? '' : name"

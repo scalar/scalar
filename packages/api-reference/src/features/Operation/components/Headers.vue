@@ -11,7 +11,6 @@ const { headers, breadcrumb } = defineProps<{
   headers: Record<string, HeaderObject>
   breadcrumb?: string[]
   eventBus: WorkspaceEventBus | null
-  hideModels: boolean | undefined
   orderRequiredPropertiesFirst: boolean | undefined
   orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
 }>()
@@ -45,7 +44,6 @@ const { headers, breadcrumb } = defineProps<{
               :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
               :eventBus="eventBus"
               :header="getResolvedRef(header)"
-              :hideModels
               :name="key"
               :orderRequiredPropertiesFirst="orderRequiredPropertiesFirst"
               :orderSchemaPropertiesBy="orderSchemaPropertiesBy" />

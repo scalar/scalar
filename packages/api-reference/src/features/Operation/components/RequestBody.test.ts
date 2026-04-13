@@ -3,6 +3,8 @@ import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
+import { Schema } from '@/components/Content/Schema'
+
 import RequestBody from './RequestBody.vue'
 
 describe('RequestBody', () => {
@@ -190,5 +192,35 @@ describe('RequestBody', () => {
     })
 
     expect(wrapper.text()).toContain('The user data to create')
+  })
+
+  it('keeps operation model names visible when hideModels is enabled', () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        eventBus: null,
+        options: {
+          ...defaultRequestOptions,
+          hideModels: true,
+        },
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                },
+              }),
+            },
+          },
+        },
+      },
+      slots: {
+        title: 'Body',
+      },
+    })
+
+    const schema = wrapper.findComponent(Schema)
+    expect(schema.props('hideModelNames')).toBeUndefined()
   })
 })
