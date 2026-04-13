@@ -1927,6 +1927,38 @@
                         }
                       ]
                     }
+                  },
+                  "import": {
+                    "filepath": "documentation/guides/app/import.md",
+                    "type": "page",
+                    "title": "Import",
+                    "description": "Import API collections from OpenAPI, Swagger 2.0, Postman, or cURL into the Scalar API Client.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/import"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Import API collections from OpenAPI, Swagger 2.0, Postman, or cURL into the Scalar API Client."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Import APIs - OpenAPI, Swagger, Postman, cURL"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Import API collections from OpenAPI, Swagger 2.0, Postman, or cURL into the Scalar API Client."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
                   }
                 }
               }
