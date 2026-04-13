@@ -15,20 +15,24 @@ vi.mock('posthog-js', () => {
   }
 })
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { __instance: mockPostHogInstance } = (await import('posthog-js')) as any
 
-import { PostHogClientPlugin } from './posthog-plugin'
+import { PostHogClientPlugin } from './index'
+
+const TEST_CONFIG = {
+  apiKey: 'phc_test_key',
+  apiHost: 'https://test.example.com',
+}
 
 describe('posthog-plugin', () => {
   it('returns a plugin with lifecycle hooks', () => {
-    const plugin = PostHogClientPlugin()
+    const plugin = PostHogClientPlugin(TEST_CONFIG)
     expect(plugin.lifecycle?.onInit).toBeDefined()
     expect(plugin.lifecycle?.onDestroy).toBeDefined()
   })
 
   it('initializes PostHog on onInit', () => {
-    const plugin = PostHogClientPlugin()
+    const plugin = PostHogClientPlugin(TEST_CONFIG)
     plugin.lifecycle?.onInit?.()
 
     expect(mockPostHogInstance.register).toHaveBeenCalledWith({ product: 'api-client' })
@@ -36,7 +40,7 @@ describe('posthog-plugin', () => {
   })
 
   it('resets PostHog on onDestroy', () => {
-    const plugin = PostHogClientPlugin()
+    const plugin = PostHogClientPlugin(TEST_CONFIG)
     plugin.lifecycle?.onInit?.()
     plugin.lifecycle?.onDestroy?.()
 

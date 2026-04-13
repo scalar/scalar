@@ -739,7 +739,7 @@ onMounted(() => {
     workspaceStore: clientStore,
     options: mergedConfig,
     plugins: [
-      ...pluginManager.getClientPlugins(),
+      ...pluginManager.getApiClientPlugins(),
       ...mapConfigPlugins(mergedConfig, environment),
     ],
   })

@@ -91,16 +91,16 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
     /**
      * Get all client plugins provided by registered plugins
      */
-    getClientPlugins: (): ClientPlugin[] => {
-      const clientPlugins: ClientPlugin[] = []
+    getApiClientPlugins: (): ClientPlugin[] => {
+      const apiClientPlugins: ClientPlugin[] = []
 
       for (const plugin of registeredPlugins.values()) {
-        if (plugin.clientPlugins) {
-          clientPlugins.push(...(plugin.clientPlugins as ClientPlugin[]))
+        if (plugin.apiClientPlugins) {
+          apiClientPlugins.push(...(plugin.apiClientPlugins as ClientPlugin[]))
         }
       }
 
-      return clientPlugins
+      return apiClientPlugins
     },
   }
 }

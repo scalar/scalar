@@ -1,16 +1,25 @@
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import type { PostHog } from 'posthog-js'
+import type { ConfigDefaults, PostHog } from 'posthog-js'
 import ph from 'posthog-js'
 
-import type { ApiReferencePlugin } from './plugin-manager'
+import type { ApiReferencePlugin } from '../plugin-manager'
 
-const POSTHOG_API_KEY = 'phc_3elIjSOvGOo5aEwg6krzIY9IcQiRubsBtglOXsQ4Uu4'
+export type PostHogConfig = {
+  /** Your PostHog project API key */
+  apiKey: string
+  /** The PostHog API host URL */
+  apiHost: string
+  /** The PostHog UI host URL (for session recordings, surveys, etc.) */
+  uiHost?: string
+  /** PostHog defaults version identifier */
+  defaults?: ConfigDefaults
+}
 
 /**
  * Creates a PostHog client plugin for the embedded API client.
  * Tracks as a separate product ('api-client').
  */
-const createPostHogClientPlugin = (): ClientPlugin => {
+const createPostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
   let posthog: PostHog | null = null
 
   return {
@@ -21,11 +30,11 @@ const createPostHogClientPlugin = (): ClientPlugin => {
         }
 
         const instance = ph.init(
-          POSTHOG_API_KEY,
+          config.apiKey,
           {
-            api_host: 'https://magic.scalar.com',
-            ui_host: 'https://us.posthog.com',
-            defaults: '2025-11-30',
+            api_host: config.apiHost,
+            ...(config.uiHost ? { ui_host: config.uiHost } : {}),
+            ...(config.defaults ? { defaults: config.defaults } : {}),
             opt_out_capturing_by_default: true,
           },
           'scalar-api-client',
@@ -53,13 +62,13 @@ const createPostHogClientPlugin = (): ClientPlugin => {
  *
  * If the plugin is not loaded, no tracking occurs.
  */
-export const PostHogPlugin = (): ApiReferencePlugin => {
+export const PostHogPlugin = (config: PostHogConfig): ApiReferencePlugin => {
   let posthog: PostHog | null = null
 
   return () => ({
     name: 'posthog',
     extensions: [],
-    clientPlugins: [createPostHogClientPlugin()],
+    apiClientPlugins: [createPostHogClientPlugin(config)],
     hooks: {
       onInit() {
         if (typeof window === 'undefined') {
@@ -67,11 +76,11 @@ export const PostHogPlugin = (): ApiReferencePlugin => {
         }
 
         const instance = ph.init(
-          POSTHOG_API_KEY,
+          config.apiKey,
           {
-            api_host: 'https://magic.scalar.com',
-            ui_host: 'https://us.posthog.com',
-            defaults: '2025-11-30',
+            api_host: config.apiHost,
+            ...(config.uiHost ? { ui_host: config.uiHost } : {}),
+            ...(config.defaults ? { defaults: config.defaults } : {}),
             opt_out_capturing_by_default: true,
           },
           'scalar-api-reference',

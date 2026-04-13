@@ -15,33 +15,37 @@ vi.mock('posthog-js', () => {
   }
 })
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { __instance: mockPostHogInstance } = (await import('posthog-js')) as any
 
-import { PostHogPlugin } from './posthog-plugin'
+import { PostHogPlugin } from './index'
+
+const TEST_CONFIG = {
+  apiKey: 'phc_test_key',
+  apiHost: 'https://test.example.com',
+}
 
 describe('posthog-plugin', () => {
   it('returns a plugin with the correct name', () => {
-    const plugin = PostHogPlugin()
+    const plugin = PostHogPlugin(TEST_CONFIG)
     const instance = plugin()
     expect(instance.name).toBe('posthog')
   })
 
   it('returns empty extensions', () => {
-    const plugin = PostHogPlugin()
+    const plugin = PostHogPlugin(TEST_CONFIG)
     const instance = plugin()
     expect(instance.extensions).toEqual([])
   })
 
   it('has lifecycle hooks defined', () => {
-    const plugin = PostHogPlugin()
+    const plugin = PostHogPlugin(TEST_CONFIG)
     const instance = plugin()
     expect(instance.hooks?.onInit).toBeDefined()
     expect(instance.hooks?.onDestroy).toBeDefined()
   })
 
   it('initializes PostHog on onInit', () => {
-    const plugin = PostHogPlugin()
+    const plugin = PostHogPlugin(TEST_CONFIG)
     const instance = plugin()
     instance.hooks?.onInit?.({ config: {} })
 
@@ -50,7 +54,7 @@ describe('posthog-plugin', () => {
   })
 
   it('resets PostHog on onDestroy', () => {
-    const plugin = PostHogPlugin()
+    const plugin = PostHogPlugin(TEST_CONFIG)
     const instance = plugin()
     instance.hooks?.onInit?.({ config: {} })
     instance.hooks?.onDestroy?.()

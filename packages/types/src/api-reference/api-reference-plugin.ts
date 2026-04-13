@@ -76,7 +76,7 @@ export const apiReferencePluginSchema = z.function({
      * Client plugins to pass to the embedded API client.
      * Use this to extend the API client from an API reference plugin.
      */
-    clientPlugins: z.array(z.any()).optional(),
+    apiClientPlugins: z.array(z.any()).optional(),
   }),
 })
 

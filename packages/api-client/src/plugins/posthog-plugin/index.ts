@@ -1,8 +1,17 @@
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import type { PostHog } from 'posthog-js'
+import type { ConfigDefaults, PostHog } from 'posthog-js'
 import ph from 'posthog-js'
 
-const POSTHOG_API_KEY = 'phc_3elIjSOvGOo5aEwg6krzIY9IcQiRubsBtglOXsQ4Uu4'
+export type PostHogConfig = {
+  /** Your PostHog project API key */
+  apiKey: string
+  /** The PostHog API host URL */
+  apiHost: string
+  /** The PostHog UI host URL (for session recordings, surveys, etc.) */
+  uiHost?: string
+  /** PostHog defaults version identifier */
+  defaults?: ConfigDefaults
+}
 
 /**
  * PostHog analytics plugin for the API Client.
@@ -10,7 +19,7 @@ const POSTHOG_API_KEY = 'phc_3elIjSOvGOo5aEwg6krzIY9IcQiRubsBtglOXsQ4Uu4'
  * Loading this plugin opts in to analytics. If the plugin is not loaded,
  * no tracking occurs.
  */
-export const PostHogClientPlugin = (): ClientPlugin => {
+export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
   let posthog: PostHog | null = null
 
   return {
@@ -21,11 +30,11 @@ export const PostHogClientPlugin = (): ClientPlugin => {
         }
 
         const instance = ph.init(
-          POSTHOG_API_KEY,
+          config.apiKey,
           {
-            api_host: 'https://magic.scalar.com',
-            ui_host: 'https://us.posthog.com',
-            defaults: '2025-11-30',
+            api_host: config.apiHost,
+            ...(config.uiHost ? { ui_host: config.uiHost } : {}),
+            ...(config.defaults ? { defaults: config.defaults } : {}),
             opt_out_capturing_by_default: true,
           },
           'scalar-api-client',
