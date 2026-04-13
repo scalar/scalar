@@ -1,4 +1,3 @@
-import { serverSchema } from '@scalar/oas-utils/entities/spec'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -8,6 +7,8 @@ import type {
   TraversedTag,
   TraversedWebhook,
 } from '@scalar/workspace-store/schemas/navigation'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { ServerObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { ComponentProps } from '@test/utils/types'
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -101,8 +102,7 @@ const mockConfig = apiReferenceConfigurationSchema.parse({
   operationsSorter: 'alpha',
 })
 
-const mockServer = serverSchema.parse({
-  uid: 'server1',
+const mockServer = coerceValue(ServerObjectSchema, {
   name: 'Test Server',
   url: 'https://api.example.com',
 })

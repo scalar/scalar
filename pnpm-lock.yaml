@@ -636,9 +636,6 @@ importers:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../../packages/api-reference
-      '@scalar/oas-utils':
-        specifier: workspace:*
-        version: link:../../packages/oas-utils
       '@scalar/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -1848,9 +1845,6 @@ importers:
       '@scalar/json-magic':
         specifier: workspace:*
         version: link:../json-magic
-      '@scalar/oas-utils':
-        specifier: workspace:*
-        version: link:../oas-utils
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
@@ -1860,6 +1854,9 @@ importers:
       '@scalar/openapi-upgrader':
         specifier: workspace:*
         version: link:../openapi-upgrader
+      '@scalar/workspace-store':
+        specifier: workspace:*
+        version: link:../workspace-store
       hono:
         specifier: catalog:*
         version: 4.12.9
@@ -2057,9 +2054,6 @@ importers:
       '@scalar/json-magic':
         specifier: workspace:*
         version: link:../json-magic
-      '@scalar/oas-utils':
-        specifier: workspace:*
-        version: link:../oas-utils
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store
