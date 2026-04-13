@@ -234,8 +234,8 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
                       <li>
                         <code>{{ name }}</code> (default:
                         <code>{{ variable.default }}</code
-                        >)<template v-if="variable.description">
-                          : {{ variable.description }}
+                        >)<template v-if="variable.description"
+                          >: {{ variable.description }}
                         </template>
                       </li>
                     </template>
