@@ -89,7 +89,7 @@ catalogs:
     vite-svg-loader: 5.1.1
     vite: 8.0.0
     vitest: 4.1.0
-    vue-router: 4.6.2
+    vue-router: 5.0.4
     vue-tsc: ^3.2.4
     vue: ^3.5.30
     yaml: ^2.8.0
