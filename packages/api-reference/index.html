@@ -18,13 +18,11 @@
 
     <!-- Initialize the Scalar API Reference -->
     <script type="module">
-      import { PostHogPlugin } from './src/plugins/posthog-plugin.ts'
       import { sources } from './test/utils/sources.ts'
 
       Scalar.createApiReference('#app', {
         sources,
         persistAuth: true,
-        plugins: [PostHogPlugin()],
         // Avoid CORS issues
         proxyUrl: 'https://proxy.scalar.com',
       })
