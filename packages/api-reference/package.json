@@ -117,6 +117,7 @@
     "github-slugger": "catalog:*",
     "microdiff": "catalog:*",
     "nanoid": "catalog:*",
+    "posthog-js": "catalog:*",
     "vue": "catalog:*",
     "yaml": "catalog:*"
   },

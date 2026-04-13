@@ -1476,6 +1476,9 @@ importers:
       nanoid:
         specifier: catalog:*
         version: 5.1.6
+      posthog-js:
+        specifier: catalog:*
+        version: 1.363.2
       vue:
         specifier: catalog:*
         version: 3.5.30(typescript@5.9.3)

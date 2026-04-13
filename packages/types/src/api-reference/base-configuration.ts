@@ -167,7 +167,7 @@ export const baseConfigurationSchema = z.object({
   /** Plugins for the API client */
   plugins: z.array(apiClientPluginSchema).optional(),
   /** Enables / disables telemetry*/
-  telemetry: z.boolean().optional().default(true),
+  telemetry: z.boolean().optional().default(false),
   /** A bunch of external URLs to Scalar's services. */
   externalUrls: externalUrlsSchema.prefault({}),
 })
