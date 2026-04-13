@@ -1069,7 +1069,7 @@ importers:
         specifier: ^24.1.0
         version: 24.10.13
       cross-env:
-        specifier: ^10.1.0
+        specifier: catalog:*
         version: 10.1.0
       nuxt:
         specifier: ^4.1.0
