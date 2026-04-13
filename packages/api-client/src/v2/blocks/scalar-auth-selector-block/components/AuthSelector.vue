@@ -9,7 +9,6 @@ import {
   type ScalarButton as ScalarButtonType,
 } from '@scalar/components'
 import { ScalarIconCaretDown, ScalarIconTrash } from '@scalar/icons'
-import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
 import type {
   AuthMeta,

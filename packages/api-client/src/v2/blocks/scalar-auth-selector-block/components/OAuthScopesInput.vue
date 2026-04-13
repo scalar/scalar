@@ -17,7 +17,7 @@ import {
   DataTableCell,
   DataTableCheckbox,
   DataTableRow,
-} from '@/components/DataTable'
+} from '@/v2/components/data-table'
 
 import OAuthScopesAddModal from './OAuthScopesAddModal.vue'
 
