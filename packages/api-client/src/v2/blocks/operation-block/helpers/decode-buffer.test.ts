@@ -30,4 +30,11 @@ describe('decode-buffer', () => {
     const result = decodeBuffer(buffer.buffer, 'text/plain; charset=utf-8')
     expect(result).toBe('こんにちは')
   })
+
+  it('ignores empty charset parameters', () => {
+    const textData = 'Hello, world!'
+    const buffer = new TextEncoder().encode(textData)
+    const result = decodeBuffer(buffer.buffer, 'text/plain; charset=')
+    expect(result).toBe('Hello, world!')
+  })
 })

@@ -38,4 +38,11 @@ describe('mime-type', () => {
     expect(mimeType.parameters.get('foo')).toBe('bar')
     expect(mimeType.toString()).toBe('text/plain; charset=utf-8; foo=bar')
   })
+
+  it('skips malformed parameters with an empty value', () => {
+    const mimeType = parseMimeType('text/plain; charset=')
+
+    expect(mimeType.parameters.get('charset')).toBeUndefined()
+    expect(mimeType.toString()).toBe('text/plain')
+  })
 })

@@ -26,7 +26,7 @@ const parseParameter = (entry: string): [string, string] | null => {
 
   const rawValue = entry.slice(separator + 1).trim()
   if (!rawValue) {
-    return [rawName, '']
+    return null
   }
 
   if (rawValue.startsWith('"') && rawValue.endsWith('"') && rawValue.length >= 2) {
