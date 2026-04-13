@@ -185,7 +185,6 @@ const shouldCollapse = computed<boolean>(() =>
           :breadcrumb="breadcrumb"
           :eventBus="eventBus"
           :headers="headers"
-          :hideModels="options.hideModels"
           :orderRequiredPropertiesFirst="options.orderRequiredPropertiesFirst"
           :orderSchemaPropertiesBy="options.orderSchemaPropertiesBy" />
 
