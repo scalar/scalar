@@ -383,6 +383,41 @@ info:
 +      npm install @your-awesome-company/sdk
 ```
 
+## x-pre-request
+
+Add pre-request scripts to operations or at the document level. Scripts run before the request is sent and can modify headers, set variables, or prepare authentication. See [Scripts in the API Client](/products/api-client/scripts) for the full guide.
+
+On an operation:
+
+```diff
+openapi: 3.1.0
+info:
+  title: Example
+  version: 1.0
+paths:
+  '/users':
+    get:
+      summary: Get all users
++      x-pre-request: |-
++        pm.environment.set('timestamp', new Date().toISOString())
+```
+
+On the document (runs before every operation):
+
+```diff
+openapi: 3.1.0
+info:
+  title: Example
+  version: 1.0
++x-pre-request: |-
++  pm.request.headers.add({
++    key: 'X-Request-Id',
++    value: 'req-' + Date.now()
++  })
+```
+
+When both document-level and operation-level scripts are present, the document-level script runs first.
+
 ## x-post-response
 
 Add post-response scripts to operations to automatically validate API responses. Scripts use a Postman-compatible syntax and run after each request in the [API Client](/products/api-client/testing).

@@ -1928,6 +1928,38 @@
                       ]
                     }
                   },
+                  "scripts": {
+                    "filepath": "documentation/guides/app/scripts.md",
+                    "type": "page",
+                    "title": "Scripts",
+                    "description": "Write pre-request scripts to set variables, modify headers, and prepare authentication before sending API requests.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/scripts"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Write pre-request scripts to set variables, modify headers, and prepare authentication before sending API requests."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Pre-Request Scripts - Scalar API Client"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Write pre-request scripts to set variables, modify headers, and prepare authentication before sending API requests."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
                   "import": {
                     "filepath": "documentation/guides/app/import.md",
                     "type": "page",
@@ -1952,6 +1984,70 @@
                         {
                           "property": "og:description",
                           "content": "Import API collections from OpenAPI, Swagger 2.0, Postman, or cURL into the Scalar API Client."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "community": {
+                    "filepath": "documentation/guides/app/community.md",
+                    "type": "page",
+                    "title": "Community",
+                    "description": "Join the Scalar community on Discord and GitHub. The API Client is fully open-source.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/community"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Join the Scalar community on Discord and GitHub. The API Client is fully open-source."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Community - Discord, GitHub, Open Source"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Join the Scalar community on Discord and GitHub. The API Client is fully open-source."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "keyboard-shortcuts": {
+                    "filepath": "documentation/guides/app/keyboard-shortcuts.md",
+                    "type": "page",
+                    "title": "Keyboard Shortcuts",
+                    "description": "Keyboard shortcuts for the Scalar API Client on macOS, Windows, and Linux.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/keyboard-shortcuts"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Keyboard shortcuts for the Scalar API Client on macOS, Windows, and Linux."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Keyboard Shortcuts - Scalar API Client"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Keyboard shortcuts for the Scalar API Client on macOS, Windows, and Linux."
                         },
                         {
                           "name": "robots",
