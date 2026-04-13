@@ -1,6 +1,6 @@
 # Import
 
-The API Client supports several formats to get your API collections into the app. To import, click **Add Item** (⌘ K) and select **Import from OpenAPI/Swagger/Postman/cURL**.
+The API Client supports several formats to get your API collections into the app. To import, click **Add Item** (⌘ K or Control K) and select **Import from OpenAPI/Swagger/Postman/cURL**.
 
 ## Formats
 
