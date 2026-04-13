@@ -8,7 +8,7 @@ export default {}
 </script>
 <script setup lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { computed } from 'vue'
+import { computed, shallowRef, watchEffect, type Component } from 'vue'
 
 import type { ScalarIconProps } from './types'
 import { getIcon, getLogo } from './utils'
@@ -30,20 +30,36 @@ const accessibilityAttrs = computed(() =>
       },
 )
 
-const svg = computed(() => {
-  if (props.icon) {
-    return getIcon(props.icon)
-  }
-  if (props.logo) {
-    return getLogo(props.logo)
+const svg = shallowRef<Component | null>(null)
+
+watchEffect((onCleanup) => {
+  let isCancelled = false
+
+  const loadIcon = async () => {
+    let component: Component | null = null
+
+    if (props.icon) {
+      component = await getIcon(props.icon)
+    } else if (props.logo) {
+      component = await getLogo(props.logo)
+    }
+
+    if (!isCancelled) {
+      svg.value = component
+    }
   }
 
-  return undefined
+  void loadIcon()
+
+  onCleanup(() => {
+    isCancelled = true
+  })
 })
 </script>
 <template>
   <component
     :is="svg"
+    v-if="svg"
     v-bind="{
       ...cx('scalar-icon', variants({ size })),
       ...accessibilityAttrs,
