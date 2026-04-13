@@ -49,6 +49,11 @@
       "require": "./dist/css/*.css",
       "default": "./dist/css/*.css"
     },
+    "./components/Server": {
+      "import": "./dist/components/Server/index.js",
+      "types": "./dist/components/Server/index.d.ts",
+      "default": "./dist/components/Server/index.js"
+    },
     "./v2/blocks/operation-block": {
       "import": "./dist/v2/blocks/operation-block/index.js",
       "types": "./dist/v2/blocks/operation-block/index.d.ts",
