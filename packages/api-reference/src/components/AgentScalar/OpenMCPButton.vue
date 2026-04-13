@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useLoadingState } from '@scalar/components'
+import { isValidUrl } from '@scalar/helpers/url/is-valid-url'
 import { ScalarIconArrowUpRight } from '@scalar/icons'
-import { isValidUrl } from '@scalar/oas-utils/helpers'
 import type { ExternalUrls } from '@scalar/types/api-reference'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useToasts } from '@scalar/use-toasts'

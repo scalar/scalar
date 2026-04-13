@@ -54,7 +54,6 @@
     "@scalar/components": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
-    "@scalar/oas-utils": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "html-minifier-terser": "^7.2.0",
     "rehype-parse": "^9.0.1",

@@ -7,10 +7,8 @@ import {
   ScalarIcon,
   ScalarMarkdown,
 } from '@scalar/components'
-import {
-  getObjectKeys,
-  normalizeMimeTypeObject,
-} from '@scalar/oas-utils/helpers'
+import { objectKeys } from '@scalar/helpers/object/object-keys'
+import { normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getExample } from '@scalar/workspace-store/request-example'
@@ -86,7 +84,7 @@ const currentResponseContent = computed<MediaTypeObject | undefined>(() => {
   )
 
   /** All the keys of the normalized content */
-  const keys = getObjectKeys(normalizedContent ?? {})
+  const keys = objectKeys(normalizedContent ?? {})
   return normalizedContent?.[keys[0] ?? '']
 })
 

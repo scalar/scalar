@@ -1,10 +1,10 @@
+import * as isElectronModule from '@scalar/helpers/general/is-electron'
 import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import { securitySchemeSchema } from '@scalar/oas-utils/entities/spec'
 import { PROXY_PORT, PROXY_URL, VOID_PORT, VOID_URL, createRequestPayload } from '@test/helpers'
 import { encode } from 'js-base64'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
-import * as electron from '../electron'
 import { createRequestOperation } from './create-request-operation'
 
 beforeAll(async () => {
@@ -563,7 +563,7 @@ describe('create-request-operation', () => {
   })
 
   it('builds a request with User-Agent header', async () => {
-    const spy = vi.spyOn(electron, 'isElectron').mockReturnValue(true)
+    const spy = vi.spyOn(isElectronModule, 'isElectron').mockReturnValue(true)
 
     const [error, requestOperation] = createRequestOperation({
       ...createRequestPayload({

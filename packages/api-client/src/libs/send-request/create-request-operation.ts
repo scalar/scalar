@@ -1,4 +1,6 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import { ERRORS, type ErrorResponse, normalizeError } from '@scalar/helpers/errors/normalize-error'
+import { isElectron } from '@scalar/helpers/general/is-electron'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
 import { mergeUrls } from '@scalar/helpers/url/merge-urls'
 import { redirectToProxy, shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
@@ -11,8 +13,6 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 
-import { isElectron } from '@/libs/electron'
-import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
 import type { EventBus } from '@/libs/event-bus'
 import { normalizeHeaders } from '@/libs/normalize-headers'
 import { createFetchBody } from '@/libs/send-request/create-fetch-body'

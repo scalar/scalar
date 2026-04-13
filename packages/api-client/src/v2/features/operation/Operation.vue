@@ -11,13 +11,13 @@ export default {}
 </script>
 
 <script setup lang="ts">
+import { isElectron } from '@scalar/helpers/general/is-electron'
 import {
   getActiveProxyUrl,
   getRequestExampleContext,
 } from '@scalar/workspace-store/request-example'
 import { computed, toValue } from 'vue'
 
-import { isElectron } from '@/libs/electron'
 import { OperationBlock } from '@/v2/blocks/operation-block'
 import { APP_VERSION } from '@/v2/constants'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'

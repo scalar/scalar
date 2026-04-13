@@ -1,6 +1,6 @@
-import { CONTENT_TYPES } from '@scalar/helpers/consts/content-types'
 import { createLimiter } from '@scalar/helpers/general/create-limiter'
 import { extractConfigSecrets, removeSecretFields } from '@scalar/helpers/general/extract-config-secrets'
+import { CONTENT_TYPES } from '@scalar/helpers/http/content-types'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-path'

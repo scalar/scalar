@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
-import { CONTENT_TYPES } from '@scalar/helpers/consts/content-types'
+import { CONTENT_TYPES } from '@scalar/helpers/http/content-types'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'

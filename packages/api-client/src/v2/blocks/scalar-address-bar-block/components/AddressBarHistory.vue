@@ -7,7 +7,7 @@ import {
 } from '@scalar/components'
 import { formatMilliseconds } from '@scalar/helpers/formatters/format-milliseconds'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import { httpStatusCodes } from '@scalar/oas-utils/helpers'
+import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import ValueEmitter from '@/v2/components/layout/ValueEmitter.vue'

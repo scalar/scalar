@@ -84,6 +84,8 @@ export type OperationBlockProps = {
 }
 </script>
 <script setup lang="ts">
+import { ERRORS } from '@scalar/helpers/errors/normalize-error'
+import { isElectron } from '@scalar/helpers/general/is-electron'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { executeHook, type ClientPlugin } from '@scalar/oas-utils/helpers'
@@ -119,9 +121,6 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
-import type { ClientLayout } from '@/hooks'
-import { isElectron } from '@/libs/electron'
-import { ERRORS } from '@/libs/errors'
 import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
 import { harToFetchResponse } from '@/v2/blocks/operation-block/helpers/har-to-fetch-response'
 import {
@@ -135,6 +134,7 @@ import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
 import { RequestBlock } from '@/v2/blocks/request-block'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
+import type { ClientLayout } from '@/v2/types/layout'
 
 import Header from './components/Header.vue'
 

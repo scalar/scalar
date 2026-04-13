@@ -1,3 +1,4 @@
+import type { ErrorResponse } from '@scalar/helpers/errors/normalize-error'
 import { replaceEnvVariables, replacePathVariables } from '@scalar/helpers/regex/replace-variables'
 import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
@@ -6,8 +7,6 @@ import type { OAuthFlowsObjectSecret } from '@scalar/workspace-store/request-exa
 import { getServerVariables } from '@scalar/workspace-store/request-example'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { encode, fromUint8Array } from 'js-base64'
-
-import type { ErrorResponse } from '@/libs/errors'
 
 /** Oauth2 security schemes which are not implicit */
 type NonImplicitFlows = Omit<OAuthFlowsObjectSecret, 'implicit'>

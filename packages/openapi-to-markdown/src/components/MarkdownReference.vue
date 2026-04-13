@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
-import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type {
   OpenApiDocument,
   OperationObject,
@@ -206,8 +206,8 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
     </header>
 
     <ScalarMarkdown
-      :value="content?.info?.description"
-      v-if="content?.info?.description" />
+      v-if="content?.info?.description"
+      :value="content?.info?.description" />
 
     <section v-if="content?.servers?.length">
       <h2>Servers</h2>
@@ -319,12 +319,12 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
                   <Schema :schema="resolveSchema(bodyContent.schema)!" />
                   <p><strong>Example:</strong></p>
                   <XmlOrJson
-                    :xml="mediaType?.toString().includes('xml')"
-                    :model-value="
+                    :modelValue="
                       getExampleFromSchema(resolveSchema(bodyContent.schema)!, {
                         xml: mediaType?.toString().includes('xml'),
                       })
-                    " />
+                    "
+                    :xml="mediaType?.toString().includes('xml')" />
                 </template>
               </template>
             </section>
@@ -358,15 +358,15 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
                             :schema="resolveSchema(responseContent.schema)!" />
                           <p><strong>Example:</strong></p>
                           <XmlOrJson
-                            :xml="mediaType?.toString().includes('xml')"
-                            :model-value="
+                            :modelValue="
                               getExampleFromSchema(
                                 resolveSchema(responseContent.schema)!,
                                 {
                                   xml: mediaType?.toString().includes('xml'),
                                 },
                               )
-                            " />
+                            "
+                            :xml="mediaType?.toString().includes('xml')" />
                         </template>
                       </section>
                     </template>
@@ -460,7 +460,7 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
             :schema="entry.schema" />
           <p><strong>Example:</strong></p>
           <template v-if="getSchemaView(entry.schema).type === 'object'">
-            <XmlOrJson :model-value="getExampleFromSchema(entry.schema)" />
+            <XmlOrJson :modelValue="getExampleFromSchema(entry.schema)" />
           </template>
         </section>
       </template>

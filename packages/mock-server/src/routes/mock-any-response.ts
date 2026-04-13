@@ -1,6 +1,6 @@
 import { json2xml } from '@scalar/helpers/file/json2xml'
-import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 import type { StatusCode } from 'hono/utils/http-status'
@@ -40,7 +40,7 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   // Headers
   const headers = preferredResponse?.headers ?? {}
   Object.keys(headers).forEach((header) => {
-    const value = headers[header].schema ? getExampleFromSchema(headers[header].schema) : null
+    const value = headers[header].schema ? (getExampleFromSchema(headers[header].schema) as string) : null
     if (value !== null) {
       c.header(header, value)
     }

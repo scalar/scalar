@@ -1,6 +1,9 @@
 <script lang="ts" setup>
+import {
+  httpStatusCodes,
+  type HttpStatusCode,
+} from '@scalar/helpers/http/http-status-codes'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
-import { httpStatusCodes, type HttpStatusCode } from '@scalar/oas-utils/helpers'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import prettyMilliseconds from 'pretty-ms'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
-import { OpenApiClientButton } from '@scalar/api-client/components'
+import { OpenApiClientButton } from '@scalar/api-client/v2/blocks/operation-block'
 import {
   createApiClientModal,
   type ApiClientModal,

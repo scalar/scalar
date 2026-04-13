@@ -1,10 +1,10 @@
+import { ERRORS, type ErrorResponse, normalizeError } from '@scalar/helpers/errors/normalize-error'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
+import { normalizeHeaders } from '@scalar/helpers/http/normalize-headers'
 import cookie from 'cookie'
 import { parseSetCookie } from 'set-cookie-parser'
 
-import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
-import { normalizeHeaders } from '@/libs/normalize-headers'
 import { getCookieHeaderKeys } from '@/v2/blocks/operation-block/helpers/get-cookie-header-keys'
 
 import { decodeBuffer } from './decode-buffer'

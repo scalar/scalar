@@ -23,7 +23,6 @@
   "type": "module",
   "dependencies": {
     "@scalar/api-reference": "workspace:*",
-    "@scalar/oas-utils": "workspace:*",
     "@scalar/types": "workspace:*",
     "vue": "catalog:*"
   },
