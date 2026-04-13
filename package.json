@@ -22,7 +22,7 @@
     "@playwright/test": "catalog:*",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/node": "catalog:*",
-    "cross-env": "^7.0.3",
+    "cross-env": "catalog:*",
     "eslint": "^9.38.0",
     "eslint-plugin-vue": "^9.31.0",
     "knip": "5.87.0",

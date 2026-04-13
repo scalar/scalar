@@ -59,12 +59,12 @@
     "@headlessui/vue": "catalog:*",
     "@scalar/components": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "postman-sandbox": "^6.6.1",
-    "vue": "catalog:*",
+    "@scalar/use-codemirror": "workspace:*",
+    "@scalar/workspace-store": "workspace:*",
     "@types/postman-collection": "^3.5.11",
     "postman-collection": "^5.3.0",
-    "@scalar/workspace-store": "workspace:*",
-    "@scalar/use-codemirror": "workspace:*"
+    "postman-sandbox": "^6.6.1",
+    "vue": "catalog:*"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "catalog:*",

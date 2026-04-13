@@ -56,6 +56,7 @@ catalogs:
     cookie: 1.1.1
     commander: 13.1.0
     concurrently: 9.1.2
+    cross-env: 10.1.0
     express: 5.1.0
     fake-indexeddb: 6.2.3
     fast-glob: ^3.3.3
