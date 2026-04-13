@@ -1,13 +1,24 @@
 /**
  * Get the normalized overflow values for both directions from an element.
+ *
+ * Checks the `overflow` shorthand first, then falls back to `overflowX`/`overflowY` longhands.
+ * This ordering is necessary because jsdom does not resolve the shorthand into longhands.
  */
 function getOverflowValues(element: HTMLElement) {
-  const style = window.getComputedStyle(element)
-  const [x, y] = style.overflow.split(' ')
+  const computed = window.getComputedStyle(element)
+
+  const raw = computed.overflow || element.style.overflow
+  if (raw && raw !== 'visible') {
+    const [x, y] = raw.split(' ')
+    return {
+      x: x || '',
+      y: y || x || '',
+    }
+  }
 
   return {
-    x: style.overflowX || x,
-    y: style.overflowY || y || x,
+    x: computed.overflowX || element.style.overflowX,
+    y: computed.overflowY || element.style.overflowY,
   }
 }
 
