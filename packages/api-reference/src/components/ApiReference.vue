@@ -1105,6 +1105,9 @@ const showMCPButton = computed(() => {
             clientStore.workspace['x-scalar-default-client']
           ">
           <template #start>
+            <!-- Placeholder intersection observer that emits an empty string to clear the hash when scrolled to the top -->
+            <div ref="documentStartRef" />
+
             <DeveloperTools
               v-if="workspaceStore.workspace.activeDocument"
               v-model:overrides="configurationOverrides"
@@ -1112,9 +1115,6 @@ const showMCPButton = computed(() => {
               :configuration="mergedConfig"
               :externalUrls="mergedConfig.externalUrls"
               :workspace="workspaceStore" />
-
-            <!-- Placeholder intersection observer that emits an empty string to clear the hash when scrolled to the top -->
-            <div ref="documentStartRef" />
 
             <ClassicHeader v-if="mergedConfig.layout === 'classic'">
               <div class="w-64 empty:hidden">
