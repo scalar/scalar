@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.21.4
+
+### Patch Changes
+
+- [#8769](https://github.com/scalar/scalar/pull/8769): feat(themes): add Tailwind v3 transform reset
+- [#8767](https://github.com/scalar/scalar/pull/8767): feat(components): expose summary truncation state
+- [#8779](https://github.com/scalar/scalar/pull/8779): feat(component): don't add word breaks for the start of text
+
 ## 0.21.3
 
 ### Patch Changes

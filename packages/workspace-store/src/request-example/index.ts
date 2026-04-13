@@ -34,6 +34,7 @@ export {
 } from './builder'
 export type { MergedSecuritySchemes } from './context'
 export {
+  type BuildRequestExampleContext,
   combineParams,
   getActiveEnvironment,
   getActiveProxyUrl,

@@ -76,6 +76,19 @@ describe('resolve-request-factory-url', () => {
     expect(result).toBe('https://api.example.com/v1/users?page=1&limit=10')
   })
 
+  it('preserves repeated query parameters for exploded arrays', () => {
+    const query = new URLSearchParams()
+    query.append('bbox', '13')
+    query.append('bbox', '48')
+    query.append('bbox', '18')
+    query.append('bbox', '52')
+
+    const request = createRequestFactory({ query })
+    const result = resolveRequestFactoryUrl(request, defaultOptions)
+
+    expect(result).toBe('https://api.example.com/v1/users?bbox=13&bbox=48&bbox=18&bbox=52')
+  })
+
   it('adds security query parameters from options.securityQueryParams', () => {
     const securityQueryParams = new URLSearchParams()
     securityQueryParams.set('api_key', 'secret123')

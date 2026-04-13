@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "2.42.0",
+  "version": "2.43.0",
   "engines": {
     "node": ">=22"
   },
@@ -357,6 +357,7 @@
     "@types/har-format": "^1.2.16",
     "@vueuse/core": "catalog:*",
     "@vueuse/integrations": "catalog:*",
+    "cookie": "catalog:*",
     "focus-trap": "^7.8.0",
     "fuse.js": "catalog:*",
     "js-base64": "catalog:*",
@@ -367,12 +368,12 @@
     "posthog-js": "catalog:*",
     "pretty-ms": "^9.3.0",
     "radix-vue": "catalog:*",
+    "set-cookie-parser": "catalog:*",
     "shell-quote": "^1.8.3",
     "type-fest": "catalog:*",
     "vite-plugin-monaco-editor": "^1.1.0",
     "vue": "catalog:*",
     "vue-router": "catalog:*",
-    "whatwg-mimetype": "catalog:*",
     "yaml": "catalog:*",
     "zod": "catalog:*"
   },
@@ -381,7 +382,6 @@
     "@scalar/pre-post-request-scripts": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/shell-quote": "^1.7.5",
-    "@types/whatwg-mimetype": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
     "fake-indexeddb": "catalog:*",

@@ -13,6 +13,7 @@ import Cookies from '@/v2/features/collection/components/Cookies.vue'
 import { Editor } from '@/v2/features/collection/components/Editor'
 import Environment from '@/v2/features/collection/components/Environment.vue'
 import Overview from '@/v2/features/collection/components/Overview.vue'
+import { Runner } from '@/v2/features/collection/components/Runner'
 import Servers from '@/v2/features/collection/components/Servers.vue'
 import Settings from '@/v2/features/collection/components/Settings.vue'
 import DocumentCollection from '@/v2/features/collection/DocumentCollection.vue'
@@ -178,17 +179,23 @@ export const ROUTES = [
                 path: 'cookies',
                 component: Cookies,
               },
-              // Document settings
-              {
-                name: 'document.settings',
-                path: 'settings',
-                component: Settings,
-              },
               // Document scripts (pre-request / post-response)
               {
                 name: 'document.scripts',
                 path: 'scripts',
                 component: () => import('@/v2/features/collection/components/Scripts.vue'),
+              },
+              // Document runner
+              {
+                name: 'document.runner',
+                path: 'runner',
+                component: Runner,
+              },
+              // Document settings
+              {
+                name: 'document.settings',
+                path: 'settings',
+                component: Settings,
               },
             ],
           },

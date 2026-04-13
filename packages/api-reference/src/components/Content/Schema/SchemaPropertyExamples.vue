@@ -86,6 +86,8 @@ const multipleExamplesLabel = computed(() =>
 </template>
 
 <style scoped>
+@reference "../../../style.css";
+
 .property-example {
   display: flex;
   flex-direction: column;
@@ -152,7 +154,7 @@ const multipleExamplesLabel = computed(() =>
   flex-direction: column;
   gap: 3px;
   display: none;
-  z-index: 2;
+  @apply z-context;
 }
 .property-example:hover .property-example-value-list,
 .property-example:focus-within .property-example-value-list {

@@ -6,5 +6,5 @@ export const formatMilliseconds = (ms: number, decimals = 2): string => {
   if (ms > 1000) {
     return (ms / 1000).toFixed(decimals) + 's'
   }
-  return ms + 'ms'
+  return ms.toFixed(decimals) + 'ms'
 }

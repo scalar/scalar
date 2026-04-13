@@ -50,6 +50,7 @@ const {
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'showOperationId'
+    | 'hideModels'
   >
   /** Currently selected server for the document */
   selectedServer: ServerObject | null

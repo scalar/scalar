@@ -5,6 +5,13 @@
   Cards are built from YYYY-MM-DD-slug.md files in documentation/blog/.
   Descriptions are preserved between runs — new posts get auto-extracted text.
 -->
+:::scalar-card{title="Scalar's 2025 Open Source Pledge" href="./2026-04-11-oss-pledge.md"}
+
+Open source is the foundation everything we build sits on. In 2025, Scalar was made up of 10 developers and contributed $21,232 directly to open-source maintainers ($2,123 per developer).
+
+::scalar-fineprint[Apr 11, 2026]{}
+:::
+
 :::scalar-card{title="Too Long; Didn't Read; Used MCP" href="./2026-03-25-scalar-mcp-oauth.md"}
 
 Hey, it's 2026, who does even **read** the documentation for your API anymore. Just boot up a MCP based on your OpenAPI document (using Scalar), and share it with your users or your team[1].

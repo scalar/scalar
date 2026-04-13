@@ -110,6 +110,16 @@ export function initializeAppEventHandlers({
           },
         }),
       },
+      'operation:create:operation': {
+        onAfterExecute: (payload) => {
+          onAfterExampleCreation({
+            path: payload.path,
+            method: payload.method,
+            exampleKey: 'default',
+            documentName: payload.documentName,
+          })
+        },
+      },
       'operation:upsert:parameter': {
         onAfterExecute: (payload) => onAfterExampleCreation(payload.meta),
       },

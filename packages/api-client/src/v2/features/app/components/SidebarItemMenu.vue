@@ -7,12 +7,15 @@ import {
 } from '@scalar/components'
 import { ScalarIconPencil } from '@scalar/icons'
 import type { SidebarState } from '@scalar/sidebar'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { nextTick, ref, watch } from 'vue'
 
-const { item, eventBus, sidebarState, target } = defineProps<{
+import { createTempOperation } from '@/v2/features/app/helpers/create-temp-operation'
+
+const { item, eventBus, sidebarState, target, workspaceStore } = defineProps<{
   /** The item to display the decorator for */
   item: TraversedEntry
   /** The event bus to emit events to */
@@ -21,6 +24,8 @@ const { item, eventBus, sidebarState, target } = defineProps<{
   sidebarState: SidebarState<TraversedEntry>
   /** The target to position the dropdown relative to */
   target: HTMLElement
+  /** The workspace store for accessing documents */
+  workspaceStore: WorkspaceStore
 }>()
 
 const emit = defineEmits<{
@@ -61,28 +66,6 @@ const canDelete = (): boolean =>
   item.type === 'tag' ||
   item.type === 'operation' ||
   item.type === 'example'
-
-const handleAddOperation = () => {
-  if (item.type === 'document') {
-    eventBus.emit('ui:open:command-palette', {
-      action: 'create-request',
-      payload: {
-        documentName: item.name,
-      },
-    })
-  }
-
-  if (item.type === 'tag') {
-    const itemWithParent = sidebarState.getEntryById(item.id)
-    eventBus.emit('ui:open:command-palette', {
-      action: 'create-request',
-      payload: {
-        documentName: getParentEntry('document', itemWithParent)?.name,
-        tagId: item.name,
-      },
-    })
-  }
-}
 
 const handleAddTag = () => {
   if (item.type === 'document') {
@@ -143,6 +126,25 @@ const handleEditExample = () => {
     )
   }
 }
+
+const handleAddOperation = () => {
+  const itemWithParent = sidebarState.getEntryById(item.id)
+  const documentName = getParentEntry('document', itemWithParent)?.name
+  const tagName = getParentEntry('tag', itemWithParent)?.name
+  if (!documentName) {
+    console.error('Document name not found')
+    return
+  }
+  createTempOperation(documentName, {
+    existingPaths: new Set(
+      Object.keys(
+        workspaceStore.workspace.documents[documentName]?.paths ?? {},
+      ),
+    ),
+    eventBus,
+    tags: tagName ? [tagName] : undefined,
+  })
+}
 </script>
 <template>
   <ScalarDropdown
@@ -154,7 +156,7 @@ const handleEditExample = () => {
       <!-- Add operation option for documents and tags -->
       <ScalarDropdownItem
         v-if="canAddOperation()"
-        @click="handleAddOperation()">
+        @click="handleAddOperation">
         <div class="flex items-center gap-2">
           <ScalarIcon
             icon="Add"

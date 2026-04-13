@@ -97,6 +97,9 @@ function example() {
 ```
 
 ## Tables
+
+We support standard GitHub-flavored Markdown tables.
+
 | Header 1 | Header 2 | Header 3 |
 | -------- | -------- | -------- |
 | Cell 1   | Cell 2   | Cell 3   |
@@ -108,6 +111,8 @@ function example() {
 | Cell 1   | Cell 2   | Cell 3   |
 | Cell 4   | Cell 5   | Cell 6   |
 ```
+
+For alignment, escaping pipe characters, and best practices, see [Tables](/products/docs/components/tables).
 
 ## Task Lists
 

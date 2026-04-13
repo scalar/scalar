@@ -5,6 +5,7 @@ import {
   ScalarSidebarSection,
 } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons/library'
+import { computed } from 'vue'
 
 import SidebarItemDecorator from '@/components/SidebarItemDecorator.vue'
 import { filterItems } from '@/helpers/filter-items'
@@ -21,47 +22,58 @@ import type { Item, Layout } from '@/types'
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
 import SidebarItemLabel from './SidebarItemLabel.vue'
 
-const { item, layout, isSelected, isExpanded, isDraggable, isDroppable } =
-  defineProps<{
+const {
+  item,
+  layout,
+  isSelected,
+  isExpanded,
+  isDraggable,
+  isDroppable,
+  options,
+} = defineProps<{
+  /**
+   * The sidebar item to render.
+   */
+  item: Item
+  /**
+   * The layout mode for the sidebar ('client' or 'reference').
+   */
+  layout: Layout
+  /**
+   * Function to determine if an item is currently selected by id.
+   */
+  isSelected: (id: string) => boolean
+  /**
+   * Function to determine if an item is currently expanded (showing its children) by id.
+   */
+  isExpanded: (id: string) => boolean
+  /**
+   * Sidebar configuration options.
+   * - operationTitleSource: sets whether operations show their path or summary as the display title.
+   */
+  options?: Partial<{
+    operationTitleSource: 'path' | 'summary'
     /**
-     * The sidebar item to render.
+     * Whether to hide the default examples for operations if there are no other examples.
+     *
+     * @default false
      */
-    item: Item
-    /**
-     * The layout mode for the sidebar ('client' or 'reference').
-     */
-    layout: Layout
-    /**
-     * Function to determine if an item is currently selected by id.
-     */
-    isSelected: (id: string) => boolean
-    /**
-     * Function to determine if an item is currently expanded (showing its children) by id.
-     */
-    isExpanded: (id: string) => boolean
-    /**
-     * Sidebar configuration options.
-     * - operationTitleSource: sets whether operations show their path or summary as the display title.
-     */
-    options:
-      | {
-          operationTitleSource: 'path' | 'summary' | undefined
-        }
-      | undefined
+    hideOperationDefaultExamples: boolean
+  }>
 
-    /**
-     * Prevents this item from being dragged.
-     *
-     * @default true
-     */
-    isDraggable?: UseDraggableOptions['isDraggable']
-    /**
-     * Prevents this item from being hovered and dropped into. Can be either a function or a boolean.
-     *
-     * @default true
-     */
-    isDroppable?: UseDraggableOptions['isDroppable']
-  }>()
+  /**
+   * Prevents this item from being dragged.
+   *
+   * @default true
+   */
+  isDraggable?: UseDraggableOptions['isDraggable']
+  /**
+   * Prevents this item from being hovered and dropped into. Can be either a function or a boolean.
+   *
+   * @default true
+   */
+  isDroppable?: UseDraggableOptions['isDroppable']
+}>()
 
 const emit = defineEmits<{
   /**
@@ -125,18 +137,24 @@ const { draggableAttrs, draggableEvents } = useDraggable({
   isDroppable,
   onDragEnd,
 })
+
+const children = computed(() =>
+  hasChildren(item)
+    ? filterItems(layout, item.children, options?.hideOperationDefaultExamples)
+    : [],
+)
 </script>
 <template>
   <!-- Sidebar section -->
   <ScalarSidebarSection
-    v-if="hasChildren(item) && isGroup(item)"
+    v-if="children.length > 0 && isGroup(item)"
     :data-sidebar-id="item.id"
     v-bind="draggableAttrs"
     v-on="draggableEvents">
     {{ item.title }}
     <template #items>
       <SidebarItem
-        v-for="child in filterItems(layout, item.children)"
+        v-for="child in children"
         :key="child.id"
         :isDraggable="isDraggable"
         :isDroppable="isDroppable"
@@ -175,7 +193,14 @@ const { draggableAttrs, draggableEvents } = useDraggable({
 
   <!-- Sidebar group (folder) -->
   <ScalarSidebarGroup
-    v-else-if="isSidebarFolder(layout, item, slots.empty !== undefined)"
+    v-else-if="
+      isSidebarFolder(
+        layout,
+        item,
+        slots.empty !== undefined,
+        options?.hideOperationDefaultExamples ?? false,
+      )
+    "
     :active="isSelected(item.id)"
     class="relative"
     controlled
@@ -234,7 +259,7 @@ const { draggableAttrs, draggableEvents } = useDraggable({
     </template>
     <template #items>
       <SidebarItem
-        v-for="child in filterItems(layout, item.children ?? [])"
+        v-for="child in children"
         :key="child.id"
         :isDraggable="isDraggable"
         :isDroppable="isDroppable"

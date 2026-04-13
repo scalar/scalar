@@ -19,6 +19,9 @@
           "path": "documentation/assets/fathom.js"
         },
         {
+          "path": "documentation/assets/posthog.js"
+        },
+        {
           "path": "documentation/assets/apollo.js"
         },
         {
@@ -205,6 +208,10 @@
         {
           "from": "/scalar/scalar-docs/components/tabs",
           "to": "/products/docs/components/tabs"
+        },
+        {
+          "from": "/scalar/scalar-docs/components/tables",
+          "to": "/products/docs/components/tables"
         },
         {
           "from": "/scalar/scalar-docs/components/steps",
@@ -1035,6 +1042,11 @@
                         "type": "page",
                         "title": "Tabs"
                       },
+                      "tables": {
+                        "filepath": "documentation/guides/docs/components/tables.md",
+                        "type": "page",
+                        "title": "Tables"
+                      },
                       "steps": {
                         "filepath": "documentation/guides/docs/components/steps.md",
                         "type": "page",
@@ -1457,6 +1469,11 @@
                   "markdown": {
                     "title": "Markdown",
                     "filepath": "documentation/markdown.md",
+                    "type": "page"
+                  },
+                  "server-side-rendering": {
+                    "title": "Server-Side Rendering",
+                    "filepath": "documentation/server-side-rendering.md",
                     "type": "page"
                   },
                   "changelog": {
@@ -2183,6 +2200,11 @@
                 "mode": "flat",
                 "title": "Posts",
                 "children": {
+                  "/2026-04-11-oss-pledge": {
+                    "type": "page",
+                    "title": "Scalar's 2025 Open Source Pledge",
+                    "filepath": "documentation/blog/2026-04-11-oss-pledge.md"
+                  },
                   "/2026-03-25-scalar-mcp-oauth": {
                     "type": "page",
                     "title": "Too Long; Didn't Read; Used MCP",

@@ -18,7 +18,7 @@ import ScalarSidebarSection from './ScalarSidebarSection.vue'
 const nestedItemGroups = ({
   itemAttrs = (label: string) =>
     `is="button" :icon="args.icon" :selected="selected === '${label}'" @click="selected = '${label}'"`,
-  groupAttrs = () => `:icon="args.icon" :controlled="args.controlled"`,
+  groupAttrs = () => `:icon="args.icon" :controlled="args.controlled" :open="args.open"`,
 }: {
   itemAttrs?: (label: string) => string
   groupAttrs?: (label: string) => string
@@ -76,6 +76,9 @@ const meta: Meta = {
   parameters: { layout: 'fullscreen' },
   args: {
     indent: 20,
+    padding: 12,
+    width: 288,
+    open: false,
     backgroundOne: 'var(--scalar-background-1)',
     colorOne: 'var(--scalar-color-1)',
     colorTwo: 'var(--scalar-color-2)',
@@ -93,6 +96,7 @@ const meta: Meta = {
   },
   argTypes: {
     class: { control: 'text' },
+    open: { control: 'boolean' },
     controlled: { control: 'boolean' },
     icon: {
       control: 'select',
@@ -104,6 +108,8 @@ const meta: Meta = {
       },
     },
     indent: { control: 'number' },
+    padding: { control: 'number' },
+    width: { control: 'number' },
     backgroundOne: { control: 'color' },
     colorOne: { control: 'color' },
     colorTwo: { control: 'color' },
@@ -160,7 +166,7 @@ const meta: Meta = {
             ${nestedItemGroups()}
           </template>
         </ScalarSidebarNestedItems>
-        <ScalarSidebarGroup :icon="args.icon">
+        <ScalarSidebarGroup :icon="args.icon" :open="args.open">
           Group with Nested Sidebar
           <template #items>
             <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 1'" @click="selected = 'Subitem 1'">Subitem 1</ScalarSidebarItem>
@@ -202,6 +208,8 @@ export const Base: Story = {}
 export const Themed: Story = {
   args: {
     indent: 32,
+    padding: 20,
+    width: 320,
     backgroundOne: '#27212e',
     colorOne: '#fff',
     colorTwo: '#b8b6ba',

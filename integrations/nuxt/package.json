@@ -20,7 +20,7 @@
     "testing",
     "vue"
   ],
-  "version": "0.6.21",
+  "version": "0.6.22",
   "engines": {
     "node": ">=22"
   },
@@ -71,7 +71,7 @@
   "devDependencies": {
     "@nuxt/module-builder": "^1.0.1",
     "@types/node": "catalog:*",
-    "cross-env": "^7.0.3",
+    "cross-env": "catalog:*",
     "nuxt": "^4.1.0",
     "vitest": "catalog:*"
   }

@@ -40,6 +40,7 @@ import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-met
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-path'
 import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
+import { EditorView } from '@scalar/use-codemirror'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type {
   ApiReferenceEvents,
@@ -59,6 +60,7 @@ import {
   ref,
   useId,
   useTemplateRef,
+  watch,
 } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
@@ -98,11 +100,25 @@ const style = computed(() => ({
   transform: `translate3d(-${percentage.value}%,0,0)`,
 }))
 
+/** Keeps the cursor visible past the fade-right overlay while typing */
+const addressBarScrollMargins = EditorView.scrollMargins.of(() => ({
+  right: 24,
+}))
+
 const pathConflict = ref<string | null>(null)
 const methodConflict = ref<HttpMethodType | null>(null)
 
 /** Whether there is a path or method conflict */
 const hasConflict = computed(() => methodConflict.value || pathConflict.value)
+
+/** Clear conflict state when switching to a different operation */
+watch(
+  () => [path, method],
+  () => {
+    pathConflict.value = null
+    methodConflict.value = null
+  },
+)
 
 /** Check if the path contains a server URL, extract it, and select or add the server */
 const checkForServer = (targetPath: string) => {
@@ -151,6 +167,9 @@ const emitPathMethodUpdate = (
 ): void => {
   const newPath = checkForServer(targetPath)
   const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`
+
+  // Update the local state of codemirror so we don't have werid path on conflict
+  addressBarRef.value?.setCodeMirrorContent(normalizedPath)
 
   eventBus.emit('operation:update:pathMethod', {
     meta: { method, path },
@@ -267,6 +286,10 @@ const handleFocusAddressBar = (
   }
 
   addressBarRef.value?.focus('end')
+
+  if (payload && 'clear' in payload && payload.clear) {
+    addressBarRef.value?.setCodeMirrorContent('/')
+  }
 
   if (payload && 'event' in payload) {
     payload.event.preventDefault()
@@ -395,6 +418,7 @@ defineExpose({
           disableTabIndent
           :emitOnBlur="false"
           :environment="environment"
+          :extensions="[addressBarScrollMargins]"
           importCurl
           :layout="layout"
           :modelValue="path"

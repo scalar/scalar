@@ -55,6 +55,7 @@
   --scalar-link-font-weight: inherit;
 
   --scalar-sidebar-indent: 20px;
+  --scalar-sidebar-padding: 12px;
 }
 .dark-mode {
   color-scheme: dark;
