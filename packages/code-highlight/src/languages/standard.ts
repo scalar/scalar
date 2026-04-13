@@ -44,8 +44,7 @@ import swift from 'highlight.js/lib/languages/swift'
 import typescript from 'highlight.js/lib/languages/typescript'
 import xml from 'highlight.js/lib/languages/xml'
 import yaml from 'highlight.js/lib/languages/yaml'
-// @ts-expect-error No types available
-import curl from 'highlightjs-curl'
+import curl from './curl'
 
 /**
  * We group languages into three categories based on their popularity and usage.

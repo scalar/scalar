@@ -1,4 +1,4 @@
-import MimeTypeParser from 'whatwg-mimetype'
+import { parseMimeType } from '@scalar/helpers/http/mime-type'
 
 import { isTextMediaType } from '@/views/Request/consts'
 
@@ -8,7 +8,7 @@ import { isTextMediaType } from '@/views/Request/consts'
  * @returns The decoded string or Blob
  */
 export const decodeBuffer = (buffer: ArrayBuffer, contentType: string): string | Blob => {
-  const mimeType = new MimeTypeParser(contentType)
+  const mimeType = parseMimeType(contentType)
 
   // Text
   if (isTextMediaType(mimeType.essence)) {
