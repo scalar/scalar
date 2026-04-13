@@ -50,7 +50,10 @@
       "default": "./dist/plugins/index.js"
     }
   },
-  "files": ["dist", "CHANGELOG.md"],
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.5",
     "@headlessui/vue": "catalog:*",
