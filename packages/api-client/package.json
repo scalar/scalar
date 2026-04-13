@@ -52,6 +52,16 @@
       "require": "./dist/css/*.css",
       "default": "./dist/css/*.css"
     },
+    "./plugins": {
+      "import": "./dist/plugins/index.js",
+      "types": "./dist/plugins/index.d.ts",
+      "default": "./dist/plugins/index.js"
+    },
+    "./plugins/posthog": {
+      "import": "./dist/plugins/posthog/index.js",
+      "types": "./dist/plugins/posthog/index.d.ts",
+      "default": "./dist/plugins/posthog/index.js"
+    },
     "./components/Server": {
       "import": "./dist/components/Server/index.js",
       "types": "./dist/components/Server/index.d.ts",

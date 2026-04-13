@@ -73,6 +73,11 @@
       "types": "./dist/plugins/index.d.ts",
       "default": "./dist/plugins/index.js"
     },
+    "./plugins/posthog-plugin": {
+      "import": "./dist/plugins/posthog-plugin/index.js",
+      "types": "./dist/plugins/posthog-plugin/index.d.ts",
+      "default": "./dist/plugins/posthog-plugin/index.js"
+    },
     "./features": {
       "import": "./dist/features/index.js",
       "types": "./dist/features/index.d.ts",
