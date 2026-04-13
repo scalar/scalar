@@ -54,7 +54,7 @@ describe('Tabs', () => {
     const { wrapper } = await mountWithRouter('document', 'document.overview')
 
     const links = wrapper.findAll('a')
-    expect(links).toHaveLength(7)
+    expect(links).toHaveLength(8)
     expect(wrapper.text()).toContain('Overview')
     expect(wrapper.text()).toContain('Servers')
     expect(wrapper.text()).toContain('Authentication')
@@ -82,7 +82,9 @@ describe('Tabs', () => {
     expect(hrefs[2]).toContain('authentication')
     expect(hrefs[3]).toContain('environment')
     expect(hrefs[4]).toContain('cookies')
-    expect(hrefs[5]).toContain('settings')
+    expect(hrefs[5]).toContain('scripts')
+    expect(hrefs[6]).toContain('runner')
+    expect(hrefs[7]).toContain('settings')
   })
 
   it('marks the active workspace tab using router state', async () => {

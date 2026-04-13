@@ -213,15 +213,6 @@ const handleExecute = async () => {
     response.value.reader.cancel()
   }
 
-  // Execute the hooks
-  eventBus.emit('hooks:on:request:sent', {
-    meta: {
-      method,
-      path,
-      exampleKey,
-    },
-  })
-
   const variablesStore = createVariablesStoreForRequest()
 
   // Execute the beforeRequest hook (plugins receive RequestFactory, not fetch Request)
@@ -266,6 +257,15 @@ const handleExecute = async () => {
 
   // Store the abort controller for cancellation
   abortController.value = requestResult.result.controller
+
+  // Execute the hooks
+  eventBus.emit('hooks:on:request:sent', {
+    meta: {
+      method,
+      path,
+      exampleKey,
+    },
+  })
 
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({

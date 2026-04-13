@@ -22,7 +22,7 @@ import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-r
 import type { ServerObject } from '@/schemas/v3.1/strict/server'
 import type { WorkspaceDocument } from '@/schemas/workspace'
 
-type BuildRequestExampleContext = {
+export type BuildRequestExampleContext = {
   operation: OperationObject
   environment: {
     name: string | null
