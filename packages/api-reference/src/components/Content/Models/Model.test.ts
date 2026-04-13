@@ -50,12 +50,14 @@ describe('Model', () => {
 
   const mockConfigClassic = {
     layout: 'classic' as const,
+    hideModels: false,
     orderRequiredPropertiesFirst: false,
     orderSchemaPropertiesBy: 'alpha' as const,
   }
 
   const mockConfigModern = {
     layout: 'modern' as const,
+    hideModels: false,
     orderRequiredPropertiesFirst: false,
     orderSchemaPropertiesBy: 'alpha' as const,
   }

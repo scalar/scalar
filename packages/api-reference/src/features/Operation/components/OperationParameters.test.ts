@@ -6,15 +6,18 @@ import { describe, expect, it } from 'vitest'
 import OperationParameters from './OperationParameters.vue'
 
 describe('OperationParameters', () => {
+  const defaultSchemaOptions = {
+    hideModels: false,
+    orderRequiredPropertiesFirst: false,
+    orderSchemaPropertiesBy: 'alpha' as const,
+  }
+
   describe('path parameters', () => {
     it('renders path parameters', () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
-          options: {
-            orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
-          },
+          options: defaultSchemaOptions,
           parameters: [
             {
               in: 'path',
@@ -40,10 +43,7 @@ describe('OperationParameters', () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
-          options: {
-            orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
-          },
+          options: defaultSchemaOptions,
           parameters: [
             {
               in: 'query',
@@ -68,10 +68,7 @@ describe('OperationParameters', () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
-          options: {
-            orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
-          },
+          options: defaultSchemaOptions,
           parameters: [
             {
               in: 'header',
@@ -97,10 +94,7 @@ describe('OperationParameters', () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
-          options: {
-            orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
-          },
+          options: defaultSchemaOptions,
           parameters: [
             {
               in: 'cookie',
@@ -126,10 +120,7 @@ describe('OperationParameters', () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
-          options: {
-            orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
-          },
+          options: defaultSchemaOptions,
           parameters: [
             {
               in: 'cookie',
@@ -155,10 +146,7 @@ describe('OperationParameters', () => {
     it('renders request body', () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          options: {
-            orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
-          },
+          options: defaultSchemaOptions,
           eventBus: null,
           requestBody: {
             content: {
@@ -185,10 +173,7 @@ describe('OperationParameters', () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
-          options: {
-            orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
-          },
+          options: defaultSchemaOptions,
           requestBody: {
             content: {
               'application/json': {
@@ -226,10 +211,7 @@ describe('OperationParameters', () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
-          options: {
-            orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
-          },
+          options: defaultSchemaOptions,
           requestBody: {
             content: {
               'application/x-www-form-urlencoded': {
@@ -257,10 +239,7 @@ describe('OperationParameters', () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
-          options: {
-            orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
-          },
+          options: defaultSchemaOptions,
           parameters: [
             {
               in: 'query',
@@ -303,10 +282,7 @@ describe('OperationParameters', () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
-          options: {
-            orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
-          },
+          options: defaultSchemaOptions,
           parameters: [
             {
               in: 'query',
@@ -349,10 +325,7 @@ describe('OperationParameters', () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
-          options: {
-            orderRequiredPropertiesFirst: false,
-            orderSchemaPropertiesBy: 'alpha',
-          },
+          options: defaultSchemaOptions,
           parameters: [
             {
               in: 'query',

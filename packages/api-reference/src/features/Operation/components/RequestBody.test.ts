@@ -6,14 +6,17 @@ import { describe, expect, it } from 'vitest'
 import RequestBody from './RequestBody.vue'
 
 describe('RequestBody', () => {
+  const defaultRequestOptions = {
+    hideModels: false,
+    orderRequiredPropertiesFirst: false,
+    orderSchemaPropertiesBy: 'alpha' as const,
+  }
+
   it('renders request body with schema properties', () => {
     const wrapper = mount(RequestBody, {
       props: {
         eventBus: null,
-        options: {
-          orderRequiredPropertiesFirst: false,
-          orderSchemaPropertiesBy: 'alpha',
-        },
+        options: defaultRequestOptions,
         requestBody: {
           content: {
             'application/json': {
@@ -42,10 +45,7 @@ describe('RequestBody', () => {
     const wrapper = mount(RequestBody, {
       props: {
         eventBus: null,
-        options: {
-          orderRequiredPropertiesFirst: false,
-          orderSchemaPropertiesBy: 'alpha',
-        },
+        options: defaultRequestOptions,
         requestBody: {
           content: {
             'application/json': {
@@ -72,10 +72,7 @@ describe('RequestBody', () => {
     const wrapper = mount(RequestBody, {
       props: {
         eventBus: null,
-        options: {
-          orderRequiredPropertiesFirst: false,
-          orderSchemaPropertiesBy: 'alpha',
-        },
+        options: defaultRequestOptions,
         requestBody: {
           content: {
             'application/json': {
@@ -102,10 +99,7 @@ describe('RequestBody', () => {
     const wrapper = mount(RequestBody, {
       props: {
         eventBus: null,
-        options: {
-          orderRequiredPropertiesFirst: false,
-          orderSchemaPropertiesBy: 'alpha',
-        },
+        options: defaultRequestOptions,
         requestBody: {
           content: {
             'application/json': {
@@ -131,10 +125,7 @@ describe('RequestBody', () => {
     const wrapper = mount(RequestBody, {
       props: {
         eventBus: null,
-        options: {
-          orderRequiredPropertiesFirst: false,
-          orderSchemaPropertiesBy: 'alpha',
-        },
+        options: defaultRequestOptions,
         requestBody: {
           required: true,
           content: {
@@ -161,10 +152,7 @@ describe('RequestBody', () => {
     const wrapper = mount(RequestBody, {
       props: {
         eventBus: null,
-        options: {
-          orderRequiredPropertiesFirst: false,
-          orderSchemaPropertiesBy: 'alpha',
-        },
+        options: defaultRequestOptions,
         requestBody: {
           content: {},
         },
@@ -181,10 +169,7 @@ describe('RequestBody', () => {
     const wrapper = mount(RequestBody, {
       props: {
         eventBus: null,
-        options: {
-          orderRequiredPropertiesFirst: false,
-          orderSchemaPropertiesBy: 'alpha',
-        },
+        options: defaultRequestOptions,
         requestBody: {
           description: 'The user data to create',
           content: {
