@@ -1,7 +1,8 @@
+export { ERRORS, type ErrorResponse, normalizeError } from '@scalar/helpers/errors/normalize-error'
+
 export { type ApiClient, type CreateApiClientParams, type OpenClientPayload, createApiClient } from './create-client'
 export { type EnvConfig, type EnvVariables, getEnvColor } from './env-helpers'
 export { parseEnvVariables } from './environment-parser'
-export { ERRORS, type ErrorResponse, normalizeError, prettyErrorMessage } from './errors'
 export { type EventBus, type EventBusListener, createEventBus } from './event-bus'
 export { findRequestByPathMethod } from './find-request'
 export { type OpenApiDocumentDetails, getOpenApiDocumentDetails } from './getOpenApiDocumentDetails'

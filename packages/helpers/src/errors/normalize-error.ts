@@ -1,3 +1,10 @@
+/**
+ * Go like error handling
+ *
+ * Ensure we return an error or response in an array
+ */
+export type ErrorResponse<ResponseType> = [Error, null] | [null, ResponseType]
+
 /** Centralized list of all error messages */
 export const ERRORS = {
   BUILDING_REQUEST_FAILED: 'An error occurred while building the request',
@@ -10,30 +17,6 @@ export const ERRORS = {
   URL_EMPTY: 'The address bar input seems to be empty. Try adding a URL.',
   ON_BEFORE_REQUEST_FAILED: 'onBeforeRequest request hook failed',
 } as const
-
-/** Normalizes caught error into an error instance */
-export const normalizeError = (e: unknown, defaultMessage: string = ERRORS.DEFAULT): Error => {
-  console.error(e)
-
-  // If we have an error, update the message but keep the rest
-  if (e instanceof Error) {
-    e.message = prettyErrorMessage(e.message)
-    return e
-  }
-  // If we have a string, return an error
-  if (typeof e === 'string') {
-    return new Error(prettyErrorMessage(e))
-  }
-
-  return new Error(defaultMessage)
-}
-
-/**
- * Go like error handling
- *
- * Ensure we return an error or response in an array
- */
-export type ErrorResponse<ResponseType> = [Error, null] | [null, ResponseType]
 
 /** Takes javascript errors and returns a prettier message */
 export const prettyErrorMessage = (message: string) => {
@@ -53,4 +36,21 @@ export const prettyErrorMessage = (message: string) => {
   }
 
   return message
+}
+
+/** Normalizes caught error into an error instance */
+export const normalizeError = (e: unknown, defaultMessage: string = ERRORS.DEFAULT): Error => {
+  console.error(e)
+
+  // If we have an error, update the message but keep the rest
+  if (e instanceof Error) {
+    e.message = prettyErrorMessage(e.message)
+    return e
+  }
+  // If we have a string, return an error
+  if (typeof e === 'string') {
+    return new Error(prettyErrorMessage(e))
+  }
+
+  return new Error(defaultMessage)
 }

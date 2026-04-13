@@ -1,11 +1,10 @@
+import type { ErrorResponse } from '@scalar/helpers/errors/normalize-error'
 import { replaceVariables } from '@scalar/helpers/regex/replace-variables'
 import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import type { Oauth2Flow, Server } from '@scalar/oas-utils/entities/spec'
 import { encode, fromUint8Array } from 'js-base64'
-
-import type { ErrorResponse } from '@/libs/errors'
 
 /** Oauth2 security schemes which are not implicit */
 type NonImplicitFlow = Exclude<Oauth2Flow, { type: 'implicit' }>

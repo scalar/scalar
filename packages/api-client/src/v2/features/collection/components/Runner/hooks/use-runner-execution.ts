@@ -1,4 +1,5 @@
 import { useLoadingState } from '@scalar/components'
+import { isElectron } from '@scalar/helpers/general/is-electron'
 import { executePostResponseScript, executePreRequestScript, getScript } from '@scalar/pre-post-request-scripts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import {
@@ -12,7 +13,6 @@ import {
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { type ComputedRef, type Ref, computed, ref } from 'vue'
 
-import { isElectron } from '@/libs/electron'
 import { type ResponseInstance, sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
 import { APP_VERSION } from '@/v2/constants'
 import { tryCatch } from '@/v2/helpers/safe-run'

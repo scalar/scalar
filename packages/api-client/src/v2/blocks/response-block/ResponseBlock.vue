@@ -8,7 +8,6 @@ import { computed, ref, useId } from 'vue'
 
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
-import type { ClientLayout } from '@/hooks'
 import Headers from '@/v2/blocks/response-block/components/Headers.vue'
 import ResponseBody from '@/v2/blocks/response-block/components/ResponseBody.vue'
 import ResponseBodyStreaming from '@/v2/blocks/response-block/components/ResponseBodyStreaming.vue'
@@ -19,6 +18,7 @@ import ResponseLoadingOverlay from '@/v2/blocks/response-block/components/Respon
 import ResponseMetaInformation from '@/v2/blocks/response-block/components/ResponseMetaInformation.vue'
 import { textMediaTypes } from '@/v2/blocks/response-block/helpers/media-types'
 import { parseSetCookie } from '@/v2/blocks/response-block/helpers/parse-set-cookie'
+import type { ClientLayout } from '@/v2/types/layout'
 
 const { layout, totalPerformedRequests, response, request } = defineProps<{
   /** Preprocessed response */

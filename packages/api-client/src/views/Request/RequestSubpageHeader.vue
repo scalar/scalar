@@ -9,12 +9,12 @@ import type {
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { useRouter } from 'vue-router'
 
-import { OpenApiClientButton } from '@/components'
 import AddressBar from '@/components/AddressBar/AddressBar.vue'
 import { useLayout } from '@/hooks/useLayout'
 import { useSidebar } from '@/hooks/useSidebar'
 import { useWorkspace } from '@/store'
 import type { EnvVariable } from '@/store/active-entities'
+import { OpenApiClientButton } from '@/v2/blocks/operation-block'
 
 const { collection, operation, server, environment, envVariables, workspace } =
   defineProps<{

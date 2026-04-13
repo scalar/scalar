@@ -1,6 +1,6 @@
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 
-import { isTextMediaType } from '@/views/Request/consts'
+import { isTextMediaType } from '@/v2/blocks/response-block/helpers/media-types'
 
 /**
  * Decode the buffer according to its content-type

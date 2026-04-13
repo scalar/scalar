@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { ScalarIcon } from '@scalar/components'
-import { makeUrlAbsolute } from '@scalar/oas-utils/helpers'
+import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
+import { ScalarIconArrowSquareOut } from '@scalar/icons'
 import { computed } from 'vue'
 
 const {
@@ -79,10 +79,9 @@ const href = computed((): string | undefined => {
     class="open-api-client-button"
     :href="href"
     target="_blank">
-    <ScalarIcon
-      icon="ExternalLink"
-      size="xs"
-      thickness="2" />
+    <ScalarIconArrowSquareOut
+      class="size-3"
+      weight="regular" />
     Open API Client
   </a>
 </template>
