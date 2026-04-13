@@ -15,7 +15,7 @@ Render the HTML and JS once at startup, then serve from memory:
 ```ts
 import { renderApiReference, getJsAsset } from '@scalar/server-side-rendering'
 
-// Render once at startup
+// Render the HTML once at startup
 const html = await renderApiReference({
   pageTitle: 'My API Reference',
   config: {
@@ -23,17 +23,18 @@ const html = await renderApiReference({
   },
 })
 
+// Get the JS bundle at startup
 const js = getJsAsset()
-
-// Serve the JS bundle for client-side hydration
-app.get('/scalar/scalar.js', (c) => {
-  return c.body(js, {
-    headers: { 'content-type': 'application/javascript' },
-  })
-})
 
 // Serve the pre-rendered HTML
 app.get('/scalar', (c) => c.html(html))
+
+// Serve the JS bundle for client-side hydration
+app.get('/scalar/scalar.js', (c) =>
+  c.body(js, {
+    headers: { 'content-type': 'application/javascript' },
+  })
+)
 ```
 
 `renderApiReference` returns a complete HTML document with:
