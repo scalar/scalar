@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/style/noNamespace: <explanation> */
 
-import type { AssertNoDiff, Diff } from '@scalar/helpers/types/assertions'
+import type { AssertNoDiff, MismatchPathDiff } from '@scalar/helpers/types/assertions'
 import type { SecurityScheme } from '@scalar/types/entities'
 
 import type { Cookie } from '@/entities/cookie/cookie'
@@ -331,13 +331,13 @@ export namespace v_2_5_0_N {
     'x-internal'?: boolean | undefined
     'x-scalar-ignore'?: boolean | undefined
     'type': 'request'
-    'uid': string
+    'uid': v_2_5_0['Request']['uid']
     'path': string
     'method': 'connect' | 'delete' | 'get' | 'head' | 'options' | 'patch' | 'post' | 'put' | 'trace'
-    'servers': string[]
-    'selectedServerUid': string
-    'examples': string[]
-    'selectedSecuritySchemeUids': string[]
+    'servers': v_2_5_0['Server']['uid'][]
+    'selectedServerUid': v_2_5_0['Server']['uid'][]
+    'examples': v_2_5_0['RequestExample']['uid'][]
+    'selectedSecuritySchemeUids': v_2_5_0['SecurityScheme']['uid'][]
   }
 
   export type SecurityScheme =
@@ -346,7 +346,7 @@ export namespace v_2_5_0_N {
         type: 'apiKey'
         name: string
         in: 'query' | 'header' | 'cookie'
-        uid: string
+        uid: v_2_5_0['SecurityScheme']['uid']
         nameKey: string
         value: string
       }
@@ -355,7 +355,7 @@ export namespace v_2_5_0_N {
         type: 'http'
         scheme: any
         bearerFormat: 'JWT' | string
-        uid: string
+        uid: v_2_5_0['SecurityScheme']['uid']
         nameKey: string
         username: string
         password: string
@@ -365,7 +365,7 @@ export namespace v_2_5_0_N {
         description?: string | undefined
         type: 'openIdConnect'
         openIdConnectUrl: string
-        uid: string
+        uid: v_2_5_0['SecurityScheme']['uid']
         nameKey: string
       }
     | {
@@ -434,7 +434,7 @@ export namespace v_2_5_0_N {
               }
             | undefined
         }
-        uid: string
+        uid: v_2_5_0['SecurityScheme']['uid']
         nameKey: string
       }
 
@@ -515,12 +515,12 @@ export namespace v_2_5_0_N {
   }
 }
 
-// export type TestCollection = AssertNoDiff<Diff<v_2_5_0_N.Collection, v_2_5_0['Collection']>>
-// export type TestCookie = AssertNoDiff<Diff<v_2_5_0_N.Cookie, v_2_5_0['Cookie']>>
-// export type TestEnvironment = AssertNoDiff<Diff<v_2_5_0_N.Environment, v_2_5_0['Environment']>>
-// export type TestTag = AssertNoDiff<Diff<v_2_5_0_N.Tag, v_2_5_0['Tag']>>
-// export type TestRequestExample = AssertNoDiff<Diff<v_2_5_0_N.RequestExample, v_2_5_0['RequestExample']>>
-// export type TestRequest = AssertNoDiff<Diff<v_2_5_0_N.Request, v_2_5_0['Request']>>
-export type TestSecurityScheme = AssertNoDiff<Diff<v_2_5_0_N.SecurityScheme, v_2_5_0['SecurityScheme']>>
-export type TestServer = AssertNoDiff<Diff<v_2_5_0_N.Server, v_2_5_0['Server']>>
-export type TestWorkspace = AssertNoDiff<Diff<v_2_5_0_N.Workspace, v_2_5_0['Workspace']>>
+// export type TestCollection = AssertNoDiff<MismatchPathDiff<v_2_5_0_N.Collection, v_2_5_0['Collection']>>
+// export type TestCookie = AssertNoDiff<MismatchPathDiff<v_2_5_0_N.Cookie, v_2_5_0['Cookie']>>
+// export type TestEnvironment = AssertNoDiff<MismatchPathDiff<v_2_5_0_N.Environment, v_2_5_0['Environment']>>
+// export type TestTag = AssertNoDiff<MismatchPathDiff<v_2_5_0_N.Tag, v_2_5_0['Tag']>>
+// export type TestRequestExample = AssertNoDiff<MismatchPathDiff<v_2_5_0_N.RequestExample, v_2_5_0['RequestExample']>>
+export type TestRequest = AssertNoDiff<MismatchPathDiff<v_2_5_0_N.Request, v_2_5_0['Request']>>
+export type TestSecurityScheme = AssertNoDiff<MismatchPathDiff<v_2_5_0_N.SecurityScheme, v_2_5_0['SecurityScheme']>>
+export type TestServer = AssertNoDiff<MismatchPathDiff<v_2_5_0_N.Server, v_2_5_0['Server']>>
+export type TestWorkspace = AssertNoDiff<MismatchPathDiff<v_2_5_0_N.Workspace, v_2_5_0['Workspace']>>

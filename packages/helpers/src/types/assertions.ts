@@ -83,3 +83,54 @@ export type Diff<A, B> = Clean<DetailedDiff<A, B>>
  * // passes because `Diff` is empty
  */
 export type AssertNoDiff<T extends { [K in keyof T]: never }> = T
+
+type StringifyKey<K> = K extends string | number ? `${K}` : never
+
+type JoinPath<Prefix extends string, K> = Prefix extends '' ? StringifyKey<K> : `${Prefix}.${StringifyKey<K>}`
+
+type IsTraversableObject<T> = T extends object
+  ? T extends readonly unknown[]
+    ? false
+    : T extends (...args: never[]) => unknown
+      ? false
+      : true
+  : false
+
+type MismatchPathForEntry<Expected, Actual, Path extends string> = IsTraversableObject<Expected> extends true
+  ? IsTraversableObject<Actual> extends true
+    ? [MismatchPathsFromDiff<Diff<Expected, Actual>, Path>] extends [never]
+      ? Path
+      : MismatchPathsFromDiff<Diff<Expected, Actual>, Path>
+    : Path
+  : Path
+
+type MismatchPathsFromDiff<TDiff, Prefix extends string = ''> = {
+  [K in keyof TDiff]: TDiff[K] extends DiffEntry<infer Expected, infer Actual>
+    ? MismatchPathForEntry<Expected, Actual, JoinPath<Prefix, K>>
+    : never
+}[keyof TDiff]
+
+/**
+ * Returns mismatched nested property paths using dot notation.
+ *
+ * @example
+ * type Paths = MismatchPaths<
+ *   { user: { profile: { name: string } } },
+ *   { user: { profile: { name: number } } }
+ * >
+ * // "user.profile.name"
+ */
+export type MismatchPaths<A, B> = MismatchPathsFromDiff<Diff<A, B>>
+
+/**
+ * Builds a path-only mismatch map for compiler-friendly errors.
+ *
+ * Use with `AssertNoDiff` to get a compact list of mismatched paths:
+ *
+ * @example
+ * type AssertMatches = AssertNoDiff<MismatchPathDiff<{ id: string }, { id: number }>>
+ * // error keys include "id"
+ */
+export type MismatchPathDiff<A, B> = {
+  [K in MismatchPaths<A, B>]: K
+}
