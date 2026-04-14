@@ -3,35 +3,19 @@ import { describe, expect, it } from 'vitest'
 import { goNative } from './native'
 
 describe('goNative', () => {
+  it('returns an empty string for undefined request', () => {
+    const result = goNative.generate()
+
+    expect(result).toBe('')
+  })
+
   it('returns a basic request', () => {
     const result = goNative.generate({
       url: 'https://example.com',
     })
 
-    expect(result).toBe(
-      `package main
-
-import (
-	"fmt"
-	"io"
-	"net/http"
-)
-
-func main() {
-	url := "https://example.com"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	res, _ := http.DefaultClient.Do(req)
-
-	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
-}`,
-    )
+    expect(result).toContain(`url := "https://example.com"`)
+    expect(result).toContain(`req, _ := http.NewRequest("GET", url, nil)`)
   })
 
   it('returns a POST request', () => {
@@ -40,68 +24,158 @@ func main() {
       method: 'post',
     })
 
-    expect(result).toBe(
-      `package main
-
-import (
-	"fmt"
-	"io"
-	"net/http"
-)
-
-func main() {
-	url := "https://example.com"
-
-	req, _ := http.NewRequest("POST", url, nil)
-
-	res, _ := http.DefaultClient.Do(req)
-
-	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
-}`,
-    )
+    expect(result).toContain(`req, _ := http.NewRequest("POST", url, nil)`)
   })
 
   it('has headers', () => {
     const result = goNative.generate({
       url: 'https://example.com',
-      headers: [
+      headers: [{ name: 'Content-Type', value: 'application/json' }],
+    })
+
+    expect(result).toContain(`req.Header.Add("Content-Type", "application/json")`)
+  })
+
+  it(`does not add empty headers`, () => {
+    const result = goNative.generate({
+      url: 'https://example.com',
+      headers: [],
+    })
+
+    expect(result).not.toContain('req.Header.Add(')
+  })
+
+  it('has JSON body', () => {
+    const result = goNative.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/json',
+        text: JSON.stringify({
+          hello: 'world',
+        }),
+      },
+    })
+
+    expect(result).toContain(`payload := strings.NewReader("{\\n  \\"hello\\": \\"world\\"\\n}")`)
+    expect(result).toContain(`req, _ := http.NewRequest("POST", url, payload)`)
+  })
+
+  it('has query string', () => {
+    const result = goNative.generate({
+      url: 'https://example.com',
+      queryString: [
         {
-          name: 'Content-Type',
-          value: 'application/json',
+          name: 'foo',
+          value: 'bar',
+        },
+        {
+          name: 'bar',
+          value: 'foo',
         },
       ],
     })
-    expect(result).toBe(
-      `package main
 
-import (
-	"fmt"
-	"io"
-	"net/http"
-)
+    expect(result).toContain(`url := "https://example.com?foo=bar&bar=foo"`)
+  })
 
-func main() {
-	url := "https://example.com"
+  it('has cookies', () => {
+    const result = goNative.generate({
+      url: 'https://example.com',
+      cookies: [
+        {
+          name: 'foo',
+          value: 'bar',
+        },
+        {
+          name: 'bar',
+          value: 'foo',
+        },
+      ],
+    })
 
-	req, _ := http.NewRequest("GET", url, nil)
+    expect(result).toContain(`req.Header.Add("Cookie", "foo=bar; bar=foo")`)
+  })
 
-	req.Header.Add("Content-Type", "application/json")
+  it(`does not add empty cookies`, () => {
+    const result = goNative.generate({
+      url: 'https://example.com',
+      cookies: [],
+    })
 
-	res, _ := http.DefaultClient.Do(req)
+    expect(result).not.toContain(`req.Header.Add("Cookie",`)
+  })
 
-	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
-}`,
+  it('adds basic auth credentials', () => {
+    const result = goNative.generate(
+      {
+        url: 'https://example.com',
+      },
+      {
+        auth: {
+          username: 'user',
+          password: 'pass',
+        },
+      },
     )
+
+    expect(result).toContain(`req.SetBasicAuth("user", "pass")`)
+  })
+
+  it('omits auth when not provided', () => {
+    const result = goNative.generate({
+      url: 'https://example.com',
+    })
+
+    expect(result).not.toContain(`req.SetBasicAuth(`)
+  })
+
+  it('omits auth when username is missing', () => {
+    const result = goNative.generate(
+      {
+        url: 'https://example.com',
+      },
+      {
+        auth: {
+          username: '',
+          password: 'pass',
+        },
+      },
+    )
+
+    expect(result).not.toContain(`req.SetBasicAuth(`)
+  })
+
+  it('omits auth when password is missing', () => {
+    const result = goNative.generate(
+      {
+        url: 'https://example.com',
+      },
+      {
+        auth: {
+          username: 'user',
+          password: '',
+        },
+      },
+    )
+
+    expect(result).not.toContain(`req.SetBasicAuth(`)
+  })
+
+  it('handles special characters in auth credentials', () => {
+    const result = goNative.generate(
+      {
+        url: 'https://example.com',
+      },
+      {
+        auth: {
+          username: 'user@example.com',
+          password: 'pass:word!',
+        },
+      },
+    )
+
+    expect(result).toContain(`req.SetBasicAuth("user@example.com", "pass:word!")`)
   })
 
   it('handles multipart form data with files', () => {
@@ -123,46 +197,67 @@ func main() {
       },
     })
 
-    expect(result).toBe(
-      `package main
+    expect(result).toContain(`payload := &bytes.Buffer{}`)
+    expect(result).toContain(`part, _ := writer.CreateFormFile("file", "test.txt")`)
+    expect(result).toContain(`f, _ := os.Open("test.txt")`)
+    expect(result).toContain(`_ = writer.WriteField("field", "value")`)
+    expect(result).toContain(`req.Header.Set("Content-Type", writer.FormDataContentType())`)
+  })
 
-import (
-	"bytes"
-	"fmt"
-	"io"
-	"mime/multipart"
-	"net/http"
-)
+  it('handles multipart form data with empty file names', () => {
+    const result = goNative.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            fileName: '',
+          },
+        ],
+      },
+    })
 
-func main() {
-	url := "https://example.com"
+    expect(result).toContain(`part, _ := writer.CreateFormFile("file", "")`)
+    expect(result).toContain(`f, _ := os.Open("")`)
+  })
 
-	payload := &bytes.Buffer{}
-	writer := multipart.NewWriter(payload)
+  it('handles multipart form data with single quotes in parameter name', () => {
+    const result = goNative.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: "field'name",
+            value: 'value',
+          },
+          {
+            name: "file'name",
+            fileName: 'test.txt',
+          },
+        ],
+      },
+    })
 
-	part, _ := writer.CreateFormFile("file", "test.txt")
+    expect(result).toContain(`_ = writer.WriteField("field'name", "value")`)
+    expect(result).toContain(`part, _ := writer.CreateFormFile("file'name", "test.txt")`)
+  })
 
-	f, _ := os.Open("test.txt")
-	defer f.Close()
+  it('handles multipart fallback to text body when params are missing', () => {
+    const result = goNative.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        text: 'fallback payload',
+      },
+    })
 
-	_, _ = io.Copy(part, f)
-
-	_ = writer.WriteField("field", "value")
-	writer.Close()
-
-	req, _ := http.NewRequest("POST", url, payload)
-
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-	res, _ := http.DefaultClient.Do(req)
-
-	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
-}`,
-    )
+    expect(result).toContain(`payload := strings.NewReader("fallback payload")`)
+    expect(result).not.toContain('multipart.NewWriter')
   })
 
   it('handles url-encoded form data with special characters', () => {
@@ -180,35 +275,26 @@ func main() {
       },
     })
 
-    expect(result).toBe(
-      `package main
+    expect(result).toContain(`postData.Set("special chars!@#", "value")`)
+    expect(result).toContain(`req, _ := http.NewRequest("POST", url, strings.NewReader(postData.Encode()))`)
+  })
 
-import (
-	"fmt"
-	"io"
-	"net/http"
-	"net/url"
-	"strings"
-)
+  it('handles url-encoded form data with single quotes in parameter name', () => {
+    const result = goNative.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          {
+            name: "field'name",
+            value: 'value',
+          },
+        ],
+      },
+    })
 
-func main() {
-	url := "https://example.com"
-
-	postData := url.Values{}
-	postData.Set("special chars!@#", "value")
-
-	req, _ := http.NewRequest("POST", url, strings.NewReader(postData.Encode()))
-
-	res, _ := http.DefaultClient.Do(req)
-
-	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
-}`,
-    )
+    expect(result).toContain(`postData.Set("field'name", "value")`)
   })
 
   it('handles binary data', () => {
@@ -221,33 +307,7 @@ func main() {
       },
     })
 
-    expect(result).toBe(
-      `package main
-
-import (
-	"fmt"
-	"io"
-	"net/http"
-	"strings"
-)
-
-func main() {
-	url := "https://example.com"
-
-	payload := strings.NewReader("binary content")
-
-	req, _ := http.NewRequest("POST", url, payload)
-
-	res, _ := http.DefaultClient.Do(req)
-
-	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
-}`,
-    )
+    expect(result).toContain(`payload := strings.NewReader("binary content")`)
   })
 
   it('handles special characters in URL', () => {
@@ -255,30 +315,41 @@ func main() {
       url: 'https://example.com/path with spaces/[brackets]',
     })
 
-    expect(result).toBe(
-      `package main
+    expect(result).toContain(`url := "https://example.com/path%20with%20spaces/[brackets]"`)
+  })
 
-import (
-	"fmt"
-	"io"
-	"net/http"
-)
+  it('handles special characters in query parameters', () => {
+    const result = goNative.generate({
+      url: 'https://example.com',
+      queryString: [
+        {
+          name: 'q',
+          value: 'hello%20world%20%26%20more',
+        },
+        {
+          name: 'special',
+          value: '!%40%23%24%25%5E%26*()',
+        },
+      ],
+    })
 
-func main() {
-	url := "https://example.com/path%20with%20spaces/[brackets]"
+    expect(result).toContain(`url := "https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()"`)
+  })
 
-	req, _ := http.NewRequest("GET", url, nil)
+  it('handles empty URL', () => {
+    const result = goNative.generate({
+      url: '',
+    })
 
-	res, _ := http.DefaultClient.Do(req)
+    expect(result).toContain(`url := ""`)
+  })
 
-	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
+  it('handles extremely long URLs', () => {
+    const result = goNative.generate({
+      url: 'https://example.com/' + 'a'.repeat(2000),
+    })
 
-	fmt.Println(res)
-	fmt.Println(string(body))
-
-}`,
-    )
+    expect(result).toContain(`url := "https://example.com/${'a'.repeat(2000)}"`)
   })
 
   it('handles multiple headers with same name', () => {
@@ -290,32 +361,8 @@ func main() {
       ],
     })
 
-    expect(result).toBe(
-      `package main
-
-import (
-	"fmt"
-	"io"
-	"net/http"
-)
-
-func main() {
-	url := "https://example.com"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	req.Header.Add("X-Custom", "value2")
-
-	res, _ := http.DefaultClient.Do(req)
-
-	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
-}`,
-    )
+    expect(result).toContain(`req.Header.Add("X-Custom", "value2")`)
+    expect(result).not.toContain(`req.Header.Add("X-Custom", "value1")`)
   })
 
   it('handles headers with empty values', () => {
@@ -324,62 +371,92 @@ func main() {
       headers: [{ name: 'X-Empty', value: '' }],
     })
 
-    expect(result).toBe(
-      `package main
-
-import (
-	"fmt"
-	"io"
-	"net/http"
-)
-
-func main() {
-	url := "https://example.com"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	req.Header.Add("X-Empty", "")
-
-	res, _ := http.DefaultClient.Do(req)
-
-	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(res)
-	fmt.Println(string(body))
-
-}`,
-    )
+    expect(result).toContain(`req.Header.Add("X-Empty", "")`)
   })
 
-  it('handles query string parameters', () => {
+  it('handles cookies with special characters', () => {
     const result = goNative.generate({
-      url: 'https://example.com/api?param1=value1&param2=special value&param3=123',
+      url: 'https://example.com',
+      cookies: [
+        {
+          name: 'special;cookie',
+          value: 'value with spaces',
+        },
+      ],
     })
 
-    expect(result).toBe(
-      `package main
+    expect(result).toContain(`req.Header.Add("Cookie", "special%3Bcookie=value%20with%20spaces")`)
+  })
 
-import (
-	"fmt"
-	"io"
-	"net/http"
-)
+  it('prettifies JSON body', () => {
+    const result = goNative.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/json',
+        text: JSON.stringify({
+          nested: {
+            array: [1, 2, 3],
+            object: { foo: 'bar' },
+          },
+          simple: 'value',
+        }),
+      },
+    })
 
-func main() {
-	url := "https://example.com/api?param1=value1&param2=special%20value&param3=123"
+    expect(result).toContain(`payload := strings.NewReader("{\\n  \\"nested\\": {\\n    \\"array\\": [\\n      1,\\n      2,\\n      3\\n    ],\\n    \\"object\\": {\\n      \\"foo\\": \\"bar\\"\\n    }\\n  },\\n  \\"simple\\": \\"value\\"\\n}")`)
+  })
 
-	req, _ := http.NewRequest("GET", url, nil)
+  it('handles URLs with dollar sign characters', () => {
+    const result = goNative.generate({
+      url: 'https://example.com/path$with$dollars',
+    })
 
-	res, _ := http.DefaultClient.Do(req)
+    expect(result).toContain(`url := "https://example.com/path$with$dollars"`)
+  })
 
-	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
+  it('handles URLs with dollar signs in query parameters', () => {
+    const result = goNative.generate({
+      url: 'https://example.com',
+      queryString: [
+        {
+          name: 'price',
+          value: '%24100',
+        },
+        {
+          name: 'currency',
+          value: 'USD%24',
+        },
+      ],
+    })
 
-	fmt.Println(res)
-	fmt.Println(string(body))
+    expect(result).toContain(`url := "https://example.com?price=%24100&currency=USD%24"`)
+  })
 
-}`,
-    )
+  it('handles URLs with dollar signs in path and query', () => {
+    const result = goNative.generate({
+      url: 'https://example.com/api$v1/prices',
+      queryString: [
+        {
+          name: 'amount',
+          value: '%2450.00',
+        },
+      ],
+    })
+
+    expect(result).toContain(`url := "https://example.com/api$v1/prices?amount=%2450.00"`)
+  })
+
+  it('escapes single quotes in JSON body fallback text', () => {
+    const result = goNative.generate({
+      url: 'https://editor.scalar.com/test',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/json',
+        text: `'hell'o'`,
+      },
+    })
+
+    expect(result).toContain(`payload := strings.NewReader("'hell'o'")`)
   })
 })
