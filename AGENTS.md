@@ -172,6 +172,14 @@ If your PR will cause a version bump for any package, add a changeset:
 pnpm changeset
 ```
 
+### Pre-PR command checklist
+
+After making code changes, run `pnpm format` before opening or updating a PR.
+
+```bash
+pnpm format
+```
+
 ## Visual Testing
 
 When making changes that affect the UI, **PRs must include visual artifacts** (screenshots and/or demo videos) demonstrating the visual impact. Most package dependencies trickle up into three main visual surfaces: `api-reference`, `api-client`, and `components`. Test your changes in whichever playground is relevant.
