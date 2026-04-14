@@ -47,6 +47,19 @@ describe('snippetz', () => {
             }),
           ]),
         },
+        {
+          key: 'python',
+          title: 'Python',
+          default: 'python3',
+          clients: expect.arrayContaining([
+            expect.objectContaining({
+              client: 'aiohttp',
+            }),
+            expect.objectContaining({
+              client: 'requests',
+            }),
+          ]),
+        },
       ]),
     )
   })

@@ -29,6 +29,7 @@ import { phpGuzzle } from '@/plugins/php/guzzle'
 import { phpLaravel } from '@/plugins/php/laravel'
 import { powershellRestmethod } from '@/plugins/powershell/restmethod'
 import { powershellWebrequest } from '@/plugins/powershell/webrequest'
+import { pythonAiohttp } from '@/plugins/python/aiohttp'
 import { pythonHttpxAsync, pythonHttpxSync } from '@/plugins/python/httpx'
 import { pythonPython3 } from '@/plugins/python/python3'
 import { pythonRequests } from '@/plugins/python/requests'
@@ -138,7 +139,7 @@ export const clients: Target[] = [
     key: 'python',
     title: 'Python',
     default: 'python3',
-    clients: [pythonPython3, pythonRequests, pythonHttpxSync, pythonHttpxAsync],
+    clients: [pythonPython3, pythonRequests, pythonAiohttp, pythonHttpxSync, pythonHttpxAsync],
   },
   {
     key: 'r',

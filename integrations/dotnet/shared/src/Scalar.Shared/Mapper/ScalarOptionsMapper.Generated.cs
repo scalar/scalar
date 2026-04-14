@@ -22,7 +22,7 @@ namespace Scalar.AspNetCore;
 /// </summary>
 internal static partial class ScalarOptionsMapper
 {
-    private static readonly Dictionary<ScalarTarget, ScalarClient[]> _targetToClientsMap = new()
+        private static readonly Dictionary<ScalarTarget, ScalarClient[]> _targetToClientsMap = new()
     {
         { ScalarTarget.C, [ScalarClient.Libcurl] },
         { ScalarTarget.Clojure, [ScalarClient.CljHttp] },
@@ -39,7 +39,7 @@ internal static partial class ScalarOptionsMapper
         { ScalarTarget.OCaml, [ScalarClient.CoHttp] },
         { ScalarTarget.Php, [ScalarClient.Curl, ScalarClient.Guzzle, ScalarClient.Laravel] },
         { ScalarTarget.PowerShell, [ScalarClient.RestMethod, ScalarClient.WebRequest] },
-        { ScalarTarget.Python, [ScalarClient.HttpxAsync, ScalarClient.HttpxSync, ScalarClient.Python3, ScalarClient.Requests] },
+        { ScalarTarget.Python, [ScalarClient.AioHttp, ScalarClient.HttpxAsync, ScalarClient.HttpxSync, ScalarClient.Python3, ScalarClient.Requests] },
         { ScalarTarget.R, [ScalarClient.Httr2] },
         { ScalarTarget.Ruby, [ScalarClient.Native] },
         { ScalarTarget.Rust, [ScalarClient.Reqwest] },
@@ -47,5 +47,5 @@ internal static partial class ScalarOptionsMapper
         { ScalarTarget.Swift, [ScalarClient.NSUrlSession, ScalarClient.Nsurlsession] },
     };
 
-    internal static partial Dictionary<ScalarTarget, ScalarClient[]> AvailableClientsByTarget => _targetToClientsMap;
+        internal static partial Dictionary<ScalarTarget, ScalarClient[]> AvailableClientsByTarget => _targetToClientsMap;
 }

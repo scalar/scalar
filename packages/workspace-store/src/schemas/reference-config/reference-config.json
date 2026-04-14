@@ -278,6 +278,10 @@
             "type": "string"
           },
           {
+            "const": "python/aiohttp",
+            "type": "string"
+          },
+          {
             "const": "python/httpx_sync",
             "type": "string"
           },

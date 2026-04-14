@@ -31,7 +31,7 @@ export const GROUPED_CLIENTS = {
   ocaml: ['cohttp'],
   php: ['curl', 'guzzle', 'laravel'],
   powershell: ['restmethod', 'webrequest'],
-  python: ['python3', 'requests', 'httpx_sync', 'httpx_async'],
+  python: ['python3', 'requests', 'aiohttp', 'httpx_sync', 'httpx_async'],
   r: ['httr2'],
   ruby: ['native'],
   rust: ['reqwest'],

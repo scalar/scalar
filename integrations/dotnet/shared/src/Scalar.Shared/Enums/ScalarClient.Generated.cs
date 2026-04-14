@@ -27,6 +27,12 @@ namespace Scalar.AspNetCore;
 public enum ScalarClient
 {
     /// <summary>
+    /// aiohttp client.
+    /// </summary>
+    [Description("aiohttp")]
+    AioHttp,
+
+    /// <summary>
     /// AsyncHttp client.
     /// </summary>
     [Description("asynchttp")]
