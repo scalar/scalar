@@ -4,4 +4,4 @@ export {
   type PluginManager,
   createPluginManager,
 } from './plugin-manager'
-export { PostHogClientPlugin } from './posthog-plugin'
+export { PostHogClientPlugin } from './posthog'

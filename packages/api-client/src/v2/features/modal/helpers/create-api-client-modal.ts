@@ -115,6 +115,13 @@ export const createApiClientModal = ({
     requestBodyCompositionSelection.value = {}
   }
 
+  /** Clean up plugin event bus subscriptions when the app is unmounted */
+  app.onUnmount(() => {
+    for (const unsub of pluginUnsubscribes) {
+      unsub()
+    }
+  })
+
   watch(
     () => modalState.open,
     (open) => (open ? null : handleModalClose()),
@@ -126,6 +133,16 @@ export const createApiClientModal = ({
     (newProxyUrl) => workspaceStore.update('x-scalar-active-proxy', newProxyUrl),
     { immediate: true },
   )
+
+  /** Subscribe to event bus events declared by plugins */
+  const pluginUnsubscribes: (() => void)[] = []
+  for (const plugin of plugins) {
+    if (plugin.on) {
+      for (const [event, handler] of Object.entries(plugin.on)) {
+        pluginUnsubscribes.push(eventBus.on(event as any, handler as any))
+      }
+    }
+  }
 
   // Use a unique id prefix to prevent collisions with other Vue apps on the page
   app.config.idPrefix = 'scalar-client'

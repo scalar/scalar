@@ -5,6 +5,7 @@ vi.mock('posthog-js', () => {
     register: vi.fn(),
     opt_in_capturing: vi.fn(),
     opt_out_capturing: vi.fn(),
+    capture: vi.fn(),
     reset: vi.fn(),
   }
 
@@ -63,6 +64,31 @@ describe('posthog-plugin', () => {
 
     plugin.lifecycle?.onConfigChange?.({ config: { telemetry: true } })
     expect(mockPostHogInstance.opt_in_capturing).toHaveBeenCalled()
+  })
+
+  it('captures events via event bus subscriptions', () => {
+    const plugin = PostHogClientPlugin(TEST_CONFIG)
+    plugin.lifecycle?.onInit?.()
+
+    const trackedEvents = [
+      'hooks:on:request:sent',
+      'operation:create:operation',
+      'operation:delete:operation',
+      'document:create:empty-document',
+      'document:delete:document',
+      'tag:create:tag',
+      'server:add:server',
+      'auth:update:selected-security-schemes',
+      'environment:upsert:environment',
+      'ui:open:client-modal',
+      'ui:download:document',
+    ] as const
+
+    for (const event of trackedEvents) {
+      mockPostHogInstance.capture.mockClear()
+      ;(plugin.on as any)?.[event]?.({})
+      expect(mockPostHogInstance.capture).toHaveBeenCalledWith(event)
+    }
   })
 
   it('resets PostHog on onDestroy', () => {

@@ -77,11 +77,23 @@ if (typeof window !== 'undefined') {
   window.dumpAppState = () => app
 }
 
-/** Call lifecycle hooks on plugins */
+/** Call lifecycle hooks on plugins and subscribe to event bus events */
+const pluginUnsubscribes: (() => void)[] = []
+
 for (const plugin of plugins) {
   plugin.lifecycle?.onInit?.()
+
+  if (plugin.on) {
+    for (const [event, handler] of Object.entries(plugin.on)) {
+      pluginUnsubscribes.push(app.eventBus.on(event as any, handler as any))
+    }
+  }
 }
+
 onBeforeUnmount(() => {
+  for (const unsub of pluginUnsubscribes) {
+    unsub()
+  }
   for (const plugin of plugins) {
     plugin.lifecycle?.onDestroy?.()
   }

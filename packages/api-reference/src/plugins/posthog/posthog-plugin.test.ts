@@ -5,6 +5,7 @@ vi.mock('posthog-js', () => {
     register: vi.fn(),
     opt_in_capturing: vi.fn(),
     opt_out_capturing: vi.fn(),
+    capture: vi.fn(),
     reset: vi.fn(),
   }
 
@@ -79,6 +80,12 @@ describe('posthog-plugin', () => {
 
     instance.hooks?.onConfigChange?.({ config: { telemetry: true } })
     expect(mockPostHogInstance.opt_in_capturing).toHaveBeenCalled()
+  })
+
+  it('includes an API client plugin', () => {
+    const plugin = PostHogPlugin(TEST_CONFIG)
+    const instance = plugin()
+    expect(instance.apiClientPlugins).toHaveLength(1)
   })
 
   it('resets PostHog on onDestroy', () => {

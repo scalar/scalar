@@ -26,6 +26,19 @@ export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
   let posthog: PostHog | null = null
 
   return {
+    on: {
+      'hooks:on:request:sent': () => posthog?.capture('hooks:on:request:sent'),
+      'operation:create:operation': () => posthog?.capture('operation:create:operation'),
+      'operation:delete:operation': () => posthog?.capture('operation:delete:operation'),
+      'document:create:empty-document': () => posthog?.capture('document:create:empty-document'),
+      'document:delete:document': () => posthog?.capture('document:delete:document'),
+      'tag:create:tag': () => posthog?.capture('tag:create:tag'),
+      'server:add:server': () => posthog?.capture('server:add:server'),
+      'auth:update:selected-security-schemes': () => posthog?.capture('auth:update:selected-security-schemes'),
+      'environment:upsert:environment': () => posthog?.capture('environment:upsert:environment'),
+      'ui:open:client-modal': () => posthog?.capture('ui:open:client-modal'),
+      'ui:download:document': () => posthog?.capture('ui:download:document'),
+    },
     lifecycle: {
       onInit(context) {
         if (typeof window === 'undefined') {

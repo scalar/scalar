@@ -91,6 +91,8 @@ export type ClientPlugin = {
   components?: Partial<ClientPluginComponents>
   /** Lifecycle hooks for app-level concerns */
   lifecycle?: ClientPluginLifecycle
+  /** Subscribe to event bus events. The framework handles subscribe/unsubscribe automatically. */
+  on?: Partial<{ [K in keyof ApiReferenceEvents]: (payload: ApiReferenceEvents[K]) => void }>
 }
 
 /**
