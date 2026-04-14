@@ -105,10 +105,10 @@ public enum ScalarClient
     HttpxSync,
 
     /// <summary>
-    /// httr client.
+    /// httr2 client.
     /// </summary>
-    [Description("httr")]
-    Httr,
+    [Description("httr2")]
+    Httr2,
 
     /// <summary>
     /// jQuery client.
@@ -238,4 +238,11 @@ public enum ScalarClient
     [Obsolete("This client is no longer supported.")]
     [Description("http2")]
     Http2,
+
+    /// <summary>
+    /// Use Httr2 instead.
+    /// </summary>
+    [Obsolete("Use Httr2 instead.")]
+    [Description("httr")]
+    Httr,
 }

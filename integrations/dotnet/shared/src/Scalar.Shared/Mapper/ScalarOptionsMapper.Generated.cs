@@ -40,7 +40,7 @@ internal static partial class ScalarOptionsMapper
         { ScalarTarget.Php, [ScalarClient.Curl, ScalarClient.Guzzle, ScalarClient.Laravel] },
         { ScalarTarget.PowerShell, [ScalarClient.RestMethod, ScalarClient.WebRequest] },
         { ScalarTarget.Python, [ScalarClient.HttpxAsync, ScalarClient.HttpxSync, ScalarClient.Python3, ScalarClient.Requests] },
-        { ScalarTarget.R, [ScalarClient.Httr] },
+        { ScalarTarget.R, [ScalarClient.Httr2] },
         { ScalarTarget.Ruby, [ScalarClient.Native] },
         { ScalarTarget.Rust, [ScalarClient.Reqwest] },
         { ScalarTarget.Shell, [ScalarClient.Curl, ScalarClient.Httpie, ScalarClient.Wget] },

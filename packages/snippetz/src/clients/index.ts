@@ -32,7 +32,7 @@ import { powershellWebrequest } from '@/plugins/powershell/webrequest'
 import { pythonHttpxAsync, pythonHttpxSync } from '@/plugins/python/httpx'
 import { pythonPython3 } from '@/plugins/python/python3'
 import { pythonRequests } from '@/plugins/python/requests'
-import { rHttr } from '@/plugins/r/httr'
+import { rHttr2 } from '@/plugins/r/httr2'
 import { rubyNative } from '@/plugins/ruby/native'
 import { rustReqwest } from '@/plugins/rust/reqwest'
 import { shellCurl } from '@/plugins/shell/curl'
@@ -143,8 +143,8 @@ export const clients: Target[] = [
   {
     key: 'r',
     title: 'R',
-    default: 'httr',
-    clients: [rHttr],
+    default: 'httr2',
+    clients: [rHttr2],
   },
   {
     key: 'ruby',
