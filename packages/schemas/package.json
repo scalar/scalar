@@ -1,0 +1,40 @@
+{
+  "name": "@scalar/schemas",
+  "description": "Schemas for Scalar packages",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/schemas"
+  },
+  "keywords": [
+    "schemas",
+    "scalar"
+  ],
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "types:check": "tsc --noEmit"
+  },
+  "type": "module",
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "exports": {
+    "./api-reference": {
+      "import": "./dist/api-reference/index.js",
+      "types": "./dist/api-reference/index.d.ts",
+      "default": "./dist/api-reference/index.js"
+    }
+  },
+  "dependencies": {
+    "@scalar/validation": "workspace:*"
+  }
+}
