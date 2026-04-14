@@ -14,8 +14,8 @@ describe('goNative', () => {
       url: 'https://example.com',
     })
 
-    expect(result).toContain(`url := "https://example.com"`)
-    expect(result).toContain(`req, _ := http.NewRequest("GET", url, nil)`)
+    expect(result).toContain(`requestUrl := "https://example.com"`)
+    expect(result).toContain(`req, _ := http.NewRequest("GET", requestUrl, nil)`)
   })
 
   it('returns a POST request', () => {
@@ -24,7 +24,7 @@ describe('goNative', () => {
       method: 'post',
     })
 
-    expect(result).toContain(`req, _ := http.NewRequest("POST", url, nil)`)
+    expect(result).toContain(`req, _ := http.NewRequest("POST", requestUrl, nil)`)
   })
 
   it('has headers', () => {
@@ -58,7 +58,7 @@ describe('goNative', () => {
     })
 
     expect(result).toContain(`payload := strings.NewReader("{\\n  \\"hello\\": \\"world\\"\\n}")`)
-    expect(result).toContain(`req, _ := http.NewRequest("POST", url, payload)`)
+    expect(result).toContain(`req, _ := http.NewRequest("POST", requestUrl, payload)`)
   })
 
   it('has query string', () => {
@@ -76,7 +76,7 @@ describe('goNative', () => {
       ],
     })
 
-    expect(result).toContain(`url := "https://example.com?foo=bar&bar=foo"`)
+    expect(result).toContain(`requestUrl := "https://example.com?foo=bar&bar=foo"`)
   })
 
   it('has cookies', () => {
@@ -276,7 +276,9 @@ describe('goNative', () => {
     })
 
     expect(result).toContain(`postData.Set("special chars!@#", "value")`)
-    expect(result).toContain(`req, _ := http.NewRequest("POST", url, strings.NewReader(postData.Encode()))`)
+    expect(result).toContain(`req, _ := http.NewRequest("POST", requestUrl, strings.NewReader(postData.Encode()))`)
+    expect(result).toContain('postData := url.Values{}')
+    expect(result).not.toContain('\n\turl :=')
   })
 
   it('handles url-encoded form data with single quotes in parameter name', () => {
@@ -315,7 +317,7 @@ describe('goNative', () => {
       url: 'https://example.com/path with spaces/[brackets]',
     })
 
-    expect(result).toContain(`url := "https://example.com/path%20with%20spaces/[brackets]"`)
+    expect(result).toContain(`requestUrl := "https://example.com/path%20with%20spaces/[brackets]"`)
   })
 
   it('handles special characters in query parameters', () => {
@@ -333,7 +335,7 @@ describe('goNative', () => {
       ],
     })
 
-    expect(result).toContain(`url := "https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()"`)
+    expect(result).toContain(`requestUrl := "https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()"`)
   })
 
   it('handles empty URL', () => {
@@ -341,7 +343,7 @@ describe('goNative', () => {
       url: '',
     })
 
-    expect(result).toContain(`url := ""`)
+    expect(result).toContain(`requestUrl := ""`)
   })
 
   it('handles extremely long URLs', () => {
@@ -349,7 +351,7 @@ describe('goNative', () => {
       url: 'https://example.com/' + 'a'.repeat(2000),
     })
 
-    expect(result).toContain(`url := "https://example.com/${'a'.repeat(2000)}"`)
+    expect(result).toContain(`requestUrl := "https://example.com/${'a'.repeat(2000)}"`)
   })
 
   it('handles multiple headers with same name', () => {
@@ -414,7 +416,7 @@ describe('goNative', () => {
       url: 'https://example.com/path$with$dollars',
     })
 
-    expect(result).toContain(`url := "https://example.com/path$with$dollars"`)
+    expect(result).toContain(`requestUrl := "https://example.com/path$with$dollars"`)
   })
 
   it('handles URLs with dollar signs in query parameters', () => {
@@ -432,7 +434,7 @@ describe('goNative', () => {
       ],
     })
 
-    expect(result).toContain(`url := "https://example.com?price=%24100&currency=USD%24"`)
+    expect(result).toContain(`requestUrl := "https://example.com?price=%24100&currency=USD%24"`)
   })
 
   it('handles URLs with dollar signs in path and query', () => {
@@ -446,7 +448,7 @@ describe('goNative', () => {
       ],
     })
 
-    expect(result).toContain(`url := "https://example.com/api$v1/prices?amount=%2450.00"`)
+    expect(result).toContain(`requestUrl := "https://example.com/api$v1/prices?amount=%2450.00"`)
   })
 
   it('escapes single quotes in JSON body fallback text', () => {
@@ -468,7 +470,7 @@ describe('goNative', () => {
       queryString: [{ name: 'baz', value: 'qux' }],
     })
 
-    expect(result).toContain(`url := "https://example.com/api?foo=bar&baz=qux"`)
+    expect(result).toContain(`requestUrl := "https://example.com/api?foo=bar&baz=qux"`)
   })
 
   it('keeps origin-only URLs with query parameters without adding slash', () => {
@@ -477,7 +479,7 @@ describe('goNative', () => {
       queryString: [{ name: 'foo', value: 'bar' }],
     })
 
-    expect(result).toContain(`url := "https://example.com?existing=true&foo=bar"`)
+    expect(result).toContain(`requestUrl := "https://example.com?existing=true&foo=bar"`)
   })
 
   it('supports empty text fallback for unknown body types', () => {

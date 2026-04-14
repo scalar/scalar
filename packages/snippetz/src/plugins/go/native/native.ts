@@ -193,7 +193,7 @@ export const goNative: Plugin = {
       ')',
       '',
       'func main() {',
-      `\turl := ${goString(fullUrl)}`,
+      `\trequestUrl := ${goString(fullUrl)}`,
       '',
       ...bodySection.setupLines.map((line) => (line ? `\t${line}` : '')),
     ]
@@ -202,7 +202,7 @@ export const goNative: Plugin = {
       lines.push('')
     }
 
-    lines.push(`\treq, _ := http.NewRequest(${goString(method)}, url, ${bodySection.requestBody})`)
+    lines.push(`\treq, _ := http.NewRequest(${goString(method)}, requestUrl, ${bodySection.requestBody})`)
     lines.push('')
 
     if (bodySection.needsMultipartContentTypeHeader) {
