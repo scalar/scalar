@@ -5,7 +5,7 @@ import {
   type ModalState,
 } from '@scalar/components'
 import { useFocusTrap } from '@vueuse/integrations/useFocusTrap'
-import { onBeforeMount, onBeforeUnmount, ref, useId, watch } from 'vue'
+import { nextTick, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 
 const props = defineProps<{ modalState: ModalState }>()
 const emit = defineEmits<{
@@ -14,12 +14,11 @@ const emit = defineEmits<{
 }>()
 
 const client = ref<HTMLElement | null>(null)
-const id = useId()
 
 const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
   useFocusTrap(client, {
     allowOutsideClick: true,
-    fallbackFocus: `#${id}`,
+    fallbackFocus: () => client.value as HTMLElement,
   })
 
 // ensure scalar classes exist on headless-ui root
@@ -28,12 +27,11 @@ onBeforeMount(() => addScalarClassesToHeadless())
 // manage the focus trap and emit lifecycle events
 watch(
   () => props.modalState.open,
-  (open) => {
+  async (open) => {
     if (open) {
-      requestAnimationFrame(() => {
-        activateFocusTrap()
-        emit('open')
-      })
+      await nextTick()
+      activateFocusTrap()
+      emit('open')
     } else {
       deactivateFocusTrap()
       emit('close')
@@ -54,7 +52,6 @@ onBeforeUnmount(() => {
       class="scalar-container"
       :class="{ 'scalar-client--open': modalState.open }">
       <div
-        :id="id"
         ref="client"
         aria-label="API Client"
         aria-modal="true"
