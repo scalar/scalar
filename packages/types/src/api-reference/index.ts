@@ -23,7 +23,6 @@
 export type { ApiReferenceInstance, CreateApiReference } from './html-api'
 export {
   type HtmlRenderingConfiguration,
-  htmlRenderingConfigurationSchema,
 } from './html-rendering-configuration'
 // export {
 //   type SourceConfiguration,
