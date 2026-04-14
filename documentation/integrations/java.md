@@ -472,6 +472,9 @@ scalar.baseServerUrl=https://api.example.com
 # Persist authentication in local storage (default: false)
 scalar.persistAuth=true
 
+# Enable telemetry (default: true)
+scalar.telemetry=false
+
 # Order required properties first (default: true)
 scalar.orderRequiredPropertiesFirst=true
 

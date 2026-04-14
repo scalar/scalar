@@ -195,6 +195,7 @@ DocumentDownloadType.NONE    # Hide download button
 - `theme` (default `Theme.DEFAULT`)
 - `agent` (default `None`) - Set to `AgentScalarConfig(disabled=True)` to disable Agent entirely, or use per-source `agent` on `OpenAPISource` for keys. See [Agent](../configuration.md#agent).
 - `overrides` (default `{}`) - Specific overrides directly to the `config` dictionary which is passed as `Scalar.createApiReference("#app", {json.dumps(config)})`
+- `telemetry` (default `True`) - Enable or disable api client usage telemetry. Options: `True`, `False`
 
 ### Layout
 
