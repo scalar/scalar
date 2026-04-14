@@ -108,6 +108,7 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
     preview: 'object',
   },
   'text/javascript': { extension: '.js', raw: true },
+  'text/json': { extension: '.json', raw: true, language: 'json' },
   'text/plain': { extension: '.txt', raw: true },
   'text/xml': { extension: '.xml', raw: true, language: 'xml' },
   'text/yaml': { extension: '.yaml', raw: true, language: 'yaml' },
