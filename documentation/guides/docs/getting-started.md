@@ -93,7 +93,7 @@
     <div class="feature-item">
       <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-blue">
         <scalar-icon src="phosphor/bold/headset"></scalar-icon>
-        LLM-chat for your API
+        Ask AI
       </b>
     </div>
     <div class="feature-item">
@@ -175,6 +175,9 @@ Put your content where you want: in your repository, any folder, or the Scalar E
       </p>
       <p>
         <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/configuration/private-docs"><scalar-icon src="phosphor/bold/users"></scalar-icon> Private Docs</a>
+      </p>
+      <p>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/docs/configuration/ask-ai"><scalar-icon src="phosphor/bold/headset"></scalar-icon> Ask AI</a>
       </p>
       <p class="mt-3 mb-1 pl-2">
         <b class="font-medium">Community</b>

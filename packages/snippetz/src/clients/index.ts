@@ -26,12 +26,13 @@ import { objcNsurlsession } from '@/plugins/objc/nsurlsession'
 import { ocamlCohttp } from '@/plugins/ocaml/cohttp'
 import { phpCurl } from '@/plugins/php/curl'
 import { phpGuzzle } from '@/plugins/php/guzzle'
+import { phpLaravel } from '@/plugins/php/laravel'
 import { powershellRestmethod } from '@/plugins/powershell/restmethod'
 import { powershellWebrequest } from '@/plugins/powershell/webrequest'
 import { pythonHttpxAsync, pythonHttpxSync } from '@/plugins/python/httpx'
 import { pythonPython3 } from '@/plugins/python/python3'
 import { pythonRequests } from '@/plugins/python/requests'
-import { rHttr } from '@/plugins/r/httr'
+import { rHttr2 } from '@/plugins/r/httr2'
 import { rubyNative } from '@/plugins/ruby/native'
 import { rustReqwest } from '@/plugins/rust/reqwest'
 import { shellCurl } from '@/plugins/shell/curl'
@@ -125,7 +126,7 @@ export const clients: Target[] = [
     key: 'php',
     title: 'PHP',
     default: 'curl',
-    clients: [phpCurl, phpGuzzle],
+    clients: [phpCurl, phpGuzzle, phpLaravel],
   },
   {
     key: 'powershell',
@@ -142,8 +143,8 @@ export const clients: Target[] = [
   {
     key: 'r',
     title: 'R',
-    default: 'httr',
-    clients: [rHttr],
+    default: 'httr2',
+    clients: [rHttr2],
   },
   {
     key: 'ruby',

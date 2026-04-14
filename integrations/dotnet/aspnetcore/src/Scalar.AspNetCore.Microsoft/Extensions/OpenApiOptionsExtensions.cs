@@ -16,6 +16,7 @@ public static class OpenApiOptionsExtensions
         options.AddOperationTransformer<StabilityOpenApiOperationTransformer>();
         options.AddOperationTransformer<CodeSampleOpenApiOperationTransformer>();
         options.AddOperationTransformer<BadgeOpenApiOperationTransformer>();
+        options.AddOperationTransformer<DeprecatedOpenApiOperationTransformer>();
 
         return options;
     }

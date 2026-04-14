@@ -1,5 +1,5 @@
-import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import { AVAILABLE_CLIENTS } from '@scalar/snippetz'
+import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import { describe, expect, it } from 'vitest'
 
 import { generateClientOptions, generateCustomId } from './generate-client-options'
@@ -55,11 +55,11 @@ describe('generateClientOptions', () => {
       })
     })
 
-    it('returns 39 total client options', () => {
+    it('returns 40 total client options', () => {
       const result = generateClientOptions(AVAILABLE_CLIENTS)
       const allOptions = result.flatMap((group) => group.options)
 
-      expect(allOptions).toHaveLength(39)
+      expect(allOptions).toHaveLength(40)
     })
   })
 

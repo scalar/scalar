@@ -25,7 +25,7 @@
     "cross-env": "catalog:*",
     "eslint": "^9.38.0",
     "eslint-plugin-vue": "^9.31.0",
-    "knip": "5.87.0",
+    "knip": "6.3.1",
     "lefthook": "^2.0.15",
     "prettier": "3.8.0",
     "prettier-plugin-tailwindcss": "^0.6.11",

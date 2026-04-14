@@ -894,9 +894,32 @@ onBeforeMount(() => {
 
 const documentStartRef = useTemplateRef<HTMLElement>('documentStartRef')
 
-useIntersection(documentStartRef, () => {
-  eventBus.emit('intersecting:nav-item', { id: activeSlug.value })
-})
+/**
+ * Uses `immediate` so the sentinel fires as soon as it enters the viewport (not just at the center strip).
+ * When the user scrolls away from the top, both this observer and the first section's center-strip
+ * observer are intersecting simultaneously, so the section observer does not re-fire on its own.
+ * The `onExit` callback bridges that gap by finding whichever section is at the viewport center
+ * and re-emitting the nav event for it.
+ */
+useIntersection(
+  documentStartRef,
+  () => {
+    eventBus.emit('intersecting:nav-item', { id: activeSlug.value })
+  },
+  {
+    onExit: () => {
+      const centerY = window.innerHeight / 2
+      const section = document
+        .elementsFromPoint(window.innerWidth / 2, centerY)
+        .find((el) => el.tagName === 'SECTION' && el.id)
+
+      if (section?.id) {
+        eventBus.emit('intersecting:nav-item', { id: section.id })
+      }
+    },
+    immediate: true,
+  },
+)
 
 const colorMode = computed(() => {
   const mode = workspaceStore.workspace['x-scalar-color-mode']
@@ -1082,6 +1105,9 @@ const showMCPButton = computed(() => {
             clientStore.workspace['x-scalar-default-client']
           ">
           <template #start>
+            <!-- Placeholder intersection observer that emits an empty string to clear the hash when scrolled to the top -->
+            <div ref="documentStartRef" />
+
             <DeveloperTools
               v-if="workspaceStore.workspace.activeDocument"
               v-model:overrides="configurationOverrides"
@@ -1089,9 +1115,6 @@ const showMCPButton = computed(() => {
               :configuration="mergedConfig"
               :externalUrls="mergedConfig.externalUrls"
               :workspace="workspaceStore" />
-
-            <!-- Placeholder intersection observer that emits an empty string to clear the hash when scrolled to the top -->
-            <div ref="documentStartRef" />
 
             <ClassicHeader v-if="mergedConfig.layout === 'classic'">
               <div class="w-64 empty:hidden">
