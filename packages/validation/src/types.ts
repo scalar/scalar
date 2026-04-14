@@ -15,6 +15,7 @@ import type {
   Schema,
   StringSchema,
   UnionSchema,
+  UnknownSchema,
 } from './schema'
 
 // Export Static type with depth limit to prevent infinite recursion
@@ -68,23 +69,25 @@ type _Static<T, Depth extends number = 10> = Depth extends 0
               ? undefined
               : T extends AnySchema
                 ? any
-                : T extends ArraySchema<infer Item>
-                  ? Array<_Static<Item, Prev<Depth>>>
-                  : T extends RecordSchema<infer Key, infer Value>
-                    ? Record<_Static<Key, Prev<Depth>> & PropertyKey, _Static<Value, Prev<Depth>>>
-                    : T extends ObjectSchema<infer Properties>
-                      ? ObjectStatics<Properties, Depth>
-                      : T extends OptionalSchema<infer S>
-                        ? _Static<S, Prev<Depth>> | undefined
-                        : T extends IntersectionSchema<infer Schemas>
-                          ? IntersectObjectStatics<Schemas, Prev<Depth>>
-                          : T extends UnionSchema<infer Schemas>
-                            ? _Static<Schemas[number], Prev<Depth>>
-                            : T extends EvaluateSchema<infer S>
-                              ? _Static<S, Prev<Depth>>
-                              : T extends LazySchema<infer S>
-                                ? _Static<ReturnType<S>, Prev<Depth>>
-                                : never
+                : T extends UnknownSchema
+                  ? unknown
+                  : T extends ArraySchema<infer Item>
+                    ? Array<_Static<Item, Prev<Depth>>>
+                    : T extends RecordSchema<infer Key, infer Value>
+                      ? Record<_Static<Key, Prev<Depth>> & PropertyKey, _Static<Value, Prev<Depth>>>
+                      : T extends ObjectSchema<infer Properties>
+                        ? ObjectStatics<Properties, Depth>
+                        : T extends OptionalSchema<infer S>
+                          ? _Static<S, Prev<Depth>> | undefined
+                          : T extends IntersectionSchema<infer Schemas>
+                            ? IntersectObjectStatics<Schemas, Prev<Depth>>
+                            : T extends UnionSchema<infer Schemas>
+                              ? _Static<Schemas[number], Prev<Depth>>
+                              : T extends EvaluateSchema<infer S>
+                                ? _Static<S, Prev<Depth>>
+                                : T extends LazySchema<infer S>
+                                  ? _Static<ReturnType<S>, Prev<Depth>>
+                                  : never
 
 // Helper type to decrement depth counter
 type Prev<T extends number> = T extends 10

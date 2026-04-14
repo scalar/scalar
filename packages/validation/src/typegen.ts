@@ -178,6 +178,8 @@ const structuralEmit = (schema: Schema, depth: number, ctx: TypeGenContext, brac
       return 'undefined'
     case 'any':
       return 'any'
+    case 'unknown':
+      return 'unknown'
     case 'array': {
       const item = emitSchema(schema.items, next, ctx, braceIndent)
       return needsArrayItemParen(item) ? `(${item})[]` : `${item}[]`
@@ -240,7 +242,15 @@ const literalToTs = (value: string | number | boolean | bigint): string => {
 }
 
 const needsArrayItemParen = (t: string): boolean => {
-  if (t === 'number' || t === 'string' || t === 'boolean' || t === 'null' || t === 'undefined' || t === 'any') {
+  if (
+    t === 'number' ||
+    t === 'string' ||
+    t === 'boolean' ||
+    t === 'null' ||
+    t === 'undefined' ||
+    t === 'any' ||
+    t === 'unknown'
+  ) {
     return false
   }
   // Union: `A | B[]` is `A | (B[])`; intersection: `A & B[]` is `A & (B[])`. Wrap the whole item type.
@@ -248,7 +258,15 @@ const needsArrayItemParen = (t: string): boolean => {
 }
 
 const wrapUnionMember = (t: string): string => {
-  if (t === 'number' || t === 'string' || t === 'boolean' || t === 'null' || t === 'undefined' || t === 'any') {
+  if (
+    t === 'number' ||
+    t === 'string' ||
+    t === 'boolean' ||
+    t === 'null' ||
+    t === 'undefined' ||
+    t === 'any' ||
+    t === 'unknown'
+  ) {
     return t
   }
   if (/^(?:-?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?|-?\d+n|"(?:[^"\\]|\\.)*"|true|false)$/.test(t)) {

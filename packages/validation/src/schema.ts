@@ -40,6 +40,11 @@ export type AnySchema = {
   type: 'any'
 } & Documentation
 
+/** Schema that accepts any value. {@link Static} resolves to `unknown` instead of `any`. */
+export type UnknownSchema = {
+  type: 'unknown'
+} & Documentation
+
 /** Schema for homogeneous lists. {@link Static} resolves to an array of the item static type. */
 export type ArraySchema<Item extends Schema> = {
   type: 'array'
@@ -116,6 +121,7 @@ export type Schema =
   | NullableSchema
   | NotDefinedSchema
   | AnySchema
+  | UnknownSchema
   | ArraySchema<any>
   | RecordSchema<any, any>
   | ObjectSchema<Record<string, any>>
@@ -158,6 +164,12 @@ const notDefined = (options?: Documentation): NotDefinedSchema => ({
 
 const any = (options?: Documentation): AnySchema => ({
   type: 'any',
+  typeName: options?.typeName,
+  typeComment: options?.typeComment,
+})
+
+const unknown = (options?: Documentation): UnknownSchema => ({
+  type: 'unknown',
   typeName: options?.typeName,
   typeComment: options?.typeComment,
 })
@@ -238,6 +250,7 @@ export {
   nullable,
   notDefined,
   any,
+  unknown,
   array,
   record,
   object,

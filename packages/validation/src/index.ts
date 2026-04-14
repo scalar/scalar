@@ -16,6 +16,7 @@ export {
   type Schema,
   type StringSchema,
   type UnionSchema,
+  type UnknownSchema,
   any,
   array,
   boolean,
@@ -31,6 +32,7 @@ export {
   record,
   string,
   union,
+  unknown,
 } from './schema'
 export { type GenerateTypesOptions, generateTypes } from './typegen'
 export type { Static } from './types'

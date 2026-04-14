@@ -17,6 +17,7 @@ import {
   record,
   string,
   union,
+  unknown,
 } from '@/schema'
 
 describe('any', () => {
@@ -60,6 +61,42 @@ describe('any', () => {
     const value = { a: 1, b: 2 }
     const result = coerce(T, value)
     expect(result).toEqual({ a: 1, b: 2 })
+  })
+})
+
+describe('unknown', () => {
+  const T = unknown()
+  it('passes through string', () => {
+    const value = 'hello'
+    expect(coerce(T, value)).toBe(value)
+  })
+  it('passes through number', () => {
+    const value = 1
+    expect(coerce(T, value)).toBe(value)
+  })
+  it('passes through boolean', () => {
+    const value = false
+    expect(coerce(T, value)).toBe(value)
+  })
+  it('passes through object', () => {
+    const value = {}
+    expect(coerce(T, value)).toBe(value)
+  })
+  it('passes through array', () => {
+    const value = [1]
+    expect(coerce(T, value)).toBe(value)
+  })
+  it('passes through undefined', () => {
+    const value = undefined
+    expect(coerce(T, value)).toBe(value)
+  })
+  it('passes through null', () => {
+    const value = null
+    expect(coerce(T, value)).toBe(value)
+  })
+  it('preserves complex value', () => {
+    const value = { a: 1, b: 2 }
+    expect(coerce(T, value)).toEqual({ a: 1, b: 2 })
   })
 })
 

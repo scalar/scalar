@@ -129,7 +129,7 @@ export const coerce = <S extends Schema>(
     return value as Static<S>
   }
 
-  if (schema.type === 'any') {
+  if (schema.type === 'any' || schema.type === 'unknown') {
     return value as unknown as Static<S>
   }
   if (schema.type === 'number') {

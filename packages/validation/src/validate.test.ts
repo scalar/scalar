@@ -16,6 +16,7 @@ import {
   record,
   string,
   union,
+  unknown,
 } from '@/schema'
 import { validate } from '@/validate'
 
@@ -60,6 +61,34 @@ describe('any', () => {
     const value = new Date()
     const result = validate(T, value)
     expect(result).toBe(true)
+  })
+})
+
+describe('unknown', () => {
+  const T = unknown()
+  it('passes string', () => {
+    expect(validate(T, 'hello')).toBe(true)
+  })
+  it('passes number', () => {
+    expect(validate(T, 1)).toBe(true)
+  })
+  it('passes boolean', () => {
+    expect(validate(T, true)).toBe(true)
+  })
+  it('passes null', () => {
+    expect(validate(T, null)).toBe(true)
+  })
+  it('passes undefined', () => {
+    expect(validate(T, undefined)).toBe(true)
+  })
+  it('passes object', () => {
+    expect(validate(T, { a: 1 })).toBe(true)
+  })
+  it('passes array', () => {
+    expect(validate(T, [1, 2])).toBe(true)
+  })
+  it('passes Date', () => {
+    expect(validate(T, new Date())).toBe(true)
   })
 })
 
