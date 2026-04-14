@@ -18,4 +18,6 @@ const apiReferenceConfigurationTypes = generateTypes(apiReferenceConfigurationSc
 
 /** Write the types to the types package */
 const outDir = path.join(import.meta.dirname, '../../types/src/gen')
+// Create the directory if it doesn't exist
+await fs.mkdir(outDir, { recursive: true })
 await fs.writeFile(path.join(outDir, 'api-reference.d.ts'), apiReferenceConfigurationTypes)
