@@ -106,7 +106,10 @@ const buildBodySection = (postData?: {
 
     return {
       imports,
-      setupLines: ['postData := url.Values{}', ...postData.params.map((param) => `postData.Set(${goString(param.name)}, ${goString(param.value ?? '')})`)],
+      setupLines: [
+        'postData := url.Values{}',
+        ...postData.params.map((param) => `postData.Set(${goString(param.name)}, ${goString(param.value ?? '')})`),
+      ],
       requestBody: 'strings.NewReader(postData.Encode())',
       needsMultipartContentTypeHeader: false,
     }
@@ -150,7 +153,7 @@ const buildBodySection = (postData?: {
   }
 
   imports.add('strings')
-  const payload = postData.mimeType === 'application/json' ? toPrettyJson(postData.text) : postData.text ?? ''
+  const payload = postData.mimeType === 'application/json' ? toPrettyJson(postData.text) : (postData.text ?? '')
 
   return {
     imports,
@@ -207,14 +210,20 @@ export const goNative: Plugin = {
     }
 
     if (configuration?.auth?.username && configuration?.auth?.password) {
-      lines.push(`\treq.SetBasicAuth(${goString(configuration.auth.username)}, ${goString(configuration.auth.password)})`)
+      lines.push(
+        `\treq.SetBasicAuth(${goString(configuration.auth.username)}, ${goString(configuration.auth.password)})`,
+      )
     }
 
     headers.forEach((header) => {
       lines.push(`\treq.Header.Add(${goString(header.name)}, ${goString(header.value)})`)
     })
 
-    if (bodySection.needsMultipartContentTypeHeader || headers.length || (configuration?.auth?.username && configuration.auth.password)) {
+    if (
+      bodySection.needsMultipartContentTypeHeader ||
+      headers.length ||
+      (configuration?.auth?.username && configuration.auth.password)
+    ) {
       lines.push('')
     }
 

@@ -404,7 +404,9 @@ describe('goNative', () => {
       },
     })
 
-    expect(result).toContain(`payload := strings.NewReader("{\\n  \\"nested\\": {\\n    \\"array\\": [\\n      1,\\n      2,\\n      3\\n    ],\\n    \\"object\\": {\\n      \\"foo\\": \\"bar\\"\\n    }\\n  },\\n  \\"simple\\": \\"value\\"\\n}")`)
+    expect(result).toContain(
+      `payload := strings.NewReader("{\\n  \\"nested\\": {\\n    \\"array\\": [\\n      1,\\n      2,\\n      3\\n    ],\\n    \\"object\\": {\\n      \\"foo\\": \\"bar\\"\\n    }\\n  },\\n  \\"simple\\": \\"value\\"\\n}")`,
+    )
   })
 
   it('handles URLs with dollar sign characters', () => {
