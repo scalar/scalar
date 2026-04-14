@@ -1,4 +1,5 @@
 import type { PartialDeep } from "type-fest"
+import type { TargetId } from "../snippetz"
 
 /** Some common properties used in all security schemes */
 type SecuirtySchemeCommon = {
@@ -8,7 +9,7 @@ type SecuirtySchemeCommon = {
 
 // Apikey
 type ExtendedSecurityScheme = {
-  uid: string
+  uid: any
   /** The name key that links a security requirement to a security object */
   nameKey: string
 }
@@ -205,7 +206,7 @@ type ApiReferencePlugin = () => {
   };
 };
 
-type BaseConfiguration = {
+export type BaseConfiguration = {
   /** The title of the OpenAPI document. */
   title?: string;
   /** The slug of the OpenAPI document used in the URL. If none is passed, the title will be used. If no title is used, it will just use the index. */
@@ -225,23 +226,23 @@ type BaseConfiguration = {
   /** List of OpenAPI server objects */
   servers?: string[];
   /** Whether to show the sidebar */
-  showSidebar?: boolean;
+  showSidebar: boolean;
   /** Whether and when to show the developer tools. */
-  showDeveloperTools?: "localhost" | "always" | "never";
+  showDeveloperTools: "localhost" | "always" | "never";
   /** @deprecated Use showDeveloperTools instead */
-  showToolbar?: "localhost" | "always" | "never";
+  showToolbar: "localhost" | "always" | "never";
   /** Whether to use the operation summary or the operation path for the sidebar and search */
-  operationTitleSource?: "summary" | "path";
+  operationTitleSource: "summary" | "path";
   /** A string to use one of the color presets */
-  theme?: "default" | "alternate" | "moon" | "purple" | "solarized" | "bluePlanet" | "deepSpace" | "saturn" | "kepler" | "elysiajs" | "fastify" | "mars" | "laserwave" | "none";
+  theme: "default" | "alternate" | "moon" | "purple" | "solarized" | "bluePlanet" | "deepSpace" | "saturn" | "kepler" | "elysiajs" | "fastify" | "mars" | "laserwave" | "none";
   /** Integration type identifier */
   _integration?: "adonisjs" | "astro" | "docusaurus" | "dotnet" | "elysiajs" | "express" | "fastapi" | "fastify" | "go" | "hono" | "html" | "laravel" | "litestar" | "nestjs" | "nextjs" | "nitro" | "nuxt" | "platformatic" | "react" | "rust" | "svelte" | "vue";
   /** onRequestSent is fired when a request is sent */
   onRequestSent?: (input: string) => void;
   /** Whether to persist auth to local storage */
-  persistAuth?: boolean;
+  persistAuth: boolean;
   /** Enables / disables telemetry */
-  telemetry?: boolean;
+  telemetry: boolean;
   /** External service URLs used by Scalar packages */
   externalUrls: {
     dashboardUrl: string;
@@ -251,8 +252,8 @@ type BaseConfiguration = {
   };
 }
 
-type SourceConfiguration = {
-  default?: boolean;
+export type SourceConfiguration = {
+  default: boolean;
   /** URL to an OpenAPI/Swagger document */
   url?: string;
   /** Directly embed the OpenAPI document. Can be a string, object, function returning an object, or null. It is recommended to pass a URL instead of content. */
@@ -277,7 +278,7 @@ type SourceConfiguration = {
 
 export type ApiReferenceConfiguration = BaseConfiguration & SourceConfiguration & ({
   /** The layout to use for the references */
-  layout?: "modern" | "classic";
+  layout: "modern" | "classic";
   /** @deprecated Use proxyUrl instead */
   proxy?: string;
   /** Custom fetch function for custom logic. Can be used to add custom headers, handle auth, etc. */
@@ -285,27 +286,27 @@ export type ApiReferenceConfiguration = BaseConfiguration & SourceConfiguration 
   /** Plugins for the API reference */
   plugins?: ApiReferencePlugin[];
   /** Allows the user to inject an editor for the spec */
-  isEditable?: boolean;
+  isEditable: boolean;
   /** Controls whether the references show a loading state in the intro */
-  isLoading?: boolean;
+  isLoading: boolean;
   /** Whether to show models in the sidebar, search, and content. */
-  hideModels?: boolean;
+  hideModels: boolean;
   /** Sets the file type of the document to download, set to `none` to hide the download button */
-  documentDownloadType?: "both" | "json" | "yaml" | "direct" | "none";
+  documentDownloadType: "both" | "yaml" | "json" | "direct" | "none";
   /** @deprecated Use `documentDownloadType: 'none'` instead */
   hideDownloadButton?: boolean;
   /** Whether to show the "Test Request" button */
-  hideTestRequestButton?: boolean;
+  hideTestRequestButton: boolean;
   /** Whether to show the sidebar search bar */
-  hideSearch?: boolean;
+  hideSearch: boolean;
   /** Whether to show the operationId */
-  showOperationId?: boolean;
+  showOperationId: boolean;
   /** Whether dark mode is on or off initially (light mode) */
   darkMode?: boolean;
   /** forceDarkModeState makes it always this state no matter what */
   forceDarkModeState?: "dark" | "light";
   /** Whether to show the dark mode toggle */
-  hideDarkModeToggle?: boolean;
+  hideDarkModeToggle: boolean;
   /** If used, passed data will be added to the HTML header. @see https://unhead.unjs.io/usage/composables/use-seo-meta */
   metaData?: any;
   /** Path to a favicon image */
@@ -314,7 +315,7 @@ export type ApiReferenceConfiguration = BaseConfiguration & SourceConfiguration 
   hiddenClients?: (Record<string, boolean | (string[])>) | (string[]) | true;
   /** Determine the HTTP client that is selected by default */
   defaultHttpClient?: {
-    targetKey: string;
+    targetKey: TargetId;
     clientKey: string;
   };
   /** Custom CSS to be added to the page */
@@ -324,20 +325,20 @@ export type ApiReferenceConfiguration = BaseConfiguration & SourceConfiguration 
   /** onServerChange is fired on selected server change */
   onServerChange?: (input: string) => void;
   /** onDocumentSelect is fired when the config is selected */
-  onDocumentSelect?: () => void | Promise<void>;
+  onDocumentSelect: (() => void | Promise<void>) | undefined;
   /** Callback fired when the reference is fully loaded */
-  onLoaded?: (slug: string) => void | Promise<void>;
+  onLoaded: ((slug: string) => void | Promise<void>) | undefined;
   /** Fired before the outbound request is built; callback receives a mutable request builder. Experimental API. */
-  onBeforeRequest?: (input: { request: Request; requestBuilder: any; envVariables: Record<string, string> }) => void | Promise<void>;
+  onBeforeRequest: ((input: { request: Request; requestBuilder: any; envVariables: Record<string, string> }) => void | Promise<void>) | undefined; 
   /** onShowMore is fired when the user clicks the "Show more" button on the references */
-  onShowMore?: (tagId: string) => void | Promise<void>;
+  onShowMore: ((tagId: string) => void | Promise<void>) | undefined;
   /** onSidebarClick is fired when the user clicks on a sidebar item */
-  onSidebarClick?: (href: string) => void | Promise<void>;
+  onSidebarClick: ((href: string) => void | Promise<void>) | undefined;
   /** Route using paths instead of hashes, your server MUST support this. @experimental */
   pathRouting?: {
     basePath: string;
   };
-  /** MCP (Model Contexpt Protocol) configuration. When provided, enables MCP integration with the given name and url. */
+  /** MCP (Model Context Protocol) configuration. When provided, enables MCP integration with the given name and url. */
   mcp?: {
     /** Display name for the MCP server */
     name?: string;
@@ -347,11 +348,11 @@ export type ApiReferenceConfiguration = BaseConfiguration & SourceConfiguration 
     disabled?: boolean;
   };
   /** Customize the heading portion of the hash */
-  generateHeadingSlug?: (input: { slug: string }) => string;
+  generateHeadingSlug?: (input: { slug?: string }) => string;
   /** Customize the model portion of the hash */
-  generateModelSlug?: (input: { name: string }) => string;
+  generateModelSlug?: (input: { name?: string }) => string;
   /** Customize the tag portion of the hash */
-  generateTagSlug?: (input: { name: string }) => string;
+  generateTagSlug?: (input: { name?: string }) => string;
   /** Customize the operation portion of the hash */
   generateOperationSlug?: (input: { path: string; operationId?: string; method: string; summary?: string }) => string;
   /** Customize the webhook portion of the hash */
@@ -359,30 +360,30 @@ export type ApiReferenceConfiguration = BaseConfiguration & SourceConfiguration 
   /** To handle redirects, pass a function that receives the current path/hash and passes that to history.replaceState */
   redirect?: (input: string) => string | null | undefined;
   /** Whether to include default fonts */
-  withDefaultFonts?: boolean;
+  withDefaultFonts: boolean;
   /** Whether to expand the first tag in the sidebar when no specific URL target is present */
-  defaultOpenFirstTag?: boolean;
+  defaultOpenFirstTag: boolean;
   /** Whether to expand all tags by default. Warning: this can cause performance issues on big documents */
-  defaultOpenAllTags?: boolean;
+  defaultOpenAllTags: boolean;
   /** Whether to expand all models by default. Warning: this can cause performance issues on big documents */
-  expandAllModelSections?: boolean;
+  expandAllModelSections: boolean;
   /** Whether to expand all responses by default. Warning: this can cause performance issues on big documents */
-  expandAllResponses?: boolean;
+  expandAllResponses: boolean;
   /** Function to sort tags */
   tagsSorter?: "alpha" | ((a: any, b: any) => number);
   /** Function to sort operations */
   operationsSorter?: "alpha" | "method" | ((a: any, b: any) => number);
   /** Order the schema properties by */
-  orderSchemaPropertiesBy?: "alpha" | "preserve";
+  orderSchemaPropertiesBy: "alpha" | "preserve";
   /** Sort the schema properties by required ones first */
-  orderRequiredPropertiesFirst?: boolean;
+  orderRequiredPropertiesFirst: boolean;
 })
 
 
 // Remove deprecated attributes
 export type ApiReferenceConfigurationWithSource = Omit<ApiReferenceConfiguration, 'proxy' | 'spec' | 'authentication' | 'showToolbar'> & {
   // Add the correct type for authentication
-  authentication?: any;
+  authentication?: AuthenticationConfiguration;
 }
 
 /**
