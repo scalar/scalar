@@ -53,6 +53,7 @@ describe('OAuth2', () => {
         server: custom.server ?? null,
         proxyUrl: custom.proxyUrl ?? '',
         scheme: custom.scheme ?? { type: 'oauth2' },
+        options: custom.configuration ?? {},
         eventBus,
         name: 'OAuth2',
       },
