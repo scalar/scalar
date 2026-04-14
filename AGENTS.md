@@ -174,10 +174,11 @@ pnpm changeset
 
 ### Pre-PR command checklist
 
-After making code changes, run `pnpm format` before opening or updating a PR.
+After making code changes, run `pnpm format` and `pnpm knip` before opening or updating a PR.
 
 ```bash
 pnpm format
+pnpm knip
 ```
 
 ## Visual Testing
