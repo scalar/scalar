@@ -1,6 +1,6 @@
 # Community
 
-The Scalar API Client is fully open-source and built together with the community. Whether you want to report a bug, request a feature, or just hang out with other API nerds, here is where to find us.
+The Scalar API Client is fully open-source and built together with the community. Whether you want to report a bug, request a feature, or just hang out with other API nerds, this is where you can find us.
 
 ## Discord
 
