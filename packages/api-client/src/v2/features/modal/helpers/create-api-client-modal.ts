@@ -36,7 +36,7 @@ export type ApiClientModal = {
   open: (payload?: RoutePayload) => void
   mount: (mountingEl: HTMLElement | null) => void
   route: (payload: RoutePayload) => void
-  updateOptions: (nextOptions: ApiClientModalOptions) => void
+  updateOptions: (nextOptions: ApiClientModalOptions, overwrite?: boolean) => void
   modalState: ModalState
 }
 
