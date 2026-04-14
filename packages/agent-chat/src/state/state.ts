@@ -1,6 +1,7 @@
 import { Chat } from '@ai-sdk/vue'
 import { type ModalState, useModal } from '@scalar/components'
-import { type ApiReferenceConfigurationRaw, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { type ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
+import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import { useToasts } from '@scalar/use-toasts'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -39,6 +40,7 @@ import { persistencePlugin } from '@/plugins/persistance'
 import { loadDocument } from '@/registry/add-documents-to-store'
 import { createDocumentName } from '@/registry/create-document-name'
 import type { ChatMode } from '@/types'
+import { coerce } from '@scalar/validation'
 
 export type RegistryDocument = {
   namespace: string
@@ -192,7 +194,7 @@ export function createState({
   })
 
   const config = computed(() =>
-    apiReferenceConfigurationSchema.parse({
+    coerce(apiReferenceConfigurationSchema, {
       proxyUrl: proxyUrl.value,
       persistAuth: true,
     }),
