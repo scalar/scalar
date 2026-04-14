@@ -1,22 +1,37 @@
 import { apiReferencePluginSchema } from "@/api-reference/api-reference-plugin";
 import { any, array, boolean, fn, literal, object, optional, string, union } from "@scalar/validation";
 
-// TODO: support for default values
 const externalUrlsSchema = object({
-  dashboardUrl: string(),
-  registryUrl: string(),
-  proxyUrl: string(),
-  apiBaseUrl: string(),
-}) 
+  dashboardUrl: string({ default: 'https://dashboard.scalar.com' }),
+  registryUrl: string({ default: 'https://registry.scalar.com' }),
+  proxyUrl: string({ default: 'https://proxy.scalar.com' }),
+  apiBaseUrl: string({ default: 'https://api.scalar.com' }),
+}, {
+  typeComment: 'External service URLs used by Scalar packages',
+})
 
 export const baseConfigurationSchema = object({
-  title: optional(string()),
-  slug: optional(string()),
-  authentication: optional(any()),
-  baseServerURL: optional(string()),
-  hideClientButton: optional(boolean()),
-  proxyUrl: optional(string()),
-  oauth2RedirectUri: optional(string()),
+  title: optional(string(), {
+    typeComment: 'The title of the OpenAPI document.',
+  }),
+  slug: optional(string(), {
+    typeComment: 'The slug of the OpenAPI document used in the URL. If none is passed, the title will be used. If no title is used, it will just use the index.',
+  }),
+  authentication: optional(any(), {
+    typeComment: 'Prefill authentication',
+  }),
+  baseServerURL: optional(string(), {
+    typeComment: 'Base URL for the API server',
+  }),
+  hideClientButton: optional(boolean(), {
+    typeComment: 'Whether to hide the client button',
+  }),
+  proxyUrl: optional(string(), {
+    typeComment: 'URL to a request proxy for the API client',
+  }),
+  oauth2RedirectUri: optional(string(), {
+    typeComment: 'Default OAuth 2.0 redirect URI used to prefill auth flows in the API client.',
+  }),
   searchHotKey: optional(union([
     literal('a'),
     literal('b'),
@@ -44,23 +59,35 @@ export const baseConfigurationSchema = object({
     literal('x'),
     literal('y'),
     literal('z'),
-  ])),
-  servers: optional(array(string())),
-  showSidebar: optional(boolean()),
+  ]), {
+    typeComment: 'Key used with CTRL/CMD to open the search modal (defaults to \'k\' e.g. CMD+k)',
+  }),
+  servers: optional(array(string()), {
+    typeComment: 'List of OpenAPI server objects',
+  }),
+  showSidebar: optional(boolean(), {
+    typeComment: 'Whether to show the sidebar',
+  }),
   showDeveloperTools: optional(union([
     literal('localhost'),
     literal('always'),
     literal('never'),
-  ])),
+  ]), {
+    typeComment: 'Whether and when to show the developer tools.',
+  }),
   showToolbar: optional(union([
     literal('localhost'),
     literal('always'),
     literal('never'),
-  ])),
+  ]), {
+    typeComment: '@deprecated Use showDeveloperTools instead',
+  }),
   operationTitleSource: optional(union([
     literal('summary'),
     literal('path'),
-  ])),
+  ]), {
+    typeComment: 'Whether to use the operation summary or the operation path for the sidebar and search',
+  }),
   theme: optional(union([
     literal('default'),
     literal('alternate'),
@@ -76,7 +103,9 @@ export const baseConfigurationSchema = object({
     literal('mars'),
     literal('laserwave'),
     literal('none'),
-  ])),
+  ]), {
+    typeComment: 'A string to use one of the color presets',
+  }),
   _integration: optional(union([
     literal('adonisjs'),
     literal('astro'),
@@ -100,10 +129,20 @@ export const baseConfigurationSchema = object({
     literal('rust'),
     literal('svelte'),
     literal('vue'),
-  ])),
-  onRequestSent: optional(fn<(input: string) => void>()),
-  persistAuth: optional(boolean()),
-  plugins: optional(array(apiReferencePluginSchema)),
-  telemetry: optional(boolean()),
+  ]), {
+    typeComment: 'Integration type identifier',
+  }),
+  onRequestSent: optional(fn<(input: string) => void>(), {
+    typeComment: 'onRequestSent is fired when a request is sent',
+  }),
+  persistAuth: optional(boolean(), {
+    typeComment: 'Whether to persist auth to local storage',
+  }),
+  plugins: optional(array(apiReferencePluginSchema), {
+    typeComment: 'Plugins for the API client',
+  }),
+  telemetry: optional(boolean(), {
+    typeComment: 'Enables / disables telemetry',
+  }),
   externalUrls: optional(externalUrlsSchema),
 })
