@@ -16,7 +16,7 @@ vi.mock('vue-router', () => ({
 
 // Mock file dialog hook
 const mockFileDialogOpen = vi.fn()
-vi.mock('@/hooks', () => ({
+vi.mock('@/hooks/use-file-dialog', () => ({
   useFileDialog: () => ({
     open: mockFileDialogOpen,
   }),

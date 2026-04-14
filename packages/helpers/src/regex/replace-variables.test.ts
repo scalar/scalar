@@ -46,4 +46,26 @@ describe('replaceEnvVariables', () => {
 
     expect(replaceEnvVariables(path, variables)).toBe('https://api.example.com/users/{userId}')
   })
+
+  it('replaces placeholders using a callback that maps keys to values', () => {
+    const path = '{{$guid}}/{{name}}'
+    const replace = (key: string): string | null =>
+      key === '$guid' ? '550e8400-e29b-41d4-a716-446655440000' : key === 'name' ? 'Ada' : null
+
+    expect(replaceEnvVariables(path, replace)).toBe('550e8400-e29b-41d4-a716-446655440000/Ada')
+  })
+
+  it('leaves the original placeholder when the callback returns null', () => {
+    const path = 'before {{missing}} after'
+    expect(replaceEnvVariables(path, () => null)).toBe('before {{missing}} after')
+  })
+
+  it('passes the inner key to the callback for each match', () => {
+    const keys: string[] = []
+    replaceEnvVariables('{{a}}-{{b.c}}', (key) => {
+      keys.push(key)
+      return key
+    })
+    expect(keys).toEqual(['a', 'b.c'])
+  })
 })

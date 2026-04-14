@@ -166,6 +166,11 @@
       "types": "./dist/plugins/php/guzzle/index.d.ts",
       "default": "./dist/plugins/php/guzzle/index.js"
     },
+    "./plugins/php/laravel": {
+      "import": "./dist/plugins/php/laravel/index.js",
+      "types": "./dist/plugins/php/laravel/index.d.ts",
+      "default": "./dist/plugins/php/laravel/index.js"
+    },
     "./plugins/powershell/restmethod": {
       "import": "./dist/plugins/powershell/restmethod/index.js",
       "types": "./dist/plugins/powershell/restmethod/index.d.ts",
@@ -191,10 +196,10 @@
       "types": "./dist/plugins/python/requests/index.d.ts",
       "default": "./dist/plugins/python/requests/index.js"
     },
-    "./plugins/r/httr": {
-      "import": "./dist/plugins/r/httr/index.js",
-      "types": "./dist/plugins/r/httr/index.d.ts",
-      "default": "./dist/plugins/r/httr/index.js"
+    "./plugins/r/httr2": {
+      "import": "./dist/plugins/r/httr2/index.js",
+      "types": "./dist/plugins/r/httr2/index.d.ts",
+      "default": "./dist/plugins/r/httr2/index.js"
     },
     "./plugins/ruby/native": {
       "import": "./dist/plugins/ruby/native/index.js",

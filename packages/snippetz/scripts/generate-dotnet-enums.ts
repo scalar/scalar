@@ -71,6 +71,11 @@ const OBSOLETE_CLIENT_ENTRIES = [
     description: 'http2',
     reason: 'This client is no longer supported.',
   },
+  {
+    name: 'Httr',
+    description: 'httr',
+    reason: 'Use Httr2 instead.',
+  },
 ]
 
 /**

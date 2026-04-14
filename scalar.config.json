@@ -143,7 +143,7 @@
         },
         {
           "from": "/download",
-          "to": "/products/api-client/getting-started"
+          "to": "/products/api-client/download"
         },
         {
           "from": "/scalar/introduction",
@@ -543,7 +543,7 @@
         },
         {
           "from": "/download",
-          "to": "/products/api-client/getting-started"
+          "to": "/products/api-client/download"
         },
         {
           "from": "/terms-and-conditions",
@@ -1836,7 +1836,7 @@
                     "filepath": "documentation/guides/app/getting-started.md",
                     "type": "page",
                     "title": "Getting Started",
-                    "description": "Download and start testing APIs with the most beautiful API client built for developers who love great tools.",
+                    "description": "A modern, open-source API client built on the OpenAPI standard with offline-first design and cross-platform support.",
                     "head": {
                       "links": [
                         {
@@ -1847,7 +1847,7 @@
                       "meta": [
                         {
                           "name": "description",
-                          "content": "Download and start testing APIs with the most beautiful API client built for developers who love great tools."
+                          "content": "A modern, open-source API client built on the OpenAPI standard with offline-first design and cross-platform support."
                         },
                         {
                           "property": "og:title",
@@ -1855,7 +1855,199 @@
                         },
                         {
                           "property": "og:description",
-                          "content": "Download and start testing APIs with the most beautiful API client built for developers who love great tools."
+                          "content": "A modern, open-source API client built on the OpenAPI standard with offline-first design and cross-platform support."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "download": {
+                    "filepath": "documentation/guides/app/download.md",
+                    "type": "page",
+                    "title": "Download",
+                    "description": "Download the Scalar API Client for Windows, macOS, or Linux, or use it in the browser.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/download"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Download the Scalar API Client for Windows, macOS, or Linux, or use it in the browser."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Download API Client - Windows, macOS, Linux"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Download the Scalar API Client for Windows, macOS, or Linux, or use it in the browser."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "import": {
+                    "filepath": "documentation/guides/app/import.md",
+                    "type": "page",
+                    "title": "Import",
+                    "description": "Import API collections from OpenAPI, Swagger 2.0, Postman, or cURL into the Scalar API Client.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/import"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Import API collections from OpenAPI, Swagger 2.0, Postman, or cURL into the Scalar API Client."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Import APIs - OpenAPI, Swagger, Postman, cURL"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Import API collections from OpenAPI, Swagger 2.0, Postman, or cURL into the Scalar API Client."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "scripts": {
+                    "filepath": "documentation/guides/app/scripts.md",
+                    "type": "page",
+                    "title": "Scripts",
+                    "description": "Write pre-request scripts to set variables, modify headers, and prepare authentication before sending API requests.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/scripts"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Write pre-request scripts to set variables, modify headers, and prepare authentication before sending API requests."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Pre-Request Scripts - Scalar API Client"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Write pre-request scripts to set variables, modify headers, and prepare authentication before sending API requests."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "testing": {
+                    "filepath": "documentation/guides/app/testing.md",
+                    "type": "page",
+                    "title": "Testing",
+                    "description": "Write post-response scripts to automatically validate API responses with Postman-compatible syntax.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/testing"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Write post-response scripts to automatically validate API responses with Postman-compatible syntax."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "API Testing Scripts - Validate Responses Automatically"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Write post-response scripts to automatically validate API responses with Postman-compatible syntax."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "keyboard-shortcuts": {
+                    "filepath": "documentation/guides/app/keyboard-shortcuts.md",
+                    "type": "page",
+                    "title": "Keyboard Shortcuts",
+                    "description": "Keyboard shortcuts for the Scalar API Client on macOS, Windows, and Linux.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/keyboard-shortcuts"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Keyboard shortcuts for the Scalar API Client on macOS, Windows, and Linux."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Keyboard Shortcuts - Scalar API Client"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Keyboard shortcuts for the Scalar API Client on macOS, Windows, and Linux."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "community": {
+                    "filepath": "documentation/guides/app/community.md",
+                    "type": "page",
+                    "title": "Community",
+                    "description": "Join the Scalar community on Discord and GitHub. The API Client is fully open-source.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/community"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Join the Scalar community on Discord and GitHub. The API Client is fully open-source."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Community - Discord, GitHub, Open Source"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Join the Scalar community on Discord and GitHub. The API Client is fully open-source."
                         },
                         {
                           "name": "robots",

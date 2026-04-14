@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { DataTableHeader } from '@/components/DataTable'
-import DataTable from '@/components/DataTable/DataTable.vue'
-import DataTableRow from '@/components/DataTable/DataTableRow.vue'
-import DataTableText from '@/components/DataTable/DataTableText.vue'
+import {
+  DataTable,
+  DataTableHeader,
+  DataTableRow,
+  DataTableText,
+} from '@/v2/components/data-table'
 import { CollapsibleSection } from '@/v2/components/layout'
 
 defineProps<{

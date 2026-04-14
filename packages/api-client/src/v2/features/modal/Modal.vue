@@ -29,6 +29,7 @@ export type ModalProps = {
         | 'baseServerURL'
         | 'hideClientButton'
         | 'hiddenClients'
+        | 'oauth2RedirectUri'
         | 'servers'
       >
     >

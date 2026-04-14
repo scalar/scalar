@@ -706,13 +706,13 @@ Here's a list of all clients that you can potentially hide:
     // OCaml
     ocaml: ['cohttp'],
     // PHP
-    php: ['curl', 'guzzle'],
+    php: ['curl', 'guzzle', 'laravel'],
     // PowerShell
     powershell: ['restmethod', 'webrequest'],
     // Python
     python: ['httpx_async', 'httpx_sync', 'python3', 'requests'],
     // R
-    r: ['httr'],
+    r: ['httr2'],
     // Ruby
     ruby: ['native'],
     // Rust

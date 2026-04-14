@@ -14,7 +14,8 @@ export type CodeInputModelValue =
  * - Select mode: Dropdown for enums, booleans, or examples
  * - Editor mode: CodeMirror with environment variable support
  *
- * Type `{{` to trigger environment variable autocomplete when an environment is provided.
+ * Type `{{` to trigger autocomplete for environment variables and runtime context functions
+ * (for example `{{$guid}}`) when an environment is provided.
  * It takes in any data but always will emit a string value,
  * this string should then be parsed in accordance to the schema or content type.
  *
@@ -44,6 +45,11 @@ import {
   type CodeMirrorLanguage,
   type Extension,
 } from '@scalar/use-codemirror'
+import {
+  CONTEXT_FUNCTION_NAMES,
+  getContextFunctionComment,
+  isContextFunctionName,
+} from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { nanoid } from 'nanoid'
 import { computed, ref, toRef, useAttrs, watch, type Ref } from 'vue'
@@ -256,9 +262,17 @@ const buildExtensions = (): Extension[] => {
 /**
  * Reactive pill plugin for environment variable visualization.
  */
+const contextFunctionDropdownItems = computed(() =>
+  CONTEXT_FUNCTION_NAMES.map((key) => ({
+    key,
+    description: getContextFunctionComment(key),
+  })),
+)
+
 const pillPluginExtension = computed(() =>
   pillPlugin({
     environment,
+    isContextFunctionName,
     isReadOnly: layout === 'modal',
   }),
 )
@@ -509,6 +523,7 @@ defineExpose({
   <EnvironmentVariableDropdown
     v-if="displayVariablesDropdown && environment"
     ref="dropdownRef"
+    :contextFunctionItems="contextFunctionDropdownItems"
     :dropdownPosition="dropdownPosition"
     :environment="environment"
     :query="dropdownQuery"
@@ -640,6 +655,24 @@ defineExpose({
 }
 .dark-mode .cm-pill {
   background: color-mix(in srgb, var(--tw-bg-base), transparent 90%) !important;
+}
+.cm-pill--context-fn {
+  border: 1px dashed color-mix(in srgb, var(--scalar-color-3), transparent 35%);
+  padding: 0px 8px;
+}
+.light-mode .cm-pill--context-fn {
+  background: color-mix(
+    in srgb,
+    var(--scalar-background-3),
+    transparent 40%
+  ) !important;
+}
+.dark-mode .cm-pill--context-fn {
+  background: color-mix(
+    in srgb,
+    var(--scalar-background-3),
+    transparent 55%
+  ) !important;
 }
 .cm-pill:first-of-type {
   margin-left: 0;

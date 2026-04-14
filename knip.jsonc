@@ -48,7 +48,7 @@
     // TrieNode is exported for potential external use
     "packages/json-magic/src/diff/trie.ts": ["exports"],
     // Public OpenAPI type namespaces are consumed by downstream packages, but knip cannot infer external type usage
-    "packages/openapi-types/src/openapi-types.ts": ["types"],
+    "packages/openapi-types/src/openapi-types.ts": ["types", "namespaceMembers"],
     // Astro component Props interface is used by the framework
     "integrations/astro/src/ScalarComponent.astro": ["types"],
     // setupFiles string path cannot be resolved by knip
@@ -58,25 +58,8 @@
     "packages/api-client": {
       "entry": [
         "src/index.ts",
-        "src/components/index.ts",
-        "src/components/CodeInput/index.ts",
-        "src/components/CommandPalette/index.ts",
-        "src/components/DataTable/index.ts",
         "src/components/HttpMethod/index.ts",
-        "src/components/ImportCollection/index.ts",
         "src/components/Server/index.ts",
-        "src/components/Sidebar/index.ts",
-        "src/components/ViewLayout/index.ts",
-        "src/hooks/index.ts",
-        "src/layouts/App/index.ts",
-        "src/layouts/Modal/index.ts",
-        "src/layouts/Web/index.ts",
-        "src/libs/index.ts",
-        "src/libs/importers/index.ts",
-        "src/libs/send-request/index.ts",
-        "src/plugins/index.ts",
-        "src/store/index.ts",
-        "src/types/index.ts",
         "src/v2/blocks/operation-block/index.ts",
         "src/v2/blocks/operation-code-sample/index.ts",
         "src/v2/blocks/request-block/index.ts",
@@ -84,6 +67,7 @@
         "src/v2/blocks/scalar-address-bar-block/index.ts",
         "src/v2/blocks/scalar-auth-selector-block/index.ts",
         "src/v2/components/code-input/index.ts",
+        "src/v2/components/context-menu/index.ts",
         "src/v2/components/data-table/index.ts",
         "src/v2/components/forms/index.ts",
         "src/v2/components/layout/index.ts",
@@ -93,29 +77,19 @@
         "src/v2/components/sidebar/index.ts",
         "src/v2/features/app/index.ts",
         "src/v2/features/app/components/index.ts",
+        "src/v2/features/collection/components/Editor/index.ts",
+        "src/v2/features/collection/components/Runner/hooks/index.ts",
+        "src/v2/features/collection/components/Runner/index.ts",
+        "src/v2/features/command-palette/index.ts",
+        "src/v2/features/editor/index.ts",
         "src/v2/features/environments/index.ts",
         "src/v2/features/global-cookies/index.ts",
         "src/v2/features/modal/index.ts",
         "src/v2/features/operation/index.ts",
         "src/v2/features/search/index.ts",
         "src/v2/features/settings/index.ts",
-        "src/v2/helpers/index.ts",
-        "src/views/Components/CodeSnippet/index.ts",
-        "src/views/Request/components/index.ts",
-        "src/views/Request/consts/index.ts",
-        "src/views/Request/libs/index.ts",
-        "src/views/Request/RequestSection/index.ts",
-        "src/views/Request/RequestSection/RequestAuth/index.ts",
-        "src/views/Request/ResponseSection/index.ts",
-        "src/views/Request/types/index.ts",
-        "src/v2/features/command-palette/index.ts",
-        //
-        "playground/{app,modal,web}/main.ts",
         "playground/v2/{app,modal,web}/main.ts",
         "playground/v2/test/index.ts"
-      ],
-      "ignoreFiles": [
-        "src/views/Cookies/CookieRaw.vue" // Untested and disabled for now.
       ]
     },
     "packages/api-client-react": {
@@ -128,7 +102,6 @@
     "packages/api-reference": {
       "entry": [
         "src/index.ts",
-        "src/ssr.ts",
         "src/components/index.ts",
         "src/blocks/index.ts",
         "src/hooks/index.ts",
@@ -136,8 +109,6 @@
         "src/features/index.ts",
         "src/helpers/index.ts",
         "src/esm.ts",
-        "src/standalone.bench.ts",
-        "src/vitest.setup.ts",
         // Not sure why test files are marked as unused here
         "test/**/*",
         "src/**/*.test.ts"
@@ -145,10 +116,7 @@
       "ignoreDependencies": []
     },
     "packages/api-reference-react": {
-      "entry": ["src/index.ts", "playground/main.tsx"],
-      "ignoreDependencies": [
-        "vue" // peer dep referenced in shims.d.ts
-      ]
+      "entry": ["src/index.ts", "playground/main.tsx"]
     },
     "packages/build-tooling": {
       "entry": ["src/index.ts", "src/esbuild/index.ts", "src/vite/index.ts"]
@@ -176,7 +144,8 @@
       "entry": ["src/libs/html-rendering/index.ts"]
     },
     "packages/draggable": {
-      "entry": ["src/index.ts"]
+      "entry": ["src/index.ts"],
+      "ignoreDependencies": ["vue"]
     },
     "packages/helpers": {
       "entry": ["src/*/*.ts", "!src/*/*.test.ts"]
@@ -208,7 +177,8 @@
         "src/migrations/index.ts",
         "src/spec-getters/index.ts",
         "src/transforms/index.ts"
-      ]
+      ],
+      "ignoreDependencies": ["@scalar/openapi-types"]
     },
     "packages/object-utils": {
       "entry": ["src/*/index.ts"]
@@ -222,13 +192,7 @@
       ]
     },
     "packages/openapi-types": {
-      "entry": [
-        //
-        "src/index.ts",
-        "src/helpers/index.ts",
-        "src/schemas/extensions/index.ts",
-        "src/schemas/3.1/*/index.ts"
-      ]
+      "entry": ["src/index.ts", "src/helpers/index.ts"]
     },
     "packages/sidebar": {
       "entry": [
@@ -255,7 +219,8 @@
       ]
     },
     "packages/use-codemirror": {
-      "entry": ["src/index.ts", "src/themes/index.ts"]
+      "entry": ["src/index.ts", "src/themes/index.ts"],
+      "ignoreDependencies": ["vue"]
     },
     "packages/use-hooks": {
       "entry": [
@@ -292,6 +257,15 @@
     "packages/pre-post-request-scripts": {
       "entry": ["src/index.ts", "src/plugins/index.ts"]
     },
+    "packages/openapi-to-markdown": {
+      "ignoreDependencies": ["vue"]
+    },
+    "packages/react-renderer": {
+      "ignoreDependencies": ["react", "react-dom", "vue"]
+    },
+    "examples/nuxt": {
+      "ignoreDependencies": ["@scalar/nuxt"]
+    },
     "integrations/django-ninja": {
       "ignoreBinaries": ["python"]
     },
@@ -315,7 +289,6 @@
       "typescript": {
         "config": ["tsconfig.json", "tsconfig.build.json", "playground/tsconfig.json"]
       },
-      "ignoreFiles": ["playground/.docusaurus/**"],
       "ignoreDependencies": [
         // Used by webpack
         "path",

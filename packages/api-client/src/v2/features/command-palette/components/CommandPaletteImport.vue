@@ -32,7 +32,7 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { useFileDialog } from '@/hooks'
+import { useFileDialog } from '@/hooks/use-file-dialog'
 import { getOpenApiDocumentDetails } from '@/v2/features/command-palette/helpers/get-openapi-document-details'
 import { importDocumentToWorkspace } from '@/v2/features/command-palette/helpers/import-document-to-workspace'
 import { isPostmanCollection } from '@/v2/features/command-palette/helpers/is-postman-collection'
