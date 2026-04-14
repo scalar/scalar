@@ -1,7 +1,6 @@
 'use client'
 
-import type { ApiClientModal, RoutePayload } from '@scalar/api-client/v2/features/modal'
-import type { ApiClientConfiguration } from '@scalar/types/api-reference'
+import type { ApiClientModal, ApiClientModalOptions, RoutePayload } from '@scalar/api-client/v2/features/modal'
 import { useEffect, useState } from 'react'
 
 import './style.css'
@@ -14,10 +13,10 @@ globalThis.__VUE_OPTIONS_API__ = true
 globalThis.__VUE_PROD_HYDRATION_MISMATCH_DETAILS__ = true
 globalThis.__VUE_PROD_DEVTOOLS__ = false
 
-/** We don't really need all of the content types so we just accept an object instead */
-export type ApiClientConfigurationReact = Partial<
-  Omit<ApiClientConfiguration, 'content' | 'url'> & { content?: Record<string, unknown>; url?: string }
->
+export type ApiClientConfigurationReact = ApiClientModalOptions & {
+  content?: Record<string, unknown>
+  url?: string
+}
 
 export type UseApiClientModalProps = {
   /** Configuration for the Api Client (url or inline content) */
@@ -65,6 +64,9 @@ export const useApiClient = ({
       // preventing a render where `client` is set but `documentSlug` is still ''.
       const slug = url || (content as { info?: { title?: string } })?.info?.title || ''
 
+      // Keep singleton modal options in sync even when the client already exists.
+      _client.apiClient.updateOptions(modalOptions)
+
       setClient(_client.apiClient)
       setWorkspaceStore(_client.workspaceStore)
       setDocumentSlug(slug)
@@ -84,9 +86,16 @@ export const useApiClient = ({
     // Only run once per mount
   }, [])
 
-  // When url or content changes after the client is already mounted, register the new document
+  // Keep modal options in sync and register a new document when configuration changes.
   useEffect(() => {
-    if (!client || !configuration || !workspaceStore) {
+    if (!client || !workspaceStore) {
+      return
+    }
+
+    const { ...modalOptions } = configuration ?? {}
+    client.updateOptions(modalOptions)
+
+    if (!configuration) {
       return
     }
 
@@ -103,7 +112,7 @@ export const useApiClient = ({
         ? { name: slug, document: configuration.content }
         : { name: slug, url: configuration.url ?? '' },
     )
-  }, [client, configuration?.url, configuration?.content, workspaceStore])
+  }, [client, configuration, workspaceStore])
 
   return client
     ? {

@@ -2,13 +2,14 @@ import { type ModalState, useModal } from '@scalar/components'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { type App, computed, createApp, reactive, ref, watch } from 'vue'
+import { type App, computed, createApp, isRef, reactive, ref, toValue, watch } from 'vue'
 
 import {
   type DefaultEntities,
   type RoutePayload,
   resolveRouteParameters,
 } from '@/v2/features/modal/helpers/resolve-route-parameters'
+import type { ApiClientModalOptionsRef } from '@/v2/features/modal/helpers/types'
 import { useModalSidebar } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import Modal, { type ModalProps } from '@/v2/features/modal/Modal.vue'
 
@@ -55,6 +56,9 @@ export const createApiClientModal = ({
   options = {},
 }: CreateApiClientModalOptions): ApiClientModal => {
   const requestBodyCompositionSelection = ref<Record<string, number>>({})
+
+  /** This is to ensure that the options are a ref if they are not already, useful for react */
+  const optionsRef = (isRef(options) ? options : ref(toValue(options))) as ApiClientModalOptionsRef
 
   const defaultEntities: DefaultEntities = {
     path: 'default',
@@ -113,6 +117,13 @@ export const createApiClientModal = ({
   watch(
     () => modalState.open,
     (open) => (open ? null : handleModalClose()),
+  )
+
+  // Update the active proxy when the proxyUrl changes
+  watch(
+    () => toValue(optionsRef).proxyUrl,
+    (newProxyUrl) => workspaceStore.update('x-scalar-active-proxy', newProxyUrl),
+    { immediate: true },
   )
 
   // Use a unique id prefix to prevent collisions with other Vue apps on the page

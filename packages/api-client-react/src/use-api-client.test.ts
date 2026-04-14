@@ -8,15 +8,20 @@ vi.mock('./style.css', () => ({}))
 vi.mock('./lazy-load', () => ({
   getOrCreateApiClient: vi.fn(),
 }))
+vi.mock('@scalar/api-client/v2/blocks/operation-code-sample', () => ({
+  isClient: vi.fn(() => true),
+}))
 
 const makeWorkspaceStore = () => ({
   addDocument: vi.fn().mockResolvedValue(undefined),
+  update: vi.fn(),
 })
 
 const makeApiClient = () => ({
   open: vi.fn(),
   route: vi.fn(),
   mount: vi.fn(),
+  updateOptions: vi.fn(),
   modalState: { open: false },
   app: {} as any,
 })
@@ -333,6 +338,109 @@ describe('use-api-client', () => {
     expect(result.current).toBeUndefined()
   })
 
+  it('resolves client state for multiple hook consumers from the same pending initialization', async () => {
+    vi.resetModules()
+
+    let resolveClient!: (value: any) => void
+    const pendingPromise = new Promise<
+      { apiClient: typeof mockApiClient; workspaceStore: typeof mockWorkspaceStore } | undefined
+    >((resolve) => {
+      resolveClient = resolve
+    })
+
+    const { getOrCreateApiClient } = await import('./lazy-load')
+    vi.mocked(getOrCreateApiClient).mockReturnValue(pendingPromise as any)
+
+    const { useApiClient } = await import('./use-api-client')
+    const firstConsumer = renderHook(() => useApiClient())
+    const secondConsumer = renderHook(() => useApiClient())
+
+    expect(firstConsumer.result.current).toBeUndefined()
+    expect(secondConsumer.result.current).toBeUndefined()
+
+    await act(async () => {
+      resolveClient({ apiClient: mockApiClient, workspaceStore: mockWorkspaceStore })
+      await pendingPromise
+    })
+
+    await waitFor(() => {
+      expect(firstConsumer.result.current).not.toBeUndefined()
+      expect(secondConsumer.result.current).not.toBeUndefined()
+    })
+
+    expect(firstConsumer.result.current?.route).toBe(mockApiClient.route)
+    expect(secondConsumer.result.current?.route).toBe(mockApiClient.route)
+  })
+
+  it('keeps documentSlug reactive and isolated across multiple hook consumers', async () => {
+    vi.resetModules()
+
+    const { getOrCreateApiClient } = await import('./lazy-load')
+    vi.mocked(getOrCreateApiClient).mockResolvedValue({
+      apiClient: mockApiClient as any,
+      workspaceStore: mockWorkspaceStore as any,
+    })
+
+    const { useApiClient } = await import('./use-api-client')
+
+    const firstConsumer = renderHook(({ config }) => useApiClient({ configuration: config }), {
+      initialProps: { config: { url: 'https://api.example.com/first-v1.json' } },
+    })
+    const secondConsumer = renderHook(({ config }) => useApiClient({ configuration: config }), {
+      initialProps: { config: { url: 'https://api.example.com/second-v1.json' } },
+    })
+
+    await waitFor(() => {
+      expect(firstConsumer.result.current).not.toBeUndefined()
+      expect(secondConsumer.result.current).not.toBeUndefined()
+    })
+
+    act(() => {
+      firstConsumer.result.current?.open({ path: '/first', method: 'get' })
+    })
+    expect(mockApiClient.open).toHaveBeenLastCalledWith({
+      documentSlug: 'https://api.example.com/first-v1.json',
+      path: '/first',
+      method: 'get',
+    })
+
+    act(() => {
+      secondConsumer.result.current?.open({ path: '/second', method: 'get' })
+    })
+    expect(mockApiClient.open).toHaveBeenLastCalledWith({
+      documentSlug: 'https://api.example.com/second-v1.json',
+      path: '/second',
+      method: 'get',
+    })
+
+    firstConsumer.rerender({ config: { url: 'https://api.example.com/first-v2.json' } })
+
+    await waitFor(() =>
+      expect(mockWorkspaceStore.addDocument).toHaveBeenCalledWith({
+        name: 'https://api.example.com/first-v2.json',
+        url: 'https://api.example.com/first-v2.json',
+      }),
+    )
+
+    act(() => {
+      firstConsumer.result.current?.open({ path: '/first', method: 'get' })
+    })
+    expect(mockApiClient.open).toHaveBeenLastCalledWith({
+      documentSlug: 'https://api.example.com/first-v2.json',
+      path: '/first',
+      method: 'get',
+    })
+
+    act(() => {
+      secondConsumer.result.current?.open({ path: '/second', method: 'get' })
+    })
+    expect(mockApiClient.open).toHaveBeenLastCalledWith({
+      documentSlug: 'https://api.example.com/second-v1.json',
+      path: '/second',
+      method: 'get',
+    })
+  })
+
   it('open is a no-op when client is not yet initialized', async () => {
     const { getOrCreateApiClient } = await import('./lazy-load')
     // biome-ignore lint/suspicious/noEmptyBlockStatements: intentionally never-resolving promise
@@ -346,7 +454,7 @@ describe('use-api-client', () => {
     // Calling open on undefined would normally throw — the hook returns undefined so callers guard it
   })
 
-  it('strips url and content from the options passed to getOrCreateApiClient', async () => {
+  it('strips url and content and forwards only supported modal options', async () => {
     const { getOrCreateApiClient } = await import('./lazy-load')
     const { useApiClient } = await import('./use-api-client')
 
@@ -355,7 +463,10 @@ describe('use-api-client', () => {
         configuration: {
           url: 'https://api.example.com/openapi.json',
           content: { info: { title: 'My API' } },
-          proxyUrl: 'https://proxy.example.com',
+          authentication: {
+            preferredSecurityScheme: 'bearerAuth',
+          },
+          baseServerURL: 'https://proxy.example.com',
         },
       }),
     )
@@ -365,7 +476,67 @@ describe('use-api-client', () => {
     const calledWith = vi.mocked(getOrCreateApiClient).mock.calls[0]![0]
     expect(calledWith).not.toHaveProperty('url')
     expect(calledWith).not.toHaveProperty('content')
-    expect(calledWith).toMatchObject({ proxyUrl: 'https://proxy.example.com' })
+    expect(calledWith).toMatchObject({
+      authentication: { preferredSecurityScheme: 'bearerAuth' },
+      baseServerURL: 'https://proxy.example.com',
+    })
+  })
+
+  it('calls updateOptions during initial setup', async () => {
+    const { useApiClient } = await import('./use-api-client')
+
+    renderHook(() =>
+      useApiClient({
+        configuration: {
+          authentication: {
+            preferredSecurityScheme: 'bearerAuth',
+          },
+          baseServerURL: 'https://proxy.example.com',
+        },
+      }),
+    )
+
+    await waitFor(() =>
+      expect(mockApiClient.updateOptions).toHaveBeenCalledWith({
+        authentication: {
+          preferredSecurityScheme: 'bearerAuth',
+        },
+        baseServerURL: 'https://proxy.example.com',
+      }),
+    )
+  })
+
+  it('calls updateOptions when configuration changes', async () => {
+    const { useApiClient } = await import('./use-api-client')
+    const { rerender } = renderHook(({ config }) => useApiClient({ configuration: config }), {
+      initialProps: {
+        config: {
+          authentication: {
+            preferredSecurityScheme: 'bearerAuth',
+          },
+        },
+      },
+    })
+
+    await waitFor(() => expect(mockApiClient.updateOptions).toHaveBeenCalled())
+
+    rerender({
+      config: {
+        authentication: {
+          preferredSecurityScheme: 'apiKey',
+        },
+        baseServerURL: 'https://proxy.example.com',
+      },
+    })
+
+    await waitFor(() =>
+      expect(mockApiClient.updateOptions).toHaveBeenLastCalledWith({
+        authentication: {
+          preferredSecurityScheme: 'apiKey',
+        },
+        baseServerURL: 'https://proxy.example.com',
+      }),
+    )
   })
 
   it('sets Vue globals on module load', async () => {

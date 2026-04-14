@@ -1,4 +1,4 @@
-import type { ApiClientConfiguration } from '@scalar/types/api-reference'
+import type { ApiClientModalOptions } from '@scalar/api-client/v2/features/modal'
 
 /**
  * Creates a lazy singleton getter: the factory runs at most once, caches the resulting promise,
@@ -39,11 +39,11 @@ export const getWorkspaceEventBusSingleton = makeLazySingleton(() =>
  * Lazily creates the singleton Vue app, mounts it as the last child of document.body,
  * and returns the controller. Subsequent calls return the same promise.
  *
- * Only modal-level options (e.g. `proxyUrl`) are accepted here. Document-specific fields
+ * Only modal-supported options are accepted here. Document-specific fields
  * (`url`, `content`) must be registered via `workspaceStore.addDocument` after the client
  * is ready — they are not part of the modal constructor.
  */
-export const getOrCreateApiClient = makeLazySingleton(async (options: Partial<ApiClientConfiguration> = {}) => {
+export const getOrCreateApiClient = makeLazySingleton(async (options: ApiClientModalOptions = {}) => {
   const el = document.createElement('div')
   el.className = 'scalar-app'
   document.body.appendChild(el)
