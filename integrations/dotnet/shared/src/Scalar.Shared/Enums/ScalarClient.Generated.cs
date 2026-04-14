@@ -232,4 +232,11 @@ public enum ScalarClient
     [Obsolete("This client is no longer supported.")]
     [Description("http2")]
     Http2,
+
+    /// <summary>
+    /// Use Httr2 instead.
+    /// </summary>
+    [Obsolete("Use Httr2 instead.")]
+    [Description("httr")]
+    Httr,
 }
