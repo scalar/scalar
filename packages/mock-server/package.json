@@ -56,7 +56,7 @@
     "documentation": "https://scalar.com/tools/mock-server/getting-started"
   },
   "dependencies": {
-    "@faker-js/faker": "^10.4.0",
+    "@faker-js/faker": "catalog:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
