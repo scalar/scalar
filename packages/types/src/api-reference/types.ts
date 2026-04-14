@@ -309,6 +309,7 @@ export type BaseConfiguration = {
     | 'rust'
     | 'svelte'
     | 'vue'
+    | null
   /** onRequestSent is fired when a request is sent */
   onRequestSent?: (input: string) => void
   /** Whether to persist auth to local storage */
@@ -521,3 +522,6 @@ export const isConfigurationWithSources = (
   config: AnyApiReferenceConfiguration,
 ): config is Partial<ApiReferenceConfigurationWithMultipleSources> =>
   Boolean(!Array.isArray(config) && config && 'sources' in config && Array.isArray(config.sources))
+
+
+export type ApiClientConfiguration = BaseConfiguration & SourceConfiguration

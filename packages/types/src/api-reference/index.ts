@@ -49,6 +49,7 @@ export type {
   ApiReferencePlugin,
   SpecificationExtension,
   ViewComponent,
+  ApiClientConfiguration
 } from './types'
 
 export { isConfigurationWithSources, } from './types'

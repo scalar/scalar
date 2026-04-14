@@ -1,4 +1,4 @@
-import { any, array, boolean, fn, literal, object, optional, string, union } from "@scalar/validation";
+import { any, array, boolean, fn, literal, nullable, object, optional, string, union } from "@scalar/validation";
 
 const externalUrlsSchema = object({
   dashboardUrl: string({ default: 'https://dashboard.scalar.com' }),
@@ -130,6 +130,7 @@ export const baseConfigurationSchema = object({
     literal('rust'),
     literal('svelte'),
     literal('vue'),
+    nullable()
   ]), {
     typeComment: 'Integration type identifier',
   }),
