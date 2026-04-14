@@ -1,6 +1,6 @@
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 
-type MediaPreview = 'object' | 'image' | 'video' | 'audio'
+export type MediaPreview = 'object' | 'image' | 'video' | 'audio'
 
 type MediaConfig = {
   preview?: MediaPreview
@@ -108,6 +108,7 @@ const mediaTypes: { [type: string]: MediaConfig | undefined } = {
     preview: 'object',
   },
   'text/javascript': { extension: '.js', raw: true },
+  'text/json': { extension: '.json', raw: true, language: 'json' },
   'text/plain': { extension: '.txt', raw: true },
   'text/xml': { extension: '.xml', raw: true, language: 'xml' },
   'text/yaml': { extension: '.yaml', raw: true, language: 'yaml' },

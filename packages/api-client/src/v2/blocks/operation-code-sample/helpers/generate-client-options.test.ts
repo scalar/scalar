@@ -1,5 +1,5 @@
-import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import { AVAILABLE_CLIENTS } from '@scalar/snippetz'
+import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import { describe, expect, it } from 'vitest'
 
 import { generateClientOptions, generateCustomId } from './generate-client-options'

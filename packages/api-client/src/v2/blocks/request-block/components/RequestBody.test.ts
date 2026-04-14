@@ -11,7 +11,7 @@ import RequestTable from './RequestTable.vue'
 const mockFiles = ref<FileList | null>(null)
 const mockOpen = vi.fn()
 
-vi.mock('@/hooks', () => ({
+vi.mock('@/hooks/use-file-dialog', () => ({
   useFileDialog: vi.fn((options) => {
     return {
       files: readonly(mockFiles),

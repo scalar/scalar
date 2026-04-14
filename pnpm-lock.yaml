@@ -1186,27 +1186,18 @@ importers:
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
-      '@scalar/draggable':
-        specifier: workspace:*
-        version: link:../draggable
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
       '@scalar/icons':
         specifier: workspace:*
         version: link:../icons
-      '@scalar/import':
-        specifier: workspace:*
-        version: link:../import
       '@scalar/json-magic':
         specifier: workspace:*
         version: link:../json-magic
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
-      '@scalar/object-utils':
-        specifier: workspace:*
-        version: link:../object-utils
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
@@ -1261,9 +1252,6 @@ importers:
       js-base64:
         specifier: catalog:*
         version: 3.7.8
-      microdiff:
-        specifier: catalog:*
-        version: 1.5.0
       monaco-editor:
         specifier: catalog:*
         version: 0.55.1
@@ -1288,9 +1276,6 @@ importers:
       shell-quote:
         specifier: ^1.8.3
         version: 1.8.3
-      type-fest:
-        specifier: catalog:*
-        version: 5.3.1
       vite-plugin-monaco-editor:
         specifier: ^1.1.0
         version: 1.1.0(monaco-editor@0.55.1)
@@ -1307,9 +1292,6 @@ importers:
         specifier: catalog:*
         version: 4.3.5
     devDependencies:
-      '@scalar/galaxy':
-        specifier: workspace:*
-        version: link:../galaxy
       '@scalar/pre-post-request-scripts':
         specifier: workspace:*
         version: link:../pre-post-request-scripts

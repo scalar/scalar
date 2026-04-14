@@ -25,12 +25,9 @@
   "scripts": {
     "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "pnpm playground:v2:web",
-    "playground:app": "vite ./playground/app -c ./vite.config.ts",
-    "playground:modal": "vite ./playground/modal -c ./vite.config.ts",
     "playground:v2:app": "vite ./playground/v2/app -c ./vite.config.ts",
     "playground:v2:modal": "vite ./playground/v2/modal -c ./vite.config.ts",
     "playground:v2:web": "vite ./playground/v2/web -c ./vite.config.ts",
-    "playground:web": "vite ./playground/web -c ./vite.config.ts",
     "preview": "vite preview",
     "test": "vitest",
     "test:benchmark": "vitest bench",
@@ -52,110 +49,15 @@
       "require": "./dist/*.css",
       "default": "./dist/*.css"
     },
-    "./components": {
-      "import": "./dist/components/index.js",
-      "types": "./dist/components/index.d.ts",
-      "default": "./dist/components/index.js"
-    },
-    "./components/AddressBar": {
-      "import": "./dist/components/AddressBar/index.js",
-      "types": "./dist/components/AddressBar/index.d.ts",
-      "default": "./dist/components/AddressBar/index.js"
-    },
-    "./components/CodeInput": {
-      "import": "./dist/components/CodeInput/index.js",
-      "types": "./dist/components/CodeInput/index.d.ts",
-      "default": "./dist/components/CodeInput/index.js"
-    },
-    "./components/CommandPalette": {
-      "import": "./dist/components/CommandPalette/index.js",
-      "types": "./dist/components/CommandPalette/index.d.ts",
-      "default": "./dist/components/CommandPalette/index.js"
-    },
-    "./components/DataTable": {
-      "import": "./dist/components/DataTable/index.js",
-      "types": "./dist/components/DataTable/index.d.ts",
-      "default": "./dist/components/DataTable/index.js"
-    },
-    "./components/HttpMethod": {
-      "import": "./dist/components/HttpMethod/index.js",
-      "types": "./dist/components/HttpMethod/index.d.ts",
-      "default": "./dist/components/HttpMethod/index.js"
-    },
-    "./components/ImportCollection": {
-      "import": "./dist/components/ImportCollection/index.js",
-      "types": "./dist/components/ImportCollection/index.d.ts",
-      "default": "./dist/components/ImportCollection/index.js"
-    },
-    "./components/Server": {
-      "import": "./dist/components/Server/index.js",
-      "types": "./dist/components/Server/index.d.ts",
-      "default": "./dist/components/Server/index.js"
-    },
-    "./components/Sidebar": {
-      "import": "./dist/components/Sidebar/index.js",
-      "types": "./dist/components/Sidebar/index.d.ts",
-      "default": "./dist/components/Sidebar/index.js"
-    },
-    "./components/ViewLayout": {
-      "import": "./dist/components/ViewLayout/index.js",
-      "types": "./dist/components/ViewLayout/index.d.ts",
-      "default": "./dist/components/ViewLayout/index.js"
-    },
     "./css/*.css": {
       "import": "./dist/css/*.css",
       "require": "./dist/css/*.css",
       "default": "./dist/css/*.css"
     },
-    "./hooks": {
-      "import": "./dist/hooks/index.js",
-      "types": "./dist/hooks/index.d.ts",
-      "default": "./dist/hooks/index.js"
-    },
-    "./layouts/App": {
-      "import": "./dist/layouts/App/index.js",
-      "types": "./dist/layouts/App/index.d.ts",
-      "default": "./dist/layouts/App/index.js"
-    },
-    "./layouts/Modal": {
-      "import": "./dist/layouts/Modal/index.js",
-      "types": "./dist/layouts/Modal/index.d.ts",
-      "default": "./dist/layouts/Modal/index.js"
-    },
-    "./layouts/Web": {
-      "import": "./dist/layouts/Web/index.js",
-      "types": "./dist/layouts/Web/index.d.ts",
-      "default": "./dist/layouts/Web/index.js"
-    },
-    "./libs": {
-      "import": "./dist/libs/index.js",
-      "types": "./dist/libs/index.d.ts",
-      "default": "./dist/libs/index.js"
-    },
-    "./libs/importers": {
-      "import": "./dist/libs/importers/index.js",
-      "types": "./dist/libs/importers/index.d.ts",
-      "default": "./dist/libs/importers/index.js"
-    },
-    "./libs/send-request": {
-      "import": "./dist/libs/send-request/index.js",
-      "types": "./dist/libs/send-request/index.d.ts",
-      "default": "./dist/libs/send-request/index.js"
-    },
-    "./plugins": {
-      "import": "./dist/plugins/index.js",
-      "types": "./dist/plugins/index.d.ts",
-      "default": "./dist/plugins/index.js"
-    },
-    "./store": {
-      "import": "./dist/store/index.js",
-      "types": "./dist/store/index.d.ts",
-      "default": "./dist/store/index.js"
-    },
-    "./types": {
-      "import": "./dist/types/index.js",
-      "types": "./dist/types/index.d.ts",
-      "default": "./dist/types/index.js"
+    "./components/Server": {
+      "import": "./dist/components/Server/index.js",
+      "types": "./dist/components/Server/index.d.ts",
+      "default": "./dist/components/Server/index.js"
     },
     "./v2/blocks/operation-block": {
       "import": "./dist/v2/blocks/operation-block/index.js",
@@ -286,46 +188,6 @@
       "import": "./dist/v2/features/settings/index.js",
       "types": "./dist/v2/features/settings/index.d.ts",
       "default": "./dist/v2/features/settings/index.js"
-    },
-    "./views/Components/CodeSnippet": {
-      "import": "./dist/views/Components/CodeSnippet/index.js",
-      "types": "./dist/views/Components/CodeSnippet/index.d.ts",
-      "default": "./dist/views/Components/CodeSnippet/index.js"
-    },
-    "./views/Request/components": {
-      "import": "./dist/views/Request/components/index.js",
-      "types": "./dist/views/Request/components/index.d.ts",
-      "default": "./dist/views/Request/components/index.js"
-    },
-    "./views/Request/consts": {
-      "import": "./dist/views/Request/consts/index.js",
-      "types": "./dist/views/Request/consts/index.d.ts",
-      "default": "./dist/views/Request/consts/index.js"
-    },
-    "./views/Request/libs": {
-      "import": "./dist/views/Request/libs/index.js",
-      "types": "./dist/views/Request/libs/index.d.ts",
-      "default": "./dist/views/Request/libs/index.js"
-    },
-    "./views/Request/RequestSection": {
-      "import": "./dist/views/Request/RequestSection/index.js",
-      "types": "./dist/views/Request/RequestSection/index.d.ts",
-      "default": "./dist/views/Request/RequestSection/index.js"
-    },
-    "./views/Request/RequestSection/RequestAuth": {
-      "import": "./dist/views/Request/RequestSection/RequestAuth/index.js",
-      "types": "./dist/views/Request/RequestSection/RequestAuth/index.d.ts",
-      "default": "./dist/views/Request/RequestSection/RequestAuth/index.js"
-    },
-    "./views/Request/ResponseSection": {
-      "import": "./dist/views/Request/ResponseSection/index.js",
-      "types": "./dist/views/Request/ResponseSection/index.d.ts",
-      "default": "./dist/views/Request/ResponseSection/index.js"
-    },
-    "./views/Request/types": {
-      "import": "./dist/views/Request/types/index.js",
-      "types": "./dist/views/Request/types/index.d.ts",
-      "default": "./dist/views/Request/types/index.js"
     }
   },
   "files": [
@@ -336,13 +198,10 @@
     "@headlessui/tailwindcss": "catalog:*",
     "@headlessui/vue": "catalog:*",
     "@scalar/components": "workspace:*",
-    "@scalar/draggable": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",
-    "@scalar/import": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "@scalar/object-utils": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/postman-to-openapi": "workspace:*",
     "@scalar/sidebar": "workspace:*",
@@ -361,7 +220,6 @@
     "focus-trap": "^7.8.0",
     "fuse.js": "catalog:*",
     "js-base64": "catalog:*",
-    "microdiff": "catalog:*",
     "monaco-editor": "catalog:*",
     "monaco-yaml": "catalog:*",
     "nanoid": "catalog:*",
@@ -370,7 +228,6 @@
     "radix-vue": "catalog:*",
     "set-cookie-parser": "catalog:*",
     "shell-quote": "^1.8.3",
-    "type-fest": "catalog:*",
     "vite-plugin-monaco-editor": "^1.1.0",
     "vue": "catalog:*",
     "vue-router": "catalog:*",
@@ -378,7 +235,6 @@
     "zod": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/galaxy": "workspace:*",
     "@scalar/pre-post-request-scripts": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/shell-quote": "^1.7.5",
