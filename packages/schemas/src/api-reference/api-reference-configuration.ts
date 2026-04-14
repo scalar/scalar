@@ -129,7 +129,7 @@ export const apiReferenceConfigurationWithSourceSchema = (rawInput: unknown) => 
     input.proxyUrl = input.proxy
     delete input.proxy
   }
-  
+
   if (input.proxyUrl === OLD_PROXY_URL) {
     console.warn(`[DEPRECATED] Warning: configuration.proxyUrl points to our old proxy (${OLD_PROXY_URL}).`)
     console.warn(`[DEPRECATED] We are overwriting the value and use the new proxy URL (${NEW_PROXY_URL}) instead.`)

@@ -1,4 +1,5 @@
-import { any, array, boolean, literal, object, optional, string, union } from "@scalar/validation";
+import { apiReferencePluginSchema } from "@/api-reference/api-reference-plugin";
+import { any, array, boolean, fn, literal, object, optional, string, union } from "@scalar/validation";
 
 // TODO: support for default values
 const externalUrlsSchema = object({
@@ -100,10 +101,9 @@ export const baseConfigurationSchema = object({
     literal('svelte'),
     literal('vue'),
   ])),
-  onRequestSent: optional(any()),
+  onRequestSent: optional(fn<(input: string) => void>()),
   persistAuth: optional(boolean()),
-  // TODO: Add apiClientPluginSchema
-  plugins: optional(array(any())),
+  plugins: optional(array(apiReferencePluginSchema)),
   telemetry: optional(boolean()),
   externalUrls: optional(externalUrlsSchema),
 })

@@ -1,13 +1,11 @@
-import { any, boolean, nullable, object, optional, record, string, union, unknown } from '@scalar/validation'
+import { any, boolean, fn, nullable, object, optional, record, string, union } from '@scalar/validation'
 
 /**
  * The content of an OpenAPI document — a string, null, a generic record, or a
  * function returning a record. Because the validation package has no function
  * schema, we use `unknown()` for that branch.
  */
-
-// TODO: support function types??
-const contentSchema = union([string(), nullable(), record(string(), any()), unknown()])
+const contentSchema = union([string(), nullable(), record(string(), any()), fn<() => string | any>()])
 
 /**
  * A source is any potential document input used for API Reference

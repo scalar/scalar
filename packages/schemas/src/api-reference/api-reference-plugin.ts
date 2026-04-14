@@ -1,4 +1,4 @@
-import { string, unknown, object, optional, record, any, array } from "@scalar/validation";
+import { string, unknown, object, optional, record, any, array, fn, type Static } from "@scalar/validation";
 
 export const openApiExtensionSchema = object({
   name: string({
@@ -30,4 +30,8 @@ export const viewsSchema = object({
   }),
 })
 
-export const apiReferencePluginSchema = unknown()
+export const apiReferencePluginSchema = fn<() => {
+  name: string
+  extensions: Static<typeof openApiExtensionSchema>[]
+  views: Static<typeof viewsSchema>
+}>()
