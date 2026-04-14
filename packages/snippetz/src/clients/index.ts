@@ -26,6 +26,7 @@ import { objcNsurlsession } from '@/plugins/objc/nsurlsession'
 import { ocamlCohttp } from '@/plugins/ocaml/cohttp'
 import { phpCurl } from '@/plugins/php/curl'
 import { phpGuzzle } from '@/plugins/php/guzzle'
+import { phpLaravel } from '@/plugins/php/laravel'
 import { powershellRestmethod } from '@/plugins/powershell/restmethod'
 import { powershellWebrequest } from '@/plugins/powershell/webrequest'
 import { pythonHttpxAsync, pythonHttpxSync } from '@/plugins/python/httpx'
@@ -125,7 +126,7 @@ export const clients: Target[] = [
     key: 'php',
     title: 'PHP',
     default: 'curl',
-    clients: [phpCurl, phpGuzzle],
+    clients: [phpCurl, phpGuzzle, phpLaravel],
   },
   {
     key: 'powershell',

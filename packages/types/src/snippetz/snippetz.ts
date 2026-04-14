@@ -29,7 +29,7 @@ export const GROUPED_CLIENTS = {
   node: ['axios', 'fetch', 'ofetch', 'undici'],
   objc: ['nsurlsession'],
   ocaml: ['cohttp'],
-  php: ['curl', 'guzzle'],
+  php: ['curl', 'guzzle', 'laravel'],
   powershell: ['restmethod', 'webrequest'],
   python: ['python3', 'requests', 'httpx_sync', 'httpx_async'],
   r: ['httr'],

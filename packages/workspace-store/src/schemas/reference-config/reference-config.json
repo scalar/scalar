@@ -258,6 +258,10 @@
             "type": "string"
           },
           {
+            "const": "php/laravel",
+            "type": "string"
+          },
+          {
             "const": "powershell/restmethod",
             "type": "string"
           },
