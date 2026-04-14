@@ -279,7 +279,6 @@ describe('goNative', () => {
     expect(result).toContain(`postData := neturl.Values{}`)
     expect(result).toContain(`postData.Set("special chars!@#", "value")`)
     expect(result).toContain(`req, _ := http.NewRequest("POST", requestUrl, strings.NewReader(postData.Encode()))`)
-    expect(result).toContain('postData := url.Values{}')
     expect(result).not.toContain('\n\turl :=')
   })
 
@@ -337,7 +336,9 @@ describe('goNative', () => {
       ],
     })
 
-    expect(result).toContain(`requestUrl := "https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()"`)
+    expect(result).toContain(
+      `requestUrl := "https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()"`,
+    )
   })
 
   it('handles empty URL', () => {
