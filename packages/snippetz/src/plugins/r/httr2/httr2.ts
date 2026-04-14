@@ -3,27 +3,6 @@ import type { HarRequest, Plugin, PluginConfiguration } from '@scalar/types/snip
 import { reduceQueryParams } from '@/libs/http'
 
 /**
- * Converts a value to R list syntax with proper indentation
- */
-const toRList = (obj: Record<string, string | string[]>, indent: string): string => {
-  const entries = Object.entries(obj)
-
-  if (entries.length === 0) {
-    return 'list()'
-  }
-
-  const lines = entries.map(([key, value]) => {
-    if (Array.isArray(value)) {
-      const items = value.map((v) => `${indent}    "${v}"`).join(',\n')
-      return `${indent}  "${key}" = c(\n${items}\n${indent}  )`
-    }
-    return `${indent}  "${key}" = "${value}"`
-  })
-
-  return `list(\n${lines.join(',\n')}\n${indent})`
-}
-
-/**
  * Formats JSON text as an R list structure
  */
 const jsonToRList = (text: string, indent: string): string => {
