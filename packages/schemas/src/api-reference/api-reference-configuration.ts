@@ -1,4 +1,4 @@
-import { any, array, boolean, coerce, intersection, literal, object, optional, record, string, union } from "@scalar/validation"
+import { any, array, boolean, coerce, intersection, literal, object, optional, record, string, union, fn } from "@scalar/validation"
 import { baseConfigurationSchema } from "./base-configuration"
 import { sourceConfigurationSchema } from "./source-configuration"
 import { apiReferencePluginSchema } from "@/api-reference/api-reference-plugin"
@@ -12,8 +12,7 @@ export const apiReferenceConfigurationSchema = intersection([
       literal('classic'),
     ])),
     proxy: optional(string()),
-    // TODO: use function type
-    fetch: optional(any()),
+    fetch: optional(fn<typeof fetch>()),
     plugins: optional(array(apiReferencePluginSchema)),
     isEditable: optional(boolean()),
     isLoading: optional(boolean()),
@@ -47,14 +46,13 @@ export const apiReferenceConfigurationSchema = intersection([
       clientKey: string(),
     })),
     customCss: optional(string()),
-    // TODO: use function type
-    onSpecUpdate: optional(any()),
-    onServerChange: optional(any()),
-    onDocumentSelect: optional(any()),
-    onLoaded: optional(any()),
-    onBeforeRequest: optional(any()),
-    onShowMore: optional(any()),
-    onSidebarClick: optional(any()),
+    onSpecUpdate: optional(fn<(input: string) => void>()),
+    onServerChange: optional(fn<(input: string) => void>()),
+    onDocumentSelect: optional(fn<() => void>()),
+    onLoaded: optional(fn<(slug: string) => Promise<void> | void>()),
+    onBeforeRequest: optional(fn<(input: { request: Request; requestBuilder: unknown; envVariables: Record<string, string> }) => Promise<void> | void>()),
+    onShowMore: optional(fn<(tagId: string) => Promise<void> | void>()),
+    onSidebarClick: optional(fn<(href: string) => Promise<void> | void>()),
     pathRouting: optional(object({
       basePath: string(),
     })),
@@ -63,12 +61,12 @@ export const apiReferenceConfigurationSchema = intersection([
       url: optional(string()),
       disabled: optional(boolean()),
     })),
-    generateHeadingSlug: optional(any()),
-    generateModelSlug: optional(any()),
-    generateTagSlug: optional(any()),
-    generateOperationSlug: optional(any()),
-    generateWebhookSlug: optional(any()),
-    redirect: optional(any()),
+    generateHeadingSlug: optional(fn<(input: { slug: string }) => string>()),
+    generateModelSlug: optional(fn<(input: { name: string }) => string>()),
+    generateTagSlug: optional(fn<(input: { name: string }) => string>()),
+    generateOperationSlug: optional(fn<(input: { path: string; operationId?: string; method: string; summary?: string }) => string>()),
+    generateWebhookSlug: optional(fn<(input: { name: string; method?: string }) => string>()),
+    redirect: optional(fn<(input: string) => string | null | undefined>()),
     withDefaultFonts: optional(boolean()),
     defaultOpenFirstTag: optional(boolean()),
     defaultOpenAllTags: optional(boolean()),
@@ -76,12 +74,12 @@ export const apiReferenceConfigurationSchema = intersection([
     expandAllResponses: optional(boolean()),
     tagsSorter: optional(union([
       literal('alpha'),
-      any(),
+      fn<(a: any, b: any) => number>(),
     ])),
     operationsSorter: optional(union([
       literal('alpha'),
       literal('method'),
-      any(),
+      fn<(a: any, b: any) => number>(),
     ])),
     orderSchemaPropertiesBy: optional(union([
       literal('alpha'),
