@@ -1,6 +1,8 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { ApiClientConfigurationReact } from './use-api-client'
+
 // Mock the style import so it doesn't fail in jsdom
 vi.mock('./style.css', () => ({}))
 
@@ -508,15 +510,19 @@ describe('use-api-client', () => {
 
   it('calls updateOptions when configuration changes', async () => {
     const { useApiClient } = await import('./use-api-client')
-    const { rerender } = renderHook(({ config }) => useApiClient({ configuration: config }), {
-      initialProps: {
-        config: {
-          authentication: {
-            preferredSecurityScheme: 'bearerAuth',
-          },
+    const initialProps: { config: ApiClientConfigurationReact } = {
+      config: {
+        authentication: {
+          preferredSecurityScheme: 'bearerAuth',
         },
       },
-    })
+    }
+    const { rerender } = renderHook(
+      ({ config }: { config: ApiClientConfigurationReact }) => useApiClient({ configuration: config }),
+      {
+        initialProps,
+      },
+    )
 
     await waitFor(() => expect(mockApiClient.updateOptions).toHaveBeenCalled())
 
