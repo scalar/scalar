@@ -20,7 +20,8 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "types:check": "tsc --noEmit"
+    "types:check": "tsc --noEmit",
+    "types:generate": "tsx scripts/generate-types.ts"
   },
   "type": "module",
   "files": [

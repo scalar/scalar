@@ -177,6 +177,35 @@ describe('typegen', () => {
     expect(out).toContain('export type T =')
   })
 
+  it('names the root type via the typeName option', () => {
+    const t = intersection([object({ a: number() }), object({ b: string() })])
+    const out = generateTypes(t, { generatedAt: fixedGeneratedAt, typeName: 'Config' })
+    expect(out).toContain('export type Config =')
+    expect(out).toContain('a: number')
+    expect(out).toContain('b: string')
+  })
+
+  it('overrides an existing typeName on the schema with the option', () => {
+    const t = object({ x: number() }, { typeName: 'Original' })
+    const out = generateTypes(t, { generatedAt: fixedGeneratedAt, typeName: 'Overridden' })
+    expect(out).toContain('export type Overridden =')
+    expect(out).not.toContain('export type Original')
+  })
+
+  it('combines typeName and namespace options', () => {
+    const t = intersection([object({ a: number() }), object({ b: string() })])
+    const out = generateTypes(t, { generatedAt: fixedGeneratedAt, typeName: 'Config', namespace: 'Api' })
+    expect(out).toContain('export namespace Api {')
+    expect(out).toContain('export type Config =')
+  })
+
+  it('ignores invalid typeName option and keeps inline shape', () => {
+    const t = object({ x: number() })
+    const out = generateTypes(t)
+    expect(out).not.toContain('export type')
+    expect(out).toBe('{\n  x: number;\n}')
+  })
+
   it('includes typeComment as JSDoc on object properties', () => {
     const t = object({
       id: number({ typeComment: 'Unique id.' }),
