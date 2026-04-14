@@ -8,7 +8,7 @@ export default {}
 </script>
 <script setup lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { computed, shallowRef, watchEffect, type Component } from 'vue'
+import { type Component, computed, shallowRef, watchEffect } from 'vue'
 
 import type { ScalarIconProps } from './types'
 import { getIcon, getLogo } from './utils'

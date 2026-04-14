@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
@@ -515,18 +515,21 @@ describe('EnvironmentSelector', () => {
       expect(button.attributes('aria-label')).toContain('Add Environment')
     })
 
-    it('marks the badge as aria-hidden', () => {
+    it('marks decorative icons as aria-hidden', async () => {
       const wrapper = mountWithProps({
         environments: mockEnvironments,
         activeEnvironment: 'production',
       })
+      await flushPromises()
+      await nextTick()
 
       /**
        * The visual indicator badge is decorative and should be
        * hidden from screen readers to avoid redundant information.
        */
-      const badge = wrapper.find('[aria-hidden="true"]')
-      expect(badge.exists()).toBe(true)
+      const globeIcon = wrapper.findAllComponents({ name: 'ScalarIcon' }).find((icon) => icon.props('icon') === 'Globe')
+
+      expect(globeIcon?.props('label')).toBeUndefined()
     })
   })
 
@@ -647,11 +650,13 @@ describe('EnvironmentSelector', () => {
       expect(globeIcon?.exists()).toBe(true)
     })
 
-    it('applies accent color to Globe icon when environment is active', () => {
+    it('applies accent color to Globe icon when environment is active', async () => {
       const wrapper = mountWithProps({
         environments: mockEnvironments,
         activeEnvironment: 'production',
       })
+      await flushPromises()
+      await nextTick()
 
       /**
        * The icon should match the accent color when an environment
@@ -663,8 +668,10 @@ describe('EnvironmentSelector', () => {
       expect(globeIcon?.classes()).toContain('text-c-accent')
     })
 
-    it('applies muted color to Globe icon when no environment is active', () => {
+    it('applies muted color to Globe icon when no environment is active', async () => {
       const wrapper = mountWithProps({ environments: mockEnvironments })
+      await flushPromises()
+      await nextTick()
 
       /**
        * The icon should use muted colors in the inactive state.

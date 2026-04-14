@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import ResponseBodyDownload from './ResponseBodyDownload.vue'
@@ -39,16 +39,17 @@ describe('ResponseBodyDownload', () => {
       expect(srOnly.text()).toBe('Response Body')
     })
 
-    it('renders download icon', () => {
+    it('renders download icon', async () => {
       const wrapper = mount(ResponseBodyDownload, {
         props: {
           href: 'data:text/plain;base64,SGVsbG8gV29ybGQ=',
         },
       })
+      await flushPromises()
 
-      // Check if ScalarIcon is rendered (it will have the svg content)
-      const link = wrapper.find('a')
-      expect(link.html()).toContain('svg')
+      const icon = wrapper.findComponent({ name: 'ScalarIcon' })
+      expect(icon.exists()).toBe(true)
+      expect(icon.props('icon')).toBe('Download')
     })
   })
 

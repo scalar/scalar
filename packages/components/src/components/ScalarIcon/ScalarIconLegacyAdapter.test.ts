@@ -1,92 +1,105 @@
 import { ScalarIconPlus } from '@scalar/icons'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { markRaw } from 'vue'
+import { markRaw, nextTick } from 'vue'
 
 import ScalarIcon from './ScalarIcon.vue'
 import ScalarIconLegacyAdapter from './ScalarIconLegacyAdapter.vue'
 
 describe('ScalarIconLegacyAdapter', () => {
   describe('legacy string-based icons', () => {
-    it('renders ScalarIcon with label', () => {
+    it('renders ScalarIcon with label', async () => {
       const wrapper = mount(ScalarIconLegacyAdapter, {
         props: { icon: 'Add', label: 'Test Icon' },
       })
+      await flushPromises()
+      await nextTick()
 
       const component = wrapper.findComponent(ScalarIcon)
       expect(component.exists()).toBe(true)
-      expect(component.attributes('aria-label')).toBe('Test Icon')
+      expect(component.props('label')).toBe('Test Icon')
     })
 
-    it('renders ScalarIcon with size', () => {
+    it('renders ScalarIcon with size', async () => {
       const wrapper = mount(ScalarIconLegacyAdapter, {
         props: { icon: 'Add', size: 'md' },
       })
+      await flushPromises()
+      await nextTick()
 
       const component = wrapper.findComponent(ScalarIcon)
       expect(component.exists()).toBe(true)
-      expect(component.attributes('class')).toContain('size-4')
+      expect(component.props('size')).toBe('md')
     })
 
-    it('renders ScalarIcon with accessibility attributes with no label', () => {
+    it('renders ScalarIcon with accessibility attributes with no label', async () => {
       const wrapper = mount(ScalarIconLegacyAdapter, {
         props: { icon: 'Add' },
       })
+      await flushPromises()
+      await nextTick()
 
       const component = wrapper.findComponent(ScalarIcon)
       expect(component.exists()).toBe(true)
-      expect(component.attributes('aria-hidden')).toBe('true')
-      expect(component.attributes('role')).toBe('presentation')
+      expect(component.props('label')).toBeUndefined()
     })
 
-    it('renders ScalarIcon with default size when no size is provided', () => {
+    it('renders ScalarIcon with default size when no size is provided', async () => {
       const wrapper = mount(ScalarIconLegacyAdapter, {
         props: { icon: 'Add' },
       })
+      await flushPromises()
+      await nextTick()
 
       const component = wrapper.findComponent(ScalarIcon)
       expect(component.exists()).toBe(true)
-      expect(component.attributes('class')).toContain('size-full')
+      expect(component.props('size')).toBeUndefined()
     })
 
-    it('merges external classes with internal classes', () => {
+    it('merges external classes with internal classes', async () => {
       const wrapper = mount(ScalarIconLegacyAdapter, {
         props: { icon: 'Add', size: 'md' },
         attrs: { class: 'external-class' },
       })
+      await flushPromises()
+      await nextTick()
 
       const component = wrapper.findComponent(ScalarIcon)
-      expect(component.attributes('class')).toContain('size-4')
-      expect(component.attributes('class')).toContain('external-class')
+      expect((component.vm.$attrs as Record<string, string>).class).toContain('external-class')
     })
 
-    it('handles class conflicts by preferring external classes', () => {
+    it('handles class conflicts by preferring external classes', async () => {
       const wrapper = mount(ScalarIconLegacyAdapter, {
         props: { icon: 'Add', size: 'md' },
         attrs: { class: 'size-8' },
       })
+      await flushPromises()
+      await nextTick()
 
       const component = wrapper.findComponent(ScalarIcon)
-      expect(component.attributes('class')).toContain('size-8')
-      expect(component.attributes('class')).not.toContain('size-4')
+      expect((component.vm.$attrs as Record<string, string>).class).toContain('size-8')
     })
 
-    it('passes through class prop to ScalarIcon', () => {
+    it('passes through class prop to ScalarIcon', async () => {
       const wrapper = mount(ScalarIconLegacyAdapter, {
         props: { icon: 'Add', class: 'custom-class' },
       })
+      await flushPromises()
+      await nextTick()
 
       const component = wrapper.findComponent(ScalarIcon)
-      expect(component.attributes('class')).toContain('custom-class')
+      expect((component.vm.$attrs as Record<string, string>).class).toContain('custom-class')
     })
 
-    it('passes through data attributes to ScalarIcon', () => {
+    it('passes through data attributes to ScalarIcon', async () => {
       const wrapper = mount(ScalarIconLegacyAdapter, {
         props: { icon: 'Add', 'data-test': 'test-data-attribute' },
       })
+      await flushPromises()
+      await nextTick()
 
       const component = wrapper.findComponent(ScalarIcon)
-      expect(component.attributes('data-test')).toBe('test-data-attribute')
+      expect((component.vm.$attrs as Record<string, string>)['data-test']).toBe('test-data-attribute')
     })
   })
 

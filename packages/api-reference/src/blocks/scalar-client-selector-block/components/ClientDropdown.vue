@@ -8,11 +8,12 @@ import {
   type CustomClientOption,
 } from '@scalar/api-client/v2/blocks/operation-code-sample'
 import { ScalarCombobox } from '@scalar/components'
+import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import {
+  ScalarIconFileCode,
   ScalarIconFileCSharp,
   ScalarIconFileHtml,
   ScalarIconFileJs,
-  ScalarIconFileCode,
   ScalarIconFilePy,
   ScalarIconFileRs,
   ScalarIconFileTs,
@@ -22,7 +23,6 @@ import {
   ScalarIconGearSix,
   ScalarIconTerminal,
 } from '@scalar/icons'
-import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { AvailableClients, TargetId } from '@scalar/types/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
@@ -72,7 +72,8 @@ const LANGUAGE_ICONS = {
 } as const satisfies Record<TargetId, unknown>
 
 /** Maps language keys to explicit icon components. */
-const getIconByLanguageKey = (targetKey: TargetId) => LANGUAGE_ICONS[targetKey] ?? ScalarIconFloppyDisk
+const getIconByLanguageKey = (targetKey: TargetId) =>
+  LANGUAGE_ICONS[targetKey] ?? ScalarIconFloppyDisk
 
 /** Set custom example, or update the selected HTTP client globally */
 const selectClient = (option: ClientOption | CustomClientOption) => {
