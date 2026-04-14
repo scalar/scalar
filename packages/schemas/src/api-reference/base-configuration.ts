@@ -1,4 +1,3 @@
-import { apiReferencePluginSchema } from "@/api-reference/api-reference-plugin";
 import { any, array, boolean, fn, literal, object, optional, string, union } from "@scalar/validation";
 
 const externalUrlsSchema = object({
@@ -138,11 +137,8 @@ export const baseConfigurationSchema = object({
   persistAuth: optional(boolean(), {
     typeComment: 'Whether to persist auth to local storage',
   }),
-  plugins: optional(array(apiReferencePluginSchema), {
-    typeComment: 'Plugins for the API client',
-  }),
   telemetry: optional(boolean(), {
     typeComment: 'Enables / disables telemetry',
   }),
-  externalUrls: optional(externalUrlsSchema),
+  externalUrls: externalUrlsSchema,
 })
