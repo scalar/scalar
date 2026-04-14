@@ -1,51 +1,43 @@
-import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete'
-import { history, historyKeymap, indentWithTab, insertNewline } from '@codemirror/commands'
-import { css } from '@codemirror/lang-css'
-import { html } from '@codemirror/lang-html'
-import { json } from '@codemirror/lang-json'
-import { xml } from '@codemirror/lang-xml'
-import { yaml } from '@codemirror/lang-yaml'
-import {
-  type LanguageSupport,
-  type StreamLanguage,
-  bracketMatching,
-  defaultHighlightStyle,
-  foldGutter,
-  indentOnInput,
-  syntaxHighlighting,
-} from '@codemirror/language'
-import { type Diagnostic, linter } from '@codemirror/lint'
-import { type Extension, StateEffect } from '@codemirror/state'
-import {
-  EditorView,
-  type KeyBinding,
-  highlightSpecialChars,
-  keymap,
-  lineNumbers as lineNumbersExtension,
-  placeholder as placeholderExtension,
-} from '@codemirror/view'
+import type { Extension } from '@codemirror/state'
+import type { EditorView } from '@codemirror/view'
 import { type MaybeRefOrGetter, type Ref, computed, onBeforeUnmount, ref, toValue, watch } from 'vue'
 
-const CHEVRON_DOWN =
-  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m18 10-6 6-6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-const CHEVRON_RIGHT =
-  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m9 18 6-6-6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-
-import { customTheme } from '../themes'
 import type { CodeMirrorLanguage } from '../types'
-import { variables } from './variables'
 
 /**
- * This was an insane bug that only exists in chrome
+ * Cached reference to the lazily-loaded CodeMirror setup module.
  *
- * Found these issues which may be related, it says che chrome one is fixed, they possibly had a regression?
+ * Declared at module level so it is shared across all hook instances
  *
- * @see https://issues.chromium.org/issues/375711382
- * @see https://discuss.codemirror.net/t/experimental-support-for-editcontext/8144
- * @see https://github.com/codemirror/dev/issues/1458
+ * The heavy CodeMirror packages are only downloaded once regardless of
+ * how many editors are on the page.
  */
-// @ts-expect-error this is the workaround suggested by codemirror
-EditorView.EDIT_CONTEXT = false
+let _setup: typeof import('./codemirror-setup') | null = null
+let _setupPromise: Promise<typeof import('./codemirror-setup')> | null = null
+
+/** Load the CodeMirror setup module, caching the result. */
+const loadSetup = (): Promise<typeof import('./codemirror-setup')> => {
+  if (_setup) {
+    return Promise.resolve(_setup)
+  }
+  if (!_setupPromise) {
+    _setupPromise = import('./codemirror-setup').then((m) => {
+      _setup = m
+      return m
+    })
+  }
+  return _setupPromise
+}
+
+/**
+ * Prefetch the CodeMirror chunk without blocking.
+ *
+ * Call this as early as possible when you know a CodeMirror editor will be
+ * needed soon, for example, when detecting `x-scalar-environments` in a
+ * loaded OpenAPI document. The browser will start downloading the chunk in
+ * the background so it is already cached by the time the first editor mounts.
+ */
+export const preloadCodeMirror = (): Promise<void> => loadSetup().then(() => undefined)
 
 type BaseParameters = {
   /** Element Ref to mount codemirror to */
@@ -94,18 +86,6 @@ const hasProvider = (
   content?: MaybeRefOrGetter<string | undefined>
   provider: MaybeRefOrGetter<Extension>
 } => 'provider' in params && !!toValue(params.provider)
-
-const selectAllKeyBinding: KeyBinding = {
-  key: 'Mod-a',
-  run: (view) => {
-    // Select the entire content
-    view.dispatch({
-      selection: { anchor: 0, head: view.state.doc.length },
-      scrollIntoView: false,
-    })
-    return true
-  },
-}
 
 /** Reactive CodeMirror Integration */
 export const useCodeMirror = (
@@ -159,39 +139,58 @@ export const useCodeMirror = (
     placeholder: toValue(params.placeholder),
   }))
 
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Mount (or remount) the CodeMirror editor.
+   *
+   * Lazily loads the CodeMirror setup chunk on the first call. Subsequent
+   * calls reuse the already-loaded module synchronously.
+   */
+  const mountCodeMirror = async (): Promise<void> => {
+    // Capture the current target before awaiting so we can bail out if the
+    // ref changed while the chunk was loading (e.g. the component unmounted).
+    const mountTarget = params.codeMirrorRef.value
+    if (!mountTarget) {
+      return
+    }
+
+    const setup = await loadSetup()
+
+    // Bail out if the ref changed or the element was removed from the DOM.
+    if (params.codeMirrorRef.value !== mountTarget || !mountTarget.isConnected) {
+      return
+    }
+
+    const provider = hasProvider(params) ? toValue(params.provider) : null
+    const extensions = setup.getCodeMirrorExtensions({
+      ...extensionConfig.value,
+      provider,
+    })
+
+    codeMirror.value = new setup.EditorView({
+      parent: mountTarget,
+      extensions,
+    })
+
+    // Set the initial content if a provider is not in use
+    if (!hasProvider(params)) {
+      setCodeMirrorContent(toValue(params.content))
+    }
+  }
+
   // Unmounts CodeMirror if it's mounted already, and mounts CodeMirror, if the given ref exists.
   watch(
     params.codeMirrorRef,
     () => {
       codeMirror.value?.destroy()
-      mountCodeMirror()
+      void mountCodeMirror()
     },
     { immediate: true },
   )
 
   // Cleanup codemirror
   onBeforeUnmount(() => codeMirror.value?.destroy())
-
-  // Initializes CodeMirror.
-  function mountCodeMirror() {
-    if (params.codeMirrorRef.value) {
-      const provider = hasProvider(params) ? toValue(params.provider) : null
-      const extensions = getCodeMirrorExtensions({
-        ...extensionConfig.value,
-        provider,
-      })
-
-      codeMirror.value = new EditorView({
-        parent: params.codeMirrorRef.value,
-        extensions,
-      })
-
-      // Set the initial content if a provider is not in use
-      if (!hasProvider(params)) {
-        setCodeMirrorContent(toValue(params.content))
-      }
-    }
-  }
 
   // ---------------------------------------------------------------------------
 
@@ -201,29 +200,33 @@ export const useCodeMirror = (
     () => {
       if (hasProvider(params)) {
         codeMirror.value?.destroy()
-        mountCodeMirror()
+        void mountCodeMirror()
       }
     },
   )
 
-  // Update the extensions whenever parameters changes
+  // Update the extensions whenever parameters change.
+  // Uses the cached setup module — if the editor is not yet mounted (setup
+  // not loaded) `codeMirror.value` will be null and we return early. Once
+  // the editor is mounted the setup is guaranteed to be in the cache.
   watch(
     extensionConfig,
     () => {
-      if (!codeMirror.value) {
+      const setup = _setup
+      if (!codeMirror.value || !setup) {
         return
       }
       // If a provider is
 
       const provider = hasProvider(params) ? toValue(params.provider) : null
-      const extensions = getCodeMirrorExtensions({
+      const extensions = setup.getCodeMirrorExtensions({
         ...extensionConfig.value,
         provider,
       })
 
       requestAnimationFrame(() => {
         codeMirror.value?.dispatch({
-          effects: StateEffect.reconfigure.of(extensions),
+          effects: setup.StateEffect.reconfigure.of(extensions),
         })
       })
     },
@@ -252,278 +255,4 @@ export const useCodeMirror = (
     /** Codemirror instance */
     codeMirror,
   }
-}
-
-// ---------------------------------------------------------------------------
-
-const languageExtensions: {
-  [lang in CodeMirrorLanguage]: () => LanguageSupport | StreamLanguage<any>
-} = {
-  html: html,
-  json: json,
-  yaml: yaml,
-  css: css,
-  xml: xml,
-}
-
-/** Generate  the list of extension from parameters */
-function getCodeMirrorExtensions({
-  onChange,
-  onBlur,
-  onFocus,
-  provider,
-  language,
-  classes = [],
-  readOnly = false,
-  lineNumbers = false,
-  withVariables = false,
-  forceFoldGutter = false,
-  disableEnter = false,
-  disableCloseBrackets = false,
-  disableTabIndent = false,
-  withoutTheme = false,
-  lint = false,
-  additionalExtensions = [],
-  placeholder,
-}: {
-  classes?: string[]
-  language?: CodeMirrorLanguage
-  readOnly?: boolean
-  lineNumbers?: boolean
-  disableCloseBrackets?: boolean
-  disableTabIndent?: boolean
-  withVariables?: boolean
-  disableEnter?: boolean
-  forceFoldGutter?: boolean
-  onChange?: (val: string) => void
-  onFocus?: (val: string, event: FocusEvent) => void
-  onBlur?: (val: string, event: FocusEvent) => void
-  withoutTheme?: boolean
-  provider: Extension | null
-  lint?: boolean
-  additionalExtensions?: Extension[]
-  placeholder?: string
-}) {
-  const extensions: Extension[] = [
-    highlightSpecialChars(),
-    history(),
-    keymap.of(historyKeymap),
-    syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-    EditorView.theme({
-      '.cm-line': {
-        lineHeight: '22px',
-        padding: '0 2px 0 4px',
-      },
-      '.cm-gutterElement': {
-        lineHeight: '22px',
-      },
-      '.cm-tooltip': {
-        background: 'var(--scalar-background-1)',
-        border: '1px solid var(--scalar-border-color)',
-        borderRadius: 'var(--scalar-radius)',
-        boxShadow: 'var(--scalar-shadow-2)',
-        fontSize: '12px',
-        overflow: 'hidden',
-      },
-      '.cm-tooltip-autocomplete ul': {
-        padding: '6px',
-      },
-      '.cm-tooltip-autocomplete ul li': {
-        padding: '3px 6px',
-        color: 'var(--scalar-color-1)',
-        borderRadius: '3px',
-      },
-      '.cm-tooltip-autocomplete ul li[aria-selected]': {
-        background: 'var(--scalar-background-2)',
-        color: 'var(--scalar-color-1)',
-      },
-      '.cm-tooltip-autocomplete ul li:hover': {
-        background: 'var(--scalar-background-3)',
-        color: 'var(--scalar-color-1)',
-      },
-      '.cm-completionLabel': {
-        color: 'var(--scalar-color-1)',
-      },
-      '.cm-completionDetail': {
-        color: 'var(--scalar-color-3)',
-      },
-      '.cm-tooltip-lint': {
-        backgroundColor: 'var(--scalar-background-1)',
-      },
-      '.cm-diagnostic-error': {
-        borderLeft: '0',
-        color: '#dc1b19',
-      },
-      '.cm-foldPlaceholder': {
-        background: 'var(--scalar-background-1)',
-        border: 'none',
-        fontFamily: 'var(--scalar-font)',
-      },
-    }),
-    // Listen to updates
-    EditorView.updateListener.of((v) => {
-      if (!v.docChanged) {
-        return
-      }
-      onChange?.(v.state.doc.toString())
-    }),
-    EditorView.domEventHandlers({
-      blur: (event, view) => {
-        onBlur?.(view.state.doc.toString(), event)
-      },
-      focus: (event, view) => {
-        onFocus?.(view.state.doc.toString(), event)
-      },
-    }),
-    // Add Classes
-    EditorView.editorAttributes.of({ class: classes.join(' ') }),
-    ...additionalExtensions,
-  ]
-
-  // Enable the provider
-  if (provider) {
-    extensions.push(provider)
-  }
-
-  // Add the theme as needed
-  if (!withoutTheme) {
-    extensions.push(customTheme)
-  }
-
-  // Read only
-  if (readOnly) {
-    extensions.push(EditorView.editable.of(false))
-  } else {
-    extensions.push(
-      indentOnInput(),
-      bracketMatching(),
-      autocompletion(),
-      keymap.of([...completionKeymap, selectAllKeyBinding]),
-      bracketMatching(),
-    )
-
-    if (!disableCloseBrackets) {
-      extensions.push(closeBrackets(), keymap.of([...closeBracketsKeymap]))
-    }
-
-    if (disableTabIndent) {
-      extensions.push(
-        keymap.of([
-          {
-            key: 'Tab',
-            run: () => false, // Prevent default Tab behavior
-            shift: () => false, // Prevent default Shift+Tab behavior
-          },
-        ]),
-      )
-    } else {
-      extensions.push(keymap.of([indentWithTab]))
-    }
-  }
-
-  // Add placeholder extension if placeholder is provided
-  if (placeholder) {
-    extensions.push(placeholderExtension(placeholder))
-  }
-
-  // Line numbers
-  if (lineNumbers) {
-    extensions.push(lineNumbersExtension())
-  }
-
-  if (forceFoldGutter) {
-    extensions.push(
-      foldGutter({
-        markerDOM: (open) => {
-          const icon = document.createElement('div')
-          icon.classList.add('cm-foldMarker')
-          icon.innerHTML = open ? CHEVRON_DOWN : CHEVRON_RIGHT
-          return icon
-        },
-      }),
-    )
-  }
-
-  // Syntax highlighting
-  if (language && languageExtensions[language]) {
-    extensions.push(languageExtensions[language]())
-    if (!forceFoldGutter) {
-      extensions.push(
-        foldGutter({
-          markerDOM: (open) => {
-            const icon = document.createElement('div')
-            icon.classList.add('cm-foldMarker')
-            icon.innerHTML = open ? CHEVRON_DOWN : CHEVRON_RIGHT
-            return icon
-          },
-        }),
-      )
-    }
-  }
-
-  // JSON Linter
-  if (lint && language === 'json') {
-    const jsonLinter = linter((view) => {
-      const diagnostics: Diagnostic[] = []
-      const content = view.state.doc.toString()
-      if (content.trim()) {
-        try {
-          JSON.parse(content)
-        } catch (e) {
-          if (e instanceof Error) {
-            diagnostics.push({
-              from: 0,
-              to: view.state.doc.length,
-              severity: 'error',
-              message: e.message,
-            })
-          }
-        }
-      }
-      return diagnostics
-    })
-    extensions.push(jsonLinter)
-  }
-
-  // Highlight variables
-  if (withVariables) {
-    extensions.push(variables())
-  }
-
-  if (disableEnter) {
-    extensions.push(
-      keymap.of([
-        {
-          key: 'Enter',
-          run: () => {
-            return true
-          },
-        },
-        {
-          key: 'Ctrl-Enter',
-          mac: 'Cmd-Enter',
-          run: () => {
-            return true
-          },
-        },
-        {
-          key: 'Shift-Enter',
-          run: () => {
-            return true
-          },
-        },
-      ]),
-    )
-  } else {
-    extensions.push(
-      keymap.of([
-        {
-          key: 'Enter',
-          run: insertNewline,
-        },
-      ]),
-    )
-  }
-
-  return extensions
 }

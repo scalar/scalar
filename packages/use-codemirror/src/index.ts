@@ -16,6 +16,7 @@ export { colorPicker } from '@replit/codemirror-css-color-picker'
 
 export {
   type UseCodeMirrorParameters,
+  preloadCodeMirror,
   useCodeMirror,
 } from './hooks/useCodeMirror'
 export { useDropdown } from './hooks/useDropdown'
