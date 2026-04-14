@@ -10,28 +10,15 @@ Install directly from GitHub:
 npx skills add scalar/scalar --skill scalar-docs
 ```
 
-If you are in a local clone of this repository, you can install from the current directory:
-
-```bash
-npx skills add . --skill scalar-docs
-```
-
-## Verify available Scalar skills
-
-List all skills exposed by this repository:
-
-```bash
-npx skills add scalar/scalar --list
-```
-
-You should see `scalar-docs` in the available skill list.
-
 ## Install to specific agents
 
 Example for Cursor and Codex:
 
 ```bash
-npx skills add scalar/scalar --skill scalar-docs --agent cursor --agent codex
+npx skills add scalar/scalar \
+  --skill scalar-docs \
+  --agent cursor \
+  --agent codex
 ```
 
 ## Install globally
