@@ -37,6 +37,7 @@ import type {
   TraversedEntry,
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { useScrollLock } from '@vueuse/core'
 import diff from 'microdiff'
 import {
@@ -91,6 +92,12 @@ import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useIntersection } from '@/hooks/use-intersection'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { persistencePlugin } from '@/plugins/persistance-plugin'
+
+declare global {
+  interface Window {
+    dataDumpWorkspace?: () => WorkspaceStore
+  }
+}
 
 const props = defineProps<{
   /**
@@ -441,7 +448,6 @@ const environment = computed(
 )
 
 if (typeof window !== 'undefined') {
-  // @ts-expect-error - For debugging purposes expose the store
   window.dataDumpWorkspace = () => workspaceStore
 }
 
