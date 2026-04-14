@@ -13,7 +13,7 @@ npm install posthog-js
 ## Usage
 
 ```typescript
-import { PostHogPlugin } from '@scalar/api-reference/plugins/posthog-plugin'
+import { PostHogPlugin } from '@scalar/api-reference/plugins/posthog'
 
 const configuration = {
   url: 'https://example.com/openapi.json',

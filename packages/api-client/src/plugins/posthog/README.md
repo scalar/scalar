@@ -4,7 +4,7 @@ PostHog analytics plugin for the standalone API Client. Loading this plugin opts
 
 If the plugin is not loaded, no tracking occurs.
 
-> When using the API Reference (which embeds the API Client), use the [API Reference PostHog Plugin](../../../api-reference/src/plugins/posthog-plugin/) instead. It handles both products automatically.
+> When using the API Reference (which embeds the API Client), use the [API Reference PostHog Plugin](../../../../api-reference/src/plugins/posthog/README.md) instead. It handles both products automatically.
 
 ## Installation
 
@@ -15,7 +15,7 @@ npm install posthog-js
 ## Usage
 
 ```typescript
-import { PostHogClientPlugin } from '@scalar/api-client/plugins'
+import { PostHogClientPlugin } from '@scalar/api-client/plugins/posthog'
 
 const plugins = [
   PostHogClientPlugin({
