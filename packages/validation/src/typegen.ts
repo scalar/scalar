@@ -180,6 +180,8 @@ const structuralEmit = (schema: Schema, depth: number, ctx: TypeGenContext, brac
       return 'any'
     case 'unknown':
       return 'unknown'
+    case 'function':
+      return '(...args: unknown[]) => unknown'
     case 'array': {
       const item = emitSchema(schema.items, next, ctx, braceIndent)
       return needsArrayItemParen(item) ? `(${item})[]` : `${item}[]`
@@ -252,6 +254,10 @@ const needsArrayItemParen = (t: string): boolean => {
     t === 'unknown'
   ) {
     return false
+  }
+  // `() => void[]` parses as `() => (void[])`, so function signatures need wrapping.
+  if (t.includes(' => ')) {
+    return true
   }
   // Union: `A | B[]` is `A | (B[])`; intersection: `A & B[]` is `A & (B[])`. Wrap the whole item type.
   return t.includes(' | ') || t.includes(' & ')

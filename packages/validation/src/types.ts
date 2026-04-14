@@ -3,6 +3,7 @@ import type {
   ArraySchema,
   BooleanSchema,
   EvaluateSchema,
+  FunctionSchema,
   IntersectionSchema,
   LazySchema,
   LiteralSchema,
@@ -71,7 +72,9 @@ type _Static<T, Depth extends number = 10> = Depth extends 0
                 ? any
                 : T extends UnknownSchema
                   ? unknown
-                  : T extends ArraySchema<infer Item>
+                  : T extends FunctionSchema<infer F>
+                    ? F
+                    : T extends ArraySchema<infer Item>
                     ? Array<_Static<Item, Prev<Depth>>>
                     : T extends RecordSchema<infer Key, infer Value>
                       ? Record<_Static<Key, Prev<Depth>> & PropertyKey, _Static<Value, Prev<Depth>>>

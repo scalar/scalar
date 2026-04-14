@@ -6,6 +6,7 @@ import {
   array,
   boolean,
   evaluate,
+  fn,
   intersection,
   lazy,
   literal,
@@ -97,6 +98,31 @@ describe('unknown', () => {
   it('preserves complex value', () => {
     const value = { a: 1, b: 2 }
     expect(coerce(T, value)).toEqual({ a: 1, b: 2 })
+  })
+})
+
+describe('fn', () => {
+  const T = fn()
+  it('passes through a function', () => {
+    const value = () => 42
+    expect(coerce(T, value)).toBe(value)
+  })
+  it('passes through an async function', () => {
+    const value = async () => 42
+    expect(coerce(T, value)).toBe(value)
+  })
+  it('returns a no-op function for a non-function value', () => {
+    const result = coerce(T, 'not a function')
+    expect(typeof result).toBe('function')
+    expect(result()).toBe(undefined)
+  })
+  it('returns a no-op function for null', () => {
+    const result = coerce(T, null)
+    expect(typeof result).toBe('function')
+  })
+  it('returns a no-op function for undefined', () => {
+    const result = coerce(T, undefined)
+    expect(typeof result).toBe('function')
   })
 })
 

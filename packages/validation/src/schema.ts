@@ -45,6 +45,17 @@ export type UnknownSchema = {
   type: 'unknown'
 } & Documentation
 
+/**
+ * Schema for function values. Validates only that the value is `typeof === 'function'`.
+ * The type parameter `T` carries the full function signature for {@link Static} inference
+ * but is never checked at runtime.
+ */
+export type FunctionSchema<T extends (...args: any[]) => any = (...args: unknown[]) => unknown> = {
+  type: 'function'
+  /** Phantom field — never set at runtime. Carries `T` so that `Static` can extract it. */
+  _fn?: T
+} & Documentation
+
 /** Schema for homogeneous lists. {@link Static} resolves to an array of the item static type. */
 export type ArraySchema<Item extends Schema> = {
   type: 'array'
@@ -122,6 +133,7 @@ export type Schema =
   | NotDefinedSchema
   | AnySchema
   | UnknownSchema
+  | FunctionSchema<any>
   | ArraySchema<any>
   | RecordSchema<any, any>
   | ObjectSchema<Record<string, any>>
@@ -170,6 +182,14 @@ const any = (options?: Documentation): AnySchema => ({
 
 const unknown = (options?: Documentation): UnknownSchema => ({
   type: 'unknown',
+  typeName: options?.typeName,
+  typeComment: options?.typeComment,
+})
+
+const fn = <T extends (...args: any[]) => any = (...args: unknown[]) => unknown>(
+  options?: Documentation,
+): FunctionSchema<T> => ({
+  type: 'function',
   typeName: options?.typeName,
   typeComment: options?.typeComment,
 })
@@ -251,6 +271,7 @@ export {
   notDefined,
   any,
   unknown,
+  fn,
   array,
   record,
   object,
