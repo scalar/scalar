@@ -36,8 +36,6 @@
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
   "exports": {
     "./*.css": {
       "import": "./dist/*.css",
