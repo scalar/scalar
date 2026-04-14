@@ -14,6 +14,14 @@ type BodySection = {
   needsMultipartContentTypeHeader: boolean
 }
 
+const formatImport = (entry: string): string => {
+  if (entry.includes(' ')) {
+    return entry
+  }
+
+  return goString(entry)
+}
+
 const goString = (value: string): string => JSON.stringify(value)
 
 const normalizeMethod = (method?: string): string => (method || 'GET').toUpperCase()
@@ -101,13 +109,13 @@ const buildBodySection = (postData?: {
   }
 
   if (postData.mimeType === 'application/x-www-form-urlencoded' && postData.params?.length) {
-    imports.add('net/url')
+    imports.add('neturl "net/url"')
     imports.add('strings')
 
     return {
       imports,
       setupLines: [
-        'postData := url.Values{}',
+        'postData := neturl.Values{}',
         ...postData.params.map((param) => `postData.Set(${goString(param.name)}, ${goString(param.value ?? '')})`),
       ],
       requestBody: 'strings.NewReader(postData.Encode())',
@@ -189,7 +197,7 @@ export const goNative: Plugin = {
       'package main',
       '',
       'import (',
-      ...imports.map((entry) => `\t${goString(entry)}`),
+      ...imports.map((entry) => `\t${formatImport(entry)}`),
       ')',
       '',
       'func main() {',

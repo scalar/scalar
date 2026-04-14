@@ -275,6 +275,8 @@ describe('goNative', () => {
       },
     })
 
+    expect(result).toContain(`\tneturl "net/url"`)
+    expect(result).toContain(`postData := neturl.Values{}`)
     expect(result).toContain(`postData.Set("special chars!@#", "value")`)
     expect(result).toContain(`req, _ := http.NewRequest("POST", requestUrl, strings.NewReader(postData.Encode()))`)
     expect(result).toContain('postData := url.Values{}')
