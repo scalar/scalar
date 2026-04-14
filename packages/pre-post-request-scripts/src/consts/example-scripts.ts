@@ -93,4 +93,42 @@ export const EXAMPLE_SCRIPTS: ExampleScript[] = [
       body: { success: true },
     },
   },
+  {
+    title: 'Check header value',
+    script: `pm.test("Content-Type is JSON", () => {
+  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json')
+})`,
+    mockResponse: {
+      status: 200,
+      body: { success: true },
+      headers: { 'Content-Type': 'application/json' },
+    },
+  },
+  {
+    title: 'Assert data types',
+    script: `pm.test("Response data types are correct", () => {
+  const data = pm.response.json()
+  pm.expect(data).to.be.an('object')
+  pm.expect(data.name).to.be.a('string')
+  pm.expect(data.age).to.be.a('number')
+  pm.expect(data.hobbies).to.be.an('array')
+})`,
+    mockResponse: {
+      status: 200,
+      body: { name: 'Jane', age: 23, hobbies: ['reading'] },
+      headers: { 'Content-Type': 'application/json' },
+    },
+  },
+  {
+    title: 'Check object containment',
+    script: `pm.test("Response contains expected object", () => {
+  const expected = { created: true, errors: [] }
+  pm.expect(pm.response.json()).to.deep.include(expected)
+})`,
+    mockResponse: {
+      status: 200,
+      body: { created: true, errors: [], id: 42 },
+      headers: { 'Content-Type': 'application/json' },
+    },
+  },
 ]
