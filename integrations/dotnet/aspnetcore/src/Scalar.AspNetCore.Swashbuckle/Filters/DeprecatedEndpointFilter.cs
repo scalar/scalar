@@ -7,7 +7,7 @@ internal sealed class DeprecatedOperationFilter : IOperationFilter
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
         var deprecatedAttr = context.ApiDescription.ActionDescriptor.EndpointMetadata
-            .OfType<DeprecatedEndpointAttribute>()
+            .OfType<DeprecatedAttribute>()
             .FirstOrDefault();
 
         if (deprecatedAttr == null)
