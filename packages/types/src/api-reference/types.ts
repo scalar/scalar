@@ -1,5 +1,4 @@
-import type { PartialDeep } from "type-fest"
-import type { TargetId } from "../snippetz"
+import type { PartialDeep } from 'type-fest'
 
 /** Some common properties used in all security schemes */
 type SecuirtySchemeCommon = {
@@ -27,7 +26,6 @@ type OasSecurityApiKey = {
 }
 
 export type SecuritySchemeApiKey = SecuirtySchemeCommon & ExtendedSecurityScheme & OasSecurityApiKey
-
 
 // HTTP
 type OasSecurityHttp = {
@@ -59,31 +57,30 @@ type OasSecurityOpenIdConnect = {
 }
 export type SecuritySchemeOpenIdConnect = SecuirtySchemeCommon & ExtendedSecurityScheme & OasSecurityOpenIdConnect
 
-
 // OAUTH2
 
 type FlowsCommon = {
   /**
-     * The URL to be used for obtaining refresh tokens. This MUST be in the form of a
-     * URL. The OAuth2 standard requires the use of TLS.
-     */
-  'refreshUrl'?: string,
+   * The URL to be used for obtaining refresh tokens. This MUST be in the form of a
+   * URL. The OAuth2 standard requires the use of TLS.
+   */
+  'refreshUrl'?: string
   /**
    * REQUIRED. The available scopes for the OAuth2 security scheme. A map
    * between the scope name and a short description for it. The map MAY be empty.
    */
-  'scopes'?: Record<string, string>,
-  'selectedScopes'?: string[],
+  'scopes'?: Record<string, string>
+  'selectedScopes'?: string[]
   /** Extension to save the client Id associated with an oauth flow */
-  'x-scalar-client-id'?: string,
+  'x-scalar-client-id'?: string
   /** The auth token */
-  'token'?: string,
+  'token'?: string
   /** Additional query parameters for the OAuth authorization request. Example: { prompt: 'consent', audience: 'scalar' }. */
-  'x-scalar-security-query'?: Record<string, string>,
+  'x-scalar-security-query'?: Record<string, string>
   /** Additional body parameters for the OAuth token request. Example: { audience: 'foo' }. */
-  'x-scalar-security-body'?: Record<string, string>,
+  'x-scalar-security-body'?: Record<string, string>
   /** Extension to specify custom token name in the response (defaults to 'access_token') */
-  'x-tokenName'?: string,
+  'x-tokenName'?: string
 }
 
 type PkceOptions = 'SHA-256' | 'plain' | 'no'
@@ -91,44 +88,48 @@ type PkceOptions = 'SHA-256' | 'plain' | 'no'
 type CredentialsLocationExtension = 'header' | 'body'
 
 type OasSecurityOauth2FlowImplicit = {
-  type: "oauth2",
-  'x-default-scopes'?: string[],
+  type: 'oauth2'
+  'x-default-scopes'?: string[]
   flows: {
     implicit: FlowsCommon & {
-      type: "implicit"
+      type: 'implicit'
       authorizationUrl: string
       'x-scalar-redirect-uri'?: string
-    },
+    }
     password: FlowsCommon & {
-      type: "password"
+      type: 'password'
       tokenUrl: string
       clientSecret: string
       username: string
       password: string
       'x-scalar-credentials-location'?: CredentialsLocationExtension
-    },
+    }
     clientCredentials: FlowsCommon & {
-      type: "clientCredentials"
+      type: 'clientCredentials'
       tokenUrl: string
       clientSecret: string
       'x-scalar-credentials-location'?: CredentialsLocationExtension
-    },
+    }
     authorizationCode: FlowsCommon & {
-      type: "authorizationCode"
+      type: 'authorizationCode'
       authorizationUrl: string
       tokenUrl: string
       clientSecret: string
       'x-scalar-credentials-location'?: CredentialsLocationExtension
       'x-usePkce'?: PkceOptions
       'x-scalar-redirect-uri'?: string
-    },
+    }
   }
 }
 
 export type SecuritySchemeOauth2 = SecuirtySchemeCommon & ExtendedSecurityScheme & OasSecurityOauth2FlowImplicit
 
 // Union of all security schemes
-export type SecurityScheme = SecuritySchemeApiKey | SecuritySchemeHttp | SecuritySchemeOpenIdConnect | SecuritySchemeOauth2
+export type SecurityScheme =
+  | SecuritySchemeApiKey
+  | SecuritySchemeHttp
+  | SecuritySchemeOpenIdConnect
+  | SecuritySchemeOauth2
 
 /**
  * Authentication configuration for the API reference.
@@ -136,12 +137,12 @@ export type SecurityScheme = SecuritySchemeApiKey | SecuritySchemeHttp | Securit
  */
 export type AuthenticationConfiguration = {
   /**
- * Specifies the preferred security scheme(s) to use for authentication.
- * Can be one of:
- * - A single security scheme name (string)
- * - An array of security scheme names (OR relationship)
- * - An array containing strings or arrays of strings (AND/OR relationship)
- */
+   * Specifies the preferred security scheme(s) to use for authentication.
+   * Can be one of:
+   * - A single security scheme name (string)
+   * - An array of security scheme names (OR relationship)
+   * - An array containing strings or arrays of strings (AND/OR relationship)
+   */
   preferredSecurityScheme?: string | (string | string[])[] | null
 
   /**
@@ -188,210 +189,292 @@ export type AuthenticationConfiguration = {
   createAnySecurityScheme?: boolean
 }
 
-
-
 type ApiReferencePlugin = () => {
-  name: string;
+  name: string
   extensions: {
-    name: string;
-    component: unknown;
-    renderer?: unknown;
-  }[];
-  views: {
-    'content.end': {
-      component: unknown;
-      renderer?: unknown;
-      props?: Record<string, any>;
-    }[];
-  };
-};
+    name: string
+    component: unknown
+    renderer?: unknown
+  }[]
+  views?: {
+    'content.end'?: {
+      component: unknown
+      renderer?: unknown
+      props?: Record<string, any>
+    }[]
+  }
+}
+
+export type ExternalUrls = {
+  dashboardUrl: string
+  registryUrl: string
+  proxyUrl: string
+  apiBaseUrl: string
+}
 
 export type BaseConfiguration = {
   /** The title of the OpenAPI document. */
-  title?: string;
+  title?: string
   /** The slug of the OpenAPI document used in the URL. If none is passed, the title will be used. If no title is used, it will just use the index. */
-  slug?: string;
+  slug?: string
   /** Prefill authentication */
-  authentication?: any;
+  authentication?: any
   /** Base URL for the API server */
-  baseServerURL?: string;
+  baseServerURL?: string
   /** Whether to hide the client button */
-  hideClientButton: boolean;
+  hideClientButton: boolean
   /** URL to a request proxy for the API client */
-  proxyUrl?: string;
+  proxyUrl?: string
   /** Default OAuth 2.0 redirect URI used to prefill auth flows in the API client. */
-  oauth2RedirectUri?: string;
+  oauth2RedirectUri?: string
   /** Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
-  searchHotKey?: "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z";
+  searchHotKey?:
+    | 'a'
+    | 'b'
+    | 'c'
+    | 'd'
+    | 'e'
+    | 'f'
+    | 'g'
+    | 'h'
+    | 'i'
+    | 'j'
+    | 'k'
+    | 'l'
+    | 'm'
+    | 'n'
+    | 'o'
+    | 'p'
+    | 'q'
+    | 'r'
+    | 's'
+    | 't'
+    | 'u'
+    | 'v'
+    | 'w'
+    | 'x'
+    | 'y'
+    | 'z'
   /** List of OpenAPI server objects */
-  servers?: string[];
+  servers?: string[]
   /** Whether to show the sidebar */
-  showSidebar: boolean;
+  showSidebar: boolean
   /** Whether and when to show the developer tools. */
-  showDeveloperTools: "localhost" | "always" | "never";
+  showDeveloperTools: 'localhost' | 'always' | 'never'
   /** @deprecated Use showDeveloperTools instead */
-  showToolbar: "localhost" | "always" | "never";
+  showToolbar: 'localhost' | 'always' | 'never'
   /** Whether to use the operation summary or the operation path for the sidebar and search */
-  operationTitleSource: "summary" | "path";
+  operationTitleSource: 'summary' | 'path'
   /** A string to use one of the color presets */
-  theme: "default" | "alternate" | "moon" | "purple" | "solarized" | "bluePlanet" | "deepSpace" | "saturn" | "kepler" | "elysiajs" | "fastify" | "mars" | "laserwave" | "none";
+  theme:
+    | 'default'
+    | 'alternate'
+    | 'moon'
+    | 'purple'
+    | 'solarized'
+    | 'bluePlanet'
+    | 'deepSpace'
+    | 'saturn'
+    | 'kepler'
+    | 'elysiajs'
+    | 'fastify'
+    | 'mars'
+    | 'laserwave'
+    | 'none'
   /** Integration type identifier */
-  _integration?: "adonisjs" | "astro" | "docusaurus" | "dotnet" | "elysiajs" | "express" | "fastapi" | "fastify" | "go" | "hono" | "html" | "laravel" | "litestar" | "nestjs" | "nextjs" | "nitro" | "nuxt" | "platformatic" | "react" | "rust" | "svelte" | "vue";
+  _integration?:
+    | 'adonisjs'
+    | 'astro'
+    | 'docusaurus'
+    | 'dotnet'
+    | 'elysiajs'
+    | 'express'
+    | 'fastapi'
+    | 'fastify'
+    | 'go'
+    | 'hono'
+    | 'html'
+    | 'laravel'
+    | 'litestar'
+    | 'nestjs'
+    | 'nextjs'
+    | 'nitro'
+    | 'nuxt'
+    | 'platformatic'
+    | 'react'
+    | 'rust'
+    | 'svelte'
+    | 'vue'
   /** onRequestSent is fired when a request is sent */
-  onRequestSent?: (input: string) => void;
+  onRequestSent?: (input: string) => void
   /** Whether to persist auth to local storage */
-  persistAuth: boolean;
+  persistAuth: boolean
   /** Enables / disables telemetry */
-  telemetry: boolean;
+  telemetry: boolean
   /** External service URLs used by Scalar packages */
-  externalUrls: {
-    dashboardUrl: string;
-    registryUrl: string;
-    proxyUrl: string;
-    apiBaseUrl: string;
-  };
+  externalUrls: ExternalUrls
 }
 
 export type SourceConfiguration = {
-  default: boolean;
+  default: boolean
   /** URL to an OpenAPI/Swagger document */
-  url?: string;
+  url?: string
   /** Directly embed the OpenAPI document. Can be a string, object, function returning an object, or null. It is recommended to pass a URL instead of content. */
-  content?: string | null | (Record<string, any>) | (() => string | any);
+  content?: string | null | Record<string, any> | (() => string | any)
   /** The title of the OpenAPI document. @deprecated Please move `title` to the top level and remove the `spec` prefix. */
-  title?: string;
+  title?: string
   /** The slug of the OpenAPI document used in the URL. @deprecated Please move `slug` to the top level and remove the `spec` prefix. */
-  slug?: string;
+  slug?: string
   /** @deprecated Use `url` and `content` on the top level instead. */
   spec?: {
-    url?: string;
-    content?: string | null | (Record<string, any>) | (() => string | any);
-  };
+    url?: string
+    content?: string | null | Record<string, any> | (() => string | any)
+  }
   /** Agent Scalar configuration */
   agent?: {
-    key?: string;
-    disabled?: boolean;
+    key?: string
+    disabled?: boolean
     /** When true, hide the control to add more APIs in the agent chat. Only preloaded/registry documents are shown; the public API list is not offered. */
-    hideAddApi?: boolean;
-  };
+    hideAddApi?: boolean
+  }
 }
 
-export type ApiReferenceConfiguration = BaseConfiguration & SourceConfiguration & ({
-  /** The layout to use for the references */
-  layout: "modern" | "classic";
-  /** @deprecated Use proxyUrl instead */
-  proxy?: string;
-  /** Custom fetch function for custom logic. Can be used to add custom headers, handle auth, etc. */
-  fetch?: typeof fetch;
-  /** Plugins for the API reference */
-  plugins?: ApiReferencePlugin[];
-  /** Allows the user to inject an editor for the spec */
-  isEditable: boolean;
-  /** Controls whether the references show a loading state in the intro */
-  isLoading: boolean;
-  /** Whether to show models in the sidebar, search, and content. */
-  hideModels: boolean;
-  /** Sets the file type of the document to download, set to `none` to hide the download button */
-  documentDownloadType: "both" | "yaml" | "json" | "direct" | "none";
-  /** @deprecated Use `documentDownloadType: 'none'` instead */
-  hideDownloadButton?: boolean;
-  /** Whether to show the "Test Request" button */
-  hideTestRequestButton: boolean;
-  /** Whether to show the sidebar search bar */
-  hideSearch: boolean;
-  /** Whether to show the operationId */
-  showOperationId: boolean;
-  /** Whether dark mode is on or off initially (light mode) */
-  darkMode?: boolean;
-  /** forceDarkModeState makes it always this state no matter what */
-  forceDarkModeState?: "dark" | "light";
-  /** Whether to show the dark mode toggle */
-  hideDarkModeToggle: boolean;
-  /** If used, passed data will be added to the HTML header. @see https://unhead.unjs.io/usage/composables/use-seo-meta */
-  metaData?: any;
-  /** Path to a favicon image */
-  favicon?: string;
-  /** List of httpsnippet clients to hide from the clients menu. By default hides Unirest, pass `[]` to show all clients */
-  hiddenClients?: (Record<string, boolean | (string[])>) | (string[]) | true;
-  /** Determine the HTTP client that is selected by default */
-  defaultHttpClient?: {
-    targetKey: TargetId;
-    clientKey: string;
-  };
-  /** Custom CSS to be added to the page */
-  customCss?: string;
-  /** onSpecUpdate is fired on spec/swagger content change */
-  onSpecUpdate?: (input: string) => void;
-  /** onServerChange is fired on selected server change */
-  onServerChange?: (input: string) => void;
-  /** onDocumentSelect is fired when the config is selected */
-  onDocumentSelect: (() => void | Promise<void>) | undefined;
-  /** Callback fired when the reference is fully loaded */
-  onLoaded: ((slug: string) => void | Promise<void>) | undefined;
-  /** Fired before the outbound request is built; callback receives a mutable request builder. Experimental API. */
-  onBeforeRequest: ((input: { request: Request; requestBuilder: any; envVariables: Record<string, string> }) => void | Promise<void>) | undefined; 
-  /** onShowMore is fired when the user clicks the "Show more" button on the references */
-  onShowMore: ((tagId: string) => void | Promise<void>) | undefined;
-  /** onSidebarClick is fired when the user clicks on a sidebar item */
-  onSidebarClick: ((href: string) => void | Promise<void>) | undefined;
-  /** Route using paths instead of hashes, your server MUST support this. @experimental */
-  pathRouting?: {
-    basePath: string;
-  };
-  /** MCP (Model Context Protocol) configuration. When provided, enables MCP integration with the given name and url. */
-  mcp?: {
-    /** Display name for the MCP server */
-    name?: string;
-    /** URL of the MCP server */
-    url?: string;
-    /** When true, disables the MCP integration */
-    disabled?: boolean;
-  };
-  /** Customize the heading portion of the hash */
-  generateHeadingSlug?: (input: { slug?: string }) => string;
-  /** Customize the model portion of the hash */
-  generateModelSlug?: (input: { name?: string }) => string;
-  /** Customize the tag portion of the hash */
-  generateTagSlug?: (input: { name?: string }) => string;
-  /** Customize the operation portion of the hash */
-  generateOperationSlug?: (input: { path: string; operationId?: string; method: string; summary?: string }) => string;
-  /** Customize the webhook portion of the hash */
-  generateWebhookSlug?: (input: { name: string; method?: string }) => string;
-  /** To handle redirects, pass a function that receives the current path/hash and passes that to history.replaceState */
-  redirect?: (input: string) => string | null | undefined;
-  /** Whether to include default fonts */
-  withDefaultFonts: boolean;
-  /** Whether to expand the first tag in the sidebar when no specific URL target is present */
-  defaultOpenFirstTag: boolean;
-  /** Whether to expand all tags by default. Warning: this can cause performance issues on big documents */
-  defaultOpenAllTags: boolean;
-  /** Whether to expand all models by default. Warning: this can cause performance issues on big documents */
-  expandAllModelSections: boolean;
-  /** Whether to expand all responses by default. Warning: this can cause performance issues on big documents */
-  expandAllResponses: boolean;
-  /** Function to sort tags */
-  tagsSorter?: "alpha" | ((a: any, b: any) => number);
-  /** Function to sort operations */
-  operationsSorter?: "alpha" | "method" | ((a: any, b: any) => number);
-  /** Order the schema properties by */
-  orderSchemaPropertiesBy: "alpha" | "preserve";
-  /** Sort the schema properties by required ones first */
-  orderRequiredPropertiesFirst: boolean;
-})
+/**
+ * Configuration for the Scalar Api Reference integrations
+ *
+ * See the type `ApiReferenceConfigurationWithSource` or `AnyApiReferenceConfiguration`\
+ * for the configuration that includes the sources for you OpenAPI documents
+ */
+export type ApiReferenceConfigurationRaw = BaseConfiguration &
+  Omit<
+    {
+      /** The layout to use for the references */
+      layout: 'modern' | 'classic'
+      /** @deprecated Use proxyUrl instead */
+      proxy?: string
+      /** Custom fetch function for custom logic. Can be used to add custom headers, handle auth, etc. */
+      fetch?: typeof fetch
+      /** Plugins for the API reference */
+      plugins?: ApiReferencePlugin[]
+      /** Allows the user to inject an editor for the spec */
+      isEditable: boolean
+      /** Controls whether the references show a loading state in the intro */
+      isLoading: boolean
+      /** Whether to show models in the sidebar, search, and content. */
+      hideModels: boolean
+      /** Sets the file type of the document to download, set to `none` to hide the download button */
+      documentDownloadType: 'both' | 'yaml' | 'json' | 'direct' | 'none'
+      /** @deprecated Use `documentDownloadType: 'none'` instead */
+      hideDownloadButton?: boolean
+      /** Whether to show the "Test Request" button */
+      hideTestRequestButton: boolean
+      /** Whether to show the sidebar search bar */
+      hideSearch: boolean
+      /** Whether to show the operationId */
+      showOperationId: boolean
+      /** Whether dark mode is on or off initially (light mode) */
+      darkMode?: boolean
+      /** forceDarkModeState makes it always this state no matter what */
+      forceDarkModeState?: 'dark' | 'light'
+      /** Whether to show the dark mode toggle */
+      hideDarkModeToggle: boolean
+      /** If used, passed data will be added to the HTML header. @see https://unhead.unjs.io/usage/composables/use-seo-meta */
+      metaData?: any
+      /** Path to a favicon image */
+      favicon?: string
+      /** List of httpsnippet clients to hide from the clients menu. By default hides Unirest, pass `[]` to show all clients */
+      hiddenClients?: Record<string, boolean | string[]> | string[] | true
+      /** Determine the HTTP client that is selected by default */
+      defaultHttpClient?: {
+        targetKey: string
+        clientKey: string
+      }
+      /** Custom CSS to be added to the page */
+      customCss?: string
+      /** onSpecUpdate is fired on spec/swagger content change */
+      onSpecUpdate?: (input: string) => void
+      /** onServerChange is fired on selected server change */
+      onServerChange?: (input: string) => void
+      /** onDocumentSelect is fired when the config is selected */
+      onDocumentSelect?: () => void | Promise<void>
+      /** Callback fired when the reference is fully loaded */
+      onLoaded?: (slug: string) => void | Promise<void>
+      /** Fired before the outbound request is built; callback receives a mutable request builder. Experimental API. */
+      onBeforeRequest?:
+        | ((input: {
+            request: Request
+            requestBuilder: any
+            envVariables: Record<string, string>
+          }) => void | Promise<void>)
+        | undefined
+      /** onShowMore is fired when the user clicks the "Show more" button on the references */
+      onShowMore?: (tagId: string) => void | Promise<void>
+      /** onSidebarClick is fired when the user clicks on a sidebar item */
+      onSidebarClick?: (href: string) => void | Promise<void>
+      /** Route using paths instead of hashes, your server MUST support this. @experimental */
+      pathRouting?: {
+        basePath: string
+      }
+      /** MCP (Model Context Protocol) configuration. When provided, enables MCP integration with the given name and url. */
+      mcp?: {
+        /** Display name for the MCP server */
+        name?: string
+        /** URL of the MCP server */
+        url?: string
+        /** When true, disables the MCP integration */
+        disabled?: boolean
+      }
+      /** Customize the heading portion of the hash */
+      generateHeadingSlug?: (input: { slug?: string }) => string
+      /** Customize the model portion of the hash */
+      generateModelSlug?: (input: { name?: string }) => string
+      /** Customize the tag portion of the hash */
+      generateTagSlug?: (input: { name?: string }) => string
+      /** Customize the operation portion of the hash */
+      generateOperationSlug?: (input: {
+        path: string
+        operationId?: string
+        method: string
+        summary?: string
+      }) => string
+      /** Customize the webhook portion of the hash */
+      generateWebhookSlug?: (input: { name: string; method?: string }) => string
+      /** To handle redirects, pass a function that receives the current path/hash and passes that to history.replaceState */
+      redirect?: (input: string) => string | null | undefined
+      /** Whether to include default fonts */
+      withDefaultFonts: boolean
+      /** Whether to expand the first tag in the sidebar when no specific URL target is present */
+      defaultOpenFirstTag: boolean
+      /** Whether to expand all tags by default. Warning: this can cause performance issues on big documents */
+      defaultOpenAllTags: boolean
+      /** Whether to expand all models by default. Warning: this can cause performance issues on big documents */
+      expandAllModelSections: boolean
+      /** Whether to expand all responses by default. Warning: this can cause performance issues on big documents */
+      expandAllResponses: boolean
+      /** Function to sort tags */
+      tagsSorter?: 'alpha' | ((a: any, b: any) => number)
+      /** Function to sort operations */
+      operationsSorter?: 'alpha' | 'method' | ((a: any, b: any) => number)
+      /** Order the schema properties by */
+      orderSchemaPropertiesBy: 'alpha' | 'preserve'
+      /** Sort the schema properties by required ones first */
+      orderRequiredPropertiesFirst: boolean
+    },
+    'proxy' | 'spec' | 'authentication' | 'showToolbar'
+  > & {
+    authentication?: AuthenticationConfiguration
+  }
 
+export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & SourceConfiguration
 
-// Remove deprecated attributes
-export type ApiReferenceConfigurationWithSource = Omit<ApiReferenceConfiguration, 'proxy' | 'spec' | 'authentication' | 'showToolbar'> & {
-  // Add the correct type for authentication
-  authentication?: AuthenticationConfiguration;
-}
+export type ApiReferenceConfigurationWithSource = ApiReferenceConfiguration
 
 /**
  * Configuration for a single config with multiple sources
  * The configuration will be shared between the documents
  */
 export type ApiReferenceConfigurationWithMultipleSources = ApiReferenceConfigurationWithSource & {
-  sources: SourceConfiguration[];
+  sources: SourceConfiguration[]
 }
 
 /** Configuration for multiple Api References */
