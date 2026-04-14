@@ -1,6 +1,6 @@
 import { readonly, ref } from 'vue'
 
-export type UseFileDialogOptions = {
+type UseFileDialogOptions = {
   multiple?: boolean
   /** @default '*' */
   accept?: string
