@@ -142,7 +142,7 @@ export const coerce = <S extends Schema>(
     if (validate(schema, value)) {
       return value as Static<S>
     }
-    return 0 as Static<S>
+    return (schema.default ?? 0) as Static<S>
   }
   if (schema.type === 'string') {
     if (validate(schema, value)) {
@@ -154,7 +154,7 @@ export const coerce = <S extends Schema>(
     if (validate(schema, value)) {
       return value as unknown as Static<S>
     }
-    return false as unknown as Static<S>
+    return (schema.default ?? false) as unknown as Static<S>
   }
   if (schema.type === 'nullable') {
     return null as unknown as Static<S>

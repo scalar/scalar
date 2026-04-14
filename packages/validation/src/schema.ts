@@ -13,6 +13,7 @@ type Documentation = Partial<{
 /** Schema for finite numeric values. {@link Static} resolves to `number`. */
 export type NumberSchema = {
   type: 'number'
+  default?: number
 } & Documentation
 
 /** Schema for string values. {@link Static} resolves to `string`. */
@@ -24,6 +25,7 @@ export type StringSchema = {
 /** Schema for boolean values. {@link Static} resolves to `boolean`. */
 export type BooleanSchema = {
   type: 'boolean'
+  default?: boolean
 } & Documentation
 
 /** Schema for `null`. {@link Static} resolves to `null`. */
@@ -145,8 +147,9 @@ export type Schema =
   | LazySchema<any>
   | EvaluateSchema<any>
 
-const number = (options?: Documentation): NumberSchema => ({
+const number = (options?: Documentation & { default?: number }): NumberSchema => ({
   type: 'number',
+  default: options?.default,
   typeName: options?.typeName,
   typeComment: options?.typeComment,
 })
@@ -158,8 +161,9 @@ const string = (options?: Documentation & { default?: string }): StringSchema =>
   typeComment: options?.typeComment,
 })
 
-const boolean = (options?: Documentation): BooleanSchema => ({
+const boolean = (options?: Documentation & { default?: boolean }): BooleanSchema => ({
   type: 'boolean',
+  default: options?.default,
   typeName: options?.typeName,
   typeComment: options?.typeComment,
 })

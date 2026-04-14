@@ -224,6 +224,24 @@ describe('boolean', () => {
     const result = coerce(T, value)
     expect(result).toBe(true)
   })
+
+  it('uses schema default when value is not a boolean', () => {
+    const withDefault = boolean({ default: true })
+    expect(coerce(withDefault, 42)).toBe(true)
+    expect(coerce(withDefault, null)).toBe(true)
+    expect(coerce(withDefault, undefined)).toBe(true)
+    expect(coerce(withDefault, 'hello')).toBe(true)
+  })
+
+  it('ignores schema default when value is a valid boolean', () => {
+    const withDefault = boolean({ default: true })
+    expect(coerce(withDefault, false)).toBe(false)
+    expect(coerce(withDefault, true)).toBe(true)
+  })
+
+  it('falls back to false when no default is set', () => {
+    expect(coerce(boolean(), 123)).toBe(false)
+  })
 })
 
 describe('literal', () => {
@@ -368,6 +386,23 @@ describe('number', () => {
     const value = 123
     const result = coerce(T, value)
     expect(result).toBe(123)
+  })
+
+  it('uses schema default when value is not a number', () => {
+    const withDefault = number({ default: 42 })
+    expect(coerce(withDefault, 'hello')).toBe(42)
+    expect(coerce(withDefault, null)).toBe(42)
+    expect(coerce(withDefault, undefined)).toBe(42)
+  })
+
+  it('ignores schema default when value is a valid number', () => {
+    const withDefault = number({ default: 42 })
+    expect(coerce(withDefault, 7)).toBe(7)
+    expect(coerce(withDefault, 0)).toBe(0)
+  })
+
+  it('falls back to 0 when no default is set', () => {
+    expect(coerce(number(), 'nope')).toBe(0)
   })
 })
 
