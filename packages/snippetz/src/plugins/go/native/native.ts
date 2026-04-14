@@ -26,8 +26,8 @@ const normalizeUrl = (url: string): string => {
   try {
     const parsedUrl = new URL(url)
 
-    if (parsedUrl.pathname === '/' && !parsedUrl.search && !parsedUrl.hash) {
-      return parsedUrl.origin
+    if (parsedUrl.pathname === '/') {
+      return `${parsedUrl.origin}${parsedUrl.search}${parsedUrl.hash}`
     }
 
     return parsedUrl.toString()

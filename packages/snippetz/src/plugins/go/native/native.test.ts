@@ -459,4 +459,61 @@ describe('goNative', () => {
 
     expect(result).toContain(`payload := strings.NewReader("'hell'o'")`)
   })
+
+  it('appends query string to URLs that already include query parameters', () => {
+    const result = goNative.generate({
+      url: 'https://example.com/api?foo=bar',
+      queryString: [{ name: 'baz', value: 'qux' }],
+    })
+
+    expect(result).toContain(`url := "https://example.com/api?foo=bar&baz=qux"`)
+  })
+
+  it('keeps origin-only URLs with query parameters without adding slash', () => {
+    const result = goNative.generate({
+      url: 'https://example.com?existing=true',
+      queryString: [{ name: 'foo', value: 'bar' }],
+    })
+
+    expect(result).toContain(`url := "https://example.com?existing=true&foo=bar"`)
+  })
+
+  it('supports empty text fallback for unknown body types', () => {
+    const result = goNative.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'text/plain',
+        text: '',
+      },
+    })
+
+    expect(result).toContain(`payload := strings.NewReader("")`)
+  })
+
+  it('combines auth headers cookies and body', () => {
+    const result = goNative.generate(
+      {
+        url: 'https://example.com',
+        method: 'POST',
+        headers: [{ name: 'Content-Type', value: 'application/json' }],
+        cookies: [{ name: 'session', value: 'abc123' }],
+        postData: {
+          mimeType: 'application/json',
+          text: JSON.stringify({ hello: 'world' }),
+        },
+      },
+      {
+        auth: {
+          username: 'user',
+          password: 'pass',
+        },
+      },
+    )
+
+    expect(result).toContain(`req.SetBasicAuth("user", "pass")`)
+    expect(result).toContain(`req.Header.Add("Content-Type", "application/json")`)
+    expect(result).toContain(`req.Header.Add("Cookie", "session=abc123")`)
+    expect(result).toContain(`payload := strings.NewReader("{\\n  \\"hello\\": \\"world\\"\\n}")`)
+  })
 })
