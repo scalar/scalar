@@ -253,7 +253,7 @@ catalogs:
 overrides:
   '@types/node': ^24.1.0
   lodash: 4.18.1
-  undici: 7.24.4
+  undici: 8.0.2
 
 importers:
 
@@ -16719,9 +16719,9 @@ packages:
   undici-types@7.24.7:
     resolution: {integrity: sha512-XA+gOBkzYD3C74sZowtCLTpgtaCdqZhqCvR6y9LXvrKTt/IVU6bz49T4D+BPi475scshCCkb0IklJRw6T1ZlgQ==}
 
-  undici@7.24.4:
-    resolution: {integrity: sha512-BM/JzwwaRXxrLdElV2Uo6cTLEjhSb3WXboncJamZ15NgUURmvlXvxa6xkwIOILIjPNo9i8ku136ZvWV0Uly8+w==}
-    engines: {node: '>=20.18.1'}
+  undici@8.0.2:
+    resolution: {integrity: sha512-B9MeU5wuFhkFAuNeA19K2GDFcQXZxq33fL0nRy2Aq30wdufZbyyvxW3/ChaeipXVfy/wUweZyzovQGk39+9k2w==}
+    engines: {node: '>=22.19.0'}
 
   unenv@2.0.0-rc.24:
     resolution: {integrity: sha512-i7qRCmY42zmCwnYlh9H2SvLEypEFGye5iRmEMKjcGi7zk9UquigRjFtTLz0TYqr0ZGLZhaMHl/foy1bZR+Cwlw==}
@@ -21123,7 +21123,7 @@ snapshots:
       fast-querystring: 1.1.2
       fastify-plugin: 4.5.1
       toad-cache: 3.7.0
-      undici: 7.24.4
+      undici: 8.0.2
 
   '@fastify/swagger@8.14.0':
     dependencies:
@@ -26703,7 +26703,7 @@ snapshots:
       parse5: 7.3.0
       parse5-htmlparser2-tree-adapter: 7.1.0
       parse5-parser-stream: 7.1.2
-      undici: 7.24.4
+      undici: 8.0.2
       whatwg-mimetype: 4.0.0
 
   chokidar@3.6.0:
@@ -27379,7 +27379,7 @@ snapshots:
       hast-util-select: 6.0.4
       html-url-attributes: 3.0.1
       levenshtein-edit-distance: 3.0.1
-      undici: 7.24.4
+      undici: 8.0.2
       unist-util-visit: 5.1.0
       vfile-message: 4.0.2
 
@@ -30204,7 +30204,7 @@ snapshots:
       saxes: 6.0.0
       symbol-tree: 3.2.4
       tough-cookie: 6.0.0
-      undici: 7.24.4
+      undici: 8.0.2
       w3c-xmlserializer: 5.0.0
       webidl-conversions: 8.0.1
       whatwg-mimetype: 5.0.0
@@ -30231,7 +30231,7 @@ snapshots:
       saxes: 6.0.0
       symbol-tree: 3.2.4
       tough-cookie: 6.0.1
-      undici: 7.24.4
+      undici: 8.0.2
       w3c-xmlserializer: 5.0.0
       webidl-conversions: 8.0.1
       whatwg-mimetype: 5.0.0
@@ -35867,7 +35867,7 @@ snapshots:
 
   undici-types@7.24.7: {}
 
-  undici@7.24.4: {}
+  undici@8.0.2: {}
 
   unenv@2.0.0-rc.24:
     dependencies:
