@@ -916,13 +916,11 @@ Whether to persist authentication credentials in local storage. This allows the 
 
 **Type:** `boolean`
 
-Whether to enable telemetry.
+Whether to enable telemetry when an analytics plugin is loaded.
 
-Wait, did I say telemetry? We do track one thing, and only thing, and that’s *whether* a request was sent through the API client. This gives us a tiny, tiny insight into whether people use the API client and confirms whether we’re on the right track building a good experience for everyone. You can search the codebase for `analytics?.capture` to see what we capture, it’s all open-source. :)
+By default, the open-source version of Scalar does not track anything at all. There is an optional analytics plugin that we load on our own platform to get a tiny bit of insight into how people use Scalar. If you self-host Scalar or use it as a library, no tracking happens unless you explicitly load that plugin.
 
-To be clear: *We don’t track who sends a request, we don’t track what request was sent and we don't track where a request was sent to.*
-
-Anyway, totally makes sense to disable it in some environments, so feel free to add `telemetry: false`, we will still be thankful you are using Scalar.
+If the analytics plugin is loaded and you still want to disable tracking, set `telemetry: false`. This will opt out of all event capturing.
 
 **Default:** `true`
 
