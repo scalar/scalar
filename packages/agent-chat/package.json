@@ -15,7 +15,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && cp package.json dist",
+    "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && shx cp package.json dist",
     "build:watch": "vite build --watch",
     "playground": "cd playground && vite",
     "types:check": "vue-tsc --noEmit"
