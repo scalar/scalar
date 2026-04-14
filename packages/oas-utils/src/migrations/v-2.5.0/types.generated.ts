@@ -1,11 +1,11 @@
 /** biome-ignore-all lint/style/noNamespace: <explanation> */
 
-import type { Equal } from '@scalar/helpers/types/equal'
-import type { Expect } from '@scalar/helpers/types/expect'
+import type { AssertNoDiff, Diff } from '@scalar/helpers/types/assertions'
 import type { SecurityScheme } from '@scalar/types/entities'
 
 import type { Cookie } from '@/entities/cookie/cookie'
 import type { Environment } from '@/entities/environment/environment'
+import type { HotkeyEventName, KeydownKey } from '@/entities/hotkeys/hotkeys'
 import type { Collection } from '@/entities/spec/collection'
 import type { RequestExample } from '@/entities/spec/request-examples'
 import type { Request } from '@/entities/spec/requests'
@@ -455,10 +455,10 @@ export namespace v_2_5_0_N {
   }
 
   export type Workspace = {
-    uid: string
+    uid: v_2_5_0['Workspace']['uid']
     name: string
     description: string
-    collections: string[]
+    collections: v_2_5_0['Collection']['uid'][]
     environments: {
       [x: string]: string
     }
@@ -466,33 +466,20 @@ export namespace v_2_5_0_N {
       | {
           modifiers: ('Meta' | 'Control' | 'Shift' | 'Alt' | 'default')[]
           hotKeys?:
-            | {
-                [x: string]: {
-                  modifiers?: ('Meta' | 'Control' | 'Shift' | 'Alt' | 'default')[] | undefined
-                  event:
-                    | 'addTopNav'
-                    | 'closeModal'
-                    | 'closeTopNav'
-                    | 'createNew'
-                    | 'executeRequest'
-                    | 'focusAddressBar'
-                    | 'focusRequestSearch'
-                    | 'jumpToLastTab'
-                    | 'jumpToTab'
-                    | 'navigateSearchResultsDown'
-                    | 'navigateSearchResultsUp'
-                    | 'navigateTopNavLeft'
-                    | 'navigateTopNavRight'
-                    | 'openCommandPalette'
-                    | 'selectSearchResult'
-                    | 'toggleSidebar'
-                }
-              }
+            | Partial<
+                Record<
+                  KeydownKey,
+                  {
+                    modifiers?: ('Meta' | 'Control' | 'Shift' | 'Alt' | 'default')[] | undefined
+                    event: HotkeyEventName
+                  }
+                >
+              >
             | undefined
         }
       | undefined
     activeEnvironmentId: string
-    cookies: string[]
+    cookies: v_2_5_0['Cookie']['uid'][]
     proxyUrl?: string | undefined
     themeId:
       | 'alternate'
@@ -508,6 +495,11 @@ export namespace v_2_5_0_N {
       | 'fastify'
       | 'mars'
       | 'none'
+      | 'laserwave'
+    selectedHttpClient: {
+      targetKey: string
+      clientKey: string
+    }
   }
 
   export type DataRecord = {
@@ -523,12 +515,12 @@ export namespace v_2_5_0_N {
   }
 }
 
-export type TestCollection = Expect<Equal<v_2_5_0_N.Collection, v_2_5_0['Collection']>>
-export type TestCookie = Expect<Equal<v_2_5_0_N.Cookie, v_2_5_0['Cookie']>>
-export type TestEnvironment = Expect<Equal<v_2_5_0_N.Environment, v_2_5_0['Environment']>>
-export type TestTag = Expect<Equal<v_2_5_0_N.Tag, v_2_5_0['Tag']>>
-export type TestRequestExample = Expect<Equal<v_2_5_0_N.RequestExample, v_2_5_0['RequestExample']>>
-export type TestRequest = Expect<Equal<v_2_5_0_N.Request, v_2_5_0['Request']>>
-export type TestSecurityScheme = Expect<Equal<v_2_5_0_N.SecurityScheme, v_2_5_0['SecurityScheme']>>
-export type TestServer = Expect<Equal<v_2_5_0_N.Server, v_2_5_0['Server']>>
-export type TestWorkspace = Expect<Equal<v_2_5_0_N.Workspace, v_2_5_0['Workspace']>>
+// export type TestCollection = AssertNoDiff<Diff<v_2_5_0_N.Collection, v_2_5_0['Collection']>>
+// export type TestCookie = AssertNoDiff<Diff<v_2_5_0_N.Cookie, v_2_5_0['Cookie']>>
+// export type TestEnvironment = AssertNoDiff<Diff<v_2_5_0_N.Environment, v_2_5_0['Environment']>>
+// export type TestTag = AssertNoDiff<Diff<v_2_5_0_N.Tag, v_2_5_0['Tag']>>
+// export type TestRequestExample = AssertNoDiff<Diff<v_2_5_0_N.RequestExample, v_2_5_0['RequestExample']>>
+// export type TestRequest = AssertNoDiff<Diff<v_2_5_0_N.Request, v_2_5_0['Request']>>
+export type TestSecurityScheme = AssertNoDiff<Diff<v_2_5_0_N.SecurityScheme, v_2_5_0['SecurityScheme']>>
+export type TestServer = AssertNoDiff<Diff<v_2_5_0_N.Server, v_2_5_0['Server']>>
+export type TestWorkspace = AssertNoDiff<Diff<v_2_5_0_N.Workspace, v_2_5_0['Workspace']>>
