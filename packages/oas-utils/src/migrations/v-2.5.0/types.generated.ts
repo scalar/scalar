@@ -2,6 +2,7 @@
 
 import type { AssertNoDiff, MismatchPathDiff } from '@scalar/helpers/types/assertions'
 import type { SecurityScheme } from '@scalar/types/entities'
+import type { XScalarStability } from '@scalar/types/legacy'
 
 import type { Cookie } from '@/entities/cookie/cookie'
 import type { Environment } from '@/entities/environment/environment'
@@ -305,14 +306,17 @@ export namespace v_2_5_0_N {
           style?:
             | ('matrix' | 'simple' | 'form' | 'label' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject')
             | undefined
+          explode?: boolean | undefined
           example?: unknown | undefined
           examples?:
             | {
                 [x: string]: {
                   value?: unknown
                   summary?: string | undefined
+                  externalValue?: string | undefined
                 }
               }
+            | unknown[]
             | undefined
         }[]
       | undefined
@@ -328,16 +332,48 @@ export namespace v_2_5_0_N {
           [x: string]: any
         }
       | undefined
+    'callbacks'?:
+      | {
+          [x: string]: {
+            [x: string]: {
+              [x: string]: any
+            }
+          }
+        }
+      | undefined
+    'x-codeSamples'?:
+      | {
+          lang?: string | undefined
+          label?: string | undefined
+          source: string
+        }[]
+      | undefined
+    'x-code-samples'?:
+      | {
+          lang?: string | undefined
+          label?: string | undefined
+          source: string
+        }[]
+      | undefined
+    'x-custom-examples'?:
+      | {
+          lang?: string | undefined
+          label?: string | undefined
+          source: string
+        }[]
+      | undefined
     'x-internal'?: boolean | undefined
     'x-scalar-ignore'?: boolean | undefined
+    'x-scalar-stability'?: XScalarStability | undefined
     'type': 'request'
     'uid': v_2_5_0['Request']['uid']
     'path': string
-    'method': 'connect' | 'delete' | 'get' | 'head' | 'options' | 'patch' | 'post' | 'put' | 'trace'
+    'method': 'delete' | 'get' | 'head' | 'options' | 'patch' | 'post' | 'put' | 'trace'
     'servers': v_2_5_0['Server']['uid'][]
-    'selectedServerUid': v_2_5_0['Server']['uid'][]
+    'selectedServerUid': v_2_5_0['Server']['uid'] | null
     'examples': v_2_5_0['RequestExample']['uid'][]
-    'selectedSecuritySchemeUids': v_2_5_0['SecurityScheme']['uid'][]
+    'selectedSecuritySchemeUids': (v_2_5_0['SecurityScheme']['uid'] | v_2_5_0['SecurityScheme']['uid'][])[]
+    'x-post-response'?: string | undefined
   }
 
   export type SecurityScheme =
