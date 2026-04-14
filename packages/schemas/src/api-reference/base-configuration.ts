@@ -22,7 +22,8 @@ export const baseConfigurationSchema = object({
   baseServerURL: optional(string(), {
     typeComment: 'Base URL for the API server',
   }),
-  hideClientButton: optional(boolean(), {
+  hideClientButton: boolean({
+    default: false,
     typeComment: 'Whether to hide the client button',
   }),
   proxyUrl: optional(string(), {
@@ -64,30 +65,31 @@ export const baseConfigurationSchema = object({
   servers: optional(array(string()), {
     typeComment: 'List of OpenAPI server objects',
   }),
-  showSidebar: optional(boolean(), {
+  showSidebar: boolean({
+    default: true,
     typeComment: 'Whether to show the sidebar',
   }),
-  showDeveloperTools: optional(union([
+  showDeveloperTools: union([
     literal('localhost'),
     literal('always'),
     literal('never'),
-  ]), {
+  ], {
     typeComment: 'Whether and when to show the developer tools.',
   }),
-  showToolbar: optional(union([
+  showToolbar: union([
     literal('localhost'),
     literal('always'),
     literal('never'),
-  ]), {
+  ], {
     typeComment: '@deprecated Use showDeveloperTools instead',
   }),
-  operationTitleSource: optional(union([
+  operationTitleSource: union([
     literal('summary'),
     literal('path'),
-  ]), {
+  ], {
     typeComment: 'Whether to use the operation summary or the operation path for the sidebar and search',
   }),
-  theme: optional(union([
+  theme: union([
     literal('default'),
     literal('alternate'),
     literal('moon'),
@@ -102,7 +104,7 @@ export const baseConfigurationSchema = object({
     literal('mars'),
     literal('laserwave'),
     literal('none'),
-  ]), {
+  ], {
     typeComment: 'A string to use one of the color presets',
   }),
   _integration: optional(union([
@@ -134,10 +136,12 @@ export const baseConfigurationSchema = object({
   onRequestSent: optional(fn<(input: string) => void>(), {
     typeComment: 'onRequestSent is fired when a request is sent',
   }),
-  persistAuth: optional(boolean(), {
+  persistAuth: boolean({
+    default: false,
     typeComment: 'Whether to persist auth to local storage',
   }),
-  telemetry: optional(boolean(), {
+  telemetry: boolean({
+    default: true,
     typeComment: 'Enables / disables telemetry',
   }),
   externalUrls: externalUrlsSchema,

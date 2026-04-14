@@ -7,10 +7,10 @@ export const apiReferenceConfigurationSchema = intersection([
   baseConfigurationSchema,
   sourceConfigurationSchema,
   object({
-    layout: optional(union([
+    layout: union([
       literal('modern'),
       literal('classic'),
-    ]), {
+    ], {
       typeComment: 'The layout to use for the references',
     }),
     proxy: optional(string(), {
@@ -22,34 +22,40 @@ export const apiReferenceConfigurationSchema = intersection([
     plugins: optional(array(apiReferencePluginSchema), {
       typeComment: 'Plugins for the API reference',
     }),
-    isEditable: optional(boolean(), {
+    isEditable: boolean({
+      default: false,
       typeComment: 'Allows the user to inject an editor for the spec',
     }),
-    isLoading: optional(boolean(), {
+    isLoading: boolean({
+      default: false,
       typeComment: 'Controls whether the references show a loading state in the intro',
     }),
-    hideModels: optional(boolean(), {
+    hideModels: boolean({
+      default: false,
       typeComment: 'Whether to show models in the sidebar, search, and content.',
     }),
-    documentDownloadType: optional(union([
+    documentDownloadType: union([
       literal('both'),
-      literal('json'),
       literal('yaml'),
+      literal('json'),
       literal('direct'),
       literal('none'),
-    ]), {
+    ], {
       typeComment: 'Sets the file type of the document to download, set to `none` to hide the download button',
     }),
     hideDownloadButton: optional(boolean(), {
       typeComment: '@deprecated Use `documentDownloadType: \'none\'` instead',
     }),
-    hideTestRequestButton: optional(boolean(), {
+    hideTestRequestButton: boolean({
+      default: false,
       typeComment: 'Whether to show the "Test Request" button',
     }),
-    hideSearch: optional(boolean(), {
+    hideSearch: boolean({
+      default: false,
       typeComment: 'Whether to show the sidebar search bar',
     }),
-    showOperationId: optional(boolean(), {
+    showOperationId: boolean({
+      default: false,
       typeComment: 'Whether to show the operationId',
     }),
     darkMode: optional(boolean(), {
@@ -61,7 +67,8 @@ export const apiReferenceConfigurationSchema = intersection([
     ]), {
       typeComment: 'forceDarkModeState makes it always this state no matter what',
     }),
-    hideDarkModeToggle: optional(boolean(), {
+    hideDarkModeToggle: boolean({
+      default: false,
       typeComment: 'Whether to show the dark mode toggle',
     }),
     metaData: optional(any(), {
@@ -143,19 +150,24 @@ export const apiReferenceConfigurationSchema = intersection([
     redirect: optional(fn<(input: string) => string | null | undefined>(), {
       typeComment: 'To handle redirects, pass a function that receives the current path/hash and passes that to history.replaceState',
     }),
-    withDefaultFonts: optional(boolean(), {
+    withDefaultFonts: boolean({
+      default: true,
       typeComment: 'Whether to include default fonts',
     }),
-    defaultOpenFirstTag: optional(boolean(), {
+    defaultOpenFirstTag: boolean({
+      default: true,
       typeComment: 'Whether to expand the first tag in the sidebar when no specific URL target is present',
     }),
-    defaultOpenAllTags: optional(boolean(), {
+    defaultOpenAllTags: boolean({
+      default: false,
       typeComment: 'Whether to expand all tags by default. Warning: this can cause performance issues on big documents',
     }),
-    expandAllModelSections: optional(boolean(), {
+    expandAllModelSections: boolean({
+      default: false,
       typeComment: 'Whether to expand all models by default. Warning: this can cause performance issues on big documents',
     }),
-    expandAllResponses: optional(boolean(), {
+    expandAllResponses: boolean({
+      default: false,
       typeComment: 'Whether to expand all responses by default. Warning: this can cause performance issues on big documents',
     }),
     tagsSorter: optional(union([
@@ -171,13 +183,14 @@ export const apiReferenceConfigurationSchema = intersection([
     ]), {
       typeComment: 'Function to sort operations',
     }),
-    orderSchemaPropertiesBy: optional(union([
+    orderSchemaPropertiesBy: union([
       literal('alpha'),
       literal('preserve'),
-    ]), {
+    ], {
       typeComment: 'Order the schema properties by',
     }),
-    orderRequiredPropertiesFirst: optional(boolean(), {
+    orderRequiredPropertiesFirst: boolean({
+      default: true,
       typeComment: 'Sort the schema properties by required ones first',
     }),
   }),
@@ -239,6 +252,7 @@ export const apiReferenceConfigurationWithSourceSchema = (rawInput: unknown) => 
 
     input.showDeveloperTools = input.showToolbar
 
+    // @ts-expect-error - We're deleting the deprecated attribute
     delete input.showToolbar
   }
 
