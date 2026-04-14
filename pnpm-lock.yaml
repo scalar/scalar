@@ -9,6 +9,9 @@ catalogs:
     '@ai-sdk/vue':
       specifier: 3.0.33
       version: 3.0.33
+    '@faker-js/faker':
+      specifier: 10.4.0
+      version: 10.4.0
     '@fastify/basic-auth':
       specifier: ^5.1.1
       version: 5.1.1
@@ -1819,7 +1822,7 @@ importers:
   packages/mock-server:
     dependencies:
       '@faker-js/faker':
-        specifier: ^10.4.0
+        specifier: catalog:*
         version: 10.4.0
       '@scalar/helpers':
         specifier: workspace:*
