@@ -148,7 +148,7 @@ export const coerce = <S extends Schema>(
     if (validate(schema, value)) {
       return value as unknown as Static<S>
     }
-    return '' as unknown as Static<S>
+    return (schema.default ?? '') as unknown as Static<S>
   }
   if (schema.type === 'boolean') {
     if (validate(schema, value)) {

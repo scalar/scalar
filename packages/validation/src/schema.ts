@@ -18,6 +18,7 @@ export type NumberSchema = {
 /** Schema for string values. {@link Static} resolves to `string`. */
 export type StringSchema = {
   type: 'string'
+  default?: string
 } & Documentation
 
 /** Schema for boolean values. {@link Static} resolves to `boolean`. */
@@ -150,8 +151,9 @@ const number = (options?: Documentation): NumberSchema => ({
   typeComment: options?.typeComment,
 })
 
-const string = (options?: Documentation): StringSchema => ({
+const string = (options?: Documentation & { default?: string }): StringSchema => ({
   type: 'string',
+  default: options?.default,
   typeName: options?.typeName,
   typeComment: options?.typeComment,
 })

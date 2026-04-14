@@ -607,6 +607,22 @@ describe('string', () => {
     const result = coerce(T, value)
     expect(result).toBe(value)
   })
+
+  it('uses schema default when value is not a string', () => {
+    const withDefault = string({ default: 'fallback' })
+    expect(coerce(withDefault, 42)).toBe('fallback')
+    expect(coerce(withDefault, null)).toBe('fallback')
+    expect(coerce(withDefault, undefined)).toBe('fallback')
+  })
+
+  it('ignores schema default when value is a valid string', () => {
+    const withDefault = string({ default: 'fallback' })
+    expect(coerce(withDefault, 'actual')).toBe('actual')
+  })
+
+  it('falls back to empty string when no default is set', () => {
+    expect(coerce(string(), 123)).toBe('')
+  })
 })
 
 describe('union', () => {
