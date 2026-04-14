@@ -92,7 +92,7 @@ export const useApiClient = ({
       return
     }
 
-    const { ...modalOptions } = configuration ?? {}
+    const { url: _, content: __, ...modalOptions } = configuration ?? {}
     client.updateOptions(modalOptions)
 
     if (!configuration) {
