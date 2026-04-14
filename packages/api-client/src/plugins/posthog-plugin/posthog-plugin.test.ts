@@ -4,6 +4,7 @@ vi.mock('posthog-js', () => {
   const instance = {
     register: vi.fn(),
     opt_in_capturing: vi.fn(),
+    opt_out_capturing: vi.fn(),
     reset: vi.fn(),
   }
 
@@ -28,6 +29,7 @@ describe('posthog-plugin', () => {
   it('returns a plugin with lifecycle hooks', () => {
     const plugin = PostHogClientPlugin(TEST_CONFIG)
     expect(plugin.lifecycle?.onInit).toBeDefined()
+    expect(plugin.lifecycle?.onConfigChange).toBeDefined()
     expect(plugin.lifecycle?.onDestroy).toBeDefined()
   })
 
@@ -36,6 +38,30 @@ describe('posthog-plugin', () => {
     plugin.lifecycle?.onInit?.()
 
     expect(mockPostHogInstance.register).toHaveBeenCalledWith({ product: 'api-client' })
+    expect(mockPostHogInstance.opt_in_capturing).toHaveBeenCalled()
+  })
+
+  it('does not opt in when telemetry is disabled', () => {
+    const plugin = PostHogClientPlugin(TEST_CONFIG)
+
+    mockPostHogInstance.opt_in_capturing.mockClear()
+    plugin.lifecycle?.onInit?.({ config: { telemetry: false } })
+
+    expect(mockPostHogInstance.register).toHaveBeenCalledWith({ product: 'api-client' })
+    expect(mockPostHogInstance.opt_in_capturing).not.toHaveBeenCalled()
+  })
+
+  it('reacts to telemetry config changes', () => {
+    const plugin = PostHogClientPlugin(TEST_CONFIG)
+    plugin.lifecycle?.onInit?.({ config: { telemetry: true } })
+
+    mockPostHogInstance.opt_in_capturing.mockClear()
+    mockPostHogInstance.opt_out_capturing.mockClear()
+
+    plugin.lifecycle?.onConfigChange?.({ config: { telemetry: false } })
+    expect(mockPostHogInstance.opt_out_capturing).toHaveBeenCalled()
+
+    plugin.lifecycle?.onConfigChange?.({ config: { telemetry: true } })
     expect(mockPostHogInstance.opt_in_capturing).toHaveBeenCalled()
   })
 

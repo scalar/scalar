@@ -18,13 +18,16 @@ export type PostHogConfig = {
  *
  * Loading this plugin opts in to analytics. If the plugin is not loaded,
  * no tracking occurs.
+ *
+ * Respects the `telemetry` configuration option — when set to `false`,
+ * capturing is disabled. Reacts dynamically to config changes at runtime.
  */
 export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
   let posthog: PostHog | null = null
 
   return {
     lifecycle: {
-      onInit() {
+      onInit(context) {
         if (typeof window === 'undefined') {
           return
         }
@@ -43,6 +46,20 @@ export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
         if (instance) {
           posthog = instance
           posthog.register({ product: 'api-client' })
+
+          if (context?.config.telemetry !== false) {
+            posthog.opt_in_capturing()
+          }
+        }
+      },
+      onConfigChange(context) {
+        if (!posthog) {
+          return
+        }
+
+        if (context.config.telemetry === false) {
+          posthog.opt_out_capturing()
+        } else {
           posthog.opt_in_capturing()
         }
       },

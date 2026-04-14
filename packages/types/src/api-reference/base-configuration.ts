@@ -166,6 +166,11 @@ export const baseConfigurationSchema = z.object({
   persistAuth: z.boolean().optional().default(false).catch(false),
   /** Plugins for the API client */
   plugins: z.array(apiClientPluginSchema).optional(),
+  /** Enables / disables telemetry */
+  telemetry: z.boolean().optional().default(true),
   /** A bunch of external URLs to Scalar's services. */
   externalUrls: externalUrlsSchema.prefault({}),
 })
+
+/** Shared configuration for the Api Reference and Api Client */
+export type BaseConfiguration = z.infer<typeof baseConfigurationSchema>

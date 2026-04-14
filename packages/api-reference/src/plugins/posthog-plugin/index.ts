@@ -18,8 +18,11 @@ export type PostHogConfig = {
 /**
  * Creates a PostHog client plugin for the embedded API client.
  * Tracks as a separate product ('api-client').
+ *
+ * Telemetry state is controlled by the parent API Reference plugin
+ * via the shared `isTelemetryEnabled` callback.
  */
-const createPostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
+const createPostHogClientPlugin = (config: PostHogConfig, isTelemetryEnabled: () => boolean): ClientPlugin => {
   let posthog: PostHog | null = null
 
   return {
@@ -43,6 +46,20 @@ const createPostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
         if (instance) {
           posthog = instance
           posthog.register({ product: 'api-client' })
+
+          if (isTelemetryEnabled()) {
+            posthog.opt_in_capturing()
+          }
+        }
+      },
+      onConfigChange(context) {
+        if (!posthog) {
+          return
+        }
+
+        if (context?.config.telemetry === false) {
+          posthog.opt_out_capturing()
+        } else {
           posthog.opt_in_capturing()
         }
       },
@@ -60,17 +77,23 @@ const createPostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
  * Loading this plugin opts in to analytics for both the API Reference
  * and the embedded API Client (tracked as separate products).
  *
+ * Respects the `telemetry` configuration option — when set to `false`,
+ * capturing is disabled. Reacts dynamically to config changes at runtime.
+ *
  * If the plugin is not loaded, no tracking occurs.
  */
 export const PostHogPlugin = (config: PostHogConfig): ApiReferencePlugin => {
   let posthog: PostHog | null = null
+  let telemetryEnabled = true
 
   return () => ({
     name: 'posthog',
     extensions: [],
-    apiClientPlugins: [createPostHogClientPlugin(config)],
+    apiClientPlugins: [createPostHogClientPlugin(config, () => telemetryEnabled)],
     hooks: {
-      onInit() {
+      onInit({ config: referenceConfig }) {
+        telemetryEnabled = referenceConfig.telemetry !== false
+
         if (typeof window === 'undefined') {
           return
         }
@@ -89,7 +112,23 @@ export const PostHogPlugin = (config: PostHogConfig): ApiReferencePlugin => {
         if (instance) {
           posthog = instance
           posthog.register({ product: 'api-reference' })
+
+          if (telemetryEnabled) {
+            posthog.opt_in_capturing()
+          }
+        }
+      },
+      onConfigChange({ config: referenceConfig }) {
+        telemetryEnabled = referenceConfig.telemetry !== false
+
+        if (!posthog) {
+          return
+        }
+
+        if (telemetryEnabled) {
           posthog.opt_in_capturing()
+        } else {
+          posthog.opt_out_capturing()
         }
       },
       onDestroy() {

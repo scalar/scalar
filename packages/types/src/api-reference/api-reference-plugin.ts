@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { baseConfigurationSchema } from './base-configuration'
+
 const openApiExtensionSchema = z.object({
   /**
    * Name of specification extension property. Has to start with `x-`.
@@ -46,13 +48,13 @@ const lifecycleHooksSchema = z.object({
   /** Called when the API Reference is initialized */
   onInit: z
     .function({
-      input: [z.object({ config: z.record(z.string(), z.any()) })],
+      input: [z.object({ config: baseConfigurationSchema.partial() })],
     })
     .optional(),
   /** Called when the API Reference configuration changes */
   onConfigChange: z
     .function({
-      input: [z.object({ config: z.record(z.string(), z.any()) })],
+      input: [z.object({ config: baseConfigurationSchema.partial() })],
     })
     .optional(),
   /** Called when the API Reference is destroyed */

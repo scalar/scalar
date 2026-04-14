@@ -1,3 +1,4 @@
+import type { BaseConfiguration } from '@scalar/types/api-reference'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -78,7 +79,9 @@ type ClientPluginComponents = {
 /** Lifecycle hooks for app-level plugin concerns (analytics, logging, etc.) */
 type ClientPluginLifecycle = {
   /** Called when the API client is initialized */
-  onInit?: () => void
+  onInit?: (context?: { config: Partial<BaseConfiguration> }) => void
+  /** Called when the API client configuration changes */
+  onConfigChange?: (context: { config: Partial<BaseConfiguration> }) => void
   /** Called when the API client is destroyed */
   onDestroy?: () => void
 }

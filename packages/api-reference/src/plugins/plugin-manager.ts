@@ -1,11 +1,10 @@
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type {
+  BaseConfiguration,
   ApiReferencePlugin as OriginalApiReferencePlugin,
   SpecificationExtension,
   ViewComponent,
 } from '@scalar/types/api-reference'
-
-type PluginConfig = Record<string, any>
 
 export type ApiReferencePlugin = OriginalApiReferencePlugin
 
@@ -64,7 +63,7 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
     /**
      * Notify all plugins that the API Reference has been initialized
      */
-    notifyInit: (config: PluginConfig): void => {
+    notifyInit: (config: BaseConfiguration): void => {
       for (const plugin of registeredPlugins.values()) {
         plugin.hooks?.onInit?.({ config })
       }
@@ -73,7 +72,7 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
     /**
      * Notify all plugins that the configuration has changed
      */
-    notifyConfigChange: (config: PluginConfig): void => {
+    notifyConfigChange: (config: BaseConfiguration): void => {
       for (const plugin of registeredPlugins.values()) {
         plugin.hooks?.onConfigChange?.({ config })
       }

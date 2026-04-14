@@ -4,6 +4,7 @@ vi.mock('posthog-js', () => {
   const instance = {
     register: vi.fn(),
     opt_in_capturing: vi.fn(),
+    opt_out_capturing: vi.fn(),
     reset: vi.fn(),
   }
 
@@ -41,6 +42,7 @@ describe('posthog-plugin', () => {
     const plugin = PostHogPlugin(TEST_CONFIG)
     const instance = plugin()
     expect(instance.hooks?.onInit).toBeDefined()
+    expect(instance.hooks?.onConfigChange).toBeDefined()
     expect(instance.hooks?.onDestroy).toBeDefined()
   })
 
@@ -50,6 +52,32 @@ describe('posthog-plugin', () => {
     instance.hooks?.onInit?.({ config: {} })
 
     expect(mockPostHogInstance.register).toHaveBeenCalledWith({ product: 'api-reference' })
+    expect(mockPostHogInstance.opt_in_capturing).toHaveBeenCalled()
+  })
+
+  it('does not opt in when telemetry is disabled', () => {
+    const plugin = PostHogPlugin(TEST_CONFIG)
+    const instance = plugin()
+
+    mockPostHogInstance.opt_in_capturing.mockClear()
+    instance.hooks?.onInit?.({ config: { telemetry: false } })
+
+    expect(mockPostHogInstance.register).toHaveBeenCalledWith({ product: 'api-reference' })
+    expect(mockPostHogInstance.opt_in_capturing).not.toHaveBeenCalled()
+  })
+
+  it('reacts to telemetry config changes', () => {
+    const plugin = PostHogPlugin(TEST_CONFIG)
+    const instance = plugin()
+    instance.hooks?.onInit?.({ config: { telemetry: true } })
+
+    mockPostHogInstance.opt_in_capturing.mockClear()
+    mockPostHogInstance.opt_out_capturing.mockClear()
+
+    instance.hooks?.onConfigChange?.({ config: { telemetry: false } })
+    expect(mockPostHogInstance.opt_out_capturing).toHaveBeenCalled()
+
+    instance.hooks?.onConfigChange?.({ config: { telemetry: true } })
     expect(mockPostHogInstance.opt_in_capturing).toHaveBeenCalled()
   })
 

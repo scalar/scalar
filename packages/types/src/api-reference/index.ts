@@ -20,7 +20,7 @@ export type {
   ViewComponent,
 } from './api-reference-plugin'
 export type { AuthenticationConfiguration } from './authentication-configuration'
-export type { ExternalUrls } from './base-configuration'
+export type { BaseConfiguration, ExternalUrls } from './base-configuration'
 export type { ApiReferenceInstance, CreateApiReference } from './html-api'
 export {
   type HtmlRenderingConfiguration,
