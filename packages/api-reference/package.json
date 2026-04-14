@@ -27,7 +27,7 @@
   "scripts": {
     "build": "pnpm build:default && pnpm build:standalone && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "build:default": "vite build",
-    "build:standalone": "vite build -c vite.standalone.config.ts",
+    "build:standalone": "vite build -c vite.standalone.config.ts && SCALAR_STANDALONE_FORMAT=es vite build -c vite.standalone.config.ts",
     "dev": "vite",
     "dev:standalone": "vite -c vite.standalone.config.ts",
     "playground:esm": "vite ./playground/esm -c ./playground/esm/vite.config.ts",
@@ -84,7 +84,8 @@
       "default": "./dist/helpers/index.js"
     },
     "./style.css": "./dist/style.css",
-    "./browser/standalone.js": "./dist/browser/standalone.js"
+    "./browser/standalone.js": "./dist/browser/standalone.js",
+    "./browser/standalone.mjs": "./dist/browser/standalone.mjs"
   },
   "files": [
     "dist",

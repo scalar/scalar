@@ -30,6 +30,9 @@ const replaceVariables = (template: string, variables: Record<string, string>) =
     template,
   )
 
+const standaloneFormat = process.env.SCALAR_STANDALONE_FORMAT === 'es' ? 'es' : 'umd'
+const isEsmStandalone = standaloneFormat === 'es'
+
 export default defineConfig({
   define: {
     'process.env.NODE_ENV': '"production"',
@@ -62,20 +65,26 @@ export default defineConfig({
     lib: {
       entry: ['src/standalone.ts'],
       name: '@scalar/api-reference',
-      formats: ['umd'],
+      formats: [standaloneFormat],
     },
     rolldownOptions: {
       // Externalize radix-vue — no radix-vue component (ScalarMenu)
       // is ever rendered in the standalone API reference. They leak in through the
       // @scalar/components barrel via @scalar/api-client but are never mounted.
       external: [/^radix-vue/, /^@scalar\/openapi-parser/],
-      output: {
-        entryFileNames: '[name].js',
-        globals: {
-          'radix-vue': '{}',
-          'radix-vue/namespaced': '{}',
-        },
-      },
+      output: isEsmStandalone
+        ? {
+            entryFileNames: '[name].mjs',
+            chunkFileNames: 'chunks/[name]-[hash].mjs',
+            assetFileNames: 'assets/[name]-[hash][extname]',
+          }
+        : {
+            entryFileNames: '[name].js',
+            globals: {
+              'radix-vue': '{}',
+              'radix-vue/namespaced': '{}',
+            },
+          },
     },
   },
 })
