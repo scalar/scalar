@@ -57,9 +57,9 @@
   "workspaces": {
     "packages/api-client": {
       "entry": [
+        "src/index.ts",
         "src/components/HttpMethod/index.ts",
         "src/components/Server/index.ts",
-        "src/components/ViewLayout/index.ts",
         "src/v2/blocks/operation-block/index.ts",
         "src/v2/blocks/operation-code-sample/index.ts",
         "src/v2/blocks/request-block/index.ts",
