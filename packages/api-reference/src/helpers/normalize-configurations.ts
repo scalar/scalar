@@ -3,9 +3,9 @@ import {
   type AnyApiReferenceConfiguration,
   type ApiReferenceConfigurationRaw,
   type ApiReferenceConfigurationWithSource,
-  apiReferenceConfigurationWithSourceSchema,
   isConfigurationWithSources,
 } from '@scalar/types/api-reference'
+import { apiReferenceConfigurationWithSourceSchema } from '@scalar/schemas/api-reference'
 import GithubSlugger from 'github-slugger'
 
 /** Processed API Reference Configuration
@@ -27,6 +27,11 @@ type NormalizedConfigurations = Record<string, NormalizedConfiguration>
 
 type ConfigWithRequiredSource = Omit<ApiReferenceConfigurationWithSource, 'url' | 'content'> &
   ({ url: string; content?: never } | { content: Record<string, unknown>; url?: never })
+
+
+const isConfigWithRequiredSource = (input: ApiReferenceConfigurationWithSource): input is ConfigWithRequiredSource => {
+  return (input.url ?? '')?.trim() !== '' || (input.content ?? null) !== null
+}
 
 /**
  * Take any configuration and return a flat array of configurations.
@@ -61,13 +66,9 @@ export const normalizeConfigurations = (
       // If config doesn't have sources array, treat the config itself as a source
       return [c]
     })
-    .map((source) => {
-      /** Validation with migrate deprecated attributes to their new format */
-      const validated = apiReferenceConfigurationWithSourceSchema.safeParse(source)
-      return validated.success ? validated.data : null
-    })
+    .map((source) => apiReferenceConfigurationWithSourceSchema(source) as ApiReferenceConfigurationWithSource)
     /** Filter out configurations that failed validation or don't have a url or content */
-    .filter((c): c is ConfigWithRequiredSource => !!c && (!!c.url || !!c.content))
+    .filter(isConfigWithRequiredSource)
     /** Add required attributes to the source */
     .map((source, index) => addSlugAndTitle(source, index, slugger))
     /** Separate the configuration and sources by slug */

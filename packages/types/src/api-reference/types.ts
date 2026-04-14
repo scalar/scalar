@@ -189,19 +189,23 @@ export type AuthenticationConfiguration = {
   createAnySecurityScheme?: boolean
 }
 
-type ApiReferencePlugin = () => {
+export type SpecificationExtension = {
   name: string
-  extensions: {
-    name: string
-    component: unknown
-    renderer?: unknown
-  }[]
+  component: unknown
+  renderer?: unknown
+}
+
+export type ViewComponent = {
+  component: unknown
+  renderer?: unknown
+  props?: Record<string, any>
+}
+
+export type ApiReferencePlugin = () => {
+  name: string
+  extensions: SpecificationExtension[]
   views?: {
-    'content.end'?: {
-      component: unknown
-      renderer?: unknown
-      props?: Record<string, any>
-    }[]
+    'content.end'?: ViewComponent[]
   }
 }
 
@@ -256,7 +260,7 @@ export type BaseConfiguration = {
     | 'y'
     | 'z'
   /** List of OpenAPI server objects */
-  servers?: string[]
+  servers?: any[]
   /** Whether to show the sidebar */
   showSidebar: boolean
   /** Whether and when to show the developer tools. */
@@ -315,6 +319,120 @@ export type BaseConfiguration = {
   externalUrls: ExternalUrls
 }
 
+type ExtendedConfiguration = {
+  /** The layout to use for the references */
+  layout: 'modern' | 'classic'
+  /** @deprecated Use proxyUrl instead */
+  proxy?: string
+  /** Custom fetch function for custom logic. Can be used to add custom headers, handle auth, etc. */
+  fetch?: typeof fetch
+  /** Plugins for the API reference */
+  plugins?: ApiReferencePlugin[]
+  /** Allows the user to inject an editor for the spec */
+  isEditable: boolean
+  /** Controls whether the references show a loading state in the intro */
+  isLoading: boolean
+  /** Whether to show models in the sidebar, search, and content. */
+  hideModels: boolean
+  /** Sets the file type of the document to download, set to `none` to hide the download button */
+  documentDownloadType: 'both' | 'yaml' | 'json' | 'direct' | 'none'
+  /** @deprecated Use `documentDownloadType: 'none'` instead */
+  hideDownloadButton?: boolean
+  /** Whether to show the "Test Request" button */
+  hideTestRequestButton: boolean
+  /** Whether to show the sidebar search bar */
+  hideSearch: boolean
+  /** Whether to show the operationId */
+  showOperationId: boolean
+  /** Whether dark mode is on or off initially (light mode) */
+  darkMode?: boolean
+  /** forceDarkModeState makes it always this state no matter what */
+  forceDarkModeState?: 'dark' | 'light'
+  /** Whether to show the dark mode toggle */
+  hideDarkModeToggle: boolean
+  /** If used, passed data will be added to the HTML header. @see https://unhead.unjs.io/usage/composables/use-seo-meta */
+  metaData?: any
+  /** Path to a favicon image */
+  favicon?: string
+  /** List of httpsnippet clients to hide from the clients menu. By default hides Unirest, pass `[]` to show all clients */
+  hiddenClients?: Record<string, boolean | string[]> | string[] | true
+  /** Determine the HTTP client that is selected by default */
+  defaultHttpClient?: {
+    targetKey: string
+    clientKey: string
+  }
+  /** Custom CSS to be added to the page */
+  customCss?: string
+  /** onSpecUpdate is fired on spec/swagger content change */
+  onSpecUpdate?: (input: string) => void
+  /** onServerChange is fired on selected server change */
+  onServerChange?: (input: string) => void
+  /** onDocumentSelect is fired when the config is selected */
+  onDocumentSelect?: () => void | Promise<void>
+  /** Callback fired when the reference is fully loaded */
+  onLoaded?: (slug: string) => void | Promise<void>
+  /** Fired before the outbound request is built; callback receives a mutable request builder. Experimental API. */
+  onBeforeRequest?:
+    | ((input: {
+        request: Request
+        requestBuilder: any
+        envVariables: Record<string, string>
+      }) => void | Promise<void>)
+    | undefined
+  /** onShowMore is fired when the user clicks the "Show more" button on the references */
+  onShowMore?: (tagId: string) => void | Promise<void>
+  /** onSidebarClick is fired when the user clicks on a sidebar item */
+  onSidebarClick?: (href: string) => void | Promise<void>
+  /** Route using paths instead of hashes, your server MUST support this. @experimental */
+  pathRouting?: {
+    basePath: string
+  }
+  /** MCP (Model Context Protocol) configuration. When provided, enables MCP integration with the given name and url. */
+  mcp?: {
+    /** Display name for the MCP server */
+    name?: string
+    /** URL of the MCP server */
+    url?: string
+    /** When true, disables the MCP integration */
+    disabled?: boolean
+  }
+  /** Customize the heading portion of the hash */
+  generateHeadingSlug?: (input: { slug?: string }) => string
+  /** Customize the model portion of the hash */
+  generateModelSlug?: (input: { name?: string }) => string
+  /** Customize the tag portion of the hash */
+  generateTagSlug?: (input: { name?: string }) => string
+  /** Customize the operation portion of the hash */
+  generateOperationSlug?: (input: {
+    path: string
+    operationId?: string
+    method: string
+    summary?: string
+  }) => string
+  /** Customize the webhook portion of the hash */
+  generateWebhookSlug?: (input: { name: string; method?: string }) => string
+  /** To handle redirects, pass a function that receives the current path/hash and passes that to history.replaceState */
+  redirect?: (input: string) => string | null | undefined
+  /** Whether to include default fonts */
+  withDefaultFonts: boolean
+  /** Whether to expand the first tag in the sidebar when no specific URL target is present */
+  defaultOpenFirstTag: boolean
+  /** Whether to expand all tags by default. Warning: this can cause performance issues on big documents */
+  defaultOpenAllTags: boolean
+  /** Whether to expand all models by default. Warning: this can cause performance issues on big documents */
+  expandAllModelSections: boolean
+  /** Whether to expand all responses by default. Warning: this can cause performance issues on big documents */
+  expandAllResponses: boolean
+  /** Function to sort tags */
+  tagsSorter?: 'alpha' | ((a: any, b: any) => number)
+  /** Function to sort operations */
+  operationsSorter?: 'alpha' | 'method' | ((a: any, b: any) => number)
+  /** Order the schema properties by */
+  orderSchemaPropertiesBy: 'alpha' | 'preserve'
+  /** Sort the schema properties by required ones first */
+  orderRequiredPropertiesFirst: boolean
+}
+
 export type SourceConfiguration = {
   default: boolean
   /** URL to an OpenAPI/Swagger document */
@@ -339,135 +457,49 @@ export type SourceConfiguration = {
   }
 }
 
-/**
- * Configuration for the Scalar Api Reference integrations
- *
- * See the type `ApiReferenceConfigurationWithSource` or `AnyApiReferenceConfiguration`\
- * for the configuration that includes the sources for you OpenAPI documents
- */
-export type ApiReferenceConfigurationRaw = BaseConfiguration &
-  Omit<
-    {
-      /** The layout to use for the references */
-      layout: 'modern' | 'classic'
-      /** @deprecated Use proxyUrl instead */
-      proxy?: string
-      /** Custom fetch function for custom logic. Can be used to add custom headers, handle auth, etc. */
-      fetch?: typeof fetch
-      /** Plugins for the API reference */
-      plugins?: ApiReferencePlugin[]
-      /** Allows the user to inject an editor for the spec */
-      isEditable: boolean
-      /** Controls whether the references show a loading state in the intro */
-      isLoading: boolean
-      /** Whether to show models in the sidebar, search, and content. */
-      hideModels: boolean
-      /** Sets the file type of the document to download, set to `none` to hide the download button */
-      documentDownloadType: 'both' | 'yaml' | 'json' | 'direct' | 'none'
-      /** @deprecated Use `documentDownloadType: 'none'` instead */
-      hideDownloadButton?: boolean
-      /** Whether to show the "Test Request" button */
-      hideTestRequestButton: boolean
-      /** Whether to show the sidebar search bar */
-      hideSearch: boolean
-      /** Whether to show the operationId */
-      showOperationId: boolean
-      /** Whether dark mode is on or off initially (light mode) */
-      darkMode?: boolean
-      /** forceDarkModeState makes it always this state no matter what */
-      forceDarkModeState?: 'dark' | 'light'
-      /** Whether to show the dark mode toggle */
-      hideDarkModeToggle: boolean
-      /** If used, passed data will be added to the HTML header. @see https://unhead.unjs.io/usage/composables/use-seo-meta */
-      metaData?: any
-      /** Path to a favicon image */
-      favicon?: string
-      /** List of httpsnippet clients to hide from the clients menu. By default hides Unirest, pass `[]` to show all clients */
-      hiddenClients?: Record<string, boolean | string[]> | string[] | true
-      /** Determine the HTTP client that is selected by default */
-      defaultHttpClient?: {
-        targetKey: string
-        clientKey: string
-      }
-      /** Custom CSS to be added to the page */
-      customCss?: string
-      /** onSpecUpdate is fired on spec/swagger content change */
-      onSpecUpdate?: (input: string) => void
-      /** onServerChange is fired on selected server change */
-      onServerChange?: (input: string) => void
-      /** onDocumentSelect is fired when the config is selected */
-      onDocumentSelect?: () => void | Promise<void>
-      /** Callback fired when the reference is fully loaded */
-      onLoaded?: (slug: string) => void | Promise<void>
-      /** Fired before the outbound request is built; callback receives a mutable request builder. Experimental API. */
-      onBeforeRequest?:
-        | ((input: {
-            request: Request
-            requestBuilder: any
-            envVariables: Record<string, string>
-          }) => void | Promise<void>)
-        | undefined
-      /** onShowMore is fired when the user clicks the "Show more" button on the references */
-      onShowMore?: (tagId: string) => void | Promise<void>
-      /** onSidebarClick is fired when the user clicks on a sidebar item */
-      onSidebarClick?: (href: string) => void | Promise<void>
-      /** Route using paths instead of hashes, your server MUST support this. @experimental */
-      pathRouting?: {
-        basePath: string
-      }
-      /** MCP (Model Context Protocol) configuration. When provided, enables MCP integration with the given name and url. */
-      mcp?: {
-        /** Display name for the MCP server */
-        name?: string
-        /** URL of the MCP server */
-        url?: string
-        /** When true, disables the MCP integration */
-        disabled?: boolean
-      }
-      /** Customize the heading portion of the hash */
-      generateHeadingSlug?: (input: { slug?: string }) => string
-      /** Customize the model portion of the hash */
-      generateModelSlug?: (input: { name?: string }) => string
-      /** Customize the tag portion of the hash */
-      generateTagSlug?: (input: { name?: string }) => string
-      /** Customize the operation portion of the hash */
-      generateOperationSlug?: (input: {
-        path: string
-        operationId?: string
-        method: string
-        summary?: string
-      }) => string
-      /** Customize the webhook portion of the hash */
-      generateWebhookSlug?: (input: { name: string; method?: string }) => string
-      /** To handle redirects, pass a function that receives the current path/hash and passes that to history.replaceState */
-      redirect?: (input: string) => string | null | undefined
-      /** Whether to include default fonts */
-      withDefaultFonts: boolean
-      /** Whether to expand the first tag in the sidebar when no specific URL target is present */
-      defaultOpenFirstTag: boolean
-      /** Whether to expand all tags by default. Warning: this can cause performance issues on big documents */
-      defaultOpenAllTags: boolean
-      /** Whether to expand all models by default. Warning: this can cause performance issues on big documents */
-      expandAllModelSections: boolean
-      /** Whether to expand all responses by default. Warning: this can cause performance issues on big documents */
-      expandAllResponses: boolean
-      /** Function to sort tags */
-      tagsSorter?: 'alpha' | ((a: any, b: any) => number)
-      /** Function to sort operations */
-      operationsSorter?: 'alpha' | 'method' | ((a: any, b: any) => number)
-      /** Order the schema properties by */
-      orderSchemaPropertiesBy: 'alpha' | 'preserve'
-      /** Sort the schema properties by required ones first */
-      orderRequiredPropertiesFirst: boolean
-    },
-    'proxy' | 'spec' | 'authentication' | 'showToolbar'
-  > & {
-    authentication?: AuthenticationConfiguration
-  }
+export type ApiReferenceConfigurationRaw = Omit<BaseConfiguration & ExtendedConfiguration, 'proxy' | 'spec' | 'authentication' | 'showToolbar'> & {
+  authentication?: AuthenticationConfiguration;
+}
 
-export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & SourceConfiguration
+export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
+    /** @deprecated
+   * This type now refers to the base configuration that does not include the sources.
+   * Use the type `ApiReferenceConfigurationWithSource` instead.
+   */
+    url?: SourceConfiguration['url']
+    /** @deprecated
+     * This type now refers to the base configuration that does not include the sources.
+     * Use the type `ApiReferenceConfigurationWithSource` instead.
+     */
+    content?: SourceConfiguration['content']
+    /**
+     * Fired before the outbound request is built and sent. Mutate the **request builder** so the eventual fetch call
+     * reflects your changes (method, path, headers, body, and related fields).
+     *
+     * **Experimental:** The builder matches {@link https://github.com/scalar/scalar/blob/main/packages/workspace-store/src/request-example/builder/request-factory.ts RequestFactory}
+     * (`import type { RequestFactory } from '@scalar/workspace-store/request-example'`). That shape is still experimental and may change in minor releases.
+     *
+     * @param input - Hook argument from the integration layer.
+     * @param input.request - **Deprecated** when treated as a fetch API `Request`. Prefer thinking of this value as the
+     * mutable builder ({@link https://github.com/scalar/scalar/blob/main/packages/workspace-store/src/request-example/builder/request-factory.ts RequestFactory}).
+     * Some call sites only pass this property.
+     * @param input.requestBuilder - The same builder when exposed under this name; **prefer** mutating this when your integration provides it.
+     * @returns void or a promise that resolves when the hook finishes
+     * @example
+     * ```ts
+     * onBeforeRequest: ({ request: builder }) => {
+     *   builder.headers.set('Authorization', 'Bearer <token>')
+     * }
+     * ```
+     */
+    onBeforeRequest?: (input: {
+      request: Request
+      requestBuilder: any
+      envVariables: Record<string, string>
+    }) => void | Promise<void> | undefined
+}
 
-export type ApiReferenceConfigurationWithSource = ApiReferenceConfiguration
+export type ApiReferenceConfigurationWithSource = Omit<ApiReferenceConfiguration, 'url' | 'content'> & SourceConfiguration
 
 /**
  * Configuration for a single config with multiple sources

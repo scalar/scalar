@@ -62,7 +62,7 @@ export const baseConfigurationSchema = object({
   ]), {
     typeComment: 'Key used with CTRL/CMD to open the search modal (defaults to \'k\' e.g. CMD+k)',
   }),
-  servers: optional(array(string()), {
+  servers: optional(array(any()), {
     typeComment: 'List of OpenAPI server objects',
   }),
   showSidebar: boolean({

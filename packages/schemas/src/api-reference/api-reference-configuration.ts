@@ -132,13 +132,13 @@ export const apiReferenceConfigurationSchema = intersection([
     }), {
       typeComment: 'MCP (Model Context Protocol) configuration. When provided, enables MCP integration with the given name and url.',
     }),
-    generateHeadingSlug: optional(fn<(input: { slug: string }) => string>(), {
+    generateHeadingSlug: optional(fn<(input: { slug?: string }) => string>(), {
       typeComment: 'Customize the heading portion of the hash',
     }),
-    generateModelSlug: optional(fn<(input: { name: string }) => string>(), {
+    generateModelSlug: optional(fn<(input: { name?: string }) => string>(), {
       typeComment: 'Customize the model portion of the hash',
     }),
-    generateTagSlug: optional(fn<(input: { name: string }) => string>(), {
+    generateTagSlug: optional(fn<(input: { name?: string }) => string>(), {
       typeComment: 'Customize the tag portion of the hash',
     }),
     generateOperationSlug: optional(fn<(input: { path: string; operationId?: string; method: string; summary?: string }) => string>(), {

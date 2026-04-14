@@ -1,5 +1,6 @@
 import { enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/console-spies'
-import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+// import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
@@ -9,6 +10,7 @@ import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import Operation from './Operation.vue'
+import { coerce } from '@scalar/validation'
 
 type ExtractComponentProps<TComponent> = TComponent extends new () => { $props: infer P } ? P : never
 
@@ -48,7 +50,7 @@ const mountOperationWithConfig = (
     },
   })
 
-  const defaultConfig = apiReferenceConfigurationSchema.parse({
+  const defaultConfig = coerce(apiReferenceConfigurationSchema, {
     layout: 'modern',
     theme: 'default',
     hideModels: false,

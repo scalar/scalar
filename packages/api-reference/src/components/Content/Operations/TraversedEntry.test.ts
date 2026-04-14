@@ -1,4 +1,6 @@
-import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+// import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
+import { coerce } from '@scalar/validation'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
@@ -94,7 +96,7 @@ const mockDocument = {
   security: [],
 }
 
-const mockConfig = apiReferenceConfigurationSchema.parse({
+const mockConfig = coerce(apiReferenceConfigurationSchema, {
   layout: 'modern',
   theme: 'default',
   hideModels: false,

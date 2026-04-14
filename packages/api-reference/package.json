@@ -111,6 +111,8 @@
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
+    "@scalar/validation": "workspace:*",
+    "@scalar/schemas": "workspace:*",
     "@unhead/vue": "^2.1.4",
     "@vueuse/core": "catalog:*",
     "fuse.js": "catalog:*",

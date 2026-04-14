@@ -1,4 +1,4 @@
-import { apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
+import { apiReferenceConfigurationWithSourceSchema } from '@scalar/schemas/api-reference'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -30,7 +30,7 @@ describe('DownloadLink', () => {
 
   const createWrapper = (configOverrides = {}, props = {}) => {
     const config = computed(() =>
-      apiReferenceConfigurationWithSourceSchema.parse({
+      apiReferenceConfigurationWithSourceSchema({
         documentDownloadType: 'json',
         ...configOverrides,
       }),

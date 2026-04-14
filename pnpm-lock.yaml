@@ -1419,6 +1419,9 @@ importers:
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
+      '@scalar/schemas':
+        specifier: workspace:*
+        version: link:../schemas
       '@scalar/sidebar':
         specifier: workspace:*
         version: link:../sidebar
@@ -1437,6 +1440,9 @@ importers:
       '@scalar/use-toasts':
         specifier: workspace:*
         version: link:../use-toasts
+      '@scalar/validation':
+        specifier: workspace:*
+        version: link:../validation
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store
