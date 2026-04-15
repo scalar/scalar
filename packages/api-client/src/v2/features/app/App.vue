@@ -22,6 +22,7 @@ import { RouterView } from 'vue-router'
 import { SidebarToggle } from '@/v2/components/sidebar'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
+import WebHeader from '@/v2/features/app/components/WebHeader.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
 import type { CommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
@@ -174,8 +175,12 @@ const routerViewProps = computed<RouteProps>(() => {
       ">
       <div class="relative flex h-dvh w-dvw flex-1 flex-col">
         <SidebarToggle
+          v-if="layout !== 'web'"
           v-model="app.sidebar.isOpen.value"
           class="absolute top-4 left-3 z-[60] md:hidden" />
+        <WebHeader
+          v-if="layout === 'web'"
+          v-model:isSidebarOpen="app.sidebar.isOpen.value" />
         <div class="flex min-h-0 flex-1 flex-row">
           <!-- App sidebar -->
           <AppSidebar
