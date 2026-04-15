@@ -92,6 +92,18 @@ const toPrettyJson = (text?: string): string => {
   }
 }
 
+const canUseRawStringLiteral = (value: string): boolean => {
+  return !value.includes('`')
+}
+
+const toGoStringLiteral = (value: string, preferRawLiteral = false): string => {
+  if (preferRawLiteral && canUseRawStringLiteral(value)) {
+    return `\`${value}\``
+  }
+
+  return goString(value)
+}
+
 const buildBodySection = (postData?: {
   mimeType?: string
   text?: string
@@ -165,7 +177,9 @@ const buildBodySection = (postData?: {
 
   return {
     imports,
-    setupLines: [`payload := strings.NewReader(${goString(payload)})`],
+    setupLines: [
+      `payload := strings.NewReader(${toGoStringLiteral(payload, postData.mimeType === 'application/json')})`,
+    ],
     requestBody: 'payload',
     needsMultipartContentTypeHeader: false,
   }

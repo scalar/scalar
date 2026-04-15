@@ -57,7 +57,9 @@ describe('goNative', () => {
       },
     })
 
-    expect(result).toContain(`payload := strings.NewReader("{\\n  \\"hello\\": \\"world\\"\\n}")`)
+    expect(result).toContain('payload := strings.NewReader(`{')
+    expect(result).toContain('  "hello": "world"')
+    expect(result).toContain('}`)')
     expect(result).toContain(`req, _ := http.NewRequest("POST", requestUrl, payload)`)
   })
 
@@ -409,9 +411,11 @@ describe('goNative', () => {
       },
     })
 
-    expect(result).toContain(
-      `payload := strings.NewReader("{\\n  \\"nested\\": {\\n    \\"array\\": [\\n      1,\\n      2,\\n      3\\n    ],\\n    \\"object\\": {\\n      \\"foo\\": \\"bar\\"\\n    }\\n  },\\n  \\"simple\\": \\"value\\"\\n}")`,
-    )
+    expect(result).toContain('payload := strings.NewReader(`{')
+    expect(result).toContain('    "array": [')
+    expect(result).toContain('      1,')
+    expect(result).toContain('  "simple": "value"')
+    expect(result).toContain('}`)')
   })
 
   it('handles URLs with dollar sign characters', () => {
@@ -464,7 +468,7 @@ describe('goNative', () => {
       },
     })
 
-    expect(result).toContain(`payload := strings.NewReader("'hell'o'")`)
+    expect(result).toContain("payload := strings.NewReader(`'hell'o'`)")
   })
 
   it('appends query string to URLs that already include query parameters', () => {
@@ -521,6 +525,23 @@ describe('goNative', () => {
     expect(result).toContain(`req.SetBasicAuth("user", "pass")`)
     expect(result).toContain(`req.Header.Add("Content-Type", "application/json")`)
     expect(result).toContain(`req.Header.Add("Cookie", "session=abc123")`)
-    expect(result).toContain(`payload := strings.NewReader("{\\n  \\"hello\\": \\"world\\"\\n}")`)
+    expect(result).toContain('payload := strings.NewReader(`{')
+    expect(result).toContain('  "hello": "world"')
+    expect(result).toContain('}`)')
+  })
+
+  it('falls back to quoted strings for JSON payloads containing backticks', () => {
+    const result = goNative.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/json',
+        text: JSON.stringify({
+          script: 'const value = `hello`',
+        }),
+      },
+    })
+
+    expect(result).toContain('payload := strings.NewReader("{\\n  \\"script\\": \\"const value = `hello`\\"\\n}")')
   })
 })
