@@ -15,15 +15,7 @@
 export default {}
 </script>
 <script setup lang="ts">
-import {
-  computed,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  watch,
-  watchEffect,
-} from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import ScalarVirtualTextSearch from './ScalarVirtualTextSearch.vue'
 
@@ -52,7 +44,6 @@ const props = withDefaults(
 )
 
 const containerRef = ref<HTMLElement | null>(null)
-const contentRef = ref<HTMLElement | null>(null)
 const searchRef = ref<InstanceType<typeof ScalarVirtualTextSearch> | null>(null)
 const scrollPosition = ref(0)
 const containerHeight = ref(0)
@@ -81,19 +72,21 @@ const visibleEndIndex = computed(() =>
   ),
 )
 
+const BUFFER = 10
+
+/** Index of the first rendered line (clamped, shared between slice and offset) */
+const renderStartIndex = computed(() =>
+  Math.max(0, visibleStartIndex.value - BUFFER),
+)
+
 /** Array of visible lines, including buffer for smooth scrolling */
 const visibleLines = computed(() => {
-  const buffer = 10
-  const start = Math.max(0, visibleStartIndex.value - buffer)
-  const end = Math.min(lines.value.length, visibleEndIndex.value + buffer)
-
-  return lines.value.slice(start, end)
+  const end = Math.min(lines.value.length, visibleEndIndex.value + BUFFER)
+  return lines.value.slice(renderStartIndex.value, end)
 })
 
 /** Pixel offset for the visible content slice */
-const contentOffset = computed(
-  () => Math.max(0, visibleStartIndex.value - 10) * props.lineHeight,
-)
+const contentOffset = computed(() => renderStartIndex.value * props.lineHeight)
 
 // ── Search ────────────────────────────────────────────────────────────
 
@@ -231,11 +224,6 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', updateContainerHeight)
 })
 
-watchEffect(() => {
-  if (!contentRef.value) return
-  contentRef.value.style.transform = `translateY(${contentOffset.value}px)`
-})
-
 // ── Line rendering with highlights ────────────────────────────────────
 
 type LineSegment = { text: string; highlight: boolean; active: boolean }
@@ -291,10 +279,8 @@ const getLineSegments = (absoluteIndex: number): LineSegment[] => {
  * Converts a relative visible-line index to the absolute line index
  * in the full text.
  */
-const toAbsoluteIndex = (relativeIndex: number): number => {
-  const buffer = 10
-  return Math.max(0, visibleStartIndex.value - buffer) + relativeIndex
-}
+const toAbsoluteIndex = (relativeIndex: number): number =>
+  renderStartIndex.value + relativeIndex
 </script>
 
 <template>
@@ -319,13 +305,12 @@ const toAbsoluteIndex = (relativeIndex: number): number => {
     <!-- Invisible spacer that defines the full scrollable height -->
     <div :style="{ height: `${totalHeight}px` }" />
     <code
-      ref="contentRef"
       class="scalar-virtual-text-content absolute left-0 right-0 top-0"
       :class="contentClass"
       :style="{ transform: `translateY(${contentOffset}px)` }">
       <div
         v-for="(line, index) in visibleLines"
-        :key="visibleStartIndex + index"
+        :key="renderStartIndex + index"
         class="scalar-virtual-text-line"
         :class="lineClass"
         :style="{
