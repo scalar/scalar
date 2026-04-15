@@ -1,7 +1,7 @@
 'use client'
 
 import type { ApiClientModal, ApiClientModalOptions, RoutePayload } from '@scalar/api-client/v2/features/modal'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import './style.css'
 
@@ -14,17 +14,35 @@ globalThis.__VUE_PROD_HYDRATION_MISMATCH_DETAILS__ = true
 globalThis.__VUE_PROD_DEVTOOLS__ = false
 
 export type ApiClientConfigurationReact = ApiClientModalOptions & {
-  content?: Record<string, unknown>
-  url?: string
+  // content?: Record<string, unknown>
+  url: string
 }
 
 export type UseApiClientModalProps = {
   /** Configuration for the Api Client (url or inline content) */
-  configuration?: ApiClientConfigurationReact
+  configuration: ApiClientConfigurationReact
 }
 
 /** Tracks which documents are/have been loaded so we dont duplicate */
-const documentDict: Record<string, true> = {}
+const documentSet = new Set<string>()
+
+const hasModalOptionsChanged = (
+  previousOptions: ApiClientModalOptions | undefined,
+  nextOptions: ApiClientModalOptions,
+): boolean => {
+  if (!previousOptions) {
+    return true
+  }
+
+  const previousKeys = Object.keys(previousOptions) as Array<keyof ApiClientModalOptions>
+  const nextKeys = Object.keys(nextOptions) as Array<keyof ApiClientModalOptions>
+
+  if (previousKeys.length !== nextKeys.length) {
+    return true
+  }
+
+  return nextKeys.some((key) => !Object.is(previousOptions[key], nextOptions[key]))
+}
 
 /**
  * Returns the singleton Api Client
@@ -38,22 +56,20 @@ const documentDict: Record<string, true> = {}
  */
 export const useApiClient = ({
   configuration,
-}: UseApiClientModalProps = {}):
-  | (Omit<ApiClientModal, 'open'> & { open: (payload: RoutePayload) => void })
-  | undefined => {
+}: UseApiClientModalProps): (Omit<ApiClientModal, 'open'> & { open: (payload: RoutePayload) => void }) | undefined => {
   const [client, setClient] = useState<ApiClientModal | undefined>(undefined)
   const [workspaceStore, setWorkspaceStore] = useState<WorkspaceStore | undefined>(undefined)
-  const [documentSlug, setDocumentSlug] = useState('')
+  const documentSlugRef = useRef('')
+  const previousModalOptionsRef = useRef<ApiClientModalOptions | undefined>(undefined)
 
   /** Small wrapper to set the documentSlug */
-  const open = (payload: RoutePayload) => client?.open({ documentSlug, ...payload })
+  const open = (payload: RoutePayload) => client?.open({ documentSlug: documentSlugRef.current, ...payload })
 
   useEffect(() => {
     let cancelled = false
 
     // Strip document-specific fields before passing to the modal constructor.
-    // `url` and `content` are registered separately via workspaceStore.addDocument.
-    const { url, content, ...modalOptions } = configuration ?? {}
+    const { url, ...modalOptions } = configuration
 
     void getOrCreateApiClient(modalOptions)?.then((_client) => {
       if (cancelled || !_client) {
@@ -62,21 +78,20 @@ export const useApiClient = ({
 
       // Compute the slug here so we can batch all three state updates into one render,
       // preventing a render where `client` is set but `documentSlug` is still ''.
-      const slug = url || (content as { info?: { title?: string } })?.info?.title || ''
+      const slug = url || ''
 
       // React always provides the complete modal option set for this hook instance,
       // so we overwrite to clear options removed by consumers.
       _client.apiClient.updateOptions(modalOptions, true)
+      previousModalOptionsRef.current = modalOptions
 
       setClient(_client.apiClient)
       setWorkspaceStore(_client.workspaceStore)
-      setDocumentSlug(slug)
+      documentSlugRef.current = slug
 
-      if (slug && !documentDict[slug]) {
-        documentDict[slug] = true
-        void _client.workspaceStore.addDocument(
-          content ? { name: slug, document: content } : { name: slug, url: url ?? '' },
-        )
+      if (slug && !documentSet.has(slug)) {
+        documentSet.add(slug)
+        void _client.workspaceStore.addDocument({ name: slug, url })
       }
     })
 
@@ -87,33 +102,37 @@ export const useApiClient = ({
     // Only run once per mount
   }, [])
 
-  // Keep modal options in sync and register a new document when configuration changes.
+  // Register new document when we detect the url has changed
   useEffect(() => {
     if (!client || !workspaceStore) {
       return
     }
 
-    const { url: _, content: __, ...modalOptions } = configuration ?? {}
+    const slug = configuration.url || 'default'
+    documentSlugRef.current = slug
+
+    if (documentSet.has(slug)) {
+      return
+    }
+    documentSet.add(slug)
+
+    void workspaceStore.addDocument({ name: slug, url: configuration.url })
+  }, [client, configuration.url, workspaceStore])
+
+  // Update the modal options when the configuration changes
+  useEffect(() => {
+    if (!client || !configuration) {
+      return
+    }
+
+    const { url: _, ...modalOptions } = configuration
+    if (!hasModalOptionsChanged(previousModalOptionsRef.current, modalOptions)) {
+      return
+    }
+
     client.updateOptions(modalOptions, true)
-
-    if (!configuration) {
-      return
-    }
-
-    const slug = configuration.url || (configuration.content as { info?: { title?: string } })?.info?.title || 'default'
-    setDocumentSlug(slug)
-
-    if (documentDict[slug]) {
-      return
-    }
-    documentDict[slug] = true
-
-    void workspaceStore.addDocument(
-      configuration.content
-        ? { name: slug, document: configuration.content }
-        : { name: slug, url: configuration.url ?? '' },
-    )
-  }, [client, configuration, workspaceStore])
+    previousModalOptionsRef.current = modalOptions
+  }, [client, configuration])
 
   return client
     ? {

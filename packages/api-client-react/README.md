@@ -46,10 +46,20 @@ export const OpenButton = () => {
 
 ### Options
 
-| Option | Type | Description |
-|---|---|---|
-| `configuration.url` | `string` | URL of an OpenAPI document to load |
-| `configuration.content` | `Record<string, unknown>` | Inline OpenAPI document object |
+For the complete list of configuration options, see the [Scalar configuration docs](https://scalar.com/products/api-references/configuration).
+
+| Option | Description |
+|---|---|
+| `configuration.url` | [Required] Pass the URL of an OpenAPI document (JSON or YAML). |
+| `configuration.proxyUrl` | Use a proxy URL to send requests to other origins when CORS blocks direct browser requests. |
+| `configuration.authentication` | Prefill authentication credentials and default security scheme behavior for users. |
+| `configuration.baseServerURL` | Prefix all relative servers with a base URL. |
+| `configuration.hideClientButton` | Whether to hide the client button from the reference sidebar and modal. |
+| `configuration.hiddenClients` | Control which HTTP code-example clients are shown; pass `[]` to show all clients. |
+| `configuration.oauth2RedirectUri` | Set the default OAuth 2.0 redirect URI for authorization code and implicit flows. |
+| `configuration.servers` | Pass a list of servers to override the servers in your OpenAPI document. |
+
+<!-- | `configuration.content` | `Record<string, unknown>` | Inline OpenAPI document object | -->
 
 ### Routing to a specific request
 
