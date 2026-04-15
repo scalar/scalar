@@ -2,13 +2,14 @@ import { type ModalState, useModal } from '@scalar/components'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { type App, computed, createApp, reactive, ref, watch } from 'vue'
+import { type App, type MaybeRefOrGetter, computed, createApp, isRef, reactive, ref, toValue, watch } from 'vue'
 
 import {
   type DefaultEntities,
   type RoutePayload,
   resolveRouteParameters,
 } from '@/v2/features/modal/helpers/resolve-route-parameters'
+import type { ApiClientModalOptions, ApiClientModalOptionsRef } from '@/v2/features/modal/helpers/types'
 import { useModalSidebar } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import Modal, { type ModalProps } from '@/v2/features/modal/Modal.vue'
 
@@ -27,7 +28,7 @@ type CreateApiClientModalOptions = {
   /** Api client plugins to include in the modal */
   plugins?: ClientPlugin[]
   /** Subset of the configuration options for the modal, if you want it to be reactive ensure its a ref */
-  options?: ModalProps['options']
+  options?: MaybeRefOrGetter<ApiClientModalOptions>
 }
 
 export type ApiClientModal = {
@@ -35,6 +36,7 @@ export type ApiClientModal = {
   open: (payload?: RoutePayload) => void
   mount: (mountingEl: HTMLElement | null) => void
   route: (payload: RoutePayload) => void
+  updateOptions: (nextOptions: ApiClientModalOptions, overwrite?: boolean) => void
   modalState: ModalState
 }
 
@@ -55,6 +57,9 @@ export const createApiClientModal = ({
   options = {},
 }: CreateApiClientModalOptions): ApiClientModal => {
   const requestBodyCompositionSelection = ref<Record<string, number>>({})
+
+  /** This is to ensure that the options are a ref if they are not already, useful for react */
+  const optionsRef = (isRef(options) ? options : ref(toValue(options))) as ApiClientModalOptionsRef
 
   const defaultEntities: DefaultEntities = {
     path: 'default',
@@ -102,7 +107,7 @@ export const createApiClientModal = ({
     requestBodyCompositionSelection,
     sidebarState,
     workspaceStore,
-    options,
+    options: optionsRef,
   } satisfies ModalProps)
 
   /** Restore the workspace store when the modal is closed. */
@@ -113,6 +118,13 @@ export const createApiClientModal = ({
   watch(
     () => modalState.open,
     (open) => (open ? null : handleModalClose()),
+  )
+
+  // Update the active proxy when the proxyUrl changes
+  watch(
+    () => toValue(optionsRef).proxyUrl,
+    (newProxyUrl) => workspaceStore.update('x-scalar-active-proxy', newProxyUrl),
+    { immediate: true },
   )
 
   // Use a unique id prefix to prevent collisions with other Vue apps on the page
@@ -151,5 +163,19 @@ export const createApiClientModal = ({
     route,
     /** Controls the visibility of the modal. */
     modalState,
+    /**
+     * Merge new options into the current modal options.
+     *
+     * @param newOptions - The new options to merge into the current modal options.
+     * @param overwrite - Whether to overwrite the current modal options with the new options. If false, the new options will be merged with the current options.
+     */
+    updateOptions: (newOptions: ApiClientModalOptions, overwrite = false): void => {
+      optionsRef.value = overwrite
+        ? newOptions
+        : {
+            ...optionsRef.value,
+            ...newOptions,
+          }
+    },
   }
 }
