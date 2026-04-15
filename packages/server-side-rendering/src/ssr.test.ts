@@ -113,6 +113,23 @@ describe('ssr', () => {
       expect(script).toContain('dark-mode')
       expect(script).not.toContain('localStorage')
     })
+
+    it('ignores non-boolean darkMode values and falls back to matchMedia', () => {
+      const script = generateBodyScript({ darkMode: 'true);window.__pwned=1;//' as unknown as boolean })
+
+      expect(script).toContain('matchMedia')
+      expect(script).not.toContain('window.__pwned=1')
+    })
+
+    it('ignores invalid forceDarkModeState values', () => {
+      const script = generateBodyScript({
+        forceDarkModeState: `dark');window.__pwned=2;//` as unknown as 'dark' | 'light',
+      })
+
+      expect(script).toContain('localStorage')
+      expect(script).toContain('matchMedia')
+      expect(script).not.toContain('window.__pwned=2')
+    })
   })
 
   describe('renderApiReference', () => {
@@ -216,7 +233,19 @@ describe('ssr', () => {
       expect(html).toContain('"url":"https://example.com/api.json"')
     })
 
-    it('preserves function properties in the hydration script', async () => {
+    it('prevents script breakout in hydration config serialization', async () => {
+      const html = await renderApiReference({
+        config: {
+          title: '</script><script>window.__pwned=1</script>',
+        },
+        css: '',
+      })
+
+      expect(html).not.toContain('</script><script>window.__pwned=1</script>')
+      expect(html).toContain('"title":"\\u003c/script\\u003e\\u003cscript\\u003ewindow.__pwned=1\\u003c/script\\u003e"')
+    })
+
+    it('drops function properties from hydration config serialization', async () => {
       const html = await renderApiReference({
         config: {
           url: 'https://example.com/api.json',
@@ -225,11 +254,13 @@ describe('ssr', () => {
         css: '',
       })
 
-      expect(html).toContain('"onLoaded": () => console.log')
-      expect(html).toContain('"url":"https://example.com/api.json"')
+      expect(html).toContain('Scalar.createApiReference')
+      expect(html).toContain('{"url":"https://example.com/api.json"}')
+      expect(html).not.toContain('onLoaded')
+      expect(html).not.toContain('console.log')
     })
 
-    it('serializes function-only configuration without invalid leading comma', async () => {
+    it('serializes function-only configuration as empty object', async () => {
       const html = await renderApiReference({
         config: {
           onLoaded: () => console.log('loaded'),
@@ -237,9 +268,7 @@ describe('ssr', () => {
         css: '',
       })
 
-      expect(html).toContain('Scalar.createApiReference')
-      expect(html).toContain('{"onLoaded": () => console.log("loaded")}')
-      expect(html).not.toContain('{, "onLoaded"')
+      expect(html).toContain("Scalar.createApiReference('#app', {})")
     })
   })
 
