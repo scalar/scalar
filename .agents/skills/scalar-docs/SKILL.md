@@ -1,8 +1,8 @@
 ---
-description: Skill for writing and updating scalar.config.json — Scalar Docs configuration reference for users and LLMs
-globs: scalar.config.json, scalar.config.json5
-alwaysApply: false
+name: scalar-docs
+description: Skill for writing and updating scalar.config.json — Scalar Docs configuration reference for users and LLMs.
 ---
+
 # Scalar Docs Configuration Skill — scalar.config.json
 
 Reference for writing and updating `scalar.config.json`, the central configuration file for [Scalar Docs](https://docs.scalar.com). Use this when creating, editing, or validating Docs configuration for any project.
