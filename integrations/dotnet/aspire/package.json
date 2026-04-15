@@ -18,7 +18,7 @@
   "scripts": {
     "build:docker": "docker build --no-cache -t scalarapi/aspire-api-reference:latest -f src/Scalar.Aspire.Service/Dockerfile ../",
     "copy:standalone": "shx cp ../../../packages/api-reference/dist/browser/standalone.js ./src/Scalar.Aspire.Service/wwwroot/scalar.js",
-    "test": "vitest"
+    "test": "vitest --run"
   },
   "dependencies": {
     "@scalar/api-reference": "workspace:*",

@@ -244,7 +244,24 @@ jobs:
         run: pnpm script run test-servers & pnpm script wait -p 5051 5052
         timeout-minutes: 1
       - name: Run tests
-        run: pnpm vitest packages/* --silent --shard=${{ matrix.shard-index }}/${{ matrix.shard-total }}
+        run: |
+          dirs=()
+          for dir in packages/*/; do
+            if grep -q '"test"' "${dir}package.json" 2>/dev/null; then
+              dirs+=("$dir")
+            fi
+          done
+          args=()
+          for i in "${!dirs[@]}"; do
+            if (( i % ${{ matrix.shard-total }} == ${{ matrix.shard-index }} - 1 )); then
+              args+=(--filter "./${dirs[$i]%/}")
+            fi
+          done
+          if [ ${#args[@]} -eq 0 ]; then
+            echo "No packages assigned to this shard, skipping."
+            exit 0
+          fi
+          pnpm turbo "${args[@]}" test
 
   test-integrations:
     needs: [build]
@@ -268,7 +285,7 @@ jobs:
         with:
           packages: './integrations/**'
       - name: Run tests
-        run: pnpm vitest integrations/* --silent
+        run: pnpm turbo --filter './integrations/**' test
         # For now we will integrate the E2E tests with the integrations tests as they are quite fast and this avoids another job.
       - name: Run e2e tests
         run: pnpm --filter @scalar/nuxt test:e2e
@@ -996,7 +1013,7 @@ jobs:
         run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
 
       - name: Cache NuGet packages
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
           path: ${{ env.NUGET_PACKAGES }}
@@ -1057,7 +1074,7 @@ jobs:
         run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
 
       - name: Cache NuGet packages
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
           path: ${{ env.NUGET_PACKAGES }}
@@ -1157,7 +1174,7 @@ jobs:
           cat src/Scalar.Aspire/Constants.cs
 
       - name: Cache NuGet packages
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
           path: ${{ env.NUGET_PACKAGES }}
@@ -1326,7 +1343,7 @@ jobs:
           components: rustfmt, clippy
 
       - name: Cache cargo registry
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: |
             ~/.cargo/registry
@@ -1385,7 +1402,7 @@ jobs:
           components: rustfmt, clippy
 
       - name: Cache cargo registry
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: |
             ~/.cargo/registry

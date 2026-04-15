@@ -21,7 +21,9 @@
     "documentation/assets/fathom.js",
     "documentation/assets/posthog.js",
     "documentation/assets/apollo.js",
-    "documentation/assets/enterprise-contact-form.js"
+    "documentation/assets/enterprise-contact-form.js",
+    // Generated Docusaurus build directory
+    "integrations/docusaurus/playground/.docusaurus/**"
   ],
   "ignore": [
     // We will use this in the future, just removed it from the workspace store for now
@@ -88,8 +90,8 @@
         "src/v2/features/operation/index.ts",
         "src/v2/features/search/index.ts",
         "src/v2/features/settings/index.ts",
-        "playground/v2/{app,modal,web}/main.ts",
-        "playground/v2/test/index.ts"
+        "playground/{app,modal,web}/main.ts",
+        "playground/test/index.ts"
       ]
     },
     "packages/api-client-react": {
@@ -170,15 +172,7 @@
       "ignoreFiles": ["playground/next.config.js"]
     },
     "packages/oas-utils": {
-      "entry": [
-        "src/entities/*/index.ts",
-        "src/helpers/index.ts",
-        "src/helpers/security/index.ts",
-        "src/migrations/index.ts",
-        "src/spec-getters/index.ts",
-        "src/transforms/index.ts"
-      ],
-      "ignoreDependencies": ["@scalar/openapi-types"]
+      "entry": ["src/helpers/index.ts", "src/migrations/index.ts"]
     },
     "packages/object-utils": {
       "entry": ["src/*/index.ts"]

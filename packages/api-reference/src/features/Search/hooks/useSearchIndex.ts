@@ -12,10 +12,12 @@ const MAX_SEARCH_RESULTS = 25
  * Creates the search index from an OpenAPI document.
  */
 export function useSearchIndex(document: MaybeRefOrGetter<OpenApiDocument | undefined>) {
+  const searchIndex = computed<FuseData[]>(() => createSearchIndex(toValue(document)))
+
   /** When the document changes we replace the search index */
   const fuse = computed(() => {
     const instance = createFuseInstance()
-    instance.setCollection(createSearchIndex(toValue(document)))
+    instance.setCollection(searchIndex.value)
     return instance
   })
 
@@ -28,11 +30,8 @@ export function useSearchIndex(document: MaybeRefOrGetter<OpenApiDocument | unde
       })
     }
 
-    // @ts-expect-error - _docs is a private property
-    const allEntries: FuseData[] = fuse.value._docs
-
     // Show a few entries as a placeholder
-    return allEntries.slice(0, MAX_SEARCH_RESULTS).map(
+    return searchIndex.value.slice(0, MAX_SEARCH_RESULTS).map(
       (item: FuseData, index: number) =>
         ({
           item,

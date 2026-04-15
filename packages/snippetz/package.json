@@ -19,7 +19,7 @@
     "generate:java-enums": "tsx scripts/generate-java-enums.ts",
     "generate:markdown-docs": "tsx scripts/generate-markdown-docs.ts",
     "postbuild": "pnpm generate:dotnet-enums && pnpm generate:java-enums && pnpm generate:markdown-docs",
-    "test": "vitest",
+    "test": "vitest --run",
     "types:check": "tsc --noEmit"
   },
   "type": "module",

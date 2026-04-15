@@ -9,6 +9,7 @@ import 'fake-indexeddb/auto'
 
 import { mockEventBus } from '@/v2/helpers/test-utils'
 
+import type { ApiClientModalOptions, ApiClientModalOptionsRef } from './helpers/types'
 import { useModalSidebar } from './hooks/use-modal-sidebar'
 import Modal from './Modal.vue'
 
@@ -34,6 +35,8 @@ const getDocument = (overrides: Partial<OpenApiDocument> = {}): OpenApiDocument 
   'x-scalar-original-document-hash': 'test-hash',
   ...overrides,
 })
+
+const createModalOptions = (options: ApiClientModalOptions = {}): ApiClientModalOptionsRef => ref(options)
 
 /**
  * Creates a complete modal props setup for testing.
@@ -92,7 +95,7 @@ const createModalProps = async (documentOverrides: Partial<OpenApiDocument> = {}
       document,
       path: computed(() => path.value),
       method: computed(() => method.value),
-      options: {},
+      options: createModalOptions(),
       plugins: [],
       exampleName: computed(() => exampleName.value),
       requestBodyCompositionSelection,
@@ -197,7 +200,7 @@ describe('Modal', () => {
         document: emptyDocument,
         path: computed(() => undefined),
         method: computed(() => undefined),
-        options: {},
+        options: createModalOptions(),
         plugins: [],
         exampleName: computed(() => undefined),
         requestBodyCompositionSelection,
@@ -428,7 +431,7 @@ describe('Modal', () => {
     const wrapperWithHidden = mount(Modal, {
       props: {
         ...baseProps,
-        options: { hideClientButton: true },
+        options: createModalOptions({ hideClientButton: true }),
       },
       attachTo: '#scalar-modal-test',
     })
@@ -448,7 +451,7 @@ describe('Modal', () => {
     const wrapperWithShown = mount(Modal, {
       props: {
         ...baseProps,
-        options: { hideClientButton: false },
+        options: createModalOptions({ hideClientButton: false }),
       },
       attachTo: '#scalar-modal-test',
     })
@@ -467,7 +470,7 @@ describe('Modal', () => {
     const wrapperWithDefault = mount(Modal, {
       props: {
         ...baseProps,
-        options: {},
+        options: createModalOptions(),
       },
       attachTo: '#scalar-modal-test',
     })

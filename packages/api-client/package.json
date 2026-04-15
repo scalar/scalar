@@ -24,20 +24,18 @@
   },
   "scripts": {
     "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "dev": "pnpm playground:v2:web",
-    "playground:v2:app": "vite ./playground/v2/app -c ./vite.config.ts",
-    "playground:v2:modal": "vite ./playground/v2/modal -c ./vite.config.ts",
-    "playground:v2:web": "vite ./playground/v2/web -c ./vite.config.ts",
+    "dev": "pnpm playground:web",
+    "playground:app": "vite ./playground/app -c ./vite.config.ts",
+    "playground:modal": "vite ./playground/modal -c ./vite.config.ts",
+    "playground:web": "vite ./playground/web -c ./vite.config.ts",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest --run",
     "test:benchmark": "vitest bench",
     "test:benchmark:compare": "vitest bench --compare test-results/test-benchmark.json",
     "test:benchmark:save": "vitest bench --outputJson test-results/test-benchmark.json",
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -185,6 +183,131 @@
       "default": "./dist/v2/features/search/index.js"
     },
     "./v2/features/settings": {
+      "import": "./dist/v2/features/settings/index.js",
+      "types": "./dist/v2/features/settings/index.d.ts",
+      "default": "./dist/v2/features/settings/index.js"
+    },
+    "./blocks/operation-block": {
+      "import": "./dist/v2/blocks/operation-block/index.js",
+      "types": "./dist/v2/blocks/operation-block/index.d.ts",
+      "default": "./dist/v2/blocks/operation-block/index.js"
+    },
+    "./blocks/operation-code-sample": {
+      "import": "./dist/v2/blocks/operation-code-sample/index.js",
+      "types": "./dist/v2/blocks/operation-code-sample/index.d.ts",
+      "default": "./dist/v2/blocks/operation-code-sample/index.js"
+    },
+    "./blocks/request-block": {
+      "import": "./dist/v2/blocks/request-block/index.js",
+      "types": "./dist/v2/blocks/request-block/index.d.ts",
+      "default": "./dist/v2/blocks/request-block/index.js"
+    },
+    "./blocks/response-block": {
+      "import": "./dist/v2/blocks/response-block/index.js",
+      "types": "./dist/v2/blocks/response-block/index.d.ts",
+      "default": "./dist/v2/blocks/response-block/index.js"
+    },
+    "./blocks/scalar-address-bar-block": {
+      "import": "./dist/v2/blocks/scalar-address-bar-block/index.js",
+      "types": "./dist/v2/blocks/scalar-address-bar-block/index.d.ts",
+      "default": "./dist/v2/blocks/scalar-address-bar-block/index.js"
+    },
+    "./blocks/scalar-auth-selector-block": {
+      "import": "./dist/v2/blocks/scalar-auth-selector-block/index.js",
+      "types": "./dist/v2/blocks/scalar-auth-selector-block/index.d.ts",
+      "default": "./dist/v2/blocks/scalar-auth-selector-block/index.js"
+    },
+    "./components/code-input": {
+      "import": "./dist/v2/components/code-input/index.js",
+      "types": "./dist/v2/components/code-input/index.d.ts",
+      "default": "./dist/v2/components/code-input/index.js"
+    },
+    "./components/context-menu": {
+      "import": "./dist/v2/components/context-menu/index.js",
+      "types": "./dist/v2/components/context-menu/index.d.ts",
+      "default": "./dist/v2/components/context-menu/index.js"
+    },
+    "./components/data-table": {
+      "import": "./dist/v2/components/data-table/index.js",
+      "types": "./dist/v2/components/data-table/index.d.ts",
+      "default": "./dist/v2/components/data-table/index.js"
+    },
+    "./components/forms": {
+      "import": "./dist/v2/components/forms/index.js",
+      "types": "./dist/v2/components/forms/index.d.ts",
+      "default": "./dist/v2/components/forms/index.js"
+    },
+    "./components/layout": {
+      "import": "./dist/v2/components/layout/index.js",
+      "types": "./dist/v2/components/layout/index.d.ts",
+      "default": "./dist/v2/components/layout/index.js"
+    },
+    "./components/modals": {
+      "import": "./dist/v2/components/modals/index.js",
+      "types": "./dist/v2/components/modals/index.d.ts",
+      "default": "./dist/v2/components/modals/index.js"
+    },
+    "./components/resize": {
+      "import": "./dist/v2/components/resize/index.js",
+      "types": "./dist/v2/components/resize/index.d.ts",
+      "default": "./dist/v2/components/resize/index.js"
+    },
+    "./components/server": {
+      "import": "./dist/v2/components/server/index.js",
+      "types": "./dist/v2/components/server/index.d.ts",
+      "default": "./dist/v2/components/server/index.js"
+    },
+    "./components/sidebar": {
+      "import": "./dist/v2/components/sidebar/index.js",
+      "types": "./dist/v2/components/sidebar/index.d.ts",
+      "default": "./dist/v2/components/sidebar/index.js"
+    },
+    "./app": {
+      "import": "./dist/v2/features/app/index.js",
+      "types": "./dist/v2/features/app/index.d.ts",
+      "default": "./dist/v2/features/app/index.js"
+    },
+    "./modal": {
+      "import": "./dist/v2/features/modal/index.js",
+      "types": "./dist/v2/features/modal/index.d.ts",
+      "default": "./dist/v2/features/modal/index.js"
+    },
+    "./features/collection/components/Editor": {
+      "import": "./dist/v2/features/collection/components/Editor/index.js",
+      "types": "./dist/v2/features/collection/components/Editor/index.d.ts",
+      "default": "./dist/v2/features/collection/components/Editor/index.js"
+    },
+    "./features/command-palette": {
+      "import": "./dist/v2/features/command-palette/index.js",
+      "types": "./dist/v2/features/command-palette/index.d.ts",
+      "default": "./dist/v2/features/command-palette/index.js"
+    },
+    "./features/editor": {
+      "import": "./dist/v2/features/editor/index.js",
+      "types": "./dist/v2/features/editor/index.d.ts",
+      "default": "./dist/v2/features/editor/index.js"
+    },
+    "./features/environments": {
+      "import": "./dist/v2/features/environments/index.js",
+      "types": "./dist/v2/features/environments/index.d.ts",
+      "default": "./dist/v2/features/environments/index.js"
+    },
+    "./features/global-cookies": {
+      "import": "./dist/v2/features/global-cookies/index.js",
+      "types": "./dist/v2/features/global-cookies/index.d.ts",
+      "default": "./dist/v2/features/global-cookies/index.js"
+    },
+    "./features/operation": {
+      "import": "./dist/v2/features/operation/index.js",
+      "types": "./dist/v2/features/operation/index.d.ts",
+      "default": "./dist/v2/features/operation/index.js"
+    },
+    "./features/search": {
+      "import": "./dist/v2/features/search/index.js",
+      "types": "./dist/v2/features/search/index.d.ts",
+      "default": "./dist/v2/features/search/index.js"
+    },
+    "./features/settings": {
       "import": "./dist/v2/features/settings/index.js",
       "types": "./dist/v2/features/settings/index.d.ts",
       "default": "./dist/v2/features/settings/index.js"

@@ -1,9 +1,9 @@
-import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { type DefineComponent, defineComponent, markRaw } from 'vue'
 
+import type { ResponseInstance } from '@/v2/blocks/operation-block/helpers/send-request'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import ResponseEmpty from './components/ResponseEmpty.vue'

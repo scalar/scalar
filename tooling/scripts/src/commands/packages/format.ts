@@ -150,7 +150,7 @@ async function formatPackage(filepath: string) {
   })
 
   // Repository URL
-  const directory = path.relative(root, path.dirname(filepath))
+  const directory = path.relative(root, path.dirname(filepath)).split(path.sep).join('/')
   // console.log(directory)
   formattedData['repository'] = {
     type: 'git',

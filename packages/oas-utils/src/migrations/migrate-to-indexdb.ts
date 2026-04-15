@@ -31,7 +31,6 @@ import type { WorkspaceExtensions, WorkspaceMeta } from '@scalar/workspace-store
 import { ColorModeSchema } from '@scalar/workspace-store/schemas/workspace'
 import GithubSlugger from 'github-slugger'
 
-import type { RequestParameter } from '@/entities/spec/parameters'
 import { migrator } from '@/migrations/migrator'
 import type { v_2_5_0 } from '@/migrations/v-2.5.0/types.generated'
 
@@ -486,7 +485,7 @@ const ensureUniqueExampleName = (baseName: string, usedNames: Set<string>): stri
  * directly on each Parameter object via the `examples` map.
  */
 const mergeExamplesIntoParameters = (
-  parameters: RequestParameter[],
+  parameters: NonNullable<v_2_5_0['Request']['parameters']>,
   requestExamples: v_2_5_0['RequestExample'][],
 ): ParameterObject[] => {
   /**

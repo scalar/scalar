@@ -779,6 +779,11 @@
                         "type": "page",
                         "title": "Starter Kit"
                       },
+                      "agent-skills": {
+                        "filepath": "documentation/guides/docs/configuration/agent-skills.md",
+                        "type": "page",
+                        "title": "Agent Skills"
+                      },
                       "scalar.config.json": {
                         "title": "scalar.config.json",
                         "type": "page",
