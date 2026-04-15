@@ -90,6 +90,7 @@
         "src/v2/features/operation/index.ts",
         "src/v2/features/search/index.ts",
         "src/v2/features/settings/index.ts",
+        "src/plugins/posthog/index.ts",
         "playground/{app,modal,web}/main.ts",
         "playground/test/index.ts"
       ]
@@ -108,6 +109,7 @@
         "src/blocks/index.ts",
         "src/hooks/index.ts",
         "src/plugins/index.ts",
+        "src/plugins/posthog/index.ts",
         "src/features/index.ts",
         "src/helpers/index.ts",
         "src/esm.ts",
