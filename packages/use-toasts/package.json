@@ -46,6 +46,7 @@
     "vue-sonner": "^1.3.2"
   },
   "devDependencies": {
+    "@scalar/themes": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
     "vite": "catalog:*",
