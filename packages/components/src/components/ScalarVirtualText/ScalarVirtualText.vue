@@ -16,12 +16,6 @@ export default {}
 </script>
 <script setup lang="ts">
 import {
-  ScalarIconCaretDown,
-  ScalarIconCaretUp,
-  ScalarIconMagnifyingGlass,
-  ScalarIconX,
-} from '@scalar/icons'
-import {
   computed,
   nextTick,
   onBeforeUnmount,
@@ -30,6 +24,8 @@ import {
   watch,
   watchEffect,
 } from 'vue'
+
+import ScalarVirtualTextSearch from './ScalarVirtualTextSearch.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -57,7 +53,7 @@ const props = withDefaults(
 
 const containerRef = ref<HTMLElement | null>(null)
 const contentRef = ref<HTMLElement | null>(null)
-const searchInputRef = ref<HTMLInputElement | null>(null)
+const searchRef = ref<InstanceType<typeof ScalarVirtualTextSearch> | null>(null)
 const scrollPosition = ref(0)
 const containerHeight = ref(0)
 
@@ -181,7 +177,7 @@ const prevMatch = () => {
 
 const openSearch = () => {
   searchOpen.value = true
-  void nextTick(() => searchInputRef.value?.focus())
+  void nextTick(() => searchRef.value?.focus())
 }
 
 const closeSearch = () => {
@@ -201,19 +197,6 @@ const handleKeydown = (e: KeyboardEvent) => {
     openSearch()
   }
   if (e.key === 'Escape' && searchOpen.value) {
-    e.preventDefault()
-    closeSearch()
-  }
-}
-
-/** Navigate on Enter / Shift+Enter inside the search input */
-const handleSearchKeydown = (e: KeyboardEvent) => {
-  if (e.key === 'Enter') {
-    e.preventDefault()
-    if (e.shiftKey) prevMatch()
-    else nextMatch()
-  }
-  if (e.key === 'Escape') {
     e.preventDefault()
     closeSearch()
   }
@@ -323,59 +306,15 @@ const toAbsoluteIndex = (relativeIndex: number): number => {
     @keydown="handleKeydown"
     @scroll="handleScroll">
     <!-- Search bar (floating top-right, height collapsed so it does not affect scroll) -->
-    <div
+    <ScalarVirtualTextSearch
       v-if="searchable && searchOpen"
-      class="scalar-virtual-text-search sticky right-2 top-2 z-10 ml-auto flex h-fit w-fit items-center gap-1 overflow-visible rounded-lg bg-b-2 px-2 py-1 shadow-md"
-      @click.stop>
-      <ScalarIconMagnifyingGlass
-        class="pointer-events-none size-3.5 shrink-0 text-c-3" />
-      <input
-        ref="searchInputRef"
-        v-model="searchQuery"
-        aria-label="Search in text"
-        autocomplete="off"
-        class="scalar-virtual-text-search-input min-w-0 w-36 appearance-none border-none bg-transparent px-1 py-0.5 text-xs text-c-1 outline-none"
-        placeholder="Find..."
-        spellcheck="false"
-        type="search"
-        @keydown="handleSearchKeydown" />
-      <span
-        v-if="searchQuery"
-        class="shrink-0 whitespace-nowrap text-xs tabular-nums text-c-3">
-        {{
-          searchMatches.length > 0
-            ? `${activeMatchIndex + 1} of ${searchMatches.length}`
-            : 'No results'
-        }}
-      </span>
-      <span class="mx-0.5 h-3.5 w-px bg-b-3" />
-      <button
-        aria-label="Previous match"
-        class="flex size-5 items-center justify-center rounded text-c-3 hover:bg-b-3 hover:text-c-1 disabled:pointer-events-none disabled:opacity-30"
-        :disabled="searchMatches.length === 0"
-        title="Previous match (Shift+Enter)"
-        type="button"
-        @click="prevMatch">
-        <ScalarIconCaretUp class="size-3" />
-      </button>
-      <button
-        aria-label="Next match"
-        class="flex size-5 items-center justify-center rounded text-c-3 hover:bg-b-3 hover:text-c-1 disabled:pointer-events-none disabled:opacity-30"
-        :disabled="searchMatches.length === 0"
-        title="Next match (Enter)"
-        type="button"
-        @click="nextMatch">
-        <ScalarIconCaretDown class="size-3" />
-      </button>
-      <button
-        aria-label="Close search"
-        class="flex size-5 items-center justify-center rounded text-c-3 hover:bg-b-3 hover:text-c-1"
-        title="Close (Escape)"
-        type="button"
-        @click="closeSearch">
-        <ScalarIconX class="size-3" />
-      </button>
-    </div>
+      ref="searchRef"
+      v-model:query="searchQuery"
+      :activeMatchIndex="activeMatchIndex"
+      :matchCount="searchMatches.length"
+      @close="closeSearch"
+      @next="nextMatch"
+      @prev="prevMatch" />
 
     <!-- Invisible spacer that defines the full scrollable height -->
     <div :style="{ height: `${totalHeight}px` }" />
@@ -418,10 +357,6 @@ const toAbsoluteIndex = (relativeIndex: number): number => {
 <style scoped>
 .scalar-virtual-text:focus {
   outline: none;
-}
-
-.scalar-virtual-text-search-input::-webkit-search-cancel-button {
-  display: none;
 }
 
 .scalar-virtual-text-highlight {
