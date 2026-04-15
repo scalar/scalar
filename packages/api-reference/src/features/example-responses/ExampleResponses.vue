@@ -8,7 +8,6 @@ import {
   ScalarMarkdown,
 } from '@scalar/components'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
-import { normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getExample } from '@scalar/workspace-store/request-example'
@@ -24,7 +23,8 @@ import ExampleSchema from '@/features/example-responses/ExampleSchema.vue'
 import ExampleResponse from './ExampleResponse.vue'
 import ExampleResponseTab from './ExampleResponseTab.vue'
 import ExampleResponseTabList from './ExampleResponseTabList.vue'
-import { hasResponseContent } from './has-response-content'
+import { hasResponseContent } from './helpers/has-response-content'
+import { normalizeMimeTypeObject } from './helpers/normalize-mime-type-object'
 
 /**
  * TODO: copyToClipboard isn't using the right content if there are multiple examples

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { isOperationDeprecated, getOperationStability, getOperationStabilityColor } from './operation-stability'
+
+import { getOperationStability, getOperationStabilityColor, isOperationDeprecated } from './operation-stability'
 
 describe('operation-stability', () => {
   describe('isOperationDeprecated', () => {
