@@ -4,7 +4,9 @@ import { buildQueryString } from '@/libs/http'
 
 const escapeRubyDoubleQuoted = (value: string): string => value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
 
-const escapeRubySingleQuoted = (value: string): string => value.replace(/\\/g, '\\\\').replace(/'/g, "\\\\'")
+const escapeRubySingleQuoted = (value: string): string => value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+
+const encodeFormComponent = (value: string): string => encodeURIComponent(value).replace(/'/g, '%27')
 
 const standardMethods = new Set([
   'GET',
@@ -42,8 +44,15 @@ const encodeUrlWithPathPreservedBrackets = (url: string): string => {
     const parsedUrl = new URL(url)
     const encodedPath = parsedUrl.pathname
       .split('/')
-      .map((segment) => encodeURIComponent(decodeURIComponent(segment)).replace(/%5B/g, '[').replace(/%5D/g, ']'))
+      .map((segment) =>
+        encodeURIComponent(decodeURIComponent(segment)).replace(/%5B/g, '[').replace(/%5D/g, ']').replace(/%24/g, '$'),
+      )
       .join('/')
+
+    // Keep legacy behavior from the previous converter: omit trailing slash for origin-only URLs.
+    if (parsedUrl.pathname === '/') {
+      return `${parsedUrl.origin}${parsedUrl.search}${parsedUrl.hash}`
+    }
 
     return `${parsedUrl.origin}${encodedPath}${parsedUrl.search}${parsedUrl.hash}`
   } catch {
@@ -99,7 +108,7 @@ export const rubyNative: Plugin = {
 
     if (normalizedRequest.cookies?.length) {
       const cookieString = normalizedRequest.cookies
-        .map((cookie) => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`)
+        .map((cookie) => `${encodeFormComponent(cookie.name)}=${encodeFormComponent(cookie.value)}`)
         .join('; ')
       lines.push(`request["Cookie"] = '${escapeRubySingleQuoted(cookieString)}'`)
     }
@@ -119,7 +128,7 @@ export const rubyNative: Plugin = {
         }
       } else if (mimeType === 'application/x-www-form-urlencoded' && params) {
         const encodedForm = params
-          .map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value ?? '')}`)
+          .map((param) => `${encodeFormComponent(param.name)}=${encodeFormComponent(param.value ?? '')}`)
           .join('&')
         lines.push(`request.body = '${escapeRubySingleQuoted(encodedForm)}'`)
       } else if (mimeType === 'multipart/form-data' && params) {
