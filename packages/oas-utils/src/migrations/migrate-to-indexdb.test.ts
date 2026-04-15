@@ -35,7 +35,7 @@ const createCollection = (collection: Record<string, unknown> = {}): v_2_5_0['Co
     tags: [],
     children: [],
     watchMode: false,
-    useCollectionSecurity: true,
+    useCollectionSecurity: false,
     watchModeStatus: 'IDLE',
   }
 
