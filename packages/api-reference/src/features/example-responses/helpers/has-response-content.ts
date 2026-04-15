@@ -1,6 +1,7 @@
 import { objectKeys } from '@scalar/helpers/object/object-keys'
-import { normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
 import type { MediaTypeObject, ResponseObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+
+import { normalizeMimeTypeObject } from './normalize-mime-type-object'
 
 /**
  * Checks if a media type object has any displayable content.

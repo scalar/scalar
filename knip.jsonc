@@ -90,8 +90,8 @@
         "src/v2/features/operation/index.ts",
         "src/v2/features/search/index.ts",
         "src/v2/features/settings/index.ts",
-        "playground/v2/{app,modal,web}/main.ts",
-        "playground/v2/test/index.ts"
+        "playground/{app,modal,web}/main.ts",
+        "playground/test/index.ts"
       ]
     },
     "packages/api-client-react": {

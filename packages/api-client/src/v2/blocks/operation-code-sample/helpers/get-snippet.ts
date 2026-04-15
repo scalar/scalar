@@ -23,8 +23,7 @@ export const getSnippet = <T extends TargetId>(
     // Hack to get around invalid URLS until we update the snippets lib
     try {
       new URL(harRequest.url)
-    } catch (error) {
-      console.error('[getSnippet] Invalid URL', error)
+    } catch {
       harRequest.url = `${INVALID_URLS_PREFIX}${separator}${harRequest.url}`
     }
 

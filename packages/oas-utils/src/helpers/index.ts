@@ -1,6 +1,2 @@
 export { type ClientPlugin, executeHook } from './client-plugins'
-export { normalizeMimeType } from './normalize-mime-type'
-export { normalizeMimeTypeObject } from './normalize-mime-type-object'
-export { getOperationStability, getOperationStabilityColor, isOperationDeprecated } from './operation-stability'
 export { formatJsonOrYamlString, json, parseJsonOrYaml, transformToJson, yaml } from './parse'
-export { shouldIgnoreEntity } from './should-ignore-entity'

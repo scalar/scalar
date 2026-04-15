@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
-import { OpenApiClientButton } from '@scalar/api-client/v2/blocks/operation-block'
+import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'
 import {
   createApiClientModal,
   type ApiClientModal,
-} from '@scalar/api-client/v2/features/modal'
+} from '@scalar/api-client/modal'
 import {
   addScalarClassesToHeadless,
   ScalarColorModeToggleButton,

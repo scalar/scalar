@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AuthSelector } from '@scalar/api-client/v2/blocks/scalar-auth-selector-block'
+import { AuthSelector } from '@scalar/api-client/blocks/scalar-auth-selector-block'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'

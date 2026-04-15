@@ -46,7 +46,7 @@ export const OpenButton = () => {
 
 ### Options
 
-For the complete list of configuration options, see the [Scalar configuration docs](https://scalar.com/products/api-references/configuration).
+<!-- For the complete list of configuration options, see the [Scalar configuration docs](https://scalar.com/products/api-references/configuration). -->
 
 | Option | Description |
 |---|---|
