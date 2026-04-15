@@ -27,7 +27,7 @@ export const resolveRequestFactoryUrl = (
   const baseUrl = replaceEnvVariables(request.baseUrl, variables)
   const path = replacePathVariables(request.path.raw, pathVariables)
   const mergedUrl = mergeUrls(baseUrl, path)
-  const urlBase = globalThis.window?.location?.origin ?? 'http://localhost:3000'
+  const urlBase = (!globalThis.window?.location?.origin || globalThis.window.location.origin === 'null') ? 'http://localhost:3000' : globalThis.window.location.origin
   const url = new URL(mergedUrl, urlBase)
 
   const operationQueryParams = new URLSearchParams()

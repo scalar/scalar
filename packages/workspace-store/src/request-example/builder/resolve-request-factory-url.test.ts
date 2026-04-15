@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi, afterEach } from 'vitest'
 
 import type { RequestFactory } from './request-factory'
 import { resolveRequestFactoryUrl } from './resolve-request-factory-url'
@@ -24,7 +24,20 @@ const createRequestFactory = (overrides: Partial<RequestFactory> = {}): RequestF
 const defaultOptions = { envVariables: {}, securityQueryParams: new URLSearchParams() }
 
 describe('resolve-request-factory-url', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
   it('returns a simple URL from baseUrl and path', () => {
+    const request = createRequestFactory()
+    const result = resolveRequestFactoryUrl(request, defaultOptions)
+
+    expect(result).toBe('https://api.example.com/v1/users')
+  })
+
+  it('returns a simple URL from baseUrl and path when in iframe srcdoc', () => {
+    vi.stubGlobal('window', { location: { origin: 'null', href:'about:srcdoc', protocol: 'about:', pathname: 'srcdoc' } })
+
     const request = createRequestFactory()
     const result = resolveRequestFactoryUrl(request, defaultOptions)
 
