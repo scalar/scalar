@@ -251,6 +251,18 @@ describe('migrate-to-indexdb', () => {
     })
   })
 
+  describe('collection test helper defaults', () => {
+    it('defaults useCollectionSecurity to false to match the v-2.5.0 schema', () => {
+      const collection = collectionSchema.parse({
+        uid: 'collection-1',
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+      })
+
+      expect(collection.useCollectionSecurity).toBe(false)
+    })
+  })
+
   describe('transformLegacyDataToWorkspace - Security Schemes', () => {
     it('should transform API key security schemes into document components and auth store', async () => {
       const scheme = securitySchemeSchema.parse({

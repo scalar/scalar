@@ -551,16 +551,47 @@ describe('use-api-client', () => {
     )
   })
 
-  it('overwrites modal options when configuration keys are removed', async () => {
+  it('does not call updateOptions again when an inline configuration object keeps the same values', async () => {
     const { useApiClient } = await import('./use-api-client')
+    const initialProps: { config: ApiClientConfigurationReact } = {
+      config: {
+        url: 'https://api.example.com/openapi.json',
+        proxyUrl: 'https://proxy.example.com',
+      },
+    }
     const { rerender } = renderHook(
       ({ config }: { config: ApiClientConfigurationReact }) => useApiClient({ configuration: config }),
       {
-        initialProps: {
-          config: {
-            proxyUrl: 'https://proxy.example.com',
-          },
+        initialProps,
+      },
+    )
+
+    await waitFor(() => expect(mockApiClient.updateOptions).toHaveBeenCalled())
+    const callsAfterInitialRender = mockApiClient.updateOptions.mock.calls.length
+
+    act(() => {
+      rerender({
+        config: {
+          url: 'https://api.example.com/openapi.json',
+          proxyUrl: 'https://proxy.example.com',
         },
+      })
+    })
+
+    expect(mockApiClient.updateOptions).toHaveBeenCalledTimes(callsAfterInitialRender)
+  })
+
+  it('overwrites modal options when configuration keys are removed', async () => {
+    const { useApiClient } = await import('./use-api-client')
+    const initialProps: { config: ApiClientConfigurationReact } = {
+      config: {
+        proxyUrl: 'https://proxy.example.com',
+      },
+    }
+    const { rerender } = renderHook(
+      ({ config }: { config: ApiClientConfigurationReact }) => useApiClient({ configuration: config }),
+      {
+        initialProps,
       },
     )
 
