@@ -42,6 +42,7 @@ const responseBody = computed(() =>
       containerClass="custom-scroll scalar-code-block border rounded-b flex flex-1 max-h-screen"
       contentClass="language-plaintext whitespace-pre font-code text-base"
       :lineHeight="20"
+      searchable
       :text="textContent" />
   </CollapsibleSection>
 </template>
