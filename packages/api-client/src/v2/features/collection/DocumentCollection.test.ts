@@ -180,6 +180,7 @@ describe('DocumentCollection', () => {
 
     const syncButton = wrapper.find('[data-testid="document-sync-button"]')
     expect(syncButton.exists()).toBe(true)
+    expect(syncButton.text()).toContain('Sync with Registry')
 
     await syncButton.trigger('click')
     await flushPromises()
@@ -234,5 +235,31 @@ describe('DocumentCollection', () => {
       name: 'test-document',
       document: registryDocument,
     })
+  })
+
+  it('does not continue sync when save fails in dirty-state modal', async () => {
+    const document = createMockDocument({
+      info: { title: 'Dirty API', version: '1.0.0' },
+      'x-scalar-original-source-url': 'https://example.com/openapi.yaml',
+      'x-scalar-is-dirty': true,
+    })
+
+    const { wrapper, workspaceStore } = await mountWithRouter(document)
+    workspaceStore.saveDocument = vi.fn().mockResolvedValue(false) as any
+
+    const syncButton = wrapper.find('[data-testid="document-sync-button"]')
+    await syncButton.trigger('click')
+    await flushPromises()
+
+    const saveAndContinueButton = [...globalThis.document.body.querySelectorAll('button')].find((button) =>
+      button.textContent?.includes('Save and continue'),
+    )
+    expect(saveAndContinueButton).toBeDefined()
+
+    saveAndContinueButton?.dispatchEvent(new MouseEvent('click'))
+    await flushPromises()
+
+    expect(workspaceStore.saveDocument).toHaveBeenCalledWith('test-document')
+    expect(workspaceStore.rebaseDocument).not.toHaveBeenCalled()
   })
 })

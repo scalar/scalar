@@ -21,7 +21,7 @@ import {
   useModal,
 } from '@scalar/components'
 import {
-  ScalarIconCloudArrowDown,
+  ScalarIconArrowsClockwise,
   ScalarIconDownload,
   ScalarIconFloppyDisk,
   ScalarIconSpinner,
@@ -104,7 +104,11 @@ const downloadDocument = () => {
 }
 
 const handleSaveThenCloseDirtyModal = async () => {
-  await props.workspaceStore.saveDocument(props.documentSlug)
+  const isSaved = await props.workspaceStore.saveDocument(props.documentSlug)
+  if (!isSaved) {
+    toast('Could not save your changes. Please try saving again.', 'error')
+    return
+  }
   dirtyBeforeSyncModal.hide()
   await handleSyncFlow()
 }
@@ -169,10 +173,7 @@ const onSyncComplete = () => {
   syncModal.hide()
   isSyncInProgress.value = false
   // Display the toast to show that the sync is complete
-  toast(
-    'Your document has been rebased with the latest version from the source.',
-    'info',
-  )
+  toast('Document synced with Registry.', 'info')
   // Emit the event to notify other components that the sync is complete
   props.eventBus.emit('hooks:on:rebase:document:complete', {
     meta: {
@@ -340,7 +341,7 @@ const onSyncModalClose = () => {
             data-testid="document-sync-button"
             :disabled="isSyncInProgress"
             size="xs"
-            :title="'Pull the latest version from the document source and merge with your local copy. Save your changes first if you have unsaved edits.'"
+            :title="'Sync your local document with the Registry. This can pull remote updates and prepare your saved local edits for publish.'"
             type="button"
             variant="ghost"
             @click="handleSyncFlow">
@@ -348,12 +349,12 @@ const onSyncModalClose = () => {
               v-if="isSyncInProgress"
               class="size-3.5 animate-spin"
               size="sm" />
-            <ScalarIconCloudArrowDown
+            <ScalarIconArrowsClockwise
               v-else
               class="size-3.5"
               size="sm"
               thickness="1.5" />
-            <span>Sync from source</span>
+            <span>Sync with Registry</span>
           </ScalarButton>
         </div>
       </div>
@@ -388,7 +389,7 @@ const onSyncModalClose = () => {
     bodyClass="border-t-0 rounded-t-lg flex flex-col gap-5"
     size="xs"
     :state="dirtyBeforeSyncModal"
-    title="Sync requires saved document"
+    title="Save changes before syncing"
     @close="dirtyBeforeSyncModal.hide()">
     <div class="flex flex-col gap-5">
       <div class="flex gap-3">
@@ -403,7 +404,7 @@ const onSyncModalClose = () => {
           </p>
           <p class="text-c-2 text-sm leading-relaxed">
             Save your work to keep changes, or discard to revert to the last
-            saved version. Then you can sync with the source.
+            saved version. Then you can sync with the Registry.
           </p>
         </div>
       </div>
