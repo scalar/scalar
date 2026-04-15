@@ -27,7 +27,11 @@ export const resolveRequestFactoryUrl = (
   const baseUrl = replaceEnvVariables(request.baseUrl, variables)
   const path = replacePathVariables(request.path.raw, pathVariables)
   const mergedUrl = mergeUrls(baseUrl, path)
-  const urlBase = (!globalThis.window?.location?.origin || globalThis.window.location.origin === 'null') ? 'http://localhost:3000' : globalThis.window.location.origin
+  // When rendered inside an iframe with srcdoc, the browser reports
+  // window.location.origin as the string "null" instead of a real origin.
+  // Fall back to localhost so relative URLs can still be resolved.
+  const origin = globalThis.window?.location?.origin
+  const urlBase = origin && origin !== 'null' ? origin : 'http://localhost:3000'
   const url = new URL(mergedUrl, urlBase)
 
   const operationQueryParams = new URLSearchParams()

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, afterEach } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { RequestFactory } from './request-factory'
 import { resolveRequestFactoryUrl } from './resolve-request-factory-url'
@@ -36,7 +36,15 @@ describe('resolve-request-factory-url', () => {
   })
 
   it('returns a simple URL from baseUrl and path when in iframe srcdoc', () => {
-    vi.stubGlobal('window', { location: { origin: 'null', href:'about:srcdoc', protocol: 'about:', pathname: 'srcdoc' } })
+    vi.stubGlobal('window', {
+      location: {
+        // Yep, JS returns 'null' as a string for origin when in iframe srcdoc
+        origin: 'null',
+        href: 'about:srcdoc',
+        protocol: 'about:',
+        pathname: 'srcdoc',
+      },
+    })
 
     const request = createRequestFactory()
     const result = resolveRequestFactoryUrl(request, defaultOptions)
