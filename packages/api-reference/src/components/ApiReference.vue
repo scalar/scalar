@@ -3,6 +3,7 @@ import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/v2/blocks/operation-block'
 import type * as ApiClientModalModule from '@scalar/api-client/v2/features/modal'
 import type { ApiClientModal } from '@scalar/api-client/v2/features/modal'
+import { initializeWorkspaceEventHandlers } from '@scalar/api-client/v2/workspace-events'
 import {
   addScalarClassesToHeadless,
   ScalarColorModeToggleButton,
@@ -41,6 +42,7 @@ import {
   computed,
   onBeforeMount,
   onBeforeUnmount,
+  onMounted,
   onServerPrefetch,
   provide,
   ref,
@@ -722,6 +724,18 @@ provide(AGENT_CONTEXT_SYMBOL, agent)
 
 const modal = useTemplateRef<HTMLElement>('modal')
 const apiClient = ref<ApiClientModal | null>(null)
+
+/**
+ * Register workspace event handlers (auth, client selection, server updates, etc.)
+ * eagerly so they are available immediately, before the modal is ever opened.
+ */
+onMounted(() => {
+  initializeWorkspaceEventHandlers({
+    eventBus,
+    store: ref(clientStore),
+    hooks: {},
+  })
+})
 
 /**
  * Singleton promise for the api-client modal module.
