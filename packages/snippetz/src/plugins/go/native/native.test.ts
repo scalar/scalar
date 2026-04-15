@@ -206,6 +206,31 @@ describe('goNative', () => {
     expect(result).toContain(`req.Header.Set("Content-Type", writer.FormDataContentType())`)
   })
 
+  it('uses assignment for additional multipart file params', () => {
+    const result = goNative.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file1',
+            fileName: 'test-1.txt',
+          },
+          {
+            name: 'file2',
+            fileName: 'test-2.txt',
+          },
+        ],
+      },
+    })
+
+    expect(result).toContain(`part, _ := writer.CreateFormFile("file1", "test-1.txt")`)
+    expect(result).toContain(`f, _ := os.Open("test-1.txt")`)
+    expect(result).toContain(`part, _ = writer.CreateFormFile("file2", "test-2.txt")`)
+    expect(result).toContain(`f, _ = os.Open("test-2.txt")`)
+  })
+
   it('handles multipart form data with empty file names', () => {
     const result = goNative.generate({
       url: 'https://example.com',

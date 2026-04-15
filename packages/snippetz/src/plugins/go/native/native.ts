@@ -141,6 +141,8 @@ const buildBodySection = (postData?: {
 
     const setupLines: string[] = ['payload := &bytes.Buffer{}', 'writer := multipart.NewWriter(payload)']
     const hasFile = postData.params.some((param) => param.fileName !== undefined)
+    let hasDeclaredPart = false
+    let hasDeclaredFile = false
 
     if (hasFile) {
       imports.add('os')
@@ -151,12 +153,16 @@ const buildBodySection = (postData?: {
       setupLines.push('')
 
       if (param.fileName !== undefined) {
-        setupLines.push(`part, _ := writer.CreateFormFile(${goString(param.name)}, ${goString(param.fileName)})`)
+        setupLines.push(
+          `part, _ ${hasDeclaredPart ? '=' : ':='} writer.CreateFormFile(${goString(param.name)}, ${goString(param.fileName)})`,
+        )
         setupLines.push('')
-        setupLines.push(`f, _ := os.Open(${goString(param.fileName)})`)
+        setupLines.push(`f, _ ${hasDeclaredFile ? '=' : ':='} os.Open(${goString(param.fileName)})`)
         setupLines.push('defer f.Close()')
         setupLines.push('')
         setupLines.push('_, _ = io.Copy(part, f)')
+        hasDeclaredPart = true
+        hasDeclaredFile = true
       } else {
         setupLines.push(`_ = writer.WriteField(${goString(param.name)}, ${goString(param.value ?? '')})`)
       }
