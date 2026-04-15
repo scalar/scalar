@@ -128,7 +128,20 @@ function getDefaultCss(): string {
 export function getJsAsset(): string {
   if (_cachedJs === undefined) {
     const apiReferenceEntryPath = require.resolve('@scalar/api-reference')
-    const jsPath = resolve(dirname(apiReferenceEntryPath), 'browser/standalone.js')
+    const apiReferencePackageRoot = resolve(dirname(apiReferenceEntryPath), '..')
+    const apiReferencePackageJsonPath = resolve(apiReferencePackageRoot, 'package.json')
+    const apiReferencePackageJson = JSON.parse(readFileSync(apiReferencePackageJsonPath, 'utf-8')) as {
+      browser?: unknown
+    }
+
+    if (typeof apiReferencePackageJson.browser !== 'string' || apiReferencePackageJson.browser.length === 0) {
+      throw new Error(
+        `Could not resolve @scalar/api-reference browser entry from "${apiReferencePackageJsonPath}". ` +
+          'Expected a string "browser" field in package.json.',
+      )
+    }
+
+    const jsPath = resolve(apiReferencePackageRoot, apiReferencePackageJson.browser)
 
     if (!existsSync(jsPath)) {
       throw new Error(
