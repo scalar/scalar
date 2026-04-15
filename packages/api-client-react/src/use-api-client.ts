@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import './style.css'
 
+import { isObjectEqual } from '@scalar/helpers/object/is-object-equal'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 import { getOrCreateApiClient } from './lazy-load'
@@ -25,24 +26,6 @@ export type UseApiClientModalProps = {
 
 /** Tracks which documents are/have been loaded so we dont duplicate */
 const documentSet = new Set<string>()
-
-const hasModalOptionsChanged = (
-  previousOptions: ApiClientModalOptions | undefined,
-  nextOptions: ApiClientModalOptions,
-): boolean => {
-  if (!previousOptions) {
-    return true
-  }
-
-  const previousKeys = Object.keys(previousOptions) as Array<keyof ApiClientModalOptions>
-  const nextKeys = Object.keys(nextOptions) as Array<keyof ApiClientModalOptions>
-
-  if (previousKeys.length !== nextKeys.length) {
-    return true
-  }
-
-  return nextKeys.some((key) => !Object.is(previousOptions[key], nextOptions[key]))
-}
 
 /**
  * Returns the singleton Api Client
@@ -126,7 +109,7 @@ export const useApiClient = ({
     }
 
     const { url: _, ...modalOptions } = configuration
-    if (!hasModalOptionsChanged(previousModalOptionsRef.current, modalOptions)) {
+    if (isObjectEqual(previousModalOptionsRef.current, modalOptions)) {
       return
     }
 

@@ -1334,6 +1334,9 @@ importers:
       '@scalar/api-client':
         specifier: workspace:*
         version: link:../api-client
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../helpers
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store

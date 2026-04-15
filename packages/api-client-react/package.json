@@ -46,6 +46,7 @@
   ],
   "dependencies": {
     "@scalar/api-client": "workspace:*",
+    "@scalar/helpers": "workspace:*",
     "@scalar/workspace-store": "workspace:*"
   },
   "devDependencies": {

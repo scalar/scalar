@@ -580,6 +580,40 @@ describe('use-api-client', () => {
     expect(mockApiClient.updateOptions).toHaveBeenCalledTimes(callsAfterInitialRender)
   })
 
+  it('does not call updateOptions again when nested modal options are recreated with the same values', async () => {
+    const { useApiClient } = await import('./use-api-client')
+    const initialProps: { config: ApiClientConfigurationReact } = {
+      config: {
+        url: 'https://api.example.com/openapi.json',
+        authentication: {
+          preferredSecurityScheme: 'bearerAuth',
+        },
+      },
+    }
+    const { rerender } = renderHook(
+      ({ config }: { config: ApiClientConfigurationReact }) => useApiClient({ configuration: config }),
+      {
+        initialProps,
+      },
+    )
+
+    await waitFor(() => expect(mockApiClient.updateOptions).toHaveBeenCalled())
+    const callsAfterInitialRender = mockApiClient.updateOptions.mock.calls.length
+
+    act(() => {
+      rerender({
+        config: {
+          url: 'https://api.example.com/openapi.json',
+          authentication: {
+            preferredSecurityScheme: 'bearerAuth',
+          },
+        },
+      })
+    })
+
+    expect(mockApiClient.updateOptions).toHaveBeenCalledTimes(callsAfterInitialRender)
+  })
+
   it('overwrites modal options when configuration keys are removed', async () => {
     const { useApiClient } = await import('./use-api-client')
     const initialProps: { config: ApiClientConfigurationReact } = {
