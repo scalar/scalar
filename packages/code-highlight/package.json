@@ -21,7 +21,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && cp -r src/css dist/css",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && shx cp -r src/css dist/css",
     "dev": "vite",
     "test": "vitest",
     "types:check": "tsc --noEmit"
