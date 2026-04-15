@@ -157,8 +157,9 @@ export const useCodeMirror = (
 
     const setup = await loadSetup()
 
-    // Bail out if the ref changed or the element was removed from the DOM.
-    if (params.codeMirrorRef.value !== mountTarget || !mountTarget.isConnected) {
+    // Bail out if the ref changed while the chunk was loading (e.g. the component
+    // unmounted). Vue sets template refs to null on unmount, so this covers that case.
+    if (params.codeMirrorRef.value !== mountTarget) {
       return
     }
 
