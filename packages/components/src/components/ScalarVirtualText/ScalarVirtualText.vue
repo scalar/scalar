@@ -291,16 +291,19 @@ const toAbsoluteIndex = (relativeIndex: number): number =>
     tabindex="0"
     @keydown="handleKeydown"
     @scroll="handleScroll">
-    <!-- Search bar (floating top-right, height collapsed so it does not affect scroll) -->
-    <ScalarVirtualTextSearch
+    <!-- Zero-height wrapper so the search bar does not contribute to scrollHeight -->
+    <div
       v-if="searchable && searchOpen"
-      ref="searchRef"
-      v-model:query="searchQuery"
-      :activeMatchIndex="activeMatchIndex"
-      :matchCount="searchMatches.length"
-      @close="closeSearch"
-      @next="nextMatch"
-      @prev="prevMatch" />
+      class="sticky top-0 z-10 flex h-0 w-full justify-end overflow-visible">
+      <ScalarVirtualTextSearch
+        ref="searchRef"
+        v-model:query="searchQuery"
+        :activeMatchIndex="activeMatchIndex"
+        :matchCount="searchMatches.length"
+        @close="closeSearch"
+        @next="nextMatch"
+        @prev="prevMatch" />
+    </div>
 
     <!-- Invisible spacer that defines the full scrollable height -->
     <div :style="{ height: `${totalHeight}px` }" />

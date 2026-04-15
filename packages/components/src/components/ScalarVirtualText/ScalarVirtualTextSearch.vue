@@ -79,7 +79,7 @@ defineExpose({ focus })
 
 <template>
   <div
-    class="scalar-virtual-text-search sticky right-2 top-2 z-10 ml-auto flex h-fit w-fit items-center gap-1 overflow-visible rounded-lg bg-b-2 px-2 py-1 shadow-md"
+    class="scalar-virtual-text-search ml-auto mr-2 mt-2 flex h-fit w-fit items-center gap-1 overflow-visible rounded-lg bg-b-2 px-2 py-1 shadow-md"
     @click.stop>
     <ScalarIconMagnifyingGlass
       class="pointer-events-none size-3.5 shrink-0 text-c-3" />
