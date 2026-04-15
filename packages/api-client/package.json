@@ -24,7 +24,7 @@
   },
   "scripts": {
     "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "dev": "pnpm playground:v2:web",
+    "dev": "pnpm playground:web",
     "playground:app": "vite ./playground/app -c ./vite.config.ts",
     "playground:modal": "vite ./playground/modal -c ./vite.config.ts",
     "playground:web": "vite ./playground/web -c ./vite.config.ts",
@@ -36,14 +36,7 @@
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
     "./*.css": {
       "import": "./dist/*.css",
       "require": "./dist/*.css",

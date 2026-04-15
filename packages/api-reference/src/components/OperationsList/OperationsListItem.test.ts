@@ -8,7 +8,7 @@ import OperationsListItem from './OperationsListItem.vue'
 
 enableAutoUnmount(afterEach)
 
-vi.mock('@scalar/oas-utils/helpers', () => ({
+vi.mock('@/features/Operation/helpers/operation-stability', () => ({
   isOperationDeprecated: vi.fn(),
 }))
 
