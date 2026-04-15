@@ -76,12 +76,8 @@ describe('ScalarVirtualTextSearch', () => {
     })
 
     const buttons = wrapper.findAll('button')
-    const prevButton = buttons.find(
-      (b) => b.attributes('aria-label') === 'Previous match',
-    )
-    const nextButton = buttons.find(
-      (b) => b.attributes('aria-label') === 'Next match',
-    )
+    const prevButton = buttons.find((b) => b.attributes('aria-label') === 'Previous match')
+    const nextButton = buttons.find((b) => b.attributes('aria-label') === 'Next match')
 
     expect(prevButton?.attributes('disabled')).toBe('')
     expect(nextButton?.attributes('disabled')).toBe('')
@@ -93,12 +89,8 @@ describe('ScalarVirtualTextSearch', () => {
     })
 
     const buttons = wrapper.findAll('button')
-    const prevButton = buttons.find(
-      (b) => b.attributes('aria-label') === 'Previous match',
-    )
-    const nextButton = buttons.find(
-      (b) => b.attributes('aria-label') === 'Next match',
-    )
+    const prevButton = buttons.find((b) => b.attributes('aria-label') === 'Previous match')
+    const nextButton = buttons.find((b) => b.attributes('aria-label') === 'Next match')
 
     expect(prevButton?.attributes('disabled')).toBeUndefined()
     expect(nextButton?.attributes('disabled')).toBeUndefined()
@@ -109,9 +101,7 @@ describe('ScalarVirtualTextSearch', () => {
       props: { ...defaultProps, matchCount: 2 },
     })
 
-    const prevButton = wrapper
-      .findAll('button')
-      .find((b) => b.attributes('aria-label') === 'Previous match')
+    const prevButton = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Previous match')
 
     await prevButton?.trigger('click')
 
@@ -123,9 +113,7 @@ describe('ScalarVirtualTextSearch', () => {
       props: { ...defaultProps, matchCount: 2 },
     })
 
-    const nextButton = wrapper
-      .findAll('button')
-      .find((b) => b.attributes('aria-label') === 'Next match')
+    const nextButton = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Next match')
 
     await nextButton?.trigger('click')
 
@@ -137,9 +125,7 @@ describe('ScalarVirtualTextSearch', () => {
       props: defaultProps,
     })
 
-    const closeButton = wrapper
-      .findAll('button')
-      .find((b) => b.attributes('aria-label') === 'Close search')
+    const closeButton = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Close search')
 
     await closeButton?.trigger('click')
 
@@ -162,9 +148,7 @@ describe('ScalarVirtualTextSearch', () => {
       props: defaultProps,
     })
 
-    await wrapper
-      .find('input')
-      .trigger('keydown', { key: 'Enter', shiftKey: true })
+    await wrapper.find('input').trigger('keydown', { key: 'Enter', shiftKey: true })
 
     expect(wrapper.emitted('prev')?.length).toBe(1)
     expect(wrapper.emitted('next')).toBeUndefined()
@@ -185,15 +169,9 @@ describe('ScalarVirtualTextSearch', () => {
       props: defaultProps,
     })
 
-    const labels = wrapper
-      .findAll('button')
-      .map((b) => b.attributes('aria-label'))
+    const labels = wrapper.findAll('button').map((b) => b.attributes('aria-label'))
 
-    expect(labels).toStrictEqual([
-      'Previous match',
-      'Next match',
-      'Close search',
-    ])
+    expect(labels).toStrictEqual(['Previous match', 'Next match', 'Close search'])
   })
 
   it('has an accessible label on the search input', () => {
@@ -201,8 +179,6 @@ describe('ScalarVirtualTextSearch', () => {
       props: defaultProps,
     })
 
-    expect(wrapper.find('input').attributes('aria-label')).toBe(
-      'Search in text',
-    )
+    expect(wrapper.find('input').attributes('aria-label')).toBe('Search in text')
   })
 })

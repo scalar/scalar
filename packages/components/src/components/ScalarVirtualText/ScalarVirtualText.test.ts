@@ -35,15 +35,9 @@ describe('ScalarVirtualText', () => {
       },
     })
 
-    expect(
-      wrapper.find('.scalar-virtual-text').classes(),
-    ).toContain('custom-container')
-    expect(
-      wrapper.find('.scalar-virtual-text-content').classes(),
-    ).toContain('custom-content')
-    expect(
-      wrapper.find('.scalar-virtual-text-line').classes(),
-    ).toContain('custom-line')
+    expect(wrapper.find('.scalar-virtual-text').classes()).toContain('custom-container')
+    expect(wrapper.find('.scalar-virtual-text-content').classes()).toContain('custom-content')
+    expect(wrapper.find('.scalar-virtual-text-line').classes()).toContain('custom-line')
   })
 
   it('applies custom line height to each line', () => {
@@ -63,9 +57,7 @@ describe('ScalarVirtualText', () => {
 
     // The spacer is the first direct child div (after search), check via parent
     const container = wrapper.find('.scalar-virtual-text')
-    const spacerDiv = container.element.querySelector(
-      ':scope > div:not(.scalar-virtual-text-search)',
-    ) as HTMLElement
+    const spacerDiv = container.element.querySelector(':scope > div:not(.scalar-virtual-text-search)') as HTMLElement
 
     expect(spacerDiv?.style.height).toBe('60px')
   })
@@ -148,9 +140,7 @@ describe('ScalarVirtualText', () => {
       props: { text: 'Hello world', searchable: true },
     })
 
-    await wrapper
-      .find('.scalar-virtual-text')
-      .trigger('keydown', { key: 'f', metaKey: true })
+    await wrapper.find('.scalar-virtual-text').trigger('keydown', { key: 'f', metaKey: true })
 
     expect(wrapper.findComponent({ name: 'ScalarVirtualTextSearch' }).exists()).toBe(true)
   })
@@ -161,16 +151,12 @@ describe('ScalarVirtualText', () => {
     })
 
     // Open
-    await wrapper
-      .find('.scalar-virtual-text')
-      .trigger('keydown', { key: 'f', metaKey: true })
+    await wrapper.find('.scalar-virtual-text').trigger('keydown', { key: 'f', metaKey: true })
 
     expect(wrapper.findComponent({ name: 'ScalarVirtualTextSearch' }).exists()).toBe(true)
 
     // Close
-    await wrapper
-      .find('.scalar-virtual-text')
-      .trigger('keydown', { key: 'Escape' })
+    await wrapper.find('.scalar-virtual-text').trigger('keydown', { key: 'Escape' })
 
     expect(wrapper.findComponent({ name: 'ScalarVirtualTextSearch' }).exists()).toBe(false)
   })
@@ -180,9 +166,7 @@ describe('ScalarVirtualText', () => {
       props: { text: 'Hello world', searchable: false },
     })
 
-    await wrapper
-      .find('.scalar-virtual-text')
-      .trigger('keydown', { key: 'f', metaKey: true })
+    await wrapper.find('.scalar-virtual-text').trigger('keydown', { key: 'f', metaKey: true })
 
     expect(wrapper.findComponent({ name: 'ScalarVirtualTextSearch' }).exists()).toBe(false)
   })
@@ -193,9 +177,7 @@ describe('ScalarVirtualText', () => {
     })
 
     // Open search
-    await wrapper
-      .find('.scalar-virtual-text')
-      .trigger('keydown', { key: 'f', metaKey: true })
+    await wrapper.find('.scalar-virtual-text').trigger('keydown', { key: 'f', metaKey: true })
 
     const search = wrapper.findComponent({ name: 'ScalarVirtualTextSearch' })
     const input = search.find('input')
@@ -212,9 +194,7 @@ describe('ScalarVirtualText', () => {
       props: { text: 'aaa', searchable: true },
     })
 
-    await wrapper
-      .find('.scalar-virtual-text')
-      .trigger('keydown', { key: 'f', metaKey: true })
+    await wrapper.find('.scalar-virtual-text').trigger('keydown', { key: 'f', metaKey: true })
 
     const input = wrapper.findComponent({ name: 'ScalarVirtualTextSearch' }).find('input')
     await input.setValue('aa')
@@ -232,9 +212,7 @@ describe('ScalarVirtualText', () => {
       props: { text: 'aaa bbb aaa', searchable: true },
     })
 
-    await wrapper
-      .find('.scalar-virtual-text')
-      .trigger('keydown', { key: 'f', metaKey: true })
+    await wrapper.find('.scalar-virtual-text').trigger('keydown', { key: 'f', metaKey: true })
 
     const input = wrapper.findComponent({ name: 'ScalarVirtualTextSearch' }).find('input')
     await input.setValue('aaa')
