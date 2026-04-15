@@ -16,6 +16,7 @@ describe('fastifyApiReference', () => {
   it('returns 200 OK for the HTML', async () => {
     origin = Fastify({
       logger: false,
+      forceCloseConnections: true,
     })
 
     await origin.register(Scalar, {
@@ -32,6 +33,7 @@ describe('fastifyApiReference', () => {
 
     proxy = Fastify({
       logger: false,
+      forceCloseConnections: true,
     })
 
     await proxy.register(HttpProxy, {
