@@ -41,11 +41,7 @@ const containerHeight = ref(0)
 
 /** Array of text broken into lines */
 const lines = computed(() => props.text.split('\n'))
-/**
- * Total height of all lines combined
- *
- * TODO: there is a problem with this calculation which screws up the scrollbar a bit
- */
+/** Total height of all lines combined */
 const totalHeight = computed(() => lines.value.length * props.lineHeight)
 
 /** Index of the first visible line */
@@ -72,11 +68,10 @@ const visibleLines = computed(() => {
   return lines.value.slice(start, end)
 })
 
-/** Style object for the content container, controls "scrolling" */
-const contentStyle = computed(() => ({
-  height: `${totalHeight.value}px`,
-  transform: `translateY(${Math.max(0, visibleStartIndex.value - 10) * props.lineHeight}px)`,
-}))
+/** Pixel offset for the visible content slice */
+const contentOffset = computed(
+  () => Math.max(0, visibleStartIndex.value - 10) * props.lineHeight,
+)
 
 /** Updates the scroll position when the container is scrolled */
 const handleScroll = () =>
@@ -101,21 +96,23 @@ watchEffect(() => {
     return
   }
 
-  contentRef.value.style.transform = `translateY(${Math.max(0, visibleStartIndex.value - 10) * props.lineHeight}px)`
+  contentRef.value.style.transform = `translateY(${contentOffset.value}px)`
 })
 </script>
 
 <template>
   <div
     ref="containerRef"
-    class="scalar-virtual-text overflow-auto"
+    class="scalar-virtual-text relative overflow-auto"
     :class="containerClass"
     @scroll="handleScroll">
+    <!-- Invisible spacer that defines the full scrollable height -->
+    <div :style="{ height: `${totalHeight}px` }" />
     <code
       ref="contentRef"
-      class="scalar-virtual-text-content"
+      class="scalar-virtual-text-content absolute left-0 right-0 top-0"
       :class="contentClass"
-      :style="contentStyle">
+      :style="{ transform: `translateY(${contentOffset}px)` }">
       <div
         v-for="(line, index) in visibleLines"
         :key="visibleStartIndex + index"
