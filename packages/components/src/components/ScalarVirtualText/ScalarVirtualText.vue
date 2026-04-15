@@ -109,7 +109,7 @@ const searchMatches = computed<SearchMatch[]>(() => {
       const idx = lowerLine.indexOf(lowerQuery, pos)
       if (idx === -1) break
       matches.push({ line: i, start: idx, end: idx + query.length })
-      pos = idx + 1
+      pos = idx + lowerQuery.length
     }
   }
   return matches

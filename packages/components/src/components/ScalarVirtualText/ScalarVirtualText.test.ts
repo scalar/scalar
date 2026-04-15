@@ -207,6 +207,26 @@ describe('ScalarVirtualText', () => {
     expect(highlights[1]?.text()).toBe('foo')
   })
 
+  it('does not produce overlapping matches for repeated characters', async () => {
+    const wrapper = mount(ScalarVirtualText, {
+      props: { text: 'aaa', searchable: true },
+    })
+
+    await wrapper
+      .find('.scalar-virtual-text')
+      .trigger('keydown', { key: 'f', metaKey: true })
+
+    const input = wrapper.findComponent({ name: 'ScalarVirtualTextSearch' }).find('input')
+    await input.setValue('aa')
+
+    const highlights = wrapper.findAll('.scalar-virtual-text-highlight')
+    expect(highlights.length).toBe(1)
+    expect(highlights[0]?.text()).toBe('aa')
+
+    const line = wrapper.find('.scalar-virtual-text-line')
+    expect(line.text()).toBe('aaa')
+  })
+
   it('marks the first match as active', async () => {
     const wrapper = mount(ScalarVirtualText, {
       props: { text: 'aaa bbb aaa', searchable: true },
