@@ -257,6 +257,10 @@ jobs:
               args+=(--filter "./${dirs[$i]%/}")
             fi
           done
+          if [ ${#args[@]} -eq 0 ]; then
+            echo "No packages assigned to this shard, skipping."
+            exit 0
+          fi
           pnpm turbo "${args[@]}" test
 
   test-integrations:
