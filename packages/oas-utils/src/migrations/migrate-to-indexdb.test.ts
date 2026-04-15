@@ -147,8 +147,8 @@ const createWorkspace = (workspace: Record<string, unknown> = {}): v_2_5_0['Work
     cookies: [],
     themeId: 'default',
     selectedHttpClient: {
-      targetKey: 'js',
-      clientKey: 'fetch',
+      targetKey: 'shell',
+      clientKey: 'curl',
     },
   }
 
@@ -320,6 +320,18 @@ describe('migrate-to-indexdb', () => {
   beforeEach(() => {
     // Clear localStorage before each test to ensure clean state
     localStorage.clear()
+  })
+
+  describe('legacy test data defaults', () => {
+    it('uses shell/curl as the default selectedHttpClient', () => {
+      const legacyData = createLegacyData()
+      const [workspace] = legacyData.arrays.workspaces
+
+      expect(workspace?.selectedHttpClient).toStrictEqual({
+        targetKey: 'shell',
+        clientKey: 'curl',
+      })
+    })
   })
 
   describe('shouldMigrateToIndexDb', () => {
