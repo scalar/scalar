@@ -1,4 +1,4 @@
-import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
+import type { ClientOptionGroup } from '@scalar/api-client/blocks/operation-code-sample'
 import type { AvailableClients } from '@scalar/snippetz'
 import { describe, expect, it } from 'vitest'
 

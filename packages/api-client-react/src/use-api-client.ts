@@ -1,6 +1,6 @@
 'use client'
 
-import type { ApiClientModal, ApiClientModalOptions, RoutePayload } from '@scalar/api-client/v2/features/modal'
+import type { ApiClientModal, ApiClientModalOptions, RoutePayload } from '@scalar/api-client/modal'
 import { useEffect, useRef, useState } from 'react'
 
 import './style.css'

@@ -10,7 +10,7 @@ vi.mock('./style.css', () => ({}))
 vi.mock('./lazy-load', () => ({
   getOrCreateApiClient: vi.fn(),
 }))
-vi.mock('@scalar/api-client/v2/blocks/operation-code-sample', () => ({
+vi.mock('@scalar/api-client/blocks/operation-code-sample', () => ({
   isClient: vi.fn(() => true),
 }))
 

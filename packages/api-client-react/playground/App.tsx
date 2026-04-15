@@ -1,4 +1,4 @@
-import type { RoutePayload } from '@scalar/api-client/v2/features/modal'
+import type { RoutePayload } from '@scalar/api-client/modal'
 
 import { useApiClient } from '../src/use-api-client'
 import '../src/style.css'
