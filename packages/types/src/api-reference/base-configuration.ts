@@ -15,7 +15,7 @@ export type ExternalUrls = z.output<typeof externalUrlsSchema>
 export const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
 export const NEW_PROXY_URL = 'https://proxy.scalar.com'
 
-/** Shared configuration for the Api Reference and Api Client */
+/** Shared configuration for the API Reference and API Client */
 export const baseConfigurationSchema = z.object({
   /**
    * The title of the OpenAPI document.
@@ -172,5 +172,5 @@ export const baseConfigurationSchema = z.object({
   externalUrls: externalUrlsSchema.prefault({}),
 })
 
-/** Shared configuration for the Api Reference and Api Client */
+/** Shared configuration for the API Reference and API Client */
 export type BaseConfiguration = z.infer<typeof baseConfigurationSchema>
