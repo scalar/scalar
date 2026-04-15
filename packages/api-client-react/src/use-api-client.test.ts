@@ -55,14 +55,14 @@ describe('use-api-client', () => {
     vi.mocked(getOrCreateApiClient).mockReturnValue(new Promise(() => {}))
 
     const { useApiClient } = await import('./use-api-client')
-    const { result } = renderHook(() => useApiClient())
+    const { result } = renderHook(() => useApiClient({ configuration: { url: '' } }))
 
     expect(result.current).toBeUndefined()
   })
 
   it('returns the client after the async initialization resolves', async () => {
     const { useApiClient } = await import('./use-api-client')
-    const { result } = renderHook(() => useApiClient())
+    const { result } = renderHook(() => useApiClient({ configuration: { url: '' } }))
 
     await waitFor(() => expect(result.current).not.toBeUndefined())
 
@@ -72,7 +72,7 @@ describe('use-api-client', () => {
 
   it('spreads all apiClient properties onto the returned object', async () => {
     const { useApiClient } = await import('./use-api-client')
-    const { result } = renderHook(() => useApiClient())
+    const { result } = renderHook(() => useApiClient({ configuration: { url: '' } }))
 
     await waitFor(() => expect(result.current).not.toBeUndefined())
 
@@ -100,12 +100,12 @@ describe('use-api-client', () => {
     })
   })
 
-  it('uses the content title as documentSlug when url is not provided', async () => {
+  it('uses "default" as documentSlug when url is an empty string', async () => {
     const { useApiClient } = await import('./use-api-client')
     const { result } = renderHook(() =>
       useApiClient({
         configuration: {
-          content: { info: { title: 'My API' } },
+          url: '',
         },
       }),
     )
@@ -117,15 +117,15 @@ describe('use-api-client', () => {
     })
 
     expect(mockApiClient.open).toHaveBeenCalledWith({
-      documentSlug: 'My API',
+      documentSlug: 'default',
       path: '/users',
       method: 'get',
     })
   })
 
-  it('uses "default" as documentSlug when neither url nor content title is provided', async () => {
+  it('uses "default" as documentSlug when url is empty', async () => {
     const { useApiClient } = await import('./use-api-client')
-    const { result } = renderHook(() => useApiClient({ configuration: {} }))
+    const { result } = renderHook(() => useApiClient({ configuration: { url: '' } }))
 
     await waitFor(() => expect(result.current).not.toBeUndefined())
 
@@ -152,30 +152,9 @@ describe('use-api-client', () => {
     })
   })
 
-  it('calls workspaceStore.addDocument with inline content when content is configured', async () => {
-    const inlineContent = { info: { title: 'My API' }, paths: {} }
+  it('calls workspaceStore.addDocument with "default" slug when url is empty', async () => {
     const { useApiClient } = await import('./use-api-client')
-    renderHook(() => useApiClient({ configuration: { content: inlineContent } }))
-
-    await waitFor(() => expect(mockWorkspaceStore.addDocument).toHaveBeenCalled())
-
-    expect(mockWorkspaceStore.addDocument).toHaveBeenCalledWith({
-      name: 'My API',
-      document: inlineContent,
-    })
-  })
-
-  it('does not call addDocument when no configuration is provided', async () => {
-    const { useApiClient } = await import('./use-api-client')
-    renderHook(() => useApiClient())
-
-    // Give the effect time to run
-    await waitFor(() => expect(mockWorkspaceStore.addDocument).not.toHaveBeenCalled())
-  })
-
-  it('calls addDocument with "default" slug when configuration has no url or content', async () => {
-    const { useApiClient } = await import('./use-api-client')
-    renderHook(() => useApiClient({ configuration: {} }))
+    renderHook(() => useApiClient({ configuration: { url: '' } }))
 
     await waitFor(() => expect(mockWorkspaceStore.addDocument).toHaveBeenCalled())
 
@@ -185,7 +164,26 @@ describe('use-api-client', () => {
     })
   })
 
-  it('uses "default" slug when url changes to empty configuration', async () => {
+  it('calls addDocument with "default" when configuration url is empty', async () => {
+    const { useApiClient } = await import('./use-api-client')
+    renderHook(() => useApiClient({ configuration: { url: '' } }))
+
+    await waitFor(() => expect(mockWorkspaceStore.addDocument).toHaveBeenCalledWith({ name: 'default', url: '' }))
+  })
+
+  it('calls addDocument with "default" slug when configuration has no url or content', async () => {
+    const { useApiClient } = await import('./use-api-client')
+    renderHook(() => useApiClient({ configuration: { url: '' } }))
+
+    await waitFor(() => expect(mockWorkspaceStore.addDocument).toHaveBeenCalled())
+
+    expect(mockWorkspaceStore.addDocument).toHaveBeenCalledWith({
+      name: 'default',
+      url: '',
+    })
+  })
+
+  it('uses "default" slug when url changes to empty string', async () => {
     vi.resetModules()
 
     const { getOrCreateApiClient } = await import('./lazy-load')
@@ -198,13 +196,13 @@ describe('use-api-client', () => {
 
     // Start with a valid url so client is initialized
     const { rerender } = renderHook(({ config }) => useApiClient({ configuration: config }), {
-      initialProps: { config: { url: 'https://api.example.com/v1.json' } as Record<string, unknown> },
+      initialProps: { config: { url: 'https://api.example.com/v1.json' } },
     })
 
     await waitFor(() => expect(mockWorkspaceStore.addDocument).toHaveBeenCalledTimes(1))
 
-    // Re-render with an empty configuration — the second useEffect falls back to 'default'
-    rerender({ config: {} })
+    // Re-render with an empty url — the second useEffect falls back to 'default'
+    rerender({ config: { url: '' } })
 
     await waitFor(() => expect(mockWorkspaceStore.addDocument).toHaveBeenCalledTimes(2))
 
@@ -323,7 +321,7 @@ describe('use-api-client', () => {
     vi.mocked(getOrCreateApiClient).mockReturnValue(pendingPromise as any)
 
     const { useApiClient } = await import('./use-api-client')
-    const { result, unmount } = renderHook(() => useApiClient())
+    const { result, unmount } = renderHook(() => useApiClient({ configuration: { url: '' } }))
 
     expect(result.current).toBeUndefined()
 
@@ -354,8 +352,8 @@ describe('use-api-client', () => {
     vi.mocked(getOrCreateApiClient).mockReturnValue(pendingPromise as any)
 
     const { useApiClient } = await import('./use-api-client')
-    const firstConsumer = renderHook(() => useApiClient())
-    const secondConsumer = renderHook(() => useApiClient())
+    const firstConsumer = renderHook(() => useApiClient({ configuration: { url: '' } }))
+    const secondConsumer = renderHook(() => useApiClient({ configuration: { url: '' } }))
 
     expect(firstConsumer.result.current).toBeUndefined()
     expect(secondConsumer.result.current).toBeUndefined()
@@ -449,14 +447,14 @@ describe('use-api-client', () => {
     vi.mocked(getOrCreateApiClient).mockReturnValue(new Promise(() => {}))
 
     const { useApiClient } = await import('./use-api-client')
-    const { result } = renderHook(() => useApiClient())
+    const { result } = renderHook(() => useApiClient({ configuration: { url: '' } }))
 
     // Client is undefined, so open should not throw
     expect(result.current).toBeUndefined()
     // Calling open on undefined would normally throw — the hook returns undefined so callers guard it
   })
 
-  it('strips url and content and forwards only supported modal options', async () => {
+  it('strips url and forwards only supported modal options', async () => {
     const { getOrCreateApiClient } = await import('./lazy-load')
     const { useApiClient } = await import('./use-api-client')
 
@@ -464,7 +462,6 @@ describe('use-api-client', () => {
       useApiClient({
         configuration: {
           url: 'https://api.example.com/openapi.json',
-          content: { info: { title: 'My API' } },
           authentication: {
             preferredSecurityScheme: 'bearerAuth',
           },
@@ -477,7 +474,6 @@ describe('use-api-client', () => {
 
     const calledWith = vi.mocked(getOrCreateApiClient).mock.calls[0]![0]
     expect(calledWith).not.toHaveProperty('url')
-    expect(calledWith).not.toHaveProperty('content')
     expect(calledWith).toMatchObject({
       authentication: { preferredSecurityScheme: 'bearerAuth' },
       baseServerURL: 'https://proxy.example.com',
@@ -490,6 +486,7 @@ describe('use-api-client', () => {
     renderHook(() =>
       useApiClient({
         configuration: {
+          url: 'https://api.example.com/openapi.json',
           authentication: {
             preferredSecurityScheme: 'bearerAuth',
           },
@@ -515,6 +512,7 @@ describe('use-api-client', () => {
     const { useApiClient } = await import('./use-api-client')
     const initialProps: { config: ApiClientConfigurationReact } = {
       config: {
+        url: 'https://api.example.com/openapi.json',
         authentication: {
           preferredSecurityScheme: 'bearerAuth',
         },
@@ -531,6 +529,7 @@ describe('use-api-client', () => {
 
     rerender({
       config: {
+        url: 'https://api.example.com/openapi.json',
         authentication: {
           preferredSecurityScheme: 'apiKey',
         },
@@ -585,6 +584,7 @@ describe('use-api-client', () => {
     const { useApiClient } = await import('./use-api-client')
     const initialProps: { config: ApiClientConfigurationReact } = {
       config: {
+        url: 'https://api.example.com/openapi.json',
         proxyUrl: 'https://proxy.example.com',
       },
     }
@@ -604,7 +604,7 @@ describe('use-api-client', () => {
       ),
     )
 
-    rerender({ config: {} })
+    rerender({ config: { url: 'https://api.example.com/openapi.json' } })
 
     await waitFor(() => expect(mockApiClient.updateOptions).toHaveBeenLastCalledWith({}, true))
   })
