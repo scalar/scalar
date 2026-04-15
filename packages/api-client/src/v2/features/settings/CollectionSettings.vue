@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { cva, cx, ScalarButton, ScalarIcon } from '@scalar/components'
+import {
+  cva,
+  cx,
+  ScalarButton,
+  ScalarIcon,
+  ScalarToggleInput,
+} from '@scalar/components'
 import {
   presets,
   themeLabels,
@@ -22,6 +28,7 @@ const {
   customThemes = [],
   activeThemeSlug,
   colorMode,
+  telemetry,
 } = defineProps<{
   /** Currently active proxy URL, when set to null means no proxy */
   activeProxyUrl?: string | null
@@ -31,12 +38,15 @@ const {
   activeThemeSlug?: string
   /** Currently active color mode */
   colorMode: ColorMode
+  /** Whether telemetry is enabled */
+  telemetry?: boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'update:proxyUrl', value: string | null): void
   (e: 'update:themeSlug', value: string | undefined): void
   (e: 'update:colorMode', value: ColorMode): void
+  (e: 'update:telemetry', value: boolean): void
 }>()
 
 const DEFAULT_PROXY_URL = 'https://proxy.scalar.com'
@@ -297,6 +307,22 @@ const checkmarkClasses = (isActive: boolean) =>
       <Appearance
         :colorMode="colorMode"
         @update:colorMode="(value) => emit('update:colorMode', value)" />
+    </Section>
+
+    <!-- Telemetry -->
+    <Section>
+      <template #title>Telemetry</template>
+      <template #description>
+        Help us improve Scalar by sending usage data.
+      </template>
+
+      <ScalarToggleInput
+        :modelValue="telemetry"
+        @update:modelValue="
+          (value) => emit('update:telemetry', value ?? false)
+        ">
+        Enable telemetry
+      </ScalarToggleInput>
     </Section>
   </div>
 </template>

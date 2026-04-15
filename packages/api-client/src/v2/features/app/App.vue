@@ -16,7 +16,7 @@ import {
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
-import { computed, onBeforeUnmount, toValue } from 'vue'
+import { computed, onBeforeUnmount, toValue, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { SidebarToggle } from '@/v2/components/sidebar'
@@ -81,7 +81,7 @@ if (typeof window !== 'undefined') {
 const pluginUnsubscribes: (() => void)[] = []
 
 for (const plugin of plugins) {
-  plugin.lifecycle?.onInit?.()
+  plugin.lifecycle?.onInit?.({ config: { telemetry: app.telemetry.value } })
 
   if (plugin.on) {
     for (const [event, handler] of Object.entries(plugin.on)) {
@@ -89,6 +89,15 @@ for (const plugin of plugins) {
     }
   }
 }
+
+/** Notify plugins when telemetry config changes */
+watch(app.telemetry, () => {
+  for (const plugin of plugins) {
+    plugin.lifecycle?.onConfigChange?.({
+      config: { telemetry: app.telemetry.value },
+    })
+  }
+})
 
 onBeforeUnmount(() => {
   for (const unsub of pluginUnsubscribes) {
@@ -168,6 +177,10 @@ const routerViewProps = computed<RouteProps>(() => {
     isDarkMode: app.isDarkMode.value,
     currentTheme: app.theme.styles.value.themeStyles,
     customThemes: toValue(app.theme.customThemes),
+    telemetry: app.telemetry.value,
+    onUpdateTelemetry: (value: boolean) => {
+      app.telemetry.value = value
+    },
   }
 })
 </script>
