@@ -26,6 +26,7 @@ const { is = 'a' } = defineProps<{
   is?: string | Component
   icon?: Icon | ScalarIconComponent
   strong?: boolean
+  submenu?: boolean
 }>()
 
 const { cx } = useBindCx()
@@ -34,7 +35,7 @@ defineOptions({ inheritAttrs: false })
 <template>
   <ScalarDropdownButton
     v-bind="cx('flex items-center')"
-    :is="DropdownMenu.Item"
+    :is="submenu ? DropdownMenu.SubTrigger : DropdownMenu.Item"
     :as="is">
     <ScalarIconLegacyAdapter
       v-if="icon"
