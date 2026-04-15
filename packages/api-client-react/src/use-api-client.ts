@@ -64,8 +64,9 @@ export const useApiClient = ({
       // preventing a render where `client` is set but `documentSlug` is still ''.
       const slug = url || (content as { info?: { title?: string } })?.info?.title || ''
 
-      // Keep singleton modal options in sync even when the client already exists.
-      _client.apiClient.updateOptions(modalOptions)
+      // React always provides the complete modal option set for this hook instance,
+      // so we overwrite to clear options removed by consumers.
+      _client.apiClient.updateOptions(modalOptions, true)
 
       setClient(_client.apiClient)
       setWorkspaceStore(_client.workspaceStore)
@@ -93,7 +94,7 @@ export const useApiClient = ({
     }
 
     const { url: _, content: __, ...modalOptions } = configuration ?? {}
-    client.updateOptions(modalOptions)
+    client.updateOptions(modalOptions, true)
 
     if (!configuration) {
       return

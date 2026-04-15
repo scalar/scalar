@@ -499,12 +499,15 @@ describe('use-api-client', () => {
     )
 
     await waitFor(() =>
-      expect(mockApiClient.updateOptions).toHaveBeenCalledWith({
-        authentication: {
-          preferredSecurityScheme: 'bearerAuth',
+      expect(mockApiClient.updateOptions).toHaveBeenCalledWith(
+        {
+          authentication: {
+            preferredSecurityScheme: 'bearerAuth',
+          },
+          baseServerURL: 'https://proxy.example.com',
         },
-        baseServerURL: 'https://proxy.example.com',
-      }),
+        true,
+      ),
     )
   })
 
@@ -536,13 +539,43 @@ describe('use-api-client', () => {
     })
 
     await waitFor(() =>
-      expect(mockApiClient.updateOptions).toHaveBeenLastCalledWith({
-        authentication: {
-          preferredSecurityScheme: 'apiKey',
+      expect(mockApiClient.updateOptions).toHaveBeenLastCalledWith(
+        {
+          authentication: {
+            preferredSecurityScheme: 'apiKey',
+          },
+          baseServerURL: 'https://proxy.example.com',
         },
-        baseServerURL: 'https://proxy.example.com',
-      }),
+        true,
+      ),
     )
+  })
+
+  it('overwrites modal options when configuration keys are removed', async () => {
+    const { useApiClient } = await import('./use-api-client')
+    const { rerender } = renderHook(
+      ({ config }: { config: ApiClientConfigurationReact }) => useApiClient({ configuration: config }),
+      {
+        initialProps: {
+          config: {
+            proxyUrl: 'https://proxy.example.com',
+          },
+        },
+      },
+    )
+
+    await waitFor(() =>
+      expect(mockApiClient.updateOptions).toHaveBeenCalledWith(
+        {
+          proxyUrl: 'https://proxy.example.com',
+        },
+        true,
+      ),
+    )
+
+    rerender({ config: {} })
+
+    await waitFor(() => expect(mockApiClient.updateOptions).toHaveBeenLastCalledWith({}, true))
   })
 
   it('sets Vue globals on module load', async () => {
