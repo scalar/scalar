@@ -22,7 +22,7 @@ import type { Component } from 'vue'
 import { ScalarDropdownButton } from '../ScalarDropdown'
 import { type Icon, ScalarIconLegacyAdapter } from '../ScalarIcon'
 
-const { is = DropdownMenu.Item } = defineProps<{
+const { is = 'a' } = defineProps<{
   is?: string | Component
   icon?: Icon | ScalarIconComponent
   strong?: boolean
@@ -34,13 +34,13 @@ defineOptions({ inheritAttrs: false })
 <template>
   <ScalarDropdownButton
     v-bind="cx('flex items-center')"
-    :is="is"
-    as="a">
+    :is="DropdownMenu.Item"
+    :as="is">
     <ScalarIconLegacyAdapter
       v-if="icon"
       :class="[
         strong ? 'text-c-1' : 'text-c-2',
-        typeof icon === 'string' ? 'size-3' : 'size-3.5 -mx-0.25',
+        typeof icon === 'string' ? 'size-3' : 'size-3.5 -mx-px',
       ]"
       :icon="icon"
       :thickness="strong ? '2.5' : '2'"
