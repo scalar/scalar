@@ -1462,6 +1462,9 @@ importers:
       '@scalar/galaxy':
         specifier: workspace:*
         version: link:../galaxy
+      '@scalar/use-codemirror':
+        specifier: workspace:*
+        version: link:../use-codemirror
       '@tailwindcss/vite':
         specifier: catalog:*
         version: 4.2.1(vite@8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2))
