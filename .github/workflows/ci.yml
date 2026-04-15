@@ -254,7 +254,7 @@ jobs:
           args=()
           for i in "${!dirs[@]}"; do
             if (( i % ${{ matrix.shard-total }} == ${{ matrix.shard-index }} - 1 )); then
-              args+=(--filter "./${dirs[$i]%/}/**")
+              args+=(--filter "./${dirs[$i]%/}")
             fi
           done
           pnpm turbo "${args[@]}" test
