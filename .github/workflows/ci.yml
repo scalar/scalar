@@ -245,13 +245,17 @@ jobs:
         timeout-minutes: 1
       - name: Run tests
         run: |
-          args=()
-          i=0
+          dirs=()
           for dir in packages/*/; do
-            if (( i % ${{ matrix.shard-total }} == ${{ matrix.shard-index }} - 1 )); then
-              args+=(--filter "./${dir%/}/**")
+            if grep -q '"test"' "${dir}package.json" 2>/dev/null; then
+              dirs+=("$dir")
             fi
-            ((i++))
+          done
+          args=()
+          for i in "${!dirs[@]}"; do
+            if (( i % ${{ matrix.shard-total }} == ${{ matrix.shard-index }} - 1 )); then
+              args+=(--filter "./${dirs[$i]%/}/**")
+            fi
           done
           turbo "${args[@]}" test
 
