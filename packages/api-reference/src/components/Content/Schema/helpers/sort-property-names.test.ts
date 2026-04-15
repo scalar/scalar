@@ -536,6 +536,63 @@ describe('sortPropertyNames', () => {
       expect(result).toEqual(['type', 'apple', 'banana'])
     })
 
+    it('sorts correctly with double-digit x-order values', () => {
+      const schema: SchemaObject = {
+        type: 'object',
+        properties: {
+          prop1: { type: 'string', 'x-order': 1 } as any,
+          prop2: { type: 'string', 'x-order': 2 } as any,
+          prop3: { type: 'string', 'x-order': 3 } as any,
+          prop4: { type: 'string', 'x-order': 4 } as any,
+          prop5: { type: 'string', 'x-order': 5 } as any,
+          prop6: { type: 'string', 'x-order': 6 } as any,
+          prop7: { type: 'string', 'x-order': 7 } as any,
+          prop8: { type: 'string', 'x-order': 8 } as any,
+          prop9: { type: 'string', 'x-order': 9 } as any,
+          prop10: { type: 'string', 'x-order': 10 } as any,
+          prop11: { type: 'string', 'x-order': 11 } as any,
+          prop12: { type: 'string', 'x-order': 12 } as any,
+        },
+      }
+
+      const result = sortPropertyNames(schema)
+
+      // Must be numeric order (1,2,...,12), not string order (1,10,11,12,2,...)
+      expect(result).toEqual([
+        'prop1',
+        'prop2',
+        'prop3',
+        'prop4',
+        'prop5',
+        'prop6',
+        'prop7',
+        'prop8',
+        'prop9',
+        'prop10',
+        'prop11',
+        'prop12',
+      ])
+    })
+
+    it('sorts correctly when x-order values are strings', () => {
+      const schema: SchemaObject = {
+        type: 'object',
+        properties: {
+          prop1: { type: 'string', 'x-order': '1' } as any,
+          prop2: { type: 'string', 'x-order': '2' } as any,
+          prop3: { type: 'string', 'x-order': '3' } as any,
+          prop10: { type: 'string', 'x-order': '10' } as any,
+          prop11: { type: 'string', 'x-order': '11' } as any,
+          prop20: { type: 'string', 'x-order': '20' } as any,
+        },
+      }
+
+      const result = sortPropertyNames(schema)
+
+      // Number() coercion should handle string values correctly
+      expect(result).toEqual(['prop1', 'prop2', 'prop3', 'prop10', 'prop11', 'prop20'])
+    })
+
     it('uses x-order before required status', () => {
       const schema: SchemaObject = {
         type: 'object',

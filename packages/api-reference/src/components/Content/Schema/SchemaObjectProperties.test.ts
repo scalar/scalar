@@ -281,6 +281,40 @@ describe('SchemaObjectProperties', () => {
     expect(props[2]?.attributes('data-name')).toBe('zebra')
   })
 
+  it('orders properties by x-order with double-digit values', () => {
+    const schema = {
+      type: 'object',
+      properties: {
+        prop1: { type: 'string', 'x-order': 1 },
+        prop2: { type: 'string', 'x-order': 2 },
+        prop3: { type: 'string', 'x-order': 3 },
+        prop4: { type: 'string', 'x-order': 4 },
+        prop5: { type: 'string', 'x-order': 5 },
+        prop6: { type: 'string', 'x-order': 6 },
+        prop7: { type: 'string', 'x-order': 7 },
+        prop8: { type: 'string', 'x-order': 8 },
+        prop9: { type: 'string', 'x-order': 9 },
+        prop10: { type: 'string', 'x-order': 10 },
+        prop11: { type: 'string', 'x-order': 11 },
+        prop12: { type: 'string', 'x-order': 12 },
+      },
+    } as SchemaObject
+
+    const wrapper = mount(SchemaObjectProperties, {
+      props: { schema, options: {}, eventBus: null },
+    })
+
+    const props = wrapper.findAll('.schema-property')
+    expect(props).toHaveLength(12)
+    // Must be numeric order, not string order (1,10,11,12,2,...)
+    expect(props[0]?.attributes('data-name')).toBe('prop1')
+    expect(props[1]?.attributes('data-name')).toBe('prop2')
+    expect(props[2]?.attributes('data-name')).toBe('prop3')
+    expect(props[9]?.attributes('data-name')).toBe('prop10')
+    expect(props[10]?.attributes('data-name')).toBe('prop11')
+    expect(props[11]?.attributes('data-name')).toBe('prop12')
+  })
+
   it('falls back to default sorting for properties without x-order', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'object',
