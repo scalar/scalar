@@ -2424,8 +2424,8 @@ importers:
         specifier: catalog:*
         version: 3.5.30(typescript@5.9.3)
       vue-sonner:
-        specifier: ^1.0.3
-        version: 1.1.2
+        specifier: ^1.3.2
+        version: 1.3.2
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: catalog:*
@@ -17762,8 +17762,8 @@ packages:
       esbuild: '*'
       vue: ^3.5.13
 
-  vue-sonner@1.1.2:
-    resolution: {integrity: sha512-yg4f5s0a3oiiI7cNvO0Dajux1Y7s04lxww3vnQtnwQawJ3KqaKA9RIRMdI9wGTosRGIOwgYFniFRGl4+IuKPZw==}
+  vue-sonner@1.3.2:
+    resolution: {integrity: sha512-UbZ48E9VIya3ToiRHAZUbodKute/z/M1iT8/3fU8zEbwBRE11AKuHikssv18LMk2gTTr6eMQT4qf6JoLHWuj/A==}
 
   vue-template-compiler@2.7.16:
     resolution: {integrity: sha512-AYbUWAJHLGGQM7+cNTELw+KsOG9nl2CnSv467WobS5Cv9uk3wFcnr1Etsz2sEIHEZvw1U+o9mRlEO6QbZvUPGQ==}
@@ -37169,7 +37169,7 @@ snapshots:
       esbuild: 0.27.2
       vue: 3.5.30(typescript@5.9.3)
 
-  vue-sonner@1.1.2: {}
+  vue-sonner@1.3.2: {}
 
   vue-template-compiler@2.7.16:
     dependencies:
