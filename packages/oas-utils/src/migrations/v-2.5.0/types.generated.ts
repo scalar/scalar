@@ -1,7 +1,5 @@
 import type { XScalarStability } from '@scalar/types/legacy'
 
-import type { HotkeyEventName, KeydownKey } from '@/entities/hotkeys/hotkeys'
-
 type Collection = {
   'type': 'collection'
   'openapi': string | '3.0.0' | '3.1.0' | '4.0.0'
@@ -460,10 +458,10 @@ type Workspace = {
         hotKeys?:
           | Partial<
               Record<
-                KeydownKey,
+                string,
                 {
                   modifiers?: ('Meta' | 'Control' | 'Shift' | 'Alt' | 'default')[] | undefined
-                  event: HotkeyEventName
+                  event: string
                 }
               >
             >
@@ -506,6 +504,18 @@ type DataRecord = {
   workspaces: Record<string, Workspace>
 }
 
+type DataArray = {
+  collections: Collection[]
+  cookies: Cookie[]
+  environments: Environment[]
+  requestExamples: RequestExample[]
+  requests: Request[]
+  securitySchemes: SecurityScheme[]
+  servers: Server[]
+  tags: Tag[]
+  workspaces: Workspace[]
+}
+
 export type v_2_5_0 = {
   Collection: Collection
   Cookie: Cookie
@@ -517,4 +527,5 @@ export type v_2_5_0 = {
   Server: Server
   Workspace: Workspace
   DataRecord: DataRecord
+  DataArray: DataArray
 }

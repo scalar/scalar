@@ -3,14 +3,6 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import { assert, beforeEach, describe, expect, it } from 'vitest'
 import 'fake-indexeddb/auto'
 
-import { cookieSchema } from '@/entities/cookie'
-import { type Collection, collectionSchema } from '@/entities/spec/collection'
-import { requestExampleSchema } from '@/entities/spec/request-examples'
-import { requestSchema } from '@/entities/spec/requests'
-import { serverSchema } from '@/entities/spec/server'
-import { tagSchema } from '@/entities/spec/spec-objects'
-import { type Workspace, workspaceSchema } from '@/entities/workspace/workspace'
-
 import { shouldMigrateToIndexDb, transformLegacyDataToWorkspace } from './migrate-to-indexdb'
 import type { v_2_5_0 } from './v-2.5.0/types.generated'
 
