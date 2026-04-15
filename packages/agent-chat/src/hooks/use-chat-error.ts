@@ -1,15 +1,15 @@
+import { coerce, number, object, optional, string, validate, type Static } from '@scalar/validation'
 import { computed } from 'vue'
-import { z } from 'zod/mini'
 
 import { safeParseJson } from '@/helpers'
 import { useState } from '@/state/state'
 
-const chatErrorSchema = z.object({
-  message: z.string(),
-  code: z.string(),
-  status: z.optional(z.number()),
+const chatErrorSchema = object({
+  message: string(),
+  code: string(),
+  status: optional(number()),
 })
-export type ChatError = z.infer<typeof chatErrorSchema>
+export type ChatError = Static<typeof chatErrorSchema>
 
 export function useChatError() {
   const { chat } = useState()
@@ -18,14 +18,13 @@ export function useChatError() {
     if (!chat.error) return
 
     const errorJson = safeParseJson(chat.error.message)
-    const parsedError = chatErrorSchema.safeParse(errorJson)
 
-    if (!errorJson || !parsedError.success)
+    if (!errorJson || !validate(chatErrorSchema, errorJson))
       return {
         message: chat.error.message,
         code: 'UNKNOWN_ERROR',
       }
 
-    return parsedError.data
+    return coerce(chatErrorSchema, errorJson)
   })
 }

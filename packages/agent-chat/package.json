@@ -66,8 +66,7 @@
     "js-base64": "catalog:*",
     "neverpanic": "catalog:*",
     "truncate-json": "catalog:*",
-    "vue": "catalog:*",
-    "zod": "catalog:*"
+    "vue": "catalog:*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "catalog:*",

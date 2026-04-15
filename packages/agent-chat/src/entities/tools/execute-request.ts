@@ -1,20 +1,20 @@
 import type { Result } from 'neverpanic'
-import { z } from 'zod'
+import { object, optional, record, string, type Static } from '@scalar/validation'
 
 import type { AgentChatError } from '@/entities/error/constants'
 
 export const EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME = 'execute-request' as const
 
-export const executeClientSideRequestToolInputSchema = z.object({
-  method: z.string(),
-  path: z.string(),
-  headers: z.record(z.string(), z.string()).optional(),
-  body: z.string().optional(),
-  documentName: z.string(),
-  documentIdentifier: z.string().describe('Needed for legacy support for old clients'),
+export const executeClientSideRequestToolInputSchema = object({
+  method: string(),
+  path: string(),
+  headers: optional(record(string(), string())),
+  body: optional(string()),
+  documentName: string(),
+  documentIdentifier: string({ typeComment: 'Needed for legacy support for old clients' }),
 })
 
-export type ExecuteClientSideRequestToolInput = z.input<typeof executeClientSideRequestToolInputSchema>
+export type ExecuteClientSideRequestToolInput = Static<typeof executeClientSideRequestToolInputSchema>
 
 export type ExecuteClientSideRequestToolOutput = Result<
   { status: number; responseBody?: unknown; headers: {} },

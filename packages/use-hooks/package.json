@@ -52,7 +52,7 @@
     "cva": "1.0.0-beta.4",
     "tailwind-merge": "3.5.0",
     "vue": "catalog:*",
-    "zod": "catalog:*"
+    "@scalar/validation": "workspace:*"
   },
   "devDependencies": {
     "@vue/test-utils": "catalog:*",
