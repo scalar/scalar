@@ -275,7 +275,7 @@ describe('findEntryPoints', () => {
     expect(findEntryPoints()).toEqual(['./src/index.ts'])
   })
 
-  it('skips exports that do not map to source entry files', () => {
+  it('throws when an export does not map to a source entry file', () => {
     mockReadFileSync.mockReturnValue(
       JSON.stringify({
         exports: {
@@ -285,8 +285,9 @@ describe('findEntryPoints', () => {
       }),
     )
     mockExistsSync.mockImplementation((path: string) => path !== './src/browser/standalone.ts')
-
-    expect(findEntryPoints()).toEqual(['./src/index.ts'])
+    expect(() => findEntryPoints()).toThrow(
+      'Could not resolve source entry points for package exports: ./dist/browser/standalone.js.',
+    )
   })
 
   it('deduplicates entry points', () => {

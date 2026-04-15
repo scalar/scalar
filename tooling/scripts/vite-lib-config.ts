@@ -106,6 +106,7 @@ export function createLibEntry(entryPaths: string[], dirname: string) {
 export function findEntryPoints() {
   const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'))
   const entryPoints: string[] = []
+  const invalidEntries: string[] = []
 
   if (!pkg.exports) {
     // Fallback to src/index.ts if no exports
@@ -115,9 +116,8 @@ export function findEntryPoints() {
   const addEntryPoint = (distPath: string) => {
     const sourcePath = distPath.replace('./dist/', './src/').replace(/\.js$/, '.ts')
 
-    // Some exports (for example browser-only bundles) do not map 1:1 to ./src/** entrypoints.
-    // Ignore those so packages can derive entries from package.json safely.
     if (!existsSync(sourcePath)) {
+      invalidEntries.push(distPath)
       return
     }
 
@@ -173,6 +173,13 @@ export function findEntryPoints() {
     for (const exportValue of Object.values(pkg.exports)) {
       processExport(exportValue)
     }
+  }
+
+  if (invalidEntries.length > 0) {
+    throw new Error(
+      `Could not resolve source entry points for package exports: ${invalidEntries.join(', ')}. ` +
+        'Every JS export in package.json must map to an existing ./src/**/*.ts file.',
+    )
   }
 
   return entryPoints

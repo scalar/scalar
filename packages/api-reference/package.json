@@ -83,8 +83,7 @@
       "types": "./dist/helpers/index.d.ts",
       "default": "./dist/helpers/index.js"
     },
-    "./style.css": "./dist/style.css",
-    "./browser/standalone.js": "./dist/browser/standalone.js"
+    "./style.css": "./dist/style.css"
   },
   "files": [
     "dist",

@@ -2,4 +2,4 @@
 '@scalar/api-reference': patch
 ---
 
-refactor the api-reference library build to derive Vite lib entries from package exports
+refactor api-reference exports and enforce strict Vite entrypoint resolution from package exports
