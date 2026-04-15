@@ -3,16 +3,170 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import { assert, beforeEach, describe, expect, it } from 'vitest'
 import 'fake-indexeddb/auto'
 
-import { cookieSchema } from '@/entities/cookie'
-import { type Collection, collectionSchema } from '@/entities/spec/collection'
-import { requestExampleSchema } from '@/entities/spec/request-examples'
-import { requestSchema } from '@/entities/spec/requests'
-import { serverSchema } from '@/entities/spec/server'
-import { tagSchema } from '@/entities/spec/spec-objects'
-import { type Workspace, workspaceSchema } from '@/entities/workspace/workspace'
-
 import { shouldMigrateToIndexDb, transformLegacyDataToWorkspace } from './migrate-to-indexdb'
 import type { v_2_5_0 } from './v-2.5.0/types.generated'
+
+const isRecord = (value: unknown): value is Record<string, unknown> => {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+}
+
+const mergeWithDefaults = <T extends Record<string, unknown>>(
+  defaults: T,
+  overrides: Record<string, unknown> = {},
+): T => {
+  return {
+    ...defaults,
+    ...overrides,
+  } as T
+}
+
+const createCollection = (collection: Record<string, unknown> = {}): v_2_5_0['Collection'] => {
+  const defaults: v_2_5_0['Collection'] = {
+    type: 'collection',
+    openapi: '3.1.0',
+    info: { title: 'API', version: '1.0.0' },
+    security: [],
+    'x-scalar-icon': 'interface-content-folder',
+    uid: '',
+    securitySchemes: [],
+    selectedSecuritySchemeUids: [],
+    servers: [],
+    requests: [],
+    tags: [],
+    children: [],
+    watchMode: false,
+    useCollectionSecurity: false,
+    watchModeStatus: 'IDLE',
+  }
+
+  const collectionInfo = isRecord(collection.info) ? collection.info : {}
+
+  return {
+    ...mergeWithDefaults(defaults, collection),
+    info: mergeWithDefaults(defaults.info, collectionInfo),
+  }
+}
+
+const createCookie = (cookie: Record<string, unknown> = {}): v_2_5_0['Cookie'] => {
+  const defaults: v_2_5_0['Cookie'] = {
+    uid: '',
+    name: '',
+    value: '',
+  }
+
+  return mergeWithDefaults(defaults, cookie)
+}
+
+const createRequest = (request: Record<string, unknown> = {}): v_2_5_0['Request'] => {
+  const defaults: v_2_5_0['Request'] = {
+    type: 'request',
+    uid: '',
+    path: '/',
+    method: 'get',
+    servers: [],
+    selectedServerUid: null,
+    examples: [],
+    selectedSecuritySchemeUids: [],
+  }
+
+  return mergeWithDefaults(defaults, request)
+}
+
+const createRequestExample = (requestExample: Record<string, unknown> = {}): v_2_5_0['RequestExample'] => {
+  const defaultRawBody: NonNullable<v_2_5_0['RequestExample']['body']['raw']> = {
+    encoding: 'json',
+    value: '',
+  }
+
+  const defaultFormDataBody: NonNullable<v_2_5_0['RequestExample']['body']['formData']> = {
+    encoding: 'form-data',
+    value: [],
+  }
+
+  const defaults: v_2_5_0['RequestExample'] = {
+    uid: '',
+    type: 'requestExample',
+    name: 'Example',
+    body: {
+      activeBody: 'raw',
+    },
+    parameters: {
+      path: [],
+      query: [],
+      headers: [],
+      cookies: [],
+    },
+  }
+
+  const bodyOverrides = isRecord(requestExample.body) ? requestExample.body : {}
+  const rawOverrides = isRecord(bodyOverrides.raw) ? bodyOverrides.raw : {}
+  const formDataOverrides = isRecord(bodyOverrides.formData) ? bodyOverrides.formData : {}
+  const parameterOverrides = isRecord(requestExample.parameters) ? requestExample.parameters : {}
+  const hasRawBody = isRecord(bodyOverrides.raw)
+  const hasFormDataBody = isRecord(bodyOverrides.formData)
+
+  return {
+    ...mergeWithDefaults(defaults, requestExample),
+    body: {
+      ...mergeWithDefaults(defaults.body, bodyOverrides),
+      raw: hasRawBody ? mergeWithDefaults(defaultRawBody, rawOverrides) : undefined,
+      formData: hasFormDataBody ? mergeWithDefaults(defaultFormDataBody, formDataOverrides) : undefined,
+    },
+    parameters: mergeWithDefaults(defaults.parameters, parameterOverrides),
+  }
+}
+
+const createServer = (server: Record<string, unknown> = {}): v_2_5_0['Server'] => {
+  const defaults: v_2_5_0['Server'] = {
+    uid: '',
+    url: '',
+  }
+
+  return mergeWithDefaults(defaults, server)
+}
+
+const createTag = (tag: Record<string, unknown> = {}): v_2_5_0['Tag'] => {
+  const defaults: v_2_5_0['Tag'] = {
+    type: 'tag',
+    uid: '',
+    name: '',
+    children: [],
+  }
+
+  return mergeWithDefaults(defaults, tag)
+}
+
+const createWorkspace = (workspace: Record<string, unknown> = {}): v_2_5_0['Workspace'] => {
+  const defaults: v_2_5_0['Workspace'] = {
+    uid: '',
+    name: 'Workspace',
+    description: '',
+    collections: [],
+    environments: {},
+    activeEnvironmentId: 'default',
+    cookies: [],
+    themeId: 'default',
+    selectedHttpClient: {
+      targetKey: 'shell',
+      clientKey: 'curl',
+    },
+  }
+
+  const selectedHttpClientOverrides = isRecord(workspace.selectedHttpClient) ? workspace.selectedHttpClient : {}
+
+  return {
+    ...mergeWithDefaults(defaults, workspace),
+    selectedHttpClient: mergeWithDefaults(defaults.selectedHttpClient, selectedHttpClientOverrides),
+  }
+}
+
+const cookieSchema = { parse: createCookie }
+const collectionSchema = { parse: createCollection }
+const requestExampleSchema = { parse: createRequestExample }
+const requestSchema = { parse: createRequest }
+const serverSchema = { parse: createServer }
+const tagSchema = { parse: createTag }
+const workspaceSchema = { parse: createWorkspace }
 
 /**
  * Mock localStorage for Node.js test environment
@@ -71,9 +225,9 @@ const createLegacyData = (
     /** Partial overrides for a single default collection (ignored when collections is provided) */
     collection?: Record<string, unknown>
     /** Explicit workspace array, overrides the workspace shorthand */
-    workspaces?: Workspace[]
+    workspaces?: v_2_5_0['Workspace'][]
     /** Explicit collection array, overrides the collection shorthand */
-    collections?: Collection[]
+    collections?: v_2_5_0['Collection'][]
     securitySchemes?: SecurityScheme[]
     cookies?: v_2_5_0['Cookie'][]
     environments?: v_2_5_0['Environment'][]
@@ -166,6 +320,18 @@ describe('migrate-to-indexdb', () => {
   beforeEach(() => {
     // Clear localStorage before each test to ensure clean state
     localStorage.clear()
+  })
+
+  describe('legacy test data defaults', () => {
+    it('uses shell/curl as the default selectedHttpClient', () => {
+      const legacyData = createLegacyData()
+      const [workspace] = legacyData.arrays.workspaces
+
+      expect(workspace?.selectedHttpClient).toStrictEqual({
+        targetKey: 'shell',
+        clientKey: 'curl',
+      })
+    })
   })
 
   describe('shouldMigrateToIndexDb', () => {

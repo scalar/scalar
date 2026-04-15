@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components'
 import { isDefined } from '@scalar/helpers/array/is-defined'
-import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, useId } from 'vue'
 
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
+import type { ResponseInstance } from '@/v2/blocks/operation-block/helpers/send-request'
 import Headers from '@/v2/blocks/response-block/components/Headers.vue'
 import ResponseBody from '@/v2/blocks/response-block/components/ResponseBody.vue'
 import ResponseBodyStreaming from '@/v2/blocks/response-block/components/ResponseBodyStreaming.vue'
