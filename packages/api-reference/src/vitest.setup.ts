@@ -7,7 +7,8 @@ import {
   isConsoleWarnEnabled,
   resetConsoleSpies,
 } from '@scalar/helpers/testing/console-spies'
-import { afterEach, expect, vi } from 'vitest'
+import { preloadCodeMirror } from '@scalar/use-codemirror'
+import { afterEach, beforeAll, expect, vi } from 'vitest'
 
 import { createPluginManager } from '@/plugins/plugin-manager'
 
@@ -15,6 +16,16 @@ import { createPluginManager } from '@/plugins/plugin-manager'
 vi.mock('@/plugins/hooks/usePluginManager', () => ({
   usePluginManager: vi.fn(() => createPluginManager({})),
 }))
+
+/**
+ * Eagerly load the CodeMirror setup module so that the dynamic import inside
+ * useCodeMirror resolves from cache during tests. Without this, the import
+ * fires during component mount but resolves after the test environment tears
+ * down.
+ */
+beforeAll(async () => {
+  await preloadCodeMirror()
+})
 
 afterEach(() => {
   /**

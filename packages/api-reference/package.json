@@ -125,6 +125,7 @@
     "@playwright/test": "catalog:*",
     "@scalar/core": "workspace:*",
     "@scalar/galaxy": "workspace:*",
+    "@scalar/use-codemirror": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/server-renderer": "^3.5.30",

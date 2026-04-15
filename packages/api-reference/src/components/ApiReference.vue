@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/v2/blocks/operation-block'
-import {
-  createApiClientModal,
-  type ApiClientModal,
-} from '@scalar/api-client/v2/features/modal'
+import type * as ApiClientModalModule from '@scalar/api-client/v2/features/modal'
+import type { ApiClientModal } from '@scalar/api-client/v2/features/modal'
+import { initializeWorkspaceEventHandlers } from '@scalar/api-client/v2/workspace-events'
 import {
   addScalarClassesToHeadless,
   ScalarColorModeToggleButton,
@@ -723,12 +722,52 @@ provide(AGENT_CONTEXT_SYMBOL, agent)
 // --------------------------------------------------------------------------- */
 // Api Client Modal
 
-// Setup the ApiClient on mount
 const modal = useTemplateRef<HTMLElement>('modal')
 const apiClient = ref<ApiClientModal | null>(null)
+
+/**
+ * Register workspace event handlers (auth, client selection, server updates, etc.)
+ * eagerly so they are available immediately, before the modal is ever opened.
+ */
 onMounted(() => {
+  initializeWorkspaceEventHandlers({
+    eventBus,
+    store: ref(clientStore),
+    hooks: {},
+  })
+})
+
+/**
+ * Singleton promise for the api-client modal module.
+ *
+ * Keeping it outside the component ensures that if multiple ApiReference
+ * instances are on the same page the module is only fetched once.
+ */
+let _modalModulePromise: Promise<typeof ApiClientModalModule> | null = null
+
+/** Start fetching the api-client chunk without blocking the caller. */
+const loadModalModule = () => {
+  if (!_modalModulePromise) {
+    _modalModulePromise = import('@scalar/api-client/v2/features/modal')
+  }
+  return _modalModulePromise
+}
+
+/** Create and mount the modal if it has not been created yet. */
+const ensureModalCreated = async (): Promise<ApiClientModal | null> => {
+  if (apiClient.value) {
+    return apiClient.value
+  }
+
   if (!modal.value) {
-    return
+    return null
+  }
+
+  const { createApiClientModal } = await loadModalModule()
+
+  // Guard against concurrent calls racing to create the modal
+  if (apiClient.value) {
+    return apiClient.value
   }
 
   apiClient.value = createApiClientModal({
@@ -738,8 +777,56 @@ onMounted(() => {
     options: mergedConfig,
     plugins: mapConfigPlugins(mergedConfig, environment),
   })
+
+  return apiClient.value
+}
+
+/**
+ * Preload the api-client modal module when the spec declares environments.
+ *
+ * When `x-scalar-environments` is present the user is very likely to open the
+ * test-request panel (they have variables to fill in), so we fetch the chunk
+ * in the background while they read the docs. This way CodeMirror is already
+ * cached by the time they click "Test Request" and there is no perceptible
+ * loading delay.
+ *
+ * When no environments are configured the chunk is deferred until the user
+ * actually opens the panel for the first time.
+ */
+watch(
+  () => clientStore.workspace.activeDocument?.['x-scalar-environments'],
+  (envs) => {
+    if (envs && Object.keys(envs).length > 0) {
+      loadModalModule()
+    }
+  },
+  { immediate: true },
+)
+
+/**
+ * Intercept the first `ui:open:client-modal` event so the modal can be
+ * created lazily. Once the modal exists its own `initializeModalEvents`
+ * handler takes over for all subsequent events.
+ */
+let _unsubscribeInterceptor: (() => void) | null = null
+_unsubscribeInterceptor = eventBus.on('ui:open:client-modal', (payload) => {
+  // If the modal already exists this interceptor is stale
+  if (apiClient.value) {
+    _unsubscribeInterceptor?.()
+    _unsubscribeInterceptor = null
+    return
+  }
+
+  void ensureModalCreated().then(() => {
+    _unsubscribeInterceptor?.()
+    _unsubscribeInterceptor = null
+    eventBus.emit('ui:open:client-modal', payload)
+  })
 })
+
 onBeforeUnmount(() => {
+  _unsubscribeInterceptor?.()
+  _unsubscribeInterceptor = null
   apiClient.value?.app.unmount()
 })
 

@@ -42,6 +42,14 @@ const withHook = <T extends keyof ApiReferenceEvents>(
 }
 
 /**
+ * Tracks which event buses have already had workspace event handlers registered.
+ *
+ * Prevents double registration when both the reference page and the modal call
+ * initializeWorkspaceEventHandlers with the same event bus.
+ */
+const _initializedBuses = new WeakSet<WorkspaceEventBus>()
+
+/**
  * Initializes all Workspace Event Handlers by subscribing eventBus listeners
  * to each relevant mutator operation. Hooks are used for before/after execution.
  *
@@ -58,6 +66,10 @@ export function initializeWorkspaceEventHandlers({
   store: Ref<WorkspaceStore | null>
   hooks: Hooks
 }) {
+  if (_initializedBuses.has(eventBus)) {
+    return
+  }
+  _initializedBuses.add(eventBus)
   // Generate all client mutators for the current workspace store
   const mutators = computed(() => generateClientMutators(store.value))
 

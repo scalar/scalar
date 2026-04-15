@@ -188,6 +188,11 @@
       "import": "./dist/v2/features/settings/index.js",
       "types": "./dist/v2/features/settings/index.d.ts",
       "default": "./dist/v2/features/settings/index.js"
+    },
+    "./v2/workspace-events": {
+      "import": "./dist/v2/workspace-events.js",
+      "types": "./dist/v2/workspace-events.d.ts",
+      "default": "./dist/v2/workspace-events.js"
     }
   },
   "files": [
