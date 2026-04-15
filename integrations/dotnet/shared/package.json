@@ -15,7 +15,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "test": "vitest"
+    "test": "vitest --run"
   },
   "devDependencies": {
     "@scalar/snippetz": "workspace:*"

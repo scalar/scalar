@@ -29,7 +29,7 @@
     "playground:modal": "vite ./playground/modal -c ./vite.config.ts",
     "playground:web": "vite ./playground/web -c ./vite.config.ts",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest --run",
     "test:benchmark": "vitest bench",
     "test:benchmark:compare": "vitest bench --compare test-results/test-benchmark.json",
     "test:benchmark:save": "vitest bench --outputJson test-results/test-benchmark.json",

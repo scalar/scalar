@@ -8,6 +8,10 @@
       "outputs": ["dist/**", "storybook-static/**", ".output", ".nuxt", ".next", "build", "target/**"],
       "dependsOn": ["^build"]
     },
+    "test": {
+      "dependsOn": ["^build"],
+      "cache": false
+    },
     "types:check": {
       "dependsOn": ["build"]
     },

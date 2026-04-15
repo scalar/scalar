@@ -21,7 +21,7 @@
     "docker:run": "docker run -v ./documents:/docs:ro -p 3000:3000 --rm --init scalarapi/mock-server",
     "docker:run:env": "docker run -e OPENAPI_DOCUMENT=\"$(cat ./documents/example.yaml)\" -p 3000:3000 --rm --init scalarapi/mock-server",
     "docker:run:url": "docker run -p 3000:3000 --rm --init scalarapi/mock-server --url https://raw.githubusercontent.com/OAI/OpenAPI-Specification/refs/heads/main/_archive_/schemas/v3.0/pass/petstore.yaml",
-    "test": "vitest",
+    "test": "vitest --run",
     "types:check": "tsc --noEmit"
   },
   "type": "module",
