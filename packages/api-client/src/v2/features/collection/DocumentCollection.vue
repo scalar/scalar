@@ -73,8 +73,12 @@ const documentRegistryMeta = computed(
       | undefined,
 )
 
-const isRegistryDocument = computed(() => documentRegistryMeta.value !== undefined)
-const isDocumentSavedLocally = computed(() => isDocumentDirty.value && !isRegistryDocument.value)
+const isRegistryDocument = computed(
+  () => documentRegistryMeta.value !== undefined,
+)
+const isDocumentSavedLocally = computed(
+  () => isDocumentDirty.value && !isRegistryDocument.value,
+)
 
 /** Show Sync when the document has a source URL or registry meta (registry can be used if fetchRegistryDocument is set). */
 const canShowSyncButton = computed(
