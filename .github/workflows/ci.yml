@@ -257,7 +257,7 @@ jobs:
               args+=(--filter "./${dirs[$i]%/}/**")
             fi
           done
-          turbo "${args[@]}" test
+          pnpm turbo "${args[@]}" test
 
   test-integrations:
     needs: [build]
@@ -281,7 +281,7 @@ jobs:
         with:
           packages: './integrations/**'
       - name: Run tests
-        run: turbo --filter './integrations/**' test
+        run: pnpm turbo --filter './integrations/**' test
         # For now we will integrate the E2E tests with the integrations tests as they are quite fast and this avoids another job.
       - name: Run e2e tests
         run: pnpm --filter @scalar/nuxt test:e2e
