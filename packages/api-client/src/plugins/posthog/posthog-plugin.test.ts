@@ -1,23 +1,18 @@
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('posthog-js', () => {
-  const instance = {
-    register: vi.fn(),
-    opt_in_capturing: vi.fn(),
-    opt_out_capturing: vi.fn(),
-    capture: vi.fn(),
-    reset: vi.fn(),
-  }
+const mockPostHogInstance = vi.hoisted(() => ({
+  register: vi.fn(),
+  opt_in_capturing: vi.fn(),
+  opt_out_capturing: vi.fn(),
+  capture: vi.fn(),
+  reset: vi.fn(),
+}))
 
-  return {
-    default: {
-      init: vi.fn(() => instance),
-    },
-    __instance: instance,
-  }
-})
-
-const { __instance: mockPostHogInstance } = (await import('posthog-js')) as any
+vi.mock('posthog-js', () => ({
+  default: {
+    init: vi.fn(() => mockPostHogInstance),
+  },
+}))
 
 import { PostHogClientPlugin } from './index'
 
@@ -86,7 +81,7 @@ describe('posthog-plugin', () => {
 
     for (const event of trackedEvents) {
       mockPostHogInstance.capture.mockClear()
-      ;(plugin.on as any)?.[event]?.({})
+      plugin.on?.[event]?.({} as never)
       expect(mockPostHogInstance.capture).toHaveBeenCalledWith(event)
     }
   })

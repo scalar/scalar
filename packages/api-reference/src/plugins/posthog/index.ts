@@ -19,11 +19,12 @@ export type { PostHogConfig }
  */
 export const PostHogPlugin = (config: PostHogConfig): ApiReferencePlugin => {
   let posthog: PostHog | null = null
+  const clientPlugin = PostHogClientPlugin(config)
 
   return () => ({
     name: 'posthog',
     extensions: [],
-    apiClientPlugins: [PostHogClientPlugin(config)],
+    apiClientPlugins: [clientPlugin],
     hooks: {
       onInit({ config: referenceConfig }) {
         if (typeof window === 'undefined') {
@@ -49,21 +50,25 @@ export const PostHogPlugin = (config: PostHogConfig): ApiReferencePlugin => {
             posthog.opt_in_capturing()
           }
         }
+
+        clientPlugin.lifecycle?.onInit?.({ config: referenceConfig })
       },
       onConfigChange({ config: referenceConfig }) {
-        if (!posthog) {
-          return
+        if (posthog) {
+          if (referenceConfig.telemetry === false) {
+            posthog.opt_out_capturing()
+          } else {
+            posthog.opt_in_capturing()
+          }
         }
 
-        if (referenceConfig.telemetry !== false) {
-          posthog.opt_in_capturing()
-        } else {
-          posthog.opt_out_capturing()
-        }
+        clientPlugin.lifecycle?.onConfigChange?.({ config: referenceConfig })
       },
       onDestroy() {
         posthog?.reset()
         posthog = null
+
+        clientPlugin.lifecycle?.onDestroy?.()
       },
     },
   })
