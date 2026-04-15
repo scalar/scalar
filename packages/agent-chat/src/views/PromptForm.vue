@@ -208,6 +208,7 @@ const chatError = useChatError()
               class="apiPillLogo"
               :src="document.logoUrl" />
             {{ document.title }}
+            <span class="apiPillVersion">v{{ document.currentVersion }}</span>
             <button
               v-if="document.removable"
               class="apiPillRemove"
@@ -359,6 +360,10 @@ const chatError = useChatError()
   z-index: 1;
   gap: 4px;
   user-select: none;
+}
+.apiPillVersion {
+  color: var(--scalar-color-3);
+  font-weight: var(--scalar-font-regular);
 }
 .apiPillLogo {
   width: 15px;

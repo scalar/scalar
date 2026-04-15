@@ -46,6 +46,7 @@ describe('Settings', () => {
       },
       'x-scalar-original-source-url': 'https://example.com/openapi.json',
       'x-scalar-watch-mode': true,
+      'x-scalar-registry-meta': undefined,
     })
 
     return {
@@ -119,7 +120,32 @@ describe('Settings', () => {
       expect(documentSettings.props('documentUrl')).toBe('https://api.example.com/spec.json')
       expect(documentSettings.props('title')).toBe('My API')
       expect(documentSettings.props('watchMode')).toBe(false)
+      expect(documentSettings.props('isRegistryDocument')).toBe(false)
       expect(documentSettings.props('isDraftDocument')).toBe(false)
+    })
+
+    it('passes registry state to DocumentSettings', () => {
+      const props = createDocumentProps({
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Registry API',
+            description: 'Test description',
+            version: '1.0.0',
+          },
+          'x-scalar-original-source-url': 'https://api.example.com/spec.json',
+          'x-scalar-watch-mode': true,
+          'x-scalar-registry-meta': {
+            namespace: 'scalar',
+            slug: 'registry-api',
+          },
+          'x-scalar-original-document-hash': '123',
+        },
+      })
+      const wrapper = mount(Settings, { props })
+
+      const documentSettings = wrapper.findComponent({ name: 'DocumentSettings' })
+      expect(documentSettings.props('isRegistryDocument')).toBe(true)
     })
 
     it('marks DocumentSettings as draft when documentSlug is drafts', () => {

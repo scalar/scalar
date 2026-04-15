@@ -140,6 +140,46 @@ describe('DocumentCollection', () => {
     expect(routerView.exists()).toBe(true)
   })
 
+  it('shows document version tag when version is present', async () => {
+    const document = createMockDocument({
+      info: { title: 'Versioned API', version: '2.3.4' },
+    })
+
+    const { wrapper } = await mountWithRouter(document)
+    expect(wrapper.text()).toContain('v2.3.4')
+  })
+
+  it('shows Registry tag for registry-backed document', async () => {
+    const document = createMockDocument({
+      info: { title: 'Registry API', version: '1.0.0' },
+      'x-scalar-registry-meta': { namespace: 'team', slug: 'my-api' },
+    })
+
+    const { wrapper } = await mountWithRouter(document)
+    expect(wrapper.text()).toContain('Registry')
+  })
+
+  it('shows Saved Locally tag for dirty local document', async () => {
+    const document = createMockDocument({
+      info: { title: 'Local API', version: '1.0.0' },
+      'x-scalar-is-dirty': true,
+    })
+
+    const { wrapper } = await mountWithRouter(document)
+    expect(wrapper.text()).toContain('Saved Locally')
+  })
+
+  it('does not show Saved Locally tag for dirty registry document', async () => {
+    const document = createMockDocument({
+      info: { title: 'Registry API', version: '1.0.0' },
+      'x-scalar-is-dirty': true,
+      'x-scalar-registry-meta': { namespace: 'team', slug: 'my-api' },
+    })
+
+    const { wrapper } = await mountWithRouter(document)
+    expect(wrapper.text()).not.toContain('Saved Locally')
+  })
+
   it('handles icon update events correctly', async () => {
     const document = createMockDocument()
     const { wrapper, eventBus } = await mountWithRouter(document)

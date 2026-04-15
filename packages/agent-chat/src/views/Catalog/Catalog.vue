@@ -69,7 +69,6 @@ const searchOptions = computed(() =>
           <div class="right">
             <div class="item-top">
               <span>{{ option.title }}</span>
-
               <span class="version">v{{ option.currentVersion }}</span>
             </div>
 
@@ -132,6 +131,7 @@ const searchOptions = computed(() =>
 .item-top {
   display: flex;
   gap: 10px;
+  align-items: center;
 }
 .version {
   background: var(--scalar-background-3);

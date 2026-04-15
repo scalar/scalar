@@ -159,4 +159,35 @@ describe('useDocumentWatcher', () => {
 
     expect(fn).toHaveBeenCalledTimes(3)
   })
+
+  it('does not poll registry documents even when watch mode is enabled', async () => {
+    const rebaseDocumentSpy = vi.fn()
+    const store = createWorkspaceStore()
+
+    await store.addDocument({
+      name: 'default',
+      url,
+      meta: {
+        'x-scalar-registry-meta': {
+          namespace: 'scalar',
+          slug: 'petstore',
+        },
+      },
+    })
+
+    const defaultDocument = store.workspace.documents['default']
+    assert(defaultDocument)
+    defaultDocument['x-scalar-watch-mode'] = true
+
+    store.rebaseDocument = rebaseDocumentSpy as typeof store.rebaseDocument
+
+    const initialTimeout = 200
+    useDocumentWatcher({ documentName: ref('default'), store, initialTimeout })
+    await nextTick()
+
+    await vi.advanceTimersByTimeAsync(initialTimeout * 4)
+    await vi.advanceTimersToNextTimerAsync()
+
+    expect(rebaseDocumentSpy).not.toHaveBeenCalled()
+  })
 })

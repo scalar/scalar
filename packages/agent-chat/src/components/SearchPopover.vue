@@ -61,7 +61,8 @@ const searchOptions = computed(() =>
             v-if="option.logoUrl"
             class="searchItemLogo"
             :src="option.logoUrl" />
-          <span>{{ option.title }}</span>
+          <span class="searchItemTitle">{{ option.title }}</span>
+          <span class="searchItemVersion">v{{ option.currentVersion }}</span>
         </button>
       </template>
 
@@ -89,6 +90,22 @@ const searchOptions = computed(() =>
 
 .searchItem:hover {
   background: var(--scalar-background-2);
+}
+
+.searchItemTitle {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.searchItemVersion {
+  margin-left: auto;
+  border-radius: 9999px;
+  background: var(--scalar-background-3);
+  padding: 2px 6px;
+  font-size: var(--scalar-font-size-5);
+  color: var(--scalar-color-2);
 }
 
 .searchItemLogo {

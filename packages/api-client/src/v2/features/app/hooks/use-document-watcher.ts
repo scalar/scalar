@@ -187,8 +187,12 @@ export const useDocumentWatcher = ({
    * Starts or stops polling based on these values.
    */
   watch(
-    [() => document.value?.['x-scalar-original-source-url'], () => document.value?.['x-scalar-watch-mode']],
-    ([sourceUrl, watchMode = false]) => {
+    [
+      () => document.value?.['x-scalar-original-source-url'],
+      () => document.value?.['x-scalar-watch-mode'],
+      () => document.value?.['x-scalar-registry-meta'],
+    ],
+    ([sourceUrl, watchMode = false, registryMeta]) => {
       const storeValue = toValue(store)
 
       // Clear timer if store is unavailable
@@ -200,7 +204,13 @@ export const useDocumentWatcher = ({
       // Clear any existing timer
       timerManager.clear()
 
-      // Stop polling if source URL is missing or watch mode is disabled
+      // Registry documents are synced externally and do not need local watch polling.
+      if (registryMeta) {
+        timeoutManager.reset()
+        return
+      }
+
+      // Stop polling if source URL is missing or watch mode is disabled.
       if (!sourceUrl || !watchMode) {
         timeoutManager.reset()
         return

@@ -46,6 +46,7 @@ const props = defineProps<RouteProps>()
 
 /** Snag the title from the info object */
 const title = computed(() => props.document?.info?.title ?? '')
+const version = computed(() => props.document?.info?.version?.trim() ?? '')
 
 /** Default to the folder icon */
 const icon = computed(
@@ -71,6 +72,9 @@ const documentRegistryMeta = computed(
       | { namespace: string; slug: string }
       | undefined,
 )
+
+const isRegistryDocument = computed(() => documentRegistryMeta.value !== undefined)
+const isDocumentSavedLocally = computed(() => isDocumentDirty.value && !isRegistryDocument.value)
 
 /** Show Sync when the document has a source URL or registry meta (registry can be used if fetchRegistryDocument is set). */
 const canShowSyncButton = computed(
@@ -294,7 +298,7 @@ const onSyncModalClose = () => {
           @discard="undoChanges"
           @save="saveChanges" />
         <div class="flex flex-row items-center justify-between gap-2">
-          <div class="flex min-w-0 items-center gap-2">
+          <div class="flex min-w-0 flex-wrap items-center gap-2">
             <IconSelector
               :modelValue="icon"
               placement="bottom-start"
@@ -320,6 +324,21 @@ const onSyncModalClose = () => {
                   (title) => eventBus.emit('document:update:info', { title })
                 " />
             </div>
+            <span
+              v-if="version"
+              class="bg-b-2 text-c-2 inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium">
+              v{{ version }}
+            </span>
+            <span
+              v-if="isRegistryDocument"
+              class="bg-b-2 text-c-2 inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium">
+              Registry
+            </span>
+            <span
+              v-if="isDocumentSavedLocally"
+              class="bg-b-2 text-c-2 inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium">
+              Saved Locally
+            </span>
           </div>
 
           <ScalarButton

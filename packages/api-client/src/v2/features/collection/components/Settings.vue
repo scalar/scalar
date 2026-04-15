@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { getActiveProxyUrl } from '@scalar/workspace-store/request-example'
 import type { ColorMode } from '@scalar/workspace-store/schemas/workspace'
+import { computed } from 'vue'
 
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 import { CollectionSettings, DocumentSettings } from '@/v2/features/settings'
@@ -15,6 +16,10 @@ const {
   telemetry,
   onUpdateTelemetry,
 } = defineProps<CollectionProps>()
+
+const isRegistryDocument = computed(
+  () => document?.['x-scalar-registry-meta'] !== undefined,
+)
 
 const handleUpdateWatchMode = (watchMode: boolean) => {
   eventBus.emit('document:update:watch-mode', watchMode)
@@ -35,6 +40,7 @@ const handleUpdateColorMode = (colorMode: ColorMode) => {
   <DocumentSettings
     v-if="collectionType === 'document'"
     :documentUrl="document?.['x-scalar-original-source-url']"
+    :isRegistryDocument="isRegistryDocument"
     :isDraftDocument="documentSlug === 'drafts'"
     :title="document?.info.title ?? ''"
     :watchMode="document?.['x-scalar-watch-mode']"

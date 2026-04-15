@@ -56,6 +56,13 @@ export const loadDocument = n.safeFn(
       {
         name: documentName,
         document,
+        meta: {
+          'x-scalar-registry-meta': {
+            namespace,
+            slug,
+          },
+          'x-scalar-watch-mode': false,
+        },
       },
       config,
     )

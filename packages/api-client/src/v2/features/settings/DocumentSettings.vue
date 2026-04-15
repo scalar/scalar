@@ -14,6 +14,8 @@ import Section from './components/Section.vue'
 const {
   documentUrl,
   watchMode,
+  isRegistryDocument = false,
+  version,
   title,
   isDraftDocument = false,
 } = defineProps<{
@@ -21,6 +23,10 @@ const {
   documentUrl?: string
   /** Watch mode status if also document url is provided */
   watchMode?: boolean
+  /** Whether this document was loaded from Scalar Registry */
+  isRegistryDocument?: boolean
+  /** Document version */
+  version?: string
   /** Document title */
   title: string
   /** Whether the document is a draft document */
@@ -62,7 +68,19 @@ const handleDocumentDelete = () => {
         <div
           class="bg-b-1 flex items-center justify-between gap-4 rounded-t-lg p-3">
           <div>
-            <h4>Watch Mode</h4>
+            <div class="flex items-center gap-2">
+              <h4>Watch Mode</h4>
+              <span
+                v-if="version"
+                class="bg-b-2 text-c-2 inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium">
+                v{{ version }}
+              </span>
+              <span
+                v-if="isRegistryDocument"
+                class="bg-b-2 text-c-2 inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium">
+                Registry
+              </span>
+            </div>
             <p class="text-c-2 mt-1">
               When enabled, the OpenAPI document will be polled for changes. The
               collection will be updated automatically.
@@ -70,7 +88,7 @@ const handleDocumentDelete = () => {
           </div>
           <ScalarToggle
             class="w-4"
-            :disabled="!documentUrl"
+            :disabled="!documentUrl || isRegistryDocument"
             :modelValue="watchMode ?? false"
             @update:modelValue="(value) => emit('update:watchMode', value)" />
         </div>
