@@ -1,7 +1,7 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-import { type Mock, afterEach, describe, expect, it, vi } from 'vitest'
+import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   createExternalsFromPackageJson,
@@ -11,10 +11,16 @@ import {
 } from './vite-lib-config'
 
 vi.mock('node:fs', () => ({
+  existsSync: vi.fn(),
   readFileSync: vi.fn(),
 }))
 
 const mockReadFileSync = readFileSync as Mock
+const mockExistsSync = existsSync as Mock
+
+beforeEach(() => {
+  mockExistsSync.mockReturnValue(true)
+})
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -265,6 +271,20 @@ describe('findEntryPoints', () => {
         },
       }),
     )
+
+    expect(findEntryPoints()).toEqual(['./src/index.ts'])
+  })
+
+  it('skips exports that do not map to source entry files', () => {
+    mockReadFileSync.mockReturnValue(
+      JSON.stringify({
+        exports: {
+          '.': './dist/index.js',
+          './browser/standalone.js': './dist/browser/standalone.js',
+        },
+      }),
+    )
+    mockExistsSync.mockImplementation((path: string) => path !== './src/browser/standalone.ts')
 
     expect(findEntryPoints()).toEqual(['./src/index.ts'])
   })

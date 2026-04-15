@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 /**
@@ -112,6 +112,20 @@ export function findEntryPoints() {
     return ['./src/index.ts']
   }
 
+  const addEntryPoint = (distPath: string) => {
+    const sourcePath = distPath.replace('./dist/', './src/').replace(/\.js$/, '.ts')
+
+    // Some exports (for example browser-only bundles) do not map 1:1 to ./src/** entrypoints.
+    // Ignore those so packages can derive entries from package.json safely.
+    if (!existsSync(sourcePath)) {
+      return
+    }
+
+    if (!entryPoints.includes(sourcePath)) {
+      entryPoints.push(sourcePath)
+    }
+  }
+
   const processExport = (exportValue: any) => {
     if (typeof exportValue === 'string') {
       // Skip CSS, CJS, and type definition exports (only use ESM source entry)
@@ -124,10 +138,7 @@ export function findEntryPoints() {
         return
       }
       // Simple string export
-      const sourcePath = exportValue.replace('./dist/', './src/').replace(/\.js$/, '.ts')
-      if (!entryPoints.includes(sourcePath)) {
-        entryPoints.push(sourcePath)
-      }
+      addEntryPoint(exportValue)
     } else if (typeof exportValue === 'object' && exportValue !== null) {
       // Conditional exports
       if (exportValue.import) {
@@ -141,10 +152,7 @@ export function findEntryPoints() {
         ) {
           return
         }
-        const sourcePath = importPath.replace('./dist/', './src/').replace(/\.js$/, '.ts')
-        if (!entryPoints.includes(sourcePath)) {
-          entryPoints.push(sourcePath)
-        }
+        addEntryPoint(importPath)
       }
       // Handle nested exports
       for (const value of Object.values(exportValue)) {
@@ -153,10 +161,7 @@ export function findEntryPoints() {
           if (value.includes('*.css') || value.endsWith('.d.ts') || value.endsWith('.css') || value.endsWith('.cjs')) {
             continue
           }
-          const sourcePath = value.replace('./dist/', './src/').replace(/\.js$/, '.ts')
-          if (!entryPoints.includes(sourcePath)) {
-            entryPoints.push(sourcePath)
-          }
+          addEntryPoint(value)
         }
       }
     }
