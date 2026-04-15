@@ -60,7 +60,7 @@
     "lint:markdown": "remark --frail .",
     "lint:knip": "cross-env NODE_ENV=test knip",
     "lint:fix": "biome lint --write && pnpm eslint \"**/*.vue\" --fix",
-    "test": "vitest",
+    "test": "turbo --filter './packages/**' --filter './integrations/**' --filter './projects/**' --filter './tooling/**' test",
     "types:check": "turbo types:check",
     "types:check:raw": "pnpm run -r --parallel types:check",
     "types:build": "turbo types:build",

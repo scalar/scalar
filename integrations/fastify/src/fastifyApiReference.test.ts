@@ -2,7 +2,7 @@ import FastifyBasicAuth, { type FastifyBasicAuthOptions } from '@fastify/basic-a
 import fastifySwagger from '@fastify/swagger'
 import type { OpenAPI } from '@scalar/openapi-types'
 import Fastify, { type FastifyPluginAsync } from 'fastify'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import YAML from 'yaml'
 
 import fastifyApiReference from './index'
@@ -17,6 +17,7 @@ const authOptions: FastifyBasicAuthOptions = {
   },
   authenticate: true,
 }
+
 
 function basicAuthEncode(username: string, password: string) {
   return 'Basic ' + Buffer.from(username + ':' + password).toString('base64')
@@ -40,8 +41,16 @@ function exampleDocument() {
 }
 
 describe('fastifyApiReference', () => {
+  let fastify: ReturnType<typeof Fastify>
+  
+  afterEach(async () => {
+    if (fastify) {
+      await fastify.close()
+    }
+  })
+
   it('returns 200 OK for the HTML and redirects to the route with a trailing slash', async () => {
-    const fastify = Fastify({
+    fastify = Fastify({
       logger: false,
     })
 
@@ -63,7 +72,7 @@ describe('fastifyApiReference', () => {
   })
 
   it('returns 200 OK for the HTML and redirects to the route with a trailing slash (ignoreTrailingSlash: true)', async () => {
-    const fastify = Fastify({
+    fastify = Fastify({
       logger: false,
       ignoreTrailingSlash: true,
     })
@@ -95,7 +104,7 @@ describe('fastifyApiReference', () => {
       })
     }
 
-    const fastify = Fastify({
+    fastify = Fastify({
       logger: false,
     })
 
@@ -114,7 +123,7 @@ describe('fastifyApiReference', () => {
   })
 
   it('works with ignoreTrailingSlash', async () => {
-    const fastify = Fastify({
+    fastify = Fastify({
       logger: false,
       ignoreTrailingSlash: true,
     })
@@ -132,7 +141,7 @@ describe('fastifyApiReference', () => {
   })
 
   it('hasPlugin(fastifyApiReference) returns true', async () => {
-    const fastify = Fastify({
+    fastify = Fastify({
       logger: false,
     })
 
@@ -147,7 +156,7 @@ describe('fastifyApiReference', () => {
   })
 
   it('no fastify-html exposed', async () => {
-    const fastify = Fastify({
+    fastify = Fastify({
       logger: false,
     })
 
@@ -158,12 +167,11 @@ describe('fastifyApiReference', () => {
       },
     })
 
-    // @ts-expect-error
-    expect(fastify.html).toEqual(undefined)
+    expect(fastify.html).toBeUndefined()
   })
 
   it('the routePrefix is optional', async () => {
-    const fastify = Fastify({
+    fastify = Fastify({
       logger: false,
     })
 
@@ -201,7 +209,7 @@ describe('fastifyApiReference', () => {
       ] as const)('on the $endpointConfig endpoint', ({ json, yaml }) => {
         beforeEach<LocalTestContext>(async (context) => {
           const spec = exampleDocument()
-          const fastify = Fastify({
+          fastify = Fastify({
             logger: false,
           })
           const openApiDocumentEndpoints = {
@@ -287,7 +295,7 @@ describe('fastifyApiReference', () => {
   })
 
   it('has the JS url', async () => {
-    const fastify = Fastify({
+    fastify = Fastify({
       logger: false,
     })
 
@@ -315,7 +323,7 @@ describe('fastifyApiReference', () => {
       { expectedUrl: urlExt, specProvidedVia: 'url: urlExt' },
     ] as const)('when spec is provided via $specProvidedVia', async ({ expectedUrl, specProvidedVia }) => {
       const spec = exampleDocument()
-      const fastify = Fastify({
+      fastify = Fastify({
         logger: false,
       })
 
@@ -358,7 +366,7 @@ describe('fastifyApiReference', () => {
   })
 
   it('has the default title', async () => {
-    const fastify = Fastify({
+    fastify = Fastify({
       logger: false,
     })
 
@@ -375,7 +383,7 @@ describe('fastifyApiReference', () => {
   })
 
   it('has the correct content type', async () => {
-    const fastify = Fastify({
+    fastify = Fastify({
       logger: false,
     })
 
@@ -393,7 +401,7 @@ describe('fastifyApiReference', () => {
   })
 
   it('returns 401 Unauthorized for requests without authentication', async () => {
-    const fastify = Fastify({
+    fastify = Fastify({
       logger: false,
     })
     await fastify.register(FastifyBasicAuth, authOptions)
@@ -416,7 +424,7 @@ describe('fastifyApiReference', () => {
   })
 
   it('returns 200 OK for requests with authentication', async () => {
-    const fastify = Fastify({
+    fastify = Fastify({
       logger: false,
     })
     await fastify.register(FastifyBasicAuth, authOptions)
@@ -449,11 +457,11 @@ describe('fastifyApiReference', () => {
   it('respects logLevel configuration for routes', async () => {
     const loggedRequests: string[] = []
 
-    const fastify = Fastify({
+    fastify = Fastify({
       logger: {
         level: 'info',
         serializers: {
-          req(request) {
+          req(request: { method: string; url: string }) {
             loggedRequests.push(`${request.method} ${request.url}`)
 
             return {
@@ -484,7 +492,7 @@ describe('fastifyApiReference', () => {
   })
 
   it('does not fail when registered without specSource configuration', async () => {
-    const fastify = Fastify({
+    fastify = Fastify({
       logger: false,
     })
 
@@ -504,7 +512,7 @@ describe('fastifyApiReference', () => {
   })
 
   it('serves Scalar UI when only sources option is provided', async () => {
-    const fastify = Fastify({
+    fastify = Fastify({
       logger: false,
     })
 
