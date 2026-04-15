@@ -141,9 +141,7 @@ describe('App', () => {
     const { wrapper } = await setupApp('web')
 
     const loginLink = wrapper.find('a[href="https://dashboard.scalar.com/login"]')
-    const registerLink = wrapper.find(
-      'a[href="https://dashboard.scalar.com/register"]',
-    )
+    const registerLink = wrapper.find('a[href="https://dashboard.scalar.com/register"]')
 
     expect(loginLink.exists()).toBe(true)
     expect(registerLink.exists()).toBe(true)
@@ -152,11 +150,7 @@ describe('App', () => {
   it('does not render dashboard auth links in desktop layout', async () => {
     const { wrapper } = await setupApp('desktop')
 
-    expect(
-      wrapper.find('a[href="https://dashboard.scalar.com/login"]').exists(),
-    ).toBe(false)
-    expect(
-      wrapper.find('a[href="https://dashboard.scalar.com/register"]').exists(),
-    ).toBe(false)
+    expect(wrapper.find('a[href="https://dashboard.scalar.com/login"]').exists()).toBe(false)
+    expect(wrapper.find('a[href="https://dashboard.scalar.com/register"]').exists()).toBe(false)
   })
 })
