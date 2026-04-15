@@ -18,7 +18,6 @@ const authOptions: FastifyBasicAuthOptions = {
   authenticate: true,
 }
 
-
 function basicAuthEncode(username: string, password: string) {
   return 'Basic ' + Buffer.from(username + ':' + password).toString('base64')
 }
@@ -42,7 +41,7 @@ function exampleDocument() {
 
 describe('fastifyApiReference', () => {
   let fastify: ReturnType<typeof Fastify>
-  
+
   afterEach(async () => {
     if (fastify) {
       await fastify.close()
