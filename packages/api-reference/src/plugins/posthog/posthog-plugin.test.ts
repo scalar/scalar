@@ -91,4 +91,23 @@ describe('posthog-plugin', () => {
 
     expect(mockPostHogInstance.reset).toHaveBeenCalled()
   })
+
+  it('propagates lifecycle to client plugin', () => {
+    const plugin = PostHogPlugin(TEST_CONFIG)
+    const instance = plugin()
+    const clientPlugin = instance.apiClientPlugins![0]
+
+    const onInit = vi.spyOn(clientPlugin.lifecycle!, 'onInit')
+    const onConfigChange = vi.spyOn(clientPlugin.lifecycle!, 'onConfigChange')
+    const onDestroy = vi.spyOn(clientPlugin.lifecycle!, 'onDestroy')
+
+    instance.hooks?.onInit?.({ config: { telemetry: true } })
+    expect(onInit).toHaveBeenCalledWith({ config: { telemetry: true } })
+
+    instance.hooks?.onConfigChange?.({ config: { telemetry: false } })
+    expect(onConfigChange).toHaveBeenCalledWith({ config: { telemetry: false } })
+
+    instance.hooks?.onDestroy?.()
+    expect(onDestroy).toHaveBeenCalled()
+  })
 })
