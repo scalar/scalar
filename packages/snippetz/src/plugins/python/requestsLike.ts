@@ -5,7 +5,7 @@ import { accumulateRepeatedValue, reduceQueryParams } from '@/libs/http'
 export const LENGTH_CONSIDERED_AS_SHORT = 40
 
 // Function to convert JavaScript boolean and null values to Python equivalents
-export function convertToPythonSyntax(str: string): string {
+function convertToPythonSyntax(str: string): string {
   const replacements = [
     ['true', 'True'],
     ['false', 'False'],
