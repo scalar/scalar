@@ -1,5 +1,4 @@
 ---
-'@scalar/dotnet-shared': patch
 '@scalar/api-client-react': patch
 '@scalar/api-reference': patch
 '@scalar/agent-chat': patch
