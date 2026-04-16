@@ -2,10 +2,13 @@ import { ERRORS, type ErrorResponse, normalizeError } from '@scalar/helpers/erro
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
 import { normalizeHeaders } from '@scalar/helpers/http/normalize-headers'
+import { parseMimeType } from '@scalar/helpers/http/mime-type'
+import type { ClientPlugin, ResponseBodyHandler } from '@scalar/oas-utils/helpers'
 import cookie from 'cookie'
 import { parseSetCookie } from 'set-cookie-parser'
 
 import { getCookieHeaderKeys } from '@/v2/blocks/operation-block/helpers/get-cookie-header-keys'
+import { resolveResponseBodyHandler } from '@/v2/blocks/response-block/helpers/resolve-response-body-handler'
 
 import { decodeBuffer } from './decode-buffer'
 
@@ -59,9 +62,12 @@ const NO_BODY_STATUS_CODES = [204, 205, 304]
 export const sendRequest = async ({
   isUsingProxy,
   request,
+  plugins = [],
 }: {
   isUsingProxy: boolean
   request: Request
+  /** Registered client plugins for custom content type handling */
+  plugins?: ClientPlugin[]
 }): Promise<
   ErrorResponse<{
     response: ResponseInstance
@@ -116,6 +122,7 @@ export const sendRequest = async ({
       fullPath,
       contentType,
       shouldSkipBody,
+      plugins,
     })
   } catch (error) {
     return [normalizeError(error, ERRORS.REQUEST_FAILED), null]
@@ -218,6 +225,7 @@ const buildStandardResponse = async ({
   fullPath,
   contentType,
   shouldSkipBody,
+  plugins,
 }: {
   response: Response
   request: Request
@@ -229,6 +237,7 @@ const buildStandardResponse = async ({
   fullPath: string
   contentType: string | null
   shouldSkipBody: boolean
+  plugins: ClientPlugin[]
 }): Promise<
   ErrorResponse<{
     response: ResponseInstance
@@ -244,7 +253,9 @@ const buildStandardResponse = async ({
   const clonedResponse = response.clone()
   const arrayBuffer = await clonedResponse.arrayBuffer()
   const responseType = contentType ?? 'text/plain;charset=UTF-8'
-  const responseData = decodeBuffer(arrayBuffer, responseType)
+    const mimeEssence = parseMimeType(responseType).essence
+    const pluginHandler = resolveResponseBodyHandler(mimeEssence, plugins)
+    const responseData = await decodeBuffer(arrayBuffer, responseType, pluginHandler)
 
   /**
    * Create a new Response using the arrayBuffer we already read.

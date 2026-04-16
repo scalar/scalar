@@ -277,6 +277,7 @@ const handleExecute = async () => {
   const [sendError, sendResult] = await sendRequest({
     isUsingProxy: requestResult.result.isUsingProxy,
     request: requestResult.result.request,
+    plugins,
   })
 
   if (sendResult) {

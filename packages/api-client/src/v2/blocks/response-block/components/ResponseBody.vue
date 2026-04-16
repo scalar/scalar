@@ -1,8 +1,10 @@
 <script lang="ts" setup>
+import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { computed, ref } from 'vue'
 
 import { getMediaTypeConfig } from '@/v2/blocks/response-block/helpers/media-types'
 import { processResponseBody } from '@/v2/blocks/response-block/helpers/process-response-body'
+import { resolveResponseBodyHandler } from '@/v2/blocks/response-block/helpers/resolve-response-body-handler'
 import { CollapsibleSection } from '@/v2/components/layout'
 
 import ResponseBodyDownload from './ResponseBodyDownload.vue'
@@ -11,22 +13,16 @@ import ResponseBodyPreview from './ResponseBodyPreview.vue'
 import ResponseBodyRaw from './ResponseBodyRaw.vue'
 import ResponseBodyToggle from './ResponseBodyToggle.vue'
 
-const { data, headers } = defineProps<{
+const { data, headers, plugins = [] } = defineProps<{
   title: string
   layout: 'client' | 'reference'
   data: unknown
   headers: { name: string; value: string }[]
+  plugins?: ClientPlugin[]
 }>()
 
 /** Preview / Raw toggle */
 const toggle = ref(true)
-
-const showToggle = computed(
-  () => !!(mediaConfig.value?.raw && mediaConfig.value.preview),
-)
-
-const showPreview = computed(() => toggle.value || !showToggle.value)
-const showRaw = computed(() => !toggle.value || !showToggle.value)
 
 const responseBody = computed(() =>
   processResponseBody({
@@ -35,8 +31,29 @@ const responseBody = computed(() =>
   }),
 )
 
-const mediaConfig = computed(() =>
-  getMediaTypeConfig(responseBody.value.mimeType?.essence ?? ''),
+const mimeEssence = computed(() => responseBody.value.mimeType?.essence ?? '')
+
+const mediaConfig = computed(() => getMediaTypeConfig(mimeEssence.value))
+
+const pluginHandler = computed(() =>
+  resolveResponseBodyHandler(mimeEssence.value, plugins),
+)
+
+const hasRaw = computed(
+  () => !!pluginHandler.value?.rawComponent || !!pluginHandler.value?.decode || !!mediaConfig.value?.raw,
+)
+
+const hasPreview = computed(
+  () => !!pluginHandler.value?.previewComponent || !!mediaConfig.value?.preview,
+)
+
+const showToggle = computed(() => hasRaw.value && hasPreview.value)
+
+const showPreview = computed(() => toggle.value || !showToggle.value)
+const showRaw = computed(() => !toggle.value || !showToggle.value)
+
+const rawLanguage = computed(
+  () => pluginHandler.value?.language ?? mediaConfig.value?.language,
 )
 </script>
 <template>
@@ -58,25 +75,45 @@ const mediaConfig = computed(() =>
       <div
         class="box-content flex min-h-8 items-center justify-between border-y px-3">
         <span class="text-xxs font-code leading-5">
-          {{ responseBody.mimeType?.essence }}
+          {{ mimeEssence }}
         </span>
         <ResponseBodyToggle
           v-if="showToggle"
           v-model="toggle" />
       </div>
-      <ResponseBodyRaw
-        v-if="mediaConfig?.raw && showRaw"
+
+      <!-- Plugin custom raw component -->
+      <component
+        :is="pluginHandler.rawComponent"
+        v-if="pluginHandler?.rawComponent && hasRaw && showRaw"
         :key="responseBody.dataUrl"
         :content="data"
-        :language="mediaConfig.language" />
+        :contentType="mimeEssence" />
+      <!-- Default raw renderer (used when plugin provides decode but no custom component) -->
+      <ResponseBodyRaw
+        v-else-if="hasRaw && showRaw"
+        :key="responseBody.dataUrl"
+        :content="data"
+        :language="rawLanguage" />
+
+      <!-- Plugin custom preview component -->
+      <component
+        :is="pluginHandler.previewComponent"
+        v-if="pluginHandler?.previewComponent && hasPreview && showPreview"
+        :key="responseBody.dataUrl"
+        :content="data"
+        :contentType="mimeEssence"
+        :dataUrl="responseBody.dataUrl" />
+      <!-- Default preview renderer -->
       <ResponseBodyPreview
-        v-if="mediaConfig?.preview && showPreview"
+        v-else-if="mediaConfig?.preview && showPreview"
         :key="responseBody.dataUrl"
         :alpha="mediaConfig.alpha"
         :mode="mediaConfig.preview"
         :src="responseBody.dataUrl"
-        :type="responseBody.mimeType?.essence ?? ''" />
-      <ResponseBodyInfo v-if="!mediaConfig?.raw && !mediaConfig?.preview">
+        :type="mimeEssence" />
+
+      <ResponseBodyInfo v-if="!hasRaw && !hasPreview">
         Binary file
       </ResponseBodyInfo>
     </div>

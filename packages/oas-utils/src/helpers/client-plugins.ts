@@ -2,7 +2,29 @@ import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
-import type { DefineComponent } from 'vue'
+import type { Component, DefineComponent } from 'vue'
+
+/**
+ * Describes how a plugin handles a specific content type in the response body.
+ *
+ * - `decode`: Transforms the raw ArrayBuffer into displayable data (e.g. decompress msgpack → JSON string).
+ *   When provided, runs instead of the default text/binary decoding for matched content types.
+ * - `rawComponent`: Custom Vue component to render the "raw" view. Receives `content` (decoded data) and `contentType`.
+ * - `previewComponent`: Custom Vue component to render the "preview" view. Receives `content`, `contentType`, and `dataUrl`.
+ * - `language`: CodeMirror language hint for the default raw renderer (only used when `rawComponent` is not provided).
+ */
+export type ResponseBodyHandler = {
+  /** MIME type patterns this handler matches (exact or glob like "application/vnd.*+json") */
+  mimeTypes: string[]
+  /** Custom decoder: transform raw bytes into displayable data */
+  decode?: (buffer: ArrayBuffer, contentType: string) => string | Blob | Promise<string | Blob>
+  /** Custom component for the raw (code) view */
+  rawComponent?: Component
+  /** Custom component for the preview view */
+  previewComponent?: Component
+  /** CodeMirror language for the default raw renderer when no custom rawComponent is provided */
+  language?: string
+}
 
 /** A type representing the hooks that a client plugin can define */
 type ClientPluginHooks = {
@@ -72,7 +94,15 @@ type ClientPluginComponents = {
  *   components: {
  *     request: MyRequestComponent, // Custom Vue component for rendering the request section
  *     response: MyResponseComponent // Custom Vue component for rendering the response section
- *   }
+ *   },
+ *   responseBody: [{
+ *     mimeTypes: ['application/msgpack', 'application/x-msgpack'],
+ *     decode: (buffer) => {
+ *       const decoded = msgpack.decode(new Uint8Array(buffer));
+ *       return JSON.stringify(decoded, null, 2);
+ *     },
+ *     language: 'json',
+ *   }]
  * }
  */
 /** Lifecycle hooks for app-level plugin concerns (analytics, logging, etc.) */
@@ -92,6 +122,8 @@ export type ClientPlugin = {
   lifecycle?: ClientPluginLifecycle
   /** Subscribe to event bus events. The framework handles subscribe/unsubscribe automatically. */
   on?: Partial<{ [K in keyof ApiReferenceEvents]: (payload: ApiReferenceEvents[K]) => void }>
+  /** Custom response body handlers for specific content types */
+  responseBody?: ResponseBodyHandler[]
 }
 
 /**
