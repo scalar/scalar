@@ -181,7 +181,8 @@ export const pythonPython3: Plugin = {
       url: 'https://example.com',
       ...request,
     })
-    const parsedUrl = parseRequestUrl(normalizedRequest.url)
+    const requestUrl = normalizedRequest.url ?? 'https://example.com'
+    const parsedUrl = parseRequestUrl(requestUrl)
     const queryString = mergeQueryString(parsedUrl, normalizedRequest.queryString)
     const path = `${parsedUrl.pathname || '/'}${queryString}`
     const headers = normalizedRequest.headers?.reduce<Record<string, string>>((acc, header) => {
