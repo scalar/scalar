@@ -316,6 +316,38 @@ describe('ssr', () => {
       expect(result).toContain('<\\/script>')
     })
 
+    it('escapes dangerous characters in function property keys', () => {
+      const maliciousKey = 'on"Loaded</script><script>window.__pwned=5</script>'
+      const result = serializeConfigToJs({
+        [maliciousKey]: () => 'safe',
+      })
+
+      expect(result).not.toContain(`"${maliciousKey}"`)
+      expect(result).not.toContain('</script><script>window.__pwned=5</script>')
+      expect(result).toContain(
+        '"on\\"Loaded\\u003c/script\\u003e\\u003cscript\\u003ewindow.__pwned=5\\u003c/script\\u003e"',
+      )
+      const hydratedConfig = new Function(`return (${result})`)() as Record<string, unknown>
+      expect(typeof hydratedConfig[maliciousKey]).toBe('function')
+      expect((hydratedConfig[maliciousKey] as () => string)()).toBe('safe')
+    })
+
+    it('escapes dangerous characters in array property keys', () => {
+      const maliciousKey = 'hooks"</script><script>window.__pwned=6</script>'
+      const result = serializeConfigToJs({
+        [maliciousKey]: [() => 'safe'],
+      })
+
+      expect(result).not.toContain(`"${maliciousKey}"`)
+      expect(result).not.toContain('</script><script>window.__pwned=6</script>')
+      expect(result).toContain(
+        '"hooks\\"\\u003c/script\\u003e\\u003cscript\\u003ewindow.__pwned=6\\u003c/script\\u003e"',
+      )
+      const hydratedConfig = new Function(`return (${result})`)() as Record<string, unknown>
+      expect(Array.isArray(hydratedConfig[maliciousKey])).toBe(true)
+      expect(((hydratedConfig[maliciousKey] as unknown[])[0] as () => string)()).toBe('safe')
+    })
+
     it('throws when nested functions would be dropped during hydration serialization', async () => {
       await expect(
         renderApiReference({

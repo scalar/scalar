@@ -240,6 +240,8 @@ const serializeJsonValue = (value: unknown): string => escapeJsonForInlineScript
 const serializeJsonObject = (value: Record<string, unknown>): string =>
   escapeJsonForInlineScript(JSON.stringify(value, null, 2))
 
+const serializePropertyKey = (key: string): string => escapeJsonForInlineScript(JSON.stringify(key))
+
 const serializeArrayWithFunctions = (value: unknown[], path: string): string => {
   return `[${value
     .map((item, index) => {
@@ -254,10 +256,10 @@ const serializeArrayWithFunctions = (value: unknown[], path: string): string => 
 }
 
 const serializeFunctionProperty = (key: string, value: Function): string =>
-  `"${key}": ${escapeFunctionSourceForInlineScript(value.toString())}`
+  `${serializePropertyKey(key)}: ${escapeFunctionSourceForInlineScript(value.toString())}`
 
 const serializeArrayProperty = (key: string, value: unknown[]): string =>
-  `"${key}": ${serializeArrayWithFunctions(value, key)}`
+  `${serializePropertyKey(key)}: ${serializeArrayWithFunctions(value, key)}`
 
 const mergeSerializedProperties = (jsonObjectLiteral: string, dynamicProperties: string[]): string => {
   const formattedDynamicProperties = addIndent(dynamicProperties.join(',\n'), 8, true)
