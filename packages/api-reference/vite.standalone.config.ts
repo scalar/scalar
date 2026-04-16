@@ -30,52 +30,69 @@ const replaceVariables = (template: string, variables: Record<string, string>) =
     template,
   )
 
-export default defineConfig({
-  define: {
-    'process.env.NODE_ENV': '"production"',
-    'process.env.SCALAR_API_REFERENCE_VERSION': `"${version}"`,
-  },
-  resolve: {
-    alias: {
-      '@': resolve(import.meta.dirname, './src'),
-      '@test': resolve(import.meta.dirname, './test'),
+const standaloneExternal = [/^radix-vue/, /^@scalar\/openapi-parser/]
+const standaloneGlobals = {
+  'radix-vue': '{}',
+  'radix-vue/namespaced': '{}',
+}
+
+const bannerPlugin = banner({
+  outDir: 'dist/browser',
+  content: replaceVariables(licenseBannerTemplate, {
+    packageName: name,
+    version: version,
+  }),
+})
+
+export default defineConfig(({ mode }) => {
+  const isUmdBuild = mode === 'standalone-umd'
+
+  return {
+    define: {
+      'process.env.NODE_ENV': '"production"',
+      'process.env.SCALAR_API_REFERENCE_VERSION': `"${version}"`,
+      __VUE_OPTIONS_API__: 'false',
+      __VUE_PROD_DEVTOOLS__: 'false',
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
     },
-    dedupe: ['vue'],
-  },
-  plugins: [
-    vue(),
-    tailwindcss(),
-    cssInjectedByJsPlugin(),
-    webpackStats(),
-    banner({
+    resolve: {
+      alias: {
+        '@': resolve(import.meta.dirname, './src'),
+        '@test': resolve(import.meta.dirname, './test'),
+      },
+      dedupe: ['vue'],
+    },
+    plugins: isUmdBuild
+      ? [vue(), tailwindcss(), cssInjectedByJsPlugin(), webpackStats(), bannerPlugin]
+      : [vue(), tailwindcss(), bannerPlugin],
+    build: {
+      emptyOutDir: isUmdBuild,
       outDir: 'dist/browser',
-      content: replaceVariables(licenseBannerTemplate, {
-        packageName: name,
-        version: version,
-      }),
-    }),
-  ],
-  build: {
-    emptyOutDir: false,
-    outDir: 'dist/browser',
-    cssCodeSplit: false,
-    lib: {
-      entry: ['src/standalone.ts'],
-      name: '@scalar/api-reference',
-      formats: ['umd'],
-    },
-    rolldownOptions: {
-      // Externalize radix-vue — no radix-vue component (ScalarMenu)
-      // is ever rendered in the standalone API reference. They leak in through the
-      // @scalar/components barrel via @scalar/api-client but are never mounted.
-      external: [/^radix-vue/, /^@scalar\/openapi-parser/],
-      output: {
-        entryFileNames: '[name].js',
-        globals: {
-          'radix-vue': '{}',
-          'radix-vue/namespaced': '{}',
+      minify: true,
+      target: 'esnext',
+      cssCodeSplit: false,
+      lib: {
+        entry: resolve(import.meta.dirname, isUmdBuild ? './src/standalone.ts' : './src/standalone-esm.ts'),
+        formats: isUmdBuild ? ['umd'] : ['es'],
+        ...(isUmdBuild ? { name: '@scalar/api-reference' } : {}),
+      },
+      rolldownOptions: {
+        // Externalize radix-vue — no radix-vue component (ScalarMenu)
+        // is ever rendered in the standalone API reference. They leak in through the
+        // @scalar/components barrel via @scalar/api-client but are never mounted.
+        external: standaloneExternal,
+        treeshake: {
+          moduleSideEffects: (id) => id.includes('.css'),
         },
+        output: isUmdBuild
+          ? {
+              entryFileNames: 'standalone.js',
+              globals: standaloneGlobals,
+            }
+          : {
+              entryFileNames: 'standalone.mjs',
+            },
       },
     },
-  },
+  }
 })

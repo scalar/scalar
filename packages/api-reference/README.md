@@ -42,6 +42,36 @@ Interactive API Reference from OpenAPI/Swagger Documents [Try our Demo](https://
 </html>
 ```
 
+### CDN (ESM)
+
+```html
+<!doctype html>
+<html>
+  <head>
+    <title>Scalar API Reference</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+    <div id="app"></div>
+
+    <script type="module">
+      import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/browser/standalone.mjs'
+
+      createApiReference('#app', {
+        // The URL of the OpenAPI/Swagger document
+        url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
+        // Avoid CORS issues
+        proxyUrl: 'https://proxy.scalar.com',
+      })
+    </script>
+  </body>
+</html>
+```
+
 ## Documentation
 
 [Read the documentation here](https://scalar.com/products/api-references/integrations/html-js)
