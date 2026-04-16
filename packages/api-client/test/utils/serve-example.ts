@@ -8,7 +8,7 @@ type LayoutConfig = {
 /**
  * Available playground layouts for testing
  */
-export const layouts = {
+const layouts = {
   web: {
     layout: 'web' as const,
     path: '/playground/web/',

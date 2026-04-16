@@ -40,6 +40,9 @@
     "tailwindcss",
     // Used as vitest environment in test files via @vitest-environment jsdom
     "jsdom",
+    // Used by Playwright E2E tests in api-client (not directly imported in source)
+    "@hono/node-server",
+    "hono",
     // The following values needs to be re-checked once more packages are included
     "tsconfig-paths",
     "typescript-language-server"
@@ -92,7 +95,9 @@
         "src/v2/features/settings/index.ts",
         "src/plugins/posthog/index.ts",
         "playground/{app,modal,web}/main.ts",
-        "playground/test/index.ts"
+        "playground/test/index.ts",
+        "test/snapshots/**/*.e2e.ts",
+        "test/utils/serve-example.ts"
       ]
     },
     "packages/api-client-react": {
