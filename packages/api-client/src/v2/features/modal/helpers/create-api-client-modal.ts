@@ -149,7 +149,6 @@ export const createApiClientModal = ({
     { immediate: true },
   )
 
-
   // Use a unique id prefix to prevent collisions with other Vue apps on the page
   app.config.idPrefix = 'scalar-client'
 
