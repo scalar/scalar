@@ -10,30 +10,8 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0" />
     <title>Scalar API Client Web</title>
-    <style>
-      html,
-      body {
-        height: 100dvh;
-        overflow: hidden;
-      }
-      body {
-        display: grid;
-        grid-template-rows: var(--scalar-header-height) 1fr;
-      }
-      body > header {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      #scalar-client,
-      #scalar-client > main {
-        display: grid;
-        min-height: 0;
-      }
-    </style>
   </head>
   <body class="scalar-app">
-    <header class="h-header border-b">Header / Menu Go Here</header>
     <div
       id="scalar-client"
       class="scalar-client"></div>
