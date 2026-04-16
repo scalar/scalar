@@ -1,4 +1,4 @@
-import { addComponent, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
+import { addComponent, addVitePlugin, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
 
 import type { Configuration } from './types'
 
@@ -107,43 +107,41 @@ export default defineNuxtModule<ModuleOptions>({
     // debug/extend shims do not shadow the real packages for user code or unrelated
     // third-party libraries (e.g. DEBUG=* env-var logging would silently stop working
     // if we replaced debug globally with a no-op shim).
-    _nuxt.hook('vite:extendConfig', (config) => {
-      const debugShim = resolver.resolve('./shims/debug.js')
-      const extendShim = resolver.resolve('./shims/extend.js')
+    const debugShim = resolver.resolve('./shims/debug.js')
+    const extendShim = resolver.resolve('./shims/extend.js')
 
-      config.plugins.push({
-        name: 'scalar-cjs-shims',
-        enforce: 'pre',
-        resolveId(source: string, importer: string | undefined) {
-          // Only intercept imports that originate from within @scalar packages
-          if (!importer?.includes('/node_modules/@scalar/')) {
-            return null
-          }
-          if (source === 'debug') {
-            return debugShim
-          }
-          if (source === 'extend') {
-            return extendShim
-          }
+    addVitePlugin({
+      name: 'scalar-cjs-shims',
+      enforce: 'pre',
+      resolveId(source: string, importer: string | undefined) {
+        // Only intercept imports that originate from within @scalar packages
+        if (!importer?.includes('/node_modules/@scalar/')) {
           return null
-        },
-        transform(code: string, id: string) {
-          if (!id.includes('/highlight.js/lib/core.js')) {
-            return null
-          }
-          return {
-            code: [
-              'const module = { exports: {} };',
-              'const exports = module.exports;',
-              '(function(module, exports) {',
-              code,
-              '})(module, exports);',
-              'export default module.exports;',
-            ].join('\n'),
-            map: null,
-          }
-        },
-      })
+        }
+        if (source === 'debug') {
+          return debugShim
+        }
+        if (source === 'extend') {
+          return extendShim
+        }
+        return null
+      },
+      transform(code: string, id: string) {
+        if (!id.includes('/highlight.js/lib/core.js')) {
+          return null
+        }
+        return {
+          code: [
+            'const module = { exports: {} };',
+            'const exports = module.exports;',
+            '(function(module, exports) {',
+            code,
+            '})(module, exports);',
+            'export default module.exports;',
+          ].join('\n'),
+          map: null,
+        }
+      },
     })
 
     // add scalar tab to DevTools
