@@ -177,6 +177,25 @@ function escapeJsonForInlineScript(json: string): string {
     .replace(/\u2029/g, '\\u2029')
 }
 
+/**
+ * Escape a function's source code so it is safe to embed inside an inline script tag.
+ *
+ * Unlike escapeJsonForInlineScript (which escapes all `<` and `>`), this only neutralizes
+ * sequences that could break out of a `<script>` block or open an HTML comment:
+ * - `</` (case-insensitive closing tags, e.g. `</script>`)
+ * - `<!--` (HTML comment open)
+ * - U+2028 / U+2029 (line/paragraph separators, invalid in JS source outside strings)
+ *
+ * This preserves JS syntax like `=>`, `<`, `>`, and `>=`.
+ */
+function escapeFunctionSourceForInlineScript(source: string): string {
+  return source
+    .replace(/<\//g, '<\\/')
+    .replace(/<!--/g, '<\\!--')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029')
+}
+
 /** Add consistent indentation to multiline strings embedded in HTML output. */
 const addIndent = (str: string, spaces: number = 2, initialIndent: boolean = false): string => {
   const indent = ' '.repeat(spaces)
@@ -225,7 +244,7 @@ const serializeArrayWithFunctions = (value: unknown[], path: string): string => 
   return `[${value
     .map((item, index) => {
       if (typeof item === 'function') {
-        return item.toString()
+        return escapeFunctionSourceForInlineScript(item.toString())
       }
 
       assertNoNestedFunctions(item, `${path}[${index}]`)
@@ -234,7 +253,8 @@ const serializeArrayWithFunctions = (value: unknown[], path: string): string => 
     .join(', ')}]`
 }
 
-const serializeFunctionProperty = (key: string, value: Function): string => `"${key}": ${value.toString()}`
+const serializeFunctionProperty = (key: string, value: Function): string =>
+  `"${key}": ${escapeFunctionSourceForInlineScript(value.toString())}`
 
 const serializeArrayProperty = (key: string, value: unknown[]): string =>
   `"${key}": ${serializeArrayWithFunctions(value, key)}`

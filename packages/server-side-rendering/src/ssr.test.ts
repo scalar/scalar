@@ -291,6 +291,34 @@ describe('ssr', () => {
       expect(html).toContain('"hooks": [() => "ready", {"label":"stable"}]')
     })
 
+    it('escapes script-breaking sequences in serialized function properties', async () => {
+      // Arrow function whose source contains a </script> payload
+      const maliciousFn = () => '</script><script>window.__pwned=3</script>'
+      const html = await renderApiReference({
+        config: {
+          onLoaded: maliciousFn,
+        },
+        css: '',
+      })
+
+      expect(html).not.toContain('</script><script>window.__pwned=3</script>')
+      expect(html).toContain('<\\/script>')
+    })
+
+    it('escapes script-breaking sequences in serialized array functions', async () => {
+      // Arrow function whose source contains a </script> payload
+      const maliciousFn = () => '</script><script>window.__pwned=4</script>'
+      const html = await renderApiReference({
+        config: {
+          hooks: [maliciousFn],
+        },
+        css: '',
+      })
+
+      expect(html).not.toContain('</script><script>window.__pwned=4</script>')
+      expect(html).toContain('<\\/script>')
+    })
+
     it('throws when nested functions would be dropped during hydration serialization', async () => {
       await expect(
         renderApiReference({
