@@ -88,12 +88,15 @@ onBeforeUnmount(() => {
 
 .scalar .scalar-app-layout {
   background: var(--scalar-background-1);
-  height: calc(100% - 120px);
+  height: min(920px, calc(100vh - 120px));
+  width: min(1390px, calc(100vw - 48px));
   max-width: 1390px;
-  width: 100%;
+  min-width: min(720px, calc(100vw - 24px));
+  min-height: min(420px, calc(100vh - 24px));
   margin: auto;
   position: relative;
   overflow: hidden;
+  resize: both;
   border-radius: 8px;
   border: var(--scalar-border-width) solid var(--scalar-border-color);
 }
@@ -103,7 +106,7 @@ onBeforeUnmount(() => {
  */
 @variant zoomed {
   .scalar .scalar-app-layout {
-    height: 100%;
+    height: min(920px, calc(100vh - 24px));
     max-height: 90svh;
   }
 }
