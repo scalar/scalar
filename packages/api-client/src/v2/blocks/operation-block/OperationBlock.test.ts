@@ -242,6 +242,25 @@ describe('OperationBlock', () => {
     expect(wrapper.exists()).toBe(true)
   })
 
+  it('renders request/response resize handle in modal layout', () => {
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        layout: 'modal',
+      },
+    })
+
+    expect(wrapper.find('.modal-resize-handle').exists()).toBe(true)
+  })
+
+  it('does not render request/response resize handle outside modal layout', () => {
+    const wrapper = mount(OperationBlock, {
+      props: createDefaultProps(),
+    })
+
+    expect(wrapper.find('.modal-resize-handle').exists()).toBe(false)
+  })
+
   it('registers event listeners on mount and unregisters on unmount', () => {
     const mockEventBus = createMockEventBus()
     const props = createDefaultProps()
