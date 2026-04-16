@@ -16,11 +16,14 @@ function deepExtend(target, source) {
 }
 
 export default function extend(deep, ...args) {
+  // Real extend always mutates the target in place — never create a fresh copy.
   if (typeof deep !== 'boolean') {
-    return args.reduce((acc, src) => Object.assign(acc, src), Object.assign({}, deep))
+    // Called as extend(target, ...sources): deep is actually the target.
+    const target = deep != null && typeof deep === 'object' ? deep : {}
+    return args.reduce((acc, src) => Object.assign(acc, src), target)
   }
   const [target, ...sources] = args
-  const base = Object.assign({}, target)
+  const base = target != null && typeof target === 'object' ? target : {}
   if (!deep) {
     return sources.reduce((acc, src) => Object.assign(acc, src), base)
   }
