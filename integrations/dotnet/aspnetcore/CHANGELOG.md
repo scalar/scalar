@@ -1,5 +1,24 @@
 # @scalar/aspnetcore
 
+## 2.14.0
+
+### Minor Changes
+
+- [#8826](https://github.com/scalar/scalar/pull/8826): Support marking endpoints as deprecated via DeprecatedAttribute
+
+### Patch Changes
+
+- [#8817](https://github.com/scalar/scalar/pull/8817): feat(snippetz): add a Laravel HTTP client plugin for PHP snippets
+
+  Added a new `php/laravel` client generator in `@scalar/snippetz`, including comprehensive request coverage for headers, cookies, auth, query params, JSON, multipart, form-encoded, binary, and fallback bodies.
+
+  Updated generated client registries and schema wiring so the new client is available across Scalar:
+  - `@scalar/types` `GROUPED_CLIENTS` / `AVAILABLE_CLIENTS`
+  - `@scalar/workspace-store` reference-config schema
+  - generated docs and integration client enums
+
+  Updated api-client expectations for the increased total built-in client count.
+
 ## 2.13.22
 
 ## 2.13.21

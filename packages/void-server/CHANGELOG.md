@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.4.5
+
+### Patch Changes
+
+- [#8820](https://github.com/scalar/scalar/pull/8820): fix stream endpoint headers for server-sent events
+
 ## 2.4.4
 
 ## 2.4.3

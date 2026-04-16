@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.52.2
+
+### Patch Changes
+
+- [#8827](https://github.com/scalar/scalar/pull/8827): chore: removed old client v1 code
+- [#8791](https://github.com/scalar/scalar/pull/8791): fix test requests so exploded array query parameters keep all values instead of collapsing to the last one
+- [#8863](https://github.com/scalar/scalar/pull/8863): chore: updated imports to new api client version
+- [#8780](https://github.com/scalar/scalar/pull/8780): fix: run intersect for the top of the document
+- [#8825](https://github.com/scalar/scalar/pull/8825): chore: moving files around in preparation for the big deletion of client v1
+- [#8831](https://github.com/scalar/scalar/pull/8831): refactor(api-reference): remove search index ts-expect-error by using typed collection access
+- [#8784](https://github.com/scalar/scalar/pull/8784): fix: correctly display schema names
+
 ## 1.52.1
 
 ### Patch Changes

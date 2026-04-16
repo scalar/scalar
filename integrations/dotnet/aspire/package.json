@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/dotnet/aspire"
   },
-  "version": "0.9.22",
+  "version": "0.9.23",
   "private": true,
   "engines": {
     "node": ">=22"

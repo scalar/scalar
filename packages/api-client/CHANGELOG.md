@@ -1,5 +1,39 @@
 # @scalar/api-client
 
+## 3.0.0
+
+### Major Changes
+
+- [#8863](https://github.com/scalar/scalar/pull/8863): feat: remove old api-client exports and make v2 the main export
+
+### Minor Changes
+
+- [#8632](https://github.com/scalar/scalar/pull/8632): feat: support generation of random data
+
+### Patch Changes
+
+- [#8827](https://github.com/scalar/scalar/pull/8827): chore: removed old client v1 code
+- [#8828](https://github.com/scalar/scalar/pull/8828): Add support for `text/json` media type
+- [#8840](https://github.com/scalar/scalar/pull/8840): feat: allow updating the proxyUrl and make options reactive in api-client
+- [#8735](https://github.com/scalar/scalar/pull/8735): fix: replace direct cjs mime and curl dependencies with local implementations
+- [#8848](https://github.com/scalar/scalar/pull/8848): fix: use search for virtual responses
+- [#8825](https://github.com/scalar/scalar/pull/8825): chore: moving files around in preparation for the big deletion of client v1
+- [#8794](https://github.com/scalar/scalar/pull/8794): Fix Monaco 0.55 compatibility in JSON/YAML editor language helpers.
+- [#8817](https://github.com/scalar/scalar/pull/8817): feat(snippetz): add a Laravel HTTP client plugin for PHP snippets
+
+  Added a new `php/laravel` client generator in `@scalar/snippetz`, including comprehensive request coverage for headers, cookies, auth, query params, JSON, multipart, form-encoded, binary, and fallback bodies.
+
+  Updated generated client registries and schema wiring so the new client is available across Scalar:
+  - `@scalar/types` `GROUPED_CLIENTS` / `AVAILABLE_CLIENTS`
+  - `@scalar/workspace-store` reference-config schema
+  - generated docs and integration client enums
+
+  Updated api-client expectations for the increased total built-in client count.
+
+- [#8849](https://github.com/scalar/scalar/pull/8849): fix(api-client): improve drag regions
+- [#8850](https://github.com/scalar/scalar/pull/8850): chore: remove entities, zod and the parser from oas-utils
+- [#8823](https://github.com/scalar/scalar/pull/8823): fix: prevent address bar text from hiding under fade overlay while typing
+
 ## 2.43.0
 
 ### Minor Changes

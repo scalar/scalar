@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.3.3
+
+### Patch Changes
+
+- [#8735](https://github.com/scalar/scalar/pull/8735): fix: replace direct cjs mime and curl dependencies with local implementations
+
 ## 0.3.2
 
 ### Patch Changes

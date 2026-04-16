@@ -1,5 +1,13 @@
 # @scalar/agent-chat
 
+## 0.10.4
+
+### Patch Changes
+
+- [#8827](https://github.com/scalar/scalar/pull/8827): chore: removed old client v1 code
+- [#8735](https://github.com/scalar/scalar/pull/8735): fix: replace direct cjs mime and curl dependencies with local implementations
+- [#8863](https://github.com/scalar/scalar/pull/8863): chore: updated imports to new api client version
+
 ## 0.10.3
 
 ## 0.10.2

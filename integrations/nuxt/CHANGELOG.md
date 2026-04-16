@@ -1,5 +1,11 @@
 # @scalar/nuxt
 
+## 0.6.23
+
+### Patch Changes
+
+- [#8735](https://github.com/scalar/scalar/pull/8735): Skip empty MIME parameter values and remove a stale Nuxt optimizeDeps entry for `highlightjs-curl`.
+
 ## 0.6.22
 
 ## 0.6.21
