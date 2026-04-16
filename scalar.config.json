@@ -1933,38 +1933,6 @@
                       ]
                     }
                   },
-                  "plugins": {
-                    "filepath": "documentation/guides/app/plugins.md",
-                    "type": "page",
-                    "title": "Plugins",
-                    "description": "Extend the API Client with custom plugins for lifecycle hooks, UI components, and custom response body handling.",
-                    "head": {
-                      "links": [
-                        {
-                          "rel": "canonical",
-                          "href": "https://scalar.com/products/api-client/plugins"
-                        }
-                      ],
-                      "meta": [
-                        {
-                          "name": "description",
-                          "content": "Extend the API Client with custom plugins for lifecycle hooks, UI components, and custom response body handling."
-                        },
-                        {
-                          "property": "og:title",
-                          "content": "Client Plugins - Scalar API Client"
-                        },
-                        {
-                          "property": "og:description",
-                          "content": "Extend the API Client with custom plugins for lifecycle hooks, UI components, and custom response body handling."
-                        },
-                        {
-                          "name": "robots",
-                          "content": "index, follow"
-                        }
-                      ]
-                    }
-                  },
                   "scripts": {
                     "filepath": "documentation/guides/app/scripts.md",
                     "type": "page",
