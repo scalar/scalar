@@ -24,24 +24,6 @@ export default defineConfig({
   workers: '100%',
   fullyParallel: true,
   reporter,
-  /**
-   * Outside of CI we run the playwright test server in a docker container for
-   * consistent cross-platform results.
-   */
-  webServer: CI
-    ? undefined
-    : {
-        name: 'Playwright',
-        command:
-          'docker run --name scalar-playwright --rm --entrypoint="playwright" --network=host scalarapi/playwright-runner:1.56.0 run-server --port 5001 --host 0.0.0.0',
-        url: 'http://localhost:5001',
-        timeout: 120 * 1000,
-        reuseExistingServer: !CI,
-        gracefulShutdown: {
-          signal: 'SIGINT',
-          timeout: 10 * 1000,
-        },
-      },
   snapshotPathTemplate: '{testFileDir}/{testFileName}.snapshots/{arg}{ext}',
   expect: {
     toHaveScreenshot: {
@@ -53,8 +35,8 @@ export default defineConfig({
     timeout: 15000,
   },
   use: {
-    /** The base URL is on the docker host where we're running Vite (api-client uses port 5065) */
-    baseURL: CI || isLinux ? 'http://localhost:5065/' : 'http://host.docker.internal:5065/',
+    /** The base URL points to the Vite dev server (api-client uses port 5065) */
+    baseURL: 'http://localhost:5065/',
     /** Set a higher device scale factor for higher DPI screenshots */
     deviceScaleFactor: 2,
     /** Save a screenshot on failure */
