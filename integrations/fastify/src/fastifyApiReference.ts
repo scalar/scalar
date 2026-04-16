@@ -227,16 +227,14 @@ const fastifyApiReference = fp<
 
         // Respond with the HTML document
         const { cdn, pageTitle, ...config } = configuration
-        return reply
-          .header('Content-Type', 'text/html; charset=utf-8')
-          .send(
-            renderApiReference({
-              config,
-              // We're using the bundled JS here by default, but the user can pass a CDN URL.
-              cdn: cdn ?? RELATIVE_JAVASCRIPT_PATH,
-              pageTitle,
-            }),
-          )
+        return reply.header('Content-Type', 'text/html; charset=utf-8').send(
+          renderApiReference({
+            config,
+            // We're using the bundled JS here by default, but the user can pass a CDN URL.
+            cdn: cdn ?? RELATIVE_JAVASCRIPT_PATH,
+            pageTitle,
+          }),
+        )
       },
     })
 
