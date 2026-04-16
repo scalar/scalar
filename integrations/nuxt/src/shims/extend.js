@@ -2,6 +2,9 @@
 
 function deepExtend(target, source) {
   Object.keys(source || {}).forEach((key) => {
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+      return
+    }
     const val = source[key]
     if (val && typeof val === 'object' && !Array.isArray(val) && !(val instanceof Date)) {
       target[key] = deepExtend(target[key] || {}, val)
