@@ -3,15 +3,15 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
 import { normalizeHeaders } from '@scalar/helpers/http/normalize-headers'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import cookie from 'cookie'
+import * as cookie from 'cookie'
 import { parseSetCookie } from 'set-cookie-parser'
 
 import { getCookieHeaderKeys } from '@/v2/blocks/operation-block/helpers/get-cookie-header-keys'
+import { resolveResponseBodyHandler } from '@/v2/blocks/response-block/helpers/resolve-response-body-handler'
 import {
   resolveResponseContentType,
   resolveResponseMimeType,
 } from '@/v2/blocks/response-block/helpers/resolve-response-content-type'
-import { resolveResponseBodyHandler } from '@/v2/blocks/response-block/helpers/resolve-response-body-handler'
 
 import { decodeBuffer } from './decode-buffer'
 

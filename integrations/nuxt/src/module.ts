@@ -49,26 +49,6 @@ export default defineNuxtModule<ModuleOptions>({
     _nuxt.options.imports.transform.exclude ||= []
     _nuxt.options.imports.transform.exclude.push(/scalar/)
 
-    /**
-     * Vite's automatic dependency discovery handles CJS dependencies correctly.
-     * The previous optimizeDeps.include configuration is no longer needed.
-     */
-
-    // Ensure proper handling of CommonJS modules for SSR
-    _nuxt.options.vite.ssr ||= {}
-    if (Array.isArray(_nuxt.options.vite.ssr.noExternal)) {
-      _nuxt.options.vite.ssr.noExternal.push('ajv-draft-04', 'ajv-formats', 'ajv', 'jsonpointer', 'whatwg-mimetype')
-    } else {
-      _nuxt.options.vite.ssr.noExternal = [
-        ...(Array.isArray(_nuxt.options.vite.ssr.noExternal) ? _nuxt.options.vite.ssr.noExternal : []),
-        'ajv-draft-04',
-        'ajv-formats',
-        'ajv',
-        'jsonpointer',
-        'whatwg-mimetype',
-      ]
-    }
-
     // Also check for Nitro OpenAPI auto generation
     _nuxt.hook('nitro:config', (config) => {
       if (config.experimental?.openAPI) {
@@ -120,6 +100,38 @@ export default defineNuxtModule<ModuleOptions>({
           file: resolver.resolve('./runtime/pages/ScalarPage.vue'),
         })
       }
+    })
+
+    // Shim CJS-only packages and fix highlight.js's use of require() in ESM builds
+    _nuxt.hook('vite:extendConfig', (config) => {
+      config.resolve ||= {}
+      config.resolve.alias ||= {}
+
+      const aliases = config.resolve.alias as Record<string, string>
+      aliases['extend'] = resolver.resolve('./shims/extend.js')
+      aliases['debug'] = resolver.resolve('./shims/debug.js')
+
+      config.plugins ||= []
+      config.plugins.push({
+        name: 'cjs-no-require-esm-shim',
+        enforce: 'pre',
+        transform(code: string, id: string) {
+          if (!id.includes('/highlight.js/lib/core.js')) {
+            return null
+          }
+          return {
+            code: [
+              'const module = { exports: {} };',
+              'const exports = module.exports;',
+              '(function(module, exports) {',
+              code,
+              '})(module, exports);',
+              'export default module.exports;',
+            ].join('\n'),
+            map: null,
+          }
+        },
+      })
     })
 
     // add scalar tab to DevTools
