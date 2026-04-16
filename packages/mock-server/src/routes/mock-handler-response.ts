@@ -7,7 +7,6 @@ import type { StatusCode } from 'hono/utils/http-status'
 import type { MockServerOptions } from '@/types'
 import { buildHandlerContext } from '@/utils/build-handler-context'
 import { executeHandler } from '@/utils/execute-handler'
-import { isResponseObject } from '@/utils/openapi-guards'
 
 /**
  * Get example response from OpenAPI spec for a given status code.
@@ -25,7 +24,7 @@ function getExampleFromResponse(
   const statusCodeStr = statusCode.toString()
   const response = responses[statusCodeStr] || responses.default
 
-  if (!response || !isResponseObject(response)) {
+  if (!response) {
     return null
   }
 
@@ -151,7 +150,7 @@ export async function mockHandlerResponse(
     const { context, tracking } = await buildHandlerContext(c, operation)
 
     // Execute handler
-    const { result } = await executeHandler(String(handlerCode), context)
+    const { result } = await executeHandler(handlerCode, context)
 
     // Determine status code based on all store operations, prioritizing semantically meaningful ones
     const statusCode = determineStatusCode(tracking)

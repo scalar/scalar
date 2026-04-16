@@ -45,10 +45,10 @@ export const loadDocument = n.safeFn(
 
     const url = new URL(`/@${namespace}/apis/${slug}/latest`, registryUrl)
 
-    const document = (await bundle(url.toString(), {
+    const document: OpenAPIV3_1.Document = await bundle(url.toString(), {
       plugins: [fetchUrls()],
       treeShake: false,
-    })) as OpenAPIV3_1.Document
+    })
 
     const documentName = createDocumentName(namespace, slug)
 

@@ -1,13 +1,12 @@
 import { json2xml } from '@scalar/helpers/file/json2xml'
-import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 import type { StatusCode } from 'hono/utils/http-status'
 
 import type { MockServerOptions } from '@/types'
 import { findPreferredResponseKey } from '@/utils/find-preferred-response-key'
-import { isReferenceObject, isResponseObject, isHeaderWithSchema } from '@/utils/openapi-guards'
 
 /**
  * Mock any response
@@ -26,7 +25,7 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   const preferredResponseKey = findPreferredResponseKey(Object.keys(operation.responses ?? {}))
   const preferredResponse = preferredResponseKey ? operation.responses?.[preferredResponseKey] : null
 
-  if (!preferredResponse || !isResponseObject(preferredResponse)) {
+  if (!preferredResponse) {
     c.status(500)
 
     return c.json({ error: 'No response defined for this operation.' })
@@ -39,16 +38,9 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   ) as StatusCode
 
   // Headers
-  const headers = preferredResponse.headers ?? {}
+  const headers = preferredResponse?.headers ?? {}
   Object.keys(headers).forEach((header) => {
-    const headerDefinition = headers[header]
-    const value =
-      headerDefinition &&
-      !isReferenceObject(headerDefinition) &&
-      isHeaderWithSchema(headerDefinition) &&
-      headerDefinition.schema
-        ? getExampleFromSchema(headerDefinition.schema)
-        : null
+    const value = headers[header].schema ? (getExampleFromSchema(headers[header].schema) as string) : null
     if (value !== null) {
       c.header(header, value)
     }
@@ -60,7 +52,7 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
     return c.body(null)
   }
 
-  const supportedContentTypes = Object.keys(preferredResponse.content ?? {})
+  const supportedContentTypes = Object.keys(preferredResponse?.content ?? {})
 
   // If no content types are defined, return the status with no body
   if (supportedContentTypes.length === 0) {
@@ -79,7 +71,7 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
 
   c.header('Content-Type', acceptedContentType)
 
-  const acceptedResponse = preferredResponse.content?.[acceptedContentType]
+  const acceptedResponse = preferredResponse?.content?.[acceptedContentType]
 
   // Body
   const body = acceptedResponse?.example

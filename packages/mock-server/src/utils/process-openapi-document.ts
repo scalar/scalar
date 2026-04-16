@@ -1,8 +1,5 @@
 import { bundle } from '@scalar/json-magic/bundle'
-import { parseJson } from '@scalar/json-magic/bundle/plugins/node'
-import { parseYaml } from '@scalar/json-magic/bundle/plugins/node'
-import { readFiles } from '@scalar/json-magic/bundle/plugins/node'
-import { fetchUrls } from '@scalar/json-magic/bundle/plugins/node'
+import { fetchUrls, parseJson, parseYaml, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { dereference } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { upgrade } from '@scalar/openapi-upgrader'
@@ -68,7 +65,7 @@ export async function processOpenApiDocument(
 
   // Check for dereference errors
   if (dereferenceResult.errors && dereferenceResult.errors.length > 0) {
-    const errorMessages = dereferenceResult.errors.map((err: { message: string }) => err.message).join(', ')
+    const errorMessages = dereferenceResult.errors.map((err) => err.message).join(', ')
     throw new Error(`Failed to dereference OpenAPI document: ${errorMessages}`)
   }
 

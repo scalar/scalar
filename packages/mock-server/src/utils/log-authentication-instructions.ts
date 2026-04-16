@@ -1,7 +1,6 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import { getPathFromUrl } from './get-open-auth-token-urls'
-import { isSecuritySchemeObject } from './openapi-guards'
 
 /**
  * Log authentication instructions for different security schemes
@@ -15,10 +14,6 @@ export function logAuthenticationInstructions(securitySchemes: Record<string, Op
   console.log()
 
   Object.entries(securitySchemes).forEach(([_, scheme]) => {
-    if (!isSecuritySchemeObject(scheme)) {
-      return
-    }
-
     switch (scheme.type) {
       case 'apiKey':
         if (scheme.in === 'header') {
