@@ -1,4 +1,4 @@
-import { addComponent, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
+import { addComponent, addVitePlugin, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
 
 import type { Configuration } from './types'
 
@@ -48,44 +48,6 @@ export default defineNuxtModule<ModuleOptions>({
     _nuxt.options.imports.transform ||= {}
     _nuxt.options.imports.transform.exclude ||= []
     _nuxt.options.imports.transform.exclude.push(/scalar/)
-
-    /**
-     * Ensure problematic transitive dependencies are pre-bundled in dev mode.
-     * Some dependencies still expose CommonJS entry points, which can otherwise
-     * trigger "doesn't provide an export named 'default'" in browser ESM.
-     */
-    _nuxt.options.vite ||= {}
-    _nuxt.options.vite.optimizeDeps ||= {}
-    _nuxt.options.vite.optimizeDeps.include ||= []
-    _nuxt.options.vite.optimizeDeps.include.push(
-      '@scalar/nuxt > @scalar/api-reference',
-      '@scalar/nuxt > jsonpointer',
-      '@scalar/nuxt > ajv-draft-04',
-      '@scalar/nuxt > ajv-formats',
-      '@scalar/nuxt > ajv',
-      '@scalar/nuxt > ajv-draft-04 > ajv',
-      '@scalar/nuxt > ajv-formats > ajv',
-      '@scalar/nuxt > whatwg-mimetype',
-      '@scalar/nuxt > @scalar/openapi-parser',
-      '@scalar/nuxt > debug',
-      '@scalar/nuxt > extend',
-      '@scalar/nuxt > highlight.js',
-    )
-
-    // Ensure proper handling of CommonJS modules
-    _nuxt.options.vite.ssr ||= {}
-    if (Array.isArray(_nuxt.options.vite.ssr.noExternal)) {
-      _nuxt.options.vite.ssr.noExternal.push('ajv-draft-04', 'ajv-formats', 'ajv', 'jsonpointer', 'whatwg-mimetype')
-    } else {
-      _nuxt.options.vite.ssr.noExternal = [
-        ...(Array.isArray(_nuxt.options.vite.ssr.noExternal) ? _nuxt.options.vite.ssr.noExternal : []),
-        'ajv-draft-04',
-        'ajv-formats',
-        'ajv',
-        'jsonpointer',
-        'whatwg-mimetype',
-      ]
-    }
 
     // Also check for Nitro OpenAPI auto generation
     _nuxt.hook('nitro:config', (config) => {
@@ -138,6 +100,48 @@ export default defineNuxtModule<ModuleOptions>({
           file: resolver.resolve('./runtime/pages/ScalarPage.vue'),
         })
       }
+    })
+
+    // Shim CJS-only packages and fix highlight.js's use of require() in ESM builds.
+    // The resolveId hook is intentionally scoped to @scalar/* importers so that the
+    // debug/extend shims do not shadow the real packages for user code or unrelated
+    // third-party libraries (e.g. DEBUG=* env-var logging would silently stop working
+    // if we replaced debug globally with a no-op shim).
+    const debugShim = resolver.resolve('./shims/debug.js')
+    const extendShim = resolver.resolve('./shims/extend.js')
+
+    addVitePlugin({
+      name: 'scalar-cjs-shims',
+      enforce: 'pre',
+      resolveId(source: string, importer: string | undefined) {
+        // Only intercept imports that originate from within @scalar packages
+        if (!importer?.includes('/node_modules/@scalar/')) {
+          return null
+        }
+        if (source === 'debug') {
+          return debugShim
+        }
+        if (source === 'extend') {
+          return extendShim
+        }
+        return null
+      },
+      transform(code: string, id: string) {
+        if (!id.includes('/highlight.js/lib/core.js')) {
+          return null
+        }
+        return {
+          code: [
+            'const module = { exports: {} };',
+            'const exports = module.exports;',
+            '(function(module, exports) {',
+            code,
+            '})(module, exports);',
+            'export default module.exports;',
+          ].join('\n'),
+          map: null,
+        }
+      },
     })
 
     // add scalar tab to DevTools
