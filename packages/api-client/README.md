@@ -165,6 +165,47 @@ The `createApiClientModal` call returns:
 ```
 
 
+## Plugins
+
+The `plugins` option accepts an array of `ClientPlugin` objects that extend the API Client with custom behavior. Plugins can add lifecycle hooks, custom UI components, and custom response body handlers for content types that the client does not natively support.
+
+### Custom Response Body Handling
+
+When your API returns a non-standard content type (for example, MessagePack), you can register a plugin with a `responseBody` handler to decode and display it:
+
+```ts
+import type { ClientPlugin } from '@scalar/oas-utils/helpers'
+
+const msgpackPlugin: ClientPlugin = {
+  responseBody: [
+    {
+      mimeTypes: ['application/msgpack', 'application/x-msgpack'],
+      decode: async (buffer) => {
+        const { decode } = await import('@msgpack/msgpack')
+        const decoded = decode(new Uint8Array(buffer))
+        return JSON.stringify(decoded, null, 2)
+      },
+      language: 'json',
+    },
+  ],
+}
+
+createApiClientApp(el, {
+  layout: 'web',
+  plugins: [msgpackPlugin],
+})
+```
+
+Each handler in `responseBody` supports:
+
+| Property | Description |
+|---|---|
+| `mimeTypes` | MIME type patterns to match (exact or wildcard like `application/vnd.*+json`). |
+| `decode` | Transforms the raw `ArrayBuffer` into a string or Blob for display. |
+| `language` | CodeMirror language hint for the built-in raw renderer (for example, `json`). |
+| `rawComponent` | A custom Vue component for the raw view (mutually exclusive with `language`). |
+| `previewComponent` | A custom Vue component for the preview view. |
+
 ## Community
 
 We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>

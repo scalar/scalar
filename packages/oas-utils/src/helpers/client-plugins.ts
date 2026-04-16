@@ -2,7 +2,30 @@ import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
-import type { DefineComponent } from 'vue'
+import type { Component, DefineComponent } from 'vue'
+
+/** Shared fields present on every response body handler variant */
+type ResponseBodyHandlerBase = {
+  /** MIME type patterns this handler matches (exact or glob like "application/vnd.*+json") */
+  mimeTypes: string[]
+  /** Custom decoder: transform raw bytes into displayable data */
+  decode?: (buffer: ArrayBuffer, contentType: string) => string | Blob | Promise<string | Blob>
+  /** Custom component for the preview view */
+  previewComponent?: Component
+}
+
+/**
+ * Describes how a plugin handles a specific content type in the response body.
+ *
+ * The raw view is configured with either:
+ * - `rawComponent`: A custom Vue component (receives `content` and `contentType` props).
+ * - `language`: A CodeMirror language hint for the built-in raw renderer.
+ *
+ * These two options are mutually exclusive — providing `rawComponent` means the
+ * built-in renderer is not used, so `language` would have no effect.
+ */
+export type ResponseBodyHandler = ResponseBodyHandlerBase &
+  ({ rawComponent: Component; language?: never } | { rawComponent?: never; language?: string })
 
 /** A type representing the hooks that a client plugin can define */
 type ClientPluginHooks = {
@@ -72,7 +95,15 @@ type ClientPluginComponents = {
  *   components: {
  *     request: MyRequestComponent, // Custom Vue component for rendering the request section
  *     response: MyResponseComponent // Custom Vue component for rendering the response section
- *   }
+ *   },
+ *   responseBody: [{
+ *     mimeTypes: ['application/msgpack', 'application/x-msgpack'],
+ *     decode: (buffer) => {
+ *       const decoded = msgpack.decode(new Uint8Array(buffer));
+ *       return JSON.stringify(decoded, null, 2);
+ *     },
+ *     language: 'json',
+ *   }]
  * }
  */
 /** Lifecycle hooks for app-level plugin concerns (analytics, logging, etc.) */
@@ -92,6 +123,8 @@ export type ClientPlugin = {
   lifecycle?: ClientPluginLifecycle
   /** Subscribe to event bus events. The framework handles subscribe/unsubscribe automatically. */
   on?: Partial<{ [K in keyof ApiReferenceEvents]: (payload: ApiReferenceEvents[K]) => void }>
+  /** Custom response body handlers for specific content types */
+  responseBody?: ResponseBodyHandler[]
 }
 
 /**

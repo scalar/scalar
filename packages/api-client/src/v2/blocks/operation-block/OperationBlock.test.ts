@@ -312,6 +312,7 @@ describe('OperationBlock', () => {
     expect(sendRequest).toHaveBeenCalledWith({
       isUsingProxy: false,
       request: expect.any(Request),
+      plugins: [],
     })
   })
 
@@ -485,6 +486,7 @@ describe('OperationBlock', () => {
     expect(sendRequest).toHaveBeenCalledWith({
       isUsingProxy: true,
       request: expect.any(Request),
+      plugins: [],
     })
   })
 

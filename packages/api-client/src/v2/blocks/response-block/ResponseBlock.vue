@@ -233,6 +233,7 @@ defineExpose({
             :data="response?.data"
             :headers="responseHeaders"
             layout="client"
+            :plugins="plugins"
             :role="activeFilter === 'All' ? 'none' : 'tabpanel'"
             title="Body" />
         </template>
