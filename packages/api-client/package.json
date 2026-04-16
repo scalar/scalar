@@ -33,6 +33,9 @@
     "test:benchmark": "vitest bench",
     "test:benchmark:compare": "vitest bench --compare test-results/test-benchmark.json",
     "test:benchmark:save": "vitest bench --outputJson test-results/test-benchmark.json",
+    "test:e2e": "PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:5001/ playwright test",
+    "test:e2e:ci": "playwright test",
+    "test:e2e:update-snapshots": "pnpm test:e2e --update-snapshots",
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
@@ -362,6 +365,8 @@
     "zod": "catalog:*"
   },
   "devDependencies": {
+    "@hono/node-server": "catalog:*",
+    "@playwright/test": "catalog:*",
     "@scalar/pre-post-request-scripts": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/shell-quote": "^1.7.5",
@@ -369,6 +374,7 @@
     "@vue/test-utils": "catalog:*",
     "fake-indexeddb": "catalog:*",
     "fastify": "catalog:*",
+    "hono": "catalog:*",
     "jsdom": "catalog:*",
     "posthog-js": "catalog:*",
     "tailwindcss": "catalog:*",
