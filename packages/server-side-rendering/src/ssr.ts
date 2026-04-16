@@ -275,7 +275,7 @@ const mergeSerializedProperties = (jsonObjectLiteral: string, dynamicProperties:
  * Top-level function props and top-level arrays containing functions are preserved
  * to match the client-side renderer behavior.
  */
-function serializeConfigToJs(config: Record<string, unknown>): string {
+export function serializeConfigToJs(config: Record<string, unknown>): string {
   const restConfig = { ...config }
   const dynamicProperties: string[] = []
 

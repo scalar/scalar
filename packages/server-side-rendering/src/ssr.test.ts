@@ -1,7 +1,13 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from 'vitest'
 
-import { generateBodyScript, getJsAsset, renderApiReference, renderApiReferenceToString } from './ssr'
+import {
+  generateBodyScript,
+  getJsAsset,
+  renderApiReference,
+  renderApiReferenceToString,
+  serializeConfigToJs,
+} from './ssr'
 
 describe('ssr', () => {
   describe('renderApiReferenceToString', () => {
@@ -273,63 +279,54 @@ describe('ssr', () => {
       expect(html).not.toContain('{,')
     })
 
-    it('preserves top-level arrays containing functions in hydration config serialization', async () => {
-      const html = await renderApiReference({
-        config: {
-          theme: 'kepler',
-          hooks: [
-            () => 'ready',
-            {
-              label: 'stable',
-            },
-          ],
-        },
-        css: '',
+    it('preserves top-level arrays containing functions in hydration config serialization', () => {
+      const result = serializeConfigToJs({
+        theme: 'kepler',
+        hooks: [
+          () => 'ready',
+          {
+            label: 'stable',
+          },
+        ],
       })
 
-      expect(html).toContain('"theme": "kepler"')
-      expect(html).toContain('"hooks": [() => "ready", {"label":"stable"}]')
+      expect(result).toContain('"theme": "kepler"')
+      expect(result).toContain('"hooks": [() => "ready", {"label":"stable"}]')
     })
 
-    it('escapes script-breaking sequences in serialized function properties', async () => {
+    it('escapes script-breaking sequences in serialized function properties', () => {
       // Arrow function whose source contains a </script> payload
       const maliciousFn = () => '</script><script>window.__pwned=3</script>'
-      const html = await renderApiReference({
-        config: {
-          onLoaded: maliciousFn,
-        },
-        css: '',
+      const result = serializeConfigToJs({
+        onLoaded: maliciousFn,
       })
 
-      expect(html).not.toContain('</script><script>window.__pwned=3</script>')
-      expect(html).toContain('<\\/script>')
+      expect(result).not.toContain('</script><script>window.__pwned=3</script>')
+      expect(result).toContain('<\\/script>')
     })
 
-    it('escapes script-breaking sequences in serialized array functions', async () => {
+    it('escapes script-breaking sequences in serialized array functions', () => {
       // Arrow function whose source contains a </script> payload
       const maliciousFn = () => '</script><script>window.__pwned=4</script>'
-      const html = await renderApiReference({
-        config: {
-          hooks: [maliciousFn],
-        },
-        css: '',
+      const result = serializeConfigToJs({
+        hooks: [maliciousFn],
       })
 
-      expect(html).not.toContain('</script><script>window.__pwned=4</script>')
-      expect(html).toContain('<\\/script>')
+      expect(result).not.toContain('</script><script>window.__pwned=4</script>')
+      expect(result).toContain('<\\/script>')
     })
 
     it('throws when nested functions would be dropped during hydration serialization', async () => {
       await expect(
         renderApiReference({
           config: {
-            meta: {
+            metaData: {
               onLoaded: () => console.log('loaded'),
             },
           },
           css: '',
         }),
-      ).rejects.toThrow('Cannot serialize function at "meta.onLoaded" for SSR hydration.')
+      ).rejects.toThrow('Cannot serialize function at "metaData.onLoaded" for SSR hydration.')
     })
   })
 
