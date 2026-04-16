@@ -230,7 +230,7 @@ describe('ssr', () => {
     it('serializes configuration into the hydration script', async () => {
       const html = await renderApiReference({ config: { url: 'https://example.com/api.json' }, css: '' })
 
-      expect(html).toContain('"url":"https://example.com/api.json"')
+      expect(html).toContain('"url": "https://example.com/api.json"')
     })
 
     it('prevents script breakout in hydration config serialization', async () => {
@@ -242,10 +242,12 @@ describe('ssr', () => {
       })
 
       expect(html).not.toContain('</script><script>window.__pwned=1</script>')
-      expect(html).toContain('"title":"\\u003c/script\\u003e\\u003cscript\\u003ewindow.__pwned=1\\u003c/script\\u003e"')
+      expect(html).toContain(
+        '"title": "\\u003c/script\\u003e\\u003cscript\\u003ewindow.__pwned=1\\u003c/script\\u003e"',
+      )
     })
 
-    it('drops function properties from hydration config serialization', async () => {
+    it('preserves top-level function properties in hydration config serialization', async () => {
       const html = await renderApiReference({
         config: {
           url: 'https://example.com/api.json',
@@ -255,12 +257,11 @@ describe('ssr', () => {
       })
 
       expect(html).toContain('Scalar.createApiReference')
-      expect(html).toContain('{"url":"https://example.com/api.json"}')
-      expect(html).not.toContain('onLoaded')
-      expect(html).not.toContain('console.log')
+      expect(html).toContain('"url": "https://example.com/api.json"')
+      expect(html).toContain('"onLoaded": () => console.log("loaded")')
     })
 
-    it('serializes function-only configuration as empty object', async () => {
+    it('serializes function-only configuration as a valid object literal', async () => {
       const html = await renderApiReference({
         config: {
           onLoaded: () => console.log('loaded'),
@@ -268,7 +269,39 @@ describe('ssr', () => {
         css: '',
       })
 
-      expect(html).toContain("Scalar.createApiReference('#app', {})")
+      expect(html).toContain('"onLoaded": () => console.log("loaded")')
+      expect(html).not.toContain('{,')
+    })
+
+    it('preserves top-level arrays containing functions in hydration config serialization', async () => {
+      const html = await renderApiReference({
+        config: {
+          theme: 'kepler',
+          hooks: [
+            () => 'ready',
+            {
+              label: 'stable',
+            },
+          ],
+        },
+        css: '',
+      })
+
+      expect(html).toContain('"theme": "kepler"')
+      expect(html).toContain('"hooks": [() => "ready", {"label":"stable"}]')
+    })
+
+    it('throws when nested functions would be dropped during hydration serialization', async () => {
+      await expect(
+        renderApiReference({
+          config: {
+            meta: {
+              onLoaded: () => console.log('loaded'),
+            },
+          },
+          css: '',
+        }),
+      ).rejects.toThrow('Cannot serialize function at "meta.onLoaded" for SSR hydration.')
     })
   })
 
