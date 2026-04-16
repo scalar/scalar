@@ -1,10 +1,13 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 	"time"
 )
@@ -551,6 +554,91 @@ func TestProxyBehavior(t *testing.T) {
 			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
 		}
 	})
+}
+
+func readSSEEvent(reader *bufio.Reader) (string, error) {
+	lines := []string{}
+
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			return "", err
+		}
+
+		if line == "\n" {
+			return strings.Join(lines, ""), nil
+		}
+
+		lines = append(lines, line)
+	}
+}
+
+func TestSSEStreaming(t *testing.T) {
+	proxyServer := NewProxyServer(true)
+	const eventInterval = 350 * time.Millisecond
+
+	targetServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Header().Set("Connection", "keep-alive")
+
+		flusher, ok := w.(http.Flusher)
+		if !ok {
+			t.Fatal("expected SSE handler response writer to support flushing")
+		}
+
+		for i := range 2 {
+			fmt.Fprintf(w, "data: event-%d\n\n", i+1)
+			flusher.Flush()
+			time.Sleep(eventInterval)
+		}
+	}))
+	defer targetServer.Close()
+
+	proxy := httptest.NewServer(corsMiddleware(http.HandlerFunc(proxyServer.handleRequest)))
+	defer proxy.Close()
+
+	resp, err := http.Get(proxy.URL + "/?scalar_url=" + url.QueryEscape(targetServer.URL))
+	if err != nil {
+		t.Fatalf("Expected proxy request to succeed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("Expected status code %d, got %d", http.StatusOK, resp.StatusCode)
+	}
+
+	reader := bufio.NewReader(resp.Body)
+
+	firstStart := time.Now()
+	firstEvent, err := readSSEEvent(reader)
+	firstDuration := time.Since(firstStart)
+	if err != nil {
+		t.Fatalf("Expected first SSE event to be readable: %v", err)
+	}
+
+	if firstEvent != "data: event-1\n" {
+		t.Fatalf("Expected first SSE event to be %q, got %q", "data: event-1\n", firstEvent)
+	}
+
+	if firstDuration > 250*time.Millisecond {
+		t.Fatalf("Expected first SSE event to arrive quickly, took %s", firstDuration)
+	}
+
+	secondStart := time.Now()
+	secondEvent, err := readSSEEvent(reader)
+	secondDuration := time.Since(secondStart)
+	if err != nil {
+		t.Fatalf("Expected second SSE event to be readable: %v", err)
+	}
+
+	if secondEvent != "data: event-2\n" {
+		t.Fatalf("Expected second SSE event to be %q, got %q", "data: event-2\n", secondEvent)
+	}
+
+	if secondDuration < 200*time.Millisecond {
+		t.Fatalf("Expected second SSE event to arrive after stream delay, took %s", secondDuration)
+	}
 }
 
 func TestCidrPolicy(t *testing.T) {
