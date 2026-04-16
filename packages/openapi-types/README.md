@@ -16,10 +16,44 @@ npm add @scalar/openapi-types
 ## Usage
 
 ```ts
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { Document } from '@scalar/openapi-types/3.2.0'
 
-const file: OpenAPI.Document = {
-  openapi: '3.1.0',
+const file: Document = {
+  openapi: '3.2.0',
+  info: {
+    title: 'Hello World',
+    version: '1.0.0',
+  },
+  paths: {},
+}
+```
+
+### Namespace import
+
+We have kept the namespace-like exports from the previous version, they can be imported like so:
+
+```ts
+import type { OpenAPIV3_2 } from '@scalar/openapi-types'
+
+const file: OpenAPIV3_2.Document = {
+  openapi: '3.2.0',
+  info: {
+    title: 'Hello World',
+    version: '1.0.0',
+  },
+  paths: {},
+}
+```
+
+### Individual exports
+
+We also have exports from the individual files if your bundler doesn't work with barrel files.
+
+```ts
+import type { Document } from '@scalar/openapi-types/3.2.0/document'
+
+const file: Document = {
+  openapi: '3.2.0',
   info: {
     title: 'Hello World',
     version: '1.0.0',
