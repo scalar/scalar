@@ -23,7 +23,8 @@ defineProps<ScalarMenuButtonProps>()
 defineSlots<ScalarMenuButtonSlots>()
 </script>
 <template>
-  <ScalarHeaderButton class="gap-0.75 px-2 text-c-header-1 hover:bg-b-header-2">
+  <ScalarHeaderButton
+    class="gap-0.75 px-2 py-1.5 text-c-header-1 hover:bg-b-header-2">
     <div class="h-5 w-auto">
       <slot name="logo">
         <ScalarIcon icon="Logo" />
