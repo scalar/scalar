@@ -1,11 +1,4 @@
-import type { Plugin } from '@scalar/types/snippetz'
-
-type AuthConfiguration = {
-  auth?: {
-    username: string
-    password: string
-  }
-}
+import type { Plugin, PluginConfiguration } from '@scalar/types/snippetz'
 
 const normalizeMethod = (method?: string): string => (method || 'GET').toUpperCase()
 
@@ -82,7 +75,7 @@ export const cLibcurl: Plugin = {
   target: 'c',
   client: 'libcurl',
   title: 'Libcurl',
-  generate(request, configuration?: AuthConfiguration) {
+  generate(request, configuration?: PluginConfiguration) {
     if (!request) {
       return ''
     }
