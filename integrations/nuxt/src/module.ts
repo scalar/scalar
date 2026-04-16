@@ -102,19 +102,31 @@ export default defineNuxtModule<ModuleOptions>({
       }
     })
 
-    // Shim CJS-only packages and fix highlight.js's use of require() in ESM builds
+    // Shim CJS-only packages and fix highlight.js's use of require() in ESM builds.
+    // The resolveId hook is intentionally scoped to @scalar/* importers so that the
+    // debug/extend shims do not shadow the real packages for user code or unrelated
+    // third-party libraries (e.g. DEBUG=* env-var logging would silently stop working
+    // if we replaced debug globally with a no-op shim).
     _nuxt.hook('vite:extendConfig', (config) => {
-      config.resolve ||= {}
-      config.resolve.alias ||= {}
+      const debugShim = resolver.resolve('./shims/debug.js')
+      const extendShim = resolver.resolve('./shims/extend.js')
 
-      const aliases = config.resolve.alias as Record<string, string>
-      aliases['extend'] = resolver.resolve('./shims/extend.js')
-      aliases['debug'] = resolver.resolve('./shims/debug.js')
-
-      config.plugins ||= []
       config.plugins.push({
-        name: 'cjs-no-require-esm-shim',
+        name: 'scalar-cjs-shims',
         enforce: 'pre',
+        resolveId(source: string, importer: string | undefined) {
+          // Only intercept imports that originate from within @scalar packages
+          if (!importer?.includes('/node_modules/@scalar/')) {
+            return null
+          }
+          if (source === 'debug') {
+            return debugShim
+          }
+          if (source === 'extend') {
+            return extendShim
+          }
+          return null
+        },
         transform(code: string, id: string) {
           if (!id.includes('/highlight.js/lib/core.js')) {
             return null
