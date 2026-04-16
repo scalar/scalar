@@ -28,7 +28,7 @@ import type {
   OAuthFlow,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, ref, watch } from 'vue'
+import { computed, watch } from 'vue'
 
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
@@ -134,27 +134,31 @@ const clearOauth2Secrets = (): void =>
     name,
   })
 
-/** Track if we have set the redirect uri */
-const hasPrefilledRedirectUri = ref(false)
+/** Track redirect URI prefill per flow instance to support document switching */
+const prefilledRedirectUriFlows = new WeakSet<object>()
 
 /** Default the redirect-uri to the current origin if we have access to window */
 watch(
-  () =>
-    (flow.value as OAuthFlowAuthorizationCodeSecret)[
-      'x-scalar-secret-redirect-uri'
-    ],
-  (newRedirectUri) => {
-    const defaultRedirectUri = resolveDefaultOAuth2RedirectUri(options)
-
+  () => flow.value,
+  (currentFlow) => {
     if (
-      hasPrefilledRedirectUri.value ||
-      newRedirectUri ||
-      !defaultRedirectUri ||
-      !('x-scalar-secret-redirect-uri' in flow.value)
+      !('x-scalar-secret-redirect-uri' in currentFlow) ||
+      prefilledRedirectUriFlows.has(currentFlow)
     ) {
       return
     }
-    hasPrefilledRedirectUri.value = true
+
+    prefilledRedirectUriFlows.add(currentFlow)
+
+    const newRedirectUri = (currentFlow as OAuthFlowAuthorizationCodeSecret)[
+      'x-scalar-secret-redirect-uri'
+    ]
+    const defaultRedirectUri = resolveDefaultOAuth2RedirectUri(options)
+
+    if (newRedirectUri || !defaultRedirectUri) {
+      return
+    }
+
     handleOauth2SecretsUpdate({
       'x-scalar-secret-redirect-uri': defaultRedirectUri,
     })
