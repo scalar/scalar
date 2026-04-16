@@ -366,6 +366,39 @@ func TestProxyBehavior(t *testing.T) {
 		}
 	})
 
+	t.Run("Handles nested scalar_url chain pointing back to proxy without looping", func(t *testing.T) {
+		selfProxyServer := httptest.NewServer(http.HandlerFunc(proxyServer.handleRequest))
+		defer selfProxyServer.Close()
+
+		nestedTarget := selfProxyServer.URL
+		for range 3 {
+			nestedTarget = selfProxyServer.URL + "/?scalar_url=" + url.QueryEscape(nestedTarget)
+		}
+
+		client := &http.Client{Timeout: 2 * time.Second}
+		proxyRequestURL := selfProxyServer.URL + "/?scalar_url=" + url.QueryEscape(nestedTarget)
+		resp, err := client.Get(proxyRequestURL)
+
+		if err != nil {
+			t.Fatalf("Expected nested request chain to complete without loop, got error: %v", err)
+		}
+
+		defer resp.Body.Close()
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			t.Fatalf("Failed to read response body: %v", err)
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, resp.StatusCode)
+		}
+
+		if len(body) == 0 {
+			t.Error("Expected non-empty response body")
+		}
+	})
+
 	t.Run("Copies non-CORS headers from response", func(t *testing.T) {
 		server := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("X-Custom-Header", "custom-value")
