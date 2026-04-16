@@ -25,7 +25,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "cross-env NUXT_TELEMETRY_DISABLED=false pnpm dev:prepare && nuxt-module-build build && cp -r src/shims dist/shims",
+    "build": "cross-env NUXT_TELEMETRY_DISABLED=false pnpm dev:prepare && nuxt-module-build build && shx cp -r src/shims dist/shims",
     "dev": "pnpm dev:prepare && nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxi prepare && nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
@@ -73,6 +73,7 @@
     "@types/node": "catalog:*",
     "cross-env": "catalog:*",
     "nuxt": "^4.1.0",
+    "shx": "catalog:*",
     "vitest": "catalog:*"
   }
 }
