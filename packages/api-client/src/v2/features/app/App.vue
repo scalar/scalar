@@ -201,7 +201,9 @@ const routerViewProps = computed<RouteProps>(() => {
         app.workspace.activeWorkspace.value !== null &&
         !app.loading.value
       ">
-      <div class="relative flex h-dvh w-dvw flex-1 flex-col">
+      <div
+        class="relative flex w-dvw flex-col"
+        :class="layout === 'web' ? 'min-h-0' : 'h-dvh'">
         <SidebarToggle
           v-model="app.sidebar.isOpen.value"
           class="absolute top-4 left-3 z-[60] md:hidden" />
@@ -227,7 +229,7 @@ const routerViewProps = computed<RouteProps>(() => {
             </template>
           </AppSidebar>
 
-          <div class="flex flex-1 flex-col">
+          <div class="flex min-h-0 flex-1 flex-col">
             <!-- App Tabs -->
             <DesktopTabs
               v-if="layout === 'desktop'"
