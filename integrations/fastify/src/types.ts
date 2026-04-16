@@ -1,4 +1,4 @@
-import type { HtmlRenderingConfiguration } from '@scalar/core/libs/html-rendering'
+import type { HtmlRenderingConfiguration } from '@scalar/types/api-reference'
 import type { onRequestHookHandler, preHandlerHookHandler } from 'fastify'
 
 /**
