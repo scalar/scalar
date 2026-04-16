@@ -56,8 +56,7 @@
     "documentation": "https://scalar.com/products/api-references/integrations/nextjs"
   },
   "dependencies": {
-    "@scalar/client-side-rendering": "workspace:*",
-    "@scalar/types": "workspace:*"
+    "@scalar/client-side-rendering": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:*",

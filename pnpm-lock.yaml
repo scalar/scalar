@@ -744,9 +744,6 @@ importers:
       '@scalar/client-side-rendering':
         specifier: workspace:*
         version: link:../../packages/client-side-rendering
-      '@scalar/types':
-        specifier: workspace:*
-        version: link:../../packages/types
     devDependencies:
       astro:
         specifier: ^4.0.0 || ^5.0.0
@@ -858,9 +855,6 @@ importers:
       '@scalar/client-side-rendering':
         specifier: workspace:*
         version: link:../../packages/client-side-rendering
-      '@scalar/types':
-        specifier: workspace:*
-        version: link:../../packages/types
     devDependencies:
       '@types/express':
         specifier: catalog:*
@@ -900,9 +894,6 @@ importers:
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../../packages/openapi-types
-      '@scalar/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       fastify-plugin:
         specifier: catalog:*
         version: 4.5.1
@@ -940,9 +931,6 @@ importers:
       '@scalar/client-side-rendering':
         specifier: workspace:*
         version: link:../../packages/client-side-rendering
-      '@scalar/types':
-        specifier: workspace:*
-        version: link:../../packages/types
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
@@ -978,9 +966,6 @@ importers:
       '@scalar/client-side-rendering':
         specifier: workspace:*
         version: link:../../packages/client-side-rendering
-      '@scalar/types':
-        specifier: workspace:*
-        version: link:../../packages/types
     devDependencies:
       '@nestjs/common':
         specifier: catalog:*
@@ -1024,9 +1009,6 @@ importers:
       '@scalar/client-side-rendering':
         specifier: workspace:*
         version: link:../../packages/client-side-rendering
-      '@scalar/types':
-        specifier: workspace:*
-        version: link:../../packages/types
     devDependencies:
       '@types/node':
         specifier: ^24.1.0
@@ -1103,9 +1085,6 @@ importers:
       '@scalar/client-side-rendering':
         specifier: workspace:*
         version: link:../../packages/client-side-rendering
-      '@scalar/types':
-        specifier: workspace:*
-        version: link:../../packages/types
     devDependencies:
       '@sveltejs/kit':
         specifier: ^2.57.1

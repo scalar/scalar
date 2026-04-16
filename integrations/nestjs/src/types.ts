@@ -1,4 +1,4 @@
-import type { HtmlRenderingConfiguration } from '@scalar/types/api-reference'
+import type { HtmlRenderingConfiguration } from '@scalar/client-side-rendering'
 
 export type ApiReferenceOptions = Partial<HtmlRenderingConfiguration>
 

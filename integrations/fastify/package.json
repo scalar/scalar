@@ -64,7 +64,6 @@
     "@scalar/client-side-rendering": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
-    "@scalar/types": "workspace:*",
     "fastify-plugin": "catalog:*",
     "github-slugger": "catalog:*"
   },

@@ -48,8 +48,7 @@
     "documentation": "https://scalar.com/products/api-references/integrations/astro"
   },
   "dependencies": {
-    "@scalar/client-side-rendering": "workspace:*",
-    "@scalar/types": "workspace:*"
+    "@scalar/client-side-rendering": "workspace:*"
   },
   "devDependencies": {
     "astro": "^4.0.0 || ^5.0.0"

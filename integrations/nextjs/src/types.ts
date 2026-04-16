@@ -1,4 +1,4 @@
-import type { HtmlRenderingConfiguration } from '@scalar/types/api-reference'
+import type { HtmlRenderingConfiguration } from '@scalar/client-side-rendering'
 
 /**
  * The configuration for the Scalar API Reference for Next.js
