@@ -2,12 +2,15 @@ import { ERRORS, type ErrorResponse, normalizeError } from '@scalar/helpers/erro
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
 import { normalizeHeaders } from '@scalar/helpers/http/normalize-headers'
-import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import cookie from 'cookie'
 import { parseSetCookie } from 'set-cookie-parser'
 
 import { getCookieHeaderKeys } from '@/v2/blocks/operation-block/helpers/get-cookie-header-keys'
+import {
+  resolveResponseContentType,
+  resolveResponseMimeType,
+} from '@/v2/blocks/response-block/helpers/resolve-response-content-type'
 import { resolveResponseBodyHandler } from '@/v2/blocks/response-block/helpers/resolve-response-body-handler'
 
 import { decodeBuffer } from './decode-buffer'
@@ -252,8 +255,8 @@ const buildStandardResponse = async ({
    */
   const clonedResponse = response.clone()
   const arrayBuffer = await clonedResponse.arrayBuffer()
-  const responseType = contentType ?? 'text/plain;charset=UTF-8'
-  const mimeEssence = parseMimeType(responseType).essence
+  const responseType = resolveResponseContentType(contentType)
+  const mimeEssence = resolveResponseMimeType(contentType).essence
   const pluginHandler = resolveResponseBodyHandler(mimeEssence, plugins)
   const responseData = await decodeBuffer(arrayBuffer, responseType, pluginHandler)
 

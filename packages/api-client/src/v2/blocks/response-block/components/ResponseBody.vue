@@ -36,7 +36,7 @@ const responseBody = computed(() =>
   }),
 )
 
-const mimeEssence = computed(() => responseBody.value.mimeType?.essence ?? '')
+const mimeEssence = computed(() => responseBody.value.mimeType.essence)
 
 const mediaConfig = computed(() => getMediaTypeConfig(mimeEssence.value))
 

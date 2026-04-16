@@ -16,6 +16,15 @@ describe('processResponseBody', () => {
     expect(mimeType?.essence).toBe('application/json')
   })
 
+  it('defaults the MimeType to text/plain when Content-Type is missing', () => {
+    const props = {
+      data: null,
+      headers: [],
+    }
+    const { mimeType } = processResponseBody(props)
+    expect(mimeType.essence).toBe('text/plain')
+  })
+
   it('extracts the correct attachment filename from headers', () => {
     const props = {
       data: null,
