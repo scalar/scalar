@@ -25,10 +25,7 @@ type ResponseBodyHandlerBase = {
  * built-in renderer is not used, so `language` would have no effect.
  */
 export type ResponseBodyHandler = ResponseBodyHandlerBase &
-  (
-    | { rawComponent: Component; language?: never }
-    | { rawComponent?: never; language?: string }
-  )
+  ({ rawComponent: Component; language?: never } | { rawComponent?: never; language?: string })
 
 /** A type representing the hooks that a client plugin can define */
 type ClientPluginHooks = {

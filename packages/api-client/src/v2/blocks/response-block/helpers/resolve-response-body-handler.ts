@@ -8,7 +8,10 @@ import type { ClientPlugin, ResponseBodyHandler } from '@scalar/oas-utils/helper
  * - Exact match: "application/msgpack"
  * - Suffix wildcard: "application/vnd.*+json" matches "application/vnd.api+json"
  */
-export const resolveResponseBodyHandler = (mimeType: string, plugins: ClientPlugin[]): ResponseBodyHandler | undefined => {
+export const resolveResponseBodyHandler = (
+  mimeType: string,
+  plugins: ClientPlugin[],
+): ResponseBodyHandler | undefined => {
   for (const plugin of plugins) {
     if (!plugin.responseBody) {
       continue
