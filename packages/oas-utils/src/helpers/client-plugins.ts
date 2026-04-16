@@ -75,9 +75,23 @@ type ClientPluginComponents = {
  *   }
  * }
  */
+/** Lifecycle hooks for app-level plugin concerns (analytics, logging, etc.) */
+type ClientPluginLifecycle = {
+  /** Called when the API client is initialized */
+  onInit?: (context?: { config: Record<string, unknown> }) => void
+  /** Called when the API client configuration changes */
+  onConfigChange?: (context: { config: Record<string, unknown> }) => void
+  /** Called when the API client is destroyed */
+  onDestroy?: () => void
+}
+
 export type ClientPlugin = {
   hooks?: Partial<ClientPluginHooks>
   components?: Partial<ClientPluginComponents>
+  /** Lifecycle hooks for app-level concerns */
+  lifecycle?: ClientPluginLifecycle
+  /** Subscribe to event bus events. The framework handles subscribe/unsubscribe automatically. */
+  on?: Partial<{ [K in keyof ApiReferenceEvents]: (payload: ApiReferenceEvents[K]) => void }>
 }
 
 /**

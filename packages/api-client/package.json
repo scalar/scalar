@@ -52,6 +52,11 @@
       "require": "./dist/css/*.css",
       "default": "./dist/css/*.css"
     },
+    "./plugins/posthog": {
+      "import": "./dist/plugins/posthog/index.js",
+      "types": "./dist/plugins/posthog/index.d.ts",
+      "default": "./dist/plugins/posthog/index.js"
+    },
     "./components/Server": {
       "import": "./dist/components/Server/index.js",
       "types": "./dist/components/Server/index.d.ts",
@@ -346,7 +351,6 @@
     "monaco-editor": "catalog:*",
     "monaco-yaml": "catalog:*",
     "nanoid": "catalog:*",
-    "posthog-js": "catalog:*",
     "pretty-ms": "^9.3.0",
     "radix-vue": "catalog:*",
     "set-cookie-parser": "catalog:*",
@@ -366,6 +370,7 @@
     "fake-indexeddb": "catalog:*",
     "fastify": "catalog:*",
     "jsdom": "catalog:*",
+    "posthog-js": "catalog:*",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
     "vite-svg-loader": "catalog:*",

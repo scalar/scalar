@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { baseConfigurationSchema } from './base-configuration'
+
 const openApiExtensionSchema = z.object({
   /**
    * Name of specification extension property. Has to start with `x-`.
@@ -42,6 +44,23 @@ const viewsSchema = z.object({
   'content.end': z.array(viewComponentSchema).optional(),
 })
 
+const lifecycleHooksSchema = z.object({
+  /** Called when the API Reference is initialized */
+  onInit: z
+    .function({
+      input: [z.object({ config: baseConfigurationSchema.partial() })],
+    })
+    .optional(),
+  /** Called when the API Reference configuration changes */
+  onConfigChange: z
+    .function({
+      input: [z.object({ config: baseConfigurationSchema.partial() })],
+    })
+    .optional(),
+  /** Called when the API Reference is destroyed */
+  onDestroy: z.function({ input: [] }).optional(),
+})
+
 export const apiReferencePluginSchema = z.function({
   input: [],
   output: z.object({
@@ -51,10 +70,20 @@ export const apiReferencePluginSchema = z.function({
      * Components to render at specific views in the API Reference
      */
     views: viewsSchema.optional(),
+    /**
+     * Lifecycle hooks for the plugin
+     */
+    hooks: lifecycleHooksSchema.optional(),
+    /**
+     * Client plugins to pass to the embedded API client.
+     * Use this to extend the API client from an API reference plugin.
+     */
+    apiClientPlugins: z.array(z.any()).optional(),
   }),
 })
 
 // Infer the types from the schemas
 export type SpecificationExtension = z.infer<typeof openApiExtensionSchema>
 export type ViewComponent = z.infer<typeof viewComponentSchema>
+export type LifecycleHooks = z.infer<typeof lifecycleHooksSchema>
 export type ApiReferencePlugin = z.infer<typeof apiReferencePluginSchema>

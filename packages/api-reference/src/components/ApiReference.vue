@@ -237,14 +237,16 @@ const themeStyle = computed(() =>
 )
 
 /** Plugin injection is not reactive. All plugins must be provided at first render */
-provide(
-  PLUGIN_MANAGER_SYMBOL,
-  createPluginManager({
-    plugins: Object.values(configList.value).flatMap(
-      (c) => c.config.plugins ?? [],
-    ),
-  }),
-)
+const pluginManager = createPluginManager({
+  plugins: Object.values(configList.value).flatMap(
+    (c) => c.config.plugins ?? [],
+  ),
+})
+provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
+
+pluginManager.notifyInit(mergedConfig.value)
+
+watch(mergedConfig, (config) => pluginManager.notifyConfigChange(config))
 // ---------------------------------------------------------------------------
 /** Navigation State Handling */
 
@@ -736,10 +738,14 @@ onMounted(() => {
     eventBus,
     workspaceStore: clientStore,
     options: mergedConfig,
-    plugins: mapConfigPlugins(mergedConfig, environment),
+    plugins: [
+      ...pluginManager.getApiClientPlugins(),
+      ...mapConfigPlugins(mergedConfig, environment),
+    ],
   })
 })
 onBeforeUnmount(() => {
+  pluginManager.notifyDestroy()
   apiClient.value?.app.unmount()
 })
 

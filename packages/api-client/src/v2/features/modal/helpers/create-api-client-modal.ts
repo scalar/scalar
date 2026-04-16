@@ -115,6 +115,28 @@ export const createApiClientModal = ({
     requestBodyCompositionSelection.value = {}
   }
 
+  /** Initialize plugins and subscribe to event bus events */
+  const pluginUnsubscribes: (() => void)[] = []
+  for (const plugin of plugins) {
+    plugin.lifecycle?.onInit?.()
+
+    if (plugin.on) {
+      for (const [event, handler] of Object.entries(plugin.on)) {
+        pluginUnsubscribes.push(eventBus.on(event as any, handler as any))
+      }
+    }
+  }
+
+  /** Clean up plugin lifecycle and event bus subscriptions when the app is unmounted */
+  app.onUnmount(() => {
+    for (const unsub of pluginUnsubscribes) {
+      unsub()
+    }
+    for (const plugin of plugins) {
+      plugin.lifecycle?.onDestroy?.()
+    }
+  })
+
   watch(
     () => modalState.open,
     (open) => (open ? null : handleModalClose()),
