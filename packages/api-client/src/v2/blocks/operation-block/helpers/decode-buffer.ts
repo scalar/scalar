@@ -18,7 +18,7 @@ export const decodeBuffer = async (
   const mimeType = parseMimeType(contentType)
 
   if (pluginHandler?.decode) {
-    return pluginHandler.decode(buffer, contentType)
+    return await pluginHandler.decode(buffer, contentType)
   }
 
   // Text
