@@ -227,7 +227,9 @@ describe('swiftNsurlsession', () => {
     expect(result).toContain('appendToBody("<# File data for test.txt #>\\r\\n")')
     expect(result).toContain('appendToBody("Content-Disposition: form-data; name=\\\\\\"field\\\\\\"\\r\\n")')
     expect(result).toContain('appendToBody("value")')
-    expect(result).toContain('request.setValue("multipart/form-data; boundary=\\(boundary)", forHTTPHeaderField: "Content-Type")')
+    expect(result).toContain(
+      'request.setValue("multipart/form-data; boundary=\\(boundary)", forHTTPHeaderField: "Content-Type")',
+    )
   })
 
   it('handles multipart form data content types on string parts', () => {
@@ -583,9 +585,7 @@ describe('swiftNsurlsession', () => {
       queryString: [{ name: 'foo', value: 'bar' }],
     })
 
-    expect(result).toContain(
-      'var request = URLRequest(url: URL(string: "https://example.com?existing=true&foo=bar")!)',
-    )
+    expect(result).toContain('var request = URLRequest(url: URL(string: "https://example.com?existing=true&foo=bar")!)')
   })
 
   it('supports empty text fallback for unknown body types', () => {

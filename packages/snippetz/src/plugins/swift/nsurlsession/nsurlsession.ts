@@ -102,7 +102,7 @@ const buildMultipartBody = (
         lines.push(`appendToBody("Content-Type: ${param.contentType}\\r\\n")`)
       }
       lines.push('appendToBody("\\r\\n")')
-      lines.push(`appendToBody("<# File data for ${param.fileName ?? 'file'} #>\\r\\n")`)
+      lines.push(`appendToBody("<# File data for ${param.fileName || 'file'} #>\\r\\n")`)
     } else {
       lines.push(`appendToBody("Content-Disposition: form-data; name=\\\\\\"${escapedName}\\\\\\"\\r\\n")`)
       if (param.contentType) {
@@ -135,7 +135,11 @@ export const swiftNsurlsession: Plugin = {
     const method = normalizeMethod(request.method)
     const url = normalizeUrl(joinUrlAndQuery(request.url ?? '', request.queryString))
     const headers = collectHeaders(request.headers)
-    const lines: string[] = ['import Foundation', '', `var request = URLRequest(url: URL(string: ${swiftStringLiteral(url)})!)`]
+    const lines: string[] = [
+      'import Foundation',
+      '',
+      `var request = URLRequest(url: URL(string: ${swiftStringLiteral(url)})!)`,
+    ]
 
     lines.push(`request.httpMethod = ${swiftStringLiteral(method)}`)
 
@@ -154,7 +158,9 @@ export const swiftNsurlsession: Plugin = {
     }
 
     if (configuration?.auth?.username && configuration?.auth?.password) {
-      lines.push(`let credentials = ${swiftStringLiteral(`${configuration.auth.username}:${configuration.auth.password}`)}`)
+      lines.push(
+        `let credentials = ${swiftStringLiteral(`${configuration.auth.username}:${configuration.auth.password}`)}`,
+      )
       lines.push('let encodedCredentials = Data(credentials.utf8).base64EncodedString()')
       lines.push('request.setValue("Basic \\(encodedCredentials)", forHTTPHeaderField: "Authorization")')
     }
