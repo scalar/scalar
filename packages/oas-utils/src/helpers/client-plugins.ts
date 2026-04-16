@@ -4,27 +4,31 @@ import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/stric
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import type { Component, DefineComponent } from 'vue'
 
-/**
- * Describes how a plugin handles a specific content type in the response body.
- *
- * - `decode`: Transforms the raw ArrayBuffer into displayable data (e.g. decompress msgpack → JSON string).
- *   When provided, runs instead of the default text/binary decoding for matched content types.
- * - `rawComponent`: Custom Vue component to render the "raw" view. Receives `content` (decoded data) and `contentType`.
- * - `previewComponent`: Custom Vue component to render the "preview" view. Receives `content`, `contentType`, and `dataUrl`.
- * - `language`: CodeMirror language hint for the default raw renderer (only used when `rawComponent` is not provided).
- */
-export type ResponseBodyHandler = {
+/** Shared fields present on every response body handler variant */
+type ResponseBodyHandlerBase = {
   /** MIME type patterns this handler matches (exact or glob like "application/vnd.*+json") */
   mimeTypes: string[]
   /** Custom decoder: transform raw bytes into displayable data */
   decode?: (buffer: ArrayBuffer, contentType: string) => string | Blob | Promise<string | Blob>
-  /** Custom component for the raw (code) view */
-  rawComponent?: Component
   /** Custom component for the preview view */
   previewComponent?: Component
-  /** CodeMirror language for the default raw renderer when no custom rawComponent is provided */
-  language?: string
 }
+
+/**
+ * Describes how a plugin handles a specific content type in the response body.
+ *
+ * The raw view is configured with either:
+ * - `rawComponent`: A custom Vue component (receives `content` and `contentType` props).
+ * - `language`: A CodeMirror language hint for the built-in raw renderer.
+ *
+ * These two options are mutually exclusive — providing `rawComponent` means the
+ * built-in renderer is not used, so `language` would have no effect.
+ */
+export type ResponseBodyHandler = ResponseBodyHandlerBase &
+  (
+    | { rawComponent: Component; language?: never }
+    | { rawComponent?: never; language?: string }
+  )
 
 /** A type representing the hooks that a client plugin can define */
 type ClientPluginHooks = {
