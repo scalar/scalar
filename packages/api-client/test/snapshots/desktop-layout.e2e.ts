@@ -24,7 +24,7 @@ test.describe('Desktop Layout', () => {
     // Try to expand collection items if present
     const expandButtons = page.getByRole('button', { name: /expand/i })
     const count = await expandButtons.count()
-    
+
     if (count > 0) {
       // Expand the first few items
       for (let i = 0; i < Math.min(count, 3); i++) {
@@ -35,7 +35,7 @@ test.describe('Desktop Layout', () => {
           // Continue if button is not clickable
         }
       }
-      
+
       await expect(page).toHaveScreenshot('desktop-layout-expanded.png')
     }
   })
