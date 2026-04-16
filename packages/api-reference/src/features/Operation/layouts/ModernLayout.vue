@@ -1,12 +1,7 @@
 <script setup lang="ts">
-import { OperationCodeSample } from '@scalar/api-client/v2/blocks/operation-code-sample'
+import { OperationCodeSample } from '@scalar/api-client/blocks/operation-code-sample'
 import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
-import {
-  getOperationStability,
-  getOperationStabilityColor,
-  isOperationDeprecated,
-} from '@scalar/oas-utils/helpers'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type {
@@ -33,6 +28,11 @@ import { ExternalDocs } from '@/features/external-docs'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
+import {
+  getOperationStability,
+  getOperationStabilityColor,
+  isOperationDeprecated,
+} from '@/features/Operation/helpers/operation-stability'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 import {
   REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,

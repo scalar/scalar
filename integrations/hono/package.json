@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/hono"
   },
-  "version": "0.10.7",
+  "version": "0.10.8",
   "engines": {
     "node": ">=22"
   },
@@ -19,7 +19,7 @@
     "dev": "tsx watch playground/index.ts",
     "docker:build": "docker buildx build --platform=linux/amd64 -t scalar-hono-reference --build-arg=\"BASE_IMAGE=scalar-base\" .",
     "docker:run": "docker run -t scalar-hono-reference",
-    "test": "vitest",
+    "test": "vitest --run",
     "types:check": "tsc --noEmit"
   },
   "type": "module",

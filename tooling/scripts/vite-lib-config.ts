@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 /**
@@ -106,10 +106,24 @@ export function createLibEntry(entryPaths: string[], dirname: string) {
 export function findEntryPoints() {
   const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'))
   const entryPoints: string[] = []
+  const invalidEntries: string[] = []
 
   if (!pkg.exports) {
     // Fallback to src/index.ts if no exports
     return ['./src/index.ts']
+  }
+
+  const addEntryPoint = (distPath: string) => {
+    const sourcePath = distPath.replace('./dist/', './src/').replace(/\.js$/, '.ts')
+
+    if (!existsSync(sourcePath)) {
+      invalidEntries.push(distPath)
+      return
+    }
+
+    if (!entryPoints.includes(sourcePath)) {
+      entryPoints.push(sourcePath)
+    }
   }
 
   const processExport = (exportValue: any) => {
@@ -124,10 +138,7 @@ export function findEntryPoints() {
         return
       }
       // Simple string export
-      const sourcePath = exportValue.replace('./dist/', './src/').replace(/\.js$/, '.ts')
-      if (!entryPoints.includes(sourcePath)) {
-        entryPoints.push(sourcePath)
-      }
+      addEntryPoint(exportValue)
     } else if (typeof exportValue === 'object' && exportValue !== null) {
       // Conditional exports
       if (exportValue.import) {
@@ -141,10 +152,7 @@ export function findEntryPoints() {
         ) {
           return
         }
-        const sourcePath = importPath.replace('./dist/', './src/').replace(/\.js$/, '.ts')
-        if (!entryPoints.includes(sourcePath)) {
-          entryPoints.push(sourcePath)
-        }
+        addEntryPoint(importPath)
       }
       // Handle nested exports
       for (const value of Object.values(exportValue)) {
@@ -153,10 +161,7 @@ export function findEntryPoints() {
           if (value.includes('*.css') || value.endsWith('.d.ts') || value.endsWith('.css') || value.endsWith('.cjs')) {
             continue
           }
-          const sourcePath = value.replace('./dist/', './src/').replace(/\.js$/, '.ts')
-          if (!entryPoints.includes(sourcePath)) {
-            entryPoints.push(sourcePath)
-          }
+          addEntryPoint(value)
         }
       }
     }
@@ -168,6 +173,13 @@ export function findEntryPoints() {
     for (const exportValue of Object.values(pkg.exports)) {
       processExport(exportValue)
     }
+  }
+
+  if (invalidEntries.length > 0) {
+    throw new Error(
+      `Could not resolve source entry points for package exports: ${invalidEntries.join(', ')}. ` +
+        'Every JS export in package.json must map to an existing ./src/**/*.ts file.',
+    )
   }
 
   return entryPoints

@@ -1,7 +1,10 @@
 import '@/style.css'
 
-import { createApiClientWeb } from '@/layouts/Web'
+import { requestScriptsPlugin } from '@scalar/pre-post-request-scripts/plugins'
 
-void createApiClientWeb(document.getElementById('scalar-client'), {
-  proxyUrl: 'https://proxy.scalar.com',
-})
+import { createApiClientApp } from '@/v2/features/app'
+
+const el = document.getElementById('scalar-client')
+
+/** Initialize the API client application with the 'web' layout */
+void createApiClientApp(el, { layout: 'web', plugins: [requestScriptsPlugin()] })

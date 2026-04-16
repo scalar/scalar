@@ -2,7 +2,7 @@
 import { ScalarIcon } from '@scalar/components'
 import { computed } from 'vue'
 
-import { getMediaTypeConfig } from '@/views/Request/consts'
+import { getMediaTypeConfig } from '@/v2/blocks/response-block/helpers/media-types'
 
 const props = defineProps<{
   href: string

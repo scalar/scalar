@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.22.0
+
+### Minor Changes
+
+- [#8848](https://github.com/scalar/scalar/pull/8848): feat: support search for virtual text
+
+### Patch Changes
+
+- [#8827](https://github.com/scalar/scalar/pull/8827): chore: removed old client v1 code
+- [#8849](https://github.com/scalar/scalar/pull/8849): fix(components): apply ScalarMenuLink is prop correctly
+
 ## 0.21.4
 
 ### Patch Changes

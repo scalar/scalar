@@ -1,5 +1,18 @@
 # @scalar/helpers
 
+## 0.5.0
+
+### Minor Changes
+
+- [#8632](https://github.com/scalar/scalar/pull/8632): feat: support generation of random data
+
+### Patch Changes
+
+- [#8735](https://github.com/scalar/scalar/pull/8735): fix: replace direct cjs mime and curl dependencies with local implementations
+- [#8735](https://github.com/scalar/scalar/pull/8735): Skip empty MIME parameter values and remove a stale Nuxt optimizeDeps entry for `highlightjs-curl`.
+- [#8825](https://github.com/scalar/scalar/pull/8825): chore: moving files around in preparation for the big deletion of client v1
+- [#8850](https://github.com/scalar/scalar/pull/8850): chore: remove entities, zod and the parser from oas-utils
+
 ## 0.4.3
 
 ### Patch Changes

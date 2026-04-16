@@ -1,14 +1,22 @@
 import HttpProxy from '@fastify/http-proxy'
 import Fastify from 'fastify'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 
 import Scalar from './index'
 
 describe('fastifyApiReference', () => {
+  let origin: ReturnType<typeof Fastify>
+  let proxy: ReturnType<typeof Fastify>
+
+  afterEach(async () => {
+    await proxy?.close()
+    await origin?.close()
+  })
+
   it('returns 200 OK for the HTML', async () => {
-    // Origin
-    const origin = Fastify({
+    origin = Fastify({
       logger: false,
+      forceCloseConnections: true,
     })
 
     await origin.register(Scalar, {
@@ -23,9 +31,9 @@ describe('fastifyApiReference', () => {
 
     expect(originResponse.status).toBe(200)
 
-    // Proxy
-    const proxy = Fastify({
+    proxy = Fastify({
       logger: false,
+      forceCloseConnections: true,
     })
 
     await proxy.register(HttpProxy, {

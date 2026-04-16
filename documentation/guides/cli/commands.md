@@ -6,7 +6,7 @@ Usage: scalar [options] [command]
 CLI to work with your OpenAPI files
 
 Options:
-  -V, --version   output the version number
+  -v, --version   output the version number
   -h, --help      display help for command
 
 Commands:

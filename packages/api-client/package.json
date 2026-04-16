@@ -18,29 +18,24 @@
     "rest",
     "testing"
   ],
-  "version": "2.43.0",
+  "version": "3.0.0",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "dev": "pnpm playground:v2:web",
+    "dev": "pnpm playground:web",
     "playground:app": "vite ./playground/app -c ./vite.config.ts",
     "playground:modal": "vite ./playground/modal -c ./vite.config.ts",
-    "playground:v2:app": "vite ./playground/v2/app -c ./vite.config.ts",
-    "playground:v2:modal": "vite ./playground/v2/modal -c ./vite.config.ts",
-    "playground:v2:web": "vite ./playground/v2/web -c ./vite.config.ts",
     "playground:web": "vite ./playground/web -c ./vite.config.ts",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest --run",
     "test:benchmark": "vitest bench",
     "test:benchmark:compare": "vitest bench --compare test-results/test-benchmark.json",
     "test:benchmark:save": "vitest bench --outputJson test-results/test-benchmark.json",
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -52,110 +47,20 @@
       "require": "./dist/*.css",
       "default": "./dist/*.css"
     },
-    "./components": {
-      "import": "./dist/components/index.js",
-      "types": "./dist/components/index.d.ts",
-      "default": "./dist/components/index.js"
-    },
-    "./components/AddressBar": {
-      "import": "./dist/components/AddressBar/index.js",
-      "types": "./dist/components/AddressBar/index.d.ts",
-      "default": "./dist/components/AddressBar/index.js"
-    },
-    "./components/CodeInput": {
-      "import": "./dist/components/CodeInput/index.js",
-      "types": "./dist/components/CodeInput/index.d.ts",
-      "default": "./dist/components/CodeInput/index.js"
-    },
-    "./components/CommandPalette": {
-      "import": "./dist/components/CommandPalette/index.js",
-      "types": "./dist/components/CommandPalette/index.d.ts",
-      "default": "./dist/components/CommandPalette/index.js"
-    },
-    "./components/DataTable": {
-      "import": "./dist/components/DataTable/index.js",
-      "types": "./dist/components/DataTable/index.d.ts",
-      "default": "./dist/components/DataTable/index.js"
-    },
-    "./components/HttpMethod": {
-      "import": "./dist/components/HttpMethod/index.js",
-      "types": "./dist/components/HttpMethod/index.d.ts",
-      "default": "./dist/components/HttpMethod/index.js"
-    },
-    "./components/ImportCollection": {
-      "import": "./dist/components/ImportCollection/index.js",
-      "types": "./dist/components/ImportCollection/index.d.ts",
-      "default": "./dist/components/ImportCollection/index.js"
-    },
-    "./components/Server": {
-      "import": "./dist/components/Server/index.js",
-      "types": "./dist/components/Server/index.d.ts",
-      "default": "./dist/components/Server/index.js"
-    },
-    "./components/Sidebar": {
-      "import": "./dist/components/Sidebar/index.js",
-      "types": "./dist/components/Sidebar/index.d.ts",
-      "default": "./dist/components/Sidebar/index.js"
-    },
-    "./components/ViewLayout": {
-      "import": "./dist/components/ViewLayout/index.js",
-      "types": "./dist/components/ViewLayout/index.d.ts",
-      "default": "./dist/components/ViewLayout/index.js"
-    },
     "./css/*.css": {
       "import": "./dist/css/*.css",
       "require": "./dist/css/*.css",
       "default": "./dist/css/*.css"
     },
-    "./hooks": {
-      "import": "./dist/hooks/index.js",
-      "types": "./dist/hooks/index.d.ts",
-      "default": "./dist/hooks/index.js"
+    "./plugins/posthog": {
+      "import": "./dist/plugins/posthog/index.js",
+      "types": "./dist/plugins/posthog/index.d.ts",
+      "default": "./dist/plugins/posthog/index.js"
     },
-    "./layouts/App": {
-      "import": "./dist/layouts/App/index.js",
-      "types": "./dist/layouts/App/index.d.ts",
-      "default": "./dist/layouts/App/index.js"
-    },
-    "./layouts/Modal": {
-      "import": "./dist/layouts/Modal/index.js",
-      "types": "./dist/layouts/Modal/index.d.ts",
-      "default": "./dist/layouts/Modal/index.js"
-    },
-    "./layouts/Web": {
-      "import": "./dist/layouts/Web/index.js",
-      "types": "./dist/layouts/Web/index.d.ts",
-      "default": "./dist/layouts/Web/index.js"
-    },
-    "./libs": {
-      "import": "./dist/libs/index.js",
-      "types": "./dist/libs/index.d.ts",
-      "default": "./dist/libs/index.js"
-    },
-    "./libs/importers": {
-      "import": "./dist/libs/importers/index.js",
-      "types": "./dist/libs/importers/index.d.ts",
-      "default": "./dist/libs/importers/index.js"
-    },
-    "./libs/send-request": {
-      "import": "./dist/libs/send-request/index.js",
-      "types": "./dist/libs/send-request/index.d.ts",
-      "default": "./dist/libs/send-request/index.js"
-    },
-    "./plugins": {
-      "import": "./dist/plugins/index.js",
-      "types": "./dist/plugins/index.d.ts",
-      "default": "./dist/plugins/index.js"
-    },
-    "./store": {
-      "import": "./dist/store/index.js",
-      "types": "./dist/store/index.d.ts",
-      "default": "./dist/store/index.js"
-    },
-    "./types": {
-      "import": "./dist/types/index.js",
-      "types": "./dist/types/index.d.ts",
-      "default": "./dist/types/index.js"
+    "./components/Server": {
+      "import": "./dist/components/Server/index.js",
+      "types": "./dist/components/Server/index.d.ts",
+      "default": "./dist/components/Server/index.js"
     },
     "./v2/blocks/operation-block": {
       "import": "./dist/v2/blocks/operation-block/index.js",
@@ -287,45 +192,130 @@
       "types": "./dist/v2/features/settings/index.d.ts",
       "default": "./dist/v2/features/settings/index.js"
     },
-    "./views/Components/CodeSnippet": {
-      "import": "./dist/views/Components/CodeSnippet/index.js",
-      "types": "./dist/views/Components/CodeSnippet/index.d.ts",
-      "default": "./dist/views/Components/CodeSnippet/index.js"
+    "./blocks/operation-block": {
+      "import": "./dist/v2/blocks/operation-block/index.js",
+      "types": "./dist/v2/blocks/operation-block/index.d.ts",
+      "default": "./dist/v2/blocks/operation-block/index.js"
     },
-    "./views/Request/components": {
-      "import": "./dist/views/Request/components/index.js",
-      "types": "./dist/views/Request/components/index.d.ts",
-      "default": "./dist/views/Request/components/index.js"
+    "./blocks/operation-code-sample": {
+      "import": "./dist/v2/blocks/operation-code-sample/index.js",
+      "types": "./dist/v2/blocks/operation-code-sample/index.d.ts",
+      "default": "./dist/v2/blocks/operation-code-sample/index.js"
     },
-    "./views/Request/consts": {
-      "import": "./dist/views/Request/consts/index.js",
-      "types": "./dist/views/Request/consts/index.d.ts",
-      "default": "./dist/views/Request/consts/index.js"
+    "./blocks/request-block": {
+      "import": "./dist/v2/blocks/request-block/index.js",
+      "types": "./dist/v2/blocks/request-block/index.d.ts",
+      "default": "./dist/v2/blocks/request-block/index.js"
     },
-    "./views/Request/libs": {
-      "import": "./dist/views/Request/libs/index.js",
-      "types": "./dist/views/Request/libs/index.d.ts",
-      "default": "./dist/views/Request/libs/index.js"
+    "./blocks/response-block": {
+      "import": "./dist/v2/blocks/response-block/index.js",
+      "types": "./dist/v2/blocks/response-block/index.d.ts",
+      "default": "./dist/v2/blocks/response-block/index.js"
     },
-    "./views/Request/RequestSection": {
-      "import": "./dist/views/Request/RequestSection/index.js",
-      "types": "./dist/views/Request/RequestSection/index.d.ts",
-      "default": "./dist/views/Request/RequestSection/index.js"
+    "./blocks/scalar-address-bar-block": {
+      "import": "./dist/v2/blocks/scalar-address-bar-block/index.js",
+      "types": "./dist/v2/blocks/scalar-address-bar-block/index.d.ts",
+      "default": "./dist/v2/blocks/scalar-address-bar-block/index.js"
     },
-    "./views/Request/RequestSection/RequestAuth": {
-      "import": "./dist/views/Request/RequestSection/RequestAuth/index.js",
-      "types": "./dist/views/Request/RequestSection/RequestAuth/index.d.ts",
-      "default": "./dist/views/Request/RequestSection/RequestAuth/index.js"
+    "./blocks/scalar-auth-selector-block": {
+      "import": "./dist/v2/blocks/scalar-auth-selector-block/index.js",
+      "types": "./dist/v2/blocks/scalar-auth-selector-block/index.d.ts",
+      "default": "./dist/v2/blocks/scalar-auth-selector-block/index.js"
     },
-    "./views/Request/ResponseSection": {
-      "import": "./dist/views/Request/ResponseSection/index.js",
-      "types": "./dist/views/Request/ResponseSection/index.d.ts",
-      "default": "./dist/views/Request/ResponseSection/index.js"
+    "./components/code-input": {
+      "import": "./dist/v2/components/code-input/index.js",
+      "types": "./dist/v2/components/code-input/index.d.ts",
+      "default": "./dist/v2/components/code-input/index.js"
     },
-    "./views/Request/types": {
-      "import": "./dist/views/Request/types/index.js",
-      "types": "./dist/views/Request/types/index.d.ts",
-      "default": "./dist/views/Request/types/index.js"
+    "./components/context-menu": {
+      "import": "./dist/v2/components/context-menu/index.js",
+      "types": "./dist/v2/components/context-menu/index.d.ts",
+      "default": "./dist/v2/components/context-menu/index.js"
+    },
+    "./components/data-table": {
+      "import": "./dist/v2/components/data-table/index.js",
+      "types": "./dist/v2/components/data-table/index.d.ts",
+      "default": "./dist/v2/components/data-table/index.js"
+    },
+    "./components/forms": {
+      "import": "./dist/v2/components/forms/index.js",
+      "types": "./dist/v2/components/forms/index.d.ts",
+      "default": "./dist/v2/components/forms/index.js"
+    },
+    "./components/layout": {
+      "import": "./dist/v2/components/layout/index.js",
+      "types": "./dist/v2/components/layout/index.d.ts",
+      "default": "./dist/v2/components/layout/index.js"
+    },
+    "./components/modals": {
+      "import": "./dist/v2/components/modals/index.js",
+      "types": "./dist/v2/components/modals/index.d.ts",
+      "default": "./dist/v2/components/modals/index.js"
+    },
+    "./components/resize": {
+      "import": "./dist/v2/components/resize/index.js",
+      "types": "./dist/v2/components/resize/index.d.ts",
+      "default": "./dist/v2/components/resize/index.js"
+    },
+    "./components/server": {
+      "import": "./dist/v2/components/server/index.js",
+      "types": "./dist/v2/components/server/index.d.ts",
+      "default": "./dist/v2/components/server/index.js"
+    },
+    "./components/sidebar": {
+      "import": "./dist/v2/components/sidebar/index.js",
+      "types": "./dist/v2/components/sidebar/index.d.ts",
+      "default": "./dist/v2/components/sidebar/index.js"
+    },
+    "./app": {
+      "import": "./dist/v2/features/app/index.js",
+      "types": "./dist/v2/features/app/index.d.ts",
+      "default": "./dist/v2/features/app/index.js"
+    },
+    "./modal": {
+      "import": "./dist/v2/features/modal/index.js",
+      "types": "./dist/v2/features/modal/index.d.ts",
+      "default": "./dist/v2/features/modal/index.js"
+    },
+    "./features/collection/components/Editor": {
+      "import": "./dist/v2/features/collection/components/Editor/index.js",
+      "types": "./dist/v2/features/collection/components/Editor/index.d.ts",
+      "default": "./dist/v2/features/collection/components/Editor/index.js"
+    },
+    "./features/command-palette": {
+      "import": "./dist/v2/features/command-palette/index.js",
+      "types": "./dist/v2/features/command-palette/index.d.ts",
+      "default": "./dist/v2/features/command-palette/index.js"
+    },
+    "./features/editor": {
+      "import": "./dist/v2/features/editor/index.js",
+      "types": "./dist/v2/features/editor/index.d.ts",
+      "default": "./dist/v2/features/editor/index.js"
+    },
+    "./features/environments": {
+      "import": "./dist/v2/features/environments/index.js",
+      "types": "./dist/v2/features/environments/index.d.ts",
+      "default": "./dist/v2/features/environments/index.js"
+    },
+    "./features/global-cookies": {
+      "import": "./dist/v2/features/global-cookies/index.js",
+      "types": "./dist/v2/features/global-cookies/index.d.ts",
+      "default": "./dist/v2/features/global-cookies/index.js"
+    },
+    "./features/operation": {
+      "import": "./dist/v2/features/operation/index.js",
+      "types": "./dist/v2/features/operation/index.d.ts",
+      "default": "./dist/v2/features/operation/index.js"
+    },
+    "./features/search": {
+      "import": "./dist/v2/features/search/index.js",
+      "types": "./dist/v2/features/search/index.d.ts",
+      "default": "./dist/v2/features/search/index.js"
+    },
+    "./features/settings": {
+      "import": "./dist/v2/features/settings/index.js",
+      "types": "./dist/v2/features/settings/index.d.ts",
+      "default": "./dist/v2/features/settings/index.js"
     }
   },
   "files": [
@@ -336,13 +326,10 @@
     "@headlessui/tailwindcss": "catalog:*",
     "@headlessui/vue": "catalog:*",
     "@scalar/components": "workspace:*",
-    "@scalar/draggable": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",
-    "@scalar/import": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "@scalar/object-utils": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/postman-to-openapi": "workspace:*",
     "@scalar/sidebar": "workspace:*",
@@ -361,16 +348,13 @@
     "focus-trap": "^7.8.0",
     "fuse.js": "catalog:*",
     "js-base64": "catalog:*",
-    "microdiff": "catalog:*",
     "monaco-editor": "catalog:*",
     "monaco-yaml": "catalog:*",
     "nanoid": "catalog:*",
-    "posthog-js": "catalog:*",
     "pretty-ms": "^9.3.0",
     "radix-vue": "catalog:*",
     "set-cookie-parser": "catalog:*",
     "shell-quote": "^1.8.3",
-    "type-fest": "catalog:*",
     "vite-plugin-monaco-editor": "^1.1.0",
     "vue": "catalog:*",
     "vue-router": "catalog:*",
@@ -378,7 +362,6 @@
     "zod": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/galaxy": "workspace:*",
     "@scalar/pre-post-request-scripts": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/shell-quote": "^1.7.5",
@@ -387,6 +370,7 @@
     "fake-indexeddb": "catalog:*",
     "fastify": "catalog:*",
     "jsdom": "catalog:*",
+    "posthog-js": "catalog:*",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
     "vite-svg-loader": "catalog:*",

@@ -16,14 +16,14 @@
     "llm",
     "swagger"
   ],
-  "version": "0.5.3",
+  "version": "0.5.4",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "vite build && vue-tsc -p tsconfig.build.json",
     "dev": "tsx watch playground/index.ts",
-    "test": "vitest",
+    "test": "vitest --run",
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
@@ -54,7 +54,6 @@
     "@scalar/components": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
-    "@scalar/oas-utils": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "html-minifier-terser": "^7.2.0",
     "rehype-parse": "^9.0.1",

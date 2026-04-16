@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ExamplePicker } from '@scalar/api-client/v2/blocks/operation-code-sample'
+import { ExamplePicker } from '@scalar/api-client/blocks/operation-code-sample'
 import {
   ScalarCard,
   ScalarCardFooter,
@@ -7,10 +7,7 @@ import {
   ScalarIcon,
   ScalarMarkdown,
 } from '@scalar/components'
-import {
-  getObjectKeys,
-  normalizeMimeTypeObject,
-} from '@scalar/oas-utils/helpers'
+import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getExample } from '@scalar/workspace-store/request-example'
@@ -26,7 +23,8 @@ import ExampleSchema from '@/features/example-responses/ExampleSchema.vue'
 import ExampleResponse from './ExampleResponse.vue'
 import ExampleResponseTab from './ExampleResponseTab.vue'
 import ExampleResponseTabList from './ExampleResponseTabList.vue'
-import { hasResponseContent } from './has-response-content'
+import { hasResponseContent } from './helpers/has-response-content'
+import { normalizeMimeTypeObject } from './helpers/normalize-mime-type-object'
 
 /**
  * TODO: copyToClipboard isn't using the right content if there are multiple examples
@@ -86,7 +84,7 @@ const currentResponseContent = computed<MediaTypeObject | undefined>(() => {
   )
 
   /** All the keys of the normalized content */
-  const keys = getObjectKeys(normalizedContent ?? {})
+  const keys = objectKeys(normalizedContent ?? {})
   return normalizedContent?.[keys[0] ?? '']
 })
 

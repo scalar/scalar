@@ -7,8 +7,10 @@ import type {
 import type { XScalarEnvironments } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { computed, ref, watch } from 'vue'
 
-import CommandActionForm from '@/components/CommandPalette/CommandActionForm.vue'
-import CommandActionInput from '@/components/CommandPalette/CommandActionInput.vue'
+import {
+  CommandActionForm,
+  CommandActionInput,
+} from '@/v2/features/command-palette'
 
 import EnvironmentColors from './EnvironmentColors.vue'
 

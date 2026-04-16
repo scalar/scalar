@@ -19,7 +19,7 @@ import type { Component } from 'vue'
 
 const { is = 'button' } = defineProps<{
   is?: string | Component
-  active?: boolean
+  cta?: boolean
 }>()
 
 defineSlots<{
@@ -28,11 +28,11 @@ defineSlots<{
 }>()
 
 const variants = cva({
-  base: 'group/button flex items-center rounded  px-2.5 py-1.5 font-medium no-underline leading-5 ',
+  base: 'group/button flex items-center rounded  px-3 py-2 text-base/4 no-underline',
   variants: {
-    active: {
-      true: 'bg-b-3 cursor-default',
-      false: 'bg-transparent hover:bg-b-3 cursor-pointer',
+    cta: {
+      true: 'font-bold bg-b-header-cta text-sm/4 text-c-header-cta hover:bg-h-header-cta',
+      false: 'text-c-header-2 hover:text-c-header-1',
     },
   },
 })
@@ -44,7 +44,7 @@ const { cx } = useBindCx()
   <component
     :is="is"
     :type="is === 'button' ? 'button' : undefined"
-    v-bind="cx(variants({ active }))">
+    v-bind="cx(variants({ cta }))">
     <slot />
   </component>
 </template>

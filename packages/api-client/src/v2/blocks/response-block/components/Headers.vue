@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { DataTableHeader } from '@/components/DataTable'
-import DataTable from '@/components/DataTable/DataTable.vue'
-import DataTableRow from '@/components/DataTable/DataTableRow.vue'
-import DataTableText from '@/components/DataTable/DataTableText.vue'
+import { httpHeaders, type HttpHeader } from '@scalar/helpers/http/http-headers'
+import {
+  DataTable,
+  DataTableHeader,
+  DataTableRow,
+  DataTableText,
+} from '@v2/components/data-table'
+
 import HelpfulLink from '@/components/HelpfulLink.vue'
-import { httpHeaders } from '@/data/httpHeaders'
 import { CollapsibleSection } from '@/v2/components/layout'
 
 type Header = { name: string; value: string }
@@ -13,11 +16,8 @@ defineProps<{
   headers: Header[]
 }>()
 
-const findHeaderInfo = (name: string) => {
-  return httpHeaders.find(
-    (header) => header.name.toLowerCase() === name.toLowerCase(),
-  )
-}
+const findHeaderInfo = (name: string): HttpHeader | undefined =>
+  httpHeaders[name.toLowerCase() as keyof typeof httpHeaders]
 </script>
 <template>
   <CollapsibleSection

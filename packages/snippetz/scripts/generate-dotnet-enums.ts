@@ -37,6 +37,7 @@ const CUSTOM_PASCAL_CASE_MAPPINGS: Record<string, string> = {
   'cohttp': 'CoHttp',
   'webrequest': 'WebRequest',
   'restmethod': 'RestMethod',
+  'aiohttp': 'AioHttp',
   'httpx_sync': 'HttpxSync',
   'httpx_async': 'HttpxAsync',
 
@@ -70,6 +71,11 @@ const OBSOLETE_CLIENT_ENTRIES = [
     name: 'Http2',
     description: 'http2',
     reason: 'This client is no longer supported.',
+  },
+  {
+    name: 'Httr',
+    description: 'httr',
+    reason: 'Use Httr2 instead.',
   },
 ]
 

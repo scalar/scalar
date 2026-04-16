@@ -1,4 +1,5 @@
 import { EditorState, EditorView } from '@scalar/use-codemirror'
+import { isContextFunctionName } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { beforeEach, describe, expect, it } from 'vitest'
 
@@ -107,6 +108,29 @@ describe('code-variable-widget', () => {
     const state = EditorState.create({
       doc,
       extensions: [pillPlugin({ environment: undefined, isReadOnly: false })],
+    })
+
+    const view = new EditorView({
+      state,
+      parent: container,
+    })
+
+    expect(view.state.doc.toString()).toBe(doc)
+
+    view.destroy()
+  })
+
+  it('decorates context function placeholders when the name matches workspace-store helpers', () => {
+    const doc = '{{$guid}}'
+    const state = EditorState.create({
+      doc,
+      extensions: [
+        pillPlugin({
+          environment,
+          isContextFunctionName,
+          isReadOnly: false,
+        }),
+      ],
     })
 
     const view = new EditorView({

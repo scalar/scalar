@@ -16,7 +16,7 @@ import {
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
-import { computed, toValue } from 'vue'
+import { computed, onBeforeUnmount, toValue, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { SidebarToggle } from '@/v2/components/sidebar'
@@ -29,7 +29,6 @@ import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.v
 import { useMonacoEditorConfiguration } from '@/v2/features/editor'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
-import { usePosthog } from '@/v2/posthog'
 import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -78,7 +77,36 @@ if (typeof window !== 'undefined') {
   window.dumpAppState = () => app
 }
 
-usePosthog(app.telemetry)
+/** Call lifecycle hooks on plugins and subscribe to event bus events */
+const pluginUnsubscribes: (() => void)[] = []
+
+for (const plugin of plugins) {
+  plugin.lifecycle?.onInit?.({ config: { telemetry: app.telemetry.value } })
+
+  if (plugin.on) {
+    for (const [event, handler] of Object.entries(plugin.on)) {
+      pluginUnsubscribes.push(app.eventBus.on(event as any, handler as any))
+    }
+  }
+}
+
+/** Notify plugins when telemetry config changes */
+watch(app.telemetry, () => {
+  for (const plugin of plugins) {
+    plugin.lifecycle?.onConfigChange?.({
+      config: { telemetry: app.telemetry.value },
+    })
+  }
+})
+
+onBeforeUnmount(() => {
+  for (const unsub of pluginUnsubscribes) {
+    unsub()
+  }
+  for (const plugin of plugins) {
+    plugin.lifecycle?.onDestroy?.()
+  }
+})
 
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */
 useGlobalHotKeys(app.eventBus, layout)
@@ -172,7 +200,9 @@ const routerViewProps = computed<RouteProps>(() => {
         app.workspace.activeWorkspace.value !== null &&
         !app.loading.value
       ">
-      <div class="relative flex h-dvh w-dvw flex-1 flex-col">
+      <div
+        class="relative flex w-dvw flex-col"
+        :class="layout === 'web' ? 'min-h-0' : 'h-dvh'">
         <SidebarToggle
           v-model="app.sidebar.isOpen.value"
           class="absolute top-4 left-3 z-[60] md:hidden" />
@@ -198,7 +228,7 @@ const routerViewProps = computed<RouteProps>(() => {
             </template>
           </AppSidebar>
 
-          <div class="flex flex-1 flex-col">
+          <div class="flex min-h-0 flex-1 flex-col">
             <!-- App Tabs -->
             <DesktopTabs
               v-if="layout === 'desktop'"

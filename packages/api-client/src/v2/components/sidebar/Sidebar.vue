@@ -122,7 +122,9 @@ const handleSelectItem = (id: string) => {
           <div
             class="bg-sidebar-b-1 z-1 flex flex-col gap-1.5 px-3 pb-1.5"
             :class="{ 'max-md:pt-12': layout !== 'modal' }">
-            <div class="flex items-center justify-between">
+            <div
+              v-if="layout !== 'web'"
+              class="flex items-center justify-between">
               <!-- Desktop gets the workspace menu here  -->
               <SidebarMenu
                 v-if="layout !== 'modal'"
@@ -147,15 +149,14 @@ const handleSelectItem = (id: string) => {
             </div>
 
             <ScalarSidebarSearchInput
-              v-if="isSearchVisible"
+              v-if="isSearchVisible || layout === 'web'"
               v-model="query"
-              autofocus />
+              :autofocus="layout !== 'web'" />
           </div>
         </template>
 
-        <!-- drag region (macos) -->
         <template #spacer>
-          <div class="mac:app-drag-region flex-1"></div>
+          <div class="flex-1"></div>
         </template>
 
         <template

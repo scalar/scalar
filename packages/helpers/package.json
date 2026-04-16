@@ -14,13 +14,13 @@
     "helpers",
     "js"
   ],
-  "version": "0.4.3",
+  "version": "0.5.0",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "test": "vitest",
+    "test": "vitest --run",
     "types:check": "tsc --noEmit"
   },
   "type": "module",
@@ -32,11 +32,6 @@
       "types": "./dist/array/*.d.ts",
       "default": "./dist/array/*.js"
     },
-    "./consts/*": {
-      "import": "./dist/consts/*.js",
-      "types": "./dist/consts/*.d.ts",
-      "default": "./dist/consts/*.js"
-    },
     "./crypto/*": {
       "import": "./dist/crypto/*.js",
       "types": "./dist/crypto/*.d.ts",
@@ -46,6 +41,11 @@
       "import": "./dist/dom/*.js",
       "types": "./dist/dom/*.d.ts",
       "default": "./dist/dom/*.js"
+    },
+    "./errors/*": {
+      "import": "./dist/errors/*.js",
+      "types": "./dist/errors/*.d.ts",
+      "default": "./dist/errors/*.js"
     },
     "./file/*": {
       "import": "./dist/file/*.js",
@@ -101,6 +101,11 @@
       "import": "./dist/testing/*.js",
       "types": "./dist/testing/*.d.ts",
       "default": "./dist/testing/*.js"
+    },
+    "./types/*": {
+      "import": "./dist/types/*.js",
+      "types": "./dist/types/*.d.ts",
+      "default": "./dist/types/*.js"
     },
     "./url/*": {
       "import": "./dist/url/*.js",

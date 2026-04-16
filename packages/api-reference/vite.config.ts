@@ -8,22 +8,13 @@ import {
   createExternalsFromPackageJson,
   createLibEntry,
   createPreserveModulesOutput,
+  findEntryPoints,
 } from '../../tooling/scripts/vite-lib-config'
 import { version } from './package.json'
 
 const external = createExternalsFromPackageJson()
-
-const entries = [
-  './src/index.ts',
-  './src/components/index.ts',
-  './src/blocks/index.ts',
-  './src/hooks/index.ts',
-  './src/plugins/index.ts',
-  './src/features/index.ts',
-  './src/helpers/index.ts',
-]
-
-const entry = createLibEntry(entries, import.meta.dirname)
+const entryPaths = await findEntryPoints()
+const entry = createLibEntry(entryPaths, import.meta.dirname)
 
 export default defineConfig({
   plugins: [vue(), tailwindcss()],

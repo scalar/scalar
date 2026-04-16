@@ -56,12 +56,12 @@ defineOptions({ inheritAttrs: false })
 <template>
   <DropdownMenu.Sub>
     <ScalarMenuLink
-      :is="DropdownMenu.SubTrigger"
       :icon="ScalarIconUserSwitch"
+      submenu
       v-bind="$attrs">
       <div>Change team</div>
       <ScalarIconCaretRight
-        class="ml-auto text-c-2 -mr-0.25 size-3"
+        class="ml-auto text-c-2 -mr-px size-3"
         weight="bold" />
     </ScalarMenuLink>
     <DropdownMenu.Portal>

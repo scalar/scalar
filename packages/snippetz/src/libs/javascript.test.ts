@@ -34,4 +34,18 @@ describe('objectToString', () => {
   bar: ['qux', 'quux']
 }`)
   })
+
+  it('quotes object keys that are not valid identifiers', () => {
+    expect(
+      objectToString({
+        "it's": 'fine',
+        'content-type': 'application/json',
+        'with space': 'ok',
+      }),
+    ).toBe(`{
+  'it\\'s': 'fine',
+  'content-type': 'application/json',
+  'with space': 'ok'
+}`)
+  })
 })

@@ -4,7 +4,7 @@
   "description": "Scalar OSS Scripts. Packaged for easy dependency installation.",
   "scripts": {
     "start": "tsx src/cli.ts",
-    "test": "vitest ."
+    "test": "vitest --run ."
   },
   "type": "module",
   "keywords": [],

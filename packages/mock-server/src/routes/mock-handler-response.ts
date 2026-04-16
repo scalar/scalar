@@ -1,5 +1,5 @@
-import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 import type { StatusCode } from 'hono/utils/http-status'

@@ -11,13 +11,13 @@
     "directory": "packages/core"
   },
   "keywords": [],
-  "version": "0.5.0",
+  "version": "0.5.1",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "test": "vitest",
+    "test": "vitest --run",
     "types:check": "tsc --noEmit"
   },
   "type": "module",

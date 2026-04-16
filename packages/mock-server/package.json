@@ -16,13 +16,13 @@
     "swagger",
     "cli"
   ],
-  "version": "0.9.19",
+  "version": "0.10.0",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "test": "vitest",
+    "test": "vitest --run",
     "types:check": "tsc --noEmit"
   },
   "type": "module",
@@ -56,13 +56,13 @@
     "documentation": "https://scalar.com/tools/mock-server/getting-started"
   },
   "dependencies": {
-    "@faker-js/faker": "^10.4.0",
+    "@faker-js/faker": "catalog:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
-    "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/openapi-upgrader": "workspace:*",
+    "@scalar/workspace-store": "workspace:*",
     "hono": "catalog:*"
   },
   "devDependencies": {

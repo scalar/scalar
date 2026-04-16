@@ -12,7 +12,7 @@ const mockFiles = ref<FileList | null>(null)
 const mockOpen = vi.fn()
 let fileDialogOnChange: ((files: FileList | null) => void) | undefined
 
-vi.mock('@/hooks', () => ({
+vi.mock('@/hooks/use-file-dialog', () => ({
   useFileDialog: vi.fn((options) => {
     fileDialogOnChange = options?.onChange
     return {
@@ -45,6 +45,21 @@ const defaultEnvironment: XScalarEnvironment = {
   description: 'Test Environment',
 }
 
+const mountRequestBodyForm = ({
+  example,
+  selectedContentType = 'multipart/form-data',
+}: {
+  example: ExampleObject | null | undefined
+  selectedContentType?: string
+}) =>
+  mount(RequestBodyForm, {
+    props: {
+      example,
+      selectedContentType,
+      environment: defaultEnvironment,
+    },
+  })
+
 describe('RequestBodyForm', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -60,22 +75,7 @@ describe('RequestBodyForm', () => {
       },
     }
 
-    const wrapper = mount(RequestBodyForm, {
-      props: {
-        example,
-        selectedContentType: 'multipart/form-data',
-        environment: defaultEnvironment,
-      },
-      global: {
-        stubs: {
-          RequestTable: {
-            template: '<div data-testid="request-table"></div>',
-            props: ['data', 'environment', 'showUploadButton'],
-            emits: ['upsertRow', 'deleteRow', 'removeFile', 'uploadFile'],
-          },
-        },
-      },
-    })
+    const wrapper = mountRequestBodyForm({ example })
 
     await nextTick()
 
@@ -130,22 +130,7 @@ describe('RequestBodyForm', () => {
       },
     }
 
-    const wrapper = mount(RequestBodyForm, {
-      props: {
-        example,
-        selectedContentType: 'multipart/form-data',
-        environment: defaultEnvironment,
-      },
-      global: {
-        stubs: {
-          RequestTable: {
-            template: '<div data-testid="request-table"></div>',
-            props: ['data', 'environment', 'showUploadButton'],
-            emits: ['upsertRow', 'deleteRow', 'removeFile', 'uploadFile'],
-          },
-        },
-      },
-    })
+    const wrapper = mountRequestBodyForm({ example })
 
     await nextTick()
 
@@ -207,22 +192,7 @@ describe('RequestBodyForm', () => {
       value: [{ name: 'field1', value: 'value1', isDisabled: false }],
     }
 
-    const wrapper = mount(RequestBodyForm, {
-      props: {
-        example,
-        selectedContentType: 'multipart/form-data',
-        environment: defaultEnvironment,
-      },
-      global: {
-        stubs: {
-          RequestTable: {
-            template: '<div data-testid="request-table"></div>',
-            props: ['data', 'environment', 'showUploadButton'],
-            emits: ['upsertRow', 'deleteRow', 'removeFile', 'uploadFile'],
-          },
-        },
-      },
-    })
+    const wrapper = mountRequestBodyForm({ example })
 
     await nextTick()
 
@@ -322,22 +292,7 @@ describe('RequestBodyForm', () => {
     }
 
     // Test multipart/form-data
-    const multipartWrapper = mount(RequestBodyForm, {
-      props: {
-        example,
-        selectedContentType: 'multipart/form-data',
-        environment: defaultEnvironment,
-      },
-      global: {
-        stubs: {
-          RequestTable: {
-            template: '<div data-testid="request-table"></div>',
-            props: ['data', 'environment', 'showUploadButton'],
-            emits: ['upsertRow', 'deleteRow', 'removeFile', 'uploadFile'],
-          },
-        },
-      },
-    })
+    const multipartWrapper = mountRequestBodyForm({ example })
 
     await nextTick()
 
@@ -349,28 +304,16 @@ describe('RequestBodyForm', () => {
     expect(multipartTable.props('data')).toEqual([{ name: 'field1', value: 'value1', isDisabled: false }])
 
     // Test form-urlencoded
-    const urlEncodedWrapper = mount(RequestBodyForm, {
-      props: {
-        example,
-        selectedContentType: 'application/x-www-form-urlencoded',
-        environment: defaultEnvironment,
-      },
-      global: {
-        stubs: {
-          RequestTable: {
-            template: '<div data-testid="request-table"></div>',
-            props: ['data', 'environment', 'showUploadButton'],
-            emits: ['upsertRow', 'deleteRow'],
-          },
-        },
-      },
+    const urlEncodedWrapper = mountRequestBodyForm({
+      example,
+      selectedContentType: 'application/x-www-form-urlencoded',
     })
 
     await nextTick()
 
     const urlEncodedTable = urlEncodedWrapper.findComponent(RequestTable)
     expect(urlEncodedTable.exists()).toBe(true)
-    expect(urlEncodedTable.props('showUploadButton')).toBeUndefined()
+    expect(urlEncodedTable.props('showUploadButton')).toBe(false)
     expect(urlEncodedTable.props('environment')).toEqual(defaultEnvironment)
     expect(urlEncodedTable.props('data')).toEqual([{ name: 'field1', value: 'value1', isDisabled: false }])
 
@@ -394,22 +337,7 @@ describe('RequestBodyForm', () => {
       },
     }
 
-    const wrapper = mount(RequestBodyForm, {
-      props: {
-        example,
-        selectedContentType: 'multipart/form-data',
-        environment: defaultEnvironment,
-      },
-      global: {
-        stubs: {
-          RequestTable: {
-            template: '<div data-testid="request-table"></div>',
-            props: ['data', 'environment', 'showUploadButton'],
-            emits: ['upsertRow', 'deleteRow', 'removeFile', 'uploadFile'],
-          },
-        },
-      },
-    })
+    const wrapper = mountRequestBodyForm({ example })
 
     await nextTick()
 
@@ -439,21 +367,9 @@ describe('RequestBodyForm', () => {
       value: [],
     }
 
-    const wrapper = mount(RequestBodyForm, {
-      props: {
-        example,
-        selectedContentType: 'application/x-www-form-urlencoded',
-        environment: defaultEnvironment,
-      },
-      global: {
-        stubs: {
-          RequestTable: {
-            template: '<div data-testid="request-table"></div>',
-            props: ['data', 'environment', 'showUploadButton'],
-            emits: ['upsertRow', 'deleteRow'],
-          },
-        },
-      },
+    const wrapper = mountRequestBodyForm({
+      example,
+      selectedContentType: 'application/x-www-form-urlencoded',
     })
 
     await nextTick()
@@ -487,22 +403,7 @@ describe('RequestBodyForm', () => {
       },
     }
 
-    const wrapper = mount(RequestBodyForm, {
-      props: {
-        example,
-        selectedContentType: 'multipart/form-data',
-        environment: defaultEnvironment,
-      },
-      global: {
-        stubs: {
-          RequestTable: {
-            template: '<div data-testid="request-table"></div>',
-            props: ['data', 'environment', 'showUploadButton'],
-            emits: ['upsertRow', 'deleteRow', 'removeFile', 'uploadFile'],
-          },
-        },
-      },
-    })
+    const wrapper = mountRequestBodyForm({ example })
 
     await nextTick()
 

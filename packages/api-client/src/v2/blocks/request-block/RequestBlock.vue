@@ -33,7 +33,6 @@ import { computed, ref, useId, watch } from 'vue'
 
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
-import type { ClientLayout } from '@/hooks'
 import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample'
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
 import RequestCodeSnippet from '@/v2/blocks/request-block/components/RequestCodeSnippet.vue'
@@ -44,6 +43,8 @@ import { getParameterSchema } from '@/v2/blocks/request-block/helpers/get-parame
 import { groupBy } from '@/v2/blocks/request-block/helpers/group-by'
 import { isParamDisabled } from '@/v2/blocks/request-block/helpers/is-param-disabled'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
+import type { OAuth2Options } from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
+import type { ClientLayout } from '@/v2/types/layout'
 
 type Filter =
   | 'All'
@@ -76,6 +77,8 @@ export type RequestBlockProps = {
   selectedSecuritySchemes: SecuritySchemeObjectSecret[]
   server: ServerObject | null
   defaultHeaders: Record<string, string>
+  /**  Any config options required for the OAuth2 flow */
+  options?: OAuth2Options
 }
 
 const {
@@ -465,6 +468,7 @@ const updateOperationExtension = (
         :environment
         :eventBus
         :meta="authMeta"
+        :options
         :proxyUrl
         :securityRequirements
         :securitySchemes

@@ -1,20 +1,10 @@
 import { afterEach, beforeEach, expect, vi } from 'vitest'
-import { reactive, ref } from 'vue'
-
-import { useLayout } from '@/hooks/useLayout'
-import { useSidebar } from '@/hooks/useSidebar'
-
-// Mock the useLayout hook
-vi.mock('@/hooks/useLayout', () => ({
-  useLayout: vi.fn(),
-}))
 
 vi.mock('monaco-editor', () => ({
   editor: {
     create: vi.fn(),
   },
 }))
-export const mockUseLayout = useLayout
 
 // Prevent v2 editor from loading real monaco (workers and subpath imports fail in test env).
 vi.mock('@/v2/features/editor', () => ({
@@ -30,12 +20,6 @@ vi.mock('@/v2/features/editor', () => ({
   })),
   useJsonPointerLinkSupport: vi.fn(),
 }))
-
-// Mock the useSidebar hook
-vi.mock('@/hooks/useSidebar', () => ({
-  useSidebar: vi.fn(),
-}))
-export const mockUseSidebar = useSidebar
 
 /** Spy on console.warn */
 export const consoleWarnSpy = vi.spyOn(console, 'warn')
@@ -63,21 +47,7 @@ export const enableConsoleError = () => (isConsoleErrorEnabled = true)
 /** Helper to disable console error checks */
 export const disableConsoleError = () => (isConsoleErrorEnabled = false)
 
-// Set default values for the mocks
 beforeEach(() => {
-  vi.mocked(mockUseLayout).mockReturnValue({
-    layout: 'desktop',
-  })
-
-  vi.mocked(mockUseSidebar).mockReturnValue({
-    isSidebarOpen: ref(false),
-    collapsedSidebarFolders: reactive({}),
-    setCollapsedSidebarFolder: vi.fn(),
-    toggleSidebarFolder: vi.fn(),
-    toggleSidebarOpen: vi.fn(),
-    setSidebarOpen: vi.fn(),
-  })
-
   /**
    * Mock ResizeObserver which is used by @headlessui/vue Dialog component
    * but is not available in the test environment. If you need to test it you can set your own mock in the test file.

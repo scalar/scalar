@@ -40,6 +40,7 @@ import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-met
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-path'
 import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
+import { EditorView } from '@scalar/use-codemirror'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type {
   ApiReferenceEvents,
@@ -63,10 +64,10 @@ import {
 } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
-import { type ClientLayout } from '@/hooks'
 import { useLoadingAnimation } from '@/v2/blocks/scalar-address-bar-block/hooks/use-loading-animation'
 import { CodeInput } from '@/v2/components/code-input'
 import { ServerDropdown } from '@/v2/components/server'
+import type { ClientLayout } from '@/v2/types/layout'
 
 import AddressBarHistory, { type History } from './AddressBarHistory.vue'
 
@@ -97,6 +98,11 @@ const { percentage, startLoading, stopLoading, isLoading } =
 const style = computed(() => ({
   backgroundColor: `color-mix(in srgb, transparent 90%, ${REQUEST_METHODS[method].colorVar})`,
   transform: `translate3d(-${percentage.value}%,0,0)`,
+}))
+
+/** Keeps the cursor visible past the fade-right overlay while typing */
+const addressBarScrollMargins = EditorView.scrollMargins.of(() => ({
+  right: 24,
 }))
 
 const pathConflict = ref<string | null>(null)
@@ -412,6 +418,7 @@ defineExpose({
           disableTabIndent
           :emitOnBlur="false"
           :environment="environment"
+          :extensions="[addressBarScrollMargins]"
           importCurl
           :layout="layout"
           :modelValue="path"

@@ -17,13 +17,13 @@
     "parser",
     "typescript"
   ],
-  "version": "0.25.8",
+  "version": "0.25.9",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "test": "NODE_OPTIONS=--max_old_space_size=8192 vitest",
+    "test": "NODE_OPTIONS=--max_old_space_size=8192 vitest --run",
     "types:check": "tsc --noEmit"
   },
   "type": "module",
