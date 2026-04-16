@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { generateBodyScript, getJsAsset, renderApiReference, renderApiReferenceToString } from './ssr'
 
@@ -275,6 +275,33 @@ describe('ssr', () => {
   describe('getJsAsset', () => {
     it('is a function', () => {
       expect(typeof getJsAsset).toBe('function')
+    })
+
+    it('throws when api-reference package.json has no browser entry', async () => {
+      vi.resetModules()
+      vi.doMock('node:module', () => ({
+        createRequire: () => ({
+          resolve: () => '/tmp/mock-api-reference/dist/index.js',
+        }),
+      }))
+      vi.doMock('node:fs', async () => {
+        const actual = await vi.importActual<typeof import('node:fs')>('node:fs')
+        return {
+          ...actual,
+          readFileSync: ((
+            path: string,
+            options?: BufferEncoding | { encoding?: BufferEncoding | null; flag?: string },
+          ) => {
+            if (path.endsWith('/tmp/mock-api-reference/package.json')) {
+              return JSON.stringify({ name: '@scalar/api-reference' })
+            }
+            return actual.readFileSync(path, options as never)
+          }) as typeof actual.readFileSync,
+        }
+      })
+
+      const { getJsAsset: getJsAssetUnderTest } = await import('./ssr')
+      expect(() => getJsAssetUnderTest()).toThrow('Expected a string "browser" field in package.json.')
     })
   })
 })

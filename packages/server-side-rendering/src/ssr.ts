@@ -1,5 +1,6 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
+import { dirname, resolve } from 'node:path'
 
 import { ApiReference } from '@scalar/api-reference'
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
@@ -126,7 +127,28 @@ function getDefaultCss(): string {
  */
 export function getJsAsset(): string {
   if (_cachedJs === undefined) {
-    const jsPath = require.resolve('@scalar/api-reference/browser/standalone.js')
+    const apiReferenceEntryPath = require.resolve('@scalar/api-reference')
+    const apiReferencePackageRoot = resolve(dirname(apiReferenceEntryPath), '..')
+    const apiReferencePackageJsonPath = resolve(apiReferencePackageRoot, 'package.json')
+    const apiReferencePackageJson = JSON.parse(readFileSync(apiReferencePackageJsonPath, 'utf-8')) as {
+      browser?: unknown
+    }
+
+    if (typeof apiReferencePackageJson.browser !== 'string' || apiReferencePackageJson.browser.length === 0) {
+      throw new Error(
+        `Could not resolve @scalar/api-reference browser entry from "${apiReferencePackageJsonPath}". ` +
+          'Expected a string "browser" field in package.json.',
+      )
+    }
+
+    const jsPath = resolve(apiReferencePackageRoot, apiReferencePackageJson.browser)
+
+    if (!existsSync(jsPath)) {
+      throw new Error(
+        `Could not locate @scalar/api-reference standalone bundle at "${jsPath}". Run the package build before reading SSR assets.`,
+      )
+    }
+
     _cachedJs = readFileSync(jsPath, 'utf-8')
   }
   return _cachedJs
