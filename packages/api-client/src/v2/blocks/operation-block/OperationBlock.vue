@@ -163,6 +163,7 @@ const {
   securitySchemes,
   selectedClient,
   server,
+  layout,
   environments,
   options,
   activeEnvironment,
@@ -182,6 +183,60 @@ const { toast } = useToasts()
 const abortController = ref<AbortController | null>(null)
 const response = ref<ResponseInstance | null>(null)
 const request = ref<Request | null>(null)
+
+const modalResizeContainer = ref<HTMLElement>()
+const modalRequestPaneWidth = ref(50)
+
+const MIN_MODAL_REQUEST_PANE_WIDTH = 20
+const MAX_MODAL_REQUEST_PANE_WIDTH = 80
+
+let activeModalResizeCleanup: (() => void) | undefined
+
+const stopModalResize = (): void => {
+  activeModalResizeCleanup?.()
+  activeModalResizeCleanup = undefined
+}
+
+const startModalResize = (event: PointerEvent): void => {
+  const container = modalResizeContainer.value
+
+  if (layout !== 'modal' || !container) {
+    return
+  }
+
+  event.preventDefault()
+  stopModalResize()
+
+  const body = window.document.body
+  const previousUserSelect = body.style.userSelect
+  const previousCursor = body.style.cursor
+
+  body.style.userSelect = 'none'
+  body.style.cursor = 'col-resize'
+
+  const onPointerMove = (moveEvent: PointerEvent): void => {
+    const rect = container.getBoundingClientRect()
+    const ratio = ((moveEvent.clientX - rect.left) / rect.width) * 100
+    modalRequestPaneWidth.value = Math.min(
+      MAX_MODAL_REQUEST_PANE_WIDTH,
+      Math.max(MIN_MODAL_REQUEST_PANE_WIDTH, ratio),
+    )
+  }
+
+  const onPointerUp = (): void => {
+    stopModalResize()
+  }
+
+  window.addEventListener('pointermove', onPointerMove)
+  window.addEventListener('pointerup', onPointerUp, { once: true })
+
+  activeModalResizeCleanup = () => {
+    window.removeEventListener('pointermove', onPointerMove)
+    window.removeEventListener('pointerup', onPointerUp)
+    body.style.userSelect = previousUserSelect
+    body.style.cursor = previousCursor
+  }
+}
 
 /** Cancel the request */
 const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
@@ -432,6 +487,7 @@ watch(
 onBeforeUnmount(() => {
   // We cancel the request if the component is unmounted
   cancelRequest()
+  stopModalResize()
 })
 </script>
 <template>
@@ -461,41 +517,156 @@ onBeforeUnmount(() => {
 
     <ViewLayout class="border-t">
       <ViewLayoutContent class="flex-1">
-        <!-- Request Section -->
-        <RequestBlock
-          :authMeta
-          :clientOptions
-          :defaultHeaders
-          :documentCookies
-          :environment
-          :eventBus
-          :exampleKey
-          :layout
-          :method
-          :operation
-          :options="toValue(options)"
-          :path
-          :plugins
-          :proxyUrl
-          :requestBodyCompositionSelection
-          :securityRequirements
-          :securitySchemes
-          :selectedClient
-          :selectedSecurity
-          :selectedSecuritySchemes
-          :server
-          :workspaceCookies />
+        <template v-if="layout === 'modal'">
+          <div
+            ref="modalResizeContainer"
+            class="modal-resize-content"
+            :style="{
+              '--scalar-modal-request-width': `${modalRequestPaneWidth}%`,
+            }">
+            <div class="modal-resize-pane modal-resize-pane-request">
+              <RequestBlock
+                :authMeta
+                :clientOptions
+                :defaultHeaders
+                :documentCookies
+                :environment
+                :eventBus
+                :exampleKey
+                :layout
+                :method
+                :operation
+                :options="toValue(options)"
+                :path
+                :plugins
+                :proxyUrl
+                :requestBodyCompositionSelection
+                :securityRequirements
+                :securitySchemes
+                :selectedClient
+                :selectedSecurity
+                :selectedSecuritySchemes
+                :server
+                :workspaceCookies />
+            </div>
 
-        <!-- Response Section -->
-        <ResponseBlock
-          :appVersion
-          :eventBus
-          :layout
-          :plugins
-          :request
-          :response
-          :totalPerformedRequests="operationHistory.length" />
+            <button
+              aria-label="Resize request and response panels"
+              class="modal-resize-handle"
+              type="button"
+              @pointerdown="startModalResize" />
+
+            <div class="modal-resize-pane modal-resize-pane-response">
+              <ResponseBlock
+                :appVersion
+                :eventBus
+                :layout
+                :plugins
+                :request
+                :response
+                :totalPerformedRequests="operationHistory.length" />
+            </div>
+          </div>
+        </template>
+        <template v-else>
+          <!-- Request Section -->
+          <RequestBlock
+            :authMeta
+            :clientOptions
+            :defaultHeaders
+            :documentCookies
+            :environment
+            :eventBus
+            :exampleKey
+            :layout
+            :method
+            :operation
+            :options="toValue(options)"
+            :path
+            :plugins
+            :proxyUrl
+            :requestBodyCompositionSelection
+            :securityRequirements
+            :securitySchemes
+            :selectedClient
+            :selectedSecurity
+            :selectedSecuritySchemes
+            :server
+            :workspaceCookies />
+
+          <!-- Response Section -->
+          <ResponseBlock
+            :appVersion
+            :eventBus
+            :layout
+            :plugins
+            :request
+            :response
+            :totalPerformedRequests="operationHistory.length" />
+        </template>
       </ViewLayoutContent>
     </ViewLayout>
   </div>
 </template>
+
+<style scoped>
+.modal-resize-content {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.modal-resize-pane {
+  min-height: 0;
+  min-width: 0;
+}
+
+.modal-resize-handle {
+  display: none;
+}
+
+@media (min-width: 1280px) {
+  .modal-resize-content {
+    flex-direction: row;
+  }
+
+  .modal-resize-pane {
+    height: 100%;
+  }
+
+  .modal-resize-pane-request {
+    width: var(--scalar-modal-request-width);
+  }
+
+  .modal-resize-pane-response {
+    width: calc(100% - var(--scalar-modal-request-width));
+  }
+
+  .modal-resize-handle {
+    position: relative;
+    display: block;
+    width: 0.5rem;
+    flex-shrink: 0;
+    border: 0;
+    background: transparent;
+    cursor: col-resize;
+    touch-action: none;
+  }
+
+  .modal-resize-handle::before {
+    content: '';
+    position: absolute;
+    inset: 0.125rem 0.125rem;
+    border-radius: 999px;
+    background: var(--scalar-border-color);
+    opacity: 0.45;
+    transition: opacity 0.12s ease;
+  }
+
+  .modal-resize-handle:hover::before,
+  .modal-resize-handle:focus-visible::before {
+    opacity: 1;
+  }
+}
+</style>
