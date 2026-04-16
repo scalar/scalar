@@ -421,7 +421,7 @@ importers:
         version: 7.2.2
       ts-jest:
         specifier: ^29.1.0
-        version: 29.1.4(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(esbuild@0.27.2)(jest@29.7.0(@types/node@24.10.13)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@24.10.13)(typescript@5.9.3)))(typescript@5.9.3)
+        version: 29.1.4(@babel/core@7.28.6)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.6))(esbuild@0.27.2)(jest@29.7.0(@types/node@24.10.13)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@24.10.13)(typescript@5.9.3)))(typescript@5.9.3)
       ts-loader:
         specifier: ^9.4.3
         version: 9.5.1(typescript@5.9.3)(webpack@5.103.0(@swc/core@1.5.29(@swc/helpers@0.5.15))(esbuild@0.27.2))
@@ -494,7 +494,7 @@ importers:
         version: 7.2.2
       ts-jest:
         specifier: ^29.1.0
-        version: 29.1.4(@babel/core@7.28.6)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.28.6))(esbuild@0.27.2)(jest@29.7.0(@types/node@24.10.13)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@24.10.13)(typescript@5.9.3)))(typescript@5.9.3)
+        version: 29.1.4(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(esbuild@0.27.2)(jest@29.7.0(@types/node@24.10.13)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@24.10.13)(typescript@5.9.3)))(typescript@5.9.3)
       ts-loader:
         specifier: ^9.4.3
         version: 9.5.1(typescript@5.9.3)(webpack@5.103.0(@swc/core@1.5.29(@swc/helpers@0.5.15))(esbuild@0.27.2))
@@ -741,9 +741,12 @@ importers:
 
   integrations/astro:
     dependencies:
-      '@scalar/core':
+      '@scalar/client-side-rendering':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../../packages/client-side-rendering
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../../packages/types
     devDependencies:
       astro:
         specifier: ^4.0.0 || ^5.0.0
@@ -852,9 +855,12 @@ importers:
 
   integrations/express:
     dependencies:
-      '@scalar/core':
+      '@scalar/client-side-rendering':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../../packages/client-side-rendering
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../../packages/types
     devDependencies:
       '@types/express':
         specifier: catalog:*
@@ -885,15 +891,18 @@ importers:
 
   integrations/fastify:
     dependencies:
-      '@scalar/core':
+      '@scalar/client-side-rendering':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../../packages/client-side-rendering
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../../packages/openapi-parser
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../../packages/openapi-types
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       fastify-plugin:
         specifier: catalog:*
         version: 4.5.1
@@ -928,9 +937,12 @@ importers:
 
   integrations/hono:
     dependencies:
-      '@scalar/core':
+      '@scalar/client-side-rendering':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../../packages/client-side-rendering
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../../packages/types
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
@@ -963,9 +975,12 @@ importers:
 
   integrations/nestjs:
     dependencies:
-      '@scalar/core':
+      '@scalar/client-side-rendering':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../../packages/client-side-rendering
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../../packages/types
     devDependencies:
       '@nestjs/common':
         specifier: catalog:*
@@ -1006,9 +1021,12 @@ importers:
 
   integrations/nextjs:
     dependencies:
-      '@scalar/core':
+      '@scalar/client-side-rendering':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../../packages/client-side-rendering
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../../packages/types
     devDependencies:
       '@types/node':
         specifier: ^24.1.0
@@ -1082,9 +1100,12 @@ importers:
 
   integrations/sveltekit:
     dependencies:
-      '@scalar/core':
+      '@scalar/client-side-rendering':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../../packages/client-side-rendering
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../../packages/types
     devDependencies:
       '@sveltejs/kit':
         specifier: ^2.57.1
