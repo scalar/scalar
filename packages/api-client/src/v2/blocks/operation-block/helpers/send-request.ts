@@ -3,7 +3,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
 import { normalizeHeaders } from '@scalar/helpers/http/normalize-headers'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
-import type { ClientPlugin, ResponseBodyHandler } from '@scalar/oas-utils/helpers'
+import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import cookie from 'cookie'
 import { parseSetCookie } from 'set-cookie-parser'
 
@@ -253,9 +253,9 @@ const buildStandardResponse = async ({
   const clonedResponse = response.clone()
   const arrayBuffer = await clonedResponse.arrayBuffer()
   const responseType = contentType ?? 'text/plain;charset=UTF-8'
-    const mimeEssence = parseMimeType(responseType).essence
-    const pluginHandler = resolveResponseBodyHandler(mimeEssence, plugins)
-    const responseData = await decodeBuffer(arrayBuffer, responseType, pluginHandler)
+  const mimeEssence = parseMimeType(responseType).essence
+  const pluginHandler = resolveResponseBodyHandler(mimeEssence, plugins)
+  const responseData = await decodeBuffer(arrayBuffer, responseType, pluginHandler)
 
   /**
    * Create a new Response using the arrayBuffer we already read.

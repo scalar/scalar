@@ -8,10 +8,7 @@ import type { ClientPlugin, ResponseBodyHandler } from '@scalar/oas-utils/helper
  * - Exact match: "application/msgpack"
  * - Suffix wildcard: "application/vnd.*+json" matches "application/vnd.api+json"
  */
-export function resolveResponseBodyHandler(
-  mimeType: string,
-  plugins: ClientPlugin[],
-): ResponseBodyHandler | undefined {
+export function resolveResponseBodyHandler(mimeType: string, plugins: ClientPlugin[]): ResponseBodyHandler | undefined {
   for (const plugin of plugins) {
     if (!plugin.responseBody) continue
 
@@ -37,9 +34,7 @@ function matchesMimeType(actual: string, patterns: string[]): boolean {
 
     // Wildcard matching: "application/*" matches "application/json"
     if (normalizedPattern.includes('*')) {
-      const escaped = normalizedPattern
-        .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
-        .replace(/\*/g, '.*')
+      const escaped = normalizedPattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*')
       const regex = new RegExp(`^${escaped}$`)
       if (regex.test(normalized)) {
         return true

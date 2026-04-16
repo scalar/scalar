@@ -46,11 +46,7 @@ describe('decode-buffer', () => {
       decode: (buf) => `decoded:${new Uint8Array(buf).join(',')}`,
     }
 
-    const result = await decodeBuffer(
-      binaryData.buffer,
-      'application/custom',
-      handler,
-    )
+    const result = await decodeBuffer(binaryData.buffer, 'application/custom', handler)
 
     expect(result).toBe('decoded:1,2,3')
   })
@@ -66,11 +62,7 @@ describe('decode-buffer', () => {
       },
     }
 
-    const result = await decodeBuffer(
-      buffer.buffer,
-      'application/custom',
-      handler,
-    )
+    const result = await decodeBuffer(buffer.buffer, 'application/custom', handler)
 
     expect(result).toBe(`custom:${jsonData}`)
   })

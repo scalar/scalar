@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
+import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 import { computed, ref } from 'vue'
 
 import { getMediaTypeConfig } from '@/v2/blocks/response-block/helpers/media-types'
@@ -13,7 +14,11 @@ import ResponseBodyPreview from './ResponseBodyPreview.vue'
 import ResponseBodyRaw from './ResponseBodyRaw.vue'
 import ResponseBodyToggle from './ResponseBodyToggle.vue'
 
-const { data, headers, plugins = [] } = defineProps<{
+const {
+  data,
+  headers,
+  plugins = [],
+} = defineProps<{
   title: string
   layout: 'client' | 'reference'
   data: unknown
@@ -40,7 +45,10 @@ const pluginHandler = computed(() =>
 )
 
 const hasRaw = computed(
-  () => !!pluginHandler.value?.rawComponent || !!pluginHandler.value?.decode || !!mediaConfig.value?.raw,
+  () =>
+    !!pluginHandler.value?.rawComponent ||
+    !!pluginHandler.value?.decode ||
+    !!mediaConfig.value?.raw,
 )
 
 const hasPreview = computed(
@@ -86,28 +94,28 @@ const rawLanguage = computed(
       <component
         :is="pluginHandler.rawComponent"
         v-if="pluginHandler?.rawComponent && hasRaw && showRaw"
-        :key="responseBody.dataUrl"
+        :key="`plugin-raw-${responseBody.dataUrl}`"
         :content="data"
         :contentType="mimeEssence" />
       <!-- Default raw renderer (used when plugin provides decode but no custom component) -->
       <ResponseBodyRaw
         v-else-if="hasRaw && showRaw"
-        :key="responseBody.dataUrl"
+        :key="`raw-${responseBody.dataUrl}`"
         :content="data"
-        :language="rawLanguage" />
+        :language="rawLanguage as CodeMirrorLanguage" />
 
       <!-- Plugin custom preview component -->
       <component
         :is="pluginHandler.previewComponent"
         v-if="pluginHandler?.previewComponent && hasPreview && showPreview"
-        :key="responseBody.dataUrl"
+        :key="`plugin-preview-${responseBody.dataUrl}`"
         :content="data"
         :contentType="mimeEssence"
         :dataUrl="responseBody.dataUrl" />
       <!-- Default preview renderer -->
       <ResponseBodyPreview
         v-else-if="mediaConfig?.preview && showPreview"
-        :key="responseBody.dataUrl"
+        :key="`preview-${responseBody.dataUrl}`"
         :alpha="mediaConfig.alpha"
         :mode="mediaConfig.preview"
         :src="responseBody.dataUrl"

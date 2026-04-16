@@ -18,9 +18,7 @@ describe('resolveResponseBodyHandler', () => {
       decode: (buf) => new TextDecoder().decode(buf),
     })
 
-    expect(
-      resolveResponseBodyHandler('application/json', [plugin]),
-    ).toBeUndefined()
+    expect(resolveResponseBodyHandler('application/json', [plugin])).toBeUndefined()
   })
 
   it('matches an exact MIME type', () => {
@@ -30,9 +28,7 @@ describe('resolveResponseBodyHandler', () => {
     }
     const plugin = makePlugin(handler)
 
-    expect(
-      resolveResponseBodyHandler('application/msgpack', [plugin]),
-    ).toBe(handler)
+    expect(resolveResponseBodyHandler('application/msgpack', [plugin])).toBe(handler)
   })
 
   it('matches case-insensitively', () => {
@@ -42,9 +38,7 @@ describe('resolveResponseBodyHandler', () => {
     }
     const plugin = makePlugin(handler)
 
-    expect(
-      resolveResponseBodyHandler('application/msgpack', [plugin]),
-    ).toBe(handler)
+    expect(resolveResponseBodyHandler('application/msgpack', [plugin])).toBe(handler)
   })
 
   it('matches wildcard patterns', () => {
@@ -54,9 +48,7 @@ describe('resolveResponseBodyHandler', () => {
     }
     const plugin = makePlugin(handler)
 
-    expect(
-      resolveResponseBodyHandler('application/vnd.api+json', [plugin]),
-    ).toBe(handler)
+    expect(resolveResponseBodyHandler('application/vnd.api+json', [plugin])).toBe(handler)
   })
 
   it('returns the first matching handler across plugins', () => {
@@ -69,10 +61,7 @@ describe('resolveResponseBodyHandler', () => {
       decode: () => 'second',
     }
 
-    const result = resolveResponseBodyHandler('application/msgpack', [
-      makePlugin(handler1),
-      makePlugin(handler2),
-    ])
+    const result = resolveResponseBodyHandler('application/msgpack', [makePlugin(handler1), makePlugin(handler2)])
 
     expect(result).toBe(handler1)
   })
@@ -88,10 +77,7 @@ describe('resolveResponseBodyHandler', () => {
       decode: (buf) => new TextDecoder().decode(buf),
     }
 
-    const result = resolveResponseBodyHandler('application/msgpack', [
-      pluginWithoutHandler,
-      makePlugin(handler),
-    ])
+    const result = resolveResponseBodyHandler('application/msgpack', [pluginWithoutHandler, makePlugin(handler)])
 
     expect(result).toBe(handler)
   })
@@ -103,8 +89,6 @@ describe('resolveResponseBodyHandler', () => {
     }
     const plugin = makePlugin(handler)
 
-    expect(
-      resolveResponseBodyHandler('application/x-msgpack', [plugin]),
-    ).toBe(handler)
+    expect(resolveResponseBodyHandler('application/x-msgpack', [plugin])).toBe(handler)
   })
 })
