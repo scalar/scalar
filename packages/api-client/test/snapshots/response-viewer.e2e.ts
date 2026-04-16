@@ -13,12 +13,6 @@ test.describe('Response Viewer', () => {
     // Wait for the client to load
     await expect(page.locator('#scalar-client')).toBeVisible()
 
-    // Look for the response section
-    const responseSection = page
-      .locator('[class*="response"]')
-      .or(page.getByText(/response/i))
-      .first()
-
     // Wait a bit for the UI to settle
     await page.waitForTimeout(1000)
 
