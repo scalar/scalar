@@ -50,29 +50,11 @@ export default defineNuxtModule<ModuleOptions>({
     _nuxt.options.imports.transform.exclude.push(/scalar/)
 
     /**
-     * Ensure problematic transitive dependencies are pre-bundled in dev mode.
-     * Some dependencies still expose CommonJS entry points, which can otherwise
-     * trigger "doesn't provide an export named 'default'" in browser ESM.
+     * Vite's automatic dependency discovery handles CJS dependencies correctly.
+     * The previous optimizeDeps.include configuration is no longer needed.
      */
-    _nuxt.options.vite ||= {}
-    _nuxt.options.vite.optimizeDeps ||= {}
-    _nuxt.options.vite.optimizeDeps.include ||= []
-    _nuxt.options.vite.optimizeDeps.include.push(
-      '@scalar/nuxt > @scalar/api-reference',
-      '@scalar/nuxt > jsonpointer',
-      '@scalar/nuxt > ajv-draft-04',
-      '@scalar/nuxt > ajv-formats',
-      '@scalar/nuxt > ajv',
-      '@scalar/nuxt > ajv-draft-04 > ajv',
-      '@scalar/nuxt > ajv-formats > ajv',
-      '@scalar/nuxt > whatwg-mimetype',
-      '@scalar/nuxt > @scalar/openapi-parser',
-      '@scalar/nuxt > debug',
-      '@scalar/nuxt > extend',
-      '@scalar/nuxt > highlight.js',
-    )
 
-    // Ensure proper handling of CommonJS modules
+    // Ensure proper handling of CommonJS modules for SSR
     _nuxt.options.vite.ssr ||= {}
     if (Array.isArray(_nuxt.options.vite.ssr.noExternal)) {
       _nuxt.options.vite.ssr.noExternal.push('ajv-draft-04', 'ajv-formats', 'ajv', 'jsonpointer', 'whatwg-mimetype')
