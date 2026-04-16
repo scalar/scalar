@@ -361,6 +361,7 @@ describe('OAuth2', () => {
         authorizationCode: {
           authorizationUrl: 'https://example.com/auth-v1',
           tokenUrl: 'https://example.com/token-v1',
+          refreshUrl: '',
           'x-scalar-secret-token': '',
           'x-usePkce': 'no',
           'x-scalar-secret-redirect-uri': '',
@@ -379,6 +380,7 @@ describe('OAuth2', () => {
         authorizationCode: {
           authorizationUrl: 'https://example.com/auth-v2',
           tokenUrl: 'https://example.com/token-v2',
+          refreshUrl: '',
           'x-scalar-secret-token': '',
           'x-usePkce': 'no',
           'x-scalar-secret-redirect-uri': '',
