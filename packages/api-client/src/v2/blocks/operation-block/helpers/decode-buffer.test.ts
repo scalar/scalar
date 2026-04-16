@@ -56,7 +56,7 @@ describe('decode-buffer', () => {
     const buffer = new TextEncoder().encode(jsonData)
     const handler: ResponseBodyHandler = {
       mimeTypes: ['application/custom'],
-      decode: async (buf) => {
+      decode: (buf) => {
         const text = new TextDecoder().decode(buf)
         return `custom:${text}`
       },
