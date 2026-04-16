@@ -2,7 +2,7 @@ import type { HarRequest, PluginConfiguration } from '@scalar/types/snippetz'
 
 import { accumulateRepeatedValue, reduceQueryParams } from '@/libs/http'
 
-const LENGTH_CONSIDERED_AS_SHORT = 40
+export const LENGTH_CONSIDERED_AS_SHORT = 40
 
 // Function to convert JavaScript boolean and null values to Python equivalents
 function convertToPythonSyntax(str: string): string {
@@ -22,6 +22,15 @@ function convertToPythonSyntax(str: string): string {
   }
 
   return result
+}
+
+export function formatPythonValue(value: unknown, indentation = 4): string {
+  return convertToPythonSyntax(
+    JSON.stringify(value, null, 2)
+      .split('\n')
+      .map((line, index) => (index === 0 ? line : ' '.repeat(indentation) + line))
+      .join('\n'),
+  )
 }
 
 export function requestsLikeGenerate(
@@ -149,23 +158,13 @@ export function requestsLikeGenerate(
       const filesStr = '[\n' + filesTuples.join(',\n') + '\n    ]'
       formattedParams.push(`${key}=${filesStr}`)
     } else if (key === 'json') {
-      const jsonString = convertToPythonSyntax(
-        JSON.stringify(value, null, 2)
-          .split('\n')
-          .map((line, i) => (i === 0 ? line : '    ' + line))
-          .join('\n'),
-      )
+      const jsonString = formatPythonValue(value)
       formattedParams.push(`${key}=${jsonString}`)
     } else if (key === 'data' && normalizedRequest.postData?.mimeType === 'application/octet-stream') {
       // Special handling for binary data
       formattedParams.push(`${key}=b"${value}"`)
     } else {
-      const str = convertToPythonSyntax(
-        JSON.stringify(value, null, 2)
-          .split('\n')
-          .map((line, i) => (i === 0 ? line : '    ' + line))
-          .join('\n'),
-      )
+      const str = formatPythonValue(value)
       formattedParams.push(`${key}=${str}`)
     }
   }

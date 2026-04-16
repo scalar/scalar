@@ -196,7 +196,12 @@ public class ScalarOptionsMapperTests
         hiddenClients.Should().ContainKey(ScalarTarget.CSharp)
             .WhoseValue.Should().ContainSingle().Which.Should().Be(ScalarClient.RestSharp);
         hiddenClients.Should().ContainKey(ScalarTarget.Python)
-            .WhoseValue.Should().BeEquivalentTo([ScalarClient.Requests, ScalarClient.HttpxSync, ScalarClient.HttpxAsync]);
+            .WhoseValue.Should().BeEquivalentTo([
+                ScalarClient.AioHttp,
+                ScalarClient.Requests,
+                ScalarClient.HttpxSync,
+                ScalarClient.HttpxAsync,
+            ]);
     }
 
     [Fact]

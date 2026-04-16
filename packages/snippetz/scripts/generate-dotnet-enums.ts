@@ -37,6 +37,7 @@ const CUSTOM_PASCAL_CASE_MAPPINGS: Record<string, string> = {
   'cohttp': 'CoHttp',
   'webrequest': 'WebRequest',
   'restmethod': 'RestMethod',
+  'aiohttp': 'AioHttp',
   'httpx_sync': 'HttpxSync',
   'httpx_async': 'HttpxAsync',
 

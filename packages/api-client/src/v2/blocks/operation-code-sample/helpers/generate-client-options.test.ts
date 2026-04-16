@@ -55,11 +55,11 @@ describe('generateClientOptions', () => {
       })
     })
 
-    it('returns 40 total client options', () => {
+    it('returns 41 total client options', () => {
       const result = generateClientOptions(AVAILABLE_CLIENTS)
       const allOptions = result.flatMap((group) => group.options)
 
-      expect(allOptions).toHaveLength(40)
+      expect(allOptions).toHaveLength(41)
     })
   })
 
@@ -160,12 +160,13 @@ describe('generateClientOptions', () => {
     })
 
     it('formats titles correctly', () => {
-      const result = generateClientOptions(['js/fetch', 'python/requests', 'node/axios'])
+      const result = generateClientOptions(['js/fetch', 'python/requests', 'python/aiohttp', 'node/axios'])
 
       const allOptions = result.flatMap((group) => group.options)
 
       expect(allOptions.find((opt) => opt.id === 'js/fetch')?.title).toBe('JavaScript Fetch')
       expect(allOptions.find((opt) => opt.id === 'python/requests')?.title).toBe('Python Requests')
+      expect(allOptions.find((opt) => opt.id === 'python/aiohttp')?.title).toBe('Python aiohttp')
       expect(allOptions.find((opt) => opt.id === 'node/axios')?.title).toBe('Node.js Axios')
     })
   })

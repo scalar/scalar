@@ -181,6 +181,11 @@
       "types": "./dist/plugins/powershell/webrequest/index.d.ts",
       "default": "./dist/plugins/powershell/webrequest/index.js"
     },
+    "./plugins/python/aiohttp": {
+      "import": "./dist/plugins/python/aiohttp/index.js",
+      "types": "./dist/plugins/python/aiohttp/index.d.ts",
+      "default": "./dist/plugins/python/aiohttp/index.js"
+    },
     "./plugins/python/httpx": {
       "import": "./dist/plugins/python/httpx/index.js",
       "types": "./dist/plugins/python/httpx/index.d.ts",

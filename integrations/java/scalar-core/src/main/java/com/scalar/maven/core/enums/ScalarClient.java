@@ -19,6 +19,11 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum ScalarClient {
     /**
+     * aiohttp client.
+     */
+    AIO_HTTP("aiohttp"),
+
+    /**
      * AsyncHttp client.
      */
     ASYNC_HTTP("asynchttp"),

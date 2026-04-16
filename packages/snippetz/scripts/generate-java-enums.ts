@@ -35,6 +35,7 @@ const CUSTOM_JAVA_MAPPINGS: Record<string, string> = {
   'cohttp': 'CO_HTTP',
   'webrequest': 'WEB_REQUEST',
   'restmethod': 'REST_METHOD',
+  'aiohttp': 'AIO_HTTP',
   'httpx_sync': 'HTTPX_SYNC',
   'httpx_async': 'HTTPX_ASYNC',
 
