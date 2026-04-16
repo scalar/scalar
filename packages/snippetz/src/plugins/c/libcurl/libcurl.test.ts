@@ -507,7 +507,7 @@ describe('cLibcurl', () => {
     })
 
     expectBaseRequest(result, 'POST', 'https://example.com')
-    expect(result).toContain('\\"quotes\\" and \\\\backslashes\\\\')
+    expect(result).toContain('\\\\\\"quotes\\\\\\" and \\\\\\\\backslashes\\\\\\\\')
     expect(result).toContain('\\"item1\\"')
     expect(result).toContain('null')
   })
