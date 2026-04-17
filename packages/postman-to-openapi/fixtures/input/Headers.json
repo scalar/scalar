@@ -13,7 +13,7 @@
 				"header": [
 					{
 						"key": "X-My-Header",
-						"value": "hudjilksns78jsijns090",
+						"value": "super-secret-token",
 						"description": "Custom header [required]",
 						"type": "text"
 					},
@@ -82,7 +82,7 @@
 					},
 					{
 						"key": "X-My-Header",
-						"value": "hudjilksns78jsijns090",
+						"value": "super-secret-token",
 						"description": "Custom header",
 						"type": "text"
 					}

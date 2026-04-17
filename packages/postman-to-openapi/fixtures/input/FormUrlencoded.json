@@ -27,7 +27,7 @@
 						},
 						{
 							"key": "password",
-							"value": "pasword123",
+							"value": "super-secret-password",
 							"description": "password (to be used for logging in) [required]",
 							"type": "text"
 						}
