@@ -8,9 +8,9 @@
   <p>
     A modern, open-source API client built on the OpenAPI standard. Send requests, organize collections, and test your APIs from a beautiful, offline-first interface available on every platform.
   </p>
-  <div class="hero-cta-row flex gap-2">
-    <a class="t-editor__button hero-cta-button hero-cta-primary" href="https://client.scalar.com/" target="_blank">Try free in Browser</a>
-    <a class="t-editor__button hero-cta-button hero-cta-secondary" href="/products/api-client/download">Download API Client</a>
+  <div class="flex gap-2">
+    <a class="t-editor__button" href="https://client.scalar.com/" target="_blank">Try free in Browser</a>
+    <a class="t-editor__button" href="/products/api-client/download">Download API Client</a>
   </div>
 </div>
 
@@ -104,8 +104,8 @@ Use [post-response scripts](/products/api-client/testing) to validate responses 
     of API industry standards.
   </p>
   <div class="flex gap-2 mb-11">
-    <a class="t-editor__button hero-cta-button hero-cta-primary" href="https://client.scalar.com/" target="_blank">Try free in Browser</a>
-    <a class="t-editor__button hero-cta-button hero-cta-secondary" href="/products/api-client/download">Download API Client</a>
+    <a class="t-editor__button" href="https://client.scalar.com/" target="_blank">Try free in Browser</a>
+    <a class="t-editor__button" href="/products/api-client/download">Download API Client</a>
   </div>
   <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank" aria-label="Join Scalar community on Discord">Community →</a>
   <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank" aria-label="View Scalar on GitHub">GitHub →</a>
@@ -325,31 +325,6 @@ Use [post-response scripts](/products/api-client/testing) to validate responses 
   .t-editor__button {
     min-width: 160px;
     justify-content: center;
-  }
-  .hero-cta-row {
-    margin-top: 12px;
-    flex-wrap: wrap;
-  }
-  .hero-cta-button {
-    min-width: 220px;
-  }
-  .hero-cta-primary {
-    background: var(--scalar-color-1);
-    color: var(--scalar-background-1);
-    border-color: var(--scalar-color-1);
-  }
-  .hero-cta-primary:hover {
-    background: color-mix(in srgb, var(--scalar-color-1) 92%, transparent);
-    border-color: color-mix(in srgb, var(--scalar-color-1) 92%, transparent);
-  }
-  .hero-cta-secondary {
-    background: var(--scalar-background-2);
-    color: var(--scalar-color-1);
-    border-color: var(--scalar-border-color);
-    box-shadow: inset 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
-  }
-  .hero-cta-secondary:hover {
-    background: color-mix(in srgb, var(--scalar-background-2) 88%, var(--scalar-background-1));
   }
   .t-editor .editor-content,
   .t-editor {
