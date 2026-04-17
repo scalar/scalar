@@ -174,6 +174,8 @@ export const cLibcurl: Plugin = {
 
     lines.push('', '  CURLcode res = curl_easy_perform(curl);')
 
+    lines.push('  curl_easy_cleanup(curl);')
+
     if (isMultipartBody) {
       lines.push('  curl_mime_free(mime);')
     }
@@ -182,7 +184,7 @@ export const cLibcurl: Plugin = {
       lines.push('  curl_slist_free_all(headers);')
     }
 
-    lines.push('  curl_easy_cleanup(curl);', '  curl_global_cleanup();', '', '  return (int)res;', '}')
+    lines.push('  curl_global_cleanup();', '', '  return (int)res;', '}')
 
     return lines.join('\n')
   },

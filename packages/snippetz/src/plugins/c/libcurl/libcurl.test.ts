@@ -245,6 +245,32 @@ describe('cLibcurl', () => {
     expect(result).toContain('curl_mime_free(mime);')
   })
 
+  it('cleans up curl handle before freeing mime and header resources', () => {
+    const result = cLibcurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [{ name: 'Content-Type', value: 'multipart/form-data' }],
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [{ name: 'file', fileName: 'test.txt' }],
+      },
+    })
+
+    const cleanupIndex = result.indexOf('curl_easy_cleanup(curl);')
+    const mimeFreeIndex = result.indexOf('curl_mime_free(mime);')
+    const headersFreeIndex = result.indexOf('curl_slist_free_all(headers);')
+    const globalCleanupIndex = result.lastIndexOf('curl_global_cleanup();')
+
+    expect(cleanupIndex).toBeGreaterThan(-1)
+    expect(mimeFreeIndex).toBeGreaterThan(-1)
+    expect(headersFreeIndex).toBeGreaterThan(-1)
+    expect(globalCleanupIndex).toBeGreaterThan(-1)
+    expect(cleanupIndex).toBeLessThan(mimeFreeIndex)
+    expect(cleanupIndex).toBeLessThan(headersFreeIndex)
+    expect(mimeFreeIndex).toBeLessThan(globalCleanupIndex)
+    expect(headersFreeIndex).toBeLessThan(globalCleanupIndex)
+  })
+
   it('handles multipart form data content types on string parts', () => {
     const result = cLibcurl.generate({
       url: 'https://example.com',
