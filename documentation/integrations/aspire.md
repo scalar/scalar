@@ -332,6 +332,25 @@ scalar.WithApiReference(bookService, async (options, cancellationToken) =>
 
 ## Common Pitfalls
 
+### Scalar resource shows "Failed to start"
+
+When you use `AddScalarApiReference()`, Aspire runs Scalar as a **container resource** (`scalarapi/aspire-api-reference`).
+If your other resources are .NET projects, they can still run while only Scalar fails.
+
+In that state, changing OpenAPI route patterns (`OpenApiRoutePattern`, `AddDocument(..., routePattern: ...)`) does not help because the Scalar container has not started yet.
+
+Troubleshooting checklist:
+
+1. Confirm a container runtime is installed and running:
+   - Docker: `docker info`
+   - Podman: `podman info`
+2. Confirm the Scalar image can be pulled:
+   - `docker pull scalarapi/aspire-api-reference:latest`
+3. Check **AppHost** logs (not just Scalar resource logs) for container runtime or image pull errors.
+4. If your environment blocks Docker Hub access (proxy/firewall/rate limit), allow access or mirror the image.
+
+If your environment cannot run container resources, use `app.MapScalarApiReference()` directly inside your ASP.NET Core API as a fallback.
+
 ### YARP Integration Issues
 
 When using YARP (`Aspire.Hosting.Yarp`), you may encounter proxy routing conflicts. Here are two solutions:
