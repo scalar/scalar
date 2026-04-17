@@ -1629,6 +1629,122 @@ describe('oauth', () => {
       })
     })
 
+    it('omits the Authorization header for public clients with an empty client secret', async () => {
+      const publicClientScheme = {
+        authorizationCode: {
+          ...refreshScheme.authorizationCode,
+          'x-scalar-secret-client-secret': '',
+        },
+      } satisfies OAuthFlowsObjectSecret
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            access_token: 'new_access_token',
+          }),
+      })
+
+      await refreshOauth2Token(publicClientScheme, 'authorizationCode', '', mockServer)
+
+      expect(global.fetch).toHaveBeenCalledWith(refreshScheme.authorizationCode.refreshUrl, {
+        method: 'POST',
+        body: expect.any(URLSearchParams),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      })
+    })
+
+    it('sends client_id in the body for public authorizationCode clients per RFC 6749 Section 6', async () => {
+      const publicClientScheme = {
+        authorizationCode: {
+          ...refreshScheme.authorizationCode,
+          'x-scalar-secret-client-secret': '',
+        },
+      } satisfies OAuthFlowsObjectSecret
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            access_token: 'new_access_token',
+          }),
+      })
+
+      await refreshOauth2Token(publicClientScheme, 'authorizationCode', '', mockServer)
+
+      const callArgs = vi.mocked(global.fetch).mock.calls[0]
+      const body = callArgs![1]?.body as URLSearchParams
+      expect(body.get('client_id')).toBe(refreshScheme.authorizationCode['x-scalar-secret-client-id'])
+      expect(body.has('client_secret')).toBe(false)
+      expect(body.get('grant_type')).toBe('refresh_token')
+      expect(body.get('refresh_token')).toBe('refresh_token_123')
+    })
+
+    it('omits client_id from the body for confidential clients using header credentials', async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            access_token: 'new_access_token',
+          }),
+      })
+
+      await refreshOauth2Token(refreshScheme, 'authorizationCode', '', mockServer)
+
+      const callArgs = vi.mocked(global.fetch).mock.calls[0]
+      const body = callArgs![1]?.body as URLSearchParams
+      expect(body.has('client_id')).toBe(false)
+      expect(body.has('client_secret')).toBe(false)
+    })
+
+    it('omits client_id from the body for public clientCredentials clients (no Basic auth, no body identification)', async () => {
+      const publicCcScheme = {
+        clientCredentials: {
+          ...baseFlow,
+          tokenUrl,
+          'x-scalar-secret-client-secret': '',
+          'x-scalar-secret-token': 'old_token',
+          'x-scalar-secret-refresh-token': 'cc_refresh_token',
+        },
+      } satisfies OAuthFlowsObjectSecret
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            access_token: 'new_cc_token',
+          }),
+      })
+
+      await refreshOauth2Token(publicCcScheme, 'clientCredentials', '', mockServer)
+
+      const callArgs = vi.mocked(global.fetch).mock.calls[0]
+      const body = callArgs![1]?.body as URLSearchParams
+      expect(body.has('client_id')).toBe(false)
+    })
+
+    it('omits client_secret from the body for public clients with an empty client secret', async () => {
+      const publicClientScheme = {
+        authorizationCode: {
+          ...refreshScheme.authorizationCode,
+          'x-scalar-credentials-location': 'body',
+          'x-scalar-secret-client-secret': '',
+        },
+      } satisfies OAuthFlowsObjectSecret
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            access_token: 'new_access_token',
+          }),
+      })
+
+      await refreshOauth2Token(publicClientScheme, 'authorizationCode', '', mockServer)
+
+      const callArgs = vi.mocked(global.fetch).mock.calls[0]
+      const body = callArgs![1]?.body as URLSearchParams
+      expect(body.get('client_id')).toBe(refreshScheme.authorizationCode['x-scalar-secret-client-id'])
+      expect(body.has('client_secret')).toBe(false)
+    })
+
     it('includes x-scalar-security-body parameters in the refresh request', async () => {
       const schemeWithBody = {
         authorizationCode: {

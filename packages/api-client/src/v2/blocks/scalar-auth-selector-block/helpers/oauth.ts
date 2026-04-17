@@ -437,13 +437,18 @@ export const refreshOauth2Token = async (
   formData.set('refresh_token', refreshToken)
 
   const addCredentialsToBody = flow['x-scalar-credentials-location'] === 'body'
-  const hasClientSecret = flow['x-scalar-secret-client-secret'] !== undefined
+  const hasClientSecret = Boolean(flow['x-scalar-secret-client-secret'])
+  /**
+   * Public authorization-code clients still need client_id in the refresh body per RFC 6749 Section 6.
+   * We only send it implicitly for that case to avoid conflicting with Basic auth.
+   */
+  const shouldSendClientIdInBody = addCredentialsToBody || (type === 'authorizationCode' && !hasClientSecret)
 
-  if (addCredentialsToBody) {
+  if (shouldSendClientIdInBody) {
     formData.set('client_id', flow['x-scalar-secret-client-id'])
-    if (hasClientSecret) {
-      formData.set('client_secret', flow['x-scalar-secret-client-secret'])
-    }
+  }
+  if (addCredentialsToBody && hasClientSecret) {
+    formData.set('client_secret', flow['x-scalar-secret-client-secret'])
   }
 
   if (flow['x-scalar-security-body']) {
