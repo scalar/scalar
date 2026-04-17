@@ -1,3 +1,4 @@
+import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { sendRequest } from './send-request'
@@ -805,6 +806,43 @@ describe('sendRequest', () => {
         throw new Error('No data')
       }
       expect(result.response.data).toBe('test data')
+    })
+
+    it('uses the text/plain fallback to resolve plugin decoders when content-type is missing', async () => {
+      const request = new Request(MOCK_URL)
+      const mockResponse = addUrlToResponse(
+        new Response('test data', {
+          status: 200,
+          headers: new Headers(),
+        }),
+        request.url,
+      )
+      const decode = vi.fn(() => 'decoded via plugin')
+      const plugin: ClientPlugin = {
+        responseBody: [
+          {
+            mimeTypes: ['text/plain'],
+            decode,
+            language: 'plaintext',
+          },
+        ],
+      }
+
+      globalFetchSpy.mockResolvedValueOnce(mockResponse)
+
+      const [error, result] = await sendRequest({
+        isUsingProxy: false,
+        request,
+        plugins: [plugin],
+      })
+
+      expect(error).toBe(null)
+      if (!result || !('data' in result.response)) {
+        throw new Error('No data')
+      }
+      expect(result.response.data).toBe('decoded via plugin')
+      expect(decode).toHaveBeenCalledTimes(1)
+      expect(decode).toHaveBeenCalledWith(expect.any(ArrayBuffer), 'text/plain;charset=UTF-8')
     })
   })
 

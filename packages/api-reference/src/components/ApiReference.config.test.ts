@@ -1,4 +1,4 @@
-import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
+import type { ClientOptionGroup } from '@scalar/api-client/blocks/operation-code-sample'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

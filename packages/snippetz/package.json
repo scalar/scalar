@@ -9,7 +9,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/snippetz"
   },
-  "version": "0.8.0",
+  "version": "0.9.0",
   "engines": {
     "node": ">=22"
   },
@@ -19,7 +19,7 @@
     "generate:java-enums": "tsx scripts/generate-java-enums.ts",
     "generate:markdown-docs": "tsx scripts/generate-markdown-docs.ts",
     "postbuild": "pnpm generate:dotnet-enums && pnpm generate:java-enums && pnpm generate:markdown-docs",
-    "test": "vitest",
+    "test": "vitest --run",
     "types:check": "tsc --noEmit"
   },
   "type": "module",
@@ -180,6 +180,11 @@
       "import": "./dist/plugins/powershell/webrequest/index.js",
       "types": "./dist/plugins/powershell/webrequest/index.d.ts",
       "default": "./dist/plugins/powershell/webrequest/index.js"
+    },
+    "./plugins/python/aiohttp": {
+      "import": "./dist/plugins/python/aiohttp/index.js",
+      "types": "./dist/plugins/python/aiohttp/index.d.ts",
+      "default": "./dist/plugins/python/aiohttp/index.js"
     },
     "./plugins/python/httpx": {
       "import": "./dist/plugins/python/httpx/index.js",

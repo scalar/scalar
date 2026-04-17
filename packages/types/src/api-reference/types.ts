@@ -201,12 +201,20 @@ export type ViewComponent = {
   props?: Record<string, any>
 }
 
+export type LifecycleHooks = {
+  onInit?: ({ config }: { config: Partial<BaseConfiguration> }) => void
+  onConfigChange?: ({ config }: { config: Partial<BaseConfiguration> }) => void
+  onDestroy?: () => void
+}
+
 export type ApiReferencePlugin = () => {
   name: string
   extensions: SpecificationExtension[]
   views?: {
     'content.end'?: ViewComponent[]
   }
+  hooks?: LifecycleHooks
+  apiClientPlugins?: any[]
 }
 
 export type ExternalUrls = {
@@ -374,11 +382,7 @@ type ExtendedConfiguration = {
   onLoaded?: (slug: string) => void | Promise<void>
   /** Fired before the outbound request is built; callback receives a mutable request builder. Experimental API. */
   onBeforeRequest?:
-    | ((input: {
-        request: Request
-        requestBuilder: any
-        envVariables: Record<string, string>
-      }) => void | Promise<void>)
+    | ((input: { request: Request; requestBuilder: any; envVariables: Record<string, string> }) => void | Promise<void>)
     | undefined
   /** onShowMore is fired when the user clicks the "Show more" button on the references */
   onShowMore?: (tagId: string) => void | Promise<void>
@@ -404,12 +408,7 @@ type ExtendedConfiguration = {
   /** Customize the tag portion of the hash */
   generateTagSlug?: (input: { name?: string }) => string
   /** Customize the operation portion of the hash */
-  generateOperationSlug?: (input: {
-    path: string
-    operationId?: string
-    method: string
-    summary?: string
-  }) => string
+  generateOperationSlug?: (input: { path: string; operationId?: string; method: string; summary?: string }) => string
   /** Customize the webhook portion of the hash */
   generateWebhookSlug?: (input: { name: string; method?: string }) => string
   /** To handle redirects, pass a function that receives the current path/hash and passes that to history.replaceState */
@@ -458,49 +457,53 @@ export type SourceConfiguration = {
   }
 }
 
-export type ApiReferenceConfigurationRaw = Omit<BaseConfiguration & ExtendedConfiguration, 'proxy' | 'spec' | 'authentication' | 'showToolbar'> & {
-  authentication?: AuthenticationConfiguration;
+export type ApiReferenceConfigurationRaw = Omit<
+  BaseConfiguration & ExtendedConfiguration,
+  'proxy' | 'spec' | 'authentication' | 'showToolbar'
+> & {
+  authentication?: AuthenticationConfiguration
 }
 
 export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
-    /** @deprecated
+  /** @deprecated
    * This type now refers to the base configuration that does not include the sources.
    * Use the type `ApiReferenceConfigurationWithSource` instead.
    */
-    url?: SourceConfiguration['url']
-    /** @deprecated
-     * This type now refers to the base configuration that does not include the sources.
-     * Use the type `ApiReferenceConfigurationWithSource` instead.
-     */
-    content?: SourceConfiguration['content']
-    /**
-     * Fired before the outbound request is built and sent. Mutate the **request builder** so the eventual fetch call
-     * reflects your changes (method, path, headers, body, and related fields).
-     *
-     * **Experimental:** The builder matches {@link https://github.com/scalar/scalar/blob/main/packages/workspace-store/src/request-example/builder/request-factory.ts RequestFactory}
-     * (`import type { RequestFactory } from '@scalar/workspace-store/request-example'`). That shape is still experimental and may change in minor releases.
-     *
-     * @param input - Hook argument from the integration layer.
-     * @param input.request - **Deprecated** when treated as a fetch API `Request`. Prefer thinking of this value as the
-     * mutable builder ({@link https://github.com/scalar/scalar/blob/main/packages/workspace-store/src/request-example/builder/request-factory.ts RequestFactory}).
-     * Some call sites only pass this property.
-     * @param input.requestBuilder - The same builder when exposed under this name; **prefer** mutating this when your integration provides it.
-     * @returns void or a promise that resolves when the hook finishes
-     * @example
-     * ```ts
-     * onBeforeRequest: ({ request: builder }) => {
-     *   builder.headers.set('Authorization', 'Bearer <token>')
-     * }
-     * ```
-     */
-    onBeforeRequest?: (input: {
-      request: Request
-      requestBuilder: any
-      envVariables: Record<string, string>
-    }) => void | Promise<void> | undefined
+  url?: SourceConfiguration['url']
+  /** @deprecated
+   * This type now refers to the base configuration that does not include the sources.
+   * Use the type `ApiReferenceConfigurationWithSource` instead.
+   */
+  content?: SourceConfiguration['content']
+  /**
+   * Fired before the outbound request is built and sent. Mutate the **request builder** so the eventual fetch call
+   * reflects your changes (method, path, headers, body, and related fields).
+   *
+   * **Experimental:** The builder matches {@link https://github.com/scalar/scalar/blob/main/packages/workspace-store/src/request-example/builder/request-factory.ts RequestFactory}
+   * (`import type { RequestFactory } from '@scalar/workspace-store/request-example'`). That shape is still experimental and may change in minor releases.
+   *
+   * @param input - Hook argument from the integration layer.
+   * @param input.request - **Deprecated** when treated as a fetch API `Request`. Prefer thinking of this value as the
+   * mutable builder ({@link https://github.com/scalar/scalar/blob/main/packages/workspace-store/src/request-example/builder/request-factory.ts RequestFactory}).
+   * Some call sites only pass this property.
+   * @param input.requestBuilder - The same builder when exposed under this name; **prefer** mutating this when your integration provides it.
+   * @returns void or a promise that resolves when the hook finishes
+   * @example
+   * ```ts
+   * onBeforeRequest: ({ request: builder }) => {
+   *   builder.headers.set('Authorization', 'Bearer <token>')
+   * }
+   * ```
+   */
+  onBeforeRequest?: (input: {
+    request: Request
+    requestBuilder: any
+    envVariables: Record<string, string>
+  }) => void | Promise<void> | undefined
 }
 
-export type ApiReferenceConfigurationWithSource = Omit<ApiReferenceConfiguration, 'url' | 'content'> & SourceConfiguration
+export type ApiReferenceConfigurationWithSource = Omit<ApiReferenceConfiguration, 'url' | 'content'> &
+  SourceConfiguration
 
 /**
  * Configuration for a single config with multiple sources
@@ -522,6 +525,5 @@ export const isConfigurationWithSources = (
   config: AnyApiReferenceConfiguration,
 ): config is Partial<ApiReferenceConfigurationWithMultipleSources> =>
   Boolean(!Array.isArray(config) && config && 'sources' in config && Array.isArray(config.sources))
-
 
 export type ApiClientConfiguration = BaseConfiguration & SourceConfiguration

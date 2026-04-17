@@ -15,7 +15,7 @@ export type ExternalUrls = z.output<typeof externalUrlsSchema>
 export const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
 export const NEW_PROXY_URL = 'https://proxy.scalar.com'
 
-/** Shared configuration for the Api Reference and Api Client */
+/** Shared configuration for the API Reference and API Client */
 export const baseConfigurationSchema = z.object({
   /**
    * The title of the OpenAPI document.
@@ -166,8 +166,11 @@ export const baseConfigurationSchema = z.object({
   persistAuth: z.boolean().optional().default(false).catch(false),
   /** Plugins for the API client */
   plugins: z.array(apiClientPluginSchema).optional(),
-  /** Enables / disables telemetry*/
+  /** Enables / disables telemetry */
   telemetry: z.boolean().optional().default(true),
   /** A bunch of external URLs to Scalar's services. */
   externalUrls: externalUrlsSchema.prefault({}),
 })
+
+/** Shared configuration for the API Reference and API Client */
+export type BaseConfiguration = z.infer<typeof baseConfigurationSchema>

@@ -495,4 +495,52 @@ describe('buildRequest', () => {
     expect(request.method).toBe('PATCH')
     expect(request.cache).toBe('no-store')
   })
+
+  it('appends multiple security headers with the same name instead of overwriting', () => {
+    const { request } = buildRequest(
+      createFactory({
+        security: [
+          { in: 'header', name: 'Authorization', format: 'bearer', value: 'token-a' },
+          { in: 'header', name: 'Authorization', format: 'bearer', value: 'token-b' },
+        ],
+      }),
+      { envVariables: {} },
+    )
+
+    const values = request.headers.get('Authorization')
+    expect(values).toContain('Bearer token-a')
+    expect(values).toContain('Bearer token-b')
+  })
+
+  it('appends multiple security query params with the same name instead of overwriting', () => {
+    const { request } = buildRequest(
+      createFactory({
+        security: [
+          { in: 'query', name: 'api_key', value: 'key-1' },
+          { in: 'query', name: 'api_key', value: 'key-2' },
+        ],
+      }),
+      { envVariables: {} },
+    )
+
+    const url = new URL(request.url)
+    expect(url.searchParams.getAll('api_key')).toStrictEqual(['key-1', 'key-2'])
+  })
+
+  it('preserves existing header values when appending security headers', () => {
+    const headers = new Headers()
+    headers.set('X-Custom', 'existing')
+
+    const { request } = buildRequest(
+      createFactory({
+        headers,
+        security: [{ in: 'header', name: 'X-Custom', value: 'from-security' }],
+      }),
+      { envVariables: {} },
+    )
+
+    const values = request.headers.get('X-Custom')
+    expect(values).toContain('existing')
+    expect(values).toContain('from-security')
+  })
 })

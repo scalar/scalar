@@ -15,14 +15,14 @@
     "http testing",
     "hono"
   ],
-  "version": "2.4.4",
+  "version": "2.4.5",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "tsx playground/index.ts",
-    "test": "vitest",
+    "test": "vitest --run",
     "types:check": "tsc --noEmit"
   },
   "type": "module",

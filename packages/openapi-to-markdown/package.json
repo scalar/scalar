@@ -16,14 +16,14 @@
     "llm",
     "swagger"
   ],
-  "version": "0.5.3",
+  "version": "0.5.4",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "vite build && vue-tsc -p tsconfig.build.json",
     "dev": "tsx watch playground/index.ts",
-    "test": "vitest",
+    "test": "vitest --run",
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",

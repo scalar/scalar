@@ -4,7 +4,7 @@
 <div class="flex flex-col gap-3 hero small-test">
 <span data-v-1c61db84="" class="page-breadcrumb">MCP &amp; Agent Scalar</span>
   <scalar-heading level="2" slug="scalar-agent" class="text-balance">
-    Connect your APIs to LLMs—quickly, securely, and with minimal context
+    Connect your APIs to LLMs quickly, securely, and with minimal context
   </scalar-heading>
   <p>
     Upload your OpenAPI documents and instantly expose them as an MCP server; just-in-time tool calls, secure delegated auth, and only 0.2% of your context window no matter how many APIs you need.
@@ -222,7 +222,6 @@ Read more: <a href="./mcp.md#api-authentication">API Authentication</a> on the M
     }
   }
   .t-editor__page-title,
-  .layout-aside-right,
   .t-editor__page-nav,
   .notify-container,
   .subheading,
@@ -252,7 +251,6 @@ Read more: <a href="./mcp.md#api-authentication">API Authentication</a> on the M
   }
   :root {
     --scalar-container-width: 960px;
-    --scalar-toc-width: 0;
   }
   .hero.hero {
     margin-top: 88px;

@@ -1,7 +1,13 @@
 // @vitest-environment node
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
-import { generateBodyScript, getJsAsset, renderApiReference, renderApiReferenceToString } from './ssr'
+import {
+  generateBodyScript,
+  getJsAsset,
+  renderApiReference,
+  renderApiReferenceToString,
+  serializeConfigToJs,
+} from './ssr'
 
 describe('ssr', () => {
   describe('renderApiReferenceToString', () => {
@@ -113,6 +119,23 @@ describe('ssr', () => {
       expect(script).toContain('dark-mode')
       expect(script).not.toContain('localStorage')
     })
+
+    it('ignores non-boolean darkMode values and falls back to matchMedia', () => {
+      const script = generateBodyScript({ darkMode: 'true);window.__pwned=1;//' as unknown as boolean })
+
+      expect(script).toContain('matchMedia')
+      expect(script).not.toContain('window.__pwned=1')
+    })
+
+    it('ignores invalid forceDarkModeState values', () => {
+      const script = generateBodyScript({
+        forceDarkModeState: `dark');window.__pwned=2;//` as unknown as 'dark' | 'light',
+      })
+
+      expect(script).toContain('localStorage')
+      expect(script).toContain('matchMedia')
+      expect(script).not.toContain('window.__pwned=2')
+    })
   })
 
   describe('renderApiReference', () => {
@@ -213,10 +236,24 @@ describe('ssr', () => {
     it('serializes configuration into the hydration script', async () => {
       const html = await renderApiReference({ config: { url: 'https://example.com/api.json' }, css: '' })
 
-      expect(html).toContain('"url":"https://example.com/api.json"')
+      expect(html).toContain('"url": "https://example.com/api.json"')
     })
 
-    it('preserves function properties in the hydration script', async () => {
+    it('prevents script breakout in hydration config serialization', async () => {
+      const html = await renderApiReference({
+        config: {
+          title: '</script><script>window.__pwned=1</script>',
+        },
+        css: '',
+      })
+
+      expect(html).not.toContain('</script><script>window.__pwned=1</script>')
+      expect(html).toContain(
+        '"title": "\\u003c/script\\u003e\\u003cscript\\u003ewindow.__pwned=1\\u003c/script\\u003e"',
+      )
+    })
+
+    it('preserves top-level function properties in hydration config serialization', async () => {
       const html = await renderApiReference({
         config: {
           url: 'https://example.com/api.json',
@@ -225,11 +262,12 @@ describe('ssr', () => {
         css: '',
       })
 
-      expect(html).toContain('"onLoaded": () => console.log')
-      expect(html).toContain('"url":"https://example.com/api.json"')
+      expect(html).toContain('Scalar.createApiReference')
+      expect(html).toContain('"url": "https://example.com/api.json"')
+      expect(html).toContain('"onLoaded": () => console.log("loaded")')
     })
 
-    it('serializes function-only configuration without invalid leading comma', async () => {
+    it('serializes function-only configuration as a valid object literal', async () => {
       const html = await renderApiReference({
         config: {
           onLoaded: () => console.log('loaded'),
@@ -237,15 +275,123 @@ describe('ssr', () => {
         css: '',
       })
 
-      expect(html).toContain('Scalar.createApiReference')
-      expect(html).toContain('{"onLoaded": () => console.log("loaded")}')
-      expect(html).not.toContain('{, "onLoaded"')
+      expect(html).toContain('"onLoaded": () => console.log("loaded")')
+      expect(html).not.toContain('{,')
+    })
+
+    it('preserves top-level arrays containing functions in hydration config serialization', () => {
+      const result = serializeConfigToJs({
+        theme: 'kepler',
+        hooks: [
+          () => 'ready',
+          {
+            label: 'stable',
+          },
+        ],
+      })
+
+      expect(result).toContain('"theme": "kepler"')
+      expect(result).toContain('"hooks": [() => "ready", {"label":"stable"}]')
+    })
+
+    it('escapes script-breaking sequences in serialized function properties', () => {
+      // Arrow function whose source contains a </script> payload
+      const maliciousFn = () => '</script><script>window.__pwned=3</script>'
+      const result = serializeConfigToJs({
+        onLoaded: maliciousFn,
+      })
+
+      expect(result).not.toContain('</script><script>window.__pwned=3</script>')
+      expect(result).toContain('<\\/script>')
+    })
+
+    it('escapes script-breaking sequences in serialized array functions', () => {
+      // Arrow function whose source contains a </script> payload
+      const maliciousFn = () => '</script><script>window.__pwned=4</script>'
+      const result = serializeConfigToJs({
+        hooks: [maliciousFn],
+      })
+
+      expect(result).not.toContain('</script><script>window.__pwned=4</script>')
+      expect(result).toContain('<\\/script>')
+    })
+
+    it('escapes dangerous characters in function property keys', () => {
+      const maliciousKey = 'on"Loaded</script><script>window.__pwned=5</script>'
+      const result = serializeConfigToJs({
+        [maliciousKey]: () => 'safe',
+      })
+
+      expect(result).not.toContain(`"${maliciousKey}"`)
+      expect(result).not.toContain('</script><script>window.__pwned=5</script>')
+      expect(result).toContain(
+        '"on\\"Loaded\\u003c/script\\u003e\\u003cscript\\u003ewindow.__pwned=5\\u003c/script\\u003e"',
+      )
+      const hydratedConfig = new Function(`return (${result})`)() as Record<string, unknown>
+      expect(typeof hydratedConfig[maliciousKey]).toBe('function')
+      expect((hydratedConfig[maliciousKey] as () => string)()).toBe('safe')
+    })
+
+    it('escapes dangerous characters in array property keys', () => {
+      const maliciousKey = 'hooks"</script><script>window.__pwned=6</script>'
+      const result = serializeConfigToJs({
+        [maliciousKey]: [() => 'safe'],
+      })
+
+      expect(result).not.toContain(`"${maliciousKey}"`)
+      expect(result).not.toContain('</script><script>window.__pwned=6</script>')
+      expect(result).toContain(
+        '"hooks\\"\\u003c/script\\u003e\\u003cscript\\u003ewindow.__pwned=6\\u003c/script\\u003e"',
+      )
+      const hydratedConfig = new Function(`return (${result})`)() as Record<string, unknown>
+      expect(Array.isArray(hydratedConfig[maliciousKey])).toBe(true)
+      expect(((hydratedConfig[maliciousKey] as unknown[])[0] as () => string)()).toBe('safe')
+    })
+
+    it('throws when nested functions would be dropped during hydration serialization', async () => {
+      await expect(
+        renderApiReference({
+          config: {
+            metaData: {
+              onLoaded: () => console.log('loaded'),
+            },
+          },
+          css: '',
+        }),
+      ).rejects.toThrow('Cannot serialize function at "metaData.onLoaded" for SSR hydration.')
     })
   })
 
   describe('getJsAsset', () => {
     it('is a function', () => {
       expect(typeof getJsAsset).toBe('function')
+    })
+
+    it('throws when api-reference package.json has no browser entry', async () => {
+      vi.resetModules()
+      vi.doMock('node:module', () => ({
+        createRequire: () => ({
+          resolve: () => '/tmp/mock-api-reference/dist/index.js',
+        }),
+      }))
+      vi.doMock('node:fs', async () => {
+        const actual = await vi.importActual<typeof import('node:fs')>('node:fs')
+        return {
+          ...actual,
+          readFileSync: ((
+            path: string,
+            options?: BufferEncoding | { encoding?: BufferEncoding | null; flag?: string },
+          ) => {
+            if (path.endsWith('/tmp/mock-api-reference/package.json')) {
+              return JSON.stringify({ name: '@scalar/api-reference' })
+            }
+            return actual.readFileSync(path, options as never)
+          }) as typeof actual.readFileSync,
+        }
+      })
+
+      const { getJsAsset: getJsAssetUnderTest } = await import('./ssr')
+      expect(() => getJsAssetUnderTest()).toThrow('Expected a string "browser" field in package.json.')
     })
   })
 })

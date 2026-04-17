@@ -1,3 +1,4 @@
+import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type {
   ApiReferencePlugin as OriginalApiReferencePlugin,
   SpecificationExtension,
@@ -56,6 +57,48 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
       }
 
       return components
+    },
+
+    /**
+     * Notify all plugins that the API Reference has been initialized
+     */
+    notifyInit: (config: Record<string, any>): void => {
+      for (const plugin of registeredPlugins.values()) {
+        plugin.hooks?.onInit?.({ config })
+      }
+    },
+
+    /**
+     * Notify all plugins that the configuration has changed
+     */
+    notifyConfigChange: (config: Record<string, unknown>): void => {
+      for (const plugin of registeredPlugins.values()) {
+        plugin.hooks?.onConfigChange?.({ config })
+      }
+    },
+
+    /**
+     * Notify all plugins that the API Reference is being destroyed
+     */
+    notifyDestroy: (): void => {
+      for (const plugin of registeredPlugins.values()) {
+        plugin.hooks?.onDestroy?.()
+      }
+    },
+
+    /**
+     * Get all client plugins provided by registered plugins
+     */
+    getApiClientPlugins: (): ClientPlugin[] => {
+      const apiClientPlugins: ClientPlugin[] = []
+
+      for (const plugin of registeredPlugins.values()) {
+        if (plugin.apiClientPlugins) {
+          apiClientPlugins.push(...(plugin.apiClientPlugins as ClientPlugin[]))
+        }
+      }
+
+      return apiClientPlugins
     },
   }
 }

@@ -10,10 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/schemas"
   },
-  "keywords": [
-    "schemas",
-    "scalar"
-  ],
+  "keywords": ["schemas", "scalar"],
   "version": "0.0.0",
   "engines": {
     "node": ">=22"
@@ -24,10 +21,6 @@
     "types:generate": "tsx scripts/generate-types.ts"
   },
   "type": "module",
-  "files": [
-    "dist",
-    "CHANGELOG.md"
-  ],
   "exports": {
     "./api-reference": {
       "import": "./dist/api-reference/index.js",
@@ -35,6 +28,7 @@
       "default": "./dist/api-reference/index.js"
     }
   },
+  "files": ["dist", "CHANGELOG.md"],
   "dependencies": {
     "@scalar/validation": "workspace:*"
   }

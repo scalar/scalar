@@ -5,8 +5,8 @@ import { encode as encodeBase64 } from 'js-base64'
 import { buildRequestCookieHeader } from '@/request-example/builder/header/build-request-cookie-header'
 import { applyAllowReservedToUrl } from '@/request-example/builder/helpers/apply-allow-reserved-to-url'
 import type { RequestFactory } from '@/request-example/builder/request-factory'
-import { contextFunctions, isContextFunctionName } from '@/request-example/functions'
 import { resolveRequestFactoryUrl } from '@/request-example/builder/resolve-request-factory-url'
+import { contextFunctions, isContextFunctionName } from '@/request-example/functions'
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
 
 export const buildRequest = (
@@ -98,12 +98,12 @@ export const buildRequest = (
 
       if (security.in === 'header') {
         // Set the header (use replaced header name so {{ env }} placeholders work)
-        headers.set(name, securityValue)
+        headers.append(name, securityValue)
         return
       }
 
       if (security.in === 'query') {
-        securityQueryParams.set(name, securityValue)
+        securityQueryParams.append(name, securityValue)
         return
       }
 

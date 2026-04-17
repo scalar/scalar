@@ -20,7 +20,7 @@
     "vue",
     "vue3"
   ],
-  "version": "1.52.1",
+  "version": "1.52.2",
   "engines": {
     "node": ">=22"
   },
@@ -32,7 +32,7 @@
     "dev:standalone": "vite -c vite.standalone.config.ts",
     "playground:esm": "vite ./playground/esm -c ./playground/esm/vite.config.ts",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest --run",
     "test:benchmark": "vitest bench",
     "test:benchmark:compare": "vitest bench --compare test-results/test-benchmark.json",
     "test:benchmark:save": "vitest bench --outputJson test-results/test-benchmark.json",
@@ -73,6 +73,11 @@
       "types": "./dist/plugins/index.d.ts",
       "default": "./dist/plugins/index.js"
     },
+    "./plugins/posthog": {
+      "import": "./dist/plugins/posthog/index.js",
+      "types": "./dist/plugins/posthog/index.d.ts",
+      "default": "./dist/plugins/posthog/index.js"
+    },
     "./features": {
       "import": "./dist/features/index.js",
       "types": "./dist/features/index.d.ts",
@@ -83,8 +88,7 @@
       "types": "./dist/helpers/index.d.ts",
       "default": "./dist/helpers/index.js"
     },
-    "./style.css": "./dist/style.css",
-    "./browser/standalone.js": "./dist/browser/standalone.js"
+    "./style.css": "./dist/style.css"
   },
   "files": [
     "dist",
@@ -104,15 +108,15 @@
     "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
+    "@scalar/schemas": "workspace:*",
     "@scalar/sidebar": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
-    "@scalar/workspace-store": "workspace:*",
     "@scalar/validation": "workspace:*",
-    "@scalar/schemas": "workspace:*",
+    "@scalar/workspace-store": "workspace:*",
     "@unhead/vue": "^2.1.4",
     "@vueuse/core": "catalog:*",
     "fuse.js": "catalog:*",
@@ -133,6 +137,7 @@
     "@vue/test-utils": "catalog:*",
     "hono": "catalog:*",
     "jsdom": "catalog:*",
+    "posthog-js": "catalog:*",
     "rollup-plugin-webpack-stats": "^0.2.5",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",

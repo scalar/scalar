@@ -16,13 +16,13 @@
     "swagger",
     "cli"
   ],
-  "version": "0.9.19",
+  "version": "0.10.0",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "test": "vitest",
+    "test": "vitest --run",
     "types:check": "tsc --noEmit"
   },
   "type": "module",

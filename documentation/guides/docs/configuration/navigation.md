@@ -180,14 +180,30 @@ Pages render markdown content from files in your repository. They are the most c
 
 ### Properties
 
-| Property      | Type     | Required | Description                         |
-| ------------- | -------- | -------- | ----------------------------------- |
-| `type`        | `"page"` | Yes      | Must be `"page"`                    |
-| `title`       | `string` | No       | The display text in the navigation  |
-| `filepath`    | `string` | Yes      | Relative path to the markdown file  |
-| `description` | `string` | No       | A description for SEO and metadata  |
-| `icon`        | `string` | No       | An icon to display next to the page |
-| `layout`      | `object` | No       | Layout configuration options        |
+| Property        | Type      | Required | Description                                               |
+| --------------- | --------- | -------- | --------------------------------------------------------- |
+| `type`          | `"page"`  | Yes      | Must be `"page"`                                          |
+| `title`         | `string`  | No       | The display text in the navigation                        |
+| `filepath`      | `string`  | Yes      | Relative path to the markdown file                        |
+| `description`   | `string`  | No       | A description for SEO and metadata                        |
+| `icon`          | `string`  | No       | An icon to display next to the page                       |
+| `showInSidebar` | `boolean` | No       | Whether to show the page in the sidebar (defaults `true`) |
+| `layout`        | `object`  | No       | Layout configuration options                              |
+
+### Hidden pages
+
+Set `showInSidebar` to `false` to hide a page from the sidebar navigation while keeping it accessible via its direct URL. This is useful for special pages like landing pages, promotional content, or forms that should not clutter the main navigation.
+
+```json
+"/enterprise": {
+  "type": "page",
+  "title": "Enterprise",
+  "filepath": "docs/enterprise.md",
+  "showInSidebar": false
+}
+```
+
+Users can still navigate to `/enterprise` directly, but the page will not appear in the sidebar. To make a page visible in the sidebar again, remove the `showInSidebar` property or set it to `true`.
 
 ### Layout Options
 

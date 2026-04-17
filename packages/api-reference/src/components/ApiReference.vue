@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
-import { OpenApiClientButton } from '@scalar/api-client/v2/blocks/operation-block'
+import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'
 import {
   createApiClientModal,
   type ApiClientModal,
-} from '@scalar/api-client/v2/features/modal'
+} from '@scalar/api-client/modal'
 import {
   addScalarClassesToHeadless,
   ScalarColorModeToggleButton,
@@ -238,14 +238,16 @@ const themeStyle = computed(() =>
 )
 
 /** Plugin injection is not reactive. All plugins must be provided at first render */
-provide(
-  PLUGIN_MANAGER_SYMBOL,
-  createPluginManager({
-    plugins: Object.values(configList.value).flatMap(
-      (c) => c.config.plugins ?? [],
-    ),
-  }),
-)
+const pluginManager = createPluginManager({
+  plugins: Object.values(configList.value).flatMap(
+    (c) => c.config.plugins ?? [],
+  ),
+})
+provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
+
+pluginManager.notifyInit(mergedConfig.value)
+
+watch(mergedConfig, (config) => pluginManager.notifyConfigChange(config))
 // ---------------------------------------------------------------------------
 /** Navigation State Handling */
 
@@ -737,10 +739,14 @@ onMounted(() => {
     eventBus,
     workspaceStore: clientStore,
     options: mergedConfig,
-    plugins: mapConfigPlugins(mergedConfig, environment),
+    plugins: [
+      ...pluginManager.getApiClientPlugins(),
+      ...mapConfigPlugins(mergedConfig, environment),
+    ],
   })
 })
 onBeforeUnmount(() => {
+  pluginManager.notifyDestroy()
   apiClient.value?.app.unmount()
 })
 

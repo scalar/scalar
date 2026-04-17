@@ -1,4 +1,4 @@
-import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
+import type { ResponseInstance } from '@/v2/blocks/operation-block/helpers/send-request'
 
 /**
  * In-memory cache of operation example id → { response, request }.

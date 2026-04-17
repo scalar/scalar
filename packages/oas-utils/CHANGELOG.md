@@ -1,5 +1,16 @@
 # @scalar/oas-utils
 
+## 0.12.0
+
+### Minor Changes
+
+- [#8863](https://github.com/scalar/scalar/pull/8863): chore: updated imports to new api client version
+
+### Patch Changes
+
+- [#8825](https://github.com/scalar/scalar/pull/8825): chore: moving files around in preparation for the big deletion of client v1
+- [#8850](https://github.com/scalar/scalar/pull/8850): chore: remove entities, zod and the parser from oas-utils
+
 ## 0.11.1
 
 ## 0.11.0

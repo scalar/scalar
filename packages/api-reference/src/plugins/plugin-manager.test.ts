@@ -1,5 +1,5 @@
 import type { ApiReferencePlugin } from '@scalar/types/api-reference'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { createPluginManager } from './plugin-manager'
 
@@ -183,6 +183,95 @@ describe('plugin-manager', () => {
           renderer: 'MockRenderer',
         },
       ])
+    })
+  })
+
+  describe('lifecycle hooks', () => {
+    it('notifyInit calls onInit on all plugins with config', () => {
+      const onInit1 = vi.fn()
+      const onInit2 = vi.fn()
+
+      const plugin1: ApiReferencePlugin = () => ({
+        name: 'plugin1',
+        extensions: [],
+        hooks: { onInit: onInit1 },
+      })
+
+      const plugin2: ApiReferencePlugin = () => ({
+        name: 'plugin2',
+        extensions: [],
+        hooks: { onInit: onInit2 },
+      })
+
+      const manager = createPluginManager({ plugins: [plugin1, plugin2] })
+      const config = { theme: 'dark' }
+      manager.notifyInit(config)
+
+      expect(onInit1).toHaveBeenCalledWith({ config })
+      expect(onInit2).toHaveBeenCalledWith({ config })
+    })
+
+    it('notifyConfigChange calls onConfigChange on all plugins', () => {
+      const onConfigChange = vi.fn()
+
+      const plugin: ApiReferencePlugin = () => ({
+        name: 'testPlugin',
+        extensions: [],
+        hooks: { onConfigChange },
+      })
+
+      const manager = createPluginManager({ plugins: [plugin] })
+      const config = { theme: 'light' }
+      manager.notifyConfigChange(config)
+
+      expect(onConfigChange).toHaveBeenCalledWith({ config })
+    })
+
+    it('notifyDestroy calls onDestroy on all plugins', () => {
+      const onDestroy = vi.fn()
+
+      const plugin: ApiReferencePlugin = () => ({
+        name: 'testPlugin',
+        extensions: [],
+        hooks: { onDestroy },
+      })
+
+      const manager = createPluginManager({ plugins: [plugin] })
+      manager.notifyDestroy()
+
+      expect(onDestroy).toHaveBeenCalled()
+    })
+
+    it('silently skips plugins without hooks', () => {
+      const plugin: ApiReferencePlugin = () => ({
+        name: 'testPlugin',
+        extensions: [],
+      })
+
+      const manager = createPluginManager({ plugins: [plugin] })
+
+      expect(() => {
+        manager.notifyInit({ foo: 'bar' })
+        manager.notifyConfigChange({ foo: 'bar' })
+        manager.notifyDestroy()
+      }).not.toThrow()
+    })
+
+    it('silently skips plugins with partial hooks', () => {
+      const onInit = vi.fn()
+
+      const plugin: ApiReferencePlugin = () => ({
+        name: 'testPlugin',
+        extensions: [],
+        hooks: { onInit },
+      })
+
+      const manager = createPluginManager({ plugins: [plugin] })
+      manager.notifyInit({ foo: 'bar' })
+      manager.notifyConfigChange({ foo: 'bar' })
+      manager.notifyDestroy()
+
+      expect(onInit).toHaveBeenCalledOnce()
     })
   })
 })

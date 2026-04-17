@@ -1,5 +1,11 @@
 # @scalar/openapi-upgrader
 
+## 0.2.5
+
+### Patch Changes
+
+- [#8825](https://github.com/scalar/scalar/pull/8825): chore: moving files around in preparation for the big deletion of client v1
+
 ## 0.2.4
 
 ## 0.2.3

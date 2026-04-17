@@ -10,12 +10,12 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/agent-chat"
   },
-  "version": "0.10.3",
+  "version": "0.10.4",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && cp package.json dist",
+    "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && shx cp package.json dist",
     "build:watch": "vite build --watch",
     "playground": "cd playground && vite",
     "types:check": "vue-tsc --noEmit"
@@ -55,11 +55,11 @@
     "@scalar/icons": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
+    "@scalar/schemas": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
-    "@scalar/schemas": "workspace:*",
-    "@scalar/validation": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
+    "@scalar/validation": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "@vueuse/core": "catalog:*",
     "ai": "catalog:*",

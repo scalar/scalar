@@ -2,7 +2,7 @@
 import {
   createApiClientModal,
   type ApiClientModal,
-} from '@scalar/api-client/v2/features/modal'
+} from '@scalar/api-client/modal'
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 
 import { useAgentKeyDocuments } from '@/hooks/use-agent-key-documents'

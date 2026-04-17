@@ -89,7 +89,6 @@ export type OperationBlockProps = {
 import { ERRORS } from '@scalar/helpers/errors/normalize-error'
 import { isElectron } from '@scalar/helpers/general/is-electron'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { executeHook, type ClientPlugin } from '@scalar/oas-utils/helpers'
 import {
   AVAILABLE_CLIENTS,
@@ -130,7 +129,10 @@ import {
   isStreamingResponse,
   responseCache,
 } from '@/v2/blocks/operation-block/helpers/response-cache'
-import { sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
+import {
+  sendRequest,
+  type ResponseInstance,
+} from '@/v2/blocks/operation-block/helpers/send-request'
 import { validatePathParameters } from '@/v2/blocks/operation-block/helpers/validate-path-parameters'
 import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
 import { RequestBlock } from '@/v2/blocks/request-block'
@@ -275,6 +277,7 @@ const handleExecute = async () => {
   const [sendError, sendResult] = await sendRequest({
     isUsingProxy: requestResult.result.isUsingProxy,
     request: requestResult.result.request,
+    plugins,
   })
 
   if (sendResult) {

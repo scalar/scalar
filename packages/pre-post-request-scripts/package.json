@@ -19,7 +19,7 @@
     "post-response scripts",
     "api client"
   ],
-  "version": "0.4.1",
+  "version": "0.4.2",
   "engines": {
     "node": ">=22"
   },
@@ -27,7 +27,7 @@
     "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "vite",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest --run",
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",

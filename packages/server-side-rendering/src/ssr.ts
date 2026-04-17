@@ -1,5 +1,6 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
+import { dirname, resolve } from 'node:path'
 
 import { ApiReference } from '@scalar/api-reference'
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
@@ -15,6 +16,20 @@ const require = createRequire(import.meta.url)
 function unwrapConfig(configuration: AnyApiReferenceConfiguration): Record<string, unknown> {
   const config = Array.isArray(configuration) ? configuration[0] : configuration
   return (config ?? {}) as Record<string, unknown>
+}
+
+function parseForceDarkModeState(config: Record<string, unknown>): 'dark' | 'light' | null {
+  const forced = config.forceDarkModeState
+
+  if (forced === 'dark' || forced === 'light') {
+    return forced
+  }
+
+  return null
+}
+
+function parseDarkMode(config: Record<string, unknown>): boolean | null {
+  return typeof config.darkMode === 'boolean' ? config.darkMode : null
 }
 
 /**
@@ -33,8 +48,8 @@ function unwrapConfig(configuration: AnyApiReferenceConfiguration): Record<strin
  */
 export function generateBodyScript(configuration: AnyApiReferenceConfiguration): string {
   const config = unwrapConfig(configuration)
-  const forced = (config.forceDarkModeState as string | undefined) ?? null
-  const darkMode = (config.darkMode as boolean | undefined) ?? null
+  const forced = parseForceDarkModeState(config)
+  const darkMode = parseDarkMode(config)
 
   /** When forceDarkModeState is set, we do not need runtime detection at all. */
   if (forced) {
@@ -61,8 +76,8 @@ export function generateBodyScript(configuration: AnyApiReferenceConfiguration):
  */
 function getInitialBodyClass(configuration: AnyApiReferenceConfiguration): 'dark-mode' | 'light-mode' {
   const config = unwrapConfig(configuration)
-  const forced = (config.forceDarkModeState as string | undefined) ?? null
-  const darkMode = (config.darkMode as boolean | undefined) ?? null
+  const forced = parseForceDarkModeState(config)
+  const darkMode = parseDarkMode(config)
 
   if (forced) {
     return forced === 'dark' ? 'dark-mode' : 'light-mode'
@@ -112,7 +127,28 @@ function getDefaultCss(): string {
  */
 export function getJsAsset(): string {
   if (_cachedJs === undefined) {
-    const jsPath = require.resolve('@scalar/api-reference/browser/standalone.js')
+    const apiReferenceEntryPath = require.resolve('@scalar/api-reference')
+    const apiReferencePackageRoot = resolve(dirname(apiReferenceEntryPath), '..')
+    const apiReferencePackageJsonPath = resolve(apiReferencePackageRoot, 'package.json')
+    const apiReferencePackageJson = JSON.parse(readFileSync(apiReferencePackageJsonPath, 'utf-8')) as {
+      browser?: unknown
+    }
+
+    if (typeof apiReferencePackageJson.browser !== 'string' || apiReferencePackageJson.browser.length === 0) {
+      throw new Error(
+        `Could not resolve @scalar/api-reference browser entry from "${apiReferencePackageJsonPath}". ` +
+          'Expected a string "browser" field in package.json.',
+      )
+    }
+
+    const jsPath = resolve(apiReferencePackageRoot, apiReferencePackageJson.browser)
+
+    if (!existsSync(jsPath)) {
+      throw new Error(
+        `Could not locate @scalar/api-reference standalone bundle at "${jsPath}". Run the package build before reading SSR assets.`,
+      )
+    }
+
     _cachedJs = readFileSync(jsPath, 'utf-8')
   }
   return _cachedJs
@@ -128,39 +164,147 @@ function escapeHtmlAttribute(str: string): string {
   return escapeHtml(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;')
 }
 
-/** Serialize an array that may contain functions. */
-function serializeArrayWithFunctions(arr: unknown[]): string {
-  return `[${arr.map((item) => (typeof item === 'function' ? item.toString() : JSON.stringify(item))).join(', ')}]`
+/**
+ * Escape a JSON string so it is safe to embed inside an inline script tag.
+ * This prevents user content from closing the script tag.
+ */
+function escapeJsonForInlineScript(json: string): string {
+  return json
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029')
 }
 
 /**
- * Serialize a configuration object to a JavaScript expression string,
- * preserving function values (which JSON.stringify would silently drop).
+ * Escape a function's source code so it is safe to embed inside an inline script tag.
+ *
+ * Unlike escapeJsonForInlineScript (which escapes all `<` and `>`), this only neutralizes
+ * sequences that could break out of a `<script>` block or open an HTML comment:
+ * - `</` (case-insensitive closing tags, e.g. `</script>`)
+ * - `<!--` (HTML comment open)
+ * - U+2028 / U+2029 (line/paragraph separators, invalid in JS source outside strings)
+ *
+ * This preserves JS syntax like `=>`, `<`, `>`, and `>=`.
  */
-function serializeConfigToJs(config: Record<string, unknown>): string {
-  const jsonProps: Record<string, unknown> = {}
-  const functionProps: string[] = []
+function escapeFunctionSourceForInlineScript(source: string): string {
+  return source
+    .replace(/<\//g, '<\\/')
+    .replace(/<!--/g, '<\\!--')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029')
+}
 
-  for (const [key, value] of Object.entries(config)) {
+/** Add consistent indentation to multiline strings embedded in HTML output. */
+const addIndent = (str: string, spaces: number = 2, initialIndent: boolean = false): string => {
+  const indent = ' '.repeat(spaces)
+  const lines = str.split('\n')
+
+  return lines
+    .map((line, index) => {
+      if (index === 0 && !initialIndent) {
+        return line
+      }
+
+      return `${indent}${line}`
+    })
+    .join('\n')
+}
+
+/**
+ * Reject function values that would otherwise be silently dropped by JSON.stringify.
+ * SSR only supports top-level function props and top-level arrays containing functions,
+ * matching the client-side renderer behavior.
+ */
+const assertNoNestedFunctions = (value: unknown, path: string): void => {
+  if (typeof value === 'function') {
+    throw new Error(
+      `Cannot serialize function at "${path}" for SSR hydration. ` +
+        'Only top-level function properties and top-level arrays containing functions are supported.',
+    )
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => assertNoNestedFunctions(item, `${path}[${index}]`))
+    return
+  }
+
+  if (value && typeof value === 'object') {
+    Object.entries(value).forEach(([key, nestedValue]) => assertNoNestedFunctions(nestedValue, `${path}.${key}`))
+  }
+}
+
+const serializeJsonValue = (value: unknown): string => escapeJsonForInlineScript(JSON.stringify(value))
+
+const serializeJsonObject = (value: Record<string, unknown>): string =>
+  escapeJsonForInlineScript(JSON.stringify(value, null, 2))
+
+const serializePropertyKey = (key: string): string => escapeJsonForInlineScript(JSON.stringify(key))
+
+const serializeArrayWithFunctions = (value: unknown[], path: string): string => {
+  return `[${value
+    .map((item, index) => {
+      if (typeof item === 'function') {
+        return escapeFunctionSourceForInlineScript(item.toString())
+      }
+
+      assertNoNestedFunctions(item, `${path}[${index}]`)
+      return serializeJsonValue(item)
+    })
+    .join(', ')}]`
+}
+
+const serializeFunctionProperty = (key: string, value: Function): string =>
+  `${serializePropertyKey(key)}: ${escapeFunctionSourceForInlineScript(value.toString())}`
+
+const serializeArrayProperty = (key: string, value: unknown[]): string =>
+  `${serializePropertyKey(key)}: ${serializeArrayWithFunctions(value, key)}`
+
+const mergeSerializedProperties = (jsonObjectLiteral: string, dynamicProperties: string[]): string => {
+  const formattedDynamicProperties = addIndent(dynamicProperties.join(',\n'), 8, true)
+
+  if (jsonObjectLiteral === '{}') {
+    return `{\n${formattedDynamicProperties}\n      }`
+  }
+
+  const jsonWithoutClosingBrace = jsonObjectLiteral.split('\n').slice(0, -1).join('\n')
+  return `${jsonWithoutClosingBrace},\n${formattedDynamicProperties}\n      }`
+}
+
+/**
+ * Serialize a configuration object to a JavaScript object literal for hydration.
+ * Top-level function props and top-level arrays containing functions are preserved
+ * to match the client-side renderer behavior.
+ */
+export function serializeConfigToJs(config: Record<string, unknown>): string {
+  const restConfig = { ...config }
+  const dynamicProperties: string[] = []
+
+  Object.entries(config).forEach(([key, value]) => {
     if (typeof value === 'function') {
-      functionProps.push(`"${key}": ${value.toString()}`)
-    } else if (Array.isArray(value) && value.some((item) => typeof item === 'function')) {
-      functionProps.push(`"${key}": ${serializeArrayWithFunctions(value)}`)
-    } else {
-      jsonProps[key] = value
+      dynamicProperties.push(serializeFunctionProperty(key, value))
+      delete restConfig[key]
+      return
     }
+
+    if (Array.isArray(value) && value.some((item) => typeof item === 'function')) {
+      dynamicProperties.push(serializeArrayProperty(key, value))
+      delete restConfig[key]
+      return
+    }
+
+    assertNoNestedFunctions(value, key)
+  })
+
+  const jsonString = serializeJsonObject(restConfig)
+  const indentedJsonString = addIndent(jsonString, 6)
+
+  if (dynamicProperties.length === 0) {
+    return indentedJsonString
   }
 
-  const jsonString = JSON.stringify(jsonProps)
-
-  if (functionProps.length === 0) {
-    return jsonString
-  }
-
-  const jsonEntries = jsonString === '{}' ? '' : jsonString.slice(1, -1)
-  const functionEntries = functionProps.join(', ')
-
-  return `{${[jsonEntries, functionEntries].filter(Boolean).join(', ')}}`
+  return mergeSerializedProperties(indentedJsonString, dynamicProperties)
 }
 
 /**
