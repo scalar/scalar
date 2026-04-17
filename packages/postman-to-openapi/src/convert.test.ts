@@ -87,7 +87,10 @@ describe('convert', () => {
     const snapshot = JSON.parse(JSON.stringify(collection))
     const result = convert(collection)
 
-    expect(result.tags).toEqual([{ name: 'Parent', description: 'Parent folder' }, { name: 'Parent > Child' }])
+    expect(result.tags).toEqual([
+      { name: 'Parent', description: 'Parent folder' },
+      { name: 'Child', description: 'Part of Parent' },
+    ])
     expect(collection).toEqual(snapshot)
   })
 
@@ -122,7 +125,10 @@ describe('convert', () => {
 
     const nestedOnly = convert(collection, { requestIndexPaths: [[0, 0, 0]] })
     expect(Object.keys(nestedOnly.paths ?? {})).toEqual(['/users'])
-    expect(nestedOnly.tags).toEqual([{ name: 'Parent', description: 'Parent folder' }, { name: 'Parent > Child' }])
+    expect(nestedOnly.tags).toEqual([
+      { name: 'Parent', description: 'Parent folder' },
+      { name: 'Child', description: 'Part of Parent' },
+    ])
 
     const standaloneOnly = convert(collection, { requestIndexPaths: [[1]] })
     expect(Object.keys(standaloneOnly.paths ?? {})).toEqual(['/status'])
@@ -134,6 +140,81 @@ describe('convert', () => {
 
   it('fails fast when string input is not valid JSON', () => {
     expect(() => convert('{"info": {"name": "Broken"')).toThrowError(/invalid postman collection json/i)
+  })
+
+  it('supports chain tag naming strategy to preserve legacy folder chains', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Tags',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Error Case',
+          item: [
+            {
+              name: 'GET /applications',
+              item: [{ name: 'List applications', request: 'https://api.scalar.com/applications' }],
+            },
+          ],
+        },
+      ],
+    }
+
+    const result = convert(collection, { tagNamingStrategy: 'chain' })
+
+    expect(result.tags).toEqual([{ name: 'Error Case' }, { name: 'Error Case > GET /applications' }])
+    expect(result.paths?.['/applications']?.get?.tags).toEqual(['Error Case > GET /applications'])
+  })
+
+  it('uses parent plus leaf fallback when duplicate leaf tag names exist', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Duplicate leaf tags',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Error Case',
+          item: [{ name: 'GET', item: [{ name: 'Get application', request: 'https://api.scalar.com/applications' }] }],
+        },
+        {
+          name: 'Business Logic',
+          item: [{ name: 'GET', item: [{ name: 'Get users', request: 'https://api.scalar.com/users' }] }],
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.tags).toEqual([
+      { name: 'Error Case' },
+      { name: 'Error Case / GET', description: 'Part of Error Case' },
+      { name: 'Business Logic' },
+      { name: 'Business Logic / GET', description: 'Part of Business Logic' },
+    ])
+    expect(result.paths?.['/applications']?.get?.tags).toEqual(['Error Case / GET'])
+    expect(result.paths?.['/users']?.get?.tags).toEqual(['Business Logic / GET'])
+  })
+
+  it('normalizes path-like folder names when using leaf tag naming', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Path style tags',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: '/languages/{languageCode}',
+          item: [{ name: 'Get language', request: 'https://api.scalar.com/languages/:languageCode' }],
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.tags).toEqual([{ name: 'languages' }])
+    expect(result.paths?.['/languages/{languageCode}']?.get?.tags).toEqual(['languages'])
   })
 
   it('errors when required collection info is missing', () => {

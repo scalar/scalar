@@ -712,7 +712,7 @@ exports[`fixtures > Folders 1`] = `
         },
         "summary": "Get posts settings",
         "tags": [
-          "Posts > Admin",
+          "Posts / Admin",
         ],
       },
     },
@@ -770,7 +770,7 @@ exports[`fixtures > Folders 1`] = `
         },
         "summary": "Request 2",
         "tags": [
-          "Folder 1 > Folder 2",
+          "Folder 2",
         ],
       },
     },
@@ -799,7 +799,7 @@ exports[`fixtures > Folders 1`] = `
         },
         "summary": "Request 3",
         "tags": [
-          "Folder 1 > Folder 2 > Folder 3",
+          "Folder 3",
         ],
       },
     },
@@ -828,7 +828,7 @@ exports[`fixtures > Folders 1`] = `
         },
         "summary": "Request 4",
         "tags": [
-          "Folder 1 > Folder 2 > Folder 3 > Folder 4 > Folder 5",
+          "Folder 5",
         ],
       },
     },
@@ -880,7 +880,7 @@ exports[`fixtures > Folders 1`] = `
         },
         "summary": "Get user roles",
         "tags": [
-          "Users > Admin",
+          "Users / Admin",
         ],
       },
     },
@@ -896,36 +896,48 @@ exports[`fixtures > Folders 1`] = `
       "name": "Users",
     },
     {
-      "description": "Admin operations at User level",
-      "name": "Users > Admin",
+      "description": "Admin operations at User level
+
+Part of Users",
+      "name": "Users / Admin",
     },
     {
       "description": "Operations for Post items",
       "name": "Posts",
     },
     {
-      "description": "Admin operations for Post items",
-      "name": "Posts > Admin",
+      "description": "Admin operations for Post items
+
+Part of Posts",
+      "name": "Posts / Admin",
     },
     {
       "description": "Folder 1 description",
       "name": "Folder 1",
     },
     {
-      "description": "Folder 2 description",
-      "name": "Folder 1 > Folder 2",
+      "description": "Folder 2 description
+
+Part of Folder 1",
+      "name": "Folder 2",
     },
     {
-      "description": "Folder 3 description",
-      "name": "Folder 1 > Folder 2 > Folder 3",
+      "description": "Folder 3 description
+
+Part of Folder 1 -> Folder 2",
+      "name": "Folder 3",
     },
     {
-      "description": "Folder 4 description",
-      "name": "Folder 1 > Folder 2 > Folder 3 > Folder 4",
+      "description": "Folder 4 description
+
+Part of Folder 1 -> Folder 2 -> Folder 3",
+      "name": "Folder 4",
     },
     {
-      "description": "Folder 5 description",
-      "name": "Folder 1 > Folder 2 > Folder 3 > Folder 4 > Folder 5",
+      "description": "Folder 5 description
+
+Part of Folder 1 -> Folder 2 -> Folder 3 -> Folder 4",
+      "name": "Folder 5",
     },
     {
       "name": "Empty Folder",

@@ -8,6 +8,7 @@ import { processLogo } from '@/helpers/logo'
 import { DEFAULT_EXAMPLE_NAME, OPERATION_KEYS, mergePathItem } from '@/helpers/merge-path-item'
 import {
   POSTMAN_EXAMPLE_NAME_EXTENSION,
+  POSTMAN_FOLDER_SEGMENTS_EXTENSION,
   POSTMAN_POST_RESPONSE_SCRIPTS_EXTENSION,
   POSTMAN_PRE_REQUEST_SCRIPTS_EXTENSION,
   processItem,
@@ -81,45 +82,236 @@ const validateCollectionShape = (collection: unknown): PostmanCollection => {
   return candidate as PostmanCollection
 }
 
-/**
- * Extracts tags from Postman collection folders.
- * We keep folder nesting using " > " so tag names stay readable while preserving hierarchy.
- * Requests do not produce tags; only folders are reflected as tags.
- */
 const isItemGroup = (item: Item | ItemGroup): item is ItemGroup => 'item' in item && Array.isArray(item.item)
 
-const extractTags = (items: PostmanCollection['item']): OpenAPIV3_1.TagObject[] => {
-  const collectTags = (item: Item | ItemGroup, parentPath: string = ''): OpenAPIV3_1.TagObject[] => {
+export type TagNamingStrategy = 'leaf' | 'chain'
+
+type TagContext = {
+  segments: string[]
+  description?: string
+}
+
+type TagMetadata = {
+  tags: OpenAPIV3_1.TagObject[]
+  resolveTagName: (segments: string[]) => string | undefined
+}
+
+const TAG_CHAIN_SEPARATOR = ' > '
+const TAG_DUPLICATE_SEPARATOR = ' / '
+
+const getTagContextKey = (segments: string[]): string => JSON.stringify(segments)
+
+const getChainTagName = (segments: string[]): string => segments.join(TAG_CHAIN_SEPARATOR)
+
+const isPathParameterSegment = (segment: string): boolean =>
+  (segment.startsWith('{') && segment.endsWith('}')) || segment.startsWith(':')
+
+const normalizeLeafTagSegment = (segment: string): string => {
+  const trimmed = segment.trim()
+  if (!trimmed) {
+    return trimmed
+  }
+
+  // Postman folders are sometimes literal URL templates (`/languages/{languageCode}`).
+  // Keep tag names short by turning those into a readable leaf identifier.
+  const looksLikePathTemplate = trimmed.startsWith('/') || (trimmed.includes('/') && !trimmed.includes(' '))
+  if (!looksLikePathTemplate) {
+    return trimmed
+  }
+
+  const segments = trimmed
+    .split('/')
+    .map((part) => part.trim())
+    .filter(Boolean)
+  if (segments.length === 0) {
+    return trimmed
+  }
+
+  const preferredSegment = [...segments].reverse().find((part) => !isPathParameterSegment(part))
+  const fallbackSegment = preferredSegment ?? segments[segments.length - 1] ?? trimmed
+  if (fallbackSegment.startsWith('{') && fallbackSegment.endsWith('}')) {
+    return fallbackSegment.slice(1, -1)
+  }
+  if (fallbackSegment.startsWith(':')) {
+    return fallbackSegment.slice(1)
+  }
+  return fallbackSegment
+}
+
+const getLeafTagName = (segments: string[]): string => normalizeLeafTagSegment(segments[segments.length - 1] ?? '')
+
+const getLeafDuplicateFallback = (segments: string[], leafTagName: string): string => {
+  const parentSegment = segments[segments.length - 2]
+  if (!parentSegment) {
+    return getChainTagName(segments)
+  }
+
+  const normalizedParent = normalizeLeafTagSegment(parentSegment)
+  if (!normalizedParent) {
+    return getChainTagName(segments)
+  }
+
+  return `${normalizedParent}${TAG_DUPLICATE_SEPARATOR}${leafTagName}`
+}
+
+const buildLeafTagContextDescription = (segments: string[]): string | undefined => {
+  if (segments.length <= 1) {
+    return undefined
+  }
+
+  return `Part of ${segments.slice(0, -1).join(' -> ')}`
+}
+
+const mergeTagDescriptions = (description?: string, contextDescription?: string): string | undefined => {
+  if (description && contextDescription) {
+    return `${description}\n\n${contextDescription}`
+  }
+
+  return description ?? contextDescription
+}
+
+const dedupeTagContexts = (contexts: TagContext[]): TagContext[] => {
+  const contextMap = new Map<string, TagContext>()
+
+  contexts.forEach((context) => {
+    const key = getTagContextKey(context.segments)
+    const existing = contextMap.get(key)
+    if (!existing) {
+      contextMap.set(key, context)
+      return
+    }
+
+    if (!existing.description && context.description) {
+      contextMap.set(key, context)
+    }
+  })
+
+  return [...contextMap.values()]
+}
+
+const resolveTagNameMap = (contexts: TagContext[], strategy: TagNamingStrategy): Map<string, string> => {
+  const nameMap = new Map<string, string>()
+
+  contexts.forEach((context) => {
+    const key = getTagContextKey(context.segments)
+    const initialName = strategy === 'chain' ? getChainTagName(context.segments) : getLeafTagName(context.segments)
+    nameMap.set(key, initialName || getChainTagName(context.segments))
+  })
+
+  if (strategy === 'chain') {
+    return nameMap
+  }
+
+  const initialCounts = new Map<string, number>()
+  nameMap.forEach((name) => {
+    initialCounts.set(name, (initialCounts.get(name) ?? 0) + 1)
+  })
+
+  contexts.forEach((context) => {
+    const key = getTagContextKey(context.segments)
+    const currentName = nameMap.get(key)
+    if (!currentName) {
+      return
+    }
+
+    if ((initialCounts.get(currentName) ?? 0) > 1) {
+      nameMap.set(key, getLeafDuplicateFallback(context.segments, currentName))
+    }
+  })
+
+  const fallbackCounts = new Map<string, number>()
+  nameMap.forEach((name) => {
+    fallbackCounts.set(name, (fallbackCounts.get(name) ?? 0) + 1)
+  })
+
+  contexts.forEach((context) => {
+    const key = getTagContextKey(context.segments)
+    const currentName = nameMap.get(key)
+    if (!currentName) {
+      return
+    }
+
+    if ((fallbackCounts.get(currentName) ?? 0) > 1) {
+      nameMap.set(key, getChainTagName(context.segments))
+    }
+  })
+
+  return nameMap
+}
+
+const buildTagMetadata = (contexts: TagContext[], strategy: TagNamingStrategy): TagMetadata => {
+  const uniqueContexts = dedupeTagContexts(contexts)
+  const resolvedNameMap = resolveTagNameMap(uniqueContexts, strategy)
+  const tags: OpenAPIV3_1.TagObject[] = []
+  const seenNames = new Set<string>()
+
+  uniqueContexts.forEach((context) => {
+    const key = getTagContextKey(context.segments)
+    const name = resolvedNameMap.get(key)
+    if (!name || seenNames.has(name)) {
+      return
+    }
+
+    seenNames.add(name)
+    const contextDescription = strategy === 'leaf' ? buildLeafTagContextDescription(context.segments) : undefined
+    const description = mergeTagDescriptions(context.description, contextDescription)
+    tags.push({
+      name,
+      ...(description && { description }),
+    })
+  })
+
+  const resolveTagName = (segments: string[]): string | undefined => {
+    if (segments.length === 0) {
+      return undefined
+    }
+
+    const fromMap = resolvedNameMap.get(getTagContextKey(segments))
+    if (fromMap) {
+      return fromMap
+    }
+
+    if (strategy === 'chain') {
+      return getChainTagName(segments)
+    }
+
+    return getLeafTagName(segments) || getChainTagName(segments)
+  }
+
+  return { tags, resolveTagName }
+}
+
+const collectTagContexts = (items: PostmanCollection['item'], parentSegments: string[] = []): TagContext[] =>
+  items.flatMap((item): TagContext[] => {
     if (!isItemGroup(item)) {
       return []
     }
 
-    const nextPath = item.name ? (parentPath ? `${parentPath} > ${item.name}` : item.name) : parentPath
-    const description = normalizeDescription(item.description)
-    const currentTag: OpenAPIV3_1.TagObject[] = item.name?.length
+    const nextSegments = item.name ? [...parentSegments, item.name] : parentSegments
+    const currentContext: TagContext[] = item.name?.length
       ? [
           {
-            name: nextPath,
-            ...(description && { description }),
+            segments: nextSegments,
+            description: normalizeDescription(item.description),
           },
         ]
       : []
 
-    return [...currentTag, ...item.item.flatMap((subItem) => collectTags(subItem, nextPath))]
-  }
+    return [...currentContext, ...collectTagContexts(item.item, nextSegments)]
+  })
 
-  return items.flatMap((item) => collectTags(item))
-}
+const extractTags = (items: PostmanCollection['item'], strategy: TagNamingStrategy): TagMetadata =>
+  buildTagMetadata(collectTagContexts(items), strategy)
 
 /**
- * Folder tags for ancestors of each selected path only (same shape as {@link extractTags}).
+ * Folder tags for ancestors of each selected path only (same shape as full extraction).
  */
-const extractTagsForSelectedPaths = (
+const extractTagContextsForSelectedPaths = (
   items: PostmanCollection['item'],
   paths: readonly PostmanRequestIndexPath[],
-): OpenAPIV3_1.TagObject[] => {
+): TagContext[] => {
   const seen = new Set<string>()
-  const result: OpenAPIV3_1.TagObject[] = []
+  const result: TagContext[] = []
 
   for (const path of paths) {
     if (path.length === 0) {
@@ -127,7 +319,7 @@ const extractTagsForSelectedPaths = (
     }
 
     let list = items
-    let parentPath = ''
+    const segments: string[] = []
 
     for (let i = 0; i < path.length - 1; i++) {
       const idx = path[i]
@@ -140,24 +332,30 @@ const extractTagsForSelectedPaths = (
         break
       }
 
-      const nextPath = node.name ? (parentPath ? `${parentPath} > ${node.name}` : node.name) : parentPath
-      const description = normalizeDescription(node.description)
-
-      if (node.name?.length && !seen.has(nextPath)) {
-        seen.add(nextPath)
-        result.push({
-          name: nextPath,
-          ...(description && { description }),
-        })
+      if (node.name?.length) {
+        segments.push(node.name)
+        const key = getTagContextKey(segments)
+        if (!seen.has(key)) {
+          seen.add(key)
+          result.push({
+            segments: [...segments],
+            description: normalizeDescription(node.description),
+          })
+        }
       }
 
-      parentPath = nextPath
       list = node.item
     }
   }
 
   return result
 }
+
+const extractTagsForSelectedPaths = (
+  items: PostmanCollection['item'],
+  paths: readonly PostmanRequestIndexPath[],
+  strategy: TagNamingStrategy,
+): TagMetadata => buildTagMetadata(extractTagContextsForSelectedPaths(items, paths), strategy)
 
 const getNodeAtPath = (
   items: PostmanCollection['item'],
@@ -323,6 +521,7 @@ const cleanupOperations = (paths: OpenAPIV3_1.PathsObject): void => {
       delete operation[POSTMAN_EXAMPLE_NAME_EXTENSION]
       delete operation[POSTMAN_PRE_REQUEST_SCRIPTS_EXTENSION]
       delete operation[POSTMAN_POST_RESPONSE_SCRIPTS_EXTENSION]
+      delete operation[POSTMAN_FOLDER_SEGMENTS_EXTENSION]
     })
   })
 }
@@ -477,23 +676,27 @@ const findFolderTemplateHint = (
         continue
       }
 
+      // Use the raw Postman folder chain if available; otherwise fall back to
+      // splitting tag strings (supports the legacy chain tag naming strategy).
+      const rawSegments = operation[POSTMAN_FOLDER_SEGMENTS_EXTENSION] as string[] | undefined
+      const folderNameCandidates: string[] = rawSegments ? [...rawSegments] : []
       for (const tag of operation.tags ?? []) {
-        const folderNames = tag.split(' > ').map((segment: string) => segment.trim())
+        folderNameCandidates.push(...tag.split(' > ').map((segment: string) => segment.trim()))
+      }
 
-        for (const folderName of folderNames) {
-          if (!folderName.startsWith('/')) {
-            continue
-          }
+      for (const folderName of folderNameCandidates) {
+        if (!folderName.startsWith('/')) {
+          continue
+        }
 
-          const normalizedFolderName = normalizePath(folderName)
-          if (getPathStructuralSignature(normalizedFolderName) !== signature) {
-            continue
-          }
+        const normalizedFolderName = normalizePath(folderName)
+        if (getPathStructuralSignature(normalizedFolderName) !== signature) {
+          continue
+        }
 
-          const folderParameterNames = getOrderedPathParameterNames(normalizedFolderName)
-          if (folderParameterNames.length === parameterNames.length) {
-            return folderParameterNames
-          }
+        const folderParameterNames = getOrderedPathParameterNames(normalizedFolderName)
+        if (folderParameterNames.length === parameterNames.length) {
+          return folderParameterNames
         }
       }
     }
@@ -597,6 +800,12 @@ export type ConvertOptions = {
    */
   requestIndexPaths?: readonly PostmanRequestIndexPath[]
   /**
+   * Strategy for generating OpenAPI tag names from nested Postman folders.
+   * - `leaf` (default): use the folder name only; duplicate leaves fallback to `parent / leaf`.
+   * - `chain`: keep the legacy full folder chain joined by ` > `.
+   */
+  tagNamingStrategy?: TagNamingStrategy
+  /**
    * Existing OpenAPI document to merge into. The input is is updated with Postman paths,
    * tags (union by name), security schemes, and servers.
    * Root `info` and existing paths are preserved unless Postman adds or merges operations.
@@ -613,7 +822,7 @@ export function convert(
   postmanCollection: PostmanCollection | string,
   options: ConvertOptions = { mergeOperation: false },
 ): OpenAPIV3_1.Document {
-  const { requestIndexPaths, mergeOperation = false, document: baseDocument } = options
+  const { requestIndexPaths, mergeOperation = false, tagNamingStrategy = 'leaf', document: baseDocument } = options
   const isMergingIntoBase = baseDocument !== undefined
   const collection = validateCollectionShape(parseCollectionInput(postmanCollection))
 
@@ -680,7 +889,7 @@ export function convert(
 
     if (usePathFilter) {
       const uniquePaths = dedupeIndexPaths(requestIndexPaths)
-      const tags = extractTagsForSelectedPaths(collection.item, uniquePaths)
+      const { tags, resolveTagName } = extractTagsForSelectedPaths(collection.item, uniquePaths, tagNamingStrategy)
       assignTagsFromPostman(openapi, tags, isMergingIntoBase)
 
       for (const path of uniquePaths) {
@@ -694,7 +903,7 @@ export function convert(
           paths: itemPaths,
           components: itemComponents,
           serverUsage,
-        } = processItem(node, DEFAULT_EXAMPLE_NAME, parentTags, '', mergeOperation)
+        } = processItem(node, DEFAULT_EXAMPLE_NAME, parentTags, '', mergeOperation, resolveTagName)
 
         allServerUsage.push(...serverUsage)
 
@@ -713,7 +922,7 @@ export function convert(
         }
       }
     } else {
-      const tags = extractTags(collection.item)
+      const { tags, resolveTagName } = extractTags(collection.item, tagNamingStrategy)
       assignTagsFromPostman(openapi, tags, isMergingIntoBase)
 
       collection.item.forEach((item) => {
@@ -721,7 +930,7 @@ export function convert(
           paths: itemPaths,
           components: itemComponents,
           serverUsage,
-        } = processItem(item, DEFAULT_EXAMPLE_NAME, [], '', mergeOperation)
+        } = processItem(item, DEFAULT_EXAMPLE_NAME, [], '', mergeOperation, resolveTagName)
 
         allServerUsage.push(...serverUsage)
 
