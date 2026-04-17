@@ -64,7 +64,7 @@
     "documentation": "https://scalar.com/products/api-references/integrations/nestjs"
   },
   "dependencies": {
-    "@scalar/core": "workspace:*"
+    "@scalar/client-side-rendering": "workspace:*"
   },
   "devDependencies": {
     "@nestjs/common": "catalog:*",

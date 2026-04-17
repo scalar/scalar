@@ -151,7 +151,10 @@ export const getRequestExampleContext = (
   )
 
   /** The above selected requirements in scheme form */
-  const selectedSecuritySchemes = getSecuritySchemes(securitySchemes, selectedSecurity.selectedSchemes)
+  const selectedSecuritySchemes = getSecuritySchemes(
+    securitySchemes,
+    selectedSecurity.selectedSchemes[selectedSecurity.selectedIndex] ?? {},
+  )
 
   const serverMeta: ServerMeta =
     operation.servers != null ? { type: 'operation', path: path ?? '', method: method ?? 'get' } : { type: 'document' }

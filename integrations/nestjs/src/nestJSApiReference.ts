@@ -1,6 +1,6 @@
 import type { ServerResponse } from 'node:http'
 
-import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
+import { renderApiReference } from '@scalar/client-side-rendering'
 import type { Request, Response } from 'express'
 import type { FastifyRequest } from 'fastify'
 
@@ -91,7 +91,10 @@ export function apiReference(givenConfiguration: NestJSReferenceConfiguration) {
     ...givenConfiguration,
   }
 
-  const content = () => getHtmlDocument(configuration, customThemeCSS)
+  const content = () => {
+    const { cdn, pageTitle, ...config } = configuration
+    return renderApiReference({ config, pageTitle, cdn }, customThemeCSS)
+  }
 
   if (givenConfiguration.withFastify) {
     return (_req: FastifyRequest, res: ServerResponse) => {

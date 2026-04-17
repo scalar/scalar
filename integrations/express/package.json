@@ -54,7 +54,7 @@
     "documentation": "https://scalar.com/products/api-references/integrations/express"
   },
   "dependencies": {
-    "@scalar/core": "workspace:*"
+    "@scalar/client-side-rendering": "workspace:*"
   },
   "devDependencies": {
     "@types/express": "catalog:*",

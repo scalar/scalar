@@ -36,22 +36,8 @@ function handleRawBody(body: RequestBody, requestBody: OpenAPIV3_1.RequestBodyOb
   const rawBody = body.raw || ''
   const isJsonLanguage = body.options?.raw?.language === 'json'
 
-  // Check if body contains Postman variables (like {{bodyData}})
-  const hasVariables = /\{\{[\w-]+\}\}/.test(rawBody)
-
-  // Try parsing the raw body as JSON
-  // We use a boolean flag because `null` is a valid JSON value
-  let jsonBody: unknown
-  let isJsonBody = false
-  try {
-    jsonBody = JSON.parse(rawBody)
-    isJsonBody = true
-  } catch {
-    // Parsing failed - will handle below
-  }
-
   // If we have valid JSON, use it
-  if (isJsonBody) {
+  if (isJsonLanguage) {
     requestBody.content = {
       'application/json': {
         schema: {
@@ -59,22 +45,8 @@ function handleRawBody(body: RequestBody, requestBody: OpenAPIV3_1.RequestBodyOb
         },
         examples: {
           [exampleName]: {
-            value: jsonBody,
+            value: rawBody,
           },
-        },
-      },
-    }
-    return
-  }
-
-  // If we have variables and JSON language but could not parse JSON,
-  // create a JSON schema placeholder
-  if (hasVariables && isJsonLanguage) {
-    requestBody.content = {
-      'application/json': {
-        schema: {
-          type: 'object',
-          description: 'Body data set via pre-request script',
         },
       },
     }

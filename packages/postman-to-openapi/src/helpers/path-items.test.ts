@@ -373,6 +373,11 @@ describe('path-items', () => {
         body: {
           mode: 'raw',
           raw: '{"name": "John", "email": "john@example.com"}',
+          options: {
+            raw: {
+              language: 'json',
+            },
+          },
         },
       },
     }
@@ -436,6 +441,11 @@ describe('path-items', () => {
         body: {
           mode: 'raw',
           raw: '{}',
+          options: {
+            raw: {
+              language: 'json',
+            },
+          },
         },
       },
     }
@@ -471,8 +481,8 @@ describe('path-items', () => {
     expect(result.paths['/bedrock']?.get?.requestBody).toBeDefined()
     expect(result.paths['/bedrock']?.get?.requestBody?.content?.['application/json']).toBeDefined()
     const example = result.paths['/bedrock']?.get?.requestBody?.content?.['application/json']?.examples?.default
-      ?.value as any
-    expect(example?.data?.modelId).toBe('mistral.mistral-7b-instruct-v0:2')
+      ?.value as string
+    expect(example).toBe('{"data": {"modelId": "mistral.mistral-7b-instruct-v0:2"}}')
   })
 
   it('does not add requestBody when body is empty', () => {
