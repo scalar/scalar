@@ -213,10 +213,16 @@ describe('ClassicLayout', () => {
           required: true,
           content: {
             'application/json': {
-              schema: { type: 'object', properties: { foo: { type: 'string' } } },
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'object',
+                properties: { foo: { type: 'string' } },
+              }),
             },
             'application/x-www-form-urlencoded': {
-              schema: { type: 'object', properties: { bar: { type: 'string' } } },
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'object',
+                properties: { bar: { type: 'string' } },
+              }),
             },
           },
         },
@@ -231,24 +237,15 @@ describe('ClassicLayout', () => {
             name: 'RouterLink',
             template: '<a><slot /></a>',
           },
-          // Stub out the code sample so we don't need to mount all of CodeMirror
-          OperationCodeSample: {
-            name: 'OperationCodeSample',
-            props: ['selectedContentType'],
-            template: '<div class="stub-code-sample" :data-content-type="selectedContentType"></div>',
-          },
         },
       },
     })
 
-    const codeSample = wrapper.find('.stub-code-sample')
-    // Should initially be undefined (defaults to first in OperationCodeSample) or 'application/json' if synced back
-
-    // Find the RequestBody component and change the selectedContentType
     const requestBody = wrapper.findComponent({ name: 'RequestBody' })
     await requestBody.vm.$emit('update:selectedContentType', 'application/x-www-form-urlencoded')
     await nextTick()
 
-    expect(codeSample.attributes('data-content-type')).toBe('application/x-www-form-urlencoded')
+    const codeSample = wrapper.findComponent({ name: 'OperationCodeSample' })
+    expect(codeSample.props('selectedContentType')).toBe('application/x-www-form-urlencoded')
   })
 })

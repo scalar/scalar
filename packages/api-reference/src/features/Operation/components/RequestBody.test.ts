@@ -231,10 +231,10 @@ describe('RequestBody', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: { type: 'object' },
+              schema: coerceValue(SchemaObjectSchema, { type: 'object' }),
             },
             'application/x-www-form-urlencoded': {
-              schema: { type: 'object' },
+              schema: coerceValue(SchemaObjectSchema, { type: 'object' }),
             },
           },
         },
@@ -249,7 +249,6 @@ describe('RequestBody', () => {
     const select = wrapper.findComponent({ name: 'ContentTypeSelect' })
     expect(select.exists()).toBe(true)
 
-    // Simulate changing content type
     await select.vm.$emit('update:modelValue', 'application/x-www-form-urlencoded')
 
     expect(wrapper.props('selectedContentType')).toBe('application/x-www-form-urlencoded')
