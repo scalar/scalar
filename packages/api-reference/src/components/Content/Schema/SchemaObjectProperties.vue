@@ -5,6 +5,7 @@ import { resolve } from '@scalar/workspace-store/resolve'
 import type {
   DiscriminatorObject,
   SchemaObject,
+  SchemaReferenceType,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
@@ -116,7 +117,13 @@ const additionalPropertiesEnum = computed(() => {
  * - the property-specific description written next to the $ref, and
  * - the referenced schema's own description (for example discriminator parent docs)
  */
-const getPropertySchema = (property: SchemaObject): SchemaObject => {
+const getPropertySchema = (
+  property: SchemaReferenceType<SchemaObject> | undefined,
+): SchemaObject | undefined => {
+  if (!property) {
+    return undefined
+  }
+
   if ('$ref' in property && typeof property.$ref === 'string') {
     return getResolvedRef(property) as SchemaObject
   }
@@ -124,7 +131,13 @@ const getPropertySchema = (property: SchemaObject): SchemaObject => {
   return resolve.schema(property)
 }
 
-const getPropertyDescription = (property: SchemaObject): string | undefined => {
+const getPropertyDescription = (
+  property: SchemaReferenceType<SchemaObject> | undefined,
+): string | undefined => {
+  if (!property) {
+    return undefined
+  }
+
   return typeof property.description === 'string'
     ? property.description
     : undefined
