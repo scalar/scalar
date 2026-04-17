@@ -270,6 +270,7 @@ describe('optimizeValueForDisplay', () => {
     const result = optimizeValueForDisplay(input)
 
     expect(result).toEqual({
+      description: 'A complex schema',
       anyOf: [
         {
           description: 'A complex schema',
@@ -281,6 +282,53 @@ describe('optimizeValueForDisplay', () => {
         },
       ],
     })
+  })
+
+  it('preserves the parent description for multi-branch oneOf schemas', () => {
+    const input: SchemaObject = {
+      description: 'Base schema description',
+      properties: {
+        kind: {
+          type: 'string',
+        },
+      },
+      oneOf: [
+        {
+          title: 'FirstVariant',
+          allOf: [
+            {
+              type: 'object',
+              properties: {
+                kind: {
+                  type: 'string',
+                  description: 'Discriminator field for the first variant.',
+                },
+              },
+            },
+          ],
+          description: 'First variant description.',
+        },
+        {
+          title: 'SecondVariant',
+          allOf: [
+            {
+              type: 'object',
+              properties: {
+                kind: {
+                  type: 'string',
+                  description: 'Discriminator field for the second variant.',
+                },
+              },
+            },
+          ],
+          description: 'Second variant description.',
+        },
+      ],
+    }
+
+    const result = optimizeValueForDisplay(input)
+
+    expect(result?.description).toBe('Base schema description')
   })
 
   it('should preserve multiple allOf items when merging root properties into multiple oneOf schemas', () => {

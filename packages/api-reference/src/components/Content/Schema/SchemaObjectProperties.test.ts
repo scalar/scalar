@@ -11,6 +11,7 @@ vi.mock('./SchemaProperty.vue', () => ({
     name: 'SchemaProperty',
     template: '<div class="schema-property" :data-name="name"></div>',
     props: [
+      'description',
       'name',
       'variant',
       'resolvedSchema',
@@ -369,5 +370,51 @@ describe('SchemaObjectProperties', () => {
     expect(props[1]?.attributes('data-name')).toBe('alpha')
     expect(props[2]?.attributes('data-name')).toBe('beta')
     expect(props[3]?.attributes('data-name')).toBe('gamma')
+  })
+
+  it('keeps sibling ref descriptions separate from the referenced schema', () => {
+    const schema = {
+      type: 'object',
+      properties: {
+        item: {
+          $ref: '#/components/schemas/BaseSchema',
+          description: 'Property-specific description.',
+          '$ref-value': {
+            oneOf: [
+              {
+                title: 'FirstVariant',
+                type: 'object',
+              },
+              {
+                title: 'SecondVariant',
+                type: 'object',
+              },
+            ],
+            description: 'Referenced schema description.',
+          },
+        },
+      },
+    } as SchemaObject
+
+    const wrapper = mount(SchemaObjectProperties, {
+      props: { schema, options: {}, eventBus: null },
+    })
+
+    const property = wrapper.findComponent({ name: 'SchemaProperty' })
+
+    expect(property.props('description')).toBe('Property-specific description.')
+    expect(property.props('schema')).toStrictEqual({
+      oneOf: [
+        {
+          title: 'FirstVariant',
+          type: 'object',
+        },
+        {
+          title: 'SecondVariant',
+          type: 'object',
+        },
+      ],
+      description: 'Referenced schema description.',
+    })
   })
 })

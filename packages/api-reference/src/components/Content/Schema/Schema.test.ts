@@ -89,6 +89,52 @@ describe('Schema', () => {
       const text = wrapper.text()
       expect(text).toContain('This description should not be shown')
     })
+
+    it('shows the parent description for discriminator-based oneOf schemas', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          schema: coerceValue(SchemaObjectSchema, {
+            description: 'Parent schema description',
+            discriminator: {
+              propertyName: 'kind',
+              mapping: {
+                first: '#/components/schemas/FirstVariant',
+                second: '#/components/schemas/SecondVariant',
+              },
+            },
+            oneOf: [
+              {
+                type: 'object',
+                title: 'FirstVariant',
+                properties: {
+                  firstId: {
+                    type: 'string',
+                  },
+                },
+              },
+              {
+                type: 'object',
+                title: 'SecondVariant',
+                properties: {
+                  secondId: {
+                    type: 'string',
+                  },
+                },
+              },
+            ],
+            properties: {
+              kind: {
+                type: 'string',
+              },
+            },
+          }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.text()).toContain('Parent schema description')
+    })
   })
 
   describe('additionalProperties Vue prop', () => {
