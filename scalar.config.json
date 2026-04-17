@@ -1842,6 +1842,9 @@
                     "type": "page",
                     "title": "Getting Started",
                     "description": "A modern, open-source API client built on the OpenAPI standard with offline-first design and cross-platform support.",
+                    "layout": {
+                      "toc": false
+                    },
                     "head": {
                       "links": [
                         {
