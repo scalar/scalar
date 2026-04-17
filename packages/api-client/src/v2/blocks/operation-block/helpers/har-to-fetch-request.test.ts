@@ -1,4 +1,5 @@
 import type { HarRequest } from '@scalar/snippetz'
+import type { RequestPayload } from '@scalar/workspace-store/request-example'
 import { describe, expect, it } from 'vitest'
 
 import { harToFetchRequest } from './har-to-fetch-request'
@@ -7,7 +8,7 @@ import { harToFetchRequest } from './har-to-fetch-request'
  * Converts the [url, init] tuple returned by harToFetchRequest to a Request object
  * for convenient assertion access (headers.get, text(), body, etc.).
  */
-const toRequest = ([url, init]: [string, RequestInit]): Request => new Request(url, init)
+const toRequest = ([url, init]: RequestPayload): Request => new Request(url, init)
 
 describe('harToFetchRequest', () => {
   it('converts basic GET request from HAR to Fetch Request', () => {

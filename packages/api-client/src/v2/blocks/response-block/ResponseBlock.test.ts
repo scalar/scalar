@@ -1,4 +1,5 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { RequestPayload } from '@scalar/workspace-store/request-example'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { type DefineComponent, defineComponent, markRaw } from 'vue'
@@ -415,7 +416,7 @@ describe('ResponseBlock', () => {
     const wrapper = mount(ResponseBlock, {
       props: {
         ...defaultProps,
-        request: ['https://example.com', { headers: new Headers() }] as [string, RequestInit],
+        request: ['https://example.com', { headers: new Headers() }] as RequestPayload,
         response: getDefaultResponse(),
         plugins: [
           {
