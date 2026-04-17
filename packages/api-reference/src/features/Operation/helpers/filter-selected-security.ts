@@ -41,13 +41,13 @@ export const filterSelectedSecurity = (
   // Lets check the selectedIndex first
   const selectedRequirement = selectedSecurity.selectedSchemes[selectedSecurity.selectedIndex]
   if (selectedRequirement && requirementSet.has(getKey(selectedRequirement))) {
-    return getSecuritySchemes(securitySchemes, [selectedRequirement])
+    return getSecuritySchemes(securitySchemes, selectedRequirement)
   }
 
   // Otherwise lets loop over all selected
   for (const selected of selectedSecurity.selectedSchemes) {
     if (requirementSet.has(getKey(selected))) {
-      return getSecuritySchemes(securitySchemes, [selected])
+      return getSecuritySchemes(securitySchemes, selected)
     }
   }
 
@@ -56,7 +56,7 @@ export const filterSelectedSecurity = (
    * we should show the first requirement of the operation to show auth is required
    */
   if (operation?.security?.length) {
-    return getSecuritySchemes(securitySchemes, securityRequirements.slice(0, 1))
+    return getSecuritySchemes(securitySchemes, securityRequirements[0] ?? {})
   }
 
   return []

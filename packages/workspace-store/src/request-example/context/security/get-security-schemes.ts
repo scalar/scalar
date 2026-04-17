@@ -13,11 +13,11 @@ export const getSecuritySchemes = (
   securitySchemes: MergedSecuritySchemes,
   selectedSecurity: SecurityRequirementObject,
 ): SecuritySchemeObjectSecret[] =>
-    objectKeys(selectedSecurity).flatMap((key) => {
-      const scheme = getResolvedRef(securitySchemes?.[key])
-      if (scheme) {
-        return scheme
-      }
+  objectKeys(selectedSecurity).flatMap((key) => {
+    const scheme = getResolvedRef(securitySchemes?.[key])
+    if (scheme) {
+      return scheme
+    }
 
-      return []
-    })
+    return []
+  })

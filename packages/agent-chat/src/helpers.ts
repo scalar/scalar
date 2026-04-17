@@ -39,7 +39,7 @@ function getSecurityFromDocument(
     securityRequirements,
   )
 
-  return getSecuritySchemes(mergedSecurity, selectedSecurity.selectedSchemes)
+  return getSecuritySchemes(mergedSecurity, selectedSecurity.selectedSchemes[selectedSecurity.selectedIndex] ?? {})
 }
 
 /** Generate document settings from workspace store */

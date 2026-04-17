@@ -534,9 +534,7 @@ describe('buildRequest', () => {
     const { request } = buildRequest(
       createFactory({
         headers,
-        security: [
-          { in: 'header', name: 'X-Custom', value: 'from-security' },
-        ],
+        security: [{ in: 'header', name: 'X-Custom', value: 'from-security' }],
       }),
       { envVariables: {} },
     )
