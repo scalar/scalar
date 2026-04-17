@@ -1392,20 +1392,6 @@ exports[`fixtures > Headers 1`] = `
         "description": "Create a new user into your amazing API",
         "parameters": [
           {
-            "description": "Indicate the type of body sent by client",
-            "examples": {
-              "Default example": {
-                "value": "application/json",
-                "x-disabled": false,
-              },
-            },
-            "in": "header",
-            "name": "Content-Type",
-            "schema": {
-              "type": "string",
-            },
-          },
-          {
             "description": "Custom header",
             "examples": {
               "Default example": {
@@ -1709,19 +1695,6 @@ exports[`fixtures > NestedServers 1`] = `
               "type": "string",
             },
           },
-          {
-            "examples": {
-              "Default example": {
-                "value": "Bearer {{api_key}}",
-                "x-disabled": false,
-              },
-            },
-            "in": "header",
-            "name": "Authorization",
-            "schema": {
-              "type": "string",
-            },
-          },
         ],
         "summary": "Get Weather Alerts",
         "tags": [
@@ -1776,19 +1749,6 @@ exports[`fixtures > NestedServers 1`] = `
             "in": "path",
             "name": "version",
             "required": true,
-            "schema": {
-              "type": "string",
-            },
-          },
-          {
-            "examples": {
-              "Default example": {
-                "value": "Bearer {{api_key}}",
-                "x-disabled": false,
-              },
-            },
-            "in": "header",
-            "name": "Authorization",
             "schema": {
               "type": "string",
             },

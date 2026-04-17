@@ -5,10 +5,52 @@ import type { Header, Request } from '@/types'
 import { inferSchemaType } from './schemas'
 
 /**
+ * Header keys (lower-case) that never become `parameters[in=header]` on an
+ * OpenAPI operation. They either describe the transport (Host, Connection),
+ * overlap with `requestBody.content` / `responses.content` (Accept,
+ * Content-Type), or belong in `components.securitySchemes` (Authorization,
+ * Cookie). Callers can opt a specific name back in via `ConvertOptions.keepHeaders`.
+ */
+const BLOCKED_HEADERS: ReadonlySet<string> = new Set([
+  // Content negotiation
+  'accept',
+  'accept-encoding',
+  'accept-language',
+  'content-type',
+  // Transport / hop-by-hop
+  'connection',
+  'content-length',
+  'host',
+  'transfer-encoding',
+  // Auth — belong in components.securitySchemes
+  'authorization',
+  'cookie',
+  'proxy-authorization',
+])
+
+function isBlockedHeader(name: string | undefined, keepHeaders: readonly string[] | undefined): boolean {
+  if (!name) {
+    return false
+  }
+  const lower = name.toLowerCase()
+  if (keepHeaders?.some((kept) => kept.toLowerCase() === lower)) {
+    return false
+  }
+  return BLOCKED_HEADERS.has(lower)
+}
+
+/**
  * Extracts parameters from a Postman request and converts them to OpenAPI parameter objects.
  * Processes query, path, and header parameters from the request URL and headers.
+ *
+ * Headers on the built-in block-list (content negotiation, transport, auth) are
+ * dropped unless the caller passes them via `keepHeaders` (case-insensitive).
  */
-export function extractParameters(request: Request, exampleName: string): OpenAPIV3_1.ParameterObject[] {
+export function extractParameters(
+  request: Request,
+  exampleName: string,
+  keepHeaders?: readonly string[],
+): OpenAPIV3_1.ParameterObject[] {
   const parameters: OpenAPIV3_1.ParameterObject[] = []
   const parameterMap: Map<string, OpenAPIV3_1.ParameterObject> = new Map()
 
@@ -59,6 +101,9 @@ export function extractParameters(request: Request, exampleName: string): OpenAP
   // Process header parameters
   if (request.header && Array.isArray(request.header)) {
     request.header.forEach((header: Header) => {
+      if (isBlockedHeader(header.key, keepHeaders)) {
+        return
+      }
       const paramObj = createParameterObject(header, 'header', exampleName)
       if (paramObj.name) {
         parameterMap.set(paramObj.name, paramObj)
