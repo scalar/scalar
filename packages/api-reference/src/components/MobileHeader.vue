@@ -32,7 +32,7 @@ const variants = cva({
   <slot
     v-bind="{
       sidebarClasses:
-        'max-lg:hidden lg:flex sticky top-(--refs-header-height) h-(--refs-sidebar-height) w-(--refs-sidebar-width) [grid-area:navigation]',
+        'max-lg:!hidden lg:flex sticky top-(--refs-header-height) h-(--refs-sidebar-height) w-(--refs-sidebar-width) [grid-area:navigation]',
     }"
     name="sidebar" />
   <div

@@ -8,7 +8,7 @@ describe('MobileHeader sidebar classes', () => {
     expect(desktopSidebarClasses).toBeDefined()
 
     const classTokens = desktopSidebarClasses?.split(/\s+/) ?? []
-    expect(classTokens.includes('max-lg:hidden')).toBe(true)
+    expect(classTokens.includes('max-lg:!hidden')).toBe(true)
     expect(classTokens.includes('lg:flex')).toBe(true)
     expect(classTokens.includes('hidden')).toBe(false)
   })
