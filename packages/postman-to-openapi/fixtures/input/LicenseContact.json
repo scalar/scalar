@@ -12,11 +12,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://api.io/users?age=45&name=Jhon&review=true&number=23.56",
+					"raw": "https://api.example.com/users?age=45&name=Jhon&review=true&number=23.56",
 					"protocol": "https",
 					"host": [
 						"api",
-						"io"
+						"example",
+						"com"
 					],
 					"path": [
 						"users"
@@ -80,7 +81,7 @@
 		{
 			"id": "b1aecf73-5ff1-4cea-b447-80fe28da62c1",
 			"key": "license.url",
-			"value": "https://www.apache.org/licenses/LICENSE-2.0.html"
+			"value": "https://www.example.com/licenses/LICENSE-2.0.html"
 		},
 		{
 			"id": "35641083-7bd6-4c98-b2a8-4b45da0cdeb9",

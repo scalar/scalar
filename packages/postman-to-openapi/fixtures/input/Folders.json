@@ -30,11 +30,12 @@
 									}
 								},
 								"url": {
-									"raw": "https://api.io/users/admin/roles",
+									"raw": "https://api.example.com/users/admin/roles",
 									"protocol": "https",
 									"host": [
 										"api",
-										"io"
+										"example",
+										"com"
 									],
 									"path": [
 										"users",
@@ -88,11 +89,12 @@
 							}
 						},
 						"url": {
-							"raw": "https://api.io/users",
+							"raw": "https://api.example.com/users",
 							"protocol": "https",
 							"host": [
 								"api",
-								"io"
+								"example",
+								"com"
 							],
 							"path": [
 								"users"
@@ -117,11 +119,12 @@
 							}
 						},
 						"url": {
-							"raw": "https://api.io/customer",
+							"raw": "https://api.example.com/customer",
 							"protocol": "https",
 							"host": [
 								"api",
-								"io"
+								"example",
+								"com"
 							],
 							"path": [
 								"customer"
@@ -181,11 +184,12 @@
 									}
 								},
 								"url": {
-									"raw": "https://api.io/posts/admin/settings",
+									"raw": "https://api.example.com/posts/admin/settings",
 									"protocol": "https",
 									"host": [
 										"api",
-										"io"
+										"example",
+										"com"
 									],
 									"path": [
 										"posts",
@@ -239,11 +243,12 @@
 							}
 						},
 						"url": {
-							"raw": "https://api.io/posts",
+							"raw": "https://api.example.com/posts",
 							"protocol": "https",
 							"host": [
 								"api",
-								"io"
+								"example",
+								"com"
 							],
 							"path": [
 								"posts"
@@ -308,11 +313,12 @@
 															}
 														},
 														"url": {
-															"raw": "https://api.io/req4",
+															"raw": "https://api.example.com/req4",
 															"protocol": "https",
 															"host": [
 																"api",
-																"io"
+																"example",
+																"com"
 															],
 															"path": [
 																"req4"
@@ -391,11 +397,12 @@
 											}
 										},
 										"url": {
-											"raw": "https://api.io/req3",
+											"raw": "https://api.example.com/req3",
 											"protocol": "https",
 											"host": [
 												"api",
-												"io"
+												"example",
+												"com"
 											],
 											"path": [
 												"req3"
@@ -447,11 +454,12 @@
 									}
 								},
 								"url": {
-									"raw": "https://api.io/req2",
+									"raw": "https://api.example.com/req2",
 									"protocol": "https",
 									"host": [
 										"api",
-										"io"
+										"example",
+										"com"
 									],
 									"path": [
 										"req2"
@@ -503,11 +511,12 @@
 							}
 						},
 						"url": {
-							"raw": "https://api.io/req1",
+							"raw": "https://api.example.com/req1",
 							"protocol": "https",
 							"host": [
 								"api",
-								"io"
+								"example",
+								"com"
 							],
 							"path": [
 								"req1"
@@ -563,11 +572,12 @@
 					}
 				},
 				"url": {
-					"raw": "https://api.io/info",
+					"raw": "https://api.example.com/info",
 					"protocol": "https",
 					"host": [
 						"api",
-						"io"
+						"example",
+						"com"
 					],
 					"path": [
 						"info"

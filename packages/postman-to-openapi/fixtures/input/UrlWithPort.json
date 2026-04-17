@@ -21,11 +21,12 @@
 					}
 				},
 				"url": {
-					"raw": "https://api.io:453/users",
+					"raw": "https://api.example.com:453/users",
 					"protocol": "https",
 					"host": [
 						"api",
-						"io"
+						"example",
+						"com"
 					],
 					"port": "453",
 					"path": [

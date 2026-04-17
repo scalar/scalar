@@ -22,11 +22,12 @@
 					}
 				},
 				"url": {
-					"raw": "https://api.io/users",
+					"raw": "https://api.example.com/users",
 					"protocol": "https",
 					"host": [
 						"api",
-						"io"
+						"example",
+						"com"
 					],
 					"path": [
 						"users"
@@ -46,11 +47,12 @@
 					"file": {}
 				},
 				"url": {
-					"raw": "https://api.io/posts",
+					"raw": "https://api.example.com/posts",
 					"protocol": "https",
 					"host": [
 						"api",
-						"io"
+						"example",
+						"com"
 					],
 					"path": [
 						"posts"
@@ -74,11 +76,12 @@
 					}
 				},
 				"url": {
-					"raw": "https://api.io/note",
+					"raw": "https://api.example.com/note",
 					"protocol": "https",
 					"host": [
 						"api",
-						"io"
+						"example",
+						"com"
 					],
 					"path": [
 						"note"

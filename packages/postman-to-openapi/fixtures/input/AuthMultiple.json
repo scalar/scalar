@@ -21,11 +21,12 @@
 					}
 				},
 				"url": {
-					"raw": "https://api.io/users",
+					"raw": "https://api.example.com/users",
 					"protocol": "https",
 					"host": [
 						"api",
-						"io"
+						"example",
+						"com"
 					],
 					"path": [
 						"users"
@@ -43,12 +44,12 @@
 					"basic": [
 						{
 							"key": "password",
-							"value": "myPassword",
+							"value": "super-secret-password",
 							"type": "string"
 						},
 						{
 							"key": "username",
-							"value": "myUser",
+							"value": "example-user",
 							"type": "string"
 						}
 					]
@@ -56,11 +57,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://api.io/users?age=45&name=Jhon&review=true&number=23.56",
+					"raw": "https://api.example.com/users?age=45&name=Jhon&review=true&number=23.56",
 					"protocol": "https",
 					"host": [
 						"api",
-						"io"
+						"example",
+						"com"
 					],
 					"path": [
 						"users"
@@ -98,7 +100,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "YUIHUILOIJOJOJ",
+				"value": "super-secret-token",
 				"type": "string"
 			}
 		]

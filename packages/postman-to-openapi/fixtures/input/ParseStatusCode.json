@@ -35,11 +35,12 @@
 					}
 				},
 				"url": {
-					"raw": "https://api.io/users",
+					"raw": "https://api.example.com/users",
 					"protocol": "https",
 					"host": [
 						"api",
-						"io"
+						"example",
+						"com"
 					],
 					"path": [
 						"users"
@@ -78,11 +79,12 @@
 					}
 				},
 				"url": {
-					"raw": "https://api.io/users/active",
+					"raw": "https://api.example.com/users/active",
 					"protocol": "https",
 					"host": [
 						"api",
-						"io"
+						"example",
+						"com"
 					],
 					"path": [
 						"users",
@@ -121,11 +123,12 @@
 					}
 				},
 				"url": {
-					"raw": "https://api.io/users/group",
+					"raw": "https://api.example.com/users/group",
 					"protocol": "https",
 					"host": [
 						"api",
-						"io"
+						"example",
+						"com"
 					],
 					"path": [
 						"users",
