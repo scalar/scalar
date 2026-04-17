@@ -175,6 +175,16 @@ const toConversionError = (error: unknown): ConversionError => {
   return { name: 'UnknownError', message: String(error) }
 }
 
+const formatErrorPath = (pathValue: ErrorObject['path'] | string | undefined): string | undefined => {
+  if (Array.isArray(pathValue)) {
+    return pathValue.join('.')
+  }
+  if (typeof pathValue === 'string') {
+    return pathValue
+  }
+  return undefined
+}
+
 const runValidation = async (document: OpenAPIV3_1.Document): Promise<ValidationReport> => {
   try {
     const result = await validate(document)
@@ -182,7 +192,7 @@ const runValidation = async (document: OpenAPIV3_1.Document): Promise<Validation
       valid: result.valid,
       errors: (result.errors ?? []).map((entry: ErrorObject) => ({
         message: entry.message ?? 'Unknown error',
-        path: 'path' in entry && typeof entry.path === 'string' ? entry.path : undefined,
+        path: formatErrorPath(entry.path),
       })),
     }
   } catch (error) {
