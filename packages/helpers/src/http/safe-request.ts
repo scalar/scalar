@@ -8,6 +8,7 @@ import type { HttpMethod } from './http-methods'
  */
 export const X_SCALAR_ORIGINAL_METHOD = 'x-scalar-original-method'
 
+const METHODS_WITHOUT_BODY = new Set(['GET', 'HEAD'])
 const hasBody = (body: BodyInit | null | undefined): boolean => body !== null && body !== undefined
 
 /**
@@ -25,8 +26,8 @@ const hasBody = (body: BodyInit | null | undefined): boolean => body !== null &&
 export const createSafeRequest = (input: RequestInfo | URL, init: RequestInit = {}): Request => {
   const method = (init.method ?? 'GET').toUpperCase()
 
-  // For get with body
-  if (method === 'GET' && hasBody(init.body)) {
+  // For get/head with body
+  if (METHODS_WITHOUT_BODY.has(method) && hasBody(init.body)) {
     const headers = new Headers(init.headers)
     headers.set(X_SCALAR_ORIGINAL_METHOD, method)
     return new Request(input, { ...init, method: 'POST', headers })
