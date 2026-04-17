@@ -1,4 +1,4 @@
-import { isPostmanCollection } from '@/v2/features/command-palette/helpers/is-postman-collection'
+import { isPostmanCollection } from '@scalar/postman-to-openapi'
 
 /**
  * Represents the extracted details from a Postman collection.

@@ -4,9 +4,14 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { getOpenApiFromPostman } from './get-openapi-from-postman'
 
-vi.mock('@scalar/postman-to-openapi', () => ({
-  convert: vi.fn(),
-}))
+vi.mock('@scalar/postman-to-openapi', async () => {
+  const actual = await vi.importActual<typeof import('@scalar/postman-to-openapi')>('@scalar/postman-to-openapi')
+
+  return {
+    ...actual,
+    convert: vi.fn(),
+  }
+})
 
 describe('getOpenApiFromPostman', () => {
   it('converts valid Postman collection JSON to OpenAPI document', () => {
