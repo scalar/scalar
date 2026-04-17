@@ -1,6 +1,6 @@
 import type { HarRequest } from '@scalar/types/snippetz'
 
-export type HeaderPair = {
+type HeaderPair = {
   name: string
   value: string
 }
