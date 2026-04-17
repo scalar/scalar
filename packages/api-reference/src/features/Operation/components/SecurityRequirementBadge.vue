@@ -22,12 +22,6 @@ const label = computed(() =>
 const tooltipContent = computed(() => {
   const verb = requiredSecurity.state === 'required' ? 'Requires' : 'Accepts'
 
-  if (requiredSecurity.schemes.length === 0) {
-    return requiredSecurity.state === 'required'
-      ? 'Authentication required'
-      : 'Authentication optional'
-  }
-
   const parts = requiredSecurity.schemes.map((s) => {
     const typeLabel = s.scheme?.type ? ` (${s.scheme.type})` : ''
     const scopes = s.scopes.length ? ` [${s.scopes.join(', ')}]` : ''
