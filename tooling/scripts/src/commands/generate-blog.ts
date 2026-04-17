@@ -392,7 +392,7 @@ function normalizeOverviewPage(overview: unknown): Record<string, unknown> {
     type: 'page',
     title: 'Blog',
     filepath: typeof previous.filepath === 'string' ? previous.filepath : `${BLOG_DIR}/${INDEX_FILENAME}`,
-    showInSidebar: false,
+    showInSidebar: true,
   }
   const layout = stripSidebarLayout(previous.layout)
   if (layout !== undefined) {

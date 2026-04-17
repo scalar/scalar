@@ -2415,7 +2415,7 @@
                 "type": "page",
                 "title": "Blog",
                 "filepath": "documentation/blog/index.md",
-                "showInSidebar": false,
+                "showInSidebar": true,
                 "layout": {
                   "toc": false
                 }
