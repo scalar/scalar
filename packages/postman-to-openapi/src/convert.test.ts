@@ -648,6 +648,7 @@ describe('convert', () => {
               request: {
                 method: 'GET',
                 url: 'https://api.scalar.com/applications/{{applicationId}}',
+                description: '| object | name | required |\n| --- | --- | --- |\n| path | applicationId | true |',
               },
             },
             {
@@ -655,6 +656,7 @@ describe('convert', () => {
               request: {
                 method: 'DELETE',
                 url: 'https://api.scalar.com/applications/{{fakeAppId}}',
+                description: '| object | name | required |\n| --- | --- | --- |\n| path | fakeAppId | true |',
               },
             },
           ],

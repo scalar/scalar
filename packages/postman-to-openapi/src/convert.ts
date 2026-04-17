@@ -358,14 +358,13 @@ const chooseMostCommonName = (names: string[]): string | undefined => {
     }
   })
 
-  return [...counts.entries()]
-    .sort((a, b) => {
-      if (a[1] !== b[1]) {
-        return b[1] - a[1]
-      }
+  return [...counts.entries()].sort((a, b) => {
+    if (a[1] !== b[1]) {
+      return b[1] - a[1]
+    }
 
-      return (firstIndex.get(a[0]) ?? Number.POSITIVE_INFINITY) - (firstIndex.get(b[0]) ?? Number.POSITIVE_INFINITY)
-    })[0]?.[0]
+    return (firstIndex.get(a[0]) ?? Number.POSITIVE_INFINITY) - (firstIndex.get(b[0]) ?? Number.POSITIVE_INFINITY)
+  })[0]?.[0]
 }
 
 const renameParameters = (
@@ -385,7 +384,8 @@ const renameParameters = (
     }
 
     const nextName = parameter.in === 'path' ? (renameMap.get(parameter.name) ?? parameter.name) : parameter.name
-    const renamedParameter: OpenAPIV3_1.ParameterObject = nextName === parameter.name ? parameter : { ...parameter, name: nextName }
+    const renamedParameter: OpenAPIV3_1.ParameterObject =
+      nextName === parameter.name ? parameter : { ...parameter, name: nextName }
     const parameterKey = `${renamedParameter.name}/${renamedParameter.in}`
     const existingParameter = mergedParameters.get(parameterKey)
 
@@ -493,8 +493,13 @@ const findFolderTemplateHint = (
 }
 
 const unifyEquivalentPathParameters = (paths: OpenAPIV3_1.PathsObject): OpenAPIV3_1.PathsObject => {
-  const pathEntries = Object.entries(paths).filter((entry): entry is [string, OpenAPIV3_1.PathItemObject] => Boolean(entry[1]))
-  const groups = new Map<string, Array<{ pathKey: string; pathItem: OpenAPIV3_1.PathItemObject; parameterNames: string[] }>>()
+  const pathEntries = Object.entries(paths).filter((entry): entry is [string, OpenAPIV3_1.PathItemObject] =>
+    Boolean(entry[1]),
+  )
+  const groups = new Map<
+    string,
+    Array<{ pathKey: string; pathItem: OpenAPIV3_1.PathItemObject; parameterNames: string[] }>
+  >()
 
   pathEntries.forEach(([pathKey, pathItem]) => {
     const signature = getPathStructuralSignature(pathKey)
