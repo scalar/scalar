@@ -31,7 +31,7 @@ import type {
 import { computed, ref, watch } from 'vue'
 
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
-import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
+import { authorizeOauth2, refreshOauth2Token } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
 import { resolveDefaultOAuth2RedirectUri } from '@/v2/blocks/scalar-auth-selector-block/helpers/resolve-default-oauth2-redirect-url'
 import { DataTableRow } from '@/v2/components/data-table'
 
@@ -197,6 +197,45 @@ const handleAuthorize = async (): Promise<void> => {
   }
 }
 
+/** Whether the current flow has a stored refresh token */
+const hasRefreshToken = computed(
+  () => type !== 'implicit' && Boolean(flow.value['x-scalar-secret-refresh-token']),
+)
+
+/**
+ * Uses the stored refresh token to obtain a new access token
+ * via grant_type=refresh_token.
+ */
+const handleRefresh = async (): Promise<void> => {
+  if (loader.isLoading || type === 'implicit') {
+    return
+  }
+
+  loader.start()
+
+  const [error, tokens] = await refreshOauth2Token(
+    flows,
+    type,
+    proxyUrl,
+    server,
+    getEnvironmentVariables(environment),
+  )
+
+  await loader.clear()
+
+  if (tokens?.accessToken) {
+    handleOauth2SecretsUpdate({
+      'x-scalar-secret-token': tokens.accessToken,
+      ...(tokens.refreshToken
+        ? { 'x-scalar-secret-refresh-token': tokens.refreshToken }
+        : {}),
+    })
+  } else {
+    console.error(error)
+    toast(error?.message ?? 'Failed to refresh token', 'error')
+  }
+}
+
 /** Updates the secret location */
 const handleSecretLocationUpdate = (value: string): void => {
   const credentialsLocation = value === 'body' ? 'body' : 'header'
@@ -232,6 +271,15 @@ const handleSecretLocationUpdate = (value: string): void => {
 
     <DataTableRow class="min-w-full">
       <div class="flex h-8 items-center justify-end gap-2 border-t">
+        <ScalarButton
+          v-if="hasRefreshToken"
+          class="p-0 px-2 py-0.5"
+          :loader
+          size="sm"
+          variant="outlined"
+          @click="handleRefresh">
+          Refresh
+        </ScalarButton>
         <ScalarButton
           class="mr-1 p-0 px-2 py-0.5"
           :loader

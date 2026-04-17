@@ -22,6 +22,9 @@ export type OAuth2Tokens = {
   refreshToken?: string
 }
 
+/** Flow types that support token refresh (all except implicit) */
+type RefreshableFlows = Exclude<keyof OAuthFlowsObjectSecret, 'implicit'>
+
 const getServerUrl = (activeServer: ServerObject | null, environmentVariables: Record<string, string> = {}) => {
   return replaceEnvVariables(
     replacePathVariables(activeServer?.url ?? '', getServerVariables(activeServer)),
@@ -399,5 +402,96 @@ const authorizeServers = async (
     return [null, { accessToken, ...(typeof refreshToken === 'string' ? { refreshToken } : {}) }]
   } catch {
     return [new Error('Failed to get an access token. Please check your credentials.'), null]
+  }
+}
+
+/**
+ * Exchange a refresh token for a new access token using the `grant_type=refresh_token` flow.
+ *
+ * Uses the stored refresh token, client credentials, and the token URL (or refreshUrl when available)
+ * to request fresh tokens from the authorization server per RFC 6749 Section 6.
+ */
+export const refreshOauth2Token = async (
+  flows: OAuthFlowsObjectSecret,
+  type: RefreshableFlows,
+  /** If we want to use the proxy */
+  proxyUrl: string,
+  /** We use the active server to set a base for relative URLs */
+  activeServer: ServerObject | null,
+  /** Flattened environment variables used to resolve server URL templates */
+  environmentVariables: Record<string, string> = {},
+): Promise<ErrorResponse<OAuth2Tokens>> => {
+  const flow = flows[type]
+
+  if (!flow) {
+    return [new Error('OAuth2 flow was not defined'), null]
+  }
+
+  const refreshToken = flow['x-scalar-secret-refresh-token']
+  if (!refreshToken) {
+    return [new Error('No refresh token available'), null]
+  }
+
+  const formData = new URLSearchParams()
+  formData.set('grant_type', 'refresh_token')
+  formData.set('refresh_token', refreshToken)
+
+  const addCredentialsToBody = flow['x-scalar-credentials-location'] === 'body'
+  const hasClientSecret = Boolean(flow['x-scalar-secret-client-secret'])
+
+  if (addCredentialsToBody) {
+    formData.set('client_id', flow['x-scalar-secret-client-id'])
+    if (hasClientSecret) {
+      formData.set('client_secret', flow['x-scalar-secret-client-secret'])
+    }
+  }
+
+  if (flow['x-scalar-security-body']) {
+    Object.entries(flow['x-scalar-security-body']).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.set(key, String(value))
+      }
+    })
+  }
+
+  try {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    }
+
+    if (!addCredentialsToBody && hasClientSecret) {
+      headers.Authorization = `Basic ${encode(`${flow['x-scalar-secret-client-id']}:${flow['x-scalar-secret-client-secret']}`)}`
+    }
+
+    const refreshUrl = flow.refreshUrl || flow['x-scalar-secret-token-url'] || flow.tokenUrl
+    const absoluteRefreshUrl = makeUrlAbsolute(refreshUrl, getActiveServerBase(activeServer, environmentVariables))
+    const url = shouldUseProxy(proxyUrl, absoluteRefreshUrl)
+      ? `${proxyUrl}?${new URLSearchParams([['scalar_url', absoluteRefreshUrl]]).toString()}`
+      : absoluteRefreshUrl
+
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: formData,
+    })
+    const responseData = await resp.json()
+
+    const tokenName = flow['x-tokenName'] || 'access_token'
+    const accessToken = responseData[tokenName]
+    const newRefreshToken = responseData.refresh_token
+
+    if (!accessToken) {
+      return [new Error(responseData.error_description ?? responseData.error ?? 'Token refresh failed'), null]
+    }
+
+    return [
+      null,
+      {
+        accessToken,
+        ...(typeof newRefreshToken === 'string' ? { refreshToken: newRefreshToken } : { refreshToken }),
+      },
+    ]
+  } catch {
+    return [new Error('Failed to refresh the access token. Please re-authorize.'), null]
   }
 }

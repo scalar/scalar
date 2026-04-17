@@ -5,7 +5,7 @@ import { flushPromises } from '@vue/test-utils'
 import { encode } from 'js-base64'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { authorizeOauth2 } from './oauth'
+import { authorizeOauth2, refreshOauth2Token } from './oauth'
 
 const baseFlow = {
   'refreshUrl': 'https://auth.example.com/refresh',
@@ -1387,6 +1387,334 @@ describe('oauth', () => {
         value: originalLocation,
         writable: true,
       })
+    })
+  })
+
+  describe('Refresh Token Grant', () => {
+    const refreshScheme = {
+      authorizationCode: {
+        ...baseFlow,
+        'x-usePkce': 'no',
+        authorizationUrl,
+        tokenUrl,
+        'x-scalar-secret-redirect-uri': redirectUri,
+        'x-scalar-secret-token': 'old_access_token',
+        'x-scalar-secret-client-secret': clientSecret,
+        'x-scalar-secret-refresh-token': 'refresh_token_123',
+      },
+    } satisfies OAuthFlowsObjectSecret
+
+    it('exchanges a refresh token for a new access token', async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            access_token: 'new_access_token',
+            refresh_token: 'new_refresh_token',
+          }),
+      })
+
+      const [error, result] = await refreshOauth2Token(
+        refreshScheme,
+        'authorizationCode',
+        '',
+        mockServer,
+      )
+      expect(error).toBe(null)
+      expect(result).toEqual({
+        accessToken: 'new_access_token',
+        refreshToken: 'new_refresh_token',
+      })
+
+      expect(global.fetch).toHaveBeenCalledWith(refreshScheme.authorizationCode.refreshUrl, {
+        method: 'POST',
+        body: new URLSearchParams({
+          grant_type: 'refresh_token',
+          refresh_token: 'refresh_token_123',
+        }),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${secretAuth}`,
+        },
+      })
+    })
+
+    it('preserves the original refresh token when the server does not return a new one', async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            access_token: 'new_access_token',
+          }),
+      })
+
+      const [error, result] = await refreshOauth2Token(
+        refreshScheme,
+        'authorizationCode',
+        '',
+        mockServer,
+      )
+      expect(error).toBe(null)
+      expect(result).toEqual({
+        accessToken: 'new_access_token',
+        refreshToken: 'refresh_token_123',
+      })
+    })
+
+    it('returns an error when no refresh token is stored', async () => {
+      const noRefreshScheme = {
+        authorizationCode: {
+          ...refreshScheme.authorizationCode,
+          'x-scalar-secret-refresh-token': '',
+        },
+      } satisfies OAuthFlowsObjectSecret
+
+      const [error, result] = await refreshOauth2Token(
+        noRefreshScheme,
+        'authorizationCode',
+        '',
+        mockServer,
+      )
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('No refresh token available')
+    })
+
+    it('sends credentials in body when x-scalar-credentials-location is body', async () => {
+      const bodyCredsScheme = {
+        authorizationCode: {
+          ...refreshScheme.authorizationCode,
+          'x-scalar-credentials-location': 'body',
+        },
+      } satisfies OAuthFlowsObjectSecret
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            access_token: 'new_access_token',
+          }),
+      })
+
+      const [error, result] = await refreshOauth2Token(
+        bodyCredsScheme,
+        'authorizationCode',
+        '',
+        mockServer,
+      )
+      expect(error).toBe(null)
+      expect(result).toEqual({
+        accessToken: 'new_access_token',
+        refreshToken: 'refresh_token_123',
+      })
+
+      expect(global.fetch).toHaveBeenCalledWith(refreshScheme.authorizationCode.refreshUrl, {
+        method: 'POST',
+        body: expect.any(URLSearchParams),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      })
+
+      const callArgs = vi.mocked(global.fetch).mock.calls[0]
+      const body = callArgs![1]?.body as URLSearchParams
+      expect(body.get('grant_type')).toBe('refresh_token')
+      expect(body.get('refresh_token')).toBe('refresh_token_123')
+      expect(body.get('client_id')).toBe(refreshScheme.authorizationCode['x-scalar-secret-client-id'])
+      expect(body.get('client_secret')).toBe(clientSecret)
+    })
+
+    it('uses refreshUrl when available instead of tokenUrl', async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            access_token: 'new_access_token',
+          }),
+      })
+
+      await refreshOauth2Token(
+        refreshScheme,
+        'authorizationCode',
+        '',
+        mockServer,
+      )
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        refreshScheme.authorizationCode.refreshUrl,
+        expect.any(Object),
+      )
+    })
+
+    it('falls back to tokenUrl when refreshUrl is empty', async () => {
+      const noRefreshUrlScheme = {
+        authorizationCode: {
+          ...refreshScheme.authorizationCode,
+          refreshUrl: '',
+        },
+      } satisfies OAuthFlowsObjectSecret
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            access_token: 'new_access_token',
+          }),
+      })
+
+      await refreshOauth2Token(
+        noRefreshUrlScheme,
+        'authorizationCode',
+        '',
+        mockServer,
+      )
+
+      expect(global.fetch).toHaveBeenCalledWith(tokenUrl, expect.any(Object))
+    })
+
+    it('uses the proxy when provided', async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            access_token: 'new_access_token',
+          }),
+      })
+
+      await refreshOauth2Token(
+        refreshScheme,
+        'authorizationCode',
+        'https://proxy.example.com',
+        mockServer,
+      )
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        `https://proxy.example.com?scalar_url=${encodeURIComponent(refreshScheme.authorizationCode.refreshUrl)}`,
+        expect.any(Object),
+      )
+    })
+
+    it('handles a failed refresh request', async () => {
+      global.fetch = vi.fn().mockRejectedValueOnce(new Error('Network error'))
+
+      const [error, result] = await refreshOauth2Token(
+        refreshScheme,
+        'authorizationCode',
+        '',
+        mockServer,
+      )
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('Failed to refresh the access token. Please re-authorize.')
+    })
+
+    it('returns the server error_description when the token endpoint rejects the refresh', async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            error: 'invalid_grant',
+            error_description: 'Refresh token has expired',
+          }),
+      })
+
+      const [error, result] = await refreshOauth2Token(
+        refreshScheme,
+        'authorizationCode',
+        '',
+        mockServer,
+      )
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('Refresh token has expired')
+    })
+
+    it('works with clientCredentials flow', async () => {
+      const ccScheme = {
+        clientCredentials: {
+          ...baseFlow,
+          tokenUrl,
+          'x-scalar-secret-client-secret': clientSecret,
+          'x-scalar-secret-token': 'old_token',
+          'x-scalar-secret-refresh-token': 'cc_refresh_token',
+        },
+      } satisfies OAuthFlowsObjectSecret
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            access_token: 'new_cc_token',
+          }),
+      })
+
+      const [error, result] = await refreshOauth2Token(
+        ccScheme,
+        'clientCredentials',
+        '',
+        mockServer,
+      )
+      expect(error).toBe(null)
+      expect(result).toEqual({
+        accessToken: 'new_cc_token',
+        refreshToken: 'cc_refresh_token',
+      })
+    })
+
+    it('works with password flow', async () => {
+      const pwScheme = {
+        password: {
+          ...baseFlow,
+          tokenUrl,
+          'x-scalar-secret-username': 'user',
+          'x-scalar-secret-password': 'pass',
+          'x-scalar-secret-client-secret': clientSecret,
+          'x-scalar-secret-token': 'old_pw_token',
+          'x-scalar-secret-refresh-token': 'pw_refresh_token',
+        },
+      } satisfies OAuthFlowsObjectSecret
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            access_token: 'new_pw_token',
+            refresh_token: 'new_pw_refresh_token',
+          }),
+      })
+
+      const [error, result] = await refreshOauth2Token(
+        pwScheme,
+        'password',
+        '',
+        mockServer,
+      )
+      expect(error).toBe(null)
+      expect(result).toEqual({
+        accessToken: 'new_pw_token',
+        refreshToken: 'new_pw_refresh_token',
+      })
+    })
+
+    it('includes x-scalar-security-body parameters in the refresh request', async () => {
+      const schemeWithBody = {
+        authorizationCode: {
+          ...refreshScheme.authorizationCode,
+          'x-scalar-security-body': {
+            audience: 'https://api.example.com',
+          },
+        },
+      } satisfies OAuthFlowsObjectSecret
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            access_token: 'new_access_token',
+          }),
+      })
+
+      await refreshOauth2Token(
+        schemeWithBody,
+        'authorizationCode',
+        '',
+        mockServer,
+      )
+
+      const callArgs = vi.mocked(global.fetch).mock.calls[0]
+      const body = callArgs![1]?.body as URLSearchParams
+      expect(body.get('audience')).toBe('https://api.example.com')
+      expect(body.get('grant_type')).toBe('refresh_token')
     })
   })
 
