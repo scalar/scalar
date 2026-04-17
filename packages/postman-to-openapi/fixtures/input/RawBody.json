@@ -21,11 +21,12 @@
 					}
 				},
 				"url": {
-					"raw": "https://api.io/test",
+					"raw": "https://api.example.com/test",
 					"protocol": "https",
 					"host": [
 						"api",
-						"io"
+						"example",
+						"com"
 					],
 					"path": [
 						"test"

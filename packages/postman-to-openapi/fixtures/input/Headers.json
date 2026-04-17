@@ -36,11 +36,12 @@
 					}
 				],
 				"url": {
-					"raw": "https://api.io/users?name=Jhon&review=true",
+					"raw": "https://api.example.com/users?name=Jhon&review=true",
 					"protocol": "https",
 					"host": [
 						"api",
-						"io"
+						"example",
+						"com"
 					],
 					"path": [
 						"users"
@@ -96,11 +97,12 @@
 					}
 				},
 				"url": {
-					"raw": "https://api.io/users",
+					"raw": "https://api.example.com/users",
 					"protocol": "https",
 					"host": [
 						"api",
-						"io"
+						"example",
+						"com"
 					],
 					"path": [
 						"users"

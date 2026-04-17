@@ -34,11 +34,12 @@
 					]
 				},
 				"url": {
-					"raw": "https://api.io/register",
+					"raw": "https://api.example.com/register",
 					"protocol": "https",
 					"host": [
 						"api",
-						"io"
+						"example",
+						"com"
 					],
 					"path": [
 						"register"

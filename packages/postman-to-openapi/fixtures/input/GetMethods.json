@@ -12,11 +12,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://api.io/users?age=45&name=Jhon&review=true&number=23.56&required=my value&number1=0.4565876&number2=123.45&fake-number=1.23.45&date=2022-06-23T10:00:00.000+01:00",
+					"raw": "https://api.example.com/users?age=45&name=Jhon&review=true&number=23.56&required=my value&number1=0.4565876&number2=123.45&fake-number=1.23.45&date=2022-06-23T10:00:00.000+01:00",
 					"protocol": "https",
 					"host": [
 						"api",
-						"io"
+						"example",
+						"com"
 					],
 					"path": [
 						"users"
@@ -57,7 +58,7 @@
 							"value": "123.45",
 							"description": "Should be parsed as number"
 						},
-						{ 
+						{
 							"key": "fake-number",
 							"value": "1.23.45",
 							"description": "Should be parsed as string"

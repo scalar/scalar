@@ -12,11 +12,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://api.io?age=45&name=Jhon&review=true&number=23.56&required=my value",
+					"raw": "https://api.example.com/?age=45&name=Jhon&review=true&number=23.56&required=my value",
 					"protocol": "https",
 					"host": [
 						"api",
-						"io"
+						"example",
+						"com"
 					],
 					"query": [
 						{

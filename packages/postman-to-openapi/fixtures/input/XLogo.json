@@ -21,11 +21,12 @@
 					}
 				},
 				"url": {
-					"raw": "https://api.io/users",
+					"raw": "https://api.example.com/users",
 					"protocol": "https",
 					"host": [
 						"api",
-						"io"
+						"example",
+						"com"
 					],
 					"path": [
 						"users"
@@ -50,11 +51,12 @@
 					}
 				},
 				"url": {
-					"raw": "https://api.io/raw",
+					"raw": "https://api.example.com/raw",
 					"protocol": "https",
 					"host": [
 						"api",
-						"io"
+						"example",
+						"com"
 					],
 					"path": [
 						"raw"
@@ -92,7 +94,7 @@
 		},
 		{
 			"key": "x-logo.urlVar",
-			"value": "https://github.com/joolfe/mylogo.png"
+			"value": "https://www.example.com/joolfe/mylogo.png"
 		},
 		{
 			"key": "x-logo.backgroundColorVar",
@@ -104,7 +106,7 @@
 		},
 		{
 			"key": "x-logo.hrefVar",
-			"value": "https://github.com/joolfe/here.html"
+			"value": "https://www.example.com/joolfe/here.html"
 		}
 	]
 }

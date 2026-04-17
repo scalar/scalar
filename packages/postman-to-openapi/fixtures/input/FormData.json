@@ -34,18 +34,19 @@
 						{
 							"key": "profileImage",
 							"description": "User avatar",
-              "contentType": "application/octet-stream",
+							"contentType": "application/octet-stream",
 							"type": "file",
 							"src": []
 						}
 					]
 				},
 				"url": {
-					"raw": "https://api.io/register",
+					"raw": "https://api.example.com/register",
 					"protocol": "https",
 					"host": [
 						"api",
-						"io"
+						"example",
+						"com"
 					],
 					"path": [
 						"register"
