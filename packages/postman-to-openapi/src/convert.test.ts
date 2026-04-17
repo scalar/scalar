@@ -86,9 +86,7 @@ function normalizeFixtureResponseDescriptions(document: OpenAPIV3_1.Document): O
         }
 
         response.description =
-          DEFAULT_RESPONSE_DESCRIPTIONS[statusCode] ??
-          DEFAULT_RESPONSE_DESCRIPTIONS.default ??
-          'Default response'
+          DEFAULT_RESPONSE_DESCRIPTIONS[statusCode] ?? DEFAULT_RESPONSE_DESCRIPTIONS.default ?? 'Default response'
       }
     }
   }
