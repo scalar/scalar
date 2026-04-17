@@ -44,8 +44,10 @@ describe('addResponseToHistory', () => {
 
     await addResponseToHistory(store, document, {
       payload: {
-        url: 'https://api.example.com/users/123',
-        requestInit: { method: 'GET', headers: new Headers({ 'Content-Type': 'application/json' }) },
+        requestPayload: [
+          'https://api.example.com/users/123',
+          { method: 'GET', headers: new Headers({ 'Content-Type': 'application/json' }) },
+        ],
         response: mockResponse,
         duration: 150,
         timestamp: Date.now(),
@@ -87,8 +89,10 @@ describe('addResponseToHistory', () => {
 
     const createMockPayload = (index: number) => ({
       payload: {
-        url: `https://api.example.com/items?page=${index}`,
-        requestInit: { method: 'GET', headers: new Headers() },
+        requestPayload: [`https://api.example.com/items?page=${index}`, { method: 'GET', headers: new Headers() }] as [
+          string,
+          RequestInit,
+        ],
         response: {
           status: 200,
           statusText: 'OK',
@@ -141,8 +145,7 @@ describe('addResponseToHistory', () => {
 
     await addResponseToHistory(store, document, {
       payload: {
-        url: 'https://api.example.com/products',
-        requestInit: { method: 'POST', headers: new Headers() },
+        requestPayload: ['https://api.example.com/products', { method: 'POST', headers: new Headers() }],
         response: {
           status: 201,
           statusText: 'Created',
@@ -188,8 +191,7 @@ describe('addResponseToHistory', () => {
 
     await addResponseToHistory(store, document, {
       payload: {
-        url: 'https://api.example.com/users/456/posts/789',
-        requestInit: { method: 'GET', headers: new Headers() },
+        requestPayload: ['https://api.example.com/users/456/posts/789', { method: 'GET', headers: new Headers() }],
         response: {
           status: 200,
           statusText: 'OK',
@@ -234,8 +236,7 @@ describe('addResponseToHistory', () => {
 
     await addResponseToHistory(store, document, {
       payload: {
-        url: 'https://api.example.com/settings',
-        requestInit: { method: 'PUT', headers: new Headers() },
+        requestPayload: ['https://api.example.com/settings', { method: 'PUT', headers: new Headers() }],
         response: {
           status: 200,
           statusText: 'OK',
@@ -261,8 +262,7 @@ describe('addResponseToHistory', () => {
     await expect(
       addResponseToHistory(null, null, {
         payload: {
-          url: 'https://api.example.com/test',
-          requestInit: { method: 'GET' },
+          requestPayload: ['https://api.example.com/test', { method: 'GET' }],
           response: {} as Response,
           duration: 100,
           timestamp: Date.now(),
@@ -324,8 +324,7 @@ describe('addResponseToHistory', () => {
     await expect(
       addResponseToHistory(store, document, {
         payload: {
-          url: 'https://api.example.com/test',
-          requestInit: { method: 'GET' },
+          requestPayload: ['https://api.example.com/test', { method: 'GET' }],
           response: {} as Response,
           duration: 100,
           timestamp: Date.now(),

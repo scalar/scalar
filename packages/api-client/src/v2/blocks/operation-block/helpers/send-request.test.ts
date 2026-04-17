@@ -92,8 +92,7 @@ describe('sendRequest', () => {
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      url: MOCK_URL,
-      requestInit,
+      requestPayload: [MOCK_URL, requestInit],
     })
 
     expect(error).toBe(null)
@@ -133,8 +132,7 @@ describe('sendRequest', () => {
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      url: MOCK_URL,
-      requestInit,
+      requestPayload: [MOCK_URL, requestInit],
     })
 
     expect(error).toBe(null)
@@ -159,8 +157,7 @@ describe('sendRequest', () => {
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      url: requestUrl,
-      requestInit,
+      requestPayload: [requestUrl, requestInit],
     })
 
     expect(error).toBe(null)
@@ -186,8 +183,7 @@ describe('sendRequest', () => {
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      url: MOCK_URL,
-      requestInit,
+      requestPayload: [MOCK_URL, requestInit],
     })
 
     expect(error).toBe(null)
@@ -216,8 +212,7 @@ describe('sendRequest', () => {
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      url: MOCK_URL,
-      requestInit,
+      requestPayload: [MOCK_URL, requestInit],
     })
 
     expect(error).toBe(null)
@@ -242,8 +237,7 @@ describe('sendRequest', () => {
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      url: `${MOCK_URL}/204`,
-      requestInit,
+      requestPayload: [`${MOCK_URL}/204`, requestInit],
     })
 
     expect(error).toBe(null)
@@ -268,8 +262,7 @@ describe('sendRequest', () => {
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      url: MOCK_URL,
-      requestInit,
+      requestPayload: [MOCK_URL, requestInit],
     })
 
     expect(error).toBe(null)
@@ -293,8 +286,7 @@ describe('sendRequest', () => {
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      url: MOCK_URL,
-      requestInit,
+      requestPayload: [MOCK_URL, requestInit],
     })
 
     expect(error).toBe(null)
@@ -318,8 +310,7 @@ describe('sendRequest', () => {
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      url: MOCK_URL,
-      requestInit,
+      requestPayload: [MOCK_URL, requestInit],
     })
 
     expect(error).toBe(null)
@@ -343,8 +334,7 @@ describe('sendRequest', () => {
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      url: MOCK_URL,
-      requestInit,
+      requestPayload: [MOCK_URL, requestInit],
     })
 
     expect(error).toBe(null)
@@ -378,8 +368,7 @@ describe('sendRequest', () => {
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      url: MOCK_URL,
-      requestInit: {},
+      requestPayload: [MOCK_URL, {}],
     })
 
     expect(error).toBe(null)
@@ -395,8 +384,7 @@ describe('sendRequest', () => {
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      url: MOCK_URL,
-      requestInit,
+      requestPayload: [MOCK_URL, requestInit],
     })
 
     expect(error).toBe(null)
@@ -413,8 +401,7 @@ describe('sendRequest', () => {
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      url: MOCK_URL,
-      requestInit,
+      requestPayload: [MOCK_URL, requestInit],
     })
 
     expect(error).toBe(null)
@@ -447,8 +434,7 @@ describe('sendRequest', () => {
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      url: MOCK_URL,
-      requestInit,
+      requestPayload: [MOCK_URL, requestInit],
     })
 
     expect(error).toBe(null)
@@ -472,8 +458,7 @@ describe('sendRequest', () => {
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      url: MOCK_URL,
-      requestInit,
+      requestPayload: [MOCK_URL, requestInit],
     })
 
     expect(error).toBe(null)
@@ -510,8 +495,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       expect(error).toBe(null)
@@ -551,8 +535,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       expect(error).toBe(null)
@@ -578,8 +561,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       expect(error).toBe(null)
@@ -598,8 +580,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit: {},
+        requestPayload: [MOCK_URL, {}],
       })
 
       expect(error).not.toBe(null)
@@ -612,8 +593,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit: {},
+        requestPayload: [MOCK_URL, {}],
       })
 
       expect(error).not.toBe(null)
@@ -633,8 +613,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit: {},
+        requestPayload: [MOCK_URL, {}],
       })
 
       expect(error).not.toBe(null)
@@ -659,8 +638,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: true,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       expect(error).toBe(null)
@@ -686,8 +664,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: true,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       expect(error).toBe(null)
@@ -715,8 +692,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       expect(error).toBe(null)
@@ -742,8 +718,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       expect(error).toBe(null)
@@ -770,8 +745,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       expect(error).toBe(null)
@@ -798,8 +772,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       expect(error).toBe(null)
@@ -823,8 +796,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       expect(error).toBe(null)
@@ -858,8 +830,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
         plugins: [plugin],
       })
 
@@ -881,8 +852,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: requestUrl,
-        requestInit,
+        requestPayload: [requestUrl, requestInit],
       })
 
       expect(error).toBe(null)
@@ -900,8 +870,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: requestUrl,
-        requestInit,
+        requestPayload: [requestUrl, requestInit],
       })
 
       expect(error).toBe(null)
@@ -918,8 +887,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       expect(error).toBe(null)
@@ -939,8 +907,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       const afterTime = Date.now()
@@ -969,8 +936,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       expect(error).toBe(null)
@@ -997,8 +963,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       expect(error).toBe(null)
@@ -1026,8 +991,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       expect(error).toBe(null)
@@ -1066,8 +1030,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       expect(error).toBe(null)
@@ -1099,8 +1062,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       expect(error).toBe(null)
@@ -1126,8 +1088,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       expect(error).toBe(null)
@@ -1163,8 +1124,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       expect(error).toBe(null)
@@ -1191,8 +1151,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       expect(error).toBe(null)
@@ -1219,8 +1178,7 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        url: MOCK_URL,
-        requestInit,
+        requestPayload: [MOCK_URL, requestInit],
       })
 
       expect(error).toBe(null)

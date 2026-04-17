@@ -83,7 +83,13 @@ export const sendRequest = async ({
   try {
     // Execute the request and measure duration
     const startTime = performance.now()
-    const response = await fetch(...requestPayload)
+
+    // We may use a custom fetch function on electron
+    const response =
+      'proxiedFetch' in window && window.proxiedFetch
+        ? await window.proxiedFetch(...requestPayload)
+        : await fetch(...requestPayload)
+
     const endTime = performance.now()
     const timestamp = Date.now()
     const duration = endTime - startTime

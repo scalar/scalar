@@ -224,8 +224,7 @@ describe('OperationBlock', () => {
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
-      url: 'https://api.example.com/api/users',
-      requestInit: { method: 'GET', headers: new Headers() },
+      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
       isUsingProxy: false,
     })
   })
@@ -294,8 +293,7 @@ describe('OperationBlock', () => {
       null,
       {
         timestamp: Date.now(),
-        url: 'https://api.example.com/api/users',
-        requestInit: { method: 'GET', headers: new Headers() },
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
         response: mockResponse,
         originalResponse: mockOriginalResponse,
       },
@@ -310,8 +308,7 @@ describe('OperationBlock', () => {
     expect(sendRequest).toHaveBeenCalledOnce()
     expect(sendRequest).toHaveBeenCalledWith({
       isUsingProxy: false,
-      url: 'https://api.example.com/api/users',
-      requestInit: expect.objectContaining({ method: 'GET' }),
+      requestPayload: ['https://api.example.com/api/users', expect.objectContaining({ method: 'GET' })],
       plugins: [],
     })
   })
@@ -337,8 +334,7 @@ describe('OperationBlock', () => {
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
-      url: 'https://api.example.com/api/users',
-      requestInit: { method: 'GET', headers: new Headers() },
+      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
       isUsingProxy: false,
     })
 
@@ -361,8 +357,7 @@ describe('OperationBlock', () => {
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
-      url: 'https://api.example.com/api/users',
-      requestInit: { method: 'GET', headers: new Headers() },
+      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
       isUsingProxy: false,
     })
 
@@ -370,8 +365,7 @@ describe('OperationBlock', () => {
       null,
       {
         timestamp: Date.now(),
-        url: 'https://api.example.com/api/users',
-        requestInit: { method: 'GET', headers: new Headers() },
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
         response: {} as ResponseInstance,
         originalResponse: createMockOriginalResponse(),
       },
@@ -396,8 +390,7 @@ describe('OperationBlock', () => {
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
-      url: 'https://api.example.com/api/users',
-      requestInit: { method: 'GET', headers: new Headers() },
+      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
       isUsingProxy: false,
     })
 
@@ -405,8 +398,7 @@ describe('OperationBlock', () => {
       null,
       {
         timestamp: Date.now(),
-        url: 'https://api.example.com/api/users',
-        requestInit: { method: 'GET', headers: new Headers() },
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
         response: {} as ResponseInstance,
         originalResponse: createMockOriginalResponse(),
       },
@@ -464,8 +456,10 @@ describe('OperationBlock', () => {
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
-      url: 'https://proxy.example.com/?scalar_url=https%3A%2F%2Fapi.example.com%2Fapi%2Fusers',
-      requestInit: { method: 'GET', headers: new Headers() },
+      requestPayload: [
+        'https://proxy.example.com/?scalar_url=https%3A%2F%2Fapi.example.com%2Fapi%2Fusers',
+        { method: 'GET', headers: new Headers() },
+      ],
       isUsingProxy: true,
     })
 
@@ -473,8 +467,10 @@ describe('OperationBlock', () => {
       null,
       {
         timestamp: Date.now(),
-        url: 'https://proxy.example.com/?scalar_url=https%3A%2F%2Fapi.example.com%2Fapi%2Fusers',
-        requestInit: { method: 'GET', headers: new Headers() },
+        requestPayload: [
+          'https://proxy.example.com/?scalar_url=https%3A%2F%2Fapi.example.com%2Fapi%2Fusers',
+          { method: 'GET', headers: new Headers() },
+        ],
         response: {} as ResponseInstance,
         originalResponse: createMockOriginalResponse(),
       },
@@ -488,8 +484,7 @@ describe('OperationBlock', () => {
 
     expect(sendRequest).toHaveBeenCalledWith({
       isUsingProxy: true,
-      url: expect.any(String),
-      requestInit: expect.any(Object),
+      requestPayload: [expect.any(String), expect.any(Object)],
       plugins: [],
     })
   })
@@ -499,8 +494,7 @@ describe('OperationBlock', () => {
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
-      url: 'https://api.example.com/api/users',
-      requestInit: { method: 'GET', headers: new Headers() },
+      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
       isUsingProxy: false,
     })
 
@@ -533,8 +527,7 @@ describe('OperationBlock', () => {
       null,
       {
         timestamp: Date.now(),
-        url: 'https://api.example.com/api/users',
-        requestInit: { method: 'GET', headers: new Headers() },
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
         response: mockResponse,
         originalResponse: createMockOriginalResponse(),
       },
@@ -581,8 +574,7 @@ describe('OperationBlock', () => {
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
-      url: 'https://api.example.com/api/users',
-      requestInit: { method: 'GET', headers: new Headers() },
+      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
       isUsingProxy: false,
     })
 
@@ -590,8 +582,7 @@ describe('OperationBlock', () => {
       null,
       {
         timestamp: Date.now(),
-        url: 'https://api.example.com/api/users',
-        requestInit: { method: 'GET', headers: new Headers() },
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
         response: mockResponse,
         originalResponse: createMockOriginalResponse(),
       },
@@ -642,8 +633,7 @@ describe('OperationBlock', () => {
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
-      url: 'https://api.example.com/api/users',
-      requestInit: { method: 'GET', headers: new Headers() },
+      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
       isUsingProxy: false,
     })
 
@@ -651,8 +641,7 @@ describe('OperationBlock', () => {
       null,
       {
         timestamp: Date.now(),
-        url: 'https://api.example.com/api/users',
-        requestInit: { method: 'GET', headers: new Headers() },
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
         response: mockResponse,
         originalResponse: createMockOriginalResponse(),
       },
@@ -703,8 +692,7 @@ describe('OperationBlock', () => {
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
-      url: 'https://api.example.com/api/users',
-      requestInit: { method: 'GET', headers: new Headers() },
+      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
       isUsingProxy: false,
     })
 
@@ -712,8 +700,7 @@ describe('OperationBlock', () => {
       null,
       {
         timestamp: Date.now(),
-        url: 'https://api.example.com/api/users',
-        requestInit: { method: 'GET', headers: new Headers() },
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
         response: mockResponse,
         originalResponse: createMockOriginalResponse(),
       },
@@ -764,8 +751,7 @@ describe('OperationBlock', () => {
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
-      url: 'https://api.example.com/api/users',
-      requestInit: { method: 'GET', headers: new Headers() },
+      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
       isUsingProxy: false,
     })
 
@@ -773,8 +759,7 @@ describe('OperationBlock', () => {
       null,
       {
         timestamp: Date.now(),
-        url: 'https://api.example.com/api/users',
-        requestInit: { method: 'GET', headers: new Headers() },
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
         response: mockResponse,
         originalResponse: new Response(),
       },

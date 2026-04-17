@@ -1,8 +1,24 @@
-import { describe, it, expect } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
 import { canMethodHaveBody } from './can-method-have-body'
 import type { HttpMethod } from './http-methods'
 
+vi.mock('@/general/is-electron', () => ({
+  isElectron: vi.fn(() => false),
+}))
+
+const { isElectron } = await import('@/general/is-electron')
+const mockedIsElectron = vi.mocked(isElectron)
+
 describe('can-method-have-body', () => {
+  beforeEach(() => {
+    mockedIsElectron.mockReturnValue(false)
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+
   describe('HTTP methods with body support', () => {
     it.each(['post', 'put', 'patch', 'delete'] as const)('returns true for %s method', (method) => {
       expect(canMethodHaveBody(method)).toBe(true)
@@ -31,20 +47,32 @@ describe('can-method-have-body', () => {
     })
   })
 
-  describe('type narrowing', () => {
-    it('narrows type to BodyMethod when true is returned', () => {
-      const method: HttpMethod = 'post'
-      if (canMethodHaveBody(method)) {
-        // TypeScript should know that method is now BodyMethod
-        expect(method).toBe('post')
-      }
+  describe('Electron environment', () => {
+    beforeEach(() => {
+      mockedIsElectron.mockReturnValue(true)
     })
 
-    it('preserves original type when false is returned', () => {
+    it.each(['get', 'GET', 'Get'] as const)('returns true for %s method in Electron', (method) => {
+      expect(canMethodHaveBody(method as HttpMethod)).toBe(true)
+    })
+
+    it.each(['post', 'put', 'patch', 'delete'] as const)('still returns true for %s method in Electron', (method) => {
+      expect(canMethodHaveBody(method)).toBe(true)
+    })
+
+    it.each(['head', 'options', 'trace'] as const)('returns false for %s method in Electron', (method) => {
+      expect(canMethodHaveBody(method)).toBe(false)
+    })
+  })
+
+  describe('return type', () => {
+    it('returns a plain boolean so the original HttpMethod type is preserved in both branches', () => {
       const method: HttpMethod = 'get'
-      if (!canMethodHaveBody(method)) {
-        // TypeScript should know that method is still HttpMethod
-        expect(method).toBe('get')
+
+      if (canMethodHaveBody(method)) {
+        expect<HttpMethod>(method).toBe('get')
+      } else {
+        expect<HttpMethod>(method).toBe('get')
       }
     })
   })
