@@ -1,3 +1,4 @@
+import { ERRORS } from '@scalar/helpers/errors/normalize-error'
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
 import type { AuthMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { buildRequest, requestFactory } from '@scalar/workspace-store/request-example'
@@ -8,8 +9,7 @@ import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/stric
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { ClientLayout } from '@/hooks/useLayout'
-import { ERRORS } from '@/libs/errors'
+import type { ClientLayout } from '@/v2/types/layout'
 
 import { responseCache } from './helpers/response-cache'
 import { type ResponseInstance, sendRequest } from './helpers/send-request'
@@ -312,6 +312,7 @@ describe('OperationBlock', () => {
     expect(sendRequest).toHaveBeenCalledWith({
       isUsingProxy: false,
       request: expect.any(Request),
+      plugins: [],
     })
   })
 
@@ -485,6 +486,7 @@ describe('OperationBlock', () => {
     expect(sendRequest).toHaveBeenCalledWith({
       isUsingProxy: true,
       request: expect.any(Request),
+      plugins: [],
     })
   })
 

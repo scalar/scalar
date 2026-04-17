@@ -1,4 +1,4 @@
-import { isClient } from '@scalar/api-client/v2/blocks/operation-code-sample'
+import { isClient } from '@scalar/api-client/blocks/operation-code-sample'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { useSeoMeta } from '@unhead/vue'

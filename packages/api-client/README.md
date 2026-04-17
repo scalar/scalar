@@ -11,6 +11,10 @@ The Scalar API Client is a powerful tool designed to simplify API testing and in
 - embeddable component in various frontend environments
 - customizable module that can be integrated into existing projects
 
+## ⚠️ Breaking Changes
+
+We have removed the old version of the clients so you must update your imports as seen below. We will keep the v2 exports for a while then remove them.
+
 ## Features
 
 - Intuitive interface for sending API requests and viewing responses
@@ -55,107 +59,152 @@ You can mount the full-blown API Client to your DOM like this:
 
 ```ts
 // main.js
-import { createApiClientApp } from '@/App'
+import '@/style.css'
 
-// Initialize
-await createApiClientApp(document.getElementById('scalar-client'), {
-  url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
-  proxyUrl: 'https://proxy.scalar.com',
-})
+import { createApiClientApp } from '@scalar/api-client/app'
+
+const el = document.getElementById('scalar-client')
+
+createApiClientApp(el, { layout: 'web' })
 ```
 
 ### Modal
 
-Or you can mount a more compact version, which is living in a modal:
+Or you can mount a more compact version, which is rendered in a modal.
+You must initialize the workspace store and add at least one document.
 
 ```ts
 // main.js
-import { createApiClientApp } from '@/App'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { createApiClientModal } from '@scalar/api-client/modal'
 
-// Initialize
-const { open } = await createApiClientApp(
-  document.getElementById('scalar-client'),
-  {
-    url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
+import '@/style.css'
+
+const workspaceStore = createWorkspaceStore()
+await workspaceStore.addDocument({
+  name: 'default',
+  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+})
+
+const modal = createApiClientModal({
+  el: document.getElementById('app'),
+  workspaceStore,
+  options: {
     proxyUrl: 'https://proxy.scalar.com',
   },
-)
+})
 
 // Open the API client right-away
-open()
+modal.open()
 
-// Or: Open a specific operation
-// open({
-//   method: 'GET',
-//   path: '/me',
-// })
+document.getElementById('button')?.addEventListener('click', () =>
+  modal.open({
+    path: '/user/signup',
+    method: 'post',
+  }),
+)
+
+// Navigate while the modal is already open
+modal.route({
+  path: '/me',
+  method: 'get',
+})
+
+// Merge options at runtime
+modal.updateOptions({
+  hideClientButton: true,
+})
+
 ```
 
 ## Configuration
 
-```ts
-/** Configuration options for the Scalar API client */
-export type ClientConfiguration = {
-  /** The Swagger/OpenAPI document to render */
-  spec: SourceConfiguration
-  /** Pass in a proxy to the API client */
-  proxyUrl?: string
-  /** Pass in a theme API client */
-  themeId?: string
-  /** Whether to show the sidebar */
-  showSidebar?: boolean
-  /** Whether dark mode is on or off initially (light mode) */
-  // darkMode?: boolean
-  /** Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
-  searchHotKey?:
-    | 'a'
-    | 'b'
-    | 'c'
-    | 'd'
-    | 'e'
-    | 'f'
-    | 'g'
-    | 'h'
-    | 'i'
-    | 'j'
-    | 'k'
-    | 'l'
-    | 'm'
-    | 'n'
-    | 'o'
-    | 'p'
-    | 'q'
-    | 'r'
-    | 's'
-    | 't'
-    | 'u'
-    | 'v'
-    | 'w'
-    | 'x'
-    | 'y'
-    | 'z'
-}
-```
+`createApiClientModal` accepts these top-level properties:
+
+| Option | Description |
+|---|---|
+| `el` | [Required] The HTML element to mount the modal app to. |
+| `workspaceStore` | [Required] An initialized workspace store with documents loaded. |
+| `mountOnInitialize` | Mount immediately (default: `true`). Set to `false` to mount manually later. |
+| `eventBus` | Pass an existing workspace event bus, or let the modal create one. |
+| `plugins` | Client plugins to include in the modal. |
+| `options` | Partial API client configuration for modal behavior (see below). |
+
+`options` supports these keys:
+
+| Option | Description |
+|---|---|
+| `options.proxyUrl` | Use a proxy URL to send requests when CORS blocks direct browser requests. |
+| `options.authentication` | Prefill authentication credentials and default security scheme behavior. |
+| `options.baseServerURL` | Prefix all relative servers with a base URL. |
+| `options.hideClientButton` | Hide the client button in modal-based integrations. |
+| `options.hiddenClients` | Control which HTTP code-example clients are shown; pass `[]` to show all clients. |
+| `options.oauth2RedirectUri` | Set the default OAuth 2.0 redirect URI for auth code and implicit flows. |
+| `options.servers` | Override the servers from your OpenAPI document. |
 
 ## Available Methods
 
-The following methods are returned from the `createApiClientModal` call:
+The `createApiClientModal` call returns:
 
-### open
+- `open(payload?)`: Opens the modal and optionally navigates to a route.
+- `route(payload)`: Navigates to a route without toggling modal visibility.
+- `updateOptions(nextOptions, overwrite?)`: Merges options by default, or replaces them when `overwrite` is `true`.
+- `mount(mountingEl?)`: Mounts the modal app to a specific element.
+- `modalState`: Reactive open/close state object.
+- `app`: Underlying Vue app instance.
 
-Opens the modal while allowing you to select which request to open to
-
-```ts
-open({ path: string; method: RequestMethod })
-```
-
-### updateConfig
-
-Allows you to update the config at any time, this will clear your current state and re-import a fresh spec!
+`open` and `route` use this payload shape:
 
 ```ts
-updateConfig(newConfig: ClientConfiguration, mergeConfigs?: boolean): void
+{
+  path: string
+  method: HttpMethod
+  example?: string
+  documentSlug?: string // For multiple documents
+}
 ```
+
+
+## Plugins
+
+The `plugins` option accepts an array of `ClientPlugin` objects that extend the API Client with custom behavior. Plugins can add lifecycle hooks, custom UI components, and custom response body handlers for content types that the client does not natively support.
+
+### Custom Response Body Handling
+
+When your API returns a non-standard content type (for example, MessagePack), you can register a plugin with a `responseBody` handler to decode and display it:
+
+```ts
+import type { ClientPlugin } from '@scalar/oas-utils/helpers'
+
+const msgpackPlugin: ClientPlugin = {
+  responseBody: [
+    {
+      mimeTypes: ['application/msgpack', 'application/x-msgpack'],
+      decode: async (buffer) => {
+        const { decode } = await import('@msgpack/msgpack')
+        const decoded = decode(new Uint8Array(buffer))
+        return JSON.stringify(decoded, null, 2)
+      },
+      language: 'json',
+    },
+  ],
+}
+
+createApiClientApp(el, {
+  layout: 'web',
+  plugins: [msgpackPlugin],
+})
+```
+
+Each handler in `responseBody` supports:
+
+| Property | Description |
+|---|---|
+| `mimeTypes` | MIME type patterns to match (exact or wildcard like `application/vnd.*+json`). |
+| `decode` | Transforms the raw `ArrayBuffer` into a string or Blob for display. |
+| `language` | CodeMirror language hint for the built-in raw renderer (for example, `json`). |
+| `rawComponent` | A custom Vue component for the raw view (mutually exclusive with `language`). |
+| `previewComponent` | A custom Vue component for the preview view. |
 
 ## Community
 

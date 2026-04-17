@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "test": "vitest",
+    "test": "vitest --run",
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
@@ -49,8 +49,8 @@
   "dependencies": {
     "@scalar/use-toasts": "workspace:*",
     "@vueuse/core": "catalog:*",
-    "cva": "1.0.0-beta.2",
-    "tailwind-merge": "3.4.0",
+    "cva": "1.0.0-beta.4",
+    "tailwind-merge": "3.5.0",
     "vue": "catalog:*",
     "zod": "catalog:*"
   },

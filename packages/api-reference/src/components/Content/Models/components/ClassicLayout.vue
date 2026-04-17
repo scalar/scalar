@@ -17,7 +17,7 @@ const { eventBus, id } = defineProps<{
   eventBus: WorkspaceEventBus
   options: Pick<
     ApiReferenceConfigurationRaw,
-    'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
+    'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy' | 'hideModels'
   >
 }>()
 </script>
@@ -49,6 +49,7 @@ const { eventBus, id } = defineProps<{
         v-for="[property, value] in Object.entries(schema.properties ?? {})"
         :key="property"
         :eventBus="eventBus"
+        :hideModelNames="options.hideModels"
         :name="property"
         :options
         :required="schema.required?.includes(property)"
@@ -57,6 +58,7 @@ const { eventBus, id } = defineProps<{
     <div v-else>
       <SchemaProperty
         :eventBus="eventBus"
+        :hideModelNames="options.hideModels"
         :options
         :schema="schema" />
     </div>

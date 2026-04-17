@@ -1,6 +1,12 @@
+<script lang="ts">
+/**  Any config options required for the OAuth2 flow */
+export type OAuth2Options = Pick<ApiClientConfiguration, 'oauth2RedirectUri'>
+</script>
+
 <script setup lang="ts">
 import { ScalarButton, useLoadingState } from '@scalar/components'
-import { pkceOptions } from '@scalar/oas-utils/entities/spec'
+import type { ApiClientConfiguration } from '@scalar/types/api-reference'
+import { pkceOptions } from '@scalar/types/entities'
 import { useToasts } from '@scalar/use-toasts'
 import type { SecretsOAuthFlows } from '@scalar/workspace-store/entities/auth'
 import type {
@@ -17,20 +23,17 @@ import {
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCredentialsLocation } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-credentials-location'
-import type { XusePkce } from '@scalar/workspace-store/schemas/extensions/security/x-use-pkce'
+import { type XusePkce } from '@scalar/workspace-store/schemas/extensions/security/x-use-pkce'
 import type {
   OAuthFlow,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, watch } from 'vue'
 
-import { DataTableRow } from '@/components/DataTable'
-import {
-  resolveDefaultOAuth2RedirectUri,
-  useClientConfig,
-} from '@/hooks/useClientConfig'
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
+import { resolveDefaultOAuth2RedirectUri } from '@/v2/blocks/scalar-auth-selector-block/helpers/resolve-default-oauth2-redirect-url'
+import { DataTableRow } from '@/v2/components/data-table'
 
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
@@ -44,6 +47,7 @@ const {
   proxyUrl,
   eventBus,
   name,
+  options = {},
 } = defineProps<{
   /** Current environment configuration */
   environment: XScalarEnvironment
@@ -63,6 +67,8 @@ const {
   name: string
   /** Event bus for authentication updates */
   eventBus: WorkspaceEventBus
+  /**  Any config options required for the OAuth2 flow */
+  options?: OAuth2Options
 }>()
 
 const emits = defineEmits<{
@@ -84,8 +90,6 @@ type NonImplicitFlow =
   | OAuthFlowPasswordSecret
   | OAuthFlowClientCredentialsSecret
   | OAuthFlowAuthorizationCodeSecret
-
-const clientConfig = useClientConfig()
 
 /** We filter selected scopes to only include scopes that are in this flow*/
 const selectedScopes = computed(() =>
@@ -133,9 +137,6 @@ const clearOauth2Secrets = (): void =>
 /** Track if we have set the redirect uri */
 const hasPrefilledRedirectUri = ref(false)
 
-const getDefaultOAuth2RedirectUri = (): string =>
-  resolveDefaultOAuth2RedirectUri(clientConfig.value)
-
 /** Default the redirect-uri to the current origin if we have access to window */
 watch(
   () =>
@@ -143,7 +144,7 @@ watch(
       'x-scalar-secret-redirect-uri'
     ],
   (newRedirectUri) => {
-    const defaultRedirectUri = getDefaultOAuth2RedirectUri()
+    const defaultRedirectUri = resolveDefaultOAuth2RedirectUri(options)
 
     if (
       hasPrefilledRedirectUri.value ||

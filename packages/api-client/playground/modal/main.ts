@@ -1,17 +1,32 @@
-import { createApiClientModal } from '@/index'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import '@/style.css'
 
-const { client } = await createApiClientModal({
-  el: document.getElementById('app'),
-  configuration: {
-    url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
-    proxyUrl: 'https://proxy.scalar.com',
+import { createApiClientModal } from '@/v2/features/modal/helpers/create-api-client-modal'
+
+const workspaceStore = createWorkspaceStore({
+  meta: {
+    'x-scalar-active-proxy': 'https://proxy.scalar.com',
   },
+})
+await workspaceStore.addDocument({
+  name: 'default',
+  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+})
+
+const { open } = createApiClientModal({
+  el: document.getElementById('app'),
+  workspaceStore,
 })
 
 // Open the API client right-away
-client.open()
+open()
 
-document.getElementById('button')?.addEventListener('click', () => open())
+document.getElementById('button')?.addEventListener('click', () =>
+  open({
+    path: '/user/signup',
+    method: 'post',
+  }),
+)
 
 // Or: Open a specific operation
 // open({

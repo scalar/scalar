@@ -23,7 +23,7 @@ import { capitalize, computed, ref } from 'vue'
 
 import { DataTableCell, DataTableRow } from '@/v2/components/data-table'
 
-import OAuth2 from './OAuth2.vue'
+import OAuth2, { type OAuth2Options } from './OAuth2.vue'
 import OpenIDConnect from './OpenIDConnect.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
@@ -41,6 +41,7 @@ const {
   securitySchemes,
   server,
   eventBus,
+  options,
 } = defineProps<{
   /** Current environment configuration */
   environment: XScalarEnvironment
@@ -56,6 +57,8 @@ const {
   server: ServerObject | null
   /** Event bus for authentication updates */
   eventBus: WorkspaceEventBus
+  /**  Any config options required for the OAuth2 flow */
+  options?: OAuth2Options
 }>()
 
 const emits = defineEmits<{
@@ -349,11 +352,12 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
           :environment
           :eventBus
           :flows="scheme.flows"
-          :name="name"
+          :name
+          :options
           :proxyUrl
           :scheme
           :selectedScopes="scopes"
-          :server="server"
+          :server
           :type="key"
           @update:selectedScopes="(event) => handleScopesUpdate(name, event)" />
       </template>

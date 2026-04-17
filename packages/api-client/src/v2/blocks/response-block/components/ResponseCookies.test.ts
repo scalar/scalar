@@ -1,9 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import DataTable from '@/components/DataTable/DataTable.vue'
-import DataTableRow from '@/components/DataTable/DataTableRow.vue'
-import DataTableText from '@/components/DataTable/DataTableText.vue'
+import { DataTable, DataTableRow, DataTableText } from '@/v2/components/data-table'
 
 import ResponseCookies from './ResponseCookies.vue'
 

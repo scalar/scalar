@@ -1,4 +1,4 @@
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
+import * as monaco from 'monaco-editor'
 import { configureMonacoYaml } from 'monaco-yaml'
 
 import openApiJsonSchema from './../schemas/openapi-3.1-schema.json'
@@ -11,12 +11,12 @@ const OPENAPI_JSON_SCHEMA_URI = 'inmemory://model/scalar/openapi-json-schema'
  * @param globPattern - The glob pattern to match the files to configure language support for
  */
 export const configureJson = (globPattern: string): void => {
-  const defaults = monaco.languages.json.jsonDefaults
+  const defaults = monaco.json.jsonDefaults
   const current = defaults.diagnosticsOptions
 
   const existingSchemas = current.schemas ?? []
   const schemas = [
-    ...existingSchemas.filter((s) => s.uri !== OPENAPI_JSON_SCHEMA_URI),
+    ...existingSchemas.filter((schema) => schema.uri !== OPENAPI_JSON_SCHEMA_URI),
     {
       uri: OPENAPI_JSON_SCHEMA_URI,
       fileMatch: [globPattern],

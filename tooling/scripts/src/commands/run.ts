@@ -8,12 +8,12 @@ run.addCommand(
   new Command('test-servers').description('Run the test servers').action(async () => {
     const { result } = concurrently([
       {
-        command: 'CI=1 pnpm --filter @scalar/void-server dev',
+        command: 'cross-env CI=1 pnpm --filter @scalar/void-server dev',
         name: 'void-server',
         prefixColor: 'blue',
       },
       {
-        command: 'CI=1 pnpm --filter proxy-scalar-com dev',
+        command: 'cross-env CI=1 pnpm --filter proxy-scalar-com dev',
         name: 'proxy-server',
         prefixColor: 'cyan',
       },

@@ -1,5 +1,11 @@
 # @scalar/openapi-to-markdown
 
+## 0.5.4
+
+### Patch Changes
+
+- [#8825](https://github.com/scalar/scalar/pull/8825): chore: moving files around in preparation for the big deletion of client v1
+
 ## 0.5.3
 
 ## 0.5.2

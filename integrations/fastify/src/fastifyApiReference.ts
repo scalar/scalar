@@ -1,3 +1,4 @@
+/// <reference types="@fastify/swagger" />
 import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
 import { normalize, toJson, toYaml } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'

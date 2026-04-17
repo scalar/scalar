@@ -9,6 +9,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
+import type { OAuth2Options } from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
 import type { SecuritySchemeOption } from '@/v2/blocks/scalar-auth-selector-block/helpers/security-scheme'
 import { DataTable } from '@/v2/components/data-table'
 
@@ -23,6 +24,7 @@ const {
   server,
   eventBus,
   meta,
+  options,
 } = defineProps<{
   /** The current environment configuration */
   environment: XScalarEnvironment
@@ -42,6 +44,8 @@ const {
   eventBus: WorkspaceEventBus
   /** Metadata for authentication context */
   meta: AuthMeta
+  /**  Any config options required for the OAuth2 flow */
+  options?: OAuth2Options
 }>()
 
 /** Currently selected authentication scheme based on the active tab index */
@@ -85,7 +89,7 @@ defineExpose({
     <!-- Authentication Tabs -->
     <div
       v-if="shouldShowTabs"
-      class="box-content flex flex-wrap gap-x-2.5 overflow-hidden border border-b-0 px-3"
+      class="box-content flex flex-wrap gap-x-2.5 overflow-hidden border-x border-t px-3"
       :class="{ 'border-x-0': !isStatic }"
       data-testid="auth-tabs">
       <div
@@ -113,13 +117,14 @@ defineExpose({
     <DataTable
       v-if="activeScheme"
       class="flex-1"
-      :class="{ 'bg-b-1 rounded-b-lg border border-t-0': isStatic }"
+      :class="{ 'bg-b-1 rounded-b-lg border-x border-b': isStatic }"
       :columns="['']"
       presentational>
       <RequestAuthTab
         :environment
         :eventBus
         :isStatic
+        :options
         :proxyUrl
         :securitySchemes
         :selectedSecuritySchemas="activeScheme.value"

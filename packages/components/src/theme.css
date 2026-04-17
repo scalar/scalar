@@ -3,6 +3,22 @@
  */
 
 @theme inline {
+  /* Header Colors */
+  --color-b-header-1: var(--scalar-header-background-1, var(--scalar-background-1));
+  --color-b-header-2: var(--scalar-header-background-2, var(--scalar-background-2));
+  --color-c-header-1: var(--scalar-header-color-1, var(--scalar-color-1));
+  --color-c-header-2: var(--scalar-header-color-2, var(--scalar-color-2));
+
+  --color-border-header: var(--scalar-header-border-color, var(--scalar-border-color));
+
+  --color-b-header-cta: var(--scalar-header-call-to-action-color, var(--scalar-button-1));
+  --color-h-header-cta: color-mix(
+    in srgb,
+    var(--scalar-header-call-to-action-color, var(--scalar-button-1)),
+    var(--scalar-header-background-1, var(--scalar-background-1)) 15%
+  );
+  --color-c-header-cta: var(--scalar-button-1-color);
+
   /* Easing Functions */
   --ease-spring: linear(
     0,

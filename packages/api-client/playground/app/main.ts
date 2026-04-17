@@ -1,7 +1,8 @@
 import '@/style.css'
 
-import { createApiClientApp } from '@/layouts/App'
+import { createApiClientApp } from '@/v2/features/app'
 
-void createApiClientApp(document.getElementById('scalar-client'), {
-  proxyUrl: 'https://proxy.scalar.com',
-})
+const el = document.getElementById('scalar-client')
+
+/** This isn't in electron but basically fakes the desktop app in the web so its easier to work on */
+createApiClientApp(el, { layout: 'desktop' })

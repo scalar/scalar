@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ClientOptionGroup } from '@scalar/api-client/v2/blocks/operation-code-sample'
+import type { ClientOptionGroup } from '@scalar/api-client/blocks/operation-code-sample'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
@@ -50,6 +50,7 @@ const {
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'showOperationId'
+    | 'hideModels'
   >
   /** Currently selected server for the document */
   selectedServer: ServerObject | null

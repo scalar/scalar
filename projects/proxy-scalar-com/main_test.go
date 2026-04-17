@@ -4,7 +4,9 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
+	"time"
 )
 
 // Common test setup
@@ -333,6 +335,67 @@ func TestProxyBehavior(t *testing.T) {
 
 		if w.Code != http.StatusServiceUnavailable {
 			t.Errorf("Expected status code %d, got %d", http.StatusServiceUnavailable, w.Code)
+		}
+	})
+
+	t.Run("Handles scalar_url set to proxy root without looping", func(t *testing.T) {
+		selfProxyServer := httptest.NewServer(http.HandlerFunc(proxyServer.handleRequest))
+		defer selfProxyServer.Close()
+
+		client := &http.Client{Timeout: 2 * time.Second}
+		proxyRequestURL := selfProxyServer.URL + "/?scalar_url=" + url.QueryEscape(selfProxyServer.URL)
+		resp, err := client.Get(proxyRequestURL)
+
+		if err != nil {
+			t.Fatalf("Expected request to complete without loop, got error: %v", err)
+		}
+
+		defer resp.Body.Close()
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			t.Fatalf("Failed to read response body: %v", err)
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, resp.StatusCode)
+		}
+
+		if len(body) == 0 {
+			t.Error("Expected non-empty response body")
+		}
+	})
+
+	t.Run("Handles nested scalar_url chain pointing back to proxy without looping", func(t *testing.T) {
+		selfProxyServer := httptest.NewServer(http.HandlerFunc(proxyServer.handleRequest))
+		defer selfProxyServer.Close()
+
+		nestedTarget := selfProxyServer.URL
+		for range 3 {
+			nestedTarget = selfProxyServer.URL + "/?scalar_url=" + url.QueryEscape(nestedTarget)
+		}
+
+		client := &http.Client{Timeout: 2 * time.Second}
+		proxyRequestURL := selfProxyServer.URL + "/?scalar_url=" + url.QueryEscape(nestedTarget)
+		resp, err := client.Get(proxyRequestURL)
+
+		if err != nil {
+			t.Fatalf("Expected nested request chain to complete without loop, got error: %v", err)
+		}
+
+		defer resp.Body.Close()
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			t.Fatalf("Failed to read response body: %v", err)
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, resp.StatusCode)
+		}
+
+		if len(body) == 0 {
+			t.Error("Expected non-empty response body")
 		}
 	})
 

@@ -6,9 +6,9 @@ import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/ope
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { operationToHar } from '@/v2/blocks/operation-code-sample/helpers/operation-to-har/operation-to-har'
-import { getSnippet } from '@/views/Components/CodeSnippet/helpers/get-snippet'
 
 import { type CustomCodeSampleId, generateCustomId } from './generate-client-options'
+import { getSnippet } from './get-snippet'
 
 type GenerateCodeSnippetProps = {
   /** The selected client/language for code generation (e.g., 'node/fetch') or a custom code sample ID. */

@@ -34,6 +34,7 @@ export {
 } from './builder'
 export type { MergedSecuritySchemes } from './context'
 export {
+  type BuildRequestExampleContext,
   combineParams,
   getActiveEnvironment,
   getActiveProxyUrl,
@@ -48,3 +49,12 @@ export {
 } from './context'
 export { createVariablesStoreForRequest } from './variable-store'
 export type { VariableEntry, VariablesStore } from './variable-store/types'
+export {
+  CONTEXT_FUNCTION_NAMES,
+  type ContextFunctionEntry,
+  type ContextFunctionName,
+  POPULAR_CONTEXT_FUNCTION_KEYS,
+  contextFunctions,
+  getContextFunctionComment,
+  isContextFunctionName,
+} from './functions'

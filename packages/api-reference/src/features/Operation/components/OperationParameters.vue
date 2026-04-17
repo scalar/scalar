@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
@@ -9,6 +8,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
+import { shouldIgnoreEntity } from '@/features/Operation/helpers/should-ignore-entity'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 import ParameterList from './ParameterList.vue'
@@ -21,7 +21,7 @@ const { parameters = [], requestBody } = defineProps<{
   eventBus: WorkspaceEventBus | null
   options: Pick<
     OperationProps['options'],
-    'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
+    'hideModels' | 'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
   >
 }>()
 

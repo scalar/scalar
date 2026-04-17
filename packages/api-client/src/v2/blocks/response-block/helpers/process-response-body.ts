@@ -1,4 +1,4 @@
-import MimeType from 'whatwg-mimetype'
+import { resolveResponseMimeType } from '@/v2/blocks/response-block/helpers/resolve-response-content-type'
 
 import { extractFilename } from './../helpers/extract-filename'
 
@@ -10,7 +10,7 @@ const isBlob = (b: any): b is Blob => b instanceof Blob
  */
 export function processResponseBody({ data, headers }: { data: unknown; headers: { name: string; value: string }[] }) {
   const contentType = headers.find((header) => header.name.toLowerCase() === 'content-type')
-  const mimeType = contentType?.value ? new MimeType(contentType.value) : undefined
+  const mimeType = resolveResponseMimeType(contentType?.value)
   const attachmentFilename = extractFilename(
     headers.find((header) => header.name.toLowerCase() === 'content-disposition')?.value ?? '',
   )

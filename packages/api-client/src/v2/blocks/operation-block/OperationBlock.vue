@@ -81,11 +81,14 @@ export type OperationBlockProps = {
   defaultHeaders: Record<string, string>
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
   requestBodyCompositionSelection?: Record<string, number>
+  /** Subset of config options for the modal */
+  options?: ModalProps['options']
 }
 </script>
 <script setup lang="ts">
+import { ERRORS } from '@scalar/helpers/errors/normalize-error'
+import { isElectron } from '@scalar/helpers/general/is-electron'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { executeHook, type ClientPlugin } from '@scalar/oas-utils/helpers'
 import {
   AVAILABLE_CLIENTS,
@@ -115,13 +118,10 @@ import type {
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, toValue, watch } from 'vue'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
-import type { ClientLayout } from '@/hooks'
-import { isElectron } from '@/libs/electron'
-import { ERRORS } from '@/libs/errors'
 import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
 import { harToFetchResponse } from '@/v2/blocks/operation-block/helpers/har-to-fetch-response'
 import {
@@ -129,12 +129,17 @@ import {
   isStreamingResponse,
   responseCache,
 } from '@/v2/blocks/operation-block/helpers/response-cache'
-import { sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
+import {
+  sendRequest,
+  type ResponseInstance,
+} from '@/v2/blocks/operation-block/helpers/send-request'
 import { validatePathParameters } from '@/v2/blocks/operation-block/helpers/validate-path-parameters'
 import { generateClientOptions } from '@/v2/blocks/operation-code-sample'
 import { RequestBlock } from '@/v2/blocks/request-block'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
+import type { ModalProps } from '@/v2/features/modal/Modal.vue'
+import type { ClientLayout } from '@/v2/types/layout'
 
 import Header from './components/Header.vue'
 
@@ -159,6 +164,7 @@ const {
   selectedClient,
   server,
   environments,
+  options,
   activeEnvironment,
   serverMeta,
   selectedSecurity,
@@ -213,15 +219,6 @@ const handleExecute = async () => {
     response.value.reader.cancel()
   }
 
-  // Execute the hooks
-  eventBus.emit('hooks:on:request:sent', {
-    meta: {
-      method,
-      path,
-      exampleKey,
-    },
-  })
-
   const variablesStore = createVariablesStoreForRequest()
 
   // Execute the beforeRequest hook (plugins receive RequestFactory, not fetch Request)
@@ -267,10 +264,20 @@ const handleExecute = async () => {
   // Store the abort controller for cancellation
   abortController.value = requestResult.result.controller
 
+  // Execute the hooks
+  eventBus.emit('hooks:on:request:sent', {
+    meta: {
+      method,
+      path,
+      exampleKey,
+    },
+  })
+
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
     isUsingProxy: requestResult.result.isUsingProxy,
     request: requestResult.result.request,
+    plugins,
   })
 
   if (sendResult) {
@@ -466,6 +473,7 @@ onBeforeUnmount(() => {
           :layout
           :method
           :operation
+          :options="toValue(options)"
           :path
           :plugins
           :proxyUrl

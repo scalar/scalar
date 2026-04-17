@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Scalar.AspNetCore.Tests.Api": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:58018;http://localhost:58019"
+    }
+  }
+}

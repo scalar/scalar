@@ -3,7 +3,7 @@ import { ScalarHotkey } from '@scalar/components'
 
 import Computer from '@/assets/computer.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
-import { type ClientLayout } from '@/hooks'
+import type { ClientLayout } from '@/v2/types/layout'
 
 const { totalPerformedRequests, layout, appVersion } = defineProps<{
   /** Client layout */

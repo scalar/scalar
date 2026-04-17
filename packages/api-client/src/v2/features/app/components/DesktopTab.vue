@@ -88,9 +88,10 @@ const handleClose = (event: MouseEvent): void => {
         placement="bottom">
         <!-- Main tab container - clickable area to activate the tab -->
         <div
-          class="app-no-drag-region"
           :class="[
-            isSingleTab ? 'nav-single-tab' : 'nav-item',
+            isSingleTab
+              ? 'nav-single-tab mac:app-drag-region'
+              : 'nav-item app-no-drag-region',
             { 'nav-item__active': active && !isSingleTab },
           ]"
           @click="!isSingleTab && emit('click')">

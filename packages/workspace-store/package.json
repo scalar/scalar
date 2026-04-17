@@ -16,7 +16,7 @@
     "openapi",
     "scalar"
   ],
-  "version": "0.45.0",
+  "version": "0.46.0",
   "engines": {
     "node": ">=22"
   },
@@ -24,7 +24,7 @@
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "generate-json-schemas": "tsx ./scripts/generate-json-schemas.ts",
     "generate-openapi-types": "tsx ./scripts/generate-openapi-types.ts",
-    "test": "vitest",
+    "test": "vitest --run",
     "types:check": "tsc --noEmit"
   },
   "type": "module",

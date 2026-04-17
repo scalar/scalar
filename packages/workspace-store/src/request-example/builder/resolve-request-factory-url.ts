@@ -1,5 +1,5 @@
 import { replaceEnvVariables, replacePathVariables } from '@scalar/helpers/regex/replace-variables'
-import { mergeUrls } from '@scalar/helpers/url/merge-urls'
+import { mergeSearchParams, mergeUrls } from '@scalar/helpers/url/merge-urls'
 
 import type { RequestFactory } from '@/request-example/builder/request-factory'
 
@@ -10,7 +10,10 @@ import type { RequestFactory } from '@/request-example/builder/request-factory'
  */
 export const resolveRequestFactoryUrl = (
   request: RequestFactory,
-  options: { envVariables: Record<string, string>; securityQueryParams: URLSearchParams },
+  options: {
+    envVariables: Record<string, string> | ((value: string) => string | null)
+    securityQueryParams: URLSearchParams
+  },
 ): string => {
   const variables = options.envVariables
 
@@ -24,18 +27,24 @@ export const resolveRequestFactoryUrl = (
   const baseUrl = replaceEnvVariables(request.baseUrl, variables)
   const path = replacePathVariables(request.path.raw, pathVariables)
   const mergedUrl = mergeUrls(baseUrl, path)
-  const urlBase = globalThis.window?.location?.origin ?? 'http://localhost:3000'
+  // When rendered inside an iframe with srcdoc, the browser reports
+  // window.location.origin as the string "null" instead of a real origin.
+  // Fall back to localhost so relative URLs can still be resolved.
+  const origin = globalThis.window?.location?.origin
+  const urlBase = origin && origin !== 'null' ? origin : 'http://localhost:3000'
   const url = new URL(mergedUrl, urlBase)
 
-  // Merge in operation query params
+  const operationQueryParams = new URLSearchParams()
   for (const [key, value] of request.query.entries()) {
-    url.searchParams.set(replaceEnvVariables(key, variables), replaceEnvVariables(value, variables))
+    operationQueryParams.append(replaceEnvVariables(key, variables), replaceEnvVariables(value, variables))
   }
 
-  // Merge in security query params
+  const securityQueryParams = new URLSearchParams()
   for (const [key, value] of options.securityQueryParams.entries()) {
-    url.searchParams.set(key, value)
+    securityQueryParams.append(key, value)
   }
+
+  url.search = mergeSearchParams(url.searchParams, operationQueryParams, securityQueryParams).toString()
 
   return url.toString()
 }

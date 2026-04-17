@@ -19,6 +19,7 @@ catalogs:
     '@fastify/swagger': ^8.10.1
     '@floating-ui/utils': 0.2.10
     '@floating-ui/vue': 1.1.9
+    '@faker-js/faker': 10.4.0
     '@google-cloud/storage': 7.16.0
     '@headlessui/tailwindcss': ^0.2.2
     '@headlessui/vue': 1.7.23
@@ -36,14 +37,13 @@ catalogs:
     '@scalar/typebox': 0.1.3
     '@tailwindcss/vite': ^4.2.0
     '@types/express': 5.0.3
-    '@types/jsdom': 27.0.0
+    '@types/jsdom': 28.0.1
     '@types/node': ^24.1.0
     '@types/picomatch': 4.0.2
     '@types/react-dom': ^19.2.3
     '@types/react': ^19.2.7
     '@types/semver': 7.5.8
     '@types/supertest': 6.0.2
-    '@types/whatwg-mimetype': 3.0.2
     '@typescript-eslint/parser': ^8.53.0
     '@vitejs/plugin-react': 6.0.1
     '@vitejs/plugin-vue': ^6.0.3
@@ -57,19 +57,20 @@ catalogs:
     cookie: 1.1.1
     commander: 13.1.0
     concurrently: 9.1.2
+    cross-env: 10.1.0
     express: 5.1.0
     fake-indexeddb: 6.2.3
     fast-glob: ^3.3.3
     fastify: ^5.8.1
-    flatted: ^3.3.3
+    flatted: ^3.4.0
     fuse.js: ^7.1.0
     hono: ^4.12.7
     github-slugger: 2.0.0
     js-base64: ^3.7.8
     jsdom: 27.4.0
     microdiff: ^1.5.0
-    monaco-editor: 0.54.0
-    monaco-yaml: 5.2.3
+    monaco-editor: 0.55.1
+    monaco-yaml: 5.4.1
     nanoid: ^5.1.6
     next: ^15.5.10
     neverpanic: 0.0.7
@@ -90,10 +91,9 @@ catalogs:
     vite-svg-loader: 5.1.1
     vite: 8.0.0
     vitest: 4.1.0
-    vue-router: 4.6.2
+    vue-router: 5.0.4
     vue-tsc: ^3.2.4
     vue: ^3.5.30
-    whatwg-mimetype: 4.0.0
     yaml: ^2.8.0
     zod: ^4.3.5
     posthog-js: 1.363.2
@@ -116,3 +116,6 @@ onlyBuiltDependencies:
   - '@swc/core'
   - '@tailwindcss/oxide'
   - lefthook
+minimumReleaseAgeExclude:
+  # Renovate security update: flatted@3.4.0
+  - flatted@3.4.0

@@ -41,12 +41,17 @@ defineSlots<{
   <header
     v-bind="
       cx(
-        'flex min-h-header items-center justify-between gap-2 bg-b-2 border-b px-2 text-sm min-w-min',
-        '*:flex *:flex-1 *:items-center *:gap-px',
+        'flex min-h-header items-center justify-between gap-2 border-b px-3 min-w-min',
+        '*:flex *:flex-1 *:items-center *:gap-1',
+        'bg-b-header-1 text-c-header border-border-header',
       )
     ">
     <div class="justify-start"><slot name="start" /></div>
-    <div class="justify-center"><slot /></div>
+    <div
+      v-if="$slots.default"
+      class="justify-center">
+      <slot />
+    </div>
     <div class="justify-end"><slot name="end" /></div>
   </header>
 </template>

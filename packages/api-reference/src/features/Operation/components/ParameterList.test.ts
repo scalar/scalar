@@ -9,6 +9,7 @@ describe('ParameterList', () => {
   const defaultOptions = {
     collapsableItems: true,
     withExamples: true,
+    hideModels: false,
     orderRequiredPropertiesFirst: true,
     orderSchemaPropertiesBy: 'alpha' as const,
   }
@@ -90,6 +91,7 @@ describe('ParameterList', () => {
     const customOptions = {
       expandAllResponses: false,
       withExamples: false,
+      hideModels: false,
       orderRequiredPropertiesFirst: false,
       orderSchemaPropertiesBy: 'preserve' as const,
     }

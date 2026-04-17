@@ -7,7 +7,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { ref, watch } from 'vue'
 
-import { useFileDialog } from '@/hooks'
+import { useFileDialog } from '@/hooks/use-file-dialog'
 import RequestTable from '@/v2/blocks/request-block/components/RequestTable.vue'
 import type { TableRow } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
 import { getFormBodyRows } from '@/v2/blocks/request-block/helpers/get-form-body-rows'

@@ -19,7 +19,7 @@
     "testing",
     "react"
   ],
-  "version": "2.0.1",
+  "version": "2.0.2",
   "engines": {
     "node": ">=22"
   },
@@ -46,7 +46,7 @@
   ],
   "dependencies": {
     "@scalar/api-client": "workspace:*",
-    "@scalar/types": "workspace:*",
+    "@scalar/helpers": "workspace:*",
     "@scalar/workspace-store": "workspace:*"
   },
   "devDependencies": {

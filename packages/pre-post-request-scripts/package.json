@@ -19,7 +19,7 @@
     "post-response scripts",
     "api client"
   ],
-  "version": "0.4.1",
+  "version": "0.4.2",
   "engines": {
     "node": ">=22"
   },
@@ -27,7 +27,7 @@
     "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "vite",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest --run",
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
@@ -59,12 +59,12 @@
     "@headlessui/vue": "catalog:*",
     "@scalar/components": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "postman-sandbox": "^6.6.1",
-    "vue": "catalog:*",
-    "@types/postman-collection": "^3.5.11",
-    "postman-collection": "^5.2.0",
+    "@scalar/use-codemirror": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
-    "@scalar/use-codemirror": "workspace:*"
+    "@types/postman-collection": "^3.5.11",
+    "postman-collection": "^5.3.0",
+    "postman-sandbox": "^6.6.1",
+    "vue": "catalog:*"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "catalog:*",

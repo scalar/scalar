@@ -19,7 +19,7 @@
     "generate:icons": "tsx ./scripts/generate-icons.ts",
     "lint:check": "pnpm lint:icons",
     "lint:icons": "svglint src/library/icons/*.svg --config src/library/.svglintrc.js",
-    "test": "vitest",
+    "test": "vitest --run",
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",

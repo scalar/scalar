@@ -1,5 +1,6 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
+import { dirname, resolve } from 'node:path'
 
 import { ApiReference } from '@scalar/api-reference'
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
@@ -15,6 +16,20 @@ const require = createRequire(import.meta.url)
 function unwrapConfig(configuration: AnyApiReferenceConfiguration): Record<string, unknown> {
   const config = Array.isArray(configuration) ? configuration[0] : configuration
   return (config ?? {}) as Record<string, unknown>
+}
+
+function parseForceDarkModeState(config: Record<string, unknown>): 'dark' | 'light' | null {
+  const forced = config.forceDarkModeState
+
+  if (forced === 'dark' || forced === 'light') {
+    return forced
+  }
+
+  return null
+}
+
+function parseDarkMode(config: Record<string, unknown>): boolean | null {
+  return typeof config.darkMode === 'boolean' ? config.darkMode : null
 }
 
 /**
@@ -33,8 +48,8 @@ function unwrapConfig(configuration: AnyApiReferenceConfiguration): Record<strin
  */
 export function generateBodyScript(configuration: AnyApiReferenceConfiguration): string {
   const config = unwrapConfig(configuration)
-  const forced = (config.forceDarkModeState as string | undefined) ?? null
-  const darkMode = (config.darkMode as boolean | undefined) ?? null
+  const forced = parseForceDarkModeState(config)
+  const darkMode = parseDarkMode(config)
 
   /** When forceDarkModeState is set, we do not need runtime detection at all. */
   if (forced) {
@@ -61,8 +76,8 @@ export function generateBodyScript(configuration: AnyApiReferenceConfiguration):
  */
 function getInitialBodyClass(configuration: AnyApiReferenceConfiguration): 'dark-mode' | 'light-mode' {
   const config = unwrapConfig(configuration)
-  const forced = (config.forceDarkModeState as string | undefined) ?? null
-  const darkMode = (config.darkMode as boolean | undefined) ?? null
+  const forced = parseForceDarkModeState(config)
+  const darkMode = parseDarkMode(config)
 
   if (forced) {
     return forced === 'dark' ? 'dark-mode' : 'light-mode'
@@ -112,7 +127,28 @@ function getDefaultCss(): string {
  */
 export function getJsAsset(): string {
   if (_cachedJs === undefined) {
-    const jsPath = require.resolve('@scalar/api-reference/browser/standalone.js')
+    const apiReferenceEntryPath = require.resolve('@scalar/api-reference')
+    const apiReferencePackageRoot = resolve(dirname(apiReferenceEntryPath), '..')
+    const apiReferencePackageJsonPath = resolve(apiReferencePackageRoot, 'package.json')
+    const apiReferencePackageJson = JSON.parse(readFileSync(apiReferencePackageJsonPath, 'utf-8')) as {
+      browser?: unknown
+    }
+
+    if (typeof apiReferencePackageJson.browser !== 'string' || apiReferencePackageJson.browser.length === 0) {
+      throw new Error(
+        `Could not resolve @scalar/api-reference browser entry from "${apiReferencePackageJsonPath}". ` +
+          'Expected a string "browser" field in package.json.',
+      )
+    }
+
+    const jsPath = resolve(apiReferencePackageRoot, apiReferencePackageJson.browser)
+
+    if (!existsSync(jsPath)) {
+      throw new Error(
+        `Could not locate @scalar/api-reference standalone bundle at "${jsPath}". Run the package build before reading SSR assets.`,
+      )
+    }
+
     _cachedJs = readFileSync(jsPath, 'utf-8')
   }
   return _cachedJs
@@ -128,39 +164,34 @@ function escapeHtmlAttribute(str: string): string {
   return escapeHtml(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;')
 }
 
-/** Serialize an array that may contain functions. */
-function serializeArrayWithFunctions(arr: unknown[]): string {
-  return `[${arr.map((item) => (typeof item === 'function' ? item.toString() : JSON.stringify(item))).join(', ')}]`
+/**
+ * Escape a JSON string so it is safe to embed inside an inline script tag.
+ * This prevents user content from closing the script tag.
+ */
+function escapeJsonForInlineScript(json: string): string {
+  return json
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029')
 }
 
 /**
- * Serialize a configuration object to a JavaScript expression string,
- * preserving function values (which JSON.stringify would silently drop).
+ * Serialize a configuration object to JSON for hydration.
+ * Function values are intentionally stripped because they cannot be safely
+ * represented in an inline script.
  */
 function serializeConfigToJs(config: Record<string, unknown>): string {
-  const jsonProps: Record<string, unknown> = {}
-  const functionProps: string[] = []
-
-  for (const [key, value] of Object.entries(config)) {
+  const jsonString = JSON.stringify(config, (_, value) => {
     if (typeof value === 'function') {
-      functionProps.push(`"${key}": ${value.toString()}`)
-    } else if (Array.isArray(value) && value.some((item) => typeof item === 'function')) {
-      functionProps.push(`"${key}": ${serializeArrayWithFunctions(value)}`)
-    } else {
-      jsonProps[key] = value
+      return undefined
     }
-  }
 
-  const jsonString = JSON.stringify(jsonProps)
+    return value
+  })
 
-  if (functionProps.length === 0) {
-    return jsonString
-  }
-
-  const jsonEntries = jsonString === '{}' ? '' : jsonString.slice(1, -1)
-  const functionEntries = functionProps.join(', ')
-
-  return `{${[jsonEntries, functionEntries].filter(Boolean).join(', ')}}`
+  return escapeJsonForInlineScript(jsonString)
 }
 
 /**

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock the heavy workspace/api-client modules so tests run without building them
-vi.mock('@scalar/api-client/v2/features/modal', () => ({
+vi.mock('@scalar/api-client/modal', () => ({
   createApiClientModal: vi.fn(() => ({ open: vi.fn(), close: vi.fn() })),
 }))
 
@@ -27,7 +27,7 @@ describe('lazy-load', () => {
   it('getClientModalCreator returns a promise that resolves to createApiClientModal', async () => {
     const { getClientModalCreator } = await import('./lazy-load')
     const creator = await getClientModalCreator()
-    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
+    const { createApiClientModal } = await import('@scalar/api-client/modal')
     expect(creator).toBe(createApiClientModal)
   })
 
@@ -79,7 +79,7 @@ describe('lazy-load', () => {
   })
 
   it('getClientModalCreator clears the cache after rejection and retries on next call', async () => {
-    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
+    const { createApiClientModal } = await import('@scalar/api-client/modal')
 
     // Re-import with a fresh module registry so singletons are reset
     const { getClientModalCreator } = await import('./lazy-load')
@@ -139,7 +139,7 @@ describe('lazy-load', () => {
   })
 
   it('getOrCreateApiClient returns apiClient and workspaceStore', async () => {
-    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
+    const { createApiClientModal } = await import('@scalar/api-client/modal')
     const mockApiClient = { open: vi.fn(), close: vi.fn() }
     vi.mocked(createApiClientModal).mockReturnValue(mockApiClient as any)
 
@@ -167,7 +167,7 @@ describe('lazy-load', () => {
   })
 
   it('getOrCreateApiClient calls createApiClientModal only once across multiple calls', async () => {
-    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
+    const { createApiClientModal } = await import('@scalar/api-client/modal')
 
     const { getOrCreateApiClient } = await import('./lazy-load')
     await getOrCreateApiClient()
@@ -187,7 +187,7 @@ describe('lazy-load', () => {
   })
 
   it('getOrCreateApiClient passes options to createApiClientModal', async () => {
-    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
+    const { createApiClientModal } = await import('@scalar/api-client/modal')
 
     const { getOrCreateApiClient } = await import('./lazy-load')
     await getOrCreateApiClient({ proxyUrl: 'https://proxy.example.com' })
@@ -200,7 +200,7 @@ describe('lazy-load', () => {
   })
 
   it('getOrCreateApiClient defaults options to empty object when none are provided', async () => {
-    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
+    const { createApiClientModal } = await import('@scalar/api-client/modal')
 
     const { getOrCreateApiClient } = await import('./lazy-load')
     await getOrCreateApiClient()
@@ -213,7 +213,7 @@ describe('lazy-load', () => {
   })
 
   it('getOrCreateApiClient passes el, eventBus, and workspaceStore to createApiClientModal', async () => {
-    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
+    const { createApiClientModal } = await import('@scalar/api-client/modal')
 
     const { getOrCreateApiClient } = await import('./lazy-load')
     await getOrCreateApiClient()
@@ -228,7 +228,7 @@ describe('lazy-load', () => {
   })
 
   it('getOrCreateApiClient clears the cached promise after rejection so the next call retries', async () => {
-    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
+    const { createApiClientModal } = await import('@scalar/api-client/modal')
     const mockApiClient = { open: vi.fn(), close: vi.fn() }
     vi.mocked(createApiClientModal)
       .mockImplementationOnce(() => {
@@ -247,7 +247,7 @@ describe('lazy-load', () => {
   })
 
   it('getOrCreateApiClient removes the orphaned host element after a rejection', async () => {
-    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
+    const { createApiClientModal } = await import('@scalar/api-client/modal')
     const mockApiClient = { open: vi.fn(), close: vi.fn() }
     vi.mocked(createApiClientModal)
       .mockImplementationOnce(() => {
@@ -268,7 +268,7 @@ describe('lazy-load', () => {
   })
 
   it('getOrCreateApiClient does not accept url or content (modal-level options only)', async () => {
-    const { createApiClientModal } = await import('@scalar/api-client/v2/features/modal')
+    const { createApiClientModal } = await import('@scalar/api-client/modal')
 
     const { getOrCreateApiClient } = await import('./lazy-load')
     await getOrCreateApiClient({ proxyUrl: 'https://proxy.example.com' })

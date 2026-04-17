@@ -29,6 +29,7 @@ export type ModalProps = {
         | 'baseServerURL'
         | 'hideClientButton'
         | 'hiddenClients'
+        | 'oauth2RedirectUri'
         | 'servers'
       >
     >
@@ -65,6 +66,7 @@ import {
 
 import ModalClientContainer from '@/v2/components/modals/ModalClientContainer.vue'
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
+import type { ApiClientModalOptionsRef } from '@/v2/features/modal/helpers/types'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import { initializeModalEvents } from '@/v2/features/modal/modal-events'
 import Operation from '@/v2/features/operation/Operation.vue'
@@ -80,7 +82,9 @@ const {
   requestBodyCompositionSelection,
   sidebarState,
   workspaceStore,
-} = defineProps<ModalProps>()
+} = defineProps<
+  Omit<ModalProps, 'options'> & { options: ApiClientModalOptionsRef }
+>()
 
 const activeWorkspace: ScalarListboxOption = {
   label: 'default',

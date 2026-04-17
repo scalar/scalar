@@ -16,14 +16,14 @@
     "postman",
     "scalar"
   ],
-  "version": "0.5.4",
+  "version": "0.5.5",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "tsx watch playground/index.ts",
-    "test": "vitest",
+    "test": "vitest --run",
     "types:check": "tsc --noEmit"
   },
   "type": "module",

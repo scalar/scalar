@@ -24,7 +24,7 @@ const selected = computed(() =>
 <template>
   <div
     v-if="options.length > 1"
-    class="document-selector p-3 pb-0">
+    class="document-selector px-3 pt-3">
     <ScalarListbox
       v-slot="{ open }"
       :modelValue="selected"

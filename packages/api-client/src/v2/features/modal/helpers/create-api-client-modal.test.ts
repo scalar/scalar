@@ -4,7 +4,7 @@ import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/stric
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { App } from 'vue'
-import { nextTick, ref } from 'vue'
+import { nextTick, ref, toValue } from 'vue'
 
 import 'fake-indexeddb/auto'
 
@@ -13,6 +13,7 @@ import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 import Modal, { type ModalProps } from '@/v2/features/modal/Modal.vue'
 
 import { createApiClientModal } from './create-api-client-modal'
+import type { ApiClientModalOptions, ApiClientModalOptionsRef } from './types'
 
 enableAutoUnmount(afterEach)
 
@@ -59,6 +60,12 @@ describe('createApiClientModal', () => {
   let mountElement: HTMLElement
   /** Track Vue apps created in tests to ensure proper cleanup */
   const createdApps: App[] = []
+  type MountedModalProps = Omit<ModalProps, 'options'> & {
+    options: ApiClientModalOptionsRef
+  }
+
+  /** Accesses the root props passed to the modal app instance */
+  const getModalProps = (app: App) => app._props as unknown as MountedModalProps
 
   beforeEach(() => {
     // Create a DOM element for mounting.
@@ -93,9 +100,10 @@ describe('createApiClientModal', () => {
     })
     createdApps.push(modal.app)
 
+    await nextTick()
+
     // The modal should be mounted immediately when mountOnInitialize is true.
     expect(modal.app).toBeDefined()
-    expect(modal.app._instance).not.toBeNull()
     expect(mountElement.innerHTML).not.toBe('')
   })
 
@@ -141,7 +149,7 @@ describe('createApiClientModal', () => {
 
     const wrapper = mount(Modal, {
       attachTo: mountElement,
-      props: modal.app._instance?.props as ModalProps,
+      props: getModalProps(modal.app),
     })
 
     const operationBlock = wrapper.findComponent({ name: 'OperationBlock' })
@@ -178,7 +186,7 @@ describe('createApiClientModal', () => {
 
     const wrapper = mount(Modal, {
       attachTo: mountElement,
-      props: modal.app._instance?.props as ModalProps,
+      props: getModalProps(modal.app),
     })
 
     const operationBlock = wrapper.findComponent({ name: 'OperationBlock' })
@@ -211,7 +219,7 @@ describe('createApiClientModal', () => {
     })
     store.update('x-scalar-active-document', 'test-doc')
 
-    const options = ref({
+    const options = ref<ApiClientModalOptions>({
       authentication: {
         securitySchemes: {
           oauth2: {
@@ -250,7 +258,7 @@ describe('createApiClientModal', () => {
 
     const wrapper = mount(Modal, {
       attachTo: mountElement,
-      props: modal.app._instance?.props as ModalProps,
+      props: getModalProps(modal.app),
     })
 
     const operationBlock = wrapper.findComponent({ name: 'OperationBlock' })
@@ -288,14 +296,335 @@ describe('createApiClientModal', () => {
       },
     })
 
-    // Now lets check the reactivity
-    options.value.authentication.securitySchemes.oauth2.flows.authorizationCode.authorizationUrl =
-      'https://new-auth.test'
+    // Verify the options ref is reactive when mutated in place.
+    const oauth2Scheme = options.value.authentication?.securitySchemes?.oauth2 as {
+      flows: {
+        authorizationCode: {
+          authorizationUrl: string
+        }
+      }
+    }
+    expect(oauth2Scheme).toBeDefined()
+    oauth2Scheme.flows.authorizationCode.authorizationUrl = 'https://new-auth.test'
     await nextTick()
     expect(operationBlock.props('securitySchemes')).toHaveProperty('oauth2')
     expect(operationBlock.props('securitySchemes').oauth2).toMatchObject({
       flows: {
         authorizationCode: { authorizationUrl: 'https://new-auth.test' },
+      },
+    })
+  })
+
+  it('reacts when the options ref value is replaced', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createTestDocument({
+        components: {
+          securitySchemes: {
+            apiKey: {
+              type: 'apiKey',
+              name: 'X-API-Key',
+              in: 'header',
+            },
+          },
+        },
+      }),
+    })
+    store.update('x-scalar-active-document', 'test-doc')
+
+    const options = ref<ApiClientModalOptions>({
+      authentication: {
+        securitySchemes: {
+          oauth2: {
+            type: 'oauth2' as const,
+            flows: {
+              authorizationCode: {
+                authorizationUrl: 'https://example.com/oauth/authorize',
+                tokenUrl: 'https://example.com/oauth/token',
+                scopes: {
+                  'read:users': 'Read user data',
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const modal = createApiClientModal({
+      el: mountElement,
+      workspaceStore: store,
+      mountOnInitialize: true,
+      options,
+      eventBus: createTestEventBus(),
+    })
+    createdApps.push(modal.app)
+
+    modal.open({
+      path: '/users',
+      method: 'get',
+      example: 'default',
+    })
+
+    await nextTick()
+
+    const wrapper = mount(Modal, {
+      attachTo: mountElement,
+      props: getModalProps(modal.app),
+    })
+    const operationBlock = wrapper.findComponent({ name: 'OperationBlock' })
+    expect(operationBlock.exists()).toBe(true)
+
+    options.value = {
+      authentication: {
+        securitySchemes: {
+          oauth2: {
+            type: 'oauth2',
+            flows: {
+              authorizationCode: {
+                authorizationUrl: 'https://updated-auth.test',
+                tokenUrl: 'https://updated-token.test',
+                scopes: {
+                  'read:users': 'Read user data',
+                  'write:users': 'Write user data',
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+    await nextTick()
+
+    expect(operationBlock.props('securitySchemes').oauth2).toMatchObject({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://updated-auth.test',
+          tokenUrl: 'https://updated-token.test',
+          scopes: {
+            'read:users': 'Read user data',
+            'write:users': 'Write user data',
+          },
+        },
+      },
+    })
+
+    // Also verify the same update flows through the root options prop.
+    expect(toValue(getModalProps(modal.app).options).authentication?.securitySchemes).toMatchObject({
+      oauth2: {
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://updated-auth.test',
+            tokenUrl: 'https://updated-token.test',
+          },
+        },
+      },
+    })
+  })
+
+  it('reacts when updateOptions merges new authentication settings', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createTestDocument(),
+    })
+    store.update('x-scalar-active-document', 'test-doc')
+
+    const modal = createApiClientModal({
+      el: mountElement,
+      workspaceStore: store,
+      mountOnInitialize: true,
+      options: {
+        authentication: {
+          securitySchemes: {
+            oauth2: {
+              type: 'oauth2',
+              flows: {
+                authorizationCode: {
+                  authorizationUrl: 'https://initial-auth.test',
+                  tokenUrl: 'https://initial-token.test',
+                  scopes: {
+                    'read:users': 'Read user data',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      eventBus: createTestEventBus(),
+    })
+    createdApps.push(modal.app)
+
+    modal.open({
+      path: '/users',
+      method: 'get',
+      example: 'default',
+    })
+    await nextTick()
+
+    const wrapper = mount(Modal, {
+      attachTo: mountElement,
+      props: getModalProps(modal.app),
+    })
+    const operationBlock = wrapper.findComponent({ name: 'OperationBlock' })
+    expect(operationBlock.exists()).toBe(true)
+
+    expect(operationBlock.props('securitySchemes').oauth2).toMatchObject({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://initial-auth.test',
+        },
+      },
+    })
+
+    modal.updateOptions({
+      authentication: {
+        securitySchemes: {
+          oauth2: {
+            type: 'oauth2',
+            flows: {
+              authorizationCode: {
+                authorizationUrl: 'https://merged-auth.test',
+                tokenUrl: 'https://merged-token.test',
+                scopes: {
+                  'read:users': 'Read user data',
+                  'write:users': 'Write user data',
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    await nextTick()
+
+    expect(operationBlock.props('securitySchemes').oauth2).toMatchObject({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://merged-auth.test',
+          tokenUrl: 'https://merged-token.test',
+          scopes: {
+            'read:users': 'Read user data',
+            'write:users': 'Write user data',
+          },
+        },
+      },
+    })
+    expect(toValue(getModalProps(modal.app).options).authentication?.securitySchemes).toMatchObject({
+      oauth2: {
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://merged-auth.test',
+            tokenUrl: 'https://merged-token.test',
+          },
+        },
+      },
+    })
+  })
+
+  it('reacts when updateOptions overwrites previous authentication settings', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'test-doc',
+      document: createTestDocument(),
+    })
+    store.update('x-scalar-active-document', 'test-doc')
+
+    const modal = createApiClientModal({
+      el: mountElement,
+      workspaceStore: store,
+      mountOnInitialize: true,
+      options: {
+        authentication: {
+          securitySchemes: {
+            oauth2: {
+              type: 'oauth2',
+              flows: {
+                authorizationCode: {
+                  authorizationUrl: 'https://initial-auth.test',
+                  tokenUrl: 'https://initial-token.test',
+                  scopes: {
+                    'read:users': 'Read user data',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      eventBus: createTestEventBus(),
+    })
+    createdApps.push(modal.app)
+
+    modal.open({
+      path: '/users',
+      method: 'get',
+      example: 'default',
+    })
+    await nextTick()
+
+    const wrapper = mount(Modal, {
+      attachTo: mountElement,
+      props: getModalProps(modal.app),
+    })
+    const operationBlock = wrapper.findComponent({ name: 'OperationBlock' })
+    expect(operationBlock.exists()).toBe(true)
+
+    expect(operationBlock.props('securitySchemes').oauth2).toMatchObject({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://initial-auth.test',
+        },
+      },
+    })
+
+    modal.updateOptions(
+      {
+        authentication: {
+          securitySchemes: {
+            oauth2: {
+              type: 'oauth2',
+              flows: {
+                authorizationCode: {
+                  authorizationUrl: 'https://overwrite-auth.test',
+                  tokenUrl: 'https://overwrite-token.test',
+                  scopes: {
+                    'admin:users': 'Admin users',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      true,
+    )
+    await nextTick()
+
+    expect(operationBlock.props('securitySchemes').oauth2).toMatchObject({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://overwrite-auth.test',
+          tokenUrl: 'https://overwrite-token.test',
+          scopes: {
+            'admin:users': 'Admin users',
+          },
+        },
+      },
+    })
+    expect(toValue(getModalProps(modal.app).options).authentication?.securitySchemes).toMatchObject({
+      oauth2: {
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://overwrite-auth.test',
+            tokenUrl: 'https://overwrite-token.test',
+            scopes: {
+              'admin:users': 'Admin users',
+            },
+          },
+        },
       },
     })
   })

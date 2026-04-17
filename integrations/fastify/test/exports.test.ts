@@ -1,9 +1,15 @@
 import Fastify from 'fastify'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 
 describe('exports', () => {
+  let fastify: ReturnType<typeof Fastify>
+
+  afterEach(async () => {
+    await fastify?.close()
+  })
+
   it('ESM export', async () => {
-    const fastify = Fastify({
+    fastify = Fastify({
       logger: false,
     })
 

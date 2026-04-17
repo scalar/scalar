@@ -1,5 +1,12 @@
 # @scalar/api-client-react
 
+## 2.0.2
+
+### Patch Changes
+
+- [#8840](https://github.com/scalar/scalar/pull/8840): feat: allow updating the proxyUrl and make options reactive in api-client
+- [#8863](https://github.com/scalar/scalar/pull/8863): chore: updated imports to new api client version
+
 ## 2.0.1
 
 ## 2.0.0

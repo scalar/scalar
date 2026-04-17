@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { RequestFactory } from './request-factory'
 import { resolveRequestFactoryUrl } from './resolve-request-factory-url'
@@ -24,7 +24,28 @@ const createRequestFactory = (overrides: Partial<RequestFactory> = {}): RequestF
 const defaultOptions = { envVariables: {}, securityQueryParams: new URLSearchParams() }
 
 describe('resolve-request-factory-url', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
   it('returns a simple URL from baseUrl and path', () => {
+    const request = createRequestFactory()
+    const result = resolveRequestFactoryUrl(request, defaultOptions)
+
+    expect(result).toBe('https://api.example.com/v1/users')
+  })
+
+  it('returns a simple URL from baseUrl and path when in iframe srcdoc', () => {
+    vi.stubGlobal('window', {
+      location: {
+        // Yep, JS returns 'null' as a string for origin when in iframe srcdoc
+        origin: 'null',
+        href: 'about:srcdoc',
+        protocol: 'about:',
+        pathname: 'srcdoc',
+      },
+    })
+
     const request = createRequestFactory()
     const result = resolveRequestFactoryUrl(request, defaultOptions)
 
@@ -74,6 +95,19 @@ describe('resolve-request-factory-url', () => {
     const result = resolveRequestFactoryUrl(request, defaultOptions)
 
     expect(result).toBe('https://api.example.com/v1/users?page=1&limit=10')
+  })
+
+  it('preserves repeated query parameters for exploded arrays', () => {
+    const query = new URLSearchParams()
+    query.append('bbox', '13')
+    query.append('bbox', '48')
+    query.append('bbox', '18')
+    query.append('bbox', '52')
+
+    const request = createRequestFactory({ query })
+    const result = resolveRequestFactoryUrl(request, defaultOptions)
+
+    expect(result).toBe('https://api.example.com/v1/users?bbox=13&bbox=48&bbox=18&bbox=52')
   })
 
   it('adds security query parameters from options.securityQueryParams', () => {

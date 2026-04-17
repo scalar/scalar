@@ -67,12 +67,10 @@ export const WithMenu: Story = {
 <ScalarHeader v-bind="args">
   <template #start>
     <ScalarMenu />
-    <ScalarHeaderButton>Login</ScalarHeaderButton>
-    <ScalarHeaderButton>Register</ScalarHeaderButton>
   </template>
   <template #end>
-   <ScalarHeaderButton active>Active Page</ScalarHeaderButton>
-    <ScalarHeaderButton>Settings</ScalarHeaderButton>
+    <ScalarHeaderButton>Log in</ScalarHeaderButton>
+    <ScalarHeaderButton cta>Register</ScalarHeaderButton>
   </template>
 </ScalarHeader>`,
   }),

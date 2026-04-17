@@ -16,74 +16,28 @@
     "specification",
     "yaml"
   ],
-  "version": "0.11.1",
+  "version": "0.12.0",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "test": "vitest",
-    "typegen:migration": "tsx ./src/migrations/generate-types.ts",
+    "test": "vitest --run",
     "types:check": "tsc --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "exports": {
-    "./entities/cookie": {
-      "import": "./dist/entities/cookie/index.js",
-      "types": "./dist/entities/cookie/index.d.ts",
-      "default": "./dist/entities/cookie/index.js"
-    },
-    "./entities/environment": {
-      "import": "./dist/entities/environment/index.js",
-      "types": "./dist/entities/environment/index.d.ts",
-      "default": "./dist/entities/environment/index.js"
-    },
-    "./entities/hotkeys": {
-      "import": "./dist/entities/hotkeys/index.js",
-      "types": "./dist/entities/hotkeys/index.d.ts",
-      "default": "./dist/entities/hotkeys/index.js"
-    },
-    "./entities/shared": {
-      "import": "./dist/entities/shared/index.js",
-      "types": "./dist/entities/shared/index.d.ts",
-      "default": "./dist/entities/shared/index.js"
-    },
-    "./entities/spec": {
-      "import": "./dist/entities/spec/index.js",
-      "types": "./dist/entities/spec/index.d.ts",
-      "default": "./dist/entities/spec/index.js"
-    },
-    "./entities/workspace": {
-      "import": "./dist/entities/workspace/index.js",
-      "types": "./dist/entities/workspace/index.d.ts",
-      "default": "./dist/entities/workspace/index.js"
-    },
     "./helpers": {
       "import": "./dist/helpers/index.js",
       "types": "./dist/helpers/index.d.ts",
       "default": "./dist/helpers/index.js"
     },
-    "./helpers/security": {
-      "import": "./dist/helpers/security/index.js",
-      "types": "./dist/helpers/security/index.d.ts",
-      "default": "./dist/helpers/security/index.js"
-    },
     "./migrations": {
       "import": "./dist/migrations/index.js",
       "types": "./dist/migrations/index.d.ts",
       "default": "./dist/migrations/index.js"
-    },
-    "./spec-getters": {
-      "import": "./dist/spec-getters/index.js",
-      "types": "./dist/spec-getters/index.d.ts",
-      "default": "./dist/spec-getters/index.js"
-    },
-    "./transforms": {
-      "import": "./dist/transforms/index.js",
-      "types": "./dist/transforms/index.d.ts",
-      "default": "./dist/transforms/index.js"
     }
   },
   "files": [
@@ -92,26 +46,18 @@
   ],
   "dependencies": {
     "@scalar/helpers": "workspace:*",
-    "@scalar/json-magic": "workspace:*",
-    "@scalar/object-utils": "workspace:*",
-    "@scalar/openapi-parser": "workspace:*",
-    "@scalar/openapi-types": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "flatted": "catalog:*",
     "github-slugger": "catalog:*",
-    "type-fest": "catalog:*",
     "vue": "catalog:*",
-    "yaml": "catalog:*",
-    "zod": "catalog:*"
+    "yaml": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/openapi-types": "workspace:*",
     "@types/node": "catalog:*",
     "fake-indexeddb": "catalog:*",
     "vite": "catalog:*",
-    "vitest": "catalog:*",
-    "zod-to-ts": "github:amritk/zod-to-ts#build"
+    "vitest": "catalog:*"
   }
 }

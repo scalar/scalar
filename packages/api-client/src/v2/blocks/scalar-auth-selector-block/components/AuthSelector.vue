@@ -29,6 +29,7 @@ import type {
 import { computed, ref, useId } from 'vue'
 
 import DeleteRequestAuthModal from '@/v2/blocks/scalar-auth-selector-block/components/DeleteRequestAuthModal.vue'
+import type { OAuth2Options } from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
 import {
   formatComplexScheme,
   formatScheme,
@@ -52,6 +53,7 @@ const {
   selectedSecurity,
   server,
   title,
+  options,
 } = defineProps<{
   environment: XScalarEnvironment
   eventBus: WorkspaceEventBus
@@ -68,6 +70,8 @@ const {
   selectedSecurity: SelectedSecurity | undefined
   server: ServerObject | null
   title: string
+  /**  Any config options required for the OAuth2 flow */
+  options?: OAuth2Options
 }>()
 
 const titleId = useId()
@@ -297,6 +301,7 @@ defineExpose({
       :eventBus
       :isStatic
       :meta
+      :options
       :proxyUrl
       :securitySchemes
       :selectedSchemeOptions="activeSchemeOptions"

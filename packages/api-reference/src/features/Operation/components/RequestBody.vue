@@ -22,6 +22,7 @@ const { requestBody, options } = defineProps<{
   options: {
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+    hideModels: boolean | undefined
   }
 }>()
 

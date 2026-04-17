@@ -38,6 +38,8 @@ const props = withDefaults(
     compact?: boolean
     /** Whether to hide the heading */
     hideHeading?: boolean
+    /** Hide model names in type display */
+    hideModelNames?: boolean
     /** Breadcrumb for navigation */
     breadcrumb?: string[]
     /** Event bus emitting actions */
@@ -178,6 +180,7 @@ if (
       :discriminator="discriminator"
       :eventBus="eventBus"
       :hideHeading="hideHeading"
+      :hideModelNames
       :level="level + 1"
       :name="name"
       :noncollapsible="true"
@@ -231,6 +234,7 @@ if (
           :discriminator="discriminator"
           :eventBus="eventBus"
           :hideHeading="hideHeading"
+          :hideModelNames
           :level="level + 1"
           :name="name"
           :noncollapsible="true"
