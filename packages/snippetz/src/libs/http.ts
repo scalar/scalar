@@ -1,5 +1,20 @@
 import type { HarRequest } from '@scalar/types/snippetz'
 
+type HeaderPair = {
+  name: string
+  value: string
+}
+
+type NameValuePair = {
+  name: string
+  value: string
+}
+
+type NameOptionalValuePair = {
+  name: string
+  value?: string
+}
+
 /**
  * Normalizes the request object with defaults
  */
@@ -20,6 +35,71 @@ export function buildQueryString(queryParams?: Array<{ name: string; value: stri
 
   const queryPairs = queryParams.map((param) => `${param.name}=${param.value}`)
   return `?${queryPairs.join('&')}`
+}
+
+/**
+ * Normalizes a request method.
+ */
+export const normalizeMethod = (method?: string): string => (method || 'GET').toUpperCase()
+
+/**
+ * Normalizes URL formatting while preserving origin-only paths.
+ */
+export const normalizeUrl = (url: string): string => {
+  if (!url) {
+    return ''
+  }
+
+  try {
+    const parsedUrl = new URL(url)
+
+    if (parsedUrl.pathname === '/') {
+      return `${parsedUrl.origin}${parsedUrl.search}${parsedUrl.hash}`
+    }
+
+    return parsedUrl.toString()
+  } catch {
+    return url
+  }
+}
+
+/**
+ * Joins URL and query string while preserving existing query values.
+ */
+export const joinUrlAndQuery = (url: string, queryString?: NameValuePair[]): string => {
+  const query = buildQueryString(queryString)
+
+  if (!query) {
+    return url
+  }
+
+  if (!url) {
+    return query
+  }
+
+  return `${url}${url.includes('?') ? '&' : '?'}${query.slice(1)}`
+}
+
+/**
+ * Collects deduplicated headers and optional cookie headers.
+ */
+export const collectHeaders = (headers?: NameOptionalValuePair[], cookies?: NameValuePair[]): HeaderPair[] => {
+  const dedupedHeaders = new Map<string, string>()
+
+  headers?.forEach((header) => {
+    if (header.name) {
+      dedupedHeaders.set(header.name, header.value ?? '')
+    }
+  })
+
+  if (cookies?.length) {
+    const cookieHeader = cookies
+      .map((cookie) => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`)
+      .join('; ')
+    dedupedHeaders.set('Cookie', cookieHeader)
+  }
+
+  return Array.from(dedupedHeaders.entries()).map(([name, value]) => ({ name, value }))
 }
 
 /**
