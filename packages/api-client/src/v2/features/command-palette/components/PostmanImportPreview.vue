@@ -132,7 +132,7 @@ const onImportDestinationChange = (option: ScalarListboxOption): void => {
         </div>
       </div>
     </div>
-    <div class="max-h-[300px] overflow-y-auto">
+    <div class="h-[300px] overflow-y-auto">
       <slots.treePicker />
     </div>
 
