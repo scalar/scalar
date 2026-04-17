@@ -157,11 +157,11 @@ pnpm --filter @scalar-internal/build-scripts start update-playwright-docker
 
 ### `generate-blog`
 
-Generate blog index cards and update `scalar.config.json` from post files.
+Generate blog index post rows and update `scalar.config.json` from post files.
 
 Scans `documentation/blog/` for markdown files matching `YYYY-MM-DD-slug.md`, then:
-- Rewrites the auto-generated cards section (between `<!-- generated -->` / `<!-- /generated -->` markers) in `documentation/blog/index.md`. Descriptions between `:::scalar-card` and `::scalar-fineprint` are preserved across runs.
-- Updates the `/blog/posts` children in `scalar.config.json`. Custom titles in the config are preserved.
+- Rewrites the auto-generated post list section (between `<!-- generated -->` / `<!-- /generated -->` markers) in `documentation/blog/index.md`. Existing summaries are preserved and normalized for concise list rows.
+- Updates `/blog` navigation in `scalar.config.json`, converting `/blog` to a single page entry with a books icon, generating hidden `/blog/posts/*` routes, and preserving custom titles plus page-level head scripts.
 
 **Usage:**
 ```bash
