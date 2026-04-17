@@ -122,6 +122,10 @@
 <!-- /generated -->
 
 <style>
+.t-editor__page-title {
+  font-weight: 600;
+}
+
 .blog-post-list {
   margin-top: 16px;
   border-top: 1px solid var(--scalar-border-color);
@@ -143,13 +147,15 @@
   margin: 0;
   font-size: 1.3rem;
   line-height: 1.35;
+  font-weight: 600;
 }
 
 .blog-post-list__title {
   color: var(--scalar-color-1);
 }
 
-.blog-post-list__link:hover .blog-post-list__title {
+.blog-post-list__link:hover .blog-post-list__title,
+.blog-post-list__link:focus-visible .blog-post-list__title {
   text-decoration: underline;
   text-decoration-color: var(--scalar-color-2);
 }
