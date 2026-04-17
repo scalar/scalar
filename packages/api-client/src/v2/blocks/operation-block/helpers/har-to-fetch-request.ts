@@ -1,3 +1,4 @@
+import { createSafeRequest } from '@scalar/helpers/http/safe-request'
 import type { HarRequest } from '@scalar/snippetz'
 
 type HarToFetchRequestProps = {
@@ -43,7 +44,9 @@ export const harToFetchRequest = ({ harRequest }: HarToFetchRequestProps): Reque
   const headers = buildHeaders(harRequest)
   const body = buildBody(harRequest.postData)
 
-  return new Request(harRequest.url, {
+  // Use createSafeRequest so replayed history entries with a GET/HEAD body
+  // (allowed in Electron) do not trip the Fetch spec restriction.
+  return createSafeRequest(harRequest.url, {
     method: harRequest.method,
     headers,
     body,

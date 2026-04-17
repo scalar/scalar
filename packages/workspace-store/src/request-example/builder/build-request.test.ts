@@ -1,3 +1,4 @@
+import { X_SCALAR_ORIGINAL_METHOD } from '@scalar/helpers/http/safe-request'
 import { encode as encodeBase64 } from 'js-base64'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -494,5 +495,22 @@ describe('buildRequest', () => {
 
     expect(request.method).toBe('PATCH')
     expect(request.cache).toBe('no-store')
+  })
+
+  it('rewrites GET-with-body to POST and stores the original method in a sentinel header', async () => {
+    // The Fetch spec rejects GET requests with a body, but Electron lets the
+    // underlying transport carry one. createSafeRequest swaps the method so
+    // `new Request()` does not throw, and the receiving side reverts it.
+    const { request } = buildRequest(
+      createFactory({
+        method: 'get',
+        body: { mode: 'raw', value: '{"q":"test"}' },
+      }),
+      { envVariables: {} },
+    )
+
+    expect(request.method).toBe('POST')
+    expect(request.headers.get(X_SCALAR_ORIGINAL_METHOD)).toBe('GET')
+    await expect(request.text()).resolves.toBe('{"q":"test"}')
   })
 })

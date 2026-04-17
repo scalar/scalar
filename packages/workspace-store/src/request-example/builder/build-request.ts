@@ -1,3 +1,4 @@
+import { createSafeRequest } from '@scalar/helpers/http/safe-request'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { redirectToProxy, shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { encode as encodeBase64 } from 'js-base64'
@@ -5,8 +6,8 @@ import { encode as encodeBase64 } from 'js-base64'
 import { buildRequestCookieHeader } from '@/request-example/builder/header/build-request-cookie-header'
 import { applyAllowReservedToUrl } from '@/request-example/builder/helpers/apply-allow-reserved-to-url'
 import type { RequestFactory } from '@/request-example/builder/request-factory'
-import { contextFunctions, isContextFunctionName } from '@/request-example/functions'
 import { resolveRequestFactoryUrl } from '@/request-example/builder/resolve-request-factory-url'
+import { contextFunctions, isContextFunctionName } from '@/request-example/functions'
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
 
 export const buildRequest = (
@@ -151,8 +152,15 @@ export const buildRequest = (
   const finalUrl = isUsingProxy ? redirectToProxy(request.proxyUrl, encodedUrl) : encodedUrl
 
   return {
-    /** Create a new request object with the replaced values ready to be sent to the server */
-    request: new Request(finalUrl, {
+    /**
+     * Create a new request object with the replaced values ready to be sent to the server.
+     *
+     * Uses {@link createSafeRequest} so that GET/HEAD requests with a body (allowed in
+     * Electron via {@link canMethodHaveBody}) bypass the Fetch spec restriction by being
+     * dispatched as POST plus an `x-scalar-original-method` header. The Electron fetch
+     * shim reverts the method before sending the underlying request.
+     */
+    request: createSafeRequest(finalUrl, {
       /**
        * Ensure that all methods are uppercased (though only needed for patch)
        *

@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { sendRequest } from './send-request'
 
@@ -94,7 +94,7 @@ describe('sendRequest', () => {
     expect(result.response.status).toBe(200)
     expect(result.response.headers).toBeDefined()
     expect(result.response.duration).toBeGreaterThanOrEqual(0)
-    expect(result.response.method).toBe('GET')
+    expect(result.response.method).toBe('get')
     expect(result.response.path).toBe('/')
     expect(result.timestamp).toBeGreaterThan(0)
   })
@@ -130,7 +130,7 @@ describe('sendRequest', () => {
     if (!result || !('data' in result.response)) {
       throw new Error('No data')
     }
-    expect(result.response.method).toBe('POST')
+    expect(result.response.method).toBe('post')
     expect(JSON.parse(result.response.data as string)).toMatchObject({
       method: 'POST',
       body: { test: 'data' },

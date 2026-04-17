@@ -65,18 +65,14 @@ describe('can-method-have-body', () => {
     })
   })
 
-  describe('type narrowing', () => {
-    it('narrows type to BodyMethod when true is returned', () => {
-      const method: HttpMethod = 'post'
-      if (canMethodHaveBody(method)) {
-        expect(method).toBe('post')
-      }
-    })
-
-    it('preserves original type when false is returned', () => {
+  describe('return type', () => {
+    it('returns a plain boolean so the original HttpMethod type is preserved in both branches', () => {
       const method: HttpMethod = 'get'
-      if (!canMethodHaveBody(method)) {
-        expect(method).toBe('get')
+
+      if (canMethodHaveBody(method)) {
+        expect<HttpMethod>(method).toBe('get')
+      } else {
+        expect<HttpMethod>(method).toBe('get')
       }
     })
   })

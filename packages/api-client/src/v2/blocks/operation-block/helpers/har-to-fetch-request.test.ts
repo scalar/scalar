@@ -1,3 +1,4 @@
+import { X_SCALAR_ORIGINAL_METHOD } from '@scalar/helpers/http/safe-request'
 import type { HarRequest } from '@scalar/snippetz'
 import { describe, expect, it } from 'vitest'
 
@@ -551,5 +552,33 @@ describe('harToFetchRequest', () => {
 
     const bodyText = await request.text()
     expect(bodyText).toBe('tag=javascript&tag=typescript&tag=vue')
+  })
+
+  it('rewrites GET-with-body to POST plus the original-method sentinel header', async () => {
+    // Replays of Electron history can include a GET with a body. The Fetch spec
+    // forbids that, so createSafeRequest swaps the method and stashes the
+    // original in a sentinel header.
+    const jsonBody = JSON.stringify({ filter: 'active' })
+    const harRequest: HarRequest = {
+      method: 'GET',
+      url: 'https://api.example.com/search',
+      httpVersion: 'HTTP/1.1',
+      headers: [{ name: 'Content-Type', value: 'application/json' }],
+      queryString: [],
+      cookies: [],
+      postData: {
+        mimeType: 'application/json',
+        text: jsonBody,
+      },
+      headersSize: -1,
+      bodySize: -1,
+    }
+
+    const request = harToFetchRequest({ harRequest })
+
+    expect(request.method).toBe('POST')
+    expect(request.headers.get(X_SCALAR_ORIGINAL_METHOD)).toBe('GET')
+    expect(request.headers.get('Content-Type')).toBe('application/json')
+    await expect(request.text()).resolves.toBe(jsonBody)
   })
 })
