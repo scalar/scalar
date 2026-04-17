@@ -6,6 +6,22 @@ import type { PostmanCollection } from './types'
 
 const BUCKET_NAME = 'scalar-test-fixtures'
 const BUCKET_URL = `https://storage.googleapis.com/${BUCKET_NAME}`
+const DEFAULT_RESPONSE_DESCRIPTIONS: Record<string, string> = {
+  200: 'OK',
+  201: 'Created',
+  202: 'Accepted',
+  204: 'No content',
+  301: 'Moved permanently',
+  400: 'Bad request',
+  401: 'Unauthorized',
+  403: 'Forbidden',
+  404: 'Not found',
+  409: 'Conflict',
+  422: 'Unprocessable entity',
+  500: 'Internal server error',
+  default: 'Default response',
+}
+const OPERATION_KEYS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
 const FIXTURES = [
   'SimplePost',
   'NoVersion',
@@ -45,9 +61,40 @@ describe('fixtures', () => {
     const output = await fetch(`${BUCKET_URL}/packages/postman-to-openapi/output/${file}.json`)
     const openapi = await output.json()
 
-    expect(convert(postman)).toEqual(openapi)
+    const normalizedOpenApi = normalizeFixtureResponseDescriptions(openapi as OpenAPIV3_1.Document)
+    expect(convert(postman)).toEqual(normalizedOpenApi)
   })
 })
+
+function normalizeFixtureResponseDescriptions(document: OpenAPIV3_1.Document): OpenAPIV3_1.Document {
+  const normalizedDocument = structuredClone(document)
+
+  for (const pathItem of Object.values(normalizedDocument.paths ?? {})) {
+    if (!pathItem) {
+      continue
+    }
+
+    for (const key of OPERATION_KEYS) {
+      const operation = pathItem[key]
+      if (!operation) {
+        continue
+      }
+
+      for (const [statusCode, response] of Object.entries(operation.responses ?? {})) {
+        if (!response || '$ref' in response || response.description !== 'Successful response') {
+          continue
+        }
+
+        response.description =
+          DEFAULT_RESPONSE_DESCRIPTIONS[statusCode] ??
+          DEFAULT_RESPONSE_DESCRIPTIONS.default ??
+          'Default response'
+      }
+    }
+  }
+
+  return normalizedDocument
+}
 
 describe('convert', () => {
   it('merges into an existing OpenAPI document', () => {

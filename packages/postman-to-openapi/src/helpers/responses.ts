@@ -21,8 +21,6 @@ const DEFAULT_RESPONSE_DESCRIPTIONS: Record<string, string> = {
   default: 'Default response',
 }
 
-const STATUS_DESCRIPTION_PATTERN = /^(\d{3})\s*-\s*(.+)$/
-
 /**
  * Extracts and converts Postman response objects to OpenAPI response objects.
  * Processes response status codes, descriptions, headers, and body content,
@@ -88,14 +86,19 @@ function extractDescriptionFromName(name: string | undefined, statusCode: string
     return undefined
   }
 
-  const match = STATUS_DESCRIPTION_PATTERN.exec(name.trim())
-  if (!match) {
+  const trimmedName = name.trim()
+  const separatorIndex = trimmedName.indexOf('-')
+  if (separatorIndex < 0) {
     return undefined
   }
 
-  const code = match.at(1)
-  const description = match.at(2)?.trim()
-  if (code !== statusCode || !description) {
+  const code = trimmedName.slice(0, separatorIndex).trim()
+  if (!isThreeDigitStatusCode(code) || code !== statusCode) {
+    return undefined
+  }
+
+  const description = trimmedName.slice(separatorIndex + 1).trim()
+  if (!description) {
     return undefined
   }
 
@@ -104,6 +107,20 @@ function extractDescriptionFromName(name: string | undefined, statusCode: string
 
 function getDefaultResponseDescription(statusCode: string): string {
   return DEFAULT_RESPONSE_DESCRIPTIONS[statusCode] ?? DEFAULT_RESPONSE_DESCRIPTIONS.default ?? 'Default response'
+}
+
+function isThreeDigitStatusCode(value: string): boolean {
+  if (value.length !== 3) {
+    return false
+  }
+
+  for (const character of value) {
+    if (character < '0' || character > '9') {
+      return false
+    }
+  }
+
+  return true
 }
 
 function extractHeaders(
