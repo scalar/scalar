@@ -61,6 +61,25 @@ const createServerVariableDefinition = (): NonNullable<OpenAPIV3_1.ServerObject[
   description: SERVER_VARIABLE_DESCRIPTION,
 })
 
+const extractFullHostTemplateVariableName = (rawServerUrl: string): string | undefined => {
+  const protocolSeparatorIndex = rawServerUrl.indexOf('://')
+  if (protocolSeparatorIndex === -1) {
+    return undefined
+  }
+
+  const hostCandidate = rawServerUrl.slice(protocolSeparatorIndex + 3)
+  if (!hostCandidate.startsWith('{{') || !hostCandidate.endsWith('}}')) {
+    return undefined
+  }
+
+  const variableName = hostCandidate.slice(2, -2).trim()
+  if (!variableName || variableName.includes('{') || variableName.includes('}')) {
+    return undefined
+  }
+
+  return variableName
+}
+
 /**
  * Extracts Postman collection variables into a lookup table.
  */
@@ -156,9 +175,9 @@ export function extractServerObjectFromUrl(
     }
 
     const unresolvedVariables = new Set<string>()
-    const fullHostTemplateMatch = rawServerUrl.match(/^https?:\/\/\{\{\s*([^{}]{0,1000})\s*\}\}$/i)
-    if (fullHostTemplateMatch?.[1]) {
-      const variableName = fullHostTemplateMatch[1].trim()
+    const fullHostTemplateVariableName = extractFullHostTemplateVariableName(rawServerUrl)
+    if (fullHostTemplateVariableName) {
+      const variableName = fullHostTemplateVariableName
       const variableValue = collectionVariableLookup.get(variableName)
       if (!variableValue || hasPostmanTemplateSyntax(variableValue)) {
         unresolvedVariables.add(variableName)
