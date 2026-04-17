@@ -325,9 +325,6 @@ describe('convert', () => {
       },
       '204': {
         description: 'Invalid country code filter',
-        content: {
-          'application/json': {},
-        },
       },
     })
 

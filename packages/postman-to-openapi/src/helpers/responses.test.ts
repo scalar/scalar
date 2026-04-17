@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import type { Item, Response } from '@/types'
 
@@ -297,9 +297,78 @@ describe('responses', () => {
 
     const result = extractResponses(responses)
 
-    expect(result?.['204']?.content?.['application/json']?.examples?.default).toEqual({
-      rawContent: '',
+    expect(result?.['204']?.content).toBeUndefined()
+  })
+
+  it('omits content for no-body status codes without body examples', () => {
+    const responses: Response[] = [
+      {
+        code: 101,
+        status: 'Switching Protocols',
+      },
+      {
+        code: 205,
+        status: 'Reset Content',
+      },
+      {
+        code: 304,
+        status: 'Not Modified',
+      },
+    ]
+
+    const result = extractResponses(responses)
+
+    expect(result?.['101']?.content).toBeUndefined()
+    expect(result?.['205']?.content).toBeUndefined()
+    expect(result?.['304']?.content).toBeUndefined()
+  })
+
+  it('omits content for no-body status codes extracted from test scripts', () => {
+    const responses: Response[] = []
+    const item: Item = {
+      name: 'No Body Status',
+      request: {
+        method: 'GET',
+        url: {
+          raw: 'https://example.com/resource',
+        },
+      },
+      event: [
+        {
+          listen: 'test',
+          script: {
+            exec: ['pm.response.to.have.status(204);', 'pm.response.to.have.status(304);'],
+          },
+        },
+      ],
+    }
+
+    const result = extractResponses(responses, item)
+
+    expect(result?.['204']?.content).toBeUndefined()
+    expect(result?.['304']?.content).toBeUndefined()
+  })
+
+  it('keeps content and logs warning when no-body status code has explicit body example', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const responses: Response[] = [
+      {
+        code: 204,
+        status: 'No Content',
+        body: '{"message": "actually has content"}',
+      },
+    ]
+
+    const result = extractResponses(responses)
+
+    expect(result?.['204']?.content?.['application/json']?.examples?.default).toStrictEqual({
+      message: 'actually has content',
     })
+    expect(warnSpy).toHaveBeenCalledWith(
+      '[postman-to-openapi] Response 204 usually has no body, but Postman includes a body example. Keeping OpenAPI content.',
+    )
+
+    warnSpy.mockRestore()
   })
 
   it('handles array response body', () => {

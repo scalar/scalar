@@ -615,9 +615,6 @@ describe('path-items', () => {
     const result = processItem(item, 'default', [], '', true)
     expect(result.paths['/languages']?.get?.responses?.['204']).toEqual({
       description: 'Invalid country code filter',
-      content: {
-        'application/json': {},
-      },
     })
   })
 
