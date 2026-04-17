@@ -7,98 +7,141 @@
 -->
 <div class="blog-post-list">
 <article class="blog-post-list__item" data-file="2026-04-11-oss-pledge.md">
-  <div class="blog-post-list__meta">Apr 11, 2026</div>
-  <h2 class="blog-post-list__title"><a href="./2026-04-11-oss-pledge.md">Scalar's 2025 Open Source Pledge</a></h2>
-  <p class="blog-post-list__description">Open source is the foundation everything we build sits on. In 2025, Scalar was made up of 10 developers and contributed $21,232 directly to open-source maintainers ($2,123 per developer).</p>
+  <a class="blog-post-list__link" href="./2026-04-11-oss-pledge.md">
+    <div class="blog-post-list__meta">Apr 11, 2026</div>
+    <h2 class="blog-post-list__title">Scalar's 2025 Open Source Pledge</h2>
+    <p class="blog-post-list__description">Open source is the foundation everything we build sits on. In 2025, Scalar was made up of 10 developers and contributed $21,232 directly to open-source maintainers ($2,123 per developer).</p>
+  </a>
 </article>
 <article class="blog-post-list__item" data-file="2026-03-25-scalar-mcp-oauth.md">
-  <div class="blog-post-list__meta">Mar 25, 2026</div>
-  <h2 class="blog-post-list__title"><a href="./2026-03-25-scalar-mcp-oauth.md">Too Long; Didn't Read; Used MCP</a></h2>
-  <p class="blog-post-list__description">Hey, it's 2026, who does even read the documentation for your API anymore. Just boot up a MCP based on your OpenAPI document (using Scalar), and share it with your users or your team.</p>
+  <a class="blog-post-list__link" href="./2026-03-25-scalar-mcp-oauth.md">
+    <div class="blog-post-list__meta">Mar 25, 2026</div>
+    <h2 class="blog-post-list__title">Too Long; Didn't Read; Used MCP</h2>
+    <p class="blog-post-list__description">Hey, it's 2026, who does even read the documentation for your API anymore. Just boot up a MCP based on your OpenAPI document (using Scalar), and share it with your users or your team.</p>
+  </a>
 </article>
 <article class="blog-post-list__item" data-file="2026-03-17-agent-mcp.md">
-  <div class="blog-post-list__meta">Mar 17, 2026</div>
-  <h2 class="blog-post-list__title"><a href="./2026-03-17-agent-mcp.md">Use your API in Cursor (or your favorite LLM)</a></h2>
-  <p class="blog-post-list__description">Agent MCP servers expose your OpenAPI via MCP with all the performance benefits of Agent. Use your API in Cursor or any LLM in minutes, with preconfigured authentication and restricted access by default.</p>
+  <a class="blog-post-list__link" href="./2026-03-17-agent-mcp.md">
+    <div class="blog-post-list__meta">Mar 17, 2026</div>
+    <h2 class="blog-post-list__title">Use your API in Cursor (or your favorite LLM)</h2>
+    <p class="blog-post-list__description">Agent MCP servers expose your OpenAPI via MCP with all the performance benefits of Agent. Use your API in Cursor or any LLM in minutes, with preconfigured authentication and restricted access by default.</p>
+  </a>
 </article>
 <article class="blog-post-list__item" data-file="2026-03-05-agent-scalar.md">
-  <div class="blog-post-list__meta">Mar 5, 2026</div>
-  <h2 class="blog-post-list__title"><a href="./2026-03-05-agent-scalar.md">Your API? 0.2% of your context window</a></h2>
-  <p class="blog-post-list__description">Big APIs blow past context limits with raw OpenAPI and still cost a lot with native MCP. Agent uses three fixed tools and fetches just-in-time details – so your agent uses 0.2% of the context window, fewer steps, and…</p>
+  <a class="blog-post-list__link" href="./2026-03-05-agent-scalar.md">
+    <div class="blog-post-list__meta">Mar 5, 2026</div>
+    <h2 class="blog-post-list__title">Your API? 0.2% of your context window</h2>
+    <p class="blog-post-list__description">Big APIs blow past context limits with raw OpenAPI and still cost a lot with native MCP. Agent uses three fixed tools and fetches just-in-time details – so your agent uses 0.2% of the context window, fewer steps, and…</p>
+  </a>
 </article>
 <article class="blog-post-list__item" data-file="2025-08-19-how-to-set-up-an-openapi-mock-server.md">
-  <div class="blog-post-list__meta">Aug 19, 2025</div>
-  <h2 class="blog-post-list__title"><a href="./2025-08-19-how-to-set-up-an-openapi-mock-server.md">How to set up an OpenAPI mock server</a></h2>
-  <p class="blog-post-list__description">Learn how to spin up a spec-driven OpenAPI mock server with the Scalar CLI in seconds. We cover the key commands, practical workflows, and how the mock server helps teams build, test, and prototype in parallel.</p>
+  <a class="blog-post-list__link" href="./2025-08-19-how-to-set-up-an-openapi-mock-server.md">
+    <div class="blog-post-list__meta">Aug 19, 2025</div>
+    <h2 class="blog-post-list__title">How to set up an OpenAPI mock server</h2>
+    <p class="blog-post-list__description">Learn how to spin up a spec-driven OpenAPI mock server with the Scalar CLI in seconds. We cover the key commands, practical workflows, and how the mock server helps teams build, test, and prototype in parallel.</p>
+  </a>
 </article>
 <article class="blog-post-list__item" data-file="2025-07-07-how-to-do-openapi-validation-and.md">
-  <div class="blog-post-list__meta">Jul 7, 2025</div>
-  <h2 class="blog-post-list__title"><a href="./2025-07-07-how-to-do-openapi-validation-and.md">How to do OpenAPI validation (and why it matters)</a></h2>
-  <p class="blog-post-list__description">Validate your OpenAPI document with the Scalar CLI before it breaks downstream tooling. This guide explains why validation matters, what errors to look for, and how Scalar handles validation under the hood.</p>
+  <a class="blog-post-list__link" href="./2025-07-07-how-to-do-openapi-validation-and.md">
+    <div class="blog-post-list__meta">Jul 7, 2025</div>
+    <h2 class="blog-post-list__title">How to do OpenAPI validation (and why it matters)</h2>
+    <p class="blog-post-list__description">Validate your OpenAPI document with the Scalar CLI before it breaks downstream tooling. This guide explains why validation matters, what errors to look for, and how Scalar handles validation under the hood.</p>
+  </a>
 </article>
 <article class="blog-post-list__item" data-file="2025-05-28-how-we-created-an-animated-responsive.md">
-  <div class="blog-post-list__meta">May 28, 2025</div>
-  <h2 class="blog-post-list__title"><a href="./2025-05-28-how-we-created-an-animated-responsive.md">How we created an animated, responsive README</a></h2>
-  <p class="blog-post-list__description">A plain README can be good, but a dynamic one stands out. This post breaks down how we used SVG, foreignObject, CSS, and animation techniques to build a responsive, interactive GitHub README.</p>
+  <a class="blog-post-list__link" href="./2025-05-28-how-we-created-an-animated-responsive.md">
+    <div class="blog-post-list__meta">May 28, 2025</div>
+    <h2 class="blog-post-list__title">How we created an animated, responsive README</h2>
+    <p class="blog-post-list__description">A plain README can be good, but a dynamic one stands out. This post breaks down how we used SVG, foreignObject, CSS, and animation techniques to build a responsive, interactive GitHub README.</p>
+  </a>
 </article>
 <article class="blog-post-list__item" data-file="2025-05-07-how-scalar-themes-work.md">
-  <div class="blog-post-list__meta">May 7, 2025</div>
-  <h2 class="blog-post-list__title"><a href="./2025-05-07-how-scalar-themes-work.md">How Scalar themes work</a></h2>
-  <p class="blog-post-list__description">See how Scalar themes separate data, functionality, and presentation so teams can fully customize API documentation without rebuilding core behavior. We walk through the architecture and implementation details behind…</p>
+  <a class="blog-post-list__link" href="./2025-05-07-how-scalar-themes-work.md">
+    <div class="blog-post-list__meta">May 7, 2025</div>
+    <h2 class="blog-post-list__title">How Scalar themes work</h2>
+    <p class="blog-post-list__description">See how Scalar themes separate data, functionality, and presentation so teams can fully customize API documentation without rebuilding core behavior. We walk through the architecture and implementation details behind…</p>
+  </a>
 </article>
 <article class="blog-post-list__item" data-file="2025-04-28-how-cloudinarys-api-docs-create-a.md">
-  <div class="blog-post-list__meta">Apr 28, 2025</div>
-  <h2 class="blog-post-list__title"><a href="./2025-04-28-how-cloudinarys-api-docs-create-a.md">How Cloudinary’s API docs create a great developer experience</a></h2>
-  <p class="blog-post-list__description">Cloudinary’s API-first strategy is a strong example of developer experience done right. We analyze what makes their API documentation effective and show how Scalar helps teams deliver a similar experience.</p>
+  <a class="blog-post-list__link" href="./2025-04-28-how-cloudinarys-api-docs-create-a.md">
+    <div class="blog-post-list__meta">Apr 28, 2025</div>
+    <h2 class="blog-post-list__title">How Cloudinary’s API docs create a great developer experience</h2>
+    <p class="blog-post-list__description">Cloudinary’s API-first strategy is a strong example of developer experience done right. We analyze what makes their API documentation effective and show how Scalar helps teams deliver a similar experience.</p>
+  </a>
 </article>
 <article class="blog-post-list__item" data-file="2025-04-23-an-introduction-to-openapi-variables.md">
-  <div class="blog-post-list__meta">Apr 23, 2025</div>
-  <h2 class="blog-post-list__title"><a href="./2025-04-23-an-introduction-to-openapi-variables.md">An introduction to OpenAPI variables</a></h2>
-  <p class="blog-post-list__description">OpenAPI variables are powerful, but easy to confuse in practice. This introduction clarifies server variables vs parameters, when to use each, and how they shape a cleaner API description.</p>
+  <a class="blog-post-list__link" href="./2025-04-23-an-introduction-to-openapi-variables.md">
+    <div class="blog-post-list__meta">Apr 23, 2025</div>
+    <h2 class="blog-post-list__title">An introduction to OpenAPI variables</h2>
+    <p class="blog-post-list__description">OpenAPI variables are powerful, but easy to confuse in practice. This introduction clarifies server variables vs parameters, when to use each, and how they shape a cleaner API description.</p>
+  </a>
 </article>
 <article class="blog-post-list__item" data-file="2025-04-06-how-we-extended-the-openapi-specification.md">
-  <div class="blog-post-list__meta">Apr 6, 2025</div>
-  <h2 class="blog-post-list__title"><a href="./2025-04-06-how-we-extended-the-openapi-specification.md">How we extended the OpenAPI specification</a></h2>
-  <p class="blog-post-list__description">OpenAPI gives you a strong base, but product teams often need more. We share the Scalar-specific extensions we added (environments, code samples, internal endpoints, and more) and how we implemented them.</p>
+  <a class="blog-post-list__link" href="./2025-04-06-how-we-extended-the-openapi-specification.md">
+    <div class="blog-post-list__meta">Apr 6, 2025</div>
+    <h2 class="blog-post-list__title">How we extended the OpenAPI specification</h2>
+    <p class="blog-post-list__description">OpenAPI gives you a strong base, but product teams often need more. We share the Scalar-specific extensions we added (environments, code samples, internal endpoints, and more) and how we implemented them.</p>
+  </a>
 </article>
 <article class="blog-post-list__item" data-file="2025-03-26-a-guide-to-openapi-security-and-how.md">
-  <div class="blog-post-list__meta">Mar 26, 2025</div>
-  <h2 class="blog-post-list__title"><a href="./2025-03-26-a-guide-to-openapi-security-and-how.md">A guide to OpenAPI security (and how we handle it in Scalar)</a></h2>
-  <p class="blog-post-list__description">Security in OpenAPI can be confusing when multiple auth flows meet real-world API usage. This guide explains core security schemes, how they work in documentation, and how Scalar helps users authenticate correctly.</p>
+  <a class="blog-post-list__link" href="./2025-03-26-a-guide-to-openapi-security-and-how.md">
+    <div class="blog-post-list__meta">Mar 26, 2025</div>
+    <h2 class="blog-post-list__title">A guide to OpenAPI security (and how we handle it in Scalar)</h2>
+    <p class="blog-post-list__description">Security in OpenAPI can be confusing when multiple auth flows meet real-world API usage. This guide explains core security schemes, how they work in documentation, and how Scalar helps users authenticate correctly.</p>
+  </a>
 </article>
 <article class="blog-post-list__item" data-file="2025-03-19-the-hidden-complexity-of-building.md">
-  <div class="blog-post-list__meta">Mar 19, 2025</div>
-  <h2 class="blog-post-list__title"><a href="./2025-03-19-the-hidden-complexity-of-building.md">The hidden complexity of building drag and drop</a></h2>
-  <p class="blog-post-list__description">Drag and drop looks simple, but implementation details quickly get complex. We unpack the UX and engineering challenges we hit while building our own package, plus lessons learned along the way.</p>
+  <a class="blog-post-list__link" href="./2025-03-19-the-hidden-complexity-of-building.md">
+    <div class="blog-post-list__meta">Mar 19, 2025</div>
+    <h2 class="blog-post-list__title">The hidden complexity of building drag and drop</h2>
+    <p class="blog-post-list__description">Drag and drop looks simple, but implementation details quickly get complex. We unpack the UX and engineering challenges we hit while building our own package, plus lessons learned along the way.</p>
+  </a>
 </article>
 <article class="blog-post-list__item" data-file="2025-03-12-how-we-sped-up-our-api-docs-25x.md">
-  <div class="blog-post-list__meta">Mar 12, 2025</div>
-  <h2 class="blog-post-list__title"><a href="./2025-03-12-how-we-sped-up-our-api-docs-25x.md">How we sped up our API docs 25x</a></h2>
-  <p class="blog-post-list__description">Our API docs sidebar became a major performance bottleneck at scale. This deep dive shows how we profiled the issue, redesigned the rendering approach, and achieved a 25x speedup.</p>
+  <a class="blog-post-list__link" href="./2025-03-12-how-we-sped-up-our-api-docs-25x.md">
+    <div class="blog-post-list__meta">Mar 12, 2025</div>
+    <h2 class="blog-post-list__title">How we sped up our API docs 25x</h2>
+    <p class="blog-post-list__description">Our API docs sidebar became a major performance bottleneck at scale. This deep dive shows how we profiled the issue, redesigned the rendering approach, and achieved a 25x speedup.</p>
+  </a>
 </article>
 <article class="blog-post-list__item" data-file="2025-03-05-how-net-9-and-scalar-solve-the-problem.md">
-  <div class="blog-post-list__meta">Mar 5, 2025</div>
-  <h2 class="blog-post-list__title"><a href="./2025-03-05-how-net-9-and-scalar-solve-the-problem.md">How .NET 9 and Scalar solve the problem of under-documented APIs</a></h2>
-  <p class="blog-post-list__description">.NET 9 introduces a new path for OpenAPI document generation, and Scalar completes the workflow with interactive API docs and testing. Learn how this pairing reduces documentation drift and improves API developer…</p>
+  <a class="blog-post-list__link" href="./2025-03-05-how-net-9-and-scalar-solve-the-problem.md">
+    <div class="blog-post-list__meta">Mar 5, 2025</div>
+    <h2 class="blog-post-list__title">How .NET 9 and Scalar solve the problem of under-documented APIs</h2>
+    <p class="blog-post-list__description">.NET 9 introduces a new path for OpenAPI document generation, and Scalar completes the workflow with interactive API docs and testing. Learn how this pairing reduces documentation drift and improves API developer…</p>
+  </a>
 </article>
 <article class="blog-post-list__item" data-file="2024-09-01-oss-pledge.md">
-  <div class="blog-post-list__meta">Sep 1, 2024</div>
-  <h2 class="blog-post-list__title"><a href="./2024-09-01-oss-pledge.md">Scalar Joins the Open-Source Pledge</a></h2>
-  <p class="blog-post-list__description">Scalar joined the OSS Pledge: paying open-source maintainers ($2,000+ per developer per year). We shared how much we give, who we support, and why it matters to us.</p>
+  <a class="blog-post-list__link" href="./2024-09-01-oss-pledge.md">
+    <div class="blog-post-list__meta">Sep 1, 2024</div>
+    <h2 class="blog-post-list__title">Scalar Joins the Open-Source Pledge</h2>
+    <p class="blog-post-list__description">Scalar joined the OSS Pledge: paying open-source maintainers ($2,000+ per developer per year). We shared how much we give, who we support, and why it matters to us.</p>
+  </a>
 </article>
 </div>
 <!-- /generated -->
 
 <style>
+.t-editor.page {
+  --scalar-container-width: 1120px;
+}
+
 .blog-post-list {
   margin-top: 16px;
   border-top: 1px solid var(--scalar-border-color);
+  width: 100%;
+  max-width: var(--scalar-container-width);
 }
 
-.blog-post-list__item {
+.blog-post-list__link {
   display: grid;
   gap: 10px;
   padding: 20px 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.blog-post-list__item {
   border-bottom: 1px solid var(--scalar-border-color);
 }
 
@@ -108,12 +151,11 @@
   line-height: 1.35;
 }
 
-.blog-post-list__title a {
+.blog-post-list__title {
   color: var(--scalar-color-1);
-  text-decoration: none;
 }
 
-.blog-post-list__title a:hover {
+.blog-post-list__link:hover .blog-post-list__title {
   text-decoration: underline;
   text-decoration-color: var(--scalar-color-2);
 }
@@ -123,6 +165,10 @@
   max-width: 72ch;
   color: var(--scalar-color-2);
   line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .blog-post-list__meta {
@@ -132,7 +178,7 @@
 }
 
 @media (min-width: 900px) {
-  .blog-post-list__item {
+  .blog-post-list__link {
     grid-template-columns: minmax(0, 1fr) auto;
     column-gap: 24px;
     align-items: start;
@@ -148,6 +194,12 @@
     grid-row: 1;
     margin-top: 5px;
     text-align: right;
+  }
+}
+
+@media (max-width: 900px) {
+  .blog-post-list {
+    max-width: 100%;
   }
 }
 </style>

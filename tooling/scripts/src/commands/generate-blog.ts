@@ -125,10 +125,16 @@ async function updateConfig(root: string, configPath: string, posts: BlogPost[])
   for (const post of posts) {
     const key = `/${post.slug}`
     const prev = existingChildren[key]
+    const existingLayout =
+      typeof prev?.layout === 'object' && prev.layout !== null ? (prev.layout as Record<string, unknown>) : {}
     const entry: Record<string, unknown> = {
       type: 'page',
       title: typeof prev?.title === 'string' ? prev.title : post.title,
       filepath: `${BLOG_DIR}/${post.filename}`,
+      layout: {
+        ...existingLayout,
+        sidebar: false,
+      },
     }
     if (prev?.head !== undefined) {
       entry.head = prev.head
@@ -194,9 +200,11 @@ function formatDateLabel(date: Date): string {
 
 function formatPostRow(post: BlogPost): string {
   return `<article class="blog-post-list__item" data-file="${escapeHtml(post.filename)}">
-  <div class="blog-post-list__meta">${escapeHtml(post.dateLabel)}</div>
-  <h2 class="blog-post-list__title"><a href="./${escapeHtml(post.filename)}">${escapeHtml(post.title)}</a></h2>
-  <p class="blog-post-list__description">${escapeHtml(post.description)}</p>
+  <a class="blog-post-list__link" href="./${escapeHtml(post.filename)}">
+    <div class="blog-post-list__meta">${escapeHtml(post.dateLabel)}</div>
+    <h2 class="blog-post-list__title">${escapeHtml(post.title)}</h2>
+    <p class="blog-post-list__description">${escapeHtml(post.description)}</p>
+  </a>
 </article>`
 }
 
