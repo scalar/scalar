@@ -408,12 +408,14 @@ function normalizeOverviewPage(blog: unknown): Record<string, unknown> {
       ? ((previous.children as Record<string, unknown>)['/'] as Record<string, unknown> | undefined)
       : undefined
   const source = previousOverview && typeof previousOverview === 'object' ? previousOverview : previous
+  const sourceIcon = typeof previous.icon === 'string' ? previous.icon : undefined
 
   const normalized: Record<string, unknown> = {
     type: 'page',
     title: 'Blog',
     filepath: typeof source.filepath === 'string' ? source.filepath : `${BLOG_DIR}/${INDEX_FILENAME}`,
     showInSidebar: true,
+    icon: sourceIcon ?? 'phosphor/regular/books',
   }
   const layout = stripSidebarLayout(source.layout)
   if (layout !== undefined) {

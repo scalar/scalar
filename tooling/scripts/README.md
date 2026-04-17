@@ -161,7 +161,7 @@ Generate blog index post rows and update `scalar.config.json` from post files.
 
 Scans `documentation/blog/` for markdown files matching `YYYY-MM-DD-slug.md`, then:
 - Rewrites the auto-generated post list section (between `<!-- generated -->` / `<!-- /generated -->` markers) in `documentation/blog/index.md`. Existing summaries are preserved and normalized for concise list rows.
-- Updates `/blog` navigation in `scalar.config.json`, converting `/blog` to a single page entry, generating hidden `/blog/posts/*` routes, and preserving custom titles plus page-level head scripts.
+- Updates `/blog` navigation in `scalar.config.json`, converting `/blog` to a single page entry with a books icon, generating hidden `/blog/posts/*` routes, and preserving custom titles plus page-level head scripts.
 
 **Usage:**
 ```bash
