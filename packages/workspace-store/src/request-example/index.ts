@@ -8,6 +8,7 @@ export type {
   OAuthFlowPasswordSecret,
   OAuthFlowsObjectSecret,
   OpenIdConnectObjectSecret,
+  RequestPayload,
   SecuritySchemeObjectSecret,
 } from './builder'
 export {
@@ -47,8 +48,6 @@ export {
   isAuthOptional,
   mergeSecurity,
 } from './context'
-export { createVariablesStoreForRequest } from './variable-store'
-export type { VariableEntry, VariablesStore } from './variable-store/types'
 export {
   CONTEXT_FUNCTION_NAMES,
   type ContextFunctionEntry,
@@ -58,3 +57,5 @@ export {
   getContextFunctionComment,
   isContextFunctionName,
 } from './functions'
+export { createVariablesStoreForRequest } from './variable-store'
+export type { VariableEntry, VariablesStore } from './variable-store/types'

@@ -10,16 +10,19 @@ import { contextFunctions, isContextFunctionName } from '@/request-example/funct
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
 
 /**
+ * The payload to build a request, useful when bypassing limitations of the browser Request object
+ */
+export type RequestPayload = [string, RequestInit]
+
+/**
  * Built request response
  *
  * We no longer return a Request object, but a tuple of [url, init] that maps directly to the fetch() argument list so
  * we can do things that the browser doesn't allow like GET + body
  * */
 export type BuildRequestResponse = {
-  /** The final URL to send the request to */
-  url: string
-  /** Create a new request init object with the replaced values ready to be sent to the server */
-  requestInit: RequestInit
+  /** Create a new request payload object with the replaced values ready to be sent to the server */
+  requestPayload: RequestPayload
   /** The abort controller */
   controller: AbortController
   /** The flag indicating if the request is being proxied */
@@ -168,19 +171,21 @@ export const buildRequest = (
   const finalUrl = isUsingProxy ? redirectToProxy(request.proxyUrl, encodedUrl) : encodedUrl
 
   return {
-    url: finalUrl,
-    requestInit: {
-      /**
-       * Ensure that all methods are uppercased (though only needed for patch)
-       *
-       * @see https://github.com/whatwg/fetch/issues/50
-       */
-      method: request.method.toUpperCase(),
-      headers,
-      body,
-      cache: request.cache,
-      signal: controller.signal,
-    },
+    requestPayload: [
+      finalUrl,
+      {
+        /**
+         * Ensure that all methods are uppercased (though only needed for patch)
+         *
+         * @see https://github.com/whatwg/fetch/issues/50
+         */
+        method: request.method.toUpperCase(),
+        headers,
+        body,
+        cache: request.cache,
+        signal: controller.signal,
+      },
+    ],
     controller,
     isUsingProxy,
   }

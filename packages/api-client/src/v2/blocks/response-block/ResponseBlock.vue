@@ -23,8 +23,8 @@ import type { ClientLayout } from '@/v2/types/layout'
 const { layout, totalPerformedRequests, response, request } = defineProps<{
   /** Preprocessed response */
   response: ResponseInstance | null
-  /** Original request instance */
-  request: Request | null
+  /** Original request as a [url, RequestInit] tuple */
+  request: [string, RequestInit] | null
   /** Client layout */
   layout: ClientLayout
   /** Total number of performed requests */
@@ -97,15 +97,30 @@ const shouldVirtualize = computed(() => {
   return isTextBased && (response.size ?? 0) > VIRTUALIZATION_THRESHOLD
 })
 
-const requestHeaders = computed(() =>
-  request?.headers
-    ? [...request.headers].map((header) => ({
-        name: header[0],
-        value: header[1],
+const requestHeaders = computed(() => {
+  const headers = request?.[1]?.headers
+  if (!headers) {
+    return []
+  }
+  // headers in RequestInit can be Headers, string[][], or Record<string, string>
+  if (typeof (headers as Headers)[Symbol.iterator] === 'function') {
+    return [...(headers as Headers)].map((header: string[]) => ({
+      name: header[0] ?? '',
+      value: header[1] ?? '',
+      required: false,
+    }))
+  }
+  if (typeof headers === 'object' && !Array.isArray(headers)) {
+    return Object.entries(headers as Record<string, string>).map(
+      ([name, value]) => ({
+        name,
+        value,
         required: false,
-      }))
-    : [],
-)
+      }),
+    )
+  }
+  return []
+})
 
 const isSectionVisible = (
   section: (typeof responseSections)[number] | 'All',

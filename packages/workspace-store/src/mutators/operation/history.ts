@@ -38,7 +38,7 @@ export const addResponseToHistory = async (
     return acc
   }, {})
 
-  const requestHar = await fetchRequestToHar({ request: payload.request })
+  const requestHar = await fetchRequestToHar({ requestPayload: payload.requestPayload })
   const responseHar = await fetchResponseToHar({ response: payload.response })
 
   store?.history.addHistory(documentName, meta.path, meta.method, {

@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { sendRequest } from './send-request'
 
@@ -39,11 +39,11 @@ describe('sendRequest', () => {
    * Creates a mock Response that mimics what an echo server would return.
    * This allows us to test without needing a running server.
    */
-  const createMockEchoResponse = (request: Request, overrides: Partial<ResponseInit> = {}) => {
-    const url = new URL(request.url)
+  const createMockEchoResponse = (url: string, init: RequestInit = {}, overrides: Partial<ResponseInit> = {}) => {
+    const parsedUrl = new URL(url)
     const query: Record<string, string | string[]> = {}
 
-    url.searchParams.forEach((value, key) => {
+    parsedUrl.searchParams.forEach((value, key) => {
       if (query[key]) {
         query[key] = Array.isArray(query[key]) ? [...(query[key] as string[]), value] : [query[key] as string, value]
       } else {
@@ -52,13 +52,23 @@ describe('sendRequest', () => {
     })
 
     const headers: Record<string, string> = {}
-    request.headers.forEach((value, key) => {
-      headers[key] = value
-    })
+    if (init.headers instanceof Headers) {
+      init.headers.forEach((value, key) => {
+        headers[key.toLowerCase()] = value
+      })
+    } else if (Array.isArray(init.headers)) {
+      init.headers.forEach(([key, value]) => {
+        headers[key.toLowerCase()] = value
+      })
+    } else if (init.headers) {
+      Object.entries(init.headers).forEach(([key, value]) => {
+        headers[key.toLowerCase()] = value
+      })
+    }
 
     const echoData = {
-      method: request.method,
-      path: url.pathname + url.search,
+      method: init.method ?? 'GET',
+      path: parsedUrl.pathname + parsedUrl.search,
       query,
       headers,
       body: '',
@@ -73,17 +83,17 @@ describe('sendRequest', () => {
       ...overrides,
     })
 
-    return addUrlToResponse(response, request.url)
+    return addUrlToResponse(response, url)
   }
 
   it('sends a basic request and returns response data', async () => {
-    const request = new Request(MOCK_URL)
-
-    globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
+    const requestInit: RequestInit = {}
+    globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, requestInit))
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      request,
+      url: MOCK_URL,
+      requestInit,
     })
 
     expect(error).toBe(null)
@@ -100,10 +110,10 @@ describe('sendRequest', () => {
   })
 
   it('handles POST requests', async () => {
-    const request = new Request(MOCK_URL, {
+    const requestInit: RequestInit = {
       method: 'POST',
       body: JSON.stringify({ test: 'data' }),
-    })
+    }
     const mockResponse = addUrlToResponse(
       new Response(
         JSON.stringify({
@@ -116,14 +126,15 @@ describe('sendRequest', () => {
           headers: new Headers({ 'content-type': 'application/json' }),
         },
       ),
-      request.url,
+      MOCK_URL,
     )
 
     globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      request,
+      url: MOCK_URL,
+      requestInit,
     })
 
     expect(error).toBe(null)
@@ -141,14 +152,15 @@ describe('sendRequest', () => {
     const url = new URL(MOCK_URL)
     url.searchParams.set('foo', 'bar')
     url.searchParams.set('test', 'value')
+    const requestUrl = url.toString()
+    const requestInit: RequestInit = {}
 
-    const request = new Request(url.toString())
-
-    globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
+    globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(requestUrl, requestInit))
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      request,
+      url: requestUrl,
+      requestInit,
     })
 
     expect(error).toBe(null)
@@ -163,18 +175,19 @@ describe('sendRequest', () => {
   })
 
   it('handles requests with custom headers', async () => {
-    const request = new Request(MOCK_URL, {
+    const requestInit: RequestInit = {
       headers: {
         'X-Custom-Header': 'custom-value',
         'Content-Type': 'application/json',
       },
-    })
+    }
 
-    globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
+    globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, requestInit))
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      request,
+      url: MOCK_URL,
+      requestInit,
     })
 
     expect(error).toBe(null)
@@ -187,7 +200,7 @@ describe('sendRequest', () => {
   })
 
   it('normalizes response headers', async () => {
-    const request = new Request(MOCK_URL)
+    const requestInit: RequestInit = {}
     const mockResponse = addUrlToResponse(
       new Response('test', {
         status: 200,
@@ -196,14 +209,15 @@ describe('sendRequest', () => {
           'x-custom-header': 'value',
         }),
       }),
-      request.url,
+      MOCK_URL,
     )
 
     globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      request,
+      url: MOCK_URL,
+      requestInit,
     })
 
     expect(error).toBe(null)
@@ -215,21 +229,21 @@ describe('sendRequest', () => {
   })
 
   it('handles 204 No Content responses', async () => {
-    const request = new Request(`${MOCK_URL}/204`)
-
+    const requestInit: RequestInit = {}
     const mockResponse = addUrlToResponse(
       new Response(null, {
         status: 204,
         statusText: 'No Content',
       }),
-      request.url,
+      `${MOCK_URL}/204`,
     )
 
     globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      request,
+      url: `${MOCK_URL}/204`,
+      requestInit,
     })
 
     expect(error).toBe(null)
@@ -241,20 +255,21 @@ describe('sendRequest', () => {
   })
 
   it('handles 205 Reset Content responses', async () => {
-    const request = new Request(MOCK_URL)
+    const requestInit: RequestInit = {}
     const mockResponse = addUrlToResponse(
       new Response(null, {
         status: 205,
         statusText: 'Reset Content',
       }),
-      request.url,
+      MOCK_URL,
     )
 
     globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      request,
+      url: MOCK_URL,
+      requestInit,
     })
 
     expect(error).toBe(null)
@@ -265,20 +280,21 @@ describe('sendRequest', () => {
   })
 
   it('handles 304 Not Modified responses', async () => {
-    const request = new Request(MOCK_URL)
+    const requestInit: RequestInit = {}
     const mockResponse = addUrlToResponse(
       new Response(null, {
         status: 304,
         statusText: 'Not Modified',
       }),
-      request.url,
+      MOCK_URL,
     )
 
     globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      request,
+      url: MOCK_URL,
+      requestInit,
     })
 
     expect(error).toBe(null)
@@ -289,20 +305,21 @@ describe('sendRequest', () => {
   })
 
   it('handles responses with status codes', async () => {
-    const request = new Request(MOCK_URL)
+    const requestInit: RequestInit = {}
     const mockResponse = addUrlToResponse(
       new Response('OK', {
         status: 200,
         statusText: 'OK',
       }),
-      request.url,
+      MOCK_URL,
     )
 
     globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      request,
+      url: MOCK_URL,
+      requestInit,
     })
 
     expect(error).toBe(null)
@@ -313,20 +330,21 @@ describe('sendRequest', () => {
   })
 
   it('handles error status codes', async () => {
-    const request = new Request(MOCK_URL)
+    const requestInit: RequestInit = {}
     const mockResponse = addUrlToResponse(
       new Response('Not Found', {
         status: 404,
         statusText: 'Not Found',
       }),
-      request.url,
+      MOCK_URL,
     )
 
     globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      request,
+      url: MOCK_URL,
+      requestInit,
     })
 
     expect(error).toBe(null)
@@ -358,11 +376,10 @@ describe('sendRequest', () => {
 
     globalFetchSpy.mockResolvedValueOnce(mockResponse as Response)
 
-    const request = new Request(MOCK_URL)
-
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      request,
+      url: MOCK_URL,
+      requestInit: {},
     })
 
     expect(error).toBe(null)
@@ -373,13 +390,13 @@ describe('sendRequest', () => {
   })
 
   it('calculates response duration', async () => {
-    const request = new Request(MOCK_URL)
-
-    globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
+    const requestInit: RequestInit = {}
+    globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, requestInit))
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      request,
+      url: MOCK_URL,
+      requestInit,
     })
 
     expect(error).toBe(null)
@@ -391,13 +408,13 @@ describe('sendRequest', () => {
   })
 
   it('includes response size in bytes', async () => {
-    const request = new Request(MOCK_URL)
-
-    globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
+    const requestInit: RequestInit = {}
+    globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, requestInit))
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      request,
+      url: MOCK_URL,
+      requestInit,
     })
 
     expect(error).toBe(null)
@@ -409,7 +426,7 @@ describe('sendRequest', () => {
   })
 
   it('extracts cookie headers when available', async () => {
-    const request = new Request(MOCK_URL)
+    const requestInit: RequestInit = {}
     const mockResponse = addUrlToResponse(
       new Response('test', {
         status: 200,
@@ -417,7 +434,7 @@ describe('sendRequest', () => {
           'set-cookie': 'sessionId=abc123; Path=/; HttpOnly',
         }),
       }),
-      request.url,
+      MOCK_URL,
     )
 
     // Mock getSetCookie method
@@ -430,7 +447,8 @@ describe('sendRequest', () => {
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      request,
+      url: MOCK_URL,
+      requestInit,
     })
 
     expect(error).toBe(null)
@@ -441,20 +459,21 @@ describe('sendRequest', () => {
   })
 
   it('handles missing getSetCookie method gracefully', async () => {
-    const request = new Request(MOCK_URL)
+    const requestInit: RequestInit = {}
     const mockResponse = addUrlToResponse(
       new Response('test', {
         status: 200,
         headers: new Headers(),
       }),
-      request.url,
+      MOCK_URL,
     )
 
     globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
     const [error, result] = await sendRequest({
       isUsingProxy: false,
-      request,
+      url: MOCK_URL,
+      requestInit,
     })
 
     expect(error).toBe(null)
@@ -466,7 +485,7 @@ describe('sendRequest', () => {
 
   describe('response streaming', () => {
     it('streams text/event-stream responses', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
       const encoder = new TextEncoder()
 
       const mockStream = new ReadableStream({
@@ -484,14 +503,15 @@ describe('sendRequest', () => {
             'content-type': 'text/event-stream',
           }),
         }),
-        request.url,
+        MOCK_URL,
       )
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -516,7 +536,7 @@ describe('sendRequest', () => {
     })
 
     it('does not stream non-SSE responses', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
       const mockResponse = addUrlToResponse(
         new Response('regular response', {
           status: 200,
@@ -524,14 +544,15 @@ describe('sendRequest', () => {
             'content-type': 'application/json',
           }),
         }),
-        request.url,
+        MOCK_URL,
       )
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -542,7 +563,7 @@ describe('sendRequest', () => {
     })
 
     it('handles streaming responses without body', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
       const mockResponse = addUrlToResponse(
         new Response(null, {
           status: 200,
@@ -550,14 +571,15 @@ describe('sendRequest', () => {
             'content-type': 'text/event-stream',
           }),
         }),
-        request.url,
+        MOCK_URL,
       )
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -574,11 +596,10 @@ describe('sendRequest', () => {
     it('handles network errors', async () => {
       globalFetchSpy.mockRejectedValueOnce(new Error('Network error'))
 
-      const request = new Request(MOCK_URL)
-
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit: {},
       })
 
       expect(error).not.toBe(null)
@@ -589,11 +610,10 @@ describe('sendRequest', () => {
     it('handles fetch errors', async () => {
       globalFetchSpy.mockRejectedValueOnce(new TypeError('Failed to fetch'))
 
-      const request = new Request(MOCK_URL)
-
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit: {},
       })
 
       expect(error).not.toBe(null)
@@ -611,11 +631,10 @@ describe('sendRequest', () => {
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse as Response)
 
-      const request = new Request(MOCK_URL)
-
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit: {},
       })
 
       expect(error).not.toBe(null)
@@ -625,7 +644,7 @@ describe('sendRequest', () => {
 
   describe('proxy handling', () => {
     it('normalizes headers when using proxy', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
       const mockResponse = addUrlToResponse(
         new Response('test', {
           status: 200,
@@ -633,14 +652,15 @@ describe('sendRequest', () => {
             'x-scalar-forwarded-header': 'original-value',
           }),
         }),
-        request.url,
+        MOCK_URL,
       )
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
       const [error, result] = await sendRequest({
         isUsingProxy: true,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -651,7 +671,7 @@ describe('sendRequest', () => {
     })
 
     it('handles proxy-specific headers', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
       const mockResponse = addUrlToResponse(
         new Response('test', {
           status: 200,
@@ -659,14 +679,15 @@ describe('sendRequest', () => {
             'x-scalar-cookie': 'session=abc123',
           }),
         }),
-        request.url,
+        MOCK_URL,
       )
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
       const [error, result] = await sendRequest({
         isUsingProxy: true,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -679,7 +700,7 @@ describe('sendRequest', () => {
 
   describe('content type handling', () => {
     it('handles JSON responses', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
       const mockResponse = addUrlToResponse(
         new Response(JSON.stringify({ test: 'data' }), {
           status: 200,
@@ -687,14 +708,15 @@ describe('sendRequest', () => {
             'content-type': 'application/json',
           }),
         }),
-        request.url,
+        MOCK_URL,
       )
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -705,7 +727,7 @@ describe('sendRequest', () => {
     })
 
     it('handles text/plain responses', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
       const mockResponse = addUrlToResponse(
         new Response('plain text response', {
           status: 200,
@@ -713,14 +735,15 @@ describe('sendRequest', () => {
             'content-type': 'text/plain',
           }),
         }),
-        request.url,
+        MOCK_URL,
       )
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -731,7 +754,7 @@ describe('sendRequest', () => {
     })
 
     it('handles XML responses', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
       const xmlData = '<?xml version="1.0"?><root><item>test</item></root>'
       const mockResponse = addUrlToResponse(
         new Response(xmlData, {
@@ -740,14 +763,15 @@ describe('sendRequest', () => {
             'content-type': 'application/xml',
           }),
         }),
-        request.url,
+        MOCK_URL,
       )
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -758,7 +782,7 @@ describe('sendRequest', () => {
     })
 
     it('handles binary responses', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
       const binaryData = new Uint8Array([0x89, 0x50, 0x4e, 0x47])
       const mockResponse = addUrlToResponse(
         new Response(binaryData, {
@@ -767,14 +791,15 @@ describe('sendRequest', () => {
             'content-type': 'image/png',
           }),
         }),
-        request.url,
+        MOCK_URL,
       )
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -785,20 +810,21 @@ describe('sendRequest', () => {
     })
 
     it('defaults to text/plain when content-type is missing', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
       const mockResponse = addUrlToResponse(
         new Response('test data', {
           status: 200,
           headers: new Headers(),
         }),
-        request.url,
+        MOCK_URL,
       )
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -809,13 +835,13 @@ describe('sendRequest', () => {
     })
 
     it('uses the text/plain fallback to resolve plugin decoders when content-type is missing', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
       const mockResponse = addUrlToResponse(
         new Response('test data', {
           status: 200,
           headers: new Headers(),
         }),
-        request.url,
+        MOCK_URL,
       )
       const decode = vi.fn(() => 'decoded via plugin')
       const plugin: ClientPlugin = {
@@ -832,7 +858,8 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit,
         plugins: [plugin],
       })
 
@@ -848,12 +875,14 @@ describe('sendRequest', () => {
 
   describe('path extraction', () => {
     it('extracts path from response URL', async () => {
-      const request = new Request(`${MOCK_URL}/api/users`)
-      globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
+      const requestUrl = `${MOCK_URL}/api/users`
+      const requestInit: RequestInit = {}
+      globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(requestUrl, requestInit))
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: requestUrl,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -864,13 +893,15 @@ describe('sendRequest', () => {
     })
 
     it('includes query parameters in path', async () => {
-      const request = new Request(`${MOCK_URL}/api/users?page=1&limit=10`)
+      const requestUrl = `${MOCK_URL}/api/users?page=1&limit=10`
+      const requestInit: RequestInit = {}
 
-      globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
+      globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(requestUrl, requestInit))
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: requestUrl,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -881,13 +912,14 @@ describe('sendRequest', () => {
     })
 
     it('handles root path', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
 
-      globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
+      globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, requestInit))
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -901,14 +933,14 @@ describe('sendRequest', () => {
   describe('timestamp', () => {
     it('includes timestamp in response', async () => {
       const beforeTime = Date.now()
+      const requestInit: RequestInit = {}
 
-      const request = new Request(MOCK_URL)
-
-      globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(request))
+      globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, requestInit))
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       const afterTime = Date.now()
@@ -921,7 +953,7 @@ describe('sendRequest', () => {
 
   describe('custom cookie header (x-scalar-set-cookie)', () => {
     it('extracts a single cookie from the custom cookie header', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
       const mockResponse = addUrlToResponse(
         new Response('ok', {
           status: 200,
@@ -930,14 +962,15 @@ describe('sendRequest', () => {
             'x-scalar-set-cookie': 'sessionId=abc123; Path=/; HttpOnly',
           }),
         }),
-        request.url,
+        MOCK_URL,
       )
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -948,7 +981,7 @@ describe('sendRequest', () => {
     })
 
     it('extracts multiple cookies from the custom cookie header', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
       const mockResponse = addUrlToResponse(
         new Response('ok', {
           status: 200,
@@ -957,14 +990,15 @@ describe('sendRequest', () => {
             'x-scalar-set-cookie': 'a=1; Path=/, b=2; Path=/api; Secure',
           }),
         }),
-        request.url,
+        MOCK_URL,
       )
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -975,7 +1009,7 @@ describe('sendRequest', () => {
     })
 
     it('preserves cookie attributes like Domain, Max-Age, and SameSite', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
       const mockResponse = addUrlToResponse(
         new Response('ok', {
           status: 200,
@@ -985,14 +1019,15 @@ describe('sendRequest', () => {
               'token=xyz; Domain=.example.com; Path=/; Max-Age=3600; Secure; HttpOnly; SameSite=Strict',
           }),
         }),
-        request.url,
+        MOCK_URL,
       )
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -1009,7 +1044,7 @@ describe('sendRequest', () => {
     })
 
     it('uses custom cookies instead of getSetCookie when the header is present', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
       const mockResponse = addUrlToResponse(
         new Response('ok', {
           status: 200,
@@ -1019,7 +1054,7 @@ describe('sendRequest', () => {
             'set-cookie': 'ignored=yes; Path=/',
           }),
         }),
-        request.url,
+        MOCK_URL,
       )
 
       Object.defineProperty(mockResponse.headers, 'getSetCookie', {
@@ -1031,7 +1066,8 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -1042,7 +1078,7 @@ describe('sendRequest', () => {
     })
 
     it('falls back to getSetCookie when custom cookie header is absent', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
       const mockResponse = addUrlToResponse(
         new Response('ok', {
           status: 200,
@@ -1051,7 +1087,7 @@ describe('sendRequest', () => {
             'set-cookie': 'fallback=yes; Path=/',
           }),
         }),
-        request.url,
+        MOCK_URL,
       )
 
       Object.defineProperty(mockResponse.headers, 'getSetCookie', {
@@ -1063,7 +1099,8 @@ describe('sendRequest', () => {
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -1074,7 +1111,7 @@ describe('sendRequest', () => {
     })
 
     it('returns empty cookieHeaderKeys when neither custom nor set-cookie headers exist', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
       const mockResponse = addUrlToResponse(
         new Response('ok', {
           status: 200,
@@ -1082,14 +1119,15 @@ describe('sendRequest', () => {
             'content-type': 'text/plain',
           }),
         }),
-        request.url,
+        MOCK_URL,
       )
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -1100,7 +1138,7 @@ describe('sendRequest', () => {
     })
 
     it('extracts custom cookies from streaming responses', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
       const encoder = new TextEncoder()
 
       const mockStream = new ReadableStream({
@@ -1118,14 +1156,15 @@ describe('sendRequest', () => {
             'x-scalar-set-cookie': 'stream_sid=s123; Path=/; HttpOnly',
           }),
         }),
-        request.url,
+        MOCK_URL,
       )
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -1136,7 +1175,7 @@ describe('sendRequest', () => {
     })
 
     it('handles an empty x-scalar-set-cookie header value', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
       const mockResponse = addUrlToResponse(
         new Response('ok', {
           status: 200,
@@ -1145,14 +1184,15 @@ describe('sendRequest', () => {
             'x-scalar-set-cookie': '',
           }),
         }),
-        request.url,
+        MOCK_URL,
       )
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       expect(error).toBe(null)
@@ -1163,7 +1203,7 @@ describe('sendRequest', () => {
     })
 
     it('preserves values with special characters through the encode passthrough', async () => {
-      const request = new Request(MOCK_URL)
+      const requestInit: RequestInit = {}
       const mockResponse = addUrlToResponse(
         new Response('ok', {
           status: 200,
@@ -1172,14 +1212,15 @@ describe('sendRequest', () => {
             'x-scalar-set-cookie': 'token=abc123def456; Path=/',
           }),
         }),
-        request.url,
+        MOCK_URL,
       )
 
       globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
       const [error, result] = await sendRequest({
         isUsingProxy: false,
-        request,
+        url: MOCK_URL,
+        requestInit,
       })
 
       expect(error).toBe(null)

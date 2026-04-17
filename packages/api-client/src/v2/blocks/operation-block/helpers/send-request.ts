@@ -3,6 +3,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
 import { normalizeHeaders } from '@scalar/helpers/http/normalize-headers'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
+import type { RequestPayload } from '@scalar/workspace-store/request-example'
 import * as cookie from 'cookie'
 import { parseSetCookie } from 'set-cookie-parser'
 
@@ -64,20 +65,17 @@ const NO_BODY_STATUS_CODES = [204, 205, 304]
  */
 export const sendRequest = async ({
   isUsingProxy,
-  url,
-  requestInit,
+  requestPayload,
   plugins = [],
 }: {
   isUsingProxy: boolean
-  url: string
-  requestInit: RequestInit
+  requestPayload: RequestPayload
   /** Registered client plugins for custom content type handling */
   plugins?: ClientPlugin[]
 }): Promise<
   ErrorResponse<{
     response: ResponseInstance
-    url: string
-    requestInit: RequestInit
+    requestPayload: RequestPayload
     timestamp: number
     originalResponse: Response
   }>
@@ -85,7 +83,7 @@ export const sendRequest = async ({
   try {
     // Execute the request and measure duration
     const startTime = performance.now()
-    const response = await fetch(url, requestInit)
+    const response = await fetch(...requestPayload)
     const endTime = performance.now()
     const timestamp = Date.now()
     const duration = endTime - startTime
@@ -96,7 +94,7 @@ export const sendRequest = async ({
     const responseUrl = new URL(response.url)
     const fullPath = responseUrl.pathname + responseUrl.search
     const statusText = response.statusText || httpStatusCodes[response.status]?.name || ''
-    const method = requestInit.method as HttpMethod
+    const method = (requestPayload[1].method ?? 'GET') as HttpMethod
     const shouldSkipBody = NO_BODY_STATUS_CODES.includes(response.status)
 
     /**
@@ -107,8 +105,7 @@ export const sendRequest = async ({
     if (contentType?.startsWith('text/event-stream') && response.body) {
       return buildStreamingResponse({
         response,
-        url,
-        requestInit,
+        requestPayload,
         timestamp,
         duration,
         responseHeaders,
@@ -120,8 +117,7 @@ export const sendRequest = async ({
 
     return buildStandardResponse({
       response,
-      url,
-      requestInit,
+      requestPayload,
       timestamp,
       duration,
       responseHeaders,
@@ -168,8 +164,7 @@ const getCustomCookie = (response: Response): string[] | null => {
  */
 const buildStreamingResponse = ({
   response,
-  url,
-  requestInit,
+  requestPayload,
   timestamp,
   duration,
   responseHeaders,
@@ -178,8 +173,7 @@ const buildStreamingResponse = ({
   fullPath,
 }: {
   response: Response
-  url: string
-  requestInit: RequestInit
+  requestPayload: RequestPayload
   timestamp: number
   duration: number
   responseHeaders: Record<string, string>
@@ -188,8 +182,7 @@ const buildStreamingResponse = ({
   fullPath: string
 }): ErrorResponse<{
   response: ResponseInstance
-  url: string
-  requestInit: RequestInit
+  requestPayload: RequestPayload
   timestamp: number
   originalResponse: Response
 }> => {
@@ -206,8 +199,7 @@ const buildStreamingResponse = ({
     null,
     {
       timestamp,
-      url,
-      requestInit,
+      requestPayload,
       response: {
         ...normalizedResponse,
         headers: responseHeaders,
@@ -228,8 +220,7 @@ const buildStreamingResponse = ({
  */
 const buildStandardResponse = async ({
   response,
-  url,
-  requestInit,
+  requestPayload,
   timestamp,
   duration,
   responseHeaders,
@@ -241,8 +232,7 @@ const buildStandardResponse = async ({
   plugins,
 }: {
   response: Response
-  url: string
-  requestInit: RequestInit
+  requestPayload: RequestPayload
   timestamp: number
   duration: number
   responseHeaders: Record<string, string>
@@ -255,8 +245,7 @@ const buildStandardResponse = async ({
 }): Promise<
   ErrorResponse<{
     response: ResponseInstance
-    url: string
-    requestInit: RequestInit
+    requestPayload: RequestPayload
     timestamp: number
     originalResponse: Response
   }>
@@ -289,8 +278,7 @@ const buildStandardResponse = async ({
     null,
     {
       timestamp,
-      url,
-      requestInit,
+      requestPayload,
       response: {
         ...normalizedResponse,
         headers: responseHeaders,

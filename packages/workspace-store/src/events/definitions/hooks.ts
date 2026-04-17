@@ -1,4 +1,5 @@
 import type { OperationExampleMeta } from '@/events/definitions/operation'
+import type { RequestPayload } from '@/request-example/builder/build-request'
 
 /**
  * Event definitions for hooking into the API client lifecycle.
@@ -28,7 +29,7 @@ export type HooksEvents = {
     payload:
       | {
           response: Response
-          request: Request
+          requestPayload: RequestPayload
           duration: number
           timestamp: number
         }

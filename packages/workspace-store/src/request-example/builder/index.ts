@@ -1,6 +1,6 @@
 export { getExampleFromBody } from './body/get-request-body-example'
 export { getSelectedBodyContentType } from './body/get-selected-body-content-type'
-export { buildRequest } from './build-request'
+export { type RequestPayload, buildRequest } from './build-request'
 export { deSerializeParameter } from './header/de-serialize-parameter'
 export { filterGlobalCookie } from './header/filter-global-cookies'
 export {

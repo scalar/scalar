@@ -109,6 +109,7 @@ import {
   getEnvironmentVariables,
   requestFactory,
   type MergedSecuritySchemes,
+  type RequestPayload,
   type SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -181,7 +182,7 @@ const { toast } = useToasts()
 // Refs
 const abortController = ref<AbortController | null>(null)
 const response = ref<ResponseInstance | null>(null)
-const requestPayload = ref<[string, RequestInit] | null>(null)
+const request = ref<RequestPayload | null>(null)
 
 /** Cancel the request */
 const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
@@ -276,26 +277,30 @@ const handleExecute = async () => {
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
     isUsingProxy: requestResult.result.isUsingProxy,
-    url: requestResult.result.url,
-    requestInit: requestResult.result.requestInit,
+    requestPayload: requestResult.result.requestPayload,
     plugins,
   })
 
   if (sendResult) {
-    // Execute the responseReceived hook
-    await executeHook(
-      {
-        response: sendResult.originalResponse.clone(),
-        requestBuilder,
-        url: sendResult.url,
-        requestInit: sendResult.requestInit,
-        document,
-        operation,
-        variablesStore,
-      },
-      'responseReceived',
-      plugins,
-    )
+    try {
+      // Execute the responseReceived hook
+      await executeHook(
+        {
+          response: sendResult.originalResponse.clone(),
+          requestBuilder,
+          // TODO: this still uses request to be backwards compatible with the old hook but we will deprecate
+          // and remove it once the requestBuilder is fully adopted. Wrapped with a try catch in case of get with body
+          request: new Request(...sendResult.requestPayload),
+          document,
+          operation,
+          variablesStore,
+        },
+        'responseReceived',
+        plugins,
+      )
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   // Execute the hooks
@@ -303,8 +308,7 @@ const handleExecute = async () => {
     payload: sendResult
       ? {
           response: sendResult.originalResponse.clone(),
-          url: sendResult.url,
-          requestInit: sendResult.requestInit,
+          requestPayload: sendResult.requestPayload,
           duration: sendResult.response.duration,
           timestamp: sendResult.timestamp,
         }
@@ -319,7 +323,7 @@ const handleExecute = async () => {
   if (sendError) {
     // clean up the response and request
     response.value = null
-    requestPayload.value = null
+    request.value = null
     abortController.value = null
 
     toast(sendError.message, 'error')
@@ -328,13 +332,13 @@ const handleExecute = async () => {
 
   // Store the response
   response.value = sendResult.response
-  requestPayload.value = [sendResult.url, sendResult.requestInit]
+  request.value = sendResult.requestPayload
 
   // Cache non-streaming responses so they can be restored when navigating back
   if (!isStreamingResponse(sendResult.response)) {
     responseCache.set(getOperationExampleKey(method, path, exampleKey), {
       response: sendResult.response,
-      request: sendResult.request,
+      request: sendResult.requestPayload,
     })
   }
 }
