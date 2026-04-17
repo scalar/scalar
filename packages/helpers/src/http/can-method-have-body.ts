@@ -1,9 +1,27 @@
+import { isElectron } from '@/general/is-electron'
+
 import type { HttpMethod } from './http-methods'
 
 /** HTTP Methods which can have a body */
-const BODY_METHODS = ['post', 'put', 'patch', 'get', 'delete'] as const satisfies HttpMethod[]
+const BODY_METHODS = ['post', 'put', 'patch', 'delete'] as const satisfies HttpMethod[]
 type BodyMethod = (typeof BODY_METHODS)[number]
 
-/** Makes a check to see if this method CAN have a body */
-export const canMethodHaveBody = (method: HttpMethod): method is BodyMethod =>
-  BODY_METHODS.includes(method.toLowerCase() as BodyMethod)
+/** HTTP Methods which can have a body when running in Electron, where the fetch implementation allows bodies on GET. */
+const ELECTRON_BODY_METHODS = [...BODY_METHODS, 'get'] as const satisfies HttpMethod[]
+type ElectronBodyMethod = (typeof ELECTRON_BODY_METHODS)[number]
+
+/**
+ * Makes a check to see if this method CAN have a body.
+ *
+ * When running inside Electron, GET requests are also allowed to have a body because the underlying
+ * undici implementation does not reject it, which matches the behavior users expect from desktop API clients.
+ */
+export const canMethodHaveBody = (method: HttpMethod): method is BodyMethod | ElectronBodyMethod => {
+  const normalized = method.toLowerCase() as ElectronBodyMethod
+
+  if (isElectron()) {
+    return ELECTRON_BODY_METHODS.includes(normalized)
+  }
+
+  return BODY_METHODS.includes(normalized as BodyMethod)
+}
