@@ -30,31 +30,32 @@ describe('buildRequest', () => {
     vi.restoreAllMocks()
   })
 
-  it('returns a Request, AbortController, and isUsingProxy flag', () => {
+  it('returns a url, requestInit, AbortController, and isUsingProxy flag', () => {
     const factory = createFactory()
-    const { request, controller, isUsingProxy } = buildRequest(factory, { envVariables: {} })
+    const { url, requestInit, controller, isUsingProxy } = buildRequest(factory, { envVariables: {} })
 
-    expect(request).toBeInstanceOf(Request)
+    expect(url).toBeTypeOf('string')
+    expect(requestInit).toBeTypeOf('object')
     expect(controller).toBeInstanceOf(AbortController)
     expect(isUsingProxy).toBe(false)
-    expect(request.signal.aborted).toBe(false)
+    expect(requestInit.signal?.aborted).toBe(false)
     controller.abort()
-    expect(request.signal.aborted).toBe(true)
+    expect(requestInit.signal?.aborted).toBe(true)
   })
 
   it('applies environment replacement to header values from the factory', () => {
     const headers = new Headers()
     headers.set('Authorization', 'Bearer {{token}}')
 
-    const { request } = buildRequest(createFactory({ headers }), {
+    const { requestInit } = buildRequest(createFactory({ headers }), {
       envVariables: { token: 'abc' },
     })
 
-    expect(request.headers.get('Authorization')).toBe('Bearer abc')
+    expect((requestInit.headers as Headers).get('Authorization')).toBe('Bearer abc')
   })
 
-  it('replaces environment variables in raw string bodies', async () => {
-    const { request } = buildRequest(
+  it('replaces environment variables in raw string bodies', () => {
+    const { requestInit } = buildRequest(
       createFactory({
         method: 'POST',
         body: { mode: 'raw', value: '{"id":"{{id}}"}' },
@@ -62,35 +63,34 @@ describe('buildRequest', () => {
       { envVariables: { id: '42' } },
     )
 
-    expect(request.bodyUsed).toBe(false)
-    expect(await request.text()).toBe('{"id":"42"}')
+    expect(requestInit.body).toBe('{"id":"42"}')
   })
 
   it('passes raw File and Blob bodies through without string replacement', async () => {
     const file = new File(['payload'], 'data.bin', { type: 'application/octet-stream' })
-    const { request: fileReq } = buildRequest(
+    const { requestInit: fileInit } = buildRequest(
       createFactory({
         method: 'POST',
         body: { mode: 'raw', value: file },
       }),
       { envVariables: { unused: 'x' } },
     )
-    expect(await fileReq.arrayBuffer()).toEqual(await file.arrayBuffer())
+    expect(await (fileInit.body as File).arrayBuffer()).toEqual(await file.arrayBuffer())
 
     const blob = new Blob(['hello'])
-    const { request: blobReq } = buildRequest(
+    const { requestInit: blobInit } = buildRequest(
       createFactory({
         method: 'POST',
         body: { mode: 'raw', value: blob },
       }),
       { envVariables: {} },
     )
-    expect(await blobReq.text()).toBe('hello')
+    expect(await (blobInit.body as Blob).text()).toBe('hello')
   })
 
   it('appends blob parts in multipart bodies without altering the blob bytes', async () => {
     const blob = new Blob(['blob-data'], { type: 'text/plain' })
-    const { request } = buildRequest(
+    const { url, requestInit } = buildRequest(
       createFactory({
         method: 'POST',
         body: {
@@ -101,7 +101,7 @@ describe('buildRequest', () => {
       { envVariables: {} },
     )
 
-    const form = await request.formData()
+    const form = await new Request(url, requestInit).formData()
     const part = form.get('payload')
     expect(part).toBeInstanceOf(Blob)
     expect(await (part as Blob).text()).toBe('blob-data')
@@ -109,7 +109,7 @@ describe('buildRequest', () => {
 
   it('builds multipart form bodies with env substitution for text parts only', async () => {
     const file = new File(['f'], 'x.txt', { type: 'text/plain' })
-    const { request } = buildRequest(
+    const { url, requestInit } = buildRequest(
       createFactory({
         method: 'POST',
         body: {
@@ -123,13 +123,13 @@ describe('buildRequest', () => {
       { envVariables: { k: 'field', v: 'value' } },
     )
 
-    const form = await request.formData()
+    const form = await new Request(url, requestInit).formData()
     expect(form.get('field')).toBe('value')
     expect(form.get('upload')).toBeInstanceOf(File)
   })
 
-  it('builds urlencoded bodies with env substitution', async () => {
-    const { request } = buildRequest(
+  it('builds urlencoded bodies with env substitution', () => {
+    const { requestInit } = buildRequest(
       createFactory({
         method: 'POST',
         body: {
@@ -143,53 +143,51 @@ describe('buildRequest', () => {
       { envVariables: { a: 'alpha', b: 'beta' } },
     )
 
-    expect(request.headers.get('Content-Type')).toContain('application/x-www-form-urlencoded')
-    const text = await request.text()
-    const params = new URLSearchParams(text)
+    const params = requestInit.body as URLSearchParams
     expect(params.get('alpha')).toBe('beta')
     expect(params.get('c')).toBe('d')
   })
 
   it('sets null body when the factory has no body', () => {
-    const { request } = buildRequest(createFactory({ body: null }), { envVariables: {} })
-    expect(request.body).toBe(null)
+    const { requestInit } = buildRequest(createFactory({ body: null }), { envVariables: {} })
+    expect(requestInit.body).toBe(null)
   })
 
   it('sets security API key headers using env-substituted header names and values', () => {
-    const { request } = buildRequest(
+    const { requestInit } = buildRequest(
       createFactory({
         security: [{ in: 'header', name: '{{hdr}}', value: '{{tok}}' }],
       }),
       { envVariables: { hdr: 'X-Key', tok: 'secret' } },
     )
 
-    expect(request.headers.get('X-Key')).toBe('secret')
+    expect((requestInit.headers as Headers).get('X-Key')).toBe('secret')
   })
 
   it('prefixes Basic auth with base64-encoded credentials after env substitution', () => {
-    const { request } = buildRequest(
+    const { requestInit } = buildRequest(
       createFactory({
         security: [{ in: 'header', name: 'Authorization', format: 'basic', value: '{{u}}:{{p}}' }],
       }),
       { envVariables: { u: 'alice', p: 'bob' } },
     )
 
-    expect(request.headers.get('Authorization')).toBe(`Basic ${encodeBase64('alice:bob')}`)
+    expect((requestInit.headers as Headers).get('Authorization')).toBe(`Basic ${encodeBase64('alice:bob')}`)
   })
 
   it('prefixes bearer tokens after env substitution', () => {
-    const { request } = buildRequest(
+    const { requestInit } = buildRequest(
       createFactory({
         security: [{ in: 'header', name: 'Authorization', format: 'bearer', value: '{{jwt}}' }],
       }),
       { envVariables: { jwt: 'eyJ' } },
     )
 
-    expect(request.headers.get('Authorization')).toBe('Bearer eyJ')
+    expect((requestInit.headers as Headers).get('Authorization')).toBe('Bearer eyJ')
   })
 
   it('merges security query parameters with env substitution into the request URL', () => {
-    const { request } = buildRequest(
+    const { url } = buildRequest(
       createFactory({
         security: [{ in: 'query', name: '{{q}}', value: '{{v}}' }],
         query: new URLSearchParams(),
@@ -197,15 +195,14 @@ describe('buildRequest', () => {
       { envVariables: { q: 'token', v: 'abc' } },
     )
 
-    const url = new URL(request.url)
-    expect(url.searchParams.get('token')).toBe('abc')
+    expect(new URL(url).searchParams.get('token')).toBe('abc')
   })
 
   it('lets operation security query params override query params when names collide', () => {
     const query = new URLSearchParams()
     query.set('token', 'from-operation')
 
-    const { request } = buildRequest(
+    const { url } = buildRequest(
       createFactory({
         security: [{ in: 'query', name: 'token', value: 'from-security' }],
         query,
@@ -213,18 +210,18 @@ describe('buildRequest', () => {
       { envVariables: {} },
     )
 
-    expect(new URL(request.url).searchParams.get('token')).toBe('from-security')
+    expect(new URL(url).searchParams.get('token')).toBe('from-security')
   })
 
   it('substitutes environment variables in operation query keys and values', () => {
     const query = new URLSearchParams()
     query.set('{{k}}', '{{v}}')
 
-    const { request } = buildRequest(createFactory({ query }), {
+    const { url } = buildRequest(createFactory({ query }), {
       envVariables: { k: 'sort', v: 'name' },
     })
 
-    expect(new URL(request.url).searchParams.get('sort')).toBe('name')
+    expect(new URL(url).searchParams.get('sort')).toBe('name')
   })
 
   it('preserves repeated query parameters when building the request URL', () => {
@@ -234,15 +231,15 @@ describe('buildRequest', () => {
     query.append('bbox', '18')
     query.append('bbox', '52')
 
-    const { request } = buildRequest(createFactory({ query }), {
+    const { url } = buildRequest(createFactory({ query }), {
       envVariables: {},
     })
 
-    expect(new URL(request.url).searchParams.getAll('bbox')).toEqual(['13', '48', '18', '52'])
+    expect(new URL(url).searchParams.getAll('bbox')).toEqual(['13', '48', '18', '52'])
   })
 
   it('encodes path variables after env substitution and substitutes them into the path', () => {
-    const { request } = buildRequest(
+    const { url } = buildRequest(
       createFactory({
         path: {
           raw: '/users/{id}/posts',
@@ -252,11 +249,11 @@ describe('buildRequest', () => {
       { envVariables: { userId: 'a/b' } },
     )
 
-    expect(request.url).toContain('/users/a%2Fb/posts')
+    expect(url).toContain('/users/a%2Fb/posts')
   })
 
   it('replaces environment variables in baseUrl before merging with the path', () => {
-    const { request } = buildRequest(
+    const { url } = buildRequest(
       createFactory({
         baseUrl: 'https://{{host}}.example.com',
         path: { raw: '/v1', variables: {} },
@@ -264,14 +261,14 @@ describe('buildRequest', () => {
       { envVariables: { host: 'staging-api' } },
     )
 
-    expect(request.url.startsWith('https://staging-api.example.com/v1')).toBe(true)
+    expect(url.startsWith('https://staging-api.example.com/v1')).toBe(true)
   })
 
   it('merges an existing Cookie header with cookies from the factory list', () => {
     const headers = new Headers()
     headers.set('Cookie', 'existing=1')
 
-    const { request } = buildRequest(
+    const { requestInit } = buildRequest(
       createFactory({
         headers,
         cookies: [{ name: 'next', value: '2', domain: 'api.example.com' }],
@@ -281,24 +278,24 @@ describe('buildRequest', () => {
       { envVariables: {} },
     )
 
-    const cookie = request.headers.get('Cookie') ?? ''
+    const cookie = (requestInit.headers as Headers).get('Cookie') ?? ''
     expect(cookie).toContain('existing=1')
     expect(cookie).toContain('next=2')
   })
 
   it('includes security scheme cookies in the Cookie header', () => {
-    const { request } = buildRequest(
+    const { requestInit } = buildRequest(
       createFactory({
         security: [{ in: 'cookie', name: 'session', value: 'sid-1' }],
       }),
       { envVariables: {} },
     )
 
-    expect(request.headers.get('Cookie')).toContain('session=sid-1')
+    expect((requestInit.headers as Headers).get('Cookie')).toContain('session=sid-1')
   })
 
   it('filters disabled cookies out of the Cookie header', () => {
-    const { request } = buildRequest(
+    const { requestInit } = buildRequest(
       createFactory({
         cookies: [
           { name: 'a', value: '1', domain: 'api.example.com', isDisabled: false },
@@ -310,13 +307,13 @@ describe('buildRequest', () => {
       { envVariables: {} },
     )
 
-    const cookie = request.headers.get('Cookie') ?? ''
+    const cookie = (requestInit.headers as Headers).get('Cookie') ?? ''
     expect(cookie).toContain('a=1')
     expect(cookie).not.toContain('b=2')
   })
 
   it('substitutes environment variables in cookie names and values before building the header', () => {
-    const { request } = buildRequest(
+    const { requestInit } = buildRequest(
       createFactory({
         cookies: [{ name: '{{n}}', value: '{{v}}', domain: 'api.example.com' }],
         baseUrl: 'https://api.example.com',
@@ -325,11 +322,11 @@ describe('buildRequest', () => {
       { envVariables: { n: 'x', v: 'y' } },
     )
 
-    expect(request.headers.get('Cookie')).toContain('x=y')
+    expect((requestInit.headers as Headers).get('Cookie')).toContain('x=y')
   })
 
   it('uses X-Scalar-Cookie when the proxy is used', () => {
-    const { request, isUsingProxy } = buildRequest(
+    const { requestInit, isUsingProxy } = buildRequest(
       createFactory({
         proxyUrl: 'https://proxy.scalar.com',
         baseUrl: 'https://api.example.com',
@@ -340,12 +337,12 @@ describe('buildRequest', () => {
     )
 
     expect(isUsingProxy).toBe(true)
-    expect(request.headers.get('X-Scalar-Cookie')).toContain('c=1')
-    expect(request.headers.get('Cookie')).toBe(null)
+    expect((requestInit.headers as Headers).get('X-Scalar-Cookie')).toContain('c=1')
+    expect((requestInit.headers as Headers).get('Cookie')).toBe(null)
   })
 
   it('uses X-Scalar-Cookie when options.isElectron is true', () => {
-    const { request } = buildRequest(
+    const { requestInit } = buildRequest(
       createFactory({
         options: { isElectron: true },
         baseUrl: 'https://api.example.com',
@@ -355,11 +352,11 @@ describe('buildRequest', () => {
       { envVariables: {} },
     )
 
-    expect(request.headers.get('X-Scalar-Cookie')).toContain('c=1')
+    expect((requestInit.headers as Headers).get('X-Scalar-Cookie')).toContain('c=1')
   })
 
   it('rewrites the request URL through the proxy when shouldUseProxy is true', () => {
-    const { request, isUsingProxy } = buildRequest(
+    const { url, isUsingProxy } = buildRequest(
       createFactory({
         proxyUrl: 'https://proxy.scalar.com',
         baseUrl: 'https://api.example.com',
@@ -369,16 +366,16 @@ describe('buildRequest', () => {
     )
 
     expect(isUsingProxy).toBe(true)
-    const url = new URL(request.url)
-    expect(`${url.origin}${url.pathname}`).toMatch(/^https:\/\/proxy\.scalar\.com\/?$/)
-    expect(url.searchParams.get('scalar_url')).toContain('https://api.example.com')
+    const parsed = new URL(url)
+    expect(`${parsed.origin}${parsed.pathname}`).toMatch(/^https:\/\/proxy\.scalar\.com\/?$/)
+    expect(parsed.searchParams.get('scalar_url')).toContain('https://api.example.com')
   })
 
   it('applies allowReserved decoding for marked query parameter keys', () => {
     const query = new URLSearchParams()
     query.set('sort', 'name:asc')
 
-    const { request } = buildRequest(
+    const { url } = buildRequest(
       createFactory({
         query,
         allowedReservedQueryParameters: new Set(['sort']),
@@ -386,12 +383,12 @@ describe('buildRequest', () => {
       { envVariables: {} },
     )
 
-    expect(request.url).toContain('sort=name:asc')
-    expect(new URL(request.url).searchParams.get('sort')).toBe('name:asc')
+    expect(url).toContain('sort=name:asc')
+    expect(new URL(url).searchParams.get('sort')).toBe('name:asc')
   })
 
   it('skips security header when disableSecurity is true', () => {
-    const { request } = buildRequest(
+    const { requestInit } = buildRequest(
       createFactory({
         security: [{ in: 'header', name: 'Authorization', format: 'bearer', value: 'my-token' }],
         options: { disableSecurity: true },
@@ -399,11 +396,11 @@ describe('buildRequest', () => {
       { envVariables: {} },
     )
 
-    expect(request.headers.get('Authorization')).toBe(null)
+    expect((requestInit.headers as Headers).get('Authorization')).toBe(null)
   })
 
   it('skips security query params when disableSecurity is true', () => {
-    const { request } = buildRequest(
+    const { url } = buildRequest(
       createFactory({
         security: [{ in: 'query', name: 'api_key', value: 'secret' }],
         options: { disableSecurity: true },
@@ -411,11 +408,11 @@ describe('buildRequest', () => {
       { envVariables: {} },
     )
 
-    expect(new URL(request.url).searchParams.get('api_key')).toBe(null)
+    expect(new URL(url).searchParams.get('api_key')).toBe(null)
   })
 
   it('skips security cookies when disableSecurity is true', () => {
-    const { request } = buildRequest(
+    const { requestInit } = buildRequest(
       createFactory({
         security: [{ in: 'cookie', name: 'session', value: 'sid-1' }],
         options: { disableSecurity: true },
@@ -423,11 +420,11 @@ describe('buildRequest', () => {
       { envVariables: {} },
     )
 
-    expect(request.headers.get('Cookie')).toBe(null)
+    expect((requestInit.headers as Headers).get('Cookie')).toBe(null)
   })
 
   it('still applies security when disableSecurity is false', () => {
-    const { request } = buildRequest(
+    const { requestInit } = buildRequest(
       createFactory({
         security: [{ in: 'header', name: 'Authorization', format: 'bearer', value: 'tok' }],
         options: { disableSecurity: false },
@@ -435,25 +432,25 @@ describe('buildRequest', () => {
       { envVariables: {} },
     )
 
-    expect(request.headers.get('Authorization')).toBe('Bearer tok')
+    expect((requestInit.headers as Headers).get('Authorization')).toBe('Bearer tok')
   })
 
   it('still applies security when options is undefined', () => {
-    const { request } = buildRequest(
+    const { requestInit } = buildRequest(
       createFactory({
         security: [{ in: 'header', name: 'X-Key', value: 'val' }],
       }),
       { envVariables: {} },
     )
 
-    expect(request.headers.get('X-Key')).toBe('val')
+    expect((requestInit.headers as Headers).get('X-Key')).toBe('val')
   })
 
   it('preserves non-security headers when disableSecurity is true', () => {
     const headers = new Headers()
     headers.set('X-Custom', 'keep-me')
 
-    const { request } = buildRequest(
+    const { requestInit } = buildRequest(
       createFactory({
         headers,
         security: [{ in: 'header', name: 'Authorization', format: 'bearer', value: 'drop-me' }],
@@ -462,12 +459,12 @@ describe('buildRequest', () => {
       { envVariables: {} },
     )
 
-    expect(request.headers.get('X-Custom')).toBe('keep-me')
-    expect(request.headers.get('Authorization')).toBe(null)
+    expect((requestInit.headers as Headers).get('X-Custom')).toBe('keep-me')
+    expect((requestInit.headers as Headers).get('Authorization')).toBe(null)
   })
 
   it('preserves non-security cookies when disableSecurity is true', () => {
-    const { request } = buildRequest(
+    const { requestInit } = buildRequest(
       createFactory({
         cookies: [{ name: 'app', value: 'keep', domain: 'api.example.com' }],
         security: [{ in: 'cookie', name: 'auth', value: 'drop' }],
@@ -478,13 +475,13 @@ describe('buildRequest', () => {
       { envVariables: {} },
     )
 
-    const cookie = request.headers.get('Cookie') ?? ''
+    const cookie = (requestInit.headers as Headers).get('Cookie') ?? ''
     expect(cookie).toContain('app=keep')
     expect(cookie).not.toContain('auth=drop')
   })
 
-  it('forwards cache mode and uppercases the method on the Request', () => {
-    const { request } = buildRequest(
+  it('forwards cache mode and uppercases the method in the requestInit', () => {
+    const { requestInit } = buildRequest(
       createFactory({
         method: 'patch',
         cache: 'no-store',
@@ -492,12 +489,12 @@ describe('buildRequest', () => {
       { envVariables: {} },
     )
 
-    expect(request.method).toBe('PATCH')
-    expect(request.cache).toBe('no-store')
+    expect(requestInit.method).toBe('PATCH')
+    expect(requestInit.cache).toBe('no-store')
   })
 
   it('appends multiple security headers with the same name instead of overwriting', () => {
-    const { request } = buildRequest(
+    const { requestInit } = buildRequest(
       createFactory({
         security: [
           { in: 'header', name: 'Authorization', format: 'bearer', value: 'token-a' },
@@ -507,13 +504,13 @@ describe('buildRequest', () => {
       { envVariables: {} },
     )
 
-    const values = request.headers.get('Authorization')
+    const values = (requestInit.headers as Headers).get('Authorization')
     expect(values).toContain('Bearer token-a')
     expect(values).toContain('Bearer token-b')
   })
 
   it('appends multiple security query params with the same name instead of overwriting', () => {
-    const { request } = buildRequest(
+    const { url } = buildRequest(
       createFactory({
         security: [
           { in: 'query', name: 'api_key', value: 'key-1' },
@@ -523,15 +520,14 @@ describe('buildRequest', () => {
       { envVariables: {} },
     )
 
-    const url = new URL(request.url)
-    expect(url.searchParams.getAll('api_key')).toStrictEqual(['key-1', 'key-2'])
+    expect(new URL(url).searchParams.getAll('api_key')).toStrictEqual(['key-1', 'key-2'])
   })
 
   it('preserves existing header values when appending security headers', () => {
     const headers = new Headers()
     headers.set('X-Custom', 'existing')
 
-    const { request } = buildRequest(
+    const { requestInit } = buildRequest(
       createFactory({
         headers,
         security: [{ in: 'header', name: 'X-Custom', value: 'from-security' }],
@@ -539,7 +535,7 @@ describe('buildRequest', () => {
       { envVariables: {} },
     )
 
-    const values = request.headers.get('X-Custom')
+    const values = (requestInit.headers as Headers).get('X-Custom')
     expect(values).toContain('existing')
     expect(values).toContain('from-security')
   })

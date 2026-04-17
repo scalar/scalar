@@ -5,16 +5,33 @@ import { encode as encodeBase64 } from 'js-base64'
 import { buildRequestCookieHeader } from '@/request-example/builder/header/build-request-cookie-header'
 import { applyAllowReservedToUrl } from '@/request-example/builder/helpers/apply-allow-reserved-to-url'
 import type { RequestFactory } from '@/request-example/builder/request-factory'
-import { contextFunctions, isContextFunctionName } from '@/request-example/functions'
 import { resolveRequestFactoryUrl } from '@/request-example/builder/resolve-request-factory-url'
+import { contextFunctions, isContextFunctionName } from '@/request-example/functions'
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
+
+/**
+ * Built request response
+ *
+ * We no longer return a Request object, but a tuple of [url, init] that maps directly to the fetch() argument list so
+ * we can do things that the browser doesn't allow like GET + body
+ * */
+export type BuildRequestResponse = {
+  /** The final URL to send the request to */
+  url: string
+  /** Create a new request init object with the replaced values ready to be sent to the server */
+  requestInit: RequestInit
+  /** The abort controller */
+  controller: AbortController
+  /** The flag indicating if the request is being proxied */
+  isUsingProxy: boolean
+}
 
 export const buildRequest = (
   request: RequestFactory,
   options: {
     envVariables: Record<string, string>
   },
-) => {
+): BuildRequestResponse => {
   /** Replace the value with the environment variable or context function */
   const replace = (value: string): string | null => {
     if (isContextFunctionName(value)) {
@@ -151,8 +168,8 @@ export const buildRequest = (
   const finalUrl = isUsingProxy ? redirectToProxy(request.proxyUrl, encodedUrl) : encodedUrl
 
   return {
-    /** Create a new request object with the replaced values ready to be sent to the server */
-    request: new Request(finalUrl, {
+    url: finalUrl,
+    requestInit: {
       /**
        * Ensure that all methods are uppercased (though only needed for patch)
        *
@@ -163,10 +180,8 @@ export const buildRequest = (
       body,
       cache: request.cache,
       signal: controller.signal,
-    }),
-    /** The abort controller */
+    },
     controller,
-    /** The flag indicating if the request is being proxied */
     isUsingProxy,
   }
 }

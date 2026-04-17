@@ -181,7 +181,7 @@ const { toast } = useToasts()
 // Refs
 const abortController = ref<AbortController | null>(null)
 const response = ref<ResponseInstance | null>(null)
-const request = ref<Request | null>(null)
+const requestPayload = ref<[string, RequestInit] | null>(null)
 
 /** Cancel the request */
 const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
@@ -276,7 +276,8 @@ const handleExecute = async () => {
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
     isUsingProxy: requestResult.result.isUsingProxy,
-    request: requestResult.result.request,
+    url: requestResult.result.url,
+    requestInit: requestResult.result.requestInit,
     plugins,
   })
 
@@ -286,7 +287,8 @@ const handleExecute = async () => {
       {
         response: sendResult.originalResponse.clone(),
         requestBuilder,
-        request: sendResult.request.clone(),
+        url: sendResult.url,
+        requestInit: sendResult.requestInit,
         document,
         operation,
         variablesStore,
@@ -301,7 +303,8 @@ const handleExecute = async () => {
     payload: sendResult
       ? {
           response: sendResult.originalResponse.clone(),
-          request: sendResult.request.clone(),
+          url: sendResult.url,
+          requestInit: sendResult.requestInit,
           duration: sendResult.response.duration,
           timestamp: sendResult.timestamp,
         }
@@ -316,7 +319,7 @@ const handleExecute = async () => {
   if (sendError) {
     // clean up the response and request
     response.value = null
-    request.value = null
+    requestPayload.value = null
     abortController.value = null
 
     toast(sendError.message, 'error')
@@ -325,7 +328,7 @@ const handleExecute = async () => {
 
   // Store the response
   response.value = sendResult.response
-  request.value = sendResult.request
+  requestPayload.value = [sendResult.url, sendResult.requestInit]
 
   // Cache non-streaming responses so they can be restored when navigating back
   if (!isStreamingResponse(sendResult.response)) {

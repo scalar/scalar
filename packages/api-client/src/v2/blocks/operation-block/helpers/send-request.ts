@@ -64,17 +64,20 @@ const NO_BODY_STATUS_CODES = [204, 205, 304]
  */
 export const sendRequest = async ({
   isUsingProxy,
-  request,
+  url,
+  requestInit,
   plugins = [],
 }: {
   isUsingProxy: boolean
-  request: Request
+  url: string
+  requestInit: RequestInit
   /** Registered client plugins for custom content type handling */
   plugins?: ClientPlugin[]
 }): Promise<
   ErrorResponse<{
     response: ResponseInstance
-    request: Request
+    url: string
+    requestInit: RequestInit
     timestamp: number
     originalResponse: Response
   }>
@@ -82,7 +85,7 @@ export const sendRequest = async ({
   try {
     // Execute the request and measure duration
     const startTime = performance.now()
-    const response = await fetch(request.clone())
+    const response = await fetch(url, requestInit)
     const endTime = performance.now()
     const timestamp = Date.now()
     const duration = endTime - startTime
@@ -93,7 +96,7 @@ export const sendRequest = async ({
     const responseUrl = new URL(response.url)
     const fullPath = responseUrl.pathname + responseUrl.search
     const statusText = response.statusText || httpStatusCodes[response.status]?.name || ''
-    const method = request.method as HttpMethod
+    const method = requestInit.method as HttpMethod
     const shouldSkipBody = NO_BODY_STATUS_CODES.includes(response.status)
 
     /**
@@ -104,7 +107,8 @@ export const sendRequest = async ({
     if (contentType?.startsWith('text/event-stream') && response.body) {
       return buildStreamingResponse({
         response,
-        request,
+        url,
+        requestInit,
         timestamp,
         duration,
         responseHeaders,
@@ -116,7 +120,8 @@ export const sendRequest = async ({
 
     return buildStandardResponse({
       response,
-      request,
+      url,
+      requestInit,
       timestamp,
       duration,
       responseHeaders,
@@ -163,7 +168,8 @@ const getCustomCookie = (response: Response): string[] | null => {
  */
 const buildStreamingResponse = ({
   response,
-  request,
+  url,
+  requestInit,
   timestamp,
   duration,
   responseHeaders,
@@ -172,7 +178,8 @@ const buildStreamingResponse = ({
   fullPath,
 }: {
   response: Response
-  request: Request
+  url: string
+  requestInit: RequestInit
   timestamp: number
   duration: number
   responseHeaders: Record<string, string>
@@ -181,7 +188,8 @@ const buildStreamingResponse = ({
   fullPath: string
 }): ErrorResponse<{
   response: ResponseInstance
-  request: Request
+  url: string
+  requestInit: RequestInit
   timestamp: number
   originalResponse: Response
 }> => {
@@ -198,7 +206,8 @@ const buildStreamingResponse = ({
     null,
     {
       timestamp,
-      request: request,
+      url,
+      requestInit,
       response: {
         ...normalizedResponse,
         headers: responseHeaders,
@@ -219,7 +228,8 @@ const buildStreamingResponse = ({
  */
 const buildStandardResponse = async ({
   response,
-  request,
+  url,
+  requestInit,
   timestamp,
   duration,
   responseHeaders,
@@ -231,7 +241,8 @@ const buildStandardResponse = async ({
   plugins,
 }: {
   response: Response
-  request: Request
+  url: string
+  requestInit: RequestInit
   timestamp: number
   duration: number
   responseHeaders: Record<string, string>
@@ -244,7 +255,8 @@ const buildStandardResponse = async ({
 }): Promise<
   ErrorResponse<{
     response: ResponseInstance
-    request: Request
+    url: string
+    requestInit: RequestInit
     timestamp: number
     originalResponse: Response
   }>
@@ -277,7 +289,8 @@ const buildStandardResponse = async ({
     null,
     {
       timestamp,
-      request: request,
+      url,
+      requestInit,
       response: {
         ...normalizedResponse,
         headers: responseHeaders,
