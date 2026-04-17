@@ -128,11 +128,14 @@ Markdown/MDX content from a file:
   "filepath": "docs/getting-started.md",
   "description": "Optional SEO description",
   "icon": "phosphor/regular/rocket",
+  "showInSidebar": true,
   "layout": { "toc": true, "sidebar": true }
 }
 ```
 
 Layout: `toc` (default `true`), `sidebar` (default `true`).
+
+**Hidden pages:** Set `showInSidebar: false` to hide a page from the sidebar while keeping it accessible via its direct URL.
 
 #### OpenAPI (`type: "openapi"`)
 
