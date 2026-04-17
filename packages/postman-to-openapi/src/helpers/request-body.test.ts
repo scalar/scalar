@@ -5,10 +5,15 @@ import type { RequestBody } from '@/types'
 import { extractRequestBody } from './request-body'
 
 describe('request-body', () => {
-  it('extracts raw JSON body', () => {
+  it('extracts raw JSON body when language is json', () => {
     const body: RequestBody = {
       mode: 'raw',
       raw: '{"name": "John", "age": 30}',
+      options: {
+        raw: {
+          language: 'json',
+        },
+      },
     }
 
     const result = extractRequestBody(body, 'default')
@@ -21,11 +26,28 @@ describe('request-body', () => {
           },
           examples: {
             default: {
-              value: {
-                name: 'John',
-                age: 30,
-              },
+              value: '{"name": "John", "age": 30}',
             },
+          },
+        },
+      },
+    })
+  })
+
+  it('treats raw JSON as text/plain when language is not set', () => {
+    const body: RequestBody = {
+      mode: 'raw',
+      raw: '{"name": "John", "age": 30}',
+    }
+
+    const result = extractRequestBody(body, 'default')
+
+    expect(result).toEqual({
+      content: {
+        'text/plain': {
+          schema: {
+            type: 'string',
+            examples: ['{"name": "John", "age": 30}'],
           },
         },
       },
@@ -201,24 +223,8 @@ describe('request-body', () => {
     })
   })
 
-  it('handles complex nested JSON', () => {
-    const body: RequestBody = {
-      mode: 'raw',
-      raw: JSON.stringify({
-        user: {
-          name: 'John',
-          address: {
-            street: '123 Main St',
-            city: 'New York',
-          },
-        },
-        tags: ['admin', 'user'],
-      }),
-    }
-
-    const result = extractRequestBody(body, 'default')
-
-    expect(result.content?.['application/json']?.examples?.default?.value).toEqual({
+  it('handles complex nested JSON when language is json', () => {
+    const raw = JSON.stringify({
       user: {
         name: 'John',
         address: {
@@ -228,9 +234,23 @@ describe('request-body', () => {
       },
       tags: ['admin', 'user'],
     })
+
+    const body: RequestBody = {
+      mode: 'raw',
+      raw,
+      options: {
+        raw: {
+          language: 'json',
+        },
+      },
+    }
+
+    const result = extractRequestBody(body, 'default')
+
+    expect(result.content?.['application/json']?.examples?.default?.value).toBe(raw)
   })
 
-  it('creates JSON schema placeholder when body has variables with JSON language', () => {
+  it('keeps variable placeholders as raw string value when language is json', () => {
     const body: RequestBody = {
       mode: 'raw',
       raw: '{{bodyData}}',
@@ -243,9 +263,20 @@ describe('request-body', () => {
 
     const result = extractRequestBody(body, 'default')
 
-    expect(result.content?.['application/json']).toBeDefined()
-    expect(result.content?.['application/json']?.schema?.type).toBe('object')
-    expect(result.content?.['application/json']?.schema?.description).toBe('Body data set via pre-request script')
+    expect(result).toEqual({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+          },
+          examples: {
+            default: {
+              value: '{{bodyData}}',
+            },
+          },
+        },
+      },
+    })
   })
 
   it('handles body with variables but non-JSON language', () => {
@@ -330,10 +361,35 @@ describe('request-body', () => {
     expect(property?.description).toBe('User name')
   })
 
-  it('handles JSON null as valid JSON body', () => {
+  it('treats literal null as text/plain when language is not json', () => {
     const body: RequestBody = {
       mode: 'raw',
       raw: 'null',
+    }
+
+    const result = extractRequestBody(body, 'default')
+
+    expect(result).toEqual({
+      content: {
+        'text/plain': {
+          schema: {
+            type: 'string',
+            examples: ['null'],
+          },
+        },
+      },
+    })
+  })
+
+  it('treats literal null as application/json when language is json', () => {
+    const body: RequestBody = {
+      mode: 'raw',
+      raw: 'null',
+      options: {
+        raw: {
+          language: 'json',
+        },
+      },
     }
 
     const result = extractRequestBody(body, 'default')
@@ -346,7 +402,7 @@ describe('request-body', () => {
           },
           examples: {
             default: {
-              value: null,
+              value: 'null',
             },
           },
         },
