@@ -1,0 +1,170 @@
+{
+	"info": {
+		"_postman_id": "4f3b808c-fc59-4961-b79b-afc95b35fef8",
+		"name": "Parse Status Code",
+		"description": "Just a simple collection for test status parsing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create new User 201",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "671559be-0272-4d09-8d61-44e8862a5311",
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"  pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"example\": \"field\",\n    \"other\": {\n        \"data1\": \"yes\",\n        \"data2\": \"no\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.io/users",
+					"protocol": "https",
+					"host": [
+						"api",
+						"io"
+					],
+					"path": [
+						"users"
+					]
+				},
+				"description": "Example of a 201 response"
+			},
+			"response": []
+		},
+		{
+			"name": "Create new User 202",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2f0b6241-5d9a-4b54-8ed5-b3a2fc61e3b8",
+						"exec": [
+							"pm.test(\"Status code is 202\", () => {",
+							"  pm.expect(pm.response.code).to.eql(202);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"example\": \"field\",\n    \"other\": {\n        \"data1\": \"yes\",\n        \"data2\": \"no\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.io/users/active",
+					"protocol": "https",
+					"host": [
+						"api",
+						"io"
+					],
+					"path": [
+						"users",
+						"active"
+					]
+				},
+				"description": "Example of a 202 response"
+			},
+			"response": []
+		},
+		{
+			"name": "Deafult 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8e94b168-a75b-4553-9677-a4e22b9cb3d5",
+						"exec": [
+							"pm.expect(responseJson.type).to.eql('vip');",
+							"pm.expect(responseJson.name).to.be.a('string');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"example\": \"field\",\n    \"other\": {\n        \"data1\": \"yes\",\n        \"data2\": \"no\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.io/users/group",
+					"protocol": "https",
+					"host": [
+						"api",
+						"io"
+					],
+					"path": [
+						"users",
+						"group"
+					]
+				},
+				"description": "Example of a 202 response"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "e886ca61-da78-4ee5-8631-399695de7917",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "6a7981a3-3564-4ef5-83e0-8444f0598f37",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "7820b0cd-5643-4df8-881c-f172a6957730",
+			"key": "version",
+			"value": "2.3.0"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

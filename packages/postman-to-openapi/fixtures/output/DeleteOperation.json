@@ -1,0 +1,21 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Delete Operation",
+    "version": "1.1.0",
+    "description": "Mi super test collection from postman"
+  },
+  "paths": {
+    "/users": {
+      "delete": {
+        "summary": "Delete all users",
+        "description": "Delete all the existing users"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.io"
+    }
+  ]
+}

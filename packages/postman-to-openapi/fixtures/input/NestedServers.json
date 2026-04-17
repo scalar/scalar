@@ -1,0 +1,131 @@
+{
+    "info": {
+      "_postman_id": "123e4567-e89b-12d3-a456-426614174000",
+      "name": "Weather Forecast API",
+      "description": "This collection provides endpoints for a Weather Forecast API allowing users to retrieve weather forecasts, historical data, and real-time alerts.",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+      "_exporter_id": "9876543210"
+    },
+    "item": [
+      {
+        "name": "Weather Data",
+        "item": [
+          {
+            "name": "Get Current Weather",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{api_key}}",
+                  "type": "text"
+                }
+              ],
+              "url": {
+                "raw": "https://api.weatherapi.example.com/{{version}}/current?city={{city}}&units=metric&lang=en",
+                "protocol": "https",
+                "host": ["api", "weatherapi", "example", "com"],
+                "path": ["{{version}}", "current"],
+                "query": [
+                  {
+                    "key": "city",
+                    "value": "{{city}}"
+                  },
+                  {
+                    "key": "units",
+                    "value": "metric"
+                  },
+                  {
+                    "key": "lang",
+                    "value": "en"
+                  }
+                ]
+              },
+              "description": "Fetches the current weather data for the specified city."
+            },
+            "response": []
+          },
+          {
+            "name": "Get Weather Alerts",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{api_key}}",
+                  "type": "text"
+                }
+              ],
+              "url": {
+                "raw": "https://api.weatherapi.example.com/{{version}}/alerts?region={{region}}&type=severe&access_token={{access_token}}",
+                "protocol": "https",
+                "host": ["api", "weatherapi", "example", "com"],
+                "path": ["{{version}}", "alerts"],
+                "query": [
+                  {
+                    "key": "region",
+                    "value": "{{region}}"
+                  },
+                  {
+                    "key": "type",
+                    "value": "severe"
+                  },
+                  {
+                    "key": "access_token",
+                    "value": "{{access_token}}"
+                  }
+                ]
+              },
+              "description": "Retrieve severe weather alerts for the specified region."
+            },
+            "response": []
+          }
+        ],
+        "description": "Endpoints for accessing weather data, including current weather and alerts."
+      }
+    ],
+    "event": [
+      {
+        "listen": "prerequest",
+        "script": {
+          "type": "text/javascript",
+          "exec": [""]
+        }
+      },
+      {
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [""]
+        }
+      }
+    ],
+    "variable": [
+      {
+        "key": "api_key",
+        "value": "",
+        "type": "string"
+      },
+      {
+        "key": "version",
+        "value": "v1",
+        "type": "string"
+      },
+      {
+        "key": "city",
+        "value": "London",
+        "type": "string"
+      },
+      {
+        "key": "region",
+        "value": "EU",
+        "type": "string"
+      },
+      {
+        "key": "access_token",
+        "value": "",
+        "type": "string"
+      }
+    ]
+  }
+  

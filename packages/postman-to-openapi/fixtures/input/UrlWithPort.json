@@ -1,0 +1,48 @@
+{
+	"info": {
+		"_postman_id": "b1be28f8-d097-4024-b88a-4bbb5c9cde3d",
+		"name": "Url with Port",
+		"description": "Just a simple collection for test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create new User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"example\": \"field\",\n    \"other\": {\n        \"data1\": \"yes\",\n        \"data2\": \"no\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.io:453/users",
+					"protocol": "https",
+					"host": [
+						"api",
+						"io"
+					],
+					"port": "453",
+					"path": [
+						"users"
+					]
+				},
+				"description": "Create a new user into your amazing API"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"id": "a1b68638-d65e-4ee8-9a91-4d5749e9c2f2",
+			"key": "version",
+			"value": "2.3.0"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

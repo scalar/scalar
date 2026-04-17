@@ -1,0 +1,41 @@
+{
+	"info": {
+		"_postman_id": "3ad7e1b4-f3a1-4a8f-8bd0-56ff18f53339",
+		"name": "No Version Collection",
+		"description": "This collection don't have a version as variable",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create new User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"example\": \"field\",\n    \"other\": {\n        \"data1\": \"yes\",\n        \"data2\": \"no\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.io/users",
+					"protocol": "https",
+					"host": [
+						"api",
+						"io"
+					],
+					"path": [
+						"users"
+					]
+				},
+				"description": "Create a new user into your amazing API"
+			},
+			"response": []
+		}
+	],
+	"variable": [],
+	"protocolProfileBehavior": {}
+}

@@ -1,0 +1,77 @@
+{
+	"info": {
+		"_postman_id": "074ac938-087e-4762-8a33-feadabfa1145",
+		"name": "No Path",
+		"description": "API to manage GET methods",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get list of users",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.io?age=45&name=Jhon&review=true&number=23.56&required=my value",
+					"protocol": "https",
+					"host": [
+						"api",
+						"io"
+					],
+					"query": [
+						{
+							"key": "age",
+							"value": "45",
+							"description": "Filter by age [required]"
+						},
+						{
+							"key": "name",
+							"value": "Jhon",
+							"description": "Filter by name [REQUIRED]"
+						},
+						{
+							"key": "review",
+							"value": "true",
+							"description": "Indicate if should be reviewed or not"
+						},
+						{
+							"key": "number",
+							"value": "23.56",
+							"description": "This is a number"
+						},
+						{
+							"key": "required",
+							"value": "my value",
+							"description": "[required] mandatory paraemeter"
+						}
+					]
+				},
+				"description": "Obtain a list of users that fullfill the conditions of the filters"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "e5a590b1-117c-4050-9541-926b7188ebe0",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "6fb7b705-a3fc-45e0-8a80-3f2b5ce4bf9f",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

@@ -1,0 +1,84 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Form Data",
+    "version": "1.0.0",
+    "description": "Just a collection with a form data post for test"
+  },
+  "paths": {
+    "/register": {
+      "post": {
+        "summary": "Register New User",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "full name of the user (accepts spaces)",
+                    "example": "New User"
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "email of the user (for notifications and login)",
+                    "example": "newuser@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "pasword123"
+                  },
+                  "profileImage": {
+                    "type": "string",
+                    "description": "User avatar",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "name",
+                  "email"
+                ]
+              },
+              "examples": {
+                "Default example": {
+                  "value": [
+                    {
+                      "key": "name",
+                      "value": "New User",
+                      "description": "full name of the user (accepts spaces) [required]",
+                      "type": "text"
+                    },
+                    {
+                      "key": "email",
+                      "value": "newuser@example.com",
+                      "description": "email of the user (for notifications and login) [required]",
+                      "type": "text"
+                    },
+                    {
+                      "key": "password",
+                      "value": "pasword123",
+                      "type": "text"
+                    },
+                    {
+                      "key": "profileImage",
+                      "description": "User avatar",
+                      "contentType": "application/octet-stream",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.io"
+    }
+  ]
+}

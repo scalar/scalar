@@ -1,0 +1,163 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Weather Forecast API",
+    "version": "v1",
+    "description": "This collection provides endpoints for a Weather Forecast API allowing users to retrieve weather forecasts, historical data, and real-time alerts."
+  },
+  "paths": {
+    "/{version}/current": {
+      "get": {
+        "tags": [
+          "Weather Data"
+        ],
+        "summary": "Get Current Weather",
+        "description": "Fetches the current weather data for the specified city.",
+        "parameters": [
+          {
+            "name": "city",
+            "in": "query",
+            "examples": {
+              "Default example": {
+                "value": "{{city}}",
+                "x-disabled": false
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "units",
+            "in": "query",
+            "examples": {
+              "Default example": {
+                "value": "metric",
+                "x-disabled": false
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "examples": {
+              "Default example": {
+                "value": "en",
+                "x-disabled": false
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "examples": {
+              "Default example": {
+                "value": "Bearer {{api_key}}",
+                "x-disabled": false
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/{version}/alerts": {
+      "get": {
+        "tags": [
+          "Weather Data"
+        ],
+        "summary": "Get Weather Alerts",
+        "description": "Retrieve severe weather alerts for the specified region.",
+        "parameters": [
+          {
+            "name": "region",
+            "in": "query",
+            "examples": {
+              "Default example": {
+                "value": "{{region}}",
+                "x-disabled": false
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "examples": {
+              "Default example": {
+                "value": "severe",
+                "x-disabled": false
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "access_token",
+            "in": "query",
+            "examples": {
+              "Default example": {
+                "value": "{{access_token}}",
+                "x-disabled": false
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "examples": {
+              "Default example": {
+                "value": "Bearer {{api_key}}",
+                "x-disabled": false
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Weather Data",
+      "description": "Endpoints for accessing weather data, including current weather and alerts."
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://api.weatherapi.example.com"
+    }
+  ]
+}
