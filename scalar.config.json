@@ -1117,6 +1117,9 @@
                     "type": "page",
                     "filepath": "documentation/guides/agent/getting-started.md",
                     "description": "Turn OpenAPI into MCP servers and connect APIs to LLMs with minimal context usage, delegated auth, and the Agent SDK or chat UI.",
+                    "layout": {
+                      "toc": false
+                    },
                     "head": {
                       "links": [
                         {
