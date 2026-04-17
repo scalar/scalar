@@ -30,7 +30,6 @@ import {
   applyPostmanRequestSelectionChange,
   buildPostmanRequestTree,
   countPostmanRequestLeaves,
-  pathKey,
   pathKeysToRequestIndexPaths,
   type PostmanTreeNode,
 } from '@/v2/features/command-palette/helpers/postman-request-tree'
@@ -105,6 +104,14 @@ const onPostmanFolderSelectionChange = (
     selected,
   )
 }
+
+/** Wraps all top-level nodes in a single root folder so the tree row handles select-all. */
+const rootTreeNode = computed<PostmanTreeNode>(() => ({
+  path: [],
+  name: postmanDocumentDetails.value?.title ?? 'Collection',
+  isFolder: true,
+  children: postmanRequestTree.value,
+}))
 
 const collisionsPathKeys = computed(() => {
   return getCollidingPostmanRequestPathKeys(
@@ -222,11 +229,9 @@ const handleImport = async (): Promise<void> => {
         <!-- Tree picker slot -->
         <template #treePicker>
           <PostmanRequestTreeRow
-            v-for="node in postmanRequestTree"
-            :key="pathKey(node.path)"
             :collisionPathKeys="collisionsPathKeys"
             :mergeSamePathAndMethod="mergeSamePathAndMethod"
-            :node="node"
+            :node="rootTreeNode"
             :selectedKeys="importPathKeys"
             @folderSelectionChange="onPostmanFolderSelectionChange"
             @requestSelectionChange="onPostmanRequestSelectionChange" />
