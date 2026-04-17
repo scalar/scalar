@@ -261,14 +261,38 @@ export function processItem(
 export function parseStatusCodeFromRequestName(
   requestName: string | undefined,
 ): { statusCode: string; description: string } | null {
-  const statusCodeMatch = requestName?.match(/^\s*(\d{3})\s*[-:]\s*(.+)$/)
-  if (!statusCodeMatch?.[1]) {
+  if (!requestName) {
     return null
   }
 
+  const trimmedStart = requestName.trimStart()
+  if (trimmedStart.length < 4) {
+    return null
+  }
+
+  const statusCode = trimmedStart.slice(0, 3)
+  if (!isThreeDigitStatusCode(statusCode)) {
+    return null
+  }
+
+  let separatorIndex = 3
+  while (trimmedStart[separatorIndex] === ' ') {
+    separatorIndex += 1
+  }
+
+  const separator = trimmedStart[separatorIndex]
+  if (separator !== '-' && separator !== ':') {
+    return null
+  }
+
+  let descriptionIndex = separatorIndex + 1
+  while (trimmedStart[descriptionIndex] === ' ') {
+    descriptionIndex += 1
+  }
+
   return {
-    statusCode: statusCodeMatch[1],
-    description: statusCodeMatch[2]?.trim() || 'Response',
+    statusCode,
+    description: trimmedStart.slice(descriptionIndex).trim() || 'Response',
   }
 }
 
@@ -405,9 +429,32 @@ function addResponseFromRequestName(
   }
 
   operationObject.responses = operationObject.responses ?? {}
-  if (!operationObject.responses[parsedStatus.statusCode]) {
-    operationObject.responses[parsedStatus.statusCode] = {
-      description: parsedStatus.description,
+  const existingResponse = operationObject.responses[parsedStatus.statusCode]
+  if (!existingResponse) {
+    operationObject.responses[parsedStatus.statusCode] = { description: parsedStatus.description }
+    return
+  }
+
+  if (
+    typeof existingResponse === 'object' &&
+    !('$ref' in existingResponse) &&
+    (existingResponse.description === 'Successful response' || existingResponse.description === 'Response')
+  ) {
+    existingResponse.description = parsedStatus.description
+  }
+}
+
+function isThreeDigitStatusCode(value: string): boolean {
+  if (value.length !== 3) {
+    return false
+  }
+
+  for (let index = 0; index < value.length; index += 1) {
+    const charCode = value.charCodeAt(index)
+    if (charCode < 48 || charCode > 57) {
+      return false
     }
   }
+
+  return true
 }

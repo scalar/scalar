@@ -346,13 +346,13 @@ describe('convert', () => {
     )
     expect(operation?.responses).toEqual({
       '200': {
-        description: 'Successful response',
+        description: 'Valid country code languages',
         content: {
           'application/json': {},
         },
       },
       '204': {
-        description: 'Successful response',
+        description: 'Invalid country code filter',
         content: {
           'application/json': {},
         },

@@ -592,6 +592,35 @@ describe('path-items', () => {
     })
   })
 
+  it('replaces generic status description with request-name description', () => {
+    const item: Item = {
+      name: '204 - Invalid country code filter',
+      request: {
+        method: 'GET',
+        url: {
+          raw: 'https://api.example.com/languages?countryCode=zz',
+        },
+      },
+      response: [],
+      event: [
+        {
+          listen: 'test',
+          script: {
+            exec: ['pm.response.to.have.status(204)'],
+          },
+        },
+      ],
+    }
+
+    const result = processItem(item, 'default', [], '', true)
+    expect(result.paths['/languages']?.get?.responses?.['204']).toEqual({
+      description: 'Invalid country code filter',
+      content: {
+        'application/json': {},
+      },
+    })
+  })
+
   it('handles string request URL', () => {
     const item: Item = {
       name: 'Get User',

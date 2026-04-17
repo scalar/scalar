@@ -6,7 +6,12 @@ import { processExternalDocs } from '@/helpers/external-docs'
 import { processLicense } from '@/helpers/license'
 import { processLogo } from '@/helpers/logo'
 import { DEFAULT_EXAMPLE_NAME, OPERATION_KEYS, mergePathItem } from '@/helpers/merge-path-item'
-import { processItem } from '@/helpers/path-items'
+import {
+  POSTMAN_EXAMPLE_NAME_EXTENSION,
+  POSTMAN_POST_RESPONSE_SCRIPTS_EXTENSION,
+  POSTMAN_PRE_REQUEST_SCRIPTS_EXTENSION,
+  processItem,
+} from '@/helpers/path-items'
 import { pruneDocument } from '@/helpers/prune-document'
 import { analyzeServerDistribution } from '@/helpers/servers'
 import { normalizePath } from '@/helpers/urls'
@@ -313,6 +318,11 @@ const cleanupOperations = (paths: OpenAPIV3_1.PathsObject): void => {
       if (!operation.description) {
         delete operation.description
       }
+
+      // Internal merge bookkeeping should not leak in final OpenAPI output.
+      delete operation[POSTMAN_EXAMPLE_NAME_EXTENSION]
+      delete operation[POSTMAN_PRE_REQUEST_SCRIPTS_EXTENSION]
+      delete operation[POSTMAN_POST_RESPONSE_SCRIPTS_EXTENSION]
     })
   })
 }
