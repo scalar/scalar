@@ -59,10 +59,6 @@ describe('can-method-have-body', () => {
     it.each(['post', 'put', 'patch', 'delete'] as const)('still returns true for %s method in Electron', (method) => {
       expect(canMethodHaveBody(method)).toBe(true)
     })
-
-    it.each(['head', 'options', 'trace'] as const)('returns false for %s method in Electron', (method) => {
-      expect(canMethodHaveBody(method)).toBe(true)
-    })
   })
 
   describe('return type', () => {

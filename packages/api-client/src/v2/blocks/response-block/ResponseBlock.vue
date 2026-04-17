@@ -9,7 +9,7 @@ import { computed, ref, useId } from 'vue'
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { ResponseInstance } from '@/v2/blocks/operation-block/helpers/send-request'
-import Headers from '@/v2/blocks/response-block/components/Headers.vue'
+import HeadersComponent from '@/v2/blocks/response-block/components/Headers.vue'
 import ResponseBody from '@/v2/blocks/response-block/components/ResponseBody.vue'
 import ResponseBodyStreaming from '@/v2/blocks/response-block/components/ResponseBodyStreaming.vue'
 import ResponseBodyVirtual from '@/v2/blocks/response-block/components/ResponseBodyVirtual.vue'
@@ -99,30 +99,15 @@ const shouldVirtualize = computed(() => {
   return isTextBased && (response.size ?? 0) > VIRTUALIZATION_THRESHOLD
 })
 
-const requestHeaders = computed(() => {
-  const headers = requestPayload?.[1]?.headers
-  if (!headers) {
-    return []
-  }
-  // headers in RequestInit can be Headers, string[][], or Record<string, string>
-  if (typeof (headers as Headers)[Symbol.iterator] === 'function') {
-    return [...(headers as Headers)].map((header: string[]) => ({
-      name: header[0] ?? '',
-      value: header[1] ?? '',
-      required: false,
-    }))
-  }
-  if (typeof headers === 'object' && !Array.isArray(headers)) {
-    return Object.entries(headers as Record<string, string>).map(
-      ([name, value]) => ({
+const requestHeaders = computed(() =>
+  requestPayload?.[1]?.headers
+    ? Object.entries(requestPayload[1].headers).map(([name, value]) => ({
         name,
         value,
         required: false,
-      }),
-    )
-  }
-  return []
-})
+      }))
+    : [],
+)
 
 const isSectionVisible = (
   section: (typeof responseSections)[number] | 'All',
@@ -195,23 +180,23 @@ defineExpose({
           :cookies="responseCookies"
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
         <!-- Request headers section -->
-        <Headers
+        <HeadersComponent
           v-if="isSectionVisible('Headers')"
           :id="filterIds.Headers"
           class="response-section-content-headers"
           :headers="requestHeaders"
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'">
           <template #title>Request Headers</template>
-        </Headers>
+        </HeadersComponent>
         <!-- Response headers section -->
-        <Headers
+        <HeadersComponent
           v-if="isSectionVisible('Headers')"
           :id="filterIds.Headers"
           class="response-section-content-headers"
           :headers="responseHeaders"
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'">
           <template #title>Response Headers</template>
-        </Headers>
+        </HeadersComponent>
 
         <!-- Inject response section plugin components -->
         <ScalarErrorBoundary
