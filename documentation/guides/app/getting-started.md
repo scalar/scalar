@@ -379,11 +379,6 @@ Use [post-response scripts](/products/api-client/testing) to validate responses 
     padding-bottom: 0;
     margin-bottom: 0;
   }
-  .container {
-    width: var(--scalar-container-width);
-    margin: auto;
-    position: relative;
-  }
   .container-full {
     --scalar-container-sidebar-gap: calc(
       (
@@ -397,11 +392,6 @@ Use [post-response scripts](/products/api-client/testing) to validate responses 
   .t-editor.page {
     position: relative;
     margin-right: unset;
-  }
-  .container {
-    width: 900px;
-    margin: auto;
-    position: relative;
   }
   .feature {
     padding: 60px 0 !important;
@@ -519,7 +509,7 @@ Use [post-response scripts](/products/api-client/testing) to validate responses 
   .mb-11 {
     margin-bottom: 44px;
   }
-  .footer {
+  .getting-started.footer {
     position: relative;
     overflow: hidden;
     background: var(--scalar-background-2);
