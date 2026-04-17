@@ -76,6 +76,9 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
 
     // @ts-expect-error - We avoid using coerceValue here as it may be dangerous, so we type cast
     const result = { [composition]: mergedSchemas } as SchemaObject
+    if (typeof value.description === 'string') {
+      result.description = value.description
+    }
     if (shouldBeNullable) {
       // @ts-expect-error We use nullable
       result.nullable = true

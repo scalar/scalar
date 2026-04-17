@@ -57,5 +57,25 @@ describe('should-display-description', () => {
 
       expect(shouldDisplayDescription(schema)).toBeNull()
     })
+
+    it('combines property and schema descriptions for oneOf compositions', () => {
+      const schema = {
+        oneOf: [{ type: 'string' }, { type: 'number' }],
+        description: 'Schema description',
+      } as SchemaObject
+
+      expect(shouldDisplayDescription(schema, 'Property description')).toBe(
+        'Property description\n\nSchema description',
+      )
+    })
+
+    it('does not duplicate matching descriptions for oneOf compositions', () => {
+      const schema = {
+        oneOf: [{ type: 'string' }, { type: 'number' }],
+        description: 'Shared description',
+      } as SchemaObject
+
+      expect(shouldDisplayDescription(schema, 'Shared description')).toBe('Shared description')
+    })
   })
 })
