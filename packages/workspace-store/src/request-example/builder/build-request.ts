@@ -98,12 +98,12 @@ export const buildRequest = (
 
       if (security.in === 'header') {
         // Set the header (use replaced header name so {{ env }} placeholders work)
-        headers.set(name, securityValue)
+        headers.append(name, securityValue)
         return
       }
 
       if (security.in === 'query') {
-        securityQueryParams.set(name, securityValue)
+        securityQueryParams.append(name, securityValue)
         return
       }
 

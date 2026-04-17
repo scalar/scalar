@@ -11,15 +11,13 @@ import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-r
  */
 export const getSecuritySchemes = (
   securitySchemes: MergedSecuritySchemes,
-  selectedSecurity: SecurityRequirementObject[],
+  selectedSecurity: SecurityRequirementObject,
 ): SecuritySchemeObjectSecret[] =>
-  selectedSecurity.flatMap((scheme) =>
-    objectKeys(scheme).flatMap((key) => {
-      const scheme = getResolvedRef(securitySchemes?.[key])
-      if (scheme) {
-        return scheme
-      }
+  objectKeys(selectedSecurity).flatMap((key) => {
+    const scheme = getResolvedRef(securitySchemes?.[key])
+    if (scheme) {
+      return scheme
+    }
 
-      return []
-    }),
-  ) ?? []
+    return []
+  })

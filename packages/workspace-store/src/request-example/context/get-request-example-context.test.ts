@@ -1,5 +1,5 @@
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { describe, expect, it } from 'vitest'
+import { assert, describe, expect, it } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
 
@@ -132,5 +132,102 @@ describe('getRequestExampleContext', () => {
       value: 'CONFIG_TOKEN',
       'x-scalar-secret-token': 'STORE_TOKEN',
     })
+  })
+
+  it('resolves selectedSchemes using selectedIndex from the selected security', async () => {
+    const workspaceStore = createWorkspaceStore()
+    await workspaceStore.addDocument({
+      name: 'doc',
+      document: createMinimalDocument({
+        security: [{ apiKeyHeader: [] }],
+      }),
+    })
+
+    const result = getRequestExampleContext(workspaceStore, 'doc', {
+      path: '/pets',
+      method: 'get',
+      exampleName: 'default',
+    })
+
+    expect(result.ok).toBe(true)
+    assert(result.ok)
+
+    expect(result.data.security.selected.selectedIndex).toBe(0)
+    expect(result.data.security.selectedSchemes).toStrictEqual([
+      expect.objectContaining({
+        type: 'apiKey',
+        name: 'X-API-Key',
+        in: 'header',
+      }),
+    ])
+  })
+
+  it('returns empty selectedSchemes when selectedIndex is -1 (optional auth)', async () => {
+    const workspaceStore = createWorkspaceStore()
+    await workspaceStore.addDocument({
+      name: 'doc',
+      document: createMinimalDocument({
+        security: [{}],
+      }),
+    })
+
+    const result = getRequestExampleContext(workspaceStore, 'doc', {
+      path: '/pets',
+      method: 'get',
+      exampleName: 'default',
+    })
+
+    assert(result.ok)
+
+    expect(result.data.security.selected.selectedIndex).toBe(-1)
+    expect(result.data.security.selectedSchemes).toStrictEqual([])
+  })
+
+  it('resolves selectedSchemes from the correct index when multiple requirements exist', async () => {
+    const workspaceStore = createWorkspaceStore()
+    await workspaceStore.addDocument({
+      name: 'doc',
+      document: createMinimalDocument({
+        components: {
+          securitySchemes: {
+            apiKeyHeader: {
+              type: 'apiKey',
+              name: 'X-API-Key',
+              in: 'header',
+            },
+            bearerAuth: {
+              type: 'http',
+              scheme: 'bearer',
+            },
+          },
+        },
+        security: [{ apiKeyHeader: [] }, { bearerAuth: [] }],
+      }),
+    })
+
+    workspaceStore.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName: 'doc' },
+      {
+        selectedIndex: 1,
+        selectedSchemes: [{ apiKeyHeader: [] }, { bearerAuth: [] }],
+      },
+    )
+
+    const result = getRequestExampleContext(workspaceStore, 'doc', {
+      path: '/pets',
+      method: 'get',
+      exampleName: 'default',
+    })
+
+    expect(result.ok).toBe(true)
+    assert(result.ok)
+
+    expect(result.data.security.selected.selectedIndex).toBe(1)
+    expect(result.data.security.selectedSchemes).toStrictEqual([
+      expect.objectContaining({
+        type: 'http',
+        scheme: 'bearer',
+      }),
+    ])
   })
 })
