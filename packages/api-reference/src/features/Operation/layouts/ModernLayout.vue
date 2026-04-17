@@ -28,6 +28,8 @@ import { ExternalDocs } from '@/features/external-docs'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
+import SecurityRequirementBadge from '@/features/Operation/components/SecurityRequirementBadge.vue'
+import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 import {
   getOperationStability,
   getOperationStabilityColor,
@@ -51,6 +53,7 @@ const {
   operation,
   options,
   path,
+  requiredSecurity,
   selectedServer,
   selectedSecuritySchemes,
   selectedClient,
@@ -70,6 +73,8 @@ const {
     selectedServer: ServerObject | null
     /** The selected security schemes for the operation */
     selectedSecuritySchemes: SecuritySchemeObjectSecret[]
+    /** Required/optional security state for the badge next to the path */
+    requiredSecurity: RequiredSecurity
   }
 >()
 
@@ -215,10 +220,14 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
                 :selectedContentType="selectedRequestBodyContentType"
                 :selectedServer>
                 <template #header>
-                  <OperationPath
-                    class="font-code text-c-2 [&_em]:text-c-1 [&_em]:not-italic"
-                    :deprecated="operation?.deprecated"
-                    :path="path" />
+                  <div class="flex min-w-0 flex-1 items-center gap-2">
+                    <OperationPath
+                      class="font-code text-c-2 [&_em]:text-c-1 min-w-0 [&_em]:not-italic"
+                      :deprecated="operation?.deprecated"
+                      :path="path" />
+                    <SecurityRequirementBadge
+                      :requiredSecurity="requiredSecurity" />
+                  </div>
                 </template>
                 <template
                   v-if="!isWebhook"
