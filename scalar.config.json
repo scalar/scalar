@@ -2409,6 +2409,7 @@
             "title": "Blog",
             "filepath": "documentation/blog/index.md",
             "showInSidebar": true,
+            "icon": "phosphor/regular/books",
             "layout": {
               "toc": false
             }
