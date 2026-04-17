@@ -60,7 +60,7 @@ describe('swiftNsurlsession', () => {
       },
     })
 
-    expect(result).toContain('let jsonBody = """')
+    expect(result).toContain('let jsonBody = #"""')
     expect(result).toContain('  "hello": "world"')
     expect(result).toContain('request.httpBody = jsonBody.data(using: .utf8)')
   })
@@ -75,7 +75,7 @@ describe('swiftNsurlsession', () => {
       },
     })
 
-    expect(result).toContain('let jsonBody = """')
+    expect(result).toContain('let jsonBody = #"""')
     expect(result).toContain('{"hello":')
     expect(result).toContain('request.httpBody = jsonBody.data(using: .utf8)')
   })
@@ -476,6 +476,23 @@ describe('swiftNsurlsession', () => {
     expect(result).toContain('      null')
   })
 
+  it('preserves JSON escape sequences in raw multiline literals', () => {
+    const result = swiftNsurlsession.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/json',
+        text: '{"message":"hello \\"world\\"","path":"C:\\\\temp\\\\file","control":"line1\\\\nline2\\\\tend"}',
+      },
+    })
+
+    expect(result).toContain('let jsonBody = #"""')
+    expect(result).toContain('  "message": "hello \\"world\\""')
+    expect(result).toContain('  "path": "C:\\\\temp\\\\file"')
+    expect(result).toContain('  "control": "line1\\\\nline2\\\\tend"')
+    expect(result).toContain('"""#')
+  })
+
   it('handles cookies with special characters', () => {
     const result = swiftNsurlsession.generate({
       url: 'https://example.com',
@@ -506,11 +523,11 @@ describe('swiftNsurlsession', () => {
       },
     })
 
-    expect(result).toContain('let jsonBody = """')
+    expect(result).toContain('let jsonBody = #"""')
     expect(result).toContain('    "array": [')
     expect(result).toContain('      1,')
     expect(result).toContain('  "simple": "value"')
-    expect(result).toContain('"""')
+    expect(result).toContain('"""#')
   })
 
   it('handles URLs with dollar sign characters', () => {

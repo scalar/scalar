@@ -1,42 +1,17 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { buildQueryString } from '@/libs/http'
-
-const normalizeMethod = (method?: string): string => (method ?? 'GET').toUpperCase()
-
-const normalizeUrl = (url: string): string => {
-  if (!url) {
-    return ''
-  }
-
-  try {
-    const parsedUrl = new URL(url)
-
-    if (parsedUrl.pathname === '/') {
-      return `${parsedUrl.origin}${parsedUrl.search}${parsedUrl.hash}`
-    }
-
-    return parsedUrl.toString()
-  } catch {
-    return url
-  }
-}
-
-const joinUrlAndQuery = (url: string, queryString?: Array<{ name: string; value: string }>): string => {
-  const query = buildQueryString(queryString)
-
-  if (!query) {
-    return url
-  }
-
-  if (!url) {
-    return query
-  }
-
-  return `${url}${url.includes('?') ? '&' : '?'}${query.slice(1)}`
-}
+import { collectHeaders, joinUrlAndQuery, normalizeMethod, normalizeUrl } from '@/libs/http'
 
 const swiftStringLiteral = (value: string): string => JSON.stringify(value)
+
+const rawMultilineStringHashes = (value: string): string => {
+  let hashCount = 1
+  while (value.includes(`"""${'#'.repeat(hashCount)}`)) {
+    hashCount += 1
+  }
+
+  return '#'.repeat(hashCount)
+}
 
 const toPrettyJson = (value: string): string => {
   try {
@@ -49,27 +24,6 @@ const toPrettyJson = (value: string): string => {
 const encodeFormComponent = (value: string): string => encodeURIComponent(value)
 
 const escapeForMultipartHeader = (value: string): string => value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
-
-type HeaderPair = {
-  name: string
-  value: string
-}
-
-const collectHeaders = (
-  headers?: Array<{
-    name: string
-    value: string
-  }>,
-): HeaderPair[] => {
-  const dedupedHeaders = new Map<string, string>()
-  headers?.forEach((header) => {
-    if (header.name) {
-      dedupedHeaders.set(header.name, header.value ?? '')
-    }
-  })
-
-  return Array.from(dedupedHeaders.entries()).map(([name, value]) => ({ name, value }))
-}
 
 const buildMultipartBody = (
   params: Array<{
@@ -134,7 +88,7 @@ export const swiftNsurlsession: Plugin = {
 
     const method = normalizeMethod(request.method)
     const url = normalizeUrl(joinUrlAndQuery(request.url ?? '', request.queryString))
-    const headers = collectHeaders(request.headers)
+    const headers = collectHeaders(request.headers, request.cookies)
     const lines: string[] = [
       'import Foundation',
       '',
@@ -149,14 +103,6 @@ export const swiftNsurlsession: Plugin = {
       )
     })
 
-    if (request.cookies?.length) {
-      const cookieString = request.cookies
-        .map((cookie) => `${encodeFormComponent(cookie.name)}=${encodeFormComponent(cookie.value)}`)
-        .join('; ')
-
-      lines.push(`request.setValue(${swiftStringLiteral(cookieString)}, forHTTPHeaderField: "Cookie")`)
-    }
-
     if (configuration?.auth?.username && configuration?.auth?.password) {
       lines.push(
         `let credentials = ${swiftStringLiteral(`${configuration.auth.username}:${configuration.auth.password}`)}`,
@@ -170,9 +116,10 @@ export const swiftNsurlsession: Plugin = {
 
       if (mimeType === 'application/json' && text !== undefined) {
         const prettyJson = toPrettyJson(text)
-        lines.push('let jsonBody = """')
+        const hashes = rawMultilineStringHashes(prettyJson)
+        lines.push(`let jsonBody = ${hashes}"""`)
         lines.push(prettyJson)
-        lines.push('"""')
+        lines.push(`"""${hashes}`)
         lines.push('request.httpBody = jsonBody.data(using: .utf8)')
       } else if (mimeType === 'application/x-www-form-urlencoded' && params?.length) {
         const formBody = params
