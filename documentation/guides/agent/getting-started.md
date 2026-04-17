@@ -4,7 +4,7 @@
 <div class="flex flex-col gap-3 hero small-test">
 <span data-v-1c61db84="" class="page-breadcrumb">MCP &amp; Agent Scalar</span>
   <scalar-heading level="2" slug="scalar-agent" class="text-balance">
-    Connect your APIs to LLMs—quickly, securely, and with minimal context
+    Connect your APIs to LLMs quickly, securely, and with minimal context
   </scalar-heading>
   <p>
     Upload your OpenAPI documents and instantly expose them as an MCP server; just-in-time tool calls, secure delegated auth, and only 0.2% of your context window no matter how many APIs you need.
