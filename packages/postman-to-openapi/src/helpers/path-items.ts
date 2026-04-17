@@ -13,6 +13,10 @@ import { extractPathFromUrl, extractPathParameterNames, extractServerFromUrl, no
 
 type HttpMethods = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
 
+export const POSTMAN_EXAMPLE_NAME_EXTENSION = 'x-postman-example-name'
+export const POSTMAN_PRE_REQUEST_SCRIPTS_EXTENSION = 'x-postman-pre-request-scripts'
+export const POSTMAN_POST_RESPONSE_SCRIPTS_EXTENSION = 'x-postman-post-response-scripts'
+
 /**
  * Information about server usage for an operation.
  */
@@ -95,6 +99,7 @@ export function processItem(
   }
 
   const { request, name, response } = item
+  const sourceRequestName = name?.trim() || exampleName
   const method = (typeof request === 'string' ? 'get' : request.method || 'get').toLowerCase() as HttpMethods
 
   const requestUrl =
@@ -135,17 +140,24 @@ export function processItem(
     responses: extractResponses(response || [], item),
     parameters: [],
   }
+  operationObject[POSTMAN_EXAMPLE_NAME_EXTENSION] = sourceRequestName
 
   // Add pre-request scripts if present
   const preRequestScript = processPreRequestScripts(item.event)
   if (preRequestScript) {
     operationObject['x-pre-request'] = preRequestScript
+    operationObject[POSTMAN_PRE_REQUEST_SCRIPTS_EXTENSION] = {
+      [sourceRequestName]: preRequestScript,
+    }
   }
 
   // Add post-response scripts if present
   const postResponseScript = processPostResponseScripts(item.event)
   if (postResponseScript) {
     operationObject['x-post-response'] = postResponseScript
+    operationObject[POSTMAN_POST_RESPONSE_SCRIPTS_EXTENSION] = {
+      [sourceRequestName]: postResponseScript,
+    }
   }
 
   // Only add operationId if it was explicitly provided
@@ -155,7 +167,7 @@ export function processItem(
 
   // Extract parameters from the request (query, path, header)
   // This should always happen, regardless of whether a description exists
-  const extractedParameters = extractParameters(request, exampleName)
+  const extractedParameters = extractParameters(request, sourceRequestName)
 
   // Merge parameters, giving priority to those from the Markdown table if description exists
   const mergedParameters = new Map<string, OpenAPIV3_1.ParameterObject>()
@@ -211,7 +223,7 @@ export function processItem(
 
   // Allow request bodies for all methods (including GET) if body is present
   if (typeof request !== 'string' && request.body) {
-    const requestBody = extractRequestBody(request.body, exampleName)
+    const requestBody = extractRequestBody(request.body, sourceRequestName)
     ensureRequestBodyContent(requestBody)
     // Only add requestBody if it has content
     if (requestBody.content && Object.keys(requestBody.content).length > 0) {
@@ -225,7 +237,21 @@ export function processItem(
   const pathItem = paths[path] as OpenAPIV3_1.PathItemObject
   pathItem[method] = operationObject
 
+  addResponseFromRequestName(pathItem[method], name)
+
   return { paths, components, serverUsage }
+}
+
+export function parseStatusCodeFromRequestName(requestName: string | undefined): { statusCode: string; description: string } | null {
+  const statusCodeMatch = requestName?.match(/^\s*(\d{3})\s*[-:]\s*(.+)$/)
+  if (!statusCodeMatch?.[1]) {
+    return null
+  }
+
+  return {
+    statusCode: statusCodeMatch[1],
+    description: statusCodeMatch[2]?.trim() || 'Response',
+  }
 }
 
 // Helper function to parse parameters from the description if it is markdown
@@ -349,4 +375,18 @@ function extractOperationInfo(name: string | undefined) {
   const summary = name.substring(0, lastBracketIndex).trim()
 
   return { operationId, summary }
+}
+
+function addResponseFromRequestName(operationObject: OpenAPIV3_1.OperationObject, requestName: string | undefined): void {
+  const parsedStatus = parseStatusCodeFromRequestName(requestName)
+  if (!parsedStatus) {
+    return
+  }
+
+  operationObject.responses = operationObject.responses ?? {}
+  if (!operationObject.responses[parsedStatus.statusCode]) {
+    operationObject.responses[parsedStatus.statusCode] = {
+      description: parsedStatus.description,
+    }
+  }
 }

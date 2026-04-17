@@ -2,6 +2,12 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { assert, expect, it } from 'vitest'
 
 import { mergeOperations } from '@/helpers/merge-operation'
+import {
+  POSTMAN_EXAMPLE_NAME_EXTENSION,
+  POSTMAN_POST_RESPONSE_SCRIPTS_EXTENSION,
+  POSTMAN_PRE_REQUEST_SCRIPTS_EXTENSION,
+  parseStatusCodeFromRequestName,
+} from '@/helpers/path-items'
 
 it('returns an object based on operation2 with operation2 fields preserved', () => {
   const op1: OpenAPIV3_1.OperationObject = { summary: 'First', responses: {} }
@@ -151,4 +157,173 @@ it('handles operations with no parameters and no requestBody', () => {
   expect(result.summary).toBe('B')
   expect(result.parameters).toBeUndefined()
   expect(result.requestBody).toBeUndefined()
+})
+
+it('keeps the shortest summary and merges distinct descriptions', () => {
+  const op1: OpenAPIV3_1.OperationObject = {
+    summary: '200 - Valid country code languages',
+    description: 'Returns languages for a specific country code.',
+    responses: {},
+  }
+  const op2: OpenAPIV3_1.OperationObject = {
+    summary: '200 - All languages',
+    description: 'Returns all supported languages.',
+    responses: {},
+  }
+  const result = mergeOperations(op1, op2)
+  expect(result.summary).toBe('200 - All languages')
+  expect(result.description).toBe(
+    'Returns languages for a specific country code.\n\nReturns all supported languages.',
+  )
+})
+
+it('unions responses from both merged operations', () => {
+  const op1: OpenAPIV3_1.OperationObject = {
+    responses: {
+      '404': {
+        description: 'Not found',
+      },
+    },
+  }
+  const op2: OpenAPIV3_1.OperationObject = {
+    responses: {
+      '200': {
+        description: 'OK',
+      },
+    },
+  }
+  const result = mergeOperations(op1, op2)
+  expect(result.responses).toEqual({
+    '404': {
+      description: 'Not found',
+    },
+    '200': {
+      description: 'OK',
+    },
+  })
+})
+
+it('keeps existing requestBody schema while collecting examples', () => {
+  const op1: OpenAPIV3_1.OperationObject = {
+    requestBody: {
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              firstOnly: { type: 'string' },
+            },
+          },
+          examples: {
+            Register: {
+              value: '{"name":"first"}',
+            },
+          },
+        },
+      },
+    },
+    responses: {},
+  }
+  const op2: OpenAPIV3_1.OperationObject = {
+    requestBody: {
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              secondOnly: { type: 'string' },
+            },
+          },
+          examples: {
+            'Register same': {
+              value: '{"name":"same"}',
+            },
+          },
+        },
+      },
+    },
+    responses: {},
+  }
+  const result = mergeOperations(op1, op2)
+  expect(result.requestBody?.content?.['application/json']).toEqual({
+    schema: {
+      type: 'object',
+      properties: {
+        firstOnly: { type: 'string' },
+      },
+    },
+    examples: {
+      'Register same': {
+        value: '{"name":"same"}',
+      },
+      Register: {
+        value: '{"name":"first"}',
+      },
+    },
+  })
+})
+
+it('concatenates script extensions with source separators', () => {
+  const op1: OpenAPIV3_1.OperationObject = {
+    responses: {},
+    [POSTMAN_EXAMPLE_NAME_EXTENSION]: '200 - All languages',
+    [POSTMAN_PRE_REQUEST_SCRIPTS_EXTENSION]: {
+      '200 - All languages': 'pm.environment.set("countryCode", "CA");',
+    },
+    [POSTMAN_POST_RESPONSE_SCRIPTS_EXTENSION]: {
+      '200 - All languages': 'pm.test("status is 200", () => pm.response.to.have.status(200));',
+    },
+  }
+  const op2: OpenAPIV3_1.OperationObject = {
+    responses: {},
+    [POSTMAN_EXAMPLE_NAME_EXTENSION]: '204 - Invalid country code filter',
+    [POSTMAN_PRE_REQUEST_SCRIPTS_EXTENSION]: {
+      '204 - Invalid country code filter': 'pm.environment.set("countryCode", "zz");',
+    },
+    [POSTMAN_POST_RESPONSE_SCRIPTS_EXTENSION]: {
+      '204 - Invalid country code filter': 'pm.test("status is 204", () => pm.response.to.have.status(204));',
+    },
+  }
+  const result = mergeOperations(op1, op2)
+
+  expect(result[POSTMAN_PRE_REQUEST_SCRIPTS_EXTENSION]).toEqual({
+    '200 - All languages': 'pm.environment.set("countryCode", "CA");',
+    '204 - Invalid country code filter': 'pm.environment.set("countryCode", "zz");',
+  })
+  expect(result[POSTMAN_POST_RESPONSE_SCRIPTS_EXTENSION]).toEqual({
+    '200 - All languages': 'pm.test("status is 200", () => pm.response.to.have.status(200));',
+    '204 - Invalid country code filter': 'pm.test("status is 204", () => pm.response.to.have.status(204));',
+  })
+
+  expect(result['x-pre-request']).toBe(
+    '// --- 200 - All languages ---\npm.environment.set("countryCode", "CA");\n\n// --- 204 - Invalid country code filter ---\npm.environment.set("countryCode", "zz");',
+  )
+  expect(result['x-post-response']).toBe(
+    '// --- 200 - All languages ---\npm.test("status is 200", () => pm.response.to.have.status(200));\n\n// --- 204 - Invalid country code filter ---\npm.test("status is 204", () => pm.response.to.have.status(204));',
+  )
+})
+
+it('falls back to legacy script extensions when source maps are missing', () => {
+  const op1: OpenAPIV3_1.OperationObject = {
+    responses: {},
+    [POSTMAN_EXAMPLE_NAME_EXTENSION]: 'Variant A',
+    'x-pre-request': 'pm.environment.set("variant", "A");',
+  }
+  const op2: OpenAPIV3_1.OperationObject = {
+    responses: {},
+    [POSTMAN_EXAMPLE_NAME_EXTENSION]: 'Variant B',
+    'x-pre-request': 'pm.environment.set("variant", "B");',
+  }
+  const result = mergeOperations(op1, op2)
+  expect(result['x-pre-request']).toBe(
+    '// --- Variant A ---\npm.environment.set("variant", "A");\n\n// --- Variant B ---\npm.environment.set("variant", "B");',
+  )
+})
+
+it('parses status code and description from request names', () => {
+  expect(parseStatusCodeFromRequestName('204 - Invalid country code filter')).toEqual({
+    statusCode: '204',
+    description: 'Invalid country code filter',
+  })
+  expect(parseStatusCodeFromRequestName('invalid name')).toBeNull()
 })

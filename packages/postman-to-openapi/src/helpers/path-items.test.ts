@@ -207,7 +207,7 @@ describe('path-items', () => {
       required: true,
       description: undefined,
       examples: {
-        default: {
+        'Get User': {
           value: '123',
           'x-disabled': false,
         },
@@ -480,7 +480,7 @@ describe('path-items', () => {
 
     expect(result.paths['/bedrock']?.get?.requestBody).toBeDefined()
     expect(result.paths['/bedrock']?.get?.requestBody?.content?.['application/json']).toBeDefined()
-    const example = result.paths['/bedrock']?.get?.requestBody?.content?.['application/json']?.examples?.default
+    const example = result.paths['/bedrock']?.get?.requestBody?.content?.['application/json']?.examples?.['Get with Body']
       ?.value as string
     expect(example).toBe('{"data": {"modelId": "mistral.mistral-7b-instruct-v0:2"}}')
   })
@@ -572,6 +572,24 @@ describe('path-items', () => {
     expect(result.paths['/users']?.get?.['x-post-response']).toBe(
       'pm.test("Status is 200", function () {\n  pm.response.to.have.status(200);\n});',
     )
+  })
+
+  it('derives response status from request name when it contains a status prefix', () => {
+    const item: Item = {
+      name: '204 - Invalid country code filter',
+      request: {
+        method: 'GET',
+        url: {
+          raw: 'https://api.example.com/languages?countryCode=zz',
+        },
+      },
+      response: [],
+    }
+
+    const result = processItem(item)
+    expect(result.paths['/languages']?.get?.responses?.['204']).toEqual({
+      description: 'Invalid country code filter',
+    })
   })
 
   it('handles string request URL', () => {
