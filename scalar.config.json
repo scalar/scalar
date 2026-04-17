@@ -2408,7 +2408,7 @@
             "title": "Blog",
             "description": "Scalar blog posts.",
             "type": "group",
-            "mode": "nested",
+            "mode": "flat",
             "icon": "phosphor/regular/books",
             "children": {
               "/": {
@@ -2416,158 +2416,102 @@
                 "title": "Overview",
                 "filepath": "documentation/blog/index.md",
                 "layout": {
-                  "sidebar": false,
                   "toc": false
                 }
               },
-              "/posts": {
-                "type": "group",
-                "mode": "flat",
-                "title": "Posts",
-                "children": {
-                  "/2026-04-11-oss-pledge": {
-                    "type": "page",
-                    "title": "Scalar's 2025 Open Source Pledge",
-                    "filepath": "documentation/blog/2026-04-11-oss-pledge.md",
-                    "layout": {
-                      "sidebar": false
+              "/posts/2026-04-11-oss-pledge": {
+                "type": "page",
+                "title": "Scalar's 2025 Open Source Pledge",
+                "filepath": "documentation/blog/2026-04-11-oss-pledge.md"
+              },
+              "/posts/2026-03-25-scalar-mcp-oauth": {
+                "type": "page",
+                "title": "Too Long; Didn't Read; Used MCP",
+                "filepath": "documentation/blog/2026-03-25-scalar-mcp-oauth.md",
+                "head": {
+                  "scripts": [
+                    {
+                      "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player"
                     }
-                  },
-                  "/2026-03-25-scalar-mcp-oauth": {
-                    "type": "page",
-                    "title": "Too Long; Didn't Read; Used MCP",
-                    "filepath": "documentation/blog/2026-03-25-scalar-mcp-oauth.md",
-                    "layout": {
-                      "sidebar": false
-                    },
-                    "head": {
-                      "scripts": [
-                        {
-                          "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player"
-                        }
-                      ]
-                    }
-                  },
-                  "/2026-03-17-agent-mcp": {
-                    "type": "page",
-                    "title": "Use your API in Cursor",
-                    "filepath": "documentation/blog/2026-03-17-agent-mcp.md",
-                    "layout": {
-                      "sidebar": false
-                    },
-                    "head": {
-                      "scripts": [
-                        {
-                          "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player"
-                        }
-                      ]
-                    }
-                  },
-                  "/2026-03-05-agent-scalar": {
-                    "type": "page",
-                    "title": "Introducing Agent",
-                    "filepath": "documentation/blog/2026-03-05-agent-scalar.md",
-                    "layout": {
-                      "sidebar": false
-                    }
-                  },
-                  "/2025-08-19-how-to-set-up-an-openapi-mock-server": {
-                    "type": "page",
-                    "title": "How to set up an OpenAPI mock server",
-                    "filepath": "documentation/blog/2025-08-19-how-to-set-up-an-openapi-mock-server.md",
-                    "layout": {
-                      "sidebar": false
-                    }
-                  },
-                  "/2025-07-07-how-to-do-openapi-validation-and": {
-                    "type": "page",
-                    "title": "How to do OpenAPI validation (and why it matters)",
-                    "filepath": "documentation/blog/2025-07-07-how-to-do-openapi-validation-and.md",
-                    "layout": {
-                      "sidebar": false
-                    }
-                  },
-                  "/2025-05-28-how-we-created-an-animated-responsive": {
-                    "type": "page",
-                    "title": "How we created an animated, responsive README",
-                    "filepath": "documentation/blog/2025-05-28-how-we-created-an-animated-responsive.md",
-                    "layout": {
-                      "sidebar": false
-                    }
-                  },
-                  "/2025-05-07-how-scalar-themes-work": {
-                    "type": "page",
-                    "title": "How Scalar themes work",
-                    "filepath": "documentation/blog/2025-05-07-how-scalar-themes-work.md",
-                    "layout": {
-                      "sidebar": false
-                    }
-                  },
-                  "/2025-04-28-how-cloudinarys-api-docs-create-a": {
-                    "type": "page",
-                    "title": "How Cloudinary’s API docs create a great developer experience",
-                    "filepath": "documentation/blog/2025-04-28-how-cloudinarys-api-docs-create-a.md",
-                    "layout": {
-                      "sidebar": false
-                    }
-                  },
-                  "/2025-04-23-an-introduction-to-openapi-variables": {
-                    "type": "page",
-                    "title": "An introduction to OpenAPI variables",
-                    "filepath": "documentation/blog/2025-04-23-an-introduction-to-openapi-variables.md",
-                    "layout": {
-                      "sidebar": false
-                    }
-                  },
-                  "/2025-04-06-how-we-extended-the-openapi-specification": {
-                    "type": "page",
-                    "title": "How we extended the OpenAPI specification",
-                    "filepath": "documentation/blog/2025-04-06-how-we-extended-the-openapi-specification.md",
-                    "layout": {
-                      "sidebar": false
-                    }
-                  },
-                  "/2025-03-26-a-guide-to-openapi-security-and-how": {
-                    "type": "page",
-                    "title": "A guide to OpenAPI security (and how we handle it in Scalar)",
-                    "filepath": "documentation/blog/2025-03-26-a-guide-to-openapi-security-and-how.md",
-                    "layout": {
-                      "sidebar": false
-                    }
-                  },
-                  "/2025-03-19-the-hidden-complexity-of-building": {
-                    "type": "page",
-                    "title": "The hidden complexity of building drag and drop",
-                    "filepath": "documentation/blog/2025-03-19-the-hidden-complexity-of-building.md",
-                    "layout": {
-                      "sidebar": false
-                    }
-                  },
-                  "/2025-03-12-how-we-sped-up-our-api-docs-25x": {
-                    "type": "page",
-                    "title": "How we sped up our API docs 25x",
-                    "filepath": "documentation/blog/2025-03-12-how-we-sped-up-our-api-docs-25x.md",
-                    "layout": {
-                      "sidebar": false
-                    }
-                  },
-                  "/2025-03-05-how-net-9-and-scalar-solve-the-problem": {
-                    "type": "page",
-                    "title": "How .NET 9 and Scalar solve the problem of under-documented APIs",
-                    "filepath": "documentation/blog/2025-03-05-how-net-9-and-scalar-solve-the-problem.md",
-                    "layout": {
-                      "sidebar": false
-                    }
-                  },
-                  "/2024-09-01-oss-pledge": {
-                    "type": "page",
-                    "title": "Scalar Joins the Open-Source Pledge",
-                    "filepath": "documentation/blog/2024-09-01-oss-pledge.md",
-                    "layout": {
-                      "sidebar": false
-                    }
-                  }
+                  ]
                 }
+              },
+              "/posts/2026-03-17-agent-mcp": {
+                "type": "page",
+                "title": "Use your API in Cursor",
+                "filepath": "documentation/blog/2026-03-17-agent-mcp.md",
+                "head": {
+                  "scripts": [
+                    {
+                      "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player"
+                    }
+                  ]
+                }
+              },
+              "/posts/2026-03-05-agent-scalar": {
+                "type": "page",
+                "title": "Introducing Agent",
+                "filepath": "documentation/blog/2026-03-05-agent-scalar.md"
+              },
+              "/posts/2025-08-19-how-to-set-up-an-openapi-mock-server": {
+                "type": "page",
+                "title": "How to set up an OpenAPI mock server",
+                "filepath": "documentation/blog/2025-08-19-how-to-set-up-an-openapi-mock-server.md"
+              },
+              "/posts/2025-07-07-how-to-do-openapi-validation-and": {
+                "type": "page",
+                "title": "How to do OpenAPI validation (and why it matters)",
+                "filepath": "documentation/blog/2025-07-07-how-to-do-openapi-validation-and.md"
+              },
+              "/posts/2025-05-28-how-we-created-an-animated-responsive": {
+                "type": "page",
+                "title": "How we created an animated, responsive README",
+                "filepath": "documentation/blog/2025-05-28-how-we-created-an-animated-responsive.md"
+              },
+              "/posts/2025-05-07-how-scalar-themes-work": {
+                "type": "page",
+                "title": "How Scalar themes work",
+                "filepath": "documentation/blog/2025-05-07-how-scalar-themes-work.md"
+              },
+              "/posts/2025-04-28-how-cloudinarys-api-docs-create-a": {
+                "type": "page",
+                "title": "How Cloudinary’s API docs create a great developer experience",
+                "filepath": "documentation/blog/2025-04-28-how-cloudinarys-api-docs-create-a.md"
+              },
+              "/posts/2025-04-23-an-introduction-to-openapi-variables": {
+                "type": "page",
+                "title": "An introduction to OpenAPI variables",
+                "filepath": "documentation/blog/2025-04-23-an-introduction-to-openapi-variables.md"
+              },
+              "/posts/2025-04-06-how-we-extended-the-openapi-specification": {
+                "type": "page",
+                "title": "How we extended the OpenAPI specification",
+                "filepath": "documentation/blog/2025-04-06-how-we-extended-the-openapi-specification.md"
+              },
+              "/posts/2025-03-26-a-guide-to-openapi-security-and-how": {
+                "type": "page",
+                "title": "A guide to OpenAPI security (and how we handle it in Scalar)",
+                "filepath": "documentation/blog/2025-03-26-a-guide-to-openapi-security-and-how.md"
+              },
+              "/posts/2025-03-19-the-hidden-complexity-of-building": {
+                "type": "page",
+                "title": "The hidden complexity of building drag and drop",
+                "filepath": "documentation/blog/2025-03-19-the-hidden-complexity-of-building.md"
+              },
+              "/posts/2025-03-12-how-we-sped-up-our-api-docs-25x": {
+                "type": "page",
+                "title": "How we sped up our API docs 25x",
+                "filepath": "documentation/blog/2025-03-12-how-we-sped-up-our-api-docs-25x.md"
+              },
+              "/posts/2025-03-05-how-net-9-and-scalar-solve-the-problem": {
+                "type": "page",
+                "title": "How .NET 9 and Scalar solve the problem of under-documented APIs",
+                "filepath": "documentation/blog/2025-03-05-how-net-9-and-scalar-solve-the-problem.md"
+              },
+              "/posts/2024-09-01-oss-pledge": {
+                "type": "page",
+                "title": "Scalar Joins the Open-Source Pledge",
+                "filepath": "documentation/blog/2024-09-01-oss-pledge.md"
               }
             }
           }

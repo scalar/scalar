@@ -122,15 +122,9 @@
 <!-- /generated -->
 
 <style>
-.t-editor.page {
-  --scalar-container-width: 1120px;
-}
-
 .blog-post-list {
   margin-top: 16px;
   border-top: 1px solid var(--scalar-border-color);
-  width: 100%;
-  max-width: var(--scalar-container-width);
 }
 
 .blog-post-list__link {
@@ -197,9 +191,4 @@
   }
 }
 
-@media (max-width: 900px) {
-  .blog-post-list {
-    max-width: 100%;
-  }
-}
 </style>

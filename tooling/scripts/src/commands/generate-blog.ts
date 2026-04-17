@@ -102,39 +102,30 @@ async function updateConfig(root: string, configPath: string, posts: BlogPost[])
   const config = JSON.parse(raw)
 
   const blog = config?.navigation?.routes?.['/']?.children?.['/blog']
-  if (!blog?.children?.['/posts']) {
-    console.warn(as.yellow('⚠ Could not find /blog /posts in scalar.config.json — skipping config update.'))
+  if (!blog?.children || typeof blog.children !== 'object') {
+    console.warn(as.yellow('⚠ Could not find /blog children in scalar.config.json — skipping config update.'))
     return
   }
 
-  const overviewPage = blog.children?.['/']
-  if (overviewPage && typeof overviewPage === 'object') {
-    overviewPage.layout = {
-      ...(typeof overviewPage.layout === 'object' && overviewPage.layout !== null ? overviewPage.layout : {}),
-      sidebar: false,
-      toc: false,
-    }
-  }
+  blog.mode = 'flat'
 
-  const existingChildren: Record<string, Record<string, unknown>> = (blog.children['/posts'].children ?? {}) as Record<
-    string,
-    Record<string, unknown>
-  >
+  const overviewPage = normalizeOverviewPage(blog.children['/'])
+  const existingChildren = collectExistingPostChildren(blog.children as Record<string, unknown>)
 
   const children: Record<string, Record<string, unknown>> = {}
+  children['/'] = overviewPage
+
   for (const post of posts) {
-    const key = `/${post.slug}`
+    const key = `/posts/${post.slug}`
     const prev = existingChildren[key]
-    const existingLayout =
-      typeof prev?.layout === 'object' && prev.layout !== null ? (prev.layout as Record<string, unknown>) : {}
     const entry: Record<string, unknown> = {
       type: 'page',
       title: typeof prev?.title === 'string' ? prev.title : post.title,
       filepath: `${BLOG_DIR}/${post.filename}`,
-      layout: {
-        ...existingLayout,
-        sidebar: false,
-      },
+    }
+    const layout = stripSidebarLayout(prev?.layout)
+    if (layout !== undefined) {
+      entry.layout = layout
     }
     if (prev?.head !== undefined) {
       entry.head = prev.head
@@ -142,10 +133,10 @@ async function updateConfig(root: string, configPath: string, posts: BlogPost[])
     children[key] = entry
   }
 
-  blog.children['/posts'].children = children
+  blog.children = children
 
   await fs.writeFile(configPath, JSON.stringify(config, null, 2) + '\n')
-  console.log(as.green(`✔ Updated ${path.relative(root, configPath)} /blog /posts with ${posts.length} post(s).`))
+  console.log(as.green(`✔ Updated ${path.relative(root, configPath)} /blog with ${posts.length} post(s).`))
 }
 
 // ---------------------------------------------------------------------------
@@ -364,4 +355,57 @@ function escapeHtml(value: string): string {
 
 function decodeHtmlEntities(value: string): string {
   return value.replaceAll('&quot;', '"').replaceAll('&gt;', '>').replaceAll('&lt;', '<').replaceAll('&amp;', '&')
+}
+
+function collectExistingPostChildren(children: Record<string, unknown>): Record<string, Record<string, unknown>> {
+  const entries: Record<string, Record<string, unknown>> = {}
+
+  const postsGroup = children['/posts']
+  const nestedChildren =
+    postsGroup &&
+    typeof postsGroup === 'object' &&
+    typeof postsGroup.children === 'object' &&
+    postsGroup.children !== null
+      ? (postsGroup.children as Record<string, unknown>)
+      : {}
+
+  for (const [key, value] of Object.entries(nestedChildren)) {
+    if (typeof value === 'object' && value !== null) {
+      const normalizedKey = key.startsWith('/posts/') ? key : `/posts${key}`
+      entries[normalizedKey] = value as Record<string, unknown>
+    }
+  }
+
+  for (const [key, value] of Object.entries(children)) {
+    if (key.startsWith('/posts/') && typeof value === 'object' && value !== null) {
+      entries[key] = value as Record<string, unknown>
+    }
+  }
+
+  return entries
+}
+
+function normalizeOverviewPage(overview: unknown): Record<string, unknown> {
+  const previous = typeof overview === 'object' && overview !== null ? (overview as Record<string, unknown>) : {}
+  const normalized: Record<string, unknown> = {
+    type: 'page',
+    title: typeof previous.title === 'string' ? previous.title : 'Overview',
+    filepath: typeof previous.filepath === 'string' ? previous.filepath : `${BLOG_DIR}/${INDEX_FILENAME}`,
+  }
+  const layout = stripSidebarLayout(previous.layout)
+  if (layout !== undefined) {
+    normalized.layout = layout
+  }
+  return normalized
+}
+
+function stripSidebarLayout(layout: unknown): Record<string, unknown> | undefined {
+  if (typeof layout !== 'object' || layout === null) {
+    return undefined
+  }
+
+  const nextLayout = { ...(layout as Record<string, unknown>) }
+  delete nextLayout.sidebar
+
+  return Object.keys(nextLayout).length > 0 ? nextLayout : undefined
 }
