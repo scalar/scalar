@@ -22,6 +22,121 @@ export const sources = [
     layout: 'classic',
   },
   {
+    title: 'Issue 6748',
+    slug: 'issue-6748',
+    content: {
+      openapi: '3.1.0',
+      info: {
+        title: 'Missing property description',
+        description: 'Reproducing the missing description issue',
+      },
+      paths: {
+        '/v1/transactions/{id}': {
+          get: {
+            tags: ['Transactions'],
+            summary: 'Retrieve a transaction',
+            description: "Use this API resource to retrieve the specified transactions's information.",
+            operationId: 'getTransaction',
+            parameters: [
+              {
+                name: 'id',
+                in: 'path',
+                description: 'ID of the transaction, uniquely identifying the resource.',
+                required: true,
+                schema: {
+                  example: '507f1f77bcf86cd799439011',
+                },
+              },
+            ],
+            responses: {
+              '200': {
+                description: 'Retrieved transaction',
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/TransactionDTO',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          TransactionDTO: {
+            type: 'object',
+            description:
+              "Point transaction contains information about events that caused changes to the user's point wallet.",
+            properties: {
+              summary: {
+                $ref: '#/components/schemas/SummaryDTO',
+                description: 'Summary of the mechanic that changed the points.',
+              },
+            },
+          },
+          SummaryDTO: {
+            description:
+              'Summary model containing information required to display a gamification mechanic. Different summary types include activities, points, behaviours, rewards, KPIs, and coupons.',
+            discriminator: {
+              propertyName: 'type',
+              mapping: {
+                activity: '#/components/schemas/ActivitySummaryDTO',
+                point: '#/components/schemas/BehaviourSummaryDTO',
+              },
+            },
+            oneOf: [
+              {
+                $ref: '#/components/schemas/ActivitySummaryDTO',
+              },
+              {
+                $ref: '#/components/schemas/BehaviourSummaryDTO',
+              },
+            ],
+            properties: {
+              type: {
+                type: 'string',
+              },
+            },
+          },
+          ActivitySummaryDTO: {
+            allOf: [
+              {
+                type: 'object',
+                properties: {
+                  type: {
+                    type: 'string',
+                    description: 'Discriminator field identifying this as an activity summary.',
+                    example: 'activity',
+                  },
+                },
+              },
+            ],
+            description: 'Contains the information needed to display an activity.',
+            title: 'ActivitySummaryDTO',
+          },
+          BehaviourSummaryDTO: {
+            allOf: [
+              {
+                type: 'object',
+                properties: {
+                  type: {
+                    type: 'string',
+                    description: 'Discriminator field identifying this as an behaviour summary.',
+                    example: 'behaviour',
+                  },
+                },
+              },
+            ],
+            description: 'Contains the information needed to display a behaviour.',
+            title: 'BehaviourSummaryDTO',
+          },
+        },
+      },
+    },
+  },
+  {
     title: 'Tag Groups',
     slug: 'tag-groups',
     content: {

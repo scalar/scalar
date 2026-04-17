@@ -285,7 +285,7 @@ describe('optimizeValueForDisplay', () => {
   })
 
   it('preserves the parent description for multi-branch oneOf schemas', () => {
-    const input: SchemaObject = {
+    const input = {
       description: 'Base schema description',
       properties: {
         kind: {
@@ -324,7 +324,7 @@ describe('optimizeValueForDisplay', () => {
           description: 'Second variant description.',
         },
       ],
-    }
+    } as unknown as SchemaObject
 
     const result = optimizeValueForDisplay(input)
 
