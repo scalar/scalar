@@ -103,7 +103,7 @@ function extractDescriptionFromName(name: string | undefined, statusCode: string
 }
 
 function getDefaultResponseDescription(statusCode: string): string {
-  return DEFAULT_RESPONSE_DESCRIPTIONS[statusCode] || DEFAULT_RESPONSE_DESCRIPTIONS.default
+  return DEFAULT_RESPONSE_DESCRIPTIONS[statusCode] ?? DEFAULT_RESPONSE_DESCRIPTIONS.default ?? 'Default response'
 }
 
 function extractHeaders(
