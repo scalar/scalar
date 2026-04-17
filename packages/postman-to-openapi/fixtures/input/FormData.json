@@ -28,7 +28,7 @@
 						},
 						{
 							"key": "password",
-							"value": "pasword123",
+							"value": "super-secret-password",
 							"type": "text"
 						},
 						{
