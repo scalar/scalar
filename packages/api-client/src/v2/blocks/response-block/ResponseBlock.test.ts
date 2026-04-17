@@ -416,7 +416,7 @@ describe('ResponseBlock', () => {
     const wrapper = mount(ResponseBlock, {
       props: {
         ...defaultProps,
-        request: ['https://example.com', { headers: new Headers() }] as RequestPayload,
+        requestPayload: ['https://example.com', { headers: new Headers() }] as RequestPayload,
         response: getDefaultResponse(),
         plugins: [
           {
