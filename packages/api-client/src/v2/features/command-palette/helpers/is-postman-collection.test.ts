@@ -31,7 +31,7 @@ describe('isPostmanCollection', () => {
     expect(result).toBe(false)
   })
 
-  it('returns false when missing _postman_id', () => {
+  it('returns false when missing _postman_id and item tree', () => {
     const content = JSON.stringify({
       info: {
         name: 'Test Collection',
@@ -41,6 +41,19 @@ describe('isPostmanCollection', () => {
 
     const result = isPostmanCollection(content)
     expect(result).toBe(false)
+  })
+
+  it('returns true when missing _postman_id but has schema and item tree', () => {
+    const content = JSON.stringify({
+      info: {
+        name: 'Exported Collection',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [],
+    })
+
+    const result = isPostmanCollection(content)
+    expect(result).toBe(true)
   })
 
   it('returns false when _postman_id is undefined', () => {

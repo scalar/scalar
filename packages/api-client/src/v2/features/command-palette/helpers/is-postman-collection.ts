@@ -1,8 +1,9 @@
 /**
  * Checks if the given string content is a Postman collection.
  *
- * Validates by checking for the `_postman_id` in the info object
- * and ensuring the schema URL's host matches 'schema.getpostman.com'.
+ * We primarily rely on the official Postman collection schema URL and the
+ * collection item tree because exported collections are not guaranteed to
+ * include `_postman_id`.
  *
  * @param content - The JSON string which may be a Postman collection
  * @returns True if the content is a valid Postman collection
@@ -11,10 +12,16 @@ export const isPostmanCollection = (content: string): boolean => {
   try {
     const parsed = JSON.parse(content)
 
-    const hasPostmanId = parsed.info?._postman_id !== undefined
-    const hasValidSchema = parsed.info?.schema && new URL(parsed.info.schema).host === 'schema.getpostman.com'
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return false
+    }
 
-    return hasPostmanId && hasValidSchema
+    const hasPostmanId = parsed.info?._postman_id !== undefined
+    const hasItemTree = Array.isArray(parsed.item)
+    const schema = parsed.info?.schema
+    const hasValidSchema = typeof schema === 'string' && new URL(schema).host === 'schema.getpostman.com'
+
+    return hasValidSchema && (hasPostmanId || hasItemTree)
   } catch {
     return false
   }
