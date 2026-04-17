@@ -122,6 +122,7 @@ async function updateConfig(root: string, configPath: string, posts: BlogPost[])
       type: 'page',
       title: typeof prev?.title === 'string' ? prev.title : post.title,
       filepath: `${BLOG_DIR}/${post.filename}`,
+      showInSidebar: false,
     }
     const layout = stripSidebarLayout(prev?.layout)
     if (layout !== undefined) {
@@ -389,8 +390,9 @@ function normalizeOverviewPage(overview: unknown): Record<string, unknown> {
   const previous = typeof overview === 'object' && overview !== null ? (overview as Record<string, unknown>) : {}
   const normalized: Record<string, unknown> = {
     type: 'page',
-    title: typeof previous.title === 'string' ? previous.title : 'Overview',
+    title: 'Blog',
     filepath: typeof previous.filepath === 'string' ? previous.filepath : `${BLOG_DIR}/${INDEX_FILENAME}`,
+    showInSidebar: false,
   }
   const layout = stripSidebarLayout(previous.layout)
   if (layout !== undefined) {
