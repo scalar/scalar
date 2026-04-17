@@ -1,4 +1,6 @@
-import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type { AnyApiReferenceConfiguration, HtmlRenderingConfiguration } from '@scalar/types/api-reference'
+
+export type { AnyApiReferenceConfiguration, HtmlRenderingConfiguration }
 
 const DEFAULT_CDN = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
 

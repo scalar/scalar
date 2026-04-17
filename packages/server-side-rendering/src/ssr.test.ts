@@ -1,7 +1,13 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from 'vitest'
 
-import { generateBodyScript, getJsAsset, renderApiReference, renderApiReferenceToString } from './ssr'
+import {
+  generateBodyScript,
+  getJsAsset,
+  renderApiReference,
+  renderApiReferenceToString,
+  serializeConfigToJs,
+} from './ssr'
 
 describe('ssr', () => {
   describe('renderApiReferenceToString', () => {
@@ -230,7 +236,7 @@ describe('ssr', () => {
     it('serializes configuration into the hydration script', async () => {
       const html = await renderApiReference({ config: { url: 'https://example.com/api.json' }, css: '' })
 
-      expect(html).toContain('"url":"https://example.com/api.json"')
+      expect(html).toContain('"url": "https://example.com/api.json"')
     })
 
     it('prevents script breakout in hydration config serialization', async () => {
@@ -242,10 +248,12 @@ describe('ssr', () => {
       })
 
       expect(html).not.toContain('</script><script>window.__pwned=1</script>')
-      expect(html).toContain('"title":"\\u003c/script\\u003e\\u003cscript\\u003ewindow.__pwned=1\\u003c/script\\u003e"')
+      expect(html).toContain(
+        '"title": "\\u003c/script\\u003e\\u003cscript\\u003ewindow.__pwned=1\\u003c/script\\u003e"',
+      )
     })
 
-    it('drops function properties from hydration config serialization', async () => {
+    it('preserves top-level function properties in hydration config serialization', async () => {
       const html = await renderApiReference({
         config: {
           url: 'https://example.com/api.json',
@@ -255,12 +263,11 @@ describe('ssr', () => {
       })
 
       expect(html).toContain('Scalar.createApiReference')
-      expect(html).toContain('{"url":"https://example.com/api.json"}')
-      expect(html).not.toContain('onLoaded')
-      expect(html).not.toContain('console.log')
+      expect(html).toContain('"url": "https://example.com/api.json"')
+      expect(html).toContain('"onLoaded": () => console.log("loaded")')
     })
 
-    it('serializes function-only configuration as empty object', async () => {
+    it('serializes function-only configuration as a valid object literal', async () => {
       const html = await renderApiReference({
         config: {
           onLoaded: () => console.log('loaded'),
@@ -268,7 +275,90 @@ describe('ssr', () => {
         css: '',
       })
 
-      expect(html).toContain("Scalar.createApiReference('#app', {})")
+      expect(html).toContain('"onLoaded": () => console.log("loaded")')
+      expect(html).not.toContain('{,')
+    })
+
+    it('preserves top-level arrays containing functions in hydration config serialization', () => {
+      const result = serializeConfigToJs({
+        theme: 'kepler',
+        hooks: [
+          () => 'ready',
+          {
+            label: 'stable',
+          },
+        ],
+      })
+
+      expect(result).toContain('"theme": "kepler"')
+      expect(result).toContain('"hooks": [() => "ready", {"label":"stable"}]')
+    })
+
+    it('escapes script-breaking sequences in serialized function properties', () => {
+      // Arrow function whose source contains a </script> payload
+      const maliciousFn = () => '</script><script>window.__pwned=3</script>'
+      const result = serializeConfigToJs({
+        onLoaded: maliciousFn,
+      })
+
+      expect(result).not.toContain('</script><script>window.__pwned=3</script>')
+      expect(result).toContain('<\\/script>')
+    })
+
+    it('escapes script-breaking sequences in serialized array functions', () => {
+      // Arrow function whose source contains a </script> payload
+      const maliciousFn = () => '</script><script>window.__pwned=4</script>'
+      const result = serializeConfigToJs({
+        hooks: [maliciousFn],
+      })
+
+      expect(result).not.toContain('</script><script>window.__pwned=4</script>')
+      expect(result).toContain('<\\/script>')
+    })
+
+    it('escapes dangerous characters in function property keys', () => {
+      const maliciousKey = 'on"Loaded</script><script>window.__pwned=5</script>'
+      const result = serializeConfigToJs({
+        [maliciousKey]: () => 'safe',
+      })
+
+      expect(result).not.toContain(`"${maliciousKey}"`)
+      expect(result).not.toContain('</script><script>window.__pwned=5</script>')
+      expect(result).toContain(
+        '"on\\"Loaded\\u003c/script\\u003e\\u003cscript\\u003ewindow.__pwned=5\\u003c/script\\u003e"',
+      )
+      const hydratedConfig = new Function(`return (${result})`)() as Record<string, unknown>
+      expect(typeof hydratedConfig[maliciousKey]).toBe('function')
+      expect((hydratedConfig[maliciousKey] as () => string)()).toBe('safe')
+    })
+
+    it('escapes dangerous characters in array property keys', () => {
+      const maliciousKey = 'hooks"</script><script>window.__pwned=6</script>'
+      const result = serializeConfigToJs({
+        [maliciousKey]: [() => 'safe'],
+      })
+
+      expect(result).not.toContain(`"${maliciousKey}"`)
+      expect(result).not.toContain('</script><script>window.__pwned=6</script>')
+      expect(result).toContain(
+        '"hooks\\"\\u003c/script\\u003e\\u003cscript\\u003ewindow.__pwned=6\\u003c/script\\u003e"',
+      )
+      const hydratedConfig = new Function(`return (${result})`)() as Record<string, unknown>
+      expect(Array.isArray(hydratedConfig[maliciousKey])).toBe(true)
+      expect(((hydratedConfig[maliciousKey] as unknown[])[0] as () => string)()).toBe('safe')
+    })
+
+    it('throws when nested functions would be dropped during hydration serialization', async () => {
+      await expect(
+        renderApiReference({
+          config: {
+            metaData: {
+              onLoaded: () => console.log('loaded'),
+            },
+          },
+          css: '',
+        }),
+      ).rejects.toThrow('Cannot serialize function at "metaData.onLoaded" for SSR hydration.')
     })
   })
 

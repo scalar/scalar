@@ -61,7 +61,7 @@
     "documentation": "https://scalar.com/products/api-references/integrations/fastify"
   },
   "dependencies": {
-    "@scalar/core": "workspace:*",
+    "@scalar/client-side-rendering": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "fastify-plugin": "catalog:*",

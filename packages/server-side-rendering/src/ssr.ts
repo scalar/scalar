@@ -178,20 +178,133 @@ function escapeJsonForInlineScript(json: string): string {
 }
 
 /**
- * Serialize a configuration object to JSON for hydration.
- * Function values are intentionally stripped because they cannot be safely
- * represented in an inline script.
+ * Escape a function's source code so it is safe to embed inside an inline script tag.
+ *
+ * Unlike escapeJsonForInlineScript (which escapes all `<` and `>`), this only neutralizes
+ * sequences that could break out of a `<script>` block or open an HTML comment:
+ * - `</` (case-insensitive closing tags, e.g. `</script>`)
+ * - `<!--` (HTML comment open)
+ * - U+2028 / U+2029 (line/paragraph separators, invalid in JS source outside strings)
+ *
+ * This preserves JS syntax like `=>`, `<`, `>`, and `>=`.
  */
-function serializeConfigToJs(config: Record<string, unknown>): string {
-  const jsonString = JSON.stringify(config, (_, value) => {
+function escapeFunctionSourceForInlineScript(source: string): string {
+  return source
+    .replace(/<\//g, '<\\/')
+    .replace(/<!--/g, '<\\!--')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029')
+}
+
+/** Add consistent indentation to multiline strings embedded in HTML output. */
+const addIndent = (str: string, spaces: number = 2, initialIndent: boolean = false): string => {
+  const indent = ' '.repeat(spaces)
+  const lines = str.split('\n')
+
+  return lines
+    .map((line, index) => {
+      if (index === 0 && !initialIndent) {
+        return line
+      }
+
+      return `${indent}${line}`
+    })
+    .join('\n')
+}
+
+/**
+ * Reject function values that would otherwise be silently dropped by JSON.stringify.
+ * SSR only supports top-level function props and top-level arrays containing functions,
+ * matching the client-side renderer behavior.
+ */
+const assertNoNestedFunctions = (value: unknown, path: string): void => {
+  if (typeof value === 'function') {
+    throw new Error(
+      `Cannot serialize function at "${path}" for SSR hydration. ` +
+        'Only top-level function properties and top-level arrays containing functions are supported.',
+    )
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => assertNoNestedFunctions(item, `${path}[${index}]`))
+    return
+  }
+
+  if (value && typeof value === 'object') {
+    Object.entries(value).forEach(([key, nestedValue]) => assertNoNestedFunctions(nestedValue, `${path}.${key}`))
+  }
+}
+
+const serializeJsonValue = (value: unknown): string => escapeJsonForInlineScript(JSON.stringify(value))
+
+const serializeJsonObject = (value: Record<string, unknown>): string =>
+  escapeJsonForInlineScript(JSON.stringify(value, null, 2))
+
+const serializePropertyKey = (key: string): string => escapeJsonForInlineScript(JSON.stringify(key))
+
+const serializeArrayWithFunctions = (value: unknown[], path: string): string => {
+  return `[${value
+    .map((item, index) => {
+      if (typeof item === 'function') {
+        return escapeFunctionSourceForInlineScript(item.toString())
+      }
+
+      assertNoNestedFunctions(item, `${path}[${index}]`)
+      return serializeJsonValue(item)
+    })
+    .join(', ')}]`
+}
+
+const serializeFunctionProperty = (key: string, value: Function): string =>
+  `${serializePropertyKey(key)}: ${escapeFunctionSourceForInlineScript(value.toString())}`
+
+const serializeArrayProperty = (key: string, value: unknown[]): string =>
+  `${serializePropertyKey(key)}: ${serializeArrayWithFunctions(value, key)}`
+
+const mergeSerializedProperties = (jsonObjectLiteral: string, dynamicProperties: string[]): string => {
+  const formattedDynamicProperties = addIndent(dynamicProperties.join(',\n'), 8, true)
+
+  if (jsonObjectLiteral === '{}') {
+    return `{\n${formattedDynamicProperties}\n      }`
+  }
+
+  const jsonWithoutClosingBrace = jsonObjectLiteral.split('\n').slice(0, -1).join('\n')
+  return `${jsonWithoutClosingBrace},\n${formattedDynamicProperties}\n      }`
+}
+
+/**
+ * Serialize a configuration object to a JavaScript object literal for hydration.
+ * Top-level function props and top-level arrays containing functions are preserved
+ * to match the client-side renderer behavior.
+ */
+export function serializeConfigToJs(config: Record<string, unknown>): string {
+  const restConfig = { ...config }
+  const dynamicProperties: string[] = []
+
+  Object.entries(config).forEach(([key, value]) => {
     if (typeof value === 'function') {
-      return undefined
+      dynamicProperties.push(serializeFunctionProperty(key, value))
+      delete restConfig[key]
+      return
     }
 
-    return value
+    if (Array.isArray(value) && value.some((item) => typeof item === 'function')) {
+      dynamicProperties.push(serializeArrayProperty(key, value))
+      delete restConfig[key]
+      return
+    }
+
+    assertNoNestedFunctions(value, key)
   })
 
-  return escapeJsonForInlineScript(jsonString)
+  const jsonString = serializeJsonObject(restConfig)
+  const indentedJsonString = addIndent(jsonString, 6)
+
+  if (dynamicProperties.length === 0) {
+    return indentedJsonString
+  }
+
+  return mergeSerializedProperties(indentedJsonString, dynamicProperties)
 }
 
 /**
