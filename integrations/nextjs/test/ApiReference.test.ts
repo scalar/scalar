@@ -1,15 +1,15 @@
-import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
+import { renderApiReference } from '@scalar/client-side-rendering'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ApiReference } from '../src/ApiReference'
 
-vi.mock('@scalar/core/libs/html-rendering', { spy: true })
+vi.mock('@scalar/client-side-rendering', { spy: true })
 vi.mock('../src/custom-theme', () => ({ customTheme: '___customTheme___' }))
 
-const getHtmlDocumentSpy = vi.mocked(getHtmlDocument)
+const renderApiReferenceSpy = vi.mocked(renderApiReference)
 
 beforeEach(() => {
-  getHtmlDocumentSpy.mockReset()
+  renderApiReferenceSpy.mockReset()
 })
 
 describe('ApiReference', () => {
@@ -19,7 +19,7 @@ describe('ApiReference', () => {
   })
 
   it('should return a Response with correct headers and body', async () => {
-    getHtmlDocumentSpy.mockReturnValueOnce('___HTMLDoc___')
+    renderApiReferenceSpy.mockReturnValueOnce('___HTMLDoc___')
 
     const handler = ApiReference({ title: 'Test API' })
     const response = handler()
@@ -28,12 +28,16 @@ describe('ApiReference', () => {
     expect(response.status).toBe(200)
     expect(response.headers.get('Content-Type')).toBe('text/html')
 
-    expect(getHtmlDocumentSpy).toHaveBeenCalledOnce()
-    expect(getHtmlDocumentSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: 'Test API',
-        _integration: 'nextjs', // default should be merged in
-      }),
+    expect(renderApiReferenceSpy).toHaveBeenCalledOnce()
+    expect(renderApiReferenceSpy).toHaveBeenCalledWith(
+      {
+        config: expect.objectContaining({
+          title: 'Test API',
+          _integration: 'nextjs', // default should be merged in
+        }),
+        cdn: undefined,
+        pageTitle: undefined,
+      },
       '___customTheme___',
     )
 

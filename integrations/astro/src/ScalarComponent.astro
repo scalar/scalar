@@ -1,5 +1,5 @@
 ---
-import { getHtmlDocument, type HtmlRenderingConfiguration } from '@scalar/core/libs/html-rendering'
+import { renderApiReference, type HtmlRenderingConfiguration } from '@scalar/client-side-rendering'
 
 export interface Props {
   configuration: Partial<HtmlRenderingConfiguration>
@@ -15,9 +15,15 @@ const DEFAULT_CONFIGURATION: Partial<HtmlRenderingConfiguration> = {
 
 const { configuration } = Astro.props
 
-const html = getHtmlDocument({
+const finalConfiguration = {
   ...DEFAULT_CONFIGURATION,
   ...configuration,
+}
+const { cdn, pageTitle, ...config } = finalConfiguration
+const html = renderApiReference({
+  config,
+  cdn,
+  pageTitle,
 })
 ---
 

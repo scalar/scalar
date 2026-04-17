@@ -741,9 +741,9 @@ importers:
 
   integrations/astro:
     dependencies:
-      '@scalar/core':
+      '@scalar/client-side-rendering':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../../packages/client-side-rendering
     devDependencies:
       astro:
         specifier: ^4.0.0 || ^5.0.0
@@ -852,9 +852,9 @@ importers:
 
   integrations/express:
     dependencies:
-      '@scalar/core':
+      '@scalar/client-side-rendering':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../../packages/client-side-rendering
     devDependencies:
       '@types/express':
         specifier: catalog:*
@@ -885,9 +885,9 @@ importers:
 
   integrations/fastify:
     dependencies:
-      '@scalar/core':
+      '@scalar/client-side-rendering':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../../packages/client-side-rendering
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../../packages/openapi-parser
@@ -928,9 +928,9 @@ importers:
 
   integrations/hono:
     dependencies:
-      '@scalar/core':
+      '@scalar/client-side-rendering':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../../packages/client-side-rendering
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
@@ -963,9 +963,9 @@ importers:
 
   integrations/nestjs:
     dependencies:
-      '@scalar/core':
+      '@scalar/client-side-rendering':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../../packages/client-side-rendering
     devDependencies:
       '@nestjs/common':
         specifier: catalog:*
@@ -1006,9 +1006,9 @@ importers:
 
   integrations/nextjs:
     dependencies:
-      '@scalar/core':
+      '@scalar/client-side-rendering':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../../packages/client-side-rendering
     devDependencies:
       '@types/node':
         specifier: ^24.1.0
@@ -1085,9 +1085,9 @@ importers:
 
   integrations/sveltekit:
     dependencies:
-      '@scalar/core':
+      '@scalar/client-side-rendering':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../../packages/client-side-rendering
     devDependencies:
       '@sveltejs/kit':
         specifier: ^2.57.1

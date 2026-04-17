@@ -1,4 +1,4 @@
-import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
+import { renderApiReference } from '@scalar/client-side-rendering'
 import type { Context, Env, MiddlewareHandler } from 'hono'
 
 import type { ApiReferenceConfiguration } from './types'
@@ -89,6 +89,7 @@ export const Scalar = <E extends Env>(configOrResolver: Configuration<E>): Middl
     }
 
     // Respond with the HTML document
-    return c.html(getHtmlDocument(configuration, customTheme))
+    const { cdn, pageTitle, ...config } = configuration
+    return c.html(renderApiReference({ config, pageTitle, cdn }, customTheme))
   }
 }

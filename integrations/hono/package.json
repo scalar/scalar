@@ -52,7 +52,7 @@
     "documentation": "https://scalar.com/products/api-references/integrations/hono"
   },
   "dependencies": {
-    "@scalar/core": "workspace:*"
+    "@scalar/client-side-rendering": "workspace:*"
   },
   "devDependencies": {
     "@hono/node-server": "catalog:*",

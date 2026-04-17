@@ -1,4 +1,4 @@
-import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
+import { renderApiReference } from '@scalar/client-side-rendering'
 import type { RequestHandler } from 'express'
 
 import type { ApiReferenceConfiguration } from './types'
@@ -22,6 +22,7 @@ export function apiReference(givenConfiguration: Partial<ApiReferenceConfigurati
 
   // Respond with the HTML document
   return (_, res) => {
-    res.type('text/html').send(getHtmlDocument(configuration))
+    const { cdn, pageTitle, ...config } = configuration
+    res.type('text/html').send(renderApiReference({ config, pageTitle, cdn }))
   }
 }
