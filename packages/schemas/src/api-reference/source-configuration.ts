@@ -18,13 +18,16 @@ export const sourceConfigurationSchema = object({
     typeComment: 'URL to an OpenAPI/Swagger document',
   }),
   content: optional(contentSchema, {
-    typeComment: 'Directly embed the OpenAPI document. Can be a string, object, function returning an object, or null. It is recommended to pass a URL instead of content.',
+    typeComment:
+      'Directly embed the OpenAPI document. Can be a string, object, function returning an object, or null. It is recommended to pass a URL instead of content.',
   }),
   title: optional(string(), {
-    typeComment: 'The title of the OpenAPI document. @deprecated Please move `title` to the top level and remove the `spec` prefix.',
+    typeComment:
+      'The title of the OpenAPI document. @deprecated Please move `title` to the top level and remove the `spec` prefix.',
   }),
   slug: optional(string(), {
-    typeComment: 'The slug of the OpenAPI document used in the URL. @deprecated Please move `slug` to the top level and remove the `spec` prefix.',
+    typeComment:
+      'The slug of the OpenAPI document used in the URL. @deprecated Please move `slug` to the top level and remove the `spec` prefix.',
   }),
   spec: optional(
     object({
@@ -40,7 +43,8 @@ export const sourceConfigurationSchema = object({
       key: optional(string()),
       disabled: optional(boolean()),
       hideAddApi: optional(boolean(), {
-        typeComment: 'When true, hide the control to add more APIs in the agent chat. Only preloaded/registry documents are shown; the public API list is not offered.',
+        typeComment:
+          'When true, hide the control to add more APIs in the agent chat. Only preloaded/registry documents are shown; the public API list is not offered.',
       }),
     }),
     {

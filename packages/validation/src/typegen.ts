@@ -45,8 +45,7 @@ type TypeGenContext = {
  */
 export const generateTypes = (schema: Schema, options?: GenerateTypesOptions): string => {
   const maxDepth = options?.maxDepth ?? DEFAULT_MAX_DEPTH
-  const rootTypeName =
-    options?.typeName && isValidTypeScriptIdentifier(options.typeName) ? options.typeName : undefined
+  const rootTypeName = options?.typeName && isValidTypeScriptIdentifier(options.typeName) ? options.typeName : undefined
   const ctx: TypeGenContext = {
     definitions: new Map(),
     declarations: [],

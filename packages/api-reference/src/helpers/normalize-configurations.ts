@@ -28,7 +28,6 @@ type NormalizedConfigurations = Record<string, NormalizedConfiguration>
 type ConfigWithRequiredSource = Omit<ApiReferenceConfigurationWithSource, 'url' | 'content'> &
   ({ url: string; content?: never } | { content: Record<string, unknown>; url?: never })
 
-
 const isConfigWithRequiredSource = (input: ApiReferenceConfigurationWithSource): input is ConfigWithRequiredSource => {
   return (input.url ?? '')?.trim() !== '' || (input.content ?? null) !== null
 }

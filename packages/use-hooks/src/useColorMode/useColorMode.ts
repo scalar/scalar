@@ -90,9 +90,12 @@ export function useColorMode(
 
   // Priority of initial values is: forceDarkModeState -> LocalStorage -> App Config -> initial / Fallback
   // const savedColorMode = colorModeSchema.parse(
-    // typeof window !== 'undefined' ? window?.localStorage?.getItem('colorMode') : 'system',
+  // typeof window !== 'undefined' ? window?.localStorage?.getItem('colorMode') : 'system',
   // )
-  const savedColorMode = coerce(colorModeSchema, typeof window !== 'undefined' ? window?.localStorage?.getItem('colorMode') : 'system')
+  const savedColorMode = coerce(
+    colorModeSchema,
+    typeof window !== 'undefined' ? window?.localStorage?.getItem('colorMode') : 'system',
+  )
   colorMode.value = overrideColorMode ?? savedColorMode ?? initialColorMode
 
   // Watch for colorMode changes and update the body class
