@@ -1,7 +1,15 @@
 import type { HarRequest } from '@scalar/types/snippetz'
 import { describe, expect, it } from 'vitest'
 
-import { accumulateRepeatedValue, buildQueryString, collectHeaders, joinUrlAndQuery, normalizeMethod, normalizeUrl, reduceQueryParams } from './http'
+import {
+  accumulateRepeatedValue,
+  buildQueryString,
+  collectHeaders,
+  joinUrlAndQuery,
+  normalizeMethod,
+  normalizeUrl,
+  reduceQueryParams,
+} from './http'
 
 describe('buildQueryString', () => {
   it('returns empty string for undefined query params', () => {
