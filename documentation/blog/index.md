@@ -124,6 +124,27 @@ Scalar joined the OSS Pledge: paying open-source maintainers ($2,000+ per develo
 
 <style>
 /* Make the blog overview feel like an editorial index instead of API docs. */
+:root {
+  --scalar-sidebar-width: 0px;
+  --scalar-toc-width: 0px;
+}
+
+.layout-aside-right,
+.t-editor__page-nav,
+.content .page-nav,
+.notify-container,
+.subheading,
+.t-editor .page-header,
+.t-doc__toc,
+.t-doc__sidebar,
+.t-doc__header {
+  display: none !important;
+}
+
+main.content {
+  overflow-x: clip;
+}
+
 .scalar-api-reference.references-layout {
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto;
@@ -132,13 +153,8 @@ Scalar joined the OSS Pledge: paying open-source maintainers ($2,000+ per develo
     'footer';
 }
 
-.scalar-api-reference .t-doc__sidebar,
-.scalar-api-reference .t-doc__toc,
-.scalar-api-reference .t-doc__header {
-  display: none !important;
-}
-
-.references-rendered .t-editor {
+.references-rendered .t-editor,
+.t-editor {
   width: min(100%, 980px);
   margin: 0 auto;
   padding: 64px 32px 96px;
@@ -248,7 +264,8 @@ Scalar joined the OSS Pledge: paying open-source maintainers ($2,000+ per develo
 }
 
 @media (max-width: 900px) {
-  .references-rendered .t-editor {
+  .references-rendered .t-editor,
+  .t-editor {
     width: min(100%, 720px);
     padding: 48px 20px 72px;
   }
