@@ -207,7 +207,7 @@ describe('path-items', () => {
       required: true,
       description: undefined,
       examples: {
-        'Get User': {
+        default: {
           value: '123',
           'x-disabled': false,
         },
@@ -480,7 +480,7 @@ describe('path-items', () => {
 
     expect(result.paths['/bedrock']?.get?.requestBody).toBeDefined()
     expect(result.paths['/bedrock']?.get?.requestBody?.content?.['application/json']).toBeDefined()
-    const example = result.paths['/bedrock']?.get?.requestBody?.content?.['application/json']?.examples?.['Get with Body']
+    const example = result.paths['/bedrock']?.get?.requestBody?.content?.['application/json']?.examples?.default
       ?.value as string
     expect(example).toBe('{"data": {"modelId": "mistral.mistral-7b-instruct-v0:2"}}')
   })
@@ -586,7 +586,7 @@ describe('path-items', () => {
       response: [],
     }
 
-    const result = processItem(item)
+    const result = processItem(item, 'default', [], '', true)
     expect(result.paths['/languages']?.get?.responses?.['204']).toEqual({
       description: 'Invalid country code filter',
     })

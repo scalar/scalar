@@ -55,6 +55,7 @@ export function processItem(
   exampleName: string = 'default',
   parentTags: string[] = [],
   parentPath: string = '',
+  preserveCollapsedVariants: boolean = false,
 ): {
   paths: OpenAPIV3_1.PathsObject
   components: OpenAPIV3_1.ComponentsObject
@@ -67,7 +68,13 @@ export function processItem(
   if ('item' in item && Array.isArray(item.item)) {
     const newParentTags = item.name ? [...parentTags, item.name] : parentTags
     item.item.forEach((childItem) => {
-      const childResult = processItem(childItem, exampleName, newParentTags, `${parentPath}/${item.name || ''}`)
+      const childResult = processItem(
+        childItem,
+        exampleName,
+        newParentTags,
+        `${parentPath}/${item.name || ''}`,
+        preserveCollapsedVariants,
+      )
       // Merge child paths and components
       for (const [pathKey, pathItem] of Object.entries(childResult.paths)) {
         if (!paths[pathKey]) {
@@ -100,6 +107,7 @@ export function processItem(
 
   const { request, name, response } = item
   const sourceRequestName = name?.trim() || exampleName
+  const operationExampleName = preserveCollapsedVariants ? sourceRequestName : exampleName
   const method = (typeof request === 'string' ? 'get' : request.method || 'get').toLowerCase() as HttpMethods
 
   const requestUrl =
@@ -140,14 +148,18 @@ export function processItem(
     responses: extractResponses(response || [], item),
     parameters: [],
   }
-  operationObject[POSTMAN_EXAMPLE_NAME_EXTENSION] = sourceRequestName
+  if (preserveCollapsedVariants) {
+    operationObject[POSTMAN_EXAMPLE_NAME_EXTENSION] = sourceRequestName
+  }
 
   // Add pre-request scripts if present
   const preRequestScript = processPreRequestScripts(item.event)
   if (preRequestScript) {
     operationObject['x-pre-request'] = preRequestScript
-    operationObject[POSTMAN_PRE_REQUEST_SCRIPTS_EXTENSION] = {
-      [sourceRequestName]: preRequestScript,
+    if (preserveCollapsedVariants) {
+      operationObject[POSTMAN_PRE_REQUEST_SCRIPTS_EXTENSION] = {
+        [sourceRequestName]: preRequestScript,
+      }
     }
   }
 
@@ -155,8 +167,10 @@ export function processItem(
   const postResponseScript = processPostResponseScripts(item.event)
   if (postResponseScript) {
     operationObject['x-post-response'] = postResponseScript
-    operationObject[POSTMAN_POST_RESPONSE_SCRIPTS_EXTENSION] = {
-      [sourceRequestName]: postResponseScript,
+    if (preserveCollapsedVariants) {
+      operationObject[POSTMAN_POST_RESPONSE_SCRIPTS_EXTENSION] = {
+        [sourceRequestName]: postResponseScript,
+      }
     }
   }
 
@@ -167,7 +181,7 @@ export function processItem(
 
   // Extract parameters from the request (query, path, header)
   // This should always happen, regardless of whether a description exists
-  const extractedParameters = extractParameters(request, sourceRequestName)
+  const extractedParameters = extractParameters(request, operationExampleName)
 
   // Merge parameters, giving priority to those from the Markdown table if description exists
   const mergedParameters = new Map<string, OpenAPIV3_1.ParameterObject>()
@@ -223,7 +237,7 @@ export function processItem(
 
   // Allow request bodies for all methods (including GET) if body is present
   if (typeof request !== 'string' && request.body) {
-    const requestBody = extractRequestBody(request.body, sourceRequestName)
+    const requestBody = extractRequestBody(request.body, operationExampleName)
     ensureRequestBodyContent(requestBody)
     // Only add requestBody if it has content
     if (requestBody.content && Object.keys(requestBody.content).length > 0) {
@@ -237,12 +251,16 @@ export function processItem(
   const pathItem = paths[path] as OpenAPIV3_1.PathItemObject
   pathItem[method] = operationObject
 
-  addResponseFromRequestName(pathItem[method], name)
+  if (preserveCollapsedVariants) {
+    addResponseFromRequestName(pathItem[method], name)
+  }
 
   return { paths, components, serverUsage }
 }
 
-export function parseStatusCodeFromRequestName(requestName: string | undefined): { statusCode: string; description: string } | null {
+export function parseStatusCodeFromRequestName(
+  requestName: string | undefined,
+): { statusCode: string; description: string } | null {
   const statusCodeMatch = requestName?.match(/^\s*(\d{3})\s*[-:]\s*(.+)$/)
   if (!statusCodeMatch?.[1]) {
     return null
@@ -377,7 +395,10 @@ function extractOperationInfo(name: string | undefined) {
   return { operationId, summary }
 }
 
-function addResponseFromRequestName(operationObject: OpenAPIV3_1.OperationObject, requestName: string | undefined): void {
+function addResponseFromRequestName(
+  operationObject: OpenAPIV3_1.OperationObject,
+  requestName: string | undefined,
+): void {
   const parsedStatus = parseStatusCodeFromRequestName(requestName)
   if (!parsedStatus) {
     return

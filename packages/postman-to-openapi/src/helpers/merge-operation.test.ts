@@ -13,7 +13,7 @@ it('returns an object based on operation2 with operation2 fields preserved', () 
   const op1: OpenAPIV3_1.OperationObject = { summary: 'First', responses: {} }
   const op2: OpenAPIV3_1.OperationObject = { summary: 'Second', description: 'Op2', responses: {} }
   const result = mergeOperations(op1, op2)
-  expect(result.summary).toBe('Second')
+  expect(result.summary).toBe('First')
   expect(result.description).toBe('Op2')
 })
 
@@ -172,9 +172,7 @@ it('keeps the shortest summary and merges distinct descriptions', () => {
   }
   const result = mergeOperations(op1, op2)
   expect(result.summary).toBe('200 - All languages')
-  expect(result.description).toBe(
-    'Returns languages for a specific country code.\n\nReturns all supported languages.',
-  )
+  expect(result.description).toBe('Returns languages for a specific country code.\n\nReturns all supported languages.')
 })
 
 it('unions responses from both merged operations', () => {

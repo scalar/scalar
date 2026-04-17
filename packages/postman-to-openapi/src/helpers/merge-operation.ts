@@ -197,8 +197,8 @@ const mergeSummary = (firstSummary?: string, secondSummary?: string): string | u
 }
 
 const mergeDescription = (firstDescription?: string, secondDescription?: string): string | undefined => {
-  const values = [firstDescription?.trim(), secondDescription?.trim()].filter(
-    (candidate): candidate is string => Boolean(candidate && candidate.length > 0),
+  const values = [firstDescription?.trim(), secondDescription?.trim()].filter((candidate): candidate is string =>
+    Boolean(candidate && candidate.length > 0),
   )
   if (values.length === 0) {
     return undefined
@@ -258,7 +258,8 @@ const addLegacyScriptToMap = (
   }
 
   const sourceName =
-    typeof operation[POSTMAN_EXAMPLE_NAME_EXTENSION] === 'string' && operation[POSTMAN_EXAMPLE_NAME_EXTENSION].length > 0
+    typeof operation[POSTMAN_EXAMPLE_NAME_EXTENSION] === 'string' &&
+    operation[POSTMAN_EXAMPLE_NAME_EXTENSION].length > 0
       ? operation[POSTMAN_EXAMPLE_NAME_EXTENSION]
       : 'Default example'
 

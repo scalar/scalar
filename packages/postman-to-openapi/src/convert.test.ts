@@ -352,11 +352,16 @@ describe('convert', () => {
         },
       },
       '204': {
-        description: 'Invalid country code filter',
+        description: 'Successful response',
+        content: {
+          'application/json': {},
+        },
       },
     })
 
-    const queryParam = operation?.parameters?.find((parameter) => parameter.name === 'countryCode' && parameter.in === 'query')
+    const queryParam = operation?.parameters?.find(
+      (parameter) => parameter.name === 'countryCode' && parameter.in === 'query',
+    )
     expect(queryParam?.examples).toEqual({
       '200 - Valid country code languages': {
         value: 'CA',

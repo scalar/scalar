@@ -431,7 +431,7 @@ export function convert(
           paths: itemPaths,
           components: itemComponents,
           serverUsage,
-        } = processItem(node, DEFAULT_EXAMPLE_NAME, parentTags, '')
+        } = processItem(node, DEFAULT_EXAMPLE_NAME, parentTags, '', mergeOperation)
 
         allServerUsage.push(...serverUsage)
 
@@ -454,7 +454,11 @@ export function convert(
       assignTagsFromPostman(openapi, tags, isMergingIntoBase)
 
       collection.item.forEach((item) => {
-        const { paths: itemPaths, components: itemComponents, serverUsage } = processItem(item, DEFAULT_EXAMPLE_NAME)
+        const {
+          paths: itemPaths,
+          components: itemComponents,
+          serverUsage,
+        } = processItem(item, DEFAULT_EXAMPLE_NAME, [], '', mergeOperation)
 
         allServerUsage.push(...serverUsage)
 
