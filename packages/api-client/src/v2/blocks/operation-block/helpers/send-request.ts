@@ -2,7 +2,7 @@ import { ERRORS, type ErrorResponse, normalizeError } from '@scalar/helpers/erro
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
 import { normalizeHeaders } from '@scalar/helpers/http/normalize-headers'
-import { getOriginalMethod } from '@scalar/helpers/http/safe-request'
+import { X_SCALAR_ORIGINAL_METHOD, getOriginalMethod } from '@scalar/helpers/http/safe-request'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import cookie from 'cookie'
 import { parseSetCookie } from 'set-cookie-parser'
@@ -94,10 +94,15 @@ export const sendRequest = async ({
     const responseUrl = new URL(response.url)
     const fullPath = responseUrl.pathname + responseUrl.search
     const statusText = response.statusText || httpStatusCodes[response.status]?.name || ''
+
     // Honor the sentinel header from createSafeRequest so the response panel
     // shows the original method (for example, GET-with-body in Electron).
     const method = getOriginalMethod(request)
     const shouldSkipBody = NO_BODY_STATUS_CODES.includes(response.status)
+
+    // Delete our special request headers
+    request.headers.delete(X_SCALAR_ORIGINAL_METHOD)
+    request.headers.delete(CUSTOM_COOKIE_HEADER)
 
     /**
      * Handle server-sent event streams separately.
