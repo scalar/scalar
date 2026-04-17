@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  createCollectionVariableLookup,
   extractPathFromUrl,
   extractPathParameterNames,
+  extractServerObjectFromUrl,
   extractServerFromUrl,
   getPathStructuralSignature,
   getDomainFromUrl,
@@ -144,6 +146,48 @@ describe('urls', () => {
 
     it('handles URL with only domain', () => {
       expect(extractServerFromUrl('http://example.com')).toBe('http://example.com')
+    })
+
+    it('resolves host fragment variables from collection variables', () => {
+      const lookup = createCollectionVariableLookup([{ key: 'url-languagesAPI', value: 'localhost:3005' }])
+
+      expect(extractServerObjectFromUrl('https://{{url-languagesAPI}}/v1/languages', lookup)).toEqual({
+        url: 'https://localhost:3005',
+      })
+    })
+
+    it('resolves complete URL variables when template is the full host', () => {
+      const lookup = createCollectionVariableLookup([{ key: 'url-applicationAPI', value: 'https://app.example.com' }])
+
+      expect(extractServerObjectFromUrl('https://{{url-applicationAPI}}/users', lookup)).toEqual({
+        url: 'https://app.example.com',
+      })
+    })
+
+    it('rewrites unresolved variables to OpenAPI server variables', () => {
+      expect(extractServerObjectFromUrl('https://{{url-notificationAPI}}/events')).toEqual({
+        url: 'https://{url-notificationAPI}',
+        variables: {
+          'url-notificationAPI': {
+            default: 'example.com',
+            description: 'Declared in Postman collection variables.',
+          },
+        },
+      })
+    })
+
+    it('falls back to OpenAPI variables when value is recursive template syntax', () => {
+      const lookup = createCollectionVariableLookup([{ key: 'url-exampleAPI', value: '{{url-local}}' }])
+
+      expect(extractServerObjectFromUrl('https://{{url-exampleAPI}}/status', lookup)).toEqual({
+        url: 'https://{url-exampleAPI}',
+        variables: {
+          'url-exampleAPI': {
+            default: 'example.com',
+            description: 'Declared in Postman collection variables.',
+          },
+        },
+      })
     })
   })
 })

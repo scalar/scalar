@@ -12,10 +12,11 @@ import {
   POSTMAN_POST_RESPONSE_SCRIPTS_EXTENSION,
   POSTMAN_PRE_REQUEST_SCRIPTS_EXTENSION,
   processItem,
+  type ServerUsage,
 } from '@/helpers/path-items'
 import { pruneDocument } from '@/helpers/prune-document'
 import { analyzeServerDistribution } from '@/helpers/servers'
-import { getPathStructuralSignature, normalizePath } from '@/helpers/urls'
+import { createCollectionVariableLookup, getPathStructuralSignature, normalizePath } from '@/helpers/urls'
 
 import type { Description, Item, ItemGroup, PostmanCollection } from './types'
 
@@ -445,11 +446,13 @@ const mergeServerLists = (
   existing: OpenAPIV3_1.ServerObject[] | undefined,
   incoming: OpenAPIV3_1.ServerObject[],
 ): OpenAPIV3_1.ServerObject[] => {
-  const seen = new Set((existing ?? []).map((s) => s.url))
+  const createServerKey = (server: OpenAPIV3_1.ServerObject): string => JSON.stringify(server)
+  const seen = new Set((existing ?? []).map(createServerKey))
   const out = [...(existing ?? [])]
   for (const server of incoming) {
-    if (!seen.has(server.url)) {
-      seen.add(server.url)
+    const serverKey = createServerKey(server)
+    if (!seen.has(serverKey)) {
+      seen.add(serverKey)
       out.push(server)
     }
   }
@@ -878,11 +881,9 @@ export function convert(
   }
 
   // Process each item in the collection and merge into OpenAPI spec
-  const allServerUsage: Array<{
-    serverUrl: string
-    path: string
-    method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
-  }> = []
+  const allServerUsage: ServerUsage[] = []
+
+  const collectionVariableLookup = createCollectionVariableLookup(collection.variable)
 
   if (collection.item) {
     const usePathFilter = requestIndexPaths !== undefined
@@ -903,7 +904,15 @@ export function convert(
           paths: itemPaths,
           components: itemComponents,
           serverUsage,
-        } = processItem(node, DEFAULT_EXAMPLE_NAME, parentTags, '', mergeOperation, resolveTagName)
+        } = processItem(
+          node,
+          DEFAULT_EXAMPLE_NAME,
+          parentTags,
+          '',
+          mergeOperation,
+          resolveTagName,
+          collectionVariableLookup,
+        )
 
         allServerUsage.push(...serverUsage)
 
@@ -930,7 +939,15 @@ export function convert(
           paths: itemPaths,
           components: itemComponents,
           serverUsage,
-        } = processItem(item, DEFAULT_EXAMPLE_NAME, [], '', mergeOperation, resolveTagName)
+        } = processItem(
+          item,
+          DEFAULT_EXAMPLE_NAME,
+          [],
+          '',
+          mergeOperation,
+          resolveTagName,
+          collectionVariableLookup,
+        )
 
         allServerUsage.push(...serverUsage)
 
