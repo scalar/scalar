@@ -3,9 +3,6 @@ import { isElectron } from '@/general/is-electron'
 /** HTTP Methods which can have a body */
 const BODY_METHODS = new Set(['post', 'put', 'patch', 'delete'])
 
-/** HTTP Methods which can have a body when running in Electron, where the fetch implementation allows bodies on GET. */
-const ELECTRON_BODY_METHODS = new Set([...BODY_METHODS, 'get'])
-
 /**
  * Makes a check to see if this method CAN have a body.
  *
@@ -15,8 +12,9 @@ const ELECTRON_BODY_METHODS = new Set([...BODY_METHODS, 'get'])
 export const canMethodHaveBody = (method: string): boolean => {
   const normalized = method.toLowerCase()
 
+  // For electron we allow any method to have a body
   if (isElectron()) {
-    return ELECTRON_BODY_METHODS.has(normalized)
+    return true
   }
 
   return BODY_METHODS.has(normalized)
