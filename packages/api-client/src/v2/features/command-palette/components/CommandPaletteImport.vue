@@ -23,6 +23,7 @@ import {
 } from '@scalar/components'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
+import { isPostmanCollection } from '@scalar/postman-to-openapi'
 import { useToasts } from '@scalar/use-toasts'
 import {
   createWorkspaceStore,
@@ -35,7 +36,6 @@ import { useRouter } from 'vue-router'
 import { useFileDialog } from '@/hooks/use-file-dialog'
 import { getOpenApiDocumentDetails } from '@/v2/features/command-palette/helpers/get-openapi-document-details'
 import { importDocumentToWorkspace } from '@/v2/features/command-palette/helpers/import-document-to-workspace'
-import { isPostmanCollection } from '@/v2/features/command-palette/helpers/is-postman-collection'
 import {
   loadDocumentFromSource,
   type ImportEventData,

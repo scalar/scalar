@@ -1,5 +1,6 @@
 ---
 '@scalar/api-client': patch
+'@scalar/postman-to-openapi': patch
 ---
 
-fix: detect and convert exported Postman collections without _postman_id
+fix: share Postman collection detection from postman-to-openapi
