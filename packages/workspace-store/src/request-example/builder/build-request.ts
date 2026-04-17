@@ -20,7 +20,7 @@ export type RequestPayload = [string, RequestInit]
  * We no longer return a Request object, but a tuple of [url, init] that maps directly to the fetch() argument list so
  * we can do things that the browser doesn't allow like GET + body
  * */
-export type BuildRequestResponse = {
+type BuildRequestResponse = {
   /** Create a new request payload object with the replaced values ready to be sent to the server */
   requestPayload: RequestPayload
   /** The abort controller */

@@ -45,8 +45,7 @@ const responsePayload = (requestBuilder: RequestFactory, fetchRequest: Request) 
     headers: { 'Content-Type': 'application/json' },
   }),
   requestBuilder,
-  url: fetchRequest.url,
-  requestInit: { method: fetchRequest.method, headers: fetchRequest.headers },
+  request: fetchRequest,
   document,
   operation: {
     operationId: 'test-operation',
@@ -222,8 +221,7 @@ describe('mapConfigPlugins', () => {
     const payload = {
       response: new Response('{"data": "test"}', { status: 200 }),
       requestBuilder,
-      url: fetchRequest.url,
-      requestInit: { method: fetchRequest.method, headers: fetchRequest.headers },
+      request: fetchRequest,
       document,
       operation: mockOperation,
     }
