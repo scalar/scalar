@@ -201,6 +201,18 @@ onBeforeMount(() => {
   selectedExampleKey.value ||= Object.keys(requestBodyExamples.value)[0] ?? ''
 })
 
+/** Reset the selected example key if the content type changes and the new content type doesn't have the previously selected example */
+watch(
+  () => selectedContentType,
+  () => {
+    if (
+      !Object.keys(requestBodyExamples.value).includes(selectedExampleKey.value)
+    ) {
+      selectedExampleKey.value = Object.keys(requestBodyExamples.value)[0] ?? ''
+    }
+  },
+)
+
 /** Grab any custom code samples from the operation */
 const customCodeSamples = computed(() => getCustomCodeSamples(operation))
 

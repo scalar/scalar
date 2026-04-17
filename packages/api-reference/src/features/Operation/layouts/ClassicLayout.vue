@@ -76,6 +76,9 @@ const operationExtensions = computed(() => getXKeysFromObject(operation))
 /** Track the currently selected example for passing to the modal */
 const selectedExampleKey = ref<string>('')
 
+/** Track the selected request body content type so the code sample stays in sync */
+const selectedRequestBodyContentType = ref<string | undefined>()
+
 /** Selected request body oneOf/anyOf variants; synced with schema dropdowns and code sample */
 const requestBodyCompositionSelection = ref<RequestBodyCompositionSelection>({})
 
@@ -202,6 +205,7 @@ const { copyToClipboard } = useClipboard()
           <OperationParameters
             :eventBus
             :options
+            v-model:selectedContentType="selectedRequestBodyContentType"
             :parameters="operation.parameters"
             :requestBody="getResolvedRef(operation.requestBody)" />
         </div>
@@ -253,6 +257,7 @@ const { copyToClipboard } = useClipboard()
             "
             :securitySchemes="selectedSecuritySchemes"
             :selectedClient
+            :selectedContentType="selectedRequestBodyContentType"
             :selectedServer />
         </ScalarErrorBoundary>
       </div>

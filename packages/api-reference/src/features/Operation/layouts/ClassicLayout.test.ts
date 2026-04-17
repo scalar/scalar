@@ -203,4 +203,52 @@ describe('ClassicLayout', () => {
       'requestBody.payload.anyOf': 1,
     })
   })
+  it('updates the code sample when the body content type is changed', async () => {
+    const multiContentProps: ExtractComponentProps<typeof ClassicLayout> = {
+      ...props,
+      id: 'create-widget-multi-content',
+      operation: {
+        ...operation,
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { type: 'object', properties: { foo: { type: 'string' } } },
+            },
+            'application/x-www-form-urlencoded': {
+              schema: { type: 'object', properties: { bar: { type: 'string' } } },
+            },
+          },
+        },
+      },
+    }
+
+    const wrapper = mount(ClassicLayout, {
+      props: multiContentProps,
+      global: {
+        stubs: {
+          RouterLink: {
+            name: 'RouterLink',
+            template: '<a><slot /></a>',
+          },
+          // Stub out the code sample so we don't need to mount all of CodeMirror
+          OperationCodeSample: {
+            name: 'OperationCodeSample',
+            props: ['selectedContentType'],
+            template: '<div class="stub-code-sample" :data-content-type="selectedContentType"></div>',
+          },
+        },
+      },
+    })
+
+    const codeSample = wrapper.find('.stub-code-sample')
+    // Should initially be undefined (defaults to first in OperationCodeSample) or 'application/json' if synced back
+
+    // Find the RequestBody component and change the selectedContentType
+    const requestBody = wrapper.findComponent({ name: 'RequestBody' })
+    await requestBody.vm.$emit('update:selectedContentType', 'application/x-www-form-urlencoded')
+    await nextTick()
+
+    expect(codeSample.attributes('data-content-type')).toBe('application/x-www-form-urlencoded')
+  })
 })

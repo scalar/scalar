@@ -25,6 +25,9 @@ const { parameters = [], requestBody } = defineProps<{
   >
 }>()
 
+/** Thread the selected request body content type up to the layout */
+const selectedContentType = defineModel<string>('selectedContentType')
+
 /** Use a single loop to reduce parameters by type(in) */
 const splitParameters = computed(() =>
   (parameters ?? []).reduce(
@@ -83,6 +86,7 @@ const splitParameters = computed(() =>
   <!-- Request body -->
   <RequestBody
     v-if="requestBody"
+    v-model:selectedContentType="selectedContentType"
     :breadcrumb="breadcrumb ? [...breadcrumb, 'body'] : undefined"
     :eventBus="eventBus"
     :options="options"
