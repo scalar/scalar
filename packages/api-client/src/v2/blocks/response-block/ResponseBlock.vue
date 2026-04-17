@@ -3,6 +3,7 @@ import { ScalarErrorBoundary } from '@scalar/components'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { RequestPayload } from '@scalar/workspace-store/request-example'
 import { computed, ref, useId } from 'vue'
 
 import SectionFilter from '@/components/SectionFilter.vue'
@@ -20,22 +21,23 @@ import { textMediaTypes } from '@/v2/blocks/response-block/helpers/media-types'
 import { parseSetCookie } from '@/v2/blocks/response-block/helpers/parse-set-cookie'
 import type { ClientLayout } from '@/v2/types/layout'
 
-const { layout, totalPerformedRequests, response, request } = defineProps<{
-  /** Preprocessed response */
-  response: ResponseInstance | null
-  /** Original request as a [url, RequestInit] tuple */
-  request: [string, RequestInit] | null
-  /** Client layout */
-  layout: ClientLayout
-  /** Total number of performed requests */
-  totalPerformedRequests: number
-  /** Application version */
-  appVersion: string
-  /** Registered app plugins */
-  plugins: ClientPlugin[]
-  /** Workspace event bus */
-  eventBus: WorkspaceEventBus
-}>()
+const { layout, totalPerformedRequests, response, requestPayload } =
+  defineProps<{
+    /** Preprocessed response */
+    response: ResponseInstance | null
+    /** Original request as a [url, RequestInit] tuple */
+    requestPayload: RequestPayload | null
+    /** Client layout */
+    layout: ClientLayout
+    /** Total number of performed requests */
+    totalPerformedRequests: number
+    /** Application version */
+    appVersion: string
+    /** Registered app plugins */
+    plugins: ClientPlugin[]
+    /** Workspace event bus */
+    eventBus: WorkspaceEventBus
+  }>()
 
 // Headers
 const responseHeaders = computed(() => {
@@ -98,7 +100,7 @@ const shouldVirtualize = computed(() => {
 })
 
 const requestHeaders = computed(() => {
-  const headers = request?.[1]?.headers
+  const headers = requestPayload?.[1]?.headers
   if (!headers) {
     return []
   }

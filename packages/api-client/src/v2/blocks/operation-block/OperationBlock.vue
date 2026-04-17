@@ -182,7 +182,7 @@ const { toast } = useToasts()
 // Refs
 const abortController = ref<AbortController | null>(null)
 const response = ref<ResponseInstance | null>(null)
-const request = ref<RequestPayload | null>(null)
+const requestPayload = ref<RequestPayload | null>(null)
 
 /** Cancel the request */
 const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
@@ -323,7 +323,7 @@ const handleExecute = async () => {
   if (sendError) {
     // clean up the response and request
     response.value = null
-    request.value = null
+    requestPayload.value = null
     abortController.value = null
 
     toast(sendError.message, 'error')
@@ -332,13 +332,13 @@ const handleExecute = async () => {
 
   // Store the response
   response.value = sendResult.response
-  request.value = sendResult.requestPayload
+  requestPayload.value = sendResult.requestPayload
 
   // Cache non-streaming responses so they can be restored when navigating back
   if (!isStreamingResponse(sendResult.response)) {
     responseCache.set(getOperationExampleKey(method, path, exampleKey), {
       response: sendResult.response,
-      request: sendResult.requestPayload,
+      requestPayload: sendResult.requestPayload,
     })
   }
 }
@@ -397,7 +397,7 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
 
         // Update the response and request
         response.value = fetchResponse
-        request.value = fetchRequest
+        requestPayload.value = fetchRequest
       },
     })
 
@@ -424,10 +424,10 @@ watch(
     const cached = responseCache.get(newKey)
     if (cached) {
       response.value = cached.response
-      request.value = cached.request
+      requestPayload.value = cached.requestPayload
     } else {
       response.value = null
-      request.value = null
+      requestPayload.value = null
     }
 
     // Cancel any in-flight request
@@ -499,7 +499,7 @@ onBeforeUnmount(() => {
           :eventBus
           :layout
           :plugins
-          :request
+          :requestPayload
           :response
           :totalPerformedRequests="operationHistory.length" />
       </ViewLayoutContent>

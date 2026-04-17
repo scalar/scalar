@@ -28,7 +28,7 @@ describe('ResponseBlock', () => {
   const defaultLayout: ClientLayout = 'desktop'
   const defaultProps = {
     response: null,
-    request: null,
+    requestPayload: null,
     layout: defaultLayout,
     totalPerformedRequests: 0,
     appVersion: '1.0.0',
