@@ -4,6 +4,7 @@ import {
   extractPathFromUrl,
   extractPathParameterNames,
   extractServerFromUrl,
+  getPathStructuralSignature,
   getDomainFromUrl,
   normalizePath,
 } from './urls'
@@ -33,6 +34,17 @@ describe('urls', () => {
 
   it('converts colon parameters to curly braces', () => {
     expect(normalizePath('/users/:userId/posts/:postId')).toBe('/users/{userId}/posts/{postId}')
+  })
+
+  it('generates matching structural signatures for paths that differ by parameter names', () => {
+    expect(getPathStructuralSignature('/applications/{applicationId}')).toBe('/applications/{*}')
+    expect(getPathStructuralSignature('/applications/{fakeAppId}')).toBe('/applications/{*}')
+    expect(getPathStructuralSignature('/applications/:id')).toBe('/applications/{*}')
+  })
+
+  it('keeps literal segments in structural signatures', () => {
+    expect(getPathStructuralSignature('/applications/{id}/logs/{logId}')).toBe('/applications/{*}/logs/{*}')
+    expect(getPathStructuralSignature('/applications/active')).toBe('/applications/active')
   })
 
   it('extracts double curly brace parameters', () => {

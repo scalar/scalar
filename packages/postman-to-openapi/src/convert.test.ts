@@ -583,4 +583,105 @@ describe('convert', () => {
       },
     ])
   })
+
+  it('unifies structurally equal paths using the most common path parameter name', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Path canonicalization',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Get application',
+          request: {
+            method: 'GET',
+            url: 'https://api.scalar.com/applications/{{applicationId}}',
+          },
+        },
+        {
+          name: 'Delete application',
+          request: {
+            method: 'DELETE',
+            url: 'https://api.scalar.com/applications/{{applicationId2}}',
+          },
+        },
+        {
+          name: 'Error case with fake id',
+          request: {
+            method: 'GET',
+            url: 'https://api.scalar.com/applications/{{fakeAppId}}',
+            description: '| object | name | required |\n| --- | --- | --- |\n| path | fakeAppId | true |',
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection, { mergeOperation: true })
+    const pathKeys = Object.keys(result.paths ?? {})
+    expect(pathKeys).toEqual(['/applications/{applicationId}'])
+
+    const mergedPath = result.paths?.['/applications/{applicationId}']
+    expect(mergedPath?.get).toBeDefined()
+    expect(mergedPath?.delete).toBeDefined()
+    expect(mergedPath?.get?.parameters).toEqual([
+      {
+        name: 'applicationId',
+        in: 'path',
+        required: true,
+        schema: { type: 'string' },
+      },
+    ])
+  })
+
+  it('prefers folder path-template hints when choosing canonical path parameter names', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Folder hint canonicalization',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: '/applications/{id}',
+          item: [
+            {
+              name: 'Get application by alias',
+              request: {
+                method: 'GET',
+                url: 'https://api.scalar.com/applications/{{applicationId}}',
+              },
+            },
+            {
+              name: 'Delete application by fake id',
+              request: {
+                method: 'DELETE',
+                url: 'https://api.scalar.com/applications/{{fakeAppId}}',
+              },
+            },
+          ],
+        },
+      ],
+    }
+
+    const result = convert(collection)
+    const pathKeys = Object.keys(result.paths ?? {})
+    expect(pathKeys).toEqual(['/applications/{id}'])
+
+    const mergedPath = result.paths?.['/applications/{id}']
+    expect(mergedPath?.get?.parameters).toEqual([
+      {
+        name: 'id',
+        in: 'path',
+        required: true,
+        schema: { type: 'string' },
+      },
+    ])
+    expect(mergedPath?.delete?.parameters).toEqual([
+      {
+        name: 'id',
+        in: 'path',
+        required: true,
+        schema: { type: 'string' },
+      },
+    ])
+  })
 })

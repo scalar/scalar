@@ -46,6 +46,23 @@ export function extractPathFromUrl(url: string | undefined): string {
 export const normalizePath = (path: string): string => path.replace(/:(\w+)/g, '{$1}')
 
 /**
+ * Generates a structural path signature by replacing parameter segments with `{*}`.
+ * Paths with the same signature are equivalent except for parameter names.
+ */
+export const getPathStructuralSignature = (path: string): string => {
+  const normalizedPath = normalizePath(path)
+
+  if (normalizedPath === '') {
+    return ''
+  }
+
+  const segments = normalizedPath.split('/')
+  const signatureSegments = segments.map((segment) => (/^\{[^{}]+\}$/.test(segment) ? '{*}' : segment))
+
+  return signatureSegments.join('/')
+}
+
+/**
  * Extracts parameter names from a path string.
  * Handles double curly braces {{param}}, single curly braces {param}, and colon format :param.
  */
