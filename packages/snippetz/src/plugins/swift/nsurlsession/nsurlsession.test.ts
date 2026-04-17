@@ -222,10 +222,10 @@ describe('swiftNsurlsession', () => {
 
     expect(result).toContain('let boundary = UUID().uuidString')
     expect(result).toContain(
-      'appendToBody("Content-Disposition: form-data; name=\\\\\\"file\\\\\\"; filename=\\\\\\"test.txt\\\\\\"\\r\\n")',
+      'appendToBody("Content-Disposition: form-data; name=\\"file\\"; filename=\\"test.txt\\"\\r\\n")',
     )
     expect(result).toContain('appendToBody("<# File data for test.txt #>\\r\\n")')
-    expect(result).toContain('appendToBody("Content-Disposition: form-data; name=\\\\\\"field\\\\\\"\\r\\n")')
+    expect(result).toContain('appendToBody("Content-Disposition: form-data; name=\\"field\\"\\r\\n")')
     expect(result).toContain('appendToBody("value")')
     expect(result).toContain(
       'request.setValue("multipart/form-data; boundary=\\(boundary)", forHTTPHeaderField: "Content-Type")',
@@ -289,8 +289,8 @@ describe('swiftNsurlsession', () => {
       },
     })
 
-    expect(result).toContain('name=\\\\\\"field\'name\\\\\\"')
-    expect(result).toContain('name=\\\\\\"file\'name\\\\\\"; filename=\\\\\\"test.txt\\\\\\"')
+    expect(result).toContain('name=\\"field\'name\\"')
+    expect(result).toContain('name=\\"file\'name\\"; filename=\\"test.txt\\"')
   })
 
   it('handles multipart form data with empty file names', () => {
@@ -308,8 +308,31 @@ describe('swiftNsurlsession', () => {
       },
     })
 
-    expect(result).toContain('filename=\\\\\\"\\\\\\"')
+    expect(result).toContain('filename=\\"\\"')
     expect(result).toContain('<# File data for file #>')
+  })
+
+  it('escapes multipart values before embedding in Swift literals', () => {
+    const result = swiftNsurlsession.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            fileName: 'te"st\\name.txt',
+            contentType: 'text/plain; note="a\\b"',
+          },
+        ],
+      },
+    })
+
+    expect(result).toContain(
+      'appendToBody("Content-Disposition: form-data; name=\\"file\\"; filename=\\"te\\\\\\"st\\\\\\\\name.txt\\"\\r\\n")',
+    )
+    expect(result).toContain('appendToBody("Content-Type: text/plain; note=\\\\\\"a\\\\\\\\b\\\\\\"\\r\\n")')
+    expect(result).toContain('appendToBody("<# File data for te\\"st\\\\name.txt #>\\r\\n")')
   })
 
   it('handles multipart fallback to text body when params are missing', () => {

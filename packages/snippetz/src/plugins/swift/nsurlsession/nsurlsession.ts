@@ -46,21 +46,24 @@ const buildMultipartBody = (
   params.forEach((param) => {
     const escapedName = escapeForMultipartHeader(param.name)
     const escapedFileName = escapeForMultipartHeader(param.fileName ?? '')
+    const escapedContentType = param.contentType ? escapeForMultipartHeader(param.contentType) : undefined
 
     lines.push(`appendToBody("--\\(boundary)\\r\\n")`)
     if (param.fileName !== undefined) {
       lines.push(
-        `appendToBody("Content-Disposition: form-data; name=\\\\\\"${escapedName}\\\\\\"; filename=\\\\\\"${escapedFileName}\\\\\\"\\r\\n")`,
+        `appendToBody(${swiftStringLiteral(
+          `Content-Disposition: form-data; name="${escapedName}"; filename="${escapedFileName}"\r\n`,
+        )})`,
       )
-      if (param.contentType) {
-        lines.push(`appendToBody("Content-Type: ${param.contentType}\\r\\n")`)
+      if (escapedContentType) {
+        lines.push(`appendToBody(${swiftStringLiteral(`Content-Type: ${escapedContentType}\r\n`)})`)
       }
       lines.push('appendToBody("\\r\\n")')
-      lines.push(`appendToBody("<# File data for ${param.fileName || 'file'} #>\\r\\n")`)
+      lines.push(`appendToBody(${swiftStringLiteral(`<# File data for ${param.fileName || 'file'} #>\r\n`)})`)
     } else {
-      lines.push(`appendToBody("Content-Disposition: form-data; name=\\\\\\"${escapedName}\\\\\\"\\r\\n")`)
-      if (param.contentType) {
-        lines.push(`appendToBody("Content-Type: ${param.contentType}\\r\\n")`)
+      lines.push(`appendToBody(${swiftStringLiteral(`Content-Disposition: form-data; name="${escapedName}"\r\n`)})`)
+      if (escapedContentType) {
+        lines.push(`appendToBody(${swiftStringLiteral(`Content-Type: ${escapedContentType}\r\n`)})`)
       }
       lines.push('appendToBody("\\r\\n")')
       lines.push(`appendToBody(${swiftStringLiteral(param.value ?? '')})`)
