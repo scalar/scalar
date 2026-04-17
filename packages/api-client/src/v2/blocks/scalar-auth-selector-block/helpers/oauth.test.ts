@@ -1413,12 +1413,7 @@ describe('oauth', () => {
           }),
       })
 
-      const [error, result] = await refreshOauth2Token(
-        refreshScheme,
-        'authorizationCode',
-        '',
-        mockServer,
-      )
+      const [error, result] = await refreshOauth2Token(refreshScheme, 'authorizationCode', '', mockServer)
       expect(error).toBe(null)
       expect(result).toEqual({
         accessToken: 'new_access_token',
@@ -1446,12 +1441,7 @@ describe('oauth', () => {
           }),
       })
 
-      const [error, result] = await refreshOauth2Token(
-        refreshScheme,
-        'authorizationCode',
-        '',
-        mockServer,
-      )
+      const [error, result] = await refreshOauth2Token(refreshScheme, 'authorizationCode', '', mockServer)
       expect(error).toBe(null)
       expect(result).toEqual({
         accessToken: 'new_access_token',
@@ -1467,12 +1457,7 @@ describe('oauth', () => {
         },
       } satisfies OAuthFlowsObjectSecret
 
-      const [error, result] = await refreshOauth2Token(
-        noRefreshScheme,
-        'authorizationCode',
-        '',
-        mockServer,
-      )
+      const [error, result] = await refreshOauth2Token(noRefreshScheme, 'authorizationCode', '', mockServer)
       expect(result).toBe(null)
       expect(error).toBeInstanceOf(Error)
       expect(error!.message).toBe('No refresh token available')
@@ -1493,12 +1478,7 @@ describe('oauth', () => {
           }),
       })
 
-      const [error, result] = await refreshOauth2Token(
-        bodyCredsScheme,
-        'authorizationCode',
-        '',
-        mockServer,
-      )
+      const [error, result] = await refreshOauth2Token(bodyCredsScheme, 'authorizationCode', '', mockServer)
       expect(error).toBe(null)
       expect(result).toEqual({
         accessToken: 'new_access_token',
@@ -1529,17 +1509,9 @@ describe('oauth', () => {
           }),
       })
 
-      await refreshOauth2Token(
-        refreshScheme,
-        'authorizationCode',
-        '',
-        mockServer,
-      )
+      await refreshOauth2Token(refreshScheme, 'authorizationCode', '', mockServer)
 
-      expect(global.fetch).toHaveBeenCalledWith(
-        refreshScheme.authorizationCode.refreshUrl,
-        expect.any(Object),
-      )
+      expect(global.fetch).toHaveBeenCalledWith(refreshScheme.authorizationCode.refreshUrl, expect.any(Object))
     })
 
     it('falls back to tokenUrl when refreshUrl is empty', async () => {
@@ -1557,12 +1529,7 @@ describe('oauth', () => {
           }),
       })
 
-      await refreshOauth2Token(
-        noRefreshUrlScheme,
-        'authorizationCode',
-        '',
-        mockServer,
-      )
+      await refreshOauth2Token(noRefreshUrlScheme, 'authorizationCode', '', mockServer)
 
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, expect.any(Object))
     })
@@ -1575,12 +1542,7 @@ describe('oauth', () => {
           }),
       })
 
-      await refreshOauth2Token(
-        refreshScheme,
-        'authorizationCode',
-        'https://proxy.example.com',
-        mockServer,
-      )
+      await refreshOauth2Token(refreshScheme, 'authorizationCode', 'https://proxy.example.com', mockServer)
 
       expect(global.fetch).toHaveBeenCalledWith(
         `https://proxy.example.com?scalar_url=${encodeURIComponent(refreshScheme.authorizationCode.refreshUrl)}`,
@@ -1591,12 +1553,7 @@ describe('oauth', () => {
     it('handles a failed refresh request', async () => {
       global.fetch = vi.fn().mockRejectedValueOnce(new Error('Network error'))
 
-      const [error, result] = await refreshOauth2Token(
-        refreshScheme,
-        'authorizationCode',
-        '',
-        mockServer,
-      )
+      const [error, result] = await refreshOauth2Token(refreshScheme, 'authorizationCode', '', mockServer)
       expect(result).toBe(null)
       expect(error).toBeInstanceOf(Error)
       expect(error!.message).toBe('Failed to refresh the access token. Please re-authorize.')
@@ -1611,12 +1568,7 @@ describe('oauth', () => {
           }),
       })
 
-      const [error, result] = await refreshOauth2Token(
-        refreshScheme,
-        'authorizationCode',
-        '',
-        mockServer,
-      )
+      const [error, result] = await refreshOauth2Token(refreshScheme, 'authorizationCode', '', mockServer)
       expect(result).toBe(null)
       expect(error).toBeInstanceOf(Error)
       expect(error!.message).toBe('Refresh token has expired')
@@ -1640,12 +1592,7 @@ describe('oauth', () => {
           }),
       })
 
-      const [error, result] = await refreshOauth2Token(
-        ccScheme,
-        'clientCredentials',
-        '',
-        mockServer,
-      )
+      const [error, result] = await refreshOauth2Token(ccScheme, 'clientCredentials', '', mockServer)
       expect(error).toBe(null)
       expect(result).toEqual({
         accessToken: 'new_cc_token',
@@ -1674,12 +1621,7 @@ describe('oauth', () => {
           }),
       })
 
-      const [error, result] = await refreshOauth2Token(
-        pwScheme,
-        'password',
-        '',
-        mockServer,
-      )
+      const [error, result] = await refreshOauth2Token(pwScheme, 'password', '', mockServer)
       expect(error).toBe(null)
       expect(result).toEqual({
         accessToken: 'new_pw_token',
@@ -1704,12 +1646,7 @@ describe('oauth', () => {
           }),
       })
 
-      await refreshOauth2Token(
-        schemeWithBody,
-        'authorizationCode',
-        '',
-        mockServer,
-      )
+      await refreshOauth2Token(schemeWithBody, 'authorizationCode', '', mockServer)
 
       const callArgs = vi.mocked(global.fetch).mock.calls[0]
       const body = callArgs![1]?.body as URLSearchParams

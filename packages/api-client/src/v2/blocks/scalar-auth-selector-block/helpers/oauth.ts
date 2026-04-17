@@ -437,7 +437,7 @@ export const refreshOauth2Token = async (
   formData.set('refresh_token', refreshToken)
 
   const addCredentialsToBody = flow['x-scalar-credentials-location'] === 'body'
-  const hasClientSecret = Boolean(flow['x-scalar-secret-client-secret'])
+  const hasClientSecret = flow['x-scalar-secret-client-secret'] !== undefined
 
   if (addCredentialsToBody) {
     formData.set('client_id', flow['x-scalar-secret-client-id'])

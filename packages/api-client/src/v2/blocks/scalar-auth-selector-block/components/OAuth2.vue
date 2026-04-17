@@ -31,7 +31,10 @@ import type {
 import { computed, ref, watch } from 'vue'
 
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
-import { authorizeOauth2, refreshOauth2Token } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
+import {
+  authorizeOauth2,
+  refreshOauth2Token,
+} from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
 import { resolveDefaultOAuth2RedirectUri } from '@/v2/blocks/scalar-auth-selector-block/helpers/resolve-default-oauth2-redirect-url'
 import { DataTableRow } from '@/v2/components/data-table'
 
@@ -199,7 +202,8 @@ const handleAuthorize = async (): Promise<void> => {
 
 /** Whether the current flow has a stored refresh token */
 const hasRefreshToken = computed(
-  () => type !== 'implicit' && Boolean(flow.value['x-scalar-secret-refresh-token']),
+  () =>
+    type !== 'implicit' && Boolean(flow.value['x-scalar-secret-refresh-token']),
 )
 
 /**
