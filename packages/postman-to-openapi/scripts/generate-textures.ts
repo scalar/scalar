@@ -43,7 +43,7 @@ const generateTextures = async () => {
     const input = await fs.readFile(path.join(inputPath, `${fixture}.json`), 'utf8')
     const postman = JSON.parse(input)
     const output = convert(postman)
-    await fs.writeFile(path.join(outputPath, `${fixture}.json`), JSON.stringify(output))
+    await fs.writeFile(path.join(outputPath, `${fixture}.json`), JSON.stringify(output, null, 2))
     console.log(`✅ Generated texture for ${fixture}`)
   }
   console.log('🎉 Textures generated successfully')
