@@ -686,4 +686,50 @@ describe('convert', () => {
       },
     ])
   })
+
+  it('keeps server placement correct after path unification', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Server placement with unified paths',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Get application by first variable',
+          request: {
+            method: 'GET',
+            url: 'https://api.example.com/applications/{{applicationId}}',
+          },
+        },
+        {
+          name: 'Get application by second variable',
+          request: {
+            method: 'GET',
+            url: 'https://api.example.com/applications/{{fakeAppId}}',
+          },
+        },
+        {
+          name: 'Get users from another server',
+          request: {
+            method: 'GET',
+            url: 'https://api.other.com/users',
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.servers).toBeUndefined()
+    expect(result.paths?.['/applications/{applicationId}']?.get?.servers).toEqual([
+      {
+        url: 'https://api.example.com',
+      },
+    ])
+    expect(result.paths?.['/users']?.get?.servers).toEqual([
+      {
+        url: 'https://api.other.com',
+      },
+    ])
+  })
 })

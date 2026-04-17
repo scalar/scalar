@@ -468,7 +468,7 @@ const findFolderTemplateHint = (
       }
 
       for (const tag of operation.tags ?? []) {
-        const folderNames = tag.split(' > ').map((segment) => segment.trim())
+        const folderNames = tag.split(' > ').map((segment: string) => segment.trim())
 
         for (const folderName of folderNames) {
           if (!folderName.startsWith('/')) {
@@ -492,7 +492,12 @@ const findFolderTemplateHint = (
   return undefined
 }
 
-const unifyEquivalentPathParameters = (paths: OpenAPIV3_1.PathsObject): OpenAPIV3_1.PathsObject => {
+type PathUnificationResult = {
+  paths: OpenAPIV3_1.PathsObject
+  canonicalPathByPath: Map<string, string>
+}
+
+const unifyEquivalentPathParameters = (paths: OpenAPIV3_1.PathsObject): PathUnificationResult => {
   const pathEntries = Object.entries(paths).filter((entry): entry is [string, OpenAPIV3_1.PathItemObject] =>
     Boolean(entry[1]),
   )
@@ -515,6 +520,7 @@ const unifyEquivalentPathParameters = (paths: OpenAPIV3_1.PathsObject): OpenAPIV
   })
 
   const unifiedPaths: OpenAPIV3_1.PathsObject = {}
+  const canonicalPathByPath = new Map<string, string>()
   const processedPathKeys = new Set<string>()
 
   pathEntries.forEach(([pathKey]) => {
@@ -529,6 +535,7 @@ const unifyEquivalentPathParameters = (paths: OpenAPIV3_1.PathsObject): OpenAPIV
       const pathItem = paths[pathKey]
       if (pathItem) {
         unifiedPaths[pathKey] = pathItem
+        canonicalPathByPath.set(pathKey, pathKey)
       }
       processedPathKeys.add(pathKey)
       return
@@ -555,11 +562,12 @@ const unifyEquivalentPathParameters = (paths: OpenAPIV3_1.PathsObject): OpenAPIV
     group.forEach(({ pathKey: groupedPathKey, pathItem, parameterNames }) => {
       const normalizedPathItem = renamePathItemParameterNames(pathItem, parameterNames, canonicalParameterNames)
       mergePathItem(unifiedPaths, canonicalPath, normalizedPathItem, true)
+      canonicalPathByPath.set(groupedPathKey, canonicalPath)
       processedPathKeys.add(groupedPathKey)
     })
   })
 
-  return unifiedPaths
+  return { paths: unifiedPaths, canonicalPathByPath }
 }
 
 export type ConvertOptions = {
@@ -722,9 +730,20 @@ export function convert(
   }
 
   // Extract all unique paths from the document
+  let canonicalPathByPath = new Map<string, string>()
   if (openapi.paths) {
-    openapi.paths = unifyEquivalentPathParameters(openapi.paths)
+    const unificationResult = unifyEquivalentPathParameters(openapi.paths)
+    openapi.paths = unificationResult.paths
+    canonicalPathByPath = unificationResult.canonicalPathByPath
   }
+
+  const normalizedServerUsage = allServerUsage.map((usage) => {
+    const normalizedUsagePath = normalizePath(usage.path)
+    return {
+      ...usage,
+      path: canonicalPathByPath.get(normalizedUsagePath) ?? normalizedUsagePath,
+    }
+  })
 
   // Extract all unique paths from the document
   const allUniquePaths = new Set<string>()
@@ -735,7 +754,7 @@ export function convert(
   }
 
   // Analyze server distribution and place servers at appropriate levels
-  const serverPlacement = analyzeServerDistribution(allServerUsage, allUniquePaths)
+  const serverPlacement = analyzeServerDistribution(normalizedServerUsage, allUniquePaths)
 
   // Add servers to document level
   if (serverPlacement.document.length > 0) {
