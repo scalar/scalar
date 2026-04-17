@@ -1,0 +1,35 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "No Version Collection",
+    "version": "1.0.0",
+    "description": "This collection don't have a version as variable"
+  },
+  "paths": {
+    "/users": {
+      "post": {
+        "summary": "Create new User",
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "examples": {
+                "Default example": {
+                  "value": "{\n    \"example\": \"field\",\n    \"other\": {\n        \"data1\": \"yes\",\n        \"data2\": \"no\"\n    }\n}"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.io"
+    }
+  ]
+}

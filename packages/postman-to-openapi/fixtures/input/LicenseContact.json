@@ -1,0 +1,102 @@
+{
+	"info": {
+		"_postman_id": "9f1fe3cc-9229-471a-96b4-6bca41bd7ab0",
+		"name": "License and Contact",
+		"description": "Collection to test license as variable",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get list of users",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.io/users?age=45&name=Jhon&review=true&number=23.56",
+					"protocol": "https",
+					"host": [
+						"api",
+						"io"
+					],
+					"path": [
+						"users"
+					],
+					"query": [
+						{
+							"key": "age",
+							"value": "45",
+							"description": "Filter by age"
+						},
+						{
+							"key": "name",
+							"value": "Jhon",
+							"description": "Filter by name"
+						},
+						{
+							"key": "review",
+							"value": "true",
+							"description": "Indicate if should be reviewed or not"
+						},
+						{
+							"key": "number",
+							"value": "23.56",
+							"description": "This is a number"
+						}
+					]
+				},
+				"description": "Obtain a list of users that fullfill the conditions of the filters"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "2973e583-323c-418e-a553-096171309624",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "c0dc618b-5ca4-43db-8b6e-ac29eff17880",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "b573c8e4-6a13-4d0e-8c3b-19536462f36c",
+			"key": "license.name",
+			"value": "Apache 2.0"
+		},
+		{
+			"id": "b1aecf73-5ff1-4cea-b447-80fe28da62c1",
+			"key": "license.url",
+			"value": "https://www.apache.org/licenses/LICENSE-2.0.html"
+		},
+		{
+			"id": "35641083-7bd6-4c98-b2a8-4b45da0cdeb9",
+			"key": "contact.name",
+			"value": "API Support"
+		},
+		{
+			"id": "7762d7a2-78f9-46eb-bf99-2a9519f35a79",
+			"key": "contact.url",
+			"value": "http://www.example.com/support"
+		},
+		{
+			"id": "77c31f06-45ae-40ef-9734-1b03b7bd21fc",
+			"key": "contact.email",
+			"value": "support@example.com"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

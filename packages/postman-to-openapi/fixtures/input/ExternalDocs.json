@@ -1,0 +1,79 @@
+{
+	"info": {
+		"_postman_id": "3c770257-049e-41c1-bc50-7b08e0ee4048",
+		"name": "External Docs",
+		"description": "Just a simple collection for test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create new User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"example\": \"field\",\n    \"other\": {\n        \"data1\": \"yes\",\n        \"data2\": \"no\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.io/users",
+					"protocol": "https",
+					"host": [
+						"api",
+						"io"
+					],
+					"path": [
+						"users"
+					]
+				},
+				"description": "Create a new user into your amazing API"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "990c4de2-f783-45af-9b58-55f044b43e17",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "6314f41c-4c4e-4559-9692-4f0d71ce5c98",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "580b417e-39f3-4201-8292-0aae05b367c4",
+			"key": "version",
+			"value": "2.3.0"
+		},
+		{
+			"id": "d96bc914-09bd-4e8e-b6ab-deb6313e2d32",
+			"key": "externalDocs.url",
+			"value": "https://docs.example.com"
+		},
+		{
+			"id": "c0d4152f-3d25-4d48-b9f2-251f341868e4",
+			"key": "externalDocs.description",
+			"value": "Find more info here"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

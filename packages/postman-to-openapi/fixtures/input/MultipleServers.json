@@ -1,0 +1,157 @@
+{
+	"info": {
+		"_postman_id": "bff596d1-5880-4c4a-9f53-e49dee178afc",
+		"name": "MultipleServers",
+		"description": "Collection to test multiples server parsing.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create new User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"example\": \"field\",\n    \"other\": {\n        \"data1\": \"yes\",\n        \"data2\": \"no\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.io/users",
+					"protocol": "https",
+					"host": [
+						"api",
+						"io"
+					],
+					"path": [
+						"users"
+					]
+				},
+				"description": "Create a new user into your amazing API"
+			},
+			"response": []
+		},
+		{
+			"name": "Create a post",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {},
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.dev.io/posts",
+					"protocol": "https",
+					"host": [
+						"api",
+						"dev",
+						"io"
+					],
+					"path": [
+						"posts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create a note",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "This is an example Note",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.pre.io/note",
+					"protocol": "https",
+					"host": [
+						"api",
+						"pre",
+						"io"
+					],
+					"path": [
+						"note"
+					]
+				},
+				"description": "Just an example of text raw body"
+			},
+			"response": []
+		},
+		{
+			"name": "Update User",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"example\": \"field\",\n    \"other\": {\n        \"data1\": \"yes\",\n        \"data2\": \"no\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.io/users",
+					"protocol": "https",
+					"host": [
+						"api",
+						"io"
+					],
+					"path": [
+						"users"
+					]
+				},
+				"description": "Update an existing user"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "15118c41-9c90-4fad-85f3-81a87bbdf5a0",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "0ef1db97-1c19-46a8-9fca-a6843a1df616",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "600f8632-5dfe-418b-83cd-f00302a437c0",
+			"key": "version",
+			"value": "1.1.0"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

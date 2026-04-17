@@ -1,0 +1,65 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OperationIds",
+    "version": "1.1.0",
+    "description": "Mi super test collection from postman"
+  },
+  "paths": {
+    "/users": {
+      "post": {
+        "summary": "Create new User",
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "examples": {
+                "Default example": {
+                  "value": "{\n    \"example\": \"field\",\n    \"other\": {\n        \"data1\": \"yes\",\n        \"data2\": \"no\"\n    }\n}"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/posts": {
+      "post": {
+        "summary": "Create a post",
+        "operationId": "createPost",
+        "requestBody": {
+          "content": {
+            "text/plain": {}
+          }
+        }
+      }
+    },
+    "/note": {
+      "post": {
+        "summary": "Create a note",
+        "description": "Just an example of text raw body",
+        "operationId": "createNote",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string",
+                "examples": [
+                  "This is an example Note"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.io"
+    }
+  ]
+}

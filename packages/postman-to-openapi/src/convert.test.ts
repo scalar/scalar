@@ -1,11 +1,10 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import fs from 'node:fs/promises'
 import { describe, expect, it, test } from 'vitest'
 
 import { convert } from './convert'
 import type { PostmanCollection } from './types'
 
-const BUCKET_NAME = 'scalar-test-fixtures'
-const BUCKET_URL = `https://storage.googleapis.com/${BUCKET_NAME}`
 const DEFAULT_RESPONSE_DESCRIPTIONS: Record<string, string> = {
   200: 'OK',
   201: 'Created',
@@ -54,12 +53,12 @@ const FIXTURES = [
 describe('fixtures', () => {
   test.each(FIXTURES)('%s', async (file) => {
     // postman
-    const input = await fetch(`${BUCKET_URL}/packages/postman-to-openapi/input/${file}.json`)
-    const postman = await input.json()
+    const input = await fs.readFile(new URL(`../fixtures/input/${file}.json`, import.meta.url), 'utf8')
+    const postman = JSON.parse(input)
 
     // openapi
-    const output = await fetch(`${BUCKET_URL}/packages/postman-to-openapi/output/${file}.json`)
-    const openapi = await output.json()
+    const output = await fs.readFile(new URL(`../fixtures/output/${file}.json`, import.meta.url), 'utf8')
+    const openapi = JSON.parse(output)
 
     const normalizedOpenApi = normalizeFixtureResponseDescriptions(openapi as OpenAPIV3_1.Document)
     expect(convert(postman)).toEqual(normalizedOpenApi)

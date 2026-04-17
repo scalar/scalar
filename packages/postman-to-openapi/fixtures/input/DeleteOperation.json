@@ -1,0 +1,60 @@
+{
+	"info": {
+		"_postman_id": "469344e4-4c85-45fe-b0a6-246575a018bc",
+		"name": "Delete Operation",
+		"description": "Mi super test collection from postman",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Delete all users",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://api.io/users",
+					"protocol": "https",
+					"host": [
+						"api",
+						"io"
+					],
+					"path": [
+						"users"
+					]
+				},
+				"description": "Delete all the existing users"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "9f8baaad-642e-48c6-b5d3-6ec59d2df6b1",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "61df081f-afb8-4e8a-8a32-66db8b22f887",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "b8ff9254-81e3-432f-9e5a-aea92cf34d7c",
+			"key": "version",
+			"value": "1.1.0"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

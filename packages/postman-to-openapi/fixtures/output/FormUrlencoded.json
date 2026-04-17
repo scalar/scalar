@@ -1,0 +1,80 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Form Url Encoded",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/register": {
+      "post": {
+        "summary": "Register New User",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "examples": [
+                      "New User"
+                    ],
+                    "description": "full name of the user (accepts spaces)"
+                  },
+                  "email": {
+                    "type": "string",
+                    "examples": [
+                      "newuser@example.com"
+                    ],
+                    "description": "email of the user (for notifications and login)"
+                  },
+                  "password": {
+                    "type": "string",
+                    "examples": [
+                      "pasword123"
+                    ],
+                    "description": "password (to be used for logging in)"
+                  }
+                },
+                "required": [
+                  "name",
+                  "email",
+                  "password"
+                ]
+              },
+              "examples": {
+                "Default example": {
+                  "value": [
+                    {
+                      "key": "name",
+                      "value": "New User",
+                      "description": "full name of the user (accepts spaces) [required]",
+                      "type": "text"
+                    },
+                    {
+                      "key": "email",
+                      "value": "newuser@example.com",
+                      "description": "email of the user (for notifications and login) [required]",
+                      "type": "text"
+                    },
+                    {
+                      "key": "password",
+                      "value": "pasword123",
+                      "description": "password (to be used for logging in) [required]",
+                      "type": "text"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.io"
+    }
+  ]
+}
