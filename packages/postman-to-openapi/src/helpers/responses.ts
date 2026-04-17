@@ -5,6 +5,24 @@ import type { HeaderList, Item, Response } from '@/types'
 import { inferSchemaFromExample } from './schemas'
 import { extractStatusCodesFromTests } from './status-codes'
 
+const DEFAULT_RESPONSE_DESCRIPTIONS: Record<string, string> = {
+  200: 'OK',
+  201: 'Created',
+  202: 'Accepted',
+  204: 'No content',
+  301: 'Moved permanently',
+  400: 'Bad request',
+  401: 'Unauthorized',
+  403: 'Forbidden',
+  404: 'Not found',
+  409: 'Conflict',
+  422: 'Unprocessable entity',
+  500: 'Internal server error',
+  default: 'Default response',
+}
+
+const STATUS_DESCRIPTION_PATTERN = /^(\d{3})\s*-\s*(.+)$/
+
 /**
  * Extracts and converts Postman response objects to OpenAPI response objects.
  * Processes response status codes, descriptions, headers, and body content,
@@ -18,7 +36,7 @@ export function extractResponses(responses: Response[], item?: Item): OpenAPIV3_
   const responseMap = responses.reduce((acc, response) => {
     const statusCode = response.code?.toString() || 'default'
     acc[statusCode] = {
-      description: response.status || 'Successful response',
+      description: getResponseDescription(response, statusCode),
       headers: extractHeaders(response.header),
       content: {
         'application/json': {
@@ -37,7 +55,7 @@ export function extractResponses(responses: Response[], item?: Item): OpenAPIV3_
     const codeStr = code.toString()
     if (!responseMap[codeStr]) {
       responseMap[codeStr] = {
-        description: 'Successful response',
+        description: getDefaultResponseDescription(codeStr),
         content: {
           'application/json': {},
         },
@@ -50,6 +68,42 @@ export function extractResponses(responses: Response[], item?: Item): OpenAPIV3_
   }
 
   return responseMap
+}
+
+function getResponseDescription(response: Response, statusCode: string): string {
+  const descriptionFromName = extractDescriptionFromName(response.name, statusCode)
+  if (descriptionFromName) {
+    return descriptionFromName
+  }
+
+  if (response.status) {
+    return response.status
+  }
+
+  return getDefaultResponseDescription(statusCode)
+}
+
+function extractDescriptionFromName(name: string | undefined, statusCode: string): string | undefined {
+  if (!name) {
+    return undefined
+  }
+
+  const match = STATUS_DESCRIPTION_PATTERN.exec(name.trim())
+  if (!match) {
+    return undefined
+  }
+
+  const code = match.at(1)
+  const description = match.at(2)?.trim()
+  if (code !== statusCode || !description) {
+    return undefined
+  }
+
+  return description
+}
+
+function getDefaultResponseDescription(statusCode: string): string {
+  return DEFAULT_RESPONSE_DESCRIPTIONS[statusCode] || DEFAULT_RESPONSE_DESCRIPTIONS.default
 }
 
 function extractHeaders(
