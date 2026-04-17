@@ -39,12 +39,16 @@ export const mapConfigPlugins = (
 
       plugin.hooks.beforeRequest = onBeforeRequest
         ? async (payload) => {
-            await onBeforeRequest({
-              // We need to build the request to get the fetch `Request`
-              request: buildRequest(payload.requestBuilder, { envVariables }).request,
-              requestBuilder: payload.requestBuilder,
-              envVariables,
-            })
+            try {
+              await onBeforeRequest({
+                // We need to build the request to get the fetch `Request`
+                request: new Request(...buildRequest(payload.requestBuilder, { envVariables }).requestPayload),
+                requestBuilder: payload.requestBuilder,
+                envVariables,
+              })
+            } catch (error) {
+              console.error(error)
+            }
           }
         : undefined
 
