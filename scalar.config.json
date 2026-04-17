@@ -2414,7 +2414,11 @@
               "/": {
                 "type": "page",
                 "title": "Overview",
-                "filepath": "documentation/blog/index.md"
+                "filepath": "documentation/blog/index.md",
+                "layout": {
+                  "toc": false,
+                  "sidebar": false
+                }
               },
               "/posts": {
                 "type": "group",
@@ -2431,7 +2435,11 @@
                     "title": "Too Long; Didn't Read; Used MCP",
                     "filepath": "documentation/blog/2026-03-25-scalar-mcp-oauth.md",
                     "head": {
-                      "scripts": [{ "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player" }]
+                      "scripts": [
+                        {
+                          "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player"
+                        }
+                      ]
                     }
                   },
                   "/2026-03-17-agent-mcp": {
@@ -2439,7 +2447,11 @@
                     "title": "Use your API in Cursor",
                     "filepath": "documentation/blog/2026-03-17-agent-mcp.md",
                     "head": {
-                      "scripts": [{ "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player" }]
+                      "scripts": [
+                        {
+                          "url": "https://cdn.jsdelivr.net/npm/@mux/mux-player"
+                        }
+                      ]
                     }
                   },
                   "/2026-03-05-agent-scalar": {
