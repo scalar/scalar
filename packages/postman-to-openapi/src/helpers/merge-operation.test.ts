@@ -108,6 +108,31 @@ it('merges request body examples for the same media type', () => {
   })
 })
 
+it('does not create empty examples map when both media types have no examples', () => {
+  const op1: OpenAPIV3_1.OperationObject = {
+    requestBody: {
+      content: {
+        'application/json': {
+          schema: { type: 'object' },
+        },
+      },
+    },
+    responses: {},
+  }
+  const op2: OpenAPIV3_1.OperationObject = {
+    requestBody: {
+      content: {
+        'application/json': {
+          schema: { type: 'object' },
+        },
+      },
+    },
+    responses: {},
+  }
+  const result = mergeOperations(op1, op2)
+  expect(result.requestBody?.content?.['application/json']?.examples).toBeUndefined()
+})
+
 it('includes request body content types from both operations', () => {
   const op1: OpenAPIV3_1.OperationObject = {
     requestBody: {

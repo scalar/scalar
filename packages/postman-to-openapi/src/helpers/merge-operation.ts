@@ -140,9 +140,11 @@ export const mergeOperations = (
             existingMediaType.example = mediaTypeObj.example
           }
           // Assumption: example names (keys) are unique, so this merge is safe
-          existingMediaType.examples = {
-            ...existingMediaType.examples,
-            ...mediaTypeObj.examples,
+          if (existingMediaType.examples || mediaTypeObj.examples) {
+            existingMediaType.examples = {
+              ...existingMediaType.examples,
+              ...mediaTypeObj.examples,
+            }
           }
         }
       } else {
