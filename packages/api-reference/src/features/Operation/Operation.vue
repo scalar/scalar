@@ -65,6 +65,10 @@ import { computed } from 'vue'
 import { filterSelectedSecurity } from '@/features/Operation/helpers/filter-selected-security'
 
 import { getFirstServer } from './helpers/get-first-server'
+import {
+  getRequiredSecurity,
+  type RequiredSecurity,
+} from './helpers/get-required-security'
 import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'
 
@@ -114,6 +118,10 @@ const selectedServer = computed<ServerObject | null>(() =>
   ),
 )
 
+const requiredSecurity = computed<RequiredSecurity>(() =>
+  getRequiredSecurity(operation.value, document),
+)
+
 /** We must ensure the selected security schemes are required on this operation */
 const selectedSecuritySchemes = computed(() =>
   filterSelectedSecurity(
@@ -147,6 +155,7 @@ const selectedSecuritySchemes = computed(() =>
       :operation
       :options
       :path
+      :requiredSecurity
       :selectedClient
       :selectedSecuritySchemes
       :selectedServer />
@@ -160,6 +169,7 @@ const selectedSecuritySchemes = computed(() =>
       :operation
       :options
       :path
+      :requiredSecurity
       :selectedClient
       :selectedSecuritySchemes
       :selectedServer />

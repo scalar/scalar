@@ -30,6 +30,8 @@ import { ExternalDocs } from '@/features/external-docs'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
+import SecurityRequirementBadge from '@/features/Operation/components/SecurityRequirementBadge.vue'
+import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 import {
   getOperationStability,
   getOperationStabilityColor,
@@ -53,6 +55,7 @@ const {
   operation,
   options,
   path,
+  requiredSecurity,
   selectedServer,
   selectedSecuritySchemes,
   selectedClient,
@@ -67,6 +70,8 @@ const {
     selectedServer: ServerObject | null
     /** The selected security schemes for the operation */
     selectedSecuritySchemes: SecuritySchemeObjectSecret[]
+    /** Required/optional security state for the badge next to the path */
+    requiredSecurity: RequiredSecurity
   }
 >()
 
@@ -122,6 +127,7 @@ const { copyToClipboard } = useClipboard()
                   :deprecated="isOperationDeprecated(operation)"
                   :path="path" />
               </div>
+              <SecurityRequirementBadge :requiredSecurity="requiredSecurity" />
               <div class="endpoint-label-name">
                 {{ operationTitle }}
               </div>
