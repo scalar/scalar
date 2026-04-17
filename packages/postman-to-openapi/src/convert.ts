@@ -14,7 +14,7 @@ import {
 } from '@/helpers/path-items'
 import { pruneDocument } from '@/helpers/prune-document'
 import { analyzeServerDistribution } from '@/helpers/servers'
-import { normalizePath } from '@/helpers/urls'
+import { getPathStructuralSignature, normalizePath } from '@/helpers/urls'
 
 import type { Description, Item, ItemGroup, PostmanCollection } from './types'
 
@@ -327,6 +327,259 @@ const cleanupOperations = (paths: OpenAPIV3_1.PathsObject): void => {
   })
 }
 
+const getOrderedPathParameterNames = (path: string): string[] =>
+  normalizePath(path)
+    .split('/')
+    .flatMap((segment) => {
+      const match = segment.match(/^\{([^{}]+)\}$/)
+      return match?.[1] ? [match[1]] : []
+    })
+
+const rewritePathParameterNames = (path: string, parameterNames: string[]): string => {
+  const segments = normalizePath(path).split('/')
+  let parameterIndex = 0
+
+  const rewrittenSegments = segments.map((segment) => {
+    if (!/^\{[^{}]+\}$/.test(segment)) {
+      return segment
+    }
+
+    const canonicalName = parameterNames[parameterIndex]
+    parameterIndex += 1
+
+    return canonicalName ? `{${canonicalName}}` : segment
+  })
+
+  return rewrittenSegments.join('/')
+}
+
+const chooseMostCommonName = (names: string[]): string | undefined => {
+  if (names.length === 0) {
+    return undefined
+  }
+
+  const counts = new Map<string, number>()
+  const firstIndex = new Map<string, number>()
+
+  names.forEach((name, index) => {
+    counts.set(name, (counts.get(name) ?? 0) + 1)
+    if (!firstIndex.has(name)) {
+      firstIndex.set(name, index)
+    }
+  })
+
+  return [...counts.entries()].sort((a, b) => {
+    if (a[1] !== b[1]) {
+      return b[1] - a[1]
+    }
+
+    return (firstIndex.get(a[0]) ?? Number.POSITIVE_INFINITY) - (firstIndex.get(b[0]) ?? Number.POSITIVE_INFINITY)
+  })[0]?.[0]
+}
+
+const renameParameters = (
+  parameters: OpenAPIV3_1.ParameterObject[] | OpenAPIV3_1.ReferenceObject[] | undefined,
+  renameMap: Map<string, string>,
+): OpenAPIV3_1.PathItemObject['parameters'] => {
+  if (!parameters || renameMap.size === 0) {
+    return parameters
+  }
+
+  const mergedParameters = new Map<string, OpenAPIV3_1.ParameterObject | OpenAPIV3_1.ReferenceObject>()
+
+  parameters.forEach((parameter, index) => {
+    if (!parameter || '$ref' in parameter) {
+      mergedParameters.set(`$ref/${index}`, parameter)
+      return
+    }
+
+    const nextName = parameter.in === 'path' ? (renameMap.get(parameter.name) ?? parameter.name) : parameter.name
+    const renamedParameter: OpenAPIV3_1.ParameterObject =
+      nextName === parameter.name ? parameter : { ...parameter, name: nextName }
+    const parameterKey = `${renamedParameter.name}/${renamedParameter.in}`
+    const existingParameter = mergedParameters.get(parameterKey)
+
+    if (!existingParameter || '$ref' in existingParameter || '$ref' in renamedParameter) {
+      mergedParameters.set(parameterKey, renamedParameter)
+      return
+    }
+
+    mergedParameters.set(parameterKey, {
+      ...existingParameter,
+      ...renamedParameter,
+      examples: {
+        ...(existingParameter.examples ?? {}),
+        ...(renamedParameter.examples ?? {}),
+      },
+    })
+  })
+
+  return [...mergedParameters.values()] as OpenAPIV3_1.PathItemObject['parameters']
+}
+
+const renamePathParametersForOperation = (
+  operation: OpenAPIV3_1.OperationObject,
+  renameMap: Map<string, string>,
+): OpenAPIV3_1.OperationObject => {
+  if (!operation.parameters || renameMap.size === 0) {
+    return operation
+  }
+
+  return {
+    ...operation,
+    parameters: renameParameters(operation.parameters, renameMap) as OpenAPIV3_1.OperationObject['parameters'],
+  }
+}
+
+const renamePathItemParameterNames = (
+  pathItem: OpenAPIV3_1.PathItemObject,
+  sourceNames: string[],
+  targetNames: string[],
+): OpenAPIV3_1.PathItemObject => {
+  const renameMap = new Map<string, string>()
+
+  sourceNames.forEach((sourceName, index) => {
+    const targetName = targetNames[index]
+    if (sourceName && targetName && sourceName !== targetName) {
+      renameMap.set(sourceName, targetName)
+    }
+  })
+
+  if (renameMap.size === 0) {
+    return pathItem
+  }
+
+  const renamedPathItem: OpenAPIV3_1.PathItemObject = {
+    ...pathItem,
+    parameters: renameParameters(pathItem.parameters, renameMap),
+  }
+
+  OPERATION_KEYS.forEach((operationKey) => {
+    const operation = pathItem[operationKey]
+    if (!operation) {
+      return
+    }
+
+    renamedPathItem[operationKey] = renamePathParametersForOperation(operation, renameMap)
+  })
+
+  return renamedPathItem
+}
+
+const findFolderTemplateHint = (
+  pathItemGroup: { pathItem: OpenAPIV3_1.PathItemObject; parameterNames: string[] }[],
+  signature: string,
+): string[] | undefined => {
+  for (const { pathItem, parameterNames } of pathItemGroup) {
+    for (const operationKey of OPERATION_KEYS) {
+      const operation = pathItem[operationKey]
+      if (!operation) {
+        continue
+      }
+
+      for (const tag of operation.tags ?? []) {
+        const folderNames = tag.split(' > ').map((segment: string) => segment.trim())
+
+        for (const folderName of folderNames) {
+          if (!folderName.startsWith('/')) {
+            continue
+          }
+
+          const normalizedFolderName = normalizePath(folderName)
+          if (getPathStructuralSignature(normalizedFolderName) !== signature) {
+            continue
+          }
+
+          const folderParameterNames = getOrderedPathParameterNames(normalizedFolderName)
+          if (folderParameterNames.length === parameterNames.length) {
+            return folderParameterNames
+          }
+        }
+      }
+    }
+  }
+
+  return undefined
+}
+
+type PathUnificationResult = {
+  paths: OpenAPIV3_1.PathsObject
+  canonicalPathByPath: Map<string, string>
+}
+
+const unifyEquivalentPathParameters = (paths: OpenAPIV3_1.PathsObject): PathUnificationResult => {
+  const pathEntries = Object.entries(paths).filter((entry): entry is [string, OpenAPIV3_1.PathItemObject] =>
+    Boolean(entry[1]),
+  )
+  const groups = new Map<
+    string,
+    Array<{ pathKey: string; pathItem: OpenAPIV3_1.PathItemObject; parameterNames: string[] }>
+  >()
+
+  pathEntries.forEach(([pathKey, pathItem]) => {
+    const signature = getPathStructuralSignature(pathKey)
+    if (!groups.has(signature)) {
+      groups.set(signature, [])
+    }
+
+    groups.get(signature)?.push({
+      pathKey,
+      pathItem,
+      parameterNames: getOrderedPathParameterNames(pathKey),
+    })
+  })
+
+  const unifiedPaths: OpenAPIV3_1.PathsObject = {}
+  const canonicalPathByPath = new Map<string, string>()
+  const processedPathKeys = new Set<string>()
+
+  pathEntries.forEach(([pathKey]) => {
+    if (processedPathKeys.has(pathKey)) {
+      return
+    }
+
+    const signature = getPathStructuralSignature(pathKey)
+    const group = groups.get(signature) ?? []
+
+    if (group.length < 2) {
+      const pathItem = paths[pathKey]
+      if (pathItem) {
+        unifiedPaths[pathKey] = pathItem
+        canonicalPathByPath.set(pathKey, pathKey)
+      }
+      processedPathKeys.add(pathKey)
+      return
+    }
+
+    const firstGroupEntry = group[0]
+    if (!firstGroupEntry || firstGroupEntry.pathKey !== pathKey) {
+      return
+    }
+
+    const parameterCount = firstGroupEntry.parameterNames.length
+    const folderTemplateHint = findFolderTemplateHint(group, signature)
+    const canonicalParameterNames =
+      folderTemplateHint ??
+      Array.from({ length: parameterCount }, (_, parameterIndex) => {
+        const namesInOrder = group
+          .map((entry) => entry.parameterNames[parameterIndex])
+          .filter((name): name is string => Boolean(name))
+
+        return chooseMostCommonName(namesInOrder) ?? namesInOrder[0] ?? ''
+      })
+
+    const canonicalPath = rewritePathParameterNames(firstGroupEntry.pathKey, canonicalParameterNames)
+    group.forEach(({ pathKey: groupedPathKey, pathItem, parameterNames }) => {
+      const normalizedPathItem = renamePathItemParameterNames(pathItem, parameterNames, canonicalParameterNames)
+      mergePathItem(unifiedPaths, canonicalPath, normalizedPathItem, true)
+      canonicalPathByPath.set(groupedPathKey, canonicalPath)
+      processedPathKeys.add(groupedPathKey)
+    })
+  })
+
+  return { paths: unifiedPaths, canonicalPathByPath }
+}
+
 export type ConvertOptions = {
   /**
    * Whether to merge operations with the same path and method.
@@ -491,6 +744,22 @@ export function convert(
   }
 
   // Extract all unique paths from the document
+  let canonicalPathByPath = new Map<string, string>()
+  if (openapi.paths) {
+    const unificationResult = unifyEquivalentPathParameters(openapi.paths)
+    openapi.paths = unificationResult.paths
+    canonicalPathByPath = unificationResult.canonicalPathByPath
+  }
+
+  const normalizedServerUsage = allServerUsage.map((usage) => {
+    const normalizedUsagePath = normalizePath(usage.path)
+    return {
+      ...usage,
+      path: canonicalPathByPath.get(normalizedUsagePath) ?? normalizedUsagePath,
+    }
+  })
+
+  // Extract all unique paths from the document
   const allUniquePaths = new Set<string>()
   if (openapi.paths) {
     for (const pathKey of Object.keys(openapi.paths)) {
@@ -499,7 +768,7 @@ export function convert(
   }
 
   // Analyze server distribution and place servers at appropriate levels
-  const serverPlacement = analyzeServerDistribution(allServerUsage, allUniquePaths)
+  const serverPlacement = analyzeServerDistribution(normalizedServerUsage, allUniquePaths)
 
   // Add servers to document level
   if (serverPlacement.document.length > 0) {
