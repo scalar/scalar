@@ -1,4 +1,6 @@
 import { ERRORS, type ErrorResponse, normalizeError } from '@scalar/helpers/errors/normalize-error'
+import { isElectron } from '@scalar/helpers/general/is-electron'
+import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
 import { normalizeHeaders } from '@scalar/helpers/http/normalize-headers'
@@ -86,9 +88,9 @@ export const sendRequest = async ({
 
     // We may use a custom fetch function on electron
     const response =
-      'proxiedFetch' in window && window.proxiedFetch
-        ? await window.proxiedFetch(...requestPayload)
-        : await fetch(...requestPayload)
+      isElectron() && window.proxiedFetch
+        ? await window.proxiedFetch?.(...requestPayload)
+        : await fetch(buildSafeBodyRequest(...requestPayload))
 
     const endTime = performance.now()
     const timestamp = Date.now()
