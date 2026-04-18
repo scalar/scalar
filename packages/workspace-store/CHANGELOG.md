@@ -1,5 +1,13 @@
 # @scalar/workspace-store
 
+## 0.46.1
+
+### Patch Changes
+
+- [#8862](https://github.com/scalar/scalar/pull/8862): add `python/aiohttp` as a supported code snippet client and expose it through shared snippet client types and config schemas
+- [#8911](https://github.com/scalar/scalar/pull/8911): feat: switch from Request to RequestPayload to support body with GET
+- [#8888](https://github.com/scalar/scalar/pull/8888): fix: resolve selected security schemes using selectedIndex
+
 ## 0.46.0
 
 ### Minor Changes

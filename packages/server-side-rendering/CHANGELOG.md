@@ -1,5 +1,13 @@
 # @scalar/server-side-rendering
 
+## 0.1.3
+
+### Patch Changes
+
+- [#8875](https://github.com/scalar/scalar/pull/8875): Preserve top-level function config values in SSR hydration output and throw when nested functions cannot be serialized safely.
+- [#8875](https://github.com/scalar/scalar/pull/8875): fix(server-side-rendering): escape dynamic hydration property keys
+- [#8859](https://github.com/scalar/scalar/pull/8859): refactor api-reference exports and enforce strict Vite entrypoint resolution from package exports
+
 ## 0.1.2
 
 ### Patch Changes

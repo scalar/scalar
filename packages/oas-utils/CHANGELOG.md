@@ -1,5 +1,15 @@
 # @scalar/oas-utils
 
+## 0.13.0
+
+### Minor Changes
+
+- [#8865](https://github.com/scalar/scalar/pull/8865): feat: add plugin support for custom response body content types
+
+### Patch Changes
+
+- [#8810](https://github.com/scalar/scalar/pull/8810): refactor: move telemetry to an optional plugin
+
 ## 0.12.0
 
 ### Minor Changes
