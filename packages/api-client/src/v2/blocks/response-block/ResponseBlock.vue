@@ -105,8 +105,7 @@ const requestHeaders = computed(() => {
     return []
   }
 
-  // Normalise via the Headers constructor (handles all three forms) then spread
-  // the iterable — Object.entries() and iterator .map() both fail on Headers instances.
+  // Normalise via the Headers constructor, and then spread
   return [...new Headers(headers)].map(([name, value]) => ({
     name,
     value,
