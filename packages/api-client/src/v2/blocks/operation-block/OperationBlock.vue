@@ -88,6 +88,7 @@ export type OperationBlockProps = {
 <script setup lang="ts">
 import { ERRORS } from '@scalar/helpers/errors/normalize-error'
 import { isElectron } from '@scalar/helpers/general/is-electron'
+import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { executeHook, type ClientPlugin } from '@scalar/oas-utils/helpers'
 import {
@@ -282,25 +283,19 @@ const handleExecute = async () => {
   })
 
   if (sendResult) {
-    try {
-      // Execute the responseReceived hook
-      await executeHook(
-        {
-          response: sendResult.originalResponse.clone(),
-          requestBuilder,
-          // TODO: this still uses request to be backwards compatible with the old hook but we will deprecate
-          // and remove it once the requestBuilder is fully adopted. Wrapped with a try catch in case of get with body
-          request: new Request(...sendResult.requestPayload),
-          document,
-          operation,
-          variablesStore,
-        },
-        'responseReceived',
-        plugins,
-      )
-    } catch (error) {
-      console.error(error)
-    }
+    // Execute the responseReceived hook
+    await executeHook(
+      {
+        response: sendResult.originalResponse.clone(),
+        requestBuilder,
+        request: buildSafeBodyRequest(...sendResult.requestPayload),
+        document,
+        operation,
+        variablesStore,
+      },
+      'responseReceived',
+      plugins,
+    )
   }
 
   // Execute the hooks
