@@ -132,10 +132,25 @@ const handleOauth2SecretsUpdate = (
   })
 
 /** Clears the flow secrets */
-const clearOauth2Secrets = (): void =>
+const clearOauth2Secrets = (): void => {
+  if (loader.isLoading) {
+    return
+  }
   eventBus.emit('auth:clear:security-scheme-secrets', {
     name,
   })
+}
+
+/** Clears stored access and refresh tokens (authorized state) */
+const handleClearAccessTokens = (): void => {
+  if (loader.isLoading) {
+    return
+  }
+  handleOauth2SecretsUpdate({
+    'x-scalar-secret-token': '',
+    'x-scalar-secret-refresh-token': '',
+  })
+}
 
 /** Track if we have set the redirect uri */
 const hasPrefilledRedirectUri = ref(false)
@@ -200,11 +215,8 @@ const handleAuthorize = async (): Promise<void> => {
   }
 }
 
-/** Whether the current flow has a stored refresh token */
-const hasRefreshToken = computed(
-  () =>
-    type !== 'implicit' && Boolean(flow.value['x-scalar-secret-refresh-token']),
-)
+/** Whether the current flow supports refreshing the access token */
+const supportsRefreshToken = computed(() => type !== 'implicit')
 
 /**
  * Uses the stored refresh token to obtain a new access token
@@ -273,10 +285,21 @@ const handleSecretLocationUpdate = (value: string): void => {
       </RequestAuthDataTableInput>
     </DataTableRow>
 
+    <DataTableRow v-if="supportsRefreshToken">
+      <RequestAuthDataTableInput
+        class="border-r-transparent"
+        :environment
+        :modelValue="flow.refreshUrl ?? ''"
+        placeholder="https://galaxy.scalar.com/oauth/refresh"
+        @update:modelValue="(v) => handleOauth2Update({ refreshUrl: v })">
+        Refresh URL
+      </RequestAuthDataTableInput>
+    </DataTableRow>
+
     <DataTableRow class="min-w-full">
       <div class="flex h-8 items-center justify-end gap-2 border-t">
         <ScalarButton
-          v-if="hasRefreshToken"
+          v-if="supportsRefreshToken"
           class="p-0 px-2 py-0.5"
           :loader
           size="sm"
@@ -286,16 +309,10 @@ const handleSecretLocationUpdate = (value: string): void => {
         </ScalarButton>
         <ScalarButton
           class="mr-1 p-0 px-2 py-0.5"
-          :loader
+          :disabled="loader.isLoading"
           size="sm"
           variant="outlined"
-          @click="
-            () =>
-              handleOauth2SecretsUpdate({
-                'x-scalar-secret-token': '',
-                'x-scalar-secret-refresh-token': '',
-              })
-          ">
+          @click="handleClearAccessTokens">
           Clear
         </ScalarButton>
       </div>
@@ -332,6 +349,16 @@ const handleSecretLocationUpdate = (value: string): void => {
           }
         ">
         Token URL
+      </RequestAuthDataTableInput>
+    </DataTableRow>
+
+    <DataTableRow v-if="supportsRefreshToken">
+      <RequestAuthDataTableInput
+        :environment
+        :modelValue="flow.refreshUrl ?? ''"
+        placeholder="https://galaxy.scalar.com/oauth/refresh"
+        @update:modelValue="(v) => handleOauth2Update({ refreshUrl: v })">
+        Refresh URL
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -452,7 +479,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         <ScalarButton
           v-if="scheme.type === 'openIdConnect'"
           class="mr-1 p-0 px-2 py-0.5"
-          :loader
+          :disabled="loader.isLoading"
           size="sm"
           variant="outlined"
           @click="clearOauth2Secrets">
