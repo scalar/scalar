@@ -25,6 +25,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "evaluate": "tsx ./scripts/evaluate/run.ts",
     "generate:textures": "tsx ./scripts/generate-textures.ts",
     "test": "vitest --run",
     "types:check": "tsc --noEmit"
@@ -48,6 +49,7 @@
     "@scalar/openapi-types": "workspace:*"
   },
   "devDependencies": {
+    "@scalar/openapi-parser": "workspace:*",
     "@types/node": "catalog:*",
     "vite": "catalog:*"
   }
