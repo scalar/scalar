@@ -1,5 +1,5 @@
 ---
-'@scalar/api-client': minor
+'@scalar/api-client': patch
 ---
 
-feat: provide a defailt summary when creating a new temp operation
+fix: provide a defailt summary when creating a new temp operation
