@@ -1,4 +1,5 @@
 import type { HarRequest } from '@scalar/snippetz'
+import type { RequestPayload } from '@scalar/workspace-store/request-example'
 
 type HarToFetchRequestProps = {
   /** The HAR Request object to convert */
@@ -6,10 +7,10 @@ type HarToFetchRequestProps = {
 }
 
 /**
- * Converts a HAR (HTTP Archive) Request to a Fetch API Request object.
+ * Converts a HAR (HTTP Archive) Request to a RequestPayload [url, RequestInit] tuple for use with fetch().
  *
  * This function is the reverse of fetchRequestToHar - it takes a HAR request
- * and converts it into a standard JavaScript Fetch API Request object.
+ * and converts it into a [url, RequestInit] tuple that maps directly to the fetch() argument list.
  *
  * The conversion handles:
  * - Request method and URL reconstruction
@@ -27,27 +28,28 @@ type HarToFetchRequestProps = {
  * - Request caching and restoration
  * - Re-executing historical API calls
  *
- * Note: The Fetch API Request object does not support setting the HTTP version,
- * so that information from the HAR is not preserved in the returned Request.
- * Query parameters are expected to be already part of the URL in the HAR.
+ * Note: Query parameters are expected to be already part of the URL in the HAR.
  *
  * @see https://w3c.github.io/web-performance/specs/HAR/Overview.html
- * @see https://developer.mozilla.org/en-US/docs/Web/API/Request
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/fetch
  *
  * @example
  * const harRequest = { method: 'POST', url: 'https://api.example.com', ... }
- * const request = harToFetchRequest({ harRequest })
- * const response = await fetch(request)
+ * const [url, init] = harToFetchRequest({ harRequest })
+ * const response = await fetch(url, init)
  */
-export const harToFetchRequest = ({ harRequest }: HarToFetchRequestProps): Request => {
+export const harToFetchRequest = ({ harRequest }: HarToFetchRequestProps): RequestPayload => {
   const headers = buildHeaders(harRequest)
   const body = buildBody(harRequest.postData)
 
-  return new Request(harRequest.url, {
-    method: harRequest.method,
-    headers,
-    body,
-  })
+  return [
+    harRequest.url,
+    {
+      method: harRequest.method,
+      headers,
+      body,
+    },
+  ]
 }
 
 /**

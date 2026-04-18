@@ -1,4 +1,5 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { RequestPayload } from '@scalar/workspace-store/request-example'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { type DefineComponent, defineComponent, markRaw } from 'vue'
@@ -28,7 +29,7 @@ describe('ResponseBlock', () => {
   const defaultLayout: ClientLayout = 'desktop'
   const defaultProps = {
     response: null,
-    request: null,
+    requestPayload: null,
     layout: defaultLayout,
     totalPerformedRequests: 0,
     appVersion: '1.0.0',
@@ -415,7 +416,7 @@ describe('ResponseBlock', () => {
     const wrapper = mount(ResponseBlock, {
       props: {
         ...defaultProps,
-        request: new Request('https://example.com'),
+        requestPayload: ['https://example.com', { headers: new Headers() }] as RequestPayload,
         response: getDefaultResponse(),
         plugins: [
           {

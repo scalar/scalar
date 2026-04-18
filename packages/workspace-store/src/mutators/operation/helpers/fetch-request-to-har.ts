@@ -1,87 +1,82 @@
 import type { HarRequest } from '@scalar/snippetz'
 
+import type { RequestPayload } from '@/request-example/builder/build-request'
+
 type FetchRequestToHarProps = {
-  /** The Fetch API Request object to convert */
-  request: Request
+  /** The [url, RequestInit] tuple to convert, as returned by buildRequest */
+  requestPayload: RequestPayload
   /**
    * Whether to include the request body in the HAR postData.
-   * Note: Reading the body consumes it, so the request will be cloned automatically.
    * @default true
    */
   includeBody?: boolean
   /**
-   * HTTP version string to use (since Fetch API does not expose this)
+   * HTTP version string to use (Fetch API does not expose this).
    * @default 'HTTP/1.1'
    */
   httpVersion?: string
   /**
-   * The maximum size of the request body to include in the HAR postData.
-   * @default 1MB
+   * Maximum body size in bytes to capture in the HAR postData. Bodies larger
+   * than this are omitted and recorded with bodySize -1.
+   * @default 1048576 (1 MB)
    */
   bodySizeLimit?: number
 }
 
 /**
- * Converts a Fetch API Request object to HAR (HTTP Archive) Request format.
- *
- * This function transforms a standard JavaScript Fetch API Request into the
- * HAR format, which is useful for:
- * - Recording HTTP requests for replay or analysis
- * - Creating request fixtures from real API calls
- * - Debugging and monitoring HTTP traffic
- * - Storing request history in a standard format
- * - Generating API documentation from real requests
+ * Converts a RequestPayload (url + RequestInit tuple) to HAR (HTTP Archive) Request format.
  *
  * The conversion handles:
  * - Request method and URL
- * - Headers extraction (excluding sensitive headers if needed)
+ * - Headers extraction
  * - Query parameters extraction from URL
  * - Cookie extraction from headers
- * - Request body reading (with automatic cloning to preserve the original)
  * - Content-Type detection and MIME type extraction
  * - Size calculations for headers and body
- * - Form data bodies are converted to params array
- * - Other body types are read as text
- *
- * Note: The Fetch API does not expose the HTTP version, so it defaults to HTTP/1.1
- * unless specified otherwise.
+ * - FormData and URLSearchParams bodies are converted to a params array
+ * - String, Blob, and ArrayBuffer bodies are read as text
+ * - Binary (octet-stream) and ReadableStream bodies are skipped
  *
  * @see https://w3c.github.io/web-performance/specs/HAR/Overview.html
- * @see https://developer.mozilla.org/en-US/docs/Web/API/Request
  *
  * @example
- * const request = new Request('https://api.example.com/users', {
- *   method: 'POST',
- *   headers: { 'Content-Type': 'application/json' },
- *   body: JSON.stringify({ name: 'John' })
+ * const harRequest = await fetchRequestToHar({
+ *   requestPayload: ['https://api.example.com/users', {
+ *     method: 'POST',
+ *     headers: { 'Content-Type': 'application/json' },
+ *     body: JSON.stringify({ name: 'John' }),
+ *   }],
  * })
- * const harRequest = await fetchRequestToHar({ request })
  * console.log(harRequest.method) // 'POST'
  * console.log(harRequest.postData?.text) // '{"name":"John"}'
  */
 export const fetchRequestToHar = async ({
-  request,
+  requestPayload,
   includeBody = true,
   httpVersion = 'HTTP/1.1',
-  // Default to 1MB
   bodySizeLimit = 1048576,
 }: FetchRequestToHarProps): Promise<HarRequest> => {
+  const [originalUrl, requestInit] = requestPayload
+
   // Extract query string from URL
-  const url = new URL(request.url)
+  const url = new URL(originalUrl)
 
   // Extract the query strings from the URL
   const queryString = Array.from(url.searchParams.entries()).map(([name, value]) => ({ name, value }))
 
-  // Extract the headers from the request
-  const { headers, headersSize, cookies } = processRequestHeaders(request)
+  // Normalize HeadersInit to a Headers instance so we can call .get() and .entries() safely
+  const _headers = new Headers(requestInit.headers)
 
   // Extract the MIME type from the request headers
-  const mimeType = request.headers.get('content-type')?.split(';')[0]?.trim() ?? 'text/plain'
+  const mimeType = _headers.get('content-type')?.split(';')[0]?.trim() ?? 'text/plain'
+
+  // Extract the headers from the request
+  const { headers, headersSize, cookies } = processRequestHeaders(_headers)
 
   // Read the request body if requested
   const bodyDetails = await (async () => {
-    if (includeBody && request.body) {
-      const details = await processRequestBody(request.clone())
+    if (includeBody && requestInit.body != null) {
+      const details = await processRequestBody(requestInit.body, mimeType)
       if (details.size <= bodySizeLimit) {
         return details
       }
@@ -91,8 +86,8 @@ export const fetchRequestToHar = async ({
 
   // Create the HAR request object
   const harRequest: HarRequest = {
-    method: request.method,
-    url: request.url,
+    method: requestInit.method ?? 'GET',
+    url: originalUrl,
     httpVersion,
     headers,
     cookies,
@@ -114,59 +109,85 @@ export const fetchRequestToHar = async ({
   return harRequest
 }
 
-const processRequestBody = async (request: Request) => {
-  const formData = await tryGetRequestFormData(request.clone())
-  if (formData) {
-    return Array.from(formData.entries()).reduce<{ params: { name: string; value: string }[]; size: number }>(
-      (acc, [name, value]) => {
-        if (value instanceof File) {
-          const fileName = `@${value.name}`
-          acc.params.push({ name, value: fileName })
-          acc.size += fileName.length
-          return acc
-        }
+type BodyDetails = { text: string; size: number } | { params: { name: string; value: string }[]; size: number }
 
-        acc.params.push({ name, value })
-        acc.size += value.length
-        return acc
-      },
-      { params: [], size: 0 },
-    )
+/**
+ * Extracts HAR body details from a BodyInit value.
+ *
+ * Because we own the RequestInit tuple we can inspect the body by type directly —
+ * no stream cloning or header sniffing required.
+ */
+const processRequestBody = async (body: BodyInit, contentType: string): Promise<BodyDetails> => {
+  // Structured form payloads become a params array so HAR viewers can render them as key/value tables
+  if (body instanceof FormData) {
+    return extractFormDataParams(body)
   }
-  // Skip binary bodies
-  if (request.headers.get('content-type')?.includes('application/octet-stream')) {
+
+  if (body instanceof URLSearchParams) {
+    return extractUrlSearchParams(body)
+  }
+
+  // HAR text fields cannot represent arbitrary binary; skip rather than corrupt the entry
+  if (contentType.includes('application/octet-stream')) {
     return { text: '', size: -1 }
   }
 
-  // Read the request body as text
-  const arrayBuffer = await request.arrayBuffer()
-  const size = arrayBuffer.byteLength
-  return { size, text: new TextDecoder().decode(arrayBuffer) }
+  if (typeof body === 'string') {
+    // Use byte length, not character length, to match what the wire sends for multi-byte UTF-8
+    const size = new TextEncoder().encode(body).byteLength
+    return { text: body, size }
+  }
+
+  if (body instanceof Blob) {
+    const text = await body.text()
+    return { text, size: body.size }
+  }
+
+  if (body instanceof ArrayBuffer) {
+    return { text: new TextDecoder().decode(body), size: body.byteLength }
+  }
+
+  if (ArrayBuffer.isView(body)) {
+    return { text: new TextDecoder().decode(body), size: body.byteLength }
+  }
+
+  // ReadableStream cannot be read without consuming it
+  return { text: '', size: -1 }
 }
 
-async function tryGetRequestFormData(request: Request): Promise<FormData | null> {
-  if (typeof request.formData !== 'function') {
-    return null
-  }
+const extractFormDataParams = (formData: FormData): { params: { name: string; value: string }[]; size: number } => {
+  return Array.from(formData.entries()).reduce<{ params: { name: string; value: string }[]; size: number }>(
+    (acc, [name, value]) => {
+      if (value instanceof File) {
+        const fileName = `@${value.name}`
+        acc.params.push({ name, value: fileName })
+        acc.size += fileName.length
+        return acc
+      }
 
-  if (request.bodyUsed) {
-    return null
-  }
-
-  const contentType = request.headers.get('content-type') ?? ''
-  if (!contentType.includes('multipart/form-data') && !contentType.includes('application/x-www-form-urlencoded')) {
-    return null
-  }
-
-  try {
-    return await request.formData()
-  } catch {
-    return null
-  }
+      acc.params.push({ name, value })
+      acc.size += value.length
+      return acc
+    },
+    { params: [], size: 0 },
+  )
 }
 
-const processRequestHeaders = (request: Request) => {
-  return Array.from(request.headers.entries()).reduce<{
+const extractUrlSearchParams = (
+  params: URLSearchParams,
+): { params: { name: string; value: string }[]; size: number } => {
+  return Array.from(params.entries()).reduce<{ params: { name: string; value: string }[]; size: number }>(
+    (acc, [name, value]) => {
+      acc.params.push({ name, value })
+      acc.size += name.length + value.length
+      return acc
+    },
+    { params: [], size: 0 },
+  )
+}
+
+const processRequestHeaders = (headers: Headers) => {
+  return Array.from(headers.entries()).reduce<{
     headers: { name: string; value: string }[]
     headersSize: number
     cookies: { name: string; value: string }[]

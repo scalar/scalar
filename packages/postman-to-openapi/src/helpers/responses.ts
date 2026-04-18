@@ -5,7 +5,7 @@ import type { HeaderList, Item, Response } from '@/types'
 import { inferSchemaFromExample } from './schemas'
 import { extractStatusCodesFromTests } from './status-codes'
 
-const DEFAULT_RESPONSE_DESCRIPTIONS: Record<string, string> = {
+export const DEFAULT_RESPONSE_DESCRIPTIONS: Record<string, string> = {
   200: 'OK',
   201: 'Created',
   202: 'Accepted',

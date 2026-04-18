@@ -5,16 +5,36 @@ import { encode as encodeBase64 } from 'js-base64'
 import { buildRequestCookieHeader } from '@/request-example/builder/header/build-request-cookie-header'
 import { applyAllowReservedToUrl } from '@/request-example/builder/helpers/apply-allow-reserved-to-url'
 import type { RequestFactory } from '@/request-example/builder/request-factory'
-import { contextFunctions, isContextFunctionName } from '@/request-example/functions'
 import { resolveRequestFactoryUrl } from '@/request-example/builder/resolve-request-factory-url'
+import { contextFunctions, isContextFunctionName } from '@/request-example/functions'
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
+
+/**
+ * The payload to build a request, useful when bypassing limitations of the browser Request object
+ */
+export type RequestPayload = [string, RequestInit]
+
+/**
+ * Built request response
+ *
+ * We no longer return a Request object, but a tuple of [url, init] that maps directly to the fetch() argument list so
+ * we can do things that the browser doesn't allow like GET + body
+ * */
+type BuildRequestResponse = {
+  /** Create a new request payload object with the replaced values ready to be sent to the server */
+  requestPayload: RequestPayload
+  /** The abort controller */
+  controller: AbortController
+  /** The flag indicating if the request is being proxied */
+  isUsingProxy: boolean
+}
 
 export const buildRequest = (
   request: RequestFactory,
   options: {
     envVariables: Record<string, string>
   },
-) => {
+): BuildRequestResponse => {
   /** Replace the value with the environment variable or context function */
   const replace = (value: string): string | null => {
     if (isContextFunctionName(value)) {
@@ -151,22 +171,22 @@ export const buildRequest = (
   const finalUrl = isUsingProxy ? redirectToProxy(request.proxyUrl, encodedUrl) : encodedUrl
 
   return {
-    /** Create a new request object with the replaced values ready to be sent to the server */
-    request: new Request(finalUrl, {
-      /**
-       * Ensure that all methods are uppercased (though only needed for patch)
-       *
-       * @see https://github.com/whatwg/fetch/issues/50
-       */
-      method: request.method.toUpperCase(),
-      headers,
-      body,
-      cache: request.cache,
-      signal: controller.signal,
-    }),
-    /** The abort controller */
+    requestPayload: [
+      finalUrl,
+      {
+        /**
+         * Ensure that all methods are uppercased (though only needed for patch)
+         *
+         * @see https://github.com/whatwg/fetch/issues/50
+         */
+        method: request.method.toUpperCase(),
+        headers,
+        body,
+        cache: request.cache,
+        signal: controller.signal,
+      },
+    ],
     controller,
-    /** The flag indicating if the request is being proxied */
     isUsingProxy,
   }
 }

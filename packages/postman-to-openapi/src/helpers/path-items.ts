@@ -8,7 +8,7 @@ import { extractParameters } from './parameters'
 import { processPostResponseScripts } from './post-response-scripts'
 import { processPreRequestScripts } from './pre-request-scripts'
 import { extractRequestBody } from './request-body'
-import { extractResponses } from './responses'
+import { DEFAULT_RESPONSE_DESCRIPTIONS, extractResponses } from './responses'
 import { extractPathFromUrl, extractPathParameterNames, extractServerFromUrl, normalizePath } from './urls'
 
 type HttpMethods = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
@@ -435,10 +435,16 @@ function addResponseFromRequestName(
     return
   }
 
+  const defaultDescriptions = new Set([
+    'Successful response',
+    'Response',
+    ...Object.values(DEFAULT_RESPONSE_DESCRIPTIONS),
+  ])
+
   if (
     typeof existingResponse === 'object' &&
     !('$ref' in existingResponse) &&
-    (existingResponse.description === 'Successful response' || existingResponse.description === 'Response')
+    defaultDescriptions.has(existingResponse.description ?? '')
   ) {
     existingResponse.description = parsedStatus.description
   }
