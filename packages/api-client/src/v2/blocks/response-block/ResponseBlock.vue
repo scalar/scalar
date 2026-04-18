@@ -99,15 +99,20 @@ const shouldVirtualize = computed(() => {
   return isTextBased && (response.size ?? 0) > VIRTUALIZATION_THRESHOLD
 })
 
-const requestHeaders = computed(() =>
-  requestPayload?.[1]?.headers
-    ? Object.entries(requestPayload[1].headers).map(([name, value]) => ({
-        name,
-        value,
-        required: false,
-      }))
-    : [],
-)
+const requestHeaders = computed(() => {
+  const headers = requestPayload?.[1]?.headers
+  if (!headers) {
+    return []
+  }
+
+  // Normalise via the Headers constructor (handles all three forms) then spread
+  // the iterable — Object.entries() and iterator .map() both fail on Headers instances.
+  return [...new Headers(headers)].map(([name, value]) => ({
+    name,
+    value,
+    required: false,
+  }))
+})
 
 const isSectionVisible = (
   section: (typeof responseSections)[number] | 'All',
