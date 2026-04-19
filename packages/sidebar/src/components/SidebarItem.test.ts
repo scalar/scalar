@@ -326,6 +326,57 @@ describe('SidebarItem', () => {
       expect(wrapper.findComponent(ScalarSidebarSection).text()).toContain('User Operations')
     })
 
+    it('renders tag group sections as collapsible and respects expanded state', () => {
+      const item: Item = {
+        id: 'group-1',
+        title: 'Galaxy',
+        type: 'tag',
+        name: 'galaxy',
+        isGroup: true,
+        children: [{ id: '2', title: 'Get User', type: 'operation', ref: 'ref-2', method: 'get', path: '/users' }],
+      }
+
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item,
+          isExpanded: (id) => id === 'group-1',
+        },
+      })
+
+      const section = wrapper.findComponent(ScalarSidebarSection)
+      expect(section.exists()).toBe(true)
+      expect(section.props('collapsible')).toBe(true)
+      expect(section.props('open')).toBe(true)
+    })
+
+    it('emits toggleGroup when a tag group header is clicked', async () => {
+      const item: Item = {
+        id: 'group-1',
+        title: 'Galaxy',
+        type: 'tag',
+        name: 'galaxy',
+        isGroup: true,
+        children: [{ id: '2', title: 'Get User', type: 'operation', ref: 'ref-2', method: 'get', path: '/users' }],
+      }
+
+      const onToggleGroup = vi.fn()
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item,
+          isExpanded: () => true,
+          onToggleGroup,
+        },
+      })
+
+      const section = wrapper.findComponent(ScalarSidebarSection)
+      const headerButton = section.find('button')
+      await headerButton.trigger('click')
+
+      expect(onToggleGroup).toHaveBeenCalledWith('group-1')
+    })
+
     it('renders ScalarSidebarGroup for non-group items with children', () => {
       const item: Item = {
         id: '1',

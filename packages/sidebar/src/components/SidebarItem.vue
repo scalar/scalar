@@ -148,9 +148,12 @@ const children = computed(() =>
   <!-- Sidebar section -->
   <ScalarSidebarSection
     v-if="children.length > 0 && isGroup(item)"
+    collapsible
     :data-sidebar-id="item.id"
+    :open="isExpanded(item.id)"
     v-bind="draggableAttrs"
-    v-on="draggableEvents">
+    v-on="draggableEvents"
+    @toggle="() => emit('toggleGroup', item.id)">
     {{ item.title }}
     <template #items>
       <SidebarItem

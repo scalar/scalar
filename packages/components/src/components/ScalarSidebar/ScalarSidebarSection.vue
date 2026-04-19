@@ -23,23 +23,43 @@ export default {}
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
+import ScalarSidebarGroupToggle from './ScalarSidebarGroupToggle.vue'
 import ScalarSidebarSpacer from './ScalarSidebarSpacer.vue'
-import type { ScalarSidebarItemProps } from './types'
+import type { ScalarSidebarSectionProps } from './types'
 import { useSidebarGroups } from './useSidebarGroups'
 
-const { is = 'li' } = defineProps<ScalarSidebarItemProps>()
+const { is = 'li', collapsible = false } =
+  defineProps<ScalarSidebarSectionProps>()
+
+const emit = defineEmits<{
+  /** Emitted when the section header is toggled (only when collapsible) */
+  (e: 'toggle', event: MouseEvent): void
+}>()
+
+const open = defineModel<boolean>('open', { default: true })
 
 defineSlots<{
   /** The text content of the toggle */
-  default?(): unknown
+  default?(props: { open: boolean }): unknown
   /** The list of sidebar subitems */
-  items?(): unknown
+  items?(props: { open: boolean }): unknown
 }>()
 
-const { level } = useSidebarGroups({ increment: false })
+// When collapsible, nest child items by incrementing the group level so tag
+// groups render with visible hierarchy. Non-collapsible sections stay flat.
+const { level } = useSidebarGroups({ increment: collapsible })
 
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
+
+/** Handle the click on the section header. No-op when not collapsible. */
+const handleClick = (event: MouseEvent) => {
+  if (!collapsible) {
+    return
+  }
+  emit('toggle', event)
+  open.value = !open.value
+}
 </script>
 <template>
   <component
@@ -49,15 +69,28 @@ const { cx } = useBindCx()
       class="group/spacer-before h-3"
       :indent="level" />
     <ScalarSidebarButton
-      is="div"
+      :is="collapsible ? 'button' : 'div'"
+      :aria-expanded="collapsible ? open : undefined"
       class="text-sm/4 py-1.75 font-bold"
-      disabled
+      :disabled="!collapsible"
       :icon="icon"
-      :indent="level">
-      <slot />
+      :indent="level"
+      @click="handleClick">
+      <slot :open="open" />
+      <template
+        v-if="collapsible"
+        #aside>
+        <ScalarSidebarGroupToggle
+          class="text-sidebar-c-2"
+          :open="open" />
+      </template>
     </ScalarSidebarButton>
-    <ul class="flex flex-col gap-px">
-      <slot name="items" />
+    <ul
+      v-show="!collapsible || open"
+      class="flex flex-col gap-px">
+      <slot
+        name="items"
+        :open="open" />
     </ul>
     <ScalarSidebarSpacer
       class="group/spacer-after h-3"

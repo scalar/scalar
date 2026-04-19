@@ -355,6 +355,25 @@ const setChildrenOpen = (items: TraversedEntry[]): void => {
   })
 }
 
+/**
+ * Open all `x-tagGroups` by default so the modern sidebar preserves the
+ * previous flat rendering when collapsible sections are introduced.
+ */
+const openTagGroupsByDefault = (items: TraversedEntry[]): void => {
+  items.forEach((item) => {
+    if (
+      item.type === 'tag' &&
+      item.isGroup === true &&
+      !sidebarState.isExpanded(item.id)
+    ) {
+      sidebarState.setExpanded(item.id, true)
+    }
+    if ('children' in item && item.children) {
+      openTagGroupsByDefault(item.children)
+    }
+  })
+}
+
 /** We get the sub items for the sidebar based on the configuration/document slug */
 const sidebarItems = computed<TraversedEntry[]>(() => {
   const config = mergedConfig.value
@@ -729,6 +748,10 @@ provide(AGENT_CONTEXT_SYMBOL, agent)
 const modal = useTemplateRef<HTMLElement>('modal')
 const apiClient = ref<ApiClientModal | null>(null)
 onMounted(() => {
+  // Tag groups default to expanded so the modern layout preserves its
+  // previous flat rendering for users who did not interact with the sidebar.
+  openTagGroupsByDefault(sidebarItems.value)
+
   if (!modal.value) {
     return
   }

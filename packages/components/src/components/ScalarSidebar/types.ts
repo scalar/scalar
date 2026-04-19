@@ -28,6 +28,17 @@ export type ScalarSidebarItemProps = {
   indent?: SidebarGroupLevel
 }
 
+export type ScalarSidebarSectionProps = ScalarSidebarItemProps & {
+  /**
+   * Enables a collapsible section header with an expand/collapse toggle.
+   *
+   * When `true`, the section header becomes a button and the items slot
+   * visibility is controlled by the `open` model. Defaults to non-collapsible
+   * to preserve the original section behavior.
+   */
+  collapsible?: boolean
+}
+
 export type ScalarSidebarGroupProps = ScalarSidebarItemProps & {
   /**
    * Disables the internal open state for the group
