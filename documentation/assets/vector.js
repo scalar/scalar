@@ -45,4 +45,7 @@ function initVector() {
 }
 
 initVector()
-window.vector.load('35f38258-8949-4041-a905-81ffb5a51704')
+
+if (window.vector) {
+  window.vector.load('35f38258-8949-4041-a905-81ffb5a51704')
+}
