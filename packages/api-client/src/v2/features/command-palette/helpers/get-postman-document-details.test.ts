@@ -26,7 +26,7 @@ describe('getPostmanDocumentDetails', () => {
     expect(result).toBeNull()
   })
 
-  it('returns null for JSON without _postman_id', () => {
+  it('returns null for JSON without _postman_id and item tree', () => {
     const content = JSON.stringify({
       info: {
         name: 'Test Collection',
@@ -36,6 +36,25 @@ describe('getPostmanDocumentDetails', () => {
 
     const result = getPostmanDocumentDetails(content)
     expect(result).toBeNull()
+  })
+
+  it('parses JSON without _postman_id when schema and item tree are present', () => {
+    const content = JSON.stringify({
+      info: {
+        name: 'Exported Collection',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [],
+    })
+
+    const result = getPostmanDocumentDetails(content)
+    expect(result).toEqual({
+      type: 'json',
+      title: 'Exported Collection',
+      version: '1.0',
+      schemaLabel: 'v2.1.0',
+      collection: [],
+    })
   })
 
   it('returns null for JSON without valid schema', () => {

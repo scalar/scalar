@@ -1,5 +1,19 @@
 # @scalar/api-client
 
+## 3.1.0
+
+### Minor Changes
+
+- [#8865](https://github.com/scalar/scalar/pull/8865): feat: add plugin support for custom response body content types
+
+### Patch Changes
+
+- [#8810](https://github.com/scalar/scalar/pull/8810): refactor: move telemetry to an optional plugin
+- [#8912](https://github.com/scalar/scalar/pull/8912): fix: provide a default summary when creating a new temp operation
+- [#8903](https://github.com/scalar/scalar/pull/8903): fix: share Postman collection detection from postman-to-openapi
+- [#8911](https://github.com/scalar/scalar/pull/8911): feat: switch from Request to RequestPayload to support body with GET
+- [#8887](https://github.com/scalar/scalar/pull/8887): fix: invalid json body handling and add root document for bulk operation selection
+
 ## 3.0.0
 
 ### Major Changes

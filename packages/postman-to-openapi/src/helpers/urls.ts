@@ -1,6 +1,11 @@
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { ParsedUrl } from '@/types'
+
+const POSTMAN_TEMPLATE_REGEX = /\{\{([^{}]{0,1000})\}\}/g
+const DEFAULT_SERVER_VARIABLE_VALUE = 'example.com'
+const SERVER_VARIABLE_DESCRIPTION = 'Declared in Postman collection variables.'
 
 /**
  * Parses a URL string into its component parts.
@@ -34,7 +39,7 @@ export function extractPathFromUrl(url: string | undefined): string {
   const path = url.replace(/^(?:https?:\/\/)?[^/]+(\/|$)/, '/').split(/[?#]/)[0] ?? ''
 
   // Replace Postman variables and ensure single leading slash
-  const finalPath = ('/' + path.replace(/\{\{([^{}]{0,1000})\}\}/g, '{$1}').replace(/^\/+/, '')).replace(/\/\/+/g, '/')
+  const finalPath = ('/' + path.replace(POSTMAN_TEMPLATE_REGEX, '{$1}').replace(/^\/+/, '')).replace(/\/\/+/g, '/')
 
   return finalPath
 }
@@ -44,6 +49,70 @@ export function extractPathFromUrl(url: string | undefined): string {
  * e.g., '/users/:id' becomes '/users/{id}'
  */
 export const normalizePath = (path: string): string => path.replace(/:(\w+)/g, '{$1}')
+
+type CollectionVariableLookup = ReadonlyMap<string, string>
+
+const isCompleteUrl = (value: string): boolean => /^(https?:\/\/)/i.test(value)
+
+const hasPostmanTemplateSyntax = (value: string): boolean => /\{\{([^{}]{0,1000})\}\}/.test(value)
+
+const createServerVariableDefinition = (): NonNullable<OpenAPIV3_1.ServerObject['variables']>[string] => ({
+  default: DEFAULT_SERVER_VARIABLE_VALUE,
+  description: SERVER_VARIABLE_DESCRIPTION,
+})
+
+const extractFullHostTemplateVariableName = (rawServerUrl: string): string | undefined => {
+  const protocolSeparatorIndex = rawServerUrl.indexOf('://')
+  if (protocolSeparatorIndex === -1) {
+    return undefined
+  }
+
+  const hostCandidate = rawServerUrl.slice(protocolSeparatorIndex + 3)
+  if (!hostCandidate.startsWith('{{') || !hostCandidate.endsWith('}}')) {
+    return undefined
+  }
+
+  const variableName = hostCandidate.slice(2, -2).trim()
+  if (!variableName || variableName.includes('{') || variableName.includes('}')) {
+    return undefined
+  }
+
+  return variableName
+}
+
+/**
+ * Extracts Postman collection variables into a lookup table.
+ */
+export function createCollectionVariableLookup(
+  variables: ReadonlyArray<{ key?: string; value?: string | number | boolean; disabled?: boolean }> | undefined,
+): ReadonlyMap<string, string> {
+  const variableLookup = new Map<string, string>()
+  for (const variable of variables ?? []) {
+    const key = variable.key?.trim()
+    if (!key || variable.disabled || variable.value === undefined) {
+      continue
+    }
+    variableLookup.set(key, String(variable.value))
+  }
+  return variableLookup
+}
+
+/**
+ * Generates a structural path signature by replacing parameter segments with `{*}`.
+ * Paths with the same signature are equivalent except for parameter names.
+ */
+export const getPathStructuralSignature = (path: string): string => {
+  const normalizedPath = normalizePath(path)
+
+  if (normalizedPath === '') {
+    return ''
+  }
+
+  const segments = normalizedPath.split('/')
+  const signatureSegments = segments.map((segment) => (/^\{[^{}]+\}$/.test(segment) ? '{*}' : segment))
+
+  return signatureSegments.join('/')
+}
 
 /**
  * Extracts parameter names from a path string.
@@ -70,6 +139,16 @@ export function extractPathParameterNames(path: string): string[] {
  * Returns undefined if no valid server URL can be extracted.
  */
 export function extractServerFromUrl(url: string | undefined): string | undefined {
+  return extractServerObjectFromUrl(url)?.url
+}
+
+/**
+ * Extracts the server object from a request URL and resolves Postman templates.
+ */
+export function extractServerObjectFromUrl(
+  url: string | undefined,
+  collectionVariableLookup: CollectionVariableLookup = new Map(),
+): OpenAPIV3_1.ServerObject | undefined {
   if (!url) {
     return undefined
   }
@@ -87,9 +166,54 @@ export function extractServerFromUrl(url: string | undefined): string | undefine
 
     const hostPart = urlMatch[1]
     // Preserve the original protocol if present, otherwise default to https
-    const serverUrl = protocol ? `${protocol}${hostPart}`.replace(/\/$/, '') : `https://${hostPart}`.replace(/\/$/, '')
+    const rawServerUrl = protocol
+      ? `${protocol}${hostPart}`.replace(/\/$/, '')
+      : `https://${hostPart}`.replace(/\/$/, '')
+    const templateMatches = Array.from(rawServerUrl.matchAll(POSTMAN_TEMPLATE_REGEX))
+    if (templateMatches.length === 0) {
+      return { url: rawServerUrl }
+    }
 
-    return serverUrl
+    const unresolvedVariables = new Set<string>()
+    const fullHostTemplateVariableName = extractFullHostTemplateVariableName(rawServerUrl)
+    if (fullHostTemplateVariableName) {
+      const variableName = fullHostTemplateVariableName
+      const variableValue = collectionVariableLookup.get(variableName)
+      if (!variableValue || hasPostmanTemplateSyntax(variableValue)) {
+        unresolvedVariables.add(variableName)
+      } else if (isCompleteUrl(variableValue)) {
+        return { url: variableValue.replace(/\/$/, '') }
+      }
+    }
+
+    const resolvedUrl = rawServerUrl.replace(POSTMAN_TEMPLATE_REGEX, (_, rawName: string) => {
+      const variableName = rawName.trim()
+      const variableValue = collectionVariableLookup.get(variableName)
+      if (!variableValue || hasPostmanTemplateSyntax(variableValue)) {
+        unresolvedVariables.add(variableName)
+        return `{${variableName}}`
+      }
+
+      if (isCompleteUrl(variableValue)) {
+        unresolvedVariables.add(variableName)
+        return `{${variableName}}`
+      }
+
+      return variableValue
+    })
+
+    if (unresolvedVariables.size > 0) {
+      const variables: NonNullable<OpenAPIV3_1.ServerObject['variables']> = {}
+      for (const variableName of unresolvedVariables) {
+        variables[variableName] = createServerVariableDefinition()
+      }
+      return {
+        url: resolvedUrl,
+        variables,
+      }
+    }
+
+    return { url: resolvedUrl.replace(/\/$/, '') }
   } catch (error) {
     console.error(`Error extracting server from URL "${url}":`, error)
     return undefined

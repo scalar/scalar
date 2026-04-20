@@ -1,7 +1,7 @@
 import { ERRORS } from '@scalar/helpers/errors/normalize-error'
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
 import type { AuthMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { buildRequest, requestFactory } from '@scalar/workspace-store/request-example'
+import { type RequestPayload, buildRequest, requestFactory } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -62,7 +62,7 @@ vi.mock('@/v2/blocks/request-block', () => ({
 vi.mock('@/v2/blocks/response-block', () => ({
   ResponseBlock: {
     name: 'ResponseBlock',
-    props: ['appVersion', 'eventBus', 'layout', 'plugins', 'request', 'response', 'totalPerformedRequests'],
+    props: ['appVersion', 'eventBus', 'layout', 'plugins', 'requestPayload', 'response', 'totalPerformedRequests'],
     template: '<div data-test="response-block"></div>',
   },
 }))
@@ -167,7 +167,7 @@ const triggerExecute = async (wrapper: ReturnType<typeof mount<typeof OperationB
 const getResponseBlockProps = (wrapper: ReturnType<typeof mount<typeof OperationBlock>>) =>
   wrapper.findComponent({ name: 'ResponseBlock' }).props() as {
     response: ResponseInstance | null | undefined
-    request: Request | null | undefined
+    requestPayload: RequestPayload | null | undefined
   }
 
 const getEventBusHandler = (mockBus: WorkspaceEventBus, event: string): (() => void) | undefined => {
@@ -215,7 +215,6 @@ describe('OperationBlock', () => {
     mockToast.mockClear()
 
     const mockController = new AbortController()
-    const mockFetchRequest = new Request('https://api.example.com/api/users')
 
     vi.mocked(requestFactory).mockImplementation((args) => ({
       request: createDefaultRequestFactoryPayload({
@@ -225,7 +224,7 @@ describe('OperationBlock', () => {
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
-      request: mockFetchRequest,
+      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
       isUsingProxy: false,
     })
   })
@@ -259,8 +258,6 @@ describe('OperationBlock', () => {
   })
 
   it('executes request when execute is emitted from Header', async () => {
-    const mockRequest = new Request('https://api.example.com/api/users')
-
     const mockResponse: ResponseInstance = {
       status: 200,
       statusText: 'OK',
@@ -296,7 +293,7 @@ describe('OperationBlock', () => {
       null,
       {
         timestamp: Date.now(),
-        request: mockRequest,
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
         response: mockResponse,
         originalResponse: mockOriginalResponse,
       },
@@ -311,7 +308,7 @@ describe('OperationBlock', () => {
     expect(sendRequest).toHaveBeenCalledOnce()
     expect(sendRequest).toHaveBeenCalledWith({
       isUsingProxy: false,
-      request: expect.any(Request),
+      requestPayload: ['https://api.example.com/api/users', expect.objectContaining({ method: 'GET' })],
       plugins: [],
     })
   })
@@ -334,11 +331,10 @@ describe('OperationBlock', () => {
 
   it('displays toast error when sendRequest fails', async () => {
     const mockController = new AbortController()
-    const mockRequest = new Request('https://api.example.com/api/users')
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
-      request: mockRequest,
+      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
       isUsingProxy: false,
     })
 
@@ -358,11 +354,10 @@ describe('OperationBlock', () => {
     const mockEventBus = createMockEventBus()
     const mockController = new AbortController()
     const abortSpy = vi.spyOn(mockController, 'abort')
-    const mockRequest = new Request('https://api.example.com/api/users')
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
-      request: mockRequest,
+      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
       isUsingProxy: false,
     })
 
@@ -370,7 +365,7 @@ describe('OperationBlock', () => {
       null,
       {
         timestamp: Date.now(),
-        request: mockRequest,
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
         response: {} as ResponseInstance,
         originalResponse: createMockOriginalResponse(),
       },
@@ -392,11 +387,10 @@ describe('OperationBlock', () => {
 
   it('passes props to requestFactory and buildRequest', async () => {
     const mockController = new AbortController()
-    const mockRequest = new Request('https://api.example.com/api/users')
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
-      request: mockRequest,
+      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
       isUsingProxy: false,
     })
 
@@ -404,7 +398,7 @@ describe('OperationBlock', () => {
       null,
       {
         timestamp: Date.now(),
-        request: mockRequest,
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
         response: {} as ResponseInstance,
         originalResponse: createMockOriginalResponse(),
       },
@@ -453,7 +447,6 @@ describe('OperationBlock', () => {
 
   it('passes isUsingProxy from request factory to sendRequest', async () => {
     const mockController = new AbortController()
-    const mockRequest = new Request('https://api.example.com/api/users')
 
     vi.mocked(requestFactory).mockReturnValue({
       request: createDefaultRequestFactoryPayload({
@@ -463,7 +456,10 @@ describe('OperationBlock', () => {
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
-      request: mockRequest,
+      requestPayload: [
+        'https://proxy.example.com/?scalar_url=https%3A%2F%2Fapi.example.com%2Fapi%2Fusers',
+        { method: 'GET', headers: new Headers() },
+      ],
       isUsingProxy: true,
     })
 
@@ -471,7 +467,10 @@ describe('OperationBlock', () => {
       null,
       {
         timestamp: Date.now(),
-        request: mockRequest,
+        requestPayload: [
+          'https://proxy.example.com/?scalar_url=https%3A%2F%2Fapi.example.com%2Fapi%2Fusers',
+          { method: 'GET', headers: new Headers() },
+        ],
         response: {} as ResponseInstance,
         originalResponse: createMockOriginalResponse(),
       },
@@ -485,18 +484,17 @@ describe('OperationBlock', () => {
 
     expect(sendRequest).toHaveBeenCalledWith({
       isUsingProxy: true,
-      request: expect.any(Request),
+      requestPayload: [expect.any(String), expect.any(Object)],
       plugins: [],
     })
   })
 
   it('stores response after successful request execution', async () => {
     const mockController = new AbortController()
-    const mockRequest = new Request('https://api.example.com/api/users')
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
-      request: mockRequest,
+      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
       isUsingProxy: false,
     })
 
@@ -529,7 +527,7 @@ describe('OperationBlock', () => {
       null,
       {
         timestamp: Date.now(),
-        request: mockRequest,
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
         response: mockResponse,
         originalResponse: createMockOriginalResponse(),
       },
@@ -549,7 +547,6 @@ describe('OperationBlock', () => {
 
   it('clears response and request when path changes', async () => {
     const mockController = new AbortController()
-    const mockRequest = new Request('https://api.example.com/api/users')
     const mockResponse: ResponseInstance = {
       status: 200,
       statusText: 'OK',
@@ -577,7 +574,7 @@ describe('OperationBlock', () => {
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
-      request: mockRequest,
+      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
       isUsingProxy: false,
     })
 
@@ -585,7 +582,7 @@ describe('OperationBlock', () => {
       null,
       {
         timestamp: Date.now(),
-        request: mockRequest,
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
         response: mockResponse,
         originalResponse: createMockOriginalResponse(),
       },
@@ -598,18 +595,17 @@ describe('OperationBlock', () => {
     await triggerExecute(wrapper)
 
     expect(getResponseBlockProps(wrapper).response).not.toBeNull()
-    expect(getResponseBlockProps(wrapper).request).not.toBeNull()
+    expect(getResponseBlockProps(wrapper).requestPayload).not.toBeNull()
 
     await wrapper.setProps({ path: '/api/posts' })
     await wrapper.vm.$nextTick()
 
     expect(getResponseBlockProps(wrapper).response).toBeNull()
-    expect(getResponseBlockProps(wrapper).request).toBeNull()
+    expect(getResponseBlockProps(wrapper).requestPayload).toBeNull()
   })
 
   it('clears response and request when method changes', async () => {
     const mockController = new AbortController()
-    const mockRequest = new Request('https://api.example.com/api/users')
     const mockResponse: ResponseInstance = {
       status: 200,
       statusText: 'OK',
@@ -637,7 +633,7 @@ describe('OperationBlock', () => {
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
-      request: mockRequest,
+      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
       isUsingProxy: false,
     })
 
@@ -645,7 +641,7 @@ describe('OperationBlock', () => {
       null,
       {
         timestamp: Date.now(),
-        request: mockRequest,
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
         response: mockResponse,
         originalResponse: createMockOriginalResponse(),
       },
@@ -658,18 +654,17 @@ describe('OperationBlock', () => {
     await triggerExecute(wrapper)
 
     expect(getResponseBlockProps(wrapper).response).not.toBeNull()
-    expect(getResponseBlockProps(wrapper).request).not.toBeNull()
+    expect(getResponseBlockProps(wrapper).requestPayload).not.toBeNull()
 
     await wrapper.setProps({ method: 'post' })
     await wrapper.vm.$nextTick()
 
     expect(getResponseBlockProps(wrapper).response).toBeNull()
-    expect(getResponseBlockProps(wrapper).request).toBeNull()
+    expect(getResponseBlockProps(wrapper).requestPayload).toBeNull()
   })
 
   it('clears response and request when exampleKey changes', async () => {
     const mockController = new AbortController()
-    const mockRequest = new Request('https://api.example.com/api/users')
     const mockResponse: ResponseInstance = {
       status: 200,
       statusText: 'OK',
@@ -697,7 +692,7 @@ describe('OperationBlock', () => {
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
-      request: mockRequest,
+      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
       isUsingProxy: false,
     })
 
@@ -705,7 +700,7 @@ describe('OperationBlock', () => {
       null,
       {
         timestamp: Date.now(),
-        request: mockRequest,
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
         response: mockResponse,
         originalResponse: createMockOriginalResponse(),
       },
@@ -718,18 +713,17 @@ describe('OperationBlock', () => {
     await triggerExecute(wrapper)
 
     expect(getResponseBlockProps(wrapper).response).not.toBeNull()
-    expect(getResponseBlockProps(wrapper).request).not.toBeNull()
+    expect(getResponseBlockProps(wrapper).requestPayload).not.toBeNull()
 
     await wrapper.setProps({ exampleKey: 'alternative-example' })
     await wrapper.vm.$nextTick()
 
     expect(getResponseBlockProps(wrapper).response).toBeNull()
-    expect(getResponseBlockProps(wrapper).request).toBeNull()
+    expect(getResponseBlockProps(wrapper).requestPayload).toBeNull()
   })
 
   it('restores response from cache when navigating back to same operation', async () => {
     const mockController = new AbortController()
-    const mockRequest = new Request('https://api.example.com/api/users')
     const mockResponse: ResponseInstance = {
       status: 200,
       statusText: 'OK',
@@ -757,7 +751,7 @@ describe('OperationBlock', () => {
 
     vi.mocked(buildRequest).mockReturnValue({
       controller: mockController,
-      request: mockRequest,
+      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
       isUsingProxy: false,
     })
 
@@ -765,7 +759,7 @@ describe('OperationBlock', () => {
       null,
       {
         timestamp: Date.now(),
-        request: mockRequest,
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
         response: mockResponse,
         originalResponse: new Response(),
       },
@@ -792,6 +786,6 @@ describe('OperationBlock', () => {
     const restored = getResponseBlockProps(wrapper).response
     expect(restored).not.toBeNull()
     expect(restored && 'data' in restored ? restored.data : undefined).toBe('{"users": []}')
-    expect(getResponseBlockProps(wrapper).request).not.toBeNull()
+    expect(getResponseBlockProps(wrapper).requestPayload).not.toBeNull()
   })
 })

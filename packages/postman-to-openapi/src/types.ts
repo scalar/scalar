@@ -204,6 +204,7 @@ export type FormParameter =
 
 export type Response = {
   id?: string
+  name?: string
   originalRequest?: Request
   responseTime?: string | number | null
   timings?: object | null

@@ -1,5 +1,13 @@
 # @scalar/nuxt
 
+## 0.6.24
+
+### Patch Changes
+
+- [#8723](https://github.com/scalar/scalar/pull/8723): fix: remove unnecessary optimizeDeps configuration
+
+  Vite's automatic dependency discovery now handles CommonJS dependencies correctly without needing explicit optimizeDeps.include configuration. The previous configuration was causing warnings and is no longer necessary.
+
 ## 0.6.23
 
 ### Patch Changes

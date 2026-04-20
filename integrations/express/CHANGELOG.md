@@ -1,5 +1,11 @@
 # @scalar/express-api-reference
 
+## 0.9.9
+
+### Patch Changes
+
+- [#8873](https://github.com/scalar/scalar/pull/8873): refactor: migrate integrations to client-side rendering package
+
 ## 0.9.8
 
 ## 0.9.7

@@ -246,6 +246,42 @@ paths:
     expect(addedDocument?.openapi).toBeDefined()
   })
 
+  it('converts and adds Postman collection without _postman_id', async () => {
+    const workspaceStore = createWorkspaceStore()
+
+    const exportedPostmanCollection = JSON.stringify({
+      info: {
+        name: 'Exported Postman API',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Get Users',
+          request: {
+            method: 'GET',
+            url: 'https://api.example.com/users',
+          },
+        },
+      ],
+    })
+
+    const importEventData: ImportEventData = {
+      source: exportedPostmanCollection,
+      type: 'raw',
+    }
+
+    const result = await loadDocumentFromSource(workspaceStore, importEventData, 'Exported Postman API', false)
+
+    expect(result).toBe(true)
+
+    const documents = Object.values(workspaceStore.workspace.documents)
+    const addedDocument = documents.find((doc) => doc.info.title === 'Exported Postman API')
+
+    expect(addedDocument).toBeDefined()
+    expect(addedDocument?.openapi).toBeDefined()
+    expect(addedDocument?.paths?.['/users']).toBeDefined()
+  })
+
   it('handles Postman collection with multiple requests', async () => {
     const workspaceStore = createWorkspaceStore()
 

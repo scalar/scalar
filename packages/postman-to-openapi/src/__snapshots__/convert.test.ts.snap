@@ -1,0 +1,3313 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`fixtures > AuthBasic 1`] = `
+{
+  "components": {
+    "securitySchemes": {
+      "basicAuth": {
+        "scheme": "basic",
+        "type": "http",
+      },
+    },
+  },
+  "info": {
+    "description": "Collection to test authorization global",
+    "title": "AuthBasic",
+    "version": "1.0.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/users": {
+      "get": {
+        "description": "Obtain a list of users that fullfill the conditions of the filters",
+        "parameters": [
+          {
+            "description": "Filter by age",
+            "examples": {
+              "Default example": {
+                "value": "45",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "age",
+            "schema": {
+              "type": "integer",
+            },
+          },
+          {
+            "description": "Filter by name",
+            "examples": {
+              "Default example": {
+                "value": "Jhon",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "description": "Indicate if should be reviewed or not",
+            "examples": {
+              "Default example": {
+                "value": "true",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "review",
+            "schema": {
+              "type": "boolean",
+            },
+          },
+          {
+            "description": "This is a number",
+            "examples": {
+              "Default example": {
+                "value": "23.56",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "number",
+            "schema": {
+              "type": "number",
+            },
+          },
+        ],
+        "summary": "Get list of users",
+      },
+      "post": {
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Create new User Copy",
+      },
+    },
+  },
+  "security": [
+    {
+      "basicAuth": [],
+    },
+  ],
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > AuthBearer 1`] = `
+{
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "scheme": "bearer",
+        "type": "http",
+      },
+    },
+  },
+  "info": {
+    "description": "Collection to test authorization global",
+    "title": "AuthBearer",
+    "version": "1.0.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/users": {
+      "get": {
+        "description": "Obtain a list of users that fullfill the conditions of the filters",
+        "parameters": [
+          {
+            "description": "Filter by age",
+            "examples": {
+              "Default example": {
+                "value": "45",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "age",
+            "schema": {
+              "type": "integer",
+            },
+          },
+          {
+            "description": "Filter by name",
+            "examples": {
+              "Default example": {
+                "value": "Jhon",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "description": "Indicate if should be reviewed or not",
+            "examples": {
+              "Default example": {
+                "value": "true",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "review",
+            "schema": {
+              "type": "boolean",
+            },
+          },
+          {
+            "description": "This is a number",
+            "examples": {
+              "Default example": {
+                "value": "23.56",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "number",
+            "schema": {
+              "type": "number",
+            },
+          },
+        ],
+        "summary": "Get list of users",
+      },
+      "post": {
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Create new User Copy",
+      },
+    },
+  },
+  "security": [
+    {
+      "bearerAuth": [],
+    },
+  ],
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > AuthMultiple 1`] = `
+{
+  "components": {
+    "securitySchemes": {
+      "basicAuth": {
+        "scheme": "basic",
+        "type": "http",
+      },
+      "bearerAuth": {
+        "scheme": "bearer",
+        "type": "http",
+      },
+    },
+  },
+  "info": {
+    "description": "Collection to test authorization global",
+    "title": "AuthBearer",
+    "version": "1.0.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/users": {
+      "get": {
+        "description": "Obtain a list of users that fullfill the conditions of the filters",
+        "parameters": [
+          {
+            "description": "Filter by age",
+            "examples": {
+              "Default example": {
+                "value": "45",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "age",
+            "schema": {
+              "type": "integer",
+            },
+          },
+          {
+            "description": "Filter by name",
+            "examples": {
+              "Default example": {
+                "value": "Jhon",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "description": "Indicate if should be reviewed or not",
+            "examples": {
+              "Default example": {
+                "value": "true",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "review",
+            "schema": {
+              "type": "boolean",
+            },
+          },
+          {
+            "description": "This is a number",
+            "examples": {
+              "Default example": {
+                "value": "23.56",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "number",
+            "schema": {
+              "type": "number",
+            },
+          },
+        ],
+        "security": [
+          {
+            "basicAuth": [],
+          },
+        ],
+        "summary": "Get list of users",
+      },
+      "post": {
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Create new User Copy",
+      },
+    },
+  },
+  "security": [
+    {
+      "bearerAuth": [],
+    },
+  ],
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > AuthRequest 1`] = `
+{
+  "components": {
+    "securitySchemes": {
+      "basicAuth": {
+        "scheme": "basic",
+        "type": "http",
+      },
+    },
+  },
+  "info": {
+    "description": "Collection to test authorization to request level",
+    "title": "AuthRequest",
+    "version": "1.0.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/users": {
+      "get": {
+        "description": "Obtain a list of users that fullfill the conditions of the filters",
+        "parameters": [
+          {
+            "description": "Filter by age",
+            "examples": {
+              "Default example": {
+                "value": "45",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "age",
+            "schema": {
+              "type": "integer",
+            },
+          },
+          {
+            "description": "Filter by name",
+            "examples": {
+              "Default example": {
+                "value": "Jhon",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "description": "Indicate if should be reviewed or not",
+            "examples": {
+              "Default example": {
+                "value": "true",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "review",
+            "schema": {
+              "type": "boolean",
+            },
+          },
+          {
+            "description": "This is a number",
+            "examples": {
+              "Default example": {
+                "value": "23.56",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "number",
+            "schema": {
+              "type": "number",
+            },
+          },
+        ],
+        "security": [
+          {
+            "basicAuth": [],
+          },
+        ],
+        "summary": "Get list of users",
+      },
+      "post": {
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Create new User Copy",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > DeleteOperation 1`] = `
+{
+  "info": {
+    "description": "Mi super test collection from postman",
+    "title": "Delete Operation",
+    "version": "1.1.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/users": {
+      "delete": {
+        "description": "Delete all the existing users",
+        "summary": "Delete all users",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > EmptyUrl 1`] = `
+{
+  "info": {
+    "description": "Just a simple collection for test",
+    "title": "Simple Post",
+    "version": "2.3.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/": {
+      "post": {
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Post empty raw",
+      },
+    },
+    "/users": {
+      "post": {
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "servers": [
+          {
+            "url": "https://api.example.com",
+          },
+        ],
+        "summary": "Create new User",
+      },
+    },
+  },
+}
+`;
+
+exports[`fixtures > ExternalDocs 1`] = `
+{
+  "externalDocs": {
+    "description": "Find more info here",
+    "url": "https://docs.example.com",
+  },
+  "info": {
+    "description": "Just a simple collection for test",
+    "title": "External Docs",
+    "version": "2.3.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/users": {
+      "post": {
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Create new User",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > Folders 1`] = `
+{
+  "info": {
+    "description": "Just a simple collection for test",
+    "title": "Folder Collection",
+    "version": "2.3.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/customer": {
+      "post": {
+        "description": "This is a post request with json body for create a customer",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Create a customer",
+        "tags": [
+          "Users",
+        ],
+      },
+    },
+    "/info": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "test":"here"
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Create a info",
+      },
+    },
+    "/posts": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "text/plain": {},
+          },
+        },
+        "summary": "Create a post",
+        "tags": [
+          "Posts",
+        ],
+      },
+    },
+    "/posts/admin/settings": {
+      "get": {
+        "description": "This is a get request in a nested folder",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Get posts settings",
+        "tags": [
+          "Posts / Admin",
+        ],
+      },
+    },
+    "/req1": {
+      "post": {
+        "description": "This is a post request with json body",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Request 1",
+        "tags": [
+          "Folder 1",
+        ],
+      },
+    },
+    "/req2": {
+      "post": {
+        "description": "This is a post request with json body",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Request 2",
+        "tags": [
+          "Folder 2",
+        ],
+      },
+    },
+    "/req3": {
+      "post": {
+        "description": "This is a post request with json body",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Request 3",
+        "tags": [
+          "Folder 3",
+        ],
+      },
+    },
+    "/req4": {
+      "post": {
+        "description": "This is a post request with json body",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Request 4",
+        "tags": [
+          "Folder 5",
+        ],
+      },
+    },
+    "/users": {
+      "post": {
+        "description": "This is a post request with json body",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Create a user",
+        "tags": [
+          "Users",
+        ],
+      },
+    },
+    "/users/admin/roles": {
+      "get": {
+        "description": "This is a get request in a nested folder",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Get user roles",
+        "tags": [
+          "Users / Admin",
+        ],
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+  "tags": [
+    {
+      "description": "Operations at User level",
+      "name": "Users",
+    },
+    {
+      "description": "Admin operations at User level
+
+Part of Users",
+      "name": "Users / Admin",
+    },
+    {
+      "description": "Operations for Post items",
+      "name": "Posts",
+    },
+    {
+      "description": "Admin operations for Post items
+
+Part of Posts",
+      "name": "Posts / Admin",
+    },
+    {
+      "description": "Folder 1 description",
+      "name": "Folder 1",
+    },
+    {
+      "description": "Folder 2 description
+
+Part of Folder 1",
+      "name": "Folder 2",
+    },
+    {
+      "description": "Folder 3 description
+
+Part of Folder 1 -> Folder 2",
+      "name": "Folder 3",
+    },
+    {
+      "description": "Folder 4 description
+
+Part of Folder 1 -> Folder 2 -> Folder 3",
+      "name": "Folder 4",
+    },
+    {
+      "description": "Folder 5 description
+
+Part of Folder 1 -> Folder 2 -> Folder 3 -> Folder 4",
+      "name": "Folder 5",
+    },
+    {
+      "name": "Empty Folder",
+    },
+    {
+      "name": "Empty Folder 2",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > FormData 1`] = `
+{
+  "info": {
+    "description": "Just a collection with a form data post for test",
+    "title": "Form Data",
+    "version": "1.0.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/register": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "examples": {
+                "Default example": {
+                  "value": [
+                    {
+                      "description": "full name of the user (accepts spaces) [required]",
+                      "key": "name",
+                      "type": "text",
+                      "value": "New User",
+                    },
+                    {
+                      "description": "email of the user (for notifications and login) [required]",
+                      "key": "email",
+                      "type": "text",
+                      "value": "newuser@example.com",
+                    },
+                    {
+                      "key": "password",
+                      "type": "text",
+                      "value": "super-secret-password",
+                    },
+                    {
+                      "contentType": "application/octet-stream",
+                      "description": "User avatar",
+                      "key": "profileImage",
+                      "src": [],
+                      "type": "file",
+                    },
+                  ],
+                },
+              },
+              "schema": {
+                "properties": {
+                  "email": {
+                    "description": "email of the user (for notifications and login)",
+                    "example": "newuser@example.com",
+                    "type": "string",
+                  },
+                  "name": {
+                    "description": "full name of the user (accepts spaces)",
+                    "example": "New User",
+                    "type": "string",
+                  },
+                  "password": {
+                    "example": "super-secret-password",
+                    "type": "string",
+                  },
+                  "profileImage": {
+                    "description": "User avatar",
+                    "format": "binary",
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "name",
+                  "email",
+                ],
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Register New User",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > FormUrlencoded 1`] = `
+{
+  "info": {
+    "title": "Form Url Encoded",
+    "version": "1.0.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/register": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "examples": {
+                "Default example": {
+                  "value": [
+                    {
+                      "description": "full name of the user (accepts spaces) [required]",
+                      "key": "name",
+                      "type": "text",
+                      "value": "New User",
+                    },
+                    {
+                      "description": "email of the user (for notifications and login) [required]",
+                      "key": "email",
+                      "type": "text",
+                      "value": "newuser@example.com",
+                    },
+                    {
+                      "description": "password (to be used for logging in) [required]",
+                      "key": "password",
+                      "type": "text",
+                      "value": "super-secret-password",
+                    },
+                  ],
+                },
+              },
+              "schema": {
+                "properties": {
+                  "email": {
+                    "description": "email of the user (for notifications and login)",
+                    "examples": [
+                      "newuser@example.com",
+                    ],
+                    "type": "string",
+                  },
+                  "name": {
+                    "description": "full name of the user (accepts spaces)",
+                    "examples": [
+                      "New User",
+                    ],
+                    "type": "string",
+                  },
+                  "password": {
+                    "description": "password (to be used for logging in)",
+                    "examples": [
+                      "super-secret-password",
+                    ],
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "name",
+                  "email",
+                  "password",
+                ],
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Register New User",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > GetMethods 1`] = `
+{
+  "info": {
+    "description": "API to manage GET methods",
+    "title": "Get Methods",
+    "version": "1.0.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/users": {
+      "get": {
+        "description": "Obtain a list of users that fullfill the conditions of the filters",
+        "parameters": [
+          {
+            "description": "Filter by age",
+            "examples": {
+              "Default example": {
+                "value": "45",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "age",
+            "required": true,
+            "schema": {
+              "type": "integer",
+            },
+          },
+          {
+            "description": "Filter by name",
+            "examples": {
+              "Default example": {
+                "value": "Jhon",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "description": "Indicate if should be reviewed or not",
+            "examples": {
+              "Default example": {
+                "value": "true",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "review",
+            "schema": {
+              "type": "boolean",
+            },
+          },
+          {
+            "description": "This is a number",
+            "examples": {
+              "Default example": {
+                "value": "23.56",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "number",
+            "schema": {
+              "type": "number",
+            },
+          },
+          {
+            "description": "mandatory paraemeter",
+            "examples": {
+              "Default example": {
+                "value": "my value",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "required",
+            "required": true,
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "description": "Should be parsed as number",
+            "examples": {
+              "Default example": {
+                "value": "0.4565876",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "number1",
+            "schema": {
+              "type": "number",
+            },
+          },
+          {
+            "description": "Should be parsed as number",
+            "examples": {
+              "Default example": {
+                "value": "123.45",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "number2",
+            "schema": {
+              "type": "number",
+            },
+          },
+          {
+            "description": "Should be parsed as string",
+            "examples": {
+              "Default example": {
+                "value": "1.23.45",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "fake-number",
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "description": "Should be parsed as string",
+            "examples": {
+              "Default example": {
+                "value": "2022-06-23T10:00:00.000+01:00",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "date",
+            "schema": {
+              "type": "string",
+            },
+          },
+        ],
+        "summary": "Get list of users",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > Headers 1`] = `
+{
+  "info": {
+    "description": "API with headers",
+    "title": "Headers",
+    "version": "1.0.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/users": {
+      "get": {
+        "description": "Obtain a list of users that fullfill the conditions of the filters",
+        "parameters": [
+          {
+            "description": "Filter by age",
+            "examples": {
+              "Default example": {
+                "value": "45",
+                "x-disabled": true,
+              },
+            },
+            "in": "query",
+            "name": "age",
+            "schema": {
+              "type": "integer",
+            },
+            "x-scalar-disabled": true,
+          },
+          {
+            "description": "Filter by name",
+            "examples": {
+              "Default example": {
+                "value": "Jhon",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "description": "Indicate if should be reviewed or not",
+            "examples": {
+              "Default example": {
+                "value": "true",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "review",
+            "schema": {
+              "type": "boolean",
+            },
+          },
+          {
+            "description": "Custom header [required]",
+            "examples": {
+              "Default example": {
+                "value": "super-secret-token",
+                "x-disabled": false,
+              },
+            },
+            "in": "header",
+            "name": "X-My-Header",
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "description": "Another header [REQUIRED]",
+            "examples": {
+              "Default example": {
+                "value": "other",
+                "x-disabled": false,
+              },
+            },
+            "in": "header",
+            "name": "X-Other",
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "examples": {
+              "Default example": {
+                "value": "header without description",
+                "x-disabled": false,
+              },
+            },
+            "in": "header",
+            "name": "No-description",
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "description": "header without value",
+            "examples": {
+              "Default example": {
+                "value": "",
+                "x-disabled": false,
+              },
+            },
+            "in": "header",
+            "name": "No-value",
+            "schema": {
+              "type": "integer",
+            },
+          },
+        ],
+        "summary": "Get list of users",
+      },
+      "post": {
+        "description": "Create a new user into your amazing API",
+        "parameters": [
+          {
+            "description": "Indicate the type of body sent by client",
+            "examples": {
+              "Default example": {
+                "value": "application/json",
+                "x-disabled": false,
+              },
+            },
+            "in": "header",
+            "name": "Content-Type",
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "description": "Custom header",
+            "examples": {
+              "Default example": {
+                "value": "super-secret-token",
+                "x-disabled": false,
+              },
+            },
+            "in": "header",
+            "name": "X-My-Header",
+            "schema": {
+              "type": "string",
+            },
+          },
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Create new User",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > LicenseContact 1`] = `
+{
+  "info": {
+    "contact": {
+      "email": "support@example.com",
+      "name": "API Support",
+      "url": "http://www.example.com/support",
+    },
+    "description": "Collection to test license as variable",
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.example.com/licenses/LICENSE-2.0.html",
+    },
+    "title": "License and Contact",
+    "version": "1.0.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/users": {
+      "get": {
+        "description": "Obtain a list of users that fullfill the conditions of the filters",
+        "parameters": [
+          {
+            "description": "Filter by age",
+            "examples": {
+              "Default example": {
+                "value": "45",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "age",
+            "schema": {
+              "type": "integer",
+            },
+          },
+          {
+            "description": "Filter by name",
+            "examples": {
+              "Default example": {
+                "value": "Jhon",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "description": "Indicate if should be reviewed or not",
+            "examples": {
+              "Default example": {
+                "value": "true",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "review",
+            "schema": {
+              "type": "boolean",
+            },
+          },
+          {
+            "description": "This is a number",
+            "examples": {
+              "Default example": {
+                "value": "23.56",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "number",
+            "schema": {
+              "type": "number",
+            },
+          },
+        ],
+        "summary": "Get list of users",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > MultipleServers 1`] = `
+{
+  "info": {
+    "description": "Collection to test multiples server parsing.",
+    "title": "MultipleServers",
+    "version": "1.1.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/note": {
+      "post": {
+        "description": "Just an example of text raw body",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "examples": [
+                  "This is an example Note",
+                ],
+                "type": "string",
+              },
+            },
+          },
+        },
+        "servers": [
+          {
+            "url": "https://api-pre.example.com",
+          },
+        ],
+        "summary": "Create a note",
+      },
+    },
+    "/posts": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "text/plain": {},
+          },
+        },
+        "servers": [
+          {
+            "url": "https://api-dev.example.com",
+          },
+        ],
+        "summary": "Create a post",
+      },
+    },
+    "/users": {
+      "post": {
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Create new User",
+      },
+      "put": {
+        "description": "Update an existing user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Update User",
+      },
+      "servers": [
+        {
+          "url": "https://api.example.com",
+        },
+      ],
+    },
+  },
+}
+`;
+
+exports[`fixtures > NestedServers 1`] = `
+{
+  "info": {
+    "description": "This collection provides endpoints for a Weather Forecast API allowing users to retrieve weather forecasts, historical data, and real-time alerts.",
+    "title": "Weather Forecast API",
+    "version": "v1",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/{version}/alerts": {
+      "get": {
+        "description": "Retrieve severe weather alerts for the specified region.",
+        "parameters": [
+          {
+            "examples": {
+              "Default example": {
+                "value": "{{region}}",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "region",
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "examples": {
+              "Default example": {
+                "value": "severe",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "examples": {
+              "Default example": {
+                "value": "{{access_token}}",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "access_token",
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "in": "path",
+            "name": "version",
+            "required": true,
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "examples": {
+              "Default example": {
+                "value": "Bearer {{api_key}}",
+                "x-disabled": false,
+              },
+            },
+            "in": "header",
+            "name": "Authorization",
+            "schema": {
+              "type": "string",
+            },
+          },
+        ],
+        "summary": "Get Weather Alerts",
+        "tags": [
+          "Weather Data",
+        ],
+      },
+    },
+    "/{version}/current": {
+      "get": {
+        "description": "Fetches the current weather data for the specified city.",
+        "parameters": [
+          {
+            "examples": {
+              "Default example": {
+                "value": "{{city}}",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "city",
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "examples": {
+              "Default example": {
+                "value": "metric",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "units",
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "examples": {
+              "Default example": {
+                "value": "en",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "lang",
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "in": "path",
+            "name": "version",
+            "required": true,
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "examples": {
+              "Default example": {
+                "value": "Bearer {{api_key}}",
+                "x-disabled": false,
+              },
+            },
+            "in": "header",
+            "name": "Authorization",
+            "schema": {
+              "type": "string",
+            },
+          },
+        ],
+        "summary": "Get Current Weather",
+        "tags": [
+          "Weather Data",
+        ],
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.weatherapi.example.com",
+    },
+  ],
+  "tags": [
+    {
+      "description": "Endpoints for accessing weather data, including current weather and alerts.",
+      "name": "Weather Data",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > NoPath 1`] = `
+{
+  "info": {
+    "description": "API to manage GET methods",
+    "title": "No Path",
+    "version": "1.0.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/": {
+      "get": {
+        "description": "Obtain a list of users that fullfill the conditions of the filters",
+        "parameters": [
+          {
+            "description": "Filter by age",
+            "examples": {
+              "Default example": {
+                "value": "45",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "age",
+            "required": true,
+            "schema": {
+              "type": "integer",
+            },
+          },
+          {
+            "description": "Filter by name",
+            "examples": {
+              "Default example": {
+                "value": "Jhon",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "description": "Indicate if should be reviewed or not",
+            "examples": {
+              "Default example": {
+                "value": "true",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "review",
+            "schema": {
+              "type": "boolean",
+            },
+          },
+          {
+            "description": "This is a number",
+            "examples": {
+              "Default example": {
+                "value": "23.56",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "number",
+            "schema": {
+              "type": "number",
+            },
+          },
+          {
+            "description": "mandatory paraemeter",
+            "examples": {
+              "Default example": {
+                "value": "my value",
+                "x-disabled": false,
+              },
+            },
+            "in": "query",
+            "name": "required",
+            "required": true,
+            "schema": {
+              "type": "string",
+            },
+          },
+        ],
+        "summary": "Get list of users",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > NoVersion 1`] = `
+{
+  "info": {
+    "description": "This collection don't have a version as variable",
+    "title": "No Version Collection",
+    "version": "1.0.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/users": {
+      "post": {
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Create new User",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > OperationIds 1`] = `
+{
+  "info": {
+    "description": "Mi super test collection from postman",
+    "title": "OperationIds",
+    "version": "1.1.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/note": {
+      "post": {
+        "description": "Just an example of text raw body",
+        "operationId": "createNote",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "examples": [
+                  "This is an example Note",
+                ],
+                "type": "string",
+              },
+            },
+          },
+        },
+        "summary": "Create a note",
+      },
+    },
+    "/posts": {
+      "post": {
+        "operationId": "createPost",
+        "requestBody": {
+          "content": {
+            "text/plain": {},
+          },
+        },
+        "summary": "Create a post",
+      },
+    },
+    "/users": {
+      "post": {
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Create new User",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > ParseStatusCode 1`] = `
+{
+  "info": {
+    "description": "Just a simple collection for test status parsing",
+    "title": "Parse Status Code",
+    "version": "2.3.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/users": {
+      "post": {
+        "description": "Example of a 201 response",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {},
+            },
+            "description": "Created",
+          },
+        },
+        "summary": "Create new User 201",
+        "x-post-response": "pm.test("Status code is 201", function () {
+  pm.response.to.have.status(201);
+});",
+      },
+    },
+    "/users/active": {
+      "post": {
+        "description": "Example of a 202 response",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {},
+            },
+            "description": "Accepted",
+          },
+        },
+        "summary": "Create new User 202",
+        "x-post-response": "pm.test("Status code is 202", () => {
+  pm.expect(pm.response.code).to.eql(202);
+});",
+      },
+    },
+    "/users/group": {
+      "post": {
+        "description": "Example of a 202 response",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Deafult 200",
+        "x-post-response": "pm.expect(responseJson.type).to.eql('vip');
+pm.expect(responseJson.name).to.be.a('string');",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > PathParams 1`] = `
+{
+  "info": {
+    "description": "Collection to test path parameters",
+    "title": "Path Params",
+    "version": "1.0.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/customer/{customer-id}": {
+      "get": {
+        "description": "Obtain one customer info",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "customer-id",
+            "required": true,
+            "schema": {
+              "type": "string",
+            },
+          },
+        ],
+        "summary": "Get one customer",
+      },
+    },
+    "/desc/{user_id}": {
+      "get": {
+        "description": "Obtain a list of users descriptions",
+        "parameters": [
+          {
+            "description": "This is just a user identifier",
+            "example": "476587598",
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "type": "number",
+            },
+          },
+        ],
+        "summary": "Get one users with description",
+      },
+    },
+    "/desc/{user_id}/{type}": {
+      "get": {
+        "description": "Obtain a list of users descriptions",
+        "parameters": [
+          {
+            "description": "This is just a user identifier",
+            "examples": {
+              "Default example": {
+                "value": "476587598",
+                "x-disabled": false,
+              },
+            },
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+            },
+          },
+          {
+            "description": "This is just a user type",
+            "examples": {
+              "Default example": {
+                "value": "user",
+                "x-disabled": false,
+              },
+            },
+            "in": "path",
+            "name": "type",
+            "required": true,
+            "schema": {
+              "type": "string",
+            },
+          },
+        ],
+        "summary": "Get one users with path params with type",
+      },
+    },
+    "/desc/{user_id}/{type}/all": {
+      "get": {
+        "description": "Obtain a list of users descriptions",
+        "parameters": [
+          {
+            "description": "This is just a user identifier",
+            "example": "476587598",
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "type": "number",
+            },
+          },
+          {
+            "description": "This is just a user type",
+            "examples": {
+              "Default example": {
+                "value": "user",
+                "x-disabled": false,
+              },
+            },
+            "in": "path",
+            "name": "type",
+            "required": true,
+            "schema": {
+              "type": "string",
+            },
+          },
+        ],
+        "summary": "Get all users with description and params with type",
+      },
+    },
+    "/users/{user_id}": {
+      "get": {
+        "description": "Obtain a list of users that fullfill the conditions of the filters",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+            },
+          },
+        ],
+        "summary": "Get one users info",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > RawBody 1`] = `
+{
+  "info": {
+    "description": "Mi super test collection from postman",
+    "title": "Raw Body",
+    "version": "1.0.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/test": {
+      "post": {
+        "description": "Test Raw Body",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "examples": [
+                  "testesttestest",
+                ],
+                "type": "string",
+              },
+            },
+          },
+        },
+        "summary": "Test Raw Body",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > Responses 1`] = `
+{
+  "info": {
+    "description": "Postman collection with saved responses",
+    "title": "Responses",
+    "version": "1.2.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/users": {
+      "post": {
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "id": "100",
+    "createdAt": "2021-06-04T15:50:38.568Z",
+    "name": "Carol",
+    "avatar": "https://assets.example.com/avatars/nelsonjoyce_128.jpg"
+  }",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "avatar": "https://assets.example.com/avatars/nelsonjoyce_128.jpg",
+                    "createdAt": "2021-06-04T15:50:38.568Z",
+                    "id": "54",
+                    "name": "Carol",
+                  },
+                },
+                "schema": {
+                  "type": "string",
+                },
+              },
+            },
+            "description": "Created",
+            "headers": {
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "examples": [
+                    "X-Requested-With,Content-Type,Cache-Control,access_token",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "examples": [
+                    "GET,PUT,POST,DELETE,OPTIONS",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "examples": [
+                    "*",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Connection": {
+                "schema": {
+                  "examples": [
+                    "keep-alive",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Content-Length": {
+                "schema": {
+                  "examples": [
+                    "131",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Content-Type": {
+                "schema": {
+                  "examples": [
+                    "application/json",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Date": {
+                "schema": {
+                  "examples": [
+                    "Sat, 05 Jun 2021 08:49:09 GMT",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Server": {
+                "schema": {
+                  "examples": [
+                    "Cowboy",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Vary": {
+                "schema": {
+                  "examples": [
+                    "Accept-Encoding",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Via": {
+                "schema": {
+                  "examples": [
+                    "1.1 vegur",
+                  ],
+                  "type": "string",
+                },
+              },
+              "X-Powered-By": {
+                "schema": {
+                  "examples": [
+                    "Express",
+                  ],
+                  "type": "string",
+                },
+              },
+            },
+          },
+        },
+        "summary": "Create new User",
+      },
+    },
+    "/api/v1/users/{user_id}": {
+      "get": {
+        "description": "Retrieve the user data",
+        "parameters": [
+          {
+            "description": "This is just a user identifier",
+            "example": "54",
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "type": "number",
+            },
+          },
+        ],
+        "requestBody": {
+          "content": {
+            "text/plain": {},
+          },
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "avatar": "https://assets.example.com/avatars/bartjo_128.jpg",
+                    "createdAt": "2021-06-04T23:41:02.287Z",
+                    "id": "50",
+                    "name": "Leanne",
+                  },
+                },
+                "schema": {
+                  "type": "string",
+                },
+              },
+            },
+            "description": "OK",
+            "headers": {
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "examples": [
+                    "X-Requested-With,Content-Type,Cache-Control,access_token",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "examples": [
+                    "GET,PUT,POST,DELETE,OPTIONS",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "examples": [
+                    "*",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Connection": {
+                "schema": {
+                  "examples": [
+                    "keep-alive",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Content-Length": {
+                "schema": {
+                  "examples": [
+                    "127",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Content-Type": {
+                "schema": {
+                  "examples": [
+                    "application/json",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Date": {
+                "schema": {
+                  "examples": [
+                    "Sat, 05 Jun 2021 08:48:00 GMT",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Etag": {
+                "schema": {
+                  "examples": [
+                    ""1711725458"",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Server": {
+                "schema": {
+                  "examples": [
+                    "Cowboy",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Vary": {
+                "schema": {
+                  "examples": [
+                    "Accept-Encoding",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Via": {
+                "schema": {
+                  "examples": [
+                    "1.1 vegur",
+                  ],
+                  "type": "string",
+                },
+              },
+              "X-Powered-By": {
+                "schema": {
+                  "examples": [
+                    "Express",
+                  ],
+                  "type": "string",
+                },
+              },
+            },
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": "Not found",
+                },
+                "schema": {
+                  "type": "string",
+                },
+              },
+            },
+            "description": "Not Found",
+            "headers": {
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "examples": [
+                    "X-Requested-With,Content-Type,Cache-Control,access_token",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "examples": [
+                    "GET,PUT,POST,DELETE,OPTIONS",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "examples": [
+                    "*",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Connection": {
+                "schema": {
+                  "examples": [
+                    "keep-alive",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Content-Length": {
+                "schema": {
+                  "examples": [
+                    "11",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Content-Type": {
+                "schema": {
+                  "examples": [
+                    "application/json",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Date": {
+                "schema": {
+                  "examples": [
+                    "Sat, 05 Jun 2021 08:48:30 GMT",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Etag": {
+                "schema": {
+                  "examples": [
+                    ""1592724850"",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Server": {
+                "schema": {
+                  "examples": [
+                    "Cowboy",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Vary": {
+                "schema": {
+                  "examples": [
+                    "Accept-Encoding",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Via": {
+                "schema": {
+                  "examples": [
+                    "1.1 vegur",
+                  ],
+                  "type": "string",
+                },
+              },
+              "X-Powered-By": {
+                "schema": {
+                  "examples": [
+                    "Express",
+                  ],
+                  "type": "string",
+                },
+              },
+            },
+          },
+        },
+        "summary": "Get User data",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://mockapi.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > ResponsesEmpty 1`] = `
+{
+  "info": {
+    "description": "Postman collection with saved responses",
+    "title": "Responses",
+    "version": "1.2.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/users": {
+      "post": {
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "id": "100",
+    "createdAt": "2021-06-04T15:50:38.568Z",
+    "name": "Carol",
+    "avatar": "https://assets.example.com/avatars/nelsonjoyce_128.jpg"
+  }",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "rawContent": "",
+                  },
+                },
+                "schema": {
+                  "type": "string",
+                },
+              },
+            },
+            "description": "Created",
+            "headers": {
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "examples": [
+                    "X-Requested-With,Content-Type,Cache-Control,access_token",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "examples": [
+                    "GET,PUT,POST,DELETE,OPTIONS",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "examples": [
+                    "*",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Connection": {
+                "schema": {
+                  "examples": [
+                    "keep-alive",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Content-Length": {
+                "schema": {
+                  "examples": [
+                    "131",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Content-Type": {
+                "schema": {
+                  "examples": [
+                    "application/json",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Date": {
+                "schema": {
+                  "examples": [
+                    "Sat, 05 Jun 2021 08:49:09 GMT",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Server": {
+                "schema": {
+                  "examples": [
+                    "Cowboy",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Vary": {
+                "schema": {
+                  "examples": [
+                    "Accept-Encoding",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Via": {
+                "schema": {
+                  "examples": [
+                    "1.1 vegur",
+                  ],
+                  "type": "string",
+                },
+              },
+              "X-Powered-By": {
+                "schema": {
+                  "examples": [
+                    "Express",
+                  ],
+                  "type": "string",
+                },
+              },
+            },
+          },
+        },
+        "summary": "Create new User",
+      },
+    },
+    "/api/v1/users/{user_id}": {
+      "get": {
+        "description": "Retrieve the user data",
+        "parameters": [
+          {
+            "description": "This is just a user identifier",
+            "example": "54",
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "type": "number",
+            },
+          },
+        ],
+        "requestBody": {
+          "content": {
+            "text/plain": {},
+          },
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "avatar": "https://assets.example.com/avatars/bartjo_128.jpg",
+                    "createdAt": "2021-06-04T23:41:02.287Z",
+                    "id": "50",
+                    "name": "Leanne",
+                  },
+                },
+                "schema": {
+                  "type": "string",
+                },
+              },
+            },
+            "description": "OK",
+            "headers": {
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "examples": [
+                    "X-Requested-With,Content-Type,Cache-Control,access_token",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "examples": [
+                    "GET,PUT,POST,DELETE,OPTIONS",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "examples": [
+                    "*",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Connection": {
+                "schema": {
+                  "examples": [
+                    "keep-alive",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Content-Length": {
+                "schema": {
+                  "examples": [
+                    "127",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Content-Type": {
+                "schema": {
+                  "examples": [
+                    "application/json",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Date": {
+                "schema": {
+                  "examples": [
+                    "Sat, 05 Jun 2021 08:48:00 GMT",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Etag": {
+                "schema": {
+                  "examples": [
+                    ""1711725458"",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Server": {
+                "schema": {
+                  "examples": [
+                    "Cowboy",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Vary": {
+                "schema": {
+                  "examples": [
+                    "Accept-Encoding",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Via": {
+                "schema": {
+                  "examples": [
+                    "1.1 vegur",
+                  ],
+                  "type": "string",
+                },
+              },
+              "X-Powered-By": {
+                "schema": {
+                  "examples": [
+                    "Express",
+                  ],
+                  "type": "string",
+                },
+              },
+            },
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": "Not found",
+                },
+                "schema": {
+                  "type": "string",
+                },
+              },
+            },
+            "description": "Not Found",
+            "headers": {
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "examples": [
+                    "X-Requested-With,Content-Type,Cache-Control,access_token",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "examples": [
+                    "GET,PUT,POST,DELETE,OPTIONS",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "examples": [
+                    "*",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Connection": {
+                "schema": {
+                  "examples": [
+                    "keep-alive",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Content-Length": {
+                "schema": {
+                  "examples": [
+                    "11",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Content-Type": {
+                "schema": {
+                  "examples": [
+                    "application/json",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Date": {
+                "schema": {
+                  "examples": [
+                    "Sat, 05 Jun 2021 08:48:30 GMT",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Etag": {
+                "schema": {
+                  "examples": [
+                    ""1592724850"",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Server": {
+                "schema": {
+                  "examples": [
+                    "Cowboy",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Vary": {
+                "schema": {
+                  "examples": [
+                    "Accept-Encoding",
+                  ],
+                  "type": "string",
+                },
+              },
+              "Via": {
+                "schema": {
+                  "examples": [
+                    "1.1 vegur",
+                  ],
+                  "type": "string",
+                },
+              },
+              "X-Powered-By": {
+                "schema": {
+                  "examples": [
+                    "Express",
+                  ],
+                  "type": "string",
+                },
+              },
+            },
+          },
+        },
+        "summary": "Get User data",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://mockapi.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > SimplePost 1`] = `
+{
+  "info": {
+    "description": "Just a simple collection for test",
+    "title": "Simple Post",
+    "version": "2.3.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/raw": {
+      "post": {
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Post empty raw",
+      },
+    },
+    "/users": {
+      "post": {
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Create new User",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > UrlWithPort 1`] = `
+{
+  "info": {
+    "description": "Just a simple collection for test",
+    "title": "Url with Port",
+    "version": "2.3.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/users": {
+      "post": {
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Create new User",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com:453",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > XLogo 1`] = `
+{
+  "info": {
+    "description": "Just a simple collection for test",
+    "title": "Simple Post",
+    "version": "2.3.0",
+    "x-logo": {
+      "altText": "Othert text for logo",
+      "backgroundColor": "#000FFF",
+      "href": "https://www.example.com/joolfe/here.html",
+      "url": "https://www.example.com/joolfe/mylogo.png",
+    },
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/raw": {
+      "post": {
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Post empty raw",
+      },
+    },
+    "/users": {
+      "post": {
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": "{
+    "example": "field",
+    "other": {
+        "data1": "yes",
+        "data2": "no"
+    }
+}",
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Create new User",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;

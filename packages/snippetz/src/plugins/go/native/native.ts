@@ -1,11 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { buildQueryString } from '@/libs/http'
-
-type HeaderPair = {
-  name: string
-  value: string
-}
+import { collectHeaders, joinUrlAndQuery, normalizeMethod, normalizeUrl } from '@/libs/http'
 
 type BodySection = {
   imports: Set<string>
@@ -23,62 +18,6 @@ const formatImport = (entry: string): string => {
 }
 
 const goString = (value: string): string => JSON.stringify(value)
-
-const normalizeMethod = (method?: string): string => (method || 'GET').toUpperCase()
-
-const normalizeUrl = (url: string): string => {
-  if (!url) {
-    return ''
-  }
-
-  try {
-    const parsedUrl = new URL(url)
-
-    if (parsedUrl.pathname === '/') {
-      return `${parsedUrl.origin}${parsedUrl.search}${parsedUrl.hash}`
-    }
-
-    return parsedUrl.toString()
-  } catch {
-    return url
-  }
-}
-
-const joinUrlAndQuery = (url: string, queryString?: Array<{ name: string; value: string }>): string => {
-  const query = buildQueryString(queryString)
-
-  if (!query) {
-    return url
-  }
-
-  if (!url) {
-    return query
-  }
-
-  return `${url}${url.includes('?') ? '&' : '?'}${query.slice(1)}`
-}
-
-const collectHeaders = (
-  headers?: Array<{ name: string; value: string }>,
-  cookies?: Array<{ name: string; value: string }>,
-): HeaderPair[] => {
-  const dedupedHeaders = new Map<string, string>()
-
-  headers?.forEach((header) => {
-    if (header.name) {
-      dedupedHeaders.set(header.name, header.value ?? '')
-    }
-  })
-
-  if (cookies?.length) {
-    const cookieHeader = cookies
-      .map((cookie) => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`)
-      .join('; ')
-    dedupedHeaders.set('Cookie', cookieHeader)
-  }
-
-  return Array.from(dedupedHeaders.entries()).map(([name, value]) => ({ name, value }))
-}
 
 const toPrettyJson = (text?: string): string => {
   if (text === undefined) {
