@@ -16,6 +16,8 @@
   "ignoreFiles": [
     // CSS files imported via @import or Vue components — knip cannot trace CSS imports
     "**/*.css",
+    // Cursor Cloud environment helper used by .cursor/environment.json install/start scripts
+    ".cursor/scripts/ensure-vue-test-utils-resolution.mjs",
     // Referenced in scalar.config.json
     "documentation/assets/landing.js",
     "documentation/assets/fathom.js",
