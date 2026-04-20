@@ -1942,6 +1942,38 @@
                       ]
                     }
                   },
+                  "environments": {
+                    "filepath": "documentation/guides/app/environments.md",
+                    "type": "page",
+                    "title": "Environments",
+                    "description": "Store reusable variables in environments to switch between development, staging, and production without editing each request.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/environments"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Store reusable variables in environments to switch between development, staging, and production without editing each request."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Environments - Scalar API Client"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Store reusable variables in environments to switch between development, staging, and production without editing each request."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
                   "scripts": {
                     "filepath": "documentation/guides/app/scripts.md",
                     "type": "page",

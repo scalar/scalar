@@ -129,7 +129,7 @@ paths:
         })
 ```
 
-See the [OpenAPI extensions reference](/openapi#x-post-response) for more examples.
+See the [OpenAPI extensions reference](../../openapi.md#x-post-response) for more examples.
 
 ## Reference
 
