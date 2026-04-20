@@ -2,11 +2,6 @@
 
 One platform for: APIs, Docs, Agents, SDKs, Governance & API Client all based on OpenAPI™.
 
-<div class="flex gap-2 flex-wrap">
-  <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get started</a>
-  <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Talk to sales</a>
-</div>
-
 <scalar-row>
 <scalar-card title="Free">
 **Best for:** self-hosting, local development, and personal API workflows.
