@@ -797,4 +797,42 @@ describe('mergeSecurity', () => {
       expect(updatedBearerAuth['x-scalar-secret-token']).toBe('updated-token')
     }
   })
+
+  it('preserves an explicitly cleared oauth2 redirect uri from auth store over config fallback', () => {
+    const redirectDocumentSlug = 'redirect-doc'
+    const redirectAuthStore = createWorkspaceStore().auth
+
+    const securitySchemes: ComponentsObject['securitySchemes'] = {
+      oauth2: coerceValue(SecuritySchemeObjectSchema, {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            tokenUrl: 'https://example.com/oauth/token',
+            scopes: {},
+            'x-scalar-redirect-uri': 'https://galaxy.scalar.com/callback',
+          },
+        },
+      }),
+    }
+
+    redirectAuthStore.setAuthSecrets(redirectDocumentSlug, 'oauth2', {
+      type: 'oauth2',
+      authorizationCode: {
+        'x-scalar-secret-redirect-uri': '',
+      },
+    })
+
+    const result = mergeSecurity(
+      securitySchemes,
+      {},
+      redirectAuthStore,
+      redirectDocumentSlug,
+    )
+
+    expect(result.oauth2?.type).toBe('oauth2')
+    if (result.oauth2?.type === 'oauth2') {
+      expect(result.oauth2.flows.authorizationCode?.['x-scalar-secret-redirect-uri']).toBe('')
+    }
+  })
 })
