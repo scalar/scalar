@@ -718,6 +718,24 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toBe('BAD_REQUEST_EXCEPTION')
   })
 
+  it('normalizes empty string defaults to null for nullable integers', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: ['integer', 'null'],
+      default: '',
+    })
+
+    expect(getExampleFromSchema(schema)).toBeNull()
+  })
+
+  it('keeps empty string defaults for nullable strings', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: ['string', 'null'],
+      default: '',
+    })
+
+    expect(getExampleFromSchema(schema)).toBe('')
+  })
+
   it('uses the const value', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'string',
