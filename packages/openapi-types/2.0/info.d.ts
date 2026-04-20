@@ -1,4 +1,5 @@
 import type { ContactObject } from './contact'
+import type { Extensions } from './schema'
 import type { LicenseObject } from './license'
 /**
  * Info object
@@ -20,4 +21,4 @@ export type InfoObject = {
   contact?: ContactObject
   /** The license information for the exposed API. */
   license?: LicenseObject
-}
+} & Extensions

@@ -1,3 +1,4 @@
+import type { Extensions } from './schema'
 /**
  * Security Scheme object
  *
@@ -14,4 +15,4 @@ export type ApiKeySecurityObject = {
   in: 'header' | 'query'
   /** A short description for security scheme. */
   description?: string
-}
+} & Extensions

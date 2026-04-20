@@ -1,4 +1,4 @@
-import type { SchemaObject } from './schema'
+import type { Extensions, SchemaObject } from './schema'
 /**
  * Parameter object
  *
@@ -17,4 +17,4 @@ export type BodyParameterObject = {
   required?: boolean
   /** **Required.** The schema defining the type used for the body parameter. */
   schema: SchemaObject
-}
+} & Extensions

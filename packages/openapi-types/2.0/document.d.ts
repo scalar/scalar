@@ -9,6 +9,7 @@ import type { SchemesListObject } from './schemes-list'
 import type { SecurityObject } from './security'
 import type { SecurityDefinitionsObject } from './security-definitions'
 import type { TagObject } from './tag'
+import type { Extensions } from './schema'
 /**
  * Swagger object
  *
@@ -47,4 +48,4 @@ export type Document = {
   tags?: TagObject[]
   /** Additional external documentation. */
   externalDocs?: ExternalDocsObject
-}
+} & Extensions

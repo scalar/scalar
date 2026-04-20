@@ -1,4 +1,5 @@
 import type { ExternalDocsObject } from './external-docs'
+import type { Extensions } from './schema'
 /**
  * Tag object
  *
@@ -13,4 +14,4 @@ export type TagObject = {
   description?: string
   /** Additional external documentation for this tag. */
   externalDocs?: ExternalDocsObject
-}
+} & Extensions

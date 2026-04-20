@@ -1,4 +1,5 @@
 import type { ExternalDocsObject } from './external-docs'
+import type { Extensions } from './schema'
 import type { MediaTypeListObject } from './media-type-list'
 import type { ParametersListObject } from './parameters-list'
 import type { ResponsesObject } from './responses'
@@ -36,4 +37,4 @@ export type OperationObject = {
   deprecated?: boolean
   /** A declaration of which security schemes are applied for this operation. The list of values describes alternative security schemes that can be used (that is, there is a logical OR between the security requirements). This definition overrides any declared top-level [`security`](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#swaggerSecurity). To remove a top-level security declaration, an empty array can be used. */
   security?: SecurityObject
-}
+} & Extensions

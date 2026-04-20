@@ -1,3 +1,4 @@
+import type { Extensions } from './schema'
 /**
  * Contact object
  *
@@ -12,4 +13,4 @@ export type ContactObject = {
   url?: string
   /** The email address of the contact person/organization. MUST be in the format of an email address. */
   email?: string
-}
+} & Extensions

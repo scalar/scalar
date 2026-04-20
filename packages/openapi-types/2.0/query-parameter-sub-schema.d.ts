@@ -12,6 +12,7 @@ import type { MinimumObject } from './minimum'
 import type { MultipleOfObject } from './multiple-of'
 import type { PatternObject } from './pattern'
 import type { PrimitivesItemsObject } from './primitives-items'
+import type { Extensions } from './schema'
 import type { UniqueItemsObject } from './unique-items'
 /**
  * Parameter object
@@ -65,4 +66,4 @@ export type QueryParameterSubSchemaObject = {
   enum?: EnumObject
   /** See https://tools.ietf.org/html/draft-fge-json-schema-validation-00#section-5.1.1. */
   multipleOf?: MultipleOfObject
-}
+} & Extensions

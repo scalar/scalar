@@ -1,7 +1,7 @@
 import type { ExamplesObject } from './examples'
 import type { FileSchemaObject } from './file-schema'
 import type { HeadersObject } from './headers'
-import type { SchemaObject } from './schema'
+import type { Extensions, SchemaObject } from './schema'
 /**
  * Response object
  *
@@ -18,4 +18,4 @@ export type ResponseObject = {
   headers?: HeadersObject
   /** An example of the response message. */
   examples?: ExamplesObject
-}
+} & Extensions

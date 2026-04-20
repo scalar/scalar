@@ -1,4 +1,5 @@
 import type { Oauth2ScopesObject } from './oauth2-scopes'
+import type { Extensions } from './schema'
 /**
  * Security Scheme object
  *
@@ -17,4 +18,4 @@ export type Oauth2ApplicationSecurityObject = {
   tokenUrl: string
   /** A short description for security scheme. */
   description?: string
-}
+} & Extensions

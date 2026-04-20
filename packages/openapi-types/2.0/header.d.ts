@@ -12,6 +12,7 @@ import type { MinimumObject } from './minimum'
 import type { MultipleOfObject } from './multiple-of'
 import type { PatternObject } from './pattern'
 import type { PrimitivesItemsObject } from './primitives-items'
+import type { Extensions } from './schema'
 import type { UniqueItemsObject } from './unique-items'
 /**
  * Header object
@@ -57,4 +58,4 @@ export type HeaderObject = {
   multipleOf?: MultipleOfObject
   /** A brief description of the parameter. This could contain examples of use.  [GFM syntax](https://guides.github.com/features/mastering-markdown/#GitHub-flavored-markdown) can be used for rich text representation. */
   description?: string
-}
+} & Extensions

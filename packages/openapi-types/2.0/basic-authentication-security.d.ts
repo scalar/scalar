@@ -1,3 +1,4 @@
+import type { Extensions } from './schema'
 /**
  * Security Scheme object
  *
@@ -10,4 +11,4 @@ export type BasicAuthenticationSecurityObject = {
   type: 'basic'
   /** A short description for security scheme. */
   description?: string
-}
+} & Extensions

@@ -1,3 +1,4 @@
+import type { Extensions } from './schema'
 /**
  * Xml object
  *
@@ -16,4 +17,4 @@ export type XmlObject = {
   attribute?: boolean
   /** MAY be used only for an array definition. Signifies whether the array is wrapped (for example, `<books><book/><book/></books>`) or unwrapped (`<book/><book/>`). Default value is `false`. The definition takes effect only when defined alongside `type` being `array` (outside the `items`). */
   wrapped?: boolean
-}
+} & Extensions

@@ -1,3 +1,4 @@
+import type { Extensions } from './schema'
 /**
  * External Documentation object
  *
@@ -10,4 +11,4 @@ export type ExternalDocsObject = {
   description?: string
   /** **Required.** The URL for the target documentation. Value MUST be in the format of a URL. */
   url: string
-}
+} & Extensions

@@ -1,3 +1,4 @@
+import type { Extensions } from './schema'
 /**
  * License object
  *
@@ -10,4 +11,4 @@ export type LicenseObject = {
   name: string
   /** A URL to the license used for the API. MUST be in the format of a URL. */
   url?: string
-}
+} & Extensions
