@@ -37,6 +37,9 @@
       "types": "./dist/helpers/index.d.ts",
       "default": "./dist/helpers/index.js"
     },
+    "./2.0": {
+      "types": "./2.0/index.d.ts"
+    },
     "./2.0/*": {
       "types": "./2.0/*.d.ts"
     },
