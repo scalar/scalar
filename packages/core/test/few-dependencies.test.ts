@@ -9,6 +9,11 @@ describe('few-dependencies', () => {
     const dependencies = JSON.parse(packageJson).dependencies
 
     expect(dependencies).toBeDefined()
-    expect(Object.keys(dependencies)).toStrictEqual(['@scalar/client-side-rendering', '@scalar/types', '@scalar/schemas', '@scalar/validation'])
+    expect(Object.keys(dependencies)).toStrictEqual([
+      '@scalar/client-side-rendering',
+      '@scalar/types',
+      '@scalar/schemas',
+      '@scalar/validation',
+    ])
   })
 })

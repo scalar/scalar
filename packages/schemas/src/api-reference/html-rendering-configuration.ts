@@ -11,9 +11,9 @@ export const htmlRenderingConfigurationSchema = object({
    * @example https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.25.122
    */
   cdn: string({
-    default: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
+    default: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
   }),
   pageTitle: string({
-    default: 'Scalar API Reference'
+    default: 'Scalar API Reference',
   }),
 })

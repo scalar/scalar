@@ -1,11 +1,12 @@
 import {
-  type ApiReferenceConfigurationWithSource,
-} from '@scalar/types/api-reference'
-import { htmlRenderingConfigurationSchema, apiReferenceConfigurationWithSourceSchema } from '@scalar/schemas/api-reference'
+  apiReferenceConfigurationWithSourceSchema,
+  htmlRenderingConfigurationSchema,
+} from '@scalar/schemas/api-reference'
+import type { ApiReferenceConfigurationWithSource } from '@scalar/types/api-reference'
+import { coerce } from '@scalar/validation'
 import { describe, expect, it } from 'vitest'
 
 import { getConfiguration, getScriptTags, renderApiReference } from './html-rendering'
-import { coerce } from '@scalar/validation'
 
 describe('html-rendering', () => {
   describe('renderApiReference', () => {
