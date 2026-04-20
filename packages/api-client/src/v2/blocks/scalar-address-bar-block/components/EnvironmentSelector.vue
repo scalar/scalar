@@ -123,7 +123,7 @@ const handleSelectEnvironment = (environmentName: string) => {
         <ScalarDropdownItem
           v-if="hasActiveEnvironment"
           class="group/item flex w-full items-center gap-1.5"
-          @click.stop="handleSelectEnvironment('')">
+          @click="handleSelectEnvironment('')">
           <div
             class="flex h-4 w-4 items-center justify-center rounded-full p-[3px]"
             :class="
@@ -146,7 +146,7 @@ const handleSelectEnvironment = (environmentName: string) => {
           v-for="environmentName in environments"
           :key="environmentName"
           class="group/item flex w-full min-w-0 items-center gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap"
-          @click.stop="handleSelectEnvironment(environmentName)">
+          @click="handleSelectEnvironment(environmentName)">
           <div
             class="flex h-4 w-4 items-center justify-center rounded-full p-[3px]"
             :class="
