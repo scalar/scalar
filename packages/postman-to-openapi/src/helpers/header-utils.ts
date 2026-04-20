@@ -1,6 +1,6 @@
 import type { Header, HeaderList } from '@/types'
 
-export type RequestHeaders = HeaderList | string | null | undefined
+type RequestHeaders = HeaderList | string | null | undefined
 
 /**
  * Looks up a header value case-insensitively. Returns the value of the first
