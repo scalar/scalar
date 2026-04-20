@@ -50,7 +50,7 @@
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
     "vite": "catalog:*",
-    "vite-plugin-css-injected-by-js": "^4.0.1",
+    "vite-plugin-css-injected-by-js": "catalog:*",
     "vitest": "catalog:*"
   }
 }

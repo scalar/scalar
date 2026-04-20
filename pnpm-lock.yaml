@@ -228,6 +228,9 @@ catalogs:
     vite:
       specifier: 8.0.0
       version: 8.0.0
+    vite-plugin-css-injected-by-js:
+      specifier: ^5.0.0
+      version: 5.0.0
     vite-ssg:
       specifier: 28.3.0
       version: 28.3.0
@@ -1499,7 +1502,7 @@ importers:
         specifier: ^0.8.1
         version: 0.8.1
       vite-plugin-css-injected-by-js:
-        specifier: ^5.0.0
+        specifier: catalog:*
         version: 5.0.0(vite@8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2))
       vitest:
         specifier: catalog:*
@@ -2449,8 +2452,8 @@ importers:
         specifier: catalog:*
         version: 8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2)
       vite-plugin-css-injected-by-js:
-        specifier: ^4.0.1
-        version: 4.0.1(vite@8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: catalog:*
+        version: 5.0.0(vite@8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2))
       vitest:
         specifier: catalog:*
         version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@24.10.13)(jsdom@29.0.1(@noble/hashes@1.8.0))(vite@8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2))
@@ -17375,11 +17378,6 @@ packages:
         optional: true
       vue-tsc:
         optional: true
-
-  vite-plugin-css-injected-by-js@4.0.1:
-    resolution: {integrity: sha512-WfyRojojQyAO/KzWf+efcXpTPv6zJPXaRmr9EYq5a4v5I3PWCR7kR01hiri2lW6+rHm3a57kpwsf+iahIJi1Qw==}
-    peerDependencies:
-      vite: '>2.0.0-0'
 
   vite-plugin-css-injected-by-js@5.0.0:
     resolution: {integrity: sha512-fj1yav+R4WNYP1uA/smg/rSdOxtmqjC1fDQ9qylsZaFIx2VUoDksMbfWUJ/8sCjhkDYEzqWYhpNNCseyM2ygQw==}
@@ -36709,10 +36707,6 @@ snapshots:
       optionator: 0.9.4
       typescript: 5.9.3
       vue-tsc: 3.2.4(typescript@5.9.3)
-
-  vite-plugin-css-injected-by-js@4.0.1(vite@8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2)):
-    dependencies:
-      vite: 8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2)
 
   vite-plugin-css-injected-by-js@5.0.0(vite@8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2)):
     dependencies:
