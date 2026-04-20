@@ -1,97 +1,25 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import fs from 'node:fs/promises'
+import fs from 'node:fs'
+import path from 'node:path'
 import { describe, expect, it, test } from 'vitest'
 
 import { convert } from './convert'
 import type { PostmanCollection } from './types'
 
-const DEFAULT_RESPONSE_DESCRIPTIONS: Record<string, string> = {
-  200: 'OK',
-  201: 'Created',
-  202: 'Accepted',
-  204: 'No content',
-  301: 'Moved permanently',
-  400: 'Bad request',
-  401: 'Unauthorized',
-  403: 'Forbidden',
-  404: 'Not found',
-  409: 'Conflict',
-  422: 'Unprocessable entity',
-  500: 'Internal server error',
-  default: 'Default response',
-}
-const OPERATION_KEYS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
-const FIXTURES = [
-  'SimplePost',
-  'NoVersion',
-  'Folders',
-  'GetMethods',
-  'PathParams',
-  'MultipleServers',
-  'LicenseContact',
-  'ParseStatusCode',
-  'NoPath',
-  'DeleteOperation',
-  'AuthBearer',
-  'AuthBasic',
-  'UrlWithPort',
-  'ExternalDocs',
-  'EmptyUrl',
-  'XLogo',
-  'AuthMultiple',
-  'AuthRequest',
-  'FormData',
-  'FormUrlencoded',
-  'RawBody',
-  'OperationIds',
-  'NestedServers',
-  'Headers',
-  'ResponsesEmpty',
-  'Responses',
-]
+const FIXTURES_DIR = path.join(import.meta.dirname, '../fixtures/input')
+const FIXTURES = fs
+  .readdirSync(FIXTURES_DIR)
+  .filter((file) => file.endsWith('.json'))
+  .map((file) => file.replace('.json', ''))
+  .sort((a, b) => a.localeCompare(b))
 
 describe('fixtures', () => {
-  test.each(FIXTURES)('%s', async (file) => {
-    // postman
-    const input = await fs.readFile(new URL(`../fixtures/input/${file}.json`, import.meta.url), 'utf8')
+  test.each(FIXTURES)('%s', (file) => {
+    const input = fs.readFileSync(path.join(FIXTURES_DIR, `${file}.json`), 'utf8')
     const postman = JSON.parse(input)
-
-    // openapi
-    const output = await fs.readFile(new URL(`../fixtures/output/${file}.json`, import.meta.url), 'utf8')
-    const openapi = JSON.parse(output)
-
-    const normalizedOpenApi = normalizeFixtureResponseDescriptions(openapi as OpenAPIV3_1.Document)
-    expect(convert(postman)).toEqual(normalizedOpenApi)
+    expect(convert(postman)).toMatchSnapshot()
   })
 })
-
-function normalizeFixtureResponseDescriptions(document: OpenAPIV3_1.Document): OpenAPIV3_1.Document {
-  const normalizedDocument = structuredClone(document)
-
-  for (const pathItem of Object.values(normalizedDocument.paths ?? {})) {
-    if (!pathItem) {
-      continue
-    }
-
-    for (const key of OPERATION_KEYS) {
-      const operation = pathItem[key]
-      if (!operation) {
-        continue
-      }
-
-      for (const [statusCode, response] of Object.entries(operation.responses ?? {})) {
-        if (!response || '$ref' in response || response.description !== 'Successful response') {
-          continue
-        }
-
-        response.description =
-          DEFAULT_RESPONSE_DESCRIPTIONS[statusCode] ?? DEFAULT_RESPONSE_DESCRIPTIONS.default ?? 'Default response'
-      }
-    }
-  }
-
-  return normalizedDocument
-}
 
 describe('convert', () => {
   it('merges into an existing OpenAPI document', () => {
