@@ -387,6 +387,20 @@ describe('dereference', () => {
               },
             },
           },
+          post: {
+            responses: {
+              '200': {
+                description: 'foobar',
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/Test',
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
       components: {
@@ -403,10 +417,10 @@ describe('dereference', () => {
       },
     }
 
-    const dereferencedSchemas: Array<{ schema: any; ref: string }> = []
+    const dereferencedSchemas: Array<{ schema: any; ref: string; resolved: any }> = []
 
     const result = dereference(openapi, {
-      onDereference: ({ schema, ref }) => {
+      onDereference: ({ schema, ref, resolved }) => {
         expect(schema).toEqual({
           type: 'object',
           properties: {
@@ -418,12 +432,14 @@ describe('dereference', () => {
 
         expect(ref).toEqual('#/components/schemas/Test')
 
-        dereferencedSchemas.push({ schema, ref })
+        dereferencedSchemas.push({ schema, ref, resolved })
       },
     })
 
     expect(result.errors).toStrictEqual([])
-    expect(dereferencedSchemas).toHaveLength(1)
+    expect(dereferencedSchemas).toHaveLength(2)
+    expect(dereferencedSchemas[0].resolved == dereferencedSchemas[1].resolved).toBe(true);
+    expect(result.schema.components.schemas.Test == dereferencedSchemas[0].resolved).toBe(true);
   })
 
   it('dereferences operations with query operations', () => {
