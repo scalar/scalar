@@ -6,6 +6,7 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
+import type { MaybeRefOrGetter } from 'vue'
 import type { RouteRecordRaw } from 'vue-router'
 
 import Authentication from '@/v2/features/collection/components/Authentication.vue'
@@ -19,6 +20,7 @@ import Settings from '@/v2/features/collection/components/Settings.vue'
 import DocumentCollection from '@/v2/features/collection/DocumentCollection.vue'
 import OperationCollection from '@/v2/features/collection/OperationCollection.vue'
 import WorkspaceCollection from '@/v2/features/collection/WorkspaceCollection.vue'
+import type { ApiClientModalOptions } from '@/v2/features/modal/helpers/types'
 import { Operation } from '@/v2/features/operation'
 import { workspaceStorage } from '@/v2/helpers/storage'
 import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
@@ -63,6 +65,8 @@ export type RouteProps = {
   telemetry?: boolean
   /** Updates the telemetry enabled state */
   onUpdateTelemetry?: (value: boolean) => void
+  /** App or modal options forwarded to operation/auth blocks */
+  options?: MaybeRefOrGetter<ApiClientModalOptions>
 }
 
 /** When in the collections pages */

@@ -27,6 +27,7 @@ const {
   method,
   collectionType,
   layout,
+  options,
 } = defineProps<CollectionProps>()
 
 /**
@@ -224,6 +225,7 @@ const handleToggleOperationSecurity = (value: boolean) => {
         :eventBus="eventBus"
         isStatic
         :meta="authMeta"
+        :options
         :proxyUrl="proxyUrl"
         :securityRequirements="securityRequirements"
         :securitySchemes

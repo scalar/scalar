@@ -181,6 +181,9 @@ const routerViewProps = computed<RouteProps>(() => {
     onUpdateTelemetry: (value: boolean) => {
       app.telemetry.value = value
     },
+    options: {
+      oauth2RedirectUri: app.oauth2RedirectUri,
+    },
   }
 })
 </script>

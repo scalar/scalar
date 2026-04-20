@@ -122,6 +122,8 @@ export type AppState = {
   currentRoute: Ref<RouteLocationNormalizedGeneric | null>
   /** Whether the workspace is currently syncing */
   loading: Ref<boolean>
+  /** Optional OAuth2 redirect URI override for auth prefill */
+  oauth2RedirectUri?: string
   /** The currently active entities */
   activeEntities: {
     /** The namespace of the current entity, e.g. "default" or a custom namespace */
@@ -176,12 +178,14 @@ export const createAppState = async ({
   fallbackThemeSlug = () => 'default',
   customThemes = () => [],
   telemetryDefault,
+  oauth2RedirectUri,
 }: {
   router: Router
   fileLoader?: LoaderPlugin
   customThemes?: MaybeRefOrGetter<Theme[]>
   fallbackThemeSlug?: MaybeRefOrGetter<string>
   telemetryDefault?: boolean
+  oauth2RedirectUri?: string
 }): Promise<AppState> => {
   /** Workspace event bus for handling workspace-level events. */
   const eventBus = createWorkspaceEventBus({
@@ -1034,6 +1038,7 @@ export const createAppState = async ({
     router,
     currentRoute,
     loading: isSyncingWorkspace,
+    oauth2RedirectUri,
     activeEntities: {
       namespace,
       workspaceSlug,
