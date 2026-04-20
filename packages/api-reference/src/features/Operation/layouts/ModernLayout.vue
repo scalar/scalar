@@ -128,7 +128,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
           <!-- Webhook badge -->
           <Badge
             v-if="isWebhook"
-            class="font-code text-green flex w-fit items-center justify-center gap-1">
+            class="text-green flex w-fit items-center justify-center gap-1">
             <ScalarIconWebhooksLogo weight="bold" />Webhook
           </Badge>
           <!-- Required auth badge -->
