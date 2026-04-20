@@ -1,5 +1,4 @@
 import { sleep } from '@scalar/helpers/testing/sleep'
-// import { apiReferenceConfigurationSchema, apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
 import {
   apiReferenceConfigurationWithSourceSchema,
   apiReferenceConfigurationSchema,

@@ -3,7 +3,6 @@ import type {
   ApiReferenceConfigurationWithSource,
   CreateApiReference,
 } from '@scalar/types/api-reference'
-// import { apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
 import { apiReferenceConfigurationWithSourceSchema } from '@scalar/schemas/api-reference'
 import { createHead } from '@unhead/vue/client'
 import { createApp, createSSRApp, h, reactive } from 'vue'

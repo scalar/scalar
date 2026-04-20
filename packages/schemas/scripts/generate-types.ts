@@ -1,7 +1,7 @@
 /**
  * Generate types for the schemas
  *
- * We will dumb the types to the types package which is going to be pure types with no dependencies on the schemas package
+ * We will dump the types to the types package which is going to be pure types with no dependencies on the schemas package
  */
 
 import { generateTypes } from '@scalar/validation'
