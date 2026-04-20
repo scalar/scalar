@@ -16,6 +16,10 @@ type HttpMethods = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'pat
 export const POSTMAN_EXAMPLE_NAME_EXTENSION = 'x-postman-example-name'
 export const POSTMAN_PRE_REQUEST_SCRIPTS_EXTENSION = 'x-postman-pre-request-scripts'
 export const POSTMAN_POST_RESPONSE_SCRIPTS_EXTENSION = 'x-postman-post-response-scripts'
+// Raw Postman folder-name chain for the operation. Used internally to preserve
+// template hints (for example `/applications/{id}`) even when tag names are
+// simplified. Stripped before emitting the final OpenAPI document.
+export const POSTMAN_FOLDER_SEGMENTS_EXTENSION = 'x-postman-folder-segments'
 
 /**
  * Information about server usage for an operation.
@@ -56,6 +60,7 @@ export function processItem(
   parentTags: string[] = [],
   parentPath: string = '',
   preserveCollapsedVariants: boolean = false,
+  resolveTagName?: (segments: string[]) => string | undefined,
 ): {
   paths: OpenAPIV3_1.PathsObject
   components: OpenAPIV3_1.ComponentsObject
@@ -74,6 +79,7 @@ export function processItem(
         newParentTags,
         `${parentPath}/${item.name || ''}`,
         preserveCollapsedVariants,
+        resolveTagName,
       )
       // Merge child paths and components
       for (const [pathKey, pathItem] of Object.entries(childResult.paths)) {
@@ -140,13 +146,18 @@ export function processItem(
       : typeof request.description === 'string'
         ? request.description
         : (request.description?.content ?? '')
+  const tagName =
+    parentTags.length > 0 ? (resolveTagName ? resolveTagName(parentTags) : parentTags.join(' > ')) : undefined
 
   const operationObject: OpenAPIV3_1.OperationObject = {
-    tags: parentTags.length > 0 ? [parentTags.join(' > ')] : undefined,
+    tags: tagName ? [tagName] : undefined,
     summary,
     description,
     responses: extractResponses(response || [], item),
     parameters: [],
+  }
+  if (parentTags.length > 0) {
+    operationObject[POSTMAN_FOLDER_SEGMENTS_EXTENSION] = [...parentTags]
   }
   if (preserveCollapsedVariants) {
     operationObject[POSTMAN_EXAMPLE_NAME_EXTENSION] = sourceRequestName

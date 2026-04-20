@@ -87,6 +87,32 @@ describe('path-items', () => {
     expect(result.paths['/users']?.get?.tags).toEqual(['API > Users'])
   })
 
+  it('uses a custom tag resolver when provided', () => {
+    const itemGroup: ItemGroup = {
+      name: 'Error Case',
+      item: [
+        {
+          name: 'GET /applications',
+          item: [
+            {
+              name: 'List applications',
+              request: {
+                method: 'GET',
+                url: {
+                  raw: 'https://api.example.com/applications',
+                },
+              },
+            },
+          ],
+        },
+      ],
+    }
+
+    const result = processItem(itemGroup, 'default', [], '', false, () => 'GET /applications')
+
+    expect(result.paths['/applications']?.get?.tags).toEqual(['GET /applications'])
+  })
+
   it('merges paths from multiple items', () => {
     const itemGroup: ItemGroup = {
       name: 'API',
