@@ -216,10 +216,11 @@ const mergeExamples = (baseValue: unknown, newValue: unknown): unknown => {
 }
 
 type CompositionKeyword = 'anyOf' | 'oneOf'
+type SchemaPrimitiveType = 'string' | 'number' | 'boolean' | 'object' | 'array' | 'null' | 'integer'
 
 const schemaIncludesType = (
   schema: SchemaObject,
-  targetType: string,
+  targetType: SchemaPrimitiveType,
   seen: WeakSet<object> = new WeakSet(),
 ): boolean => {
   const rawSchema = getSchemaCacheTarget(schema)
