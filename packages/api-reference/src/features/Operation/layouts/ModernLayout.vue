@@ -79,6 +79,9 @@ const labelId = useId()
 
 const operationExtensions = computed(() => getXKeysFromObject(operation))
 
+/** Track the selected request body content type so the code sample stays in sync */
+const selectedRequestBodyContentType = ref<string | undefined>()
+
 /** Selected request body oneOf/anyOf variants; synced with schema dropdowns and code sample */
 const requestBodyCompositionSelection = ref<RequestBodyCompositionSelection>({})
 
@@ -164,6 +167,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
               :breadcrumb="[id]"
               :eventBus
               :options
+              v-model:selectedContentType="selectedRequestBodyContentType"
               :parameters="operation.parameters"
               :requestBody="getResolvedRef(operation.requestBody)" />
             <OperationResponses
@@ -208,6 +212,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
                 "
                 :securitySchemes="selectedSecuritySchemes"
                 :selectedClient
+                :selectedContentType="selectedRequestBodyContentType"
                 :selectedServer>
                 <template #header>
                   <OperationPath

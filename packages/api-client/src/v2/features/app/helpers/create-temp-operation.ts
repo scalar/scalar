@@ -51,6 +51,7 @@ export const createTempOperation = (
     path: uniquePath,
     method: 'get',
     operation: {
+      summary: 'New operation',
       tags: options.tags ?? [],
     },
     callback: (success) => {

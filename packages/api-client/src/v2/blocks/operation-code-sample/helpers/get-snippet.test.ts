@@ -169,12 +169,25 @@ describe('getSnippet', () => {
 
     expect(error).toBeNull()
     expect(result).toMatchInlineSnapshot(`
-      "CURL *hnd = curl_easy_init();
+      "#include <curl/curl.h>
 
-      curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "GET");
-      curl_easy_setopt(hnd, CURLOPT_URL, "/users");
+      int main(void) {
+        curl_global_init(CURL_GLOBAL_DEFAULT);
+        CURL *curl = curl_easy_init();
+        if (!curl) {
+          curl_global_cleanup();
+          return 1;
+        }
 
-      CURLcode ret = curl_easy_perform(hnd);"
+        curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "GET");
+        curl_easy_setopt(curl, CURLOPT_URL, "/users");
+
+        CURLcode res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+        curl_global_cleanup();
+
+        return (int)res;
+      }"
     `)
   })
 

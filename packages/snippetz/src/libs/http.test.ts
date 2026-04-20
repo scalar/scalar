@@ -1,7 +1,15 @@
 import type { HarRequest } from '@scalar/types/snippetz'
 import { describe, expect, it } from 'vitest'
 
-import { accumulateRepeatedValue, buildQueryString, reduceQueryParams } from './http'
+import {
+  accumulateRepeatedValue,
+  buildQueryString,
+  collectHeaders,
+  joinUrlAndQuery,
+  normalizeMethod,
+  normalizeUrl,
+  reduceQueryParams,
+} from './http'
 
 describe('buildQueryString', () => {
   it('returns empty string for undefined query params', () => {
@@ -89,5 +97,57 @@ describe('accumulateRepeatedValue', () => {
     expect(data).toEqual({
       statuses: ['active', 'inactive', 'pending'],
     })
+  })
+})
+
+describe('normalizeMethod', () => {
+  it('uppercases an explicit method', () => {
+    expect(normalizeMethod('post')).toBe('POST')
+  })
+
+  it('defaults to GET when method is missing', () => {
+    expect(normalizeMethod(undefined)).toBe('GET')
+  })
+})
+
+describe('normalizeUrl', () => {
+  it('keeps origin-only URLs without a trailing slash', () => {
+    expect(normalizeUrl('https://example.com')).toBe('https://example.com')
+  })
+
+  it('returns malformed URLs unchanged', () => {
+    expect(normalizeUrl('not a valid url')).toBe('not a valid url')
+  })
+})
+
+describe('joinUrlAndQuery', () => {
+  it('appends a query string to a URL without existing params', () => {
+    expect(joinUrlAndQuery('https://example.com', [{ name: 'foo', value: 'bar' }])).toBe('https://example.com?foo=bar')
+  })
+
+  it('appends query parameters to URLs with existing params', () => {
+    expect(joinUrlAndQuery('https://example.com?existing=true', [{ name: 'foo', value: 'bar' }])).toBe(
+      'https://example.com?existing=true&foo=bar',
+    )
+  })
+})
+
+describe('collectHeaders', () => {
+  it('deduplicates headers by name while preserving last value', () => {
+    expect(
+      collectHeaders([
+        { name: 'X-Test', value: 'first' },
+        { name: 'X-Test', value: 'second' },
+      ]),
+    ).toStrictEqual([{ name: 'X-Test', value: 'second' }])
+  })
+
+  it('adds encoded cookie headers when provided', () => {
+    expect(
+      collectHeaders(undefined, [
+        { name: 'session id', value: 'a b' },
+        { name: 'plain', value: 'value' },
+      ]),
+    ).toStrictEqual([{ name: 'Cookie', value: 'session%20id=a%20b; plain=value' }])
   })
 })

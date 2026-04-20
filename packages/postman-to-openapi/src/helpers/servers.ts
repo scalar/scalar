@@ -50,21 +50,24 @@ export function analyzeServerDistribution(serverUsage: ServerUsage[], allUniqueP
     return placement
   }
 
-  // Build a map: serverUrl -> Set<operationKey>
+  // Build a map: serverKey -> { server, operations }
   // Using string keys instead of objects because JavaScript Sets compare by reference
-  const serverMap = new Map<string, Set<string>>()
+  const serverMap = new Map<string, { server: OpenAPIV3_1.ServerObject; operations: Set<string> }>()
 
   for (const usage of serverUsage) {
-    if (!serverMap.has(usage.serverUrl)) {
-      serverMap.set(usage.serverUrl, new Set())
+    const serverObject: OpenAPIV3_1.ServerObject = usage.server ?? { url: usage.serverUrl }
+    const serverKey = JSON.stringify(serverObject)
+    if (!serverMap.has(serverKey)) {
+      serverMap.set(serverKey, {
+        server: serverObject,
+        operations: new Set(),
+      })
     }
-    serverMap.get(usage.serverUrl)!.add(createOperationKey(usage.path, usage.method))
+    serverMap.get(serverKey)!.operations.add(createOperationKey(usage.path, usage.method))
   }
 
   // For each server, determine its placement
-  for (const [serverUrl, operationKeys] of serverMap.entries()) {
-    const serverObject: OpenAPIV3_1.ServerObject = { url: serverUrl }
-
+  for (const { server: serverObject, operations: operationKeys } of serverMap.values()) {
     // Parse operation keys back to path/method pairs
     const operations = Array.from(operationKeys).map(parseOperationKey)
 

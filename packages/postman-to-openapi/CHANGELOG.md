@@ -1,5 +1,15 @@
 # @scalar/postman-to-openapi
 
+## 0.6.3
+
+### Patch Changes
+
+- [#8903](https://github.com/scalar/scalar/pull/8903): fix: share Postman collection detection from postman-to-openapi
+- [#8902](https://github.com/scalar/scalar/pull/8902): Preserve merged Postman request variants by carrying request-specific examples for parameters and request bodies, unioning status-code responses derived from request names, and concatenating pre-request and post-response script extensions when operations collapse into one path/method.
+- [#8898](https://github.com/scalar/scalar/pull/8898): merge structurally equivalent paths that only differ by path parameter names and align path parameter definitions with the canonical path
+- [#8887](https://github.com/scalar/scalar/pull/8887): fix: invalid json body handling and add root document for bulk operation selection
+- [#8897](https://github.com/scalar/scalar/pull/8897): fix postman-to-openapi response descriptions to use status-aware defaults and parse named examples
+
 ## 0.6.2
 
 ## 0.6.1

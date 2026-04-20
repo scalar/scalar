@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import type { Item, Response } from '@/types'
 
@@ -38,7 +38,63 @@ describe('responses', () => {
 
     const result = extractResponses(responses)
 
-    expect(result?.['200']?.description).toBe('Successful response')
+    expect(result?.['200']?.description).toBe('OK')
+  })
+
+  it('uses status-aware default description when status is missing for error responses', () => {
+    const responses: Response[] = [
+      {
+        code: 404,
+        body: '{"error": "Language not found"}',
+      },
+    ]
+
+    const result = extractResponses(responses)
+
+    expect(result?.['404']?.description).toBe('Not found')
+  })
+
+  it('uses default fallback description for unknown status codes', () => {
+    const responses: Response[] = [
+      {
+        code: 418,
+        body: '{"message": "I am a teapot"}',
+      },
+    ]
+
+    const result = extractResponses(responses)
+
+    expect(result?.['418']?.description).toBe('Default response')
+  })
+
+  it('prefers response name description when using "<code> - <description>" format', () => {
+    const responses: Response[] = [
+      {
+        name: '404 - Language not found',
+        code: 404,
+        status: 'Not Found',
+        body: '{"error": "Language not found"}',
+      },
+    ]
+
+    const result = extractResponses(responses)
+
+    expect(result?.['404']?.description).toBe('Language not found')
+  })
+
+  it('does not use response name description when code does not match', () => {
+    const responses: Response[] = [
+      {
+        name: '404 - Language not found',
+        code: 401,
+        status: 'Unauthorized',
+        body: '{"error": "Unauthorized"}',
+      },
+    ]
+
+    const result = extractResponses(responses)
+
+    expect(result?.['401']?.description).toBe('Unauthorized')
   })
 
   it('infers schema from JSON body', () => {
@@ -172,7 +228,7 @@ describe('responses', () => {
     const result = extractResponses(responses, item)
 
     expect(result?.['201']).toBeDefined()
-    expect(result?.['201']?.description).toBe('Successful response')
+    expect(result?.['201']?.description).toBe('Created')
   })
 
   it('does not override existing response when adding from tests', () => {
@@ -241,9 +297,78 @@ describe('responses', () => {
 
     const result = extractResponses(responses)
 
-    expect(result?.['204']?.content?.['application/json']?.examples?.default).toEqual({
-      rawContent: '',
+    expect(result?.['204']?.content).toBeUndefined()
+  })
+
+  it('omits content for no-body status codes without body examples', () => {
+    const responses: Response[] = [
+      {
+        code: 101,
+        status: 'Switching Protocols',
+      },
+      {
+        code: 205,
+        status: 'Reset Content',
+      },
+      {
+        code: 304,
+        status: 'Not Modified',
+      },
+    ]
+
+    const result = extractResponses(responses)
+
+    expect(result?.['101']?.content).toBeUndefined()
+    expect(result?.['205']?.content).toBeUndefined()
+    expect(result?.['304']?.content).toBeUndefined()
+  })
+
+  it('omits content for no-body status codes extracted from test scripts', () => {
+    const responses: Response[] = []
+    const item: Item = {
+      name: 'No Body Status',
+      request: {
+        method: 'GET',
+        url: {
+          raw: 'https://example.com/resource',
+        },
+      },
+      event: [
+        {
+          listen: 'test',
+          script: {
+            exec: ['pm.response.to.have.status(204);', 'pm.response.to.have.status(304);'],
+          },
+        },
+      ],
+    }
+
+    const result = extractResponses(responses, item)
+
+    expect(result?.['204']?.content).toBeUndefined()
+    expect(result?.['304']?.content).toBeUndefined()
+  })
+
+  it('keeps content and logs warning when no-body status code has explicit body example', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const responses: Response[] = [
+      {
+        code: 204,
+        status: 'No Content',
+        body: '{"message": "actually has content"}',
+      },
+    ]
+
+    const result = extractResponses(responses)
+
+    expect(result?.['204']?.content?.['application/json']?.examples?.default).toStrictEqual({
+      message: 'actually has content',
     })
+    expect(warnSpy).toHaveBeenCalledWith(
+      '[postman-to-openapi] Response 204 usually has no body, but Postman includes a body example. Keeping OpenAPI content.',
+    )
+
+    warnSpy.mockRestore()
   })
 
   it('handles array response body', () => {

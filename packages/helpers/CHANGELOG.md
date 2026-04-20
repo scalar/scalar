@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.5.1
+
+### Patch Changes
+
+- [#8911](https://github.com/scalar/scalar/pull/8911): feat: switch from Request to RequestPayload to support body with GET
+
 ## 0.5.0
 
 ### Minor Changes

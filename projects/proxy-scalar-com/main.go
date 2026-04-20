@@ -131,6 +131,21 @@ type ProxyServer struct {
 	bypassCidr bool
 }
 
+type streamingResponseWriter struct {
+	writer  http.ResponseWriter
+	flusher http.Flusher
+}
+
+func (s streamingResponseWriter) Write(p []byte) (int, error) {
+	n, err := s.writer.Write(p)
+
+	if err == nil {
+		s.flusher.Flush()
+	}
+
+	return n, err
+}
+
 // NewProxyServer creates a new proxy server instance
 func NewProxyServer(bypassCidr bool) *ProxyServer {
 	dialer := &net.Dialer{Timeout: 10 * time.Second}
@@ -375,8 +390,22 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	// Copy the status code from the proxied response
 	w.WriteHeader(resp.StatusCode)
 
+	responseWriter := io.Writer(w)
+	contentType := strings.ToLower(resp.Header.Get("Content-Type"))
+
+	// SSE streams require chunk flushing to deliver events progressively.
+	if strings.HasPrefix(contentType, "text/event-stream") {
+		if flusher, ok := w.(http.Flusher); ok {
+			flusher.Flush()
+			responseWriter = streamingResponseWriter{
+				writer:  w,
+				flusher: flusher,
+			}
+		}
+	}
+
 	// Copy the body
-	if _, err := io.Copy(w, resp.Body); err != nil {
+	if _, err := io.Copy(responseWriter, resp.Body); err != nil {
 		return err
 	}
 

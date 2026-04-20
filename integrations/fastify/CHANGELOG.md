@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.52.3
+
+### Patch Changes
+
+- [#8873](https://github.com/scalar/scalar/pull/8873): refactor: migrate integrations to client-side rendering package
+
 ## 1.52.2
 
 ## 1.52.1

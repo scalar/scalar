@@ -1,5 +1,12 @@
 # @scalar/types
 
+## 0.9.1
+
+### Patch Changes
+
+- [#8862](https://github.com/scalar/scalar/pull/8862): add `python/aiohttp` as a supported code snippet client and expose it through shared snippet client types and config schemas
+- [#8810](https://github.com/scalar/scalar/pull/8810): refactor: move telemetry to an optional plugin
+
 ## 0.9.0
 
 ### Minor Changes

@@ -255,7 +255,7 @@ export function useRunnerExecution({
 
         const [sendError, sendResult] = await sendRequest({
           isUsingProxy: requestResult.data.isUsingProxy,
-          request: requestResult.data.request,
+          requestPayload: requestResult.data.requestPayload,
         })
 
         if (sendError) {

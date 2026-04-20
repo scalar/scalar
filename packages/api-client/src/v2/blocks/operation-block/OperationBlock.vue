@@ -88,6 +88,7 @@ export type OperationBlockProps = {
 <script setup lang="ts">
 import { ERRORS } from '@scalar/helpers/errors/normalize-error'
 import { isElectron } from '@scalar/helpers/general/is-electron'
+import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { executeHook, type ClientPlugin } from '@scalar/oas-utils/helpers'
 import {
@@ -109,6 +110,7 @@ import {
   getEnvironmentVariables,
   requestFactory,
   type MergedSecuritySchemes,
+  type RequestPayload,
   type SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -181,7 +183,7 @@ const { toast } = useToasts()
 // Refs
 const abortController = ref<AbortController | null>(null)
 const response = ref<ResponseInstance | null>(null)
-const request = ref<Request | null>(null)
+const requestPayload = ref<RequestPayload | null>(null)
 
 /** Cancel the request */
 const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
@@ -276,7 +278,7 @@ const handleExecute = async () => {
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
     isUsingProxy: requestResult.result.isUsingProxy,
-    request: requestResult.result.request,
+    requestPayload: requestResult.result.requestPayload,
     plugins,
   })
 
@@ -286,7 +288,7 @@ const handleExecute = async () => {
       {
         response: sendResult.originalResponse.clone(),
         requestBuilder,
-        request: sendResult.request.clone(),
+        request: buildSafeBodyRequest(...sendResult.requestPayload),
         document,
         operation,
         variablesStore,
@@ -301,7 +303,7 @@ const handleExecute = async () => {
     payload: sendResult
       ? {
           response: sendResult.originalResponse.clone(),
-          request: sendResult.request.clone(),
+          requestPayload: sendResult.requestPayload,
           duration: sendResult.response.duration,
           timestamp: sendResult.timestamp,
         }
@@ -316,7 +318,7 @@ const handleExecute = async () => {
   if (sendError) {
     // clean up the response and request
     response.value = null
-    request.value = null
+    requestPayload.value = null
     abortController.value = null
 
     toast(sendError.message, 'error')
@@ -325,13 +327,13 @@ const handleExecute = async () => {
 
   // Store the response
   response.value = sendResult.response
-  request.value = sendResult.request
+  requestPayload.value = sendResult.requestPayload
 
   // Cache non-streaming responses so they can be restored when navigating back
   if (!isStreamingResponse(sendResult.response)) {
     responseCache.set(getOperationExampleKey(method, path, exampleKey), {
       response: sendResult.response,
-      request: sendResult.request,
+      requestPayload: sendResult.requestPayload,
     })
   }
 }
@@ -390,7 +392,7 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
 
         // Update the response and request
         response.value = fetchResponse
-        request.value = fetchRequest
+        requestPayload.value = fetchRequest
       },
     })
 
@@ -417,10 +419,10 @@ watch(
     const cached = responseCache.get(newKey)
     if (cached) {
       response.value = cached.response
-      request.value = cached.request
+      requestPayload.value = cached.requestPayload
     } else {
       response.value = null
-      request.value = null
+      requestPayload.value = null
     }
 
     // Cancel any in-flight request
@@ -492,7 +494,7 @@ onBeforeUnmount(() => {
           :eventBus
           :layout
           :plugins
-          :request
+          :requestPayload
           :response
           :totalPerformedRequests="operationHistory.length" />
       </ViewLayoutContent>

@@ -1,3 +1,5 @@
+import type { RequestPayload } from '@scalar/workspace-store/request-example'
+
 import type { ResponseInstance } from '@/v2/blocks/operation-block/helpers/send-request'
 
 /**
@@ -5,7 +7,7 @@ import type { ResponseInstance } from '@/v2/blocks/operation-block/helpers/send-
  * Restores the last response when navigating back to an operation until
  * the user refreshes the page or makes a new request.
  */
-export const responseCache = new Map<string, { response: ResponseInstance; request: Request }>()
+export const responseCache = new Map<string, { response: ResponseInstance; requestPayload: RequestPayload }>()
 
 /**
  * Constructs a unique cache key for a specific operation/example.

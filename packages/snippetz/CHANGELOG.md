@@ -1,5 +1,16 @@
 # @scalar/snippetz
 
+## 0.9.1
+
+### Patch Changes
+
+- [#8862](https://github.com/scalar/scalar/pull/8862): add `python/aiohttp` as a supported code snippet client and expose it through shared snippet client types and config schemas
+- [#8874](https://github.com/scalar/scalar/pull/8874): refactor c/libcurl plugin to use shared PluginConfiguration type
+- [#8874](https://github.com/scalar/scalar/pull/8874): replace c/libcurl httpsnippet-lite conversion with native plugin
+- [#8874](https://github.com/scalar/scalar/pull/8874): Fix C libcurl snippet cleanup ordering to call `curl_easy_cleanup` before freeing `curl_mime` and header slists.
+- [#8870](https://github.com/scalar/scalar/pull/8870): feat(snippetz): migrate python3 plugin off httpsnippet-lite
+- [#8869](https://github.com/scalar/scalar/pull/8869): replace `swift/nsurlsession` with a native snippetz plugin and remove the legacy httpsnippet-lite swift target
+
 ## 0.9.0
 
 ### Minor Changes

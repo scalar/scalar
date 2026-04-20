@@ -41,11 +41,11 @@ const { request: requestBuilder } = requestFactory({
   selectedSecuritySchemes: [],
 })
 
-const { request, isUsingProxy } = buildRequest(requestBuilder, {
+const { requestPayload, isUsingProxy } = buildRequest(requestBuilder, {
   envVariables: getEnvironmentVariables(context.data.environment.environment),
 })
 
 void sendRequest({
-  request,
+  requestPayload,
   isUsingProxy,
 })

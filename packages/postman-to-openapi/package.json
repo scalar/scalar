@@ -19,13 +19,13 @@
     "export",
     "scalar"
   ],
-  "version": "0.6.2",
+  "version": "0.6.3",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "generate:textures": "tsx ./scripts/generate-textures.ts",
+    "evaluate": "tsx ./scripts/evaluate/run.ts",
     "test": "vitest --run",
     "types:check": "tsc --noEmit"
   },
@@ -48,6 +48,7 @@
     "@scalar/openapi-types": "workspace:*"
   },
   "devDependencies": {
+    "@scalar/openapi-parser": "workspace:*",
     "@types/node": "catalog:*",
     "vite": "catalog:*"
   }
