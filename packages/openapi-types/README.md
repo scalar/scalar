@@ -13,7 +13,10 @@ Modern OpenAPI parser written in TypeScript, with support for Swagger 2.0, OpenA
 npm add @scalar/openapi-types
 ```
 
-## Usage
+## New Usage
+
+We now have stricter openapi types, generated from the OpenAPI Spec including links back to the documentation, they
+are exported from the versions as seen here:
 
 ```ts
 import type { Document } from '@scalar/openapi-types/3.2.0'
