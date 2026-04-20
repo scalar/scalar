@@ -943,7 +943,7 @@ describe('extractSecuritySchemeSecrets', () => {
             'x-scalar-secret-redirect-uri': 'https://store.example.com/callback',
           },
         },
-      } satisfies OAuth2ObjectSecret)
+      })
     })
 
     it('preserves an explicitly cleared redirect URI from auth store', () => {
