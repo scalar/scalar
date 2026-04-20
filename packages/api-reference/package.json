@@ -140,7 +140,7 @@
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
     "vite-plugin-banner": "^0.8.1",
-    "vite-plugin-css-injected-by-js": "^5.0.0",
+    "vite-plugin-css-injected-by-js": "catalog:*",
     "vitest": "catalog:*"
   }
 }
