@@ -18,7 +18,7 @@ export function getPathFromUrl(url: string): string {
 }
 
 /**
- * Returns all token URLs mentioned in the securitySchemes, without the domain
+ * Returns OAuth token and refresh URLs without the domain.
  */
 // Type guard for OAuth2 security scheme
 function isOAuth2Scheme(
@@ -27,8 +27,8 @@ function isOAuth2Scheme(
   return scheme.type === 'oauth2'
 }
 
-// Validate token URL
-function isValidTokenUrl(url: string): boolean {
+// Validate OAuth URL
+function isValidOAuthUrl(url: string): boolean {
   return url.trim().length > 0
 }
 
@@ -41,7 +41,7 @@ export function getOpenAuthTokenUrls(schema?: OpenAPI.Document): string[] {
     schema.components.securitySchemes
 
   // Use Set from the start for better memory efficiency
-  const tokenUrls = new Set<string>()
+  const oauthUrls = new Set<string>()
 
   // Iterate through all security schemes
   for (const scheme of Object.values(securitySchemes)) {
@@ -51,17 +51,21 @@ export function getOpenAuthTokenUrls(schema?: OpenAPI.Document): string[] {
 
     const flows = scheme.flows // Type assertion no longer needed
 
-    // Helper to safely add valid token URLs
-    const addTokenUrl = (url?: string) => {
-      if (url && isValidTokenUrl(url)) {
-        tokenUrls.add(getPathFromUrl(url))
+    // Helper to safely add valid OAuth URLs
+    const addOAuthUrl = (url?: string) => {
+      if (url && isValidOAuthUrl(url)) {
+        oauthUrls.add(getPathFromUrl(url))
       }
     }
 
-    addTokenUrl(flows?.password?.tokenUrl)
-    addTokenUrl(flows?.clientCredentials?.tokenUrl)
-    addTokenUrl(flows?.authorizationCode?.tokenUrl)
+    addOAuthUrl(flows?.password?.tokenUrl)
+    addOAuthUrl(flows?.password?.refreshUrl)
+    addOAuthUrl(flows?.clientCredentials?.tokenUrl)
+    addOAuthUrl(flows?.clientCredentials?.refreshUrl)
+    addOAuthUrl(flows?.authorizationCode?.tokenUrl)
+    addOAuthUrl(flows?.authorizationCode?.refreshUrl)
+    addOAuthUrl(flows?.implicit?.refreshUrl)
   }
 
-  return Array.from(tokenUrls)
+  return Array.from(oauthUrls)
 }
