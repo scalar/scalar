@@ -18,7 +18,7 @@
       }
       body {
         display: grid;
-        grid-template-rows: var(--scalar-header-height) 1fr;
+        grid-template-rows: auto 1fr;
       }
       body > header {
         display: flex;
@@ -27,7 +27,8 @@
       }
       #scalar-client,
       #scalar-client > main {
-        display: grid;
+        display: flex;
+        flex: 1;
         min-height: 0;
       }
     </style>
