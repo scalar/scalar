@@ -1,10 +1,10 @@
 import type { ExternalDocsObject } from './external-docs'
 export type FileSchemaObject = {
   format?: string
-  title?: unknown
-  description?: unknown
+  title?: string
+  description?: string
   default?: unknown
-  required?: unknown
+  required?: string[]
   type: 'file'
   readOnly?: boolean
   externalDocs?: ExternalDocsObject

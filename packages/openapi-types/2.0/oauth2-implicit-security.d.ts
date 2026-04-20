@@ -12,7 +12,7 @@ export type Oauth2ImplicitSecurityObject = {
   /** **Required.** The flow used by the OAuth2 security scheme. Valid values are `"implicit"`, `"password"`, `"application"` or `"accessCode"`. */
   flow: 'implicit'
   /** **Required.** The available scopes for the OAuth2 security scheme. */
-  scopes?: Oauth2ScopesObject
+  scopes: Oauth2ScopesObject
   /** **Required.** The authorization URL to be used for this flow. This SHOULD be in the form of a URL. */
   authorizationUrl: string
   /** A short description for security scheme. */

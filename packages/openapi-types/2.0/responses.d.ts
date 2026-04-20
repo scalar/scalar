@@ -6,4 +6,8 @@ import type { ResponseValueObject } from './response-value'
  *
  * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#responses-object}
  */
-export type ResponsesObject = Record<string, ResponseValueObject>
+export type ResponsesObject = {
+  /** The documentation of responses other than the ones declared for specific HTTP response codes. */
+  default?: ResponseValueObject
+  [statusCode: string]: ResponseValueObject | undefined
+}

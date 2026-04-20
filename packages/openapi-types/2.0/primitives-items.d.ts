@@ -13,7 +13,7 @@ import type { MultipleOfObject } from './multiple-of'
 import type { PatternObject } from './pattern'
 import type { UniqueItemsObject } from './unique-items'
 export type PrimitivesItemsObject = {
-  type?: 'string' | 'number' | 'integer' | 'boolean' | 'array'
+  type: 'string' | 'number' | 'integer' | 'boolean' | 'array'
   format?: string
   items?: PrimitivesItemsObject
   collectionFormat?: CollectionFormatObject
