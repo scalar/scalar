@@ -13,7 +13,7 @@ const contentSchema = union([string(), nullable(), record(string(), any()), fn<(
  * or used independently. Some configurations may have multiple sources.
  */
 export const sourceConfigurationSchema = object({
-  default: boolean({ default: false }),
+  default: optional(boolean({ default: false })),
   url: optional(string(), {
     typeComment: 'URL to an OpenAPI/Swagger document',
   }),

@@ -34,7 +34,9 @@
   ],
   "dependencies": {
     "@scalar/client-side-rendering": "workspace:*",
-    "@scalar/types": "workspace:*"
+    "@scalar/types": "workspace:*",
+    "@scalar/schemas": "workspace:*",
+    "@scalar/validation": "workspace:*"
   },
   "devDependencies": {
     "vite": "catalog:*"

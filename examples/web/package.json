@@ -29,6 +29,7 @@
     "@scalar/galaxy": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
+    "@scalar/schemas": "workspace:*",
     "@scalar/use-hooks": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "@vueuse/core": "catalog:*",

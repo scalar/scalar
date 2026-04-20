@@ -1,4 +1,3 @@
-// import { apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
 import { apiReferenceConfigurationWithSourceSchema } from '@scalar/schemas/api-reference'
 import { renderToString } from '@vue/server-renderer'
 import { expect, it, vi } from 'vitest'

@@ -434,7 +434,7 @@ type ExtendedConfiguration = {
 }
 
 export type SourceConfiguration = {
-  default: boolean
+  default?: boolean
   /** URL to an OpenAPI/Swagger document */
   url?: string
   /** Directly embed the OpenAPI document. Can be a string, object, function returning an object, or null. It is recommended to pass a URL instead of content. */

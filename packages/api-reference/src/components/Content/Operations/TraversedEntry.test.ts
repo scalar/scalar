@@ -1,4 +1,3 @@
-// import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import { coerce } from '@scalar/validation'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'

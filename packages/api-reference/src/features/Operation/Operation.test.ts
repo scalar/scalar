@@ -1,5 +1,4 @@
 import { enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/console-spies'
-// import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'

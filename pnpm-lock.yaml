@@ -695,6 +695,9 @@ importers:
       '@scalar/galaxy':
         specifier: workspace:*
         version: link:../../packages/galaxy
+      '@scalar/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
       '@scalar/themes':
         specifier: workspace:*
         version: link:../../packages/themes
@@ -1550,9 +1553,15 @@ importers:
 
   packages/client-side-rendering:
     dependencies:
+      '@scalar/schemas':
+        specifier: workspace:*
+        version: link:../schemas
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
+      '@scalar/validation':
+        specifier: workspace:*
+        version: link:../validation
     devDependencies:
       vite:
         specifier: catalog:*
@@ -1730,9 +1739,15 @@ importers:
       '@scalar/client-side-rendering':
         specifier: workspace:*
         version: link:../client-side-rendering
+      '@scalar/schemas':
+        specifier: workspace:*
+        version: link:../schemas
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
+      '@scalar/validation':
+        specifier: workspace:*
+        version: link:../validation
     devDependencies:
       vite:
         specifier: catalog:*

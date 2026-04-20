@@ -29,4 +29,5 @@
 //   isConfigurationWithSources,
 //   sourceConfigurationSchema,
 // } from './api-reference/index'
+export * from './api-reference/index'
 export { XScalarStability } from './legacy/index'

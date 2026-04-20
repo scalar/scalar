@@ -6,6 +6,6 @@ import type { ApiReferenceConfigurationWithMultipleSources } from './types'
  * It's the ApiReferenceConfiguration, but extended with the `pageTitle` and `cdn` options.
  */
 export type HtmlRenderingConfiguration = Partial<ApiReferenceConfigurationWithMultipleSources> & {
-  pageTitle?: string
-  cdn?: string
+  pageTitle: string
+  cdn: string
 }
