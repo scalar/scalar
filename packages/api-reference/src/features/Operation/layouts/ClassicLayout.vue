@@ -127,7 +127,6 @@ const { copyToClipboard } = useClipboard()
                   :deprecated="isOperationDeprecated(operation)"
                   :path="path" />
               </div>
-              <SecurityRequirementBadge :requiredSecurity="requiredSecurity" />
               <div class="endpoint-label-name">
                 {{ operationTitle }}
               </div>
@@ -138,6 +137,9 @@ const { copyToClipboard } = useClipboard()
                 :class="getOperationStabilityColor(operation)">
                 {{ getOperationStability(operation) }}
               </Badge>
+
+              <!-- Required auth badge -->
+              <SecurityRequirementBadge :requiredSecurity="requiredSecurity" />
 
               <!-- Webhook badge -->
               <Badge
@@ -209,9 +211,9 @@ const { copyToClipboard } = useClipboard()
         </div>
         <div class="operation-details-card-item">
           <OperationParameters
+            v-model:selectedContentType="selectedRequestBodyContentType"
             :eventBus
             :options
-            v-model:selectedContentType="selectedRequestBodyContentType"
             :parameters="operation.parameters"
             :requestBody="getResolvedRef(operation.requestBody)" />
         </div>
