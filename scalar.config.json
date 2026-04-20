@@ -685,7 +685,7 @@
           },
           "/pricing": {
             "title": "Pricing",
-            "description": "Transparent pricing for developer documentation, SDKs, and API tools. Start free and scale as you grow.",
+            "description": "Simple pricing for APIs, docs, agents, SDKs, governance, and API Client workflows built on OpenAPI.",
             "icon": "phosphor/regular/coin-vertical",
             "filepath": "documentation/guides/pricing.md",
             "type": "page",
