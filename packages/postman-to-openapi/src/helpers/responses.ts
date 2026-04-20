@@ -33,17 +33,31 @@ export function extractResponses(responses: Response[], item?: Item): OpenAPIV3_
   // Create a map of status codes to descriptions from responses
   const responseMap = responses.reduce((acc, response) => {
     const statusCode = response.code?.toString() || 'default'
+    const hasNoContentStatusCode = hasNoResponseBodyStatusCode(statusCode)
+    const hasExplicitBodyExample = response.body !== undefined && response.body !== null && response.body !== ''
+
+    if (hasNoContentStatusCode && hasExplicitBodyExample) {
+      console.warn(
+        `[postman-to-openapi] Response ${statusCode} usually has no body, but Postman includes a body example. Keeping OpenAPI content.`,
+      )
+    }
+
+    const content =
+      hasNoContentStatusCode && !hasExplicitBodyExample
+        ? undefined
+        : {
+            'application/json': {
+              schema: inferSchemaFromExample(response.body || ''),
+              examples: {
+                default: tryParseJson(response.body || ''),
+              },
+            },
+          }
+
     acc[statusCode] = {
       description: getResponseDescription(response, statusCode),
       headers: extractHeaders(response.header),
-      content: {
-        'application/json': {
-          schema: inferSchemaFromExample(response.body || ''),
-          examples: {
-            default: tryParseJson(response.body || ''),
-          },
-        },
-      },
+      ...(content ? { content } : {}),
     }
     return acc
   }, {} as OpenAPIV3_1.ResponsesObject)
@@ -52,11 +66,16 @@ export function extractResponses(responses: Response[], item?: Item): OpenAPIV3_
   statusCodes.forEach((code) => {
     const codeStr = code.toString()
     if (!responseMap[codeStr]) {
+      const hasNoContentStatusCode = hasNoResponseBodyStatusCode(codeStr)
       responseMap[codeStr] = {
         description: getDefaultResponseDescription(codeStr),
-        content: {
-          'application/json': {},
-        },
+        ...(!hasNoContentStatusCode
+          ? {
+              content: {
+                'application/json': {},
+              },
+            }
+          : {}),
       }
     }
   })
@@ -121,6 +140,16 @@ function isThreeDigitStatusCode(value: string): boolean {
   }
 
   return true
+}
+
+const hasNoResponseBodyStatusCode = (statusCode: string): boolean => {
+  const numericCode = Number(statusCode)
+
+  if (!Number.isInteger(numericCode)) {
+    return false
+  }
+
+  return (numericCode >= 100 && numericCode <= 199) || numericCode === 204 || numericCode === 205 || numericCode === 304
 }
 
 function extractHeaders(
