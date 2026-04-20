@@ -1312,7 +1312,7 @@
 
 ### Minor Changes
 
-- a974b26: feat(Scalar.Aspire): initial .NET Aspire integration
+- a974b26: feat(Scalar.Aspire): initial Aspire integration
 
 ### Patch Changes
 

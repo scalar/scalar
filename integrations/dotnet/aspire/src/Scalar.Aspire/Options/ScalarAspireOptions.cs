@@ -1,7 +1,7 @@
 namespace Scalar.Aspire;
 
 /// <summary>
-/// Represents configuration options specific to Scalar API reference integration with .NET Aspire.
+/// Represents configuration options specific to Scalar API reference integration with Aspire.
 /// Extends <see cref="ScalarOptions"/> with Aspire-specific settings.
 /// </summary>
 public sealed class ScalarAspireOptions : ScalarOptions

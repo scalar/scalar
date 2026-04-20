@@ -22,7 +22,6 @@ import { OperationBlock } from '@/v2/blocks/operation-block'
 import { APP_VERSION } from '@/v2/constants'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { mapHiddenClientsConfig } from '@/v2/features/modal/helpers/map-hidden-clients-config'
-import type { ApiClientModalOptionsRef } from '@/v2/features/modal/helpers/types'
 
 const {
   document,
@@ -38,8 +37,6 @@ const {
   documentSlug,
 } = defineProps<
   RouteProps & {
-    /** Subset of config options for the modal */
-    options?: ApiClientModalOptionsRef
     /** Selected anyOf/oneOf request-body variants keyed by schema path */
     requestBodyCompositionSelection?: Record<string, number>
   }

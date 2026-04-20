@@ -126,7 +126,7 @@ And there's an ever-growing list of plugins and integrations:
 
 - [HTML/JS API](https://scalar.com/products/api-references/integrations/html-js) (works everywhere)
 - [.NET ASP.NET Core](https://scalar.com/products/api-references/integrations/aspnetcore/integration)
-- [.NET Aspire](https://scalar.com/products/api-references/integrations/aspire)
+- [Aspire](https://scalar.com/products/api-references/integrations/aspire)
 - [AdonisJS](https://scalar.com/products/api-references/integrations/adonisjs)
 - [Astro](https://scalar.com/products/api-references/integrations/astro)
 - [Django Ninja](https://scalar.com/products/api-references/integrations/django-ninja)
