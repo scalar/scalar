@@ -55,8 +55,8 @@ describe('getRequiredSecurity', () => {
       ).toBe('optional')
     })
 
-    it('returns none when the only requirement is {} (explicit unauthenticated)', () => {
-      expect(getRequiredSecurity({ security: [{}] }, { components: { securitySchemes: {} } }).state).toBe('none')
+    it('returns optional when the only requirement is {} (auth is optional)', () => {
+      expect(getRequiredSecurity({ security: [{}] }, { components: { securitySchemes: {} } }).state).toBe('optional')
     })
   })
 
