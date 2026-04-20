@@ -1,6 +1,6 @@
-# API Reference for .NET Aspire
+# API Reference for Aspire
 
-The `Scalar.Aspire` package seamlessly integrates API Reference into your .NET Aspire applications, providing a unified documentation interface for all your services.
+The `Scalar.Aspire` package seamlessly integrates API Reference into your Aspire applications, providing a unified documentation interface for all your services.
 
 ## Overview
 

@@ -1528,7 +1528,7 @@
                         "type": "page"
                       },
                       "aspire": {
-                        "title": ".NET Aspire",
+                        "title": "Aspire",
                         "filepath": "documentation/integrations/aspire.md",
                         "type": "page"
                       },
