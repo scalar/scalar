@@ -932,21 +932,15 @@ describe('extractSecuritySchemeSecrets', () => {
         },
       }
 
-      const result = extractSecuritySchemeSecrets(
-        scheme,
-        authStore,
-        schemeName,
-        documentSlug,
-      )
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
 
       expect(result).toMatchObject({
         type: 'oauth2',
         flows: {
-          authorizationCode: {
-            'x-scalar-secret-redirect-uri': '',
-          },
+          authorizationCode: expect.any(Object),
         },
-      } satisfies OAuth2ObjectSecret)
+      })
+      expect((result as OAuth2ObjectSecret).flows.authorizationCode?.['x-scalar-secret-redirect-uri']).toBe('')
     })
 
     it('handles authorizationCode flow with PKCE enabled', () => {

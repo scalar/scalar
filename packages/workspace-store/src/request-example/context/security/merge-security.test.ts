@@ -823,12 +823,7 @@ describe('mergeSecurity', () => {
       },
     })
 
-    const result = mergeSecurity(
-      securitySchemes,
-      {},
-      redirectAuthStore,
-      redirectDocumentSlug,
-    )
+    const result = mergeSecurity(securitySchemes, {}, redirectAuthStore, redirectDocumentSlug)
 
     expect(result.oauth2?.type).toBe('oauth2')
     if (result.oauth2?.type === 'oauth2') {

@@ -147,7 +147,8 @@ const resolveFlowIdentity = (
       currentFlow && 'authorizationUrl' in currentFlow
         ? currentFlow.authorizationUrl
         : '',
-    tokenUrl: currentFlow && 'tokenUrl' in currentFlow ? currentFlow.tokenUrl : '',
+    tokenUrl:
+      currentFlow && 'tokenUrl' in currentFlow ? currentFlow.tokenUrl : '',
     refreshUrl: currentFlow?.refreshUrl ?? '',
     scopes: Object.keys(currentFlow?.scopes ?? {}),
   })
