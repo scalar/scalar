@@ -101,7 +101,7 @@ Scalar provides official integrations for all major web frameworks, making it ea
 | Docusaurus    | ✓         |
 | Astro         | ✓         |
 | ASP.NET Core  | ✓         |
-| .NET Aspire   | ✓         |
+| Aspire   | ✓         |
 | FastAPI       | ✓         |
 | Django Ninja  | ✓         |
 | Spring (Java) | ✓         |
