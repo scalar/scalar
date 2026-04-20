@@ -19,7 +19,17 @@ state_dir="${HOME}/.cache/cursor-cloud-agent/scalar"
 build_marker_path="${state_dir}/build-packages-fingerprint.txt"
 mkdir -p "${state_dir}"
 
-fingerprint="$(sha256sum pnpm-lock.yaml package.json turbo.json | sha256sum | awk '{ print $1 }')"
+git_revision="nogit"
+if command -v git >/dev/null 2>&1; then
+  git_revision="$(git rev-parse HEAD 2>/dev/null || echo "nogit")"
+fi
+
+fingerprint="$(
+  {
+    printf '%s\n' "${git_revision}"
+    sha256sum pnpm-lock.yaml package.json turbo.json
+  } | sha256sum | awk '{ print $1 }'
+)"
 previous_fingerprint=""
 if [ -f "${build_marker_path}" ]; then
   read -r previous_fingerprint < "${build_marker_path}"
