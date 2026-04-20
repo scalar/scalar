@@ -219,6 +219,17 @@ const handleAuthorize = async (): Promise<void> => {
 const supportsRefreshToken = computed(() => type !== 'implicit')
 
 /**
+ * Refresh URL placeholder, shows tokenUrl as hint if refreshUrl is not specified.
+ * This helps users understand that tokenUrl will be used as fallback.
+ */
+const refreshUrlPlaceholder = computed(() => {
+  if ('tokenUrl' in flow.value && flow.value.tokenUrl) {
+    return flow.value.tokenUrl
+  }
+  return 'https://galaxy.scalar.com/oauth/refresh'
+})
+
+/**
  * Uses the stored refresh token to obtain a new access token
  * via grant_type=refresh_token.
  */
@@ -290,7 +301,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         class="border-r-transparent"
         :environment
         :modelValue="flow.refreshUrl ?? ''"
-        placeholder="https://galaxy.scalar.com/oauth/refresh"
+        :placeholder="refreshUrlPlaceholder"
         @update:modelValue="(v) => handleOauth2Update({ refreshUrl: v })">
         Refresh URL
       </RequestAuthDataTableInput>
@@ -349,16 +360,6 @@ const handleSecretLocationUpdate = (value: string): void => {
           }
         ">
         Token URL
-      </RequestAuthDataTableInput>
-    </DataTableRow>
-
-    <DataTableRow v-if="supportsRefreshToken">
-      <RequestAuthDataTableInput
-        :environment
-        :modelValue="flow.refreshUrl ?? ''"
-        placeholder="https://galaxy.scalar.com/oauth/refresh"
-        @update:modelValue="(v) => handleOauth2Update({ refreshUrl: v })">
-        Refresh URL
       </RequestAuthDataTableInput>
     </DataTableRow>
 
