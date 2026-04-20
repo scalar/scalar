@@ -121,10 +121,7 @@ describe('convert', () => {
 
     const result = convert(collection)
 
-    expect(result.tags).toEqual([
-      { name: 'Parent' },
-      { name: 'Child', description: 'Part of Parent' },
-    ])
+    expect(result.tags).toEqual([{ name: 'Parent' }, { name: 'Child', description: 'Part of Parent' }])
   })
 
   it('imports only requests at requestIndexPaths and keeps folder tags for those branches', () => {
