@@ -949,4 +949,129 @@ describe('convert', () => {
       },
     ])
   })
+
+  it('resolves Postman variables in server URLs from collection variables', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Variable servers',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      variable: [
+        { key: 'url-languagesAPI', value: 'localhost:3005' },
+        { key: 'url-applicationAPI', value: 'https://application.example.com' },
+      ],
+      item: [
+        {
+          name: 'Languages',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://{{url-languagesAPI}}/languages',
+            },
+          },
+        },
+        {
+          name: 'Language by ID',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://{{url-languagesAPI}}/languages/{{languageId}}',
+            },
+          },
+        },
+        {
+          name: 'Application',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://{{url-applicationAPI}}/applications',
+            },
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.servers).toEqual([
+      {
+        url: 'https://localhost:3005',
+      },
+    ])
+    expect(result.paths?.['/applications']?.get?.servers).toEqual([
+      {
+        url: 'https://application.example.com',
+      },
+    ])
+  })
+
+  it('emits unresolved Postman server templates as OpenAPI server variables', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Unresolved variable servers',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      variable: [{ key: 'url-local', value: 'localhost:3005' }],
+      item: [
+        {
+          name: 'Notifications',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://{{url-notificationAPI}}/notifications',
+            },
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.servers).toEqual([
+      {
+        url: 'https://{url-notificationAPI}',
+        variables: {
+          'url-notificationAPI': {
+            default: 'example.com',
+            description: 'Declared in Postman collection variables.',
+          },
+        },
+      },
+    ])
+  })
+
+  it('falls back to OpenAPI server variables for recursive Postman values', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Recursive variable servers',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      variable: [{ key: 'url-exampleAPI', value: '{{url-local}}' }],
+      item: [
+        {
+          name: 'Recursive',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://{{url-exampleAPI}}/status',
+            },
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.servers).toEqual([
+      {
+        url: 'https://{url-exampleAPI}',
+        variables: {
+          'url-exampleAPI': {
+            default: 'example.com',
+            description: 'Declared in Postman collection variables.',
+          },
+        },
+      },
+    ])
+  })
 })

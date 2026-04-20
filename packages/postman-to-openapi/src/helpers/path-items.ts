@@ -9,7 +9,7 @@ import { processPostResponseScripts } from './post-response-scripts'
 import { processPreRequestScripts } from './pre-request-scripts'
 import { extractRequestBody } from './request-body'
 import { DEFAULT_RESPONSE_DESCRIPTIONS, extractResponses } from './responses'
-import { extractPathFromUrl, extractPathParameterNames, extractServerFromUrl, normalizePath } from './urls'
+import { extractPathFromUrl, extractPathParameterNames, extractServerObjectFromUrl, normalizePath } from './urls'
 
 type HttpMethods = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
 
@@ -26,9 +26,12 @@ export const POSTMAN_FOLDER_SEGMENTS_EXTENSION = 'x-postman-folder-segments'
  */
 export type ServerUsage = {
   serverUrl: string
+  server?: OpenAPIV3_1.ServerObject
   path: string
   method: HttpMethods
 }
+
+type CollectionVariableLookup = ReadonlyMap<string, string>
 
 function ensureRequestBodyContent(requestBody: OpenAPIV3_1.RequestBodyObject): void {
   const content = requestBody.content ?? {}
@@ -61,6 +64,7 @@ export function processItem(
   parentPath: string = '',
   preserveCollapsedVariants: boolean = false,
   resolveTagName?: (segments: string[]) => string | undefined,
+  collectionVariableLookup: CollectionVariableLookup = new Map(),
 ): {
   paths: OpenAPIV3_1.PathsObject
   components: OpenAPIV3_1.ComponentsObject
@@ -80,6 +84,7 @@ export function processItem(
         `${parentPath}/${item.name || ''}`,
         preserveCollapsedVariants,
         resolveTagName,
+        collectionVariableLookup,
       )
       // Merge child paths and components
       for (const [pathKey, pathItem] of Object.entries(childResult.paths)) {
@@ -125,10 +130,11 @@ export function processItem(
   const normalizedPath = normalizePath(path)
 
   // Extract server URL from request URL
-  const serverUrl = extractServerFromUrl(requestUrl)
-  if (serverUrl) {
+  const server = extractServerObjectFromUrl(requestUrl, collectionVariableLookup)
+  if (server?.url) {
     serverUsage.push({
-      serverUrl,
+      serverUrl: server.url,
+      server,
       path: normalizedPath,
       method,
     })
