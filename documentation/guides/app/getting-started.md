@@ -128,6 +128,9 @@ Use [post-response scripts](./testing.md) to validate responses and automate che
         <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/api-client/environments"><scalar-icon src="phosphor/bold/globe"></scalar-icon> Environments</a>
       </p>
       <p>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/api-client/dynamic-variables"><scalar-icon src="phosphor/bold/shuffle"></scalar-icon> Dynamic Variables</a>
+      </p>
+      <p>
         <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/api-client/authentication"><scalar-icon src="phosphor/bold/lock-simple"></scalar-icon> Authentication</a>
       </p>
       <p>

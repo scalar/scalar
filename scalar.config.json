@@ -1974,6 +1974,38 @@
                       ]
                     }
                   },
+                  "dynamic-variables": {
+                    "filepath": "documentation/guides/app/dynamic-variables.md",
+                    "type": "page",
+                    "title": "Dynamic Variables",
+                    "description": "Use Postman-compatible dynamic variables like {{$guid}}, {{$timestamp}}, and {{$randomEmail}} to generate fresh values on every request.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/dynamic-variables"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Use Postman-compatible dynamic variables like {{$guid}}, {{$timestamp}}, and {{$randomEmail}} to generate fresh values on every request."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Dynamic Variables - Scalar API Client"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Use Postman-compatible dynamic variables like {{$guid}}, {{$timestamp}}, and {{$randomEmail}} to generate fresh values on every request."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
                   "authentication": {
                     "filepath": "documentation/guides/app/authentication.md",
                     "type": "page",
