@@ -785,6 +785,12 @@ eventBus.on('ui:download:document', ({ format }) => {
 const handleSelectSidebarEntry = (id: string, caller?: 'sidebar') => {
   const item = sidebarState.getEntryById(id)
 
+  if (mergedConfig.value?.setPageTitle && item?.title) {
+    document.title = mergedConfig.value.setPageTitle({
+      title: item.title,
+    })
+  }
+
   if (
     (item?.type === 'tag' ||
       item?.type === 'models' ||
