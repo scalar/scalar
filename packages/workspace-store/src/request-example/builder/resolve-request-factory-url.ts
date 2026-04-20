@@ -25,7 +25,8 @@ export const resolveRequestFactoryUrl = (
   )
 
   const baseUrl = replaceEnvVariables(request.baseUrl, variables)
-  const path = replacePathVariables(request.path.raw, pathVariables)
+  const rawPath = replaceEnvVariables(request.path.raw, variables)
+  const path = replacePathVariables(rawPath, pathVariables)
   const mergedUrl = mergeUrls(baseUrl, path)
   // When rendered inside an iframe with srcdoc, the browser reports
   // window.location.origin as the string "null" instead of a real origin.

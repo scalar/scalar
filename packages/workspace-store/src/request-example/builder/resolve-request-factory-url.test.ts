@@ -173,6 +173,21 @@ describe('resolve-request-factory-url', () => {
     expect(result).toBe('https://api.example.com/users/42')
   })
 
+  it('replaces environment variables directly in the raw path', () => {
+    const request = createRequestFactory({
+      path: {
+        raw: '/{{version}}/users/{{userId}}',
+        variables: {},
+      },
+    })
+    const result = resolveRequestFactoryUrl(request, {
+      ...defaultOptions,
+      envVariables: { version: 'v2', userId: '42' },
+    })
+
+    expect(result).toBe('https://api.example.com/v2/users/42')
+  })
+
   it('replaces environment variables in query parameters', () => {
     const query = new URLSearchParams()
     query.set('{{KEY_NAME}}', '{{KEY_VALUE}}')
