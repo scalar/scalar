@@ -23,7 +23,7 @@
 
 ## Get Started
 
-[Download the app](/products/api-client/download) for your platform, or jump straight into the [browser version](https://client.scalar.com).
+[Download the app](./download.md) for your platform, or jump straight into the [browser version](https://client.scalar.com).
 
 <scalar-steps>
   <scalar-step id="step-1" title="Open API Client">
@@ -52,7 +52,7 @@ When your OpenAPI document changes on disk, API Client can watch for updates and
 
   <scalar-step id="step-5" title="Add response tests">
 
-Use [post-response scripts](/products/api-client/testing) to validate responses and automate checks while you explore your API.
+Use [post-response scripts](./testing.md) to validate responses and automate checks while you explore your API.
 
   </scalar-step>
 </scalar-steps>
@@ -125,10 +125,22 @@ Use [post-response scripts](/products/api-client/testing) to validate responses 
         <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/api-client/import"><scalar-icon src="phosphor/bold/upload-simple"></scalar-icon> Import</a>
       </p>
       <p>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/api-client/environments"><scalar-icon src="phosphor/bold/globe"></scalar-icon> Environments</a>
+      </p>
+      <p>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/api-client/dynamic-variables"><scalar-icon src="phosphor/bold/shuffle"></scalar-icon> Dynamic Variables</a>
+      </p>
+      <p>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/api-client/authentication"><scalar-icon src="phosphor/bold/lock-simple"></scalar-icon> Authentication</a>
+      </p>
+      <p>
         <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/api-client/scripts"><scalar-icon src="phosphor/bold/file-code"></scalar-icon> Scripts</a>
       </p>
       <p>
         <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/api-client/testing"><scalar-icon src="phosphor/bold/check-square"></scalar-icon> Testing</a>
+      </p>
+      <p>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/api-client/code-generation"><scalar-icon src="phosphor/bold/code"></scalar-icon> Code Generation</a>
       </p>
       <p>
         <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/api-client/keyboard-shortcuts"><scalar-icon src="phosphor/bold/keyboard"></scalar-icon> Keyboard Shortcuts</a>
