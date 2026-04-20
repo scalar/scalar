@@ -217,6 +217,59 @@ const mergeExamples = (baseValue: unknown, newValue: unknown): unknown => {
 
 type CompositionKeyword = 'anyOf' | 'oneOf'
 
+const schemaIncludesType = (
+  schema: SchemaObject,
+  targetType: string,
+  seen: WeakSet<object> = new WeakSet(),
+): boolean => {
+  const rawSchema = getSchemaCacheTarget(schema)
+
+  if (seen.has(rawSchema)) {
+    return false
+  }
+  seen.add(rawSchema)
+
+  if ('type' in schema) {
+    if (Array.isArray(schema.type)) {
+      return schema.type.includes(targetType)
+    }
+
+    if (schema.type === targetType) {
+      return true
+    }
+  }
+
+  const compositions = [schema.oneOf, schema.anyOf, schema.allOf]
+  for (const composition of compositions) {
+    if (!Array.isArray(composition)) {
+      continue
+    }
+
+    for (const item of composition) {
+      const resolved = resolve.schema(item)
+      if (resolved && schemaIncludesType(resolved, targetType, seen)) {
+        return true
+      }
+    }
+  }
+
+  return false
+}
+
+const normalizeSchemaDefault = (schema: SchemaObject): unknown => {
+  if (schema.default !== '') {
+    return schema.default
+  }
+
+  const allowsNull = schemaIncludesType(schema, 'null')
+  const allowsString = schemaIncludesType(schema, 'string')
+  if (allowsNull && !allowsString) {
+    return null
+  }
+
+  return schema.default
+}
+
 const getCompositionSelectionKey = (schemaPath: string[], composition: CompositionKeyword): string =>
   [...schemaPath, composition].join('.')
 
@@ -630,7 +683,7 @@ export const getExampleFromSchema = (
   }
   if (_schema.default !== undefined) {
     seen.delete(targetValue)
-    return cache(_schema, _schema.default, cacheKey)
+    return cache(_schema, normalizeSchemaDefault(_schema), cacheKey)
   }
   if (_schema.const !== undefined) {
     seen.delete(targetValue)
