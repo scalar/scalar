@@ -1,3 +1,4 @@
+import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { buildRequest, getEnvironmentVariables } from '@scalar/workspace-store/request-example'
@@ -41,7 +42,7 @@ export const mapConfigPlugins = (
         ? async (payload) => {
             await onBeforeRequest({
               // We need to build the request to get the fetch `Request`
-              request: buildRequest(payload.requestBuilder, { envVariables }).request,
+              request: buildSafeBodyRequest(...buildRequest(payload.requestBuilder, { envVariables }).requestPayload),
               requestBuilder: payload.requestBuilder,
               envVariables,
             })

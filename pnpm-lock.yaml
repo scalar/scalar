@@ -2110,6 +2110,9 @@ importers:
         specifier: workspace:*
         version: link:../openapi-types
     devDependencies:
+      '@scalar/openapi-parser':
+        specifier: workspace:*
+        version: link:../openapi-parser
       '@types/node':
         specifier: ^24.1.0
         version: 24.10.13

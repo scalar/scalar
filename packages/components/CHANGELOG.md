@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.22.1
+
+### Patch Changes
+
+- [#8866](https://github.com/scalar/scalar/pull/8866): feat(components): update and align header buttons
+
 ## 0.22.0
 
 ### Minor Changes

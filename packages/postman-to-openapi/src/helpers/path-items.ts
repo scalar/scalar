@@ -8,19 +8,30 @@ import { extractParameters } from './parameters'
 import { processPostResponseScripts } from './post-response-scripts'
 import { processPreRequestScripts } from './pre-request-scripts'
 import { extractRequestBody } from './request-body'
-import { extractResponses } from './responses'
-import { extractPathFromUrl, extractPathParameterNames, extractServerFromUrl, normalizePath } from './urls'
+import { DEFAULT_RESPONSE_DESCRIPTIONS, extractResponses } from './responses'
+import { extractPathFromUrl, extractPathParameterNames, extractServerObjectFromUrl, normalizePath } from './urls'
 
 type HttpMethods = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
+
+export const POSTMAN_EXAMPLE_NAME_EXTENSION = 'x-postman-example-name'
+export const POSTMAN_PRE_REQUEST_SCRIPTS_EXTENSION = 'x-postman-pre-request-scripts'
+export const POSTMAN_POST_RESPONSE_SCRIPTS_EXTENSION = 'x-postman-post-response-scripts'
+// Raw Postman folder-name chain for the operation. Used internally to preserve
+// template hints (for example `/applications/{id}`) even when tag names are
+// simplified. Stripped before emitting the final OpenAPI document.
+export const POSTMAN_FOLDER_SEGMENTS_EXTENSION = 'x-postman-folder-segments'
 
 /**
  * Information about server usage for an operation.
  */
 export type ServerUsage = {
   serverUrl: string
+  server?: OpenAPIV3_1.ServerObject
   path: string
   method: HttpMethods
 }
+
+type CollectionVariableLookup = ReadonlyMap<string, string>
 
 function ensureRequestBodyContent(requestBody: OpenAPIV3_1.RequestBodyObject): void {
   const content = requestBody.content ?? {}
@@ -51,6 +62,9 @@ export function processItem(
   exampleName: string = 'default',
   parentTags: string[] = [],
   parentPath: string = '',
+  preserveCollapsedVariants: boolean = false,
+  resolveTagName?: (segments: string[]) => string | undefined,
+  collectionVariableLookup: CollectionVariableLookup = new Map(),
 ): {
   paths: OpenAPIV3_1.PathsObject
   components: OpenAPIV3_1.ComponentsObject
@@ -63,7 +77,15 @@ export function processItem(
   if ('item' in item && Array.isArray(item.item)) {
     const newParentTags = item.name ? [...parentTags, item.name] : parentTags
     item.item.forEach((childItem) => {
-      const childResult = processItem(childItem, exampleName, newParentTags, `${parentPath}/${item.name || ''}`)
+      const childResult = processItem(
+        childItem,
+        exampleName,
+        newParentTags,
+        `${parentPath}/${item.name || ''}`,
+        preserveCollapsedVariants,
+        resolveTagName,
+        collectionVariableLookup,
+      )
       // Merge child paths and components
       for (const [pathKey, pathItem] of Object.entries(childResult.paths)) {
         if (!paths[pathKey]) {
@@ -95,6 +117,8 @@ export function processItem(
   }
 
   const { request, name, response } = item
+  const sourceRequestName = name?.trim() || exampleName
+  const operationExampleName = preserveCollapsedVariants ? sourceRequestName : exampleName
   const method = (typeof request === 'string' ? 'get' : request.method || 'get').toLowerCase() as HttpMethods
 
   const requestUrl =
@@ -106,10 +130,11 @@ export function processItem(
   const normalizedPath = normalizePath(path)
 
   // Extract server URL from request URL
-  const serverUrl = extractServerFromUrl(requestUrl)
-  if (serverUrl) {
+  const server = extractServerObjectFromUrl(requestUrl, collectionVariableLookup)
+  if (server?.url) {
     serverUsage.push({
-      serverUrl,
+      serverUrl: server.url,
+      server,
       path: normalizedPath,
       method,
     })
@@ -127,25 +152,43 @@ export function processItem(
       : typeof request.description === 'string'
         ? request.description
         : (request.description?.content ?? '')
+  const tagName =
+    parentTags.length > 0 ? (resolveTagName ? resolveTagName(parentTags) : parentTags.join(' > ')) : undefined
 
   const operationObject: OpenAPIV3_1.OperationObject = {
-    tags: parentTags.length > 0 ? [parentTags.join(' > ')] : undefined,
+    tags: tagName ? [tagName] : undefined,
     summary,
     description,
     responses: extractResponses(response || [], item),
     parameters: [],
+  }
+  if (parentTags.length > 0) {
+    operationObject[POSTMAN_FOLDER_SEGMENTS_EXTENSION] = [...parentTags]
+  }
+  if (preserveCollapsedVariants) {
+    operationObject[POSTMAN_EXAMPLE_NAME_EXTENSION] = sourceRequestName
   }
 
   // Add pre-request scripts if present
   const preRequestScript = processPreRequestScripts(item.event)
   if (preRequestScript) {
     operationObject['x-pre-request'] = preRequestScript
+    if (preserveCollapsedVariants) {
+      operationObject[POSTMAN_PRE_REQUEST_SCRIPTS_EXTENSION] = {
+        [sourceRequestName]: preRequestScript,
+      }
+    }
   }
 
   // Add post-response scripts if present
   const postResponseScript = processPostResponseScripts(item.event)
   if (postResponseScript) {
     operationObject['x-post-response'] = postResponseScript
+    if (preserveCollapsedVariants) {
+      operationObject[POSTMAN_POST_RESPONSE_SCRIPTS_EXTENSION] = {
+        [sourceRequestName]: postResponseScript,
+      }
+    }
   }
 
   // Only add operationId if it was explicitly provided
@@ -155,7 +198,7 @@ export function processItem(
 
   // Extract parameters from the request (query, path, header)
   // This should always happen, regardless of whether a description exists
-  const extractedParameters = extractParameters(request, exampleName)
+  const extractedParameters = extractParameters(request, operationExampleName)
 
   // Merge parameters, giving priority to those from the Markdown table if description exists
   const mergedParameters = new Map<string, OpenAPIV3_1.ParameterObject>()
@@ -211,7 +254,7 @@ export function processItem(
 
   // Allow request bodies for all methods (including GET) if body is present
   if (typeof request !== 'string' && request.body) {
-    const requestBody = extractRequestBody(request.body, exampleName)
+    const requestBody = extractRequestBody(request.body, operationExampleName)
     ensureRequestBodyContent(requestBody)
     // Only add requestBody if it has content
     if (requestBody.content && Object.keys(requestBody.content).length > 0) {
@@ -225,7 +268,49 @@ export function processItem(
   const pathItem = paths[path] as OpenAPIV3_1.PathItemObject
   pathItem[method] = operationObject
 
+  if (preserveCollapsedVariants) {
+    addResponseFromRequestName(pathItem[method], name)
+  }
+
   return { paths, components, serverUsage }
+}
+
+export function parseStatusCodeFromRequestName(
+  requestName: string | undefined,
+): { statusCode: string; description: string } | null {
+  if (!requestName) {
+    return null
+  }
+
+  const trimmedStart = requestName.trimStart()
+  if (trimmedStart.length < 4) {
+    return null
+  }
+
+  const statusCode = trimmedStart.slice(0, 3)
+  if (!isThreeDigitStatusCode(statusCode)) {
+    return null
+  }
+
+  let separatorIndex = 3
+  while (trimmedStart[separatorIndex] === ' ') {
+    separatorIndex += 1
+  }
+
+  const separator = trimmedStart[separatorIndex]
+  if (separator !== '-' && separator !== ':') {
+    return null
+  }
+
+  let descriptionIndex = separatorIndex + 1
+  while (trimmedStart[descriptionIndex] === ' ') {
+    descriptionIndex += 1
+  }
+
+  return {
+    statusCode,
+    description: trimmedStart.slice(descriptionIndex).trim() || 'Response',
+  }
 }
 
 // Helper function to parse parameters from the description if it is markdown
@@ -349,4 +434,50 @@ function extractOperationInfo(name: string | undefined) {
   const summary = name.substring(0, lastBracketIndex).trim()
 
   return { operationId, summary }
+}
+
+function addResponseFromRequestName(
+  operationObject: OpenAPIV3_1.OperationObject,
+  requestName: string | undefined,
+): void {
+  const parsedStatus = parseStatusCodeFromRequestName(requestName)
+  if (!parsedStatus) {
+    return
+  }
+
+  operationObject.responses = operationObject.responses ?? {}
+  const existingResponse = operationObject.responses[parsedStatus.statusCode]
+  if (!existingResponse) {
+    operationObject.responses[parsedStatus.statusCode] = { description: parsedStatus.description }
+    return
+  }
+
+  const defaultDescriptions = new Set([
+    'Successful response',
+    'Response',
+    ...Object.values(DEFAULT_RESPONSE_DESCRIPTIONS),
+  ])
+
+  if (
+    typeof existingResponse === 'object' &&
+    !('$ref' in existingResponse) &&
+    defaultDescriptions.has(existingResponse.description ?? '')
+  ) {
+    existingResponse.description = parsedStatus.description
+  }
+}
+
+function isThreeDigitStatusCode(value: string): boolean {
+  if (value.length !== 3) {
+    return false
+  }
+
+  for (let index = 0; index < value.length; index += 1) {
+    const charCode = value.charCodeAt(index)
+    if (charCode < 48 || charCode > 57) {
+      return false
+    }
+  }
+
+  return true
 }

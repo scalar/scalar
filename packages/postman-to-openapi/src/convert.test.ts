@@ -1,51 +1,23 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import fs from 'node:fs'
+import path from 'node:path'
 import { describe, expect, it, test } from 'vitest'
 
 import { convert } from './convert'
 import type { PostmanCollection } from './types'
 
-const BUCKET_NAME = 'scalar-test-fixtures'
-const BUCKET_URL = `https://storage.googleapis.com/${BUCKET_NAME}`
-const FIXTURES = [
-  'SimplePost',
-  'NoVersion',
-  'Folders',
-  'GetMethods',
-  'PathParams',
-  'MultipleServers',
-  'LicenseContact',
-  'ParseStatusCode',
-  'NoPath',
-  'DeleteOperation',
-  'AuthBearer',
-  'AuthBasic',
-  'UrlWithPort',
-  'ExternalDocs',
-  'EmptyUrl',
-  'XLogo',
-  'AuthMultiple',
-  'AuthRequest',
-  'FormData',
-  'FormUrlencoded',
-  'RawBody',
-  'OperationIds',
-  'NestedServers',
-  'Headers',
-  'ResponsesEmpty',
-  'Responses',
-]
+const FIXTURES_DIR = path.join(import.meta.dirname, '../fixtures/input')
+const FIXTURES = fs
+  .readdirSync(FIXTURES_DIR)
+  .filter((file) => file.endsWith('.json'))
+  .map((file) => file.replace('.json', ''))
+  .sort((a, b) => a.localeCompare(b))
 
 describe('fixtures', () => {
-  test.each(FIXTURES)('%s', async (file) => {
-    // postman
-    const input = await fetch(`${BUCKET_URL}/packages/postman-to-openapi/input/${file}.json`)
-    const postman = await input.json()
-
-    // openapi
-    const output = await fetch(`${BUCKET_URL}/packages/postman-to-openapi/output/${file}.json`)
-    const openapi = await output.json()
-
-    expect(convert(postman)).toEqual(openapi)
+  test.each(FIXTURES)('%s', (file) => {
+    const input = fs.readFileSync(path.join(FIXTURES_DIR, `${file}.json`), 'utf8')
+    const postman = JSON.parse(input)
+    expect(convert(postman)).toMatchSnapshot()
   })
 })
 
@@ -115,8 +87,41 @@ describe('convert', () => {
     const snapshot = JSON.parse(JSON.stringify(collection))
     const result = convert(collection)
 
-    expect(result.tags).toEqual([{ name: 'Parent', description: 'Parent folder' }, { name: 'Parent > Child' }])
+    expect(result.tags).toEqual([
+      { name: 'Parent', description: 'Parent folder' },
+      { name: 'Child', description: 'Part of Parent' },
+    ])
     expect(collection).toEqual(snapshot)
+  })
+
+  it('uses context tag description when folder description is an empty string', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Tags with empty description',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Parent',
+          item: [
+            {
+              name: 'Child',
+              description: '',
+              item: [
+                {
+                  name: 'Leaf request',
+                  request: 'https://api.scalar.com/users',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.tags).toEqual([{ name: 'Parent' }, { name: 'Child', description: 'Part of Parent' }])
   })
 
   it('imports only requests at requestIndexPaths and keeps folder tags for those branches', () => {
@@ -150,7 +155,10 @@ describe('convert', () => {
 
     const nestedOnly = convert(collection, { requestIndexPaths: [[0, 0, 0]] })
     expect(Object.keys(nestedOnly.paths ?? {})).toEqual(['/users'])
-    expect(nestedOnly.tags).toEqual([{ name: 'Parent', description: 'Parent folder' }, { name: 'Parent > Child' }])
+    expect(nestedOnly.tags).toEqual([
+      { name: 'Parent', description: 'Parent folder' },
+      { name: 'Child', description: 'Part of Parent' },
+    ])
 
     const standaloneOnly = convert(collection, { requestIndexPaths: [[1]] })
     expect(Object.keys(standaloneOnly.paths ?? {})).toEqual(['/status'])
@@ -162,6 +170,81 @@ describe('convert', () => {
 
   it('fails fast when string input is not valid JSON', () => {
     expect(() => convert('{"info": {"name": "Broken"')).toThrowError(/invalid postman collection json/i)
+  })
+
+  it('supports chain tag naming strategy to preserve legacy folder chains', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Tags',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Error Case',
+          item: [
+            {
+              name: 'GET /applications',
+              item: [{ name: 'List applications', request: 'https://api.scalar.com/applications' }],
+            },
+          ],
+        },
+      ],
+    }
+
+    const result = convert(collection, { tagNamingStrategy: 'chain' })
+
+    expect(result.tags).toEqual([{ name: 'Error Case' }, { name: 'Error Case > GET /applications' }])
+    expect(result.paths?.['/applications']?.get?.tags).toEqual(['Error Case > GET /applications'])
+  })
+
+  it('uses parent plus leaf fallback when duplicate leaf tag names exist', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Duplicate leaf tags',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Error Case',
+          item: [{ name: 'GET', item: [{ name: 'Get application', request: 'https://api.scalar.com/applications' }] }],
+        },
+        {
+          name: 'Business Logic',
+          item: [{ name: 'GET', item: [{ name: 'Get users', request: 'https://api.scalar.com/users' }] }],
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.tags).toEqual([
+      { name: 'Error Case' },
+      { name: 'Error Case / GET', description: 'Part of Error Case' },
+      { name: 'Business Logic' },
+      { name: 'Business Logic / GET', description: 'Part of Business Logic' },
+    ])
+    expect(result.paths?.['/applications']?.get?.tags).toEqual(['Error Case / GET'])
+    expect(result.paths?.['/users']?.get?.tags).toEqual(['Business Logic / GET'])
+  })
+
+  it('normalizes path-like folder names when using leaf tag naming', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Path style tags',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: '/languages/{languageCode}',
+          item: [{ name: 'Get language', request: 'https://api.scalar.com/languages/:languageCode' }],
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.tags).toEqual([{ name: 'languages' }])
+    expect(result.paths?.['/languages/{languageCode}']?.get?.tags).toEqual(['languages'])
   })
 
   it('errors when required collection info is missing', () => {
@@ -242,6 +325,140 @@ describe('convert', () => {
 
     expect(operation).toBeDefined()
     expect(operation?.summary).toBe('Second')
+  })
+
+  it('preserves collapsed request variants when mergeOperation is enabled', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Merged variants',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: '200 - All languages',
+          request: {
+            method: 'GET',
+            url: 'https://api.scalar.com/languages',
+            description: 'All languages.',
+          },
+          event: [
+            {
+              listen: 'prerequest',
+              script: {
+                exec: ['pm.environment.set("countryCode", "");'],
+              },
+            },
+            {
+              listen: 'test',
+              script: {
+                exec: ['pm.response.to.have.status(200)'],
+              },
+            },
+          ],
+        },
+        {
+          name: '200 - Valid country code languages',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://api.scalar.com/languages?countryCode=CA',
+              query: [
+                {
+                  key: 'countryCode',
+                  value: 'CA',
+                },
+              ],
+            },
+            description: 'Languages for one country code.',
+          },
+          event: [
+            {
+              listen: 'prerequest',
+              script: {
+                exec: ['pm.environment.set("countryCode", "CA");'],
+              },
+            },
+            {
+              listen: 'test',
+              script: {
+                exec: ['pm.response.to.have.status(200)'],
+              },
+            },
+          ],
+        },
+        {
+          name: '204 - Invalid country code filter',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://api.scalar.com/languages?countryCode=zz',
+              query: [
+                {
+                  key: 'countryCode',
+                  value: 'zz',
+                },
+              ],
+            },
+            description: 'No content for invalid filter.',
+          },
+          event: [
+            {
+              listen: 'prerequest',
+              script: {
+                exec: ['pm.environment.set("countryCode", "zz");'],
+              },
+            },
+            {
+              listen: 'test',
+              script: {
+                exec: ['pm.response.to.have.status(204)'],
+              },
+            },
+          ],
+        },
+      ],
+    }
+
+    const result = convert(collection, { mergeOperation: true })
+    const operation = result.paths?.['/languages']?.get
+
+    expect(operation).toBeDefined()
+    expect(operation?.summary).toBe('200 - All languages')
+    expect(operation?.description).toBe(
+      'All languages.\n\nLanguages for one country code.\n\nNo content for invalid filter.',
+    )
+    expect(operation?.responses).toEqual({
+      '200': {
+        description: 'Valid country code languages',
+        content: {
+          'application/json': {},
+        },
+      },
+      '204': {
+        description: 'Invalid country code filter',
+      },
+    })
+
+    const queryParam = operation?.parameters?.find(
+      (parameter) => parameter.name === 'countryCode' && parameter.in === 'query',
+    )
+    expect(queryParam?.examples).toEqual({
+      '200 - Valid country code languages': {
+        value: 'CA',
+        'x-disabled': false,
+      },
+      '204 - Invalid country code filter': {
+        value: 'zz',
+        'x-disabled': false,
+      },
+    })
+
+    expect(operation?.['x-pre-request']).toBe(
+      '// --- 200 - All languages ---\npm.environment.set("countryCode", "");\n\n// --- 200 - Valid country code languages ---\npm.environment.set("countryCode", "CA");\n\n// --- 204 - Invalid country code filter ---\npm.environment.set("countryCode", "zz");',
+    )
+    expect(operation?.['x-post-response']).toBe(
+      '// --- 200 - All languages ---\npm.response.to.have.status(200)\n\n// --- 200 - Valid country code languages ---\npm.response.to.have.status(200)\n\n// --- 204 - Invalid country code filter ---\npm.response.to.have.status(204)',
+    )
   })
 
   it('handles collections without items', () => {
@@ -580,6 +797,280 @@ describe('convert', () => {
     expect(pathItem?.get?.servers).toEqual([
       {
         url: 'https://api.example.com',
+      },
+    ])
+  })
+
+  it('unifies structurally equal paths using the most common path parameter name', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Path canonicalization',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Get application',
+          request: {
+            method: 'GET',
+            url: 'https://api.scalar.com/applications/{{applicationId}}',
+          },
+        },
+        {
+          name: 'Delete application',
+          request: {
+            method: 'DELETE',
+            url: 'https://api.scalar.com/applications/{{applicationId2}}',
+          },
+        },
+        {
+          name: 'Error case with fake id',
+          request: {
+            method: 'GET',
+            url: 'https://api.scalar.com/applications/{{fakeAppId}}',
+            description: '| object | name | required |\n| --- | --- | --- |\n| path | fakeAppId | true |',
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection, { mergeOperation: true })
+    const pathKeys = Object.keys(result.paths ?? {})
+    expect(pathKeys).toEqual(['/applications/{applicationId}'])
+
+    const mergedPath = result.paths?.['/applications/{applicationId}']
+    expect(mergedPath?.get).toBeDefined()
+    expect(mergedPath?.delete).toBeDefined()
+    expect(mergedPath?.get?.parameters).toEqual([
+      {
+        name: 'applicationId',
+        in: 'path',
+        required: true,
+        schema: { type: 'string' },
+      },
+    ])
+  })
+
+  it('prefers folder path-template hints when choosing canonical path parameter names', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Folder hint canonicalization',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: '/applications/{id}',
+          item: [
+            {
+              name: 'Get application by alias',
+              request: {
+                method: 'GET',
+                url: 'https://api.scalar.com/applications/{{applicationId}}',
+                description: '| object | name | required |\n| --- | --- | --- |\n| path | applicationId | true |',
+              },
+            },
+            {
+              name: 'Delete application by fake id',
+              request: {
+                method: 'DELETE',
+                url: 'https://api.scalar.com/applications/{{fakeAppId}}',
+                description: '| object | name | required |\n| --- | --- | --- |\n| path | fakeAppId | true |',
+              },
+            },
+          ],
+        },
+      ],
+    }
+
+    const result = convert(collection)
+    const pathKeys = Object.keys(result.paths ?? {})
+    expect(pathKeys).toEqual(['/applications/{id}'])
+
+    const mergedPath = result.paths?.['/applications/{id}']
+    expect(mergedPath?.get?.parameters).toEqual([
+      {
+        name: 'id',
+        in: 'path',
+        required: true,
+        schema: { type: 'string' },
+      },
+    ])
+    expect(mergedPath?.delete?.parameters).toEqual([
+      {
+        name: 'id',
+        in: 'path',
+        required: true,
+        schema: { type: 'string' },
+      },
+    ])
+  })
+
+  it('keeps server placement correct after path unification', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Server placement with unified paths',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Get application by first variable',
+          request: {
+            method: 'GET',
+            url: 'https://api.example.com/applications/{{applicationId}}',
+          },
+        },
+        {
+          name: 'Get application by second variable',
+          request: {
+            method: 'GET',
+            url: 'https://api.example.com/applications/{{fakeAppId}}',
+          },
+        },
+        {
+          name: 'Get users from another server',
+          request: {
+            method: 'GET',
+            url: 'https://api.other.com/users',
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.servers).toBeUndefined()
+    expect(result.paths?.['/applications/{applicationId}']?.get?.servers).toEqual([
+      {
+        url: 'https://api.example.com',
+      },
+    ])
+    expect(result.paths?.['/users']?.get?.servers).toEqual([
+      {
+        url: 'https://api.other.com',
+      },
+    ])
+  })
+
+  it('resolves Postman variables in server URLs from collection variables', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Variable servers',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      variable: [
+        { key: 'url-languagesAPI', value: 'localhost:3005' },
+        { key: 'url-applicationAPI', value: 'https://application.example.com' },
+      ],
+      item: [
+        {
+          name: 'Languages',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://{{url-languagesAPI}}/languages',
+            },
+          },
+        },
+        {
+          name: 'Language by ID',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://{{url-languagesAPI}}/languages/{{languageId}}',
+            },
+          },
+        },
+        {
+          name: 'Application',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://{{url-applicationAPI}}/applications',
+            },
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.servers).toEqual([
+      {
+        url: 'https://localhost:3005',
+      },
+    ])
+    expect(result.paths?.['/applications']?.get?.servers).toEqual([
+      {
+        url: 'https://application.example.com',
+      },
+    ])
+  })
+
+  it('emits unresolved Postman server templates as OpenAPI server variables', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Unresolved variable servers',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      variable: [{ key: 'url-local', value: 'localhost:3005' }],
+      item: [
+        {
+          name: 'Notifications',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://{{url-notificationAPI}}/notifications',
+            },
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.servers).toEqual([
+      {
+        url: 'https://{url-notificationAPI}',
+        variables: {
+          'url-notificationAPI': {
+            default: 'example.com',
+            description: 'Declared in Postman collection variables.',
+          },
+        },
+      },
+    ])
+  })
+
+  it('falls back to OpenAPI server variables for recursive Postman values', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Recursive variable servers',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      variable: [{ key: 'url-exampleAPI', value: '{{url-local}}' }],
+      item: [
+        {
+          name: 'Recursive',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://{{url-exampleAPI}}/status',
+            },
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.servers).toEqual([
+      {
+        url: 'https://{url-exampleAPI}',
+        variables: {
+          'url-exampleAPI': {
+            default: 'example.com',
+            description: 'Declared in Postman collection variables.',
+          },
+        },
       },
     ])
   })

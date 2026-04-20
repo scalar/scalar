@@ -23,6 +23,7 @@ import PostmanImportPreview from '@/v2/features/command-palette/components/Postm
 import PostmanRequestTreeRow from '@/v2/features/command-palette/components/PostmanRequestTreeRow.vue'
 import { generateUniqueSlug } from '@/v2/features/command-palette/helpers/generate-unique-slug'
 import { getOpenApiFromPostman } from '@/v2/features/command-palette/helpers/get-openapi-from-postman'
+import { getPostmanConvertOptions } from '@/v2/features/command-palette/helpers/get-postman-convert-options'
 import { getPostmanDocumentDetails } from '@/v2/features/command-palette/helpers/get-postman-document-details'
 import { getCollidingPostmanRequestPathKeys } from '@/v2/features/command-palette/helpers/postman-request-collisions'
 import {
@@ -30,7 +31,6 @@ import {
   applyPostmanRequestSelectionChange,
   buildPostmanRequestTree,
   countPostmanRequestLeaves,
-  pathKeysToRequestIndexPaths,
   type PostmanTreeNode,
 } from '@/v2/features/command-palette/helpers/postman-request-tree'
 
@@ -151,11 +151,11 @@ const handleImport = async (): Promise<void> => {
     ? await workspaceStore.getEditableDocument(mergeTarget)
     : null
 
-  const options: ConvertOptions = {
+  const options: ConvertOptions = getPostmanConvertOptions({
     document: (targetDocument as unknown) ?? undefined,
     mergeOperation: mergeSamePathAndMethod.value,
-    requestIndexPaths: pathKeysToRequestIndexPaths(importPathKeys.value),
-  }
+    importPathKeys: importPathKeys.value,
+  })
 
   const document = getOpenApiFromPostman(inputValue ?? '', options)
 

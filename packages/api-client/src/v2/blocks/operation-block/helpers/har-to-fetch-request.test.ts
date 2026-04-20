@@ -1,7 +1,14 @@
 import type { HarRequest } from '@scalar/snippetz'
+import type { RequestPayload } from '@scalar/workspace-store/request-example'
 import { describe, expect, it } from 'vitest'
 
 import { harToFetchRequest } from './har-to-fetch-request'
+
+/**
+ * Converts the [url, init] tuple returned by harToFetchRequest to a Request object
+ * for convenient assertion access (headers.get, text(), body, etc.).
+ */
+const toRequest = ([url, init]: RequestPayload): Request => new Request(url, init)
 
 describe('harToFetchRequest', () => {
   it('converts basic GET request from HAR to Fetch Request', () => {
@@ -16,7 +23,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     expect(request.method).toBe('GET')
     expect(request.url).toBe('https://api.example.com/users')
@@ -39,7 +46,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     expect(request.method).toBe('POST')
     expect(request.headers.get('Content-Type')).toBe('application/json')
@@ -64,7 +71,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     expect(request.headers.get('Authorization')).toBe('Bearer token123')
     expect(request.headers.get('X-Custom-Header')).toBe('custom-value')
@@ -87,7 +94,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     expect(request.headers.get('Cookie')).toBe('session_id=abc123; theme=dark; user_id=42')
   })
@@ -104,7 +111,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     expect(request.headers.get('Cookie')).toBeNull()
   })
@@ -128,7 +135,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     expect(request.method).toBe('POST')
 
@@ -155,7 +162,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     expect(request.method).toBe('POST')
 
@@ -181,7 +188,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     expect(request.body).toBeNull()
   })
@@ -203,7 +210,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     const bodyText = await request.text()
     expect(bodyText).toBe(xmlBody)
@@ -221,7 +228,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     expect(request.body).toBeNull()
   })
@@ -243,7 +250,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     expect(request.method).toBe('PUT')
     const bodyText = await request.text()
@@ -267,7 +274,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     expect(request.method).toBe('PATCH')
     const bodyText = await request.text()
@@ -286,7 +293,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     expect(request.method).toBe('DELETE')
     expect(request.body).toBeNull()
@@ -307,7 +314,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     expect(request.url).toBe('https://api.example.com/users?page=1&limit=10')
   })
@@ -327,7 +334,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     // Headers.get() returns comma-separated values for duplicate headers
     expect(request.headers.get('X-Custom')).toBe('value1, value2')
@@ -349,7 +356,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     const bodyText = await request.text()
     expect(bodyText).toBe('')
@@ -375,7 +382,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     const bodyText = await request.text()
     expect(bodyText).toBe('field1=value1&field2=&field3=value3')
@@ -398,7 +405,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     const bodyText = await request.text()
     expect(bodyText).toBe(textBody)
@@ -421,7 +428,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     const bodyText = await request.text()
     expect(bodyText).toBe(body)
@@ -442,7 +449,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     expect(request.headers.get('Cookie')).toBe('user_name=John Doe; session=abc-123-xyz')
   })
@@ -471,7 +478,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     expect(request.method).toBe('POST')
     expect(request.url).toBe('https://api.example.com/data?filter=active')
@@ -496,7 +503,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     expect(request.url).toBe('https://api.example.com:8080/users')
   })
@@ -520,7 +527,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     expect(request.method).toBe('POST')
     const bodyText = await request.text()
@@ -547,7 +554,7 @@ describe('harToFetchRequest', () => {
       bodySize: -1,
     }
 
-    const request = harToFetchRequest({ harRequest })
+    const request = toRequest(harToFetchRequest({ harRequest }))
 
     const bodyText = await request.text()
     expect(bodyText).toBe('tag=javascript&tag=typescript&tag=vue')

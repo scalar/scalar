@@ -1,5 +1,11 @@
 # @scalar/nestjs-api-reference
 
+## 1.1.9
+
+### Patch Changes
+
+- [#8873](https://github.com/scalar/scalar/pull/8873): refactor: migrate integrations to client-side rendering package
+
 ## 1.1.8
 
 ## 1.1.7

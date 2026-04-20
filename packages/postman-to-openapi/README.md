@@ -24,6 +24,21 @@ const result = await convert(myPostmanCollection)
 console.log(result)
 ```
 
+### Detect Postman collections
+
+Use `isPostmanCollection` to decide whether an input string should be parsed as a Postman collection before converting.
+
+```ts
+import { convert, isPostmanCollection } from '@scalar/postman-to-openapi'
+
+if (isPostmanCollection(input)) {
+  const openApiDocument = convert(input)
+  console.log(openApiDocument)
+}
+```
+
+`isPostmanCollection` accepts exported collections that do not include `info._postman_id` as long as they contain a valid Postman schema URL and an `item` tree.
+
 ## Community
 
 We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>

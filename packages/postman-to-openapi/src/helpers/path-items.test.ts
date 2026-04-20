@@ -87,6 +87,32 @@ describe('path-items', () => {
     expect(result.paths['/users']?.get?.tags).toEqual(['API > Users'])
   })
 
+  it('uses a custom tag resolver when provided', () => {
+    const itemGroup: ItemGroup = {
+      name: 'Error Case',
+      item: [
+        {
+          name: 'GET /applications',
+          item: [
+            {
+              name: 'List applications',
+              request: {
+                method: 'GET',
+                url: {
+                  raw: 'https://api.example.com/applications',
+                },
+              },
+            },
+          ],
+        },
+      ],
+    }
+
+    const result = processItem(itemGroup, 'default', [], '', false, () => 'GET /applications')
+
+    expect(result.paths['/applications']?.get?.tags).toEqual(['GET /applications'])
+  })
+
   it('merges paths from multiple items', () => {
     const itemGroup: ItemGroup = {
       name: 'API',
@@ -572,6 +598,50 @@ describe('path-items', () => {
     expect(result.paths['/users']?.get?.['x-post-response']).toBe(
       'pm.test("Status is 200", function () {\n  pm.response.to.have.status(200);\n});',
     )
+  })
+
+  it('derives response status from request name when it contains a status prefix', () => {
+    const item: Item = {
+      name: '204 - Invalid country code filter',
+      request: {
+        method: 'GET',
+        url: {
+          raw: 'https://api.example.com/languages?countryCode=zz',
+        },
+      },
+      response: [],
+    }
+
+    const result = processItem(item, 'default', [], '', true)
+    expect(result.paths['/languages']?.get?.responses?.['204']).toEqual({
+      description: 'Invalid country code filter',
+    })
+  })
+
+  it('replaces generic status description with request-name description', () => {
+    const item: Item = {
+      name: '204 - Invalid country code filter',
+      request: {
+        method: 'GET',
+        url: {
+          raw: 'https://api.example.com/languages?countryCode=zz',
+        },
+      },
+      response: [],
+      event: [
+        {
+          listen: 'test',
+          script: {
+            exec: ['pm.response.to.have.status(204)'],
+          },
+        },
+      ],
+    }
+
+    const result = processItem(item, 'default', [], '', true)
+    expect(result.paths['/languages']?.get?.responses?.['204']).toEqual({
+      description: 'Invalid country code filter',
+    })
   })
 
   it('handles string request URL', () => {
