@@ -11,8 +11,8 @@ import {
   POSTMAN_FOLDER_SEGMENTS_EXTENSION,
   POSTMAN_POST_RESPONSE_SCRIPTS_EXTENSION,
   POSTMAN_PRE_REQUEST_SCRIPTS_EXTENSION,
-  processItem,
   type ServerUsage,
+  processItem,
 } from '@/helpers/path-items'
 import { pruneDocument } from '@/helpers/prune-document'
 import { analyzeServerDistribution } from '@/helpers/servers'
@@ -939,15 +939,7 @@ export function convert(
           paths: itemPaths,
           components: itemComponents,
           serverUsage,
-        } = processItem(
-          item,
-          DEFAULT_EXAMPLE_NAME,
-          [],
-          '',
-          mergeOperation,
-          resolveTagName,
-          collectionVariableLookup,
-        )
+        } = processItem(item, DEFAULT_EXAMPLE_NAME, [], '', mergeOperation, resolveTagName, collectionVariableLookup)
 
         allServerUsage.push(...serverUsage)
 
