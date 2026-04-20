@@ -4,7 +4,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 describe('few-dependencies', () => {
-  it('has only `@scalar/types` as a production dependency', () => {
+  it('has only `@scalar/types` and `@scalar/schemas` as a production dependency', () => {
     const packageJson = readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8')
     const dependencies = JSON.parse(packageJson).dependencies
 
