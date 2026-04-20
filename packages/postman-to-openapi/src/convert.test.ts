@@ -94,6 +94,39 @@ describe('convert', () => {
     expect(collection).toEqual(snapshot)
   })
 
+  it('uses context tag description when folder description is an empty string', () => {
+    const collection: PostmanCollection = {
+      info: {
+        name: 'Tags with empty description',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'Parent',
+          item: [
+            {
+              name: 'Child',
+              description: '',
+              item: [
+                {
+                  name: 'Leaf request',
+                  request: 'https://api.scalar.com/users',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.tags).toEqual([
+      { name: 'Parent' },
+      { name: 'Child', description: 'Part of Parent' },
+    ])
+  })
+
   it('imports only requests at requestIndexPaths and keeps folder tags for those branches', () => {
     const collection: PostmanCollection = {
       info: {

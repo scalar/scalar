@@ -167,7 +167,7 @@ const mergeTagDescriptions = (description?: string, contextDescription?: string)
     return `${description}\n\n${contextDescription}`
   }
 
-  return description ?? contextDescription
+  return description || contextDescription
 }
 
 const dedupeTagContexts = (contexts: TagContext[]): TagContext[] => {
