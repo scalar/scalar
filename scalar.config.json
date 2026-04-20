@@ -1974,6 +1974,38 @@
                       ]
                     }
                   },
+                  "authentication": {
+                    "filepath": "documentation/guides/app/authentication.md",
+                    "type": "page",
+                    "title": "Authentication",
+                    "description": "Configure HTTP Basic, Bearer, API Key, OAuth 2.0, and OpenID Connect authentication for your API requests.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/authentication"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Configure HTTP Basic, Bearer, API Key, OAuth 2.0, and OpenID Connect authentication for your API requests."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Authentication - Scalar API Client"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Configure HTTP Basic, Bearer, API Key, OAuth 2.0, and OpenID Connect authentication for your API requests."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
                   "scripts": {
                     "filepath": "documentation/guides/app/scripts.md",
                     "type": "page",

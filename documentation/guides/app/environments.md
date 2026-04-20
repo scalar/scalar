@@ -9,7 +9,7 @@ GET {{ baseUrl }}/users/{{ userId }}
 Authorization: Bearer {{ apiKey }}
 ```
 
-Variables resolve in the URL, headers, request body, authentication fields, and scripts.
+Variables resolve in the URL, headers, request body, authentication fields, and scripts. See [Authentication](./authentication.md) for how to use variables in auth credentials.
 
 ## Create an environment
 
