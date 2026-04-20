@@ -1,50 +1,23 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import fs from 'node:fs/promises'
+import fs from 'node:fs'
+import path from 'node:path'
 import { describe, expect, it, test } from 'vitest'
 
 import { convert } from './convert'
 import type { PostmanCollection } from './types'
 
-const FIXTURES = [
-  'SimplePost',
-  'NoVersion',
-  'Folders',
-  'GetMethods',
-  'PathParams',
-  'MultipleServers',
-  'LicenseContact',
-  'ParseStatusCode',
-  'NoPath',
-  'DeleteOperation',
-  'AuthBearer',
-  'AuthBasic',
-  'UrlWithPort',
-  'ExternalDocs',
-  'EmptyUrl',
-  'XLogo',
-  'AuthMultiple',
-  'AuthRequest',
-  'FormData',
-  'FormUrlencoded',
-  'RawBody',
-  'OperationIds',
-  'NestedServers',
-  'Headers',
-  'ResponsesEmpty',
-  'Responses',
-]
+const FIXTURES_DIR = path.join(import.meta.dirname, '../fixtures/input')
+const FIXTURES = fs
+  .readdirSync(FIXTURES_DIR)
+  .filter((file) => file.endsWith('.json'))
+  .map((file) => file.replace('.json', ''))
+  .sort((a, b) => a.localeCompare(b))
 
 describe('fixtures', () => {
-  test.each(FIXTURES)('%s', async (file) => {
-    // postman
-    const input = await fs.readFile(new URL(`../fixtures/input/${file}.json`, import.meta.url), 'utf8')
+  test.each(FIXTURES)('%s', (file) => {
+    const input = fs.readFileSync(path.join(FIXTURES_DIR, `${file}.json`), 'utf8')
     const postman = JSON.parse(input)
-
-    // openapi
-    const output = await fs.readFile(new URL(`../fixtures/output/${file}.json`, import.meta.url), 'utf8')
-    const openapi = JSON.parse(output)
-
-    expect(convert(postman)).toEqual(openapi)
+    expect(convert(postman)).toMatchSnapshot()
   })
 })
 
