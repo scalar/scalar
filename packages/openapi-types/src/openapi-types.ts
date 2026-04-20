@@ -15,16 +15,7 @@ type AnyOtherAttribute = {
   [key: string]: any
 }
 
-/**
- * OpenAPI types
- *
- * @deprecated we have deprecated these older types in favor of the new stricter ones. You may continue using
- * them for now but we would recommend you to migrate to the newer stricter types.
- *
- * Check the documentation for more information.
- *
- * biome-ignore lint/style/noNamespace: We want it to be a module here.
- */
+// biome-ignore lint/style/noNamespace: We want it to be a module here.
 export namespace OpenAPI {
   // OpenAPI extensions can be declared using generics
   // e.g.:
