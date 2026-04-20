@@ -264,6 +264,7 @@ const bodySchema = computed<SchemaObject | undefined>(() => {
             lineNumbers
             lint
             :modelValue="bodyValue"
+            withFakeData
             @update:modelValue="
               (value) =>
                 emits('update:value', {

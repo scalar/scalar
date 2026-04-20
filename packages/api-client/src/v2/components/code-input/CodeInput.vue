@@ -106,6 +106,8 @@ type Props = {
   emitOnBlur?: boolean
   /** Enable environment variable pills */
   withVariables?: boolean
+  /** Enable fake data suggestions like $guid, $timestamp, etc. Should only be enabled for parameters and request bodies */
+  withFakeData?: boolean
   /** Emit change event even if the value is the same */
   alwaysEmitChange?: boolean
   /** Custom change handler, prevents default emit */
@@ -141,6 +143,7 @@ const {
   emitOnBlur = true,
   alwaysEmitChange = false,
   withVariables = true,
+  withFakeData = false,
   handleFieldChange,
   handleFieldSubmit,
 } = defineProps<Props>()
@@ -263,10 +266,12 @@ const buildExtensions = (): Extension[] => {
  * Reactive pill plugin for environment variable visualization.
  */
 const contextFunctionDropdownItems = computed(() =>
-  CONTEXT_FUNCTION_NAMES.map((key) => ({
-    key,
-    description: getContextFunctionComment(key),
-  })),
+  withFakeData
+    ? CONTEXT_FUNCTION_NAMES.map((key) => ({
+        key,
+        description: getContextFunctionComment(key),
+      }))
+    : [],
 )
 
 const pillPluginExtension = computed(() =>

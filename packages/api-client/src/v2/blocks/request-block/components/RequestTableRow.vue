@@ -226,6 +226,7 @@ const handleUpdateRow = (
         :modelValue="displayValue"
         placeholder="Value"
         :type="typeValue"
+        withFakeData
         @navigate="(route) => emit('navigate', route)"
         @update:modelValue="(v) => handleUpdateRow({ value: v })">
         <template #icon>
