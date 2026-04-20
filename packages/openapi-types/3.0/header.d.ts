@@ -18,12 +18,10 @@ export type HeaderObject = {
   required?: boolean
   /** Specifies that the header is deprecated and SHOULD be transitioned out of usage. Default value is `false`. */
   deprecated?: boolean
-  allowEmptyValue?: boolean
   /** Describes how the header value will be serialized. The default (and only legal value for headers) is `"simple"`. */
   style?: 'simple'
   /** When this is true, header values of type `array` or `object` generate a single header whose value is a comma-separated list of the array items or key-value pairs of the map, see [Style Examples](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.4.md#style-examples). For other data types this field has no effect. The default value is `false`. */
   explode?: boolean
-  allowReserved?: boolean
   /** The schema defining the type used for the header. */
   schema?: SchemaObject | ReferenceObject
   /** A map containing the representations for the header. The key is the media type and the value describes it. The map MUST only contain one entry. */
