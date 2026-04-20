@@ -7,9 +7,12 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
+import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 import { REQUEST_BODY_COMPOSITION_INDEX_SYMBOL } from '@/features/Operation/request-body-composition-index'
 
 import ClassicLayout from './ClassicLayout.vue'
+
+const requiredSecurity: RequiredSecurity = { state: 'none', schemes: [] }
 
 type ExtractComponentProps<TComponent> = TComponent extends new () => { $props: infer Props } ? Props : never
 
@@ -129,6 +132,7 @@ const props: ExtractComponentProps<typeof ClassicLayout> = {
     showOperationId: false,
   },
   path: '/widgets',
+  requiredSecurity,
   selectedClient: 'shell/curl',
   selectedSecuritySchemes: [],
   selectedServer,
