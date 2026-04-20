@@ -131,6 +131,8 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
             class="font-code text-green flex w-fit items-center justify-center gap-1">
             <ScalarIconWebhooksLogo weight="bold" />Webhook
           </Badge>
+          <!-- Required auth badge -->
+          <SecurityRequirementBadge :requiredSecurity="requiredSecurity" />
           <!-- x-badges before -->
           <XBadges
             :badges="operation['x-badges']"
@@ -169,10 +171,10 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
               withAnchors
               withImages />
             <OperationParameters
+              v-model:selectedContentType="selectedRequestBodyContentType"
               :breadcrumb="[id]"
               :eventBus
               :options
-              v-model:selectedContentType="selectedRequestBodyContentType"
               :parameters="operation.parameters"
               :requestBody="getResolvedRef(operation.requestBody)" />
             <OperationResponses
@@ -220,14 +222,10 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
                 :selectedContentType="selectedRequestBodyContentType"
                 :selectedServer>
                 <template #header>
-                  <div class="flex min-w-0 flex-1 items-center gap-2">
-                    <OperationPath
-                      class="font-code text-c-2 [&_em]:text-c-1 min-w-0 [&_em]:not-italic"
-                      :deprecated="operation?.deprecated"
-                      :path="path" />
-                    <SecurityRequirementBadge
-                      :requiredSecurity="requiredSecurity" />
-                  </div>
+                  <OperationPath
+                    class="font-code text-c-2 [&_em]:text-c-1 min-w-0 [&_em]:not-italic"
+                    :deprecated="operation?.deprecated"
+                    :path="path" />
                 </template>
                 <template
                   v-if="!isWebhook"

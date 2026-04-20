@@ -1,4 +1,5 @@
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { isNonOptionalSecurityRequirement } from '@scalar/workspace-store/helpers/is-non-optional-security-requirement'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
@@ -29,50 +30,45 @@ export type RequiredSecurity = {
  * as the source of truth. Operation-level `security` fully overrides document-level — including `security: []`,
  * which explicitly opts the operation out of auth.
  *
- * OpenAPI encodes "auth is optional" by including an empty requirement object `{}` alongside at least one
- * real requirement. If the only requirement is `{}`, auth is not required (state: 'none').
+ * OpenAPI encodes "auth is optional" by including an empty requirement object `{}`. Whenever `{}`
+ * appears — whether alongside real requirements or as the only entry — auth is treated as optional (state: 'optional').
  */
 export const getRequiredSecurity = (
   operation: Pick<OperationObject, 'security'> | null | undefined,
   document: Pick<OpenApiDocument, 'security' | 'components'>,
 ): RequiredSecurity => {
   const requirements = operation?.security ?? document.security ?? []
-
-  if (requirements.length === 0) {
-    return { state: 'none', schemes: [] }
-  }
-
-  const hasEmpty = requirements.some((requirement) => Object.keys(requirement).length === 0)
-  const nonEmpty = requirements.filter((requirement) => Object.keys(requirement).length > 0)
-
-  if (nonEmpty.length === 0) {
-    return { state: 'none', schemes: [] }
-  }
-
   const definedSchemes = document.components?.securitySchemes ?? {}
+
+  let hasEmpty = false
   const scopesByName = new Map<string, Set<string>>()
-  for (const requirement of nonEmpty) {
+
+  for (const requirement of requirements) {
+    if (!isNonOptionalSecurityRequirement(requirement)) {
+      hasEmpty = true
+      continue
+    }
     for (const [name, scopes] of Object.entries(requirement)) {
       const set = scopesByName.get(name) ?? new Set<string>()
-      if (Array.isArray(scopes)) {
-        for (const scope of scopes) {
-          if (typeof scope === 'string' && scope.length > 0) {
-            set.add(scope)
-          }
+      for (const scope of scopes) {
+        if (scope.length > 0) {
+          set.add(scope)
         }
       }
       scopesByName.set(name, set)
     }
   }
 
-  const schemes: RequiredSecurityScheme[] = [...scopesByName.entries()].map(([name, scopes]) => ({
-    name,
-    scheme: getResolvedRef(definedSchemes[name]),
-    scopes: [...scopes],
-  }))
+  if (scopesByName.size === 0) {
+    return { state: hasEmpty ? 'optional' : 'none', schemes: [] }
+  }
 
   return {
     state: hasEmpty ? 'optional' : 'required',
-    schemes,
+    schemes: Array.from(scopesByName, ([name, scopes]) => ({
+      name,
+      scheme: getResolvedRef(definedSchemes[name]),
+      scopes: Array.from(scopes),
+    })),
   }
 }
