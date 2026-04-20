@@ -908,6 +908,44 @@ describe('extractSecuritySchemeSecrets', () => {
       } satisfies OAuth2ObjectSecret)
     })
 
+    it('falls back to config oauth defaults when auth store has partial authorizationCode secrets', () => {
+      const authStore = createAuthStore()
+      authStore.setAuthSecrets(documentSlug, schemeName, {
+        type: 'oauth2',
+        authorizationCode: {
+          'x-scalar-secret-redirect-uri': 'https://store.example.com/callback',
+        },
+      })
+
+      const scheme: ConfigAuthScheme = {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            tokenUrl: 'https://example.com/oauth/token',
+            scopes: {},
+            refreshUrl: '',
+            'x-usePkce': 'no',
+            'x-scalar-client-id': 'config-client',
+            clientSecret: 'config-secret',
+          },
+        },
+      }
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
+      expect(result).toMatchObject({
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            'x-scalar-secret-client-id': 'config-client',
+            'x-scalar-secret-client-secret': 'config-secret',
+            'x-scalar-secret-redirect-uri': 'https://store.example.com/callback',
+          },
+        },
+      } satisfies OAuth2ObjectSecret)
+    })
+
     it('preserves an explicitly cleared redirect URI from auth store', () => {
       const authStore = createAuthStore()
       authStore.setAuthSecrets(documentSlug, schemeName, {
