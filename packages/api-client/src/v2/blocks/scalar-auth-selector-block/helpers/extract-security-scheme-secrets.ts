@@ -51,9 +51,15 @@ const mergeFlowSecrets = <const T extends readonly (keyof typeof SECRET_TO_INPUT
     properties.map((property) => {
       // Super merge in order of priority: auth store > config > config input field > empty string
       const value =
-        authStoreSecrets[property] ||
-        configSecrets[property] ||
-        configSecrets[SECRET_TO_INPUT_FIELD_MAP[property]] ||
+        (typeof authStoreSecrets[property] === 'string'
+          ? authStoreSecrets[property]
+          : undefined) ??
+        (typeof configSecrets[property] === 'string'
+          ? configSecrets[property]
+          : undefined) ??
+        (typeof configSecrets[SECRET_TO_INPUT_FIELD_MAP[property]] === 'string'
+          ? configSecrets[SECRET_TO_INPUT_FIELD_MAP[property]]
+          : undefined) ??
         ''
 
       return [property, value]
