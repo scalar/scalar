@@ -140,6 +140,9 @@ Use [post-response scripts](./testing.md) to validate responses and automate che
         <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/api-client/testing"><scalar-icon src="phosphor/bold/check-square"></scalar-icon> Testing</a>
       </p>
       <p>
+        <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/api-client/code-generation"><scalar-icon src="phosphor/bold/code"></scalar-icon> Code Generation</a>
+      </p>
+      <p>
         <a class="flex items-center gap-1.5 font-medium text-c-2 hover:bg-b-2 rounded px-2 p-1" href="/products/api-client/keyboard-shortcuts"><scalar-icon src="phosphor/bold/keyboard"></scalar-icon> Keyboard Shortcuts</a>
       </p>
       <p>

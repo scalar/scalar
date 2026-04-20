@@ -2102,6 +2102,38 @@
                       ]
                     }
                   },
+                  "code-generation": {
+                    "filepath": "documentation/guides/app/code-generation.md",
+                    "type": "page",
+                    "title": "Code Generation",
+                    "description": "Generate ready-to-copy code snippets for your requests in 40+ HTTP clients across 21 languages.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/code-generation"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Generate ready-to-copy code snippets for your requests in 40+ HTTP clients across 21 languages."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Code Generation - Scalar API Client"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Generate ready-to-copy code snippets for your requests in 40+ HTTP clients across 21 languages."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
                   "keyboard-shortcuts": {
                     "filepath": "documentation/guides/app/keyboard-shortcuts.md",
                     "type": "page",
