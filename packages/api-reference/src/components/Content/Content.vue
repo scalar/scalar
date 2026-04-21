@@ -45,6 +45,7 @@ const { document, items, environment, eventBus, options, authStore } =
       | 'layout'
       | 'orderRequiredPropertiesFirst'
       | 'orderSchemaPropertiesBy'
+      | 'pagedOperationId'
       | 'persistAuth'
       | 'proxyUrl'
       | 'servers'
@@ -94,6 +95,48 @@ const securitySchemes = computed(() =>
     document?.['x-scalar-navigation']?.name ?? '',
   ),
 )
+
+/**
+ * When pagedOperationId is set, filter the navigation tree to only include
+ * the matching operation. Tags that contain the operation are preserved
+ * (with only the matching child), and everything else is removed.
+ */
+const filteredItems = computed(() => {
+  if (!options.pagedOperationId) return items
+
+  const targetId = options.pagedOperationId
+
+  const filterEntries = (entries: TraversedEntryType[]): TraversedEntryType[] => {
+    const result: TraversedEntryType[] = []
+
+    for (const entry of entries) {
+      // Direct match on operation or webhook
+      if (
+        (entry.type === 'operation' || entry.type === 'webhook') &&
+        entry.id === targetId
+      ) {
+        result.push(entry)
+        continue
+      }
+
+      // Recurse into tags and groups
+      if (
+        (entry.type === 'tag' || entry.type === 'document') &&
+        'children' in entry &&
+        entry.children?.length
+      ) {
+        const filtered = filterEntries(entry.children)
+        if (filtered.length > 0) {
+          result.push({ ...entry, children: filtered } as TraversedEntryType)
+        }
+      }
+    }
+
+    return result
+  }
+
+  return filterEntries(items)
+})
 </script>
 <template>
   <SectionFlare />
@@ -101,8 +144,10 @@ const securitySchemes = computed(() =>
   <div class="narrow-references-container">
     <slot name="start" />
 
-    <!-- Introduction -->
-    <Lazy :id="infoSectionId">
+    <!-- Introduction (hidden in paged mode) -->
+    <Lazy
+      v-if="!options.pagedOperationId"
+      :id="infoSectionId">
       <InfoBlock
         :id="infoSectionId"
         :documentDownloadType="options.documentDownloadType"
@@ -170,11 +215,11 @@ const securitySchemes = computed(() =>
     <!-- Render traversed operations and webhooks -->
     <!-- Use recursive component for cleaner rendering -->
     <TraversedEntry
-      v-if="items.length && document"
+      v-if="filteredItems.length && document"
       :authStore
       :clientOptions
       :document
-      :entries="items"
+      :entries="filteredItems"
       :eventBus
       :expandedItems
       :options

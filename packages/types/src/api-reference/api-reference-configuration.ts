@@ -71,6 +71,15 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   hideUrlHashOnScroll: z.boolean().optional().default(false).catch(false),
   /**
+   * Render only a single operation in the content area while keeping the full sidebar.
+   * Pass the navigation ID of the operation to display (the same ID used in sidebar selection
+   * and URL routing). All other operations, models, and the intro section are hidden.
+   * Use with pathRouting and onSidebarClick for a "paged" API reference experience
+   * where each operation gets its own page.
+   * @default undefined
+   */
+  pagedOperationId: z.string().optional(),
+  /**
    * Sets the file type of the document to download, set to `none` to hide the download button
    * @default 'both'
    */
