@@ -203,4 +203,49 @@ describe('ClassicLayout', () => {
       'requestBody.payload.anyOf': 1,
     })
   })
+  it('updates the code sample when the body content type is changed', async () => {
+    const multiContentProps: ExtractComponentProps<typeof ClassicLayout> = {
+      ...props,
+      id: 'create-widget-multi-content',
+      operation: {
+        ...operation,
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'object',
+                properties: { foo: { type: 'string' } },
+              }),
+            },
+            'application/x-www-form-urlencoded': {
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'object',
+                properties: { bar: { type: 'string' } },
+              }),
+            },
+          },
+        },
+      },
+    }
+
+    const wrapper = mount(ClassicLayout, {
+      props: multiContentProps,
+      global: {
+        stubs: {
+          RouterLink: {
+            name: 'RouterLink',
+            template: '<a><slot /></a>',
+          },
+        },
+      },
+    })
+
+    const requestBody = wrapper.findComponent({ name: 'RequestBody' })
+    await requestBody.vm.$emit('update:selectedContentType', 'application/x-www-form-urlencoded')
+    await nextTick()
+
+    const codeSample = wrapper.findComponent({ name: 'OperationCodeSample' })
+    expect(codeSample.props('selectedContentType')).toBe('application/x-www-form-urlencoded')
+  })
 })

@@ -10,9 +10,10 @@ import {
   getServers,
   mergeSecurity,
 } from '@scalar/workspace-store/request-example'
-import { computed, ref, watchEffect } from 'vue'
+import { computed, ref, toValue, watchEffect } from 'vue'
 
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
+import type { OAuth2Options } from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 import { getDefaultOperationSecurityToggle } from '@/v2/features/collection/helpers/get-default-operation-security-toggle'
 import Section from '@/v2/features/settings/components/Section.vue'
@@ -27,6 +28,7 @@ const {
   method,
   collectionType,
   layout,
+  options,
 } = defineProps<CollectionProps>()
 
 /**
@@ -143,6 +145,18 @@ const server = computed(() => {
   )
 })
 
+/** Auth selector only needs OAuth2-specific option overrides. */
+const authOptions = computed<OAuth2Options | undefined>(() => {
+  const routeOptions = toValue(options)
+  if (!routeOptions?.oauth2RedirectUri) {
+    return undefined
+  }
+
+  return {
+    oauth2RedirectUri: routeOptions.oauth2RedirectUri,
+  }
+})
+
 /**
  * Handles toggling operation-level security authentication. (Only for operation collections)
  * When enabled (`value` is true), overrides document-level authentication for the current operation.
@@ -224,6 +238,7 @@ const handleToggleOperationSecurity = (value: boolean) => {
         :eventBus="eventBus"
         isStatic
         :meta="authMeta"
+        :options="authOptions"
         :proxyUrl="proxyUrl"
         :securityRequirements="securityRequirements"
         :securitySchemes

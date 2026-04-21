@@ -52,6 +52,27 @@ describe('getOpenAuthTokenUrls', () => {
     expect(getOpenAuthTokenUrls(schema)).toEqual(['/oauth/token'])
   })
 
+  it('returns refresh URLs from OAuth2 flows', () => {
+    const schema = createOpenApiDefinition({
+      oauth2AuthCode: {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://api.example.com/oauth/authorize',
+            tokenUrl: 'https://api.example.com/oauth/token',
+            refreshUrl: 'https://api.example.com/oauth/refresh',
+          },
+          implicit: {
+            authorizationUrl: 'https://api.example.com/oauth/authorize',
+            refreshUrl: 'https://api.example.com/oauth/implicit-refresh',
+          },
+        },
+      },
+    })
+
+    expect(getOpenAuthTokenUrls(schema)).toEqual(['/oauth/token', '/oauth/refresh', '/oauth/implicit-refresh'])
+  })
+
   it('returns multiple token URLs from different OAuth2 flows', () => {
     const schema = createOpenApiDefinition({
       oauth2Password: {
@@ -72,6 +93,22 @@ describe('getOpenAuthTokenUrls', () => {
       },
     })
     expect(getOpenAuthTokenUrls(schema)).toEqual(['/oauth/password_token', '/oauth/client_token'])
+  })
+
+  it('returns unique OAuth URLs when token and refresh URLs overlap', () => {
+    const schema = createOpenApiDefinition({
+      oauth2Password: {
+        type: 'oauth2',
+        flows: {
+          password: {
+            tokenUrl: 'https://api.example.com/oauth/token',
+            refreshUrl: 'https://api.example.com/oauth/token',
+          },
+        },
+      },
+    })
+
+    expect(getOpenAuthTokenUrls(schema)).toEqual(['/oauth/token'])
   })
 
   it('ignores non-OAuth2 security schemes', () => {

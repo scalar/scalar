@@ -9,7 +9,7 @@ import {
   createPreserveModulesOutput,
 } from '../../tooling/scripts/vite-lib-config'
 
-const external = createExternalsFromPackageJson()
+const external = [...createExternalsFromPackageJson(), /^node:.*/]
 
 const entries = ['./src/index.ts']
 

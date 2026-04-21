@@ -223,4 +223,34 @@ describe('RequestBody', () => {
     const schema = wrapper.findComponent(Schema)
     expect(schema.props('hideModelNames')).toBe(false)
   })
+  it('updates selectedContentType via v-model when changing the content type', async () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        eventBus: null,
+        options: defaultRequestOptions,
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: coerceValue(SchemaObjectSchema, { type: 'object' }),
+            },
+            'application/x-www-form-urlencoded': {
+              schema: coerceValue(SchemaObjectSchema, { type: 'object' }),
+            },
+          },
+        },
+        'selectedContentType': 'application/json',
+        'onUpdate:selectedContentType': (e: string) => wrapper.setProps({ selectedContentType: e }),
+      },
+      slots: {
+        title: 'Body',
+      },
+    })
+
+    const select = wrapper.findComponent({ name: 'ContentTypeSelect' })
+    expect(select.exists()).toBe(true)
+
+    await select.vm.$emit('update:modelValue', 'application/x-www-form-urlencoded')
+
+    expect(wrapper.props('selectedContentType')).toBe('application/x-www-form-urlencoded')
+  })
 })
