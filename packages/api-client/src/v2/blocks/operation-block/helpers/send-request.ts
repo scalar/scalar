@@ -92,8 +92,10 @@ export const sendRequest = async ({
     // Execute the request and measure duration
     const startTime = performance.now()
 
-    // Use the custom fetch function if provided, otherwise use the global fetch (set by default)
-    const response = await customFetch(buildSafeBodyRequest(...requestPayload))
+    // In electron we allow GET requests to have a body
+    const response = isElectron()
+      ? await customFetch(...requestPayload)
+      : await customFetch(buildSafeBodyRequest(...requestPayload))
 
     const endTime = performance.now()
     const timestamp = Date.now()
