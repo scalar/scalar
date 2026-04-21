@@ -89,7 +89,7 @@ const arrayItemsCompositionPath = computed<string[]>(() => [
   'items',
 ])
 
-const shouldHaveLink = computed(() => props.level <= 1)
+const shouldHaveLink = computed(() => props.level <= 2)
 
 /** Checks if array items have complex structure */
 const hasComplexArrayItemsComputed = computed(() =>
@@ -402,6 +402,10 @@ const isDiscriminatorProperty = computed(() =>
   border-radius: var(--scalar-radius-lg);
   display: flex;
   flex-direction: column;
+}
+
+.property--level-2 :deep(.relative > button) {
+  left: -2rem;
 }
 
 .property-rule
