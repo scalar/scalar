@@ -121,6 +121,8 @@ Commands:
   join [options] <files...>      Merge multiple OpenAPI documents into a single
                                  unified document
   format [options] [file|url]    Format an OpenAPI file
+  convert [options] [file|url]   Convert a Postman collection to an OpenAPI
+                                 document
   markdown [options] [file|url]  Generate Markdown from an OpenAPI file
   mock [options] [file|url]      Mock an API from an OpenAPI file
   serve [options] [file|url]     Serve an API Reference from an OpenAPI file
@@ -191,6 +193,21 @@ Arguments:
 
 Options:
   -o, --output <file>  Output file
+  -h, --help           display help for command
+```
+
+### convert
+```
+Usage: scalar document convert [options] [file|url]
+
+Convert a Postman collection to an OpenAPI document
+
+Arguments:
+  file|url             Postman collection file path or URL to convert
+
+Options:
+  -o, --output <file>  Output file (defaults to stdout)
+  --merge-operations   Merge operations with shared path+method combinations
   -h, --help           display help for command
 ```
 
