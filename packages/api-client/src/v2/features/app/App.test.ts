@@ -20,6 +20,8 @@ describe('App', () => {
   const WORKSPACE_NAMESPACE = 'local'
   const WORKSPACE_SLUG = 'default'
   const DOCUMENT_ID = 'doc1'
+  const OAUTH_SCHEME_NAME = 'OAuth2Auth'
+  const OAUTH_REDIRECT_URI = 'myapp://oauth/callback'
 
   const setupWorkspace = async () => {
     const store = createWorkspaceStore()
@@ -41,7 +43,31 @@ describe('App', () => {
       document: {
         openapi: '3.1.0',
         info: { title: 'Test Document', version: '1.0.0' },
-        paths: {},
+        paths: {
+          '/pets': {
+            get: {
+              operationId: 'getPets',
+              responses: {},
+            },
+          },
+        },
+        security: [{ [OAUTH_SCHEME_NAME]: [] }],
+        components: {
+          securitySchemes: {
+            [OAUTH_SCHEME_NAME]: {
+              type: 'oauth2',
+              flows: {
+                authorizationCode: {
+                  authorizationUrl: 'https://example.com/oauth/authorize',
+                  tokenUrl: 'https://example.com/oauth/token',
+                  scopes: {
+                    read: 'Read access',
+                  },
+                },
+              },
+            },
+          },
+        },
         'x-scalar-environments': {
           prod: {
             variables: [{ name: 'API_KEY', value: 'prod-key-123' }],
@@ -60,7 +86,15 @@ describe('App', () => {
     )
   }
 
-  const setupApp = async (layout: 'web' | 'desktop' = 'web') => {
+  const setupApp = async ({
+    layout = 'web',
+    oauth2RedirectUri,
+    routeName = 'document.overview',
+  }: {
+    layout?: 'web' | 'desktop'
+    oauth2RedirectUri?: string
+    routeName?: 'document.overview' | 'document.authentication'
+  } = {}) => {
     await setupWorkspace()
 
     const router = createRouter({
@@ -68,10 +102,10 @@ describe('App', () => {
       routes: ROUTES,
     })
 
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, oauth2RedirectUri })
 
     await router.push({
-      name: 'document.overview',
+      name: routeName,
       params: { namespace: WORKSPACE_NAMESPACE, workspaceSlug: WORKSPACE_SLUG, documentSlug: DOCUMENT_ID },
     })
 
@@ -135,5 +169,25 @@ describe('App', () => {
      */
     expect(appState.document.value).toBeDefined()
     expect(appState.document.value?.info.title).toBe('Test Document')
+  })
+
+  it('prefills OAuth redirect URI from createAppState oauth2RedirectUri option in auth flow', async () => {
+    const { wrapper, appState } = await setupApp({
+      oauth2RedirectUri: OAUTH_REDIRECT_URI,
+      routeName: 'document.authentication',
+    })
+
+    await nextTick()
+    await flushPromises()
+
+    const savedOAuthSecrets = appState.store.value?.auth.getAuthSecrets(DOCUMENT_ID, OAUTH_SCHEME_NAME)
+    expect(savedOAuthSecrets).toMatchObject({
+      type: 'oauth2',
+      authorizationCode: {
+        'x-scalar-secret-redirect-uri': OAUTH_REDIRECT_URI,
+      },
+    })
+
+    expect(wrapper.text()).toContain('Authentication')
   })
 })

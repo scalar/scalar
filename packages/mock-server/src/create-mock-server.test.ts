@@ -749,6 +749,46 @@ describe('createMockServer', () => {
     )
   })
 
+  it('supports oauth2 refresh token endpoint via refreshUrl', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      components: {
+        securitySchemes: {
+          oAuth2AuthCode: {
+            type: 'oauth2',
+            flows: {
+              authorizationCode: {
+                authorizationUrl: '/oauth/authorize',
+                tokenUrl: '/oauth/token',
+                refreshUrl: '/oauth/refresh',
+                scopes: {
+                  read: 'Read access',
+                },
+              },
+            },
+          },
+        },
+      },
+      paths: {},
+    }
+
+    const server = await createMockServer({ document })
+    const response = await server.request('/oauth/refresh?grant_type=refresh_token', { method: 'POST' })
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('Cache-Control')).toBe('no-store')
+    expect(await response.json()).toStrictEqual({
+      access_token: 'super-secret-access-token',
+      token_type: 'Bearer',
+      expires_in: 3600,
+      refresh_token: 'example-refresh-token',
+    })
+  })
+
   it('handles redirect headers', async () => {
     const document = {
       openapi: '3.1.0',

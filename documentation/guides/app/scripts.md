@@ -2,7 +2,7 @@
 
 Pre-request scripts run before a request is sent. Use them to set variables, add headers, generate dynamic values, or prepare authentication tokens.
 
-Scripts use the same Postman-compatible `pm` API as [post-response scripts](/products/api-client/testing). They run in the official [Postman Sandbox](https://github.com/postmanlabs/postman-sandbox) runtime.
+Scripts use the same Postman-compatible `pm` API as [post-response scripts](./testing.md). They run in the official [Postman Sandbox](https://github.com/postmanlabs/postman-sandbox) runtime.
 
 ## Examples
 

@@ -1528,7 +1528,7 @@
                         "type": "page"
                       },
                       "aspire": {
-                        "title": ".NET Aspire",
+                        "title": "Aspire",
                         "filepath": "documentation/integrations/aspire.md",
                         "type": "page"
                       },
@@ -1942,6 +1942,102 @@
                       ]
                     }
                   },
+                  "environments": {
+                    "filepath": "documentation/guides/app/environments.md",
+                    "type": "page",
+                    "title": "Environments",
+                    "description": "Store reusable variables in environments to switch between development, staging, and production without editing each request.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/environments"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Store reusable variables in environments to switch between development, staging, and production without editing each request."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Environments - Scalar API Client"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Store reusable variables in environments to switch between development, staging, and production without editing each request."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "dynamic-variables": {
+                    "filepath": "documentation/guides/app/dynamic-variables.md",
+                    "type": "page",
+                    "title": "Dynamic Variables",
+                    "description": "Use Postman-compatible dynamic variables like {{$guid}}, {{$timestamp}}, and {{$randomEmail}} to generate fresh values on every request.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/dynamic-variables"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Use Postman-compatible dynamic variables like {{$guid}}, {{$timestamp}}, and {{$randomEmail}} to generate fresh values on every request."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Dynamic Variables - Scalar API Client"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Use Postman-compatible dynamic variables like {{$guid}}, {{$timestamp}}, and {{$randomEmail}} to generate fresh values on every request."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "authentication": {
+                    "filepath": "documentation/guides/app/authentication.md",
+                    "type": "page",
+                    "title": "Authentication",
+                    "description": "Configure HTTP Basic, Bearer, API Key, OAuth 2.0, and OpenID Connect authentication for your API requests.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/authentication"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Configure HTTP Basic, Bearer, API Key, OAuth 2.0, and OpenID Connect authentication for your API requests."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Authentication - Scalar API Client"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Configure HTTP Basic, Bearer, API Key, OAuth 2.0, and OpenID Connect authentication for your API requests."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
                   "scripts": {
                     "filepath": "documentation/guides/app/scripts.md",
                     "type": "page",
@@ -1998,6 +2094,38 @@
                         {
                           "property": "og:description",
                           "content": "Write post-response scripts to automatically validate API responses with Postman-compatible syntax."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "code-generation": {
+                    "filepath": "documentation/guides/app/code-generation.md",
+                    "type": "page",
+                    "title": "Code Generation",
+                    "description": "Generate ready-to-copy code snippets for your requests in 40+ HTTP clients across 21 languages.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/code-generation"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Generate ready-to-copy code snippets for your requests in 40+ HTTP clients across 21 languages."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Code Generation - Scalar API Client"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Generate ready-to-copy code snippets for your requests in 40+ HTTP clients across 21 languages."
                         },
                         {
                           "name": "robots",

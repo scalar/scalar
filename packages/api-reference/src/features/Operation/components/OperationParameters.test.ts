@@ -2,6 +2,7 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+import { nextTick } from 'vue'
 
 import OperationParameters from './OperationParameters.vue'
 
@@ -207,7 +208,7 @@ describe('OperationParameters', () => {
   })
 
   describe('form data', () => {
-    it('renders form data parameters', () => {
+    it('renders form data parameters', async () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
@@ -227,6 +228,8 @@ describe('OperationParameters', () => {
           },
         },
       })
+
+      await nextTick()
 
       expect(wrapper.text()).toContain('Body')
       expect(wrapper.text()).toContain('username')
