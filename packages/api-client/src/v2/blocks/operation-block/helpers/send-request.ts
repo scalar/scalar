@@ -53,7 +53,7 @@ export type ResponseInstance = Omit<Response, 'headers'> & {
 const NO_BODY_STATUS_CODES = [204, 205, 304]
 
 /** Custom fetch function signature compatible with the global fetch API */
-export type CustomFetch = (input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>
+export type CustomFetch = typeof fetch
 
 /**
  * Execute the built fetch request and return a structured response.
