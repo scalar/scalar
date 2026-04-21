@@ -86,6 +86,57 @@ describe('sendRequest', () => {
     return addUrlToResponse(response, url)
   }
 
+  it('uses global fetch when customFetch is not provided', async () => {
+    const requestInit: RequestInit = {}
+    globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, requestInit))
+
+    const [error, result] = await sendRequest({
+      isUsingProxy: false,
+      requestPayload: [MOCK_URL, requestInit],
+    })
+
+    expect(error).toBe(null)
+    expect(globalFetchSpy).toHaveBeenCalledTimes(1)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
+    expect(result.response.status).toBe(200)
+  })
+
+  it('uses customFetch instead of global fetch when provided', async () => {
+    const requestInit: RequestInit = {}
+    const customFetch = vi.fn().mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, requestInit))
+
+    const [error, result] = await sendRequest({
+      isUsingProxy: false,
+      requestPayload: [MOCK_URL, requestInit],
+      customFetch,
+    })
+
+    expect(error).toBe(null)
+    expect(customFetch).toHaveBeenCalledTimes(1)
+    expect(globalFetchSpy).not.toHaveBeenCalled()
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
+    expect(result.response.status).toBe(200)
+  })
+
+  it('propagates errors thrown by customFetch as request failures', async () => {
+    const customFetch = vi.fn().mockRejectedValueOnce(new TypeError('Custom fetch failed'))
+
+    const [error, result] = await sendRequest({
+      isUsingProxy: false,
+      requestPayload: [MOCK_URL, {}],
+      customFetch,
+    })
+
+    expect(result).toBe(null)
+    expect(error).not.toBe(null)
+    expect(error?.message).toContain('Custom fetch failed')
+    expect(globalFetchSpy).not.toHaveBeenCalled()
+  })
+
   it('sends a basic request and returns response data', async () => {
     const requestInit: RequestInit = {}
     globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, requestInit))
