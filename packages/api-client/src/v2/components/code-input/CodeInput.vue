@@ -350,13 +350,14 @@ const { handleDropdownSelect, updateDropdownVisibility } = useDropdown({
 
 /**
  * Determines if the environment variable dropdown should be visible.
+ * Shows when environment is defined (for env vars) or withFakeData is true (for context functions)
  */
 const displayVariablesDropdown = computed((): boolean => {
   return (
     showDropdown.value &&
     withVariables &&
     layout !== 'modal' &&
-    Boolean(environment)
+    (Boolean(environment) || withFakeData)
   )
 })
 
@@ -526,7 +527,7 @@ defineExpose({
 
   <!-- Environment variable autocomplete dropdown -->
   <EnvironmentVariableDropdown
-    v-if="displayVariablesDropdown && environment"
+    v-if="displayVariablesDropdown"
     ref="dropdownRef"
     :contextFunctionItems="contextFunctionDropdownItems"
     :dropdownPosition="dropdownPosition"
