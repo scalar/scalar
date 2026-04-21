@@ -144,4 +144,94 @@ describe('getRequiredSecurity', () => {
       expect(result.requirements[0]?.schemes[0]?.name).toBe('bearerAuth')
     })
   })
+
+  describe('complex auth', () => {
+    it('handles three OR alternatives each with a single scheme', () => {
+      const result = getRequiredSecurity(
+        { security: [{ oauth2: ['read'] }, { apiKey: [] }, { bearerAuth: [] }] },
+        { components: { securitySchemes: {} } },
+      )
+      expect(result.state).toBe('required')
+      expect(result.requirements).toHaveLength(3)
+      expect(result.requirements[0]?.schemes.map((s) => s.name)).toStrictEqual(['oauth2'])
+      expect(result.requirements[1]?.schemes.map((s) => s.name)).toStrictEqual(['apiKey'])
+      expect(result.requirements[2]?.schemes.map((s) => s.name)).toStrictEqual(['bearerAuth'])
+    })
+
+    it('handles AND-combination alternative alongside single-scheme alternative (AND/OR mix)', () => {
+      // oauth2+apiKey together OR just bearerAuth
+      const result = getRequiredSecurity(
+        { security: [{ oauth2: ['read', 'write'], apiKey: [] }, { bearerAuth: [] }] },
+        { components: { securitySchemes: {} } },
+      )
+      expect(result.state).toBe('required')
+      expect(result.requirements).toHaveLength(2)
+      expect(result.requirements[0]?.schemes.map((s) => s.name)).toStrictEqual(['oauth2', 'apiKey'])
+      expect(result.requirements[0]?.schemes[0]?.scopes).toStrictEqual(['read', 'write'])
+      expect(result.requirements[1]?.schemes.map((s) => s.name)).toStrictEqual(['bearerAuth'])
+    })
+
+    it('resolves all scheme definitions in an AND group from components', () => {
+      const result = getRequiredSecurity(
+        { security: [{ oauth2: ['read'], apiKey: [] }] },
+        {
+          components: {
+            securitySchemes: {
+              oauth2: { type: 'oauth2', flows: {} },
+              apiKey: { type: 'apiKey', name: 'X-API-Key', in: 'header' },
+            },
+          },
+        },
+      )
+      expect(result.state).toBe('required')
+      expect(result.requirements).toHaveLength(1)
+      expect(result.requirements[0]?.schemes[0]?.name).toBe('oauth2')
+      expect(result.requirements[0]?.schemes[0]?.scheme?.type).toBe('oauth2')
+      expect(result.requirements[0]?.schemes[1]?.name).toBe('apiKey')
+      expect(result.requirements[0]?.schemes[1]?.scheme?.type).toBe('apiKey')
+    })
+
+    it('marks state optional when AND group is accompanied by an empty {} requirement', () => {
+      const result = getRequiredSecurity(
+        { security: [{ oauth2: ['read'], apiKey: [] }, {}] },
+        { components: { securitySchemes: {} } },
+      )
+      expect(result.state).toBe('optional')
+      // The AND group still produces exactly one requirement
+      expect(result.requirements).toHaveLength(1)
+      expect(result.requirements[0]?.schemes.map((s) => s.name)).toStrictEqual(['oauth2', 'apiKey'])
+    })
+
+    it('marks state optional with two non-empty OR alternatives alongside an empty {} entry', () => {
+      const result = getRequiredSecurity(
+        { security: [{ apiKey: [] }, { bearerAuth: [] }, {}] },
+        { components: { securitySchemes: {} } },
+      )
+      expect(result.state).toBe('optional')
+      expect(result.requirements).toHaveLength(2)
+      expect(result.requirements[0]?.schemes.map((s) => s.name)).toStrictEqual(['apiKey'])
+      expect(result.requirements[1]?.schemes.map((s) => s.name)).toStrictEqual(['bearerAuth'])
+    })
+
+    it('treats multiple {} entries as a single optional signal', () => {
+      const result = getRequiredSecurity({ security: [{}, {}] }, { components: { securitySchemes: {} } })
+      expect(result.state).toBe('optional')
+      expect(result.requirements).toStrictEqual([])
+    })
+
+    it('operation-level complex security fully overrides a complex document-level security array', () => {
+      const result = getRequiredSecurity(
+        { security: [{ oauth2: ['admin'], apiKey: [] }] },
+        {
+          // document has a completely different, more permissive security declaration
+          security: [{ basicAuth: [] }, {}],
+          components: { securitySchemes: {} },
+        },
+      )
+      // Operation wins; the document's {} (optional) is irrelevant
+      expect(result.state).toBe('required')
+      expect(result.requirements).toHaveLength(1)
+      expect(result.requirements[0]?.schemes.map((s) => s.name)).toStrictEqual(['oauth2', 'apiKey'])
+    })
+  })
 })
