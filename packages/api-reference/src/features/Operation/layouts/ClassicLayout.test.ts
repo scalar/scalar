@@ -12,7 +12,7 @@ import { REQUEST_BODY_COMPOSITION_INDEX_SYMBOL } from '@/features/Operation/requ
 
 import ClassicLayout from './ClassicLayout.vue'
 
-const requiredSecurity: RequiredSecurity = { state: 'none', schemes: [] }
+const requiredSecurity: RequiredSecurity = { state: 'none', requirements: [] }
 
 type ExtractComponentProps<TComponent> = TComponent extends new () => { $props: infer Props } ? Props : never
 

@@ -15,17 +15,27 @@ const label = computed(() =>
   requiredSecurity.state === 'required' ? 'Auth Required' : 'Auth Optional',
 )
 
-/**
- * Tooltip content. ScalarTooltip sets `textContent`, so newlines collapse —
- * keep this as a single flowing sentence separated by " · " per scheme.
- * Example: "Requires oauth2 (read:items, write:items) · apiKey"
- */
-const authOptions = computed<string[]>(() =>
-  requiredSecurity.schemes.map((s) => {
-    const typeLabel = s.scheme?.type ? ` (${s.scheme.type})` : ''
-    const scopes = s.scopes.length ? ` [${s.scopes.join(', ')}]` : ''
-    return `${s.name}${typeLabel}${scopes}`
-  }),
+const verb = computed(() =>
+  requiredSecurity.state === 'required' ? 'Requires' : 'Accepts',
+)
+
+/** Single group, single scheme — shown inline in the header. */
+const isSingleScheme = computed(
+  () =>
+    requiredSecurity.requirements.length === 1 &&
+    requiredSecurity.requirements[0]?.schemes.length === 1,
+)
+
+/** Single group with multiple schemes — all must be satisfied (AND). */
+const isAndGroup = computed(
+  () =>
+    requiredSecurity.requirements.length === 1 &&
+    (requiredSecurity.requirements[0]?.schemes.length ?? 0) > 1,
+)
+
+/** Multiple groups — any one group satisfies authentication (OR). */
+const isOrAlternatives = computed(
+  () => requiredSecurity.requirements.length > 1,
 )
 </script>
 
@@ -50,30 +60,50 @@ const authOptions = computed<string[]>(() =>
     <template #popover>
       <div class="flex max-w-xs min-w-48 flex-col gap-1.5 p-2 text-sm">
         <div class="font-medium">
-          <template v-if="requiredSecurity.state === 'required'">
-            Requires
-          </template>
-          <template v-else>Accepts </template>
-          <template v-if="requiredSecurity.schemes.length > 1">
-            one of:
-          </template>
-          <template
-            v-else-if="
-              requiredSecurity.schemes.length === 1 &&
-              requiredSecurity.schemes[0]
-            ">
+          {{ verb }}
+          <template v-if="isSingleScheme">
             <SecurityRequirementBadgeScheme
               is="span"
               class="contents"
-              :scheme="requiredSecurity.schemes[0]" />
+              :scheme="requiredSecurity.requirements[0]!.schemes[0]!" />
           </template>
+          <template v-else-if="isOrAlternatives">one of:</template>
+          <template v-else-if="isAndGroup">all of:</template>
           <template v-else>authentication</template>
         </div>
+
+        <!-- Multiple OR alternatives -->
         <ul
-          v-if="requiredSecurity.schemes.length > 1"
+          v-if="isOrAlternatives"
+          class="contents">
+          <li
+            v-for="(group, gi) in requiredSecurity.requirements"
+            :key="gi"
+            class="markdown">
+            <!-- Single scheme in this OR branch -->
+            <SecurityRequirementBadgeScheme
+              v-if="group.schemes.length === 1"
+              is="span"
+              class="contents"
+              :scheme="group.schemes[0]!" />
+            <!-- Multiple AND schemes in this OR branch -->
+            <template v-else>
+              <ul class="contents">
+                <SecurityRequirementBadgeScheme
+                  v-for="(scheme, si) in group.schemes"
+                  :key="si"
+                  :scheme />
+              </ul>
+            </template>
+          </li>
+        </ul>
+
+        <!-- Single group, multiple AND schemes -->
+        <ul
+          v-else-if="isAndGroup"
           class="contents">
           <SecurityRequirementBadgeScheme
-            v-for="(scheme, key) in requiredSecurity.schemes"
+            v-for="(scheme, key) in requiredSecurity.requirements[0]!.schemes"
             :key
             :scheme />
         </ul>

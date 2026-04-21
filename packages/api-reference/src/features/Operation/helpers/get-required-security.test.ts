@@ -184,11 +184,14 @@ describe('getRequiredSecurity', () => {
         },
       )
       expect(result.state).toBe('required')
-      expect(result.requirements).toHaveLength(1)
-      expect(result.requirements[0]?.schemes[0]?.name).toBe('oauth2')
-      expect(result.requirements[0]?.schemes[0]?.scheme?.type).toBe('oauth2')
-      expect(result.requirements[0]?.schemes[1]?.name).toBe('apiKey')
-      expect(result.requirements[0]?.schemes[1]?.scheme?.type).toBe('apiKey')
+      expect(result.requirements).toEqual([
+        {
+          schemes: [
+            { name: 'oauth2', scheme: { type: 'oauth2', flows: {} }, scopes: ['read'] },
+            { name: 'apiKey', scheme: { type: 'apiKey', name: 'X-API-Key', in: 'header' }, scopes: [] },
+          ],
+        },
+      ])
     })
 
     it('marks state optional when AND group is accompanied by an empty {} requirement', () => {
