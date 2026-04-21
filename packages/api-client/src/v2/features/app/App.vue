@@ -206,7 +206,8 @@ const routerViewProps = computed<RouteProps>(() => {
         :class="layout === 'web' ? 'min-h-0' : 'h-dvh'">
         <SidebarToggle
           v-model="app.sidebar.isOpen.value"
-          class="absolute top-4 left-3 z-[60] md:hidden" />
+          class="absolute z-60 md:hidden"
+          :class="layout === 'desktop' ? 'top-14 left-4' : 'top-4 left-4'" />
         <div class="flex min-h-0 flex-1 flex-row">
           <!-- App sidebar -->
           <AppSidebar
