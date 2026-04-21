@@ -1,6 +1,7 @@
 <script lang="ts">
-import type { ApiClientOptions } from '@/v2/types/options'
 import type { MaybeRefOrGetter } from 'vue'
+
+import type { ApiClientOptions } from '@/v2/types/options'
 
 export type ModalProps = {
   /** The workspace store must be initialized and passed in */
@@ -55,12 +56,12 @@ import {
 
 import ModalClientContainer from '@/v2/components/modals/ModalClientContainer.vue'
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
-import type { ApiClientOptionsRef } from '@/v2/types/options'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import { initializeModalEvents } from '@/v2/features/modal/modal-events'
 import Operation from '@/v2/features/operation/Operation.vue'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import { useScrollLock } from '@/v2/hooks/use-scroll-lock'
+import type { ApiClientOptionsRef } from '@/v2/types/options'
 
 const {
   document,

@@ -12,8 +12,14 @@ import RunnerOrderItem from './RunnerOrderItem.vue'
 import RunnerResults from './RunnerResults.vue'
 import RunnerTree from './RunnerTree.vue'
 
-const { document, collectionType, workspaceStore, documentSlug, layout, options } =
-  defineProps<CollectionProps>()
+const {
+  document,
+  collectionType,
+  workspaceStore,
+  documentSlug,
+  layout,
+  options,
+} = defineProps<CollectionProps>()
 
 const {
   selectedOrder,
