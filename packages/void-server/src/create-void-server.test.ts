@@ -63,7 +63,7 @@ describe('createVoidServer', () => {
   it('returns the headers', async () => {
     const server = await createVoidServer()
 
-    const response = await server.request('/', {
+    const response = await server.request('/mirror', {
       headers: {
         'X-Custom-Header': 'foobar',
       },
@@ -79,7 +79,7 @@ describe('createVoidServer', () => {
   it('returns the method', async () => {
     const server = await createVoidServer()
 
-    const response = await server.request('/')
+    const response = await server.request('/mirror')
 
     expect(await response.json()).toMatchObject({
       method: 'GET',
@@ -89,7 +89,7 @@ describe('createVoidServer', () => {
   it('returns the query parameters', async () => {
     const server = await createVoidServer()
 
-    const response = await server.request('/?foo=bar')
+    const response = await server.request('/mirror?foo=bar')
 
     expect(await response.json()).toMatchObject({
       query: {
@@ -101,7 +101,7 @@ describe('createVoidServer', () => {
   it('deals with array query parameters', async () => {
     const server = await createVoidServer()
 
-    const response = await server.request('/?foo=foo&foo=bar&example=value')
+    const response = await server.request('/mirror?foo=foo&foo=bar&example=value')
 
     expect(await response.json()).toMatchObject({
       query: {
@@ -114,7 +114,7 @@ describe('createVoidServer', () => {
   it('returns the JSON body', async () => {
     const server = await createVoidServer()
 
-    const response = await server.request('/', {
+    const response = await server.request('/mirror', {
       method: 'POST',
       headers: {
         'Content-Type': 'text/plain',
@@ -132,7 +132,7 @@ describe('createVoidServer', () => {
   it('returns plain text body', async () => {
     const server = await createVoidServer()
 
-    const response = await server.request('/', {
+    const response = await server.request('/mirror', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -146,7 +146,7 @@ describe('createVoidServer', () => {
   it('returns form data', async () => {
     const server = await createVoidServer()
 
-    const response = await server.request('/', {
+    const response = await server.request('/mirror', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -170,7 +170,7 @@ describe('createVoidServer', () => {
     // Key has whitespaces
     formData.append('foo bar', 'yes')
 
-    const response = await server.request('/', {
+    const response = await server.request('/mirror', {
       method: 'POST',
       body: formData,
     })
@@ -188,7 +188,7 @@ describe('createVoidServer', () => {
     const formData = new FormData()
     formData.append('file', new Blob(['foobar']), 'file.txt')
 
-    const response = await server.request('/', {
+    const response = await server.request('/mirror', {
       method: 'POST',
       body: formData,
     })
@@ -214,7 +214,7 @@ describe('createVoidServer', () => {
     formData.append('files', new Blob(['foobar']), 'file1.txt')
     formData.append('files', new Blob(['foobar']), 'file2.txt')
 
-    const response = await server.request('/', {
+    const response = await server.request('/mirror', {
       method: 'POST',
       body: formData,
     })
@@ -246,7 +246,7 @@ describe('createVoidServer', () => {
     // Dot syntax
     formData.append('foo.bar', 'yes')
 
-    const response = await server.request('/', {
+    const response = await server.request('/mirror', {
       method: 'POST',
       body: formData,
     })
@@ -262,7 +262,7 @@ describe('createVoidServer', () => {
     const server = await createVoidServer()
 
     // Send just a blob
-    const response = await server.request('/', {
+    const response = await server.request('/mirror', {
       method: 'POST',
       body: new Blob(['foobar']),
     })
@@ -273,7 +273,7 @@ describe('createVoidServer', () => {
   it('returns the cookies', async () => {
     const server = await createVoidServer()
 
-    const response = await server.request('/', {
+    const response = await server.request('/mirror', {
       method: 'POST',
       headers: {
         cookie: 'foo=bar;',
@@ -325,7 +325,7 @@ describe('createVoidServer', () => {
   it('returns the authentication header bearer', async () => {
     const server = await createVoidServer()
 
-    const response = await server.request('/', {
+    const response = await server.request('/mirror', {
       headers: {
         Authorization: 'Bearer 123',
       },
@@ -342,7 +342,7 @@ describe('createVoidServer', () => {
   it('returns the authentication header basic', async () => {
     const server = await createVoidServer()
 
-    const response = await server.request('/', {
+    const response = await server.request('/mirror', {
       headers: {
         Authorization: 'Basic YmFy',
       },
@@ -369,7 +369,7 @@ describe('createVoidServer', () => {
   it('returns XML', async () => {
     const server = await createVoidServer()
 
-    const response = await server.request('/', {
+    const response = await server.request('/mirror', {
       headers: {
         Accept: 'application/xml',
       },
@@ -391,7 +391,7 @@ describe('createVoidServer', () => {
   it('returns HTML', async () => {
     const server = await createVoidServer()
 
-    const response = await server.request('/', {
+    const response = await server.request('/mirror', {
       headers: {
         Accept: 'text/html',
       },
