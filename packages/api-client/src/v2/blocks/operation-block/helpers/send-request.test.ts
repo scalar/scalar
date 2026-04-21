@@ -1259,7 +1259,7 @@ describe('sendRequest', () => {
 
       expect(customFetch).toHaveBeenCalledTimes(1)
       // buildSafeBodyRequest wraps the args into a single Request — not a spread (url, init)
-      const callArgs = customFetch.mock.calls[0]
+      const callArgs = customFetch.mock.calls[0]!
       expect(callArgs).toHaveLength(1)
       expect(callArgs[0]).toBeInstanceOf(Request)
     })
