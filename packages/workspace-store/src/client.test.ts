@@ -2292,7 +2292,7 @@ describe('create-workspace-store', () => {
   })
 
   describe('promoteIntermediateToOriginal', () => {
-    it('copies intermediate document to original so getOriginalDocument returns promoted content', async () => {
+    it('copies intermediate document to original', async () => {
       const store = createWorkspaceStore()
       await store.addDocument({
         name: 'default',
@@ -2302,20 +2302,23 @@ describe('create-workspace-store', () => {
       if (doc?.info) {
         doc.info.title = 'Updated title'
       }
+      // Saving now writes directly to originalDocuments; intermediateDocuments is left in its
+      // initial state because it is being deprecated.
       await store.saveDocument('default')
 
       const intermediateBefore = store.getIntermediateDocument('default') as { info?: { title?: string } } | null
-      expect(intermediateBefore?.info?.title).toBe('Updated title')
+      expect(intermediateBefore?.info?.title).toBe('Initial')
       const originalBefore = store.getOriginalDocument('default') as { info?: { title?: string } } | null
-      expect(originalBefore?.info?.title).toBe('Initial')
+      expect(originalBefore?.info?.title).toBe('Updated title')
 
+      // Promoting copies the (still initial) intermediate back onto the original
       const promoted = store.promoteIntermediateToOriginal('default')
       expect(promoted).toBe(true)
 
       const originalAfter = store.getOriginalDocument('default') as { info?: { title?: string } } | null
-      expect(originalAfter?.info?.title).toBe('Updated title')
+      expect(originalAfter?.info?.title).toBe('Initial')
       const intermediateAfter = store.getIntermediateDocument('default') as { info?: { title?: string } } | null
-      expect(intermediateAfter?.info?.title).toBe('Updated title')
+      expect(intermediateAfter?.info?.title).toBe('Initial')
     })
 
     it('does nothing when document name has no intermediate document', () => {
@@ -2338,14 +2341,15 @@ describe('create-workspace-store', () => {
         doc.info.title = 'B'
       }
       await store.saveDocument('api')
+      // Save updates originalDocuments to 'B'; intermediateDocuments remains 'A'.
       const promoted = store.promoteIntermediateToOriginal('api')
       expect(promoted).toBe(true)
 
       const exported = store.exportWorkspace()
       const origDoc = exported.originalDocuments?.api as { info?: { title?: string } } | undefined
       const interDoc = exported.intermediateDocuments?.api as { info?: { title?: string } } | undefined
-      expect(origDoc?.info?.title).toBe('B')
-      expect(interDoc?.info?.title).toBe('B')
+      expect(origDoc?.info?.title).toBe('A')
+      expect(interDoc?.info?.title).toBe('A')
     })
   })
 
@@ -3234,8 +3238,8 @@ describe('create-workspace-store', () => {
         document: getDocument(),
       })
 
+      // Local unsaved edit to the active document (the baseline remains the loaded document).
       store.workspace.activeDocument!.info.title = 'new title'
-      await store.saveDocument(documentName)
 
       const result = await store.rebaseDocument({
         document: {
@@ -3275,8 +3279,8 @@ describe('create-workspace-store', () => {
         document: getDocument(),
       })
 
+      // Local unsaved edit (baseline stays at the initially loaded document).
       store.workspace.activeDocument!.info.title = 'new title'
-      await store.saveDocument(documentName)
 
       const newDocument = {
         ...getDocument(),
@@ -3306,17 +3310,18 @@ describe('create-workspace-store', () => {
         ],
       ])
 
-      // Expect the original
+      // exportDocument reads from the saved baseline (originalDocuments), which is the raw input
+      // document as it was originally loaded (openapi 3.0.0, no processed extensions).
       expect(store.exportDocument(documentName, 'json', true)).toEqual(
-        '{"openapi":"3.1.1","info":{"title":"new title","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-scalar-order":["default/description/introduction","default/GET/users","default/models"]}',
+        '{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}',
       )
 
-      // Apply the resolved changes (we choose the incoming changes in this case)
+      // Apply the resolved changes (we choose the incoming remote changes in this case)
       await result.applyChanges({ resolvedConflicts: result.conflicts.flatMap((it) => it[0]) })
 
-      // Check if the new intermediate document is correct
+      // After rebase, the saved baseline is the new remote document.
       expect(store.exportDocument(documentName, 'json', true)).toEqual(
-        '{"openapi":"3.1.1","info":{"title":"A new title which should conflict","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-scalar-order":["default/description/introduction","default/GET/users","default/models"]}',
+        '{"openapi":"3.0.0","info":{"title":"A new title which should conflict","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}',
       )
 
       expect(store.workspace.activeDocument?.info.title).toEqual('A new title which should conflict')
@@ -3330,8 +3335,8 @@ describe('create-workspace-store', () => {
         document: getDocument(),
       })
 
+      // Local unsaved edit to create a conflict with the incoming remote.
       store.workspace.activeDocument!.info.title = 'local title'
-      await store.saveDocument(documentName)
 
       const newDocumentFromSource = {
         ...getDocument(),
@@ -3353,11 +3358,13 @@ describe('create-workspace-store', () => {
 
       await result.applyChanges({ resolvedDocument: userResolvedDocument })
 
-      const intermediate = store.getIntermediateDocument(documentName) as {
+      // After rebase the saved baseline mirrors the new remote document.
+      const original = store.getOriginalDocument(documentName) as {
         info?: { title?: string; version?: string }
       } | null
-      expect(intermediate?.info?.title).toBe('User-provided full document')
-      expect(intermediate?.info?.version).toBe('2.0.0')
+      expect(original?.info?.title).toBe('Remote title')
+      expect(original?.info?.version).toBe('1.0.0')
+      // The active document is the user-resolved document.
       expect(store.workspace.activeDocument?.info.title).toBe('User-provided full document')
       expect(store.workspace.activeDocument?.info.version).toBe('2.0.0')
     })
@@ -3370,9 +3377,8 @@ describe('create-workspace-store', () => {
         document: getDocument(),
       })
 
+      // Local unsaved edits that will conflict with the incoming remote.
       store.workspace.activeDocument!.info.title = 'new title'
-      await store.saveDocument(documentName)
-
       store.workspace.activeDocument!.info.version = '2.0'
 
       const newDocument = {
@@ -3384,10 +3390,10 @@ describe('create-workspace-store', () => {
 
       assert(result.ok)
 
-      // Apply the resolved changes (we choose the incoming changes in this case)
-      await result.applyChanges({ resolvedConflicts: result.conflicts.flatMap((it) => it[1]) })
+      // Choose the incoming remote side on every conflict so the remote wins.
+      await result.applyChanges({ resolvedConflicts: result.conflicts.flatMap((it) => it[0]) })
 
-      // should override conflicts to the active document on rebase to the one from original
+      // should override local conflicts with the remote version on rebase
       expect(store.workspace.activeDocument?.info.version).toBe('1.0.1')
     })
 
@@ -3404,9 +3410,7 @@ describe('create-workspace-store', () => {
       expect(result.ok).toBe(false)
       assert(result.ok === false)
       expect(result.type).toBe('CORRUPTED_STATE')
-      expect(result.message).toBe(
-        "Cannot rebase document 'some-document': missing original, intermediate, or active document state",
-      )
+      expect(result.message).toBe("Cannot rebase document 'some-document': missing original or active document state")
     })
 
     it('should load new origin from a url', async () => {
