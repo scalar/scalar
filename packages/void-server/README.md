@@ -20,7 +20,6 @@ It's running on <https://void.scalar.com>, feel free to use it.
 - https://void.scalar.com/?foo=bar&foo=rab
 - https://void.scalar.com/openapi.json
 - https://void.scalar.com/openapi.yaml
-- https://void.scalar.com/docs
 
 ## Installation
 
@@ -55,7 +54,8 @@ The server includes OpenAPI and API reference routes out of the box:
 
 - `/openapi.json` – OpenAPI document in JSON format
 - `/openapi.yaml` – OpenAPI document in YAML format
-- `/docs` – Scalar API Reference powered by `@scalar/hono-api-reference`
+- `/` – Scalar API Reference powered by `@scalar/hono-api-reference`
+- `/docs` – Alias route for the Scalar API Reference
 
 ## Community
 

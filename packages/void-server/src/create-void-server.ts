@@ -54,21 +54,24 @@ documentationApp.openapi(
   createRoute({
     method: 'get',
     path: '/',
-    summary: 'Mirror request data',
-    description: 'Returns request details in JSON format.',
-    tags: ['Void'],
+    summary: 'Scalar API Reference',
+    description: 'Interactive API reference for Void Server.',
+    tags: ['Documentation'],
     responses: {
       200: {
-        description: 'Request mirrored as JSON.',
+        description: 'HTML API Reference page.',
         content: {
-          'application/json': {
-            schema: mirrorResponseSchema,
+          'text/html': {
+            schema: z.string(),
           },
         },
       },
     },
   }),
-  (c) => c.json(mirrorResponseExample),
+  (c) =>
+    c.html(
+      '<!doctype html><html><head><title>Void Server API Reference</title></head><body>Void Server API Reference</body></html>',
+    ),
 )
 
 documentationApp.openapi(
@@ -278,8 +281,8 @@ documentationApp.openapi(
   createRoute({
     method: 'get',
     path: '/docs',
-    summary: 'Scalar API Reference',
-    description: 'Interactive API reference for Void Server.',
+    summary: 'Scalar API Reference alias',
+    description: 'Alias route for the interactive API reference.',
     tags: ['Documentation'],
     responses: {
       200: {
@@ -322,13 +325,18 @@ export function createVoidServer() {
   // CORS headers
   app.use(cors())
 
+  const scalarApiReference = Scalar({
+    url: '/openapi.json',
+    pageTitle: 'Void Server API Reference',
+  })
+
   // Security headers
   app.use(async (c, next) => {
     await next()
     c.header('X-Content-Type-Options', 'nosniff')
 
     // The API reference needs scripts and styles from the CDN.
-    if (c.req.path !== '/docs') {
+    if (c.req.path !== '/' && c.req.path !== '/docs') {
       c.header('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'")
     }
   })
@@ -341,13 +349,8 @@ export function createVoidServer() {
     }),
   )
 
-  app.get(
-    '/docs',
-    Scalar({
-      url: '/openapi.json',
-      pageTitle: 'Void Server API Reference',
-    }),
-  )
+  app.get('/', scalarApiReference)
+  app.get('/docs', scalarApiReference)
 
   // HTTP errors
   app.all('/:status{[4-5][0-9][0-9]}', (c) => {

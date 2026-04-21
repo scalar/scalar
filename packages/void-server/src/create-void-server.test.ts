@@ -39,10 +39,10 @@ describe('createVoidServer', () => {
     })
   })
 
-  it('returns Scalar API reference at /docs', async () => {
+  it('returns Scalar API reference at /', async () => {
     const server = await createVoidServer()
 
-    const response = await server.request('/docs')
+    const response = await server.request('/')
 
     expect(response.status).toBe(200)
     expect(response.headers.get('Content-Type')).toContain('text/html')
@@ -57,17 +57,6 @@ describe('createVoidServer', () => {
     expect(response.status).toBe(200)
     expect(await response.json()).toMatchObject({
       path: '/foobar',
-    })
-  })
-
-  it('GET /', async () => {
-    const server = await createVoidServer()
-
-    const response = await server.request('/')
-
-    expect(response.status).toBe(200)
-    expect(await response.json()).toMatchObject({
-      path: '/',
     })
   })
 
@@ -433,7 +422,7 @@ describe('createVoidServer', () => {
   it('includes security headers in responses', async () => {
     const server = await createVoidServer()
 
-    const response = await server.request('/')
+    const response = await server.request('/foobar')
 
     expect(response.headers.get('X-Content-Type-Options')).toBe('nosniff')
     expect(response.headers.get('Content-Security-Policy')).toBe("default-src 'none'; style-src 'unsafe-inline'")
