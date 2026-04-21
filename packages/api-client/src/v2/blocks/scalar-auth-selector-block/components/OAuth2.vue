@@ -152,27 +152,54 @@ const handleClearAccessTokens = (): void => {
   })
 }
 
-/** Track if we have set the redirect uri */
-const hasPrefilledRedirectUri = ref(false)
+/** Track redirect URI prefill per flow instance to support document switching */
+const prefilledFlowIdentity = ref<string | null>(null)
+const hasHandledRedirectPrefill = ref(false)
+
+const resolveFlowIdentity = (
+  currentFlow: OAuthFlowsObjectSecret[keyof OAuthFlowsObjectSecret] | undefined,
+): string =>
+  JSON.stringify({
+    type,
+    authorizationUrl:
+      currentFlow && 'authorizationUrl' in currentFlow
+        ? currentFlow.authorizationUrl
+        : '',
+    tokenUrl:
+      currentFlow && 'tokenUrl' in currentFlow ? currentFlow.tokenUrl : '',
+    refreshUrl: currentFlow?.refreshUrl ?? '',
+    scopes: Object.keys(currentFlow?.scopes ?? {}),
+  })
 
 /** Default the redirect-uri to the current origin if we have access to window */
 watch(
-  () =>
-    (flow.value as OAuthFlowAuthorizationCodeSecret)[
-      'x-scalar-secret-redirect-uri'
-    ],
-  (newRedirectUri) => {
-    const defaultRedirectUri = resolveDefaultOAuth2RedirectUri(options)
-
-    if (
-      hasPrefilledRedirectUri.value ||
-      newRedirectUri ||
-      !defaultRedirectUri ||
-      !('x-scalar-secret-redirect-uri' in flow.value)
-    ) {
+  () => flow.value,
+  (currentFlow) => {
+    if (!currentFlow || !('x-scalar-secret-redirect-uri' in currentFlow)) {
       return
     }
-    hasPrefilledRedirectUri.value = true
+
+    const flowIdentity = resolveFlowIdentity(currentFlow)
+    if (prefilledFlowIdentity.value !== flowIdentity) {
+      prefilledFlowIdentity.value = flowIdentity
+      hasHandledRedirectPrefill.value = false
+    }
+
+    if (hasHandledRedirectPrefill.value) {
+      return
+    }
+
+    const newRedirectUri = (currentFlow as OAuthFlowAuthorizationCodeSecret)[
+      'x-scalar-secret-redirect-uri'
+    ]
+    const defaultRedirectUri = resolveDefaultOAuth2RedirectUri(options)
+
+    hasHandledRedirectPrefill.value = true
+
+    if (newRedirectUri || !defaultRedirectUri) {
+      return
+    }
+
     handleOauth2SecretsUpdate({
       'x-scalar-secret-redirect-uri': defaultRedirectUri,
     })
@@ -367,9 +394,10 @@ const handleSecretLocationUpdate = (value: string): void => {
       <RequestAuthDataTableInput
         :environment
         :modelValue="flow['x-scalar-secret-redirect-uri']"
-        placeholder="https://galaxy.scalar.com/callback"
+        placeholder="Optional redirect URL"
         @update:modelValue="
           (v) => {
+            hasHandledRedirectPrefill = true
             handleOauth2SecretsUpdate({ 'x-scalar-secret-redirect-uri': v })
           }
         ">

@@ -50,12 +50,20 @@ const mergeFlowSecrets = <const T extends readonly (keyof typeof SECRET_TO_INPUT
 ): Record<T[number], string> =>
   Object.fromEntries(
     properties.map((property) => {
-      // Super merge in order of priority: auth store > config > config input field > empty string
+      // Redirect URI is the only OAuth secret where an explicit empty value from
+      // store must be preserved. Other secrets use falsy fallback behavior for backwards-compatibility
+      // with config defaults when the casted auth store value is an empty string.
+      const authStoreValue = typeof authStoreSecrets[property] === 'string' ? authStoreSecrets[property] : undefined
+      const configValue = typeof configSecrets[property] === 'string' ? configSecrets[property] : undefined
+      const configInputValue =
+        typeof configSecrets[SECRET_TO_INPUT_FIELD_MAP[property]] === 'string'
+          ? configSecrets[SECRET_TO_INPUT_FIELD_MAP[property]]
+          : undefined
+
       const value =
-        authStoreSecrets[property] ||
-        configSecrets[property] ||
-        configSecrets[SECRET_TO_INPUT_FIELD_MAP[property]] ||
-        ''
+        property === 'x-scalar-secret-redirect-uri'
+          ? (authStoreValue ?? configValue ?? configInputValue ?? '')
+          : authStoreValue || configValue || configInputValue || ''
 
       return [property, value]
     }),
