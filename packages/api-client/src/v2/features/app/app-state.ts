@@ -7,8 +7,6 @@ import { migrateLocalStorageToIndexDb } from '@scalar/oas-utils/migrations'
 import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
 import type { Theme } from '@scalar/themes'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
-
-import type { ApiClientAppOptions } from '@/v2/features/app/helpers/create-api-client-app'
 import {
   type OperationExampleMeta,
   type WorkspaceEventBus,
@@ -37,6 +35,7 @@ import {
 } from 'vue'
 import type { RouteLocationNormalizedGeneric, RouteLocationRaw, Router } from 'vue-router'
 
+import type { ApiClientAppOptions } from '@/v2/features/app/helpers/create-api-client-app'
 import { getRouteParam } from '@/v2/features/app/helpers/get-route-param'
 import { groupWorkspacesByTeam } from '@/v2/features/app/helpers/group-workspaces'
 import { useTheme } from '@/v2/features/app/hooks/use-theme'
@@ -481,6 +480,9 @@ export const createAppState = async ({
    *    - If not found, creates the default workspace and navigates to it.
    */
   const changeWorkspace = async (namespace: string, slug: string) => {
+    /** For initial load we want to fall through to our router default behaviour */
+    const isInitialLoad = activeWorkspace.value === null
+
     // Clear the current store and set loading to true before loading new workspace.
     store.value = null
     isSyncingWorkspace.value = true
@@ -494,7 +496,8 @@ export const createAppState = async ({
       const tabs = result.workspace['x-scalar-tabs']
       const tab = tabs?.[index]
 
-      if (tab) {
+      // On initial load let the URL-based routing (catch-all → getLastPath) take precedence
+      if (tab && !isInitialLoad) {
         // Preserve query parameters when navigating to the active tab
         await router.replace({
           path: tab.path,
