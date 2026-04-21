@@ -1,5 +1,20 @@
 # @scalar/api-client
 
+## 3.2.0
+
+### Minor Changes
+
+- [#8891](https://github.com/scalar/scalar/pull/8891): feat: support refreshing the token
+
+### Patch Changes
+
+- [#8877](https://github.com/scalar/scalar/pull/8877): fix(api-client): prefill oauth2 redirect URI after switching documents
+- [#8943](https://github.com/scalar/scalar/pull/8943): feat: added customFetch config to the client
+- [#8931](https://github.com/scalar/scalar/pull/8931): fix: close environment selector dropdown after selection
+- [#8933](https://github.com/scalar/scalar/pull/8933): feat(api-client): add app-level oauth2 redirect URI override plumbing for auth prefill
+- [#8932](https://github.com/scalar/scalar/pull/8932): fix: only enable fake data suggestion for parameteres and request body
+- [#8907](https://github.com/scalar/scalar/pull/8907): Fix code sample missing body content type update
+
 ## 3.1.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @scalar/api-client-react
 
+## 2.0.4
+
+### Patch Changes
+
+- [#8943](https://github.com/scalar/scalar/pull/8943): feat: added customFetch config to the client
+
 ## 2.0.3
 
 ## 2.0.2

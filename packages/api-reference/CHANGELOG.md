@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.52.4
+
+### Patch Changes
+
+- [#8884](https://github.com/scalar/scalar/pull/8884): fix: restore `position: fixed` on `.section-flare` so the decorative hero flare stops reserving 100vh of empty space at the top of the documentation (affects the `kepler`, `bluePlanet`, and `mars` themes, which declare `height: 100vh` on the flare but rely on the framework to position it)
+- [#8907](https://github.com/scalar/scalar/pull/8907): Fix code sample missing body content type update
+- [#8925](https://github.com/scalar/scalar/pull/8925): chore: source vite-plugin-css-injected-by-js from the shared pnpm catalog
+- [#8944](https://github.com/scalar/scalar/pull/8944): feat(api-reference): add anchors and copy link buttons to allOf body parameters
+
 ## 1.52.3
 
 ### Patch Changes

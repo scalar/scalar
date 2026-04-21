@@ -1,5 +1,11 @@
 # @scalar/mock-server
 
+## 0.10.2
+
+### Patch Changes
+
+- [#8936](https://github.com/scalar/scalar/pull/8936): feat: support oauth refreshUrl endpoints in mock server authentication routes
+
 ## 0.10.1
 
 ## 0.10.0

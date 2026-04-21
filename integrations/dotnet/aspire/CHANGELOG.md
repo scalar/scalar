@@ -1,5 +1,11 @@
 # @scalar/aspire
 
+## 0.9.25
+
+### Patch Changes
+
+- [#8920](https://github.com/scalar/scalar/pull/8920): Rename legacy Aspire branding references after the product rebrand.
+
 ## 0.9.24
 
 ## 0.9.23

@@ -1,5 +1,15 @@
 # @scalar/openapi-types
 
+## 0.8.0
+
+### Minor Changes
+
+- [#8942](https://github.com/scalar/scalar/pull/8942): feat: export new stricter openapi types
+
+### Patch Changes
+
+- [#8949](https://github.com/scalar/scalar/pull/8949): fix 3.0 parameter object typing for `in` and `style` to use strict literal unions.
+
 ## 0.7.0
 
 ### Minor Changes
