@@ -2,6 +2,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { HeaderList, Item, Response } from '@/types'
 
+import { parseMediaType, readHeader } from './header-utils'
 import { inferSchemaFromExample } from './schemas'
 import { extractStatusCodesFromTests } from './status-codes'
 
@@ -25,8 +26,18 @@ export const DEFAULT_RESPONSE_DESCRIPTIONS: Record<string, string> = {
  * Extracts and converts Postman response objects to OpenAPI response objects.
  * Processes response status codes, descriptions, headers, and body content,
  * inferring schemas from example responses when possible.
+ *
+ * Media-type selection precedence for each response:
+ *   1. The saved response's own `Content-Type` header.
+ *   2. The request's `Accept` header (passed as `acceptMediaType`, already
+ *      narrowed via `pickAcceptMediaType`).
+ *   3. `application/json` fallback.
  */
-export function extractResponses(responses: Response[], item?: Item): OpenAPIV3_1.ResponsesObject | undefined {
+export function extractResponses(
+  responses: Response[],
+  item?: Item,
+  acceptMediaType?: string,
+): OpenAPIV3_1.ResponsesObject | undefined {
   // Extract status codes from tests
   const statusCodes = item ? extractStatusCodesFromTests(item) : []
 
@@ -42,11 +53,14 @@ export function extractResponses(responses: Response[], item?: Item): OpenAPIV3_
       )
     }
 
+    const savedContentType = parseMediaType(readHeader(response.header, 'Content-Type'))
+    const mediaType = savedContentType ?? acceptMediaType ?? 'application/json'
+
     const content =
       hasNoContentStatusCode && !hasExplicitBodyExample
         ? undefined
         : {
-            'application/json': {
+            [mediaType]: {
               schema: inferSchemaFromExample(response.body || ''),
               examples: {
                 default: tryParseJson(response.body || ''),
@@ -63,6 +77,7 @@ export function extractResponses(responses: Response[], item?: Item): OpenAPIV3_
   }, {} as OpenAPIV3_1.ResponsesObject)
 
   // Add status codes from tests if not already present
+  const fallbackMediaType = acceptMediaType ?? 'application/json'
   statusCodes.forEach((code) => {
     const codeStr = code.toString()
     if (!responseMap[codeStr]) {
@@ -72,7 +87,7 @@ export function extractResponses(responses: Response[], item?: Item): OpenAPIV3_
         ...(!hasNoContentStatusCode
           ? {
               content: {
-                'application/json': {},
+                [fallbackMediaType]: {},
               },
             }
           : {}),

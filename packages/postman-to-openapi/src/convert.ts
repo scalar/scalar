@@ -814,6 +814,13 @@ export type ConvertOptions = {
    * Root `info` and existing paths are preserved unless Postman adds or merges operations.
    */
   document?: OpenAPIV3_1.Document
+  /**
+   * Header keys (case-insensitive) to preserve as `parameters[in=header]` even
+   * if they match the built-in block-list of transport, content-negotiation, or
+   * auth headers (Accept, Content-Type, Authorization, Host, ...). Rarely needed —
+   * useful when an API intentionally documents a non-standard use of these names.
+   */
+  keepHeaders?: readonly string[]
 }
 
 /**
@@ -825,7 +832,13 @@ export function convert(
   postmanCollection: PostmanCollection | string,
   options: ConvertOptions = { mergeOperation: false },
 ): OpenAPIV3_1.Document {
-  const { requestIndexPaths, mergeOperation = false, tagNamingStrategy = 'leaf', document: baseDocument } = options
+  const {
+    requestIndexPaths,
+    mergeOperation = false,
+    tagNamingStrategy = 'leaf',
+    document: baseDocument,
+    keepHeaders,
+  } = options
   const isMergingIntoBase = baseDocument !== undefined
   const collection = validateCollectionShape(parseCollectionInput(postmanCollection))
 
@@ -912,6 +925,7 @@ export function convert(
           mergeOperation,
           resolveTagName,
           collectionVariableLookup,
+          keepHeaders,
         )
 
         allServerUsage.push(...serverUsage)
@@ -939,7 +953,16 @@ export function convert(
           paths: itemPaths,
           components: itemComponents,
           serverUsage,
-        } = processItem(item, DEFAULT_EXAMPLE_NAME, [], '', mergeOperation, resolveTagName, collectionVariableLookup)
+        } = processItem(
+          item,
+          DEFAULT_EXAMPLE_NAME,
+          [],
+          '',
+          mergeOperation,
+          resolveTagName,
+          collectionVariableLookup,
+          keepHeaders,
+        )
 
         allServerUsage.push(...serverUsage)
 

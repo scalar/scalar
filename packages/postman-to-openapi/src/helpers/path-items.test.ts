@@ -845,8 +845,8 @@ describe('path-items', () => {
           },
           header: [
             {
-              key: 'Host',
-              value: 'api.example.com',
+              key: 'X-Trace-Id',
+              value: 'abc-123',
               disabled: true,
             },
             {
@@ -864,11 +864,11 @@ describe('path-items', () => {
         throw new Error('Path key not found')
       }
       const params = result.paths[pathKey!]?.get?.parameters
-      const hostHeader = params?.find((p: any) => p.name === 'Host')
+      const traceHeader = params?.find((p: any) => p.name === 'X-Trace-Id')
       const customHeader = params?.find((p: any) => p.name === 'X-Custom-Header')
 
-      expect(hostHeader).toBeDefined()
-      expect((hostHeader as any)?.['x-scalar-disabled']).toBe(true)
+      expect(traceHeader).toBeDefined()
+      expect((traceHeader as any)?.['x-scalar-disabled']).toBe(true)
       expect(customHeader).toBeDefined()
       expect((customHeader as any)?.['x-scalar-disabled']).toBeUndefined()
     })
