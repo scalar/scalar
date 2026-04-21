@@ -194,7 +194,9 @@ const calculateCrc32 = (input: Uint8Array): number => {
   let crc = 0xffffffff
 
   for (const byte of input) {
-    crc = (crc >>> 8) ^ CRC_TABLE[(crc ^ byte) & 0xff]
+    const tableIndex = (crc ^ byte) & 0xff
+    const tableValue = CRC_TABLE[tableIndex] ?? 0
+    crc = (crc >>> 8) ^ tableValue
   }
 
   return (crc ^ 0xffffffff) >>> 0
