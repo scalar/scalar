@@ -1,0 +1,15 @@
+/**
+ * Security Scheme object
+ *
+ * Defines a security scheme that can be used by the operations.  Supported schemes are HTTP authentication, an API key (either as a header, a cookie parameter or as a query parameter), mutual TLS (use of a client certificate), OAuth2's common flows (implicit, password, client credentials and authorization code) as defined in [RFC6749](https://tools.ietf.org/html/rfc6749), OAuth2 device authorization flow as defined in [RFC8628](https://tools.ietf.org/html/rfc8628), and [[OpenID-Connect-Core]]. Please note that as of 2020, the implicit flow is about to be deprecated by [OAuth 2.0 Security Best Current Practice](https://tools.ietf.org/html/draft-ietf-oauth-security-topics). Recommended for most use cases is Authorization Code Grant flow with PKCE.
+ *
+ * @see {@link https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#security-scheme-object}
+ */
+export type TypeHttpObject = {
+  /** **REQUIRED**. The type of the security scheme. Valid values are `"apiKey"`, `"http"`, `"mutualTLS"`, `"oauth2"`, `"openIdConnect"`. */
+  type: 'http'
+  /** **REQUIRED**. The name of the HTTP Authentication scheme to be used in the [Authorization header as defined in RFC9110](https://www.rfc-editor.org/rfc/rfc9110.html#section-16.4.1). The values used SHOULD be registered in the [IANA Authentication Scheme registry](https://www.iana.org/assignments/http-authschemes/http-authschemes.xhtml). The value is case-insensitive, as defined in [RFC9110](https://www.rfc-editor.org/rfc/rfc9110.html#section-11.1). */
+  scheme: string
+  /** A description for the security scheme. [CommonMark syntax](https://spec.commonmark.org/) MAY be used for rich text representation. */
+  description?: string
+} & Record<`x-${string}`, unknown>
