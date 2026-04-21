@@ -3,6 +3,7 @@ import type { Theme } from '@scalar/themes'
 import { createApp } from 'vue'
 import { createRouter as createVueRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 
+import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
 import App from '@/v2/features/app/App.vue'
 import { createAppState } from '@/v2/features/app/app-state'
 import { ROUTES } from '@/v2/features/app/helpers/routes'
@@ -43,6 +44,20 @@ type CreateApiClientOptions = {
   telemetry?: boolean
   /** Optional OAuth2 redirect URI override for auth prefill */
   oauth2RedirectUri?: string
+  /** Runtime behaviour overrides */
+  options?: ApiClientAppOptions
+}
+
+/**
+ * Runtime behaviour overrides shared between createApiClientApp and createAppState.
+ */
+export type ApiClientAppOptions = {
+  /**
+   * Custom fetch implementation used for all outgoing API requests and OpenAPI document loading.
+   * When provided, this replaces the global fetch for both the workspace store (document fetching)
+   * and the request execution engine (sendRequest).
+   */
+  customFetch?: CustomFetch
 }
 
 /**
@@ -71,6 +86,7 @@ export const createApiClientApp = async (
     fetchRegistryDocument,
     telemetry = true,
     oauth2RedirectUri,
+    options,
   }: CreateApiClientOptions,
 ) => {
   // Add the router
@@ -81,6 +97,7 @@ export const createApiClientApp = async (
     fallbackThemeSlug,
     telemetryDefault: telemetry,
     oauth2RedirectUri,
+    options,
   })
   const commandPaletteState = useCommandPaletteState()
 

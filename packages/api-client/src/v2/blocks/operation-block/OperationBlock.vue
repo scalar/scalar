@@ -280,6 +280,7 @@ const handleExecute = async () => {
     isUsingProxy: requestResult.result.isUsingProxy,
     requestPayload: requestResult.result.requestPayload,
     plugins,
+    customFetch: toValue(options)?.customFetch,
   })
 
   if (sendResult) {

@@ -183,6 +183,7 @@ const routerViewProps = computed<RouteProps>(() => {
     },
     options: {
       oauth2RedirectUri: app.oauth2RedirectUri,
+      customFetch: app.options?.customFetch,
     },
   }
 })

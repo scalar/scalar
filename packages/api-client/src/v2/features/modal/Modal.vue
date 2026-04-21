@@ -1,4 +1,7 @@
 <script lang="ts">
+import type { ApiClientOptions } from '@/v2/types/options'
+import type { MaybeRefOrGetter } from 'vue'
+
 export type ModalProps = {
   /** The workspace store must be initialized and passed in */
   workspaceStore: WorkspaceStore
@@ -21,19 +24,7 @@ export type ModalProps = {
   /** Api client plugins to include in the modal */
   plugins: ClientPlugin[]
   /** Subset of the configuration options for the modal */
-  options: MaybeRefOrGetter<
-    Partial<
-      Pick<
-        ApiReferenceConfigurationRaw,
-        | 'authentication'
-        | 'baseServerURL'
-        | 'hideClientButton'
-        | 'hiddenClients'
-        | 'oauth2RedirectUri'
-        | 'servers'
-      >
-    >
-  >
+  options: MaybeRefOrGetter<ApiClientOptions>
 }
 
 /**
@@ -48,7 +39,6 @@ export default {}
 import { type ModalState, type ScalarListboxOption } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import { ScalarToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -60,13 +50,12 @@ import {
   ref,
   watch,
   type ComputedRef,
-  type MaybeRefOrGetter,
   type Ref,
 } from 'vue'
 
 import ModalClientContainer from '@/v2/components/modals/ModalClientContainer.vue'
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
-import type { ApiClientModalOptionsRef } from '@/v2/features/modal/helpers/types'
+import type { ApiClientOptionsRef } from '@/v2/types/options'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import { initializeModalEvents } from '@/v2/features/modal/modal-events'
 import Operation from '@/v2/features/operation/Operation.vue'
@@ -83,7 +72,7 @@ const {
   sidebarState,
   workspaceStore,
 } = defineProps<
-  Omit<ModalProps, 'options'> & { options: ApiClientModalOptionsRef }
+  Omit<ModalProps, 'options'> & { options: ApiClientOptionsRef }
 >()
 
 const activeWorkspace: ScalarListboxOption = {

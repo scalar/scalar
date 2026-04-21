@@ -7,6 +7,8 @@ import { migrateLocalStorageToIndexDb } from '@scalar/oas-utils/migrations'
 import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
 import type { Theme } from '@scalar/themes'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
+
+import type { ApiClientAppOptions } from '@/v2/features/app/helpers/create-api-client-app'
 import {
   type OperationExampleMeta,
   type WorkspaceEventBus,
@@ -124,6 +126,8 @@ export type AppState = {
   loading: Ref<boolean>
   /** Optional OAuth2 redirect URI override for auth prefill */
   oauth2RedirectUri?: string
+  /** Runtime behaviour overrides */
+  options?: ApiClientAppOptions
   /** The currently active entities */
   activeEntities: {
     /** The namespace of the current entity, e.g. "default" or a custom namespace */
@@ -179,6 +183,7 @@ export const createAppState = async ({
   customThemes = () => [],
   telemetryDefault,
   oauth2RedirectUri,
+  options,
 }: {
   router: Router
   fileLoader?: LoaderPlugin
@@ -186,6 +191,8 @@ export const createAppState = async ({
   fallbackThemeSlug?: MaybeRefOrGetter<string>
   telemetryDefault?: boolean
   oauth2RedirectUri?: string
+  /** Runtime behaviour overrides */
+  options?: ApiClientAppOptions
 }): Promise<AppState> => {
   /** Workspace event bus for handling workspace-level events. */
   const eventBus = createWorkspaceEventBus({
@@ -305,6 +312,7 @@ export const createAppState = async ({
         }),
       ],
       fileLoader,
+      fetch: options?.customFetch,
     })
   }
 
@@ -1058,5 +1066,6 @@ export const createAppState = async ({
       customThemes,
     },
     telemetry,
+    options,
   }
 }

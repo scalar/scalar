@@ -11,7 +11,5 @@ declare global {
   interface Window {
     dataDumpWorkspace: () => WorkspaceStore | null
     dumpAppState: typeof useAppState
-    /** A custom fetch function that can be used to proxy requests on electron */
-    proxiedFetch?: typeof fetch
   }
 }

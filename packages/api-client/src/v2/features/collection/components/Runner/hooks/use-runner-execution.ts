@@ -13,7 +13,11 @@ import {
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { type ComputedRef, type Ref, computed, ref } from 'vue'
 
-import { type ResponseInstance, sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
+import {
+  type CustomFetch,
+  type ResponseInstance,
+  sendRequest,
+} from '@/v2/blocks/operation-block/helpers/send-request'
 import { APP_VERSION } from '@/v2/constants'
 import { tryCatch } from '@/v2/helpers/safe-run'
 
@@ -54,6 +58,8 @@ type UseRunnerExecutionOptions = {
   isWeb: boolean
   /** Ordered list of selected items to run */
   selectedOrder: ComputedRef<SelectedItem[]>
+  /** Optional custom fetch implementation, overrides the global fetch for request execution */
+  customFetch?: CustomFetch
 }
 
 type UseRunnerExecutionReturn = {
@@ -94,6 +100,7 @@ export function useRunnerExecution({
   documentName,
   isWeb,
   selectedOrder,
+  customFetch,
 }: UseRunnerExecutionOptions): UseRunnerExecutionReturn {
   const isRunning = ref(false)
   const hasRunCompleted = ref(false)
@@ -256,6 +263,7 @@ export function useRunnerExecution({
         const [sendError, sendResult] = await sendRequest({
           isUsingProxy: requestResult.data.isUsingProxy,
           requestPayload: requestResult.data.requestPayload,
+          customFetch,
         })
 
         if (sendError) {

@@ -52,6 +52,9 @@ export type ResponseInstance = Omit<Response, 'headers'> & {
 /** HTTP status codes that should not include a response body */
 const NO_BODY_STATUS_CODES = [204, 205, 304]
 
+/** Custom fetch function signature compatible with the global fetch API */
+export type CustomFetch = (input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>
+
 /**
  * Execute the built fetch request and return a structured response.
  *
@@ -69,11 +72,14 @@ export const sendRequest = async ({
   isUsingProxy,
   requestPayload,
   plugins = [],
+  customFetch = fetch,
 }: {
   isUsingProxy: boolean
   requestPayload: RequestPayload
   /** Registered client plugins for custom content type handling */
   plugins?: ClientPlugin[]
+  /** Optional custom fetch implementation, overrides the global fetch */
+  customFetch?: CustomFetch
 }): Promise<
   ErrorResponse<{
     response: ResponseInstance
@@ -86,11 +92,8 @@ export const sendRequest = async ({
     // Execute the request and measure duration
     const startTime = performance.now()
 
-    // We may use a custom fetch function on electron
-    const response =
-      isElectron() && window.proxiedFetch
-        ? await window.proxiedFetch?.(...requestPayload)
-        : await fetch(buildSafeBodyRequest(...requestPayload))
+    // Use the custom fetch function if provided, otherwise use the global fetch (set by default)
+    const response = await customFetch(buildSafeBodyRequest(...requestPayload))
 
     const endTime = performance.now()
     const timestamp = Date.now()
