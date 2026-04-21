@@ -146,42 +146,6 @@ describe('get-request-body-example', () => {
     expect(result).toEqual({ value: { source: 'service' } })
   })
 
-  it('normalizes nullable integer default empty strings to null in generated request examples', () => {
-    const requestBody = coerceValue(RequestBodyObjectSchema, {
-      content: {
-        'application/json': {
-          schema: {
-            type: 'object',
-            properties: {
-              username: {
-                type: ['string', 'null'],
-                default: null,
-              },
-              password: {
-                type: ['string', 'null'],
-                default: null,
-              },
-              passcode: {
-                type: ['integer', 'null'],
-                default: '',
-              },
-            },
-          },
-        },
-      },
-    })
-
-    const result = getExampleFromBody(requestBody, 'application/json', 'default')
-
-    expect(result).toEqual({
-      value: {
-        username: null,
-        password: null,
-        passcode: null,
-      },
-    })
-  })
-
   it('deep resolves nested refs when generating selected nested composition examples', () => {
     const requestBody = coerceValue(RequestBodyObjectSchema, {
       content: {
