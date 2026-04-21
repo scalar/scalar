@@ -11,5 +11,5 @@ export type ResponsesObject = {
   /** The documentation of responses other than the ones declared for specific HTTP response codes. Use this field to cover undeclared responses. */
   default?: ResponseObject | ReferenceObject
   /** A map of status codes to response objects. */
-  [statusCode: `${number}`]: ResponseObject | ReferenceObject
+  [statusCode: string]: ResponseObject | ReferenceObject
 } & Record<`x-${string}`, unknown>
