@@ -1,5 +1,11 @@
 # @scalar/server-side-rendering
 
+## 0.1.4
+
+### Patch Changes
+
+- [#8919](https://github.com/scalar/scalar/pull/8919): fix build externals so Node built-ins remain runtime imports in the SSR bundle
+
 ## 0.1.3
 
 ### Patch Changes

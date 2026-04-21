@@ -1,5 +1,20 @@
 # @scalar/postman-to-openapi
 
+## 0.7.0
+
+### Minor Changes
+
+- [#8904](https://github.com/scalar/scalar/pull/8904): feat: don't keep all headers
+
+### Patch Changes
+
+- [#8901](https://github.com/scalar/scalar/pull/8901): fix fixture generation formatting by writing output textures with 2-space indented JSON so regeneration does not produce noisy diffs when data is unchanged
+- [#8901](https://github.com/scalar/scalar/pull/8901): Move Postman conversion fixtures into the repository and update tests to read local fixture files instead of downloading from cloud storage.
+- [#8899](https://github.com/scalar/scalar/pull/8899): resolve Postman `{{variables}}` in server URLs by substituting collection variable values and emitting OpenAPI server variables when values are unresolved or recursive
+- [#8900](https://github.com/scalar/scalar/pull/8900): fix(postman-to-openapi): preserve tag context when folder description is an empty string
+- [#8900](https://github.com/scalar/scalar/pull/8900): feat(postman-to-openapi): default to leaf-based tag naming with chain fallback option
+- [#8895](https://github.com/scalar/scalar/pull/8895): fix: omit response content for no-body status codes by default
+
 ## 0.6.3
 
 ### Patch Changes
