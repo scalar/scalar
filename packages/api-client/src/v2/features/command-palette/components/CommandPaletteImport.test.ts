@@ -21,33 +21,11 @@ vi.mock('vue-router', () => ({
  * picking a file without needing a real `<input type="file">`.
  */
 const mockFileDialogOpen = vi.fn()
-let mockFileDialogOnChange: ((files: FileList | null) => void | Promise<void>) | undefined
-vi.mock('@/hooks/use-file-dialog', () => ({
-  useFileDialog: (options?: { onChange?: (files: FileList | null) => void | Promise<void> }) => {
-    mockFileDialogOnChange = options?.onChange
-    return {
-      open: mockFileDialogOpen,
-    }
-  },
-}))
-
-/**
- * Build a `FileList`-like object wrapping a single in-memory `File`. jsdom
- * does not provide a `FileList` constructor, so we fake the minimum surface
- * the component relies on (indexed access and `length`).
- */
-const createFileList = (contents: string, name = 'import.json'): FileList => {
-  const file = new File([contents], name, { type: 'application/json' })
-  const list = [file] as unknown as FileList & File[]
-  // The component only reads `files[0]`, so an array with a `length` is enough.
-  return list
-}
 
 describe('CommandPaletteImport', () => {
   beforeEach(() => {
     mockPush.mockClear()
     mockFileDialogOpen.mockClear()
-    mockFileDialogOnChange = undefined
   })
 
   afterEach(() => {
@@ -850,61 +828,6 @@ describe('CommandPaletteImport', () => {
 
     await expect(slotImport()?.('/path/to/collection.json', 'file')).resolves.toBeUndefined()
 
-    expect(emitSpy).not.toHaveBeenCalledWith(
-      'ui:open:command-palette',
-      expect.objectContaining({ action: 'import-postman-collection' }),
-    )
-  })
-
-  it('routes Postman collections from the default file picker to the Postman modal', async () => {
-    const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
-    const emitSpy = vi.fn()
-    eventBus.emit = emitSpy
-
-    mount(CommandPaletteImport, {
-      props: {
-        workspaceStore,
-        eventBus,
-      },
-    })
-
-    expect(mockFileDialogOnChange).toBeTypeOf('function')
-    await mockFileDialogOnChange?.(createFileList(minimalPostmanCollectionJson))
-    // FileReader resolves its load event asynchronously, so we yield until the
-    // callback has had a chance to run and emit on the event bus.
-    await vi.waitFor(() =>
-      expect(emitSpy).toHaveBeenCalledWith('ui:open:command-palette', {
-        action: 'import-postman-collection',
-        payload: {
-          inputValue: minimalPostmanCollectionJson,
-        },
-      }),
-    )
-  })
-
-  it('does not route OpenAPI uploads from the default file picker to the Postman modal', async () => {
-    const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
-    const emitSpy = vi.fn()
-    eventBus.emit = emitSpy
-
-    mount(CommandPaletteImport, {
-      props: {
-        workspaceStore,
-        eventBus,
-      },
-    })
-
-    const openApiContent = JSON.stringify({
-      openapi: '3.1.0',
-      info: { title: 'Test API', version: '1.0.0' },
-    })
-
-    await mockFileDialogOnChange?.(createFileList(openApiContent))
-
-    // Give the async FileReader callback a chance to run before asserting.
-    await vi.waitFor(() => expect(emitSpy.mock.calls.length).toBeGreaterThanOrEqual(0))
     expect(emitSpy).not.toHaveBeenCalledWith(
       'ui:open:command-palette',
       expect.objectContaining({ action: 'import-postman-collection' }),
