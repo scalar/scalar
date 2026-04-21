@@ -42,8 +42,6 @@ type CreateApiClientOptions = {
    * Whether or not to send telemetry events.
    */
   telemetry?: boolean
-  /** Optional OAuth2 redirect URI override for auth prefill */
-  oauth2RedirectUri?: string
   /** Runtime behaviour overrides */
   options?: ApiClientAppOptions
 }
@@ -58,6 +56,8 @@ export type ApiClientAppOptions = {
    * and the request execution engine (sendRequest).
    */
   customFetch?: CustomFetch
+  /** OAuth2 redirect URI override for auth prefill */
+  oauth2RedirectUri?: string
 }
 
 /**
@@ -85,7 +85,6 @@ export const createApiClientApp = async (
     fallbackThemeSlug,
     fetchRegistryDocument,
     telemetry = true,
-    oauth2RedirectUri,
     options,
   }: CreateApiClientOptions,
 ) => {
@@ -96,7 +95,6 @@ export const createApiClientApp = async (
     customThemes,
     fallbackThemeSlug,
     telemetryDefault: telemetry,
-    oauth2RedirectUri,
     options,
   })
   const commandPaletteState = useCommandPaletteState()

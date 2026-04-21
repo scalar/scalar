@@ -102,7 +102,7 @@ describe('App', () => {
       routes: ROUTES,
     })
 
-    const appState = await createAppState({ router, oauth2RedirectUri })
+    const appState = await createAppState({ router, options: { oauth2RedirectUri } })
 
     await router.push({
       name: routeName,

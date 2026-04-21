@@ -124,8 +124,6 @@ export type AppState = {
   currentRoute: Ref<RouteLocationNormalizedGeneric | null>
   /** Whether the workspace is currently syncing */
   loading: Ref<boolean>
-  /** Optional OAuth2 redirect URI override for auth prefill */
-  oauth2RedirectUri?: string
   /** Runtime behaviour overrides */
   options?: ApiClientAppOptions
   /** The currently active entities */
@@ -182,7 +180,6 @@ export const createAppState = async ({
   fallbackThemeSlug = () => 'default',
   customThemes = () => [],
   telemetryDefault,
-  oauth2RedirectUri,
   options,
 }: {
   router: Router
@@ -190,7 +187,6 @@ export const createAppState = async ({
   customThemes?: MaybeRefOrGetter<Theme[]>
   fallbackThemeSlug?: MaybeRefOrGetter<string>
   telemetryDefault?: boolean
-  oauth2RedirectUri?: string
   /** Runtime behaviour overrides */
   options?: ApiClientAppOptions
 }): Promise<AppState> => {
@@ -1046,7 +1042,6 @@ export const createAppState = async ({
     router,
     currentRoute,
     loading: isSyncingWorkspace,
-    oauth2RedirectUri,
     activeEntities: {
       namespace,
       workspaceSlug,
