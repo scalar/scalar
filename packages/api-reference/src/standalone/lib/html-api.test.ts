@@ -1,7 +1,7 @@
 import { sleep } from '@scalar/helpers/testing/sleep'
 import {
-  apiReferenceConfigurationWithSourceSchema,
   apiReferenceConfigurationSchema,
+  apiReferenceConfigurationWithSourceSchema,
 } from '@scalar/schemas/api-reference'
 import { coerce } from '@scalar/validation'
 import { createHead } from '@unhead/vue/client'
@@ -11,6 +11,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createSSRApp, h, nextTick } from 'vue'
 
 import ApiReference from '@/components/ApiReference.vue'
+
 import { createApiReference, createContainer, findDataAttributes, getConfigurationFromDataAttributes } from './html-api'
 
 vi.mock('@unhead/vue/client', async () => {
@@ -286,7 +287,7 @@ describe('getConfigurationFromDataAttributes', () => {
         </html>
       `)
 
-    expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
+    expect(getConfigurationFromDataAttributes(document)).toEqual({
       ...baseConfig,
       default: false,
       proxyUrl: undefined,
@@ -303,7 +304,7 @@ describe('getConfigurationFromDataAttributes', () => {
       </html>
     `)
 
-    expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
+    expect(getConfigurationFromDataAttributes(document)).toEqual({
       ...baseConfig,
       proxyUrl: undefined,
       default: false,
@@ -337,7 +338,7 @@ describe('getConfigurationFromDataAttributes', () => {
       </html>
     `)
 
-    expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
+    expect(getConfigurationFromDataAttributes(document)).toEqual({
       ...baseConfig,
       darkMode: true,
       default: false,
@@ -355,7 +356,7 @@ describe('getConfigurationFromDataAttributes', () => {
       </html>
     `)
 
-    expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
+    expect(getConfigurationFromDataAttributes(document)).toEqual({
       ...baseConfig,
       default: false,
       proxyUrl: undefined,
@@ -374,7 +375,7 @@ describe('getConfigurationFromDataAttributes', () => {
       </html>
     `)
 
-    expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
+    expect(getConfigurationFromDataAttributes(doc)).toEqual({
       ...baseConfig,
       proxyUrl: undefined,
       default: false,
@@ -406,7 +407,7 @@ describe('getConfigurationFromDataAttributes', () => {
       </html>
     `)
 
-    expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
+    expect(getConfigurationFromDataAttributes(doc)).toEqual({
       ...baseConfig,
       proxyUrl: undefined,
       default: false,

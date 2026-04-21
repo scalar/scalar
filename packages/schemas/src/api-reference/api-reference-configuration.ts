@@ -3,6 +3,7 @@ import {
   array,
   boolean,
   coerce,
+  fn,
   intersection,
   literal,
   object,
@@ -10,11 +11,12 @@ import {
   record,
   string,
   union,
-  fn,
 } from '@scalar/validation'
+
+import { apiReferencePluginSchema } from '@/api-reference/api-reference-plugin'
+
 import { baseConfigurationSchema } from './base-configuration'
 import { sourceConfigurationSchema } from './source-configuration'
-import { apiReferencePluginSchema } from '@/api-reference/api-reference-plugin'
 
 export const apiReferenceConfigurationSchema = intersection([
   baseConfigurationSchema,
@@ -217,7 +219,7 @@ export const apiReferenceConfigurationSchema = intersection([
   }),
 ])
 
-export const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
+const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
 const NEW_PROXY_URL = 'https://proxy.scalar.com'
 
 export const apiReferenceConfigurationWithSourceSchema = (rawInput: unknown) => {
@@ -252,7 +254,10 @@ export const apiReferenceConfigurationWithSourceSchema = (rawInput: unknown) => 
   if (input.proxy) {
     console.warn(`[DEPRECATED] You're using the deprecated 'proxy' attribute. Use 'proxyUrl' instead.`)
 
-    input.proxyUrl = input.proxy
+    if (!input.proxyUrl) {
+      input.proxyUrl = input.proxy
+    }
+
     delete input.proxy
   }
 

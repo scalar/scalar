@@ -1,6 +1,6 @@
 import { type Static, any, array, fn, object, optional, record, string, unknown } from '@scalar/validation'
 
-export const openApiExtensionSchema = object({
+const openApiExtensionSchema = object({
   name: string({
     typeComment: 'Name of specification extension property. Has to start with \`x-\`.',
   }),
@@ -14,7 +14,7 @@ export const openApiExtensionSchema = object({
   ),
 })
 
-export const viewComponentSchema = object({
+const viewComponentSchema = object({
   component: unknown({
     typeComment: 'Vue component to render in the view',
   }),
@@ -28,13 +28,13 @@ export const viewComponentSchema = object({
   }),
 })
 
-export const viewsSchema = object({
+const viewsSchema = object({
   'content.end': optional(array(viewComponentSchema), {
     typeComment: 'Components to render at specific views in the API Reference',
   }),
 })
 
-export const lifecycleHooksSchema = object({
+const lifecycleHooksSchema = object({
   onInit: optional(fn<({ config }: { config: any }) => void>()),
   onConfigChange: optional(fn<({ config }: { config: any }) => void>()),
   onDestroy: optional(fn<() => void>()),
