@@ -172,8 +172,6 @@ const createEndOfCentralDirectoryRecord = ({
   return record
 }
 
-const CRC_TABLE = createCrcTable()
-
 const createCrcTable = (): Uint32Array => {
   const table = new Uint32Array(256)
 
@@ -189,6 +187,8 @@ const createCrcTable = (): Uint32Array => {
 
   return table
 }
+
+const CRC_TABLE = createCrcTable()
 
 const calculateCrc32 = (input: Uint8Array): number => {
   let crc = 0xffffffff
