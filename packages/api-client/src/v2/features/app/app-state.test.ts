@@ -80,6 +80,35 @@ describe('app-state', () => {
     expect(router.currentRoute.value.name).toBe('document.overview')
   })
 
+  it('syncs the active tab path to the URL-based route on initial load when saved tabs exist', async () => {
+    const savedTabPath = '/@local/sync-tabs/document/drafts/servers'
+    await persistWorkspace({
+      slug: 'sync-tabs',
+      tabs: [{ path: savedTabPath, title: 'Saved Tab' }],
+    })
+
+    const router = setupRouter()
+    const appState = await createAppState({ router })
+
+    await router.push({
+      name: 'document.overview',
+      params: { namespace: 'local', workspaceSlug: 'sync-tabs', documentSlug: 'drafts' },
+    })
+
+    // Wait until the workspace has finished loading — once store.value is populated
+    // the tabs computed switches from the currentRoute fallback to persisted tabs.
+    // Without the fix, that persisted path would still be stale.
+    await vi.waitFor(() => {
+      expect(appState.store.value).not.toBeNull()
+    })
+
+    const activeIndex = appState.tabs.activeTabIndex.value
+    const activeTab = appState.tabs.state.value[activeIndex]
+    // The active tab must track the URL-based route, not the stale persisted path
+    expect(activeTab?.path).toBe(router.currentRoute.value.path)
+    expect(activeTab?.path).not.toBe(savedTabPath)
+  })
+
   it('redirects to the saved tab path when switching workspaces after initial load', async () => {
     const savedTabPath = '/@local/switch-target/document/drafts/servers'
     await persistWorkspace({ slug: 'switch-source' })

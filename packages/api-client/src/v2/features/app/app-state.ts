@@ -479,7 +479,7 @@ export const createAppState = async ({
    *    - If found, navigates to the active tab path (if available).
    *    - If not found, creates the default workspace and navigates to it.
    */
-  const changeWorkspace = async (namespace: string, slug: string) => {
+  const changeWorkspace = async (namespace: string, slug: string, to?: RouteLocationNormalizedGeneric) => {
     /** For initial load we want to fall through to our router default behaviour */
     const isInitialLoad = activeWorkspace.value === null
 
@@ -518,6 +518,14 @@ export const createAppState = async ({
           'x-scalar-tabs': [createTabFromRoute(currentRoute.value)],
           'x-scalar-active-tab': 0,
         })
+      }
+
+      // On initial load the router.replace above is skipped, so syncTabs/syncSidebar
+      // are never reached via handleRouteChange's normal flow. Call them here to
+      // align the tab bar and sidebar with the URL-based route.
+      if (isInitialLoad && to) {
+        syncTabs(to)
+        syncSidebar(to)
       }
 
       isSyncingWorkspace.value = false
@@ -932,7 +940,7 @@ export const createAppState = async ({
     }
 
     if (getWorkspaceId(namespace.value, slug) !== activeWorkspace.value?.id) {
-      return changeWorkspace(namespace.value, slug)
+      return changeWorkspace(namespace.value, slug, to)
     }
 
     // Update the active document if the document slug has changes
