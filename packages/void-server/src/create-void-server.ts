@@ -81,11 +81,9 @@ documentationApp.openapi(
     tags: ['Void'],
     request: {
       params: z.object({
-        status: z
-          .string()
-          .openapi({
-            examples: ['404', '500', '204'],
-          }),
+        status: z.string().openapi({
+          examples: ['404', '500', '204'],
+        }),
       }),
     },
     responses: {
@@ -126,8 +124,7 @@ documentationApp.openapi(
     method: 'get',
     path: '/{filename}.{extension}',
     summary: 'Mirror request data by file extension',
-    description:
-      'Forces the response format based on extension: `.json`, `.xml`, `.html`, or `.zip`.',
+    description: 'Forces the response format based on extension: `.json`, `.xml`, `.html`, or `.zip`.',
     tags: ['Void'],
     request: {
       params: z.object({
