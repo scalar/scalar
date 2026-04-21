@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components'
 import { ScalarIconArrowCounterClockwise, ScalarIconPlay } from '@scalar/icons'
-import { computed } from 'vue'
+import { computed, toValue } from 'vue'
 
 import type { CollectionProps } from '@/v2/features/app/helpers/routes'
 import Section from '@/v2/features/settings/components/Section.vue'
@@ -12,8 +12,14 @@ import RunnerOrderItem from './RunnerOrderItem.vue'
 import RunnerResults from './RunnerResults.vue'
 import RunnerTree from './RunnerTree.vue'
 
-const { document, collectionType, workspaceStore, documentSlug, layout } =
-  defineProps<CollectionProps>()
+const {
+  document,
+  collectionType,
+  workspaceStore,
+  documentSlug,
+  layout,
+  options,
+} = defineProps<CollectionProps>()
 
 const {
   selectedOrder,
@@ -51,6 +57,7 @@ const {
   documentName: documentSlug,
   isWeb: layout === 'web',
   selectedOrder: computed(() => selectedOrder.value),
+  customFetch: toValue(options)?.customFetch,
 })
 
 const isLocked = computed(() => isRunning.value || hasRunCompleted.value)

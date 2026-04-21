@@ -1,16 +1,24 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
 import { flushPromises, mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import 'fake-indexeddb/auto'
 
+import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
 import { useCommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 
 import App from './App.vue'
 import { createAppState } from './app-state'
 import { ROUTES } from './helpers/routes'
+
+/** Minimal valid OpenAPI document used for mock fetch responses */
+const MOCK_OPENAPI_DOC = {
+  openapi: '3.1.0',
+  info: { title: 'Mock API', version: '1.0.0' },
+  paths: {},
+}
 
 /**
  * Critical tests for the main App component
@@ -89,10 +97,12 @@ describe('App', () => {
   const setupApp = async ({
     layout = 'web',
     oauth2RedirectUri,
+    customFetch,
     routeName = 'document.overview',
   }: {
     layout?: 'web' | 'desktop'
     oauth2RedirectUri?: string
+    customFetch?: CustomFetch
     routeName?: 'document.overview' | 'document.authentication'
   } = {}) => {
     await setupWorkspace()
@@ -102,7 +112,7 @@ describe('App', () => {
       routes: ROUTES,
     })
 
-    const appState = await createAppState({ router, oauth2RedirectUri })
+    const appState = await createAppState({ router, options: { oauth2RedirectUri, customFetch } })
 
     await router.push({
       name: routeName,
@@ -189,5 +199,56 @@ describe('App', () => {
     })
 
     expect(wrapper.text()).toContain('Authentication')
+  })
+
+  it('stores the provided customFetch in appState options', async () => {
+    const customFetch = vi.fn() as unknown as CustomFetch
+    const { appState } = await setupApp({ customFetch })
+
+    expect(appState.options?.customFetch).toBe(customFetch)
+  })
+
+  it('customFetch is undefined in appState options when not provided', async () => {
+    const { appState } = await setupApp()
+
+    expect(appState.options?.customFetch).toBeUndefined()
+  })
+
+  it('workspace store uses customFetch when loading a document from URL', async () => {
+    const customFetch = vi.fn<CustomFetch>().mockResolvedValue(
+      new Response(JSON.stringify(MOCK_OPENAPI_DOC), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    )
+
+    const { appState } = await setupApp({ customFetch })
+
+    await appState.store.value?.addDocument({
+      name: 'remote-api',
+      url: 'https://example.com/openapi.json',
+    })
+
+    expect(customFetch).toHaveBeenCalledTimes(1)
+    expect(customFetch).toHaveBeenCalledWith('https://example.com/openapi.json', { headers: undefined })
+  })
+
+  it('workspace store uses global fetch when customFetch is not provided', async () => {
+    const globalFetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(MOCK_OPENAPI_DOC), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    )
+
+    const { appState } = await setupApp()
+
+    await appState.store.value?.addDocument({
+      name: 'remote-api',
+      url: 'https://example.com/openapi.json',
+    })
+
+    expect(globalFetchSpy).toHaveBeenCalledWith('https://example.com/openapi.json', { headers: undefined })
+    globalFetchSpy.mockRestore()
   })
 })

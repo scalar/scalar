@@ -9,7 +9,7 @@ import 'fake-indexeddb/auto'
 
 import { mockEventBus } from '@/v2/helpers/test-utils'
 
-import type { ApiClientModalOptions, ApiClientModalOptionsRef } from './helpers/types'
+import type { ApiClientOptions, ApiClientOptionsRef } from './helpers/types'
 import { useModalSidebar } from './hooks/use-modal-sidebar'
 import Modal from './Modal.vue'
 
@@ -36,7 +36,7 @@ const getDocument = (overrides: Partial<OpenApiDocument> = {}): OpenApiDocument 
   ...overrides,
 })
 
-const createModalOptions = (options: ApiClientModalOptions = {}): ApiClientModalOptionsRef => ref(options)
+const createModalOptions = (options: ApiClientOptions = {}): ApiClientOptionsRef => ref(options)
 
 /**
  * Creates a complete modal props setup for testing.

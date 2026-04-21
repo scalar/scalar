@@ -11,9 +11,9 @@ import 'fake-indexeddb/auto'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 
 import Modal, { type ModalProps } from '@/v2/features/modal/Modal.vue'
+import type { ApiClientOptions, ApiClientOptionsRef } from '@/v2/types/options'
 
 import { createApiClientModal } from './create-api-client-modal'
-import type { ApiClientModalOptions, ApiClientModalOptionsRef } from './types'
 
 enableAutoUnmount(afterEach)
 
@@ -61,7 +61,7 @@ describe('createApiClientModal', () => {
   /** Track Vue apps created in tests to ensure proper cleanup */
   const createdApps: App[] = []
   type MountedModalProps = Omit<ModalProps, 'options'> & {
-    options: ApiClientModalOptionsRef
+    options: ApiClientOptionsRef
   }
 
   /** Accesses the root props passed to the modal app instance */
@@ -219,7 +219,7 @@ describe('createApiClientModal', () => {
     })
     store.update('x-scalar-active-document', 'test-doc')
 
-    const options = ref<ApiClientModalOptions>({
+    const options = ref<ApiClientOptions>({
       authentication: {
         securitySchemes: {
           oauth2: {
@@ -333,7 +333,7 @@ describe('createApiClientModal', () => {
     })
     store.update('x-scalar-active-document', 'test-doc')
 
-    const options = ref<ApiClientModalOptions>({
+    const options = ref<ApiClientOptions>({
       authentication: {
         securitySchemes: {
           oauth2: {

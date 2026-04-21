@@ -20,7 +20,7 @@ import Settings from '@/v2/features/collection/components/Settings.vue'
 import DocumentCollection from '@/v2/features/collection/DocumentCollection.vue'
 import OperationCollection from '@/v2/features/collection/OperationCollection.vue'
 import WorkspaceCollection from '@/v2/features/collection/WorkspaceCollection.vue'
-import type { ApiClientModalOptions } from '@/v2/features/modal/helpers/types'
+import type { ApiClientOptions } from '@/v2/types/options'
 import { Operation } from '@/v2/features/operation'
 import { workspaceStorage } from '@/v2/helpers/storage'
 import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
@@ -66,7 +66,7 @@ export type RouteProps = {
   /** Updates the telemetry enabled state */
   onUpdateTelemetry?: (value: boolean) => void
   /** App or modal options forwarded to operation/auth blocks */
-  options?: MaybeRefOrGetter<ApiClientModalOptions>
+  options?: MaybeRefOrGetter<ApiClientOptions>
 }
 
 /** When in the collections pages */

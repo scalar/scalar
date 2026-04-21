@@ -9,11 +9,11 @@ import {
   type RoutePayload,
   resolveRouteParameters,
 } from '@/v2/features/modal/helpers/resolve-route-parameters'
-import type { ApiClientModalOptions, ApiClientModalOptionsRef } from '@/v2/features/modal/helpers/types'
+import type { ApiClientOptions, ApiClientOptionsRef } from '@/v2/types/options'
 import { useModalSidebar } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import Modal, { type ModalProps } from '@/v2/features/modal/Modal.vue'
 
-type CreateApiClientModalOptions = {
+type CreateApiClientOptions = {
   /** Element to mount the client modal to. */
   el: HTMLElement | null
   /**
@@ -28,7 +28,7 @@ type CreateApiClientModalOptions = {
   /** Api client plugins to include in the modal */
   plugins?: ClientPlugin[]
   /** Subset of the configuration options for the modal, if you want it to be reactive ensure its a ref */
-  options?: MaybeRefOrGetter<ApiClientModalOptions>
+  options?: MaybeRefOrGetter<ApiClientOptions>
 }
 
 export type ApiClientModal = {
@@ -36,7 +36,7 @@ export type ApiClientModal = {
   open: (payload?: RoutePayload) => void
   mount: (mountingEl: HTMLElement | null) => void
   route: (payload: RoutePayload) => void
-  updateOptions: (nextOptions: ApiClientModalOptions, overwrite?: boolean) => void
+  updateOptions: (nextOptions: ApiClientOptions, overwrite?: boolean) => void
   modalState: ModalState
 }
 
@@ -55,11 +55,11 @@ export const createApiClientModal = ({
   plugins = [],
   workspaceStore,
   options = {},
-}: CreateApiClientModalOptions): ApiClientModal => {
+}: CreateApiClientOptions): ApiClientModal => {
   const requestBodyCompositionSelection = ref<Record<string, number>>({})
 
   /** This is to ensure that the options are a ref if they are not already, useful for react */
-  const optionsRef = (isRef(options) ? options : ref(toValue(options))) as ApiClientModalOptionsRef
+  const optionsRef = (isRef(options) ? options : ref(toValue(options))) as ApiClientOptionsRef
 
   const defaultEntities: DefaultEntities = {
     path: 'default',
@@ -191,7 +191,7 @@ export const createApiClientModal = ({
      * @param newOptions - The new options to merge into the current modal options.
      * @param overwrite - Whether to overwrite the current modal options with the new options. If false, the new options will be merged with the current options.
      */
-    updateOptions: (newOptions: ApiClientModalOptions, overwrite = false): void => {
+    updateOptions: (newOptions: ApiClientOptions, overwrite = false): void => {
       optionsRef.value = overwrite
         ? newOptions
         : {

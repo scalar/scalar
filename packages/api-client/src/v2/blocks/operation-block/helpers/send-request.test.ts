@@ -1,13 +1,19 @@
+import { isElectron } from '@scalar/helpers/general/is-electron'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { sendRequest } from './send-request'
+
+vi.mock('@scalar/helpers/general/is-electron', () => ({
+  isElectron: vi.fn(() => false),
+}))
 
 const MOCK_URL = 'https://api.example.com'
 
 const globalFetchSpy = vi.spyOn(global, 'fetch')
 afterEach(() => {
   globalFetchSpy.mockReset()
+  vi.mocked(isElectron).mockReturnValue(false)
 })
 
 describe('sendRequest', () => {
@@ -85,6 +91,57 @@ describe('sendRequest', () => {
 
     return addUrlToResponse(response, url)
   }
+
+  it('uses global fetch when customFetch is not provided', async () => {
+    const requestInit: RequestInit = {}
+    globalFetchSpy.mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, requestInit))
+
+    const [error, result] = await sendRequest({
+      isUsingProxy: false,
+      requestPayload: [MOCK_URL, requestInit],
+    })
+
+    expect(error).toBe(null)
+    expect(globalFetchSpy).toHaveBeenCalledTimes(1)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
+    expect(result.response.status).toBe(200)
+  })
+
+  it('uses customFetch instead of global fetch when provided', async () => {
+    const requestInit: RequestInit = {}
+    const customFetch = vi.fn().mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, requestInit))
+
+    const [error, result] = await sendRequest({
+      isUsingProxy: false,
+      requestPayload: [MOCK_URL, requestInit],
+      customFetch,
+    })
+
+    expect(error).toBe(null)
+    expect(customFetch).toHaveBeenCalledTimes(1)
+    expect(globalFetchSpy).not.toHaveBeenCalled()
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
+    expect(result.response.status).toBe(200)
+  })
+
+  it('propagates errors thrown by customFetch as request failures', async () => {
+    const customFetch = vi.fn().mockRejectedValueOnce(new TypeError('Custom fetch failed'))
+
+    const [error, result] = await sendRequest({
+      isUsingProxy: false,
+      requestPayload: [MOCK_URL, {}],
+      customFetch,
+    })
+
+    expect(result).toBe(null)
+    expect(error).not.toBe(null)
+    expect(error?.message).toContain('Custom fetch failed')
+    expect(globalFetchSpy).not.toHaveBeenCalled()
+  })
 
   it('sends a basic request and returns response data', async () => {
     const requestInit: RequestInit = {}
@@ -1187,6 +1244,85 @@ describe('sendRequest', () => {
       }
       const [cookieStr] = result.response.cookieHeaderKeys
       expect(cookieStr).toBe('token=abc123def456; Path=/')
+    })
+  })
+
+  describe('fetch dispatch (electron vs browser)', () => {
+    it('calls customFetch with a single Request object in non-Electron environments', async () => {
+      const customFetch = vi.fn().mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, {}))
+
+      await sendRequest({
+        isUsingProxy: false,
+        requestPayload: [MOCK_URL, { method: 'GET' }],
+        customFetch,
+      })
+
+      expect(customFetch).toHaveBeenCalledTimes(1)
+      // buildSafeBodyRequest wraps the args into a single Request — not a spread (url, init)
+      const callArgs = customFetch.mock.calls[0]!
+      expect(callArgs).toHaveLength(1)
+      expect(callArgs[0]).toBeInstanceOf(Request)
+    })
+
+    it('strips the body from GET requests in non-Electron environments', async () => {
+      const customFetch = vi.fn().mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, {}))
+
+      await sendRequest({
+        isUsingProxy: false,
+        requestPayload: [MOCK_URL, { method: 'GET', body: '{"key":"value"}' }],
+        customFetch,
+      })
+
+      const [requestArg] = customFetch.mock.calls[0] as [Request]
+      // buildSafeBodyRequest nulls the body for methods that cannot have one
+      expect(requestArg.body).toBe(null)
+    })
+
+    it('preserves the body on POST requests in non-Electron environments', async () => {
+      const customFetch = vi.fn().mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, {}))
+
+      await sendRequest({
+        isUsingProxy: false,
+        requestPayload: [MOCK_URL, { method: 'POST', body: '{"key":"value"}' }],
+        customFetch,
+      })
+
+      const [requestArg] = customFetch.mock.calls[0] as [Request]
+      expect(requestArg.body).not.toBe(null)
+    })
+
+    it('calls customFetch with spread (url, init) args in Electron, bypassing buildSafeBodyRequest', async () => {
+      // In Electron, customFetch(...requestPayload) is used — two args, not a wrapped Request
+      vi.mocked(isElectron).mockReturnValueOnce(true)
+      const body = '{"key":"value"}'
+      const customFetch = vi.fn().mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, {}))
+
+      await sendRequest({
+        isUsingProxy: false,
+        requestPayload: [MOCK_URL, { method: 'GET', body }],
+        customFetch,
+      })
+
+      const callArgs = customFetch.mock.calls[0] as [string, RequestInit]
+      expect(callArgs).toHaveLength(2)
+      expect(callArgs[0]).toBe(MOCK_URL)
+      expect(callArgs[1].body).toBe(body)
+    })
+
+    it('preserves GET body in Electron where the underlying runtime allows it', async () => {
+      vi.mocked(isElectron).mockReturnValueOnce(true)
+      const body = JSON.stringify({ data: 'test' })
+      const customFetch = vi.fn().mockResolvedValueOnce(createMockEchoResponse(MOCK_URL, {}))
+
+      await sendRequest({
+        isUsingProxy: false,
+        requestPayload: [MOCK_URL, { method: 'GET', body }],
+        customFetch,
+      })
+
+      const [, initArg] = customFetch.mock.calls[0] as [string, RequestInit]
+      // Body must not be stripped — Electron's undici-based runtime accepts it
+      expect(initArg.body).toBe(body)
     })
   })
 })
