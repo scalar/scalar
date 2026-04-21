@@ -31,7 +31,10 @@ import type {
 import { computed, ref, watch } from 'vue'
 
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
-import { authorizeOauth2 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
+import {
+  authorizeOauth2,
+  refreshOauth2Token,
+} from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
 import { resolveDefaultOAuth2RedirectUri } from '@/v2/blocks/scalar-auth-selector-block/helpers/resolve-default-oauth2-redirect-url'
 import { DataTableRow } from '@/v2/components/data-table'
 
@@ -129,10 +132,25 @@ const handleOauth2SecretsUpdate = (
   })
 
 /** Clears the flow secrets */
-const clearOauth2Secrets = (): void =>
+const clearOauth2Secrets = (): void => {
+  if (loader.isLoading) {
+    return
+  }
   eventBus.emit('auth:clear:security-scheme-secrets', {
     name,
   })
+}
+
+/** Clears stored access and refresh tokens (authorized state) */
+const handleClearAccessTokens = (): void => {
+  if (loader.isLoading) {
+    return
+  }
+  handleOauth2SecretsUpdate({
+    'x-scalar-secret-token': '',
+    'x-scalar-secret-refresh-token': '',
+  })
+}
 
 /** Track if we have set the redirect uri */
 const hasPrefilledRedirectUri = ref(false)
@@ -197,6 +215,54 @@ const handleAuthorize = async (): Promise<void> => {
   }
 }
 
+/** Whether the current flow supports refreshing the access token */
+const supportsRefreshToken = computed(() => type !== 'implicit')
+
+/**
+ * Refresh URL placeholder, shows tokenUrl as hint if refreshUrl is not specified.
+ * This helps users understand that tokenUrl will be used as fallback.
+ */
+const refreshUrlPlaceholder = computed(() => {
+  if ('tokenUrl' in flow.value && flow.value.tokenUrl) {
+    return flow.value.tokenUrl
+  }
+  return 'https://galaxy.scalar.com/oauth/refresh'
+})
+
+/**
+ * Uses the stored refresh token to obtain a new access token
+ * via grant_type=refresh_token.
+ */
+const handleRefresh = async (): Promise<void> => {
+  if (loader.isLoading || type === 'implicit') {
+    return
+  }
+
+  loader.start()
+
+  const [error, tokens] = await refreshOauth2Token(
+    flows,
+    type,
+    proxyUrl,
+    server,
+    getEnvironmentVariables(environment),
+  )
+
+  await loader.clear()
+
+  if (tokens?.accessToken) {
+    handleOauth2SecretsUpdate({
+      'x-scalar-secret-token': tokens.accessToken,
+      ...(tokens.refreshToken
+        ? { 'x-scalar-secret-refresh-token': tokens.refreshToken }
+        : {}),
+    })
+  } else {
+    console.error(error)
+    toast(error?.message ?? 'Failed to refresh token', 'error')
+  }
+}
+
 /** Updates the secret location */
 const handleSecretLocationUpdate = (value: string): void => {
   const credentialsLocation = value === 'body' ? 'body' : 'header'
@@ -230,20 +296,34 @@ const handleSecretLocationUpdate = (value: string): void => {
       </RequestAuthDataTableInput>
     </DataTableRow>
 
+    <DataTableRow v-if="supportsRefreshToken">
+      <RequestAuthDataTableInput
+        class="border-r-transparent"
+        :environment
+        :modelValue="flow.refreshUrl ?? ''"
+        :placeholder="refreshUrlPlaceholder"
+        @update:modelValue="(v) => handleOauth2Update({ refreshUrl: v })">
+        Refresh URL
+      </RequestAuthDataTableInput>
+    </DataTableRow>
+
     <DataTableRow class="min-w-full">
       <div class="flex h-8 items-center justify-end gap-2 border-t">
         <ScalarButton
-          class="mr-1 p-0 px-2 py-0.5"
+          v-if="supportsRefreshToken"
+          class="p-0 px-2 py-0.5"
           :loader
           size="sm"
           variant="outlined"
-          @click="
-            () =>
-              handleOauth2SecretsUpdate({
-                'x-scalar-secret-token': '',
-                'x-scalar-secret-refresh-token': '',
-              })
-          ">
+          @click="handleRefresh">
+          Refresh
+        </ScalarButton>
+        <ScalarButton
+          class="mr-1 p-0 px-2 py-0.5"
+          :disabled="loader.isLoading"
+          size="sm"
+          variant="outlined"
+          @click="handleClearAccessTokens">
           Clear
         </ScalarButton>
       </div>
@@ -400,7 +480,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         <ScalarButton
           v-if="scheme.type === 'openIdConnect'"
           class="mr-1 p-0 px-2 py-0.5"
-          :loader
+          :disabled="loader.isLoading"
           size="sm"
           variant="outlined"
           @click="clearOauth2Secrets">
