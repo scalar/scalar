@@ -77,54 +77,6 @@ documentationApp.openapi(
 documentationApp.openapi(
   createRoute({
     method: 'get',
-    path: '/{status}',
-    summary: 'Return HTTP status responses',
-    description:
-      'Returns standard HTTP error messages for `4xx` and `5xx` status routes, and an empty body for `/204`.',
-    tags: ['Void'],
-    request: {
-      params: z.object({
-        status: z.string().openapi({
-          examples: ['404', '500', '204'],
-        }),
-      }),
-    },
-    responses: {
-      200: {
-        description: 'Status route response.',
-        content: {
-          'text/plain': {
-            schema: z.string(),
-          },
-        },
-      },
-      204: {
-        description: 'No content response.',
-      },
-      400: {
-        description: 'HTTP error message as plain text.',
-        content: {
-          'text/plain': {
-            schema: z.string(),
-          },
-        },
-      },
-      500: {
-        description: 'HTTP error message as plain text.',
-        content: {
-          'text/plain': {
-            schema: z.string(),
-          },
-        },
-      },
-    },
-  }),
-  (c) => c.text('Not Found'),
-)
-
-documentationApp.openapi(
-  createRoute({
-    method: 'get',
     path: '/{filename}.{extension}',
     summary: 'Mirror request data by file extension',
     description: 'Forces the response format based on extension: `.json`, `.xml`, `.html`, or `.zip`.',
@@ -164,12 +116,15 @@ documentationApp.openapi(
   createRoute({
     method: 'get',
     path: '/{path}',
-    summary: 'Mirror dynamic paths',
-    description: 'Mirrors request data for dynamic paths.',
+    summary: 'Mirror dynamic paths and status routes',
+    description:
+      'Mirrors request data for dynamic paths. Requests to `/204` return no content, and `/4xx` and `/5xx` routes return HTTP error messages as plain text.',
     tags: ['Void'],
     request: {
       params: z.object({
-        path: z.string(),
+        path: z.string().openapi({
+          examples: ['example', '204', '404', '500'],
+        }),
       }),
     },
     responses: {

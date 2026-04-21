@@ -9,6 +9,10 @@ describe('createVoidServer', () => {
 
     const response = await server.request('/openapi.json')
     const document = await response.json()
+    const templatedPaths = Object.keys(document.paths)
+      .filter((path) => path.includes('{'))
+      .sort()
+    const canonicalTemplatedPaths = templatedPaths.map((path) => path.replace(/\{[^}]+\}/g, '{}'))
 
     expect(response.status).toBe(200)
     expect(response.headers.get('Content-Type')).toContain('application/json')
@@ -21,6 +25,8 @@ describe('createVoidServer', () => {
     expect(document.paths['/docs']).toBeDefined()
     expect(document.paths['/openapi.json']).toBeDefined()
     expect(document.paths['/openapi.yaml']).toBeDefined()
+    expect(templatedPaths).toStrictEqual(['/{filename}.{extension}', '/{path}'])
+    expect(new Set(canonicalTemplatedPaths).size).toBe(canonicalTemplatedPaths.length)
   })
 
   it('returns OpenAPI YAML', async () => {
