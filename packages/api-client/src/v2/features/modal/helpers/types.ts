@@ -1,1 +1,1 @@
-export type { ApiClientOptions as ApiClientModalOptions, ApiClientOptionsRef as ApiClientModalOptionsRef } from '@/v2/types/options'
+export type { ApiClientOptions, ApiClientOptionsRef } from '@/v2/types/options'

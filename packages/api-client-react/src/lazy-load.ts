@@ -1,4 +1,4 @@
-import type { ApiClientModalOptions } from '@scalar/api-client/modal'
+import type { ApiClientOptions } from '@scalar/api-client/modal'
 
 /**
  * Creates a lazy singleton getter: the factory runs at most once, caches the resulting promise,
@@ -43,7 +43,7 @@ export const getWorkspaceEventBusSingleton = makeLazySingleton(() =>
  * (`url`, `content`) must be registered via `workspaceStore.addDocument` after the client
  * is ready — they are not part of the modal constructor.
  */
-export const getOrCreateApiClient = makeLazySingleton(async (options: ApiClientModalOptions = {}) => {
+export const getOrCreateApiClient = makeLazySingleton(async (options: ApiClientOptions = {}) => {
   const el = document.createElement('div')
   el.className = 'scalar-app'
   document.body.appendChild(el)
