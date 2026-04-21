@@ -27,12 +27,15 @@ const props = withDefaults(
     environment: XScalarEnvironment
     description?: string | undefined
     lineWrapping?: boolean
+    /** Whether to show context function suggestions like $guid, $timestamp. Defaults to true */
+    withFakeData?: boolean
   }>(),
   {
     canAddCustomEnumValue: true,
     required: false,
     readOnly: false,
     lineWrapping: false,
+    withFakeData: true,
   },
 )
 
@@ -122,6 +125,7 @@ const handleLabelClick = () => {
           :required="Boolean(required)"
           spellcheck="false"
           :type="inputType"
+          :withFakeData="withFakeData"
           @blur="handleBlur"
           @focus="emit('inputFocus')"
           @update:modelValue="(value) => emit('update:modelValue', value)" />
