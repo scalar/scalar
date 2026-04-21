@@ -2,6 +2,27 @@ import { describe, expect, it } from 'vitest'
 
 import { createVoidServer } from '@/create-void-server'
 
+const getSignature = (bytes: Uint8Array, offset: number): number => {
+  return new DataView(bytes.buffer, bytes.byteOffset + offset, 4).getUint32(0, true)
+}
+
+const extractStoredEntry = (bytes: Uint8Array): { content: string; fileName: string } => {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+  const fileNameLength = view.getUint16(26, true)
+  const extraFieldLength = view.getUint16(28, true)
+  const fileNameOffset = 30
+  const contentOffset = fileNameOffset + fileNameLength + extraFieldLength
+  const uncompressedSize = view.getUint32(22, true)
+
+  const fileName = new TextDecoder().decode(bytes.slice(fileNameOffset, fileNameOffset + fileNameLength))
+  const content = new TextDecoder().decode(bytes.slice(contentOffset, contentOffset + uncompressedSize))
+
+  return {
+    fileName,
+    content,
+  }
+}
+
 describe('createVoidServer', () => {
   it('GET /foobar', async () => {
     const server = await createVoidServer()
@@ -331,6 +352,22 @@ describe('createVoidServer', () => {
     expect(response.headers.get('Content-Type')).toContain('application/json')
   })
 
+  it('returns ZIP for path ending with .zip', async () => {
+    const server = await createVoidServer()
+
+    const response = await server.request('/foobar.zip?foo=bar')
+    const zipBytes = new Uint8Array(await response.arrayBuffer())
+
+    expect(response.headers.get('Content-Type')).toContain('application/zip')
+    expect(getSignature(zipBytes, 0)).toBe(0x04034b50)
+    expect(getSignature(zipBytes, zipBytes.length - 22)).toBe(0x06054b50)
+
+    const { fileName, content } = extractStoredEntry(zipBytes)
+    expect(fileName).toBe('request.json')
+    expect(content).toContain('"path": "/foobar.zip"')
+    expect(content).toContain('"foo": "bar"')
+  })
+
   it('returns XML', async () => {
     const server = await createVoidServer()
 
@@ -342,6 +379,26 @@ describe('createVoidServer', () => {
 
     expect(await response.text()).toContain('<method>GET</method>')
     expect(response.headers.get('Content-Type')).toContain('application/xml')
+  })
+
+  it('returns ZIP for accept header application/zip', async () => {
+    const server = await createVoidServer()
+
+    const response = await server.request('/mirror', {
+      headers: {
+        Accept: 'application/zip',
+      },
+    })
+    const zipBytes = new Uint8Array(await response.arrayBuffer())
+
+    expect(response.headers.get('Content-Type')).toContain('application/zip')
+    expect(getSignature(zipBytes, 0)).toBe(0x04034b50)
+    expect(getSignature(zipBytes, zipBytes.length - 22)).toBe(0x06054b50)
+
+    const { fileName, content } = extractStoredEntry(zipBytes)
+    expect(fileName).toBe('request.json')
+    expect(content).toContain('"path": "/mirror"')
+    expect(content).toContain('"method": "GET"')
   })
 
   it('returns XML for a path ending with .xml', async () => {
