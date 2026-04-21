@@ -1,8 +1,54 @@
 import { describe, expect, it } from 'vitest'
+import { parse } from 'yaml'
 
 import { createVoidServer } from '@/create-void-server'
 
 describe('createVoidServer', () => {
+  it('returns OpenAPI JSON', async () => {
+    const server = await createVoidServer()
+
+    const response = await server.request('/openapi.json')
+    const document = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('Content-Type')).toContain('application/json')
+    expect(document).toMatchObject({
+      openapi: '3.1.0',
+      info: {
+        title: 'Scalar Void Server',
+      },
+    })
+    expect(document.paths['/docs']).toBeDefined()
+    expect(document.paths['/openapi.json']).toBeDefined()
+    expect(document.paths['/openapi.yaml']).toBeDefined()
+  })
+
+  it('returns OpenAPI YAML', async () => {
+    const server = await createVoidServer()
+
+    const response = await server.request('/openapi.yaml')
+    const document = parse(await response.text())
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('Content-Type')).toContain('application/yaml')
+    expect(document).toMatchObject({
+      openapi: '3.1.0',
+      info: {
+        title: 'Scalar Void Server',
+      },
+    })
+  })
+
+  it('returns Scalar API reference at /docs', async () => {
+    const server = await createVoidServer()
+
+    const response = await server.request('/docs')
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('Content-Type')).toContain('text/html')
+    expect(await response.text()).toContain('<title>Void Server API Reference</title>')
+  })
+
   it('GET /foobar', async () => {
     const server = await createVoidServer()
 

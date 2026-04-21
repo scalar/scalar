@@ -42,9 +42,12 @@
   ],
   "dependencies": {
     "@hono/node-server": "catalog:*",
+    "@hono/zod-openapi": "^1.2.4",
     "@scalar/helpers": "workspace:*",
+    "@scalar/hono-api-reference": "workspace:*",
     "hono": "catalog:*",
-    "js-base64": "catalog:*"
+    "js-base64": "catalog:*",
+    "yaml": "catalog:*"
   },
   "devDependencies": {
     "vite": "catalog:*"
