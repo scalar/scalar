@@ -3,12 +3,12 @@ import type { Theme } from '@scalar/themes'
 import { createApp } from 'vue'
 import { createRouter as createVueRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 
-import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
 import App from '@/v2/features/app/App.vue'
 import { createAppState } from '@/v2/features/app/app-state'
 import { ROUTES } from '@/v2/features/app/helpers/routes'
 import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
+import type { ApiClientOptions } from '@/v2/types/options'
 
 import { useCommandPaletteState } from '../../command-palette/hooks/use-command-palette-state'
 
@@ -48,17 +48,9 @@ type CreateApiClientOptions = {
 
 /**
  * Runtime behaviour overrides shared between createApiClientApp and createAppState.
+ * Derived from the canonical ApiClientOptions to guarantee structural compatibility.
  */
-export type ApiClientAppOptions = {
-  /**
-   * Custom fetch implementation used for all outgoing API requests and OpenAPI document loading.
-   * When provided, this replaces the global fetch for both the workspace store (document fetching)
-   * and the request execution engine (sendRequest).
-   */
-  customFetch?: CustomFetch
-  /** OAuth2 redirect URI override for auth prefill */
-  oauth2RedirectUri?: string
-}
+export type ApiClientAppOptions = Pick<ApiClientOptions, 'customFetch' | 'oauth2RedirectUri'>
 
 /**
  * Creates the appropriate router with the appropriate routes based on the layout
