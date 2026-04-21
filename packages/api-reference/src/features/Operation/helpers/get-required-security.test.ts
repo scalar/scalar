@@ -10,13 +10,13 @@ describe('getRequiredSecurity', () => {
         { security: [{ apiKey: [] }], components: { securitySchemes: {} } },
       )
       expect(result.state).toBe('required')
-      expect(result.schemes.map((s) => s.name)).toEqual(['oauth2'])
+      expect(result.requirements[0]?.schemes.map((s) => s.name)).toEqual(['oauth2'])
     })
 
     it('falls through to document.security when operation has no security field', () => {
       const result = getRequiredSecurity({}, { security: [{ apiKey: [] }], components: { securitySchemes: {} } })
       expect(result.state).toBe('required')
-      expect(result.schemes.map((s) => s.name)).toEqual(['apiKey'])
+      expect(result.requirements[0]?.schemes.map((s) => s.name)).toEqual(['apiKey'])
     })
 
     it('respects operation security: [] as an explicit opt-out (does NOT fall back to document)', () => {
@@ -25,7 +25,7 @@ describe('getRequiredSecurity', () => {
         { security: [{ apiKey: [] }], components: { securitySchemes: {} } },
       )
       expect(result.state).toBe('none')
-      expect(result.schemes).toEqual([])
+      expect(result.requirements).toEqual([])
     })
 
     it('treats missing document.security as none when operation has no security', () => {
@@ -72,23 +72,13 @@ describe('getRequiredSecurity', () => {
           },
         },
       )
-      expect(result.schemes[0]?.scheme?.type).toBe('http')
+      expect(result.requirements[0]?.schemes[0]?.scheme?.type).toBe('http')
     })
 
     it('leaves scheme undefined when the scheme name is not defined on the document', () => {
       const result = getRequiredSecurity({ security: [{ unknownScheme: [] }] }, { components: { securitySchemes: {} } })
-      expect(result.schemes).toHaveLength(1)
-      expect(result.schemes[0]?.scheme).toBeUndefined()
-    })
-
-    it('unions scopes when the same scheme appears in multiple requirements', () => {
-      const result = getRequiredSecurity(
-        {
-          security: [{ oauth2: ['read:items'] }, { oauth2: ['write:items', 'read:items'] }],
-        },
-        { components: { securitySchemes: {} } },
-      )
-      expect(result.schemes[0]?.scopes.sort()).toEqual(['read:items', 'write:items'])
+      expect(result.requirements).toHaveLength(1)
+      expect(result.requirements[0]?.schemes[0]?.scheme).toBeUndefined()
     })
 
     it('filters empty scope strings', () => {
@@ -96,7 +86,62 @@ describe('getRequiredSecurity', () => {
         { security: [{ oauth2: ['', 'read'] }] },
         { components: { securitySchemes: {} } },
       )
-      expect(result.schemes[0]?.scopes).toEqual(['read'])
+      expect(result.requirements[0]?.schemes[0]?.scopes).toEqual(['read'])
+    })
+  })
+
+  describe('OR / AND structure', () => {
+    it('produces one group per requirement entry (OR alternatives)', () => {
+      const result = getRequiredSecurity(
+        { security: [{ bearerAuth: ['a'] }, { bearerAuth: ['b'], basicAuth: [] }] },
+        { components: { securitySchemes: {} } },
+      )
+      // Two OR alternatives — must NOT be merged into one
+      expect(result.requirements).toHaveLength(2)
+
+      // First alternative: just bearerAuth with scope "a"
+      expect(result.requirements[0]?.schemes).toHaveLength(1)
+      expect(result.requirements[0]?.schemes[0]?.name).toBe('bearerAuth')
+      expect(result.requirements[0]?.schemes[0]?.scopes).toEqual(['a'])
+
+      // Second alternative: bearerAuth with scope "b" AND basicAuth (no scopes)
+      expect(result.requirements[1]?.schemes).toHaveLength(2)
+      expect(result.requirements[1]?.schemes[0]?.name).toBe('bearerAuth')
+      expect(result.requirements[1]?.schemes[0]?.scopes).toEqual(['b'])
+      expect(result.requirements[1]?.schemes[1]?.name).toBe('basicAuth')
+      expect(result.requirements[1]?.schemes[1]?.scopes).toEqual([])
+    })
+
+    it('keeps same scheme in separate groups when it appears in multiple OR alternatives', () => {
+      const result = getRequiredSecurity(
+        { security: [{ oauth2: ['read:items'] }, { oauth2: ['write:items', 'read:items'] }] },
+        { components: { securitySchemes: {} } },
+      )
+      // Two distinct OR alternatives — scopes must NOT be unioned
+      expect(result.requirements).toHaveLength(2)
+      expect(result.requirements[0]?.schemes[0]?.scopes).toEqual(['read:items'])
+      expect(result.requirements[1]?.schemes[0]?.scopes.sort()).toEqual(['read:items', 'write:items'])
+    })
+
+    it('AND-combines multiple schemes within a single requirement', () => {
+      const result = getRequiredSecurity(
+        { security: [{ bearerAuth: [], apiKey: [] }] },
+        { components: { securitySchemes: {} } },
+      )
+      // One group containing both schemes — all must be satisfied together
+      expect(result.requirements).toHaveLength(1)
+      expect(result.requirements[0]?.schemes.map((s) => s.name)).toEqual(['bearerAuth', 'apiKey'])
+    })
+
+    it('skips empty {} requirements but still sets state to optional', () => {
+      const result = getRequiredSecurity(
+        { security: [{ bearerAuth: [] }, {}] },
+        { components: { securitySchemes: {} } },
+      )
+      expect(result.state).toBe('optional')
+      // Only the real requirement produces a group
+      expect(result.requirements).toHaveLength(1)
+      expect(result.requirements[0]?.schemes[0]?.name).toBe('bearerAuth')
     })
   })
 })

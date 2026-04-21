@@ -15,14 +15,25 @@ export type RequiredSecurityScheme = {
   scopes: string[]
 }
 
+/**
+ * One alternative in the security requirement list.
+ * All schemes within a group must be satisfied simultaneously (AND semantics).
+ */
+export type RequiredSecurityGroup = {
+  schemes: RequiredSecurityScheme[]
+}
+
 export type RequiredSecurity = {
   state: RequiredSecurityState
   /**
-   * Flattened list of schemes referenced by the operation's security requirements.
-   * Empty when `state === 'none'`. Resolved schemes are looked up in `document.components.securitySchemes`.
-   * If the same scheme appears in multiple requirements, its scopes are unioned.
+   * Each element is one alternative (OR semantics). Within each group, all schemes
+   * must be satisfied simultaneously (AND semantics). Empty when `state === 'none'`.
+   *
+   * Mirrors the OpenAPI `security` array structure:
+   * - outer array  → OR  (satisfy any one group)
+   * - inner object → AND (all schemes in a group are required together)
    */
-  schemes: RequiredSecurityScheme[]
+  requirements: RequiredSecurityGroup[]
 }
 
 /**
@@ -37,38 +48,35 @@ export const getRequiredSecurity = (
   operation: Pick<OperationObject, 'security'> | null | undefined,
   document: Pick<OpenApiDocument, 'security' | 'components'>,
 ): RequiredSecurity => {
-  const requirements = operation?.security ?? document.security ?? []
+  const securityList = operation?.security ?? document.security ?? []
   const definedSchemes = document.components?.securitySchemes ?? {}
 
   let hasEmpty = false
-  const scopesByName = new Map<string, Set<string>>()
+  const groups: RequiredSecurityGroup[] = []
 
-  for (const requirement of requirements) {
+  for (const requirement of securityList) {
     if (!isNonOptionalSecurityRequirement(requirement)) {
       hasEmpty = true
       continue
     }
-    for (const [name, scopes] of Object.entries(requirement)) {
-      const set = scopesByName.get(name) ?? new Set<string>()
-      for (const scope of scopes) {
-        if (scope.length > 0) {
-          set.add(scope)
-        }
-      }
-      scopesByName.set(name, set)
+
+    const schemes: RequiredSecurityScheme[] = Object.entries(requirement).map(([name, scopes]) => ({
+      name,
+      scheme: getResolvedRef(definedSchemes[name]),
+      scopes: scopes.filter((s) => s.length > 0),
+    }))
+
+    if (schemes.length > 0) {
+      groups.push({ schemes })
     }
   }
 
-  if (scopesByName.size === 0) {
-    return { state: hasEmpty ? 'optional' : 'none', schemes: [] }
+  if (groups.length === 0) {
+    return { state: hasEmpty ? 'optional' : 'none', requirements: [] }
   }
 
   return {
     state: hasEmpty ? 'optional' : 'required',
-    schemes: Array.from(scopesByName, ([name, scopes]) => ({
-      name,
-      scheme: getResolvedRef(definedSchemes[name]),
-      scopes: Array.from(scopes),
-    })),
+    requirements: groups,
   }
 }
