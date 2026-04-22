@@ -15,17 +15,9 @@ vi.mock('vue-router', () => ({
   }),
 }))
 
-/**
- * Mock for the file dialog hook. `mockFileDialogOnChange` captures the
- * `onChange` callback registered by the component so tests can simulate a user
- * picking a file without needing a real `<input type="file">`.
- */
-const mockFileDialogOpen = vi.fn()
-
 describe('CommandPaletteImport', () => {
   beforeEach(() => {
     mockPush.mockClear()
-    mockFileDialogOpen.mockClear()
   })
 
   afterEach(() => {
