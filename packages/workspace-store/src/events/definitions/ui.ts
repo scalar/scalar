@@ -267,7 +267,7 @@ export type UIEvents = {
       }
     | {
         page: 'workspace'
-        path: 'environment' | 'cookies' | 'settings'
+        path: 'environment' | 'cookies' | 'settings' | 'get-started'
       }
     | {
         page: 'example'

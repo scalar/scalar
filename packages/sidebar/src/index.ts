@@ -8,6 +8,7 @@ export {
   type SidebarState,
   createSidebarState,
 } from './helpers/create-sidebar-state'
+export { filterItems } from './helpers/filter-items'
 export { generateReverseIndex } from './helpers/generate-reverse-index'
 export { getChildEntry } from './helpers/get-child-entry'
 export { scrollSidebarToTop } from './helpers/scroll-sidebar-to-top'

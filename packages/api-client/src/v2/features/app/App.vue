@@ -15,6 +15,8 @@ import {
 } from '@scalar/components'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import { computed, onBeforeUnmount, toValue, watch } from 'vue'
 import { RouterView } from 'vue-router'
@@ -62,6 +64,14 @@ defineSlots<{
    * This slot is used to render custom actions or components within the create workspace modal.
    */
   'create-workspace'?: (payload: { state: ModalState }) => unknown
+  /**
+   * Slot for customizing the sidebar.
+   * This slot is used to render custom actions or components within the sidebar.
+   */
+  'sidebar'?: (props: {
+    workspaceStore: WorkspaceStore
+    eventBus: WorkspaceEventBus
+  }) => unknown
 }>()
 
 defineExpose({
@@ -209,26 +219,31 @@ const routerViewProps = computed<RouteProps>(() => {
           class="absolute z-60 md:hidden"
           :class="layout === 'desktop' ? 'top-14 left-4' : 'top-4 left-4'" />
         <div class="flex min-h-0 flex-1 flex-row">
-          <!-- App sidebar -->
-          <AppSidebar
-            v-model:isSidebarOpen="app.sidebar.isOpen.value"
-            :activeWorkspace="app.workspace.activeWorkspace.value"
+          <slot
             :eventBus="app.eventBus"
-            :isWorkspaceOpen="app.workspace.isOpen.value"
-            :layout
-            :sidebarState="app.sidebar.state"
-            :sidebarWidth="app.sidebar.width.value"
-            :store="app.store.value!"
-            :workspaces="app.workspace.workspaceGroups.value"
-            @click:workspace="navigateToWorkspaceOverview"
-            @create:workspace="createWorkspaceModalState.show()"
-            @select:workspace="setActiveWorkspace"
-            @selectItem="app.sidebar.handleSelectItem"
-            @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate">
-            <template #sidebarMenuActions>
-              <slot name="sidebar-menu-actions" />
-            </template>
-          </AppSidebar>
+            name="sidebar"
+            :workspaceStore="app.store.value">
+            <!-- App sidebar -->
+            <AppSidebar
+              v-model:isSidebarOpen="app.sidebar.isOpen.value"
+              :activeWorkspace="app.workspace.activeWorkspace.value"
+              :eventBus="app.eventBus"
+              :isWorkspaceOpen="app.workspace.isOpen.value"
+              :layout
+              :sidebarState="app.sidebar.state"
+              :sidebarWidth="app.sidebar.width.value"
+              :store="app.store.value!"
+              :workspaces="app.workspace.workspaceGroups.value"
+              @click:workspace="navigateToWorkspaceOverview"
+              @create:workspace="createWorkspaceModalState.show()"
+              @select:workspace="setActiveWorkspace"
+              @selectItem="app.sidebar.handleSelectItem"
+              @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate">
+              <template #sidebarMenuActions>
+                <slot name="sidebar-menu-actions" />
+              </template>
+            </AppSidebar>
+          </slot>
 
           <div class="flex min-h-0 flex-1 flex-col">
             <!-- App Tabs -->
