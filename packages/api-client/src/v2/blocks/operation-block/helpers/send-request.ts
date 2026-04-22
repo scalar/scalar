@@ -4,6 +4,7 @@ import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
 import { normalizeHeaders } from '@scalar/helpers/http/normalize-headers'
+import { X_SCALAR_SET_COOKIE } from '@scalar/helpers/http/scalar-headers'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { RequestPayload } from '@scalar/workspace-store/request-example'
 import * as cookie from 'cookie'
@@ -17,8 +18,6 @@ import {
 } from '@/v2/blocks/response-block/helpers/resolve-response-content-type'
 
 import { decodeBuffer } from './decode-buffer'
-
-const CUSTOM_COOKIE_HEADER = 'x-scalar-set-cookie'
 
 /** A single set of populated values for a sent request */
 export type ResponseInstance = Omit<Response, 'headers'> & {
@@ -156,7 +155,7 @@ export const sendRequest = async ({
  * The @ts-expect-error is present due to a type mismatch between the 'cookie' parsing and serialization libraries.
  */
 const getCustomCookie = (response: Response): string[] | null => {
-  const result = parseSetCookie(response.headers.get(CUSTOM_COOKIE_HEADER) ?? '').map((c) =>
+  const result = parseSetCookie(response.headers.get(X_SCALAR_SET_COOKIE) ?? '').map((c) =>
     cookie.serialize(c.name, c.value, {
       ...c,
       sameSite: c.sameSite as boolean | 'lax' | 'strict' | 'none' | undefined,

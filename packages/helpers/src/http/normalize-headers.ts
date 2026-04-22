@@ -1,3 +1,5 @@
+import { X_SCALAR_SET_COOKIE } from '@/http/scalar-headers'
+
 /**
  * Normalize headers:
  *
@@ -26,7 +28,7 @@ export const normalizeHeaders = (_headers: Headers, removeProxyHeaders = false):
   }
 
   // Remove the custom set-cookie header, we will handle this separately
-  delete headers['x-scalar-set-cookie']
+  delete headers[X_SCALAR_SET_COOKIE]
 
   /** Exact key of the modified headers header */
   const modifiedHeaderKey = Object.keys(headers).find((key) => key.toLowerCase() === 'x-scalar-modified-headers')
