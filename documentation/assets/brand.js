@@ -50,7 +50,7 @@ const initBrandColorSwatches = () => {
       const hint = swatch.querySelector('.brand-color-copy-hint')
       const previous = hint ? hint.textContent : null
       if (hint) {
-        hint.textContent = 'Copied'
+        hint.textContent = '✓ Copied'
       }
       window.clearTimeout(swatch._brandCopyTimeout)
       swatch._brandCopyTimeout = window.setTimeout(() => {
@@ -58,7 +58,7 @@ const initBrandColorSwatches = () => {
         if (hint && previous !== null) {
           hint.textContent = previous
         }
-      }, 1500)
+      }, 3500)
     })
   })
 }

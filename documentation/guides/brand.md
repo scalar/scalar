@@ -359,18 +359,17 @@
     outline: 2px solid var(--scalar-color-accent);
     outline-offset: 2px;
   }
-  .brand-color-swatch[data-copied='true']::after {
-    content: 'Copied';
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 12px;
+  .brand-color-swatch[data-copied='true'].brand-color-swatch {
+    border-color: var(--scalar-color-green);
+  }
+  .brand-color-swatch[data-copied='true'].brand-color-swatch .brand-color-copy-hint,
+  .brand-color-swatch[data-copied='true']:hover .brand-color-copy-hint {
+    color: #fff;
+    background: var(--scalar-color-green);
     font-weight: var(--scalar-semibold);
-    padding: 4px 8px;
-    border-radius: var(--scalar-radius);
-    background: var(--scalar-background-1);
-    color: var(--scalar-color-1);
-    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    padding: 2px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.01em;
   }
   .brand-color-swatch-paper .brand-color-chip {
     border: 1px solid var(--scalar-border-color);
