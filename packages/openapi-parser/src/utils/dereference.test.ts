@@ -438,8 +438,8 @@ describe('dereference', () => {
 
     expect(result.errors).toStrictEqual([])
     expect(dereferencedSchemas).toHaveLength(2)
-    expect(dereferencedSchemas[0].resolved == dereferencedSchemas[1].resolved).toBe(true);
-    expect(result.schema.components.schemas.Test == dereferencedSchemas[0].resolved).toBe(true);
+    expect(dereferencedSchemas[0].resolved == dereferencedSchemas[1].resolved).toBe(true)
+    expect(result.schema.components.schemas.Test == dereferencedSchemas[0].resolved).toBe(true)
   })
 
   it('dereferences operations with query operations', () => {

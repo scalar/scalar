@@ -30,7 +30,7 @@ export type ResolveReferencesOptions = ThrowOnErrorOption & {
    *
    * Note that for object schemas, its properties may not be dereferenced when the hook is called.
    */
-  onDereference?: (data: { schema: AnyObject; ref: string, resolved: AnyObject }) => void
+  onDereference?: (data: { schema: AnyObject; ref: string; resolved: AnyObject }) => void
 }
 
 /**
