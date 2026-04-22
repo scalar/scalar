@@ -4,6 +4,12 @@ Spin up MCP Servers ([Model Context Protocol](https://modelcontextprotocol.io/))
 
 You choose which endpoints to expose (and which not), configure how each one behaves, and connect it to your LLM or AI Agent (Claude, Cursor, etc.).
 
+## Docs MCP vs. Installation MCP
+
+Scalar exposes two separate MCP surfaces, and they're easy to conflate because most clients just show both as "MCP". The **Docs MCP** lives at `https://your-docs-domain/mcp` and lets AI clients search and read your published documentation. It is proxied through your docs hosting, so it inherits the visibility of the docs project. If the docs are public, the Docs MCP is public too, otherwise the in-docs chat would not work.
+
+The **Installation MCP** lives at `https://api.scalar.com/vector/mcp/YOUR_INSTALL_ID` and lets AI clients call the API endpoints you've selected, using the authentication you've stored for the installation. It is a completely separate endpoint and always requires a Personal Access Token. If you want to verify which one a client is actually pointed at, `curl` the URL directly: the Installation MCP responds with `401` when the token is missing.
+
 ## Create a MCP Server
 
 Create a new MCP Server for your API in under a minute (I promise):
@@ -53,7 +59,7 @@ Tools are the individual capabilities your MCP exposes. Each tool maps to an ope
 
 | Mode    | Description                                                            |
 | ------- | ---------------------------------------------------------------------- |
-| Search  | Exposes the endpoint for lookup only (no requests are sent to your AP) |
+| Search  | Exposes the endpoint for lookup only (no requests are sent to your API) |
 | Execute | Makes real, authenticated requests to your API                         |
 
 ## API Authentication
@@ -63,3 +69,14 @@ Authentication is configured per installation in the [Scalar Dashboard](https://
 <br>
 
 ![UI to configure authentication for your API](./configure-authentication.png)
+
+## Billing
+
+MCP usage is metered differently depending on which surface is being hit:
+
+- **Docs MCP** queries are billed as [Agent messages](./pricing.md#keys), at the same rate as the in-docs Ask AI widget. You can review the breakdown on the billing usage page in the dashboard.
+- **Installation MCP** requests are not billed today. A credits system is in progress that will unify billing across docs chat, API chat, and MCP tools.
+
+## Rate Limiting and Abuse Protection
+
+The Docs MCP is publicly reachable whenever the docs project is public, so we apply rate limiting at the load balancer to protect against abuse. These limits are not currently configurable per project. If you have specific requirements (for example, an expected spike or a stricter ceiling), reach out and we can work with you on the right settings.
