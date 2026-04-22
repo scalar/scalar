@@ -1,3 +1,4 @@
+import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
@@ -14,18 +15,9 @@ vi.mock('vue-router', () => ({
   }),
 }))
 
-// Mock file dialog hook
-const mockFileDialogOpen = vi.fn()
-vi.mock('@/hooks/use-file-dialog', () => ({
-  useFileDialog: () => ({
-    open: mockFileDialogOpen,
-  }),
-}))
-
 describe('CommandPaletteImport', () => {
   beforeEach(() => {
     mockPush.mockClear()
-    mockFileDialogOpen.mockClear()
   })
 
   afterEach(() => {
@@ -708,6 +700,130 @@ describe('CommandPaletteImport', () => {
 
     /** Input should still be visible for URLs */
     expect(wrapper.findComponent({ name: 'CommandActionInput' }).exists()).toBe(true)
+  })
+
+  /** Stub loader plugin that resolves a virtual path to a fixed text payload. */
+  const createStubFileLoader = (content: string): LoaderPlugin => ({
+    type: 'loader',
+    validate: () => true,
+    exec: vi.fn(async () => ({
+      ok: true,
+      data: {},
+      raw: content,
+    })),
+  })
+
+  type SlotImport = (source: string, type: 'file' | 'raw') => Promise<void>
+
+  /**
+   * Mount the component and capture the `import` function the component
+   * exposes on the `fileUpload` slot so tests can invoke it like a consumer.
+   */
+  const mountWithSlotCapture = (
+    props: Parameters<typeof mount<typeof CommandPaletteImport>>[1] extends infer P
+      ? P extends { props?: infer Props }
+        ? Props
+        : never
+      : never,
+  ): { slotImport: () => SlotImport | undefined } => {
+    let slotImport: SlotImport | undefined
+
+    mount(CommandPaletteImport, {
+      props,
+      slots: {
+        fileUpload: (slotProps: { import: SlotImport }) => {
+          slotImport = slotProps.import
+          return null
+        },
+      },
+    })
+
+    return { slotImport: () => slotImport }
+  }
+
+  it('exposes the import function on the fileUpload slot', () => {
+    const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
+
+    const { slotImport } = mountWithSlotCapture({ workspaceStore, eventBus })
+
+    expect(slotImport()).toBeTypeOf('function')
+  })
+
+  it('routes path-based Postman imports from the fileUpload slot to the Postman modal', async () => {
+    const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
+    const emitSpy = vi.fn()
+    eventBus.emit = emitSpy
+
+    const fileLoader = createStubFileLoader(minimalPostmanCollectionJson)
+    const { slotImport } = mountWithSlotCapture({ workspaceStore, eventBus, fileLoader })
+
+    await slotImport()?.('/path/to/collection.json', 'file')
+
+    expect(fileLoader.exec).toHaveBeenCalledWith('/path/to/collection.json')
+    expect(emitSpy).toHaveBeenCalledWith('ui:open:command-palette', {
+      action: 'import-postman-collection',
+      payload: {
+        inputValue: minimalPostmanCollectionJson,
+      },
+    })
+  })
+
+  it('routes raw Postman content from the fileUpload slot to the Postman modal', async () => {
+    const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
+    const emitSpy = vi.fn()
+    eventBus.emit = emitSpy
+
+    const { slotImport } = mountWithSlotCapture({ workspaceStore, eventBus })
+
+    await slotImport()?.(minimalPostmanCollectionJson, 'raw')
+
+    expect(emitSpy).toHaveBeenCalledWith('ui:open:command-palette', {
+      action: 'import-postman-collection',
+      payload: {
+        inputValue: minimalPostmanCollectionJson,
+      },
+    })
+  })
+
+  it('does not route non-Postman content from the fileUpload slot to the Postman modal', async () => {
+    const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
+    const emitSpy = vi.fn()
+    eventBus.emit = emitSpy
+
+    const openApiContent = JSON.stringify({
+      openapi: '3.1.0',
+      info: { title: 'Test API', version: '1.0.0' },
+    })
+
+    const fileLoader = createStubFileLoader(openApiContent)
+    const { slotImport } = mountWithSlotCapture({ workspaceStore, eventBus, fileLoader })
+
+    await slotImport()?.('/path/to/openapi.json', 'file')
+
+    expect(emitSpy).not.toHaveBeenCalledWith(
+      'ui:open:command-palette',
+      expect.objectContaining({ action: 'import-postman-collection' }),
+    )
+  })
+
+  it('does not crash when the fileUpload slot is used without a file loader', async () => {
+    const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
+    const emitSpy = vi.fn()
+    eventBus.emit = emitSpy
+
+    const { slotImport } = mountWithSlotCapture({ workspaceStore, eventBus })
+
+    await expect(slotImport()?.('/path/to/collection.json', 'file')).resolves.toBeUndefined()
+
+    expect(emitSpy).not.toHaveBeenCalledWith(
+      'ui:open:command-palette',
+      expect.objectContaining({ action: 'import-postman-collection' }),
+    )
   })
 
   it('handles empty input after having content', async () => {

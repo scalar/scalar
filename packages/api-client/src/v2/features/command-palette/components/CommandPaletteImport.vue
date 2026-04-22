@@ -63,7 +63,13 @@ const emit = defineEmits<{
 }>()
 
 defineSlots<{
-  /** Slot for custom file upload component that can trigger import */
+  /**
+   * Slot for custom file upload component that can trigger import.
+   *
+   * The provided `import` function automatically detects Postman collections
+   * and routes them to the Postman import modal, matching the behavior of the
+   * default file picker.
+   */
   fileUpload(props: {
     /** Function to trigger import with source content and type */
     import: (source: string, type: 'file' | 'raw') => Promise<void>
@@ -200,6 +206,47 @@ const navigateToDocument = (documentName: string): void => {
 }
 
 /**
+ * Import a file, routing Postman collections to the Postman import modal and
+ * everything else through the OpenAPI import flow.
+ *
+ * Shared between the default file picker and the `fileUpload` slot so custom
+ * path-based importers get the same Postman detection behavior.
+ *
+ * When `type` is `'file'` the `source` is a file path resolved through the
+ * configured `fileLoader`; when `type` is `'raw'` the `source` is treated as
+ * the file's text content directly.
+ */
+const handleFileImport: (
+  source: string,
+  type?: 'file' | 'raw',
+) => Promise<void> = async (source, type = 'raw') => {
+  // Resolve the raw text content so we can sniff for a Postman collection.
+  // For raw pastes / uploads the source already is the text. For path-based
+  // imports we delegate to the file loader plugin, if one is configured.
+  const rawContent = await (async (): Promise<string> => {
+    if (type === 'raw') {
+      return source
+    }
+
+    const result = await fileLoader?.exec(source)
+    return result?.ok ? result.raw : ''
+  })()
+
+  if (isPostmanCollection(rawContent)) {
+    eventBus.emit('ui:open:command-palette', {
+      action: 'import-postman-collection',
+      payload: {
+        inputValue: rawContent,
+      },
+    })
+    await loader.clear()
+    return
+  }
+
+  await handleImport(source, type)
+}
+
+/**
  * Handle file selection and import from file dialog.
  * Reads the file as text and imports it as OpenAPI or Postman collection.
  * Shows loading state during the import process.
@@ -216,17 +263,7 @@ const { open: openSpecFileDialog } = useFileDialog({
 
     const onLoad = async (event: ProgressEvent<FileReader>): Promise<void> => {
       const text = event.target?.result as string
-      if (isPostmanCollection(text)) {
-        eventBus.emit('ui:open:command-palette', {
-          action: 'import-postman-collection',
-          payload: {
-            inputValue: text,
-          },
-        })
-        await loader.clear()
-        return
-      }
-      await handleImport(text, 'raw')
+      await handleFileImport(text, 'raw')
     }
 
     const reader = new FileReader()
@@ -313,7 +350,7 @@ const handleBack = (event: KeyboardEvent): void => {
       <div class="flex w-full flex-row items-center justify-between gap-3">
         <!-- Custom file upload slot or default button -->
         <slot
-          :import="handleImport"
+          :import="handleFileImport"
           name="fileUpload">
           <!-- Default file upload button -->
           <ScalarButton
