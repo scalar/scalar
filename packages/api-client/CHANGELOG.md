@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 3.2.1
+
+### Patch Changes
+
+- [#8940](https://github.com/scalar/scalar/pull/8940): feat(api-client): support header for web layout
+
 ## 3.2.0
 
 ### Minor Changes
