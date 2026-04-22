@@ -30,11 +30,10 @@ const badgeStyle = computed(() =>
 .badge {
   color: var(--badge-text-color, var(--scalar-color-2));
   font-size: var(--scalar-mini);
-  font-weight: var(--scalar-font-medium);
   background: var(--badge-background-color, var(--scalar-background-2));
   border: var(--scalar-border-width) solid
     var(--badge-border-color, var(--scalar-border-color));
-  padding: 3px 8px;
+  padding: 2px 6px;
   border-radius: 12px;
   display: inline-block;
 }
