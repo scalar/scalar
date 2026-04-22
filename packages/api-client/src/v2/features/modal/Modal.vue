@@ -164,12 +164,12 @@ defineExpose({
       class="relative flex h-full min-h-0 w-full flex-1">
       <SidebarToggle
         v-model="isSidebarOpen"
-        class="absolute top-2 left-3 z-2" />
+        class="absolute top-2 left-4 z-10 max-md:top-4" />
       <Sidebar
         v-show="isSidebarOpen"
         v-model:sidebarWidth="sidebarWidth"
         :activeWorkspace="activeWorkspace"
-        class="h-full max-md:absolute! max-md:w-full!"
+        class="h-full max-md:absolute! max-md:z-5 max-md:w-full!"
         :documents="[document.value]"
         :eventBus
         :isDroppable="() => false"

@@ -293,7 +293,7 @@ const navigateToOperationsPage = (item: TraversedOperation) => {
       :activeWorkspace="activeWorkspace"
       :class="[
         'max-md:inset-y-0 max-md:z-2 max-md:w-full!',
-        isSidebarOpen ? 'max-md:fixed! max-md:flex!' : 'max-md:hidden!',
+        isSidebarOpen ? 'max-md:absolute! max-md:flex!' : 'max-md:hidden!',
       ]"
       :documents="Object.values(store.workspace.documents)"
       :isDroppable="isDroppable"
