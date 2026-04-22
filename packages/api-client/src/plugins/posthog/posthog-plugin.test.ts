@@ -1,3 +1,6 @@
+/**
+ * @vitest-environment jsdom
+ */
 import { describe, expect, it, vi } from 'vitest'
 
 const mockPostHogInstance = vi.hoisted(() => ({
@@ -66,7 +69,6 @@ describe('posthog-plugin', () => {
     plugin.lifecycle?.onInit?.()
 
     const trackedEvents = [
-      'hooks:on:request:sent',
       'operation:create:operation',
       'operation:delete:operation',
       'document:create:empty-document',
@@ -84,6 +86,15 @@ describe('posthog-plugin', () => {
       plugin.on?.[event]?.({} as never)
       expect(mockPostHogInstance.capture).toHaveBeenCalledWith(event)
     }
+  })
+
+  it('captures api-client-request when request is sent', () => {
+    const plugin = PostHogClientPlugin(TEST_CONFIG)
+    plugin.lifecycle?.onInit?.()
+
+    mockPostHogInstance.capture.mockClear()
+    plugin.on?.['hooks:on:request:sent']?.({} as never)
+    expect(mockPostHogInstance.capture).toHaveBeenCalledWith('api-client-request')
   })
 
   it('resets PostHog on onDestroy', () => {

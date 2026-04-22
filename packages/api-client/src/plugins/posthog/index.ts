@@ -27,7 +27,7 @@ export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
 
   return {
     on: {
-      'hooks:on:request:sent': () => posthog?.capture('hooks:on:request:sent'),
+      'hooks:on:request:sent': () => posthog?.capture('api-client-request'),
       'operation:create:operation': () => posthog?.capture('operation:create:operation'),
       'operation:delete:operation': () => posthog?.capture('operation:delete:operation'),
       'document:create:empty-document': () => posthog?.capture('document:create:empty-document'),
