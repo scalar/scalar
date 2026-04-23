@@ -49,7 +49,7 @@ import { createTempOperation } from '@/v2/features/app/helpers/create-temp-opera
 import { loadRegistryDocument } from '@/v2/features/app/helpers/load-registry-document'
 import {
   useSidebarDocuments,
-  type RegistryDocument,
+  type RegistryDocumentsState,
   type SidebarDocumentItem,
 } from '@/v2/features/app/hooks/use-sidebar-documents'
 import { DocumentSearchModal } from '@/v2/features/search'
@@ -59,24 +59,38 @@ import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 const {
   app,
   indent = 20,
-  registryDocuments,
+  registryDocuments = { status: 'success', documents: [] },
   fetchRegistryDocument,
 } = defineProps<{
   /** The app state from @scalar/api-client. */
   app: AppState
   /** Horizontal indent applied to nested sidebar items, in pixels. */
   indent?: number
-  /** The list of all available registry documents */
-  registryDocuments: RegistryDocument[]
+  /**
+   * The list of all available registry documents, wrapped in a loading state
+   * so the sidebar can render skeleton placeholders while the registry is
+   * still being fetched.
+   */
+  registryDocuments?: RegistryDocumentsState
   /** A function to fetch a registry document */
   fetchRegistryDocument?: ImportDocumentFromRegistry
 }>()
 
 const { toast } = useToasts()
 
+/**
+ * Whether the caller is still fetching the list of registry documents. We
+ * only surface the loading state on team workspaces because local workspaces
+ * never consult the registry — see `useSidebarDocuments` — so skeletons there
+ * would always be stale placeholders for data that will never arrive.
+ */
+const isLoadingRegistry = computed(
+  () => registryDocuments.status === 'loading' && app.workspace.isTeamWorkspace.value,
+)
+
 const { rest } = useSidebarDocuments({
   app,
-  managedDocs: () => registryDocuments,
+  managedDocs: () => registryDocuments.documents ?? [],
 })
 
 /** Controls the visibility of the document filter input in the top-level view. */
@@ -645,6 +659,21 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
               <ScalarSidebarSection>
                 All documents
                 <template #items>
+                  <!--
+                    Skeleton rows shown while the caller is still fetching
+                    the registry document list. We only render skeletons in
+                    the top-level view (when no document is drilled-in) so
+                    the collection view is never masked by placeholders.
+                  -->
+                  <template v-if="isLoadingRegistry && !activeItem">
+                    <li
+                      v-for="n in 4"
+                      :key="`registry-skeleton-${n}`"
+                      aria-hidden="true"
+                      class="sidebar-skeleton-row px-(--scalar-sidebar-padding) py-1">
+                      <span class="bg-b-3 block h-6 rounded-md" />
+                    </li>
+                  </template>
                   <ScalarSidebarNestedItems
                     v-for="item in filteredRest"
                     :key="item.key"
@@ -823,3 +852,23 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
     </template>
   </Resize>
 </template>
+
+<style scoped>
+/*
+ * Gentle pulse for the registry loading skeletons. Matches the existing
+ * `LoadingSkeleton.vue` easing/duration used in `@scalar/api-reference` so
+ * any skeleton in the app feels consistent.
+ */
+.sidebar-skeleton-row > span {
+  animation: sidebar-skeleton-pulse 1.5s infinite alternate;
+}
+
+@keyframes sidebar-skeleton-pulse {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.33;
+  }
+}
+</style>

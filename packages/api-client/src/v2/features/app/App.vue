@@ -15,8 +15,6 @@ import {
 } from '@scalar/components'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import { computed, onBeforeUnmount, toValue, watch } from 'vue'
 import { RouterView } from 'vue-router'
@@ -26,6 +24,7 @@ import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceMo
 import NewSidear from '@/v2/features/app/components/NewSidear.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
+import type { RegistryDocumentsState } from '@/v2/features/app/hooks/use-sidebar-documents'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
 import type { CommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
@@ -44,6 +43,7 @@ const {
   getAppState,
   getCommandPaletteState,
   fetchRegistryDocument,
+  registryDocuments = { status: 'success', documents: [] },
 } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
   plugins?: ClientPlugin[]
@@ -51,6 +51,11 @@ const {
   getCommandPaletteState: () => CommandPaletteState
   /** Fetches the full document from registry by meta. Passed through to route props for sync. */
   fetchRegistryDocument?: ImportDocumentFromRegistry
+  /**
+   * The list of all available registry documents, with a loading status so the
+   * sidebar can render skeleton placeholders until the real list is ready.
+   */
+  registryDocuments?: RegistryDocumentsState
 }>()
 
 defineSlots<{
@@ -64,14 +69,6 @@ defineSlots<{
    * This slot is used to render custom actions or components within the create workspace modal.
    */
   'create-workspace'?: (payload: { state: ModalState }) => unknown
-  /**
-   * Slot for customizing the sidebar.
-   * This slot is used to render custom actions or components within the sidebar.
-   */
-  'sidebar'?: (props: {
-    workspaceStore: WorkspaceStore
-    eventBus: WorkspaceEventBus
-  }) => unknown
 }>()
 
 defineExpose({
@@ -224,7 +221,7 @@ const routerViewProps = computed<RouteProps>(() => {
           <NewSidear
             :app="app"
             :fetchRegistryDocument="fetchRegistryDocument"
-            :registryDocuments="[]"
+            :registryDocuments="registryDocuments"
             :sidebarWidth="app.sidebar.width.value"
             @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate" />
 

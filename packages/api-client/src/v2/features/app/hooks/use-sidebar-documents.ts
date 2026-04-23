@@ -59,6 +59,18 @@ export type RegistryDocument = {
   title: string
 }
 
+/**
+ * Loading-aware wrapper for the registry documents prop.
+ *
+ * The sidebar uses the `status` to decide whether to render skeleton
+ * placeholders while the registry is being fetched. `documents` is optional
+ * during loading so callers can either render nothing or stream in cached
+ * results while a refresh is still in flight.
+ */
+export type RegistryDocumentsState =
+  | { status: 'loading'; documents?: RegistryDocument[] }
+  | { status: 'success'; documents: RegistryDocument[] }
+
 const registryKey = (namespace: string, slug: string) => `@${namespace}/${slug}`
 
 /**
@@ -80,10 +92,7 @@ export function useSidebarDocuments({
   app: AppState
   managedDocs: MaybeRefOrGetter<RegistryDocument[]>
 }) {
-  const activeWorkspace = computed(() =>
-    app.workspace.workspaceList.value.find((w) => w.id === app.workspace.activeWorkspace.value?.id),
-  )
-  const isTeamWorkspace = computed(() => activeWorkspace.value && activeWorkspace.value.teamUid !== 'local')
+  const isTeamWorkspace = app.workspace.isTeamWorkspace
 
   /** Raw workspace documents mapped to sidebar entries (pre-grouping). */
   const workspaceEntries = computed<WorkspaceDocumentEntry[]>(() => {
