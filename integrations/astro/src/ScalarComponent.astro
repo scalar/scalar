@@ -3,6 +3,19 @@ import { renderApiReference, type HtmlRenderingConfiguration } from '@scalar/cli
 
 export interface Props {
   configuration: Partial<HtmlRenderingConfiguration>
+  /**
+   * Rendering strategy for Astro pages.
+   *
+   * - `static` renders pre-generated HTML (default)
+   * - `client` mounts Scalar on the client and re-mounts on `astro:page-load`
+   */
+  renderMode?: 'static' | 'client'
+  /**
+   * Element id used as the client mount point.
+   *
+   * Only used when `renderMode` is `client`.
+   */
+  mountElementId?: string
 }
 
 /**
@@ -13,18 +26,119 @@ const DEFAULT_CONFIGURATION: Partial<HtmlRenderingConfiguration> = {
   // _integration: 'astro',
 }
 
-const { configuration } = Astro.props
+const { configuration, renderMode = 'static', mountElementId = 'scalar-app' }: Props = Astro.props
 
 const finalConfiguration = {
   ...DEFAULT_CONFIGURATION,
   ...configuration,
 }
 const { cdn, pageTitle, ...config } = finalConfiguration
-const html = renderApiReference({
-  config,
-  cdn,
-  pageTitle,
-})
+const html =
+  renderMode === 'static'
+    ? renderApiReference({
+        config,
+        cdn,
+        pageTitle,
+      })
+    : null
 ---
 
-<div set:html={html}></div>
+{
+  renderMode === 'static' ? (
+    <div set:html={html ?? ''}></div>
+  ) : (
+    <>
+      <div id={mountElementId}></div>
+      <script lang="ts">
+        type ScalarGlobal = {
+          createApiReference: (selector: string, configuration: Record<string, unknown>) => {
+            destroy: () => void
+          }
+        }
+
+        const mountSelector = {JSON.stringify(`#${mountElementId}`)}
+        const configuration = {JSON.stringify(config)}
+        const cdn = {JSON.stringify(cdn ?? null)}
+
+        let scalarInstance: { destroy: () => void } | null = null
+
+        const ensureCdnLoaded = async (): Promise<void> => {
+          const globalScalar = (window as Window & { Scalar?: ScalarGlobal }).Scalar
+
+          if (globalScalar?.createApiReference) {
+            return
+          }
+
+          await new Promise<void>((resolve, reject) => {
+            const existing = document.querySelector<HTMLScriptElement>('script[data-scalar-astro-cdn="true"]')
+
+            if (existing?.dataset.loaded === 'true') {
+              resolve()
+              return
+            }
+
+            if (existing) {
+              existing.addEventListener('load', () => resolve(), { once: true })
+              existing.addEventListener('error', () => reject(new Error('Failed to load Scalar CDN script')), {
+                once: true,
+              })
+              return
+            }
+
+            const script = document.createElement('script')
+            script.src = cdn ?? 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
+            script.dataset.scalarAstroCdn = 'true'
+            script.addEventListener(
+              'load',
+              () => {
+                script.dataset.loaded = 'true'
+                resolve()
+              },
+              { once: true },
+            )
+            script.addEventListener('error', () => reject(new Error('Failed to load Scalar CDN script')), {
+              once: true,
+            })
+            document.head.appendChild(script)
+          })
+        }
+
+        const mountScalar = async (): Promise<void> => {
+          const container = document.querySelector(mountSelector)
+
+          if (!container) {
+            return
+          }
+
+          if (scalarInstance) {
+            scalarInstance.destroy()
+            scalarInstance = null
+          }
+
+          await ensureCdnLoaded()
+
+          const scalar = (window as Window & { Scalar?: ScalarGlobal }).Scalar
+
+          if (!scalar?.createApiReference) {
+            return
+          }
+
+          scalarInstance = scalar.createApiReference(mountSelector, configuration)
+        }
+
+        document.addEventListener('astro:before-swap', () => {
+          if (scalarInstance) {
+            scalarInstance.destroy()
+            scalarInstance = null
+          }
+        })
+
+        document.addEventListener('astro:page-load', () => {
+          void mountScalar()
+        })
+
+        void mountScalar()
+      </script>
+    </>
+  )
+}
