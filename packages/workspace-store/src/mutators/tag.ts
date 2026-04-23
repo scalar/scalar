@@ -5,6 +5,7 @@ import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getNavigationOptions } from '@/navigation/get-navigation-options'
 import { getTagEntries } from '@/navigation/helpers/get-tag-entries'
 import { updateOrderIds } from '@/navigation/helpers/update-order-ids'
+import { isOpenApiDocument } from '@/schemas/type-guards'
 
 /**
  * Adds a new tag to the WorkspaceDocument's `tags` array.
@@ -17,8 +18,8 @@ import { updateOrderIds } from '@/navigation/helpers/update-order-ids'
 export const createTag = (store: WorkspaceStore | null, payload: TagEvents['tag:create:tag']) => {
   const document = store?.workspace.documents[payload.documentName]
 
-  if (!document) {
-    console.error('Document not found', { payload, store })
+  if (!isOpenApiDocument(document)) {
+    console.error('Document not found or not an OpenAPI document', { payload, store })
     return
   }
 
@@ -39,9 +40,13 @@ export const createTag = (store: WorkspaceStore | null, payload: TagEvents['tag:
  */
 export const editTag = (store: WorkspaceStore | null, payload: TagEvents['tag:edit:tag']) => {
   const document = store?.workspace.documents[payload.documentName]
-  const documentNavigation = document?.['x-scalar-navigation']
-  if (!document || !documentNavigation) {
-    console.error('Document not found', { payload, store })
+  if (!store || !isOpenApiDocument(document)) {
+    console.error('Document not found or not an OpenAPI document', { payload, store })
+    return
+  }
+  const documentNavigation = document['x-scalar-navigation']
+  if (!documentNavigation) {
+    console.error('Document navigation missing', { payload, store })
     return
   }
 
@@ -117,7 +122,7 @@ export const editTag = (store: WorkspaceStore | null, payload: TagEvents['tag:ed
  */
 export const deleteTag = (workspace: WorkspaceStore | null, payload: TagEvents['tag:delete:tag']) => {
   const document = workspace?.workspace.documents[payload.documentName]
-  if (!document) {
+  if (!isOpenApiDocument(document)) {
     return
   }
 

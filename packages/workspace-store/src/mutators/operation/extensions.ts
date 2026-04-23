@@ -2,6 +2,7 @@ import type { OperationEvents } from '@/events'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { mergeObjects } from '@/helpers/merge-object'
 import type { WorkspaceDocument } from '@/schemas'
+import { isOpenApiDocument } from '@/schemas/type-guards'
 
 /**
  * Updates an extension of the operation
@@ -19,7 +20,10 @@ export const updateOperationExtension = (
   document: WorkspaceDocument | null,
   { meta, payload }: OperationEvents['operation:update:extension'],
 ) => {
-  const operation = getResolvedRef(document?.paths?.[meta.path]?.[meta.method])
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
   if (!operation) {
     return
   }

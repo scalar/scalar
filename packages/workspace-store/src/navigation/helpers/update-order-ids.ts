@@ -4,6 +4,7 @@ import type { WorkspaceStore } from '@/client'
 import { canHaveOrder, getOpenapiObject } from '@/navigation/helpers/get-openapi-object'
 import { getParentEntry } from '@/navigation/helpers/get-parent-entry'
 import type { IdGenerator, TraversedOperation, TraversedTag, TraversedWebhook, WithParent } from '@/schemas/navigation'
+import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { TagObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@/schemas/v3.1/strict/operation'
 
@@ -65,7 +66,9 @@ export const updateOrderIds = ({ store, generateId, ...rest }: UpdateOrderIdPara
       if (oldTagId !== newTagId) {
         const documentEntry = getParentEntry('document', entry)
         const document = documentEntry ? store.workspace.documents[documentEntry.name] : null
-        const renamedTagObj = document?.tags?.find((t) => t.name === rest.tag.name)
+        const renamedTagObj = isOpenApiDocument(document)
+          ? document.tags?.find((t) => t.name === rest.tag.name)
+          : undefined
         const childOrder = renamedTagObj?.['x-scalar-order']
 
         if (renamedTagObj && Array.isArray(childOrder)) {

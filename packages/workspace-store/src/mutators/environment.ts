@@ -7,6 +7,7 @@ import {
   xScalarEnvVarSchema,
   xScalarEnvironmentSchema,
 } from '@/schemas/extensions/document/x-scalar-environments'
+import { isAsyncApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
 
 type Event<T extends keyof EnvironmentEvents> = Omit<EnvironmentEvents[T], 'collectionType'>
@@ -27,7 +28,7 @@ export const upsertEnvironment = (
   { environmentName, payload, oldEnvironmentName }: Event<'environment:upsert:environment'>,
 ): XScalarEnvironment | undefined => {
   /** Discriminating between document and workspace */
-  if (!collection || !workspace) {
+  if (!collection || !workspace || isAsyncApiDocument(collection)) {
     return
   }
 
@@ -75,7 +76,7 @@ export const deleteEnvironment = (
   collection: WorkspaceDocument | Workspace | null,
   { environmentName }: Event<'environment:delete:environment'>,
 ) => {
-  if (!collection || !workspace) {
+  if (!collection || !workspace || isAsyncApiDocument(collection)) {
     return
   }
 
@@ -96,8 +97,11 @@ export const upsertEnvironmentVariable = (
   collection: WorkspaceDocument | Workspace | null,
   { environmentName, variable, index }: Event<'environment:upsert:environment-variable'>,
 ): XScalarEnvVar | undefined => {
+  if (!collection || isAsyncApiDocument(collection)) {
+    return
+  }
   // The environment should exist by now if we are upserting a variable
-  if (!collection?.['x-scalar-environments']?.[environmentName]) {
+  if (!collection['x-scalar-environments']?.[environmentName]) {
     console.error('Environment not found', environmentName)
     return
   }
@@ -127,11 +131,14 @@ export const deleteEnvironmentVariable = (
   collection: WorkspaceDocument | Workspace | null,
   { environmentName, index }: Event<'environment:delete:environment-variable'>,
 ) => {
-  if (!collection?.['x-scalar-environments']?.[environmentName]) {
+  if (!collection || isAsyncApiDocument(collection)) {
+    return
+  }
+  if (!collection['x-scalar-environments']?.[environmentName]) {
     console.error('Environment not found', environmentName)
     return
   }
-  collection['x-scalar-environments']?.[environmentName]?.variables?.splice(index, 1)
+  collection['x-scalar-environments'][environmentName]?.variables?.splice(index, 1)
 }
 
 export const environmentMutatorsFactory = ({
