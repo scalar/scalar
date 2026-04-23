@@ -38,6 +38,10 @@ To make the skill available across projects:
 npx skills add scalar/scalar --skill mock-server --global
 ```
 
+## Use Scalar Docs as an MCP
+
+Use `https://scalar.com/mcp` to add Scalar Documentation as an MCP server for your agent.
+
 ## What this skill covers
 
 The `mock-server` skill includes guidance for:
