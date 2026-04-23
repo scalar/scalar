@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import type { WorkspaceDocument } from '@/schemas'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 import {
   addServer,
@@ -14,9 +14,9 @@ import {
 } from './server'
 
 /**
- * Helper to create a minimal WorkspaceDocument for testing.
+ * Helper to create a minimal OpenApiDocument for testing.
  */
-function createDocument(initial?: Partial<WorkspaceDocument>): WorkspaceDocument {
+function createDocument(initial?: Partial<OpenApiDocument>): OpenApiDocument {
   return {
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },

@@ -3,6 +3,7 @@ import type { HooksEvents } from '@/events/definitions/hooks'
 import type { OperationEvents } from '@/events/definitions/operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { WorkspaceDocument } from '@/schemas'
+import { isOpenApiDocument } from '@/schemas/type-guards'
 import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'
 
 import { fetchRequestToHar } from './helpers/fetch-request-to-har'
@@ -14,8 +15,11 @@ export const addResponseToHistory = async (
   document: WorkspaceDocument | null,
   { payload, meta }: HooksEvents['hooks:on:request:complete'],
 ) => {
-  const documentName = document?.['x-scalar-navigation']?.name
-  if (!document || !documentName || !payload) {
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const documentName = document['x-scalar-navigation']?.name
+  if (!documentName || !payload) {
     return
   }
 
@@ -60,7 +64,7 @@ export const reloadOperationHistory = (
   document: WorkspaceDocument | null,
   { meta, index, callback }: OperationEvents['operation:reload:history'],
 ) => {
-  if (!document) {
+  if (!isOpenApiDocument(document)) {
     console.error('Document not found', meta.path, meta.method)
     return
   }
