@@ -54,22 +54,7 @@ import {
 } from '@/v2/features/app/hooks/use-sidebar-documents'
 import { DocumentSearchModal } from '@/v2/features/search'
 import { dragHandleFactory } from '@/v2/helpers/drag-handle-factory'
-
-type FetchRegistryDocumentResult =
-  | {
-      message: string
-      error: true
-    }
-  | {
-      data: string
-      error: false
-    }
-
-type FetchRegistryDocument = (params: {
-  namespace: string
-  slug: string
-  version?: string
-}) => Promise<FetchRegistryDocumentResult>
+import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 
 const {
   app,
@@ -84,7 +69,7 @@ const {
   /** The list of all available registry documents */
   registryDocuments: RegistryDocument[]
   /** A function to fetch a registry document */
-  fetchRegistryDocument?: FetchRegistryDocument
+  fetchRegistryDocument?: ImportDocumentFromRegistry
 }>()
 
 const { toast } = useToasts()

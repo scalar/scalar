@@ -22,7 +22,6 @@ import { computed, onBeforeUnmount, toValue, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { SidebarToggle } from '@/v2/components/sidebar'
-import AppSidebar from '@/v2/features/app/components/AppSidebar.vue'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import NewSidear from '@/v2/features/app/components/NewSidear.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
@@ -224,6 +223,7 @@ const routerViewProps = computed<RouteProps>(() => {
 
           <NewSidear
             :app="app"
+            :fetchRegistryDocument="fetchRegistryDocument"
             :registryDocuments="[]"
             :sidebarWidth="app.sidebar.width.value"
             @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate" />

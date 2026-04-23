@@ -1234,6 +1234,9 @@ importers:
       '@scalar/use-toasts':
         specifier: workspace:*
         version: link:../use-toasts
+      '@scalar/validation':
+        specifier: workspace:*
+        version: link:../validation
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store

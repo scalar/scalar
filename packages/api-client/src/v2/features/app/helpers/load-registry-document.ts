@@ -1,74 +1,22 @@
-import { isObject } from '@scalar/helpers/object/is-object'
+import { coerce, object, string } from '@scalar/validation'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { parse as parseYaml } from 'yaml'
 
 import { generateUniqueSlug } from '@/v2/features/command-palette/helpers/generate-unique-slug'
-
-/** Raw result returned by a registry fetcher implementation. */
-export type FetchRegistryDocumentResult =
-  | {
-      message: string
-      error: true
-    }
-  | {
-      data: string
-      error: false
-    }
-
-/**
- * Fetcher contract for retrieving a document from a registry.
- *
- * The returned `data` is expected to be the raw document contents (JSON or
- * YAML) which will be parsed by the hook before being added to the workspace.
- */
-export type FetchRegistryDocument = (params: {
-  namespace: string
-  slug: string
-  version?: string
-}) => Promise<FetchRegistryDocumentResult>
+import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 
 /** Result of attempting to load a registry document into the workspace store. */
 export type LoadRegistryDocumentResult = { ok: true; documentName: string } | { ok: false; error: string }
-
-/**
- * Parses raw registry document contents as JSON and falls back to YAML.
- * Returns `null` when the value cannot be parsed into an object, so callers
- * can surface a clear error instead of storing malformed data.
- */
-const parseRegistryDocument = (raw: string): Record<string, unknown> | null => {
-  try {
-    const parsed = JSON.parse(raw)
-    if (isObject(parsed)) {
-      return parsed
-    }
-  } catch {
-    // Intentionally ignored: fall through to YAML parsing.
-  }
-
-  try {
-    const parsed = parseYaml(raw)
-    if (isObject(parsed)) {
-      return parsed
-    }
-  } catch {
-    // Both JSON and YAML parsing failed.
-  }
-
-  return null
-}
 
 export const loadRegistryDocument = async ({
   workspaceStore,
   fetcher,
   namespace,
   slug,
-  version,
 }: {
   workspaceStore: WorkspaceStore
-  fetcher: FetchRegistryDocument
+  fetcher: ImportDocumentFromRegistry
   namespace: string
   slug: string
-  version?: string
 }): Promise<LoadRegistryDocumentResult> => {
   const documents = workspaceStore.workspace.documents
 
@@ -81,22 +29,17 @@ export const loadRegistryDocument = async ({
     return { ok: true, documentName: existing[0] }
   }
 
-  const result = await fetcher({ namespace, slug, version })
-  if (result.error) {
+  const result = await fetcher({ namespace, slug, version: 'latest' })
+  if (!result.ok) {
     return {
       ok: false,
-      error: `Failed to fetch document: ${result.message || 'Unknown error'}`,
+      error: `Failed to fetch document: ${result.error || 'Unknown error'}`,
     }
   }
 
-  const parsed = parseRegistryDocument(result.data)
-  if (!parsed) {
-    return { ok: false, error: 'Failed to parse registry document' }
-  }
-
-  const info = parsed['info']
-  const baseName =
-    isObject(info) && typeof info['title'] === 'string' && info['title'].length > 0 ? info['title'] : slug
+  // Parse the document data into a schema
+  const schema = object({ info: object({ title: string() }) })
+  const baseName = coerce(schema, result.data).info.title
 
   const documentName = await generateUniqueSlug(baseName, new Set(Object.keys(documents)))
 
@@ -107,9 +50,10 @@ export const loadRegistryDocument = async ({
     }
   }
 
+  // Add the document to the workspace store
   await workspaceStore.addDocument({
     name: documentName,
-    document: parsed,
+    document: result.data,
     meta: {
       'x-scalar-registry-meta': { namespace, slug },
     },
