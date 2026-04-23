@@ -50,7 +50,7 @@ const transformNodes =
   }
 
 const TAGS_WITH_INLINE_MARKDOWN = new Set(['dd', 'dt', 'li', 'p', 'summary', 'td', 'th'])
-const MAY_CONTAIN_INLINE_MARKDOWN = /[`*_[~]/
+const MAY_CONTAIN_INLINE_MARKDOWN = /[`*_\[~]/
 
 /**
  * Preserve HTML-like text in inline markdown by turning mdast `html` nodes into text nodes.
