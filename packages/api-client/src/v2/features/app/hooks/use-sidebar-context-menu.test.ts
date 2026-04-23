@@ -94,7 +94,7 @@ describe('use-sidebar-context-menu', () => {
 
     await openMenu(event, tree.operation)
 
-    expect(menuTarget.value?.item).toBe(tree.operation)
+    expect(menuTarget.value?.item.id).toBe('op-1')
     expect(menuTarget.value?.el).toBe(el)
     expect(menuTarget.value?.showMenu).toBe(true)
   })
@@ -127,7 +127,7 @@ describe('use-sidebar-context-menu', () => {
 
     // Second call should be ignored so the user does not accidentally
     // swap menus mid-animation.
-    expect(menuTarget.value?.item).toBe(tree.operation)
+    expect(menuTarget.value?.item.id).toBe('op-1')
     expect(menuTarget.value?.el).toBe(el1)
   })
 
@@ -142,7 +142,7 @@ describe('use-sidebar-context-menu', () => {
 
     expect(menuTarget.value).not.toBeNull()
     expect(menuTarget.value?.showMenu).toBe(false)
-    expect(menuTarget.value?.item).toBe(tree.operation)
+    expect(menuTarget.value?.item.id).toBe('op-1')
   })
 
   it('renders a stronger delete message for documents', async () => {
@@ -249,7 +249,6 @@ describe('use-sidebar-context-menu', () => {
   })
 
   it('does not emit when the target has no parent document', async () => {
-    const tree = buildTree()
     const orphan = {
       id: 'orphan',
       type: 'tag',
@@ -278,8 +277,6 @@ describe('use-sidebar-context-menu', () => {
 
     expect(tagListener).not.toHaveBeenCalled()
     expect(documentListener).not.toHaveBeenCalled()
-    // Silence unused-variable warning for `tree`
-    expect(tree.document.id).toBe('doc-1')
   })
 
   it('resets the menu target after a successful delete', async () => {

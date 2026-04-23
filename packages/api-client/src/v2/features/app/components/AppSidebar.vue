@@ -33,7 +33,7 @@ import type {
   TraversedEntry,
   TraversedOperation,
 } from '@scalar/workspace-store/schemas/navigation'
-import { computed, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { Resize } from '@/v2/components/resize'
@@ -76,8 +76,7 @@ const { toast } = useToasts()
 /**
  * Whether the caller is still fetching the list of registry documents. We
  * only surface the loading state on team workspaces because local workspaces
- * never consult the registry — see `useSidebarDocuments` — so skeletons there
- * would always be stale placeholders for data that will never arrive.
+ * never consult the registry
  */
 const isLoadingRegistry = computed(
   () =>
@@ -113,20 +112,11 @@ const {
 
 const sidebarState = app.sidebar.state
 
-/**
- * Tracks which top-level documents are drilled into. Keyed by the sidebar item
- * key so it works for both loaded documents and registry-only placeholders.
- */
-const openKeys = ref<Record<string, boolean>>({})
-
 /** Which registry documents are currently being fetched. */
 const loadingKeys = ref<Record<string, boolean>>({})
 
 /**
- * Whether this item represents the document currently selected in the shared
- * sidebar state. `selectedItems` contains every ancestor on the path to the
- * active node, so the document entry is included whenever any of its children
- * (operation, example, …) is selected by the route.
+ * Check if the given {@link SidebarDocumentItem} is the currently active document (from the sidebar state).
  */
 const isDocActive = (item: SidebarDocumentItem) => {
   if (!item.navigation) {
@@ -139,17 +129,9 @@ const isDocActive = (item: SidebarDocumentItem) => {
   )
 }
 
-/**
- * The sidebar item that matches the currently active document, derived from
- * the shared `app.sidebar.state`. This stays in sync automatically because
- * `syncSidebar` in the app-state updates `sidebarState` on every route change.
- */
-const activeItem = computed(() => rest.value.find(isDocActive))
-
 const handleDocumentClick = async (item: SidebarDocumentItem) => {
   if (item.navigation) {
     app.sidebar.handleSelectItem(item.navigation.id)
-    openKeys.value[item.key] = true
     return
   }
 
@@ -185,7 +167,9 @@ const handleDocumentClick = async (item: SidebarDocumentItem) => {
     return
   }
 
-  openKeys.value[item.key] = true
+  // After loading, route to the document overview. `syncSidebar` will then
+  // mark the document as selected and the template's `:open="isDocActive"`
+  // binding drills the sidebar in automatically — no local state needed.
   app.eventBus.emit('ui:navigate', {
     page: 'document',
     path: 'overview',
@@ -246,8 +230,7 @@ const {
 
 /**
  * Navigate to the overview page of a given operation when the gear icon on an
- * operation row is clicked. Mirrors `navigateToOperationsPage` from the old
- * sidebar.
+ * operation row is clicked.
  */
 const navigateToOperationsPage = (item: TraversedOperation) => {
   const operationWithParent = sidebarState.getEntryById(item.id)
@@ -265,8 +248,7 @@ const navigateToOperationsPage = (item: TraversedOperation) => {
 /**
  * Create a new operation from an empty folder slot inside a tag or document.
  * If the entry is a tag, the new operation inherits that tag so it stays
- * grouped under the same folder. Mirrors `handleAddEmptyFolder` from
- * `AppSidebar.vue`.
+ * grouped under the same folder.
  */
 const handleAddEmptyFolder = (item: TraversedEntry) => {
   const itemWithParent = sidebarState.getEntryById(item.id)
@@ -299,8 +281,7 @@ const handleCreate = () => {
  * Create a new operation inside the given document and immediately navigate to
  * it. Uses `createTempOperation` so the operation gets a unique `/temp…` path,
  * then the sidebar focuses the new example and the address bar is focused so
- * the user can start typing the real path right away. Mirrors the old
- * "Add operation" behaviour from `AppSidebar.vue` (`handleAddEmptyFolder`).
+ * the user can start typing the real path right away.
  */
 const handleCreateOperation = (item: SidebarDocumentItem) => {
   const documentName = item.documentName
@@ -320,9 +301,7 @@ const handleCreateOperation = (item: SidebarDocumentItem) => {
 }
 
 /**
- * Navigates back to the workspace "Get started" page. We rely on the watcher
- * below to clear `openKeys` once the route change lands, so this function only
- * needs to trigger the navigation.
+ * Navigates back to the workspace "Get started" page.
  */
 const handleBack = () => {
   app.eventBus.emit('ui:navigate', {
@@ -330,24 +309,6 @@ const handleBack = () => {
     path: 'get-started',
   })
 }
-
-/**
- * Keep the drilled-in sidebar state in sync with the active document. When the
- * user navigates to a document (via any means), open that document's entry in
- * the sidebar. When they leave the document (no active slug), collapse back to
- * the top-level list.
- */
-watch(
-  () => activeItem.value?.key ?? null,
-  (key) => {
-    if (key) {
-      openKeys.value = { [key]: true }
-    } else {
-      openKeys.value = {}
-    }
-  },
-  { immediate: true },
-)
 
 /**
  * True when the user is currently viewing a document (any of its subpages).
@@ -465,7 +426,7 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
           :style="{ '--scalar-sidebar-indent': indent + 'px' }">
           <!-- Top-level sidebar header -->
           <div
-            v-if="!activeItem"
+            v-if="!isOnDocumentPage"
             class="flex flex-col gap-1.5 p-(--scalar-sidebar-padding)">
             <div class="flex items-center gap-1">
               <ScalarSidebarButton
@@ -501,12 +462,10 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
           <div class="custom-scroll flex flex-1 flex-col">
             <!--
               Empty state: no documents in the workspace yet. Matches the
-              minimal "empty folder" affordance used elsewhere in the app so
-              users immediately recognise the workspace is empty rather than
-              loading.
+              minimal `empty folder` appearance.
             -->
             <div
-              v-if="isEmpty && !activeItem"
+              v-if="isEmpty && !isOnDocumentPage"
               class="text-c-3 flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center select-none">
               <ScalarIconFolderDashed
                 class="size-10"
@@ -554,7 +513,7 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                     the top-level view (when no document is drilled-in) so
                     the collection view is never masked by placeholders.
                   -->
-                  <template v-if="isLoadingRegistry && !activeItem">
+                  <template v-if="isLoadingRegistry && !isOnDocumentPage">
                     <li
                       v-for="n in 4"
                       :key="`registry-skeleton-${n}`"
@@ -568,7 +527,7 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                     :key="item.key"
                     :active="isDocActive(item)"
                     controlled
-                    :open="Boolean(openKeys[item.key])"
+                    :open="isDocActive(item)"
                     @back="handleBack"
                     @click="handleDocumentClick(item)">
                     <span>{{ item.title }}</span>
