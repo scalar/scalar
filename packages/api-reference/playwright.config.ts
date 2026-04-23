@@ -1,4 +1,5 @@
 import { type PlaywrightTestConfig, defineConfig } from '@playwright/test'
+import { getDockerServer } from '@scalar/helpers/playwright/docker'
 
 const IS_CDN = process.env.TEST_MODE === 'CDN'
 const CI = Boolean(process.env.CI)
@@ -48,20 +49,7 @@ export default defineConfig({
    * Outside of CI we run the playwright test server in a docker container for
    * consistent cross-platform results.
    */
-  webServer: CI
-    ? undefined
-    : {
-        name: 'Playwright',
-        command:
-          'docker run --name scalar-playwright --rm --platform linux/amd64 --entrypoint="playwright" --network=host scalarapi/playwright-runner:1.59.1 run-server --port 5001 --host 0.0.0.0',
-        url: 'http://localhost:5001',
-        timeout: 120 * 1000,
-        reuseExistingServer: !CI,
-        gracefulShutdown: {
-          signal: 'SIGINT',
-          timeout: 10 * 1000,
-        },
-      },
+  webServer: CI ? undefined : getDockerServer(),
   snapshotPathTemplate: '{testFileDir}/{testFileName}.snapshots/{arg}{ext}',
   expect: {
     toHaveScreenshot: {

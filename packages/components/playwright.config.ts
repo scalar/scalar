@@ -1,6 +1,5 @@
-import { type PlaywrightTestConfig, defineConfig } from '@playwright/test'
-
-type WebServer = PlaywrightTestConfig['webServer']
+import { defineConfig } from '@playwright/test'
+import { type WebServer, getDockerServer } from '@scalar/helpers/playwright/docker'
 
 const CI = !!process.env.CI
 
@@ -12,18 +11,7 @@ const isLinux = process.platform === 'linux' && !CI
  * This runs the playwright test browser(s) in a docker container to make sure
  * the tests are run in a consistent environment locally and in CI.
  */
-const playwrightServer: WebServer = {
-  name: 'Playwright',
-  command:
-    'docker run --name scalar-playwright --rm --platform linux/amd64 --entrypoint="playwright" --network=host scalarapi/playwright-runner:1.59.1 run-server --port 5001 --host 0.0.0.0',
-  url: 'http://localhost:5001',
-  timeout: 120 * 1000,
-  reuseExistingServer: !CI,
-  gracefulShutdown: {
-    signal: 'SIGTERM',
-    timeout: 10 * 1000,
-  },
-} as const
+const playwrightServer: WebServer = getDockerServer()
 
 /**
  * Storybook
