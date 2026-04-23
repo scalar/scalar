@@ -138,9 +138,6 @@ const { copyToClipboard } = useClipboard()
                 {{ getOperationStability(operation) }}
               </Badge>
 
-              <!-- Required auth badge -->
-              <SecurityRequirementBadge :requiredSecurity="requiredSecurity" />
-
               <!-- Webhook badge -->
               <Badge
                 v-if="isWebhook"
@@ -158,6 +155,8 @@ const { copyToClipboard } = useClipboard()
       </div>
     </template>
     <template #actions="{ active }">
+      <!-- Required auth indicator -->
+      <SecurityRequirementBadge :requiredSecurity="requiredSecurity" />
       <!-- x-badges after -->
       <XBadges
         :badges="operation['x-badges']"
