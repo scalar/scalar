@@ -33,7 +33,6 @@ import type {
   TraversedEntry,
   TraversedOperation,
 } from '@scalar/workspace-store/schemas/navigation'
-import Fuse from 'fuse.js'
 import {
   computed,
   nextTick,
@@ -48,6 +47,7 @@ import { Resize } from '@/v2/components/resize'
 import SidebarItemMenu from '@/v2/features/app/components/SidebarItemMenu.vue'
 import { createTempOperation } from '@/v2/features/app/helpers/create-temp-operation'
 import { loadRegistryDocument } from '@/v2/features/app/helpers/load-registry-document'
+import { useDocumentFilter } from '@/v2/features/app/hooks/use-document-filter'
 import {
   useSidebarDocuments,
   type RegistryDocumentsState,
@@ -106,39 +106,16 @@ const isEmpty = computed(
   () => !isLoadingRegistry.value && rest.value.length === 0,
 )
 
-/** Controls the visibility of the document filter input in the top-level view. */
-const isFilterVisible = ref(false)
-
-/** The current filter query entered by the user. */
-const filterQuery = ref('')
-
 /**
- * Fuzzy index over the top-level documents. Rebuilt when the document list
- * changes so newly added or removed entries are reflected immediately. We
- * index the `title` field only, since the filter is a lightweight "jump to
- * document by name" affordance rather than a full content search.
+ * Fuzzy filter over the top-level documents. Owns its own input visibility,
+ * query string and Fuse index. See `use-document-filter.ts` for details.
  */
-const fuse = computed(
-  () =>
-    new Fuse(rest.value, {
-      keys: ['title'],
-      threshold: 0.3,
-      ignoreLocation: true,
-    }),
-)
-
-/**
- * Top-level documents narrowed down by the current filter query using Fuse.js
- * fuzzy matching on the title. An empty query returns the full list.
- */
-const filteredRest = computed(() => {
-  const query = filterQuery.value.trim()
-  if (!query) {
-    return rest.value
-  }
-
-  return fuse.value.search(query).map((result) => result.item)
-})
+const {
+  isVisible: isFilterVisible,
+  query: filterQuery,
+  filteredItems: filteredRest,
+  toggle: toggleFilter,
+} = useDocumentFilter(rest)
 
 const sidebarState = app.sidebar.state
 
@@ -528,10 +505,7 @@ const handleFilterOrSearch = () => {
 
   // At the top-level documents view, the icon toggles a lightweight filter
   // that narrows the visible documents by title.
-  isFilterVisible.value = !isFilterVisible.value
-  if (!isFilterVisible.value) {
-    filterQuery.value = ''
-  }
+  toggleFilter()
 }
 
 /**
