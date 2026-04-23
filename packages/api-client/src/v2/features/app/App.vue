@@ -22,7 +22,9 @@ import { computed, onBeforeUnmount, toValue, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { SidebarToggle } from '@/v2/components/sidebar'
+import AppSidebar from '@/v2/features/app/components/AppSidebar.vue'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
+import NewSidear from '@/v2/features/app/components/NewSidear.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
@@ -35,7 +37,6 @@ import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import { type AppState } from './app-state'
-import AppSidebar from './components/AppSidebar.vue'
 import DesktopTabs from './components/DesktopTabs.vue'
 
 const {
@@ -143,30 +144,6 @@ useMonacoEditorConfiguration({
   darkMode: isDarkMode,
 })
 
-const navigateToWorkspaceOverview = (namespace?: string, slug?: string) => {
-  app.eventBus.emit('ui:navigate', {
-    page: 'workspace',
-    path: 'environment',
-    namespace,
-    workspaceSlug: slug,
-  })
-}
-
-/** Sets the active workspace by ID: finds the workspace in the list and updates app state & navigation. */
-const setActiveWorkspace = (id?: string) => {
-  if (!id) {
-    return
-  }
-  const workspace = app.workspace.workspaceList.value?.find(
-    (workspace) => workspace.id === id,
-  )
-  if (!workspace) {
-    return
-  }
-
-  navigateToWorkspaceOverview(workspace.namespace, workspace.slug)
-}
-
 const createWorkspaceModalState = useModal()
 
 /** Props to pass to the RouterView component. */
@@ -219,11 +196,11 @@ const routerViewProps = computed<RouteProps>(() => {
           class="absolute z-60 md:hidden"
           :class="layout === 'desktop' ? 'top-14 left-4' : 'top-4 left-4'" />
         <div class="flex min-h-0 flex-1 flex-row">
-          <slot
+          <!-- App sidebar -->
+          <!-- <slot
             :eventBus="app.eventBus"
             name="sidebar"
             :workspaceStore="app.store.value">
-            <!-- App sidebar -->
             <AppSidebar
               v-model:isSidebarOpen="app.sidebar.isOpen.value"
               :activeWorkspace="app.workspace.activeWorkspace.value"
@@ -243,7 +220,13 @@ const routerViewProps = computed<RouteProps>(() => {
                 <slot name="sidebar-menu-actions" />
               </template>
             </AppSidebar>
-          </slot>
+          </slot> -->
+
+          <NewSidear
+            :app="app"
+            :registryDocuments="[]"
+            :sidebarWidth="app.sidebar.width.value"
+            @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate" />
 
           <div class="flex min-h-0 flex-1 flex-col">
             <!-- App Tabs -->
