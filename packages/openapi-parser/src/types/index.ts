@@ -20,7 +20,20 @@ export type UnknownObject = Record<string, unknown>
  */
 export type AnyApiDefinitionFormat = string | AnyObject
 
-export type OpenApiDocument = OpenApiDocumentV2 | OpenApiDocumentV3 | OpenApiDocumentV3_1 | OpenApiDocumentV3_2
+type DeepLenientOpenApiType<T> = T extends (...args: any[]) => any
+  ? T
+  : T extends readonly (infer U)[]
+    ? DeepLenientOpenApiType<U>[]
+    : T extends object
+      ? { [K in keyof T]?: DeepLenientOpenApiType<T[K]> } & AnyObject
+      : T
+
+export type OpenApiDocument2 = DeepLenientOpenApiType<OpenApiDocumentV2>
+export type OpenApiDocument3 = DeepLenientOpenApiType<OpenApiDocumentV3>
+export type OpenApiDocument3_1 = DeepLenientOpenApiType<OpenApiDocumentV3_1>
+export type OpenApiDocument3_2 = DeepLenientOpenApiType<OpenApiDocumentV3_2>
+
+export type OpenApiDocument = OpenApiDocument2 | OpenApiDocument3 | OpenApiDocument3_1 | OpenApiDocument3_2
 
 export type LoadResult = {
   filesystem: Filesystem

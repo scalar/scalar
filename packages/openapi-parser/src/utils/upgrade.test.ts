@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
+import type { OpenApiDocument2 } from '@/types'
+
 import { makeFilesystem } from './make-filesystem'
 import { upgrade } from './upgrade'
 
@@ -14,7 +16,7 @@ describe('upgrade', () => {
       paths: {},
     })
 
-    expect(specification.swagger).toBeUndefined()
+    expect((specification as OpenApiDocument2).swagger).toBeUndefined()
     expect(specification.openapi).toBe('3.1.1')
   })
 
