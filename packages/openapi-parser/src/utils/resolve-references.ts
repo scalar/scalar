@@ -1,8 +1,7 @@
 import { isObject } from '@scalar/helpers/object/is-object'
-import type { OpenAPI } from '@scalar/openapi-types'
 
 import { ERRORS } from '@/configuration'
-import type { AnyObject, ErrorObject, Filesystem, FilesystemEntry, ThrowOnErrorOption } from '@/types/index'
+import type { AnyObject, ErrorObject, Filesystem, FilesystemEntry, OpenApiDocument, ThrowOnErrorOption } from '@/types/index'
 
 import { getEntrypoint } from './get-entrypoint'
 import { getSegmentsFromPath } from './get-segments-from-path'
@@ -21,7 +20,7 @@ import { makeFilesystem } from './make-filesystem'
 type ResolveReferencesResult = {
   valid: boolean
   errors: ErrorObject[]
-  schema: OpenAPI.Document
+  schema: OpenApiDocument
 }
 
 export type ResolveReferencesOptions = ThrowOnErrorOption & {
@@ -66,7 +65,7 @@ export function resolveReferences(
     return {
       valid: false,
       errors,
-      schema: finalInput as OpenAPI.Document,
+      schema: finalInput as OpenApiDocument,
     }
   }
 
@@ -82,7 +81,7 @@ export function resolveReferences(
   return {
     valid: errors.length === 0,
     errors,
-    schema: finalInput as OpenAPI.Document,
+    schema: finalInput as OpenApiDocument,
   }
 }
 

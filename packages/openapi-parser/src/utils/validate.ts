@@ -1,7 +1,5 @@
-import type { OpenAPI } from '@scalar/openapi-types'
-
 import { Validator } from '@/lib/Validator/Validator'
-import type { AnyObject, Filesystem, ThrowOnErrorOption, ValidateResult } from '@/types/index'
+import type { AnyObject, Filesystem, OpenApiDocument, ThrowOnErrorOption, ValidateResult } from '@/types/index'
 
 import { makeFilesystem } from './make-filesystem'
 
@@ -23,7 +21,7 @@ export function validate(value: string | AnyObject | Filesystem, options?: Valid
      */
     return Promise.resolve({
       ...result,
-      specification: validator.specification as OpenAPI.Document,
+      specification: validator.specification as OpenApiDocument,
       version: validator.version,
     })
   } catch (err) {
