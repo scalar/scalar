@@ -55,7 +55,7 @@ describe('createTag', () => {
 
     createTag(store, { documentName: 'non-existent', name: 'tag' })
 
-    expect(consoleSpy).toHaveBeenCalledWith('Document not found or not an OpenAPI document', expect.any(Object))
+    expect(consoleSpy).toHaveBeenCalledWith('Document not found', expect.any(Object))
     consoleSpy.mockRestore()
   })
 
@@ -66,7 +66,7 @@ describe('createTag', () => {
 
     createTag(null, { documentName: 'test-doc', name: 'tag' })
 
-    expect(consoleSpy).toHaveBeenCalledWith('Document not found or not an OpenAPI document', expect.any(Object))
+    expect(consoleSpy).toHaveBeenCalledWith('Document not found', expect.any(Object))
     consoleSpy.mockRestore()
   })
 

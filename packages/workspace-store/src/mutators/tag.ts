@@ -19,7 +19,7 @@ export const createTag = (store: WorkspaceStore | null, payload: TagEvents['tag:
   const document = store?.workspace.documents[payload.documentName]
 
   if (!isOpenApiDocument(document)) {
-    console.error('Document not found or not an OpenAPI document', { payload, store })
+    console.error('Document not found', { payload, store })
     return
   }
 
@@ -41,7 +41,7 @@ export const createTag = (store: WorkspaceStore | null, payload: TagEvents['tag:
 export const editTag = (store: WorkspaceStore | null, payload: TagEvents['tag:edit:tag']) => {
   const document = store?.workspace.documents[payload.documentName]
   if (!store || !isOpenApiDocument(document)) {
-    console.error('Document not found or not an OpenAPI document', { payload, store })
+    console.error('Document not found', { payload, store })
     return
   }
   const documentNavigation = document['x-scalar-navigation']
