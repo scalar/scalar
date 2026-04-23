@@ -243,13 +243,13 @@ describe('handle-hotkey-down', () => {
     expect(mockEventBus.emit).not.toHaveBeenCalled()
   })
 
-  it('uses desktop-specific hotkeys in desktop layout', () => {
+  it('does not fire hotkey for the previous `f` binding in desktop layout', () => {
     vi.mocked(isMacOS).mockReturnValue(true)
 
     const event = createKeyboardEvent('f', { metaKey: true })
     handleHotkeys(event, mockEventBus, 'desktop')
 
-    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:search', { event }, { skipUnpackProxy: true })
+    expect(mockEventBus.emit).not.toHaveBeenCalled()
   })
 
   it('uses web-specific hotkeys in web layout', () => {
@@ -286,5 +286,41 @@ describe('handle-hotkey-down', () => {
     handleHotkeys(event, mockEventBus, 'desktop')
 
     expect(mockEventBus.emit).toHaveBeenCalledWith('tabs:focus:tab-last', { event }, { skipUnpackProxy: true })
+  })
+
+  it('fires ui:focus:search on Cmd+J in web layout', () => {
+    vi.mocked(isMacOS).mockReturnValue(true)
+
+    const event = createKeyboardEvent('j', { metaKey: true })
+    handleHotkeys(event, mockEventBus, 'web')
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:search', { event }, { skipUnpackProxy: true })
+  })
+
+  it('fires ui:focus:search on Cmd+J in desktop layout', () => {
+    vi.mocked(isMacOS).mockReturnValue(true)
+
+    const event = createKeyboardEvent('j', { metaKey: true })
+    handleHotkeys(event, mockEventBus, 'desktop')
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:search', { event }, { skipUnpackProxy: true })
+  })
+
+  it('does not fire ui:focus:search in modal layout', () => {
+    vi.mocked(isMacOS).mockReturnValue(true)
+
+    const event = createKeyboardEvent('j', { metaKey: true })
+    handleHotkeys(event, mockEventBus, 'modal')
+
+    expect(mockEventBus.emit).not.toHaveBeenCalled()
+  })
+
+  it('does not fire ui:focus:search for plain j without modifier', () => {
+    vi.mocked(isMacOS).mockReturnValue(true)
+
+    const event = createKeyboardEvent('j')
+    handleHotkeys(event, mockEventBus, 'web')
+
+    expect(mockEventBus.emit).not.toHaveBeenCalled()
   })
 })

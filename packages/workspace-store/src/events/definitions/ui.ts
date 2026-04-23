@@ -135,7 +135,12 @@ export type UIEvents = {
 
   /**
    * Focus the search input in the sidebar.
-   * Allows quick filtering of requests and tags.
+   *
+   * Drives the contextual sidebar search affordance: on the workspace page it
+   * toggles the "filter documents" input at the top of the sidebar, and while
+   * viewing a single document it opens the scoped document search modal. Also
+   * used for quick filtering of requests and tags. Typically triggered by
+   * Cmd/Ctrl+J.
    */
   'ui:focus:search': KeyboardEventPayload
 

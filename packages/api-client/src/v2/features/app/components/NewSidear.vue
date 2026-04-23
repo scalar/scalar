@@ -20,7 +20,7 @@ import {
 import { filterItems, SidebarItem } from '@scalar/sidebar'
 import { useToasts } from '@scalar/use-toasts'
 import Fuse from 'fuse.js'
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 
 import { Resize } from '@/v2/components/resize'
 import { loadRegistryDocument } from '@/v2/features/app/helpers/load-registry-document'
@@ -295,6 +295,21 @@ function handleFilterOrSearch() {
     filterQuery.value = ''
   }
 }
+
+/**
+ * Handle the `ui:focus:search` hotkey event (Cmd/Ctrl+J). Dispatch is driven
+ * by the shared `handleHotkeys` helper so all keyboard wiring lives in one
+ * place; here we only preventDefault (to override the browser's Cmd+J) and
+ * delegate to `handleFilterOrSearch`, which already branches on whether the
+ * user is viewing a document or the workspace root.
+ */
+function handleSearchHotkey(payload: { event: KeyboardEvent }) {
+  payload.event.preventDefault()
+  handleFilterOrSearch()
+}
+
+onBeforeMount(() => app.eventBus.on('ui:focus:search', handleSearchHotkey))
+onBeforeUnmount(() => app.eventBus.off('ui:focus:search', handleSearchHotkey))
 
 /**
  * Navigate to the selected search result. `scroll-to:nav-item` is already
