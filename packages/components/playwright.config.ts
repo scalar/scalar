@@ -15,7 +15,7 @@ const isLinux = process.platform === 'linux' && !CI
 const playwrightServer: WebServer = {
   name: 'Playwright',
   command:
-    'docker run --name scalar-playwright --rm --entrypoint="playwright" --network=host scalarapi/playwright-runner:1.59.1 run-server --port 5001 --host 0.0.0.0',
+    'docker run --name scalar-playwright --rm --platform linux/amd64 --entrypoint="playwright" --network=host scalarapi/playwright-runner:1.59.1 run-server --port 5001 --host 0.0.0.0',
   url: 'http://localhost:5001',
   timeout: 120 * 1000,
   reuseExistingServer: !CI,
