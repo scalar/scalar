@@ -86,6 +86,16 @@ const flattenDeepObjectProperties = (
     ([propertyName, propertySchema]) => {
       const resolvedPropertySchema = resolveSchema(propertySchema)
       const nestedName = `${namePrefix}[${propertyName}]`
+      const nestedParameter: ParameterWithRequiredSchema = {
+        ...parameter,
+        name: nestedName,
+        description:
+          resolvedPropertySchema?.description ?? parameter.description,
+        required: requiredProperties.has(propertyName),
+        schema: resolvedPropertySchema ?? parameter.schema,
+        example: undefined,
+        examples: undefined,
+      }
 
       if (!resolvedPropertySchema) {
         return []
@@ -96,7 +106,7 @@ const flattenDeepObjectProperties = (
         resolvedPropertySchema.properties
       ) {
         return flattenDeepObjectProperties(
-          parameter,
+          nestedParameter,
           resolvedPropertySchema,
           nestedName,
         )
@@ -104,14 +114,8 @@ const flattenDeepObjectProperties = (
 
       return [
         {
-          ...parameter,
-          name: nestedName,
-          description:
-            resolvedPropertySchema.description ?? parameter.description,
-          required: requiredProperties.has(propertyName),
+          ...nestedParameter,
           schema: resolvedPropertySchema,
-          example: undefined,
-          examples: undefined,
         },
       ]
     },

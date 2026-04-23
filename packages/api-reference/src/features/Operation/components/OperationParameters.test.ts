@@ -140,6 +140,43 @@ describe('OperationParameters', () => {
 
       expect(wrapper.text()).toContain('filter[pagination][number]')
     })
+
+    it('does not re-add the top-level deepObject parameter when a nested object has empty properties', () => {
+      const wrapper = mount(OperationParameters, {
+        props: {
+          eventBus: null,
+          options: defaultSchemaOptions,
+          parameters: [
+            {
+              in: 'query',
+              name: 'filter',
+              style: 'deepObject',
+              explode: true,
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'object',
+                properties: {
+                  pagination: {
+                    type: 'object',
+                    properties: {},
+                  },
+                  status: {
+                    type: 'string',
+                  },
+                },
+              }),
+              required: false,
+              deprecated: false,
+            },
+          ],
+        },
+      })
+
+      const queryParameterNames = wrapper
+        .findAllComponents({ name: 'ParameterListItem' })
+        .map((item) => item.props('name'))
+
+      expect(queryParameterNames).toStrictEqual(['filter[pagination]', 'filter[status]'])
+    })
   })
 
   describe('header parameters', () => {
