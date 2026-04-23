@@ -16,8 +16,8 @@ import { computed, onBeforeUnmount, toValue, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { SidebarToggle } from '@/v2/components/sidebar'
+import AppSidebar from '@/v2/features/app/components/AppSidebar.vue'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
-import NewSidear from '@/v2/features/app/components/NewSidear.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
@@ -184,32 +184,7 @@ const routerViewProps = computed<RouteProps>(() => {
           :class="layout === 'desktop' ? 'top-14 left-4' : 'top-4 left-4'" />
         <div class="flex min-h-0 flex-1 flex-row">
           <!-- App sidebar -->
-          <!-- <slot
-            :eventBus="app.eventBus"
-            name="sidebar"
-            :workspaceStore="app.store.value">
-            <AppSidebar
-              v-model:isSidebarOpen="app.sidebar.isOpen.value"
-              :activeWorkspace="app.workspace.activeWorkspace.value"
-              :eventBus="app.eventBus"
-              :isWorkspaceOpen="app.workspace.isOpen.value"
-              :layout
-              :sidebarState="app.sidebar.state"
-              :sidebarWidth="app.sidebar.width.value"
-              :store="app.store.value!"
-              :workspaces="app.workspace.workspaceGroups.value"
-              @click:workspace="navigateToWorkspaceOverview"
-              @create:workspace="createWorkspaceModalState.show()"
-              @select:workspace="setActiveWorkspace"
-              @selectItem="app.sidebar.handleSelectItem"
-              @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate">
-              <template #sidebarMenuActions>
-                <slot name="sidebar-menu-actions" />
-              </template>
-            </AppSidebar>
-          </slot> -->
-
-          <NewSidear
+          <AppSidebar
             :app="app"
             :fetchRegistryDocument="fetchRegistryDocument"
             :registryDocuments="registryDocuments"

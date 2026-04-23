@@ -41,9 +41,10 @@ export type SidebarDocumentItem = {
    * before its nested content can be shown.
    */
   navigation?: TraversedDocument
-  /** Whether the document is pinned (currently derived from `x-scalar-pinned`) */
+  /** Whether the document is pinned (todo: derived from `x-scalar-pinned`) */
   isPinned?: boolean
   /**
+   * TODO: implement versioning logic
    * Other loaded documents that share this item's `namespace + slug`. Only
    * populated on team workspaces where we collapse duplicates into a single
    * entry with multiple versions.
@@ -105,7 +106,7 @@ export function useSidebarDocuments({
       const registry = doc?.['x-scalar-registry-meta']
       const navigation = doc?.['x-scalar-navigation'] as TraversedDocument | undefined
 
-      const title = navigation?.title || doc?.info?.title || name || 'Untitled'
+      const title = navigation?.title || doc?.info?.title || 'Untitled'
 
       return {
         key: registry ? registryKey(registry.namespace, registry.slug) : name,
