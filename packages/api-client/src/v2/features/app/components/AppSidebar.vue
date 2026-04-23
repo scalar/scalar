@@ -33,14 +33,7 @@ import type {
   TraversedEntry,
   TraversedOperation,
 } from '@scalar/workspace-store/schemas/navigation'
-import {
-  computed,
-  nextTick,
-  onBeforeMount,
-  onBeforeUnmount,
-  ref,
-  watch,
-} from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { Resize } from '@/v2/components/resize'
@@ -48,6 +41,7 @@ import SidebarItemMenu from '@/v2/features/app/components/SidebarItemMenu.vue'
 import { createTempOperation } from '@/v2/features/app/helpers/create-temp-operation'
 import { loadRegistryDocument } from '@/v2/features/app/helpers/load-registry-document'
 import { useDocumentFilter } from '@/v2/features/app/hooks/use-document-filter'
+import { useSidebarContextMenu } from '@/v2/features/app/hooks/use-sidebar-context-menu'
 import {
   useSidebarDocuments,
   type RegistryDocumentsState,
@@ -235,120 +229,20 @@ const isDroppable = (
 ): boolean => dragHandlers.value.isDroppable(draggingItem, hoveredItem)
 
 /**
- * Contextual "more" menu for tags, operations and examples. We only keep
- * a reference to the element the menu is anchored to; `SidebarItemMenu`
- * then teleports itself next to that target. Mirrors the dropdown flow
- * from the old `AppSidebar.vue`.
+ * Contextual "more" dropdown for tags, operations and examples, together
+ * with the shared delete-confirmation modal it triggers.
  */
-const menuTarget = ref<{
-  /** The sidebar entry the menu is acting on. */
-  item: TraversedEntry
-  /** The DOM element the dropdown is anchored to. */
-  el: HTMLElement
-  /** Whether the menu is currently rendered. */
-  showMenu: boolean
-} | null>(null)
-
-/** Modal state for the "are you sure you want to delete…" confirmation. */
-const deleteModalState = useModal()
-
-/**
- * Copy shown inside the delete confirmation modal. Documents get a stronger
- * warning because deleting one also removes all tags and operations inside.
- */
-const deleteMessage = computed(() => {
-  const item = menuTarget.value?.item
-
-  if (item?.type === 'document') {
-    return "This cannot be undone. You're about to delete the document and all tags and operations inside it."
-  }
-
-  return `Are you sure you want to delete this ${item?.type ?? 'item'}? This action cannot be undone.`
+const {
+  menuTarget,
+  deleteModalState,
+  deleteMessage,
+  openMenu,
+  closeMenu,
+  handleDelete,
+} = useSidebarContextMenu({
+  eventBus: app.eventBus,
+  sidebarState,
 })
-
-/**
- * Fire the correct `*:delete:*` event on the event bus based on the active
- * menu target. Replicates the delete branches from `AppSidebar.vue` so the
- * behaviour is identical between the old and new sidebars.
- */
-const handleDelete = () => {
-  const item = menuTarget.value?.item
-
-  if (!item) {
-    return
-  }
-
-  const result = sidebarState.getEntryById(item.id)
-  const document = getParentEntry('document', result)
-  const operation = getParentEntry('operation', result)
-
-  if (!document) {
-    return
-  }
-
-  if (item.type === 'document') {
-    app.eventBus.emit('document:delete:document', { name: document.name })
-  } else if (item.type === 'tag') {
-    app.eventBus.emit('tag:delete:tag', {
-      documentName: document.name,
-      name: item.name,
-    })
-  } else if (item.type === 'operation') {
-    app.eventBus.emit('operation:delete:operation', {
-      meta: { method: item.method, path: item.path },
-      documentName: document.name,
-    })
-  } else if (item.type === 'example') {
-    if (!operation) {
-      return
-    }
-    app.eventBus.emit('operation:delete:example', {
-      meta: {
-        method: operation.method,
-        path: operation.path,
-        exampleKey: item.name,
-      },
-      documentName: document.name,
-    })
-  }
-
-  deleteModalState.hide()
-  menuTarget.value = null
-}
-
-/**
- * Open the "more" dropdown for the given item. We bind the menu to the
- * triggering element and re-dispatch the originating event on it after the
- * next tick, matching the old sidebar pattern so the dropdown opens on the
- * correct anchor for both mouse and keyboard interactions.
- */
-const openMenu = async (
-  event: MouseEvent | KeyboardEvent,
-  item: TraversedEntry,
-) => {
-  if (menuTarget.value?.showMenu) {
-    return
-  }
-
-  const el = event.currentTarget as HTMLElement
-  menuTarget.value = { item, el, showMenu: true }
-
-  await nextTick()
-
-  const cloned =
-    event instanceof MouseEvent
-      ? new MouseEvent(event.type, event)
-      : new KeyboardEvent(event.type, event)
-
-  menuTarget.value?.el.dispatchEvent(cloned)
-}
-
-/** Close the "more" dropdown without resetting its target so animations can play out. */
-const closeMenu = () => {
-  if (menuTarget.value) {
-    menuTarget.value.showMenu = false
-  }
-}
 
 /**
  * Navigate to the overview page of a given operation when the gear icon on an
