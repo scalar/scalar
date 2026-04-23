@@ -464,7 +464,7 @@ describe('createEmptyDocument', () => {
     expect(document?.openapi).toBe('3.1.0')
     expect(document?.info.title).toBe('my-api')
     expect(document?.info.version).toBe('1.0.0')
-    expect(document?.paths).toEqual({ '/': { get: {} } })
+    expect(document?.paths).toEqual({ '/': { get: { summary: 'First Request' } } })
     expect(document?.['x-scalar-icon']).toBe('api-icon')
     expect(callback).toHaveBeenCalledWith(true)
   })

@@ -254,7 +254,9 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
               },
               paths: {
                 '/': {
-                  get: {},
+                  get: {
+                    summary: 'First Request',
+                  },
                 },
               },
               'x-scalar-icon': 'interface-edit-tool-pencil',
@@ -268,7 +270,7 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
           // Make sure the drafts document has a GET / route cuz that's the first route we navigate the user to
           drafts.paths ??= {}
           drafts.paths['/'] ??= {}
-          drafts.paths['/']['get'] ??= {}
+          drafts.paths['/']['get'] ??= { summary: 'First Request' }
         }
 
         store.buildSidebar(DRAFTS_DOCUMENT_NAME)

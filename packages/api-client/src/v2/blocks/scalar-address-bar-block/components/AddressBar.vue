@@ -421,7 +421,7 @@ defineExpose({
           :extensions="[addressBarScrollMargins]"
           importCurl
           :layout="layout"
-          :modelValue="path"
+          :modelValue="path === '/' ? '' : path"
           :placeholder="server ? '' : 'Enter a URL'"
           server
           @blur="handlePathBlur"

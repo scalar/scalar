@@ -112,7 +112,9 @@ export const createEmptyDocument = async (
       info: { title: payload.name, version: '1.0.0' },
       paths: {
         '/': {
-          get: {},
+          get: {
+            summary: 'First Request',
+          },
         },
       },
       'x-scalar-icon': payload.icon,
