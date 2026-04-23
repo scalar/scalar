@@ -120,4 +120,16 @@ describe('ScalarMarkdown', () => {
     expect(wrapper.find('img').attributes('alt')).toBe('Jupiter with Great Red Spot')
     expect(wrapper.find('img').attributes('src')).toBe('https://cdn.scalar.com/photos/jupiter.jpg')
   })
+
+  it('parses inline markdown in HTML paragraphs', () => {
+    const wrapper = mount(ScalarMarkdown, {
+      props: {
+        value: '<p>`Foobar`</p>',
+      },
+    })
+
+    expect(wrapper.find('p').exists()).toBe(true)
+    expect(wrapper.find('code').exists()).toBe(true)
+    expect(wrapper.find('code').text()).toBe('Foobar')
+  })
 })
