@@ -23,6 +23,7 @@ import Fuse from 'fuse.js'
 import { computed, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 
 import { Resize } from '@/v2/components/resize'
+import { createTempOperation } from '@/v2/features/app/helpers/create-temp-operation'
 import { loadRegistryDocument } from '@/v2/features/app/helpers/load-registry-document'
 import {
   useSidebarDocuments,
@@ -205,7 +206,34 @@ function handleToggleGroup(id: string) {
 const isDroppable = () => false
 
 function handleCreate() {
-  app.eventBus.emit('ui:open:command-palette')
+  app.eventBus.emit('ui:open:command-palette', {
+    action: 'create-openapi-document',
+    payload: undefined,
+  })
+}
+
+/**
+ * Create a new operation inside the given document and immediately navigate to
+ * it. Uses `createTempOperation` so the operation gets a unique `/temp…` path,
+ * then the sidebar focuses the new example and the address bar is focused so
+ * the user can start typing the real path right away. Mirrors the old
+ * "Add operation" behaviour from `AppSidebar.vue` (`handleAddEmptyFolder`).
+ */
+function handleCreateOperation(item: SidebarDocumentItem) {
+  const documentName = item.documentName
+  const store = app.store.value
+
+  if (!documentName || !store) {
+    console.warn('Cannot create an operation: no document loaded')
+    return
+  }
+
+  createTempOperation(documentName, {
+    existingPaths: new Set(
+      Object.keys(store.workspace.documents[documentName]?.paths ?? {}),
+    ),
+    eventBus: app.eventBus,
+  })
 }
 
 /**
@@ -275,9 +303,7 @@ const searchModal = useModal()
  * scopes its Fuse index to this document so results never leak across
  * collections.
  */
-const activeDocument = computed(
-  () => app.store.value?.workspace.activeDocument,
-)
+const activeDocument = computed(() => app.store.value?.workspace.activeDocument)
 
 function handleFilterOrSearch() {
   // Inside a document, this icon opens a modal search that is scoped to that
@@ -479,9 +505,9 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                         <ScalarIconButton
                           class="rounded-full border"
                           :icon="ScalarIconPlus"
-                          label="Add document"
+                          label="Add operation"
                           size="sm"
-                          @click="handleCreate" />
+                          @click="handleCreateOperation(item)" />
                       </div>
                     </template>
                     <template #items>
