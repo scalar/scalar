@@ -64,11 +64,6 @@ defineSlots<{
    * This slot is used to render custom actions or components within the create workspace modal.
    */
   'create-workspace'?: (payload: { state: ModalState }) => unknown
-  /**
-   * Slot for customizing the actions section of the sidebar menu.
-   * This slot is used to render custom actions or components within the actions section.
-   */
-  'sidebar-menu-actions': () => unknown
 }>()
 
 defineExpose({
