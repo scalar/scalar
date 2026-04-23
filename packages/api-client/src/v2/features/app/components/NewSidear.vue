@@ -15,6 +15,7 @@ import {
 import {
   ScalarIconCaretLeft,
   ScalarIconDotsThree,
+  ScalarIconFolderDashed,
   ScalarIconFunnel,
   ScalarIconGearSix,
   ScalarIconMagnifyingGlass,
@@ -94,6 +95,16 @@ const { rest } = useSidebarDocuments({
   app,
   managedDocs: () => registryDocuments.documents ?? [],
 })
+
+/**
+ * Whether the workspace truly has no documents to show. Distinct from the
+ * filter producing no results: we only surface the "No APIs yet" empty state
+ * when the workspace is genuinely empty so users see a clear call-to-action
+ * instead of a confusing blank space.
+ */
+const isEmpty = computed(
+  () => !isLoadingRegistry.value && rest.value.length === 0,
+)
 
 /** Controls the visibility of the document filter input in the top-level view. */
 const isFilterVisible = ref(false)
@@ -619,8 +630,22 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
           </div>
 
           <!-- Document list (top-level) -->
-          <div class="custom-scroll flex-1 overflow-hidden">
-            <ScalarSidebarItems>
+          <div class="custom-scroll flex flex-1 flex-col">
+            <!--
+              Empty state: no documents in the workspace yet. Matches the
+              minimal "empty folder" affordance used elsewhere in the app so
+              users immediately recognise the workspace is empty rather than
+              loading.
+            -->
+            <div
+              v-if="isEmpty && !activeItem"
+              class="text-c-3 flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center select-none">
+              <ScalarIconFolderDashed
+                class="size-10"
+                weight="light" />
+              <p class="text-sm font-medium">No APIs yet</p>
+            </div>
+            <ScalarSidebarItems v-else>
               <!-- Show pinned documents after we add support for it -->
               <!--  <ScalarSidebarSection v-if="pinned.length">
               Pinned
