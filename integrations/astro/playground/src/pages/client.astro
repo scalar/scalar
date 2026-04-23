@@ -1,6 +1,12 @@
 ---
 import { ScalarComponent } from '@scalar/astro'
+import { ClientRouter } from 'astro:transitions'
 ---
+
+<ClientRouter />
+<h1>Client mode API reference</h1>
+<p><a href="/about">Go to another page</a></p>
+<p><a href="/">Back to static mode example</a></p>
 
 <ScalarComponent
   renderMode="client"
