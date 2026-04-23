@@ -1,4 +1,7 @@
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { Document as OpenApiDocumentV2 } from '@scalar/openapi-types/2.0'
+import type { Document as OpenApiDocumentV3 } from '@scalar/openapi-types/3.0'
+import type { Document as OpenApiDocumentV3_1 } from '@scalar/openapi-types/3.1'
+import type { Document as OpenApiDocumentV3_2 } from '@scalar/openapi-types/3.2'
 
 import type { ERRORS, OpenApiVersion } from '@/configuration'
 
@@ -17,6 +20,8 @@ export type UnknownObject = Record<string, unknown>
  */
 export type AnyApiDefinitionFormat = string | AnyObject
 
+export type OpenApiDocument = OpenApiDocumentV2 | OpenApiDocumentV3 | OpenApiDocumentV3_1 | OpenApiDocumentV3_2
+
 export type LoadResult = {
   filesystem: Filesystem
   specification: AnyObject
@@ -25,13 +30,13 @@ export type LoadResult = {
 
 export type ValidateResult = {
   valid: boolean
-  specification?: OpenAPI.Document
+  specification?: OpenApiDocument
   version?: OpenApiVersion
   errors?: ErrorObject[]
-  schema?: OpenAPI.Document
+  schema?: OpenApiDocument
 }
 
-export type UpgradeResult<T extends OpenAPI.Document = OpenAPI.Document> = {
+export type UpgradeResult<T extends OpenApiDocument = OpenApiDocument> = {
   specification: T
   version: '3.1'
 }
@@ -48,8 +53,8 @@ export type DetailsResult = {
 
 export type DereferenceResult = {
   version?: OpenApiVersion
-  specification?: OpenAPI.Document
-  schema?: OpenAPI.Document
+  specification?: OpenApiDocument
+  schema?: OpenApiDocument
   errors?: ErrorObject[]
 }
 

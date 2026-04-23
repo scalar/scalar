@@ -1,4 +1,4 @@
-import type { OpenAPIV3_2 } from '@scalar/openapi-types'
+import type { Document as OpenApiDocumentV3_2 } from '@scalar/openapi-types/3.2'
 import { describe, expect, it } from 'vitest'
 
 import { dereference } from './dereference'
@@ -487,7 +487,7 @@ describe('dereference', () => {
 
     // Original
     expect(
-      (result.specification as OpenAPIV3_2.Document).paths['/test'].query.responses['200'].content['application/json']
+      (result.specification as OpenApiDocumentV3_2).paths['/test'].query.responses['200'].content['application/json']
         .schema,
     ).toEqual({
       $ref: '#/components/schemas/Test',
@@ -541,7 +541,7 @@ describe('dereference', () => {
 
     // Original
     expect(
-      (result.specification as OpenAPIV3_2.Document).paths['/test'].additionalOperations?.makeUnicorns.responses['200']
+      (result.specification as OpenApiDocumentV3_2).paths['/test'].additionalOperations?.makeUnicorns.responses['200']
         .content['application/json'].schema,
     ).toEqual({
       $ref: '#/components/schemas/Test',
