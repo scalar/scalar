@@ -49,28 +49,76 @@ const html =
   ) : (
     <>
       <div id={mountElementId}></div>
-      <script lang="ts">
-        type ScalarGlobal = {
-          createApiReference: (selector: string, configuration: Record<string, unknown>) => {
-            destroy: () => void
+      <script define:vars={{ mountSelector: `#${mountElementId}`, configuration: config, cdn: cdn ?? null }}>
+        const stateKey = '__scalarAstroState'
+        const globalState = (window[stateKey] ??= { instances: {}, listeners: {} })
+        const defaultCdn = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
+
+        const getStyleHref = () => {
+          const cdnUrl = (cdn ?? defaultCdn).replace(/\/$/, '')
+
+          if (/\/dist\/browser\/[^/]+\.js(?:\?.*)?$/.test(cdnUrl)) {
+            return cdnUrl.replace(/\/dist\/browser\/[^/]+\.js(?:\?.*)?$/, '/dist/style.css')
           }
+
+          if (/\.js(?:\?.*)?$/.test(cdnUrl)) {
+            return cdnUrl.replace(/\/[^/]+\.js(?:\?.*)?$/, '/style.css')
+          }
+
+          if (/\/dist$/.test(cdnUrl)) {
+            return `${cdnUrl}/style.css`
+          }
+
+          return `${cdnUrl}/dist/style.css`
         }
 
-        const mountSelector = {JSON.stringify(`#${mountElementId}`)}
-        const configuration = {JSON.stringify(config)}
-        const cdn = {JSON.stringify(cdn ?? null)}
+        const ensureStylesLoaded = async () => {
+          const styleHref = getStyleHref()
+          const existing = document.querySelector('link[data-scalar-astro-style="true"]')
 
-        let scalarInstance: { destroy: () => void } | null = null
+          if (existing?.getAttribute('href') === styleHref && existing.dataset.loaded === 'true') {
+            return
+          }
 
-        const ensureCdnLoaded = async (): Promise<void> => {
-          const globalScalar = (window as Window & { Scalar?: ScalarGlobal }).Scalar
+          if (existing) {
+            existing.remove()
+          }
+
+          await new Promise((resolve, reject) => {
+            const link = document.createElement('link')
+            link.rel = 'stylesheet'
+            link.href = styleHref
+            link.dataset.scalarAstroStyle = 'true'
+            link.addEventListener(
+              'load',
+              () => {
+                link.dataset.loaded = 'true'
+                resolve()
+              },
+              { once: true },
+            )
+            link.addEventListener(
+              'error',
+              () => {
+                reject(new Error('Failed to load Scalar CDN stylesheet'))
+              },
+              {
+                once: true,
+              },
+            )
+            document.head.appendChild(link)
+          })
+        }
+
+        const ensureCdnLoaded = async () => {
+          const globalScalar = window.Scalar
 
           if (globalScalar?.createApiReference) {
             return
           }
 
-          await new Promise<void>((resolve, reject) => {
-            const existing = document.querySelector<HTMLScriptElement>('script[data-scalar-astro-cdn="true"]')
+          await new Promise((resolve, reject) => {
+            const existing = document.querySelector('script[data-scalar-astro-cdn="true"]')
 
             if (existing?.dataset.loaded === 'true') {
               resolve()
@@ -86,7 +134,7 @@ const html =
             }
 
             const script = document.createElement('script')
-            script.src = cdn ?? 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
+            script.src = cdn ?? defaultCdn
             script.dataset.scalarAstroCdn = 'true'
             script.addEventListener(
               'load',
@@ -96,46 +144,70 @@ const html =
               },
               { once: true },
             )
-            script.addEventListener('error', () => reject(new Error('Failed to load Scalar CDN script')), {
-              once: true,
-            })
+            script.addEventListener(
+              'error',
+              () => {
+                reject(new Error('Failed to load Scalar CDN script'))
+              },
+              {
+                once: true,
+              },
+            )
             document.head.appendChild(script)
           })
         }
 
-        const mountScalar = async (): Promise<void> => {
+        const destroyScalar = () => {
+          const existingInstance = globalState.instances[mountSelector]
+          if (existingInstance?.destroy) {
+            existingInstance.destroy()
+          }
+          globalState.instances[mountSelector] = null
+
+          const container = document.querySelector(mountSelector)
+          if (container) {
+            container.innerHTML = ''
+          }
+        }
+
+        const mountScalar = async () => {
           const container = document.querySelector(mountSelector)
 
           if (!container) {
             return
           }
 
-          if (scalarInstance) {
-            scalarInstance.destroy()
-            scalarInstance = null
-          }
+          destroyScalar()
 
+          await ensureStylesLoaded()
           await ensureCdnLoaded()
 
-          const scalar = (window as Window & { Scalar?: ScalarGlobal }).Scalar
+          const scalar = window.Scalar
 
           if (!scalar?.createApiReference) {
             return
           }
 
-          scalarInstance = scalar.createApiReference(mountSelector, configuration)
+          globalState.instances[mountSelector] = scalar.createApiReference(mountSelector, configuration)
         }
 
-        document.addEventListener('astro:before-swap', () => {
-          if (scalarInstance) {
-            scalarInstance.destroy()
-            scalarInstance = null
-          }
-        })
+        const previousListeners = globalState.listeners[mountSelector]
+        if (previousListeners) {
+          document.removeEventListener('astro:before-swap', previousListeners.beforeSwap)
+          document.removeEventListener('astro:page-load', previousListeners.pageLoad)
+        }
 
-        document.addEventListener('astro:page-load', () => {
+        const beforeSwap = () => {
+          destroyScalar()
+        }
+
+        const pageLoad = () => {
           void mountScalar()
-        })
+        }
+
+        globalState.listeners[mountSelector] = { beforeSwap, pageLoad }
+        document.addEventListener('astro:before-swap', beforeSwap)
+        document.addEventListener('astro:page-load', pageLoad)
 
         void mountScalar()
       </script>
