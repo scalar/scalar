@@ -267,7 +267,7 @@ jobs:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     container:
-      image: scalarapi/playwright-runner:1.56.0
+      image: scalarapi/playwright-runner:1.59.1
       options: --privileged
       env:
         VM_ID: ${{ env.VM_ID }}
@@ -328,7 +328,7 @@ jobs:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     container:
-      image: scalarapi/playwright-runner:1.56.0
+      image: scalarapi/playwright-runner:1.59.1
       options: --privileged
       env:
         VM_ID: ${{ env.VM_ID }}
@@ -379,7 +379,7 @@ jobs:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     container:
-      image: scalarapi/playwright-runner:1.56.0
+      image: scalarapi/playwright-runner:1.59.1
       options: --privileged
       env:
         VM_ID: ${{ env.VM_ID }}
@@ -428,7 +428,7 @@ jobs:
     needs: [build]
     runs-on: blacksmith-8vcpu-ubuntu-2204
     container:
-      image: scalarapi/playwright-runner:1.56.0
+      image: scalarapi/playwright-runner:1.59.1
       options: --privileged
       env:
         VM_ID: ${{ env.VM_ID }}
