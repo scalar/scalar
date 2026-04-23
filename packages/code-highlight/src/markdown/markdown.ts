@@ -1,4 +1,4 @@
-import type { Element as HastElement, Root as HastRoot, RootContent as HastRootContent } from 'hast'
+import type { Element as HastElement, ElementContent as HastElementContent, Root as HastRoot } from 'hast'
 import type { Heading, Node, PhrasingContent, Root as MdastRoot, RootContent as MdastRootContent } from 'mdast'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
@@ -57,15 +57,15 @@ const inlineMarkdownProcessor = unified().use(remarkParse).use(remarkGfm).use(re
 /**
  * Parse inline markdown and return children from the generated paragraph.
  */
-const extractInlineChildrenFromMarkdown = (value: string): HastRootContent[] => {
+const extractInlineChildrenFromMarkdown = (value: string): HastElementContent[] => {
   const tree = inlineMarkdownProcessor.runSync(inlineMarkdownProcessor.parse(value)) as HastRoot
 
   if (tree.children.length !== 1) {
     return []
   }
 
-  const [paragraph] = tree.children
-  if (paragraph.type !== 'element' || paragraph.tagName !== 'p') {
+  const paragraph = tree.children.at(0)
+  if (!paragraph || paragraph.type !== 'element' || paragraph.tagName !== 'p') {
     return []
   }
 
