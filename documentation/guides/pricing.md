@@ -11,9 +11,9 @@
 <div class="mobiletabs">
   <div class="mobiletabs-container">
     <label for="tab1"><input type="radio" name="mobiletabs" id="tab1" aria-controls="marzen" checked>Free</label>
-    <label for="tab2"><input type="radio" name="mobiletabs" id="tab2" aria-controls="rauchbier">Pro</label>
-    <label for="tab3"><input type="radio" name="mobiletabs" id="tab3" aria-controls="dunkles">
-    Enterprise</label>
+    <label for="tab2"><input type="radio" name="mobiletabs" id="tab2" aria-controls="hobby">Hobby</label>
+    <label for="tab3"><input type="radio" name="mobiletabs" id="tab3" aria-controls="rauchbier">Pro</label>
+    <label for="tab4"><input type="radio" name="mobiletabs" id="tab4" aria-controls="dunkles">Enterprise</label>
   </div>
   <div class="tab-panels">
     <div class="pricing">
@@ -985,11 +985,18 @@ h4.t-editor__heading {
   .pricing-table-column {
     width: 50%;
   }
-  .pricing-table-group_header._sticky .pricing-table-column:first-of-type {
+  .tab-panels .pricing-table-group_header .pricing-table-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .tab-panels .pricing-table-group_header .pricing-table-row .pricing-table-column:first-of-type {
     display: none;
   }
-  .pricing-table-group_header._sticky .pricing-table-column {
-    width: 100%;
+  .tab-panels .pricing-table-group_header .pricing-table-column {
+    width: 100% !important;
+    max-width: 100%;
+    box-sizing: border-box;
+    border-left: none;
   }
   .pricing-table-group-heading,
   .pricing-table-group_header._sticky {
@@ -998,16 +1005,61 @@ h4.t-editor__heading {
   .mobiletabs .tab-panel {
     display: none;
   }
-  .mobiletabs > .mobiletabs-container:has(label:first-child input:checked) ~ .tab-panels .pricing-table-column:nth-of-type(3),
-  .mobiletabs > .mobiletabs-container:has(label:first-child input:checked) ~ .tab-panels .pricing-table-column:nth-of-type(4) {
+  /* Rows have: 1st = label, 2nd–5th = Free, Hobby, Pro, Enterprise. Show one plan + label per tab. */
+  .mobiletabs
+    > .mobiletabs-container:has(label:nth-child(1) input:checked)
+    ~ .tab-panels
+    .pricing-table-column:nth-of-type(3),
+  .mobiletabs
+    > .mobiletabs-container:has(label:nth-child(1) input:checked)
+    ~ .tab-panels
+    .pricing-table-column:nth-of-type(4),
+  .mobiletabs
+    > .mobiletabs-container:has(label:nth-child(1) input:checked)
+    ~ .tab-panels
+    .pricing-table-column:nth-of-type(5) {
     display: none;
   }
-  .mobiletabs > .mobiletabs-container:has(label:nth-child(2) input:checked) ~ .tab-panels .pricing-table-column:nth-of-type(2),
-  .mobiletabs > .mobiletabs-container:has(label:nth-child(2) input:checked) ~ .tab-panels .pricing-table-column:nth-of-type(4) {
+  .mobiletabs
+    > .mobiletabs-container:has(label:nth-child(2) input:checked)
+    ~ .tab-panels
+    .pricing-table-column:nth-of-type(2),
+  .mobiletabs
+    > .mobiletabs-container:has(label:nth-child(2) input:checked)
+    ~ .tab-panels
+    .pricing-table-column:nth-of-type(4),
+  .mobiletabs
+    > .mobiletabs-container:has(label:nth-child(2) input:checked)
+    ~ .tab-panels
+    .pricing-table-column:nth-of-type(5) {
     display: none;
   }
-  .mobiletabs > .mobiletabs-container:has(label:nth-child(3) input:checked) ~ .tab-panels .pricing-table-column:nth-of-type(2),
-  .mobiletabs > .mobiletabs-container:has(label:nth-child(3) input:checked) ~ .tab-panels .pricing-table-column:nth-of-type(3) {
+  .mobiletabs
+    > .mobiletabs-container:has(label:nth-child(3) input:checked)
+    ~ .tab-panels
+    .pricing-table-column:nth-of-type(2),
+  .mobiletabs
+    > .mobiletabs-container:has(label:nth-child(3) input:checked)
+    ~ .tab-panels
+    .pricing-table-column:nth-of-type(3),
+  .mobiletabs
+    > .mobiletabs-container:has(label:nth-child(3) input:checked)
+    ~ .tab-panels
+    .pricing-table-column:nth-of-type(5) {
+    display: none;
+  }
+  .mobiletabs
+    > .mobiletabs-container:has(label:nth-child(4) input:checked)
+    ~ .tab-panels
+    .pricing-table-column:nth-of-type(2),
+  .mobiletabs
+    > .mobiletabs-container:has(label:nth-child(4) input:checked)
+    ~ .tab-panels
+    .pricing-table-column:nth-of-type(3),
+  .mobiletabs
+    > .mobiletabs-container:has(label:nth-child(4) input:checked)
+    ~ .tab-panels
+    .pricing-table-column:nth-of-type(4) {
     display: none;
   }
 }
