@@ -23,9 +23,7 @@ describe('use-document-filter', () => {
 
     query.value = 'pets'
 
-    expect(filteredItems.value).toStrictEqual([
-      { key: 'pets', title: 'Pets API' },
-    ])
+    expect(filteredItems.value).toStrictEqual([{ key: 'pets', title: 'Pets API' }])
   })
 
   it('tolerates small typos thanks to the fuzzy threshold', () => {
@@ -33,9 +31,7 @@ describe('use-document-filter', () => {
 
     query.value = 'ordrs'
 
-    expect(filteredItems.value).toStrictEqual([
-      { key: 'orders', title: 'Orders API' },
-    ])
+    expect(filteredItems.value).toStrictEqual([{ key: 'orders', title: 'Orders API' }])
   })
 
   it('trims whitespace from the query before filtering', () => {
@@ -102,16 +98,12 @@ describe('use-document-filter', () => {
       { key: 'orders', title: 'Orders API' },
     ]
 
-    expect(filteredItems.value).toStrictEqual([
-      { key: 'orders', title: 'Orders API' },
-    ])
+    expect(filteredItems.value).toStrictEqual([{ key: 'orders', title: 'Orders API' }])
   })
 
   it('preserves extra properties on filtered items', () => {
     type RichDoc = Doc & { metadata: { owner: string } }
-    const rich: RichDoc[] = [
-      { key: 'pets', title: 'Pets API', metadata: { owner: 'alice' } },
-    ]
+    const rich: RichDoc[] = [{ key: 'pets', title: 'Pets API', metadata: { owner: 'alice' } }]
 
     const { filteredItems } = useDocumentFilter(() => rich)
 

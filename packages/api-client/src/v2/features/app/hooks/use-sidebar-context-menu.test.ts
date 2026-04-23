@@ -54,9 +54,7 @@ const buildTree = () => {
  * building the full state machine here would pull in unrelated selection
  * / expansion logic the hook does not use.
  */
-const createFakeSidebarState = (
-  entries: TraversedEntry[],
-): SidebarState<TraversedEntry> => {
+const createFakeSidebarState = (entries: TraversedEntry[]): SidebarState<TraversedEntry> => {
   const byId = new Map(entries.map((entry) => [entry.id, entry]))
   return {
     getEntryById: (id: string) => byId.get(id),
@@ -66,12 +64,7 @@ const createFakeSidebarState = (
 const setup = () => {
   const tree = buildTree()
   const eventBus = createWorkspaceEventBus({ debug: false })
-  const sidebarState = createFakeSidebarState([
-    tree.document,
-    tree.tag,
-    tree.operation,
-    tree.example,
-  ])
+  const sidebarState = createFakeSidebarState([tree.document, tree.tag, tree.operation, tree.example])
 
   const hook = useSidebarContextMenu({ eventBus, sidebarState })
 
@@ -168,17 +161,13 @@ describe('use-sidebar-context-menu', () => {
 
     await openMenu(event, tree.tag)
 
-    expect(deleteMessage.value).toBe(
-      'Are you sure you want to delete this tag? This action cannot be undone.',
-    )
+    expect(deleteMessage.value).toBe('Are you sure you want to delete this tag? This action cannot be undone.')
   })
 
   it('falls back to "item" in the delete message when no target is set', () => {
     const { deleteMessage } = setup()
 
-    expect(deleteMessage.value).toBe(
-      'Are you sure you want to delete this item? This action cannot be undone.',
-    )
+    expect(deleteMessage.value).toBe('Are you sure you want to delete this item? This action cannot be undone.')
   })
 
   it('emits document:delete:document for a document target', async () => {
@@ -280,8 +269,7 @@ describe('use-sidebar-context-menu', () => {
   })
 
   it('resets the menu target after a successful delete', async () => {
-    const { menuTarget, deleteModalState, openMenu, handleDelete, tree } =
-      setup()
+    const { menuTarget, deleteModalState, openMenu, handleDelete, tree } = setup()
     const event = new MouseEvent('click')
     Object.defineProperty(event, 'currentTarget', {
       value: document.createElement('button'),

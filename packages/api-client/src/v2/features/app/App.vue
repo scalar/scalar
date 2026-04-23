@@ -8,7 +8,11 @@ export default {}
 </script>
 
 <script setup lang="ts">
-import { ScalarTeleportRoot, useModal } from '@scalar/components'
+import {
+  ScalarTeleportRoot,
+  useModal,
+  type ModalState,
+} from '@scalar/components'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
@@ -55,6 +59,11 @@ const {
 }>()
 
 defineSlots<{
+  /**
+   * Slot for customizing the create workspace modal.
+   * This slot is used to render custom actions or components within the create workspace modal.
+   */
+  'create-workspace'?: (payload: { state: ModalState }) => unknown
   /**
    * Slot for customizing the actions section of the sidebar menu.
    * This slot is used to render custom actions or components within the actions section.
@@ -207,11 +216,14 @@ const routerViewProps = computed<RouteProps>(() => {
         </div>
       </div>
 
-      <!-- Create workspace modal -->
-      <CreateWorkspaceModal
-        :state="createWorkspaceModalState"
-        @create:workspace="(payload) => app.workspace.create(payload)" />
-
+      <slot
+        name="create-workspace"
+        :state="createWorkspaceModalState">
+        <!-- Create workspace modal -->
+        <CreateWorkspaceModal
+          :state="createWorkspaceModalState"
+          @create:workspace="(payload) => app.workspace.create(payload)" />
+      </slot>
       <!-- Popup command palette to add resources from anywhere -->
       <TheCommandPalette
         :eventBus="app.eventBus"

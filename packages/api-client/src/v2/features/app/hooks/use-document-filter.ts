@@ -30,9 +30,7 @@ type FilterableItem = {
  * the `title` because this is a lightweight UI-level filter, not a content
  * search.
  */
-export const useDocumentFilter = <T extends FilterableItem>(
-  items: MaybeRefOrGetter<T[]>,
-) => {
+export const useDocumentFilter = <T extends FilterableItem>(items: MaybeRefOrGetter<T[]>) => {
   const isVisible = ref(false)
   const query = ref('')
 

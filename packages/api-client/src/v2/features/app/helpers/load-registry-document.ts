@@ -5,7 +5,7 @@ import { generateUniqueSlug } from '@/v2/features/command-palette/helpers/genera
 import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 
 /** Result of attempting to load a registry document into the workspace store. */
-export type LoadRegistryDocumentResult = { ok: true; documentName: string } | { ok: false; error: string }
+type LoadRegistryDocumentResult = { ok: true; documentName: string } | { ok: false; error: string }
 
 export const loadRegistryDocument = async ({
   workspaceStore,
