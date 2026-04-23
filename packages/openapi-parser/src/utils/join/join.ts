@@ -247,6 +247,10 @@ type Conflicts =
   | { type: 'component'; componentType: string; name: string }
 type JoinResult = { ok: true; document: OpenApiDocumentV3_1 } | { ok: false; conflicts: Conflicts[] }
 
+const asOpenApiDocumentV3_1 = (document: UnknownObject): OpenApiDocumentV3_1 => {
+  return document as OpenApiDocumentV3_1
+}
+
 /**
  * Joins multiple OpenAPI documents into a single document.
  *
@@ -335,7 +339,7 @@ export const join = async (inputs: UnknownObject[], config?: { prefixComponents:
   // Return the merged OpenAPI document
   return {
     ok: true,
-    document: {
+    document: asOpenApiDocumentV3_1({
       ...result,
       info,
       paths,
@@ -343,6 +347,6 @@ export const join = async (inputs: UnknownObject[], config?: { prefixComponents:
       tags: withDefault(tags, undefined),
       servers: withDefault(servers, undefined),
       components: withDefault(components, undefined),
-    },
+    }),
   }
 }
