@@ -3,10 +3,12 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   ParameterObject,
+  ParameterWithSchemaObject,
   ReferenceType,
   RequestBodyObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed } from 'vue'
 
 import { shouldIgnoreEntity } from '@/features/Operation/helpers/should-ignore-entity'
@@ -30,55 +32,90 @@ const { parameters = [], requestBody } = defineProps<{
 const selectedContentType = defineModel<string>('selectedContentType')
 
 type ParameterLocation = 'cookie' | 'header' | 'path' | 'query'
+type ParameterWithRequiredSchema = ParameterWithSchemaObject & {
+  schema: ReferenceType<SchemaObject>
+}
+
+const isParameterWithSchema = (
+  parameter: ParameterObject,
+): parameter is ParameterWithRequiredSchema =>
+  'schema' in parameter && parameter.schema !== undefined
+
+const resolveSchema = (schema: unknown): SchemaObject | undefined => {
+  const resolvedSchema = getResolvedRef(
+    schema as SchemaObject | { '$ref': string; '$ref-value': SchemaObject },
+  )
+
+  return resolvedSchema as SchemaObject | undefined
+}
 
 /**
  * Deep object query parameters serialize as name[prop] pairs in URLs.
  * Rendering the same shape here keeps docs aligned with the request UI.
  */
-const flattenDeepObjectQueryParameter = (parameter: ParameterObject): ParameterObject[] => {
-  if (parameter.in !== 'query' || parameter.style !== 'deepObject') {
+const flattenDeepObjectQueryParameter = (
+  parameter: ParameterObject,
+): ParameterObject[] => {
+  if (
+    parameter.in !== 'query' ||
+    !isParameterWithSchema(parameter) ||
+    parameter.style !== 'deepObject'
+  ) {
     return [parameter]
   }
 
-  if (!('schema' in parameter) || !parameter.schema) {
+  const resolvedSchema = resolveSchema(parameter.schema)
+  if (!resolvedSchema || !isObjectSchema(resolvedSchema)) {
     return [parameter]
   }
-
-  const resolvedSchema = getResolvedRef(parameter.schema)
 
   return flattenDeepObjectProperties(parameter, resolvedSchema, parameter.name)
 }
 
 const flattenDeepObjectProperties = (
-  parameter: ParameterObject,
-  schema: SchemaObject,
+  parameter: ParameterWithRequiredSchema,
+  schema: Extract<SchemaObject, { type: 'object' }>,
   namePrefix: string,
 ): ParameterObject[] => {
-  if (schema.type !== 'object' || !schema.properties) {
+  if (!schema.properties) {
     return [parameter]
   }
 
   const requiredProperties = new Set(schema.required ?? [])
-  const flattenedParameters = Object.entries(schema.properties).flatMap(([propertyName, propertySchema]) => {
-    const resolvedPropertySchema = getResolvedRef(propertySchema)
-    const nestedName = `${namePrefix}[${propertyName}]`
+  const flattenedParameters = Object.entries(schema.properties).flatMap(
+    ([propertyName, propertySchema]) => {
+      const resolvedPropertySchema = resolveSchema(propertySchema)
+      const nestedName = `${namePrefix}[${propertyName}]`
 
-    if (resolvedPropertySchema.type === 'object' && resolvedPropertySchema.properties) {
-      return flattenDeepObjectProperties(parameter, resolvedPropertySchema, nestedName)
-    }
+      if (!resolvedPropertySchema) {
+        return []
+      }
 
-    return [
-      {
-        ...parameter,
-        name: nestedName,
-        description: resolvedPropertySchema.description ?? parameter.description,
-        required: requiredProperties.has(propertyName),
-        schema: resolvedPropertySchema,
-        example: undefined,
-        examples: undefined,
-      },
-    ]
-  })
+      if (
+        isObjectSchema(resolvedPropertySchema) &&
+        resolvedPropertySchema.properties
+      ) {
+        return flattenDeepObjectProperties(
+          parameter,
+          resolvedPropertySchema,
+          nestedName,
+        )
+      }
+
+      return [
+        {
+          ...parameter,
+          name: nestedName,
+          description:
+            resolvedPropertySchema.description ?? parameter.description,
+          required: requiredProperties.has(propertyName),
+          schema: resolvedPropertySchema,
+          example: undefined,
+          examples: undefined,
+        },
+      ]
+    },
+  )
 
   return flattenedParameters.length > 0 ? flattenedParameters : [parameter]
 }
@@ -92,7 +129,9 @@ const splitParameters = computed(() =>
       if (!shouldIgnoreEntity(parameter)) {
         const flattenedParameters = flattenDeepObjectQueryParameter(parameter)
         flattenedParameters.forEach((flattenedParameter) => {
-          acc[flattenedParameter.in as ParameterLocation].push(flattenedParameter)
+          acc[flattenedParameter.in as ParameterLocation].push(
+            flattenedParameter,
+          )
         })
       }
       return acc
