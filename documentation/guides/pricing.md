@@ -920,11 +920,15 @@ h4.t-editor__heading {
     gap: 12px;
    color: var(--scalar-color-1);
    align-items: center;
+   border-left: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 .pricing-table-column:first-child {
   color: var(--scalar-color-1);
   font-weight: var(--scalar-semibold);
   align-items: start;
+}
+.pricing-table-column:first-of-type {
+  border-left: none;
 }
 /* ##   header */
 .pricing-table-group_header{
@@ -936,11 +940,11 @@ h4.t-editor__heading {
     z-index: 1;
 }
 ._sticky-1 {
-  height: 76px;
+  height: 70px;
 }
 .pricing-table-group_header._sticky-2 {
   height: 58px;
-  top: 124px;
+  top: 118px;
 }
 ._sticky .pricing-table-column {
     padding: 12px
@@ -950,7 +954,7 @@ h4.t-editor__heading {
 }
 .pricing-table-group-heading {
     position: sticky;
-    top: 182px;
+    top: 176px;
     padding: 12px;
     background: var(--scalar-background-3);
     font-weight: var(--scalar-bold);
