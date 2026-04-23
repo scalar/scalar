@@ -4,6 +4,7 @@ import { dirname, resolve } from 'node:path'
 
 import { ApiReference } from '@scalar/api-reference'
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
+import { createHead, renderSSRHead } from '@unhead/vue/server'
 import { createSSRApp, h } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 
@@ -90,6 +91,47 @@ function getInitialBodyClass(configuration: AnyApiReferenceConfiguration): 'dark
   return 'dark-mode'
 }
 
+type RenderedSsrHead = Awaited<ReturnType<typeof renderSSRHead>>
+
+const createHeadInstance = (pageTitle?: string) => createHead(pageTitle ? { init: [{ title: pageTitle }] } : undefined)
+
+/**
+ * Ensure the initial body class from Scalar config always exists.
+ * If Unhead provides body classes, merge them rather than overriding.
+ */
+function mergeBodyAttrsWithInitialClass(bodyAttrs: string, initialBodyClass: 'dark-mode' | 'light-mode'): string {
+  const classAttributePattern = /\sclass=(['"])(.*?)\1/i
+  const classMatch = bodyAttrs.match(classAttributePattern)
+
+  if (!classMatch) {
+    return `${bodyAttrs} class="${initialBodyClass}"`
+  }
+
+  const existingClasses = classMatch[2].split(/\s+/).filter(Boolean)
+  const mergedClasses = Array.from(new Set([...existingClasses, initialBodyClass])).join(' ')
+
+  return bodyAttrs.replace(classAttributePattern, ` class="${mergedClasses}"`)
+}
+
+async function renderApiReferenceApp(options: {
+  configuration: AnyApiReferenceConfiguration
+  pageTitle?: string
+}): Promise<{ html: string; head: RenderedSsrHead }> {
+  const normalizedConfiguration = unwrapConfig(options.configuration)
+  const app = createSSRApp(() => h(ApiReference, { configuration: normalizedConfiguration }))
+  const head = createHeadInstance(options.pageTitle)
+  app.use(head)
+  app.config.idPrefix = 'scalar-refs'
+
+  const html = await renderToString(app)
+  const headTags = await renderSSRHead(head)
+
+  return {
+    html,
+    head: headTags,
+  }
+}
+
 /**
  * Render the Scalar API Reference to an HTML string for server-side rendering.
  * Use createApiReference on the client to hydrate the server-rendered output.
@@ -99,11 +141,8 @@ function getInitialBodyClass(configuration: AnyApiReferenceConfiguration): 'dark
  * interfere with Vue hydration.
  */
 export async function renderApiReferenceToString(configuration: AnyApiReferenceConfiguration): Promise<string> {
-  const normalizedConfiguration = unwrapConfig(configuration)
-  const app = createSSRApp(() => h(ApiReference, { configuration: normalizedConfiguration }))
-  app.config.idPrefix = 'scalar-refs'
-
-  return await renderToString(app)
+  const { html } = await renderApiReferenceApp({ configuration })
+  return html
 }
 
 let _cachedCss: string | undefined
@@ -330,27 +369,31 @@ export async function renderApiReference(options: {
   /** URL path to the standalone JS bundle. Defaults to "/scalar/scalar.js". */
   cdn?: string
 }): Promise<string> {
-  const title = escapeHtml(options.pageTitle ?? 'Scalar API Reference')
+  const title = options.pageTitle ?? 'Scalar API Reference'
   const css = options.css ?? getDefaultCss()
   const cdn = escapeHtmlAttribute(options.cdn ?? '/scalar/scalar.js')
-  const html = await renderApiReferenceToString(options.config)
+  const { html, head } = await renderApiReferenceApp({
+    configuration: options.config,
+    pageTitle: title,
+  })
   const bodyScript = generateBodyScript(options.config)
   const initialBodyClass = getInitialBodyClass(options.config)
+  const bodyAttrs = mergeBodyAttrsWithInitialClass(head.bodyAttrs, initialBodyClass)
   const configJs = serializeConfigToJs(unwrapConfig(options.config))
 
   return `<!doctype html>
-<html lang="en">
+<html${head.htmlAttrs || ' lang="en"'}>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>${title}</title>
+    ${head.headTags}
     <style>${css}</style>
   </head>
-  <body class="${initialBodyClass}">
+  <body${bodyAttrs}>
+    ${head.bodyTagsOpen}
     ${bodyScript}
     <div id="app">${html}</div>
     <script src="${cdn}"></script>
     <script>Scalar.createApiReference('#app', ${configJs})</script>
+    ${head.bodyTags}
   </body>
 </html>`
 }

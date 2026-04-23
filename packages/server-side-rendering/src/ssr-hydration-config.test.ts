@@ -11,6 +11,7 @@ describe('ssr-hydration-config', () => {
     const app = {
       app: 'mock-app',
       config: {} as { idPrefix?: string },
+      use: vi.fn(),
     }
     const createSSRApp = vi.fn((renderRoot: () => unknown) => {
       renderRoot()
@@ -36,6 +37,7 @@ describe('ssr-hydration-config', () => {
     expect(h).toHaveBeenCalledWith('MockApiReference', {
       configuration: { url: 'https://example.com/openapi.json' },
     })
+    expect(app.use).toHaveBeenCalledTimes(1)
     expect(app.config.idPrefix).toBe('scalar-refs')
   })
 })

@@ -148,6 +148,17 @@ describe('ssr', () => {
       expect(html).toContain('<div id="app">')
     })
 
+    it('includes default SSR head tags exactly once', async () => {
+      const html = await renderApiReference({ config: {}, css: '' })
+
+      const charsetTagCount = html.match(/<meta charset="utf-8">/g)?.length ?? 0
+      const viewportTagCount =
+        html.match(/<meta name="viewport" content="width=device-width, initial-scale=1">/g)?.length ?? 0
+
+      expect(charsetTagCount).toBe(1)
+      expect(viewportTagCount).toBe(1)
+    })
+
     it('includes the color mode detection script', async () => {
       const html = await renderApiReference({ config: {}, css: '' })
 
@@ -185,6 +196,20 @@ describe('ssr', () => {
       const html = await renderApiReference({ config: {}, pageTitle: 'My API', css: '' })
 
       expect(html).toContain('<title>My API</title>')
+    })
+
+    it('renders metadata from config in SSR head tags', async () => {
+      const html = await renderApiReference({
+        config: {
+          metaData: {
+            description: 'Server-rendered description',
+          },
+        },
+        css: '',
+      })
+
+      expect(html).toContain('name="description"')
+      expect(html).toContain('content="Server-rendered description"')
     })
 
     it('escapes HTML in page title', async () => {
