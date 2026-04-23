@@ -4,6 +4,7 @@ import { dirname, resolve } from 'node:path'
 
 import { ApiReference } from '@scalar/api-reference'
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
+import { useServerSeoMeta } from '@unhead/vue'
 import { createHead, renderSSRHead } from '@unhead/vue/server'
 import { createSSRApp, h } from 'vue'
 import { renderToString } from 'vue/server-renderer'
@@ -107,7 +108,8 @@ function mergeBodyAttrsWithInitialClass(bodyAttrs: string, initialBodyClass: 'da
     return `${bodyAttrs} class="${initialBodyClass}"`
   }
 
-  const existingClasses = classMatch[2].split(/\s+/).filter(Boolean)
+  const existingClassValue = classMatch[2] ?? ''
+  const existingClasses = existingClassValue.split(/\s+/).filter(Boolean)
   const mergedClasses = Array.from(new Set([...existingClasses, initialBodyClass])).join(' ')
 
   return bodyAttrs.replace(classAttributePattern, ` class="${mergedClasses}"`)
@@ -118,7 +120,16 @@ async function renderApiReferenceApp(options: {
   pageTitle?: string
 }): Promise<{ html: string; head: RenderedSsrHead }> {
   const normalizedConfiguration = unwrapConfig(options.configuration)
-  const app = createSSRApp(() => h(ApiReference, { configuration: normalizedConfiguration }))
+  const app = createSSRApp({
+    setup: () => {
+      const metaData = normalizedConfiguration.metaData
+      if (metaData && typeof metaData === 'object') {
+        useServerSeoMeta(metaData as Parameters<typeof useServerSeoMeta>[0])
+      }
+
+      return () => h(ApiReference, { configuration: normalizedConfiguration })
+    },
+  })
   const head = createHeadInstance(options.pageTitle)
   app.use(head)
   app.config.idPrefix = 'scalar-refs'
