@@ -8,6 +8,7 @@ import {
   ScalarSidebarNestedItems,
   ScalarSidebarSearchInput,
   ScalarSidebarSection,
+  useModal,
 } from '@scalar/components'
 import {
   ScalarIconCaretLeft,
@@ -28,6 +29,7 @@ import {
   type RegistryDocument,
   type SidebarDocumentItem,
 } from '@/v2/features/app/hooks/use-sidebar-documents'
+import { DocumentSearchModal } from '@/v2/features/search'
 
 type FetchRegistryDocumentResult =
   | {
@@ -262,13 +264,27 @@ function handleOpenSettings() {
   })
 }
 
-function handleFilterOrSearch(event: MouseEvent) {
-  // Inside a document, this icon triggers the global search (focusing the
-  // search input managed by the app shell).
+/**
+ * Controls the per-document search modal. Only used when the user is drilled
+ * into a single document and clicks the magnifying-glass icon.
+ */
+const searchModal = useModal()
+
+/**
+ * The OpenAPI document currently selected in the workspace. The search modal
+ * scopes its Fuse index to this document so results never leak across
+ * collections.
+ */
+const activeDocument = computed(
+  () => app.store.value?.workspace.activeDocument,
+)
+
+function handleFilterOrSearch() {
+  // Inside a document, this icon opens a modal search that is scoped to that
+  // single document (similar to the reference search modal), so users can jump
+  // to any operation / tag / heading without noise from other documents.
   if (isOnDocumentPage.value) {
-    app.eventBus.emit('ui:focus:search', {
-      event: event as unknown as KeyboardEvent,
-    })
+    searchModal.show()
     return
   }
 
@@ -278,6 +294,15 @@ function handleFilterOrSearch(event: MouseEvent) {
   if (!isFilterVisible.value) {
     filterQuery.value = ''
   }
+}
+
+/**
+ * Navigate to the selected search result. `scroll-to:nav-item` is already
+ * wired up through the app event bus to update the sidebar + route, matching
+ * the behaviour used elsewhere in the app.
+ */
+function handleSearchSelect(id: string) {
+  app.eventBus.emit('scroll-to:nav-item', { id })
 }
 
 /** Controls the width of the sidebar */
@@ -457,6 +482,10 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
           <slot name="footer" />
         </ScalarSidebar>
       </div>
+      <DocumentSearchModal
+        :document="activeDocument"
+        :modalState="searchModal"
+        @select="handleSearchSelect" />
     </template>
   </Resize>
 </template>
