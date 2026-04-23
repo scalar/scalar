@@ -13,10 +13,7 @@ describe('ssr-hydration-config', () => {
       config: {} as { idPrefix?: string },
       use: vi.fn(),
     }
-    const createSSRApp = vi.fn((renderRoot: () => unknown) => {
-      renderRoot()
-      return app
-    })
+    const createSSRApp = vi.fn(() => app)
     const h = vi.fn(() => ({ vnode: 'mock-vnode' }))
     const renderToString = vi.fn(async () => '<div>mock-html</div>')
 
@@ -33,6 +30,18 @@ describe('ssr-hydration-config', () => {
 
     const { renderApiReferenceToString } = await import('./ssr')
     await renderApiReferenceToString([{ url: 'https://example.com/openapi.json' }])
+
+    const firstCreateSsrCall = createSSRApp.mock.calls.at(0)
+    const rootComponent = firstCreateSsrCall?.at(0) as
+      | {
+          setup?: () => unknown
+        }
+      | undefined
+    expect(typeof rootComponent?.setup).toBe('function')
+
+    const renderRoot = rootComponent?.setup?.() as (() => unknown) | undefined
+    expect(typeof renderRoot).toBe('function')
+    renderRoot?.()
 
     expect(h).toHaveBeenCalledWith('MockApiReference', {
       configuration: { url: 'https://example.com/openapi.json' },
