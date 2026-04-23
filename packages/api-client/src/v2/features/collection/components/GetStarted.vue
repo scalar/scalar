@@ -17,18 +17,31 @@ import Computer from '@/assets/computer.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 
-const { eventBus, activeWorkspace } = defineProps<RouteProps>()
+const { eventBus } = defineProps<RouteProps>()
 
 const openCommandPalette = () => {
   eventBus.emit('ui:open:command-palette')
 }
 
+/**
+ * Open the contextual settings page. Emits the same event as the Cmd/Ctrl+I
+ * hotkey so the workspace sidebar handles it uniformly: workspace-level
+ * settings from this "Get started" screen, document-level settings when the
+ * user is viewing a specific document. No `KeyboardEvent` is attached here
+ * because the trigger is a click.
+ */
 const openSettings = () => {
-  eventBus.emit('ui:navigate', {
-    page: 'workspace',
-    path: 'settings',
-    namespace: activeWorkspace.id,
-  })
+  eventBus.emit('ui:open:settings')
+}
+
+/**
+ * Open the contextual search affordance. Emits the same event as the Cmd/Ctrl+J
+ * hotkey so the workspace sidebar handles it uniformly: the document filter
+ * toggles on the workspace page and the search modal opens inside a document.
+ * No `KeyboardEvent` is attached here because the trigger is a click.
+ */
+const focusSearch = () => {
+  eventBus.emit('ui:focus:search')
 }
 </script>
 
@@ -61,11 +74,7 @@ const openSettings = () => {
         <button
           class="hover:text-c-1 flex w-full items-center justify-between gap-8"
           type="button"
-          @click="
-            () => {
-              console.log(`todo: focus filter`)
-            }
-          ">
+          @click="focusSearch">
           <span>Filter</span>
           <ScalarHotkey
             hotkey="J"

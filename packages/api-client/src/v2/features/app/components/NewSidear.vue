@@ -297,19 +297,38 @@ function handleFilterOrSearch() {
 }
 
 /**
- * Handle the `ui:focus:search` hotkey event (Cmd/Ctrl+J). Dispatch is driven
- * by the shared `handleHotkeys` helper so all keyboard wiring lives in one
- * place; here we only preventDefault (to override the browser's Cmd+J) and
+ * Handle the `ui:focus:search` event. Dispatch is driven by the shared
+ * `handleHotkeys` helper (Cmd/Ctrl+J) or by programmatic callers such as the
+ * workspace "Get started" page. When a `KeyboardEvent` is included we
+ * preventDefault to override the browser's Cmd+J (downloads panel), then
  * delegate to `handleFilterOrSearch`, which already branches on whether the
  * user is viewing a document or the workspace root.
  */
-function handleSearchHotkey(payload: { event: KeyboardEvent }) {
-  payload.event.preventDefault()
+function handleSearchHotkey(payload: { event: KeyboardEvent } | undefined) {
+  payload?.event.preventDefault()
   handleFilterOrSearch()
 }
 
-onBeforeMount(() => app.eventBus.on('ui:focus:search', handleSearchHotkey))
-onBeforeUnmount(() => app.eventBus.off('ui:focus:search', handleSearchHotkey))
+/**
+ * Handle the `ui:open:settings` event (Cmd/Ctrl+I). Same delegation model as
+ * `handleSearchHotkey`: preventDefault on the originating keyboard event (if
+ * any) and hand off to `handleOpenSettings`, which routes to the document-
+ * level settings page when a document is active and the workspace-level
+ * settings page otherwise.
+ */
+function handleSettingsHotkey(payload: { event: KeyboardEvent } | undefined) {
+  payload?.event.preventDefault()
+  handleOpenSettings()
+}
+
+onBeforeMount(() => {
+  app.eventBus.on('ui:focus:search', handleSearchHotkey)
+  app.eventBus.on('ui:open:settings', handleSettingsHotkey)
+})
+onBeforeUnmount(() => {
+  app.eventBus.off('ui:focus:search', handleSearchHotkey)
+  app.eventBus.off('ui:open:settings', handleSettingsHotkey)
+})
 
 /**
  * Navigate to the selected search result. `scroll-to:nav-item` is already

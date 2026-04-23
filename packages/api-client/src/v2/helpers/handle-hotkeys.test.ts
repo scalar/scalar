@@ -306,19 +306,55 @@ describe('handle-hotkey-down', () => {
     expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:search', { event }, { skipUnpackProxy: true })
   })
 
-  it('does not fire ui:focus:search in modal layout', () => {
+  it('fires ui:focus:search on Cmd+J in modal layout', () => {
     vi.mocked(isMacOS).mockReturnValue(true)
 
     const event = createKeyboardEvent('j', { metaKey: true })
     handleHotkeys(event, mockEventBus, 'modal')
 
-    expect(mockEventBus.emit).not.toHaveBeenCalled()
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:focus:search', { event }, { skipUnpackProxy: true })
   })
 
   it('does not fire ui:focus:search for plain j without modifier', () => {
     vi.mocked(isMacOS).mockReturnValue(true)
 
     const event = createKeyboardEvent('j')
+    handleHotkeys(event, mockEventBus, 'web')
+
+    expect(mockEventBus.emit).not.toHaveBeenCalled()
+  })
+
+  it('fires ui:open:settings on Cmd+I in web layout', () => {
+    vi.mocked(isMacOS).mockReturnValue(true)
+
+    const event = createKeyboardEvent('i', { metaKey: true })
+    handleHotkeys(event, mockEventBus, 'web')
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:open:settings', { event }, { skipUnpackProxy: true })
+  })
+
+  it('fires ui:open:settings on Cmd+I in desktop layout', () => {
+    vi.mocked(isMacOS).mockReturnValue(true)
+
+    const event = createKeyboardEvent('i', { metaKey: true })
+    handleHotkeys(event, mockEventBus, 'desktop')
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:open:settings', { event }, { skipUnpackProxy: true })
+  })
+
+  it('fires ui:open:settings on Ctrl+I for non-macOS', () => {
+    vi.mocked(isMacOS).mockReturnValue(false)
+
+    const event = createKeyboardEvent('i', { ctrlKey: true })
+    handleHotkeys(event, mockEventBus, 'web')
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:open:settings', { event }, { skipUnpackProxy: true })
+  })
+
+  it('does not fire ui:open:settings for plain i without modifier', () => {
+    vi.mocked(isMacOS).mockReturnValue(true)
+
+    const event = createKeyboardEvent('i')
     handleHotkeys(event, mockEventBus, 'web')
 
     expect(mockEventBus.emit).not.toHaveBeenCalled()
