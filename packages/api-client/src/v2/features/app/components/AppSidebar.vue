@@ -398,11 +398,15 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
 <template>
   <Resize
     v-model:width="sidebarWidth"
-    class="flex flex-col">
+    class="flex flex-col max-md:inset-y-0 max-md:z-2 max-md:w-full!"
+    :class="{
+      'max-md:absolute! max-md:flex!': app.sidebar.isOpen.value,
+      'max-md:hidden!': !app.sidebar.isOpen.value,
+    }">
     <template #default>
       <div class="flex flex-1">
         <ScalarSidebar
-          class="flex min-h-0 flex-1 flex-col"
+          class="flex min-h-0 flex-1 flex-col max-md:pt-12"
           :style="{ '--scalar-sidebar-indent': indent + 'px' }">
           <!-- Top-level sidebar header -->
           <div
