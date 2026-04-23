@@ -3,7 +3,6 @@ import { ScalarPopover } from '@scalar/components'
 import { ScalarIconLockSimple, ScalarIconLockSimpleOpen } from '@scalar/icons'
 import { computed } from 'vue'
 
-import { Badge } from '@/components/Badge'
 import SecurityRequirementBadgeScheme from '@/features/Operation/components/SecurityRequirementBadgeScheme.vue'
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 
@@ -42,11 +41,15 @@ const isOrAlternatives = computed(
 <template>
   <ScalarPopover
     v-if="requiredSecurity.state !== 'none'"
-    placement="bottom-start">
-    <Badge
-      is="button"
-      class="security-requirement-badge flex w-fit items-center justify-center gap-1"
-      :class="requiredSecurity.state === 'optional' ? 'text-c-2' : ''">
+    placement="bottom-end">
+    <button
+      class="security-requirement-badge inline-flex w-fit items-center justify-center gap-1 text-sm"
+      :class="
+        requiredSecurity.state === 'optional'
+          ? 'text-c-2'
+          : 'text-c-1 font-medium'
+      "
+      type="button">
       <ScalarIconLockSimple
         v-if="requiredSecurity.state === 'required'"
         class="size-3"
@@ -56,7 +59,7 @@ const isOrAlternatives = computed(
         class="size-3"
         weight="bold" />
       {{ label }}
-    </Badge>
+    </button>
     <template #popover>
       <div class="flex max-w-xs min-w-48 flex-col gap-1.5 p-2 text-sm">
         <div class="font-medium">

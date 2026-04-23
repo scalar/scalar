@@ -131,8 +131,6 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
             class="text-green flex w-fit items-center justify-center gap-1">
             <ScalarIconWebhooksLogo weight="bold" />Webhook
           </Badge>
-          <!-- Required auth badge -->
-          <SecurityRequirementBadge :requiredSecurity="requiredSecurity" />
           <!-- x-badges before -->
           <XBadges
             :badges="operation['x-badges']"
@@ -140,6 +138,8 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
         </div>
         <!-- Right -->
         <div class="flex gap-1">
+          <!-- Required auth badge -->
+          <SecurityRequirementBadge :requiredSecurity="requiredSecurity" />
           <!-- x-badges after -->
           <XBadges
             :badges="operation['x-badges']"
