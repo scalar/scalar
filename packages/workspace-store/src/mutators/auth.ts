@@ -6,6 +6,7 @@ import { isNonOptionalSecurityRequirement } from '@/helpers/is-non-optional-secu
 import { mergeObjects } from '@/helpers/merge-object'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { WorkspaceDocument } from '@/schemas'
+import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 import type { OAuth2Object } from '@/schemas/v3.1/strict/security-scheme'
 
@@ -38,7 +39,10 @@ export const updateSelectedSecuritySchemes = async (
   document: WorkspaceDocument | null,
   { selectedRequirements, newSchemes, meta }: AuthEvents['auth:update:selected-security-schemes'],
 ) => {
-  const documentName = document?.['x-scalar-navigation']?.name
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const documentName = document['x-scalar-navigation']?.name
   if (!documentName) {
     return
   }
@@ -125,7 +129,10 @@ const clearSelectedSecuritySchemes = (
   document: WorkspaceDocument | null,
   { meta }: AuthEvents['auth:clear:selected-security-schemes'],
 ) => {
-  const documentName = document?.['x-scalar-navigation']?.name
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const documentName = document['x-scalar-navigation']?.name
   if (!documentName) {
     return
   }
@@ -163,7 +170,10 @@ export const updateSecurityScheme = (
   document: WorkspaceDocument | null,
   { payload, name }: AuthEvents['auth:update:security-scheme'],
 ) => {
-  const target = getResolvedRef(document?.components?.securitySchemes?.[name])
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const target = getResolvedRef(document.components?.securitySchemes?.[name])
   if (!target) {
     console.error(`Security scheme ${name} not found`)
     return
@@ -182,7 +192,10 @@ const updateSecuritySchemeSecrets = (
   document: WorkspaceDocument | null,
   { payload, name, overwrite = false }: AuthEvents['auth:update:security-scheme-secrets'],
 ) => {
-  const documentName = document?.['x-scalar-navigation']?.name
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const documentName = document['x-scalar-navigation']?.name
   if (!documentName) {
     return
   }
@@ -206,7 +219,10 @@ const clearSecuritySchemeSecrets = (
   document: WorkspaceDocument | null,
   { name }: AuthEvents['auth:clear:security-scheme-secrets'],
 ) => {
-  const documentName = document?.['x-scalar-navigation']?.name
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const documentName = document['x-scalar-navigation']?.name
   if (!documentName) {
     return
   }
@@ -245,13 +261,16 @@ export const updateSelectedAuthTab = (
   document: WorkspaceDocument | null,
   { index, meta }: AuthEvents['auth:update:active-index'],
 ) => {
-  const documentName = document?.['x-scalar-navigation']?.name
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const documentName = document['x-scalar-navigation']?.name
   if (!documentName) {
     return
   }
 
   // Ensure the path/method exists in the document
-  if (meta.type === 'operation' && document?.paths?.[meta.path]?.[meta.method] === undefined) {
+  if (meta.type === 'operation' && document.paths?.[meta.path]?.[meta.method] === undefined) {
     return
   }
 
@@ -322,7 +341,10 @@ export const updateSelectedScopes = (
   document: WorkspaceDocument | null,
   { id, name, scopes, newScopePayload, meta }: AuthEvents['auth:update:selected-scopes'],
 ) => {
-  const documentName = document?.['x-scalar-navigation']?.name
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const documentName = document['x-scalar-navigation']?.name
   if (!documentName) {
     return
   }
@@ -391,9 +413,12 @@ export const deleteSecurityScheme = (
   document: WorkspaceDocument | null,
   { names }: AuthEvents['auth:delete:security-scheme'],
 ) => {
-  const documentName = document?.['x-scalar-navigation']?.name
-  if (!documentName) {
+  if (!isOpenApiDocument(document)) {
     // Early exit if there is no document to modify
+    return
+  }
+  const documentName = document['x-scalar-navigation']?.name
+  if (!documentName) {
     return
   }
 

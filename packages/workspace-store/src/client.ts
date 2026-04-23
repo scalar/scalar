@@ -38,6 +38,7 @@ import {
 } from '@/plugins/bundler'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
+import { isOpenApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { generateSchema } from '@/schemas/v3.1/openapi'
 import { recursiveRef } from '@/schemas/v3.1/openapi/reference'
@@ -656,7 +657,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               } satisfies WorkspaceStateChangeEvent
 
               // Don't mark as dirty when the document is first created
-              if (event.path.length > 0 && event.path[0] !== 'x-scalar-is-dirty') {
+              if (isOpenApiDocument(document) && event.path.length > 0 && event.path[0] !== 'x-scalar-is-dirty') {
                 // The document has been modified since it was last saved
                 document['x-scalar-is-dirty'] = true
               }
@@ -682,7 +683,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               } satisfies WorkspaceStateChangeEvent
 
               // Don't mark as dirty when the document is first created
-              if (event.path.length > 0 && event.path[0] !== 'x-scalar-is-dirty') {
+              if (isOpenApiDocument(document) && event.path.length > 0 && event.path[0] !== 'x-scalar-is-dirty') {
                 // The document has been modified since it was last saved
                 document['x-scalar-is-dirty'] = true
               }
@@ -868,7 +869,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // Store the new document in the intermediate documents map
     intermediateDocuments[documentName] = newDocument
     // Mark the document as not dirty since we are saving it
-    activeDocument['x-scalar-is-dirty'] = false
+    if (isOpenApiDocument(activeDocument)) {
+      activeDocument['x-scalar-is-dirty'] = false
+    }
     return true
   }
 
@@ -1123,7 +1126,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // Remove top level properties that should only exist in memory for the original document
     // These properties are used for internal purposes and are not needed in the final bundled document
     for (const property of EXCLUDE_KEYS) {
-      delete original[property as keyof WorkspaceDocument]
+      delete (original as Record<string, unknown>)[property]
     }
 
     return original
@@ -1148,6 +1151,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     if (!document) {
       // Log and exit if the document does not exist in the workspace
       console.error(`Document '${documentName}' does not exist in the workspace.`)
+      return false
+    }
+
+    // Sidebar navigation is OpenAPI-only for now.
+    if (!isOpenApiDocument(document)) {
       return false
     }
 
@@ -1203,13 +1211,15 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return console.error(`Document '${documentName}' does not exist in the workspace.`)
       }
 
+      const isOas = isOpenApiDocument(currentDocument)
+
       // Replace the whole document
       await addInMemoryDocument({
         name: documentName,
         document: input,
         // Preserve the current metadata
-        documentSource: currentDocument['x-scalar-original-source-url'],
-        documentHash: currentDocument['x-scalar-original-document-hash'],
+        documentSource: isOas ? currentDocument['x-scalar-original-source-url'] : undefined,
+        documentHash: isOas ? (currentDocument['x-scalar-original-document-hash'] ?? '') : '',
         meta: {
           // Set the document as dirty
           'x-scalar-is-dirty': true,
@@ -1293,11 +1303,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return
       }
 
+      const isOas = isOpenApiDocument(workspaceDocument)
+
       await addInMemoryDocument({
         name: documentName,
         document: intermediate,
-        documentSource: workspaceDocument['x-scalar-original-source-url'],
-        documentHash: workspaceDocument['x-scalar-original-document-hash'],
+        documentSource: isOas ? workspaceDocument['x-scalar-original-source-url'] : undefined,
+        documentHash: isOas ? (workspaceDocument['x-scalar-original-document-hash'] ?? '') : '',
         initialize: false,
       })
     },
@@ -1400,7 +1412,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // Compare document hashes to see if the document has changed
       // When the hashes match, we can skip the rebase process
       const newHash = generateHash(resolve.raw)
-      if (activeDocument['x-scalar-original-document-hash'] === newHash) {
+      if (isOpenApiDocument(activeDocument) && activeDocument['x-scalar-original-document-hash'] === newHash) {
         return {
           ok: false,
           type: 'NO_CHANGES_DETECTED' as const,

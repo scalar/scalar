@@ -16,6 +16,7 @@ import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/gene
 import { type XScalarActiveProxy, XScalarActiveProxySchema } from '@/schemas/extensions/workspace/x-scalar-active-proxy'
 import { type XScalarTabs, XScalarTabsSchema } from '@/schemas/extensions/workspace/x-scalar-tabs'
 
+import { type AsyncApiDocument, AsyncApiDocumentSchema } from './asyncapi/asyncapi-document'
 import { OpenAPIDocumentSchema, type OpenAPIExtensions, type OpenApiDocument } from './v3.1/strict/openapi-document'
 
 export type WorkspaceDocumentMeta = Omit<
@@ -23,9 +24,13 @@ export type WorkspaceDocumentMeta = Omit<
   'x-original-oas-version' | 'x-scalar-original-source-url' | 'x-scalar-original-document-hash'
 >
 
-// Note: use Type.Intersect to combine schemas here because Type.Compose does not work as expected with Modules
-export const WorkspaceDocumentSchema = OpenAPIDocumentSchema
-export type WorkspaceDocument = OpenApiDocument
+/**
+ * A document held by the workspace — a discriminated union of OpenAPI and AsyncAPI.
+ * Narrow with the `isOpenApiDocument` / `isAsyncApiDocument` guards in `@/schemas/type-guards`
+ * before touching spec-specific fields.
+ */
+export const WorkspaceDocumentSchema = Type.Union([OpenAPIDocumentSchema, AsyncApiDocumentSchema])
+export type WorkspaceDocument = OpenApiDocument | AsyncApiDocument
 
 export const ColorModeSchema = Type.Union([Type.Literal('system'), Type.Literal('light'), Type.Literal('dark')])
 
