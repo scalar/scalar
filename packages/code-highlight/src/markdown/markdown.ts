@@ -2,6 +2,7 @@ import type { Element as HastElement, ElementContent as HastElementContent, Root
 import type { Heading, Node, PhrasingContent, Root as MdastRoot, RootContent as MdastRootContent } from 'mdast'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
+import rehypeParse from 'rehype-parse'
 import rehypeRaw from 'rehype-raw'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import rehypeStringify from 'rehype-stringify'
@@ -69,6 +70,8 @@ const preserveHtmlLikeText = () => (tree: MdastRoot) => {
 }
 
 const inlineMarkdownProcessor = unified().use(remarkParse).use(remarkGfm).use(preserveHtmlLikeText).use(remarkRehype)
+const htmlFragmentParser = unified().use(rehypeParse, { fragment: true })
+const htmlFragmentStringifier = unified().use(rehypeStringify)
 
 /**
  * Parse inline markdown and return children from the generated paragraph.
@@ -109,6 +112,21 @@ const transformInlineMarkdownInHtml = () => (tree: HastRoot) => {
 }
 
 /**
+ * Rewrites raw HTML strings so inline markdown parsing is only applied to raw HTML input.
+ */
+const transformInlineMarkdownInRawHtml = () => (tree: HastRoot) => {
+  visit(tree, 'raw', (node) => {
+    if (typeof node.value !== 'string' || !MAY_CONTAIN_INLINE_MARKDOWN.test(node.value)) {
+      return
+    }
+
+    const htmlFragmentTree = htmlFragmentParser.parse(node.value) as HastRoot
+    transformInlineMarkdownInHtml()(htmlFragmentTree)
+    node.value = htmlFragmentStringifier.stringify(htmlFragmentTree)
+  })
+}
+
+/**
  * Take a Markdown string and generate HTML from it
  */
 export function htmlFromMarkdown(
@@ -139,10 +157,10 @@ export function htmlFromMarkdown(
     .use(remarkRehype, { allowDangerousHtml: true })
     // Adds GitHub alerts
     .use(rehypeAlert)
-    // Creates a HTML AST
+    // Parse inline markdown only inside raw HTML fragments, not normal markdown output
+    .use(transformInlineMarkdownInRawHtml)
+    // Creates an HTML AST
     .use(rehypeRaw)
-    // Enable inline markdown for text content inside selected HTML tags (for example: <p>`code`</p>)
-    .use(transformInlineMarkdownInHtml)
     // Removes disallowed tags
     .use(rehypeSanitize, {
       ...defaultSchema,

@@ -168,6 +168,12 @@ const x = 42;
     expect(html.trim()).toBe('<div>`Foobar`</div>')
   })
 
+  it('preserves escaped inline markdown markers in normal markdown paragraphs', () => {
+    const html = htmlFromMarkdown(String.raw`\*not italic\* \`not code\` \~\~not strike\~\~ \[not link\]`)
+
+    expect(html.trim()).toBe('<p>*not italic* `not code` ~~not strike~~ [not link]</p>')
+  })
+
   it('handles deeply nested markdown without breaking', () => {
     const html = htmlFromMarkdown(`
 > > > Triple nested blockquote
