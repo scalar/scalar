@@ -52,7 +52,23 @@ const transformNodes =
 const TAGS_WITH_INLINE_MARKDOWN = new Set(['dd', 'dt', 'li', 'p', 'summary', 'td', 'th'])
 const MAY_CONTAIN_INLINE_MARKDOWN = /[`*_[~]/
 
-const inlineMarkdownProcessor = unified().use(remarkParse).use(remarkGfm).use(remarkRehype)
+/**
+ * Preserve HTML-like text in inline markdown by turning mdast `html` nodes into text nodes.
+ */
+const preserveHtmlLikeText = () => (tree: MdastRoot) => {
+  visit(tree, 'html', (node, index, parent) => {
+    if (typeof index !== 'number' || !parent || !('children' in parent) || !Array.isArray(parent.children)) {
+      return
+    }
+
+    parent.children[index] = {
+      type: 'text',
+      value: node.value ?? '',
+    } as MdastRootContent
+  })
+}
+
+const inlineMarkdownProcessor = unified().use(remarkParse).use(remarkGfm).use(preserveHtmlLikeText).use(remarkRehype)
 
 /**
  * Parse inline markdown and return children from the generated paragraph.
