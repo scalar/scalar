@@ -17,7 +17,7 @@ import {
   ScalarIconMagnifyingGlass,
   ScalarIconPlus,
 } from '@scalar/icons'
-import { filterItems, SidebarItem } from '@scalar/sidebar'
+import { filterItems, SidebarItem, type DraggingItem, type HoveredItem } from '@scalar/sidebar'
 import { useToasts } from '@scalar/use-toasts'
 import Fuse from 'fuse.js'
 import { computed, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
@@ -31,6 +31,7 @@ import {
   type SidebarDocumentItem,
 } from '@/v2/features/app/hooks/use-sidebar-documents'
 import { DocumentSearchModal } from '@/v2/features/search'
+import { dragHandleFactory } from '@/v2/helpers/drag-handle-factory'
 
 type FetchRegistryDocumentResult =
   | {
@@ -199,11 +200,24 @@ function handleToggleGroup(id: string) {
 }
 
 /**
- * `SidebarItem` validates `isDroppable` as a Function at runtime (despite the
- * types allowing a boolean). We never want drag-and-drop in this sidebar, so
- * a stable function that always returns `false` disables dropping safely.
+ * Drag-and-drop handlers for sidebar items. The factory reads from the live
+ * workspace store and shared sidebar state, so it reflects the latest
+ * navigation tree on every drag. Mirrors the behaviour of the old
+ * `AppSidebar.vue` (documents, tags, and operations can be reordered, and
+ * operations can be moved between tags/documents).
  */
-const isDroppable = () => false
+const dragHandlers = computed(() =>
+  dragHandleFactory({
+    store: app.store,
+    sidebarState,
+  }),
+)
+
+const handleDragEnd = (draggingItem: DraggingItem, hoveredItem: HoveredItem): boolean =>
+  dragHandlers.value.handleDragEnd(draggingItem, hoveredItem)
+
+const isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem): boolean =>
+  dragHandlers.value.isDroppable(draggingItem, hoveredItem)
 
 function handleCreate() {
   app.eventBus.emit('ui:open:command-palette', {
@@ -518,12 +532,12 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                             item.navigation.children,
                           )"
                           :key="child.id"
-                          :isDraggable="false"
                           :isDroppable="isDroppable"
                           :isExpanded="isExpanded"
                           :isSelected="isSelected"
                           :item="child"
                           layout="client"
+                          @onDragEnd="handleDragEnd"
                           @selectItem="handleSelectItem"
                           @toggleGroup="handleToggleGroup" />
                       </template>
