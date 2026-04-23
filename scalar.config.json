@@ -2302,6 +2302,11 @@
                     "filepath": "documentation/guides/mock-server/custom-request-handler.md",
                     "type": "page"
                   },
+                  "agent-skills": {
+                    "title": "Agent Skills",
+                    "filepath": "documentation/guides/mock-server/agent-skills.md",
+                    "type": "page"
+                  },
                   "data-seeding": {
                     "title": "Data Seeding",
                     "filepath": "documentation/guides/mock-server/data-seeding.md",
