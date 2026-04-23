@@ -29,10 +29,7 @@ import {
 } from '@scalar/sidebar'
 import { useToasts } from '@scalar/use-toasts'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
-import type {
-  TraversedEntry,
-  TraversedOperation,
-} from '@scalar/workspace-store/schemas/navigation'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
@@ -227,23 +224,6 @@ const {
   eventBus: app.eventBus,
   sidebarState,
 })
-
-/**
- * Navigate to the overview page of a given operation when the gear icon on an
- * operation row is clicked.
- */
-const navigateToOperationsPage = (item: TraversedOperation) => {
-  const operationWithParent = sidebarState.getEntryById(item.id)
-  const documentSlug = getParentEntry('document', operationWithParent)?.name
-
-  app.eventBus.emit('ui:navigate', {
-    page: 'operation',
-    path: 'overview',
-    operationPath: item.path,
-    method: item.method,
-    documentSlug,
-  })
-}
 
 /**
  * Create a new operation from an empty folder slot inside a tag or document.
@@ -585,51 +565,38 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                           @selectItem="handleSelectItem"
                           @toggleGroup="handleToggleGroup">
                           <!--
-                            Per-item actions: gear for operations (jump to
-                            overview) and a "more" dropdown for tags,
-                            operations and examples (add / edit / delete…).
-                            The dropdown is rendered once at the sidebar root
-                            and anchors itself to whichever icon button opened
-                            it.
+                            Per-item "more" dropdown for tags, operations and
+                            examples (add / edit / delete…). The dropdown is
+                            rendered once at the sidebar root and anchors
+                            itself to whichever icon button opened it.
+                            Operation settings live on the operation header
+                            (next to the environment selector), not here.
                           -->
                           <template #decorator="{ item: entry }">
-                            <div class="flex items-center gap-0.5">
-                              <ScalarIconButton
-                                v-if="entry.type === 'operation'"
-                                :icon="ScalarIconGearSix"
-                                label="Operation settings"
-                                size="sm"
-                                weight="bold"
-                                @click.stop="navigateToOperationsPage(entry)"
-                                @keydown.enter.stop="
-                                  navigateToOperationsPage(entry)
-                                "
-                                @keydown.space.stop="
-                                  navigateToOperationsPage(entry)
-                                " />
-                              <ScalarIconButton
-                                aria-expanded="false"
-                                aria-haspopup="menu"
-                                :icon="ScalarIconDotsThree"
-                                label="More options"
-                                size="sm"
-                                weight="bold"
-                                @click.stop="
-                                  (e: MouseEvent) => openMenu(e, entry)
-                                "
-                                @keydown.down.stop="
-                                  (e: KeyboardEvent) => openMenu(e, entry)
-                                "
-                                @keydown.enter.stop="
-                                  (e: KeyboardEvent) => openMenu(e, entry)
-                                "
-                                @keydown.space.stop="
-                                  (e: KeyboardEvent) => openMenu(e, entry)
-                                "
-                                @keydown.up.stop="
-                                  (e: KeyboardEvent) => openMenu(e, entry)
-                                " />
-                            </div>
+                            <ScalarIconButton
+                              aria-expanded="false"
+                              aria-haspopup="menu"
+                              class="bg-b-2"
+                              :icon="ScalarIconDotsThree"
+                              label="More options"
+                              size="sm"
+                              variant="ghost"
+                              weight="bold"
+                              @click.stop="
+                                (e: MouseEvent) => openMenu(e, entry)
+                              "
+                              @keydown.down.stop="
+                                (e: KeyboardEvent) => openMenu(e, entry)
+                              "
+                              @keydown.enter.stop="
+                                (e: KeyboardEvent) => openMenu(e, entry)
+                              "
+                              @keydown.space.stop="
+                                (e: KeyboardEvent) => openMenu(e, entry)
+                              "
+                              @keydown.up.stop="
+                                (e: KeyboardEvent) => openMenu(e, entry)
+                              " />
                           </template>
                           <!--
                             Empty tag / folder slot. Matches the "Add operation"
