@@ -943,7 +943,7 @@ h4.t-editor__heading {
   height: 70px;
 }
 .pricing-table-group_header._sticky-2 {
-  height: 58px;
+  height: 57px;
   top: 118px;
 }
 ._sticky .pricing-table-column {
@@ -954,7 +954,7 @@ h4.t-editor__heading {
 }
 .pricing-table-group-heading {
     position: sticky;
-    top: 176px;
+    top: 175px;
     padding: 12px;
     background: var(--scalar-background-3);
     font-weight: var(--scalar-bold);
