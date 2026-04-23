@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ScalarSearchResultItem } from '@scalar/components'
-import { ScalarIconTag, ScalarIconTerminalWindow, ScalarIconTextAlignLeft } from '@scalar/icons'
+import {
+  ScalarIconTag,
+  ScalarIconTerminalWindow,
+  ScalarIconTextAlignLeft,
+} from '@scalar/icons'
 import type { ScalarIconComponent } from '@scalar/icons/types'
 import { HttpMethod } from '@scalar/sidebar'
 import type { FuseResult } from 'fuse.js'
@@ -52,7 +56,9 @@ const ENTRY_LABELS: { [x in FuseData['type']]: string } = {
         <HttpMethod
           aria-hidden="true"
           :method="result.item.method ?? 'get'" />
-        <span class="sr-only">HTTP Method: {{ result.item.method ?? 'get' }}</span>
+        <span class="sr-only">
+          HTTP Method: {{ result.item.method ?? 'get' }}
+        </span>
         <span class="sr-only">Path:&nbsp;</span>
         {{ result.item.path }}
       </span>

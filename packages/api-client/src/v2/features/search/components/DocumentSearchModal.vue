@@ -130,7 +130,8 @@ const activeDescendantId = computed(() => {
         <span>⏎ Select</span>
       </span>
       <span class="sr-only">
-        Press up arrow / down arrow to navigate, enter to select, type to filter results
+        Press up arrow / down arrow to navigate, enter to select, type to filter
+        results
       </span>
     </div>
   </ScalarModal>
