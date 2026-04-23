@@ -85,7 +85,9 @@ const { toast } = useToasts()
  * would always be stale placeholders for data that will never arrive.
  */
 const isLoadingRegistry = computed(
-  () => registryDocuments.status === 'loading' && app.workspace.isTeamWorkspace.value,
+  () =>
+    registryDocuments.status === 'loading' &&
+    app.workspace.isTeamWorkspace.value,
 )
 
 const { rest } = useSidebarDocuments({
@@ -162,7 +164,7 @@ const isDocActive = (item: SidebarDocumentItem) => {
  */
 const activeItem = computed(() => rest.value.find(isDocActive))
 
-async function handleDocumentClick(item: SidebarDocumentItem) {
+const handleDocumentClick = async (item: SidebarDocumentItem) => {
   if (item.navigation) {
     app.sidebar.handleSelectItem(item.navigation.id)
     openKeys.value[item.key] = true
@@ -212,11 +214,11 @@ async function handleDocumentClick(item: SidebarDocumentItem) {
 const isSelected = (id: string) => sidebarState.isSelected(id)
 const isExpanded = (id: string) => sidebarState.isExpanded(id)
 
-function handleSelectItem(id: string) {
+const handleSelectItem = (id: string) => {
   app.sidebar.handleSelectItem(id)
 }
 
-function handleToggleGroup(id: string) {
+const handleToggleGroup = (id: string) => {
   sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
 }
 
@@ -281,7 +283,7 @@ const deleteMessage = computed(() => {
  * menu target. Replicates the delete branches from `AppSidebar.vue` so the
  * behaviour is identical between the old and new sidebars.
  */
-function handleDelete() {
+const handleDelete = () => {
   const item = menuTarget.value?.item
 
   if (!item) {
@@ -332,10 +334,10 @@ function handleDelete() {
  * next tick, matching the old sidebar pattern so the dropdown opens on the
  * correct anchor for both mouse and keyboard interactions.
  */
-async function openMenu(
+const openMenu = async (
   event: MouseEvent | KeyboardEvent,
   item: TraversedEntry,
-) {
+) => {
   if (menuTarget.value?.showMenu) {
     return
   }
@@ -354,7 +356,7 @@ async function openMenu(
 }
 
 /** Close the "more" dropdown without resetting its target so animations can play out. */
-function closeMenu() {
+const closeMenu = () => {
   if (menuTarget.value) {
     menuTarget.value.showMenu = false
   }
@@ -365,7 +367,7 @@ function closeMenu() {
  * operation row is clicked. Mirrors `navigateToOperationsPage` from the old
  * sidebar.
  */
-function navigateToOperationsPage(item: TraversedOperation) {
+const navigateToOperationsPage = (item: TraversedOperation) => {
   const operationWithParent = sidebarState.getEntryById(item.id)
   const documentSlug = getParentEntry('document', operationWithParent)?.name
 
@@ -384,7 +386,7 @@ function navigateToOperationsPage(item: TraversedOperation) {
  * grouped under the same folder. Mirrors `handleAddEmptyFolder` from
  * `AppSidebar.vue`.
  */
-function handleAddEmptyFolder(item: TraversedEntry) {
+const handleAddEmptyFolder = (item: TraversedEntry) => {
   const itemWithParent = sidebarState.getEntryById(item.id)
   const documentName = getParentEntry('document', itemWithParent)?.name
   const tagName = getParentEntry('tag', itemWithParent)?.name
@@ -404,7 +406,7 @@ function handleAddEmptyFolder(item: TraversedEntry) {
   })
 }
 
-function handleCreate() {
+const handleCreate = () => {
   app.eventBus.emit('ui:open:command-palette', {
     action: 'create-openapi-document',
     payload: undefined,
@@ -418,7 +420,7 @@ function handleCreate() {
  * the user can start typing the real path right away. Mirrors the old
  * "Add operation" behaviour from `AppSidebar.vue` (`handleAddEmptyFolder`).
  */
-function handleCreateOperation(item: SidebarDocumentItem) {
+const handleCreateOperation = (item: SidebarDocumentItem) => {
   const documentName = item.documentName
   const store = app.store.value
 
@@ -440,7 +442,7 @@ function handleCreateOperation(item: SidebarDocumentItem) {
  * below to clear `openKeys` once the route change lands, so this function only
  * needs to trigger the navigation.
  */
-function handleBack() {
+const handleBack = () => {
   app.eventBus.emit('ui:navigate', {
     page: 'workspace',
     path: 'get-started',
@@ -475,7 +477,7 @@ const isOnDocumentPage = computed(() =>
   Boolean(app.activeEntities.documentSlug.value),
 )
 
-function handleOpenSettings() {
+const handleOpenSettings = () => {
   if (isOnDocumentPage.value) {
     app.eventBus.emit('ui:navigate', {
       page: 'document',
@@ -504,7 +506,7 @@ const searchModal = useModal()
  */
 const activeDocument = computed(() => app.store.value?.workspace.activeDocument)
 
-function handleFilterOrSearch() {
+const handleFilterOrSearch = () => {
   // Inside a document, this icon opens a modal search that is scoped to that
   // single document (similar to the reference search modal), so users can jump
   // to any operation / tag / heading without noise from other documents.
@@ -529,7 +531,7 @@ function handleFilterOrSearch() {
  * delegate to `handleFilterOrSearch`, which already branches on whether the
  * user is viewing a document or the workspace root.
  */
-function handleSearchHotkey(payload: { event: KeyboardEvent } | undefined) {
+const handleSearchHotkey = (payload: { event: KeyboardEvent } | undefined) => {
   payload?.event.preventDefault()
   handleFilterOrSearch()
 }
@@ -541,7 +543,9 @@ function handleSearchHotkey(payload: { event: KeyboardEvent } | undefined) {
  * level settings page when a document is active and the workspace-level
  * settings page otherwise.
  */
-function handleSettingsHotkey(payload: { event: KeyboardEvent } | undefined) {
+const handleSettingsHotkey = (
+  payload: { event: KeyboardEvent } | undefined,
+) => {
   payload?.event.preventDefault()
   handleOpenSettings()
 }
@@ -560,7 +564,7 @@ onBeforeUnmount(() => {
  * wired up through the app event bus to update the sidebar + route, matching
  * the behaviour used elsewhere in the app.
  */
-function handleSearchSelect(id: string) {
+const handleSearchSelect = (id: string) => {
   app.eventBus.emit('scroll-to:nav-item', { id })
 }
 
@@ -580,16 +584,7 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
         <ScalarSidebar
           class="flex min-h-0 flex-1 flex-col"
           :style="{ '--scalar-sidebar-indent': indent + 'px' }">
-          <!--
-      Top-level sidebar header. When the user drills into a document, the
-      header for that state (back button + collection-level actions) is
-      rendered inside `ScalarSidebarNestedItems`' `#back` slot below, so this
-      outer header is hidden to avoid stacking two header rows.
-
-      The inner layout mirrors the `#back` row (non-interactive `ScalarSidebarButton`
-      wrapper + icon buttons in a flex container) so the label and icons line up
-      identically between the two states.
-    -->
+          <!-- Top-level sidebar header -->
           <div
             v-if="!activeItem"
             class="flex flex-col gap-1.5 p-(--scalar-sidebar-padding)">
@@ -623,38 +618,39 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
               autofocus />
           </div>
 
+          <!-- Document list (top-level) -->
           <div class="custom-scroll flex-1 overflow-hidden">
             <ScalarSidebarItems>
               <!-- Show pinned documents after we add support for it -->
               <!--  <ScalarSidebarSection v-if="pinned.length">
-          Pinned
-          <template #items>
-            <ScalarSidebarNestedItems
-              v-for="item in pinned"
-              :key="item.key"
-              :active="isDocActive(item)"
-              controlled
-              :open="Boolean(openKeys[item.key])"
-              @back="openKeys[item.key] = false"
-              @click="handleDocumentClick(item)">
-              <span class="truncate">{{ item.title }}</span>
-              <template #back-label>{{ item.title }}</template>
+              Pinned
               <template #items>
-                <SidebarItem
-                  v-for="child in filterItems(item.navigation?.children ?? [])"
-                  :key="child.id"
-                  :isDraggable="false"
-                  :isDroppable="isDroppable"
-                  :isExpanded="isExpanded"
-                  :isSelected="isSelected"
-                  :item="child"
-                  layout="client"
-                  @selectItem="handleSelectItem"
-                  @toggleGroup="handleToggleGroup" />
+                <ScalarSidebarNestedItems
+                  v-for="item in pinned"
+                  :key="item.key"
+                  :active="isDocActive(item)"
+                  controlled
+                  :open="Boolean(openKeys[item.key])"
+                  @back="openKeys[item.key] = false"
+                  @click="handleDocumentClick(item)">
+                  <span class="truncate">{{ item.title }}</span>
+                  <template #back-label>{{ item.title }}</template>
+                  <template #items>
+                    <SidebarItem
+                      v-for="child in filterItems(item.navigation?.children ?? [])"
+                      :key="child.id"
+                      :isDraggable="false"
+                      :isDroppable="isDroppable"
+                      :isExpanded="isExpanded"
+                      :isSelected="isSelected"
+                      :item="child"
+                      layout="client"
+                      @selectItem="handleSelectItem"
+                      @toggleGroup="handleToggleGroup" />
+                  </template>
+                </ScalarSidebarNestedItems>
               </template>
-            </ScalarSidebarNestedItems>
-          </template>
-        </ScalarSidebarSection> -->
+            </ScalarSidebarSection> -->
 
               <ScalarSidebarSection>
                 All documents
@@ -688,12 +684,7 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                       #aside>
                       <span class="text-c-3 text-xs">Loading…</span>
                     </template>
-                    <!--
-                Replace the default back row with one that also hosts the
-                collection-scoped icon actions (settings, search, add). This
-                mirrors the default `#back` markup from `ScalarSidebarNestedItems`
-                and adds the icon buttons on the right side.
-              -->
+                    <!-- Document back row -->
                     <template #back>
                       <div class="flex items-center gap-1">
                         <ScalarSidebarButton
@@ -724,6 +715,7 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                           @click="handleCreateOperation(item)" />
                       </div>
                     </template>
+                    <!-- Document items (operations, tags, examples) -->
                     <template #items>
                       <template v-if="item.navigation?.children?.length">
                         <SidebarItem

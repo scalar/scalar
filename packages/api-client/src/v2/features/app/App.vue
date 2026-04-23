@@ -8,11 +8,7 @@ export default {}
 </script>
 
 <script setup lang="ts">
-import {
-  ScalarTeleportRoot,
-  useModal,
-  type ModalState,
-} from '@scalar/components'
+import { ScalarTeleportRoot, useModal } from '@scalar/components'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
@@ -24,8 +20,8 @@ import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceMo
 import NewSidear from '@/v2/features/app/components/NewSidear.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
-import type { RegistryDocumentsState } from '@/v2/features/app/hooks/use-sidebar-documents'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
+import type { RegistryDocumentsState } from '@/v2/features/app/hooks/use-sidebar-documents'
 import type { CommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
 import { useMonacoEditorConfiguration } from '@/v2/features/editor'
@@ -64,11 +60,6 @@ defineSlots<{
    * This slot is used to render custom actions or components within the actions section.
    */
   'sidebar-menu-actions': () => unknown
-  /**
-   * Slot for customizing the create workspace modal.
-   * This slot is used to render custom actions or components within the create workspace modal.
-   */
-  'create-workspace'?: (payload: { state: ModalState }) => unknown
 }>()
 
 defineExpose({
@@ -241,14 +232,10 @@ const routerViewProps = computed<RouteProps>(() => {
         </div>
       </div>
 
-      <slot
-        name="create-workspace"
-        :state="createWorkspaceModalState">
-        <!-- Create workspace modal -->
-        <CreateWorkspaceModal
-          :state="createWorkspaceModalState"
-          @create:workspace="(payload) => app.workspace.create(payload)" />
-      </slot>
+      <!-- Create workspace modal -->
+      <CreateWorkspaceModal
+        :state="createWorkspaceModalState"
+        @create:workspace="(payload) => app.workspace.create(payload)" />
 
       <!-- Popup command palette to add resources from anywhere -->
       <TheCommandPalette
