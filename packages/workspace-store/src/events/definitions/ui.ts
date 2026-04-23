@@ -228,6 +228,14 @@ export type UIEvents = {
   'scroll-to:nav-item': NavigationItemPayload
 
   /**
+   * Explicitly scroll to a model by name in the content area.
+   * This will move the viewport to show the corresponding model.
+   */
+  'scroll-to:model-by-name': {
+    name: string
+  }
+
+  /**
    * Copy the URL with anchor details for a navigation item.
    * Useful for sharing direct links to specific sections.
    */

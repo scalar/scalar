@@ -12,6 +12,7 @@ import {
   reduceNamesToObject,
   sortPropertyNames,
 } from '@/components/Content/Schema/helpers/sort-property-names'
+import LinkButton from '@/components/Content/Schema/LinkButton.vue'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 
@@ -53,7 +54,7 @@ const rawSchema = computed(
 const schema = computed(() => getResolvedRef(rawSchema.value))
 
 /** When the schema is a $ref, preserve its name so the UI can show the ref name instead of just the type. */
-const schemaModelName = computed(
+const modelLink = computed(
   () => (rawSchema.value && getModelNameFromSchema(rawSchema.value)) ?? null,
 )
 
@@ -130,10 +131,20 @@ const shouldRenderRequestBody = computed(
       <div class="request-body-title">
         <slot name="title" />
         <span
-          v-if="schemaModelName"
+          v-if="modelLink"
           class="text-c-2 text-xs leading-none font-normal"
           data-testid="request-body-schema-name">
-          <span class="text-c-3 mx-1.5">·</span>{{ schemaModelName }}
+          <span class="text-c-3 mx-1.5">·</span>
+          <LinkButton
+            v-if="eventBus && modelLink.schemaKey"
+            @click="
+              eventBus.emit('scroll-to:model-by-name', {
+                name: modelLink.schemaKey,
+              })
+            ">
+            {{ modelLink.label }}
+          </LinkButton>
+          <template v-else>{{ modelLink.label }}</template>
         </span>
       </div>
       <div class="flex items-center gap-2">

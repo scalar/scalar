@@ -4,6 +4,8 @@ import { isDefined } from '@scalar/helpers/array/is-defined'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed } from 'vue'
 
+import LinkButton from '@/components/Content/Schema/LinkButton.vue'
+
 import { formatExample } from './helpers/format-example'
 
 const { examples, example } = defineProps<{
@@ -35,11 +37,7 @@ const multipleExamplesLabel = computed(() =>
   <!-- single example (deprecated) -->
   <template v-if="hasSingleExample">
     <div class="property-example">
-      <button
-        class="property-example-label"
-        type="button">
-        <span>Example</span>
-      </button>
+      <LinkButton class="decoration-dotted">Example</LinkButton>
       <div class="property-example-value-list">
         <button
           class="property-example-value group"
@@ -60,13 +58,9 @@ const multipleExamplesLabel = computed(() =>
   <!-- multiple examples -->
   <template v-if="hasMultipleExamples">
     <div class="property-example">
-      <button
-        class="property-example-label"
-        type="button">
-        <span>
-          {{ multipleExamplesLabel }}
-        </span>
-      </button>
+      <LinkButton class="decoration-dotted">
+        {{ multipleExamplesLabel }}
+      </LinkButton>
       <div class="property-example-value-list">
         <button
           v-for="(ex, key) in normalizedExamples"
@@ -102,14 +96,6 @@ const multipleExamplesLabel = computed(() =>
   width: 100%;
   height: 20px;
   border-radius: var(--scalar-radius);
-}
-.property-example:hover .property-example-label span {
-  color: var(--scalar-color-1);
-}
-.property-example-label span {
-  color: var(--scalar-color-3);
-  position: relative;
-  border-bottom: var(--scalar-border-width) dotted currentColor;
 }
 .property-example-value {
   font-family: var(--scalar-font-code);

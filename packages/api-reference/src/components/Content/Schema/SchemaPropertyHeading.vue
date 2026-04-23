@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import {
@@ -10,6 +11,7 @@ import {
 import { computed, toRef } from 'vue'
 
 import { Badge } from '@/components/Badge'
+import LinkButton from '@/components/Content/Schema/LinkButton.vue'
 import ScreenReader from '@/components/ScreenReader.vue'
 
 import { getSchemaType } from './helpers/get-schema-type'
@@ -30,12 +32,14 @@ const props = withDefaults(
     hideModelNames?: boolean
     /** When the schema was resolved from a $ref, pass the ref name so it displays as e.g. "Data" instead of "object". */
     modelName?: string | null
+    eventBus?: WorkspaceEventBus | null
   }>(),
   {
     isDiscriminator: false,
     required: false,
     withExamples: true,
     hideModelNames: false,
+    eventBus: null,
   },
 )
 
@@ -187,8 +191,8 @@ const validationProperties = computed(() => {
   return properties
 })
 
-/** Optional schema title/name shown in addition to structural type. */
-const displayTitle = computed(() => {
+/** Link data for navigating to the referenced model in the sidebar. */
+const modelLink = computed(() => {
   if (!props.value) {
     return null
   }
@@ -197,19 +201,20 @@ const displayTitle = computed(() => {
     return null
   }
 
-  // Use explicit model name when schema was resolved from a $ref (e.g. in response/param body).
   if (props.modelName) {
-    return props.modelName
+    return { schemaKey: props.modelName, label: props.modelName }
   }
 
   const modelName = getModelNameFromSchema(props.value)
   if (modelName) {
-    return modelName
+    return { schemaKey: modelName.schemaKey, label: modelName.label }
   }
 
   if (isArraySchema(props.value) && props.value.items) {
     const itemName = getModelNameFromSchema(props.value.items)
-    return itemName ? `${itemName}[]` : null
+    return itemName
+      ? { schemaKey: itemName.schemaKey, label: `${itemName.label}[]` }
+      : null
   }
 
   return null
@@ -270,7 +275,19 @@ const exampleValue = computed(() => {
         v-if="shouldShowType"
         truncate>
         <ScreenReader>Type: </ScreenReader>{{ displayType
-        }}{{ displayTitle ? ` · ${displayTitle}` : '' }}
+        }}<template v-if="modelLink">
+          ·
+          <LinkButton
+            v-if="props.eventBus && modelLink.schemaKey"
+            @click="
+              props.eventBus.emit('scroll-to:model-by-name', {
+                name: modelLink.schemaKey,
+              })
+            ">
+            {{ modelLink.label }}
+          </LinkButton>
+          <template v-else>{{ modelLink.label }}</template>
+        </template>
       </SchemaPropertyDetail>
 
       <!-- Dynamic validation properties from composable -->
