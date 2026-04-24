@@ -29,4 +29,11 @@ test.describe('ScalarSidebar', () => {
     await page.getByRole('button', { name: 'Level 2 Group', exact: true }).click()
     await snapshot('3-selected')
   })
+
+  test('Loading Groups', async ({ page, snapshot }) => {
+    await snapshot('1-base')
+
+    await page.getByRole('button', { name: 'Nested Items Loading' }).click()
+    await snapshot('2-nested')
+  })
 })

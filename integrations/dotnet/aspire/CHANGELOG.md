@@ -1,5 +1,9 @@
 # @scalar/aspire
 
+## 0.9.27
+
+## 0.9.26
+
 ## 0.9.25
 
 ### Patch Changes

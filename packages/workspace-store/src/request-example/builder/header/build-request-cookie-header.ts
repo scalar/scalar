@@ -1,3 +1,4 @@
+import { X_SCALAR_COOKIE } from '@scalar/helpers/http/scalar-headers'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 
 import { filterGlobalCookie } from './filter-global-cookies'
@@ -59,7 +60,7 @@ export const buildRequestCookieHeader = ({
     // Add a custom header for the proxy (that's then forwarded as `Cookie`)
     if (useCustomCookieHeader) {
       console.warn(CUSTOM_COOKIE_HEADER_WARNING)
-      return { name: 'X-Scalar-Cookie', value: cookieHeader }
+      return { name: X_SCALAR_COOKIE, value: cookieHeader }
     }
 
     // or stick to the original header (which might be removed by the browser)

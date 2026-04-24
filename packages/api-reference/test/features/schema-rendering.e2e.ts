@@ -69,7 +69,7 @@ test.describe('schema rendering', () => {
     await modelsRegion.getByRole('button', { name: 'VehicleModel' }).click()
     const vehicleModel = modelsRegion.getByRole('region', { name: 'VehicleModel' })
 
-    const addressToggle = vehicleModel.getByRole('button', { name: /Address/ })
+    const addressToggle = vehicleModel.getByRole('button', { name: 'Address', exact: true })
     await expect(addressToggle).toBeVisible()
     await addressToggle.click()
 

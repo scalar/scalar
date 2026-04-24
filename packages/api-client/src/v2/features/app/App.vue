@@ -9,6 +9,7 @@ export default {}
 
 <script setup lang="ts">
 import {
+  ScalarMenuWorkspacePicker,
   ScalarTeleportRoot,
   useModal,
   type ModalState,
@@ -20,6 +21,7 @@ import { computed, onBeforeUnmount, toValue, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { SidebarToggle } from '@/v2/components/sidebar'
+import AppHeader from '@/v2/features/app/components/AppHeader.vue'
 import AppSidebar from '@/v2/features/app/components/AppSidebar.vue'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
@@ -64,6 +66,18 @@ defineSlots<{
    * This slot is used to render custom actions or components within the create workspace modal.
    */
   'create-workspace'?: (payload: { state: ModalState }) => unknown
+  /**
+   * Slot for customizing the menu items section of the app header.
+   * Defaults to a workspace picker bound to the current app state. Overriding this slot
+   * replaces the default picker entirely, so the consumer is responsible for rendering
+   * any workspace switcher (or other menu content) they need.
+   */
+  'header-menu-items'?: () => unknown
+  /**
+   * Slot for customizing the end section of the app header.
+   * Typically used for user menus, action buttons, or other trailing controls.
+   */
+  'header-end'?: () => unknown
 }>()
 
 defineExpose({
@@ -135,6 +149,30 @@ useMonacoEditorConfiguration({
   darkMode: isDarkMode,
 })
 
+const navigateToWorkspaceOverview = (namespace?: string, slug?: string) => {
+  app.eventBus.emit('ui:navigate', {
+    page: 'workspace',
+    path: 'environment',
+    namespace,
+    workspaceSlug: slug,
+  })
+}
+
+/** Sets the active workspace by ID: finds the workspace in the list and updates app state & navigation. */
+const setActiveWorkspace = (id?: string) => {
+  if (!id) {
+    return
+  }
+  const workspace = app.workspace.workspaceList.value?.find(
+    (workspace) => workspace.id === id,
+  )
+  if (!workspace) {
+    return
+  }
+
+  navigateToWorkspaceOverview(workspace.namespace, workspace.slug)
+}
+
 const createWorkspaceModalState = useModal()
 
 /** Props to pass to the RouterView component. */
@@ -179,13 +217,31 @@ const routerViewProps = computed<RouteProps>(() => {
         app.workspace.activeWorkspace.value !== null &&
         !app.loading.value
       ">
-      <div
-        class="relative flex w-dvw flex-col"
-        :class="layout === 'web' ? 'min-h-0' : 'h-dvh'">
+      <div class="relative flex h-dvh w-dvw flex-col">
         <SidebarToggle
           v-model="app.sidebar.isOpen.value"
           class="absolute z-60 md:hidden"
           :class="layout === 'desktop' ? 'top-14 left-4' : 'top-4 left-4'" />
+        <AppHeader
+          @navigate:to:settings="
+            app.eventBus.emit('ui:navigate', {
+              page: 'workspace',
+              path: 'settings',
+            })
+          ">
+          <template #menuItems>
+            <slot name="header-menu-items">
+              <ScalarMenuWorkspacePicker
+                :modelValue="app.workspace.activeWorkspace.value?.id"
+                :workspaceOptions="app.workspace.workspaceGroups.value"
+                @createWorkspace="createWorkspaceModalState.show()"
+                @update:modelValue="(value) => setActiveWorkspace(value)" />
+            </slot>
+          </template>
+          <template #end>
+            <slot name="header-end" />
+          </template>
+        </AppHeader>
         <div class="flex min-h-0 flex-1 flex-row">
           <!-- App sidebar -->
           <AppSidebar

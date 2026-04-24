@@ -1,5 +1,19 @@
 # @scalar/api-client
 
+## 3.2.2
+
+### Patch Changes
+
+- [#8952](https://github.com/scalar/scalar/pull/8952): Export shared Scalar custom header constants from `@scalar/helpers/http/scalar-headers` and consume them in request build/send flows.
+- [#8950](https://github.com/scalar/scalar/pull/8950): fix: correctly handle custom file imports
+- [#8951](https://github.com/scalar/scalar/pull/8951): fix: api client initial routing
+
+## 3.2.1
+
+### Patch Changes
+
+- [#8940](https://github.com/scalar/scalar/pull/8940): feat(api-client): support header for web layout
+
 ## 3.2.0
 
 ### Minor Changes
