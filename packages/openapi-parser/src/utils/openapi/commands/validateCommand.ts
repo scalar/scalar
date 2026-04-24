@@ -1,4 +1,4 @@
-import type { Queue, Task, UnknownObject, ValidateResult } from '@/types/index'
+import type { Queue, Task, ValidateResult } from '@/types/index'
 import type { DereferenceOptions } from '@/utils/dereference'
 import type { ValidateOptions } from '@/utils/validate'
 import { details } from '../actions/details'
@@ -41,7 +41,7 @@ export function validateCommand<T extends Task[]>(previousQueue: Queue<T>, optio
     dereference: (dereferenceOptions?: DereferenceOptions) => dereferenceCommand(queue, dereferenceOptions),
     details: () => details(queue),
     files: () => files(queue),
-    filter: (callback: (specification: UnknownObject) => boolean) => filterCommand(queue, callback),
+    filter: (callback) => filterCommand(queue, callback),
     get: () => get(queue),
     toJson: () => toJson(queue),
     toYaml: () => toYaml(queue),

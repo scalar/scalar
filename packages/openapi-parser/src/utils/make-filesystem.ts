@@ -15,6 +15,10 @@ export function makeFilesystem(
   // Make an object
   const specification = normalize(value)
 
+  if (Array.isArray(specification)) {
+    return specification as Filesystem
+  }
+
   // Create fake filesystem
   return [
     {

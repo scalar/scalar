@@ -1,4 +1,4 @@
-import type { Queue, Task, UnknownObject, UpgradeResult } from '@/types/index'
+import type { Queue, Task, UpgradeResult } from '@/types/index'
 import type { DereferenceOptions } from '@/utils/dereference'
 import type { ValidateOptions } from '@/utils/validate'
 import { details } from '../actions/details'
@@ -36,7 +36,7 @@ export function upgradeCommand<T extends Task[]>(previousQueue: Queue<T>) {
     dereference: (dereferenceOptions?: DereferenceOptions) => dereferenceCommand(queue, dereferenceOptions),
     details: () => details(queue),
     files: () => files(queue),
-    filter: (callback: (specification: UnknownObject) => boolean) => filterCommand(queue, callback),
+    filter: (callback) => filterCommand(queue, callback),
     get: () => get(queue),
     toJson: () => toJson(queue),
     toYaml: () => toYaml(queue),

@@ -4,7 +4,7 @@ import Ajv04 from 'ajv-draft-04'
 import addFormats from 'ajv-formats'
 
 import { ERRORS, OpenApiSpecifications, type OpenApiVersion, OpenApiVersions } from '@/configuration'
-import type { AnyObject, Filesystem, ThrowOnErrorOption, UnknownObject, ValidateResult } from '@/types/index'
+import type { Filesystem, OpenApiDocument, ThrowOnErrorOption, UnknownObject, ValidationOutcome } from '@/types/index'
 import { details as getOpenApiVersion } from '@/utils/details'
 import { resolveReferences } from '@/utils/resolve-references'
 import { transformErrors } from '@/utils/transform-errors'
@@ -35,10 +35,14 @@ export class Validator {
 
   public specification: UnknownObject
 
+  private isMutableRecord(value: unknown): value is Record<string, any> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value)
+  }
+
   /**
    * Checks whether a specification is valid and all references can be resolved.
    */
-  validate(filesystem: Filesystem, options?: ThrowOnErrorOption): ValidateResult {
+  validate(filesystem: Filesystem, options?: ThrowOnErrorOption): ValidationOutcome {
     const entrypoint = filesystem.find((file) => file.isEntrypoint)
     const specification = entrypoint?.specification
 
@@ -47,7 +51,11 @@ export class Validator {
 
     // TODO: defaulting info.version to keep parser compatible with the previous one
     // we should bubble this error up and not throw on it
-    if (this.specification?.info && !this.specification.info.version) {
+    if (
+      this.isMutableRecord(this.specification) &&
+      this.isMutableRecord(this.specification.info) &&
+      typeof this.specification.info.version !== 'string'
+    ) {
       this.specification.info.version = '0.0.1'
     }
 
@@ -105,11 +113,20 @@ export class Validator {
       const resolvedReferences = resolveReferences(filesystem, options)
       const semanticErrors = validatePathParameters(resolvedReferences.schema)
       const errors = [...resolvedReferences.errors, ...semanticErrors]
+      const valid = schemaResult && resolvedReferences.valid && semanticErrors.length === 0
+
+      if (!valid) {
+        return {
+          valid: false,
+          errors,
+          schema: resolvedReferences.schema as OpenApiDocument,
+        }
+      }
 
       return {
-        valid: schemaResult && resolvedReferences.valid && semanticErrors.length === 0,
+        valid: true,
         errors,
-        schema: resolvedReferences.schema,
+        schema: resolvedReferences.schema as OpenApiDocument,
       }
     } catch (error) {
       // Something went horribly wrong!

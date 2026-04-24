@@ -1,4 +1,4 @@
-import type { AnyApiDefinitionFormat, LoadResult, Queue, Task, UnknownObject } from '@/types/index'
+import type { AnyApiDefinitionFormat, LoadResult, Queue, Task } from '@/types/index'
 import type { DereferenceOptions } from '@/utils/dereference'
 import type { LoadOptions } from '@/utils/load/load'
 import type { ValidateOptions } from '@/utils/validate'
@@ -54,7 +54,7 @@ export function loadCommand<T extends Task[]>(
     dereference: (dereferenceOptions?: DereferenceOptions) => dereferenceCommand(queue, dereferenceOptions),
     details: () => details(queue),
     files: () => files(queue),
-    filter: (callback: (specification: UnknownObject) => boolean) => filterCommand(queue, callback),
+    filter: (callback) => filterCommand(queue, callback),
     get: () => get(queue),
     upgrade: () => upgradeCommand(queue),
     toJson: () => toJson(queue),

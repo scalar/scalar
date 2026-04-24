@@ -250,8 +250,12 @@ function resolveUri(
 
   // Try to find the URI
   try {
-    return segments.reduce((acc, key) => {
-      return acc[key]
+    return segments.reduce<unknown>((acc, key) => {
+      if (typeof acc !== 'object' || acc === null || !(key in acc)) {
+        throw new Error(ERRORS.INVALID_REFERENCE.replace('%s', uri))
+      }
+
+      return (acc as Record<string, unknown>)[key]
     }, file.specification)
   } catch (_error) {
     if (options?.throwOnError) {

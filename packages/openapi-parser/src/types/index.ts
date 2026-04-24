@@ -18,25 +18,44 @@ export type UnknownObject = Record<string, unknown>
 /**
  * JSON, YAML or object representation of an OpenAPI API definition
  */
-export type AnyApiDefinitionFormat = string | UnknownObject
+export type AnyApiDefinitionFormat = string | UnknownObject | Filesystem
 
-export type OpenApiDocument2 = OpenApiDocumentV2
-export type OpenApiDocument3 = OpenApiDocumentV3
-export type OpenApiDocument3_1 = OpenApiDocumentV3_1
-export type OpenApiDocument3_2 = OpenApiDocumentV3_2
+type DeepLenientOpenApiType<T> = T extends (...args: any[]) => any
+  ? T
+  : T extends readonly (infer U)[]
+    ? DeepLenientOpenApiType<U>[]
+    : T extends object
+      ? { [K in keyof T]?: DeepLenientOpenApiType<T[K]> } & AnyObject
+      : T
+
+export type StrictOpenApiDocument2 = OpenApiDocumentV2
+export type StrictOpenApiDocument3 = OpenApiDocumentV3
+export type StrictOpenApiDocument3_1 = OpenApiDocumentV3_1
+export type StrictOpenApiDocument3_2 = OpenApiDocumentV3_2
+
+export type StrictOpenApiDocument =
+  | StrictOpenApiDocument2
+  | StrictOpenApiDocument3
+  | StrictOpenApiDocument3_1
+  | StrictOpenApiDocument3_2
+
+export type OpenApiDocument2 = DeepLenientOpenApiType<OpenApiDocumentV2>
+export type OpenApiDocument3 = DeepLenientOpenApiType<OpenApiDocumentV3>
+export type OpenApiDocument3_1 = DeepLenientOpenApiType<OpenApiDocumentV3_1>
+export type OpenApiDocument3_2 = DeepLenientOpenApiType<OpenApiDocumentV3_2>
 
 export type OpenApiDocument = OpenApiDocument2 | OpenApiDocument3 | OpenApiDocument3_1 | OpenApiDocument3_2
 
 export type LoadResult = {
   filesystem: Filesystem
-  specification: UnknownObject
+  specification: UnknownObject | null
   errors?: ErrorObject[]
 }
 
 export type ValidateResult =
   | {
       valid: true
-      specification: OpenApiDocument
+      specification: StrictOpenApiDocument
       version: OpenApiVersion
       errors?: ErrorObject[]
       schema: OpenApiDocument
@@ -45,6 +64,18 @@ export type ValidateResult =
       valid: false
       specification?: UnknownObject
       version?: OpenApiVersion
+      errors: ErrorObject[]
+      schema?: OpenApiDocument
+    }
+
+export type ValidationOutcome =
+  | {
+      valid: true
+      errors?: ErrorObject[]
+      schema: OpenApiDocument
+    }
+  | {
+      valid: false
       errors: ErrorObject[]
       schema?: OpenApiDocument
     }
