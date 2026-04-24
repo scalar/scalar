@@ -18,7 +18,7 @@ export type UnknownObject = Record<string, unknown>
 /**
  * JSON, YAML or object representation of an OpenAPI API definition
  */
-export type AnyApiDefinitionFormat = string | AnyObject
+export type AnyApiDefinitionFormat = string | UnknownObject | Filesystem
 
 type DeepLenientOpenApiType<T> = T extends (...args: any[]) => any
   ? T
@@ -27,6 +27,8 @@ type DeepLenientOpenApiType<T> = T extends (...args: any[]) => any
     : T extends object
       ? { [K in keyof T]?: DeepLenientOpenApiType<T[K]> } & AnyObject
       : T
+
+export type StrictOpenApiDocument = OpenApiDocumentV2 | OpenApiDocumentV3 | OpenApiDocumentV3_1 | OpenApiDocumentV3_2
 
 export type OpenApiDocument2 = DeepLenientOpenApiType<OpenApiDocumentV2>
 export type OpenApiDocument3 = DeepLenientOpenApiType<OpenApiDocumentV3>
@@ -37,17 +39,37 @@ export type OpenApiDocument = OpenApiDocument2 | OpenApiDocument3 | OpenApiDocum
 
 export type LoadResult = {
   filesystem: Filesystem
-  specification: AnyObject
+  specification: UnknownObject | null
   errors?: ErrorObject[]
 }
 
-export type ValidateResult = {
-  valid: boolean
-  specification?: OpenApiDocument
-  version?: OpenApiVersion
-  errors?: ErrorObject[]
-  schema?: OpenApiDocument
-}
+export type ValidateResult =
+  | {
+      valid: true
+      specification: StrictOpenApiDocument
+      version: OpenApiVersion
+      errors?: ErrorObject[]
+      schema: OpenApiDocument
+    }
+  | {
+      valid: false
+      specification?: UnknownObject
+      version?: OpenApiVersion
+      errors: ErrorObject[]
+      schema?: OpenApiDocument
+    }
+
+export type ValidationOutcome =
+  | {
+      valid: true
+      errors?: ErrorObject[]
+      schema: OpenApiDocument
+    }
+  | {
+      valid: false
+      errors: ErrorObject[]
+      schema?: OpenApiDocument
+    }
 
 export type UpgradeResult<T extends OpenApiDocument = OpenApiDocument> = {
   specification: T
@@ -55,7 +77,7 @@ export type UpgradeResult<T extends OpenApiDocument = OpenApiDocument> = {
 }
 
 export type FilterResult = {
-  specification: AnyObject
+  specification: UnknownObject
 }
 
 export type DetailsResult = {
@@ -91,7 +113,7 @@ export type FilesystemEntry = {
   isEntrypoint: boolean
   references: string[]
   filename: string
-  specification: AnyObject
+  specification: UnknownObject
 }
 
 /**
@@ -122,7 +144,7 @@ export type Queue<T extends readonly Task[] = readonly Task[]> = {
   /** The original input, can be a JSON or YAML string or an object */
   input: AnyApiDefinitionFormat
   /** The current OpenAPI document, but as an object */
-  specification: AnyObject
+  specification: UnknownObject
   /** Global options */
   options?: OpenApiOptions
   /** Queued tasks */
@@ -136,7 +158,7 @@ export type Task = Commands[keyof Commands]['task']
 
 type EmptyCommandChainResult = {
   filesystem: Filesystem
-  specification: AnyObject
+  specification: UnknownObject
 }
 
 /**

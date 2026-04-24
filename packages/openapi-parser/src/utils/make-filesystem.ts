@@ -1,10 +1,10 @@
-import type { AnyObject, Filesystem, FilesystemEntry } from '@/types/index'
+import type { Filesystem, FilesystemEntry, UnknownObject } from '@/types/index'
 import { getListOfReferences } from './get-list-of-references'
 import { isFilesystem } from './is-filesystem'
 import { normalize } from './normalize'
 
 export function makeFilesystem(
-  value: string | AnyObject | Filesystem,
+  value: string | UnknownObject | Filesystem,
   overwrites: Partial<FilesystemEntry> = {},
 ): Filesystem {
   // Keep as is
@@ -14,6 +14,10 @@ export function makeFilesystem(
 
   // Make an object
   const specification = normalize(value)
+
+  if (Array.isArray(specification)) {
+    return specification as Filesystem
+  }
 
   // Create fake filesystem
   return [
