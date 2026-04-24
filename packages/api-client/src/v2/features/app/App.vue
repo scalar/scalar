@@ -9,6 +9,7 @@ export default {}
 
 <script setup lang="ts">
 import {
+  ScalarMenuWorkspacePicker,
   ScalarTeleportRoot,
   useModal,
   type ModalState,
@@ -20,6 +21,7 @@ import { computed, onBeforeUnmount, toValue, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { SidebarToggle } from '@/v2/components/sidebar'
+import AppHeader from '@/v2/features/app/components/AppHeader.vue'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
@@ -62,6 +64,18 @@ defineSlots<{
    * This slot is used to render custom actions or components within the create workspace modal.
    */
   'create-workspace'?: (payload: { state: ModalState }) => unknown
+  /**
+   * Slot for customizing the menu items section of the app header.
+   * Defaults to a workspace picker bound to the current app state. Overriding this slot
+   * replaces the default picker entirely, so the consumer is responsible for rendering
+   * any workspace switcher (or other menu content) they need.
+   */
+  'header-menu-items'?: () => unknown
+  /**
+   * Slot for customizing the end section of the app header.
+   * Typically used for user menus, action buttons, or other trailing controls.
+   */
+  'header-end'?: () => unknown
 }>()
 
 defineExpose({
@@ -208,6 +222,20 @@ const routerViewProps = computed<RouteProps>(() => {
           v-model="app.sidebar.isOpen.value"
           class="absolute z-60 md:hidden"
           :class="layout === 'desktop' ? 'top-14 left-4' : 'top-4 left-4'" />
+        <AppHeader>
+          <template #menuItems>
+            <slot name="header-menu-items">
+              <ScalarMenuWorkspacePicker
+                :modelValue="app.workspace.activeWorkspace.value?.id"
+                :workspaceOptions="app.workspace.workspaceGroups.value"
+                @createWorkspace="createWorkspaceModalState.show()"
+                @update:modelValue="(value) => setActiveWorkspace(value)" />
+            </slot>
+          </template>
+          <template #end>
+            <slot name="header-end" />
+          </template>
+        </AppHeader>
         <div class="flex min-h-0 flex-1 flex-row">
           <!-- App sidebar -->
           <AppSidebar
