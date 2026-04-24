@@ -18,6 +18,10 @@ import type { Migration } from '@/persistence/indexdb'
  *   existing local slug, a unique suffix (`-2`, `-3`, ...) is appended.
  * - All chunk records (meta, documents, originalDocuments, intermediateDocuments,
  *   overrides, history, auth) are re-keyed to the new `local/<slug>` workspaceId.
+ * - Saved tabs and the active tab index are cleared from every workspace's meta
+ *   chunk. Tab paths are URLs that embed the old `@<namespace>/<slug>` prefix
+ *   and slugs may have been rewritten to resolve collisions, so keeping them
+ *   would cause the client to route to stale paths on next load.
  *
  * All work happens inside the upgrade transaction. Async IDB request callbacks
  * keep the transaction alive so data transformation can complete.
@@ -115,13 +119,34 @@ export const planWorkspaceMigration = (
 const buildWorkspaceId = (prefix: string, slug: string) => `${prefix}/${slug}`
 
 /**
+ * Keys on the workspace meta record that embed URL paths tied to the old
+ * `@<namespace>/<slug>` routing scheme. We strip them during the migration so
+ * the client can rebuild them from the current route on next load.
+ */
+const STALE_META_KEYS = ['x-scalar-tabs', 'x-scalar-active-tab'] as const
+
+/**
+ * Returns a new meta object with stale, URL-bound fields removed. Leaves every
+ * other key untouched so color mode, theme, active document, etc. survive.
+ */
+const stripStaleMetaFields = (meta: unknown): unknown => {
+  if (!meta || typeof meta !== 'object') {
+    return meta
+  }
+  const copy = { ...(meta as Record<string, unknown>) }
+  for (const key of STALE_META_KEYS) {
+    delete copy[key]
+  }
+  return copy
+}
+
+/**
  * Re-keys all chunk records belonging to `oldWorkspaceId` so they live under
- * `newWorkspaceId` instead. Skips any tables that are not present in the DB.
+ * `newWorkspaceId` instead. Always runs so we can also strip stale tab state
+ * from the meta chunk, even when the workspace keeps its old id.
  */
 const remapChunkTables = (transaction: IDBTransaction, oldWorkspaceId: string, newWorkspaceId: string): void => {
-  if (oldWorkspaceId === newWorkspaceId) {
-    return
-  }
+  const idChanged = oldWorkspaceId !== newWorkspaceId
 
   for (const tableName of SINGLE_KEY_CHUNK_TABLES) {
     if (!transaction.db.objectStoreNames.contains(tableName)) {
@@ -135,9 +160,22 @@ const remapChunkTables = (transaction: IDBTransaction, oldWorkspaceId: string, n
       if (!record) {
         return
       }
-      store.delete(oldWorkspaceId)
-      store.put({ ...record, workspaceId: newWorkspaceId })
+
+      // The meta chunk holds x-scalar-tabs with full URL paths built from the
+      // pre-migration namespace/slug. Those paths are no longer routable after
+      // this migration (namespace is dropped and slugs may have been renamed),
+      // so drop them here and let the client rebuild tabs from the live route.
+      const nextData = tableName === 'meta' ? stripStaleMetaFields(record.data) : record.data
+
+      if (idChanged) {
+        store.delete(oldWorkspaceId)
+      }
+      store.put({ ...record, workspaceId: newWorkspaceId, data: nextData })
     }
+  }
+
+  if (!idChanged) {
+    return
   }
 
   for (const tableName of COMPOSITE_KEY_CHUNK_TABLES) {

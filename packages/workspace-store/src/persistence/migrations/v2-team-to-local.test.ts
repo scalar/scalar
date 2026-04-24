@@ -212,6 +212,57 @@ describe('v2-team-to-local', () => {
       }
     })
 
+    it('strips x-scalar-tabs and x-scalar-active-tab from the meta chunk', async () => {
+      let persistence: Awaited<ReturnType<typeof createWorkspaceStorePersistence>> | undefined
+      try {
+        await seedV1Database([
+          {
+            namespace: 'acme',
+            slug: 'api',
+            name: 'Acme API',
+            teamUid: 'acme-uid',
+            meta: {
+              'x-scalar-color-mode': 'dark',
+              'x-scalar-theme': 'moon',
+              // These two reference the old namespace-based URLs and would
+              // redirect to stale paths if kept around.
+              'x-scalar-tabs': [{ path: '/@acme/api/document/drafts', name: 'Drafts' }],
+              'x-scalar-active-tab': 0,
+            },
+          },
+          {
+            namespace: 'local',
+            slug: 'personal',
+            name: 'Personal',
+            teamUid: 'local',
+            meta: {
+              'x-scalar-color-mode': 'light',
+              'x-scalar-tabs': [{ path: '/@local/personal/document/drafts', name: 'Drafts' }],
+              'x-scalar-active-tab': 1,
+            },
+          },
+        ])
+
+        persistence = await createWorkspaceStorePersistence()
+
+        const migratedAcme = await persistence.workspace.getItem({ teamSlug: 'local', slug: 'api' })
+        expect(migratedAcme?.workspace.meta).toEqual({
+          'x-scalar-color-mode': 'dark',
+          'x-scalar-theme': 'moon',
+        })
+        expect(migratedAcme?.workspace.meta).not.toHaveProperty('x-scalar-tabs')
+        expect(migratedAcme?.workspace.meta).not.toHaveProperty('x-scalar-active-tab')
+
+        // Local workspaces keep their id but their stale tab paths still need
+        // to be scrubbed because slugs from a different team may have collided
+        // and shifted the routing layout.
+        const migratedLocal = await persistence.workspace.getItem({ teamSlug: 'local', slug: 'personal' })
+        expect(migratedLocal?.workspace.meta).toEqual({ 'x-scalar-color-mode': 'light' })
+      } finally {
+        await cleanup(persistence)
+      }
+    })
+
     it('drops teamUid and namespace fields, keeping only teamSlug and slug', async () => {
       let persistence: Awaited<ReturnType<typeof createWorkspaceStorePersistence>> | undefined
       try {

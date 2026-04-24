@@ -290,13 +290,7 @@ export const createAppState = async ({
   /**
    * Creates a client-side workspace store with persistence enabled for the given workspace id.
    */
-  const createClientStore = async ({
-    teamSlug,
-    slug,
-  }: {
-    teamSlug: string
-    slug: string
-  }): Promise<WorkspaceStore> => {
+  const createClientStore = async ({ teamSlug, slug }: { teamSlug: string; slug: string }): Promise<WorkspaceStore> => {
     return createWorkspaceStore({
       plugins: [
         await persistencePlugin({
@@ -423,15 +417,7 @@ export const createAppState = async ({
    *   await createWorkspace({ name: 'My Awesome API' })
    *   // -> Navigates to /workspace/my-awesome-api (if available)
    */
-  const createWorkspace = async ({
-    teamSlug,
-    slug,
-    name,
-  }: {
-    teamSlug?: string
-    slug?: string
-    name: string
-  }) => {
+  const createWorkspace = async ({ teamSlug, slug, name }: { teamSlug?: string; slug?: string; name: string }) => {
     // Clear up the current store, in order to show the loading state
     store.value = null
 
@@ -563,9 +549,14 @@ export const createAppState = async ({
 
     // Check if the new team slug is accessible to the current workspace.
     if (workspace && canLoadWorkspace(workspace.teamSlug, value)) {
+      console.log('can load the workspace')
+      console.log({ workspace, value, teamSlug })
       return
     }
 
+    // Can not load the workspace, redirect to the default workspace.
+    console.log({ workspace, value, teamSlug })
+    // When the user is on a workspace on another team or the workspace is not accessible, redirect to the default workspace.
     return navigateToWorkspace('local', 'default')
   }
 
@@ -914,6 +905,8 @@ export const createAppState = async ({
 
     // If the workspace exists but is not accessible by the current team, redirect to the default workspace.
     if (workspace && !canLoadWorkspace(workspace.teamSlug, teamSlug.value)) {
+      console.log('can not load the workspace')
+      console.log({ workspace, teamSlug: teamSlug.value, nextTeamSlug })
       return navigateToWorkspace('local', 'default')
     }
 
