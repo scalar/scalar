@@ -1,6 +1,6 @@
 import { disableConsoleError, disableConsoleWarn } from '@scalar/helpers/testing/console-spies'
 import { mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
@@ -108,5 +108,37 @@ describe('SecurityRequirementBadge', () => {
     expect(text).not.toContain('one of:')
     expect(text).not.toContain('all of:')
     wrapper.unmount()
+  })
+
+  it('does not bubble clicks to an enclosing click handler (e.g. DisclosureButton)', async () => {
+    disableConsoleError()
+    disableConsoleWarn()
+
+    // Create an enclosing element with a click listener to simulate the accordion's DisclosureButton.
+    const enclosing = document.createElement('div')
+    const enclosingClick = vi.fn()
+    enclosing.addEventListener('click', enclosingClick)
+    document.body.appendChild(enclosing)
+
+    const wrapper = mount(SecurityRequirementBadge, {
+      props: { requiredSecurity: requiredAndGroup },
+      attachTo: enclosing,
+    })
+
+    const button = wrapper.find<HTMLButtonElement>('.security-requirement-badge')
+    expect(button.exists()).toBe(true)
+    // Sanity: the button is inside the enclosing element in the DOM tree.
+    expect(enclosing.contains(button.element)).toBe(true)
+
+    await button.trigger('click')
+    await nextTick()
+
+    expect(enclosingClick).not.toHaveBeenCalled()
+
+    // Popover content still renders — confirms stopPropagation did not swallow Headless UI's handler.
+    expect(document.body.textContent).toContain('Requires')
+
+    wrapper.unmount()
+    enclosing.remove()
   })
 })

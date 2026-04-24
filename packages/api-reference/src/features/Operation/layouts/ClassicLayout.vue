@@ -156,11 +156,9 @@ const { copyToClipboard } = useClipboard()
     </template>
     <template #actions="{ active }">
       <!-- Required auth indicator -->
-      <span class="mr-2">
-        <SecurityRequirementBadge
-          hideLabel
-          :requiredSecurity />
-      </span>
+      <SecurityRequirementBadge
+        hideLabel
+        :requiredSecurity />
       <!-- x-badges after -->
       <XBadges
         :badges="operation['x-badges']"

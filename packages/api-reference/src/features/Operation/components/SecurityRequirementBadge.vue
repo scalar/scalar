@@ -50,7 +50,8 @@ const isOrAlternatives = computed(
           ? 'text-c-2'
           : 'text-c-1 font-medium'
       "
-      type="button">
+      type="button"
+      @click.stop>
       <ScalarIconLockSimple
         v-if="requiredSecurity.state === 'required'"
         class="size-3"
