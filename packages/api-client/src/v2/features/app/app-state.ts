@@ -440,9 +440,7 @@ export const createAppState = async ({
     if (teamSlug && teamSlug !== 'local') {
       const existing = workspaces.value.find((w) => w.teamSlug === teamSlug)
       if (existing) {
-        console.warn(
-          `A workspace already exists for team "${teamSlug}". Navigating to the existing workspace instead.`,
-        )
+        console.warn(`A workspace already exists for team "${teamSlug}". Navigating to the existing workspace instead.`)
         await navigateToWorkspace(existing.teamSlug, existing.slug)
         return { teamSlug: existing.teamSlug, slug: existing.slug, name: existing.label }
       }
@@ -952,8 +950,7 @@ export const createAppState = async ({
       // or are being redirected on login), create it on demand before letting
       // the workspace switcher take over. Otherwise `changeWorkspace` would
       // fall back to the local default and silently swallow the navigation.
-      const isUnknownTeamWorkspace =
-        nextTeamSlug !== 'local' && nextTeamSlug === teamSlug.value && !workspace
+      const isUnknownTeamWorkspace = nextTeamSlug !== 'local' && nextTeamSlug === teamSlug.value && !workspace
       if (isUnknownTeamWorkspace) {
         return createWorkspace({
           teamSlug: nextTeamSlug,

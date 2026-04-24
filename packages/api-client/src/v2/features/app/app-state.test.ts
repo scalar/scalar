@@ -194,9 +194,7 @@ describe('app-state', () => {
 
     await vi.waitFor(() => {
       expect(
-        appState.workspace.workspaceList.value.some(
-          (w) => w.teamSlug === 'autocreate-team' && w.slug === 'default',
-        ),
+        appState.workspace.workspaceList.value.some((w) => w.teamSlug === 'autocreate-team' && w.slug === 'default'),
       ).toBe(true)
     })
     expect(router.currentRoute.value.params.teamSlug).toBe('autocreate-team')

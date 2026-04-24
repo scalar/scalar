@@ -814,7 +814,10 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
         },
       )
 
-      const result = await persistence.workspace.updateName({ teamSlug: 'team-1', slug: 'workspace-1' }, 'Renamed Workspace')
+      const result = await persistence.workspace.updateName(
+        { teamSlug: 'team-1', slug: 'workspace-1' },
+        'Renamed Workspace',
+      )
 
       expect(result).toBeDefined()
       expect(result?.name).toBe('Renamed Workspace')
@@ -848,10 +851,7 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
         },
       )
 
-      const result = await persistence.workspace.updateName(
-        { teamSlug: 'team-1', slug: 'api-workspace' },
-        'New Name',
-      )
+      const result = await persistence.workspace.updateName({ teamSlug: 'team-1', slug: 'api-workspace' }, 'New Name')
 
       expect(result?.name).toBe('New Name')
       expect(result?.teamSlug).toBe('team-1')

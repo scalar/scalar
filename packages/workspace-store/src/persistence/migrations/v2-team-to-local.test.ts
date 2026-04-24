@@ -25,9 +25,7 @@ describe('v2-team-to-local', () => {
 
   describe('planWorkspaceMigration', () => {
     it('keeps local workspaces under the local team', () => {
-      const plan = planWorkspaceMigration([
-        { name: 'Local One', namespace: 'local', slug: 'one', teamUid: 'local' },
-      ])
+      const plan = planWorkspaceMigration([{ name: 'Local One', namespace: 'local', slug: 'one', teamUid: 'local' }])
 
       expect(plan).toEqual([
         {

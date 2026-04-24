@@ -16,8 +16,8 @@ import {
 } from '@scalar/components'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
-import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import { getWorkspaceId } from '@scalar/workspace-store/persistence'
+import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import { computed, onBeforeUnmount, toValue, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
