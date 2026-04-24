@@ -36,7 +36,7 @@ import {
   restoreOriginalRefs,
   syncPathParameters,
 } from '@/plugins/bundler'
-import type { AsyncApiDocument } from '@/schemas/asyncapi/asyncapi-document'
+import { type AsyncApiDocument, AsyncApiDocumentSchema } from '@/schemas/asyncapi/asyncapi-document'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
@@ -903,6 +903,18 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         extraDocumentConfigurations[name] = { fetch: input.fetch }
       }
     })
+
+    // Sanity-check the doc against the minimal AsyncAPI schema. The discriminator only verified
+    // `asyncapi` is a string; this catches missing/misshapen `info` so we can surface a useful path
+    // instead of silently storing a broken doc. Log-only — mirrors how the OpenAPI branch behaves.
+    const isValid = Value.Check(AsyncApiDocumentSchema, input.document)
+    if (!isValid) {
+      const errors = Array.from(Value.Errors(AsyncApiDocumentSchema, input.document))
+      console.warn(
+        'AsyncAPI document validation errors:',
+        errors.map((e) => ({ path: e.path, message: e.message })),
+      )
+    }
 
     workspace.documents[name] = createMagicProxy({ ...clonedRawInputDocument, ...meta }) as AsyncApiDocument
   }
