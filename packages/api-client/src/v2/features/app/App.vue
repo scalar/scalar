@@ -222,7 +222,13 @@ const routerViewProps = computed<RouteProps>(() => {
           v-model="app.sidebar.isOpen.value"
           class="absolute z-60 md:hidden"
           :class="layout === 'desktop' ? 'top-14 left-4' : 'top-4 left-4'" />
-        <AppHeader>
+        <AppHeader
+          @navigate:to:settings="
+            app.eventBus.emit('ui:navigate', {
+              page: 'workspace',
+              path: 'settings',
+            })
+          ">
           <template #menuItems>
             <slot name="header-menu-items">
               <ScalarMenuWorkspacePicker
