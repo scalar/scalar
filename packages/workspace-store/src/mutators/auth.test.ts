@@ -688,6 +688,8 @@ describe('updateSelectedScopes', () => {
                   'read:data': 'Read data',
                   'write:data': 'Write data',
                 },
+                'x-usePkce': 'no',
+                'x-scalar-credentials-location': 'header',
               },
             },
           },
