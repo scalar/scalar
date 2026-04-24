@@ -273,6 +273,8 @@ const emitPathMethodUpdate = (
         if (normalizedPath !== path) {
           pathConflict.value = normalizedPath
         }
+
+        return
       }
 
       // Edge case: pasting a full URL extracts the server but leaves the path

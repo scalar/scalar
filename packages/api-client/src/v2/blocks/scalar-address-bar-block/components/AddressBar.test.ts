@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import type { ClientLayout } from '@/v2/types/layout'
+import { refocusBlurTarget } from '@/v2/blocks/scalar-address-bar-block/helpers/refocus-blur-target'
 
 import AddressBar, { type AddressBarProps } from './AddressBar.vue'
 
@@ -17,6 +18,10 @@ vi.mock('vue', async () => {
     useId: () => 'address-bar-test-id',
   }
 })
+
+vi.mock('@/v2/blocks/scalar-address-bar-block/helpers/refocus-blur-target', () => ({
+  refocusBlurTarget: vi.fn(),
+}))
 
 describe('AddressBar', () => {
   const baseEnvironment = {
@@ -374,6 +379,154 @@ describe('AddressBar', () => {
     })
   })
 
+  describe('handlePathSubmit', () => {
+    it('uses the pasted URL path — not the current path prop — when a full URL is submitted via Enter', async () => {
+      const { wrapper, eventBus } = mountWithProps({
+        path: '/',
+        method: 'get',
+        servers: [baseServer],
+        server: baseServer,
+      })
+
+      const emitSpy = vi.spyOn(eventBus, 'emit')
+
+      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const submitEvent = new KeyboardEvent('keydown', { key: 'Enter' })
+
+      /**
+       * Simulate the user pasting a full URL into the address bar and pressing Enter.
+       * The submit event carries the editor's current text content (the pasted URL),
+       * not the `path` prop value ('/').
+       */
+      await codeInput.vm.$emit('submit', 'https://api.example.com/v2/users', submitEvent)
+      await nextTick()
+
+      /**
+       * The server portion should be extracted and the remaining path (/v2/users)
+       * sent as the payload — NOT the original path prop ('/').
+       */
+      expect(emitSpy).toHaveBeenCalledWith(
+        'operation:update:pathMethod',
+        expect.objectContaining({
+          blurTargetSelector: '[data-addressbar-action="send"]',
+          payload: { method: 'get', path: '/v2/users' },
+        }),
+      )
+    })
+
+    it('keeps a pasted URL when the deferred placeholder mask runs before Enter', async () => {
+      const animationFrameCallbacks: FrameRequestCallback[] = []
+      const requestAnimationFrameSpy = vi
+        .spyOn(globalThis, 'requestAnimationFrame')
+        .mockImplementation((callback) => {
+          animationFrameCallbacks.push(callback)
+          return animationFrameCallbacks.length
+        })
+
+      const { wrapper, eventBus } = mountWithProps({
+        path: '/',
+        method: 'get',
+        servers: [baseServer],
+        server: baseServer,
+      })
+
+      try {
+        await nextTick()
+
+        const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+        const pastedUrl = 'https://api.example.com/v2/users'
+        codeInput.vm.setCodeMirrorContent(pastedUrl)
+
+        for (const callback of animationFrameCallbacks) {
+          callback(performance.now())
+        }
+
+        expect(codeInput.vm.codeMirror.state.doc.toString()).toBe(pastedUrl)
+
+        const emitSpy = vi.spyOn(eventBus, 'emit')
+        const submitEvent = new KeyboardEvent('keydown', { key: 'Enter' })
+        await codeInput.vm.$emit('submit', pastedUrl, submitEvent)
+        await nextTick()
+
+        expect(emitSpy).toHaveBeenCalledWith(
+          'operation:update:pathMethod',
+          expect.objectContaining({
+            blurTargetSelector: '[data-addressbar-action="send"]',
+            payload: { method: 'get', path: '/v2/users' },
+          }),
+        )
+      } finally {
+        requestAnimationFrameSpy.mockRestore()
+      }
+    })
+
+    it('submits the empty masked path instead of the CodeMirror placeholder on Enter', async () => {
+      const animationFrameCallbacks: FrameRequestCallback[] = []
+      const requestAnimationFrameSpy = vi
+        .spyOn(globalThis, 'requestAnimationFrame')
+        .mockImplementation((callback) => {
+          animationFrameCallbacks.push(callback)
+          return animationFrameCallbacks.length
+        })
+      const originalGetClientRects = Range.prototype.getClientRects
+      Object.defineProperty(Range.prototype, 'getClientRects', {
+        configurable: true,
+        value: () =>
+          ({
+            length: 0,
+            item: () => null,
+            [Symbol.iterator]: () => [][Symbol.iterator](),
+          }) as DOMRectList,
+      })
+
+      const { wrapper, eventBus } = mountWithProps({
+        path: '/',
+        method: 'get',
+        documentSlug: 'drafts',
+        server: null,
+        servers: [],
+      })
+
+      try {
+        await nextTick()
+
+        for (const callback of animationFrameCallbacks) {
+          callback(performance.now())
+        }
+
+        await nextTick()
+
+        const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+        expect(codeInput.vm.codeMirror.state.doc.toString()).toBe('')
+        const editorContent = codeInput.find('.cm-content')
+        editorContent.element.append('Enter a URL')
+        expect(editorContent.text()).toBe('Enter a URL')
+
+        const emitSpy = vi.spyOn(eventBus, 'emit')
+        await editorContent.trigger('keydown.enter')
+        await nextTick()
+
+        expect(emitSpy).toHaveBeenCalledWith(
+          'operation:update:pathMethod',
+          expect.objectContaining({
+            blurTargetSelector: '[data-addressbar-action="send"]',
+            payload: { method: 'get', path: '/' },
+          }),
+        )
+      } finally {
+        requestAnimationFrameSpy.mockRestore()
+        if (originalGetClientRects) {
+          Object.defineProperty(Range.prototype, 'getClientRects', {
+            configurable: true,
+            value: originalGetClientRects,
+          })
+        } else {
+          delete (Range.prototype as Partial<Range>).getClientRects
+        }
+      }
+    })
+  })
+
   describe('handleMethodChange', () => {
     it('emits operation:update:pathMethod with new method and current path', async () => {
       const { wrapper, eventBus } = mountWithProps({
@@ -563,6 +716,33 @@ describe('AddressBar', () => {
       )
 
       cleanup()
+    })
+
+    it('does not refocus the blur target when the update conflicts', async () => {
+      const { wrapper, eventBus } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+      })
+
+      const { event, sendEl, cleanup } = makeSendBlurEvent()
+
+      vi.spyOn(eventBus, 'emit').mockImplementation((eventName, _payload) => {
+        const payload = _payload as ApiReferenceEvents['operation:update:pathMethod']
+        if (eventName === 'operation:update:pathMethod' && payload?.callback) {
+          payload.callback('conflict', getSelector(sendEl))
+        }
+        return eventBus
+      })
+
+      try {
+        const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+        await codeInput.vm.$emit('blur', '/api/new-path', event)
+        await nextTick()
+
+        expect(refocusBlurTarget).not.toHaveBeenCalled()
+      } finally {
+        cleanup()
+      }
     })
 
     it('uses methodConflict as method when a method conflict is active', async () => {
