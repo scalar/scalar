@@ -85,13 +85,13 @@ describe('generateUniqueSlug', () => {
     expect(result).toBe('my-api-name')
   })
 
-  it('handles titles with leading and trailing spaces', async () => {
+  it('trims leading and trailing whitespace before slugifying', async () => {
     const existingDocuments = new Set<string>()
 
     const result = await generateUniqueSlug('  My API  ', existingDocuments)
 
-    // Leading/trailing spaces are treated as single whitespace groups
-    expect(result).toBe('-my-api-')
+    // Leading/trailing whitespace is trimmed so it does not become hyphens
+    expect(result).toBe('my-api')
   })
 
   it('returns undefined when max retries are exceeded', async () => {

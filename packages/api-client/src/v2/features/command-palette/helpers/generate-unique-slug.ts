@@ -21,7 +21,7 @@ import { slugify } from '@/v2/helpers/slugify'
  * @returns Promise resolving to a unique slug, or null if unable to generate one
  */
 export const generateUniqueSlug = async (defaultValue: string | undefined, currentDocuments: Set<string>) => {
-  const base = defaultValue?.trim() ? defaultValue : 'default'
+  const base = defaultValue?.trim() || 'default'
 
   return await generateUniqueValue({
     defaultValue: base,
