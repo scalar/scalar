@@ -1,6 +1,8 @@
-import type { Heading, Node, PhrasingContent, Root, RootContent } from 'mdast'
+import type { Element as HastElement, ElementContent as HastElementContent, Root as HastRoot } from 'hast'
+import type { Heading, Node, PhrasingContent, Root as MdastRoot, RootContent as MdastRootContent } from 'mdast'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
+import rehypeParse from 'rehype-parse'
 import rehypeRaw from 'rehype-raw'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import rehypeStringify from 'rehype-stringify'
@@ -48,6 +50,82 @@ const transformNodes =
     return
   }
 
+const TAGS_WITH_INLINE_MARKDOWN = new Set(['dd', 'dt', 'li', 'p', 'summary', 'td', 'th'])
+const MAY_CONTAIN_INLINE_MARKDOWN = /[`*_\[~]/
+
+/**
+ * Preserve HTML-like text in inline markdown by turning mdast `html` nodes into text nodes.
+ */
+const preserveHtmlLikeText = () => (tree: MdastRoot) => {
+  visit(tree, 'html', (node, index, parent) => {
+    if (typeof index !== 'number' || !parent || !('children' in parent) || !Array.isArray(parent.children)) {
+      return
+    }
+
+    parent.children[index] = {
+      type: 'text',
+      value: node.value ?? '',
+    } as MdastRootContent
+  })
+}
+
+const inlineMarkdownProcessor = unified().use(remarkParse).use(remarkGfm).use(preserveHtmlLikeText).use(remarkRehype)
+const htmlFragmentParser = unified().use(rehypeParse, { fragment: true })
+const htmlFragmentStringifier = unified().use(rehypeStringify)
+
+/**
+ * Parse inline markdown and return children from the generated paragraph.
+ */
+const extractInlineChildrenFromMarkdown = (value: string): HastElementContent[] => {
+  const tree = inlineMarkdownProcessor.runSync(inlineMarkdownProcessor.parse(value)) as HastRoot
+
+  if (tree.children.length !== 1) {
+    return []
+  }
+
+  const paragraph = tree.children.at(0)
+  if (!paragraph || paragraph.type !== 'element' || paragraph.tagName !== 'p') {
+    return []
+  }
+
+  return paragraph.children
+}
+
+/**
+ * Re-parses text nodes in selected HTML tags so inline markdown works in tags like <p>.
+ */
+const transformInlineMarkdownInHtml = () => (tree: HastRoot) => {
+  visit(tree, 'element', (node: HastElement) => {
+    if (!TAGS_WITH_INLINE_MARKDOWN.has(node.tagName)) {
+      return
+    }
+
+    node.children = node.children.flatMap((child) => {
+      if (child.type !== 'text' || !MAY_CONTAIN_INLINE_MARKDOWN.test(child.value)) {
+        return [child]
+      }
+
+      const markdownChildren = extractInlineChildrenFromMarkdown(child.value)
+      return markdownChildren.length ? markdownChildren : [child]
+    })
+  })
+}
+
+/**
+ * Rewrites raw HTML strings so inline markdown parsing is only applied to raw HTML input.
+ */
+const transformInlineMarkdownInRawHtml = () => (tree: HastRoot) => {
+  visit(tree, 'raw', (node) => {
+    if (typeof node.value !== 'string' || !MAY_CONTAIN_INLINE_MARKDOWN.test(node.value)) {
+      return
+    }
+
+    const htmlFragmentTree = htmlFragmentParser.parse(node.value) as HastRoot
+    transformInlineMarkdownInHtml()(htmlFragmentTree)
+    node.value = htmlFragmentStringifier.stringify(htmlFragmentTree)
+  })
+}
+
 /**
  * Take a Markdown string and generate HTML from it
  */
@@ -79,7 +157,9 @@ export function htmlFromMarkdown(
     .use(remarkRehype, { allowDangerousHtml: true })
     // Adds GitHub alerts
     .use(rehypeAlert)
-    // Creates a HTML AST
+    // Parse inline markdown only inside raw HTML fragments, not normal markdown output
+    .use(transformInlineMarkdownInRawHtml)
+    // Creates an HTML AST
     .use(rehypeRaw)
     // Removes disallowed tags
     .use(rehypeSanitize, {
@@ -118,7 +198,7 @@ export function htmlFromMarkdown(
 /**
  * Create a Markdown AST from a string.
  */
-function getMarkdownAst(markdown: string): Root {
+function getMarkdownAst(markdown: string): MdastRoot {
   return unified().use(remarkParse).use(remarkGfm).parse(markdown)
 }
 
@@ -174,10 +254,10 @@ export function splitContent(markdown: string) {
   const tree = getMarkdownAst(markdown)
 
   /** Sections */
-  const sections: RootContent[][] = []
+  const sections: MdastRootContent[][] = []
 
   /** Nodes inside a section */
-  let nodes: RootContent[] = []
+  let nodes: MdastRootContent[] = []
 
   tree.children?.forEach((node) => {
     // If the node is a heading, start a new section
@@ -207,7 +287,7 @@ export function splitContent(markdown: string) {
 /**
  * Use remark to create a Markdown document from a list of nodes.
  */
-function createDocument(nodes: RootContent[]) {
+function createDocument(nodes: MdastRootContent[]) {
   // Create the Markdown string
   const markdown = unified().use(remarkStringify).use(remarkGfm).stringify({
     type: 'root',
