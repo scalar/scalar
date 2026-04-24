@@ -41,7 +41,7 @@ export const loadRegistryDocument = async ({
   const schema = object({ info: object({ title: string() }) })
   const baseName = coerce(schema, result.data).info.title
 
-  const documentName = await generateUniqueSlug(baseName, new Set(Object.keys(documents)))
+  const documentName = await generateUniqueSlug(baseName.trim() || slug, new Set(Object.keys(documents)))
 
   if (!documentName) {
     return {

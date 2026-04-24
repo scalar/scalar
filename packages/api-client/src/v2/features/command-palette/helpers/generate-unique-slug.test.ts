@@ -43,29 +43,28 @@ describe('generateUniqueSlug', () => {
     expect(result).toBe('hello-world-api')
   })
 
-  it('handles empty string by transforming to empty and incrementing if needed $1', async () => {
+  it('falls back to "default" when defaultValue is an empty string', async () => {
     const existingDocuments = new Set<string>()
 
     const result = await generateUniqueSlug('', existingDocuments)
 
-    expect(result).toBe('')
+    expect(result).toBe('default')
   })
 
-  it('handles empty string by transforming to empty and incrementing if needed #2', async () => {
-    const existingDocuments = new Set<string>([''])
+  it('falls back to "default" when defaultValue is only whitespace', async () => {
+    const existingDocuments = new Set<string>()
+
+    const result = await generateUniqueSlug('   \t\n', existingDocuments)
+
+    expect(result).toBe('default')
+  })
+
+  it('increments the "default" fallback on collision with an empty string input', async () => {
+    const existingDocuments = new Set<string>(['default'])
 
     const result = await generateUniqueSlug('', existingDocuments)
 
-    expect(result).toBe('-1')
-  })
-
-  it('handles empty string with collision', async () => {
-    const existingDocuments = new Set<string>([''])
-
-    const result = await generateUniqueSlug('', existingDocuments)
-
-    // The slugify function keeps empty strings, so it becomes ' 1' then slugified to '-1'
-    expect(result).toBe('-1')
+    expect(result).toBe('default-1')
   })
 
   it('handles special characters in titles', async () => {
