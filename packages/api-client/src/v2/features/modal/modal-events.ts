@@ -2,6 +2,7 @@ import type { ModalState } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { type Ref, ref } from 'vue'
 
 import type { UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
@@ -79,9 +80,10 @@ export function initializeModalEvents({
     }
     // We must find the ID first from the entries
     else if ('method' in payload && 'path' in payload) {
+      const activeDoc = store.workspace.activeDocument
       sidebarState.handleSelectItem(
         sidebarState.getEntryByLocation({
-          document: store.workspace.activeDocument?.['x-scalar-navigation']?.id ?? '',
+          document: isOpenApiDocument(activeDoc) ? (activeDoc['x-scalar-navigation']?.id ?? '') : '',
           path: payload.path,
           method: payload.method,
           example: payload.exampleName,

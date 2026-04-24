@@ -16,6 +16,7 @@ import type { ConvertOptions } from '@scalar/postman-to-openapi'
 import { useToasts } from '@scalar/use-toasts'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, watch } from 'vue'
 
@@ -68,7 +69,8 @@ watch(importTargetDocumentName, async (value) => {
     baseDocument.value = null
     return
   }
-  baseDocument.value = await workspaceStore.getEditableDocument(value.slug)
+  const editable = await workspaceStore.getEditableDocument(value.slug)
+  baseDocument.value = isOpenApiDocument(editable) ? editable : null
 })
 
 const mergeSamePathAndMethod = ref(false)

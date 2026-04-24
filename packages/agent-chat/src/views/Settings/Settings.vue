@@ -6,6 +6,7 @@ import {
   type ModalState,
 } from '@scalar/components'
 import { ScalarIconCaretDown, ScalarIconCaretRight } from '@scalar/icons'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 
 import { URLS } from '@/consts/urls'
 import { useState } from '@/state/state'
@@ -52,7 +53,11 @@ function selectDocument(name: string) {
               v-if="workspaceStore.workspace.activeDocument === document" />
             <ScalarIconCaretRight v-else />
           </button>
-          <div v-if="workspaceStore.workspace.activeDocument === document">
+          <div
+            v-if="
+              workspaceStore.workspace.activeDocument === document &&
+              isOpenApiDocument(document)
+            ">
             <DocSettings
               :document
               :name />

@@ -12,9 +12,9 @@ import {
   getServers,
   mergeSecurity,
 } from '@scalar/workspace-store/request-example'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 export function getOperations(doc: Partial<OpenAPIV3_1.Document>) {
   return Object.values(doc.paths ?? {}).flatMap((path) => Object.values(path ?? {})) as OperationObject[]
@@ -23,7 +23,7 @@ export function getOperations(doc: Partial<OpenAPIV3_1.Document>) {
 /** Flattens all security requirements from a document */
 function getSecurityFromDocument(
   documentName: string,
-  document: WorkspaceDocument,
+  document: OpenApiDocument,
   authStore: AuthStore,
 ): SecuritySchemeObjectSecret[] {
   const mergedSecurity = mergeSecurity(document?.components?.securitySchemes, {}, authStore, documentName)
@@ -42,22 +42,24 @@ function getSecurityFromDocument(
   return getSecuritySchemes(mergedSecurity, selectedSecurity.selectedSchemes[selectedSecurity.selectedIndex] ?? {})
 }
 
-/** Generate document settings from workspace store */
+/** Generate document settings from workspace store. AsyncAPI docs are skipped — this feature is OpenAPI-native. */
 export function createDocumentSettings(workspaceStore: WorkspaceStore) {
   return Object.fromEntries(
-    Object.entries(workspaceStore.workspace.documents).map(([key, document]) => {
-      const servers = getServers(document.servers, {
-        documentUrl: document?.['x-scalar-original-source-url'],
-      })
+    Object.entries(workspaceStore.workspace.documents)
+      .filter((entry): entry is [string, OpenApiDocument] => isOpenApiDocument(entry[1]))
+      .map(([key, document]) => {
+        const servers = getServers(document.servers, {
+          documentUrl: document['x-scalar-original-source-url'],
+        })
 
-      return [
-        key,
-        {
-          activeServer: getSelectedServer(document, null, null, servers),
-          securitySchemes: getSecurityFromDocument(key, document, workspaceStore.auth),
-        },
-      ]
-    }),
+        return [
+          key,
+          {
+            activeServer: getSelectedServer(document, null, null, servers),
+            securitySchemes: getSecurityFromDocument(key, document, workspaceStore.auth),
+          },
+        ]
+      }),
   )
 }
 

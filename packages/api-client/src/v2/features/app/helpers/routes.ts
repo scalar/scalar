@@ -5,7 +5,7 @@ import type { Theme } from '@scalar/themes'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { MaybeRefOrGetter } from 'vue'
 import type { RouteRecordRaw } from 'vue-router'
 
@@ -32,7 +32,7 @@ export type RouteProps = {
   /** The slug of the currently selected document in the workspace */
   documentSlug: string
   /** The currently active document */
-  document: WorkspaceDocument | null
+  document: OpenApiDocument | null
   /** The workspace event bus */
   eventBus: WorkspaceEventBus
   /** The layout of the client */
@@ -75,7 +75,7 @@ export type CollectionProps = RouteProps &
   (
     | {
         collectionType: 'document' | 'operation'
-        document: WorkspaceDocument
+        document: OpenApiDocument
       }
     | {
         collectionType: 'workspace'
