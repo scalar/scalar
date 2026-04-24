@@ -58,6 +58,7 @@ const authedScalar = new Scalar({
 ## Notes
 
 - The exchange request itself can be made from a client constructed with no arguments (`new Scalar()`).
+- The exchanged access token is valid for 12 hours.
 - Timestamps are Unix seconds.
 
 ## Read more
