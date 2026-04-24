@@ -22,6 +22,7 @@
     "documentation/assets/posthog.js",
     "documentation/assets/apollo.js",
     "documentation/assets/vector.js",
+    "documentation/assets/brand.js",
     "documentation/assets/enterprise-contact-form.js",
     // Generated Docusaurus build directory
     "integrations/docusaurus/playground/.docusaurus/**"
