@@ -17,8 +17,10 @@ export type HeaderProps = {
   hideClientButton?: boolean
   /** Client integration  */
   integration?: string | null
-  /** Openapi document */
-  document: OpenApiDocument
+  /** Openapi document slug */
+  documentSlug: string
+  /** Currently selected example key for the current operation */
+  exampleKey: string
   /** Openapi document url for `modal` mode to open the client app */
   documentUrl?: string
   /** Client source */
@@ -50,10 +52,7 @@ import type {
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type {
-  OpenApiDocument,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { AddressBar, type History } from '@/v2/blocks/scalar-address-bar-block'
 import EnvironmentSelector from '@/v2/blocks/scalar-address-bar-block/components/EnvironmentSelector.vue'
@@ -64,7 +63,8 @@ import OpenApiClientButton from './OpenApiClientButton.vue'
 const {
   hideClientButton = false,
   eventBus,
-  document,
+  exampleKey,
+  documentSlug,
 } = defineProps<HeaderProps>()
 
 const emit = defineEmits<{
@@ -99,10 +99,11 @@ const handleAddEnvironment = () => {
     </div>
     <AddressBar
       :activeEnvironment
-      :document
+      :documentSlug
       :environment
       :environments
       :eventBus
+      :exampleKey
       :history
       :layout
       :method

@@ -140,6 +140,7 @@ const httpClients = computed(() =>
       :document
       :documentCookies
       :documentSecurity="document?.security ?? []"
+      :documentSlug
       :documentUrl="document?.['x-scalar-original-source-url']"
       :environment
       :environments

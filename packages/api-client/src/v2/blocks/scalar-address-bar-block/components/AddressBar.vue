@@ -12,8 +12,10 @@ export type AddressBarProps = {
   path: string
   /** Current request method */
   method: HttpMethodType
-  /** Openapi document */
-  document: OpenApiDocument
+  /** Openapi document slug */
+  documentSlug: string
+  /** Currently selected example key for the current operation */
+  exampleKey: string
   /** Currently selected server */
   server: ServerObject | null
   /** Server list available for operation/document */
@@ -54,12 +56,10 @@ import {
   getResolvedUrl,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type {
-  OpenApiDocument,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import {
   computed,
+  nextTick,
   onBeforeUnmount,
   onMounted,
   ref,
@@ -69,6 +69,7 @@ import {
 } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
+import { getOperationExampleKey } from '@/v2/blocks/operation-block/helpers/response-cache'
 import { useLoadingAnimation } from '@/v2/blocks/scalar-address-bar-block/hooks/use-loading-animation'
 import { CodeInput } from '@/v2/components/code-input'
 import { ServerDropdown } from '@/v2/components/server'
@@ -81,8 +82,9 @@ const {
   method,
   layout,
   eventBus,
+  exampleKey,
   history,
-  document: openapiDocument,
+  documentSlug,
   server,
   servers,
   environment,
@@ -117,14 +119,16 @@ const methodConflict = ref<HttpMethodType | null>(null)
 /** Whether there is a path or method conflict */
 const hasConflict = computed(() => methodConflict.value || pathConflict.value)
 
-/** Clear conflict state when switching to a different operation */
-watch(
-  () => [path, method],
-  () => {
-    pathConflict.value = null
-    methodConflict.value = null
-  },
+/** Detect if we have changed to a different example */
+const uniqueKey = computed(() =>
+  getOperationExampleKey(method, path, exampleKey, documentSlug),
 )
+
+/** Clear conflict state when switching to a different operation */
+watch(uniqueKey, () => {
+  pathConflict.value = null
+  methodConflict.value = null
+})
 
 /** Check if the path contains a server URL, extract it, and select or add the server */
 const checkForServer = (targetPath: string) => {
@@ -176,6 +180,15 @@ const emitPathMethodUpdate = (
 
   // Update the local state of codemirror so we don't have werid path on conflict
   addressBarRef.value?.setCodeMirrorContent(normalizedPath)
+
+  // The `uniqueKey` watch runs masking when path/method changes. A local edit
+  // here shouldn't re-focus the address bar (the user may have clicked
+  // elsewhere), so skip the next mask trigger. Reset in `nextTick` to cover
+  // the `no-change` case where the watch never fires.
+  skipNextMask.value = true
+  nextTick(() => {
+    skipNextMask.value = false
+  })
 
   eventBus.emit('operation:update:pathMethod', {
     meta: { method, path },
@@ -288,15 +301,12 @@ const handleFocusAddressBar = (
 ) => {
   // If it already has focus we just propagate native behavior which should focus the browser address bar
   if (addressBarRef.value?.isFocused && layout !== 'desktop') {
-    console.log('already focused')
     return
   }
 
-  console.log('focusing', addressBarRef.value)
   addressBarRef.value?.focus('end')
 
   if (payload && 'clear' in payload && payload.clear) {
-    console.log('clearing')
     addressBarRef.value?.setCodeMirrorContent('')
   }
 
@@ -305,17 +315,39 @@ const handleFocusAddressBar = (
   }
 }
 
+/**
+ * We use this trick to mask the path when we are on drafts and its / or any of those temp paths used for new operations
+ */
+const handleMaskingPath = () => {
+  // For drafts that are just /
+  if (documentSlug.toLowerCase() === 'drafts' && path === '/') {
+    handleFocusAddressBar({ clear: true })
+  }
+}
+
+/**
+ * Set when the `uniqueKey` change originates from a local edit (blur, submit,
+ * method change) so we can differentiate from sidebar/route-driven changes
+ * and avoid re-focusing the address bar after the user clicked away.
+ */
+const skipNextMask = ref(false)
+
+// For masking on initial load and changing examples/operations via navigation
+watch([() => addressBarRef.value?.codeMirror, uniqueKey], ([codeMirror]) => {
+  if (!codeMirror) return
+  if (skipNextMask.value) {
+    skipNextMask.value = false
+    return
+  }
+  handleMaskingPath()
+})
+
 onMounted(() => {
   eventBus.on('ui:focus:address-bar', handleFocusAddressBar)
   eventBus.on('ui:focus:send-button', handleFocusSendButton)
   eventBus.on('copy-url:address-bar', copyUrl)
   eventBus.on('hooks:on:request:sent', startLoading)
   eventBus.on('hooks:on:request:complete', stopLoading)
-
-  if (openapiDocument.info?.title.toLowerCase() === 'drafts' && path === '/') {
-    console.log('asdhasdkj')
-    handleFocusAddressBar({ clear: true })
-  }
 })
 
 onBeforeUnmount(() => {

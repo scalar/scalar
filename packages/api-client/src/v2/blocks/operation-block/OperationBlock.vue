@@ -23,6 +23,8 @@ export type OperationBlockProps = {
   appVersion: string
   /** Openapi document */
   document: OpenApiDocument
+  /** Openapi document slug */
+  documentSlug: string
   /** Workspace cookies */
   workspaceCookies: XScalarCookie[]
   /** Document cookies */
@@ -151,6 +153,7 @@ const {
   eventBus,
   exampleKey,
   document,
+  documentSlug,
   workspaceCookies = [],
   documentCookies = [],
   hideClientButton,
@@ -444,11 +447,12 @@ onBeforeUnmount(() => {
       <!-- Address Bar -->
       <Header
         :activeEnvironment
-        :document
+        :documentSlug
         :documentUrl
         :environment
         :environments
         :eventBus
+        :exampleKey
         :hideClientButton
         :history="operationHistory"
         :integration
