@@ -335,9 +335,34 @@ export const updateSelectedScopes = (
     return store?.auth.getAuthSelectedSchemas({ type: 'operation', documentName, path: meta.path, method: meta.method })
   }
 
-  const target = getTarget()
+  let target = getTarget()
+
+  // If no selection exists (e.g., when using preferredSecurityScheme), initialize it
   if (!target) {
-    return
+    // Build a security requirement from the id array
+    const initialRequirement: SecurityRequirementObject = {}
+    for (const schemeId of id) {
+      initialRequirement[schemeId] = []
+    }
+
+    // Initialize the selection
+    if (meta.type === 'document') {
+      store?.auth.setAuthSelectedSchemas(
+        { type: 'document', documentName },
+        { selectedIndex: 0, selectedSchemes: [initialRequirement] },
+      )
+    } else {
+      store?.auth.setAuthSelectedSchemas(
+        { type: 'operation', documentName, path: meta.path, method: meta.method },
+        { selectedIndex: 0, selectedSchemes: [initialRequirement] },
+      )
+    }
+
+    // Re-fetch the target after initialization
+    target = getTarget()
+    if (!target) {
+      return
+    }
   }
 
   // Find the security requirement that matches the given id (scheme key names)
