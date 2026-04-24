@@ -129,7 +129,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
           <!-- Webhook badge -->
           <Badge
             v-if="isWebhook"
-            class="text-green flex w-fit items-center justify-center gap-1">
+            class="font-code text-green flex w-fit items-center justify-center gap-1">
             <ScalarIconWebhooksLogo weight="bold" />Webhook
           </Badge>
           <!-- x-badges before -->
@@ -145,9 +145,9 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
             position="after" />
         </div>
       </div>
-      <div class="mb-3 flex flex-row items-center justify-between gap-1">
+      <div class="operation-header">
         <div :class="isOperationDeprecated(operation) && 'deprecated'">
-          <SectionHeader innerClass="mb-0">
+          <SectionHeader removeMargin>
             <Anchor
               @copyAnchorUrl="
                 () => eventBus?.emit('copy-url:nav-item', { id })
@@ -293,5 +293,19 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
 }
 .deprecated * {
   text-decoration: line-through;
+}
+
+.operation-header {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px;
+
+  @media (min-width: 600px) {
+    flex-direction: row;
+    align-items: center;
+  }
 }
 </style>

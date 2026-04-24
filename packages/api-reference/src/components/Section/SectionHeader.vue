@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import LoadingSkeleton from '../LoadingSkeleton.vue'
 
-defineProps<{
+const {
+  loading,
+  tight,
+  removeMargin = false,
+} = defineProps<{
   loading?: boolean
   tight?: boolean
+  removeMargin?: boolean
 }>()
 </script>
 
@@ -13,7 +18,7 @@ defineProps<{
     <div
       v-else
       class="section-header"
-      :class="{ tight }">
+      :class="{ tight, 'mb-3': !removeMargin }">
       <slot />
     </div>
     <slot
@@ -44,7 +49,6 @@ defineProps<{
   word-wrap: break-word;
   line-height: 1.45;
   margin-top: 0;
-  margin-bottom: 12px;
 }
 
 .section-header.tight {
