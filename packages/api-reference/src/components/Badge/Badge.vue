@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { computed, type Component } from 'vue'
+import { computed } from 'vue'
 
-const { is = 'div', color } = defineProps<{
-  is?: Component | string
+const { color } = defineProps<{
   color?: string
 }>()
 
@@ -17,13 +16,11 @@ const badgeStyle = computed(() =>
 </script>
 
 <template>
-  <component
-    :is
+  <div
     class="badge"
-    :style="badgeStyle"
-    :type="is === 'button' ? 'button' : undefined">
+    :style="badgeStyle">
     <slot />
-  </component>
+  </div>
 </template>
 
 <style scoped>
@@ -36,13 +33,6 @@ const badgeStyle = computed(() =>
   padding: 2px 6px;
   border-radius: 12px;
   display: inline-block;
-}
-button.badge:hover {
-  background: color-mix(
-    in srgb,
-    var(--badge-background-color, var(--scalar-background-2)),
-    var(--badge-text-color, var(--scalar-color-2)) 5%
-  );
 }
 .badge.text-orange {
   background: color-mix(in srgb, var(--scalar-color-orange), transparent 90%);
