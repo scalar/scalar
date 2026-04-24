@@ -2371,6 +2371,12 @@
                 "title": "Scalar API",
                 "icon": "phosphor/regular/database",
                 "mode": "nested"
+              },
+              "/api-sdk": {
+                "title": "Scalar API SDK",
+                "description": "Get started with the Scalar API SDK for TypeScript, including authentication token exchange.",
+                "type": "page",
+                "filepath": "documentation/guides/api/getting-started.md"
               }
             }
           },
