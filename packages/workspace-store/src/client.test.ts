@@ -6,8 +6,9 @@ import fastify, { type FastifyInstance } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { type WorkspaceDocumentInput, createWorkspaceStore } from '@/client'
+import { createTag } from '@/mutators/tag'
 import type { AsyncApiDocument } from '@/schemas/asyncapi/asyncapi-document'
-import { isAsyncApiDocument } from '@/schemas/type-guards'
+import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import { createServerWorkspaceStore } from '@/server'
 
@@ -3731,6 +3732,57 @@ describe('asyncapi ingestion', () => {
 
     const doc = store.workspace.documents['default'] as AsyncApiDocument
     expect(doc.info.title).toBe('Streetlights API')
+  })
+
+  it('accepts OpenAPI and AsyncAPI documents in the same workspace', async () => {
+    const store = createWorkspaceStore()
+
+    await store.addDocument({
+      name: 'api',
+      document: { openapi: '3.1.0', info: { title: 'Rest', version: '1.0.0' } },
+    })
+    await store.addDocument({ name: 'events', document: { ...minimalAsyncApi } })
+
+    expect(isOpenApiDocument(store.workspace.documents['api'])).toBe(true)
+    expect(isAsyncApiDocument(store.workspace.documents['events'])).toBe(true)
+  })
+
+  it('createTag no-ops and logs when pointed at an AsyncAPI document', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: 'events', document: { ...minimalAsyncApi } })
+
+    createTag(store, { documentName: 'events', name: 'new-tag' })
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Document not found', expect.any(Object))
+    // Guard must prevent the mutator from touching the doc
+    expect((store.workspace.documents['events'] as AsyncApiDocument & { tags?: unknown }).tags).toBeUndefined()
+  })
+
+  it('rebaseDocument detects NO_CHANGES_DETECTED on an unchanged AsyncAPI doc', async () => {
+    // Serve the same AsyncAPI doc from a URL, load it, then rebase against the same URL. With
+    // both the stored hash and the re-fetched hash identical, rebase must short-circuit with
+    // NO_CHANGES_DETECTED — which is only reachable if the hash check on line ~1479 now reads
+    // the field off the AsyncAPI branch too.
+    const port = 9991
+    const rebaseServer = fastify({ logger: false })
+    rebaseServer.get('/events.json', async () => minimalAsyncApi)
+    await rebaseServer.listen({ port })
+
+    try {
+      const store = createWorkspaceStore()
+      await store.addDocument({ name: 'events', url: `http://localhost:${port}/events.json` })
+
+      const result = await store.rebaseDocument({
+        name: 'events',
+        url: `http://localhost:${port}/events.json`,
+      })
+
+      expect(result.ok).toBe(false)
+      assert(!result.ok)
+      expect(result.type).toBe('NO_CHANGES_DETECTED')
+    } finally {
+      await rebaseServer.close()
+    }
   })
 })
 
