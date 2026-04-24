@@ -180,4 +180,55 @@ describe('groupWorkspacesByTeam', () => {
       },
     ])
   })
+
+  it('adds a placeholder option when the current team has no workspaces and a placeholder is provided', () => {
+    const workspaces: WorkspaceItem[] = [{ id: '1', label: 'Local Workspace', teamSlug: 'local' }]
+
+    const result = groupWorkspacesByTeam(workspaces, 'team-123', {
+      placeholder: { slug: 'default', label: 'Workspace' },
+    })
+
+    expect(result).toEqual([
+      {
+        label: 'Team Workspaces',
+        options: [{ id: 'team-123/default', label: 'Workspace' }],
+      },
+      {
+        label: 'Local Workspaces',
+        options: [{ id: '1', label: 'Local Workspace' }],
+      },
+    ])
+  })
+
+  it('does not add a placeholder when the current team already has a workspace', () => {
+    const workspaces: WorkspaceItem[] = [{ id: 'team-123/existing', label: 'Existing', teamSlug: 'team-123' }]
+
+    const result = groupWorkspacesByTeam(workspaces, 'team-123', {
+      placeholder: { slug: 'default', label: 'Workspace' },
+    })
+
+    expect(result).toEqual([
+      {
+        label: 'Team Workspaces',
+        options: [{ id: 'team-123/existing', label: 'Existing' }],
+      },
+      {
+        label: 'Local Workspaces',
+        options: [],
+      },
+    ])
+  })
+
+  it('does not add a placeholder for the local team', () => {
+    const result = groupWorkspacesByTeam([], 'local', {
+      placeholder: { slug: 'default', label: 'Workspace' },
+    })
+
+    expect(result).toEqual([
+      {
+        label: 'Local Workspaces',
+        options: [],
+      },
+    ])
+  })
 })

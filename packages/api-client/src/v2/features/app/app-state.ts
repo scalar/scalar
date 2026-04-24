@@ -166,6 +166,10 @@ export type AppState = {
 const DEFAULT_DEBOUNCE_DELAY = 1000
 /** Default sidebar width in pixels. */
 const DEFAULT_SIDEBAR_WIDTH = 288
+/** Default slug used when auto-creating a team workspace on demand. */
+export const DEFAULT_TEAM_WORKSPACE_SLUG = 'default'
+/** Default display name used when auto-creating a team workspace on demand. */
+export const DEFAULT_TEAM_WORKSPACE_NAME = 'Workspace'
 
 // ---------------------------------------------------------------------------
 // App State
@@ -226,7 +230,18 @@ export const createAppState = async ({
   const activeWorkspace = shallowRef<{ id: string; label: string } | null>(null)
   const workspaces = ref<WorkspaceOption[]>([])
   const filteredWorkspaces = computed(() => filterWorkspacesByTeam(workspaces.value, teamSlug.value))
-  const workspaceGroups = computed(() => groupWorkspacesByTeam(filteredWorkspaces.value, teamSlug.value))
+  const workspaceGroups = computed(() =>
+    groupWorkspacesByTeam(filteredWorkspaces.value, teamSlug.value, {
+      // Surface a fake default workspace for non-local teams so logged-in
+      // users always see a team workspace entry in the picker. Clicking it
+      // navigates to a normal workspace route; the route handler creates the
+      // workspace on demand when it does not yet exist.
+      placeholder: {
+        slug: DEFAULT_TEAM_WORKSPACE_SLUG,
+        label: DEFAULT_TEAM_WORKSPACE_NAME,
+      },
+    }),
+  )
   const store = shallowRef<WorkspaceStore | null>(null)
 
   // Load persisted telemetry preference, falling back to the provided default
@@ -418,6 +433,21 @@ export const createAppState = async ({
    *   // -> Navigates to /workspace/my-awesome-api (if available)
    */
   const createWorkspace = async ({ teamSlug, slug, name }: { teamSlug?: string; slug?: string; name: string }) => {
+    // Restrict users to a single workspace per team. Local workspaces remain
+    // unrestricted. This guard is temporary while multi-workspace support for
+    // teams is being designed. When a team workspace already exists, navigate
+    // to it instead of creating a duplicate.
+    if (teamSlug && teamSlug !== 'local') {
+      const existing = workspaces.value.find((w) => w.teamSlug === teamSlug)
+      if (existing) {
+        console.warn(
+          `A workspace already exists for team "${teamSlug}". Navigating to the existing workspace instead.`,
+        )
+        await navigateToWorkspace(existing.teamSlug, existing.slug)
+        return { teamSlug: existing.teamSlug, slug: existing.slug, name: existing.label }
+      }
+    }
+
     // Clear up the current store, in order to show the loading state
     store.value = null
 
@@ -917,6 +947,20 @@ export const createAppState = async ({
     }
 
     if (getWorkspaceId(nextTeamSlug, slug) !== activeWorkspace.value?.id) {
+      // If the user is navigating into their team context but the team
+      // workspace does not exist yet (e.g. they clicked the picker placeholder
+      // or are being redirected on login), create it on demand before letting
+      // the workspace switcher take over. Otherwise `changeWorkspace` would
+      // fall back to the local default and silently swallow the navigation.
+      const isUnknownTeamWorkspace =
+        nextTeamSlug !== 'local' && nextTeamSlug === teamSlug.value && !workspace
+      if (isUnknownTeamWorkspace) {
+        return createWorkspace({
+          teamSlug: nextTeamSlug,
+          slug,
+          name: DEFAULT_TEAM_WORKSPACE_NAME,
+        })
+      }
       return changeWorkspace(nextTeamSlug, slug, to)
     }
 
