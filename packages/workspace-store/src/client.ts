@@ -883,15 +883,16 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // document and spam console.warn). Everything else continues through the existing OpenAPI flow.
   async function addInMemoryDocument(input: AddInMemoryInput, navigationOptions?: NavigationOptions) {
     if (isAsyncApiDocument(input.document)) {
-      return addAsyncApiDocument(input)
+      return await addAsyncApiDocument(input)
     }
     return await addOpenApiDocument(input, navigationOptions)
   }
 
-  // Minimal AsyncAPI ingestion. Stores the raw document as-is — no upgrade, no bundling, no
-  // coercion, no OpenAPI schema validation, no navigation generation. AsyncAPI-specific validation
-  // lives in its own follow-up (plans/asyncapi-loading/02-asyncapi-validation.md).
-  function addAsyncApiDocument(input: AddInMemoryInput) {
+  // Minimal AsyncAPI ingestion. Skips the OpenAPI-specific upgrade/coerce/validate pipeline and
+  // runs only the format-neutral subset of bundler plugins (loaders + normalizeRefs +
+  // externalValueResolver). OpenAPI-shaped plugins (refsEverywhere, normalizeAuthSchemes,
+  // syncPathParameters) are intentionally omitted — see plans/asyncapi-loading/03.
+  async function addAsyncApiDocument(input: AddInMemoryInput) {
     const { name, meta } = input
     const clonedRawInputDocument = withMeasurementSync('deepClone', () => deepClone(input.document))
 
@@ -903,6 +904,28 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         extraDocumentConfigurations[name] = { fetch: input.fetch }
       }
     })
+
+    // Resolve `$ref`s with the format-neutral plugin set. Mirrors the OpenAPI branch's loader
+    // setup so external refs resolve against the document's own origin.
+    const loaders = [
+      fetchUrls({
+        fetch: extraDocumentConfigurations[name]?.fetch ?? workspaceProps?.fetch,
+      }),
+    ]
+    if (workspaceProps?.fileLoader) {
+      loaders.push(workspaceProps.fileLoader)
+    }
+
+    await withMeasurementAsync(
+      'bundle',
+      async () =>
+        await bundle(clonedRawInputDocument, {
+          treeShake: false,
+          plugins: [...loaders, normalizeRefs(), externalValueResolver()],
+          urlMap: true,
+          origin: input.documentSource,
+        }),
+    )
 
     // Sanity-check the doc against the minimal AsyncAPI schema. The discriminator only verified
     // `asyncapi` is a string; this catches missing/misshapen `info` so we can surface a useful path
