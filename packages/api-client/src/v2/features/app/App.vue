@@ -215,9 +215,7 @@ const routerViewProps = computed<RouteProps>(() => {
         app.workspace.activeWorkspace.value !== null &&
         !app.loading.value
       ">
-      <div
-        class="relative flex w-dvw flex-col"
-        :class="layout === 'web' ? 'min-h-0' : 'h-dvh'">
+      <div class="relative flex h-dvh w-dvw flex-col">
         <SidebarToggle
           v-model="app.sidebar.isOpen.value"
           class="absolute z-60 md:hidden"
