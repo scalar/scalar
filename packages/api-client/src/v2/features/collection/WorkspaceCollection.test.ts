@@ -21,7 +21,7 @@ describe('WorkspaceCollection', () => {
     await router.push({
       name: 'workspace',
       params: {
-        namespace: 'local',
+        teamSlug: 'local',
         workspaceSlug: 'test-workspace',
       },
     })

@@ -1,26 +1,26 @@
 import type { Migration } from '@/persistence/indexdb'
 
 /**
- * v2 — collapse every workspace into the local namespace and team.
+ * v2 — collapse every workspace into the local team and drop the namespace concept.
  *
- * Before this migration, workspaces were keyed by `[namespace, slug]` where
- * the namespace doubled as the team identifier (for example
- * `acme-corp/api-workspace`) and a separate `teamUid` field stored the team's
- * UID.
+ * Before this migration, workspaces were keyed by `[namespace, slug]` where the
+ * namespace doubled as the team identifier (for example `acme-corp/api-workspace`)
+ * and a separate `teamUid` field stored the team's UID.
  *
  * After this migration:
- * - Every workspace lives under `namespace = 'local'` AND `teamSlug = 'local'`.
- *   Team association is intentionally dropped — every workspace becomes a
- *   personal/local one. The `teamUid` field is removed entirely.
- * - When moving a team workspace into `local` would collide with an existing
- *   local slug, a unique suffix (`-2`, `-3`, ...) is appended.
- * - All chunk records (meta, documents, originalDocuments,
- *   intermediateDocuments, overrides, history, auth) are re-keyed to the new
- *   `local/<slug>` workspaceId.
- * - The workspace store's `teamUid` index is replaced with a `teamSlug` index.
+ * - The workspace object store is re-created with a new composite key
+ *   `[teamSlug, slug]`. The old `teamUid` index is removed; no separate
+ *   `teamSlug` index is needed because it is now part of the primary key.
+ * - Every workspace is placed under `teamSlug = 'local'`. Team association is
+ *   intentionally dropped — every workspace becomes a personal/local one.
+ * - The `namespace` field is removed entirely from the record.
+ * - When moving a team workspace into the local team would collide with an
+ *   existing local slug, a unique suffix (`-2`, `-3`, ...) is appended.
+ * - All chunk records (meta, documents, originalDocuments, intermediateDocuments,
+ *   overrides, history, auth) are re-keyed to the new `local/<slug>` workspaceId.
  *
- * All work happens inside the upgrade transaction. Async IDB request
- * callbacks keep the transaction alive so data transformation can complete.
+ * All work happens inside the upgrade transaction. Async IDB request callbacks
+ * keep the transaction alive so data transformation can complete.
  */
 
 /** Tables that store per-workspace chunks keyed by `workspaceId` (single key). */
@@ -38,7 +38,7 @@ const COMPOSITE_KEY_CHUNK_TABLES = [
 
 type WorkspaceRecordV1 = {
   name: string
-  /** Old field — replaced by `teamSlug`. */
+  /** Old field — dropped entirely in v2. */
   teamUid?: string
   namespace: string
   slug: string
@@ -47,7 +47,6 @@ type WorkspaceRecordV1 = {
 type WorkspaceRecordV2 = {
   name: string
   teamSlug: string
-  namespace: string
   slug: string
 }
 
@@ -68,8 +67,9 @@ export const pickUniqueSlug = (desired: string, taken: ReadonlySet<string>): str
 }
 
 /**
- * Computes the new shape for every workspace, preserving local entries and
- * relocating team entries into the local namespace with a unique slug.
+ * Computes the new shape for every workspace, preserving local entries under
+ * their existing slug and relocating team entries into the local team with a
+ * unique slug when needed.
  */
 export const planWorkspaceMigration = (
   workspaces: readonly WorkspaceRecordV1[],
@@ -88,7 +88,6 @@ export const planWorkspaceMigration = (
         after: {
           name: workspace.name,
           teamSlug: 'local',
-          namespace: 'local',
           slug: workspace.slug,
         },
       })
@@ -105,7 +104,6 @@ export const planWorkspaceMigration = (
         // Team association is dropped on purpose — every workspace becomes
         // local. Slug uniqueness has already been handled above.
         teamSlug: 'local',
-        namespace: 'local',
         slug: newSlug,
       },
     })
@@ -114,7 +112,7 @@ export const planWorkspaceMigration = (
   return plan
 }
 
-const buildWorkspaceId = (namespace: string, slug: string) => `${namespace}/${slug}`
+const buildWorkspaceId = (prefix: string, slug: string) => `${prefix}/${slug}`
 
 /**
  * Re-keys all chunk records belonging to `oldWorkspaceId` so they live under
@@ -166,42 +164,36 @@ const remapChunkTables = (transaction: IDBTransaction, oldWorkspaceId: string, n
 }
 
 export const v2TeamToLocalMigration: Migration = {
-  description: 'Collapse team namespaces into local; replace teamUid index with teamSlug',
-  up: ({ transaction }) => {
-    if (!transaction.db.objectStoreNames.contains('workspace')) {
+  description: 'Re-key workspace store to [teamSlug, slug]; collapse all workspaces into the local team',
+  up: ({ db, transaction }) => {
+    if (!db.objectStoreNames.contains('workspace')) {
       // The workspace store must exist after v1; if it does not, something is
       // very wrong and we should not silently create a new one here.
       return
     }
 
-    const workspaceStore = transaction.objectStore('workspace')
+    // Read every record from the old workspace store before we delete it.
+    // IDB keeps the upgrade transaction alive while this request is pending,
+    // so the deferred work inside `onsuccess` still runs in versionchange
+    // mode — which is required for deleteObjectStore / createObjectStore.
+    const oldWorkspaceStore = transaction.objectStore('workspace')
+    const getAllRequest = oldWorkspaceStore.getAll()
 
-    // Swap the indexes: `teamUid` is gone, `teamSlug` takes its place. Guards
-    // keep the migration idempotent for tests and repeated upgrade scenarios.
-    if (workspaceStore.indexNames.contains('teamUid')) {
-      workspaceStore.deleteIndex('teamUid')
-    }
-    if (!workspaceStore.indexNames.contains('teamSlug')) {
-      workspaceStore.createIndex('teamSlug', ['teamSlug'])
-    }
-
-    const getAllRequest = workspaceStore.getAll()
     getAllRequest.onsuccess = () => {
       const workspaces = (getAllRequest.result ?? []) as WorkspaceRecordV1[]
       const plan = planWorkspaceMigration(workspaces)
 
+      // The workspace store's keyPath cannot be changed in place, so drop it
+      // and recreate it with the new composite key. No separate `teamSlug`
+      // index is needed because the team slug is the first part of the key.
+      db.deleteObjectStore('workspace')
+      const newWorkspaceStore = db.createObjectStore('workspace', { keyPath: ['teamSlug', 'slug'] })
+
       for (const { before, after } of plan) {
         const oldWorkspaceId = buildWorkspaceId(before.namespace, before.slug)
-        const newWorkspaceId = buildWorkspaceId(after.namespace, after.slug)
+        const newWorkspaceId = buildWorkspaceId(after.teamSlug, after.slug)
 
-        // Always rewrite the workspace record so the `teamUid` field is
-        // dropped and `teamSlug` is added, even when the key itself does not
-        // change.
-        if (before.namespace !== after.namespace || before.slug !== after.slug) {
-          workspaceStore.delete([before.namespace, before.slug])
-        }
-        workspaceStore.put(after)
-
+        newWorkspaceStore.put(after)
         remapChunkTables(transaction, oldWorkspaceId, newWorkspaceId)
       }
     }

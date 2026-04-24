@@ -10,12 +10,12 @@ import { createAppState } from './app-state'
 import { ROUTES } from './helpers/routes'
 
 const persistWorkspace = async ({
-  namespace = 'local',
+  teamSlug = 'local',
   slug,
   name = 'Test Workspace',
   tabs,
 }: {
-  namespace?: string
+  teamSlug?: string
   slug: string
   name?: string
   tabs?: { path: string; title: string }[]
@@ -28,7 +28,7 @@ const persistWorkspace = async ({
   }
 
   const persistence = await createWorkspaceStorePersistence()
-  await persistence.workspace.setItem({ namespace, slug }, { name, workspace: store.exportWorkspace() })
+  await persistence.workspace.setItem({ teamSlug, slug }, { name, workspace: store.exportWorkspace() })
 }
 
 const setupRouter = () => createRouter({ history: createMemoryHistory(), routes: ROUTES })
@@ -54,7 +54,7 @@ describe('app-state', () => {
 
     await router.push({
       name: 'document.overview',
-      params: { namespace: 'local', workspaceSlug: 'preserve-route', documentSlug: 'drafts' },
+      params: { teamSlug: 'local', workspaceSlug: 'preserve-route', documentSlug: 'drafts' },
     })
     await router.isReady()
     await waitForNavigation()
@@ -72,7 +72,7 @@ describe('app-state', () => {
 
     await router.push({
       name: 'document.overview',
-      params: { namespace: 'local', workspaceSlug: 'no-tabs', documentSlug: 'drafts' },
+      params: { teamSlug: 'local', workspaceSlug: 'no-tabs', documentSlug: 'drafts' },
     })
     await router.isReady()
     await waitForNavigation()
@@ -92,7 +92,7 @@ describe('app-state', () => {
 
     await router.push({
       name: 'document.overview',
-      params: { namespace: 'local', workspaceSlug: 'sync-tabs', documentSlug: 'drafts' },
+      params: { teamSlug: 'local', workspaceSlug: 'sync-tabs', documentSlug: 'drafts' },
     })
 
     // Wait until the workspace has finished loading — once store.value is populated
@@ -123,7 +123,7 @@ describe('app-state', () => {
     // Initial load on workspace A — consumes the isInitialLoad flag
     await router.push({
       name: 'document.overview',
-      params: { namespace: 'local', workspaceSlug: 'switch-source', documentSlug: 'drafts' },
+      params: { teamSlug: 'local', workspaceSlug: 'switch-source', documentSlug: 'drafts' },
     })
     await router.isReady()
     await waitForNavigation()
@@ -131,7 +131,7 @@ describe('app-state', () => {
     // Switch to workspace B which has a saved tab
     await router.push({
       name: 'document.overview',
-      params: { namespace: 'local', workspaceSlug: 'switch-target', documentSlug: 'drafts' },
+      params: { teamSlug: 'local', workspaceSlug: 'switch-target', documentSlug: 'drafts' },
     })
 
     // changeWorkspace is async/fire-and-forget from router.afterEach, so poll until the redirect lands

@@ -261,8 +261,8 @@ export type UIEvents = {
   'ui:navigate': {
     /** If true, the navigation will replace the current route instead of pushing a new one */
     replace?: boolean
-    /** The namespace of the workspace to navigate to */
-    namespace?: string
+    /** The slug of the team that owns the workspace to navigate to */
+    teamSlug?: string
     /** The slug of the workspace to navigate to */
     workspaceSlug?: string
     /** The callback to call when the navigation is complete */

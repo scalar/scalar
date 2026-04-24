@@ -83,11 +83,10 @@ export const migrateLocalStorageToIndexDb = async () => {
       workspaces.map((workspace) =>
         limit(() =>
           workspacePersistence.setItem(
-            { namespace: 'local', slug: workspace.slug },
+            { teamSlug: 'local', slug: workspace.slug },
             {
               name: workspace.name,
               workspace: workspace.workspace,
-              teamSlug: 'local',
             },
           ),
         ),

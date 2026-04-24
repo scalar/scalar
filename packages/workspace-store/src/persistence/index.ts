@@ -8,18 +8,20 @@ import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import type { WorkspaceMeta } from '@/schemas/workspace'
 
 type WorkspaceKey = {
-  namespace?: string
+  teamSlug?: string
   slug: string
 }
 
 type WorkspaceStoreShape = {
-  teamSlug: string
   name: string
   workspace: InMemoryWorkspace
 }
 
-/** Generates a workspace ID from namespace and slug. */
-export const getWorkspaceId = (namespace: string, slug: string) => `${namespace}/${slug}`
+/**
+ * Generates a workspace ID from team slug and workspace slug. Used as the key
+ * in the per-workspace chunk tables (meta, documents, ...).
+ */
+export const getWorkspaceId = (teamSlug: string, slug: string) => `${teamSlug}/${slug}`
 
 /**
  * Creates the persistence layer for the workspace store using IndexedDB.
@@ -45,12 +47,10 @@ export const createWorkspaceStorePersistence = async () => {
           name: Type.String(),
           /** Slug of the team this workspace belongs to. Use 'local' for personal workspaces. */
           teamSlug: Type.String({ default: 'local' }),
-          /** Namespace associated with a workspace. Always 'local' since v2. */
-          namespace: Type.String({ default: 'local' }),
-          /** Slug associated with the workspace, unique within the namespace. */
+          /** Slug of the workspace, unique within the team. */
           slug: Type.String({ default: 'local' }),
         }),
-        keyPath: ['namespace', 'slug'],
+        keyPath: ['teamSlug', 'slug'],
       },
       meta: {
         schema: Type.Object({ workspaceId: Type.String(), data: Type.Any() }),
@@ -164,22 +164,22 @@ export const createWorkspaceStorePersistence = async () => {
     },
     workspace: {
       /**
-       * Retrieves a workspace by its ID.
+       * Retrieves a workspace by its team + workspace slug.
        * Returns undefined if the workspace does not exist.
        * Gathers all workspace 'chunk' tables and assembles a full workspace shape.
        */
       getItem: async ({
-        namespace,
+        teamSlug = 'local',
         slug,
-      }: Required<WorkspaceKey>): Promise<(WorkspaceStoreShape & Required<WorkspaceKey>) | undefined> => {
-        const workspace = await workspaceTable.getItem({ namespace, slug })
+      }: WorkspaceKey): Promise<(WorkspaceStoreShape & { teamSlug: string; slug: string }) | undefined> => {
+        const workspace = await workspaceTable.getItem({ teamSlug, slug })
 
         if (!workspace) {
           return undefined
         }
 
         // Create a composite key for the workspace chunks.
-        const id = getWorkspaceId(namespace, slug)
+        const id = getWorkspaceId(teamSlug, slug)
 
         // Retrieve all chunk records for this workspace.
         const workspaceDocuments = await documentsTable.getRange([id])
@@ -194,7 +194,6 @@ export const createWorkspaceStorePersistence = async () => {
         return {
           name: workspace.name,
           teamSlug: workspace.teamSlug,
-          namespace: workspace.namespace,
           slug: workspace.slug,
           workspace: {
             documents: Object.fromEntries(workspaceDocuments.map((item) => [item.documentName, item.data])),
@@ -223,10 +222,11 @@ export const createWorkspaceStorePersistence = async () => {
       },
 
       /**
-       * Retrieves all workspaces for a given team slug.
+       * Retrieves all workspaces for a given team slug. Uses the primary key
+       * prefix so no secondary index is required.
        */
       getAllByTeamSlug: async (teamSlug: string) => {
-        return await workspaceTable.getRange([teamSlug], 'teamSlug')
+        return await workspaceTable.getRange([teamSlug])
       },
 
       /**
@@ -234,18 +234,14 @@ export const createWorkspaceStorePersistence = async () => {
        * All chunks (meta, documents, configs, etc.) are upsert in their respective tables.
        * If a workspace with the same ID already exists, it will be replaced.
        */
-      setItem: async (
-        { namespace = 'local', slug }: WorkspaceKey,
-        value: Omit<WorkspaceStoreShape, 'teamSlug'> & Partial<Pick<WorkspaceStoreShape, 'teamSlug'>>,
-      ) => {
+      setItem: async ({ teamSlug = 'local', slug }: WorkspaceKey, value: WorkspaceStoreShape) => {
         const workspace = await workspaceTable.addItem(
-          { namespace, slug },
+          { teamSlug, slug },
           {
             name: value.name,
-            teamSlug: value.teamSlug ?? 'local',
           },
         )
-        const id = getWorkspaceId(namespace, slug)
+        const id = getWorkspaceId(teamSlug, slug)
 
         // Save all meta info for workspace.
         await metaTable.addItem({ workspaceId: id }, { data: value.workspace.meta })
@@ -298,10 +294,10 @@ export const createWorkspaceStorePersistence = async () => {
       /**
        * Deletes an entire workspace and all associated chunk records from all tables by ID.
        */
-      deleteItem: async ({ namespace, slug }: Required<WorkspaceKey>): Promise<void> => {
-        const id = getWorkspaceId(namespace, slug)
+      deleteItem: async ({ teamSlug = 'local', slug }: WorkspaceKey): Promise<void> => {
+        const id = getWorkspaceId(teamSlug, slug)
 
-        await workspaceTable.deleteItem({ namespace, slug })
+        await workspaceTable.deleteItem({ teamSlug, slug })
 
         // Remove all workspace-related records from all chunk tables.
         await Promise.all([
@@ -337,21 +333,21 @@ export const createWorkspaceStorePersistence = async () => {
        * Updates the name of an existing workspace.
        * Returns the updated workspace object, or undefined if the workspace does not exist.
        */
-      updateName: async ({ namespace, slug }: Required<WorkspaceKey>, name: string) => {
-        const workspace = await workspaceTable.getItem({ namespace, slug })
+      updateName: async ({ teamSlug = 'local', slug }: WorkspaceKey, name: string) => {
+        const workspace = await workspaceTable.getItem({ teamSlug, slug })
         if (!workspace) {
           return undefined
         }
 
         // Update the workspace name
-        return await workspaceTable.addItem({ namespace, slug }, { ...workspace, name })
+        return await workspaceTable.addItem({ teamSlug, slug }, { ...workspace, name })
       },
 
       /**
-       * Checks if a workspace with the given ID exists in the store.
+       * Checks if a workspace with the given team + workspace slug exists in the store.
        */
-      has: async ({ namespace, slug }: Required<WorkspaceKey>): Promise<boolean> => {
-        return (await workspaceTable.getItem({ namespace, slug })) !== undefined
+      has: async ({ teamSlug = 'local', slug }: WorkspaceKey): Promise<boolean> => {
+        return (await workspaceTable.getItem({ teamSlug, slug })) !== undefined
       },
     },
     clear: async () => {

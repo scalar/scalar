@@ -147,11 +147,11 @@ useMonacoEditorConfiguration({
   darkMode: isDarkMode,
 })
 
-const navigateToWorkspaceOverview = (namespace?: string, slug?: string) => {
+const navigateToWorkspaceOverview = (teamSlug?: string, slug?: string) => {
   app.eventBus.emit('ui:navigate', {
     page: 'workspace',
     path: 'environment',
-    namespace,
+    teamSlug,
     workspaceSlug: slug,
   })
 }
@@ -168,7 +168,7 @@ const setActiveWorkspace = (id?: string) => {
     return
   }
 
-  navigateToWorkspaceOverview(workspace.namespace, workspace.slug)
+  navigateToWorkspaceOverview(workspace.teamSlug, workspace.slug)
 }
 
 const createWorkspaceModalState = useModal()
