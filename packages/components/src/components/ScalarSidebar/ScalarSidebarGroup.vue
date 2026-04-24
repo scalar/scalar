@@ -30,6 +30,7 @@ import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarGroupToggle from './ScalarSidebarGroupToggle.vue'
 import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
+import ScalarSidebarLoading from './ScalarSidebarLoading.vue'
 import type { ScalarSidebarGroupProps, ScalarSidebarGroupSlots } from './types'
 import { useSidebarGroups } from './useSidebarGroups'
 
@@ -162,7 +163,9 @@ const handleToggle = (event: MouseEvent) => {
     <ul
       v-if="open"
       class="group/items flex flex-col gap-px">
+      <ScalarSidebarLoading v-if="loading" />
       <slot
+        v-else
         name="items"
         :open />
     </ul>
