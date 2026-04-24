@@ -453,6 +453,7 @@ onBeforeUnmount(() => {
       <!-- Address Bar -->
       <Header
         :activeEnvironment
+        :document
         :documentUrl
         :environment
         :environments
