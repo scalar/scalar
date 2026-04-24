@@ -6,8 +6,8 @@ import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
-import type { ClientLayout } from '@/v2/types/layout'
 import { refocusBlurTarget } from '@/v2/blocks/scalar-address-bar-block/helpers/refocus-blur-target'
+import type { ClientLayout } from '@/v2/types/layout'
 
 import AddressBar, { type AddressBarProps } from './AddressBar.vue'
 
@@ -416,12 +416,10 @@ describe('AddressBar', () => {
 
     it('keeps a pasted URL when the deferred placeholder mask runs before Enter', async () => {
       const animationFrameCallbacks: FrameRequestCallback[] = []
-      const requestAnimationFrameSpy = vi
-        .spyOn(globalThis, 'requestAnimationFrame')
-        .mockImplementation((callback) => {
-          animationFrameCallbacks.push(callback)
-          return animationFrameCallbacks.length
-        })
+      const requestAnimationFrameSpy = vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((callback) => {
+        animationFrameCallbacks.push(callback)
+        return animationFrameCallbacks.length
+      })
 
       const { wrapper, eventBus } = mountWithProps({
         path: '/',
@@ -462,12 +460,10 @@ describe('AddressBar', () => {
 
     it('submits the empty masked path instead of the CodeMirror placeholder on Enter', async () => {
       const animationFrameCallbacks: FrameRequestCallback[] = []
-      const requestAnimationFrameSpy = vi
-        .spyOn(globalThis, 'requestAnimationFrame')
-        .mockImplementation((callback) => {
-          animationFrameCallbacks.push(callback)
-          return animationFrameCallbacks.length
-        })
+      const requestAnimationFrameSpy = vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((callback) => {
+        animationFrameCallbacks.push(callback)
+        return animationFrameCallbacks.length
+      })
       const originalGetClientRects = Range.prototype.getClientRects
       Object.defineProperty(Range.prototype, 'getClientRects', {
         configurable: true,
