@@ -55,22 +55,16 @@ export const createTempOperation = (
       tags: options.tags ?? [],
     },
     callback: (success) => {
-      if (success) {
-        options.eventBus.emit('ui:navigate', {
-          page: 'example',
-          documentSlug: documentName,
-          path: uniquePath,
-          method: 'get',
-          exampleName: 'default',
-          callback: async () => {
-            await new Promise((resolve) => requestAnimationFrame(resolve))
-            // Focus the address bar, clearing its contents after navigation
-            options.eventBus.emit('ui:focus:address-bar', {
-              clear: true,
-            })
-          },
-        })
+      if (!success) {
+        return
       }
+      options.eventBus.emit('ui:navigate', {
+        page: 'example',
+        documentSlug: documentName,
+        path: uniquePath,
+        method: 'get',
+        exampleName: 'default',
+      })
     },
   })
 }

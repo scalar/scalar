@@ -45,9 +45,8 @@ export const usePathMasking = ({
   /** Call before triggering a local path/method update. */
   beginLocalEdit: () => void
   /**
-   * Call synchronously from the update callback. Pass `true` when the update
-   * actually mutated the operation (so the watcher will fire and consume
-   * the flag); pass `false` when it did not (so the flag is cleared now).
+   * Pass `true` if the update mutated the operation (watcher consumes the
+   * flag); `false` to clear it now.
    */
   endLocalEdit: (didApply: boolean) => void
 } => {
@@ -75,14 +74,17 @@ export const usePathMasking = ({
         return
       }
 
+      // Defer to the next frame so focus() runs after click-handler side
+      // effects that move focus (e.g. a dropdown refocusing its trigger),
+      // which would otherwise blur our input and emit a spurious path
+      // update against the now-empty value.
       if (shouldMask()) {
-        onMask()
+        requestAnimationFrame(() => onMask())
       }
     },
-    // `post` flush runs after all pre-flush watchers — including child
-    // components that sync their `modelValue` into the underlying input
-    // (e.g. CodeInput → CodeMirror). Without this, the child watcher would
-    // run after ours and overwrite the cleared content with the new path.
+    // `post` flush runs after child watchers sync `modelValue` into the
+    // underlying input (e.g. CodeInput → CodeMirror); otherwise they would
+    // overwrite the cleared content with the new path.
     { flush: 'post' },
   )
 

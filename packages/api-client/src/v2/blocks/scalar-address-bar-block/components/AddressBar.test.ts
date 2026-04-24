@@ -30,7 +30,7 @@ describe('AddressBar', () => {
   }
 
   const mountWithProps = (custom: Partial<AddressBarProps> = {}) => {
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = custom.eventBus ?? createWorkspaceEventBus()
 
     const wrapper = mount(AddressBar, {
       props: {
@@ -40,6 +40,8 @@ describe('AddressBar', () => {
         servers: custom.servers ?? [baseServer],
         history: custom.history ?? [],
         layout: (custom.layout ?? 'web') as ClientLayout,
+        documentSlug: custom.documentSlug ?? 'test-doc',
+        exampleKey: custom.exampleKey ?? 'default',
         eventBus,
         environment: baseEnvironment,
         serverMeta: {
