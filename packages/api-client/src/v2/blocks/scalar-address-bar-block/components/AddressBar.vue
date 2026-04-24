@@ -194,7 +194,8 @@ const { beginLocalEdit, endLocalEdit } = usePathMasking({
   // effects that move focus (e.g. a dropdown refocusing its trigger),
   // which would otherwise blur our input and emit a spurious path
   // update against the now-empty value.
-  onMask: () => requestAnimationFrame(() => handleFocusAddressBar({ clear: true })),
+  onMask: () =>
+    requestAnimationFrame(() => handleFocusAddressBar({ clear: true })),
 })
 
 // ───────────────────────────────────────────────────────────────────
