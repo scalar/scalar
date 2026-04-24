@@ -141,7 +141,7 @@ const { copyToClipboard } = useClipboard()
               <!-- Webhook badge -->
               <Badge
                 v-if="isWebhook"
-                class="text-green flex w-fit items-center justify-center gap-1">
+                class="font-code text-green flex w-fit items-center justify-center gap-1">
                 <ScalarIconWebhooksLogo weight="bold" />Webhook
               </Badge>
 
