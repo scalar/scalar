@@ -32,11 +32,19 @@ describe('indexdb', () => {
   beforeEach(async () => {
     dbConnection = await createIndexDbConnection({
       name: testDbName,
-      version: 1,
       tables: {
         users: { schema: UserSchema, keyPath: ['id'] as const },
         orders: { schema: OrderSchema, keyPath: ['userId', 'orderId'] as const },
       },
+      migrations: [
+        {
+          description: 'Initial test schema',
+          up: ({ db }) => {
+            db.createObjectStore('users', { keyPath: 'id' })
+            db.createObjectStore('orders', { keyPath: ['userId', 'orderId'] })
+          },
+        },
+      ],
     })
 
     return async () => {

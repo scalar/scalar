@@ -83,7 +83,7 @@ export type CollectionProps = RouteProps &
   )
 
 export type ScalarClientAppRouteParams =
-  | 'namespace'
+  | 'teamSlug'
   | 'workspaceSlug'
   | 'documentSlug'
   | 'pathEncoded'
@@ -93,7 +93,7 @@ export type ScalarClientAppRouteParams =
 /** Routes for the API client app and web, the same as modal + workspace routes */
 export const ROUTES = [
   {
-    path: '/@:namespace/:workspaceSlug',
+    path: '/@:teamSlug/:workspaceSlug',
     children: [
       {
         path: 'document/:documentSlug',

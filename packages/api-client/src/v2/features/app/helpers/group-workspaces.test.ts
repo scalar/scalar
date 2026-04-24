@@ -4,10 +4,10 @@ import type { WorkspaceItem } from './group-workspaces'
 import { groupWorkspacesByTeam } from './group-workspaces'
 
 describe('groupWorkspacesByTeam', () => {
-  it('groups local workspaces only when currentTeamUid is local', () => {
+  it('groups local workspaces only when currentTeamSlug is local', () => {
     const workspaces: WorkspaceItem[] = [
-      { id: '1', label: 'Local Workspace 1', teamUid: 'local' },
-      { id: '2', label: 'Local Workspace 2', teamUid: 'local' },
+      { id: '1', label: 'Local Workspace 1', teamSlug: 'local' },
+      { id: '2', label: 'Local Workspace 2', teamSlug: 'local' },
     ]
 
     const result = groupWorkspacesByTeam(workspaces, 'local')
@@ -23,11 +23,11 @@ describe('groupWorkspacesByTeam', () => {
     ])
   })
 
-  it('groups team and local workspaces when currentTeamUid is not local', () => {
+  it('groups team and local workspaces when currentTeamSlug is not local', () => {
     const workspaces: WorkspaceItem[] = [
-      { id: '1', label: 'Team Workspace 1', teamUid: 'team-123' },
-      { id: '2', label: 'Team Workspace 2', teamUid: 'team-123' },
-      { id: '3', label: 'Local Workspace 1', teamUid: 'local' },
+      { id: '1', label: 'Team Workspace 1', teamSlug: 'team-123' },
+      { id: '2', label: 'Team Workspace 2', teamSlug: 'team-123' },
+      { id: '3', label: 'Local Workspace 1', teamSlug: 'local' },
     ]
 
     const result = groupWorkspacesByTeam(workspaces, 'team-123')
@@ -59,7 +59,7 @@ describe('groupWorkspacesByTeam', () => {
   })
 
   it('handles empty local workspaces', () => {
-    const workspaces: WorkspaceItem[] = [{ id: '1', label: 'Team Workspace 1', teamUid: 'team-123' }]
+    const workspaces: WorkspaceItem[] = [{ id: '1', label: 'Team Workspace 1', teamSlug: 'team-123' }]
 
     const result = groupWorkspacesByTeam(workspaces, 'team-123')
 
@@ -77,8 +77,8 @@ describe('groupWorkspacesByTeam', () => {
 
   it('excludes team workspaces section when current team has no workspaces', () => {
     const workspaces: WorkspaceItem[] = [
-      { id: '1', label: 'Local Workspace 1', teamUid: 'local' },
-      { id: '2', label: 'Other Team Workspace', teamUid: 'team-456' },
+      { id: '1', label: 'Local Workspace 1', teamSlug: 'local' },
+      { id: '2', label: 'Other Team Workspace', teamSlug: 'team-456' },
     ]
 
     const result = groupWorkspacesByTeam(workspaces, 'team-123')
@@ -93,10 +93,10 @@ describe('groupWorkspacesByTeam', () => {
 
   it('handles multiple teams but only shows current team', () => {
     const workspaces: WorkspaceItem[] = [
-      { id: '1', label: 'Team A Workspace 1', teamUid: 'team-a' },
-      { id: '2', label: 'Team A Workspace 2', teamUid: 'team-a' },
-      { id: '3', label: 'Team B Workspace 1', teamUid: 'team-b' },
-      { id: '4', label: 'Local Workspace 1', teamUid: 'local' },
+      { id: '1', label: 'Team A Workspace 1', teamSlug: 'team-a' },
+      { id: '2', label: 'Team A Workspace 2', teamSlug: 'team-a' },
+      { id: '3', label: 'Team B Workspace 1', teamSlug: 'team-b' },
+      { id: '4', label: 'Local Workspace 1', teamSlug: 'local' },
     ]
 
     const result = groupWorkspacesByTeam(workspaces, 'team-a')
@@ -118,9 +118,9 @@ describe('groupWorkspacesByTeam', () => {
 
   it('preserves workspace order within groups', () => {
     const workspaces: WorkspaceItem[] = [
-      { id: '3', label: 'Workspace C', teamUid: 'team-123' },
-      { id: '1', label: 'Workspace A', teamUid: 'team-123' },
-      { id: '2', label: 'Workspace B', teamUid: 'team-123' },
+      { id: '3', label: 'Workspace C', teamSlug: 'team-123' },
+      { id: '1', label: 'Workspace A', teamSlug: 'team-123' },
+      { id: '2', label: 'Workspace B', teamSlug: 'team-123' },
     ]
 
     const result = groupWorkspacesByTeam(workspaces, 'team-123')
@@ -134,9 +134,9 @@ describe('groupWorkspacesByTeam', () => {
 
   it('handles workspaces with special characters in labels', () => {
     const workspaces: WorkspaceItem[] = [
-      { id: '1', label: 'My "Special" Workspace', teamUid: 'local' },
-      { id: '2', label: "John's Workspace", teamUid: 'local' },
-      { id: '3', label: 'Workspace <>&', teamUid: 'local' },
+      { id: '1', label: 'My "Special" Workspace', teamSlug: 'local' },
+      { id: '2', label: "John's Workspace", teamSlug: 'local' },
+      { id: '3', label: 'Workspace <>&', teamSlug: 'local' },
     ]
 
     const result = groupWorkspacesByTeam(workspaces, 'local')
@@ -150,8 +150,8 @@ describe('groupWorkspacesByTeam', () => {
 
   it('handles workspaces with duplicate labels but different ids', () => {
     const workspaces: WorkspaceItem[] = [
-      { id: '1', label: 'Workspace', teamUid: 'local' },
-      { id: '2', label: 'Workspace', teamUid: 'local' },
+      { id: '1', label: 'Workspace', teamSlug: 'local' },
+      { id: '2', label: 'Workspace', teamSlug: 'local' },
     ]
 
     const result = groupWorkspacesByTeam(workspaces, 'local')
@@ -161,10 +161,10 @@ describe('groupWorkspacesByTeam', () => {
     expect(result[0]?.options[1]?.id).toBe('2')
   })
 
-  it('handles empty string teamUid', () => {
+  it('handles empty string teamSlug', () => {
     const workspaces: WorkspaceItem[] = [
-      { id: '1', label: 'Workspace 1', teamUid: '' },
-      { id: '2', label: 'Local Workspace', teamUid: 'local' },
+      { id: '1', label: 'Workspace 1', teamSlug: '' },
+      { id: '2', label: 'Local Workspace', teamSlug: 'local' },
     ]
 
     const result = groupWorkspacesByTeam(workspaces, '')
@@ -177,6 +177,57 @@ describe('groupWorkspacesByTeam', () => {
       {
         label: 'Local Workspaces',
         options: [{ id: '2', label: 'Local Workspace' }],
+      },
+    ])
+  })
+
+  it('adds a placeholder option when the current team has no workspaces and a placeholder is provided', () => {
+    const workspaces: WorkspaceItem[] = [{ id: '1', label: 'Local Workspace', teamSlug: 'local' }]
+
+    const result = groupWorkspacesByTeam(workspaces, 'team-123', {
+      placeholder: { slug: 'default', label: 'Workspace' },
+    })
+
+    expect(result).toEqual([
+      {
+        label: 'Team Workspaces',
+        options: [{ id: 'team-123/default', label: 'Workspace' }],
+      },
+      {
+        label: 'Local Workspaces',
+        options: [{ id: '1', label: 'Local Workspace' }],
+      },
+    ])
+  })
+
+  it('does not add a placeholder when the current team already has a workspace', () => {
+    const workspaces: WorkspaceItem[] = [{ id: 'team-123/existing', label: 'Existing', teamSlug: 'team-123' }]
+
+    const result = groupWorkspacesByTeam(workspaces, 'team-123', {
+      placeholder: { slug: 'default', label: 'Workspace' },
+    })
+
+    expect(result).toEqual([
+      {
+        label: 'Team Workspaces',
+        options: [{ id: 'team-123/existing', label: 'Existing' }],
+      },
+      {
+        label: 'Local Workspaces',
+        options: [],
+      },
+    ])
+  })
+
+  it('does not add a placeholder for the local team', () => {
+    const result = groupWorkspacesByTeam([], 'local', {
+      placeholder: { slug: 'default', label: 'Workspace' },
+    })
+
+    expect(result).toEqual([
+      {
+        label: 'Local Workspaces',
+        options: [],
       },
     ])
   })

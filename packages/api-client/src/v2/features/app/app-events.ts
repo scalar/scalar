@@ -329,7 +329,7 @@ export function initializeAppEventHandlers({
       const params = {
         documentSlug: payload.documentSlug,
         workspaceSlug: payload.workspaceSlug,
-        namespace: payload.namespace,
+        teamSlug: payload.teamSlug,
       } satisfies ValidParams
 
       if (payload.path === 'overview') {
@@ -353,7 +353,7 @@ export function initializeAppEventHandlers({
     }
 
     if (payload.page === 'workspace') {
-      const params = { workspaceSlug: payload.workspaceSlug, namespace: payload.namespace } satisfies ValidParams
+      const params = { workspaceSlug: payload.workspaceSlug, teamSlug: payload.teamSlug } satisfies ValidParams
       if (payload.path === 'environment') {
         return execCallback(await fn({ name: 'workspace.environment', params }))
       }
@@ -367,7 +367,7 @@ export function initializeAppEventHandlers({
 
     if (payload.page === 'example') {
       const params = {
-        namespace: payload.namespace,
+        teamSlug: payload.teamSlug,
         workspaceSlug: payload.workspaceSlug,
         documentSlug: payload.documentSlug,
         pathEncoded: encodeURIComponent(payload.path),
@@ -379,7 +379,7 @@ export function initializeAppEventHandlers({
 
     if (payload.page === 'operation') {
       const params = {
-        namespace: payload.namespace,
+        teamSlug: payload.teamSlug,
         workspaceSlug: payload.workspaceSlug,
         documentSlug: payload.documentSlug,
         pathEncoded: encodeURIComponent(payload.operationPath),

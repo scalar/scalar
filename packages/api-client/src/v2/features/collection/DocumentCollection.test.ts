@@ -55,7 +55,7 @@ describe('DocumentCollection', () => {
     await router.push({
       name: 'document.overview',
       params: {
-        namespace: 'local',
+        teamSlug: 'local',
         workspaceSlug: 'test-workspace',
         documentSlug: 'test-document',
       },

@@ -16,6 +16,7 @@ import {
 } from '@scalar/components'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
+import { getWorkspaceId } from '@scalar/workspace-store/persistence'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import { computed, onBeforeUnmount, toValue, watch } from 'vue'
 import { RouterView } from 'vue-router'
@@ -34,7 +35,7 @@ import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
 
-import { type AppState } from './app-state'
+import { DEFAULT_TEAM_WORKSPACE_SLUG, type AppState } from './app-state'
 import AppSidebar from './components/AppSidebar.vue'
 import DesktopTabs from './components/DesktopTabs.vue'
 
@@ -147,28 +148,44 @@ useMonacoEditorConfiguration({
   darkMode: isDarkMode,
 })
 
-const navigateToWorkspaceOverview = (namespace?: string, slug?: string) => {
+const navigateToWorkspaceOverview = (teamSlug?: string, slug?: string) => {
   app.eventBus.emit('ui:navigate', {
     page: 'workspace',
     path: 'environment',
-    namespace,
+    teamSlug,
     workspaceSlug: slug,
   })
 }
 
-/** Sets the active workspace by ID: finds the workspace in the list and updates app state & navigation. */
+/**
+ * Navigates to the workspace identified by the picker option id.
+ *
+ * Real workspaces are resolved by looking up the option in `workspaceList`,
+ * which sidesteps any ambiguity if a teamSlug or slug were ever to contain a
+ * slash. The picker may also surface a fake default team workspace for the
+ * active non-local team when no real workspace exists yet; that placeholder is
+ * matched by exact id and routed through the normal navigation flow so the
+ * route handler can create it on demand.
+ */
 const setActiveWorkspace = (id?: string) => {
   if (!id) {
     return
   }
-  const workspace = app.workspace.workspaceList.value?.find(
-    (workspace) => workspace.id === id,
-  )
-  if (!workspace) {
+
+  const workspace = app.workspace.workspaceList.value?.find((w) => w.id === id)
+  if (workspace) {
+    navigateToWorkspaceOverview(workspace.teamSlug, workspace.slug)
     return
   }
 
-  navigateToWorkspaceOverview(workspace.namespace, workspace.slug)
+  const activeTeamSlug = app.activeEntities.teamSlug.value
+  if (
+    activeTeamSlug &&
+    activeTeamSlug !== 'local' &&
+    id === getWorkspaceId(activeTeamSlug, DEFAULT_TEAM_WORKSPACE_SLUG)
+  ) {
+    navigateToWorkspaceOverview(activeTeamSlug, DEFAULT_TEAM_WORKSPACE_SLUG)
+  }
 }
 
 const createWorkspaceModalState = useModal()

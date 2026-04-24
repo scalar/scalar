@@ -346,7 +346,7 @@ describe('migrate-to-indexdb', () => {
     it('returns false when legacy data exists but IndexedDB already has workspaces', async () => {
       localStorage.setItem('workspace', '[]')
       const mockWorkspacePersistence = {
-        getAll: async () => [{ namespace: 'local', slug: 'existing-workspace' }],
+        getAll: async () => [{ teamSlug: 'local', slug: 'existing-workspace' }],
       }
       const result = await shouldMigrateToIndexDb(mockWorkspacePersistence as any)
       expect(result).toBe(false)
