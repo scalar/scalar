@@ -169,7 +169,7 @@ const DEFAULT_SIDEBAR_WIDTH = 288
 /** Default slug used when auto-creating a team workspace on demand. */
 export const DEFAULT_TEAM_WORKSPACE_SLUG = 'default'
 /** Default display name used when auto-creating a team workspace on demand. */
-export const DEFAULT_TEAM_WORKSPACE_NAME = 'Workspace'
+const DEFAULT_TEAM_WORKSPACE_NAME = 'Workspace'
 
 // ---------------------------------------------------------------------------
 // App State
