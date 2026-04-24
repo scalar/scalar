@@ -1,11 +1,13 @@
 import { cwd } from 'node:process'
 
-import { consoleErrorSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
+import { consoleErrorSpy, consoleWarnSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import fastify, { type FastifyInstance } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { type WorkspaceDocumentInput, createWorkspaceStore } from '@/client'
+import type { AsyncApiDocument } from '@/schemas/asyncapi/asyncapi-document'
+import { isAsyncApiDocument } from '@/schemas/type-guards'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import { createServerWorkspaceStore } from '@/server'
 
@@ -3640,6 +3642,95 @@ describe('create-workspace-store', () => {
         ],
       })
     })
+  })
+})
+
+describe('asyncapi ingestion', () => {
+  beforeEach(() => {
+    resetConsoleSpies()
+  })
+
+  const minimalAsyncApi = {
+    asyncapi: '3.0.0',
+    info: {
+      title: 'Streetlights API',
+      version: '1.0.0',
+    },
+  }
+
+  it('lands in the workspace without OpenAPI validation noise', async () => {
+    const store = createWorkspaceStore()
+
+    await store.addDocument({ name: 'default', document: { ...minimalAsyncApi } })
+
+    const doc = store.workspace.documents['default']
+    expect(doc).toBeDefined()
+    expect(isAsyncApiDocument(doc)).toBe(true)
+
+    // No OpenAPI validation warnings, no AsyncAPI validation warnings
+    expect(consoleWarnSpy).not.toHaveBeenCalled()
+  })
+
+  it('injects the store-managed metadata extensions', async () => {
+    const store = createWorkspaceStore()
+
+    await store.addDocument({ name: 'default', document: { ...minimalAsyncApi } })
+
+    const doc = store.workspace.documents['default'] as AsyncApiDocument
+    expect(doc['x-original-aas-version']).toBe('3.0.0')
+    expect(doc['x-scalar-original-document-hash']).toEqual(expect.any(String))
+    // No source url for in-memory docs
+    expect(doc['x-scalar-original-source-url']).toBeUndefined()
+  })
+
+  it('preserves the original raw document', async () => {
+    const store = createWorkspaceStore()
+    const input = { ...minimalAsyncApi }
+
+    await store.addDocument({ name: 'default', document: input })
+
+    // The original document snapshot stays untouched — byte-identical to the input object
+    expect(store.getOriginalDocument('default')).toEqual(input)
+  })
+
+  it('logs an AsyncAPI-prefixed warning for a misshapen document', async () => {
+    const store = createWorkspaceStore()
+
+    await store.addDocument({
+      name: 'default',
+      document: {
+        asyncapi: '3.0.0',
+        // Missing required info.title — triggers AsyncApiDocumentSchema validation
+        info: { version: '1.0.0' },
+      },
+    })
+
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'AsyncAPI document validation errors:',
+      expect.arrayContaining([expect.objectContaining({ path: expect.stringContaining('title') })]),
+    )
+  })
+
+  it('replaceDocument works on an AsyncAPI-backed document', async () => {
+    const store = createWorkspaceStore()
+
+    await store.addDocument({ name: 'default', document: { ...minimalAsyncApi } })
+    await store.replaceDocument('default', { ...minimalAsyncApi, info: { ...minimalAsyncApi.info, title: 'Renamed' } })
+
+    const doc = store.workspace.documents['default'] as AsyncApiDocument
+    expect(isAsyncApiDocument(doc)).toBe(true)
+    expect(doc.info.title).toBe('Renamed')
+  })
+
+  it('revertDocumentChanges works on an AsyncAPI-backed document', async () => {
+    const store = createWorkspaceStore()
+
+    await store.addDocument({ name: 'default', document: { ...minimalAsyncApi } })
+    await store.replaceDocument('default', { ...minimalAsyncApi, info: { ...minimalAsyncApi.info, title: 'Renamed' } })
+    await store.revertDocumentChanges('default')
+
+    const doc = store.workspace.documents['default'] as AsyncApiDocument
+    expect(doc.info.title).toBe('Streetlights API')
   })
 })
 
