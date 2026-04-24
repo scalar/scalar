@@ -15,11 +15,11 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 const generateUniquePath = (existingPaths: Set<string>, attempts: number = 0) => {
   if (attempts > 10) {
     // After 10 failed attempts, fallback to a generic path
-    return '/temp-path'
+    return '/_scalar_temp'
   }
 
   // Generate a random path using a truncated UUID for uniqueness
-  const path = `/temp${crypto.randomUUID().slice(0, 8)}`
+  const path = `/_scalar_temp${crypto.randomUUID().slice(0, 8)}`
 
   if (existingPaths.has(path)) {
     // If path exists, try again recursively with incremented attempts
