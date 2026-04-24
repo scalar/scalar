@@ -59,7 +59,6 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import {
   computed,
-  nextTick,
   onBeforeUnmount,
   onMounted,
   ref,
@@ -70,7 +69,10 @@ import {
 
 import { HttpMethod } from '@/components/HttpMethod'
 import { getOperationExampleKey } from '@/v2/blocks/operation-block/helpers/response-cache'
+import { isPlaceholderPath } from '@/v2/blocks/scalar-address-bar-block/helpers/is-placeholder-path'
+import { refocusBlurTarget } from '@/v2/blocks/scalar-address-bar-block/helpers/refocus-blur-target'
 import { useLoadingAnimation } from '@/v2/blocks/scalar-address-bar-block/hooks/use-loading-animation'
+import { usePathMasking } from '@/v2/blocks/scalar-address-bar-block/hooks/use-path-masking'
 import { CodeInput } from '@/v2/components/code-input'
 import { ServerDropdown } from '@/v2/components/server'
 import type { ClientLayout } from '@/v2/types/layout'
@@ -83,7 +85,6 @@ const {
   layout,
   eventBus,
   exampleKey,
-  history,
   documentSlug,
   server,
   servers,
@@ -98,208 +99,69 @@ const emit = defineEmits<{
   (e: 'select:history:item', payload: { index: number }): void
 }>()
 
+// ───────────────────────────────────────────────────────────────────
+// Template refs & reactive state
+// ───────────────────────────────────────────────────────────────────
+
 const id = useId()
+const sendButtonRef = useTemplateRef('sendButtonRef')
+const addressBarRef = useTemplateRef('addressBarRef')
+
 const { percentage, startLoading, stopLoading, isLoading } =
   useLoadingAnimation()
 
-/** Calculate the style for the address bar */
-const style = computed(() => ({
-  backgroundColor: `color-mix(in srgb, transparent 90%, ${REQUEST_METHODS[method].colorVar})`,
-  transform: `translate3d(-${percentage.value}%,0,0)`,
-}))
+const pathConflict = ref<string | null>(null)
+const methodConflict = ref<HttpMethodType | null>(null)
+const tabbedOut = ref(false)
+const isServerDropdownOpen = ref(false)
+const isHistoryDropdownOpen = ref(false)
+
+// ───────────────────────────────────────────────────────────────────
+// Derived state
+// ───────────────────────────────────────────────────────────────────
 
 /** Keeps the cursor visible past the fade-right overlay while typing */
 const addressBarScrollMargins = EditorView.scrollMargins.of(() => ({
   right: 24,
 }))
 
-const pathConflict = ref<string | null>(null)
-const methodConflict = ref<HttpMethodType | null>(null)
+/** Animated background transform for the loading indicator */
+const style = computed(() => ({
+  backgroundColor: `color-mix(in srgb, transparent 90%, ${REQUEST_METHODS[method].colorVar})`,
+  transform: `translate3d(-${percentage.value}%,0,0)`,
+}))
 
 /** Whether there is a path or method conflict */
 const hasConflict = computed(() => methodConflict.value || pathConflict.value)
 
-/** Detect if we have changed to a different example */
+/** Whether either dropdown (server or history) is open */
+const isDropdownOpen = computed(
+  () => isServerDropdownOpen.value || isHistoryDropdownOpen.value,
+)
+
+/** Uniquely identifies the currently selected operation + example */
 const uniqueKey = computed(() =>
   getOperationExampleKey(method, path, exampleKey, documentSlug),
 )
 
 /** Clear conflict state when switching to a different operation */
 watch(uniqueKey, () => {
+  console.log('clearing conflict', uniqueKey.value)
   pathConflict.value = null
   methodConflict.value = null
 })
 
-/** Check if the path contains a server URL, extract it, and select or add the server */
-const checkForServer = (targetPath: string) => {
-  const extracted = extractServerFromPath(targetPath)
-  if (!extracted) {
-    return targetPath
-  }
+// ───────────────────────────────────────────────────────────────────
+// Focus helpers
+// ───────────────────────────────────────────────────────────────────
 
-  const [url, newPath] = extracted
-
-  // Server is already selected — nothing to change
-  if (url === server?.url) {
-    return newPath
-  }
-
-  const matchingServer = servers.find((s) => s.url === url)
-
-  // Select the server if it already exists in the list
-  if (matchingServer) {
-    eventBus.emit('server:update:selected', {
-      url,
-      meta: serverMeta,
-    })
-  }
-  // Otherwise add it as a new operation-level server
-  else {
-    eventBus.emit('server:add:server', {
-      url,
-      select: true,
-      meta: {
-        type: 'operation',
-        path,
-        method,
-      },
-    })
-  }
-
-  return newPath
-}
-
-/** Emit the path/method update event with conflict handling */
-const emitPathMethodUpdate = (
-  targetMethod: HttpMethodType,
-  targetPath: string,
-  blurTargetSelector: string | null = null,
-): void => {
-  const newPath = checkForServer(targetPath)
-  const normalizedPath = newPath.startsWith('/') ? newPath : `/${newPath}`
-
-  // Update the local state of codemirror so we don't have werid path on conflict
-  addressBarRef.value?.setCodeMirrorContent(normalizedPath)
-
-  // The `uniqueKey` watch runs masking when path/method changes. A local edit
-  // here shouldn't re-focus the address bar (the user may have clicked
-  // elsewhere), so skip the next mask trigger. Reset in `nextTick` to cover
-  // the `no-change` case where the watch never fires.
-  skipNextMask.value = true
-  nextTick(() => {
-    skipNextMask.value = false
-  })
-
-  eventBus.emit('operation:update:pathMethod', {
-    meta: { method, path },
-    blurTargetSelector,
-    payload: { method: targetMethod, path: normalizedPath },
-    callback: (status, blurTargetSelector) => {
-      // Clear conflicts if the operation was successful or no change was made
-      if (status === 'success' || status === 'no-change') {
-        methodConflict.value = null
-        pathConflict.value = null
-      }
-      // Otherwise set the conflict if needed
-      else if (status === 'conflict') {
-        if (targetMethod !== method) {
-          methodConflict.value = targetMethod
-        }
-        if (normalizedPath !== path) {
-          pathConflict.value = normalizedPath
-        }
-      }
-
-      // Edge case: pasting a full URL extracts the server but leaves the path unchanged.
-      // The CodeMirror DOM still shows the full URL, so we force it back to just the path.
-      if (
-        status === 'no-change' &&
-        addressBarRef.value?.codeMirrorRef?.textContent &&
-        addressBarRef.value.codeMirrorRef.textContent !== newPath
-      ) {
-        addressBarRef.value.setCodeMirrorContent(newPath)
-      }
-
-      // Re-trigger the click or focus event if we have a blur target selector
-      if (blurTargetSelector) {
-        const element = document.querySelector(blurTargetSelector)
-
-        // Re-trigger clicks on buttons
-        if (element instanceof HTMLButtonElement) {
-          element.click()
-        }
-
-        // Re-trigger focus on inputs and codeInputs
-        else if (
-          element instanceof HTMLInputElement ||
-          element instanceof HTMLTextAreaElement ||
-          (element instanceof HTMLElement &&
-            element.getAttribute('contenteditable') === 'true')
-        ) {
-          element.focus()
-        }
-      }
-    },
-  })
-}
-
-/** Update the operation's HTTP method, handling conflicts */
-const handleMethodChange = (newMethod: HttpMethodType): void =>
-  emitPathMethodUpdate(newMethod, pathConflict.value ?? path)
-
-/**
- * Update the operation's path, handling conflicts also we extract the blur target selector to re-trigger click events
- *
- * We have special handling for the tab key to prevent it from triggering a click on the focused button
- */
-const handlePathBlur = (newPath: string, event: FocusEvent): void => {
-  const relatedTarget = event.relatedTarget as Element | null
-  const blurTargetSelector = tabbedOut.value ? null : getSelector(relatedTarget)
-
-  tabbedOut.value = false
-
-  emitPathMethodUpdate(
-    methodConflict.value ?? method,
-    newPath,
-    blurTargetSelector,
-  )
-}
-
-/** Lets unset the server when backspace is pressed and the path is empty */
-const handlePathBackspace = (event: KeyboardEvent): void => {
-  if ((event.target as HTMLElement)?.innerText === '\n') {
-    eventBus.emit('server:update:selected', {
-      url: '',
-      meta: serverMeta,
-    })
-  }
-}
-
-/** Handle path submit (Enter key) — saves the path and triggers execution via blurTargetSelector */
-const handlePathSubmit = (
-  newPath: string,
-  event: KeyboardEvent | FocusEvent,
-): void => {
-  // Prevent the global hotkey listener
-  event.stopPropagation()
-
-  emitPathMethodUpdate(
-    methodConflict.value ?? method,
-    newPath,
-    '[data-addressbar-action="send"]',
-  )
-}
-
-/** Handle focus events */
-const sendButtonRef = useTemplateRef('sendButtonRef')
-const addressBarRef = useTemplateRef('addressBarRef')
-const tabbedOut = ref(false)
-const handleFocusSendButton = () => sendButtonRef.value?.$el?.focus()
+const handleFocusSendButton = (): void => sendButtonRef.value?.$el?.focus()
 
 const handleFocusAddressBar = (
   payload: ApiReferenceEvents['ui:focus:address-bar'],
-) => {
-  // If it already has focus we just propagate native behavior which should focus the browser address bar
+): void => {
+  // On non-desktop layouts, if already focused we let the browser handle the
+  // native behavior (e.g. selecting the browser's own address bar).
   if (addressBarRef.value?.isFocused && layout !== 'desktop') {
     return
   }
@@ -315,88 +177,216 @@ const handleFocusAddressBar = (
   }
 }
 
+// ───────────────────────────────────────────────────────────────────
+// Path masking
+//
+// Drafts on `/` and auto-generated `/_scalar_temp...` paths are internal
+// placeholders — the address bar focuses and clears on mount and on
+// navigation so the user sees a blank prompt instead of the internal
+// path. Local edits are skipped via `markLocalEdit` so that blurring
+// away from a typed path does not re-focus the input.
+// ───────────────────────────────────────────────────────────────────
+
+const { beginLocalEdit, endLocalEdit } = usePathMasking({
+  isReady: () => addressBarRef.value?.codeMirror,
+  operationKey: () => uniqueKey.value,
+  shouldMask: () => isPlaceholderPath(path, documentSlug),
+  onMask: () => handleFocusAddressBar({ clear: true }),
+})
+
+// ───────────────────────────────────────────────────────────────────
+// Server extraction
+// ───────────────────────────────────────────────────────────────────
+
+/** If the path contains a server URL, extract it and select or add that server */
+const extractAndSelectServer = (targetPath: string): string => {
+  const extracted = extractServerFromPath(targetPath)
+  if (!extracted) {
+    return targetPath
+  }
+
+  const [url, remainingPath] = extracted
+
+  // Server is already selected — nothing to do
+  if (url === server?.url) {
+    return remainingPath
+  }
+
+  const matchingServer = servers.find((s) => s.url === url)
+  if (matchingServer) {
+    eventBus.emit('server:update:selected', { url, meta: serverMeta })
+  } else {
+    eventBus.emit('server:add:server', {
+      url,
+      select: true,
+      meta: { type: 'operation', path, method },
+    })
+  }
+
+  return remainingPath
+}
+
+// ───────────────────────────────────────────────────────────────────
+// Path / method updates
+// ───────────────────────────────────────────────────────────────────
+
+const normalizePath = (value: string): string =>
+  value.startsWith('/') ? value : `/${value}`
+
+/** Emit a path/method update and reconcile conflicts + cursor state on the result */
+const emitPathMethodUpdate = (
+  targetMethod: HttpMethodType,
+  targetPath: string,
+  blurTargetSelector: string | null = null,
+): void => {
+  const extractedPath = extractAndSelectServer(targetPath)
+  const normalizedPath = normalizePath(extractedPath)
+
+  // Keep CodeMirror in sync so a conflict does not leave a stale value on screen
+  addressBarRef.value?.setCodeMirrorContent(normalizedPath)
+
+  // Tell the masking watcher that the next `uniqueKey` change (if any) was
+  // user-initiated; `endLocalEdit` in the callback reconciles the flag.
+  beginLocalEdit()
+
+  eventBus.emit('operation:update:pathMethod', {
+    meta: { method, path },
+    blurTargetSelector,
+    payload: { method: targetMethod, path: normalizedPath },
+    callback: (status, returnedSelector) => {
+      // Only 'success' mutates the document (and therefore fires the masking
+      // watcher). For 'conflict' and 'no-change' we clear the flag now so it
+      // does not leak into the next legitimate navigation.
+      endLocalEdit(status === 'success')
+
+      if (status === 'success' || status === 'no-change') {
+        methodConflict.value = null
+        pathConflict.value = null
+      } else if (status === 'conflict') {
+        if (targetMethod !== method) {
+          methodConflict.value = targetMethod
+        }
+        if (normalizedPath !== path) {
+          pathConflict.value = normalizedPath
+        }
+      }
+
+      // Edge case: pasting a full URL extracts the server but leaves the path
+      // unchanged. CodeMirror still shows the full URL, so force it back to
+      // just the path.
+      const mirrorContent = addressBarRef.value?.codeMirrorRef?.textContent
+      if (
+        status === 'no-change' &&
+        mirrorContent &&
+        mirrorContent !== extractedPath
+      ) {
+        addressBarRef.value?.setCodeMirrorContent(extractedPath)
+      }
+
+      refocusBlurTarget(returnedSelector)
+    },
+  })
+}
+
+/** Change the operation's method, preferring the conflicting path if present */
+const handleMethodChange = (newMethod: HttpMethodType): void =>
+  emitPathMethodUpdate(newMethod, pathConflict.value ?? path)
+
 /**
- * We use this trick to mask the path when we are on drafts and its / or any of those temp paths used for new operations
+ * Save the path on blur and replay the click that caused the blur (so e.g. a
+ * click on the Send button still fires after the async update resolves).
+ * Tab-outs explicitly do not replay — tabbing to a button should not trigger
+ * its click.
  */
-const handleMaskingPath = () => {
-  // For drafts that are just /
-  if (documentSlug.toLowerCase() === 'drafts' && path === '/') {
-    handleFocusAddressBar({ clear: true })
+const handlePathBlur = (newPath: string, event: FocusEvent): void => {
+  const relatedTarget = event.relatedTarget as Element | null
+  const blurTargetSelector = tabbedOut.value ? null : getSelector(relatedTarget)
+  tabbedOut.value = false
+
+  emitPathMethodUpdate(
+    methodConflict.value ?? method,
+    newPath,
+    blurTargetSelector,
+  )
+}
+
+/** Save the path on Enter and trigger the Send button after the update resolves */
+const handlePathSubmit = (
+  newPath: string,
+  event: KeyboardEvent | FocusEvent,
+): void => {
+  // Prevent the global hotkey listener from also handling this Enter press
+  event.stopPropagation()
+
+  emitPathMethodUpdate(
+    methodConflict.value ?? method,
+    newPath,
+    '[data-addressbar-action="send"]',
+  )
+}
+
+/** Unset the server when backspace is pressed on an empty path */
+const handlePathBackspace = (event: KeyboardEvent): void => {
+  if ((event.target as HTMLElement)?.innerText === '\n') {
+    eventBus.emit('server:update:selected', { url: '', meta: serverMeta })
   }
 }
 
-/**
- * Set when the `uniqueKey` change originates from a local edit (blur, submit,
- * method change) so we can differentiate from sidebar/route-driven changes
- * and avoid re-focusing the address bar after the user clicked away.
- */
-const skipNextMask = ref(false)
-
-// For masking on initial load and changing examples/operations via navigation
-watch([() => addressBarRef.value?.codeMirror, uniqueKey], ([codeMirror]) => {
-  if (!codeMirror) return
-  if (skipNextMask.value) {
-    skipNextMask.value = false
-    return
-  }
-  handleMaskingPath()
-})
-
-onMounted(() => {
-  eventBus.on('ui:focus:address-bar', handleFocusAddressBar)
-  eventBus.on('ui:focus:send-button', handleFocusSendButton)
-  eventBus.on('copy-url:address-bar', copyUrl)
-  eventBus.on('hooks:on:request:sent', startLoading)
-  eventBus.on('hooks:on:request:complete', stopLoading)
-})
-
-onBeforeUnmount(() => {
-  eventBus.off('ui:focus:address-bar', handleFocusAddressBar)
-  eventBus.off('ui:focus:send-button', handleFocusSendButton)
-  eventBus.off('copy-url:address-bar', copyUrl)
-  eventBus.off('hooks:on:request:sent', startLoading)
-  eventBus.off('hooks:on:request:complete', stopLoading)
-
-  // Stop the animation when the component is unmounted
-  // This is to prevent the animation from continuing after the component is unmounted
-  stopLoading()
-})
+// ───────────────────────────────────────────────────────────────────
+// Clipboard
+// ───────────────────────────────────────────────────────────────────
 
 const { copyToClipboard } = useClipboard()
 
-/** Copy the resolved URL with the environment variables to the clipboard */
-const copyUrl = async () => {
+/** Copy the fully resolved URL (with environment variables applied) */
+const copyUrl = async (): Promise<void> => {
   const resolvedUrl = getResolvedUrl({ server, path })
-  const environmentVariables = getEnvironmentVariables(environment)
-  const resolvedUrlWithEnvVars = replaceEnvVariables(
-    resolvedUrl,
-    environmentVariables,
-  )
-  await copyToClipboard(resolvedUrlWithEnvVars)
+  const variables = getEnvironmentVariables(environment)
+  await copyToClipboard(replaceEnvVariables(resolvedUrl, variables))
 }
 
-const isServerDropdownOpen = ref(false)
-const isHistoryDropdownOpen = ref(false)
+// ───────────────────────────────────────────────────────────────────
+// Navigation
+// ───────────────────────────────────────────────────────────────────
 
-/** Whether either dropdown is open */
-const isDropdownOpen = computed(
-  () => isServerDropdownOpen.value || isHistoryDropdownOpen.value,
-)
-
-const navigateToServersPage = () => {
+const navigateToServersPage = (): void => {
   if (serverMeta.type === 'operation') {
-    return eventBus.emit('ui:navigate', {
+    eventBus.emit('ui:navigate', {
       page: 'operation',
       path: 'servers',
       operationPath: serverMeta.path,
       method: serverMeta.method,
     })
+    return
   }
-  return eventBus.emit('ui:navigate', {
-    page: 'document',
-    path: 'servers',
-  })
+
+  eventBus.emit('ui:navigate', { page: 'document', path: 'servers' })
 }
+
+// ───────────────────────────────────────────────────────────────────
+// Lifecycle
+// ───────────────────────────────────────────────────────────────────
+
+let unsubscribes: Array<() => void> = []
+
+onMounted(() => {
+  unsubscribes = [
+    eventBus.on('ui:focus:address-bar', handleFocusAddressBar),
+    eventBus.on('ui:focus:send-button', handleFocusSendButton),
+    eventBus.on('copy-url:address-bar', copyUrl),
+    eventBus.on('hooks:on:request:sent', startLoading),
+    eventBus.on('hooks:on:request:complete', stopLoading),
+  ]
+})
+
+onBeforeUnmount(() => {
+  for (const unsubscribe of unsubscribes) {
+    unsubscribe()
+  }
+
+  // Prevents the loading animation from continuing after unmount
+  stopLoading()
+})
 
 defineExpose({
   methodConflict,
