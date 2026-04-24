@@ -371,16 +371,16 @@ const navigateToServersPage = (): void => {
 // Lifecycle
 // ───────────────────────────────────────────────────────────────────
 
-let unsubscribes: Array<() => void> = []
+const unsubscribes: Array<() => void> = []
 
 onMounted(() => {
-  unsubscribes = [
+  unsubscribes.push(
     eventBus.on('ui:focus:address-bar', handleFocusAddressBar),
     eventBus.on('ui:focus:send-button', handleFocusSendButton),
     eventBus.on('copy-url:address-bar', copyUrl),
     eventBus.on('hooks:on:request:sent', startLoading),
     eventBus.on('hooks:on:request:complete', stopLoading),
-  ]
+  )
 })
 
 onBeforeUnmount(() => {
