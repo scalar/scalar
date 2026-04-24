@@ -31,6 +31,7 @@ import {
 } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -91,7 +92,7 @@ const isDisabled = computed<boolean>(() => {
 
   /** Prevent creating duplicate operations at the same path/method */
   const document = workspaceStore.workspace.documents[selectedDocument.value.id]
-  if (document?.paths?.[path]?.[method]) {
+  if (isOpenApiDocument(document) && document.paths?.[path]?.[method]) {
     return true
   }
 

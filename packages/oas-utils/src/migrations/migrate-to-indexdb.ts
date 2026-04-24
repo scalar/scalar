@@ -16,6 +16,7 @@ import {
 import { xScalarCookieSchema } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { XTagGroup } from '@scalar/workspace-store/schemas/extensions/tag'
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type {
   OperationObject,
@@ -264,7 +265,9 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
 
         const drafts = store.workspace.documents[DRAFTS_DOCUMENT_NAME]
 
-        if (drafts) {
+        // The drafts document is always OpenAPI-shaped (constructed above with `paths`); the
+        // guard narrows the WorkspaceDocument union so we can access `.paths` safely.
+        if (isOpenApiDocument(drafts)) {
           // Make sure the drafts document has a GET / route cuz that's the first route we navigate the user to
           drafts.paths ??= {}
           drafts.paths['/'] ??= {}

@@ -22,6 +22,7 @@ import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-scalar-tabs'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import {
   type ComputedRef,
   type MaybeRefOrGetter,
@@ -611,7 +612,10 @@ export const createAppState = async ({
     const order = activeStore.workspace['x-scalar-order'] ?? Object.keys(activeStore.workspace.documents)
 
     return sortByOrder(Object.keys(activeStore.workspace.documents), order, (item) => item)
-      .map((doc) => activeStore.workspace.documents[doc]?.['x-scalar-navigation'])
+      .map((doc) => {
+        const entry = activeStore.workspace.documents[doc]
+        return isOpenApiDocument(entry) ? entry['x-scalar-navigation'] : undefined
+      })
       .filter(isDefined) as TraversedEntry[]
   })
 
@@ -834,7 +838,9 @@ export const createAppState = async ({
    * consistent (e.g., after adding a new example via the UI).
    */
   const refreshSidebarAfterExampleCreation = (payload: OperationExampleMeta & { documentName?: string }) => {
-    const documentName = payload.documentName ?? activeDocument.value?.['x-scalar-navigation']?.name
+    const activeDoc = activeDocument.value
+    const documentName =
+      payload.documentName ?? (isOpenApiDocument(activeDoc) ? activeDoc['x-scalar-navigation']?.name : undefined)
     if (!documentName) {
       return
     }

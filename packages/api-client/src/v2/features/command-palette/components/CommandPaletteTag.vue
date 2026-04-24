@@ -43,6 +43,7 @@ import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { computed, ref } from 'vue'
 
 import CommandActionForm from './CommandActionForm.vue'
@@ -104,7 +105,11 @@ const selectedDocument = ref<{ id: string; label: string } | undefined>(
 const isDisabled = computed<boolean>(() => {
   const document =
     workspaceStore.workspace.documents[selectedDocument.value?.id ?? '']
-  if (!nameTrimmed.value || !selectedDocument.value || !document) {
+  if (
+    !nameTrimmed.value ||
+    !selectedDocument.value ||
+    !isOpenApiDocument(document)
+  ) {
     return true
   }
 

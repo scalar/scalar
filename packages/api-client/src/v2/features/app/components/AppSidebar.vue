@@ -30,6 +30,7 @@ import {
 import { useToasts } from '@scalar/use-toasts'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
@@ -241,9 +242,10 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
     return
   }
 
+  const doc = store.workspace.documents[documentName]
   createTempOperation(documentName, {
     existingPaths: new Set(
-      Object.keys(store.workspace.documents[documentName]?.paths ?? {}),
+      Object.keys((isOpenApiDocument(doc) ? doc.paths : undefined) ?? {}),
     ),
     eventBus: app.eventBus,
     tags: tagName ? [tagName] : undefined,

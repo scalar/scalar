@@ -11,6 +11,7 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { nextTick, ref, watch } from 'vue'
 
 import { createTempOperation } from '@/v2/features/app/helpers/create-temp-operation'
@@ -135,11 +136,10 @@ const handleAddOperation = () => {
     console.error('Document name not found')
     return
   }
+  const doc = workspaceStore.workspace.documents[documentName]
   createTempOperation(documentName, {
     existingPaths: new Set(
-      Object.keys(
-        workspaceStore.workspace.documents[documentName]?.paths ?? {},
-      ),
+      Object.keys((isOpenApiDocument(doc) ? doc.paths : undefined) ?? {}),
     ),
     eventBus,
     tags: tagName ? [tagName] : undefined,
