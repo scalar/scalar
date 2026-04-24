@@ -939,7 +939,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       )
     }
 
-    workspace.documents[name] = createMagicProxy({ ...clonedRawInputDocument, ...meta }) as AsyncApiDocument
+    workspace.documents[name] = createMagicProxy({
+      ...clonedRawInputDocument,
+      ...meta,
+      'x-original-aas-version': originalDocuments[name]?.asyncapi,
+      'x-scalar-original-document-hash': input.documentHash,
+      'x-scalar-original-source-url': input.documentSource,
+    }) as AsyncApiDocument
   }
 
   // Add a document to the store synchronously from an in-memory OpenAPI document
@@ -1275,15 +1281,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return console.error(`Document '${documentName}' does not exist in the workspace.`)
       }
 
-      const isOas = isOpenApiDocument(currentDocument)
-
-      // Replace the whole document
+      // Both OpenApi and AsyncApi documents carry the store-managed metadata extensions, so we
+      // can read them off the union without branching on the doc kind.
       await addInMemoryDocument({
         name: documentName,
         document: input,
         // Preserve the current metadata
-        documentSource: isOas ? currentDocument['x-scalar-original-source-url'] : undefined,
-        documentHash: isOas ? (currentDocument['x-scalar-original-document-hash'] ?? '') : '',
+        documentSource: currentDocument['x-scalar-original-source-url'],
+        documentHash: currentDocument['x-scalar-original-document-hash'] ?? '',
         meta: {
           // Set the document as dirty
           'x-scalar-is-dirty': true,
@@ -1367,13 +1372,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return
       }
 
-      const isOas = isOpenApiDocument(workspaceDocument)
-
       await addInMemoryDocument({
         name: documentName,
         document: intermediate,
-        documentSource: isOas ? workspaceDocument['x-scalar-original-source-url'] : undefined,
-        documentHash: isOas ? (workspaceDocument['x-scalar-original-document-hash'] ?? '') : '',
+        documentSource: workspaceDocument['x-scalar-original-source-url'],
+        documentHash: workspaceDocument['x-scalar-original-document-hash'] ?? '',
         initialize: false,
       })
     },
@@ -1476,7 +1479,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // Compare document hashes to see if the document has changed
       // When the hashes match, we can skip the rebase process
       const newHash = generateHash(resolve.raw)
-      if (isOpenApiDocument(activeDocument) && activeDocument['x-scalar-original-document-hash'] === newHash) {
+      if (activeDocument['x-scalar-original-document-hash'] === newHash) {
         return {
           ok: false,
           type: 'NO_CHANGES_DETECTED' as const,
@@ -1541,10 +1544,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           // TODO: In the future, implement smarter conflict resolution if needed
           const changesetB = changesB.diffs.concat(changesB.conflicts.flatMap((it) => it[0]))
 
-          const newActiveDocument = coerceValue(
-            OpenAPIDocumentSchemaStrict,
-            apply(deepClone(newIntermediateDocument), changesetB),
-          )
+          // Coerce the applied document against the right schema for its kind. AsyncAPI docs
+          // skip the OpenAPI strict coercion (which would strip their fields); everything else
+          // keeps the existing behavior.
+          const appliedDocument = apply(deepClone(newIntermediateDocument), changesetB)
+          const newActiveDocument = isAsyncApiDocument(appliedDocument)
+            ? appliedDocument
+            : coerceValue(OpenAPIDocumentSchemaStrict, appliedDocument)
 
           // add the new active document to the workspace but don't re-initialize
           await addInMemoryDocument({
