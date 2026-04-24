@@ -36,9 +36,10 @@ import {
   restoreOriginalRefs,
   syncPathParameters,
 } from '@/plugins/bundler'
+import type { AsyncApiDocument } from '@/schemas/asyncapi/asyncapi-document'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
-import { isOpenApiDocument } from '@/schemas/type-guards'
+import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { generateSchema } from '@/schemas/v3.1/openapi'
 import { recursiveRef } from '@/schemas/v3.1/openapi/reference'
@@ -875,11 +876,39 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     return true
   }
 
+  type AddInMemoryInput = ObjectDoc & { initialize?: boolean; documentSource?: string; documentHash: string }
+
+  // Dispatch ingestion based on the document kind. AsyncAPI docs take a minimal path that skips
+  // the OpenAPI-specific upgrade/bundle/coerce/validate pipeline (which would otherwise mangle the
+  // document and spam console.warn). Everything else continues through the existing OpenAPI flow.
+  async function addInMemoryDocument(input: AddInMemoryInput, navigationOptions?: NavigationOptions) {
+    if (isAsyncApiDocument(input.document)) {
+      return addAsyncApiDocument(input)
+    }
+    return await addOpenApiDocument(input, navigationOptions)
+  }
+
+  // Minimal AsyncAPI ingestion. Stores the raw document as-is — no upgrade, no bundling, no
+  // coercion, no OpenAPI schema validation, no navigation generation. AsyncAPI-specific validation
+  // lives in its own follow-up (plans/asyncapi-loading/02-asyncapi-validation.md).
+  function addAsyncApiDocument(input: AddInMemoryInput) {
+    const { name, meta } = input
+    const clonedRawInputDocument = withMeasurementSync('deepClone', () => deepClone(input.document))
+
+    withMeasurementSync('initialize', () => {
+      if (input.initialize !== false) {
+        originalDocuments[name] = deepClone(clonedRawInputDocument)
+        intermediateDocuments[name] = deepClone(clonedRawInputDocument)
+        overrides[name] = input.overrides ?? {}
+        extraDocumentConfigurations[name] = { fetch: input.fetch }
+      }
+    })
+
+    workspace.documents[name] = createMagicProxy({ ...clonedRawInputDocument, ...meta }) as AsyncApiDocument
+  }
+
   // Add a document to the store synchronously from an in-memory OpenAPI document
-  async function addInMemoryDocument(
-    input: ObjectDoc & { initialize?: boolean; documentSource?: string; documentHash: string },
-    navigationOptions?: NavigationOptions,
-  ) {
+  async function addOpenApiDocument(input: AddInMemoryInput, navigationOptions?: NavigationOptions) {
     const { name, meta } = input
     const clonedRawInputDocument = withMeasurementSync('deepClone', () => deepClone(input.document))
 
