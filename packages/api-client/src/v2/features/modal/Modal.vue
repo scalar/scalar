@@ -6,8 +6,8 @@ import type { ApiClientOptions } from '@/v2/types/options'
 export type ModalProps = {
   /** The workspace store must be initialized and passed in */
   workspaceStore: WorkspaceStore
-  /** The document must be initialized and passed in */
-  document: ComputedRef<WorkspaceDocument | null>
+  /** The document must be initialized and passed in. OpenAPI-only — the modal has no AsyncAPI path. */
+  document: ComputedRef<OpenApiDocument | null>
   /** The path must be initialized and passed in */
   path: ComputedRef<string | undefined>
   /** The event bus for handling all events */
@@ -44,7 +44,7 @@ import { ScalarToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getActiveEnvironment } from '@scalar/workspace-store/request-example'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import {
   computed,
   onBeforeUnmount,

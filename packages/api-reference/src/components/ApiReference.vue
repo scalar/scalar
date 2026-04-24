@@ -48,6 +48,7 @@ import type {
   TraversedEntry,
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { useScrollLock } from '@vueuse/core'
 import diff from 'microdiff'
 import {
@@ -333,6 +334,17 @@ const { toggleColorMode, isDarkMode } = useColorMode({
 })
 
 /**
+ * The active document narrowed to an OpenAPI document.
+ *
+ * api-reference is OpenAPI-native, so AsyncAPI documents are surfaced as
+ * undefined to downstream components.
+ */
+const activeOpenApiDocument = computed(() => {
+  const doc = workspaceStore.workspace.activeDocument
+  return isOpenApiDocument(doc) ? doc : undefined
+})
+
+/**
  * Create top level sidebar entries for each document
  * This allows sharing a single sidebar state for across the workspace
  */
@@ -344,7 +356,9 @@ const itemsFromWorkspace = computed<TraversedEntry[]>(() => {
       description: document.info.description,
       name: document.info.title ?? slug,
       title: document.info.title ?? slug,
-      children: document?.['x-scalar-navigation']?.children ?? [],
+      children: isOpenApiDocument(document)
+        ? (document['x-scalar-navigation']?.children ?? [])
+        : [],
     }),
   )
 })
@@ -582,7 +596,7 @@ const changeSelectedDocument = async (
     // If the document does not have a selected server we set it to the first server
     if (
       result === true &&
-      document !== undefined &&
+      isOpenApiDocument(document) &&
       document['x-scalar-selected-server'] === undefined
     ) {
       // Set the active server if the document is loaded successfully
@@ -1039,7 +1053,7 @@ const showMCPButton = computed(() => {
           <SearchButton
             v-if="!mergedConfig.hideSearch"
             class="my-2"
-            :document="workspaceStore.workspace.activeDocument"
+            :document="activeOpenApiDocument"
             :eventBus="eventBus"
             :hideModels="mergedConfig.hideModels"
             :searchHotKey="mergedConfig.searchHotKey"
@@ -1075,7 +1089,7 @@ const showMCPButton = computed(() => {
                 v-if="!mergedConfig.hideSearch"
                 class="flex gap-1.5 px-3 pt-3">
                 <SearchButton
-                  :document="workspaceStore.workspace.activeDocument"
+                  :document="activeOpenApiDocument"
                   :eventBus="eventBus"
                   :hideModels="mergedConfig.hideModels"
                   :searchHotKey="mergedConfig.searchHotKey" />
@@ -1169,7 +1183,7 @@ const showMCPButton = computed(() => {
               <SearchButton
                 v-if="!mergedConfig.hideSearch"
                 class="t-doc__sidebar max-w-64"
-                :document="workspaceStore.workspace.activeDocument"
+                :document="activeOpenApiDocument"
                 :eventBus="eventBus"
                 :hideModels="mergedConfig.hideModels"
                 :searchHotKey="mergedConfig.searchHotKey" />

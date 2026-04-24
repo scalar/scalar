@@ -1,6 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { OperationExampleMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { type ShallowRef, computed } from 'vue'
 import { type NavigationFailure, NavigationFailureType, type Router } from 'vue-router'
 
@@ -93,7 +94,8 @@ export function initializeAppEventHandlers({
             // Redirect to the new example if the mutation was successful
             if (status === 'success') {
               // Rebuild the sidebar with the updated order
-              rebuildSidebar(store.value?.workspace.activeDocument?.['x-scalar-navigation']?.name)
+              const activeDoc = store.value?.workspace.activeDocument
+              rebuildSidebar(isOpenApiDocument(activeDoc) ? activeDoc['x-scalar-navigation']?.name : undefined)
 
               // Now this redirect works for any example
               await router.replace({

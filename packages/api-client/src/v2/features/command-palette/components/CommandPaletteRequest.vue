@@ -36,6 +36,7 @@ import {
 } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -117,7 +118,7 @@ const availableTags = computed<TagOption[]>(() => {
   }
 
   const document = workspaceStore.workspace.documents[selectedDocument.value.id]
-  if (!document) {
+  if (!isOpenApiDocument(document)) {
     return []
   }
 
@@ -159,7 +160,10 @@ const operationExists = computed<boolean>(() => {
     ? requestPathTrimmed.value
     : `/${requestPathTrimmed.value}`
 
-  return !!document?.paths?.[normalizedPath]?.[selectedMethod.value.method]
+  return (
+    isOpenApiDocument(document) &&
+    !!document.paths?.[normalizedPath]?.[selectedMethod.value.method]
+  )
 })
 
 /**

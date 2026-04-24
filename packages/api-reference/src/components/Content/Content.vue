@@ -13,6 +13,7 @@ import {
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { TraversedEntry as TraversedEntryType } from '@scalar/workspace-store/schemas/navigation'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import type {
   Workspace,
   WorkspaceDocument,
@@ -78,6 +79,17 @@ const clientOptions = computed(() =>
   generateClientOptions(mapHiddenClientsConfig(options.hiddenClients)),
 )
 
+/**
+ * Narrow the (possibly AsyncAPI) documents to OpenAPI documents. api-reference
+ * is OpenAPI-native, so AsyncAPI fields surface as undefined/empty.
+ */
+const openApiDocument = computed(() =>
+  isOpenApiDocument(document) ? document : undefined,
+)
+const openApiClientDocument = computed(() =>
+  isOpenApiDocument(clientDocument) ? clientDocument : undefined,
+)
+
 /** Computed property to get all OpenAPI extension fields from the root document object */
 const documentExtensions = computed(() => getXKeysFromObject(document))
 
@@ -86,7 +98,7 @@ const infoExtensions = computed(() => getXKeysFromObject(document?.info))
 
 /** Compute the servers for the document */
 const servers = computed(() =>
-  getServers(options?.servers ?? clientDocument?.servers, {
+  getServers(options?.servers ?? openApiClientDocument.value?.servers, {
     baseServerUrl: options?.baseServerURL,
     documentUrl: clientDocument?.['x-scalar-original-source-url'],
   }),
@@ -94,16 +106,21 @@ const servers = computed(() =>
 
 /** Compute the selected server for the document only (for now) */
 const selectedServer = computed(() =>
-  getSelectedServer(clientDocument ?? null, null, null, servers.value),
+  getSelectedServer(
+    openApiClientDocument.value ?? null,
+    null,
+    null,
+    servers.value,
+  ),
 )
 
 /** Merge authentication config with the document security schemes */
 const securitySchemes = computed(() =>
   mergeSecurity(
-    clientDocument?.components?.securitySchemes,
+    openApiClientDocument.value?.components?.securitySchemes,
     options.authentication?.securitySchemes,
     authStore,
-    clientDocument?.['x-scalar-navigation']?.name ?? '',
+    openApiClientDocument.value?.['x-scalar-navigation']?.name ?? '',
   ),
 )
 
@@ -126,12 +143,12 @@ onMounted(() => {
       :documentExtensions
       :documentUrl="document?.['x-scalar-original-source-url']"
       :eventBus
-      :externalDocs="document?.externalDocs"
+      :externalDocs="openApiDocument?.externalDocs"
       :headingSlugGenerator
       :info="document?.info"
       :infoExtensions
       :layout="options.layout"
-      :oasVersion="document?.['x-original-oas-version']">
+      :oasVersion="openApiDocument?.['x-original-oas-version']">
       <template #selectors>
         <!-- Server Selector -->
         <ScalarErrorBoundary>
@@ -172,7 +189,7 @@ onMounted(() => {
               :eventBus
               :selectedClient="xScalarDefaultClient"
               :xScalarSdkInstallation="
-                document?.info?.['x-scalar-sdk-installation']
+                openApiDocument?.info?.['x-scalar-sdk-installation']
               " />
           </IntroductionCardItem>
         </ScalarErrorBoundary>
@@ -182,10 +199,10 @@ onMounted(() => {
     <!-- Render traversed operations and webhooks -->
     <!-- Use recursive component for cleaner rendering -->
     <TraversedEntry
-      v-if="items.length && document"
+      v-if="items.length && openApiDocument"
       :authStore
       :clientOptions
-      :document
+      :document="openApiDocument"
       :entries="items"
       :eventBus
       :expandedItems
