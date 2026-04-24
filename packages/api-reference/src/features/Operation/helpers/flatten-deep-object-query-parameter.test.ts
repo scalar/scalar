@@ -1,8 +1,5 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import {
-  ParameterObjectSchema,
-  SchemaObjectSchema,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { ParameterObjectSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { flattenDeepObjectQueryParameter } from './flatten-deep-object-query-parameter'
@@ -56,15 +53,9 @@ describe('flatten-deep-object-query-parameter', () => {
 
     const result = flattenDeepObjectQueryParameter(parameter)
 
-    expect(result.map((item) => item.name)).toStrictEqual([
-      'page[number]',
-      'page[size]',
-    ])
+    expect(result.map((item) => item.name)).toStrictEqual(['page[number]', 'page[size]'])
     expect(result.map((item) => item.required)).toStrictEqual([true, false])
-    expect(result.map((item) => item.description)).toStrictEqual([
-      'Page number',
-      'Page size',
-    ])
+    expect(result.map((item) => item.description)).toStrictEqual(['Page number', 'Page size'])
     expect(result.every((item) => !('example' in item))).toBe(true)
     expect(result.every((item) => !('examples' in item))).toBe(true)
   })
@@ -93,9 +84,6 @@ describe('flatten-deep-object-query-parameter', () => {
 
     const result = flattenDeepObjectQueryParameter(parameter)
 
-    expect(result.map((item) => item.name)).toStrictEqual([
-      'filter[pagination]',
-      'filter[status]',
-    ])
+    expect(result.map((item) => item.name)).toStrictEqual(['filter[pagination]', 'filter[status]'])
   })
 })
