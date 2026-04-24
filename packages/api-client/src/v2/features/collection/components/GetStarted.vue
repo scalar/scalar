@@ -12,12 +12,13 @@ export default {}
 
 <script setup lang="ts">
 import { ScalarHotkey } from '@scalar/components'
+import { ScalarIconDownloadSimple } from '@scalar/icons'
 
 import Computer from '@/assets/computer.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 
-const { eventBus } = defineProps<RouteProps>()
+const { eventBus, layout } = defineProps<RouteProps>()
 
 const openCommandPalette = () => {
   eventBus.emit('ui:open:command-palette')
@@ -80,6 +81,21 @@ const focusSearch = () => {
             hotkey="J"
             :modifier="['default']" />
         </button>
+        <!--
+          Browser-only nudge to install the desktop app. Hidden in the desktop
+          and modal layouts because the user is already running the native app
+          (or embedded in a host page).
+        -->
+        <a
+          v-if="layout === 'web'"
+          class="text-c-2 hover:text-c-1 flex w-full items-center justify-between gap-8"
+          href="https://scalar.com/download?utm_source=web_client&utm_medium=download_button&utm_campaign=topnav"
+          target="_blank">
+          <span>Download App</span>
+          <ScalarIconDownloadSimple
+            class="size-3.5"
+            weight="bold" />
+        </a>
       </div>
     </div>
   </div>
