@@ -5,7 +5,7 @@ Use this guide to get started with the Scalar API SDK for TypeScript.
 ## Install
 
 ```bash
-pnpm add @scalar/sdk
+npm add @scalar/sdk
 ```
 
 ## Get a Scalar API key
