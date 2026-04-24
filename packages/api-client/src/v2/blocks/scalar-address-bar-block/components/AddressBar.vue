@@ -12,6 +12,8 @@ export type AddressBarProps = {
   path: string
   /** Current request method */
   method: HttpMethodType
+  /** Openapi document */
+  document: OpenApiDocument
   /** Currently selected server */
   server: ServerObject | null
   /** Server list available for operation/document */
@@ -52,7 +54,10 @@ import {
   getResolvedUrl,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  OpenApiDocument,
+  ServerObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import {
   computed,
   onBeforeUnmount,
@@ -77,6 +82,7 @@ const {
   layout,
   eventBus,
   history,
+  document: openapiDocument,
   server,
   servers,
   environment,
@@ -282,13 +288,16 @@ const handleFocusAddressBar = (
 ) => {
   // If it already has focus we just propagate native behavior which should focus the browser address bar
   if (addressBarRef.value?.isFocused && layout !== 'desktop') {
+    console.log('already focused')
     return
   }
 
+  console.log('focusing', addressBarRef.value)
   addressBarRef.value?.focus('end')
 
   if (payload && 'clear' in payload && payload.clear) {
-    addressBarRef.value?.setCodeMirrorContent('/')
+    console.log('clearing')
+    addressBarRef.value?.setCodeMirrorContent('')
   }
 
   if (payload && 'event' in payload) {
@@ -302,6 +311,11 @@ onMounted(() => {
   eventBus.on('copy-url:address-bar', copyUrl)
   eventBus.on('hooks:on:request:sent', startLoading)
   eventBus.on('hooks:on:request:complete', stopLoading)
+
+  if (openapiDocument.info?.title.toLowerCase() === 'drafts' && path === '/') {
+    console.log('asdhasdkj')
+    handleFocusAddressBar({ clear: true })
+  }
 })
 
 onBeforeUnmount(() => {
@@ -411,7 +425,7 @@ defineExpose({
           ref="addressBarRef"
           alwaysEmitChange
           aria-label="Path"
-          class="min-w-fit outline-none"
+          class="min-w-fit pl-px outline-none"
           disableCloseBrackets
           :disabled="layout === 'modal'"
           disableEnter
