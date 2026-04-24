@@ -53,7 +53,8 @@ describe('ModalClient.vue', () => {
       },
     })
 
-    expect(wrapper.find('.scalar').isVisible()).toBe(false)
+    // Visibility is controlled via CSS class (not v-show/display:none) to avoid layout reflow on open
+    expect(wrapper.find('.scalar-container').classes()).not.toContain('scalar-client--open')
   })
 
   it('shows when modalState.open becomes true', async ({ onTestFinished }) => {
@@ -68,7 +69,7 @@ describe('ModalClient.vue', () => {
     await wrapper.setProps({ modalState })
     await nextTick()
 
-    expect(wrapper.find('.scalar').isVisible()).toBe(true)
+    expect(wrapper.find('.scalar-container').classes()).toContain('scalar-client--open')
 
     onTestFinished(() => {
       wrapper.unmount()
@@ -87,7 +88,9 @@ describe('ModalClient.vue', () => {
     modalState = { ...modalState, open: true }
     await wrapper.setProps({ modalState })
 
-    // Wait for the focus trap to activate
+    // Wait for Vue to flush the watch callback
+    await nextTick()
+    // Wait for the inner nextTick inside the watch (before activateFocusTrap is called)
     await nextTick()
     // Wait for the browser to apply the focus
     await new Promise((resolve) => setTimeout(resolve, 0))

@@ -157,10 +157,10 @@ describe('Modal', () => {
 
     /**
      * The modal should be hidden when modalState.open is false.
-     * Uses v-show so the element exists but is not visible.
+     * Visibility is controlled via CSS class (not v-show/display:none) to avoid layout reflow on open.
      */
-    const scalarApp = wrapper.find('.scalar')
-    expect(scalarApp.attributes('style')).toContain('display: none')
+    const container = wrapper.find('.scalar-container')
+    expect(container.classes()).not.toContain('scalar-client--open')
   })
 
   it('renders Operation component when document, path, and method are provided', async () => {
