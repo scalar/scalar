@@ -4,7 +4,7 @@ import Ajv04 from 'ajv-draft-04'
 import addFormats from 'ajv-formats'
 
 import { ERRORS, OpenApiSpecifications, type OpenApiVersion, OpenApiVersions } from '@/configuration'
-import type { AnyObject, Filesystem, ThrowOnErrorOption, ValidateResult } from '@/types/index'
+import type { AnyObject, Filesystem, ThrowOnErrorOption, UnknownObject, ValidateResult } from '@/types/index'
 import { details as getOpenApiVersion } from '@/utils/details'
 import { resolveReferences } from '@/utils/resolve-references'
 import { transformErrors } from '@/utils/transform-errors'
@@ -33,7 +33,7 @@ export class Validator {
 
   protected specificationType: string
 
-  public specification: AnyObject
+  public specification: UnknownObject
 
   /**
    * Checks whether a specification is valid and all references can be resolved.

@@ -1,5 +1,5 @@
 import { Validator } from '@/lib/Validator/Validator'
-import type { AnyObject, Filesystem, OpenApiDocument, ThrowOnErrorOption, ValidateResult } from '@/types/index'
+import type { Filesystem, OpenApiDocument, ThrowOnErrorOption, UnknownObject, ValidateResult } from '@/types/index'
 
 import { makeFilesystem } from './make-filesystem'
 
@@ -8,7 +8,7 @@ export type ValidateOptions = ThrowOnErrorOption
 /**
  * Validates an OpenAPI document
  */
-export function validate(value: string | AnyObject | Filesystem, options?: ValidateOptions): Promise<ValidateResult> {
+export function validate(value: string | UnknownObject | Filesystem, options?: ValidateOptions): Promise<ValidateResult> {
   try {
     const filesystem = makeFilesystem(value)
 
@@ -19,10 +19,17 @@ export function validate(value: string | AnyObject | Filesystem, options?: Valid
      * Currently contains no asynchronous logic, but returns a Promise
      * to preserve API compatibility and allow async logic in the future.
      */
+    if (result.valid) {
+      return Promise.resolve({
+        ...result,
+        specification: validator.specification as OpenApiDocument,
+        version: validator.version,
+      })
+    }
+
     return Promise.resolve({
       ...result,
-      specification: validator.specification as OpenApiDocument,
-      version: validator.version,
+      specification: validator.specification as UnknownObject,
     })
   } catch (err) {
     return Promise.reject(err)

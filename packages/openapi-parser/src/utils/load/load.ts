@@ -1,11 +1,11 @@
 import { ERRORS } from '@/configuration'
 import type {
   AnyApiDefinitionFormat,
-  AnyObject,
   ErrorObject,
   Filesystem,
   LoadResult,
   ThrowOnErrorOption,
+  UnknownObject,
 } from '@/types/index'
 import { getEntrypoint } from '@/utils/get-entrypoint'
 import { getListOfReferences } from '@/utils/get-list-of-references'
@@ -56,7 +56,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   // Check whether the value is an URL or file path
   const plugin = options?.plugins?.find((thisPlugin) => thisPlugin.check(value))
 
-  let content: AnyObject
+  let content: UnknownObject
 
   if (plugin) {
     try {
