@@ -2,7 +2,8 @@ import { Type } from '@scalar/typebox'
 
 import type { PathMethodHistory } from '@/entities/history/schema'
 import { createIndexDbConnection } from '@/persistence/indexdb'
-import { runV2Migration } from '@/persistence/migrations/v2-team-to-local'
+import { v1InitialMigration } from '@/persistence/migrations/v1-initial'
+import { v2TeamToLocalMigration } from '@/persistence/migrations/v2-team-to-local'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import type { WorkspaceMeta } from '@/schemas/workspace'
 
@@ -30,16 +31,13 @@ export const getWorkspaceId = (namespace: string, slug: string) => `${namespace}
  * for upsetting records, and in the case of `workspace`, also `getItem` and `deleteItem`.
  */
 export const createWorkspaceStorePersistence = async () => {
-  // Create the database connection and setup all required tables for workspace storage.
+  // The `tables` config below only describes the CURRENT shape for TypeScript
+  // typing on the wrapper API. All schema evolution — creating object stores,
+  // keyPaths, indexes, renames, drops — is owned by the migrations array so
+  // fresh installs and upgrades converge on exactly the same state.
   const connection = await createIndexDbConnection({
     name: 'scalar-workspace-store',
-    version: 2,
-    migrations: [
-      {
-        version: 2,
-        exec: (_db, event) => runV2Migration(event),
-      },
-    ],
+    migrations: [v1InitialMigration, v2TeamToLocalMigration],
     tables: {
       workspace: {
         schema: Type.Object({
@@ -53,9 +51,6 @@ export const createWorkspaceStorePersistence = async () => {
           slug: Type.String({ default: 'local' }),
         }),
         keyPath: ['namespace', 'slug'],
-        indexes: {
-          teamSlug: ['teamSlug'],
-        },
       },
       meta: {
         schema: Type.Object({ workspaceId: Type.String(), data: Type.Any() }),

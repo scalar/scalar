@@ -37,7 +37,7 @@ describe('v2-team-to-local', () => {
       ])
     })
 
-    it('moves team workspaces into local and stores the previous namespace as teamSlug', () => {
+    it('moves team workspaces into local with teamSlug local', () => {
       const plan = planWorkspaceMigration([
         { name: 'Team Workspace', namespace: 'acme', slug: 'api', teamUid: 'acme-uid' },
       ])
@@ -45,7 +45,7 @@ describe('v2-team-to-local', () => {
       expect(plan).toEqual([
         {
           before: { namespace: 'acme', slug: 'api' },
-          after: { name: 'Team Workspace', teamSlug: 'acme', namespace: 'local', slug: 'api' },
+          after: { name: 'Team Workspace', teamSlug: 'local', namespace: 'local', slug: 'api' },
         },
       ])
     })
@@ -58,7 +58,7 @@ describe('v2-team-to-local', () => {
 
       expect(plan[1]?.after).toEqual({
         name: 'Team API',
-        teamSlug: 'acme',
+        teamSlug: 'local',
         namespace: 'local',
         slug: 'api-2',
       })
@@ -155,7 +155,7 @@ describe('v2-team-to-local', () => {
       })
     }
 
-    it('converts a team workspace into a local workspace with teamSlug', async () => {
+    it('converts a team workspace into a fully local workspace', async () => {
       let persistence: Awaited<ReturnType<typeof createWorkspaceStorePersistence>> | undefined
       try {
         await seedV1Database([
@@ -181,10 +181,10 @@ describe('v2-team-to-local', () => {
         // The team workspace should no longer be addressable by its old key.
         expect(await persistence.workspace.has({ namespace: 'acme', slug: 'api' })).toBe(false)
 
-        // It now lives under the local namespace and exposes teamSlug.
+        // It now lives fully under local — both namespace and team slug.
         const migrated = await persistence.workspace.getItem({ namespace: 'local', slug: 'api' })
         expect(migrated).toBeDefined()
-        expect(migrated?.teamSlug).toBe('acme')
+        expect(migrated?.teamSlug).toBe('local')
         expect(migrated?.namespace).toBe('local')
         expect(migrated?.slug).toBe('api')
         expect(migrated?.workspace.meta).toEqual({ 'x-scalar-color-mode': 'dark' })
@@ -232,13 +232,17 @@ describe('v2-team-to-local', () => {
         const all = await persistence.workspace.getAll()
         for (const workspace of all) {
           expect(workspace).not.toHaveProperty('teamUid')
-          expect(workspace).toHaveProperty('teamSlug')
+          expect(workspace.teamSlug).toBe('local')
         }
 
         // The new teamSlug index should let us look up workspaces by team.
+        // Every migrated workspace is now under `local`; the old `acme` team
+        // no longer has any workspaces associated with it.
+        const localWorkspaces = await persistence.workspace.getAllByTeamSlug('local')
+        expect(localWorkspaces.map((w) => w.slug).sort()).toEqual(['api', 'personal'])
+
         const acmeWorkspaces = await persistence.workspace.getAllByTeamSlug('acme')
-        expect(acmeWorkspaces).toHaveLength(1)
-        expect(acmeWorkspaces[0]?.slug).toBe('api')
+        expect(acmeWorkspaces).toHaveLength(0)
       } finally {
         await cleanup(persistence)
       }
