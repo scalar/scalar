@@ -683,6 +683,7 @@ describe('updateSelectedScopes', () => {
               authorizationCode: {
                 authorizationUrl: 'https://example.com/authorize',
                 tokenUrl: 'https://example.com/token',
+                refreshUrl: 'https://example.com/refresh',
                 scopes: {
                   'read:data': 'Read data',
                   'write:data': 'Write data',
