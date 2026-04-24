@@ -60,7 +60,7 @@ export type GetEntryByLocation = (location: {
     })
   | undefined
 
-type WorkspaceOption = ScalarListboxOption & { teamUid: string; namespace: string; slug: string }
+type WorkspaceOption = ScalarListboxOption & { teamSlug: string; namespace: string; slug: string }
 
 /** Defines the overall application state structure and its main feature modules */
 export type AppState = {
@@ -94,14 +94,14 @@ export type AppState = {
   workspace: {
     /** Creates a new workspace and navigates to it */
     create: (payload: {
-      teamUid?: string
+      teamSlug?: string
       namespace?: string
       slug?: string
       name: string
-    }) => Promise<{ name: string; namespace: string; slug: string; teamUid: string } | undefined>
+    }) => Promise<{ name: string; namespace: string; slug: string; teamSlug: string } | undefined>
     /** All workspace list */
     workspaceList: Ref<WorkspaceOption[]>
-    /** Filtered workspace list, based on the current teamUid */
+    /** Filtered workspace list, based on the current teamSlug */
     filteredWorkspaceList: ComputedRef<WorkspaceOption[]>
     /**
      * Groups workspaces into team and local categories for display in the workspace picker.
@@ -139,10 +139,10 @@ export type AppState = {
     method: Ref<HttpMethod | undefined>
     /** The name of the currently selected example (for examples within an endpoint) */
     exampleName: Ref<string | undefined>
-    /** The unique identifier for the selected team context (read-only; use setTeamUid to change) */
-    teamUid: Readonly<Ref<string>>
-    /** Sets the current team context by team UID */
-    setTeamUid: (value: string) => void
+    /** The slug of the selected team context (read-only; use setTeamSlug to change) */
+    teamSlug: Readonly<Ref<string>>
+    /** Sets the current team context by team slug */
+    setTeamSlug: (value: string) => void
   }
   /** The currently active environment */
   environment: ComputedRef<XScalarEnvironment>
@@ -205,7 +205,7 @@ export const createAppState = async ({
   // ---------------------------------------------------------------------------
   // Active entities
   // ---------------------------------------------------------------------------
-  const teamUid = ref<string>('local')
+  const teamSlug = ref<string>('local')
   const namespace = ref<string | undefined>(undefined)
   const workspaceSlug = ref<string | undefined>(undefined)
   const documentSlug = ref<string | undefined>(undefined)
@@ -226,8 +226,8 @@ export const createAppState = async ({
   // Workspace persistence state management
   const activeWorkspace = shallowRef<{ id: string; label: string } | null>(null)
   const workspaces = ref<WorkspaceOption[]>([])
-  const filteredWorkspaces = computed(() => filterWorkspacesByTeam(workspaces.value, teamUid.value))
-  const workspaceGroups = computed(() => groupWorkspacesByTeam(filteredWorkspaces.value, teamUid.value))
+  const filteredWorkspaces = computed(() => filterWorkspacesByTeam(workspaces.value, teamSlug.value))
+  const workspaceGroups = computed(() => groupWorkspacesByTeam(filteredWorkspaces.value, teamSlug.value))
   const store = shallowRef<WorkspaceStore | null>(null)
 
   // Load persisted telemetry preference, falling back to the provided default
@@ -250,9 +250,9 @@ export const createAppState = async ({
 
   /** Update the workspace list when the component is mounted */
   workspaces.value = await persistence.getAll().then((w) =>
-    w.map(({ teamUid, namespace, slug, name }) => ({
+    w.map(({ teamSlug, namespace, slug, name }) => ({
       id: getWorkspaceId(namespace, slug),
-      teamUid,
+      teamSlug,
       namespace,
       slug,
       label: name,
@@ -344,12 +344,12 @@ export const createAppState = async ({
    */
   const createAndPersistWorkspace = async ({
     name,
-    teamUid,
+    teamSlug,
     namespace,
     slug,
   }: {
     name: string
-    teamUid?: string
+    teamSlug?: string
     namespace?: string
     slug: string
   }) => {
@@ -377,7 +377,7 @@ export const createAppState = async ({
       { namespace, slug },
       {
         name: name,
-        teamUid,
+        teamSlug,
         workspace: draftStore.exportWorkspace(),
       },
     )
@@ -385,7 +385,7 @@ export const createAppState = async ({
     // Update the workspace list
     workspaces.value.push({
       id: getWorkspaceId(workspace.namespace, workspace.slug),
-      teamUid: workspace.teamUid,
+      teamSlug: workspace.teamSlug,
       namespace: workspace.namespace,
       slug: workspace.slug,
       label: workspace.name,
@@ -430,12 +430,12 @@ export const createAppState = async ({
    *   // -> Navigates to /workspace/my-awesome-api (if available)
    */
   const createWorkspace = async ({
-    teamUid,
+    teamSlug,
     namespace,
     slug,
     name,
   }: {
-    teamUid?: string
+    teamSlug?: string
     namespace?: string
     slug?: string
     name: string
@@ -457,7 +457,7 @@ export const createAppState = async ({
     }
 
     const newWorkspaceDetails = {
-      teamUid,
+      teamSlug,
       namespace,
       slug: newWorkspaceSlug,
       name,
@@ -534,7 +534,7 @@ export const createAppState = async ({
 
     // Navigate to the default workspace, or fall back to the first available workspace
     const targetWorkspace =
-      filteredWorkspaces.value.find((workspace) => workspace.teamUid === 'local' && workspace.slug === 'default') ??
+      filteredWorkspaces.value.find((workspace) => workspace.teamSlug === 'local' && workspace.slug === 'default') ??
       filteredWorkspaces.value[0]
 
     if (targetWorkspace) {
@@ -561,17 +561,17 @@ export const createAppState = async ({
    * Sets the current team context. If the active workspace is not accessible
    * with the new team, navigates to the default workspace for that team.
    */
-  const setTeamUid = (value: string) => {
-    // Update the new teamUid
-    teamUid.value = value
+  const setTeamSlug = (value: string) => {
+    // Update the active team slug.
+    teamSlug.value = value
 
     // Find the current workspace
     const workspace = filteredWorkspaces.value.find(
       (w) => w.namespace === namespace.value && w.slug === workspaceSlug.value,
     )
 
-    // Check if new teamUid is accessible to the current workspace
-    if (workspace && canLoadWorkspace(workspace.teamUid, value)) {
+    // Check if the new team slug is accessible to the current workspace.
+    if (workspace && canLoadWorkspace(workspace.teamSlug, value)) {
       return
     }
 
@@ -916,13 +916,13 @@ export const createAppState = async ({
       return
     }
 
-    // Try to see if the user can load this workspace based on the teamUid and namespace
+    // Try to see if the user can load this workspace based on the teamSlug and namespace
     const workspace = workspaces.value.find(
       (workspace) => workspace.slug === slug && workspace.namespace === namespaceValue,
     )
 
-    // If the workspace is not found or the teamUid does not match, try to redirect to the default workspace
-    if (workspace && !canLoadWorkspace(workspace.teamUid, teamUid.value)) {
+    // If the workspace is not found or the teamSlug does not match, try to redirect to the default workspace
+    if (workspace && !canLoadWorkspace(workspace.teamSlug, teamSlug.value)) {
       // try to redirect to the default workspace
       return navigateToWorkspace('local', 'default')
     }
@@ -1060,8 +1060,8 @@ export const createAppState = async ({
       path,
       method,
       exampleName,
-      teamUid: readonly(teamUid),
-      setTeamUid,
+      teamSlug: readonly(teamSlug),
+      setTeamSlug,
     },
     environment,
     document: activeDocument,

@@ -10,7 +10,7 @@ export type WorkspaceItem = {
   /** Display name of the workspace. */
   label: string
   /** Team identifier. Use 'local' for local workspaces. */
-  teamUid: string
+  teamSlug: string
 }
 
 /**
@@ -19,19 +19,19 @@ export type WorkspaceItem = {
  * followed by local workspaces.
  *
  * @param workspaces - Array of workspaces to group
- * @param currentTeamUid - Current team identifier ('local' for local team)
+ * @param currentTeamSlug - Current team identifier ('local' for local team)
  * @returns Array of workspace groups with labels and options
  */
-export function groupWorkspacesByTeam(workspaces: WorkspaceItem[], currentTeamUid: string): WorkspaceGroup[] {
-  // Group workspaces by teamUid
+export function groupWorkspacesByTeam(workspaces: WorkspaceItem[], currentTeamSlug: string): WorkspaceGroup[] {
+  // Bucket workspaces by their team slug.
   const workspacesByTeam = workspaces.reduce<Record<string, ScalarListboxOption[]>>((acc, workspace) => {
-    const teamUid = workspace.teamUid
+    const teamSlug = workspace.teamSlug
 
-    if (!acc[teamUid]) {
-      acc[teamUid] = []
+    if (!acc[teamSlug]) {
+      acc[teamSlug] = []
     }
 
-    acc[teamUid].push({
+    acc[teamSlug].push({
       id: workspace.id,
       label: workspace.label,
     })
@@ -42,8 +42,8 @@ export function groupWorkspacesByTeam(workspaces: WorkspaceItem[], currentTeamUi
   const result: WorkspaceGroup[] = []
 
   // Add current team workspaces (if not local)
-  if (currentTeamUid !== 'local') {
-    const teamWorkspaces = workspacesByTeam[currentTeamUid] ?? []
+  if (currentTeamSlug !== 'local') {
+    const teamWorkspaces = workspacesByTeam[currentTeamSlug] ?? []
 
     if (teamWorkspaces.length > 0) {
       result.push({

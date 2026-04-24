@@ -2,6 +2,7 @@ import { Type } from '@scalar/typebox'
 
 import type { PathMethodHistory } from '@/entities/history/schema'
 import { createIndexDbConnection } from '@/persistence/indexdb'
+import { runV2Migration } from '@/persistence/migrations/v2-team-to-local'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import type { WorkspaceMeta } from '@/schemas/workspace'
 
@@ -11,7 +12,7 @@ type WorkspaceKey = {
 }
 
 type WorkspaceStoreShape = {
-  teamUid: string
+  teamSlug: string
   name: string
   workspace: InMemoryWorkspace
 }
@@ -32,22 +33,28 @@ export const createWorkspaceStorePersistence = async () => {
   // Create the database connection and setup all required tables for workspace storage.
   const connection = await createIndexDbConnection({
     name: 'scalar-workspace-store',
-    version: 1,
+    version: 2,
+    migrations: [
+      {
+        version: 2,
+        exec: (_db, event) => runV2Migration(event),
+      },
+    ],
     tables: {
       workspace: {
         schema: Type.Object({
           /** Visual name for a given workspace */
           name: Type.String(),
-          /** When logged in all new workspaces (remote and local) are scoped to a team  */
-          teamUid: Type.String({ default: 'local' }),
-          /** Namespace associated with a remote workspace */
+          /** Slug of the team this workspace belongs to. Use 'local' for personal workspaces. */
+          teamSlug: Type.String({ default: 'local' }),
+          /** Namespace associated with a workspace. Always 'local' since v2. */
           namespace: Type.String({ default: 'local' }),
-          /** Slug associated with a remote workspace */
+          /** Slug associated with the workspace, unique within the namespace. */
           slug: Type.String({ default: 'local' }),
         }),
         keyPath: ['namespace', 'slug'],
         indexes: {
-          teamUid: ['teamUid'],
+          teamSlug: ['teamSlug'],
         },
       },
       meta: {
@@ -191,7 +198,7 @@ export const createWorkspaceStorePersistence = async () => {
         // Compose the workspace structure from table records.
         return {
           name: workspace.name,
-          teamUid: workspace.teamUid,
+          teamSlug: workspace.teamSlug,
           namespace: workspace.namespace,
           slug: workspace.slug,
           workspace: {
@@ -221,10 +228,10 @@ export const createWorkspaceStorePersistence = async () => {
       },
 
       /**
-       * Retrieves all workspaces for a given team UID.
+       * Retrieves all workspaces for a given team slug.
        */
-      getAllByTeamUid: async (teamUid: string) => {
-        return await workspaceTable.getRange([teamUid], 'teamUid')
+      getAllByTeamSlug: async (teamSlug: string) => {
+        return await workspaceTable.getRange([teamSlug], 'teamSlug')
       },
 
       /**
@@ -234,13 +241,13 @@ export const createWorkspaceStorePersistence = async () => {
        */
       setItem: async (
         { namespace = 'local', slug }: WorkspaceKey,
-        value: Omit<WorkspaceStoreShape, 'teamUid'> & Partial<Pick<WorkspaceStoreShape, 'teamUid'>>,
+        value: Omit<WorkspaceStoreShape, 'teamSlug'> & Partial<Pick<WorkspaceStoreShape, 'teamSlug'>>,
       ) => {
         const workspace = await workspaceTable.addItem(
           { namespace, slug },
           {
             name: value.name,
-            teamUid: value.teamUid ?? 'local',
+            teamSlug: value.teamSlug ?? 'local',
           },
         )
         const id = getWorkspaceId(namespace, slug)

@@ -87,7 +87,7 @@ export const migrateLocalStorageToIndexDb = async () => {
             {
               name: workspace.name,
               workspace: workspace.workspace,
-              teamUid: 'local',
+              teamSlug: 'local',
             },
           ),
         ),

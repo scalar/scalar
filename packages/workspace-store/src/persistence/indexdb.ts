@@ -66,7 +66,7 @@ export const createIndexDbConnection = async <T extends Record<string, TableEntr
   name: string
   tables: T
   version: number
-  migrations?: { version: number; exec: (db: IDBDatabase, event: IDBVersionChangeEvent) => {} }[]
+  migrations?: { version: number; exec: (db: IDBDatabase, event: IDBVersionChangeEvent) => void }[]
 }) => {
   const db = indexedDB.open(name, version)
 
