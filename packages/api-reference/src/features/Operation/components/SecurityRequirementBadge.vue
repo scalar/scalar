@@ -6,8 +6,9 @@ import { computed } from 'vue'
 import SecurityRequirementBadgeScheme from '@/features/Operation/components/SecurityRequirementBadgeScheme.vue'
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 
-const { requiredSecurity } = defineProps<{
+const { requiredSecurity, hideLabel = false } = defineProps<{
   requiredSecurity: RequiredSecurity
+  hideLabel?: boolean
 }>()
 
 const label = computed(() =>
@@ -58,7 +59,7 @@ const isOrAlternatives = computed(
         v-else
         class="size-3"
         weight="bold" />
-      {{ label }}
+      <span v-if="!hideLabel">{{ label }}</span>
     </button>
     <template #popover>
       <div class="flex max-w-xs min-w-48 flex-col gap-1.5 p-2 text-sm">
@@ -85,8 +86,8 @@ const isOrAlternatives = computed(
             class="markdown">
             <!-- Single scheme in this OR branch -->
             <SecurityRequirementBadgeScheme
-              v-if="group.schemes.length === 1"
               is="span"
+              v-if="group.schemes.length === 1"
               class="contents"
               :scheme="group.schemes[0]!" />
             <!-- Multiple AND schemes in this OR branch -->

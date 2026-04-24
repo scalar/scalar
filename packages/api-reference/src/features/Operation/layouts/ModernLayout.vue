@@ -111,6 +111,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
     tabindex="-1"
     @intersecting="() => eventBus?.emit('intersecting:nav-item', { id })">
     <SectionContent>
+      <!-- Badges -->
       <div class="flex flex-row justify-between gap-1">
         <!-- Left -->
         <div class="flex gap-1">
@@ -138,26 +139,32 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
         </div>
         <!-- Right -->
         <div class="flex gap-1">
-          <!-- Required auth badge -->
-          <SecurityRequirementBadge :requiredSecurity="requiredSecurity" />
           <!-- x-badges after -->
           <XBadges
             :badges="operation['x-badges']"
             position="after" />
         </div>
       </div>
-      <div :class="isOperationDeprecated(operation) ? 'deprecated' : ''">
-        <SectionHeader>
-          <Anchor
-            @copyAnchorUrl="() => eventBus?.emit('copy-url:nav-item', { id })">
-            <SectionHeaderTag
-              :id="labelId"
-              :level="3">
-              {{ operationTitle }}
-            </SectionHeaderTag>
-          </Anchor>
-        </SectionHeader>
+      <div class="mb-3 flex flex-row items-center justify-between gap-1">
+        <div :class="isOperationDeprecated(operation) && 'deprecated'">
+          <SectionHeader innerClass="mb-0">
+            <Anchor
+              @copyAnchorUrl="
+                () => eventBus?.emit('copy-url:nav-item', { id })
+              ">
+              <SectionHeaderTag
+                :id="labelId"
+                :level="3">
+                {{ operationTitle }}
+              </SectionHeaderTag>
+            </Anchor>
+          </SectionHeader>
+        </div>
+
+        <!-- Required auth badge -->
+        <SecurityRequirementBadge :requiredSecurity />
       </div>
+
       <SectionColumns>
         <SectionColumn>
           <div class="operation-details">
