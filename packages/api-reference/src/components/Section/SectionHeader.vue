@@ -4,7 +4,6 @@ import LoadingSkeleton from '../LoadingSkeleton.vue'
 defineProps<{
   loading?: boolean
   tight?: boolean
-  innerClass?: string
 }>()
 </script>
 
@@ -14,7 +13,7 @@ defineProps<{
     <div
       v-else
       class="section-header"
-      :class="[{ tight }, innerClass]">
+      :class="{ tight }">
       <slot />
     </div>
     <slot
