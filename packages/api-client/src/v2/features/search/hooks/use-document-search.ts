@@ -33,8 +33,9 @@ export function useDocumentSearch(document: MaybeRefOrGetter<OpenApiDocument | u
   const query = ref<string>('')
 
   const results = computed<FuseResult<FuseData>[]>(() => {
-    if (query.value.length !== 0) {
-      return fuse.value.search(query.value, { limit: MAX_SEARCH_RESULTS })
+    const trimmed = query.value.trim()
+    if (trimmed) {
+      return fuse.value.search(trimmed, { limit: MAX_SEARCH_RESULTS })
     }
 
     return searchIndex.value.slice(0, MAX_SEARCH_RESULTS).map(
