@@ -28,16 +28,7 @@ type DeepLenientOpenApiType<T> = T extends (...args: any[]) => any
       ? { [K in keyof T]?: DeepLenientOpenApiType<T[K]> } & AnyObject
       : T
 
-export type StrictOpenApiDocument2 = OpenApiDocumentV2
-export type StrictOpenApiDocument3 = OpenApiDocumentV3
-export type StrictOpenApiDocument3_1 = OpenApiDocumentV3_1
-export type StrictOpenApiDocument3_2 = OpenApiDocumentV3_2
-
-export type StrictOpenApiDocument =
-  | StrictOpenApiDocument2
-  | StrictOpenApiDocument3
-  | StrictOpenApiDocument3_1
-  | StrictOpenApiDocument3_2
+export type StrictOpenApiDocument = OpenApiDocumentV2 | OpenApiDocumentV3 | OpenApiDocumentV3_1 | OpenApiDocumentV3_2
 
 export type OpenApiDocument2 = DeepLenientOpenApiType<OpenApiDocumentV2>
 export type OpenApiDocument3 = DeepLenientOpenApiType<OpenApiDocumentV3>
