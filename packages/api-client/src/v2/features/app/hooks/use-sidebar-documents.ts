@@ -108,12 +108,20 @@ export function useSidebarDocuments({
 
       const title = navigation?.title || doc?.info?.title || 'Untitled'
 
+      // On team workspaces we key by registry coordinates so entries with the
+      // same `namespace/slug` can later be grouped into a single row with
+      // versions. On local workspaces we always key by the workspace document
+      // name, which is guaranteed to be unique because it is the map key in
+      // `store.workspace.documents`. If we derived the key from registry meta
+      // on local workspaces too, two documents sharing the same
+      // `x-scalar-registry-meta` would produce duplicate Vue `:key`s in the
+      // sidebar `v-for` and silently collide on re-render.
+      const isTeam = isTeamWorkspace.value
       return {
-        key: registry ? registryKey(registry.namespace, registry.slug) : name,
+        key: isTeam && registry ? registryKey(registry.namespace, registry.slug) : name,
         title,
         documentName: name,
-        registry:
-          isTeamWorkspace.value && registry ? { namespace: registry.namespace, slug: registry.slug } : undefined,
+        registry: isTeam && registry ? { namespace: registry.namespace, slug: registry.slug } : undefined,
         navigation,
         // TODO: we can implement this later
         isPinned: false,

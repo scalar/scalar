@@ -97,6 +97,11 @@ describe('use-sidebar-documents', () => {
         isPinned: false,
       },
     ])
+
+    // Every entry must have a unique `key` so the sidebar `v-for` does not
+    // render duplicate Vue `:key`s.
+    const keys = rest.value.map((d) => d.key)
+    expect(new Set(keys).size).toBe(keys.length)
   })
 
   it('falls back to the Untitled when no title is available', () => {
@@ -142,13 +147,14 @@ describe('use-sidebar-documents', () => {
       managedDocs: () => [{ namespace: 'acme', slug: 'orders', title: 'Orders API' }],
     })
 
-    // The sidebar key is still derived from `x-scalar-registry-meta` so keys
-    // stay stable if the workspace is later upgraded to a team workspace, but
-    // `registry` is left undefined and the registry-only Orders entry is not
-    // merged in.
+    // On local workspaces the sidebar key is derived from the workspace
+    // document name (which is guaranteed unique) rather than the registry
+    // coordinates. This avoids duplicate Vue `:key`s when two local documents
+    // share the same `x-scalar-registry-meta`. `registry` is also left
+    // undefined and the registry-only Orders entry is not merged in.
     expect(rest.value).toStrictEqual([
       {
-        key: '@acme/pets',
+        key: 'pets',
         title: 'Pets API',
         documentName: 'pets',
         registry: undefined,
@@ -156,6 +162,29 @@ describe('use-sidebar-documents', () => {
         isPinned: false,
       },
     ])
+  })
+
+  it('uses the document name as key on local workspaces to avoid collisions when registry meta is duplicated', () => {
+    const { app } = createFakeApp({
+      documents: {
+        'pets-a': {
+          info: { title: 'Pets A', version: '1.0.0' },
+          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets' },
+        },
+        'pets-b': {
+          info: { title: 'Pets B', version: '1.0.0' },
+          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets' },
+        },
+      },
+      isTeamWorkspace: false,
+    })
+
+    const { rest } = useSidebarDocuments({ app, managedDocs: () => [] })
+
+    // Both entries must survive and have distinct keys, otherwise Vue would
+    // render only one of them under a duplicated `:key`.
+    expect(rest.value).toHaveLength(2)
+    expect(rest.value.map((d) => d.key)).toStrictEqual(['pets-a', 'pets-b'])
   })
 
   it('groups team-workspace documents that share the same registry coordinates', () => {
@@ -358,9 +387,11 @@ describe('use-sidebar-documents', () => {
       managedDocs: () => [{ namespace: 'acme', slug: 'orders', title: 'Orders' }],
     })
 
-    // Local: registry field is undefined and the registry-only Orders entry
-    // is ignored entirely.
-    expect(rest.value.map((d) => d.key)).toStrictEqual(['@acme/pets'])
+    // Local: the key comes from the workspace document name (to avoid
+    // collisions when multiple local documents share the same registry
+    // meta), the `registry` field is undefined, and the registry-only Orders
+    // entry is ignored entirely.
+    expect(rest.value.map((d) => d.key)).toStrictEqual(['pets'])
     expect(rest.value[0]?.registry).toBeUndefined()
 
     teamFlag.value = true
