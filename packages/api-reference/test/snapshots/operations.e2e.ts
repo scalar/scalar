@@ -27,25 +27,25 @@ toTest.forEach((source) => {
       await region.getByRole('button', { name: 'Show' }).click()
     }
 
-    const getAllPlanets = page.getByRole('region', { name: 'Get all planets' })
-    const createAPlanet = page.getByRole('region', { name: 'Create a planet' })
+    const getAllPlanets = await page.getByRole('region', { name: 'Get all planets' })
+    const createAPlanet = await page.getByRole('region', { name: 'Create a planet' })
 
     // On classic we need to expand the operations
     if (isClassic(source)) {
-      await getAllPlanets.locator('.section-accordion-button').click()
-      await createAPlanet.locator('.section-accordion-button').click()
+      await getAllPlanets.getByRole('button', { expanded: false }).click()
+      await createAPlanet.getByRole('button', { expanded: false }).click()
     }
 
     // Snapshot the request body
-    const requestQueryParams = getAllPlanets.getByRole('list', { name: 'Query Parameters' })
+    const requestQueryParams = await getAllPlanets.getByRole('list', { name: 'Query Parameters' })
     await expect(requestQueryParams).toHaveScreenshot(`${slug}-request-query-params.png`)
 
     // Snapshot the request body
-    const requestBody = createAPlanet.getByRole('group', { name: 'Request Body' })
+    const requestBody = await createAPlanet.getByRole('group', { name: 'Request Body' })
     await expect(requestBody).toHaveScreenshot(`${slug}-request-body.png`)
 
     // Snapshot the request response
-    const requestResponses = createAPlanet.getByRole('list', { name: 'Responses' })
+    const requestResponses = await createAPlanet.getByRole('list', { name: 'Responses' })
     await expect(requestResponses).toHaveScreenshot(`${slug}-request-responses-closed.png`)
     // Open all the responses
     for (const response of await requestResponses.getByRole('button', { name: /\d+/ }).all()) {
@@ -54,11 +54,11 @@ toTest.forEach((source) => {
     await expect(requestResponses).toHaveScreenshot(`${slug}-request-responses-open.png`)
 
     // Snapshot the request callbacks
-    const requestCallbacks = createAPlanet.getByRole('group', { name: 'Callbacks' })
+    const requestCallbacks = await createAPlanet.getByRole('group', { name: 'Callbacks' })
     await expect(requestCallbacks).toHaveScreenshot(`${slug}-request-callbacks.png`)
 
     // Snapshot the request example
-    const requestExample = createAPlanet.getByRole('group', { name: 'Request Example' })
+    const requestExample = await createAPlanet.getByRole('group', { name: 'Request Example' })
     await expect(requestExample).toHaveScreenshot(`${slug}-request-example.png`)
   })
 })
