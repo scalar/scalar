@@ -1,13 +1,8 @@
-import type {
-  ParameterObject,
-  ResponseObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ParameterObject, ResponseObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  Boolean(value) && typeof value === 'object'
+const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === 'object'
 
-const filterUndefined = (example: unknown): example is unknown =>
-  example !== undefined
+const filterUndefined = (example: unknown): example is unknown => example !== undefined
 
 type GetParameterExamplesArgs = {
   parameter: ParameterObject | ResponseObject
@@ -24,10 +19,7 @@ export const getParameterExamples = ({
   schemaExamples,
   contentExamples,
 }: GetParameterExamplesArgs): unknown[] => {
-  const paramExamples =
-    'examples' in parameter && isRecord(parameter.examples)
-      ? parameter.examples
-      : {}
+  const paramExamples = 'examples' in parameter && isRecord(parameter.examples) ? parameter.examples : {}
 
   const recordExamples = Object.values({
     ...paramExamples,
@@ -35,11 +27,7 @@ export const getParameterExamples = ({
   }).filter(filterUndefined)
 
   const fallbackExample =
-    recordExamples.length === 0 &&
-    'example' in parameter &&
-    parameter.example !== undefined
-      ? [parameter.example]
-      : []
+    recordExamples.length === 0 && 'example' in parameter && parameter.example !== undefined ? [parameter.example] : []
 
   const arrayExamples = (schemaExamples ?? fallbackExample).filter(filterUndefined)
 

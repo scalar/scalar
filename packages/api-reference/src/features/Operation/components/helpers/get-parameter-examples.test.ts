@@ -1,8 +1,5 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import {
-  ParameterObjectSchema,
-  SchemaObjectSchema,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { ParameterObjectSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { getParameterExamples } from './get-parameter-examples'
