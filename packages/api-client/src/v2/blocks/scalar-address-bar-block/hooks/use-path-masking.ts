@@ -74,12 +74,8 @@ export const usePathMasking = ({
         return
       }
 
-      // Defer to the next frame so focus() runs after click-handler side
-      // effects that move focus (e.g. a dropdown refocusing its trigger),
-      // which would otherwise blur our input and emit a spurious path
-      // update against the now-empty value.
       if (shouldMask()) {
-        requestAnimationFrame(() => onMask())
+        onMask()
       }
     },
     // `post` flush runs after child watchers sync `modelValue` into the
