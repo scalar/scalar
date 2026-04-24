@@ -183,7 +183,11 @@ describe('pipeline', () => {
 
     const { specification } = await openapi()
       .load(otherExample)
-      .filter((schema) => !schema?.tags?.includes('Beta'))
+      .filter((schema) => {
+        const tags = schema.tags
+
+        return !Array.isArray(tags) || !tags.includes('Beta')
+      })
       .get()
 
     expect(specification.paths['/'].get).toBeUndefined()
@@ -223,7 +227,11 @@ describe('pipeline', () => {
     const { specification } = await openapi()
       .load(otherExample)
       .upgrade()
-      .filter((schema) => !schema?.tags?.includes('Beta'))
+      .filter((schema) => {
+        const tags = schema.tags
+
+        return !Array.isArray(tags) || !tags.includes('Beta')
+      })
       .get()
 
     expect(specification.openapi).toBe('3.1.1')
