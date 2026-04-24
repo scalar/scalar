@@ -146,7 +146,6 @@ const uniqueKey = computed(() =>
 
 /** Clear conflict state when switching to a different operation */
 watch(uniqueKey, () => {
-  console.log('clearing conflict', uniqueKey.value)
   pathConflict.value = null
   methodConflict.value = null
 })
