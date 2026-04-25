@@ -26,51 +26,19 @@ type UsePathMaskingOptions = {
 /**
  * Masks placeholder paths in an editable input (e.g. the address bar).
  *
- * Fires on the initial ready state and on every `operationKey` change — but
- * not on changes the user triggered locally. Consumers coordinate with the
- * hook via `beginLocalEdit` / `endLocalEdit` around their emit so that an
- * edit followed by a blur does not re-focus the input against the user's
- * intent.
- *
- * The pair is deterministic: the watcher consumes the flag synchronously
- * when the key actually changes, and `endLocalEdit(false)` clears it when
- * the change never propagated (conflict or no-change). No timers involved.
+ * Fires on the initial ready state and on every `operationKey` change. The
+ * consumer owns any content-aware guard needed before clearing visible text.
  */
 export const usePathMasking = ({
   isReady,
   operationKey,
   shouldMask,
   onMask,
-}: UsePathMaskingOptions): {
-  /** Call before triggering a local path/method update. */
-  beginLocalEdit: () => void
-  /**
-   * Pass `true` if the update mutated the operation (watcher consumes the
-   * flag); `false` to clear it now.
-   */
-  endLocalEdit: (didApply: boolean) => void
-} => {
-  let isLocalEdit = false
-
-  const beginLocalEdit = (): void => {
-    isLocalEdit = true
-  }
-
-  const endLocalEdit = (didApply: boolean): void => {
-    if (!didApply) {
-      isLocalEdit = false
-    }
-  }
-
+}: UsePathMaskingOptions): void => {
   watch(
     [isReady, operationKey],
     ([ready]) => {
       if (!ready) {
-        return
-      }
-
-      if (isLocalEdit) {
-        isLocalEdit = false
         return
       }
 
@@ -83,6 +51,4 @@ export const usePathMasking = ({
     // overwrite the cleared content with the new path.
     { flush: 'post' },
   )
-
-  return { beginLocalEdit, endLocalEdit }
 }

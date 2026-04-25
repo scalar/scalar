@@ -182,11 +182,11 @@ const handleFocusAddressBar = (
 // Drafts on `/` and auto-generated `/_scalar_temp...` paths are internal
 // placeholders — the address bar focuses and clears on mount and on
 // navigation so the user sees a blank prompt instead of the internal
-// path. Local edits are skipped via `markLocalEdit` so that blurring
-// away from a typed path does not re-focus the input.
+// path. The deferred mask only clears when CodeMirror still contains that
+// placeholder path, so a user edit that lands before the frame is preserved.
 // ───────────────────────────────────────────────────────────────────
 
-const { beginLocalEdit, endLocalEdit } = usePathMasking({
+usePathMasking({
   isReady: () => addressBarRef.value?.codeMirror,
   operationKey: () => uniqueKey.value,
   shouldMask: () => isPlaceholderPath(path, documentSlug),
@@ -195,7 +195,16 @@ const { beginLocalEdit, endLocalEdit } = usePathMasking({
   // which would otherwise blur our input and emit a spurious path
   // update against the now-empty value.
   onMask: () =>
-    requestAnimationFrame(() => handleFocusAddressBar({ clear: true })),
+    requestAnimationFrame(() => {
+      const editorContent =
+        addressBarRef.value?.codeMirror?.state.doc.toString()
+
+      if (editorContent && editorContent !== path) {
+        return
+      }
+
+      handleFocusAddressBar({ clear: true })
+    }),
 })
 
 // ───────────────────────────────────────────────────────────────────
@@ -249,20 +258,11 @@ const emitPathMethodUpdate = (
   // Keep CodeMirror in sync so a conflict does not leave a stale value on screen
   addressBarRef.value?.setCodeMirrorContent(normalizedPath)
 
-  // Tell the masking watcher that the next `uniqueKey` change (if any) was
-  // user-initiated; `endLocalEdit` in the callback reconciles the flag.
-  beginLocalEdit()
-
   eventBus.emit('operation:update:pathMethod', {
     meta: { method, path },
     blurTargetSelector,
     payload: { method: targetMethod, path: normalizedPath },
     callback: (status, returnedSelector) => {
-      // Only 'success' mutates the document (and therefore fires the masking
-      // watcher). For 'conflict' and 'no-change' we clear the flag now so it
-      // does not leak into the next legitimate navigation.
-      endLocalEdit(status === 'success')
-
       if (status === 'success' || status === 'no-change') {
         methodConflict.value = null
         pathConflict.value = null
