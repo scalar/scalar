@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ScalarListbox, type ScalarListboxOption } from '@scalar/components'
-import { ScalarIconCaretDown } from '@scalar/icons'
+import { ScalarCombobox, type ScalarComboboxOption } from '@scalar/components'
+import { ScalarIconCaretDown, ScalarIconCloudCheck } from '@scalar/icons'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, ref } from 'vue'
 
@@ -101,21 +101,31 @@ const activeVersion = computed<SidebarDocumentVersion | undefined>(() => {
   return list.find((v) => v.version === meta.version) ?? list[0]
 })
 
-/** Options passed to the listbox. `id` must match `SidebarDocumentVersion.key`. */
-const versionOptions = computed<ScalarListboxOption[]>(() =>
-  versions.value.map((v) => ({
+/**
+ * Options passed to the combobox. We extend the base option shape with an
+ * `isLatest` flag so the custom row template can surface the "Latest" badge
+ * shown next to the most recent version. `id` must match
+ * `SidebarDocumentVersion.key` so emitted updates can resolve back to the
+ * underlying version.
+ */
+type VersionOption = ScalarComboboxOption & { isLatest: boolean }
+
+const versionOptions = computed<VersionOption[]>(() =>
+  versions.value.map((v, index) => ({
     id: v.key,
     label: v.version,
+    // The sidebar surfaces versions latest-first, so the first entry is the
+    // canonical "latest" — flag it so we can render the badge.
+    isLatest: index === 0,
   })),
 )
 
 /**
- * HeadlessUI's Listbox compares the `modelValue` to each option by reference,
- * so we must return the exact option object from `versionOptions` rather than
- * a freshly constructed one — otherwise the active row would never render as
- * selected.
+ * The combobox compares `modelValue` to options by reference, so we must
+ * return the exact option object from `versionOptions` rather than a freshly
+ * constructed one — otherwise the active row would never render as selected.
  */
-const selectedOption = computed<ScalarListboxOption | undefined>(() => {
+const selectedOption = computed<VersionOption | undefined>(() => {
   const active = activeVersion.value
   if (!active) {
     return undefined
@@ -152,7 +162,10 @@ const navigateToDocument = (documentSlug: string) => {
   })
 }
 
-const handleVersionSelect = async (option: ScalarListboxOption) => {
+const handleVersionSelect = async (option: VersionOption | undefined) => {
+  if (!option) {
+    return
+  }
   const version = versions.value.find((v) => v.key === option.id)
   if (!version || version.key === activeVersion.value?.key) {
     return
@@ -220,13 +233,14 @@ const handleVersionSelect = async (option: ScalarListboxOption) => {
           class="text-c-3 select-none">
           /
         </span>
-        <ScalarListbox
-          label="Document version"
+        <ScalarCombobox
+          class="version-picker w-64"
           :modelValue="selectedOption"
           :options="versionOptions"
+          placeholder="Search versions"
           @update:modelValue="handleVersionSelect">
           <button
-            aria-haspopup="listbox"
+            aria-label="Document version"
             class="hover:bg-b-2 flex items-center gap-1 rounded px-1.5 py-0.5 font-medium disabled:opacity-50"
             :disabled="isLoading"
             type="button">
@@ -235,7 +249,20 @@ const handleVersionSelect = async (option: ScalarListboxOption) => {
               class="text-c-3 size-3"
               weight="bold" />
           </button>
-        </ScalarListbox>
+          <template #option="{ option, selected }">
+            <ScalarIconCloudCheck class="text-c-3 size-4 shrink-0" />
+            <span
+              class="text-c-1 min-w-0 flex-1 truncate"
+              :class="{ 'font-medium': selected }">
+              {{ option.label }}
+            </span>
+            <span
+              v-if="option.isLatest"
+              class="text-c-3 ml-2 shrink-0 text-xs">
+              Latest
+            </span>
+          </template>
+        </ScalarCombobox>
         <span
           v-if="isLoading"
           class="text-c-3 ml-1 text-xs">
@@ -245,3 +272,15 @@ const handleVersionSelect = async (option: ScalarListboxOption) => {
     </template>
   </nav>
 </template>
+
+<style scoped>
+/*
+ * The combobox option only marks the *active* (hovered / keyboard-focused)
+ * row with a background. We also want a persistent highlight on the
+ * currently *selected* version so the user can spot it at a glance, even
+ * after moving the cursor or arrowing to another row.
+ */
+.version-picker :deep([role='option'][aria-selected='true']) {
+  background-color: var(--scalar-background-2);
+}
+</style>

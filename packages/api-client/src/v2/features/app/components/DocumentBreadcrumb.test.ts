@@ -94,7 +94,7 @@ describe('DocumentBreadcrumb', () => {
 
     expect(wrapper.text()).toContain('Acme Workspace')
     expect(wrapper.text()).not.toContain('Pets API')
-    expect(wrapper.find('button[aria-haspopup="listbox"]').exists()).toBe(false)
+    expect(wrapper.find('button[aria-label="Document version"]').exists()).toBe(false)
   })
 
   it('renders workspace + document for local documents without a version picker', () => {
@@ -114,7 +114,7 @@ describe('DocumentBreadcrumb', () => {
     // Local documents still surface the document name so the breadcrumb
     // stays useful, but the version picker is registry-only.
     expect(wrapper.text()).toContain('Pets API')
-    expect(wrapper.find('button[aria-haspopup="listbox"]').exists()).toBe(false)
+    expect(wrapper.find('button[aria-label="Document version"]').exists()).toBe(false)
   })
 
   it('renders the document title and the active version for a registry-backed document', () => {
@@ -152,7 +152,7 @@ describe('DocumentBreadcrumb', () => {
     expect(wrapper.find('nav').exists()).toBe(true)
     expect(wrapper.text()).toContain('Acme Workspace')
     expect(wrapper.text()).toContain('Pets v1')
-    expect(wrapper.find('button[aria-haspopup="listbox"]').text()).toContain('1.0.0')
+    expect(wrapper.find('button[aria-label="Document version"]').text()).toContain('1.0.0')
   })
 
   it('navigates without fetching when the selected version is already loaded', async () => {
@@ -198,9 +198,10 @@ describe('DocumentBreadcrumb', () => {
 
     // Direct event emission bypasses HeadlessUI's popover internals while
     // still exercising the same handler the component uses in production.
-    await wrapper.findComponent({ name: 'ScalarListbox' }).vm.$emit('update:modelValue', {
+    await wrapper.findComponent({ name: 'ScalarCombobox' }).vm.$emit('update:modelValue', {
       id: 'pets-v2',
       label: '2.0.0',
+      isLatest: true,
     })
     await flushPromises()
 
@@ -259,11 +260,12 @@ describe('DocumentBreadcrumb', () => {
 
     vi.mocked(mockEventBus.emit).mockClear()
 
-    await wrapper.findComponent({ name: 'ScalarListbox' }).vm.$emit('update:modelValue', {
-      // Unloaded versions use the synthesized key so the listbox option id
+    await wrapper.findComponent({ name: 'ScalarCombobox' }).vm.$emit('update:modelValue', {
+      // Unloaded versions use the synthesized key so the combobox option id
       // lines up with `SidebarDocumentVersion.key`.
       id: '@acme/pets@2.0.0',
       label: '2.0.0',
+      isLatest: true,
     })
     await flushPromises()
 
@@ -313,9 +315,10 @@ describe('DocumentBreadcrumb', () => {
 
     vi.mocked(mockEventBus.emit).mockClear()
 
-    await wrapper.findComponent({ name: 'ScalarListbox' }).vm.$emit('update:modelValue', {
+    await wrapper.findComponent({ name: 'ScalarCombobox' }).vm.$emit('update:modelValue', {
       id: 'pets-v1',
       label: '1.0.0',
+      isLatest: true,
     })
     await flushPromises()
 
