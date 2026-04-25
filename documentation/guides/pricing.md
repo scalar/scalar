@@ -24,21 +24,21 @@
               <div class="pricing-table-column">
                 <b class="text-sm">Free</b>
                 <p class="text-xl font-bold ">$0</p>
-                <p class=" text-c-2 text-sm font-normal">* Perfect for individuals getting started with our Platform</p>
+                <p class=" text-c-2 text-sm font-normal">Perfect for individuals getting started with our Platform</p>
                 <a href="https://dashboard.scalar.com/register" class="pricing-cta">Try For Free</a>
               </div>
               <div class="pricing-table-column">
                 <b class="text-sm">Pro</b>
-                <p class="text-xl font-bold ">$24 / seat / month*</p>
-                <p class=" text-c-2 text-sm font-normal">* Minimum 3 seats ($72/month base). A seat is one team member with editor access. Additional fees apply only for extra seats, usage-based products, or optional services.</p>
+                <p class="text-xl font-bold ">$72 / month</p>
+                <p class=" text-c-2 text-sm font-normal">Perfect for teams building and shipping APIs together</p>
                 <p></p>
                 <a href="https://dashboard.scalar.com/register" class="pricing-cta pricing-cta-main">Try For Free</a>
               </div>
               <div class="pricing-table-column">
                 <b class="text-sm">Enterprise</b>
                 <p class="text-xl font-bold ">Custom Pricing</p>
-                <p class=" text-c-2 text-sm font-normal">* Custom pricing tailored to your API & business needs</p>
-                <a href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" class="pricing-cta">Contact Sales</a>
+                <p class=" text-c-2 text-sm font-normal">For organizations building, managing, and distributing APIs at scale</p>
+                <a href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" class="pricing-cta">Book a demo</a>
               </div>
             </div>
           </header>
@@ -82,9 +82,9 @@
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
             <div class="pricing-table-row">
-              <div class="pricing-table-column">Editor Seats</div>
+              <div class="pricing-table-column"><span>Editor Seats <span class="text-c-2 text-3xs">($24/mo per additional seat)</span></span></div>
               <div class="pricing-table-column">1</div>
-              <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
+              <div class="pricing-table-column">3</div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
             <div class="pricing-table-row">
