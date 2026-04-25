@@ -92,6 +92,8 @@ import { useIntersection } from '@/hooks/use-intersection'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { persistencePlugin } from '@/plugins/persistance-plugin'
 
+import { version } from '../../package.json'
+
 const props = defineProps<{
   /**
    * Configuration for the API reference.
@@ -110,6 +112,11 @@ defineSlots<{
 }>()
 
 const { copyToClipboard } = useClipboard()
+
+// Log the package version
+if (version) {
+  console.info(`@scalar/api-reference@${version}`)
+}
 
 /**
  * Used to inject the environment into built packages
