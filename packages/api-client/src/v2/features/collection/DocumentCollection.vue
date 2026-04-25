@@ -68,7 +68,7 @@ const documentSourceUrl = computed(
 const documentRegistryMeta = computed(
   () =>
     props.document?.['x-scalar-registry-meta'] as
-      | { namespace: string; slug: string }
+      | { namespace: string; slug: string; version: string; commitHash?: string }
       | undefined,
 )
 

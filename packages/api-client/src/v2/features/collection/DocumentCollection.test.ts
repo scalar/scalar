@@ -193,7 +193,7 @@ describe('DocumentCollection', () => {
   it('shows Sync button when document has registry meta only', async () => {
     const document = createMockDocument({
       info: { title: 'Registry API', version: '1.0.0' },
-      'x-scalar-registry-meta': { namespace: 'team', slug: 'my-api' },
+      'x-scalar-registry-meta': { namespace: 'team', slug: 'my-api', version: '1.0.0' },
     })
 
     const { wrapper } = await mountWithRouter(document)
@@ -215,7 +215,7 @@ describe('DocumentCollection', () => {
     const document = createMockDocument({
       info: { title: 'Registry API', version: '1.0.0' },
       'x-scalar-original-source-url': 'https://example.com/openapi.yaml',
-      'x-scalar-registry-meta': { namespace: 'team', slug: 'my-api' },
+      'x-scalar-registry-meta': { namespace: 'team', slug: 'my-api', version: '1.0.0' },
     })
 
     const { wrapper, workspaceStore } = await mountWithRouter(document, {
@@ -229,6 +229,7 @@ describe('DocumentCollection', () => {
     expect(fetchRegistryDocument).toHaveBeenCalledWith({
       namespace: 'team',
       slug: 'my-api',
+      version: '1.0.0',
     })
     expect(workspaceStore.rebaseDocument).toHaveBeenCalledWith({
       name: 'test-document',

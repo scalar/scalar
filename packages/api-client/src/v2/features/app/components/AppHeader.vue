@@ -17,6 +17,13 @@ const emit = defineEmits<{
 const slots = defineSlots<{
   /** Slot for customizing the menu items */
   menuItems?(): unknown
+  /**
+   * Slot rendered directly after the menu button in the start section of
+   * the header. Typically used for a document breadcrumb / version-picker
+   * combination that sits alongside the menu rather than floating in the
+   * middle of the header.
+   */
+  breadcrumb?(): unknown
   /** Slot for customizing the end of the header */
   end?(): unknown
 }>()
@@ -47,6 +54,9 @@ const slots = defineSlots<{
           <ScalarMenuResources />
         </template>
       </ScalarMenu>
+      <slot
+        v-if="slots.breadcrumb"
+        name="breadcrumb" />
     </template>
     <template
       v-if="slots.end"

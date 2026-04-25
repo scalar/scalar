@@ -150,11 +150,20 @@ const handleDocumentClick = async (item: SidebarDocumentItem) => {
 
   loadingKeys.value[item.key] = true
 
+  // Registry items expose every version they advertise on `versions`, ordered
+  // with the latest first. Until we surface a version picker on the parent
+  // row we always load whichever version is at the top of the list, which is
+  // the latest one. Falling back to `undefined` lets the loader default to
+  // the registry's `latest` alias when the entry was synthesized from a
+  // workspace document that has no advertised versions yet.
+  const targetVersion = item.versions?.[0]?.version
+
   const result = await loadRegistryDocument({
     fetcher: fetchRegistryDocument,
     workspaceStore: app.store.value,
     namespace: item.registry.namespace,
     slug: item.registry.slug,
+    version: targetVersion,
   })
 
   loadingKeys.value[item.key] = false

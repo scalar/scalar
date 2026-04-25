@@ -60,6 +60,16 @@ export type XScalarRegistryMeta = {
      * A unique slug identifier for this registry meta within the namespace.
      */
     slug: string
+    /**
+     * The version of the registry meta.
+     */
+    version: string
+    /**
+     * Last known commit hash of this document.
+     *
+     * Is going to be used to track if the document has been modified since it was last saved.
+     */
+    commitHash?: string
   }
 }
 

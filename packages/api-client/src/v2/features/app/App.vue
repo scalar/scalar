@@ -24,6 +24,7 @@ import { SidebarToggle } from '@/v2/components/sidebar'
 import AppHeader from '@/v2/features/app/components/AppHeader.vue'
 import AppSidebar from '@/v2/features/app/components/AppSidebar.vue'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
+import DocumentBreadcrumb from '@/v2/features/app/components/DocumentBreadcrumb.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
@@ -237,6 +238,12 @@ const routerViewProps = computed<RouteProps>(() => {
                 @createWorkspace="createWorkspaceModalState.show()"
                 @update:modelValue="(value) => setActiveWorkspace(value)" />
             </slot>
+          </template>
+          <template #breadcrumb>
+            <DocumentBreadcrumb
+              :app="app"
+              :fetchRegistryDocument="fetchRegistryDocument"
+              :registryDocuments="registryDocuments" />
           </template>
           <template #end>
             <slot name="header-end" />
