@@ -14,6 +14,8 @@ const DEFAULT_HOTKEYS: HotKeyConfig = {
   b: { event: 'ui:toggle:sidebar', modifiers: ['default'] },
   k: { event: 'ui:open:command-palette', modifiers: ['default'] },
   l: { event: 'ui:focus:address-bar', modifiers: ['default'] },
+  j: { event: 'ui:focus:search', modifiers: ['default'] },
+  i: { event: 'ui:open:settings', modifiers: ['default'] },
 }
 
 /** Hotkey map by layout, we can allow the user to override this later */
@@ -28,7 +30,6 @@ const HOTKEYS: Record<ClientLayout, HotKeyConfig> = {
 
   desktop: {
     ...DEFAULT_HOTKEYS,
-    f: { event: 'ui:focus:search', modifiers: ['default'] },
     n: { event: 'ui:open:command-palette', modifiers: ['default'] },
     t: { event: 'tabs:add:tab', modifiers: ['default'] },
     w: { event: 'tabs:close:tab', modifiers: ['default'] },

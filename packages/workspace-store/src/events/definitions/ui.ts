@@ -135,9 +135,18 @@ export type UIEvents = {
 
   /**
    * Focus the search input in the sidebar.
-   * Allows quick filtering of requests and tags.
+   *
+   * Drives the contextual sidebar search affordance: on the workspace page it
+   * toggles the "filter documents" input at the top of the sidebar, and while
+   * viewing a single document it opens the scoped document search modal. Also
+   * used for quick filtering of requests and tags.
+   *
+   * Typically triggered by the Cmd/Ctrl+J hotkey (payload includes the
+   * originating `KeyboardEvent` so listeners can preventDefault) but may also
+   * be dispatched programmatically from a click, in which case no payload is
+   * provided.
    */
-  'ui:focus:search': KeyboardEventPayload
+  'ui:focus:search': KeyboardEventPayload | undefined
 
   // ────────────────────────────────────────────────────────────
   // Toggle Events
@@ -152,6 +161,17 @@ export type UIEvents = {
   // ────────────────────────────────────────────────────────────
   // Modal Events
   // ────────────────────────────────────────────────────────────
+
+  /**
+   * Open the contextual settings page for the current sidebar view.
+   *
+   * On the workspace page this navigates to the workspace-level settings, and
+   * while viewing a single document it navigates to that document's settings
+   * page instead. Typically triggered by Cmd/Ctrl+I, but may also be
+   * dispatched programmatically (for example, from the workspace "Get started"
+   * screen), in which case no payload is provided.
+   */
+  'ui:open:settings': KeyboardEventPayload | undefined
 
   /**
    * Open the API Client modal to a specific operation.
@@ -275,7 +295,7 @@ export type UIEvents = {
       }
     | {
         page: 'workspace'
-        path: 'environment' | 'cookies' | 'settings'
+        path: 'environment' | 'cookies' | 'settings' | 'get-started'
       }
     | {
         page: 'example'

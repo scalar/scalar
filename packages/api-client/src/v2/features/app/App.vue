@@ -22,10 +22,12 @@ import { RouterView } from 'vue-router'
 
 import { SidebarToggle } from '@/v2/components/sidebar'
 import AppHeader from '@/v2/features/app/components/AppHeader.vue'
+import AppSidebar from '@/v2/features/app/components/AppSidebar.vue'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
+import type { RegistryDocumentsState } from '@/v2/features/app/hooks/use-sidebar-documents'
 import type { CommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
 import { useMonacoEditorConfiguration } from '@/v2/features/editor'
@@ -35,7 +37,6 @@ import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import { type AppState } from './app-state'
-import AppSidebar from './components/AppSidebar.vue'
 import DesktopTabs from './components/DesktopTabs.vue'
 
 const {
@@ -44,6 +45,7 @@ const {
   getAppState,
   getCommandPaletteState,
   fetchRegistryDocument,
+  registryDocuments = { status: 'success', documents: [] },
 } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
   plugins?: ClientPlugin[]
@@ -51,14 +53,14 @@ const {
   getCommandPaletteState: () => CommandPaletteState
   /** Fetches the full document from registry by meta. Passed through to route props for sync. */
   fetchRegistryDocument?: ImportDocumentFromRegistry
+  /**
+   * The list of all available registry documents, with a loading status so the
+   * sidebar can render skeleton placeholders until the real list is ready.
+   */
+  registryDocuments?: RegistryDocumentsState
 }>()
 
 defineSlots<{
-  /**
-   * Slot for customizing the actions section of the sidebar menu.
-   * This slot is used to render custom actions or components within the actions section.
-   */
-  'sidebar-menu-actions': () => unknown
   /**
    * Slot for customizing the create workspace modal.
    * This slot is used to render custom actions or components within the create workspace modal.
@@ -243,24 +245,11 @@ const routerViewProps = computed<RouteProps>(() => {
         <div class="flex min-h-0 flex-1 flex-row">
           <!-- App sidebar -->
           <AppSidebar
-            v-model:isSidebarOpen="app.sidebar.isOpen.value"
-            :activeWorkspace="app.workspace.activeWorkspace.value"
-            :eventBus="app.eventBus"
-            :isWorkspaceOpen="app.workspace.isOpen.value"
-            :layout
-            :sidebarState="app.sidebar.state"
+            :app="app"
+            :fetchRegistryDocument="fetchRegistryDocument"
+            :registryDocuments="registryDocuments"
             :sidebarWidth="app.sidebar.width.value"
-            :store="app.store.value!"
-            :workspaces="app.workspace.workspaceGroups.value"
-            @click:workspace="navigateToWorkspaceOverview"
-            @create:workspace="createWorkspaceModalState.show()"
-            @select:workspace="setActiveWorkspace"
-            @selectItem="app.sidebar.handleSelectItem"
-            @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate">
-            <template #sidebarMenuActions>
-              <slot name="sidebar-menu-actions" />
-            </template>
-          </AppSidebar>
+            @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate" />
 
           <div class="flex min-h-0 flex-1 flex-col">
             <!-- App Tabs -->
@@ -286,7 +275,6 @@ const routerViewProps = computed<RouteProps>(() => {
           :state="createWorkspaceModalState"
           @create:workspace="(payload) => app.workspace.create(payload)" />
       </slot>
-
       <!-- Popup command palette to add resources from anywhere -->
       <TheCommandPalette
         :eventBus="app.eventBus"

@@ -13,3 +13,4 @@ export {
 } from '../command-palette/hooks/use-command-palette-state'
 export { default as ClientApp } from './App.vue'
 export { createApiClientApp, createAppRouter } from './helpers/create-api-client-app'
+export type { RegistryDocumentsState } from './hooks/use-sidebar-documents'

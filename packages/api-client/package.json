@@ -341,6 +341,7 @@
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
+    "@scalar/validation": "workspace:*",
     "@types/har-format": "^1.2.16",
     "@vueuse/core": "catalog:*",
     "@vueuse/integrations": "catalog:*",
