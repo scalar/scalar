@@ -54,10 +54,16 @@ export type SidebarDocumentItem = {
 
 type WorkspaceDocumentEntry = SidebarDocumentItem & { documentName: string }
 
+type RegistryDocumentVersion = {
+  version: string
+  commitHash?: string
+}
+
 export type RegistryDocument = {
   namespace: string
   slug: string
   title: string
+  versions: RegistryDocumentVersion[]
 }
 
 /**
