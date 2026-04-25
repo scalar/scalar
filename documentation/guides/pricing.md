@@ -84,7 +84,7 @@
             <div class="pricing-table-row">
               <div class="pricing-table-column"><span>Editor Seats <span class="text-c-2 text-3xs">($24/mo per additional seat)</span></span></div>
               <div class="pricing-table-column">1</div>
-              <div class="pricing-table-column">3</scalar-icon></div>
+              <div class="pricing-table-column">3</div>
               <div class="pricing-table-column"><scalar-icon src="phosphor/bold/check"></scalar-icon></div>
             </div>
             <div class="pricing-table-row">
