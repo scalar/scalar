@@ -1,3 +1,12 @@
+<script lang="ts">
+import { version } from '../../package.json'
+
+// Log the package version once per browser module evaluation.
+if (version && typeof window !== 'undefined') {
+  console.info(`@scalar/api-reference@${version}`)
+}
+</script>
+
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'
@@ -92,8 +101,6 @@ import { useIntersection } from '@/hooks/use-intersection'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { persistencePlugin } from '@/plugins/persistance-plugin'
 
-import { version } from '../../package.json'
-
 const props = defineProps<{
   /**
    * Configuration for the API reference.
@@ -112,11 +119,6 @@ defineSlots<{
 }>()
 
 const { copyToClipboard } = useClipboard()
-
-// Log the package version
-if (version) {
-  console.info(`@scalar/api-reference@${version}`)
-}
 
 /**
  * Used to inject the environment into built packages
