@@ -244,6 +244,8 @@ describe('use-sidebar-documents', () => {
             title: 'Pets v2',
             documentName: 'pets-v2',
             commitHash: undefined,
+            registryCommitHash: undefined,
+            hasUpstreamChanges: false,
             navigation: undefined,
           },
           {
@@ -252,6 +254,8 @@ describe('use-sidebar-documents', () => {
             title: 'Pets v1',
             documentName: 'pets-v1',
             commitHash: undefined,
+            registryCommitHash: undefined,
+            hasUpstreamChanges: false,
             navigation: undefined,
           },
         ],
@@ -292,16 +296,19 @@ describe('use-sidebar-documents', () => {
     })
 
     // Latest version (2.0.0) is registry-only and ends up first; the loaded
-    // 1.0.0 version follows. The workspace's commit hash wins over the
-    // registry's for the loaded version, while unloaded versions surface the
-    // registry's commit hash directly.
+    // 1.0.0 version follows. Each version surfaces both the local hash
+    // (only set when the version is loaded) and the registry hash (only set
+    // when the registry advertises one) so consumers can detect drift.
+    // Matching hashes mean no upstream changes are pending.
     expect(rest.value[0]?.versions).toStrictEqual([
       {
         key: '@acme/pets@2.0.0',
         version: '2.0.0',
         title: 'Pets API',
         documentName: undefined,
-        commitHash: 'def456',
+        commitHash: undefined,
+        registryCommitHash: 'def456',
+        hasUpstreamChanges: false,
         navigation: undefined,
       },
       {
@@ -310,9 +317,54 @@ describe('use-sidebar-documents', () => {
         title: 'Pets v1',
         documentName: 'pets-v1',
         commitHash: 'abc123',
+        registryCommitHash: 'abc123',
+        hasUpstreamChanges: false,
         navigation: undefined,
       },
     ])
+  })
+
+  it('flags loaded versions whose registry commit hash has moved on as having upstream changes', () => {
+    const { app } = createFakeApp({
+      documents: {
+        'pets-v1': {
+          info: { title: 'Pets v1', version: '1.0.0' },
+          'x-scalar-registry-meta': {
+            namespace: 'acme',
+            slug: 'pets',
+            version: '1.0.0',
+            commitHash: 'old-hash',
+          },
+        },
+      },
+      isTeamWorkspace: true,
+    })
+
+    const { rest } = useSidebarDocuments({
+      app,
+      managedDocs: () => [
+        {
+          namespace: 'acme',
+          slug: 'pets',
+          title: 'Pets API',
+          versions: [{ version: '1.0.0', commitHash: 'new-hash' }],
+        },
+      ],
+    })
+
+    // The loaded document still pins to `old-hash` while the registry now
+    // advertises `new-hash`, which means there are upstream changes the
+    // user has not pulled yet — the consumer can render a warning icon.
+    expect(rest.value[0]?.versions?.[0]).toStrictEqual({
+      key: 'pets-v1',
+      version: '1.0.0',
+      title: 'Pets v1',
+      documentName: 'pets-v1',
+      commitHash: 'old-hash',
+      registryCommitHash: 'new-hash',
+      hasUpstreamChanges: true,
+      navigation: undefined,
+    })
   })
 
   it('promotes the active document when it belongs to a group', () => {
@@ -385,6 +437,8 @@ describe('use-sidebar-documents', () => {
         title: 'Pets',
         documentName: 'pets',
         commitHash: undefined,
+        registryCommitHash: undefined,
+        hasUpstreamChanges: false,
         navigation: undefined,
       },
     ])
@@ -425,7 +479,9 @@ describe('use-sidebar-documents', () => {
             version: '2.0.0',
             title: 'Pets API',
             documentName: undefined,
-            commitHash: 'def456',
+            commitHash: undefined,
+            registryCommitHash: 'def456',
+            hasUpstreamChanges: false,
             navigation: undefined,
           },
           {
@@ -434,6 +490,8 @@ describe('use-sidebar-documents', () => {
             title: 'Pets API',
             documentName: undefined,
             commitHash: undefined,
+            registryCommitHash: undefined,
+            hasUpstreamChanges: false,
             navigation: undefined,
           },
         ],

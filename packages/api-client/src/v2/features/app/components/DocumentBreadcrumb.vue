@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarCombobox, type ScalarComboboxOption } from '@scalar/components'
-import { ScalarIconCaretDown, ScalarIconCloudCheck } from '@scalar/icons'
+import { ScalarIconCaretDown, ScalarIconCloudCheck, ScalarIconCloudWarning } from '@scalar/icons'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, ref } from 'vue'
 
@@ -102,13 +102,19 @@ const activeVersion = computed<SidebarDocumentVersion | undefined>(() => {
 })
 
 /**
- * Options passed to the combobox. We extend the base option shape with an
- * `isLatest` flag so the custom row template can surface the "Latest" badge
- * shown next to the most recent version. `id` must match
- * `SidebarDocumentVersion.key` so emitted updates can resolve back to the
- * underlying version.
+ * Options passed to the combobox. We extend the base option shape with the
+ * extra metadata the row template needs:
+ *  - `isLatest` toggles the "Latest" badge on the most recent version.
+ *  - `hasUpstreamChanges` swaps the row icon to a warning glyph so the user
+ *    can spot loaded versions whose registry commit hash has moved on.
+ *
+ * `id` must match `SidebarDocumentVersion.key` so emitted updates can
+ * resolve back to the underlying version.
  */
-type VersionOption = ScalarComboboxOption & { isLatest: boolean }
+type VersionOption = ScalarComboboxOption & {
+  isLatest: boolean
+  hasUpstreamChanges: boolean
+}
 
 const versionOptions = computed<VersionOption[]>(() =>
   versions.value.map((v, index) => ({
@@ -117,6 +123,7 @@ const versionOptions = computed<VersionOption[]>(() =>
     // The sidebar surfaces versions latest-first, so the first entry is the
     // canonical "latest" — flag it so we can render the badge.
     isLatest: index === 0,
+    hasUpstreamChanges: v.hasUpstreamChanges,
   })),
 )
 
@@ -197,6 +204,10 @@ const handleVersionSelect = async (option: VersionOption | undefined) => {
     namespace: registry.namespace,
     slug: registry.slug,
     version: version.version,
+    // Forward the registry-advertised hash from the picker row. Storing it
+    // on the document lets us later detect when the registry has moved on
+    // and surface upstream changes.
+    commitHash: version.registryCommitHash,
   })
 
   isLoading.value = false
@@ -250,7 +261,14 @@ const handleVersionSelect = async (option: VersionOption | undefined) => {
               weight="bold" />
           </button>
           <template #option="{ option, selected }">
-            <ScalarIconCloudCheck class="text-c-3 size-4 shrink-0" />
+            <ScalarIconCloudWarning
+              v-if="option.hasUpstreamChanges"
+              aria-label="Upstream changes available"
+              class="text-orange size-4 shrink-0"
+              title="Upstream changes available" />
+            <ScalarIconCloudCheck
+              v-else
+              class="text-c-3 size-4 shrink-0" />
             <span
               class="text-c-1 min-w-0 flex-1 truncate"
               :class="{ 'font-medium': selected }">

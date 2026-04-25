@@ -13,6 +13,7 @@ export const loadRegistryDocument = async ({
   namespace,
   slug,
   version = 'latest',
+  commitHash,
 }: {
   workspaceStore: WorkspaceStore
   fetcher: ImportDocumentFromRegistry
@@ -24,6 +25,15 @@ export const loadRegistryDocument = async ({
    * not have a concrete version pinned for the document yet.
    */
   version?: string
+  /**
+   * Commit hash the registry currently advertises for `version`. Callers
+   * already know this from the version listing (sidebar row, breadcrumb
+   * picker, etc.) so we accept it directly rather than parsing it back
+   * out of the fetched document. When provided it is persisted on
+   * `x-scalar-registry-meta.commitHash` so subsequent refreshes can
+   * detect drift and surface upstream changes.
+   */
+  commitHash?: string
 }): Promise<LoadRegistryDocumentResult> => {
   const documents = workspaceStore.workspace.documents
 
@@ -59,12 +69,20 @@ export const loadRegistryDocument = async ({
 
   // Add the document to the workspace store. The registry meta records the
   // exact `version` we requested so subsequent lookups can match the local
-  // document back to the version row in the sidebar.
+  // document back to the version row in the sidebar. We also persist the
+  // registry's commit hash (when the caller passed one) so later
+  // refreshes can detect when the registry has moved on and surface
+  // upstream changes to the user.
   await workspaceStore.addDocument({
     name: documentName,
     document: result.data,
     meta: {
-      'x-scalar-registry-meta': { namespace, slug, version },
+      'x-scalar-registry-meta': {
+        namespace,
+        slug,
+        version,
+        ...(commitHash ? { commitHash } : {}),
+      },
     },
   })
 

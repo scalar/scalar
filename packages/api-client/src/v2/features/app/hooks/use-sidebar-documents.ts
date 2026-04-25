@@ -19,8 +19,25 @@ export type SidebarDocumentVersion = {
   title: string
   /** Workspace store document name when this version is loaded locally. */
   documentName?: string
-  /** Last known commit hash for this version (from the registry or the workspace store). */
+  /**
+   * Commit hash recorded on the locally loaded workspace document, if any.
+   * Undefined when the version has not been imported into the workspace
+   * store or when the loaded document does not carry a hash.
+   */
   commitHash?: string
+  /**
+   * Commit hash advertised by the registry for this version, if any.
+   * Compared against `commitHash` to detect upstream changes that have not
+   * been pulled locally yet (see `hasUpstreamChanges`).
+   */
+  registryCommitHash?: string
+  /**
+   * True when the version is loaded locally and the registry advertises a
+   * different commit hash than the one stored on the local document. A
+   * truthy value means there are upstream changes the user has not pulled
+   * yet, which the sidebar surfaces with a distinct icon.
+   */
+  hasUpstreamChanges: boolean
   /** Traversal tree for this version. Populated only when the version is loaded into the workspace store. */
   navigation?: TraversedDocument
 }
@@ -310,6 +327,8 @@ const buildRegistryItem = ({
   for (const v of registry.versions) {
     const match = loadedByVersion.get(v.version)
     loadedByVersion.delete(v.version)
+    const localHash = match?.registry?.commitHash
+    const registryHash = v.commitHash
     versions.push({
       key: match ? match.documentName : versionKey(registry.namespace, registry.slug, v.version),
       version: v.version,
@@ -319,13 +338,19 @@ const buildRegistryItem = ({
       // sidebar, so we do not embed the version string here.
       title: match?.title || placeholderTitle,
       documentName: match?.documentName,
-      commitHash: match?.registry?.commitHash ?? v.commitHash,
+      commitHash: localHash,
+      registryCommitHash: registryHash,
+      // Only flag mismatches when both sides actually have a hash *and* the
+      // version is loaded locally. Without a local copy there is nothing to
+      // be "out of sync" with — the user simply has not imported it yet.
+      hasUpstreamChanges: Boolean(match && localHash && registryHash && localHash !== registryHash),
       navigation: match?.navigation,
     })
   }
 
   // Loaded versions the registry has not advertised yet (e.g. local edits or
   // a stale registry response). They keep their declared `version` string.
+  // The registry has no opinion on these so we cannot infer drift.
   for (const [version, match] of loadedByVersion) {
     versions.push({
       key: match.documentName,
@@ -333,6 +358,8 @@ const buildRegistryItem = ({
       title: match.title,
       documentName: match.documentName,
       commitHash: match.registry?.commitHash,
+      registryCommitHash: undefined,
+      hasUpstreamChanges: false,
       navigation: match.navigation,
     })
   }
@@ -345,6 +372,8 @@ const buildRegistryItem = ({
       title: orphan.title,
       documentName: orphan.documentName,
       commitHash: orphan.registry?.commitHash,
+      registryCommitHash: undefined,
+      hasUpstreamChanges: false,
       navigation: orphan.navigation,
     })
   }

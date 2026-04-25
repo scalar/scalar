@@ -156,14 +156,18 @@ const handleDocumentClick = async (item: SidebarDocumentItem) => {
   // the latest one. Falling back to `undefined` lets the loader default to
   // the registry's `latest` alias when the entry was synthesized from a
   // workspace document that has no advertised versions yet.
-  const targetVersion = item.versions?.[0]?.version
+  const targetVersion = item.versions?.[0]
 
   const result = await loadRegistryDocument({
     fetcher: fetchRegistryDocument,
     workspaceStore: app.store.value,
     namespace: item.registry.namespace,
     slug: item.registry.slug,
-    version: targetVersion,
+    version: targetVersion?.version,
+    // Forward the registry-advertised hash from the version row. Storing it
+    // on the imported document lets us later detect when the registry has
+    // moved on and surface upstream changes.
+    commitHash: targetVersion?.registryCommitHash,
   })
 
   loadingKeys.value[item.key] = false
