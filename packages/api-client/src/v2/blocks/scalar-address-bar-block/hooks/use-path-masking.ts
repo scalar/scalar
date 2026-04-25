@@ -29,12 +29,7 @@ type UsePathMaskingOptions = {
  * Fires on the initial ready state and on every `operationKey` change. The
  * consumer owns any content-aware guard needed before clearing visible text.
  */
-export const usePathMasking = ({
-  isReady,
-  operationKey,
-  shouldMask,
-  onMask,
-}: UsePathMaskingOptions): void => {
+export const usePathMasking = ({ isReady, operationKey, shouldMask, onMask }: UsePathMaskingOptions): void => {
   watch(
     [isReady, operationKey],
     ([ready]) => {
