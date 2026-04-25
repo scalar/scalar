@@ -380,6 +380,106 @@ describe('AddressBar', () => {
   })
 
   describe('handlePathSubmit', () => {
+    it('masks the next placeholder navigation when a path update never calls back', async () => {
+      const animationFrameCallbacks: FrameRequestCallback[] = []
+      const requestAnimationFrameSpy = vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((callback) => {
+        animationFrameCallbacks.push(callback)
+        return animationFrameCallbacks.length
+      })
+      const originalGetClientRects = Range.prototype.getClientRects
+      Object.defineProperty(Range.prototype, 'getClientRects', {
+        configurable: true,
+        value: () =>
+          ({
+            length: 0,
+            item: () => null,
+            [Symbol.iterator]: () => [][Symbol.iterator](),
+          }) as DOMRectList,
+      })
+
+      const { wrapper, eventBus } = mountWithProps({
+        path: '/api/test',
+        method: 'get',
+      })
+
+      vi.spyOn(eventBus, 'emit').mockImplementation(() => eventBus)
+
+      try {
+        await nextTick()
+        animationFrameCallbacks.length = 0
+
+        const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+        const submitEvent = new KeyboardEvent('keydown', { key: 'Enter' })
+        await codeInput.vm.$emit('submit', '/api/new-path', submitEvent)
+        await nextTick()
+
+        await wrapper.setProps({ path: '/_scalar_temp1a2b3c4d' })
+        await nextTick()
+
+        for (const callback of animationFrameCallbacks) {
+          callback(performance.now())
+        }
+
+        expect(codeInput.vm.codeMirror.state.doc.toString()).toBe('')
+      } finally {
+        requestAnimationFrameSpy.mockRestore()
+        if (originalGetClientRects) {
+          Object.defineProperty(Range.prototype, 'getClientRects', {
+            configurable: true,
+            value: originalGetClientRects,
+          })
+        } else {
+          delete (Range.prototype as Partial<Range>).getClientRects
+        }
+      }
+    })
+
+    it('does not clear user-entered text when a deferred placeholder mask runs', async () => {
+      const animationFrameCallbacks: FrameRequestCallback[] = []
+      const requestAnimationFrameSpy = vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((callback) => {
+        animationFrameCallbacks.push(callback)
+        return animationFrameCallbacks.length
+      })
+      const originalGetClientRects = Range.prototype.getClientRects
+      Object.defineProperty(Range.prototype, 'getClientRects', {
+        configurable: true,
+        value: () =>
+          ({
+            length: 0,
+            item: () => null,
+            [Symbol.iterator]: () => [][Symbol.iterator](),
+          }) as DOMRectList,
+      })
+
+      const { wrapper } = mountWithProps({
+        path: '/_scalar_temp1a2b3c4d',
+        method: 'get',
+      })
+
+      try {
+        await nextTick()
+
+        const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+        codeInput.vm.setCodeMirrorContent('/users')
+
+        for (const callback of animationFrameCallbacks) {
+          callback(performance.now())
+        }
+
+        expect(codeInput.vm.codeMirror.state.doc.toString()).toBe('/users')
+      } finally {
+        requestAnimationFrameSpy.mockRestore()
+        if (originalGetClientRects) {
+          Object.defineProperty(Range.prototype, 'getClientRects', {
+            configurable: true,
+            value: originalGetClientRects,
+          })
+        } else {
+          delete (Range.prototype as Partial<Range>).getClientRects
+        }
+      }
+    })
+
     it('uses the pasted URL path — not the current path prop — when a full URL is submitted via Enter', async () => {
       const { wrapper, eventBus } = mountWithProps({
         path: '/',

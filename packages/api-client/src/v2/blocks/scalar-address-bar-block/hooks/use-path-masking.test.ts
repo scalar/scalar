@@ -17,19 +17,15 @@ type HarnessProps = {
 const mountHarness = (props: HarnessProps) => {
   const isReady = ref<unknown>(null)
   const operationKey = ref(0)
-  let beginLocalEdit: () => void = () => {}
-  let endLocalEdit: (didApply: boolean) => void = () => {}
 
   const Harness = defineComponent({
     setup() {
-      const api = usePathMasking({
+      usePathMasking({
         isReady: () => isReady.value,
         operationKey: () => operationKey.value,
         shouldMask: props.shouldMask,
         onMask: props.onMask,
       })
-      beginLocalEdit = api.beginLocalEdit
-      endLocalEdit = api.endLocalEdit
       return () => h('div')
     },
   })
@@ -40,8 +36,6 @@ const mountHarness = (props: HarnessProps) => {
     wrapper,
     isReady,
     operationKey,
-    beginLocalEdit: (): void => beginLocalEdit(),
-    endLocalEdit: (didApply: boolean): void => endLocalEdit(didApply),
   }
 }
 
@@ -91,52 +85,6 @@ describe('usePathMasking', () => {
     operationKey.value = 1
     await nextTick()
     expect(onMask).toHaveBeenCalledTimes(2)
-  })
-
-  it('skips masking when a local edit applied, then resumes', async () => {
-    const onMask = vi.fn()
-    const { isReady, operationKey, beginLocalEdit, endLocalEdit } = mountHarness({
-      shouldMask: () => true,
-      onMask,
-    })
-
-    isReady.value = {}
-    await nextTick()
-    expect(onMask).toHaveBeenCalledTimes(1)
-
-    // Simulate an emit whose change applied: begin → mutate → endLocalEdit(true)
-    beginLocalEdit()
-    operationKey.value = 1
-    endLocalEdit(true)
-    await nextTick()
-    expect(onMask).toHaveBeenCalledTimes(1)
-
-    operationKey.value = 2
-    await nextTick()
-    expect(onMask).toHaveBeenCalledTimes(2)
-  })
-
-  it('clears the flag immediately when a local edit did not apply', async () => {
-    const onMask = vi.fn()
-    const { isReady, operationKey, beginLocalEdit, endLocalEdit } = mountHarness({
-      shouldMask: () => true,
-      onMask,
-    })
-
-    isReady.value = {}
-    await nextTick()
-    onMask.mockClear()
-
-    // Simulate a 'no-change' or 'conflict' status: no mutation, so no watcher
-    // fires. endLocalEdit(false) must clear the flag synchronously so it does
-    // not leak into the next legitimate navigation.
-    beginLocalEdit()
-    endLocalEdit(false)
-    await nextTick()
-
-    operationKey.value = 1
-    await nextTick()
-    expect(onMask).toHaveBeenCalledTimes(1)
   })
 
   it('runs onMask after sibling pre-flush watchers that react to the same operationKey', async () => {
