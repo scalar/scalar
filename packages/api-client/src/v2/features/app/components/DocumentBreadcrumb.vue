@@ -1,10 +1,18 @@
 <script setup lang="ts">
 import { ScalarCombobox, type ScalarComboboxOption } from '@scalar/components'
-import { ScalarIconCaretDown, ScalarIconCloudCheck, ScalarIconCloudWarning } from '@scalar/icons'
+import {
+  ScalarIconCaretDown,
+  ScalarIconCloudArrowDown,
+  ScalarIconCloudArrowUp,
+  ScalarIconCloudCheck,
+  ScalarIconCloudWarning,
+} from '@scalar/icons'
 import { useToasts } from '@scalar/use-toasts'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import type { AppState } from '@/v2/features/app/app-state'
+import { checkVersionConflict } from '@/v2/features/app/helpers/check-version-conflict'
+import type { VersionStatus } from '@/v2/features/app/helpers/compute-version-status'
 import { loadRegistryDocument } from '@/v2/features/app/helpers/load-registry-document'
 import {
   useSidebarDocuments,
@@ -105,15 +113,14 @@ const activeVersion = computed<SidebarDocumentVersion | undefined>(() => {
  * Options passed to the combobox. We extend the base option shape with the
  * extra metadata the row template needs:
  *  - `isLatest` toggles the "Latest" badge on the most recent version.
- *  - `hasUpstreamChanges` swaps the row icon to a warning glyph so the user
- *    can spot loaded versions whose registry commit hash has moved on.
+ *  - `status` drives the row icon (synced / push / pull / conflict).
  *
  * `id` must match `SidebarDocumentVersion.key` so emitted updates can
  * resolve back to the underlying version.
  */
 type VersionOption = ScalarComboboxOption & {
   isLatest: boolean
-  hasUpstreamChanges: boolean
+  status: VersionStatus
 }
 
 const versionOptions = computed<VersionOption[]>(() =>
@@ -123,9 +130,46 @@ const versionOptions = computed<VersionOption[]>(() =>
     // The sidebar surfaces versions latest-first, so the first entry is the
     // canonical "latest" — flag it so we can render the badge.
     isLatest: index === 0,
-    hasUpstreamChanges: v.hasUpstreamChanges,
+    status: v.status,
   })),
 )
+
+/**
+ * Visual mapping for each sync status. The icon swatches mirror the four
+ * states the design system advertises (synced, pull, push, conflict) so the
+ * dropdown row stays consistent with any other surface that might render
+ * these statuses (sync buttons, badges, etc.).
+ */
+const STATUS_PRESENTATION: Record<
+  VersionStatus,
+  { icon: typeof ScalarIconCloudCheck; class: string; label: string }
+> = {
+  synced: {
+    icon: ScalarIconCloudCheck,
+    class: 'text-green',
+    label: 'Synced with the registry',
+  },
+  push: {
+    icon: ScalarIconCloudArrowUp,
+    class: 'text-blue',
+    label: 'Local changes ready to push',
+  },
+  pull: {
+    icon: ScalarIconCloudArrowDown,
+    class: 'text-blue',
+    label: 'Upstream changes available to pull',
+  },
+  conflict: {
+    icon: ScalarIconCloudWarning,
+    class: 'text-orange',
+    label: 'Conflicts detected — resolve before pulling',
+  },
+  unknown: {
+    icon: ScalarIconCloudCheck,
+    class: 'text-c-3',
+    label: 'Version not loaded',
+  },
+}
 
 /**
  * The combobox compares `modelValue` to options by reference, so we must
@@ -160,6 +204,74 @@ const isVisible = computed(() => Boolean(workspaceTitle.value || hasActiveDocume
 
 /** Guards against double-firing the loader when the user clicks repeatedly. */
 const isLoading = ref(false)
+
+/**
+ * Tracks the registry hashes we have already kicked off a conflict check
+ * for in this component instance, keyed by `documentName`. The check itself
+ * also caches its result on the workspace document via
+ * `x-scalar-registry-meta`, but this in-memory set guards against firing
+ * multiple in-flight requests for the same document while the cache write
+ * is still pending.
+ */
+const inflightConflictChecks = new Map<string, string>()
+
+/**
+ * Watch the version list and, for any loaded registry-backed version that
+ * has a hash mismatch but no cached conflict result for the current
+ * registry hash, kick off `checkVersionConflict` in the background. The
+ * helper writes the outcome to `x-scalar-registry-meta` which then flows
+ * back through `useSidebarDocuments` and updates the row icon.
+ */
+watch(
+  versions,
+  (next) => {
+    const fetcher = fetchRegistryDocument
+    const store = app.store.value
+    const registry = activeItem.value?.registry
+    if (!fetcher || !store || !registry) {
+      return
+    }
+
+    for (const version of next) {
+      // We can only run the three-way merge when the version is loaded
+      // locally and the registry has advertised a hash to compare against.
+      if (!version.documentName || !version.registryCommitHash) {
+        continue
+      }
+
+      // Already fired (or finished) a check for this exact registry hash.
+      if (inflightConflictChecks.get(version.documentName) === version.registryCommitHash) {
+        continue
+      }
+
+      // The status helper already encodes everything we need to decide
+      // whether a fresh check is required. `pull` means "hashes differ and
+      // no usable cached result"; the other states either match (`synced`,
+      // `push`) or already reflect a cached conflict (`conflict`).
+      if (version.status !== 'pull') {
+        continue
+      }
+
+      inflightConflictChecks.set(version.documentName, version.registryCommitHash)
+      void checkVersionConflict({
+        workspaceStore: store,
+        fetcher,
+        documentName: version.documentName,
+        namespace: registry.namespace,
+        slug: registry.slug,
+        version: version.version,
+        registryCommitHash: version.registryCommitHash,
+      }).catch(() => {
+        // Allow a future render to retry by clearing the in-flight marker
+        // when the helper itself rejects (network failure, etc.). The
+        // helper's `ok: false` returns are handled silently — the cache
+        // simply stays empty and the row keeps showing `pull`.
+        inflightConflictChecks.delete(version.documentName as string)
+      })
+    }
+  },
+  { immediate: true, deep: true },
+)
 
 const navigateToDocument = (documentSlug: string) => {
   app.eventBus.emit('ui:navigate', {
@@ -261,14 +373,12 @@ const handleVersionSelect = async (option: VersionOption | undefined) => {
               weight="bold" />
           </button>
           <template #option="{ option, selected }">
-            <ScalarIconCloudWarning
-              v-if="option.hasUpstreamChanges"
-              aria-label="Upstream changes available"
-              class="text-orange size-4 shrink-0"
-              title="Upstream changes available" />
-            <ScalarIconCloudCheck
-              v-else
-              class="text-c-3 size-4 shrink-0" />
+            <component
+              :is="STATUS_PRESENTATION[option.status].icon"
+              :aria-label="STATUS_PRESENTATION[option.status].label"
+              class="size-4 shrink-0"
+              :class="STATUS_PRESENTATION[option.status].class"
+              :title="STATUS_PRESENTATION[option.status].label" />
             <span
               class="text-c-1 min-w-0 flex-1 truncate"
               :class="{ 'font-medium': selected }">

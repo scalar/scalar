@@ -1,5 +1,5 @@
 import { Type } from '@scalar/typebox'
-import { object, optional, string } from '@scalar/validation'
+import { boolean, object, optional, string } from '@scalar/validation'
 
 const XScalarRegistryMetaInnerSchema = Type.Object({
   /**
@@ -20,6 +20,18 @@ const XScalarRegistryMetaInnerSchema = Type.Object({
    * Is going to be used to track if the document has been modified since it was last saved.
    */
   'commitHash': Type.Optional(Type.String()),
+  /**
+   * Registry commit hash that the cached `hasConflict` flag was computed
+   * against. When the registry advertises a different hash later, the
+   * cached result is stale and the conflict check has to be re-run.
+   */
+  'conflictCheckedAgainstHash': Type.Optional(Type.String()),
+  /**
+   * Cached outcome of the last conflict check, valid only while
+   * `conflictCheckedAgainstHash` matches the registry's current hash for
+   * this version.
+   */
+  'hasConflict': Type.Optional(Type.Boolean()),
 })
 
 export const XScalarRegistryMetaSchema = Type.Object({
@@ -38,6 +50,18 @@ const XScalarRegistryMetaInner = object(
       string({
         typeComment:
           'Last known commit hash of this document. Is going to be used to track if the document has been modified since it was last saved.',
+      }),
+    ),
+    conflictCheckedAgainstHash: optional(
+      string({
+        typeComment:
+          'Registry commit hash that the cached hasConflict flag was computed against. The cache is invalid when this no longer matches the registry hash.',
+      }),
+    ),
+    hasConflict: optional(
+      boolean({
+        typeComment:
+          'Cached outcome of the last conflict check, valid only while conflictCheckedAgainstHash matches the registry hash.',
       }),
     ),
   },
@@ -70,6 +94,18 @@ export type XScalarRegistryMeta = {
      * Is going to be used to track if the document has been modified since it was last saved.
      */
     commitHash?: string
+    /**
+     * Registry commit hash that the cached `hasConflict` flag was computed
+     * against. The cache is invalid when this no longer matches the registry
+     * hash advertised for this version.
+     */
+    conflictCheckedAgainstHash?: string
+    /**
+     * Cached outcome of the last conflict check, valid only while
+     * `conflictCheckedAgainstHash` matches the registry's current hash for
+     * this version.
+     */
+    hasConflict?: boolean
   }
 }
 

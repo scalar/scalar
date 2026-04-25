@@ -2,6 +2,10 @@ import type { AppState } from '@scalar/api-client/v2/features/app'
 import type { TraversedDocument } from '@scalar/workspace-store/schemas/navigation'
 import { type MaybeRefOrGetter, computed, toValue } from 'vue'
 
+import { computeVersionStatus, type VersionStatus } from '@/v2/features/app/helpers/compute-version-status'
+
+export type { VersionStatus }
+
 /**
  * A single version of a registry-backed document.
  *
@@ -27,17 +31,16 @@ export type SidebarDocumentVersion = {
   commitHash?: string
   /**
    * Commit hash advertised by the registry for this version, if any.
-   * Compared against `commitHash` to detect upstream changes that have not
-   * been pulled locally yet (see `hasUpstreamChanges`).
+   * Compared against `commitHash` to derive `status`.
    */
   registryCommitHash?: string
   /**
-   * True when the version is loaded locally and the registry advertises a
-   * different commit hash than the one stored on the local document. A
-   * truthy value means there are upstream changes the user has not pulled
-   * yet, which the sidebar surfaces with a distinct icon.
+   * Sync status surfaced for the version row. Derived from the local /
+   * registry commit hashes, the document's dirty flag and the cached
+   * conflict-check result on `x-scalar-registry-meta`. `unknown` is used
+   * for versions that are not loaded into the workspace store yet.
    */
-  hasUpstreamChanges: boolean
+  status: VersionStatus
   /** Traversal tree for this version. Populated only when the version is loaded into the workspace store. */
   navigation?: TraversedDocument
 }
@@ -86,11 +89,17 @@ type WorkspaceDocumentEntry = {
   title: string
   navigation?: TraversedDocument
   isPinned?: boolean
+  /** Whether the workspace document has uncommitted local edits. */
+  isDirty?: boolean
   registry?: {
     namespace: string
     slug: string
     version?: string
     commitHash?: string
+    /** Last registry hash the conflict cache was computed against. */
+    conflictCheckedAgainstHash?: string
+    /** Cached conflict-check outcome for `conflictCheckedAgainstHash`. */
+    hasConflict?: boolean
   }
 }
 
@@ -165,12 +174,15 @@ export function useSidebarDocuments({
         navigation,
         // TODO: we can implement this later
         isPinned: false,
+        isDirty: doc?.['x-scalar-is-dirty'] === true,
         registry: registry
           ? {
               namespace: registry.namespace,
               slug: registry.slug,
               version: registry.version,
               commitHash: registry.commitHash,
+              conflictCheckedAgainstHash: registry.conflictCheckedAgainstHash,
+              hasConflict: registry.hasConflict,
             }
           : undefined,
       }
@@ -340,10 +352,14 @@ const buildRegistryItem = ({
       documentName: match?.documentName,
       commitHash: localHash,
       registryCommitHash: registryHash,
-      // Only flag mismatches when both sides actually have a hash *and* the
-      // version is loaded locally. Without a local copy there is nothing to
-      // be "out of sync" with — the user simply has not imported it yet.
-      hasUpstreamChanges: Boolean(match && localHash && registryHash && localHash !== registryHash),
+      status: computeVersionStatus({
+        isLoaded: Boolean(match),
+        localHash,
+        registryHash,
+        isDirty: match?.isDirty,
+        conflictCheckedAgainstHash: match?.registry?.conflictCheckedAgainstHash,
+        hasConflict: match?.registry?.hasConflict,
+      }),
       navigation: match?.navigation,
     })
   }
@@ -359,7 +375,12 @@ const buildRegistryItem = ({
       documentName: match.documentName,
       commitHash: match.registry?.commitHash,
       registryCommitHash: undefined,
-      hasUpstreamChanges: false,
+      status: computeVersionStatus({
+        isLoaded: true,
+        localHash: match.registry?.commitHash,
+        registryHash: undefined,
+        isDirty: match.isDirty,
+      }),
       navigation: match.navigation,
     })
   }
@@ -373,7 +394,12 @@ const buildRegistryItem = ({
       documentName: orphan.documentName,
       commitHash: orphan.registry?.commitHash,
       registryCommitHash: undefined,
-      hasUpstreamChanges: false,
+      status: computeVersionStatus({
+        isLoaded: true,
+        localHash: orphan.registry?.commitHash,
+        registryHash: undefined,
+        isDirty: orphan.isDirty,
+      }),
       navigation: orphan.navigation,
     })
   }

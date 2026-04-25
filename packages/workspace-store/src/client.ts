@@ -560,6 +560,20 @@ export type WorkspaceStore = {
 const openapiSchema = generateSchema(recursiveRef)
 
 /**
+ * Top-level document keys that the dirty-tracker treats as metadata-only.
+ * Mutations under these keys are programmatic bookkeeping (commit hashes,
+ * cached conflict state, etc.) and never represent a user edit, so they
+ * must not flip `x-scalar-is-dirty` to `true`.
+ */
+const METADATA_ONLY_DOCUMENT_KEYS = new Set<string>([
+  // The dirty flag itself - flipping it would re-enter this branch forever.
+  'x-scalar-is-dirty',
+  // Programmatic bookkeeping for registry-backed documents (commit hash,
+  // conflict cache).
+  'x-scalar-registry-meta',
+])
+
+/**
  * Creates a reactive workspace store that manages documents and their metadata.
  * The store provides functionality for accessing, updating, and resolving document references.
  *
@@ -655,8 +669,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 path: path.slice(2),
               } satisfies WorkspaceStateChangeEvent
 
-              // Don't mark as dirty when the document is first created
-              if (event.path.length > 0 && event.path[0] !== 'x-scalar-is-dirty') {
+              // Don't mark as dirty when the document is first created or when
+              // only metadata-only fields change. `x-scalar-registry-meta` is
+              // updated programmatically (commit hash, conflict cache) and
+              // does not represent a user edit.
+              if (event.path.length > 0 && !METADATA_ONLY_DOCUMENT_KEYS.has(event.path[0] as string)) {
                 // The document has been modified since it was last saved
                 document['x-scalar-is-dirty'] = true
               }
@@ -681,8 +698,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 path: path.slice(2),
               } satisfies WorkspaceStateChangeEvent
 
-              // Don't mark as dirty when the document is first created
-              if (event.path.length > 0 && event.path[0] !== 'x-scalar-is-dirty') {
+              // Don't mark as dirty when the document is first created or when
+              // only metadata-only fields change. `x-scalar-registry-meta` is
+              // updated programmatically (commit hash, conflict cache) and
+              // does not represent a user edit.
+              if (event.path.length > 0 && !METADATA_ONLY_DOCUMENT_KEYS.has(event.path[0] as string)) {
                 // The document has been modified since it was last saved
                 document['x-scalar-is-dirty'] = true
               }

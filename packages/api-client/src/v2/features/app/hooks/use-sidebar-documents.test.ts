@@ -12,8 +12,11 @@ type FakeDocument = Partial<WorkspaceDocument> & {
     slug: string
     version?: string
     commitHash?: string
+    conflictCheckedAgainstHash?: string
+    hasConflict?: boolean
   }
   'x-scalar-navigation'?: TraversedDocument
+  'x-scalar-is-dirty'?: boolean
   info?: { title?: string }
 }
 
@@ -245,7 +248,7 @@ describe('use-sidebar-documents', () => {
             documentName: 'pets-v2',
             commitHash: undefined,
             registryCommitHash: undefined,
-            hasUpstreamChanges: false,
+            status: 'synced',
             navigation: undefined,
           },
           {
@@ -255,7 +258,7 @@ describe('use-sidebar-documents', () => {
             documentName: 'pets-v1',
             commitHash: undefined,
             registryCommitHash: undefined,
-            hasUpstreamChanges: false,
+            status: 'synced',
             navigation: undefined,
           },
         ],
@@ -308,7 +311,7 @@ describe('use-sidebar-documents', () => {
         documentName: undefined,
         commitHash: undefined,
         registryCommitHash: 'def456',
-        hasUpstreamChanges: false,
+        status: 'unknown',
         navigation: undefined,
       },
       {
@@ -318,13 +321,13 @@ describe('use-sidebar-documents', () => {
         documentName: 'pets-v1',
         commitHash: 'abc123',
         registryCommitHash: 'abc123',
-        hasUpstreamChanges: false,
+        status: 'synced',
         navigation: undefined,
       },
     ])
   })
 
-  it('flags loaded versions whose registry commit hash has moved on as having upstream changes', () => {
+  it('flags loaded versions whose registry commit hash has moved on as `pull`', () => {
     const { app } = createFakeApp({
       documents: {
         'pets-v1': {
@@ -354,7 +357,8 @@ describe('use-sidebar-documents', () => {
 
     // The loaded document still pins to `old-hash` while the registry now
     // advertises `new-hash`, which means there are upstream changes the
-    // user has not pulled yet — the consumer can render a warning icon.
+    // user has not pulled yet. With no cached conflict result, the version
+    // surfaces as a plain `pull`.
     expect(rest.value[0]?.versions?.[0]).toStrictEqual({
       key: 'pets-v1',
       version: '1.0.0',
@@ -362,9 +366,109 @@ describe('use-sidebar-documents', () => {
       documentName: 'pets-v1',
       commitHash: 'old-hash',
       registryCommitHash: 'new-hash',
-      hasUpstreamChanges: true,
+      status: 'pull',
       navigation: undefined,
     })
+  })
+
+  it('surfaces `conflict` when the registry-meta cache flags a conflict for the current registry hash', () => {
+    const { app } = createFakeApp({
+      documents: {
+        'pets-v1': {
+          info: { title: 'Pets v1', version: '1.0.0' },
+          'x-scalar-registry-meta': {
+            namespace: 'acme',
+            slug: 'pets',
+            version: '1.0.0',
+            commitHash: 'old-hash',
+            conflictCheckedAgainstHash: 'new-hash',
+            hasConflict: true,
+          },
+        },
+      },
+      isTeamWorkspace: true,
+    })
+
+    const { rest } = useSidebarDocuments({
+      app,
+      managedDocs: () => [
+        {
+          namespace: 'acme',
+          slug: 'pets',
+          title: 'Pets API',
+          versions: [{ version: '1.0.0', commitHash: 'new-hash' }],
+        },
+      ],
+    })
+
+    expect(rest.value[0]?.versions?.[0]?.status).toBe('conflict')
+  })
+
+  it('falls back to `pull` when the cached conflict result was computed against a stale registry hash', () => {
+    const { app } = createFakeApp({
+      documents: {
+        'pets-v1': {
+          info: { title: 'Pets v1', version: '1.0.0' },
+          'x-scalar-registry-meta': {
+            namespace: 'acme',
+            slug: 'pets',
+            version: '1.0.0',
+            commitHash: 'old-hash',
+            // The cache was computed for an older registry hash that has
+            // since been replaced; the result is no longer trustworthy.
+            conflictCheckedAgainstHash: 'older-hash',
+            hasConflict: true,
+          },
+        },
+      },
+      isTeamWorkspace: true,
+    })
+
+    const { rest } = useSidebarDocuments({
+      app,
+      managedDocs: () => [
+        {
+          namespace: 'acme',
+          slug: 'pets',
+          title: 'Pets API',
+          versions: [{ version: '1.0.0', commitHash: 'new-hash' }],
+        },
+      ],
+    })
+
+    expect(rest.value[0]?.versions?.[0]?.status).toBe('pull')
+  })
+
+  it('surfaces `push` when the document is dirty and the hash matches the registry', () => {
+    const { app } = createFakeApp({
+      documents: {
+        'pets-v1': {
+          info: { title: 'Pets v1', version: '1.0.0' },
+          'x-scalar-is-dirty': true,
+          'x-scalar-registry-meta': {
+            namespace: 'acme',
+            slug: 'pets',
+            version: '1.0.0',
+            commitHash: 'shared-hash',
+          },
+        },
+      },
+      isTeamWorkspace: true,
+    })
+
+    const { rest } = useSidebarDocuments({
+      app,
+      managedDocs: () => [
+        {
+          namespace: 'acme',
+          slug: 'pets',
+          title: 'Pets API',
+          versions: [{ version: '1.0.0', commitHash: 'shared-hash' }],
+        },
+      ],
+    })
+
+    expect(rest.value[0]?.versions?.[0]?.status).toBe('push')
   })
 
   it('promotes the active document when it belongs to a group', () => {
@@ -438,7 +542,7 @@ describe('use-sidebar-documents', () => {
         documentName: 'pets',
         commitHash: undefined,
         registryCommitHash: undefined,
-        hasUpstreamChanges: false,
+        status: 'synced',
         navigation: undefined,
       },
     ])
@@ -481,7 +585,7 @@ describe('use-sidebar-documents', () => {
             documentName: undefined,
             commitHash: undefined,
             registryCommitHash: 'def456',
-            hasUpstreamChanges: false,
+            status: 'unknown',
             navigation: undefined,
           },
           {
@@ -491,7 +595,7 @@ describe('use-sidebar-documents', () => {
             documentName: undefined,
             commitHash: undefined,
             registryCommitHash: undefined,
-            hasUpstreamChanges: false,
+            status: 'unknown',
             navigation: undefined,
           },
         ],

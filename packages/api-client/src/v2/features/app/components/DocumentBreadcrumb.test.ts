@@ -15,7 +15,10 @@ type FakeDocument = Partial<WorkspaceDocument> & {
     slug: string
     version?: string
     commitHash?: string
+    conflictCheckedAgainstHash?: string
+    hasConflict?: boolean
   }
+  'x-scalar-is-dirty'?: boolean
   info?: { title?: string; version?: string }
 }
 
@@ -324,5 +327,182 @@ describe('DocumentBreadcrumb', () => {
 
     expect(fetchRegistryDocument).not.toHaveBeenCalled()
     expect(mockEventBus.emit).not.toHaveBeenCalled()
+  })
+
+  it('renders the matching status icon for each version row', async () => {
+    const documents: Record<string, FakeDocument> = {
+      'pets-v1': {
+        info: { title: 'Pets v1', version: '1.0.0' },
+        'x-scalar-registry-meta': {
+          namespace: 'acme',
+          slug: 'pets',
+          version: '1.0.0',
+          commitHash: 'old-hash',
+        },
+      },
+      'pets-v2': {
+        info: { title: 'Pets v2', version: '2.0.0' },
+        'x-scalar-is-dirty': true,
+        'x-scalar-registry-meta': {
+          namespace: 'acme',
+          slug: 'pets',
+          version: '2.0.0',
+          commitHash: 'matching-hash',
+        },
+      },
+      'pets-v3': {
+        info: { title: 'Pets v3', version: '3.0.0' },
+        'x-scalar-registry-meta': {
+          namespace: 'acme',
+          slug: 'pets',
+          version: '3.0.0',
+          commitHash: 'pets-v3-local',
+          conflictCheckedAgainstHash: 'pets-v3-remote',
+          hasConflict: true,
+        },
+      },
+    }
+
+    const { app } = createFakeApp({ documents, activeDocumentName: 'pets-v2' })
+
+    const wrapper = mount(DocumentBreadcrumb, {
+      props: {
+        app,
+        registryDocuments: {
+          status: 'success',
+          documents: [
+            {
+              namespace: 'acme',
+              slug: 'pets',
+              title: 'Pets API',
+              versions: [
+                { version: '3.0.0', commitHash: 'pets-v3-remote' },
+                { version: '2.0.0', commitHash: 'matching-hash' },
+                { version: '1.0.0', commitHash: 'new-hash' },
+              ],
+            },
+          ],
+        },
+      },
+    })
+
+    const options = wrapper.findComponent({ name: 'ScalarCombobox' }).props('options') as Array<{
+      id: string
+      status: string
+    }>
+
+    // The status field on each option drives the row icon. Locking it down
+    // here ensures the `synced/push/pull/conflict` mapping survives future
+    // refactors of the breadcrumb template.
+    expect(options).toEqual([
+      expect.objectContaining({ id: 'pets-v3', status: 'conflict' }),
+      expect.objectContaining({ id: 'pets-v2', status: 'push' }),
+      expect.objectContaining({ id: 'pets-v1', status: 'pull' }),
+    ])
+  })
+
+  it('kicks off a conflict check for loaded versions whose registry hash drifted and no cache is available', async () => {
+    const documents: Record<string, FakeDocument> = {
+      'pets-v1': {
+        info: { title: 'Pets v1', version: '1.0.0' },
+        'x-scalar-registry-meta': {
+          namespace: 'acme',
+          slug: 'pets',
+          version: '1.0.0',
+          commitHash: 'old-hash',
+        },
+      },
+    }
+
+    const { app } = createFakeApp({ documents, activeDocumentName: 'pets-v1' })
+    // Use a workspace-store stub that exposes `getOriginalDocument` so the
+    // conflict-check helper has a baseline to diff against.
+    app.store.value = {
+      ...createWorkspaceStore(documents, 'pets-v1'),
+      getOriginalDocument: vi.fn().mockReturnValue({ info: { title: 'Pets v1', version: '1.0.0' } }),
+    } as never
+
+    const fetchRegistryDocument = vi.fn().mockResolvedValue({
+      ok: true,
+      data: { info: { title: 'Pets v1 Remote', version: '1.0.0' } },
+    })
+
+    mount(DocumentBreadcrumb, {
+      props: {
+        app,
+        fetchRegistryDocument,
+        registryDocuments: {
+          status: 'success',
+          documents: [
+            {
+              namespace: 'acme',
+              slug: 'pets',
+              title: 'Pets API',
+              versions: [{ version: '1.0.0', commitHash: 'new-hash' }],
+            },
+          ],
+        },
+      },
+    })
+
+    await flushPromises()
+
+    // The breadcrumb fires a conflict check for the registry version it has
+    // not seen yet so the cache on `x-scalar-registry-meta` can be populated
+    // for subsequent renders.
+    expect(fetchRegistryDocument).toHaveBeenCalledWith({
+      namespace: 'acme',
+      slug: 'pets',
+      version: '1.0.0',
+    })
+  })
+
+  it('does not kick off a conflict check when the cache already covers the current registry hash', async () => {
+    const documents: Record<string, FakeDocument> = {
+      'pets-v1': {
+        info: { title: 'Pets v1', version: '1.0.0' },
+        'x-scalar-registry-meta': {
+          namespace: 'acme',
+          slug: 'pets',
+          version: '1.0.0',
+          commitHash: 'old-hash',
+          // Cache says the conflict was already computed for the registry
+          // hash we are about to surface, so the breadcrumb should skip the
+          // network call entirely.
+          conflictCheckedAgainstHash: 'new-hash',
+          hasConflict: true,
+        },
+      },
+    }
+
+    const { app } = createFakeApp({ documents, activeDocumentName: 'pets-v1' })
+    app.store.value = {
+      ...createWorkspaceStore(documents, 'pets-v1'),
+      getOriginalDocument: vi.fn(),
+    } as never
+
+    const fetchRegistryDocument = vi.fn()
+
+    mount(DocumentBreadcrumb, {
+      props: {
+        app,
+        fetchRegistryDocument,
+        registryDocuments: {
+          status: 'success',
+          documents: [
+            {
+              namespace: 'acme',
+              slug: 'pets',
+              title: 'Pets API',
+              versions: [{ version: '1.0.0', commitHash: 'new-hash' }],
+            },
+          ],
+        },
+      },
+    })
+
+    await flushPromises()
+
+    expect(fetchRegistryDocument).not.toHaveBeenCalled()
   })
 })
