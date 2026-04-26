@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.22.4
+
+### Patch Changes
+
+- [#8976](https://github.com/scalar/scalar/pull/8976): feat(components): add sidebar group loading state
+
 ## 0.22.3
 
 ## 0.22.2
