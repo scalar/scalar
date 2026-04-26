@@ -671,6 +671,56 @@ describe('updateSelectedScopes', () => {
     assert(zSchemes)
     expect(zSchemes.selectedSchemes).toEqual([{ z: [] }])
   })
+
+  it('updates scopes when using preferredSecurityScheme without stored selection', async () => {
+    const documentName = 'test'
+    const document = createDocument({
+      components: {
+        securitySchemes: {
+          oauth2: {
+            type: 'oauth2',
+            flows: {
+              authorizationCode: {
+                authorizationUrl: 'https://example.com/authorize',
+                tokenUrl: 'https://example.com/token',
+                refreshUrl: 'https://example.com/refresh',
+                scopes: {
+                  'read:data': 'Read data',
+                  'write:data': 'Write data',
+                },
+                'x-usePkce': 'no',
+                'x-scalar-credentials-location': 'header',
+              },
+            },
+          },
+        },
+      },
+      security: [{ oauth2: [] }],
+    })
+
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document,
+    })
+
+    // No selected security stored - this simulates preferredSecurityScheme behavior
+    // where selection is computed on-the-fly in getSelectedSecurity
+    expect(store.auth.getAuthSelectedSchemas({ type: 'document', documentName })).toBeUndefined()
+
+    // Try to update scopes (this should fail in the buggy version)
+    updateSelectedScopes(store, store.workspace.activeDocument!, {
+      id: ['oauth2'],
+      name: 'oauth2',
+      scopes: ['read:data'],
+      meta: { type: 'document' },
+    })
+
+    // The scopes should now be updated and the selection should be persisted
+    const schemes = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(schemes, 'Selection should be initialized when updating scopes')
+    expect(schemes.selectedSchemes[0]).toEqual({ oauth2: ['read:data'] })
+  })
 })
 
 describe('deleteSecurityScheme', () => {
