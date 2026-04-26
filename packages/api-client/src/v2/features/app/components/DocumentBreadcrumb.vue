@@ -1,23 +1,15 @@
 <script setup lang="ts">
 import { ScalarCombobox, type ScalarComboboxOption } from '@scalar/components'
-import {
-  ScalarIconCaretDown,
-  ScalarIconCloudArrowDown,
-  ScalarIconCloudArrowUp,
-  ScalarIconCloudCheck,
-  ScalarIconCloudWarning,
-} from '@scalar/icons'
+import { ScalarIconCaretDown } from '@scalar/icons'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, ref } from 'vue'
 
 import type { AppState } from '@/v2/features/app/app-state'
 import type { VersionStatus } from '@/v2/features/app/helpers/compute-version-status'
 import { loadRegistryDocument } from '@/v2/features/app/helpers/load-registry-document'
-import {
-  useSidebarDocuments,
-  type RegistryDocumentsState,
-  type SidebarDocumentVersion,
-} from '@/v2/features/app/hooks/use-sidebar-documents'
+import { VERSION_STATUS_PRESENTATION } from '@/v2/features/app/helpers/version-status-presentation'
+import { useActiveDocumentVersion } from '@/v2/features/app/hooks/use-active-document-version'
+import type { RegistryDocumentsState } from '@/v2/features/app/hooks/use-sidebar-documents'
 import { useVersionConflictCheck } from '@/v2/features/app/hooks/use-version-conflict-check'
 import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 
@@ -44,36 +36,13 @@ const {
 const { toast } = useToasts()
 
 /**
- * The breadcrumb reuses the sidebar's grouping logic so the version picker
- * always shows the exact same versions as the sidebar (same merging of
- * loaded workspace docs with registry-advertised versions, same ordering).
+ * Resolve the active document group, its versions, and the currently
+ * selected version once. The right-side sync indicator consumes the same
+ * composable so the two surfaces always agree on what "active" means.
  */
-const { documents } = useSidebarDocuments({
+const { activeRegistryMeta, activeItem, versions, activeVersion } = useActiveDocumentVersion({
   app,
-  managedDocs: () => registryDocuments.documents ?? [],
-})
-
-/** Registry meta for the currently active document (if any). */
-const activeRegistryMeta = computed(() => {
-  const doc = app.store.value?.workspace.activeDocument
-  return doc?.['x-scalar-registry-meta']
-})
-
-/**
- * Sidebar item representing the currently active registry-backed document.
- * We match by `namespace + slug` because a single group can contain several
- * versions and the active document may be any of them.
- */
-const activeItem = computed(() => {
-  const meta = activeRegistryMeta.value
-  if (!meta) {
-    return undefined
-  }
-  return documents.value.find(
-    (item) =>
-      item.registry?.namespace === meta.namespace &&
-      item.registry?.slug === meta.slug,
-  )
+  registryDocuments: () => registryDocuments,
 })
 
 /** Workspace label rendered as the first segment of the breadcrumb. */
@@ -87,26 +56,6 @@ const documentTitle = computed(() => {
   }
   const doc = app.store.value?.workspace.activeDocument
   return doc?.info?.title ?? ''
-})
-
-/** Versions surfaced in the dropdown, ordered with the latest first. */
-const versions = computed<SidebarDocumentVersion[]>(
-  () => activeItem.value?.versions ?? [],
-)
-
-/**
- * The version currently active on screen. Prefers matching the version
- * declared on the active document's registry meta so the picker always
- * reflects what the user is viewing, even when the sidebar's notion of the
- * active version has not caught up yet (e.g. during a pending fetch).
- */
-const activeVersion = computed<SidebarDocumentVersion | undefined>(() => {
-  const meta = activeRegistryMeta.value
-  const list = versions.value
-  if (!meta) {
-    return list[0]
-  }
-  return list.find((v) => v.version === meta.version) ?? list[0]
 })
 
 /**
@@ -133,43 +82,6 @@ const versionOptions = computed<VersionOption[]>(() =>
     status: v.status,
   })),
 )
-
-/**
- * Visual mapping for each sync status. The icon swatches mirror the four
- * states the design system advertises (synced, pull, push, conflict) so the
- * dropdown row stays consistent with any other surface that might render
- * these statuses (sync buttons, badges, etc.).
- */
-const STATUS_PRESENTATION: Record<
-  VersionStatus,
-  { icon: typeof ScalarIconCloudCheck; class: string; label: string }
-> = {
-  synced: {
-    icon: ScalarIconCloudCheck,
-    class: 'text-green',
-    label: 'Synced with the registry',
-  },
-  push: {
-    icon: ScalarIconCloudArrowUp,
-    class: 'text-blue',
-    label: 'Local changes ready to push',
-  },
-  pull: {
-    icon: ScalarIconCloudArrowDown,
-    class: 'text-blue',
-    label: 'Upstream changes available to pull',
-  },
-  conflict: {
-    icon: ScalarIconCloudWarning,
-    class: 'text-orange',
-    label: 'Conflicts detected — resolve before pulling',
-  },
-  unknown: {
-    icon: ScalarIconCloudCheck,
-    class: 'text-c-3',
-    label: 'Version not loaded',
-  },
-}
 
 /**
  * The combobox compares `modelValue` to options by reference, so we must
@@ -318,11 +230,11 @@ const handleVersionSelect = async (option: VersionOption | undefined) => {
           </button>
           <template #option="{ option, selected }">
             <component
-              :is="STATUS_PRESENTATION[option.status].icon"
-              :aria-label="STATUS_PRESENTATION[option.status].label"
+              :is="VERSION_STATUS_PRESENTATION[option.status].icon"
+              :aria-label="VERSION_STATUS_PRESENTATION[option.status].label"
               class="size-4 shrink-0"
-              :class="STATUS_PRESENTATION[option.status].class"
-              :title="STATUS_PRESENTATION[option.status].label" />
+              :class="VERSION_STATUS_PRESENTATION[option.status].class"
+              :title="VERSION_STATUS_PRESENTATION[option.status].label" />
             <span
               class="text-c-1 min-w-0 flex-1 truncate"
               :class="{ 'font-medium': selected }">

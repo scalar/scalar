@@ -25,6 +25,7 @@ import AppHeader from '@/v2/features/app/components/AppHeader.vue'
 import AppSidebar from '@/v2/features/app/components/AppSidebar.vue'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import DocumentBreadcrumb from '@/v2/features/app/components/DocumentBreadcrumb.vue'
+import DocumentSyncIndicator from '@/v2/features/app/components/DocumentSyncIndicator.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
@@ -246,7 +247,19 @@ const routerViewProps = computed<RouteProps>(() => {
               :registryDocuments="registryDocuments" />
           </template>
           <template #end>
-            <slot name="header-end" />
+            <div class="flex items-center gap-2">
+              <!--
+                Sync status mirrors the icon in the version picker so the
+                user can see at a glance whether the active registry-backed
+                document is synced / pending push / pending pull / in
+                conflict, even when the picker dropdown is closed. The
+                indicator hides itself when there is no active version.
+              -->
+              <DocumentSyncIndicator
+                :app="app"
+                :registryDocuments="registryDocuments" />
+              <slot name="header-end" />
+            </div>
           </template>
         </AppHeader>
         <div class="flex min-h-0 flex-1 flex-row">
