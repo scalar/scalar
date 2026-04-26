@@ -232,10 +232,13 @@ describe('use-sidebar-documents', () => {
     // Single grouped item with both versions surfaced. The first version on
     // the list is the latest advertised by the registry (2.0.0) and becomes
     // the active version because no document slug is currently selected.
+    // Every title — parent and version rows — is the registry's title so the
+    // sidebar matches what the registry advertises, not the locally loaded
+    // workspace titles.
     expect(rest.value).toStrictEqual([
       {
         key: '@acme/pets',
-        title: 'Pets v2',
+        title: 'Pets API',
         documentName: 'pets-v2',
         registry: { namespace: 'acme', slug: 'pets' },
         navigation: undefined,
@@ -244,7 +247,7 @@ describe('use-sidebar-documents', () => {
           {
             key: 'pets-v2',
             version: '2.0.0',
-            title: 'Pets v2',
+            title: 'Pets API',
             documentName: 'pets-v2',
             commitHash: undefined,
             registryCommitHash: undefined,
@@ -254,7 +257,7 @@ describe('use-sidebar-documents', () => {
           {
             key: 'pets-v1',
             version: '1.0.0',
-            title: 'Pets v1',
+            title: 'Pets API',
             documentName: 'pets-v1',
             commitHash: undefined,
             registryCommitHash: undefined,
@@ -317,7 +320,7 @@ describe('use-sidebar-documents', () => {
       {
         key: 'pets-v1',
         version: '1.0.0',
-        title: 'Pets v1',
+        title: 'Pets API',
         documentName: 'pets-v1',
         commitHash: 'abc123',
         registryCommitHash: 'abc123',
@@ -362,7 +365,7 @@ describe('use-sidebar-documents', () => {
     expect(rest.value[0]?.versions?.[0]).toStrictEqual({
       key: 'pets-v1',
       version: '1.0.0',
-      title: 'Pets v1',
+      title: 'Pets API',
       documentName: 'pets-v1',
       commitHash: 'old-hash',
       registryCommitHash: 'new-hash',
@@ -538,7 +541,7 @@ describe('use-sidebar-documents', () => {
       {
         key: 'pets',
         version: '1.0.0',
-        title: 'Pets',
+        title: 'Pets API',
         documentName: 'pets',
         commitHash: undefined,
         registryCommitHash: undefined,
@@ -602,6 +605,37 @@ describe('use-sidebar-documents', () => {
         activeVersionKey: '@acme/pets@2.0.0',
       },
     ])
+  })
+
+  it('uses the registry title for parent and version rows even when the loaded document was renamed locally', () => {
+    const { app } = createFakeApp({
+      documents: {
+        pets: {
+          info: { title: 'Renamed Locally', version: '1.0.0' },
+          'x-scalar-navigation': nav('pets', 'Renamed Locally'),
+          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets', version: '1.0.0' },
+        },
+      },
+      isTeamWorkspace: true,
+    })
+
+    const { rest } = useSidebarDocuments({
+      app,
+      managedDocs: () => [
+        {
+          namespace: 'acme',
+          slug: 'pets',
+          title: 'Pets API',
+          versions: [{ version: '1.0.0' }],
+        },
+      ],
+    })
+
+    // Local renames must not leak into the sidebar — the sidebar mirrors the
+    // registry so users can recognise the entry as the same document the
+    // registry advertises.
+    expect(rest.value[0]?.title).toBe('Pets API')
+    expect(rest.value[0]?.versions?.[0]?.title).toBe('Pets API')
   })
 
   it('falls back to the slug when a registry document has no title', () => {

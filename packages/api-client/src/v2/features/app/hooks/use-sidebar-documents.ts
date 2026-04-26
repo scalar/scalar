@@ -61,7 +61,12 @@ export type SidebarDocumentVersion = {
 export type SidebarDocumentItem = {
   /** Stable key used for sidebar state: `@namespace/slug` for registry-backed entries, document name otherwise. */
   key: string
-  /** User facing title of the document (mirrors the active version on registry-backed entries). */
+  /**
+   * User-facing title of the document. Registry-backed entries always surface
+   * the registry's title so the sidebar matches what the registry advertises,
+   * even when a locally loaded copy has been renamed. Standalone entries use
+   * the workspace document title.
+   */
   title: string
   /** Name of the document inside the workspace store (mirrors the active version on registry-backed entries). */
   documentName?: string
@@ -334,7 +339,11 @@ const buildRegistryItem = ({
 
   const versions: SidebarDocumentVersion[] = []
 
-  const placeholderTitle = registry.title || registry.slug
+  // Registry-backed rows always surface the registry title so the sidebar
+  // matches what the registry advertises. Local renames are intentionally
+  // ignored here; the slug is the last-resort fallback so the row always has
+  // something to render.
+  const groupTitle = registry.title || registry.slug
 
   for (const v of registry.versions) {
     const match = loadedByVersion.get(v.version)
@@ -344,11 +353,7 @@ const buildRegistryItem = ({
     versions.push({
       key: match ? match.documentName : versionKey(registry.namespace, registry.slug, v.version),
       version: v.version,
-      // Loaded versions display the workspace document's title so local
-      // renames stay visible. Unloaded versions fall back to the registry
-      // title — the version itself is rendered alongside this label by the
-      // sidebar, so we do not embed the version string here.
-      title: match?.title || placeholderTitle,
+      title: groupTitle,
       documentName: match?.documentName,
       commitHash: localHash,
       registryCommitHash: registryHash,
@@ -371,7 +376,7 @@ const buildRegistryItem = ({
     versions.push({
       key: match.documentName,
       version,
-      title: match.title,
+      title: groupTitle,
       documentName: match.documentName,
       commitHash: match.registry?.commitHash,
       registryCommitHash: undefined,
@@ -390,7 +395,7 @@ const buildRegistryItem = ({
     versions.push({
       key: orphan.documentName,
       version: orphan.registry?.version ?? '',
-      title: orphan.title,
+      title: groupTitle,
       documentName: orphan.documentName,
       commitHash: orphan.registry?.commitHash,
       registryCommitHash: undefined,
@@ -416,17 +421,9 @@ const buildRegistryItem = ({
     versions.find((v) => v.documentName !== undefined) ??
     versions[0]!
 
-  // Parent title prefers the active version's workspace title (so local
-  // renames stay visible) but only when that version is actually loaded —
-  // unloaded version rows reuse the registry title and we do not want to
-  // surface that twice. Falls back to the registry title and finally the
-  // slug so the row always has something to render.
-  const parentTitle =
-    (activeVersion.documentName ? activeVersion.title : undefined) || registry.title || registry.slug
-
   return {
     key,
-    title: parentTitle,
+    title: groupTitle,
     documentName: activeVersion.documentName,
     registry: { namespace: registry.namespace, slug: registry.slug },
     navigation: activeVersion.navigation,
