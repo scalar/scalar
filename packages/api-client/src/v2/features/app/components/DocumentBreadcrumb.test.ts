@@ -154,7 +154,11 @@ describe('DocumentBreadcrumb', () => {
 
     expect(wrapper.find('nav').exists()).toBe(true)
     expect(wrapper.text()).toContain('Acme Workspace')
-    expect(wrapper.text()).toContain('Pets v1')
+    // Registry-backed entries always surface the registry title so the
+    // breadcrumb matches what the registry advertises, even when the local
+    // workspace document was renamed (info.title 'Pets v1' here).
+    expect(wrapper.text()).toContain('Pets API')
+    expect(wrapper.text()).not.toContain('Pets v1')
     expect(wrapper.find('button[aria-label="Document version"]').text()).toContain('1.0.0')
   })
 

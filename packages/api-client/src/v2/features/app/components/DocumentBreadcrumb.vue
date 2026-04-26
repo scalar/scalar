@@ -8,10 +8,9 @@ import {
   ScalarIconCloudWarning,
 } from '@scalar/icons'
 import { useToasts } from '@scalar/use-toasts'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 
 import type { AppState } from '@/v2/features/app/app-state'
-import { checkVersionConflict } from '@/v2/features/app/helpers/check-version-conflict'
 import type { VersionStatus } from '@/v2/features/app/helpers/compute-version-status'
 import { loadRegistryDocument } from '@/v2/features/app/helpers/load-registry-document'
 import {
@@ -19,6 +18,7 @@ import {
   type RegistryDocumentsState,
   type SidebarDocumentVersion,
 } from '@/v2/features/app/hooks/use-sidebar-documents'
+import { useVersionConflictCheck } from '@/v2/features/app/hooks/use-version-conflict-check'
 import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 
 const {
@@ -205,73 +205,17 @@ const isVisible = computed(() => Boolean(workspaceTitle.value || hasActiveDocume
 /** Guards against double-firing the loader when the user clicks repeatedly. */
 const isLoading = ref(false)
 
-/**
- * Tracks the registry hashes we have already kicked off a conflict check
- * for in this component instance, keyed by `documentName`. The check itself
- * also caches its result on the workspace document via
- * `x-scalar-registry-meta`, but this in-memory set guards against firing
- * multiple in-flight requests for the same document while the cache write
- * is still pending.
- */
-const inflightConflictChecks = new Map<string, string>()
-
-/**
- * Watch the version list and, for any loaded registry-backed version that
- * has a hash mismatch but no cached conflict result for the current
- * registry hash, kick off `checkVersionConflict` in the background. The
- * helper writes the outcome to `x-scalar-registry-meta` which then flows
- * back through `useSidebarDocuments` and updates the row icon.
- */
-watch(
+// Run the three-way conflict check for every loaded version of the active
+// document group. We deliberately do not check versions of *other*
+// documents — the breadcrumb only renders the picker for the active one —
+// but every row inside that picker carries a status icon, so we want a
+// fresh result for each of them up front rather than on demand.
+useVersionConflictCheck({
+  store: () => app.store.value,
+  fetcher: () => fetchRegistryDocument,
+  registry: () => activeItem.value?.registry,
   versions,
-  (next) => {
-    const fetcher = fetchRegistryDocument
-    const store = app.store.value
-    const registry = activeItem.value?.registry
-    if (!fetcher || !store || !registry) {
-      return
-    }
-
-    for (const version of next) {
-      // We can only run the three-way merge when the version is loaded
-      // locally and the registry has advertised a hash to compare against.
-      if (!version.documentName || !version.registryCommitHash) {
-        continue
-      }
-
-      // Already fired (or finished) a check for this exact registry hash.
-      if (inflightConflictChecks.get(version.documentName) === version.registryCommitHash) {
-        continue
-      }
-
-      // The status helper already encodes everything we need to decide
-      // whether a fresh check is required. `pull` means "hashes differ and
-      // no usable cached result"; the other states either match (`synced`,
-      // `push`) or already reflect a cached conflict (`conflict`).
-      if (version.status !== 'pull') {
-        continue
-      }
-
-      inflightConflictChecks.set(version.documentName, version.registryCommitHash)
-      void checkVersionConflict({
-        workspaceStore: store,
-        fetcher,
-        documentName: version.documentName,
-        namespace: registry.namespace,
-        slug: registry.slug,
-        version: version.version,
-        registryCommitHash: version.registryCommitHash,
-      }).catch(() => {
-        // Allow a future render to retry by clearing the in-flight marker
-        // when the helper itself rejects (network failure, etc.). The
-        // helper's `ok: false` returns are handled silently — the cache
-        // simply stays empty and the row keeps showing `pull`.
-        inflightConflictChecks.delete(version.documentName as string)
-      })
-    }
-  },
-  { immediate: true, deep: true },
-)
+})
 
 const navigateToDocument = (documentSlug: string) => {
   app.eventBus.emit('ui:navigate', {
