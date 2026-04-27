@@ -1,11 +1,11 @@
 import { parseJsonOrYaml } from '@scalar/oas-utils/helpers'
+import { apiReferenceConfigurationWithSourceSchema } from '@scalar/schemas/api-reference'
 import {
   type AnyApiReferenceConfiguration,
   type ApiReferenceConfigurationRaw,
   type ApiReferenceConfigurationWithSource,
   isConfigurationWithSources,
 } from '@scalar/types/api-reference'
-import { apiReferenceConfigurationWithSourceSchema } from '@scalar/schemas/api-reference'
 import GithubSlugger from 'github-slugger'
 
 /** Processed API Reference Configuration
@@ -29,7 +29,7 @@ type ConfigWithRequiredSource = Omit<ApiReferenceConfigurationWithSource, 'url' 
   ({ url: string; content?: never } | { content: Record<string, unknown>; url?: never })
 
 const isConfigWithRequiredSource = (input: ApiReferenceConfigurationWithSource): input is ConfigWithRequiredSource => {
-  return (input.url ?? '')?.trim() !== '' || (input.content ?? null) !== null
+  return !!input.url?.trim() || !!input.content
 }
 
 /**

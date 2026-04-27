@@ -24,6 +24,6 @@ export type {
   SourceConfiguration,
   SpecificationExtension,
   ViewComponent,
-  isConfigurationWithSources,
 } from './api-reference'
+export { isConfigurationWithSources } from './api-reference'
 export { XScalarStability } from './legacy/index'
