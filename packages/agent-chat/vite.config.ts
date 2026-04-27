@@ -40,5 +40,8 @@ export default defineConfig({
       output: createPreserveModulesOutput(),
     },
   },
-  test: {},
+  test: {
+    environment: 'jsdom',
+    root: resolve(import.meta.dirname, './'),
+  },
 })

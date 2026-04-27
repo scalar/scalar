@@ -18,6 +18,7 @@
     "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && shx cp package.json dist",
     "build:watch": "vite build --watch",
     "playground": "cd playground && vite",
+    "test": "vitest --run",
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
@@ -69,9 +70,12 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "catalog:*",
+    "@types/jsdom": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "hono": "catalog:*",
+    "jsdom": "catalog:*",
     "tailwindcss": "catalog:*",
-    "vite": "catalog:*"
+    "vite": "catalog:*",
+    "vitest": "catalog:*"
   }
 }
