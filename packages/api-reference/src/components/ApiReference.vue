@@ -1,7 +1,9 @@
 <script lang="ts">
-import { version } from '../../package.json'
+// Injected by Vite at build time (see vite.config.ts and vite.standalone.config.ts).
+// Read via process.env so the constant is replaced inline without pulling package.json
+// into the TypeScript program — that would expand rootDir and emit declarations under dist/src/.
+const version = process.env.SCALAR_API_REFERENCE_VERSION
 
-// Log the package version once per browser module evaluation.
 if (version && typeof window !== 'undefined') {
   console.info(`@scalar/api-reference@${version}`)
 }
