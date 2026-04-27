@@ -72,8 +72,7 @@ describe('add-documents-to-store', () => {
       const registryCall = mockFetch.mock.calls.find(([url]) => {
         try {
           return new URL(String(url)).origin === new URL(registryUrl).origin
-        }
-        catch {
+        } catch {
           return false
         }
       })
@@ -99,8 +98,7 @@ describe('add-documents-to-store', () => {
       const registryCall = mockFetch.mock.calls.find(([url]) => {
         try {
           return new URL(String(url)).origin === new URL(registryUrl).origin
-        }
-        catch {
+        } catch {
           return false
         }
       })
