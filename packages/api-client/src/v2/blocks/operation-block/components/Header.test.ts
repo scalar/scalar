@@ -14,6 +14,8 @@ describe('Header', () => {
   const defaultProps = {
     path: '/pets',
     method: 'get' as const,
+    documentSlug: 'test-document',
+    exampleKey: 'default',
     layout: 'web' as const,
     isSidebarOpen: true,
     showSidebar: true,

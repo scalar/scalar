@@ -17,6 +17,10 @@ export type HeaderProps = {
   hideClientButton?: boolean
   /** Client integration  */
   integration?: string | null
+  /** Openapi document slug */
+  documentSlug: string
+  /** Currently selected example key for the current operation */
+  exampleKey: string
   /** Openapi document url for `modal` mode to open the client app */
   documentUrl?: string
   /** Client source */
@@ -57,7 +61,12 @@ import type { ClientLayout } from '@/v2/types/layout'
 
 import OpenApiClientButton from './OpenApiClientButton.vue'
 
-const { hideClientButton = false, eventBus } = defineProps<HeaderProps>()
+const {
+  hideClientButton = false,
+  eventBus,
+  exampleKey,
+  documentSlug,
+} = defineProps<HeaderProps>()
 
 const emit = defineEmits<{
   /** Execute the current operation example */
@@ -93,9 +102,11 @@ const handleAddEnvironment = () => {
     </div>
     <AddressBar
       :activeEnvironment
+      :documentSlug
       :environment
       :environments
       :eventBus
+      :exampleKey
       :history
       :layout
       :method

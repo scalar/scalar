@@ -185,6 +185,7 @@ const createDefaultProps = (): OperationBlockProps => ({
   proxyUrl: '',
   workspaceCookies: [],
   documentCookies: [],
+  documentSlug: 'test-document',
   path: '/api/users',
   method: 'get' as const,
   httpClients: AVAILABLE_CLIENTS,
