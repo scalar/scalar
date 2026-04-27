@@ -26,6 +26,7 @@
     "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "pnpm playground:web",
     "playground:app": "vite ./playground/app -c ./vite.config.ts",
+    "playground:app:build": "vite build ./playground/app -c ./vite.playground.config.ts",
     "playground:modal": "vite ./playground/modal -c ./vite.config.ts",
     "playground:web": "vite ./playground/web -c ./vite.config.ts",
     "preview": "vite preview",
