@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.26.0
+
+### Minor Changes
+
+- [#8935](https://github.com/scalar/scalar/pull/8935): feat: pass resolved object to onDereference callback
+
 ## 0.25.12
 
 ## 0.25.11

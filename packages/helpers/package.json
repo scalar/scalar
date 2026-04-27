@@ -87,6 +87,11 @@
       "types": "./dist/object/*.d.ts",
       "default": "./dist/object/*.js"
     },
+    "./playwright/*": {
+      "import": "./dist/playwright/*.js",
+      "types": "./dist/playwright/*.d.ts",
+      "default": "./dist/playwright/*.js"
+    },
     "./regex/*": {
       "import": "./dist/regex/*.js",
       "types": "./dist/regex/*.d.ts",
@@ -119,6 +124,7 @@
   ],
   "sideEffects": false,
   "devDependencies": {
+    "@playwright/test": "catalog:*",
     "jsdom": "catalog:*",
     "vitest": "catalog:*"
   }

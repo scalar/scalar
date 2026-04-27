@@ -12,36 +12,36 @@ const { navigateToSignup } = useSignupLink()
       <ScalarIconInfo
         class="text-blue size-4"
         weight="bold" />
-      You've reached your free message limit. Unlock unlimited access by
-      upgrading now.
+      You've used up your complimentary Scalar Credits. Sign up to get free
+      Credits.
     </strong>
     <div class="paymentContainer">
       <button
         class="actionButton approveButton"
         type="button"
         @click="navigateToSignup">
-        Upgrade
+        Sign up
       </button>
       <div class="paymentInfo">
-        <h3>$72 <span>/ month</span></h3>
+        <h3>$0 <span>/ month</span></h3>
         <div class="paymentInfoSection">
           <div class="paymentInfoItem">
-            <span>Seat minimum</span>
-            <span>3</span>
+            <span>Credits</span>
+            <span>100</span>
+          </div>
+          <div class="paymentInfoItem">
+            <span>MCP Servers</span>
+            <span>Unlimited</span>
           </div>
           <div class="paymentInfoItem">
             <span>Base monthly total</span>
-            <span>$72.00</span>
+            <span>$0.00</span>
           </div>
         </div>
         <div class="paymentInfoSection">
           <div class="paymentInfoItem">
-            <span>Messages</span>
-            <span>250</span>
-          </div>
-          <div class="paymentInfoItem">
-            <span>Additional Messages</span>
-            <span>+ $0.02 Message</span>
+            <span>Additional Credits</span>
+            <span>+ $0.02 per Credit</span>
           </div>
         </div>
       </div>

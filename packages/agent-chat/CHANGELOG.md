@@ -1,5 +1,11 @@
 # @scalar/agent-chat
 
+## 0.10.9
+
+### Patch Changes
+
+- [#8989](https://github.com/scalar/scalar/pull/8989): fix: language around agent credits
+
 ## 0.10.8
 
 ## 0.10.7
