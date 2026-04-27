@@ -73,16 +73,12 @@ export const useActiveDocumentVersion = ({
       return undefined
     }
     return documents.value.find(
-      (item) =>
-        item.registry?.namespace === meta.namespace &&
-        item.registry?.slug === meta.slug,
+      (item) => item.registry?.namespace === meta.namespace && item.registry?.slug === meta.slug,
     )
   })
 
   /** Versions for the active group, ordered with the latest first. */
-  const versions = computed<SidebarDocumentVersion[]>(
-    () => activeItem.value?.versions ?? [],
-  )
+  const versions = computed<SidebarDocumentVersion[]>(() => activeItem.value?.versions ?? [])
 
   /**
    * The version currently active on screen. Prefers matching the version

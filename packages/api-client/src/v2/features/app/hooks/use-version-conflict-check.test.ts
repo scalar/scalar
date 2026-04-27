@@ -41,6 +41,7 @@ const createVersion = (overrides: Partial<SidebarDocumentVersion> = {}): Sidebar
   commitHash: 'local',
   registryCommitHash: 'remote',
   status: 'pull',
+  isLatest: false,
   ...overrides,
 })
 
@@ -116,10 +117,7 @@ describe('useVersionConflictCheck', () => {
       store: () => createStore(),
       fetcher: () => fetcher,
       registry: () => ({ namespace: 'acme', slug: 'pets' }),
-      versions: () => [
-        createVersion({ documentName: undefined }),
-        createVersion({ registryCommitHash: undefined }),
-      ],
+      versions: () => [createVersion({ documentName: undefined }), createVersion({ registryCommitHash: undefined })],
     })
 
     await nextTick()

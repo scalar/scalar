@@ -196,9 +196,7 @@ describe('checkVersionConflict', () => {
       documents,
       originals: { pets: { info: { title: 'Pets' } } },
     })
-    const fetcher: ImportDocumentFromRegistry = vi
-      .fn()
-      .mockResolvedValue({ ok: false, error: 'network down' })
+    const fetcher: ImportDocumentFromRegistry = vi.fn().mockResolvedValue({ ok: false, error: 'network down' })
 
     const result = await checkVersionConflict({
       workspaceStore: store,

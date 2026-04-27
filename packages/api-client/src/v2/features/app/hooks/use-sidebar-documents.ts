@@ -41,6 +41,13 @@ export type SidebarDocumentVersion = {
    * for versions that are not loaded into the workspace store yet.
    */
   status: VersionStatus
+  /**
+   * True when this row is the canonical "latest" version of the group: the
+   * first version the registry advertises. Drafts (locally-created versions
+   * the registry has not seen yet) never get this flag, even when they are
+   * surfaced ahead of the registry-advertised rows in the picker.
+   */
+  isLatest: boolean
   /** Traversal tree for this version. Populated only when the version is loaded into the workspace store. */
   navigation?: TraversedDocument
 }
@@ -134,8 +141,7 @@ export type RegistryDocumentsState =
 
 const registryKey = (namespace: string, slug: string) => `@${namespace}/${slug}`
 
-const versionKey = (namespace: string, slug: string, version: string) =>
-  `${registryKey(namespace, slug)}@${version}`
+const versionKey = (namespace: string, slug: string, version: string) => `${registryKey(namespace, slug)}@${version}`
 
 /**
  * Builds a unified list of sidebar documents.
@@ -345,9 +351,48 @@ const buildRegistryItem = ({
   // something to render.
   const groupTitle = registry.title || registry.slug
 
-  for (const v of registry.versions) {
+  // Build the drafts list first: entries left in `loadedByVersion` after we
+  // remove every version the registry advertises. The workspace store
+  // preserves insertion order, so the newest draft is naturally last —
+  // reverse it here to surface the most recently created draft first.
+  const draftEntries: [string, WorkspaceDocumentEntry][] = []
+  for (const [version, match] of loadedByVersion) {
+    if (registry.versions.some((v) => v.version === version)) {
+      continue
+    }
+    draftEntries.push([version, match])
+  }
+  draftEntries.reverse()
+
+  // Drafts go on top: the user just created them and the registry has not
+  // seen them yet, so they are the most relevant rows in the picker.
+  // Drafts never carry the "Latest" badge — that label always belongs to
+  // the latest registry-advertised version, regardless of row position.
+  for (const [version, match] of draftEntries) {
+    versions.push({
+      key: match.documentName,
+      version,
+      title: groupTitle,
+      documentName: match.documentName,
+      commitHash: match.registry?.commitHash,
+      registryCommitHash: undefined,
+      status: computeVersionStatus({
+        isLoaded: true,
+        localHash: match.registry?.commitHash,
+        registryHash: undefined,
+        isDirty: match.isDirty,
+      }),
+      isLatest: false,
+      navigation: match.navigation,
+    })
+  }
+
+  // Then the registry-advertised versions, in the order the registry
+  // returned them (latest first by convention). The first one is the
+  // canonical "latest" — flagged here so the picker can render the badge
+  // independent of row order in the array.
+  registry.versions.forEach((v, registryIndex) => {
     const match = loadedByVersion.get(v.version)
-    loadedByVersion.delete(v.version)
     const localHash = match?.registry?.commitHash
     const registryHash = v.commitHash
     versions.push({
@@ -365,30 +410,10 @@ const buildRegistryItem = ({
         conflictCheckedAgainstHash: match?.registry?.conflictCheckedAgainstHash,
         hasConflict: match?.registry?.hasConflict,
       }),
+      isLatest: registryIndex === 0,
       navigation: match?.navigation,
     })
-  }
-
-  // Loaded versions the registry has not advertised yet (e.g. local edits or
-  // a stale registry response). They keep their declared `version` string.
-  // The registry has no opinion on these so we cannot infer drift.
-  for (const [version, match] of loadedByVersion) {
-    versions.push({
-      key: match.documentName,
-      version,
-      title: groupTitle,
-      documentName: match.documentName,
-      commitHash: match.registry?.commitHash,
-      registryCommitHash: undefined,
-      status: computeVersionStatus({
-        isLoaded: true,
-        localHash: match.registry?.commitHash,
-        registryHash: undefined,
-        isDirty: match.isDirty,
-      }),
-      navigation: match.navigation,
-    })
-  }
+  })
 
   // Loaded docs that did not declare a version at all.
   for (const orphan of orphans) {
@@ -405,6 +430,7 @@ const buildRegistryItem = ({
         registryHash: undefined,
         isDirty: orphan.isDirty,
       }),
+      isLatest: false,
       navigation: orphan.navigation,
     })
   }

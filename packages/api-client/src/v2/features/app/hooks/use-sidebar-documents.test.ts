@@ -251,7 +251,8 @@ describe('use-sidebar-documents', () => {
             documentName: 'pets-v2',
             commitHash: undefined,
             registryCommitHash: undefined,
-            status: 'synced',
+            status: 'push',
+            isLatest: true,
             navigation: undefined,
           },
           {
@@ -261,7 +262,8 @@ describe('use-sidebar-documents', () => {
             documentName: 'pets-v1',
             commitHash: undefined,
             registryCommitHash: undefined,
-            status: 'synced',
+            status: 'push',
+            isLatest: false,
             navigation: undefined,
           },
         ],
@@ -315,6 +317,7 @@ describe('use-sidebar-documents', () => {
         commitHash: undefined,
         registryCommitHash: 'def456',
         status: 'unknown',
+        isLatest: true,
         navigation: undefined,
       },
       {
@@ -325,6 +328,7 @@ describe('use-sidebar-documents', () => {
         commitHash: 'abc123',
         registryCommitHash: 'abc123',
         status: 'synced',
+        isLatest: false,
         navigation: undefined,
       },
     ])
@@ -370,6 +374,7 @@ describe('use-sidebar-documents', () => {
       commitHash: 'old-hash',
       registryCommitHash: 'new-hash',
       status: 'pull',
+      isLatest: true,
       navigation: undefined,
     })
   })
@@ -511,6 +516,41 @@ describe('use-sidebar-documents', () => {
     expect(rest.value[0]?.versions?.map((v) => v.version)).toStrictEqual(['2.0.0', '1.0.0'])
   })
 
+  it('surfaces drafts ahead of registry-advertised versions, newest draft first', () => {
+    // Drafts are workspace documents pointing at registry coordinates the
+    // registry has not advertised yet (typically just-created versions).
+    // They lead the picker so users immediately see the version they just
+    // made, with the most recent draft at the very top (workspace store
+    // insertion order is reversed for that section).
+    const { app } = createFakeApp({
+      documents: {
+        'pets-old-draft': {
+          info: { title: 'Pets', version: '2.0.0' },
+          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets', version: '2.0.0' },
+        },
+        'pets-new-draft': {
+          info: { title: 'Pets', version: '3.0.0' },
+          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets', version: '3.0.0' },
+        },
+      },
+      isTeamWorkspace: true,
+    })
+
+    const { rest } = useSidebarDocuments({
+      app,
+      managedDocs: () => [
+        {
+          namespace: 'acme',
+          slug: 'pets',
+          title: 'Pets API',
+          versions: [{ version: '1.0.0', commitHash: 'abc' }],
+        },
+      ],
+    })
+
+    expect(rest.value[0]?.versions?.map((v) => v.version)).toStrictEqual(['3.0.0', '2.0.0', '1.0.0'])
+  })
+
   it('emits a versions array even when only a single version exists', () => {
     const { app } = createFakeApp({
       documents: {
@@ -545,7 +585,8 @@ describe('use-sidebar-documents', () => {
         documentName: 'pets',
         commitHash: undefined,
         registryCommitHash: undefined,
-        status: 'synced',
+        status: 'push',
+        isLatest: true,
         navigation: undefined,
       },
     ])
@@ -564,10 +605,7 @@ describe('use-sidebar-documents', () => {
           namespace: 'acme',
           slug: 'pets',
           title: 'Pets API',
-          versions: [
-            { version: '2.0.0', commitHash: 'def456' },
-            { version: '1.0.0' },
-          ],
+          versions: [{ version: '2.0.0', commitHash: 'def456' }, { version: '1.0.0' }],
         },
       ],
     })
@@ -589,6 +627,7 @@ describe('use-sidebar-documents', () => {
             commitHash: undefined,
             registryCommitHash: 'def456',
             status: 'unknown',
+            isLatest: true,
             navigation: undefined,
           },
           {
@@ -599,6 +638,7 @@ describe('use-sidebar-documents', () => {
             commitHash: undefined,
             registryCommitHash: undefined,
             status: 'unknown',
+            isLatest: false,
             navigation: undefined,
           },
         ],

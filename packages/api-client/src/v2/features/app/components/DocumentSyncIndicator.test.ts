@@ -181,9 +181,7 @@ describe('DocumentSyncIndicator', () => {
       },
     })
 
-    expect(wrapper.find('svg').attributes('aria-label')).toBe(
-      'Conflicts detected — resolve before pulling',
-    )
+    expect(wrapper.find('svg').attributes('aria-label')).toBe('Conflicts detected — resolve before pulling')
   })
 
   it('mirrors the version that the active document declares, not the latest one', () => {

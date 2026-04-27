@@ -461,6 +461,163 @@ describe('DocumentBreadcrumb', () => {
     })
   })
 
+  it('hides the version picker (and the create-version affordance) for local documents', () => {
+    const { app } = createFakeApp({
+      documents: {
+        pets: {
+          info: { title: 'Pets API', version: '1.0.0' },
+        },
+      },
+      activeDocumentName: 'pets',
+    })
+
+    const wrapper = mount(DocumentBreadcrumb, { props: { app } })
+
+    // Local documents have no version picker, and the "New Version"
+    // affordance lives inside the picker's dropdown - so it should be gone
+    // entirely for local documents.
+    expect(wrapper.findComponent({ name: 'ScalarCombobox' }).exists()).toBe(false)
+  })
+
+  it('renders the version picker with a create-version slot for registry-backed documents', () => {
+    const { app } = createFakeApp({
+      documents: {
+        'pets-v1': {
+          info: { title: 'Pets v1', version: '1.0.0' },
+          'x-scalar-registry-meta': {
+            namespace: 'acme',
+            slug: 'pets',
+            version: '1.0.0',
+          },
+        },
+      },
+      activeDocumentName: 'pets-v1',
+    })
+
+    const wrapper = mount(DocumentBreadcrumb, {
+      props: {
+        app,
+        registryDocuments: {
+          status: 'success',
+          documents: [
+            {
+              namespace: 'acme',
+              slug: 'pets',
+              title: 'Pets API',
+              versions: [{ version: '1.0.0' }],
+            },
+          ],
+        },
+      },
+    })
+
+    // The combobox's `add` slot is what renders the "New Version" row in
+    // the dropdown. We verify the slot was provided rather than asserting on
+    // the rendered popover, which is teleported and only mounted when open.
+    const combobox = wrapper.findComponent({ name: 'ScalarCombobox' })
+    expect(combobox.exists()).toBe(true)
+    expect(combobox.vm.$slots.add).toBeDefined()
+  })
+
+  it('creates a draft document with no commit hash and navigates to it on submit', async () => {
+    const documents: Record<string, FakeDocument> = {
+      'pets-v1': {
+        openapi: '3.1.0',
+        info: { title: 'Pets API', version: '1.0.0' },
+        paths: { '/pets': { get: { summary: 'List pets' } } },
+        'x-scalar-registry-meta': {
+          namespace: 'acme',
+          slug: 'pets',
+          version: '1.0.0',
+          commitHash: 'seed-hash',
+        },
+        'x-scalar-is-dirty': true,
+      },
+    }
+
+    const { app } = createFakeApp({ documents, activeDocumentName: 'pets-v1' })
+    const addDocument = vi.fn().mockResolvedValue(true)
+    // The helper now branches off the seed via `getEditableDocument`, so
+    // expose a stub that returns a deep clone of the requested document.
+    const getEditableDocument = vi.fn(async (name: string) => {
+      const doc = documents[name]
+      return doc ? (JSON.parse(JSON.stringify(doc)) as Record<string, unknown>) : null
+    })
+    app.store.value = {
+      workspace: {
+        documents,
+        get activeDocument() {
+          return documents['pets-v1']
+        },
+      },
+      addDocument,
+      getEditableDocument,
+    } as never
+
+    const wrapper = mount(DocumentBreadcrumb, {
+      props: {
+        app,
+        registryDocuments: {
+          status: 'success',
+          documents: [
+            {
+              namespace: 'acme',
+              slug: 'pets',
+              title: 'Pets API',
+              versions: [{ version: '1.0.0' }],
+            },
+          ],
+        },
+      },
+      attachTo: document.body,
+    })
+
+    vi.mocked(mockEventBus.emit).mockClear()
+
+    // The "New Version" row is rendered through the combobox's `add` slot.
+    // We bypass the teleported popover and emit the same event the slot
+    // would, mirroring how the version-select test drives the picker.
+    wrapper.findComponent({ name: 'ScalarCombobox' }).vm.$emit('add')
+    await flushPromises()
+
+    // The modal teleports outside the wrapper, so reach into the document
+    // directly to drive the form.
+    const textarea = document.querySelector<HTMLTextAreaElement>('textarea')
+    expect(textarea).not.toBeNull()
+    textarea!.value = '2.0.0'
+    textarea!.dispatchEvent(new Event('input', { bubbles: true }))
+    await flushPromises()
+
+    document
+      .querySelector<HTMLFormElement>('form')!
+      .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+    await flushPromises()
+
+    expect(getEditableDocument).toHaveBeenCalledWith('pets-v1')
+    expect(addDocument).toHaveBeenCalledTimes(1)
+    const [input] = addDocument.mock.calls[0] ?? []
+    expect(input.meta['x-scalar-registry-meta']).toEqual({
+      namespace: 'acme',
+      slug: 'pets',
+      version: '2.0.0',
+    })
+    // No commit hash on a draft - the registry has not seen this version yet.
+    expect(input.meta['x-scalar-registry-meta']).not.toHaveProperty('commitHash')
+    // The user-typed version flows onto info.version so the rendered
+    // OpenAPI matches the registry coordinates, while the rest of the
+    // seed body (paths, etc.) is preserved.
+    expect(input.document.info).toEqual({ title: 'Pets API', version: '2.0.0' })
+    expect(input.document.paths).toEqual({ '/pets': { get: { summary: 'List pets' } } })
+
+    // Routing follows the helper's success path.
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'ui:navigate',
+      expect.objectContaining({ page: 'document', path: 'overview' }),
+    )
+
+    wrapper.unmount()
+  })
+
   it('does not kick off a conflict check when the cache already covers the current registry hash', async () => {
     const documents: Record<string, FakeDocument> = {
       'pets-v1': {

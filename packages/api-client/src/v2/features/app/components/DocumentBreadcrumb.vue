@@ -1,17 +1,24 @@
 <script setup lang="ts">
-import { ScalarCombobox, type ScalarComboboxOption } from '@scalar/components'
+import {
+  ScalarCombobox,
+  useModal,
+  type ScalarComboboxOption,
+} from '@scalar/components'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, ref } from 'vue'
 
 import type { AppState } from '@/v2/features/app/app-state'
 import type { VersionStatus } from '@/v2/features/app/helpers/compute-version-status'
+import { createDraftRegistryDocument } from '@/v2/features/app/helpers/create-draft-registry-document'
 import { loadRegistryDocument } from '@/v2/features/app/helpers/load-registry-document'
 import { VERSION_STATUS_PRESENTATION } from '@/v2/features/app/helpers/version-status-presentation'
 import { useActiveDocumentVersion } from '@/v2/features/app/hooks/use-active-document-version'
 import type { RegistryDocumentsState } from '@/v2/features/app/hooks/use-sidebar-documents'
 import { useVersionConflictCheck } from '@/v2/features/app/hooks/use-version-conflict-check'
 import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
+
+import CreateVersionModal from './CreateVersionModal.vue'
 
 const {
   app,
@@ -40,13 +47,16 @@ const { toast } = useToasts()
  * selected version once. The right-side sync indicator consumes the same
  * composable so the two surfaces always agree on what "active" means.
  */
-const { activeRegistryMeta, activeItem, versions, activeVersion } = useActiveDocumentVersion({
-  app,
-  registryDocuments: () => registryDocuments,
-})
+const { activeRegistryMeta, activeItem, versions, activeVersion } =
+  useActiveDocumentVersion({
+    app,
+    registryDocuments: () => registryDocuments,
+  })
 
 /** Workspace label rendered as the first segment of the breadcrumb. */
-const workspaceTitle = computed(() => app.workspace.activeWorkspace.value?.label ?? '')
+const workspaceTitle = computed(
+  () => app.workspace.activeWorkspace.value?.label ?? '',
+)
 
 /** Title rendered for the document segment of the breadcrumb. */
 const documentTitle = computed(() => {
@@ -73,12 +83,13 @@ type VersionOption = ScalarComboboxOption & {
 }
 
 const versionOptions = computed<VersionOption[]>(() =>
-  versions.value.map((v, index) => ({
+  versions.value.map((v) => ({
     id: v.key,
     label: v.version,
-    // The sidebar surfaces versions latest-first, so the first entry is the
-    // canonical "latest" — flag it so we can render the badge.
-    isLatest: index === 0,
+    // `isLatest` is precomputed by the sidebar layer and tracks the latest
+    // *registry-advertised* version, not just the first row in the list —
+    // drafts surface ahead of registry rows but never claim the badge.
+    isLatest: v.isLatest,
     status: v.status,
   })),
 )
@@ -103,16 +114,22 @@ const selectedOption = computed<VersionOption | undefined>(() => {
  * key off `activeEntities.documentSlug` instead — it is only populated when
  * the route actually carries a `:documentSlug` segment.
  */
-const hasActiveDocument = computed(() => Boolean(app.activeEntities.documentSlug.value))
+const hasActiveDocument = computed(() =>
+  Boolean(app.activeEntities.documentSlug.value),
+)
 
 /**
  * True only for registry-backed documents, which are the only ones that can
  * advertise multiple versions and therefore the only ones that get a picker.
  */
-const hasVersionPicker = computed(() => Boolean(activeItem.value && activeRegistryMeta.value))
+const hasVersionPicker = computed(() =>
+  Boolean(activeItem.value && activeRegistryMeta.value),
+)
 
 /** Hide the entire breadcrumb when there is nothing meaningful to show. */
-const isVisible = computed(() => Boolean(workspaceTitle.value || hasActiveDocument.value))
+const isVisible = computed(() =>
+  Boolean(workspaceTitle.value || hasActiveDocument.value),
+)
 
 /** Guards against double-firing the loader when the user clicks repeatedly. */
 const isLoading = ref(false)
@@ -187,6 +204,57 @@ const handleVersionSelect = async (option: VersionOption | undefined) => {
 
   navigateToDocument(result.documentName)
 }
+
+/** Modal lifecycle for the create-new-version flow. */
+const createVersionModal = useModal()
+
+/**
+ * Versions already loaded into the workspace store for the active group.
+ * Used to keep the modal from accepting duplicates that would silently
+ * collide with an existing local document. Versions advertised only by the
+ * registry are intentionally NOT included - submitting one of those is the
+ * conflict-resolution path the create-draft flow opts into.
+ */
+const loadedVersionStrings = computed(() =>
+  versions.value.filter((v) => Boolean(v.documentName)).map((v) => v.version),
+)
+
+const handleCreateVersion = async (version: string) => {
+  const registry = activeItem.value?.registry
+  const seedDocumentName = app.activeEntities.documentSlug.value
+  const store = app.store.value
+
+  if (!registry || !seedDocumentName || !store) {
+    toast(
+      'Cannot create a new version without an active registry document.',
+      'error',
+    )
+    return
+  }
+
+  if (isLoading.value) {
+    return
+  }
+
+  isLoading.value = true
+
+  const result = await createDraftRegistryDocument({
+    workspaceStore: store,
+    namespace: registry.namespace,
+    slug: registry.slug,
+    version,
+    seedDocumentName,
+  })
+
+  isLoading.value = false
+
+  if (!result.ok) {
+    toast(result.error, 'error')
+    return
+  }
+
+  navigateToDocument(result.documentName)
+}
 </script>
 
 <template>
@@ -217,6 +285,7 @@ const handleVersionSelect = async (option: VersionOption | undefined) => {
           :modelValue="selectedOption"
           :options="versionOptions"
           placeholder="Search versions"
+          @add="createVersionModal.show()"
           @update:modelValue="handleVersionSelect">
           <button
             aria-label="Document version"
@@ -246,6 +315,15 @@ const handleVersionSelect = async (option: VersionOption | undefined) => {
               Latest
             </span>
           </template>
+          <!--
+            The combobox's built-in `add` slot renders a `+` icon row below
+            the version list. Wiring it up here keeps the create-draft
+            affordance discoverable inside the same surface where the user
+            picks versions, instead of as a separate button next to it.
+          -->
+          <template #add>
+            <span class="text-c-1 font-medium">New Version</span>
+          </template>
         </ScalarCombobox>
         <span
           v-if="isLoading"
@@ -254,6 +332,10 @@ const handleVersionSelect = async (option: VersionOption | undefined) => {
         </span>
       </template>
     </template>
+    <CreateVersionModal
+      :existingVersions="loadedVersionStrings"
+      :state="createVersionModal"
+      @create="handleCreateVersion" />
   </nav>
 </template>
 

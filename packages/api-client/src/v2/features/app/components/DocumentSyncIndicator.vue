@@ -6,16 +6,17 @@ import { VERSION_STATUS_PRESENTATION } from '@/v2/features/app/helpers/version-s
 import { useActiveDocumentVersion } from '@/v2/features/app/hooks/use-active-document-version'
 import type { RegistryDocumentsState } from '@/v2/features/app/hooks/use-sidebar-documents'
 
-const { app, registryDocuments = { status: 'success', documents: [] } } = defineProps<{
-  /** App state used to read the active document and registry meta. */
-  app: AppState
-  /**
-   * Registry documents state. Mirrors the prop accepted by
-   * `DocumentBreadcrumb` so both header surfaces resolve the same active
-   * document group.
-   */
-  registryDocuments?: RegistryDocumentsState
-}>()
+const { app, registryDocuments = { status: 'success', documents: [] } } =
+  defineProps<{
+    /** App state used to read the active document and registry meta. */
+    app: AppState
+    /**
+     * Registry documents state. Mirrors the prop accepted by
+     * `DocumentBreadcrumb` so both header surfaces resolve the same active
+     * document group.
+     */
+    registryDocuments?: RegistryDocumentsState
+  }>()
 
 /**
  * Resolve the currently active version through the shared composable. The

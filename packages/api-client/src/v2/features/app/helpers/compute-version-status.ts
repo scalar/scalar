@@ -3,9 +3,11 @@
  *
  * - `synced`: local commit hash matches the registry's, no local edits since
  *   the last save. Nothing to push or pull.
- * - `push`: local commit hash matches the registry's but the workspace
- *   document is dirty (the user has edited it). Local edits would need to
- *   be pushed for the registry to catch up.
+ * - `push`: the workspace document has changes the registry has not seen
+ *   yet. This covers two cases:
+ *   1. Hashes match but the document is dirty (the user has edited it).
+ *   2. The document is a brand-new draft - it has registry coordinates but
+ *      no commit hash on either side, meaning it has never been pushed.
  * - `pull`: registry advertises a different commit hash than the locally
  *   stored one *and* we have not detected a merge conflict (or have not
  *   checked yet). Pulling the upstream version is safe.
@@ -54,10 +56,34 @@ export const computeVersionStatus = ({
     return 'unknown'
   }
 
-  // Either side is missing a hash. Treat the version as in sync with the
-  // registry and only differentiate based on local edits. Avoids surfacing
-  // a misleading "pull" arrow when we cannot actually prove drift.
-  if (!localHash || !registryHash || localHash === registryHash) {
+  // Local document has no commit hash. This means the document was created
+  // locally (a draft) and has never been pushed to the registry. Either:
+  //   - the registry has not seen this version yet -> straight `push`, the
+  //     draft is waiting to be uploaded;
+  //   - the registry advertises a hash for this version -> the draft
+  //     collides with an existing registry version, so we run through the
+  //     regular pull / conflict pipeline.
+  if (!localHash) {
+    if (!registryHash) {
+      return 'push'
+    }
+    if (hasConflict === true && conflictCheckedAgainstHash === registryHash) {
+      return 'conflict'
+    }
+    return 'pull'
+  }
+
+  // From here on, the local document has a commit hash. Same hash on both
+  // sides means there is nothing to merge - the only differentiator is
+  // whether the user has queued up local edits to push.
+  if (localHash === registryHash) {
+    return isDirty ? 'push' : 'synced'
+  }
+
+  // Local document is pinned to a commit hash but the registry no longer
+  // advertises one for this version. We have nothing remote to compare
+  // against, so fall back to the dirty-flag-only signal.
+  if (!registryHash) {
     return isDirty ? 'push' : 'synced'
   }
 
