@@ -13,6 +13,7 @@ import Authentication from '@/v2/features/collection/components/Authentication.v
 import Cookies from '@/v2/features/collection/components/Cookies.vue'
 import { Editor } from '@/v2/features/collection/components/Editor'
 import Environment from '@/v2/features/collection/components/Environment.vue'
+import GetStarted from '@/v2/features/collection/components/GetStarted.vue'
 import Overview from '@/v2/features/collection/components/Overview.vue'
 import { Runner } from '@/v2/features/collection/components/Runner'
 import Servers from '@/v2/features/collection/components/Servers.vue'
@@ -20,11 +21,11 @@ import Settings from '@/v2/features/collection/components/Settings.vue'
 import DocumentCollection from '@/v2/features/collection/DocumentCollection.vue'
 import OperationCollection from '@/v2/features/collection/OperationCollection.vue'
 import WorkspaceCollection from '@/v2/features/collection/WorkspaceCollection.vue'
-import type { ApiClientOptions } from '@/v2/types/options'
 import { Operation } from '@/v2/features/operation'
 import { workspaceStorage } from '@/v2/helpers/storage'
 import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
+import type { ApiClientOptions } from '@/v2/types/options'
 
 /** These props are provided at the route level */
 export type RouteProps = {
@@ -204,6 +205,12 @@ export const ROUTES = [
             ],
           },
         ],
+      },
+      // Workspace get started page (standalone, no workspace header or tabs)
+      {
+        name: 'workspace.get-started',
+        path: 'get-started',
+        component: GetStarted,
       },
       // Workspace page
       {

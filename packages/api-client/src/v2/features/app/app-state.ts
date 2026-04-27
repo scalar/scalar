@@ -113,6 +113,12 @@ export type AppState = {
     navigateToWorkspace: (teamSlug?: string, slug?: string) => Promise<void>
     /** Whether the workspace page is open */
     isOpen: ComputedRef<boolean>
+    /**
+     * Whether the currently active workspace is a team workspace (i.e. has a
+     * `teamUid` other than `'local'`). Useful for gating team-only UI such as
+     * the registry-backed document list and its loading state.
+     */
+    isTeamWorkspace: ComputedRef<boolean>
   }
   /** The workspace event bus for handling workspace-level events */
   eventBus: WorkspaceEventBus
@@ -242,6 +248,21 @@ export const createAppState = async ({
       },
     }),
   )
+  /**
+   * `true` when the active workspace is backed by a team (i.e. not the
+   * built-in `'local'` team). We look the workspace up in the full
+   * `workspaces` list because `activeWorkspace` only stores `{ id, label }`,
+   * whereas `WorkspaceOption` carries the `teamUid` we need. Consumers can
+   * read this via `app.workspace.isTeamWorkspace` to gate team-only UI.
+   */
+  const isTeamWorkspace = computed(() => {
+    const id = activeWorkspace.value?.id
+    if (!id) {
+      return false
+    }
+    const workspace = workspaces.value.find((w) => w.id === id)
+    return Boolean(workspace && workspace.teamSlug !== 'local')
+  })
   const store = shallowRef<WorkspaceStore | null>(null)
 
   // Load persisted telemetry preference, falling back to the provided default
@@ -1066,6 +1087,7 @@ export const createAppState = async ({
       activeWorkspace,
       navigateToWorkspace,
       isOpen: computed(() => Boolean(workspaceSlug.value && !documentSlug.value)),
+      isTeamWorkspace,
     },
     eventBus,
     router,

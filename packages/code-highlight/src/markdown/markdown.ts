@@ -1,5 +1,5 @@
 import type { Element as HastElement, ElementContent as HastElementContent, Root as HastRoot } from 'hast'
-import type { Heading, Node, PhrasingContent, Root as MdastRoot, RootContent as MdastRootContent } from 'mdast'
+import type { Heading, Root as MdastRoot, RootContent as MdastRootContent, Node, PhrasingContent } from 'mdast'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
 import rehypeParse from 'rehype-parse'

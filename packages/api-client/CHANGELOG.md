@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 3.3.0
+
+### Minor Changes
+
+- [#8972](https://github.com/scalar/scalar/pull/8972): feat: implement the new workspace sidebar
+- [#8977](https://github.com/scalar/scalar/pull/8977): feat: add app header
+
+### Patch Changes
+
+- [#8978](https://github.com/scalar/scalar/pull/8978): fix: layout height collapse and improve menu behavior
+
 ## 3.2.2
 
 ### Patch Changes

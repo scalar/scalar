@@ -267,7 +267,7 @@ jobs:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     container:
-      image: scalarapi/playwright-runner:1.56.0
+      image: scalarapi/playwright-runner:1.59.1
       options: --privileged
       env:
         VM_ID: ${{ env.VM_ID }}
@@ -328,7 +328,7 @@ jobs:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     container:
-      image: scalarapi/playwright-runner:1.56.0
+      image: scalarapi/playwright-runner:1.59.1
       options: --privileged
       env:
         VM_ID: ${{ env.VM_ID }}
@@ -372,14 +372,14 @@ jobs:
           report-tag: test-references-e2e
           footer: |
             > [!IMPORTANT]
-            > These tests include snapshots that may need to be updated if there are intentional changes to the UI components. To update the snapshots run `pnpm test:e2e:update` in `packages/api-reference` and commit the changes.
+            > These tests include snapshots that may need to be updated if there are intentional changes to the UI components. To update the snapshots run `pnpm test:e2e --update-snapshots` in `packages/api-reference` and commit the changes.
 
   test-component-snapshots:
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     container:
-      image: scalarapi/playwright-runner:1.56.0
+      image: scalarapi/playwright-runner:1.59.1
       options: --privileged
       env:
         VM_ID: ${{ env.VM_ID }}
@@ -428,7 +428,7 @@ jobs:
     needs: [build]
     runs-on: blacksmith-8vcpu-ubuntu-2204
     container:
-      image: scalarapi/playwright-runner:1.56.0
+      image: scalarapi/playwright-runner:1.59.1
       options: --privileged
       env:
         VM_ID: ${{ env.VM_ID }}
@@ -474,7 +474,7 @@ jobs:
             > [!IMPORTANT]
             > These tests detect visual differences between the current PR and the latest CDN build which means **they may be affected by other changes in `main` that haven't been released yet**.
             >
-            > They can help determine if the changes in the PR are causing any unexpected visual regressions but may be less helpful in isolating the exact cause. For more details see the [readme](https://github.com/scalar/scalar/blob/main/packages/api-reference/test-snapshots/README.md).
+            > They can help determine if the changes in the PR are causing any unexpected visual regressions but may be less helpful in isolating the exact cause. For more details see the [readme](https://github.com/scalar/scalar/blob/main/packages/api-reference/test/snapshots-cdn/README.md).
 
   # ---------------------------------------------------------------------------------------------------------
   # Publish and deploy packages
