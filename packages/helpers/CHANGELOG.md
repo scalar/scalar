@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.5.3
+
+### Patch Changes
+
+- [#8971](https://github.com/scalar/scalar/pull/8971): feat(helpers): add a helper playwright utilities
+
 ## 0.5.2
 
 ### Patch Changes

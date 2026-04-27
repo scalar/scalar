@@ -1,5 +1,7 @@
 # @scalar/api-reference
 
+## 1.53.1
+
 ## 1.53.0
 
 ### Minor Changes
