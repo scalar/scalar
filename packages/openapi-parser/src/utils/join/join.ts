@@ -1,5 +1,12 @@
 import { bundle } from '@scalar/json-magic/bundle'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type {
+  ComponentsObject,
+  Document as OpenApiDocumentV3_1,
+  InfoObject as OpenApiInfoObjectV3_1,
+  PathsObject,
+  ServerObject,
+  TagObject,
+} from '@scalar/openapi-types/3.1'
 
 import type { UnknownObject } from '@/types'
 import { mergeObjects } from '@/utils/join/merge-objects'
@@ -51,11 +58,11 @@ const withDefault = <T, K>(value: T, defaultValue: K): T | K => {
  * - If the same operation (e.g., "get") exists for the same path in multiple inputs,
  *   a conflict is recorded for that path and method.
  *
- * @param inputs - Array of OpenAPIV3_1.PathsObject to merge
+ * @param inputs - Array of OpenAPI 3.1 PathsObjects to merge
  * @returns An object containing the merged paths and a list of conflicts
  */
-const mergePaths = (inputs: OpenAPIV3_1.PathsObject[]) => {
-  const result: OpenAPIV3_1.PathsObject = {}
+const mergePaths = (inputs: PathsObject[]) => {
+  const result: PathsObject = {}
   const conflicts: { path: string; method: string }[] = []
 
   for (const paths of inputs) {
@@ -87,12 +94,12 @@ const mergePaths = (inputs: OpenAPIV3_1.PathsObject[]) => {
  * Merges multiple arrays of OpenAPI TagObjects into a single array, ensuring uniqueness by tag name.
  * - If a tag with the same name appears in multiple arrays, only the first occurrence is included in the result.
  *
- * @param inputs - Array of arrays of OpenAPIV3_1.TagObject to merge
+ * @param inputs - Array of arrays of OpenAPI 3.1 TagObjects to merge
  * @returns An array of unique TagObjects (by name)
  */
-const mergeTags = (inputs: OpenAPIV3_1.TagObject[][]) => {
+const mergeTags = (inputs: TagObject[][]) => {
   const cache = new Set<string>()
-  const result: OpenAPIV3_1.TagObject[] = []
+  const result: TagObject[] = []
 
   for (const tags of inputs) {
     for (const tag of tags) {
@@ -110,12 +117,12 @@ const mergeTags = (inputs: OpenAPIV3_1.TagObject[][]) => {
  * Merges multiple arrays of OpenAPI ServerObjects into a single array, ensuring uniqueness by server URL.
  * - If a server with the same URL appears in multiple arrays, only the first occurrence is included in the result.
  *
- * @param inputs - Array of arrays of OpenAPIV3_1.ServerObject to merge
+ * @param inputs - Array of arrays of OpenAPI 3.1 ServerObjects to merge
  * @returns An array of unique ServerObjects (by url)
  */
-const mergeServers = (inputs: OpenAPIV3_1.ServerObject[][]) => {
+const mergeServers = (inputs: ServerObject[][]) => {
   const cache = new Set<string>()
-  const result: OpenAPIV3_1.ServerObject[] = []
+  const result: ServerObject[] = []
 
   for (const servers of inputs) {
     for (const server of servers) {
@@ -134,11 +141,11 @@ const mergeServers = (inputs: OpenAPIV3_1.ServerObject[][]) => {
  * - If a component with the same type and name appears in multiple inputs, only the first occurrence is included.
  * - Any conflicts (duplicate component names within the same type) are recorded in the `conflicts` array.
  *
- * @param inputs - Array of OpenAPIV3_1.ComponentsObject to merge
+ * @param inputs - Array of OpenAPI 3.1 ComponentsObjects to merge
  * @returns An object containing the merged components and an array of conflicts
  */
-const mergeComponents = (inputs: OpenAPIV3_1.ComponentsObject[]) => {
-  const result: OpenAPIV3_1.ComponentsObject = {}
+const mergeComponents = (inputs: ComponentsObject[]) => {
+  const result: ComponentsObject = {}
   const conflicts: { componentType: string; name: string }[] = []
 
   for (const components of inputs) {
@@ -179,7 +186,7 @@ const mergeComponents = (inputs: OpenAPIV3_1.ComponentsObject[]) => {
  * @param inputs - Array of OpenAPI documents to mutate.
  * @param prefixes - Array of prefixes to apply to each document's components.
  */
-const prefixComponents = async (inputs: OpenAPIV3_1.Document[], prefixes: string[]) => {
+const prefixComponents = async (inputs: OpenApiDocumentV3_1[], prefixes: string[]) => {
   for (const index of inputs.keys()) {
     await bundle(inputs[index], {
       treeShake: false,
@@ -238,7 +245,11 @@ type Conflicts =
   | { type: 'path'; path: string; method: string }
   | { type: 'webhook'; path: string; method: string }
   | { type: 'component'; componentType: string; name: string }
-type JoinResult = { ok: true; document: OpenAPIV3_1.Document } | { ok: false; conflicts: Conflicts[] }
+type JoinResult = { ok: true; document: OpenApiDocumentV3_1 } | { ok: false; conflicts: Conflicts[] }
+
+const asOpenApiDocumentV3_1 = (document: UnknownObject): OpenApiDocumentV3_1 => {
+  return document as OpenApiDocumentV3_1
+}
 
 /**
  * Joins multiple OpenAPI documents into a single document.
@@ -285,12 +296,12 @@ export const join = async (inputs: UnknownObject[], config?: { prefixComponents:
   upgraded.reverse()
 
   // Merge only the "info" object from all inputs
-  const info = upgraded.reduce<OpenAPIV3_1.InfoObject>((acc, curr) => {
+  const info = upgraded.reduce<OpenApiInfoObjectV3_1>((acc, curr) => {
     if (curr.info && typeof curr.info === 'object') {
       return mergeObjects(acc, curr.info)
     }
     return acc
-  }, {} as OpenAPIV3_1.InfoObject)
+  }, {} as OpenApiInfoObjectV3_1)
 
   // Merge paths from all documents, collecting conflicts
   const { paths, conflicts: pathConflicts } = mergePaths(upgraded.map((it) => it.paths ?? {}))
@@ -328,7 +339,7 @@ export const join = async (inputs: UnknownObject[], config?: { prefixComponents:
   // Return the merged OpenAPI document
   return {
     ok: true,
-    document: {
+    document: asOpenApiDocumentV3_1({
       ...result,
       info,
       paths,
@@ -336,6 +347,6 @@ export const join = async (inputs: UnknownObject[], config?: { prefixComponents:
       tags: withDefault(tags, undefined),
       servers: withDefault(servers, undefined),
       components: withDefault(components, undefined),
-    },
+    }),
   }
 }

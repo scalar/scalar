@@ -1,8 +1,14 @@
 import { isObject } from '@scalar/helpers/object/is-object'
-import type { OpenAPI } from '@scalar/openapi-types'
 
 import { ERRORS } from '@/configuration'
-import type { AnyObject, ErrorObject, Filesystem, FilesystemEntry, ThrowOnErrorOption } from '@/types/index'
+import type {
+  AnyObject,
+  ErrorObject,
+  Filesystem,
+  FilesystemEntry,
+  OpenApiDocument,
+  ThrowOnErrorOption,
+} from '@/types/index'
 
 import { getEntrypoint } from './get-entrypoint'
 import { getSegmentsFromPath } from './get-segments-from-path'
@@ -21,7 +27,7 @@ import { makeFilesystem } from './make-filesystem'
 type ResolveReferencesResult = {
   valid: boolean
   errors: ErrorObject[]
-  schema: OpenAPI.Document
+  schema: OpenApiDocument
 }
 
 export type ResolveReferencesOptions = ThrowOnErrorOption & {
@@ -66,7 +72,7 @@ export function resolveReferences(
     return {
       valid: false,
       errors,
-      schema: finalInput as OpenAPI.Document,
+      schema: finalInput as OpenApiDocument,
     }
   }
 
@@ -82,7 +88,7 @@ export function resolveReferences(
   return {
     valid: errors.length === 0,
     errors,
-    schema: finalInput as OpenAPI.Document,
+    schema: finalInput as OpenApiDocument,
   }
 }
 
@@ -244,8 +250,12 @@ function resolveUri(
 
   // Try to find the URI
   try {
-    return segments.reduce((acc, key) => {
-      return acc[key]
+    return segments.reduce<unknown>((acc, key) => {
+      if (typeof acc !== 'object' || acc === null || !(key in acc)) {
+        throw new Error(ERRORS.INVALID_REFERENCE.replace('%s', uri))
+      }
+
+      return (acc as Record<string, unknown>)[key]
     }, file.specification)
   } catch (_error) {
     if (options?.throwOnError) {

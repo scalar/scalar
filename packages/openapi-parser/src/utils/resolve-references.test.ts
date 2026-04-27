@@ -5,7 +5,7 @@
 import path from 'node:path'
 
 import SwaggerParser from '@apidevtools/swagger-parser'
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { Document as OpenApiDocumentV3_2, InfoObject as OpenApiInfoObjectV3_2 } from '@scalar/openapi-types/3.2'
 import { describe, expect, it } from 'vitest'
 
 import { readFiles } from '@/plugins/read-files/read-files'
@@ -18,14 +18,18 @@ const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../../test
 
 describe('resolveReferences', () => {
   it('resolves a media type reference', () => {
-    const specification: OpenAPI.Document = {
+    const specification: OpenApiDocumentV3_2 = {
       openapi: '3.2.0',
-      info: {},
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      } satisfies OpenApiInfoObjectV3_2,
       paths: {
         '/foobar': {
           get: {
             responses: {
               '200': {
+                description: 'ok',
                 content: {
                   'application/json': {
                     $ref: '#/components/mediaTypes/Foobar',

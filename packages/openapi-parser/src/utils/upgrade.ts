@@ -1,8 +1,7 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { Document as OpenApiDocumentV3_1 } from '@scalar/openapi-types/3.1'
 import { upgrade as originalUpgrade } from '@scalar/openapi-upgrader'
-import type { UnknownObject } from '@scalar/types/utils'
 
-import type { AnyObject, Filesystem, UpgradeResult } from '@/types/index'
+import type { Filesystem, UnknownObject, UpgradeResult } from '@/types/index'
 
 import { getEntrypoint } from './get-entrypoint'
 import { isFilesystem } from './is-filesystem'
@@ -11,7 +10,7 @@ import { normalize } from './normalize'
 /**
  * Upgrade specification to OpenAPI 3.1.0
  */
-export function upgrade(value: string | AnyObject | Filesystem): UpgradeResult<OpenAPIV3_1.Document> {
+export function upgrade(value: string | UnknownObject | Filesystem): UpgradeResult<OpenApiDocumentV3_1> {
   if (!value) {
     return {
       specification: null,
@@ -29,5 +28,5 @@ export function upgrade(value: string | AnyObject | Filesystem): UpgradeResult<O
     specification: document,
     // TODO: Make dynamic
     version: '3.1',
-  } as UpgradeResult<OpenAPIV3_1.Document>
+  } as UpgradeResult<OpenApiDocumentV3_1>
 }
