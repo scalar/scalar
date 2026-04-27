@@ -698,6 +698,9 @@ importers:
       '@scalar/galaxy':
         specifier: workspace:*
         version: link:../../packages/galaxy
+      '@scalar/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
       '@scalar/themes':
         specifier: workspace:*
         version: link:../../packages/themes
@@ -1131,6 +1134,9 @@ importers:
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
+      '@scalar/schemas':
+        specifier: workspace:*
+        version: link:../schemas
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -1140,6 +1146,9 @@ importers:
       '@scalar/use-toasts':
         specifier: workspace:*
         version: link:../use-toasts
+      '@scalar/validation':
+        specifier: workspace:*
+        version: link:../validation
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store
@@ -1161,9 +1170,6 @@ importers:
       vue:
         specifier: catalog:*
         version: 3.5.30(typescript@5.9.3)
-      zod:
-        specifier: catalog:*
-        version: 4.3.5
     devDependencies:
       '@tailwindcss/vite':
         specifier: catalog:*
@@ -1413,6 +1419,9 @@ importers:
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
+      '@scalar/schemas':
+        specifier: workspace:*
+        version: link:../schemas
       '@scalar/sidebar':
         specifier: workspace:*
         version: link:../sidebar
@@ -1431,6 +1440,9 @@ importers:
       '@scalar/use-toasts':
         specifier: workspace:*
         version: link:../use-toasts
+      '@scalar/validation':
+        specifier: workspace:*
+        version: link:../validation
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store
@@ -1547,9 +1559,15 @@ importers:
 
   packages/client-side-rendering:
     dependencies:
+      '@scalar/schemas':
+        specifier: workspace:*
+        version: link:../schemas
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
+      '@scalar/validation':
+        specifier: workspace:*
+        version: link:../validation
     devDependencies:
       vite:
         specifier: catalog:*
@@ -1727,9 +1745,15 @@ importers:
       '@scalar/client-side-rendering':
         specifier: workspace:*
         version: link:../client-side-rendering
+      '@scalar/schemas':
+        specifier: workspace:*
+        version: link:../schemas
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
+      '@scalar/validation':
+        specifier: workspace:*
+        version: link:../validation
     devDependencies:
       vite:
         specifier: catalog:*
@@ -2191,6 +2215,12 @@ importers:
         specifier: catalog:*
         version: 8.0.0(@types/node@24.10.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.2)
 
+  packages/schemas:
+    dependencies:
+      '@scalar/validation':
+        specifier: workspace:*
+        version: link:../validation
+
   packages/server-side-rendering:
     dependencies:
       '@scalar/api-reference':
@@ -2410,6 +2440,9 @@ importers:
       '@scalar/use-toasts':
         specifier: workspace:*
         version: link:../use-toasts
+      '@scalar/validation':
+        specifier: workspace:*
+        version: link:../validation
       '@vueuse/core':
         specifier: catalog:*
         version: 13.9.0(vue@3.5.30(typescript@5.9.3))
@@ -2422,9 +2455,6 @@ importers:
       vue:
         specifier: catalog:*
         version: 3.5.30(typescript@5.9.3)
-      zod:
-        specifier: catalog:*
-        version: 4.3.5
     devDependencies:
       '@vue/test-utils':
         specifier: catalog:*

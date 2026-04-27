@@ -510,6 +510,7 @@ describe('multiple sources', () => {
     const wrapper = mount(ApiReference, {
       props: {
         configuration: {
+          default: false,
           sources: [
             {
               url: 'https://api.example.com/v1/openapi.yaml',

@@ -27,9 +27,7 @@ const { colorMode } = useColorMode({
   overrideColorMode: props.configuration.forceDarkModeState,
 })
 
-// @ts-expect-error support the old syntax for a bit
 const content = props.configuration.spec?.content ?? props.configuration.content
-// @ts-expect-error support the old syntax for a bit
 const url = props.configuration.spec?.url ?? props.configuration.url
 
 // Get the route to check if OpenAPI is enabled
@@ -47,7 +45,8 @@ if (!document.value) {
   }
   // Otherwise its a string
   else if (content) {
-    document.value = content
+    document.value =
+      typeof content === 'string' ? content : JSON.stringify(content)
   }
   // Fetch the url
   else if (url) {

@@ -16,10 +16,13 @@ export {
   type Schema,
   type StringSchema,
   type UnionSchema,
+  type UnknownSchema,
+  type FunctionSchema,
   any,
   array,
   boolean,
   evaluate,
+  fn,
   intersection,
   lazy,
   literal,
@@ -31,6 +34,7 @@ export {
   record,
   string,
   union,
+  unknown,
 } from './schema'
 export { type GenerateTypesOptions, generateTypes } from './typegen'
 export type { Static } from './types'

@@ -5,6 +5,7 @@ import {
   array,
   boolean,
   evaluate,
+  fn,
   intersection,
   lazy,
   literal,
@@ -16,6 +17,7 @@ import {
   record,
   string,
   union,
+  unknown,
 } from '@/schema'
 import { validate } from '@/validate'
 
@@ -60,6 +62,69 @@ describe('any', () => {
     const value = new Date()
     const result = validate(T, value)
     expect(result).toBe(true)
+  })
+})
+
+describe('unknown', () => {
+  const T = unknown()
+  it('passes string', () => {
+    expect(validate(T, 'hello')).toBe(true)
+  })
+  it('passes number', () => {
+    expect(validate(T, 1)).toBe(true)
+  })
+  it('passes boolean', () => {
+    expect(validate(T, true)).toBe(true)
+  })
+  it('passes null', () => {
+    expect(validate(T, null)).toBe(true)
+  })
+  it('passes undefined', () => {
+    expect(validate(T, undefined)).toBe(true)
+  })
+  it('passes object', () => {
+    expect(validate(T, { a: 1 })).toBe(true)
+  })
+  it('passes array', () => {
+    expect(validate(T, [1, 2])).toBe(true)
+  })
+  it('passes Date', () => {
+    expect(validate(T, new Date())).toBe(true)
+  })
+})
+
+describe('fn', () => {
+  const T = fn()
+  it('passes a named function', () => {
+    function greet() {
+      return 'hi'
+    }
+    expect(validate(T, greet)).toBe(true)
+  })
+  it('passes an arrow function', () => {
+    expect(validate(T, () => 42)).toBe(true)
+  })
+  it('passes an async function', () => {
+    expect(validate(T, async () => 42)).toBe(true)
+  })
+  it('rejects a string', () => {
+    expect(validate(T, 'hello')).toBe(false)
+  })
+  it('rejects a number', () => {
+    expect(validate(T, 123)).toBe(false)
+  })
+  it('rejects null', () => {
+    expect(validate(T, null)).toBe(false)
+  })
+  it('rejects undefined', () => {
+    expect(validate(T, undefined)).toBe(false)
+  })
+  it('rejects an object', () => {
+    expect(validate(T, {})).toBe(false)
+  })
+  it('passes with a typed schema', () => {
+    const typed = fn<(a: string) => void>()
+    expect(validate(typed, (a: string) => a)).toBe(true)
   })
 })
 

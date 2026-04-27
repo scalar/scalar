@@ -12,6 +12,7 @@ import {
   ScalarSidebarFooter,
 } from '@scalar/components'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
+import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import {
   createSidebarState,
   ScalarSidebar,
@@ -19,7 +20,6 @@ import {
 } from '@scalar/sidebar'
 import { getThemeStyles, hasObtrusiveScrollbars } from '@scalar/themes'
 import {
-  apiReferenceConfigurationSchema,
   type AnyApiReferenceConfiguration,
   type ApiReferenceConfiguration,
   type ApiReferenceConfigurationRaw,
@@ -27,6 +27,7 @@ import {
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { ScalarToasts } from '@scalar/use-toasts'
+import { coerce } from '@scalar/validation'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import {
@@ -220,7 +221,7 @@ const configurationOverrides = ref<
 /** Any dev toolbar modifications are merged with the active configuration */
 const mergedConfig = computed<ApiReferenceConfiguration>(() => ({
   // Provides a default set of values when the lookup fails
-  ...apiReferenceConfigurationSchema.parse({}),
+  ...coerce(apiReferenceConfigurationSchema, {}),
   // The active configuration based on the slug
   ...configList.value[activeSlug.value]?.config,
   // Any overrides from the localhost toolbar

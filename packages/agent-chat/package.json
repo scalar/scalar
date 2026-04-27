@@ -55,17 +55,18 @@
     "@scalar/icons": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
+    "@scalar/schemas": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
+    "@scalar/validation": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "@vueuse/core": "catalog:*",
     "ai": "catalog:*",
     "js-base64": "catalog:*",
     "neverpanic": "catalog:*",
     "truncate-json": "catalog:*",
-    "vue": "catalog:*",
-    "zod": "catalog:*"
+    "vue": "catalog:*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "catalog:*",

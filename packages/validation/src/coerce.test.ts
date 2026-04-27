@@ -6,6 +6,7 @@ import {
   array,
   boolean,
   evaluate,
+  fn,
   intersection,
   lazy,
   literal,
@@ -17,6 +18,7 @@ import {
   record,
   string,
   union,
+  unknown,
 } from '@/schema'
 
 describe('any', () => {
@@ -60,6 +62,67 @@ describe('any', () => {
     const value = { a: 1, b: 2 }
     const result = coerce(T, value)
     expect(result).toEqual({ a: 1, b: 2 })
+  })
+})
+
+describe('unknown', () => {
+  const T = unknown()
+  it('passes through string', () => {
+    const value = 'hello'
+    expect(coerce(T, value)).toBe(value)
+  })
+  it('passes through number', () => {
+    const value = 1
+    expect(coerce(T, value)).toBe(value)
+  })
+  it('passes through boolean', () => {
+    const value = false
+    expect(coerce(T, value)).toBe(value)
+  })
+  it('passes through object', () => {
+    const value = {}
+    expect(coerce(T, value)).toBe(value)
+  })
+  it('passes through array', () => {
+    const value = [1]
+    expect(coerce(T, value)).toBe(value)
+  })
+  it('passes through undefined', () => {
+    const value = undefined
+    expect(coerce(T, value)).toBe(value)
+  })
+  it('passes through null', () => {
+    const value = null
+    expect(coerce(T, value)).toBe(value)
+  })
+  it('preserves complex value', () => {
+    const value = { a: 1, b: 2 }
+    expect(coerce(T, value)).toEqual({ a: 1, b: 2 })
+  })
+})
+
+describe('fn', () => {
+  const T = fn()
+  it('passes through a function', () => {
+    const value = () => 42
+    expect(coerce(T, value)).toBe(value)
+  })
+  it('passes through an async function', () => {
+    const value = async () => 42
+    expect(coerce(T, value)).toBe(value)
+  })
+  it('returns a no-op function for a non-function value', () => {
+    const result = coerce(T, 'not a function')
+    expect(typeof result).toBe('function')
+    expect(result()).toBe(undefined)
+  })
+  it('returns a no-op function for null', () => {
+    const result = coerce(T, null)
+    expect(typeof result).toBe('function')
+  })
+  it('returns a no-op function for undefined', () => {
+    const result = coerce(T, undefined)
+    expect(typeof result).toBe('function')
   })
 })
 
@@ -160,6 +223,24 @@ describe('boolean', () => {
     const value = true
     const result = coerce(T, value)
     expect(result).toBe(true)
+  })
+
+  it('uses schema default when value is not a boolean', () => {
+    const withDefault = boolean({ default: true })
+    expect(coerce(withDefault, 42)).toBe(true)
+    expect(coerce(withDefault, null)).toBe(true)
+    expect(coerce(withDefault, undefined)).toBe(true)
+    expect(coerce(withDefault, 'hello')).toBe(true)
+  })
+
+  it('ignores schema default when value is a valid boolean', () => {
+    const withDefault = boolean({ default: true })
+    expect(coerce(withDefault, false)).toBe(false)
+    expect(coerce(withDefault, true)).toBe(true)
+  })
+
+  it('falls back to false when no default is set', () => {
+    expect(coerce(boolean(), 123)).toBe(false)
   })
 })
 
@@ -305,6 +386,23 @@ describe('number', () => {
     const value = 123
     const result = coerce(T, value)
     expect(result).toBe(123)
+  })
+
+  it('uses schema default when value is not a number', () => {
+    const withDefault = number({ default: 42 })
+    expect(coerce(withDefault, 'hello')).toBe(42)
+    expect(coerce(withDefault, null)).toBe(42)
+    expect(coerce(withDefault, undefined)).toBe(42)
+  })
+
+  it('ignores schema default when value is a valid number', () => {
+    const withDefault = number({ default: 42 })
+    expect(coerce(withDefault, 7)).toBe(7)
+    expect(coerce(withDefault, 0)).toBe(0)
+  })
+
+  it('falls back to 0 when no default is set', () => {
+    expect(coerce(number(), 'nope')).toBe(0)
   })
 })
 
@@ -543,6 +641,22 @@ describe('string', () => {
     const value = 'foo'
     const result = coerce(T, value)
     expect(result).toBe(value)
+  })
+
+  it('uses schema default when value is not a string', () => {
+    const withDefault = string({ default: 'fallback' })
+    expect(coerce(withDefault, 42)).toBe('fallback')
+    expect(coerce(withDefault, null)).toBe('fallback')
+    expect(coerce(withDefault, undefined)).toBe('fallback')
+  })
+
+  it('ignores schema default when value is a valid string', () => {
+    const withDefault = string({ default: 'fallback' })
+    expect(coerce(withDefault, 'actual')).toBe('actual')
+  })
+
+  it('falls back to empty string when no default is set', () => {
+    expect(coerce(string(), 123)).toBe('')
   })
 })
 

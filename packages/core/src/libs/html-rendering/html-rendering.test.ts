@@ -1,8 +1,10 @@
+import type { ApiReferenceConfigurationWithSource } from '@scalar/types/api-reference'
 import {
-  type ApiReferenceConfigurationWithSource,
   apiReferenceConfigurationWithSourceSchema,
   htmlRenderingConfigurationSchema,
-} from '@scalar/types/api-reference'
+} from '@scalar/schemas/api-reference'
+import { coerce } from '@scalar/validation'
+
 import { describe, expect, it } from 'vitest'
 
 import { getConfiguration, getHtmlDocument, getScriptTags } from './html-rendering'
@@ -99,7 +101,7 @@ describe('html-rendering', () => {
   describe('getScriptTags', () => {
     it('returns script tags with default CDN', () => {
       const tags = getScriptTags(
-        apiReferenceConfigurationWithSourceSchema.parse({}),
+        apiReferenceConfigurationWithSourceSchema({}),
         'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
       )
       expect(tags).toContain('<!-- Load the Script -->')
@@ -108,7 +110,7 @@ describe('html-rendering', () => {
     })
 
     it('uses custom CDN when provided', () => {
-      const tags = getScriptTags(apiReferenceConfigurationWithSourceSchema.parse({}), 'https://example.com/script.js')
+      const tags = getScriptTags(apiReferenceConfigurationWithSourceSchema({}), 'https://example.com/script.js')
       expect(tags).toContain('https://example.com/script.js')
     })
 
@@ -251,13 +253,13 @@ describe('html-rendering', () => {
 
     it('does not remove content when url is not provided', () => {
       const content = { foo: 'bar' }
-      const config = getConfiguration(apiReferenceConfigurationWithSourceSchema.parse({ content }))
+      const config = getConfiguration(apiReferenceConfigurationWithSourceSchema({ content }))
       expect(config).toMatchObject({ content })
     })
 
     it('removes content only when url is provided', () => {
       const config = getConfiguration(
-        apiReferenceConfigurationWithSourceSchema.parse({
+        apiReferenceConfigurationWithSourceSchema({
           url: 'https://api.example.com/spec',
           content: { foo: 'bar' },
         }),
@@ -268,31 +270,31 @@ describe('html-rendering', () => {
 
     it('executes content when it is a function', () => {
       const contentFn = () => ({ foo: 'bar' })
-      const config = getConfiguration(apiReferenceConfigurationWithSourceSchema.parse({ content: contentFn }))
+      const config = getConfiguration(apiReferenceConfigurationWithSourceSchema({ content: contentFn }))
       expect(config).toMatchObject({ content: { foo: 'bar' } })
     })
   })
 
   describe('getCdnUrl', () => {
     it('returns default CDN URL when not provided', () => {
-      const { cdn } = htmlRenderingConfigurationSchema.parse({})
+      const { cdn } = coerce(htmlRenderingConfigurationSchema, {})
       expect(cdn).toBe('https://cdn.jsdelivr.net/npm/@scalar/api-reference')
     })
 
     it('returns custom CDN URL when provided', () => {
-      const { cdn } = htmlRenderingConfigurationSchema.parse({ cdn: 'https://example.com/script.js' })
+      const { cdn } = coerce(htmlRenderingConfigurationSchema, { cdn: 'https://example.com/script.js' })
       expect(cdn).toBe('https://example.com/script.js')
     })
   })
 
   describe('getPageTitle', () => {
     it('returns default page title when not provided', () => {
-      const { pageTitle } = htmlRenderingConfigurationSchema.parse({})
+      const { pageTitle } = coerce(htmlRenderingConfigurationSchema, {})
       expect(pageTitle).toBe('Scalar API Reference')
     })
 
     it('returns custom page title when provided', () => {
-      const { pageTitle } = htmlRenderingConfigurationSchema.parse({ pageTitle: 'Custom Title' })
+      const { pageTitle } = coerce(htmlRenderingConfigurationSchema, { pageTitle: 'Custom Title' })
       expect(pageTitle).toBe('Custom Title')
     })
   })

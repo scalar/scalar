@@ -171,6 +171,9 @@
         "src/helpers/escape-json-pointer.ts"
       ]
     },
+    "packages/schemas": {
+      "entry": ["src/index.ts", "src/api-reference/index.ts"]
+    },
     "packages/nextjs-openapi": {
       "entry": ["src/index.ts", "playground/app/api/**/*.ts"],
       "ignoreFiles": ["playground/next.config.js"]
@@ -213,7 +216,12 @@
         "src/entities/index.ts",
         "src/legacy/index.ts",
         "src/snippetz/index.ts",
-        "src/utils/index.ts"
+        "src/utils/index.ts",
+        // We are ignoring this for now, we should remove this zod schemas
+        "src/api-reference/api-client-plugin.ts",
+        "src/api-reference/api-reference-plugin.ts",
+        "src/api-reference/base-configuration.ts",
+        "src/api-reference/api-reference-configuration.ts"
       ]
     },
     "packages/use-codemirror": {

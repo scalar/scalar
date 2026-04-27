@@ -33,7 +33,9 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@scalar/types": "workspace:*"
+    "@scalar/types": "workspace:*",
+    "@scalar/schemas": "workspace:*",
+    "@scalar/validation": "workspace:*"
   },
   "devDependencies": {
     "vite": "catalog:*"

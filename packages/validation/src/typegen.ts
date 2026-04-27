@@ -14,6 +14,12 @@ export type GenerateTypesOptions = {
    * trailing root type) in `export namespace Name { ... }` so consumers reference `Name.SomeType`.
    */
   namespace?: string
+  /**
+   * When set to a valid TypeScript identifier, the root schema is emitted as
+   * `export type <typeName> = …` instead of an anonymous inline type.
+   * Overrides any `typeName` already present on the schema itself.
+   */
+  typeName?: string
 }
 
 type NamedDeclaration = {
@@ -39,12 +45,31 @@ type TypeGenContext = {
  */
 export const generateTypes = (schema: Schema, options?: GenerateTypesOptions): string => {
   const maxDepth = options?.maxDepth ?? DEFAULT_MAX_DEPTH
+  const rootTypeName = options?.typeName && isValidTypeScriptIdentifier(options.typeName) ? options.typeName : undefined
   const ctx: TypeGenContext = {
     definitions: new Map(),
     declarations: [],
     inProgress: new Set(),
   }
-  const root = emitSchema(schema, maxDepth, ctx, '')
+
+  // Override the schema's own typeName so the root is emitted under the
+  // caller-specified name. This also handles schemas that already carry a
+  // typeName — the option wins.
+  let effectiveSchema = schema
+  if (rootTypeName) {
+    effectiveSchema = { ...schema, typeName: rootTypeName } as Schema
+  }
+
+  const root = emitSchema(effectiveSchema, maxDepth, ctx, '')
+
+  // When a root typeName is provided and the schema did not already emit it as
+  // a named declaration (e.g. intersection / union schemas have no typeName
+  // slot), register it now so the output contains an explicit
+  // `export type <typeName> = …` instead of a bare anonymous type.
+  if (rootTypeName && root !== rootTypeName) {
+    ctx.definitions.set(rootTypeName, root)
+    ctx.declarations.push({ name: rootTypeName, body: root })
+  }
 
   if (ctx.declarations.length === 0) {
     return root
@@ -53,7 +78,7 @@ export const generateTypes = (schema: Schema, options?: GenerateTypesOptions): s
   const declStrings = ctx.declarations.map(formatNamedDeclaration)
   const body = declStrings.join('\n\n')
   const lastDeclared = ctx.declarations.at(-1)?.name
-  let content = lastDeclared === root ? body : `${body}\n\n${root}`
+  let content = lastDeclared === root || lastDeclared === rootTypeName ? body : `${body}\n\n${root}`
   const ns = options?.namespace
   if (ns && isValidTypeScriptIdentifier(ns)) {
     content = wrapDeclarationsInNamespace(ns, content)
@@ -178,6 +203,10 @@ const structuralEmit = (schema: Schema, depth: number, ctx: TypeGenContext, brac
       return 'undefined'
     case 'any':
       return 'any'
+    case 'unknown':
+      return 'unknown'
+    case 'function':
+      return '(...args: unknown[]) => unknown'
     case 'array': {
       const item = emitSchema(schema.items, next, ctx, braceIndent)
       return needsArrayItemParen(item) ? `(${item})[]` : `${item}[]`
@@ -240,15 +269,35 @@ const literalToTs = (value: string | number | boolean | bigint): string => {
 }
 
 const needsArrayItemParen = (t: string): boolean => {
-  if (t === 'number' || t === 'string' || t === 'boolean' || t === 'null' || t === 'undefined' || t === 'any') {
+  if (
+    t === 'number' ||
+    t === 'string' ||
+    t === 'boolean' ||
+    t === 'null' ||
+    t === 'undefined' ||
+    t === 'any' ||
+    t === 'unknown'
+  ) {
     return false
+  }
+  // `() => void[]` parses as `() => (void[])`, so function signatures need wrapping.
+  if (t.includes(' => ')) {
+    return true
   }
   // Union: `A | B[]` is `A | (B[])`; intersection: `A & B[]` is `A & (B[])`. Wrap the whole item type.
   return t.includes(' | ') || t.includes(' & ')
 }
 
 const wrapUnionMember = (t: string): string => {
-  if (t === 'number' || t === 'string' || t === 'boolean' || t === 'null' || t === 'undefined' || t === 'any') {
+  if (
+    t === 'number' ||
+    t === 'string' ||
+    t === 'boolean' ||
+    t === 'null' ||
+    t === 'undefined' ||
+    t === 'any' ||
+    t === 'unknown'
+  ) {
     return t
   }
   if (/^(?:-?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?|-?\d+n|"(?:[^"\\]|\\.)*"|true|false)$/.test(t)) {

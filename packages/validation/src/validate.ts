@@ -7,6 +7,8 @@ import type { Schema } from './schema'
  * The schema describes the expected structure/type of data.
  * Supported schema types include:
  * - 'any':         Accepts any value.
+ * - 'unknown':     Accepts any value (generates `unknown` instead of `any` in types).
+ * - 'function':    Only functions are valid (signature is not checked at runtime).
  * - 'number':      Only numbers are valid.
  * - 'string':      Only strings are valid.
  * - 'boolean':     Only booleans are valid.
@@ -38,8 +40,11 @@ export const validate = (schema: Schema | undefined, value: unknown): boolean =>
   if (!schema) {
     return false
   }
-  if (schema.type === 'any') {
+  if (schema.type === 'any' || schema.type === 'unknown') {
     return true
+  }
+  if (schema.type === 'function') {
+    return typeof value === 'function'
   }
   if (schema.type === 'number') {
     return typeof value === 'number' && !Number.isNaN(value) && Number.isFinite(value)

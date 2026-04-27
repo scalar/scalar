@@ -1,4 +1,4 @@
-import type { AnyApiReferenceConfiguration } from './api-reference-configuration'
+import type { AnyApiReferenceConfiguration } from './types'
 
 /**
  * This is a subset of the vue app type

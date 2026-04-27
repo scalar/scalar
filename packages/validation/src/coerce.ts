@@ -129,26 +129,32 @@ export const coerce = <S extends Schema>(
     return value as Static<S>
   }
 
-  if (schema.type === 'any') {
+  if (schema.type === 'any' || schema.type === 'unknown') {
     return value as unknown as Static<S>
+  }
+  if (schema.type === 'function') {
+    if (typeof value === 'function') {
+      return value as Static<S>
+    }
+    return (() => undefined) as unknown as Static<S>
   }
   if (schema.type === 'number') {
     if (validate(schema, value)) {
       return value as Static<S>
     }
-    return 0 as Static<S>
+    return (schema.default ?? 0) as Static<S>
   }
   if (schema.type === 'string') {
     if (validate(schema, value)) {
       return value as unknown as Static<S>
     }
-    return '' as unknown as Static<S>
+    return (schema.default ?? '') as unknown as Static<S>
   }
   if (schema.type === 'boolean') {
     if (validate(schema, value)) {
       return value as unknown as Static<S>
     }
-    return false as unknown as Static<S>
+    return (schema.default ?? false) as unknown as Static<S>
   }
   if (schema.type === 'nullable') {
     return null as unknown as Static<S>

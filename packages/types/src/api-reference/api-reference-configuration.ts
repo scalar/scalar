@@ -530,9 +530,3 @@ export type AnyApiReferenceConfiguration =
   | Partial<ApiReferenceConfigurationWithMultipleSources>
   | Partial<ApiReferenceConfigurationWithSource>[]
   | Partial<ApiReferenceConfigurationWithMultipleSources>[]
-
-/** Typeguard to check to narrow the configs to the one with sources */
-export const isConfigurationWithSources = (
-  config: AnyApiReferenceConfiguration,
-): config is Partial<ApiReferenceConfigurationWithMultipleSources> =>
-  Boolean(!Array.isArray(config) && config && 'sources' in config && Array.isArray(config.sources))

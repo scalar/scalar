@@ -1,6 +1,6 @@
 import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
+import { coerce, object, string, validate } from '@scalar/validation'
 import { ref } from 'vue'
-import { z } from 'zod/mini'
 
 import { useState } from '@/state/state'
 
@@ -19,18 +19,18 @@ function saveTmpDocumentInLocalStorage({ namespace, slug }: { namespace: string;
   localStorage.setItem(TMP_DOC_LS_KEY, JSON.stringify({ namespace, slug }))
 }
 
+const tmpDocSchema = object({
+  namespace: string(),
+  slug: string(),
+})
+
 export function getTmpDocFromLocalStorage() {
   const tmpDoc = localStorage.getItem(TMP_DOC_LS_KEY)
   if (!tmpDoc) {
     return
   }
 
-  return z
-    .object({
-      namespace: z.string(),
-      slug: z.string(),
-    })
-    .parse(JSON.parse(tmpDoc))
+  return coerce(tmpDocSchema, JSON.parse(tmpDoc))
 }
 
 export function removeTmpDocFromLocalStorage() {
@@ -79,9 +79,9 @@ export function useUploadTmpDocument() {
 
       const json = await response.json()
 
-      const { success, data } = z.object({ url: z.string(), namespace: z.string(), slug: z.string() }).safeParse(json)
+      const uploadResponseSchema = object({ url: string(), namespace: string(), slug: string() })
 
-      if (!success) {
+      if (!validate(uploadResponseSchema, json)) {
         uploadState.value = {
           type: 'error',
           error: 'Failed to process document.',
@@ -89,24 +89,26 @@ export function useUploadTmpDocument() {
         return
       }
 
+      const uploadData = coerce(uploadResponseSchema, json)
+
       uploadState.value = {
         type: 'processing',
       }
       const embeddingStatusResponse = await fetch(
-        createUrl(`/vector/registry/embeddings/${data.namespace}/${data.slug}`),
+        createUrl(`/vector/registry/embeddings/${uploadData.namespace}/${uploadData.slug}`),
         {
           method: 'GET',
         },
       )
 
       saveTmpDocumentInLocalStorage({
-        namespace: data.namespace,
-        slug: data.slug,
+        namespace: uploadData.namespace,
+        slug: uploadData.slug,
       })
 
       await state.addDocument({
-        namespace: data.namespace,
-        slug: data.slug,
+        namespace: uploadData.namespace,
+        slug: uploadData.slug,
         removable: false,
         tmp: true,
       })
@@ -120,13 +122,13 @@ export function useUploadTmpDocument() {
       }
 
       uploadState.value = { type: 'done' }
-      state.uploadedTmpDocumentUrl.value = data.url
+      state.uploadedTmpDocumentUrl.value = uploadData.url
 
       setTimeout(() => {
         uploadState.value = undefined
       }, SHOW_UPLOAD_SUCCESS_DELAY)
 
-      return data
+      return uploadData
     } catch {
       uploadState.value = { type: 'error', error: 'Failed to upload your OpenAPI document.' }
       return

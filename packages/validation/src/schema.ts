@@ -13,16 +13,19 @@ type Documentation = Partial<{
 /** Schema for finite numeric values. {@link Static} resolves to `number`. */
 export type NumberSchema = {
   type: 'number'
+  default?: number
 } & Documentation
 
 /** Schema for string values. {@link Static} resolves to `string`. */
 export type StringSchema = {
   type: 'string'
+  default?: string
 } & Documentation
 
 /** Schema for boolean values. {@link Static} resolves to `boolean`. */
 export type BooleanSchema = {
   type: 'boolean'
+  default?: boolean
 } & Documentation
 
 /** Schema for `null`. {@link Static} resolves to `null`. */
@@ -38,6 +41,22 @@ export type NotDefinedSchema = {
 /** Schema that accepts any value without narrowing. {@link Static} resolves to `any`. */
 export type AnySchema = {
   type: 'any'
+} & Documentation
+
+/** Schema that accepts any value. {@link Static} resolves to `unknown` instead of `any`. */
+export type UnknownSchema = {
+  type: 'unknown'
+} & Documentation
+
+/**
+ * Schema for function values. Validates only that the value is `typeof === 'function'`.
+ * The type parameter `T` carries the full function signature for {@link Static} inference
+ * but is never checked at runtime.
+ */
+export type FunctionSchema<T extends (...args: any[]) => any = (...args: unknown[]) => unknown> = {
+  type: 'function'
+  /** Phantom field — never set at runtime. Carries `T` so that `Static` can extract it. */
+  _fn?: T
 } & Documentation
 
 /** Schema for homogeneous lists. {@link Static} resolves to an array of the item static type. */
@@ -116,6 +135,8 @@ export type Schema =
   | NullableSchema
   | NotDefinedSchema
   | AnySchema
+  | UnknownSchema
+  | FunctionSchema<any>
   | ArraySchema<any>
   | RecordSchema<any, any>
   | ObjectSchema<Record<string, any>>
@@ -126,20 +147,23 @@ export type Schema =
   | LazySchema<any>
   | EvaluateSchema<any>
 
-const number = (options?: Documentation): NumberSchema => ({
+const number = (options?: Documentation & { default?: number }): NumberSchema => ({
   type: 'number',
+  default: options?.default,
   typeName: options?.typeName,
   typeComment: options?.typeComment,
 })
 
-const string = (options?: Documentation): StringSchema => ({
+const string = (options?: Documentation & { default?: string }): StringSchema => ({
   type: 'string',
+  default: options?.default,
   typeName: options?.typeName,
   typeComment: options?.typeComment,
 })
 
-const boolean = (options?: Documentation): BooleanSchema => ({
+const boolean = (options?: Documentation & { default?: boolean }): BooleanSchema => ({
   type: 'boolean',
+  default: options?.default,
   typeName: options?.typeName,
   typeComment: options?.typeComment,
 })
@@ -158,6 +182,20 @@ const notDefined = (options?: Documentation): NotDefinedSchema => ({
 
 const any = (options?: Documentation): AnySchema => ({
   type: 'any',
+  typeName: options?.typeName,
+  typeComment: options?.typeComment,
+})
+
+const unknown = (options?: Documentation): UnknownSchema => ({
+  type: 'unknown',
+  typeName: options?.typeName,
+  typeComment: options?.typeComment,
+})
+
+const fn = <T extends (...args: any[]) => any = (...args: unknown[]) => unknown>(
+  options?: Documentation,
+): FunctionSchema<T> => ({
+  type: 'function',
   typeName: options?.typeName,
   typeComment: options?.typeComment,
 })
@@ -238,6 +276,8 @@ export {
   nullable,
   notDefined,
   any,
+  unknown,
+  fn,
   array,
   record,
   object,

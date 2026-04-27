@@ -3,7 +3,7 @@ import type {
   ApiReferenceConfigurationWithSource,
   CreateApiReference,
 } from '@scalar/types/api-reference'
-import { apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
+import { apiReferenceConfigurationWithSourceSchema } from '@scalar/schemas/api-reference'
 import { createHead } from '@unhead/vue/client'
 import { createApp, createSSRApp, h, reactive } from 'vue'
 
@@ -32,7 +32,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceC
       }
     }
 
-    return apiReferenceConfigurationWithSourceSchema.parse({ _integration: 'html' })
+    return apiReferenceConfigurationWithSourceSchema({ _integration: 'html' })
   }
 
   const getUrl = () => {
@@ -116,7 +116,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceC
   } else {
     const urlOrContent = getContent() ? { content: getContent() } : { url: getUrl() }
 
-    return apiReferenceConfigurationWithSourceSchema.parse({
+    return apiReferenceConfigurationWithSourceSchema({
       _integration: 'html',
       proxyUrl: getProxyUrl(),
       ...getConfiguration(),
@@ -124,7 +124,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceC
     })
   }
 
-  return apiReferenceConfigurationWithSourceSchema.parse({ _integration: 'html' })
+  return apiReferenceConfigurationWithSourceSchema({ _integration: 'html' })
 }
 
 /**

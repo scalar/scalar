@@ -36,7 +36,7 @@ describe('goNative', () => {
     expect(result).toContain(`req.Header.Add("Content-Type", "application/json")`)
   })
 
-  it(`does not add empty headers`, () => {
+  it('does not add empty headers', () => {
     const result = goNative.generate({
       url: 'https://example.com',
       headers: [],
@@ -99,7 +99,7 @@ describe('goNative', () => {
     expect(result).toContain(`req.Header.Add("Cookie", "foo=bar; bar=foo")`)
   })
 
-  it(`does not add empty cookies`, () => {
+  it('does not add empty cookies', () => {
     const result = goNative.generate({
       url: 'https://example.com',
       cookies: [],
@@ -129,7 +129,7 @@ describe('goNative', () => {
       url: 'https://example.com',
     })
 
-    expect(result).not.toContain(`req.SetBasicAuth(`)
+    expect(result).not.toContain('req.SetBasicAuth(')
   })
 
   it('omits auth when username is missing', () => {
@@ -145,7 +145,7 @@ describe('goNative', () => {
       },
     )
 
-    expect(result).not.toContain(`req.SetBasicAuth(`)
+    expect(result).not.toContain('req.SetBasicAuth(')
   })
 
   it('omits auth when password is missing', () => {
@@ -161,7 +161,7 @@ describe('goNative', () => {
       },
     )
 
-    expect(result).not.toContain(`req.SetBasicAuth(`)
+    expect(result).not.toContain('req.SetBasicAuth(')
   })
 
   it('handles special characters in auth credentials', () => {
@@ -199,7 +199,7 @@ describe('goNative', () => {
       },
     })
 
-    expect(result).toContain(`payload := &bytes.Buffer{}`)
+    expect(result).toContain('payload := &bytes.Buffer{}')
     expect(result).toContain(`part, _ := writer.CreateFormFile("file", "test.txt")`)
     expect(result).toContain(`f, _ := os.Open("test.txt")`)
     expect(result).toContain(`_ = writer.WriteField("field", "value")`)
@@ -303,7 +303,7 @@ describe('goNative', () => {
     })
 
     expect(result).toContain(`\tneturl "net/url"`)
-    expect(result).toContain(`postData := neturl.Values{}`)
+    expect(result).toContain('postData := neturl.Values{}')
     expect(result).toContain(`postData.Set("special chars!@#", "value")`)
     expect(result).toContain(`req, _ := http.NewRequest("POST", requestUrl, strings.NewReader(postData.Encode()))`)
     expect(result).not.toContain('\n\turl :=')

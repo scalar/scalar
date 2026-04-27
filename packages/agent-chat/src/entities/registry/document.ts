@@ -1,17 +1,17 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { SecurityScheme } from '@scalar/types/entities'
-import z from 'zod'
+import { nullable, object, string, union, type Static } from '@scalar/validation'
 
-export const registryApiMetadata = z.object({
-  id: z.string(),
-  title: z.string(),
-  namespace: z.string(),
-  currentVersion: z.string(),
-  logoUrl: z.url().nullable(),
-  slug: z.string(),
+export const registryApiMetadata = object({
+  id: string(),
+  title: string(),
+  namespace: string(),
+  currentVersion: string(),
+  logoUrl: union([string(), nullable()]),
+  slug: string(),
 })
 
-export type ApiMetadata = z.infer<typeof registryApiMetadata> & { removable?: boolean; searchEnabled?: boolean }
+export type ApiMetadata = Static<typeof registryApiMetadata> & { removable?: boolean; searchEnabled?: boolean }
 
 export type RegistryDocument = { namespace: string; slug: string }
 

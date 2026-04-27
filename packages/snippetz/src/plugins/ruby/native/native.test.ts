@@ -611,7 +611,7 @@ puts response.read_body`,
     })
 
     expect(result).toContain(`request["Content-Type"] = 'application/json'`)
-    expect(result).toContain(`request.body = <<~JSON`)
+    expect(result).toContain('request.body = <<~JSON')
     expect(result).toContain(`"key": "\\"quotes\\" and \\\\backslashes\\\\"`)
   })
 
@@ -651,7 +651,7 @@ puts response.read_body`,
       },
     })
 
-    expect(result).toContain(`request.body = <<~JSON`)
+    expect(result).toContain('request.body = <<~JSON')
     expect(result).toContain(`"simple": "value"`)
   })
 

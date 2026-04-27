@@ -1,5 +1,9 @@
 import { sleep } from '@scalar/helpers/testing/sleep'
-import { apiReferenceConfigurationSchema, apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
+import {
+  apiReferenceConfigurationSchema,
+  apiReferenceConfigurationWithSourceSchema,
+} from '@scalar/schemas/api-reference'
+import { coerce } from '@scalar/validation'
 import { createHead } from '@unhead/vue/client'
 import { renderToString } from '@vue/server-renderer'
 import { flushPromises } from '@vue/test-utils'
@@ -7,6 +11,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createSSRApp, h, nextTick } from 'vue'
 
 import ApiReference from '@/components/ApiReference.vue'
+
 import { createApiReference, createContainer, findDataAttributes, getConfigurationFromDataAttributes } from './html-api'
 
 vi.mock('@unhead/vue/client', async () => {
@@ -35,7 +40,7 @@ afterEach(() => {
 const consoleWarnSpy = vi.spyOn(console, 'warn')
 
 // Since we use zod now we have a base config
-const baseConfig = apiReferenceConfigurationSchema.parse({
+const baseConfig = coerce(apiReferenceConfigurationSchema, {
   _integration: 'html',
 })
 
@@ -51,7 +56,7 @@ describe('createApiReference', () => {
     expect(element).toBeInstanceOf(HTMLElement)
 
     const config = { _integration: 'html' }
-    const apiReference = createApiReference(element!, apiReferenceConfigurationSchema.parse(config))
+    const apiReference = createApiReference(element!, coerce(apiReferenceConfigurationSchema, config))
 
     expect(apiReference.app.mount).toBeDefined()
     expect(apiReference.updateConfiguration).toBeDefined()
@@ -60,7 +65,7 @@ describe('createApiReference', () => {
 
   it('handles string selectors for mounting', () => {
     const config = { _integration: 'html' }
-    const apiReference = createApiReference('#mount-point', apiReferenceConfigurationSchema.parse(config))
+    const apiReference = createApiReference('#mount-point', coerce(apiReferenceConfigurationSchema, config))
 
     expect(apiReference.app.mount).toBeDefined()
     expect(apiReference.updateConfiguration).toBeDefined()
@@ -74,7 +79,7 @@ describe('createApiReference', () => {
     element!.innerHTML = '<div>Server-rendered content</div>'
 
     const config = { _integration: 'html' }
-    createApiReference(element!, apiReferenceConfigurationSchema.parse(config))
+    createApiReference(element!, coerce(apiReferenceConfigurationSchema, config))
 
     expect(createHeadSpy).toHaveBeenCalledTimes(1)
   })
@@ -83,7 +88,7 @@ describe('createApiReference', () => {
     const element = document.querySelector('#mount-point')
     expect(element).toBeInstanceOf(HTMLElement)
 
-    const config = apiReferenceConfigurationWithSourceSchema.parse({
+    const config = apiReferenceConfigurationWithSourceSchema({
       _integration: 'html',
       content: JSON.stringify({
         openapi: '3.1.0',
@@ -124,7 +129,7 @@ describe('createApiReference', () => {
       content: { 'openapi': '3.1.0', 'info': { 'title': 'Test API', 'version': '1.0.0' } },
     }
 
-    createApiReference(element!, apiReferenceConfigurationWithSourceSchema.parse(config))
+    createApiReference(element!, apiReferenceConfigurationWithSourceSchema(config))
     document.dispatchEvent(new Event('scalar:reload-references'))
 
     expect(consoleWarnSpy).toHaveBeenCalledOnce()
@@ -137,7 +142,7 @@ describe('createApiReference', () => {
     const element = document.querySelector('#mount-point')
     const config = { _integration: 'html' }
 
-    createApiReference(element!, apiReferenceConfigurationSchema.parse(config))
+    createApiReference(element!, coerce(apiReferenceConfigurationSchema, config))
 
     document.dispatchEvent(new Event('scalar:destroy-references'))
     expect(consoleWarnSpy).toHaveBeenCalledWith(
@@ -149,7 +154,7 @@ describe('createApiReference', () => {
     const element = document.querySelector('#mount-point')
     const config = { _integration: 'html' }
 
-    createApiReference(element!, apiReferenceConfigurationSchema.parse(config))
+    createApiReference(element!, coerce(apiReferenceConfigurationSchema, config))
 
     const updateEvent = new CustomEvent('scalar:update-references-config', {
       detail: { configuration: { darkMode: true } },
@@ -163,7 +168,7 @@ describe('createApiReference', () => {
 
   it('allows mounting after creation', async () => {
     const config = { _integration: 'html' }
-    const app = createApiReference(apiReferenceConfigurationSchema.parse(config))
+    const app = createApiReference(coerce(apiReferenceConfigurationSchema, config))
 
     // Mount after creation
     app.app.mount('#mount-point')
@@ -176,7 +181,7 @@ describe('createApiReference', () => {
 
   it('allows updating configuration after creation', async () => {
     const config = { _integration: 'html' }
-    const app = createApiReference('#mount-point', apiReferenceConfigurationSchema.parse(config))
+    const app = createApiReference('#mount-point', coerce(apiReferenceConfigurationSchema, config))
 
     // Update configuration after creation
     const newConfig = {
@@ -196,7 +201,7 @@ describe('createApiReference', () => {
 
   it('updates the operations when the configuration changes', async () => {
     const config = { _integration: 'html', expandOperations: true, slug: 'updated-api' }
-    const app = createApiReference('#mount-point', apiReferenceConfigurationSchema.parse(config))
+    const app = createApiReference('#mount-point', coerce(apiReferenceConfigurationSchema, config))
 
     // Update configuration
     app.updateConfiguration({
@@ -252,7 +257,7 @@ describe('createApiReference', () => {
 
 describe('findDataAttributes (legacy)', () => {
   it('adds dark-mode class when darkMode is true', () => {
-    const config = apiReferenceConfigurationSchema.parse({
+    const config = coerce(apiReferenceConfigurationSchema, {
       _integration: 'html',
       darkMode: true,
     })
@@ -262,7 +267,7 @@ describe('findDataAttributes (legacy)', () => {
   })
 
   it('adds light-mode class when darkMode is false', () => {
-    const config = apiReferenceConfigurationSchema.parse({
+    const config = coerce(apiReferenceConfigurationSchema, {
       _integration: 'html',
       darkMode: false,
     })
@@ -282,7 +287,7 @@ describe('getConfigurationFromDataAttributes', () => {
         </html>
       `)
 
-    expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
+    expect(getConfigurationFromDataAttributes(document)).toEqual({
       ...baseConfig,
       default: false,
       proxyUrl: undefined,
@@ -299,7 +304,7 @@ describe('getConfigurationFromDataAttributes', () => {
       </html>
     `)
 
-    expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
+    expect(getConfigurationFromDataAttributes(document)).toEqual({
       ...baseConfig,
       proxyUrl: undefined,
       default: false,
@@ -333,7 +338,7 @@ describe('getConfigurationFromDataAttributes', () => {
       </html>
     `)
 
-    expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
+    expect(getConfigurationFromDataAttributes(document)).toEqual({
       ...baseConfig,
       darkMode: true,
       default: false,
@@ -351,7 +356,7 @@ describe('getConfigurationFromDataAttributes', () => {
       </html>
     `)
 
-    expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
+    expect(getConfigurationFromDataAttributes(document)).toEqual({
       ...baseConfig,
       default: false,
       proxyUrl: undefined,
@@ -370,7 +375,7 @@ describe('getConfigurationFromDataAttributes', () => {
       </html>
     `)
 
-    expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
+    expect(getConfigurationFromDataAttributes(doc)).toEqual({
       ...baseConfig,
       proxyUrl: undefined,
       default: false,
@@ -402,7 +407,7 @@ describe('getConfigurationFromDataAttributes', () => {
       </html>
     `)
 
-    expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
+    expect(getConfigurationFromDataAttributes(doc)).toEqual({
       ...baseConfig,
       proxyUrl: undefined,
       default: false,

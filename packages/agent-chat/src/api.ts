@@ -1,5 +1,5 @@
 import { n } from 'neverpanic'
-import z from 'zod'
+import { type Schema, type Static, array, coerce, object, string, validate } from '@scalar/validation'
 
 import { createError } from '@/entities/error/helpers'
 import { registryApiMetadata } from '@/entities/registry/document'
@@ -34,8 +34,10 @@ export function createApi({
   getAccessToken?: () => string
   getAgentKey?: () => string
 }) {
+  const serviceErrorSchema = object({ message: string(), code: string() })
+
   const request = n.safeFn(
-    async <T extends z.ZodType>({
+    async <T extends Schema>({
       path,
       method = 'get',
       query,
@@ -79,31 +81,29 @@ export function createApi({
       }
 
       if (!fetchResult.data.ok) {
-        const serviceError = z.object({ message: z.string(), code: z.string() }).safeParse(fetchDataResult.data)
-
-        if (!serviceError.success) {
+        if (!validate(serviceErrorSchema, fetchDataResult.data)) {
           return {
             success: false,
             error: createError('UNKNOWN_ERROR', 'Unknown error occurred. Please contact support.'),
           }
         }
 
+        const errorData = coerce(serviceErrorSchema, fetchDataResult.data)
+
         return {
           success: false,
-          error: createError(serviceError.data.code, serviceError.data.message),
+          error: createError(errorData.code, errorData.message),
         }
       }
 
-      const serviceData = responseSchema.safeParse(fetchDataResult.data)
-
-      if (!serviceData.success) {
+      if (!validate(responseSchema, fetchDataResult.data)) {
         return {
           success: false,
           error: createError('INVALID_RESPONSE', 'Invalid response. Please contact support'),
         }
       }
 
-      return { success: true, data: serviceData.data }
+      return { success: true, data: coerce(responseSchema, fetchDataResult.data) as Static<T> }
     },
   )
 
@@ -111,8 +111,8 @@ export function createApi({
     request({
       path: '/vector/registry/search',
       query: { query },
-      responseSchema: z.object({
-        results: registryApiMetadata.array(),
+      responseSchema: object({
+        results: array(registryApiMetadata),
       }),
     })
 
@@ -125,14 +125,14 @@ export function createApi({
   const getKeyDocuments = async () =>
     request({
       path: '/vector/registry/documents',
-      responseSchema: z.object({ documents: registryApiMetadata.array() }),
+      responseSchema: object({ documents: array(registryApiMetadata) }),
     })
 
   const getCuratedDocuments = async () =>
     request({
       path: '/vector/registry/curated',
-      responseSchema: z.object({
-        results: registryApiMetadata.array(),
+      responseSchema: object({
+        results: array(registryApiMetadata),
       }),
     })
 

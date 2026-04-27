@@ -62,7 +62,7 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
     /**
      * Notify all plugins that the API Reference has been initialized
      */
-    notifyInit: (config: Record<string, unknown>): void => {
+    notifyInit: (config: Record<string, any>): void => {
       for (const plugin of registeredPlugins.values()) {
         plugin.hooks?.onInit?.({ config })
       }
