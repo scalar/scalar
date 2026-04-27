@@ -59,6 +59,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import {
   computed,
+  nextTick,
   onBeforeUnmount,
   onMounted,
   ref,
@@ -289,7 +290,7 @@ const emitPathMethodUpdate = (
         addressBarRef.value?.setCodeMirrorContent(extractedPath)
       }
 
-      refocusBlurTarget(returnedSelector)
+      nextTick(() => refocusBlurTarget(returnedSelector))
     },
   })
 }

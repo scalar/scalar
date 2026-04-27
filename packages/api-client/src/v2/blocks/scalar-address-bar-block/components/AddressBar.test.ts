@@ -514,6 +514,45 @@ describe('AddressBar', () => {
       )
     })
 
+    it('waits for a pasted URL server to be selected before replaying Send', async () => {
+      const pastedUrl = 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json'
+      const selectedServer = { url: 'https://cdn.jsdelivr.net' }
+      const { wrapper, eventBus } = mountWithProps({
+        path: '/',
+        method: 'get',
+        server: null,
+        servers: [],
+      })
+
+      let replayServerUrl: string | null = null
+      vi.mocked(refocusBlurTarget).mockImplementation(() => {
+        replayServerUrl = wrapper.props('server')?.url ?? null
+      })
+      vi.spyOn(eventBus, 'emit').mockImplementation((eventName, _payload) => {
+        if (eventName === 'server:add:server') {
+          wrapper.setProps({ server: selectedServer, servers: [selectedServer] })
+        }
+
+        const payload = _payload as ApiReferenceEvents['operation:update:pathMethod']
+        if (eventName === 'operation:update:pathMethod' && payload?.callback) {
+          payload.callback('success', '[data-addressbar-action="send"]')
+        }
+
+        return eventBus
+      })
+
+      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const submitEvent = new KeyboardEvent('keydown', { key: 'Enter' })
+      codeInput.vm.$emit('submit', pastedUrl, submitEvent)
+
+      expect(refocusBlurTarget).not.toHaveBeenCalled()
+
+      await nextTick()
+
+      expect(refocusBlurTarget).toHaveBeenCalledWith('[data-addressbar-action="send"]')
+      expect(replayServerUrl).toBe('https://cdn.jsdelivr.net')
+    })
+
     it('keeps a pasted URL when the deferred placeholder mask runs before Enter', async () => {
       const animationFrameCallbacks: FrameRequestCallback[] = []
       const requestAnimationFrameSpy = vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((callback) => {
