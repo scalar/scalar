@@ -650,7 +650,7 @@ describe('createApiClientModal', () => {
 
     // Get the active document
     const documentSlug = workspaceStore.workspace['x-scalar-active-document']
-    const document = workspaceStore.workspace.documents[documentSlug || '']
+    const document = workspaceStore.workspace.documents[documentSlug || ''] as OpenApiDocument | undefined
     expect(document).toBeDefined()
 
     const snapshot = deepClone(document)

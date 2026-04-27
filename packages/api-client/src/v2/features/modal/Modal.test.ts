@@ -68,7 +68,9 @@ const createModalProps = async (documentOverrides: Partial<OpenApiDocument> = {}
   const method = computed<'get' | 'post' | undefined>(() => 'get')
   const exampleName = computed<string | undefined>(() => 'default')
 
-  const document = computed(() => store.workspace.documents[documentSlug.value ?? ''] ?? null)
+  const document = computed<OpenApiDocument | null>(
+    () => (store.workspace.documents[documentSlug.value ?? ''] as OpenApiDocument | undefined) ?? null,
+  )
   const modalState = useModal()
   const requestBodyCompositionSelection = ref<Record<string, number>>({})
 
