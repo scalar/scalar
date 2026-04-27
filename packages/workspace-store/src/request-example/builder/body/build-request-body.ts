@@ -47,6 +47,79 @@ export type RequestBody = FormData | UrlEncoded | Raw
 const getMultipartEncodingContentType = (requestBody: RequestBodyObject, bodyContentType: string, fieldName: string) =>
   requestBody.content[bodyContentType]?.encoding?.[fieldName]?.contentType
 
+const appendMultipartValue = ({
+  fieldName,
+  fieldValue,
+  requestBody,
+  bodyContentType,
+  target,
+}: {
+  fieldName: string
+  fieldValue: unknown
+  requestBody: RequestBodyObject
+  bodyContentType: string
+  target: FormData['value']
+}): void => {
+  if (!fieldName || fieldValue === undefined || fieldValue === null) {
+    return
+  }
+
+  const partContentType = getMultipartEncodingContentType(requestBody, bodyContentType, fieldName)
+
+  if (fieldValue instanceof File) {
+    /**
+     * We need to unwrap proxies so file metadata access keeps the right "this" context.
+     */
+    const unwrappedValue = unpackProxyObject(fieldValue)
+    const encodedValue =
+      partContentType && partContentType !== unwrappedValue.type
+        ? new File([unwrappedValue], unwrappedValue.name, {
+            type: partContentType,
+            lastModified: unwrappedValue.lastModified,
+          })
+        : unwrappedValue
+
+    target.push({
+      type: 'file',
+      key: fieldName,
+      value: encodedValue,
+      contentType: partContentType,
+    })
+    return
+  }
+
+  if (fieldValue instanceof Blob) {
+    const encodedValue =
+      partContentType && partContentType !== fieldValue.type ? new Blob([fieldValue], { type: partContentType }) : fieldValue
+    target.push({
+      type: 'blob',
+      key: fieldName,
+      value: encodedValue,
+      contentType: partContentType,
+    })
+    return
+  }
+
+  const serializedValue =
+    typeof fieldValue === 'object' ? JSON.stringify(unpackProxyObject(fieldValue)) : String(fieldValue)
+
+  if (partContentType) {
+    target.push({
+      type: 'blob',
+      key: fieldName,
+      value: new Blob([serializedValue], { type: partContentType }),
+      contentType: partContentType,
+    })
+    return
+  }
+
+  target.push({
+    type: 'text',
+    key: fieldName,
+    value: serializedValue,
+  })
+}
+
 /**
  * Create the fetch request body
  */
@@ -94,84 +167,68 @@ export const buildRequestBody = (
 
     // Loop over all entries and add them to the form
     exampleValue.forEach(({ name, value }) => {
-      if (!name) {
+      if (result.mode === 'formdata') {
+        appendMultipartValue({
+          fieldName: name,
+          fieldValue: value,
+          requestBody,
+          bodyContentType,
+          target: result.value,
+        })
         return
       }
-      const partContentType =
-        result.mode === 'formdata' ? getMultipartEncodingContentType(requestBody, bodyContentType, name) : undefined
 
-      // Handle file uploads
-      if (value instanceof File && result.mode === 'formdata') {
-        /**
-         * We need to unwrap the proxies to get the file name due to the
-         * "this" context in the proxy causing an illegal invocation error
-         */
-        const unwrappedValue = unpackProxyObject(value)
-        const encodedValue =
-          partContentType && partContentType !== unwrappedValue.type
-            ? new File([unwrappedValue], unwrappedValue.name, {
-                type: partContentType,
-                lastModified: unwrappedValue.lastModified,
-              })
-            : unwrappedValue
-
-        return result.value.push({
-          type: 'file',
+      if (name && value !== undefined && value !== null) {
+        result.value.push({
           key: name,
-          value: encodedValue,
-          contentType: partContentType,
+          value: typeof value === 'string' ? value : String(value),
         })
       }
-
-      // Text and structured inputs
-      if (value !== undefined && value !== null) {
-        const serializedValue =
-          typeof value === 'object' && value !== null ? JSON.stringify(unpackProxyObject(value)) : String(value)
-
-        if (result.mode === 'formdata' && partContentType) {
-          return result.value.push({
-            type: 'blob',
-            key: name,
-            value: new Blob([serializedValue], { type: partContentType }),
-            contentType: partContentType,
-          })
-        }
-
-        return result.value.push({
-          type: 'text',
-          key: name,
-          value: serializedValue,
-        })
-      }
-
-      return
     })
 
     return result
   }
 
   // Form data - object format (from schema examples)
-  // When the example value is a plain object and content type is form-urlencoded,
-  // convert to URLSearchParams instead of JSON stringifying
+  // Convert plain objects to form fields instead of JSON stringifying.
   if (
-    bodyContentType === 'application/x-www-form-urlencoded' &&
+    (bodyContentType === 'multipart/form-data' || bodyContentType === 'application/x-www-form-urlencoded') &&
     example.value !== null &&
     typeof example.value === 'object' &&
-    !Array.isArray(example.value)
+    !Array.isArray(example.value) &&
+    !(example.value instanceof File) &&
+    !(example.value instanceof Blob)
   ) {
-    const result: UrlEncoded = {
-      mode: 'urlencoded',
-      value: [],
-    }
+    const unwrappedExampleValue = unpackProxyObject(example.value) as Record<string, unknown>
+    const result: FormData | UrlEncoded =
+      bodyContentType === 'multipart/form-data'
+        ? {
+            mode: 'formdata',
+            value: [],
+          }
+        : {
+            mode: 'urlencoded',
+            value: [],
+          }
 
     // Convert object properties to form fields
-    for (const [key, value] of Object.entries(example.value)) {
+    for (const [key, value] of Object.entries(unwrappedExampleValue)) {
       if (key && value !== undefined && value !== null) {
-        const stringValue = typeof value === 'string' ? value : String(value)
-        result.value.push({
-          key,
-          value: stringValue,
-        })
+        if (result.mode === 'formdata') {
+          appendMultipartValue({
+            fieldName: key,
+            fieldValue: value,
+            requestBody,
+            bodyContentType,
+            target: result.value,
+          })
+        } else {
+          const stringValue = typeof value === 'string' ? value : String(value)
+          result.value.push({
+            key,
+            value: stringValue,
+          })
+        }
       }
     }
 

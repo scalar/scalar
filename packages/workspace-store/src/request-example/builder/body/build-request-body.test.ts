@@ -223,6 +223,71 @@ describe('buildRequestBody', () => {
     expect(result.value[1].value).toBe('{{productId}}')
   })
 
+  it('builds FormData for multipart/form-data with object example value', () => {
+    const requestBody = {
+      content: {
+        'multipart/form-data': {
+          examples: {
+            default: {
+              value: {
+                username: 'jane',
+                age: 42,
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const result = buildRequestBody(requestBody, 'default')
+
+    expect(result?.mode).toBe('formdata')
+    assert(result?.mode === 'formdata')
+
+    expect(result.value).toStrictEqual([
+      { type: 'text', key: 'username', value: 'jane' },
+      { type: 'text', key: 'age', value: '42' },
+    ])
+  })
+
+  it('builds multipart file parts for object example values', () => {
+    const mockFile = new File(['hello world'], 'hello.txt', { type: 'text/plain', lastModified: 1234 })
+    const requestBody = {
+      content: {
+        'multipart/form-data': {
+          examples: {
+            default: {
+              value: {
+                file: mockFile,
+                note: 'upload',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const result = buildRequestBody(requestBody, 'default')
+
+    expect(result?.mode).toBe('formdata')
+    assert(result?.mode === 'formdata')
+
+    expect(result.value[0]).toBeDefined()
+    assert(result.value[0])
+    expect(result.value[0]).toMatchObject({
+      type: 'file',
+      key: 'file',
+    })
+    expect(result.value[0].value).toBeInstanceOf(File)
+    expect((result.value[0].value as File).name).toBe('hello.txt')
+
+    expect(result.value[1]).toStrictEqual({
+      type: 'text',
+      key: 'note',
+      value: 'upload',
+    })
+  })
+
   it('converts non-string values to strings in form-urlencoded object format', () => {
     const requestBody = {
       content: {
