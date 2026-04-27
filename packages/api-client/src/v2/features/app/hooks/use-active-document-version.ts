@@ -1,11 +1,11 @@
-import { computed, type ComputedRef } from 'vue'
+import { type ComputedRef, computed } from 'vue'
 
 import type { AppState } from '@/v2/features/app/app-state'
 import {
-  useSidebarDocuments,
   type RegistryDocumentsState,
   type SidebarDocumentItem,
   type SidebarDocumentVersion,
+  useSidebarDocuments,
 } from '@/v2/features/app/hooks/use-sidebar-documents'
 
 /**
