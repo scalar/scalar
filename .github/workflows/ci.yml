@@ -764,7 +764,6 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          packageManager: npm
           command: pages deploy ./packages/api-client/playground/app/dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_API_CLIENT }} --branch=pr-${{ github.event.pull_request.number }} --commit-hash=${{ github.event.pull_request.head.sha }}
 
       - name: Set output
