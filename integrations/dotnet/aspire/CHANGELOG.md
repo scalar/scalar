@@ -1,5 +1,11 @@
 # @scalar/aspire
 
+## 0.9.29
+
+### Patch Changes
+
+- [#8995](https://github.com/scalar/scalar/pull/8995): fix(aspire): remove OTLP exporter annotations from Scalar resources before startup to avoid universal container tunnel hangs
+
 ## 0.9.28
 
 ### Patch Changes

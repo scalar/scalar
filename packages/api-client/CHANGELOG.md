@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 3.3.1
+
+### Patch Changes
+
+- [#8839](https://github.com/scalar/scalar/pull/8839): Fix modal fade-in animation stutter by replacing v-show with CSS visibility/opacity to avoid forced layout recalculation on open
+
 ## 3.3.0
 
 ### Minor Changes

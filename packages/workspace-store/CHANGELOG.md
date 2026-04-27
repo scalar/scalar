@@ -1,5 +1,7 @@
 # @scalar/workspace-store
 
+## 0.47.1
+
 ## 0.47.0
 
 ### Minor Changes

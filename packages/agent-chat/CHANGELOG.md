@@ -1,5 +1,11 @@
 # @scalar/agent-chat
 
+## 0.10.10
+
+### Patch Changes
+
+- [#8999](https://github.com/scalar/scalar/pull/8999): Include platform token in doc fetch
+
 ## 0.10.9
 
 ### Patch Changes
