@@ -144,14 +144,14 @@ export const createIndexDbConnection = async <T extends Record<string, TableEntr
   })
 
   return {
-    get: <Name extends keyof T>(name: Name) => {
+    get: <Name extends keyof T>(tableName: Name) => {
       // Surface a helpful error if a caller asks for a table that is not in
       // the typed config — the underlying IDB call would otherwise throw a
       // generic `NotFoundError` from a lazy `transaction()`.
-      if (!Object.hasOwn(tables, name as string)) {
-        throw new Error(`Unknown table "${String(name)}". Add it to the \`tables\` config of "${name as string}".`)
+      if (!Object.hasOwn(tables, tableName as string)) {
+        throw new Error(`Unknown table "${String(tableName)}". Add it to the \`tables\` config of "${name}".`)
       }
-      return createTableWrapper<T[Name]['schema'], T[Name]['keyPath'][number]>(name as string, request.result)
+      return createTableWrapper<T[Name]['schema'], T[Name]['keyPath'][number]>(tableName as string, request.result)
     },
     closeDatabase: () => {
       request.result.close()
