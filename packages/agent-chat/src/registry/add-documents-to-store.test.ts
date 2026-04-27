@@ -69,7 +69,14 @@ describe('add-documents-to-store', () => {
 
       expect(result.success).toBe(true)
 
-      const registryCall = mockFetch.mock.calls.find(([url]) => String(url).startsWith(registryUrl))
+      const registryCall = mockFetch.mock.calls.find(([url]) => {
+        try {
+          return new URL(String(url)).origin === new URL(registryUrl).origin
+        }
+        catch {
+          return false
+        }
+      })
       expect(registryCall).toBeDefined()
       const [calledUrl, calledOptions] = registryCall!
       expect(String(calledUrl)).toBe('https://registry.example.com/@test-ns/apis/test-slug/latest')
@@ -89,7 +96,14 @@ describe('add-documents-to-store', () => {
         api: createMockApi(),
       })
 
-      const registryCall = mockFetch.mock.calls.find(([url]) => String(url).startsWith(registryUrl))
+      const registryCall = mockFetch.mock.calls.find(([url]) => {
+        try {
+          return new URL(String(url)).origin === new URL(registryUrl).origin
+        }
+        catch {
+          return false
+        }
+      })
       expect(registryCall).toBeDefined()
       const [, calledOptions] = registryCall!
       // fetchUrls passes `headers: undefined` when no domain entry matches.
