@@ -20,7 +20,7 @@ export default defineConfig({
   plugins: [vue(), tailwindcss()],
   define: {
     'process.env.NODE_ENV': '"production"',
-    'process.env.SCALAR_API_REFERENCE_VERSION': `"${version}"`,
+    'PACKAGE_VERSION': `"${version}"`,
   },
   server: {
     // Enable host binding in dev containers for proper port forwarding

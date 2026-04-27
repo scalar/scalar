@@ -8,7 +8,7 @@ import { version } from '../../package.json'
 export default defineConfig({
   plugins: [vue()],
   define: {
-    'process.env.SCALAR_API_REFERENCE_VERSION': JSON.stringify(version),
+    'SCALAR_API_REFERENCE_VERSION': JSON.stringify(version),
   },
   resolve: {
     alias: {
