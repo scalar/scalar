@@ -1,5 +1,6 @@
 import { coerce, object, string } from '@scalar/validation'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 
 import { generateUniqueSlug } from '@/v2/features/command-palette/helpers/generate-unique-slug'
 import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
@@ -21,7 +22,7 @@ export const loadRegistryDocument = async ({
   const documents = workspaceStore.workspace.documents
 
   const existing = Object.entries(documents).find(([, doc]) => {
-    const meta = doc?.['x-scalar-registry-meta']
+    const meta = isOpenApiDocument(doc) ? doc['x-scalar-registry-meta'] : undefined
     return meta?.namespace === namespace && meta?.slug === slug
   })
 
