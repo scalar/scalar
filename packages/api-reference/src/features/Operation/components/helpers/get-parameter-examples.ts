@@ -1,6 +1,5 @@
 import type { ParameterObject, ResponseObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-
-const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === 'object'
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 
 const filterUndefined = (example: unknown): example is unknown => example !== undefined
 
@@ -19,11 +18,11 @@ export const getParameterExamples = ({
   schemaExamples,
   contentExamples,
 }: GetParameterExamplesArgs): unknown[] => {
-  const paramExamples = 'examples' in parameter && isRecord(parameter.examples) ? parameter.examples : {}
+  const paramExamples = 'examples' in parameter && isObjectLike(parameter.examples) ? parameter.examples : {}
 
   const recordExamples = Object.values({
     ...paramExamples,
-    ...(isRecord(contentExamples) ? contentExamples : {}),
+    ...(isObjectLike(contentExamples) ? contentExamples : {}),
   }).filter(filterUndefined)
 
   const fallbackExample =
