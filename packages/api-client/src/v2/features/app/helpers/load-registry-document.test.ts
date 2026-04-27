@@ -123,6 +123,79 @@ describe('loadRegistryDocument', () => {
     expect(addDocument).not.toHaveBeenCalled()
   })
 
+  it('names the imported document as `slug(title)-slug(version)`', async () => {
+    const { store, addDocument } = createWorkspaceStore()
+
+    const fetcher: ImportDocumentFromRegistry = vi.fn().mockResolvedValue({
+      ok: true,
+      data: { info: { title: 'Pets API' } },
+    })
+
+    const result = await loadRegistryDocument({
+      workspaceStore: store,
+      fetcher,
+      namespace: 'acme',
+      slug: 'pets',
+      version: '1.0.0',
+    })
+
+    expect(result).toStrictEqual({ ok: true, documentName: 'pets-api-1.0.0' })
+    expect(addDocument.mock.calls[0]?.[0]?.name).toBe('pets-api-1.0.0')
+  })
+
+  it('falls back to the registry slug when the document has no usable title', async () => {
+    const { store, addDocument } = createWorkspaceStore()
+
+    const fetcher: ImportDocumentFromRegistry = vi.fn().mockResolvedValue({
+      ok: true,
+      // Empty title means the workspace key falls back to the registry
+      // slug (`pets`) before getting suffixed with the version.
+      data: { info: { title: '   ' } },
+    })
+
+    const result = await loadRegistryDocument({
+      workspaceStore: store,
+      fetcher,
+      namespace: 'acme',
+      slug: 'pets',
+      version: '1.0.0',
+    })
+
+    expect(result).toStrictEqual({ ok: true, documentName: 'pets-1.0.0' })
+    expect(addDocument.mock.calls[0]?.[0]?.name).toBe('pets-1.0.0')
+  })
+
+  it('appends an incrementing suffix when the composite name already exists', async () => {
+    // Pre-seed a document keyed by the exact composite name we would
+    // otherwise generate. The registry meta intentionally points at a
+    // *different* version so the dedupe short-circuit does not fire.
+    const { store, addDocument } = createWorkspaceStore({
+      'pets-api-1.0.0': {
+        'x-scalar-registry-meta': {
+          namespace: 'other',
+          slug: 'pets',
+          version: '1.0.0',
+        },
+      },
+    })
+
+    const fetcher: ImportDocumentFromRegistry = vi.fn().mockResolvedValue({
+      ok: true,
+      data: { info: { title: 'Pets API' } },
+    })
+
+    const result = await loadRegistryDocument({
+      workspaceStore: store,
+      fetcher,
+      namespace: 'acme',
+      slug: 'pets',
+      version: '1.0.0',
+    })
+
+    expect(result).toStrictEqual({ ok: true, documentName: 'pets-api-1.0.0-1' })
+    expect(addDocument.mock.calls[0]?.[0]?.name).toBe('pets-api-1.0.0-1')
+  })
+
   it('surfaces fetcher errors without writing to the workspace store', async () => {
     const { store, addDocument } = createWorkspaceStore()
 

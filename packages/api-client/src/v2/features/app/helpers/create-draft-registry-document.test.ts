@@ -105,6 +105,49 @@ describe('createDraftRegistryDocument', () => {
     expect(addDocument.mock.calls[0]![0].name).toBe(result.documentName)
   })
 
+  it('names the draft as `slug(title)-slug(version)` so each version has its own workspace key', async () => {
+    const { store, addDocument } = createWorkspaceStore({
+      'pets-api-1.0.0': {
+        openapi: '3.1.0',
+        info: { title: 'Pets API', version: '1.0.0' },
+      },
+    })
+
+    const result = await createDraftRegistryDocument({
+      workspaceStore: store,
+      namespace: 'acme',
+      slug: 'pets',
+      version: '2.0.0',
+      seedDocumentName: 'pets-api-1.0.0',
+    })
+
+    expect(result.ok).toBe(true)
+    expect(addDocument.mock.calls[0]![0].name).toBe('pets-api-2.0.0')
+  })
+
+  it('appends an incrementing suffix when the composite name already exists', async () => {
+    const { store, addDocument } = createWorkspaceStore({
+      'pets-api-2.0.0': {
+        openapi: '3.1.0',
+        info: { title: 'Pets API', version: '1.0.0' },
+      },
+    })
+
+    const result = await createDraftRegistryDocument({
+      workspaceStore: store,
+      namespace: 'acme',
+      slug: 'pets',
+      version: '2.0.0',
+      // We branch off the only existing document, but its workspace key
+      // already matches the composite name we would otherwise generate -
+      // the unique-slug helper has to step in and append `-1`.
+      seedDocumentName: 'pets-api-2.0.0',
+    })
+
+    expect(result.ok).toBe(true)
+    expect(addDocument.mock.calls[0]![0].name).toBe('pets-api-2.0.0-1')
+  })
+
   it('falls back to the registry slug when the seed has no info.title', async () => {
     const { store, addDocument } = createWorkspaceStore({
       'unnamed-doc': {
@@ -121,7 +164,9 @@ describe('createDraftRegistryDocument', () => {
     })
 
     expect(result.ok).toBe(true)
-    expect(addDocument.mock.calls[0]![0].name).toBe('pets')
+    // With no `info.title` the base slug falls back to the registry slug,
+    // which is then suffixed with the version to form `pets-2.0.0`.
+    expect(addDocument.mock.calls[0]![0].name).toBe('pets-2.0.0')
     // Even when the seed has no `info`, the version is still stamped onto a
     // freshly created info block so the draft has valid coordinates.
     expect(addDocument.mock.calls[0]![0].document.info).toEqual({ title: '', version: '2.0.0' })

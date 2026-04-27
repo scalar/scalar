@@ -58,7 +58,10 @@ export const loadRegistryDocument = async ({
   const schema = object({ info: object({ title: string() }) })
   const baseName = coerce(schema, result.data).info.title
 
-  const documentName = await generateUniqueSlug(baseName.trim() || slug, new Set(Object.keys(documents)))
+  // Compose the workspace key as `slug(title)-slug(version)`
+  // so the url will be like /workspace/acme/pets-api-1.0.0
+  const title = baseName.trim() || slug
+  const documentName = await generateUniqueSlug(`${title}-${version}`, new Set(Object.keys(documents)))
 
   if (!documentName) {
     return {

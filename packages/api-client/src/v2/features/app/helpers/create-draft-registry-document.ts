@@ -52,8 +52,11 @@ export const createDraftRegistryDocument = async ({
   // OpenAPI schema, but we still guard against an unusually shaped seed.
   cloned.info = { ...(cloned.info ?? { title: '' }), version }
 
+  // Compose the workspace key as `slug(title)-slug(version)`
+  // so the url will be like /workspace/acme/pets-api-1.0.0
+  const title = cloned.info.title?.trim() || slug
   const documentName = await generateUniqueSlug(
-    cloned.info.title?.trim() || slug,
+    `${title}-${version}`,
     new Set(Object.keys(workspaceStore.workspace.documents)),
   )
 
