@@ -28,6 +28,8 @@ import { ExternalDocs } from '@/features/external-docs'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
+import SecurityRequirementBadge from '@/features/Operation/components/SecurityRequirementBadge.vue'
+import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 import {
   getOperationStability,
   getOperationStabilityColor,
@@ -51,6 +53,7 @@ const {
   operation,
   options,
   path,
+  requiredSecurity,
   selectedServer,
   selectedSecuritySchemes,
   selectedClient,
@@ -70,6 +73,8 @@ const {
     selectedServer: ServerObject | null
     /** The selected security schemes for the operation */
     selectedSecuritySchemes: SecuritySchemeObjectSecret[]
+    /** Required/optional security state for the badge next to the path */
+    requiredSecurity: RequiredSecurity
   }
 >()
 
@@ -106,6 +111,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
     tabindex="-1"
     @intersecting="() => eventBus?.emit('intersecting:nav-item', { id })">
     <SectionContent>
+      <!-- Badges -->
       <div class="flex flex-row justify-between gap-1">
         <!-- Left -->
         <div class="flex gap-1">
@@ -139,18 +145,26 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
             position="after" />
         </div>
       </div>
-      <div :class="isOperationDeprecated(operation) ? 'deprecated' : ''">
-        <SectionHeader>
-          <Anchor
-            @copyAnchorUrl="() => eventBus?.emit('copy-url:nav-item', { id })">
-            <SectionHeaderTag
-              :id="labelId"
-              :level="3">
-              {{ operationTitle }}
-            </SectionHeaderTag>
-          </Anchor>
-        </SectionHeader>
+      <div class="operation-header">
+        <div :class="isOperationDeprecated(operation) && 'deprecated'">
+          <SectionHeader removeMargin>
+            <Anchor
+              @copyAnchorUrl="
+                () => eventBus?.emit('copy-url:nav-item', { id })
+              ">
+              <SectionHeaderTag
+                :id="labelId"
+                :level="3">
+                {{ operationTitle }}
+              </SectionHeaderTag>
+            </Anchor>
+          </SectionHeader>
+        </div>
+
+        <!-- Required auth badge -->
+        <SecurityRequirementBadge :requiredSecurity />
       </div>
+
       <SectionColumns>
         <SectionColumn>
           <div class="operation-details">
@@ -164,10 +178,10 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
               withAnchors
               withImages />
             <OperationParameters
+              v-model:selectedContentType="selectedRequestBodyContentType"
               :breadcrumb="[id]"
               :eventBus
               :options
-              v-model:selectedContentType="selectedRequestBodyContentType"
               :parameters="operation.parameters"
               :requestBody="getResolvedRef(operation.requestBody)" />
             <OperationResponses
@@ -216,7 +230,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
                 :selectedServer>
                 <template #header>
                   <OperationPath
-                    class="font-code text-c-2 [&_em]:text-c-1 [&_em]:not-italic"
+                    class="font-code text-c-2 [&_em]:text-c-1 min-w-0 [&_em]:not-italic"
                     :deprecated="operation?.deprecated"
                     :path="path" />
                 </template>
@@ -279,5 +293,19 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
 }
 .deprecated * {
   text-decoration: line-through;
+}
+
+.operation-header {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px;
+
+  @media (min-width: 600px) {
+    flex-direction: row;
+    align-items: center;
+  }
 }
 </style>
