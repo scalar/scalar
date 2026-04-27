@@ -1,101 +1,75 @@
-# Scalar Components Testing
+# Scalar components — Playwright visual tests
 
-This directory contains the testing infrastructure for Scalar Components, specifically automated snapshot testing using Playwright.
+Playwright snapshot tests run against **Storybook**: each `*.e2e.ts` file opens stories in the browser and compares screenshots to images under a `snapshots/` folder next to that file (`snapshotPathTemplate` in `playwright.config.ts`).
 
 ## Overview
 
-The testing setup uses Playwright to capture visual snapshots of Storybook stories, ensuring visual consistency and catching regressions across all component variants. Each component can have multiple stories tested, and custom interaction tests can be added for components with dynamic behavior.
+1. **Storybook** — Locally, Playwright starts **`pnpm preview`**, which serves the **static build** from `storybook-static` (Vite preview, port **5100**). If `pnpm dev` is already running on that port, that server is reused (`reuseExistingServer`).
+2. **Docker browser** — Outside CI, tests connect to Playwright inside **`scalarapi/playwright-runner`** (version pinned in `@scalar/helpers` — see [`playwright/docker`](../../helpers/src/playwright/README.md)). CI runs inside the same image, so only the Storybook `webServer` runs there.
+3. **Regression detection** — `toHaveScreenshot` diffs against committed PNGs; CI fails when snapshots drift without an update.
 
-## How It Works
+## Non-Linux systems
 
-1. **Storybook Integration**: Tests run against the built Storybook static files
-2. **Docker Container**: Playwright runs in a Docker container for consistent cross-platform results
-3. **Snapshot Generation**: Screenshots are captured of each story and stored in component-specific `snapshots/` directories
-4. **Visual Regression Detection**: Playwright compares new screenshots against stored snapshots to detect changes
+The runner uses **`--network=host`** so the container can reach Storybook on the host. Docker Desktop on macOS and Windows often does not support host networking; use a runtime that does (for example [OrbStack](https://orbstack.dev/)), or rely on CI for authoritative runs.
 
-## Running Tests
+If pulls look fine but the image is wrong or stale, pull explicitly — see the helpers README for the tag to use (it tracks the workspace `@playwright/test` version).
 
-### Non-Linux Systems
+## Prerequisites
 
-On non-Linux systems (e.g. macOS, Windows) you need to access to a docker implementation that supports the `--network=host` flag. Docker Desktop on macOS and Windows does not support this flag so you will need to use an alternative such as [OrbStack](https://orbstack.dev/).
-
-### Fetching the Image
-
-The tests run using the `scalarapi/playwright:1.55.0` Docker image. The `test:e2e` script will not successfully pull the image (it looks like it does but it doesn't). You can force the pull by running:
-
-```bash
-pnpm test:e2e:playwright
-```
-
-### Building Storybook
-
-If you're not running the components dev server Playwright will automatically start serving the built Storybook files from `storybook-static`. This means **before running tests you have to run**,
+Build Storybook static assets before the first run (or whenever stories change):
 
 ```bash
 pnpm build:storybook
 ```
 
-It's recommend to run the tests against the built Storybook files rather than the dev server because that's what's used in CI and will yield the most accurate snapshots.
+Using the **built** output matches CI and avoids dev-only flakiness in snapshots.
 
-### Local Development
+## Running tests
 
-The Playwright browser is run in a Docker container to have consistent results with CI. In order to run the test locally or update snapshots you **must** have Docker set up on your system. 
+From `packages/components`:
 
 ```bash
-# Run tests (starts Docker container automatically)
+# Run all Playwright tests (starts Docker runner + Storybook preview unless already up)
 pnpm test:e2e
 
-# Run specific test file
-pnpm test:e2e ScalarCard.e2e.ts
+# Limit to one file (pass-through args after the script name)
+pnpm test:e2e -- src/components/ScalarCard/ScalarCard.e2e.ts
 
 # Update snapshots
 pnpm test:e2e --update-snapshots
 ```
 
-### Debugging Tests
-
-Run the playwright UI to debug your tests
+Debug with the Playwright UI:
 
 ```bash
-pnpm test:e2e:ui
+pnpm test:e2e --ui
 ```
 
-### CI/CD
+## CI
 
-Tests run automatically in CI using the same Docker container for consistency. The CI environment:
-- Uses the containerized Playwright setup
-- Compares snapshots against committed baseline images
-- Fails the build if visual regressions are detected
+The components snapshot job runs **`pnpm test:e2e:ci`** inside `scalarapi/playwright-runner`. Mismatched snapshots **fail** the build until you run `pnpm test:e2e:update` and commit the updated images.
 
 ## Contributing
 
-When adding new components or modifying existing ones:
+When adding or changing components:
 
-1. **Create test file**: Add `ComponentName.e2e.ts` with appropriate stories
-2. **Generate snapshots**: Run tests to create initial snapshots
-3. **Review snapshots**: Ensure they capture the intended visual state
-4. **Commit snapshots**: Include snapshot files in your pull request
-5. **Update on changes**: Regenerate snapshots when making visual modifications
+1. Add `ComponentName.e2e.ts` beside the component (or extend an existing file).
+2. Run `pnpm test:e2e` (or `:update`) and review generated PNGs under `snapshots/`.
+3. Commit snapshot changes with the code.
 
-The testing setup ensures that all visual changes are intentional and documented, maintaining the quality and consistency of the Scalar Components library.
-
-### Basic Component Test
-
-To capture a basic snapshots of your stories create an `.e2e.ts` file next to your component:
+### Basic snapshot test
 
 ```ts
 import { takeSnapshot, test } from '@test/helpers'
 
-test.describe('ScalarCard', 
-  () => ['Base', 'With Actions', 'Minimal']
-  // takeSnapshot is a simple test function that just take a single snapshot
-  .forEach((story) => test(story, takeSnapshot))
+test.describe('ScalarCard', () =>
+  ['Base', 'With Actions', 'Minimal'].forEach((story) => test(story, takeSnapshot)),
 )
 ```
 
-### Advanced Component Test with Interactions
+`takeSnapshot` is a small wrapper that calls the `snapshot` fixture once with no extra interaction.
 
-For components that require user interaction:
+### Interaction before capture
 
 ```ts
 import { test } from '@test/helpers'
@@ -103,34 +77,30 @@ import { test } from '@test/helpers'
 test.describe('ScalarDropdown', () =>
   ['Base', 'Custom Classes'].forEach((story) =>
     test(story, async ({ page, snapshot }) => {
-      // Open the dropdown
       await page.getByRole('button', { name: 'Click Me' }).click()
-      // Take a snapshot
       await snapshot()
     }),
-  ))
+  ),
+)
 ```
 
-### Fixtures and Options
+### Fixtures and `test.use`
 
-The test helper automatically tries to pull the component name and the story name from the describe block title and from the test title. If you want to use a different test title you can set the component name and story manually via [`test.use`](https://playwright.dev/docs/test-use-options#configuration-scopes).
+The helpers infer **component** from the nearest `test.describe` title and **story** from the `test` title when you do not set them explicitly. Override or tune behavior with [`test.use`](https://playwright.dev/docs/test-use-options#configuration-scopes).
 
-#### Available fixtures
+**Fixtures**
 
-Fixtures are accessible via the test context.
+- **`openStory`** — Navigates to the configured Storybook story (runs as a fixture dependency before your test body).
+- **`snapshot(suffix?)`** — Captures a screenshot with a normalized name (optional suffix for multiple shots per story).
 
-**`snapshot(suffix?)`**: Captures a screenshot named `story[-suffix].png` using the configured options.
+**Common options** (`test/helpers.ts`)
 
-#### Available options:
+- **`component`**, **`story`** — Storybook ids; inferred from titles when omitted.
+- **`args`** — Story args encoded into the Storybook URL.
+- **`scale`** — Device scale factor for screenshots (default **2**).
+- **`background`** — Whether to render with a background (default **false**).
+- **`crop`** — Crop to `#storybook-root > *` instead of full page (default **false**).
+- **`device`** — One of the emulated device keys defined in the helpers (`Chrome`, `Firefox`, etc.).
+- **`colorModes`** — `['light']`, `['dark']`, or `['light', 'dark']` for theme-specific captures.
 
-Options can be configured using [`test.use`](https://playwright.dev/docs/test-use-options#configuration-scopes).
-
-
-- **`component: string`**: The component name in Storybook, _inferred from the nearest `test.describe` title if not provided explicitly_.
-- **`story: string`**: The story name in Storybook, _inferred from the `test` title if not provided explicitly_.
-- **`scale: number`**: Device scale factor for crisp screenshots (default 2).
-- **`background: boolean`**: Render with background (default false).
-- **`crop: boolean`**: Crop to `#storybook-root > *` instead of full page (default false).
-
-
-
+Implementation details live in `test/helpers.ts`.
