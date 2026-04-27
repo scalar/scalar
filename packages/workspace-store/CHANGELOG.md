@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.47.0
+
+### Minor Changes
+
+- [#8972](https://github.com/scalar/scalar/pull/8972): feat: support new ui events for the client
+
 ## 0.46.3
 
 ### Patch Changes

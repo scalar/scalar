@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.53.0
+
+### Minor Changes
+
+- [#8772](https://github.com/scalar/scalar/pull/8772): feat: link to model from endpoints
+
 ## 1.52.6
 
 ## 1.52.5
