@@ -1,0 +1,409 @@
+import { coerce, validate } from '@scalar/validation'
+import { describe, expect, it } from 'vitest'
+
+import {
+  apiReferenceConfigurationSchema,
+  apiReferenceConfigurationWithSourceSchema,
+} from './api-reference-configuration'
+
+describe('api-reference-configuration', () => {
+  describe('schema', () => {
+    it('validates a minimal configuration', () => {
+      const minimalConfig = {}
+      expect(() => coerce(apiReferenceConfigurationSchema, minimalConfig)).not.toThrow()
+    })
+
+    it('validates a complete configuration', () => {
+      const completeConfig = {
+        theme: 'default',
+        layout: 'modern',
+        url: 'https://example.com/openapi.json',
+        content: '{"openapi": "3.1.0"}',
+        proxyUrl: 'https://proxy.example.com',
+        oauth2RedirectUri: 'myapp://oauth/callback',
+        isEditable: true,
+        showSidebar: true,
+        hideModels: false,
+        hideTestRequestButton: false,
+        documentDownloadType: 'both',
+        hideSearch: false,
+        darkMode: true,
+        forceDarkModeState: 'dark',
+        hideDarkModeToggle: false,
+        searchHotKey: 'k',
+        favicon: '/favicon.ico',
+        hiddenClients: ['fetch', 'xhr'],
+        defaultHttpClient: {
+          targetKey: 'target1',
+          clientKey: 'client1',
+        },
+        customCss: '.custom { color: red; }',
+        pathRouting: {
+          basePath: '/api',
+        },
+        baseServerURL: 'https://api.example.com',
+        withDefaultFonts: true,
+        defaultOpenAllTags: false,
+        tagsSorter: 'alpha',
+        operationsSorter: 'method',
+        _integration: 'nextjs',
+        hideClientButton: false,
+      }
+
+      expect(() => coerce(apiReferenceConfigurationSchema, completeConfig)).not.toThrow()
+    })
+
+    it('validates oauth2RedirectUri configuration', () => {
+      const config = {
+        oauth2RedirectUri: 'myapp://oauth/callback',
+      }
+
+      expect(coerce(apiReferenceConfigurationSchema, config)).toMatchObject(config)
+    })
+
+    it('validates hiddenClients true', () => {
+      const config = { hiddenClients: true }
+
+      expect(coerce(apiReferenceConfigurationSchema, config)).toMatchObject({ hiddenClients: true })
+    })
+
+    it('validates theme enum values', () => {
+      const config = { theme: 'invalid-theme' }
+
+      expect(coerce(apiReferenceConfigurationSchema, config)).toMatchObject({ theme: 'default' })
+
+      const validThemes = [
+        'alternate',
+        'default',
+        'moon',
+        'purple',
+        'solarized',
+        'bluePlanet',
+        'deepSpace',
+        'saturn',
+        'kepler',
+        'elysiajs',
+        'fastify',
+        'mars',
+        'none',
+      ]
+
+      validThemes.forEach((theme) => {
+        expect(coerce(apiReferenceConfigurationSchema, { theme })).toMatchObject({ theme })
+      })
+    })
+
+    it('validates layout enum values', () => {
+      const config = { layout: 'invalid-layout' }
+      expect(coerce(apiReferenceConfigurationSchema, config)).toMatchObject({ layout: 'modern' })
+
+      const validLayouts = ['modern', 'classic']
+      validLayouts.forEach((layout) => {
+        expect(coerce(apiReferenceConfigurationSchema, { layout })).toMatchObject({ layout })
+      })
+    })
+
+    it('validates content and url configuration', () => {
+      const validConfigs = [
+        { url: 'https://example.com/openapi.json' },
+        { content: '{"openapi": "3.1.0"}' },
+        { content: { openapi: '3.1.0' } },
+        { content: () => ({ openapi: '3.1.0' }) },
+        { content: null },
+      ]
+
+      validConfigs.forEach((config) => {
+        expect(() => coerce(apiReferenceConfigurationSchema, config)).not.toThrow()
+      })
+    })
+
+    it('validates function parameters', () => {
+      const config = {
+        generateHeadingSlug: (heading: any) => `#${heading.slug}`,
+        generateModelSlug: (model: { name: string }) => `model-${model.name}`,
+        generateTagSlug: (tag: any) => `tag-${tag.name}`,
+        generateOperationSlug: (operation: { path: string; method: string }) => `${operation.method}-${operation.path}`,
+        generateWebhookSlug: (webhook: { name: string }) => `webhook-${webhook.name}`,
+        onLoaded: () => console.log('loaded'),
+        onSpecUpdate: (spec: string) => console.log('spec updated', spec),
+      }
+
+      expect(() => coerce(apiReferenceConfigurationSchema, config)).not.toThrow()
+    })
+
+    it('validates integration enum values', () => {
+      const validIntegrations = [
+        'adonisjs',
+        'astro',
+        'docusaurus',
+        'dotnet',
+        'elysiajs',
+        'express',
+        'fastapi',
+        'fastify',
+        'go',
+        'hono',
+        'html',
+        'laravel',
+        'litestar',
+        'nestjs',
+        'nextjs',
+        'nitro',
+        'nuxt',
+        'platformatic',
+        'react',
+        'rust',
+        'svelte',
+        'vue',
+        null,
+      ]
+
+      validIntegrations.forEach((integration) => {
+        expect(() => coerce(apiReferenceConfigurationSchema, { _integration: integration })).not.toThrow()
+      })
+
+      expect(validate(apiReferenceConfigurationSchema, { _integration: 'invalid-integration' })).toBe(false)
+    })
+
+    it('validates sorter configurations', () => {
+      const validConfigs = [
+        { tagsSorter: 'alpha' },
+        { tagsSorter: (a: any, b: any) => a.name.localeCompare(b.name) },
+        { operationsSorter: 'alpha' },
+        { operationsSorter: 'method' },
+        { operationsSorter: (a: any, b: any) => a.path.localeCompare(b.path) },
+      ]
+
+      validConfigs.forEach((config) => {
+        expect(() => coerce(apiReferenceConfigurationSchema, config)).not.toThrow()
+      })
+
+      const invalidConfigs = [{ tagsSorter: 'invalid' }, { operationsSorter: 'invalid' }]
+
+      invalidConfigs.forEach((config) => {
+        expect(validate(apiReferenceConfigurationSchema, config)).toBe(false)
+      })
+    })
+  })
+
+  describe('migrations', () => {
+    it('migrates proxy to proxyUrl', () => {
+      const config = {
+        proxy: 'https://proxy.example.com',
+      }
+
+      const migratedConfig = apiReferenceConfigurationWithSourceSchema(config)
+
+      expect(migratedConfig.proxyUrl).toBe('https://proxy.example.com')
+      expect(migratedConfig.proxy).toBeUndefined()
+    })
+
+    it('keeps proxyUrl if both proxy and proxyUrl are set', () => {
+      const config = {
+        proxy: 'https://proxy.example.com',
+        proxyUrl: 'https://existing.example.com',
+      }
+
+      const migratedConfig = apiReferenceConfigurationWithSourceSchema(config)
+      expect(migratedConfig.proxyUrl).toBe('https://existing.example.com')
+      expect(migratedConfig.proxy).toBeUndefined()
+    })
+
+    it('migrates the old proxy URL to the new one', () => {
+      const config = {
+        proxyUrl: 'https://api.scalar.com/request-proxy',
+      }
+
+      const migratedConfig = apiReferenceConfigurationWithSourceSchema(config)
+      expect(migratedConfig.proxyUrl).toBe('https://proxy.scalar.com')
+
+      expect(migratedConfig.proxy).toBeUndefined()
+    })
+
+    it('migrates spec.url to url', () => {
+      const config = {
+        spec: {
+          url: 'https://example.com/openapi.json',
+        },
+      }
+
+      const migratedConfig = apiReferenceConfigurationWithSourceSchema(config)
+
+      expect(migratedConfig.spec).toBeUndefined()
+      expect(migratedConfig.url).toBe('https://example.com/openapi.json')
+    })
+
+    it('migrates spec.content to content', () => {
+      const config = {
+        spec: {
+          content: '{"openapi": "3.1.0"}',
+        },
+      }
+
+      const migratedConfig = apiReferenceConfigurationWithSourceSchema(config)
+
+      expect(migratedConfig.spec).toBeUndefined()
+      expect(migratedConfig.content).toBe('{"openapi": "3.1.0"}')
+    })
+
+    it('migrates showToolbar to showDeveloperTools', () => {
+      const config = {
+        showToolbar: 'always',
+      }
+
+      const migratedConfig = apiReferenceConfigurationWithSourceSchema(config)
+
+      expect(migratedConfig.showDeveloperTools).toBe('always')
+      expect(migratedConfig.showToolbar).toBeUndefined()
+    })
+  })
+
+  describe('externalUrls', () => {
+    const expectedDefaults = {
+      dashboardUrl: 'https://dashboard.scalar.com',
+      registryUrl: 'https://registry.scalar.com',
+      proxyUrl: 'https://proxy.scalar.com',
+      apiBaseUrl: 'https://api.scalar.com',
+    }
+
+    it('provides all default URLs when config is empty', () => {
+      const result = coerce(apiReferenceConfigurationSchema, {})
+      expect(result.externalUrls).toEqual(expectedDefaults)
+    })
+
+    it('provides all default URLs when externalUrls is undefined', () => {
+      const result = coerce(apiReferenceConfigurationSchema, { externalUrls: undefined })
+      expect(result.externalUrls).toEqual(expectedDefaults)
+    })
+
+    it('fills missing URLs with defaults when partially overridden', () => {
+      const result = coerce(apiReferenceConfigurationSchema, {
+        externalUrls: { apiBaseUrl: 'https://custom-api.example.com' },
+      })
+
+      expect(result.externalUrls).toEqual({
+        ...expectedDefaults,
+        apiBaseUrl: 'https://custom-api.example.com',
+      })
+    })
+
+    it('uses all custom URLs when fully overridden', () => {
+      const custom = {
+        dashboardUrl: 'https://dash.example.com',
+        registryUrl: 'https://reg.example.com',
+        proxyUrl: 'https://proxy.example.com',
+        apiBaseUrl: 'https://api.example.com',
+      }
+
+      const result = coerce(apiReferenceConfigurationSchema, { externalUrls: custom })
+      expect(result.externalUrls).toEqual(custom)
+    })
+
+    it('provides defaults through the full configuration with source schema', () => {
+      const result = apiReferenceConfigurationWithSourceSchema({})
+      expect(result.externalUrls).toEqual(expectedDefaults)
+    })
+
+    it('guarantees all fields are present in the output type', () => {
+      const result = coerce(apiReferenceConfigurationSchema, {})
+
+      const dashboardUrl: string = result.externalUrls.dashboardUrl
+      const registryUrl: string = result.externalUrls.registryUrl
+      const proxyUrl: string = result.externalUrls.proxyUrl
+      const apiBaseUrl: string = result.externalUrls.apiBaseUrl
+
+      expect(dashboardUrl).toBe(expectedDefaults.dashboardUrl)
+      expect(registryUrl).toBe(expectedDefaults.registryUrl)
+      expect(proxyUrl).toBe(expectedDefaults.proxyUrl)
+      expect(apiBaseUrl).toBe(expectedDefaults.apiBaseUrl)
+    })
+  })
+
+  // describe('hooks', () => {
+  //   it('allows a function as onDocumentSelect', () => {
+  //     const config = {
+  //       onDocumentSelect: vi.fn().mockReturnValue(undefined),
+  //     } satisfies Partial<ApiReferenceConfiguration>
+  //     const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+  //     expect(migratedConfig.onDocumentSelect).toBeInstanceOf(Function)
+  //   })
+
+  //   it('allows an async function as onDocumentSelect', () => {
+  //     const config = {
+  //       onDocumentSelect: vi.fn().mockResolvedValue(undefined),
+  //     } satisfies Partial<ApiReferenceConfiguration>
+  //     const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+
+  //     expect(migratedConfig.onDocumentSelect?.()).toBeInstanceOf(Promise)
+  //   })
+
+  //   it('allows a function as onBeforeRequest', () => {
+  //     const config = {
+  //       onBeforeRequest: vi.fn().mockReturnValue(undefined),
+  //     } satisfies Partial<ApiReferenceConfiguration>
+  //     const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+  //     expect(migratedConfig.onBeforeRequest).toBeInstanceOf(Function)
+  //   })
+
+  //   it('allows an async function as onBeforeRequest', () => {
+  //     const config = {
+  //       onBeforeRequest: vi.fn().mockResolvedValue(undefined),
+  //     } satisfies Partial<ApiReferenceConfiguration>
+  //     const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+
+  //     expect(
+  //       migratedConfig.onBeforeRequest?.({
+  //         request: new Request('https://example.com'),
+  //         requestBuilder: {
+  //           options: {},
+  //           baseUrl: 'https://example.com',
+  //           path: { variables: {}, raw: '/api/test' },
+  //           method: 'GET',
+  //           proxyUrl: '',
+  //           query: new URLSearchParams(),
+  //           headers: new Headers(),
+  //           body: null,
+  //           cookies: [],
+  //           cache: 'default',
+  //           security: [],
+  //         },
+  //         envVariables: {},
+  //       }),
+  //     ).toBeInstanceOf(Promise)
+  //   })
+
+  //   it('allows a function as onShowMore', () => {
+  //     const config = {
+  //       onShowMore: vi.fn().mockReturnValue(undefined),
+  //     } satisfies Partial<ApiReferenceConfiguration>
+  //     const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+  //     expect(migratedConfig.onShowMore).toBeInstanceOf(Function)
+  //   })
+
+  //   it('allows an async function as onShowMore', () => {
+  //     const config = {
+  //       onShowMore: vi.fn().mockResolvedValue(undefined),
+  //     } satisfies Partial<ApiReferenceConfiguration>
+  //     const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+
+  //     expect(migratedConfig.onShowMore?.('a')).toBeInstanceOf(Promise)
+  //   })
+
+  //   it('allows a function as onSidebarClick', () => {
+  //     const config = {
+  //       onSidebarClick: vi.fn().mockReturnValue(undefined),
+  //     } satisfies Partial<ApiReferenceConfiguration>
+  //     const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+  //     expect(migratedConfig.onSidebarClick).toBeInstanceOf(Function)
+  //   })
+
+  //   it('allows an async function as onSidebarClick', () => {
+  //     const config = {
+  //       onSidebarClick: vi.fn().mockResolvedValue(undefined),
+  //     } satisfies Partial<ApiReferenceConfiguration>
+  //     const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+
+  //     expect(migratedConfig.onSidebarClick?.('a')).toBeInstanceOf(Promise)
+  //   })
+  // })
+})

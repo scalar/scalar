@@ -1,9 +1,12 @@
 import { any, boolean, fn, nullable, object, optional, record, string, union } from '@scalar/validation'
 
 /**
- * The content of an OpenAPI document — a string, null, a generic record, or a
- * function returning a record. Because the validation package has no function
- * schema, we use `unknown()` for that branch.
+ * The content of an OpenAPI document. Accepts any of:
+ *  - a raw string (YAML or JSON),
+ *  - `null` to explicitly opt out of inline content,
+ *  - a plain object representing the parsed document, or
+ *  - a function that returns either of the above (sync or async resolution
+ *    happens further downstream).
  */
 const contentSchema = union([string(), nullable(), record(string(), any()), fn<() => string | any>()])
 

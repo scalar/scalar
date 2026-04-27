@@ -20,6 +20,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "test": "vitest --run",
     "types:check": "tsc --noEmit",
     "types:generate": "tsx scripts/generate-types.ts"
   },
@@ -37,5 +38,8 @@
   ],
   "dependencies": {
     "@scalar/validation": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "catalog:*"
   }
 }
