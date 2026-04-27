@@ -9,7 +9,7 @@ import { compose } from '@/schemas/compose'
  * is a superset (contact, license, termsOfService, tags, externalDocs, ...) — we can
  * grow this as consumers need the extra fields.
  */
-export const AsyncApiInfoObjectSchema = Type.Object({
+const AsyncApiInfoObjectSchema = Type.Object({
   /** REQUIRED. The title of the application. */
   title: Type.String(),
   /** REQUIRED. Provides the version of the application API (not the AsyncAPI Specification version). */
@@ -33,7 +33,7 @@ export type AsyncApiInfoObject = {
  * optional on the schema because validation runs against the raw user input (these get injected
  * by the store during ingestion).
  */
-export const AsyncApiExtensionsSchema = Type.Partial(
+const AsyncApiExtensionsSchema = Type.Partial(
   Type.Object({
     /** Original AsyncAPI Specification version the document was loaded with. */
     'x-original-aas-version': Type.String(),
