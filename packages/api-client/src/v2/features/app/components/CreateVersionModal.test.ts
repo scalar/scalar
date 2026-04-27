@@ -40,9 +40,7 @@ const submitForm = async (): Promise<void> => {
   await flushPromises()
 }
 
-const mountModal = (
-  props: { existingVersions?: string[]; sourceVersion?: string } = {},
-) => {
+const mountModal = (props: { existingVersions?: string[]; sourceVersion?: string } = {}) => {
   const state = useModal()
   state.show()
   const wrapper = mount(CreateVersionModal, {

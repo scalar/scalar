@@ -8,7 +8,7 @@ import {
 import type { VersionStatus } from '@/v2/features/app/helpers/compute-version-status'
 
 /** Visual presentation for a single sync state. */
-export type VersionStatusPresentation = {
+type VersionStatusPresentation = {
   /** Cloud-style icon component matching the swatch the design system uses for this state. */
   icon: typeof ScalarIconCloudCheck
   /** Tailwind text colour class applied to the icon. */

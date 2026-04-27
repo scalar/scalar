@@ -5,7 +5,7 @@ import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 import { detectDocumentConflicts } from './detect-document-conflicts'
 
 /** Result returned by `checkVersionConflict`. */
-export type CheckVersionConflictResult =
+type CheckVersionConflictResult =
   | {
       ok: true
       hasConflict: boolean

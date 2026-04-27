@@ -7,11 +7,7 @@ import {
   CommandActionInput,
 } from '@/v2/features/command-palette'
 
-const {
-  state,
-  existingVersions,
-  sourceVersion,
-} = defineProps<{
+const { state, existingVersions, sourceVersion } = defineProps<{
   /** Modal lifecycle state from `useModal()`. */
   state: ModalState
   /**

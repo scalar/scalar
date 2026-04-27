@@ -62,7 +62,7 @@ describe('DocumentSyncIndicator', () => {
 
   it('renders nothing when the active document has no registry meta', () => {
     const { app } = createFakeApp({
-      documents: { pets: { info: { title: 'Pets API' } } },
+      documents: { pets: { info: { title: 'Pets API', version: '' } } },
       activeDocumentName: 'pets',
     })
 
