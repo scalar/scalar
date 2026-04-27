@@ -1,5 +1,7 @@
 # @scalar/components
 
+## 0.22.5
+
 ## 0.22.4
 
 ### Patch Changes
