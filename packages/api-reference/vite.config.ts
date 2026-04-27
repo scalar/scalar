@@ -10,7 +10,6 @@ import {
   createPreserveModulesOutput,
   findEntryPoints,
 } from '../../tooling/scripts/vite-lib-config'
-import { version } from './package.json'
 
 const external = createExternalsFromPackageJson()
 const entryPaths = await findEntryPoints()
@@ -20,7 +19,6 @@ export default defineConfig({
   plugins: [vue(), tailwindcss()],
   define: {
     'process.env.NODE_ENV': '"production"',
-    'process.env.SCALAR_API_REFERENCE_VERSION': `"${version}"`,
   },
   server: {
     // Enable host binding in dev containers for proper port forwarding
