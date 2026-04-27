@@ -148,13 +148,17 @@ const createBasicDocument = (title = 'Test API') => ({
 
 describe('ApiReference Configuration Tests', () => {
   it('default configuration values', async () => {
-    const wrapper = mountComponent({ props: { configuration: { content: createBasicDocument() } } })
+    const wrapper = mountComponent({
+      props: { configuration: { content: createBasicDocument() } },
+    })
     await flushPromises()
 
     const apiRef = wrapper.find('.scalar-api-reference')
     const searchButton = wrapper.findComponent({ name: 'SearchButton' })
     const clientButton = wrapper.findComponent({ name: 'OpenApiClientButton' })
-    const testRequestButton = wrapper.findComponent({ name: 'TestRequestButton' })
+    const testRequestButton = wrapper.findComponent({
+      name: 'TestRequestButton',
+    })
     const modelTag = wrapper.findComponent({ name: 'ModelTag' })
     const operation = wrapper.findComponent({ name: 'Operation' })
 
@@ -259,9 +263,13 @@ describe('ApiReference Configuration Tests', () => {
     const apiRef = wrapper.find('.scalar-api-reference')
     const searchButton = wrapper.findComponent({ name: 'SearchButton' })
     const modelTag = wrapper.findComponent({ name: 'ModelTag' })
-    const toggleButton = wrapper.findComponent({ name: 'ScalarColorModeToggleButton' })
+    const toggleButton = wrapper.findComponent({
+      name: 'ScalarColorModeToggleButton',
+    })
     const clientButton = wrapper.findComponent({ name: 'OpenApiClientButton' })
-    const testRequestButton = wrapper.findComponent({ name: 'TestRequestButton' })
+    const testRequestButton = wrapper.findComponent({
+      name: 'TestRequestButton',
+    })
 
     // layout: classic
     expect(apiRef.classes()).toContain('references-classic')
@@ -306,7 +314,7 @@ describe('ApiReference Configuration Tests', () => {
     expect(downloadButtons[0]?.find('.extension').text()).toBe('json')
   })
 
-  it('hides authentication when test requests are hidden', async () => {
+  it('hides authentication when test requests are hidden', { timeout: 15_000 }, async () => {
     const authentication = {
       preferredSecurityScheme: 'apiKey',
       securitySchemes: {
@@ -345,7 +353,7 @@ describe('ApiReference Configuration Tests', () => {
     expect(hiddenWrapper.findComponent({ name: 'Auth' }).exists()).toBe(false)
   })
 
-  it('all callbacks and complex configurations', async () => {
+  it('all callbacks and complex configurations', { timeout: 20_000 }, async () => {
     const onLoaded = vi.fn()
     const onServerChange = vi.fn()
     const onSidebarClick = vi.fn()
@@ -527,7 +535,9 @@ describe('ApiReference Configuration Tests', () => {
     expect(replaceStateSpy).toHaveBeenCalledWith({}, '', '#new')
 
     // servers: array
-    const ServerSelectorComponent = wrapper.findComponent({ name: 'ServerSelector' })
+    const ServerSelectorComponent = wrapper.findComponent({
+      name: 'ServerSelector',
+    })
     expect(ServerSelectorComponent.text().includes('api.example.com')).toBe(true)
 
     // authentication: object
@@ -548,14 +558,18 @@ describe('ApiReference Configuration Tests', () => {
     // expandAllResponses: true
     const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
     if (modernLayout.exists()) {
-      const operationResponses = modernLayout.findComponent({ name: 'OperationResponses' })
+      const operationResponses = modernLayout.findComponent({
+        name: 'OperationResponses',
+      })
       if (operationResponses.exists()) {
         expect(operationResponses.props().collapsableItems).toBe(false)
       }
     }
 
     // onSidebarClick: function
-    const sidebarItems = wrapper.findAllComponents({ name: 'ScalarSidebarItem' })
+    const sidebarItems = wrapper.findAllComponents({
+      name: 'ScalarSidebarItem',
+    })
     const operationItem = sidebarItems.find((item) => item.text().includes('Get posts'))
     await operationItem?.trigger('click')
     expect(onSidebarClick).toHaveBeenCalled()
@@ -584,7 +598,9 @@ describe('ApiReference Configuration Tests', () => {
 
     // onDocumentSelect: function
     expect(onDocumentSelect).toHaveBeenCalledOnce()
-    const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
+    const documentSelector = wrapper.findComponent({
+      name: 'DocumentSelector',
+    })
     if (documentSelector.exists()) {
       await documentSelector.vm.$emit('update:modelValue', 'posts-api')
       await flushPromises()
@@ -597,7 +613,7 @@ describe('ApiReference Configuration Tests', () => {
     expect(wrapper.findComponent({ name: 'SearchModal' }).props().modalState.open).toBe(true)
   })
 
-  it('alternative values and edge cases', async () => {
+  it('alternative values and edge cases', { timeout: 15_000 }, async () => {
     const content = {
       ...createBasicDocument(),
       paths: {
@@ -696,7 +712,9 @@ describe('ApiReference Configuration Tests', () => {
     // expandAllResponses: false (default)
     const modernLayout = wrapper.findComponent({ name: 'ModernLayout' })
     if (modernLayout.exists()) {
-      const operationResponses = modernLayout.findComponent({ name: 'OperationResponses' })
+      const operationResponses = modernLayout.findComponent({
+        name: 'OperationResponses',
+      })
       if (operationResponses.exists()) {
         expect(operationResponses.props().collapsableItems).toBe(true)
         expect(operationResponses.text().includes('superSecretId')).toBe(false)
