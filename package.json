@@ -36,14 +36,15 @@
     "tailwindcss": "catalog:*",
     "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0",
+    "tsx": "catalog:*",
     "turbo": "^2.8.11",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.53.0",
     "typescript-language-server": "^5.1.3",
-    "tsx": "catalog:*",
     "vitest": "catalog:*",
     "vue-eslint-parser": "^9.4.3",
-    "vue-tsc": "catalog:*"
+    "vue-tsc": "catalog:*",
+    "wrangler": "^4.84.1"
   },
   "scripts": {
     "build": "turbo build",
