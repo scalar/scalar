@@ -1,4 +1,5 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { type FastifyInstance, fastify } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
@@ -48,7 +49,7 @@ describe('useDocumentWatcher', () => {
       url,
     })
 
-    const defaultDocument = store.workspace.documents['default']
+    const defaultDocument = store.workspace.documents['default'] as OpenApiDocument | undefined
     assert(defaultDocument)
 
     // Enable watch mode on the document so the watcher starts polling
@@ -93,8 +94,8 @@ describe('useDocumentWatcher', () => {
       url: `${url}/b`,
     })
 
-    const documentA = store.workspace.documents['a']
-    const documentB = store.workspace.documents['b']
+    const documentA = store.workspace.documents['a'] as OpenApiDocument | undefined
+    const documentB = store.workspace.documents['b'] as OpenApiDocument | undefined
     assert(documentA)
     assert(documentB)
 
@@ -140,7 +141,7 @@ describe('useDocumentWatcher', () => {
       url,
     })
 
-    const defaultDocument = store.workspace.documents['default']
+    const defaultDocument = store.workspace.documents['default'] as OpenApiDocument | undefined
     assert(defaultDocument)
     defaultDocument['x-scalar-watch-mode'] = true
 
