@@ -6,7 +6,12 @@ import fastify, { type FastifyInstance } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { type WorkspaceDocumentInput, createWorkspaceStore } from '@/client'
-import { createTag } from '@/mutators/tag'
+import { updateSecurityScheme } from '@/mutators/auth'
+import { upsertCookie } from '@/mutators/cookie'
+import { updateDocumentIcon, updateDocumentInfo, updateWatchMode } from '@/mutators/document'
+import { upsertEnvironment } from '@/mutators/environment'
+import { addServer } from '@/mutators/server'
+import { createTag, deleteTag, editTag } from '@/mutators/tag'
 import type { AsyncApiDocument } from '@/schemas/asyncapi/asyncapi-document'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
@@ -3672,6 +3677,25 @@ describe('asyncapi ingestion', () => {
     expect(consoleWarnSpy).not.toHaveBeenCalled()
   })
 
+  it('dispatches AsyncAPI input through the AsyncAPI ingestion path (not OpenAPI)', async () => {
+    // Direct dispatch assertion: an AsyncAPI input must produce the AsyncAPI metadata signature.
+    // The AsyncAPI branch injects `x-original-aas-version`; the OpenAPI branch injects
+    // `x-original-oas-version`. Asserting one is set and the other is not pins the dispatcher
+    // — a regression where the OpenAPI path runs would silently flip these.
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: 'default', document: { ...minimalAsyncApi } })
+
+    const doc = store.workspace.documents['default'] as AsyncApiDocument & {
+      'x-original-oas-version'?: unknown
+      paths?: unknown
+    }
+    expect(doc['x-original-aas-version']).toBe('3.0.0')
+    expect(doc['x-original-oas-version']).toBeUndefined()
+    // The OpenAPI ingestion path injects an empty `paths` object when missing; the AsyncAPI
+    // path leaves the doc shape alone aside from the metadata extensions.
+    expect(doc.paths).toBeUndefined()
+  })
+
   it('injects the store-managed metadata extensions', async () => {
     const store = createWorkspaceStore()
 
@@ -3747,15 +3771,121 @@ describe('asyncapi ingestion', () => {
     expect(isAsyncApiDocument(store.workspace.documents['events'])).toBe(true)
   })
 
-  it('createTag no-ops and logs when pointed at an AsyncAPI document', async () => {
-    const store = createWorkspaceStore()
-    await store.addDocument({ name: 'events', document: { ...minimalAsyncApi } })
+  // The mutator no-ops below act as canaries: each one exercises a different mutator module
+  // (document, server, cookie, environment, tag, auth) on an AsyncAPI document and asserts the
+  // doc is left untouched. Mutators apply their `isOpenApiDocument` / `isAsyncApiDocument` guards
+  // independently, so dropping a guard in any module would only show up here.
+  describe('mutators no-op on AsyncAPI documents', () => {
+    const setup = async () => {
+      const store = createWorkspaceStore()
+      await store.addDocument({ name: 'events', document: { ...minimalAsyncApi } })
+      const doc = store.workspace.documents['events'] as AsyncApiDocument
+      // Snapshot of every key the doc carries — assertions below check this set is unchanged
+      // after a mutator call.
+      const snapshot = JSON.stringify(doc)
+      return { store, doc, snapshot }
+    }
 
-    createTag(store, { documentName: 'events', name: 'new-tag' })
+    it('updateWatchMode leaves the document untouched', async () => {
+      const { doc, snapshot } = await setup()
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Document not found', expect.any(Object))
-    // Guard must prevent the mutator from touching the doc
-    expect((store.workspace.documents['events'] as AsyncApiDocument & { tags?: unknown }).tags).toBeUndefined()
+      updateWatchMode(doc, true)
+
+      expect(JSON.stringify(doc)).toBe(snapshot)
+      expect((doc as AsyncApiDocument & { 'x-scalar-watch-mode'?: unknown })['x-scalar-watch-mode']).toBeUndefined()
+    })
+
+    it('updateDocumentInfo leaves the info object untouched', async () => {
+      const { doc } = await setup()
+
+      updateDocumentInfo(doc, { title: 'Renamed' })
+
+      expect(doc.info.title).toBe('Streetlights API')
+    })
+
+    it('updateDocumentIcon does not add an icon field', async () => {
+      const { doc } = await setup()
+
+      updateDocumentIcon(doc, 'interface-content-folder')
+
+      expect((doc as AsyncApiDocument & { 'x-scalar-icon'?: unknown })['x-scalar-icon']).toBeUndefined()
+    })
+
+    it('addServer does not add a servers array', async () => {
+      const { doc, snapshot } = await setup()
+
+      addServer(doc, { url: 'https://api.example.com', meta: { type: 'document' } })
+
+      // The mutator logs through `getServerTarget` when it cannot resolve a target
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Target not found', expect.any(Object))
+      expect(JSON.stringify(doc)).toBe(snapshot)
+    })
+
+    it('upsertCookie does not add an x-scalar-cookies array', async () => {
+      const { doc } = await setup()
+
+      const result = upsertCookie(doc, {
+        payload: { name: 'session', value: 'abc', domain: 'example.com', path: '/' },
+      })
+
+      expect(result).toBeUndefined()
+      expect((doc as AsyncApiDocument & { 'x-scalar-cookies'?: unknown })['x-scalar-cookies']).toBeUndefined()
+    })
+
+    it('upsertEnvironment does not add an x-scalar-environments map', async () => {
+      const { store, doc } = await setup()
+
+      const result = upsertEnvironment(store.workspace, doc, {
+        environmentName: 'production',
+        payload: { color: '#FF0000', variables: [{ name: 'API_URL', value: 'https://api.example.com' }] },
+      })
+
+      expect(result).toBeUndefined()
+      expect((doc as AsyncApiDocument & { 'x-scalar-environments'?: unknown })['x-scalar-environments']).toBeUndefined()
+    })
+
+    it('createTag does not add a tags array (and logs)', async () => {
+      const { store, doc } = await setup()
+
+      createTag(store, { documentName: 'events', name: 'new-tag' })
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Document not found', expect.any(Object))
+      expect((doc as AsyncApiDocument & { tags?: unknown }).tags).toBeUndefined()
+    })
+
+    it('editTag does not mutate the document', async () => {
+      const { store, doc, snapshot } = await setup()
+
+      editTag(store, {
+        documentName: 'events',
+        tag: { id: 'events/tag/old', type: 'tag', title: 'old', name: 'old', children: [], isGroup: false },
+        newName: 'new',
+      })
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Document not found', expect.any(Object))
+      expect(JSON.stringify(doc)).toBe(snapshot)
+    })
+
+    it('deleteTag silently no-ops', async () => {
+      const { store, doc, snapshot } = await setup()
+
+      deleteTag(store, { documentName: 'events', name: 'old' })
+
+      // deleteTag returns early without logging — different from createTag/editTag, but the
+      // contract that matters is the document remains untouched.
+      expect(JSON.stringify(doc)).toBe(snapshot)
+    })
+
+    it('updateSecurityScheme does not create components.securitySchemes', async () => {
+      const { doc } = await setup()
+
+      updateSecurityScheme(doc, {
+        name: 'BearerAuth',
+        payload: { type: 'http', scheme: 'bearer' },
+      })
+
+      expect((doc as AsyncApiDocument & { components?: unknown }).components).toBeUndefined()
+    })
   })
 
   it('rebaseDocument detects NO_CHANGES_DETECTED on an unchanged AsyncAPI doc', async () => {

@@ -928,8 +928,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     )
 
     // Sanity-check the doc against the minimal AsyncAPI schema. The discriminator only verified
-    // `asyncapi` is a string; this catches missing/misshapen `info` so we can surface a useful path
-    // instead of silently storing a broken doc. Log-only — mirrors how the OpenAPI branch behaves.
+    // `asyncapi` is a string; this surfaces missing/misshapen `info` to the console so consumers
+    // get a useful pointer when something is off. The doc is still stored regardless — the OpenAPI
+    // branch behaves the same way, leaving "should we reject?" as a separate policy decision.
     const isValid = Value.Check(AsyncApiDocumentSchema, input.document)
     if (!isValid) {
       const errors = Array.from(Value.Errors(AsyncApiDocumentSchema, input.document))
