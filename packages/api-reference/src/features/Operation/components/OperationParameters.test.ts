@@ -62,6 +62,121 @@ describe('OperationParameters', () => {
       expect(wrapper.text()).toContain('Query Parameters')
       expect(wrapper.text()).toContain('search')
     })
+
+    it('renders deepObject query parameters as flattened bracket names', () => {
+      const wrapper = mount(OperationParameters, {
+        props: {
+          eventBus: null,
+          options: defaultSchemaOptions,
+          parameters: [
+            {
+              in: 'query',
+              name: 'page',
+              style: 'deepObject',
+              explode: true,
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'object',
+                properties: {
+                  number: {
+                    type: 'integer',
+                    minimum: 1,
+                    default: 1,
+                    description: 'Page number',
+                  },
+                  size: {
+                    type: 'integer',
+                    minimum: 1,
+                    default: 15,
+                    description: 'Page size',
+                  },
+                },
+                required: ['number'],
+              }),
+              required: false,
+              deprecated: false,
+            },
+          ],
+        },
+      })
+
+      expect(wrapper.text()).toContain('Query Parameters')
+      expect(wrapper.text()).toContain('page[number]')
+      expect(wrapper.text()).toContain('page[size]')
+      expect(wrapper.text()).toContain('Page number')
+      expect(wrapper.text()).toContain('Page size')
+      expect(wrapper.text()).not.toContain('pageobject')
+    })
+
+    it('renders nested deepObject query properties with recursive bracket names', () => {
+      const wrapper = mount(OperationParameters, {
+        props: {
+          eventBus: null,
+          options: defaultSchemaOptions,
+          parameters: [
+            {
+              in: 'query',
+              name: 'filter',
+              style: 'deepObject',
+              explode: true,
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'object',
+                properties: {
+                  pagination: {
+                    type: 'object',
+                    properties: {
+                      number: {
+                        type: 'integer',
+                      },
+                    },
+                  },
+                },
+              }),
+              required: false,
+              deprecated: false,
+            },
+          ],
+        },
+      })
+
+      expect(wrapper.text()).toContain('filter[pagination][number]')
+    })
+
+    it('does not re-add the top-level deepObject parameter when a nested object has empty properties', () => {
+      const wrapper = mount(OperationParameters, {
+        props: {
+          eventBus: null,
+          options: defaultSchemaOptions,
+          parameters: [
+            {
+              in: 'query',
+              name: 'filter',
+              style: 'deepObject',
+              explode: true,
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'object',
+                properties: {
+                  pagination: {
+                    type: 'object',
+                    properties: {},
+                  },
+                  status: {
+                    type: 'string',
+                  },
+                },
+              }),
+              required: false,
+              deprecated: false,
+            },
+          ],
+        },
+      })
+
+      const queryParameterNames = wrapper
+        .findAllComponents({ name: 'ParameterListItem' })
+        .map((item) => item.props('name'))
+
+      expect(queryParameterNames).toStrictEqual(['filter[pagination]', 'filter[status]'])
+    })
   })
 
   describe('header parameters', () => {

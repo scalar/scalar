@@ -8,6 +8,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
+import { flattenDeepObjectQueryParameter } from '@/features/Operation/helpers/flatten-deep-object-query-parameter'
 import { shouldIgnoreEntity } from '@/features/Operation/helpers/should-ignore-entity'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 
@@ -28,6 +29,8 @@ const { parameters = [], requestBody } = defineProps<{
 /** Thread the selected request body content type up to the layout */
 const selectedContentType = defineModel<string>('selectedContentType')
 
+type ParameterLocation = 'cookie' | 'header' | 'path' | 'query'
+
 /** Use a single loop to reduce parameters by type(in) */
 const splitParameters = computed(() =>
   (parameters ?? []).reduce(
@@ -35,7 +38,12 @@ const splitParameters = computed(() =>
       const parameter = getResolvedRef(p)
       // Filter out ignored parameters
       if (!shouldIgnoreEntity(parameter)) {
-        acc[parameter.in].push(parameter)
+        const flattenedParameters = flattenDeepObjectQueryParameter(parameter)
+        flattenedParameters.forEach((flattenedParameter) => {
+          acc[flattenedParameter.in as ParameterLocation].push(
+            flattenedParameter,
+          )
+        })
       }
       return acc
     },

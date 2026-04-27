@@ -21,6 +21,7 @@ import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import Headers from './Headers.vue'
+import { getParameterExamples } from './helpers/get-parameter-examples'
 
 const { name, parameter, options, collapsableItems } = defineProps<{
   parameter: ParameterObject | ResponseObject
@@ -96,22 +97,12 @@ const value = computed(() => {
   const deprecated =
     'deprecated' in parameter ? parameter.deprecated : schema.value?.deprecated
 
-  // Convert examples to schema examples which is an array
-  const paramExamples = 'examples' in parameter ? parameter.examples : {}
-  const recordExamples = Object.values({
-    ...paramExamples,
-    ...content.value?.[selectedContentType.value]?.examples,
+  /** Combine param/content/schema examples while ignoring undefined values. */
+  const examples = getParameterExamples({
+    parameter,
+    schemaExamples: schema.value?.examples,
+    contentExamples: content.value?.[selectedContentType.value]?.examples,
   })
-
-  // Only use parameter.example as fallback if no other examples exist
-  const arrayExamples =
-    schema.value?.examples ??
-    (recordExamples.length === 0 && 'example' in parameter
-      ? [parameter.example]
-      : [])
-
-  /** Combine param examples with content ones */
-  const examples = [...recordExamples, ...arrayExamples]
 
   return {
     ...resolvedBase,
