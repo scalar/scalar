@@ -23,8 +23,9 @@ import type { Migration } from '@/persistence/indexdb'
  *   and slugs may have been rewritten to resolve collisions, so keeping them
  *   would cause the client to route to stale paths on next load.
  *
- * All work happens inside the upgrade transaction. Async IDB request callbacks
- * keep the transaction alive so data transformation can complete.
+ * All work happens inside the upgrade transaction. The migration awaits every
+ * IDB request it queues so the database is fully migrated before `up` resolves
+ * — that guarantee is what lets later migrations safely build on this state.
  */
 
 /** Tables that store per-workspace chunks keyed by `workspaceId` (single key). */
@@ -140,13 +141,29 @@ const stripStaleMetaFields = (meta: unknown): unknown => {
   return copy
 }
 
+/** Wraps an IDB request so we can `await` it inside the upgrade transaction. */
+const requestAsPromise = <T>(req: IDBRequest<T>): Promise<T> =>
+  new Promise((resolve, reject) => {
+    req.onsuccess = () => resolve(req.result)
+    req.onerror = () => reject(req.error)
+  })
+
 /**
  * Re-keys all chunk records belonging to `oldWorkspaceId` so they live under
  * `newWorkspaceId` instead. Always runs so we can also strip stale tab state
  * from the meta chunk, even when the workspace keeps its old id.
+ *
+ * Returns a Promise that resolves once every queued read/write has completed
+ * — this is what lets the migration runner guarantee subsequent migrations
+ * see the fully re-keyed state.
  */
-const remapChunkTables = (transaction: IDBTransaction, oldWorkspaceId: string, newWorkspaceId: string): void => {
+const remapChunkTables = async (
+  transaction: IDBTransaction,
+  oldWorkspaceId: string,
+  newWorkspaceId: string,
+): Promise<void> => {
   const idChanged = oldWorkspaceId !== newWorkspaceId
+  const tasks: Promise<void>[] = []
 
   for (const tableName of SINGLE_KEY_CHUNK_TABLES) {
     if (!transaction.db.objectStoreNames.contains(tableName)) {
@@ -154,56 +171,70 @@ const remapChunkTables = (transaction: IDBTransaction, oldWorkspaceId: string, n
     }
 
     const store = transaction.objectStore(tableName)
-    const getRequest = store.get(oldWorkspaceId)
-    getRequest.onsuccess = () => {
-      const record = getRequest.result
-      if (!record) {
-        return
+    tasks.push(
+      new Promise<void>((resolve, reject) => {
+        const getRequest = store.get(oldWorkspaceId)
+        getRequest.onerror = () => reject(getRequest.error)
+        getRequest.onsuccess = () => {
+          const record = getRequest.result
+          if (!record) {
+            resolve()
+            return
+          }
+
+          // The meta chunk holds x-scalar-tabs with full URL paths built from the
+          // pre-migration namespace/slug. Those paths are no longer routable after
+          // this migration (namespace is dropped and slugs may have been renamed),
+          // so drop them here and let the client rebuild tabs from the live route.
+          const nextData = tableName === 'meta' ? stripStaleMetaFields(record.data) : record.data
+
+          if (idChanged) {
+            store.delete(oldWorkspaceId)
+          }
+          const putRequest = store.put({ ...record, workspaceId: newWorkspaceId, data: nextData })
+          putRequest.onerror = () => reject(putRequest.error)
+          putRequest.onsuccess = () => resolve()
+        }
+      }),
+    )
+  }
+
+  if (idChanged) {
+    for (const tableName of COMPOSITE_KEY_CHUNK_TABLES) {
+      if (!transaction.db.objectStoreNames.contains(tableName)) {
+        continue
       }
 
-      // The meta chunk holds x-scalar-tabs with full URL paths built from the
-      // pre-migration namespace/slug. Those paths are no longer routable after
-      // this migration (namespace is dropped and slugs may have been renamed),
-      // so drop them here and let the client rebuild tabs from the live route.
-      const nextData = tableName === 'meta' ? stripStaleMetaFields(record.data) : record.data
+      const store = transaction.objectStore(tableName)
+      // Range covering every `[oldWorkspaceId, *]` key.
+      const range = IDBKeyRange.bound([oldWorkspaceId], [oldWorkspaceId, []], false, true)
+      tasks.push(
+        new Promise<void>((resolve, reject) => {
+          const cursorRequest = store.openCursor(range)
+          cursorRequest.onerror = () => reject(cursorRequest.error)
+          cursorRequest.onsuccess = (event) => {
+            const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result
+            if (!cursor) {
+              resolve()
+              return
+            }
 
-      if (idChanged) {
-        store.delete(oldWorkspaceId)
-      }
-      store.put({ ...record, workspaceId: newWorkspaceId, data: nextData })
+            const value = cursor.value as { workspaceId: string; documentName: string }
+            cursor.delete()
+            store.put({ ...value, workspaceId: newWorkspaceId })
+            cursor.continue()
+          }
+        }),
+      )
     }
   }
 
-  if (!idChanged) {
-    return
-  }
-
-  for (const tableName of COMPOSITE_KEY_CHUNK_TABLES) {
-    if (!transaction.db.objectStoreNames.contains(tableName)) {
-      continue
-    }
-
-    const store = transaction.objectStore(tableName)
-    // Range covering every `[oldWorkspaceId, *]` key.
-    const range = IDBKeyRange.bound([oldWorkspaceId], [oldWorkspaceId, []], false, true)
-    const cursorRequest = store.openCursor(range)
-    cursorRequest.onsuccess = (event) => {
-      const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result
-      if (!cursor) {
-        return
-      }
-
-      const value = cursor.value as { workspaceId: string; documentName: string }
-      cursor.delete()
-      store.put({ ...value, workspaceId: newWorkspaceId })
-      cursor.continue()
-    }
-  }
+  await Promise.all(tasks)
 }
 
 export const v2TeamToLocalMigration: Migration = {
   description: 'Re-key workspace store to [teamSlug, slug]; collapse all workspaces into the local team',
-  up: ({ db, transaction }) => {
+  up: async ({ db, transaction }) => {
     if (!db.objectStoreNames.contains('workspace')) {
       // The workspace store must exist after v1; if it does not, something is
       // very wrong and we should not silently create a new one here.
@@ -211,29 +242,31 @@ export const v2TeamToLocalMigration: Migration = {
     }
 
     // Read every record from the old workspace store before we delete it.
-    // IDB keeps the upgrade transaction alive while this request is pending,
-    // so the deferred work inside `onsuccess` still runs in versionchange
+    // The upgrade transaction stays alive while the `getAll` request is
+    // pending, so the schema mutations below still run in versionchange
     // mode — which is required for deleteObjectStore / createObjectStore.
     const oldWorkspaceStore = transaction.objectStore('workspace')
-    const getAllRequest = oldWorkspaceStore.getAll()
+    const workspaces = ((await requestAsPromise(oldWorkspaceStore.getAll())) ?? []) as WorkspaceRecordV1[]
+    const plan = planWorkspaceMigration(workspaces)
 
-    getAllRequest.onsuccess = () => {
-      const workspaces = (getAllRequest.result ?? []) as WorkspaceRecordV1[]
-      const plan = planWorkspaceMigration(workspaces)
+    // The workspace store's keyPath cannot be changed in place, so drop it
+    // and recreate it with the new composite key. No separate `teamSlug`
+    // index is needed because the team slug is the first part of the key.
+    db.deleteObjectStore('workspace')
+    const newWorkspaceStore = db.createObjectStore('workspace', { keyPath: ['teamSlug', 'slug'] })
 
-      // The workspace store's keyPath cannot be changed in place, so drop it
-      // and recreate it with the new composite key. No separate `teamSlug`
-      // index is needed because the team slug is the first part of the key.
-      db.deleteObjectStore('workspace')
-      const newWorkspaceStore = db.createObjectStore('workspace', { keyPath: ['teamSlug', 'slug'] })
-
-      for (const { before, after } of plan) {
+    // Re-key all chunk tables in parallel so the entire migration finishes in
+    // a single round-trip. Awaiting before `up` resolves is what guarantees
+    // any future migration appended after this one observes the post-v2
+    // state — without this await, IDB callbacks would still be in flight.
+    await Promise.all(
+      plan.map(async ({ before, after }) => {
         const oldWorkspaceId = buildWorkspaceId(before.namespace, before.slug)
         const newWorkspaceId = buildWorkspaceId(after.teamSlug, after.slug)
 
         newWorkspaceStore.put(after)
-        remapChunkTables(transaction, oldWorkspaceId, newWorkspaceId)
-      }
-    }
+        await remapChunkTables(transaction, oldWorkspaceId, newWorkspaceId)
+      }),
+    )
   },
 }

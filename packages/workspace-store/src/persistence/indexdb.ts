@@ -40,12 +40,19 @@ export type MigrationContext = {
  * keep in sync. Append to the end to add a new migration; never reorder or
  * insert in the middle (each position represents a real schema state that
  * shipped to users).
+ *
+ * Migrations may run synchronously, or may return a Promise when they need
+ * to read existing data (via `getAll`, cursors, ...) before performing schema
+ * changes. The runner awaits each migration before starting the next, so a
+ * later migration always observes the fully-applied state of every earlier
+ * migration. To keep the upgrade transaction alive across awaits, every async
+ * migration must queue at least one IDB request before yielding.
  */
 export type Migration = {
   /** Short human-readable summary surfaced in errors / logs. */
   description?: string
-  /** Runs synchronously inside the upgrade transaction. */
-  up: (context: MigrationContext) => void
+  /** Runs inside the upgrade transaction. May be sync or async. */
+  up: (context: MigrationContext) => void | Promise<void>
 }
 
 /**
@@ -97,6 +104,11 @@ export const createIndexDbConnection = async <T extends Record<string, TableEntr
 
   const request = indexedDB.open(name, latestVersion)
 
+  // Captured here so the descriptive error from a failing migration can be
+  // surfaced through the `open` promise instead of the generic IDB
+  // `AbortError` that follows `transaction.abort()`.
+  let migrationError: Error | undefined
+
   request.onupgradeneeded = (event) => {
     const transaction = request.transaction
     if (!transaction) {
@@ -112,26 +124,48 @@ export const createIndexDbConnection = async <T extends Record<string, TableEntr
       newVersion: event.newVersion ?? latestVersion,
     }
 
-    for (const [index, migration] of migrations.entries()) {
-      const version = index + 1
-      if (version <= event.oldVersion) {
-        continue
-      }
-      try {
-        migration.up(context)
-      } catch (error) {
-        // Abort the upgrade transaction so we do not leave the DB in a half-
-        // migrated state. Re-throw so `onerror` / the `open` Promise reject.
-        transaction.abort()
-        const label = migration.description ? `v${version} (${migration.description})` : `v${version}`
-        throw new Error(`Migration ${label} failed: ${(error as Error)?.message ?? error}`, { cause: error })
+    // Run pending migrations sequentially, awaiting any async work before
+    // starting the next one. This is important when a migration reads
+    // existing data via IDB requests (e.g. `getAll`) and only performs the
+    // real schema changes inside the request callback — the next migration
+    // would otherwise execute against the pre-migration state.
+    //
+    // The upgrade transaction stays alive across awaits because every async
+    // migration in the codebase queues at least one IDB request before
+    // yielding, and microtasks complete before IDB checks for transaction
+    // commit at the next task boundary.
+    const runMigrations = async () => {
+      for (const [index, migration] of migrations.entries()) {
+        const version = index + 1
+        if (version <= event.oldVersion) {
+          continue
+        }
+        try {
+          await migration.up(context)
+        } catch (error) {
+          const label = migration.description ? `v${version} (${migration.description})` : `v${version}`
+          throw new Error(`Migration ${label} failed: ${(error as Error)?.message ?? error}`, { cause: error })
+        }
       }
     }
+
+    runMigrations().catch((error) => {
+      migrationError = error as Error
+      // Abort the upgrade transaction so we do not leave the DB in a half-
+      // migrated state. Aborting fires `request.onerror`; the captured
+      // `migrationError` takes precedence over the resulting `AbortError`.
+      try {
+        transaction.abort()
+      } catch {
+        // The transaction may already be in a finished state (e.g. when the
+        // failing migration itself triggered an abort). Nothing to do.
+      }
+    })
   }
 
   await new Promise((resolve, reject) => {
     request.onsuccess = () => resolve(true)
-    request.onerror = () => reject(request.error)
+    request.onerror = () => reject(migrationError ?? request.error)
     // If another tab holds an older-version connection open we would otherwise
     // hang forever waiting for the upgrade. Surface it as a clear rejection so
     // the app can react (reload, notify the user, ...) instead of freezing.
