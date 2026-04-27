@@ -90,7 +90,9 @@ const appendMultipartValue = ({
 
   if (fieldValue instanceof Blob) {
     const encodedValue =
-      partContentType && partContentType !== fieldValue.type ? new Blob([fieldValue], { type: partContentType }) : fieldValue
+      partContentType && partContentType !== fieldValue.type
+        ? new Blob([fieldValue], { type: partContentType })
+        : fieldValue
     target.push({
       type: 'blob',
       key: fieldName,

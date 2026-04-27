@@ -218,6 +218,40 @@ describe('requestFactory', () => {
     expect(request.headers.get('Content-Type')).toBe(null)
   })
 
+  it('removes Content-Type for multipart object examples so the runtime can set the boundary', () => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        method: 'post',
+        defaultHeaders: {
+          'Content-Type': 'application/json',
+        },
+        operation: {
+          requestBody: {
+            content: {
+              'multipart/form-data': {
+                examples: {
+                  default: {
+                    value: {
+                      fileName: 'report.pdf',
+                      description: 'Quarterly report',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        } as OperationObject,
+      }),
+    )
+
+    assert(request.body?.mode === 'formdata')
+    expect(request.body.value).toStrictEqual([
+      { type: 'text', key: 'fileName', value: 'report.pdf' },
+      { type: 'text', key: 'description', value: 'Quarterly report' },
+    ])
+    expect(request.headers.get('Content-Type')).toBe(null)
+  })
+
   it('removes Content-Type when the body is URL-encoded', () => {
     const { request } = requestFactory(
       createBaseArgs({
