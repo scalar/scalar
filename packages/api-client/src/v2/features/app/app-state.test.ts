@@ -150,7 +150,7 @@ describe('app-state', () => {
     expect(localWorkspaces.length).toBeGreaterThanOrEqual(2)
   })
 
-  it('allows creating one workspace per distinct team', async () => {
+  it('blocks creating new team workspaces while team workspaces are disabled', async () => {
     await persistWorkspace({ teamSlug: 'team-a', slug: 'a-workspace', name: 'A' })
 
     const router = setupRouter()
@@ -158,11 +158,11 @@ describe('app-state', () => {
 
     const result = await appState.workspace.create({ teamSlug: 'team-b', name: 'B' })
 
-    expect(result).toBeDefined()
-    expect(appState.workspace.workspaceList.value.some((w) => w.teamSlug === 'team-b')).toBe(true)
+    expect(result).toBeUndefined()
+    expect(appState.workspace.workspaceList.value.some((w) => w.teamSlug === 'team-b')).toBe(false)
   })
 
-  it('exposes a placeholder team workspace in workspaceGroups for empty non-local teams', async () => {
+  it('hides the team workspaces section in the picker for non-local teams', async () => {
     const router = setupRouter()
     const appState = await createAppState({ router })
     // Use a team slug that no other test has persisted a workspace under.
@@ -171,11 +171,11 @@ describe('app-state', () => {
     const groups = appState.workspace.workspaceGroups.value
     const teamGroup = groups.find((g) => g.label === 'Team Workspaces')
 
-    expect(teamGroup).toBeDefined()
-    expect(teamGroup?.options).toEqual([{ id: 'placeholder-team/default', label: 'Workspace' }])
+    expect(teamGroup).toBeUndefined()
+    expect(groups.find((g) => g.label === 'Local Workspaces')).toBeDefined()
   })
 
-  it('auto-creates the team workspace on demand when navigating to it from the placeholder', async () => {
+  it('redirects to the local default workspace when navigating to a team workspace URL', async () => {
     const router = setupRouter()
     const appState = await createAppState({ router })
     // Use a fresh team slug so this run starts without any persisted workspace.
@@ -183,8 +183,9 @@ describe('app-state', () => {
 
     expect(appState.workspace.workspaceList.value.some((w) => w.teamSlug === 'autocreate-team')).toBe(false)
 
-    // Navigating to the placeholder route should trigger on-demand creation in
-    // handleRouteChange instead of falling back to the local default workspace.
+    // While team workspaces are disabled, navigating directly to a team
+    // workspace URL must not auto-create the workspace. The route handler
+    // should fall back to the local default instead.
     await router.push({
       name: 'document.overview',
       params: { teamSlug: 'autocreate-team', workspaceSlug: 'default', documentSlug: 'drafts' },
@@ -193,12 +194,11 @@ describe('app-state', () => {
     await waitForNavigation()
 
     await vi.waitFor(() => {
-      expect(
-        appState.workspace.workspaceList.value.some((w) => w.teamSlug === 'autocreate-team' && w.slug === 'default'),
-      ).toBe(true)
+      expect(router.currentRoute.value.params.teamSlug).toBe('local')
     })
-    expect(router.currentRoute.value.params.teamSlug).toBe('autocreate-team')
-    expect(router.currentRoute.value.params.workspaceSlug).toBe('default')
+    expect(
+      appState.workspace.workspaceList.value.some((w) => w.teamSlug === 'autocreate-team' && w.slug === 'default'),
+    ).toBe(false)
   })
 
   it('redirects to the saved tab path when switching workspaces after initial load', async () => {

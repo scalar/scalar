@@ -37,7 +37,7 @@ import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
 
-import { DEFAULT_TEAM_WORKSPACE_SLUG, type AppState } from './app-state'
+import { DEFAULT_TEAM_WORKSPACE_SLUG, TEAM_WORKSPACES_ENABLED, type AppState } from './app-state'
 import DesktopTabs from './components/DesktopTabs.vue'
 
 const {
@@ -164,10 +164,11 @@ const navigateToWorkspaceOverview = (teamSlug?: string, slug?: string) => {
  *
  * Real workspaces are resolved by looking up the option in `workspaceList`,
  * which sidesteps any ambiguity if a teamSlug or slug were ever to contain a
- * slash. The picker may also surface a fake default team workspace for the
- * active non-local team when no real workspace exists yet; that placeholder is
- * matched by exact id and routed through the normal navigation flow so the
- * route handler can create it on demand.
+ * slash. When team workspaces are enabled, the picker may also surface a
+ * placeholder default team workspace for the active non-local team when no
+ * real workspace exists yet; that placeholder is matched by exact id and
+ * routed through the normal navigation flow so the route handler can create
+ * it on demand.
  */
 const setActiveWorkspace = (id?: string) => {
   if (!id) {
@@ -177,6 +178,10 @@ const setActiveWorkspace = (id?: string) => {
   const workspace = app.workspace.workspaceList.value?.find((w) => w.id === id)
   if (workspace) {
     navigateToWorkspaceOverview(workspace.teamSlug, workspace.slug)
+    return
+  }
+
+  if (!TEAM_WORKSPACES_ENABLED) {
     return
   }
 

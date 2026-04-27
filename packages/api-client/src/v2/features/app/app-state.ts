@@ -176,6 +176,15 @@ const DEFAULT_SIDEBAR_WIDTH = 288
 export const DEFAULT_TEAM_WORKSPACE_SLUG = 'default'
 /** Default display name used when auto-creating a team workspace on demand. */
 const DEFAULT_TEAM_WORKSPACE_NAME = 'Workspace'
+/**
+ * Temporary kill switch for team workspace functionality.
+ *
+ * While the team workspace experience is still being polished we hide the
+ * "Team Workspaces" group from the picker and refuse to create new team
+ * workspaces. Existing team workspaces remain in storage and can be restored
+ * by flipping this flag back to `true`.
+ */
+export const TEAM_WORKSPACES_ENABLED = false
 
 // ---------------------------------------------------------------------------
 // App State
@@ -236,8 +245,16 @@ export const createAppState = async ({
   const activeWorkspace = shallowRef<{ id: string; label: string } | null>(null)
   const workspaces = ref<WorkspaceOption[]>([])
   const filteredWorkspaces = computed(() => filterWorkspacesByTeam(workspaces.value, teamSlug.value))
-  const workspaceGroups = computed(() =>
-    groupWorkspacesByTeam(filteredWorkspaces.value, teamSlug.value, {
+  const workspaceGroups = computed(() => {
+    // While team workspaces are disabled we render the picker as if the user
+    // were always on the local team. This hides the "Team Workspaces" section
+    // (and any placeholder option) without removing the underlying data, so
+    // re-enabling the feature is a one-line change.
+    if (!TEAM_WORKSPACES_ENABLED) {
+      return groupWorkspacesByTeam(filteredWorkspaces.value, 'local')
+    }
+
+    return groupWorkspacesByTeam(filteredWorkspaces.value, teamSlug.value, {
       // Surface a fake default workspace for non-local teams so logged-in
       // users always see a team workspace entry in the picker. Clicking it
       // navigates to a normal workspace route; the route handler creates the
@@ -246,8 +263,8 @@ export const createAppState = async ({
         slug: DEFAULT_TEAM_WORKSPACE_SLUG,
         label: DEFAULT_TEAM_WORKSPACE_NAME,
       },
-    }),
-  )
+    })
+  })
   /**
    * `true` when the active workspace is backed by a team (i.e. not the
    * built-in `'local'` team). We look the workspace up in the full
@@ -454,6 +471,21 @@ export const createAppState = async ({
    *   // -> Navigates to /workspace/my-awesome-api (if available)
    */
   const createWorkspace = async ({ teamSlug, slug, name }: { teamSlug?: string; slug?: string; name: string }) => {
+    // Block team workspace creation while the feature is disabled. If a team
+    // workspace already exists we silently navigate to it (e.g. when the route
+    // handler tries to auto-create on demand); otherwise we fall back to the
+    // local default so the user lands somewhere usable.
+    if (!TEAM_WORKSPACES_ENABLED && teamSlug && teamSlug !== 'local') {
+      const existing = workspaces.value.find((w) => w.teamSlug === teamSlug)
+      if (existing) {
+        await navigateToWorkspace(existing.teamSlug, existing.slug)
+        return { teamSlug: existing.teamSlug, slug: existing.slug, name: existing.label }
+      }
+      console.warn('Team workspace creation is currently disabled. Falling back to the local default workspace.')
+      await navigateToWorkspace('local', 'default')
+      return undefined
+    }
+
     // Restrict users to a single workspace per team. Local workspaces remain
     // unrestricted. This guard is temporary while multi-workspace support for
     // teams is being designed. When a team workspace already exists, navigate
