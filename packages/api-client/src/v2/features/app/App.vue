@@ -37,7 +37,11 @@ import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
 
-import { DEFAULT_TEAM_WORKSPACE_SLUG, TEAM_WORKSPACES_ENABLED, type AppState } from './app-state'
+import {
+  DEFAULT_TEAM_WORKSPACE_SLUG,
+  TEAM_WORKSPACES_ENABLED,
+  type AppState,
+} from './app-state'
 import DesktopTabs from './components/DesktopTabs.vue'
 
 const {
