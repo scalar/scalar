@@ -559,4 +559,19 @@ public class ScalarResourceConfiguratorTests
             .WhoseValue.Should().Be("https://localhost:5001");
         envVars.Should().NotContainKey("services__my-api__http__0");
     }
+
+    [Fact]
+    public void RemoveOtlpExporterAnnotations_RemovesOnlyOtlpAnnotations()
+    {
+        var scalarResource = new ScalarResource(ScalarResourceName);
+        var callbackAnnotation = new EnvironmentCallbackAnnotation(_ => Task.CompletedTask);
+        scalarResource.Annotations.Add(new OtlpExporterAnnotation());
+        scalarResource.Annotations.Add(new OtlpExporterAnnotation { RequiredProtocol = OtlpProtocol.Grpc });
+        scalarResource.Annotations.Add(callbackAnnotation);
+
+        DistributedApplicationBuilderExtensions.RemoveOtlpExporterAnnotations(scalarResource);
+
+        scalarResource.Annotations.OfType<OtlpExporterAnnotation>().Should().BeEmpty();
+        scalarResource.Annotations.Should().Contain(callbackAnnotation);
+    }
 }

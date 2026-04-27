@@ -50,6 +50,17 @@ public static class DistributedApplicationBuilderExtensions
         }
 
         var resource = new ScalarResource(name);
+
+        // Aspire's universal container tunnel can hang indefinitely when tunnel endpoint
+        // allocation is requested for telemetry exporters on container resources.
+        // Scalar does not require OTLP endpoint references to run, so we remove these
+        // annotations during startup to keep tunnel bootstrap non-blocking.
+        builder.Eventing.Subscribe<BeforeStartEvent>((_, _) =>
+        {
+            RemoveOtlpExporterAnnotations(resource);
+            return Task.CompletedTask;
+        });
+
         return builder
             .AddResource(resource)
             .WithImage(Image)
@@ -65,5 +76,14 @@ public static class DistributedApplicationBuilderExtensions
             {
                 await ScalarResourceConfigurator.ConfigureScalarResourceAsync(context);
             });
+    }
+
+    internal static void RemoveOtlpExporterAnnotations(ScalarResource resource)
+    {
+        var otlpExporterAnnotations = resource.Annotations.OfType<OtlpExporterAnnotation>().ToArray();
+        foreach (var annotation in otlpExporterAnnotations)
+        {
+            resource.Annotations.Remove(annotation);
+        }
     }
 }
