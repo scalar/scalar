@@ -333,7 +333,7 @@ describe('DocumentBreadcrumb', () => {
     expect(mockEventBus.emit).not.toHaveBeenCalled()
   })
 
-  it('renders the matching status icon for each version row', async () => {
+  it('renders the matching status icon for each version row', () => {
     const documents: Record<string, FakeDocument> = {
       'pets-v1': {
         info: { title: 'Pets v1', version: '1.0.0' },
@@ -539,7 +539,7 @@ describe('DocumentBreadcrumb', () => {
     const addDocument = vi.fn().mockResolvedValue(true)
     // The helper now branches off the seed via `getEditableDocument`, so
     // expose a stub that returns a deep clone of the requested document.
-    const getEditableDocument = vi.fn(async (name: string) => {
+    const getEditableDocument = vi.fn((name: string) => {
       const doc = documents[name]
       return doc ? (JSON.parse(JSON.stringify(doc)) as Record<string, unknown>) : null
     })
