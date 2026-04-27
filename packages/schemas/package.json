@@ -40,6 +40,7 @@
     "@scalar/validation": "workspace:*"
   },
   "devDependencies": {
-    "vitest": "catalog:*"
+    "vitest": "catalog:*",
+    "@scalar/types": "workspace:*"
   }
 }

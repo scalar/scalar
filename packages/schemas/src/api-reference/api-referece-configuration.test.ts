@@ -1,5 +1,6 @@
+import type { ApiReferenceConfiguration } from '@scalar/types'
 import { coerce, validate } from '@scalar/validation'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import {
   apiReferenceConfigurationSchema,
@@ -319,91 +320,91 @@ describe('api-reference-configuration', () => {
     })
   })
 
-  // describe('hooks', () => {
-  //   it('allows a function as onDocumentSelect', () => {
-  //     const config = {
-  //       onDocumentSelect: vi.fn().mockReturnValue(undefined),
-  //     } satisfies Partial<ApiReferenceConfiguration>
-  //     const migratedConfig = apiReferenceConfigurationSchema.parse(config)
-  //     expect(migratedConfig.onDocumentSelect).toBeInstanceOf(Function)
-  //   })
+  describe('hooks', () => {
+    it('allows a function as onDocumentSelect', () => {
+      const config = {
+        onDocumentSelect: vi.fn().mockReturnValue(undefined),
+      } satisfies Partial<ApiReferenceConfiguration>
+      const migratedConfig = coerce(apiReferenceConfigurationSchema, config)
+      expect(migratedConfig.onDocumentSelect).toBeInstanceOf(Function)
+    })
 
-  //   it('allows an async function as onDocumentSelect', () => {
-  //     const config = {
-  //       onDocumentSelect: vi.fn().mockResolvedValue(undefined),
-  //     } satisfies Partial<ApiReferenceConfiguration>
-  //     const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+    it('allows an async function as onDocumentSelect', () => {
+      const config = {
+        onDocumentSelect: vi.fn().mockResolvedValue(undefined),
+      } satisfies Partial<ApiReferenceConfiguration>
+      const migratedConfig = coerce(apiReferenceConfigurationSchema, config)
 
-  //     expect(migratedConfig.onDocumentSelect?.()).toBeInstanceOf(Promise)
-  //   })
+      expect(migratedConfig.onDocumentSelect?.()).toBeInstanceOf(Promise)
+    })
 
-  //   it('allows a function as onBeforeRequest', () => {
-  //     const config = {
-  //       onBeforeRequest: vi.fn().mockReturnValue(undefined),
-  //     } satisfies Partial<ApiReferenceConfiguration>
-  //     const migratedConfig = apiReferenceConfigurationSchema.parse(config)
-  //     expect(migratedConfig.onBeforeRequest).toBeInstanceOf(Function)
-  //   })
+    it('allows a function as onBeforeRequest', () => {
+      const config = {
+        onBeforeRequest: vi.fn().mockReturnValue(undefined),
+      } satisfies Partial<ApiReferenceConfiguration>
+      const migratedConfig = coerce(apiReferenceConfigurationSchema, config)
+      expect(migratedConfig.onBeforeRequest).toBeInstanceOf(Function)
+    })
 
-  //   it('allows an async function as onBeforeRequest', () => {
-  //     const config = {
-  //       onBeforeRequest: vi.fn().mockResolvedValue(undefined),
-  //     } satisfies Partial<ApiReferenceConfiguration>
-  //     const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+    it('allows an async function as onBeforeRequest', () => {
+      const config = {
+        onBeforeRequest: vi.fn().mockResolvedValue(undefined),
+      } satisfies Partial<ApiReferenceConfiguration>
+      const migratedConfig = coerce(apiReferenceConfigurationSchema, config)
 
-  //     expect(
-  //       migratedConfig.onBeforeRequest?.({
-  //         request: new Request('https://example.com'),
-  //         requestBuilder: {
-  //           options: {},
-  //           baseUrl: 'https://example.com',
-  //           path: { variables: {}, raw: '/api/test' },
-  //           method: 'GET',
-  //           proxyUrl: '',
-  //           query: new URLSearchParams(),
-  //           headers: new Headers(),
-  //           body: null,
-  //           cookies: [],
-  //           cache: 'default',
-  //           security: [],
-  //         },
-  //         envVariables: {},
-  //       }),
-  //     ).toBeInstanceOf(Promise)
-  //   })
+      expect(
+        migratedConfig.onBeforeRequest?.({
+          request: new Request('https://example.com'),
+          requestBuilder: {
+            options: {},
+            baseUrl: 'https://example.com',
+            path: { variables: {}, raw: '/api/test' },
+            method: 'GET',
+            proxyUrl: '',
+            query: new URLSearchParams(),
+            headers: new Headers(),
+            body: null,
+            cookies: [],
+            cache: 'default',
+            security: [],
+          },
+          envVariables: {},
+        }),
+      ).toBeInstanceOf(Promise)
+    })
 
-  //   it('allows a function as onShowMore', () => {
-  //     const config = {
-  //       onShowMore: vi.fn().mockReturnValue(undefined),
-  //     } satisfies Partial<ApiReferenceConfiguration>
-  //     const migratedConfig = apiReferenceConfigurationSchema.parse(config)
-  //     expect(migratedConfig.onShowMore).toBeInstanceOf(Function)
-  //   })
+    it('allows a function as onShowMore', () => {
+      const config = {
+        onShowMore: vi.fn().mockReturnValue(undefined),
+      } satisfies Partial<ApiReferenceConfiguration>
+      const migratedConfig = coerce(apiReferenceConfigurationSchema, config)
+      expect(migratedConfig.onShowMore).toBeInstanceOf(Function)
+    })
 
-  //   it('allows an async function as onShowMore', () => {
-  //     const config = {
-  //       onShowMore: vi.fn().mockResolvedValue(undefined),
-  //     } satisfies Partial<ApiReferenceConfiguration>
-  //     const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+    it('allows an async function as onShowMore', () => {
+      const config = {
+        onShowMore: vi.fn().mockResolvedValue(undefined),
+      } satisfies Partial<ApiReferenceConfiguration>
+      const migratedConfig = coerce(apiReferenceConfigurationSchema, config)
 
-  //     expect(migratedConfig.onShowMore?.('a')).toBeInstanceOf(Promise)
-  //   })
+      expect(migratedConfig.onShowMore?.('a')).toBeInstanceOf(Promise)
+    })
 
-  //   it('allows a function as onSidebarClick', () => {
-  //     const config = {
-  //       onSidebarClick: vi.fn().mockReturnValue(undefined),
-  //     } satisfies Partial<ApiReferenceConfiguration>
-  //     const migratedConfig = apiReferenceConfigurationSchema.parse(config)
-  //     expect(migratedConfig.onSidebarClick).toBeInstanceOf(Function)
-  //   })
+    it('allows a function as onSidebarClick', () => {
+      const config = {
+        onSidebarClick: vi.fn().mockReturnValue(undefined),
+      } satisfies Partial<ApiReferenceConfiguration>
+      const migratedConfig = coerce(apiReferenceConfigurationSchema, config)
+      expect(migratedConfig.onSidebarClick).toBeInstanceOf(Function)
+    })
 
-  //   it('allows an async function as onSidebarClick', () => {
-  //     const config = {
-  //       onSidebarClick: vi.fn().mockResolvedValue(undefined),
-  //     } satisfies Partial<ApiReferenceConfiguration>
-  //     const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+    it('allows an async function as onSidebarClick', () => {
+      const config = {
+        onSidebarClick: vi.fn().mockResolvedValue(undefined),
+      } satisfies Partial<ApiReferenceConfiguration>
+      const migratedConfig = coerce(apiReferenceConfigurationSchema, config)
 
-  //     expect(migratedConfig.onSidebarClick?.('a')).toBeInstanceOf(Promise)
-  //   })
-  // })
+      expect(migratedConfig.onSidebarClick?.('a')).toBeInstanceOf(Promise)
+    })
+  })
 })
