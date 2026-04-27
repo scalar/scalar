@@ -25,7 +25,7 @@ type AddDocumentInput = {
  */
 const createWorkspaceStore = (documents: Record<string, FakeDocument>) => {
   const addDocument = vi.fn<(input: AddDocumentInput) => Promise<boolean>>(async () => true)
-  const getEditableDocument = vi.fn(async (documentName: string) => {
+  const getEditableDocument = vi.fn((documentName: string) => {
     const doc = documents[documentName]
     if (!doc) {
       return null
