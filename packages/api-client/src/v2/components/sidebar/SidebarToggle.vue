@@ -6,7 +6,7 @@ const isSidebarOpen = defineModel<boolean>({
 <template>
   <button
     :aria-pressed="isSidebarOpen"
-    class="scalar-sidebar-toggle text-c-3 hover:bg-b-2 active:text-c-1 rounded-lg p-2"
+    class="scalar-sidebar-toggle text-c-3 hover:bg-b-2 active:text-c-1 rounded p-2"
     type="button"
     @click="isSidebarOpen = !isSidebarOpen">
     <span class="sr-only">{{ isSidebarOpen ? 'Hide' : 'Show' }} sidebar</span>

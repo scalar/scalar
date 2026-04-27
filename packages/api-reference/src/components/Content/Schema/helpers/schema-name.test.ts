@@ -7,17 +7,17 @@ describe('schema-name', () => {
   describe('getModelNameFromSchema', () => {
     it('returns title when present', () => {
       const schema: SchemaObject = { title: 'Galaxy Planet', type: 'object' }
-      expect(getModelNameFromSchema(schema)).toBe('Galaxy Planet')
+      expect(getModelNameFromSchema(schema)).toEqual({ schemaKey: null, label: 'Galaxy Planet' })
     })
 
     it('returns name when present', () => {
       const schema = { name: 'Galaxy Planet', type: 'object' } as any
-      expect(getModelNameFromSchema(schema)).toBe('Galaxy Planet')
+      expect(getModelNameFromSchema(schema)).toEqual({ schemaKey: null, label: 'Galaxy Planet' })
     })
 
     it('prefers title over name', () => {
       const schema = { title: 'Galaxy Planet', name: 'Other Name', type: 'object' } as any
-      expect(getModelNameFromSchema(schema)).toBe('Galaxy Planet')
+      expect(getModelNameFromSchema(schema)).toEqual({ schemaKey: null, label: 'Galaxy Planet' })
     })
 
     it('prefers title over ref name when both exist', () => {
@@ -26,7 +26,10 @@ describe('schema-name', () => {
         title: 'Consumer',
         type: 'object',
       } as any
-      expect(getModelNameFromSchema(schema)).toBe('Consumer')
+      expect(getModelNameFromSchema(schema)).toEqual({
+        schemaKey: 'account-information-request',
+        label: 'Consumer',
+      })
     })
 
     it('returns null for empty object', () => {

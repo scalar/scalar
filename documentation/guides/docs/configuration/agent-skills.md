@@ -28,3 +28,7 @@ To make the skill available across projects:
 ```bash
 npx skills add scalar/scalar --skill scalar-docs --global
 ```
+
+## MCP: Scalar Documentation
+
+Use `https://scalar.com/mcp` to add Scalar Documentation as an MCP server in your agent tooling.

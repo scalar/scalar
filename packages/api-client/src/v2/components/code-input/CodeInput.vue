@@ -106,6 +106,8 @@ type Props = {
   emitOnBlur?: boolean
   /** Enable environment variable pills */
   withVariables?: boolean
+  /** Enable fake data suggestions like $guid, $timestamp, etc. Should only be enabled for parameters and request bodies */
+  withFakeData?: boolean
   /** Emit change event even if the value is the same */
   alwaysEmitChange?: boolean
   /** Custom change handler, prevents default emit */
@@ -141,6 +143,7 @@ const {
   emitOnBlur = true,
   alwaysEmitChange = false,
   withVariables = true,
+  withFakeData = false,
   handleFieldChange,
   handleFieldSubmit,
 } = defineProps<Props>()
@@ -263,10 +266,12 @@ const buildExtensions = (): Extension[] => {
  * Reactive pill plugin for environment variable visualization.
  */
 const contextFunctionDropdownItems = computed(() =>
-  CONTEXT_FUNCTION_NAMES.map((key) => ({
-    key,
-    description: getContextFunctionComment(key),
-  })),
+  withFakeData
+    ? CONTEXT_FUNCTION_NAMES.map((key) => ({
+        key,
+        description: getContextFunctionComment(key),
+      }))
+    : [],
 )
 
 const pillPluginExtension = computed(() =>
@@ -345,13 +350,14 @@ const { handleDropdownSelect, updateDropdownVisibility } = useDropdown({
 
 /**
  * Determines if the environment variable dropdown should be visible.
+ * Shows when environment is defined (for env vars) or withFakeData is true (for context functions)
  */
 const displayVariablesDropdown = computed((): boolean => {
   return (
     showDropdown.value &&
     withVariables &&
     layout !== 'modal' &&
-    Boolean(environment)
+    (Boolean(environment) || withFakeData)
   )
 })
 
@@ -521,7 +527,7 @@ defineExpose({
 
   <!-- Environment variable autocomplete dropdown -->
   <EnvironmentVariableDropdown
-    v-if="displayVariablesDropdown && environment"
+    v-if="displayVariablesDropdown"
     ref="dropdownRef"
     :contextFunctionItems="contextFunctionDropdownItems"
     :dropdownPosition="dropdownPosition"

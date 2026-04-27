@@ -1,6 +1,6 @@
 'use client'
 
-import type { ApiClientModal, ApiClientModalOptions, RoutePayload } from '@scalar/api-client/modal'
+import type { ApiClientModal, ApiClientOptions, RoutePayload } from '@scalar/api-client/modal'
 import { useEffect, useRef, useState } from 'react'
 
 import './style.css'
@@ -14,7 +14,7 @@ globalThis.__VUE_OPTIONS_API__ = true
 globalThis.__VUE_PROD_HYDRATION_MISMATCH_DETAILS__ = true
 globalThis.__VUE_PROD_DEVTOOLS__ = false
 
-export type ApiClientConfigurationReact = ApiClientModalOptions & {
+export type ApiClientConfigurationReact = ApiClientOptions & {
   // content?: Record<string, unknown>
   url: string
 }
@@ -43,7 +43,7 @@ export const useApiClient = ({
   const [client, setClient] = useState<ApiClientModal | undefined>(undefined)
   const [workspaceStore, setWorkspaceStore] = useState<WorkspaceStore | undefined>(undefined)
   const documentSlugRef = useRef('')
-  const previousModalOptionsRef = useRef<ApiClientModalOptions | undefined>(undefined)
+  const previousModalOptionsRef = useRef<ApiClientOptions | undefined>(undefined)
 
   /** Small wrapper to set the documentSlug */
   const open = (payload: RoutePayload) => client?.open({ documentSlug: documentSlugRef.current, ...payload })

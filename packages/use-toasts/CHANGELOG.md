@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.10.2
+
+### Patch Changes
+
+- [#8925](https://github.com/scalar/scalar/pull/8925): chore: source vite-plugin-css-injected-by-js from the shared pnpm catalog
+
 ## 0.10.1
 
 ### Patch Changes

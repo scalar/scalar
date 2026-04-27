@@ -244,7 +244,8 @@ const handleToggleOperationServers = (value: boolean) => {
                 :onUpdate="
                   (key, value) => handleServerUpdate(index, key, value)
                 "
-                :options="FORM_OPTIONS" />
+                :options="FORM_OPTIONS"
+                :withFakeData="false" />
               <ServerVariablesForm
                 v-if="server.variables"
                 :variables="server.variables"

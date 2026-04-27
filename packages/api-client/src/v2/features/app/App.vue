@@ -9,6 +9,7 @@ export default {}
 
 <script setup lang="ts">
 import {
+  ScalarMenuWorkspacePicker,
   ScalarTeleportRoot,
   useModal,
   type ModalState,
@@ -20,10 +21,13 @@ import { computed, onBeforeUnmount, toValue, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { SidebarToggle } from '@/v2/components/sidebar'
+import AppHeader from '@/v2/features/app/components/AppHeader.vue'
+import AppSidebar from '@/v2/features/app/components/AppSidebar.vue'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
+import type { RegistryDocumentsState } from '@/v2/features/app/hooks/use-sidebar-documents'
 import type { CommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
 import { useMonacoEditorConfiguration } from '@/v2/features/editor'
@@ -33,7 +37,6 @@ import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import { type AppState } from './app-state'
-import AppSidebar from './components/AppSidebar.vue'
 import DesktopTabs from './components/DesktopTabs.vue'
 
 const {
@@ -42,6 +45,7 @@ const {
   getAppState,
   getCommandPaletteState,
   fetchRegistryDocument,
+  registryDocuments = { status: 'success', documents: [] },
 } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
   plugins?: ClientPlugin[]
@@ -49,19 +53,31 @@ const {
   getCommandPaletteState: () => CommandPaletteState
   /** Fetches the full document from registry by meta. Passed through to route props for sync. */
   fetchRegistryDocument?: ImportDocumentFromRegistry
+  /**
+   * The list of all available registry documents, with a loading status so the
+   * sidebar can render skeleton placeholders until the real list is ready.
+   */
+  registryDocuments?: RegistryDocumentsState
 }>()
 
 defineSlots<{
-  /**
-   * Slot for customizing the actions section of the sidebar menu.
-   * This slot is used to render custom actions or components within the actions section.
-   */
-  'sidebar-menu-actions': () => unknown
   /**
    * Slot for customizing the create workspace modal.
    * This slot is used to render custom actions or components within the create workspace modal.
    */
   'create-workspace'?: (payload: { state: ModalState }) => unknown
+  /**
+   * Slot for customizing the menu items section of the app header.
+   * Defaults to a workspace picker bound to the current app state. Overriding this slot
+   * replaces the default picker entirely, so the consumer is responsible for rendering
+   * any workspace switcher (or other menu content) they need.
+   */
+  'header-menu-items'?: () => unknown
+  /**
+   * Slot for customizing the end section of the app header.
+   * Typically used for user menus, action buttons, or other trailing controls.
+   */
+  'header-end'?: () => unknown
 }>()
 
 defineExpose({
@@ -181,9 +197,7 @@ const routerViewProps = computed<RouteProps>(() => {
     onUpdateTelemetry: (value: boolean) => {
       app.telemetry.value = value
     },
-    options: {
-      oauth2RedirectUri: app.oauth2RedirectUri,
-    },
+    options: app.options,
   }
 })
 </script>
@@ -203,33 +217,41 @@ const routerViewProps = computed<RouteProps>(() => {
         app.workspace.activeWorkspace.value !== null &&
         !app.loading.value
       ">
-      <div class="relative flex h-dvh w-dvw flex-1 flex-col">
+      <div class="relative flex h-dvh w-dvw flex-col">
         <SidebarToggle
           v-model="app.sidebar.isOpen.value"
-          class="absolute top-4 left-3 z-[60] md:hidden" />
+          class="absolute z-60 md:hidden"
+          :class="layout === 'desktop' ? 'top-14 left-4' : 'top-4 left-4'" />
+        <AppHeader
+          @navigate:to:settings="
+            app.eventBus.emit('ui:navigate', {
+              page: 'workspace',
+              path: 'settings',
+            })
+          ">
+          <template #menuItems>
+            <slot name="header-menu-items">
+              <ScalarMenuWorkspacePicker
+                :modelValue="app.workspace.activeWorkspace.value?.id"
+                :workspaceOptions="app.workspace.workspaceGroups.value"
+                @createWorkspace="createWorkspaceModalState.show()"
+                @update:modelValue="(value) => setActiveWorkspace(value)" />
+            </slot>
+          </template>
+          <template #end>
+            <slot name="header-end" />
+          </template>
+        </AppHeader>
         <div class="flex min-h-0 flex-1 flex-row">
           <!-- App sidebar -->
           <AppSidebar
-            v-model:isSidebarOpen="app.sidebar.isOpen.value"
-            :activeWorkspace="app.workspace.activeWorkspace.value"
-            :eventBus="app.eventBus"
-            :isWorkspaceOpen="app.workspace.isOpen.value"
-            :layout
-            :sidebarState="app.sidebar.state"
+            :app="app"
+            :fetchRegistryDocument="fetchRegistryDocument"
+            :registryDocuments="registryDocuments"
             :sidebarWidth="app.sidebar.width.value"
-            :store="app.store.value!"
-            :workspaces="app.workspace.workspaceGroups.value"
-            @click:workspace="navigateToWorkspaceOverview"
-            @create:workspace="createWorkspaceModalState.show()"
-            @select:workspace="setActiveWorkspace"
-            @selectItem="app.sidebar.handleSelectItem"
-            @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate">
-            <template #sidebarMenuActions>
-              <slot name="sidebar-menu-actions" />
-            </template>
-          </AppSidebar>
+            @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate" />
 
-          <div class="flex flex-1 flex-col">
+          <div class="flex min-h-0 flex-1 flex-col">
             <!-- App Tabs -->
             <DesktopTabs
               v-if="layout === 'desktop'"
@@ -253,7 +275,6 @@ const routerViewProps = computed<RouteProps>(() => {
           :state="createWorkspaceModalState"
           @create:workspace="(payload) => app.workspace.create(payload)" />
       </slot>
-
       <!-- Popup command palette to add resources from anywhere -->
       <TheCommandPalette
         :eventBus="app.eventBus"

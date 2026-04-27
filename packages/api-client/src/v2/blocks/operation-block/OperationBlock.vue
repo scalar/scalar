@@ -280,6 +280,7 @@ const handleExecute = async () => {
     isUsingProxy: requestResult.result.isUsingProxy,
     requestPayload: requestResult.result.requestPayload,
     plugins,
+    customFetch: toValue(options)?.customFetch,
   })
 
   if (sendResult) {
@@ -406,6 +407,15 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
   })
 }
 
+const handleNavigateSettings = () => {
+  eventBus.emit('ui:navigate', {
+    page: 'operation',
+    path: 'overview',
+    operationPath: path,
+    method,
+  })
+}
+
 /**
  * When the path, method, or example key changes: save current response to
  * cache (so it can be restored when navigating back), then restore from cache
@@ -458,6 +468,7 @@ onBeforeUnmount(() => {
         :servers
         :source
         @execute="handleExecute"
+        @navigate:settings="handleNavigateSettings"
         @select:history:item="handleSelectHistoryItem" />
     </div>
 

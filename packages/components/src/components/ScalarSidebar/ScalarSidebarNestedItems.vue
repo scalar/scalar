@@ -23,6 +23,7 @@ import { nextTick, ref, useTemplateRef } from 'vue'
 
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarItems from './ScalarSidebarItems.vue'
+import ScalarSidebarLoading from './ScalarSidebarLoading.vue'
 import ScalarSidebarSpacer from './ScalarSidebarSpacer.vue'
 import { findScrollContainer } from './findScrollContainer'
 import type { ScalarSidebarGroupProps } from './types'
@@ -170,7 +171,10 @@ const handleBack = (event: MouseEvent) => {
             </slot>
             <ScalarSidebarSpacer class="h-3" />
           </div>
-          <slot name="items" />
+          <ScalarSidebarLoading v-if="loading" />
+          <slot
+            v-else
+            name="items" />
         </ScalarSidebarItems>
       </div>
     </Transition>

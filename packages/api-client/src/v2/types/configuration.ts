@@ -1,4 +1,4 @@
-export type ImportDocumentFromRegistry = (meta: { namespace: string; slug: string }) => Promise<
+export type ImportDocumentFromRegistry = (meta: { namespace: string; slug: string; version?: string }) => Promise<
   | {
       ok: true
       data: Record<string, unknown>

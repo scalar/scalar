@@ -23,11 +23,14 @@ export default {}
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
+import ScalarSidebarLoading from './ScalarSidebarLoading.vue'
 import ScalarSidebarSpacer from './ScalarSidebarSpacer.vue'
-import type { ScalarSidebarItemProps } from './types'
+import type { ScalarSidebarGroupProps, ScalarSidebarItemProps } from './types'
 import { useSidebarGroups } from './useSidebarGroups'
 
-const { is = 'li' } = defineProps<ScalarSidebarItemProps>()
+const { is = 'li' } = defineProps<
+  ScalarSidebarItemProps & Pick<ScalarSidebarGroupProps, 'loading'>
+>()
 
 defineSlots<{
   /** The text content of the toggle */
@@ -57,7 +60,10 @@ const { cx } = useBindCx()
       <slot />
     </ScalarSidebarButton>
     <ul class="flex flex-col gap-px">
-      <slot name="items" />
+      <ScalarSidebarLoading v-if="loading" />
+      <slot
+        v-else
+        name="items" />
     </ul>
     <ScalarSidebarSpacer
       class="group/spacer-after h-3"

@@ -150,6 +150,30 @@ const x = 42;
     expect(html.trim()).toContain('Content')
   })
 
+  it('parses inline markdown inside HTML paragraphs', () => {
+    const html = htmlFromMarkdown('<p>`Foobar`</p>')
+
+    expect(html.trim()).toBe('<p><code>Foobar</code></p>')
+  })
+
+  it('preserves literal angle-bracket text while parsing inline markdown inside HTML paragraphs', () => {
+    const html = htmlFromMarkdown('<p>Use &lt;span&gt; with `className`</p>')
+
+    expect(html.trim()).toBe('<p>Use &#x3C;span> with <code>className</code></p>')
+  })
+
+  it('does not parse markdown inside unsupported HTML tags', () => {
+    const html = htmlFromMarkdown('<div>`Foobar`</div>')
+
+    expect(html.trim()).toBe('<div>`Foobar`</div>')
+  })
+
+  it('preserves escaped inline markdown markers in normal markdown paragraphs', () => {
+    const html = htmlFromMarkdown(String.raw`\*not italic\* \`not code\` \~\~not strike\~\~ \[not link\]`)
+
+    expect(html.trim()).toBe('<p>*not italic* `not code` ~~not strike~~ [not link]</p>')
+  })
+
   it('handles deeply nested markdown without breaking', () => {
     const html = htmlFromMarkdown(`
 > > > Triple nested blockquote

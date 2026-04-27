@@ -8,6 +8,7 @@ import { createAppState } from '@/v2/features/app/app-state'
 import { ROUTES } from '@/v2/features/app/helpers/routes'
 import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
+import type { ApiClientOptions } from '@/v2/types/options'
 
 import { useCommandPaletteState } from '../../command-palette/hooks/use-command-palette-state'
 
@@ -41,9 +42,15 @@ type CreateApiClientOptions = {
    * Whether or not to send telemetry events.
    */
   telemetry?: boolean
-  /** Optional OAuth2 redirect URI override for auth prefill */
-  oauth2RedirectUri?: string
+  /** Runtime behaviour overrides */
+  options?: ApiClientAppOptions
 }
+
+/**
+ * Runtime behaviour overrides shared between createApiClientApp and createAppState.
+ * Derived from the canonical ApiClientOptions to guarantee structural compatibility.
+ */
+export type ApiClientAppOptions = Pick<ApiClientOptions, 'customFetch' | 'oauth2RedirectUri'>
 
 /**
  * Creates the appropriate router with the appropriate routes based on the layout
@@ -70,7 +77,7 @@ export const createApiClientApp = async (
     fallbackThemeSlug,
     fetchRegistryDocument,
     telemetry = true,
-    oauth2RedirectUri,
+    options,
   }: CreateApiClientOptions,
 ) => {
   // Add the router
@@ -80,7 +87,7 @@ export const createApiClientApp = async (
     customThemes,
     fallbackThemeSlug,
     telemetryDefault: telemetry,
-    oauth2RedirectUri,
+    options,
   })
   const commandPaletteState = useCommandPaletteState()
 

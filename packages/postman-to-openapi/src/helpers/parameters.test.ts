@@ -163,8 +163,8 @@ describe('parameters', () => {
         },
         header: [
           {
-            key: 'Authorization',
-            value: 'Bearer token',
+            key: 'X-Trace-Id',
+            value: 'abc-123',
           },
           {
             key: 'X-Request-ID',
@@ -176,12 +176,13 @@ describe('parameters', () => {
       const result = extractParameters(request, 'default')
 
       expect(result).toHaveLength(2)
-      expect(result.find((p: any) => p.name === 'Authorization')).toEqual({
-        name: 'Authorization',
+      expect(result.find((p: any) => p.name === 'X-Trace-Id')).toEqual({
+        name: 'X-Trace-Id',
         in: 'header',
+        description: undefined,
         examples: {
           default: {
-            value: 'Bearer token',
+            value: 'abc-123',
             'x-disabled': false,
           },
         },
@@ -203,6 +204,82 @@ describe('parameters', () => {
           type: 'integer',
         },
       })
+    })
+
+    it('drops content-negotiation headers', () => {
+      const request: Request = {
+        method: 'POST',
+        url: { raw: 'https://example.com/users' },
+        header: [
+          { key: 'Accept', value: 'application/json' },
+          { key: 'Content-Type', value: 'application/json' },
+          { key: 'Accept-Encoding', value: 'gzip' },
+          { key: 'Accept-Language', value: 'en-US' },
+          { key: 'X-Custom', value: 'keep-me' },
+        ],
+      }
+
+      const result = extractParameters(request, 'default')
+
+      expect(result.map((p: any) => p.name)).toEqual(['X-Custom'])
+    })
+
+    it('drops transport / hop-by-hop headers', () => {
+      const request: Request = {
+        method: 'GET',
+        url: { raw: 'https://example.com/users' },
+        header: [
+          { key: 'Host', value: 'example.com' },
+          { key: 'Connection', value: 'keep-alive' },
+          { key: 'Content-Length', value: '0' },
+          { key: 'Transfer-Encoding', value: 'chunked' },
+        ],
+      }
+
+      expect(extractParameters(request, 'default')).toEqual([])
+    })
+
+    it('drops auth headers (they belong in securitySchemes)', () => {
+      const request: Request = {
+        method: 'GET',
+        url: { raw: 'https://example.com/users' },
+        header: [
+          { key: 'Authorization', value: 'Bearer token' },
+          { key: 'Proxy-Authorization', value: 'Basic abc' },
+          { key: 'Cookie', value: 'session=x' },
+        ],
+      }
+
+      expect(extractParameters(request, 'default')).toEqual([])
+    })
+
+    it('matches the block-list case-insensitively', () => {
+      const request: Request = {
+        method: 'GET',
+        url: { raw: 'https://example.com/users' },
+        header: [
+          { key: 'content-type', value: 'application/json' },
+          { key: 'CONTENT-TYPE', value: 'application/json' },
+          { key: 'aUtHoRiZaTiOn', value: 'Bearer token' },
+        ],
+      }
+
+      expect(extractParameters(request, 'default')).toEqual([])
+    })
+
+    it('opts a specific header back in via keepHeaders (case-insensitive)', () => {
+      const request: Request = {
+        method: 'GET',
+        url: { raw: 'https://example.com/users' },
+        header: [
+          { key: 'Authorization', value: 'Bearer token' },
+          { key: 'Accept', value: 'application/json' },
+        ],
+      }
+
+      const result = extractParameters(request, 'default', ['authorization'])
+
+      expect(result.map((p: any) => p.name)).toEqual(['Authorization'])
     })
 
     it('returns empty array for string request', () => {
@@ -554,8 +631,8 @@ describe('parameters', () => {
         },
         header: [
           {
-            key: 'Authorization',
-            value: 'Bearer token',
+            key: 'X-Trace-Id',
+            value: 'abc-123',
             disabled: true,
           },
           {
@@ -568,10 +645,10 @@ describe('parameters', () => {
       const result = extractParameters(request, 'default')
 
       expect(result).toHaveLength(2)
-      const authParam = result.find((p: any) => p.name === 'Authorization')
-      expect(authParam).toBeDefined()
+      const traceParam = result.find((p: any) => p.name === 'X-Trace-Id')
+      expect(traceParam).toBeDefined()
       // @ts-expect-error @scalar/openapi-types does not allow extensions here
-      expect(authParam?.['x-scalar-disabled']).toBe(true)
+      expect(traceParam?.['x-scalar-disabled']).toBe(true)
       const requestIdParam = result.find((p: any) => p.name === 'X-Request-ID')
       expect(requestIdParam).toBeDefined()
       // @ts-expect-error @scalar/openapi-types does not allow extensions here

@@ -3,6 +3,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Item, ItemGroup } from '@/types'
 
 import { processAuth } from './auth'
+import { parseMediaType, pickAcceptMediaType, readHeader } from './header-utils'
 import { parseMdTable } from './markdown'
 import { extractParameters } from './parameters'
 import { processPostResponseScripts } from './post-response-scripts'
@@ -65,6 +66,7 @@ export function processItem(
   preserveCollapsedVariants: boolean = false,
   resolveTagName?: (segments: string[]) => string | undefined,
   collectionVariableLookup: CollectionVariableLookup = new Map(),
+  keepHeaders?: readonly string[],
 ): {
   paths: OpenAPIV3_1.PathsObject
   components: OpenAPIV3_1.ComponentsObject
@@ -85,6 +87,7 @@ export function processItem(
         preserveCollapsedVariants,
         resolveTagName,
         collectionVariableLookup,
+        keepHeaders,
       )
       // Merge child paths and components
       for (const [pathKey, pathItem] of Object.entries(childResult.paths)) {
@@ -155,11 +158,18 @@ export function processItem(
   const tagName =
     parentTags.length > 0 ? (resolveTagName ? resolveTagName(parentTags) : parentTags.join(' > ')) : undefined
 
+  // Derive media-type signals from request headers before they are filtered out
+  // of `parameters[in=header]`. Content-Type drives the request body media type;
+  // Accept drives responses when no saved-response Content-Type is available.
+  const requestHeaders = typeof request === 'string' ? undefined : request.header
+  const contentType = parseMediaType(readHeader(requestHeaders, 'Content-Type'))
+  const acceptMediaType = pickAcceptMediaType(readHeader(requestHeaders, 'Accept'))
+
   const operationObject: OpenAPIV3_1.OperationObject = {
     tags: tagName ? [tagName] : undefined,
     summary,
     description,
-    responses: extractResponses(response || [], item),
+    responses: extractResponses(response || [], item, acceptMediaType),
     parameters: [],
   }
   if (parentTags.length > 0) {
@@ -198,7 +208,7 @@ export function processItem(
 
   // Extract parameters from the request (query, path, header)
   // This should always happen, regardless of whether a description exists
-  const extractedParameters = extractParameters(request, operationExampleName)
+  const extractedParameters = extractParameters(request, operationExampleName, keepHeaders)
 
   // Merge parameters, giving priority to those from the Markdown table if description exists
   const mergedParameters = new Map<string, OpenAPIV3_1.ParameterObject>()
@@ -254,7 +264,7 @@ export function processItem(
 
   // Allow request bodies for all methods (including GET) if body is present
   if (typeof request !== 'string' && request.body) {
-    const requestBody = extractRequestBody(request.body, operationExampleName)
+    const requestBody = extractRequestBody(request.body, operationExampleName, contentType)
     ensureRequestBodyContent(requestBody)
     // Only add requestBody if it has content
     if (requestBody.content && Object.keys(requestBody.content).length > 0) {

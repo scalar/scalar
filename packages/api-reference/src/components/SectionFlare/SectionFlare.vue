@@ -14,6 +14,7 @@
 
 <style scoped>
 .section-flare {
+  position: fixed;
   top: 0;
   right: 0;
   pointer-events: none;

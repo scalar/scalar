@@ -1,5 +1,17 @@
 # @scalar/workspace-store
 
+## 0.46.3
+
+### Patch Changes
+
+- [#8952](https://github.com/scalar/scalar/pull/8952): Export shared Scalar custom header constants from `@scalar/helpers/http/scalar-headers` and consume them in request build/send flows.
+
+## 0.46.2
+
+### Patch Changes
+
+- [#8927](https://github.com/scalar/scalar/pull/8927): Resolve environment variables in raw request paths when building request URLs, so address bar placeholders like `{{path}}` are substituted during send.
+
 ## 0.46.1
 
 ### Patch Changes

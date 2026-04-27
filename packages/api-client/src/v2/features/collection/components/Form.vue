@@ -19,6 +19,8 @@ defineProps<{
   data: Record<string, any>
   onUpdate: (key: string, value: string | number) => void
   environment: XScalarEnvironment
+  /** Whether to show context function suggestions like $guid, $timestamp. Defaults to true */
+  withFakeData?: boolean
 }>()
 
 const id = useId()
@@ -48,6 +50,7 @@ const id = useId()
             :lineWrapping="option.lineWrapping ?? false"
             :modelValue="data[option.key] ?? ''"
             :placeholder="option.placeholder"
+            :withFakeData="withFakeData ?? true"
             @update:modelValue="onUpdate(option.key, $event)">
             <template #default>
               <label :for="id">

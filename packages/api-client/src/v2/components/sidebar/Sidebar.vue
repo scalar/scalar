@@ -121,8 +121,15 @@ const handleSelectItem = (id: string) => {
           <div class="mac:h-12 mac:app-drag-region h-2"></div>
           <div
             class="bg-sidebar-b-1 z-1 flex flex-col gap-1.5 px-3 pb-1.5"
-            :class="{ 'max-md:pt-12': layout !== 'modal' }">
-            <div class="flex items-center justify-between">
+            :class="{
+              'max-md:pt-12': layout === 'desktop',
+              'max-md:pt-2 max-md:pl-4!': layout === 'modal',
+              'pt-1 max-md:pt-2 max-md:pl-14': layout === 'web',
+            }">
+            <div
+              v-if="layout !== 'web'"
+              class="flex items-center justify-between"
+              :class="{ 'max-md:pl-10': layout === 'desktop' }">
               <!-- Desktop gets the workspace menu here  -->
               <SidebarMenu
                 v-if="layout !== 'modal'"
@@ -141,15 +148,17 @@ const handleSelectItem = (id: string) => {
 
               <!-- Toggle search, always visible on web -->
               <ScalarIconButton
+                class="hover:bg-b-2 active:text-c-1 size-8 rounded p-2"
                 :icon="ScalarIconMagnifyingGlass"
                 label="Search"
+                size="sm"
                 @click="isSearchVisible = !isSearchVisible" />
             </div>
 
             <ScalarSidebarSearchInput
-              v-if="isSearchVisible"
+              v-if="isSearchVisible || layout === 'web'"
               v-model="query"
-              autofocus />
+              :autofocus="layout !== 'web'" />
           </div>
         </template>
 

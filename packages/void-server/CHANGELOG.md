@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.4.7
+
+### Patch Changes
+
+- [#8945](https://github.com/scalar/scalar/pull/8945): fix zip responses to return a valid archive with request JSON payload
+
 ## 2.4.6
 
 ## 2.4.5

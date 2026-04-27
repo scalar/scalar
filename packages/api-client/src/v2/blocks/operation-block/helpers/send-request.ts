@@ -4,6 +4,7 @@ import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
 import { normalizeHeaders } from '@scalar/helpers/http/normalize-headers'
+import { X_SCALAR_SET_COOKIE } from '@scalar/helpers/http/scalar-headers'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { RequestPayload } from '@scalar/workspace-store/request-example'
 import * as cookie from 'cookie'
@@ -17,8 +18,6 @@ import {
 } from '@/v2/blocks/response-block/helpers/resolve-response-content-type'
 
 import { decodeBuffer } from './decode-buffer'
-
-const CUSTOM_COOKIE_HEADER = 'x-scalar-set-cookie'
 
 /** A single set of populated values for a sent request */
 export type ResponseInstance = Omit<Response, 'headers'> & {
@@ -52,6 +51,9 @@ export type ResponseInstance = Omit<Response, 'headers'> & {
 /** HTTP status codes that should not include a response body */
 const NO_BODY_STATUS_CODES = [204, 205, 304]
 
+/** Custom fetch function signature compatible with the global fetch API */
+export type CustomFetch = typeof fetch
+
 /**
  * Execute the built fetch request and return a structured response.
  *
@@ -69,11 +71,14 @@ export const sendRequest = async ({
   isUsingProxy,
   requestPayload,
   plugins = [],
+  customFetch = fetch,
 }: {
   isUsingProxy: boolean
   requestPayload: RequestPayload
   /** Registered client plugins for custom content type handling */
   plugins?: ClientPlugin[]
+  /** Optional custom fetch implementation, overrides the global fetch */
+  customFetch?: CustomFetch
 }): Promise<
   ErrorResponse<{
     response: ResponseInstance
@@ -86,11 +91,10 @@ export const sendRequest = async ({
     // Execute the request and measure duration
     const startTime = performance.now()
 
-    // We may use a custom fetch function on electron
-    const response =
-      isElectron() && window.proxiedFetch
-        ? await window.proxiedFetch?.(...requestPayload)
-        : await fetch(buildSafeBodyRequest(...requestPayload))
+    // In electron we allow GET requests to have a body
+    const response = isElectron()
+      ? await customFetch(...requestPayload)
+      : await customFetch(buildSafeBodyRequest(...requestPayload))
 
     const endTime = performance.now()
     const timestamp = Date.now()
@@ -151,7 +155,7 @@ export const sendRequest = async ({
  * The @ts-expect-error is present due to a type mismatch between the 'cookie' parsing and serialization libraries.
  */
 const getCustomCookie = (response: Response): string[] | null => {
-  const result = parseSetCookie(response.headers.get(CUSTOM_COOKIE_HEADER) ?? '').map((c) =>
+  const result = parseSetCookie(response.headers.get(X_SCALAR_SET_COOKIE) ?? '').map((c) =>
     cookie.serialize(c.name, c.value, {
       ...c,
       sameSite: c.sameSite as boolean | 'lax' | 'strict' | 'none' | undefined,

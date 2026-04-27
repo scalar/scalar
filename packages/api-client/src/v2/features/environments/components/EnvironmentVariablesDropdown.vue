@@ -18,7 +18,7 @@ const {
   contextFunctionItems = [],
 } = defineProps<{
   query: string
-  environment: XScalarEnvironment
+  environment?: XScalarEnvironment
   dropdownPosition?: { left: number; top: number }
   /** Runtime placeholders such as `{{$guid}}`, shown with environment variables */
   contextFunctionItems?: { key: string; description: string }[]
@@ -40,7 +40,7 @@ const redirectToEnvironment = () => {
 
 /** Normalize the variables to have a name and value */
 const normalizedVariables = computed(() =>
-  environment.variables.map((v) => ({
+  (environment?.variables ?? []).map((v) => ({
     key: v.name,
     value: typeof v.value === 'string' ? v.value : v.value.default,
   })),
@@ -215,7 +215,7 @@ onClickOutside(
                 v-if="item.kind === 'env'"
                 class="h-2.25 w-2.25 min-w-2.25 rounded-full"
                 :style="{
-                  backgroundColor: environment.color,
+                  backgroundColor: environment?.color,
                 }" />
               <span
                 v-else

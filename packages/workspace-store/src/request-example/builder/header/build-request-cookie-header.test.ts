@@ -1,3 +1,4 @@
+import { X_SCALAR_COOKIE } from '@scalar/helpers/http/scalar-headers'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import { describe, expect, it } from 'vitest'
 
@@ -115,7 +116,7 @@ describe('buildRequestCookieHeader', () => {
       })
 
       expect(result).toMatchObject({
-        name: 'X-Scalar-Cookie',
+        name: X_SCALAR_COOKIE,
         value: 'localCookie=foo',
       })
     })

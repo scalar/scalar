@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.5.2
+
+### Patch Changes
+
+- [#8952](https://github.com/scalar/scalar/pull/8952): Export shared Scalar custom header constants from `@scalar/helpers/http/scalar-headers` and consume them in request build/send flows.
+
 ## 0.5.1
 
 ### Patch Changes

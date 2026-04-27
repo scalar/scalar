@@ -683,6 +683,45 @@
               "toc": false
             }
           },
+          "/brand": {
+            "title": "Brand",
+            "description": "Scalar brand guidelines, logos, wordmark, icon, and color palette. Download official brand assets.",
+            "icon": "phosphor/regular/palette",
+            "filepath": "documentation/guides/brand.md",
+            "type": "page",
+            "showInSidebar": false,
+            "head": {
+              "scripts": [
+                {
+                  "path": "documentation/assets/brand.js"
+                }
+              ],
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/brand"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Scalar brand guidelines, logos, wordmark, icon, and color palette. Download official brand assets."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Scalar Brand Guidelines"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Download the Scalar logo, wordmark, icon, and brand color palette."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            }
+          },
           "/pricing": {
             "title": "Pricing",
             "description": "Transparent pricing for developer documentation, SDKs, and API tools. Start free and scale as you grow.",
@@ -2300,6 +2339,11 @@
                   "custom-request-handler": {
                     "title": "Custom Request Handlers",
                     "filepath": "documentation/guides/mock-server/custom-request-handler.md",
+                    "type": "page"
+                  },
+                  "agent-skills": {
+                    "title": "Agent Skills",
+                    "filepath": "documentation/guides/mock-server/agent-skills.md",
                     "type": "page"
                   },
                   "data-seeding": {

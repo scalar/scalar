@@ -909,6 +909,40 @@ describe('extractSecuritySchemeSecrets', () => {
       } satisfies OAuth2ObjectSecret)
     })
 
+    it('preserves an explicitly cleared redirect URI from auth store', () => {
+      const authStore = createAuthStore()
+      authStore.setAuthSecrets(documentSlug, schemeName, {
+        type: 'oauth2',
+        authorizationCode: {
+          'x-scalar-secret-redirect-uri': '',
+        },
+      })
+
+      const scheme: ConfigAuthScheme = {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            tokenUrl: 'https://example.com/oauth/token',
+            scopes: {},
+            refreshUrl: '',
+            'x-usePkce': 'no',
+            'x-scalar-redirect-uri': 'https://config.example.com/callback',
+          },
+        },
+      }
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug)
+
+      expect(result).toMatchObject({
+        type: 'oauth2',
+        flows: {
+          authorizationCode: expect.any(Object),
+        },
+      })
+      expect((result as OAuth2ObjectSecret).flows.authorizationCode?.['x-scalar-secret-redirect-uri']).toBe('')
+    })
+
     it('handles authorizationCode flow with PKCE enabled', () => {
       const authStore = createAuthStore()
       const scheme: ConfigAuthScheme = {

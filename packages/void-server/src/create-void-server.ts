@@ -61,7 +61,7 @@ export function createVoidServer() {
       return createXmlResponse(c, requestData)
     }
     if (filename?.endsWith('.zip')) {
-      return createZipFileResponse(c)
+      return createZipFileResponse(c, requestData)
     }
 
     return createJsonResponse(c, requestData)
@@ -86,7 +86,7 @@ export function createVoidServer() {
       return createXmlResponse(c, requestData)
     }
     if (acceptedContentType === 'application/zip') {
-      return createZipFileResponse(c)
+      return createZipFileResponse(c, requestData)
     }
 
     return createJsonResponse(c, requestData)

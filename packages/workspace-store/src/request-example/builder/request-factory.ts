@@ -1,4 +1,5 @@
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
+import { X_SCALAR_USER_AGENT } from '@scalar/helpers/http/scalar-headers'
 import { replacePathVariables } from '@scalar/helpers/regex/replace-variables'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -256,7 +257,7 @@ export const requestFactory = ({
   // that's then forwarded as a `User-Agent` header.
   const userAgentHeader = headers.get('User-Agent')
   if (isElectron && userAgentHeader) {
-    headers.set('X-Scalar-User-Agent', userAgentHeader)
+    headers.set(X_SCALAR_USER_AGENT, userAgentHeader)
   }
 
   const globalCookieFilter = operation['x-scalar-disable-parameters']?.['global-cookies']?.[exampleName] ?? {}

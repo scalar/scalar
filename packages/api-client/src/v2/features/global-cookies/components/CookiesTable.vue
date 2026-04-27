@@ -159,11 +159,13 @@ const handleCookieDelete = (index: number): void =>
       <DataTableCell>
         <CodeInput
           aria-label="Cookie Value"
+          disableCloseBrackets
           disableTabIndent
           :environment="undefined"
           lineWrapping
           :modelValue="row.value"
           placeholder="Value"
+          withFakeData
           @update:modelValue="
             (value) =>
               handleCookieChange(

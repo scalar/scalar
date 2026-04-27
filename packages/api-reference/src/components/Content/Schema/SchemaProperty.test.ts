@@ -715,4 +715,37 @@ describe('SchemaProperty', () => {
       expect(wrapper.text()).toContain('0')
     })
   })
+
+  describe('anchor link behavior', () => {
+    it('renders anchor id for level-2 property with breadcrumb and name', () => {
+      // Level-2 properties appear inside allOf groups — they need anchors too
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          breadcrumb: ['body', 'BaseObject'],
+          level: 2,
+          name: 'myField',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.find('#body\\.BaseObject\\.myField').exists()).toBe(true)
+    })
+
+    it('does not render anchor id for level-3 property', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          breadcrumb: ['body', 'BaseObject'],
+          level: 3,
+          name: 'nestedField',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.find('#body\\.BaseObject\\.nestedField').exists()).toBe(false)
+    })
+  })
 })

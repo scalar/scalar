@@ -386,4 +386,70 @@ describe('responses', () => {
       type: 'string',
     })
   })
+
+  describe('media-type selection', () => {
+    it('uses the saved response Content-Type header', () => {
+      const responses: Response[] = [
+        {
+          code: 200,
+          status: 'OK',
+          header: [{ key: 'Content-Type', value: 'application/xml; charset=utf-8' }],
+          body: '<user/>',
+        },
+      ]
+
+      const result = extractResponses(responses)
+
+      expect(result?.['200']?.content?.['application/xml']).toBeDefined()
+      expect(result?.['200']?.content?.['application/json']).toBeUndefined()
+    })
+
+    it('falls back to request Accept when the saved response has no Content-Type', () => {
+      const responses: Response[] = [
+        {
+          code: 200,
+          status: 'OK',
+          body: '<user/>',
+        },
+      ]
+
+      const result = extractResponses(responses, undefined, 'application/xml')
+
+      expect(result?.['200']?.content?.['application/xml']).toBeDefined()
+    })
+
+    it('applies Accept fallback to responses synthesised from test status codes', () => {
+      const item = {
+        name: 'Get user',
+        event: [
+          {
+            listen: 'test',
+            script: {
+              exec: ['pm.test("Status code is 200", () => { pm.response.to.have.status(200); });'],
+            },
+          },
+        ],
+        request: { method: 'GET' },
+      } as unknown as Item
+
+      const result = extractResponses([], item, 'application/xml')
+
+      expect(result?.['200']?.content?.['application/xml']).toBeDefined()
+      expect(result?.['200']?.content?.['application/json']).toBeUndefined()
+    })
+
+    it('keeps application/json as the ultimate fallback', () => {
+      const responses: Response[] = [
+        {
+          code: 200,
+          status: 'OK',
+          body: '{"ok":true}',
+        },
+      ]
+
+      const result = extractResponses(responses)
+
+      expect(result?.['200']?.content?.['application/json']).toBeDefined()
+    })
+  })
 })

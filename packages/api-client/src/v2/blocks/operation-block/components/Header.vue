@@ -41,8 +41,9 @@ export type HeaderProps = {
 </script>
 
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIcon, ScalarIconButton } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { ScalarIconGearSix } from '@scalar/icons'
 import type {
   ServerMeta,
   WorkspaceEventBus,
@@ -65,6 +66,8 @@ const emit = defineEmits<{
   (e: 'select:history:item', payload: { index: number }): void
   /** Add a new environment */
   (e: 'add:environment'): void
+  /** Navigate to the settings page for the current entity */
+  (e: 'navigate:settings'): void
 }>()
 
 const handleSelectEnvironment = (environmentName: string) => {
@@ -118,6 +121,14 @@ const handleAddEnvironment = () => {
         :environments="environments"
         @add:environment="handleAddEnvironment"
         @select:environment="handleSelectEnvironment" />
+      <!-- Operation settings -->
+      <ScalarIconButton
+        v-if="layout !== 'modal'"
+        :icon="ScalarIconGearSix"
+        label="Operation settings"
+        size="sm"
+        weight="bold"
+        @click="emit('navigate:settings')" />
       <!--
           Open API Client Button
 

@@ -63,7 +63,7 @@ The `dereference` function accepts an `onDereference` callback option that gets 
 import { dereference } from '@scalar/openapi-parser'
 
 const { schema, errors } = await dereference(specification, {
-  onDereference: ({ schema, ref }) => {
+  onDereference: ({ schema, ref, resolved }) => {
     //
   },
 })

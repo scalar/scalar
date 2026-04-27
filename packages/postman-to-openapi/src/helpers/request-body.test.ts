@@ -409,4 +409,87 @@ describe('request-body', () => {
       },
     })
   })
+
+  describe('contentType override', () => {
+    it('uses request Content-Type over language hint', () => {
+      const body: RequestBody = {
+        mode: 'raw',
+        raw: '<user><name>John</name></user>',
+        options: { raw: { language: 'json' } },
+      }
+
+      const result = extractRequestBody(body, 'default', 'application/xml')
+
+      expect(result).toEqual({
+        content: {
+          'application/xml': {
+            schema: { type: 'string' },
+            examples: {
+              default: { value: '<user><name>John</name></user>' },
+            },
+          },
+        },
+      })
+    })
+
+    it('keeps JSON schema shape when Content-Type is application/json', () => {
+      const body: RequestBody = {
+        mode: 'raw',
+        raw: '{"ok":true}',
+      }
+
+      const result = extractRequestBody(body, 'default', 'application/json')
+
+      expect(result).toEqual({
+        content: {
+          'application/json': {
+            schema: { type: 'object' },
+            examples: {
+              default: { value: '{"ok":true}' },
+            },
+          },
+        },
+      })
+    })
+
+    it('keeps text/plain schema shape when Content-Type is text/plain', () => {
+      const body: RequestBody = {
+        mode: 'raw',
+        raw: 'hello',
+      }
+
+      const result = extractRequestBody(body, 'default', 'text/plain')
+
+      expect(result).toEqual({
+        content: {
+          'text/plain': {
+            schema: { type: 'string', examples: ['hello'] },
+          },
+        },
+      })
+    })
+
+    it('falls back to language hint when no Content-Type', () => {
+      const body: RequestBody = {
+        mode: 'raw',
+        raw: '{"ok":true}',
+        options: { raw: { language: 'json' } },
+      }
+
+      const result = extractRequestBody(body, 'default')
+
+      expect(result.content?.['application/json']).toBeDefined()
+    })
+
+    it('falls back to text/plain when neither Content-Type nor language is set', () => {
+      const body: RequestBody = {
+        mode: 'raw',
+        raw: 'plain text',
+      }
+
+      const result = extractRequestBody(body, 'default')
+
+      expect(result.content?.['text/plain']).toBeDefined()
+    })
+  })
 })

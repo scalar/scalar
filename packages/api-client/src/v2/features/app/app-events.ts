@@ -354,6 +354,9 @@ export function initializeAppEventHandlers({
 
     if (payload.page === 'workspace') {
       const params = { workspaceSlug: payload.workspaceSlug, namespace: payload.namespace } satisfies ValidParams
+      if (payload.path === 'get-started') {
+        return execCallback(await fn({ name: 'workspace.get-started', params }))
+      }
       if (payload.path === 'environment') {
         return execCallback(await fn({ name: 'workspace.environment', params }))
       }

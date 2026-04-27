@@ -35,6 +35,7 @@ import {
 } from 'vue'
 import type { RouteLocationNormalizedGeneric, RouteLocationRaw, Router } from 'vue-router'
 
+import type { ApiClientAppOptions } from '@/v2/features/app/helpers/create-api-client-app'
 import { getRouteParam } from '@/v2/features/app/helpers/get-route-param'
 import { groupWorkspacesByTeam } from '@/v2/features/app/helpers/group-workspaces'
 import { useTheme } from '@/v2/features/app/hooks/use-theme'
@@ -113,6 +114,12 @@ export type AppState = {
     navigateToWorkspace: (namespace?: string, slug?: string) => Promise<void>
     /** Whether the workspace page is open */
     isOpen: ComputedRef<boolean>
+    /**
+     * Whether the currently active workspace is a team workspace (i.e. has a
+     * `teamUid` other than `'local'`). Useful for gating team-only UI such as
+     * the registry-backed document list and its loading state.
+     */
+    isTeamWorkspace: ComputedRef<boolean>
   }
   /** The workspace event bus for handling workspace-level events */
   eventBus: WorkspaceEventBus
@@ -122,8 +129,8 @@ export type AppState = {
   currentRoute: Ref<RouteLocationNormalizedGeneric | null>
   /** Whether the workspace is currently syncing */
   loading: Ref<boolean>
-  /** Optional OAuth2 redirect URI override for auth prefill */
-  oauth2RedirectUri?: string
+  /** Runtime behaviour overrides */
+  options?: ApiClientAppOptions
   /** The currently active entities */
   activeEntities: {
     /** The namespace of the current entity, e.g. "default" or a custom namespace */
@@ -178,14 +185,15 @@ export const createAppState = async ({
   fallbackThemeSlug = () => 'default',
   customThemes = () => [],
   telemetryDefault,
-  oauth2RedirectUri,
+  options,
 }: {
   router: Router
   fileLoader?: LoaderPlugin
   customThemes?: MaybeRefOrGetter<Theme[]>
   fallbackThemeSlug?: MaybeRefOrGetter<string>
   telemetryDefault?: boolean
-  oauth2RedirectUri?: string
+  /** Runtime behaviour overrides */
+  options?: ApiClientAppOptions
 }): Promise<AppState> => {
   /** Workspace event bus for handling workspace-level events. */
   const eventBus = createWorkspaceEventBus({
@@ -226,6 +234,21 @@ export const createAppState = async ({
   const workspaces = ref<WorkspaceOption[]>([])
   const filteredWorkspaces = computed(() => filterWorkspacesByTeam(workspaces.value, teamUid.value))
   const workspaceGroups = computed(() => groupWorkspacesByTeam(filteredWorkspaces.value, teamUid.value))
+  /**
+   * `true` when the active workspace is backed by a team (i.e. not the
+   * built-in `'local'` team). We look the workspace up in the full
+   * `workspaces` list because `activeWorkspace` only stores `{ id, label }`,
+   * whereas `WorkspaceOption` carries the `teamUid` we need. Consumers can
+   * read this via `app.workspace.isTeamWorkspace` to gate team-only UI.
+   */
+  const isTeamWorkspace = computed(() => {
+    const id = activeWorkspace.value?.id
+    if (!id) {
+      return false
+    }
+    const workspace = workspaces.value.find((w) => w.id === id)
+    return Boolean(workspace && workspace.teamUid !== 'local')
+  })
   const store = shallowRef<WorkspaceStore | null>(null)
 
   // Load persisted telemetry preference, falling back to the provided default
@@ -305,6 +328,7 @@ export const createAppState = async ({
         }),
       ],
       fileLoader,
+      fetch: options?.customFetch,
     })
   }
 
@@ -476,7 +500,10 @@ export const createAppState = async ({
    *    - If found, navigates to the active tab path (if available).
    *    - If not found, creates the default workspace and navigates to it.
    */
-  const changeWorkspace = async (namespace: string, slug: string) => {
+  const changeWorkspace = async (namespace: string, slug: string, to?: RouteLocationNormalizedGeneric) => {
+    /** For initial load we want to fall through to our router default behaviour */
+    const isInitialLoad = activeWorkspace.value === null
+
     // Clear the current store and set loading to true before loading new workspace.
     store.value = null
     isSyncingWorkspace.value = true
@@ -490,7 +517,8 @@ export const createAppState = async ({
       const tabs = result.workspace['x-scalar-tabs']
       const tab = tabs?.[index]
 
-      if (tab) {
+      // On initial load let the URL-based routing (catch-all → getLastPath) take precedence
+      if (tab && !isInitialLoad) {
         // Preserve query parameters when navigating to the active tab
         await router.replace({
           path: tab.path,
@@ -511,6 +539,14 @@ export const createAppState = async ({
           'x-scalar-tabs': [createTabFromRoute(currentRoute.value)],
           'x-scalar-active-tab': 0,
         })
+      }
+
+      // On initial load the router.replace above is skipped, so syncTabs/syncSidebar
+      // are never reached via handleRouteChange's normal flow. Call them here to
+      // align the tab bar and sidebar with the URL-based route.
+      if (isInitialLoad && to) {
+        syncTabs(to)
+        syncSidebar(to)
       }
 
       isSyncingWorkspace.value = false
@@ -925,7 +961,7 @@ export const createAppState = async ({
     }
 
     if (getWorkspaceId(namespace.value, slug) !== activeWorkspace.value?.id) {
-      return changeWorkspace(namespace.value, slug)
+      return changeWorkspace(namespace.value, slug, to)
     }
 
     // Update the active document if the document slug has changes
@@ -1033,12 +1069,12 @@ export const createAppState = async ({
       activeWorkspace,
       navigateToWorkspace,
       isOpen: computed(() => Boolean(workspaceSlug.value && !documentSlug.value)),
+      isTeamWorkspace,
     },
     eventBus,
     router,
     currentRoute,
     loading: isSyncingWorkspace,
-    oauth2RedirectUri,
     activeEntities: {
       namespace,
       workspaceSlug,
@@ -1058,5 +1094,6 @@ export const createAppState = async ({
       customThemes,
     },
     telemetry,
+    options,
   }
 }

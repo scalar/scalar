@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "3.1.0",
+  "version": "3.2.2",
   "engines": {
     "node": ">=22"
   },
@@ -341,6 +341,7 @@
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
+    "@scalar/validation": "workspace:*",
     "@types/har-format": "^1.2.16",
     "@vueuse/core": "catalog:*",
     "@vueuse/integrations": "catalog:*",

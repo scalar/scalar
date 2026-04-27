@@ -351,6 +351,183 @@ describe('OAuth2', () => {
     expect(emitted).not.toHaveBeenCalled()
   })
 
+  it('prefills redirect URI again when switching to a different flow instance', async () => {
+    const expectedRedirectUri = window.location.origin + window.location.pathname
+    const emitted = vi.fn()
+    eventBus.on('auth:update:security-scheme-secrets', emitted)
+
+    const wrapper = mountWithProps({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth-v1',
+          tokenUrl: 'https://example.com/token-v1',
+          refreshUrl: '',
+          'x-scalar-secret-token': '',
+          'x-usePkce': 'no',
+          'x-scalar-secret-redirect-uri': '',
+          scopes: {},
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-client-secret': '',
+        },
+      },
+    })
+
+    await nextTick()
+    expect(emitted).toHaveBeenCalledTimes(1)
+
+    await wrapper.setProps({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth-v2',
+          tokenUrl: 'https://example.com/token-v2',
+          refreshUrl: '',
+          'x-scalar-secret-token': '',
+          'x-usePkce': 'no',
+          'x-scalar-secret-redirect-uri': '',
+          scopes: {},
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-client-secret': '',
+        },
+      },
+    })
+
+    await nextTick()
+    expect(emitted).toHaveBeenCalledTimes(2)
+    expect(emitted).toHaveBeenLastCalledWith({
+      payload: {
+        type: 'oauth2',
+        authorizationCode: {
+          'x-scalar-secret-redirect-uri': expectedRedirectUri,
+        },
+      },
+      name: 'OAuth2',
+    })
+  })
+
+  it('does not re-prefill redirect URI after user clears it', async () => {
+    const expectedRedirectUri = window.location.origin + window.location.pathname
+    const emitted = vi.fn()
+    eventBus.on('auth:update:security-scheme-secrets', emitted)
+
+    const wrapper = mountWithProps({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          refreshUrl: '',
+          'x-scalar-secret-token': '',
+          'x-usePkce': 'no',
+          'x-scalar-secret-redirect-uri': '',
+          scopes: {},
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-client-secret': '',
+        },
+      },
+    })
+
+    await nextTick()
+    expect(emitted).toHaveBeenCalledTimes(1)
+    expect(emitted).toHaveBeenLastCalledWith({
+      payload: {
+        type: 'oauth2',
+        authorizationCode: {
+          'x-scalar-secret-redirect-uri': expectedRedirectUri,
+        },
+      },
+      name: 'OAuth2',
+    })
+
+    await wrapper.setProps({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          refreshUrl: '',
+          'x-scalar-secret-token': '',
+          'x-usePkce': 'no',
+          'x-scalar-secret-redirect-uri': '',
+          scopes: {},
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-client-secret': '',
+        },
+      },
+    })
+
+    await nextTick()
+    expect(emitted).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not prefill redirect URI when flow identity is unchanged and value resets to empty', async () => {
+    const expectedRedirectUri = window.location.origin + window.location.pathname
+    const emitted = vi.fn()
+    eventBus.on('auth:update:security-scheme-secrets', emitted)
+
+    const wrapper = mountWithProps({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          refreshUrl: '',
+          'x-scalar-secret-token': '',
+          'x-usePkce': 'no',
+          'x-scalar-secret-redirect-uri': '',
+          scopes: {},
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-client-secret': '',
+        },
+      },
+    })
+
+    await nextTick()
+    expect(emitted).toHaveBeenCalledTimes(1)
+    expect(emitted).toHaveBeenLastCalledWith({
+      payload: {
+        type: 'oauth2',
+        authorizationCode: {
+          'x-scalar-secret-redirect-uri': expectedRedirectUri,
+        },
+      },
+      name: 'OAuth2',
+    })
+
+    await wrapper.setProps({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          refreshUrl: '',
+          'x-scalar-secret-token': '',
+          'x-usePkce': 'no',
+          'x-scalar-secret-redirect-uri': expectedRedirectUri,
+          scopes: {},
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-client-secret': '',
+        },
+      },
+    })
+    await nextTick()
+    expect(emitted).toHaveBeenCalledTimes(1)
+
+    await wrapper.setProps({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          refreshUrl: '',
+          'x-scalar-secret-token': '',
+          'x-usePkce': 'no',
+          'x-scalar-secret-redirect-uri': '',
+          scopes: {},
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-client-secret': '',
+        },
+      },
+    })
+
+    await nextTick()
+    expect(emitted).toHaveBeenCalledTimes(1)
+  })
+
   it('emits clear security scheme secrets for openIdConnect flow', async () => {
     const wrapper = mountWithProps({
       scheme: { type: 'openIdConnect' },

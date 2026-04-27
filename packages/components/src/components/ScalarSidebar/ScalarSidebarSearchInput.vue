@@ -70,7 +70,7 @@ onMounted(() => autofocus && inputRef.value?.focus())
       size="md" />
     <ScalarIconButton
       v-else-if="model"
-      class="p-0.25 size-4"
+      class="p-px size-4"
       :icon="ScalarIconX"
       label="Clear Search"
       weight="bold"

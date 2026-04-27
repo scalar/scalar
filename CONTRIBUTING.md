@@ -75,6 +75,24 @@ For more information, see the [snippetz scripts README](./packages/snippetz/scri
 
 Don't worry, we'll help you to get your PR in. But here is how you can help us:
 
+### AI assisted coding
+
+Use AI, code by hand, or mix both, whatever helps you deliver quality changes. We review the pull request, not how it was written.
+
+To keep reviews healthy and sustainable:
+
+- Keep PRs small and well-scoped.
+- Add tests for regressions, issues, and new features. If it is not tested, it will likely break soon.
+- Explain the problem your PR solves.
+- Update tests and documentation alongside code changes.
+- Coding agents must follow these same contribution guidelines.
+
+What we will close:
+
+- Huge PRs.
+
+When in doubt, and you want to save precious tokens, open an issue first to confirm the plan before implementing.
+
 ### Semantic PR titles
 
 We require a semantic PR title, here is an example:

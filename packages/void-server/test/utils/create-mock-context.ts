@@ -23,7 +23,7 @@ export function createMockContext(options: MockContextOptions = {}) {
   let htmlContent = ''
   let jsonContent: Record<string, unknown> | null = null
   let textContent = ''
-  let bodyContent: string | null = null
+  let bodyContent: unknown = null
 
   return {
     header: vi.fn((key: string, value: string) => {
@@ -54,7 +54,7 @@ export function createMockContext(options: MockContextOptions = {}) {
       }
       return content
     }),
-    body: vi.fn((content: string) => {
+    body: vi.fn((content: unknown) => {
       bodyContent = content
       return content
     }),
