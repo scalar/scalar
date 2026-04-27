@@ -90,3 +90,28 @@ import { ScalarComponent } from '@scalar/astro'
   proxyUrl: 'https://proxy.scalar.com',
 }} />
 ```
+
+### Starlight and View Transitions
+
+If your Astro site uses client-side page transitions (for example Starlight with View Transitions),
+use `renderMode: 'client'` to mount Scalar after navigation events.
+
+This avoids the "content appears only after a refresh" issue on API reference pages.
+
+```astro
+---
+import { ScalarComponent } from '@scalar/astro'
+---
+
+<ScalarComponent
+  renderMode="client"
+  configuration={{
+    url: '/openapi.json',
+  }}
+/>
+```
+
+#### Client render mode options
+
+- `renderMode`: `'static' | 'client'` (defaults to `'static'`)
+- `mountElementId`: custom mount element id for client mode (defaults to `'scalar-app'`)
