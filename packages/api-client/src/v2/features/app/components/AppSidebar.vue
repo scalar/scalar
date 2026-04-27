@@ -30,6 +30,7 @@ import {
 import { useToasts } from '@scalar/use-toasts'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
@@ -241,9 +242,10 @@ const handleAddEmptyFolder = (item: TraversedEntry) => {
     return
   }
 
+  const doc = store.workspace.documents[documentName]
   createTempOperation(documentName, {
     existingPaths: new Set(
-      Object.keys(store.workspace.documents[documentName]?.paths ?? {}),
+      Object.keys((isOpenApiDocument(doc) ? doc.paths : undefined) ?? {}),
     ),
     eventBus: app.eventBus,
     tags: tagName ? [tagName] : undefined,
@@ -272,9 +274,10 @@ const handleCreateOperation = (item: SidebarDocumentItem) => {
     return
   }
 
+  const doc = store.workspace.documents[documentName]
   createTempOperation(documentName, {
     existingPaths: new Set(
-      Object.keys(store.workspace.documents[documentName]?.paths ?? {}),
+      Object.keys((isOpenApiDocument(doc) ? doc.paths : undefined) ?? {}),
     ),
     eventBus: app.eventBus,
   })
@@ -325,9 +328,13 @@ const searchModal = useModal()
 /**
  * The OpenAPI document currently selected in the workspace. The search modal
  * scopes its Fuse index to this document so results never leak across
- * collections.
+ * collections. AsyncAPI documents are excluded since the search index is
+ * OpenAPI-specific.
  */
-const activeDocument = computed(() => app.store.value?.workspace.activeDocument)
+const activeDocument = computed(() => {
+  const doc = app.store.value?.workspace.activeDocument
+  return isOpenApiDocument(doc) ? doc : undefined
+})
 
 const handleFilterOrSearch = () => {
   // Inside a document, this icon opens a modal search that is scoped to that

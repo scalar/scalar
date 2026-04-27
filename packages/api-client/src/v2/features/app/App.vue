@@ -17,6 +17,7 @@ import {
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { computed, onBeforeUnmount, toValue, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
@@ -177,9 +178,12 @@ const createWorkspaceModalState = useModal()
 
 /** Props to pass to the RouterView component. */
 const routerViewProps = computed<RouteProps>(() => {
+  // The API client is OpenAPI-native; AsyncAPI docs surface as `null` here so operation /
+  // collection views render their empty state instead of trying to read `.paths`.
+  const activeDocument = app.store.value?.workspace.activeDocument
   return {
     documentSlug: app.activeEntities.documentSlug.value ?? '',
-    document: app.store.value?.workspace.activeDocument ?? null,
+    document: isOpenApiDocument(activeDocument) ? activeDocument : null,
     environment: app.environment.value,
     eventBus: app.eventBus,
     exampleName: app.activeEntities.exampleName.value,

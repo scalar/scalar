@@ -246,20 +246,27 @@ describe('servers', () => {
       { url: 'https://dev.example.com' },
     ]
 
-    it('returns the server matching document x-scalar-selected-server when configServers is set', () => {
-      const document = {
-        'x-scalar-selected-server': 'https://staging.example.com',
-      }
+    const minimalOasDocument = (overrides: Record<string, unknown>) =>
+      ({
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        ...overrides,
+      }) as unknown as WorkspaceDocument
 
-      const result = getSelectedServer(document as WorkspaceDocument, null, [], servers)
+    it('returns the server matching document x-scalar-selected-server when configServers is set', () => {
+      const document = minimalOasDocument({
+        'x-scalar-selected-server': 'https://staging.example.com',
+      })
+
+      const result = getSelectedServer(document, null, [], servers)
 
       expect(result).toEqual({ url: 'https://staging.example.com' })
     })
 
     it('returns the server matching document x-scalar-selected-server when configServers is null', () => {
-      const document = { 'x-scalar-selected-server': 'https://staging.example.com' }
+      const document = minimalOasDocument({ 'x-scalar-selected-server': 'https://staging.example.com' })
 
-      const result = getSelectedServer(document as WorkspaceDocument, null, null, servers)
+      const result = getSelectedServer(document, null, null, servers)
 
       expect(result).toEqual({ url: 'https://staging.example.com' })
     })
@@ -273,32 +280,27 @@ describe('servers', () => {
     })
 
     it('prefers operation x-scalar-selected-server over document when configServers is null', () => {
-      const document = { 'x-scalar-selected-server': 'https://api.example.com' }
+      const document = minimalOasDocument({ 'x-scalar-selected-server': 'https://api.example.com' })
       const operation = { 'x-scalar-selected-server': 'https://staging.example.com' }
 
-      const result = getSelectedServer(document as WorkspaceDocument, operation as OperationObject, null, servers)
+      const result = getSelectedServer(document, operation as OperationObject, null, servers)
 
       expect(result).toEqual({ url: 'https://staging.example.com' })
     })
 
     it('ignores operation x-scalar-selected-server when configServers is non-null', () => {
-      const document = { 'x-scalar-selected-server': 'https://api.example.com' }
+      const document = minimalOasDocument({ 'x-scalar-selected-server': 'https://api.example.com' })
       const operation = { 'x-scalar-selected-server': 'https://dev.example.com' }
 
-      const result = getSelectedServer(
-        document as WorkspaceDocument,
-        operation as OperationObject,
-        [{} as ServerObject],
-        servers,
-      )
+      const result = getSelectedServer(document, operation as OperationObject, [{} as ServerObject], servers)
 
       expect(result).toEqual({ url: 'https://api.example.com' })
     })
 
     it('returns null when selected URL does not match any server URL', () => {
-      const document = { 'x-scalar-selected-server': 'https://nonexistent.example.com' }
+      const document = minimalOasDocument({ 'x-scalar-selected-server': 'https://nonexistent.example.com' })
 
-      const result = getSelectedServer(document as WorkspaceDocument, null, null, servers)
+      const result = getSelectedServer(document, null, null, servers)
 
       expect(result).toBeNull()
     })
@@ -316,9 +318,9 @@ describe('servers', () => {
     })
 
     it('returns null when x-scalar-selected-server is empty string (user un-selected)', () => {
-      const document = { 'x-scalar-selected-server': '' }
+      const document = minimalOasDocument({ 'x-scalar-selected-server': '' })
 
-      const result = getSelectedServer(document as WorkspaceDocument, null, null, [{ url: 'https://api.example.com' }])
+      const result = getSelectedServer(document, null, null, [{ url: 'https://api.example.com' }])
 
       expect(result).toBeNull()
     })

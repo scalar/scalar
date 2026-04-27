@@ -9,8 +9,10 @@ import {
   mergeSecurity,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
+import type {
+  OpenApiDocument,
+  ServerObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { useFocusWithin } from '@vueuse/core'
 import { computed, shallowRef, watch } from 'vue'
 
@@ -24,7 +26,7 @@ const { document, name, environment, eventBus, options, authStore } =
     >
     name: string
     authStore: AuthStore
-    document: WorkspaceDocument | undefined
+    document: OpenApiDocument | undefined
     eventBus: WorkspaceEventBus
     selectedServer: ServerObject | null
     environment: XScalarEnvironment

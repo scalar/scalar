@@ -22,6 +22,11 @@ export const sources = [
     layout: 'classic',
   },
   {
+    title: 'Scalar Galaxy (AsyncAPI)',
+    slug: 'scalar-galaxy-events',
+    url: 'https://registry.scalar.com/@scalar/schemas/asyncapi?format=json',
+  },
+  {
     title: 'Tag Groups',
     slug: 'tag-groups',
     content: {

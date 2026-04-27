@@ -2,6 +2,7 @@ import type { WorkspaceStore } from '@/client'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { WorkspaceDocument } from '@/schemas'
 import type { TraversedDocument, TraversedEntry, TraversedOperation, TraversedTag } from '@/schemas/navigation'
+import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { OperationObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { getParentEntry } from './get-parent-entry'
@@ -60,6 +61,11 @@ export const getOpenapiObject = <Entry extends TraversedOrderable>({
 
   if (entry.type === 'document') {
     return document as GetOpenapiObject<Entry>
+  }
+
+  // Tag and operation lookups only make sense on OpenAPI documents.
+  if (!isOpenApiDocument(document)) {
+    return null
   }
 
   if (entry.type === 'tag') {

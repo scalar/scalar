@@ -6,14 +6,14 @@ import type { DragOffset, DraggingItem, HoveredItem, SidebarState } from '@scala
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import { getOpenapiObject, getParentEntry } from '@scalar/workspace-store/navigation'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import type {
   TraversedDocument,
   TraversedEntry,
   TraversedOperation,
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
-import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
+import type { OpenApiDocument, TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import { type MaybeRefOrGetter, toValue } from 'vue'
 
@@ -142,7 +142,7 @@ const rebuildSidebar = ({ store, entry }: { store: WorkspaceStore; entry: Traver
  * Falls back to children IDs if no explicit order exists.
  */
 const getCurrentOrder = (
-  parent: WorkspaceDocument | TagObject,
+  parent: OpenApiDocument | TagObject,
   parentEntry: TraversedDocument | TraversedTag,
 ): string[] => {
   const order = parent['x-scalar-order']
@@ -163,8 +163,10 @@ const handleReorderWithinParent = (
     return false
   }
 
-  const parent = getOpenapiObject({ store, entry: parentEntry })
-  if (!parent) {
+  const parent = getOpenapiObject({ store, entry: parentEntry }) as OpenApiDocument | TagObject | null
+  // Reorder only applies to OpenAPI-shaped parents (documents/tags with `x-scalar-order`).
+  // AsyncAPI docs have no operations to reorder, so we bail early.
+  if (!parent || (parentEntry.type === 'document' && !isOpenApiDocument(parent))) {
     return false
   }
 
@@ -207,8 +209,8 @@ const updateOperationTags = (
  * Moves an operation from one document to another.
  */
 const moveOperationBetweenDocuments = (
-  draggingDocument: WorkspaceDocument,
-  hoveredDocument: WorkspaceDocument,
+  draggingDocument: OpenApiDocument,
+  hoveredDocument: OpenApiDocument,
   draggingItem: TraversedOperation,
   operationCopy: OperationObject,
 ): void => {
@@ -237,7 +239,7 @@ const moveOperationBetweenDocuments = (
  * This resolves all $ref references so you always get the full, dereferenced operation.
  */
 const getDereferencedOperation = (
-  document: WorkspaceDocument,
+  document: OpenApiDocument,
   path: string,
   method: HttpMethod,
 ): OperationObject | undefined => {
@@ -272,7 +274,8 @@ const handleMoveOperation = (
   const draggingDocument = getOpenapiObject({ store, entry: draggingDocumentEntry })
   const hoveredDocument = getOpenapiObject({ store, entry: hoveredDocumentEntry })
 
-  if (!draggingDocument || !hoveredDocument) {
+  // Moving operations only applies to OpenAPI documents — bail on AsyncAPI.
+  if (!isOpenApiDocument(draggingDocument) || !isOpenApiDocument(hoveredDocument)) {
     return false
   }
 
@@ -433,7 +436,8 @@ export const dragHandleFactory = ({
       }
 
       const hoveredDocument = getOpenapiObject({ store, entry: hoveredDocumentEntry })
-      if (!hoveredDocument) {
+      // Dropping operations only makes sense on OpenAPI docs.
+      if (!isOpenApiDocument(hoveredDocument)) {
         return false
       }
 

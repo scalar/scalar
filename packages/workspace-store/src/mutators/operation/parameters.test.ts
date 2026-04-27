@@ -7,9 +7,9 @@ import {
   updateOperationExtraParameters,
   upsertOperationParameter,
 } from '@/mutators/operation/parameters'
-import type { WorkspaceDocument } from '@/schemas'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
-const createDocument = (initial?: Partial<WorkspaceDocument>): WorkspaceDocument => {
+const createDocument = (initial?: Partial<OpenApiDocument>): OpenApiDocument => {
   return {
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },

@@ -1,5 +1,6 @@
 import type { Difference } from '@scalar/json-magic/diff'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { type MaybeRefOrGetter, computed, onBeforeUnmount, toValue, watch } from 'vue'
 
 /**
@@ -130,7 +131,9 @@ export const useDocumentWatcher = ({
     if (!storeValue || !documentNameValue) {
       return null
     }
-    return storeValue.workspace.documents[documentNameValue]
+    const doc = storeValue.workspace.documents[documentNameValue]
+    // The watcher only applies to OpenAPI documents; AsyncAPI docs are ignored
+    return isOpenApiDocument(doc) ? doc : null
   })
 
   const timerManager = createTimerManager()

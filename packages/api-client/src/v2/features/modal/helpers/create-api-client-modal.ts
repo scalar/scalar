@@ -2,6 +2,7 @@ import { type ModalState, useModal } from '@scalar/components'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { type App, type MaybeRefOrGetter, computed, createApp, isRef, reactive, ref, toValue, watch } from 'vue'
 
 import {
@@ -9,9 +10,9 @@ import {
   type RoutePayload,
   resolveRouteParameters,
 } from '@/v2/features/modal/helpers/resolve-route-parameters'
-import type { ApiClientOptions, ApiClientOptionsRef } from '@/v2/types/options'
 import { useModalSidebar } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import Modal, { type ModalProps } from '@/v2/features/modal/Modal.vue'
+import type { ApiClientOptions, ApiClientOptionsRef } from '@/v2/types/options'
 
 type CreateApiClientOptions = {
   /** Element to mount the client modal to. */
@@ -81,8 +82,11 @@ export const createApiClientModal = ({
   const path = computed(() => resolvedParameters.value.path)
   const method = computed(() => resolvedParameters.value.method)
   const exampleName = computed(() => resolvedParameters.value.example)
-  /** The document from the workspace store. */
-  const document = computed(() => workspaceStore.workspace.documents[documentSlug.value ?? ''] ?? null)
+  /** The document from the workspace store. Modal is OpenAPI-only; AsyncAPI docs surface as null. */
+  const document = computed(() => {
+    const doc = workspaceStore.workspace.documents[documentSlug.value ?? '']
+    return isOpenApiDocument(doc) ? doc : null
+  })
 
   /** Sidebar state and selection handling. */
   const sidebarState = useModalSidebar({

@@ -3,6 +3,7 @@ import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getOperationEntries } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry, TraversedExample } from '@scalar/workspace-store/schemas/navigation'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 
 /** Payload for routing and opening the API client modal. */
 export type RoutePayload = {
@@ -27,8 +28,12 @@ const isExample = (entry: TraversedEntry): entry is TraversedExample => entry.ty
 /**
  * Gets the document from the workspace store.
  * Returns undefined if the document slug is not provided or the document does not exist.
+ * Modal routing is OpenAPI-only — AsyncAPI docs surface as undefined here.
  */
-const getDocument = (ctx: ResolverContext) => ctx.store.workspace.documents[ctx.documentSlug ?? '']
+const getDocument = (ctx: ResolverContext) => {
+  const doc = ctx.store.workspace.documents[ctx.documentSlug ?? '']
+  return isOpenApiDocument(doc) ? doc : undefined
+}
 
 /**
  * Resolves the document slug from a raw input value.

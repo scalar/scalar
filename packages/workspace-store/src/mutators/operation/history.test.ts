@@ -3,9 +3,9 @@ import { assert, describe, expect, it, vi } from 'vitest'
 import { createWorkspaceStore } from '@/client'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { addResponseToHistory, reloadOperationHistory } from '@/mutators/operation/history'
-import type { WorkspaceDocument } from '@/schemas'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
-const createDocument = (initial?: Partial<WorkspaceDocument>): WorkspaceDocument => {
+const createDocument = (initial?: Partial<OpenApiDocument>): OpenApiDocument => {
   return {
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },
@@ -31,7 +31,7 @@ describe('addResponseToHistory', () => {
       }),
     })
 
-    const document = store.workspace.documents['test-doc']!
+    const document = store.workspace.documents['test-doc'] as OpenApiDocument
     assert(document)
 
     const mockResponse = {
@@ -84,7 +84,7 @@ describe('addResponseToHistory', () => {
       }),
     })
 
-    const document = store.workspace.documents['test-doc']!
+    const document = store.workspace.documents['test-doc'] as OpenApiDocument
     assert(document)
 
     const createMockPayload = (index: number) => ({
@@ -137,7 +137,7 @@ describe('addResponseToHistory', () => {
       }),
     })
 
-    const document = store.workspace.documents['test-doc']!
+    const document = store.workspace.documents['test-doc'] as OpenApiDocument
     assert(document)
 
     const history = store.history.getHistory('test-doc', '/products', 'post')
@@ -186,7 +186,7 @@ describe('addResponseToHistory', () => {
       }),
     })
 
-    const document = store.workspace.documents['test-doc']!
+    const document = store.workspace.documents['test-doc'] as OpenApiDocument
     assert(document)
 
     await addResponseToHistory(store, document, {
@@ -231,7 +231,7 @@ describe('addResponseToHistory', () => {
       }),
     })
 
-    const document = store.workspace.documents['test-doc']!
+    const document = store.workspace.documents['test-doc'] as OpenApiDocument
     assert(document)
 
     await addResponseToHistory(store, document, {
@@ -289,7 +289,7 @@ describe('addResponseToHistory', () => {
       }),
     })
 
-    const document = store.workspace.documents['test-doc']!
+    const document = store.workspace.documents['test-doc'] as OpenApiDocument
     assert(document)
 
     await expect(
@@ -318,7 +318,7 @@ describe('addResponseToHistory', () => {
       }),
     })
 
-    const document = store.workspace.documents['test-doc']!
+    const document = store.workspace.documents['test-doc'] as OpenApiDocument
     assert(document)
 
     await expect(
@@ -355,7 +355,7 @@ describe('reloadOperationHistory', () => {
       }),
     })
 
-    const document = store.workspace.documents['test-doc']!
+    const document = store.workspace.documents['test-doc'] as OpenApiDocument
     assert(document)
 
     // Add a history entry
@@ -423,7 +423,7 @@ describe('reloadOperationHistory', () => {
       }),
     })
 
-    const document = store.workspace.documents['test-doc']!
+    const document = store.workspace.documents['test-doc'] as OpenApiDocument
     assert(document)
 
     // Add multiple history entries
@@ -512,7 +512,7 @@ describe('reloadOperationHistory', () => {
       }),
     })
 
-    const document = store.workspace.documents['test-doc']!
+    const document = store.workspace.documents['test-doc'] as OpenApiDocument
     assert(document)
 
     // Add history with path variables
@@ -593,7 +593,7 @@ describe('reloadOperationHistory', () => {
       }),
     })
 
-    const document = store.workspace.documents['test-doc']!
+    const document = store.workspace.documents['test-doc'] as OpenApiDocument
     assert(document)
 
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
@@ -627,7 +627,7 @@ describe('reloadOperationHistory', () => {
       }),
     })
 
-    const document = store.workspace.documents['test-doc']!
+    const document = store.workspace.documents['test-doc'] as OpenApiDocument
     assert(document)
 
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
@@ -661,7 +661,7 @@ describe('reloadOperationHistory', () => {
       }),
     })
 
-    const document = store.workspace.documents['test-doc']!
+    const document = store.workspace.documents['test-doc'] as OpenApiDocument
     assert(document)
 
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
@@ -707,7 +707,7 @@ describe('reloadOperationHistory', () => {
       }),
     })
 
-    const document = store.workspace.documents['test-doc']!
+    const document = store.workspace.documents['test-doc'] as OpenApiDocument
     assert(document)
 
     const callbackSpy = vi.fn()
@@ -740,7 +740,7 @@ describe('reloadOperationHistory', () => {
       }),
     })
 
-    const document = store.workspace.documents['test-doc']!
+    const document = store.workspace.documents['test-doc'] as OpenApiDocument
     assert(document)
 
     const callbackSpy = vi.fn()

@@ -36,8 +36,10 @@ import {
   restoreOriginalRefs,
   syncPathParameters,
 } from '@/plugins/bundler'
+import { type AsyncApiDocument, AsyncApiDocumentSchema } from '@/schemas/asyncapi/asyncapi-document'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
+import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { generateSchema } from '@/schemas/v3.1/openapi'
 import { recursiveRef } from '@/schemas/v3.1/openapi/reference'
@@ -656,7 +658,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               } satisfies WorkspaceStateChangeEvent
 
               // Don't mark as dirty when the document is first created
-              if (event.path.length > 0 && event.path[0] !== 'x-scalar-is-dirty') {
+              if (isOpenApiDocument(document) && event.path.length > 0 && event.path[0] !== 'x-scalar-is-dirty') {
                 // The document has been modified since it was last saved
                 document['x-scalar-is-dirty'] = true
               }
@@ -682,7 +684,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               } satisfies WorkspaceStateChangeEvent
 
               // Don't mark as dirty when the document is first created
-              if (event.path.length > 0 && event.path[0] !== 'x-scalar-is-dirty') {
+              if (isOpenApiDocument(document) && event.path.length > 0 && event.path[0] !== 'x-scalar-is-dirty') {
                 // The document has been modified since it was last saved
                 document['x-scalar-is-dirty'] = true
               }
@@ -868,15 +870,86 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // Store the new document in the intermediate documents map
     intermediateDocuments[documentName] = newDocument
     // Mark the document as not dirty since we are saving it
-    activeDocument['x-scalar-is-dirty'] = false
+    if (isOpenApiDocument(activeDocument)) {
+      activeDocument['x-scalar-is-dirty'] = false
+    }
     return true
   }
 
+  type AddInMemoryInput = ObjectDoc & { initialize?: boolean; documentSource?: string; documentHash: string }
+
+  // Dispatch ingestion based on the document kind. AsyncAPI docs take a minimal path that skips
+  // the OpenAPI-specific upgrade/bundle/coerce/validate pipeline (which would otherwise mangle the
+  // document and spam console.warn). Everything else continues through the existing OpenAPI flow.
+  async function addInMemoryDocument(input: AddInMemoryInput, navigationOptions?: NavigationOptions) {
+    if (isAsyncApiDocument(input.document)) {
+      return await addAsyncApiDocument(input)
+    }
+    return await addOpenApiDocument(input, navigationOptions)
+  }
+
+  // Minimal AsyncAPI ingestion. Skips the OpenAPI-specific upgrade/coerce/validate pipeline and
+  // runs only the format-neutral subset of bundler plugins (loaders + normalizeRefs +
+  // externalValueResolver). OpenAPI-shaped plugins (refsEverywhere, normalizeAuthSchemes,
+  // syncPathParameters) are intentionally omitted — see plans/asyncapi-loading/03.
+  async function addAsyncApiDocument(input: AddInMemoryInput) {
+    const { name, meta } = input
+    const clonedRawInputDocument = withMeasurementSync('deepClone', () => deepClone(input.document))
+
+    withMeasurementSync('initialize', () => {
+      if (input.initialize !== false) {
+        originalDocuments[name] = deepClone(clonedRawInputDocument)
+        intermediateDocuments[name] = deepClone(clonedRawInputDocument)
+        overrides[name] = input.overrides ?? {}
+        extraDocumentConfigurations[name] = { fetch: input.fetch }
+      }
+    })
+
+    // Resolve `$ref`s with the format-neutral plugin set. Mirrors the OpenAPI branch's loader
+    // setup so external refs resolve against the document's own origin.
+    const loaders = [
+      fetchUrls({
+        fetch: extraDocumentConfigurations[name]?.fetch ?? workspaceProps?.fetch,
+      }),
+    ]
+    if (workspaceProps?.fileLoader) {
+      loaders.push(workspaceProps.fileLoader)
+    }
+
+    await withMeasurementAsync(
+      'bundle',
+      async () =>
+        await bundle(clonedRawInputDocument, {
+          treeShake: false,
+          plugins: [...loaders, normalizeRefs(), externalValueResolver()],
+          urlMap: true,
+          origin: input.documentSource,
+        }),
+    )
+
+    // Sanity-check the doc against the minimal AsyncAPI schema. The discriminator only verified
+    // `asyncapi` is a string; this catches missing/misshapen `info` so we can surface a useful path
+    // instead of silently storing a broken doc. Log-only — mirrors how the OpenAPI branch behaves.
+    const isValid = Value.Check(AsyncApiDocumentSchema, input.document)
+    if (!isValid) {
+      const errors = Array.from(Value.Errors(AsyncApiDocumentSchema, input.document))
+      console.warn(
+        'AsyncAPI document validation errors:',
+        errors.map((e) => ({ path: e.path, message: e.message })),
+      )
+    }
+
+    workspace.documents[name] = createMagicProxy({
+      ...clonedRawInputDocument,
+      ...meta,
+      'x-original-aas-version': originalDocuments[name]?.asyncapi,
+      'x-scalar-original-document-hash': input.documentHash,
+      'x-scalar-original-source-url': input.documentSource,
+    }) as AsyncApiDocument
+  }
+
   // Add a document to the store synchronously from an in-memory OpenAPI document
-  async function addInMemoryDocument(
-    input: ObjectDoc & { initialize?: boolean; documentSource?: string; documentHash: string },
-    navigationOptions?: NavigationOptions,
-  ) {
+  async function addOpenApiDocument(input: AddInMemoryInput, navigationOptions?: NavigationOptions) {
     const { name, meta } = input
     const clonedRawInputDocument = withMeasurementSync('deepClone', () => deepClone(input.document))
 
@@ -1123,7 +1196,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // Remove top level properties that should only exist in memory for the original document
     // These properties are used for internal purposes and are not needed in the final bundled document
     for (const property of EXCLUDE_KEYS) {
-      delete original[property as keyof WorkspaceDocument]
+      delete (original as Record<string, unknown>)[property]
     }
 
     return original
@@ -1148,6 +1221,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     if (!document) {
       // Log and exit if the document does not exist in the workspace
       console.error(`Document '${documentName}' does not exist in the workspace.`)
+      return false
+    }
+
+    // Sidebar navigation is OpenAPI-only for now.
+    if (!isOpenApiDocument(document)) {
       return false
     }
 
@@ -1203,13 +1281,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return console.error(`Document '${documentName}' does not exist in the workspace.`)
       }
 
-      // Replace the whole document
+      // Both OpenApi and AsyncApi documents carry the store-managed metadata extensions, so we
+      // can read them off the union without branching on the doc kind.
       await addInMemoryDocument({
         name: documentName,
         document: input,
         // Preserve the current metadata
         documentSource: currentDocument['x-scalar-original-source-url'],
-        documentHash: currentDocument['x-scalar-original-document-hash'],
+        documentHash: currentDocument['x-scalar-original-document-hash'] ?? '',
         meta: {
           // Set the document as dirty
           'x-scalar-is-dirty': true,
@@ -1297,7 +1376,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         name: documentName,
         document: intermediate,
         documentSource: workspaceDocument['x-scalar-original-source-url'],
-        documentHash: workspaceDocument['x-scalar-original-document-hash'],
+        documentHash: workspaceDocument['x-scalar-original-document-hash'] ?? '',
         initialize: false,
       })
     },
@@ -1465,10 +1544,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           // TODO: In the future, implement smarter conflict resolution if needed
           const changesetB = changesB.diffs.concat(changesB.conflicts.flatMap((it) => it[0]))
 
-          const newActiveDocument = coerceValue(
-            OpenAPIDocumentSchemaStrict,
-            apply(deepClone(newIntermediateDocument), changesetB),
-          )
+          // Coerce the applied document against the right schema for its kind. AsyncAPI docs
+          // skip the OpenAPI strict coercion (which would strip their fields); everything else
+          // keeps the existing behavior.
+          const appliedDocument = apply(deepClone(newIntermediateDocument), changesetB)
+          const newActiveDocument = isAsyncApiDocument(appliedDocument)
+            ? appliedDocument
+            : coerceValue(OpenAPIDocumentSchemaStrict, appliedDocument)
 
           // add the new active document to the workspace but don't re-initialize
           await addInMemoryDocument({

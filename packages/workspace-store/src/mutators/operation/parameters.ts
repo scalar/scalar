@@ -3,6 +3,7 @@ import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { WorkspaceDocument } from '@/schemas'
 import type { DisableParametersConfig } from '@/schemas/extensions/operation/x-scalar-disable-parameters'
+import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { ExampleObject } from '@/schemas/v3.1/strict/example'
 import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
 
@@ -52,7 +53,10 @@ export const upsertOperationParameter = (
   }
 
   // We are adding a new parameter
-  const operation = getResolvedRef(document?.paths?.[meta.path]?.[meta.method])
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
   if (!operation) {
     console.error('Operation not found', { meta, document })
     return
@@ -98,7 +102,7 @@ export const updateOperationExtraParameters = (
   type In = OperationEvents['operation:update:extra-parameters']['in']
 
   // Ensure there's a valid document
-  if (!document) {
+  if (!isOpenApiDocument(document)) {
     return
   }
 
@@ -156,7 +160,10 @@ export const deleteOperationParameter = (
   document: WorkspaceDocument | null,
   { meta, originalParameter }: OperationEvents['operation:delete:parameter'],
 ) => {
-  const operation = getResolvedRef(document?.paths?.[meta.path]?.[meta.method])
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
 
   // Lets check if its on the operation first as its more likely
   const operationIndex = operation?.parameters?.findIndex((it) => getResolvedRef(it) === originalParameter) ?? -1
@@ -171,7 +178,7 @@ export const deleteOperationParameter = (
   }
 
   // If it wasn't on the operation it might be on the path
-  const path = getResolvedRef(document?.paths?.[meta.path])
+  const path = getResolvedRef(document.paths?.[meta.path])
   const pathIndex = path?.parameters?.findIndex((it) => getResolvedRef(it) === originalParameter) ?? -1
 
   if (path && pathIndex >= 0) {
@@ -199,7 +206,7 @@ export const deleteAllOperationParameters = (
   document: WorkspaceDocument | null,
   { meta, type }: OperationEvents['operation:delete-all:parameters'],
 ) => {
-  if (!document) {
+  if (!isOpenApiDocument(document)) {
     return
   }
 

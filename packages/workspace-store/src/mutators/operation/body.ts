@@ -2,6 +2,7 @@ import type { OperationEvents } from '@/events/definitions/operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { WorkspaceDocument } from '@/schemas'
+import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { ExampleObject } from '@/schemas/v3.1/strict/example'
 
 /** Ensure the json that we need exists up to the example object in the request body */
@@ -10,7 +11,10 @@ const findOrCreateRequestBodyExample = (
   contentType: string,
   meta: OperationEvents['operation:update:requestBody:contentType']['meta'],
 ): ExampleObject | null => {
-  const operation = getResolvedRef(document?.paths?.[meta.path]?.[meta.method])
+  if (!isOpenApiDocument(document)) {
+    return null
+  }
+  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
   if (!operation) {
     return null
   }
@@ -51,7 +55,7 @@ export const updateOperationRequestBodyContentType = (
   document: WorkspaceDocument | null,
   { meta, payload }: OperationEvents['operation:update:requestBody:contentType'],
 ) => {
-  if (!document) {
+  if (!isOpenApiDocument(document)) {
     return
   }
 

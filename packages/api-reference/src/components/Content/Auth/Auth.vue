@@ -9,6 +9,7 @@ import {
   type MergedSecuritySchemes,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { computed } from 'vue'
@@ -29,14 +30,18 @@ const { document, environment, eventBus, options, securitySchemes, authStore } =
 
 /** Compute what the security requirements should be for the document */
 const securityRequirements = computed(() =>
-  getSecurityRequirements(document?.security),
+  getSecurityRequirements(
+    isOpenApiDocument(document) ? document.security : undefined,
+  ),
 )
 
 /** Grab the selected security for the document from the auth store */
 const documentSelectedSecurity = computed(() =>
   authStore.getAuthSelectedSchemas({
     type: 'document',
-    documentName: document?.['x-scalar-navigation']?.name ?? '',
+    documentName: isOpenApiDocument(document)
+      ? (document['x-scalar-navigation']?.name ?? '')
+      : '',
   }),
 )
 

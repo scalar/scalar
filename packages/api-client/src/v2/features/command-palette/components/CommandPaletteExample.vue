@@ -34,6 +34,7 @@ import type {
   TraversedExample,
   TraversedOperation,
 } from '@scalar/workspace-store/schemas/navigation'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { computed, ref, watch } from 'vue'
 
 import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
@@ -120,7 +121,7 @@ const availableOperations = computed(() => {
   }
 
   const document = workspaceStore.workspace.documents[selectedDocument.value.id]
-  if (!document || !document['x-scalar-navigation']) {
+  if (!isOpenApiDocument(document) || !document['x-scalar-navigation']) {
     return []
   }
 
