@@ -17,5 +17,9 @@ export const shouldDisplayDescription = (schema: SchemaObject | undefined, propD
     return null
   }
 
+  if (propDescription && schema.description && (schema.oneOf || schema.anyOf)) {
+    return propDescription === schema.description ? propDescription : `${propDescription}\n\n${schema.description}`
+  }
+
   return propDescription || schema.description || null
 }

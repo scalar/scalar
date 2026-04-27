@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type {
   DiscriminatorObject,
   SchemaObject,
+  SchemaReferenceType,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
@@ -109,6 +111,39 @@ const additionalPropertiesEnum = computed(() => {
 })
 
 /**
+ * Keep sibling property descriptions separate from the referenced schema.
+ *
+ * This allows us to render both:
+ * - the property-specific description written next to the $ref, and
+ * - the referenced schema's own description (for example discriminator parent docs)
+ */
+const getPropertySchema = (
+  property: SchemaReferenceType<SchemaObject> | undefined,
+): SchemaObject | undefined => {
+  if (!property) {
+    return undefined
+  }
+
+  if ('$ref' in property && typeof property.$ref === 'string') {
+    return getResolvedRef(property) as SchemaObject
+  }
+
+  return resolve.schema(property)
+}
+
+const getPropertyDescription = (
+  property: SchemaReferenceType<SchemaObject> | undefined,
+): string | undefined => {
+  if (!property) {
+    return undefined
+  }
+
+  return typeof property.description === 'string'
+    ? property.description
+    : undefined
+}
+
+/**
  * Get the value for additional properties.
  *
  * When additionalProperties is true or an empty object, it should render as { type: 'anything' }.
@@ -155,7 +190,8 @@ const getAdditionalPropertiesValue = (
       :name="property"
       :options="options"
       :required="schema.required?.includes(property)"
-      :schema="resolve.schema(schema.properties[property])"
+      :description="getPropertyDescription(schema.properties[property])"
+      :schema="getPropertySchema(schema.properties[property])"
       :schemaContext="schemaContext" />
   </template>
 
@@ -175,7 +211,8 @@ const getAdditionalPropertiesValue = (
       :level
       :name="key"
       :options="options"
-      :schema="resolve.schema(property)"
+      :description="getPropertyDescription(property)"
+      :schema="getPropertySchema(property)"
       :schemaContext="schemaContext" />
   </template>
 

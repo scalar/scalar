@@ -81,12 +81,6 @@ const schemaDescription = computed(() => {
     return null
   }
 
-  // Don't show description if the schema has other composition keywords
-  // This prevents duplicate descriptions when individual schemas are part of compositions
-  if (schema.oneOf || schema.anyOf) {
-    return null
-  }
-
   // Don't show description for enum schemas (they have special handling)
   if (schema.enum) {
     return null
