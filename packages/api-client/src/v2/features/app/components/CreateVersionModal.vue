@@ -7,7 +7,11 @@ import {
   CommandActionInput,
 } from '@/v2/features/command-palette'
 
-const { state, existingVersions } = defineProps<{
+const {
+  state,
+  existingVersions,
+  sourceVersion,
+} = defineProps<{
   /** Modal lifecycle state from `useModal()`. */
   state: ModalState
   /**
@@ -18,6 +22,13 @@ const { state, existingVersions } = defineProps<{
    * conflict-resolution path the create-draft flow opts into.
    */
   existingVersions: string[]
+  /**
+   * Version the new draft will be branched from. Surfaced to the user so it
+   * is obvious which document the draft inherits its body from before they
+   * commit to a new version string. Optional because the modal can be
+   * reused in flows that do not branch from an existing version.
+   */
+  sourceVersion?: string
 }>()
 
 const emit = defineEmits<{
@@ -86,6 +97,13 @@ const handleSubmit = (): void => {
         v-model="version"
         class="-mt-[.5px] !p-0"
         placeholder="Version (e.g. 2.1.0)" />
+
+      <p
+        v-if="sourceVersion"
+        class="text-c-2 text-xs">
+        Branching from version
+        <span class="text-c-1 font-medium">{{ sourceVersion }}</span>
+      </p>
 
       <p
         v-if="errorMessage"

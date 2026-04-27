@@ -334,6 +334,7 @@ const handleCreateVersion = async (version: string) => {
     </template>
     <CreateVersionModal
       :existingVersions="loadedVersionStrings"
+      :sourceVersion="activeVersion?.version"
       :state="createVersionModal"
       @create="handleCreateVersion" />
   </nav>

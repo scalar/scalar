@@ -40,13 +40,16 @@ const submitForm = async (): Promise<void> => {
   await flushPromises()
 }
 
-const mountModal = (props: { existingVersions?: string[] } = {}) => {
+const mountModal = (
+  props: { existingVersions?: string[]; sourceVersion?: string } = {},
+) => {
   const state = useModal()
   state.show()
   const wrapper = mount(CreateVersionModal, {
     props: {
       state,
       existingVersions: props.existingVersions ?? [],
+      sourceVersion: props.sourceVersion,
     },
     attachTo: document.body,
   })
@@ -110,6 +113,21 @@ describe('CreateVersionModal', () => {
     await submitForm()
 
     expect(wrapper.emitted('create')).toEqual([['2.0.0']])
+  })
+
+  it('shows the source version the draft is branching from when one is provided', async () => {
+    mountModal({ sourceVersion: '1.0.0' })
+    await flushPromises()
+
+    expect(document.body.textContent).toContain('Branching from version')
+    expect(document.body.textContent).toContain('1.0.0')
+  })
+
+  it('omits the branching hint when no source version is provided', async () => {
+    mountModal()
+    await flushPromises()
+
+    expect(document.body.textContent).not.toContain('Branching from version')
   })
 
   it('resets the input when the modal reopens so stale text does not leak across sessions', async () => {
