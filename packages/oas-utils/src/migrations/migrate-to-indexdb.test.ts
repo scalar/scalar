@@ -454,30 +454,20 @@ describe('migrate-to-indexdb', () => {
       assert(resultWorkspace)
 
       // Verify security scheme is in document components
-      expect(
-        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['test-api']!.components
-          ?.securitySchemes?.['api-key-auth'],
-      ).toMatchObject({
+      const apiKeyScheme = (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['test-api']!
+        .components?.securitySchemes?.['api-key-auth']
+      expect(apiKeyScheme).toMatchObject({
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
         description: 'API Key authentication',
       })
-      expect(
-        // @ts-expect-error - value is not in the type
-        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['test-api']!.components
-          ?.securitySchemes?.['api-key-auth']?.value,
-      ).toBeUndefined()
-      expect(
-        // @ts-expect-error - uid is not in the type
-        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['test-api']!.components
-          ?.securitySchemes?.['api-key-auth']?.uid,
-      ).toBeUndefined()
-      expect(
-        // @ts-expect-error - nameKey is not in the type
-        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['test-api']!.components
-          ?.securitySchemes?.['api-key-auth']?.nameKey,
-      ).toBeUndefined()
+      // @ts-expect-error - value is not in the type
+      expect(apiKeyScheme?.value).toBeUndefined()
+      // @ts-expect-error - uid is not in the type
+      expect(apiKeyScheme?.uid).toBeUndefined()
+      // @ts-expect-error - nameKey is not in the type
+      expect(apiKeyScheme?.nameKey).toBeUndefined()
 
       // Verify security scheme secrets are in auth store
       expect(resultWorkspace.workspace.auth['test-api']?.secrets['api-key-auth']).toEqual({
@@ -506,29 +496,19 @@ describe('migrate-to-indexdb', () => {
       const resultWorkspace = result[0]!
 
       // Verify security scheme is in document components
-      expect(
-        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['bearer-api']!.components
-          ?.securitySchemes?.['bearer-auth'],
-      ).toMatchObject({
+      const bearerScheme = (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['bearer-api']!
+        .components?.securitySchemes?.['bearer-auth']
+      expect(bearerScheme).toMatchObject({
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
       })
-      expect(
-        // @ts-expect-error - token is not in the type
-        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['bearer-api']!.components
-          ?.securitySchemes?.['bearer-auth']?.token,
-      ).toBeUndefined()
-      expect(
-        // @ts-expect-error - uid is not in the type
-        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['bearer-api']!.components
-          ?.securitySchemes?.['bearer-auth']?.uid,
-      ).toBeUndefined()
-      expect(
-        // @ts-expect-error - nameKey is not in the type
-        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['bearer-api']!.components
-          ?.securitySchemes?.['bearer-auth']?.nameKey,
-      ).toBeUndefined()
+      // @ts-expect-error - token is not in the type
+      expect(bearerScheme?.token).toBeUndefined()
+      // @ts-expect-error - uid is not in the type
+      expect(bearerScheme?.uid).toBeUndefined()
+      // @ts-expect-error - nameKey is not in the type
+      expect(bearerScheme?.nameKey).toBeUndefined()
 
       // Verify security scheme secrets are in auth store
       expect(resultWorkspace.workspace.auth['bearer-api']!.secrets['bearer-auth']).toEqual({
@@ -561,33 +541,20 @@ describe('migrate-to-indexdb', () => {
       const resultWorkspace = result[0]!
 
       // Verify security scheme is in document components
-      expect(
-        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['basic-auth-api']!.components
-          ?.securitySchemes?.['basic-auth'],
-      ).toMatchObject({
+      const basicScheme = (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['basic-auth-api']!
+        .components?.securitySchemes?.['basic-auth']
+      expect(basicScheme).toMatchObject({
         type: 'http',
         scheme: 'basic',
       })
-      expect(
-        // @ts-expect-error - username and password are not in the type
-        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['basic-auth-api']!.components
-          ?.securitySchemes?.['basic-auth']?.username,
-      ).toBeUndefined()
-      expect(
-        // @ts-expect-error - username and password are not in the type
-        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['basic-auth-api']!.components
-          ?.securitySchemes?.['basic-auth']?.password,
-      ).toBeUndefined()
-      expect(
-        // @ts-expect-error - uid is not in the type
-        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['basic-auth-api']!.components
-          ?.securitySchemes?.['basic-auth']?.uid,
-      ).toBeUndefined()
-      expect(
-        // @ts-expect-error - nameKey is not in the type
-        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['basic-auth-api']!.components
-          ?.securitySchemes?.['basic-auth']?.nameKey,
-      ).toBeUndefined()
+      // @ts-expect-error - username and password are not in the type
+      expect(basicScheme?.username).toBeUndefined()
+      // @ts-expect-error - username and password are not in the type
+      expect(basicScheme?.password).toBeUndefined()
+      // @ts-expect-error - uid is not in the type
+      expect(basicScheme?.uid).toBeUndefined()
+      // @ts-expect-error - nameKey is not in the type
+      expect(basicScheme?.nameKey).toBeUndefined()
 
       // Verify security scheme secrets are in auth store
       expect(resultWorkspace.workspace.auth['basic-auth-api']!.secrets['basic-auth']).toEqual({
