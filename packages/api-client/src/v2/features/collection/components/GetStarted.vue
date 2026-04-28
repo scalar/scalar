@@ -2,23 +2,36 @@
 /**
  * Workspace get started page.
  *
- * Shown as the landing view for a workspace with no request selected. Displays
- * an ASCII art mark and a short list of keyboard shortcuts to help the user
- * bootstrap their workspace (open the command palette, jump to settings, or
- * focus the sidebar filter).
+ * Shown as the landing view for a workspace with no request selected.
+ *
+ * On a local workspace it displays an ASCII art mark and a short list of
+ * keyboard shortcuts to help the user bootstrap their workspace (open the
+ * command palette, jump to settings, or focus the sidebar filter).
+ *
+ * On an empty team workspace it instead surfaces a focused "Create a
+ * Document" call-to-action: team workspaces are intended to back a real
+ * OpenAPI document and the registry, so the keyboard-shortcut helper would
+ * be a confusing first impression. The CTA reuses the command palette by
+ * opening its `create-openapi-document` action so the actual creation flow
+ * remains a single source of truth.
  */
 export default {}
 </script>
 
 <script setup lang="ts">
-import { ScalarHotkey } from '@scalar/components'
-import { ScalarIconDownloadSimple } from '@scalar/icons'
+import { ScalarButton, ScalarHotkey } from '@scalar/components'
+import {
+  ScalarIconBracketsCurly,
+  ScalarIconDownloadSimple,
+} from '@scalar/icons'
+import { computed } from 'vue'
 
 import Computer from '@/assets/computer.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 
-const { eventBus, layout } = defineProps<RouteProps>()
+const { eventBus, isTeamWorkspace, layout, workspaceStore } =
+  defineProps<RouteProps>()
 
 const openCommandPalette = () => {
   eventBus.emit('ui:open:command-palette')
@@ -44,11 +57,67 @@ const openSettings = () => {
 const focusSearch = () => {
   eventBus.emit('ui:focus:search')
 }
+
+/**
+ * Open the command palette directly on the "Create OpenAPI Document" form.
+ * The empty team workspace CTA delegates to this action so the create flow
+ * stays in one place.
+ */
+const openCreateDocument = () => {
+  eventBus.emit('ui:open:command-palette', {
+    action: 'create-openapi-document',
+    payload: undefined,
+  })
+}
+
+/**
+ * Whether the active workspace is a team workspace that has no real
+ * documents yet. The auto-created `drafts` scratch document does not count
+ * as content, so a workspace whose only entry is `drafts` is still treated
+ * as empty.
+ */
+const isEmptyTeamWorkspace = computed(() => {
+  if (!isTeamWorkspace) {
+    return false
+  }
+
+  const documentNames = Object.keys(workspaceStore?.workspace?.documents ?? {})
+  return documentNames.every((name) => name === 'drafts')
+})
 </script>
 
 <template>
   <div class="flex h-full w-full flex-col items-center justify-center p-6">
-    <div class="flex flex-col items-stretch gap-10">
+    <!--
+      Empty team workspace: surface a focused CTA pointing the user at the
+      command palette's create-document flow rather than the local-workspace
+      keyboard cheatsheet.
+    -->
+    <div
+      v-if="isEmptyTeamWorkspace && isTeamWorkspace"
+      class="flex max-w-sm flex-col gap-4">
+      <ScalarIconBracketsCurly
+        class="text-c-accent size-10"
+        weight="bold" />
+      <h2 class="text-c-1 text-base font-semibold">Create a Document</h2>
+      <p class="text-c-2 text-sm leading-relaxed">
+        The OpenAPI standard provides a descriptor of your API. Bringing it to
+        our Registry allows you to manage, lint &amp; version your OpenAPI
+        Documents. Create Docs &amp; SDKs from your OpenAPI Document.
+      </p>
+      <div>
+        <ScalarButton
+          class="mt-2"
+          @click="openCreateDocument">
+          Create Document
+        </ScalarButton>
+      </div>
+    </div>
+
+    <!-- Local workspace fallback: ASCII art mark and keyboard shortcuts. -->
+    <div
+      v-else
+      class="flex flex-col items-stretch gap-10">
       <ScalarAsciiArt
         :art="Computer"
         class="text-c-3 self-center" />

@@ -49,6 +49,10 @@ export type RouteProps = {
   workspaceStore: WorkspaceStore
   /** The currently active workspace */
   activeWorkspace: { id: string; label: string }
+  /**
+   * Whether the active workspace is backed by a team (i.e. not the built-in `local` team).
+   */
+  isTeamWorkspace?: boolean
   /** Client plugins */
   plugins: ClientPlugin[]
   /** Custom themes available to the team */

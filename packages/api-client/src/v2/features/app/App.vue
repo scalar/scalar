@@ -217,6 +217,7 @@ const routerViewProps = computed<RouteProps>(() => {
     path: app.activeEntities.path.value,
     workspaceStore: app.store.value!,
     activeWorkspace: app.workspace.activeWorkspace.value!,
+    isTeamWorkspace: app.workspace.isTeamWorkspace.value,
     plugins,
     isDarkMode: app.isDarkMode.value,
     currentTheme: app.theme.styles.value.themeStyles,
