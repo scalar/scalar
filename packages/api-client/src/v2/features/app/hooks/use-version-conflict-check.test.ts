@@ -1,4 +1,5 @@
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 
@@ -77,7 +78,11 @@ describe('useVersionConflictCheck', () => {
       ],
     })
 
-    await nextTick()
+    // The watcher awaits each `checkVersionConflict` call sequentially, so a
+    // single `nextTick` only drains the first iteration's fetcher invocation.
+    // `flushPromises` keeps draining microtasks until the for-loop has fired
+    // a request for every loaded `pull` version.
+    await flushPromises()
     expect(fetcher).toHaveBeenCalledTimes(2)
   })
 
@@ -213,6 +218,80 @@ describe('useVersionConflictCheck', () => {
     versions.value = [createVersion({ registryCommitHash: 'remote-2' })]
     await nextTick()
     expect(fetcher).toHaveBeenCalledTimes(2)
+  })
+
+  it('re-checks after a stale in-flight call lands last and overwrites the newer cache write', async () => {
+    // Build a workspace document whose registry meta we can mutate to
+    // simulate the helper's cache write. We bypass `checkVersionConflict`
+    // entirely by stubbing the fetcher and manually toggling the document's
+    // `conflictCheckedAgainstHash` in resolution order so the race between
+    // two concurrent calls is deterministic.
+    const document: FakeDocument = {
+      'x-scalar-registry-meta': {
+        namespace: 'acme',
+        slug: 'pets',
+        version: '1.0.0',
+        commitHash: 'local',
+      },
+    }
+    const store = createStore({ pets: document })
+
+    // Hand out manually-resolvable promises so the test can finish them in
+    // reverse order. Each resolution also writes `conflictCheckedAgainstHash`
+    // on the document, mirroring what the real helper does on its way out.
+    const pendingResolvers: Array<(value: { ok: true; data: Record<string, unknown> }) => void> = []
+    const fetcher: ImportDocumentFromRegistry = vi.fn(
+      () =>
+        new Promise((resolve) => {
+          pendingResolvers.push(resolve as (value: { ok: true; data: Record<string, unknown> }) => void)
+        }) as never,
+    )
+
+    const versions = ref<SidebarDocumentVersion[]>([createVersion({ registryCommitHash: 'remote-1' })])
+
+    useVersionConflictCheck({
+      store: () => store,
+      fetcher: () => fetcher,
+      registry: () => ({ namespace: 'acme', slug: 'pets' }),
+      versions,
+    })
+
+    await nextTick()
+    expect(fetcher).toHaveBeenCalledTimes(1)
+
+    // Registry advances while the first call is still in-flight. The hook
+    // must enqueue a second request keyed on the new hash.
+    versions.value = [createVersion({ registryCommitHash: 'remote-2' })]
+    await nextTick()
+    expect(fetcher).toHaveBeenCalledTimes(2)
+
+    // Resolve the newer call first (the "winning" write).
+    document['x-scalar-registry-meta'] = {
+      ...(document['x-scalar-registry-meta'] as NonNullable<FakeDocument['x-scalar-registry-meta']>),
+      conflictCheckedAgainstHash: 'remote-2',
+      hasConflict: false,
+    }
+    pendingResolvers[1]?.({ ok: true, data: {} })
+    await nextTick()
+
+    // Now resolve the older call last — its stale write overwrites the
+    // newer cache result, leaving the document in `pull` even though the
+    // registry hash is still `remote-2`.
+    document['x-scalar-registry-meta'] = {
+      ...(document['x-scalar-registry-meta'] as NonNullable<FakeDocument['x-scalar-registry-meta']>),
+      conflictCheckedAgainstHash: 'remote-1',
+      hasConflict: false,
+    }
+    pendingResolvers[0]?.({ ok: true, data: {} })
+    await nextTick()
+
+    // Force another watcher tick with a freshly-built version object that
+    // still reports `pull` and the current registry hash. Without the
+    // stale-detection fix, the in-flight marker is still pinned at
+    // `remote-2` and this tick would be skipped.
+    versions.value = [createVersion({ registryCommitHash: 'remote-2' })]
+    await nextTick()
+    expect(fetcher).toHaveBeenCalledTimes(3)
   })
 
   it('does nothing when the active group has no versions', async () => {

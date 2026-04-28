@@ -45,7 +45,7 @@ export const useVersionConflictCheck = ({
 
   watch(
     () => toValue(versions),
-    (next) => {
+    async (next) => {
       const fetcherValue = toValue(fetcher)
       const storeValue = toValue(store)
       const registryValue = toValue(registry)
@@ -78,7 +78,7 @@ export const useVersionConflictCheck = ({
         const registryCommitHash = version.registryCommitHash
         inflight.set(documentName, registryCommitHash)
 
-        void checkVersionConflict({
+        const result = await checkVersionConflict({
           workspaceStore: storeValue,
           fetcher: fetcherValue,
           documentName,
@@ -86,13 +86,26 @@ export const useVersionConflictCheck = ({
           slug: registryValue.slug,
           version: version.version,
           registryCommitHash,
-        }).catch(() => {
-          // Allow a future render to retry by clearing the in-flight marker
-          // when the helper itself rejects (network failure, etc.). The
-          // helper's `ok: false` returns are handled silently — the cache
-          // simply stays empty and the row keeps showing `pull`.
-          inflight.delete(documentName)
         })
+
+        if (!result.ok) {
+          inflight.delete(documentName)
+        }
+
+        /**
+         * Two concurrent checks can race: if a newer registry hash
+         * arrives while this call is still in-flight, the watcher
+         * overwrites the in-flight marker and fires a second request.
+         * Whichever helper invocation resolves last wins the cache
+         * write — so when an older call lands after a newer one, it
+         * clobbers the fresh result with stale data while the newer
+         * hash is already pinned in `inflight`. Detect that by
+         * comparing the marker against the hash we were started for:
+         * a mismatch means we are the stale call
+         */
+        if (inflight.get(documentName) !== registryCommitHash) {
+          inflight.delete(documentName)
+        }
       }
     },
     { immediate: true },
