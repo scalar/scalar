@@ -86,6 +86,17 @@ defineSlots<{
    */
   'header-menu-items'?: () => unknown
   /**
+   * Slot rendered at the trailing edge of the header, immediately before the
+   * `header-end` slot. Use this for context-specific action buttons (for
+   * example a "Save" button) so they sit next to the document chrome rather
+   * than getting mixed in with the user / account controls in `header-end`.
+   *
+   * When both this slot and `header-end` are provided, a vertical divider is
+   * inserted between them so the two groups read as visually distinct
+   * clusters.
+   */
+  'header-actions'?: () => unknown
+  /**
    * Slot for customizing the end section of the app header.
    * Typically used for user menus, action buttons, or other trailing controls.
    */
@@ -264,7 +275,22 @@ const routerViewProps = computed<RouteProps>(() => {
                 v-if="app.activeEntities.documentSlug.value"
                 :app="app"
                 :registryDocuments="registryDocuments" />
-              <slot name="header-end" />
+              <slot
+                v-if="$slots['header-actions']"
+                name="header-actions" />
+              <!--
+                Vertical divider between the two trailing slot clusters.
+                Only rendered when both `header-actions` and `header-end`
+                are provided, so consumers using just one of the slots do
+                not get an orphaned separator.
+              -->
+              <span
+                v-if="$slots['header-actions'] && $slots['header-end']"
+                aria-hidden="true"
+                class="bg-border h-4 w-px shrink-0" />
+              <slot
+                v-if="$slots['header-end']"
+                name="header-end" />
             </div>
           </template>
         </AppHeader>
