@@ -10,14 +10,16 @@ import { mockEventBus } from '@/v2/helpers/test-utils'
 import DocumentBreadcrumb from './DocumentBreadcrumb.vue'
 
 /**
- * Helper to grab the version-picker combobox specifically. The breadcrumb
- * now renders two `ScalarCombobox` instances (workspace + version), and the
- * workspace one is always the first to render. Indexing here keeps the
- * intent obvious at every call site so the tests stay readable.
+ * Helper to grab the version-picker combobox specifically. The workspace
+ * picker collapses into a plain link button while a document is active on
+ * the route, so when the version picker is rendered (registry-backed
+ * documents only) it is the only `ScalarCombobox` on the page. Centralising
+ * the lookup here keeps the intent obvious at every call site if that
+ * affordance ever changes again.
  */
 const findVersionCombobox = (wrapper: ReturnType<typeof mount>) => {
   const comboboxes = wrapper.findAllComponents({ name: 'ScalarCombobox' })
-  return comboboxes[1]
+  return comboboxes[0]
 }
 
 type FakeDocument = Partial<WorkspaceDocument> & {
@@ -147,16 +149,13 @@ describe('DocumentBreadcrumb', () => {
       documents: {
         pets: { info: { title: 'Pets API', version: '1.0.0' } },
       },
-      activeDocumentName: 'pets',
+      activeDocumentName: undefined,
       isTeamWorkspace: true,
     })
 
     const wrapper = mount(DocumentBreadcrumb, { props: { app } })
     vi.mocked(mockEventBus.emit).mockClear()
 
-    // The first combobox in the breadcrumb is the workspace picker. Direct
-    // event emission bypasses HeadlessUI's popover internals while still
-    // exercising the same handler the component uses in production.
     const comboboxes = wrapper.findAllComponents({ name: 'ScalarCombobox' })
     await comboboxes[0]!.vm.$emit('update:modelValue', {
       id: 'ws-2',
@@ -172,11 +171,14 @@ describe('DocumentBreadcrumb', () => {
   })
 
   it('emits `createWorkspace` when the picker `+` affordance is invoked', () => {
+    // `activeDocumentName` is left unset so the workspace picker is in
+    // its dropdown form (the link form, used while inside a document, has
+    // no `+` affordance).
     const { app } = createFakeApp({
       documents: {
         pets: { info: { title: 'Pets API', version: '1.0.0' } },
       },
-      activeDocumentName: 'pets',
+      activeDocumentName: undefined,
       isTeamWorkspace: true,
     })
 
@@ -589,11 +591,12 @@ describe('DocumentBreadcrumb', () => {
 
     const wrapper = mount(DocumentBreadcrumb, { props: { app } })
 
-    // The breadcrumb always renders the workspace combobox, but the
-    // version one is registry-only. We assert exactly one combobox is
-    // present (the workspace picker) so the version picker is verifiably
-    // hidden for local documents.
-    expect(wrapper.findAllComponents({ name: 'ScalarCombobox' })).toHaveLength(1)
+    // While inside a document the workspace picker collapses into a plain
+    // link button, and the version picker is registry-only. A local
+    // document therefore renders neither combobox - asserting on zero
+    // here is the strongest possible guard against either picker leaking
+    // back in for local documents.
+    expect(wrapper.findAllComponents({ name: 'ScalarCombobox' })).toHaveLength(0)
   })
 
   it('renders the version picker with a create-version slot for registry-backed documents', () => {
