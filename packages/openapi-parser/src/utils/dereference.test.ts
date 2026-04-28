@@ -4,6 +4,7 @@ import type {
   ResponseObject as OpenApiResponseObjectV3_2,
 } from '@scalar/openapi-types/3.2'
 import { describe, expect, it } from 'vitest'
+import type { AnyObject } from '@/types/index'
 
 import { dereference } from './dereference'
 
@@ -19,7 +20,7 @@ describe('dereference', () => {
     }`)
 
     expect(result.errors).toStrictEqual([])
-    expect(result.schema.info.title).toBe('Hello World')
+    expect((result.schema as AnyObject).info.title).toBe('Hello World')
   })
 
   it('dereferences an OpenAPI 3.1.0 file', () => {
@@ -33,7 +34,7 @@ describe('dereference', () => {
     }`)
 
     expect(result.errors).toStrictEqual([])
-    expect(result.schema.info.title).toBe('Hello World')
+    expect((result.schema as AnyObject).info.title).toBe('Hello World')
   })
 
   it('handles circular references', () => {
@@ -62,7 +63,7 @@ describe('dereference', () => {
     expect(result.errors).toStrictEqual([])
 
     // Verify the circular reference is resolved without infinite loop
-    const circularReferenceSchema = result.schema.components.schemas.CircularReference
+    const circularReferenceSchema = (result.schema as AnyObject).components.schemas.CircularReference
 
     expect(circularReferenceSchema.properties.name.type).toBe('string')
     expect(circularReferenceSchema.properties.parent.properties.name.type).toBe('string')
@@ -113,7 +114,7 @@ describe('dereference', () => {
       },
     ])
 
-    expect(result.schema.info.title).toBe('Hello World')
+    expect((result.schema as AnyObject).info.title).toBe('Hello World')
   })
 
   it('dereferences an OpenAPI 3.0.0 file', () => {
@@ -127,7 +128,7 @@ describe('dereference', () => {
     }`)
 
     expect(result.errors).toStrictEqual([])
-    expect(result.schema.info.title).toBe('Hello World')
+    expect((result.schema as AnyObject).info.title).toBe('Hello World')
   })
 
   it('dereferences an Swagger 2.0 file', () => {
@@ -141,7 +142,7 @@ describe('dereference', () => {
     }`)
 
     expect(result.errors).toStrictEqual([])
-    expect(result.schema.info.title).toBe('Hello World')
+    expect((result.schema as AnyObject).info.title).toBe('Hello World')
   })
 
   it('returns version 3.1', () => {
@@ -244,19 +245,23 @@ describe('dereference', () => {
     expect(result.errors).toStrictEqual([])
 
     // Original
-    expect(result.specification.paths['/test'].get.responses['200'].content['application/json'].schema).toEqual({
+    expect(
+      (result.specification as AnyObject).paths['/test'].get.responses['200'].content['application/json'].schema,
+    ).toEqual({
       $ref: '#/components/schemas/Test',
     })
 
     // Resolved references
-    expect(result.schema.paths['/test'].get.responses['200'].content['application/json'].schema).toEqual({
-      type: 'object',
-      properties: {
-        id: {
-          type: 'string',
+    expect((result.schema as AnyObject).paths['/test'].get.responses['200'].content['application/json'].schema).toEqual(
+      {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+          },
         },
       },
-    })
+    )
   })
 
   it('throws an error', () => {
@@ -348,7 +353,7 @@ describe('dereference', () => {
     expect(result.errors).toStrictEqual([])
 
     // Check if the external reference was resolved
-    expect(result.schema.components.schemas.ExternalSchema).toEqual({
+    expect((result.schema as AnyObject).components.schemas.ExternalSchema).toEqual({
       type: 'object',
       properties: {
         id: {
@@ -443,7 +448,7 @@ describe('dereference', () => {
     expect(result.errors).toStrictEqual([])
     expect(dereferencedSchemas).toHaveLength(2)
     expect(dereferencedSchemas[0].resolved == dereferencedSchemas[1].resolved).toBe(true)
-    expect(result.schema.components.schemas.Test == dereferencedSchemas[0].resolved).toBe(true)
+    expect((result.schema as AnyObject).components.schemas.Test == dereferencedSchemas[0].resolved).toBe(true)
   })
 
   it('dereferences operations with query operations', () => {

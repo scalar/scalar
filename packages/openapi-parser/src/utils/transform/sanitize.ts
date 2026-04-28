@@ -1,4 +1,4 @@
-import type { AnyObject, OpenApiDocument } from '@/types/index'
+import type { AnyObject, UnknownObject } from '@/types/index'
 
 import { addInfoObject } from './utils/addInfoObject'
 import { addLatestOpenApiVersion } from './utils/addLatestOpenApiVersion'
@@ -15,7 +15,7 @@ export { DEFAULT_OPENAPI_VERSION } from './utils/addLatestOpenApiVersion'
  *
  * @deprecated We're about to drop this from the package.
  */
-export function sanitize(definition: AnyObject): OpenApiDocument {
+export function sanitize(definition: AnyObject): UnknownObject {
   const transformers = [
     rejectSwaggerDocuments,
     addLatestOpenApiVersion,

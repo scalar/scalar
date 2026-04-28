@@ -20,22 +20,14 @@ export type UnknownObject = Record<string, unknown>
  */
 export type AnyApiDefinitionFormat = string | UnknownObject | Filesystem
 
-type DeepLenientOpenApiType<T> = T extends (...args: any[]) => any
-  ? T
-  : T extends readonly (infer U)[]
-    ? DeepLenientOpenApiType<U>[]
-    : T extends object
-      ? { [K in keyof T]?: DeepLenientOpenApiType<T[K]> } & AnyObject
-      : T
-
 export type StrictOpenApiDocument = OpenApiDocumentV2 | OpenApiDocumentV3 | OpenApiDocumentV3_1 | OpenApiDocumentV3_2
 
-export type OpenApiDocument2 = DeepLenientOpenApiType<OpenApiDocumentV2>
-export type OpenApiDocument3 = DeepLenientOpenApiType<OpenApiDocumentV3>
-export type OpenApiDocument3_1 = DeepLenientOpenApiType<OpenApiDocumentV3_1>
-export type OpenApiDocument3_2 = DeepLenientOpenApiType<OpenApiDocumentV3_2>
+export type OpenApiDocument2 = OpenApiDocumentV2
+export type OpenApiDocument3 = OpenApiDocumentV3
+export type OpenApiDocument3_1 = OpenApiDocumentV3_1
+export type OpenApiDocument3_2 = OpenApiDocumentV3_2
 
-export type OpenApiDocument = OpenApiDocument2 | OpenApiDocument3 | OpenApiDocument3_1 | OpenApiDocument3_2
+export type OpenApiDocument = StrictOpenApiDocument
 
 export type LoadResult = {
   filesystem: Filesystem
@@ -49,26 +41,26 @@ export type ValidateResult =
       specification: StrictOpenApiDocument
       version: OpenApiVersion
       errors?: ErrorObject[]
-      schema: OpenApiDocument
+      schema: StrictOpenApiDocument
     }
   | {
       valid: false
       specification?: UnknownObject
       version?: OpenApiVersion
       errors: ErrorObject[]
-      schema?: OpenApiDocument
+      schema?: UnknownObject
     }
 
 export type ValidationOutcome =
   | {
       valid: true
       errors?: ErrorObject[]
-      schema: OpenApiDocument
+      schema: StrictOpenApiDocument
     }
   | {
       valid: false
       errors: ErrorObject[]
-      schema?: OpenApiDocument
+      schema?: UnknownObject
     }
 
 export type UpgradeResult<T extends OpenApiDocument = OpenApiDocument> = {
@@ -88,8 +80,8 @@ export type DetailsResult = {
 
 export type DereferenceResult = {
   version?: OpenApiVersion
-  specification?: OpenApiDocument
-  schema?: OpenApiDocument
+  specification?: UnknownObject
+  schema?: UnknownObject
   errors?: ErrorObject[]
 }
 

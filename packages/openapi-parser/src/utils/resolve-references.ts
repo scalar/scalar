@@ -6,8 +6,8 @@ import type {
   ErrorObject,
   Filesystem,
   FilesystemEntry,
-  OpenApiDocument,
   ThrowOnErrorOption,
+  UnknownObject,
 } from '@/types/index'
 
 import { getEntrypoint } from './get-entrypoint'
@@ -27,7 +27,7 @@ import { makeFilesystem } from './make-filesystem'
 type ResolveReferencesResult = {
   valid: boolean
   errors: ErrorObject[]
-  schema: OpenApiDocument
+  schema: UnknownObject
 }
 
 export type ResolveReferencesOptions = ThrowOnErrorOption & {
@@ -72,7 +72,7 @@ export function resolveReferences(
     return {
       valid: false,
       errors,
-      schema: finalInput as OpenApiDocument,
+      schema: finalInput as UnknownObject,
     }
   }
 
@@ -88,7 +88,7 @@ export function resolveReferences(
   return {
     valid: errors.length === 0,
     errors,
-    schema: finalInput as OpenApiDocument,
+    schema: finalInput as UnknownObject,
   }
 }
 
