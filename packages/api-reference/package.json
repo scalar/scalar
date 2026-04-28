@@ -28,7 +28,8 @@
     "build": "pnpm build:default && pnpm build:standalone && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "build:default": "vite build",
     "build:standalone": "vite build -c vite.standalone.config.ts",
-    "dev": "vite",
+    "dev": "portless",
+    "dev:app": "vite",
     "dev:standalone": "vite -c vite.standalone.config.ts",
     "playground:esm": "vite ./playground/esm -c ./playground/esm/vite.config.ts",
     "preview": "vite preview",
@@ -44,6 +45,10 @@
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
+  "portless": {
+    "name": "api-reference",
+    "script": "dev:app"
+  },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -135,6 +140,7 @@
     "@vue/test-utils": "catalog:*",
     "hono": "catalog:*",
     "jsdom": "catalog:*",
+    "portless": "^0.10.3",
     "posthog-js": "catalog:*",
     "rollup-plugin-webpack-stats": "^0.2.5",
     "tailwindcss": "catalog:*",
