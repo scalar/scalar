@@ -1013,7 +1013,6 @@ const showMCPButton = computed(() => {
       <AgentScalarDrawer
         v-if="agent.agentEnabled.value"
         :agentScalarConfiguration="configList[activeSlug]?.agent"
-        :eventBus
         :externalUrls="mergedConfig.externalUrls"
         :workspaceStore />
 
