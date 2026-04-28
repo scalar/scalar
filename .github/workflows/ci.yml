@@ -78,6 +78,7 @@ jobs:
       icons_changed: ${{ steps.set-outputs.outputs.icons_changed }}
       galaxy_changed: ${{ steps.set-outputs.outputs.galaxy_changed }}
       api_client_changed: ${{ steps.set-outputs.outputs.api_client_changed }}
+      api_reference_changed: ${{ steps.set-outputs.outputs.api_reference_changed }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
@@ -111,6 +112,8 @@ jobs:
               - packages/galaxy/**
             api_client_changed:
               - packages/api-client/**
+            api_reference_changed:
+              - packages/api-reference/**
 
       - name: Check whether integration package.json files were modified
         id: changed-package-files
@@ -154,6 +157,7 @@ jobs:
           echo "icons_changed=${{ steps.changed-packages-files.outputs.icons_changed_any_changed }}" >> $GITHUB_OUTPUT
           echo "galaxy_changed=${{ steps.changed-packages-files.outputs.galaxy_changed_any_changed }}" >> $GITHUB_OUTPUT
           echo "api_client_changed=${{ steps.changed-packages-files.outputs.api_client_changed_any_changed }}" >> $GITHUB_OUTPUT
+          echo "api_reference_changed=${{ steps.changed-packages-files.outputs.api_reference_changed_any_changed }}" >> $GITHUB_OUTPUT
 
   format:
     if: github.event_name == 'pull_request'
@@ -633,11 +637,15 @@ jobs:
         run: npx @scalar/cli@latest schema publish --namespace scalar --slug asyncapi --version ${{ steps.package-version.outputs.VERSION }} packages/galaxy/dist/asyncapi/latest.yaml
 
   deploy-api-reference:
-    # Run only for PRs from the same repository
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
-    needs: [build]
+    # Run only for same-repo PRs that touch @scalar/api-reference or its workspace deps
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !contains(github.actor, '[bot]') &&
+      needs.check-changes.outputs.api_reference_changed == 'true'
+    needs: [build, check-changes]
     runs-on: blacksmith-2vcpu-ubuntu-2204
-    timeout-minutes: 10
+    timeout-minutes: 15
     concurrency:
       group: deploy-api-reference-${{ github.ref }}
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -648,30 +656,32 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
-      - name: Build
+      - name: Build workspace deps
         uses: ./.github/actions/build
         with:
-          packages: '@scalar-examples/web...'
+          packages: '@scalar/api-reference...'
 
-      - name: Generate DEPLOY_ID
-        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
+      - name: Build playground app
+        run: pnpm --filter @scalar/api-reference exec vite build ./playground/esm -c ./playground/esm/vite.config.ts
 
-      - name: Install Netlify CLI
-        run: pnpm install -g netlify
-
-      - name: Deploy to Netlify
-        run: |
-          netlify deploy --dir "./examples/web/dist" \
-            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
-            --site ${{ vars.NETLIFY_SITE_ID_PREVIEW }} \
-            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
-            --filter @scalar-examples/web \
-            --alias=${{env.DEPLOY_ID}}
+      - name: Deploy to Cloudflare Pages
+        id: deploy
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ./packages/api-reference/playground/esm/dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_API_REFERENCE }} --branch=pr-${{ github.event.pull_request.number }} --commit-hash=${{ github.event.pull_request.head.sha }}
 
       - name: Set output
         id: set-output
-        if: github.event_name == 'pull_request'
-        run: echo "url=https://${{ env.DEPLOY_ID }}--scalar-deploy-preview.netlify.app" >> $GITHUB_OUTPUT
+        run: |
+          ALIAS_URL='${{ steps.deploy.outputs.pages-deployment-alias-url }}'
+          DEPLOYMENT_URL='${{ steps.deploy.outputs.deployment-url }}'
+          if [ -n "$ALIAS_URL" ]; then
+            echo "url=$ALIAS_URL" >> $GITHUB_OUTPUT
+          else
+            echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          fi
 
   deploy-components:
     # Run for PRs (preview) or main branch (production)
@@ -854,7 +864,7 @@ jobs:
           MESSAGE=""
 
           if [ "${{ needs.deploy-api-reference.result }}" == "success" ]; then
-            MESSAGE="$MESSAGE**Preview Examples**
+            MESSAGE="$MESSAGE**Preview API Reference**
 
           ${{ needs.deploy-api-reference.outputs.preview-url }}
 
