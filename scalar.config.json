@@ -2408,6 +2408,7 @@
                 "type": "openapi",
                 "namespace": "scalar",
                 "slug": "access-service",
+                "version": "latest",
                 "title": "Scalar API",
                 "icon": "phosphor/regular/database",
                 "mode": "nested"
