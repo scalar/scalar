@@ -106,8 +106,7 @@ paths:
         It's easy to say you know them all, but do you really? Retrieve all
         the planets and check whether you missed one.
       operationId: getAllData
-      security:
-        - {}
+      security: []
       parameters:
         - $ref: '#/components/parameters/limit'
         - $ref: '#/components/parameters/offset'
@@ -175,6 +174,7 @@ paths:
         planetCreated:
           '{$request.body#/successCallbackUrl}':
             post:
+              security: []
               requestBody:
                 description: Information about the newly created planet
                 content:
@@ -191,6 +191,7 @@ paths:
         planetCreationFailed:
           '{$request.body#/failureCallbackUrl}':
             post:
+              security: []
               requestBody:
                 description: Information about which fields failed to validate
                 content:
@@ -203,6 +204,7 @@ paths:
         planetExploded:
           '{$request.body#/successCallbackUrl}':
             post:
+              security: []
               requestBody:
                 description: Information about the newly exploded planet
                 content:
@@ -265,8 +267,7 @@ paths:
         You'll better learn a little bit more about the planets. It might
         come in handy once space travel is available for everyone.
       operationId: getPlanet
-      security:
-        - {}
+      security: []
       parameters:
         - $ref: '#/components/parameters/planetId'
       responses:
@@ -459,8 +460,7 @@ paths:
       summary: Create a user
       description: Time to create a user account, eh?
       operationId: createUser
-      security:
-        - {}
+      security: []
       requestBody:
         description: User to create
         content:
@@ -556,8 +556,7 @@ paths:
         Yeah, this is the boring security stuff. Just get your super secret
         token and move on.
       operationId: getToken
-      security:
-        - {}
+      security: []
       requestBody:
         description: Body for credentials to authenticate a user
         content:
@@ -666,6 +665,7 @@ webhooks:
     post:
       tags:
         - Planets
+      security: []
       requestBody:
         description: Information about a new planet
         content:
