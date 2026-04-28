@@ -2406,7 +2406,8 @@
               },
               "/api": {
                 "type": "openapi",
-                "url": "https://registry.scalar.com/@scalar/apis/access-service/latest",
+                "namespace": "scalar",
+                "slug": "access-service",
                 "title": "Scalar API",
                 "icon": "phosphor/regular/database",
                 "mode": "nested"
