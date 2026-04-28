@@ -46,6 +46,7 @@ import {
 } from '@/v2/features/app/hooks/use-sidebar-documents'
 import { DocumentSearchModal } from '@/v2/features/search'
 import { dragHandleFactory } from '@/v2/helpers/drag-handle-factory'
+import { tryCatch } from '@/v2/helpers/safe-run'
 import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 
 const {
@@ -158,20 +159,32 @@ const handleDocumentClick = async (item: SidebarDocumentItem) => {
   // workspace document that has no advertised versions yet.
   const targetVersion = item.versions?.[0]
 
-  const result = await loadRegistryDocument({
-    fetcher: fetchRegistryDocument,
-    workspaceStore: app.store.value,
-    namespace: item.registry.namespace,
-    slug: item.registry.slug,
-    version: targetVersion?.version,
-    // Forward the registry-advertised hash from the version row. Storing it
-    // on the imported document lets us later detect when the registry has
-    // moved on and surface upstream changes.
-    commitHash: targetVersion?.registryCommitHash,
-  })
+  // The loader can throw on network errors or malformed payloads. `tryCatch`
+  // converts a rejection into an `{ ok: false, error }` result so a single
+  // failure cannot leave the row's spinner running forever and block
+  // subsequent clicks on the same item.
+  const outcome = await tryCatch(() =>
+    loadRegistryDocument({
+      fetcher: fetchRegistryDocument,
+      workspaceStore: app.store.value!,
+      namespace: item.registry!.namespace,
+      slug: item.registry!.slug,
+      version: targetVersion?.version,
+      // Forward the registry-advertised hash from the version row. Storing it
+      // on the imported document lets us later detect when the registry has
+      // moved on and surface upstream changes.
+      commitHash: targetVersion?.registryCommitHash,
+    }),
+  )
 
   loadingKeys.value[item.key] = false
 
+  if (!outcome.ok) {
+    toast(outcome.error, 'error')
+    return
+  }
+
+  const result = outcome.data
   if (!result.ok) {
     toast(result.error, 'error')
     return

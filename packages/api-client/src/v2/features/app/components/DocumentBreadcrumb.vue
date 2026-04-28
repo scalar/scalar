@@ -16,6 +16,7 @@ import { VERSION_STATUS_PRESENTATION } from '@/v2/features/app/helpers/version-s
 import { useActiveDocumentVersion } from '@/v2/features/app/hooks/use-active-document-version'
 import type { RegistryDocumentsState } from '@/v2/features/app/hooks/use-sidebar-documents'
 import { useVersionConflictCheck } from '@/v2/features/app/hooks/use-version-conflict-check'
+import { tryCatch } from '@/v2/helpers/safe-run'
 import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 
 import CreateVersionModal from './CreateVersionModal.vue'
@@ -183,20 +184,32 @@ const handleVersionSelect = async (option: VersionOption | undefined) => {
 
   isLoading.value = true
 
-  const result = await loadRegistryDocument({
-    fetcher: fetchRegistryDocument,
-    workspaceStore: app.store.value,
-    namespace: registry.namespace,
-    slug: registry.slug,
-    version: version.version,
-    // Forward the registry-advertised hash from the picker row. Storing it
-    // on the document lets us later detect when the registry has moved on
-    // and surface upstream changes.
-    commitHash: version.registryCommitHash,
-  })
+  // The loader's helpers (fetcher, coercion, slug generation) can throw on
+  // network failures or unexpected payloads. `tryCatch` swallows the
+  // exception and surfaces it as an `{ ok: false, error }` result so a
+  // single rejection cannot leave the picker permanently disabled.
+  const outcome = await tryCatch(() =>
+    loadRegistryDocument({
+      fetcher: fetchRegistryDocument,
+      workspaceStore: app.store.value!,
+      namespace: registry.namespace,
+      slug: registry.slug,
+      version: version.version,
+      // Forward the registry-advertised hash from the picker row. Storing it
+      // on the document lets us later detect when the registry has moved on
+      // and surface upstream changes.
+      commitHash: version.registryCommitHash,
+    }),
+  )
 
   isLoading.value = false
 
+  if (!outcome.ok) {
+    toast(outcome.error, 'error')
+    return
+  }
+
+  const result = outcome.data
   if (!result.ok) {
     toast(result.error, 'error')
     return
