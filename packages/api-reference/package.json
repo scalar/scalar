@@ -28,7 +28,7 @@
     "build": "pnpm build:default && pnpm build:standalone && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "build:default": "vite build",
     "build:standalone": "vite build -c vite.standalone.config.ts",
-    "dev": "portless run pnpm run dev:app",
+    "dev": "portless run --name api-reference pnpm run dev:app",
     "dev:app": "vite",
     "dev:standalone": "vite -c vite.standalone.config.ts",
     "playground:esm": "vite ./playground/esm -c ./playground/esm/vite.config.ts",
@@ -45,9 +45,6 @@
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
-  "portless": {
-    "name": "api-reference"
-  },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
