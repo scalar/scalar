@@ -702,8 +702,8 @@ jobs:
         with:
           packages: '@scalar/api-reference...'
 
-      - name: Build index.html app
-        run: pnpm --filter @scalar/api-reference exec vite build -c ./playground/esm/vite.config.ts
+      - name: Build package root app
+        run: pnpm --filter @scalar/api-reference exec vite build . -c ./playground/esm/vite.config.ts
 
       - name: Deploy to Cloudflare Pages
         id: deploy
