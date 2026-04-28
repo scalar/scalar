@@ -1461,9 +1461,6 @@ importers:
       fuse.js:
         specifier: catalog:*
         version: 7.1.0
-      github-slugger:
-        specifier: catalog:*
-        version: 2.0.0
       microdiff:
         specifier: catalog:*
         version: 1.5.0
@@ -1956,9 +1953,6 @@ importers:
       flatted:
         specifier: catalog:*
         version: 3.4.2
-      github-slugger:
-        specifier: catalog:*
-        version: 2.0.0
       vue:
         specifier: catalog:*
         version: 3.5.30(typescript@5.9.3)
@@ -2539,9 +2533,6 @@ importers:
       '@scalar/validation':
         specifier: workspace:*
         version: link:../validation
-      github-slugger:
-        specifier: catalog:*
-        version: 2.0.0
       js-base64:
         specifier: catalog:*
         version: 3.7.8

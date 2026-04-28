@@ -1,3 +1,4 @@
+import { slugger } from '@scalar/helpers/string/slugger'
 import { parseJsonOrYaml } from '@scalar/oas-utils/helpers'
 import {
   type AnyApiReferenceConfiguration,
@@ -6,7 +7,6 @@ import {
   apiReferenceConfigurationWithSourceSchema,
   isConfigurationWithSources,
 } from '@scalar/types/api-reference'
-import GithubSlugger from 'github-slugger'
 
 /** Processed API Reference Configuration
  *
@@ -34,7 +34,7 @@ type ConfigWithRequiredSource = Omit<ApiReferenceConfigurationWithSource, 'url' 
 export const normalizeConfigurations = (
   configuration: AnyApiReferenceConfiguration | undefined,
 ): NormalizedConfigurations => {
-  const slugger = new GithubSlugger()
+  const { slug } = slugger()
 
   const normalized: NormalizedConfigurations = {}
 
@@ -69,7 +69,7 @@ export const normalizeConfigurations = (
     /** Filter out configurations that failed validation or don't have a url or content */
     .filter((c): c is ConfigWithRequiredSource => !!c && (!!c.url || !!c.content))
     /** Add required attributes to the source */
-    .map((source, index) => addSlugAndTitle(source, index, slugger))
+    .map((source, index) => addSlugAndTitle(source, index, slug))
     /** Separate the configuration and sources by slug */
     .forEach((c) => {
       const { url, content, ...config } = c
@@ -110,13 +110,13 @@ export const normalizeContent = (
 const addSlugAndTitle = (
   source: ConfigWithRequiredSource,
   index = 0,
-  slugger: GithubSlugger,
+  slug: (v: string) => string,
 ): ConfigWithRequiredSource & { slug: string; title: string } => {
   // Case 1: Title exists, generate slug from it
   if (source.title) {
     return {
       ...source,
-      slug: source.slug || slugger.slug(source.title),
+      slug: source.slug || slug(source.title),
       title: source.title,
     }
   }
@@ -125,7 +125,7 @@ const addSlugAndTitle = (
   if (source.slug) {
     return {
       ...source,
-      slug: slugger.slug(source.slug),
+      slug: slug(source.slug),
       title: source.slug,
     }
   }

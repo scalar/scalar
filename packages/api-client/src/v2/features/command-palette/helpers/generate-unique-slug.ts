@@ -1,6 +1,5 @@
+import { slugify } from '@scalar/helpers/string/slugify'
 import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-unique-value'
-
-import { slugify } from '@/v2/helpers/slugify'
 
 /**
  * Generates a unique slug for an imported document based on its title.
