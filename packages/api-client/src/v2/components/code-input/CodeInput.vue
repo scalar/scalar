@@ -384,7 +384,7 @@ const handleKeyDown = (key: string, event: KeyboardEvent): void => {
   }
 
   if (key === 'enter' && event.target instanceof HTMLDivElement) {
-    handleSubmit(event.target.textContent ?? '', event)
+    handleSubmit(codeMirror.value?.state.doc.toString() ?? '', event)
   }
 }
 

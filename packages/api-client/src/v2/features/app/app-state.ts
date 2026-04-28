@@ -385,7 +385,9 @@ export const createAppState = async ({
         },
         paths: {
           '/': {
-            get: {},
+            get: {
+              summary: 'First Request',
+            },
           },
         },
         'x-scalar-original-document-hash': 'drafts',
