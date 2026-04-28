@@ -50,49 +50,25 @@ export const computeVersionStatus = ({
   /** Cached outcome of the last conflict check. */
   hasConflict?: boolean
 }): VersionStatus => {
-  // Unloaded versions have no local state to compare against. Callers
-  // typically do not surface a status icon for them.
+  // 1. Foundation check
   if (!isLoaded) {
     return 'unknown'
   }
 
-  // Local document has no commit hash. This means the document was created
-  // locally (a draft) and has never been pushed to the registry. Either:
-  //   - the registry has not seen this version yet -> straight `push`, the
-  //     draft is waiting to be uploaded;
-  //   - the registry advertises a hash for this version -> the draft
-  //     collides with an existing registry version, so we run through the
-  //     regular pull / conflict pipeline.
-  if (!localHash) {
-    if (!registryHash) {
-      return 'push'
-    }
-    if (hasConflict === true && conflictCheckedAgainstHash === registryHash) {
-      return 'conflict'
-    }
-    return 'pull'
+  // 2. Cache Validation: Determine if we have a valid, active conflict
+  const isConflictActive = hasConflict && conflictCheckedAgainstHash === registryHash
+
+  // 3. Scenario: Nothing on the Registry
+  if (!registryHash) {
+    // If no remote hash exists, it's either a fresh draft (push) or a local-only change
+    return isDirty || !localHash ? 'push' : 'synced'
   }
 
-  // From here on, the local document has a commit hash. Same hash on both
-  // sides means there is nothing to merge - the only differentiator is
-  // whether the user has queued up local edits to push.
+  // 4. Scenario: Matches Registry
   if (localHash === registryHash) {
     return isDirty ? 'push' : 'synced'
   }
-
-  // Local document is pinned to a commit hash but the registry no longer
-  // advertises one for this version. We have nothing remote to compare
-  // against, so fall back to the dirty-flag-only signal.
-  if (!registryHash) {
-    return isDirty ? 'push' : 'synced'
-  }
-
-  // Hashes differ. The cached conflict result is only trustworthy while it
-  // was computed against the *current* registry hash; otherwise treat the
-  // version as a regular pull until a fresh check populates the cache.
-  if (hasConflict === true && conflictCheckedAgainstHash === registryHash) {
-    return 'conflict'
-  }
-
-  return 'pull'
+  // 5. Scenario: Hash Mismatch (or no localHash but registryHash exists)
+  // At this point, localHash !== registryHash and registryHash exists.
+  return isConflictActive ? 'conflict' : 'pull'
 }

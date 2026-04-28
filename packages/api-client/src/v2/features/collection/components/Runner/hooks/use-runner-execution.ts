@@ -15,7 +15,7 @@ import { type ComputedRef, type Ref, computed, ref } from 'vue'
 
 import { type CustomFetch, type ResponseInstance, sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
 import { APP_VERSION } from '@/v2/constants'
-import { tryCatch } from '@/v2/helpers/safe-run'
+import { safeRun } from '@/v2/helpers/safe-run'
 
 import type { SelectedItem } from './use-runner-selection'
 
@@ -246,7 +246,7 @@ export function useRunnerExecution({
           ...variablesStore.getVariables(),
         }
 
-        const requestResult = await tryCatch(() => {
+        const requestResult = await safeRun(() => {
           return buildRequest(requestBuilder, { envVariables })
         })
 

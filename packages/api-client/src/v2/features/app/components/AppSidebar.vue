@@ -46,7 +46,7 @@ import {
 } from '@/v2/features/app/hooks/use-sidebar-documents'
 import { DocumentSearchModal } from '@/v2/features/search'
 import { dragHandleFactory } from '@/v2/helpers/drag-handle-factory'
-import { tryCatch } from '@/v2/helpers/safe-run'
+import { safeRun } from '@/v2/helpers/safe-run'
 import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 
 const {
@@ -133,7 +133,13 @@ const handleDocumentClick = async (item: SidebarDocumentItem) => {
     return
   }
 
-  if (!item.registry || !app.store.value) {
+  // Capture the narrowed values into locals so the closure passed to
+  // `safeRun` keeps the non-nullable types without needing assertions, and
+  // so a later mutation to `item.registry` or `app.store.value` cannot
+  // change what we end up loading mid-flight.
+  const { registry } = item
+  const workspaceStore = app.store.value
+  if (!registry || !workspaceStore) {
     console.warn('Document does not have a sidebar navigation, skipping...')
     return
   }
@@ -159,16 +165,16 @@ const handleDocumentClick = async (item: SidebarDocumentItem) => {
   // workspace document that has no advertised versions yet.
   const targetVersion = item.versions?.[0]
 
-  // The loader can throw on network errors or malformed payloads. `tryCatch`
+  // The loader can throw on network errors or malformed payloads. `safeRun`
   // converts a rejection into an `{ ok: false, error }` result so a single
   // failure cannot leave the row's spinner running forever and block
   // subsequent clicks on the same item.
-  const outcome = await tryCatch(() =>
+  const outcome = await safeRun(() =>
     loadRegistryDocument({
       fetcher: fetchRegistryDocument,
-      workspaceStore: app.store.value!,
-      namespace: item.registry!.namespace,
-      slug: item.registry!.slug,
+      workspaceStore,
+      namespace: registry.namespace,
+      slug: registry.slug,
       version: targetVersion?.version,
       // Forward the registry-advertised hash from the version row. Storing it
       // on the imported document lets us later detect when the registry has

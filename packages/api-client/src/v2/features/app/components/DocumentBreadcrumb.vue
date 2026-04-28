@@ -16,7 +16,7 @@ import { VERSION_STATUS_PRESENTATION } from '@/v2/features/app/helpers/version-s
 import { useActiveDocumentVersion } from '@/v2/features/app/hooks/use-active-document-version'
 import type { RegistryDocumentsState } from '@/v2/features/app/hooks/use-sidebar-documents'
 import { useVersionConflictCheck } from '@/v2/features/app/hooks/use-version-conflict-check'
-import { tryCatch } from '@/v2/helpers/safe-run'
+import { safeRun } from '@/v2/helpers/safe-run'
 import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
 
 import CreateVersionModal from './CreateVersionModal.vue'
@@ -172,8 +172,12 @@ const handleVersionSelect = async (option: VersionOption | undefined) => {
     return
   }
 
+  // Capture `app.store.value` into a local so the closure passed to
+  // `safeRun` keeps the non-nullable type without needing an assertion,
+  // and so a later store swap cannot redirect the in-flight load.
   const registry = activeItem.value?.registry
-  if (!registry || !fetchRegistryDocument || !app.store.value) {
+  const workspaceStore = app.store.value
+  if (!registry || !fetchRegistryDocument || !workspaceStore) {
     toast('Cannot load this version without a registry fetcher.', 'error')
     return
   }
@@ -185,13 +189,13 @@ const handleVersionSelect = async (option: VersionOption | undefined) => {
   isLoading.value = true
 
   // The loader's helpers (fetcher, coercion, slug generation) can throw on
-  // network failures or unexpected payloads. `tryCatch` swallows the
+  // network failures or unexpected payloads. `safeRun` swallows the
   // exception and surfaces it as an `{ ok: false, error }` result so a
   // single rejection cannot leave the picker permanently disabled.
-  const outcome = await tryCatch(() =>
+  const outcome = await safeRun(() =>
     loadRegistryDocument({
       fetcher: fetchRegistryDocument,
-      workspaceStore: app.store.value!,
+      workspaceStore,
       namespace: registry.namespace,
       slug: registry.slug,
       version: version.version,
