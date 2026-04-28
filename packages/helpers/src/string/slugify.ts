@@ -1,5 +1,5 @@
-const RE_NON_WORD = /[^\p{L}\p{M}\p{N}\s-]/gu
-const RE_SPACES = /[\s-]+/g
+const RE_NON_WORD = /[^\p{L}\p{M}\p{N}\s_-]/gu
+const RE_SPACES = /[\s_-]+/g
 const RE_TRIM_HYPHENS = /^-+|-+$/g
 
 /** Cache of compiled non-word regexes keyed by their `allowedSpecialChars` string. */
@@ -46,7 +46,7 @@ export const slugify = (v: string, options: SlugifyOptions = {}) => {
       reNonWord = cached
     } else {
       const escaped = allowedSpecialChars.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
-      reNonWord = new RegExp(`[^\\p{L}\\p{M}\\p{N}\\s\\-${escaped}]`, 'gu')
+      reNonWord = new RegExp(`[^\\p{L}\\p{M}\\p{N}\\s_\\-${escaped}]`, 'gu')
       reNonWordCache.set(allowedSpecialChars, reNonWord)
     }
   } else {

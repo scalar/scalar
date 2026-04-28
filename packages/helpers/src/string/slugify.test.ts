@@ -23,6 +23,14 @@ describe('slugify', () => {
     expect(slugify('Hello 👋 + World & Friends')).toBe('hello-world-friends')
   })
 
+  it('converts underscores to hyphens (snake_case support)', () => {
+    expect(slugify('user_name')).toBe('user-name')
+  })
+
+  it('collapses mixed underscores, spaces, and hyphens into a single hyphen', () => {
+    expect(slugify('foo__bar--baz  qux')).toBe('foo-bar-baz-qux')
+  })
+
   it('preserves accented letters', () => {
     expect(slugify('Crème Brûlée')).toBe('crème-brûlée')
   })
