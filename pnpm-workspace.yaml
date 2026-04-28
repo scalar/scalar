@@ -120,3 +120,5 @@ onlyBuiltDependencies:
 minimumReleaseAgeExclude:
   # Renovate security update: flatted@3.4.0
   - flatted@3.4.0
+  # Renovate security update: astro@6.0.0
+  - astro@6.0.0
