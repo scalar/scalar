@@ -22,11 +22,6 @@ export type AnyApiDefinitionFormat = string | UnknownObject | Filesystem
 
 export type StrictOpenApiDocument = OpenApiDocumentV2 | OpenApiDocumentV3 | OpenApiDocumentV3_1 | OpenApiDocumentV3_2
 
-export type OpenApiDocument2 = OpenApiDocumentV2
-export type OpenApiDocument3 = OpenApiDocumentV3
-export type OpenApiDocument3_1 = OpenApiDocumentV3_1
-export type OpenApiDocument3_2 = OpenApiDocumentV3_2
-
 export type OpenApiDocument = StrictOpenApiDocument
 
 export type LoadResult = {
