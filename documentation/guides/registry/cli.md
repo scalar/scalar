@@ -1,37 +1,7 @@
 # CLI
 This guide will help you interact with our registry with our CLI, programmatically. If you want to also work with the registry with our dashboard you can.
 
-### Generate Token
-If you choose to interface with our registry with our [CLI](../cli/commands.md#registry) or our API you will need to generate an API key.
-
-Go to https://dashboard.scalar.com and navigate to User > API Keys:
-
-![Scalar Create API Key](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/RlDb2KoAByHiUPxNsOAHk.png "Scalar Create API Key")
-
-Once you have your API key you can now use the CLI or API to interface with the registry.
-
-## Authentication
-First you need to login, you can do that by the following commands:
-
-```bash
-scalar auth login
-```
-
-Or using a token directly:
-
-```bash
-scalar auth login --token 1234secrettoken5678
-```
-
-You can also check your current user or logout:
-
-```bash
-# Check current user
-scalar auth whoami
-
-# Logout
-scalar auth logout
-```
+Before running any of the commands below, make sure you are [authenticated](../cli/authentication.md) with the Scalar CLI using your [API key](../cli/authentication.md#login-with-an-api-key).
 
 ## Publishing OpenAPI Documents
 To add an OpenAPI document to the registry, use the `publish` command:
@@ -51,6 +21,7 @@ scalar registry publish ./openapi.yaml --namespace your-team --slug your-api
 - `--force`: Force override an existing version (default: false)
 
 ### Examples
+
 ```bash
 # Basic publish
 scalar registry publish api/openapi.json --namespace your-team --slug user-api

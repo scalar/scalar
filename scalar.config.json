@@ -2285,6 +2285,11 @@
                       ]
                     }
                   },
+                  "authentication": {
+                    "filepath": "documentation/guides/cli/authentication.md",
+                    "type": "page",
+                    "title": "Authentication"
+                  },
                   "commands": {
                     "filepath": "documentation/guides/cli/commands.md",
                     "type": "page",
