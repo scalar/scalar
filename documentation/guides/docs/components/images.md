@@ -70,9 +70,6 @@ Defaults to `actual`.
 
 ### Basic Image
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-image
   src="https://avatars.githubusercontent.com/u/6176314?v=4"
   alt="Application screenshot">
@@ -84,25 +81,9 @@ Defaults to `actual`.
   alt="Application screenshot">
 </scalar-image>
 ```
-
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-image{ src="https://avatars.githubusercontent.com/u/6176314?v=4" alt="Application screenshot" }
-
-```markdown
-::scalar-image{ src="https://avatars.githubusercontent.com/u/6176314?v=4" alt="Application screenshot" }
-```
-
-</scalar-tab>
-</scalar-tabs>
 
 ### Image with Caption
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-image
   src="https://avatars.githubusercontent.com/u/6176314?v=4"
   alt="System architecture diagram"
@@ -116,25 +97,9 @@ Defaults to `actual`.
   caption="High-level system architecture showing data flow">
 </scalar-image>
 ```
-
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-image{ src="https://avatars.githubusercontent.com/u/6176314?v=4" alt="System architecture diagram" caption="High-level system architecture showing data flow" }
-
-```html
-::scalar-image{ src="https://avatars.githubusercontent.com/u/6176314?v=4" alt="System architecture diagram" caption="High-level system architecture showing data flow" }
-```
-
-</scalar-tab>
-</scalar-tabs>
 
 ### Clickable Image
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-image
   src="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
   alt="Click to view full size"
@@ -150,25 +115,9 @@ Defaults to `actual`.
   caption="Click to access the link">
 </scalar-image>
 ```
-
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-image{ src="https://avatars.githubusercontent.com/u/301879?s=200&v=4" alt="Click to view full size" href="https://github.com/scalar/scalar" caption="Click to access the link" }
-
-```markdown
-::scalar-image{ src="https://avatars.githubusercontent.com/u/301879?s=200&v=4" alt="Click to view full size" href="https://github.com/scalar/scalar" caption="Click to access the link" }
-```
-
-</scalar-tab>
-</scalar-tabs>
 
 ### Custom Sized Image
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-image
   src="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
   alt="Company logo"
@@ -186,25 +135,9 @@ Defaults to `actual`.
   caption="Company branding">
 </scalar-image>
 ```
-
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-image{ src="https://avatars.githubusercontent.com/u/301879?s=200&v=4" alt="Company logo" width="200" height="100" caption="Company branding" }
-
-```markdown
-::scalar-image{ src="https://avatars.githubusercontent.com/u/301879?s=200&v=4" alt="Company logo" width="200" height="100" caption="Company branding" }
-```
-
-</scalar-tab>
-</scalar-tabs>
 
 ### Dark Mode Image
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-image
   src="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
   src-dark="https://avatars.githubusercontent.com/u/6176314?s=200&v=4"
@@ -220,25 +153,9 @@ Defaults to `actual`.
   caption="Automatically adapts to user's theme preference">
 </scalar-image>
 ```
-
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-image{ src="https://avatars.githubusercontent.com/u/301879?s=200&v=4" src-dark="https://avatars.githubusercontent.com/u/6176314?s=200&v=4" alt="Theme-aware illustration" caption="Automatically adapts to user's theme preference" }
-
-```markdown
-::scalar-image{ src="https://avatars.githubusercontent.com/u/301879?s=200&v=4" src-dark="https://avatars.githubusercontent.com/u/6176314?s=200&v=4" alt="Theme-aware illustration" caption="Automatically adapts to user's theme preference" }
-```
-
-</scalar-tab>
-</scalar-tabs>
 
 ### Full Width Image
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-image
   src="https://pbs.twimg.com/profile_banners/1599772885857538051/1740351609/1500x500"
   alt="Hero section background"
@@ -255,23 +172,7 @@ Defaults to `actual`.
 </scalar-image>
 ```
 
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-image{ src="https://pbs.twimg.com/profile_banners/1599772885857538051/1740351609/1500x500" alt="Hero section background" size="full" caption="Full-width hero image" }
-
-```markdown
-::scalar-image{ src="https://pbs.twimg.com/profile_banners/1599772885857538051/1740351609/1500x500" alt="Hero section background" size="full" caption="Full-width hero image" }
-```
-
-</scalar-tab>
-</scalar-tabs>
-
 ### Relative Path Link
-
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
 
 <scalar-image
   src="/hero_1500x500.jpeg"
@@ -288,18 +189,6 @@ Defaults to `actual`.
   caption="Relative path Full-width hero image">
 </scalar-image>
 ```
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-image{ src="/hero_1500x500.jpeg" alt="Hero section background" size="full" caption="Full-width hero image" }
-
-```markdown
-::scalar-image{ src="/hero_1500x500.jpeg" alt="Hero section background" size="full" caption="Full-width hero image" }
-```
-
-</scalar-tab>
-</scalar-tabs>
 
 <scalar-callout type="info"> The path is relative based on the configured  `assetsDir`. </scalar-callout>
 
@@ -309,5 +198,3 @@ Defaults to `actual`.
   "assetsDir": "documentation/assets"
 }
 ```
-
-

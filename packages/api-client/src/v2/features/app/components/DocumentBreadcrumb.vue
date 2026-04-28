@@ -471,7 +471,7 @@ const handleCreateVersion = async (version: string) => {
             weight="bold" />
         </button>
         <template #add>
-          <span class="text-c-1">Create workspace</span>
+          <span class="text-c-1">Create local workspace</span>
         </template>
       </ScalarCombobox>
       <button

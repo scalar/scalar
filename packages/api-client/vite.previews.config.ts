@@ -10,10 +10,10 @@ const require = createRequire(import.meta.url)
 const monacoEditorPlugin = require('vite-plugin-monaco-editor').default
 
 /**
- * App-mode build for the api-client playgrounds. The main `vite.config.ts` is
+ * App-mode build for the api-client previews. The main `vite.config.ts` is
  * configured for library output, which is incompatible with bundling a deployable
- * playground. Pass the playground folder as Vite's root, e.g.
- *   vite build playground/app -c vite.playground.config.ts
+ * preview app. Pass the app folder as Vite's root, e.g.
+ *   vite build playground/app -c vite.previews.config.ts
  */
 export default defineConfig({
   plugins: [

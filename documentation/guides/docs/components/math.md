@@ -18,9 +18,6 @@ A descriptive caption for the equation. This appears below the rendered math and
 
 ### Basic Math Equation
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-math equation="x^2 + y^2 = z^2">
 </scalar-math>
 
@@ -28,25 +25,9 @@ A descriptive caption for the equation. This appears below the rendered math and
 <scalar-math equation="x^2 + y^2 = z^2">
 </scalar-math>
 ```
-
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-math{ equation="x^2 + y^2 = z^2"}
-
-```markdown
-::scalar-math{ equation="x^2 + y^2 = z^2"}
-```
-
-</scalar-tab>
-</scalar-tabs>
 
 ### Math with Caption
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-math 
   equation="E = mc^2"
   caption="Einstein's mass-energy equivalence">
@@ -58,23 +39,9 @@ A descriptive caption for the equation. This appears below the rendered math and
   caption="Einstein's mass-energy equivalence">
 </scalar-math>
 ```
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-math{ equation="E = mc^2" caption="Einstein's mass-energy equivalence" }
-
-```markdown
-::scalar-math{ equation="E = mc^2" caption="Einstein's mass-energy equivalence" }
-```
-</scalar-tab>
-</scalar-tabs>
 
 ### Complex Mathematical Expression
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-math 
   equation="\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}"
   caption="Gaussian integral">
@@ -86,23 +53,9 @@ A descriptive caption for the equation. This appears below the rendered math and
   caption="Gaussian integral">
 </scalar-math>
 ```
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-math{ equation="\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}" caption="Gaussian integral" }
-
-```html
-::scalar-math{ equation="\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}" caption="Gaussian integral" }
-```
-</scalar-tab>
-</scalar-tabs>
 
 ### Matrix Equation
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-math 
   equation="\begin{pmatrix} a & b \\ c & d \end{pmatrix} \begin{pmatrix} x \\ y \end{pmatrix} = \begin{pmatrix} e \\ f \end{pmatrix}"
   caption="System of linear equations in matrix form">
@@ -114,14 +67,3 @@ A descriptive caption for the equation. This appears below the rendered math and
   caption="System of linear equations in matrix form">
 </scalar-math>
 ```
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-math{ equation="\begin{pmatrix} a & b \\ c & d \end{pmatrix} \begin{pmatrix} x \\ y \end{pmatrix} = \begin{pmatrix} e \\ f \end{pmatrix}" caption="System of linear equations in matrix form" }
-
-```html
-::scalar-math{ equation="\begin{pmatrix} a & b \\ c & d \end{pmatrix} \begin{pmatrix} x \\ y \end{pmatrix} = \begin{pmatrix} e \\ f \end{pmatrix}" caption="System of linear equations in matrix form" }
-```
-</scalar-tab>
-</scalar-tabs>

@@ -11,9 +11,6 @@ This component does not accept any attributes.
 
 ### Row of Cards
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-row>
 <scalar-card icon="solid/basic-shape-hexagon" title="The Title of the Card">
 
@@ -45,36 +42,3 @@ Card with title, body, and icon.
 </scalar-card>
 </scalar-row>
 ```
-
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::::scalar-row
-:::scalar-card{icon="solid/basic-shape-hexagon" title="The Title of the Card"}
-Card with title, body, and icon.
-:::
-:::scalar-card{icon="solid/basic-shape-hexagon" title="The Title of the Card"}
-Card with title, body, and icon.
-:::
-:::scalar-card{icon="solid/basic-shape-hexagon" title="The Title of the Card"}
-Card with title, body, and icon.
-:::
-::::
-
-```markdown
-::::scalar-row
-:::scalar-card{icon="solid/basic-shape-hexagon" title="The Title of the Card"}
-Card with title, body, and icon.
-:::
-:::scalar-card{icon="solid/basic-shape-hexagon" title="The Title of the Card"}
-Card with title, body, and icon.
-:::
-:::scalar-card{icon="solid/basic-shape-hexagon" title="The Title of the Card"}
-Card with title, body, and icon.
-:::
-::::
-```
-</scalar-tab>
-</scalar-tabs>
-

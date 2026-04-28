@@ -157,7 +157,7 @@ const handleBack = (event: MouseEvent) => {
         class="absolute inset-0 translate-x-full">
         <ScalarSidebarItems v-bind="$attrs">
           <div
-            class="flex flex-col gap-px sticky top-(--scalar-sidebar-sticky-offset,0) p-(--scalar-sidebar-padding) -m-(--scalar-sidebar-padding) mb-0 pb-0 bg-sidebar-b-1 z-1 animate-sidebar-border-bottom border-b-sidebar-border">
+            class="flex flex-col gap-px sticky top-(--scalar-sidebar-sticky-offset,0) pt-(--scalar-sidebar-padding) -mt-(--scalar-sidebar-padding) px-(--scalar-sidebar-padding) -mx-(--scalar-sidebar-padding) bg-sidebar-b-1 z-1 animate-sidebar-border-bottom border-b-sidebar-border">
             <slot name="back">
               <ScalarSidebarButton
                 is="button"

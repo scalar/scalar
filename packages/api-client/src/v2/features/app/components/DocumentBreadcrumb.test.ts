@@ -593,9 +593,7 @@ describe('DocumentBreadcrumb', () => {
     // version one is registry-only. We assert exactly one combobox is
     // present (the workspace picker) so the version picker is verifiably
     // hidden for local documents.
-    expect(wrapper.findAllComponents({ name: 'ScalarCombobox' })).toHaveLength(
-      1,
-    )
+    expect(wrapper.findAllComponents({ name: 'ScalarCombobox' })).toHaveLength(1)
   })
 
   it('renders the version picker with a create-version slot for registry-backed documents', () => {

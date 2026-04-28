@@ -58,7 +58,10 @@
     // Astro component Props interface is used by the framework
     "integrations/astro/src/ScalarComponent.astro": ["types"],
     // setupFiles string path cannot be resolved by knip
-    "packages/api-reference/vitest.config.ts": ["unresolved"]
+    "packages/api-reference/vitest.config.ts": ["unresolved"],
+    // Nuxt virtual alias resolved at runtime by Nuxt, not by knip static analysis
+    "integrations/nuxt/src/runtime/components/ScalarApiReference.vue": ["unresolved"],
+    "integrations/nuxt/src/runtime/pages/ScalarPage.vue": ["unresolved"]
   },
   "workspaces": {
     "packages/api-client": {
@@ -117,6 +120,8 @@
         "src/features/index.ts",
         "src/helpers/index.ts",
         "src/esm.ts",
+        // Used by CI deploy-api-reference preview build
+        "vite.previews.config.ts",
         // Not sure why test files are marked as unused here
         "test/**/*",
         "src/**/*.test.ts"
