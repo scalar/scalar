@@ -702,8 +702,8 @@ jobs:
         with:
           packages: '@scalar/api-reference...'
 
-      - name: Build playground app
-        run: pnpm --filter @scalar/api-reference exec vite build ./playground/esm -c ./playground/esm/vite.config.ts
+      - name: Build index.html app
+        run: pnpm --filter @scalar/api-reference exec vite build -c ./playground/esm/vite.config.ts
 
       - name: Deploy to Cloudflare Pages
         id: deploy
@@ -711,7 +711,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy ./packages/api-reference/playground/esm/dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_API_REFERENCE }} --branch=pr-${{ github.event.pull_request.number }} --commit-hash=${{ github.event.pull_request.head.sha }}
+          command: pages deploy ./packages/api-reference/dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_API_REFERENCE }} --branch=pr-${{ github.event.pull_request.number }} --commit-hash=${{ github.event.pull_request.head.sha }}
 
       - name: Set output
         id: set-output
