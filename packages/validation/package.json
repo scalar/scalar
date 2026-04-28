@@ -34,6 +34,10 @@
       "default": "./dist/index.js"
     }
   },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
   "devDependencies": {
     "vite": "catalog:*",
     "vitest": "catalog:*"

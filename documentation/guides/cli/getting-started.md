@@ -49,33 +49,8 @@ pnpm dlx @scalar/cli help
 - [team](commands.md#team) Manage user teams
 
 ## Authentication
-To authenticate with the Scalar platform you can do the following:
 
-### Web Login
-This opens a web portal which will authenticate, typical for local dev machine workflows
-
-```bash
-scalar auth login
-```
-
-Now you can interact with all the wonderful authorization endpoints
-
-### Token/Machine Based
-
-Typical if you want to use in CI workflows or programatically you need to:
-1. Visit https://dashboard.scalar.com
-2. Create an account or Login
-3. Navigate to User -> API Keys https://dashboard.scalar.com/user/api-keys
-4. Generate an API Key
-5. Store the token in a safe place!
-
-```bash
-scalar auth login --token 1234secrettoken5678
-```
-
-Now you can interact with all the wonderful authorization endpoints with just a token! Perfect for GitHub actions or scripts.
-
-
+To use the CLI with Scalar services, see the [Authentication](authentication.md) guide.
 
 ## GitHub Actions
 
