@@ -218,8 +218,15 @@ const routerViewProps = computed<RouteProps>(() => {
               path: 'settings',
             })
           ">
+          <!--
+            Only forward the consumer-provided logo (typically a team
+            avatar from Scalar Cloud) while the user is actually inside a
+            team workspace. Outside of a team context the avatar would be
+            misleading, so we omit the `#logo` template entirely and let
+            `ScalarMenuButton` fall back to its default Scalar wordmark.
+          -->
           <template
-            v-if="$slots['header-logo']"
+            v-if="$slots['header-logo'] && app.workspace.isTeamWorkspace.value"
             #logo>
             <slot
               :isTeamWorkspace="app.workspace.isTeamWorkspace.value"
@@ -247,10 +254,14 @@ const routerViewProps = computed<RouteProps>(() => {
                 Sync status mirrors the icon in the version picker so the
                 user can see at a glance whether the active registry-backed
                 document is synced / pending push / pending pull / in
-                conflict, even when the picker dropdown is closed. The
-                indicator hides itself when there is no active version.
+                conflict, even when the picker dropdown is closed. We only
+                mount it while a document is actually active on the route -
+                on workspace-level pages (settings, get-started, etc.)
+                there is nothing to sync, and an indicator there would just
+                be noise.
               -->
               <DocumentSyncIndicator
+                v-if="app.activeEntities.documentSlug.value"
                 :app="app"
                 :registryDocuments="registryDocuments" />
               <slot name="header-end" />

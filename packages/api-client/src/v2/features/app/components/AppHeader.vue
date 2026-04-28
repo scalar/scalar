@@ -65,18 +65,19 @@ const slots = defineSlots<{
         </template>
         <template #sections="{ close }">
           <ScalarMenuSection>
-            <slot name="menuItems" />
-            <ScalarMenuLink
-              is="button"
-              :icon="ScalarIconGear"
-              @click="
-                () => {
-                  close()
-                  emit('navigate:to:settings')
-                }
-              ">
-              Settings
-            </ScalarMenuLink>
+            <slot name="menuItems">
+              <ScalarMenuLink
+                is="button"
+                :icon="ScalarIconGear"
+                @click="
+                  () => {
+                    close()
+                    emit('navigate:to:settings')
+                  }
+                ">
+                Settings
+              </ScalarMenuLink>
+            </slot>
           </ScalarMenuSection>
           <ScalarMenuResources />
         </template>
