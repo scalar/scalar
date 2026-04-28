@@ -42,4 +42,42 @@ describe('slugify', () => {
   it('limits slugs to 255 characters', () => {
     expect(slugify('a'.repeat(300))).toBe('a'.repeat(255))
   })
+
+  describe('preserveCase option', () => {
+    it('preserves original casing when true', () => {
+      expect(slugify('MyAPI Name', { preserveCase: true })).toBe('MyAPI-Name')
+    })
+
+    it('still lowercases by default', () => {
+      expect(slugify('MyAPI Name')).toBe('myapi-name')
+    })
+
+    it('preserves mixed case with numbers', () => {
+      expect(slugify('CamelCase42', { preserveCase: true })).toBe('CamelCase42')
+    })
+  })
+
+  describe('allowedSpecialChars option', () => {
+    it('keeps dots when "." is allowed', () => {
+      expect(slugify('v1.2.3', { allowedSpecialChars: '.' })).toBe('v1.2.3')
+    })
+
+    it('keeps dots and at-signs when ".@" is allowed', () => {
+      expect(slugify('user@v1.2', { allowedSpecialChars: '.@' })).toBe('user@v1.2')
+    })
+
+    it('still strips characters not in the allow list', () => {
+      expect(slugify('hello!world.js', { allowedSpecialChars: '.' })).toBe('helloworld.js')
+    })
+
+    it('handles regex-special characters in allowedSpecialChars safely', () => {
+      expect(slugify('price$9.99', { allowedSpecialChars: '$.' })).toBe('price$9.99')
+    })
+  })
+
+  describe('preserveCase + allowedSpecialChars combined', () => {
+    it('keeps case and allowed special chars together', () => {
+      expect(slugify('MyAPI v1.2', { preserveCase: true, allowedSpecialChars: '.' })).toBe('MyAPI-v1.2')
+    })
+  })
 })

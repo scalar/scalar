@@ -72,8 +72,24 @@ describe('generateUniqueSlug', () => {
 
     const result = await generateUniqueSlug('My@Special#API$Name', existingDocuments)
 
-    // Slugify strips non-word, non-space characters
+    // Slugify strips non-word, non-space characters (dots are allowed but none here)
     expect(result).toBe('myspecialapiname')
+  })
+
+  it('preserves dots in titles', async () => {
+    const existingDocuments = new Set<string>()
+
+    const result = await generateUniqueSlug('My API v1.2.3', existingDocuments)
+
+    expect(result).toBe('my-api-v1.2.3')
+  })
+
+  it('increments slug with dots on collision', async () => {
+    const existingDocuments = new Set<string>(['my-api-v1.2.3'])
+
+    const result = await generateUniqueSlug('My API v1.2.3', existingDocuments)
+
+    expect(result).toBe('my-api-v1.2.3-1')
   })
 
   it('handles titles with multiple consecutive spaces', async () => {

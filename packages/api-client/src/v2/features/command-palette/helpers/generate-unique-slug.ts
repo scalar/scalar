@@ -26,6 +26,6 @@ export const generateUniqueSlug = async (defaultValue: string | undefined, curre
     defaultValue: base,
     validation: (value) => !currentDocuments.has(value),
     maxRetries: 100,
-    transformation: slugify,
+    transformation: (value) => slugify(value, { allowedSpecialChars: '.' }),
   })
 }
