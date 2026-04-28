@@ -74,7 +74,7 @@ catalogs:
     nanoid: ^5.1.6
     next: ^15.5.10
     neverpanic: 0.0.7
-    picomatch: ^4.0.2
+    picomatch: ^4.0.4
     postcss: ^8.4.38
     radix-vue: ^1.9.17
     react-dom: ^19.2.3
@@ -124,3 +124,5 @@ minimumReleaseAgeExclude:
   - astro@6.0.0 || 5.18.1
   # Renovate security update: yaml@2.8.3
   - yaml@2.8.3
+  # Renovate security update: picomatch@4.0.4
+  - picomatch@4.0.4

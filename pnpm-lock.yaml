@@ -184,8 +184,8 @@ catalogs:
       specifier: ^15.5.10
       version: 15.5.10
     picomatch:
-      specifier: ^4.0.2
-      version: 4.0.3
+      specifier: ^4.0.4
+      version: 4.0.4
     postcss:
       specifier: ^8.4.38
       version: 8.5.8
@@ -682,7 +682,7 @@ importers:
         version: 5.55.2
       svelte-check:
         specifier: ^4.0.0
-        version: 4.4.6(picomatch@4.0.3)(svelte@5.55.2)(typescript@5.9.3)
+        version: 4.4.6(picomatch@4.0.4)(svelte@5.55.2)(typescript@5.9.3)
       typescript:
         specifier: ^5.6.2
         version: 5.9.3
@@ -1109,7 +1109,7 @@ importers:
         version: 5.55.2
       svelte-check:
         specifier: ^4.4.6
-        version: 4.4.6(picomatch@4.0.3)(svelte@5.55.2)(typescript@5.9.3)
+        version: 4.4.6(picomatch@4.0.4)(svelte@5.55.2)(typescript@5.9.3)
 
   packages/agent-chat:
     dependencies:
@@ -2609,7 +2609,7 @@ importers:
         version: 9.1.2
       picomatch:
         specifier: catalog:*
-        version: 4.0.3
+        version: 4.0.4
       semver:
         specifier: catalog:*
         version: 7.7.2
@@ -13829,6 +13829,10 @@ packages:
 
   picomatch@4.0.3:
     resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
+    engines: {node: '>=12'}
+
+  picomatch@4.0.4:
+    resolution: {integrity: sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==}
     engines: {node: '>=12'}
 
   pify@2.3.0:
@@ -27684,6 +27688,10 @@ snapshots:
     optionalDependencies:
       picomatch: 4.0.3
 
+  fdir@6.5.0(picomatch@4.0.4):
+    optionalDependencies:
+      picomatch: 4.0.4
+
   feed@4.2.2:
     dependencies:
       xml-js: 1.6.11
@@ -31855,6 +31863,8 @@ snapshots:
 
   picomatch@4.0.3: {}
 
+  picomatch@4.0.4: {}
+
   pify@2.3.0: {}
 
   pify@4.0.1: {}
@@ -34258,11 +34268,11 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte-check@4.4.6(picomatch@4.0.3)(svelte@5.55.2)(typescript@5.9.3):
+  svelte-check@4.4.6(picomatch@4.0.4)(svelte@5.55.2)(typescript@5.9.3):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       chokidar: 4.0.3
-      fdir: 6.5.0(picomatch@4.0.3)
+      fdir: 6.5.0(picomatch@4.0.4)
       picocolors: 1.1.1
       sade: 1.8.1
       svelte: 5.55.2
