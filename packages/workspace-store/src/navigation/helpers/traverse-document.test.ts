@@ -197,7 +197,7 @@ describe('traverseDocument', () => {
     })
     expect((result.children[1] as TraversedTag).children).toHaveLength(1)
     expect((result.children[1] as TraversedTag).children?.[0]).toEqual({
-      'id': 'doc-1/model/TestModel',
+      'id': 'doc-1/model/testmodel',
       'name': 'TestModel',
       'ref': '#/components/schemas/TestModel',
       'title': 'TestModel',
