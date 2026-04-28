@@ -486,7 +486,7 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
               <ScalarIconFolderDashed
                 class="size-10"
                 weight="light" />
-              <p class="text-sm font-medium">No APIs yet</p>
+              <p class="text-sm font-medium">Nothing added yet</p>
             </div>
             <ScalarSidebarItems v-else>
               <!-- Show pinned documents after we add support for it -->
