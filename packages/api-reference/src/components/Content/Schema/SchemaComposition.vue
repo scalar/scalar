@@ -34,6 +34,11 @@ const props = withDefaults(
     schema: SchemaObject
     /** Nesting level for proper indentation */
     level: number
+    /**
+     * Recursion depth, threaded through to inner `Schema` components
+     * (incremented when we render `Schema`).
+     */
+    depth?: number
     /** Whether to use compact layout */
     compact?: boolean
     /** Whether to hide the heading */
@@ -53,6 +58,7 @@ const props = withDefaults(
   }>(),
   {
     compact: false,
+    depth: 0,
     hideHeading: false,
   },
 )
@@ -178,6 +184,7 @@ if (
       :breadcrumb="breadcrumb"
       :compact="compact"
       :compositionPath="compositionPath"
+      :depth="depth + 1"
       :discriminator="discriminator"
       :eventBus="eventBus"
       :hideHeading="hideHeading"
@@ -232,6 +239,7 @@ if (
           :breadcrumb="breadcrumb"
           :compact="compact"
           :compositionPath="compositionPath"
+          :depth="depth + 1"
           :discriminator="discriminator"
           :eventBus="eventBus"
           :hideHeading="hideHeading"

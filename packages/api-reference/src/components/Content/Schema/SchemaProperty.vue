@@ -39,6 +39,11 @@ const props = withDefaults(
     schema: SchemaObject | undefined
     noncollapsible?: boolean
     level?: number
+    /**
+     * Recursion depth, threaded through to nested `Schema` components and
+     * incremented when we render `Schema` (which is the recursive boundary).
+     */
+    depth?: number
     name?: string
     required?: boolean
     compact?: boolean
@@ -63,6 +68,7 @@ const props = withDefaults(
   }>(),
   {
     level: 0,
+    depth: 0,
     required: false,
     compact: false,
     hideModelNames: false,
@@ -254,6 +260,7 @@ const isDiscriminatorProperty = computed(() =>
         :breadcrumb="childBreadcrumb"
         :compact="compact"
         :compositionPath="currentCompositionPath"
+        :depth="depth + 1"
         :eventBus="eventBus"
         :hideModelNames
         :level="level + 1"
@@ -271,6 +278,7 @@ const isDiscriminatorProperty = computed(() =>
       <Schema
         :compact="compact"
         :compositionPath="arrayItemsCompositionPath"
+        :depth="depth + 1"
         :eventBus="eventBus"
         :hideModelNames
         :level="level + 1"
@@ -289,6 +297,7 @@ const isDiscriminatorProperty = computed(() =>
       :compact="compact"
       :composition="compositionData.composition"
       :compositionPath="currentCompositionPath"
+      :depth
       :discriminator="schema?.discriminator"
       :eventBus="eventBus"
       :hideHeading="hideHeading"

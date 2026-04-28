@@ -17,9 +17,23 @@ import SchemaHeading from './SchemaHeading.vue'
 import SchemaObjectProperties from './SchemaObjectProperties.vue'
 import SchemaProperty from './SchemaProperty.vue'
 
+/**
+ * Max recursion depth for nested schemas.
+ *
+ * Recursive `$ref`s — a schema that references itself (directly or via a
+ * polymorphic discriminator that closes on itself) — are well-formed
+ * OpenAPI, but cause this component to recurse indefinitely and freeze the
+ * browser tab. When the limit is reached we render a `[Circular Reference]`
+ * placeholder instead.
+ *
+ * Mirrors `packages/openapi-to-markdown/src/components/Schema.vue` (#8757).
+ */
+const MAX_DEPTH = 10
+
 const {
   schema,
   level = 0,
+  depth = 0,
   name,
   compact,
   noncollapsible = false,
@@ -35,6 +49,12 @@ const {
   schema?: SchemaObject
   /** Track how deep we've gone */
   level?: number
+  /**
+   * Recursion depth, used to bail out of circular `$ref` chains.
+   * Only incremented where one `Schema` renders another `Schema`
+   * (in `SchemaProperty` and `SchemaComposition`).
+   */
+  depth?: number
   /* Show as a heading */
   name?: string
   /** A tighter layout with less borders and without a heading */
@@ -103,8 +123,13 @@ const schemaDescription = computed(() => {
 const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
 </script>
 <template>
+  <div
+    v-if="depth >= MAX_DEPTH"
+    class="schema-card schema-card--circular">
+    <em>[Circular Reference]</em>
+  </div>
   <Disclosure
-    v-if="typeof schema === 'object' && Object.keys(schema).length"
+    v-else-if="typeof schema === 'object' && Object.keys(schema).length"
     v-slot="{ open }"
     :defaultOpen="noncollapsible">
     <div
@@ -193,6 +218,7 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
             :breadcrumb
             :compact
             :compositionPath="compositionPath"
+            :depth
             :discriminator
             :eventBus="eventBus"
             :hideHeading
@@ -208,6 +234,7 @@ const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
               :breadcrumb
               :compact
               :compositionPath="compositionPath"
+              :depth
               :eventBus="eventBus"
               :hideHeading
               :hideModelNames
@@ -352,5 +379,10 @@ button.schema-card-title:hover {
 }
 .children .schema-card-description:first-of-type {
   padding-top: 0;
+}
+.schema-card--circular {
+  padding: 6px 8px;
+  color: var(--scalar-color-2);
+  font-size: var(--scalar-mini);
 }
 </style>

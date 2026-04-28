@@ -22,6 +22,8 @@ const { schema, discriminator, options, schemaContext, compositionPath } =
     compact?: boolean
     hideHeading?: boolean
     level?: number
+    /** Recursion depth, threaded through to inner `Schema` components. */
+    depth?: number
     hideModelNames?: boolean
     breadcrumb?: string[]
     eventBus: WorkspaceEventBus | null
@@ -182,6 +184,7 @@ const getAdditionalPropertiesValue = (
       :compact
       :compositionPath="compositionPath"
       :compositionPathSegment="property"
+      :depth
       :discriminator
       :eventBus="eventBus"
       :hideHeading
@@ -204,6 +207,7 @@ const getAdditionalPropertiesValue = (
       :compact
       :compositionPath="compositionPath"
       :compositionPathSegment="key"
+      :depth
       :discriminator
       :eventBus="eventBus"
       :hideHeading
@@ -228,6 +232,7 @@ const getAdditionalPropertiesValue = (
           schema.propertyNames,
         )
       "
+      :depth
       :discriminator
       :eventBus="eventBus"
       :hideHeading

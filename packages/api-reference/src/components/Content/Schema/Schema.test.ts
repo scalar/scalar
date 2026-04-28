@@ -1,4 +1,5 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
@@ -731,6 +732,86 @@ describe('Schema', () => {
 
       // Check that the oneOf schema is inheiriting the description correctly
       expect(text).toContain('The date the object was closed in YYYY-MM-DD or ISO 8601 format.')
+    })
+  })
+
+  describe('circular references', () => {
+    /**
+     * Schemas that recursively reference themselves (directly, or via a
+     * polymorphic discriminator that closes on itself) are well-formed
+     * OpenAPI but cause `Schema` to recurse indefinitely and freeze the
+     * browser. Past `MAX_DEPTH`, the component must bail out with a
+     * placeholder instead of recursing.
+     */
+    it('renders [Circular Reference] when depth has reached MAX_DEPTH', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          options: {},
+          eventBus: null,
+          // A value that's safely past any sane MAX_DEPTH. If we ever raise
+          // the limit above 99 this still triggers the bail-out, which is the
+          // behavior we're asserting.
+          depth: 99,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: { name: { type: 'string' } },
+          }),
+        },
+      })
+
+      // The placeholder is rendered…
+      expect(wrapper.text()).toContain('[Circular Reference]')
+      // …and the normal schema rendering does not happen (no recursion past
+      // the cap).
+      expect(wrapper.html()).not.toContain('schema-card--level-')
+    })
+
+    it('renders normally when depth is below MAX_DEPTH', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          options: {},
+          eventBus: null,
+          depth: 0,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: { name: { type: 'string' } },
+          }),
+        },
+      })
+
+      // Normal rendering, no placeholder
+      expect(wrapper.text()).not.toContain('[Circular Reference]')
+      // Normal schema-card classes are present
+      expect(wrapper.html()).toContain('schema-card--level-')
+    })
+
+    it('does not freeze on a self-referencing schema', () => {
+      // Recursive object: children.items points back to the parent. The
+      // current `Schema` renderer does not internally resolve `$ref`s in
+      // inline schemas, so the relevant guarantee here is just that the
+      // mount completes (no infinite recursion / call-stack overflow) when
+      // the same object graph is reachable from itself.
+      const children: { type: 'array'; items?: unknown } = { type: 'array' }
+      const recursive = {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          children,
+        },
+      }
+      // Close the cycle: `children.items` points back at the parent schema.
+      children.items = recursive
+
+      // This must not throw a "Maximum call stack size exceeded" error.
+      expect(() =>
+        mount(Schema, {
+          props: {
+            options: {},
+            eventBus: null,
+            schema: recursive as unknown as SchemaObject,
+          },
+        }),
+      ).not.toThrow()
     })
   })
 })
