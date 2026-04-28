@@ -223,6 +223,40 @@ describe('buildRequestBody', () => {
     expect(result.value[1].value).toBe('{{productId}}')
   })
 
+  it('stringifies object values in URL-encoded array format', () => {
+    const requestBody = {
+      content: {
+        'application/x-www-form-urlencoded': {
+          examples: {
+            default: {
+              value: [
+                {
+                  name: 'filters',
+                  value: {
+                    category: 'books',
+                    inStock: true,
+                  },
+                },
+              ],
+            },
+          },
+        },
+      },
+    }
+
+    const result = buildRequestBody(requestBody, 'default')
+
+    expect(result?.mode).toBe('urlencoded')
+    assert(result?.mode === 'urlencoded')
+
+    expect(result.value).toStrictEqual([
+      {
+        key: 'filters',
+        value: '{"category":"books","inStock":true}',
+      },
+    ])
+  })
+
   it('builds FormData for multipart/form-data with object example value', () => {
     const requestBody = {
       content: {
@@ -319,6 +353,36 @@ describe('buildRequestBody', () => {
     assert(result.value[2])
     expect(result.value[2].key).toBe('name')
     expect(result.value[2].value).toBe('test')
+  })
+
+  it('stringifies object values in form-urlencoded object format', () => {
+    const requestBody = {
+      content: {
+        'application/x-www-form-urlencoded': {
+          examples: {
+            default: {
+              value: {
+                profile: {
+                  name: 'Ada',
+                  role: 'admin',
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+    const result = buildRequestBody(requestBody, 'default')
+
+    expect(result?.mode).toBe('urlencoded')
+    assert(result?.mode === 'urlencoded')
+
+    expect(result.value).toStrictEqual([
+      {
+        key: 'profile',
+        value: '{"name":"Ada","role":"admin"}',
+      },
+    ])
   })
 
   it('skips null and undefined values in form-urlencoded object format', () => {

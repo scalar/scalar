@@ -122,6 +122,14 @@ const appendMultipartValue = ({
   })
 }
 
+const serializeUrlEncodedValue = (value: unknown): string => {
+  if (typeof value === 'object' && value !== null && !(value instanceof File) && !(value instanceof Blob)) {
+    return JSON.stringify(unpackProxyObject(value))
+  }
+
+  return typeof value === 'string' ? value : String(value)
+}
+
 /**
  * Create the fetch request body
  */
@@ -183,7 +191,7 @@ export const buildRequestBody = (
       if (name && value !== undefined && value !== null) {
         result.value.push({
           key: name,
-          value: typeof value === 'string' ? value : String(value),
+          value: serializeUrlEncodedValue(value),
         })
       }
     })
@@ -225,10 +233,9 @@ export const buildRequestBody = (
             target: result.value,
           })
         } else {
-          const stringValue = typeof value === 'string' ? value : String(value)
           result.value.push({
             key,
-            value: stringValue,
+            value: serializeUrlEncodedValue(value),
           })
         }
       }
