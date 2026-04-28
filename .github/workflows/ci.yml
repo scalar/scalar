@@ -703,7 +703,7 @@ jobs:
           packages: '@scalar/api-reference...'
 
       - name: Build package root app
-        run: pnpm --filter @scalar/api-reference exec vite build . -c ../api-reference.previews.config.ts
+        run: pnpm --filter @scalar/api-reference exec vite build . -c ./vite.previews.config.ts
 
       - name: Deploy to Cloudflare Pages
         id: deploy
