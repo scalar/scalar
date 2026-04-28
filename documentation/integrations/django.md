@@ -2,9 +2,8 @@
 
 Community member [m1guer](https://github.com/m1guer/django-scalar) wrote code to use the API Reference in a Django project built with Django Rest Framework.
 
-:::scalar-callout{ type=info }
-If you are using Django Ninja, then follow the [Django Ninja guide](django-ninja.md) instead.
-:::
+> [!NOTE]
+> If you are using Django Ninja, then follow the [Django Ninja guide](django-ninja.md) instead.
 
 ## Basic Setup
 

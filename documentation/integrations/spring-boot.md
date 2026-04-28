@@ -1,8 +1,7 @@
 # API Reference for Java Spring Boot
 
-:::scalar-callout{ type=warning }
-**This documentation is obsolete.** The Scalar Java integration has been restructured into a modular approach with separate modules for different Spring Boot variants. Please refer to the [Java integration documentation](java.md) for the current documentation.
-:::
+> [!WARNING]
+> **This documentation is obsolete.** The Scalar Java integration has been restructured into a modular approach with separate modules for different Spring Boot variants. Please refer to the [Java integration documentation](java.md) for the current documentation.
 
 The Scalar WebJar provides automatic integration with Spring Boot applications. It includes auto-configuration that automatically sets up the API reference endpoint with comprehensive configuration options, type-safe enums, and authentication support.
 
@@ -263,17 +262,15 @@ spring.autoconfigure.exclude=com.scalar.maven.webjar.ScalarAutoConfiguration
 
 The Scalar integration supports pre-filling authentication details for API testing and documentation. You can configure API keys, OAuth2 flows, and HTTP authentication schemes to make it easier for developers to test your endpoints.
 
-:::scalar-callout{ type=warning }
-**Before you start**: Your OpenAPI document must already include authentication security schemes for Scalar to work with them. Scalar can only pre-fill authentication details for schemes that are already defined in your OpenAPI specification.
+> [!WARNING]
+> **Before you start**: Your OpenAPI document must already include authentication security schemes for Scalar to work with them. Scalar can only pre-fill authentication details for schemes that are already defined in your OpenAPI specification.
+>
+> **Important**: The security scheme names in your Scalar configuration must exactly match the security scheme names defined in your OpenAPI document. For example, if your OpenAPI document defines a security scheme named `my-oauth-scheme`, your Scalar configuration must use the same name.
+>
+> The security schemes are added by your OpenAPI generator (SpringDoc OpenAPI, Swagger, or similar). If you don't see authentication options in Scalar, check your OpenAPI generator's documentation to learn how to properly define security schemes.
 
-**Important**: The security scheme names in your Scalar configuration must exactly match the security scheme names defined in your OpenAPI document. For example, if your OpenAPI document defines a security scheme named `my-oauth-scheme`, your Scalar configuration must use the same name.
-
-The security schemes are added by your OpenAPI generator (SpringDoc OpenAPI, Swagger, or similar). If you don't see authentication options in Scalar, check your OpenAPI generator's documentation to learn how to properly define security schemes.
-:::
-
-:::scalar-callout{ type=danger }
-**Security Notice**: Pre-filled authentication details are visible in the browser and should **never** be used in production environments. Only use this feature for development and testing.
-:::
+> [!CAUTION]
+> **Security Notice**: Pre-filled authentication details are visible in the browser and should **never** be used in production environments. Only use this feature for development and testing.
 
 ### API Key Authentication
 
