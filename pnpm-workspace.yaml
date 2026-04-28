@@ -53,7 +53,7 @@ catalogs:
     'fastify-plugin': ^4.5.1
     ai: 6.0.33
     ansis: 4.1.0
-    astro: 5.15.9
+    astro: 5.18.1
     cookie: 1.1.1
     commander: 13.1.0
     concurrently: 9.1.2
@@ -120,5 +120,5 @@ onlyBuiltDependencies:
 minimumReleaseAgeExclude:
   # Renovate security update: flatted@3.4.0
   - flatted@3.4.0
-  # Renovate security update: astro@6.0.0
-  - astro@6.0.0
+  # Renovate security update: astro@6.0.0 || 5.18.1
+  - astro@6.0.0 || 5.18.1
