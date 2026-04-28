@@ -636,6 +636,47 @@ jobs:
         # We're uploading it as a schema, because for documents do not support AsyncAPI yet.
         run: npx @scalar/cli@latest schema publish --namespace scalar --slug asyncapi --version ${{ steps.package-version.outputs.VERSION }} packages/galaxy/dist/asyncapi/latest.yaml
 
+  deploy-examples:
+    # Run only for PRs from the same repository
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+    needs: [build]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    concurrency:
+      group: deploy-examples-${{ github.ref }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+    outputs:
+      preview-url: ${{ steps.set-output.outputs.url }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          packages: '@scalar-examples/web...'
+
+      - name: Generate DEPLOY_ID
+        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
+
+      - name: Install Netlify CLI
+        run: pnpm install -g netlify
+
+      - name: Deploy to Netlify
+        run: |
+          netlify deploy --dir "./examples/web/dist" \
+            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
+            --site ${{ vars.NETLIFY_SITE_ID_PREVIEW }} \
+            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --filter @scalar-examples/web \
+            --alias=${{env.DEPLOY_ID}}
+
+      - name: Set output
+        id: set-output
+        if: github.event_name == 'pull_request'
+        run: echo "url=https://${{ env.DEPLOY_ID }}--scalar-deploy-preview.netlify.app" >> $GITHUB_OUTPUT
+
   deploy-api-reference:
     # Run only for same-repo PRs that touch @scalar/api-reference or its workspace deps
     if: |
@@ -839,7 +880,8 @@ jobs:
     # Only run for PRs from the same repository
     if: |
       always() &&
-      (needs.deploy-api-reference.result == 'success' ||
+      (needs.deploy-examples.result == 'success' ||
+       needs.deploy-api-reference.result == 'success' ||
        needs.deploy-components.result == 'success' ||
        needs.deploy-api-client.result == 'success' ||
        needs.galaxy-registry-preview.result == 'success') &&
@@ -848,6 +890,7 @@ jobs:
       !contains(github.actor, '[bot]')
     needs:
       [
+        deploy-examples,
         deploy-api-reference,
         deploy-components,
         deploy-api-client,
@@ -862,6 +905,14 @@ jobs:
         id: build-message
         run: |
           MESSAGE=""
+
+          if [ "${{ needs.deploy-examples.result }}" == "success" ]; then
+            MESSAGE="$MESSAGE**Preview Examples**
+
+          ${{ needs.deploy-examples.outputs.preview-url }}
+
+          "
+          fi
 
           if [ "${{ needs.deploy-api-reference.result }}" == "success" ]; then
             MESSAGE="$MESSAGE**Preview API Reference**
