@@ -3,15 +3,7 @@ import YAML from 'yaml'
 
 import galaxy from '../src/documents/3.1.yaml?raw'
 
-type HttpMethod =
-  | 'get'
-  | 'post'
-  | 'put'
-  | 'delete'
-  | 'patch'
-  | 'options'
-  | 'head'
-  | 'trace'
+type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head' | 'trace'
 
 type SecurityRequirement = Record<string, string[]>
 
@@ -77,9 +69,7 @@ describe('yaml', () => {
         if (expectedSecurity === null) {
           expect(operation.security, `${key} should inherit root security`).toBeUndefined()
         } else {
-          expect(operation.security, `${key} should have explicit security override`).toStrictEqual(
-            expectedSecurity,
-          )
+          expect(operation.security, `${key} should have explicit security override`).toStrictEqual(expectedSecurity)
         }
       }
     }
@@ -92,11 +82,7 @@ describe('yaml', () => {
     const createPlanet = document.paths['/planets']?.post
     const callbacks = createPlanet?.callbacks ?? {}
 
-    expect(Object.keys(callbacks).sort()).toStrictEqual([
-      'planetCreated',
-      'planetCreationFailed',
-      'planetExploded',
-    ])
+    expect(Object.keys(callbacks).sort()).toStrictEqual(['planetCreated', 'planetCreationFailed', 'planetExploded'])
 
     for (const [callbackName, callback] of Object.entries(callbacks)) {
       for (const [callbackExpression, pathItem] of Object.entries(callback)) {
