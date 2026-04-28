@@ -32,10 +32,7 @@ const { item, active, open, loading } = defineProps<{
   /** Whether the document is currently being fetched from the registry. */
   loading?: boolean
   /** Predicate to check whether a child entry can be dropped on a target. */
-  isDroppable: (
-    draggingItem: DraggingItem,
-    hoveredItem: HoveredItem,
-  ) => boolean
+  isDroppable: (draggingItem: DraggingItem, hoveredItem: HoveredItem) => boolean
   /** Predicate to check whether a child entry is currently expanded. */
   isExpanded: (id: string) => boolean
   /** Predicate to check whether a child entry is currently selected. */
