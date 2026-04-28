@@ -28,9 +28,6 @@ An icon to display alongside the button text in dark mode. If not provided, the 
 
 ### Basic Button
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-button
   title="View Documentation"
   href="https://docs.scalar.com">
@@ -42,23 +39,9 @@ An icon to display alongside the button text in dark mode. If not provided, the 
   href="https://docs.scalar.com">
 </scalar-button>
 ```
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-button{title="View Documentation" href="https://docs.scalar.com"}
-
-```markdown
-::scalar-button{title="View Documentation" href="https://docs.scalar.com"}
-```
-</scalar-tab>
-</scalar-tabs>
-
 
 ### Button with Icon
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
 <scalar-button
   title="Download SDK"
   href="https://github.com/scalar/scalar"
@@ -72,22 +55,9 @@ An icon to display alongside the button text in dark mode. If not provided, the 
   icon="phosphor/regular/house">
 </scalar-button>
 ```
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-button{ title="Download SDK" href="https://github.com/scalar/scalar" icon="phosphor/regular/house"}
-
-```markdown
-::scalar-button{ title="Download SDK" href="https://github.com/scalar/scalar" icon="phosphor/regular/house"}
-```
-</scalar-tab>
-</scalar-tabs>
 
 ### Button with External Icon
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
 <scalar-button
   title="Visit Website"
   href="https://scalar.com"
@@ -103,14 +73,3 @@ An icon to display alongside the button text in dark mode. If not provided, the 
   icon-dark="https://cdn.scalar.com/images/logo-dark.svg">
 </scalar-button>
 ```
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-button{ title="Visit Website" href="https://scalar.com" icon="https://cdn.scalar.com/images/logo-light.svg" icon-dark="https://cdn.scalar.com/images/logo-dark.svg"}
-
-```markdown
-::scalar-button{ title="Visit Website" href="https://scalar.com" icon="https://cdn.scalar.com/images/logo-light.svg" icon-dark="https://cdn.scalar.com/images/logo-dark.svg"}
-```
-</scalar-tab>
-</scalar-tabs>
