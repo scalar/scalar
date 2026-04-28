@@ -421,7 +421,7 @@ describe('importDocumentToWorkspace', () => {
     })
 
     assert(result.ok)
-    expect(result.slug).toBe('my-special-@api-#name')
+    expect(result.slug).toBe('my-special-api-name')
     expect(workspaceStore.workspace.documents[result.slug]).toBeDefined()
   })
 
