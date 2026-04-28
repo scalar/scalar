@@ -101,6 +101,32 @@ describe('ScalarMenu', () => {
     }
   })
 
+  it('renders the title slot inline inside the trigger so consumers can surface a visible label', () => {
+    // The `title` slot is distinct from `label` in that it is rendered
+    // visibly between the logo and the caret. It is used by the API client
+    // to surface the active scope ("Team" / "Local") on the trigger so the
+    // menu button doubles as the leading breadcrumb segment.
+    const WithTitle = defineComponent({
+      components: { ScalarMenu },
+      template: `
+<ScalarMenu>
+  <template #title>
+    <span data-testid="menu-title">Team</span>
+  </template>
+</ScalarMenu>`,
+    })
+    const wrapper = mount(WithTitle, { attachTo: document.body })
+    try {
+      const title = wrapper.get('[data-testid="menu-title"]')
+      expect(title.text()).toBe('Team')
+      // The title sits inside the rendered trigger, not somewhere
+      // unrelated in the document.
+      expect(trigger(wrapper).element.contains(title.element)).toBe(true)
+    } finally {
+      wrapper.unmount()
+    }
+  })
+
   it('uses the label slot for the trigger screen reader text', () => {
     const WithLabel = defineComponent({
       components: { ScalarMenu },

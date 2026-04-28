@@ -30,6 +30,11 @@ defineSlots<ScalarMenuButtonSlots>()
         <ScalarIcon icon="Logo" />
       </slot>
     </div>
+    <span
+      v-if="$slots.title"
+      class="ml-1 truncate text-sm font-medium">
+      <slot name="title" />
+    </span>
     <span class="sr-only">
       <slot name="label">{{ open ? 'Close Menu' : 'Open Menu' }}</slot>
     </span>
