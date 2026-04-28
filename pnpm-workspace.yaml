@@ -95,7 +95,7 @@ catalogs:
     vue-router: 5.0.4
     vue-tsc: ^3.2.4
     vue: ^3.5.30
-    yaml: ^2.8.0
+    yaml: ^2.8.3
     zod: ^4.3.5
     posthog-js: 1.363.2
 ignoredBuiltDependencies:
@@ -122,3 +122,5 @@ minimumReleaseAgeExclude:
   - flatted@3.4.0
   # Renovate security update: astro@6.0.0 || 5.18.1
   - astro@6.0.0 || 5.18.1
+  # Renovate security update: yaml@2.8.3
+  - yaml@2.8.3
