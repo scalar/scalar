@@ -218,17 +218,17 @@ describe('get-navigation-options', () => {
     expect(id).toBe('pet-store/models')
   })
 
-  it('generates model ID with name (preserves case)', () => {
+  it('generates model ID with name (lowercased)', () => {
     const options = getNavigationOptions('Pet Store')
     const id = options.generateId({
       type: 'model',
       parentId: 'pet-store',
       name: 'Pet Schema',
     })
-    expect(id).toBe('pet-store/model/Pet-Schema')
+    expect(id).toBe('pet-store/model/pet-schema')
   })
 
-  it('generates model ID with parent tag prefix (preserves case)', () => {
+  it('generates model ID with parent tag prefix (lowercased)', () => {
     const options = getNavigationOptions('Pet Store')
     const id = options.generateId({
       type: 'model',
@@ -239,10 +239,10 @@ describe('get-navigation-options', () => {
         tag: { name: 'Models' },
       },
     })
-    expect(id).toBe('pet-store/tag/models/model/User')
+    expect(id).toBe('pet-store/tag/models/model/user')
   })
 
-  it('generates unique model IDs when schema names differ only by casing', () => {
+  it('generates lowercase model IDs regardless of schema name casing', () => {
     const options = getNavigationOptions('API')
     const idString = options.generateId({
       type: 'model',
@@ -254,9 +254,8 @@ describe('get-navigation-options', () => {
       parentId: 'api',
       name: 'string',
     })
-    expect(idString).toBe('api/model/String')
+    expect(idString).toBe('api/model/string')
     expect(idLower).toBe('api/model/string')
-    expect(idString).not.toBe(idLower)
   })
 
   it('uses custom generateModelSlug when provided', () => {
@@ -289,7 +288,7 @@ describe('get-navigation-options', () => {
       name: 'My API (v2.0) - Production',
       info: { title: 'My API (v2.0) - Production', version: '2.0.0' },
     })
-    expect(id).toBe('my-api-v20---production')
+    expect(id).toBe('my-api-v20-production')
   })
 
   it('handles tag with empty name', () => {
