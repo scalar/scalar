@@ -45,10 +45,10 @@
   ],
   "dependencies": {
     "@scalar/api-reference": "workspace:*",
-    "@scalar/helpers": "workspace:*",
     "@scalar/types": "workspace:*"
   },
   "devDependencies": {
+    "@scalar/helpers": "workspace:*",
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
     "@vitejs/plugin-react": "catalog:*",
