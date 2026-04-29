@@ -25,6 +25,37 @@ export type OAuth2Tokens = {
 /** Flow types that support token refresh (all except implicit) */
 type RefreshableFlows = Exclude<keyof OAuthFlowsObjectSecret, 'implicit'>
 
+/**
+ * Splits an OAuth redirect URL into query and hash parameters.
+ *
+ * OAuth providers are inconsistent about where they return callback data:
+ * authorization-code flows usually use the query string, while implicit flows
+ * commonly use the URL fragment. Keeping both sets separate lets callers decide
+ * which source should win when a provider sends duplicate keys.
+ */
+export const getOAuthCallbackParams = (
+  callbackUrl: string,
+): { searchParams: URLSearchParams; hashParams: URLSearchParams } => {
+  const parsedUrl = new URL(callbackUrl)
+
+  return {
+    searchParams: parsedUrl.searchParams,
+    hashParams: new URLSearchParams(parsedUrl.hash.slice(1)),
+  }
+}
+
+/**
+ * Reads a callback parameter from the query string first, then the hash fragment.
+ *
+ * Query-string values intentionally take precedence because they are the
+ * standard location for authorization-code callbacks. The hash lookup keeps
+ * implicit-flow callbacks and non-standard providers working.
+ */
+export const getOAuthCallbackParam = (callbackUrl: string, paramName: string): string | null => {
+  const { searchParams, hashParams } = getOAuthCallbackParams(callbackUrl)
+  return searchParams.get(paramName) ?? hashParams.get(paramName)
+}
+
 const getServerUrl = (activeServer: ServerObject | null, environmentVariables: Record<string, string> = {}) => {
   return replaceEnvVariables(
     replacePathVariables(activeServer?.url ?? '', getServerVariables(activeServer)),
@@ -204,24 +235,18 @@ export const authorizeOauth2 = async (
           let code: string | null = null
           let error: string | null = null
           let errorDescription: string | null = null
+          let callbackUrl: string | null = null
 
           try {
-            const urlParams = new URL(authWindow.location.href).searchParams
+            callbackUrl = authWindow.location.href
+            const { searchParams, hashParams } = getOAuthCallbackParams(callbackUrl)
             const tokenName = flow['x-tokenName'] || 'access_token'
-            accessToken = urlParams.get(tokenName)
-            refreshToken = urlParams.get('refresh_token')
-            code = urlParams.get('code')
 
-            error = urlParams.get('error')
-            errorDescription = urlParams.get('error_description')
-
-            // We may get the properties in a hash
-            const hashParams = new URLSearchParams(authWindow.location.href.split('#')[1])
-            accessToken ||= hashParams.get(tokenName)
-            refreshToken ||= hashParams.get('refresh_token')
-            code ||= hashParams.get('code')
-            error ||= hashParams.get('error')
-            errorDescription ||= hashParams.get('error_description')
+            accessToken = searchParams.get(tokenName) ?? hashParams.get(tokenName)
+            refreshToken = searchParams.get('refresh_token') ?? hashParams.get('refresh_token')
+            code = searchParams.get('code') ?? hashParams.get('code')
+            error = searchParams.get('error') ?? hashParams.get('error')
+            errorDescription = searchParams.get('error_description') ?? hashParams.get('error_description')
           } catch (_e) {
             // Ignore CORS error from popup
           }
@@ -233,27 +258,27 @@ export const authorizeOauth2 = async (
 
             if (error) {
               resolve([new Error(`OAuth error: ${error}${errorDescription ? ` (${errorDescription})` : ''}`), null])
+              return
             }
 
             // Implicit Flow
-            else if (accessToken) {
-              // State is a hash fragment and cannot be found through search params
-              const _state = authWindow.location.href.match(/state=([^&]*)/)?.[1]
+            if (accessToken) {
+              const _state = callbackUrl ? getOAuthCallbackParam(callbackUrl, 'state') : null
 
               if (_state === state) {
                 resolve([null, { accessToken, ...(refreshToken ? { refreshToken } : {}) }])
               } else {
                 resolve([new Error('State mismatch'), null])
               }
+              return
             }
 
             // Authorization Code Server Flow
-            else if (code && type === 'authorizationCode') {
-              const _state = new URL(authWindow.location.href).searchParams.get('state')
+            if (code && type === 'authorizationCode') {
+              const _state = callbackUrl ? getOAuthCallbackParam(callbackUrl, 'state') : null
 
               if (_state === state) {
-                // biome-ignore lint/nursery/noFloatingPromises: output of authorizeServers must be returned
-                authorizeServers(
+                void authorizeServers(
                   flows,
                   type,
                   scopes,
@@ -264,24 +289,29 @@ export const authorizeOauth2 = async (
                   },
                   activeServer,
                   environmentVariables,
-                ).then(resolve)
+                )
+                  .then(resolve)
+                  .catch((error: unknown) => {
+                    resolve([
+                      error instanceof Error ? error : new Error('Failed to get an access token', { cause: error }),
+                      null,
+                    ])
+                  })
               } else {
                 resolve([new Error('State mismatch'), null])
               }
+              return
             }
+
             // User closed window without authorizing
-            else {
-              clearInterval(checkWindowClosed)
-              resolve([new Error('Window was closed without granting authorization'), null])
-            }
+            resolve([new Error('Window was closed without granting authorization'), null])
           }
         }, 200)
       })
     }
     return [new Error('Failed to open auth window'), null]
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to authorize oauth2 flow'
-    return [new Error(errorMessage), null]
+    return [error instanceof Error ? error : new Error('Failed to authorize oauth2 flow', { cause: error }), null]
   }
 }
 
@@ -406,9 +436,12 @@ const authorizeServers = async (
 
     return [null, { accessToken, ...(typeof refreshToken === 'string' ? { refreshToken } : {}) }]
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Failed to get an access token. Please check your credentials.'
-    return [new Error(errorMessage), null]
+    return [
+      error instanceof Error
+        ? error
+        : new Error('Failed to get an access token. Please check your credentials.', { cause: error }),
+      null,
+    ]
   }
 }
 
@@ -504,8 +537,11 @@ export const refreshOauth2Token = async (
       },
     ]
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Failed to refresh the access token. Please re-authorize.'
-    return [new Error(errorMessage), null]
+    return [
+      error instanceof Error
+        ? error
+        : new Error('Failed to refresh the access token. Please re-authorize.', { cause: error }),
+      null,
+    ]
   }
 }
