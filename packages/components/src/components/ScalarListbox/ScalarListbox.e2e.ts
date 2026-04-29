@@ -21,19 +21,25 @@ test.describe('ScalarListbox', () => {
     }),
   )
 
-  test('Scrolling', async ({ page, snapshot }) => {
-    // Open the dropdown
-    await page.getByRole('button', { expanded: false }).click()
-    await snapshot('1-open')
+  test.describe(() => {
+    test.use({ component: 'ScalarListbox', crop: 'viewport' })
 
-    // Close the dropdown
-    await page.getByRole('button', { expanded: true }).click()
+    test('Scrolling', async ({ page, snapshot }) => {
+      await page.getByRole('button', { expanded: false }).click() // Open the dropdown
+      await snapshot('1-open')
 
-    // Set viewport to a small height so that the dropdown is clipped
-    await page.setViewportSize({ width: 640, height: 320 })
+      await page.getByRole('button', { expanded: true }).click() // Close the dropdown
 
-    // Open the dropdown
-    await page.getByRole('button', { expanded: false }).click()
-    await snapshot('2-resized')
+      // Set viewport to a small height so that the dropdown is clipped
+      await page.setViewportSize({ width: 640, height: 320 })
+
+      await page.getByRole('button', { expanded: false }).click() // Open the dropdown
+      await snapshot('2-resized')
+
+      // Scroll to the bottom of the page
+      await page.mouse.wheel(0, 1000)
+
+      await snapshot('3-scrolled')
+    })
   })
 })

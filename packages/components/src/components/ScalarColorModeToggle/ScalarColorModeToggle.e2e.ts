@@ -1,7 +1,7 @@
 import { test } from '@test/helpers'
 
 test.describe('ScalarColorModeToggle', () => {
-  test.use({ crop: true, scale: 4 })
+  test.use({ crop: 'component', scale: 4 })
 
   test('Button', async ({ page, snapshot }) => {
     await snapshot()
