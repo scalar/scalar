@@ -286,14 +286,23 @@ If a package version should bump, add a changeset:
 pnpm changeset
 ```
 
-### Pre-PR command checklist
+### After-change checklist
 
-After making code changes, run:
+After making **any** code changes, always run the following commands in order and fix all errors before committing:
 
 ```bash
-pnpm format
-pnpm knip
+pnpm lint:fix      # Auto-fix linting issues (Biome + ESLint)
+pnpm format        # Format all files (Prettier + Biome)
+pnpm types:check   # Type-check all packages
 ```
+
+Then, before opening or updating a PR, also run:
+
+```bash
+pnpm knip          # Detect unused exports, files, and dependencies
+```
+
+> All four commands must pass cleanly. Do not commit code that has lint errors, type errors, or unused exports.
 
 ## Visual Testing
 
