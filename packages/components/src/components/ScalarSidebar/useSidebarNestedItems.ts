@@ -11,11 +11,11 @@ const SIDEBAR_NESTED_ITEMS_SYMBOL = Symbol() as InjectionKey<Set<SidebarNestedIt
  * Get the open / closed model for the nearest nested child items
  */
 export const useSidebarNestedItem = (
-  /** The model defining the open state of the current nested items */
+  /** The getter for the open state of the current nested items */
   open: SidebarNestedItemOpenGetter,
 ): void => {
   const parentList = inject(SIDEBAR_NESTED_ITEMS_SYMBOL)
-  
+
   if (parentList) {
     // Add this child to the parent list when the component is mounted
     parentList.add(open)
@@ -30,13 +30,13 @@ export const useSidebarNestedItem = (
  * Get whether or not any nested child items are open
  */
 export const useSidebarNestedItems = () => {
-  // Create a reactive set for any child nested items to update
+  // Create a reactive set with getters for each child's open state
   const children = shallowReactive(new Set<SidebarNestedItemOpenGetter>())
 
   const open = computed(() => {
     // Track the child list and each child's open state
-    for (const child of children) {
-      if (child()) {
+    for (const getIsChildOpen of children) {
+      if (getIsChildOpen()) {
         return true
       }
     }
