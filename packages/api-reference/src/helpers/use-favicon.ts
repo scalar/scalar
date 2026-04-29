@@ -9,9 +9,7 @@ import { toValue, watch } from 'vue'
  * - Doesn't re-trigger on computed re-evaluations if the value is the same
  * - Handles cleanup properly on component unmount
  */
-export const useFavicon = (
-  newIcon?: MaybeRefOrGetter<string | null | undefined>,
-): void => {
+export const useFavicon = (newIcon?: MaybeRefOrGetter<string | null | undefined>): void => {
   let currentFavicon: string | null = null
   let linkElement: HTMLLinkElement | null = null
 
@@ -28,9 +26,7 @@ export const useFavicon = (
 
     if (!linkElement) {
       // Try to find existing favicon link
-      linkElement =
-        document.querySelector<HTMLLinkElement>('link[rel*="icon"]') ||
-        document.createElement('link')
+      linkElement = document.querySelector<HTMLLinkElement>('link[rel*="icon"]') || document.createElement('link')
 
       linkElement.type = 'image/x-icon'
       linkElement.rel = 'shortcut icon'
