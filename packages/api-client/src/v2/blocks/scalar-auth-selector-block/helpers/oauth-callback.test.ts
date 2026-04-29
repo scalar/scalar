@@ -26,6 +26,28 @@ describe('oauth-callback', () => {
     expect(hashParams.get('access_token')).toBe('token+with+plus')
   })
 
+  it('parses hash callback parameters with a leading question mark', () => {
+    const { hashParams } = getOAuthCallbackParams(
+      'https://callback.example.com/cb?ignored=query_value#?access_token=hash_token&state=hash_state',
+    )
+
+    expect(hashParams.get('access_token')).toBe('hash_token')
+    expect(hashParams.get('state')).toBe('hash_state')
+  })
+
+  it('keeps duplicate callback parameters in source order', () => {
+    const { searchParams, hashParams } = getOAuthCallbackParams(
+      'https://callback.example.com/cb?state=first_query&state=second_query#state=first_hash&state=second_hash',
+    )
+
+    expect(searchParams.getAll('state')).toEqual(['first_query', 'second_query'])
+    expect(hashParams.getAll('state')).toEqual(['first_hash', 'second_hash'])
+    expect(getOAuthCallbackParamWithSource(searchParams, hashParams, 'state')).toEqual({
+      params: searchParams,
+      value: 'first_query',
+    })
+  })
+
   it('prefers query values when query and hash contain the same parameter', () => {
     const result = getOAuthCallbackParam(
       'https://callback.example.com/cb?state=query_state#state=hash_state&access_token=hash_token',
@@ -113,10 +135,58 @@ describe('oauth-callback', () => {
     expect(result.codeParams).toBe(null)
   })
 
+  it('keeps authorization-code state tied to the code source', () => {
+    const result = getOAuthCallbackData(
+      () => 'https://callback.example.com/cb?state=query_state#code=hash_code&state=hash_state',
+    )
+
+    expect(result.code).toBe('hash_code')
+    expect(result.codeParams?.get('state')).toBe('hash_state')
+    expect(result.accessToken).toBe(null)
+    expect(result.accessTokenParams).toBe(null)
+  })
+
+  it('does not borrow query state for hash credentials', () => {
+    const result = getOAuthCallbackData(
+      () => 'https://callback.example.com/cb?state=query_state#access_token=hash_token',
+    )
+
+    expect(result.accessToken).toBe('hash_token')
+    expect(result.accessTokenParams?.get('state')).toBe(null)
+    expect(result.code).toBe(null)
+    expect(result.codeParams).toBe(null)
+  })
+
+  it('uses the configured token name instead of a default access token', () => {
+    const result = getOAuthCallbackData(
+      () => 'https://callback.example.com/cb?custom_token=query_token&state=query_state#access_token=hash_token',
+      'custom_token',
+    )
+
+    expect(result.accessToken).toBe('query_token')
+    expect(result.accessTokenParams?.get('state')).toBe('query_state')
+    expect(result.code).toBe(null)
+    expect(result.codeParams).toBe(null)
+  })
+
   it('returns empty callback data when the popup URL cannot be read', () => {
     const result = getOAuthCallbackData(() => {
       throw new Error('Cross-origin popup')
     })
+
+    expect(result).toEqual({
+      accessToken: null,
+      accessTokenParams: null,
+      code: null,
+      codeParams: null,
+      error: null,
+      errorDescription: null,
+      refreshToken: null,
+    })
+  })
+
+  it('returns empty callback data for invalid popup URLs', () => {
+    const result = getOAuthCallbackData(() => 'not a valid callback url')
 
     expect(result).toEqual({
       accessToken: null,
