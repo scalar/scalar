@@ -351,6 +351,13 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	// Remove the X-Scalar-Cookie header
 	outreq.Header.Del("X-Scalar-Cookie")
 
+	// Browsers strip the `Date` header from outgoing requests because it's a forbidden header.
+	// Users send the value as `X-Scalar-Date` and we forward it as the actual `Date` header.
+	if xScalarDate := r.Header.Get("X-Scalar-Date"); xScalarDate != "" {
+		outreq.Header.Set("Date", xScalarDate)
+		outreq.Header.Del("X-Scalar-Date")
+	}
+
 	// Make the request
 	resp, err := client.Do(outreq)
 

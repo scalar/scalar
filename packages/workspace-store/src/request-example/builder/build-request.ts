@@ -1,3 +1,4 @@
+import { X_SCALAR_DATE } from '@scalar/helpers/http/scalar-headers'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { redirectToProxy, shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { encode as encodeBase64 } from 'js-base64'
@@ -164,6 +165,19 @@ export const buildRequest = (
   /** Add the cookie header to the headers */
   if (cookieHeader) {
     headers.set(cookieHeader.name, cookieHeader.value)
+  }
+
+  /**
+   * Browsers strip the `Date` header from outgoing requests because it is a forbidden header
+   * in the Fetch spec. To preserve the user-provided value, we rewrite it as `X-Scalar-Date`
+   * and let the proxy (or Electron) forward it as a `Date` header.
+   */
+  if (isUsingProxy || request.options?.isElectron) {
+    const dateHeader = headers.get('date')
+    if (dateHeader) {
+      headers.set(X_SCALAR_DATE, dateHeader)
+      headers.delete('date')
+    }
   }
 
   /** Encode the URL with the allowed reserved query parameters */

@@ -554,6 +554,35 @@ func TestProxyBehavior(t *testing.T) {
 			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
 		}
 	})
+
+	t.Run("Forwards X-Scalar-Date as Date header", func(t *testing.T) {
+		// Create a test server that checks for the Date header
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			expectedDate := "Wed, 21 Oct 2015 07:28:00 GMT"
+			if date := r.Header.Get("Date"); date != expectedDate {
+				t.Errorf("Expected Date header to be '%s', got '%s'", expectedDate, date)
+			}
+			// Check that X-Scalar-Date header is removed
+			if xScalarDate := r.Header.Get("X-Scalar-Date"); xScalarDate != "" {
+				t.Errorf("X-Scalar-Date header should have been removed, but got: %s", xScalarDate)
+			}
+			w.Write([]byte("success"))
+		})
+		defer targetServer.server.Close()
+
+		// Create a request with X-Scalar-Date header
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetServer.url, nil)
+		req.Header.Set("X-Scalar-Date", "Wed, 21 Oct 2015 07:28:00 GMT")
+		w := httptest.NewRecorder()
+
+		// Call the handler
+		proxyServer.handleRequest(w, req)
+
+		// Check response
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+	})
 }
 
 func readSSEEvent(reader *bufio.Reader) (string, error) {

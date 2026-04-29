@@ -357,6 +357,61 @@ describe('buildRequest', () => {
     expect((requestInit.headers as Headers).get('X-Scalar-Cookie')).toContain('c=1')
   })
 
+  it('rewrites the Date header as X-Scalar-Date when the proxy is used', () => {
+    const headers = new Headers()
+    headers.set('Date', 'Wed, 21 Oct 2015 07:28:00 GMT')
+
+    const { requestPayload, isUsingProxy } = buildRequest(
+      createFactory({
+        proxyUrl: 'https://proxy.scalar.com',
+        baseUrl: 'https://api.example.com',
+        path: { raw: '/', variables: {} },
+        headers,
+      }),
+      { envVariables: {} },
+    )
+    const [, requestInit] = requestPayload
+
+    expect(isUsingProxy).toBe(true)
+    expect((requestInit.headers as Headers).get('X-Scalar-Date')).toBe('Wed, 21 Oct 2015 07:28:00 GMT')
+    expect((requestInit.headers as Headers).get('Date')).toBe(null)
+  })
+
+  it('rewrites the Date header as X-Scalar-Date when options.isElectron is true', () => {
+    const headers = new Headers()
+    headers.set('Date', 'Wed, 21 Oct 2015 07:28:00 GMT')
+
+    const [, requestInit] = buildRequest(
+      createFactory({
+        options: { isElectron: true },
+        baseUrl: 'https://api.example.com',
+        path: { raw: '/', variables: {} },
+        headers,
+      }),
+      { envVariables: {} },
+    ).requestPayload
+
+    expect((requestInit.headers as Headers).get('X-Scalar-Date')).toBe('Wed, 21 Oct 2015 07:28:00 GMT')
+    expect((requestInit.headers as Headers).get('Date')).toBe(null)
+  })
+
+  it('keeps the Date header untouched when the proxy is not used', () => {
+    const headers = new Headers()
+    headers.set('Date', 'Wed, 21 Oct 2015 07:28:00 GMT')
+
+    const [, requestInit] = buildRequest(
+      createFactory({
+        baseUrl: 'https://api.example.com',
+        path: { raw: '/', variables: {} },
+        headers,
+      }),
+      { envVariables: {} },
+    ).requestPayload
+
+    expect((requestInit.headers as Headers).get('Date')).toBe('Wed, 21 Oct 2015 07:28:00 GMT')
+    expect((requestInit.headers as Headers).get('X-Scalar-Date')).toBe(null)
+  })
+
   it('rewrites the request URL through the proxy when shouldUseProxy is true', () => {
     const { requestPayload, isUsingProxy } = buildRequest(
       createFactory({
