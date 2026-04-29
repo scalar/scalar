@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.14.0
+
+### Minor Changes
+
+- [#8986](https://github.com/scalar/scalar/pull/8986): chore: migrate api-client from namespaces to teamSlug and convert team workspaces
+
 ## 0.13.4
 
 ## 0.13.3

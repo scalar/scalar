@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.6.3
+
+### Patch Changes
+
+- [#9012](https://github.com/scalar/scalar/pull/9012): fix(galaxy): align operation and webhook security requirements with intended auth behavior
+
 ## 0.6.2
 
 ### Patch Changes

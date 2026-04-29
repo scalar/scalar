@@ -1,5 +1,19 @@
 # @scalar/api-reference
 
+## 1.54.0
+
+### Minor Changes
+
+- [#8970](https://github.com/scalar/scalar/pull/8970): feat(api-reference): show an "auth required" / "auth optional" badge next to each operation's path. Requirements are resolved via `operation.security ?? document.security`; hover reveals the scheme names, types, and any required scopes.
+
+### Patch Changes
+
+- [#8963](https://github.com/scalar/scalar/pull/8963): fix(api-reference): flatten deepObject query parameter display in parameter rendering
+- [#8906](https://github.com/scalar/scalar/pull/8906): fix inline composed schema descriptions in api-reference
+- [#8963](https://github.com/scalar/scalar/pull/8963): fix(api-reference): ignore undefined examples on flattened deepObject parameters
+- [#9003](https://github.com/scalar/scalar/pull/9003): fix: remove extraneous eventBus prop from AgentScalarDrawer to eliminate Vue warning
+- [#8987](https://github.com/scalar/scalar/pull/8987): chore: move scalar version logs
+
 ## 1.53.1
 
 ## 1.53.0

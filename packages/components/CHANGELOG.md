@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.23.0
+
+### Minor Changes
+
+- [#9021](https://github.com/scalar/scalar/pull/9021): feat: support title for the scalar menu component
+
+### Patch Changes
+
+- [#9020](https://github.com/scalar/scalar/pull/9020): fix(components): set specific padding and margin for nested items
+- [#9024](https://github.com/scalar/scalar/pull/9024): fix: hide sidebar section label when there is no default slot
+
 ## 0.22.5
 
 ## 0.22.4
