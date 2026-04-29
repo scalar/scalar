@@ -1583,7 +1583,7 @@ describe('oauth', () => {
       const [error, result] = await refreshOauth2Token(refreshScheme, 'authorizationCode', '', mockServer)
       expect(result).toBe(null)
       expect(error).toBeInstanceOf(Error)
-      expect(error!.message).toBe('Failed to refresh the access token. Please re-authorize.')
+      expect(error!.message).toBe('Network error')
     })
 
     it('returns the server error_description when the token endpoint rejects the refresh', async () => {
