@@ -123,6 +123,8 @@ const appendMultipartValue = ({
 }
 
 const serializeUrlEncodedValue = (value: unknown): string => {
+  // Urlencoded examples historically JSON-encode object-like values.
+  // Using String(value) here would turn objects into "[object Object]".
   if (typeof value === 'object' && value !== null && !(value instanceof File) && !(value instanceof Blob)) {
     return JSON.stringify(unpackProxyObject(value))
   }
@@ -175,7 +177,8 @@ export const buildRequestBody = (
             value: [],
           }
 
-    // Loop over all entries and add them to the form
+    // Loop over all entries and add them to the selected form mode.
+    // Multipart keeps rich value types (file/blob/text), while urlencoded keeps plain key/value strings.
     exampleValue.forEach(({ name, value }) => {
       if (result.mode === 'formdata') {
         appendMultipartValue({
@@ -199,7 +202,7 @@ export const buildRequestBody = (
     return result
   }
 
-  // Form data - object format (from schema examples)
+  // Form data & Form Urlencoded - object format (from schema examples)
   // Convert plain objects to form fields instead of JSON stringifying.
   if (
     (bodyContentType === 'multipart/form-data' || bodyContentType === 'application/x-www-form-urlencoded') &&
