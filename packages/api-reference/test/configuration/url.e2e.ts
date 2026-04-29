@@ -4,7 +4,7 @@ import { serveExample } from '@test/utils/serve-example'
 test.describe('url', () => {
   test('renders Petstore (Swagger 2.0) document', async ({ page }) => {
     const example = await serveExample({
-      url: 'https://petstore.swagger.io/v2/swagger.json',
+      url: 'examples/petstore-swagger2.json',
     })
 
     await page.goto(example)
@@ -68,9 +68,7 @@ test.describe('url', () => {
       ],
     })
 
-    console.log('example', example)
     await page.goto(`${example}?api=api-two`)
-    await page.pause()
 
     await expect(page.getByRole('heading', { name: 'API Two', level: 1 })).toBeVisible()
   })

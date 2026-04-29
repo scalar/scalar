@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import galaxy from '@scalar/galaxy/latest.json' with { type: 'json' }
 import { serveExample } from '@test/utils/serve-example'
 
 test.describe('sources', () => {
@@ -9,11 +10,11 @@ test.describe('sources', () => {
       sources: [
         {
           slug: 'petstore',
-          url: 'https://petstore.swagger.io/v2/swagger.json',
+          url: 'examples/petstore-swagger2.json',
         },
         {
           slug: 'galaxy',
-          url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
+          content: galaxy,
         },
         {
           slug: 'content',
@@ -75,7 +76,7 @@ test.describe('sources', () => {
       sources: [
         {
           slug: 'petstore',
-          url: 'https://petstore.swagger.io/v2/swagger.json',
+          url: 'examples/petstore-swagger2.json',
         },
         {
           default: true,
