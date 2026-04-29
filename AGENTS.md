@@ -134,6 +134,30 @@ All workspace packages use `workspace:*` for internal dependencies. Shared third
 
 ## Code Standards
 
+### Reuse helpers before writing new ones
+
+Before writing a new utility function, check `@scalar/helpers` (`packages/helpers/src/`) first. It already covers a wide range of common needs, organized by category:
+
+| Category | Examples |
+|----------|---------|
+| `array` | array manipulation utilities |
+| `dom` | DOM helpers |
+| `errors` | error handling utilities |
+| `file` | file utilities |
+| `formatters` | value formatting |
+| `general` | miscellaneous general utilities |
+| `http` | HTTP methods, headers, status codes, MIME types |
+| `json` | JSON pointer helpers, pretty-print |
+| `markdown` | heading extraction |
+| `object` | deep equality, key helpers, path access, local storage |
+| `queue` | async queue |
+| `regex` | variable finding/replacing |
+| `string` | capitalize, hash, truncate, camel-to-title |
+| `testing` | sleep, measure, console spies |
+| `url` | URL validation, merging, proxy helpers |
+
+If the helper you need already exists there, import it from `@scalar/helpers`. Only add a new helper to `@scalar/helpers` (or another package) if nothing suitable already exists.
+
 ### TypeScript
 
 - Prefer `type` over `interface`
