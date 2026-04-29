@@ -5,6 +5,7 @@ import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isNonOptionalSecurityRequirement } from '@/helpers/is-non-optional-security-requirement'
 import { mergeObjects } from '@/helpers/merge-object'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
+import { getSelectedSecurity } from '@/request-example/context/security/get-selected-security'
 import type { WorkspaceDocument } from '@/schemas'
 import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
@@ -378,23 +379,39 @@ export const updateSelectedScopes = (
   let target = getTarget()
 
   // If no selection exists (e.g., when using preferredSecurityScheme), initialize it
+  // using the same logic as getSelectedSecurity to ensure consistency
   if (!target) {
-    // Build a security requirement from the id array
-    const initialRequirement: SecurityRequirementObject = {}
-    for (const schemeId of id) {
-      initialRequirement[schemeId] = []
-    }
+    const securityRequirements = meta.type === 'document' ? document?.security ?? [] : undefined
+    const securitySchemes = document?.components?.securitySchemes ?? {}
+
+    // Compute the default selection using getSelectedSecurity logic
+    // Type assertion is safe here as we're passing the same structure getSelectedSecurity expects
+    const defaultSelection = getSelectedSecurity(
+      undefined,
+      undefined,
+      securityRequirements,
+      securitySchemes as Record<string, { type?: string; 'x-default-scopes'?: string[] } | undefined>,
+    )
+
+    // If we can compute a selection, use it; otherwise create a minimal one with the scheme from id
+    const initialSelection =
+      defaultSelection.selectedSchemes.length > 0
+        ? defaultSelection
+        : {
+            selectedIndex: 0,
+            selectedSchemes: [
+              // Fallback: build a requirement from the id array with empty scopes
+              Object.fromEntries(id.map((schemeId) => [schemeId, []])) as SecurityRequirementObject,
+            ],
+          }
 
     // Initialize the selection
     if (meta.type === 'document') {
-      store?.auth.setAuthSelectedSchemas(
-        { type: 'document', documentName },
-        { selectedIndex: 0, selectedSchemes: [initialRequirement] },
-      )
+      store?.auth.setAuthSelectedSchemas({ type: 'document', documentName }, initialSelection)
     } else {
       store?.auth.setAuthSelectedSchemas(
         { type: 'operation', documentName, path: meta.path, method: meta.method },
-        { selectedIndex: 0, selectedSchemes: [initialRequirement] },
+        initialSelection,
       )
     }
 
