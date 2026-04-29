@@ -4,7 +4,7 @@ import type { AuthMeta, WorkspaceEventBus } from '@scalar/workspace-store/events
 import { type RequestPayload, buildRequest, requestFactory } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -90,6 +90,7 @@ const createMockEventBus = (): WorkspaceEventBus => ({
   once: vi.fn(),
   off: vi.fn(),
   emit: vi.fn(() => null),
+  flushDebouncedEmits: vi.fn(),
 })
 
 /**
@@ -313,6 +314,130 @@ describe('OperationBlock', () => {
       requestPayload: ['https://api.example.com/api/users', expect.objectContaining({ method: 'GET' })],
       plugins: [],
     })
+  })
+
+  it('flushes debounced events before building a request', async () => {
+    const mockEventBus = createMockEventBus()
+    vi.mocked(sendRequest).mockResolvedValue([
+      null,
+      {
+        timestamp: Date.now(),
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        response: {} as ResponseInstance,
+        originalResponse: createMockOriginalResponse(),
+      },
+    ])
+
+    const wrapper = mount(OperationBlock, {
+      props: { ...createDefaultProps(), eventBus: mockEventBus },
+    })
+
+    await triggerExecute(wrapper)
+
+    const flushDebouncedEmits = mockEventBus.flushDebouncedEmits
+    if (!flushDebouncedEmits) {
+      throw new Error('Expected flushDebouncedEmits to exist')
+    }
+
+    const flushOrder = vi.mocked(flushDebouncedEmits).mock.invocationCallOrder.at(0) ?? 0
+    const requestFactoryOrder = vi.mocked(requestFactory).mock.invocationCallOrder[0] ?? 0
+
+    expect(flushOrder).toBeLessThan(requestFactoryOrder)
+  })
+
+  it('flushes debounced events before validating path parameters', async () => {
+    const pathParameter: ParameterObject = {
+      name: 'id',
+      in: 'path',
+      required: true,
+      examples: {
+        default: {
+          value: '',
+        },
+      },
+    }
+    const operation = createMockOperation({
+      parameters: [pathParameter],
+    })
+    const mockEventBus = createMockEventBus()
+
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        eventBus: mockEventBus,
+        operation,
+        path: '/api/users/{id}',
+      },
+    })
+
+    await triggerExecute(wrapper)
+
+    const flushDebouncedEmits = mockEventBus.flushDebouncedEmits
+    if (!flushDebouncedEmits) {
+      throw new Error('Expected flushDebouncedEmits to exist')
+    }
+
+    const flushOrder = vi.mocked(flushDebouncedEmits).mock.invocationCallOrder.at(0) ?? 0
+    const toastOrder = mockToast.mock.invocationCallOrder[0] ?? 0
+
+    expect(flushOrder).toBeLessThan(toastOrder)
+    expect(mockToast).toHaveBeenCalledWith('Path parameters must have values.', 'error')
+    expect(requestFactory).not.toHaveBeenCalled()
+    expect(sendRequest).not.toHaveBeenCalled()
+  })
+
+  it('uses path parameter values committed by a debounced flush before validation', async () => {
+    const pathParameter: ParameterObject = {
+      name: 'id',
+      in: 'path',
+      required: true,
+      examples: {
+        default: {
+          value: '',
+        },
+      },
+    }
+    const operation = createMockOperation({
+      parameters: [pathParameter],
+    })
+    const mockEventBus = createMockEventBus()
+
+    const flushDebouncedEmits = mockEventBus.flushDebouncedEmits
+    if (!flushDebouncedEmits) {
+      throw new Error('Expected flushDebouncedEmits to exist')
+    }
+
+    vi.mocked(flushDebouncedEmits).mockImplementation(() => {
+      pathParameter.examples = {
+        default: {
+          value: '123',
+        },
+      }
+    })
+    vi.mocked(sendRequest).mockResolvedValue([
+      null,
+      {
+        timestamp: Date.now(),
+        requestPayload: ['https://api.example.com/api/users/123', { method: 'GET', headers: new Headers() }],
+        response: {} as ResponseInstance,
+        originalResponse: createMockOriginalResponse(),
+      },
+    ])
+
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        eventBus: mockEventBus,
+        operation,
+        path: '/api/users/{id}',
+      },
+    })
+
+    await triggerExecute(wrapper)
+
+    expect(mockToast).not.toHaveBeenCalled()
+    expect(requestFactory).toHaveBeenCalledOnce()
+    expect(sendRequest).toHaveBeenCalledOnce()
   })
 
   it('displays toast error when buildRequest fails', async () => {

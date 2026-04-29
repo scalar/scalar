@@ -300,4 +300,68 @@ describe('createWorkspaceEventBus', () => {
 
     vi.useRealTimers()
   })
+
+  it('flushes pending debounced emits immediately', () => {
+    vi.useFakeTimers()
+    const bus = createWorkspaceEventBus()
+    const handler = vi.fn()
+
+    bus.on('update:dark-mode', handler)
+    bus.emit('update:dark-mode', true, { debounceKey: 'test' })
+
+    expect(handler).toHaveBeenCalledTimes(0)
+
+    bus.flushDebouncedEmits()
+
+    expect(handler).toHaveBeenCalledTimes(1)
+    expect(handler).toHaveBeenCalledWith(true)
+
+    vi.advanceTimersByTime(400)
+
+    expect(handler).toHaveBeenCalledTimes(1)
+
+    vi.useRealTimers()
+  })
+
+  it('flushes the latest payload for each pending debounce key', () => {
+    vi.useFakeTimers()
+    const bus = createWorkspaceEventBus()
+    const handler = vi.fn()
+
+    bus.on('update:dark-mode', handler)
+    bus.emit('update:dark-mode', true, { debounceKey: 'first' })
+    bus.emit('update:dark-mode', false, { debounceKey: 'first' })
+    bus.emit('update:dark-mode', true, { debounceKey: 'second' })
+
+    bus.flushDebouncedEmits()
+
+    expect(handler).toHaveBeenCalledTimes(2)
+    expect(handler).toHaveBeenNthCalledWith(1, false)
+    expect(handler).toHaveBeenNthCalledWith(2, true)
+
+    vi.advanceTimersByTime(400)
+
+    expect(handler).toHaveBeenCalledTimes(2)
+
+    vi.useRealTimers()
+  })
+
+  it('does not flush already executed debounced emits again', () => {
+    vi.useFakeTimers()
+    const bus = createWorkspaceEventBus()
+    const handler = vi.fn()
+
+    bus.on('update:dark-mode', handler)
+    bus.emit('update:dark-mode', true, { debounceKey: 'test' })
+
+    vi.advanceTimersByTime(400)
+
+    expect(handler).toHaveBeenCalledTimes(1)
+
+    bus.flushDebouncedEmits()
+
+    expect(handler).toHaveBeenCalledTimes(1)
+
+    vi.useRealTimers()
+  })
 })
