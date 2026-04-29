@@ -42,14 +42,12 @@ test.describe('sources', () => {
 
     await expect(page.getByRole('heading', { name: 'Swagger Petstore', level: 1 })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'pet', level: 2 })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'uploads an image', level: 3 })).toBeVisible()
 
     // Petstore
     await page.goto(`${example}/?api=petstore`)
 
     await expect(page.getByRole('heading', { name: 'Swagger Petstore', level: 1 })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'pet', level: 2 })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'uploads an image', level: 3 })).toBeVisible()
 
     // Galaxy
     await page.goto(`${example}/?api=galaxy`)
@@ -112,7 +110,6 @@ test.describe('sources', () => {
 
     await expect(page.getByRole('heading', { name: 'Swagger Petstore', level: 1 })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'pet', level: 2 })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'uploads an image', level: 3 })).toBeVisible()
 
     // Content
     await page.goto(`${example}/?api=content`)

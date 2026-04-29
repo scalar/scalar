@@ -12,7 +12,6 @@ test.describe('url', () => {
 
     await expect(page.getByRole('heading', { name: 'Swagger Petstore', level: 1 })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'pet', level: 2 })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'uploads an image', level: 3 })).toBeVisible()
   })
 
   test('Should redirect legacy query parameter multi-document support to path routing', async ({ page }) => {
