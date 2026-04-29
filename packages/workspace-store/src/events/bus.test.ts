@@ -127,6 +127,72 @@ describe('createWorkspaceEventBus', () => {
     expect(handler3).toHaveBeenCalledTimes(2)
   })
 
+  describe('once', () => {
+    it('fires the listener exactly once', () => {
+      const bus = createWorkspaceEventBus()
+      const handler = vi.fn()
+
+      bus.once('update:dark-mode', handler)
+      bus.emit('update:dark-mode', true)
+      bus.emit('update:dark-mode', false)
+      bus.emit('update:dark-mode', true)
+
+      expect(handler).toHaveBeenCalledTimes(1)
+      expect(handler).toHaveBeenCalledWith(true)
+    })
+
+    it('passes the payload to the listener', () => {
+      const bus = createWorkspaceEventBus()
+      const handler = vi.fn()
+
+      bus.once('update:active-document', handler)
+      bus.emit('update:active-document', 'doc-abc')
+
+      expect(handler).toHaveBeenCalledWith('doc-abc')
+    })
+
+    it('returns an unsubscribe function that prevents the listener from firing', () => {
+      const bus = createWorkspaceEventBus()
+      const handler = vi.fn()
+
+      const unsubscribe = bus.once('update:dark-mode', handler)
+      unsubscribe()
+      bus.emit('update:dark-mode', true)
+
+      expect(handler).not.toHaveBeenCalled()
+    })
+
+    it('does not interfere with regular on() listeners for the same event', () => {
+      const bus = createWorkspaceEventBus()
+      const onceHandler = vi.fn()
+      const onHandler = vi.fn()
+
+      bus.once('update:dark-mode', onceHandler)
+      bus.on('update:dark-mode', onHandler)
+
+      bus.emit('update:dark-mode', true)
+      bus.emit('update:dark-mode', false)
+
+      expect(onceHandler).toHaveBeenCalledTimes(1)
+      expect(onHandler).toHaveBeenCalledTimes(2)
+    })
+
+    it('multiple once() listeners each fire only once independently', () => {
+      const bus = createWorkspaceEventBus()
+      const handler1 = vi.fn()
+      const handler2 = vi.fn()
+
+      bus.once('update:dark-mode', handler1)
+      bus.once('update:dark-mode', handler2)
+
+      bus.emit('update:dark-mode', true)
+      bus.emit('update:dark-mode', false)
+
+      expect(handler1).toHaveBeenCalledTimes(1)
+      expect(handler2).toHaveBeenCalledTimes(1)
+    })
+  })
+
   it('handles debouncing when there is a debounce key present', () => {
     vi.useFakeTimers()
     const bus = createWorkspaceEventBus()
