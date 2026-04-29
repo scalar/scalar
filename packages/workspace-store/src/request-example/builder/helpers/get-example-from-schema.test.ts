@@ -718,6 +718,15 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toBe('BAD_REQUEST_EXCEPTION')
   })
 
+  it('ignores invalid defaults when they do not match primitive schema type', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'number',
+      default: 'invalid',
+    })
+
+    expect(getExampleFromSchema(schema)).toBe(1)
+  })
+
   it('normalizes empty string defaults to null for nullable integers', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: ['integer', 'null'],
@@ -725,6 +734,15 @@ describe('getExampleFromSchema', () => {
     })
 
     expect(getExampleFromSchema(schema)).toBeNull()
+  })
+
+  it('ignores invalid defaults for composed schemas', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      oneOf: [{ type: 'string' }, { type: 'null' }],
+      default: 123,
+    })
+
+    expect(getExampleFromSchema(schema)).toBe('')
   })
 
   it('keeps empty string defaults for nullable strings', () => {
