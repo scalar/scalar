@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
+import type { AddressInfo } from 'node:net'
 import { cwd } from 'node:process'
 
 import { path } from '@scalar/helpers/node/path'
@@ -27,8 +28,7 @@ import { readFiles } from './plugins/read-files'
 describe('bundle', () => {
   describe('external urls', () => {
     let server: FastifyInstance
-    const port = 7289
-    const url = `http://localhost:${port}`
+    let url: string
 
     beforeEach(() => {
       server = fastify({ logger: false })
@@ -48,7 +48,8 @@ describe('bundle', () => {
           reply.send(external)
         })
 
-        await server.listen({ port: port })
+        await server.listen({ port: 0 })
+        url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
         const input = {
           a: {
@@ -57,7 +58,7 @@ describe('bundle', () => {
             },
           },
           d: {
-            '$ref': `http://localhost:${port}#/prop`,
+            '$ref': `${url}#/prop`,
           },
         }
 
@@ -94,14 +95,7 @@ describe('bundle', () => {
         internal: '#/nested/key',
       }
 
-      const chunk1 = {
-        a: {
-          hello: 'hello',
-        },
-        b: {
-          '$ref': `${url}/chunk2#`,
-        },
-      }
+      let chunk1: object
 
       server.get('/chunk1', (_, reply) => {
         reply.send(chunk1)
@@ -110,7 +104,17 @@ describe('bundle', () => {
         reply.send(chunk2)
       })
 
-      await server.listen({ port: port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
+
+      chunk1 = {
+        a: {
+          hello: 'hello',
+        },
+        b: {
+          '$ref': `${url}/chunk2#`,
+        },
+      }
 
       const input = {
         a: {
@@ -154,7 +158,8 @@ describe('bundle', () => {
         })
       })
 
-      await server.listen({ port: port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const input = {
         a: {
@@ -191,7 +196,8 @@ describe('bundle', () => {
         })
       })
 
-      await server.listen({ port: port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const input = {
         a: {
@@ -238,7 +244,8 @@ describe('bundle', () => {
         })
       })
 
-      await server.listen({ port: port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const input = {
         a: {
@@ -280,7 +287,8 @@ describe('bundle', () => {
         })
       })
 
-      await server.listen({ port: port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const input = {
         a: {
@@ -330,7 +338,8 @@ describe('bundle', () => {
         })
       })
 
-      await server.listen({ port: port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const output = await bundle(`${url}/base/openapi.json`, { plugins: [fetchUrls()], treeShake: false })
 
@@ -376,7 +385,8 @@ describe('bundle', () => {
           })
         })
 
-        await server.listen({ port: port })
+        await server.listen({ port: 0 })
+        url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
         const output = await bundle(`${url}/base/openapi.json`, {
           plugins: [fetchUrls()],
@@ -408,20 +418,8 @@ describe('bundle', () => {
     )
 
     it('prefixes the refs only once', async () => {
-      const chunk2 = {
-        a: 'a',
-        b: {
-          '$ref': `${url}/chunk1#`,
-        },
-      }
-      const chunk1 = {
-        a: {
-          hello: 'hello',
-        },
-        b: {
-          '$ref': `${url}/chunk2#`,
-        },
-      }
+      let chunk1: object
+      let chunk2: object
 
       server.get('/chunk1', (_, reply) => {
         reply.send(chunk1)
@@ -430,7 +428,23 @@ describe('bundle', () => {
         reply.send(chunk2)
       })
 
-      await server.listen({ port: port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
+
+      chunk2 = {
+        a: 'a',
+        b: {
+          '$ref': `${url}/chunk1#`,
+        },
+      }
+      chunk1 = {
+        a: {
+          hello: 'hello',
+        },
+        b: {
+          '$ref': `${url}/chunk2#`,
+        },
+      }
 
       const input = {
         a: {
@@ -500,7 +514,8 @@ describe('bundle', () => {
         reply.send(chunk1)
       })
 
-      await server.listen({ port: port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const input = {
         a: [
@@ -544,7 +559,8 @@ describe('bundle', () => {
         reply.send(chunk1)
       })
 
-      await server.listen({ port: port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const input = {
         a: {
@@ -634,7 +650,8 @@ describe('bundle', () => {
         reply.send(chunk1)
       })
 
-      await server.listen({ port: port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const input = {
         a: {
@@ -704,7 +721,8 @@ describe('bundle', () => {
         reply.send(chunk1)
       })
 
-      await server.listen({ port: port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const input = {
         a: {
@@ -773,7 +791,8 @@ describe('bundle', () => {
         reply.send(chunk2)
       })
 
-      await server.listen({ port: port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const input = {
         a: {
@@ -838,7 +857,8 @@ describe('bundle', () => {
         reply.send(chunk1)
       })
 
-      await server.listen({ port: port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const input = {
         a: {
@@ -890,7 +910,8 @@ describe('bundle', () => {
         reply.send(chunk2)
       })
 
-      await server.listen({ port: port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const input = {
         a: {
@@ -977,7 +998,8 @@ describe('bundle', () => {
         reply.send(chunk1)
       })
 
-      await server.listen({ port: port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const input = {
         a: {
@@ -1025,7 +1047,7 @@ describe('bundle', () => {
           },
         },
         'x-ext-urls': {
-          [getHash(`${url}/chunk1`)]: 'http://localhost:7289/chunk1',
+          [getHash(`${url}/chunk1`)]: `${url}/chunk1`,
         },
       })
     })
@@ -1071,7 +1093,8 @@ describe('bundle', () => {
         reply.send(external)
       })
 
-      await server.listen({ port: port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const input = {
         c: {
@@ -1121,7 +1144,7 @@ describe('bundle', () => {
           $ref: '#/a',
         },
         nonBundle: {
-          $ref: `http://localhost:${port}/chunk1`,
+          $ref: `${url}/chunk1`,
         },
         'x-ext': {
           [getHash(`${url}/external/document.json`)]: {
@@ -1165,7 +1188,8 @@ describe('bundle', () => {
         reply.send(chunk1)
       })
 
-      await server.listen({ port: port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const input = {
         a: {
@@ -1207,7 +1231,8 @@ describe('bundle', () => {
         reply.code(404).send()
       })
 
-      await server.listen({ port: port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const input = {
         a: {
@@ -1248,7 +1273,8 @@ describe('bundle', () => {
       server.get('/', () => ({
         message: 'some resolved external reference',
       }))
-      await server.listen({ port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const result = await bundle(
         {
@@ -1284,7 +1310,8 @@ describe('bundle', () => {
       server.get('/d', () => ({
         message: 'some resolved external reference',
       }))
-      await server.listen({ port: port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const result = await bundle(url, {
         plugins: [fetchUrls()],
@@ -1986,8 +2013,7 @@ describe('bundle', () => {
 
   describe('yaml inputs', () => {
     let server: FastifyInstance
-    const port = 7229
-    const url = `http://localhost:${port}`
+    let url: string
 
     beforeEach(() => {
       server = fastify({ logger: false })
@@ -2051,7 +2077,8 @@ describe('bundle', () => {
           title: 'My API',
         },
       }))
-      await server.listen({ port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
       const result = await bundle(url, {
         treeShake: false,
         plugins: [parseYaml(), fetchUrls()],
@@ -2068,8 +2095,7 @@ describe('bundle', () => {
 
   describe('bundle with a certain depth', () => {
     let server: FastifyInstance
-    const PORT = 7298
-    const url = `http://localhost:${PORT}`
+    let url: string
 
     beforeEach(() => {
       server = fastify({ logger: false })
@@ -2087,7 +2113,8 @@ describe('bundle', () => {
         reply.send(external)
       })
 
-      await server.listen({ port: PORT })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const input = {
         a: {
@@ -2096,7 +2123,7 @@ describe('bundle', () => {
               d: {
                 e: {
                   // Deep ref
-                  '$ref': `http://localhost:${PORT}#/prop`,
+                  '$ref': `${url}#/prop`,
                 },
               },
             },
@@ -2104,7 +2131,7 @@ describe('bundle', () => {
         },
         d: {
           e: {
-            '$ref': `http://localhost:${PORT}#/prop`,
+            '$ref': `${url}#/prop`,
           },
         },
       }
@@ -2151,7 +2178,8 @@ describe('bundle', () => {
         reply.send(external)
       })
 
-      await server.listen({ port: PORT })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const input = {
         a: {
@@ -2160,7 +2188,7 @@ describe('bundle', () => {
               d: {
                 e: {
                   // Deep ref
-                  '$ref': `http://localhost:${PORT}#/prop`,
+                  '$ref': `${url}#/prop`,
                 },
               },
             },
@@ -2168,7 +2196,7 @@ describe('bundle', () => {
         },
         d: {
           e: {
-            '$ref': `http://localhost:${PORT}#/prop`,
+            '$ref': `${url}#/prop`,
           },
         },
       }

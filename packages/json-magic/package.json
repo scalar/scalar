@@ -26,6 +26,11 @@
       "types": "./dist/bundle/index.d.ts",
       "default": "./dist/bundle/index.js"
     },
+    "./bundle/value-generator": {
+      "import": "./dist/bundle/value-generator.js",
+      "types": "./dist/bundle/value-generator.d.ts",
+      "default": "./dist/bundle/value-generator.js"
+    },
     "./bundle/plugins/browser": {
       "import": "./dist/bundle/plugins/browser.js",
       "types": "./dist/bundle/plugins/browser.d.ts",

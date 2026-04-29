@@ -1,3 +1,5 @@
+import type { AddressInfo } from 'node:net'
+
 import { type FastifyInstance, fastify } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -7,7 +9,6 @@ describe('fetchUrl', () => {
   const noLimit = <T>(fn: () => Promise<T>) => fn()
 
   let server: FastifyInstance
-  const PORT = 7291
 
   beforeEach(() => {
     server = fastify({ logger: false })
@@ -18,8 +19,6 @@ describe('fetchUrl', () => {
   })
 
   it('reads json response', async () => {
-    const url = `http://localhost:${PORT}`
-
     const response = {
       message: '200OK',
     }
@@ -28,7 +27,9 @@ describe('fetchUrl', () => {
       reply.send(response)
     })
 
-    await server.listen({ port: PORT })
+    await server.listen({ port: 0 })
+    const port = (server.server.address() as AddressInfo).port
+    const url = `http://localhost:${port}`
 
     const result = await fetchUrl(url, noLimit)
 
@@ -38,13 +39,13 @@ describe('fetchUrl', () => {
   })
 
   it('reads yaml response', async () => {
-    const url = `http://localhost:${PORT}`
-
     server.get('/', (_, reply) => {
       reply.header('content-type', 'application/yml').send('a: a')
     })
 
-    await server.listen({ port: PORT })
+    await server.listen({ port: 0 })
+    const port = (server.server.address() as AddressInfo).port
+    const url = `http://localhost:${port}`
 
     const result = await fetchUrl(url, noLimit)
 
@@ -54,13 +55,13 @@ describe('fetchUrl', () => {
   })
 
   it('returns error on non-200 response', async () => {
-    const url = `http://localhost:${PORT}`
-
     server.get('/', (_, reply) => {
       reply.status(404).send()
     })
 
-    await server.listen({ port: PORT })
+    await server.listen({ port: 0 })
+    const port = (server.server.address() as AddressInfo).port
+    const url = `http://localhost:${port}`
 
     const result = await fetchUrl(url, noLimit)
 
@@ -68,7 +69,6 @@ describe('fetchUrl', () => {
   })
 
   it('send headers to the specified domain', async () => {
-    const url = `http://localhost:${PORT}`
     const headersSpy = vi.fn()
 
     const response = {
@@ -80,9 +80,12 @@ describe('fetchUrl', () => {
       reply.send(response)
     })
 
-    await server.listen({ port: PORT })
+    await server.listen({ port: 0 })
+    const port = (server.server.address() as AddressInfo).port
+    const url = `http://localhost:${port}`
+
     await fetchUrl(url, noLimit, {
-      headers: [{ headers: { 'Authorization': 'Bearer <TOKEN>' }, domains: [`localhost:${PORT}`] }],
+      headers: [{ headers: { 'Authorization': 'Bearer <TOKEN>' }, domains: [`localhost:${port}`] }],
     })
 
     expect(headersSpy).toHaveBeenCalledOnce()
@@ -92,14 +95,13 @@ describe('fetchUrl', () => {
       'accept-language': '*',
       'authorization': 'Bearer <TOKEN>',
       'connection': 'keep-alive',
-      'host': `localhost:${PORT}`,
+      'host': `localhost:${port}`,
       'sec-fetch-mode': 'cors',
       'user-agent': 'node',
     })
   })
 
   it('does not send headers to other domains', async () => {
-    const url = `http://localhost:${PORT}`
     const headersSpy = vi.fn()
 
     const response = {
@@ -111,7 +113,10 @@ describe('fetchUrl', () => {
       reply.send(response)
     })
 
-    await server.listen({ port: PORT })
+    await server.listen({ port: 0 })
+    const port = (server.server.address() as AddressInfo).port
+    const url = `http://localhost:${port}`
+
     await fetchUrl(url, noLimit, {
       headers: [{ headers: { 'Authorization': 'Bearer <TOKEN>' }, domains: ['localhost:9932', 'localhost'] }],
     })
@@ -122,7 +127,7 @@ describe('fetchUrl', () => {
       'accept-encoding': 'gzip, deflate',
       'accept-language': '*',
       'connection': 'keep-alive',
-      'host': `localhost:${PORT}`,
+      'host': `localhost:${port}`,
       'sec-fetch-mode': 'cors',
       'user-agent': 'node',
     })
