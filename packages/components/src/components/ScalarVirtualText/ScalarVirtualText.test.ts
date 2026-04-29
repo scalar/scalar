@@ -40,6 +40,14 @@ describe('ScalarVirtualText', () => {
     expect(wrapper.find('.scalar-virtual-text-line').classes()).toContain('custom-line')
   })
 
+  it('sets a fallback theme text color on the container', () => {
+    const wrapper = mount(ScalarVirtualText, {
+      props: { text: 'Test' },
+    })
+
+    expect(wrapper.find('.scalar-virtual-text').classes()).toContain('text-c-1')
+  })
+
   it('applies custom line height to each line', () => {
     const wrapper = mount(ScalarVirtualText, {
       props: { text: 'A\nB', lineHeight: 32 },

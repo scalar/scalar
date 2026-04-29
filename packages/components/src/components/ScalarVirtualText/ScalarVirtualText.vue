@@ -286,7 +286,7 @@ const toAbsoluteIndex = (relativeIndex: number): number =>
 <template>
   <div
     ref="containerRef"
-    class="scalar-virtual-text relative overflow-auto"
+    class="scalar-virtual-text text-c-1 relative overflow-auto"
     :class="containerClass"
     tabindex="0"
     @keydown="handleKeydown"
