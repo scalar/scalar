@@ -1,5 +1,6 @@
 import FastifyBasicAuth, { type FastifyBasicAuthOptions } from '@fastify/basic-auth'
 import fastifySwagger from '@fastify/swagger'
+import { PETSTORE_URL_2_0 } from '@scalar/helpers/url/oas-document-fixtures'
 import type { OpenAPI } from '@scalar/openapi-types'
 import Fastify, { type FastifyPluginAsync } from 'fastify'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -312,7 +313,7 @@ describe('fastifyApiReference', () => {
 
   describe('has the spec URL', () => {
     const urlOwn = '/openapi.json'
-    const urlExt = 'https://petstore.swagger.io/v2/swagger.json'
+    const urlExt = PETSTORE_URL_2_0
 
     it.each([
       { expectedUrl: urlOwn, specProvidedVia: '@fastify/swagger' },

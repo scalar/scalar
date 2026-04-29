@@ -45,6 +45,7 @@
   ],
   "dependencies": {
     "@scalar/api-reference": "workspace:*",
+    "@scalar/helpers": "workspace:*",
     "@scalar/types": "workspace:*"
   },
   "devDependencies": {

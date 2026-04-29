@@ -79,6 +79,7 @@
     "@scalar/openapi-types": "workspace:*"
   },
   "devDependencies": {
+    "@scalar/helpers": "workspace:*",
     "@scalar/types": "workspace:*",
     "vite": "catalog:*"
   }

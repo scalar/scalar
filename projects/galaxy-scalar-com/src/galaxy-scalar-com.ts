@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises'
 
 import { serve } from '@hono/node-server'
+import { PETSTORE_URL_2_0, PETSTORE_URL_3_1 } from '@scalar/helpers/url/oas-document-fixtures'
 import { Scalar } from '@scalar/hono-api-reference'
 import { createMockServer } from '@scalar/mock-server'
 import type { Hono } from 'hono'
@@ -50,11 +51,11 @@ export function configureApiReference(app: Hono, port: number, useLocalJsBundle:
         },
         {
           title: 'Petstore (OpenAPI 3.1)',
-          url: 'https://petstore31.swagger.io/api/v31/openapi.json',
+          url: PETSTORE_URL_3_1,
         },
         {
           title: 'Petstore (Swagger 2.0)',
-          url: 'https://petstore.swagger.io/v2/swagger.json',
+          url: PETSTORE_URL_2_0,
         },
       ],
       theme: 'default',

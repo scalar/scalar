@@ -1,4 +1,10 @@
 import galaxy from '@scalar/galaxy/latest.json' with { type: 'json' }
+import {
+  PETSTORE_URL_2_0,
+  PETSTORE_URL_3_0,
+  PETSTORE_URL_3_1,
+  STRIPE_URL_3_0,
+} from '@scalar/helpers/url/oas-document-fixtures'
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 
 /** All of the sources */
@@ -121,7 +127,7 @@ export const sources = [
   {
     title: 'Stripe',
     slug: 'stripe',
-    url: 'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.json',
+    url: STRIPE_URL_3_0,
   },
   {
     title: 'Relative URL Example',
@@ -136,17 +142,17 @@ export const sources = [
   {
     title: 'Swagger Petstore 2.0',
     slug: 'swagger-petstore-2-0',
-    url: 'https://petstore.swagger.io/v2/swagger.json',
+    url: PETSTORE_URL_2_0,
   },
   {
     title: 'Swagger Petstore 3.0',
     slug: 'swagger-petstore-3-0',
-    url: 'https://petstore3.swagger.io/api/v3/openapi.json',
+    url: PETSTORE_URL_3_0,
   },
   {
     title: 'Swagger Petstore 3.1',
     slug: 'swagger-petstore-3-1',
-    url: 'https://petstore31.swagger.io/api/v31/openapi.json',
+    url: PETSTORE_URL_3_1,
     authentication: {
       createAnySecurityScheme: true,
     },

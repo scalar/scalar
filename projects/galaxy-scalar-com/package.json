@@ -45,6 +45,7 @@
   ],
   "devDependencies": {
     "@hono/node-server": "catalog:*",
+    "@scalar/helpers": "workspace:*",
     "@scalar/hono-api-reference": "workspace:*",
     "@scalar/mock-server": "workspace:*",
     "@types/node": "catalog:*",

@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { PETSTORE_URL_2_0 } from '@scalar/helpers/url/oas-document-fixtures'
 import { serveExample } from '@test/utils/serve-example'
 
 test.describe('sources', () => {
@@ -9,7 +10,7 @@ test.describe('sources', () => {
       sources: [
         {
           slug: 'petstore',
-          url: 'https://petstore.swagger.io/v2/swagger.json',
+          url: PETSTORE_URL_2_0,
         },
         {
           slug: 'galaxy',
@@ -75,7 +76,7 @@ test.describe('sources', () => {
       sources: [
         {
           slug: 'petstore',
-          url: 'https://petstore.swagger.io/v2/swagger.json',
+          url: PETSTORE_URL_2_0,
         },
         {
           default: true,

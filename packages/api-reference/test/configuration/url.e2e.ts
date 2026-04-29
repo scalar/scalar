@@ -1,10 +1,11 @@
 import { expect, test } from '@playwright/test'
+import { PETSTORE_URL_2_0 } from '@scalar/helpers/url/oas-document-fixtures'
 import { serveExample } from '@test/utils/serve-example'
 
 test.describe('url', () => {
   test('renders Petstore (Swagger 2.0) document', async ({ page }) => {
     const example = await serveExample({
-      url: 'https://petstore.swagger.io/v2/swagger.json',
+      url: PETSTORE_URL_2_0,
     })
 
     await page.goto(example)

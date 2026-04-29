@@ -1,3 +1,4 @@
+import { PETSTORE_URL_2_0, PETSTORE_URL_3_0, PETSTORE_URL_3_1 } from '@scalar/helpers/url/oas-document-fixtures'
 import { apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
 import { renderToString } from '@vue/server-renderer'
 import { expect, it, vi } from 'vitest'
@@ -30,17 +31,17 @@ const EXAMPLE_API_DEFINITIONS = [
   },
   {
     title: 'Swagger Petstore',
-    url: 'https://petstore.swagger.io/v2/swagger.json',
+    url: PETSTORE_URL_2_0,
     name: 'swagger-petstore-4.json',
   },
   {
     title: 'Swagger Petstore',
-    url: 'https://petstore3.swagger.io/api/v3/openapi.json',
+    url: PETSTORE_URL_3_0,
     name: 'swagger-petstore-5.json',
   },
   {
     title: 'Swagger Petstore',
-    url: 'https://petstore31.swagger.io/api/v31/openapi.json',
+    url: PETSTORE_URL_3_1,
     name: 'swagger-petstore-6.json',
   },
   {
