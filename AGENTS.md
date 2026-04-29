@@ -288,12 +288,26 @@ pnpm changeset
 
 ### After-change checklist
 
-After making **any** code changes, always run the following commands in order and fix all errors before committing:
+After making **any** code changes, run lint, format, and type-check scoped to only the files and packages you touched. Do not run whole-repo checks.
+
+**1. Lint and format only the changed files:**
 
 ```bash
-pnpm lint:fix      # Auto-fix linting issues (Biome + ESLint)
-pnpm format        # Format all files (Prettier + Biome)
-pnpm types:check   # Type-check all packages
+# Collect the files you changed (adjust the revision as needed)
+CHANGED=$(git diff --name-only HEAD)
+
+# Biome: lint + format TypeScript/JS files
+pnpm biome check --write --diagnostic-level=error --no-errors-on-unmatched --files-ignore-unknown=true $CHANGED
+
+# Prettier: format Vue, Markdown, JSON, CSS, YAML, and other non-TS files
+pnpm prettier --write $CHANGED
+```
+
+**2. Type-check only the affected package(s):**
+
+```bash
+# Replace <package-name> with the actual package (e.g. api-client, helpers, oas-utils)
+pnpm --filter @scalar/<package-name> types:check
 ```
 
 Then, before opening or updating a PR, also run:
@@ -302,7 +316,7 @@ Then, before opening or updating a PR, also run:
 pnpm knip          # Detect unused exports, files, and dependencies
 ```
 
-> All four commands must pass cleanly. Do not commit code that has lint errors, type errors, or unused exports.
+> All checks must pass cleanly. Do not commit code that has lint errors, type errors, or unused exports.
 
 ## Visual Testing
 
