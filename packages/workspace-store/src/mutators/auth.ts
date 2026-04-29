@@ -381,8 +381,12 @@ export const updateSelectedScopes = (
   // If no selection exists (e.g., when using preferredSecurityScheme), initialize it
   // using the same logic as getSelectedSecurity to ensure consistency
   if (!target) {
-    const securityRequirements = meta.type === 'document' ? document?.security ?? [] : undefined
+    const securityRequirements = meta.type === 'document' ? (document?.security ?? []) : undefined
     const securitySchemes = document?.components?.securitySchemes ?? {}
+
+    // Use the scheme being updated (from id) as the preferred scheme
+    // This ensures we initialize with the correct scheme that matches what the user is trying to select
+    const preferredScheme = id.length === 1 ? id[0] : id
 
     // Compute the default selection using getSelectedSecurity logic
     // Type assertion is safe here as we're passing the same structure getSelectedSecurity expects
@@ -391,12 +395,20 @@ export const updateSelectedScopes = (
       undefined,
       securityRequirements,
       securitySchemes as Record<string, { type?: string; 'x-default-scopes'?: string[] } | undefined>,
+      preferredScheme,
     )
 
-    // If we can compute a selection, use it; otherwise create a minimal one with the scheme from id
+    // Deep clone the selection to avoid mutating the original document.security object
+    // This prevents scope updates from polluting the OpenAPI document structure
+    const clonedSelection = {
+      selectedIndex: defaultSelection.selectedIndex,
+      selectedSchemes: defaultSelection.selectedSchemes.map((scheme) => ({ ...scheme })),
+    }
+
+    // If we computed a selection, use it; otherwise create a minimal one with the scheme from id
     const initialSelection =
-      defaultSelection.selectedSchemes.length > 0
-        ? defaultSelection
+      clonedSelection.selectedSchemes.length > 0
+        ? clonedSelection
         : {
             selectedIndex: 0,
             selectedSchemes: [
