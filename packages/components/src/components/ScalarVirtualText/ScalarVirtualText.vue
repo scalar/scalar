@@ -308,7 +308,7 @@ const toAbsoluteIndex = (relativeIndex: number): number =>
     <!-- Invisible spacer that defines the full scrollable height -->
     <div :style="{ height: `${totalHeight}px` }" />
     <code
-      class="scalar-virtual-text-content absolute left-0 right-0 top-0"
+      class="scalar-virtual-text-content absolute top-0 right-0 left-0 block"
       :class="contentClass"
       :style="{ transform: `translateY(${contentOffset}px)` }">
       <div
