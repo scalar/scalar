@@ -683,6 +683,19 @@
               "toc": false
             }
           },
+          "/customers/partech": {
+            "type": "page",
+            "title": "How PAR Technology Corporation Enhanced Its Developer Experience With a Modern, Open Standards Platform",
+            "filepath": "documentation/guides/customers/partech.md",
+            "showInSidebar": false,
+            "layout": {
+              "toc": false,
+              "sidebar": false,
+              "search": {
+                "enabled": false
+              }
+            }
+          },
           "/brand": {
             "title": "Brand",
             "description": "Scalar brand guidelines, logos, wordmark, icon, and color palette. Download official brand assets.",
