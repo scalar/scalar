@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import {
   getOAuthCallbackData,
   getOAuthCallbackParam,
-  getOAuthCallbackParams,
   getOAuthCallbackParamWithSource,
+  getOAuthCallbackParams,
 } from './oauth-callback'
 
 describe('oauth-callback', () => {

@@ -5,12 +5,7 @@ import { flushPromises } from '@vue/test-utils'
 import { encode } from 'js-base64'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import {
-  authorizeOauth2,
-  getActiveServerBase,
-  getServerUrl,
-  refreshOauth2Token,
-} from './oauth'
+import { authorizeOauth2, getActiveServerBase, getServerUrl, refreshOauth2Token } from './oauth'
 
 const baseFlow = {
   'refreshUrl': 'https://auth.example.com/refresh',

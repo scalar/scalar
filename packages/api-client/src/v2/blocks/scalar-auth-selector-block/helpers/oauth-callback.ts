@@ -94,10 +94,7 @@ export const getOAuthCallbackParamWithSource = (
  * Accessing the popup URL can throw while it is still on another origin, so
  * callers get null values until the popup returns to a readable callback URL.
  */
-export const getOAuthCallbackData = (
-  getCallbackUrl: () => string,
-  tokenName = 'access_token',
-): OAuthCallbackData => {
+export const getOAuthCallbackData = (getCallbackUrl: () => string, tokenName = 'access_token'): OAuthCallbackData => {
   try {
     const { searchParams, hashParams } = getOAuthCallbackParams(getCallbackUrl())
     const accessTokenResult = getOAuthCallbackParamWithSource(searchParams, hashParams, tokenName)
