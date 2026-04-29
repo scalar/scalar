@@ -1,7 +1,7 @@
 import { test } from '@test/helpers'
 
-test.describe('ScalarListbox', () =>
-  ['Base', 'Multiselect', 'Custom Classes'].forEach((story) =>
+test.describe('ScalarListbox', () => {
+  ;['Base', 'Multiselect', 'Custom Classes'].forEach((story) =>
     test(story, async ({ page, snapshot }) => {
       // Basic open state
       await page.getByRole('button', { expanded: false }).click()
@@ -19,4 +19,21 @@ test.describe('ScalarListbox', () =>
 
       await snapshot('2-selected')
     }),
-  ))
+  )
+
+  test('Scrolling', async ({ page, snapshot }) => {
+    // Open the dropdown
+    await page.getByRole('button', { expanded: false }).click()
+    await snapshot('1-open')
+
+    // Close the dropdown
+    await page.getByRole('button', { expanded: true }).click()
+
+    // Set viewport to a small height so that the dropdown is clipped
+    await page.setViewportSize({ width: 640, height: 320 })
+
+    // Open the dropdown
+    await page.getByRole('button', { expanded: false }).click()
+    await snapshot('2-resized')
+  })
+})
