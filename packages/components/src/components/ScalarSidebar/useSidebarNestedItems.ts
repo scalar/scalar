@@ -1,16 +1,16 @@
-import { type InjectionKey, type Ref, computed, inject, onBeforeUnmount, provide, ref } from 'vue'
+import { type ComputedRef, type InjectionKey, type Ref, computed, inject, onBeforeUnmount, provide, ref } from 'vue'
 
 /**
  * Tracks the open state of the nearest nested child items
  */
-const SIDEBAR_NESTED_ITEMS_SYMBOL = Symbol() as InjectionKey<Ref<Ref<boolean>[]>>
+const SIDEBAR_NESTED_ITEMS_SYMBOL = Symbol() as InjectionKey<Ref<ComputedRef<boolean>[]>>
 
 /**
  * Get the open / closed model for the nearest nested child items
  */
 export const useSidebarNestedItem = (
   /** The model defining the open state of the current nested items */
-  open: Ref<boolean>,
+  open: ComputedRef<boolean>,
 ): void => {
   const parentList = inject(SIDEBAR_NESTED_ITEMS_SYMBOL)
   if (parentList) {
@@ -18,7 +18,7 @@ export const useSidebarNestedItem = (
     parentList.value.push(open)
 
     onBeforeUnmount(() => {
-      // Remove this child from the parent list when the component is unmounted
+      // Remove the reference to this child from the parent list when the component is unmounted
       parentList.value = parentList.value.filter((child) => child !== open)
     })
   }
@@ -28,7 +28,7 @@ export const useSidebarNestedItem = (
  */
 export const useSidebarNestedItems = () => {
   // Create a new ref for any child nested items to update
-  const children = ref<Ref<boolean>[]>([])
+  const children = ref<ComputedRef<boolean>[]>([])
   const open = computed(() => children.value.some((child) => child.value))
   provide(SIDEBAR_NESTED_ITEMS_SYMBOL, children)
 
