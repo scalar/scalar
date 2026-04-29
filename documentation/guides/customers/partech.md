@@ -2,7 +2,7 @@
 
 ## Overview
 
-PAR Technology Corporation (“PAR”), [partech.com](https://partech.com/), a global provider of software and solutions for restaurant and retail brands, maintains a unified developer experience through its public-facing PAR Developer Portal, where developers and partners can access documentation and related technical resources for various PAR APIs.
+PAR Technology Corporation (“PAR”), [partech.com](https://partech.com/), a global provider of software and solutions for restaurant and retail brands, maintains a unified developer experience through its public-facing [PAR Developer Portal](https://developers.partech.com), where developers and partners can access documentation and related technical resources for various PAR APIs.
 
 In 2025, PAR set out to modernize the foundation of this portal to ensure long-term reliability, improve the developer journey, and align with open, future-proof API standards. As part of this initiative, the PAR Product Operations organization evaluated a range of modern documentation and API-forward platforms.
 
