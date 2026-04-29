@@ -239,11 +239,7 @@ const isValueOfType = (value: unknown, targetType: SchemaPrimitiveType): boolean
   }
 }
 
-const schemaAllowsValue = (
-  schema: SchemaObject,
-  value: unknown,
-  seen: Set<object> = new Set(),
-): boolean => {
+const schemaAllowsValue = (schema: SchemaObject, value: unknown, seen: Set<object> = new Set()): boolean => {
   const rawSchema = getSchemaCacheTarget(schema)
 
   if (seen.has(rawSchema)) {
