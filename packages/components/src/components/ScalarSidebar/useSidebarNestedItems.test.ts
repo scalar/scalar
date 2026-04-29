@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { type Ref, computed, inject, nextTick, ref } from 'vue'
+import { type ComputedRef, computed, inject, nextTick, ref } from 'vue'
 
 import { useSidebarNestedItem } from './useSidebarNestedItems'
 
@@ -18,43 +18,44 @@ describe('useSidebarNestedItems', () => {
     vi.clearAllMocks()
   })
 
-  it('should sync the open state of the nearest nested child items', async () => {
+  it('syncs the open state of the nearest nested child items', async () => {
     const childModel = ref(false)
-    const parentModel = ref<Ref<boolean>[]>([])
+    const childOpen = computed(() => childModel.value)
+    const parentModel = ref<ComputedRef<boolean>[]>([])
     const open = computed(() => parentModel.value.some((child) => child.value))
 
     vi.mocked(inject).mockReturnValue(parentModel)
 
-    // Shouldn't sync before the hook is used
+    // Should not sync before the hook is used
     childModel.value = true
     await nextTick()
-    expect(open.value).toEqual(false) // Not synced yet
+    expect(open.value).toEqual(false)
 
     childModel.value = false
     await nextTick()
-    expect(open.value).toEqual(false) // Not synced yet
+    expect(open.value).toEqual(false)
 
-    useSidebarNestedItem(childModel)
+    useSidebarNestedItem(childOpen)
 
     childModel.value = true
     await nextTick()
-    expect(open.value).toEqual(true) // Synced
+    expect(open.value).toEqual(true)
 
     childModel.value = false
     await nextTick()
-    expect(open.value).toEqual(false) // Synced
+    expect(open.value).toEqual(false)
   })
 
-  it('should sync multiple child models', async () => {
+  it('syncs multiple child models', async () => {
     const childModel1 = ref(false)
     const childModel2 = ref(false)
-    const parentModel = ref<Ref<boolean>[]>([])
+    const parentModel = ref<ComputedRef<boolean>[]>([])
     const open = computed(() => parentModel.value.some((child) => child.value))
 
     vi.mocked(inject).mockReturnValue(parentModel)
 
-    useSidebarNestedItem(childModel1)
-    useSidebarNestedItem(childModel2)
+    useSidebarNestedItem(computed(() => childModel1.value))
+    useSidebarNestedItem(computed(() => childModel2.value))
 
     childModel1.value = true
     await nextTick()
