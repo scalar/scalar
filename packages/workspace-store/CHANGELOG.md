@@ -1,5 +1,17 @@
 # @scalar/workspace-store
 
+## 0.49.0
+
+### Minor Changes
+
+- [#9045](https://github.com/scalar/scalar/pull/9045): feat: extra metadata for registry documents
+- [#9045](https://github.com/scalar/scalar/pull/9045): chore: migrate api-client from namespaces to teamSlug and convert team workspaces
+
+### Patch Changes
+
+- [#9043](https://github.com/scalar/scalar/pull/9043): chore: move test documents to cdn
+- [#9045](https://github.com/scalar/scalar/pull/9045): feat: added once back to the event bus
+
 ## 0.48.0
 
 ### Minor Changes

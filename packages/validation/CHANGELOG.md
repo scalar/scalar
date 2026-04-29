@@ -1,5 +1,11 @@
 # @scalar/validation
 
+## 0.3.2
+
+### Patch Changes
+
+- [#9045](https://github.com/scalar/scalar/pull/9045): chore(validation): include package publish files
+
 ## 0.3.1
 
 ### Patch Changes
