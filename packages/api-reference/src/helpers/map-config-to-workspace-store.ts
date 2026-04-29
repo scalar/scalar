@@ -3,7 +3,7 @@ import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
-import { type MaybeRefOrGetter, type Ref, computed, toValue, watch } from 'vue'
+import { type MaybeRefOrGetter, type Ref, toValue, watch } from 'vue'
 
 export const mapConfigToWorkspaceStore = ({
   config,
@@ -54,6 +54,14 @@ export const mapConfigToWorkspaceStore = ({
     { immediate: true },
   )
 
-  const favicon = computed(() => toValue(config).favicon)
-  useFavicon(favicon)
+  const faviconRef = useFavicon()
+  watch(
+    () => toValue(config).favicon,
+    (newFavicon) => {
+      if (newFavicon) {
+        faviconRef.value = newFavicon
+      }
+    },
+    { immediate: true },
+  )
 }
