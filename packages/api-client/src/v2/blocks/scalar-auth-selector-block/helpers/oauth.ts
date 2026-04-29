@@ -279,8 +279,9 @@ export const authorizeOauth2 = async (
       })
     }
     return [new Error('Failed to open auth window'), null]
-  } catch (_) {
-    return [new Error('Failed to authorize oauth2 flow'), null]
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to authorize oauth2 flow'
+    return [new Error(errorMessage), null]
   }
 }
 
@@ -399,9 +400,15 @@ const authorizeServers = async (
     const accessToken = responseData[tokenName]
     const refreshToken = responseData.refresh_token
 
+    if (!accessToken) {
+      return [new Error(responseData.error_description ?? responseData.error ?? 'Failed to get an access token'), null]
+    }
+
     return [null, { accessToken, ...(typeof refreshToken === 'string' ? { refreshToken } : {}) }]
-  } catch {
-    return [new Error('Failed to get an access token. Please check your credentials.'), null]
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to get an access token. Please check your credentials.'
+    return [new Error(errorMessage), null]
   }
 }
 
@@ -496,7 +503,9 @@ export const refreshOauth2Token = async (
         ...(typeof newRefreshToken === 'string' ? { refreshToken: newRefreshToken } : { refreshToken }),
       },
     ]
-  } catch {
-    return [new Error('Failed to refresh the access token. Please re-authorize.'), null]
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to refresh the access token. Please re-authorize.'
+    return [new Error(errorMessage), null]
   }
 }

@@ -691,7 +691,34 @@ describe('oauth', () => {
       const [error, result] = await authorizeOauth2(scheme, 'clientCredentials', selectedScopes, mockServer, '')
       expect(result).toBe(null)
       expect(error).toBeInstanceOf(Error)
-      expect(error!.message).toBe('Failed to get an access token. Please check your credentials.')
+      expect(error!.message).toBe('Network error')
+    })
+
+    it('surfaces OAuth error when server returns error response', async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            error: 'invalid_client',
+            error_description: 'Client authentication failed',
+          }),
+      })
+      const [error, result] = await authorizeOauth2(scheme, 'clientCredentials', selectedScopes, mockServer, '')
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('Client authentication failed')
+    })
+
+    it('surfaces OAuth error without description when only error code is provided', async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            error: 'invalid_grant',
+          }),
+      })
+      const [error, result] = await authorizeOauth2(scheme, 'clientCredentials', selectedScopes, mockServer, '')
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('invalid_grant')
     })
 
     it('should use custom token name when x-tokenName is specified', async () => {
