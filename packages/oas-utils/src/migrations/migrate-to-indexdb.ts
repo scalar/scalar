@@ -60,7 +60,6 @@ export const migrateLocalStorageToIndexDb = async () => {
     const shouldMigrate = await shouldMigrateToIndexDb(workspacePersistence)
 
     if (!shouldMigrate) {
-      console.info('ℹ️  No migration needed - IndexedDB already has workspaces or no legacy data exists')
       return
     }
 
