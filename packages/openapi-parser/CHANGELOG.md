@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.28.0
+
+### Minor Changes
+
+- [#9045](https://github.com/scalar/scalar/pull/9045): refactor: adopt strict versioned @scalar/openapi-types imports in parser types
+
 ## 0.27.0
 
 ### Minor Changes

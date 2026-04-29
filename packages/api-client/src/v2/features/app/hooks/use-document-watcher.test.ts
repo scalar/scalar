@@ -1,3 +1,5 @@
+import type { AddressInfo } from 'node:net'
+
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { type FastifyInstance, fastify } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -7,9 +9,7 @@ import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher
 
 describe('useDocumentWatcher', () => {
   let server: FastifyInstance
-
-  const port = 6287
-  const url = `http://localhost:${port}`
+  let url: string
 
   beforeEach(() => {
     vi.useFakeTimers()
@@ -39,7 +39,8 @@ describe('useDocumentWatcher', () => {
         info: { title: 'New updated API', version: '1.0.0' },
       }
     })
-    await server.listen({ port })
+    await server.listen({ port: 0 })
+    url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
     const store = createWorkspaceStore()
 
@@ -80,7 +81,8 @@ describe('useDocumentWatcher', () => {
         info: { title: 'Document B' + callsB, version: '1.0.0' },
       }
     })
-    await server.listen({ port })
+    await server.listen({ port: 0 })
+    url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
     const store = createWorkspaceStore()
 
@@ -131,7 +133,8 @@ describe('useDocumentWatcher', () => {
 
       return res.status(500).send('Internal Server Error')
     })
-    await server.listen({ port })
+    await server.listen({ port: 0 })
+    url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
     const store = createWorkspaceStore()
 

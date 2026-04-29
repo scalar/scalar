@@ -701,6 +701,9 @@ importers:
       '@scalar/galaxy':
         specifier: workspace:*
         version: link:../../packages/galaxy
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../../packages/helpers
       '@scalar/themes':
         specifier: workspace:*
         version: link:../../packages/themes
@@ -919,6 +922,9 @@ importers:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../../packages/api-reference
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../../packages/helpers
       fastify:
         specifier: ^4.0.0
         version: 4.28.0
@@ -1532,6 +1538,9 @@ importers:
         specifier: workspace:*
         version: link:../types
     devDependencies:
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../helpers
       '@types/react':
         specifier: catalog:*
         version: 19.2.7
@@ -2106,6 +2115,9 @@ importers:
         specifier: workspace:*
         version: link:../openapi-types
     devDependencies:
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../helpers
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
@@ -2564,6 +2576,9 @@ importers:
       '@hono/node-server':
         specifier: catalog:*
         version: 1.19.11(hono@4.12.9)
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../../packages/helpers
       '@scalar/hono-api-reference':
         specifier: workspace:*
         version: link:../../integrations/hono

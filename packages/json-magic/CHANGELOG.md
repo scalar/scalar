@@ -1,5 +1,12 @@
 # @scalar/json-magic
 
+## 0.12.10
+
+### Patch Changes
+
+- [#9041](https://github.com/scalar/scalar/pull/9041): Export `bundle/value-generator` entry point for use in tests
+- [#9043](https://github.com/scalar/scalar/pull/9043): chore: move test documents to cdn
+
 ## 0.12.9
 
 ## 0.12.8

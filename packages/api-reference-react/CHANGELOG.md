@@ -1,5 +1,11 @@
 # @scalar/api-reference-react
 
+## 0.9.31
+
+### Patch Changes
+
+- [#9043](https://github.com/scalar/scalar/pull/9043): chore: move test documents to cdn
+
 ## 0.9.30
 
 ## 0.9.29

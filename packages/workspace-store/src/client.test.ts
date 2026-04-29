@@ -378,7 +378,7 @@ describe('create-workspace-store', () => {
 
     // The operation should not be resolved on the fly
     expect(store.workspace.activeDocument?.paths?.['/users']?.get).toEqual({
-      '$ref': 'http://localhost:9988/default/operations/~1users/get#',
+      '$ref': `${url}/default/operations/~1users/get#`,
       $global: true,
     })
 
@@ -895,7 +895,7 @@ describe('create-workspace-store', () => {
                   'application/json': {
                     examples: {
                       someExample: {
-                        externalValue: 'http://localhost:9988',
+                        externalValue: url,
                         value: {
                           someKey: 'someValue',
                         },

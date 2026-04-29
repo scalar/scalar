@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/json-magic"
   },
-  "version": "0.12.9",
+  "version": "0.12.10",
   "engines": {
     "node": ">=22"
   },
@@ -25,6 +25,11 @@
       "import": "./dist/bundle/index.js",
       "types": "./dist/bundle/index.d.ts",
       "default": "./dist/bundle/index.js"
+    },
+    "./bundle/value-generator": {
+      "import": "./dist/bundle/value-generator.js",
+      "types": "./dist/bundle/value-generator.d.ts",
+      "default": "./dist/bundle/value-generator.js"
     },
     "./bundle/plugins/browser": {
       "import": "./dist/bundle/plugins/browser.js",

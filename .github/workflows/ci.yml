@@ -248,6 +248,11 @@ jobs:
       - name: Check built declaration alias imports
         if: matrix.shard-index == 1
         run: pnpm lint:check:dist-dts-aliases
+      - name: Setup Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
+        with:
+          go-version-file: projects/proxy-scalar-com/go.mod
+          cache: false
       - name: Start test servers
         run: pnpm script run test-servers & pnpm script wait -p 5051 5052
         timeout-minutes: 1

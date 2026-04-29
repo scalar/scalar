@@ -18,7 +18,7 @@
     "testing",
     "react"
   ],
-  "version": "0.9.30",
+  "version": "0.9.31",
   "engines": {
     "node": ">=22"
   },
@@ -48,6 +48,7 @@
     "@scalar/types": "workspace:*"
   },
   "devDependencies": {
+    "@scalar/helpers": "workspace:*",
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
     "@vitejs/plugin-react": "catalog:*",
