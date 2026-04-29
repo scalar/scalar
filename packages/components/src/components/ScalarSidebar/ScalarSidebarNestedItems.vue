@@ -19,7 +19,7 @@ export default {}
 </script>
 <script setup lang="ts">
 import { ScalarIconArrowRight, ScalarIconCaretLeft } from '@scalar/icons'
-import { computed, nextTick, ref, useTemplateRef } from 'vue'
+import { nextTick, ref, useTemplateRef } from 'vue'
 
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarItems from './ScalarSidebarItems.vue'
@@ -40,7 +40,7 @@ const emit = defineEmits<{
 }>()
 
 const open = defineModel<boolean>('open', { default: false })
-useSidebarNestedItem(computed(() => open.value))
+useSidebarNestedItem(() => open.value)
 
 defineSlots<{
   /** The text content of the button */
