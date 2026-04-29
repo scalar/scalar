@@ -72,7 +72,7 @@ catalogs:
     monaco-editor: 0.55.1
     monaco-yaml: 5.4.1
     nanoid: ^5.1.6
-    next: ^15.5.10
+    next: ^15.5.14
     neverpanic: 0.0.7
     picomatch: ^4.0.4
     postcss: ^8.4.38
@@ -126,3 +126,5 @@ minimumReleaseAgeExclude:
   - yaml@2.8.3
   # Renovate security update: picomatch@4.0.4
   - picomatch@4.0.4
+  # Renovate security update: next@15.5.14
+  - next@15.5.14
