@@ -2,6 +2,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createWorkspaceEventBus } from './bus'
 
+const flushDebouncedEmits = (bus: ReturnType<typeof createWorkspaceEventBus>) => {
+  if (!bus.flushDebouncedEmits) {
+    throw new Error('Expected flushDebouncedEmits to exist')
+  }
+
+  bus.flushDebouncedEmits()
+}
+
 describe('createWorkspaceEventBus', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -311,7 +319,7 @@ describe('createWorkspaceEventBus', () => {
 
     expect(handler).toHaveBeenCalledTimes(0)
 
-    bus.flushDebouncedEmits()
+    flushDebouncedEmits(bus)
 
     expect(handler).toHaveBeenCalledTimes(1)
     expect(handler).toHaveBeenCalledWith(true)
@@ -333,7 +341,7 @@ describe('createWorkspaceEventBus', () => {
     bus.emit('update:dark-mode', false, { debounceKey: 'first' })
     bus.emit('update:dark-mode', true, { debounceKey: 'second' })
 
-    bus.flushDebouncedEmits()
+    flushDebouncedEmits(bus)
 
     expect(handler).toHaveBeenCalledTimes(2)
     expect(handler).toHaveBeenNthCalledWith(1, false)
@@ -358,7 +366,7 @@ describe('createWorkspaceEventBus', () => {
 
     expect(handler).toHaveBeenCalledTimes(1)
 
-    bus.flushDebouncedEmits()
+    flushDebouncedEmits(bus)
 
     expect(handler).toHaveBeenCalledTimes(1)
 
