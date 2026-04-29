@@ -412,6 +412,53 @@ describe('buildRequest', () => {
     expect((requestInit.headers as Headers).get('X-Scalar-Date')).toBe(null)
   })
 
+  it('mirrors the User-Agent header to X-Scalar-User-Agent when options.isElectron is true', () => {
+    const headers = new Headers()
+    headers.set('User-Agent', 'ScalarTest/1.0')
+
+    const [, requestInit] = buildRequest(
+      createFactory({
+        options: { isElectron: true },
+        baseUrl: 'https://api.example.com',
+        path: { raw: '/', variables: {} },
+        headers,
+      }),
+      { envVariables: {} },
+    ).requestPayload
+
+    expect((requestInit.headers as Headers).get('X-Scalar-User-Agent')).toBe('ScalarTest/1.0')
+  })
+
+  it('does not set X-Scalar-User-Agent in Electron when User-Agent is absent', () => {
+    const [, requestInit] = buildRequest(
+      createFactory({
+        options: { isElectron: true },
+        baseUrl: 'https://api.example.com',
+        path: { raw: '/', variables: {} },
+      }),
+      { envVariables: {} },
+    ).requestPayload
+
+    expect((requestInit.headers as Headers).get('X-Scalar-User-Agent')).toBe(null)
+  })
+
+  it('does not set X-Scalar-User-Agent when not running in Electron', () => {
+    const headers = new Headers()
+    headers.set('User-Agent', 'ScalarTest/1.0')
+
+    const [, requestInit] = buildRequest(
+      createFactory({
+        baseUrl: 'https://api.example.com',
+        path: { raw: '/', variables: {} },
+        headers,
+      }),
+      { envVariables: {} },
+    ).requestPayload
+
+    expect((requestInit.headers as Headers).get('X-Scalar-User-Agent')).toBe(null)
+    expect((requestInit.headers as Headers).get('User-Agent')).toBe('ScalarTest/1.0')
+  })
+
   it('rewrites the request URL through the proxy when shouldUseProxy is true', () => {
     const { requestPayload, isUsingProxy } = buildRequest(
       createFactory({

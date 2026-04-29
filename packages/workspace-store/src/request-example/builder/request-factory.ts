@@ -1,5 +1,4 @@
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
-import { X_SCALAR_USER_AGENT } from '@scalar/helpers/http/scalar-headers'
 import { replacePathVariables } from '@scalar/helpers/regex/replace-variables'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -252,13 +251,6 @@ export const requestFactory = ({
   /** Combine the server url, path and url params into a single url */
   const serverVariables = getServerVariables(server)
   const baseUrl = replacePathVariables(server?.url ?? '', serverVariables)
-
-  // If we are running in Electron, we need to add a custom header
-  // that's then forwarded as a `User-Agent` header.
-  const userAgentHeader = headers.get('User-Agent')
-  if (isElectron && userAgentHeader) {
-    headers.set(X_SCALAR_USER_AGENT, userAgentHeader)
-  }
 
   const globalCookieFilter = operation['x-scalar-disable-parameters']?.['global-cookies']?.[exampleName] ?? {}
 

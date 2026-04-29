@@ -310,29 +310,14 @@ describe('requestFactory', () => {
     expect(request.body.value).toContain('b')
   })
 
-  it('sets X-Scalar-User-Agent from User-Agent when running in Electron', () => {
+  it('forwards isElectron through request.options', () => {
     const { request } = requestFactory(
       createBaseArgs({
         isElectron: true,
-        defaultHeaders: {
-          'User-Agent': 'ScalarTest/1.0',
-        },
       }),
     )
 
-    expect(request.headers.get('X-Scalar-User-Agent')).toBe('ScalarTest/1.0')
     expect(request.options?.isElectron).toBe(true)
-  })
-
-  it('does not set X-Scalar-User-Agent in Electron when User-Agent is absent', () => {
-    const { request } = requestFactory(
-      createBaseArgs({
-        isElectron: true,
-        defaultHeaders: {},
-      }),
-    )
-
-    expect(request.headers.get('X-Scalar-User-Agent')).toBe(null)
   })
 
   it('merges workspace cookies with cookies produced from operation parameters', () => {

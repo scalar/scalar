@@ -1,4 +1,4 @@
-import { X_SCALAR_DATE } from '@scalar/helpers/http/scalar-headers'
+import { X_SCALAR_DATE, X_SCALAR_USER_AGENT } from '@scalar/helpers/http/scalar-headers'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { redirectToProxy, shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { encode as encodeBase64 } from 'js-base64'
@@ -177,6 +177,18 @@ export const buildRequest = (
     if (dateHeader) {
       headers.set(X_SCALAR_DATE, dateHeader)
       headers.delete('date')
+    }
+  }
+
+  /**
+   * Browsers do not let us override the `User-Agent` header on outgoing requests.
+   * In Electron we mirror the value to `X-Scalar-User-Agent` so the main process can pick it up
+   * and apply it as the actual `User-Agent` header on the outgoing request.
+   */
+  if (request.options?.isElectron) {
+    const userAgentHeader = headers.get('user-agent')
+    if (userAgentHeader) {
+      headers.set(X_SCALAR_USER_AGENT, userAgentHeader)
     }
   }
 
