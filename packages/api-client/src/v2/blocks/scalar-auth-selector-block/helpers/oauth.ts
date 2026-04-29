@@ -8,6 +8,8 @@ import { getServerVariables } from '@scalar/workspace-store/request-example'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { encode, fromUint8Array } from 'js-base64'
 
+import { getOAuthCallbackData } from './oauth-callback'
+
 /** Oauth2 security schemes which are not implicit */
 type NonImplicitFlows = Omit<OAuthFlowsObjectSecret, 'implicit'>
 
@@ -16,6 +18,8 @@ type PKCEState = {
   codeChallenge: string
   codeChallengeMethod: string
 }
+
+type ActiveServerBase = { basePath: string } | { baseUrl: string } | Record<string, never>
 
 export type OAuth2Tokens = {
   accessToken: string
@@ -26,46 +30,29 @@ export type OAuth2Tokens = {
 type RefreshableFlows = Exclude<keyof OAuthFlowsObjectSecret, 'implicit'>
 
 /**
- * Splits an OAuth redirect URL into query and hash parameters.
- *
- * OAuth providers are inconsistent about where they return callback data:
- * authorization-code flows usually use the query string, while implicit flows
- * commonly use the URL fragment. Keeping both sets separate lets callers decide
- * which source should win when a provider sends duplicate keys.
+ * Resolves the active server URL using OpenAPI server variables first, then
+ * Scalar environment variables.
  */
-export const getOAuthCallbackParams = (
-  callbackUrl: string,
-): { searchParams: URLSearchParams; hashParams: URLSearchParams } => {
-  const parsedUrl = new URL(callbackUrl)
-
-  return {
-    searchParams: parsedUrl.searchParams,
-    hashParams: new URLSearchParams(parsedUrl.hash.slice(1)),
-  }
-}
-
-/**
- * Reads a callback parameter from the query string first, then the hash fragment.
- *
- * Query-string values intentionally take precedence because they are the
- * standard location for authorization-code callbacks. The hash lookup keeps
- * implicit-flow callbacks and non-standard providers working.
- */
-export const getOAuthCallbackParam = (callbackUrl: string, paramName: string): string | null => {
-  const { searchParams, hashParams } = getOAuthCallbackParams(callbackUrl)
-  return searchParams.get(paramName) ?? hashParams.get(paramName)
-}
-
-const getServerUrl = (activeServer: ServerObject | null, environmentVariables: Record<string, string> = {}) => {
-  return replaceEnvVariables(
+export const getServerUrl = (
+  activeServer: ServerObject | null,
+  environmentVariables: Record<string, string> = {},
+): string =>
+  replaceEnvVariables(
     replacePathVariables(activeServer?.url ?? '', getServerVariables(activeServer)),
     environmentVariables,
   )
-}
 
-const getActiveServerBase = (activeServer: ServerObject | null, environmentVariables: Record<string, string> = {}) => {
+/**
+ * Builds the base option used when OAuth URLs are relative to the active server.
+ *
+ * Relative server URLs become browser-only base paths because they need the
+ * current window location to resolve correctly.
+ */
+export const getActiveServerBase = (
+  activeServer: ServerObject | null,
+  environmentVariables: Record<string, string> = {},
+): ActiveServerBase => {
   const serverUrl = getServerUrl(activeServer, environmentVariables)
-
   if (!serverUrl) {
     return {}
   }
@@ -230,26 +217,8 @@ export const authorizeOauth2 = async (
       // We need to return a promise here due to the setInterval
       return new Promise<ErrorResponse<OAuth2Tokens>>((resolve) => {
         const checkWindowClosed = setInterval(() => {
-          let accessToken: string | null = null
-          let refreshToken: string | null = null
-          let code: string | null = null
-          let error: string | null = null
-          let errorDescription: string | null = null
-          let callbackUrl: string | null = null
-
-          try {
-            callbackUrl = authWindow.location.href
-            const { searchParams, hashParams } = getOAuthCallbackParams(callbackUrl)
-            const tokenName = flow['x-tokenName'] || 'access_token'
-
-            accessToken = searchParams.get(tokenName) ?? hashParams.get(tokenName)
-            refreshToken = searchParams.get('refresh_token') ?? hashParams.get('refresh_token')
-            code = searchParams.get('code') ?? hashParams.get('code')
-            error = searchParams.get('error') ?? hashParams.get('error')
-            errorDescription = searchParams.get('error_description') ?? hashParams.get('error_description')
-          } catch (_e) {
-            // Ignore CORS error from popup
-          }
+          const { accessToken, accessTokenParams, code, codeParams, error, errorDescription, refreshToken } =
+            getOAuthCallbackData(() => authWindow.location.href, flow['x-tokenName'] || 'access_token')
 
           // The window has closed OR we have what we are looking for so we stop polling
           if (authWindow.closed || accessToken || code || error) {
@@ -263,7 +232,7 @@ export const authorizeOauth2 = async (
 
             // Implicit Flow
             if (accessToken) {
-              const _state = callbackUrl ? getOAuthCallbackParam(callbackUrl, 'state') : null
+              const _state = accessTokenParams?.get('state') ?? null
 
               if (_state === state) {
                 resolve([null, { accessToken, ...(refreshToken ? { refreshToken } : {}) }])
@@ -275,7 +244,7 @@ export const authorizeOauth2 = async (
 
             // Authorization Code Server Flow
             if (code && type === 'authorizationCode') {
-              const _state = callbackUrl ? getOAuthCallbackParam(callbackUrl, 'state') : null
+              const _state = codeParams?.get('state') ?? null
 
               if (_state === state) {
                 void authorizeServers(

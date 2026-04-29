@@ -5,7 +5,12 @@ import { flushPromises } from '@vue/test-utils'
 import { encode } from 'js-base64'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { authorizeOauth2, getOAuthCallbackParam, getOAuthCallbackParams, refreshOauth2Token } from './oauth'
+import {
+  authorizeOauth2,
+  getActiveServerBase,
+  getServerUrl,
+  refreshOauth2Token,
+} from './oauth'
 
 const baseFlow = {
   'refreshUrl': 'https://auth.example.com/refresh',
@@ -59,57 +64,51 @@ describe('oauth', () => {
     url: 'https://api.example.com',
   } as ServerObject
 
-  describe('OAuth callback parsing', () => {
-    it('splits query and hash callback parameters', () => {
-      const { searchParams, hashParams } = getOAuthCallbackParams(
-        'https://callback.example.com/cb?code=query_code&state=query_state#access_token=hash_token&refresh_token=hash_refresh',
-      )
+  describe('Server URL helpers', () => {
+    it('resolves server URLs with OpenAPI server variables and environment variables', () => {
+      const server: ServerObject = {
+        url: '{protocol}://{{hostname}}/{basePath}',
+        variables: {
+          protocol: { default: 'https' },
+          basePath: { default: 'v1' },
+        },
+      }
 
-      expect(searchParams.toString()).toBe('code=query_code&state=query_state')
-      expect(hashParams.toString()).toBe('access_token=hash_token&refresh_token=hash_refresh')
+      const result = getServerUrl(server, { hostname: 'api.example.com' })
+
+      expect(result).toBe('https://api.example.com/v1')
     })
 
-    it('decodes encoded query and hash values', () => {
-      const { searchParams, hashParams } = getOAuthCallbackParams(
-        'https://callback.example.com/cb?state=a%20b%2Bc#access_token=token%2Bwith%2Bplus',
-      )
-
-      expect(searchParams.get('state')).toBe('a b+c')
-      expect(hashParams.get('access_token')).toBe('token+with+plus')
-    })
-
-    it('prefers query values when query and hash contain the same parameter', () => {
-      const result = getOAuthCallbackParam(
-        'https://callback.example.com/cb?state=query_state#state=hash_state&access_token=hash_token',
-        'state',
-      )
-
-      expect(result).toBe('query_state')
-    })
-
-    it('falls back to hash values when a query parameter is absent', () => {
-      const result = getOAuthCallbackParam('https://callback.example.com/cb?code=query_code#state=hash_state', 'state')
-
-      expect(result).toBe('hash_state')
-    })
-
-    it('preserves empty callback values', () => {
-      const result = getOAuthCallbackParam('https://callback.example.com/cb?state=#access_token=hash_token', 'state')
+    it('returns an empty server URL when no active server is selected', () => {
+      const result = getServerUrl(null)
 
       expect(result).toBe('')
     })
 
-    it('returns null when the parameter is absent from query and hash', () => {
-      const result = getOAuthCallbackParam(
-        'https://callback.example.com/cb?code=query_code#access_token=hash_token',
-        'state',
-      )
+    it('returns a baseUrl for absolute active server URLs', () => {
+      const server: ServerObject = {
+        url: 'https://api.example.com',
+      }
 
-      expect(result).toBe(null)
+      const result = getActiveServerBase(server)
+
+      expect(result).toEqual({ baseUrl: 'https://api.example.com' })
     })
 
-    it('throws for invalid callback URLs', () => {
-      expect(() => getOAuthCallbackParams('not a valid callback url')).toThrow(TypeError)
+    it('returns a browser basePath for relative active server URLs', () => {
+      const server: ServerObject = {
+        url: '/api/{{version}}',
+      }
+
+      const result = getActiveServerBase(server, { version: 'v2' })
+
+      expect(result).toEqual({ basePath: '/api/v2' })
+    })
+
+    it('returns an empty base when no active server URL is available', () => {
+      const result = getActiveServerBase(null)
+
+      expect(result).toEqual({})
     })
   })
 
@@ -514,6 +513,18 @@ describe('oauth', () => {
       expect(callArgs).toBeDefined()
       const body = callArgs![1]?.body as URLSearchParams
       expect(body.get('code')).toBe('auth_code_from_hash')
+    })
+
+    it('rejects authorization code callbacks when code and state come from different URL components', async () => {
+      const promise = authorizeOauth2(scheme, 'authorizationCode', selectedScopes, mockServer, '')
+
+      mockWindow.location.href = `${scheme.authorizationCode['x-scalar-secret-redirect-uri']}?state=${state}#code=auth_code_from_hash&state=bad_state`
+      vi.advanceTimersByTime(200)
+
+      const [error, result] = await promise
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('State mismatch')
     })
 
     it('handles malformed popup callback URLs as closed authorization windows', async () => {
@@ -1231,7 +1242,7 @@ describe('oauth', () => {
       expect(result).toEqual({ accessToken: 'query_token_123' })
     })
 
-    it('uses query state before hash state for implicit callbacks', async () => {
+    it('rejects implicit callbacks when token and state come from different URL components', async () => {
       const promise = authorizeOauth2(scheme, 'implicit', selectedScopes, mockServer, '')
 
       mockWindow.location.href = `${scheme.implicit['x-scalar-secret-redirect-uri']}?state=${state}#access_token=implicit_token_123&state=bad_state`
@@ -1240,8 +1251,9 @@ describe('oauth', () => {
       vi.runAllTicks()
 
       const [error, result] = await promise
-      expect(error).toBe(null)
-      expect(result).toEqual({ accessToken: 'implicit_token_123' })
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('State mismatch')
     })
 
     it('rejects implicit callbacks that return a token without state', async () => {
