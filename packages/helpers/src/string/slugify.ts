@@ -5,14 +5,6 @@ const RE_TRIM_HYPHENS = /^-+|-+$/g
 /** Cache of compiled non-word regexes keyed by their `allowedSpecialChars` string. */
 const reNonWordCache = new Map<string, RegExp>()
 
-/**
- * Options for {@link slugify}.
- *
- * | Option               | Type       | Default | Description                                                                                  |
- * |----------------------|------------|---------|----------------------------------------------------------------------------------------------|
- * | `preserveCase`       | `boolean`  | `false` | When `true`, skips lowercasing so the original casing is kept (e.g. `"MyAPI"` → `"MyAPI"`). |
- * | `allowedSpecialChars`| `string`   | `""`    | Extra characters that should survive the non-word filter (e.g. `"."` keeps dots so `"v1.2"` → `"v1.2"` instead of `"v12"`). |
- */
 export type SlugifyOptions = {
   /** When `true`, skips lowercasing so the original casing is preserved. */
   preserveCase?: boolean
@@ -34,7 +26,10 @@ export type SlugifyOptions = {
  *
  * Pass {@link SlugifyOptions} to adjust this behaviour.
  *
- * Copied over from @scalar-org
+ * | Option               | Type       | Default | Description                                                                                  |
+ * |----------------------|------------|---------|----------------------------------------------------------------------------------------------|
+ * | `preserveCase`       | `boolean`  | `false` | When `true`, skips lowercasing so the original casing is kept (e.g. `"MyAPI"` → `"MyAPI"`). |
+ * | `allowedSpecialChars`| `string`   | `""`    | Extra characters that should survive the non-word filter (e.g. `"."` keeps dots so `"v1.2"` → `"v1.2"` instead of `"v12"`). |
  */
 export const slugify = (v: string, options: SlugifyOptions = {}) => {
   const { preserveCase = false, allowedSpecialChars = '' } = options
