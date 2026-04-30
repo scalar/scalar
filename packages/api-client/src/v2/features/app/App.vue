@@ -35,13 +35,12 @@ import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useActiveDocumentVersion } from '@/v2/features/app/hooks/use-active-document-version'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
-import type { RegistryDocumentsState } from '@/v2/features/app/hooks/use-sidebar-documents'
 import type { CommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
 import { useMonacoEditorConfiguration } from '@/v2/features/editor'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
-import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
+import type { RegistryAdapter, RegistryDocumentsState } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import type { AppState } from './app-state'
@@ -52,21 +51,31 @@ const {
   plugins = [],
   getAppState,
   getCommandPaletteState,
-  fetchRegistryDocument,
-  registryDocuments = { status: 'success', documents: [] },
+  registry,
 } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
   plugins?: ClientPlugin[]
   getAppState: () => AppState
   getCommandPaletteState: () => CommandPaletteState
-  /** Fetches the full document from registry by meta. Passed through to route props for sync. */
-  fetchRegistryDocument?: ImportDocumentFromRegistry
   /**
-   * The list of all available registry documents, with a loading status so the
-   * sidebar can render skeleton placeholders until the real list is ready.
+   * Adapter wiring the API client up to an external registry (Scalar
+   * Cloud or a custom self-hosted setup). The adapter itself is optional
+   * - omit it to opt out of registry features entirely - but every
+   * field on it (`documents`, `fetchDocument`, `publishDocument`) is
+   * required when provided so the client can rely on the full surface.
    */
-  registryDocuments?: RegistryDocumentsState
+  registry?: RegistryAdapter
 }>()
+
+/**
+ * Reactive view of the registry documents list with a sane default for
+ * setups that did not wire an adapter up. The sidebar and breadcrumb
+ * read this getter so they keep rendering skeletons / empty states even
+ * when the host application has not provided a `registry` prop.
+ */
+const registryDocuments = computed<RegistryDocumentsState>(
+  () => registry?.documents ?? { status: 'success', documents: [] },
+)
 
 defineSlots<{
   /**
@@ -190,7 +199,7 @@ const createWorkspaceModalState = useModal()
  */
 const { activeRegistryMeta, activeVersion } = useActiveDocumentVersion({
   app,
-  registryDocuments: () => registryDocuments,
+  registryDocuments: () => registryDocuments.value,
 })
 
 /** Whether the route currently resolves to a document. */
@@ -308,11 +317,15 @@ const handleHeaderPushDocument = (): void => {
 
 /**
  * Placeholder for the "publish to registry" flow used when a team
- * workspace document has no registry entry yet. See
- * `handleHeaderPullDocument`.
+ * workspace document has no registry entry yet. The actual UI - asking
+ * the user for a namespace and slug, surfacing `CONFLICT` /
+ * `FETCH_FAILED` / `UNAUTHORIZED` outcomes, etc - lands in a follow-up.
+ * Once the user has confirmed the coordinates the handler is expected to
+ * call `registry.publishDocument({ namespace, slug })` and react to the
+ * returned `Result`.
  */
 const handleHeaderPublishDocument = (): void => {
-  // TODO: hook up to the publish-to-registry flow.
+  // TODO: surface the publish modal, then call `registry?.publishDocument`.
 }
 
 /** Props to pass to the RouterView component. */
@@ -323,7 +336,7 @@ const routerViewProps = computed<RouteProps>(() => {
     environment: app.environment.value,
     eventBus: app.eventBus,
     exampleName: app.activeEntities.exampleName.value,
-    fetchRegistryDocument,
+    fetchRegistryDocument: registry?.fetchDocument,
     layout,
     method: app.activeEntities.method.value,
     path: app.activeEntities.path.value,
@@ -397,7 +410,7 @@ const routerViewProps = computed<RouteProps>(() => {
           <template #breadcrumb>
             <DocumentBreadcrumb
               :app="app"
-              :fetchRegistryDocument="fetchRegistryDocument"
+              :fetchRegistryDocument="registry?.fetchDocument"
               :registryDocuments="registryDocuments"
               @createWorkspace="createWorkspaceModalState.show()" />
           </template>
@@ -552,7 +565,7 @@ const routerViewProps = computed<RouteProps>(() => {
           <!-- App sidebar -->
           <AppSidebar
             :app="app"
-            :fetchRegistryDocument="fetchRegistryDocument"
+            :fetchRegistryDocument="registry?.fetchDocument"
             :registryDocuments="registryDocuments"
             :sidebarWidth="app.sidebar.width.value"
             @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate" />

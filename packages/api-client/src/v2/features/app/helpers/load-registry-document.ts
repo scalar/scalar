@@ -48,9 +48,13 @@ export const loadRegistryDocument = async ({
 
   const result = await fetcher({ namespace, slug, version })
   if (!result.ok) {
+    // The registry adapter returns a discriminated `FetchRegistryDocumentError`
+    // code; we surface the human-readable `message` when one was provided
+    // and fall back to the code itself so the user always sees something
+    // actionable in the toast / log line.
     return {
       ok: false,
-      error: `Failed to fetch document: ${result.error || 'Unknown error'}`,
+      error: `Failed to fetch document: ${result.message ?? result.error}`,
     }
   }
 

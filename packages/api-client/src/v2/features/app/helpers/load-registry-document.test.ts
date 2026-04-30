@@ -201,7 +201,8 @@ describe('loadRegistryDocument', () => {
 
     const fetcher: ImportDocumentFromRegistry = vi.fn().mockResolvedValue({
       ok: false,
-      error: 'boom',
+      error: 'FETCH_FAILED',
+      message: 'boom',
     })
 
     const result = await loadRegistryDocument({
@@ -215,6 +216,29 @@ describe('loadRegistryDocument', () => {
     expect(result.ok).toBe(false)
     if (!result.ok) {
       expect(result.error).toContain('boom')
+    }
+    expect(addDocument).not.toHaveBeenCalled()
+  })
+
+  it('falls back to the discriminated error code when no message is provided', async () => {
+    const { store, addDocument } = createWorkspaceStore()
+
+    const fetcher: ImportDocumentFromRegistry = vi.fn().mockResolvedValue({
+      ok: false,
+      error: 'NOT_FOUND',
+    })
+
+    const result = await loadRegistryDocument({
+      workspaceStore: store,
+      fetcher,
+      namespace: 'acme',
+      slug: 'pets',
+      version: '1.0.0',
+    })
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.error).toContain('NOT_FOUND')
     }
     expect(addDocument).not.toHaveBeenCalled()
   })

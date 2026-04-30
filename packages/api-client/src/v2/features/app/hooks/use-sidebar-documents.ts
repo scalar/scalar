@@ -3,8 +3,16 @@ import type { TraversedDocument } from '@scalar/workspace-store/schemas/navigati
 import { type MaybeRefOrGetter, computed, toValue } from 'vue'
 
 import { type VersionStatus, computeVersionStatus } from '@/v2/features/app/helpers/compute-version-status'
+import type { RegistryDocument } from '@/v2/types/configuration'
 
 export type { VersionStatus }
+
+/**
+ * The canonical registry types now live in `@/v2/types/configuration`
+ * so consumers can wire up the registry adapter without depending on a
+ * sidebar internal. Re-exported here to preserve existing imports.
+ */
+export type { RegistryDocument, RegistryDocumentVersion, RegistryDocumentsState } from '@/v2/types/configuration'
 
 /**
  * A single version of a registry-backed document.
@@ -114,30 +122,6 @@ type WorkspaceDocumentEntry = {
     hasConflict?: boolean
   }
 }
-
-type RegistryDocumentVersion = {
-  version: string
-  commitHash?: string
-}
-
-export type RegistryDocument = {
-  namespace: string
-  slug: string
-  title: string
-  versions: RegistryDocumentVersion[]
-}
-
-/**
- * Loading-aware wrapper for the registry documents prop.
- *
- * The sidebar uses the `status` to decide whether to render skeleton
- * placeholders while the registry is being fetched. `documents` is optional
- * during loading so callers can either render nothing or stream in cached
- * results while a refresh is still in flight.
- */
-export type RegistryDocumentsState =
-  | { status: 'loading'; documents?: RegistryDocument[] }
-  | { status: 'success'; documents: RegistryDocument[] }
 
 const registryKey = (namespace: string, slug: string) => `@${namespace}/${slug}`
 

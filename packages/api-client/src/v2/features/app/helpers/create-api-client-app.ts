@@ -6,7 +6,7 @@ import { createRouter as createVueRouter, createWebHashHistory, createWebHistory
 import App from '@/v2/features/app/App.vue'
 import { createAppState } from '@/v2/features/app/app-state'
 import { ROUTES } from '@/v2/features/app/helpers/routes'
-import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
+import type { RegistryAdapter } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
 import type { ApiClientOptions } from '@/v2/types/options'
 
@@ -34,10 +34,13 @@ type CreateApiClientOptions = {
    */
   fallbackThemeSlug?: () => string
   /**
-   * Fetches the full document from registry by meta. When set, registry meta takes priority
-   * over x-scalar-original-source-url when syncing. Returns the document as a plain object.
+   * Adapter wiring the API client up to an external registry. The
+   * adapter bundles the registry document list, the per-document fetch
+   * callback (used for syncing) and the publish callback used to create
+   * a brand-new registry version. Optional at the top level - omit to
+   * opt out of registry features entirely.
    */
-  fetchRegistryDocument?: ImportDocumentFromRegistry
+  registry?: RegistryAdapter
   /**
    * Whether or not to send telemetry events.
    */
@@ -75,7 +78,7 @@ export const createApiClientApp = async (
     plugins,
     customThemes,
     fallbackThemeSlug,
-    fetchRegistryDocument,
+    registry,
     telemetry = true,
     options,
   }: CreateApiClientOptions,
@@ -97,7 +100,7 @@ export const createApiClientApp = async (
     plugins,
     getAppState: () => state,
     getCommandPaletteState: () => commandPaletteState,
-    fetchRegistryDocument,
+    registry,
   })
   app.use(router)
 
