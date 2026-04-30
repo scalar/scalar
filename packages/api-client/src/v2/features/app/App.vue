@@ -9,44 +9,29 @@ export default {}
 
 <script setup lang="ts">
 import {
-  ScalarButton,
   ScalarModal,
   ScalarTeleportRoot,
   useModal,
   type ModalState,
 } from '@scalar/components'
-import {
-  ScalarIconArrowCounterClockwise,
-  ScalarIconCloudArrowDown,
-  ScalarIconCloudArrowUp,
-  ScalarIconCloudSlash,
-  ScalarIconFloppyDisk,
-} from '@scalar/icons'
-import { apply, type merge } from '@scalar/json-magic/diff'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import { ScalarToasts, useToasts } from '@scalar/use-toasts'
-import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
+import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
-import { computed, onBeforeUnmount, ref, toValue, watch } from 'vue'
+import { computed, onBeforeUnmount, toValue, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { SidebarToggle } from '@/v2/components/sidebar'
 import AppHeader from '@/v2/features/app/components/AppHeader.vue'
+import AppHeaderActions from '@/v2/features/app/components/AppHeaderActions.vue'
 import AppSidebar from '@/v2/features/app/components/AppSidebar.vue'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import DocumentBreadcrumb from '@/v2/features/app/components/DocumentBreadcrumb.vue'
 import PublishDocumentModal from '@/v2/features/app/components/PublishDocumentModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import SyncConflictResolutionEditor from '@/v2/features/app/components/SyncConflictResolutionEditor.vue'
-import {
-  messageForFetchError,
-  messageForPublishDocumentError,
-  messageForPublishVersionError,
-} from '@/v2/features/app/helpers/registry-error-messages'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
-import { useActiveDocumentVersion } from '@/v2/features/app/hooks/use-active-document-version'
+import { useDocumentSync } from '@/v2/features/app/hooks/use-document-sync'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
-import { useNetworkStatus } from '@/v2/features/app/hooks/use-network-status'
 import type { CommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
 import { useMonacoEditorConfiguration } from '@/v2/features/editor'
@@ -55,7 +40,6 @@ import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import type {
   RegistryAdapter,
   RegistryDocumentsState,
-  RegistryNamespacesState,
 } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -142,7 +126,6 @@ defineExpose({
 
 const app = getAppState()
 const paletteState = getCommandPaletteState()
-const { toast } = useToasts()
 
 /** Expose workspace store to window for debugging purposes. */
 if (typeof window !== 'undefined') {
@@ -207,594 +190,40 @@ useMonacoEditorConfiguration({
 })
 
 const createWorkspaceModalState = useModal()
-const publishDocumentModalState = useModal()
-const syncConflictModalState = useModal()
 
 /**
- * Default namespaces state surfaced when the host application has not
- * wired a registry adapter up yet. Keeping this as a constant (rather
- * than recomputing every render) lets the publish modal mount with a
- * stable reference and avoids triggering its `watch` for nothing.
+ * Owns the document-level Save / Revert / Pull / Push / Publish flow.
+ * Keeping it in a dedicated hook leaves this component focused on
+ * routing, layout, and slot composition.
  */
-const EMPTY_NAMESPACES_STATE: RegistryNamespacesState = {
-  status: 'success',
-  namespaces: [],
-}
-
-/**
- * Resolves the registry meta and sync status for the active document.
- * The breadcrumb already drives this composable for its version picker;
- * we reuse it here so the header action cluster reads from exactly the
- * same `pull` / `push` / `synced` source of truth that the picker rows
- * and the inline status icons do.
- */
-const { activeRegistryMeta, activeVersion } = useActiveDocumentVersion({
+const {
+  showLocalSaveActions,
+  showTeamSyncActions,
+  showTeamPublishAction,
+  hasHeaderActionCluster,
+  isActiveDocumentDirty,
+  isOffline,
+  canPullActiveDocument,
+  canPushActiveDocument,
+  publishDocumentModalState,
+  syncConflictModalState,
+  pendingPullState,
+  publishDefaultSlug,
+  publishDefaultVersion,
+  registryNamespaces,
+  handleSaveDocument,
+  handleRevertDocument,
+  handlePullDocument,
+  handlePushDocument,
+  handlePublishDocument,
+  handlePublishDocumentSubmit,
+  handleSyncConflictApplyChanges,
+  handleSyncConflictModalClose,
+} = useDocumentSync({
   app,
+  registry,
   registryDocuments: () => registryDocuments.value,
 })
-
-/** Whether the route currently resolves to a document. */
-const hasActiveDocument = computed(() =>
-  Boolean(app.activeEntities.documentSlug.value),
-)
-
-/** Whether the active document has unsaved local edits. */
-const isActiveDocumentDirty = computed(
-  () =>
-    app.store.value?.workspace.activeDocument?.['x-scalar-is-dirty'] === true,
-)
-
-/**
- * Save / Revert cluster for local workspaces. Mirrors the save-prompt UX
- * of the document collection page: Save is always mounted while a doc is
- * active and gets disabled when there is nothing to persist; Revert only
- * shows up while the document is dirty.
- */
-const showLocalSaveActions = computed(
-  () => !app.workspace.isTeamWorkspace.value && hasActiveDocument.value,
-)
-
-/**
- * Pull / Push cluster for team workspace documents that already have a
- * registry relationship. The same `Revert` button as local workspaces
- * sits in front of it so a dirty document can be discarded without going
- * through the registry round-trip.
- */
-const showTeamSyncActions = computed(
-  () =>
-    app.workspace.isTeamWorkspace.value &&
-    hasActiveDocument.value &&
-    Boolean(activeRegistryMeta.value),
-)
-
-/**
- * Publish cluster for team workspace documents that do not yet have a
- * registry entry. We surface it as a single "Publish" affordance instead
- * of the Pull / Push pair because there is no upstream version to sync
- * against - the action is simply "create the registry version".
- */
-const showTeamPublishAction = computed(
-  () =>
-    app.workspace.isTeamWorkspace.value &&
-    hasActiveDocument.value &&
-    !activeRegistryMeta.value,
-)
-
-/**
- * Reactive online / offline status for the browser. Registry-bound
- * actions (Pull, Push, Publish) all need a live network connection, so
- * we surface a single source of truth here and let the per-action
- * `canX` computeds AND the icon swaps below consume it.
- */
-const { isOnline, isOffline } = useNetworkStatus()
-
-/**
- * Pull is enabled while the registry advertises a different commit hash
- * than the local one, regardless of whether the local document is dirty.
- * `conflict` is treated the same as `pull` here so the user can always
- * reach the conflict-resolution flow from the header. We additionally
- * gate on `isOnline` so the button stops responding the moment the
- * browser reports an offline transition - any click we accepted would
- * fail the `fetchDocument` adapter call anyway.
- */
-const canPullActiveDocument = computed(() => {
-  if (!isOnline.value) {
-    return false
-  }
-  const status = activeVersion.value?.status
-  return status === 'pull' || status === 'conflict'
-})
-
-/**
- * Push is only enabled when the document is dirty *and* there are no
- * upstream changes - mirroring `computeVersionStatus`'s `'push'` outcome,
- * which already encodes that combination. Pushing while upstream has
- * moved on would clobber the registry version, so we lock the button
- * until the user has pulled / resolved. We also gate on `isOnline` so a
- * disconnected client cannot trigger a publish attempt that we know
- * will fail.
- */
-const canPushActiveDocument = computed(
-  () => isOnline.value && activeVersion.value?.status === 'push',
-)
-
-/**
- * Truthy when *any* trailing action cluster is renderable. Used to gate
- * the leading edge of the header end slot (and the divider against the
- * consumer-provided `header-end` cluster) without re-deriving the same
- * conditions in the template.
- */
-const hasHeaderActionCluster = computed(
-  () =>
-    showLocalSaveActions.value ||
-    showTeamSyncActions.value ||
-    showTeamPublishAction.value,
-)
-
-const handleHeaderSaveDocument = async () => {
-  const slug = app.activeEntities.documentSlug.value
-  if (!slug || !app.store.value) {
-    return
-  }
-  await app.store.value.saveDocument(slug)
-}
-
-const handleHeaderRevertDocument = async () => {
-  const slug = app.activeEntities.documentSlug.value
-  if (!slug || !app.store.value) {
-    return
-  }
-  await app.store.value.revertDocumentChanges(slug)
-}
-
-/**
- * Registry meta as it was when a pull began. Captures the same shape
- * `activeRegistryMeta` returns so we can hand it to the post-pull
- * commit-hash stamp without re-deriving (and possibly missing) it once
- * the rebase has finished mutating the active document.
- */
-type PendingPullRegistryMeta = NonNullable<typeof activeRegistryMeta.value>
-
-/**
- * In-flight pull state captured while the three-way merge editor is on
- * screen. We need to hold onto the rebase result (so the user-resolved
- * document can still be applied), the registry meta and slug we were
- * pulling against, and the upstream commit hash advertised by the
- * listing - none of those are reachable from inside the conflict
- * modal once the surrounding closure has unwound.
- *
- * `null` while no pull is awaiting user input. The modal-close handler
- * resets it so a dismissed pull cleanly aborts without applying any
- * changes (the workspace store only mutates when `applyChanges` is
- * actually invoked).
- */
-const pendingPullState = ref<{
-  rebaseResult: {
-    originalDocument: Record<string, unknown>
-    resolvedDocument: Record<string, unknown>
-    conflicts: ReturnType<typeof merge>['conflicts']
-    applyChanges: (input: {
-      resolvedDocument: Record<string, unknown>
-    }) => Promise<void>
-  }
-  meta: PendingPullRegistryMeta
-  slug: string
-  incomingCommitHash: string | undefined
-} | null>(null)
-
-/**
- * Stamp the registry's advertised commit hash onto the active document
- * after a successful pull. Extracted out of `handleHeaderPullDocument`
- * because the post-rebase work happens in two different places now:
- * inline when the rebase auto-merges cleanly, and from the conflict
- * modal's `applyChanges` callback once the user has resolved everything
- * by hand.
- *
- * We only update when the listing actually advertised a hash and the
- * meta still has a concrete `version` to write into; otherwise we leave
- * the previous value alone so a missing hash does not erase one we
- * already had. `saveDocument` then propagates the new hash into
- * `originalDocuments` so the post-pull baseline records the same
- * commit hash.
- */
-const stampPostPullCommitHash = async (params: {
-  meta: PendingPullRegistryMeta
-  slug: string
-  incomingCommitHash: string | undefined
-}): Promise<void> => {
-  const { meta, slug, incomingCommitHash } = params
-  const store = app.store.value
-  if (!store) {
-    return
-  }
-  if (
-    !incomingCommitHash ||
-    incomingCommitHash === meta.commitHash ||
-    !meta.version
-  ) {
-    return
-  }
-  store.updateDocument(slug, 'x-scalar-registry-meta', {
-    ...meta,
-    version: meta.version,
-    commitHash: incomingCommitHash,
-  })
-  await store.saveDocument(slug)
-}
-
-/**
- * Pulls the active document's latest version from the registry and
- * rebases local edits on top of it.
- *
- * The flow mirrors a `git pull --rebase`:
- *  1. Fetch the upstream snapshot for the active version through the
- *     registry adapter.
- *  2. Hand the snapshot to `workspaceStore.rebaseDocument`, which
- *     diffs it against the last saved baseline and the in-memory
- *     edits so local work is preserved.
- *  3. Apply the auto-merged diffs immediately when the rebase has no
- *     conflicts. When `result.conflicts` is non-empty we open the
- *     three-way merge editor instead and let the user resolve every
- *     conflict by hand; the editor's `applyChanges` callback is what
- *     actually commits the rebase in that branch.
- */
-const handleHeaderPullDocument = async (): Promise<void> => {
-  // ScalarButton renders `:disabled` as `aria-disabled` only - the
-  // underlying element still receives clicks - so we mirror the same
-  // gate the button reads from to block accidental triggers (offline,
-  // already up to date, or no active version).
-  if (!canPullActiveDocument.value) {
-    return
-  }
-  const meta = activeRegistryMeta.value
-  const slug = app.activeEntities.documentSlug.value
-  const store = app.store.value
-  if (!meta || !slug || !registry || !store) {
-    return
-  }
-
-  // Snapshot the registry-advertised hash before we kick off the fetch.
-  // The version listing is the source of truth for "what hash we are
-  // pulling against" - the per-document fetch payload itself does not
-  // carry one - and `activeVersion` may re-derive once `rebaseDocument`
-  // mutates the active document, so we capture it up front.
-  // TODO: THE REGSITRY FETCH ADAPTER SHOULD RETURN THE COMMIT HASH ALONGSIDE THE DOCUMENT
-  // AND NOT JUST THE REGISTRY DOCUMENT.
-  const incomingCommitHash = activeVersion.value?.registryCommitHash
-
-  const fetched = await registry.fetchDocument({
-    namespace: meta.namespace,
-    slug: meta.slug,
-    version: meta.version,
-  })
-  if (!fetched.ok) {
-    toast(messageForFetchError(fetched.error, fetched.message), 'error')
-    return
-  }
-
-  // Feed the fetched document inline so `rebaseDocument` skips its own
-  // network round-trip and treats the registry response as the new
-  // upstream baseline.
-  const result = await store.rebaseDocument({
-    name: slug,
-    document: fetched.data,
-  })
-
-  if (!result.ok) {
-    if (result.type === 'NO_CHANGES_DETECTED') {
-      // Already up to date payload-wise. Still refresh the commit hash
-      // because the listing might advertise a re-encoded hash even when
-      // the bytes are identical, so the sync indicator can clear.
-      await stampPostPullCommitHash({ meta, slug, incomingCommitHash })
-      toast('Already up to date with the registry.', 'info')
-      return
-    }
-    if (result.type === 'CORRUPTED_STATE') {
-      toast(
-        'The document state appears to be missing locally. Try reloading the workspace.',
-        'error',
-      )
-      return
-    }
-    toast(`Pull failed: ${result.message}`, 'error')
-    return
-  }
-
-  // Conflicts: stash everything we will need after the user has
-  // resolved them and hand control to the three-way merge editor. The
-  // commit-hash stamp and the success toast happen from the modal's
-  // apply callback, mirroring the auto-merge branch below.
-  if (result.conflicts.length > 0) {
-    const originalDocument = store.getOriginalDocument(slug) ?? {}
-    pendingPullState.value = {
-      rebaseResult: {
-        originalDocument,
-        resolvedDocument: apply(deepClone(originalDocument), result.changes),
-        conflicts: result.conflicts,
-        applyChanges: result.applyChanges,
-      },
-      meta,
-      slug,
-      incomingCommitHash,
-    }
-    syncConflictModalState.show()
-    return
-  }
-
-  // No conflicts: apply the auto-merged diffs directly.
-  await result.applyChanges({ resolvedConflicts: [] })
-
-  await stampPostPullCommitHash({ meta, slug, incomingCommitHash })
-
-  toast('Pulled latest changes from the registry.', 'info')
-}
-
-/**
- * Apply callback wired up to `SyncConflictResolutionEditor`. The user
- * has resolved every conflict at this point, so the merge editor hands
- * us back the fully resolved document. We commit it through the same
- * `applyChanges` the rebase exposed, then stamp the upstream commit
- * hash and toast - exactly like the auto-merge branch above.
- */
-const handleSyncConflictApplyChanges = async ({
-  resolvedDocument,
-}: {
-  resolvedDocument: Record<string, unknown>
-}): Promise<void> => {
-  const pending = pendingPullState.value
-  if (!pending) {
-    return
-  }
-
-  await pending.rebaseResult.applyChanges({ resolvedDocument })
-  await stampPostPullCommitHash({
-    meta: pending.meta,
-    slug: pending.slug,
-    incomingCommitHash: pending.incomingCommitHash,
-  })
-
-  syncConflictModalState.hide()
-  pendingPullState.value = null
-
-  toast('Pulled latest changes from the registry.', 'info')
-}
-
-/**
- * Reset the pending pull when the conflict modal closes without an
- * apply. The workspace store only mutates inside `applyChanges`, so
- * dropping the captured rebase result is enough to leave the local
- * document untouched.
- */
-const handleSyncConflictModalClose = (): void => {
-  pendingPullState.value = null
-}
-
-/**
- * Pushes the active document up to the registry as the next commit on
- * the current version.
- *
- * The local `commitHash` is sent along with the publish call so the
- * registry can do optimistic concurrency: a `CONFLICT` response means
- * somebody pushed in the meantime and the user is expected to pull
- * before retrying. On success two writes happen locally:
- *
- *  1. The freshly returned commit hash is stamped onto the active
- *     document's `x-scalar-registry-meta` so subsequent sync checks
- *     compare against the right base. This write goes through
- *     `updateDocument`, which is metadata-only and does not flip the
- *     dirty flag.
- *  2. `saveDocument` promotes the active document to the new saved
- *     baseline (and clears `x-scalar-is-dirty`), so a later revert
- *     restores to the post-push state instead of pre-push edits.
- */
-const handleHeaderPushDocument = async (): Promise<void> => {
-  // Same `aria-disabled`-only caveat as Pull: short-circuit on the
-  // computed gate so a click on a visually disabled button cannot
-  // sneak past and hit the registry adapter.
-  if (!canPushActiveDocument.value) {
-    return
-  }
-  const meta = activeRegistryMeta.value
-  const slug = app.activeEntities.documentSlug.value
-  const store = app.store.value
-  if (!meta || !slug || !registry || !store) {
-    return
-  }
-
-  // `version` is required on the registry meta schema but the surrounding
-  // composable types it as optional, so we narrow it explicitly here.
-  const { namespace, slug: registrySlug, version } = meta
-  if (!version) {
-    toast(
-      'This document is missing a version - cannot push without one.',
-      'error',
-    )
-    return
-  }
-
-  // `commitHash` is intentionally allowed to be missing here. A
-  // brand-new local version (e.g. one the user just created against an
-  // existing registry document) has no upstream hash yet, so we forward
-  // `undefined` to the registry and let it skip the optimistic
-  // concurrency check for this first push. Subsequent pushes get
-  // anchored once the registry hands back the new hash below.
-
-  // Snapshot the editable document so the registry receives the
-  // current in-memory state - this is what the user just confirmed they
-  // want to push, before `saveDocument` rewrites the baseline.
-  const documentBody = await store.getEditableDocument(slug)
-  if (!documentBody) {
-    toast(
-      'Could not read the active document. Please reload and try again.',
-      'error',
-    )
-    return
-  }
-
-  const result = await registry.publishVersion({
-    namespace,
-    slug: registrySlug,
-    version,
-    commitHash: meta.commitHash,
-    document: documentBody as Record<string, unknown>,
-  })
-  if (!result.ok) {
-    // TODO: when `CONFLICT` lands here, automatically run the pull
-    // flow and rebase before retrying instead of just informing the
-    // user. Needs the 3-way merge editor for the conflict-resolution
-    // step.
-    toast(messageForPublishVersionError(result.error, result.message), 'error')
-    return
-  }
-
-  // Stamp the new commit hash before saving so the freshly published
-  // hash is part of the new baseline.
-  store.updateDocument(slug, 'x-scalar-registry-meta', {
-    ...meta,
-    version,
-    commitHash: result.data.commitHash,
-  })
-
-  await store.saveDocument(slug)
-
-  toast('Pushed changes to the registry.', 'info')
-}
-
-/**
- * Reactive view of the namespaces the user can publish to. Falls back
- * to an empty success state when no adapter is wired up so the publish
- * modal can still mount without `null`-checks.
- */
-const registryNamespaces = computed<RegistryNamespacesState>(
-  () => registry?.namespaces ?? EMPTY_NAMESPACES_STATE,
-)
-
-/**
- * Default slug surfaced inside the publish modal. The active document's
- * title is the most recognisable value so we pre-slugify it; the user
- * can still rewrite it before confirming.
- */
-const publishDefaultSlug = computed(() => {
-  const title = app.store.value?.workspace.activeDocument?.info?.title
-  return typeof title === 'string' ? title : ''
-})
-
-/**
- * Default version surfaced inside the publish modal. Mirrors the
- * document's `info.version` when one is set so the form opens
- * pre-filled with what the user has been working with locally.
- */
-const publishDefaultVersion = computed(() => {
-  const value = app.store.value?.workspace.activeDocument?.info?.version
-  return typeof value === 'string' && value.trim().length > 0 ? value : '1.0.0'
-})
-
-/**
- * Opens the publish modal for the active document. The actual publish
- * call happens in `handlePublishDocumentSubmit` once the user has
- * confirmed their inputs.
- */
-const handleHeaderPublishDocument = (): void => {
-  if (!registry) {
-    return
-  }
-  publishDocumentModalState.show()
-}
-
-/**
- * Submit handler invoked by the publish modal once the user confirms
- * the namespace, slug, and version. We:
- *
- *  1. Apply the chosen `version` to `info.version` locally so the
- *     document we send to the registry already advertises the right
- *     version field.
- *  2. Snapshot the editable document and call `registry.publishDocument`
- *     with the meta plus the document body.
- *  3. On success: stamp the new registry meta onto the active
- *     document and `saveDocument` so it becomes the new baseline. The
- *     modal is closed via the `done` callback.
- *  4. On failure: forward the discriminated error code to the modal
- *     so the user sees a meaningful inline message and can fix the
- *     input without losing what they typed.
- */
-const handlePublishDocumentSubmit = async ({
-  input,
-  done,
-}: {
-  input: { namespace: string; slug: string; version: string }
-  done: (outcome: { ok: true } | { ok: false; message: string }) => void
-}): Promise<void> => {
-  const documentSlug = app.activeEntities.documentSlug.value
-  const store = app.store.value
-  if (!registry || !documentSlug || !store) {
-    done({
-      ok: false,
-      message:
-        'Cannot publish - the workspace is not ready yet. Please try again in a moment.',
-    })
-    return
-  }
-
-  // Mirror the chosen version onto `info.version` BEFORE snapshotting
-  // the document so the registry receives a body whose `info.version`
-  // already matches what the modal advertised. We write the field
-  // directly (rather than replacing the whole `info` object) to keep
-  // the workspace store's reactive proxy intact for any other
-  // subscribers watching `info.title`, contact info, etc.
-  const activeDocument = store.workspace.documents[documentSlug]
-  if (!activeDocument) {
-    done({
-      ok: false,
-      message:
-        'Could not read the active document. Please reload the workspace and try again.',
-    })
-    return
-  }
-
-  const documentBody = await store.getEditableDocument(documentSlug)
-  if (!documentBody) {
-    done({
-      ok: false,
-      message:
-        'Could not read the active document. Please reload the workspace and try again.',
-    })
-    return
-  }
-
-  // Update the document version of the document body (this is not the actual active document but a deep clone)
-  documentBody.info.version = input.version
-
-  const result = await registry.publishDocument({
-    ...input,
-    document: documentBody as Record<string, unknown>,
-  })
-  if (!result.ok) {
-    done({
-      ok: false,
-      message: messageForPublishDocumentError(result.error, result.message),
-    })
-    return
-  }
-
-  // Now update the actual active document version with the new version
-  activeDocument.info.version = input.version
-
-  // Stamp the registry meta on the active document. The registry may
-  // or may not have advertised a commit hash for the freshly created
-  // entry; persist it when present so subsequent sync checks compare
-  // against the right base.
-  store.updateDocument(documentSlug, 'x-scalar-registry-meta', {
-    namespace: input.namespace,
-    slug: input.slug,
-    version: input.version,
-    ...(result.data.commitHash ? { commitHash: result.data.commitHash } : {}),
-  })
-
-  await store.saveDocument(documentSlug)
-
-  toast(`Published to ${input.namespace}/${input.slug}.`, 'info')
-  done({ ok: true })
-}
 
 /** Props to pass to the RouterView component. */
 const routerViewProps = computed<RouteProps>(() => {
@@ -897,140 +326,19 @@ const routerViewProps = computed<RouteProps>(() => {
             "
             #end>
             <div class="flex items-center gap-2">
-              <!--
-                Local workspace cluster: Save is always mounted while a
-                document is active so the affordance does not jump around,
-                and gets disabled when the document is clean. Revert only
-                joins it once there is something to revert.
-              -->
-              <template v-if="showLocalSaveActions">
-                <ScalarButton
-                  v-if="isActiveDocumentDirty"
-                  aria-label="Revert changes"
-                  class="text-c-2 hover:text-c-1 size-6 shrink-0 p-0"
-                  data-testid="app-header-revert-button"
-                  size="xs"
-                  type="button"
-                  variant="ghost"
-                  @click="handleHeaderRevertDocument">
-                  <ScalarIconArrowCounterClockwise
-                    class="size-3.5"
-                    size="sm"
-                    thickness="1.5" />
-                </ScalarButton>
-                <ScalarButton
-                  class="shrink-0 gap-1.5"
-                  data-testid="app-header-save-button"
-                  :disabled="!isActiveDocumentDirty"
-                  size="xs"
-                  type="button"
-                  variant="solid"
-                  @click="handleHeaderSaveDocument">
-                  <ScalarIconFloppyDisk
-                    class="size-3.5"
-                    size="sm"
-                    thickness="1.5" />
-                  <span>Save</span>
-                </ScalarButton>
-              </template>
-              <!--
-                Team workspace cluster for registry-backed documents. The
-                same Revert affordance as local workspaces sits in front of
-                the Pull / Push pair so dirty edits can be discarded
-                without going through the registry. Pull / Push enablement
-                tracks the cached `VersionStatus` so only one of them is
-                actionable at a time.
-              -->
-              <template v-if="showTeamSyncActions">
-                <ScalarButton
-                  v-if="isActiveDocumentDirty"
-                  aria-label="Revert changes"
-                  class="text-c-2 hover:text-c-1 size-6 shrink-0 p-0"
-                  data-testid="app-header-revert-button"
-                  size="xs"
-                  type="button"
-                  variant="ghost"
-                  @click="handleHeaderRevertDocument">
-                  <ScalarIconArrowCounterClockwise
-                    class="size-3.5"
-                    size="sm"
-                    thickness="1.5" />
-                </ScalarButton>
-                <ScalarButton
-                  :aria-label="isOffline ? 'Pull (offline)' : undefined"
-                  class="shrink-0 gap-1.5"
-                  data-testid="app-header-pull-button"
-                  :disabled="!canPullActiveDocument"
-                  size="xs"
-                  :title="isOffline ? 'You are offline.' : undefined"
-                  type="button"
-                  variant="solid"
-                  @click="handleHeaderPullDocument">
-                  <ScalarIconCloudSlash
-                    v-if="isOffline"
-                    class="size-3.5"
-                    size="sm"
-                    thickness="1.5" />
-                  <ScalarIconCloudArrowDown
-                    v-else
-                    class="size-3.5"
-                    size="sm"
-                    thickness="1.5" />
-                  <span>Pull</span>
-                </ScalarButton>
-                <ScalarButton
-                  :aria-label="isOffline ? 'Push (offline)' : undefined"
-                  class="shrink-0 gap-1.5"
-                  data-testid="app-header-push-button"
-                  :disabled="!canPushActiveDocument"
-                  size="xs"
-                  :title="isOffline ? 'You are offline.' : undefined"
-                  type="button"
-                  variant="solid"
-                  @click="handleHeaderPushDocument">
-                  <ScalarIconCloudSlash
-                    v-if="isOffline"
-                    class="size-3.5"
-                    size="sm"
-                    thickness="1.5" />
-                  <ScalarIconCloudArrowUp
-                    v-else
-                    class="size-3.5"
-                    size="sm"
-                    thickness="1.5" />
-                  <span>Push</span>
-                </ScalarButton>
-              </template>
-              <!--
-                Team workspace cluster for documents that have not been
-                published yet. A single Publish button kicks off the
-                first-time push to the registry; once that succeeds the
-                document gets a registry meta and switches over to the
-                Pull / Push cluster above on the next render.
-              -->
-              <ScalarButton
-                v-if="showTeamPublishAction"
-                :aria-label="isOffline ? 'Publish (offline)' : undefined"
-                class="shrink-0 gap-1.5"
-                data-testid="app-header-publish-button"
-                :disabled="isOffline"
-                size="xs"
-                :title="isOffline ? 'You are offline.' : undefined"
-                type="button"
-                variant="solid"
-                @click="handleHeaderPublishDocument">
-                <ScalarIconCloudSlash
-                  v-if="isOffline"
-                  class="size-3.5"
-                  size="sm"
-                  thickness="1.5" />
-                <ScalarIconCloudArrowUp
-                  v-else
-                  class="size-3.5"
-                  size="sm"
-                  thickness="1.5" />
-                <span>Publish</span>
-              </ScalarButton>
+              <AppHeaderActions
+                :canPullActiveDocument="canPullActiveDocument"
+                :canPushActiveDocument="canPushActiveDocument"
+                :isActiveDocumentDirty="isActiveDocumentDirty"
+                :isOffline="isOffline"
+                :showLocalSaveActions="showLocalSaveActions"
+                :showTeamPublishAction="showTeamPublishAction"
+                :showTeamSyncActions="showTeamSyncActions"
+                @publish="handlePublishDocument"
+                @pull="handlePullDocument"
+                @push="handlePushDocument"
+                @revert="handleRevertDocument"
+                @save="handleSaveDocument" />
               <slot
                 v-if="$slots['header-actions']"
                 name="header-actions" />
