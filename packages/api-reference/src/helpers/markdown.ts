@@ -14,7 +14,7 @@ const withSlugs = (headings: Heading[], slug: (v: string) => string): Heading[] 
  * Extracts all headings from a Markdown string.
  */
 export function getHeadingsFromMarkdown(input: string): Heading[] {
-  const { slug } = slugger()
+  const { slug } = slugger({ lowercase: true })
 
   const headings = getHeadings(input)
 

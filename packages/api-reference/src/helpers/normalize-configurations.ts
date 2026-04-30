@@ -34,7 +34,7 @@ type ConfigWithRequiredSource = Omit<ApiReferenceConfigurationWithSource, 'url' 
 export const normalizeConfigurations = (
   configuration: AnyApiReferenceConfiguration | undefined,
 ): NormalizedConfigurations => {
-  const { slug } = slugger()
+  const { slug } = slugger({ lowercase: true })
 
   const normalized: NormalizedConfigurations = {}
 
