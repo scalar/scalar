@@ -89,7 +89,7 @@ const slots = defineSlots<{
     <template
       v-if="slots.end"
       #end>
-      <slots.end />
+      <slot name="end" />
     </template>
   </ScalarHeader>
 </template>

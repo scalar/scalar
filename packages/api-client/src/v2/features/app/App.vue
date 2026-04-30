@@ -9,10 +9,15 @@ export default {}
 
 <script setup lang="ts">
 import {
+  ScalarButton,
   ScalarTeleportRoot,
   useModal,
   type ModalState,
 } from '@scalar/components'
+import {
+  ScalarIconArrowCounterClockwise,
+  ScalarIconFloppyDisk,
+} from '@scalar/icons'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
@@ -24,7 +29,6 @@ import AppHeader from '@/v2/features/app/components/AppHeader.vue'
 import AppSidebar from '@/v2/features/app/components/AppSidebar.vue'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import DocumentBreadcrumb from '@/v2/features/app/components/DocumentBreadcrumb.vue'
-import DocumentSyncIndicator from '@/v2/features/app/components/DocumentSyncIndicator.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
@@ -174,6 +178,49 @@ useMonacoEditorConfiguration({
 
 const createWorkspaceModalState = useModal()
 
+/**
+ * Drives the inline Save action rendered inside the global header. We
+ * surface it on local workspaces with an active document so the user
+ * always sees the affordance - team workspaces persist through their own
+ * collaboration pipeline, so the button only makes sense for local.
+ *
+ * The intermediate state on the workspace store has been deprecated, so
+ * Save now writes the current document back as the new original snapshot
+ * and Revert restores from that snapshot, matching the behaviour of the
+ * collection page's save prompt.
+ */
+const showHeaderSaveActions = computed(
+  () =>
+    !app.workspace.isTeamWorkspace.value &&
+    Boolean(app.activeEntities.documentSlug.value),
+)
+
+/**
+ * Whether the active document has unsaved changes. Controls the disabled
+ * state of the header Save button and the visibility of the Revert button
+ * inside `AppHeader`.
+ */
+const isActiveDocumentDirty = computed(
+  () =>
+    app.store.value?.workspace.activeDocument?.['x-scalar-is-dirty'] === true,
+)
+
+const handleHeaderSaveDocument = async () => {
+  const slug = app.activeEntities.documentSlug.value
+  if (!slug || !app.store.value) {
+    return
+  }
+  await app.store.value.saveDocument(slug)
+}
+
+const handleHeaderRevertDocument = async () => {
+  const slug = app.activeEntities.documentSlug.value
+  if (!slug || !app.store.value) {
+    return
+  }
+  await app.store.value.revertDocumentChanges(slug)
+}
+
 /** Props to pass to the RouterView component. */
 const routerViewProps = computed<RouteProps>(() => {
   return {
@@ -260,33 +307,75 @@ const routerViewProps = computed<RouteProps>(() => {
               :registryDocuments="registryDocuments"
               @createWorkspace="createWorkspaceModalState.show()" />
           </template>
-          <template #end>
+          <!--
+            Only forward the trailing `#end` cluster when it has actual
+            content. The save actions and the consumer slots all gate
+            independently, so we mirror those conditions on the wrapper to
+            avoid mounting an empty cluster that would otherwise leak a
+            stray divider.
+          -->
+          <template
+            v-if="
+              showHeaderSaveActions ||
+              $slots['header-actions'] ||
+              $slots['header-end']
+            "
+            #end>
             <div class="flex items-center gap-2">
               <!--
-                Sync status mirrors the icon in the version picker so the
-                user can see at a glance whether the active registry-backed
-                document is synced / pending push / pending pull / in
-                conflict, even when the picker dropdown is closed. We only
-                mount it while a document is actually active on the route -
-                on workspace-level pages (settings, get-started, etc.)
-                there is nothing to sync, and an indicator there would just
-                be noise.
+                Inline Revert / Save actions. Visible on local workspaces
+                with an active document so the user always sees the Save
+                affordance; Revert only joins it once the document is
+                dirty and Save is disabled while there is nothing to
+                persist. Lives alongside the `header-actions` slot so
+                consumers can layer additional document-scoped actions
+                next to the save buttons.
               -->
-              <DocumentSyncIndicator
-                v-if="app.activeEntities.documentSlug.value"
-                :app="app"
-                :registryDocuments="registryDocuments" />
+              <template v-if="showHeaderSaveActions">
+                <ScalarButton
+                  v-if="isActiveDocumentDirty"
+                  aria-label="Revert changes"
+                  class="text-c-2 hover:text-c-1 size-6 shrink-0 p-0"
+                  data-testid="app-header-revert-button"
+                  size="xs"
+                  type="button"
+                  variant="ghost"
+                  @click="handleHeaderRevertDocument">
+                  <ScalarIconArrowCounterClockwise
+                    class="size-3.5"
+                    size="sm"
+                    thickness="1.5" />
+                </ScalarButton>
+                <ScalarButton
+                  class="shrink-0 gap-1.5"
+                  data-testid="app-header-save-button"
+                  :disabled="!isActiveDocumentDirty"
+                  size="xs"
+                  type="button"
+                  variant="solid"
+                  @click="handleHeaderSaveDocument">
+                  <ScalarIconFloppyDisk
+                    class="size-3.5"
+                    size="sm"
+                    thickness="1.5" />
+                  <span>Save</span>
+                </ScalarButton>
+              </template>
               <slot
                 v-if="$slots['header-actions']"
                 name="header-actions" />
               <!--
-                Vertical divider between the two trailing slot clusters.
-                Only rendered when both `header-actions` and `header-end`
-                are provided, so consumers using just one of the slots do
-                not get an orphaned separator.
+                Vertical divider between the document-scoped action
+                cluster (save buttons + `header-actions`) and the trailing
+                `header-end` cluster. Only rendered when both sides have
+                content so single-cluster headers do not get an orphaned
+                separator.
               -->
               <span
-                v-if="$slots['header-actions'] && $slots['header-end']"
+                v-if="
+                  (showHeaderSaveActions || $slots['header-actions']) &&
+                  $slots['header-end']
+                "
                 aria-hidden="true"
                 class="bg-border h-4 w-px shrink-0" />
               <slot
