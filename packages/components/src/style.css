@@ -2,7 +2,7 @@
  * Component Library Styles
  */
 
-@import "@scalar/themes/style.css"; /* Theme Base Styles and Reset */
+@import "./base.css";
 @import "@scalar/themes/tailwind.css"; /* Tailwind Theme + Config */
 
 /* Component Library Specific Tailwind Theme */

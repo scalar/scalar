@@ -1,4 +1,3 @@
-import './style.css'
 
 export { compose, cva, cx, tw, useBindCx } from '@scalar/use-hooks/useBindCx'
 
