@@ -84,6 +84,7 @@ export const Multiselect: Story = {
 
 export const Scrolling: Story = {
   args: {
+    multiple: true,
     options: Array.from({ length: 32 }, (_, i) => ({ id: i.toString(), label: `Option ${i}` })),
   },
   render: (args) => ({
