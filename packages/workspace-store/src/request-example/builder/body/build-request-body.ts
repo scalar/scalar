@@ -178,6 +178,67 @@ export const buildRequestBody = (
     return result
   }
 
+  // Form data - object format (from schema examples)
+  if (
+    bodyContentType === 'multipart/form-data' &&
+    example.value !== null &&
+    typeof example.value === 'object' &&
+    !Array.isArray(example.value)
+  ) {
+    const result: FormData = {
+      mode: 'formdata',
+      value: [],
+    }
+
+    for (const [key, value] of Object.entries(example.value)) {
+      if (!key || value === undefined || value === null) {
+        continue
+      }
+
+      const partContentType = getMultipartEncodingContentType(requestBody, bodyContentType, key)
+
+      if (value instanceof File) {
+        const unwrappedValue = unpackProxyObject(value)
+        const encodedValue =
+          partContentType && partContentType !== unwrappedValue.type
+            ? new File([unwrappedValue], unwrappedValue.name, {
+                type: partContentType,
+                lastModified: unwrappedValue.lastModified,
+              })
+            : unwrappedValue
+
+        result.value.push({
+          type: 'file',
+          key,
+          value: encodedValue,
+          contentType: partContentType,
+        })
+        continue
+      }
+
+      const serializedValue =
+        typeof value === 'object' && value !== null ? JSON.stringify(unpackProxyObject(value)) : String(value)
+
+      if (partContentType) {
+        result.value.push({
+          type: 'blob',
+          key,
+          value: new Blob([serializedValue], { type: partContentType }),
+          contentType: partContentType,
+        })
+        continue
+      }
+
+      result.value.push({
+        type: 'text',
+        key,
+        value: serializedValue,
+      })
+    }
+
+    return result
+  }
+
   // Any other type
   const exampleValue =
     example.value !== null && typeof example.value === 'object' ? unpackProxyObject(example.value) : example.value
