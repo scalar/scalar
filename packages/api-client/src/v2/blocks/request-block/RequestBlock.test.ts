@@ -1,10 +1,11 @@
-import { createWorkspaceEventBus, type ApiReferenceEvents } from '@scalar/workspace-store/events'
+import { type ApiReferenceEvents, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { type DefineComponent, defineComponent, markRaw } from 'vue'
 
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
+import type { TableRow } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 
 import RequestBlock, { type RequestBlockProps } from './RequestBlock.vue'
@@ -282,6 +283,81 @@ describe('RequestBlock', () => {
       fn.mockReset()
       vi.useRealTimers()
     }
+  })
+
+  it('renders object query parameters as expanded query rows', () => {
+    const wrapper = mount(RequestBlock, {
+      props: {
+        ...defaultProps,
+        operation: {
+          summary: '',
+          parameters: [
+            {
+              name: 'pageable',
+              in: 'query',
+              required: false,
+              schema: {
+                type: 'object',
+                properties: {
+                  page: {
+                    type: 'integer',
+                    format: 'int32',
+                  },
+                  size: {
+                    type: 'integer',
+                    format: 'int32',
+                  },
+                  sort: {
+                    type: 'array',
+                    items: {
+                      type: 'string',
+                    },
+                  },
+                },
+              },
+            },
+            {
+              name: 'userSpec',
+              in: 'query',
+              required: false,
+              schema: {
+                type: 'object',
+                properties: {
+                  username: {
+                    type: 'string',
+                  },
+                  minAge: {
+                    type: 'integer',
+                    format: 'int32',
+                  },
+                  address: {
+                    type: 'string',
+                  },
+                },
+              },
+            },
+          ],
+        },
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const queryParams = wrapper
+      .findAllComponents({ name: 'RequestParams' })
+      .find((component) => (component.props() as any).title === 'Query Parameters')
+
+    expect((queryParams?.props() as any).rows.map((row: TableRow) => row.name)).toStrictEqual([
+      'page',
+      'size',
+      'sort',
+      'username',
+      'minAge',
+      'address',
+    ])
   })
 
   it('re-emits parameter deleteAll for Cookies with mapped type', () => {

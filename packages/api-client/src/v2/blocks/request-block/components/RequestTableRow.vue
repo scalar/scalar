@@ -46,6 +46,8 @@ export type TableRow = {
   isOverridden?: boolean
   /** Track the original parameter so we can update it */
   originalParameter?: ParameterObject
+  /** Path to a value inside the original parameter example for expanded object parameters */
+  sourceParameterValuePath?: string[]
 }
 
 const {

@@ -4,6 +4,55 @@ import type { TableRow } from '@/v2/blocks/request-block/components/RequestTable
 
 type ParameterType = 'path' | 'cookie' | 'header' | 'query'
 
+const setValueAtPath = (target: Record<string, unknown>, path: readonly string[], value: unknown): void => {
+  const [key, ...rest] = path
+  if (!key) {
+    return
+  }
+
+  if (!rest.length) {
+    target[key] = value
+    return
+  }
+
+  const next =
+    typeof target[key] === 'object' && target[key] !== null && !Array.isArray(target[key])
+      ? (target[key] as Record<string, unknown>)
+      : {}
+
+  target[key] = next
+  setValueAtPath(next, rest, value)
+}
+
+const isEmptyValue = (value: unknown): boolean => value === undefined || value === null || value === ''
+
+const getExpandedObjectPayload = (
+  row: TableRow,
+  context: TableRow[],
+  payload: { name: string; value: string; isDisabled: boolean },
+): { name: string; value: Record<string, unknown>; isDisabled: boolean } => {
+  const value: Record<string, unknown> = {}
+
+  for (const contextRow of context) {
+    if (contextRow.originalParameter !== row.originalParameter || !contextRow.sourceParameterValuePath) {
+      continue
+    }
+
+    const nextValue = contextRow === row ? payload.value : contextRow.value
+    if (isEmptyValue(nextValue) && !contextRow.isRequired) {
+      continue
+    }
+
+    setValueAtPath(value, contextRow.sourceParameterValuePath, nextValue)
+  }
+
+  return {
+    name: row.originalParameter?.name ?? payload.name,
+    value,
+    isDisabled: payload.isDisabled,
+  }
+}
+
 /** Create parameter event handlers for a given type */
 export const createParameterHandlers = (
   type: ParameterType,
@@ -58,11 +107,16 @@ export const createParameterHandlers = (
       }
 
       if (index >= offset) {
+        const nextPayload =
+          row?.sourceParameterValuePath && row.originalParameter
+            ? getExpandedObjectPayload(row, context, payload)
+            : payload
+
         return eventBus.emit(
           'operation:upsert:parameter',
           {
             type,
-            payload: payload,
+            payload: nextPayload,
             originalParameter: row?.originalParameter ?? null,
             meta,
           },

@@ -17,7 +17,6 @@ import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
   filterGlobalCookie,
   getEnvironmentVariables,
-  getExample,
   getResolvedUrl,
   type MergedSecuritySchemes,
   type SecuritySchemeObjectSecret,
@@ -39,9 +38,8 @@ import RequestCodeSnippet from '@/v2/blocks/request-block/components/RequestCode
 import RequestParams from '@/v2/blocks/request-block/components/RequestParams.vue'
 import type { TableRow } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
 import { createParameterHandlers } from '@/v2/blocks/request-block/helpers/create-parameter-handlers'
-import { getParameterSchema } from '@/v2/blocks/request-block/helpers/get-parameter-schema'
+import { createParameterRows } from '@/v2/blocks/request-block/helpers/create-parameter-rows'
 import { groupBy } from '@/v2/blocks/request-block/helpers/group-by'
-import { isParamDisabled } from '@/v2/blocks/request-block/helpers/is-param-disabled'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import type { OAuth2Options } from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
 import type { ClientLayout } from '@/v2/types/layout'
@@ -115,20 +113,17 @@ const meta = computed(() => ({
 /** Parameters grouped by type (path, query, header, cookie) */
 const sections = computed(() =>
   groupBy(
-    operation.parameters?.map((param) => getResolvedRef(param)) ?? [],
+    operation.parameters
+      ?.map((param) => getResolvedRef(param))
+      .flatMap((param) =>
+        createParameterRows(param, exampleKey).map((row) => ({
+          ...row,
+          in: param.in,
+        })),
+      ) ?? [],
     'in',
-    (param) => {
-      const example = getExample(param, exampleKey, undefined)
-
-      return {
-        name: param.name,
-        value: example?.value ?? '',
-        description: param.description,
-        schema: getParameterSchema(param),
-        isRequired: param.required,
-        isDisabled: isParamDisabled(param, example),
-        originalParameter: param,
-      } as TableRow
+    ({ in: _in, ...row }) => {
+      return row as TableRow
     },
   ),
 )
