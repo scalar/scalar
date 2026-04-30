@@ -3329,9 +3329,9 @@ describe('create-workspace-store', () => {
       // After the merge, the active document and the saved baseline both
       // reflect the resolved title.
       expect(store.workspace.activeDocument?.info.title).toEqual('A new title which should conflict')
-      expect(
-        (store.getOriginalDocument(documentName) as { info?: { title?: string } } | null)?.info?.title,
-      ).toBe('A new title which should conflict')
+      expect((store.getOriginalDocument(documentName) as { info?: { title?: string } } | null)?.info?.title).toBe(
+        'A new title which should conflict',
+      )
     })
 
     it('applies the whole document when user passes resolvedDocument instead of resolvedConflicts', async () => {
@@ -3419,9 +3419,7 @@ describe('create-workspace-store', () => {
       expect(result.ok).toBe(false)
       assert(result.ok === false)
       expect(result.type).toBe('CORRUPTED_STATE')
-      expect(result.message).toBe(
-        "Cannot rebase document 'some-document': missing original or active document state",
-      )
+      expect(result.message).toBe("Cannot rebase document 'some-document': missing original or active document state")
     })
 
     it('should load new origin from a url', async () => {

@@ -30,11 +30,7 @@ export type RegistryDocumentMeta = {
  *   error message and, when present, the human-readable `message`
  *   field returned alongside the code.
  */
-export type FetchRegistryDocumentError =
-  | 'NOT_FOUND'
-  | 'FETCH_FAILED'
-  | 'UNAUTHORIZED'
-  | 'UNKNOWN'
+export type FetchRegistryDocumentError = 'NOT_FOUND' | 'FETCH_FAILED' | 'UNAUTHORIZED' | 'UNKNOWN'
 
 /**
  * Fetches the full document from the registry by meta. When a `registry`
@@ -64,11 +60,7 @@ export type ImportDocumentFromRegistry = (
  *   error message and, when present, the human-readable `message`
  *   field returned alongside the code.
  */
-export type PublishRegistryDocumentError =
-  | 'CONFLICT'
-  | 'FETCH_FAILED'
-  | 'UNAUTHORIZED'
-  | 'UNKNOWN'
+export type PublishRegistryDocumentError = 'CONFLICT' | 'FETCH_FAILED' | 'UNAUTHORIZED' | 'UNKNOWN'
 
 /**
  * Discriminated outcome of a `publishDocument` call.
@@ -128,12 +120,7 @@ export type PublishRegistryDocument = (input: {
  *   error message and, when present, the human-readable `message`
  *   field returned alongside the code.
  */
-export type PublishRegistryVersionError =
-  | 'CONFLICT'
-  | 'NOT_FOUND'
-  | 'FETCH_FAILED'
-  | 'UNAUTHORIZED'
-  | 'UNKNOWN'
+export type PublishRegistryVersionError = 'CONFLICT' | 'NOT_FOUND' | 'FETCH_FAILED' | 'UNAUTHORIZED' | 'UNKNOWN'
 
 /**
  * Discriminated outcome of a `publishVersion` call. On success the

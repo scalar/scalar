@@ -22,8 +22,7 @@ const UNKNOWN_FALLBACK = 'Something went wrong. Please try again.'
 const networkMessage = (detail?: string): string =>
   detail ? `Could not reach the registry: ${detail}` : NETWORK_FALLBACK
 
-const unknownMessage = (detail?: string): string =>
-  detail ? `Something went wrong: ${detail}` : UNKNOWN_FALLBACK
+const unknownMessage = (detail?: string): string => (detail ? `Something went wrong: ${detail}` : UNKNOWN_FALLBACK)
 
 /**
  * Maps a {@link FetchRegistryDocumentError} code to a user-facing
