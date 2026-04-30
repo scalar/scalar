@@ -2,6 +2,27 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createWorkspaceEventBus } from './bus'
 
+const debounceInstances = vi.hoisted((): Array<{ flushAll: ReturnType<typeof vi.fn> }> => [])
+
+vi.mock('@scalar/helpers/general/debounce', async (importOriginal) => {
+  type DebounceModule = typeof import('@scalar/helpers/general/debounce')
+  const actual = await importOriginal<DebounceModule>()
+
+  return {
+    debounce: vi.fn((options: Parameters<DebounceModule['debounce']>[0]) => {
+      const debounced = actual.debounce(options)
+      const flushAll = vi.fn(debounced.flushAll)
+
+      debounceInstances.push({ flushAll })
+
+      return {
+        ...debounced,
+        flushAll,
+      }
+    }),
+  }
+})
+
 const flushDebouncedEmits = (bus: ReturnType<typeof createWorkspaceEventBus>) => {
   if (!bus.flushDebouncedEmits) {
     throw new Error('Expected flushDebouncedEmits to exist')
@@ -12,6 +33,7 @@ const flushDebouncedEmits = (bus: ReturnType<typeof createWorkspaceEventBus>) =>
 
 describe('createWorkspaceEventBus', () => {
   beforeEach(() => {
+    debounceInstances.length = 0
     vi.clearAllMocks()
   })
 
@@ -329,6 +351,16 @@ describe('createWorkspaceEventBus', () => {
     expect(handler).toHaveBeenCalledTimes(1)
 
     vi.useRealTimers()
+  })
+
+  it('delegates debounced emit flushing to debounce flushAll', () => {
+    const bus = createWorkspaceEventBus()
+
+    bus.emit('update:dark-mode', true, { debounceKey: 'test' })
+    flushDebouncedEmits(bus)
+
+    expect(debounceInstances.length).toBe(1)
+    expect(debounceInstances[0]?.flushAll).toHaveBeenCalledTimes(1)
   })
 
   it('flushes the latest payload for each pending debounce key', () => {

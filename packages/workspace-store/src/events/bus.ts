@@ -154,10 +154,9 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
    * Single debounce instance for all debounced emits
    * Uses keys to separate different event + debounceKey combinations
    */
-  const { execute: debouncedEmitter, flush: flushDebouncedEmitter } = debounce({
+  const { execute: debouncedEmitter, flushAll: flushDebouncedEmitters } = debounce({
     delay: 328,
   })
-  const debouncedEmitKeys = new Set<string>()
 
   /**
    * Get or create a listener set for an event
@@ -292,22 +291,12 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
     // Create a unique key for this event + debounce key combination
     const debounceMapKey = `${event}-${options.debounceKey}`
 
-    debouncedEmitKeys.add(debounceMapKey)
-
     // Pass the closure directly - debounce will store the latest version
-    debouncedEmitter(debounceMapKey, () => {
-      debouncedEmitKeys.delete(debounceMapKey)
-      performEmit(event, payload, options)
-    })
+    debouncedEmitter(debounceMapKey, () => performEmit(event, payload, options))
   }
 
   const flushDebouncedEmits = (): void => {
-    const keys = [...debouncedEmitKeys]
-    debouncedEmitKeys.clear()
-
-    for (const key of keys) {
-      flushDebouncedEmitter(key)
-    }
+    flushDebouncedEmitters()
   }
 
   return {
