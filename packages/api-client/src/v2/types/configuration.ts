@@ -77,6 +77,65 @@ export type PublishRegistryDocument = (input: {
 }) => Promise<PublishRegistryDocumentResult>
 
 /**
+ * Error codes surfaced by `publishVersion`. Errors are returned as a
+ * discriminated union so callers can react to each failure mode without
+ * having to parse free-form strings:
+ *
+ * - `CONFLICT`: the registry's current commit hash for this version no
+ *   longer matches the one the caller passed in. Somebody pushed in the
+ *   meantime - the caller is expected to pull the upstream changes,
+ *   resolve any merge conflicts and try again.
+ * - `NOT_FOUND`: the registry has no document at this namespace / slug
+ *   to publish a new version against. Use `publishDocument` instead to
+ *   create the document group first.
+ * - `FETCH_FAILED`: a network or server error prevented the publish
+ *   from completing. The request can usually be retried.
+ * - `UNAUTHORIZED`: the caller is not signed in / not allowed to
+ *   publish to this namespace. The host application is expected to
+ *   surface a sign-in flow.
+ */
+export type PublishRegistryVersionError = 'CONFLICT' | 'NOT_FOUND' | 'FETCH_FAILED' | 'UNAUTHORIZED'
+
+/**
+ * Discriminated outcome of a `publishVersion` call. On success the
+ * registry returns the new commit hash so the caller can persist it on
+ * `x-scalar-registry-meta` and detect upstream drift on subsequent
+ * refreshes.
+ */
+export type PublishRegistryVersionResult = Result<
+  RegistryDocumentMeta & {
+    /** Commit hash advertised by the registry for the published version. */
+    commitHash: string
+  },
+  PublishRegistryVersionError
+>
+
+/**
+ * Publishes a new version of an existing registry document. Pairs with
+ * `publishDocument` (which creates the document group itself) and is
+ * what the team-workspace "Push" flow ultimately calls once the user
+ * has saved local edits.
+ *
+ * The caller passes the `commitHash` it currently has locally so the
+ * registry can do optimistic concurrency: if the upstream hash has
+ * moved on, the publish is rejected with `CONFLICT` and the caller is
+ * expected to pull the latest version before retrying.
+ */
+export type PublishRegistryVersion = (input: {
+  namespace: string
+  slug: string
+  /** Version identifier the caller is publishing (e.g. `1.2.0`). */
+  version: string
+  /**
+   * Commit hash the caller currently believes is the latest one for
+   * this `version`. The registry compares this against its own current
+   * hash and rejects the publish with `CONFLICT` when they no longer
+   * match, preventing accidental overwrites of upstream changes.
+   */
+  commitHash: string
+}) => Promise<PublishRegistryVersionResult>
+
+/**
  * A single version that the registry advertises for a document group.
  *
  * Mirrors the minimum surface the sidebar needs to render a version row
@@ -141,4 +200,11 @@ export type RegistryAdapter = {
    * string-matching error messages.
    */
   publishDocument: PublishRegistryDocument
+  /**
+   * Publishes a new version of an existing registry document. The
+   * caller passes the `commitHash` it currently has locally so the
+   * registry can do optimistic concurrency and reject the publish with
+   * `CONFLICT` when the upstream hash has moved on.
+   */
+  publishVersion: PublishRegistryVersion
 }

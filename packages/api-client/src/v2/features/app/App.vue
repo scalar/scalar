@@ -310,9 +310,15 @@ const handleHeaderPullDocument = (): void => {
   // TODO: hook up to the registry pull flow.
 }
 
-/** Placeholder for the registry push flow. See `handleHeaderPullDocument`. */
+/**
+ * Placeholder for the registry push flow. The wiring will eventually
+ * read the active document's `x-scalar-registry-meta` (namespace, slug,
+ * version, commitHash) and call `registry?.publishVersion({ ... })`,
+ * routing `CONFLICT` outcomes through the pull / merge UX. See
+ * `handleHeaderPullDocument`.
+ */
 const handleHeaderPushDocument = (): void => {
-  // TODO: hook up to the registry push flow.
+  // TODO: hook up to `registry?.publishVersion` with the active commitHash.
 }
 
 /**
