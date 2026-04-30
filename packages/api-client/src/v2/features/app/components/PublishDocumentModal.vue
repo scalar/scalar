@@ -22,10 +22,10 @@ import {
   type ModalState,
   type ScalarListboxOption,
 } from '@scalar/components'
+import { slugify } from '@scalar/helpers/string/slugify'
 import { ScalarIconBuildings, ScalarIconCaretDown } from '@scalar/icons'
 import { computed, ref, watch } from 'vue'
 
-import { slugify } from '@/v2/helpers/slugify'
 import type { RegistryNamespacesState } from '@/v2/types/configuration'
 
 const {
