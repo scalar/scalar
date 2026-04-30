@@ -10,6 +10,7 @@ export default {}
 <script setup lang="ts">
 import {
   ScalarButton,
+  ScalarModal,
   ScalarTeleportRoot,
   useModal,
   type ModalState,
@@ -21,10 +22,12 @@ import {
   ScalarIconCloudSlash,
   ScalarIconFloppyDisk,
 } from '@scalar/icons'
+import { apply, type merge } from '@scalar/json-magic/diff'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
+import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
-import { computed, onBeforeUnmount, toValue, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, toValue, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { SidebarToggle } from '@/v2/components/sidebar'
@@ -43,6 +46,7 @@ import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useActiveDocumentVersion } from '@/v2/features/app/hooks/use-active-document-version'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
 import { useNetworkStatus } from '@/v2/features/app/hooks/use-network-status'
+import SyncConflictResolutionEditor from '@/v2/features/collection/components/SyncConflictResolutionEditor.vue'
 import type { CommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
 import { useMonacoEditorConfiguration } from '@/v2/features/editor'
@@ -204,6 +208,7 @@ useMonacoEditorConfiguration({
 
 const createWorkspaceModalState = useModal()
 const publishDocumentModalState = useModal()
+const syncConflictModalState = useModal()
 
 /**
  * Default namespaces state surfaced when the host application has not
@@ -343,6 +348,81 @@ const handleHeaderRevertDocument = async () => {
 }
 
 /**
+ * Registry meta as it was when a pull began. Captures the same shape
+ * `activeRegistryMeta` returns so we can hand it to the post-pull
+ * commit-hash stamp without re-deriving (and possibly missing) it once
+ * the rebase has finished mutating the active document.
+ */
+type PendingPullRegistryMeta = NonNullable<typeof activeRegistryMeta.value>
+
+/**
+ * In-flight pull state captured while the three-way merge editor is on
+ * screen. We need to hold onto the rebase result (so the user-resolved
+ * document can still be applied), the registry meta and slug we were
+ * pulling against, and the upstream commit hash advertised by the
+ * listing - none of those are reachable from inside the conflict
+ * modal once the surrounding closure has unwound.
+ *
+ * `null` while no pull is awaiting user input. The modal-close handler
+ * resets it so a dismissed pull cleanly aborts without applying any
+ * changes (the workspace store only mutates when `applyChanges` is
+ * actually invoked).
+ */
+const pendingPullState = ref<{
+  rebaseResult: {
+    originalDocument: Record<string, unknown>
+    resolvedDocument: Record<string, unknown>
+    conflicts: ReturnType<typeof merge>['conflicts']
+    applyChanges: (input: {
+      resolvedDocument: Record<string, unknown>
+    }) => Promise<void>
+  }
+  meta: PendingPullRegistryMeta
+  slug: string
+  incomingCommitHash: string | undefined
+} | null>(null)
+
+/**
+ * Stamp the registry's advertised commit hash onto the active document
+ * after a successful pull. Extracted out of `handleHeaderPullDocument`
+ * because the post-rebase work happens in two different places now:
+ * inline when the rebase auto-merges cleanly, and from the conflict
+ * modal's `applyChanges` callback once the user has resolved everything
+ * by hand.
+ *
+ * We only update when the listing actually advertised a hash and the
+ * meta still has a concrete `version` to write into; otherwise we leave
+ * the previous value alone so a missing hash does not erase one we
+ * already had. `saveDocument` then propagates the new hash into
+ * `originalDocuments` so the post-pull baseline records the same
+ * commit hash.
+ */
+const stampPostPullCommitHash = async (params: {
+  meta: PendingPullRegistryMeta
+  slug: string
+  incomingCommitHash: string | undefined
+}): Promise<void> => {
+  const { meta, slug, incomingCommitHash } = params
+  const store = app.store.value
+  if (!store) {
+    return
+  }
+  if (
+    !incomingCommitHash ||
+    incomingCommitHash === meta.commitHash ||
+    !meta.version
+  ) {
+    return
+  }
+  store.updateDocument(slug, 'x-scalar-registry-meta', {
+    ...meta,
+    version: meta.version,
+    commitHash: incomingCommitHash,
+  })
+  await store.saveDocument(slug)
+}
+
+/**
  * Pulls the active document's latest version from the registry and
  * rebases local edits on top of it.
  *
@@ -352,11 +432,11 @@ const handleHeaderRevertDocument = async () => {
  *  2. Hand the snapshot to `workspaceStore.rebaseDocument`, which
  *     diffs it against the last saved baseline and the in-memory
  *     edits so local work is preserved.
- *  3. Apply the auto-merged diffs without touching conflicts. The
- *     three-way merge editor will be hooked into `applyChanges`
- *     in a follow-up; for now any conflicts are left unresolved
- *     and the workspace store keeps the previous active document
- *     for those paths.
+ *  3. Apply the auto-merged diffs immediately when the rebase has no
+ *     conflicts. When `result.conflicts` is non-empty we open the
+ *     three-way merge editor instead and let the user resolve every
+ *     conflict by hand; the editor's `applyChanges` callback is what
+ *     actually commits the rebase in that branch.
  */
 const handleHeaderPullDocument = async (): Promise<void> => {
   // ScalarButton renders `:disabled` as `aria-disabled` only - the
@@ -400,58 +480,93 @@ const handleHeaderPullDocument = async (): Promise<void> => {
     document: fetched.data,
   })
 
-  // `NO_CHANGES_DETECTED` is a "we are already up to date" success case,
-  // not a hard error. We still drop into the commit-hash refresh below
-  // because the listing might advertise a re-encoded hash even when the
-  // payload bytes are identical, and we want the local baseline to
-  // mirror that so the sync indicator clears.
-  const alreadyUpToDate = !result.ok && result.type === 'NO_CHANGES_DETECTED'
-
-  if (!result.ok && result.type !== 'NO_CHANGES_DETECTED') {
+  if (!result.ok) {
+    if (result.type === 'NO_CHANGES_DETECTED') {
+      // Already up to date payload-wise. Still refresh the commit hash
+      // because the listing might advertise a re-encoded hash even when
+      // the bytes are identical, so the sync indicator can clear.
+      await stampPostPullCommitHash({ meta, slug, incomingCommitHash })
+      toast('Already up to date with the registry.', 'info')
+      return
+    }
     if (result.type === 'CORRUPTED_STATE') {
       toast(
         'The document state appears to be missing locally. Try reloading the workspace.',
         'error',
       )
       return
-    } else {
-      toast(`Pull failed: ${result.message}`, 'error')
-      return
     }
-  } else if (result.ok) {
-    // Apply the auto-mergeable diffs and ignore conflicts. The 3-way
-    // merge editor that already exists will land in this branch in a
-    // follow-up to walk the user through `result.conflicts`.
-    await result.applyChanges({ resolvedConflicts: [] })
+    toast(`Pull failed: ${result.message}`, 'error')
+    return
   }
 
-  // Now that the rebase is locked in, stamp the registry's commit hash
-  // for the version we just pulled onto the active document so the next
-  // sync check compares against the right base. We only update when the
-  // listing actually advertised a hash and the meta still has a concrete
-  // `version` to write into; otherwise we leave the previous value alone
-  // so a missing hash does not erase one we already had. `saveDocument`
-  // then propagates the new hash into `originalDocuments` so the
-  // post-pull baseline records the same commit hash.
-  if (
-    incomingCommitHash &&
-    incomingCommitHash !== meta.commitHash &&
-    meta.version
-  ) {
-    store.updateDocument(slug, 'x-scalar-registry-meta', {
-      ...meta,
-      version: meta.version,
-      commitHash: incomingCommitHash,
-    })
-    await store.saveDocument(slug)
+  // Conflicts: stash everything we will need after the user has
+  // resolved them and hand control to the three-way merge editor. The
+  // commit-hash stamp and the success toast happen from the modal's
+  // apply callback, mirroring the auto-merge branch below.
+  if (result.conflicts.length > 0) {
+    const originalDocument = store.getOriginalDocument(slug) ?? {}
+    pendingPullState.value = {
+      rebaseResult: {
+        originalDocument,
+        resolvedDocument: apply(deepClone(originalDocument), result.changes),
+        conflicts: result.conflicts,
+        applyChanges: result.applyChanges,
+      },
+      meta,
+      slug,
+      incomingCommitHash,
+    }
+    syncConflictModalState.show()
+    return
   }
 
-  toast(
-    alreadyUpToDate
-      ? 'Already up to date with the registry.'
-      : 'Pulled latest changes from the registry.',
-    'info',
-  )
+  // No conflicts: apply the auto-merged diffs directly.
+  await result.applyChanges({ resolvedConflicts: [] })
+
+  await stampPostPullCommitHash({ meta, slug, incomingCommitHash })
+
+  toast('Pulled latest changes from the registry.', 'info')
+}
+
+/**
+ * Apply callback wired up to `SyncConflictResolutionEditor`. The user
+ * has resolved every conflict at this point, so the merge editor hands
+ * us back the fully resolved document. We commit it through the same
+ * `applyChanges` the rebase exposed, then stamp the upstream commit
+ * hash and toast - exactly like the auto-merge branch above.
+ */
+const handleSyncConflictApplyChanges = async ({
+  resolvedDocument,
+}: {
+  resolvedDocument: Record<string, unknown>
+}): Promise<void> => {
+  const pending = pendingPullState.value
+  if (!pending) {
+    return
+  }
+
+  await pending.rebaseResult.applyChanges({ resolvedDocument })
+  await stampPostPullCommitHash({
+    meta: pending.meta,
+    slug: pending.slug,
+    incomingCommitHash: pending.incomingCommitHash,
+  })
+
+  syncConflictModalState.hide()
+  pendingPullState.value = null
+
+  toast('Pulled latest changes from the registry.', 'info')
+}
+
+/**
+ * Reset the pending pull when the conflict modal closes without an
+ * apply. The workspace store only mutates inside `applyChanges`, so
+ * dropping the captured rebase result is enough to leave the local
+ * document untouched.
+ */
+const handleSyncConflictModalClose = (): void => {
+  pendingPullState.value = null
 }
 
 /**
@@ -984,6 +1099,29 @@ const routerViewProps = computed<RouteProps>(() => {
         :namespaces="registryNamespaces"
         :state="publishDocumentModalState"
         @submit="handlePublishDocumentSubmit" />
+      <!--
+        Three-way merge editor for the Pull flow. We mount it lazily on
+        `pendingPullState` so the heavy Monaco editors only spin up when
+        a pull actually has conflicts to walk through. The full-size
+        layout mirrors `DocumentCollection.vue`'s sync modal so the
+        editor has enough room to render the local / remote / result
+        panes side-by-side.
+      -->
+      <ScalarModal
+        v-if="pendingPullState"
+        bodyClass="sync-conflict-modal-root flex h-dvh flex-col p-4"
+        maxWidth="calc(100dvw - 32px)"
+        size="full"
+        :state="syncConflictModalState"
+        @close="handleSyncConflictModalClose">
+        <div class="flex h-full w-full flex-col gap-4 overflow-hidden">
+          <SyncConflictResolutionEditor
+            :baseDocument="pendingPullState.rebaseResult.originalDocument"
+            :conflicts="pendingPullState.rebaseResult.conflicts"
+            :resolvedDocument="pendingPullState.rebaseResult.resolvedDocument"
+            @applyChanges="handleSyncConflictApplyChanges" />
+        </div>
+      </ScalarModal>
       <!-- Popup command palette to add resources from anywhere -->
       <TheCommandPalette
         :eventBus="app.eventBus"
@@ -1004,5 +1142,22 @@ const routerViewProps = computed<RouteProps>(() => {
 }
 .dark-mode #scalar-client {
   background-color: color-mix(in srgb, var(--scalar-background-1) 65%, black);
+}
+
+/*
+ * The three-way merge editor needs the full viewport to fit its three
+ * Monaco panes. `DocumentCollection.vue` ships the same override for
+ * its in-page Sync modal, but the pull flow can run without that view
+ * being mounted, so we duplicate the rule here to keep the modal
+ * full-bleed.
+ */
+.full-size-styles:has(.sync-conflict-modal-root) {
+  width: 100dvw !important;
+  max-width: 100dvw !important;
+  border-right: none !important;
+}
+
+.full-size-styles:has(.sync-conflict-modal-root)::after {
+  display: none;
 }
 </style>

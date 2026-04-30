@@ -591,6 +591,43 @@ const METADATA_ONLY_DOCUMENT_KEYS = new Set<string>([
 ])
 
 /**
+ * Removes internal and metadata keys from the provided document object.
+ *
+ * This function deletes a list of known internal keys that are only meant for
+ * in-memory/document processing use and should not be present in the final bundled document.
+ * Most of these keys are injected by the bundler or used for Scalar OpenAPI document state tracking.
+ *
+ * Note: Nested internal keys are handled elsewhere in the bundler pipeline.
+ *
+ * @param document - The OpenAPI document object to be sanitized in-place.
+ */
+const purgeInternalDocumentKeys = <T extends Record<string, unknown>>(input: T): T => {
+  const result = deepClone(input)
+  type BundlerKeys = 'x-ext' | 'x-ext-urls'
+  // Top level keys that need to be excluded from the original document
+  // Nested keys are removed during the previous step of the bundler process
+  const EXCLUDE_KEYS = [
+    // Bundler metadata fields added temporarily during document processing
+    'x-ext',
+    'x-ext-urls',
+    // Scalar internal/external metadata fields
+    'x-scalar-navigation',
+    'x-scalar-is-dirty',
+    'x-original-oas-version',
+    'x-scalar-original-document-hash',
+    'x-scalar-original-source-url',
+    'x-scalar-registry-meta',
+  ] satisfies (keyof OpenAPIExtensions | BundlerKeys)[] as string[]
+
+  // Remove top-level properties that should only exist temporarily or for internal usage
+  // These properties are used for internal purposes and are not needed in the final bundled document
+  for (const property of EXCLUDE_KEYS) {
+    delete result[property]
+  }
+  return result
+}
+
+/**
  * Creates a reactive workspace store that manages documents and their metadata.
  * The store provides functionality for accessing, updating, and resolving document references.
  *
@@ -1153,29 +1190,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       urlMap: true,
     })) as WorkspaceDocument & { 'x-ext-urls'?: unknown; 'x-ext'?: unknown }
 
-    type BundlerKeys = 'x-ext' | 'x-ext-urls'
-    // Top level keys that need to be excluded from the original document
-    // Nested keys are removed buring the previous step of the bundler process
-    const EXCLUDE_KEYS = [
-      // Bundler metadata fields added temporarily during document processing
-      'x-ext',
-      'x-ext-urls',
-      // Scalar internal/external metadata fields
-      'x-scalar-navigation',
-      'x-scalar-is-dirty',
-      'x-original-oas-version',
-      'x-scalar-original-document-hash',
-      'x-scalar-original-source-url',
-      'x-scalar-registry-meta',
-    ] satisfies (keyof OpenAPIExtensions | BundlerKeys)[] as string[]
-
-    // Remove top level properties that should only exist in memory for the original document
-    // These properties are used for internal purposes and are not needed in the final bundled document
-    for (const property of EXCLUDE_KEYS) {
-      delete original[property as keyof WorkspaceDocument]
-    }
-
-    return original
+    return purgeInternalDocumentKeys(original)
   }
 
   /**
@@ -1260,6 +1275,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         documentSource: currentDocument['x-scalar-original-source-url'],
         documentHash: currentDocument['x-scalar-original-document-hash'],
         meta: {
+          // Preserve the registry meta
+          'x-scalar-registry-meta': currentDocument['x-scalar-registry-meta'],
           // Set the document as dirty
           'x-scalar-is-dirty': true,
           // Clear the navigation to trigger a rebuild
@@ -1357,6 +1374,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         documentSource: workspaceDocument['x-scalar-original-source-url'],
         documentHash: workspaceDocument['x-scalar-original-document-hash'],
         initialize: false,
+        meta: {
+          // Preserve the registry meta
+          'x-scalar-registry-meta': workspaceDocument['x-scalar-registry-meta'],
+        },
       })
     },
     commitDocument(documentName: string) {
@@ -1426,11 +1447,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // document (with any unsaved edits on top).
       const originalDocument = unpackProxyObject(originalDocuments[name], { depth: 1 })
       // raw version without any proxies
-      const activeDocument = workspace.documents[name]
-        ? unpackProxyObject(workspace.documents[name], { depth: 1 })
-        : undefined
+      const activeDocument = await getEditableDocument(name)
+      const activeDocumentRaw = unpackProxyObject(activeDocument, { depth: 1 })
 
-      if (!originalDocument || !activeDocument) {
+      if (!originalDocument || !activeDocument || !activeDocumentRaw) {
         // If any required document state is missing, do nothing
         return {
           ok: false,
@@ -1461,7 +1481,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // Compare document hashes to see if the document has changed
       // When the hashes match, we can skip the rebase process
       const newHash = generateHash(resolve.raw)
-      if (activeDocument['x-scalar-original-document-hash'] === newHash) {
+      if (activeDocumentRaw['x-scalar-original-document-hash'] === newHash) {
         return {
           ok: false,
           type: 'NO_CHANGES_DETECTED' as const,
@@ -1542,6 +1562,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             // Update the original document hash
             documentHash: generateHash(resolve.raw),
             initialize: false,
+            meta: {
+              // Preserve the registry meta
+              'x-scalar-registry-meta': activeDocumentRaw['x-scalar-registry-meta'],
+            },
           })
         },
       }
