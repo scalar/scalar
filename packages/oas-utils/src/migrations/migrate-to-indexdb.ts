@@ -157,7 +157,7 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
         const workspaceAuth: InMemoryWorkspace['auth'] = {}
 
         /** Create a slugger instance per workspace to handle duplicate document names */
-        const { slug } = slugger()
+        const { slug } = slugger({ lowercase: true })
 
         /** Each collection becomes a document in the new system and grab the auth as well */
         const documents: { name: string; document: Record<string, unknown> }[] = workspace.collections.flatMap(
