@@ -484,16 +484,12 @@ const handleHeaderPushDocument = async (): Promise<void> => {
     return
   }
 
-  // The registry needs a non-empty commit hash to do its optimistic
-  // concurrency check. Bailing out here gives a clearer error than
-  // letting the adapter reject the call as `CONFLICT`.
-  if (!meta.commitHash) {
-    toast(
-      'This document is missing a commit hash. Pull from the registry first to anchor it.',
-      'error',
-    )
-    return
-  }
+  // `commitHash` is intentionally allowed to be missing here. A
+  // brand-new local version (e.g. one the user just created against an
+  // existing registry document) has no upstream hash yet, so we forward
+  // `undefined` to the registry and let it skip the optimistic
+  // concurrency check for this first push. Subsequent pushes get
+  // anchored once the registry hands back the new hash below.
 
   // Snapshot the editable document so the registry receives the
   // current in-memory state - this is what the user just confirmed they
