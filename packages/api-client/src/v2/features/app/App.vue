@@ -16,6 +16,8 @@ import {
 } from '@scalar/components'
 import {
   ScalarIconArrowCounterClockwise,
+  ScalarIconCloudArrowDown,
+  ScalarIconCloudArrowUp,
   ScalarIconFloppyDisk,
 } from '@scalar/icons'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
@@ -31,6 +33,7 @@ import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceMo
 import DocumentBreadcrumb from '@/v2/features/app/components/DocumentBreadcrumb.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
+import { useActiveDocumentVersion } from '@/v2/features/app/hooks/use-active-document-version'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
 import type { RegistryDocumentsState } from '@/v2/features/app/hooks/use-sidebar-documents'
 import type { CommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
@@ -179,30 +182,97 @@ useMonacoEditorConfiguration({
 const createWorkspaceModalState = useModal()
 
 /**
- * Drives the inline Save action rendered inside the global header. We
- * surface it on local workspaces with an active document so the user
- * always sees the affordance - team workspaces persist through their own
- * collaboration pipeline, so the button only makes sense for local.
- *
- * The intermediate state on the workspace store has been deprecated, so
- * Save now writes the current document back as the new original snapshot
- * and Revert restores from that snapshot, matching the behaviour of the
- * collection page's save prompt.
+ * Resolves the registry meta and sync status for the active document.
+ * The breadcrumb already drives this composable for its version picker;
+ * we reuse it here so the header action cluster reads from exactly the
+ * same `pull` / `push` / `synced` source of truth that the picker rows
+ * and the inline status icons do.
  */
-const showHeaderSaveActions = computed(
-  () =>
-    !app.workspace.isTeamWorkspace.value &&
-    Boolean(app.activeEntities.documentSlug.value),
+const { activeRegistryMeta, activeVersion } = useActiveDocumentVersion({
+  app,
+  registryDocuments: () => registryDocuments,
+})
+
+/** Whether the route currently resolves to a document. */
+const hasActiveDocument = computed(() =>
+  Boolean(app.activeEntities.documentSlug.value),
 )
 
-/**
- * Whether the active document has unsaved changes. Controls the disabled
- * state of the header Save button and the visibility of the Revert button
- * inside `AppHeader`.
- */
+/** Whether the active document has unsaved local edits. */
 const isActiveDocumentDirty = computed(
   () =>
     app.store.value?.workspace.activeDocument?.['x-scalar-is-dirty'] === true,
+)
+
+/**
+ * Save / Revert cluster for local workspaces. Mirrors the save-prompt UX
+ * of the document collection page: Save is always mounted while a doc is
+ * active and gets disabled when there is nothing to persist; Revert only
+ * shows up while the document is dirty.
+ */
+const showLocalSaveActions = computed(
+  () => !app.workspace.isTeamWorkspace.value && hasActiveDocument.value,
+)
+
+/**
+ * Pull / Push cluster for team workspace documents that already have a
+ * registry relationship. The same `Revert` button as local workspaces
+ * sits in front of it so a dirty document can be discarded without going
+ * through the registry round-trip.
+ */
+const showTeamSyncActions = computed(
+  () =>
+    app.workspace.isTeamWorkspace.value &&
+    hasActiveDocument.value &&
+    Boolean(activeRegistryMeta.value),
+)
+
+/**
+ * Publish cluster for team workspace documents that do not yet have a
+ * registry entry. We surface it as a single "Publish" affordance instead
+ * of the Pull / Push pair because there is no upstream version to sync
+ * against - the action is simply "create the registry version".
+ */
+const showTeamPublishAction = computed(
+  () =>
+    app.workspace.isTeamWorkspace.value &&
+    hasActiveDocument.value &&
+    !activeRegistryMeta.value,
+)
+
+/**
+ * Pull is enabled while the registry advertises a different commit hash
+ * than the local one, regardless of whether the local document is dirty.
+ * `conflict` is treated the same as `pull` here so the user can always
+ * reach the conflict-resolution flow from the header.
+ */
+const canPullActiveDocument = computed(() => {
+  const status = activeVersion.value?.status
+  return status === 'pull' || status === 'conflict'
+})
+
+/**
+ * Push is only enabled when the document is dirty *and* there are no
+ * upstream changes - mirroring `computeVersionStatus`'s `'push'` outcome,
+ * which already encodes that combination. Pushing while upstream has
+ * moved on would clobber the registry version, so we lock the button
+ * until the user has pulled / resolved.
+ */
+const canPushActiveDocument = computed(
+  () => activeVersion.value?.status === 'push',
+)
+
+/**
+ * Truthy when *any* trailing action cluster is renderable. Used to gate
+ * the leading edge of the header end slot (and the divider against the
+ * consumer-provided `header-end` cluster) without re-deriving the same
+ * conditions in the template.
+ */
+const hasHeaderActionCluster = computed(
+  () =>
+    showLocalSaveActions.value ||
+    showTeamSyncActions.value ||
+    showTeamPublishAction.value,
 )
 
 const handleHeaderSaveDocument = async () => {
@@ -219,6 +289,30 @@ const handleHeaderRevertDocument = async () => {
     return
   }
   await app.store.value.revertDocumentChanges(slug)
+}
+
+/**
+ * Placeholder for the registry pull flow. The wiring (workspace store
+ * call, conflict handling, toast feedback) will be implemented in a
+ * follow-up - this component just owns the affordance so the header
+ * surface can ship in parallel.
+ */
+const handleHeaderPullDocument = (): void => {
+  // TODO: hook up to the registry pull flow.
+}
+
+/** Placeholder for the registry push flow. See `handleHeaderPullDocument`. */
+const handleHeaderPushDocument = (): void => {
+  // TODO: hook up to the registry push flow.
+}
+
+/**
+ * Placeholder for the "publish to registry" flow used when a team
+ * workspace document has no registry entry yet. See
+ * `handleHeaderPullDocument`.
+ */
+const handleHeaderPublishDocument = (): void => {
+  // TODO: hook up to the publish-to-registry flow.
 }
 
 /** Props to pass to the RouterView component. */
@@ -309,29 +403,26 @@ const routerViewProps = computed<RouteProps>(() => {
           </template>
           <!--
             Only forward the trailing `#end` cluster when it has actual
-            content. The save actions and the consumer slots all gate
+            content. The action clusters and the consumer slots all gate
             independently, so we mirror those conditions on the wrapper to
             avoid mounting an empty cluster that would otherwise leak a
             stray divider.
           -->
           <template
             v-if="
-              showHeaderSaveActions ||
+              hasHeaderActionCluster ||
               $slots['header-actions'] ||
               $slots['header-end']
             "
             #end>
             <div class="flex items-center gap-2">
               <!--
-                Inline Revert / Save actions. Visible on local workspaces
-                with an active document so the user always sees the Save
-                affordance; Revert only joins it once the document is
-                dirty and Save is disabled while there is nothing to
-                persist. Lives alongside the `header-actions` slot so
-                consumers can layer additional document-scoped actions
-                next to the save buttons.
+                Local workspace cluster: Save is always mounted while a
+                document is active so the affordance does not jump around,
+                and gets disabled when the document is clean. Revert only
+                joins it once there is something to revert.
               -->
-              <template v-if="showHeaderSaveActions">
+              <template v-if="showLocalSaveActions">
                 <ScalarButton
                   v-if="isActiveDocumentDirty"
                   aria-label="Revert changes"
@@ -361,19 +452,92 @@ const routerViewProps = computed<RouteProps>(() => {
                   <span>Save</span>
                 </ScalarButton>
               </template>
+              <!--
+                Team workspace cluster for registry-backed documents. The
+                same Revert affordance as local workspaces sits in front of
+                the Pull / Push pair so dirty edits can be discarded
+                without going through the registry. Pull / Push enablement
+                tracks the cached `VersionStatus` so only one of them is
+                actionable at a time.
+              -->
+              <template v-if="showTeamSyncActions">
+                <ScalarButton
+                  v-if="isActiveDocumentDirty"
+                  aria-label="Revert changes"
+                  class="text-c-2 hover:text-c-1 size-6 shrink-0 p-0"
+                  data-testid="app-header-revert-button"
+                  size="xs"
+                  type="button"
+                  variant="ghost"
+                  @click="handleHeaderRevertDocument">
+                  <ScalarIconArrowCounterClockwise
+                    class="size-3.5"
+                    size="sm"
+                    thickness="1.5" />
+                </ScalarButton>
+                <ScalarButton
+                  class="shrink-0 gap-1.5"
+                  data-testid="app-header-pull-button"
+                  :disabled="!canPullActiveDocument"
+                  size="xs"
+                  type="button"
+                  variant="solid"
+                  @click="handleHeaderPullDocument">
+                  <ScalarIconCloudArrowDown
+                    class="size-3.5"
+                    size="sm"
+                    thickness="1.5" />
+                  <span>Pull</span>
+                </ScalarButton>
+                <ScalarButton
+                  class="shrink-0 gap-1.5"
+                  data-testid="app-header-push-button"
+                  :disabled="!canPushActiveDocument"
+                  size="xs"
+                  type="button"
+                  variant="solid"
+                  @click="handleHeaderPushDocument">
+                  <ScalarIconCloudArrowUp
+                    class="size-3.5"
+                    size="sm"
+                    thickness="1.5" />
+                  <span>Push</span>
+                </ScalarButton>
+              </template>
+              <!--
+                Team workspace cluster for documents that have not been
+                published yet. A single Publish button kicks off the
+                first-time push to the registry; once that succeeds the
+                document gets a registry meta and switches over to the
+                Pull / Push cluster above on the next render.
+              -->
+              <ScalarButton
+                v-if="showTeamPublishAction"
+                class="shrink-0 gap-1.5"
+                data-testid="app-header-publish-button"
+                size="xs"
+                type="button"
+                variant="solid"
+                @click="handleHeaderPublishDocument">
+                <ScalarIconCloudArrowUp
+                  class="size-3.5"
+                  size="sm"
+                  thickness="1.5" />
+                <span>Publish</span>
+              </ScalarButton>
               <slot
                 v-if="$slots['header-actions']"
                 name="header-actions" />
               <!--
-                Vertical divider between the document-scoped action
-                cluster (save buttons + `header-actions`) and the trailing
+                Vertical divider between the document-scoped action cluster
+                (workspace-mode buttons + `header-actions`) and the trailing
                 `header-end` cluster. Only rendered when both sides have
                 content so single-cluster headers do not get an orphaned
                 separator.
               -->
               <span
                 v-if="
-                  (showHeaderSaveActions || $slots['header-actions']) &&
+                  (hasHeaderActionCluster || $slots['header-actions']) &&
                   $slots['header-end']
                 "
                 aria-hidden="true"

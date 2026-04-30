@@ -13,13 +13,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import {
-  ScalarButton,
-  ScalarModal,
-  ScalarSavePrompt,
-  useLoadingState,
-  useModal,
-} from '@scalar/components'
+import { ScalarButton, ScalarModal, useModal } from '@scalar/components'
 import {
   ScalarIconCloudArrowDown,
   ScalarIconDownload,
@@ -59,8 +53,6 @@ const isDocumentDirty = computed(
   () => props.document?.['x-scalar-is-dirty'] === true,
 )
 
-const saveLoader = useLoadingState()
-
 const documentSourceUrl = computed(
   () => props.document?.['x-scalar-original-source-url'] as string | undefined,
 )
@@ -85,16 +77,6 @@ const canShowSyncButton = computed(
 )
 
 const { toast } = useToasts()
-
-const undoChanges = () => {
-  props.workspaceStore.revertDocumentChanges(props.documentSlug)
-}
-
-const saveChanges = async () => {
-  saveLoader.start()
-  const res = await props.workspaceStore.saveDocument(props.documentSlug)
-  await (res ? saveLoader.validate() : saveLoader.invalidate({ persist: true }))
-}
 
 /** Downloads the document as a JSON file using the last saved state. */
 const downloadDocument = () => {
@@ -296,12 +278,6 @@ const onSyncModalClose = () => {
       <div
         :aria-label="`title: ${title}`"
         class="md:max-w-content mx-auto flex h-fit w-full flex-col gap-2 pt-14 pb-3 md:pt-6">
-        <ScalarSavePrompt
-          v-model="isDocumentDirty"
-          class="w-content-padded-4 max-w-full-padded-4 absolute"
-          :loader="saveLoader"
-          @discard="undoChanges"
-          @save="saveChanges" />
         <div class="flex flex-row items-center justify-between gap-2">
           <div class="flex min-w-0 items-center gap-2">
             <IconSelector
