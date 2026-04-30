@@ -1563,6 +1563,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             documentHash: generateHash(resolve.raw),
             initialize: false,
             meta: {
+              ...input.meta,
               // Preserve the registry meta
               'x-scalar-registry-meta': activeDocumentRaw['x-scalar-registry-meta'],
             },
