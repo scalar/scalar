@@ -4,7 +4,7 @@ import { computed } from 'vue'
 import type { AppState } from '@/v2/features/app/app-state'
 import { VERSION_STATUS_PRESENTATION } from '@/v2/features/app/helpers/version-status-presentation'
 import { useActiveDocumentVersion } from '@/v2/features/app/hooks/use-active-document-version'
-import type { RegistryDocumentsState } from '@/v2/features/app/hooks/use-sidebar-documents'
+import type { RegistryDocumentsState } from '@/v2/types/configuration'
 
 const { app, registryDocuments = { status: 'success', documents: [] } } =
   defineProps<{

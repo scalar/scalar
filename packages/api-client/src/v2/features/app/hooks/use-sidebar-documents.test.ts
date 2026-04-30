@@ -4,7 +4,8 @@ import type { TraversedDocument } from '@scalar/workspace-store/schemas/navigati
 import { describe, expect, it } from 'vitest'
 import { computed, ref, shallowRef } from 'vue'
 
-import { type RegistryDocument, useSidebarDocuments } from '@/v2/features/app/hooks/use-sidebar-documents'
+import { useSidebarDocuments } from '@/v2/features/app/hooks/use-sidebar-documents'
+import type { RegistryDocument } from '@/v2/types/configuration'
 
 type FakeDocument = Partial<WorkspaceDocument> & {
   'x-scalar-registry-meta'?: {

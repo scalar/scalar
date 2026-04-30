@@ -32,13 +32,15 @@ import { useDocumentFilter } from '@/v2/features/app/hooks/use-document-filter'
 import { useSidebarContextMenu } from '@/v2/features/app/hooks/use-sidebar-context-menu'
 import {
   useSidebarDocuments,
-  type RegistryDocumentsState,
   type SidebarDocumentItem,
 } from '@/v2/features/app/hooks/use-sidebar-documents'
 import { DocumentSearchModal } from '@/v2/features/search'
 import { dragHandleFactory } from '@/v2/helpers/drag-handle-factory'
 import { safeRun } from '@/v2/helpers/safe-run'
-import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
+import type {
+  ImportDocumentFromRegistry,
+  RegistryDocumentsState,
+} from '@/v2/types/configuration'
 
 const {
   app,

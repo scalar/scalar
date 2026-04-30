@@ -8,13 +8,6 @@ import type { RegistryDocument } from '@/v2/types/configuration'
 export type { VersionStatus }
 
 /**
- * The canonical registry types now live in `@/v2/types/configuration`
- * so consumers can wire up the registry adapter without depending on a
- * sidebar internal. Re-exported here to preserve existing imports.
- */
-export type { RegistryDocument, RegistryDocumentVersion, RegistryDocumentsState } from '@/v2/types/configuration'
-
-/**
  * A single version of a registry-backed document.
  *
  * On team workspaces, a registry document can advertise multiple versions and

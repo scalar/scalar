@@ -20,10 +20,12 @@ import { createDraftRegistryDocument } from '@/v2/features/app/helpers/create-dr
 import { loadRegistryDocument } from '@/v2/features/app/helpers/load-registry-document'
 import { VERSION_STATUS_PRESENTATION } from '@/v2/features/app/helpers/version-status-presentation'
 import { useActiveDocumentVersion } from '@/v2/features/app/hooks/use-active-document-version'
-import type { RegistryDocumentsState } from '@/v2/features/app/hooks/use-sidebar-documents'
 import { useVersionConflictCheck } from '@/v2/features/app/hooks/use-version-conflict-check'
 import { safeRun } from '@/v2/helpers/safe-run'
-import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
+import type {
+  ImportDocumentFromRegistry,
+  RegistryDocumentsState,
+} from '@/v2/types/configuration'
 
 import CreateVersionModal from './CreateVersionModal.vue'
 
