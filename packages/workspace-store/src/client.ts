@@ -1447,8 +1447,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // document (with any unsaved edits on top).
       const originalDocument = unpackProxyObject(originalDocuments[name], { depth: 1 })
       // raw version without any proxies
+      const activeDocumentRaw = unpackProxyObject(workspace.documents[name], { depth: 1 })
+      // editable version of the document (reversing bundling and also remove internal metadata)
       const activeDocument = await getEditableDocument(name)
-      const activeDocumentRaw = unpackProxyObject(activeDocument, { depth: 1 })
 
       if (!originalDocument || !activeDocument || !activeDocumentRaw) {
         // If any required document state is missing, do nothing
