@@ -477,11 +477,24 @@ const handleHeaderPushDocument = async (): Promise<void> => {
     return
   }
 
+  // Snapshot the editable document so the registry receives the
+  // current in-memory state - this is what the user just confirmed they
+  // want to push, before `saveDocument` rewrites the baseline.
+  const documentBody = await store.getEditableDocument(slug)
+  if (!documentBody) {
+    toast(
+      'Could not read the active document. Please reload and try again.',
+      'error',
+    )
+    return
+  }
+
   const result = await registry.publishVersion({
     namespace,
     slug: registrySlug,
     version,
     commitHash: meta.commitHash,
+    document: documentBody as Record<string, unknown>,
   })
   if (!result.ok) {
     // TODO: when `CONFLICT` lands here, automatically run the pull
@@ -550,11 +563,15 @@ const handleHeaderPublishDocument = (): void => {
  * Submit handler invoked by the publish modal once the user confirms
  * the namespace, slug, and version. We:
  *
- *  1. Call `registry.publishDocument` with the user-chosen meta.
- *  2. On success: write the new registry meta + version onto the
- *     active document, then `saveDocument` to make it the new
- *     baseline. The modal is closed via the `done` callback.
- *  3. On failure: forward the discriminated error code to the modal
+ *  1. Apply the chosen `version` to `info.version` locally so the
+ *     document we send to the registry already advertises the right
+ *     version field.
+ *  2. Snapshot the editable document and call `registry.publishDocument`
+ *     with the meta plus the document body.
+ *  3. On success: stamp the new registry meta onto the active
+ *     document and `saveDocument` so it becomes the new baseline. The
+ *     modal is closed via the `done` callback.
+ *  4. On failure: forward the discriminated error code to the modal
  *     so the user sees a meaningful inline message and can fix the
  *     input without losing what they typed.
  */
@@ -576,7 +593,39 @@ const handlePublishDocumentSubmit = async ({
     return
   }
 
-  const result = await registry.publishDocument(input)
+  // Mirror the chosen version onto `info.version` BEFORE snapshotting
+  // the document so the registry receives a body whose `info.version`
+  // already matches what the modal advertised. We write the field
+  // directly (rather than replacing the whole `info` object) to keep
+  // the workspace store's reactive proxy intact for any other
+  // subscribers watching `info.title`, contact info, etc.
+  const activeDocument = store.workspace.documents[documentSlug]
+  if (!activeDocument) {
+    done({
+      ok: false,
+      message:
+        'Could not read the active document. Please reload the workspace and try again.',
+    })
+    return
+  }
+
+  const documentBody = await store.getEditableDocument(documentSlug)
+  if (!documentBody) {
+    done({
+      ok: false,
+      message:
+        'Could not read the active document. Please reload the workspace and try again.',
+    })
+    return
+  }
+
+  // Update the document version of the document body (this is not the actual active document but a deep clone)
+  documentBody.info.version = input.version
+
+  const result = await registry.publishDocument({
+    ...input,
+    document: documentBody as Record<string, unknown>,
+  })
   if (!result.ok) {
     done({
       ok: false,
@@ -585,15 +634,8 @@ const handlePublishDocumentSubmit = async ({
     return
   }
 
-  // Mirror the chosen version onto `info.version` so the document and
-  // the registry stay in sync without an extra edit.
-  const activeDocument = store.workspace.documents[documentSlug]
-  if (activeDocument) {
-    activeDocument.info = {
-      ...activeDocument.info,
-      version: input.version,
-    }
-  }
+  // Now update the actual active document version with the new version
+  activeDocument.info.version = input.version
 
   // Stamp the registry meta on the active document. The registry may
   // or may not have advertised a commit hash for the freshly created

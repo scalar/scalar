@@ -77,16 +77,23 @@ export type PublishRegistryDocumentResult = Result<
  * have a registry entry - subsequent sync flows then go through the
  * Pull / Push pair once the registry has assigned a commit hash.
  *
- * The caller also chooses the document's initial `version`. The local
- * workspace mirrors the same string on `info.version` after a
- * successful publish so the document and the registry stay in sync
- * without a follow-up edit.
+ * The caller also chooses the document's initial `version` and passes
+ * the full document body. The local workspace mirrors the same string
+ * on `info.version` after a successful publish so the document and the
+ * registry stay in sync without a follow-up edit.
  */
 export type PublishRegistryDocument = (input: {
   namespace: string
   slug: string
   /** Initial version the document is published under (e.g. `1.0.0`). */
   version: string
+  /**
+   * Full OpenAPI document body to seed the registry entry with. The
+   * caller is expected to apply the chosen `version` to `info.version`
+   * before passing the document so the registry stores a consistent
+   * snapshot.
+   */
+  document: Record<string, unknown>
 }) => Promise<PublishRegistryDocumentResult>
 
 /**
@@ -143,6 +150,12 @@ export type PublishRegistryVersion = (input: {
   slug: string
   /** Version identifier the caller is publishing (e.g. `1.2.0`). */
   version: string
+  /**
+   * Full OpenAPI document body that should become the new state on the
+   * registry for this `version`. Mirrors the input shape of
+   * `publishDocument` so adapters can share the same upload helper.
+   */
+  document: Record<string, unknown>
   /**
    * Commit hash the caller currently believes is the latest one for
    * this `version`. The registry compares this against its own current
