@@ -516,6 +516,52 @@ describe('ScalarSidebarNestedItems', () => {
     expect(buttonHtml).toContain('svg')
   })
 
+  /**
+   * Regression test: previously the component passed the `defineModel`
+   * `ModelRef` directly into `useSidebarNestedItem`. The unmount cleanup
+   * filters the parent list by reference identity (`child !== open`),
+   * which did not reliably match the `ModelRef` stored in the parent
+   * list. As a result, unmounted children were not removed and the
+   * parent's items container stayed translated off-screen.
+   *
+   * Wrapping the model in a stable `computed(() => open.value)` ensures
+   * the same reference is pushed and later filtered on unmount, so the
+   * parent correctly snaps back when an open nested item is removed.
+   */
+  it('clears the parent open state when an open nested item is unmounted', async () => {
+    const TestComponent = defineComponent({
+      components: { ScalarSidebarItems, ScalarSidebarNestedItems, ScalarSidebarItem },
+      props: { showNested: { type: Boolean, default: true } },
+      template: `
+        <ScalarSidebarItems>
+          <ScalarSidebarNestedItems v-if="showNested" :open="true">
+            Nested
+            <template #items>
+              <ScalarSidebarItem>Item 1</ScalarSidebarItem>
+            </template>
+          </ScalarSidebarNestedItems>
+        </ScalarSidebarItems>
+      `,
+    })
+
+    const wrapper = mount(TestComponent, { props: { showNested: true } })
+    await nextTick()
+    await vi.advanceTimersByTimeAsync(350)
+
+    // While the nested item is open, the items container is translated off-screen
+    const items = wrapper.findComponent(ScalarSidebarItems).element as HTMLElement
+    expect(items.className).toContain('-translate-x-full')
+
+    // Unmount the nested item while it is still open
+    await wrapper.setProps({ showNested: false })
+    await nextTick()
+    await vi.advanceTimersByTimeAsync(350)
+
+    // Parent should no longer report any open children and snap back
+    expect(items.className).toContain('translate-x-0')
+    expect(items.className).not.toContain('-translate-x-full')
+  })
+
   it('renders with correct indent level', () => {
     const TestComponent = defineComponent({
       components: {

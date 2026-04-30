@@ -134,6 +134,30 @@ All workspace packages use `workspace:*` for internal dependencies. Shared third
 
 ## Code Standards
 
+### Reuse helpers before writing new ones
+
+Before writing a new utility function, check `@scalar/helpers` (`packages/helpers/src/`) first. It already covers a wide range of common needs, organized by category:
+
+| Category | Examples |
+|----------|---------|
+| `array` | array manipulation utilities |
+| `dom` | DOM helpers |
+| `errors` | error handling utilities |
+| `file` | file utilities |
+| `formatters` | value formatting |
+| `general` | miscellaneous general utilities |
+| `http` | HTTP methods, headers, status codes, MIME types |
+| `json` | JSON pointer helpers, pretty-print |
+| `markdown` | heading extraction |
+| `object` | deep equality, key helpers, path access, local storage |
+| `queue` | async queue |
+| `regex` | variable finding/replacing |
+| `string` | capitalize, hash, truncate, camel-to-title |
+| `testing` | sleep, measure, console spies |
+| `url` | URL validation, merging, proxy helpers |
+
+If the helper you need already exists there, import it from `@scalar/helpers`. Only add a new helper to `@scalar/helpers` (or another package) if nothing suitable already exists.
+
 ### TypeScript
 
 - Prefer `type` over `interface`
@@ -286,14 +310,37 @@ If a package version should bump, add a changeset:
 pnpm changeset
 ```
 
-### Pre-PR command checklist
+### After-change checklist
 
-After making code changes, run:
+After making **any** code changes, run lint, format, and type-check scoped to only the files and packages you touched. Do not run whole-repo checks.
+
+**1. Lint and format only the changed files:**
 
 ```bash
-pnpm format
-pnpm knip
+# Collect the files you changed (adjust the revision as needed)
+CHANGED=$(git diff --name-only HEAD)
+
+# Biome: lint + format TypeScript/JS files
+pnpm biome check --write --diagnostic-level=error --no-errors-on-unmatched --files-ignore-unknown=true $CHANGED
+
+# Prettier: format Vue, Markdown, JSON, CSS, YAML, and other non-TS files
+pnpm prettier --write $CHANGED
 ```
+
+**2. Type-check only the affected package(s):**
+
+```bash
+# Replace <package-name> with the actual package (e.g. api-client, helpers, oas-utils)
+pnpm --filter @scalar/<package-name> types:check
+```
+
+Then, before opening or updating a PR, also run:
+
+```bash
+pnpm knip          # Detect unused exports, files, and dependencies
+```
+
+> All checks must pass cleanly. Do not commit code that has lint errors, type errors, or unused exports.
 
 ## Visual Testing
 

@@ -75,10 +75,10 @@ export function initializeAppEventHandlers({
       //------------------------------------------------------------------------------------
       'document:delete:document': {
         onAfterExecute: async (payload) => {
-          // Redirect to the workspace environment page if the document was deleted
+          // Redirect to the workspace get started page if the document was deleted
           if (currentRoute?.value?.params.documentSlug === payload.name) {
             await router.push({
-              name: 'workspace.environment',
+              name: 'workspace.get-started',
             })
           }
         },

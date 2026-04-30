@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-
 import { describe, expect, it, vi } from 'vitest'
+
 import MarkdownReference from './MarkdownReference.vue'
 
 // Mock the ScalarMarkdown component
@@ -129,6 +129,78 @@ describe('MarkdownReference', () => {
     expect(wrapper.text()).toContain('200')
     expect(wrapper.text()).toContain('Array of:')
     expect(wrapper.text()).toContain('string')
+  })
+
+  it('renders path and operation parameters', () => {
+    const content: OpenApiDocument = withMeta({
+      openapi: '3.1.1',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/reports/{reportId}': {
+          parameters: [
+            {
+              name: 'reportId',
+              in: 'path',
+              required: true,
+              description: 'Report identifier',
+              schema: {
+                type: 'string',
+              },
+            },
+            {
+              name: 'traceId',
+              in: 'header',
+              description: 'Path trace identifier',
+              schema: {
+                type: 'string',
+              },
+            },
+          ],
+          get: {
+            summary: 'Get report',
+            parameters: [
+              {
+                name: 'month',
+                in: 'query',
+                required: true,
+                description: 'Calendar month',
+                schema: {
+                  type: 'string',
+                },
+              },
+              {
+                name: 'traceId',
+                in: 'header',
+                description: 'Operation trace identifier',
+                schema: {
+                  type: 'string',
+                },
+              },
+            ],
+            responses: {
+              '200': {
+                description: 'Success',
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const wrapper = mount(MarkdownReference, { props: { content } })
+    const text = wrapper.text()
+
+    expect(text).toContain('Parameters')
+    expect(text).toContain('reportId required')
+    expect(text).toContain('path')
+    expect(text).toContain('Report identifier')
+    expect(text).toContain('month required')
+    expect(text).toContain('query')
+    expect(text).toContain('Calendar month')
+    expect(text).toContain('traceId')
+    expect(text).toContain('header')
+    expect(text).toContain('Operation trace identifier')
+    expect(text).not.toContain('Path trace identifier')
   })
 
   it('renders deprecated operation', () => {

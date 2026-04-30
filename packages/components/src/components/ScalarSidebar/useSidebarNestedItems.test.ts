@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { type Ref, computed, inject, nextTick, ref } from 'vue'
+import { computed, inject, nextTick, ref, shallowReactive } from 'vue'
 
 import { useSidebarNestedItem } from './useSidebarNestedItems'
 
@@ -13,63 +13,80 @@ vi.mock('vue', async () => {
   }
 })
 
+const createParentModel = () => {
+  const parentModel = shallowReactive(new Set<() => boolean>())
+  const open = computed(() => {
+    for (const child of parentModel) {
+      if (child()) {
+        return true
+      }
+    }
+
+    return false
+  })
+
+  return {
+    parentModel,
+    open,
+  }
+}
+
 describe('useSidebarNestedItems', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('should sync the open state of the nearest nested child items', async () => {
+  it('syncs the open state of the nearest nested child items', async () => {
     const childModel = ref(false)
-    const parentModel = ref<Ref<boolean>[]>([])
-    const open = computed(() => parentModel.value.some((child) => child.value))
+    const childOpen = () => childModel.value
+    const { parentModel, open } = createParentModel()
 
     vi.mocked(inject).mockReturnValue(parentModel)
 
-    // Shouldn't sync before the hook is used
+    // Should not sync before the hook is used
     childModel.value = true
     await nextTick()
-    expect(open.value).toEqual(false) // Not synced yet
+    expect(open.value).toBe(false)
 
     childModel.value = false
     await nextTick()
-    expect(open.value).toEqual(false) // Not synced yet
+    expect(open.value).toBe(false)
 
-    useSidebarNestedItem(childModel)
+    useSidebarNestedItem(childOpen)
 
     childModel.value = true
     await nextTick()
-    expect(open.value).toEqual(true) // Synced
+    expect(open.value).toBe(true)
 
     childModel.value = false
     await nextTick()
-    expect(open.value).toEqual(false) // Synced
+    expect(open.value).toBe(false)
   })
 
-  it('should sync multiple child models', async () => {
+  it('syncs multiple child models', async () => {
     const childModel1 = ref(false)
     const childModel2 = ref(false)
-    const parentModel = ref<Ref<boolean>[]>([])
-    const open = computed(() => parentModel.value.some((child) => child.value))
+    const { parentModel, open } = createParentModel()
 
     vi.mocked(inject).mockReturnValue(parentModel)
 
-    useSidebarNestedItem(childModel1)
-    useSidebarNestedItem(childModel2)
+    useSidebarNestedItem(() => childModel1.value)
+    useSidebarNestedItem(() => childModel2.value)
 
     childModel1.value = true
     await nextTick()
-    expect(open.value).toEqual(true)
+    expect(open.value).toBe(true)
 
     childModel2.value = true
     await nextTick()
-    expect(open.value).toEqual(true)
+    expect(open.value).toBe(true)
 
     childModel1.value = false
     await nextTick()
-    expect(open.value).toEqual(true)
+    expect(open.value).toBe(true)
 
     childModel2.value = false
     await nextTick()
-    expect(open.value).toEqual(false)
+    expect(open.value).toBe(false)
   })
 })

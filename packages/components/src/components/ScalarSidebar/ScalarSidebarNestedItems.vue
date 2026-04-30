@@ -40,7 +40,7 @@ const emit = defineEmits<{
 }>()
 
 const open = defineModel<boolean>('open', { default: false })
-useSidebarNestedItem(open)
+useSidebarNestedItem(() => open.value)
 
 defineSlots<{
   /** The text content of the button */
