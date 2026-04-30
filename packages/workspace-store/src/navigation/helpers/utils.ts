@@ -1,5 +1,5 @@
 import { getMarkdownHeadings } from '@scalar/helpers/markdown/get-markdown-headings'
-import GithubSlugger from 'github-slugger'
+import { slugger } from '@scalar/helpers/string/slugger'
 
 import type { Heading } from '@/navigation/types'
 
@@ -24,11 +24,11 @@ import type { Heading } from '@/navigation/types'
  * //   { value: 'Installation', depth: 2, slug: 'installation' }
  * // ]
  */
-const withSlugs = (headings: Heading[], slugger: GithubSlugger): Heading[] =>
+const withSlugs = (headings: Heading[], slug: (v: string) => string): Heading[] =>
   headings.map((heading) => {
     return {
       ...heading,
-      slug: slugger.slug(heading.value),
+      slug: slug(heading.value),
     }
   })
 
@@ -54,11 +54,11 @@ const withSlugs = (headings: Heading[], slugger: GithubSlugger): Heading[] =>
  * // ]
  */
 export function getHeadingsFromMarkdown(input: string): Heading[] {
-  const slugger = new GithubSlugger()
+  const { slug } = slugger()
 
   const headings = getMarkdownHeadings(input)
 
-  return withSlugs(headings as Heading[], slugger)
+  return withSlugs(headings as Heading[], slug)
 }
 
 type HeadingLevels = 1 | 2 | 3 | 4 | 5 | 6

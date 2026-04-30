@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.5.5
+
+### Patch Changes
+
+- [#9023](https://github.com/scalar/scalar/pull/9023): chore: use homemade slugger
+
 ## 0.5.4
 
 ### Patch Changes

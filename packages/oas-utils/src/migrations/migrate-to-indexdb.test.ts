@@ -5722,8 +5722,8 @@ describe('migrate-to-indexdb', () => {
 
       expect(documentNames).toHaveLength(3)
       expect(documentNames).toContain('drafts')
-      expect(documentNames).toContain('api-special--chars')
-      expect(documentNames).toContain('api-special--chars-1')
+      expect(documentNames).toContain('api-special-chars')
+      expect(documentNames).toContain('api-special-chars-1')
     })
 
     it('handles mix of unique and duplicate document names', async () => {

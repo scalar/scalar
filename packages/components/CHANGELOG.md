@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.24.1
+
+### Patch Changes
+
+- [#9042](https://github.com/scalar/scalar/pull/9042): fix(components): set Scrolling listbox story to multiselect mode
+- [#9048](https://github.com/scalar/scalar/pull/9048): fix: stabilize sidebar nested item refs for proper unmount
+- [#9042](https://github.com/scalar/scalar/pull/9042): fix(components): improve floating ui flip offset logic
+
 ## 0.24.0
 
 ### Minor Changes

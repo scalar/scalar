@@ -1,12 +1,12 @@
 import { getHeadings } from '@scalar/code-highlight/markdown'
+import { slugger } from '@scalar/helpers/string/slugger'
 import type { Heading } from '@scalar/types/legacy'
-import GithubSlugger from 'github-slugger'
 
-const withSlugs = (headings: Heading[], slugger: GithubSlugger): Heading[] =>
+const withSlugs = (headings: Heading[], slug: (v: string) => string): Heading[] =>
   headings.map((heading) => {
     return {
       ...heading,
-      slug: slugger.slug(heading.value),
+      slug: slug(heading.value),
     }
   })
 
@@ -14,9 +14,9 @@ const withSlugs = (headings: Heading[], slugger: GithubSlugger): Heading[] =>
  * Extracts all headings from a Markdown string.
  */
 export function getHeadingsFromMarkdown(input: string): Heading[] {
-  const slugger = new GithubSlugger()
+  const { slug } = slugger()
 
   const headings = getHeadings(input)
 
-  return withSlugs(headings as Heading[], slugger)
+  return withSlugs(headings as Heading[], slug)
 }

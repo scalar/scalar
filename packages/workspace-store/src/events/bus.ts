@@ -90,6 +90,11 @@ export type WorkspaceEventBus = {
    * bus.emit('scalar-update-sidebar', { value: true })
    */
   emit<E extends keyof ApiReferenceEvents>(...args: EmitParameters<E>): void
+
+  /**
+   * Flush all queued debounced emits immediately.
+   */
+  flushDebouncedEmits?(): void
 }
 
 /**
@@ -149,7 +154,9 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
    * Single debounce instance for all debounced emits
    * Uses keys to separate different event + debounceKey combinations
    */
-  const { execute: debouncedEmitter } = debounce({ delay: 328 })
+  const { execute: debouncedEmitter, flushAll: flushDebouncedEmitters } = debounce({
+    delay: 328,
+  })
 
   /**
    * Get or create a listener set for an event
@@ -288,10 +295,15 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
     debouncedEmitter(debounceMapKey, () => performEmit(event, payload, options))
   }
 
+  const flushDebouncedEmits = (): void => {
+    flushDebouncedEmitters()
+  }
+
   return {
     on,
     once,
     off,
     emit,
+    flushDebouncedEmits,
   }
 }

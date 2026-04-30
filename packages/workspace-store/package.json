@@ -16,7 +16,7 @@
     "openapi",
     "scalar"
   ],
-  "version": "0.49.0",
+  "version": "0.49.1",
   "engines": {
     "node": ">=22"
   },
@@ -25,6 +25,7 @@
     "generate-json-schemas": "tsx ./scripts/generate-json-schemas.ts",
     "generate-openapi-types": "tsx ./scripts/generate-openapi-types.ts",
     "test": "vitest --run",
+    "test:watch": "vitest",
     "types:check": "tsc --noEmit"
   },
   "type": "module",
@@ -152,7 +153,6 @@
     "@scalar/typebox": "catalog:*",
     "@scalar/types": "workspace:*",
     "@scalar/validation": "workspace:*",
-    "github-slugger": "catalog:*",
     "js-base64": "catalog:*",
     "type-fest": "catalog:*",
     "vue": "catalog:*",

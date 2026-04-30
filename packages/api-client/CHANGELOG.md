@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 3.5.1
+
+### Patch Changes
+
+- [#9049](https://github.com/scalar/scalar/pull/9049): Flush pending debounced operation edits before executing API client requests.
+- [#9023](https://github.com/scalar/scalar/pull/9023): chore: use homemade slugger
+
 ## 3.5.0
 
 ### Minor Changes

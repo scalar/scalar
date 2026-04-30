@@ -1,6 +1,5 @@
+import { slugify } from '@scalar/helpers/string/slugify'
 import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-unique-value'
-
-import { slugify } from '@/v2/helpers/slugify'
 
 /**
  * Generates a unique slug for an imported document based on its title.
@@ -27,6 +26,6 @@ export const generateUniqueSlug = async (defaultValue: string | undefined, curre
     defaultValue: base,
     validation: (value) => !currentDocuments.has(value),
     maxRetries: 100,
-    transformation: slugify,
+    transformation: (value) => slugify(value, { allowedSpecialChars: '.' }),
   })
 }

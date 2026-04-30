@@ -193,6 +193,8 @@ const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
 
 /** Execute the current operation example */
 const handleExecute = async () => {
+  eventBus.flushDebouncedEmits?.()
+
   const pathValidation = validatePathParameters(
     operation.parameters ?? [],
     exampleKey,
