@@ -26,7 +26,10 @@ export type RegistryDocumentMeta = {
  *   from this namespace. The host application is expected to surface a
  *   sign-in flow.
  */
-export type FetchRegistryDocumentError = 'NOT_FOUND' | 'FETCH_FAILED' | 'UNAUTHORIZED'
+export type FetchRegistryDocumentError =
+  | 'NOT_FOUND'
+  | 'FETCH_FAILED'
+  | 'UNAUTHORIZED'
 
 /**
  * Fetches the full document from the registry by meta. When a `registry`
@@ -52,7 +55,10 @@ export type ImportDocumentFromRegistry = (
  *   to this namespace. The host application is expected to surface a
  *   sign-in flow.
  */
-export type PublishRegistryDocumentError = 'CONFLICT' | 'FETCH_FAILED' | 'UNAUTHORIZED'
+export type PublishRegistryDocumentError =
+  | 'CONFLICT'
+  | 'FETCH_FAILED'
+  | 'UNAUTHORIZED'
 
 /**
  * Discriminated outcome of a `publishDocument` call.
@@ -70,10 +76,17 @@ export type PublishRegistryDocumentResult = Result<
  * namespace and slug. Used for team-workspace documents that do not yet
  * have a registry entry - subsequent sync flows then go through the
  * Pull / Push pair once the registry has assigned a commit hash.
+ *
+ * The caller also chooses the document's initial `version`. The local
+ * workspace mirrors the same string on `info.version` after a
+ * successful publish so the document and the registry stay in sync
+ * without a follow-up edit.
  */
 export type PublishRegistryDocument = (input: {
   namespace: string
   slug: string
+  /** Initial version the document is published under (e.g. `1.0.0`). */
+  version: string
 }) => Promise<PublishRegistryDocumentResult>
 
 /**
@@ -94,7 +107,11 @@ export type PublishRegistryDocument = (input: {
  *   publish to this namespace. The host application is expected to
  *   surface a sign-in flow.
  */
-export type PublishRegistryVersionError = 'CONFLICT' | 'NOT_FOUND' | 'FETCH_FAILED' | 'UNAUTHORIZED'
+export type PublishRegistryVersionError =
+  | 'CONFLICT'
+  | 'NOT_FOUND'
+  | 'FETCH_FAILED'
+  | 'UNAUTHORIZED'
 
 /**
  * Discriminated outcome of a `publishVersion` call. On success the
@@ -173,6 +190,31 @@ export type RegistryDocumentsState =
   | { status: 'success'; documents: RegistryDocument[] }
 
 /**
+ * A namespace under which the user is allowed to publish documents.
+ *
+ * The publish modal renders one entry per namespace - as a static label
+ * when there is only one, or as a dropdown otherwise - so callers can
+ * surface the personal account, organisations, teams, etc. the user
+ * has access to.
+ */
+export type RegistryNamespace = {
+  /** Stable namespace identifier passed back to publish callbacks. */
+  namespace: string
+  /** Optional human-readable label. Falls back to `namespace` when omitted. */
+  title?: string
+}
+
+/**
+ * Loading-aware wrapper for the list of namespaces the user can publish
+ * to. Mirrors {@link RegistryDocumentsState} so the publish modal can
+ * render a skeleton row while the host application is still resolving
+ * the user's memberships.
+ */
+export type RegistryNamespacesState =
+  | { status: 'loading'; namespaces?: RegistryNamespace[] }
+  | { status: 'success'; namespaces: RegistryNamespace[] }
+
+/**
  * Bundles every interaction the API client needs with an external
  * registry. Consumers (Scalar Cloud, custom self-hosted setups) provide
  * a single adapter object instead of wiring each callback up
@@ -187,6 +229,13 @@ export type RegistryAdapter = {
    * the real list is ready.
    */
   documents: RegistryDocumentsState
+  /**
+   * Reactive list of namespaces the user can publish into. The publish
+   * modal uses it to show a single-line label (one namespace) or a
+   * dropdown (multiple namespaces) and falls back to a skeleton while
+   * the listing is still loading.
+   */
+  namespaces: RegistryNamespacesState
   /**
    * Fetches the full document from the registry by meta. When provided,
    * registry meta takes priority over `x-scalar-original-source-url`

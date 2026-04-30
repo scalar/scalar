@@ -31,9 +31,11 @@ import AppHeader from '@/v2/features/app/components/AppHeader.vue'
 import AppSidebar from '@/v2/features/app/components/AppSidebar.vue'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import DocumentBreadcrumb from '@/v2/features/app/components/DocumentBreadcrumb.vue'
+import PublishDocumentModal from '@/v2/features/app/components/PublishDocumentModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
 import {
   messageForFetchError,
+  messageForPublishDocumentError,
   messageForPublishVersionError,
 } from '@/v2/features/app/helpers/registry-error-messages'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
@@ -47,6 +49,7 @@ import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import type {
   RegistryAdapter,
   RegistryDocumentsState,
+  RegistryNamespacesState,
 } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -68,8 +71,9 @@ const {
    * Adapter wiring the API client up to an external registry (Scalar
    * Cloud or a custom self-hosted setup). The adapter itself is optional
    * - omit it to opt out of registry features entirely - but every
-   * field on it (`documents`, `fetchDocument`, `publishDocument`) is
-   * required when provided so the client can rely on the full surface.
+   * field on it (`documents`, `namespaces`, `fetchDocument`,
+   * `publishDocument`, `publishVersion`) is required when provided so
+   * the client can rely on the full surface.
    */
   registry?: RegistryAdapter
 }>()
@@ -197,6 +201,18 @@ useMonacoEditorConfiguration({
 })
 
 const createWorkspaceModalState = useModal()
+const publishDocumentModalState = useModal()
+
+/**
+ * Default namespaces state surfaced when the host application has not
+ * wired a registry adapter up yet. Keeping this as a constant (rather
+ * than recomputing every render) lets the publish modal mount with a
+ * stable reference and avoids triggering its `watch` for nothing.
+ */
+const EMPTY_NAMESPACES_STATE: RegistryNamespacesState = {
+  status: 'success',
+  namespaces: [],
+}
 
 /**
  * Resolves the registry meta and sync status for the active document.
@@ -490,16 +506,110 @@ const handleHeaderPushDocument = async (): Promise<void> => {
 }
 
 /**
- * Placeholder for the "publish to registry" flow used when a team
- * workspace document has no registry entry yet. The actual UI - asking
- * the user for a namespace and slug, surfacing `CONFLICT` /
- * `FETCH_FAILED` / `UNAUTHORIZED` outcomes, etc - lands in a follow-up.
- * Once the user has confirmed the coordinates the handler is expected to
- * call `registry.publishDocument({ namespace, slug })` and react to the
- * returned `Result`.
+ * Reactive view of the namespaces the user can publish to. Falls back
+ * to an empty success state when no adapter is wired up so the publish
+ * modal can still mount without `null`-checks.
+ */
+const registryNamespaces = computed<RegistryNamespacesState>(
+  () => registry?.namespaces ?? EMPTY_NAMESPACES_STATE,
+)
+
+/**
+ * Default slug surfaced inside the publish modal. The active document's
+ * title is the most recognisable value so we pre-slugify it; the user
+ * can still rewrite it before confirming.
+ */
+const publishDefaultSlug = computed(() => {
+  const title = app.store.value?.workspace.activeDocument?.info?.title
+  return typeof title === 'string' ? title : ''
+})
+
+/**
+ * Default version surfaced inside the publish modal. Mirrors the
+ * document's `info.version` when one is set so the form opens
+ * pre-filled with what the user has been working with locally.
+ */
+const publishDefaultVersion = computed(() => {
+  const value = app.store.value?.workspace.activeDocument?.info?.version
+  return typeof value === 'string' && value.trim().length > 0 ? value : '1.0.0'
+})
+
+/**
+ * Opens the publish modal for the active document. The actual publish
+ * call happens in `handlePublishDocumentSubmit` once the user has
+ * confirmed their inputs.
  */
 const handleHeaderPublishDocument = (): void => {
-  // TODO: surface the publish modal, then call `registry?.publishDocument`.
+  if (!registry) {
+    return
+  }
+  publishDocumentModalState.show()
+}
+
+/**
+ * Submit handler invoked by the publish modal once the user confirms
+ * the namespace, slug, and version. We:
+ *
+ *  1. Call `registry.publishDocument` with the user-chosen meta.
+ *  2. On success: write the new registry meta + version onto the
+ *     active document, then `saveDocument` to make it the new
+ *     baseline. The modal is closed via the `done` callback.
+ *  3. On failure: forward the discriminated error code to the modal
+ *     so the user sees a meaningful inline message and can fix the
+ *     input without losing what they typed.
+ */
+const handlePublishDocumentSubmit = async ({
+  input,
+  done,
+}: {
+  input: { namespace: string; slug: string; version: string }
+  done: (outcome: { ok: true } | { ok: false; message: string }) => void
+}): Promise<void> => {
+  const documentSlug = app.activeEntities.documentSlug.value
+  const store = app.store.value
+  if (!registry || !documentSlug || !store) {
+    done({
+      ok: false,
+      message:
+        'Cannot publish - the workspace is not ready yet. Please try again in a moment.',
+    })
+    return
+  }
+
+  const result = await registry.publishDocument(input)
+  if (!result.ok) {
+    done({
+      ok: false,
+      message: messageForPublishDocumentError(result.error, result.message),
+    })
+    return
+  }
+
+  // Mirror the chosen version onto `info.version` so the document and
+  // the registry stay in sync without an extra edit.
+  const activeDocument = store.workspace.documents[documentSlug]
+  if (activeDocument) {
+    activeDocument.info = {
+      ...activeDocument.info,
+      version: input.version,
+    }
+  }
+
+  // Stamp the registry meta on the active document. The registry may
+  // or may not have advertised a commit hash for the freshly created
+  // entry; persist it when present so subsequent sync checks compare
+  // against the right base.
+  store.updateDocument(documentSlug, 'x-scalar-registry-meta', {
+    namespace: input.namespace,
+    slug: input.slug,
+    version: input.version,
+    ...(result.data.commitHash ? { commitHash: result.data.commitHash } : {}),
+  })
+
+  await store.saveDocument(documentSlug)
+
+  toast(`Published to ${input.namespace}/${input.slug}.`, 'info')
+  done({ ok: true })
 }
 
 /** Props to pass to the RouterView component. */
@@ -768,6 +878,18 @@ const routerViewProps = computed<RouteProps>(() => {
           :state="createWorkspaceModalState"
           @create:workspace="(payload) => app.workspace.create(payload)" />
       </slot>
+      <!--
+        First-time publish modal. Only mounted when a registry adapter
+        is wired up - without one there is nothing meaningful to send,
+        and the modal would never be opened anyway.
+      -->
+      <PublishDocumentModal
+        v-if="registry"
+        :defaultSlug="publishDefaultSlug"
+        :defaultVersion="publishDefaultVersion"
+        :namespaces="registryNamespaces"
+        :state="publishDocumentModalState"
+        @submit="handlePublishDocumentSubmit" />
       <!-- Popup command palette to add resources from anywhere -->
       <TheCommandPalette
         :eventBus="app.eventBus"
