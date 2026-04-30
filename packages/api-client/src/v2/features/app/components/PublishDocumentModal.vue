@@ -22,7 +22,7 @@ import {
   type ModalState,
   type ScalarListboxOption,
 } from '@scalar/components'
-import { ScalarIconCaretDown } from '@scalar/icons'
+import { ScalarIconBuildings, ScalarIconCaretDown } from '@scalar/icons'
 import { computed, ref, watch } from 'vue'
 
 import { slugify } from '@/v2/helpers/slugify'
@@ -122,6 +122,21 @@ watch(namespaceOptions, (options) => {
 const trimmedSlug = computed(() => slug.value.trim())
 const trimmedVersion = computed(() => version.value.trim())
 
+/**
+ * Human-friendly preview of the resulting registry coordinate
+ * (`namespace/slug@version`). Returns `null` while any of the three
+ * pieces is still missing so we never show a half-rendered path.
+ * Mirrors the same fields submitted to the publish call so the user
+ * sees exactly what will land on the registry.
+ */
+const publishPreview = computed<string | null>(() => {
+  const namespace = selectedNamespace.value?.id
+  if (!namespace || !trimmedSlug.value || !trimmedVersion.value) {
+    return null
+  }
+  return `${namespace}/${trimmedSlug.value}@${trimmedVersion.value}`
+})
+
 const isSubmitDisabled = computed(
   () =>
     !selectedNamespace.value ||
@@ -161,8 +176,8 @@ const handleSubmit = (): void => {
 
 <template>
   <ScalarModal
-    :state="state"
     size="sm"
+    :state="state"
     title="Publish to registry"
     variant="form">
     <form
@@ -171,16 +186,30 @@ const handleSubmit = (): void => {
       <!--
         Namespace picker.
 
-        - One namespace -> rendered as a static label so the user does
-          not have to interact with a one-item dropdown.
+        All three states (single namespace, multiple namespaces, loading)
+        render into a bordered field of the same height as the inputs
+        below so the modal reads as one cohesive form. A leading
+        `Buildings` icon anchors the namespace context visually so the
+        single-value state does not look like loose plain text.
+
+        - One namespace -> read-only field with the namespace label and
+          a "fixed" hint, so the user understands there is nothing to
+          pick without staring at a one-item dropdown.
         - Multiple namespaces -> dropdown listbox.
-        - Loading -> placeholder copy so the user knows we are still
-          resolving their memberships.
+        - Loading -> the same field shape with a skeleton-style label
+          so layout does not shift once the list arrives.
       -->
       <div class="flex flex-col gap-1.5">
         <label class="text-c-1 text-xs font-medium">Namespace</label>
         <template v-if="isNamespacesLoading && namespaceOptions.length === 0">
-          <span class="text-c-3 text-sm">Loading namespaces…</span>
+          <div
+            class="border-border bg-b-2 flex h-8 items-center gap-2 rounded border px-3 text-sm">
+            <ScalarIconBuildings
+              class="text-c-3 size-3.5 shrink-0"
+              size="sm"
+              thickness="1.5" />
+            <span class="text-c-3">Loading namespaces…</span>
+          </div>
         </template>
         <template v-else-if="hasMultipleNamespaces">
           <ScalarListbox
@@ -188,24 +217,42 @@ const handleSubmit = (): void => {
             :options="namespaceOptions"
             teleport>
             <ScalarButton
-              class="border-border text-c-1 hover:bg-b-2 flex w-full items-center justify-between gap-2 rounded border px-3 py-1.5 font-normal"
+              class="border-border text-c-1 hover:bg-b-2 flex h-8 w-full items-center justify-between gap-2 rounded border px-3 font-normal"
               fullWidth
               type="button"
               variant="outlined">
-              <span>{{
-                selectedNamespace?.label ?? 'Select a namespace'
-              }}</span>
+              <span class="flex min-w-0 items-center gap-2">
+                <ScalarIconBuildings
+                  class="text-c-2 size-3.5 shrink-0"
+                  size="sm"
+                  thickness="1.5" />
+                <span class="truncate">{{
+                  selectedNamespace?.label ?? 'Select a namespace'
+                }}</span>
+              </span>
               <ScalarIconCaretDown
-                class="size-3.5"
+                class="text-c-2 size-3.5 shrink-0"
                 size="sm"
                 thickness="1.5" />
             </ScalarButton>
           </ScalarListbox>
         </template>
         <template v-else>
-          <span class="text-c-1 text-sm">
-            {{ selectedNamespace?.label ?? '—' }}
-          </span>
+          <div
+            class="border-border bg-b-2 text-c-1 flex h-8 items-center gap-2 rounded border px-3 text-sm"
+            :title="
+              selectedNamespace
+                ? `Publishing to ${selectedNamespace.label}`
+                : undefined
+            ">
+            <ScalarIconBuildings
+              class="text-c-2 size-3.5 shrink-0"
+              size="sm"
+              thickness="1.5" />
+            <span class="truncate">
+              {{ selectedNamespace?.label ?? '—' }}
+            </span>
+          </div>
         </template>
       </div>
 
@@ -220,7 +267,7 @@ const handleSubmit = (): void => {
           id="publish-document-slug"
           v-model="slug"
           autocomplete="off"
-          class="border-border bg-b-1 text-c-1 placeholder:text-c-3 focus:border-c-accent rounded border px-3 py-1.5 text-sm outline-none"
+          class="border-border bg-b-1 text-c-1 placeholder:text-c-3 focus:border-c-accent h-8 rounded border px-3 text-sm outline-none"
           placeholder="pets-api"
           type="text" />
       </div>
@@ -240,9 +287,23 @@ const handleSubmit = (): void => {
           id="publish-document-version"
           v-model="version"
           autocomplete="off"
-          class="border-border bg-b-1 text-c-1 placeholder:text-c-3 focus:border-c-accent rounded border px-3 py-1.5 text-sm outline-none"
+          class="border-border bg-b-1 text-c-1 placeholder:text-c-3 focus:border-c-accent h-8 rounded border px-3 text-sm outline-none"
           placeholder="1.0.0"
           type="text" />
+      </div>
+
+      <!--
+        Live preview of the published identity. Reading the modal
+        top-down the user types a slug + version and sees the resulting
+        coordinate update in place, which is more reassuring than
+        decoding three separate fields. Hidden until enough fields
+        resolve so we never render half a path.
+      -->
+      <div
+        v-if="publishPreview"
+        class="text-c-2 -mt-1 text-xs">
+        Publishing as
+        <span class="text-c-1 font-mono">{{ publishPreview }}</span>
       </div>
 
       <!--
