@@ -24,6 +24,14 @@ describe('registry-error-messages', () => {
       const message = messageForFetchError('FETCH_FAILED', 'timeout after 30s')
       expect(message).toContain('timeout after 30s')
     })
+
+    it('uses a generic fallback for UNKNOWN with no detail', () => {
+      expect(messageForFetchError('UNKNOWN')).toBe('Something went wrong. Please try again.')
+    })
+
+    it('weaves the detail into UNKNOWN messages when provided', () => {
+      expect(messageForFetchError('UNKNOWN', 'unexpected payload')).toContain('unexpected payload')
+    })
   })
 
   describe('messageForPublishVersionError', () => {
@@ -43,6 +51,14 @@ describe('registry-error-messages', () => {
     it('weaves network detail into FETCH_FAILED', () => {
       expect(messageForPublishVersionError('FETCH_FAILED', '500 Internal Error')).toContain('500 Internal Error')
     })
+
+    it('uses a generic fallback for UNKNOWN with no detail', () => {
+      expect(messageForPublishVersionError('UNKNOWN')).toBe('Something went wrong. Please try again.')
+    })
+
+    it('weaves the detail into UNKNOWN messages when provided', () => {
+      expect(messageForPublishVersionError('UNKNOWN', 'rate limited')).toContain('rate limited')
+    })
   })
 
   describe('messageForPublishDocumentError', () => {
@@ -57,6 +73,14 @@ describe('registry-error-messages', () => {
 
     it('uses the network fallback for FETCH_FAILED', () => {
       expect(messageForPublishDocumentError('FETCH_FAILED')).toContain('Could not reach the registry')
+    })
+
+    it('uses a generic fallback for UNKNOWN with no detail', () => {
+      expect(messageForPublishDocumentError('UNKNOWN')).toBe('Something went wrong. Please try again.')
+    })
+
+    it('weaves the detail into UNKNOWN messages when provided', () => {
+      expect(messageForPublishDocumentError('UNKNOWN', 'invalid namespace')).toContain('invalid namespace')
     })
   })
 })

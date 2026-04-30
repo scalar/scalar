@@ -11,8 +11,19 @@ import type {
  */
 const NETWORK_FALLBACK = 'Could not reach the registry. Check your connection and try again.'
 
+/**
+ * Generic fallback used when an adapter rejects with the `UNKNOWN`
+ * catch-all code. We weave the optional `detail` in when present so
+ * the user still gets a hint of what actually went wrong even though
+ * we could not classify the failure into a specific branch.
+ */
+const UNKNOWN_FALLBACK = 'Something went wrong. Please try again.'
+
 const networkMessage = (detail?: string): string =>
   detail ? `Could not reach the registry: ${detail}` : NETWORK_FALLBACK
+
+const unknownMessage = (detail?: string): string =>
+  detail ? `Something went wrong: ${detail}` : UNKNOWN_FALLBACK
 
 /**
  * Maps a {@link FetchRegistryDocumentError} code to a user-facing
@@ -30,6 +41,8 @@ export const messageForFetchError = (code: FetchRegistryDocumentError, detail?: 
       return 'You are not allowed to read this document. Please sign in and try again.'
     case 'FETCH_FAILED':
       return networkMessage(detail)
+    case 'UNKNOWN':
+      return unknownMessage(detail)
   }
 }
 
@@ -48,6 +61,8 @@ export const messageForPublishVersionError = (code: PublishRegistryVersionError,
       return 'You are not allowed to publish to this namespace.'
     case 'FETCH_FAILED':
       return networkMessage(detail)
+    case 'UNKNOWN':
+      return unknownMessage(detail)
   }
 }
 
@@ -64,5 +79,7 @@ export const messageForPublishDocumentError = (code: PublishRegistryDocumentErro
       return 'You are not allowed to publish to this namespace.'
     case 'FETCH_FAILED':
       return networkMessage(detail)
+    case 'UNKNOWN':
+      return unknownMessage(detail)
   }
 }

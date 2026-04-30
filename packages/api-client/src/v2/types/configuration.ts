@@ -25,11 +25,16 @@ export type RegistryDocumentMeta = {
  * - `UNAUTHORIZED`: the caller is not signed in / not allowed to read
  *   from this namespace. The host application is expected to surface a
  *   sign-in flow.
+ * - `UNKNOWN`: a catch-all for failure modes the adapter cannot map
+ *   onto one of the dedicated codes above. Callers surface a generic
+ *   error message and, when present, the human-readable `message`
+ *   field returned alongside the code.
  */
 export type FetchRegistryDocumentError =
   | 'NOT_FOUND'
   | 'FETCH_FAILED'
   | 'UNAUTHORIZED'
+  | 'UNKNOWN'
 
 /**
  * Fetches the full document from the registry by meta. When a `registry`
@@ -54,11 +59,16 @@ export type ImportDocumentFromRegistry = (
  * - `UNAUTHORIZED`: the caller is not signed in / not allowed to publish
  *   to this namespace. The host application is expected to surface a
  *   sign-in flow.
+ * - `UNKNOWN`: a catch-all for failure modes the adapter cannot map
+ *   onto one of the dedicated codes above. Callers surface a generic
+ *   error message and, when present, the human-readable `message`
+ *   field returned alongside the code.
  */
 export type PublishRegistryDocumentError =
   | 'CONFLICT'
   | 'FETCH_FAILED'
   | 'UNAUTHORIZED'
+  | 'UNKNOWN'
 
 /**
  * Discriminated outcome of a `publishDocument` call.
@@ -113,12 +123,17 @@ export type PublishRegistryDocument = (input: {
  * - `UNAUTHORIZED`: the caller is not signed in / not allowed to
  *   publish to this namespace. The host application is expected to
  *   surface a sign-in flow.
+ * - `UNKNOWN`: a catch-all for failure modes the adapter cannot map
+ *   onto one of the dedicated codes above. Callers surface a generic
+ *   error message and, when present, the human-readable `message`
+ *   field returned alongside the code.
  */
 export type PublishRegistryVersionError =
   | 'CONFLICT'
   | 'NOT_FOUND'
   | 'FETCH_FAILED'
   | 'UNAUTHORIZED'
+  | 'UNKNOWN'
 
 /**
  * Discriminated outcome of a `publishVersion` call. On success the
