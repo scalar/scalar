@@ -18,6 +18,7 @@ import {
   ScalarIconArrowCounterClockwise,
   ScalarIconCloudArrowDown,
   ScalarIconCloudArrowUp,
+  ScalarIconCloudSlash,
   ScalarIconFloppyDisk,
 } from '@scalar/icons'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
@@ -41,6 +42,7 @@ import {
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useActiveDocumentVersion } from '@/v2/features/app/hooks/use-active-document-version'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
+import { useNetworkStatus } from '@/v2/features/app/hooks/use-network-status'
 import type { CommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
 import { useMonacoEditorConfiguration } from '@/v2/features/editor'
@@ -274,12 +276,26 @@ const showTeamPublishAction = computed(
 )
 
 /**
+ * Reactive online / offline status for the browser. Registry-bound
+ * actions (Pull, Push, Publish) all need a live network connection, so
+ * we surface a single source of truth here and let the per-action
+ * `canX` computeds AND the icon swaps below consume it.
+ */
+const { isOnline, isOffline } = useNetworkStatus()
+
+/**
  * Pull is enabled while the registry advertises a different commit hash
  * than the local one, regardless of whether the local document is dirty.
  * `conflict` is treated the same as `pull` here so the user can always
- * reach the conflict-resolution flow from the header.
+ * reach the conflict-resolution flow from the header. We additionally
+ * gate on `isOnline` so the button stops responding the moment the
+ * browser reports an offline transition - any click we accepted would
+ * fail the `fetchDocument` adapter call anyway.
  */
 const canPullActiveDocument = computed(() => {
+  if (!isOnline.value) {
+    return false
+  }
   const status = activeVersion.value?.status
   return status === 'pull' || status === 'conflict'
 })
@@ -289,10 +305,12 @@ const canPullActiveDocument = computed(() => {
  * upstream changes - mirroring `computeVersionStatus`'s `'push'` outcome,
  * which already encodes that combination. Pushing while upstream has
  * moved on would clobber the registry version, so we lock the button
- * until the user has pulled / resolved.
+ * until the user has pulled / resolved. We also gate on `isOnline` so a
+ * disconnected client cannot trigger a publish attempt that we know
+ * will fail.
  */
 const canPushActiveDocument = computed(
-  () => activeVersion.value?.status === 'push',
+  () => isOnline.value && activeVersion.value?.status === 'push',
 )
 
 /**
@@ -815,28 +833,44 @@ const routerViewProps = computed<RouteProps>(() => {
                     thickness="1.5" />
                 </ScalarButton>
                 <ScalarButton
+                  :aria-label="isOffline ? 'Pull (offline)' : undefined"
                   class="shrink-0 gap-1.5"
                   data-testid="app-header-pull-button"
                   :disabled="!canPullActiveDocument"
                   size="xs"
+                  :title="isOffline ? 'You are offline.' : undefined"
                   type="button"
                   variant="solid"
                   @click="handleHeaderPullDocument">
+                  <ScalarIconCloudSlash
+                    v-if="isOffline"
+                    class="size-3.5"
+                    size="sm"
+                    thickness="1.5" />
                   <ScalarIconCloudArrowDown
+                    v-else
                     class="size-3.5"
                     size="sm"
                     thickness="1.5" />
                   <span>Pull</span>
                 </ScalarButton>
                 <ScalarButton
+                  :aria-label="isOffline ? 'Push (offline)' : undefined"
                   class="shrink-0 gap-1.5"
                   data-testid="app-header-push-button"
                   :disabled="!canPushActiveDocument"
                   size="xs"
+                  :title="isOffline ? 'You are offline.' : undefined"
                   type="button"
                   variant="solid"
                   @click="handleHeaderPushDocument">
+                  <ScalarIconCloudSlash
+                    v-if="isOffline"
+                    class="size-3.5"
+                    size="sm"
+                    thickness="1.5" />
                   <ScalarIconCloudArrowUp
+                    v-else
                     class="size-3.5"
                     size="sm"
                     thickness="1.5" />
@@ -852,13 +886,22 @@ const routerViewProps = computed<RouteProps>(() => {
               -->
               <ScalarButton
                 v-if="showTeamPublishAction"
+                :aria-label="isOffline ? 'Publish (offline)' : undefined"
                 class="shrink-0 gap-1.5"
                 data-testid="app-header-publish-button"
+                :disabled="isOffline"
                 size="xs"
+                :title="isOffline ? 'You are offline.' : undefined"
                 type="button"
                 variant="solid"
                 @click="handleHeaderPublishDocument">
+                <ScalarIconCloudSlash
+                  v-if="isOffline"
+                  class="size-3.5"
+                  size="sm"
+                  thickness="1.5" />
                 <ScalarIconCloudArrowUp
+                  v-else
                   class="size-3.5"
                   size="sm"
                   thickness="1.5" />
