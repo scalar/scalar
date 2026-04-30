@@ -27,7 +27,7 @@ export type NavigationOptions =
  */
 export const getNavigationOptions = (documentName: string, options?: NavigationOptions): TraverseSpecOptions => {
   const generateId: IdGenerator = (props) => {
-    const documentId = slugify(documentName, { lowercase: true })
+    const documentId = slugify(documentName)
 
     // -------- Default text id generation logic --------
     if (props.type === 'text') {
@@ -51,7 +51,7 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
         return `${documentId}/${tagPrefix}/${options.generateTagSlug(props.tag)}`
       }
 
-      return `${documentId}/${tagPrefix}/${slugify(props.tag.name ?? '', { lowercase: true })}`
+      return `${documentId}/${tagPrefix}/${slugify(props.tag.name ?? '')}`
     }
 
     // -------- Default operation id generation logic --------
@@ -93,7 +93,7 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
         })}`
       }
 
-      return `${prefixTag}webhook/${props.method?.toUpperCase()}/${slugify(props.name, { lowercase: true })}`
+      return `${prefixTag}webhook/${props.method?.toUpperCase()}/${slugify(props.name)}`
     }
 
     // -------- Default model id generation logic --------
@@ -116,11 +116,11 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
         })}`
       }
 
-      return `${prefixTag}model/${slugify(props.name)}`
+      return `${prefixTag}model/${slugify(props.name, { preserveCase: true })}`
     }
 
     if (props.type === 'example') {
-      return `${props.parentId}/example/${slugify(props.name, { lowercase: true })}`
+      return `${props.parentId}/example/${slugify(props.name)}`
     }
 
     if (props.type === 'document') {

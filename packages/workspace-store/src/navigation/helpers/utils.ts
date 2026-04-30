@@ -54,7 +54,7 @@ const withSlugs = (headings: Heading[], slug: (v: string) => string): Heading[] 
  * // ]
  */
 export function getHeadingsFromMarkdown(input: string): Heading[] {
-  const { slug } = slugger({ lowercase: true })
+  const { slug } = slugger()
 
   const headings = getMarkdownHeadings(input)
 
