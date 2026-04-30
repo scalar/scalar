@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.15.1
+
+### Patch Changes
+
+- [#9023](https://github.com/scalar/scalar/pull/9023): chore: use homemade slugger
+
 ## 0.15.0
 
 ### Minor Changes

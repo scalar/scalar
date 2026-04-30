@@ -1,5 +1,12 @@
 # @scalar/workspace-store
 
+## 0.49.1
+
+### Patch Changes
+
+- [#9049](https://github.com/scalar/scalar/pull/9049): Flush pending debounced operation edits before executing API client requests.
+- [#9023](https://github.com/scalar/scalar/pull/9023): chore: use homemade slugger
+
 ## 0.49.0
 
 ### Minor Changes
