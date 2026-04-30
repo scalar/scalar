@@ -359,6 +359,13 @@ const handleHeaderRevertDocument = async () => {
  *     for those paths.
  */
 const handleHeaderPullDocument = async (): Promise<void> => {
+  // ScalarButton renders `:disabled` as `aria-disabled` only - the
+  // underlying element still receives clicks - so we mirror the same
+  // gate the button reads from to block accidental triggers (offline,
+  // already up to date, or no active version).
+  if (!canPullActiveDocument.value) {
+    return
+  }
   const meta = activeRegistryMeta.value
   const slug = app.activeEntities.documentSlug.value
   const store = app.store.value
@@ -466,6 +473,12 @@ const handleHeaderPullDocument = async (): Promise<void> => {
  *     restores to the post-push state instead of pre-push edits.
  */
 const handleHeaderPushDocument = async (): Promise<void> => {
+  // Same `aria-disabled`-only caveat as Pull: short-circuit on the
+  // computed gate so a click on a visually disabled button cannot
+  // sneak past and hit the registry adapter.
+  if (!canPushActiveDocument.value) {
+    return
+  }
   const meta = activeRegistryMeta.value
   const slug = app.activeEntities.documentSlug.value
   const store = app.store.value
