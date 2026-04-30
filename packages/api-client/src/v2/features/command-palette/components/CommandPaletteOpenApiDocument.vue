@@ -22,7 +22,7 @@ import { ScalarButton } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons/library'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { computed, ref } from 'vue'
+import { computed, ref, type ComputedRef } from 'vue'
 import { useRouter } from 'vue-router'
 
 import IconSelector from '@/components/IconSelector.vue'
@@ -53,23 +53,35 @@ const documentNameTrimmed = computed(() => documentName.value.trim())
 const documentIcon = ref('interface-content-folder')
 
 /**
- * Check if the form should be disabled.
- * Disabled when the name is empty or when a document with that name already exists.
+ * Validation message surfaced under the input.
+ *
+ * Resolves to `null` when the form is valid; otherwise to a human-readable
+ * reason the user can act on. Empty input is the default state so we keep
+ * the field free of error styling - `isDisabled` still blocks submission
+ * there, matching the `CreateVersionModal` pattern.
  */
-const isDisabled = computed<boolean>(() => {
+const errorMessage: ComputedRef<string | null> = computed(() => {
   if (!documentNameTrimmed.value) {
-    return true
+    return null
   }
 
-  /** Prevent duplicate document names in the workspace */
   if (
     workspaceStore.workspace.documents[documentNameTrimmed.value] !== undefined
   ) {
-    return true
+    return `A document named "${documentNameTrimmed.value}" already exists. Try a different name.`
   }
 
-  return false
+  return null
 })
+
+/**
+ * Submit is blocked while the input is empty or fails validation. We keep the
+ * button disabled (rather than letting the user fire a no-op submit) because
+ * the inline `errorMessage` already explains the fix out loud.
+ */
+const isDisabled = computed<boolean>(
+  () => !documentNameTrimmed.value || errorMessage.value !== null,
+)
 
 /** Handle form submission to create a new document */
 const handleSubmit = (): void => {
@@ -110,6 +122,14 @@ const handleBack = (event: KeyboardEvent): void => {
       label="Document Name"
       placeholder="Document Name"
       @delete="handleBack" />
+
+    <p
+      v-if="errorMessage"
+      class="text-red px-2 pb-1 text-xs"
+      data-testid="command-palette-document-error"
+      role="alert">
+      {{ errorMessage }}
+    </p>
 
     <!-- Icon selector for choosing document icon -->
     <template #options>
