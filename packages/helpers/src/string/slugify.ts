@@ -14,11 +14,11 @@ export type SlugifyOptions = {
    */
   allowedSpecialChars?: string
   /**
-   * When `true`, the result is lowercased. By default, the original casing is preserved.
+   * When `true`, the result is preserved as-is (i.e. case is preserved). By default we lowercase the string.
    * @default false
-   * @example slugify('MyAPI', { lowercase: true }) // 'myapi'
+   * @example slugify('MyAPI', { preserveCase: true }) // 'MyAPI'
    */
-  lowercase?: boolean
+  preserveCase?: boolean
 }
 
 /**
@@ -33,10 +33,10 @@ export type SlugifyOptions = {
  * | Option               | Type       | Default | Description                                                                                  |
  * |----------------------|------------|---------|----------------------------------------------------------------------------------------------|
  * | `allowedSpecialChars`| `string`   | `""`    | Extra characters that should survive the non-word filter (e.g. `"."` keeps dots so `"v1.2"` → `"v1.2"` instead of `"v12"`). |
- * | `lowercase`          | `boolean`  | `false` | When `true`, the result is lowercased. By default, the original casing is preserved. |
+ * | `preserveCase`       | `boolean`  | `false` | When `true`, the case is preserved. By default we lowercase the string |
  */
 export const slugify = (v: string, options: SlugifyOptions = {}) => {
-  const { allowedSpecialChars = '', lowercase = false } = options
+  const { allowedSpecialChars = '', preserveCase = false } = options
 
   // Compile the non-word regex once and cache it for future use.
   const reNonWord = (() => {
@@ -59,7 +59,7 @@ export const slugify = (v: string, options: SlugifyOptions = {}) => {
 
   // Normalize before filtering so equivalent Unicode forms produce the same slug.
   const normalized = v.slice(0, 255).trim().normalize('NFC')
-  const result = lowercase ? normalized.toLowerCase() : normalized
+  const result = preserveCase ? normalized : normalized.toLowerCase()
 
   return result.replace(reNonWord, '').replace(RE_SPACES, '-').replace(RE_TRIM_HYPHENS, '')
 }
