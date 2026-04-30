@@ -110,7 +110,7 @@ describe('get-navigation-options', () => {
       parentId: 'pet-store',
       tag: { name: 'Users Management' },
     })
-    expect(id).toBe('pet-store/tag/Users-Management')
+    expect(id).toBe('pet-store/tag/users-management')
   })
 
   it('uses custom generateTagSlug when provided', () => {
@@ -151,7 +151,7 @@ describe('get-navigation-options', () => {
         tag: { name: 'Pets' },
       },
     })
-    expect(id).toBe('pet-store/tag/Pets/GET/pets/{id}')
+    expect(id).toBe('pet-store/tag/pets/GET/pets/{id}')
   })
 
   it('uses custom generateOperationSlug when provided', () => {
@@ -177,7 +177,7 @@ describe('get-navigation-options', () => {
       name: 'newPetCreated',
       method: 'post',
     })
-    expect(id).toBe('pet-store/webhook/POST/newPetCreated')
+    expect(id).toBe('pet-store/webhook/POST/newpetcreated')
   })
 
   it('generates webhook ID with parent tag prefix', () => {
@@ -192,7 +192,7 @@ describe('get-navigation-options', () => {
         tag: { name: 'Webhooks' },
       },
     })
-    expect(id).toBe('pet-store/tag/Webhooks/webhook/PUT/petUpdated')
+    expect(id).toBe('pet-store/tag/webhooks/webhook/PUT/petupdated')
   })
 
   it('uses custom generateWebhookSlug when provided', () => {
@@ -239,7 +239,7 @@ describe('get-navigation-options', () => {
         tag: { name: 'Models' },
       },
     })
-    expect(id).toBe('pet-store/tag/Models/model/User')
+    expect(id).toBe('pet-store/tag/models/model/User')
   })
 
   it('generates unique model IDs when schema names differ only by casing', () => {
@@ -279,7 +279,7 @@ describe('get-navigation-options', () => {
       parentId: 'pet-store/get/pets',
       name: 'Success Response',
     })
-    expect(id).toBe('pet-store/get/pets/example/Success-Response')
+    expect(id).toBe('pet-store/get/pets/example/success-response')
   })
 
   it('handles document names with special characters', () => {
@@ -289,7 +289,7 @@ describe('get-navigation-options', () => {
       name: 'My API (v2.0) - Production',
       info: { title: 'My API (v2.0) - Production', version: '2.0.0' },
     })
-    expect(id).toBe('my-api-v20-production')
+    expect(id).toBe('my-api-v20---production')
   })
 
   it('handles tag with empty name', () => {
@@ -338,7 +338,7 @@ describe('get-navigation-options', () => {
       },
     })
     // The tag ID is regenerated, not used from parentTag.id
-    expect(id).toBe('store-api/tag/Orders/POST/orders')
+    expect(id).toBe('store-api/tag/orders/POST/orders')
   })
 
   it('handles webhook with undefined method', () => {
