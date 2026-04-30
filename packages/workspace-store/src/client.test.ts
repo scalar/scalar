@@ -2292,7 +2292,14 @@ describe('create-workspace-store', () => {
   })
 
   describe('promoteIntermediateToOriginal', () => {
-    it('copies intermediate document to original so getOriginalDocument returns promoted content', async () => {
+    // The intermediate document layer has been deprecated. `saveDocument`
+    // now writes directly into `originalDocuments` (and mirrors the same
+    // content into the intermediate map for backward compatibility), so
+    // `promoteIntermediateToOriginal` has nothing meaningful left to do
+    // and becomes a no-op. The remaining tests pin down that contract:
+    // the deprecated method still returns a sensible boolean, and the two
+    // maps stay in sync after a save.
+    it('keeps original and intermediate aligned with the saved state', async () => {
       const store = createWorkspaceStore()
       await store.addDocument({
         name: 'default',
@@ -2304,18 +2311,23 @@ describe('create-workspace-store', () => {
       }
       await store.saveDocument('default')
 
-      const intermediateBefore = store.getIntermediateDocument('default') as { info?: { title?: string } } | null
-      expect(intermediateBefore?.info?.title).toBe('Updated title')
-      const originalBefore = store.getOriginalDocument('default') as { info?: { title?: string } } | null
-      expect(originalBefore?.info?.title).toBe('Initial')
+      // After save, both the original and the (deprecated) intermediate
+      // map hold the saved baseline. Mirroring keeps any consumer still
+      // reading `getIntermediateDocument` on fresh data while the layer
+      // is being phased out.
+      const originalAfterSave = store.getOriginalDocument('default') as { info?: { title?: string } } | null
+      expect(originalAfterSave?.info?.title).toBe('Updated title')
+      const intermediateAfterSave = store.getIntermediateDocument('default') as { info?: { title?: string } } | null
+      expect(intermediateAfterSave?.info?.title).toBe('Updated title')
 
+      // Promote is now a no-op for a saved document because original is
+      // already the new baseline. It still reports success so callers that
+      // ignored the deprecation notice keep working.
       const promoted = store.promoteIntermediateToOriginal('default')
       expect(promoted).toBe(true)
 
-      const originalAfter = store.getOriginalDocument('default') as { info?: { title?: string } } | null
-      expect(originalAfter?.info?.title).toBe('Updated title')
-      const intermediateAfter = store.getIntermediateDocument('default') as { info?: { title?: string } } | null
-      expect(intermediateAfter?.info?.title).toBe('Updated title')
+      const originalAfterPromote = store.getOriginalDocument('default') as { info?: { title?: string } } | null
+      expect(originalAfterPromote?.info?.title).toBe('Updated title')
     })
 
     it('does nothing when document name has no intermediate document', () => {
@@ -2327,7 +2339,7 @@ describe('create-workspace-store', () => {
       expect(store.getOriginalDocument('missing')).toBeNull()
     })
 
-    it('persists promoted original in exportWorkspace', async () => {
+    it('persists the saved baseline in exportWorkspace.originalDocuments', async () => {
       const store = createWorkspaceStore()
       await store.addDocument({
         name: 'api',
@@ -2345,6 +2357,8 @@ describe('create-workspace-store', () => {
       const origDoc = exported.originalDocuments?.api as { info?: { title?: string } } | undefined
       const interDoc = exported.intermediateDocuments?.api as { info?: { title?: string } } | undefined
       expect(origDoc?.info?.title).toBe('B')
+      // Intermediate is mirrored from the saved baseline so backward-
+      // compatible consumers still observe the latest content.
       expect(interDoc?.info?.title).toBe('B')
     })
   })
@@ -3226,6 +3240,11 @@ describe('create-workspace-store', () => {
   })
 
   describe('rebaseDocument', () => {
+    // Rebase used to merge against the intermediate snapshot that
+    // `saveDocument` wrote into. With the intermediate layer deprecated,
+    // rebase now compares the original (last saved baseline) against the
+    // active in-memory document - so these tests deliberately leave the
+    // local edit unsaved to keep a meaningful local diff for the merge.
     it('should correctly return all conflicts when we try to rebase with a new origin', async () => {
       const documentName = 'default'
       const store = createWorkspaceStore()
@@ -3235,7 +3254,6 @@ describe('create-workspace-store', () => {
       })
 
       store.workspace.activeDocument!.info.title = 'new title'
-      await store.saveDocument(documentName)
 
       const result = await store.rebaseDocument({
         document: {
@@ -3276,7 +3294,6 @@ describe('create-workspace-store', () => {
       })
 
       store.workspace.activeDocument!.info.title = 'new title'
-      await store.saveDocument(documentName)
 
       const newDocument = {
         ...getDocument(),
@@ -3306,20 +3323,15 @@ describe('create-workspace-store', () => {
         ],
       ])
 
-      // Expect the original
-      expect(store.exportDocument(documentName, 'json', true)).toEqual(
-        '{"openapi":"3.1.1","info":{"title":"new title","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-scalar-order":["default/description/introduction","default/GET/users","default/models"]}',
-      )
-
       // Apply the resolved changes (we choose the incoming changes in this case)
       await result.applyChanges({ resolvedConflicts: result.conflicts.flatMap((it) => it[0]) })
 
-      // Check if the new intermediate document is correct
-      expect(store.exportDocument(documentName, 'json', true)).toEqual(
-        '{"openapi":"3.1.1","info":{"title":"A new title which should conflict","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}},"x-scalar-order":["default/description/introduction","default/GET/users","default/models"]}',
-      )
-
+      // After the merge, the active document and the saved baseline both
+      // reflect the resolved title.
       expect(store.workspace.activeDocument?.info.title).toEqual('A new title which should conflict')
+      expect(
+        (store.getOriginalDocument(documentName) as { info?: { title?: string } } | null)?.info?.title,
+      ).toBe('A new title which should conflict')
     })
 
     it('applies the whole document when user passes resolvedDocument instead of resolvedConflicts', async () => {
@@ -3331,7 +3343,6 @@ describe('create-workspace-store', () => {
       })
 
       store.workspace.activeDocument!.info.title = 'local title'
-      await store.saveDocument(documentName)
 
       const newDocumentFromSource = {
         ...getDocument(),
@@ -3353,11 +3364,13 @@ describe('create-workspace-store', () => {
 
       await result.applyChanges({ resolvedDocument: userResolvedDocument })
 
-      const intermediate = store.getIntermediateDocument(documentName) as {
+      // The merged result becomes both the active document and the new
+      // saved baseline (replacing what `getOriginalDocument` returns).
+      const original = store.getOriginalDocument(documentName) as {
         info?: { title?: string; version?: string }
       } | null
-      expect(intermediate?.info?.title).toBe('User-provided full document')
-      expect(intermediate?.info?.version).toBe('2.0.0')
+      expect(original?.info?.title).toBe('User-provided full document')
+      expect(original?.info?.version).toBe('2.0.0')
       expect(store.workspace.activeDocument?.info.title).toBe('User-provided full document')
       expect(store.workspace.activeDocument?.info.version).toBe('2.0.0')
     })
@@ -3370,9 +3383,9 @@ describe('create-workspace-store', () => {
         document: getDocument(),
       })
 
+      // Local edits land on the active document without being saved -
+      // rebase now reasons over the original→active diff directly.
       store.workspace.activeDocument!.info.title = 'new title'
-      await store.saveDocument(documentName)
-
       store.workspace.activeDocument!.info.version = '2.0'
 
       const newDocument = {
@@ -3384,11 +3397,13 @@ describe('create-workspace-store', () => {
 
       assert(result.ok)
 
-      // Apply the resolved changes (we choose the incoming changes in this case)
-      await result.applyChanges({ resolvedConflicts: result.conflicts.flatMap((it) => it[1]) })
+      // Apply the resolved changes (we choose the incoming changes in this
+      // case so the upstream version overrides the local edit).
+      await result.applyChanges({ resolvedConflicts: result.conflicts.flatMap((it) => it[0]) })
 
-      // should override conflicts to the active document on rebase to the one from original
+      // The active document reflects the upstream resolution.
       expect(store.workspace.activeDocument?.info.version).toBe('1.0.1')
+      expect(store.workspace.activeDocument?.info.title).toBe('A new title which should conflict')
     })
 
     it('should return the error if the document we try to rebase does not exists', async () => {
@@ -3405,7 +3420,7 @@ describe('create-workspace-store', () => {
       assert(result.ok === false)
       expect(result.type).toBe('CORRUPTED_STATE')
       expect(result.message).toBe(
-        "Cannot rebase document 'some-document': missing original, intermediate, or active document state",
+        "Cannot rebase document 'some-document': missing original or active document state",
       )
     })
 

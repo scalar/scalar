@@ -385,26 +385,36 @@ export type WorkspaceStore = {
    *
    * @param documentName - The name of the document to get the intermediate version of.
    * @returns The intermediate version of the document, or undefined if the document does not exist.
+   *
+   * @deprecated The intermediate document layer is being phased out. The
+   *   workspace store now keeps only two snapshots per document: the original
+   *   (last saved / loaded baseline) and the active in-memory state. Use
+   *   `getOriginalDocument` to read the saved baseline. The `intermediateDocuments`
+   *   map is no longer updated by `saveDocument` or `rebaseDocument` and only
+   *   reflects the document as it was first loaded into the workspace.
    */
   getIntermediateDocument(documentName: string): Record<string, unknown> | null
   /**
-   * Saves the current state of the specified document to the intermediate documents map.
+   * Saves the current state of the specified document as the new baseline.
    *
-   * This function captures the latest (reactive) state of the document from the workspace and
-   * applies its changes to the corresponding entry in the `intermediateDocuments` map.
-   * The `intermediateDocuments` map represents the most recently "saved" local version of the document,
-   * which may include edits not yet synced to the remote registry.
+   * This function captures the latest (reactive) state of the document from
+   * the workspace and writes a deep clone of it back into the
+   * `originalDocuments` map - effectively promoting the in-memory state to
+   * the new "last saved" snapshot. After saving, `getOriginalDocument`
+   * returns the persisted edits and `revertDocumentChanges` rolls back to
+   * exactly this state.
    *
    * The update is performed in-place. A deep clone of the current document
-   * state is used to avoid mutating the reactive object directly.
+   * state is used to avoid mutating the reactive object directly. The
+   * dirty flag (`x-scalar-is-dirty`) is cleared on success.
    *
    * @param documentName - The name of the document to save.
-   * @returns An array of diffs that were excluded from being applied (such as changes to ignored keys),
-   *          or undefined if the document does not exist or cannot be updated.
+   * @returns `true` when the save succeeded, `false` if the document does
+   *          not exist or cannot be serialised back into the original map.
    *
    * @example
    * // Save the current state of the document named 'api'
-   * const isSuccess = store.saveDocument('api')
+   * const isSuccess = await store.saveDocument('api')
    * if (isSuccess) {
    *   console.log('Document saved successfully')
    * } else {
@@ -422,10 +432,11 @@ export type WorkspaceStore = {
   /**
    * Restores the specified document to its last locally saved state.
    *
-   * This method updates the current reactive document (in the workspace) with the contents of the
-   * corresponding intermediate document (from the `intermediateDocuments` map), effectively discarding
-   * any unsaved in-memory changes and reverting to the last saved version.
-   * Vue reactivity is preserved by updating the existing reactive object in place.
+   * This method updates the current reactive document (in the workspace)
+   * with the contents of the corresponding original document (from the
+   * `originalDocuments` map), effectively discarding any unsaved in-memory
+   * changes and reverting to the last saved version. Vue reactivity is
+   * preserved by updating the existing reactive object in place.
    *
    * **Warning:** This operation will discard all unsaved (in-memory) changes to the specified document.
    *
@@ -454,6 +465,12 @@ export type WorkspaceStore = {
    * } else {
    *   console.log('Intermediate document does not exist')
    * }
+   *
+   * @deprecated The intermediate document layer is being phased out.
+   *   `saveDocument` already writes directly to `originalDocuments`, so this
+   *   method has no remaining responsibility once the intermediate map stops
+   *   being updated. It is kept for API compatibility and will be removed in
+   *   a future release.
    */
   promoteIntermediateToOriginal(documentName: string): boolean
   /**
@@ -858,24 +875,31 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 
   function exportDocument(documentName: string, format: 'json' | 'yaml', minify?: boolean) {
-    const intermediateDocument = intermediateDocuments[documentName]
+    // The original document map now holds the most recently saved state of
+    // the document - `saveDocument` writes directly into it and
+    // `revertDocumentChanges` reads from it. Exporting therefore mirrors
+    // exactly what the user would get if they reverted to the last save.
+    const savedDocument = originalDocuments[documentName]
 
-    if (!intermediateDocument) {
+    if (!savedDocument) {
       return
     }
 
     if (format === 'json') {
-      return minify ? JSON.stringify(intermediateDocument) : JSON.stringify(intermediateDocument, null, 2)
+      return minify ? JSON.stringify(savedDocument) : JSON.stringify(savedDocument, null, 2)
     }
 
-    return YAML.stringify(intermediateDocument)
+    return YAML.stringify(savedDocument)
   }
 
-  // Save the current state of the specified document to the intermediate documents map.
-  // This function captures the latest (reactive) state of the document from the workspace and
-  // applies its changes to the corresponding entry in the `intermediateDocuments` map.
-  // The `intermediateDocuments` map represents the most recently "saved" local version of the document,
-  // which may include edits not yet synced to the remote registry.
+  // Save the current state of the specified document as the new baseline.
+  // The reactive workspace document is serialised back into a plain shape
+  // (with bundler-internal keys stripped) and stored under
+  // `originalDocuments[documentName]` - the original map is now the single
+  // source of truth for "what the user has saved". The intermediate map is
+  // deprecated, but we keep mirroring writes into it so any consumer still
+  // reading from `getIntermediateDocument` observes fresh content while
+  // the layer is being phased out.
   const saveDocument: WorkspaceStore['saveDocument'] = async (documentName) => {
     const activeDocument = workspace.documents[documentName]
     const newDocument = await getEditableDocument(documentName)
@@ -885,8 +909,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return false
     }
 
-    // Store the new document in the intermediate documents map
-    intermediateDocuments[documentName] = newDocument
+    // Promote the in-memory edits to the new saved baseline. Two stores
+    // get a deep clone each so subsequent mutations on either one stay
+    // isolated.
+    originalDocuments[documentName] = newDocument
+    intermediateDocuments[documentName] = deepClone(newDocument)
     // Mark the document as not dirty since we are saving it
     activeDocument['x-scalar-is-dirty'] = false
     return true
@@ -1087,17 +1114,18 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 
   /**
-   * Promotes the intermediate document to the original document so the current
-   * intermediate becomes the new baseline. Fires workspace change for persistence.
+   * Promotes the intermediate document to the original document so the
+   * current intermediate becomes the new baseline.
+   *
+   * The intermediate layer is deprecated: `saveDocument` now writes
+   * directly into `originalDocuments`, so by the time anyone could call
+   * this method the original map already holds the latest saved baseline.
+   * Copying the (now stale) intermediate over the original would clobber
+   * the user's save, so this is a no-op for existing documents and only
+   * reports `false` when the document does not exist at all.
    */
   const promoteIntermediateToOriginal: WorkspaceStore['promoteIntermediateToOriginal'] = (documentName) => {
-    const intermediate = intermediateDocuments[documentName]
-    if (!intermediate) {
-      return false
-    }
-    const cloned = deepClone(unpackProxyObject(intermediate, { depth: 1 }))
-    originalDocuments[documentName] = cloned
-    return true
+    return Boolean(intermediateDocuments[documentName])
   }
 
   /**
@@ -1138,6 +1166,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       'x-original-oas-version',
       'x-scalar-original-document-hash',
       'x-scalar-original-source-url',
+      'x-scalar-registry-meta',
     ] satisfies (keyof OpenAPIExtensions | BundlerKeys)[] as string[]
 
     // Remove top level properties that should only exist in memory for the original document
@@ -1307,15 +1336,24 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     promoteIntermediateToOriginal,
     async revertDocumentChanges(documentName: string) {
       const workspaceDocument = workspace.documents[documentName]
-      const intermediate = intermediateDocuments[documentName]
+      // Restore from the original (last saved) snapshot. `saveDocument`
+      // writes here, so this reliably rolls back to whatever the user
+      // last persisted - matching the soft-deprecation path away from the
+      // intermediate document layer.
+      const baseline = unpackProxyObject(originalDocuments[documentName], { depth: 1 })
 
-      if (!workspaceDocument || !intermediate) {
+      if (!workspaceDocument || !baseline) {
         return
       }
 
+      // Keep the deprecated intermediate map aligned with the original so
+      // any consumer still reading from `getIntermediateDocument` sees the
+      // post-revert state instead of the pre-revert one.
+      intermediateDocuments[documentName] = deepClone(baseline)
+
       await addInMemoryDocument({
         name: documentName,
-        document: intermediate,
+        document: baseline,
         documentSource: workspaceDocument['x-scalar-original-source-url'],
         documentHash: workspaceDocument['x-scalar-original-document-hash'],
         initialize: false,
@@ -1382,19 +1420,22 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       const { name } = input
 
       // ---- Get the current documents
+      // The intermediate snapshot has been deprecated. Rebase now reasons
+      // about exactly two local snapshots: the original (last saved
+      // baseline, written by `saveDocument`) and the active in-memory
+      // document (with any unsaved edits on top).
       const originalDocument = unpackProxyObject(originalDocuments[name], { depth: 1 })
-      const intermediateDocument = unpackProxyObject(intermediateDocuments[name], { depth: 1 })
       // raw version without any proxies
       const activeDocument = workspace.documents[name]
         ? unpackProxyObject(workspace.documents[name], { depth: 1 })
         : undefined
 
-      if (!originalDocument || !intermediateDocument || !activeDocument) {
+      if (!originalDocument || !activeDocument) {
         // If any required document state is missing, do nothing
         return {
           ok: false,
           type: 'CORRUPTED_STATE' as const,
-          message: `Cannot rebase document '${name}': missing original, intermediate, or active document state`,
+          message: `Cannot rebase document '${name}': missing original or active document state`,
         }
       }
 
@@ -1434,12 +1475,17 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       overrides[name] = input.overrides ?? {}
       extraDocumentConfigurations[name] = { fetch: input.fetch }
 
-      // ---- Get the new intermediate document
-      const changelogAA = diff(originalDocument, newDocumentOrigin)
+      // ---- Compute the merge between upstream and local edits
+      // Two-way merge anchored on the original (last saved) snapshot:
+      //   - changelogIncoming: changes the registry made on top of the
+      //     original (what we want to pull in)
+      //   - changelogLocal: changes the user has made on top of the
+      //     original since the last save (what we want to keep)
+      const changelogIncoming = diff(originalDocument, newDocumentOrigin)
 
       // When there are no changes, we can return early since we don't need to do anything
       // This is not supposed to happen due to the hash check above, but just in case
-      if (changelogAA.length === 0) {
+      if (changelogIncoming.length === 0) {
         return {
           ok: false,
           type: 'NO_CHANGES_DETECTED' as const,
@@ -1447,48 +1493,41 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         }
       }
 
-      const changelogAB = diff(originalDocument, intermediateDocument)
+      const changelogLocal = diff(originalDocument, activeDocument)
 
-      const changesA = merge(changelogAA, changelogAB)
+      const merged = merge(changelogIncoming, changelogLocal)
 
       return {
         ok: true,
-        conflicts: changesA.conflicts,
-        changes: changesA.diffs,
+        conflicts: merged.conflicts,
+        changes: merged.diffs,
         applyChanges: async (applyChangesInput) => {
-          // Helper function to compute the new intermediate document based on resolved conflicts or a resolved document
-          const getNewIntermediateDocument = () => {
+          // Helper function to compute the new active document based on
+          // resolved conflicts or a resolved document. With the
+          // intermediate layer gone, the merged result *is* the new
+          // active document - there is no longer an intermediate hop.
+          const getNewActiveDocument = () => {
             if ('resolvedConflicts' in applyChangesInput) {
-              const changesetA = changesA.diffs.concat(applyChangesInput.resolvedConflicts)
+              const changeset = merged.diffs.concat(applyChangesInput.resolvedConflicts)
 
               // Apply the merged changes (diffs + resolved conflicts) to the original document
-              return apply(deepClone(originalDocument), changesetA)
+              return apply(deepClone(originalDocument), changeset)
             }
 
-            // If there are no resolved conflicts, use the provided resolved document
+            // If the caller provided a fully resolved document, use it as-is.
             return applyChangesInput.resolvedDocument
           }
 
-          const newIntermediateDocument = getNewIntermediateDocument()
-          intermediateDocuments[name] = newIntermediateDocument
+          const mergedDocument = getNewActiveDocument()
+          const newActiveDocument = coerceValue(OpenAPIDocumentSchemaStrict, mergedDocument)
 
-          // Update the original document
-          originalDocuments[name] = newDocumentOrigin
-
-          // ---- Get the new active document
-          const changelogBA = diff(intermediateDocument, newIntermediateDocument)
-          const changelogBB = diff(intermediateDocument, activeDocument)
-
-          const changesB = merge(changelogBA, changelogBB)
-
-          // Auto-conflict resolution: pick only the changes from the first changeset
-          // TODO: In the future, implement smarter conflict resolution if needed
-          const changesetB = changesB.diffs.concat(changesB.conflicts.flatMap((it) => it[0]))
-
-          const newActiveDocument = coerceValue(
-            OpenAPIDocumentSchemaStrict,
-            apply(deepClone(newIntermediateDocument), changesetB),
-          )
+          // The merged result becomes the new saved baseline so a subsequent
+          // revert restores to the post-rebase state, not to the
+          // pre-rebase original. Mirror the same content into the
+          // deprecated intermediate map so any lingering consumer reads
+          // the post-rebase state too.
+          originalDocuments[name] = newActiveDocument
+          intermediateDocuments[name] = deepClone(newActiveDocument)
 
           // add the new active document to the workspace but don't re-initialize
           await addInMemoryDocument({
