@@ -2,6 +2,7 @@ import { resolve } from 'node:path'
 
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
+import type { OutputAsset, OutputBundle } from 'rollup'
 import type { PluginOption } from 'vite'
 import svgLoader from 'vite-svg-loader'
 import { defineConfig } from 'vitest/config'
@@ -21,42 +22,60 @@ const entry = {
   style: resolve(import.meta.dirname, './src/style.css'),
 }
 
+const CSS_BUNDLE_ENTRY_FILES = ['base.css', 'style.css'] as const
+const cssBundleEntryFiles = new Set<string>(CSS_BUNDLE_ENTRY_FILES)
+
 const sourceToString = (source: string | Uint8Array): string =>
   typeof source === 'string' ? source : new TextDecoder().decode(source)
 
+const isCssAsset = (asset: OutputBundle[string]): asset is OutputAsset =>
+  asset.type === 'asset' && asset.fileName.endsWith('.css')
+
+const isCssBundleEntry = (fileName: string): boolean => cssBundleEntryFiles.has(fileName)
+
+const getCssAssets = (bundle: OutputBundle): OutputAsset[] =>
+  Object.values(bundle)
+    .filter(isCssAsset)
+    .sort((first, second) => first.fileName.localeCompare(second.fileName))
+
+const getComponentCss = (cssAssets: readonly OutputAsset[]): string =>
+  cssAssets
+    .filter((asset) => !isCssBundleEntry(asset.fileName))
+    .map((asset) => sourceToString(asset.source))
+    .join('\n')
+
+const appendCss = (asset: OutputAsset | undefined, css: string): void => {
+  if (!asset || !css) {
+    return
+  }
+
+  asset.source = [sourceToString(asset.source), css].join('\n')
+}
+
+const removeComponentCssAssets = (bundle: OutputBundle, cssAssets: readonly OutputAsset[]): void => {
+  for (const asset of cssAssets) {
+    if (!isCssBundleEntry(asset.fileName)) {
+      delete bundle[asset.fileName]
+    }
+  }
+}
+
+// Preserve-modules emits component CSS next to each component. The package only
+// exposes base.css and style.css, so fold component CSS into both public files.
 const createCssBundlePlugin = (): PluginOption => ({
   name: 'scalar-components-css-bundles',
   apply: 'build',
   enforce: 'post',
   generateBundle(_, bundle) {
-    const cssAssets = Object.entries(bundle)
-      .filter((entry): entry is [string, Extract<(typeof bundle)[string], { type: 'asset' }>] => {
-        const [, asset] = entry
+    const cssAssets = getCssAssets(bundle)
+    const baseAsset = cssAssets.find((asset) => asset.fileName === 'base.css')
+    const styleAsset = cssAssets.find((asset) => asset.fileName === 'style.css')
+    const componentCss = getComponentCss(cssAssets)
 
-        return asset.type === 'asset' && asset.fileName.endsWith('.css')
-      })
-      .sort(([first], [second]) => first.localeCompare(second))
+    appendCss(baseAsset, componentCss)
+    appendCss(styleAsset, componentCss)
 
-    const baseAsset = cssAssets.find(([fileName]) => fileName === 'base.css')?.[1]
-    const styleAsset = cssAssets.find(([fileName]) => fileName === 'style.css')?.[1]
-    const componentCss = cssAssets
-      .filter(([fileName]) => fileName !== 'base.css' && fileName !== 'style.css')
-      .map(([, asset]) => sourceToString(asset.source))
-      .join('\n')
-
-    if (baseAsset) {
-      baseAsset.source = [sourceToString(baseAsset.source), componentCss].filter(Boolean).join('\n')
-    }
-
-    if (styleAsset) {
-      styleAsset.source = [sourceToString(styleAsset.source), componentCss].filter(Boolean).join('\n')
-    }
-
-    for (const [fileName] of cssAssets) {
-      if (fileName !== 'base.css' && fileName !== 'style.css') {
-        delete bundle[fileName]
-      }
-    }
+    removeComponentCssAssets(bundle, cssAssets)
   },
 })
 
