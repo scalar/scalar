@@ -217,6 +217,10 @@ const mergeExamples = (baseValue: unknown, newValue: unknown): unknown => {
 
 type CompositionKeyword = 'anyOf' | 'oneOf'
 type SchemaPrimitiveType = 'string' | 'number' | 'boolean' | 'object' | 'array' | 'null' | 'integer'
+const MAX_SCHEMA_VALIDATION_DEPTH = MAX_LEVELS_DEEP * 5
+
+/** Cache composed schema resolution to preserve identity across recursion checks. */
+const composedSchemaResolutionCache = new WeakMap<object, SchemaObject | undefined>()
 
 const isValueOfType = (value: unknown, targetType: SchemaPrimitiveType): boolean => {
   switch (targetType) {
@@ -239,7 +243,28 @@ const isValueOfType = (value: unknown, targetType: SchemaPrimitiveType): boolean
   }
 }
 
-const schemaAllowsValue = (schema: SchemaObject, value: unknown, seen: Set<object> = new Set()): boolean => {
+const resolveComposedSchemaMember = (schema: SchemaObject): SchemaObject | undefined => {
+  const rawSchema = getSchemaCacheTarget(schema)
+  if (composedSchemaResolutionCache.has(rawSchema)) {
+    return composedSchemaResolutionCache.get(rawSchema)
+  }
+
+  const resolved = '$ref' in schema ? resolve.schema(schema) : schema
+  composedSchemaResolutionCache.set(rawSchema, resolved)
+  return resolved
+}
+
+const schemaAllowsValue = (
+  schema: SchemaObject,
+  value: unknown,
+  seen: Set<object> = new Set(),
+  level: number = 0,
+): boolean => {
+  // Depth guard prevents stack overflows when composed schemas loop through wrapped resolver objects.
+  if (level > MAX_SCHEMA_VALIDATION_DEPTH) {
+    return true
+  }
+
   const rawSchema = getSchemaCacheTarget(schema)
 
   if (seen.has(rawSchema)) {
@@ -266,8 +291,8 @@ const schemaAllowsValue = (schema: SchemaObject, value: unknown, seen: Set<objec
   const anyOf = schema.anyOf
   if (Array.isArray(anyOf) && anyOf.length > 0) {
     const matchesAnyOf = anyOf.some((item) => {
-      const resolved = resolve.schema(item)
-      return !!resolved && schemaAllowsValue(resolved, value, seen)
+      const resolved = resolveComposedSchemaMember(item as SchemaObject)
+      return !!resolved && schemaAllowsValue(resolved, value, seen, level + 1)
     })
 
     if (!matchesAnyOf) {
@@ -279,8 +304,8 @@ const schemaAllowsValue = (schema: SchemaObject, value: unknown, seen: Set<objec
   const oneOf = schema.oneOf
   if (Array.isArray(oneOf) && oneOf.length > 0) {
     const matchesOneOf = oneOf.some((item) => {
-      const resolved = resolve.schema(item)
-      return !!resolved && schemaAllowsValue(resolved, value, seen)
+      const resolved = resolveComposedSchemaMember(item as SchemaObject)
+      return !!resolved && schemaAllowsValue(resolved, value, seen, level + 1)
     })
 
     if (!matchesOneOf) {
@@ -292,8 +317,8 @@ const schemaAllowsValue = (schema: SchemaObject, value: unknown, seen: Set<objec
   const allOf = schema.allOf
   if (Array.isArray(allOf) && allOf.length > 0) {
     const matchesAllOf = allOf.every((item) => {
-      const resolved = resolve.schema(item)
-      return !resolved || schemaAllowsValue(resolved, value, seen)
+      const resolved = resolveComposedSchemaMember(item as SchemaObject)
+      return !resolved || schemaAllowsValue(resolved, value, seen, level + 1)
     })
 
     if (!matchesAllOf) {

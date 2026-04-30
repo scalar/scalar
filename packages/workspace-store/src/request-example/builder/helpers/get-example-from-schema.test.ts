@@ -745,6 +745,18 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toBe('')
   })
 
+  it('does not recurse forever when validating defaults on circular composed schemas', () => {
+    const schema = {
+      type: 'object',
+      default: {},
+      anyOf: [],
+    } as SchemaObject
+
+    schema.anyOf = [schema]
+
+    expect(getExampleFromSchema(schema)).toStrictEqual({})
+  })
+
   it('keeps empty string defaults for nullable strings', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: ['string', 'null'],
