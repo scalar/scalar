@@ -320,6 +320,7 @@ const handleSubmit = (): void => {
 
       <div class="flex justify-end gap-2 pt-1">
         <ScalarButton
+          size="sm"
           type="button"
           variant="ghost"
           @click="state.hide()">
@@ -328,6 +329,7 @@ const handleSubmit = (): void => {
         <ScalarButton
           :disabled="isSubmitDisabled"
           :loader="loader"
+          size="sm"
           type="submit">
           Publish
         </ScalarButton>
