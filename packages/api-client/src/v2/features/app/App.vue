@@ -21,7 +21,7 @@ import {
   ScalarIconFloppyDisk,
 } from '@scalar/icons'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import { ScalarToasts } from '@scalar/use-toasts'
+import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import { computed, onBeforeUnmount, toValue, watch } from 'vue'
 import { RouterView } from 'vue-router'
@@ -32,6 +32,10 @@ import AppSidebar from '@/v2/features/app/components/AppSidebar.vue'
 import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceModal.vue'
 import DocumentBreadcrumb from '@/v2/features/app/components/DocumentBreadcrumb.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
+import {
+  messageForFetchError,
+  messageForPublishVersionError,
+} from '@/v2/features/app/helpers/registry-error-messages'
 import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useActiveDocumentVersion } from '@/v2/features/app/hooks/use-active-document-version'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
@@ -40,7 +44,10 @@ import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.v
 import { useMonacoEditorConfiguration } from '@/v2/features/editor'
 import { useColorMode } from '@/v2/hooks/use-color-mode'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
-import type { RegistryAdapter, RegistryDocumentsState } from '@/v2/types/configuration'
+import type {
+  RegistryAdapter,
+  RegistryDocumentsState,
+} from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import type { AppState } from './app-state'
@@ -125,6 +132,7 @@ defineExpose({
 
 const app = getAppState()
 const paletteState = getCommandPaletteState()
+const { toast } = useToasts()
 
 /** Expose workspace store to window for debugging purposes. */
 if (typeof window !== 'undefined') {
@@ -301,24 +309,184 @@ const handleHeaderRevertDocument = async () => {
 }
 
 /**
- * Placeholder for the registry pull flow. The wiring (workspace store
- * call, conflict handling, toast feedback) will be implemented in a
- * follow-up - this component just owns the affordance so the header
- * surface can ship in parallel.
+ * Pulls the active document's latest version from the registry and
+ * rebases local edits on top of it.
+ *
+ * The flow mirrors a `git pull --rebase`:
+ *  1. Fetch the upstream snapshot for the active version through the
+ *     registry adapter.
+ *  2. Hand the snapshot to `workspaceStore.rebaseDocument`, which
+ *     diffs it against the last saved baseline and the in-memory
+ *     edits so local work is preserved.
+ *  3. Apply the auto-merged diffs without touching conflicts. The
+ *     three-way merge editor will be hooked into `applyChanges`
+ *     in a follow-up; for now any conflicts are left unresolved
+ *     and the workspace store keeps the previous active document
+ *     for those paths.
  */
-const handleHeaderPullDocument = (): void => {
-  // TODO: hook up to the registry pull flow.
+const handleHeaderPullDocument = async (): Promise<void> => {
+  const meta = activeRegistryMeta.value
+  const slug = app.activeEntities.documentSlug.value
+  const store = app.store.value
+  if (!meta || !slug || !registry || !store) {
+    return
+  }
+
+  // Snapshot the registry-advertised hash before we kick off the fetch.
+  // The version listing is the source of truth for "what hash we are
+  // pulling against" - the per-document fetch payload itself does not
+  // carry one - and `activeVersion` may re-derive once `rebaseDocument`
+  // mutates the active document, so we capture it up front.
+  // TODO: THE REGSITRY FETCH ADAPTER SHOULD RETURN THE COMMIT HASH ALONGSIDE THE DOCUMENT
+  // AND NOT JUST THE REGISTRY DOCUMENT.
+  const incomingCommitHash = activeVersion.value?.registryCommitHash
+
+  const fetched = await registry.fetchDocument({
+    namespace: meta.namespace,
+    slug: meta.slug,
+    version: meta.version,
+  })
+  if (!fetched.ok) {
+    toast(messageForFetchError(fetched.error, fetched.message), 'error')
+    return
+  }
+
+  // Feed the fetched document inline so `rebaseDocument` skips its own
+  // network round-trip and treats the registry response as the new
+  // upstream baseline.
+  const result = await store.rebaseDocument({
+    name: slug,
+    document: fetched.data,
+  })
+
+  // `NO_CHANGES_DETECTED` is a "we are already up to date" success case,
+  // not a hard error. We still drop into the commit-hash refresh below
+  // because the listing might advertise a re-encoded hash even when the
+  // payload bytes are identical, and we want the local baseline to
+  // mirror that so the sync indicator clears.
+  const alreadyUpToDate = !result.ok && result.type === 'NO_CHANGES_DETECTED'
+
+  if (!result.ok && result.type !== 'NO_CHANGES_DETECTED') {
+    if (result.type === 'CORRUPTED_STATE') {
+      toast(
+        'The document state appears to be missing locally. Try reloading the workspace.',
+        'error',
+      )
+      return
+    } else {
+      toast(`Pull failed: ${result.message}`, 'error')
+      return
+    }
+  } else if (result.ok) {
+    // Apply the auto-mergeable diffs and ignore conflicts. The 3-way
+    // merge editor that already exists will land in this branch in a
+    // follow-up to walk the user through `result.conflicts`.
+    await result.applyChanges({ resolvedConflicts: [] })
+  }
+
+  // Now that the rebase is locked in, stamp the registry's commit hash
+  // for the version we just pulled onto the active document so the next
+  // sync check compares against the right base. We only update when the
+  // listing actually advertised a hash and the meta still has a concrete
+  // `version` to write into; otherwise we leave the previous value alone
+  // so a missing hash does not erase one we already had. `saveDocument`
+  // then propagates the new hash into `originalDocuments` so the
+  // post-pull baseline records the same commit hash.
+  if (
+    incomingCommitHash &&
+    incomingCommitHash !== meta.commitHash &&
+    meta.version
+  ) {
+    store.updateDocument(slug, 'x-scalar-registry-meta', {
+      ...meta,
+      version: meta.version,
+      commitHash: incomingCommitHash,
+    })
+    await store.saveDocument(slug)
+  }
+
+  toast(
+    alreadyUpToDate
+      ? 'Already up to date with the registry.'
+      : 'Pulled latest changes from the registry.',
+    'info',
+  )
 }
 
 /**
- * Placeholder for the registry push flow. The wiring will eventually
- * read the active document's `x-scalar-registry-meta` (namespace, slug,
- * version, commitHash) and call `registry?.publishVersion({ ... })`,
- * routing `CONFLICT` outcomes through the pull / merge UX. See
- * `handleHeaderPullDocument`.
+ * Pushes the active document up to the registry as the next commit on
+ * the current version.
+ *
+ * The local `commitHash` is sent along with the publish call so the
+ * registry can do optimistic concurrency: a `CONFLICT` response means
+ * somebody pushed in the meantime and the user is expected to pull
+ * before retrying. On success two writes happen locally:
+ *
+ *  1. The freshly returned commit hash is stamped onto the active
+ *     document's `x-scalar-registry-meta` so subsequent sync checks
+ *     compare against the right base. This write goes through
+ *     `updateDocument`, which is metadata-only and does not flip the
+ *     dirty flag.
+ *  2. `saveDocument` promotes the active document to the new saved
+ *     baseline (and clears `x-scalar-is-dirty`), so a later revert
+ *     restores to the post-push state instead of pre-push edits.
  */
-const handleHeaderPushDocument = (): void => {
-  // TODO: hook up to `registry?.publishVersion` with the active commitHash.
+const handleHeaderPushDocument = async (): Promise<void> => {
+  const meta = activeRegistryMeta.value
+  const slug = app.activeEntities.documentSlug.value
+  const store = app.store.value
+  if (!meta || !slug || !registry || !store) {
+    return
+  }
+
+  // `version` is required on the registry meta schema but the surrounding
+  // composable types it as optional, so we narrow it explicitly here.
+  const { namespace, slug: registrySlug, version } = meta
+  if (!version) {
+    toast(
+      'This document is missing a version - cannot push without one.',
+      'error',
+    )
+    return
+  }
+
+  // The registry needs a non-empty commit hash to do its optimistic
+  // concurrency check. Bailing out here gives a clearer error than
+  // letting the adapter reject the call as `CONFLICT`.
+  if (!meta.commitHash) {
+    toast(
+      'This document is missing a commit hash. Pull from the registry first to anchor it.',
+      'error',
+    )
+    return
+  }
+
+  const result = await registry.publishVersion({
+    namespace,
+    slug: registrySlug,
+    version,
+    commitHash: meta.commitHash,
+  })
+  if (!result.ok) {
+    // TODO: when `CONFLICT` lands here, automatically run the pull
+    // flow and rebase before retrying instead of just informing the
+    // user. Needs the 3-way merge editor for the conflict-resolution
+    // step.
+    toast(messageForPublishVersionError(result.error, result.message), 'error')
+    return
+  }
+
+  // Stamp the new commit hash before saving so the freshly published
+  // hash is part of the new baseline.
+  store.updateDocument(slug, 'x-scalar-registry-meta', {
+    ...meta,
+    version,
+    commitHash: result.data.commitHash,
+  })
+
+  await store.saveDocument(slug)
+
+  toast('Pushed changes to the registry.', 'info')
 }
 
 /**

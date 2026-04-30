@@ -132,7 +132,7 @@ export type PublishRegistryVersion = (input: {
    * hash and rejects the publish with `CONFLICT` when they no longer
    * match, preventing accidental overwrites of upstream changes.
    */
-  commitHash: string
+  commitHash?: string
 }) => Promise<PublishRegistryVersionResult>
 
 /**
