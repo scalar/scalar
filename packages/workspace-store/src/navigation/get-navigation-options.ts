@@ -51,7 +51,7 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
         return `${documentId}/${tagPrefix}/${options.generateTagSlug(props.tag)}`
       }
 
-      return `${documentId}/${tagPrefix}/${slugify(props.tag.name ?? '')}`
+      return `${documentId}/${tagPrefix}/${slugify(props.tag.name ?? '', { lowercase: true })}`
     }
 
     // -------- Default operation id generation logic --------
@@ -93,7 +93,7 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
         })}`
       }
 
-      return `${prefixTag}webhook/${props.method?.toUpperCase()}/${slugify(props.name)}`
+      return `${prefixTag}webhook/${props.method?.toUpperCase()}/${slugify(props.name, { lowercase: true })}`
     }
 
     // -------- Default model id generation logic --------
@@ -120,7 +120,7 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
     }
 
     if (props.type === 'example') {
-      return `${props.parentId}/example/${slugify(props.name)}`
+      return `${props.parentId}/example/${slugify(props.name, { lowercase: true })}`
     }
 
     if (props.type === 'document') {

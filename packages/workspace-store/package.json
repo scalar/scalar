@@ -25,6 +25,7 @@
     "generate-json-schemas": "tsx ./scripts/generate-json-schemas.ts",
     "generate-openapi-types": "tsx ./scripts/generate-openapi-types.ts",
     "test": "vitest --run",
+    "test:watch": "vitest",
     "types:check": "tsc --noEmit"
   },
   "type": "module",
