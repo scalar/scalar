@@ -1,10 +1,5 @@
 import { type SlugifyOptions, slugify } from './slugify'
 
-export type Slugger = (options?: SlugifyOptions) => {
-  slug: (v: string) => string
-  reset: () => void
-}
-
 /**
  * Creates a stateful slug generator that tracks previously seen slugs and
  * appends an incrementing numeric suffix to avoid collisions, mirroring the

@@ -14,7 +14,7 @@ export type SlugifyOptions = {
    */
   allowedSpecialChars?: string
   /**
-   * When `true`, the result is lowercased. By default we preserve the original casing
+   * When `true`, the result is lowercased. By default, the original casing is preserved.
    * @default false
    * @example slugify('MyAPI', { lowercase: true }) // 'myapi'
    */
@@ -33,7 +33,7 @@ export type SlugifyOptions = {
  * | Option               | Type       | Default | Description                                                                                  |
  * |----------------------|------------|---------|----------------------------------------------------------------------------------------------|
  * | `allowedSpecialChars`| `string`   | `""`    | Extra characters that should survive the non-word filter (e.g. `"."` keeps dots so `"v1.2"` → `"v1.2"` instead of `"v12"`). |
- * | `lowercase`          | `boolean`  | `false` | When `true`, the result is lowercased. By default we preserve the original casing |
+ * | `lowercase`          | `boolean`  | `false` | When `true`, the result is lowercased. By default, the original casing is preserved. |
  */
 export const slugify = (v: string, options: SlugifyOptions = {}) => {
   const { allowedSpecialChars = '', lowercase = false } = options
