@@ -5,20 +5,20 @@ import { slugger } from './slugger'
 describe('slugger', () => {
   it('returns a slug for the first occurrence of a string', () => {
     const { slug } = slugger()
-    expect(slug('Hello World')).toBe('Hello-World')
+    expect(slug('Hello World')).toBe('hello-world')
   })
 
   it('appends -1 on the second occurrence of the same string', () => {
     const { slug } = slugger()
     slug('Hello World')
-    expect(slug('Hello World')).toBe('Hello-World-1')
+    expect(slug('Hello World')).toBe('hello-world-1')
   })
 
   it('increments the suffix on each subsequent collision', () => {
     const { slug } = slugger()
     slug('Hello World')
     slug('Hello World')
-    expect(slug('Hello World')).toBe('Hello-World-2')
+    expect(slug('Hello World')).toBe('hello-world-2')
   })
 
   it('tracks collisions independently per base slug', () => {
@@ -26,20 +26,20 @@ describe('slugger', () => {
     slug('Foo')
     slug('Bar')
     slug('Foo')
-    expect(slug('Bar')).toBe('Bar-1')
-    expect(slug('Foo')).toBe('Foo-2')
+    expect(slug('Bar')).toBe('bar-1')
+    expect(slug('Foo')).toBe('foo-2')
   })
 
-  it('tracks case-sensitive slugs independently by default', () => {
+  it('treats inputs that lowercase to the same slug as collisions by default', () => {
     const { slug } = slugger()
     slug('Hello World')
-    expect(slug('hello world')).toBe('hello-world')
+    expect(slug('hello world')).toBe('hello-world-1')
   })
 
-  it('treats inputs that lowercase to the same slug as collisions when configured', () => {
-    const { slug } = slugger({ lowercase: true })
+  it('tracks case-sensitive slugs independently when preserving case', () => {
+    const { slug } = slugger({ preserveCase: true })
     slug('Hello World')
-    expect(slug('hello world')).toBe('hello-world-1')
+    expect(slug('hello world')).toBe('hello-world')
   })
 
   it('reset clears all seen slugs so counters restart', () => {
@@ -47,7 +47,7 @@ describe('slugger', () => {
     slug('Hello World')
     slug('Hello World')
     reset()
-    expect(slug('Hello World')).toBe('Hello-World')
+    expect(slug('Hello World')).toBe('hello-world')
   })
 
   it('after reset, collisions increment from 1 again', () => {
@@ -55,7 +55,7 @@ describe('slugger', () => {
     slug('Hello World')
     reset()
     slug('Hello World')
-    expect(slug('Hello World')).toBe('Hello-World-1')
+    expect(slug('Hello World')).toBe('hello-world-1')
   })
 
   it('each slugger instance has its own independent state', () => {
@@ -63,7 +63,7 @@ describe('slugger', () => {
     const b = slugger()
     a.slug('Hello')
     // Instance b has never seen this slug, so no suffix is added.
-    expect(b.slug('Hello')).toBe('Hello')
+    expect(b.slug('Hello')).toBe('hello')
   })
 
   it('handles an empty string without throwing', () => {
@@ -77,14 +77,14 @@ describe('slugger', () => {
     expect(slug('')).toBe('-1')
   })
 
-  it('preserves casing by default', () => {
+  it('lowercases by default', () => {
     const { slug } = slugger()
-    expect(slug('MyAPI Name')).toBe('MyAPI-Name')
+    expect(slug('MyAPI Name')).toBe('myapi-name')
   })
 
-  it('lowercases when configured', () => {
-    const { slug } = slugger({ lowercase: true })
-    expect(slug('MyAPI Name')).toBe('myapi-name')
+  it('preserves casing when configured', () => {
+    const { slug } = slugger({ preserveCase: true })
+    expect(slug('MyAPI Name')).toBe('MyAPI-Name')
   })
 
   it('keeps allowed special characters when configured', () => {
@@ -93,7 +93,7 @@ describe('slugger', () => {
   })
 
   it('tracks collisions after applying configured slug options', () => {
-    const { slug } = slugger({ lowercase: true, allowedSpecialChars: '.' })
+    const { slug } = slugger({ allowedSpecialChars: '.' })
     slug('MyAPI v1.2')
     expect(slug('MyAPI v1.2')).toBe('myapi-v1.2-1')
   })
