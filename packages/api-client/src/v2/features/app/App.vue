@@ -37,6 +37,7 @@ import CreateWorkspaceModal from '@/v2/features/app/components/CreateWorkspaceMo
 import DocumentBreadcrumb from '@/v2/features/app/components/DocumentBreadcrumb.vue'
 import PublishDocumentModal from '@/v2/features/app/components/PublishDocumentModal.vue'
 import SplashScreen from '@/v2/features/app/components/SplashScreen.vue'
+import SyncConflictResolutionEditor from '@/v2/features/app/components/SyncConflictResolutionEditor.vue'
 import {
   messageForFetchError,
   messageForPublishDocumentError,
@@ -46,7 +47,6 @@ import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { useActiveDocumentVersion } from '@/v2/features/app/hooks/use-active-document-version'
 import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
 import { useNetworkStatus } from '@/v2/features/app/hooks/use-network-status'
-import SyncConflictResolutionEditor from '@/v2/features/collection/components/SyncConflictResolutionEditor.vue'
 import type { CommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
 import TheCommandPalette from '@/v2/features/command-palette/TheCommandPalette.vue'
 import { useMonacoEditorConfiguration } from '@/v2/features/editor'
