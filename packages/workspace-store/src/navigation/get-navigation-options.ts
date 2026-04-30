@@ -27,7 +27,7 @@ export type NavigationOptions =
  */
 export const getNavigationOptions = (documentName: string, options?: NavigationOptions): TraverseSpecOptions => {
   const generateId: IdGenerator = (props) => {
-    const documentId = `${slugify(documentName)}`
+    const documentId = slugify(documentName, { lowercase: true })
 
     // -------- Default text id generation logic --------
     if (props.type === 'text') {

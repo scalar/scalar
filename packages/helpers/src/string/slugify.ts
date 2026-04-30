@@ -6,8 +6,6 @@ const RE_TRIM_HYPHENS = /^-+|-+$/g
 const reNonWordCache = new Map<string, RegExp>()
 
 export type SlugifyOptions = {
-  /** When `true`, skips lowercasing so the original casing is preserved. */
-  preserveCase?: boolean
   /**
    * A string of extra characters to allow through the non-word filter.
    * Each character in the string is treated literally.
@@ -15,6 +13,12 @@ export type SlugifyOptions = {
    * @example '.@' // keeps dots and at-signs
    */
   allowedSpecialChars?: string
+  /**
+   * When `true`, the result is lowercased. By default we preserve the original casing
+   * @default false
+   * @example slugify('MyAPI', { lowercase: true }) // 'myapi'
+   */
+  lowercase?: boolean
 }
 
 /**
@@ -28,31 +32,34 @@ export type SlugifyOptions = {
  *
  * | Option               | Type       | Default | Description                                                                                  |
  * |----------------------|------------|---------|----------------------------------------------------------------------------------------------|
- * | `preserveCase`       | `boolean`  | `false` | When `true`, skips lowercasing so the original casing is kept (e.g. `"MyAPI"` → `"MyAPI"`). |
  * | `allowedSpecialChars`| `string`   | `""`    | Extra characters that should survive the non-word filter (e.g. `"."` keeps dots so `"v1.2"` → `"v1.2"` instead of `"v12"`). |
+ * | `lowercase`          | `boolean`  | `false` | When `true`, the result is lowercased. By default we preserve the original casing |
  */
 export const slugify = (v: string, options: SlugifyOptions = {}) => {
-  const { preserveCase = false, allowedSpecialChars = '' } = options
+  const { allowedSpecialChars = '', lowercase = false } = options
 
-  let reNonWord: RegExp
-  if (allowedSpecialChars.length > 0) {
+  // Compile the non-word regex once and cache it for future use.
+  const reNonWord = (() => {
+    if (allowedSpecialChars.length === 0) {
+      return RE_NON_WORD
+    }
+
     const cached = reNonWordCache.get(allowedSpecialChars)
     if (cached) {
-      reNonWord = cached
-    } else {
-      const escaped = allowedSpecialChars.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
-      reNonWord = new RegExp(`[^\\p{L}\\p{M}\\p{N}\\s_\\-${escaped}]`, 'gu')
-      reNonWordCache.set(allowedSpecialChars, reNonWord)
+      return cached
     }
-  } else {
-    reNonWord = RE_NON_WORD
-  }
 
-  let result = v.slice(0, 255).trim().normalize('NFC')
+    // Escape user-provided characters so they are treated literally inside the character class.
+    const escaped = allowedSpecialChars.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
+    const reNonWordWithAllowedSpecialChars = new RegExp(`[^\\p{L}\\p{M}\\p{N}\\s_\\-${escaped}]`, 'gu')
+    reNonWordCache.set(allowedSpecialChars, reNonWordWithAllowedSpecialChars)
 
-  if (!preserveCase) {
-    result = result.toLowerCase()
-  }
+    return reNonWordWithAllowedSpecialChars
+  })()
+
+  // Normalize before filtering so equivalent Unicode forms produce the same slug.
+  const normalized = v.slice(0, 255).trim().normalize('NFC')
+  const result = lowercase ? normalized.toLowerCase() : normalized
 
   return result.replace(reNonWord, '').replace(RE_SPACES, '-').replace(RE_TRIM_HYPHENS, '')
 }

@@ -3,24 +3,24 @@ import { describe, expect, it } from 'vitest'
 import { slugify } from './slugify'
 
 describe('slugify', () => {
-  it('converts words to a lowercase slug', () => {
-    expect(slugify('Hello World')).toBe('hello-world')
+  it('converts words to a slug', () => {
+    expect(slugify('Hello World')).toBe('Hello-World')
   })
 
   it('trims surrounding whitespace', () => {
-    expect(slugify('  Hello World  ')).toBe('hello-world')
+    expect(slugify('  Hello World  ')).toBe('Hello-World')
   })
 
   it('collapses repeated spaces and hyphens', () => {
-    expect(slugify('Hello   --   World')).toBe('hello-world')
+    expect(slugify('Hello   --   World')).toBe('Hello-World')
   })
 
   it('removes punctuation', () => {
-    expect(slugify('Hello, World!')).toBe('hello-world')
+    expect(slugify('Hello, World!')).toBe('Hello-World')
   })
 
   it('removes symbols and emoji', () => {
-    expect(slugify('Hello 👋 + World & Friends')).toBe('hello-world-friends')
+    expect(slugify('Hello 👋 + World & Friends')).toBe('Hello-World-Friends')
   })
 
   it('converts underscores to hyphens (snake_case support)', () => {
@@ -32,15 +32,15 @@ describe('slugify', () => {
   })
 
   it('preserves accented letters', () => {
-    expect(slugify('Crème Brûlée')).toBe('crème-brûlée')
+    expect(slugify('Crème Brûlée')).toBe('Crème-Brûlée')
   })
 
   it('normalizes decomposed unicode characters', () => {
-    expect(slugify('Cafe\u0301')).toBe('café')
+    expect(slugify('Cafe\u0301')).toBe('Café')
   })
 
   it('preserves non-latin letters and numbers', () => {
-    expect(slugify('東京 API 版本 2')).toBe('東京-api-版本-2')
+    expect(slugify('東京 API 版本 2')).toBe('東京-API-版本-2')
   })
 
   it('returns an empty string when no slug characters remain', () => {
@@ -51,41 +51,35 @@ describe('slugify', () => {
     expect(slugify('a'.repeat(300))).toBe('a'.repeat(255))
   })
 
-  describe('preserveCase option', () => {
-    it('preserves original casing when true', () => {
-      expect(slugify('MyAPI Name', { preserveCase: true })).toBe('MyAPI-Name')
-    })
-
-    it('still lowercases by default', () => {
-      expect(slugify('MyAPI Name')).toBe('myapi-name')
-    })
-
-    it('preserves mixed case with numbers', () => {
-      expect(slugify('CamelCase42', { preserveCase: true })).toBe('CamelCase42')
-    })
+  it('preserves original casing by default', () => {
+    expect(slugify('MyAPI Name')).toBe('MyAPI-Name')
   })
 
-  describe('allowedSpecialChars option', () => {
-    it('keeps dots when "." is allowed', () => {
-      expect(slugify('v1.2.3', { allowedSpecialChars: '.' })).toBe('v1.2.3')
-    })
-
-    it('keeps dots and at-signs when ".@" is allowed', () => {
-      expect(slugify('user@v1.2', { allowedSpecialChars: '.@' })).toBe('user@v1.2')
-    })
-
-    it('still strips characters not in the allow list', () => {
-      expect(slugify('hello!world.js', { allowedSpecialChars: '.' })).toBe('helloworld.js')
-    })
-
-    it('handles regex-special characters in allowedSpecialChars safely', () => {
-      expect(slugify('price$9.99', { allowedSpecialChars: '$.' })).toBe('price$9.99')
-    })
+  it('lowercases when configured', () => {
+    expect(slugify('MyAPI Name', { lowercase: true })).toBe('myapi-name')
   })
 
-  describe('preserveCase + allowedSpecialChars combined', () => {
-    it('keeps case and allowed special chars together', () => {
-      expect(slugify('MyAPI v1.2', { preserveCase: true, allowedSpecialChars: '.' })).toBe('MyAPI-v1.2')
-    })
+  it('lowercases mixed case with numbers when configured', () => {
+    expect(slugify('CamelCase42', { lowercase: true })).toBe('camelcase42')
+  })
+
+  it('keeps dots when "." is allowed', () => {
+    expect(slugify('v1.2.3', { allowedSpecialChars: '.' })).toBe('v1.2.3')
+  })
+
+  it('keeps dots and at-signs when ".@" is allowed', () => {
+    expect(slugify('user@v1.2', { allowedSpecialChars: '.@' })).toBe('user@v1.2')
+  })
+
+  it('still strips characters not in the allow list', () => {
+    expect(slugify('hello!world.js', { allowedSpecialChars: '.' })).toBe('helloworld.js')
+  })
+
+  it('handles regex-special characters in allowedSpecialChars safely', () => {
+    expect(slugify('price$9.99', { allowedSpecialChars: '$.' })).toBe('price$9.99')
+  })
+
+  it('keeps allowed special chars and lowercases together', () => {
+    expect(slugify('MyAPI v1.2', { lowercase: true, allowedSpecialChars: '.' })).toBe('myapi-v1.2')
   })
 })

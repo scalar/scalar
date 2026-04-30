@@ -110,7 +110,7 @@ describe('get-navigation-options', () => {
       parentId: 'pet-store',
       tag: { name: 'Users Management' },
     })
-    expect(id).toBe('pet-store/tag/users-management')
+    expect(id).toBe('pet-store/tag/Users-Management')
   })
 
   it('uses custom generateTagSlug when provided', () => {
@@ -151,7 +151,7 @@ describe('get-navigation-options', () => {
         tag: { name: 'Pets' },
       },
     })
-    expect(id).toBe('pet-store/tag/pets/GET/pets/{id}')
+    expect(id).toBe('pet-store/tag/Pets/GET/pets/{id}')
   })
 
   it('uses custom generateOperationSlug when provided', () => {
@@ -177,7 +177,7 @@ describe('get-navigation-options', () => {
       name: 'newPetCreated',
       method: 'post',
     })
-    expect(id).toBe('pet-store/webhook/POST/newpetcreated')
+    expect(id).toBe('pet-store/webhook/POST/newPetCreated')
   })
 
   it('generates webhook ID with parent tag prefix', () => {
@@ -192,7 +192,7 @@ describe('get-navigation-options', () => {
         tag: { name: 'Webhooks' },
       },
     })
-    expect(id).toBe('pet-store/tag/webhooks/webhook/PUT/petupdated')
+    expect(id).toBe('pet-store/tag/Webhooks/webhook/PUT/petUpdated')
   })
 
   it('uses custom generateWebhookSlug when provided', () => {
@@ -218,17 +218,17 @@ describe('get-navigation-options', () => {
     expect(id).toBe('pet-store/models')
   })
 
-  it('generates model ID with name (lowercased)', () => {
+  it('generates model ID with name (preserves case)', () => {
     const options = getNavigationOptions('Pet Store')
     const id = options.generateId({
       type: 'model',
       parentId: 'pet-store',
       name: 'Pet Schema',
     })
-    expect(id).toBe('pet-store/model/pet-schema')
+    expect(id).toBe('pet-store/model/Pet-Schema')
   })
 
-  it('generates model ID with parent tag prefix (lowercased)', () => {
+  it('generates model ID with parent tag prefix (preserves case)', () => {
     const options = getNavigationOptions('Pet Store')
     const id = options.generateId({
       type: 'model',
@@ -239,10 +239,10 @@ describe('get-navigation-options', () => {
         tag: { name: 'Models' },
       },
     })
-    expect(id).toBe('pet-store/tag/models/model/user')
+    expect(id).toBe('pet-store/tag/Models/model/User')
   })
 
-  it('generates lowercase model IDs regardless of schema name casing', () => {
+  it('generates unique model IDs when schema names differ only by casing', () => {
     const options = getNavigationOptions('API')
     const idString = options.generateId({
       type: 'model',
@@ -254,8 +254,9 @@ describe('get-navigation-options', () => {
       parentId: 'api',
       name: 'string',
     })
-    expect(idString).toBe('api/model/string')
+    expect(idString).toBe('api/model/String')
     expect(idLower).toBe('api/model/string')
+    expect(idString).not.toBe(idLower)
   })
 
   it('uses custom generateModelSlug when provided', () => {
@@ -278,7 +279,7 @@ describe('get-navigation-options', () => {
       parentId: 'pet-store/get/pets',
       name: 'Success Response',
     })
-    expect(id).toBe('pet-store/get/pets/example/success-response')
+    expect(id).toBe('pet-store/get/pets/example/Success-Response')
   })
 
   it('handles document names with special characters', () => {
@@ -337,7 +338,7 @@ describe('get-navigation-options', () => {
       },
     })
     // The tag ID is regenerated, not used from parentTag.id
-    expect(id).toBe('store-api/tag/orders/POST/orders')
+    expect(id).toBe('store-api/tag/Orders/POST/orders')
   })
 
   it('handles webhook with undefined method', () => {

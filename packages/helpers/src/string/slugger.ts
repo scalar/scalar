@@ -1,4 +1,9 @@
-import { slugify } from './slugify'
+import { type SlugifyOptions, slugify } from './slugify'
+
+export type Slugger = (options?: SlugifyOptions) => {
+  slug: (v: string) => string
+  reset: () => void
+}
 
 /**
  * Creates a stateful slug generator that tracks previously seen slugs and
@@ -13,12 +18,12 @@ import { slugify } from './slugify'
  * reset() // Clears the seen slugs
  * slug('Hello World') // 'hello-world'
  */
-export const slugger = () => {
+export const slugger = (options: SlugifyOptions = {}) => {
   const seen = new Map<string, number>()
 
   return {
     slug(v: string): string {
-      const base = slugify(v)
+      const base = slugify(v, options)
       const count = seen.get(base)
 
       if (count === undefined) {
