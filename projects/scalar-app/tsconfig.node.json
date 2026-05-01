@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": [
+    "entrypoints/electron/shims.d.ts",
+    "electron.vite.config.*",
+    "entrypoints/electron/main/**/*",
+    "entrypoints/electron/preload/**/*",
+    "entrypoints/electron/helpers/**/*",
+    "src/environment.ts",
+    "src/helpers/auth/exchange-token.ts",
+    "src/helpers/auth/schema.ts"
+  ],
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@electron/*": ["entrypoints/electron/*"]
+    },
+    "types": ["electron-vite/node", "node"]
+  }
+}

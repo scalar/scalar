@@ -1,0 +1,44 @@
+/**
+ * App Styles
+ */
+
+@import "@scalar/themes/style.css"; /* Theme Base Styles and Reset */
+@import "@scalar/themes/tailwind.css"; /* Tailwind Theme + Config */
+@import "@scalar/components/style.css"; /* Component Library Styles */
+
+/* Dashboard Theme Extensions */
+@theme {
+  --container-content: 720px;
+  --container-layout-aside: 360px;
+}
+
+/* Generate all the Tailwind classes for the consuming project */
+.scalar-app {
+  @import "tailwindcss/utilities.css";
+}
+
+/* Base Styles */
+.scalar-app {
+  @apply text-base leading-normal;
+}
+
+body {
+  @apply bg-b-1 text-c-1 overflow-hidden;
+}
+
+/* TODO: Remove this once we update the reset */
+:where(a) {
+  text-decoration: inherit;
+}
+
+/* Search for Tailwind classes in the source files */
+@source "./";
+@source "../index.html";
+
+body > img[src*="fathom"] {
+  display: none;
+}
+
+.t-app__top-nav {
+  border-bottom: 1px solid var(--scalar-border-color);
+}
