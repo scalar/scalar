@@ -179,7 +179,7 @@ const DEFAULT_DEBOUNCE_DELAY = 1000
 /** Default sidebar width in pixels. */
 const DEFAULT_SIDEBAR_WIDTH = 288
 /** Default slug used when auto-creating a team workspace on demand. */
-export const DEFAULT_TEAM_WORKSPACE_SLUG = 'default'
+const DEFAULT_TEAM_WORKSPACE_SLUG = 'default'
 /** Default display name used when auto-creating a team workspace on demand. */
 const DEFAULT_TEAM_WORKSPACE_NAME = 'Workspace'
 /**
@@ -190,7 +190,7 @@ const DEFAULT_TEAM_WORKSPACE_NAME = 'Workspace'
  * workspaces. Existing team workspaces remain in storage and can be restored
  * by flipping this flag back to `true`.
  */
-export const TEAM_WORKSPACES_ENABLED = false
+const TEAM_WORKSPACES_ENABLED = false
 
 // ---------------------------------------------------------------------------
 // App State

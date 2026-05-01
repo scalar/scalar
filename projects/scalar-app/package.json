@@ -74,9 +74,7 @@
     "vite-plugin-monaco-editor": "catalog:*"
   },
   "devDependencies": {
-    "@electron-toolkit/tsconfig": "^2.0.0",
     "@playwright/test": "catalog:*",
-    "@rushstack/eslint-patch": "^1.12.0",
     "@tailwindcss/vite": "catalog:*",
     "@todesktop/cli": "1.23.2",
     "@types/node": "catalog:*",

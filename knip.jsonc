@@ -362,6 +362,16 @@
         "@scalar/api-client" // referenced in /src/runtime/components/nuxt-theme.css
       ]
     },
+    "projects/scalar-app": {
+      "entry": [
+        // Web app
+        "entrypoints/web/src/main.ts",
+        // Electron main process
+        "entrypoints/electron/main/index.ts",
+        // Electron preload script
+        "entrypoints/electron/preload/index.ts"
+      ]
+    },
     "integrations/sveltekit": {
       "ignoreDependencies": [
         // Automatically added to devDependencies by `pnpm script packages format`

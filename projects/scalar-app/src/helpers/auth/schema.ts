@@ -3,7 +3,7 @@ import { type Static, literal, number, object, string, union } from '@scalar/val
 const roleSchema = union([literal('viewer'), literal('editor'), literal('owner'), literal('admin')])
 
 /** A user's permission level within a team */
-export type Role = Static<typeof roleSchema>
+type Role = Static<typeof roleSchema>
 
 /** Schema for the decoded payload of a Scalar access token JWT */
 export const accessTokenPayloadSchema = object({
