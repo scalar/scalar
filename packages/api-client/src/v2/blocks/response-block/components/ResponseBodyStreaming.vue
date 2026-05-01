@@ -140,7 +140,7 @@ onBeforeUnmount(stopStreaming)
 
     <div
       ref="contentContainer"
-      class="custom-scroll text-xxs font-code min-h-0 flex-1 leading-6 whitespace-pre-wrap">
+      class="custom-scroll text-xxs font-code min-h-0 flex-1 overflow-auto leading-6 whitespace-pre-wrap">
       <template v-if="errorRef">
         <div class="text-red bg-b-danger sticky top-0 border-b p-2">
           {{ errorRef.message }}
