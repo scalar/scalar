@@ -156,7 +156,7 @@ defineExpose({
     </template>
     <div
       :id="filterIds.All"
-      class="custom-scroll response-section-content relative grid h-full justify-stretch"
+      class="custom-scroll response-section-content relative grid h-full min-h-0 justify-stretch"
       :class="{
         'content-start': response,
       }"
@@ -218,13 +218,14 @@ defineExpose({
           <ResponseBodyStreaming
             v-if="'reader' in response"
             :id="filterIds.Body"
-            class="response-section-content-body"
+            class="response-section-content-body min-h-0"
             :reader="response.reader" />
 
           <!-- Virtualized Text for massive responses -->
           <ResponseBodyVirtual
             v-else-if="shouldVirtualize && typeof response?.data === 'string'"
             :id="filterIds.Body"
+            class="response-section-content-body min-h-0"
             :content="response!.data"
             :data="response?.data"
             :headers="responseHeaders"
@@ -235,7 +236,7 @@ defineExpose({
             v-else
             :id="filterIds.Body"
             :active="true"
-            class="response-section-content-body"
+            class="response-section-content-body min-h-0"
             :data="response?.data"
             :headers="responseHeaders"
             layout="client"

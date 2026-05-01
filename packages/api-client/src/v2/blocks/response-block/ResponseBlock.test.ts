@@ -159,6 +159,33 @@ describe('ResponseBlock', () => {
       const metaInfo = wrapper.findComponent(ResponseMetaInformation)
       expect(metaInfo.props('response')).toEqual(mockResponse)
     })
+
+    it('constrains the body panel so long responses scroll internally', () => {
+      const wrapper = mount(ResponseBlock, {
+        props: {
+          ...defaultProps,
+          response: getDefaultResponse({
+            data: {
+              users: Array.from({ length: 100 }, (_, index) => ({
+                id: index,
+                name: `User ${index}`,
+              })),
+            },
+            headers: {
+              'content-type': 'application/json',
+            },
+          }),
+        },
+      })
+
+      const body = wrapper.find('.response-section-content-body')
+
+      expect(body.classes()).toEqual(
+        expect.arrayContaining(['flex', 'min-h-0', 'overflow-hidden']),
+      )
+      expect(body.find('.body-raw').classes()).toContain('min-h-0')
+      expect(body.find('.body-raw-scroller').classes()).toContain('overflow-auto')
+    })
   })
 
   describe('title display', () => {

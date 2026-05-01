@@ -5,7 +5,7 @@ import { useCodeMirror, type CodeMirrorLanguage } from '@scalar/use-codemirror'
 import { ref, toRef, useId } from 'vue'
 
 const props = defineProps<{
-  content: any
+  content: unknown
   language: CodeMirrorLanguage | undefined
 }>()
 
@@ -29,9 +29,9 @@ const getCurrentContent = () => {
 </script>
 <template>
   <div
-    class="scalar-code-block group/code-block body-raw relative grid min-h-0 overflow-hidden p-px outline-none has-focus-visible:outline">
+    class="scalar-code-block group/code-block body-raw relative flex min-h-0 flex-1 flex-col overflow-hidden p-px outline-none has-focus-visible:outline">
     <div
-      class="body-raw-scroller custom-scroll relative pr-1"
+      class="body-raw-scroller custom-scroll relative min-h-0 flex-1 pr-1"
       tabindex="0">
       <!-- CodeMirror container -->
       <div ref="codeMirrorRef" />

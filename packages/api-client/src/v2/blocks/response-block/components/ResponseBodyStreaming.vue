@@ -113,7 +113,7 @@ onBeforeUnmount(stopStreaming)
 </script>
 
 <template>
-  <CollapsibleSection class="max-h-content overflow-y-hidden">
+  <CollapsibleSection class="flex max-h-full min-h-0 flex-col overflow-hidden">
     <template #title>
       <div class="flex w-full items-center justify-between">
         <div>Body</div>
@@ -140,7 +140,7 @@ onBeforeUnmount(stopStreaming)
 
     <div
       ref="contentContainer"
-      class="text-xxs font-code h-full overflow-auto leading-6 whitespace-pre-wrap">
+      class="custom-scroll text-xxs font-code min-h-0 flex-1 leading-6 whitespace-pre-wrap">
       <template v-if="errorRef">
         <div class="text-red bg-b-danger sticky top-0 border-b p-2">
           {{ errorRef.message }}
