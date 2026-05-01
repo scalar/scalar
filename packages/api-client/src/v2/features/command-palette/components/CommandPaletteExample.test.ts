@@ -1050,4 +1050,102 @@ describe('CommandPaletteExample', () => {
 
     expect(wrapper.emitted('back')).toBeFalsy()
   })
+
+  it('shows an inline error when the example name conflicts with an existing one', async () => {
+    const document = createMockDocument({
+      paths: {
+        '/api/users': {
+          get: {
+            operationId: 'op1',
+            'x-draft-examples': ['default', 'custom'],
+          },
+        },
+      },
+    })
+    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
+
+    const wrapper = mount(CommandPaletteExample, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    await nextTick()
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', 'custom')
+    await nextTick()
+
+    const error = wrapper.find('[data-testid="command-palette-example-error"]')
+    expect(error.exists()).toBe(true)
+    expect(error.attributes('role')).toBe('alert')
+    expect(error.text()).toContain('custom')
+    expect(error.text()).toContain('already exists')
+
+    const form = wrapper.findComponent({ name: 'CommandActionForm' })
+    expect(form.props('disabled')).toBe(true)
+  })
+
+  it('does not show the inline error when the example name is unique', async () => {
+    const document = createMockDocument({
+      paths: {
+        '/api/users': {
+          get: {
+            operationId: 'op1',
+            'x-draft-examples': ['default'],
+          },
+        },
+      },
+    })
+    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
+
+    const wrapper = mount(CommandPaletteExample, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    await nextTick()
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', 'fresh-name')
+    await nextTick()
+
+    expect(wrapper.find('[data-testid="command-palette-example-error"]').exists()).toBe(false)
+  })
+
+  it('does not show the inline error in edit mode when the name is unchanged', async () => {
+    const document = createMockDocument({
+      paths: {
+        '/api/users': {
+          get: {
+            operationId: 'op1',
+            'x-draft-examples': ['default', 'custom'],
+          },
+        },
+      },
+    })
+    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
+
+    const wrapper = mount(CommandPaletteExample, {
+      props: {
+        workspaceStore,
+        eventBus,
+        documentName: 'doc1',
+        example: {
+          id: 'example-custom',
+          type: 'example',
+          title: 'custom',
+          name: 'custom',
+        },
+      },
+    })
+
+    expect(wrapper.find('[data-testid="command-palette-example-error"]').exists()).toBe(false)
+  })
 })

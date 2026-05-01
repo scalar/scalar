@@ -36,8 +36,7 @@ import {
 } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { computed, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, ref, watch, type ComputedRef } from 'vue'
 
 import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 
@@ -75,10 +74,15 @@ type TagOption = {
   label: string
 }
 
-const router = useRouter()
-
 const requestPath = ref('/')
 const requestPathTrimmed = computed(() => requestPath.value.trim())
+
+/** Ensure path starts with '/' for consistent lookup */
+const normalizedRequestPath = computed<string>(() =>
+  requestPathTrimmed.value.startsWith('/')
+    ? requestPathTrimmed.value
+    : `/${requestPathTrimmed.value}`,
+)
 
 /** All available documents (collections) in the workspace */
 const availableDocuments = computed(() =>
@@ -140,48 +144,44 @@ watch(selectedDocument, () => {
 })
 
 /**
- * Check if an operation with the same path and method already exists.
- * Used to prevent creating duplicate operations.
+ * Validation message surfaced under the input.
+ *
+ * Resolves to `null` when the form is valid; otherwise to a human-readable
+ * reason the user can act on. Empty input is the default state so we keep
+ * the field free of error styling — `isDisabled` still blocks submission
+ * there, matching the {@link CommandPaletteOpenApiDocument} pattern.
  */
-const operationExists = computed<boolean>(() => {
-  if (
-    !selectedDocument.value ||
-    !selectedMethod.value ||
-    !requestPathTrimmed.value
-  ) {
-    return false
-  }
-
-  const document = workspaceStore.workspace.documents[selectedDocument.value.id]
-
-  /** Ensure path starts with '/' for consistent lookup */
-  const normalizedPath = requestPathTrimmed.value.startsWith('/')
-    ? requestPathTrimmed.value
-    : `/${requestPathTrimmed.value}`
-
-  return !!document?.paths?.[normalizedPath]?.[selectedMethod.value.method]
-})
-
-/**
- * Check if the form should be disabled.
- * Disabled when any required field is missing or operation already exists.
- */
-const isDisabled = computed<boolean>(() => {
+const errorMessage: ComputedRef<string | null> = computed(() => {
   if (
     !requestPathTrimmed.value ||
     !selectedDocument.value ||
     !selectedMethod.value
   ) {
-    return true
+    return null
   }
 
-  /** Prevent creating duplicate operations */
-  if (operationExists.value) {
-    return true
+  const document = workspaceStore.workspace.documents[selectedDocument.value.id]
+  const method = selectedMethod.value.method
+
+  if (document?.paths?.[normalizedRequestPath.value]?.[method]) {
+    return `A ${method.toUpperCase()} operation at "${normalizedRequestPath.value}" already exists in "${selectedDocument.value.label}". Try a different path or method.`
   }
 
-  return false
+  return null
 })
+
+/**
+ * Submit is blocked while required fields are missing or a duplicate exists.
+ * The inline `errorMessage` explains the duplicate case so the user knows how
+ * to recover instead of facing a silently disabled button.
+ */
+const isDisabled = computed<boolean>(
+  () =>
+    !requestPathTrimmed.value ||
+    !selectedDocument.value ||
+    !selectedMethod.value ||
+    errorMessage.value !== null,
+)
 
 /** Handle HTTP method selection from dropdown */
 const handleSelectMethod = (method: MethodOption | undefined): void => {
@@ -220,25 +220,21 @@ const handleSubmit = (): void => {
       tags: selectedTag.value?.id ? [selectedTag.value.id] : undefined,
     },
     callback: (success) => {
-      if (success) {
-        /** Build the sidebar */
-        workspaceStore.buildSidebar(selectedDocument.value?.id ?? '')
-
-        const path = requestPathTrimmed.value.startsWith('/')
-          ? requestPathTrimmed.value
-          : `/${requestPathTrimmed.value}`
-
-        /** Navigate to the example */
-        router.push({
-          name: 'example',
-          params: {
-            documentSlug: selectedDocument.value?.id,
-            pathEncoded: encodeURIComponent(path),
-            method: selectedMethod.value?.method,
-            exampleName: 'default',
-          },
-        })
+      if (!success) {
+        return
       }
+
+      /** Build the sidebar */
+      workspaceStore.buildSidebar(selectedDocument.value?.id ?? '')
+
+      /** Navigate to the example via the event bus rather than the router */
+      eventBus.emit('ui:navigate', {
+        page: 'example',
+        documentSlug: selectedDocument.value?.id,
+        path: normalizedRequestPath.value,
+        method: selectedMethod.value?.method ?? 'get',
+        exampleName: 'default',
+      })
     },
   })
 
@@ -260,6 +256,14 @@ const handleBack = (event: KeyboardEvent): void => {
       label="Request Path"
       placeholder="/users"
       @delete="handleBack" />
+
+    <p
+      v-if="errorMessage"
+      class="text-red px-2 pb-1 text-xs"
+      data-testid="command-palette-request-error"
+      role="alert">
+      {{ errorMessage }}
+    </p>
 
     <!-- Selectors for document, method, and tag -->
     <template #options>

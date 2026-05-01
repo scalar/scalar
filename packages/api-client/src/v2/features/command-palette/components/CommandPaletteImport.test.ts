@@ -7,17 +7,9 @@ import { nextTick } from 'vue'
 
 import CommandPaletteImport from './CommandPaletteImport.vue'
 
-// Mock router
-const mockPush = vi.fn()
-vi.mock('vue-router', () => ({
-  useRouter: () => ({
-    push: mockPush,
-  }),
-}))
-
 describe('CommandPaletteImport', () => {
   beforeEach(() => {
-    mockPush.mockClear()
+    vi.clearAllMocks()
   })
 
   afterEach(() => {

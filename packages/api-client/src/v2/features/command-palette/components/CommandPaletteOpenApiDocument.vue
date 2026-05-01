@@ -23,7 +23,6 @@ import { LibraryIcon } from '@scalar/icons/library'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, type ComputedRef } from 'vue'
-import { useRouter } from 'vue-router'
 
 import IconSelector from '@/components/IconSelector.vue'
 
@@ -43,8 +42,6 @@ const emit = defineEmits<{
   /** Emitted when user navigates back (e.g., backspace on empty input) */
   (event: 'back', keyboardEvent: KeyboardEvent): void
 }>()
-
-const router = useRouter()
 
 const documentName = ref('')
 const documentNameTrimmed = computed(() => documentName.value.trim())
@@ -93,14 +90,16 @@ const handleSubmit = (): void => {
     name: documentNameTrimmed.value,
     icon: documentIcon.value,
     callback: (success) => {
-      if (success) {
-        router.push({
-          name: 'document.overview',
-          params: {
-            documentSlug: documentNameTrimmed.value,
-          },
-        })
+      if (!success) {
+        return
       }
+
+      // Navigate via the event bus rather than the router
+      eventBus.emit('ui:navigate', {
+        page: 'document',
+        path: 'overview',
+        documentSlug: documentNameTrimmed.value,
+      })
     },
   })
 

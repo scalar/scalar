@@ -31,7 +31,6 @@ import {
 } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
 
 import { useFileDialog } from '@/hooks/use-file-dialog'
 import { getOpenApiDocumentDetails } from '@/v2/features/command-palette/helpers/get-openapi-document-details'
@@ -78,7 +77,6 @@ defineSlots<{
 
 const { toast } = useToasts()
 
-const router = useRouter()
 const loader = useLoadingState()
 
 const inputContent = ref('')
@@ -199,9 +197,10 @@ const handleImport = async (
 
 /** Navigate to the document overview page after successful import */
 const navigateToDocument = (documentName: string): void => {
-  router.push({
-    name: 'document.overview',
-    params: { documentSlug: documentName },
+  eventBus.emit('ui:navigate', {
+    page: 'document',
+    path: 'overview',
+    documentSlug: documentName,
   })
 }
 

@@ -6,14 +6,6 @@ import { nextTick } from 'vue'
 
 import CommandPaletteRequest from './CommandPaletteRequest.vue'
 
-// Mock router
-const mockPush = vi.fn()
-vi.mock('vue-router', () => ({
-  useRouter: () => ({
-    push: mockPush,
-  }),
-}))
-
 describe('CommandPaletteRequest', () => {
   const createMockWorkspaceStore = async (documents: Record<string, Record<string, unknown>> = {}) => {
     const store = createWorkspaceStore()
@@ -45,7 +37,7 @@ describe('CommandPaletteRequest', () => {
   }
 
   beforeEach(() => {
-    mockPush.mockClear()
+    vi.clearAllMocks()
   })
 
   afterEach(() => {
@@ -218,6 +210,95 @@ describe('CommandPaletteRequest', () => {
 
     const form = wrapper.findComponent({ name: 'CommandActionForm' })
     expect(form.props('disabled')).toBe(true)
+  })
+
+  it('shows an inline error when the operation already exists', async () => {
+    const document = createMockDocument({
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'getUsers',
+          },
+        },
+      },
+    })
+    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteRequest, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', '/users')
+    await nextTick()
+
+    const error = wrapper.find('[data-testid="command-palette-request-error"]')
+    expect(error.exists()).toBe(true)
+    expect(error.attributes('role')).toBe('alert')
+    expect(error.text()).toContain('GET')
+    expect(error.text()).toContain('/users')
+    expect(error.text()).toContain('already exists')
+  })
+
+  it('does not show an inline error when the path is empty', async () => {
+    const document = createMockDocument({
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'getUsers',
+          },
+        },
+      },
+    })
+    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteRequest, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', '   ')
+    await nextTick()
+
+    expect(wrapper.find('[data-testid="command-palette-request-error"]').exists()).toBe(false)
+  })
+
+  it('clears the inline error when the user picks a non-conflicting method', async () => {
+    const document = createMockDocument({
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'getUsers',
+          },
+        },
+      },
+    })
+    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteRequest, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', '/users')
+    await nextTick()
+    expect(wrapper.find('[data-testid="command-palette-request-error"]').exists()).toBe(true)
+
+    await input.vm.$emit('update:modelValue', '/products')
+    await nextTick()
+    expect(wrapper.find('[data-testid="command-palette-request-error"]').exists()).toBe(false)
   })
 
   it('normalizes path by adding leading slash when checking for duplicates', async () => {
@@ -635,14 +716,12 @@ describe('CommandPaletteRequest', () => {
     const callback = emitCall?.[1]?.callback
     callback?.(true)
 
-    expect(mockPush).toHaveBeenCalledWith({
-      name: 'example',
-      params: {
-        documentSlug: 'doc1',
-        pathEncoded: encodeURIComponent('/api/users'),
-        method: 'get',
-        exampleName: 'default',
-      },
+    expect(eventBus.emit).toHaveBeenCalledWith('ui:navigate', {
+      page: 'example',
+      documentSlug: 'doc1',
+      path: '/api/users',
+      method: 'get',
+      exampleName: 'default',
     })
   })
 
@@ -673,7 +752,7 @@ describe('CommandPaletteRequest', () => {
     callback?.(false)
 
     expect(workspaceStore.buildSidebar).not.toHaveBeenCalled()
-    expect(mockPush).not.toHaveBeenCalled()
+    expect(eventBus.emit).not.toHaveBeenCalledWith('ui:navigate', expect.anything())
   })
 
   it('renders submit button with correct text', async () => {
@@ -745,11 +824,11 @@ describe('CommandPaletteRequest', () => {
     const callback = emitCall?.[1]?.callback
     callback?.(true)
 
-    expect(mockPush).toHaveBeenCalledWith(
+    expect(eventBus.emit).toHaveBeenCalledWith(
+      'ui:navigate',
       expect.objectContaining({
-        params: expect.objectContaining({
-          pathEncoded: encodeURIComponent('/api/users'),
-        }),
+        page: 'example',
+        path: '/api/users',
       }),
     )
   })

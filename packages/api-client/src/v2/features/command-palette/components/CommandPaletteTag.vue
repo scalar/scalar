@@ -43,7 +43,7 @@ import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
-import { computed, ref } from 'vue'
+import { computed, ref, type ComputedRef } from 'vue'
 
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
@@ -88,18 +88,46 @@ const selectedDocument = ref<{ id: string; label: string } | undefined>(
 )
 
 /**
- * Check if the form should be disabled.
+ * Validation message surfaced under the input.
  *
- * In edit mode, disabled when:
- * - Tag name is empty
- * - Name is unchanged from the original
- * - The new name conflicts with an existing tag in the same document
+ * Resolves to `null` when the form is valid; otherwise to a human-readable
+ * reason the user can act on. Empty input is the default state so we keep
+ * the field free of error styling — `isDisabled` still blocks submission
+ * there, matching the {@link CommandPaletteOpenApiDocument} pattern.
  *
- * In create mode, disabled when:
- * - Tag name is empty
- * - No collection is selected
- * - The selected document does not exist
- * - A tag with the same name already exists in the selected document
+ * In edit mode, an unchanged name is treated as a no-op (no error shown,
+ * but submit stays disabled) so opening the modal does not greet the user
+ * with a confusing message about their current name.
+ */
+const errorMessage: ComputedRef<string | null> = computed(() => {
+  if (!nameTrimmed.value) {
+    return null
+  }
+
+  const document =
+    workspaceStore.workspace.documents[selectedDocument.value?.id ?? '']
+
+  if (!selectedDocument.value || !document) {
+    return null
+  }
+
+  // Unchanged name in edit mode is a silent no-op rather than an error
+  if (isEditMode.value && nameTrimmed.value === tag?.name) {
+    return null
+  }
+
+  if (document.tags?.some((existing) => existing.name === nameTrimmed.value)) {
+    return `A tag named "${nameTrimmed.value}" already exists in "${selectedDocument.value.label}". Try a different name.`
+  }
+
+  return null
+})
+
+/**
+ * Submit is blocked while required fields are missing, the name is unchanged
+ * in edit mode, or a duplicate tag exists. The inline `errorMessage` makes
+ * the duplicate case explicit instead of leaving the user staring at a
+ * silently disabled button.
  */
 const isDisabled = computed<boolean>(() => {
   const document =
@@ -108,19 +136,11 @@ const isDisabled = computed<boolean>(() => {
     return true
   }
 
-  // In edit mode, disable if the name has not changed
-  if (isEditMode.value) {
-    if (nameTrimmed.value === tag?.name) {
-      return true
-    }
-  }
-
-  // Prevent creating duplicate tags with the same name
-  if (document.tags?.some((tag) => tag.name === nameTrimmed.value)) {
+  if (isEditMode.value && nameTrimmed.value === tag?.name) {
     return true
   }
 
-  return false
+  return errorMessage.value !== null
 })
 
 /**
@@ -179,6 +199,14 @@ const handleCancel = (): void => {
       label="Tag Name"
       placeholder="Tag Name"
       @delete="handleBack" />
+
+    <p
+      v-if="errorMessage"
+      class="text-red px-2 pb-1 text-xs"
+      data-testid="command-palette-tag-error"
+      role="alert">
+      {{ errorMessage }}
+    </p>
 
     <!-- Collection selector (hidden in edit mode) -->
     <template #options>
