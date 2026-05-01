@@ -2724,15 +2724,9 @@ importers:
         specifier: catalog:*
         version: 1.1.0(monaco-editor@0.55.1)
     devDependencies:
-      '@electron-toolkit/tsconfig':
-        specifier: ^2.0.0
-        version: 2.0.0(@types/node@24.10.13)
       '@playwright/test':
         specifier: catalog:*
         version: 1.59.1
-      '@rushstack/eslint-patch':
-        specifier: ^1.12.0
-        version: 1.16.1
       '@tailwindcss/vite':
         specifier: catalog:*
         version: 4.2.1(vite@8.0.0(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.3))
@@ -4407,11 +4401,6 @@ packages:
     resolution: {integrity: sha512-TWWPToXd8qPRfSXwzf5KVhpXMfONaUuRAZJHsKthKgZR/+LqX1dZVSSClQ8OTAEduvLGdecljCsoT2jSshfoUg==}
     peerDependencies:
       electron: '>=13.0.0'
-
-  '@electron-toolkit/tsconfig@2.0.0':
-    resolution: {integrity: sha512-AdPsP770WhW7b260h13SHMdmjEEHJL6xFtgi3jwgdsSQbJOkJLeNnnpZW9qxTPCvmRI6vmdzWz5K3gibFS6SNg==}
-    peerDependencies:
-      '@types/node': ^24.1.0
 
   '@electron-toolkit/utils@4.0.0':
     resolution: {integrity: sha512-qXSntwEzluSzKl4z5yFNBknmPGjPa3zFhE4mp9+h0cgokY5ornAeP+CJQDBhKsL1S58aOQfcwkD3NwLZCl+64g==}
@@ -7978,9 +7967,6 @@ packages:
     resolution: {integrity: sha512-2HRCml6OztYXyJXAvdDXPKcawukWY2GpR5/nxKp4iBgiO3wcoEGkAaqctIbZcNB6KlUQBIqt8VYkNSj2397EfA==}
     cpu: [x64]
     os: [win32]
-
-  '@rushstack/eslint-patch@1.16.1':
-    resolution: {integrity: sha512-TvZbIpeKqGQQ7X0zSCvPH9riMSFQFSggnfBjFZ1mEoILW+UuXCKwOoPcgjMwiUtRqFZ8jWhPJc4um14vC6I4ag==}
 
   '@rushstack/node-core-library@5.10.1':
     resolution: {integrity: sha512-BSb/KcyBHmUQwINrgtzo6jiH0HlGFmrUy33vO6unmceuVKTEyL2q+P0fQq2oB5hvXVWOEUhxB2QvlkZluvUEmg==}
@@ -21736,10 +21722,6 @@ snapshots:
     dependencies:
       electron: 41.2.2
 
-  '@electron-toolkit/tsconfig@2.0.0(@types/node@24.10.13)':
-    dependencies:
-      '@types/node': 24.10.13
-
   '@electron-toolkit/utils@4.0.0(electron@41.2.2)':
     dependencies:
       electron: 41.2.2
@@ -25411,8 +25393,6 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.59.0':
     optional: true
-
-  '@rushstack/eslint-patch@1.16.1': {}
 
   '@rushstack/node-core-library@5.10.1(@types/node@24.10.13)':
     dependencies:

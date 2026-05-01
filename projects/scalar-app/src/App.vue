@@ -200,8 +200,6 @@ const registry = reactive({
       :registry>
       <template #header-menu-items>
         <AppMenuItems
-          :activeWorkspaceId="app.workspace.activeWorkspace.value?.id"
-          :workspaceGroups="app.workspace.workspaceGroups.value"
           @login="handleLogin"
           @openSettings="openSettings" />
       </template>
