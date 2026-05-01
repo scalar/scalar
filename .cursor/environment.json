@@ -1,4 +1,0 @@
-{
-  "baseImage": "node:24-slim",
-  "install": "corepack enable && corepack prepare pnpm@10.16.1 --activate && pnpm install && pnpm build:packages"
-}
