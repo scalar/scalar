@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/environment', () => ({
-  env: { VITE_BASE_URL: 'https://api.scalar.test' },
+  env: { VITE_SERVICES_URL: 'https://api.scalar.test' },
 }))
 
 import { useAuth } from './use-auth'

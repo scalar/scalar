@@ -4,9 +4,8 @@ const deployEnvironments = union([literal('development'), literal('test'), liter
 
 const environmentSchema = object({
   VITE_ENV: deployEnvironments,
-  VITE_BASE_URL: string(),
+  VITE_SERVICES_URL: string(),
   VITE_DASHBOARD_URL: string(),
-  VITE_PLATFORM_VERSION: string(),
 })
 
 export const env = coerce(environmentSchema, import.meta.env)

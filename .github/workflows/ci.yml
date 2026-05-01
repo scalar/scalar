@@ -112,6 +112,7 @@ jobs:
               - packages/galaxy/**
             api_client_changed:
               - packages/api-client/**
+              - projects/scalar-app/**
             api_reference_changed:
               - packages/api-reference/**
 
@@ -795,6 +796,7 @@ jobs:
       needs.check-changes.outputs.api_client_changed == 'true'
     needs: [build, check-changes]
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: staging
     timeout-minutes: 15
     concurrency:
       group: deploy-api-client-${{ github.ref }}
@@ -809,10 +811,13 @@ jobs:
       - name: Build workspace deps
         uses: ./.github/actions/build
         with:
-          packages: '@scalar/api-client...'
+          packages: 'scalar-app...'
 
-      - name: Build playground app
-        run: pnpm --filter @scalar/api-client playground:app:build
+      - name: Build web app
+        run: pnpm --filter scalar-app build:web
+        env:
+          VITE_DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
+          VITE_SERVICES_URL: ${{ vars.SERVICES_URL }}
 
       - name: Deploy to Cloudflare Pages
         id: deploy
@@ -820,7 +825,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy ./packages/api-client/playground/app/dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_API_CLIENT }} --branch=pr-${{ github.event.pull_request.number }} --commit-hash=${{ github.event.pull_request.head.sha }}
+          command: pages deploy ./projects/scalar-app/dist/web --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_API_CLIENT }} --branch=pr-${{ github.event.pull_request.number }} --commit-hash=${{ github.event.pull_request.head.sha }}
 
       - name: Set output
         id: set-output
