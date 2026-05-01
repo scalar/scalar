@@ -2,7 +2,7 @@
 import { ScalarCodeBlockCopy } from '@scalar/components'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { useCodeMirror, type CodeMirrorLanguage } from '@scalar/use-codemirror'
-import { ref, toRef, useId } from 'vue'
+import { computed, ref, toRef, useId } from 'vue'
 
 const props = defineProps<{
   content: unknown
@@ -13,11 +13,27 @@ const codeMirrorRef = ref<HTMLDivElement | null>(null)
 /** Base id for the code block */
 const id = useId()
 
+const prettyContent = computed(() => {
+  if (
+    typeof props.content === 'string' ||
+    typeof props.content === 'number' ||
+    Array.isArray(props.content)
+  ) {
+    return prettyPrintJson(props.content)
+  }
+
+  if (props.content && typeof props.content === 'object') {
+    return prettyPrintJson(props.content as Record<PropertyKey, unknown>)
+  }
+
+  return String(props.content ?? '')
+})
+
 const { codeMirror } = useCodeMirror({
   codeMirrorRef,
   readOnly: true,
   lineNumbers: true,
-  content: toRef(() => prettyPrintJson(props.content)),
+  content: prettyContent,
   language: toRef(() => props.language),
   forceFoldGutter: true,
 })
