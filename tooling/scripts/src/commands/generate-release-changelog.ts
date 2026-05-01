@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { basename, join, posix, relative, resolve, sep } from 'node:path'
+import { basename, dirname, join, posix, relative, resolve, sep } from 'node:path'
 import { promisify } from 'node:util'
 
 import { Command } from 'commander'
@@ -51,6 +51,7 @@ type Options = {
 }
 
 const MAX_CONTEXT_CHARS = 60_000
+const VERSION_HEADING_PREFIX = '## '
 
 const toGitPath = (path: string): string => path.split(sep).join(posix.sep)
 
@@ -318,39 +319,65 @@ const requestChangelog = async (context: ReleaseContext, options: Options, date:
   return parseModelResponse(content, context, date)
 }
 
+const formatMarkdownEntry = (entry: ChangelogEntry): string => {
+  const highlights = entry.highlights.map((highlight) => `- ${highlight}`).join('\n')
+
+  return [
+    `${VERSION_HEADING_PREFIX}${entry.version}`,
+    '',
+    `### ${entry.title}`,
+    '',
+    entry.date,
+    '',
+    entry.summary,
+    '',
+    highlights,
+  ].join('\n')
+}
+
+const getChangelogTitle = (entry: ChangelogEntry): string => `# ${entry.source.packageName}`
+
+const findVersionSection = (lines: string[], version: string): { start: number; end: number } | null => {
+  const start = lines.findIndex((line) => line.trim() === `${VERSION_HEADING_PREFIX}${version}`)
+  if (start === -1) {
+    return null
+  }
+
+  const nextSectionOffset = lines.slice(start + 1).findIndex((line) => line.startsWith(VERSION_HEADING_PREFIX))
+  const end = nextSectionOffset === -1 ? lines.length : start + 1 + nextSectionOffset
+
+  return { start, end }
+}
+
 export const writeChangelogEntry = async (repoRoot: string, output: string, entry: ChangelogEntry): Promise<string> => {
-  const outputDir = resolve(repoRoot, output)
-  const releasesDir = join(outputDir, 'releases')
-  await mkdir(releasesDir, { recursive: true })
+  const changelogPath = resolve(repoRoot, output)
+  const releaseEntry = formatMarkdownEntry(entry)
 
-  const releasePath = join(releasesDir, `${entry.version}.json`)
-  await writeFile(releasePath, `${JSON.stringify(entry, null, 2)}\n`)
-
-  const indexPath = join(outputDir, 'index.json')
-  const index = {
-    releases: [entry.version],
-  }
-
+  let existing = ''
   try {
-    const existing = await readJson<{ releases?: unknown }>(indexPath)
-    const releases = Array.isArray(existing.releases)
-      ? existing.releases.filter((version): version is string => typeof version === 'string')
-      : []
-
-    index.releases = [entry.version, ...releases.filter((version) => version !== entry.version)]
+    existing = await readFile(changelogPath, 'utf8')
   } catch {
-    // First changelog entry for the app.
+    existing = `${getChangelogTitle(entry)}\n`
   }
 
-  await writeFile(indexPath, `${JSON.stringify(index, null, 2)}\n`)
+  const lines = existing.trimEnd().split('\n')
+  const section = findVersionSection(lines, entry.version)
+  const nextEntry = releaseEntry.split('\n')
 
-  return relative(repoRoot, releasePath)
+  const nextLines = section
+    ? [...lines.slice(0, section.start), ...nextEntry, ...lines.slice(section.end)]
+    : [lines[0]?.startsWith('# ') ? lines[0] : getChangelogTitle(entry), '', ...nextEntry, '', ...lines.slice(1)]
+
+  await mkdir(dirname(changelogPath), { recursive: true })
+  await writeFile(changelogPath, `${nextLines.join('\n').replace(/\n{3,}/g, '\n\n')}\n`)
+
+  return relative(repoRoot, changelogPath)
 }
 
 export const generateReleaseChangelog = new Command('generate-release-changelog')
   .description('Generate an LLM-written app changelog entry when a package is released')
   .requiredOption('--package-dir <path>', 'package directory to watch for version changes')
-  .option('--output <path>', 'directory for generated changelog JSON files')
+  .option('--output <path>', 'path to the generated CHANGELOG.md file')
   .option('--package-name <name>', 'package name override for the LLM prompt')
   .option('--title <title>', 'product title for the LLM prompt')
   .option('--allow-missing', 'exit successfully when the package directory does not exist')
@@ -383,7 +410,7 @@ export const generateReleaseChangelog = new Command('generate-release-changelog'
 
     const date = process.env.SCALAR_RELEASE_CHANGELOG_DATE ?? new Date().toISOString().slice(0, 10)
     const entry = await requestChangelog(context, options, date)
-    const output = options.output ?? join(context.packageDir, 'src/data/changelog')
+    const output = options.output ?? join(context.packageDir, 'CHANGELOG.md')
     const releasePath = await writeChangelogEntry(repoRoot, output, entry)
 
     console.log(`Generated ${releasePath}`)

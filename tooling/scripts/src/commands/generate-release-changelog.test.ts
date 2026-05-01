@@ -93,10 +93,10 @@ describe('generate-release-changelog', () => {
     expect(context).toBeNull()
   })
 
-  it('writes release files and keeps the index newest first', async () => {
+  it('writes release entries to CHANGELOG.md newest first', async () => {
     const repoRoot = await createRepo()
 
-    const firstPath = await writeChangelogEntry(repoRoot, 'projects/scalar-app/src/data/changelog', {
+    const firstPath = await writeChangelogEntry(repoRoot, 'projects/scalar-app/CHANGELOG.md', {
       version: '1.0.0',
       date: '2026-04-21',
       title: 'Initial app release',
@@ -110,7 +110,7 @@ describe('generate-release-changelog', () => {
       },
     })
 
-    const secondPath = await writeChangelogEntry(repoRoot, 'projects/scalar-app/src/data/changelog', {
+    const secondPath = await writeChangelogEntry(repoRoot, 'projects/scalar-app/CHANGELOG.md', {
       version: '1.1.0',
       date: '2026-04-24',
       title: 'Smoother request runs',
@@ -124,28 +124,33 @@ describe('generate-release-changelog', () => {
       },
     })
 
-    const index = JSON.parse(
-      await readFile(join(repoRoot, 'projects/scalar-app/src/data/changelog/index.json'), 'utf8'),
-    )
-    const release = JSON.parse(
-      await readFile(join(repoRoot, 'projects/scalar-app/src/data/changelog/releases/1.1.0.json'), 'utf8'),
-    )
+    const changelog = await readFile(join(repoRoot, 'projects/scalar-app/CHANGELOG.md'), 'utf8')
 
-    expect(firstPath).toBe('projects/scalar-app/src/data/changelog/releases/1.0.0.json')
-    expect(secondPath).toBe('projects/scalar-app/src/data/changelog/releases/1.1.0.json')
-    expect(index).toStrictEqual({ releases: ['1.1.0', '1.0.0'] })
-    expect(release).toStrictEqual({
-      version: '1.1.0',
-      date: '2026-04-24',
-      title: 'Smoother request runs',
-      summary: 'Requests now run with the latest editor changes.',
-      highlights: ['Flush pending edits', 'Cleaner slugs'],
-      source: {
-        packageName: 'scalar-app',
-        packageDir: 'projects/scalar-app',
-        previousVersion: '1.0.0',
-        sinceCommit: 'abc123',
-      },
-    })
+    expect(firstPath).toBe('projects/scalar-app/CHANGELOG.md')
+    expect(secondPath).toBe('projects/scalar-app/CHANGELOG.md')
+    expect(changelog).toBe(`# scalar-app
+
+## 1.1.0
+
+### Smoother request runs
+
+2026-04-24
+
+Requests now run with the latest editor changes.
+
+- Flush pending edits
+- Cleaner slugs
+
+## 1.0.0
+
+### Initial app release
+
+2026-04-21
+
+Scalar API Client now has a richer app experience.
+
+- Create documents
+- Switch versions
+`)
   })
 })
