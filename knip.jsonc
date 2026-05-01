@@ -107,7 +107,7 @@
     },
     "packages/agent-chat": {
       "ignore": ["playground/**", "src/entities/**"],
-      "ignoreDependencies": ["@scalar/themes", "hono"]
+      "ignoreDependencies": ["@scalar/themes", "@scalar/sidebar", "hono"]
     },
     "packages/api-reference": {
       "entry": [
