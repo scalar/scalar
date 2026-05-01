@@ -429,6 +429,33 @@ Use consistent terminology:
 - **Bundle** - pull external `$ref` values into a single file
 - **Resolve** - look up value at a `$ref` without modifying the document
 
+## Cursor Cloud specific instructions
+
+### Environment
+
+- **Node.js v24** is managed via nvm. The update script handles installation automatically.
+- **pnpm v10.16.1** is activated via corepack. No global install needed.
+- After `pnpm install`, you may see a warning about ignored esbuild build scripts. This is safe to ignore — Vite 8 uses Rolldown and the build succeeds without esbuild's platform binary.
+
+### Running dev servers
+
+- There is no single root `pnpm dev`. Start the specific package you need (see the Key Commands table above).
+- `pnpm --filter @scalar/api-reference dev` starts on **port 5173**.
+- `pnpm --filter @scalar/api-client dev` starts on a Vite-assigned port (check terminal output).
+- All packages must be built first (`pnpm build:packages`) before running any dev server.
+
+### Testing caveats
+
+- Some packages have test failures related to `@/` path alias resolution in Vitest (e.g., `openapi-parser`, `snippetz`). These are pre-existing and not caused by environment issues.
+- Tests that require network services need test servers running first: `pnpm script run test-servers` (starts void-server on port 5052 and proxy on port 5051).
+- For a quick validation that the test framework works, run: `pnpm vitest packages/oas-utils --run`
+
+### Lint and format
+
+- `pnpm lint:check` runs Biome on all TS files. This is the primary lint command.
+- For Vue files: `pnpm lint:vue` (ESLint).
+- For formatting: `pnpm format:check` (Prettier + Biome format).
+
 ## Further Reading
 
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - PR requirements, changesets, auto-generated files
