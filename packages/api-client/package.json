@@ -339,6 +339,7 @@
     "@scalar/openapi-types": "workspace:*",
     "@scalar/postman-to-openapi": "workspace:*",
     "@scalar/sidebar": "workspace:*",
+    "@scalar/sdk": "catalog:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/typebox": "^0.1.3",
