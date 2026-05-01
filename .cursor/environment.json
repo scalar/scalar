@@ -1,0 +1,4 @@
+{
+  "baseImage": "ghcr.io/cursor-images/node-24:latest",
+  "install": "corepack enable && corepack prepare pnpm@10.16.1 --activate && pnpm install && pnpm build:packages"
+}
