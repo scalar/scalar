@@ -187,16 +187,16 @@ const registry = reactive({
           @login="handleLogin"
           @openSettings="openSettings" />
       </template>
-      <template #header-end>
+      <template
+        v-if="!isLoggedIn"
+        #header-end>
         <ScalarHeaderButton
           is="a"
-          v-if="!isLoggedIn"
           :href="loginUrl">
           Log in
         </ScalarHeaderButton>
         <ScalarHeaderButton
           is="a"
-          v-if="!isLoggedIn"
           cta
           :href="registerUrl">
           Register

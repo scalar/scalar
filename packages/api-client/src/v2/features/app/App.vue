@@ -8,12 +8,7 @@ export default {}
 </script>
 
 <script setup lang="ts">
-import {
-  ScalarModal,
-  ScalarTeleportRoot,
-  useModal,
-  type ModalState,
-} from '@scalar/components'
+import { ScalarModal, ScalarTeleportRoot, useModal } from '@scalar/components'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
@@ -80,11 +75,6 @@ const registryDocuments = computed<RegistryDocumentsState>(
 
 defineSlots<{
   /**
-   * Slot for customizing the create workspace modal.
-   * This slot is used to render custom actions or components within the create workspace modal.
-   */
-  'create-workspace'?: (payload: { state: ModalState }) => unknown
-  /**
    * Replaces the Scalar logo inside the header menu button. Typically used by
    * team-aware consumers (e.g. Scalar Cloud) to render a team avatar so the
    * left-most chrome reads as "this team's workspace" rather than the
@@ -102,17 +92,6 @@ defineSlots<{
    * any workspace switcher (or other menu content) they need.
    */
   'header-menu-items'?: () => unknown
-  /**
-   * Slot rendered at the trailing edge of the header, immediately before the
-   * `header-end` slot. Use this for context-specific action buttons (for
-   * example a "Save" button) so they sit next to the document chrome rather
-   * than getting mixed in with the user / account controls in `header-end`.
-   *
-   * When both this slot and `header-end` are provided, a vertical divider is
-   * inserted between them so the two groups read as visually distinct
-   * clusters.
-   */
-  'header-actions'?: () => unknown
   /**
    * Slot for customizing the end section of the app header.
    * Typically used for user menus, action buttons, or other trailing controls.
@@ -339,9 +318,6 @@ const routerViewProps = computed<RouteProps>(() => {
                 @push="handlePushDocument"
                 @revert="handleRevertDocument"
                 @save="handleSaveDocument" />
-              <slot
-                v-if="$slots['header-actions']"
-                name="header-actions" />
               <!--
                 Vertical divider between the document-scoped action cluster
                 (workspace-mode buttons + `header-actions`) and the trailing
@@ -350,10 +326,7 @@ const routerViewProps = computed<RouteProps>(() => {
                 separator.
               -->
               <span
-                v-if="
-                  (hasHeaderActionCluster || $slots['header-actions']) &&
-                  $slots['header-end']
-                "
+                v-if="$slots['header-end']"
                 aria-hidden="true"
                 class="bg-border h-4 w-px shrink-0" />
               <slot
@@ -386,15 +359,11 @@ const routerViewProps = computed<RouteProps>(() => {
           </div>
         </div>
       </div>
+      <!-- Create workspace modal -->
+      <CreateWorkspaceModal
+        :state="createWorkspaceModalState"
+        @create:workspace="(payload) => app.workspace.create(payload)" />
 
-      <slot
-        name="create-workspace"
-        :state="createWorkspaceModalState">
-        <!-- Create workspace modal -->
-        <CreateWorkspaceModal
-          :state="createWorkspaceModalState"
-          @create:workspace="(payload) => app.workspace.create(payload)" />
-      </slot>
       <!--
         First-time publish modal. Only mounted when a registry adapter
         is wired up - without one there is nothing meaningful to send,
