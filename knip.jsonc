@@ -363,10 +363,6 @@
       ]
     },
     "projects/scalar-app": {
-      "ignoreFiles": [
-        // Vue component barrel — named re-exports from .vue files are valid
-        "src/features/import-listener/index.ts"
-      ],
       "entry": [
         // Web app
         "entrypoints/web/src/main.ts",
