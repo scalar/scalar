@@ -46,6 +46,6 @@ export const useCurrentTeam = (options?: Omit<UseQueryOptions, 'queryKey' | 'que
 
   return {
     ...query,
-    currentTeam: computed(() => query.data.value?.find((t) => t.uid === user.value?.activeTeamId)),
+    team: computed(() => query.data.value?.find((t) => t.uid === user.value?.activeTeamId)),
   }
 }

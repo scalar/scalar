@@ -200,7 +200,7 @@ export const createAppState = async ({
   router: Router
   fileLoader?: LoaderPlugin
   /** The currently active team */
-  currentTeam?: ComputedRef<Team | undefined>
+  currentTeam?: MaybeRefOrGetter<Team | undefined>
   customThemes?: MaybeRefOrGetter<Theme[]>
   fallbackThemeSlug?: MaybeRefOrGetter<string>
   telemetryDefault?: boolean
@@ -223,6 +223,7 @@ export const createAppState = async ({
   // ---------------------------------------------------------------------------
   // Active entities
   // ---------------------------------------------------------------------------
+  // @ts-expect-error - this will come with the sdk update
   const teamSlug = computed(() => currentTeam?.value?.slug ?? 'local')
 
   // Team slug parsed from the current URL (the `@teamSlug` segment). Stays in sync with the route.

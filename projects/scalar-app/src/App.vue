@@ -35,7 +35,6 @@ import { loginUrl, registerUrl } from '@/helpers/auth/login-url'
 import { fetchRegistryDocument } from '@/helpers/fetch-registry-document'
 import { useAuth } from '@/hooks/use-auth'
 import { useCurrentTeam } from '@/hooks/use-current-team'
-import { useCurrentUser } from '@/hooks/use-current-user'
 import { useRegistryDocuments } from '@/hooks/use-registry-documents'
 
 const { getAppState, getCommandPaletteState, fileLoader } =
@@ -44,7 +43,6 @@ const { getAppState, getCommandPaletteState, fileLoader } =
 const app = getAppState()
 const { toast } = useToasts()
 const { isLoggedIn, setTokens } = useAuth()
-const { user } = useCurrentUser()
 const { team } = useCurrentTeam()
 const { documents } = useRegistryDocuments()
 
@@ -100,6 +98,7 @@ const handleCreateWorkspace = async (payload: {
   namespace?: string
 }) => {
   const result = await app.workspace.create({
+    // @ts-expect-error - this will come with the sdk update
     teamSlug: team.value?.slug,
     slug: payload.name,
     name: payload.name,
