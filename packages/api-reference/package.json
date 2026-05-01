@@ -25,9 +25,10 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "pnpm build:default && pnpm build:standalone && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "build": "pnpm build:default && pnpm build:styles && pnpm build:standalone && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "build:default": "vite build",
     "build:standalone": "vite build -c vite.standalone.config.ts",
+    "build:styles": "cp -r src/styles dist && tailwindcss --optimize -i src/style.css -o dist/style.css && cat dist/vue-styles.css >> dist/style.css",
     "dev": "vite",
     "dev:standalone": "vite -c vite.standalone.config.ts",
     "playground:esm": "vite ./playground/esm -c ./playground/esm/vite.config.ts",
@@ -88,7 +89,9 @@
       "types": "./dist/helpers/index.d.ts",
       "default": "./dist/helpers/index.js"
     },
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/style.css",
+    "./tailwind.config.css": "./dist/styles/tailwind.config.css",
+    "./vue-styles.css": "./dist/vue-styles.css"
   },
   "files": [
     "dist",
@@ -128,6 +131,7 @@
     "@playwright/test": "catalog:*",
     "@scalar/core": "workspace:*",
     "@scalar/galaxy": "workspace:*",
+    "@tailwindcss/cli": "catalog:*",
     "@tailwindcss/vite": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/server-renderer": "^3.5.30",

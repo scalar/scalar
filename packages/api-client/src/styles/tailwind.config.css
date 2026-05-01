@@ -5,11 +5,9 @@
  * generate the appropriate Tailwind utilities for the API client.
  */
 
-@import "@scalar/themes/style.css"; /* Theme Base Styles and Reset */
-@import "@scalar/themes/tailwind.css"; /* Tailwind Theme + Config */
-
-@import "@scalar/components/tailwind.config.css"; /* Component Library Tailwind Configuration */
-@import "@scalar/sidebar/tailwind.config.css"; /* Sidebar Tailwind Configuration */
+/* Dependency Tailwind Configurations */
+@import "@scalar/components/tailwind.config.css";
+@import "@scalar/sidebar/tailwind.config.css";
 
 /* Search for Tailwind classes in the API Client */
 @source "../";

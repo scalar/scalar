@@ -5,6 +5,10 @@
  * sheet for the API client.
  */
 
+@import "@scalar/themes/style.css"; /* Theme Base Styles and Reset */
+@import "@scalar/themes/tailwind.css"; /* Tailwind Theme + Config */
+
+/* Dependency Vue SFC styles */
 @import "@scalar/components/vue-styles.css";
 @import "@scalar/sidebar/vue-styles.css";
 
