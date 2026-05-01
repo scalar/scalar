@@ -35,8 +35,7 @@ describe('isPostmanCollection', () => {
     const content = JSON.stringify({
       info: {
         name: 'Test Collection',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
     })
 
@@ -48,8 +47,7 @@ describe('isPostmanCollection', () => {
     const content = JSON.stringify({
       info: {
         _postman_id: undefined,
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
     })
 
@@ -120,8 +118,7 @@ describe('isPostmanCollection', () => {
   it('returns false when info object is missing', () => {
     const content = JSON.stringify({
       _postman_id: 'abc123',
-      schema:
-        'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
     })
 
     const result = isPostmanCollection(content)
@@ -142,8 +139,7 @@ describe('isPostmanCollection', () => {
       info: {
         _postman_id: 'abc123',
         name: 'Test Collection',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
     })
 
@@ -156,8 +152,7 @@ describe('isPostmanCollection', () => {
       info: {
         _postman_id: 'xyz789',
         name: 'Legacy Collection',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.0.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.0.0/collection.json',
       },
     })
 
@@ -169,8 +164,7 @@ describe('isPostmanCollection', () => {
     const content = JSON.stringify({
       info: {
         _postman_id: 'minimal123',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
     })
 
@@ -185,8 +179,7 @@ describe('isPostmanCollection', () => {
         name: 'Complex Collection',
         description: 'A test collection',
         version: '1.0.0',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
         author: 'Test User',
       },
       item: [
@@ -209,8 +202,7 @@ describe('isPostmanCollection', () => {
     const content = JSON.stringify({
       info: {
         _postman_id: '',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
     })
 
@@ -222,8 +214,7 @@ describe('isPostmanCollection', () => {
     const content = JSON.stringify({
       info: {
         _postman_id: 12345,
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
     })
 
@@ -235,8 +226,7 @@ describe('isPostmanCollection', () => {
     const content = JSON.stringify({
       info: {
         _postman_id: 'abc123',
-        schema:
-          'http://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'http://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
     })
 
@@ -260,8 +250,7 @@ describe('isPostmanCollection', () => {
     const content = JSON.stringify({
       info: {
         _postman_id: 'abc123',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json?version=latest',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json?version=latest',
       },
     })
 
@@ -273,8 +262,7 @@ describe('isPostmanCollection', () => {
     const content = JSON.stringify({
       info: {
         _postman_id: 'abc123',
-        schema:
-          'https://api.schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://api.schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
     })
 
@@ -286,8 +274,7 @@ describe('isPostmanCollection', () => {
     const content = JSON.stringify({
       info: {
         _postman_id: 'abc123',
-        schema:
-          'https://schema.getpostman.co/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.co/json/collection/v2.1.0/collection.json',
       },
     })
 
@@ -300,8 +287,7 @@ describe('isPostmanCollection', () => {
       info: {
         _postman_id: 'nested123',
         name: 'Nested Collection',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
       item: [
         {
@@ -338,8 +324,7 @@ describe('isPostmanCollection', () => {
       {
         info: {
           _postman_id: 'abc123',
-          schema:
-            'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+          schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
         },
       },
     ])
@@ -352,8 +337,7 @@ describe('isPostmanCollection', () => {
     const content = JSON.stringify({
       info: {
         _postman_id: false,
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
     })
 
@@ -365,8 +349,7 @@ describe('isPostmanCollection', () => {
     const content = JSON.stringify({
       info: {
         _postman_id: 0,
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
     })
 
@@ -387,8 +370,7 @@ describe('isPostmanCollection', () => {
       info: {
         _postman_id: 'large123',
         name: 'Large Collection',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
       item: largeItems,
     })

@@ -1,7 +1,4 @@
-import type {
-  IpcFetchRequest,
-  IpcFetchResponse,
-} from './helpers/custom-fetch/types'
+import type { IpcFetchRequest, IpcFetchResponse } from './helpers/custom-fetch/types'
 
 declare global {
   interface Window {
@@ -77,7 +74,4 @@ export type BrowserIpcEvents = {
 }
 
 /** Union of possible IPC events we will expose to the rendered function */
-type AddIpcListener = <K extends keyof BrowserIpcEvents>(
-  name: K,
-  callback: BrowserIpcEvents[K],
-) => void
+type AddIpcListener = <K extends keyof BrowserIpcEvents>(name: K, callback: BrowserIpcEvents[K]) => void

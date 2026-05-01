@@ -80,7 +80,7 @@ app.on('open-url', async (_, appLink: string) => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(async () => {
+app.whenReady().then(() => {
   const mainWindow = createWindow({ isDev: is.dev })
 
   // Set app user model id for windows

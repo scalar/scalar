@@ -1,11 +1,10 @@
-import { computed, watch } from 'vue'
-
 import {
+  type CommandPaletteAction,
   baseClientActions,
   baseRoutes,
-  type CommandPaletteAction,
   useCommandPaletteState,
 } from '@scalar/api-client/v2/features/app'
+import { computed, watch } from 'vue'
 
 import { importRegistryAction } from '@/features/command-palette/registry-docs'
 import { useAuth } from '@/hooks/use-auth'

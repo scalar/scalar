@@ -9,6 +9,4 @@
  * Keep this single source of truth so the main and renderer never disagree
  * about which statuses can carry a body.
  */
-export const NULL_BODY_STATUSES: ReadonlySet<number> = new Set([
-  101, 204, 205, 304,
-])
+export const NULL_BODY_STATUSES: ReadonlySet<number> = new Set([101, 204, 205, 304])

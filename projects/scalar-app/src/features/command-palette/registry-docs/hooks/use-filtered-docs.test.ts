@@ -69,10 +69,7 @@ beforeEach(() => {
   })
 })
 
-const useFilteredDocs = (
-  managedDocs,
-  initialValue = '',
-): ReturnType<typeof useFilteredDocsHook> => {
+const useFilteredDocs = (managedDocs, initialValue = ''): ReturnType<typeof useFilteredDocsHook> => {
   registryDocumentsMock.documents.value = managedDocs
 
   return useFilteredDocsHook(initialValue)
@@ -82,21 +79,13 @@ describe('completionOptions - empty or no @ prefix', () => {
   it('should show all docs when query is empty', () => {
     const { completionOptions } = useFilteredDocs(mockManagedDocs, '')
 
-    expect(completionOptions.value).toEqual([
-      '@acme/api-docs',
-      '@acme/other-api',
-      '@widgets/widget-api',
-    ])
+    expect(completionOptions.value).toEqual(['@acme/api-docs', '@acme/other-api', '@widgets/widget-api'])
   })
 
   it('should filter docs by slug when query has no @ prefix', () => {
     const { completionOptions } = useFilteredDocs(mockManagedDocs, 'api')
 
-    expect(completionOptions.value).toEqual([
-      '@acme/api-docs',
-      '@acme/other-api',
-      '@widgets/widget-api',
-    ])
+    expect(completionOptions.value).toEqual(['@acme/api-docs', '@acme/other-api', '@widgets/widget-api'])
   })
 
   it('should filter to matching slugs when query has partial match', () => {
@@ -142,28 +131,19 @@ describe('completionOptions - selecting document', () => {
 
 describe('completionOptions - selecting version with / separator', () => {
   it('should show versions for selected doc', () => {
-    const { completionOptions } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs/',
-    )
+    const { completionOptions } = useFilteredDocs(mockManagedDocs, '@acme/api-docs/')
 
     expect(completionOptions.value).toEqual(['1.0.0', '1.1.0', '2.0.0'])
   })
 
   it('should show versions for other-api', () => {
-    const { completionOptions } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/other-api/',
-    )
+    const { completionOptions } = useFilteredDocs(mockManagedDocs, '@acme/other-api/')
 
     expect(completionOptions.value).toEqual(['1.0.0', '2.0.0'])
   })
 
   it('should show versions even with partial version', () => {
-    const { completionOptions } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs/1',
-    )
+    const { completionOptions } = useFilteredDocs(mockManagedDocs, '@acme/api-docs/1')
 
     expect(completionOptions.value).toEqual(['1.0.0', '1.1.0', '2.0.0'])
   })
@@ -171,28 +151,19 @@ describe('completionOptions - selecting version with / separator', () => {
 
 describe('completionOptions - selecting version with @ separator', () => {
   it('should show versions for selected doc with @ separator', () => {
-    const { completionOptions } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs@',
-    )
+    const { completionOptions } = useFilteredDocs(mockManagedDocs, '@acme/api-docs@')
 
     expect(completionOptions.value).toEqual(['1.0.0', '1.1.0', '2.0.0'])
   })
 
   it('should show versions even with partial version after @', () => {
-    const { completionOptions } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs@1',
-    )
+    const { completionOptions } = useFilteredDocs(mockManagedDocs, '@acme/api-docs@1')
 
     expect(completionOptions.value).toEqual(['1.0.0', '1.1.0', '2.0.0'])
   })
 
   it('should handle @ separator for widgets namespace', () => {
-    const { completionOptions } = useFilteredDocs(
-      mockManagedDocs,
-      '@widgets/widget-api@',
-    )
+    const { completionOptions } = useFilteredDocs(mockManagedDocs, '@widgets/widget-api@')
 
     expect(completionOptions.value).toEqual(['1.0.0', '1.5.0'])
   })
@@ -200,19 +171,13 @@ describe('completionOptions - selecting version with @ separator', () => {
 
 describe('completionOptions - complete query', () => {
   it('should return empty array when complete match with / separator', () => {
-    const { completionOptions } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs/1.0.0',
-    )
+    const { completionOptions } = useFilteredDocs(mockManagedDocs, '@acme/api-docs/1.0.0')
 
     expect(completionOptions.value).toEqual([])
   })
 
   it('should return empty array when complete match with @ separator', () => {
-    const { completionOptions } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs@1.0.0',
-    )
+    const { completionOptions } = useFilteredDocs(mockManagedDocs, '@acme/api-docs@1.0.0')
 
     expect(completionOptions.value).toEqual([])
   })
@@ -282,10 +247,7 @@ describe('handleSelect - selecting document', () => {
   })
 
   it('should use @ separator for version after doc selection', () => {
-    const { query, handleSelect } = useFilteredDocs(
-      mockManagedDocs,
-      '@widgets/',
-    )
+    const { query, handleSelect } = useFilteredDocs(mockManagedDocs, '@widgets/')
 
     handleSelect('widget-api')
 
@@ -295,10 +257,7 @@ describe('handleSelect - selecting document', () => {
 
 describe('handleSelect - selecting version with / separator', () => {
   it('should complete the query with @ separator', () => {
-    const { query, handleSelect } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs/',
-    )
+    const { query, handleSelect } = useFilteredDocs(mockManagedDocs, '@acme/api-docs/')
 
     handleSelect('1.0.0')
 
@@ -306,10 +265,7 @@ describe('handleSelect - selecting version with / separator', () => {
   })
 
   it('should handle version selection with partial version in query', () => {
-    const { query, handleSelect } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs/1',
-    )
+    const { query, handleSelect } = useFilteredDocs(mockManagedDocs, '@acme/api-docs/1')
 
     handleSelect('1.1.0')
 
@@ -319,10 +275,7 @@ describe('handleSelect - selecting version with / separator', () => {
 
 describe('handleSelect - selecting version with @ separator', () => {
   it('should complete the query maintaining @ separator', () => {
-    const { query, handleSelect } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs@',
-    )
+    const { query, handleSelect } = useFilteredDocs(mockManagedDocs, '@acme/api-docs@')
 
     handleSelect('2.0.0')
 
@@ -330,10 +283,7 @@ describe('handleSelect - selecting version with @ separator', () => {
   })
 
   it('should handle version selection with partial version after @', () => {
-    const { query, handleSelect } = useFilteredDocs(
-      mockManagedDocs,
-      '@widgets/widget-api@1',
-    )
+    const { query, handleSelect } = useFilteredDocs(mockManagedDocs, '@widgets/widget-api@1')
 
     handleSelect('1.5.0')
 
@@ -355,10 +305,7 @@ describe('reactivity', () => {
   })
 
   it('should update when query is modified by handleSelect', () => {
-    const { query, completionOptions, handleSelect } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/',
-    )
+    const { query, completionOptions, handleSelect } = useFilteredDocs(mockManagedDocs, '@acme/')
 
     expect(completionOptions.value).toEqual(['api-docs', 'other-api'])
 
@@ -379,10 +326,7 @@ describe('edge cases', () => {
   it('should handle docs with no versions', () => {
     const docsWithNoVersions = [createMockDoc('doc1', 'test', 'test-api', [])]
 
-    const { completionOptions } = useFilteredDocs(
-      docsWithNoVersions,
-      '@test/test-api@',
-    )
+    const { completionOptions } = useFilteredDocs(docsWithNoVersions, '@test/test-api@')
 
     expect(completionOptions.value).toEqual([])
   })
@@ -391,16 +335,11 @@ describe('edge cases', () => {
     const { completionOptions } = useFilteredDocs(mockManagedDocs, '@')
 
     // All namespaces should be prefixed with @
-    expect(completionOptions.value.every((opt) => opt.startsWith('@'))).toBe(
-      true,
-    )
+    expect(completionOptions.value.every((opt) => opt.startsWith('@'))).toBe(true)
   })
 
   it('should handle version with dots and numbers', () => {
-    const { completionOptions } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs@',
-    )
+    const { completionOptions } = useFilteredDocs(mockManagedDocs, '@acme/api-docs@')
 
     expect(completionOptions.value).toContain('1.0.0')
     expect(completionOptions.value).toContain('1.1.0')
@@ -408,19 +347,13 @@ describe('edge cases', () => {
   })
 
   it('should not show options after complete query with /', () => {
-    const { completionOptions } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/other-api/2.0.0',
-    )
+    const { completionOptions } = useFilteredDocs(mockManagedDocs, '@acme/other-api/2.0.0')
 
     expect(completionOptions.value).toEqual([])
   })
 
   it('should not show options after complete query with @', () => {
-    const { completionOptions } = useFilteredDocs(
-      mockManagedDocs,
-      '@widgets/widget-api@1.5.0',
-    )
+    const { completionOptions } = useFilteredDocs(mockManagedDocs, '@widgets/widget-api@1.5.0')
 
     expect(completionOptions.value).toEqual([])
   })
@@ -435,15 +368,9 @@ describe('edge cases', () => {
 
 describe('format compatibility', () => {
   it('should parse both / and @ version separators in query', () => {
-    const { completionOptions: optionsSlash } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs/1.0.0',
-    )
+    const { completionOptions: optionsSlash } = useFilteredDocs(mockManagedDocs, '@acme/api-docs/1.0.0')
 
-    const { completionOptions: optionsAt } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs@1.0.0',
-    )
+    const { completionOptions: optionsAt } = useFilteredDocs(mockManagedDocs, '@acme/api-docs@1.0.0')
 
     // Both formats should result in empty completion (complete query)
     expect(optionsSlash.value).toEqual([])
@@ -451,10 +378,7 @@ describe('format compatibility', () => {
   })
 
   it('should handle transition from / to @ in same query', () => {
-    const { query, completionOptions } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs/',
-    )
+    const { query, completionOptions } = useFilteredDocs(mockManagedDocs, '@acme/api-docs/')
 
     expect(completionOptions.value).toEqual(['1.0.0', '1.1.0', '2.0.0'])
 
@@ -484,10 +408,7 @@ describe('selectedDocument', () => {
   })
 
   it('should return document with first version when namespace and slug match but no version specified', () => {
-    const { selectedDocument } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs',
-    )
+    const { selectedDocument } = useFilteredDocs(mockManagedDocs, '@acme/api-docs')
 
     expect(selectedDocument.value).not.toBeNull()
     expect(selectedDocument.value?.namespace).toBe('acme')
@@ -498,10 +419,7 @@ describe('selectedDocument', () => {
   })
 
   it('should return document with first version when ending with /', () => {
-    const { selectedDocument } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs/',
-    )
+    const { selectedDocument } = useFilteredDocs(mockManagedDocs, '@acme/api-docs/')
 
     expect(selectedDocument.value).not.toBeNull()
     expect(selectedDocument.value?.namespace).toBe('acme')
@@ -510,10 +428,7 @@ describe('selectedDocument', () => {
   })
 
   it('should return document with first version when ending with @', () => {
-    const { selectedDocument } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs@',
-    )
+    const { selectedDocument } = useFilteredDocs(mockManagedDocs, '@acme/api-docs@')
 
     expect(selectedDocument.value).not.toBeNull()
     expect(selectedDocument.value?.namespace).toBe('acme')
@@ -522,10 +437,7 @@ describe('selectedDocument', () => {
   })
 
   it('should return document with exact version match using / separator', () => {
-    const { selectedDocument } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs/1.1.0',
-    )
+    const { selectedDocument } = useFilteredDocs(mockManagedDocs, '@acme/api-docs/1.1.0')
 
     expect(selectedDocument.value).not.toBeNull()
     expect(selectedDocument.value?.namespace).toBe('acme')
@@ -535,10 +447,7 @@ describe('selectedDocument', () => {
   })
 
   it('should return document with exact version match using @ separator', () => {
-    const { selectedDocument } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs@2.0.0',
-    )
+    const { selectedDocument } = useFilteredDocs(mockManagedDocs, '@acme/api-docs@2.0.0')
 
     expect(selectedDocument.value).not.toBeNull()
     expect(selectedDocument.value?.namespace).toBe('acme')
@@ -548,46 +457,31 @@ describe('selectedDocument', () => {
   })
 
   it('should return null when version does not exist', () => {
-    const { selectedDocument } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs@99.99.99',
-    )
+    const { selectedDocument } = useFilteredDocs(mockManagedDocs, '@acme/api-docs@99.99.99')
 
     expect(selectedDocument.value).toBeNull()
   })
 
   it('should return null when partial version is typed but does not match', () => {
-    const { selectedDocument } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs@9',
-    )
+    const { selectedDocument } = useFilteredDocs(mockManagedDocs, '@acme/api-docs@9')
 
     expect(selectedDocument.value).toBeNull()
   })
 
   it('should return null when namespace does not exist', () => {
-    const { selectedDocument } = useFilteredDocs(
-      mockManagedDocs,
-      '@nonexistent/api-docs',
-    )
+    const { selectedDocument } = useFilteredDocs(mockManagedDocs, '@nonexistent/api-docs')
 
     expect(selectedDocument.value).toBeNull()
   })
 
   it('should return null when slug does not exist', () => {
-    const { selectedDocument } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/nonexistent',
-    )
+    const { selectedDocument } = useFilteredDocs(mockManagedDocs, '@acme/nonexistent')
 
     expect(selectedDocument.value).toBeNull()
   })
 
   it('should work with widgets namespace', () => {
-    const { selectedDocument } = useFilteredDocs(
-      mockManagedDocs,
-      '@widgets/widget-api@1.5.0',
-    )
+    const { selectedDocument } = useFilteredDocs(mockManagedDocs, '@widgets/widget-api@1.5.0')
 
     expect(selectedDocument.value).not.toBeNull()
     expect(selectedDocument.value?.namespace).toBe('widgets')
@@ -596,10 +490,7 @@ describe('selectedDocument', () => {
   })
 
   it('should reactively update when query changes', () => {
-    const { query, selectedDocument } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/api-docs',
-    )
+    const { query, selectedDocument } = useFilteredDocs(mockManagedDocs, '@acme/api-docs')
 
     expect(selectedDocument.value?.version).toBe('1.0.0')
 
@@ -610,19 +501,13 @@ describe('selectedDocument', () => {
   it('should handle docs with no versions', () => {
     const docsWithNoVersions = [createMockDoc('doc1', 'test', 'test-api', [])]
 
-    const { selectedDocument } = useFilteredDocs(
-      docsWithNoVersions,
-      '@test/test-api',
-    )
+    const { selectedDocument } = useFilteredDocs(docsWithNoVersions, '@test/test-api')
 
     expect(selectedDocument.value).toBeNull()
   })
 
   it('should return the correct document and version UIDs', () => {
-    const { selectedDocument } = useFilteredDocs(
-      mockManagedDocs,
-      '@acme/other-api@2.0.0',
-    )
+    const { selectedDocument } = useFilteredDocs(mockManagedDocs, '@acme/other-api@2.0.0')
 
     expect(selectedDocument.value).not.toBeNull()
     expect(selectedDocument.value?.documentUid).toBe('doc2')

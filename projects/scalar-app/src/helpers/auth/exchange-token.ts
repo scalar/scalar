@@ -6,9 +6,7 @@ import { env } from '@/environment'
 import { type TokenResponse, tokenResponseSchema } from './schema'
 
 /** Exchange a short lived exchange token for access and refresh tokens */
-export const exchangeToken = async (
-  token: string,
-): Promise<ErrorResponse<TokenResponse>> => {
+export const exchangeToken = async (token: string): Promise<ErrorResponse<TokenResponse>> => {
   try {
     const response = await fetch(`${env.VITE_BASE_URL}/core/login/exchange`, {
       method: 'POST',
@@ -30,9 +28,6 @@ export const exchangeToken = async (
     return [null, data]
   } catch (err) {
     console.error('[exchangeToken]:', err)
-    return [
-      err instanceof Error ? err : new Error('Could not exchange token'),
-      null,
-    ]
+    return [err instanceof Error ? err : new Error('Could not exchange token'), null]
   }
 }

@@ -1,13 +1,10 @@
 import { randomUUID } from 'node:crypto'
+
 import { applyRequestHeaderTransforms } from '@electron/helpers/custom-fetch/apply-request-header-transforms'
 import { NULL_BODY_STATUSES } from '@electron/helpers/custom-fetch/null-body-statuses'
-import type {
-  IpcFetchRequest,
-  IpcFetchResponse,
-} from '@electron/helpers/custom-fetch/types'
-import { Agent, request as undiciRequest } from 'undici'
-
+import type { IpcFetchRequest, IpcFetchResponse } from '@electron/helpers/custom-fetch/types'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
+import { Agent, request as undiciRequest } from 'undici'
 
 /** A persistent Agent so connections are reused and system proxy env vars are ignored. */
 const agent = new Agent()
@@ -44,12 +41,11 @@ export type IpcSender = {
  *   stream body chunks for SSE / chunked-transfer responses.  When absent (e.g.
  *   in unit tests for non-streaming paths), streaming is disabled.
  */
-export const handleCustomFetch = async (
-  req: IpcFetchRequest,
-  sender?: IpcSender,
-): Promise<IpcFetchResponse> => {
+export const handleCustomFetch = async (req: IpcFetchRequest, sender?: IpcSender): Promise<IpcFetchResponse> => {
   const ac = new AbortController()
-  if (req.abortId) abortMap.set(req.abortId, ac)
+  if (req.abortId) {
+    abortMap.set(req.abortId, ac)
+  }
 
   // Idempotent cleanup: removes the AbortController from the map exactly once.
   // For buffered responses it is called inline; for streaming responses the IIFE
@@ -88,9 +84,13 @@ export const handleCustomFetch = async (
     // Expand array values into individual tuples to preserve multiple Set-Cookie entries.
     const headerEntries: [string, string][] = []
     for (const [key, value] of Object.entries(headers)) {
-      if (value === undefined) continue
+      if (value === undefined) {
+        continue
+      }
       if (Array.isArray(value)) {
-        for (const v of value) headerEntries.push([key, v])
+        for (const v of value) {
+          headerEntries.push([key, v])
+        }
       } else {
         headerEntries.push([key, value])
       }
@@ -98,9 +98,7 @@ export const handleCustomFetch = async (
 
     // Mirror all Set-Cookie values into x-scalar-set-cookie so the renderer can
     // read them despite the browser's cross-origin cookie restrictions.
-    const setCookieValues = headerEntries
-      .filter(([k]) => k === 'set-cookie')
-      .map(([, v]) => v)
+    const setCookieValues = headerEntries.filter(([k]) => k === 'set-cookie').map(([, v]) => v)
     if (setCookieValues.length > 0) {
       headerEntries.push([X_SCALAR_SET_COOKIE, setCookieValues.join(', ')])
     }
@@ -125,10 +123,8 @@ export const handleCustomFetch = async (
     // --- Streaming responses: pipe body chunks via IPC events ---
     // Triggers for: SSE, chunked transfer encoding, and media content types
     // (video/*, audio/*) where buffering the full response is impractical.
-    const contentType =
-      headerEntries.find(([k]) => k === 'content-type')?.[1] ?? ''
-    const transferEncoding =
-      headerEntries.find(([k]) => k === 'transfer-encoding')?.[1] ?? ''
+    const contentType = headerEntries.find(([k]) => k === 'content-type')?.[1] ?? ''
+    const transferEncoding = headerEntries.find(([k]) => k === 'transfer-encoding')?.[1] ?? ''
     const isStreaming =
       contentType.includes('text/event-stream') ||
       contentType.startsWith('video/') ||
@@ -140,7 +136,7 @@ export const handleCustomFetch = async (
 
       // Stream chunks asynchronously so we can return the headers immediately.
       // The renderer reconstructs a ReadableStream from the IPC events.
-      ;(async () => {
+      void (async () => {
         try {
           for await (const chunk of body) {
             if (sender.isDestroyed() || ac.signal.aborted) return
@@ -152,11 +148,9 @@ export const handleCustomFetch = async (
             ) as ArrayBuffer
             sender.send('customFetch:data', { streamId, chunk: ab })
           }
-          if (!sender.isDestroyed())
-            sender.send('customFetch:end', { streamId })
+          if (!sender.isDestroyed()) sender.send('customFetch:end', { streamId })
         } catch (err) {
-          if (!sender.isDestroyed())
-            sender.send('customFetch:error', { streamId, message: String(err) })
+          if (!sender.isDestroyed()) sender.send('customFetch:error', { streamId, message: String(err) })
         } finally {
           // Keep the controller in the map until the stream is fully done so
           // that abort() can be called at any point during streaming.

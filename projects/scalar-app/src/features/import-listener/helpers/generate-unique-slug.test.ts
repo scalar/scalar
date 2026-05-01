@@ -28,11 +28,7 @@ describe('generateUniqueSlug', () => {
   })
 
   it('finds the next available slug with multiple collisions', async () => {
-    const existingDocuments = new Set<string>([
-      'my-api',
-      'my-api-1',
-      'my-api-2',
-    ])
+    const existingDocuments = new Set<string>(['my-api', 'my-api-1', 'my-api-2'])
 
     const result = await generateUniqueSlug('My API', existingDocuments)
 
@@ -42,10 +38,7 @@ describe('generateUniqueSlug', () => {
   it('applies slugify transformation correctly', async () => {
     const existingDocuments = new Set<string>()
 
-    const result = await generateUniqueSlug(
-      'Hello World API',
-      existingDocuments,
-    )
+    const result = await generateUniqueSlug('Hello World API', existingDocuments)
 
     expect(result).toBe('hello-world-api')
   })
@@ -77,10 +70,7 @@ describe('generateUniqueSlug', () => {
   it('handles special characters in titles', async () => {
     const existingDocuments = new Set<string>()
 
-    const result = await generateUniqueSlug(
-      'My@Special#API$Name',
-      existingDocuments,
-    )
+    const result = await generateUniqueSlug('My@Special#API$Name', existingDocuments)
 
     // Slugify only handles spaces and lowercase, special chars remain
     expect(result).toBe('myspecialapiname')
@@ -89,10 +79,7 @@ describe('generateUniqueSlug', () => {
   it('handles titles with multiple consecutive spaces', async () => {
     const existingDocuments = new Set<string>()
 
-    const result = await generateUniqueSlug(
-      'My   API   Name',
-      existingDocuments,
-    )
+    const result = await generateUniqueSlug('My   API   Name', existingDocuments)
 
     // Multiple spaces are treated as a single whitespace group and replaced with one hyphen
     expect(result).toBe('my-api-name')
@@ -110,10 +97,7 @@ describe('generateUniqueSlug', () => {
   it('returns undefined when max retries are exceeded', async () => {
     // Create a set with 101 documents: 'my-api', 'my-api 1', 'my-api 2', ..., 'my-api 100'
     // This exhausts the maxRetries of 100
-    const existingDocuments = new Set<string>([
-      'my-api',
-      ...Array.from({ length: 100 }, (_, i) => `my-api-${i + 1}`),
-    ])
+    const existingDocuments = new Set<string>(['my-api', ...Array.from({ length: 100 }, (_, i) => `my-api-${i + 1}`)])
 
     const result = await generateUniqueSlug('My API', existingDocuments)
 
@@ -148,10 +132,7 @@ describe('generateUniqueSlug', () => {
   it('handles mixed case with spaces correctly', async () => {
     const existingDocuments = new Set<string>()
 
-    const result = await generateUniqueSlug(
-      'CamelCase API Name',
-      existingDocuments,
-    )
+    const result = await generateUniqueSlug('CamelCase API Name', existingDocuments)
 
     expect(result).toBe('camelcase-api-name')
   })
@@ -174,9 +155,7 @@ describe('generateUniqueSlug', () => {
   })
 
   it('handles large set of existing documents', async () => {
-    const existingDocuments = new Set<string>(
-      Array.from({ length: 1000 }, (_, i) => `api-${i}`),
-    )
+    const existingDocuments = new Set<string>(Array.from({ length: 1000 }, (_, i) => `api-${i}`))
 
     const result = await generateUniqueSlug('New API', existingDocuments)
 
@@ -220,10 +199,7 @@ describe('generateUniqueSlug', () => {
   it('handles unicode characters', async () => {
     const existingDocuments = new Set<string>()
 
-    const result = await generateUniqueSlug(
-      'My API 中文 名称',
-      existingDocuments,
-    )
+    const result = await generateUniqueSlug('My API 中文 名称', existingDocuments)
 
     expect(result).toBe('my-api-中文-名称')
   })

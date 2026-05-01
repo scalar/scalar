@@ -2,10 +2,7 @@ import type { BrowserIpcEvents } from '@electron/shims'
 import { type BrowserWindow, ipcMain } from 'electron/main'
 
 /** Type guard to ensure that handlers match the event signature */
-export const onIpcEvent = <K extends keyof Window['api'] & string>(
-  key: K,
-  handler: Window['api'][K],
-) => {
+export const onIpcEvent = <K extends keyof Window['api'] & string>(key: K, handler: Window['api'][K]) => {
   ipcMain.handle(key, (_, params) => handler(params))
 }
 

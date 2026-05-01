@@ -59,10 +59,7 @@ describe('exchangeToken', () => {
   })
 
   it('returns [Error, null] when fetch throws a network error', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockRejectedValue(new Error('Network failure')),
-    )
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network failure')))
 
     const [err, data] = await exchangeToken('exchange-token')
 

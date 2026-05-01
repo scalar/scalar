@@ -1,6 +1,5 @@
-import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
-
 import { convert } from '@scalar/postman-to-openapi'
+import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { getOpenApiFromPostman } from './get-openapi-from-postman'
 
@@ -19,8 +18,7 @@ describe('getOpenApiFromPostman', () => {
       info: {
         _postman_id: '123',
         name: 'Test Collection',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
       item: [],
     })
@@ -97,8 +95,7 @@ describe('getOpenApiFromPostman', () => {
       info: {
         _postman_id: 'abc-123',
         name: 'Complex API Collection',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
       item: [
         {
@@ -153,8 +150,7 @@ describe('getOpenApiFromPostman', () => {
       info: {
         _postman_id: 'empty-123',
         name: 'Empty Collection',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
       item: [],
     })
@@ -182,8 +178,7 @@ describe('getOpenApiFromPostman', () => {
       info: {
         _postman_id: 'nested-123',
         name: 'Nested Collection',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
       item: [
         {
@@ -231,8 +226,7 @@ describe('getOpenApiFromPostman', () => {
         name: 'API with Metadata',
         description: 'This is a test API',
         version: '2.0.0',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
       item: [],
     })
@@ -261,8 +255,7 @@ describe('getOpenApiFromPostman', () => {
       info: {
         _postman_id: 'auth-123',
         name: 'Authenticated API',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
       auth: {
         type: 'bearer',
@@ -304,9 +297,7 @@ describe('getOpenApiFromPostman', () => {
 
   it('returns null when convert throws error with specific message', () => {
     const postmanJson = '{"malformed":"data"}'
-    const originalError = new Error(
-      'Specific validation failed: missing required field',
-    )
+    const originalError = new Error('Specific validation failed: missing required field')
 
     vi.mocked(convert).mockImplementation(() => {
       throw originalError
@@ -365,8 +356,7 @@ describe('getOpenApiFromPostman', () => {
       info: {
         _postman_id: 'server-123',
         name: 'API with Servers',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
       variable: [
         {

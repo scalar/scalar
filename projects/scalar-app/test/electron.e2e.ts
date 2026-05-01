@@ -1,16 +1,13 @@
 import { statSync } from 'node:fs'
 import { join } from 'node:path'
+
 import { _electron, expect, test } from '@playwright/test'
 
 /**
  * Helper function to find the frontend build
  */
 const findFolder = () => {
-  const possiblePaths = [
-    '../../projects/scalar-app',
-    '../projects/scalar-app',
-    './projects/scalar-app',
-  ]
+  const possiblePaths = ['../../projects/scalar-app', '../projects/scalar-app', './projects/scalar-app']
 
   for (const path of possiblePaths) {
     try {
@@ -65,9 +62,7 @@ test.describe('Electron', () => {
     await expect
       .poll(
         () => {
-          const mainWindow = app
-            .windows()
-            .find((win) => win.url().includes('index.html'))
+          const mainWindow = app.windows().find((win) => win.url().includes('index.html'))
           return mainWindow ? mainWindow.url() : ''
         },
         {

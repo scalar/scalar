@@ -13,9 +13,7 @@ export const fetchRegistryDocument = async ({
   namespace: string
   slug: string
   version?: string
-}): Promise<
-  { ok: true; data: Record<string, unknown> } | { ok: false; error: string }
-> => {
+}): Promise<{ ok: true; data: Record<string, unknown> } | { ok: false; error: string }> => {
   try {
     const documentString = await scalarClient.registry.getApiDocumentVersion({
       namespace: namespace,
@@ -31,10 +29,7 @@ export const fetchRegistryDocument = async ({
 
     return { ok: true, data: document }
   } catch (e) {
-    const message =
-      e instanceof Error
-        ? e.message
-        : `Can not load document from registry: ${String(e)}`
+    const message = e instanceof Error ? e.message : `Can not load document from registry: ${String(e)}`
 
     return {
       ok: false,

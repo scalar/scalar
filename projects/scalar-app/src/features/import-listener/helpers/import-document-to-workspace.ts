@@ -40,18 +40,13 @@ export const importDocumentToWorkspace = async ({
     }
   }
 
-  const currentDocuments = new Set(
-    Object.keys(workspaceStore.workspace.documents),
-  )
+  const currentDocuments = new Set(Object.keys(workspaceStore.workspace.documents))
 
   /**
    * Generate a unique slug to avoid naming conflicts with existing documents.
    * The slug is based on the document title but modified if necessary to ensure uniqueness.
    */
-  const slug = await generateUniqueSlug(
-    importingDocument.info.title || 'default',
-    currentDocuments,
-  )
+  const slug = await generateUniqueSlug(importingDocument.info.title || 'default', currentDocuments)
   if (!slug) {
     return {
       ok: false,

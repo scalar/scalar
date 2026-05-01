@@ -36,9 +36,7 @@ describe('to-web-response', () => {
     })
 
     it('preserves status text', () => {
-      const result = toWebResponse(
-        createMockTransportResponse({ statusText: 'Not Found' }),
-      )
+      const result = toWebResponse(createMockTransportResponse({ statusText: 'Not Found' }))
       expect(result.statusText).toBe('Not Found')
     })
 
@@ -103,13 +101,8 @@ describe('to-web-response', () => {
     })
 
     it('handles a response with many headers', () => {
-      const manyHeaders = Array.from(
-        { length: 50 },
-        (_, i): [string, string] => [`x-header-${i}`, `value-${i}`],
-      )
-      const result = toWebResponse(
-        createMockTransportResponse({ headers: manyHeaders }),
-      )
+      const manyHeaders = Array.from({ length: 50 }, (_, i): [string, string] => [`x-header-${i}`, `value-${i}`])
+      const result = toWebResponse(createMockTransportResponse({ headers: manyHeaders }))
       expect(result.headers.get('x-header-0')).toBe('value-0')
       expect(result.headers.get('x-header-49')).toBe('value-49')
     })
@@ -117,27 +110,20 @@ describe('to-web-response', () => {
 
   describe('body handling', () => {
     it('preserves a text response body', async () => {
-      const buffer = new TextEncoder().encode('hello world')
-        .buffer as ArrayBuffer
-      const result = toWebResponse(
-        createMockTransportResponse({ body: buffer }),
-      )
+      const buffer = new TextEncoder().encode('hello world').buffer as ArrayBuffer
+      const result = toWebResponse(createMockTransportResponse({ body: buffer }))
       expect(await result.text()).toBe('hello world')
     })
 
     it('preserves a binary response body', async () => {
       const bytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47])
       const buffer = bytes.buffer as ArrayBuffer
-      const result = toWebResponse(
-        createMockTransportResponse({ body: buffer }),
-      )
+      const result = toWebResponse(createMockTransportResponse({ body: buffer }))
       expect(new Uint8Array(await result.arrayBuffer())).toEqual(bytes)
     })
 
     it('handles an empty response body', async () => {
-      const result = toWebResponse(
-        createMockTransportResponse({ body: new ArrayBuffer(0) }),
-      )
+      const result = toWebResponse(createMockTransportResponse({ body: new ArrayBuffer(0) }))
       expect(await result.text()).toBe('')
     })
   })
@@ -153,16 +139,12 @@ describe('to-web-response', () => {
     })
 
     it('new URL(response.url) does not throw', () => {
-      const result = toWebResponse(
-        createMockTransportResponse({ url: 'https://api.example.com/pets' }),
-      )
+      const result = toWebResponse(createMockTransportResponse({ url: 'https://api.example.com/pets' }))
       expect(() => new URL(result.url)).not.toThrow()
     })
 
     it('response.redirected reflects the value returned by the transport', () => {
-      const result = toWebResponse(
-        createMockTransportResponse({ redirected: true }),
-      )
+      const result = toWebResponse(createMockTransportResponse({ redirected: true }))
       expect(result.redirected).toBe(true)
     })
   })
@@ -220,17 +202,13 @@ describe('to-web-response', () => {
     it('discards a non-null body sent by the transport for a 204 (defensive guard)', () => {
       // Transport should not send a body for null-body statuses, but toWebResponse
       // must be robust against it to avoid a TypeError from the Response constructor.
-      const result = toWebResponse(
-        createMockTransportResponse({ status: 204, body: new ArrayBuffer(4) }),
-      )
+      const result = toWebResponse(createMockTransportResponse({ status: 204, body: new ArrayBuffer(4) }))
       expect(result.body).toBeNull()
     })
 
     it('200 response body is still accessible after the null-body fix (regression)', async () => {
       const buffer = new TextEncoder().encode('hello').buffer as ArrayBuffer
-      const result = toWebResponse(
-        createMockTransportResponse({ status: 200, body: buffer }),
-      )
+      const result = toWebResponse(createMockTransportResponse({ status: 200, body: buffer }))
       expect(await result.text()).toBe('hello')
     })
   })

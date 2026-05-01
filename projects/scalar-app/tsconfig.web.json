@@ -1,11 +1,6 @@
 {
   "extends": "../../tsconfig.json",
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.vue",
-    "entrypoints/**/*.ts",
-    "entrypoints/**/*.vue"
-  ],
+  "include": ["src/**/*.ts", "src/**/*.vue", "entrypoints/**/*.ts", "entrypoints/**/*.vue"],
   "compilerOptions": {
     "types": ["vite/client"],
     "composite": true,

@@ -10,30 +10,20 @@ import type { IpcFetchRequest } from './types'
  * a listener that sends `customFetchAbort(abortId)` when the signal fires.
  * The main process maps the ID to the matching `AbortController`.
  */
-export const toIpcRequest = async (
-  input: RequestInfo | URL,
-  init?: RequestInit,
-): Promise<IpcFetchRequest> => {
-  const signal =
-    init?.signal ?? (input instanceof Request ? input.signal : null)
+export const toIpcRequest = async (input: RequestInfo | URL, init?: RequestInit): Promise<IpcFetchRequest> => {
+  const signal = init?.signal ?? (input instanceof Request ? input.signal : null)
   const abortId = signal ? crypto.randomUUID() : undefined
   if (signal && abortId) {
-    signal.addEventListener(
-      'abort',
-      () => window.api.customFetchAbort(abortId),
-      {
-        once: true,
-      },
-    )
+    signal.addEventListener('abort', () => window.api.customFetchAbort(abortId), {
+      once: true,
+    })
   }
 
   if (typeof input === 'string' || input instanceof URL) {
     return {
       url: input.toString(),
       method: init?.method,
-      headers: applyRequestHeaderTransforms(
-        (init?.headers ?? {}) as Record<string, string>,
-      ),
+      headers: applyRequestHeaderTransforms((init?.headers ?? {}) as Record<string, string>),
       body: await toArrayBufferBody(init?.body),
       cache: init?.cache,
       credentials: init?.credentials,
@@ -47,8 +37,7 @@ export const toIpcRequest = async (
     }
   }
 
-  const rawHeaders = (init?.headers ??
-    Object.fromEntries(input.headers.entries())) as Record<string, string>
+  const rawHeaders = (init?.headers ?? Object.fromEntries(input.headers.entries())) as Record<string, string>
 
   return {
     url: input.url,

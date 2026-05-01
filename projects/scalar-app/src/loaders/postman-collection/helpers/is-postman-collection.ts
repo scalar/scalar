@@ -12,9 +12,7 @@ export const isPostmanCollection = (content: string): boolean => {
     const parsed = JSON.parse(content)
 
     const hasPostmanId = parsed.info?._postman_id !== undefined
-    const hasValidSchema =
-      parsed.info?.schema &&
-      new URL(parsed.info.schema).host === 'schema.getpostman.com'
+    const hasValidSchema = parsed.info?.schema && new URL(parsed.info.schema).host === 'schema.getpostman.com'
 
     return hasPostmanId && hasValidSchema
   } catch {

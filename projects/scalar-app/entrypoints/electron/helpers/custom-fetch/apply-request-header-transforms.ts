@@ -15,9 +15,7 @@ const X_SCALAR_USER_AGENT = 'x-scalar-user-agent'
  * The function uses `Headers` internally so lookups are case-insensitive,
  * which means `X-Scalar-Cookie` and `x-scalar-cookie` are treated identically.
  */
-export const applyRequestHeaderTransforms = (
-  headers: Record<string, string>,
-): Record<string, string> => {
+export const applyRequestHeaderTransforms = (headers: Record<string, string>): Record<string, string> => {
   const h = new Headers(headers)
 
   const cookie = h.get(X_SCALAR_COOKIE)

@@ -164,12 +164,8 @@ describe('refreshTokens', () => {
     await refreshTokens()
 
     expect(tokenData.value?.email).toBe(VALID_PAYLOAD.email)
-    expect(localStorage.getItem('scalar-access-token')).toBe(
-      refreshedAccessToken,
-    )
-    expect(localStorage.getItem('scalar-refresh-token')).toBe(
-      refreshedRefreshToken,
-    )
+    expect(localStorage.getItem('scalar-access-token')).toBe(refreshedAccessToken)
+    expect(localStorage.getItem('scalar-refresh-token')).toBe(refreshedRefreshToken)
   })
 
   it('logs out on a 401 response', async () => {
@@ -234,10 +230,7 @@ describe('refreshTokens', () => {
     const { setTokens, refreshTokens, isLoggedIn } = useAuth()
     setTokens(validAccessToken, validRefreshToken)
 
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockRejectedValue(new Error('Network failure')),
-    )
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network failure')))
 
     await refreshTokens()
 
@@ -381,9 +374,8 @@ describe('refreshTokens with navigator.locks', () => {
       refreshToken: refreshedRefreshToken,
     })
 
-    const lockRequest = vi.fn(
-      async (_name: string, _opts: object, cb: (lock: unknown) => unknown) =>
-        cb({ name: 'scalar-refresh-request' }),
+    const lockRequest = vi.fn(async (_name: string, _opts: object, cb: (lock: unknown) => unknown) =>
+      cb({ name: 'scalar-refresh-request' }),
     )
 
     Object.defineProperty(window.navigator, 'locks', {
@@ -395,11 +387,7 @@ describe('refreshTokens with navigator.locks', () => {
     await refreshTokens()
 
     expect(lockRequest).toHaveBeenCalledTimes(1)
-    expect(lockRequest).toHaveBeenCalledWith(
-      'scalar-refresh-request',
-      { ifAvailable: true },
-      expect.any(Function),
-    )
+    expect(lockRequest).toHaveBeenCalledWith('scalar-refresh-request', { ifAvailable: true }, expect.any(Function))
     expect(fetchSpy).toHaveBeenCalledTimes(1)
   })
 
@@ -411,10 +399,7 @@ describe('refreshTokens with navigator.locks', () => {
     vi.stubGlobal('fetch', fetchSpy)
 
     // ifAvailable: true hands `null` to the callback when the lock is held elsewhere
-    const lockRequest = vi.fn(
-      async (_name: string, _opts: object, cb: (lock: unknown) => unknown) =>
-        cb(null),
-    )
+    const lockRequest = vi.fn(async (_name: string, _opts: object, cb: (lock: unknown) => unknown) => cb(null))
 
     Object.defineProperty(window.navigator, 'locks', {
       value: { request: lockRequest },
@@ -537,9 +522,7 @@ describe('cross-tab token sync (storage event)', () => {
     dispatchStorageEvent('scalar-refresh-token', freshRefreshToken)
 
     expect(tokenData.value?.email).toBe(VALID_PAYLOAD.email)
-    expect(localStorage.getItem('scalar-access-token')).toBe(
-      refreshedAccessToken,
-    )
+    expect(localStorage.getItem('scalar-access-token')).toBe(refreshedAccessToken)
   })
 
   it('logs out when the refresh token key changes to null', () => {

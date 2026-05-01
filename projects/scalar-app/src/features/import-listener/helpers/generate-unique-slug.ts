@@ -25,10 +25,7 @@ const slugify = (v: string) =>
  *
  * @returns Promise resolving to a unique slug, or null if unable to generate one
  */
-export const generateUniqueSlug = async (
-  defaultValue: string | undefined,
-  currentDocuments: Set<string>,
-) => {
+export const generateUniqueSlug = async (defaultValue: string | undefined, currentDocuments: Set<string>) => {
   return await generateUniqueValue({
     defaultValue: defaultValue ?? 'default',
     validation: (value) => !currentDocuments.has(value),

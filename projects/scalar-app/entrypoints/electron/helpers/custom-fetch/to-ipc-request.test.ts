@@ -33,9 +33,7 @@ describe('to-ipc-request', () => {
     })
 
     it('passes query string through unmodified', async () => {
-      const request = await toIpcRequest(
-        'https://example.com/api?foo=bar&baz=qux',
-      )
+      const request = await toIpcRequest('https://example.com/api?foo=bar&baz=qux')
       expect(request.url).toBe('https://example.com/api?foo=bar&baz=qux')
     })
   })

@@ -1,12 +1,6 @@
 import todesktop from '@todesktop/runtime'
 import { shell } from 'electron/common'
-import {
-  BrowserWindow,
-  dialog,
-  Menu,
-  type MenuItem,
-  type MenuItemConstructorOptions,
-} from 'electron/main'
+import { BrowserWindow, Menu, type MenuItem, type MenuItemConstructorOptions, dialog } from 'electron/main'
 
 import { handleOpenFile } from '../actions/files'
 
@@ -64,9 +58,7 @@ export const buildMenu = ({
                   window.reload()
                 })
               } else if (response === 1) {
-                shell.openExternal(
-                  'https://github.com/scalar/scalar/issues/new?template=BUG-REPORT.yml',
-                )
+                shell.openExternal('https://github.com/scalar/scalar/issues/new?template=BUG-REPORT.yml')
               }
             }
           } catch (e) {
@@ -140,11 +132,7 @@ export const buildMenu = ({
       },
     )
   } else {
-    editMenu.submenu.push(
-      { role: 'delete' },
-      { type: 'separator' },
-      { role: 'selectAll' },
-    )
+    editMenu.submenu.push({ role: 'delete' }, { type: 'separator' }, { role: 'selectAll' })
   }
 
   const viewMenu: TemplateOption = {
@@ -162,19 +150,13 @@ export const buildMenu = ({
     ],
   }
 
-  const windowMenu: TemplateOption & { submenu: MenuItemConstructorOptions[] } =
-    {
-      label: 'Window',
-      submenu: [{ role: 'minimize' }, { role: 'zoom' }],
-    }
+  const windowMenu: TemplateOption & { submenu: MenuItemConstructorOptions[] } = {
+    label: 'Window',
+    submenu: [{ role: 'minimize' }, { role: 'zoom' }],
+  }
 
   if (isMac) {
-    windowMenu.submenu.push(
-      { type: 'separator' },
-      { role: 'front' },
-      { type: 'separator' },
-      { role: 'window' },
-    )
+    windowMenu.submenu.push({ type: 'separator' }, { role: 'front' }, { type: 'separator' }, { role: 'window' })
   } else {
     windowMenu.submenu.push({ role: 'close' })
   }
@@ -184,14 +166,7 @@ export const buildMenu = ({
   }
 
   const menu = Menu.buildFromTemplate(
-    [
-      isMac && macAppMenu,
-      fileMenu,
-      editMenu,
-      viewMenu,
-      windowMenu,
-      helpMenu,
-    ].filter((o) => !!o),
+    [isMac && macAppMenu, fileMenu, editMenu, viewMenu, windowMenu, helpMenu].filter((o) => !!o),
   )
   Menu.setApplicationMenu(menu)
 }

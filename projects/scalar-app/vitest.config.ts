@@ -1,4 +1,5 @@
 import { resolve } from 'node:path'
+
 import vue from '@vitejs/plugin-vue'
 import { loadConfigFromFile, mergeConfig } from 'electron-vite'
 import type { Plugin } from 'vite'
@@ -57,12 +58,7 @@ export default defineConfig(async ({ command, mode }) => {
           },
           test: {
             environment: 'jsdom',
-            exclude: [
-              '**/node_modules/**',
-              '**/dist/**',
-              '**/tmp/**',
-              'entrypoints/electron/**/*.test.ts',
-            ],
+            exclude: ['**/node_modules/**', '**/dist/**', '**/tmp/**', 'entrypoints/electron/**/*.test.ts'],
             include: ['src/**/*.test.ts', 'entrypoints/web/**/*.test.ts'],
             name: 'vite',
             alias: [

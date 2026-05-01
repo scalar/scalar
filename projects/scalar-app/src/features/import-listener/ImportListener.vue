@@ -1,9 +1,7 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
-
 import {
-  type ScalarListboxOption,
   useModal,
+  type ScalarListboxOption,
   type WorkspaceGroup,
 } from '@scalar/components'
 import { type LoaderPlugin } from '@scalar/json-magic/bundle'
@@ -13,6 +11,7 @@ import {
   type WorkspaceStore,
 } from '@scalar/workspace-store/client'
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
+import { onMounted, ref } from 'vue'
 
 import { loadDocumentFromSource } from '@/features/import-listener/helpers/load-document-from-source'
 import {
@@ -195,7 +194,7 @@ onMounted(() => {
 
   if (window.electron === true) {
     // Open… menu listener
-    window.ipc.addEventListener('import-file', async (filePath: string) => {
+    window.ipc.addEventListener('import-file', (filePath: string) => {
       handleInput({ source: filePath, type: 'file' })
     })
   }

@@ -1,18 +1,6 @@
-import {
-  literal,
-  number,
-  object,
-  type Static,
-  string,
-  union,
-} from '@scalar/validation'
+import { type Static, literal, number, object, string, union } from '@scalar/validation'
 
-const roleSchema = union([
-  literal('viewer'),
-  literal('editor'),
-  literal('owner'),
-  literal('admin'),
-])
+const roleSchema = union([literal('viewer'), literal('editor'), literal('owner'), literal('admin')])
 
 /** A user's permission level within a team */
 export type Role = Static<typeof roleSchema>

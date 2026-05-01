@@ -1,4 +1,5 @@
 import { join } from 'node:path'
+
 import { shell } from 'electron/common'
 import { BrowserWindow } from 'electron/main'
 import windowStateKeeper from 'electron-window-state'

@@ -33,20 +33,14 @@ const createTrackingContext = (): TrackingContext => ({
   targetWindow: window as unknown as TrackingWindow,
 })
 
-const initializeApolloTracker = (
-  context: TrackingContext = createTrackingContext(),
-) => {
+const initializeApolloTracker = (context: TrackingContext = createTrackingContext()) => {
   const { hostname, targetDocument, targetWindow } = context
 
   if (hostname !== TRACKING_HOST) {
     return
   }
 
-  if (
-    targetDocument.querySelector(
-      `script[data-apollo-tracker="${TRACKING_DATASET}"]`,
-    )
-  ) {
+  if (targetDocument.querySelector(`script[data-apollo-tracker="${TRACKING_DATASET}"]`)) {
     return
   }
 
@@ -80,21 +74,14 @@ const createVectorTracker = (): VectorTracker => {
   return vectorTracker
 }
 
-const initializeVectorTracker = (
-  context: TrackingContext = createTrackingContext(),
-) => {
+const initializeVectorTracker = (context: TrackingContext = createTrackingContext()) => {
   const { hostname, targetDocument, targetWindow } = context
 
   if (hostname !== TRACKING_HOST) {
     return
   }
 
-  if (
-    targetWindow.vector ||
-    targetDocument.querySelector(
-      `script[data-vector-tracker="${TRACKING_DATASET}"]`,
-    )
-  ) {
+  if (targetWindow.vector || targetDocument.querySelector(`script[data-vector-tracker="${TRACKING_DATASET}"]`)) {
     return
   }
 
@@ -121,9 +108,7 @@ const initializeVectorTracker = (
   }
 }
 
-export const initializeWebsiteTrackers = (
-  context: TrackingContext = createTrackingContext(),
-) => {
+export const initializeWebsiteTrackers = (context: TrackingContext = createTrackingContext()) => {
   initializeApolloTracker(context)
   initializeVectorTracker(context)
 }

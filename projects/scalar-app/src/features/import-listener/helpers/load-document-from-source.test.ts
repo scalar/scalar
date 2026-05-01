@@ -1,6 +1,5 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
-
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { loadDocumentFromSource } from './load-document-from-source'
 
@@ -14,12 +13,7 @@ describe('loadDocumentFromSource', () => {
   it('returns false when source is empty', async () => {
     const workspaceStore = createWorkspaceStore()
 
-    const result = await loadDocumentFromSource(
-      workspaceStore,
-      { type: 'raw', source: '' },
-      'My API',
-      false,
-    )
+    const result = await loadDocumentFromSource(workspaceStore, { type: 'raw', source: '' }, 'My API', false)
 
     expect(result).toBe(false)
   })
@@ -75,9 +69,7 @@ describe('loadDocumentFromSource', () => {
     expect(result).toBe(true)
 
     const documents = Object.values(workspaceStore.workspace.documents)
-    const addedDocument = documents.find(
-      (doc) => doc.info.title === 'Another URL API',
-    )
+    const addedDocument = documents.find((doc) => doc.info.title === 'Another URL API')
 
     expect(addedDocument).toBeDefined()
     expect(addedDocument?.['x-scalar-watch-mode']).toBe(false)
@@ -138,12 +130,7 @@ describe('loadDocumentFromSource', () => {
       },
     })
 
-    const result = await loadDocumentFromSource(
-      workspaceStore,
-      { type: 'raw', source: rawOpenAPI },
-      'Raw API',
-      false,
-    )
+    const result = await loadDocumentFromSource(workspaceStore, { type: 'raw', source: rawOpenAPI }, 'Raw API', false)
 
     expect(result).toBe(true)
 
@@ -174,12 +161,7 @@ paths:
           description: Success
 `
 
-    const result = await loadDocumentFromSource(
-      workspaceStore,
-      { type: 'raw', source: rawYAML },
-      'YAML API',
-      true,
-    )
+    const result = await loadDocumentFromSource(workspaceStore, { type: 'raw', source: rawYAML }, 'YAML API', true)
 
     expect(result).toBe(true)
 
@@ -264,16 +246,12 @@ paths:
     expect(result).toBe(true)
 
     const documents = Object.values(workspaceStore.workspace.documents)
-    const addedDocument = documents.find(
-      (doc) => doc.info.title === 'Complex API',
-    )
+    const addedDocument = documents.find((doc) => doc.info.title === 'Complex API')
 
     expect(addedDocument).toBeDefined()
     expect(addedDocument?.info.title).toBe('Complex API')
     expect(addedDocument?.info.version).toBe('3.0.0')
-    expect(addedDocument?.info.description).toBe(
-      'A more complex API with multiple paths',
-    )
+    expect(addedDocument?.info.description).toBe('A more complex API with multiple paths')
     expect(addedDocument?.paths?.['/users']).toBeDefined()
     expect(addedDocument?.paths?.['/users/{id}']).toBeDefined()
     expect(addedDocument?.servers).toBeDefined()
@@ -297,9 +275,7 @@ paths:
     expect(result).toBe(true)
 
     const documents = Object.values(workspaceStore.workspace.documents)
-    const addedDocument = documents.find(
-      (doc) => doc.info.title === 'Minified API',
-    )
+    const addedDocument = documents.find((doc) => doc.info.title === 'Minified API')
 
     expect(addedDocument).toBeDefined()
     expect(addedDocument?.info.title).toBe('Minified API')
@@ -313,8 +289,7 @@ paths:
       info: {
         _postman_id: '12345-abcde',
         name: 'My Postman API',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
       item: [
         {
@@ -342,9 +317,7 @@ paths:
     expect(result).toBe(true)
 
     const documents = Object.values(workspaceStore.workspace.documents)
-    const addedDocument = documents.find(
-      (doc) => doc.info.title === 'My Postman API',
-    )
+    const addedDocument = documents.find((doc) => doc.info.title === 'My Postman API')
 
     expect(addedDocument).toBeDefined()
     expect(addedDocument?.info.title).toBe('My Postman API')
@@ -360,8 +333,7 @@ paths:
         _postman_id: 'complex-123',
         name: 'Complex Postman Collection',
         description: 'A collection with multiple requests',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
       item: [
         {
@@ -412,9 +384,7 @@ paths:
     expect(result).toBe(true)
 
     const documents = Object.values(workspaceStore.workspace.documents)
-    const addedDocument = documents.find(
-      (doc) => doc.info.title === 'Complex Postman Collection',
-    )
+    const addedDocument = documents.find((doc) => doc.info.title === 'Complex Postman Collection')
 
     expect(addedDocument).toBeDefined()
     expect(addedDocument?.info.title).toBe('Complex Postman Collection')
@@ -430,8 +400,7 @@ paths:
       info: {
         _postman_id: 'watch-test-123',
         name: 'Postman Collection Watch Test',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
       item: [],
     })
@@ -447,9 +416,7 @@ paths:
     expect(result).toBe(true)
 
     const documents = Object.values(workspaceStore.workspace.documents)
-    const addedDocument = documents.find(
-      (doc) => doc.info.title === 'Postman Collection Watch Test',
-    )
+    const addedDocument = documents.find((doc) => doc.info.title === 'Postman Collection Watch Test')
 
     expect(addedDocument).toBeDefined()
     // Watch mode should not be set for Postman collections
@@ -465,8 +432,7 @@ paths:
       info: {
         _postman_id: 'invalid-123',
         name: 'Invalid Collection',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
       item: [
         {
@@ -493,8 +459,7 @@ paths:
       info: {
         _postman_id: 'empty-123',
         name: 'Empty Postman Collection',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
       item: [],
     })
@@ -509,9 +474,7 @@ paths:
     expect(result).toBe(true)
 
     const documents = Object.values(workspaceStore.workspace.documents)
-    const addedDocument = documents.find(
-      (doc) => doc.info.title === 'Empty Postman Collection',
-    )
+    const addedDocument = documents.find((doc) => doc.info.title === 'Empty Postman Collection')
 
     expect(addedDocument).toBeDefined()
     expect(addedDocument?.info.title).toBe('Empty Postman Collection')
@@ -525,8 +488,7 @@ paths:
       info: {
         _postman_id: 'auth-123',
         name: 'Authenticated API',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
       auth: {
         type: 'bearer',
@@ -559,9 +521,7 @@ paths:
     expect(result).toBe(true)
 
     const documents = Object.values(workspaceStore.workspace.documents)
-    const addedDocument = documents.find(
-      (doc) => doc.info.title === 'Authenticated API',
-    )
+    const addedDocument = documents.find((doc) => doc.info.title === 'Authenticated API')
 
     expect(addedDocument).toBeDefined()
     expect(addedDocument?.openapi).toBeDefined()
@@ -590,8 +550,7 @@ paths:
       info: {
         _postman_id: 'vars-123',
         name: 'API with Variables',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
       variable: [
         {
@@ -632,9 +591,7 @@ paths:
     expect(result).toBe(true)
 
     const documents = Object.values(workspaceStore.workspace.documents)
-    const addedDocument = documents.find(
-      (doc) => doc.info.title === 'API with Variables',
-    )
+    const addedDocument = documents.find((doc) => doc.info.title === 'API with Variables')
 
     expect(addedDocument).toBeDefined()
     expect(addedDocument?.openapi).toBeDefined()

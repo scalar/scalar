@@ -1,11 +1,6 @@
 import { coerce, literal, object, string, union } from '@scalar/validation'
 
-const deployEnvironments = union([
-  literal('development'),
-  literal('test'),
-  literal('staging'),
-  literal('production'),
-])
+const deployEnvironments = union([literal('development'), literal('test'), literal('staging'), literal('production')])
 
 const environmentSchema = object({
   VITE_ENV: deployEnvironments,

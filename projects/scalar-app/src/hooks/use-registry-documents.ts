@@ -1,11 +1,6 @@
-import {
-  type QueryKey,
-  type UseQueryOptions,
-  useQuery,
-} from '@tanstack/vue-query'
-import { computed, watch } from 'vue'
-
 import { useToasts } from '@scalar/use-toasts'
+import { type QueryKey, type UseQueryOptions, useQuery } from '@tanstack/vue-query'
+import { computed, watch } from 'vue'
 
 import { queryClient } from '@/helpers/query-client'
 import { DEFAULT_REFETCH_INTERVAL, scalarClient } from '@/helpers/scalar-client'
@@ -16,9 +11,7 @@ import { useAuth } from '@/hooks/use-auth'
  *
  * @returns The query result extended with a `documents` computed ref (defaults to `[]`).
  */
-export const useRegistryDocuments = (
-  options?: Omit<UseQueryOptions, 'queryKey' | 'queryFn'>,
-) => {
+export const useRegistryDocuments = (options?: Omit<UseQueryOptions, 'queryKey' | 'queryFn'>) => {
   const { isLoggedIn } = useAuth()
   const queryKey = ['documents'] satisfies QueryKey
 

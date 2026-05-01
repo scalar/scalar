@@ -1,6 +1,5 @@
-import { assert, describe, expect, it } from 'vitest'
-
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { assert, describe, expect, it } from 'vitest'
 
 import { importDocumentToWorkspace } from './import-document-to-workspace'
 
@@ -36,9 +35,7 @@ describe('importDocumentToWorkspace', () => {
     assert(result.ok)
     expect(result.slug).toBe('imported-api')
     expect(workspaceStore.workspace.documents[result.slug]).toBeDefined()
-    expect(workspaceStore.workspace.documents[result.slug]?.info.title).toBe(
-      'Imported API',
-    )
+    expect(workspaceStore.workspace.documents[result.slug]?.info.title).toBe('Imported API')
   })
 
   it('returns error when workspace store is null', async () => {
@@ -221,9 +218,7 @@ describe('importDocumentToWorkspace', () => {
 
     assert(result.ok)
     expect(result.slug).toBe('custom-api-title')
-    expect(workspaceStore.workspace.documents[result.slug]?.info.title).toBe(
-      'Custom API Title',
-    )
+    expect(workspaceStore.workspace.documents[result.slug]?.info.title).toBe('Custom API Title')
   })
 
   it('generates incrementing slugs for multiple imports of same title', async () => {
@@ -464,10 +459,7 @@ describe('importDocumentToWorkspace', () => {
   it('returns error when slug generation fails', async () => {
     const workspaceStore = createWorkspaceStore()
 
-    const existingDocuments = Array.from(
-      { length: 101 },
-      (_, i) => `my-api${i === 0 ? '' : `-${i}`}`,
-    )
+    const existingDocuments = Array.from({ length: 101 }, (_, i) => `my-api${i === 0 ? '' : `-${i}`}`)
     for (const docName of existingDocuments) {
       await workspaceStore.addDocument({
         name: docName,
@@ -533,8 +525,6 @@ describe('importDocumentToWorkspace', () => {
     assert(result.ok)
     const importedDoc = workspaceStore.workspace.documents[result.slug]
     expect(importedDoc?.['x-scalar-navigation']).toBeDefined()
-    expect(importedDoc?.['x-scalar-navigation']?.name).toBe(
-      'api-with-navigation',
-    )
+    expect(importedDoc?.['x-scalar-navigation']?.name).toBe('api-with-navigation')
   })
 })
