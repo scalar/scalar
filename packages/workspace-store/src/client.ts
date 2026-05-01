@@ -1542,6 +1542,23 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           const mergedDocument = getNewActiveDocument()
           const newActiveDocument = coerceValue(OpenAPIDocumentSchemaStrict, mergedDocument)
 
+          // Detect whether the rebase folded in any local edits. When the
+          // merged result matches the upstream snapshot the pull was
+          // effectively a fast-forward (no unsaved local work to carry
+          // over), so the document is clean relative to the registry.
+          // When it differs we still hold unpushed changes locally - flag
+          // the document as dirty so the push flow can surface them, the
+          // same way `git pull --rebase` leaves you "ahead of origin"
+          // once your local commits get replayed on top.
+          //
+          // We compare the pre-coerce merged document against upstream
+          // because `coerceValue` normalises the merged result against
+          // the strict schema and that normalisation can introduce diffs
+          // even for pure fast-forwards. The merged document is what the
+          // two-way merge actually produced, so its byte-for-byte equality
+          // with upstream is the real fast-forward signal.
+          const hasLocalChangesAgainstUpstream = diff(newDocumentOrigin, mergedDocument).length > 0
+
           // The merged result becomes the new saved baseline so a subsequent
           // revert restores to the post-rebase state, not to the
           // pre-rebase original. Mirror the same content into the
@@ -1567,6 +1584,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               ...input.meta,
               // Preserve the registry meta
               'x-scalar-registry-meta': activeDocumentRaw['x-scalar-registry-meta'],
+              // Flag local edits that need pushing - see note above.
+              'x-scalar-is-dirty': hasLocalChangesAgainstUpstream,
             },
           })
         },

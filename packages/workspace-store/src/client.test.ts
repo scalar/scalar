@@ -3553,6 +3553,103 @@ describe('create-workspace-store', () => {
         ],
       })
     })
+
+    it('leaves the document clean after a fast-forward rebase with no local edits', async () => {
+      const documentName = 'default'
+      const store = createWorkspaceStore()
+      await store.addDocument({ name: documentName, document: getDocument() })
+      await store.saveDocument(documentName)
+
+      const upstream = {
+        ...getDocument(),
+        info: { title: 'Remote title', version: '1.0.0' },
+      }
+
+      const result = await store.rebaseDocument({ name: documentName, document: upstream })
+      assert(result.ok)
+      await result.applyChanges({ resolvedConflicts: [] })
+
+      // A pure fast-forward - the rebased document matches upstream
+      // exactly - must not flag the workspace as dirty, otherwise the
+      // push button would light up after every clean pull.
+      expect(store.workspace.activeDocument?.['x-scalar-is-dirty']).toBe(false)
+    })
+
+    it('marks the document dirty when the rebase folds local edits on top of upstream', async () => {
+      const documentName = 'default'
+      const store = createWorkspaceStore()
+      await store.addDocument({ name: documentName, document: getDocument() })
+      await store.saveDocument(documentName)
+
+      // Local edit on a field upstream does not touch - no conflict,
+      // but the merged result carries changes the registry has not seen.
+      store.workspace.activeDocument!.info.title = 'locally edited title'
+
+      const upstream = {
+        ...getDocument(),
+        info: { ...getDocument().info, description: 'description added upstream' },
+      }
+
+      const result = await store.rebaseDocument({ name: documentName, document: upstream })
+      assert(result.ok)
+      await result.applyChanges({ resolvedConflicts: [] })
+
+      // `git pull --rebase` leaves you "ahead of origin" after replaying
+      // local commits. We mirror that so the push flow can surface the
+      // unpushed local edits.
+      expect(store.workspace.activeDocument?.['x-scalar-is-dirty']).toBe(true)
+      expect(store.workspace.activeDocument?.info.title).toBe('locally edited title')
+      expect(store.workspace.activeDocument?.info.description).toBe('description added upstream')
+    })
+
+    it('marks the document dirty when a user-resolved document diverges from upstream', async () => {
+      const documentName = 'default'
+      const store = createWorkspaceStore()
+      await store.addDocument({ name: documentName, document: getDocument() })
+      await store.saveDocument(documentName)
+
+      store.workspace.activeDocument!.info.title = 'local title'
+
+      const upstream = {
+        ...getDocument(),
+        info: { title: 'Remote title', version: '1.0.0' },
+      }
+
+      const result = await store.rebaseDocument({ name: documentName, document: upstream })
+      assert(result.ok)
+
+      const userResolvedDocument = {
+        ...getDocument(),
+        info: { title: 'User-provided full document', version: '2.0.0' },
+      }
+
+      await result.applyChanges({ resolvedDocument: userResolvedDocument })
+
+      expect(store.workspace.activeDocument?.['x-scalar-is-dirty']).toBe(true)
+    })
+
+    it('leaves the document clean when a user-resolved document matches upstream exactly', async () => {
+      const documentName = 'default'
+      const store = createWorkspaceStore()
+      await store.addDocument({ name: documentName, document: getDocument() })
+      await store.saveDocument(documentName)
+
+      store.workspace.activeDocument!.info.title = 'local title'
+
+      const upstream = {
+        ...getDocument(),
+        info: { title: 'Remote title', version: '1.0.0' },
+      }
+
+      const result = await store.rebaseDocument({ name: documentName, document: upstream })
+      assert(result.ok)
+
+      // Resolving every conflict by taking upstream leaves no local
+      // divergence, so the push button must stay disabled.
+      await result.applyChanges({ resolvedDocument: upstream })
+
+      expect(store.workspace.activeDocument?.['x-scalar-is-dirty']).toBe(false)
+    })
   })
 
   describe('navigation generation', () => {

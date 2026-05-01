@@ -4,14 +4,12 @@
   for automatic updates when the source document changes.
 -->
 <script setup lang="ts">
-import { computed, onUnmounted, ref, watch } from 'vue'
-
 import {
-  type ModalState,
   ScalarButton,
   ScalarIcon,
-  type ScalarListboxOption,
   ScalarModal,
+  type ModalState,
+  type ScalarListboxOption,
   type WorkspaceGroup,
 } from '@scalar/components'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
@@ -19,6 +17,7 @@ import { isValidUrl } from '@scalar/helpers/url/is-valid-url'
 import { type LoaderPlugin } from '@scalar/json-magic/bundle'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
+import { computed, onUnmounted, ref, watch } from 'vue'
 
 import {
   type CreateWorkspacePayload,
@@ -189,7 +188,7 @@ const isDesktop = computed(() => window.electron === true)
           </div>
           <div
             v-if="importEventData?.type === 'url'"
-            class="w-full break-words text-center text-sm font-medium">
+            class="w-full text-center text-sm font-medium break-words">
             We couldn't find an OpenAPI document at the provided URL. Please
             download and import the
             <a
@@ -200,7 +199,7 @@ const isDesktop = computed(() => window.electron === true)
           </div>
           <div
             v-else
-            class="w-full break-words text-center text-sm font-medium">
+            class="w-full text-center text-sm font-medium break-words">
             We can't import this document because it's not a valid OpenAPI
             document.
           </div>
@@ -220,7 +219,7 @@ const isDesktop = computed(() => window.electron === true)
             {{ documentTitle }}
           </div>
 
-          <div class="text-c-1 text-balance text-center text-sm font-medium">
+          <div class="text-c-1 text-center text-sm font-medium text-balance">
             Import the OpenAPI document to instantly send API requests. No
             signup required.
           </div>
@@ -259,7 +258,7 @@ const isDesktop = computed(() => window.electron === true)
                     :disableToolTip="true" />
                 </div>
                 <div
-                  class="text-c-3 text-balance pt-0 text-center text-xs font-medium">
+                  class="text-c-3 pt-0 text-center text-xs font-medium text-balance">
                   Automatically update your API client when the OpenAPI document
                   content changes.
                 </div>
@@ -283,7 +282,7 @@ const isDesktop = computed(() => window.electron === true)
                 size="xl" />
             </a>
           </div>
-          <span class="text-c-2 text-sm font-medium leading-snug">
+          <span class="text-c-2 text-sm leading-snug font-medium">
             <a
               class="hover:text-c-1 mb-1 inline-block underline-offset-2"
               href="https://scalar.com/download"

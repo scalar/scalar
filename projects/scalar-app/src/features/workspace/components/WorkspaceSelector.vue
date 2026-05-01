@@ -11,8 +11,8 @@ import {
   ScalarDropdownDivider,
   ScalarDropdownItem,
   ScalarIcon,
-  type ScalarListboxOption,
   useModal,
+  type ScalarListboxOption,
   type WorkspaceGroup,
 } from '@scalar/components'
 

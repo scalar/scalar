@@ -277,4 +277,19 @@ export type RegistryAdapter = {
    * `CONFLICT` when the upstream hash has moved on.
    */
   publishVersion: PublishRegistryVersion
+  /**
+   * Forces the host application to refetch `documents` and resolves once
+   * the new listing is in hand.
+   *
+   * Used by the sync flow to invalidate the host's listing cache after a
+   * `CONFLICT` push: the rejection means the registry has a newer
+   * commit hash than our local listing knows about, so refreshing the
+   * listing lets `computeVersionStatus` notice the mismatch and flip the
+   * Pull button on naturally - without the hook having to track its own
+   * "needs pull" overlay state.
+   *
+   * Optional so existing adapters keep type-checking; the sync flow
+   * silently no-ops when it is missing.
+   */
+  refreshDocuments?: () => Promise<void>
 }

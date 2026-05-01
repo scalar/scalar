@@ -36,7 +36,7 @@ const emit = defineEmits<{
 
 <template>
   <label
-    class="text-c-2 flex select-none items-center gap-2 rounded p-3 py-1.5 text-sm"
+    class="text-c-2 flex items-center gap-2 rounded p-3 py-1.5 text-sm select-none"
     :class="disabled ? 'cursor-default' : 'cursor-pointer'"
     for="watch-toggle">
     <!-- Watch mode label with icon -->

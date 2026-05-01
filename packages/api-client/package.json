@@ -338,7 +338,7 @@
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/postman-to-openapi": "workspace:*",
-    "@scalar/sidebar": "workspace:*", 
+    "@scalar/sidebar": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/typebox": "^0.1.3",

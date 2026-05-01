@@ -42,7 +42,11 @@ const { getAppState, getCommandPaletteState, fileLoader } =
 const app = getAppState()
 const { toast } = useToasts()
 const { isLoggedIn, setTokens } = useAuth()
-const { documents, isLoading: isDocumentsLoading } = useRegistryDocuments()
+const {
+  documents,
+  isLoading: isDocumentsLoading,
+  refetch: refetchRegistryDocuments,
+} = useRegistryDocuments()
 const { namespaces, isLoading: isNamespacesLoading } = useRegistryNamespaces()
 
 /** Whether the app is running on electron */
@@ -158,12 +162,23 @@ const registryNamespaces = computed(() => {
  * - the adapter shape expects the raw loading-aware state, but we still
  * want the values to update as the underlying queries refetch.
  */
+/**
+ * Forces the registry-documents query to refetch and waits for the new
+ * listing. Used by the API client's sync flow after a `CONFLICT` push so
+ * the next `computeVersionStatus` pass sees the new upstream commit
+ * hash and flips the Pull button on naturally.
+ */
+const refreshRegistryDocuments = async (): Promise<void> => {
+  await refetchRegistryDocuments()
+}
+
 const registry = reactive({
   documents: registryDocuments,
   namespaces: registryNamespaces,
   fetchDocument: fetchRegistryDocument,
   publishDocument: publishRegistryDocument,
   publishVersion: publishRegistryVersion,
+  refreshDocuments: refreshRegistryDocuments,
 })
 </script>
 <template>

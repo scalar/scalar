@@ -264,15 +264,20 @@ export const useDocumentSync = ({
    * We only update when the listing actually advertised a hash and the
    * meta still has a concrete `version` to write into; otherwise we leave
    * the previous value alone so a missing hash does not erase one we
-   * already had. `saveDocument` then propagates the new hash into
-   * `originalDocuments` so the post-pull baseline records the same
-   * commit hash.
+   * already had.
+   *
+   * We deliberately do *not* call `saveDocument` here: `rebaseDocument`
+   * has already written the merged content to `originalDocuments` and
+   * decided whether the document should stay dirty (local edits folded on
+   * top of upstream) or clean (pure fast-forward). Calling `saveDocument`
+   * would clobber that dirty flag and make the push button disappear
+   * whenever a rebase replayed local commits.
    */
-  const stampPostPullCommitHash = async (params: {
+  const stampPostPullCommitHash = (params: {
     meta: PendingPullRegistryMeta
     slug: string
     incomingCommitHash: string | undefined
-  }): Promise<void> => {
+  }): void => {
     const { meta, slug, incomingCommitHash } = params
     const store = app.store.value
     if (!store) {
@@ -286,7 +291,6 @@ export const useDocumentSync = ({
       version: meta.version,
       commitHash: incomingCommitHash,
     })
-    await store.saveDocument(slug)
   }
 
   /**
@@ -350,7 +354,7 @@ export const useDocumentSync = ({
         // Already up to date payload-wise. Still refresh the commit hash
         // because the listing might advertise a re-encoded hash even when
         // the bytes are identical, so the sync indicator can clear.
-        await stampPostPullCommitHash({ meta, slug, incomingCommitHash })
+        stampPostPullCommitHash({ meta, slug, incomingCommitHash })
         // External consumers subscribe to this hook to react to any
         // rebase landing on the active document - including the no-op
         // case where local matched upstream - so we keep the emit on
@@ -394,7 +398,7 @@ export const useDocumentSync = ({
     // No conflicts: apply the auto-merged diffs directly.
     await result.applyChanges({ resolvedConflicts: [] })
 
-    await stampPostPullCommitHash({ meta, slug, incomingCommitHash })
+    stampPostPullCommitHash({ meta, slug, incomingCommitHash })
 
     // Public lifecycle hook for downstream consumers (analytics, custom
     // refresh logic, ...). Emitted after the rebase has been committed
@@ -425,7 +429,7 @@ export const useDocumentSync = ({
     }
 
     await pending.rebaseResult.applyChanges({ resolvedDocument })
-    await stampPostPullCommitHash({
+    stampPostPullCommitHash({
       meta: pending.meta,
       slug: pending.slug,
       incomingCommitHash: pending.incomingCommitHash,
@@ -517,10 +521,17 @@ export const useDocumentSync = ({
       document: documentBody as Record<string, unknown>,
     })
     if (!result.ok) {
-      // TODO: when `CONFLICT` lands here, automatically run the pull
-      // flow and rebase before retrying instead of just informing the
-      // user. Needs the 3-way merge editor for the conflict-resolution
-      // step.
+      // CONFLICT means our local commit hash is stale - somebody pushed
+      // in the meantime. Force a registry-listing refresh so the
+      // host's cache picks up the new upstream commit hash; once that
+      // lands `computeVersionStatus` will see `localHash !== registryHash`
+      // and naturally flip the Pull button on, no separate "needs pull"
+      // overlay required. The host adapter is free to skip the hook
+      // (it is optional), in which case the user falls back to waiting
+      // for the listing's normal refetch interval.
+      if (result.error === 'CONFLICT') {
+        await registry.refreshDocuments?.()
+      }
       toast(messageForPublishVersionError(result.error, result.message), 'error')
       return
     }
@@ -534,6 +545,15 @@ export const useDocumentSync = ({
     })
 
     await store.saveDocument(slug)
+
+    // Ask the host to refetch its registry listing so the cached
+    // registry commit hash catches up with the one we just wrote
+    // locally. Without this, `computeVersionStatus` compares our fresh
+    // `localHash` against the stale listing hash, concludes the hashes
+    // diverged, and re-enables the Pull button right after a successful
+    // push. Mirrors the CONFLICT branch above; the hook is optional so
+    // hosts that do not wire it up simply wait for the next poll.
+    await registry.refreshDocuments?.()
 
     toast('Pushed changes to the registry.', 'info')
   }

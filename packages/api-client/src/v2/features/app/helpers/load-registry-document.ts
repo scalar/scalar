@@ -74,7 +74,12 @@ export const loadRegistryDocument = async ({
         namespace,
         slug,
         version,
-        commitHash: versionSha,
+        // Only include `commitHash` when the registry actually advertised
+        // one. Writing `undefined` into the object would leave an explicit
+        // `commitHash: undefined` key on the persisted meta, which the
+        // downstream sync logic treats as "we already know the hash" and
+        // short-circuits the first commit-hash stamp after a pull.
+        ...(versionSha ? { commitHash: versionSha } : {}),
       },
     },
   })
