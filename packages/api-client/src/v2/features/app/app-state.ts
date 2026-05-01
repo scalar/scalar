@@ -5,6 +5,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { slugify } from '@scalar/helpers/string/slugify'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { migrateLocalStorageToIndexDb } from '@scalar/oas-utils/migrations'
+import type { Team } from '@scalar/sdk/models/components'
 import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
 import type { Theme } from '@scalar/themes'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
@@ -144,8 +145,6 @@ export type AppState = {
     exampleName: Ref<string | undefined>
     /** The slug of the selected team context (read-only; use setTeamSlug to change) */
     teamSlug: Readonly<Ref<string>>
-    /** Sets the current team context by team slug */
-    setTeamSlug: (value: string) => void
   }
   /** The currently active environment */
   environment: ComputedRef<XScalarEnvironment>
@@ -192,6 +191,7 @@ export const TEAM_WORKSPACES_ENABLED = false
 export const createAppState = async ({
   router,
   fileLoader,
+  currentTeam,
   fallbackThemeSlug = () => 'default',
   customThemes = () => [],
   telemetryDefault,
@@ -199,6 +199,8 @@ export const createAppState = async ({
 }: {
   router: Router
   fileLoader?: LoaderPlugin
+  /** The currently active team */
+  currentTeam?: ComputedRef<Team | undefined>
   customThemes?: MaybeRefOrGetter<Theme[]>
   fallbackThemeSlug?: MaybeRefOrGetter<string>
   telemetryDefault?: boolean
@@ -221,8 +223,8 @@ export const createAppState = async ({
   // ---------------------------------------------------------------------------
   // Active entities
   // ---------------------------------------------------------------------------
-  // Currently selected team context. Drives workspace filtering and team switching.
-  const teamSlug = ref<string>('local')
+  const teamSlug = computed(() => currentTeam?.value?.slug ?? 'local')
+
   // Team slug parsed from the current URL (the `@teamSlug` segment). Stays in sync with the route.
   const routeTeamSlug = ref<string | undefined>(undefined)
   const workspaceSlug = ref<string | undefined>(undefined)
@@ -615,28 +617,6 @@ export const createAppState = async ({
 
     // Must reset the sidebar state when the workspace changes
     sidebarState.reset()
-  }
-
-  /**
-   * Sets the current team context. If the active workspace is not accessible
-   * with the new team, navigates to the default workspace for that team.
-   */
-  const setTeamSlug = (value: string) => {
-    // Update the active team slug.
-    teamSlug.value = value
-
-    // Find the workspace that matches the current route.
-    const workspace = filteredWorkspaces.value.find(
-      (w) => w.teamSlug === routeTeamSlug.value && w.slug === workspaceSlug.value,
-    )
-
-    // Check if the new team slug is accessible to the current workspace.
-    if (workspace && canLoadWorkspace(workspace.teamSlug, value)) {
-      return
-    }
-
-    // When the user is on a workspace on another team or the workspace is not accessible, redirect to the default workspace.
-    return navigateToWorkspace('local', 'default')
   }
 
   // ---------------------------------------------------------------------------
@@ -1134,7 +1114,6 @@ export const createAppState = async ({
       method,
       exampleName,
       teamSlug: readonly(teamSlug),
-      setTeamSlug,
     },
     environment,
     document: activeDocument,
