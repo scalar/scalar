@@ -345,7 +345,6 @@ button.schema-card-title:hover {
 :deep(.schema-card-description) p {
   font-size: var(--scalar-small, var(--scalar-paragraph));
   color: var(--scalar-color-2);
-  line-height: 1.5;
   margin-bottom: 0;
   display: block;
   margin-bottom: 6px;
