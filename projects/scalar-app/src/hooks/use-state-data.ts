@@ -10,13 +10,14 @@ import { useAuth } from '@/hooks/use-auth'
 /**
  * A hook to manage the state for the createAppState function
  *
+ * @deprecated we can remove this once we move everything to this project
+ *
  * We cannot use useQuery here because this hook is called outside of a
  * component setup context.
  *
  * All SDK calls are routed through the shared queryClient so they populate
  * the cache. Other hooks that use the same query keys (e.g. useCurrentUser
  * uses ['me']) will read from cache and avoid duplicate network requests.
- *
  */
 export const useStateData = () => {
   const customThemes = ref<Theme[]>([])
