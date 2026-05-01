@@ -586,13 +586,14 @@ jobs:
           # The pull request title.
           title: 'chore: release'
           # The command to update version, edit CHANGELOG, read and delete changesets.
-          version: 'pnpm changeset version'
+          version: 'pnpm changeset version && pnpm script generate-release-changelog --package-dir projects/scalar-app --title "Scalar API Client" --allow-missing'
           # The commit message to use.
           commit: 'chore: version packages'
           # The command to use to build and publish packages
           publish: 'pnpm -r publish --access public --no-git-checks'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SCALAR_RELEASE_CHANGELOG_API_KEY: ${{ secrets.SCALAR_RELEASE_CHANGELOG_API_KEY }}
           # https://www.npmjs.com/settings/YOUR_ACCOUNT_HANDLE/tokens/granular-access-tokens/new
           # Custom Expiration: 01-01-2100
           # Permissions: Read and Write

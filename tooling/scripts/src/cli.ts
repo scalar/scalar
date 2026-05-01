@@ -3,6 +3,7 @@ import { Command } from 'commander'
 import { cat } from '@/commands/cat'
 import { generateBlog } from '@/commands/generate-blog'
 import { generateReadme } from '@/commands/generate-readme'
+import { generateReleaseChangelog } from '@/commands/generate-release-changelog'
 import { packages } from '@/commands/packages'
 import { updatePlaywrightDocker } from '@/commands/playwright-docker/push-container'
 import { run } from '@/commands/run'
@@ -26,4 +27,5 @@ program.addCommand(run)
 program.addCommand(updatePlaywrightDocker)
 program.addCommand(generateReadme)
 program.addCommand(generateBlog)
+program.addCommand(generateReleaseChangelog)
 program.parse()
