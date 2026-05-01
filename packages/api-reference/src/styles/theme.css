@@ -1,4 +1,3 @@
-
 /* References Tailwind Theme Extensions */
 @theme inline {
   /*
@@ -7,15 +6,15 @@
    */
 
   /* The header height */
-  --spacing-header: var(--refs-header-height);
+  --spacing-refs-header: var(--refs-header-height);
   /* The offset of visible references content (minus headers) */
-  --spacing-viewport-offset: var(--refs-viewport-offset);
+  --spacing-refs-vp-offset: var(--refs-viewport-offset);
   /* The calculated height of visible references content (minus headers) */
-  --spacing-viewport-height: var(--refs-viewport-height);
+  --spacing-refs-vp-height: var(--refs-viewport-height);
   /* The width of the sidebar */
-  --spacing-w-sidebar: var(--refs-sidebar-width);
+  --spacing-refs-w-sidebar: var(--refs-sidebar-width);
   /* The height of the sidebar */
-  --spacing-h-sidebar: var(--refs-sidebar-height);
+  --spacing-refs-h-sidebar: var(--refs-sidebar-height);
   /* The maximum width of the content column */
-  --spacing-content-max-width: var(--refs-content-max-width);
+  --spacing-refs-content-max-width: var(--refs-content-max-width);
 }
