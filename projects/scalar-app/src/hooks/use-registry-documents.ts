@@ -21,7 +21,7 @@ export const useRegistryDocuments = (options?: Omit<UseQueryOptions, 'queryKey' 
   const query = useQuery(
     {
       queryKey,
-      queryFn: () => scalarClient.registry.listAllApiDocuments(),
+      queryFn: () => scalarClient.registry.listAllApiDocuments().then((response) => response.apiDocuments ?? []),
       enabled: isLoggedIn,
       refetchOnMount: true,
       refetchInterval: DEFAULT_REFETCH_INTERVAL,

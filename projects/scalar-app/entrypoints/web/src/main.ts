@@ -1,8 +1,8 @@
 import '@/style.css'
 import '@scalar/api-client/style.css'
 
+import { useCommandPaletteState } from '@scalar/api-client/v2/features/app'
 import { appState } from '@web/app-state'
-import { commandPaletteState } from '@web/features/command-palette'
 import { router } from '@web/router'
 import { initializeWebsiteTrackers } from '@web/tracking'
 import { load, trackEvent } from 'fathom-client'
@@ -32,7 +32,7 @@ if (!el) {
 
   const app = createApp(App, {
     getAppState: () => appState,
-    getCommandPaletteState: () => commandPaletteState,
+    getCommandPaletteState: () => useCommandPaletteState(),
   } satisfies AppProps)
 
   app.use(router)

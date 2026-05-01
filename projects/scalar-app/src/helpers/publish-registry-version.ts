@@ -12,7 +12,13 @@ type PublishRegistryVersion = RegistryAdapter['publishVersion']
  * not validated locally - the registry will reject the call with a 409
  * when the upstream hash has moved on.
  */
-export const publishRegistryVersion: PublishRegistryVersion = async ({ namespace, slug, version, document }) => {
+export const publishRegistryVersion: PublishRegistryVersion = async ({
+  namespace,
+  slug,
+  version,
+  document,
+  commitHash,
+}) => {
   try {
     const result = await scalarClient.registry.createApiDocumentVersion({
       namespace,
@@ -20,12 +26,14 @@ export const publishRegistryVersion: PublishRegistryVersion = async ({ namespace
       requestBody: {
         version,
         document: JSON.stringify(document),
+        force: true,
+        lastKnownVersionSha: commitHash,
       },
     })
 
     return {
       ok: true,
-      data: { namespace, slug, version, commitHash: result.versionSha ?? '' },
+      data: { namespace, slug, version, commitHash: result.managedDocVersion?.versionSha ?? '' },
     }
   } catch (error) {
     return mapPublishVersionError(error)

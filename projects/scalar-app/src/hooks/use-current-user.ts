@@ -21,7 +21,7 @@ export const useCurrentUser = (options?: Omit<UseQueryOptions, 'queryKey' | 'que
   const query = useQuery(
     {
       queryKey,
-      queryFn: () => scalarClient.authentication.getCurrentUser(),
+      queryFn: () => scalarClient.authentication.getCurrentUser().then((response) => response.user ?? null),
       enabled: isLoggedIn,
       refetchOnMount: true,
       refetchInterval: DEFAULT_REFETCH_INTERVAL,

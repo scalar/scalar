@@ -15,19 +15,29 @@ type ImportDocumentFromRegistry = RegistryAdapter['fetchDocument']
  */
 export const fetchRegistryDocument: ImportDocumentFromRegistry = async ({ namespace, slug, version = 'latest' }) => {
   try {
-    const documentString = await scalarClient.registry.getApiDocumentVersion({
+    const response = await scalarClient.registry.getApiDocumentVersion({
       namespace,
       slug,
       semver: version,
     })
+
+    const documentString = response.res
+    if (typeof documentString !== 'string') {
+      return { ok: false, error: 'UNKNOWN', message: 'Registry returned an empty document body' }
+    }
 
     const document = JSON.parse(documentString)
     if (!document || !isObject(document)) {
       return { ok: false, error: 'UNKNOWN', message: 'Cannot parse document from registry' }
     }
 
-    // TODO: use the actual version hash here once the sdk is updated
-    return { ok: true, data: { document, versionSha: 'some-version-sha' } }
+    // The registry advertises the version hash as a response header
+    // rather than baking it into the document body, so the sync flow
+    // can treat it as an optimistic-concurrency token without parsing
+    // the OpenAPI document itself.
+    const versionSha = response.httpMeta.response.headers.get('x-scalar-version-sha') ?? undefined
+
+    return { ok: true, data: { document, versionSha } }
   } catch (error) {
     return mapFetchRegistryDocumentError(error)
   }

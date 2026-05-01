@@ -7,7 +7,6 @@ import {
 import { ScalarIconArrowSquareIn } from '@scalar/icons'
 import { computed, watch } from 'vue'
 
-import { importRegistryAction } from '@/features/command-palette/registry-docs'
 import { useAuth } from '@/hooks/use-auth'
 
 import CommandPaletteImport from './components/CommandPaletteImport.vue'
@@ -30,10 +29,6 @@ const actions = computed(() => {
     importSourceAction,
     ...baseClientActions.splice(1),
   ]
-  // If the user is logged in, add the import registry action
-  if (isLoggedIn.value) {
-    base.splice(1, 0, importRegistryAction)
-  }
 
   return base
 })

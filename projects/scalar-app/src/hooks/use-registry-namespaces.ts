@@ -25,7 +25,7 @@ export const useRegistryNamespaces = (options?: Omit<UseQueryOptions, 'queryKey'
   const query = useQuery(
     {
       queryKey,
-      queryFn: () => scalarClient.namespaces.listNamespaces(),
+      queryFn: () => scalarClient.namespaces.listNamespaces().then((response) => response.strings ?? []),
       enabled: isLoggedIn,
       refetchOnMount: true,
       refetchInterval: DEFAULT_REFETCH_INTERVAL,

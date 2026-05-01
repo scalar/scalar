@@ -301,10 +301,6 @@ const handleVersionSelect = async (option: VersionOption | undefined) => {
       namespace: registry.namespace,
       slug: registry.slug,
       version: version.version,
-      // Forward the registry-advertised hash from the picker row. Storing it
-      // on the document lets us later detect when the registry has moved on
-      // and surface upstream changes.
-      commitHash: version.registryCommitHash,
     }),
   )
 

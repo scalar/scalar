@@ -26,7 +26,7 @@ export const useCurrentTeam = (options?: Omit<UseQueryOptions, 'queryKey' | 'que
   const query = useQuery(
     {
       queryKey,
-      queryFn: () => scalarClient.teams.listTeams(),
+      queryFn: () => scalarClient.teams.listTeams().then((response) => response.teams ?? []),
       enabled: isLoggedIn,
       refetchOnMount: true,
       refetchInterval: DEFAULT_REFETCH_INTERVAL,

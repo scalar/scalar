@@ -33,6 +33,7 @@ import {
   readonly,
   ref,
   shallowRef,
+  toValue,
   watch,
 } from 'vue'
 import type { RouteLocationNormalizedGeneric, RouteLocationRaw, Router } from 'vue-router'
@@ -189,7 +190,7 @@ const DEFAULT_TEAM_WORKSPACE_NAME = 'Workspace'
  * workspaces. Existing team workspaces remain in storage and can be restored
  * by flipping this flag back to `true`.
  */
-export const TEAM_WORKSPACES_ENABLED = true
+export const TEAM_WORKSPACES_ENABLED = false
 
 // ---------------------------------------------------------------------------
 // App State
@@ -229,8 +230,7 @@ export const createAppState = async ({
   // ---------------------------------------------------------------------------
   // Active entities
   // ---------------------------------------------------------------------------
-  // @ts-expect-error - this will come with the sdk update
-  const teamSlug = computed(() => currentTeam?.value?.slug ?? 'local')
+  const teamSlug = computed(() => toValue(currentTeam)?.slug ?? 'local')
 
   // Team slug parsed from the current URL (the `@teamSlug` segment). Stays in sync with the route.
   const routeTeamSlug = ref<string | undefined>(undefined)

@@ -374,9 +374,11 @@ describe('DocumentBreadcrumb', () => {
     const fetchRegistryDocument = vi.fn().mockResolvedValue({
       ok: true,
       data: {
-        openapi: '3.1.0',
-        info: { title: 'Pets v2', version: '2.0.0' },
-        paths: {},
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Pets v2', version: '2.0.0' },
+          paths: {},
+        },
       },
     })
 
@@ -561,7 +563,7 @@ describe('DocumentBreadcrumb', () => {
 
     const fetchRegistryDocument = vi.fn().mockResolvedValue({
       ok: true,
-      data: { info: { title: 'Pets v1 Remote', version: '1.0.0' } },
+      data: { document: { info: { title: 'Pets v1 Remote', version: '1.0.0' } } },
     })
 
     mount(DocumentBreadcrumb, {

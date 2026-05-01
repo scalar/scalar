@@ -25,12 +25,15 @@ type CheckVersionConflictResult =
  *  - the original document (last-known remote, kept in
  *    `workspaceStore.getOriginalDocument`),
  *  - the editable workspace document (with the user's local edits),
- *  - the freshly-fetched remote document advertised at `registryCommitHash`.
+ *  - the freshly-fetched remote document.
  *
- * The result is cached on the document under
- * `x-scalar-registry-meta.{conflictCheckedAgainstHash, hasConflict}` so
- * subsequent renders can short-circuit. The cache is only valid while
- * `conflictCheckedAgainstHash === registryCommitHash`.
+ * `registryCommitHash` is the hash advertised by the registry version
+ * listing and acts as the pre-fetch cache key: when it matches the
+ * previously stored `conflictCheckedAgainstHash`, we return the cached
+ * result without touching the network. After a fresh fetch, the cache
+ * is rewritten with the authoritative `versionSha` returned alongside
+ * the document body so subsequent comparisons settle on the hash the
+ * registry actually served.
  *
  * Writing to `x-scalar-registry-meta` does not flip the document's
  * `x-scalar-is-dirty` flag (the workspace store excludes registry meta from
@@ -90,7 +93,7 @@ export const checkVersionConflict = async ({
   const hasConflict = detectDocumentConflicts({
     original: original as Record<string, unknown>,
     local: document as unknown as Record<string, unknown>,
-    remote: result.data,
+    remote: result.data.document,
   })
 
   // Persist the cache on the document. The workspace store's dirty tracker
@@ -101,7 +104,7 @@ export const checkVersionConflict = async ({
     namespace,
     slug,
     version,
-    conflictCheckedAgainstHash: registryCommitHash,
+    conflictCheckedAgainstHash: result.data.versionSha,
     hasConflict,
   }
   document['x-scalar-registry-meta'] = next

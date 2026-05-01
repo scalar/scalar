@@ -169,10 +169,6 @@ const handleDocumentClick = async (item: SidebarDocumentItem) => {
       namespace: registry.namespace,
       slug: registry.slug,
       version: targetVersion?.version,
-      // Forward the registry-advertised hash from the version row. Storing it
-      // on the imported document lets us later detect when the registry has
-      // moved on and surface upstream changes.
-      commitHash: targetVersion?.registryCommitHash,
     }),
   )
 

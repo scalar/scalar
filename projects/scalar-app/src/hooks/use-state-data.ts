@@ -41,7 +41,7 @@ export const useStateData = () => {
       queryClient
         .fetchQuery({
           queryKey: ['themes'],
-          queryFn: () => scalarClient.themes.listThemes(),
+          queryFn: () => scalarClient.themes.listThemes().then((response) => response.themes ?? []),
           staleTime: DEFAULT_REFETCH_INTERVAL,
         })
         .then((themes) => {
@@ -49,7 +49,7 @@ export const useStateData = () => {
             themes.map((t) =>
               queryClient.fetchQuery({
                 queryKey: ['themes', t.slug],
-                queryFn: () => scalarClient.themes.getTheme({ slug: t.slug }),
+                queryFn: () => scalarClient.themes.getTheme({ slug: t.slug }).then((response) => response.res ?? ''),
                 staleTime: DEFAULT_REFETCH_INTERVAL,
               }),
             ),
@@ -69,18 +69,18 @@ export const useStateData = () => {
       Promise.all([
         queryClient.fetchQuery({
           queryKey: ['me'],
-          queryFn: () => scalarClient.authentication.getCurrentUser(),
+          queryFn: () => scalarClient.authentication.getCurrentUser().then((response) => response.user ?? null),
           staleTime: DEFAULT_REFETCH_INTERVAL,
         }),
         queryClient.fetchQuery({
           queryKey: ['teams'],
-          queryFn: () => scalarClient.teams.listTeams(),
+          queryFn: () => scalarClient.teams.listTeams().then((response) => response.teams ?? []),
           staleTime: DEFAULT_REFETCH_INTERVAL,
         }),
       ])
         .then(([user, teams]) => {
-          currentTeam.value = teams.find((t) => t.uid === user.activeTeamId) ?? undefined
-          fallbackThemeSlug.value = user.theme || 'default'
+          currentTeam.value = teams.find((t) => t.uid === user?.activeTeamId) ?? undefined
+          fallbackThemeSlug.value = user?.theme || 'default'
         })
         .catch(() => toast('Failed to load user data', 'error'))
     },

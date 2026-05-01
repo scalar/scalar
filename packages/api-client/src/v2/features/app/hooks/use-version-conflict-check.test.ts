@@ -66,7 +66,7 @@ describe('useVersionConflictCheck', () => {
         },
       },
     })
-    const fetcher: ImportDocumentFromRegistry = vi.fn(async () => ({ ok: true, data: {} }) as never)
+    const fetcher: ImportDocumentFromRegistry = vi.fn(async () => ({ ok: true, data: { document: {} } }) as never)
 
     useVersionConflictCheck({
       store: () => store,
@@ -97,7 +97,7 @@ describe('useVersionConflictCheck', () => {
         },
       },
     })
-    const fetcher: ImportDocumentFromRegistry = vi.fn(async () => ({ ok: true, data: {} }) as never)
+    const fetcher: ImportDocumentFromRegistry = vi.fn(async () => ({ ok: true, data: { document: {} } }) as never)
 
     useVersionConflictCheck({
       store: () => store,
@@ -168,7 +168,7 @@ describe('useVersionConflictCheck', () => {
         },
       },
     })
-    const fetcher: ImportDocumentFromRegistry = vi.fn(async () => ({ ok: true, data: {} }) as never)
+    const fetcher: ImportDocumentFromRegistry = vi.fn(async () => ({ ok: true, data: { document: {} } }) as never)
     const versions = ref<SidebarDocumentVersion[]>([createVersion()])
 
     useVersionConflictCheck({
@@ -200,7 +200,7 @@ describe('useVersionConflictCheck', () => {
         },
       },
     })
-    const fetcher: ImportDocumentFromRegistry = vi.fn(async () => ({ ok: true, data: {} }) as never)
+    const fetcher: ImportDocumentFromRegistry = vi.fn(async () => ({ ok: true, data: { document: {} } }) as never)
     const versions = ref<SidebarDocumentVersion[]>([createVersion({ registryCommitHash: 'remote-1' })])
 
     useVersionConflictCheck({
@@ -239,11 +239,11 @@ describe('useVersionConflictCheck', () => {
     // Hand out manually-resolvable promises so the test can finish them in
     // reverse order. Each resolution also writes `conflictCheckedAgainstHash`
     // on the document, mirroring what the real helper does on its way out.
-    const pendingResolvers: Array<(value: { ok: true; data: Record<string, unknown> }) => void> = []
+    const pendingResolvers: Array<(value: { ok: true; data: { document: Record<string, unknown> } }) => void> = []
     const fetcher: ImportDocumentFromRegistry = vi.fn(
       () =>
         new Promise((resolve) => {
-          pendingResolvers.push(resolve as (value: { ok: true; data: Record<string, unknown> }) => void)
+          pendingResolvers.push(resolve as (value: { ok: true; data: { document: Record<string, unknown> } }) => void)
         }) as never,
     )
 
@@ -271,7 +271,7 @@ describe('useVersionConflictCheck', () => {
       conflictCheckedAgainstHash: 'remote-2',
       hasConflict: false,
     }
-    pendingResolvers[1]?.({ ok: true, data: {} })
+    pendingResolvers[1]?.({ ok: true, data: { document: {} } })
     await nextTick()
 
     // Now resolve the older call last — its stale write overwrites the
@@ -282,7 +282,7 @@ describe('useVersionConflictCheck', () => {
       conflictCheckedAgainstHash: 'remote-1',
       hasConflict: false,
     }
-    pendingResolvers[0]?.({ ok: true, data: {} })
+    pendingResolvers[0]?.({ ok: true, data: { document: {} } })
     await nextTick()
 
     // Force another watcher tick with a freshly-built version object that

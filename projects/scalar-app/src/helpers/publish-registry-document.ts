@@ -36,7 +36,7 @@ export const publishRegistryDocument: PublishRegistryDocument = async ({ namespa
 
     return {
       ok: true,
-      data: { namespace, slug, version, commitHash: result.versionSha },
+      data: { namespace, slug, version, commitHash: result.object?.versionSha },
     }
   } catch (error) {
     return mapPublishDocumentError(error)

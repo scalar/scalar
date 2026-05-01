@@ -13,7 +13,6 @@ export const loadRegistryDocument = async ({
   namespace,
   slug,
   version = 'latest',
-  commitHash,
 }: {
   workspaceStore: WorkspaceStore
   fetcher: ImportDocumentFromRegistry
@@ -25,15 +24,6 @@ export const loadRegistryDocument = async ({
    * not have a concrete version pinned for the document yet.
    */
   version?: string
-  /**
-   * Commit hash the registry currently advertises for `version`. Callers
-   * already know this from the version listing (sidebar row, breadcrumb
-   * picker, etc.) so we accept it directly rather than parsing it back
-   * out of the fetched document. When provided it is persisted on
-   * `x-scalar-registry-meta.commitHash` so subsequent refreshes can
-   * detect drift and surface upstream changes.
-   */
-  commitHash?: string
 }): Promise<LoadRegistryDocumentResult> => {
   const documents = workspaceStore.workspace.documents
 
@@ -58,9 +48,11 @@ export const loadRegistryDocument = async ({
     }
   }
 
+  const { document, versionSha } = result.data
+
   // Parse the document data into a schema
   const schema = object({ info: object({ title: string() }) })
-  const baseName = coerce(schema, result.data).info.title
+  const baseName = coerce(schema, document).info.title
 
   // Compose the workspace key as `slug(title)-slug(version)`
   // so the url will be like /workspace/acme/pets-api-1.0.0
@@ -74,21 +66,19 @@ export const loadRegistryDocument = async ({
     }
   }
 
-  // Add the document to the workspace store. The registry meta records the
-  // exact `version` we requested so subsequent lookups can match the local
-  // document back to the version row in the sidebar. We also persist the
-  // registry's commit hash (when the caller passed one) so later
-  // refreshes can detect when the registry has moved on and surface
-  // upstream changes to the user.
   await workspaceStore.addDocument({
     name: documentName,
-    document: result.data,
+    document,
     meta: {
       'x-scalar-registry-meta': {
         namespace,
         slug,
         version,
-        ...(commitHash ? { commitHash } : {}),
+        // Only persist the commit hash when the registry actually advertised
+        // one. Leaving the key out keeps the meta clean for the
+        // `commitHash === undefined` downstream checks (treated as "we never
+        // saw a hash") rather than pinning it to a literal undefined value.
+        ...(versionSha ? { commitHash: versionSha } : {}),
       },
     },
   })

@@ -30,12 +30,16 @@ const createWorkspaceStore = (documents: Record<string, FakeDocument> = {}) => {
 }
 
 describe('loadRegistryDocument', () => {
-  it('persists the commit hash forwarded by the caller on the document meta', async () => {
+  it('persists the commit hash advertised on the fetched document', async () => {
     const { store, addDocument } = createWorkspaceStore()
 
+    // The registry surfaces the version hash alongside the document body
+    // (read from the `x-scalar-version-sha` response header by the
+    // adapter), so the loader picks it up directly from `result.data`
+    // rather than asking the caller to thread it through.
     const fetcher: ImportDocumentFromRegistry = vi.fn().mockResolvedValue({
       ok: true,
-      data: { info: { title: 'Pets API' } },
+      data: { document: { info: { title: 'Pets API' } }, versionSha: 'abc123' },
     })
 
     const result = await loadRegistryDocument({
@@ -44,9 +48,6 @@ describe('loadRegistryDocument', () => {
       namespace: 'acme',
       slug: 'pets',
       version: '1.0.0',
-      // Callers (sidebar, version picker, etc.) already know the hash from
-      // the registry listing they rendered, so they pass it in directly.
-      commitHash: 'abc123',
     })
 
     expect(result.ok).toBe(true)
@@ -65,12 +66,12 @@ describe('loadRegistryDocument', () => {
     })
   })
 
-  it('omits commitHash from the meta when the caller does not pass one', async () => {
+  it('leaves commitHash undefined on the meta when the registry does not advertise one', async () => {
     const { store, addDocument } = createWorkspaceStore()
 
     const fetcher: ImportDocumentFromRegistry = vi.fn().mockResolvedValue({
       ok: true,
-      data: { info: { title: 'Pets API' } },
+      data: { document: { info: { title: 'Pets API' } } },
     })
 
     await loadRegistryDocument({
@@ -128,7 +129,7 @@ describe('loadRegistryDocument', () => {
 
     const fetcher: ImportDocumentFromRegistry = vi.fn().mockResolvedValue({
       ok: true,
-      data: { info: { title: 'Pets API' } },
+      data: { document: { info: { title: 'Pets API' } } },
     })
 
     const result = await loadRegistryDocument({
@@ -150,7 +151,7 @@ describe('loadRegistryDocument', () => {
       ok: true,
       // Empty title means the workspace key falls back to the registry
       // slug (`pets`) before getting suffixed with the version.
-      data: { info: { title: '   ' } },
+      data: { document: { info: { title: '   ' } } },
     })
 
     const result = await loadRegistryDocument({
@@ -181,7 +182,7 @@ describe('loadRegistryDocument', () => {
 
     const fetcher: ImportDocumentFromRegistry = vi.fn().mockResolvedValue({
       ok: true,
-      data: { info: { title: 'Pets API' } },
+      data: { document: { info: { title: 'Pets API' } } },
     })
 
     const result = await loadRegistryDocument({

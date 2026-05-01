@@ -127,9 +127,9 @@ const registryDocuments = computed(() => {
       namespace,
       slug,
       title: title ?? 'Default Title',
-      versions: versions.map(({ version, jsonSha }) => ({
+      versions: versions.map(({ version, versionSha }) => ({
         version,
-        commitHash: jsonSha,
+        commitHash: versionSha,
       })),
     }),
   )

@@ -53,7 +53,7 @@
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/postman-to-openapi": "workspace:*",
     "@scalar/pre-post-request-scripts": "workspace:*",
-    "@scalar/sdk": "0.1.4",
+    "@scalar/sdk": "catalog:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
     "@scalar/use-toasts": "workspace:*",

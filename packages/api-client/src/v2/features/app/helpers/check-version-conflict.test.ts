@@ -81,9 +81,12 @@ describe('checkVersionConflict', () => {
       documents,
       originals: { pets: { info: { title: 'Pets', version: '1.0.0' } } },
     })
+    // The fetcher returns its own authoritative `versionSha` (from the
+    // `x-scalar-version-sha` response header), which the cache write
+    // pins to instead of the listing hash the caller passed in.
     const fetcher: ImportDocumentFromRegistry = vi.fn().mockResolvedValue({
       ok: true,
-      data: { info: { title: 'Pets', version: '1.1.0' } },
+      data: { document: { info: { title: 'Pets', version: '1.1.0' } }, versionSha: 'remote-fetched' },
     })
 
     const result = await checkVersionConflict({
@@ -103,7 +106,7 @@ describe('checkVersionConflict', () => {
       slug: 'pets',
       version: '1.0.0',
       commitHash: 'local',
-      conflictCheckedAgainstHash: 'remote-2',
+      conflictCheckedAgainstHash: 'remote-fetched',
       hasConflict: false,
     })
   })
@@ -125,7 +128,7 @@ describe('checkVersionConflict', () => {
     })
     const fetcher: ImportDocumentFromRegistry = vi.fn().mockResolvedValue({
       ok: true,
-      data: { info: { title: 'Remote Title', version: '1.0.0' } },
+      data: { document: { info: { title: 'Remote Title', version: '1.0.0' } }, versionSha: 'remote-fetched' },
     })
 
     const result = await checkVersionConflict({
@@ -140,7 +143,10 @@ describe('checkVersionConflict', () => {
 
     expect(result).toEqual({ ok: true, hasConflict: true, fromCache: false })
     expect(documents.pets?.['x-scalar-registry-meta']?.hasConflict).toBe(true)
-    expect(documents.pets?.['x-scalar-registry-meta']?.conflictCheckedAgainstHash).toBe('remote-2')
+    // Cache is keyed on the fetcher's authoritative `versionSha`, not the
+    // listing hash the caller supplied — so future renders comparing against
+    // a stale listing hash will refetch instead of trusting a stale cache.
+    expect(documents.pets?.['x-scalar-registry-meta']?.conflictCheckedAgainstHash).toBe('remote-fetched')
   })
 
   it('returns an error when the document is not loaded', async () => {

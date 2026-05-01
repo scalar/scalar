@@ -1,13 +1,26 @@
+import type { Team } from '@scalar/sdk/models/components'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { nextTick, ref } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import 'fake-indexeddb/auto'
 
 import { createAppState } from './app-state'
 import { ROUTES } from './helpers/routes'
+
+/**
+ * Builds a `currentTeam` ref suitable for `createAppState`. The app
+ * derives `activeEntities.teamSlug` from this, so passing a team here
+ * is the test-time replacement for the previous `setTeamSlug` setter.
+ */
+const teamWithSlug = (slug: string): Team => ({
+  uid: `team-${slug}`,
+  name: slug,
+  slug,
+  theme: 'default',
+})
 
 const persistWorkspace = async ({
   teamSlug = 'local',
@@ -113,10 +126,9 @@ describe('app-state', () => {
     await persistWorkspace({ teamSlug: 'acme', slug: 'first-team-workspace', name: 'First' })
 
     const router = setupRouter()
-    const appState = await createAppState({ router })
-
-    // Activate the team context so the route guard does not redirect away.
-    appState.activeEntities.setTeamSlug('acme')
+    // Activate the team context up front so the route guard does not redirect
+    // away. `currentTeam` is the public knob the app derives `teamSlug` from.
+    const appState = await createAppState({ router, currentTeam: ref(teamWithSlug('acme')) })
 
     const result = await appState.workspace.create({
       teamSlug: 'acme',
@@ -164,9 +176,9 @@ describe('app-state', () => {
 
   it('hides the team workspaces section in the picker for non-local teams', async () => {
     const router = setupRouter()
-    const appState = await createAppState({ router })
-    // Use a team slug that no other test has persisted a workspace under.
-    appState.activeEntities.setTeamSlug('placeholder-team')
+    // Use a team slug that no other test has persisted a workspace under so
+    // the placeholder section has no real team workspaces to render.
+    const appState = await createAppState({ router, currentTeam: ref(teamWithSlug('placeholder-team')) })
 
     const groups = appState.workspace.workspaceGroups.value
     const teamGroup = groups.find((g) => g.label === 'Team Workspaces')
@@ -177,9 +189,8 @@ describe('app-state', () => {
 
   it('redirects to the local default workspace when navigating to a team workspace URL', async () => {
     const router = setupRouter()
-    const appState = await createAppState({ router })
     // Use a fresh team slug so this run starts without any persisted workspace.
-    appState.activeEntities.setTeamSlug('autocreate-team')
+    const appState = await createAppState({ router, currentTeam: ref(teamWithSlug('autocreate-team')) })
 
     expect(appState.workspace.workspaceList.value.some((w) => w.teamSlug === 'autocreate-team')).toBe(false)
 
