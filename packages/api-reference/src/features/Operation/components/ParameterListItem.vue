@@ -273,7 +273,6 @@ const shouldCollapse = computed<boolean>(() =>
   margin-top: 4px;
   font-size: var(--scalar-small);
   color: var(--scalar-color-2);
-  line-height: 1.4;
 }
 
 .parameter-schema {
