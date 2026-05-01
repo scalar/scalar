@@ -16,6 +16,7 @@ import {
   isObjectLiteralExpression,
   isPrefixUnaryExpression,
   isPropertyAssignment,
+  isShorthandPropertyAssignment,
   isStringLiteral,
   isVariableDeclaration,
 } from 'typescript'
@@ -120,6 +121,15 @@ export const getSchemaFromNode = (node: Node, typeChecker: TypeChecker): OpenAPI
     return {
       type: 'object',
       properties: node.properties.reduce((prev, property) => {
+        if (isShorthandPropertyAssignment(property)) {
+          const key = String(property.name.escapedText)
+
+          return {
+            ...prev,
+            [key]: getSchemaFromNode(property.name, typeChecker),
+          }
+        }
+
         const key = property.name && isIdentifier(property.name) ? (property.name.escapedText ?? 'unkown') : 'unknown'
         return {
           ...prev,

@@ -1,6 +1,7 @@
 import type { OpenAPIV3_1 } from 'openapi-types'
 import {
   type Program,
+  type PropertyName,
   SyntaxKind,
   type TypeNode,
   isArrayTypeNode,
@@ -20,6 +21,14 @@ import {
 } from 'typescript'
 
 import type { FileNameResolver, Literals } from './types'
+
+const getPropertyName = (name: PropertyName): string | undefined => {
+  if (isIdentifier(name) || isStringLiteral(name) || isNumericLiteral(name)) {
+    return name.text
+  }
+
+  return undefined
+}
 
 /**
  * Traverse type nodes to create schemas
@@ -132,11 +141,17 @@ export const getSchemaFromTypeNode = (
       type: 'object',
       properties: typeNode.members.reduce((prev, member) => {
         // Regular properties
-        if (isPropertySignature(member) && member.type && isIdentifier(member.name)) {
+        if (isPropertySignature(member) && member.type) {
+          const name = getPropertyName(member.name)
+
+          if (!name) {
+            return prev
+          }
+
           // console.log(typeNode)
           return {
             ...prev,
-            [member.name?.escapedText ?? 'unkownKey']: getSchemaFromTypeNode(member.type, program, fileNameResolver),
+            [name]: getSchemaFromTypeNode(member.type, program, fileNameResolver),
           }
         }
         // Index Signatures
