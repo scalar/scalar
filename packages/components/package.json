@@ -51,6 +51,7 @@
   "dependencies": {
     "@floating-ui/utils": "catalog:*",
     "@floating-ui/vue": "catalog:*",
+    "@headlessui/tailwindcss": "catalog:*",
     "@headlessui/vue": "catalog:*",
     "@scalar/code-highlight": "workspace:*",
     "@scalar/helpers": "workspace:*",
@@ -65,7 +66,6 @@
     "vue-component-type-helpers": "^3.2.6"
   },
   "devDependencies": {
-    "@headlessui/tailwindcss": "catalog:*",
     "@playwright/test": "catalog:*",
     "@storybook/addon-docs": "10.3.5",
     "@storybook/addon-links": "10.3.5",

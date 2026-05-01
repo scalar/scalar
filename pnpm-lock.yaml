@@ -1660,6 +1660,9 @@ importers:
       '@floating-ui/vue':
         specifier: catalog:*
         version: 1.1.9(vue@3.5.30(typescript@5.9.3))
+      '@headlessui/tailwindcss':
+        specifier: catalog:*
+        version: 0.2.2(tailwindcss@4.2.1)
       '@headlessui/vue':
         specifier: catalog:*
         version: 1.7.23(vue@3.5.30(typescript@5.9.3))
@@ -1697,9 +1700,6 @@ importers:
         specifier: ^3.2.6
         version: 3.2.7
     devDependencies:
-      '@headlessui/tailwindcss':
-        specifier: catalog:*
-        version: 0.2.2(tailwindcss@4.2.1)
       '@playwright/test':
         specifier: catalog:*
         version: 1.59.1
