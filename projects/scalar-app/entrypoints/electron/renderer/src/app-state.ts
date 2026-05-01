@@ -3,7 +3,7 @@ import { router } from '@electron/renderer/src/router'
 import { createAppState } from '@scalar/api-client/v2/features/app'
 
 import { useStateData } from '@/hooks/use-state-data'
-import { readFiles } from '@/loaders/electron'
+import { readFiles } from '@/loaders/read-files'
 
 const { currentTeam, customThemes, fallbackThemeSlug } = useStateData()
 

@@ -16,29 +16,25 @@ export const postmanCollection = (): LoaderPlugin => {
   return {
     type: 'loader',
     validate: isPostmanCollection,
-    exec: async (source: string) => {
+    exec: (source: string) => {
       try {
         // Attempt to convert the source Postman collection JSON to an OpenAPI document
         const document = getOpenApiFromPostman(source)
 
         if (document) {
           // Successful conversion, return the OpenAPI document and original source
-          return {
+          return Promise.resolve({
             ok: true,
             data: document,
             raw: source,
-          }
+          })
         }
 
         // Conversion failed, not a valid Postman collection or could not convert
-        return {
-          ok: false,
-        }
+        return Promise.resolve({ ok: false })
       } catch {
         // Catch any errors during validation or conversion
-        return {
-          ok: false,
-        }
+        return Promise.resolve({ ok: false })
       }
     },
   }

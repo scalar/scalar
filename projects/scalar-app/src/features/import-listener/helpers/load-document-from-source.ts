@@ -3,7 +3,7 @@ import { parseJson, parseYaml } from '@scalar/json-magic/bundle/plugins/browser'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 import type { ImportEventData } from '@/features/import-listener/types'
-import { postmanCollection } from '@/loaders/browser'
+import { postmanCollection } from '@/loaders/postman-collection'
 
 /**
  * Attempts to add a document to the workspace from a given source, which may be a URL or raw content.

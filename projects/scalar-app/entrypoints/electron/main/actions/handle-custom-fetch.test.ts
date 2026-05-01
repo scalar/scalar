@@ -40,7 +40,7 @@ function createMockUndiciResponse({
     arrayBuffer: vi.fn().mockResolvedValue(body),
   }
   if (chunks) {
-    bodyObj[Symbol.asyncIterator] = async function* () {
+    bodyObj[Symbol.asyncIterator] = function* () {
       for (const chunk of chunks) {
         yield chunk
       }
@@ -559,8 +559,7 @@ describe('handleCustomFetch', () => {
 
       const bodyWithError = {
         arrayBuffer: vi.fn(),
-        // biome-ignore lint/correctness/useYield: intentionally throws before yielding
-        async *[Symbol.asyncIterator]() {
+        [Symbol.asyncIterator]() {
           throw new Error('network dropped')
         },
       }
