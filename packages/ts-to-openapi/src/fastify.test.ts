@@ -110,10 +110,10 @@ describe('generateFastifyOpenApiDocument', () => {
                 name: {
                   type: 'string',
                 },
-              email: {
-                type: 'string',
-                format: 'email',
-              },
+                email: {
+                  type: 'string',
+                  format: 'email',
+                },
               },
               required: ['id', 'name', 'email'],
             },

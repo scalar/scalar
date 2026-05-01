@@ -41,10 +41,11 @@ const ROUTE_INPUT_TO_PARAMETER_IN = {
 
 type RouteInputName = keyof typeof ROUTE_INPUT_TO_PARAMETER_IN
 
-type RouteGenericSchemas = Partial<Record<'Body' | 'Headers' | 'Params' | 'Querystring' | 'Reply', OpenAPIV3_1.SchemaObject>>
+type RouteGenericSchemas = Partial<
+  Record<'Body' | 'Headers' | 'Params' | 'Querystring' | 'Reply', OpenAPIV3_1.SchemaObject>
+>
 
-const isFastifyMethod = (method: string): method is FastifyMethod =>
-  FASTIFY_METHODS.includes(method as FastifyMethod)
+const isFastifyMethod = (method: string): method is FastifyMethod => FASTIFY_METHODS.includes(method as FastifyMethod)
 
 const getPropertyName = (name: Node): string | undefined => {
   if (isIdentifier(name) || isStringLiteral(name) || isNumericLiteral(name)) {
@@ -54,7 +55,10 @@ const getPropertyName = (name: Node): string | undefined => {
   return undefined
 }
 
-const getObjectLiteralProperty = (objectLiteral: ObjectLiteralExpression, propertyName: string): Expression | undefined => {
+const getObjectLiteralProperty = (
+  objectLiteral: ObjectLiteralExpression,
+  propertyName: string,
+): Expression | undefined => {
   const property = objectLiteral.properties.find((item) => {
     if (isPropertyAssignment(item)) {
       return getPropertyName(item.name) === propertyName
@@ -110,7 +114,9 @@ const getLiteralValue = (expression: Expression): unknown => {
   }
 
   if (isPrefixUnaryExpression(expression) && isNumericLiteral(expression.operand)) {
-    return expression.operator === SyntaxKind.MinusToken ? -Number(expression.operand.text) : Number(expression.operand.text)
+    return expression.operator === SyntaxKind.MinusToken
+      ? -Number(expression.operand.text)
+      : Number(expression.operand.text)
   }
 
   if (isArrayLiteralExpression(expression)) {
@@ -421,10 +427,14 @@ export const getFastifyRoutes = (
     const schemaNode = routeMetadata.options ? getObjectLiteralProperty(routeMetadata.options, 'schema') : undefined
     const path = toOpenApiPath(routeMetadata.url)
     const operation: OpenAPIV3_1.OperationObject = {
-      ...(schemaNode && isObjectLiteralExpression(schemaNode) && getStringValue(getObjectLiteralProperty(schemaNode, 'description'))
+      ...(schemaNode &&
+      isObjectLiteralExpression(schemaNode) &&
+      getStringValue(getObjectLiteralProperty(schemaNode, 'description'))
         ? { description: getStringValue(getObjectLiteralProperty(schemaNode, 'description')) }
         : {}),
-      ...(schemaNode && isObjectLiteralExpression(schemaNode) && getStringValue(getObjectLiteralProperty(schemaNode, 'summary'))
+      ...(schemaNode &&
+      isObjectLiteralExpression(schemaNode) &&
+      getStringValue(getObjectLiteralProperty(schemaNode, 'summary'))
         ? { summary: getStringValue(getObjectLiteralProperty(schemaNode, 'summary')) }
         : {}),
       parameters: getParameters(routeGenericSchemas, schemaNode),
