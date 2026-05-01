@@ -1,5 +1,27 @@
 # @scalar/openapi-parser
 
+## 0.28.1
+
+## 0.28.0
+
+### Minor Changes
+
+- [#9045](https://github.com/scalar/scalar/pull/9045): refactor: adopt strict versioned @scalar/openapi-types imports in parser types
+
+## 0.27.0
+
+### Minor Changes
+
+- [#8965](https://github.com/scalar/scalar/pull/8965): refactor: adopt strict versioned @scalar/openapi-types imports in parser types
+
+## 0.26.1
+
+## 0.26.0
+
+### Minor Changes
+
+- [#8935](https://github.com/scalar/scalar/pull/8935): feat: pass resolved object to onDereference callback
+
 ## 0.25.12
 
 ## 0.25.11

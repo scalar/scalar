@@ -6,9 +6,9 @@ import {
   textFromNode,
   type Node,
 } from '@scalar/code-highlight/markdown'
+import { slugger } from '@scalar/helpers/string/slugger'
 import type { Heading } from '@scalar/types/legacy'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import GitHubSlugger from 'github-slugger'
 import { computed } from 'vue'
 
 import InfoMarkdownSection from './InfoMarkdownSection.vue'
@@ -29,7 +29,7 @@ const sections = computed(() => {
     return []
   }
 
-  const slugger = new GitHubSlugger()
+  const { slug } = slugger()
 
   const items = splitContent(description).map((markdown) => {
     // Get “first” (and only) heading, if available
@@ -40,7 +40,7 @@ const sections = computed(() => {
     const id = heading
       ? headingSlugGenerator({
           ...heading,
-          slug: slugger.slug(heading.value),
+          slug: slug(heading.value),
         })
       : undefined
 
@@ -59,7 +59,7 @@ const transformHeading = (node: Node) => {
     return node
   }
 
-  const slugger = new GitHubSlugger()
+  const { slug } = slugger()
 
   const value = textFromNode(node)
 
@@ -68,7 +68,7 @@ const transformHeading = (node: Node) => {
       id: headingSlugGenerator({
         depth: node.depth,
         value,
-        slug: slugger.slug(value),
+        slug: slug(value),
       }),
     },
   }

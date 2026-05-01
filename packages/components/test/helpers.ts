@@ -42,8 +42,8 @@ export type ComponentTestOptions = {
   args: StoryTestArgs | undefined
   /** Whether to render with a background. Defaults to false. */
   background: boolean
-  /** Whether to crop the snapshot to the component root. Defaults to false. */
-  crop: boolean
+  /** Whether to crop the snapshot to the component root, body, or viewport. Defaults to 'body'. */
+  crop: 'component' | 'body' | 'viewport'
   /** Device scale factor used for screenshots. Defaults to 2. */
   scale: number
   /** Device to emulate. Defaults to no device emulation. */
@@ -148,7 +148,7 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
   story: [undefined, { option: true }],
   args: [undefined, { option: true }],
   background: [false, { option: true }],
-  crop: [false, { option: true }],
+  crop: ['body', { option: true }],
   scale: [2, { option: true }],
   device: [undefined, { option: true }],
   colorModes: [['light'], { option: true }],
@@ -198,12 +198,12 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
   snapshot: async ({ page, background, crop, colorModes, component: c, story: s }, use, testInfo) => {
     const takeSnapshot: SnapshotFn = async (suffix?: string): Promise<void> => {
       const { story } = componentDetailsFromContext(c, s, testInfo)
-      const locator = crop ? '#storybook-root > *' : 'body'
+      const target = crop === 'viewport' ? page : page.locator(crop === 'component' ? '#storybook-root > *' : 'body')
       for (const colorMode of colorModes) {
         const colorModeSuffix = colorMode === 'light' ? '' : `-${colorMode}`
         const filename = `${toSlug(story)}${suffix ? `-${toSlug(suffix)}` : ''}${colorModeSuffix}.png`
         await setColorMode(page, colorMode)
-        await expect(page.locator(locator)).toHaveScreenshot(filename, {
+        await expect(target).toHaveScreenshot(filename, {
           omitBackground: !background,
           stylePath: background ? undefined : transparentCssPath,
         })

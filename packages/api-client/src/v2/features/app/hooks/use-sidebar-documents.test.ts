@@ -4,11 +4,20 @@ import type { TraversedDocument } from '@scalar/workspace-store/schemas/navigati
 import { describe, expect, it } from 'vitest'
 import { computed, ref, shallowRef } from 'vue'
 
-import { type RegistryDocument, useSidebarDocuments } from '@/v2/features/app/hooks/use-sidebar-documents'
+import { useSidebarDocuments } from '@/v2/features/app/hooks/use-sidebar-documents'
+import type { RegistryDocument } from '@/v2/types/configuration'
 
 type FakeDocument = Partial<WorkspaceDocument> & {
-  'x-scalar-registry-meta'?: { namespace: string; slug: string }
+  'x-scalar-registry-meta'?: {
+    namespace: string
+    slug: string
+    version?: string
+    commitHash?: string
+    conflictCheckedAgainstHash?: string
+    hasConflict?: boolean
+  }
   'x-scalar-navigation'?: TraversedDocument
+  'x-scalar-is-dirty'?: boolean
   info?: { title?: string }
 }
 
@@ -136,7 +145,7 @@ describe('use-sidebar-documents', () => {
       documents: {
         pets: {
           info: { title: 'Pets API', version: '1.0.0' },
-          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets' },
+          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets', version: '1.0.0' },
         },
       },
       isTeamWorkspace: false,
@@ -144,7 +153,14 @@ describe('use-sidebar-documents', () => {
 
     const { rest } = useSidebarDocuments({
       app,
-      managedDocs: () => [{ namespace: 'acme', slug: 'orders', title: 'Orders API' }],
+      managedDocs: () => [
+        {
+          namespace: 'acme',
+          slug: 'orders',
+          title: 'Orders API',
+          versions: [{ version: '1.0.0' }],
+        },
+      ],
     })
 
     // On local workspaces the sidebar key is derived from the workspace
@@ -169,11 +185,11 @@ describe('use-sidebar-documents', () => {
       documents: {
         'pets-a': {
           info: { title: 'Pets A', version: '1.0.0' },
-          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets' },
+          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets', version: '1.0.0' },
         },
         'pets-b': {
           info: { title: 'Pets B', version: '1.0.0' },
-          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets' },
+          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets', version: '2.0.0' },
         },
       },
       isTeamWorkspace: false,
@@ -192,81 +208,389 @@ describe('use-sidebar-documents', () => {
       documents: {
         'pets-v1': {
           info: { title: 'Pets v1', version: '1.0.0' },
-          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets' },
+          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets', version: '1.0.0' },
         },
         'pets-v2': {
           info: { title: 'Pets v2', version: '1.0.0' },
-          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets' },
+          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets', version: '2.0.0' },
         },
       },
       isTeamWorkspace: true,
     })
 
-    const { rest } = useSidebarDocuments({ app, managedDocs: () => [] })
+    const { rest } = useSidebarDocuments({
+      app,
+      managedDocs: () => [
+        {
+          namespace: 'acme',
+          slug: 'pets',
+          title: 'Pets API',
+          versions: [{ version: '2.0.0' }, { version: '1.0.0' }],
+        },
+      ],
+    })
 
+    // Single grouped item with both versions surfaced. The first version on
+    // the list is the latest advertised by the registry (2.0.0) and becomes
+    // the active version because no document slug is currently selected.
+    // Every title — parent and version rows — is the registry's title so the
+    // sidebar matches what the registry advertises, not the locally loaded
+    // workspace titles.
     expect(rest.value).toStrictEqual([
       {
         key: '@acme/pets',
-        title: 'Pets v1',
-        documentName: 'pets-v1',
+        title: 'Pets API',
+        documentName: 'pets-v2',
         registry: { namespace: 'acme', slug: 'pets' },
         navigation: undefined,
         isPinned: false,
         versions: [
           {
             key: 'pets-v2',
-            title: 'Pets v2',
+            version: '2.0.0',
+            title: 'Pets API',
             documentName: 'pets-v2',
+            commitHash: undefined,
+            registryCommitHash: undefined,
+            status: 'push',
+            isLatest: true,
+            navigation: undefined,
+          },
+          {
+            key: 'pets-v1',
+            version: '1.0.0',
+            title: 'Pets API',
+            documentName: 'pets-v1',
+            commitHash: undefined,
+            registryCommitHash: undefined,
+            status: 'push',
+            isLatest: false,
             navigation: undefined,
           },
         ],
+        activeVersionKey: 'pets-v2',
       },
     ])
   })
 
-  it('promotes the active document to primary when it belongs to a group', () => {
+  it('merges loaded workspace documents with registry-only versions', () => {
     const { app } = createFakeApp({
       documents: {
         'pets-v1': {
           info: { title: 'Pets v1', version: '1.0.0' },
-          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets' },
-        },
-        'pets-v2': {
-          info: { title: 'Pets v2', version: '1.0.0' },
-          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets' },
+          'x-scalar-registry-meta': {
+            namespace: 'acme',
+            slug: 'pets',
+            version: '1.0.0',
+            commitHash: 'abc123',
+          },
         },
       },
       isTeamWorkspace: true,
-      documentSlug: 'pets-v2',
     })
 
-    const { rest } = useSidebarDocuments({ app, managedDocs: () => [] })
+    const { rest } = useSidebarDocuments({
+      app,
+      managedDocs: () => [
+        {
+          namespace: 'acme',
+          slug: 'pets',
+          title: 'Pets API',
+          versions: [
+            { version: '2.0.0', commitHash: 'def456' },
+            { version: '1.0.0', commitHash: 'abc123' },
+          ],
+        },
+      ],
+    })
 
-    expect(rest.value[0]?.documentName).toBe('pets-v2')
+    // Latest version (2.0.0) is registry-only and ends up first; the loaded
+    // 1.0.0 version follows. Each version surfaces both the local hash
+    // (only set when the version is loaded) and the registry hash (only set
+    // when the registry advertises one) so consumers can detect drift.
+    // Matching hashes mean no upstream changes are pending.
     expect(rest.value[0]?.versions).toStrictEqual([
       {
+        key: '@acme/pets@2.0.0',
+        version: '2.0.0',
+        title: 'Pets API',
+        documentName: undefined,
+        commitHash: undefined,
+        registryCommitHash: 'def456',
+        status: 'unknown',
+        isLatest: true,
+        navigation: undefined,
+      },
+      {
         key: 'pets-v1',
-        title: 'Pets v1',
+        version: '1.0.0',
+        title: 'Pets API',
         documentName: 'pets-v1',
+        commitHash: 'abc123',
+        registryCommitHash: 'abc123',
+        status: 'synced',
+        isLatest: false,
         navigation: undefined,
       },
     ])
   })
 
-  it('does not emit a versions array when a group has a single document', () => {
+  it('flags loaded versions whose registry commit hash has moved on as `pull`', () => {
     const { app } = createFakeApp({
       documents: {
-        pets: {
-          info: { title: 'Pets', version: '1.0.0' },
-          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets' },
+        'pets-v1': {
+          info: { title: 'Pets v1', version: '1.0.0' },
+          'x-scalar-registry-meta': {
+            namespace: 'acme',
+            slug: 'pets',
+            version: '1.0.0',
+            commitHash: 'old-hash',
+          },
         },
       },
       isTeamWorkspace: true,
     })
 
-    const { rest } = useSidebarDocuments({ app, managedDocs: () => [] })
+    const { rest } = useSidebarDocuments({
+      app,
+      managedDocs: () => [
+        {
+          namespace: 'acme',
+          slug: 'pets',
+          title: 'Pets API',
+          versions: [{ version: '1.0.0', commitHash: 'new-hash' }],
+        },
+      ],
+    })
 
-    expect(rest.value[0]?.versions).toBeUndefined()
+    // The loaded document still pins to `old-hash` while the registry now
+    // advertises `new-hash`, which means there are upstream changes the
+    // user has not pulled yet. With no cached conflict result, the version
+    // surfaces as a plain `pull`.
+    expect(rest.value[0]?.versions?.[0]).toStrictEqual({
+      key: 'pets-v1',
+      version: '1.0.0',
+      title: 'Pets API',
+      documentName: 'pets-v1',
+      commitHash: 'old-hash',
+      registryCommitHash: 'new-hash',
+      status: 'pull',
+      isLatest: true,
+      navigation: undefined,
+    })
+  })
+
+  it('surfaces `conflict` when the registry-meta cache flags a conflict for the current registry hash', () => {
+    const { app } = createFakeApp({
+      documents: {
+        'pets-v1': {
+          info: { title: 'Pets v1', version: '1.0.0' },
+          'x-scalar-registry-meta': {
+            namespace: 'acme',
+            slug: 'pets',
+            version: '1.0.0',
+            commitHash: 'old-hash',
+            conflictCheckedAgainstHash: 'new-hash',
+            hasConflict: true,
+          },
+        },
+      },
+      isTeamWorkspace: true,
+    })
+
+    const { rest } = useSidebarDocuments({
+      app,
+      managedDocs: () => [
+        {
+          namespace: 'acme',
+          slug: 'pets',
+          title: 'Pets API',
+          versions: [{ version: '1.0.0', commitHash: 'new-hash' }],
+        },
+      ],
+    })
+
+    expect(rest.value[0]?.versions?.[0]?.status).toBe('conflict')
+  })
+
+  it('falls back to `pull` when the cached conflict result was computed against a stale registry hash', () => {
+    const { app } = createFakeApp({
+      documents: {
+        'pets-v1': {
+          info: { title: 'Pets v1', version: '1.0.0' },
+          'x-scalar-registry-meta': {
+            namespace: 'acme',
+            slug: 'pets',
+            version: '1.0.0',
+            commitHash: 'old-hash',
+            // The cache was computed for an older registry hash that has
+            // since been replaced; the result is no longer trustworthy.
+            conflictCheckedAgainstHash: 'older-hash',
+            hasConflict: true,
+          },
+        },
+      },
+      isTeamWorkspace: true,
+    })
+
+    const { rest } = useSidebarDocuments({
+      app,
+      managedDocs: () => [
+        {
+          namespace: 'acme',
+          slug: 'pets',
+          title: 'Pets API',
+          versions: [{ version: '1.0.0', commitHash: 'new-hash' }],
+        },
+      ],
+    })
+
+    expect(rest.value[0]?.versions?.[0]?.status).toBe('pull')
+  })
+
+  it('surfaces `push` when the document is dirty and the hash matches the registry', () => {
+    const { app } = createFakeApp({
+      documents: {
+        'pets-v1': {
+          info: { title: 'Pets v1', version: '1.0.0' },
+          'x-scalar-is-dirty': true,
+          'x-scalar-registry-meta': {
+            namespace: 'acme',
+            slug: 'pets',
+            version: '1.0.0',
+            commitHash: 'shared-hash',
+          },
+        },
+      },
+      isTeamWorkspace: true,
+    })
+
+    const { rest } = useSidebarDocuments({
+      app,
+      managedDocs: () => [
+        {
+          namespace: 'acme',
+          slug: 'pets',
+          title: 'Pets API',
+          versions: [{ version: '1.0.0', commitHash: 'shared-hash' }],
+        },
+      ],
+    })
+
+    expect(rest.value[0]?.versions?.[0]?.status).toBe('push')
+  })
+
+  it('promotes the active document when it belongs to a group', () => {
+    const { app } = createFakeApp({
+      documents: {
+        'pets-v1': {
+          info: { title: 'Pets v1', version: '1.0.0' },
+          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets', version: '1.0.0' },
+        },
+        'pets-v2': {
+          info: { title: 'Pets v2', version: '1.0.0' },
+          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets', version: '2.0.0' },
+        },
+      },
+      isTeamWorkspace: true,
+      documentSlug: 'pets-v1',
+    })
+
+    const { rest } = useSidebarDocuments({
+      app,
+      managedDocs: () => [
+        {
+          namespace: 'acme',
+          slug: 'pets',
+          title: 'Pets API',
+          versions: [{ version: '2.0.0' }, { version: '1.0.0' }],
+        },
+      ],
+    })
+
+    // Even though 2.0.0 is the latest, the parent surfaces v1 because that
+    // is the document the user is currently viewing. The version list
+    // ordering itself is not changed — only `activeVersionKey` and the
+    // mirrored parent fields move.
+    expect(rest.value[0]?.activeVersionKey).toBe('pets-v1')
+    expect(rest.value[0]?.documentName).toBe('pets-v1')
+    expect(rest.value[0]?.versions?.map((v) => v.version)).toStrictEqual(['2.0.0', '1.0.0'])
+  })
+
+  it('surfaces drafts ahead of registry-advertised versions, newest draft first', () => {
+    // Drafts are workspace documents pointing at registry coordinates the
+    // registry has not advertised yet (typically just-created versions).
+    // They lead the picker so users immediately see the version they just
+    // made, with the most recent draft at the very top (workspace store
+    // insertion order is reversed for that section).
+    const { app } = createFakeApp({
+      documents: {
+        'pets-old-draft': {
+          info: { title: 'Pets', version: '2.0.0' },
+          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets', version: '2.0.0' },
+        },
+        'pets-new-draft': {
+          info: { title: 'Pets', version: '3.0.0' },
+          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets', version: '3.0.0' },
+        },
+      },
+      isTeamWorkspace: true,
+    })
+
+    const { rest } = useSidebarDocuments({
+      app,
+      managedDocs: () => [
+        {
+          namespace: 'acme',
+          slug: 'pets',
+          title: 'Pets API',
+          versions: [{ version: '1.0.0', commitHash: 'abc' }],
+        },
+      ],
+    })
+
+    expect(rest.value[0]?.versions?.map((v) => v.version)).toStrictEqual(['3.0.0', '2.0.0', '1.0.0'])
+  })
+
+  it('emits a versions array even when only a single version exists', () => {
+    const { app } = createFakeApp({
+      documents: {
+        pets: {
+          info: { title: 'Pets', version: '1.0.0' },
+          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets', version: '1.0.0' },
+        },
+      },
+      isTeamWorkspace: true,
+    })
+
+    const { rest } = useSidebarDocuments({
+      app,
+      managedDocs: () => [
+        {
+          namespace: 'acme',
+          slug: 'pets',
+          title: 'Pets API',
+          versions: [{ version: '1.0.0' }],
+        },
+      ],
+    })
+
+    // Registry-backed entries always carry a versions array so the sidebar
+    // can render the version row consistently — there is no special-case
+    // collapsing to undefined for single-version documents.
+    expect(rest.value[0]?.versions).toStrictEqual([
+      {
+        key: 'pets',
+        version: '1.0.0',
+        title: 'Pets API',
+        documentName: 'pets',
+        commitHash: undefined,
+        registryCommitHash: undefined,
+        status: 'push',
+        isLatest: true,
+        navigation: undefined,
+      },
+    ])
   })
 
   it('appends registry-only documents that have not been loaded yet', () => {
@@ -277,24 +601,60 @@ describe('use-sidebar-documents', () => {
 
     const { rest } = useSidebarDocuments({
       app,
-      managedDocs: () => [{ namespace: 'acme', slug: 'pets', title: 'Pets API' }],
+      managedDocs: () => [
+        {
+          namespace: 'acme',
+          slug: 'pets',
+          title: 'Pets API',
+          versions: [{ version: '2.0.0', commitHash: 'def456' }, { version: '1.0.0' }],
+        },
+      ],
     })
 
     expect(rest.value).toStrictEqual([
       {
         key: '@acme/pets',
         title: 'Pets API',
+        documentName: undefined,
         registry: { namespace: 'acme', slug: 'pets' },
+        navigation: undefined,
+        isPinned: false,
+        versions: [
+          {
+            key: '@acme/pets@2.0.0',
+            version: '2.0.0',
+            title: 'Pets API',
+            documentName: undefined,
+            commitHash: undefined,
+            registryCommitHash: 'def456',
+            status: 'unknown',
+            isLatest: true,
+            navigation: undefined,
+          },
+          {
+            key: '@acme/pets@1.0.0',
+            version: '1.0.0',
+            title: 'Pets API',
+            documentName: undefined,
+            commitHash: undefined,
+            registryCommitHash: undefined,
+            status: 'unknown',
+            isLatest: false,
+            navigation: undefined,
+          },
+        ],
+        activeVersionKey: '@acme/pets@2.0.0',
       },
     ])
   })
 
-  it('skips registry entries that already have a loaded counterpart', () => {
+  it('uses the registry title for parent and version rows even when the loaded document was renamed locally', () => {
     const { app } = createFakeApp({
       documents: {
         pets: {
-          info: { title: 'Pets', version: '1.0.0' },
-          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets' },
+          info: { title: 'Renamed Locally', version: '1.0.0' },
+          'x-scalar-navigation': nav('pets', 'Renamed Locally'),
+          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets', version: '1.0.0' },
         },
       },
       isTeamWorkspace: true,
@@ -303,12 +663,20 @@ describe('use-sidebar-documents', () => {
     const { rest } = useSidebarDocuments({
       app,
       managedDocs: () => [
-        { namespace: 'acme', slug: 'pets', title: 'Pets API' },
-        { namespace: 'acme', slug: 'orders', title: 'Orders API' },
+        {
+          namespace: 'acme',
+          slug: 'pets',
+          title: 'Pets API',
+          versions: [{ version: '1.0.0' }],
+        },
       ],
     })
 
-    expect(rest.value.map((d) => d.key)).toStrictEqual(['@acme/pets', '@acme/orders'])
+    // Local renames must not leak into the sidebar — the sidebar mirrors the
+    // registry so users can recognise the entry as the same document the
+    // registry advertises.
+    expect(rest.value[0]?.title).toBe('Pets API')
+    expect(rest.value[0]?.versions?.[0]?.title).toBe('Pets API')
   })
 
   it('falls back to the slug when a registry document has no title', () => {
@@ -319,10 +687,18 @@ describe('use-sidebar-documents', () => {
 
     const { rest } = useSidebarDocuments({
       app,
-      managedDocs: () => [{ namespace: 'acme', slug: 'orders', title: '' }],
+      managedDocs: () => [
+        {
+          namespace: 'acme',
+          slug: 'orders',
+          title: '',
+          versions: [{ version: '1.0.0' }],
+        },
+      ],
     })
 
     expect(rest.value[0]?.title).toBe('orders')
+    expect(rest.value[0]?.versions?.[0]?.title).toBe('orders')
   })
 
   it('keeps standalone documents separate from grouped and registry entries', () => {
@@ -331,7 +707,7 @@ describe('use-sidebar-documents', () => {
         drafts: { info: { title: 'Drafts', version: '1.0.0' } },
         pets: {
           info: { title: 'Pets', version: '1.0.0' },
-          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets' },
+          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets', version: '1.0.0' },
         },
       },
       isTeamWorkspace: true,
@@ -339,10 +715,23 @@ describe('use-sidebar-documents', () => {
 
     const { rest } = useSidebarDocuments({
       app,
-      managedDocs: () => [{ namespace: 'acme', slug: 'orders', title: 'Orders' }],
+      managedDocs: () => [
+        {
+          namespace: 'acme',
+          slug: 'pets',
+          title: 'Pets API',
+          versions: [{ version: '1.0.0' }],
+        },
+        {
+          namespace: 'acme',
+          slug: 'orders',
+          title: 'Orders',
+          versions: [{ version: '1.0.0' }],
+        },
+      ],
     })
 
-    // grouped -> registry-only -> standalone
+    // grouped (registry order) -> standalone (workspace docs without registry)
     expect(rest.value.map((d) => d.key)).toStrictEqual(['@acme/pets', '@acme/orders', 'drafts'])
   })
 
@@ -360,15 +749,17 @@ describe('use-sidebar-documents', () => {
 
     expect(rest.value).toStrictEqual([])
 
-    registry.value = [{ namespace: 'acme', slug: 'pets', title: 'Pets API' }]
-
-    expect(rest.value).toStrictEqual([
+    registry.value = [
       {
-        key: '@acme/pets',
+        namespace: 'acme',
+        slug: 'pets',
         title: 'Pets API',
-        registry: { namespace: 'acme', slug: 'pets' },
+        versions: [{ version: '1.0.0' }],
       },
-    ])
+    ]
+
+    expect(rest.value.map((d) => d.key)).toStrictEqual(['@acme/pets'])
+    expect(rest.value[0]?.versions).toHaveLength(1)
   })
 
   it('reacts to toggling the team-workspace flag', () => {
@@ -376,7 +767,7 @@ describe('use-sidebar-documents', () => {
       documents: {
         pets: {
           info: { title: 'Pets', version: '1.0.0' },
-          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets' },
+          'x-scalar-registry-meta': { namespace: 'acme', slug: 'pets', version: '1.0.0' },
         },
       },
       isTeamWorkspace: false,
@@ -384,7 +775,14 @@ describe('use-sidebar-documents', () => {
 
     const { rest } = useSidebarDocuments({
       app,
-      managedDocs: () => [{ namespace: 'acme', slug: 'orders', title: 'Orders' }],
+      managedDocs: () => [
+        {
+          namespace: 'acme',
+          slug: 'orders',
+          title: 'Orders',
+          versions: [{ version: '1.0.0' }],
+        },
+      ],
     })
 
     // Local: the key comes from the workspace document name (to avoid
@@ -393,16 +791,21 @@ describe('use-sidebar-documents', () => {
     // entry is ignored entirely.
     expect(rest.value.map((d) => d.key)).toStrictEqual(['pets'])
     expect(rest.value[0]?.registry).toBeUndefined()
+    expect(rest.value[0]?.versions).toBeUndefined()
 
     teamFlag.value = true
 
-    // Team: the Pets document now exposes its registry coordinates and the
-    // unloaded Orders entry is merged into the list.
-    expect(rest.value.map((d) => d.key)).toStrictEqual(['@acme/pets', '@acme/orders'])
-    expect(rest.value[0]?.registry).toStrictEqual({
+    // Team: the Pets document now exposes its registry coordinates (with a
+    // versions array) and the unloaded Orders entry is merged into the list.
+    // Registry-advertised entries are emitted first (in registry order) and
+    // workspace documents that point at unknown registry coordinates are
+    // appended after, so Orders (advertised) precedes Pets (orphan).
+    expect(rest.value.map((d) => d.key)).toStrictEqual(['@acme/orders', '@acme/pets'])
+    expect(rest.value[1]?.registry).toStrictEqual({
       namespace: 'acme',
       slug: 'pets',
     })
+    expect(rest.value[1]?.versions).toHaveLength(1)
   })
 
   it('splits pinned and rest based on isPinned (currently no documents are pinned)', () => {

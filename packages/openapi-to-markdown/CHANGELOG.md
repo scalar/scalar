@@ -1,5 +1,19 @@
 # @scalar/openapi-to-markdown
 
+## 0.5.12
+
+### Patch Changes
+
+- [#9040](https://github.com/scalar/scalar/pull/9040): fix(openapi-to-markdown): render operation parameters in Markdown output
+
+## 0.5.11
+
+## 0.5.10
+
+## 0.5.9
+
+## 0.5.8
+
 ## 0.5.7
 
 ## 0.5.6

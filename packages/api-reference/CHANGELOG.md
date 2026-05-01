@@ -1,5 +1,48 @@
 # @scalar/api-reference
 
+## 1.55.1
+
+### Patch Changes
+
+- [#9023](https://github.com/scalar/scalar/pull/9023): chore: use homemade slugger
+
+## 1.55.0
+
+### Minor Changes
+
+- [#9045](https://github.com/scalar/scalar/pull/9045): feat(api-reference): show an "auth required" / "auth optional" badge next to each operation's path. Requirements are resolved via `operation.security ?? document.security`; hover reveals the scheme names, types, and any required scopes.
+
+### Patch Changes
+
+- [#9045](https://github.com/scalar/scalar/pull/9045): fix(api-reference): flatten deepObject query parameter display in parameter rendering
+- [#9045](https://github.com/scalar/scalar/pull/9045): fix inline composed schema descriptions in api-reference
+- [#9045](https://github.com/scalar/scalar/pull/9045): fix(api-reference): ignore undefined examples on flattened deepObject parameters
+- [#9045](https://github.com/scalar/scalar/pull/9045): fix: remove extraneous eventBus prop from AgentScalarDrawer to eliminate Vue warning
+- [#9043](https://github.com/scalar/scalar/pull/9043): chore: move test documents to cdn
+- [#9045](https://github.com/scalar/scalar/pull/9045): chore: move scalar version logs
+
+## 1.54.0
+
+### Minor Changes
+
+- [#8970](https://github.com/scalar/scalar/pull/8970): feat(api-reference): show an "auth required" / "auth optional" badge next to each operation's path. Requirements are resolved via `operation.security ?? document.security`; hover reveals the scheme names, types, and any required scopes.
+
+### Patch Changes
+
+- [#8963](https://github.com/scalar/scalar/pull/8963): fix(api-reference): flatten deepObject query parameter display in parameter rendering
+- [#8906](https://github.com/scalar/scalar/pull/8906): fix inline composed schema descriptions in api-reference
+- [#8963](https://github.com/scalar/scalar/pull/8963): fix(api-reference): ignore undefined examples on flattened deepObject parameters
+- [#9003](https://github.com/scalar/scalar/pull/9003): fix: remove extraneous eventBus prop from AgentScalarDrawer to eliminate Vue warning
+- [#8987](https://github.com/scalar/scalar/pull/8987): chore: move scalar version logs
+
+## 1.53.1
+
+## 1.53.0
+
+### Minor Changes
+
+- [#8772](https://github.com/scalar/scalar/pull/8772): feat: link to model from endpoints
+
 ## 1.52.6
 
 ## 1.52.5

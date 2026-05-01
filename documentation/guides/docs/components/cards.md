@@ -20,9 +20,6 @@ Displays a large icon to the left of the card content.
 
 ### Card with Body Only
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-card>
 Card with body.
 </scalar-card>
@@ -32,28 +29,9 @@ Card with body.
 Card with body.
 <scalar-card>
 ```
-
-</scalar-tab>
-<scalar-tab title="Directive">
-
-:::scalar-card
-Card with body.
-:::
-
-```markdown
-:::scalar-card
-Card with body.
-:::
-```
-
-</scalar-tab>
-</scalar-tabs>
 
 ### Card with Title and Body
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-card title="The Title of the Card">
 Card with title and body.
 </scalar-card>
@@ -63,28 +41,9 @@ Card with title and body.
 Card with title and body.
 </scalar-card>
 ```
-
-</scalar-tab>
-<scalar-tab title="Directive">
-
-:::scalar-card{title="The Title of the Card"}
-Card with title and body.
-:::
-
-```markdown
-:::scalar-card{title="The Title of the Card"}
-Card with title and body.
-:::
-```
-
-</scalar-tab>
-</scalar-tabs>
 
 ### Card with Icon and Body
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-card icon="solid/basic-shape-hexagon">
 Card with icon and body.
 </scalar-card>
@@ -94,28 +53,9 @@ Card with icon and body.
 Card with icon and body.
 </scalar-card>
 ```
-
-</scalar-tab>
-<scalar-tab title="Directive">
-
-:::scalar-card{icon="solid/basic-shape-hexagon"}
-Card with icon and body.
-:::
-
-```markdown
-:::scalar-card{icon="solid/basic-shape-hexagon"}
-Card with icon and body.
-:::
-```
-
-</scalar-tab>
-</scalar-tabs>
 
 ### Card with Left-Icon, Title and Body
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-card leftIcon="solid/basic-shape-hexagon" title="The Title of the Card">
 Card with a `leftIcon`, title, and body
 </scalar-card>
@@ -125,44 +65,11 @@ Card with a `leftIcon`, title, and body
 Card with a `leftIcon`, title, and body
 </scalar-card>
 ```
-
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-:::scalar-card{ leftIcon="solid/basic-shape-hexagon" title="The Title of the Card"}
-Card with a `leftIcon`, title, and body
-:::
-
-```markdown
-:::scalar-card{ leftIcon="solid/basic-shape-hexagon" title="The Title of the Card"}
-Card with a `leftIcon`, title, and body
-:::
-```
-
-</scalar-tab>
-</scalar-tabs>
 
 ### Card with Title
 
-<scalar-tabs>
-
-<scalar-tab title="Custom HTML">
-
 <scalar-card title="Without Body"></scalar-card>
 
 ```markdown
 <scalar-card title="Without Body"></scalar-card>
 ```
-
-</scalar-tab>
-<scalar-tab title="Directive">
-
-::scalar-card{title="Without Body"}
-
-```markdown
-::scalar-card{title="Without Body"}
-```
-
-</scalar-tab>
-</scalar-tabs>

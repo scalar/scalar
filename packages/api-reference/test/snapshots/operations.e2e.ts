@@ -32,8 +32,8 @@ toTest.forEach((source) => {
 
     // On classic we need to expand the operations
     if (isClassic(source)) {
-      await getAllPlanets.getByRole('button', { expanded: false }).click()
-      await createAPlanet.getByRole('button', { expanded: false }).click()
+      await getAllPlanets.getByRole('button', { name: 'Get all planets', expanded: false }).click()
+      await createAPlanet.getByRole('button', { name: 'Create a planet', expanded: false }).click()
     }
 
     // Snapshot the request body

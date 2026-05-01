@@ -8,6 +8,8 @@ import { getServerVariables } from '@scalar/workspace-store/request-example'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { encode, fromUint8Array } from 'js-base64'
 
+import { getOAuthCallbackData } from './oauth-callback'
+
 /** Oauth2 security schemes which are not implicit */
 type NonImplicitFlows = Omit<OAuthFlowsObjectSecret, 'implicit'>
 
@@ -17,6 +19,8 @@ type PKCEState = {
   codeChallengeMethod: string
 }
 
+type ActiveServerBase = { basePath: string } | { baseUrl: string } | Record<string, never>
+
 export type OAuth2Tokens = {
   accessToken: string
   refreshToken?: string
@@ -25,16 +29,30 @@ export type OAuth2Tokens = {
 /** Flow types that support token refresh (all except implicit) */
 type RefreshableFlows = Exclude<keyof OAuthFlowsObjectSecret, 'implicit'>
 
-const getServerUrl = (activeServer: ServerObject | null, environmentVariables: Record<string, string> = {}) => {
-  return replaceEnvVariables(
+/**
+ * Resolves the active server URL using OpenAPI server variables first, then
+ * Scalar environment variables.
+ */
+export const getServerUrl = (
+  activeServer: ServerObject | null,
+  environmentVariables: Record<string, string> = {},
+): string =>
+  replaceEnvVariables(
     replacePathVariables(activeServer?.url ?? '', getServerVariables(activeServer)),
     environmentVariables,
   )
-}
 
-const getActiveServerBase = (activeServer: ServerObject | null, environmentVariables: Record<string, string> = {}) => {
+/**
+ * Builds the base option used when OAuth URLs are relative to the active server.
+ *
+ * Relative server URLs become browser-only base paths because they need the
+ * current window location to resolve correctly.
+ */
+export const getActiveServerBase = (
+  activeServer: ServerObject | null,
+  environmentVariables: Record<string, string> = {},
+): ActiveServerBase => {
   const serverUrl = getServerUrl(activeServer, environmentVariables)
-
   if (!serverUrl) {
     return {}
   }
@@ -199,32 +217,8 @@ export const authorizeOauth2 = async (
       // We need to return a promise here due to the setInterval
       return new Promise<ErrorResponse<OAuth2Tokens>>((resolve) => {
         const checkWindowClosed = setInterval(() => {
-          let accessToken: string | null = null
-          let refreshToken: string | null = null
-          let code: string | null = null
-          let error: string | null = null
-          let errorDescription: string | null = null
-
-          try {
-            const urlParams = new URL(authWindow.location.href).searchParams
-            const tokenName = flow['x-tokenName'] || 'access_token'
-            accessToken = urlParams.get(tokenName)
-            refreshToken = urlParams.get('refresh_token')
-            code = urlParams.get('code')
-
-            error = urlParams.get('error')
-            errorDescription = urlParams.get('error_description')
-
-            // We may get the properties in a hash
-            const hashParams = new URLSearchParams(authWindow.location.href.split('#')[1])
-            accessToken ||= hashParams.get(tokenName)
-            refreshToken ||= hashParams.get('refresh_token')
-            code ||= hashParams.get('code')
-            error ||= hashParams.get('error')
-            errorDescription ||= hashParams.get('error_description')
-          } catch (_e) {
-            // Ignore CORS error from popup
-          }
+          const { accessToken, accessTokenParams, code, codeParams, error, errorDescription, refreshToken } =
+            getOAuthCallbackData(() => authWindow.location.href, flow['x-tokenName'] || 'access_token')
 
           // The window has closed OR we have what we are looking for so we stop polling
           if (authWindow.closed || accessToken || code || error) {
@@ -233,27 +227,27 @@ export const authorizeOauth2 = async (
 
             if (error) {
               resolve([new Error(`OAuth error: ${error}${errorDescription ? ` (${errorDescription})` : ''}`), null])
+              return
             }
 
             // Implicit Flow
-            else if (accessToken) {
-              // State is a hash fragment and cannot be found through search params
-              const _state = authWindow.location.href.match(/state=([^&]*)/)?.[1]
+            if (accessToken) {
+              const _state = accessTokenParams?.get('state') ?? null
 
               if (_state === state) {
                 resolve([null, { accessToken, ...(refreshToken ? { refreshToken } : {}) }])
               } else {
                 resolve([new Error('State mismatch'), null])
               }
+              return
             }
 
             // Authorization Code Server Flow
-            else if (code && type === 'authorizationCode') {
-              const _state = new URL(authWindow.location.href).searchParams.get('state')
+            if (code && type === 'authorizationCode') {
+              const _state = codeParams?.get('state') ?? null
 
               if (_state === state) {
-                // biome-ignore lint/nursery/noFloatingPromises: output of authorizeServers must be returned
-                authorizeServers(
+                void authorizeServers(
                   flows,
                   type,
                   scopes,
@@ -264,23 +258,29 @@ export const authorizeOauth2 = async (
                   },
                   activeServer,
                   environmentVariables,
-                ).then(resolve)
+                )
+                  .then(resolve)
+                  .catch((error: unknown) => {
+                    resolve([
+                      error instanceof Error ? error : new Error('Failed to get an access token', { cause: error }),
+                      null,
+                    ])
+                  })
               } else {
                 resolve([new Error('State mismatch'), null])
               }
+              return
             }
+
             // User closed window without authorizing
-            else {
-              clearInterval(checkWindowClosed)
-              resolve([new Error('Window was closed without granting authorization'), null])
-            }
+            resolve([new Error('Window was closed without granting authorization'), null])
           }
         }, 200)
       })
     }
     return [new Error('Failed to open auth window'), null]
-  } catch (_) {
-    return [new Error('Failed to authorize oauth2 flow'), null]
+  } catch (error) {
+    return [error instanceof Error ? error : new Error('Failed to authorize oauth2 flow', { cause: error }), null]
   }
 }
 
@@ -399,9 +399,18 @@ const authorizeServers = async (
     const accessToken = responseData[tokenName]
     const refreshToken = responseData.refresh_token
 
+    if (!accessToken) {
+      return [new Error(responseData.error_description ?? responseData.error ?? 'Failed to get an access token'), null]
+    }
+
     return [null, { accessToken, ...(typeof refreshToken === 'string' ? { refreshToken } : {}) }]
-  } catch {
-    return [new Error('Failed to get an access token. Please check your credentials.'), null]
+  } catch (error) {
+    return [
+      error instanceof Error
+        ? error
+        : new Error('Failed to get an access token. Please check your credentials.', { cause: error }),
+      null,
+    ]
   }
 }
 
@@ -496,7 +505,12 @@ export const refreshOauth2Token = async (
         ...(typeof newRefreshToken === 'string' ? { refreshToken: newRefreshToken } : { refreshToken }),
       },
     ]
-  } catch {
-    return [new Error('Failed to refresh the access token. Please re-authorize.'), null]
+  } catch (error) {
+    return [
+      error instanceof Error
+        ? error
+        : new Error('Failed to refresh the access token. Please re-authorize.', { cause: error }),
+      null,
+    ]
   }
 }

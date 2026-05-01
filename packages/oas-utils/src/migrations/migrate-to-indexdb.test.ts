@@ -346,7 +346,7 @@ describe('migrate-to-indexdb', () => {
     it('returns false when legacy data exists but IndexedDB already has workspaces', async () => {
       localStorage.setItem('workspace', '[]')
       const mockWorkspacePersistence = {
-        getAll: async () => [{ namespace: 'local', slug: 'existing-workspace' }],
+        getAll: async () => [{ teamSlug: 'local', slug: 'existing-workspace' }],
       }
       const result = await shouldMigrateToIndexDb(mockWorkspacePersistence as any)
       expect(result).toBe(false)
@@ -5722,8 +5722,8 @@ describe('migrate-to-indexdb', () => {
 
       expect(documentNames).toHaveLength(3)
       expect(documentNames).toContain('drafts')
-      expect(documentNames).toContain('api-special--chars')
-      expect(documentNames).toContain('api-special--chars-1')
+      expect(documentNames).toContain('api-special-chars')
+      expect(documentNames).toContain('api-special-chars-1')
     })
 
     it('handles mix of unique and duplicate document names', async () => {

@@ -20,7 +20,7 @@
     "vue",
     "vue3"
   ],
-  "version": "1.52.6",
+  "version": "1.55.1",
   "engines": {
     "node": ">=22"
   },
@@ -120,7 +120,6 @@
     "@unhead/vue": "^2.1.4",
     "@vueuse/core": "catalog:*",
     "fuse.js": "catalog:*",
-    "github-slugger": "catalog:*",
     "microdiff": "catalog:*",
     "nanoid": "catalog:*",
     "vue": "catalog:*",

@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
+import type { AddressInfo } from 'node:net'
 import { cwd } from 'node:process'
 
 import { type FastifyInstance, fastify } from 'fastify'
@@ -472,8 +473,7 @@ describe('create-server-store', () => {
   describe('load document on the workspace', () => {
     describe('load from external urls', () => {
       let server: FastifyInstance
-      const port = 6287
-      const url = `http://localhost:${port}`
+      let url: string
 
       beforeEach(() => {
         server = fastify({ logger: false })
@@ -487,7 +487,8 @@ describe('create-server-store', () => {
         server.get('/', () => {
           return exampleDocument()
         })
-        await server.listen({ port })
+        await server.listen({ port: 0 })
+        url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
         const store = await createServerWorkspaceStore({
           baseUrl: url,
@@ -508,7 +509,8 @@ describe('create-server-store', () => {
         server.get('/', () => {
           return exampleDocument()
         })
-        await server.listen({ port })
+        await server.listen({ port: 0 })
+        url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
         const store = await createServerWorkspaceStore({
           mode: 'ssr',

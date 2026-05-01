@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "3.2.2",
+  "version": "3.5.1",
   "engines": {
     "node": ">=22"
   },
@@ -26,10 +26,12 @@
     "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "pnpm playground:web",
     "playground:app": "vite ./playground/app -c ./vite.config.ts",
+    "playground:app:build": "vite build ./playground/app -c ./vite.previews.config.ts",
     "playground:modal": "vite ./playground/modal -c ./vite.config.ts",
     "playground:web": "vite ./playground/web -c ./vite.config.ts",
     "preview": "vite preview",
     "test": "vitest --run",
+    "test:watch": "vitest",
     "test:benchmark": "vitest bench",
     "test:benchmark:compare": "vitest bench --compare test-results/test-benchmark.json",
     "test:benchmark:save": "vitest bench --outputJson test-results/test-benchmark.json",
@@ -340,8 +342,8 @@
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
-    "@scalar/workspace-store": "workspace:*",
     "@scalar/validation": "workspace:*",
+    "@scalar/workspace-store": "workspace:*",
     "@types/har-format": "^1.2.16",
     "@vueuse/core": "catalog:*",
     "@vueuse/integrations": "catalog:*",

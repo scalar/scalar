@@ -109,8 +109,15 @@ export function useThreeWayMergeEditor(options: UseThreeWayMergeEditorOptions): 
   const normalizeConflicts = computed(() => {
     const conflictList = toValue(conflicts)
     return conflictList.map((conflict) => {
-      const localChanges = conflict[0]
-      const remoteChanges = conflict[1]
+      // Conflict tuples follow the workspace-store convention emitted by
+      // `rebaseDocument`: `[changelogIncoming, changelogLocal]` -
+      // i.e. index 0 is the upstream/remote change and index 1 is the
+      // local edit. Aligning here means every consumer of this hook
+      // (the in-page Sync flow in `DocumentCollection.vue` and the
+      // header Pull flow in `App.vue`) can pass `result.conflicts`
+      // straight through without transposing.
+      const remoteChanges = conflict[0]
+      const localChanges = conflict[1]
       let smallestPath = localChanges[0]!.path
       for (const localChange of localChanges) {
         if (localChange.path.length < smallestPath.length) {
@@ -137,14 +144,18 @@ export function useThreeWayMergeEditor(options: UseThreeWayMergeEditorOptions): 
     })
   })
 
-  const documentWithLocalChanges = computed(() =>
+  // Pane previews follow the same `[remote, local]` tuple convention as
+  // `normalizeConflicts` above: index 0 is the upstream change set, so
+  // `documentWithRemoteChanges` reads from `it[0]` and the local /
+  // "Current" pane reads from `it[1]`.
+  const documentWithRemoteChanges = computed(() =>
     apply(
       deepClone(toValue(resolvedDocument)),
       toValue(conflicts).flatMap((it) => it[0]),
     ),
   )
 
-  const documentWithRemoteChanges = computed(() =>
+  const documentWithLocalChanges = computed(() =>
     apply(
       deepClone(toValue(resolvedDocument)),
       toValue(conflicts).flatMap((it) => it[1]),

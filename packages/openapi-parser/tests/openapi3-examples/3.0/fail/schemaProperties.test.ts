@@ -1,13 +1,15 @@
 import { describe, expect, it } from 'vitest'
 
 import { validate } from '../../../../src/index'
+import type { AnyObject } from '../../../../src/types'
 import schemaProperties from './schemaProperties.yaml?raw'
 
 describe('schemaProperties', () => {
   it('returns an error', async () => {
     const { valid, errors, schema } = await validate(schemaProperties)
+    const parsedSchema = schema as AnyObject | undefined
 
-    expect(schema?.components?.schemas?.SomeObject).not.toBe(undefined)
+    expect(parsedSchema?.components?.schemas?.SomeObject).not.toBe(undefined)
 
     expect(errors).not.toBe(undefined)
     expect(errors).not.toStrictEqual([])

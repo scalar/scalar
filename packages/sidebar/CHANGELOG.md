@@ -1,5 +1,19 @@
 # @scalar/sidebar
 
+## 0.9.9
+
+## 0.9.8
+
+## 0.9.7
+
+## 0.9.6
+
+## 0.9.5
+
+### Patch Changes
+
+- [#8972](https://github.com/scalar/scalar/pull/8972): fix: remove the broder from the item decorators
+
 ## 0.9.4
 
 ## 0.9.3

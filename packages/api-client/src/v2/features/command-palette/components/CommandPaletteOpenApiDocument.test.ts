@@ -25,6 +25,7 @@ describe('CommandPaletteDocument', () => {
   const createMockEventBus = () => ({
     emit: vi.fn(),
     on: vi.fn(),
+    once: vi.fn(),
     off: vi.fn(),
   })
 
@@ -133,6 +134,75 @@ describe('CommandPaletteDocument', () => {
 
     const form = wrapper.findComponent({ name: 'CommandActionForm' })
     expect(form.props('disabled')).toBe(true)
+  })
+
+  it('shows an inline error when the document name already exists', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'Existing Document': { id: '123' },
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteDocument, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', 'Existing Document')
+    await nextTick()
+
+    const error = wrapper.find('[data-testid="command-palette-document-error"]')
+    expect(error.exists()).toBe(true)
+    expect(error.attributes('role')).toBe('alert')
+    expect(error.text()).toContain('Existing Document')
+    expect(error.text()).toContain('already exists')
+  })
+
+  it('does not show an inline error when the document name is empty', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'Existing Document': { id: '123' },
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteDocument, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    expect(wrapper.find('[data-testid="command-palette-document-error"]').exists()).toBe(false)
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', '   ')
+    await nextTick()
+
+    expect(wrapper.find('[data-testid="command-palette-document-error"]').exists()).toBe(false)
+  })
+
+  it('clears the inline error once the user types a unique name', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'Existing Document': { id: '123' },
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteDocument, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', 'Existing Document')
+    await nextTick()
+    expect(wrapper.find('[data-testid="command-palette-document-error"]').exists()).toBe(true)
+
+    await input.vm.$emit('update:modelValue', 'Existing Document v2')
+    await nextTick()
+    expect(wrapper.find('[data-testid="command-palette-document-error"]').exists()).toBe(false)
   })
 
   it('enables form when document name is valid and unique', async () => {

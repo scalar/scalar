@@ -1,3 +1,5 @@
+import type { AddressInfo } from 'node:net'
+
 import { type FastifyInstance, fastify } from 'fastify'
 import { beforeEach, describe, expect, it } from 'vitest'
 
@@ -63,8 +65,7 @@ describe('dereference', () => {
 
   describe('async', () => {
     let server: FastifyInstance
-    const port = 7299
-    const url = `http://localhost:${port}`
+    let url: string
 
     beforeEach(() => {
       server = fastify({ logger: false })
@@ -85,7 +86,8 @@ describe('dereference', () => {
       }
       server.get('/users', () => userProfile)
 
-      await server.listen({ port: port })
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
       const data = {
         profile: {
@@ -100,7 +102,7 @@ describe('dereference', () => {
         success: true,
         data: {
           profile: {
-            '$ref': '#/x-ext/f053c6d',
+            '$ref': `#/x-ext/${getHash(`${url}/users`)}`,
             '$ref-value': {
               name: 'Jane Doe',
               age: 25,
@@ -111,17 +113,17 @@ describe('dereference', () => {
             },
           },
           address: {
-            '$ref': '#/x-ext/f053c6d/address',
+            '$ref': `#/x-ext/${getHash(`${url}/users`)}/address`,
             '$ref-value': {
               city: 'Los Angeles',
               street: 'Sunset Boulevard',
             },
           },
           'x-ext': {
-            'f053c6d': userProfile,
+            [getHash(`${url}/users`)]: userProfile,
           },
           'x-ext-urls': {
-            'f053c6d': `${url}/users`,
+            [getHash(`${url}/users`)]: `${url}/users`,
           },
         },
       })
@@ -164,6 +166,9 @@ describe('dereference', () => {
     })
 
     it('should handle errors when dereferencing remote refs', async () => {
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
+
       const data = {
         profile: {
           $ref: `${url}/nonexistent`,

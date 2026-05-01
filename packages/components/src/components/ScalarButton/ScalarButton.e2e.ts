@@ -11,7 +11,7 @@ const variants = {
 } as const
 
 test.describe('ScalarButton', () => {
-  test.use({ component: 'ScalarButton', crop: true, background: true })
+  test.use({ component: 'ScalarButton', crop: 'component', background: true })
   // For each variant
   Object.entries(variants).forEach(([variantLabel, variant]) =>
     test.describe(variantLabel, () => {

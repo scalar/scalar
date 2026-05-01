@@ -5,7 +5,7 @@
 import path from 'node:path'
 
 import SwaggerParser from '@apidevtools/swagger-parser'
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { Document as OpenApiDocumentV3_2, InfoObject as OpenApiInfoObjectV3_2 } from '@scalar/openapi-types/3.2'
 import { describe, expect, it } from 'vitest'
 
 import { readFiles } from '@/plugins/read-files/read-files'
@@ -18,14 +18,18 @@ const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../../test
 
 describe('resolveReferences', () => {
   it('resolves a media type reference', () => {
-    const specification: OpenAPI.Document = {
+    const specification: OpenApiDocumentV3_2 = {
       openapi: '3.2.0',
-      info: {},
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      } satisfies OpenApiInfoObjectV3_2,
       paths: {
         '/foobar': {
           get: {
             responses: {
               '200': {
+                description: 'ok',
                 content: {
                   'application/json': {
                     $ref: '#/components/mediaTypes/Foobar',
@@ -426,7 +430,7 @@ describe('resolveReferences', () => {
     expect(() => JSON.stringify(schema, null, 2)).toThrow()
 
     // Sky is the limit
-    expect(schema.foo.bar.bar.bar.bar.bar.bar.bar.bar).toBeTypeOf('object')
+    expect((schema as AnyObject).foo.bar.bar.bar.bar.bar.bar.bar.bar).toBeTypeOf('object')
   })
 
   it('resolves a more advanced circular reference', () => {
@@ -484,9 +488,9 @@ describe('resolveReferences', () => {
     expect(specification.properties.element.$ref).toBeTypeOf('string')
 
     // Circular dependency should be resolved
-    expect(schema.properties.element.type).toBe('object')
-    expect(schema.properties.element.properties.element.type).toBe('object')
-    expect(schema.properties.element.properties.element.properties.element.type).toBe('object')
+    expect((schema as AnyObject).properties.element.type).toBe('object')
+    expect((schema as AnyObject).properties.element.properties.element.type).toBe('object')
+    expect((schema as AnyObject).properties.element.properties.element.properties.element.type).toBe('object')
 
     // Circular references can't be JSON.stringify'd (easily)
     expect(() => JSON.stringify(schema, null, 2)).toThrow()
@@ -651,7 +655,7 @@ describe('resolveReferences', () => {
     const { schema } = resolveReferences(filesystem)
 
     // Resolve the *path* from the given file
-    expect(schema.components.schemas.Upload.allOf[0].title).toBe('Coordinates')
+    expect((schema as AnyObject).components.schemas.Upload.allOf[0].title).toBe('Coordinates')
   })
 
   it('resolves reference to self by filename', () => {

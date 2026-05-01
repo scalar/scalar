@@ -33,7 +33,7 @@ catalogs:
     '@nestjs/schematics': '^11.0.9'
     '@nestjs/swagger': '^7.3.1'
     '@nestjs/testing': '^11.1.11'
-    '@playwright/test': 1.56.0
+    '@playwright/test': 1.59.1
     '@scalar/typebox': 0.1.3
     '@tailwindcss/vite': ^4.2.0
     '@types/express': 5.0.3
@@ -53,7 +53,7 @@ catalogs:
     'fastify-plugin': ^4.5.1
     ai: 6.0.33
     ansis: 4.1.0
-    astro: 5.15.9
+    astro: 5.18.1
     cookie: 1.1.1
     commander: 13.1.0
     concurrently: 9.1.2
@@ -72,9 +72,9 @@ catalogs:
     monaco-editor: 0.55.1
     monaco-yaml: 5.4.1
     nanoid: ^5.1.6
-    next: ^15.5.10
+    next: ^15.5.14
     neverpanic: 0.0.7
-    picomatch: ^4.0.2
+    picomatch: ^4.0.4
     postcss: ^8.4.38
     radix-vue: ^1.9.17
     react-dom: ^19.2.3
@@ -95,7 +95,7 @@ catalogs:
     vue-router: 5.0.4
     vue-tsc: ^3.2.4
     vue: ^3.5.30
-    yaml: ^2.8.0
+    yaml: ^2.8.3
     zod: ^4.3.5
     posthog-js: 1.363.2
 ignoredBuiltDependencies:
@@ -120,3 +120,11 @@ onlyBuiltDependencies:
 minimumReleaseAgeExclude:
   # Renovate security update: flatted@3.4.0
   - flatted@3.4.0
+  # Renovate security update: astro@6.0.0 || 5.18.1
+  - astro@6.0.0 || 5.18.1
+  # Renovate security update: yaml@2.8.3
+  - yaml@2.8.3
+  # Renovate security update: picomatch@4.0.4
+  - picomatch@4.0.4
+  # Renovate security update: next@15.5.14
+  - next@15.5.14

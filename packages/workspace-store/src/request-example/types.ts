@@ -1,14 +1,11 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
-export type Result<T> =
-  | {
-      ok: true
-      data: T
-    }
-  | {
-      ok: false
-      error: string
-    }
+/**
+ * Re-exported from `@scalar/helpers/types/result` so the rest of the
+ * workspace-store codebase keeps importing `Result` from a colocated
+ * module while the canonical definition lives in helpers.
+ */
+export type { Result } from '@scalar/helpers/types/result'
 
 export type RequestExampleMeta = {
   path: string

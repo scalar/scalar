@@ -1,5 +1,27 @@
 # @scalar/oas-utils
 
+## 0.15.1
+
+### Patch Changes
+
+- [#9023](https://github.com/scalar/scalar/pull/9023): chore: use homemade slugger
+
+## 0.15.0
+
+### Minor Changes
+
+- [#9045](https://github.com/scalar/scalar/pull/9045): chore: migrate api-client from namespaces to teamSlug and convert team workspaces
+
+## 0.14.0
+
+### Minor Changes
+
+- [#8986](https://github.com/scalar/scalar/pull/8986): chore: migrate api-client from namespaces to teamSlug and convert team workspaces
+
+## 0.13.4
+
+## 0.13.3
+
 ## 0.13.2
 
 ## 0.13.1

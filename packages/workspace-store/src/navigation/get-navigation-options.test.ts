@@ -289,7 +289,7 @@ describe('get-navigation-options', () => {
       name: 'My API (v2.0) - Production',
       info: { title: 'My API (v2.0) - Production', version: '2.0.0' },
     })
-    expect(id).toBe('my-api-v20---production')
+    expect(id).toBe('my-api-v20-production')
   })
 
   it('handles tag with empty name', () => {

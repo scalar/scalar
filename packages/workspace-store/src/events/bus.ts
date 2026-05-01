@@ -63,6 +63,21 @@ export type WorkspaceEventBus = {
   off<E extends keyof ApiReferenceEvents>(event: E, listener: EventListener<E>): void
 
   /**
+   * Subscribe to an event, but only trigger the listener once.
+   * The listener is automatically removed after the first invocation.
+   *
+   * @param event - The event name to listen for
+   * @param listener - Callback function that receives the event detail
+   * @returns Unsubscribe function to remove the listener before it fires
+   *
+   * @example
+   * bus.once('scalar-update-sidebar', (detail) => {
+   *   console.log('Fired once:', detail.value)
+   * })
+   */
+  once<E extends keyof ApiReferenceEvents>(event: E, listener: EventListener<E>): Unsubscribe
+
+  /**
    * Emit an event with its payload
    *
    * @param event - The event name to emit
@@ -75,6 +90,11 @@ export type WorkspaceEventBus = {
    * bus.emit('scalar-update-sidebar', { value: true })
    */
   emit<E extends keyof ApiReferenceEvents>(...args: EmitParameters<E>): void
+
+  /**
+   * Flush all queued debounced emits immediately.
+   */
+  flushDebouncedEmits?(): void
 }
 
 /**
@@ -134,7 +154,9 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
    * Single debounce instance for all debounced emits
    * Uses keys to separate different event + debounceKey combinations
    */
-  const { execute: debouncedEmitter } = debounce({ delay: 328 })
+  const { execute: debouncedEmitter, flushAll: flushDebouncedEmitters } = debounce({
+    delay: 328,
+  })
 
   /**
    * Get or create a listener set for an event
@@ -188,6 +210,14 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
       }
       logTimeout = setTimeout(flushLogs, 500)
     }
+  }
+
+  const once = <E extends keyof ApiReferenceEvents>(event: E, listener: EventListener<E>): Unsubscribe => {
+    const wrapper = (payload: ApiReferenceEvents[E] | undefined): void => {
+      off(event, wrapper as EventListener<E>)
+      ;(listener as (payload: ApiReferenceEvents[E] | undefined) => void)(payload)
+    }
+    return on(event, wrapper as EventListener<E>)
   }
 
   const on = <E extends keyof ApiReferenceEvents>(event: E, listener: EventListener<E>): Unsubscribe => {
@@ -265,9 +295,15 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
     debouncedEmitter(debounceMapKey, () => performEmit(event, payload, options))
   }
 
+  const flushDebouncedEmits = (): void => {
+    flushDebouncedEmitters()
+  }
+
   return {
     on,
+    once,
     off,
     emit,
+    flushDebouncedEmits,
   }
 }

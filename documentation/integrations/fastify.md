@@ -295,9 +295,8 @@ await fastify.register(ScalarApiReference, {
 // …
 ```
 
-:::scalar-callout{ type=info }
-It's not really a problem to have an `import` statement in the middle of your file, it's not really common, though. Feel free to move it to the top of your files, where `import` statements usually live.
-:::
+> [!NOTE]
+> It's not really a problem to have an `import` statement in the middle of your file, it's not really common, though. Feel free to move it to the top of your files, where `import` statements usually live.
 
 Wow, this is it already. Restart the server, if it didn't already and take a look at your new API reference:
 
@@ -330,9 +329,8 @@ TypeScript should give you a nice autocomplete for all options. If you're more i
 
 Auto-generated OpenAPI files are great, but some OpenAPI purists argue it's worth to handcraft your OpenAPI files. If you're one of them, feel free to just pass an URL to your existing OpenAPI file:
 
-:::scalar-callout{ type=info }
-If you don't use `@fastify/swagger` to generate and serve an OpenAPI specification, you need to serve it manually. [To serve static files, try @fastify/static](https://github.com/fastify/fastify-static).
-:::
+> [!NOTE]
+> If you don't use `@fastify/swagger` to generate and serve an OpenAPI specification, you need to serve it manually. [To serve static files, try @fastify/static](https://github.com/fastify/fastify-static).
 
 ```javascript
 import ScalarApiReference from '@scalar/fastify-api-reference'

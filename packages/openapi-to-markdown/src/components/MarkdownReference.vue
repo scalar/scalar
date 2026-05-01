@@ -5,6 +5,7 @@ import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type {
   OpenApiDocument,
   OperationObject,
+  ParameterObject,
   RequestBodyObject,
   ResponseObject,
   SchemaObject,
@@ -26,6 +27,19 @@ type SchemaView = {
 type RequestBodyView = {
   content?: Record<string, { schema?: unknown }>
 }
+type ParameterView = {
+  name: string
+  in: string
+  description?: string
+  required?: boolean
+  deprecated?: boolean
+  allowEmptyValue?: boolean
+  allowReserved?: boolean
+  style?: string
+  explode?: boolean
+  schema?: unknown
+  content?: Record<string, { schema?: unknown }>
+}
 type ResponseView = {
   description?: string
   content?: Record<string, { schema?: unknown }>
@@ -35,6 +49,7 @@ type OperationEntry = {
   path: string
   method: string
   operation: OperationObject
+  parameters: ParameterView[]
   requestBody: RequestBodyView | null
   responses: Array<{
     statusCode: string
@@ -80,14 +95,53 @@ const resolveSchema = (schema: unknown): SchemaObject | null =>
 const resolveRequestBody = (body: unknown): RequestBodyObject | null =>
   resolveRefAs<RequestBodyObject>(body)
 
+const resolveParameter = (parameter: unknown): ParameterObject | null =>
+  resolveRefAs<ParameterObject>(parameter)
+
 const resolveResponse = (response: unknown): ResponseObject | null =>
   resolveRefAs<ResponseObject>(response)
 
 const toRequestBodyView = (body: unknown): RequestBodyView | null =>
   resolveRequestBody(body) as unknown as RequestBodyView | null
 
+const toParameterView = (parameter: unknown): ParameterView | null => {
+  const resolvedParameter = resolveParameter(parameter)
+
+  if (!resolvedParameter) {
+    return null
+  }
+
+  return resolvedParameter as unknown as ParameterView
+}
+
 const toResponseView = (response: unknown): ResponseView | null =>
   resolveResponse(response) as unknown as ResponseView | null
+
+const getParameterKey = (parameter: ParameterView): string =>
+  `${parameter.in}:${parameter.name}`
+
+const getParameters = (
+  pathParameters: unknown,
+  operationParameters: unknown,
+): ParameterView[] => {
+  const parameters = new Map<string, ParameterView>()
+
+  for (const parameterList of [pathParameters, operationParameters]) {
+    if (!Array.isArray(parameterList)) {
+      continue
+    }
+
+    for (const parameter of parameterList) {
+      const parameterView = toParameterView(parameter)
+
+      if (parameterView) {
+        parameters.set(getParameterKey(parameterView), parameterView)
+      }
+    }
+  }
+
+  return Array.from(parameters.values())
+}
 
 const HTTP_METHODS = new Set([
   'get',
@@ -119,6 +173,10 @@ const operations = computed<OperationEntry[]>(() => {
         return []
       }
 
+      const parameters = getParameters(
+        pathItem.parameters,
+        resolvedOperation.parameters,
+      )
       const requestBody = toRequestBodyView(resolvedOperation.requestBody)
       const responses = Object.entries(
         resolvedOperation.responses ?? {},
@@ -137,6 +195,7 @@ const operations = computed<OperationEntry[]>(() => {
           path,
           method,
           operation: resolvedOperation,
+          parameters,
           requestBody,
           responses,
         },
@@ -307,6 +366,69 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
                 url: content.servers?.[0]?.url + path,
               }) }}</code></pre>
             </section> -->
+
+          <template v-if="entry.parameters.length">
+            <section>
+              <h4>Parameters</h4>
+
+              <template
+                v-for="parameter in entry.parameters"
+                :key="`${parameter.in}:${parameter.name}`">
+                <section>
+                  <h5>
+                    <code>{{ parameter.name }}</code>
+                    <template v-if="parameter.required"> required</template>
+                    <template v-if="parameter.deprecated"> deprecated</template>
+                  </h5>
+                  <ul>
+                    <li>
+                      <strong>In:</strong>&nbsp;<code>{{ parameter.in }}</code>
+                    </li>
+                    <template v-if="parameter.style">
+                      <li>
+                        <strong>Style:</strong>&nbsp;<code>{{
+                          parameter.style
+                        }}</code>
+                      </li>
+                    </template>
+                    <template v-if="typeof parameter.explode === 'boolean'">
+                      <li>
+                        <strong>Explode:</strong>&nbsp;<code>{{
+                          parameter.explode
+                        }}</code>
+                      </li>
+                    </template>
+                    <template v-if="parameter.allowEmptyValue">
+                      <li><strong>Allow Empty Value:</strong>&nbsp;true</li>
+                    </template>
+                    <template v-if="parameter.allowReserved">
+                      <li><strong>Allow Reserved:</strong>&nbsp;true</li>
+                    </template>
+                  </ul>
+
+                  <ScalarMarkdown
+                    v-if="parameter.description"
+                    :value="parameter.description" />
+
+                  <template v-if="resolveSchema(parameter.schema)">
+                    <Schema :schema="resolveSchema(parameter.schema)!" />
+                  </template>
+
+                  <template v-if="parameter.content">
+                    <template
+                      v-for="(parameterContent, mediaType) in parameter.content"
+                      :key="mediaType">
+                      <h6>Content-Type: {{ mediaType }}</h6>
+                      <template v-if="resolveSchema(parameterContent.schema)">
+                        <Schema
+                          :schema="resolveSchema(parameterContent.schema)!" />
+                      </template>
+                    </template>
+                  </template>
+                </section>
+              </template>
+            </section>
+          </template>
 
           <template v-if="entry.requestBody?.content">
             <section>

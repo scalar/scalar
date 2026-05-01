@@ -1,3 +1,4 @@
+import { PETSTORE_URL_2_0, STRIPE_URL_3_0 } from '@scalar/helpers/url/oas-document-fixtures'
 import { bench, describe, expect } from 'vitest'
 
 import { upgradeFromTwoToThree } from './2.0-to-3.0/upgrade-from-two-to-three'
@@ -6,11 +7,9 @@ import { upgradeFromTwoToThree } from './2.0-to-3.0/upgrade-from-two-to-three'
 import { upgrade } from './upgrade'
 
 // Setup the test data
-const STRIPE = await fetch(
-  'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.json',
-).then((r) => r.json())
+const STRIPE = await fetch(STRIPE_URL_3_0).then((r) => r.json())
 
-const PETSTORE = await fetch('https://petstore.swagger.io/v2/swagger.json').then((r) => r.json())
+const PETSTORE = await fetch(PETSTORE_URL_2_0).then((r) => r.json())
 
 describe('upgrade', () => {
   describe('Petstore: Swagger 2.0 to OpenAPI 3.0', () => {

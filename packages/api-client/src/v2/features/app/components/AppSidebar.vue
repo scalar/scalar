@@ -5,28 +5,18 @@ import {
   ScalarModal,
   ScalarSidebar,
   ScalarSidebarButton,
-  ScalarSidebarItem,
   ScalarSidebarItems,
-  ScalarSidebarNestedItems,
   ScalarSidebarSearchInput,
   ScalarSidebarSection,
   useModal,
 } from '@scalar/components'
 import {
-  ScalarIconCaretLeft,
-  ScalarIconDotsThree,
   ScalarIconFolderDashed,
   ScalarIconFunnel,
   ScalarIconGearSix,
-  ScalarIconMagnifyingGlass,
   ScalarIconPlus,
 } from '@scalar/icons'
-import {
-  filterItems,
-  SidebarItem,
-  type DraggingItem,
-  type HoveredItem,
-} from '@scalar/sidebar'
+import type { DraggingItem, HoveredItem } from '@scalar/sidebar'
 import { useToasts } from '@scalar/use-toasts'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
@@ -34,6 +24,7 @@ import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { Resize } from '@/v2/components/resize'
+import SidebarDocument from '@/v2/features/app/components/SidebarDocument.vue'
 import SidebarItemMenu from '@/v2/features/app/components/SidebarItemMenu.vue'
 import { createTempOperation } from '@/v2/features/app/helpers/create-temp-operation'
 import { loadRegistryDocument } from '@/v2/features/app/helpers/load-registry-document'
@@ -41,12 +32,15 @@ import { useDocumentFilter } from '@/v2/features/app/hooks/use-document-filter'
 import { useSidebarContextMenu } from '@/v2/features/app/hooks/use-sidebar-context-menu'
 import {
   useSidebarDocuments,
-  type RegistryDocumentsState,
   type SidebarDocumentItem,
 } from '@/v2/features/app/hooks/use-sidebar-documents'
 import { DocumentSearchModal } from '@/v2/features/search'
 import { dragHandleFactory } from '@/v2/helpers/drag-handle-factory'
-import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
+import { safeRun } from '@/v2/helpers/safe-run'
+import type {
+  ImportDocumentFromRegistry,
+  RegistryDocumentsState,
+} from '@/v2/types/configuration'
 
 const {
   app,
@@ -81,7 +75,7 @@ const isLoadingRegistry = computed(
     app.workspace.isTeamWorkspace.value,
 )
 
-const { rest } = useSidebarDocuments({
+const { pinned, rest } = useSidebarDocuments({
   app,
   managedDocs: () => registryDocuments.documents ?? [],
 })
@@ -132,7 +126,13 @@ const handleDocumentClick = async (item: SidebarDocumentItem) => {
     return
   }
 
-  if (!item.registry || !app.store.value) {
+  // Capture the narrowed values into locals so the closure passed to
+  // `safeRun` keeps the non-nullable types without needing assertions, and
+  // so a later mutation to `item.registry` or `app.store.value` cannot
+  // change what we end up loading mid-flight.
+  const { registry } = item
+  const workspaceStore = app.store.value
+  if (!registry || !workspaceStore) {
     console.warn('Document does not have a sidebar navigation, skipping...')
     return
   }
@@ -150,15 +150,40 @@ const handleDocumentClick = async (item: SidebarDocumentItem) => {
 
   loadingKeys.value[item.key] = true
 
-  const result = await loadRegistryDocument({
-    fetcher: fetchRegistryDocument,
-    workspaceStore: app.store.value,
-    namespace: item.registry.namespace,
-    slug: item.registry.slug,
-  })
+  // Registry items expose every version they advertise on `versions`, ordered
+  // with the latest first. Until we surface a version picker on the parent
+  // row we always load whichever version is at the top of the list, which is
+  // the latest one. Falling back to `undefined` lets the loader default to
+  // the registry's `latest` alias when the entry was synthesized from a
+  // workspace document that has no advertised versions yet.
+  const targetVersion = item.versions?.[0]
+
+  // The loader can throw on network errors or malformed payloads. `safeRun`
+  // converts a rejection into an `{ ok: false, error }` result so a single
+  // failure cannot leave the row's spinner running forever and block
+  // subsequent clicks on the same item.
+  const outcome = await safeRun(() =>
+    loadRegistryDocument({
+      fetcher: fetchRegistryDocument,
+      workspaceStore,
+      namespace: registry.namespace,
+      slug: registry.slug,
+      version: targetVersion?.version,
+      // Forward the registry-advertised hash from the version row. Storing it
+      // on the imported document lets us later detect when the registry has
+      // moved on and surface upstream changes.
+      commitHash: targetVersion?.registryCommitHash,
+    }),
+  )
 
   loadingKeys.value[item.key] = false
 
+  if (!outcome.ok) {
+    toast(outcome.error, 'error')
+    return
+  }
+
+  const result = outcome.data
   if (!result.ok) {
     toast(result.error, 'error')
     return
@@ -454,42 +479,46 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
               <ScalarIconFolderDashed
                 class="size-10"
                 weight="light" />
-              <p class="text-sm font-medium">No APIs yet</p>
+              <p class="text-sm font-medium">Nothing added yet</p>
             </div>
             <ScalarSidebarItems v-else>
               <!-- Show pinned documents after we add support for it -->
-              <!--  <ScalarSidebarSection v-if="pinned.length">
-              Pinned
-              <template #items>
-                <ScalarSidebarNestedItems
-                  v-for="item in pinned"
-                  :key="item.key"
-                  :active="isDocActive(item)"
-                  controlled
-                  :open="Boolean(openKeys[item.key])"
-                  @back="openKeys[item.key] = false"
-                  @click="handleDocumentClick(item)">
-                  <span class="truncate">{{ item.title }}</span>
-                  <template #back-label>{{ item.title }}</template>
-                  <template #items>
-                    <SidebarItem
-                      v-for="child in filterItems(item.navigation?.children ?? [])"
-                      :key="child.id"
-                      :isDraggable="false"
-                      :isDroppable="isDroppable"
-                      :isExpanded="isExpanded"
-                      :isSelected="isSelected"
-                      :item="child"
-                      layout="client"
-                      @selectItem="handleSelectItem"
-                      @toggleGroup="handleToggleGroup" />
-                  </template>
-                </ScalarSidebarNestedItems>
-              </template>
-            </ScalarSidebarSection> -->
+              <ScalarSidebarSection v-if="pinned.length">
+                <template
+                  v-if="pinned.length && rest.length"
+                  #default>
+                  Pinned
+                </template>
+                <template #items>
+                  <SidebarDocument
+                    v-for="item in pinned"
+                    :key="item.key"
+                    :active="isDocActive(item)"
+                    :isDroppable="isDroppable"
+                    :isExpanded="isExpanded"
+                    :isSelected="isSelected"
+                    :item="item"
+                    :loading="loadingKeys[item.key]"
+                    :open="isDocActive(item)"
+                    @addEmptyFolder="handleAddEmptyFolder"
+                    @back="handleBack"
+                    @click="handleDocumentClick(item)"
+                    @createOperation="handleCreateOperation"
+                    @dragEnd="handleDragEnd"
+                    @openMenu="openMenu"
+                    @openSettings="handleOpenSettings"
+                    @search="handleFilterOrSearch"
+                    @selectItem="handleSelectItem"
+                    @toggleGroup="handleToggleGroup" />
+                </template>
+              </ScalarSidebarSection>
 
               <ScalarSidebarSection>
-                All documents
+                <template
+                  v-if="pinned.length && rest.length"
+                  #default>
+                  All documents
+                </template>
                 <template #items>
                   <!--
                     Skeleton rows shown while the caller is still fetching
@@ -506,126 +535,26 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                       <span class="bg-b-3 block h-6 rounded-md" />
                     </li>
                   </template>
-                  <ScalarSidebarNestedItems
+                  <SidebarDocument
                     v-for="item in filteredRest"
                     :key="item.key"
                     :active="isDocActive(item)"
-                    controlled
+                    :isDroppable="isDroppable"
+                    :isExpanded="isExpanded"
+                    :isSelected="isSelected"
+                    :item="item"
+                    :loading="loadingKeys[item.key]"
                     :open="isDocActive(item)"
+                    @addEmptyFolder="handleAddEmptyFolder"
                     @back="handleBack"
-                    @click="handleDocumentClick(item)">
-                    <span>{{ item.title }}</span>
-                    <template
-                      v-if="loadingKeys[item.key]"
-                      #aside>
-                      <span class="text-c-3 text-xs">Loading…</span>
-                    </template>
-                    <!-- Document back row -->
-                    <template #back>
-                      <div class="flex items-center gap-1">
-                        <ScalarSidebarButton
-                          is="button"
-                          class="text-sidebar-c-1 font-sidebar-active hover:text-sidebar-c-1 flex-1"
-                          @click="handleBack">
-                          <template #icon>
-                            <ScalarIconCaretLeft
-                              class="text-sidebar-c-2 -m-px size-4" />
-                          </template>
-                          Back
-                        </ScalarSidebarButton>
-                        <ScalarIconButton
-                          :icon="ScalarIconGearSix"
-                          label="Collection settings"
-                          size="sm"
-                          @click="handleOpenSettings" />
-                        <ScalarIconButton
-                          :icon="ScalarIconMagnifyingGlass"
-                          label="Search collection"
-                          size="sm"
-                          @click="handleFilterOrSearch" />
-                        <ScalarIconButton
-                          class="rounded-full border"
-                          :icon="ScalarIconPlus"
-                          label="Add operation"
-                          size="sm"
-                          @click="handleCreateOperation(item)" />
-                      </div>
-                    </template>
-                    <!-- Document items (operations, tags, examples) -->
-                    <template #items>
-                      <template v-if="item.navigation?.children?.length">
-                        <SidebarItem
-                          v-for="child in filterItems(
-                            'client',
-                            item.navigation.children,
-                          )"
-                          :key="child.id"
-                          :isDroppable="isDroppable"
-                          :isExpanded="isExpanded"
-                          :isSelected="isSelected"
-                          :item="child"
-                          layout="client"
-                          @onDragEnd="handleDragEnd"
-                          @selectItem="handleSelectItem"
-                          @toggleGroup="handleToggleGroup">
-                          <!--
-                            Per-item "more" dropdown for tags, operations and
-                            examples (add / edit / delete…). The dropdown is
-                            rendered once at the sidebar root and anchors
-                            itself to whichever icon button opened it.
-                            Operation settings live on the operation header
-                            (next to the environment selector), not here.
-                          -->
-                          <template #decorator="{ item: entry }">
-                            <ScalarIconButton
-                              aria-expanded="false"
-                              aria-haspopup="menu"
-                              class="bg-b-2"
-                              :icon="ScalarIconDotsThree"
-                              label="More options"
-                              size="sm"
-                              variant="ghost"
-                              weight="bold"
-                              @click.stop="
-                                (e: MouseEvent) => openMenu(e, entry)
-                              "
-                              @keydown.down.stop="
-                                (e: KeyboardEvent) => openMenu(e, entry)
-                              "
-                              @keydown.enter.stop="
-                                (e: KeyboardEvent) => openMenu(e, entry)
-                              "
-                              @keydown.space.stop="
-                                (e: KeyboardEvent) => openMenu(e, entry)
-                              "
-                              @keydown.up.stop="
-                                (e: KeyboardEvent) => openMenu(e, entry)
-                              " />
-                          </template>
-                          <!--
-                            Empty tag / folder slot. Matches the "Add operation"
-                            affordance from the old sidebar so users can create
-                            an operation directly inside the hovered tag.
-                          -->
-                          <template #empty="{ item: emptyItem }">
-                            <ScalarSidebarItem
-                              is="button"
-                              @click="handleAddEmptyFolder(emptyItem)">
-                              <template #icon>
-                                <ScalarIconPlus />
-                              </template>
-                              <template #default>Add operation</template>
-                            </ScalarSidebarItem>
-                          </template>
-                        </SidebarItem>
-                      </template>
-                      <li
-                        v-else
-                        class="text-c-3 px-3 py-1 text-xs">
-                        Empty document
-                      </li>
-                    </template>
-                  </ScalarSidebarNestedItems>
+                    @click="handleDocumentClick(item)"
+                    @createOperation="handleCreateOperation"
+                    @dragEnd="handleDragEnd"
+                    @openMenu="openMenu"
+                    @openSettings="handleOpenSettings"
+                    @search="handleFilterOrSearch"
+                    @selectItem="handleSelectItem"
+                    @toggleGroup="handleToggleGroup" />
                 </template>
               </ScalarSidebarSection>
             </ScalarSidebarItems>

@@ -26,6 +26,7 @@ describe('CommandPaletteRequest', () => {
   const createMockEventBus = () => ({
     emit: vi.fn(),
     on: vi.fn(),
+    once: vi.fn(),
     off: vi.fn(),
   })
 

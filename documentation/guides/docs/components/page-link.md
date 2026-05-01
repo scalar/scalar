@@ -20,9 +20,6 @@ Secondary text shown below the title. Defaults to `"Link to a page in the guide"
 
 ### Link with Path Only
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-page-link filepath="documentation/guides/docs/components/row.md">
 </scalar-page-link>
 
@@ -30,26 +27,9 @@ Secondary text shown below the title. Defaults to `"Link to a page in the guide"
 <scalar-page-link filepath="documentation/guides/docs/components/row.md">
 </scalar-page-link>
 ```
-
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-page-link{filepath="documentation/guides/docs/components/row.md"}
-
-```markdown
-::scalar-page-link{filepath="documentation/guides/docs/components/row.md"}
-```
-
-</scalar-tab>
-</scalar-tabs>
-
 
 ### Link with Path and Title
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-page-link filepath="documentation/guides/docs/components/row.md" title="Row Docs" description="">
 </scalar-page-link>
 
@@ -57,25 +37,9 @@ Secondary text shown below the title. Defaults to `"Link to a page in the guide"
 <scalar-page-link filepath="documentation/guides/docs/components/row.md" title="Row Docs" description="">
 </scalar-page-link>
 ```
-
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-page-link{filepath="documentation/guides/docs/components/row.md" title="Row Docs" description=""}
-
-```markdown
-::scalar-page-link{filepath="documentation/guides/docs/components/row.md" title="Row Docs" description=""}
-```
-
-</scalar-tab>
-</scalar-tabs>
 
 ### Link with Path, Title and Description
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-page-link filepath="documentation/guides/docs/components/row.md" title="Row Docs" description="Row component documentation">
 </scalar-page-link>
 
@@ -83,17 +47,3 @@ Secondary text shown below the title. Defaults to `"Link to a page in the guide"
 <scalar-page-link filepath="documentation/guides/docs/components/row.md" title="Row Docs" description="Row component documentation">
 </scalar-page-link>
 ```
-
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-page-link{filepath="documentation/guides/docs/components/row.md" title="Row Docs" description="Row component documentation"}
-
-```markdown
-::scalar-page-link{filepath="documentation/guides/docs/components/row.md" title="Row Docs" description="Row component documentation"}
-```
-
-</scalar-tab>
-</scalar-tabs>
-

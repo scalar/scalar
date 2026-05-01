@@ -1,6 +1,9 @@
+import type { AddressInfo } from 'node:net'
+
 import { HTTP_METHODS } from '@scalar/helpers/http/http-methods'
 import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
+import { getHash } from '@scalar/json-magic/bundle/value-generator'
 import { type FastifyInstance, fastify } from 'fastify'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -116,8 +119,7 @@ describe('loadingStatus', () => {
 
 describe('externalValueResolver', () => {
   let server: FastifyInstance
-  const port = 9809
-  const url = `http://localhost:${port}`
+  let url: string
 
   beforeEach(() => {
     server = fastify({ logger: false })
@@ -132,7 +134,8 @@ describe('externalValueResolver', () => {
       return { a: 'a' }
     })
 
-    await server.listen({ port })
+    await server.listen({ port: 0 })
+    url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
     const input = {
       hello: 'world',
@@ -158,8 +161,7 @@ describe('externalValueResolver', () => {
 
 describe('refsEverywhere', () => {
   let server: FastifyInstance
-  const port = 9181
-  const url = `http://localhost:${port}`
+  let url: string
 
   beforeEach(() => {
     server = fastify({ logger: false })
@@ -175,7 +177,8 @@ describe('refsEverywhere', () => {
         description: 'Some description',
       }
     })
-    await server.listen({ port })
+    await server.listen({ port: 0 })
+    url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
     const input = {
       info: {
@@ -201,7 +204,8 @@ describe('refsEverywhere', () => {
         description: 'Some description',
       }
     })
-    await server.listen({ port })
+    await server.listen({ port: 0 })
+    url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
     const input = {
       someProp: {
@@ -216,14 +220,15 @@ describe('refsEverywhere', () => {
       plugins: [fetchUrls(), refsEverywhere()],
     })
 
+    const urlHash = getHash(url)
     expect(result).toEqual({
       someProp: {
         info: {
-          '$ref': '#/x-ext/44fe49b',
+          '$ref': `#/x-ext/${urlHash}`,
         },
       },
       'x-ext': {
-        '44fe49b': {
+        [urlHash]: {
           description: 'Some description',
         },
       },
@@ -233,8 +238,7 @@ describe('refsEverywhere', () => {
 
 describe('restoreOriginalRefs', () => {
   let server: FastifyInstance
-  const port = 9088
-  const url = `http://localhost:${port}`
+  let url: string
 
   beforeEach(() => {
     server = fastify({ logger: false })
@@ -246,7 +250,8 @@ describe('restoreOriginalRefs', () => {
 
   it('restores the original references', { timeout: 100000 }, async () => {
     server.get('/', () => ({ description: 'Some resolved value' }))
-    await server.listen({ port })
+    await server.listen({ port: 0 })
+    url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
     const originalInput = {
       a: 'a',
@@ -269,15 +274,16 @@ describe('restoreOriginalRefs', () => {
       plugins: [restoreOriginalRefs()],
     })
 
+    const urlHash = getHash(url)
     expect(input).toEqual({
       ...originalInput,
       'x-ext': {
-        'ad870b6': {
+        [urlHash]: {
           'description': 'Some resolved value',
         },
       },
       'x-ext-urls': {
-        'ad870b6': 'http://localhost:9088',
+        [urlHash]: url,
       },
     })
   })
@@ -578,15 +584,14 @@ describe('normalizeAuthSchemes', () => {
 
   it('normalizes scheme when using external $ref', async () => {
     const server = fastify({ logger: false })
-    const port = 9810
-    const url = `http://localhost:${port}`
 
     server.get('/auth-definition', () => ({
       type: 'http',
       scheme: 'Bearer',
     }))
 
-    await server.listen({ port })
+    await server.listen({ port: 0 })
+    const url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
     const input = {
       components: {
@@ -604,16 +609,17 @@ describe('normalizeAuthSchemes', () => {
     })
 
     // The externally resolved definition should have its scheme normalized
+    const urlHash = getHash(`${url}/auth-definition`)
     expect(input).toEqual({
       'components': {
         'securitySchemes': {
           'bearerAuth': {
-            '$ref': '#/x-ext/c2e0c6a',
+            '$ref': `#/x-ext/${urlHash}`,
           },
         },
       },
       'x-ext': {
-        'c2e0c6a': {
+        [urlHash]: {
           'scheme': 'bearer',
           'type': 'http',
         },

@@ -1,54 +1,49 @@
-# Scalar Reference End to End Testing
+# API reference end-to-end tests
 
-This directory contains end to end testing infrastructure for the API references package including automated snapshot testing using Playwright.
+Playwright tests for `@scalar/api-reference`: feature flows, configuration behavior, committed **visual snapshots**, and standalone layout checks.
 
 ## Overview
 
-The testing setup uses Playwright to capture visual snapshots of different parts of the API reference and to conduct end to end testing of it's features.
+- **Docker-backed browser** — Outside CI, tests connect to Playwright inside **`scalarapi/playwright-runner`** so fonts and rendering match Linux CI. See [`@scalar/helpers/playwright`](../../helpers/src/playwright/README.md).
+- **Serving examples** — Most tests get a URL from **`serveExample`** (`test/utils/serve-example.ts`), a **Hono** server that serves HTML plus the local standalone bundle. This is not the Vite dev playground; build the package before running E2E.
+- **Visual snapshots** — Under `test/snapshots/`, Playwright compares screenshots to images committed under each test’s `.snapshots` directory.
+- **CDN comparison** — A separate suite under [`test/snapshots-cdn/`](./snapshots-cdn/README.md) diffs local builds against the latest package on jsDelivr (`TEST_MODE=CDN`). It is optional context and **non-blocking** in CI.
 
-## How It Works
+## Prerequisites
 
-1. **Docker Container**: Playwright runs in a Docker container for consistent cross-platform results (and to be consistent with CI)
-2. **Visual Regression Detection**: Playwright compares screenshots against stored snapshots to detect changes
-3. **End to End test**: Playwright uses a hono server to test the configurations and features of the API references.
+1. Install dependencies and build upstream packages as usual for the monorepo.
+2. Ensure the **standalone browser bundle** exists (E2E loads `dist/browser/standalone.js`). From `packages/api-reference`, a full package build satisfies this.
 
-## Running Tests
+## Non-Linux / Docker networking
 
-### Non-Linux Systems
+On macOS or Windows, the runner container uses **`--network=host`**. Docker Desktop often does not support host networking; use an implementation that does (for example [OrbStack](https://orbstack.dev/)), or rely on CI for authoritative snapshot runs.
 
-On non-Linux systems (e.g. macOS, Windows) you need to access to a docker implementation that supports the `--network=host` flag. Docker Desktop on macOS and Windows does not support this flag so you will need to use an alternative such as [OrbStack](https://orbstack.dev/).
+## Running tests
 
-### Fetching the Image
-
-The tests run using the `scalarapi/playwright:1.56.0` Docker image. Sometimes the `test:e2e` script will not successfully pull the image (it looks like it does but it doesn't). You can force the pull by running:
-
-```bash
-pnpm test:e2e:playwright
-```
-
-### Local Development
-
-The Playwright browser is run in a Docker container to have consistent results with CI. In order to run the test locally or update snapshots you **must** have Docker set up on your system. 
+From `packages/api-reference`:
 
 ```bash
-# Run tests (starts Docker container automatically)
+# Default E2E (features, snapshots, configuration, standalone)
 pnpm test:e2e
 
-# Update snapshots
-pnpm test:e2e:update
+# Refresh committed baseline screenshots after intentional UI changes
+pnpm test:e2e --update-snapshots
 ```
 
-### Debugging Tests
-
-Run the playwright UI to debug your tests
+Debug with the Playwright UI:
 
 ```bash
-pnpm test:e2e:ui
+pnpm test:e2e --ui
 ```
 
-### CI/CD
+**CDN vs local** visual checks (different config; see `test/snapshots-cdn/README.md`):
 
-Tests run automatically in CI using the same Docker container for consistency. The CI environment:
-- Uses the containerized Playwright setup
-- Compares snapshots against committed baseline images
-- Fails the build if visual regressions are detected
+```bash
+pnpm test:e2e:cdn
+```
+
+## CI
+
+The **`test-e2e-api-reference`** job runs `pnpm --filter api-reference test:e2e:ci` inside `scalarapi/playwright-runner`. Snapshot and screenshot assertions are **blocking**: fix regressions or update baselines with `pnpm test:e2e:update-snapshots` and commit the changed images.
+
+The **CDN snapshot** job is separate, informational, and does not block merges.

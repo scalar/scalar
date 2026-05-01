@@ -1,5 +1,61 @@
 # @scalar/api-client
 
+## 3.5.1
+
+### Patch Changes
+
+- [#9049](https://github.com/scalar/scalar/pull/9049): Flush pending debounced operation edits before executing API client requests.
+- [#9023](https://github.com/scalar/scalar/pull/9023): chore: use homemade slugger
+
+## 3.5.0
+
+### Minor Changes
+
+- [#9045](https://github.com/scalar/scalar/pull/9045): feat: support version switching for regsitry documents
+- [#9045](https://github.com/scalar/scalar/pull/9045): feat: ensure teams can have only one workspace and create default workspace of the team on demand
+- [#9045](https://github.com/scalar/scalar/pull/9045): chore: migrate api-client from namespaces to teamSlug and convert team workspaces
+- [#9045](https://github.com/scalar/scalar/pull/9045): feat: add empty state for the team workspace
+- [#9045](https://github.com/scalar/scalar/pull/9045): feat: make breadcrumbs navigable, add workspace selector fallback, and support team logo slots
+
+### Patch Changes
+
+- [#9045](https://github.com/scalar/scalar/pull/9045): feat: allow masking all temp urls
+- [#9045](https://github.com/scalar/scalar/pull/9045): fix: hide sidebar group label when we have a single group
+- [#9034](https://github.com/scalar/scalar/pull/9034): Surface actual OAuth error messages instead of generic failure messages
+- [#9043](https://github.com/scalar/scalar/pull/9043): chore: move test documents to cdn
+
+## 3.4.0
+
+### Minor Changes
+
+- [#9000](https://github.com/scalar/scalar/pull/9000): feat: support version switching for regsitry documents
+- [#8986](https://github.com/scalar/scalar/pull/8986): feat: ensure teams can have only one workspace and create default workspace of the team on demand
+- [#8986](https://github.com/scalar/scalar/pull/8986): chore: migrate api-client from namespaces to teamSlug and convert team workspaces
+- [#9025](https://github.com/scalar/scalar/pull/9025): feat: add empty state for the team workspace
+- [#9021](https://github.com/scalar/scalar/pull/9021): feat: make breadcrumbs navigable, add workspace selector fallback, and support team logo slots
+
+### Patch Changes
+
+- [#8985](https://github.com/scalar/scalar/pull/8985): feat: allow masking all temp urls
+- [#9024](https://github.com/scalar/scalar/pull/9024): fix: hide sidebar group label when we have a single group
+
+## 3.3.1
+
+### Patch Changes
+
+- [#8839](https://github.com/scalar/scalar/pull/8839): Fix modal fade-in animation stutter by replacing v-show with CSS visibility/opacity to avoid forced layout recalculation on open
+
+## 3.3.0
+
+### Minor Changes
+
+- [#8972](https://github.com/scalar/scalar/pull/8972): feat: implement the new workspace sidebar
+- [#8977](https://github.com/scalar/scalar/pull/8977): feat: add app header
+
+### Patch Changes
+
+- [#8978](https://github.com/scalar/scalar/pull/8978): fix: layout height collapse and improve menu behavior
+
 ## 3.2.2
 
 ### Patch Changes

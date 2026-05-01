@@ -2285,6 +2285,11 @@
                       ]
                     }
                   },
+                  "authentication": {
+                    "filepath": "documentation/guides/cli/authentication.md",
+                    "type": "page",
+                    "title": "Authentication"
+                  },
                   "commands": {
                     "filepath": "documentation/guides/cli/commands.md",
                     "type": "page",
@@ -2406,7 +2411,9 @@
               },
               "/api": {
                 "type": "openapi",
-                "url": "https://registry.scalar.com/@scalar/apis/access-service/latest",
+                "namespace": "scalar",
+                "slug": "access-service",
+                "version": "latest",
                 "title": "Scalar API",
                 "icon": "phosphor/regular/database",
                 "mode": "nested"
