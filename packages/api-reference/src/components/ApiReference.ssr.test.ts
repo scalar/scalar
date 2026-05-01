@@ -1,4 +1,3 @@
-import { apiReferenceConfigurationWithSourceSchema } from '@scalar/schemas/api-reference'
 import { PETSTORE_URL_2_0, PETSTORE_URL_3_0, PETSTORE_URL_3_1 } from '@scalar/helpers/url/oas-document-fixtures'
 import { apiReferenceConfigurationWithSourceSchema } from '@scalar/types/api-reference'
 import { renderToString } from '@vue/server-renderer'
