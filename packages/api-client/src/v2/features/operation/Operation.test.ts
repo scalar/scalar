@@ -2,6 +2,7 @@ import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+import { ref } from 'vue'
 
 import type { RouteProps } from '../app/helpers/routes'
 import Operation from './Operation.vue'
@@ -94,6 +95,27 @@ describe('Operation', () => {
 
     const oc = wrapper.findComponent({ name: 'OperationBlock' })
     expect(oc.exists()).toBe(true)
+  })
+
+  it('passes hideClientButton option to OperationBlock', () => {
+    const wrapper = render({ options: ref({ hideClientButton: true }) })
+
+    const operationBlock = wrapper.getComponent({ name: 'OperationBlock' })
+    expect(operationBlock.props('hideClientButton')).toBe(true)
+  })
+
+  it('passes false hideClientButton option to OperationBlock', () => {
+    const wrapper = render({ options: ref({ hideClientButton: false }) })
+
+    const operationBlock = wrapper.getComponent({ name: 'OperationBlock' })
+    expect(operationBlock.props('hideClientButton')).toBe(false)
+  })
+
+  it('defaults hideClientButton to false', () => {
+    const wrapper = render()
+
+    const operationBlock = wrapper.getComponent({ name: 'OperationBlock' })
+    expect(operationBlock.props('hideClientButton')).toBe(false)
   })
 
   it('passes operation security to OperationBlock when defined on operation', () => {
