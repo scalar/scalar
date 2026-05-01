@@ -28,13 +28,11 @@ import { computed, reactive } from 'vue'
 
 import AppMenuItems from '@/features/header/AppMenuItems.vue'
 import { ImportListener } from '@/features/import-listener'
-import type { CreateWorkspacePayload } from '@/features/import-listener/types'
 import { loginUrl, registerUrl } from '@/helpers/auth/login-url'
 import { fetchRegistryDocument } from '@/helpers/fetch-registry-document'
 import { publishRegistryDocument } from '@/helpers/publish-registry-document'
 import { publishRegistryVersion } from '@/helpers/publish-registry-version'
 import { useAuth } from '@/hooks/use-auth'
-import { useCurrentTeam } from '@/hooks/use-current-team'
 import { useRegistryDocuments } from '@/hooks/use-registry-documents'
 import { useRegistryNamespaces } from '@/hooks/use-registry-namespaces'
 

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { AppState } from '@scalar/api-client/v2/features/app'
 import {
   ScalarIconButton,
   ScalarModal,
@@ -24,6 +23,7 @@ import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { Resize } from '@/v2/components/resize'
+import type { AppState } from '@/v2/features/app'
 import SidebarDocument from '@/v2/features/app/components/SidebarDocument.vue'
 import SidebarItemMenu from '@/v2/features/app/components/SidebarItemMenu.vue'
 import { createTempOperation } from '@/v2/features/app/helpers/create-temp-operation'
