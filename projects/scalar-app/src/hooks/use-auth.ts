@@ -45,7 +45,9 @@ const tokenData = computed<AccessTokenPayload | null>(() => {
 
   try {
     const payload = jwtDecode<Record<string, unknown>>(accessToken.value)
-    if (!validate(accessTokenPayloadSchema, payload)) return null
+    if (!validate(accessTokenPayloadSchema, payload)) {
+      return null
+    }
 
     const { email, role, ...rest } = coerce(accessTokenPayloadSchema, payload)
     return { ...rest, email: email ?? null, role: role ?? 'viewer' }
@@ -61,7 +63,6 @@ const getAccessToken = (): string | null => accessToken.value
 
 /** Clear tokens and wipe all query caches */
 const logout = () => {
-  console.log('wea re logign out')
   accessToken.value = null
   refreshToken.value = null
 

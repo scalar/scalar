@@ -1,8 +1,7 @@
-import { trackPageview } from 'fathom-client'
-
 import { createAppRouter } from '@scalar/api-client/v2/features/app'
 import { useToasts } from '@scalar/use-toasts'
 import { coerce, string } from '@scalar/validation'
+import { trackPageview } from 'fathom-client'
 
 import { exchangeToken } from '@/helpers/auth/exchange-token'
 import { useAuth } from '@/hooks/use-auth'
@@ -30,9 +29,8 @@ router.beforeEach(async (to) => {
     }
 
     // Update the router param query
-    const query = { ...to.query }
-    delete query.exchangeToken
-    router.replace({ query })
+    const { exchangeToken: _, ...query } = to.query
+    return { ...to, query }
   }
 
   /** Hook into the router to track pageviews */
