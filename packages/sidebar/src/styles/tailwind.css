@@ -1,15 +1,12 @@
 /**
- * Sidebar Style Generation
+ * Sidebar Tailwind Generation
  *
  * This file is used to generate the Tailwind style
  * sheet for the sidebar.
  */
 
-/* Component Library Vue Styles */
-@import "@scalar/components/vue-styles.css";
-
 /* Sidebar Tailwind Configuration */
-@import "./styles/tailwind.config.css";
+@import "./tailwind.config.css";
 
 /* Generate the Tailwind Utilities (scoped) */
 .scalar-app {

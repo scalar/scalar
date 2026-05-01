@@ -23,7 +23,8 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "vite build && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "build": "vite build && pnpm build:styles && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "build:styles": "cp -r src/styles dist && tailwindcss --optimize -i src/style.css -o dist/style.css && cat dist/vue-styles.css >> dist/style.css",
     "dev": "pnpm playground:web",
     "playground:app": "vite ./playground/app -c ./vite.config.ts",
     "playground:app:build": "vite build ./playground/app -c ./vite.previews.config.ts",
@@ -31,10 +32,10 @@
     "playground:web": "vite ./playground/web -c ./vite.config.ts",
     "preview": "vite preview",
     "test": "vitest --run",
-    "test:watch": "vitest",
     "test:benchmark": "vitest bench",
     "test:benchmark:compare": "vitest bench --compare test-results/test-benchmark.json",
     "test:benchmark:save": "vitest bench --outputJson test-results/test-benchmark.json",
+    "test:watch": "vitest",
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
@@ -44,6 +45,9 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./style.css": "./dist/style.css",
+    "./tailwind.config.css": "./dist/styles/tailwind.config.css",
+    "./vue-styles.css": "./dist/vue-styles.css",
     "./*.css": {
       "import": "./dist/*.css",
       "require": "./dist/*.css",
@@ -366,6 +370,7 @@
   },
   "devDependencies": {
     "@scalar/pre-post-request-scripts": "workspace:*",
+    "@tailwindcss/cli": "catalog:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/shell-quote": "^1.7.5",
     "@vitejs/plugin-vue": "catalog:*",
