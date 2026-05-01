@@ -8,6 +8,5 @@
 @import "@scalar/components/tailwind.config.css";
 @import "@scalar/api-client/tailwind.config.css";
 
-
 /* Search for Tailwind classes in Agent Chat */
 @source "../";
