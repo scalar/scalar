@@ -63,7 +63,9 @@ const NO_SELECTION_INDEX = -1
 const router = useRouter()
 
 const selectedSearchResult = ref<number>(NO_SELECTION_INDEX)
+const selectedActiveCommandItem = ref<number>(NO_SELECTION_INDEX)
 const commandInputRef = ref<HTMLInputElement | null>(null)
+const activeCommandViewRef = ref<HTMLElement | null>(null)
 
 /**
  * Flattens the filtered commands into a single array for keyboard navigation.
@@ -78,6 +80,51 @@ const selectedCommand = computed<CommandPaletteEntry | undefined>(
   () => flattenedCommands.value[selectedSearchResult.value],
 )
 
+const activeCommandItemSelector =
+  '[data-command-palette-item], [role="option"], .commandmenu-item'
+
+const setActiveCommandItemSelected = (
+  item: HTMLElement,
+  isSelected: boolean,
+): void => {
+  item.classList.toggle('bg-b-2', isSelected)
+  item.setAttribute('aria-selected', isSelected ? 'true' : 'false')
+  item.dataset.commandPaletteSelected = isSelected ? 'true' : 'false'
+}
+
+const clearActiveCommandSelection = (): void => {
+  activeCommandViewRef.value
+    ?.querySelectorAll<HTMLElement>(activeCommandItemSelector)
+    .forEach((item) => {
+      setActiveCommandItemSelected(item, false)
+    })
+}
+
+const getActiveCommandItems = (): HTMLElement[] => {
+  return Array.from(
+    activeCommandViewRef.value?.querySelectorAll<HTMLElement>(
+      activeCommandItemSelector,
+    ) ?? [],
+  ).filter(
+    (item) =>
+      !item.hasAttribute('disabled') &&
+      item.getAttribute('aria-disabled') !== 'true' &&
+      item.getAttribute('aria-hidden') !== 'true',
+  )
+}
+
+const focusActiveCommandInput = (): void => {
+  const activeInput = activeCommandViewRef.value?.querySelector<HTMLElement>(
+    '[autofocus], input:not([type="hidden"]):not([disabled]), textarea:not([disabled]), [role="searchbox"]',
+  )
+
+  activeInput?.focus()
+}
+
+const focusActiveCommandInputAfterRender = (): void => {
+  requestAnimationFrame(() => focusActiveCommandInput())
+}
+
 /**
  * Watch for search query changes and auto-select first result.
  * Resets selection when query is cleared.
@@ -88,6 +135,19 @@ watch(
     selectedSearchResult.value =
       newQuery && flattenedCommands.value.length > 0 ? 0 : NO_SELECTION_INDEX
   },
+)
+
+watch(
+  () => paletteState.activeCommand.value,
+  (activeCommand) => {
+    selectedActiveCommandItem.value = NO_SELECTION_INDEX
+    clearActiveCommandSelection()
+
+    if (activeCommand) {
+      nextTick(() => focusActiveCommandInputAfterRender())
+    }
+  },
+  { immediate: true },
 )
 
 /**
@@ -117,9 +177,49 @@ const handleArrowKey = (
 
   const offset = direction === 'up' ? -1 : 1
   const length = flattenedCommands.value.length
+  if (length === 0) {
+    return
+  }
 
   selectedSearchResult.value =
     (selectedSearchResult.value + offset + length) % length
+}
+
+const handleActiveCommandArrowKey = (
+  direction: 'up' | 'down',
+  event: KeyboardEvent,
+): void => {
+  const items = getActiveCommandItems()
+  const length = items.length
+
+  if (length === 0) {
+    return
+  }
+
+  event.preventDefault()
+
+  const offset = direction === 'up' ? -1 : 1
+  selectedActiveCommandItem.value =
+    (selectedActiveCommandItem.value + offset + length) % length
+
+  clearActiveCommandSelection()
+
+  const selectedItem = items[selectedActiveCommandItem.value]
+  if (selectedItem) {
+    setActiveCommandItemSelected(selectedItem, true)
+    selectedItem.scrollIntoView?.({ block: 'nearest' })
+  }
+}
+
+const handleActiveCommandSelect = (event: KeyboardEvent): void => {
+  const selectedItem = getActiveCommandItems()[selectedActiveCommandItem.value]
+
+  if (!selectedItem) {
+    return
+  }
+
+  event.preventDefault()
+  selectedItem.click()
 }
 
 /**
@@ -281,6 +381,7 @@ onBeforeUnmount(() => eventBus.off('ui:open:command-palette', onOpen))
       <!-- Active command view (specific action form) -->
       <div
         v-else
+        ref="activeCommandViewRef"
         class="flex-1 p-1.5">
         <!-- Back button to return to command list -->
         <button
@@ -295,6 +396,9 @@ onBeforeUnmount(() => eventBus.off('ui:open:command-palette', onOpen))
           :is="paletteState.activeCommand.value.component"
           v-if="paletteState.activeCommand.value"
           v-bind="paletteProps"
+          @keydown.down="handleActiveCommandArrowKey('down', $event)"
+          @keydown.enter="handleActiveCommandSelect"
+          @keydown.up="handleActiveCommandArrowKey('up', $event)"
           @back="handleBackEvent"
           @close="handleCloseEvent" />
       </div>
