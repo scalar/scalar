@@ -1,11 +1,18 @@
-@import "@scalar/themes/style.css"; /* Theme Base Styles and Reset */
-@import "@scalar/themes/tailwind.css"; /* Tailwind Theme + Config */
+/**
+ * Agent Chat Style Generation
+ *
+ * This file is used to generate the Tailwind style
+ * sheet for Agent Chat.
+ */
 
+@import "@scalar/components/vue-styles.css";
+@import "@scalar/sidebar/vue-styles.css";
+@import "@scalar/api-client/vue-styles.css";
+
+/* Agent Chat Tailwind Configuration */
+@import "./styles/tailwind.config.css";
+
+/* Generate the Tailwind Utilities (scoped) */
 .scalar-app {
   @import "tailwindcss/utilities.css";
 }
-
-@import "@scalar/components/style.css"; /* Component Library Styles */
-
-/* Search for Tailwind classes in the API Reference */
-@source "./";

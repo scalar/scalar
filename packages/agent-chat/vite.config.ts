@@ -26,10 +26,11 @@ export default defineConfig({
   build: {
     outDir: './dist',
     ssr: false,
+    minify: false,
     sourcemap: true,
     lib: {
       formats: ['es'],
-      cssFileName: 'style',
+      cssFileName: 'vue-styles',
       entry,
     },
     rolldownOptions: {
