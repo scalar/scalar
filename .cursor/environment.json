@@ -1,4 +1,3 @@
 {
-  "baseImage": "ghcr.io/cursor-images/node-24:latest",
-  "install": "npm install -g pnpm@10.16.1 && pnpm install && pnpm build:packages"
+  "install": "npm install -g pnpm && pnpm install"
 }
