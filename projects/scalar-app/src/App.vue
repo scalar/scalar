@@ -14,27 +14,29 @@ export type AppProps = {
 </script>
 
 <script setup lang="ts">
+import { CreateWorkspaceModal } from '@scalar/api-client/app'
+import { PostHogClientPlugin } from '@scalar/api-client/plugins/posthog'
 import {
-  type AppState,
   ClientApp,
+  type AppState,
   type useCommandPaletteState,
 } from '@scalar/api-client/v2/features/app'
-import { fetchRegistryDocument } from './helpers/fetch-registry-document'
-import { PostHogClientPlugin } from '@scalar/api-client/plugins/posthog'
 import { ScalarHeaderButton, useModal } from '@scalar/components'
-import { useAuth } from '@/hooks/use-auth'
+import { isObject } from '@scalar/helpers/object/is-object'
+import { type LoaderPlugin } from '@scalar/json-magic/bundle'
+import { requestScriptsPlugin } from '@scalar/pre-post-request-scripts/plugins'
 import { useToasts } from '@scalar/use-toasts'
-import { computed, onMounted, ref, watch } from 'vue'
-import { CreateWorkspaceModal } from '@scalar/api-client/app'
+import { computed, onMounted, ref } from 'vue'
+
+import AppMenuItems from '@/features/header/AppMenuItems.vue'
 import { ImportListener } from '@/features/import-listener'
 import { RebaseSyncModal } from '@/features/rebase-sync'
-import { type LoaderPlugin } from '@scalar/json-magic/bundle'
 import { loginUrl, registerUrl } from '@/helpers/auth/login-url'
-import { isObject } from '@scalar/helpers/object/is-object'
-import { requestScriptsPlugin } from '@scalar/pre-post-request-scripts/plugins'
-import AppMenuItems from '@/features/header/AppMenuItems.vue'
-import { useRegistryDocuments } from '@/hooks/use-registry-documents'
+import { fetchRegistryDocument } from '@/helpers/fetch-registry-document'
+import { useAuth } from '@/hooks/use-auth'
+import { useCurrentTeam } from '@/hooks/use-current-team'
 import { useCurrentUser } from '@/hooks/use-current-user'
+import { useRegistryDocuments } from '@/hooks/use-registry-documents'
 
 const { getAppState, getCommandPaletteState, fileLoader } =
   defineProps<AppProps>()
@@ -43,6 +45,7 @@ const app = getAppState()
 const { toast } = useToasts()
 const { isLoggedIn, setTokens } = useAuth()
 const { user } = useCurrentUser()
+const { team } = useCurrentTeam()
 const { documents } = useRegistryDocuments()
 
 /** Registry documents surfaced to the client app sidebar */
@@ -97,8 +100,7 @@ const handleCreateWorkspace = async (payload: {
   namespace?: string
 }) => {
   const result = await app.workspace.create({
-    teamUid: user.value?.activeTeamId ?? undefined,
-    namespace: isLoggedIn.value ? payload.namespace : undefined,
+    teamSlug: team.value?.slug,
     slug: payload.name,
     name: payload.name,
   })
@@ -193,11 +195,6 @@ onMounted(() => {
 //--------------------------------------------------
 // Watchers
 //--------------------------------------------------
-
-/** Sync teamUid in activeEntities whenever team uid or login state changes */
-watch([() => user.value?.activeTeamId], ([teamUid]) => {
-  app.activeEntities.setTeamUid(teamUid ?? 'local')
-})
 
 // Emits a navigation event to open the workspace settings page
 const openSettings = () => {

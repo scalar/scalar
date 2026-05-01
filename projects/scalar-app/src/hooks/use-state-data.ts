@@ -8,14 +8,15 @@ import { DEFAULT_REFETCH_INTERVAL, scalarClient } from '@/helpers/scalar-client'
 import { useAuth } from '@/hooks/use-auth'
 
 /**
- * A simple hook to grab data for the app-state creation.
+ * A hook to manage the state for the createAppState function
+ *
+ * We cannot use useQuery here because this hook is called outside of a
+ * component setup context.
  *
  * All SDK calls are routed through the shared queryClient so they populate
  * the cache. Other hooks that use the same query keys (e.g. useCurrentUser
  * uses ['me']) will read from cache and avoid duplicate network requests.
  *
- * We cannot use useQuery here because this hook is called outside of a
- * component setup context.
  */
 export const useStateData = () => {
   const customThemes = ref<Theme[]>([])
@@ -30,6 +31,8 @@ export const useStateData = () => {
     (accessToken) => {
       if (!accessToken) {
         currentTeam.value = undefined
+        customThemes.value = []
+        fallbackThemeSlug.value = 'default'
         return
       }
 
