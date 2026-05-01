@@ -40,4 +40,6 @@ router.beforeEach(async (to) => {
       url: `https://scalar-web-app/${to.name}`,
     })
   }
+
+  return undefined
 })
