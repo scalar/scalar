@@ -1,8 +1,9 @@
 import path from 'node:path'
+
 import { getExchangeToken } from '@electron/main/actions/get-exchange-token'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import todesktop from '@todesktop/runtime'
-import { app, BrowserWindow, ipcMain, session } from 'electron/main'
+import { BrowserWindow, app, ipcMain, session } from 'electron/main'
 
 import { handlePickFile, handleReadFile } from './actions/files'
 import { abortMap, handleCustomFetch } from './actions/handle-custom-fetch'
@@ -41,9 +42,7 @@ if (!app.requestSingleInstanceLock()) {
 /** Register app as the default for `scalar://` links  */
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
-    app.setAsDefaultProtocolClient('scalar', process.execPath, [
-      path.resolve(process.argv[1]),
-    ])
+    app.setAsDefaultProtocolClient('scalar', process.execPath, [path.resolve(process.argv[1]!)])
   }
 } else {
   app.setAsDefaultProtocolClient('scalar')
@@ -101,9 +100,7 @@ app.whenReady().then(async () => {
   // customFetch is registered with ipcMain.handle directly (not onIpcEvent) so
   // the handler receives event.sender — the WebContents needed to stream SSE
   // body chunks back to the renderer after the initial response is returned.
-  ipcMain.handle('customFetch', (event, request) =>
-    handleCustomFetch(request, event.sender),
-  )
+  ipcMain.handle('customFetch', (event, request) => handleCustomFetch(request, event.sender))
 
   // Cancel an in-flight fetch by aborting its undici request.  The renderer
   // sends this when the caller's AbortSignal fires or the stream is cancelled.
@@ -120,15 +117,13 @@ app.whenReady().then(async () => {
   })
 
   // Block all permission requests (b,ut for notifications)
-  session
-    .fromPartition('main')
-    .setPermissionRequestHandler((_, permission, callback) => {
-      if (permission === 'notifications') {
-        callback(true)
-      } else {
-        callback(false)
-      }
-    })
+  session.fromPartition('main').setPermissionRequestHandler((_, permission, callback) => {
+    if (permission === 'notifications') {
+      callback(true)
+    } else {
+      callback(false)
+    }
+  })
 
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the

@@ -33,6 +33,10 @@ export async function openAppLink(appLink?: string) {
     // Get first browser window
     const [mainWindow] = BrowserWindow.getAllWindows()
 
+    if (!mainWindow) {
+      return
+    }
+
     // Send to renderer process
     mainWindow.webContents.send('importFile', documentOrUrl)
 
@@ -53,6 +57,10 @@ export async function openAppLink(appLink?: string) {
 
   // Get first browser window
   const [mainWindow] = BrowserWindow.getAllWindows()
+
+  if (!mainWindow) {
+    return
+  }
 
   // Send to renderer process
   mainWindow.webContents.send('importFile', await result.text())

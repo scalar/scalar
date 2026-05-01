@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { useMutation } from '@tanstack/vue-query'
-import { ref } from 'vue'
-
-import { type ModalState, ScalarButton, ScalarModal } from '@scalar/components'
+import { ScalarButton, ScalarModal, type ModalState } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'
+import { useMutation } from '@tanstack/vue-query'
+import { ref } from 'vue'
 
 import { queryClient } from '@/helpers/query-client'
 import { scalarClient } from '@/helpers/scalar-client'
@@ -53,7 +52,7 @@ const { mutateAsync, isPending: isSyncing } = useMutation(
       version: string
       document: string
     }) =>
-      scalarClient.registry.postv1ApisNamespaceSlugVersion({
+      scalarClient.registry.createApiDocumentVersion({
         namespace: vars.namespace,
         slug: vars.slug,
         requestBody: { version: vars.version, document: vars.document },

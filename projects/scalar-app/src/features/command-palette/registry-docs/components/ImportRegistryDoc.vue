@@ -63,6 +63,7 @@ async function handleLoad() {
         'x-scalar-registry-meta': {
           namespace: namespace,
           slug: slug,
+          version: version,
         },
       },
     })

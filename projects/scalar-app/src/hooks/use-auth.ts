@@ -1,15 +1,10 @@
+import { coerce, validate } from '@scalar/validation'
 import { jwtDecode } from 'jwt-decode'
 import { computed, readonly, ref } from 'vue'
 
-import { coerce, validate } from '@scalar/validation'
-
 import { env } from '@/environment'
 import { isTokenExpired } from '@/helpers/auth/is-token-expired'
-import {
-  type AccessTokenPayload,
-  accessTokenPayloadSchema,
-  tokenResponseSchema,
-} from '@/helpers/auth/schema'
+import { type AccessTokenPayload, accessTokenPayloadSchema, tokenResponseSchema } from '@/helpers/auth/schema'
 import { queryClient } from '@/helpers/query-client'
 
 const ACCESS_TOKEN_KEY = 'scalar-access-token'
@@ -26,9 +21,7 @@ const setTokens = (access: string, refresh: string) => {
 
     if (!validate(accessTokenPayloadSchema, payload)) {
       if (import.meta.env.DEV) {
-        console.warn(
-          '[setTokens]: Access token payload failed schema validation',
-        )
+        console.warn('[setTokens]: Access token payload failed schema validation')
       }
       return
     }
@@ -68,6 +61,7 @@ const getAccessToken = (): string | null => accessToken.value
 
 /** Clear tokens and wipe all query caches */
 const logout = () => {
+  console.log('wea re logign out')
   accessToken.value = null
   refreshToken.value = null
 
@@ -112,10 +106,7 @@ const refreshTokens = (): Promise<void> => {
       }
 
       if (!response.ok) {
-        console.warn(
-          '[useAuth]: Token refresh failed with status',
-          response.status,
-        )
+        console.warn('[useAuth]: Token refresh failed with status', response.status)
         return
       }
 
@@ -135,10 +126,8 @@ const refreshTokens = (): Promise<void> => {
 
   const run = async (): Promise<void> => {
     if (typeof window !== 'undefined' && window.navigator?.locks?.request) {
-      await window.navigator.locks.request(
-        'scalar-refresh-request',
-        { ifAvailable: true },
-        async (lock) => (lock ? execute() : undefined),
+      await window.navigator.locks.request('scalar-refresh-request', { ifAvailable: true }, async (lock) =>
+        lock ? execute() : undefined,
       )
       return
     }

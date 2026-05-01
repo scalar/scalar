@@ -1,13 +1,6 @@
 import http from 'node:http'
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  type Mock,
-  vi,
-} from 'vitest'
+
+import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { exchangeTokenMock, getPortMock, openExternalMock } = vi.hoisted(() => ({
   exchangeTokenMock: vi.fn(),
@@ -55,7 +48,7 @@ const VALID_TOKEN_RESPONSE = {
 } satisfies TokenResponse
 
 const parseOpenedCallbackPort = (): number => {
-  const openedUrl = new URL(openExternalMock.mock.calls[0][0])
+  const openedUrl = new URL(openExternalMock.mock.calls[0]![0]!)
   const port = openedUrl.searchParams.get('port')
 
   if (!port) {
@@ -121,9 +114,7 @@ describe('get-exchange-token', () => {
   beforeEach(() => {
     getPortMock.mockImplementation(() => nextPort++)
     exchangeTokenMock.mockResolvedValue([null, VALID_TOKEN_RESPONSE])
-    consoleErrorSpy = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => undefined)
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
   })
 
   afterEach(() => {
@@ -175,9 +166,7 @@ describe('get-exchange-token', () => {
       }),
     )
     expect(response.headers['content-type']).toBe('application/json')
-    expect(response.headers['access-control-allow-origin']).toBe(
-      `http://127.0.0.1:${port}`,
-    )
+    expect(response.headers['access-control-allow-origin']).toBe(`http://127.0.0.1:${port}`)
   })
 
   it('tears down the callback server after the login attempt finishes', async () => {
@@ -240,9 +229,7 @@ describe('get-exchange-token', () => {
     })
     await resultPromise
 
-    expect(exchangeTokenMock).toHaveBeenCalledWith(
-      'token with spaces+and+symbols',
-    )
+    expect(exchangeTokenMock).toHaveBeenCalledWith('token with spaces+and+symbols')
   })
 
   it('returns null and a 405 response for non-POST callbacks', async () => {
@@ -269,9 +256,7 @@ describe('get-exchange-token', () => {
         statusCode: 405,
       }),
     )
-    expect(response.headers['access-control-allow-origin']).toBe(
-      `http://127.0.0.1:${port}`,
-    )
+    expect(response.headers['access-control-allow-origin']).toBe(`http://127.0.0.1:${port}`)
     expect(consoleErrorSpy).toHaveBeenCalledWith(expect.any(Error))
   })
 
@@ -301,10 +286,7 @@ describe('get-exchange-token', () => {
   })
 
   it('returns null and a 400 response when the exchange endpoint rejects the token', async () => {
-    exchangeTokenMock.mockResolvedValue([
-      new Error('Invalid exchange token'),
-      null,
-    ])
+    exchangeTokenMock.mockResolvedValue([new Error('Invalid exchange token'), null])
 
     const resultPromise = getExchangeToken()
     await waitForLoginPageToOpen()

@@ -33,17 +33,9 @@ function setupIpcMock(overrides: Partial<IpcFetchResponse> = {}) {
   ;(globalThis as Record<string, unknown>).window = {
     api: {
       customFetch: customFetchMock,
-      customFetchStream: vi.fn(
-        ({
-          streamId,
-          callbacks,
-        }: {
-          streamId: string
-          callbacks: StreamCallbacks
-        }) => {
-          streamCallbacks.set(streamId, callbacks)
-        },
-      ),
+      customFetchStream: vi.fn(({ streamId, callbacks }: { streamId: string; callbacks: StreamCallbacks }) => {
+        streamCallbacks.set(streamId, callbacks)
+      }),
       customFetchAbort: vi.fn((streamId: string) => {
         abortedStreams.push(streamId)
       }),
@@ -51,11 +43,9 @@ function setupIpcMock(overrides: Partial<IpcFetchResponse> = {}) {
   }
 
   const emit = {
-    data: (chunk: ArrayBuffer) =>
-      streamCallbacks.get('test-stream-id')?.onData(chunk),
+    data: (chunk: ArrayBuffer) => streamCallbacks.get('test-stream-id')?.onData(chunk),
     end: () => streamCallbacks.get('test-stream-id')?.onEnd(),
-    error: (message: string) =>
-      streamCallbacks.get('test-stream-id')?.onError(message),
+    error: (message: string) => streamCallbacks.get('test-stream-id')?.onError(message),
   }
 
   return { emit, abortedStreams, customFetchMock }
@@ -128,9 +118,7 @@ describe('create-ipc-transport', () => {
       await result.body!.cancel()
 
       // The data chunk arrives after cancellation — must be silently dropped.
-      expect(() =>
-        emit.data(encoder.encode('late chunk').buffer as ArrayBuffer),
-      ).not.toThrow()
+      expect(() => emit.data(encoder.encode('late chunk').buffer as ArrayBuffer)).not.toThrow()
     })
 
     it('calls customFetchAbort with the abortId when the stream is cancelled', async () => {
@@ -149,7 +137,7 @@ describe('create-ipc-transport', () => {
       await result.body!.cancel()
 
       // The abortId is the value that was sent to the main process.
-      const { abortId } = customFetchMock.mock.calls[0][0]
+      const { abortId } = customFetchMock.mock.calls[0]![0]!
       expect(abortedStreams).toContain(abortId)
     })
 
@@ -169,16 +157,14 @@ describe('create-ipc-transport', () => {
     /** Minimal window.api mock that records calls to customFetchAbort. */
     function setupAbortMock() {
       const abortedIds: string[] = []
-      const customFetchMock = vi
-        .fn<(request: IpcFetchRequest) => Promise<IpcFetchResponse>>()
-        .mockResolvedValue({
-          status: 200,
-          statusText: 'OK',
-          headers: [],
-          body: new ArrayBuffer(0),
-          url: 'https://example.com',
-          redirected: false,
-        })
+      const customFetchMock = vi.fn<(request: IpcFetchRequest) => Promise<IpcFetchResponse>>().mockResolvedValue({
+        status: 200,
+        statusText: 'OK',
+        headers: [],
+        body: new ArrayBuffer(0),
+        url: 'https://example.com',
+        redirected: false,
+      })
       ;(globalThis as Record<string, unknown>).window = {
         api: {
           customFetch: customFetchMock,
@@ -196,7 +182,7 @@ describe('create-ipc-transport', () => {
 
       await fetch('https://example.com', { signal: controller.signal })
 
-      const sentRequest = customFetchMock.mock.calls[0][0]
+      const sentRequest = customFetchMock.mock.calls[0]![0]!
       expect(sentRequest.abortId).toBeDefined()
       expect(typeof sentRequest.abortId).toBe('string')
     })
@@ -207,7 +193,7 @@ describe('create-ipc-transport', () => {
 
       await fetch('https://example.com')
 
-      const sentRequest = customFetchMock.mock.calls[0][0]
+      const sentRequest = customFetchMock.mock.calls[0]![0]!
       expect(sentRequest.abortId).toBeUndefined()
     })
 
@@ -218,7 +204,7 @@ describe('create-ipc-transport', () => {
 
       await fetch('https://example.com', { signal: controller.signal })
 
-      const { abortId } = customFetchMock.mock.calls[0][0]
+      const { abortId } = customFetchMock.mock.calls[0]![0]!
 
       controller.abort()
 
@@ -247,7 +233,7 @@ describe('create-ipc-transport', () => {
 
       await fetch(request)
 
-      const sentRequest = customFetchMock.mock.calls[0][0]
+      const sentRequest = customFetchMock.mock.calls[0]![0]!
       expect(sentRequest.abortId).toBeDefined()
     })
   })

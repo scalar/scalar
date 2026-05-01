@@ -74,7 +74,7 @@ export function useFilteredDocs(initialValue = '') {
     // Check if there's a version separator
     if (slashParts.length === 3) {
       // Format: @namespace/doc-slug/version
-      version = slashParts[2]
+      version = slashParts[2]!
       stage = 'version'
     } else if (docSlugPart.includes('@')) {
       // Format: @namespace/doc-slug@version
@@ -91,19 +91,13 @@ export function useFilteredDocs(initialValue = '') {
   const activeDocSlug = computed(() => parsedQuery.value.docSlug)
 
   /** When we start with an @ symbol we prompt to select the namespace first */
-  const isSelectingNamespace = computed(
-    () => parsedQuery.value.stage === 'namespace',
-  )
+  const isSelectingNamespace = computed(() => parsedQuery.value.stage === 'namespace')
 
-  const isSelectingAllDocs = computed(
-    () => parsedQuery.value.stage === 'all-docs',
-  )
+  const isSelectingAllDocs = computed(() => parsedQuery.value.stage === 'all-docs')
 
   const isSelectingDoc = computed(() => parsedQuery.value.stage === 'doc')
 
-  const isSelectingVersion = computed(
-    () => parsedQuery.value.stage === 'version',
-  )
+  const isSelectingVersion = computed(() => parsedQuery.value.stage === 'version')
 
   /**
    * We filter the list context based on the current query. Logic is:
@@ -131,36 +125,26 @@ export function useFilteredDocs(initialValue = '') {
 
     if (isSelectingAllDocs.value) {
       return getUnique(
-        flatVersionList.value
-          .filter((d) => d.slug.includes(query.value))
-          .map((d) => `@${d.namespace}/${d.slug}`),
+        flatVersionList.value.filter((d) => d.slug.includes(query.value)).map((d) => `@${d.namespace}/${d.slug}`),
       )
     }
 
     if (isSelectingDoc.value) {
       return getUnique(
-        flatVersionList.value
-          .filter((d) => d.namespace === activeNamespace.value)
-          .map((d) => `${d.slug}`),
+        flatVersionList.value.filter((d) => d.namespace === activeNamespace.value).map((d) => `${d.slug}`),
       )
     }
 
     if (isSelectingVersion.value) {
       return getUnique(
         flatVersionList.value
-          .filter(
-            (d) =>
-              d.namespace === activeNamespace.value &&
-              d.slug === activeDocSlug.value,
-          )
+          .filter((d) => d.namespace === activeNamespace.value && d.slug === activeDocSlug.value)
           .map((d) => d.version),
       )
     }
 
     // If we don't have a namespace then we just show all docs and filter to match
-    return getUnique(
-      flatVersionList.value.map((d) => `@${d.namespace}/${d.slug}`),
-    )
+    return getUnique(flatVersionList.value.map((d) => `@${d.namespace}/${d.slug}`))
   })
 
   /**
@@ -183,9 +167,7 @@ export function useFilteredDocs(initialValue = '') {
     }
 
     // Find the matching document
-    const doc = documents.value.find(
-      (d) => d.namespace === namespace && d.slug === docSlug,
-    )
+    const doc = documents.value.find((d) => d.namespace === namespace && d.slug === docSlug)
 
     if (!doc) {
       return null

@@ -73,10 +73,7 @@ beforeEach(() => {
 
 /** The options object passed to the last undici.request() call. */
 function lastOptions(): Record<string, unknown> {
-  return mockRequest.mock.calls[mockRequest.mock.calls.length - 1][1] as Record<
-    string,
-    unknown
-  >
+  return mockRequest.mock.calls[mockRequest.mock.calls.length - 1]![1]! as Record<string, unknown>
 }
 
 // ---------------------------------------------------------------------------
@@ -88,7 +85,7 @@ describe('handleCustomFetch', () => {
   describe('basic passthrough', () => {
     it('passes the URL to undici', async () => {
       await handleCustomFetch({ url: 'https://example.com' })
-      expect(mockRequest.mock.calls[0][0]).toBe('https://example.com')
+      expect(mockRequest.mock.calls[0]![0]!).toBe('https://example.com')
     })
 
     it('passes the method', async () => {
@@ -132,9 +129,7 @@ describe('handleCustomFetch', () => {
     it('always passes the persistent agent dispatcher', async () => {
       await handleCustomFetch({ url: 'https://example.com' })
       await handleCustomFetch({ url: 'https://example.com' })
-      const dispatchers = mockRequest.mock.calls.map(
-        (c) => (c[1] as Record<string, unknown>).dispatcher,
-      )
+      const dispatchers = mockRequest.mock.calls.map((c) => (c[1] as Record<string, unknown>).dispatcher)
       expect(dispatchers[0]).toBeDefined()
       expect(dispatchers[1]).toBe(dispatchers[0])
     })
@@ -143,25 +138,19 @@ describe('handleCustomFetch', () => {
   // =========================================================================
   describe('response serialization', () => {
     it('returns the correct status code', async () => {
-      mockRequest.mockResolvedValue(
-        createMockUndiciResponse({ statusCode: 404 }) as never,
-      )
+      mockRequest.mockResolvedValue(createMockUndiciResponse({ statusCode: 404 }) as never)
       const result = await handleCustomFetch({ url: 'https://example.com' })
       expect(result.status).toBe(404)
     })
 
     it('derives statusText from the status code', async () => {
-      mockRequest.mockResolvedValue(
-        createMockUndiciResponse({ statusCode: 404 }) as never,
-      )
+      mockRequest.mockResolvedValue(createMockUndiciResponse({ statusCode: 404 }) as never)
       const result = await handleCustomFetch({ url: 'https://example.com' })
       expect(result.statusText).toBe('Not Found')
     })
 
     it('returns empty statusText for unknown status codes', async () => {
-      mockRequest.mockResolvedValue(
-        createMockUndiciResponse({ statusCode: 599 }) as never,
-      )
+      mockRequest.mockResolvedValue(createMockUndiciResponse({ statusCode: 599 }) as never)
       const result = await handleCustomFetch({ url: 'https://example.com' })
       expect(result.statusText).toBe('')
     })
@@ -176,10 +165,7 @@ describe('handleCustomFetch', () => {
         }) as never,
       )
       const result = await handleCustomFetch({ url: 'https://example.com' })
-      expect(result.headers).toContainEqual([
-        'content-type',
-        'application/json',
-      ])
+      expect(result.headers).toContainEqual(['content-type', 'application/json'])
       expect(result.headers).toContainEqual(['x-rate-limit', '100'])
     })
 
@@ -192,8 +178,8 @@ describe('handleCustomFetch', () => {
       const result = await handleCustomFetch({ url: 'https://example.com' })
       const setCookies = result.headers.filter(([k]) => k === 'set-cookie')
       expect(setCookies).toHaveLength(2)
-      expect(setCookies[0][1]).toBe('a=1; Path=/')
-      expect(setCookies[1][1]).toBe('b=2; HttpOnly')
+      expect(setCookies[0]![1]!).toBe('a=1; Path=/')
+      expect(setCookies[1]![1]!).toBe('b=2; HttpOnly')
     })
 
     it('returns the response body as an ArrayBuffer', async () => {
@@ -315,9 +301,7 @@ describe('handleCustomFetch', () => {
   // =========================================================================
   describe('null-body status codes (204, 205, 304)', () => {
     it('returns a null body for 204 No Content', async () => {
-      mockRequest.mockResolvedValue(
-        createMockUndiciResponse({ statusCode: 204 }) as never,
-      )
+      mockRequest.mockResolvedValue(createMockUndiciResponse({ statusCode: 204 }) as never)
       const result = await handleCustomFetch({
         url: 'https://example.com',
         method: 'DELETE',
@@ -326,17 +310,13 @@ describe('handleCustomFetch', () => {
     })
 
     it('returns a null body for 205 Reset Content', async () => {
-      mockRequest.mockResolvedValue(
-        createMockUndiciResponse({ statusCode: 205 }) as never,
-      )
+      mockRequest.mockResolvedValue(createMockUndiciResponse({ statusCode: 205 }) as never)
       const result = await handleCustomFetch({ url: 'https://example.com' })
       expect(result.body).toBeNull()
     })
 
     it('returns a null body for 304 Not Modified', async () => {
-      mockRequest.mockResolvedValue(
-        createMockUndiciResponse({ statusCode: 304 }) as never,
-      )
+      mockRequest.mockResolvedValue(createMockUndiciResponse({ statusCode: 304 }) as never)
       const result = await handleCustomFetch({ url: 'https://example.com' })
       expect(result.body).toBeNull()
     })
@@ -359,9 +339,7 @@ describe('handleCustomFetch', () => {
         }) as never,
       )
       const result = await handleCustomFetch({ url: 'https://example.com' })
-      const xSetCookie = result.headers.find(
-        ([k]) => k === 'x-scalar-set-cookie',
-      )
+      const xSetCookie = result.headers.find(([k]) => k === 'x-scalar-set-cookie')
       expect(xSetCookie?.[1]).toBe('a=1; Path=/')
     })
 
@@ -372,9 +350,7 @@ describe('handleCustomFetch', () => {
         }) as never,
       )
       const result = await handleCustomFetch({ url: 'https://example.com' })
-      const xSetCookie = result.headers.find(
-        ([k]) => k === 'x-scalar-set-cookie',
-      )
+      const xSetCookie = result.headers.find(([k]) => k === 'x-scalar-set-cookie')
       expect(xSetCookie?.[1]).toContain('a=1; Path=/')
       expect(xSetCookie?.[1]).toContain('b=2; HttpOnly')
     })
@@ -386,9 +362,7 @@ describe('handleCustomFetch', () => {
         }) as never,
       )
       const result = await handleCustomFetch({ url: 'https://example.com' })
-      expect(
-        result.headers.find(([k]) => k === 'x-scalar-set-cookie'),
-      ).toBeUndefined()
+      expect(result.headers.find(([k]) => k === 'x-scalar-set-cookie')).toBeUndefined()
     })
   })
 
@@ -428,9 +402,9 @@ describe('handleCustomFetch', () => {
 
     it('removes the AbortController from abortMap even when undici throws', async () => {
       mockRequest.mockRejectedValue(new Error('network error'))
-      await expect(
-        handleCustomFetch({ url: 'https://example.com', abortId: 'err-id' }),
-      ).rejects.toThrow('network error')
+      await expect(handleCustomFetch({ url: 'https://example.com', abortId: 'err-id' })).rejects.toThrow(
+        'network error',
+      )
       expect(abortMap.has('err-id')).toBe(false)
     })
 
@@ -438,8 +412,7 @@ describe('handleCustomFetch', () => {
       let resolveRequest!: () => void
       mockRequest.mockReturnValue(
         new Promise<never>((_, reject) => {
-          resolveRequest = () =>
-            reject(new DOMException('Aborted', 'AbortError'))
+          resolveRequest = () => reject(new DOMException('Aborted', 'AbortError'))
         }) as never,
       )
 
@@ -475,10 +448,7 @@ describe('handleCustomFetch', () => {
       } as never)
 
       // The handle resolves before the IIFE starts iterating.
-      await handleCustomFetch(
-        { url: 'https://example.com/events', abortId: 'stream-abort' },
-        sender,
-      )
+      await handleCustomFetch({ url: 'https://example.com/events', abortId: 'stream-abort' }, sender)
 
       // Flush once: the IIFE starts, sends chunk 1, then pauses at the
       // setTimeout before chunk 2, yielding control back.
@@ -493,11 +463,7 @@ describe('handleCustomFetch', () => {
 
       const dataEvents = sent.filter(([ch]) => ch === 'customFetch:data')
       expect(dataEvents).toHaveLength(1)
-      expect(
-        new TextDecoder().decode(
-          (dataEvents[0][1] as { chunk: ArrayBuffer }).chunk,
-        ),
-      ).toBe('data: first\n\n')
+      expect(new TextDecoder().decode((dataEvents[0]![1]! as { chunk: ArrayBuffer }).chunk)).toBe('data: first\n\n')
       // No end event should follow an abort.
       expect(sent.filter(([ch]) => ch === 'customFetch:end')).toHaveLength(0)
     })
@@ -519,10 +485,7 @@ describe('handleCustomFetch', () => {
         }) as never,
       )
 
-      const result = await handleCustomFetch(
-        { url: 'https://example.com/events' },
-        sender,
-      )
+      const result = await handleCustomFetch({ url: 'https://example.com/events' }, sender)
 
       expect(result.streamId).toBeDefined()
       expect(typeof result.streamId).toBe('string')
@@ -537,10 +500,7 @@ describe('handleCustomFetch', () => {
         }) as never,
       )
 
-      const result = await handleCustomFetch(
-        { url: 'https://example.com/events' },
-        sender,
-      )
+      const result = await handleCustomFetch({ url: 'https://example.com/events' }, sender)
 
       expect(result.body).toBeNull()
     })
@@ -551,38 +511,28 @@ describe('handleCustomFetch', () => {
       mockRequest.mockResolvedValue(
         createMockUndiciResponse({
           headers: { 'content-type': 'text/event-stream' },
-          chunks: [
-            encoder.encode('data: first\n\n'),
-            encoder.encode('data: second\n\n'),
-          ],
+          chunks: [encoder.encode('data: first\n\n'), encoder.encode('data: second\n\n')],
         }) as never,
       )
 
-      const result = await handleCustomFetch(
-        { url: 'https://example.com/events' },
-        sender,
-      )
+      const result = await handleCustomFetch({ url: 'https://example.com/events' }, sender)
       await flushAsync()
 
       const dataEvents = sent.filter(([ch]) => ch === 'customFetch:data')
       expect(dataEvents).toHaveLength(2)
 
-      const firstPayload = dataEvents[0][1] as {
+      const firstPayload = dataEvents[0]![1]! as {
         streamId: string
         chunk: ArrayBuffer
       }
       expect(firstPayload.streamId).toBe(result.streamId)
-      expect(new TextDecoder().decode(firstPayload.chunk)).toBe(
-        'data: first\n\n',
-      )
+      expect(new TextDecoder().decode(firstPayload.chunk)).toBe('data: first\n\n')
 
-      const secondPayload = dataEvents[1][1] as {
+      const secondPayload = dataEvents[1]![1]! as {
         streamId: string
         chunk: ArrayBuffer
       }
-      expect(new TextDecoder().decode(secondPayload.chunk)).toBe(
-        'data: second\n\n',
-      )
+      expect(new TextDecoder().decode(secondPayload.chunk)).toBe('data: second\n\n')
     })
 
     it('sends a customFetch:end event after all chunks', async () => {
@@ -594,17 +544,12 @@ describe('handleCustomFetch', () => {
         }) as never,
       )
 
-      const result = await handleCustomFetch(
-        { url: 'https://example.com/events' },
-        sender,
-      )
+      const result = await handleCustomFetch({ url: 'https://example.com/events' }, sender)
       await flushAsync()
 
       const endEvent = sent.find(([ch]) => ch === 'customFetch:end')
       expect(endEvent).toBeDefined()
-      expect((endEvent![1] as { streamId: string }).streamId).toBe(
-        result.streamId,
-      )
+      expect((endEvent![1] as { streamId: string }).streamId).toBe(result.streamId)
     })
 
     it('sends a customFetch:error event when the body iterator throws', async () => {
@@ -623,10 +568,7 @@ describe('handleCustomFetch', () => {
         body: bodyWithError,
       } as never)
 
-      const result = await handleCustomFetch(
-        { url: 'https://example.com/events' },
-        sender,
-      )
+      const result = await handleCustomFetch({ url: 'https://example.com/events' }, sender)
       await flushAsync()
 
       const errorEvent = sent.find(([ch]) => ch === 'customFetch:error')
@@ -671,18 +613,14 @@ describe('handleCustomFetch', () => {
         }) as never,
       )
 
-      const result = await handleCustomFetch(
-        { url: 'https://example.com/api' },
-        sender,
-      )
+      const result = await handleCustomFetch({ url: 'https://example.com/api' }, sender)
 
       expect(result.streamId).toBeUndefined()
       expect(result.body).not.toBeNull()
     })
 
     it('falls back to buffered response when no sender is provided', async () => {
-      const body = new TextEncoder().encode('data: hello\n\n')
-        .buffer as ArrayBuffer
+      const body = new TextEncoder().encode('data: hello\n\n').buffer as ArrayBuffer
       mockRequest.mockResolvedValue(
         createMockUndiciResponse({
           headers: { 'content-type': 'text/event-stream' },
@@ -709,10 +647,7 @@ describe('handleCustomFetch', () => {
         }) as never,
       )
 
-      const result = await handleCustomFetch(
-        { url: 'https://example.com/stream' },
-        sender,
-      )
+      const result = await handleCustomFetch({ url: 'https://example.com/stream' }, sender)
 
       expect(result.streamId).toBeDefined()
       expect(result.body).toBeNull()
@@ -728,29 +663,20 @@ describe('handleCustomFetch', () => {
         }) as never,
       )
 
-      const result = await handleCustomFetch(
-        { url: 'https://example.com/stream' },
-        sender,
-      )
+      const result = await handleCustomFetch({ url: 'https://example.com/stream' }, sender)
       await flushAsync()
 
       const dataEvents = sent.filter(([ch]) => ch === 'customFetch:data')
       expect(dataEvents).toHaveLength(2)
-      expect(
-        new TextDecoder().decode(
-          (dataEvents[0][1] as { streamId: string; chunk: ArrayBuffer }).chunk,
-        ),
-      ).toBe('chunk-one')
-      expect(
-        new TextDecoder().decode(
-          (dataEvents[1][1] as { streamId: string; chunk: ArrayBuffer }).chunk,
-        ),
-      ).toBe('chunk-two')
+      expect(new TextDecoder().decode((dataEvents[0]![1]! as { streamId: string; chunk: ArrayBuffer }).chunk)).toBe(
+        'chunk-one',
+      )
+      expect(new TextDecoder().decode((dataEvents[1]![1]! as { streamId: string; chunk: ArrayBuffer }).chunk)).toBe(
+        'chunk-two',
+      )
 
       const endEvent = sent.find(([ch]) => ch === 'customFetch:end')
-      expect((endEvent![1] as { streamId: string }).streamId).toBe(
-        result.streamId,
-      )
+      expect((endEvent![1] as { streamId: string }).streamId).toBe(result.streamId)
     })
 
     it('is case-insensitive for the Transfer-Encoding header value', async () => {
@@ -762,10 +688,7 @@ describe('handleCustomFetch', () => {
         }) as never,
       )
 
-      const result = await handleCustomFetch(
-        { url: 'https://example.com/stream' },
-        sender,
-      )
+      const result = await handleCustomFetch({ url: 'https://example.com/stream' }, sender)
 
       expect(result.streamId).toBeDefined()
     })
@@ -780,10 +703,7 @@ describe('handleCustomFetch', () => {
         }) as never,
       )
 
-      const result = await handleCustomFetch(
-        { url: 'https://example.com/api' },
-        sender,
-      )
+      const result = await handleCustomFetch({ url: 'https://example.com/api' }, sender)
 
       expect(result.streamId).toBeUndefined()
       expect(result.body).not.toBeNull()
@@ -801,10 +721,7 @@ describe('handleCustomFetch', () => {
         }) as never,
       )
 
-      const result = await handleCustomFetch(
-        { url: 'https://example.com/events' },
-        sender,
-      )
+      const result = await handleCustomFetch({ url: 'https://example.com/events' }, sender)
 
       expect(result.streamId).toBeDefined()
     })
@@ -825,10 +742,7 @@ describe('handleCustomFetch', () => {
         }) as never,
       )
 
-      const result = await handleCustomFetch(
-        { url: 'https://example.com/media' },
-        sender,
-      )
+      const result = await handleCustomFetch({ url: 'https://example.com/media' }, sender)
 
       expect(result.streamId).toBeDefined()
       expect(result.body).toBeNull()
@@ -851,12 +765,8 @@ describe('handleCustomFetch', () => {
 
       const dataEvents = sent.filter(([ch]) => ch === 'customFetch:data')
       expect(dataEvents).toHaveLength(2)
-      expect(
-        new Uint8Array((dataEvents[0][1] as { chunk: ArrayBuffer }).chunk),
-      ).toEqual(frame1)
-      expect(
-        new Uint8Array((dataEvents[1][1] as { chunk: ArrayBuffer }).chunk),
-      ).toEqual(frame2)
+      expect(new Uint8Array((dataEvents[0]![1]! as { chunk: ArrayBuffer }).chunk)).toEqual(frame1)
+      expect(new Uint8Array((dataEvents[1]![1]! as { chunk: ArrayBuffer }).chunk)).toEqual(frame2)
     })
 
     it('does not stream application/octet-stream (buffered download)', async () => {
@@ -869,10 +779,7 @@ describe('handleCustomFetch', () => {
         }) as never,
       )
 
-      const result = await handleCustomFetch(
-        { url: 'https://example.com/file.bin' },
-        sender,
-      )
+      const result = await handleCustomFetch({ url: 'https://example.com/file.bin' }, sender)
 
       expect(result.streamId).toBeUndefined()
       expect(result.body).not.toBeNull()
