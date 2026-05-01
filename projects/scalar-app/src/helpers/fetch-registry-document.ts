@@ -1,6 +1,7 @@
 import type { RegistryAdapter } from '@scalar/api-client/v2/features/app'
 import { isObject } from '@scalar/helpers/object/is-object'
 
+import { getRegistryErrorStatusCode } from './registry-error-status'
 import { scalarClient } from './scalar-client'
 
 type ImportDocumentFromRegistry = RegistryAdapter['fetchDocument']
@@ -56,7 +57,7 @@ const mapFetchRegistryDocumentError = (
   error: 'NOT_FOUND' | 'FETCH_FAILED' | 'UNAUTHORIZED' | 'UNKNOWN'
   message?: string
 } => {
-  const statusCode = (error as { statusCode?: number }).statusCode
+  const statusCode = getRegistryErrorStatusCode(error)
   const message = error instanceof Error ? error.message : `Cannot load document from registry: ${String(error)}`
 
   if (statusCode === 401 || statusCode === 403) {

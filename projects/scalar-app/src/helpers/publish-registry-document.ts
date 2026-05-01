@@ -1,5 +1,6 @@
 import type { RegistryAdapter } from '@scalar/api-client/v2/features/app'
 
+import { getRegistryErrorStatusCode } from './registry-error-status'
 import { scalarClient } from './scalar-client'
 
 type PublishRegistryDocument = RegistryAdapter['publishDocument']
@@ -56,14 +57,16 @@ const mapPublishDocumentError = (
   error: 'CONFLICT' | 'FETCH_FAILED' | 'UNAUTHORIZED' | 'UNKNOWN'
   message?: string
 } => {
-  const statusCode = (error as { statusCode?: number }).statusCode
+  const statusCode = getRegistryErrorStatusCode(error)
   const message = error instanceof Error ? error.message : undefined
 
   if (statusCode === 401 || statusCode === 403) {
     return { ok: false, error: 'UNAUTHORIZED', message }
   }
 
-  if (statusCode === 409 || statusCode === 422) {
+  // 409 is the standard status for a slug collision when creating a new
+  // registry document; 422 stays on the validation track instead.
+  if (statusCode === 409) {
     return { ok: false, error: 'CONFLICT', message }
   }
 
