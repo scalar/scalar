@@ -41,6 +41,7 @@ export const messageForFetchError = (code: FetchRegistryDocumentError, detail?: 
     case 'FETCH_FAILED':
       return networkMessage(detail)
     case 'UNKNOWN':
+    default:
       return unknownMessage(detail)
   }
 }
@@ -61,6 +62,7 @@ export const messageForPublishVersionError = (code: PublishRegistryVersionError,
     case 'FETCH_FAILED':
       return networkMessage(detail)
     case 'UNKNOWN':
+    default:
       return unknownMessage(detail)
   }
 }
@@ -79,6 +81,7 @@ export const messageForPublishDocumentError = (code: PublishRegistryDocumentErro
     case 'FETCH_FAILED':
       return networkMessage(detail)
     case 'UNKNOWN':
+    default:
       return unknownMessage(detail)
   }
 }

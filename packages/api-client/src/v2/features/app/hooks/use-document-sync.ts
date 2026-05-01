@@ -353,6 +353,14 @@ export const useDocumentSync = ({
         // because the listing might advertise a re-encoded hash even when
         // the bytes are identical, so the sync indicator can clear.
         await stampPostPullCommitHash({ meta, slug, incomingCommitHash })
+        // External consumers subscribe to this hook to react to any
+        // rebase landing on the active document - including the no-op
+        // case where local matched upstream - so we keep the emit on
+        // this branch in line with the legacy `DocumentCollection.vue`
+        // sync flow.
+        app.eventBus.emit('hooks:on:rebase:document:complete', {
+          meta: { documentName: slug },
+        })
         toast('Already up to date with the registry.', 'info')
         return
       }
@@ -390,6 +398,14 @@ export const useDocumentSync = ({
 
     await stampPostPullCommitHash({ meta, slug, incomingCommitHash })
 
+    // Public lifecycle hook for downstream consumers (analytics, custom
+    // refresh logic, ...). Emitted after the rebase has been committed
+    // and the post-pull commit hash has been stamped so any handler
+    // re-reading the active document sees the post-rebase state.
+    app.eventBus.emit('hooks:on:rebase:document:complete', {
+      meta: { documentName: slug },
+    })
+
     toast('Pulled latest changes from the registry.', 'info')
   }
 
@@ -418,6 +434,12 @@ export const useDocumentSync = ({
     })
 
     syncConflictModalState.hide()
+    // Mirror the auto-merge branch above: external listeners subscribe
+    // to this hook to react to any successful rebase, regardless of
+    // whether the user had to resolve conflicts to get there.
+    app.eventBus.emit('hooks:on:rebase:document:complete', {
+      meta: { documentName: pending.slug },
+    })
     pendingPullState.value = null
 
     toast('Pulled latest changes from the registry.', 'info')
