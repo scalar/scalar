@@ -45,43 +45,6 @@ const { isLoggedIn, setTokens } = useAuth()
 const { documents, isLoading: isDocumentsLoading } = useRegistryDocuments()
 const { namespaces, isLoading: isNamespacesLoading } = useRegistryNamespaces()
 
-/**
- * Registry documents surfaced to the client app sidebar. We forward the
- * query's pending state so the sidebar can render skeleton placeholders
- * until the first fetch resolves, while still streaming any cached
- * documents that are already in hand.
- */
-const registryDocuments = computed(() => {
-  const mapped = documents.value.map(
-    ({ namespace, slug, title, versions }) => ({
-      namespace,
-      slug,
-      title: title ?? 'Default Title',
-      versions: versions.map(({ version, jsonSha }) => ({
-        version,
-        commitHash: jsonSha,
-      })),
-    }),
-  )
-
-  return isDocumentsLoading.value
-    ? ({ status: 'loading', documents: mapped } as const)
-    : ({ status: 'success', documents: mapped } as const)
-})
-
-/**
- * Namespaces the current team can publish documents into. Mirrors the
- * loading-aware shape of `registryDocuments` so the publish modal can
- * render its skeleton row until the namespaces list resolves.
- */
-const registryNamespaces = computed(() => {
-  const mapped = namespaces.value.map((namespace) => ({ namespace }))
-
-  return isNamespacesLoading.value
-    ? ({ status: 'loading', namespaces: mapped } as const)
-    : ({ status: 'success', namespaces: mapped } as const)
-})
-
 /** Whether the app is running on electron */
 const isDesktop = window.electron === true
 
@@ -121,9 +84,8 @@ const setActiveWorkspaceById = (id?: string) => {
 }
 
 //--------------------------------------------------
-// Watchers
+// Navigation
 //--------------------------------------------------
-
 // Emits a navigation event to open the workspace settings page
 const openSettings = () => {
   app.eventBus.emit('ui:navigate', {
@@ -148,6 +110,47 @@ const plugins = [
     uiHost: 'https://us.posthog.com',
   }),
 ]
+
+//--------------------------------------------------
+// Registry
+//--------------------------------------------------
+
+/**
+ * Registry documents surfaced to the client app sidebar. We forward the
+ * query's pending state so the sidebar can render skeleton placeholders
+ * until the first fetch resolves, while still streaming any cached
+ * documents that are already in hand.
+ */
+const registryDocuments = computed(() => {
+  const mapped = documents.value.map(
+    ({ namespace, slug, title, versions }) => ({
+      namespace,
+      slug,
+      title: title ?? 'Default Title',
+      versions: versions.map(({ version, jsonSha }) => ({
+        version,
+        commitHash: jsonSha,
+      })),
+    }),
+  )
+
+  return isDocumentsLoading.value
+    ? ({ status: 'loading', documents: mapped } as const)
+    : ({ status: 'success', documents: mapped } as const)
+})
+
+/**
+ * Namespaces the current team can publish documents into. Mirrors the
+ * loading-aware shape of `registryDocuments` so the publish modal can
+ * render its skeleton row until the namespaces list resolves.
+ */
+const registryNamespaces = computed(() => {
+  const mapped = namespaces.value.map((namespace) => ({ namespace }))
+
+  return isNamespacesLoading.value
+    ? ({ status: 'loading', namespaces: mapped } as const)
+    : ({ status: 'success', namespaces: mapped } as const)
+})
 
 /**
  * Registry adapter passed to the API client. We wrap it in `reactive` so
