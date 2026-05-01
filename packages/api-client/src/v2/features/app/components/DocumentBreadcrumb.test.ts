@@ -90,6 +90,21 @@ const createFakeApp = ({
       // focused on breadcrumb rendering rather than workspace-state plumbing.
       workspaceList: ref(workspaceList),
       workspaceGroups,
+      // Test-double for the shared navigation helper. The real
+      // implementation lives in `app-state.ts` and emits `ui:navigate`
+      // through the event bus, so we mirror that here so the existing
+      // event-bus assertions still cover this code path.
+      navigateToWorkspaceGetStarted: (workspaceId: string) => {
+        const found = workspaceList.find((w) => w.id === workspaceId)
+        if (found) {
+          mockEventBus.emit('ui:navigate', {
+            page: 'workspace',
+            path: 'get-started',
+            teamSlug: found.teamSlug,
+            workspaceSlug: found.slug,
+          })
+        }
+      },
     },
     activeEntities: {
       documentSlug: ref(activeDocumentName),

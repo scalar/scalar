@@ -320,15 +320,6 @@ export const useDocumentSync = ({
       return
     }
 
-    // Snapshot the registry-advertised hash before we kick off the fetch.
-    // The version listing is the source of truth for "what hash we are
-    // pulling against" - the per-document fetch payload itself does not
-    // carry one - and `activeVersion` may re-derive once `rebaseDocument`
-    // mutates the active document, so we capture it up front.
-    // TODO: THE REGSITRY FETCH ADAPTER SHOULD RETURN THE COMMIT HASH ALONGSIDE THE DOCUMENT
-    // AND NOT JUST THE REGISTRY DOCUMENT.
-    const incomingCommitHash = activeVersion.value?.registryCommitHash
-
     const fetched = await registry.fetchDocument({
       namespace: meta.namespace,
       slug: meta.slug,
@@ -344,8 +335,15 @@ export const useDocumentSync = ({
     // upstream baseline.
     const result = await store.rebaseDocument({
       name: slug,
-      document: fetched.data,
+      document: fetched.data.document,
     })
+
+    // Snapshot the registry-advertised hash before we kick off the fetch.
+    // The version listing is the source of truth for "what hash we are
+    // pulling against" - the per-document fetch payload itself does not
+    // carry one - and `activeVersion` may re-derive once `rebaseDocument`
+    // mutates the active document, so we capture it up front.
+    const incomingCommitHash = fetched.data.versionSha
 
     if (!result.ok) {
       if (result.type === 'NO_CHANGES_DETECTED') {

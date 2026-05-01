@@ -7,14 +7,9 @@ import {
 } from '@scalar/components'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { useToasts } from '@scalar/use-toasts'
-import { getWorkspaceId } from '@scalar/workspace-store/persistence'
 import { computed, ref } from 'vue'
 
-import {
-  DEFAULT_TEAM_WORKSPACE_SLUG,
-  TEAM_WORKSPACES_ENABLED,
-  type AppState,
-} from '@/v2/features/app/app-state'
+import { type AppState } from '@/v2/features/app/app-state'
 import type { VersionStatus } from '@/v2/features/app/helpers/compute-version-status'
 import { createDraftRegistryDocument } from '@/v2/features/app/helpers/create-draft-registry-document'
 import { loadRegistryDocument } from '@/v2/features/app/helpers/load-registry-document'
@@ -219,51 +214,6 @@ const navigateToDocument = (documentSlug: string) => {
 }
 
 /**
- * Routes to the get-started page for a workspace, identified by the
- * combobox option id. We resolve the underlying `WorkspaceOption` from
- * `workspaceList` so the team-slug and slug pair is sourced from the same
- * place the picker built its options - that sidesteps any ambiguity if a
- * teamSlug or slug were ever to contain a slash.
- *
- * When team workspaces are enabled and the active team has no real
- * workspace yet, the picker may surface a synthetic placeholder option
- * (id: `getWorkspaceId(teamSlug, DEFAULT_TEAM_WORKSPACE_SLUG)`). We route
- * that through the normal navigation flow so the route handler can create
- * the workspace on demand.
- */
-const navigateToWorkspaceGetStarted = (workspaceId: string) => {
-  const emitNavigation = (teamSlug: string, slug: string) => {
-    app.eventBus.emit('ui:navigate', {
-      page: 'workspace',
-      path: 'get-started',
-      teamSlug,
-      workspaceSlug: slug,
-    })
-  }
-
-  const workspace = app.workspace.workspaceList.value?.find(
-    (w) => w.id === workspaceId,
-  )
-  if (workspace) {
-    emitNavigation(workspace.teamSlug, workspace.slug)
-    return
-  }
-
-  if (!TEAM_WORKSPACES_ENABLED) {
-    return
-  }
-
-  const activeTeamSlug = app.activeEntities.teamSlug?.value
-  if (
-    activeTeamSlug &&
-    activeTeamSlug !== 'local' &&
-    workspaceId === getWorkspaceId(activeTeamSlug, DEFAULT_TEAM_WORKSPACE_SLUG)
-  ) {
-    emitNavigation(activeTeamSlug, DEFAULT_TEAM_WORKSPACE_SLUG)
-  }
-}
-
-/**
  * Click handler for the workspace label when it renders as a plain link
  * (i.e. the user is NOT yet on the get-started page). Navigating there
  * is what flips the same segment into a dropdown on the next render.
@@ -273,7 +223,7 @@ const handleWorkspaceLinkClick = () => {
   if (!id) {
     return
   }
-  navigateToWorkspaceGetStarted(id)
+  app.workspace.navigateToWorkspaceGetStarted(id)
 }
 
 /**
@@ -304,7 +254,7 @@ const handleWorkspaceSelect = (option: ScalarComboboxOption | undefined) => {
   if (option.id === activeWorkspaceId.value) {
     return
   }
-  navigateToWorkspaceGetStarted(option.id)
+  app.workspace.navigateToWorkspaceGetStarted(option.id)
 }
 
 const handleVersionSelect = async (option: VersionOption | undefined) => {

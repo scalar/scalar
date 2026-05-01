@@ -39,9 +39,15 @@ export type FetchRegistryDocumentError = 'NOT_FOUND' | 'FETCH_FAILED' | 'UNAUTHO
  * plain object on success, or a discriminated `FetchRegistryDocumentError`
  * code (with an optional human-readable `message`) on failure.
  */
-export type ImportDocumentFromRegistry = (
-  meta: RegistryDocumentMeta,
-) => Promise<Result<Record<string, unknown>, FetchRegistryDocumentError>>
+export type ImportDocumentFromRegistry = (meta: RegistryDocumentMeta) => Promise<
+  Result<
+    {
+      document: Record<string, unknown>
+      versionSha?: string
+    },
+    FetchRegistryDocumentError
+  >
+>
 
 /**
  * Error codes surfaced by `publishDocument`. Errors are returned as a
@@ -131,7 +137,7 @@ export type PublishRegistryVersionError = 'CONFLICT' | 'NOT_FOUND' | 'FETCH_FAIL
 export type PublishRegistryVersionResult = Result<
   RegistryDocumentMeta & {
     /** Commit hash advertised by the registry for the published version. */
-    commitHash: string
+    commitHash?: string
   },
   PublishRegistryVersionError
 >

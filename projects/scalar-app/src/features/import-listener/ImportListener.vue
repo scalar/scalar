@@ -195,7 +195,7 @@ onMounted(() => {
   if (window.electron === true) {
     // Open… menu listener
     window.ipc.addEventListener('import-file', (filePath: string) => {
-      handleInput({ source: filePath, type: 'file' })
+      void handleInput({ source: filePath, type: 'file' })
     })
   }
 })

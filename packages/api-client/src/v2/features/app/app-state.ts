@@ -112,6 +112,12 @@ export type AppState = {
     activeWorkspace: ShallowRef<{ id: string; label: string } | null>
     /** Navigates to the specified workspace */
     navigateToWorkspace: (teamSlug?: string, slug?: string) => Promise<void>
+    /**
+     * Routes to the get-started page of a workspace identified by id.
+     * Mirrors the picker affordances in the breadcrumb and header menu
+     * so both surfaces stay in sync when the user switches workspaces.
+     */
+    navigateToWorkspaceGetStarted: (workspaceId: string) => void
     /** Whether the workspace page is open */
     isOpen: ComputedRef<boolean>
     /**
@@ -183,7 +189,7 @@ const DEFAULT_TEAM_WORKSPACE_NAME = 'Workspace'
  * workspaces. Existing team workspaces remain in storage and can be restored
  * by flipping this flag back to `true`.
  */
-export const TEAM_WORKSPACES_ENABLED = false
+export const TEAM_WORKSPACES_ENABLED = true
 
 // ---------------------------------------------------------------------------
 // App State
@@ -463,6 +469,51 @@ export const createAppState = async ({
         exampleName: 'default',
       },
     })
+  }
+
+  /**
+   * Routes to the get-started page of a workspace identified by id.
+   *
+   * Get-started is the right landing surface on a workspace switch
+   * because the user has effectively arrived at a fresh workspace and
+   * may not have any documents loaded yet. We look the workspace up
+   * against the unfiltered `workspaces` list so callers can switch into
+   * a workspace that is not visible under the current team filter.
+   *
+   * When team workspaces are enabled and the active team has no real
+   * workspace yet, the picker may surface a synthetic placeholder option
+   * (id: `getWorkspaceId(teamSlug, DEFAULT_TEAM_WORKSPACE_SLUG)`). We
+   * route that through the normal navigation flow so the route handler
+   * can create the workspace on demand.
+   */
+  const navigateToWorkspaceGetStarted = (workspaceId: string): void => {
+    const emitNavigation = (target: string, slug: string) => {
+      eventBus.emit('ui:navigate', {
+        page: 'workspace',
+        path: 'get-started',
+        teamSlug: target,
+        workspaceSlug: slug,
+      })
+    }
+
+    const workspace = workspaces.value?.find((w) => w.id === workspaceId)
+    if (workspace) {
+      emitNavigation(workspace.teamSlug, workspace.slug)
+      return
+    }
+
+    if (!TEAM_WORKSPACES_ENABLED) {
+      return
+    }
+
+    const activeTeamSlug = teamSlug.value
+    if (
+      activeTeamSlug &&
+      activeTeamSlug !== 'local' &&
+      workspaceId === getWorkspaceId(activeTeamSlug, DEFAULT_TEAM_WORKSPACE_SLUG)
+    ) {
+      emitNavigation(activeTeamSlug, DEFAULT_TEAM_WORKSPACE_SLUG)
+    }
   }
 
   /**
@@ -1101,6 +1152,7 @@ export const createAppState = async ({
       workspaceGroups,
       activeWorkspace,
       navigateToWorkspace,
+      navigateToWorkspaceGetStarted,
       isOpen: computed(() => Boolean(workspaceSlug.value && !documentSlug.value)),
       isTeamWorkspace,
     },
