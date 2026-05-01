@@ -61,7 +61,6 @@
     "@scalar/icons": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
-    "@scalar/sidebar": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
@@ -75,6 +74,7 @@
     "zod": "catalog:*"
   },
   "devDependencies": {
+    "@scalar/sidebar": "workspace:*",
     "@tailwindcss/cli": "catalog:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/jsdom": "catalog:*",

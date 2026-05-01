@@ -1143,9 +1143,6 @@ importers:
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
-      '@scalar/sidebar':
-        specifier: workspace:*
-        version: link:../sidebar
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -1180,6 +1177,9 @@ importers:
         specifier: catalog:*
         version: 4.3.5
     devDependencies:
+      '@scalar/sidebar':
+        specifier: workspace:*
+        version: link:../sidebar
       '@tailwindcss/cli':
         specifier: catalog:*
         version: 4.2.4
