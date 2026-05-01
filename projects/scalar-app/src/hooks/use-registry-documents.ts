@@ -33,7 +33,9 @@ export const useRegistryDocuments = (options?: Omit<UseQueryOptions, 'queryKey' 
   watch(
     () => query.error.value,
     (error) => {
-      if (error) toast('Failed to fetch documents', 'error')
+      if (error) {
+        toast('Failed to fetch documents', 'error')
+      }
     },
   )
 

@@ -31,7 +31,9 @@ export const createIpcTransport = (): Transport => async (request) => {
         streamId,
         callbacks: {
           onData: (chunk) => {
-            if (done) return
+            if (done) {
+              return
+            }
             try {
               controller.enqueue(new Uint8Array(chunk))
             } catch {
@@ -62,7 +64,9 @@ export const createIpcTransport = (): Transport => async (request) => {
       // then abort via the request's abortId (if present) to also cancel the
       // underlying undici connection.
       done = true
-      if (request.abortId) window.api.customFetchAbort(request.abortId)
+      if (request.abortId) {
+        window.api.customFetchAbort(request.abortId)
+      }
     },
   })
 

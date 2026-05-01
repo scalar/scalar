@@ -78,7 +78,7 @@ function handleKeepLocalOnly() {
 }
 
 async function handleSyncToRegistry() {
-  if (!documentContent || !registryMeta) return
+  if (!documentContent || !registryMeta) { return }
 
   await mutateAsync({
     namespace: registryMeta.namespace,

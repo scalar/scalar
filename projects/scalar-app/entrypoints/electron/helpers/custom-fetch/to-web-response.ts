@@ -34,8 +34,12 @@ export const toWebResponse = (result: TransportResponse): Response => {
   })
   return new Proxy(response, {
     get(target, prop) {
-      if (prop === 'url') return result.url
-      if (prop === 'redirected') return result.redirected
+      if (prop === 'url') {
+        return result.url
+      }
+      if (prop === 'redirected') {
+        return result.redirected
+      }
       const value = Reflect.get(target, prop, target)
       return typeof value === 'function' ? value.bind(target) : value
     },

@@ -20,11 +20,15 @@ export const applyRequestHeaderTransforms = (headers: Record<string, string>): R
 
   const cookie = h.get(X_SCALAR_COOKIE)
   h.delete(X_SCALAR_COOKIE)
-  if (cookie) h.set('Cookie', cookie)
+  if (cookie) {
+    h.set('Cookie', cookie)
+  }
 
   const userAgent = h.get(X_SCALAR_USER_AGENT)
   h.delete(X_SCALAR_USER_AGENT)
-  if (userAgent) h.set('User-Agent', userAgent)
+  if (userAgent) {
+    h.set('User-Agent', userAgent)
+  }
 
   return Object.fromEntries(h.entries())
 }

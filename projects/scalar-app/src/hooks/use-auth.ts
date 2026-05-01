@@ -41,7 +41,9 @@ const setTokens = (access: string, refresh: string) => {
 
 /** Reactive token payload decoded from the access token JWT */
 const tokenData = computed<AccessTokenPayload | null>(() => {
-  if (!accessToken.value) return null
+  if (!accessToken.value) {
+    return null
+  }
 
   try {
     const payload = jwtDecode<Record<string, unknown>>(accessToken.value)
@@ -87,10 +89,14 @@ let pendingRefresh: Promise<void> | null = null
  * tab propagate the result via the `storage` event.
  */
 const refreshTokens = (): Promise<void> => {
-  if (pendingRefresh) return pendingRefresh
+  if (pendingRefresh) {
+    return pendingRefresh
+  }
 
   const token = refreshToken.value
-  if (!token) return Promise.resolve()
+  if (!token) {
+    return Promise.resolve()
+  }
 
   const execute = async (): Promise<void> => {
     try {
@@ -126,7 +132,7 @@ const refreshTokens = (): Promise<void> => {
   }
 
   const run = async (): Promise<void> => {
-    if (typeof window !== 'undefined' && window.navigator?.locks?.request) {
+    if (window?.navigator?.locks?.request) {
       await window.navigator.locks.request('scalar-refresh-request', { ifAvailable: true }, async (lock) =>
         lock ? execute() : undefined,
       )
@@ -151,8 +157,12 @@ const refreshTokens = (): Promise<void> => {
  * request-time refresh + 401-retry, not this function.
  */
 const checkRefresh = async (): Promise<void> => {
-  if (!accessToken.value || !refreshToken.value) return
-  if (!isTokenExpired(accessToken.value)) return
+  if (!accessToken.value || !refreshToken.value) {
+    return
+  }
+  if (!isTokenExpired(accessToken.value)) {
+    return
+  }
 
   if (isTokenExpired(refreshToken.value)) {
     logout()
@@ -171,16 +181,22 @@ if (typeof window !== 'undefined') {
   })
 
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') void checkRefresh()
+    if (document.visibilityState === 'visible') {
+      void checkRefresh()
+    }
   })
 
   // When tokens are updated in another tab, sync local state
   window.addEventListener('storage', (event) => {
     // Relies on refresh token always being written after access token
-    if (event.key !== REFRESH_TOKEN_KEY) return
+    if (event.key !== REFRESH_TOKEN_KEY) {
+      return
+    }
 
     const newRefresh = event.newValue
-    if (newRefresh === refreshToken.value) return
+    if (newRefresh === refreshToken.value) {
+      return
+    }
 
     if (!newRefresh || isTokenExpired(newRefresh)) {
       logout()

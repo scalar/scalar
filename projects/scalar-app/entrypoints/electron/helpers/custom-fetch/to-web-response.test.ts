@@ -242,7 +242,9 @@ describe('to-web-response', () => {
       const chunks: string[] = []
       while (true) {
         const { done, value } = await reader.read()
-        if (done) break
+        if (done) {
+          break
+        }
         chunks.push(new TextDecoder().decode(value))
       }
       expect(chunks.join('')).toContain('data: hello')
@@ -254,7 +256,9 @@ describe('to-web-response', () => {
       const lines = ['data: 1\n\n', 'data: 2\n\n', 'data: 3\n\n']
       const stream = new ReadableStream<Uint8Array>({
         start(controller) {
-          for (const line of lines) controller.enqueue(encoder.encode(line))
+          for (const line of lines) {
+            controller.enqueue(encoder.encode(line))
+          }
           controller.close()
         },
       })
@@ -269,7 +273,9 @@ describe('to-web-response', () => {
       const received: string[] = []
       while (true) {
         const { done, value } = await reader.read()
-        if (done) break
+        if (done) {
+          break
+        }
         received.push(new TextDecoder().decode(value))
       }
       expect(received).toEqual(lines)

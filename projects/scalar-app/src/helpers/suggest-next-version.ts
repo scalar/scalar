@@ -16,7 +16,9 @@ import semver from 'semver'
  */
 export function suggestNextVersion(current: string): string {
   const inc = semver.inc(current, 'patch')
-  if (inc) return inc
+  if (inc) {
+    return inc
+  }
 
   const today = new Date()
   const yyyy = today.getFullYear()
@@ -24,14 +26,22 @@ export function suggestNextVersion(current: string): string {
   const dd = String(today.getDate()).padStart(2, '0')
 
   const dateSuffix = current.match(/^(\d{4}-\d{2}-\d{2})\.(.+)$/)
-  if (dateSuffix) return `${yyyy}-${mm}-${dd}.release-name`
+  if (dateSuffix) {
+    return `${yyyy}-${mm}-${dd}.release-name`
+  }
 
-  if (/^\d{4}-\d{2}-\d{2}$/.test(current)) return `${yyyy}-${mm}-${dd}`
+  if (/^\d{4}-\d{2}-\d{2}$/.test(current)) {
+    return `${yyyy}-${mm}-${dd}`
+  }
 
-  if (/^\d{4}-\d{2}$/.test(current)) return `${yyyy}-${mm}`
+  if (/^\d{4}-\d{2}$/.test(current)) {
+    return `${yyyy}-${mm}`
+  }
 
   const vNum = current.match(/^([Vv])(\d+)$/)
-  if (vNum) return `${vNum[1]}${Number(vNum[2]) + 1}`
+  if (vNum) {
+    return `${vNum[1]}${Number(vNum[2]) + 1}`
+  }
 
   return current
 }

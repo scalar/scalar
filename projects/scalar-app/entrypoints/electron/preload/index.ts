@@ -24,7 +24,9 @@ try {
       // exact reference later — contextBridge proxies prevent the renderer from
       // holding references to the actual listener functions.
       const onData = (_: Electron.IpcRendererEvent, data: { streamId: string; chunk: ArrayBuffer }) => {
-        if (data.streamId === streamId) callbacks.onData(data.chunk)
+        if (data.streamId === streamId) {
+          callbacks.onData(data.chunk)
+        }
       }
       const onEnd = (_: Electron.IpcRendererEvent, data: { streamId: string }) => {
         if (data.streamId === streamId) {

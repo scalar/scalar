@@ -18,7 +18,7 @@
     "dev:web": "vite",
     "preview:app": "electron-vite preview",
     "preview:web": "vite preview",
-    "lint:fix": "biome check --write && pnpm eslint \"**/*.vue\" --fix",
+    "lint:fix": "biome check --write --unsafe && pnpm eslint \"**/*.vue\" --fix",
     "test": "vitest",
     "test:e2e": "playwright test",
     "todesktop:build": "todesktop build",

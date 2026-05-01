@@ -41,7 +41,9 @@ function createMockUndiciResponse({
   }
   if (chunks) {
     bodyObj[Symbol.asyncIterator] = async function* () {
-      for (const chunk of chunks) yield chunk
+      for (const chunk of chunks) {
+        yield chunk
+      }
     }
   }
   return { statusCode, headers, body: bodyObj }

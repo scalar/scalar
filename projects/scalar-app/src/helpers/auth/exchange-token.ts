@@ -15,7 +15,9 @@ export const exchangeToken = async (token: string): Promise<ErrorResponse<TokenR
       body: JSON.stringify({ exchangeToken: token }),
     })
 
-    if (!response.ok) throw new Error('Could not exchange token')
+    if (!response.ok) {
+      throw new Error('Could not exchange token')
+    }
 
     const json = await response.json()
 

@@ -141,7 +141,9 @@ describe('to-ipc-request', () => {
     it('passes a large binary body without corruption', async () => {
       const size = 1024 * 1024
       const bytes = new Uint8Array(size)
-      for (let i = 0; i < size; i++) bytes[i] = i % 256
+      for (let i = 0; i < size; i++) {
+        bytes[i] = i % 256
+      }
       const buffer = bytes.buffer as ArrayBuffer
 
       const request = await toIpcRequest('https://example.com', {

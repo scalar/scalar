@@ -139,7 +139,9 @@ export const handleCustomFetch = async (req: IpcFetchRequest, sender?: IpcSender
       void (async () => {
         try {
           for await (const chunk of body) {
-            if (sender.isDestroyed() || ac.signal.aborted) return
+            if (sender.isDestroyed() || ac.signal.aborted) {
+              return
+            }
             // Slice to obtain a clean, standalone ArrayBuffer — undici's Buffer
             // may be backed by a shared pool allocation.
             const ab = (chunk as Buffer).buffer.slice(
@@ -148,9 +150,13 @@ export const handleCustomFetch = async (req: IpcFetchRequest, sender?: IpcSender
             ) as ArrayBuffer
             sender.send('customFetch:data', { streamId, chunk: ab })
           }
-          if (!sender.isDestroyed()) sender.send('customFetch:end', { streamId })
+          if (!sender.isDestroyed()) {
+            sender.send('customFetch:end', { streamId })
+          }
         } catch (err) {
-          if (!sender.isDestroyed()) sender.send('customFetch:error', { streamId, message: String(err) })
+          if (!sender.isDestroyed()) {
+            sender.send('customFetch:error', { streamId, message: String(err) })
+          }
         } finally {
           // Keep the controller in the map until the stream is fully done so
           // that abort() can be called at any point during streaming.
