@@ -375,12 +375,6 @@
         "@electron/*": ["./entrypoints/electron/*"],
         "@web/*": ["./entrypoints/web/src/*"]
       },
-      "ignoreFiles": [
-        // We may use these later, we can remove them if we don't
-        "projects/scalar-app/src/features.ts",
-        "projects/scalar-app/src/hooks/use-current-team.ts",
-        "projects/scalar-app/src/hooks/use-current-user.ts"
-      ],
       "entry": [
         // Web app
         "entrypoints/web/src/main.ts",

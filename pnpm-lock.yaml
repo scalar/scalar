@@ -2702,9 +2702,6 @@ importers:
       posthog-js:
         specifier: catalog:*
         version: 1.363.2
-      semver:
-        specifier: catalog:*
-        version: 7.7.2
       undici:
         specifier: 7.24.4
         version: 7.24.4

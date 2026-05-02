@@ -65,7 +65,6 @@
     "monaco-editor": "catalog:*",
     "monaco-yaml": "catalog:*",
     "posthog-js": "catalog:*",
-    "semver": "catalog:*",
     "undici": "catalog:*",
     "vite-plugin-monaco-editor": "catalog:*"
   },
