@@ -441,6 +441,7 @@ const id = useId()
 </template>
 <style scoped>
 .request-card {
+  color: var(--scalar-color-1);
   font-size: var(--scalar-font-size-3);
 }
 .request-method {
