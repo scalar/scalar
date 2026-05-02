@@ -201,6 +201,79 @@ describe('app-state', () => {
     ).toBe(false)
   })
 
+  it('does not seed a drafts document when persisting a team workspace', async () => {
+    const router = setupRouter()
+    const appState = await createAppState({ router })
+
+    // Persist a team workspace through the same path the app uses internally
+    // (via the workspace store persistence layer rather than the create flow,
+    // which is currently gated behind TEAM_WORKSPACES_ENABLED).
+    const persistence = await createWorkspaceStorePersistence()
+    const draftStore = createWorkspaceStore()
+    await persistence.workspace.setItem(
+      { teamSlug: 'no-drafts-team', slug: 'default' },
+      { name: 'Team Workspace', workspace: draftStore.exportWorkspace() },
+    )
+
+    appState.activeEntities.setTeamSlug('no-drafts-team')
+
+    await router.push({
+      name: 'workspace.get-started',
+      params: { teamSlug: 'no-drafts-team', workspaceSlug: 'default' },
+    })
+    await router.isReady()
+    await waitForNavigation()
+
+    await vi.waitFor(() => {
+      expect(appState.store.value).not.toBeNull()
+    })
+
+    // Team workspaces start empty - no auto-seeded "drafts" document.
+    expect(appState.store.value?.workspace.documents.drafts).toBeUndefined()
+    expect(Object.keys(appState.store.value?.workspace.documents ?? {})).toHaveLength(0)
+  })
+
+  it('navigates team workspaces to the get-started page instead of the drafts route', async () => {
+    const router = setupRouter()
+    const appState = await createAppState({ router })
+
+    // Capture the initial push target before downstream tab-sync effects can
+    // replace the route - tabs:update:tabs is wired to navigateToCurrentTab
+    // which would otherwise mutate currentRoute before our assertion runs.
+    const pushed: { name?: string; params?: Record<string, unknown> }[] = []
+    const originalPush = router.push.bind(router)
+    router.push = ((to: any) => {
+      if (typeof to === 'object' && to !== null) {
+        pushed.push({ name: to.name, params: to.params })
+      }
+      return originalPush(to)
+    }) as typeof router.push
+
+    await appState.workspace.navigateToWorkspace('team-nav', 'default')
+
+    expect(pushed[0]?.name).toBe('workspace.get-started')
+    expect(pushed[0]?.params?.documentSlug).toBeUndefined()
+  })
+
+  it('still navigates local workspaces directly to the drafts example route', async () => {
+    const router = setupRouter()
+    const appState = await createAppState({ router })
+
+    const pushed: { name?: string; params?: Record<string, unknown> }[] = []
+    const originalPush = router.push.bind(router)
+    router.push = ((to: any) => {
+      if (typeof to === 'object' && to !== null) {
+        pushed.push({ name: to.name, params: to.params })
+      }
+      return originalPush(to)
+    }) as typeof router.push
+
+    await appState.workspace.navigateToWorkspace('local', 'drafts-target')
+
+    expect(pushed[0]?.name).toBe('example')
+    expect(pushed[0]?.params?.documentSlug).toBe('drafts')
+  })
+
   it('redirects to the saved tab path when switching workspaces after initial load', async () => {
     const savedTabPath = '/@local/switch-target/document/drafts/servers'
     await persistWorkspace({ slug: 'switch-source' })
