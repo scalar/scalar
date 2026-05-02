@@ -19,7 +19,3 @@ export const appState = await createAppState({
     customFetch,
   },
 })
-
-export function useAppState() {
-  return appState
-}

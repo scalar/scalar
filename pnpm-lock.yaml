@@ -2630,15 +2630,9 @@ importers:
 
   projects/scalar-app:
     dependencies:
-      '@electron-toolkit/preload':
-        specifier: ^3.0.0
-        version: 3.0.2(electron@41.2.2)
       '@electron-toolkit/utils':
         specifier: ^4.0.0
         version: 4.0.0(electron@41.2.2)
-      '@headlessui/vue':
-        specifier: catalog:*
-        version: 1.7.23(vue@3.5.30(typescript@5.9.3))
       '@scalar/api-client':
         specifier: workspace:*
         version: link:../../packages/api-client
@@ -2651,9 +2645,6 @@ importers:
       '@scalar/icons':
         specifier: workspace:*
         version: link:../../packages/icons
-      '@scalar/import':
-        specifier: workspace:*
-        version: link:../../packages/import
       '@scalar/json-magic':
         specifier: workspace:*
         version: link:../../packages/json-magic
@@ -2672,9 +2663,6 @@ importers:
       '@scalar/themes':
         specifier: workspace:*
         version: link:../../packages/themes
-      '@scalar/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       '@scalar/use-toasts':
         specifier: workspace:*
         version: link:../../packages/use-toasts
@@ -4396,11 +4384,6 @@ packages:
 
   '@dxup/unimport@0.1.2':
     resolution: {integrity: sha512-/B8YJGPzaYq1NbsQmwgP8EZqg40NpTw4ZB3suuI0TplbxKHeK94jeaawLmVhCv+YwUnOpiWEz9U6SeThku/8JQ==}
-
-  '@electron-toolkit/preload@3.0.2':
-    resolution: {integrity: sha512-TWWPToXd8qPRfSXwzf5KVhpXMfONaUuRAZJHsKthKgZR/+LqX1dZVSSClQ8OTAEduvLGdecljCsoT2jSshfoUg==}
-    peerDependencies:
-      electron: '>=13.0.0'
 
   '@electron-toolkit/utils@4.0.0':
     resolution: {integrity: sha512-qXSntwEzluSzKl4z5yFNBknmPGjPa3zFhE4mp9+h0cgokY5ornAeP+CJQDBhKsL1S58aOQfcwkD3NwLZCl+64g==}
@@ -21717,10 +21700,6 @@ snapshots:
       - magicast
 
   '@dxup/unimport@0.1.2': {}
-
-  '@electron-toolkit/preload@3.0.2(electron@41.2.2)':
-    dependencies:
-      electron: 41.2.2
 
   '@electron-toolkit/utils@4.0.0(electron@41.2.2)':
     dependencies:
