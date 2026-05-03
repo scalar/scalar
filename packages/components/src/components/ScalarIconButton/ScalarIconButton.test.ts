@@ -322,8 +322,9 @@ describe('ScalarIconButton', () => {
       await nextTick()
       expect(tooltipElement?.style.display).toBe('block')
 
-      // Hide tooltip on mouseleave
+      // Hide tooltip on mouseleave (debounced)
       wrapper.element.dispatchEvent(new MouseEvent('mouseleave'))
+      await vi.runAllTimersAsync()
       await nextTick()
 
       expect(tooltipElement?.style.display).toBe('none')
@@ -348,8 +349,9 @@ describe('ScalarIconButton', () => {
       await nextTick()
       expect(tooltipElement?.style.display).toBe('block')
 
-      // Hide tooltip on blur
+      // Hide tooltip on blur (debounced)
       wrapper.element.dispatchEvent(new FocusEvent('blur'))
+      await vi.runAllTimersAsync()
       await nextTick()
 
       expect(tooltipElement?.style.display).toBe('none')
