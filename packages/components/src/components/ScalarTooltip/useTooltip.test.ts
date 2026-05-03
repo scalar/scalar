@@ -77,7 +77,7 @@ describe('useTooltip', () => {
     expect(tooltipElement?.textContent).toBe('Test tooltip')
   })
 
-  it('should hide tooltip on mouseleave', () => {
+  it('hides tooltip on mouseleave after debounce', async () => {
     useTooltip({
       content: 'Test tooltip',
       targetRef: targetElement,
@@ -85,16 +85,26 @@ describe('useTooltip', () => {
 
     // Show tooltip
     targetElement.dispatchEvent(new MouseEvent('mouseenter'))
-    vi.runAllTimers()
-
-    // Hide tooltip
-    targetElement.dispatchEvent(new MouseEvent('mouseleave'))
+    await vi.runAllTimersAsync()
+    await nextTick()
 
     const tooltipElement = document.getElementById(ELEMENT_ID)
+    expect(tooltipElement?.style.display).toBe('block')
+
+    // Trigger mouseleave
+    targetElement.dispatchEvent(new MouseEvent('mouseleave'))
+
+    // Tooltip is still visible during the debounce window (timer not yet elapsed)
+    expect(tooltipElement?.style.display).toBe('block')
+
+    // Advance past the hide debounce and flush watchers
+    await vi.runAllTimersAsync()
+    await nextTick()
+
     expect(tooltipElement?.style.display).toBe('none')
   })
 
-  it('should hide tooltip on escape key', async () => {
+  it('hides tooltip on escape key', async () => {
     useTooltip({
       content: 'Test tooltip',
       targetRef: targetElement,
@@ -110,8 +120,8 @@ describe('useTooltip', () => {
 
     expect(tooltipElement?.style.display).toBe('block')
 
-    // Press escape
-    targetElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    // Press escape (fires on document, which captures it)
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
 
     await nextTick()
 
@@ -135,7 +145,7 @@ describe('useTooltip', () => {
     expect(tooltipElement?.textContent).toBe('Test tooltip')
   })
 
-  it('should hide tooltip on blur', async () => {
+  it('hides tooltip on blur', async () => {
     useTooltip({
       content: 'Test tooltip',
       targetRef: targetElement,
@@ -148,9 +158,9 @@ describe('useTooltip', () => {
     const tooltipElement = document.getElementById(ELEMENT_ID)
     expect(tooltipElement?.style.display).toBe('block')
 
-    // Hide tooltip via blur
+    // Hide tooltip via blur (debounced)
     targetElement.dispatchEvent(new FocusEvent('blur'))
-    await nextTick()
+    await vi.runAllTimersAsync()
 
     expect(tooltipElement?.style.display).toBe('none')
   })
@@ -293,7 +303,7 @@ describe('useTooltip', () => {
     expect(tooltipElement?.textContent).toBe('Italic text')
   })
 
-  it('should work with reactive content and contentTarget', async () => {
+  it('works with reactive content and contentTarget', async () => {
     const content = ref('Initial content')
     const contentTarget = ref<'textContent' | 'innerHTML'>('textContent')
 
@@ -325,5 +335,76 @@ describe('useTooltip', () => {
     // Should now render as HTML
     expect(tooltipElement?.innerHTML).toBe('<strong>Bold</strong> content')
     expect(tooltipElement?.textContent).toBe('Bold content')
+  })
+
+  it('hides tooltip when clicking outside the tooltip and target', async () => {
+    useTooltip({
+      content: 'Test tooltip',
+      targetRef: targetElement,
+    })
+
+    // Show tooltip
+    targetElement.dispatchEvent(new MouseEvent('mouseenter'))
+    vi.runAllTimers()
+    await nextTick()
+
+    const tooltipElement = document.getElementById(ELEMENT_ID)
+    expect(tooltipElement?.style.display).toBe('block')
+
+    // Click somewhere outside
+    const outsideEl = document.createElement('div')
+    document.body.appendChild(outsideEl)
+    outsideEl.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+    await nextTick()
+
+    expect(tooltipElement?.style.display).toBe('none')
+  })
+
+  it('keeps tooltip visible when clicking inside the target', async () => {
+    useTooltip({
+      content: 'Test tooltip',
+      targetRef: targetElement,
+    })
+
+    // Show tooltip
+    targetElement.dispatchEvent(new MouseEvent('mouseenter'))
+    vi.runAllTimers()
+    await nextTick()
+
+    const tooltipElement = document.getElementById(ELEMENT_ID)
+    expect(tooltipElement?.style.display).toBe('block')
+
+    // Click inside the target element itself
+    targetElement.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+    await nextTick()
+
+    expect(tooltipElement?.style.display).toBe('block')
+  })
+
+  it('cancels hide debounce when cursor enters the tooltip element', async () => {
+    useTooltip({
+      content: 'Test tooltip',
+      targetRef: targetElement,
+      delay: 0,
+    })
+
+    // Show tooltip immediately
+    targetElement.dispatchEvent(new MouseEvent('mouseenter'))
+    await nextTick()
+
+    const tooltipElement = document.getElementById(ELEMENT_ID)
+    expect(tooltipElement?.style.display).toBe('block')
+
+    // Cursor leaves target, debounce starts
+    targetElement.dispatchEvent(new MouseEvent('mouseleave'))
+    expect(tooltipElement?.style.display).toBe('block')
+
+    // Cursor enters tooltip before debounce fires
+    tooltipElement?.dispatchEvent(new MouseEvent('mouseenter'))
+
+    // Advance full timer — hide should be cancelled
+    await vi.runAllTimersAsync()
+
+    expect(tooltipElement?.style.display).toBe('block')
   })
 })

@@ -9,7 +9,7 @@ import type { Timer, TooltipConfiguration } from './types'
 // ---------------------------------------------------------------------------
 
 /**
- * The delay timer for the tooltip
+ * The delay timer for the tooltip show/hide debounce
  *
  * If there's not a timer running it should be undefined
  */
@@ -28,6 +28,9 @@ const el = ref<HTMLElement>()
  * If no tooltip is active it should be undefined
  */
 const config = ref<TooltipConfiguration>()
+
+/** Debounce delay (ms) applied when hiding the tooltip to prevent flickering */
+const HIDE_DEBOUNCE_MS = 100
 
 // ---------------------------------------------------------------------------
 // Core watcher and floating UI setup
@@ -121,6 +124,7 @@ function initializeTooltipElement(): void {
     el.value.classList.add(ELEMENT_CLASS)
     el.value.classList.add('scalar-app')
     el.value.style.setProperty('display', 'none')
+    el.value.addEventListener('mouseenter', clearTimer)
     el.value.addEventListener('mouseleave', hideTooltip)
     document.body.appendChild(el.value)
   }
@@ -130,6 +134,7 @@ function initializeTooltipElement(): void {
  * Cleanup and reset the tooltip element
  */
 export function cleanupTooltipElement() {
+  document.removeEventListener('pointerdown', handleOutsideClick, { capture: true } as EventListenerOptions)
   document.getElementById(ELEMENT_ID)?.remove()
   el.value = undefined
 }
@@ -139,9 +144,21 @@ export function cleanupTooltipElement() {
 // ---------------------------------------------------------------------------
 
 /**
- * Hide the tooltip
+ * Hide the tooltip immediately, without debounce
  *
- * If the mouse is moving between the tooltip and the target we don't hide the tooltip
+ * Used for keyboard and outside-click dismissals where instant hiding is appropriate
+ */
+function hideTooltipImmediately() {
+  clearTimer()
+  config.value = undefined
+  document.removeEventListener('pointerdown', handleOutsideClick, { capture: true } as EventListenerOptions)
+}
+
+/**
+ * Hide the tooltip after a short debounce delay
+ *
+ * The delay prevents flickering when the cursor briefly leaves the target on
+ * its way to the tooltip (e.g., due to layout gaps between them).
  */
 function hideTooltip(_e: Event) {
   if (!isMovingOffElements(_e)) {
@@ -149,11 +166,35 @@ function hideTooltip(_e: Event) {
     return
   }
 
-  // Clear any existing timer
+  // Clear any existing show timer
   clearTimer()
 
-  // Hide the tooltip
-  config.value = undefined
+  // Debounce the hide to prevent flickering
+  timer.value = setTimeout(() => {
+    config.value = undefined
+    document.removeEventListener('pointerdown', handleOutsideClick, { capture: true } as EventListenerOptions)
+  }, HIDE_DEBOUNCE_MS)
+}
+
+/**
+ * Handle clicks outside the tooltip and its target
+ *
+ * Matches the behaviour of the native browser tooltip, which disappears as
+ * soon as the user clicks anywhere on the page.
+ */
+function handleOutsideClick(e: Event) {
+  const target = unref(config.value?.targetRef)
+  if (!(e.target instanceof Node)) {
+    hideTooltipImmediately()
+    return
+  }
+
+  const clickedInsideTooltip = el.value?.contains(e.target as Node)
+  const clickedInsideTarget = target?.contains(e.target as Node)
+
+  if (!clickedInsideTooltip && !clickedInsideTarget) {
+    hideTooltipImmediately()
+  }
 }
 
 /**
@@ -166,7 +207,7 @@ function hideTooltip(_e: Event) {
 function handleEscape(e: KeyboardEvent) {
   if (e.key === 'Escape') {
     e.stopPropagation()
-    hideTooltip(e)
+    hideTooltipImmediately()
   }
 }
 
@@ -238,6 +279,9 @@ export function useTooltip(opts: TooltipConfiguration) {
 
     // Handle the escape key
     document.addEventListener('keydown', handleEscape, { once: true, capture: true })
+
+    // Dismiss the tooltip when the user clicks anywhere outside it
+    document.addEventListener('pointerdown', handleOutsideClick, { capture: true })
 
     // Show the tooltip
     config.value = opts
