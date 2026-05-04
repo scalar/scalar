@@ -7,9 +7,5 @@
 
 @import "@scalar/components/tailwind.config.css"; /* Component Library Tailwind Configuration */
 
-.scalar-app {
-  @import "tailwindcss/utilities.css";
-}
-
 /* Search for Tailwind classes in the API Reference */
 @source "./";
