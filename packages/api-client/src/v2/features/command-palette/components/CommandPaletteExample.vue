@@ -38,22 +38,43 @@ import { computed, ref, watch } from 'vue'
 
 import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 
+import type { CommandPaletteDocument } from '../hooks/use-command-palette-documents'
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
 
-const { workspaceStore, eventBus, documentName, operationId, example } =
-  defineProps<{
-    /** The workspace store for accessing documents and operations */
-    workspaceStore: WorkspaceStore
-    /** Event bus for emitting operation creation events */
-    eventBus: WorkspaceEventBus
-    /** Document id to create the example for */
-    documentName?: string
-    /** Preselected path and method to create the example for */
-    operationId?: string
-    /** Existing example for edit mode */
-    example?: TraversedExample
-  }>()
+const {
+  workspaceStore,
+  eventBus,
+  documentName,
+  operationId,
+  example,
+  documents,
+  activeDocumentName,
+} = defineProps<{
+  /** The workspace store for accessing documents and operations */
+  workspaceStore: WorkspaceStore
+  /** Event bus for emitting operation creation events */
+  eventBus: WorkspaceEventBus
+  /** Document id to create the example for */
+  documentName?: string
+  /** Preselected path and method to create the example for */
+  operationId?: string
+  /** Existing example for edit mode */
+  example?: TraversedExample
+  /**
+   * Document options for the dropdown. When omitted we fall back to
+   * iterating the workspace store, which keeps the component usable in
+   * isolation (e.g. tests) without requiring the full command-palette
+   * plumbing.
+   */
+  documents?: CommandPaletteDocument[]
+  /**
+   * Document the user is currently viewing. Used as the preselection when
+   * the caller does not pass an explicit `documentName`, so opening the
+   * palette from inside a document targets that document by default.
+   */
+  activeDocumentName?: string
+}>()
 
 const emit = defineEmits<{
   /** Emitted when the example is created successfully */
@@ -76,19 +97,38 @@ const isEditMode = computed(() => example !== undefined)
 const exampleName = ref(example?.name ?? '')
 const exampleNameTrimmed = computed(() => exampleName.value.trim())
 
-/** All available documents (collections) in the workspace */
-const availableDocuments = computed(() =>
-  Object.entries(workspaceStore.workspace.documents).map(
+/**
+ * All available documents (collections) for the dropdown. Prefers the
+ * explicit `documents` prop (which already groups registry-backed docs by
+ * the sidebar's grouping logic) and falls back to a flat workspace-store
+ * listing when the prop is omitted.
+ */
+const availableDocuments = computed<CommandPaletteDocument[]>(() => {
+  if (documents) {
+    return documents
+  }
+
+  return Object.entries(workspaceStore.workspace.documents).map(
     ([name, document]) => ({
       id: name,
       label: document.info.title || name,
     }),
-  ),
-)
+  )
+})
 
-const selectedDocument = ref<{ id: string; label: string } | undefined>(
-  documentName
-    ? availableDocuments.value.find((document) => document.id === documentName)
+/**
+ * Initial document target. The explicit `documentName` prop wins (set when
+ * the palette is opened from a sidebar context menu), falling back to the
+ * active document so a Cmd+K-triggered create flow defaults to whatever
+ * document the user is currently viewing.
+ */
+const initialDocumentName = documentName ?? activeDocumentName
+
+const selectedDocument = ref<CommandPaletteDocument | undefined>(
+  initialDocumentName
+    ? availableDocuments.value.find(
+        (document) => document.id === initialDocumentName,
+      )
     : (availableDocuments.value[0] ?? undefined),
 )
 

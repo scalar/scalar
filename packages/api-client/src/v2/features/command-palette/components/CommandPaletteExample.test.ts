@@ -1050,4 +1050,63 @@ describe('CommandPaletteExample', () => {
 
     expect(wrapper.emitted('back')).toBeFalsy()
   })
+
+  it('uses the documents prop instead of the workspace store when provided', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'doc-a': createMockDocument({ info: { title: 'A', version: '1' } }),
+      'doc-b': createMockDocument({ info: { title: 'B', version: '1' } }),
+    })
+    const eventBus = createWorkspaceEventBus()
+
+    const wrapper = mount(CommandPaletteExample, {
+      props: {
+        workspaceStore,
+        eventBus,
+        documents: [{ id: 'doc-b', label: 'Grouped B' }],
+      },
+    })
+
+    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+    expect(listbox.props('options')).toEqual([{ id: 'doc-b', label: 'Grouped B' }])
+    expect(listbox.props('modelValue')).toEqual({ id: 'doc-b', label: 'Grouped B' })
+  })
+
+  it('preselects the active document when the caller does not pass documentName', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'doc-a': createMockDocument({ info: { title: 'A', version: '1' } }),
+      'doc-b': createMockDocument({ info: { title: 'B', version: '1' } }),
+    })
+    const eventBus = createWorkspaceEventBus()
+
+    const wrapper = mount(CommandPaletteExample, {
+      props: {
+        workspaceStore,
+        eventBus,
+        activeDocumentName: 'doc-b',
+      },
+    })
+
+    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+    expect(listbox.props('modelValue')).toEqual({ id: 'doc-b', label: 'B' })
+  })
+
+  it('prefers an explicit documentName over the active document', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'doc-a': createMockDocument({ info: { title: 'A', version: '1' } }),
+      'doc-b': createMockDocument({ info: { title: 'B', version: '1' } }),
+    })
+    const eventBus = createWorkspaceEventBus()
+
+    const wrapper = mount(CommandPaletteExample, {
+      props: {
+        workspaceStore,
+        eventBus,
+        documentName: 'doc-a',
+        activeDocumentName: 'doc-b',
+      },
+    })
+
+    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+    expect(listbox.props('modelValue')).toEqual({ id: 'doc-a', label: 'A' })
+  })
 })

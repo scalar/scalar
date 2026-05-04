@@ -1,7 +1,7 @@
-import type { AppState } from '@scalar/api-client/v2/features/app'
 import type { TraversedDocument } from '@scalar/workspace-store/schemas/navigation'
 import { type MaybeRefOrGetter, computed, toValue } from 'vue'
 
+import type { AppState } from '@/v2/features/app'
 import { type VersionStatus, computeVersionStatus } from '@/v2/features/app/helpers/compute-version-status'
 import type { RegistryDocument } from '@/v2/types/configuration'
 

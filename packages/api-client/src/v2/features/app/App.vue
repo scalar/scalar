@@ -401,8 +401,10 @@ const routerViewProps = computed<RouteProps>(() => {
       </ScalarModal>
       <!-- Popup command palette to add resources from anywhere -->
       <TheCommandPalette
+        :app="app"
         :eventBus="app.eventBus"
         :paletteState="paletteState"
+        :registryDocuments="registryDocuments"
         :workspaceStore="app.store.value!" />
     </main>
     <!-- Splash screen -->
