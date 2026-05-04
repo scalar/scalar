@@ -46,7 +46,7 @@ const handleCopyTabUrl = (index: number): void => {
 <template>
   <nav class="t-app__top-nav">
     <!-- drag region (macos) -->
-    <div class="mac:app-drag-region">
+    <div class="mac:app-drag-region mac:pl-[72px]">
       <div class="z-1 flex h-10 items-center gap-2 px-2">
         <DesktopTab
           v-for="(tab, index) in tabs"

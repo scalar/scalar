@@ -252,6 +252,12 @@ const routerViewProps = computed<RouteProps>(() => {
           v-model="app.sidebar.isOpen.value"
           class="absolute z-60 md:hidden"
           :class="layout === 'desktop' ? 'top-14 left-4' : 'top-4 left-4'" />
+        <!-- App Tabs -->
+        <DesktopTabs
+          v-if="layout === 'desktop'"
+          :activeTabIndex="app.tabs.activeTabIndex.value"
+          :eventBus="app.eventBus"
+          :tabs="app.tabs.state.value" />
         <AppHeader
           :menuTitle="app.workspace.isTeamWorkspace.value ? 'Team' : 'Local'"
           @navigate:to:settings="
@@ -344,19 +350,10 @@ const routerViewProps = computed<RouteProps>(() => {
             :sidebarWidth="app.sidebar.width.value"
             @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate" />
 
-          <div class="flex min-h-0 flex-1 flex-col">
-            <!-- App Tabs -->
-            <DesktopTabs
-              v-if="layout === 'desktop'"
-              :activeTabIndex="app.tabs.activeTabIndex.value"
-              :eventBus="app.eventBus"
-              :tabs="app.tabs.state.value" />
-
             <!-- Router view min-h-0 is required for scrolling, do not remove it -->
             <div class="bg-b-1 relative min-h-0 flex-1">
               <RouterView v-bind="routerViewProps" />
             </div>
-          </div>
         </div>
       </div>
       <!-- Create workspace modal -->
