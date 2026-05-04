@@ -39,35 +39,38 @@ const getDocument = (overrides: Partial<OpenApiDocument> = {}): OpenApiDocument 
 const createModalOptions = (options: ApiClientOptions = {}): ApiClientOptionsRef => ref(options)
 
 /**
- * Creates a complete modal props setup for testing.
- * This mimics the setup done by createApiClientModal.
+ * Shared workspace store - created once for the entire test file.
+ * Avoids re-running the expensive OpenAPI bundling pipeline on every test.
  */
-const createModalProps = async (documentOverrides: Partial<OpenApiDocument> = {}) => {
-  const store = createWorkspaceStore()
+const store = createWorkspaceStore()
 
-  await store.addDocument({
-    name: 'test-doc',
-    document: getDocument({
-      paths: {
-        '/users': {
-          get: { summary: 'Get users', operationId: 'getUsers' },
-          post: { summary: 'Create user', operationId: 'createUser' },
-        },
-        '/pets': {
-          get: { summary: 'Get pets', operationId: 'getPets' },
-        },
+await store.addDocument({
+  name: 'test-doc',
+  document: getDocument({
+    paths: {
+      '/users': {
+        get: { summary: 'Get users', operationId: 'getUsers' },
+        post: { summary: 'Create user', operationId: 'createUser' },
       },
-      ...documentOverrides,
-    }),
-  })
+      '/pets': {
+        get: { summary: 'Get pets', operationId: 'getPets' },
+      },
+    },
+  }),
+})
 
-  store.update('x-scalar-active-document', 'test-doc')
+store.update('x-scalar-active-document', 'test-doc')
 
-  const documentSlug = computed<string | undefined>(() => 'test-doc')
-  const path = computed<string | undefined>(() => '/users')
-  const method = computed<'get' | 'post' | undefined>(() => 'get')
-  const exampleName = computed<string | undefined>(() => 'default')
+const documentSlug = computed<string | undefined>(() => 'test-doc')
+const path = computed<string | undefined>(() => '/users')
+const method = computed<'get' | 'post' | undefined>(() => 'get')
+const exampleName = computed<string | undefined>(() => 'default')
 
+/**
+ * Creates fresh per-test reactive wrappers around the shared store.
+ * This is cheap — no document bundling, just computed refs and modal state.
+ */
+const createProps = () => {
   const document = computed(() => store.workspace.documents[documentSlug.value ?? ''] ?? null)
   const modalState = useModal()
   const requestBodyCompositionSelection = ref<Record<string, number>>({})
@@ -82,7 +85,6 @@ const createModalProps = async (documentOverrides: Partial<OpenApiDocument> = {}
   })
 
   return {
-    store,
     documentSlug,
     path,
     method,
@@ -112,7 +114,6 @@ const createModalProps = async (documentOverrides: Partial<OpenApiDocument> = {}
 const waitForUpdates = async () => {
   await nextTick()
   await flushPromises()
-  await new Promise((resolve) => setTimeout(resolve, 100))
 }
 
 /**
@@ -129,10 +130,15 @@ describe('Modal', () => {
     // Clean up DOM and overflow style
     document.body.innerHTML = ''
     document.documentElement.style.overflow = ''
+    // Reset any store state modified by individual tests
+    store.update('x-scalar-sidebar-width', undefined)
+    store.workspace['x-scalar-active-environment'] = undefined
+    store.workspace['x-scalar-environments'] = undefined
+    store.workspace.documents['test-doc']!['x-scalar-environments'] = undefined
   })
 
   it('renders when modal state is open', async () => {
-    const { props, modalState } = await createModalProps()
+    const { props, modalState } = createProps()
     modalState.open = true
 
     const wrapper = mount(Modal, { props, attachTo: '#scalar-modal-test' })
@@ -149,7 +155,7 @@ describe('Modal', () => {
   })
 
   it('hides when modal state is closed', async () => {
-    const { props, modalState } = await createModalProps()
+    const { props, modalState } = createProps()
     modalState.open = false
 
     const wrapper = mount(Modal, { props, attachTo: '#scalar-modal-test' })
@@ -164,7 +170,7 @@ describe('Modal', () => {
   })
 
   it('renders Operation component when document, path, and method are provided', async () => {
-    const { props, modalState } = await createModalProps()
+    const { props, modalState } = createProps()
     modalState.open = true
 
     const wrapper = mount(Modal, { props, attachTo: '#scalar-modal-test' })
@@ -179,14 +185,14 @@ describe('Modal', () => {
   })
 
   it('renders empty state when document is missing', async () => {
-    const store = createWorkspaceStore()
+    const emptyStore = createWorkspaceStore()
     const modalState = useModal()
     modalState.open = true
 
     const emptyDocument = computed(() => null)
     const requestBodyCompositionSelection = ref<Record<string, number>>({})
     const sidebarState = useModalSidebar({
-      workspaceStore: store,
+      workspaceStore: emptyStore,
       documentSlug: computed<string | undefined>(() => undefined),
       path: computed<string | undefined>(() => undefined),
       method: computed<'get' | 'post' | undefined>(() => undefined),
@@ -196,7 +202,7 @@ describe('Modal', () => {
 
     const wrapper = mount(Modal, {
       props: {
-        workspaceStore: store,
+        workspaceStore: emptyStore,
         document: emptyDocument,
         path: computed(() => undefined),
         method: computed(() => undefined),
@@ -222,7 +228,7 @@ describe('Modal', () => {
   })
 
   it('renders Sidebar component', async () => {
-    const { props, modalState } = await createModalProps()
+    const { props, modalState } = createProps()
     modalState.open = true
 
     const wrapper = mount(Modal, { props, attachTo: '#scalar-modal-test' })
@@ -237,7 +243,7 @@ describe('Modal', () => {
   })
 
   it('renders SidebarToggle component', async () => {
-    const { props, modalState } = await createModalProps()
+    const { props, modalState } = createProps()
     modalState.open = true
 
     const wrapper = mount(Modal, { props, attachTo: '#scalar-modal-test' })
@@ -251,7 +257,7 @@ describe('Modal', () => {
   })
 
   it('closes modal when clicking exit overlay', async () => {
-    const { props, modalState } = await createModalProps()
+    const { props, modalState } = createProps()
     modalState.open = true
 
     const wrapper = mount(Modal, { props, attachTo: '#scalar-modal-test' })
@@ -269,7 +275,7 @@ describe('Modal', () => {
   })
 
   it('uses default sidebar width when not configured', async () => {
-    const { props, modalState } = await createModalProps()
+    const { props, modalState } = createProps()
     modalState.open = true
 
     const wrapper = mount(Modal, { props, attachTo: '#scalar-modal-test' })
@@ -286,8 +292,9 @@ describe('Modal', () => {
   })
 
   it('uses configured sidebar width from workspace store', async () => {
-    const { props, modalState, store } = await createModalProps()
     store.update('x-scalar-sidebar-width', 400)
+
+    const { props, modalState } = createProps()
     modalState.open = true
 
     const wrapper = mount(Modal, { props, attachTo: '#scalar-modal-test' })
@@ -301,14 +308,12 @@ describe('Modal', () => {
   })
 
   it('computes environment from workspace and document', async () => {
-    const { props, modalState, store } = await createModalProps({
-      'x-scalar-environments': {
-        prod: {
-          color: '#FFFFFF',
-          variables: [{ name: 'API_KEY', value: 'doc-key-123' }],
-        },
+    store.workspace.documents['test-doc']!['x-scalar-environments'] = {
+      prod: {
+        color: '#FFFFFF',
+        variables: [{ name: 'API_KEY', value: 'doc-key-123' }],
       },
-    })
+    }
 
     // Set workspace-level environment
     store.workspace['x-scalar-active-environment'] = 'prod'
@@ -319,6 +324,7 @@ describe('Modal', () => {
       },
     }
 
+    const { props, modalState } = createProps()
     modalState.open = true
 
     const wrapper = mount(Modal, { props, attachTo: '#scalar-modal-test' })
@@ -346,7 +352,7 @@ describe('Modal', () => {
   })
 
   it('passes correct props to Operation component', async () => {
-    const { props, modalState, path, method, exampleName } = await createModalProps()
+    const { props, modalState, path, method, exampleName } = createProps()
     modalState.open = true
 
     const wrapper = mount(Modal, { props, attachTo: '#scalar-modal-test' })
@@ -364,7 +370,7 @@ describe('Modal', () => {
   })
 
   it('has correct accessibility attributes', async () => {
-    const { props, modalState } = await createModalProps()
+    const { props, modalState } = createProps()
     modalState.open = true
 
     const wrapper = mount(Modal, { props, attachTo: '#scalar-modal-test' })
@@ -381,7 +387,7 @@ describe('Modal', () => {
   })
 
   it('disables page scrolling when modal opens', async () => {
-    const { props, modalState } = await createModalProps()
+    const { props, modalState } = createProps()
 
     mount(Modal, { props, attachTo: '#scalar-modal-test' })
     await waitForUpdates()
@@ -406,7 +412,7 @@ describe('Modal', () => {
   })
 
   it('renders with modal layout for Operation', async () => {
-    const { props, modalState } = await createModalProps()
+    const { props, modalState } = createProps()
     modalState.open = true
 
     const wrapper = mount(Modal, { props, attachTo: '#scalar-modal-test' })
@@ -424,7 +430,7 @@ describe('Modal', () => {
   })
 
   it('passes hideClientButton option to Operation component', async () => {
-    const { props: baseProps, modalState } = await createModalProps()
+    const { props: baseProps, modalState } = createProps()
     modalState.open = true
 
     // Test with hideClientButton: true
