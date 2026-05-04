@@ -212,7 +212,7 @@ const routerViewProps = computed<RouteProps>(() => {
     environment: app.environment.value,
     eventBus: app.eventBus,
     exampleName: app.activeEntities.exampleName.value,
-    fetchRegistryDocument: registry?.fetchDocument,
+    registry,
     layout,
     method: app.activeEntities.method.value,
     path: app.activeEntities.path.value,

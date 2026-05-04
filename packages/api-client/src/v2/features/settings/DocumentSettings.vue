@@ -6,16 +6,19 @@ import {
   ScalarToggle,
   useModal,
 } from '@scalar/components'
+import { ref } from 'vue'
 
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 
 import Section from './components/Section.vue'
+import DeleteRegistryConfirmModal from './DeleteRegistryConfirmModal.vue'
 
 const {
   documentUrl,
   watchMode,
   title,
   isDraftDocument = false,
+  registryMeta,
 } = defineProps<{
   /** Document source url if available */
   documentUrl?: string
@@ -25,6 +28,19 @@ const {
   title: string
   /** Whether the document is a draft document */
   isDraftDocument?: boolean
+  /**
+   * Registry coordinates of the active document. Provided by the
+   * parent only when the document is backed by a registry entry AND a
+   * registry adapter is wired up. Drives the visibility and the
+   * typed-confirmation phrase of the destructive registry-delete
+   * affordances. Omit on documents that only exist locally so the
+   * registry-side sections stay hidden.
+   */
+  registryMeta?: {
+    namespace: string
+    slug: string
+    version: string
+  }
 }>()
 
 const emit = defineEmits<{
@@ -32,9 +48,42 @@ const emit = defineEmits<{
   (e: 'delete:document'): void
   /** Update watch mode status */
   (e: 'update:watchMode', value: boolean): void
+  /**
+   * Fired when the user confirms the destructive "Delete this version"
+   * flow. The parent owns the actual adapter call and resolves `done`
+   * with `{ ok: true }` to close the modal or `{ ok: false, message }`
+   * to surface an inline error so the user can retry.
+   */
+  (
+    e: 'delete:registryVersion',
+    payload: {
+      done: (outcome: { ok: true } | { ok: false; message: string }) => void
+    },
+  ): void
+  /**
+   * Fired when the user confirms the destructive "Delete document from
+   * registry" flow. Mirrors `delete:registryVersion` so the parent can
+   * keep both flows on the same `done`-callback contract.
+   */
+  (
+    e: 'delete:registryDocument',
+    payload: {
+      done: (outcome: { ok: true } | { ok: false; message: string }) => void
+    },
+  ): void
 }>()
 
 const deleteModal = useModal()
+const deleteVersionModal = useModal()
+const deleteRegistryDocumentModal = useModal()
+
+/**
+ * Tracks which destructive flow opened the shared
+ * {@link DeleteRegistryConfirmModal}. The two modals reuse the same
+ * confirmation component so we keep the mode in a ref instead of
+ * mounting two identical instances side-by-side.
+ */
+const registryDeleteMode = ref<'version' | 'document'>('version')
 
 /**
  * Handles the delete button click.
@@ -50,6 +99,34 @@ const handleDeleteClick = () => {
 const handleDocumentDelete = () => {
   emit('delete:document')
   deleteModal.hide()
+}
+
+const handleDeleteVersionClick = () => {
+  if (!registryMeta) {
+    return
+  }
+  registryDeleteMode.value = 'version'
+  deleteVersionModal.show()
+}
+
+const handleDeleteRegistryDocumentClick = () => {
+  if (!registryMeta) {
+    return
+  }
+  registryDeleteMode.value = 'document'
+  deleteRegistryDocumentModal.show()
+}
+
+const handleDeleteRegistryVersionSubmit = (payload: {
+  done: (outcome: { ok: true } | { ok: false; message: string }) => void
+}) => {
+  emit('delete:registryVersion', payload)
+}
+
+const handleDeleteRegistryDocumentSubmit = (payload: {
+  done: (outcome: { ok: true } | { ok: false; message: string }) => void
+}) => {
+  emit('delete:registryDocument', payload)
 }
 </script>
 
@@ -107,9 +184,68 @@ const handleDocumentDelete = () => {
     <!-- Danger Zone -->
     <Section>
       <template #title>Danger Zone</template>
+      <!--
+        Registry-backed documents only get the registry-side
+        affordances - the local "Delete Collection" button is hidden
+        in that case because deleting only the local copy would leave
+        the sidebar reading from the registry listing and re-import
+        the document on the next refresh. Standalone documents fall
+        through to the local-only delete instead.
+      -->
       <div
-        class="flex items-center justify-between rounded-lg border p-3 text-sm">
-        <div>
+        v-if="registryMeta"
+        class="flex flex-col gap-3">
+        <div
+          class="flex items-center justify-between gap-4 rounded-lg border p-3 text-sm">
+          <div class="min-w-0 flex-1">
+            <h4>Delete this version from the registry</h4>
+            <p class="text-c-2 mt-1">
+              Removes
+              <span class="text-c-1 font-mono break-all">
+                {{ registryMeta.namespace }}/{{ registryMeta.slug }}@{{
+                  registryMeta.version
+                }}
+              </span>
+              from the registry and deletes the local copy. This action cannot
+              be undone.
+            </p>
+          </div>
+          <ScalarButton
+            class="shrink-0"
+            size="sm"
+            variant="danger"
+            @click="handleDeleteVersionClick">
+            Delete Version
+          </ScalarButton>
+        </div>
+
+        <div
+          class="flex items-center justify-between gap-4 rounded-lg border p-3 text-sm">
+          <div class="min-w-0 flex-1">
+            <h4>Delete document from the registry</h4>
+            <p class="text-c-2 mt-1">
+              Removes every version of
+              <span class="text-c-1 font-mono break-all">
+                {{ registryMeta.namespace }}/{{ registryMeta.slug }}
+              </span>
+              from the registry and deletes every local copy. This action cannot
+              be undone.
+            </p>
+          </div>
+          <ScalarButton
+            class="shrink-0"
+            size="sm"
+            variant="danger"
+            @click="handleDeleteRegistryDocumentClick">
+            Delete from Registry
+          </ScalarButton>
+        </div>
+      </div>
+      <!-- Local-only delete for standalone (non-registry) documents. -->
+      <div
+        v-else
+        class="flex items-center justify-between gap-4 rounded-lg border p-3 text-sm">
+        <div class="min-w-0 flex-1">
           <h4>Delete Collection</h4>
           <p class="text-c-2 mt-1">
             Be careful, my friend. Once deleted, there is no way to recover the
@@ -118,6 +254,7 @@ const handleDocumentDelete = () => {
         </div>
         <!-- user can not delete draft documents -->
         <ScalarButton
+          class="shrink-0"
           :disabled="isDraftDocument"
           size="sm"
           variant="danger"
@@ -127,7 +264,8 @@ const handleDocumentDelete = () => {
       </div>
     </Section>
   </div>
-  <!-- Delete Modal -->
+
+  <!-- Local delete confirmation -->
   <ScalarModal
     :size="'xxs'"
     :state="deleteModal"
@@ -138,4 +276,35 @@ const handleDocumentDelete = () => {
       @close="deleteModal.hide()"
       @delete="handleDocumentDelete" />
   </ScalarModal>
+
+  <!--
+    Registry-version delete confirmation. The shared
+    `DeleteRegistryConfirmModal` requires the user to type the registry
+    coordinate (`namespace/slug@version`) before the destructive call
+    fires. Mounted under `v-if` so we never instantiate it on documents
+    that have no registry meta to act on.
+  -->
+  <DeleteRegistryConfirmModal
+    v-if="registryMeta"
+    mode="version"
+    :namespace="registryMeta.namespace"
+    :slug="registryMeta.slug"
+    :state="deleteVersionModal"
+    :version="registryMeta.version"
+    @submit="handleDeleteRegistryVersionSubmit" />
+
+  <!--
+    Registry-document delete confirmation. Same component as the
+    version flow, switched into `mode="document"` so it asks for
+    `namespace/slug` (without the `@version` suffix) and the parent
+    knows to wipe every workspace doc that pointed at the same
+    coordinates after the registry confirms the deletion.
+  -->
+  <DeleteRegistryConfirmModal
+    v-if="registryMeta"
+    mode="document"
+    :namespace="registryMeta.namespace"
+    :slug="registryMeta.slug"
+    :state="deleteRegistryDocumentModal"
+    @submit="handleDeleteRegistryDocumentSubmit" />
 </template>

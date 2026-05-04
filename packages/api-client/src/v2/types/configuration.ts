@@ -174,6 +174,78 @@ export type PublishRegistryVersion = (input: {
 }) => Promise<PublishRegistryVersionResult>
 
 /**
+ * Error codes surfaced by `deleteVersion`. Returned as a discriminated
+ * union so the danger-zone UI can react to each failure mode without
+ * having to parse free-form strings:
+ *
+ * - `NOT_FOUND`: the registry has no document or version at this
+ *   namespace / slug to delete. Usually means it was already removed
+ *   upstream; the caller should still wipe any leftover local copy.
+ * - `FETCH_FAILED`: a network or server error prevented the delete from
+ *   completing. The request can usually be retried.
+ * - `UNAUTHORIZED`: the caller is not signed in / not allowed to delete
+ *   from this namespace. The host application is expected to surface a
+ *   sign-in flow.
+ * - `UNKNOWN`: a catch-all for failure modes the adapter cannot map
+ *   onto one of the dedicated codes above. Callers surface a generic
+ *   error message and, when present, the human-readable `message`
+ *   field returned alongside the code.
+ */
+export type DeleteRegistryVersionError = 'NOT_FOUND' | 'FETCH_FAILED' | 'UNAUTHORIZED' | 'UNKNOWN'
+
+/**
+ * Discriminated outcome of a `deleteVersion` call. On success the
+ * registry echoes back the namespace / slug / version it removed so
+ * callers can pair the response with the local cleanup that needs to
+ * happen afterwards (deleting the matching workspace document).
+ */
+export type DeleteRegistryVersionResult = Result<RegistryDocumentMeta & { version: string }, DeleteRegistryVersionError>
+
+/**
+ * Removes a single version of a document from the registry. Used by the
+ * destructive "Delete this version" affordance in the document
+ * settings: the caller forwards the active document's
+ * `x-scalar-registry-meta` (namespace + slug + version) and, on
+ * success, follows up with a local `deleteDocument` so the sidebar
+ * stops surfacing the orphaned version.
+ */
+export type DeleteRegistryVersion = (input: {
+  namespace: string
+  slug: string
+  /** Version identifier the caller wants to remove (e.g. `1.2.0`). */
+  version: string
+}) => Promise<DeleteRegistryVersionResult>
+
+/**
+ * Error codes surfaced by `deleteDocument`. Mirrors
+ * {@link DeleteRegistryVersionError} except the deletion is
+ * group-wide so there is no `CONFLICT` branch - removing the whole
+ * document supersedes any per-version concurrency.
+ */
+export type DeleteRegistryDocumentError = 'NOT_FOUND' | 'FETCH_FAILED' | 'UNAUTHORIZED' | 'UNKNOWN'
+
+/**
+ * Discriminated outcome of a `deleteDocument` call. On success the
+ * registry echoes back the namespace / slug it removed so callers can
+ * pair the response with the local cleanup that needs to happen
+ * afterwards (deleting every workspace document that pointed at the
+ * same registry coordinates).
+ */
+export type DeleteRegistryDocumentResult = Result<RegistryDocumentMeta, DeleteRegistryDocumentError>
+
+/**
+ * Removes an entire document group (every version) from the registry.
+ * Used by the destructive "Delete document from registry" affordance in
+ * the document settings: after the registry call succeeds, the caller
+ * is expected to delete every workspace document that pointed at the
+ * same `namespace` + `slug` so the sidebar stops surfacing orphans.
+ */
+export type DeleteRegistryDocument = (input: {
+  namespace: string
+  slug: string
+}) => Promise<DeleteRegistryDocumentResult>
+
+/**
  * A single version that the registry advertises for a document group.
  *
  * Mirrors the minimum surface the sidebar needs to render a version row
@@ -277,6 +349,20 @@ export type RegistryAdapter = {
    * `CONFLICT` when the upstream hash has moved on.
    */
   publishVersion: PublishRegistryVersion
+  /**
+   * Removes a single version of a document from the registry. Returns
+   * a discriminated `Result` so the danger-zone UI can branch on
+   * `CONFLICT` / `NOT_FOUND` / `FETCH_FAILED` / `UNAUTHORIZED` without
+   * string-matching error messages.
+   */
+  deleteVersion: DeleteRegistryVersion
+  /**
+   * Removes an entire document group (every version) from the
+   * registry. Returns a discriminated `Result` so the danger-zone UI
+   * can branch on `NOT_FOUND` / `FETCH_FAILED` / `UNAUTHORIZED` without
+   * string-matching error messages.
+   */
+  deleteDocument: DeleteRegistryDocument
   /**
    * Forces the host application to refetch `documents` and resolves once
    * the new listing is in hand.
