@@ -11,5 +11,5 @@
   @import "tailwindcss/utilities.css";
 }
 
-/* Search for Tailwind classes in the API Reference */
-@source "./";
+/* Search for Tailwind classes in the sidebar components */
+@source "../";
