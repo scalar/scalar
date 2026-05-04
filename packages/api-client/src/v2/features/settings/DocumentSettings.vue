@@ -35,11 +35,20 @@ const {
    * typed-confirmation phrase of the destructive registry-delete
    * affordances. Omit on documents that only exist locally so the
    * registry-side sections stay hidden.
+   *
+   * `isVersionPublished` flips off when the current version was
+   * created locally but has not been published to the registry yet -
+   * we render the standard local "Delete Collection" button in that
+   * case so the user does not get a confusing NOT_FOUND from the
+   * registry. The group itself is always considered published when
+   * `registryMeta` is present at all (freshly created documents
+   * carry no registry meta).
    */
   registryMeta?: {
     namespace: string
     slug: string
     version: string
+    isVersionPublished: boolean
   }
 }>()
 
@@ -102,7 +111,7 @@ const handleDocumentDelete = () => {
 }
 
 const handleDeleteVersionClick = () => {
-  if (!registryMeta) {
+  if (!registryMeta?.isVersionPublished) {
     return
   }
   registryDeleteMode.value = 'version'
@@ -185,24 +194,33 @@ const handleDeleteRegistryDocumentSubmit = (payload: {
     <Section>
       <template #title>Danger Zone</template>
       <!--
-        Registry-backed documents only get the registry-side
-        affordances - the local "Delete Collection" button is hidden
-        in that case because deleting only the local copy would leave
-        the sidebar reading from the registry listing and re-import
-        the document on the next refresh. Standalone documents fall
-        through to the local-only delete instead.
+        Registry-backed documents pick their per-version affordance
+        based on whether the active version has actually been
+        published. Published versions go through the registry delete
+        flow (which also wipes the local copy on success); draft
+        versions that only exist locally fall back to the standard
+        "Delete Collection" button so we do not call the registry
+        with a coordinate it has never heard of.
+
+        The group-wide "Delete from registry" button is always
+        rendered alongside, because the presence of `registryMeta`
+        already implies the document group exists on the registry -
+        freshly created documents have no registry meta at all and
+        fall through to the standalone branch below.
       -->
       <div
         v-if="registryMeta"
         class="flex flex-col gap-3">
+        <!-- Published version: registry-side delete. -->
         <div
+          v-if="registryMeta.isVersionPublished"
           class="flex items-center justify-between gap-4 rounded-lg border p-3 text-sm">
           <div class="min-w-0 flex-1">
             <h4>Delete this version from the registry</h4>
             <p class="text-c-2 mt-1">
               Removes
               <span class="text-c-1 font-mono break-all">
-                {{ registryMeta.namespace }}/{{ registryMeta.slug }}@{{
+                @{{ registryMeta.namespace }}/{{ registryMeta.slug }}@{{
                   registryMeta.version
                 }}
               </span>
@@ -218,6 +236,39 @@ const handleDeleteRegistryDocumentSubmit = (payload: {
             Delete Version
           </ScalarButton>
         </div>
+        <!--
+          Draft version: only exists in this workspace. We delete it
+          locally without bothering the registry so the user does not
+          see a NOT_FOUND error for a version that was never
+          published.
+        -->
+        <div
+          v-else
+          class="flex items-center justify-between gap-4 rounded-lg border p-3 text-sm">
+          <div class="min-w-0 flex-1">
+            <h4>Delete this draft version</h4>
+            <p class="text-c-2 mt-1">
+              Version
+              <span class="text-c-1 font-mono break-all">{{
+                registryMeta.version
+              }}</span>
+              of
+              <span class="text-c-1 font-mono break-all"
+                >@{{ registryMeta.namespace }}/{{ registryMeta.slug }}</span
+              >
+              has not been published yet. Deleting it removes the local copy
+              only - the registry is left untouched.
+            </p>
+          </div>
+          <ScalarButton
+            class="shrink-0"
+            :disabled="isDraftDocument"
+            size="sm"
+            variant="danger"
+            @click="handleDeleteClick">
+            Delete Collection
+          </ScalarButton>
+        </div>
 
         <div
           class="flex items-center justify-between gap-4 rounded-lg border p-3 text-sm">
@@ -226,7 +277,7 @@ const handleDeleteRegistryDocumentSubmit = (payload: {
             <p class="text-c-2 mt-1">
               Removes every version of
               <span class="text-c-1 font-mono break-all">
-                {{ registryMeta.namespace }}/{{ registryMeta.slug }}
+                @{{ registryMeta.namespace }}/{{ registryMeta.slug }}
               </span>
               from the registry and deletes every local copy. This action cannot
               be undone.
@@ -278,14 +329,12 @@ const handleDeleteRegistryDocumentSubmit = (payload: {
   </ScalarModal>
 
   <!--
-    Registry-version delete confirmation. The shared
-    `DeleteRegistryConfirmModal` requires the user to type the registry
-    coordinate (`namespace/slug@version`) before the destructive call
-    fires. Mounted under `v-if` so we never instantiate it on documents
-    that have no registry meta to act on.
+    Registry-version delete confirmation. Only mounted when the
+    version is actually published to the registry; draft versions go
+    through the local delete flow above and never reach this modal.
   -->
   <DeleteRegistryConfirmModal
-    v-if="registryMeta"
+    v-if="registryMeta?.isVersionPublished"
     mode="version"
     :namespace="registryMeta.namespace"
     :slug="registryMeta.slug"
@@ -296,7 +345,7 @@ const handleDeleteRegistryDocumentSubmit = (payload: {
   <!--
     Registry-document delete confirmation. Same component as the
     version flow, switched into `mode="document"` so it asks for
-    `namespace/slug` (without the `@version` suffix) and the parent
+    `@namespace/slug` (without the `@version` suffix) and the parent
     knows to wipe every workspace doc that pointed at the same
     coordinates after the registry confirms the deletion.
   -->

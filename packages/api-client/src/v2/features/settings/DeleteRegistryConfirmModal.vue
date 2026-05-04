@@ -12,7 +12,7 @@
  *   the user confirm with the Delete button alone.
  * - `mode === 'document'` removes an entire document group (every
  *   version, every local copy). This one is gated behind a typed
- *   confirmation: the user must type `namespace/slug` before the
+ *   confirmation: the user must type `@namespace/slug` before the
  *   Delete button enables.
  *
  * The component is purely presentational. The parent owns the actual
@@ -106,9 +106,9 @@ const requiresTypedConfirmation = computed(() => !isVersionMode.value)
  */
 const expectedPhrase = computed<string>(() => {
   if (isVersionMode.value && version) {
-    return `${namespace}/${slug}@${version}`
+    return `@${namespace}/${slug}@${version}`
   }
-  return `${namespace}/${slug}`
+  return `@${namespace}/${slug}`
 })
 
 /**
@@ -368,17 +368,16 @@ const handleSubmit = (): void => {
             'text-green': isMatch,
           }">
           <template v-if="isMatch">
-Coordinate matches. Ready to delete.
-</template>
+            Coordinate matches. Ready to delete.
+          </template>
           <template v-else-if="isMismatch">
             Does not match
             <span class="font-mono">{{ expectedPhrase }}</span>
             yet.
           </template>
           <template v-else>
-The Delete button stays disabled until the coordinate
-            matches.
-</template>
+            The Delete button stays disabled until the coordinate matches.
+          </template>
         </p>
       </div>
 

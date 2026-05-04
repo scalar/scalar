@@ -45,16 +45,29 @@ const handleUpdateColorMode = (colorMode: ColorMode) => {
  * typed-confirmation phrase the user has to match. Returns `undefined`
  * when either piece is missing so the danger-zone sections do not
  * surface affordances we cannot fulfil.
+ *
+ * `isVersionPublished` lets `DocumentSettings` swap the per-version
+ * affordance for a draft (locally created) version so we do not call
+ * the registry with a coordinate it has never heard of. The group
+ * itself is always considered published when `registryMeta` exists at
+ * all - a freshly created document carries no registry meta, so we
+ * only land here once the user has at least pulled from or published
+ * to the registry once.
  */
 const activeRegistryMeta = computed(() => {
   const meta = document?.['x-scalar-registry-meta']
   if (!meta || !registry) {
     return undefined
   }
+  const registryEntry = registry.documents.documents?.find(
+    (entry) => entry.namespace === meta.namespace && entry.slug === meta.slug,
+  )
   return {
     namespace: meta.namespace,
     slug: meta.slug,
     version: meta.version,
+    isVersionPublished:
+      registryEntry?.versions.some((v) => v.version === meta.version) ?? false,
   }
 })
 

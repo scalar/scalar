@@ -329,10 +329,64 @@ describe('Settings', () => {
       })
       const documentSettings = wrapper.findComponent({ name: 'DocumentSettings' })
 
+      // Empty registry listing: the active version is treated as an
+      // unpublished draft so the per-version affordance falls back
+      // to the local delete flow.
       expect(documentSettings.props('registryMeta')).toEqual({
         namespace: 'acme',
         slug: 'pets',
         version: '1.0.0',
+        isVersionPublished: false,
+      })
+    })
+
+    it('flags the version as published when the registry advertises it', () => {
+      const wrapper = mount(Settings, {
+        props: createRegistryDocumentProps({
+          registry: buildRegistryStub({
+            documents: {
+              status: 'success',
+              documents: [
+                {
+                  namespace: 'acme',
+                  slug: 'pets',
+                  title: 'Pets API',
+                  versions: [{ version: '1.0.0' }],
+                },
+              ],
+            },
+          }),
+        }),
+      })
+      const documentSettings = wrapper.findComponent({ name: 'DocumentSettings' })
+
+      expect(documentSettings.props('registryMeta')).toMatchObject({
+        isVersionPublished: true,
+      })
+    })
+
+    it('treats a locally created version as a draft when the registry only knows sibling versions', () => {
+      const wrapper = mount(Settings, {
+        props: createRegistryDocumentProps({
+          registry: buildRegistryStub({
+            documents: {
+              status: 'success',
+              documents: [
+                {
+                  namespace: 'acme',
+                  slug: 'pets',
+                  title: 'Pets API',
+                  versions: [{ version: '0.9.0' }],
+                },
+              ],
+            },
+          }),
+        }),
+      })
+      const documentSettings = wrapper.findComponent({ name: 'DocumentSettings' })
+
+      expect(documentSettings.props('registryMeta')).toMatchObject({
+        isVersionPublished: false,
       })
     })
 
