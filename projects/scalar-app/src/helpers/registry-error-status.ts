@@ -12,7 +12,7 @@
  * Returns `undefined` for non-HTTP errors (e.g. network or abort errors)
  * so callers can treat that case as "request never reached the server".
  */
-export const getRegistryErrorStatusCode = (error: unknown): number | undefined => {
+const getRegistryErrorStatusCode = (error: unknown): number | undefined => {
   if (!error || typeof error !== 'object') {
     return undefined
   }
@@ -40,7 +40,7 @@ export const getRegistryErrorStatusCode = (error: unknown): number | undefined =
  * only have to spell out the status codes that matter for their
  * recovery UI (e.g. `404 → NOT_FOUND`, `409 → CONFLICT`).
  */
-export type BaseRegistryErrorCode = 'UNAUTHORIZED' | 'FETCH_FAILED' | 'UNKNOWN'
+type BaseRegistryErrorCode = 'UNAUTHORIZED' | 'FETCH_FAILED' | 'UNKNOWN'
 
 /**
  * Maps a thrown SDK error onto the discriminated error union the
