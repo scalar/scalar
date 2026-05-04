@@ -818,6 +818,7 @@ jobs:
         env:
           VITE_DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
           VITE_SERVICES_URL: ${{ vars.SERVICES_URL }}
+          VITE_ENV: ${{ vars.ENVIRONMENT }}
 
       - name: Deploy to Cloudflare Pages
         id: deploy

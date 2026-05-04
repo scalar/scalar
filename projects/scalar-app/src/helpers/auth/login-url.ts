@@ -4,7 +4,6 @@ import { env } from '@/environment'
  * Generate the login URL, we use the current location in staging to redirect back to the previews
  */
 export const loginUrl = () => {
-  console.log(env, env.VITE_ENV)
   const redirect = env.VITE_ENV === 'staging' ? window.location.href : 'client'
   return `${env.VITE_DASHBOARD_URL}/login?externalRedirect=${redirect}`
 }
