@@ -393,8 +393,12 @@ export const createAppState = async ({
   }
 
   /**
-   * Creates and persists the default workspace with a blank draft document.
-   * Used when no workspaces exist yet.
+   * Creates and persists a new workspace.
+   *
+   * Local workspaces are seeded with a blank "drafts" document so the user
+   * lands on a usable starting point. Team workspaces start empty - their
+   * documents come from the registry, so seeding a local-only draft would
+   * just create dead state that is never synced.
    */
   const createAndPersistWorkspace = async ({
     name,
@@ -406,25 +410,29 @@ export const createAppState = async ({
     slug: string
   }) => {
     const draftStore = createWorkspaceStore()
-    await draftStore.addDocument({
-      name: 'drafts',
-      document: {
-        openapi: '3.1.0',
-        info: {
-          title: 'Drafts',
-          version: '1.0.0',
-        },
-        paths: {
-          '/': {
-            get: {
-              summary: 'First Request',
+    const isTeam = Boolean(teamSlug && teamSlug !== 'local')
+
+    if (!isTeam) {
+      await draftStore.addDocument({
+        name: 'drafts',
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Drafts',
+            version: '1.0.0',
+          },
+          paths: {
+            '/': {
+              get: {
+                summary: 'First Request',
+              },
             },
           },
+          'x-scalar-original-document-hash': 'drafts',
+          'x-scalar-icon': 'interface-edit-tool-pencil',
         },
-        'x-scalar-original-document-hash': 'drafts',
-        'x-scalar-icon': 'interface-edit-tool-pencil',
-      },
-    })
+      })
+    }
 
     // Persist the workspace
     const workspace = await persistence.setItem(
@@ -457,7 +465,22 @@ export const createAppState = async ({
       return
     }
 
-    // We should always have this drafts document available in a new workspace
+    // Team workspaces no longer ship with a default "drafts" document, so
+    // there is nothing meaningful to deep-link to. Drop the user on the
+    // workspace get-started page where they can import or create a document.
+    if (teamSlug !== 'local') {
+      await router.push({
+        name: 'workspace.get-started',
+        params: {
+          teamSlug,
+          workspaceSlug: slug,
+        },
+      })
+      return
+    }
+
+    // Local workspaces always have the seeded drafts document available, so
+    // we can land directly on its first example.
     await router.push({
       name: 'example',
       params: {

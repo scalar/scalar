@@ -58,6 +58,46 @@ const getDocument = (version?: string) => ({
   },
 })
 
+/**
+ * Creates a workspace store wired to a plugin that records every
+ * `documents` change event and attempts to structured-clone its value -
+ * mirroring how the persistence plugin writes events into IndexedDB.
+ * Lets a test assert that no proxy ever leaks into the persisted payload.
+ */
+const createPersistedStoreSpy = () => {
+  const cloneErrors: unknown[] = []
+  const persistedDocumentEvents: Array<Record<string, unknown>> = []
+
+  const store = createWorkspaceStore({
+    plugins: [
+      {
+        hooks: {
+          onWorkspaceStateChanges: (event) => {
+            if (event.type !== 'documents') {
+              return
+            }
+            persistedDocumentEvents.push(event.value as Record<string, unknown>)
+            try {
+              structuredClone(event.value)
+            } catch (error) {
+              cloneErrors.push(error)
+            }
+          },
+        },
+      },
+    ],
+  })
+
+  return { store, cloneErrors, persistedDocumentEvents }
+}
+
+const REGISTRY_META = {
+  namespace: 'team',
+  slug: 'api',
+  version: '1.0.0',
+  commitHash: 'abc123',
+} as const
+
 describe('create-workspace-store', () => {
   let server: FastifyInstance
   const port = 9988
@@ -2216,6 +2256,35 @@ describe('create-workspace-store', () => {
         '{"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}',
       )
     })
+
+    it('persists registry meta as plain data after revert (regression: DataCloneError)', async () => {
+      // The persistence plugin forwards `event.value` straight into
+      // IndexedDB, which uses structured cloning. Forwarding the proxied
+      // workspace document back into `addInMemoryDocument` used to leak
+      // a magic proxy onto `x-scalar-registry-meta`, throwing
+      // `DataCloneError` when the change event was persisted.
+      const { store, cloneErrors, persistedDocumentEvents } = createPersistedStoreSpy()
+
+      await store.addDocument({
+        name: 'default',
+        document: getDocument(),
+        meta: { 'x-scalar-registry-meta': { ...REGISTRY_META } },
+      })
+
+      const defaultDocument = store.workspace.documents['default']
+      assert(defaultDocument, 'Default document should exist')
+
+      defaultDocument.info.title = 'Edited title'
+      expect(defaultDocument['x-scalar-is-dirty']).toBe(true)
+
+      cloneErrors.length = 0
+      persistedDocumentEvents.length = 0
+
+      await store.revertDocumentChanges('default')
+
+      expect(cloneErrors).toEqual([])
+      expect(persistedDocumentEvents.at(-1)?.['x-scalar-registry-meta']).toEqual(REGISTRY_META)
+    })
   })
 
   describe('getEditableDocument', () => {
@@ -3236,6 +3305,33 @@ describe('create-workspace-store', () => {
 
       expect(consoleErrorSpy).toHaveBeenCalledWith("Document 'non-existing' does not exist in the workspace.")
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
+    })
+
+    it('persists registry meta as plain data after replace (regression: DataCloneError)', async () => {
+      // The persistence plugin forwards `event.value` straight into
+      // IndexedDB, which uses structured cloning. Forwarding the proxied
+      // workspace document back into `addInMemoryDocument` used to leak
+      // a magic proxy onto `x-scalar-registry-meta`, throwing
+      // `DataCloneError` when the change event was persisted.
+      const { store, cloneErrors, persistedDocumentEvents } = createPersistedStoreSpy()
+
+      await store.addDocument({
+        name: 'default',
+        document: getDocument(),
+        meta: { 'x-scalar-registry-meta': { ...REGISTRY_META } },
+      })
+
+      cloneErrors.length = 0
+      persistedDocumentEvents.length = 0
+
+      await store.replaceDocument('default', {
+        openapi: '3.1.1',
+        info: { title: 'Replaced API', version: '2.0.0' },
+        paths: {},
+      })
+
+      expect(cloneErrors).toEqual([])
+      expect(persistedDocumentEvents.at(-1)?.['x-scalar-registry-meta']).toEqual(REGISTRY_META)
     })
   })
 
