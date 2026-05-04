@@ -23,16 +23,15 @@ import {
 import { ScalarHeaderButton } from '@scalar/components'
 import { type LoaderPlugin } from '@scalar/json-magic/bundle'
 import { requestScriptsPlugin } from '@scalar/pre-post-request-scripts/plugins'
-import { useToasts } from '@scalar/use-toasts'
 import { computed, reactive } from 'vue'
 
 import AppMenuItems from '@/features/header/AppMenuItems.vue'
 import { ImportListener } from '@/features/import-listener'
-import { loginUrl, registerUrl } from '@/helpers/auth/login-url'
 import { fetchRegistryDocument } from '@/helpers/fetch-registry-document'
 import { publishRegistryDocument } from '@/helpers/publish-registry-document'
 import { publishRegistryVersion } from '@/helpers/publish-registry-version'
 import { useAuth } from '@/hooks/use-auth'
+import { useAuthHandlers } from '@/hooks/use-auth-handlers'
 import { useRegistryDocuments } from '@/hooks/use-registry-documents'
 import { useRegistryNamespaces } from '@/hooks/use-registry-namespaces'
 
@@ -40,8 +39,7 @@ const { getAppState, getCommandPaletteState, fileLoader } =
   defineProps<AppProps>()
 
 const app = getAppState()
-const { toast } = useToasts()
-const { isLoggedIn, setTokens } = useAuth()
+const { isLoggedIn } = useAuth()
 const {
   documents,
   isLoading: isDocumentsLoading,
@@ -55,26 +53,7 @@ const isDesktop = window.electron === true
 //--------------------------------------------------
 // Login
 //--------------------------------------------------
-async function handleLogin() {
-  // If we're on the web version, redirect to the dashboard login
-  if (!isDesktop) {
-    window.location.href = loginUrl()
-    return
-  }
-
-  // For desktop/electron, use the exchange token flow
-  const result = await window.api.getExchangeToken()
-  if (!result) {
-    toast('Unable to login. Please try again or contact support.', 'error', {
-      timeout: 10000,
-    })
-  } else {
-    toast('Logged in successfully', 'info')
-    setTokens(result.accessToken, result.refreshToken)
-  }
-
-  return
-}
+const { handleLogin, handleRegister } = useAuthHandlers()
 
 //--------------------------------------------------
 // Workspace handling
@@ -208,13 +187,13 @@ const registry = reactive({
         #header-end>
         <ScalarHeaderButton
           is="a"
-          :href="loginUrl()">
+          @click.prevent="handleLogin">
           Log in
         </ScalarHeaderButton>
         <ScalarHeaderButton
           is="a"
           cta
-          :href="registerUrl">
+          @click.prevent="handleRegister">
           Register
         </ScalarHeaderButton>
       </template>

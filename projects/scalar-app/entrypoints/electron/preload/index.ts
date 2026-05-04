@@ -16,7 +16,7 @@ try {
       return await ipcRenderer.invoke('openFilePicker')
     },
     readFile: (filePath: string) => ipcRenderer.invoke('readFile', filePath),
-    getExchangeToken: () => ipcRenderer.invoke('getExchangeToken'),
+    getExchangeToken: (flow: 'login' | 'register') => ipcRenderer.invoke('getExchangeToken', flow),
     getPathForFile: (file: File) => webUtils.getPathForFile(file),
     customFetch: (request) => ipcRenderer.invoke('customFetch', request),
     customFetchStream: ({ streamId, callbacks }) => {
