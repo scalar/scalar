@@ -6,7 +6,6 @@ import {
   ScalarToggle,
   useModal,
 } from '@scalar/components'
-import { ref } from 'vue'
 
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 
@@ -87,14 +86,6 @@ const deleteVersionModal = useModal()
 const deleteRegistryDocumentModal = useModal()
 
 /**
- * Tracks which destructive flow opened the shared
- * {@link DeleteRegistryConfirmModal}. The two modals reuse the same
- * confirmation component so we keep the mode in a ref instead of
- * mounting two identical instances side-by-side.
- */
-const registryDeleteMode = ref<'version' | 'document'>('version')
-
-/**
  * Handles the delete button click.
  * Prevents opening the modal if the document is a draft.
  */
@@ -114,7 +105,6 @@ const handleDeleteVersionClick = () => {
   if (!registryMeta?.isVersionPublished) {
     return
   }
-  registryDeleteMode.value = 'version'
   deleteVersionModal.show()
 }
 
@@ -122,7 +112,6 @@ const handleDeleteRegistryDocumentClick = () => {
   if (!registryMeta) {
     return
   }
-  registryDeleteMode.value = 'document'
   deleteRegistryDocumentModal.show()
 }
 
@@ -253,9 +242,9 @@ const handleDeleteRegistryDocumentSubmit = (payload: {
                 registryMeta.version
               }}</span>
               of
-              <span class="text-c-1 font-mono break-all"
-                >@{{ registryMeta.namespace }}/{{ registryMeta.slug }}</span
-              >
+              <span class="text-c-1 font-mono break-all">
+                @{{ registryMeta.namespace }}/{{ registryMeta.slug }}
+              </span>
               has not been published yet. Deleting it removes the local copy
               only - the registry is left untouched.
             </p>
