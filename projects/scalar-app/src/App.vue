@@ -208,7 +208,7 @@ const registry = reactive({
         #header-end>
         <ScalarHeaderButton
           is="a"
-          :href="loginUrl">
+          :href="loginUrl()">
           Log in
         </ScalarHeaderButton>
         <ScalarHeaderButton
