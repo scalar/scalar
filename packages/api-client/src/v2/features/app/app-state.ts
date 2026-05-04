@@ -190,7 +190,7 @@ const DEFAULT_TEAM_WORKSPACE_NAME = 'Workspace'
  * workspaces. Existing team workspaces remain in storage and can be restored
  * by flipping this flag back to `true`.
  */
-const TEAM_WORKSPACES_ENABLED = true
+const TEAM_WORKSPACES_ENABLED = false
 
 // ---------------------------------------------------------------------------
 // App State
