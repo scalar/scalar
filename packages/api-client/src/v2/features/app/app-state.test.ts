@@ -212,21 +212,17 @@ describe('app-state', () => {
     ).toBe(false)
   })
 
-  it('does not seed a drafts document when persisting a team workspace', async () => {
+  it('does not seed a drafts document when loading a persisted team workspace', async () => {
+    // Persist an empty team workspace before bootstrapping app state so it
+    // is in IndexedDB by the time the route handler asks for it. We go
+    // through the persistence layer directly because the create flow is
+    // currently gated behind TEAM_WORKSPACES_ENABLED.
+    await persistWorkspace({ teamSlug: 'no-drafts-team', slug: 'default', name: 'Team Workspace' })
+
     const router = setupRouter()
-    const appState = await createAppState({ router })
-
-    // Persist a team workspace through the same path the app uses internally
-    // (via the workspace store persistence layer rather than the create flow,
-    // which is currently gated behind TEAM_WORKSPACES_ENABLED).
-    const persistence = await createWorkspaceStorePersistence()
-    const draftStore = createWorkspaceStore()
-    await persistence.workspace.setItem(
-      { teamSlug: 'no-drafts-team', slug: 'default' },
-      { name: 'Team Workspace', workspace: draftStore.exportWorkspace() },
-    )
-
-    appState.activeEntities.setTeamSlug('no-drafts-team')
+    // `currentTeam` is the supported way to drive `activeEntities.teamSlug`
+    // from a test - the legacy `setTeamSlug` setter has been removed.
+    const appState = await createAppState({ router, currentTeam: ref(teamWithSlug('no-drafts-team')) })
 
     await router.push({
       name: 'workspace.get-started',
