@@ -312,6 +312,25 @@ describe('CommandPaletteImport', () => {
     expect(watchToggle.props('disabled')).toBe(false)
   })
 
+  it('enables watch mode toggle for URL input with a trailing newline', async () => {
+    const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
+
+    const wrapper = mount(CommandPaletteImport, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', 'https://example.com/api.json\n')
+    await nextTick()
+
+    const watchToggle = wrapper.findComponent({ name: 'WatchModeToggle' })
+    expect(watchToggle.props('disabled')).toBe(false)
+  })
+
   it('automatically disables watch mode when switching from URL to content', async () => {
     const workspaceStore = createWorkspaceStore()
     const eventBus = createWorkspaceEventBus()

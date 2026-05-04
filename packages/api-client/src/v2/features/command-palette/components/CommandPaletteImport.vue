@@ -84,10 +84,13 @@ const loader = useLoadingState()
 const inputContent = ref('')
 const watchMode = ref(false)
 
+/** Trim paste noise for URL checks without changing raw JSON/YAML content. */
+const normalizedInputContent = computed<string>(() => inputContent.value.trim())
+
 /** Check if the input content is a URL */
-const isUrlInput = computed<boolean>(() => isUrl(inputContent.value))
+const isUrlInput = computed<boolean>(() => isUrl(normalizedInputContent.value))
 const isLocalUrlInput = computed<boolean>(
-  () => isUrlInput.value && isLocalUrl(inputContent.value),
+  () => isUrlInput.value && isLocalUrl(normalizedInputContent.value),
 )
 
 const documentDetails = computed(() =>
@@ -159,16 +162,18 @@ const handleImport = async (
       return type
     }
 
-    if (isUrlInput.value) {
+    if (isUrl(newSource.trim())) {
       return 'url'
     }
 
     return 'raw'
   })()
 
+  const source = eventType === 'url' ? newSource.trim() : newSource
+
   const isSuccessfullyLoaded = await loadDocumentFromSource(
     draftStore,
-    { source: newSource, type: eventType },
+    { source, type: eventType },
     TEMP_DOCUMENT_NAME,
     watchMode.value,
   )
