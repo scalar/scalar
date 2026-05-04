@@ -123,6 +123,7 @@ onlyBuiltDependencies:
   - '@swc/core'
   - '@tailwindcss/oxide'
   - lefthook
+  - electron
 minimumReleaseAgeExclude:
   # Lets trust ourselves
   - '@scalar/*'
