@@ -74,6 +74,11 @@ if (!longStringsSource) {
 test(longStringsSource.title, async ({ page }) => {
   const example = await serveExample(longStringsSource)
   await page.goto(example)
+  await expect(
+    page.getByRole('navigation', { name: 'Sidebar for' }).getByRole('button', {
+      name: /Really Extremely Long Tag Name That Definitely Tests Wrapping Across Multiple Lines/,
+    }),
+  ).toBeVisible()
 
   await page.goto(
     `${example}#${longStringsSource.slug}/tag/really-extremely-long-tag-name-that-definitely-tests-wrapping-across-multiple-lines`,
