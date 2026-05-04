@@ -787,12 +787,20 @@ jobs:
         run: echo "url=https://${{ env.DEPLOY_ID }}--scalar-components.netlify.app" >> $GITHUB_OUTPUT
 
   deploy-api-client:
-    # Run only for same-repo PRs that touch @scalar/api-client or its workspace deps
+    # Run for same-repo PR previews when @scalar/api-client changes,
+    # or for production on main release commits.
     if: |
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      !contains(github.actor, '[bot]') &&
-      needs.check-changes.outputs.api_client_changed == 'true'
+      (
+        github.event_name == 'pull_request' &&
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        !contains(github.actor, '[bot]') &&
+        needs.check-changes.outputs.api_client_changed == 'true'
+      ) ||
+      (
+        github.event_name == 'push' &&
+        github.ref == 'refs/heads/main' &&
+        startsWith(github.event.head_commit.message, 'RELEASING:')
+      )
     needs: [build, check-changes]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 15
@@ -814,19 +822,30 @@ jobs:
       - name: Build playground app
         run: pnpm --filter @scalar/api-client playground:app:build
 
-      - name: Deploy to Cloudflare Pages
-        id: deploy
+      - name: Deploy to Cloudflare Pages (Preview)
+        if: github.event_name == 'pull_request'
+        id: deploy-preview
         uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy ./packages/api-client/playground/app/dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_API_CLIENT }} --branch=pr-${{ github.event.pull_request.number }} --commit-hash=${{ github.event.pull_request.head.sha }}
 
+      - name: Deploy to Cloudflare Pages (Production)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        id: deploy-production
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ./packages/api-client/playground/app/dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_API_CLIENT }} --branch=main --commit-hash=${{ github.sha }}
+
       - name: Set output
         id: set-output
+        if: github.event_name == 'pull_request'
         run: |
-          ALIAS_URL='${{ steps.deploy.outputs.pages-deployment-alias-url }}'
-          DEPLOYMENT_URL='${{ steps.deploy.outputs.deployment-url }}'
+          ALIAS_URL='${{ steps.deploy-preview.outputs.pages-deployment-alias-url }}'
+          DEPLOYMENT_URL='${{ steps.deploy-preview.outputs.deployment-url }}'
           if [ -n "$ALIAS_URL" ]; then
             echo "url=$ALIAS_URL" >> $GITHUB_OUTPUT
           else
