@@ -45,9 +45,14 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { computed, ref } from 'vue'
 
-import type { CommandPaletteDocument } from '../hooks/use-command-palette-documents'
+import {
+  findCommandPaletteDocument,
+  type CommandPaletteDocument,
+} from '../hooks/use-command-palette-documents'
+import { useDocumentVersionSelection } from '../hooks/use-document-version-selection'
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
+import CommandPaletteVersionSelect from './CommandPaletteVersionSelect.vue'
 
 const {
   workspaceStore,
@@ -120,11 +125,20 @@ const availableDocuments = computed<CommandPaletteDocument[]>(() => {
 const initialDocumentName = documentName ?? activeDocumentName
 
 const selectedDocument = ref<CommandPaletteDocument | undefined>(
-  initialDocumentName
-    ? availableDocuments.value.find(
-        (document) => document.id === initialDocumentName,
-      )
-    : (availableDocuments.value[0] ?? undefined),
+  findCommandPaletteDocument(availableDocuments.value, initialDocumentName) ??
+    availableDocuments.value[0] ??
+    undefined,
+)
+
+/**
+ * Tracks the version target alongside the selected document. Falls
+ * through to the document id for standalone documents, so the create
+ * payload mirrors the user's pick whether or not they touched the
+ * version dropdown.
+ */
+const { selectedVersion, targetDocumentName } = useDocumentVersionSelection(
+  selectedDocument,
+  initialDocumentName,
 )
 
 /**
@@ -143,8 +157,8 @@ const selectedDocument = ref<CommandPaletteDocument | undefined>(
  */
 const isDisabled = computed<boolean>(() => {
   const document =
-    workspaceStore.workspace.documents[selectedDocument.value?.id ?? '']
-  if (!nameTrimmed.value || !selectedDocument.value || !document) {
+    workspaceStore.workspace.documents[targetDocumentName.value ?? '']
+  if (!nameTrimmed.value || !targetDocumentName.value || !document) {
     return true
   }
 
@@ -168,9 +182,11 @@ const isDisabled = computed<boolean>(() => {
  * In edit mode, emits the new name. In create mode, creates the tag via the event bus.
  */
 const handleSubmit = (): void => {
-  if (isDisabled.value || !selectedDocument.value) {
+  if (isDisabled.value || !targetDocumentName.value) {
     return
   }
+
+  const documentName = targetDocumentName.value
 
   // In edit mode, emit the new name and close
   if (isEditMode.value && tag) {
@@ -178,7 +194,7 @@ const handleSubmit = (): void => {
       'tag:edit:tag',
       {
         tag,
-        documentName: selectedDocument.value.id,
+        documentName,
         newName: nameTrimmed.value,
       },
       { skipUnpackProxy: true },
@@ -189,7 +205,7 @@ const handleSubmit = (): void => {
 
   eventBus.emit('tag:create:tag', {
     name: nameTrimmed.value,
-    documentName: selectedDocument.value.id,
+    documentName,
   })
 
   emit('close')
@@ -222,24 +238,33 @@ const handleCancel = (): void => {
 
     <!-- Collection selector (hidden in edit mode) -->
     <template #options>
-      <ScalarListbox
+      <div
         v-if="!isEditMode"
-        v-model="selectedDocument"
-        :options="availableDocuments">
-        <ScalarButton
-          class="hover:bg-b-2 max-h-8 w-fit justify-between gap-1 p-2 text-xs"
-          variant="outlined">
-          <span :class="selectedDocument ? 'text-c-1' : 'text-c-3'">
-            {{
-              selectedDocument ? selectedDocument.label : 'Select Collection'
-            }}
-          </span>
-          <ScalarIcon
-            class="text-c-3"
-            icon="ChevronDown"
-            size="md" />
-        </ScalarButton>
-      </ScalarListbox>
+        class="flex flex-1 gap-1">
+        <ScalarListbox
+          v-model="selectedDocument"
+          :options="availableDocuments">
+          <ScalarButton
+            class="hover:bg-b-2 max-h-8 w-fit justify-between gap-1 p-2 text-xs"
+            variant="outlined">
+            <span :class="selectedDocument ? 'text-c-1' : 'text-c-3'">
+              {{
+                selectedDocument ? selectedDocument.label : 'Select Collection'
+              }}
+            </span>
+            <ScalarIcon
+              class="text-c-3"
+              icon="ChevronDown"
+              size="md" />
+          </ScalarButton>
+        </ScalarListbox>
+
+        <!-- Version selector (only when the document has multiple loaded versions) -->
+        <CommandPaletteVersionSelect
+          v-if="selectedDocument?.versions?.length"
+          v-model="selectedVersion"
+          :versions="selectedDocument.versions" />
+      </div>
 
       <!-- Cancel button in edit mode -->
       <ScalarButton

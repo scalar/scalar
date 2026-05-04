@@ -6,7 +6,7 @@ import { computed, ref, shallowRef } from 'vue'
 import type { AppState } from '@/v2/features/app'
 import type { RegistryDocument } from '@/v2/types/configuration'
 
-import { useCommandPaletteDocuments } from './use-command-palette-documents'
+import { findCommandPaletteDocument, useCommandPaletteDocuments } from './use-command-palette-documents'
 
 type FakeDocument = Partial<WorkspaceDocument> & {
   'x-scalar-registry-meta'?: {
@@ -78,7 +78,7 @@ describe('useCommandPaletteDocuments', () => {
     ])
   })
 
-  it('collapses registry-backed versions into a single option', () => {
+  it('collapses registry-backed versions into a single option that exposes every loaded version', () => {
     const registry: RegistryDocument = {
       namespace: 'acme',
       slug: 'api',
@@ -111,6 +111,51 @@ describe('useCommandPaletteDocuments', () => {
             slug: 'api',
             version: '0.9.0',
             commitHash: 'b',
+          },
+        },
+      },
+    })
+
+    const documents = useCommandPaletteDocuments({
+      app,
+      managedDocs: () => [registry],
+    })
+
+    expect(documents.value).toEqual([
+      {
+        id: 'acme-api-v1',
+        label: 'Acme API',
+        versions: [
+          { id: 'acme-api-v1', label: '1.0.0' },
+          { id: 'acme-api-v0', label: '0.9.0' },
+        ],
+      },
+    ])
+  })
+
+  it('omits the versions field when only one version of a registry-backed document is loaded', () => {
+    const registry: RegistryDocument = {
+      namespace: 'acme',
+      slug: 'api',
+      title: 'Acme API',
+      versions: [
+        { version: '1.0.0', commitHash: 'a' },
+        { version: '0.9.0', commitHash: 'b' },
+      ],
+    }
+
+    const { app } = createFakeApp({
+      isTeamWorkspace: true,
+      documentSlug: 'acme-api-v1',
+      documents: {
+        'acme-api-v1': {
+          info: { title: 'Acme API', version: '1.0.0' },
+          'x-scalar-navigation': nav('acme-api-v1', 'Acme API'),
+          'x-scalar-registry-meta': {
+            namespace: 'acme',
+            slug: 'api',
+            version: '1.0.0',
+            commitHash: 'a',
           },
         },
       },
@@ -165,7 +210,66 @@ describe('useCommandPaletteDocuments', () => {
       managedDocs: () => [registry],
     })
 
-    expect(documents.value).toEqual([{ id: 'acme-api-v0', label: 'Acme API' }])
+    expect(documents.value).toEqual([
+      {
+        id: 'acme-api-v0',
+        label: 'Acme API',
+        versions: [
+          { id: 'acme-api-v1', label: '1.0.0' },
+          { id: 'acme-api-v0', label: '0.9.0' },
+        ],
+      },
+    ])
+  })
+
+  it('skips registry-advertised versions that are not loaded into the workspace store', () => {
+    const registry: RegistryDocument = {
+      namespace: 'acme',
+      slug: 'api',
+      title: 'Acme API',
+      versions: [
+        { version: '2.0.0', commitHash: 'c' },
+        { version: '1.0.0', commitHash: 'a' },
+        { version: '0.9.0', commitHash: 'b' },
+      ],
+    }
+
+    const { app } = createFakeApp({
+      isTeamWorkspace: true,
+      documentSlug: 'acme-api-v1',
+      documents: {
+        'acme-api-v1': {
+          info: { title: 'Acme API', version: '1.0.0' },
+          'x-scalar-navigation': nav('acme-api-v1', 'Acme API'),
+          'x-scalar-registry-meta': {
+            namespace: 'acme',
+            slug: 'api',
+            version: '1.0.0',
+            commitHash: 'a',
+          },
+        },
+        'acme-api-v0': {
+          info: { title: 'Acme API', version: '0.9.0' },
+          'x-scalar-navigation': nav('acme-api-v0', 'Acme API'),
+          'x-scalar-registry-meta': {
+            namespace: 'acme',
+            slug: 'api',
+            version: '0.9.0',
+            commitHash: 'b',
+          },
+        },
+      },
+    })
+
+    const documents = useCommandPaletteDocuments({
+      app,
+      managedDocs: () => [registry],
+    })
+
+    expect(documents.value[0]?.versions).toEqual([
+      { id: 'acme-api-v1', label: '1.0.0' },
+      { id: 'acme-api-v0', label: '0.9.0' },
+    ])
   })
 
   it('omits registry entries that do not have a loaded version', () => {
@@ -187,5 +291,35 @@ describe('useCommandPaletteDocuments', () => {
     })
 
     expect(documents.value).toEqual([])
+  })
+})
+
+describe('findCommandPaletteDocument', () => {
+  const documents = [
+    { id: 'standalone', label: 'Standalone' },
+    {
+      id: 'acme-api-v1',
+      label: 'Acme API',
+      versions: [
+        { id: 'acme-api-v1', label: '1.0.0' },
+        { id: 'acme-api-v0', label: '0.9.0' },
+      ],
+    },
+  ]
+
+  it('returns undefined when no document name is provided', () => {
+    expect(findCommandPaletteDocument(documents, undefined)).toBeUndefined()
+  })
+
+  it('matches the option whose top-level id equals the requested name', () => {
+    expect(findCommandPaletteDocument(documents, 'standalone')).toEqual(documents[0])
+  })
+
+  it('matches the option whose versions list contains the requested name', () => {
+    expect(findCommandPaletteDocument(documents, 'acme-api-v0')).toEqual(documents[1])
+  })
+
+  it('returns undefined when nothing matches', () => {
+    expect(findCommandPaletteDocument(documents, 'missing')).toBeUndefined()
   })
 })

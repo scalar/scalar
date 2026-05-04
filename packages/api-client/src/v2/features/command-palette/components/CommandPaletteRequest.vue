@@ -41,9 +41,14 @@ import { useRouter } from 'vue-router'
 
 import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 
-import type { CommandPaletteDocument } from '../hooks/use-command-palette-documents'
+import {
+  findCommandPaletteDocument,
+  type CommandPaletteDocument,
+} from '../hooks/use-command-palette-documents'
+import { useDocumentVersionSelection } from '../hooks/use-document-version-selection'
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
+import CommandPaletteVersionSelect from './CommandPaletteVersionSelect.vue'
 
 const {
   workspaceStore,
@@ -136,11 +141,21 @@ const availableMethods: MethodOption[] = HTTP_METHODS.map((method) => ({
 const initialDocumentName = documentName ?? activeDocumentName
 
 const selectedDocument = ref<CommandPaletteDocument | undefined>(
-  initialDocumentName
-    ? availableDocuments.value.find(
-        (document) => document.id === initialDocumentName,
-      )
-    : (availableDocuments.value[0] ?? undefined),
+  findCommandPaletteDocument(availableDocuments.value, initialDocumentName) ??
+    availableDocuments.value[0] ??
+    undefined,
+)
+
+/**
+ * Tracks the version target alongside the selected document. When the
+ * document has multiple loaded versions, the picker drives this and we
+ * write the version's document name into the create payload; otherwise
+ * the composable falls back to the document id, which keeps the existing
+ * behaviour intact for standalone documents.
+ */
+const { selectedVersion, targetDocumentName } = useDocumentVersionSelection(
+  selectedDocument,
+  initialDocumentName,
 )
 
 const selectedMethod = ref<MethodOption | undefined>(
@@ -152,11 +167,11 @@ const selectedMethod = ref<MethodOption | undefined>(
  * Includes a "No Tag" option for operations without a tag assignment.
  */
 const availableTags = computed<TagOption[]>(() => {
-  if (!selectedDocument.value) {
+  if (!targetDocumentName.value) {
     return []
   }
 
-  const document = workspaceStore.workspace.documents[selectedDocument.value.id]
+  const document = workspaceStore.workspace.documents[targetDocumentName.value]
   if (!document) {
     return []
   }
@@ -174,8 +189,9 @@ const selectedTag = ref<TagOption | undefined>(
   tagId ? availableTags.value.find((tag) => tag.id === tagId) : undefined,
 )
 
-// Reset the selected tag to the "No Tag" option when the document changes
-watch(selectedDocument, () => {
+// Reset the selected tag to the "No Tag" option when the document or
+// version changes, since tag lists are scoped to a single document.
+watch([selectedDocument, selectedVersion], () => {
   selectedTag.value = availableTags.value.find((tag) => tag.id === '')
 })
 
@@ -185,14 +201,14 @@ watch(selectedDocument, () => {
  */
 const operationExists = computed<boolean>(() => {
   if (
-    !selectedDocument.value ||
+    !targetDocumentName.value ||
     !selectedMethod.value ||
     !requestPathTrimmed.value
   ) {
     return false
   }
 
-  const document = workspaceStore.workspace.documents[selectedDocument.value.id]
+  const document = workspaceStore.workspace.documents[targetDocumentName.value]
 
   /** Ensure path starts with '/' for consistent lookup */
   const normalizedPath = requestPathTrimmed.value.startsWith('/')
@@ -209,7 +225,7 @@ const operationExists = computed<boolean>(() => {
 const isDisabled = computed<boolean>(() => {
   if (
     !requestPathTrimmed.value ||
-    !selectedDocument.value ||
+    !targetDocumentName.value ||
     !selectedMethod.value
   ) {
     return true
@@ -242,18 +258,19 @@ const handleSelectTag = (tag: TagOption | undefined): void => {
  * Emits an event to create a new operation with the specified details.
  */
 const handleSubmit = (): void => {
-  if (isDisabled.value || !selectedDocument.value || !selectedMethod.value) {
+  if (isDisabled.value || !targetDocumentName.value || !selectedMethod.value) {
     return
   }
 
-  const document = workspaceStore.workspace.documents[selectedDocument.value.id]
+  const documentName = targetDocumentName.value
+  const document = workspaceStore.workspace.documents[documentName]
 
   if (!document) {
     return
   }
 
   eventBus.emit('operation:create:operation', {
-    documentName: selectedDocument.value.id,
+    documentName,
     path: requestPathTrimmed.value,
     method: selectedMethod.value.method,
     operation: {
@@ -262,7 +279,7 @@ const handleSubmit = (): void => {
     callback: (success) => {
       if (success) {
         /** Build the sidebar */
-        workspaceStore.buildSidebar(selectedDocument.value?.id ?? '')
+        workspaceStore.buildSidebar(documentName)
 
         const path = requestPathTrimmed.value.startsWith('/')
           ? requestPathTrimmed.value
@@ -272,7 +289,7 @@ const handleSubmit = (): void => {
         router.push({
           name: 'example',
           params: {
-            documentSlug: selectedDocument.value?.id,
+            documentSlug: documentName,
             pathEncoded: encodeURIComponent(path),
             method: selectedMethod.value?.method,
             exampleName: 'default',
@@ -322,6 +339,12 @@ const handleBack = (event: KeyboardEvent): void => {
               size="md" />
           </ScalarButton>
         </ScalarListbox>
+
+        <!-- Version selector (only when the document has multiple loaded versions) -->
+        <CommandPaletteVersionSelect
+          v-if="selectedDocument?.versions?.length"
+          v-model="selectedVersion"
+          :versions="selectedDocument.versions" />
 
         <!-- HTTP method selector (GET, POST, PUT, etc.) -->
         <ScalarDropdown

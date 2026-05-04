@@ -38,9 +38,14 @@ import { computed, ref, watch } from 'vue'
 
 import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 
-import type { CommandPaletteDocument } from '../hooks/use-command-palette-documents'
+import {
+  findCommandPaletteDocument,
+  type CommandPaletteDocument,
+} from '../hooks/use-command-palette-documents'
+import { useDocumentVersionSelection } from '../hooks/use-document-version-selection'
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
+import CommandPaletteVersionSelect from './CommandPaletteVersionSelect.vue'
 
 const {
   workspaceStore,
@@ -125,11 +130,20 @@ const availableDocuments = computed<CommandPaletteDocument[]>(() => {
 const initialDocumentName = documentName ?? activeDocumentName
 
 const selectedDocument = ref<CommandPaletteDocument | undefined>(
-  initialDocumentName
-    ? availableDocuments.value.find(
-        (document) => document.id === initialDocumentName,
-      )
-    : (availableDocuments.value[0] ?? undefined),
+  findCommandPaletteDocument(availableDocuments.value, initialDocumentName) ??
+    availableDocuments.value[0] ??
+    undefined,
+)
+
+/**
+ * Tracks the version target alongside the selected document. The
+ * operation list and submit handler both read through
+ * `targetDocumentName`, so picking a different version drives the entire
+ * form (operation list, duplicate-name check, payload).
+ */
+const { selectedVersion, targetDocumentName } = useDocumentVersionSelection(
+  selectedDocument,
+  initialDocumentName,
 )
 
 /**
@@ -155,11 +169,11 @@ const getAllOperations = (entries: TraversedEntry[]): TraversedOperation[] => {
 
 /** All available operations for the selected document */
 const availableOperations = computed(() => {
-  if (!selectedDocument.value) {
+  if (!targetDocumentName.value) {
     return []
   }
 
-  const document = workspaceStore.workspace.documents[selectedDocument.value.id]
+  const document = workspaceStore.workspace.documents[targetDocumentName.value]
   if (!document || !document['x-scalar-navigation']) {
     return []
   }
@@ -187,9 +201,9 @@ const selectedOperation = ref<OperationOption | undefined>(
     : undefined,
 )
 
-/** Reset operation selection when document changes */
+/** Reset operation selection when document or version changes */
 watch(
-  selectedDocument,
+  [selectedDocument, selectedVersion],
   () => {
     selectedOperation.value = operationId
       ? availableOperations.value.find(
@@ -214,7 +228,7 @@ const handleSelect = (operation: OperationOption | undefined): void => {
 const isDisabled = computed<boolean>(() => {
   if (
     !exampleNameTrimmed.value ||
-    !selectedDocument.value ||
+    !targetDocumentName.value ||
     !selectedOperation.value
   ) {
     return true
@@ -242,13 +256,19 @@ const isDisabled = computed<boolean>(() => {
  * The route handler will create the example with the provided details.
  */
 const handleSubmit = (): void => {
-  if (isDisabled.value || !selectedDocument.value || !selectedOperation.value) {
+  if (
+    isDisabled.value ||
+    !targetDocumentName.value ||
+    !selectedOperation.value
+  ) {
     return
   }
 
+  const documentName = targetDocumentName.value
+
   if (isEditMode.value && example) {
     eventBus.emit('operation:rename:example', {
-      documentName: selectedDocument.value.id,
+      documentName,
       meta: {
         path: selectedOperation.value.path,
         method: selectedOperation.value.method,
@@ -263,7 +283,7 @@ const handleSubmit = (): void => {
   }
 
   eventBus.emit('operation:create:draft-example', {
-    documentName: selectedDocument.value.id,
+    documentName,
     meta: {
       path: selectedOperation.value.path,
       method: selectedOperation.value.method,
@@ -321,6 +341,12 @@ const handleCancel = (): void => {
               size="md" />
           </ScalarButton>
         </ScalarListbox>
+
+        <!-- Version selector (only when the document has multiple loaded versions) -->
+        <CommandPaletteVersionSelect
+          v-if="selectedDocument?.versions?.length"
+          v-model="selectedVersion"
+          :versions="selectedDocument.versions" />
 
         <!-- Operation selector (path + method) -->
         <ScalarDropdown

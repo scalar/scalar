@@ -937,4 +937,128 @@ describe('CommandPaletteRequest', () => {
     const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
     expect(listbox.props('modelValue')).toEqual({ id: 'doc-a', label: 'A' })
   })
+
+  it('renders a version picker for document options that expose multiple versions', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'acme-v1': createMockDocument(),
+      'acme-v0': createMockDocument(),
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteRequest, {
+      props: {
+        workspaceStore,
+        eventBus,
+        documents: [
+          {
+            id: 'acme-v1',
+            label: 'Acme API',
+            versions: [
+              { id: 'acme-v1', label: '1.0.0' },
+              { id: 'acme-v0', label: '0.9.0' },
+            ],
+          },
+        ],
+      },
+    })
+
+    expect(wrapper.findComponent({ name: 'CommandPaletteVersionSelect' }).exists()).toBe(true)
+  })
+
+  it('does not render a version picker for documents without a versions list', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'doc1': createMockDocument(),
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteRequest, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    expect(wrapper.findComponent({ name: 'CommandPaletteVersionSelect' }).exists()).toBe(false)
+  })
+
+  it('emits the picked version document name when the user overrides the active version', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'acme-v1': createMockDocument(),
+      'acme-v0': createMockDocument(),
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteRequest, {
+      props: {
+        workspaceStore,
+        eventBus,
+        documents: [
+          {
+            id: 'acme-v1',
+            label: 'Acme API',
+            versions: [
+              { id: 'acme-v1', label: '1.0.0' },
+              { id: 'acme-v0', label: '0.9.0' },
+            ],
+          },
+        ],
+      },
+    })
+
+    const versionSelect = wrapper.findComponent({ name: 'CommandPaletteVersionSelect' })
+    await versionSelect.vm.$emit('update:modelValue', { id: 'acme-v0', label: '0.9.0' })
+    await nextTick()
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', '/users')
+    await nextTick()
+
+    const form = wrapper.findComponent({ name: 'CommandActionForm' })
+    await form.vm.$emit('submit')
+    await nextTick()
+
+    expect(eventBus.emit).toHaveBeenCalledWith(
+      'operation:create:operation',
+      expect.objectContaining({ documentName: 'acme-v0' }),
+    )
+  })
+
+  it('preselects the version matching an explicit documentName that points at a non-active version', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'acme-v1': createMockDocument(),
+      'acme-v0': createMockDocument(),
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteRequest, {
+      props: {
+        workspaceStore,
+        eventBus,
+        documentName: 'acme-v0',
+        documents: [
+          {
+            id: 'acme-v1',
+            label: 'Acme API',
+            versions: [
+              { id: 'acme-v1', label: '1.0.0' },
+              { id: 'acme-v0', label: '0.9.0' },
+            ],
+          },
+        ],
+      },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', '/users')
+    await nextTick()
+
+    const form = wrapper.findComponent({ name: 'CommandActionForm' })
+    await form.vm.$emit('submit')
+    await nextTick()
+
+    expect(eventBus.emit).toHaveBeenCalledWith(
+      'operation:create:operation',
+      expect.objectContaining({ documentName: 'acme-v0' }),
+    )
+  })
 })
