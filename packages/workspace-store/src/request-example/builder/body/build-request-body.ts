@@ -1,4 +1,5 @@
 // import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
+import { isObject } from '@scalar/helpers/object/is-object'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/request-body'
 
@@ -153,12 +154,7 @@ export const buildRequestBody = (
   // Form data - object format (from schema examples)
   // When the example value is a plain object and content type is form-urlencoded,
   // convert to URLSearchParams instead of JSON stringifying
-  if (
-    bodyContentType === 'application/x-www-form-urlencoded' &&
-    example.value !== null &&
-    typeof example.value === 'object' &&
-    !Array.isArray(example.value)
-  ) {
+  if (bodyContentType === 'application/x-www-form-urlencoded' && isObject(example.value)) {
     const result: UrlEncoded = {
       mode: 'urlencoded',
       value: [],
@@ -179,12 +175,7 @@ export const buildRequestBody = (
   }
 
   // Form data - object format (from schema examples)
-  if (
-    bodyContentType === 'multipart/form-data' &&
-    example.value !== null &&
-    typeof example.value === 'object' &&
-    !Array.isArray(example.value)
-  ) {
+  if (bodyContentType === 'multipart/form-data' && isObject(example.value)) {
     const result: FormData = {
       mode: 'formdata',
       value: [],

@@ -378,6 +378,29 @@ describe('buildRequestBody', () => {
     assert(result?.value === mockFile)
   })
 
+  it('returns raw File for multipart/form-data when example value is a File instance', () => {
+    const mockFile = new File(['binary content'], 'payload.bin', { type: 'application/octet-stream' })
+    const requestBody = {
+      content: {
+        'multipart/form-data': {
+          examples: {
+            default: {
+              value: mockFile,
+            },
+          },
+        },
+      },
+    }
+
+    const result = buildRequestBody(requestBody, 'default')
+
+    expect(result).toStrictEqual({
+      mode: 'raw',
+      value: mockFile,
+      contentType: 'application/octet-stream',
+    })
+  })
+
   it('skips form entries with empty names', () => {
     const requestBody = {
       content: {
