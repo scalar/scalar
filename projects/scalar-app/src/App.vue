@@ -18,10 +18,11 @@ import { PostHogClientPlugin } from '@scalar/api-client/plugins/posthog'
 import { ScalarHeaderButton } from '@scalar/components'
 import { type LoaderPlugin } from '@scalar/json-magic/bundle'
 import { requestScriptsPlugin } from '@scalar/pre-post-request-scripts/plugins'
-import { computed, reactive } from 'vue'
+import { computed, reactive, watch } from 'vue'
 
 import { ClientApp, type AppState } from '@/features/app'
 import type { useCommandPaletteState } from '@/features/command-palette/hooks/use-command-palette-state'
+import { env } from '@/environment'
 import AppMenuItems from '@/features/header/AppMenuItems.vue'
 import { ImportListener } from '@/features/import-listener'
 import { deleteRegistryDocument } from '@/helpers/delete-registry-document'
@@ -40,6 +41,9 @@ const { getAppState, getCommandPaletteState, fileLoader } =
 const app = getAppState()
 const { isLoggedIn } = useAuth()
 const { handleLogin, handleRegister } = useAuthHandlers()
+const { isLoggedIn, tokenData } = useAuth()
+const { handleLogin: _handleLogin, handleRegister: _handleRegister } =
+  useAuthHandlers()
 const {
   documents,
   isLoading: isDocumentsLoading,
@@ -80,12 +84,30 @@ const navigateToDocument = (slug: string) => {
   })
 }
 
+watch(
+  tokenData,
+  (payload) => {
+    if (payload) {
+      app.eventBus.emit('analytics:on:user-login', {
+        uid: payload.userUid,
+        email: payload.email ?? undefined,
+        teamUid: payload.teamUid,
+      })
+    } else {
+      app.eventBus.emit('analytics:on:user-logout')
+    }
+  },
+  { immediate: true },
+)
+
 const plugins = [
   requestScriptsPlugin(),
   PostHogClientPlugin({
     apiKey: 'phc_3elIjSOvGOo5aEwg6krzIY9IcQiRubsBtglOXsQ4Uu4',
     apiHost: 'https://magic.scalar.com',
     uiHost: 'https://us.posthog.com',
+    platform: isDesktop ? 'desktop' : 'web',
+    environment: env.VITE_ENV,
   }),
 ]
 
@@ -130,12 +152,6 @@ const registryNamespaces = computed(() => {
     : ({ status: 'success', namespaces: mapped } as const)
 })
 
-/**
- * Registry adapter passed to the API client. We wrap it in `reactive` so
- * the inner refs (`documents`, `namespaces`) are auto-unwrapped on access
- * - the adapter shape expects the raw loading-aware state, but we still
- * want the values to update as the underlying queries refetch.
- */
 /**
  * Forces the registry-documents query to refetch and waits for the new
  * listing. Used by the API client's sync flow after a `CONFLICT` push so

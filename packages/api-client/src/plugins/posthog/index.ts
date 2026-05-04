@@ -1,3 +1,4 @@
+import { ANALYTICS_EVENTS } from '@scalar/helpers/general/analytics-events'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { ConfigDefaults, PostHog } from 'posthog-js'
 import ph from 'posthog-js'
@@ -11,6 +12,10 @@ export type PostHogConfig = {
   uiHost?: string
   /** PostHog defaults version identifier */
   defaults?: ConfigDefaults
+  /** The deployment environment (e.g. 'production', 'staging') */
+  environment?: string
+  /** Whether the app is running in Electron ('desktop') or browser ('web') */
+  platform?: 'desktop' | 'web'
 }
 
 /**
@@ -27,17 +32,24 @@ export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
 
   return {
     on: {
-      'hooks:on:request:sent': () => posthog?.capture('hooks:on:request:sent'),
-      'operation:create:operation': () => posthog?.capture('operation:create:operation'),
-      'operation:delete:operation': () => posthog?.capture('operation:delete:operation'),
-      'document:create:empty-document': () => posthog?.capture('document:create:empty-document'),
-      'document:delete:document': () => posthog?.capture('document:delete:document'),
-      'tag:create:tag': () => posthog?.capture('tag:create:tag'),
-      'server:add:server': () => posthog?.capture('server:add:server'),
-      'auth:update:selected-security-schemes': () => posthog?.capture('auth:update:selected-security-schemes'),
-      'environment:upsert:environment': () => posthog?.capture('environment:upsert:environment'),
-      'ui:open:client-modal': () => posthog?.capture('ui:open:client-modal'),
-      'ui:download:document': () => posthog?.capture('ui:download:document'),
+      'hooks:on:request:sent': () => posthog?.capture(ANALYTICS_EVENTS.REQUEST_SEND),
+      'operation:create:operation': () => posthog?.capture(ANALYTICS_EVENTS.OPERATION_CREATE),
+      'operation:delete:operation': () => posthog?.capture(ANALYTICS_EVENTS.OPERATION_DELETE),
+      'document:create:empty-document': () => posthog?.capture(ANALYTICS_EVENTS.DOCUMENT_CREATE),
+      'document:delete:document': () => posthog?.capture(ANALYTICS_EVENTS.DOCUMENT_DELETE),
+      'tag:create:tag': () => posthog?.capture(ANALYTICS_EVENTS.TAG_CREATE),
+      'server:add:server': () => posthog?.capture(ANALYTICS_EVENTS.SERVER_ADD),
+      'auth:update:selected-security-schemes': () => posthog?.capture(ANALYTICS_EVENTS.AUTH_SCHEME_SELECT),
+      'environment:upsert:environment': () => posthog?.capture(ANALYTICS_EVENTS.ENVIRONMENT_SAVE),
+      'ui:open:client-modal': () => posthog?.capture(ANALYTICS_EVENTS.MODAL_OPEN),
+      'ui:download:document': () => posthog?.capture(ANALYTICS_EVENTS.DOCUMENT_DOWNLOAD),
+      'analytics:on:login-click': () => posthog?.capture(ANALYTICS_EVENTS.LOGIN_CLICK),
+      'analytics:on:register-click': () => posthog?.capture(ANALYTICS_EVENTS.REGISTER_CLICK),
+
+      // Auth events
+      'analytics:on:user-login': ({ uid, email, teamUid }) =>
+        posthog?.identify(uid, { email, teamUid }),
+      'analytics:on:user-logout': () => posthog?.reset(),
     },
     lifecycle: {
       onInit(context) {
@@ -58,7 +70,11 @@ export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
 
         if (instance) {
           posthog = instance
-          posthog.register({ product: 'api-client' })
+          posthog.register({
+            product: 'api-client',
+            ...(config.platform ? { platform: config.platform } : {}),
+            ...(config.environment ? { environment: config.environment } : {}),
+          })
 
           if (context?.config.telemetry !== false) {
             posthog.opt_in_capturing()

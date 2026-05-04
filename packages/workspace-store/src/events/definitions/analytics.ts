@@ -21,7 +21,23 @@ export type AnalyticsEvents = {
     id: string
   }
   /**
-   * Fired when the references are loaded
+   * Fired when the user clicks any login button
    */
-  'analytics:on:loaded': undefined
+  'analytics:on:login-click': undefined
+  /**
+   * Fired when the user clicks the register button
+   */
+  'analytics:on:register-click': undefined
+  /**
+   * Fired when a user successfully authenticates
+   */
+  'analytics:on:user-login': {
+    uid: string
+    email?: string
+    teamUid: string
+  }
+  /**
+   * Fired when the current user logs out
+   */
+  'analytics:on:user-logout': undefined
 }
