@@ -58,6 +58,7 @@ const isDesktop = window.electron === true
 async function handleLogin() {
   // If we're on the web version, redirect to the dashboard login
   if (!isDesktop) {
+    console.log('we are here', loginUrl())
     window.location.href = loginUrl()
     return
   }
