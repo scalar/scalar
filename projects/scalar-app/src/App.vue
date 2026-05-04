@@ -214,7 +214,7 @@ const registry = reactive({
         <ScalarHeaderButton
           is="a"
           cta
-          :href="registerUrl">
+          :href="registerUrl()">
           Register
         </ScalarHeaderButton>
       </template>
