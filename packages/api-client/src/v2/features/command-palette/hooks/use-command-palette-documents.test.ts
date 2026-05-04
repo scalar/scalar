@@ -6,7 +6,7 @@ import { computed, ref, shallowRef } from 'vue'
 import type { AppState } from '@/v2/features/app'
 import type { RegistryDocument } from '@/v2/types/configuration'
 
-import { findCommandPaletteDocument, useCommandPaletteDocuments } from './use-command-palette-documents'
+import { useCommandPaletteDocuments } from './use-command-palette-documents'
 
 type FakeDocument = Partial<WorkspaceDocument> & {
   'x-scalar-registry-meta'?: {
@@ -291,35 +291,5 @@ describe('useCommandPaletteDocuments', () => {
     })
 
     expect(documents.value).toEqual([])
-  })
-})
-
-describe('findCommandPaletteDocument', () => {
-  const documents = [
-    { id: 'standalone', label: 'Standalone' },
-    {
-      id: 'acme-api-v1',
-      label: 'Acme API',
-      versions: [
-        { id: 'acme-api-v1', label: '1.0.0' },
-        { id: 'acme-api-v0', label: '0.9.0' },
-      ],
-    },
-  ]
-
-  it('returns undefined when no document name is provided', () => {
-    expect(findCommandPaletteDocument(documents, undefined)).toBeUndefined()
-  })
-
-  it('matches the option whose top-level id equals the requested name', () => {
-    expect(findCommandPaletteDocument(documents, 'standalone')).toEqual(documents[0])
-  })
-
-  it('matches the option whose versions list contains the requested name', () => {
-    expect(findCommandPaletteDocument(documents, 'acme-api-v0')).toEqual(documents[1])
-  })
-
-  it('returns undefined when nothing matches', () => {
-    expect(findCommandPaletteDocument(documents, 'missing')).toBeUndefined()
   })
 })

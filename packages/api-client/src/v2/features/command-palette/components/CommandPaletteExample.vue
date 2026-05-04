@@ -24,7 +24,6 @@ import {
   ScalarDropdown,
   ScalarDropdownItem,
   ScalarIcon,
-  ScalarListbox,
 } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -38,14 +37,10 @@ import { computed, ref, watch } from 'vue'
 
 import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 
-import {
-  findCommandPaletteDocument,
-  type CommandPaletteDocument,
-} from '../hooks/use-command-palette-documents'
-import { useDocumentVersionSelection } from '../hooks/use-document-version-selection'
+import type { CommandPaletteDocument } from '../hooks/use-command-palette-documents'
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
-import CommandPaletteVersionSelect from './CommandPaletteVersionSelect.vue'
+import CommandPaletteDocumentSelect from './CommandPaletteDocumentSelect.vue'
 
 const {
   workspaceStore,
@@ -122,6 +117,17 @@ const availableDocuments = computed<CommandPaletteDocument[]>(() => {
 })
 
 /**
+ * Returns true when `name` exists somewhere in `availableDocuments` —
+ * either as a top-level document id (the active version on a registry
+ * group) or inside a group's loaded `versions` list. Both shapes are
+ * valid create targets, so we accept either.
+ */
+const isAvailableDocumentName = (name: string): boolean =>
+  availableDocuments.value.some(
+    (doc) => doc.id === name || doc.versions?.some((v) => v.id === name),
+  )
+
+/**
  * Initial document target. The explicit `documentName` prop wins (set when
  * the palette is opened from a sidebar context menu), falling back to the
  * active document so a Cmd+K-triggered create flow defaults to whatever
@@ -129,21 +135,10 @@ const availableDocuments = computed<CommandPaletteDocument[]>(() => {
  */
 const initialDocumentName = documentName ?? activeDocumentName
 
-const selectedDocument = ref<CommandPaletteDocument | undefined>(
-  findCommandPaletteDocument(availableDocuments.value, initialDocumentName) ??
-    availableDocuments.value[0] ??
-    undefined,
-)
-
-/**
- * Tracks the version target alongside the selected document. The
- * operation list and submit handler both read through
- * `targetDocumentName`, so picking a different version drives the entire
- * form (operation list, duplicate-name check, payload).
- */
-const { selectedVersion, targetDocumentName } = useDocumentVersionSelection(
-  selectedDocument,
-  initialDocumentName,
+const selectedDocumentName = ref<string | undefined>(
+  initialDocumentName && isAvailableDocumentName(initialDocumentName)
+    ? initialDocumentName
+    : (availableDocuments.value[0]?.id ?? undefined),
 )
 
 /**
@@ -169,11 +164,12 @@ const getAllOperations = (entries: TraversedEntry[]): TraversedOperation[] => {
 
 /** All available operations for the selected document */
 const availableOperations = computed(() => {
-  if (!targetDocumentName.value) {
+  if (!selectedDocumentName.value) {
     return []
   }
 
-  const document = workspaceStore.workspace.documents[targetDocumentName.value]
+  const document =
+    workspaceStore.workspace.documents[selectedDocumentName.value]
   if (!document || !document['x-scalar-navigation']) {
     return []
   }
@@ -201,9 +197,9 @@ const selectedOperation = ref<OperationOption | undefined>(
     : undefined,
 )
 
-/** Reset operation selection when document or version changes */
+/** Reset operation selection when the document target changes */
 watch(
-  [selectedDocument, selectedVersion],
+  selectedDocumentName,
   () => {
     selectedOperation.value = operationId
       ? availableOperations.value.find(
@@ -228,7 +224,7 @@ const handleSelect = (operation: OperationOption | undefined): void => {
 const isDisabled = computed<boolean>(() => {
   if (
     !exampleNameTrimmed.value ||
-    !targetDocumentName.value ||
+    !selectedDocumentName.value ||
     !selectedOperation.value
   ) {
     return true
@@ -258,13 +254,13 @@ const isDisabled = computed<boolean>(() => {
 const handleSubmit = (): void => {
   if (
     isDisabled.value ||
-    !targetDocumentName.value ||
+    !selectedDocumentName.value ||
     !selectedOperation.value
   ) {
     return
   }
 
-  const documentName = targetDocumentName.value
+  const documentName = selectedDocumentName.value
 
   if (isEditMode.value && example) {
     eventBus.emit('operation:rename:example', {
@@ -323,30 +319,13 @@ const handleCancel = (): void => {
       <div
         v-if="!isEditMode"
         class="flex flex-1 gap-1">
-        <!-- Document (collection) selector -->
-        <ScalarListbox
-          v-model="selectedDocument"
-          :options="availableDocuments">
-          <ScalarButton
-            class="hover:bg-b-2 max-h-8 w-[150px] min-w-[150px] justify-between gap-1 p-2 text-xs"
-            variant="outlined">
-            <span :class="selectedDocument ? 'text-c-1 truncate' : 'text-c-3'">
-              {{
-                selectedDocument ? selectedDocument.label : 'Select Document'
-              }}
-            </span>
-            <ScalarIcon
-              class="text-c-3"
-              icon="ChevronDown"
-              size="md" />
-          </ScalarButton>
-        </ScalarListbox>
-
-        <!-- Version selector (only when the document has multiple loaded versions) -->
-        <CommandPaletteVersionSelect
-          v-if="selectedDocument?.versions?.length"
-          v-model="selectedVersion"
-          :versions="selectedDocument.versions" />
+        <!-- Document (collection) selector with built-in version picker -->
+        <CommandPaletteDocumentSelect
+          v-model="selectedDocumentName"
+          :documents="availableDocuments"
+          placeholder="Select Document"
+          searchPlaceholder="Search documents"
+          triggerClass="w-[150px] min-w-[150px]" />
 
         <!-- Operation selector (path + method) -->
         <ScalarDropdown

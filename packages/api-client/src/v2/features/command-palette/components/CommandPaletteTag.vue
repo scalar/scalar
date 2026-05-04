@@ -39,20 +39,16 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import { ScalarButton } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { computed, ref } from 'vue'
 
-import {
-  findCommandPaletteDocument,
-  type CommandPaletteDocument,
-} from '../hooks/use-command-palette-documents'
-import { useDocumentVersionSelection } from '../hooks/use-document-version-selection'
+import type { CommandPaletteDocument } from '../hooks/use-command-palette-documents'
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
-import CommandPaletteVersionSelect from './CommandPaletteVersionSelect.vue'
+import CommandPaletteDocumentSelect from './CommandPaletteDocumentSelect.vue'
 
 const {
   workspaceStore,
@@ -117,6 +113,17 @@ const availableDocuments = computed<CommandPaletteDocument[]>(() => {
 })
 
 /**
+ * Returns true when `name` exists somewhere in `availableDocuments` —
+ * either as a top-level document id (the active version on a registry
+ * group) or inside a group's loaded `versions` list. Both shapes are
+ * valid create targets, so we accept either.
+ */
+const isAvailableDocumentName = (name: string): boolean =>
+  availableDocuments.value.some(
+    (doc) => doc.id === name || doc.versions?.some((v) => v.id === name),
+  )
+
+/**
  * Initial document target. The explicit `documentName` prop wins (set when
  * the palette is opened from a sidebar context menu), falling back to the
  * active document so a Cmd+K-triggered create flow defaults to whatever
@@ -124,21 +131,10 @@ const availableDocuments = computed<CommandPaletteDocument[]>(() => {
  */
 const initialDocumentName = documentName ?? activeDocumentName
 
-const selectedDocument = ref<CommandPaletteDocument | undefined>(
-  findCommandPaletteDocument(availableDocuments.value, initialDocumentName) ??
-    availableDocuments.value[0] ??
-    undefined,
-)
-
-/**
- * Tracks the version target alongside the selected document. Falls
- * through to the document id for standalone documents, so the create
- * payload mirrors the user's pick whether or not they touched the
- * version dropdown.
- */
-const { selectedVersion, targetDocumentName } = useDocumentVersionSelection(
-  selectedDocument,
-  initialDocumentName,
+const selectedDocumentName = ref<string | undefined>(
+  initialDocumentName && isAvailableDocumentName(initialDocumentName)
+    ? initialDocumentName
+    : (availableDocuments.value[0]?.id ?? undefined),
 )
 
 /**
@@ -157,8 +153,8 @@ const { selectedVersion, targetDocumentName } = useDocumentVersionSelection(
  */
 const isDisabled = computed<boolean>(() => {
   const document =
-    workspaceStore.workspace.documents[targetDocumentName.value ?? '']
-  if (!nameTrimmed.value || !targetDocumentName.value || !document) {
+    workspaceStore.workspace.documents[selectedDocumentName.value ?? '']
+  if (!nameTrimmed.value || !selectedDocumentName.value || !document) {
     return true
   }
 
@@ -182,11 +178,11 @@ const isDisabled = computed<boolean>(() => {
  * In edit mode, emits the new name. In create mode, creates the tag via the event bus.
  */
 const handleSubmit = (): void => {
-  if (isDisabled.value || !targetDocumentName.value) {
+  if (isDisabled.value || !selectedDocumentName.value) {
     return
   }
 
-  const documentName = targetDocumentName.value
+  const documentName = selectedDocumentName.value
 
   // In edit mode, emit the new name and close
   if (isEditMode.value && tag) {
@@ -238,33 +234,12 @@ const handleCancel = (): void => {
 
     <!-- Collection selector (hidden in edit mode) -->
     <template #options>
-      <div
+      <CommandPaletteDocumentSelect
         v-if="!isEditMode"
-        class="flex flex-1 gap-1">
-        <ScalarListbox
-          v-model="selectedDocument"
-          :options="availableDocuments">
-          <ScalarButton
-            class="hover:bg-b-2 max-h-8 w-fit justify-between gap-1 p-2 text-xs"
-            variant="outlined">
-            <span :class="selectedDocument ? 'text-c-1' : 'text-c-3'">
-              {{
-                selectedDocument ? selectedDocument.label : 'Select Collection'
-              }}
-            </span>
-            <ScalarIcon
-              class="text-c-3"
-              icon="ChevronDown"
-              size="md" />
-          </ScalarButton>
-        </ScalarListbox>
-
-        <!-- Version selector (only when the document has multiple loaded versions) -->
-        <CommandPaletteVersionSelect
-          v-if="selectedDocument?.versions?.length"
-          v-model="selectedVersion"
-          :versions="selectedDocument.versions" />
-      </div>
+        v-model="selectedDocumentName"
+        :documents="availableDocuments"
+        placeholder="Select Collection"
+        searchPlaceholder="Search collections" />
 
       <!-- Cancel button in edit mode -->
       <ScalarButton

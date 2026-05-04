@@ -96,20 +96,3 @@ export const useCommandPaletteDocuments = ({
       }),
   )
 }
-
-/**
- * Look up the document option that should be preselected for the given
- * workspace document name. A name matches when it equals the option's
- * top-level id (the active version on registry-grouped entries) or any
- * of the loaded versions in the option's `versions` list, so the picker
- * stays consistent regardless of which version the caller pinned.
- */
-export const findCommandPaletteDocument = (
-  documents: readonly CommandPaletteDocument[],
-  documentName: string | undefined,
-): CommandPaletteDocument | undefined => {
-  if (!documentName) {
-    return undefined
-  }
-  return documents.find((doc) => doc.id === documentName || doc.versions?.some((v) => v.id === documentName))
-}

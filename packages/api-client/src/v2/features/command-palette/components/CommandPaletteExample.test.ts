@@ -238,8 +238,8 @@ describe('CommandPaletteExample', () => {
       },
     })
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    const options = listbox.props('options')
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    const options = select.props('documents')
 
     expect(options).toHaveLength(2)
     expect(options[0].label).toBe('Document 1')
@@ -287,8 +287,8 @@ describe('CommandPaletteExample', () => {
       },
     })
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    expect(listbox.props('modelValue').label).toBe('Document 1')
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('modelValue')).toBe('doc1')
   })
 
   it('loads operations for the selected document', async () => {
@@ -418,8 +418,8 @@ describe('CommandPaletteExample', () => {
 
     await nextTick()
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    await listbox.vm.$emit('update:modelValue', { id: 'doc2', label: 'Document 2' })
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    await select.vm.$emit('update:modelValue', 'doc2')
     await nextTick()
 
     const dropdown = wrapper.findComponent({ name: 'ScalarDropdown' })
@@ -742,8 +742,8 @@ describe('CommandPaletteExample', () => {
       },
     })
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    const options = listbox.props('options')
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    const options = select.props('documents')
 
     expect(options[0].label).toBe('my-document')
   })
@@ -1066,9 +1066,9 @@ describe('CommandPaletteExample', () => {
       },
     })
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    expect(listbox.props('options')).toEqual([{ id: 'doc-b', label: 'Grouped B' }])
-    expect(listbox.props('modelValue')).toEqual({ id: 'doc-b', label: 'Grouped B' })
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('documents')).toEqual([{ id: 'doc-b', label: 'Grouped B' }])
+    expect(select.props('modelValue')).toBe('doc-b')
   })
 
   it('preselects the active document when the caller does not pass documentName', async () => {
@@ -1086,8 +1086,8 @@ describe('CommandPaletteExample', () => {
       },
     })
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    expect(listbox.props('modelValue')).toEqual({ id: 'doc-b', label: 'B' })
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('modelValue')).toBe('doc-b')
   })
 
   it('prefers an explicit documentName over the active document', async () => {
@@ -1106,7 +1106,7 @@ describe('CommandPaletteExample', () => {
       },
     })
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    expect(listbox.props('modelValue')).toEqual({ id: 'doc-a', label: 'A' })
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('modelValue')).toBe('doc-a')
   })
 })
