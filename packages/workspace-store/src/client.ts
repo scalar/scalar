@@ -961,7 +961,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     input: ObjectDoc & { initialize?: boolean; documentSource?: string; documentHash: string },
     navigationOptions?: NavigationOptions,
   ) {
-    const { name, meta } = input
+    const { name } = input
+    const meta = deepClone(input.meta)
     const clonedRawInputDocument = withMeasurementSync('deepClone', () => deepClone(input.document))
 
     withMeasurementSync('initialize', () => {
@@ -1261,7 +1262,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return true
     },
     async replaceDocument(documentName: string, input: Record<string, unknown>) {
-      const currentDocument = workspace.documents[documentName]
+      // Used to preserve the original metadata of the document (we need to unpack so we don't store a proxy object)
+      const currentDocument = unpackProxyObject(workspace.documents[documentName], { depth: 1 })
 
       if (!currentDocument) {
         return console.error(`Document '${documentName}' does not exist in the workspace.`)
@@ -1352,7 +1354,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     saveDocument,
     promoteIntermediateToOriginal,
     async revertDocumentChanges(documentName: string) {
-      const workspaceDocument = workspace.documents[documentName]
+      // Used to preserve the original metadata of the document (we need to unpack so we don't store a proxy object)
+      const workspaceDocument = unpackProxyObject(workspace.documents[documentName], { depth: 1 })
       // Restore from the original (last saved) snapshot. `saveDocument`
       // writes here, so this reliably rolls back to whatever the user
       // last persisted - matching the soft-deprecation path away from the
