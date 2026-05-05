@@ -877,9 +877,27 @@ jobs:
         uses: ./.github/actions/build
         with:
           packages: 'scalar-app...'
+      - name: Check ToDesktop credentials
+        id: todesktop-credentials
+        env:
+          TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
+          TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
+        run: |
+          if [ -z "${TODESKTOP_EMAIL}" ] || [ -z "${TODESKTOP_ACCESS_TOKEN}" ]; then
+            if [ "${{ github.event_name }}" = "pull_request" ]; then
+              echo "skip_build=true" >> "$GITHUB_OUTPUT"
+              echo "ToDesktop credentials are unavailable in this PR context, skipping temporary PR build."
+              exit 0
+            fi
+            echo "Missing required ToDesktop credentials (TODESKTOP_EMAIL and TODESKTOP_ACCESS_TOKEN)." >&2
+            exit 1
+          fi
+          echo "skip_build=false" >> "$GITHUB_OUTPUT"
       - name: Send build to ToDesktop cloud
+        if: steps.todesktop-credentials.outputs.skip_build != 'true'
         run: pnpm --filter scalar-app todesktop:build:ci
         env:
+          TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
           TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
 
   galaxy-registry-preview:
