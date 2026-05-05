@@ -1,13 +1,15 @@
+import {
+  X_SCALAR_COOKIE,
+  X_SCALAR_DATE,
+  X_SCALAR_DNT,
+  X_SCALAR_REFERER,
+  X_SCALAR_USER_AGENT,
+} from '@scalar/helpers/http/scalar-headers'
+
 type RequestHeaderTransform = {
   scalarHeader: string
   targetHeader: string
 }
-
-const X_SCALAR_COOKIE = 'x-scalar-cookie'
-const X_SCALAR_USER_AGENT = 'x-scalar-user-agent'
-const X_SCALAR_DATE = 'x-scalar-date'
-const X_SCALAR_DNT = 'x-scalar-dnt'
-const X_SCALAR_REFERER = 'x-scalar-referer'
 
 const REQUEST_HEADER_TRANSFORMS: RequestHeaderTransform[] = [
   { scalarHeader: X_SCALAR_COOKIE, targetHeader: 'Cookie' },
