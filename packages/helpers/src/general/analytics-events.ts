@@ -40,11 +40,11 @@ export const ANALYTICS_EVENTS = {
   ENVIRONMENT_SAVE: 'api_client:environment_save',
 
   // --------------------------------------------------
-  // Auth
+  // Account
   // --------------------------------------------------
 
   /** User clicked a login button */
-  LOGIN_CLICK: 'auth:login_button_click',
+  LOGIN_CLICK: 'account:login_button_click',
   /** User clicked the register button */
-  REGISTER_CLICK: 'auth:register_button_click',
+  REGISTER_CLICK: 'account:register_button_click',
 } as const
