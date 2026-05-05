@@ -39,8 +39,6 @@ const { getAppState, getCommandPaletteState, fileLoader } =
   defineProps<AppProps>()
 
 const app = getAppState()
-const { isLoggedIn } = useAuth()
-const { handleLogin, handleRegister } = useAuthHandlers()
 const { isLoggedIn, tokenData } = useAuth()
 const { handleLogin, handleRegister } = useAuthHandlers({
   eventBus: app.eventBus,
