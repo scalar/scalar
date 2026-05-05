@@ -456,7 +456,27 @@ describe('buildRequest', () => {
     expect((requestInit.headers as Headers).get('X-Scalar-Date')).toBe(null)
   })
 
-  it('mirrors the User-Agent header to X-Scalar-User-Agent when options.isElectron is true', () => {
+  it('rewrites the User-Agent header as X-Scalar-User-Agent when the proxy is used', () => {
+    const headers = new Headers()
+    headers.set('User-Agent', 'ScalarTest/1.0')
+
+    const { requestPayload, isUsingProxy } = buildRequest(
+      createFactory({
+        proxyUrl: 'https://proxy.scalar.com',
+        baseUrl: 'https://api.example.com',
+        path: { raw: '/', variables: {} },
+        headers,
+      }),
+      { envVariables: {} },
+    )
+    const [, requestInit] = requestPayload
+
+    expect(isUsingProxy).toBe(true)
+    expect((requestInit.headers as Headers).get('X-Scalar-User-Agent')).toBe('ScalarTest/1.0')
+    expect((requestInit.headers as Headers).get('User-Agent')).toBe(null)
+  })
+
+  it('rewrites the User-Agent header as X-Scalar-User-Agent when options.isElectron is true', () => {
     const headers = new Headers()
     headers.set('User-Agent', 'ScalarTest/1.0')
 
@@ -471,6 +491,7 @@ describe('buildRequest', () => {
     ).requestPayload
 
     expect((requestInit.headers as Headers).get('X-Scalar-User-Agent')).toBe('ScalarTest/1.0')
+    expect((requestInit.headers as Headers).get('User-Agent')).toBe(null)
   })
 
   it('does not set X-Scalar-User-Agent in Electron when User-Agent is absent', () => {
@@ -486,7 +507,7 @@ describe('buildRequest', () => {
     expect((requestInit.headers as Headers).get('X-Scalar-User-Agent')).toBe(null)
   })
 
-  it('does not set X-Scalar-User-Agent when not running in Electron', () => {
+  it('keeps the User-Agent header untouched when neither proxy nor Electron is used', () => {
     const headers = new Headers()
     headers.set('User-Agent', 'ScalarTest/1.0')
 

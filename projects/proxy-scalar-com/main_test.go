@@ -584,6 +584,35 @@ func TestProxyBehavior(t *testing.T) {
 		}
 	})
 
+	t.Run("Forwards X-Scalar-User-Agent as User-Agent header", func(t *testing.T) {
+		// Create a test server that checks for the User-Agent header
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			expectedUserAgent := "ScalarTest/1.0"
+			if userAgent := r.Header.Get("User-Agent"); userAgent != expectedUserAgent {
+				t.Errorf("Expected User-Agent header to be '%s', got '%s'", expectedUserAgent, userAgent)
+			}
+			// Check that X-Scalar-User-Agent header is removed
+			if xScalarUserAgent := r.Header.Get("X-Scalar-User-Agent"); xScalarUserAgent != "" {
+				t.Errorf("X-Scalar-User-Agent header should have been removed, but got: %s", xScalarUserAgent)
+			}
+			w.Write([]byte("success"))
+		})
+		defer targetServer.server.Close()
+
+		// Create a request with X-Scalar-User-Agent header
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetServer.url, nil)
+		req.Header.Set("X-Scalar-User-Agent", "ScalarTest/1.0")
+		w := httptest.NewRecorder()
+
+		// Call the handler
+		proxyServer.handleRequest(w, req)
+
+		// Check response
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+	})
+
 	t.Run("Forwards X-Scalar-DNT and X-Scalar-Referer as request headers", func(t *testing.T) {
 		// Create a test server that checks for forwarded headers
 		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {

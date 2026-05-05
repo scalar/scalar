@@ -132,14 +132,15 @@ type ProxyServer struct {
 }
 
 type forbiddenHeaderRewrite struct {
-	scalarHeader string
 	header       string
+	scalarHeader string
 }
 
 var forbiddenHeadersForProxy = []forbiddenHeaderRewrite{
-	{scalarHeader: "x-scalar-date", header: "date"},
-	{scalarHeader: "x-scalar-dnt", header: "dnt"},
-	{scalarHeader: "x-scalar-referer", header: "referer"},
+	{header: "date", scalarHeader: "x-scalar-date"},
+	{header: "dnt", scalarHeader: "x-scalar-dnt"},
+	{header: "referer", scalarHeader: "x-scalar-referer"},
+	{header: "user-agent", scalarHeader: "x-scalar-user-agent"},
 }
 
 type streamingResponseWriter struct {

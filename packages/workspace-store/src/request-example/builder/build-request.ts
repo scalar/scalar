@@ -20,13 +20,10 @@ type ForbiddenHeaderRewrite = {
   scalarHeader: string
 }
 
-const FORBIDDEN_HEADERS_FOR_PROXY_AND_ELECTRON: ForbiddenHeaderRewrite[] = [
+const FORBIDDEN_HEADERS: ForbiddenHeaderRewrite[] = [
   { header: 'date', scalarHeader: X_SCALAR_DATE },
   { header: 'dnt', scalarHeader: X_SCALAR_DNT },
   { header: 'referer', scalarHeader: X_SCALAR_REFERER },
-]
-
-const FORBIDDEN_HEADERS_FOR_ELECTRON_ONLY: ForbiddenHeaderRewrite[] = [
   { header: 'user-agent', scalarHeader: X_SCALAR_USER_AGENT },
 ]
 
@@ -188,24 +185,11 @@ export const buildRequest = (
    * so proxy/Electron can apply them server-side.
    */
   if (isUsingProxy || request.options?.isElectron) {
-    FORBIDDEN_HEADERS_FOR_PROXY_AND_ELECTRON.forEach(({ header, scalarHeader }) => {
+    FORBIDDEN_HEADERS.forEach(({ header, scalarHeader }) => {
       const headerValue = headers.get(header)
       if (headerValue) {
         headers.set(scalarHeader, headerValue)
         headers.delete(header)
-      }
-    })
-  }
-
-  /**
-   * Browsers do not let us override the `User-Agent` header on outgoing requests.
-   * In Electron we mirror the value to `X-Scalar-User-Agent` so the main process can apply it.
-   */
-  if (request.options?.isElectron) {
-    FORBIDDEN_HEADERS_FOR_ELECTRON_ONLY.forEach(({ header, scalarHeader }) => {
-      const headerValue = headers.get(header)
-      if (headerValue) {
-        headers.set(scalarHeader, headerValue)
       }
     })
   }
