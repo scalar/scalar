@@ -1,3 +1,4 @@
+import { getActiveOpenApiDocument } from '@test/helpers'
 import { assert, describe, expect, it } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
@@ -71,7 +72,7 @@ describe('updateSelectedSecuritySchemes', () => {
       meta: { type: 'document' },
     })
 
-    const securitySchemes = (store.workspace.activeDocument as OpenApiDocument | undefined)?.components?.securitySchemes
+    const securitySchemes = getActiveOpenApiDocument(store)?.components?.securitySchemes
     assert(securitySchemes)
 
     // A unique name should be generated because ApiKeyAuth already exists
@@ -163,9 +164,7 @@ describe('updateSelectedSecuritySchemes', () => {
     })
 
     // Components should include the newly created scheme
-    expect(
-      (store.workspace.activeDocument as OpenApiDocument | undefined)?.components?.securitySchemes?.['BearerAuth'],
-    ).toEqual({
+    expect(getActiveOpenApiDocument(store)?.components?.securitySchemes?.['BearerAuth']).toEqual({
       type: 'http',
       scheme: 'bearer',
     })
@@ -720,7 +719,7 @@ describe('deleteSecurityScheme', () => {
 
     deleteSecurityScheme(store, store.workspace.activeDocument!, { names: ['A', 'B', 'X'] })
 
-    const activeDocument = store.workspace.activeDocument as OpenApiDocument | undefined
+    const activeDocument = getActiveOpenApiDocument(store)
     const components = activeDocument?.components
     // Components
     assert(components?.securitySchemes)

@@ -1,3 +1,4 @@
+import { getOpenApiDocument } from '@test/helpers'
 import { describe, expect, it, vi } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
@@ -459,7 +460,7 @@ describe('createEmptyDocument', () => {
       callback: callback,
     })
 
-    const document = store.workspace.documents['my-api'] as OpenApiDocument | undefined
+    const document = getOpenApiDocument(store, 'my-api')
     expect(document).toBeDefined()
     expect(document?.openapi).toBe('3.1.0')
     expect(document?.info.title).toBe('my-api')

@@ -152,9 +152,14 @@ export function useSidebarDocuments({
     }
 
     return Object.entries(store.workspace.documents).map(([name, doc]) => {
-      const isOpenApi = isOpenApiDocument(doc)
-      const registry = isOpenApi ? doc['x-scalar-registry-meta'] : undefined
-      const navigation = isOpenApi ? (doc['x-scalar-navigation'] as TraversedDocument | undefined) : undefined
+      // Registry meta is workspace-store-managed and lives on both OpenAPI and
+      // AsyncAPI documents — registry-backed AsyncAPI docs need to group with
+      // their registry siblings just like OpenAPI ones do.
+      const registry = doc?.['x-scalar-registry-meta']
+      // Navigation tree is OpenAPI-specific, so keep it behind the guard.
+      const navigation = isOpenApiDocument(doc)
+        ? (doc['x-scalar-navigation'] as TraversedDocument | undefined)
+        : undefined
 
       const title = navigation?.title || doc?.info?.title || 'Untitled'
 
