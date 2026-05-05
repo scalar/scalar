@@ -788,12 +788,18 @@ jobs:
         run: echo "url=https://${{ env.DEPLOY_ID }}--scalar-components.netlify.app" >> $GITHUB_OUTPUT
 
   deploy-api-client:
-    # Run only for same-repo PRs that touch @scalar/api-client or its workspace deps
+    # Run for same-repo PR previews, or for main when publishing a release commit
     if: |
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      !contains(github.actor, '[bot]') &&
-      needs.check-changes.outputs.api_client_changed == 'true'
+      (
+        github.event_name == 'pull_request' &&
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        !contains(github.actor, '[bot]') &&
+        needs.check-changes.outputs.api_client_changed == 'true'
+      ) ||
+      (
+        github.ref == 'refs/heads/main' &&
+        startsWith(github.event.head_commit.message, 'RELEASING:')
+      )
     needs: [build, check-changes]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     environment: staging
@@ -820,19 +826,30 @@ jobs:
           VITE_API_URL: ${{ vars.API_URL }}
           VITE_ENV: ${{ vars.ENVIRONMENT }}
 
-      - name: Deploy to Cloudflare Pages
-        id: deploy
+      - name: Deploy PR preview to Cloudflare Pages
+        if: github.event_name == 'pull_request'
+        id: deploy-preview
         uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy ./projects/scalar-app/dist/web --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_API_CLIENT }} --branch=pr-${{ github.event.pull_request.number }} --commit-hash=${{ github.event.pull_request.head.sha }}
 
+      - name: Deploy main branch to Cloudflare Pages
+        if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+        id: deploy-main
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ./projects/scalar-app/dist/web --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_API_CLIENT }} --branch=main --commit-hash=${{ github.sha }}
+
       - name: Set output
+        if: github.event_name == 'pull_request'
         id: set-output
         run: |
-          ALIAS_URL='${{ steps.deploy.outputs.pages-deployment-alias-url }}'
-          DEPLOYMENT_URL='${{ steps.deploy.outputs.deployment-url }}'
+          ALIAS_URL='${{ steps.deploy-preview.outputs.pages-deployment-alias-url }}'
+          DEPLOYMENT_URL='${{ steps.deploy-preview.outputs.deployment-url }}'
           if [ -n "$ALIAS_URL" ]; then
             echo "url=$ALIAS_URL" >> $GITHUB_OUTPUT
           else
