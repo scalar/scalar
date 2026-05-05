@@ -249,6 +249,22 @@ describe('to-ipc-request', () => {
       expect(request.headers?.['x-scalar-user-agent']).toBeUndefined()
     })
 
+    it('promotes x-scalar-date, x-scalar-dnt, and x-scalar-referer to standard headers', async () => {
+      const request = await toIpcRequest('https://example.com', {
+        headers: {
+          'x-scalar-date': 'Wed, 21 Oct 2015 07:28:00 GMT',
+          'x-scalar-dnt': '1',
+          'x-scalar-referer': 'https://app.scalar.com/request',
+        },
+      })
+      expect(request.headers?.['date']).toBe('Wed, 21 Oct 2015 07:28:00 GMT')
+      expect(request.headers?.['dnt']).toBe('1')
+      expect(request.headers?.['referer']).toBe('https://app.scalar.com/request')
+      expect(request.headers?.['x-scalar-date']).toBeUndefined()
+      expect(request.headers?.['x-scalar-dnt']).toBeUndefined()
+      expect(request.headers?.['x-scalar-referer']).toBeUndefined()
+    })
+
     it('leaves unrelated headers unchanged', async () => {
       const request = await toIpcRequest('https://example.com', {
         headers: { authorization: 'Bearer token', 'x-custom': 'value' },
@@ -262,13 +278,22 @@ describe('to-ipc-request', () => {
         headers: {
           'x-scalar-cookie': 'sid=xyz',
           'x-scalar-user-agent': 'RequestObj/2.0',
+          'x-scalar-date': 'Wed, 21 Oct 2015 07:28:00 GMT',
+          'x-scalar-dnt': '1',
+          'x-scalar-referer': 'https://app.scalar.com/request',
         },
       })
       const request = await toIpcRequest(input)
       expect(request.headers?.['cookie']).toBe('sid=xyz')
       expect(request.headers?.['user-agent']).toBe('RequestObj/2.0')
+      expect(request.headers?.['date']).toBe('Wed, 21 Oct 2015 07:28:00 GMT')
+      expect(request.headers?.['dnt']).toBe('1')
+      expect(request.headers?.['referer']).toBe('https://app.scalar.com/request')
       expect(request.headers?.['x-scalar-cookie']).toBeUndefined()
       expect(request.headers?.['x-scalar-user-agent']).toBeUndefined()
+      expect(request.headers?.['x-scalar-date']).toBeUndefined()
+      expect(request.headers?.['x-scalar-dnt']).toBeUndefined()
+      expect(request.headers?.['x-scalar-referer']).toBeUndefined()
     })
 
     it('init.headers override Request headers and transforms are applied to the result', async () => {

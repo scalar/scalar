@@ -281,6 +281,39 @@ describe('handleCustomFetch', () => {
   })
 
   // =========================================================================
+  describe('x-scalar-date/x-scalar-dnt/x-scalar-referer request transforms', () => {
+    it('promotes x-scalar-date to Date and removes the extension header', async () => {
+      await handleCustomFetch({
+        url: 'https://example.com',
+        headers: { 'x-scalar-date': 'Wed, 21 Oct 2015 07:28:00 GMT' },
+      })
+      const headers = lastOptions().headers as Record<string, string>
+      expect(headers['date']).toBe('Wed, 21 Oct 2015 07:28:00 GMT')
+      expect(headers['x-scalar-date']).toBeUndefined()
+    })
+
+    it('promotes x-scalar-dnt to DNT and removes the extension header', async () => {
+      await handleCustomFetch({
+        url: 'https://example.com',
+        headers: { 'x-scalar-dnt': '1' },
+      })
+      const headers = lastOptions().headers as Record<string, string>
+      expect(headers['dnt']).toBe('1')
+      expect(headers['x-scalar-dnt']).toBeUndefined()
+    })
+
+    it('promotes x-scalar-referer to Referer and removes the extension header', async () => {
+      await handleCustomFetch({
+        url: 'https://example.com',
+        headers: { 'x-scalar-referer': 'https://app.scalar.com/request' },
+      })
+      const headers = lastOptions().headers as Record<string, string>
+      expect(headers['referer']).toBe('https://app.scalar.com/request')
+      expect(headers['x-scalar-referer']).toBeUndefined()
+    })
+  })
+
+  // =========================================================================
   describe('both request transforms together', () => {
     it('applies both transformations in a single request', async () => {
       await handleCustomFetch({

@@ -1,10 +1,31 @@
-const X_SCALAR_COOKIE = 'x-scalar-cookie'
-const X_SCALAR_USER_AGENT = 'x-scalar-user-agent'
+import {
+  X_SCALAR_COOKIE,
+  X_SCALAR_DATE,
+  X_SCALAR_DNT,
+  X_SCALAR_REFERER,
+  X_SCALAR_USER_AGENT,
+} from '@scalar/helpers/http/scalar-headers'
+
+type RequestHeaderTransform = {
+  scalarHeader: string
+  targetHeader: string
+}
+
+const REQUEST_HEADER_TRANSFORMS: RequestHeaderTransform[] = [
+  { scalarHeader: X_SCALAR_COOKIE, targetHeader: 'Cookie' },
+  { scalarHeader: X_SCALAR_USER_AGENT, targetHeader: 'User-Agent' },
+  { scalarHeader: X_SCALAR_DATE, targetHeader: 'Date' },
+  { scalarHeader: X_SCALAR_DNT, targetHeader: 'DNT' },
+  { scalarHeader: X_SCALAR_REFERER, targetHeader: 'Referer' },
+]
 
 /**
  * Apply the scalar header transforms before the request is sent:
  * - `x-scalar-cookie` → promoted to `Cookie` then removed
  * - `x-scalar-user-agent` → promoted to `User-Agent` then removed
+ * - `x-scalar-date` → promoted to `Date` then removed
+ * - `x-scalar-dnt` → promoted to `DNT` then removed
+ * - `x-scalar-referer` → promoted to `Referer` then removed
  *
  * Shared between the renderer (applied inside `toIpcRequest` so every
  * transport receives normalized headers) and the main process (applied at the
@@ -18,17 +39,13 @@ const X_SCALAR_USER_AGENT = 'x-scalar-user-agent'
 export const applyRequestHeaderTransforms = (headers: Record<string, string>): Record<string, string> => {
   const h = new Headers(headers)
 
-  const cookie = h.get(X_SCALAR_COOKIE)
-  h.delete(X_SCALAR_COOKIE)
-  if (cookie) {
-    h.set('Cookie', cookie)
-  }
-
-  const userAgent = h.get(X_SCALAR_USER_AGENT)
-  h.delete(X_SCALAR_USER_AGENT)
-  if (userAgent) {
-    h.set('User-Agent', userAgent)
-  }
+  REQUEST_HEADER_TRANSFORMS.forEach(({ scalarHeader, targetHeader }) => {
+    const headerValue = h.get(scalarHeader)
+    h.delete(scalarHeader)
+    if (headerValue) {
+      h.set(targetHeader, headerValue)
+    }
+  })
 
   return Object.fromEntries(h.entries())
 }
