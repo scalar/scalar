@@ -1,7 +1,7 @@
 {
   "name": "scalar-app",
   "description": "HTTP Client to play with any API",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "author": "Copyright API Documentation Inc. 2026",
   "license": "UNLICENSED",
   "private": true,

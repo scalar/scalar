@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.6.0
+
+### Minor Changes
+
+- [#9050](https://github.com/scalar/scalar/pull/9050): feat: better support for error as values
+
 ## 0.5.5
 
 ### Patch Changes

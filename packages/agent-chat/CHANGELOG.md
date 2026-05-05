@@ -1,5 +1,11 @@
 # @scalar/agent-chat
 
+## 0.10.14
+
+### Patch Changes
+
+- [#9086](https://github.com/scalar/scalar/pull/9086): feat: code split tailwind CSS to reduce bundle size
+
 ## 0.10.13
 
 ## 0.10.12
