@@ -37,6 +37,7 @@ import { computed, ref, watch, type ComputedRef } from 'vue'
 
 import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 
+import { useCommandPaletteDocumentSelection } from '../hooks/use-command-palette-document-selection'
 import type { CommandPaletteDocument } from '../hooks/use-command-palette-documents'
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
@@ -97,49 +98,13 @@ const isEditMode = computed(() => example !== undefined)
 const exampleName = ref(example?.name ?? '')
 const exampleNameTrimmed = computed(() => exampleName.value.trim())
 
-/**
- * All available documents (collections) for the dropdown. Prefers the
- * explicit `documents` prop (which already groups registry-backed docs by
- * the sidebar's grouping logic) and falls back to a flat workspace-store
- * listing when the prop is omitted.
- */
-const availableDocuments = computed<CommandPaletteDocument[]>(() => {
-  if (documents) {
-    return documents
-  }
-
-  return Object.entries(workspaceStore.workspace.documents).map(
-    ([name, document]) => ({
-      id: name,
-      label: document.info.title || name,
-    }),
-  )
-})
-
-/**
- * Returns true when `name` exists somewhere in `availableDocuments` —
- * either as a top-level document id (the active version on a registry
- * group) or inside a group's loaded `versions` list. Both shapes are
- * valid create targets, so we accept either.
- */
-const isAvailableDocumentName = (name: string): boolean =>
-  availableDocuments.value.some(
-    (doc) => doc.id === name || doc.versions?.some((v) => v.id === name),
-  )
-
-/**
- * Initial document target. The explicit `documentName` prop wins (set when
- * the palette is opened from a sidebar context menu), falling back to the
- * active document so a Cmd+K-triggered create flow defaults to whatever
- * document the user is currently viewing.
- */
-const initialDocumentName = documentName ?? activeDocumentName
-
-const selectedDocumentName = ref<string | undefined>(
-  initialDocumentName && isAvailableDocumentName(initialDocumentName)
-    ? initialDocumentName
-    : (availableDocuments.value[0]?.id ?? undefined),
-)
+const { availableDocuments, selectedDocumentName } =
+  useCommandPaletteDocumentSelection({
+    workspaceStore,
+    documents: () => documents,
+    documentName: () => documentName,
+    activeDocumentName: () => activeDocumentName,
+  })
 
 /**
  * Recursively traverse navigation entries to find all operations.
