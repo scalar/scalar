@@ -1,4 +1,9 @@
-import { X_SCALAR_DATE, X_SCALAR_USER_AGENT } from '@scalar/helpers/http/scalar-headers'
+import {
+  X_SCALAR_DATE,
+  X_SCALAR_DNT,
+  X_SCALAR_REFERER,
+  X_SCALAR_USER_AGENT,
+} from '@scalar/helpers/http/scalar-headers'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { redirectToProxy, shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { encode as encodeBase64 } from 'js-base64'
@@ -14,6 +19,21 @@ import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookie
  * The payload to build a request, useful when bypassing limitations of the browser Request object
  */
 export type RequestPayload = [string, RequestInit]
+
+type ForbiddenHeaderRewrite = {
+  header: string
+  scalarHeader: string
+}
+
+const FORBIDDEN_HEADERS_FOR_PROXY_AND_ELECTRON: ForbiddenHeaderRewrite[] = [
+  { header: 'date', scalarHeader: X_SCALAR_DATE },
+  { header: 'dnt', scalarHeader: X_SCALAR_DNT },
+  { header: 'referer', scalarHeader: X_SCALAR_REFERER },
+]
+
+const FORBIDDEN_HEADERS_FOR_ELECTRON_ONLY: ForbiddenHeaderRewrite[] = [
+  { header: 'user-agent', scalarHeader: X_SCALAR_USER_AGENT },
+]
 
 /**
  * Built request response
@@ -168,28 +188,31 @@ export const buildRequest = (
   }
 
   /**
-   * Browsers strip the `Date` header from outgoing requests because it is a forbidden header
-   * in the Fetch spec. To preserve the user-provided value, we rewrite it as `X-Scalar-Date`
-   * and let the proxy (or Electron) forward it as a `Date` header.
+   * Browsers strip some forbidden headers from outgoing requests.
+   * For a small, explicit allowlist we mirror those values to `X-Scalar-*`
+   * so proxy/Electron can apply them server-side.
    */
   if (isUsingProxy || request.options?.isElectron) {
-    const dateHeader = headers.get('date')
-    if (dateHeader) {
-      headers.set(X_SCALAR_DATE, dateHeader)
-      headers.delete('date')
-    }
+    FORBIDDEN_HEADERS_FOR_PROXY_AND_ELECTRON.forEach(({ header, scalarHeader }) => {
+      const headerValue = headers.get(header)
+      if (headerValue) {
+        headers.set(scalarHeader, headerValue)
+        headers.delete(header)
+      }
+    })
   }
 
   /**
    * Browsers do not let us override the `User-Agent` header on outgoing requests.
-   * In Electron we mirror the value to `X-Scalar-User-Agent` so the main process can pick it up
-   * and apply it as the actual `User-Agent` header on the outgoing request.
+   * In Electron we mirror the value to `X-Scalar-User-Agent` so the main process can apply it.
    */
   if (request.options?.isElectron) {
-    const userAgentHeader = headers.get('user-agent')
-    if (userAgentHeader) {
-      headers.set(X_SCALAR_USER_AGENT, userAgentHeader)
-    }
+    FORBIDDEN_HEADERS_FOR_ELECTRON_ONLY.forEach(({ header, scalarHeader }) => {
+      const headerValue = headers.get(header)
+      if (headerValue) {
+        headers.set(scalarHeader, headerValue)
+      }
+    })
   }
 
   /** Encode the URL with the allowed reserved query parameters */

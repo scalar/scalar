@@ -131,6 +131,17 @@ type ProxyServer struct {
 	bypassCidr bool
 }
 
+type forbiddenHeaderRewrite struct {
+	scalarHeader string
+	header       string
+}
+
+var forbiddenHeadersForProxy = []forbiddenHeaderRewrite{
+	{scalarHeader: "x-scalar-date", header: "date"},
+	{scalarHeader: "x-scalar-dnt", header: "dnt"},
+	{scalarHeader: "x-scalar-referer", header: "referer"},
+}
+
 type streamingResponseWriter struct {
 	writer  http.ResponseWriter
 	flusher http.Flusher
@@ -351,11 +362,13 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	// Remove the X-Scalar-Cookie header
 	outreq.Header.Del("X-Scalar-Cookie")
 
-	// Browsers strip the `Date` header from outgoing requests because it's a forbidden header.
-	// Users send the value as `X-Scalar-Date` and we forward it as the actual `Date` header.
-	if xScalarDate := r.Header.Get("X-Scalar-Date"); xScalarDate != "" {
-		outreq.Header.Set("Date", xScalarDate)
-		outreq.Header.Del("X-Scalar-Date")
+	// Browsers strip some forbidden headers from outgoing requests.
+	// For a small allowlist, users can send `X-Scalar-*` and we forward the corresponding header.
+	for _, forbiddenHeader := range forbiddenHeadersForProxy {
+		if scalarHeaderValue := r.Header.Get(forbiddenHeader.scalarHeader); scalarHeaderValue != "" {
+			outreq.Header.Set(forbiddenHeader.header, scalarHeaderValue)
+			outreq.Header.Del(forbiddenHeader.scalarHeader)
+		}
 	}
 
 	// Make the request

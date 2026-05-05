@@ -377,6 +377,31 @@ describe('buildRequest', () => {
     expect((requestInit.headers as Headers).get('Date')).toBe(null)
   })
 
+  it('rewrites the DNT and Referer headers as X-Scalar-* when the proxy is used', () => {
+    const headers = new Headers()
+    headers.set('DNT', '1')
+    headers.set('Referer', 'https://app.scalar.com/request')
+
+    const { requestPayload, isUsingProxy } = buildRequest(
+      createFactory({
+        proxyUrl: 'https://proxy.scalar.com',
+        baseUrl: 'https://api.example.com',
+        path: { raw: '/', variables: {} },
+        headers,
+      }),
+      { envVariables: {} },
+    )
+    const [, requestInit] = requestPayload
+
+    expect(isUsingProxy).toBe(true)
+    expect((requestInit.headers as Headers).get('X-Scalar-DNT')).toBe('1')
+    expect((requestInit.headers as Headers).get('X-Scalar-Referer')).toBe(
+      'https://app.scalar.com/request',
+    )
+    expect((requestInit.headers as Headers).get('DNT')).toBe(null)
+    expect((requestInit.headers as Headers).get('Referer')).toBe(null)
+  })
+
   it('rewrites the Date header as X-Scalar-Date when options.isElectron is true', () => {
     const headers = new Headers()
     headers.set('Date', 'Wed, 21 Oct 2015 07:28:00 GMT')
@@ -393,6 +418,29 @@ describe('buildRequest', () => {
 
     expect((requestInit.headers as Headers).get('X-Scalar-Date')).toBe('Wed, 21 Oct 2015 07:28:00 GMT')
     expect((requestInit.headers as Headers).get('Date')).toBe(null)
+  })
+
+  it('rewrites the DNT and Referer headers as X-Scalar-* when options.isElectron is true', () => {
+    const headers = new Headers()
+    headers.set('DNT', '1')
+    headers.set('Referer', 'https://app.scalar.com/request')
+
+    const [, requestInit] = buildRequest(
+      createFactory({
+        options: { isElectron: true },
+        baseUrl: 'https://api.example.com',
+        path: { raw: '/', variables: {} },
+        headers,
+      }),
+      { envVariables: {} },
+    ).requestPayload
+
+    expect((requestInit.headers as Headers).get('X-Scalar-DNT')).toBe('1')
+    expect((requestInit.headers as Headers).get('X-Scalar-Referer')).toBe(
+      'https://app.scalar.com/request',
+    )
+    expect((requestInit.headers as Headers).get('DNT')).toBe(null)
+    expect((requestInit.headers as Headers).get('Referer')).toBe(null)
   })
 
   it('keeps the Date header untouched when the proxy is not used', () => {

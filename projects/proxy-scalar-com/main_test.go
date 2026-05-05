@@ -583,6 +583,41 @@ func TestProxyBehavior(t *testing.T) {
 			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
 		}
 	})
+
+	t.Run("Forwards X-Scalar-DNT and X-Scalar-Referer as request headers", func(t *testing.T) {
+		// Create a test server that checks for forwarded headers
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			if dnt := r.Header.Get("DNT"); dnt != "1" {
+				t.Errorf("Expected DNT header to be '1', got '%s'", dnt)
+			}
+			if referer := r.Header.Get("Referer"); referer != "https://app.scalar.com/request" {
+				t.Errorf("Expected Referer header to be 'https://app.scalar.com/request', got '%s'", referer)
+			}
+			// Check that X-Scalar-* headers are removed
+			if xScalarDNT := r.Header.Get("X-Scalar-DNT"); xScalarDNT != "" {
+				t.Errorf("X-Scalar-DNT header should have been removed, but got: %s", xScalarDNT)
+			}
+			if xScalarReferer := r.Header.Get("X-Scalar-Referer"); xScalarReferer != "" {
+				t.Errorf("X-Scalar-Referer header should have been removed, but got: %s", xScalarReferer)
+			}
+			w.Write([]byte("success"))
+		})
+		defer targetServer.server.Close()
+
+		// Create a request with X-Scalar-DNT and X-Scalar-Referer headers
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetServer.url, nil)
+		req.Header.Set("X-Scalar-DNT", "1")
+		req.Header.Set("X-Scalar-Referer", "https://app.scalar.com/request")
+		w := httptest.NewRecorder()
+
+		// Call the handler
+		proxyServer.handleRequest(w, req)
+
+		// Check response
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+	})
 }
 
 func readSSEEvent(reader *bufio.Reader) (string, error) {
