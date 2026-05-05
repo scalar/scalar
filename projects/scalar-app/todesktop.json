@@ -6,7 +6,7 @@
   "nodeVersion": "24",
   "packageManager": "pnpm",
   "pnpmVersion": "10.16.1",
-  "uploadSizeLimit": 50,
+  "uploadSizeLimit": 100,
   "bundleWorkspacePackages": {
     "enabled": true
   },
