@@ -2,4 +2,4 @@
 'scalar-app': patch
 ---
 
-chore: minor change to trigger preview ci
+chore: use both services URL AND api URL in the scalar-app
