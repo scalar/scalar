@@ -991,7 +991,7 @@ jobs:
         run: gzip --keep --verbose --force scalar.js
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@ac083cc84672d01c60d5e8561d0a939b697de542 # v1
+        uses: useblacksmith/setup-docker-builder@722e97d12b1d06a961800dd6c05d79d951ad3c80 # v1
         with:
           platforms: linux/amd64
 
@@ -1032,7 +1032,7 @@ jobs:
         run: gzip --keep --verbose --force scalar.js
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@ac083cc84672d01c60d5e8561d0a939b697de542 # v1
+        uses: useblacksmith/setup-docker-builder@722e97d12b1d06a961800dd6c05d79d951ad3c80 # v1
         with:
           platforms: |
             linux/amd64
@@ -1092,7 +1092,7 @@ jobs:
           path: packages/mock-server/docker/dist/
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@ac083cc84672d01c60d5e8561d0a939b697de542 # v1
+        uses: useblacksmith/setup-docker-builder@722e97d12b1d06a961800dd6c05d79d951ad3c80 # v1
         with:
           platforms: |
             linux/amd64
@@ -1277,7 +1277,7 @@ jobs:
         uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@ac083cc84672d01c60d5e8561d0a939b697de542 # v1
+        uses: useblacksmith/setup-docker-builder@722e97d12b1d06a961800dd6c05d79d951ad3c80 # v1
         with:
           platforms: |
             linux/amd64
