@@ -1,5 +1,5 @@
 ---
-'@scalar/api-client': minor
+'@scalar/api-client': patch
 ---
 
-feat: handle registry document and version deletion in document settings
+fix: handle registry document and version deletion in document settings
