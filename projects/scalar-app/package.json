@@ -85,7 +85,7 @@
   "devDependencies": {
     "@playwright/test": "catalog:*",
     "@tailwindcss/vite": "catalog:*",
-    "@todesktop/cli": "1.23.2",
+    "@todesktop/cli": "1.24.0",
     "@types/node": "catalog:*",
     "@types/shell-quote": "^1.7.5",
     "@vitejs/plugin-vue": "catalog:*",
