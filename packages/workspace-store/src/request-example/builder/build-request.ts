@@ -1,9 +1,4 @@
-import {
-  X_SCALAR_DATE,
-  X_SCALAR_DNT,
-  X_SCALAR_REFERER,
-  X_SCALAR_USER_AGENT,
-} from '@scalar/helpers/http/scalar-headers'
+import { X_SCALAR_DATE, X_SCALAR_DNT, X_SCALAR_REFERER, X_SCALAR_USER_AGENT } from '@scalar/helpers/http/scalar-headers'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { redirectToProxy, shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { encode as encodeBase64 } from 'js-base64'

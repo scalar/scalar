@@ -395,9 +395,7 @@ describe('buildRequest', () => {
 
     expect(isUsingProxy).toBe(true)
     expect((requestInit.headers as Headers).get('X-Scalar-DNT')).toBe('1')
-    expect((requestInit.headers as Headers).get('X-Scalar-Referer')).toBe(
-      'https://app.scalar.com/request',
-    )
+    expect((requestInit.headers as Headers).get('X-Scalar-Referer')).toBe('https://app.scalar.com/request')
     expect((requestInit.headers as Headers).get('DNT')).toBe(null)
     expect((requestInit.headers as Headers).get('Referer')).toBe(null)
   })
@@ -436,9 +434,7 @@ describe('buildRequest', () => {
     ).requestPayload
 
     expect((requestInit.headers as Headers).get('X-Scalar-DNT')).toBe('1')
-    expect((requestInit.headers as Headers).get('X-Scalar-Referer')).toBe(
-      'https://app.scalar.com/request',
-    )
+    expect((requestInit.headers as Headers).get('X-Scalar-Referer')).toBe('https://app.scalar.com/request')
     expect((requestInit.headers as Headers).get('DNT')).toBe(null)
     expect((requestInit.headers as Headers).get('Referer')).toBe(null)
   })
