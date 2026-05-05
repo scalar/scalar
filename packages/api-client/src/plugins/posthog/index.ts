@@ -1,7 +1,8 @@
-import { ANALYTICS_EVENTS } from '@scalar/helpers/general/analytics-events'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { ConfigDefaults, PostHog } from 'posthog-js'
 import ph from 'posthog-js'
+
+import { ANALYTICS_EVENTS } from '@/plugins/posthog/analytics-events'
 
 export type PostHogConfig = {
   /** Your PostHog project API key */
@@ -47,8 +48,7 @@ export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
       'analytics:on:register-click': () => posthog?.capture(ANALYTICS_EVENTS.REGISTER_CLICK),
 
       // Auth events
-      'analytics:on:user-login': ({ uid, email, teamUid }) =>
-        posthog?.identify(uid, { email, teamUid }),
+      'analytics:on:user-login': ({ uid, email, teamUid }) => posthog?.identify(uid, { email, teamUid }),
       'analytics:on:user-logout': () => posthog?.reset(),
     },
     lifecycle: {
