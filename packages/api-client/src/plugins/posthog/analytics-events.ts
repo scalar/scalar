@@ -54,10 +54,6 @@ export const ANALYTICS_EVENTS = {
   COMMAND_PALETTE_OPEN: 'command_palette:open',
   /** User selected an action command — capture { command_id } to see which are most used */
   COMMAND_PALETTE_COMMAND_SELECT: 'command_palette:command_select',
-  /** User navigated to a page via the palette — capture { route } to see keyboard nav patterns */
-  COMMAND_PALETTE_NAVIGATE: 'command_palette:navigate',
-  /** User searched but got no results — capture { query } to discover missing commands */
-  COMMAND_PALETTE_SEARCH_EMPTY: 'command_palette:search_empty',
 
   // --------------------------------------------------
   // Scripts (pre-request / post-response)
