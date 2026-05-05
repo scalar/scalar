@@ -228,7 +228,7 @@ const handleSelect = (operation: OperationOption | undefined): void => {
 const errorMessage: ComputedRef<string | null> = computed(() => {
   if (
     !exampleNameTrimmed.value ||
-    !selectedDocument.value ||
+    !selectedDocumentName.value ||
     !selectedOperation.value
   ) {
     return null
