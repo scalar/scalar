@@ -182,7 +182,10 @@ const errorMessage: ComputedRef<string | null> = computed(() => {
     workspaceStore.workspace.documents[selectedDocumentName.value]
   const method = selectedMethod.value.method
 
-  if (isOpenApiDocument(document) && document.paths?.[normalizedRequestPath.value]?.[method]) {
+  if (
+    isOpenApiDocument(document) &&
+    document.paths?.[normalizedRequestPath.value]?.[method]
+  ) {
     const documentLabel =
       availableDocuments.value.find(
         (doc) =>
