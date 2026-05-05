@@ -40,6 +40,7 @@ const { getAppState, getCommandPaletteState, fileLoader } =
 
 const app = getAppState()
 const { isLoggedIn } = useAuth()
+const { handleLogin, handleRegister } = useAuthHandlers()
 const {
   documents,
   isLoading: isDocumentsLoading,
@@ -49,11 +50,6 @@ const { namespaces, isLoading: isNamespacesLoading } = useRegistryNamespaces()
 
 /** Whether the app is running on electron */
 const isDesktop = window.electron === true
-
-//--------------------------------------------------
-// Login
-//--------------------------------------------------
-const { handleLogin, handleRegister } = useAuthHandlers()
 
 //--------------------------------------------------
 // Workspace handling
