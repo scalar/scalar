@@ -45,6 +45,7 @@ jobs:
         env:
           VITE_DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
           VITE_API_URL: ${{ vars.API_URL }}
+          VITE_SERVICES_URL: ${{ vars.SERVICES_URL }}
           VITE_ENV: ${{ vars.ENVIRONMENT }}
 
       # PR preview deploy — branch name creates a unique Cloudflare Pages alias URL per PR
