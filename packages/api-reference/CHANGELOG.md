@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.55.3
+
+### Patch Changes
+
+- [#9095](https://github.com/scalar/scalar/pull/9095): fix(api-reference): use overflow-wrap break-word for tag labels
+
 ## 1.55.2
 
 ### Patch Changes

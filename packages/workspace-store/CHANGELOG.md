@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.49.3
+
+### Patch Changes
+
+- [#9054](https://github.com/scalar/scalar/pull/9054): fix multipart/form-data request body generation for schema-derived object examples
+
 ## 0.49.2
 
 ### Patch Changes

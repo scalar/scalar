@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 3.6.1
+
+### Patch Changes
+
+- [#9094](https://github.com/scalar/scalar/pull/9094): chore: reorganize app layout
+
+  Move the tabs on top of the page for the app layout and make the layout better for small screens
+
+- [#9062](https://github.com/scalar/scalar/pull/9062): feat: show inline errors in command palette instead of silent disable
+- [#9079](https://github.com/scalar/scalar/pull/9079): fix command palette OpenAPI URL imports with surrounding whitespace
+
 ## 3.6.0
 
 ### Minor Changes
