@@ -44,22 +44,27 @@ function getSecurityFromDocument(
 
 /** Generate document settings from workspace store. AsyncAPI docs are skipped — this feature is OpenAPI-native. */
 export function createDocumentSettings(workspaceStore: WorkspaceStore) {
-  return Object.fromEntries(
-    Object.entries(workspaceStore.workspace.documents)
-      .filter((entry): entry is [string, OpenApiDocument] => isOpenApiDocument(entry[1]))
-      .map(([key, document]) => {
-        const servers = getServers(document.servers, {
-          documentUrl: document['x-scalar-original-source-url'],
-        })
+  const openApiEntries: [string, OpenApiDocument][] = []
+  for (const [key, document] of Object.entries(workspaceStore.workspace.documents)) {
+    if (isOpenApiDocument(document)) {
+      openApiEntries.push([key, document])
+    }
+  }
 
-        return [
-          key,
-          {
-            activeServer: getSelectedServer(document, null, null, servers),
-            securitySchemes: getSecurityFromDocument(key, document, workspaceStore.auth),
-          },
-        ]
-      }),
+  return Object.fromEntries(
+    openApiEntries.map(([key, document]) => {
+      const servers = getServers(document.servers, {
+        documentUrl: document['x-scalar-original-source-url'],
+      })
+
+      return [
+        key,
+        {
+          activeServer: getSelectedServer(document, null, null, servers),
+          securitySchemes: getSecurityFromDocument(key, document, workspaceStore.auth),
+        },
+      ]
+    }),
   )
 }
 

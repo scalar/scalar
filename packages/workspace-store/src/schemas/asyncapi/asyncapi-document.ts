@@ -1,5 +1,9 @@
 import { boolean, intersection, object, optional, string } from '@scalar/validation'
 
+import {
+  WorkspaceManagedExtensions,
+  type WorkspaceManagedExtensions as WorkspaceManagedExtensionsType,
+} from '@/schemas/extensions/document/workspace-managed-extensions'
 import { XScalarRegistryMeta } from '@/schemas/extensions/document/x-scalar-registry-meta'
 
 /**
@@ -35,19 +39,21 @@ export type AsyncApiInfoObject = {
 }
 
 /**
- * Store-managed metadata extensions for AsyncAPI documents. Parallels the OpenAPI set:
- * `x-original-aas-version` is the AsyncAPI analog of `x-original-oas-version`. All fields are
- * optional because validation runs against the raw user input — these get injected by the
- * store during ingestion. `x-scalar-is-dirty` is OpenAPI-only at runtime today, but lives on
- * the type so accesses through the {@link WorkspaceDocument} union are sound.
+ * AsyncAPI-specific extensions. The shared
+ * {@link WorkspaceManagedExtensions} covers `x-scalar-original-source-url`.
+ *
+ * `x-original-aas-version` is the AsyncAPI analog of `x-original-oas-version`.
+ * `x-scalar-original-document-hash` is intentionally optional here (the
+ * OpenAPI side keeps its own `XScalarOriginalDocumentHash` extension where
+ * the field is required-after-ingestion). Once we settle on one optionality
+ * for both, the two declarations can collapse onto the shared module.
+ * `x-scalar-is-dirty` is OpenAPI-only at runtime today, but lives on the type
+ * so accesses through the {@link WorkspaceDocument} union are sound.
  */
 export const AsyncApiExtensions = object(
   {
     'x-original-aas-version': optional(
       string({ typeComment: 'Original AsyncAPI Specification version the document was loaded with.' }),
-    ),
-    'x-scalar-original-source-url': optional(
-      string({ typeComment: 'Original document source url — when loaded from an external source.' }),
     ),
     'x-scalar-original-document-hash': optional(
       string({ typeComment: 'Content hash of the original document, used for change detection on rebase.' }),
@@ -65,8 +71,6 @@ export const AsyncApiExtensions = object(
 export type AsyncApiExtensions = Partial<{
   /** Original AsyncAPI Specification version the document was loaded with. */
   'x-original-aas-version': string
-  /** Original document source url — when loaded from an external source. */
-  'x-scalar-original-source-url': string
   /** Content hash of the original document, used for change detection on rebase. */
   'x-scalar-original-document-hash': string
   /** Workspace-store dirty flag — only set on OpenAPI documents today, but typed here so union accesses are safe. */
@@ -92,6 +96,10 @@ export const AsyncApiDocument = intersection(
       { typeName: 'AsyncApiDocumentCore' },
     ),
     AsyncApiExtensions,
+    // Shared store-managed metadata (source url, document hash). Defined once
+    // in `workspace-managed-extensions.ts` and composed into the OpenAPI
+    // document too, so the two cannot drift apart.
+    WorkspaceManagedExtensions,
     // Registry meta is workspace-store managed and preserved across document
     // type boundaries. Optional — only registry-backed documents populate it.
     XScalarRegistryMeta,
@@ -108,4 +116,5 @@ export type AsyncApiDocument = {
   /** REQUIRED. Provides metadata about the application. */
   info: AsyncApiInfoObject
 } & AsyncApiExtensions &
+  WorkspaceManagedExtensionsType &
   XScalarRegistryMeta
