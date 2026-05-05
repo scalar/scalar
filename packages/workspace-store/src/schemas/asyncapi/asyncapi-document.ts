@@ -1,9 +1,6 @@
 import { boolean, intersection, object, optional, string } from '@scalar/validation'
 
-import {
-  WorkspaceManagedExtensions,
-  type WorkspaceManagedExtensions as WorkspaceManagedExtensionsType,
-} from '@/schemas/extensions/document/workspace-managed-extensions'
+import { WorkspaceManagedExtensions } from '@/schemas/extensions/document/workspace-managed-extensions'
 import { XScalarRegistryMeta } from '@/schemas/extensions/document/x-scalar-registry-meta'
 
 /**
@@ -116,5 +113,5 @@ export type AsyncApiDocument = {
   /** REQUIRED. Provides metadata about the application. */
   info: AsyncApiInfoObject
 } & AsyncApiExtensions &
-  WorkspaceManagedExtensionsType &
+  WorkspaceManagedExtensions &
   XScalarRegistryMeta
