@@ -376,7 +376,7 @@ const handleCreateVersion = async (version: string) => {
   <nav
     v-if="isVisible"
     aria-label="Document breadcrumb"
-    class="flex min-w-0 items-center gap-2 text-sm font-medium">
+    class="flex min-w-0 items-center gap-2 text-sm font-medium max-md:gap-0 max-md:text-xs">
     <!--
       The breadcrumb leads with a vertical bar to visually divide it from
       the menu trigger to its left. The menu trigger itself surfaces the

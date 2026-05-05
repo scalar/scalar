@@ -31,7 +31,7 @@ declare global {
       /** Read a file string using to the renderer process */
       readFile: (f: string) => Promise<string | undefined>
       /** Request an exchange token from the auth service */
-      getExchangeToken: () => Promise<{
+      getExchangeToken: (flow: 'login' | 'register') => Promise<{
         accessToken: string
         refreshToken: string
       } | null>

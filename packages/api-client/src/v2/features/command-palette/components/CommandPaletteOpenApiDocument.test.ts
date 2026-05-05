@@ -5,14 +5,6 @@ import { nextTick } from 'vue'
 
 import CommandPaletteDocument from './CommandPaletteOpenApiDocument.vue'
 
-// Mock router
-const mockPush = vi.fn()
-vi.mock('vue-router', () => ({
-  useRouter: () => ({
-    push: mockPush,
-  }),
-}))
-
 describe('CommandPaletteDocument', () => {
   const createMockWorkspaceStore = async (documents: Record<string, Record<string, unknown>> = {}) => {
     const store = createWorkspaceStore()
@@ -30,7 +22,7 @@ describe('CommandPaletteDocument', () => {
   })
 
   beforeEach(() => {
-    mockPush.mockClear()
+    vi.clearAllMocks()
   })
 
   afterEach(() => {
@@ -559,7 +551,7 @@ describe('CommandPaletteDocument', () => {
     expect(wrapper.emitted('close')).toHaveLength(1)
   })
 
-  it('uses the trimmed document name in router params', async () => {
+  it('uses the trimmed document name when navigating after creation', async () => {
     const workspaceStore = await createMockWorkspaceStore()
     const eventBus = createMockEventBus()
 
@@ -582,11 +574,36 @@ describe('CommandPaletteDocument', () => {
     const callback = emitCall?.[1]?.callback
     callback?.(true)
 
-    expect(mockPush).toHaveBeenCalledWith({
-      name: 'document.overview',
-      params: {
-        documentSlug: 'My Document',
+    expect(eventBus.emit).toHaveBeenCalledWith('ui:navigate', {
+      page: 'document',
+      path: 'overview',
+      documentSlug: 'My Document',
+    })
+  })
+
+  it('does not navigate when document creation callback fails', async () => {
+    const workspaceStore = await createMockWorkspaceStore()
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteDocument, {
+      props: {
+        workspaceStore,
+        eventBus,
       },
     })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', 'My Document')
+    await nextTick()
+
+    const form = wrapper.findComponent({ name: 'CommandActionForm' })
+    await form.vm.$emit('submit')
+    await nextTick()
+
+    const emitCall = eventBus.emit.mock.calls.find((call) => call[0] === 'document:create:empty-document')
+    const callback = emitCall?.[1]?.callback
+    callback?.(false)
+
+    expect(eventBus.emit).not.toHaveBeenCalledWith('ui:navigate', expect.anything())
   })
 })

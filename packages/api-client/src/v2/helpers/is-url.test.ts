@@ -13,6 +13,11 @@ describe('isUrl', () => {
     expect(result).toBe(true)
   })
 
+  it('returns true for valid URL with surrounding whitespace', () => {
+    const result = isUrl(' \nhttps://example.com/openapi.json\n')
+    expect(result).toBe(true)
+  })
+
   it('returns true for http URL with path', () => {
     const result = isUrl('http://example.com/api/users')
     expect(result).toBe(true)

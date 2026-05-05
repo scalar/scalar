@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 1.55.3
+
+### Patch Changes
+
+- [#9095](https://github.com/scalar/scalar/pull/9095): fix(api-reference): use overflow-wrap break-word for tag labels
+
+## 1.55.2
+
+### Patch Changes
+
+- [#9076](https://github.com/scalar/scalar/pull/9076): fix(api-reference): improve rendering of virtualized code blocks
+- [#9086](https://github.com/scalar/scalar/pull/9086): feat: code split tailwind CSS to reduce bundle size
+
 ## 1.55.1
 
 ### Patch Changes

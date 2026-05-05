@@ -1,4 +1,5 @@
 // import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
+import { isObject } from '@scalar/helpers/object/is-object'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/request-body'
 
@@ -153,12 +154,7 @@ export const buildRequestBody = (
   // Form data - object format (from schema examples)
   // When the example value is a plain object and content type is form-urlencoded,
   // convert to URLSearchParams instead of JSON stringifying
-  if (
-    bodyContentType === 'application/x-www-form-urlencoded' &&
-    example.value !== null &&
-    typeof example.value === 'object' &&
-    !Array.isArray(example.value)
-  ) {
+  if (bodyContentType === 'application/x-www-form-urlencoded' && isObject(example.value)) {
     const result: UrlEncoded = {
       mode: 'urlencoded',
       value: [],
@@ -173,6 +169,62 @@ export const buildRequestBody = (
           value: stringValue,
         })
       }
+    }
+
+    return result
+  }
+
+  // Form data - object format (from schema examples)
+  if (bodyContentType === 'multipart/form-data' && isObject(example.value)) {
+    const result: FormData = {
+      mode: 'formdata',
+      value: [],
+    }
+
+    for (const [key, value] of Object.entries(example.value)) {
+      if (!key || value === undefined || value === null) {
+        continue
+      }
+
+      const partContentType = getMultipartEncodingContentType(requestBody, bodyContentType, key)
+
+      if (value instanceof File) {
+        const unwrappedValue = unpackProxyObject(value)
+        const encodedValue =
+          partContentType && partContentType !== unwrappedValue.type
+            ? new File([unwrappedValue], unwrappedValue.name, {
+                type: partContentType,
+                lastModified: unwrappedValue.lastModified,
+              })
+            : unwrappedValue
+
+        result.value.push({
+          type: 'file',
+          key,
+          value: encodedValue,
+          contentType: partContentType,
+        })
+        continue
+      }
+
+      const serializedValue =
+        typeof value === 'object' && value !== null ? JSON.stringify(unpackProxyObject(value)) : String(value)
+
+      if (partContentType) {
+        result.value.push({
+          type: 'blob',
+          key,
+          value: new Blob([serializedValue], { type: partContentType }),
+          contentType: partContentType,
+        })
+        continue
+      }
+
+      result.value.push({
+        type: 'text',
+        key,
+        value: serializedValue,
+      })
     }
 
     return result

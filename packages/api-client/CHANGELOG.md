@@ -1,5 +1,29 @@
 # @scalar/api-client
 
+## 3.6.1
+
+### Patch Changes
+
+- [#9094](https://github.com/scalar/scalar/pull/9094): chore: reorganize app layout
+
+  Move the tabs on top of the page for the app layout and make the layout better for small screens
+
+- [#9062](https://github.com/scalar/scalar/pull/9062): feat: show inline errors in command palette instead of silent disable
+- [#9079](https://github.com/scalar/scalar/pull/9079): fix command palette OpenAPI URL imports with surrounding whitespace
+
+## 3.6.0
+
+### Minor Changes
+
+- [#9050](https://github.com/scalar/scalar/pull/9050): feat: support for registry sync and local persistence
+
+### Patch Changes
+
+- [#9076](https://github.com/scalar/scalar/pull/9076): fix(api-reference): improve rendering of virtualized code blocks
+- [#9086](https://github.com/scalar/scalar/pull/9086): feat: code split tailwind CSS to reduce bundle size
+- [#9059](https://github.com/scalar/scalar/pull/9059): feat: added the scalar-app back to open source
+- [#9075](https://github.com/scalar/scalar/pull/9075): feat(api-client): team workspaces no longer auto-create a "drafts" document or deep-link to it. New team workspaces start empty and land on the workspace get-started page; local workspaces still seed a drafts document and navigate to it as before.
+
 ## 3.5.1
 
 ### Patch Changes

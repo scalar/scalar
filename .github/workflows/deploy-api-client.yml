@@ -1,0 +1,131 @@
+name: Deploy API Client
+
+on:
+  pull_request:
+    types: [closed]
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Deployment environment — "staging" for PR previews, "production" for releases'
+        type: string
+        required: true
+      pr-number:
+        description: 'Pull request number (required for staging previews)'
+        type: string
+        required: false
+        default: ''
+      sha:
+        description: 'Commit SHA to deploy — PR head SHA for previews, git SHA for releases'
+        type: string
+        required: true
+    outputs:
+      preview-url:
+        description: 'The Cloudflare Pages deployment URL (staging only)'
+        value: ${{ jobs.deploy.outputs.preview-url }}
+
+jobs:
+  deploy:
+    # Skip when triggered directly by pull_request: closed (that path runs teardown instead).
+    if: github.event.action != 'closed'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    # Setting environment here (not at the workflow level) is what grants access
+    # to the environment-scoped vars.* and secrets.* for staging or production.
+    environment: ${{ inputs.environment }}
+    timeout-minutes: 15
+    outputs:
+      preview-url: ${{ steps.set-output.outputs.url }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      # Build
+      - name: Build workspace deps
+        uses: ./.github/actions/build
+        with:
+          packages: 'scalar-app...'
+      - name: Build web app
+        run: pnpm --filter scalar-app build:web
+        env:
+          VITE_DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
+          VITE_API_URL: ${{ vars.API_URL }}
+          VITE_SERVICES_URL: ${{ vars.SERVICES_URL }}
+          VITE_ENV: ${{ vars.ENVIRONMENT }}
+
+      # PR preview deploy — branch name creates a unique Cloudflare Pages alias URL per PR
+      - name: Deploy PR preview to Cloudflare Pages
+        if: inputs.pr-number != ''
+        id: deploy-preview
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ./projects/scalar-app/dist/web --project-name=${{ vars.CLOUDFLARE_PROJECT_API_CLIENT_PREVIEW }} --branch=pr-${{ inputs.pr-number }} --commit-hash=${{ inputs.sha }}
+
+      # Main branch deploy — used for both staging (merge) and production (release).
+      # The active environment determines which vars/secrets are used, not this step.
+      - name: Deploy to Cloudflare Pages
+        if: inputs.pr-number == ''
+        id: deploy-main
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ./projects/scalar-app/dist/web --project-name=${{ vars.CLOUDFLARE_PROJECT_API_CLIENT }} --branch=main --commit-hash=${{ inputs.sha }}
+
+      # Only set the preview URL when deploying from a PR — merge and release deploys
+      # have no PR comment to link back to.
+      - name: Set output
+        if: inputs.pr-number != ''
+        id: set-output
+        run: |
+          ALIAS_URL='${{ steps.deploy-preview.outputs.pages-deployment-alias-url }}'
+          DEPLOYMENT_URL='${{ steps.deploy-preview.outputs.deployment-url }}'
+          if [ -n "$ALIAS_URL" ]; then
+            echo "url=$ALIAS_URL" >> $GITHUB_OUTPUT
+          else
+            echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          fi
+
+  # Delete Cloudflare Pages preview deployments when a PR merges to main.
+  # The ?force=true parameter allows deletion of aliased (latest) deployments,
+  # so this should clean up all deployments including the branch alias URL.
+  teardown:
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !contains(github.actor, '[bot]')
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: staging
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Delete PR preview deployments from Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PROJECT_NAME: ${{ vars.CLOUDFLARE_PROJECT_API_CLIENT_PREVIEW }}
+          BRANCH: pr-${{ github.event.pull_request.number }}
+        run: |
+          echo "Looking for preview deployments on branch: $BRANCH"
+
+          DEPLOYMENT_IDS=$(curl -s \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments?page=1&per_page=100" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | \
+            jq -r ".result[] | select(.deployment_trigger.metadata.branch == \"$BRANCH\") | .id")
+
+          if [ -z "$DEPLOYMENT_IDS" ]; then
+            echo "No preview deployments found for $BRANCH — nothing to delete"
+            exit 0
+          fi
+
+          for ID in $DEPLOYMENT_IDS; do
+            echo "Deleting deployment $ID..."
+            curl -s -X DELETE \
+              "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments/$ID?force=true" \
+              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | \
+              jq -r 'if .success then "Deleted " + (.result.id // "deployment") else "Skipped: " + (.errors[0].message // "unknown error") end'
+          done

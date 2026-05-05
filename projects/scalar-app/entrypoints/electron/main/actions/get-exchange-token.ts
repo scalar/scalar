@@ -177,11 +177,11 @@ const waitForExchangeTokenCallback = ({
   })
 
 /**
- * Creates a short-lived local callback server for the desktop login flow.
+ * Creates a short-lived local callback server for the desktop login/register flow.
  * The dashboard sends the exchange token back to this server after browser auth,
  * then the app trades it for the durable access and refresh tokens it needs.
  */
-export const getExchangeToken = async (): Promise<TokenResponse | null> => {
+export const getExchangeToken = async (flow: 'login' | 'register'): Promise<TokenResponse | null> => {
   const port = await getPort()
   const server = http.createServer()
 
@@ -192,7 +192,7 @@ export const getExchangeToken = async (): Promise<TokenResponse | null> => {
     // cannot arrive before the local server is ready to process it.
     const tokenResult = waitForExchangeTokenCallback({ port, server })
 
-    void shell.openExternal(`${env.VITE_DASHBOARD_URL}/login?externalRedirect=local&port=${port}`, { activate: true })
+    void shell.openExternal(`${env.VITE_DASHBOARD_URL}/${flow}?externalRedirect=local&port=${port}`, { activate: true })
 
     const [error, data] = await tokenResult
 

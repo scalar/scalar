@@ -150,6 +150,103 @@ describe('CommandPaletteTag', () => {
     expect(form.props('disabled')).toBe(true)
   })
 
+  it('shows an inline error when the tag name already exists', async () => {
+    const document = createMockDocument({
+      tags: [{ name: 'Existing Tag' }],
+    })
+    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteTag, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', 'Existing Tag')
+    await nextTick()
+
+    const error = wrapper.find('[data-testid="command-palette-tag-error"]')
+    expect(error.exists()).toBe(true)
+    expect(error.attributes('role')).toBe('alert')
+    expect(error.text()).toContain('Existing Tag')
+    expect(error.text()).toContain('already exists')
+  })
+
+  it('does not show an inline error when the tag name is empty', async () => {
+    const document = createMockDocument({
+      tags: [{ name: 'Existing Tag' }],
+    })
+    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteTag, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    expect(wrapper.find('[data-testid="command-palette-tag-error"]').exists()).toBe(false)
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', '   ')
+    await nextTick()
+
+    expect(wrapper.find('[data-testid="command-palette-tag-error"]').exists()).toBe(false)
+  })
+
+  it('clears the inline error once the user types a unique tag name', async () => {
+    const document = createMockDocument({
+      tags: [{ name: 'Existing Tag' }],
+    })
+    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteTag, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', 'Existing Tag')
+    await nextTick()
+    expect(wrapper.find('[data-testid="command-palette-tag-error"]').exists()).toBe(true)
+
+    await input.vm.$emit('update:modelValue', 'New Tag')
+    await nextTick()
+    expect(wrapper.find('[data-testid="command-palette-tag-error"]').exists()).toBe(false)
+  })
+
+  it('does not show the inline error in edit mode when the name is unchanged', async () => {
+    const document = createMockDocument({
+      tags: [{ name: 'Existing Tag' }],
+    })
+    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteTag, {
+      props: {
+        workspaceStore,
+        eventBus,
+        documentName: 'doc1',
+        tag: {
+          type: 'tag',
+          id: 'doc1.tags/Existing Tag',
+          title: 'Existing Tag',
+          name: 'Existing Tag',
+          isGroup: false,
+        },
+      },
+    })
+
+    expect(wrapper.find('[data-testid="command-palette-tag-error"]').exists()).toBe(false)
+  })
+
   it('enables form when tag name is valid and unique', async () => {
     const document = createMockDocument({
       tags: [{ name: 'Existing Tag' }],

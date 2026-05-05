@@ -124,7 +124,7 @@ describe('get-exchange-token', () => {
   })
 
   it('opens the dashboard login page with the local callback port', async () => {
-    const resultPromise = getExchangeToken()
+    const resultPromise = getExchangeToken('login')
     await waitForLoginPageToOpen()
 
     const port = parseOpenedCallbackPort()
@@ -142,8 +142,27 @@ describe('get-exchange-token', () => {
     await resultPromise
   })
 
+  it('opens the dashboard register page when flow is register', async () => {
+    const resultPromise = getExchangeToken('register')
+    await waitForLoginPageToOpen()
+
+    const port = parseOpenedCallbackPort()
+
+    expect(openExternalMock).toHaveBeenCalledWith(
+      `https://dashboard.scalar.test/register?externalRedirect=local&port=${port}`,
+      { activate: true },
+    )
+
+    await sendCallbackRequest({
+      path: '/callback?exchangeToken=external-register-token',
+      port,
+    })
+
+    await resultPromise
+  })
+
   it('returns exchanged tokens after a valid POST callback', async () => {
-    const resultPromise = getExchangeToken()
+    const resultPromise = getExchangeToken('login')
     await waitForLoginPageToOpen()
 
     const port = parseOpenedCallbackPort()
@@ -170,7 +189,7 @@ describe('get-exchange-token', () => {
   })
 
   it('tears down the callback server after the login attempt finishes', async () => {
-    const resultPromise = getExchangeToken()
+    const resultPromise = getExchangeToken('login')
     await waitForLoginPageToOpen()
 
     const port = parseOpenedCallbackPort()
@@ -189,7 +208,7 @@ describe('get-exchange-token', () => {
   })
 
   it('accepts the dashboard callback sent to localhost', async () => {
-    const resultPromise = getExchangeToken()
+    const resultPromise = getExchangeToken('login')
     await waitForLoginPageToOpen()
 
     const port = parseOpenedCallbackPort()
@@ -219,7 +238,7 @@ describe('get-exchange-token', () => {
   })
 
   it('passes URL-decoded exchange tokens to the exchange endpoint', async () => {
-    const resultPromise = getExchangeToken()
+    const resultPromise = getExchangeToken('login')
     await waitForLoginPageToOpen()
 
     const port = parseOpenedCallbackPort()
@@ -233,7 +252,7 @@ describe('get-exchange-token', () => {
   })
 
   it('returns null and a 405 response for non-POST callbacks', async () => {
-    const resultPromise = getExchangeToken()
+    const resultPromise = getExchangeToken('login')
     await waitForLoginPageToOpen()
 
     const port = parseOpenedCallbackPort()
@@ -264,7 +283,7 @@ describe('get-exchange-token', () => {
     ['/callback', 'without a query parameter'],
     ['/callback?exchangeToken=', 'with a blank query parameter'],
   ])('returns null and a 400 response when the token is missing %s', async (path) => {
-    const resultPromise = getExchangeToken()
+    const resultPromise = getExchangeToken('login')
     await waitForLoginPageToOpen()
 
     const port = parseOpenedCallbackPort()
@@ -288,7 +307,7 @@ describe('get-exchange-token', () => {
   it('returns null and a 400 response when the exchange endpoint rejects the token', async () => {
     exchangeTokenMock.mockResolvedValue([new Error('Invalid exchange token'), null])
 
-    const resultPromise = getExchangeToken()
+    const resultPromise = getExchangeToken('login')
     await waitForLoginPageToOpen()
 
     const port = parseOpenedCallbackPort()
@@ -315,7 +334,7 @@ describe('get-exchange-token', () => {
   it('returns null when no callback arrives before the timeout', async () => {
     vi.useFakeTimers()
 
-    const resultPromise = getExchangeToken()
+    const resultPromise = getExchangeToken('login')
     await vi.dynamicImportSettled()
 
     expect(openExternalMock).toHaveBeenCalled()

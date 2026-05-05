@@ -1,5 +1,14 @@
 # @scalar/sidebar
 
+## 0.9.11
+
+## 0.9.10
+
+### Patch Changes
+
+- [#9086](https://github.com/scalar/scalar/pull/9086): feat: code split tailwind CSS to reduce bundle size
+- [#9091](https://github.com/scalar/scalar/pull/9091): fix: tailwind styles regression
+
 ## 0.9.9
 
 ## 0.9.8
