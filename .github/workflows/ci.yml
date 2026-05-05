@@ -817,7 +817,7 @@ jobs:
         run: pnpm --filter scalar-app build:web
         env:
           VITE_DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
-          VITE_API_URL: ${{ vars.SERVICES_URL }}
+          VITE_API_URL: ${{ vars.API_URL }}
           VITE_ENV: ${{ vars.ENVIRONMENT }}
 
       - name: Deploy to Cloudflare Pages
