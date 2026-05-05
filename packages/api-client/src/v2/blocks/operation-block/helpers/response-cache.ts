@@ -1,3 +1,4 @@
+import { isDefined } from '@scalar/helpers/array/is-defined'
 import type { RequestPayload } from '@scalar/workspace-store/request-example'
 
 import type { ResponseInstance } from '@/v2/blocks/operation-block/helpers/send-request'
@@ -17,10 +18,16 @@ export const responseCache = new Map<string, { response: ResponseInstance; reque
  * @param method - HTTP method (e.g., "GET", "POST")
  * @param path - The request path (e.g., "/pets")
  * @param exampleKey - A unique key identifying the example/request variant
+ * @param documentSlug - Optionally add the document slug to the key
  * @returns The constructed cache key string
  */
-export function getOperationExampleKey(method: string, path: string, exampleKey: string): string {
-  return `${method}|${path}|${exampleKey}`
+export function getOperationExampleKey(
+  method: string,
+  path: string,
+  exampleKey: string,
+  documentSlug?: string,
+): string {
+  return [documentSlug, method, path, exampleKey].filter(isDefined).join('|')
 }
 
 /**

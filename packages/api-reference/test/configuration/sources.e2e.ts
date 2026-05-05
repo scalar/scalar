@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { PETSTORE_URL_2_0 } from '@scalar/helpers/url/oas-document-fixtures'
 import { serveExample } from '@test/utils/serve-example'
 
 test.describe('sources', () => {
@@ -9,7 +10,7 @@ test.describe('sources', () => {
       sources: [
         {
           slug: 'petstore',
-          url: 'https://petstore.swagger.io/v2/swagger.json',
+          url: PETSTORE_URL_2_0,
         },
         {
           slug: 'galaxy',
@@ -41,14 +42,12 @@ test.describe('sources', () => {
 
     await expect(page.getByRole('heading', { name: 'Swagger Petstore', level: 1 })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'pet', level: 2 })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'uploads an image', level: 3 })).toBeVisible()
 
     // Petstore
     await page.goto(`${example}/?api=petstore`)
 
     await expect(page.getByRole('heading', { name: 'Swagger Petstore', level: 1 })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'pet', level: 2 })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'uploads an image', level: 3 })).toBeVisible()
 
     // Galaxy
     await page.goto(`${example}/?api=galaxy`)
@@ -75,7 +74,7 @@ test.describe('sources', () => {
       sources: [
         {
           slug: 'petstore',
-          url: 'https://petstore.swagger.io/v2/swagger.json',
+          url: PETSTORE_URL_2_0,
         },
         {
           default: true,
@@ -111,7 +110,6 @@ test.describe('sources', () => {
 
     await expect(page.getByRole('heading', { name: 'Swagger Petstore', level: 1 })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'pet', level: 2 })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'uploads an image', level: 3 })).toBeVisible()
 
     // Content
     await page.goto(`${example}/?api=content`)

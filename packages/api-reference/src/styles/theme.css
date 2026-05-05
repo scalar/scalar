@@ -1,0 +1,20 @@
+/* References Tailwind Theme Extensions */
+@theme inline {
+  /*
+   * References Spacing Variables
+   * @see components/ApiReference.vue
+   */
+
+  /* The header height */
+  --spacing-refs-header: var(--refs-header-height);
+  /* The offset of visible references content (minus headers) */
+  --spacing-refs-vp-offset: var(--refs-viewport-offset);
+  /* The calculated height of visible references content (minus headers) */
+  --spacing-refs-vp-height: var(--refs-viewport-height);
+  /* The width of the sidebar */
+  --spacing-refs-w-sidebar: var(--refs-sidebar-width);
+  /* The height of the sidebar */
+  --spacing-refs-h-sidebar: var(--refs-sidebar-height);
+  /* The maximum width of the content column */
+  --spacing-refs-content-max-width: var(--refs-content-max-width);
+}

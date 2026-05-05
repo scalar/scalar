@@ -453,6 +453,8 @@ Commands:
   delete [namespace] [slug]            Delete a document from scalar registry
   list [options]                       List all registry APIs for a team
                                        namespace
+  get [options] [namespace] [slug]     Get a document version from scalar
+                                       registry
   help [command]                       display help for command
 ```
 
@@ -521,6 +523,23 @@ List all registry APIs for a team namespace
 Options:
   --namespace <namespace>  Team namespace
   -h, --help               display help for command
+```
+
+### get
+```
+Usage: scalar registry get [options] [namespace] [slug]
+
+Get a document version from scalar registry
+
+Arguments:
+  namespace            Team namespace
+  slug                 Managed doc slug
+
+Options:
+  --version <version>  Document version (defaults to latest)
+  --format <format>    Output format (json or yaml) (default: "json")
+  -o, --output <file>  Output file (defaults to stdout)
+  -h, --help           display help for command
 ```
 
 ## team

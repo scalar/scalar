@@ -1,0 +1,20 @@
+/**
+ * API Client Tailwind Configuration
+ *
+ * This file can be imported into other projects using Tailwind to
+ * generate the appropriate Tailwind utilities for the API client.
+ */
+
+/* Dependency Tailwind Configurations */
+@import "@scalar/components/tailwind.config.css";
+@import "@scalar/sidebar/tailwind.config.css";
+
+/* Search for Tailwind classes in the API Client */
+@source "../";
+@source "../../node_modules/@scalar/oas-utils/src/";
+
+/* Client Specific Tailwind Utilities */
+@import "./utilities.css";
+
+/* Plugins */
+@plugin "@headlessui/tailwindcss";

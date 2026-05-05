@@ -1,5 +1,11 @@
 # @scalar/openapi-upgrader
 
+## 0.2.7
+
+### Patch Changes
+
+- [#9043](https://github.com/scalar/scalar/pull/9043): chore: move test documents to cdn
+
 ## 0.2.6
 
 ## 0.2.5

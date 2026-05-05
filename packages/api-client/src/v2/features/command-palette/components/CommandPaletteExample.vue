@@ -34,7 +34,7 @@ import type {
   TraversedExample,
   TraversedOperation,
 } from '@scalar/workspace-store/schemas/navigation'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, type ComputedRef } from 'vue'
 
 import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 
@@ -168,8 +168,41 @@ const handleSelect = (operation: OperationOption | undefined): void => {
 }
 
 /**
- * Check if the form should be disabled.
- * Disabled when any required field is missing or empty.
+ * Validation message surfaced under the input.
+ *
+ * Resolves to `null` when the form is valid; otherwise to a human-readable
+ * reason the user can act on. Empty input or an unchanged name in edit mode
+ * are treated as the default state so the modal does not greet the user
+ * with a misleading error.
+ */
+const errorMessage: ComputedRef<string | null> = computed(() => {
+  if (
+    !exampleNameTrimmed.value ||
+    !selectedDocument.value ||
+    !selectedOperation.value
+  ) {
+    return null
+  }
+
+  if (isEditMode.value && exampleNameTrimmed.value === example?.name) {
+    return null
+  }
+
+  const nameConflict = selectedOperation.value.exampleNames.some(
+    (name) => name === exampleNameTrimmed.value && name !== example?.name,
+  )
+
+  if (nameConflict) {
+    return `An example named "${exampleNameTrimmed.value}" already exists for ${selectedOperation.value.method.toUpperCase()} ${selectedOperation.value.path}. Try a different name.`
+  }
+
+  return null
+})
+
+/**
+ * Submit is blocked while required fields are missing, the name is unchanged
+ * in edit mode, or another example already uses the same name. The inline
+ * `errorMessage` explains the duplicate case so the user knows how to recover.
  */
 const isDisabled = computed<boolean>(() => {
   if (
@@ -180,21 +213,11 @@ const isDisabled = computed<boolean>(() => {
     return true
   }
 
-  if (isEditMode.value && example) {
-    if (exampleNameTrimmed.value === example.name) {
-      return true
-    }
-  }
-
-  if (
-    selectedOperation.value.exampleNames.some(
-      (name) => name === exampleNameTrimmed.value && name !== example?.name,
-    )
-  ) {
+  if (isEditMode.value && exampleNameTrimmed.value === example?.name) {
     return true
   }
 
-  return false
+  return errorMessage.value !== null
 })
 
 /**
@@ -257,6 +280,14 @@ const handleCancel = (): void => {
       label="Example Name"
       placeholder="Example Name"
       @delete="handleBack" />
+
+    <p
+      v-if="errorMessage"
+      class="text-red px-2 pb-1 text-xs"
+      data-testid="command-palette-example-error"
+      role="alert">
+      {{ errorMessage }}
+    </p>
 
     <!-- Selectors for document and operation -->
     <template #options>

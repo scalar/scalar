@@ -5,14 +5,7 @@ import {
   type ModalState,
 } from '@scalar/components'
 import { useFocusTrap } from '@vueuse/integrations/useFocusTrap'
-import {
-  nextTick,
-  onBeforeMount,
-  onBeforeUnmount,
-  ref,
-  useId,
-  watch,
-} from 'vue'
+import { nextTick, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 
 const props = defineProps<{ modalState: ModalState }>()
 const emit = defineEmits<{
@@ -21,12 +14,11 @@ const emit = defineEmits<{
 }>()
 
 const client = ref<HTMLElement | null>(null)
-const id = useId()
 
 const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
   useFocusTrap(client, {
     allowOutsideClick: true,
-    fallbackFocus: `#${id}`,
+    fallbackFocus: () => client.value as HTMLElement,
   })
 
 // ensure scalar classes exist on headless-ui root
@@ -55,32 +47,29 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <Transition name="scalar-client-fade">
+  <div class="scalar scalar-app z-overlay relative">
     <div
-      v-show="modalState.open"
-      class="scalar scalar-app z-overlay relative">
-      <div class="scalar-container">
-        <div
-          :id="id"
-          ref="client"
-          aria-label="API Client"
-          aria-modal="true"
-          v-bind="$attrs"
-          class="scalar-app-layout scalar-client"
-          role="dialog"
-          tabindex="-1">
-          <ScalarTeleportRoot>
-            <slot />
-          </ScalarTeleportRoot>
-        </div>
-
-        <!-- overlay / exit area -->
-        <div
-          class="scalar-app-exit"
-          @click="modalState.hide()" />
+      class="scalar-container"
+      :class="{ 'scalar-client--open': modalState.open }">
+      <div
+        ref="client"
+        aria-label="API Client"
+        aria-modal="true"
+        v-bind="$attrs"
+        class="scalar-app-layout scalar-client"
+        role="dialog"
+        tabindex="-1">
+        <ScalarTeleportRoot>
+          <slot />
+        </ScalarTeleportRoot>
       </div>
+
+      <!-- overlay / exit area -->
+      <div
+        class="scalar-app-exit"
+        @click="modalState.hide()" />
     </div>
-  </Transition>
+  </div>
 </template>
 
 <style scoped>
@@ -143,7 +132,7 @@ onBeforeUnmount(() => {
 /* container */
 .scalar-container {
   overflow: hidden;
-  visibility: visible;
+  visibility: hidden;
   position: fixed;
   bottom: 0;
   left: 0;
@@ -153,6 +142,19 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+  transition:
+    opacity 0.35s ease,
+    visibility 0s linear 0.35s;
+}
+
+.scalar-container.scalar-client--open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.35s ease;
 }
 
 .scalar .url-form-input {
@@ -161,15 +163,5 @@ onBeforeUnmount(() => {
 
 .scalar .scalar-container {
   line-height: normal;
-}
-
-.scalar-client-fade-enter-active,
-.scalar-client-fade-leave-active {
-  transition: opacity 0.35s ease;
-}
-
-.scalar-client-fade-enter-from,
-.scalar-client-fade-leave-to {
-  opacity: 0;
 }
 </style>

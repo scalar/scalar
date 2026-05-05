@@ -1,3 +1,14 @@
+<script lang="ts">
+// Injected by Vite at build time (see vite.config.ts and vite.standalone.config.ts).
+// Read via process.env so the constant is replaced inline without pulling package.json
+// into the TypeScript program — that would expand rootDir and emit declarations under dist/src/.
+const version = PACKAGE_VERSION
+
+if (version && typeof window !== 'undefined') {
+  console.info(`@scalar/api-reference@${version}`)
+}
+</script>
+
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'
@@ -452,6 +463,33 @@ defineExpose({
   eventBus,
   workspaceStore,
   sidebarItems,
+})
+
+/**
+ * Computes a mapping from model names to their sidebar entry IDs.
+ * This is used for quick lookups and navigation within the sidebar.
+ */
+const modelsIndex = computed(() => {
+  return sidebarItems.value
+    .filter((item) => item.type === 'models')
+    .flatMap((item) => item.children ?? [])
+    .filter((item) => item.type === 'model')
+    .reduce(
+      (acc, item) => {
+        acc[item.name] = item.id
+        return acc
+      },
+      {} as Record<string, string>,
+    )
+})
+
+eventBus.on('scroll-to:model-by-name', ({ name }) => {
+  /** Find the model in the models index */
+  const model = modelsIndex.value[name]
+
+  if (model) {
+    scrollToLazyElement(model)
+  }
 })
 
 const addDocument: typeof workspaceStore.addDocument = async (
@@ -986,7 +1024,6 @@ const showMCPButton = computed(() => {
       <AgentScalarDrawer
         v-if="agent.agentEnabled.value"
         :agentScalarConfiguration="configList[activeSlug]?.agent"
-        :eventBus
         :externalUrls="mergedConfig.externalUrls"
         :workspaceStore />
 
@@ -1184,8 +1221,6 @@ const showMCPButton = computed(() => {
 </template>
 
 <style>
-@import '@/style.css';
-
 /* Add base styles to the body. Removed browser default margins for a better experience. */
 @layer scalar-base {
   body {

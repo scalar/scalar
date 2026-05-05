@@ -43,38 +43,37 @@ describe('generateUniqueSlug', () => {
     expect(result).toBe('hello-world-api')
   })
 
-  it('handles empty string by transforming to empty and incrementing if needed $1', async () => {
+  it('falls back to "default" when defaultValue is an empty string', async () => {
     const existingDocuments = new Set<string>()
 
     const result = await generateUniqueSlug('', existingDocuments)
 
-    expect(result).toBe('')
+    expect(result).toBe('default')
   })
 
-  it('handles empty string by transforming to empty and incrementing if needed #2', async () => {
-    const existingDocuments = new Set<string>([''])
+  it('falls back to "default" when defaultValue is only whitespace', async () => {
+    const existingDocuments = new Set<string>()
+
+    const result = await generateUniqueSlug('   \t\n', existingDocuments)
+
+    expect(result).toBe('default')
+  })
+
+  it('increments the "default" fallback on collision with an empty string input', async () => {
+    const existingDocuments = new Set<string>(['default'])
 
     const result = await generateUniqueSlug('', existingDocuments)
 
-    expect(result).toBe('-1')
+    expect(result).toBe('default-1')
   })
 
-  it('handles empty string with collision', async () => {
-    const existingDocuments = new Set<string>([''])
-
-    const result = await generateUniqueSlug('', existingDocuments)
-
-    // The slugify function keeps empty strings, so it becomes ' 1' then slugified to '-1'
-    expect(result).toBe('-1')
-  })
-
-  it('handles special characters in titles', async () => {
+  it('removes special characters in titles', async () => {
     const existingDocuments = new Set<string>()
 
     const result = await generateUniqueSlug('My@Special#API$Name', existingDocuments)
 
     // Slugify only handles spaces and lowercase, special chars remain
-    expect(result).toBe('my@special#api$name')
+    expect(result).toBe('myspecialapiname')
   })
 
   it('handles titles with multiple consecutive spaces', async () => {
@@ -86,13 +85,13 @@ describe('generateUniqueSlug', () => {
     expect(result).toBe('my-api-name')
   })
 
-  it('handles titles with leading and trailing spaces', async () => {
+  it('trims leading and trailing whitespace before slugifying', async () => {
     const existingDocuments = new Set<string>()
 
     const result = await generateUniqueSlug('  My API  ', existingDocuments)
 
-    // Leading/trailing spaces are treated as single whitespace groups
-    expect(result).toBe('-my-api-')
+    // Leading/trailing whitespace is trimmed so it does not become hyphens
+    expect(result).toBe('my-api')
   })
 
   it('returns undefined when max retries are exceeded', async () => {
@@ -138,13 +137,13 @@ describe('generateUniqueSlug', () => {
     expect(result).toBe('camelcase-api-name')
   })
 
-  it('handles very long titles', async () => {
+  it('we truncate long titles to 255 characters', async () => {
     const existingDocuments = new Set<string>()
     const longTitle = 'A'.repeat(1000)
 
     const result = await generateUniqueSlug(longTitle, existingDocuments)
 
-    expect(result).toBe(longTitle.toLowerCase())
+    expect(result).toBe(longTitle.toLowerCase().slice(0, 255))
   })
 
   it('handles empty set of existing documents', async () => {
@@ -210,6 +209,6 @@ describe('generateUniqueSlug', () => {
 
     const result = await generateUniqueSlug('My 🚀 API', existingDocuments)
 
-    expect(result).toBe('my-🚀-api')
+    expect(result).toBe('my-api')
   })
 })

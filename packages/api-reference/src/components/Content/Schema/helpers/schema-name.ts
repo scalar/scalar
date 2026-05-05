@@ -10,27 +10,31 @@ import { getRefName } from './get-ref-name'
  */
 export const getModelNameFromSchema = (
   schemaOrRef: SchemaObject | SchemaReferenceType<SchemaObject>,
-): string | null => {
+): {
+  /** The key in components.schemas (extracted from $ref), used for sidebar navigation. */
+  schemaKey: string | null
+  /** The human-readable name to display (schema.title, schema.name, or ref key). */
+  label: string
+} | null => {
   if (!schemaOrRef) {
     return null
   }
 
   const schema = resolve.schema(schemaOrRef)
 
-  // Direct title/name properties - use direct property access for better performance
+  const schemaKey = '$ref' in schemaOrRef ? (getRefName(schemaOrRef.$ref) ?? null) : null
+
   if (schema.title) {
-    return schema.title
+    return { schemaKey, label: schema.title }
   }
 
   if (schema.name) {
-    return schema.name
+    return { schemaKey, label: schema.name }
   }
 
   if ('$ref' in schemaOrRef) {
-    // Fall back to the schema key when the referenced schema has no human-friendly name.
-    const refName = getRefName(schemaOrRef.$ref)
-    if (refName) {
-      return refName
+    if (schemaKey) {
+      return { schemaKey, label: schemaKey }
     }
   }
 

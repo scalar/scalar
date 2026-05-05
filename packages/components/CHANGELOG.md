@@ -1,5 +1,49 @@
 # @scalar/components
 
+## 0.24.2
+
+### Patch Changes
+
+- [#9086](https://github.com/scalar/scalar/pull/9086): feat: code split tailwind CSS to reduce bundle size
+
+## 0.24.1
+
+### Patch Changes
+
+- [#9042](https://github.com/scalar/scalar/pull/9042): fix(components): set Scrolling listbox story to multiselect mode
+- [#9048](https://github.com/scalar/scalar/pull/9048): fix: stabilize sidebar nested item refs for proper unmount
+- [#9042](https://github.com/scalar/scalar/pull/9042): fix(components): improve floating ui flip offset logic
+
+## 0.24.0
+
+### Minor Changes
+
+- [#9045](https://github.com/scalar/scalar/pull/9045): feat: support title for the scalar menu component
+
+### Patch Changes
+
+- [#9045](https://github.com/scalar/scalar/pull/9045): fix(components): set specific padding and margin for nested items
+- [#9045](https://github.com/scalar/scalar/pull/9045): fix: hide sidebar section label when there is no default slot
+
+## 0.23.0
+
+### Minor Changes
+
+- [#9021](https://github.com/scalar/scalar/pull/9021): feat: support title for the scalar menu component
+
+### Patch Changes
+
+- [#9020](https://github.com/scalar/scalar/pull/9020): fix(components): set specific padding and margin for nested items
+- [#9024](https://github.com/scalar/scalar/pull/9024): fix: hide sidebar section label when there is no default slot
+
+## 0.22.5
+
+## 0.22.4
+
+### Patch Changes
+
+- [#8976](https://github.com/scalar/scalar/pull/8976): feat(components): add sidebar group loading state
+
 ## 0.22.3
 
 ## 0.22.2

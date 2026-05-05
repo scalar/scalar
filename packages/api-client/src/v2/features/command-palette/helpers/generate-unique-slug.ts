@@ -1,6 +1,5 @@
+import { slugify } from '@scalar/helpers/string/slugify'
 import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-unique-value'
-
-import { slugify } from '@/v2/helpers/slugify'
 
 /**
  * Generates a unique slug for an imported document based on its title.
@@ -11,16 +10,22 @@ import { slugify } from '@/v2/helpers/slugify'
  * The function will retry up to 100 times to find a unique slug. If all attempts fail,
  * it returns null, which should be handled as an import error.
  *
+ * When the input is missing or contains only whitespace, it falls back to
+ * `'default'` so the workspace store never ends up with a document keyed by an
+ * empty string (for example, when a registry document has no `info.title`).
+ *
  * @param defaultValue - The original document title to base the slug on
  * @param currentDocuments - Set of existing document slugs to check against
  *
  * @returns Promise resolving to a unique slug, or null if unable to generate one
  */
 export const generateUniqueSlug = async (defaultValue: string | undefined, currentDocuments: Set<string>) => {
+  const base = defaultValue?.trim() || 'default'
+
   return await generateUniqueValue({
-    defaultValue: defaultValue ?? 'default',
+    defaultValue: base,
     validation: (value) => !currentDocuments.has(value),
     maxRetries: 100,
-    transformation: slugify,
+    transformation: (value) => slugify(value, { allowedSpecialChars: '.' }),
   })
 }

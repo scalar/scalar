@@ -81,12 +81,6 @@ const schemaDescription = computed(() => {
     return null
   }
 
-  // Don't show description if the schema has other composition keywords
-  // This prevents duplicate descriptions when individual schemas are part of compositions
-  if (schema.oneOf || schema.anyOf) {
-    return null
-  }
-
   // Don't show description for enum schemas (they have special handling)
   if (schema.enum) {
     return null
@@ -351,7 +345,6 @@ button.schema-card-title:hover {
 :deep(.schema-card-description) p {
   font-size: var(--scalar-small, var(--scalar-paragraph));
   color: var(--scalar-color-2);
-  line-height: 1.5;
   margin-bottom: 0;
   display: block;
   margin-bottom: 6px;

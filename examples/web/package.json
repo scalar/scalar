@@ -27,6 +27,7 @@
     "@scalar/api-reference": "workspace:*",
     "@scalar/components": "workspace:*",
     "@scalar/galaxy": "workspace:*",
+    "@scalar/helpers": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
     "@scalar/use-hooks": "workspace:*",

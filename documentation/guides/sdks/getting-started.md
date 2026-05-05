@@ -20,9 +20,8 @@
 
 ## Getting Started
 
-:::scalar-callout{ type=info }
-SDK generation is part of our paid plans and costs $100 per month per language. Keep this in mind when selecting which languages you'd like to generate SDKs for.
-:::
+> [!NOTE]
+> SDK generation is part of our paid plans and costs $100 per month per language. Keep this in mind when selecting which languages you'd like to generate SDKs for.
 
 Make sure you have created a Scalar Account & are logged in ([see create account guide](../registry/getting-started.md#create-your-scalar-account))
 
@@ -240,6 +239,7 @@ Once created, you will get redirected to the SDK Overview page where you can:
           <a class="text-c-2 hover:text-c-1 font-normal" href="mailto:support@scalar.com" target="_blank">Support</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/terms-and-conditions">Terms of Service</a>
           <a class="text-c-2 hover:text-c-1 font-normal" href="/legal/privacy-policy">Privacy Policy</a>
+          <a class="text-c-2 hover:text-c-1 font-normal" href="/brand">Brand</a>
           <button class="cky-banner-element text-c-2 hover:text-c-1 font-normal">Cookie Preferences</button>
         </div>
         <div class="w-1/3 flex flex-col gap-2">

@@ -77,6 +77,8 @@ jobs:
       mock_server_docker_package_changed: ${{ steps.set-outputs.outputs.mock_server_docker_package_changed }}
       icons_changed: ${{ steps.set-outputs.outputs.icons_changed }}
       galaxy_changed: ${{ steps.set-outputs.outputs.galaxy_changed }}
+      api_client_changed: ${{ steps.set-outputs.outputs.api_client_changed }}
+      api_reference_changed: ${{ steps.set-outputs.outputs.api_reference_changed }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
@@ -108,6 +110,11 @@ jobs:
               - packages/components/src/components/ScalarIcon/**
             galaxy_changed:
               - packages/galaxy/**
+            api_client_changed:
+              - packages/api-client/**
+              - projects/scalar-app/**
+            api_reference_changed:
+              - packages/api-reference/**
 
       - name: Check whether integration package.json files were modified
         id: changed-package-files
@@ -150,6 +157,8 @@ jobs:
           echo "mock_server_docker_package_changed=${{ steps.changed-package-files.outputs.mock_server_docker_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "icons_changed=${{ steps.changed-packages-files.outputs.icons_changed_any_changed }}" >> $GITHUB_OUTPUT
           echo "galaxy_changed=${{ steps.changed-packages-files.outputs.galaxy_changed_any_changed }}" >> $GITHUB_OUTPUT
+          echo "api_client_changed=${{ steps.changed-packages-files.outputs.api_client_changed_any_changed }}" >> $GITHUB_OUTPUT
+          echo "api_reference_changed=${{ steps.changed-packages-files.outputs.api_reference_changed_any_changed }}" >> $GITHUB_OUTPUT
 
   format:
     if: github.event_name == 'pull_request'
@@ -240,6 +249,11 @@ jobs:
       - name: Check built declaration alias imports
         if: matrix.shard-index == 1
         run: pnpm lint:check:dist-dts-aliases
+      - name: Setup Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
+        with:
+          go-version-file: projects/proxy-scalar-com/go.mod
+          cache: false
       - name: Start test servers
         run: pnpm script run test-servers & pnpm script wait -p 5051 5052
         timeout-minutes: 1
@@ -267,7 +281,7 @@ jobs:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     container:
-      image: scalarapi/playwright-runner:1.56.0
+      image: scalarapi/playwright-runner:1.59.1
       options: --privileged
       env:
         VM_ID: ${{ env.VM_ID }}
@@ -328,7 +342,7 @@ jobs:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     container:
-      image: scalarapi/playwright-runner:1.56.0
+      image: scalarapi/playwright-runner:1.59.1
       options: --privileged
       env:
         VM_ID: ${{ env.VM_ID }}
@@ -372,14 +386,14 @@ jobs:
           report-tag: test-references-e2e
           footer: |
             > [!IMPORTANT]
-            > These tests include snapshots that may need to be updated if there are intentional changes to the UI components. To update the snapshots run `pnpm test:e2e:update` in `packages/api-reference` and commit the changes.
+            > These tests include snapshots that may need to be updated if there are intentional changes to the UI components. To update the snapshots run `pnpm test:e2e --update-snapshots` in `packages/api-reference` and commit the changes.
 
   test-component-snapshots:
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     container:
-      image: scalarapi/playwright-runner:1.56.0
+      image: scalarapi/playwright-runner:1.59.1
       options: --privileged
       env:
         VM_ID: ${{ env.VM_ID }}
@@ -428,7 +442,7 @@ jobs:
     needs: [build]
     runs-on: blacksmith-8vcpu-ubuntu-2204
     container:
-      image: scalarapi/playwright-runner:1.56.0
+      image: scalarapi/playwright-runner:1.59.1
       options: --privileged
       env:
         VM_ID: ${{ env.VM_ID }}
@@ -474,7 +488,7 @@ jobs:
             > [!IMPORTANT]
             > These tests detect visual differences between the current PR and the latest CDN build which means **they may be affected by other changes in `main` that haven't been released yet**.
             >
-            > They can help determine if the changes in the PR are causing any unexpected visual regressions but may be less helpful in isolating the exact cause. For more details see the [readme](https://github.com/scalar/scalar/blob/main/packages/api-reference/test-snapshots/README.md).
+            > They can help determine if the changes in the PR are causing any unexpected visual regressions but may be less helpful in isolating the exact cause. For more details see the [readme](https://github.com/scalar/scalar/blob/main/packages/api-reference/test/snapshots-cdn/README.md).
 
   # ---------------------------------------------------------------------------------------------------------
   # Publish and deploy packages
@@ -628,14 +642,14 @@ jobs:
         # We're uploading it as a schema, because for documents do not support AsyncAPI yet.
         run: npx @scalar/cli@latest schema publish --namespace scalar --slug asyncapi --version ${{ steps.package-version.outputs.VERSION }} packages/galaxy/dist/asyncapi/latest.yaml
 
-  deploy-api-reference:
+  deploy-examples:
     # Run only for PRs from the same repository
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency:
-      group: deploy-api-reference-${{ github.ref }}
+      group: deploy-examples-${{ github.ref }}
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     outputs:
       preview-url: ${{ steps.set-output.outputs.url }}
@@ -668,6 +682,53 @@ jobs:
         id: set-output
         if: github.event_name == 'pull_request'
         run: echo "url=https://${{ env.DEPLOY_ID }}--scalar-deploy-preview.netlify.app" >> $GITHUB_OUTPUT
+
+  deploy-api-reference:
+    # Run only for same-repo PRs that touch @scalar/api-reference or its workspace deps
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !contains(github.actor, '[bot]') &&
+      needs.check-changes.outputs.api_reference_changed == 'true'
+    needs: [build, check-changes]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 15
+    concurrency:
+      group: deploy-api-reference-${{ github.ref }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+    outputs:
+      preview-url: ${{ steps.set-output.outputs.url }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Build workspace deps
+        uses: ./.github/actions/build
+        with:
+          packages: '@scalar/api-reference...'
+
+      - name: Build package root app
+        run: pnpm --filter @scalar/api-reference exec vite build . -c ./vite.previews.config.ts
+
+      - name: Deploy to Cloudflare Pages
+        id: deploy
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ./packages/api-reference/dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_API_REFERENCE }} --branch=pr-${{ github.event.pull_request.number }} --commit-hash=${{ github.event.pull_request.head.sha }}
+
+      - name: Set output
+        id: set-output
+        run: |
+          ALIAS_URL='${{ steps.deploy.outputs.pages-deployment-alias-url }}'
+          DEPLOYMENT_URL='${{ steps.deploy.outputs.deployment-url }}'
+          if [ -n "$ALIAS_URL" ]; then
+            echo "url=$ALIAS_URL" >> $GITHUB_OUTPUT
+          else
+            echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          fi
 
   deploy-components:
     # Run for PRs (preview) or main branch (production)
@@ -726,6 +787,58 @@ jobs:
         if: github.event_name == 'pull_request'
         run: echo "url=https://${{ env.DEPLOY_ID }}--scalar-components.netlify.app" >> $GITHUB_OUTPUT
 
+  deploy-api-client:
+    # Run only for same-repo PRs that touch @scalar/api-client or its workspace deps
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !contains(github.actor, '[bot]') &&
+      needs.check-changes.outputs.api_client_changed == 'true'
+    needs: [build, check-changes]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: staging
+    timeout-minutes: 15
+    concurrency:
+      group: deploy-api-client-${{ github.ref }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+    outputs:
+      preview-url: ${{ steps.set-output.outputs.url }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Build workspace deps
+        uses: ./.github/actions/build
+        with:
+          packages: 'scalar-app...'
+
+      - name: Build web app
+        run: pnpm --filter scalar-app build:web
+        env:
+          VITE_DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
+          VITE_SERVICES_URL: ${{ vars.SERVICES_URL }}
+          VITE_ENV: ${{ vars.ENVIRONMENT }}
+
+      - name: Deploy to Cloudflare Pages
+        id: deploy
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ./projects/scalar-app/dist/web --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_API_CLIENT }} --branch=pr-${{ github.event.pull_request.number }} --commit-hash=${{ github.event.pull_request.head.sha }}
+
+      - name: Set output
+        id: set-output
+        run: |
+          ALIAS_URL='${{ steps.deploy.outputs.pages-deployment-alias-url }}'
+          DEPLOYMENT_URL='${{ steps.deploy.outputs.deployment-url }}'
+          if [ -n "$ALIAS_URL" ]; then
+            echo "url=$ALIAS_URL" >> $GITHUB_OUTPUT
+          else
+            echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          fi
+
   galaxy-registry-preview:
     # Only run for PRs from the same repository
     if: |
@@ -778,13 +891,22 @@ jobs:
     # Only run for PRs from the same repository
     if: |
       always() &&
-      (needs.deploy-api-reference.result == 'success' ||
+      (needs.deploy-examples.result == 'success' ||
+       needs.deploy-api-reference.result == 'success' ||
        needs.deploy-components.result == 'success' ||
+       needs.deploy-api-client.result == 'success' ||
        needs.galaxy-registry-preview.result == 'success') &&
       github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       !contains(github.actor, '[bot]')
-    needs: [deploy-api-reference, deploy-components, galaxy-registry-preview]
+    needs:
+      [
+        deploy-examples,
+        deploy-api-reference,
+        deploy-components,
+        deploy-api-client,
+        galaxy-registry-preview,
+      ]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 5
     permissions:
@@ -795,8 +917,16 @@ jobs:
         run: |
           MESSAGE=""
 
-          if [ "${{ needs.deploy-api-reference.result }}" == "success" ]; then
+          if [ "${{ needs.deploy-examples.result }}" == "success" ]; then
             MESSAGE="$MESSAGE**Preview Examples**
+
+          ${{ needs.deploy-examples.outputs.preview-url }}
+
+          "
+          fi
+
+          if [ "${{ needs.deploy-api-reference.result }}" == "success" ]; then
+            MESSAGE="$MESSAGE**Preview API Reference**
 
           ${{ needs.deploy-api-reference.outputs.preview-url }}
 
@@ -807,6 +937,14 @@ jobs:
             MESSAGE="$MESSAGE**Preview Storybook**
 
           ${{ needs.deploy-components.outputs.preview-url }}
+
+          "
+          fi
+
+          if [ "${{ needs.deploy-api-client.result }}" == "success" ]; then
+            MESSAGE="$MESSAGE**Preview API Client**
+
+          ${{ needs.deploy-api-client.outputs.preview-url }}
 
           "
           fi

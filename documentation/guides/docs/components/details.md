@@ -31,9 +31,6 @@ to start in a collapsed state.
 
 ### Basic Collapsible Section
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-detail title="More Info">
 
 Here is some additional content.
@@ -45,29 +42,9 @@ Here is some additional content.
 Here is some additional content.
 </scalar-detail>
 ```
-
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-:::scalar-detail{title="More Info"}
-Here is some additional content.
-:::
-
-```markdown
-:::scalar-detail{title="More Info"}
-Here is some additional content.
-:::
-```
-
-</scalar-tab>
-</scalar-tabs>
 
 ### Open by Default
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-detail title="Default Open" open>
 
 The section is open by default.
@@ -79,29 +56,9 @@ The section is open by default.
 The section is open by default.
 </scalar-detail>
 ```
-
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-:::scalar-detail{title="Default Open" open='true'}
-The section is open by default.
-:::
-
-```markdown
-:::scalar-detail{title="Default Open" open='true'}
-The section is open by default.
-:::
-```
-
-</scalar-tab>
-</scalar-tabs>
 
 ### With Custom Icon
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-detail title="Custom Icon" icon="airplane">
 
 Using a custom icon.
@@ -113,28 +70,8 @@ Using a custom icon.
 Using a custom icon.
 </scalar-detail>
 ```
-
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-:::scalar-detail{title="Custom Icon" icon="airplane" }
-Using a custom icon.
-:::
-
-```markdown
-:::scalar-detail{title="Custom Icon" icon="airplane"}
-Using a custom icon.
-:::
-```
-
-</scalar-tab>
-</scalar-tabs>
 
 ### Non-interactive Block
-
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
 
 <scalar-detail title="Non-Interactive" interactivity=none>
 
@@ -148,28 +85,8 @@ These do not collapse when clicked.
 </scalar-detail>
 ```
 
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-:::scalar-detail{title="Non-Interactive" interactivity="none" }
-These do not collapse when clicked.
-:::
-
-```markdown
-:::scalar-detail{title="Non-Interactive" interactivity="none" }
-These do not collapse when clicked.
-:::
-```
-
-</scalar-tab>
-</scalar-tabs>
-
 ### Nested
 
-
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
 <scalar-detail title="Nested, Outer" >
 
 Outer details content.
@@ -190,26 +107,4 @@ Outer details content.
 Inner details content.
 </scalar-detail>
 </scalar-detail>
-```
-
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::::scalar-detail{title="Nested, Outer" }
-With directives, the parent must have at least 1 more `:` than the elements it wraps.
-
-:::scalar-detail{title="Non-Interactive" }
-Inner details content.
-:::
-::::
-
-```markdown
-::::scalar-detail{title="Nested, Outer" }
-With directives, the parent must have at least 1 more `:` than the elements it wraps.
-
-:::scalar-detail{title="Non-Interactive" }
-Inner details content.
-:::
-::::
 ```

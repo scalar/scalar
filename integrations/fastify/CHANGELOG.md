@@ -1,5 +1,21 @@
 # @scalar/fastify-api-reference
 
+## 1.55.2
+
+## 1.55.1
+
+## 1.55.0
+
+### Patch Changes
+
+- [#9043](https://github.com/scalar/scalar/pull/9043): chore: move test documents to cdn
+
+## 1.54.0
+
+## 1.53.1
+
+## 1.53.0
+
 ## 1.52.6
 
 ## 1.52.5

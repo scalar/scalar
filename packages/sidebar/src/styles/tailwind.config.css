@@ -1,0 +1,11 @@
+/**
+ * Sidebar Tailwind Configuration
+
+ * This file can be imported into other projects using Tailwind to
+ * generate the appropriate Tailwind utilities for the sidebar.
+ */
+
+@import "@scalar/components/tailwind.config.css"; /* Component Library Tailwind Configuration */
+
+/* Search for Tailwind classes in the sidebar components */
+@source "../";

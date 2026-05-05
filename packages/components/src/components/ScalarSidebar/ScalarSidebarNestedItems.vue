@@ -23,6 +23,7 @@ import { nextTick, ref, useTemplateRef } from 'vue'
 
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarItems from './ScalarSidebarItems.vue'
+import ScalarSidebarLoading from './ScalarSidebarLoading.vue'
 import ScalarSidebarSpacer from './ScalarSidebarSpacer.vue'
 import { findScrollContainer } from './findScrollContainer'
 import type { ScalarSidebarGroupProps } from './types'
@@ -39,7 +40,7 @@ const emit = defineEmits<{
 }>()
 
 const open = defineModel<boolean>('open', { default: false })
-useSidebarNestedItem(open)
+useSidebarNestedItem(() => open.value)
 
 defineSlots<{
   /** The text content of the button */
@@ -156,7 +157,7 @@ const handleBack = (event: MouseEvent) => {
         class="absolute inset-0 translate-x-full">
         <ScalarSidebarItems v-bind="$attrs">
           <div
-            class="flex flex-col gap-px sticky top-(--scalar-sidebar-sticky-offset,0) p-(--scalar-sidebar-padding) -m-(--scalar-sidebar-padding) mb-0 pb-0 bg-sidebar-b-1 z-1 animate-sidebar-border-bottom border-b-sidebar-border">
+            class="flex flex-col gap-px sticky top-(--scalar-sidebar-sticky-offset,0) pt-(--scalar-sidebar-padding) -mt-(--scalar-sidebar-padding) px-(--scalar-sidebar-padding) -mx-(--scalar-sidebar-padding) bg-sidebar-b-1 z-1 animate-sidebar-border-bottom border-b-sidebar-border">
             <slot name="back">
               <ScalarSidebarButton
                 is="button"
@@ -170,7 +171,10 @@ const handleBack = (event: MouseEvent) => {
             </slot>
             <ScalarSidebarSpacer class="h-3" />
           </div>
-          <slot name="items" />
+          <ScalarSidebarLoading v-if="loading" />
+          <slot
+            v-else
+            name="items" />
         </ScalarSidebarItems>
       </div>
     </Transition>

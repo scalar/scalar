@@ -45,7 +45,7 @@ const AgentScalarChatInterface = defineAsyncComponent(
     leaveToClass="-translate-x-full">
     <div
       v-show="agentContext?.showAgent.value"
-      class="agent-scalar left-w-sidebar bg-b-1 fixed inset-y-0 right-12 z-10 grid border-r shadow-lg"
+      class="agent-scalar left-refs-w-sidebar bg-b-1 fixed inset-y-0 right-12 z-10 grid border-r shadow-lg"
       @keydown.escape="agentContext?.closeAgent()">
       <div
         class="agent-scalar-container custom-scroll custom-scroll-self-contain-overflow overflow-auto px-6">

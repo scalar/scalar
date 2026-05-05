@@ -5,7 +5,7 @@ import { flushPromises } from '@vue/test-utils'
 import { encode } from 'js-base64'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { authorizeOauth2, refreshOauth2Token } from './oauth'
+import { authorizeOauth2, getActiveServerBase, getServerUrl, refreshOauth2Token } from './oauth'
 
 const baseFlow = {
   'refreshUrl': 'https://auth.example.com/refresh',
@@ -58,6 +58,54 @@ describe('oauth', () => {
   const mockServer = {
     url: 'https://api.example.com',
   } as ServerObject
+
+  describe('Server URL helpers', () => {
+    it('resolves server URLs with OpenAPI server variables and environment variables', () => {
+      const server: ServerObject = {
+        url: '{protocol}://{{hostname}}/{basePath}',
+        variables: {
+          protocol: { default: 'https' },
+          basePath: { default: 'v1' },
+        },
+      }
+
+      const result = getServerUrl(server, { hostname: 'api.example.com' })
+
+      expect(result).toBe('https://api.example.com/v1')
+    })
+
+    it('returns an empty server URL when no active server is selected', () => {
+      const result = getServerUrl(null)
+
+      expect(result).toBe('')
+    })
+
+    it('returns a baseUrl for absolute active server URLs', () => {
+      const server: ServerObject = {
+        url: 'https://api.example.com',
+      }
+
+      const result = getActiveServerBase(server)
+
+      expect(result).toEqual({ baseUrl: 'https://api.example.com' })
+    })
+
+    it('returns a browser basePath for relative active server URLs', () => {
+      const server: ServerObject = {
+        url: '/api/{{version}}',
+      }
+
+      const result = getActiveServerBase(server, { version: 'v2' })
+
+      expect(result).toEqual({ basePath: '/api/v2' })
+    })
+
+    it('returns an empty base when no active server URL is available', () => {
+      const result = getActiveServerBase(null)
+
+      expect(result).toEqual({})
+    })
+  })
 
   describe('Authorization Code Grant', () => {
     const scheme = {
@@ -423,6 +471,95 @@ describe('oauth', () => {
       expect(error!.message).toBe('State mismatch')
     })
 
+    it('uses query state before hash state when both are present', async () => {
+      const promise = authorizeOauth2(scheme, 'authorizationCode', selectedScopes, mockServer, '')
+      const accessToken = 'access_token_123'
+
+      mockWindow.location.href = `${scheme.authorizationCode['x-scalar-secret-redirect-uri']}?code=auth_code_123&state=${state}#state=bad_state`
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () => Promise.resolve({ access_token: accessToken }),
+      })
+
+      vi.advanceTimersByTime(200)
+
+      const [error, result] = await promise
+      expect(error).toBe(null)
+      expect(result).toEqual({ accessToken })
+    })
+
+    it('accepts authorization code callbacks that return code and state in the hash', async () => {
+      const promise = authorizeOauth2(scheme, 'authorizationCode', selectedScopes, mockServer, '')
+      const accessToken = 'access_token_from_hash_123'
+
+      mockWindow.location.href = `${scheme.authorizationCode['x-scalar-secret-redirect-uri']}#code=auth_code_from_hash&state=${state}`
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () => Promise.resolve({ access_token: accessToken }),
+      })
+
+      vi.advanceTimersByTime(200)
+
+      const [error, result] = await promise
+      expect(error).toBe(null)
+      expect(result).toEqual({ accessToken })
+
+      const callArgs = vi.mocked(global.fetch).mock.calls[0]
+      expect(callArgs).toBeDefined()
+      const body = callArgs![1]?.body as URLSearchParams
+      expect(body.get('code')).toBe('auth_code_from_hash')
+    })
+
+    it('rejects authorization code callbacks when code and state come from different URL components', async () => {
+      const promise = authorizeOauth2(scheme, 'authorizationCode', selectedScopes, mockServer, '')
+
+      mockWindow.location.href = `${scheme.authorizationCode['x-scalar-secret-redirect-uri']}?state=${state}#code=auth_code_from_hash&state=bad_state`
+      vi.advanceTimersByTime(200)
+
+      const [error, result] = await promise
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('State mismatch')
+    })
+
+    it('handles malformed popup callback URLs as closed authorization windows', async () => {
+      const promise = authorizeOauth2(scheme, 'authorizationCode', selectedScopes, mockServer, '')
+
+      mockWindow.location.href = 'not a valid callback url'
+      mockWindow.closed = true
+      vi.advanceTimersByTime(200)
+
+      const [error, result] = await promise
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('Window was closed without granting authorization')
+    })
+
+    it('resolves unexpected token exchange rejections as error tuples', async () => {
+      const throwingSecurityBodyFlow = {
+        ...scheme.authorizationCode,
+      }
+
+      Object.defineProperty(throwingSecurityBodyFlow, 'x-scalar-security-body', {
+        get: () => {
+          throw new Error('Unexpected token exchange failure')
+        },
+      })
+
+      const flows = {
+        authorizationCode: throwingSecurityBodyFlow,
+      } as OAuthFlowsObjectSecret
+      const promise = authorizeOauth2(flows, 'authorizationCode', selectedScopes, mockServer, '')
+
+      mockWindow.location.href = `${flows.authorizationCode!['x-scalar-secret-redirect-uri']}?code=auth_code_123&state=${state}`
+      vi.advanceTimersByTime(200)
+
+      const [error, result] = await promise
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('Unexpected token exchange failure')
+    })
+
     it('should use the proxy if provided', async () => {
       const promise = authorizeOauth2(
         scheme,
@@ -691,7 +828,34 @@ describe('oauth', () => {
       const [error, result] = await authorizeOauth2(scheme, 'clientCredentials', selectedScopes, mockServer, '')
       expect(result).toBe(null)
       expect(error).toBeInstanceOf(Error)
-      expect(error!.message).toBe('Failed to get an access token. Please check your credentials.')
+      expect(error!.message).toBe('Network error')
+    })
+
+    it('surfaces OAuth error when server returns error response', async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            error: 'invalid_client',
+            error_description: 'Client authentication failed',
+          }),
+      })
+      const [error, result] = await authorizeOauth2(scheme, 'clientCredentials', selectedScopes, mockServer, '')
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('Client authentication failed')
+    })
+
+    it('surfaces OAuth error without description when only error code is provided', async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            error: 'invalid_grant',
+          }),
+      })
+      const [error, result] = await authorizeOauth2(scheme, 'clientCredentials', selectedScopes, mockServer, '')
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('invalid_grant')
     })
 
     it('should use custom token name when x-tokenName is specified', async () => {
@@ -1058,6 +1222,47 @@ describe('oauth', () => {
       const [error, result] = await promise
       expect(error).toBe(null)
       expect(result).toEqual({ accessToken: 'custom_implicit_token_123' })
+    })
+
+    it('accepts implicit tokens from query parameters', async () => {
+      const promise = authorizeOauth2(scheme, 'implicit', selectedScopes, mockServer, '')
+
+      mockWindow.location.href = `${scheme.implicit['x-scalar-secret-redirect-uri']}?access_token=query_token_123&state=${state}`
+
+      vi.advanceTimersByTime(200)
+      vi.runAllTicks()
+
+      const [error, result] = await promise
+      expect(error).toBe(null)
+      expect(result).toEqual({ accessToken: 'query_token_123' })
+    })
+
+    it('rejects implicit callbacks when token and state come from different URL components', async () => {
+      const promise = authorizeOauth2(scheme, 'implicit', selectedScopes, mockServer, '')
+
+      mockWindow.location.href = `${scheme.implicit['x-scalar-secret-redirect-uri']}?state=${state}#access_token=implicit_token_123&state=bad_state`
+
+      vi.advanceTimersByTime(200)
+      vi.runAllTicks()
+
+      const [error, result] = await promise
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('State mismatch')
+    })
+
+    it('rejects implicit callbacks that return a token without state', async () => {
+      const promise = authorizeOauth2(scheme, 'implicit', selectedScopes, mockServer, '')
+
+      mockWindow.location.href = `${scheme.implicit['x-scalar-secret-redirect-uri']}#access_token=implicit_token_123`
+
+      vi.advanceTimersByTime(200)
+      vi.runAllTicks()
+
+      const [error, result] = await promise
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('State mismatch')
     })
 
     it('should handle relative authorization URL in implicit flow', async () => {
@@ -1556,7 +1761,7 @@ describe('oauth', () => {
       const [error, result] = await refreshOauth2Token(refreshScheme, 'authorizationCode', '', mockServer)
       expect(result).toBe(null)
       expect(error).toBeInstanceOf(Error)
-      expect(error!.message).toBe('Failed to refresh the access token. Please re-authorize.')
+      expect(error!.message).toBe('Network error')
     })
 
     it('returns the server error_description when the token endpoint rejects the refresh', async () => {

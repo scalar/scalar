@@ -10,11 +10,10 @@ The Scalar Java integration consists of **3 separate modules**:
 - **`scalar-webmvc`** - Spring Boot WebMVC integration module
 - **`scalar-webflux`** - Spring Boot WebFlux integration module
 
-:::scalar-callout{ type=warning }
-**Breaking Change**: Previously, there was only a single `scalar` module that was compatible with Spring Boot MVC. The integration has been restructured into 3 separate modules to support both WebMVC and WebFlux, and to provide a framework-agnostic core module.
-
-**Migration**: If you were using the old `scalar` module, replace it with `scalar-webmvc` for Spring Boot WebMVC applications. See the [Migration Guide](#migration-guide) below for details.
-:::
+> [!WARNING]
+> **Breaking Change**: Previously, there was only a single `scalar` module that was compatible with Spring Boot MVC. The integration has been restructured into 3 separate modules to support both WebMVC and WebFlux, and to provide a framework-agnostic core module.
+>
+> **Migration**: If you were using the old `scalar` module, replace it with `scalar-webmvc` for Spring Boot WebMVC applications. See the [Migration Guide](#migration-guide) below for details.
 
 ## Migration Guide
 
@@ -299,13 +298,11 @@ Related: [How to get an Agent key](../guides/agent/key.md).
 
 Scalar allows you to pre-configure authentication details for your API, making it easier for developers to test your endpoints.
 
-:::scalar-callout{ type=warning }
-**Before you start**: Your OpenAPI document must already include authentication security schemes for Scalar to work with them. Scalar can only pre-fill authentication details for schemes that are already defined in your OpenAPI specification.
-:::
+> [!WARNING]
+> **Before you start**: Your OpenAPI document must already include authentication security schemes for Scalar to work with them. Scalar can only pre-fill authentication details for schemes that are already defined in your OpenAPI specification.
 
-:::scalar-callout{ type=danger }
-**Security Notice**: Pre-filled authentication details are visible in the browser and should **never** be used in production environments. Only use this feature for development and testing.
-:::
+> [!CAUTION]
+> **Security Notice**: Pre-filled authentication details are visible in the browser and should **never** be used in production environments. Only use this feature for development and testing.
 
 #### API Key Authentication
 

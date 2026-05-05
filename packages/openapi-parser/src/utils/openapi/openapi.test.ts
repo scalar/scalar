@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { stringify } from 'yaml'
 
 import { readFiles } from '@/plugins/read-files/read-files'
+import type { AnyObject } from '@/types/index'
 
 import { openapi } from './openapi'
 
@@ -183,7 +184,11 @@ describe('pipeline', () => {
 
     const { specification } = await openapi()
       .load(otherExample)
-      .filter((schema) => !schema?.tags?.includes('Beta'))
+      .filter((schema) => {
+        const tags = schema.tags
+
+        return !Array.isArray(tags) || !tags.includes('Beta')
+      })
       .get()
 
     expect(specification.paths['/'].get).toBeUndefined()
@@ -223,7 +228,11 @@ describe('pipeline', () => {
     const { specification } = await openapi()
       .load(otherExample)
       .upgrade()
-      .filter((schema) => !schema?.tags?.includes('Beta'))
+      .filter((schema) => {
+        const tags = schema.tags
+
+        return !Array.isArray(tags) || !tags.includes('Beta')
+      })
       .get()
 
     expect(specification.openapi).toBe('3.1.1')
@@ -255,7 +264,7 @@ describe('pipeline', () => {
   it('dereference', async () => {
     const result = await openapi().load(example).dereference().get()
 
-    expect(result.schema.info.title).toBe('Hello World')
+    expect((result.schema as AnyObject).info.title).toBe('Hello World')
   })
 
   it('validate > dereference', async () => {
@@ -263,7 +272,7 @@ describe('pipeline', () => {
 
     expect(result.valid).toBe(true)
     expect(result.errors).toStrictEqual([])
-    expect(result.schema.info.title).toBe('Hello World')
+    expect((result.schema as AnyObject).info.title).toBe('Hello World')
   })
 
   it('throws an error when dereference fails (global)', () => {

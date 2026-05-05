@@ -252,6 +252,42 @@ export const DiscreteGroups: Story = {
   }),
 }
 
+export const LoadingGroups: Story = {
+  argTypes: { indent: { control: 'number' } },
+  args: { indent: 20, open: true },
+  render: (args) => ({
+    components: {
+      ScalarSidebar,
+      ScalarSidebarItem,
+      ScalarSidebarItems,
+      ScalarSidebarSection,
+      ScalarSidebarNestedItems,
+      ScalarSidebarGroup,
+      ScalarSidebarPlayground,
+    },
+    setup() {
+      const selected = ref('')
+      return { args, selected }
+    },
+    template: `
+<ScalarSidebarPlayground v-model:selected="selected" v-bind="args">
+  <ScalarSidebarItems>
+    <ScalarSidebarNestedItems loading>
+      Nested Items Loading
+      <template #items>
+        ${nestedItemGroups()}
+      </template>
+    </ScalarSidebarNestedItems>
+    <ScalarSidebarSection loading>
+      Loading Section
+    </ScalarSidebarSection>
+    ${nestedItemGroups({ groupAttrs: () => `:icon="args.icon" :open="args.open" :controlled="args.controlled" loading` })}
+  </ScalarSidebarItems>
+</ScalarSidebarPlayground>
+`,
+  }),
+}
+
 export const Footer: Story = {
   render: (args) => ({
     components: { ScalarSidebarPlayground, ScalarSidebarFooter },

@@ -23,6 +23,8 @@ export type OperationBlockProps = {
   appVersion: string
   /** Openapi document */
   document: OpenApiDocument
+  /** Openapi document slug */
+  documentSlug: string
   /** Workspace cookies */
   workspaceCookies: XScalarCookie[]
   /** Document cookies */
@@ -151,6 +153,7 @@ const {
   eventBus,
   exampleKey,
   document,
+  documentSlug,
   workspaceCookies = [],
   documentCookies = [],
   hideClientButton,
@@ -190,6 +193,8 @@ const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
 
 /** Execute the current operation example */
 const handleExecute = async () => {
+  eventBus.flushDebouncedEmits?.()
+
   const pathValidation = validatePathParameters(
     operation.parameters ?? [],
     exampleKey,
@@ -407,6 +412,15 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
   })
 }
 
+const handleNavigateSettings = () => {
+  eventBus.emit('ui:navigate', {
+    page: 'operation',
+    path: 'overview',
+    operationPath: path,
+    method,
+  })
+}
+
 /**
  * When the path, method, or example key changes: save current response to
  * cache (so it can be restored when navigating back), then restore from cache
@@ -444,10 +458,12 @@ onBeforeUnmount(() => {
       <!-- Address Bar -->
       <Header
         :activeEnvironment
+        :documentSlug
         :documentUrl
         :environment
         :environments
         :eventBus
+        :exampleKey
         :hideClientButton
         :history="operationHistory"
         :integration
@@ -459,6 +475,7 @@ onBeforeUnmount(() => {
         :servers
         :source
         @execute="handleExecute"
+        @navigate:settings="handleNavigateSettings"
         @select:history:item="handleSelectHistoryItem" />
     </div>
 

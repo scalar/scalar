@@ -22,9 +22,8 @@
     "documentation/assets/posthog.js",
     "documentation/assets/apollo.js",
     "documentation/assets/vector.js",
-    "documentation/assets/enterprise-contact-form.js",
-    // Generated Docusaurus build directory
-    "integrations/docusaurus/playground/.docusaurus/**"
+    "documentation/assets/brand.js",
+    "documentation/assets/enterprise-contact-form.js"
   ],
   "ignore": [
     // We will use this in the future, just removed it from the workspace store for now
@@ -35,6 +34,8 @@
   "ignoreDependencies": [
     // Used by `ci.yml` `npm-publish` job
     "@changesets/cli",
+    // Used by GitHub Actions Cloudflare Pages deployment (`cloudflare/wrangler-action`)
+    "wrangler",
     // Used by `.changeset/config.json`
     "@scalar-internal/changelog-generator",
     // Required on root to have proper format with prettier
@@ -55,7 +56,10 @@
     // Astro component Props interface is used by the framework
     "integrations/astro/src/ScalarComponent.astro": ["types"],
     // setupFiles string path cannot be resolved by knip
-    "packages/api-reference/vitest.config.ts": ["unresolved"]
+    "packages/api-reference/vitest.config.ts": ["unresolved"],
+    // Nuxt virtual alias resolved at runtime by Nuxt, not by knip static analysis
+    "integrations/nuxt/src/runtime/components/ScalarApiReference.vue": ["unresolved"],
+    "integrations/nuxt/src/runtime/pages/ScalarPage.vue": ["unresolved"]
   },
   "workspaces": {
     "packages/api-client": {
@@ -101,7 +105,7 @@
     },
     "packages/agent-chat": {
       "ignore": ["playground/**", "src/entities/**"],
-      "ignoreDependencies": ["@scalar/themes", "hono"]
+      "ignoreDependencies": ["@scalar/themes", "@scalar/sidebar", "hono"]
     },
     "packages/api-reference": {
       "entry": [
@@ -114,6 +118,8 @@
         "src/features/index.ts",
         "src/helpers/index.ts",
         "src/esm.ts",
+        // Used by CI deploy-api-reference preview build
+        "vite.previews.config.ts",
         // Not sure why test files are marked as unused here
         "test/**/*",
         "src/**/*.test.ts"
@@ -352,6 +358,34 @@
       ],
       "ignoreDependencies": [
         "@scalar/api-client" // referenced in /src/runtime/components/nuxt-theme.css
+      ]
+    },
+    "projects/scalar-app": {
+      "ignoreDependencies": [
+        // Used as a Vite worker string reference ('monaco-yaml/yaml.worker'), not an ES import
+        "monaco-yaml",
+        // Used as a Vite/Vitest alias target, not imported directly
+        "posthog-js"
+      ],
+      "typescript": {
+        "config": ["tsconfig.web.json", "tsconfig.node.json"]
+      },
+      "paths": {
+        "@/*": ["./src/*"],
+        "@electron/*": ["./entrypoints/electron/*"],
+        "@web/*": ["./entrypoints/web/src/*"]
+      },
+      "entry": [
+        // Web app
+        "entrypoints/web/src/main.ts",
+        // Electron main process
+        "entrypoints/electron/main/index.ts",
+        // Electron preload script
+        "entrypoints/electron/preload/index.ts",
+        // Electron renderer
+        "entrypoints/electron/renderer/src/main.ts",
+        // Vite configs
+        "electron.vite.config.ts"
       ]
     },
     "integrations/sveltekit": {

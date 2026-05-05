@@ -65,9 +65,8 @@ app.MapGet("/internal/metrics", GetMetrics).ExcludeFromApiReference();
 public IActionResult GetInternalMetrics() => Ok();
 ```
 
-:::scalar-callout{ type=info }
-Endpoints remain accessible via the API but won't appear in the API Reference interface.
-:::
+> [!NOTE]
+> Endpoints remain accessible via the API but won't appear in the API Reference interface.
 
 ### Code Samples
 

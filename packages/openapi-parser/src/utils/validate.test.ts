@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import type { AnyObject } from '@/types/index'
 
 import { validate } from './validate'
 
@@ -47,7 +48,7 @@ info:
 paths: {}
 `)
 
-    expect(result.schema.info.title).toBe('Hello World')
+    expect((result.schema as AnyObject).info.title).toBe('Hello World')
   })
 
   it('works with OpenAPI 3.2.0', async () => {
@@ -61,7 +62,7 @@ paths: {}
     }`)
 
     expect(result.valid).toBe(true)
-    expect(result.schema.info.title).toBe('Hello World')
+    expect((result.schema as AnyObject).info.title).toBe('Hello World')
   })
 
   it(`doesn't work with OpenAPI 4.0.0`, async () => {

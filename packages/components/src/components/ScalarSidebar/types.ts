@@ -59,6 +59,12 @@ export type ScalarSidebarGroupProps = ScalarSidebarItemProps & {
    * </ScalarSidebarGroup>
    */
   discrete?: boolean
+  /**
+   * Whether the group items are loading
+   *
+   * Will render a loading skeleton for the contents of the group
+   */
+  loading?: boolean
 }
 
 /** Scalar Sidebar Item Slots */

@@ -5,23 +5,16 @@ import { nextTick } from 'vue'
 
 import CommandPaletteImportCurl from './CommandPaletteImportCurl.vue'
 
-// Mock router
-const mockPush = vi.fn()
-vi.mock('vue-router', () => ({
-  useRouter: () => ({
-    push: mockPush,
-  }),
-}))
-
 describe('CommandPaletteImportCurl', () => {
   const createMockEventBus = () => ({
     emit: vi.fn(),
     on: vi.fn(),
+    once: vi.fn(),
     off: vi.fn(),
   })
 
   beforeEach(() => {
-    mockPush.mockClear()
+    vi.clearAllMocks()
   })
 
   afterEach(() => {
@@ -292,6 +285,71 @@ describe('CommandPaletteImportCurl', () => {
     expect(form.props('disabled')).toBe(true)
   })
 
+  it('shows an inline error when the operation already exists', async () => {
+    const workspaceStore = createWorkspaceStore()
+    await workspaceStore.addDocument({
+      name: 'test-doc',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/users': {
+            get: {
+              operationId: 'getUsers',
+            },
+          },
+        },
+      },
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteImportCurl, {
+      props: {
+        workspaceStore,
+        eventBus,
+        inputValue: 'curl https://example.com/users',
+      },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', 'example-1')
+    await nextTick()
+
+    const error = wrapper.find('[data-testid="command-palette-import-curl-error"]')
+    expect(error.exists()).toBe(true)
+    expect(error.attributes('role')).toBe('alert')
+    expect(error.text()).toContain('GET')
+    expect(error.text()).toContain('/users')
+    expect(error.text()).toContain('already exists')
+  })
+
+  it('does not show an inline error when the operation does not conflict', async () => {
+    const workspaceStore = createWorkspaceStore()
+    await workspaceStore.addDocument({
+      name: 'test-doc',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {},
+      },
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteImportCurl, {
+      props: {
+        workspaceStore,
+        eventBus,
+        inputValue: 'curl https://example.com/users',
+      },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', 'example-1')
+    await nextTick()
+
+    expect(wrapper.find('[data-testid="command-palette-import-curl-error"]').exists()).toBe(false)
+  })
+
   it('enables form when operation does not exist', async () => {
     const workspaceStore = createWorkspaceStore()
     await workspaceStore.addDocument({
@@ -545,14 +603,12 @@ describe('CommandPaletteImportCurl', () => {
     const callback = emitCall?.[1]?.callback
     callback?.(true)
 
-    expect(mockPush).toHaveBeenCalledWith({
-      name: 'example',
-      params: {
-        documentSlug: 'test-doc',
-        pathEncoded: encodeURIComponent('/users'),
-        method: 'get',
-        exampleName: 'my-example',
-      },
+    expect(eventBus.emit).toHaveBeenCalledWith('ui:navigate', {
+      page: 'example',
+      documentSlug: 'test-doc',
+      path: '/users',
+      method: 'get',
+      exampleName: 'my-example',
     })
   })
 
@@ -587,11 +643,11 @@ describe('CommandPaletteImportCurl', () => {
     const callback = emitCall?.[1]?.callback
     callback?.(true)
 
-    expect(mockPush).toHaveBeenCalledWith(
+    expect(eventBus.emit).toHaveBeenCalledWith(
+      'ui:navigate',
       expect.objectContaining({
-        params: expect.objectContaining({
-          pathEncoded: expect.any(String),
-        }),
+        page: 'example',
+        path: expect.stringMatching(/^\//),
       }),
     )
   })
@@ -630,7 +686,7 @@ describe('CommandPaletteImportCurl', () => {
     callback?.(false)
 
     expect(workspaceStore.buildSidebar).not.toHaveBeenCalled()
-    expect(mockPush).not.toHaveBeenCalled()
+    expect(eventBus.emit).not.toHaveBeenCalledWith('ui:navigate', expect.anything())
   })
 
   it('renders submit button with correct text', () => {

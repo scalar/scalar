@@ -1,5 +1,29 @@
 # @scalar/helpers
 
+## 0.6.0
+
+### Minor Changes
+
+- [#9050](https://github.com/scalar/scalar/pull/9050): feat: better support for error as values
+
+## 0.5.5
+
+### Patch Changes
+
+- [#9023](https://github.com/scalar/scalar/pull/9023): chore: use homemade slugger
+
+## 0.5.4
+
+### Patch Changes
+
+- [#9043](https://github.com/scalar/scalar/pull/9043): chore: move test documents to cdn
+
+## 0.5.3
+
+### Patch Changes
+
+- [#8971](https://github.com/scalar/scalar/pull/8971): feat(helpers): add a helper playwright utilities
+
 ## 0.5.2
 
 ### Patch Changes

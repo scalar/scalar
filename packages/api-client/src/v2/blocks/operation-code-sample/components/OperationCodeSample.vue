@@ -393,7 +393,7 @@ const id = useId()
         <ScalarVirtualText
           v-else
           containerClass="custom-scroll scalar-code-block border rounded-b flex flex-1 max-h-screen"
-          contentClass="language-plaintext whitespace-pre font-code text-base"
+          contentClass="language-plaintext whitespace-pre font-code text-base p-2"
           :lineHeight="20"
           :text="generatedCode" />
       </div>
@@ -441,6 +441,7 @@ const id = useId()
 </template>
 <style scoped>
 .request-card {
+  color: var(--scalar-color-1);
   font-size: var(--scalar-font-size-3);
 }
 .request-method {

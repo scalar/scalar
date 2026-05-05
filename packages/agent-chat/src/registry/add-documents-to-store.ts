@@ -18,6 +18,7 @@ export const loadDocument = n.safeFn(
     slug,
     workspaceStore,
     registryDocuments,
+    getAccessToken,
     registryUrl,
     config,
     api,
@@ -26,6 +27,7 @@ export const loadDocument = n.safeFn(
     namespace: string
     slug: string
     workspaceStore: WorkspaceStore
+    getAccessToken?: () => string
     registryDocuments: Ref<ApiMetadata[]>
     registryUrl: string
     config: Partial<ApiReferenceConfiguration>
@@ -45,8 +47,28 @@ export const loadDocument = n.safeFn(
 
     const url = new URL(`/@${namespace}/apis/${slug}/latest`, registryUrl)
 
+    const headers: {
+      headers: HeadersInit
+      domains: string[]
+    }[] = []
+
+    const token = getAccessToken?.()
+
+    if (token) {
+      headers.push({
+        domains: [new URL(registryUrl).host],
+        headers: {
+          'x-scalar-auth': token,
+        },
+      })
+    }
+
     const document: OpenAPIV3_1.Document = await bundle(url.toString(), {
-      plugins: [fetchUrls()],
+      plugins: [
+        fetchUrls({
+          headers,
+        }),
+      ],
       treeShake: false,
     })
 

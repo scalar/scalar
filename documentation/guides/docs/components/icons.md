@@ -32,9 +32,6 @@ The display size of the icon as a CSS width/height value. This controls how larg
 
 ### Basic Icon
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-icon
   src="check-circle"
   title="Success indicator">
@@ -47,23 +44,7 @@ The display size of the icon as a CSS width/height value. This controls how larg
 </scalar-icon>
 ```
 
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-icon{ src="check-circle" title="Success indicator" }
-
-```markdown
-::scalar-icon{ src="check-circle" title="Success indicator" }
-```
-
-</scalar-tab>
-</scalar-tabs>
-
 ### Icon with Custom Classes
-
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
 
 <scalar-icon
   src="warning"
@@ -79,23 +60,7 @@ The display size of the icon as a CSS width/height value. This controls how larg
 </scalar-icon>
 ```
 
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-icon{ src="warning" title="Warning message" class="text-yellow-500 mr-2" }
-
-```markdown
-::scalar-icon{ src="warning" title="Warning message" class="text-yellow-500 mr-2" }
-```
-
-</scalar-tab>
-</scalar-tabs>
-
 ### Sized Icon
-
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
 
 <scalar-icon
   src="info"
@@ -112,25 +77,9 @@ The display size of the icon as a CSS width/height value. This controls how larg
   class="text-blue-600">
 </scalar-icon>
 ```
-
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-icon{ src="info" title="Information" size="24px" class="text-blue-600" }
-
-```markdown
-::scalar-icon{ src="info" title="Information" size="24px" class="text-blue-600" }
-```
-
-</scalar-tab>
-</scalar-tabs>
 
 ### Different Size Units
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-icon
   src="star"
   title="Small icon"
@@ -168,35 +117,11 @@ The display size of the icon as a CSS width/height value. This controls how larg
   size="2rem">
 </scalar-icon>
 ```
-
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-icon{ src="star" title="Small icon" size="16px" }
-
-::scalar-icon{ src="star" title="Medium icon" size="1.5em" }
-
-::scalar-icon{ src="star" title="Large icon" size="2rem" }
-
-```markdown
-::scalar-icon{ src="star" title="Small icon" size="16px" }
-
-::scalar-icon{ src="star" title="Medium icon" size="1.5em" }
-
-::scalar-icon{ src="star" title="Large icon" size="2rem" }
-```
-
-</scalar-tab>
-</scalar-tabs>
 
 ### Icon from URL
 
 Icons can load from external URLs, supporting both SVG files and regular image formats (PNG, JPG, etc.).
 
-<scalar-tabs>
-<scalar-tab title="Custom HTML">
-
 <scalar-icon
   src="https://avatars.githubusercontent.com/u/301879?s=200&v=4"
   title="Custom icon from URL"
@@ -212,16 +137,3 @@ Icons can load from external URLs, supporting both SVG files and regular image f
   size="4em">
 </scalar-icon>
 ```
-
-</scalar-tab>
-
-<scalar-tab title="Directive">
-
-::scalar-icon{ src="https://avatars.githubusercontent.com/u/301879?s=200&v=4" title="Custom icon from URL" class="icon-custom" size="4em" }
-
-```markdown
-::scalar-icon{ src="https://avatars.githubusercontent.com/u/301879?s=200&v=4" title="Custom icon from URL" class="icon-custom" size="4em" }
-```
-
-</scalar-tab>
-</scalar-tabs>
