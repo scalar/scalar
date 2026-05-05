@@ -92,6 +92,7 @@ catalogs:
     type-fest: ^5.3.1
     truncate-json: 3.0.1
     tsx: 4.19.4
+    undici: 7.24.4
     vite-plugin-monaco-editor-esm: 2.0.2
     vite-ssg: 28.3.0
     vite-svg-loader: 5.1.1
