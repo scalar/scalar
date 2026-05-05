@@ -7,9 +7,14 @@ describe('normalize', () => {
     expect(normalize(null)).toEqual(undefined)
   })
 
-  it('should parse JSON string specifications', () => {
+  it('parses JSON string specifications', () => {
     const jsonString = '{"foo": "bar"}'
     expect(normalize(jsonString)).toEqual({ foo: 'bar' })
+  })
+
+  it('parses JSON with a leading UTF-8 BOM', () => {
+    const jsonWithBom = `\uFEFF${JSON.stringify({ foo: 'bar' })}`
+    expect(normalize(jsonWithBom)).toEqual({ foo: 'bar' })
   })
 
   it('should parse YAML string specifications', () => {

@@ -86,6 +86,37 @@ describe('bundle', () => {
       },
     )
 
+    it('bundles external references when the remote JSON is prefixed with a UTF-8 BOM', async () => {
+      const external = {
+        prop: 'from bom payload',
+      }
+      server.get('/', (_, reply) => {
+        reply.header('Content-Type', 'application/json').send(`\uFEFF${JSON.stringify(external)}`)
+      })
+
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
+
+      const input = {
+        d: {
+          '$ref': `${url}#/prop`,
+        },
+      }
+
+      await bundle(input, { plugins: [fetchUrls(), readFiles()], treeShake: false })
+
+      expect(input).toEqual({
+        'x-ext': {
+          [getHash(url)]: {
+            ...external,
+          },
+        },
+        d: {
+          $ref: `#/x-ext/${getHash(url)}/prop`,
+        },
+      })
+    })
+
     it('bundles external urls from resolved external piece', async () => {
       const chunk2 = {
         hey: 'hey',
@@ -1959,6 +1990,23 @@ describe('bundle', () => {
           [getHash(chunk1Path)]: chunk1Path,
         },
       })
+    })
+
+    it('parses file path input when the file is JSON prefixed with a UTF-8 BOM', async () => {
+      const spec = {
+        openapi: '3.1.0',
+        info: { title: 'BOM entry', version: '1' },
+        paths: {},
+      }
+      const name = `${randomUUID()}.json`
+      const fullPath = path.join(import.meta.dirname, name)
+      await fs.writeFile(fullPath, `\uFEFF${JSON.stringify(spec)}`, 'utf8')
+
+      const result = await bundle(fullPath, { plugins: [fetchUrls(), readFiles()], treeShake: false })
+
+      await fs.rm(fullPath)
+
+      expect(result).toEqual(spec)
     })
   })
 
