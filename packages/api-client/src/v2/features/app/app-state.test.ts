@@ -1,6 +1,6 @@
 import type { Team } from '@scalar/sdk/models/components'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
+import { createWorkspaceStorePersistence, getWorkspaceId } from '@scalar/workspace-store/persistence'
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
@@ -162,7 +162,7 @@ describe('app-state', () => {
     expect(localWorkspaces.length).toBeGreaterThanOrEqual(2)
   })
 
-  it('blocks creating new team workspaces while team workspaces are disabled', async () => {
+  it('creates a new team workspace when the team has none yet', async () => {
     await persistWorkspace({ teamSlug: 'team-a', slug: 'a-workspace', name: 'A' })
 
     const router = setupRouter()
@@ -170,33 +170,41 @@ describe('app-state', () => {
 
     const result = await appState.workspace.create({ teamSlug: 'team-b', name: 'B' })
 
-    expect(result).toBeUndefined()
-    expect(appState.workspace.workspaceList.value.some((w) => w.teamSlug === 'team-b')).toBe(false)
+    expect(result).toEqual(
+      expect.objectContaining({
+        teamSlug: 'team-b',
+        name: 'B',
+      }),
+    )
+    expect(appState.workspace.workspaceList.value.some((w) => w.teamSlug === 'team-b')).toBe(true)
   })
 
-  it('hides the team workspaces section in the picker for non-local teams', async () => {
+  it('shows the team workspaces group with a placeholder when the team has no workspace yet', async () => {
     const router = setupRouter()
     // Use a team slug that no other test has persisted a workspace under so
-    // the placeholder section has no real team workspaces to render.
+    // only the synthetic default option appears in the team group.
     const appState = await createAppState({ router, currentTeam: ref(teamWithSlug('placeholder-team')) })
 
     const groups = appState.workspace.workspaceGroups.value
     const teamGroup = groups.find((g) => g.label === 'Team Workspaces')
 
-    expect(teamGroup).toBeUndefined()
+    expect(teamGroup).toBeDefined()
+    expect(teamGroup?.options).toEqual([
+      {
+        id: getWorkspaceId('placeholder-team', 'default'),
+        label: 'Workspace',
+      },
+    ])
     expect(groups.find((g) => g.label === 'Local Workspaces')).toBeDefined()
   })
 
-  it('redirects to the local default workspace when navigating to a team workspace URL', async () => {
+  it('creates the default team workspace on demand when navigating to a team workspace URL', async () => {
     const router = setupRouter()
     // Use a fresh team slug so this run starts without any persisted workspace.
     const appState = await createAppState({ router, currentTeam: ref(teamWithSlug('autocreate-team')) })
 
     expect(appState.workspace.workspaceList.value.some((w) => w.teamSlug === 'autocreate-team')).toBe(false)
 
-    // While team workspaces are disabled, navigating directly to a team
-    // workspace URL must not auto-create the workspace. The route handler
-    // should fall back to the local default instead.
     await router.push({
       name: 'document.overview',
       params: { teamSlug: 'autocreate-team', workspaceSlug: 'default', documentSlug: 'drafts' },
@@ -205,18 +213,21 @@ describe('app-state', () => {
     await waitForNavigation()
 
     await vi.waitFor(() => {
-      expect(router.currentRoute.value.params.teamSlug).toBe('local')
+      expect(router.currentRoute.value.params.teamSlug).toBe('autocreate-team')
     })
-    expect(
-      appState.workspace.workspaceList.value.some((w) => w.teamSlug === 'autocreate-team' && w.slug === 'default'),
-    ).toBe(false)
+    await vi.waitFor(() => {
+      expect(
+        appState.workspace.workspaceList.value.some((w) => w.teamSlug === 'autocreate-team' && w.slug === 'default'),
+      ).toBe(true)
+    })
+    // Team workspaces land on get-started instead of a drafts deep link.
+    expect(router.currentRoute.value.name).toBe('workspace.get-started')
   })
 
   it('does not seed a drafts document when loading a persisted team workspace', async () => {
     // Persist an empty team workspace before bootstrapping app state so it
-    // is in IndexedDB by the time the route handler asks for it. We go
-    // through the persistence layer directly because the create flow is
-    // currently gated behind TEAM_WORKSPACES_ENABLED.
+    // is in IndexedDB by the time the route handler asks for it. Using
+    // persistence avoids depending on the on-demand create path for this case.
     await persistWorkspace({ teamSlug: 'no-drafts-team', slug: 'default', name: 'Team Workspace' })
 
     const router = setupRouter()
