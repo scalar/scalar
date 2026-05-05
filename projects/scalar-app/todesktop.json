@@ -14,7 +14,7 @@
     "extends": "package.json",
     "productName": "Scalar",
     "author": {
-      "name": "Scalar (https://github.com/scalar)",
+      "name": "Scalar <support@scalar.com> (https://github.com/scalar)",
       "email": "support@scalar.com",
       "url": "https://scalar.com"
     },
