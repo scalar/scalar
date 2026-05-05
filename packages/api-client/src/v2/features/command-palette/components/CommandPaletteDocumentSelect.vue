@@ -137,9 +137,12 @@ const filterFn: ScalarComboboxFilterFunction = (
   }
   const q = query.toLowerCase()
   const matchedGroupOptionIds = new Set(
-    optionGroups
-      .filter((g) => g.label.toLowerCase().includes(q))
-      .flatMap((g) => g.options.map((o) => o.id)),
+    optionGroups.flatMap((g) => {
+      if (!g.label.toLowerCase().includes(q)) {
+        return []
+      }
+      return g.options.map((o) => o.id)
+    }),
   )
   return options.filter(
     (o) =>

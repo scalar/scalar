@@ -155,9 +155,9 @@ const errorMessage: ComputedRef<string | null> = computed(() => {
   }
 
   const document =
-    workspaceStore.workspace.documents[selectedDocument.value?.id ?? '']
+    workspaceStore.workspace.documents[selectedDocumentName.value ?? '']
 
-  if (!selectedDocument.value || !document) {
+  if (!selectedDocumentName.value || !document) {
     return null
   }
 
@@ -167,7 +167,14 @@ const errorMessage: ComputedRef<string | null> = computed(() => {
   }
 
   if (document.tags?.some((existing) => existing.name === nameTrimmed.value)) {
-    return `A tag named "${nameTrimmed.value}" already exists in "${selectedDocument.value.label}". Try a different name.`
+    const documentLabel =
+      availableDocuments.value.find(
+        (doc) =>
+          doc.id === selectedDocumentName.value ||
+          doc.versions?.some((v) => v.id === selectedDocumentName.value),
+      )?.label ?? selectedDocumentName.value
+
+    return `A tag named "${nameTrimmed.value}" already exists in "${documentLabel}". Try a different name.`
   }
 
   return null
