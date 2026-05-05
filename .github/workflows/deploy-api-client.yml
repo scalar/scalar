@@ -88,8 +88,8 @@ jobs:
           fi
 
   # Delete Cloudflare Pages preview deployments when a PR merges to main.
-  # Note: Cloudflare does not allow deleting the latest deployment for a branch,
-  # so the branch alias URL will persist, but all older deployments are cleaned up.
+  # The ?force=true parameter allows deletion of aliased (latest) deployments,
+  # so this should clean up all deployments including the branch alias URL.
   teardown:
     if: |
       github.event_name == 'pull_request' &&
@@ -98,8 +98,6 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository &&
       !contains(github.actor, '[bot]')
     runs-on: blacksmith-2vcpu-ubuntu-2204
-    # The staging environment holds the CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID,
-    # and CLOUDFLARE_PROJECT_API_CLIENT_PREVIEW vars needed for the preview project.
     environment: staging
     timeout-minutes: 5
     permissions:
@@ -129,5 +127,5 @@ jobs:
             curl -s -X DELETE \
               "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments/$ID?force=true" \
               -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | \
-              jq -r 'if .success then "Deleted " + .result.id else "Skipped: " + (.errors[0].message // "unknown error") end'
+              jq -r 'if .success then "Deleted " + (.result.id // "deployment") else "Skipped: " + (.errors[0].message // "unknown error") end'
           done
