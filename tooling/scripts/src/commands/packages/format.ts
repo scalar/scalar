@@ -9,6 +9,11 @@ import { getWorkspaceRoot } from '@/helpers'
 
 const command = new Command('format')
 
+const DO_NOT_OVERWRITE_AUTHOR_FIELDS = [
+  // toDesktop requires a certain author field in the package.json file
+  'projects/scalar-app/package.json',
+]
+
 command.action(async () => {
   const root = getWorkspaceRoot()
 
@@ -110,9 +115,12 @@ async function formatPackage(filepath: string) {
   const root = getWorkspaceRoot()
   const file = await fs.readFile(filepath, 'utf-8').catch(() => null)
 
-  if (!file) return
+  if (!file) {
+    return
+  }
 
   const data = JSON.parse(file)
+  const filePathFromRoot = path.relative(root, filepath).split(path.sep).join('/')
 
   if (data.type !== 'module' && !NO_MODULE_PACKAGES.includes(data.name)) {
     as.redBright(`Package ${data.name} must be an ECMAScript module with "type": "module"`)
@@ -142,7 +150,9 @@ async function formatPackage(filepath: string) {
       })
     } else {
       // Either assign the override or the data in sorted order
-      const value = overrides[key] ?? data[key] ?? fallbacks[key]
+      const authorOverrideAllowed = !DO_NOT_OVERWRITE_AUTHOR_FIELDS.includes(filePathFromRoot)
+      const override = key === 'author' && !authorOverrideAllowed ? undefined : overrides[key]
+      const value = override ?? data[key] ?? fallbacks[key]
       if (value) {
         formattedData[key] = value
       }
