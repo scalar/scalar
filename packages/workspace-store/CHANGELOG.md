@@ -1,5 +1,15 @@
 # @scalar/workspace-store
 
+## 0.49.2
+
+### Patch Changes
+
+- [#8921](https://github.com/scalar/scalar/pull/8921): Prevent infinite recursion when validating defaults on circular composed schemas.
+- [#9083](https://github.com/scalar/scalar/pull/9083): fix: prevent proxy leak into document meta breaking IndexedDB persistence
+- [#9059](https://github.com/scalar/scalar/pull/9059): feat: added the scalar-app back to open source
+- [#8921](https://github.com/scalar/scalar/pull/8921): fix nullable numeric schema defaults so empty-string defaults are normalized to null in generated request body examples.
+- [#9050](https://github.com/scalar/scalar/pull/9050): chore: depricate intermediate document state
+
 ## 0.49.1
 
 ### Patch Changes

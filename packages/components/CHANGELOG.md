@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.24.2
+
+### Patch Changes
+
+- [#9086](https://github.com/scalar/scalar/pull/9086): feat: code split tailwind CSS to reduce bundle size
+
 ## 0.24.1
 
 ### Patch Changes

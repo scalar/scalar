@@ -1,5 +1,12 @@
 # scalar-app
 
+## 1.0.8
+
+### Patch Changes
+
+- [#9093](https://github.com/scalar/scalar/pull/9093): fix: login on electron app
+- [#9059](https://github.com/scalar/scalar/pull/9059): feat: added the scalar-app back to open source
+
 ## 0.1.261
 
 ### Patch Changes
@@ -7,7 +14,6 @@
 #### Updated Dependencies
 
 - **@scalar/api-client@2.18.1**
-
   - [#7744](https://github.com/scalar/scalar/pull/7744): fix: pass hideClientButton config into client modal
   - [#7743](https://github.com/scalar/scalar/pull/7743): fix: complex auth
   - [#7740](https://github.com/scalar/scalar/pull/7740): fix: filter out readonly properties from requestBody
@@ -22,7 +28,6 @@
 #### Updated Dependencies
 
 - **@scalar/api-client@2.18.0**
-
   - [#7686](https://github.com/scalar/scalar/pull/7686): feat: add array + object functionality to code input
   - [#7585](https://github.com/scalar/scalar/pull/7585): feat: add copy url button on the addressbar
   - [#7713](https://github.com/scalar/scalar/pull/7713): fix: grab deprecated schema.example value
@@ -30,7 +35,6 @@
   - [#7730](https://github.com/scalar/scalar/pull/7730): fix: ensure path params work on the client
 
 - **@scalar/components@0.16.19**
-
   - [#7725](https://github.com/scalar/scalar/pull/7725): fix(components): support slot for nested items icon
   - [#7693](https://github.com/scalar/scalar/pull/7693): feat: markdown default line height
 
@@ -43,7 +47,6 @@
 #### Updated Dependencies
 
 - **@scalar/api-client@2.17.8**
-
   - [#7699](https://github.com/scalar/scalar/pull/7699): feat: added ui for oauth2 credentials location
   - [#7715](https://github.com/scalar/scalar/pull/7715): fix: remove scrollbar from buttons
 
@@ -56,7 +59,6 @@
 #### Updated Dependencies
 
 - **@scalar/components@0.16.17**
-
   - [#7680](https://github.com/scalar/scalar/pull/7680): feat(components): simplify nested sidebar items styles
 
 - **@scalar/api-client@2.17.7**
@@ -80,7 +82,6 @@
 #### Updated Dependencies
 
 - **@scalar/api-client@2.17.5**
-
   - [#7661](https://github.com/scalar/scalar/pull/7661): fix: all issues for client modal v2 preparation
 
 - **@scalar/components@0.16.16**
@@ -94,7 +95,6 @@
 #### Updated Dependencies
 
 - **@scalar/api-client@2.17.4**
-
   - [#7605](https://github.com/scalar/scalar/pull/7605): fix: all issues for client modal v2 preparation
 
 - **@scalar/components@0.16.15**
@@ -108,7 +108,6 @@
 #### Updated Dependencies
 
 - **@scalar/components@0.16.14**
-
   - [#7654](https://github.com/scalar/scalar/pull/7654): fix(components): explicitly set line height for buttons and sections
 
 - **@scalar/api-client@2.17.3**
@@ -124,9 +123,7 @@
 #### Updated Dependencies
 
 - **@scalar/components@0.16.13**
-
   - [#7584](https://github.com/scalar/scalar/pull/7584): fix: remove internal unused export
-
     - `CARD_Heading_SYMBOL`
     - `FORM_GROUP_SYMBOL`
     - `formatHotKey#isDefault`
@@ -147,7 +144,6 @@
 #### Updated Dependencies
 
 - **@scalar/api-client@2.17.1**
-
   - [#7562](https://github.com/scalar/scalar/pull/7562): feat(components): remove headless ui from dropdown component
 
 - **@scalar/components@0.16.12**
@@ -162,7 +158,6 @@
 #### Updated Dependencies
 
 - **@scalar/api-client@2.17.0**
-
   - [#7580](https://github.com/scalar/scalar/pull/7580): feat: added default auth on client v2
   - [#7578](https://github.com/scalar/scalar/pull/7578): fix: ensure get schema examples are cached via options
   - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
@@ -170,7 +165,6 @@
   - [#7565](https://github.com/scalar/scalar/pull/7565): feat: support markdown on parameter tooltip
 
 - **@scalar/components@0.16.11**
-
   - [#7581](https://github.com/scalar/scalar/pull/7581): fix: npm publish job
 
 - **@scalar/import@0.4.41**
@@ -183,7 +177,6 @@
 #### Updated Dependencies
 
 - **@scalar/api-client@2.16.0**
-
   - [#7564](https://github.com/scalar/scalar/pull/7564): feat: restore cursor position after path/method update
   - [#7528](https://github.com/scalar/scalar/pull/7528): feat: empty sidebar folders state
   - [#7561](https://github.com/scalar/scalar/pull/7561): feat: add accept header by default on the operation paramters
@@ -194,7 +187,6 @@
   - [#7572](https://github.com/scalar/scalar/pull/7572): feat: clear request and response state when switching operations or examples
 
 - **@scalar/components@0.16.10**
-
   - [#7531](https://github.com/scalar/scalar/pull/7531): feat(components): add discrete sidebar group buttons
 
 - **@scalar/import@0.4.40**
