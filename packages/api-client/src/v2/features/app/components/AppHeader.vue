@@ -58,7 +58,9 @@ const slots = defineSlots<{
         <template
           v-if="menuTitle"
           #title>
-          {{ menuTitle }}
+          <span class="max-md:hidden">
+            {{ menuTitle }}
+          </span>
         </template>
         <template #products>
           <ScalarMenuProducts selected="client" />

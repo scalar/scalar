@@ -44,7 +44,7 @@ const handleCopyTabUrl = (index: number): void => {
 </script>
 
 <template>
-  <nav class="t-app__top-nav">
+  <nav class="z-10">
     <!-- drag region (macos) -->
     <div class="mac:app-drag-region mac:pl-[72px]">
       <div class="z-1 flex h-10 items-center gap-2 px-2">

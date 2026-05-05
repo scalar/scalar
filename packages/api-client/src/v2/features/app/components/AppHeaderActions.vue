@@ -57,10 +57,12 @@ const emit = defineEmits<{
         thickness="1.5" />
     </ScalarButton>
     <ScalarButton
+      aria-label="Save"
       class="shrink-0 gap-1.5"
       data-testid="app-header-save-button"
       :disabled="!isActiveDocumentDirty"
       size="xs"
+      title="Save"
       type="button"
       variant="solid"
       @click="emit('save')">
@@ -68,7 +70,7 @@ const emit = defineEmits<{
         class="size-3.5"
         size="sm"
         thickness="1.5" />
-      <span>Save</span>
+      <span class="max-md:hidden">Save</span>
     </ScalarButton>
   </template>
   <!--
@@ -94,12 +96,12 @@ const emit = defineEmits<{
         thickness="1.5" />
     </ScalarButton>
     <ScalarButton
-      :aria-label="isOffline ? 'Pull (offline)' : undefined"
+      :aria-label="isOffline ? 'Pull (offline)' : 'Pull'"
       class="shrink-0 gap-1.5"
       data-testid="app-header-pull-button"
       :disabled="!canPullActiveDocument"
       size="xs"
-      :title="isOffline ? 'You are offline.' : undefined"
+      :title="isOffline ? 'You are offline.' : 'Pull'"
       type="button"
       variant="solid"
       @click="emit('pull')">
@@ -113,15 +115,15 @@ const emit = defineEmits<{
         class="size-3.5"
         size="sm"
         thickness="1.5" />
-      <span>Pull</span>
+      <span class="max-md:hidden">Pull</span>
     </ScalarButton>
     <ScalarButton
-      :aria-label="isOffline ? 'Push (offline)' : undefined"
+      :aria-label="isOffline ? 'Push (offline)' : 'Push'"
       class="shrink-0 gap-1.5"
       data-testid="app-header-push-button"
       :disabled="!canPushActiveDocument"
       size="xs"
-      :title="isOffline ? 'You are offline.' : undefined"
+      :title="isOffline ? 'You are offline.' : 'Push'"
       type="button"
       variant="solid"
       @click="emit('push')">
@@ -135,7 +137,7 @@ const emit = defineEmits<{
         class="size-3.5"
         size="sm"
         thickness="1.5" />
-      <span>Push</span>
+      <span class="max-md:hidden">Push</span>
     </ScalarButton>
   </template>
   <!--
@@ -146,12 +148,12 @@ const emit = defineEmits<{
   -->
   <ScalarButton
     v-if="showTeamPublishAction"
-    :aria-label="isOffline ? 'Publish (offline)' : undefined"
+    :aria-label="isOffline ? 'Publish (offline)' : 'Publish'"
     class="shrink-0 gap-1.5"
     data-testid="app-header-publish-button"
     :disabled="isOffline"
     size="xs"
-    :title="isOffline ? 'You are offline.' : undefined"
+    :title="isOffline ? 'You are offline.' : 'Publish'"
     type="button"
     variant="solid"
     @click="emit('publish')">
@@ -165,6 +167,6 @@ const emit = defineEmits<{
       class="size-3.5"
       size="sm"
       thickness="1.5" />
-    <span>Publish</span>
+    <span class="max-md:hidden">Publish</span>
   </ScalarButton>
 </template>
