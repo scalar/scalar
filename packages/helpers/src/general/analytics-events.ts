@@ -6,45 +6,48 @@
  * - snake_case throughout
  * - Present-tense verbs (click, create, delete, send, open, add, select, download)
  *
- * The string value is already scoped by its category prefix (`api_client:`,
- * `auth:`, etc.), so keys are kept flat and descriptive without nesting.
- *
  * @see https://posthog.com/docs/product-analytics/best-practices
+ *
+ * The category is the entity or domain the event belongs to, not the product
+ * it originates from. This makes the same events reusable across products.
  */
 export const ANALYTICS_EVENTS = {
   // --------------------------------------------------
-  // API Client
+  // Operation
   // --------------------------------------------------
 
   /** User sent a request through the API client */
-  REQUEST_SEND: 'api_client:request_send',
-  /** User opened the API client modal */
-  MODAL_OPEN: 'api_client:modal_open',
+  REQUEST_SEND: 'operation:request_send',
   /** User created a new operation */
-  OPERATION_CREATE: 'api_client:operation_create',
+  OPERATION_CREATE: 'operation:create',
   /** User deleted an operation */
-  OPERATION_DELETE: 'api_client:operation_delete',
+  OPERATION_DELETE: 'operation:delete',
+
   /** User created a new document */
-  DOCUMENT_CREATE: 'api_client:document_create',
+  DOCUMENT_CREATE: 'document:create',
   /** User deleted a document */
-  DOCUMENT_DELETE: 'api_client:document_delete',
+  DOCUMENT_DELETE: 'document:delete',
   /** User downloaded a document */
-  DOCUMENT_DOWNLOAD: 'api_client:document_download',
+  DOCUMENT_DOWNLOAD: 'document:download',
+
   /** User created a new tag */
-  TAG_CREATE: 'api_client:tag_create',
+  TAG_CREATE: 'tag:create',
+
   /** User added a server */
-  SERVER_ADD: 'api_client:server_add',
+  SERVER_ADD: 'server:add',
+  /** User opened the API client modal */
+  MODAL_OPEN: 'modal_open',
   /** User selected an auth security scheme */
-  AUTH_SCHEME_SELECT: 'api_client:auth_scheme_select',
+  AUTH_SCHEME_SELECT: 'auth:scheme_select',
   /** User created or updated an environment */
-  ENVIRONMENT_SAVE: 'api_client:environment_save',
+  ENVIRONMENT_SAVE: 'environment:save',
 
   // --------------------------------------------------
   // Account
   // --------------------------------------------------
 
   /** User clicked a login button */
-  LOGIN_CLICK: 'account:login_button_click',
+  LOGIN_CLICK: 'account:login_click',
   /** User clicked the register button */
-  REGISTER_CLICK: 'account:register_button_click',
+  REGISTER_CLICK: 'account:register_click',
 } as const
