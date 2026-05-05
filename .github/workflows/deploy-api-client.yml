@@ -1,8 +1,6 @@
 name: Deploy API Client
 
 on:
-  pull_request:
-    types: [closed]
   workflow_call:
     inputs:
       environment:
@@ -25,8 +23,6 @@ on:
 
 jobs:
   deploy:
-    # Skip when triggered directly by pull_request: closed (that path runs teardown instead).
-    if: github.event.action != 'closed'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     # Setting environment here (not at the workflow level) is what grants access
     # to the environment-scoped vars.* and secrets.* for staging or production.
@@ -86,46 +82,3 @@ jobs:
           else
             echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           fi
-
-  # Delete Cloudflare Pages preview deployments when a PR merges to main.
-  # The ?force=true parameter allows deletion of aliased (latest) deployments,
-  # so this should clean up all deployments including the branch alias URL.
-  teardown:
-    if: |
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.merged == true &&
-      github.event.pull_request.base.ref == 'main' &&
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      !contains(github.actor, '[bot]')
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    environment: staging
-    timeout-minutes: 5
-    permissions:
-      contents: read
-    steps:
-      - name: Delete PR preview deployments from Cloudflare Pages
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          PROJECT_NAME: ${{ vars.CLOUDFLARE_PROJECT_API_CLIENT_PREVIEW }}
-          BRANCH: pr-${{ github.event.pull_request.number }}
-        run: |
-          echo "Looking for preview deployments on branch: $BRANCH"
-
-          DEPLOYMENT_IDS=$(curl -s \
-            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments?page=1&per_page=100" \
-            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | \
-            jq -r ".result[] | select(.deployment_trigger.metadata.branch == \"$BRANCH\") | .id")
-
-          if [ -z "$DEPLOYMENT_IDS" ]; then
-            echo "No preview deployments found for $BRANCH — nothing to delete"
-            exit 0
-          fi
-
-          for ID in $DEPLOYMENT_IDS; do
-            echo "Deleting deployment $ID..."
-            curl -s -X DELETE \
-              "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments/$ID?force=true" \
-              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | \
-              jq -r 'if .success then "Deleted " + (.result.id // "deployment") else "Skipped: " + (.errors[0].message // "unknown error") end'
-          done

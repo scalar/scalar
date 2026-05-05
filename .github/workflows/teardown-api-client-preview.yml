@@ -1,0 +1,31 @@
+name: Teardown API Client Preview
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: read
+
+jobs:
+  teardown:
+    # PR previews are only deployed for same-repository PRs targeting main.
+    if: |
+      github.event.pull_request.base.ref == 'main' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: staging
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Delete PR preview deployments from Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PROJECT_NAME: ${{ vars.CLOUDFLARE_PROJECT_API_CLIENT_PREVIEW }}
+          BRANCH: pr-${{ github.event.pull_request.number }}
+        shell: bash
+        run: bash ./tooling/scripts/delete-cloudflare-pages-preview.sh
