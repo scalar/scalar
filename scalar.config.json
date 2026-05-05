@@ -365,6 +365,10 @@
           "to": "/products/api-references/integrations/astro"
         },
         {
+          "from": "/scalar/scalar-api-references/integrations/starlight",
+          "to": "/products/api-references/integrations/starlight"
+        },
+        {
           "from": "/scalar/scalar-api-references/integrations/django",
           "to": "/products/api-references/integrations/django"
         },
@@ -1567,6 +1571,11 @@
                       "astro": {
                         "title": "Astro",
                         "filepath": "documentation/integrations/astro.md",
+                        "type": "page"
+                      },
+                      "starlight": {
+                        "title": "Starlight",
+                        "filepath": "documentation/integrations/starlight.md",
                         "type": "page"
                       },
                       "django": {

@@ -93,6 +93,8 @@ import { ScalarComponent } from '@scalar/astro'
 
 ### Starlight and View Transitions
 
+For a Starlight-specific guide, see [API Reference for Starlight](./starlight.md).
+
 If your Astro site uses client-side page transitions (for example Starlight with View Transitions),
 use `renderMode: 'client'` to mount Scalar after navigation events.
 
