@@ -877,6 +877,10 @@ jobs:
         uses: ./.github/actions/build
         with:
           packages: 'scalar-app...'
+        env:
+          VITE_BASE_SOCKET_URL: 'wss://api.scalar.com'
+          VITE_BASE_URL: 'https://api.scalar.com'
+          VITE_DASHBOARD_URL: 'https://dashboard.scalar.com'
       - name: Check ToDesktop credentials
         id: todesktop-credentials
         env:
