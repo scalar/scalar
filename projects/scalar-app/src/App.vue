@@ -42,8 +42,9 @@ const app = getAppState()
 const { isLoggedIn } = useAuth()
 const { handleLogin, handleRegister } = useAuthHandlers()
 const { isLoggedIn, tokenData } = useAuth()
-const { handleLogin: _handleLogin, handleRegister: _handleRegister } =
-  useAuthHandlers()
+const { handleLogin, handleRegister } = useAuthHandlers({
+  eventBus: app.eventBus,
+})
 const {
   documents,
   isLoading: isDocumentsLoading,

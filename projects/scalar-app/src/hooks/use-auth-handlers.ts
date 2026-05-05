@@ -1,3 +1,4 @@
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { useToasts } from '@scalar/use-toasts'
 
 import { loginUrl, registerUrl } from '@/helpers/auth/login-url'
@@ -8,7 +9,7 @@ import { useAuth } from '@/hooks/use-auth'
  *
  * Normally a good candiate for a helper but it touches state so must be a hook
  */
-export const useAuthHandlers = () => {
+export const useAuthHandlers = ({ eventBus }: { eventBus: WorkspaceEventBus }) => {
   const { toast } = useToasts()
   const { setTokens } = useAuth()
 
@@ -19,6 +20,8 @@ export const useAuthHandlers = () => {
    * On web, redirects to the dashboard login page.
    */
   const handleLogin = async (): Promise<void> => {
+    eventBus.emit('analytics:on:login-click')
+
     if (window.electron !== true) {
       window.location.href = loginUrl()
       return
@@ -42,6 +45,8 @@ export const useAuthHandlers = () => {
    * On web, redirects to the dashboard registration page.
    */
   const handleRegister = async (): Promise<void> => {
+    eventBus.emit('analytics:on:register-click')
+
     if (window.electron !== true) {
       window.location.href = registerUrl()
       return

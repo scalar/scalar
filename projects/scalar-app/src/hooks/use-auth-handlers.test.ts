@@ -1,3 +1,4 @@
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useAuthHandlers } from './use-auth-handlers'
@@ -32,6 +33,14 @@ const stubLocation = () => {
   return location
 }
 
+const mockEventBus: WorkspaceEventBus = {
+  on: vi.fn(),
+  once: vi.fn(),
+  off: vi.fn(),
+  emit: vi.fn(() => null),
+  flushDebouncedEmits: vi.fn(),
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -41,6 +50,7 @@ describe('useAuthHandlers', () => {
     vi.unstubAllGlobals()
     mockToast.mockClear()
     mockSetTokens.mockClear()
+    vi.mocked(mockEventBus.emit).mockClear()
   })
 
   afterEach(() => {
@@ -48,12 +58,22 @@ describe('useAuthHandlers', () => {
   })
 
   describe('handleLogin', () => {
+    it('emits analytics:on:login-click', async () => {
+      vi.stubGlobal('electron', false)
+      stubLocation()
+
+      const { handleLogin } = useAuthHandlers({ eventBus: mockEventBus })
+      await handleLogin()
+
+      expect(mockEventBus.emit).toHaveBeenCalledWith('analytics:on:login-click')
+    })
+
     describe('web (non-desktop)', () => {
       it('redirects to the login URL when not running in Electron', async () => {
         vi.stubGlobal('electron', false)
         const location = stubLocation()
 
-        const { handleLogin } = useAuthHandlers()
+        const { handleLogin } = useAuthHandlers({ eventBus: mockEventBus })
         await handleLogin()
 
         expect(location.href).toBe('https://dashboard.test/login')
@@ -66,7 +86,7 @@ describe('useAuthHandlers', () => {
         const getExchangeToken = vi.fn()
         vi.stubGlobal('api', { getExchangeToken })
 
-        const { handleLogin } = useAuthHandlers()
+        const { handleLogin } = useAuthHandlers({ eventBus: mockEventBus })
         await handleLogin()
 
         expect(getExchangeToken).not.toHaveBeenCalled()
@@ -83,7 +103,7 @@ describe('useAuthHandlers', () => {
         const getExchangeToken = vi.fn().mockResolvedValue(null)
         vi.stubGlobal('api', { getExchangeToken })
 
-        const { handleLogin } = useAuthHandlers()
+        const { handleLogin } = useAuthHandlers({ eventBus: mockEventBus })
         await handleLogin()
 
         expect(getExchangeToken).toHaveBeenCalledWith('login')
@@ -93,7 +113,7 @@ describe('useAuthHandlers', () => {
         const tokens = { accessToken: 'access.tok', refreshToken: 'refresh.tok' }
         vi.stubGlobal('api', { getExchangeToken: vi.fn().mockResolvedValue(tokens) })
 
-        const { handleLogin } = useAuthHandlers()
+        const { handleLogin } = useAuthHandlers({ eventBus: mockEventBus })
         await handleLogin()
 
         expect(mockSetTokens).toHaveBeenCalledWith(tokens.accessToken, tokens.refreshToken)
@@ -103,7 +123,7 @@ describe('useAuthHandlers', () => {
       it('shows an error toast and does not store tokens when exchange returns null', async () => {
         vi.stubGlobal('api', { getExchangeToken: vi.fn().mockResolvedValue(null) })
 
-        const { handleLogin } = useAuthHandlers()
+        const { handleLogin } = useAuthHandlers({ eventBus: mockEventBus })
         await handleLogin()
 
         expect(mockSetTokens).not.toHaveBeenCalled()
@@ -116,7 +136,7 @@ describe('useAuthHandlers', () => {
         const location = stubLocation()
         vi.stubGlobal('api', { getExchangeToken: vi.fn().mockResolvedValue(null) })
 
-        const { handleLogin } = useAuthHandlers()
+        const { handleLogin } = useAuthHandlers({ eventBus: mockEventBus })
         await handleLogin()
 
         expect(location.href).toBe('')
@@ -125,12 +145,22 @@ describe('useAuthHandlers', () => {
   })
 
   describe('handleRegister', () => {
+    it('emits analytics:on:register-click', async () => {
+      vi.stubGlobal('electron', false)
+      stubLocation()
+
+      const { handleRegister } = useAuthHandlers({ eventBus: mockEventBus })
+      await handleRegister()
+
+      expect(mockEventBus.emit).toHaveBeenCalledWith('analytics:on:register-click')
+    })
+
     describe('web (non-desktop)', () => {
       it('redirects to the register URL', async () => {
         vi.stubGlobal('electron', false)
         const location = stubLocation()
 
-        const { handleRegister } = useAuthHandlers()
+        const { handleRegister } = useAuthHandlers({ eventBus: mockEventBus })
         await handleRegister()
 
         expect(location.href).toBe('https://dashboard.test/register')
@@ -143,7 +173,7 @@ describe('useAuthHandlers', () => {
         const getExchangeToken = vi.fn()
         vi.stubGlobal('api', { getExchangeToken })
 
-        const { handleRegister } = useAuthHandlers()
+        const { handleRegister } = useAuthHandlers({ eventBus: mockEventBus })
         await handleRegister()
 
         expect(getExchangeToken).not.toHaveBeenCalled()
@@ -160,7 +190,7 @@ describe('useAuthHandlers', () => {
         const getExchangeToken = vi.fn().mockResolvedValue(null)
         vi.stubGlobal('api', { getExchangeToken })
 
-        const { handleRegister } = useAuthHandlers()
+        const { handleRegister } = useAuthHandlers({ eventBus: mockEventBus })
         await handleRegister()
 
         expect(getExchangeToken).toHaveBeenCalledWith('register')
@@ -170,7 +200,7 @@ describe('useAuthHandlers', () => {
         const tokens = { accessToken: 'access.tok', refreshToken: 'refresh.tok' }
         vi.stubGlobal('api', { getExchangeToken: vi.fn().mockResolvedValue(tokens) })
 
-        const { handleRegister } = useAuthHandlers()
+        const { handleRegister } = useAuthHandlers({ eventBus: mockEventBus })
         await handleRegister()
 
         expect(mockSetTokens).toHaveBeenCalledWith(tokens.accessToken, tokens.refreshToken)
@@ -180,7 +210,7 @@ describe('useAuthHandlers', () => {
       it('shows an error toast and does not store tokens when exchange returns null', async () => {
         vi.stubGlobal('api', { getExchangeToken: vi.fn().mockResolvedValue(null) })
 
-        const { handleRegister } = useAuthHandlers()
+        const { handleRegister } = useAuthHandlers({ eventBus: mockEventBus })
         await handleRegister()
 
         expect(mockSetTokens).not.toHaveBeenCalled()
@@ -193,7 +223,7 @@ describe('useAuthHandlers', () => {
         const location = stubLocation()
         vi.stubGlobal('api', { getExchangeToken: vi.fn().mockResolvedValue(null) })
 
-        const { handleRegister } = useAuthHandlers()
+        const { handleRegister } = useAuthHandlers({ eventBus: mockEventBus })
         await handleRegister()
 
         expect(location.href).toBe('')
