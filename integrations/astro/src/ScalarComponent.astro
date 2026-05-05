@@ -208,8 +208,6 @@ const html =
         globalState.listeners[mountSelector] = { beforeSwap, pageLoad }
         document.addEventListener('astro:before-swap', beforeSwap)
         document.addEventListener('astro:page-load', pageLoad)
-
-        void mountScalar()
       </script>
     </>
   )
