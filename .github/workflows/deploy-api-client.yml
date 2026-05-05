@@ -25,8 +25,8 @@ on:
 
 jobs:
   deploy:
-    # Only run when invoked as a reusable workflow — not on pull_request: closed
-    if: github.event_name == 'workflow_call'
+    # Skip when triggered directly by pull_request: closed (that path runs teardown instead).
+    if: github.event.action != 'closed'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     # Setting environment here (not at the workflow level) is what grants access
     # to the environment-scoped vars.* and secrets.* for staging or production.
