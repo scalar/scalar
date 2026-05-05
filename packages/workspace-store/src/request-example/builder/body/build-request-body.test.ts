@@ -256,6 +256,34 @@ describe('buildRequestBody', () => {
     expect(result.value[2].value).toBe('test')
   })
 
+  it('JSON-stringifies nested object and array values in form-urlencoded object format', () => {
+    const requestBody = {
+      content: {
+        'application/x-www-form-urlencoded': {
+          examples: {
+            default: {
+              value: {
+                tags: ['a', 'b'],
+                meta: { foo: 'bar' },
+              },
+            },
+          },
+        },
+      },
+    }
+    const result = buildRequestBody(requestBody, 'default')
+
+    expect(result?.mode).toBe('urlencoded')
+    assert(result?.mode === 'urlencoded')
+
+    assert(result.value[0])
+    expect(result.value[0].key).toBe('tags')
+    expect(result.value[0].value).toBe('["a","b"]')
+    assert(result.value[1])
+    expect(result.value[1].key).toBe('meta')
+    expect(result.value[1].value).toBe('{"foo":"bar"}')
+  })
+
   it('skips null and undefined values in form-urlencoded object format', () => {
     const requestBody = {
       content: {

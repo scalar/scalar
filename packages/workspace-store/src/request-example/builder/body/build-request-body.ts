@@ -163,7 +163,8 @@ export const buildRequestBody = (
     // Convert object properties to form fields
     for (const [key, value] of Object.entries(example.value)) {
       if (key && value !== undefined && value !== null) {
-        const stringValue = typeof value === 'string' ? value : String(value)
+        const stringValue =
+          typeof value === 'object' && value !== null ? JSON.stringify(unpackProxyObject(value)) : String(value)
         result.value.push({
           key,
           value: stringValue,
