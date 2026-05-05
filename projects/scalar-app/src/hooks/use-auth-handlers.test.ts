@@ -107,11 +107,9 @@ describe('useAuthHandlers', () => {
         await handleLogin()
 
         expect(mockSetTokens).not.toHaveBeenCalled()
-        expect(mockToast).toHaveBeenCalledWith(
-          'Unable to login. Please try again or contact support.',
-          'error',
-          { timeout: 10000 },
-        )
+        expect(mockToast).toHaveBeenCalledWith('Unable to login. Please try again or contact support.', 'error', {
+          timeout: 10000,
+        })
       })
 
       it('does not redirect window.location on desktop', async () => {
@@ -186,11 +184,9 @@ describe('useAuthHandlers', () => {
         await handleRegister()
 
         expect(mockSetTokens).not.toHaveBeenCalled()
-        expect(mockToast).toHaveBeenCalledWith(
-          'Unable to register. Please try again or contact support.',
-          'error',
-          { timeout: 10000 },
-        )
+        expect(mockToast).toHaveBeenCalledWith('Unable to register. Please try again or contact support.', 'error', {
+          timeout: 10000,
+        })
       })
 
       it('does not redirect window.location on desktop', async () => {
