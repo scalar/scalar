@@ -97,6 +97,16 @@ export const ANALYTICS_EVENTS = {
   DOCUMENT_IMPORT_POSTMAN: 'document:import_postman',
   /** User imported a document from a cURL command */
   DOCUMENT_IMPORT_CURL: 'document:import_curl',
+  /** User edited the document description */
+  DOCUMENT_DESCRIPTION_EDIT: 'document:description_edit',
+  /** User discarded local changes and reverted to the last saved state */
+  DOCUMENT_DISCARD_CHANGES: 'document:discard_changes',
+  /** User selected a specific version of a document — capture { version } */
+  DOCUMENT_VERSION_SELECT: 'document:version_select',
+  /** User pulled remote changes into the document */
+  DOCUMENT_PULL: 'document:pull',
+  /** User pushed local document changes to the remote registry */
+  DOCUMENT_PUSH: 'document:push',
 
   // --------------------------------------------------
   // Environment
