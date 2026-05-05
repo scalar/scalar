@@ -218,9 +218,8 @@ const handleDeleteRegistryDocumentSubmit = (payload: {
             </p>
           </div>
           <ScalarButton
-            class="border-c-danger text-c-danger hover:bg-b-danger hover:text-c-danger active:bg-b-danger active:text-c-danger shrink-0 border"
             size="sm"
-            variant="ghost"
+            variant="danger"
             @click="handleDeleteVersionClick">
             Delete Version
           </ScalarButton>
