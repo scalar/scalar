@@ -6,14 +6,6 @@ import { nextTick } from 'vue'
 
 import CommandPaletteRequest from './CommandPaletteRequest.vue'
 
-// Mock router
-const mockPush = vi.fn()
-vi.mock('vue-router', () => ({
-  useRouter: () => ({
-    push: mockPush,
-  }),
-}))
-
 describe('CommandPaletteRequest', () => {
   const createMockWorkspaceStore = async (documents: Record<string, Record<string, unknown>> = {}) => {
     const store = createWorkspaceStore()
@@ -45,7 +37,7 @@ describe('CommandPaletteRequest', () => {
   }
 
   beforeEach(() => {
-    mockPush.mockClear()
+    vi.clearAllMocks()
   })
 
   afterEach(() => {
@@ -109,8 +101,8 @@ describe('CommandPaletteRequest', () => {
       },
     })
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    expect(listbox.props('modelValue')).toEqual({ id: 'doc1', label: 'Test Document' })
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('modelValue')).toBe('doc1')
   })
 
   it('disables form when request path is empty', async () => {
@@ -220,6 +212,95 @@ describe('CommandPaletteRequest', () => {
     expect(form.props('disabled')).toBe(true)
   })
 
+  it('shows an inline error when the operation already exists', async () => {
+    const document = createMockDocument({
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'getUsers',
+          },
+        },
+      },
+    })
+    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteRequest, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', '/users')
+    await nextTick()
+
+    const error = wrapper.find('[data-testid="command-palette-request-error"]')
+    expect(error.exists()).toBe(true)
+    expect(error.attributes('role')).toBe('alert')
+    expect(error.text()).toContain('GET')
+    expect(error.text()).toContain('/users')
+    expect(error.text()).toContain('already exists')
+  })
+
+  it('does not show an inline error when the path is empty', async () => {
+    const document = createMockDocument({
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'getUsers',
+          },
+        },
+      },
+    })
+    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteRequest, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', '   ')
+    await nextTick()
+
+    expect(wrapper.find('[data-testid="command-palette-request-error"]').exists()).toBe(false)
+  })
+
+  it('clears the inline error when the user picks a non-conflicting method', async () => {
+    const document = createMockDocument({
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'getUsers',
+          },
+        },
+      },
+    })
+    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteRequest, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', '/users')
+    await nextTick()
+    expect(wrapper.find('[data-testid="command-palette-request-error"]').exists()).toBe(true)
+
+    await input.vm.$emit('update:modelValue', '/products')
+    await nextTick()
+    expect(wrapper.find('[data-testid="command-palette-request-error"]').exists()).toBe(false)
+  })
+
   it('normalizes path by adding leading slash when checking for duplicates', async () => {
     const document = createMockDocument({
       paths: {
@@ -303,7 +384,7 @@ describe('CommandPaletteRequest', () => {
     expect(input.props('modelValue')).toBe('/api/users')
   })
 
-  it('renders listbox with available documents', async () => {
+  it('forwards every available document to the document selector', async () => {
     const document1 = createMockDocument()
     const document2 = createMockDocument({ info: { title: 'Second Document', version: '1.0.0' } })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document1, 'doc2': document2 })
@@ -316,16 +397,15 @@ describe('CommandPaletteRequest', () => {
       },
     })
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    expect(listbox.exists()).toBe(true)
-    expect(listbox.props('options')).toHaveLength(2)
-    expect(listbox.props('options')).toEqual([
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.exists()).toBe(true)
+    expect(select.props('documents')).toEqual([
       { id: 'doc1', label: 'Test Document' },
       { id: 'doc2', label: 'Second Document' },
     ])
   })
 
-  it('displays document title in listbox button', async () => {
+  it('displays the document title in the selector trigger', async () => {
     const document = createMockDocument({ info: { title: 'My API Collection', version: '1.0.0' } })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
     const eventBus = createMockEventBus()
@@ -337,12 +417,11 @@ describe('CommandPaletteRequest', () => {
       },
     })
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    const button = listbox.findComponent({ name: 'ScalarButton' })
-    expect(button.text()).toContain('My API Collection')
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.text()).toContain('My API Collection')
   })
 
-  it('displays placeholder text when no document is selected', async () => {
+  it('displays the placeholder when no document is selected', async () => {
     const workspaceStore = await createMockWorkspaceStore({})
     const eventBus = createMockEventBus()
 
@@ -353,12 +432,11 @@ describe('CommandPaletteRequest', () => {
       },
     })
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    const button = listbox.findComponent({ name: 'ScalarButton' })
-    expect(button.text()).toContain('Select Document')
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.text()).toContain('Select Document')
   })
 
-  it('uses document name as fallback when title is missing', async () => {
+  it('falls back to the document name when the title is missing', async () => {
     const document = createMockDocument({ info: { title: '', version: '1.0.0' } })
     const workspaceStore = await createMockWorkspaceStore({ 'my-doc': document })
     const eventBus = createMockEventBus()
@@ -370,8 +448,8 @@ describe('CommandPaletteRequest', () => {
       },
     })
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    expect(listbox.props('options')).toEqual([{ id: 'my-doc', label: 'my-doc' }])
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('documents')).toEqual([{ id: 'my-doc', label: 'my-doc' }])
   })
 
   it('renders method and tag selector dropdowns', async () => {
@@ -635,14 +713,12 @@ describe('CommandPaletteRequest', () => {
     const callback = emitCall?.[1]?.callback
     callback?.(true)
 
-    expect(mockPush).toHaveBeenCalledWith({
-      name: 'example',
-      params: {
-        documentSlug: 'doc1',
-        pathEncoded: encodeURIComponent('/api/users'),
-        method: 'get',
-        exampleName: 'default',
-      },
+    expect(eventBus.emit).toHaveBeenCalledWith('ui:navigate', {
+      page: 'example',
+      documentSlug: 'doc1',
+      path: '/api/users',
+      method: 'get',
+      exampleName: 'default',
     })
   })
 
@@ -673,7 +749,7 @@ describe('CommandPaletteRequest', () => {
     callback?.(false)
 
     expect(workspaceStore.buildSidebar).not.toHaveBeenCalled()
-    expect(mockPush).not.toHaveBeenCalled()
+    expect(eventBus.emit).not.toHaveBeenCalledWith('ui:navigate', expect.anything())
   })
 
   it('renders submit button with correct text', async () => {
@@ -745,16 +821,16 @@ describe('CommandPaletteRequest', () => {
     const callback = emitCall?.[1]?.callback
     callback?.(true)
 
-    expect(mockPush).toHaveBeenCalledWith(
+    expect(eventBus.emit).toHaveBeenCalledWith(
+      'ui:navigate',
       expect.objectContaining({
-        params: expect.objectContaining({
-          pathEncoded: encodeURIComponent('/api/users'),
-        }),
+        page: 'example',
+        path: '/api/users',
       }),
     )
   })
 
-  it('updates selected document when listbox value changes', async () => {
+  it('updates the selected document when the document selector emits a new value', async () => {
     const document1 = createMockDocument()
     const document2 = createMockDocument({ info: { title: 'Second Document', version: '1.0.0' } })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document1, 'doc2': document2 })
@@ -767,13 +843,13 @@ describe('CommandPaletteRequest', () => {
       },
     })
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    expect(listbox.props('modelValue')).toEqual({ id: 'doc1', label: 'Test Document' })
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('modelValue')).toBe('doc1')
 
-    await listbox.vm.$emit('update:modelValue', { id: 'doc2', label: 'Second Document' })
+    await select.vm.$emit('update:modelValue', 'doc2')
     await nextTick()
 
-    expect(listbox.props('modelValue')).toEqual({ id: 'doc2', label: 'Second Document' })
+    expect(wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' }).props('modelValue')).toBe('doc2')
   })
 
   it('validates operation against the currently selected document', async () => {
@@ -805,8 +881,8 @@ describe('CommandPaletteRequest', () => {
     expect(form.props('disabled')).toBe(true)
 
     // Switch to second document
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    await listbox.vm.$emit('update:modelValue', { id: 'doc2', label: 'Second Document' })
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    await select.vm.$emit('update:modelValue', 'doc2')
     await nextTick()
 
     form = wrapper.findComponent({ name: 'CommandActionForm' })
@@ -877,5 +953,148 @@ describe('CommandPaletteRequest', () => {
     await nextTick()
     form = wrapper.findComponent({ name: 'CommandActionForm' })
     expect(form.props('disabled')).toBe(false)
+  })
+
+  it('uses the documents prop instead of the workspace store when provided', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'doc-a': createMockDocument({ info: { title: 'A', version: '1' } }),
+      'doc-b': createMockDocument({ info: { title: 'B', version: '1' } }),
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteRequest, {
+      props: {
+        workspaceStore,
+        eventBus,
+        documents: [{ id: 'doc-b', label: 'Grouped B' }],
+      },
+    })
+
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('documents')).toEqual([{ id: 'doc-b', label: 'Grouped B' }])
+    expect(select.props('modelValue')).toBe('doc-b')
+  })
+
+  it('preselects the active document when the caller does not pass documentName', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'doc-a': createMockDocument({ info: { title: 'A', version: '1' } }),
+      'doc-b': createMockDocument({ info: { title: 'B', version: '1' } }),
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteRequest, {
+      props: {
+        workspaceStore,
+        eventBus,
+        activeDocumentName: 'doc-b',
+      },
+    })
+
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('modelValue')).toBe('doc-b')
+  })
+
+  it('prefers an explicit documentName over the active document', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'doc-a': createMockDocument({ info: { title: 'A', version: '1' } }),
+      'doc-b': createMockDocument({ info: { title: 'B', version: '1' } }),
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteRequest, {
+      props: {
+        workspaceStore,
+        eventBus,
+        documentName: 'doc-a',
+        activeDocumentName: 'doc-b',
+      },
+    })
+
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('modelValue')).toBe('doc-a')
+  })
+
+  it('forwards the document selector to the chosen workspace document on submit', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'acme-v1': createMockDocument(),
+      'acme-v0': createMockDocument(),
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteRequest, {
+      props: {
+        workspaceStore,
+        eventBus,
+        documents: [
+          {
+            id: 'acme-v1',
+            label: 'Acme API',
+            versions: [
+              { id: 'acme-v1', label: '1.0.0' },
+              { id: 'acme-v0', label: '0.9.0' },
+            ],
+          },
+        ],
+      },
+    })
+
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    await select.vm.$emit('update:modelValue', 'acme-v0')
+    await nextTick()
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', '/users')
+    await nextTick()
+
+    const form = wrapper.findComponent({ name: 'CommandActionForm' })
+    await form.vm.$emit('submit')
+    await nextTick()
+
+    expect(eventBus.emit).toHaveBeenCalledWith(
+      'operation:create:operation',
+      expect.objectContaining({ documentName: 'acme-v0' }),
+    )
+  })
+
+  it('preselects an explicit documentName that points at a non-active version of a registry group', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'acme-v1': createMockDocument(),
+      'acme-v0': createMockDocument(),
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteRequest, {
+      props: {
+        workspaceStore,
+        eventBus,
+        documentName: 'acme-v0',
+        documents: [
+          {
+            id: 'acme-v1',
+            label: 'Acme API',
+            versions: [
+              { id: 'acme-v1', label: '1.0.0' },
+              { id: 'acme-v0', label: '0.9.0' },
+            ],
+          },
+        ],
+      },
+    })
+
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('modelValue')).toBe('acme-v0')
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', '/users')
+    await nextTick()
+
+    const form = wrapper.findComponent({ name: 'CommandActionForm' })
+    await form.vm.$emit('submit')
+    await nextTick()
+
+    expect(eventBus.emit).toHaveBeenCalledWith(
+      'operation:create:operation',
+      expect.objectContaining({ documentName: 'acme-v0' }),
+    )
   })
 })

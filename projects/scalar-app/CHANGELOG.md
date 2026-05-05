@@ -1,5 +1,12 @@
 # scalar-app
 
+## 1.0.9
+
+### Patch Changes
+
+- [#9105](https://github.com/scalar/scalar/pull/9105): fix: api url
+- [#9100](https://github.com/scalar/scalar/pull/9100): chore: use both services URL AND api URL in the scalar-app
+
 ## 1.0.8
 
 ### Patch Changes

@@ -42,6 +42,7 @@ const { getAppState, getCommandPaletteState, fileLoader } =
 
 const app = getAppState()
 const { isLoggedIn } = useAuth()
+const { handleLogin, handleRegister } = useAuthHandlers()
 const {
   documents,
   isLoading: isDocumentsLoading,
@@ -51,11 +52,6 @@ const { namespaces, isLoading: isNamespacesLoading } = useRegistryNamespaces()
 
 /** Whether the app is running on electron */
 const isDesktop = window.electron === true
-
-//--------------------------------------------------
-// Login
-//--------------------------------------------------
-const { handleLogin, handleRegister } = useAuthHandlers()
 
 //--------------------------------------------------
 // Workspace handling
@@ -189,13 +185,10 @@ const registry = reactive({
       <template
         v-if="!isLoggedIn"
         #header-end>
-        <ScalarHeaderButton
-          is="a"
-          @click.prevent="handleLogin">
+        <ScalarHeaderButton @click.prevent="handleLogin">
           Log in
         </ScalarHeaderButton>
         <ScalarHeaderButton
-          is="a"
           cta
           @click.prevent="handleRegister">
           Register

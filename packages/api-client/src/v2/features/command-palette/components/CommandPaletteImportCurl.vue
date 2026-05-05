@@ -31,8 +31,7 @@ import {
 } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, ref, type ComputedRef } from 'vue'
 
 import HttpMethod from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 import CommandActionForm from '@/v2/features/command-palette/components/CommandActionForm.vue'
@@ -55,8 +54,6 @@ const emit = defineEmits<{
   (event: 'back', keyboardEvent: KeyboardEvent): void
 }>()
 
-const router = useRouter()
-
 const exampleKey = ref('')
 
 /** Trimmed version of the example key for validation and submission */
@@ -78,25 +75,38 @@ const selectedDocument = ref<ScalarComboboxOption | undefined>(
 )
 
 /**
- * Check if the form should be disabled.
- * Disabled when:
- * - Example key is empty
- * - No document is selected
- * - An operation with the same path and method already exists in the selected document
+ * Validation message surfaced under the input.
+ *
+ * Resolves to `null` when the form is valid; otherwise to a human-readable
+ * reason the user can act on. Empty input is the default state so we keep
+ * the field free of error styling — `isDisabled` still blocks submission
+ * there, matching the {@link CommandPaletteOpenApiDocument} pattern.
  */
-const isDisabled = computed<boolean>(() => {
+const errorMessage: ComputedRef<string | null> = computed(() => {
   if (!exampleKeyTrimmed.value || !selectedDocument.value) {
-    return true
+    return null
   }
 
-  /** Prevent creating duplicate operations at the same path/method */
   const document = workspaceStore.workspace.documents[selectedDocument.value.id]
+
   if (document?.paths?.[path]?.[method]) {
-    return true
+    return `A ${method.toUpperCase()} operation at "${path}" already exists in "${selectedDocument.value.label}". Importing this cURL would conflict with it.`
   }
 
-  return false
+  return null
 })
+
+/**
+ * Submit is blocked while required fields are missing or a duplicate exists.
+ * The inline `errorMessage` makes the duplicate case explicit so the user
+ * understands why import is unavailable rather than seeing a silent disable.
+ */
+const isDisabled = computed<boolean>(
+  () =>
+    !exampleKeyTrimmed.value ||
+    !selectedDocument.value ||
+    errorMessage.value !== null,
+)
 
 /**
  * Handle the import submission.
@@ -119,25 +129,25 @@ const handleImportClick = (): void => {
     operation: result.operation,
     exampleKey: exampleKeyTrimmed.value,
     callback: (success) => {
-      if (success) {
-        // build the sidebar
-        workspaceStore.buildSidebar(documentName.id)
-
-        const path = result.path.startsWith('/')
-          ? result.path
-          : `/${result.path}`
-
-        // navigate to the operation
-        router.push({
-          name: 'example',
-          params: {
-            documentSlug: documentName.id,
-            pathEncoded: encodeURIComponent(path),
-            method: result.method,
-            exampleName: exampleKeyTrimmed.value,
-          },
-        })
+      if (!success) {
+        return
       }
+
+      // build the sidebar
+      workspaceStore.buildSidebar(documentName.id)
+
+      const normalizedPath = result.path.startsWith('/')
+        ? result.path
+        : `/${result.path}`
+
+      // Navigate to the new example via the event bus rather than the router
+      eventBus.emit('ui:navigate', {
+        page: 'example',
+        documentSlug: documentName.id,
+        path: normalizedPath,
+        method: result.method,
+        exampleName: exampleKeyTrimmed.value,
+      })
     },
   })
 
@@ -158,6 +168,14 @@ const handleBack = (event: KeyboardEvent): void => {
       v-model="exampleKey"
       placeholder="Curl example key (e.g., example-1)"
       @delete="handleBack" />
+
+    <p
+      v-if="errorMessage"
+      class="text-red px-2 pb-1 text-xs"
+      data-testid="command-palette-import-curl-error"
+      role="alert">
+      {{ errorMessage }}
+    </p>
 
     <!-- Preview of the parsed cURL request (method + URL + path) -->
     <div class="flex flex-1 flex-col gap-2">

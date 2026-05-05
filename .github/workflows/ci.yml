@@ -787,57 +787,29 @@ jobs:
         if: github.event_name == 'pull_request'
         run: echo "url=https://${{ env.DEPLOY_ID }}--scalar-components.netlify.app" >> $GITHUB_OUTPUT
 
+  # Run for:
+  # - same-repo PR previews (staging)
+  # - merges to main that are not a release commit (staging)
+  # - merges to main that are a release commit (production)
   deploy-api-client:
-    # Run only for same-repo PRs that touch @scalar/api-client or its workspace deps
     if: |
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      !contains(github.actor, '[bot]') &&
-      needs.check-changes.outputs.api_client_changed == 'true'
+      (
+        github.event_name == 'pull_request' &&
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        !contains(github.actor, '[bot]') &&
+        needs.check-changes.outputs.api_client_changed == 'true'
+      ) ||
+      github.ref == 'refs/heads/main'
     needs: [build, check-changes]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    environment: staging
-    timeout-minutes: 15
     concurrency:
       group: deploy-api-client-${{ github.ref }}
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-    outputs:
-      preview-url: ${{ steps.set-output.outputs.url }}
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-
-      - name: Build workspace deps
-        uses: ./.github/actions/build
-        with:
-          packages: 'scalar-app...'
-
-      - name: Build web app
-        run: pnpm --filter scalar-app build:web
-        env:
-          VITE_DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
-          VITE_SERVICES_URL: ${{ vars.SERVICES_URL }}
-          VITE_ENV: ${{ vars.ENVIRONMENT }}
-
-      - name: Deploy to Cloudflare Pages
-        id: deploy
-        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy ./projects/scalar-app/dist/web --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_API_CLIENT }} --branch=pr-${{ github.event.pull_request.number }} --commit-hash=${{ github.event.pull_request.head.sha }}
-
-      - name: Set output
-        id: set-output
-        run: |
-          ALIAS_URL='${{ steps.deploy.outputs.pages-deployment-alias-url }}'
-          DEPLOYMENT_URL='${{ steps.deploy.outputs.deployment-url }}'
-          if [ -n "$ALIAS_URL" ]; then
-            echo "url=$ALIAS_URL" >> $GITHUB_OUTPUT
-          else
-            echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
-          fi
+    uses: ./.github/workflows/deploy-api-client.yml
+    with:
+      environment: ${{ startsWith(github.event.head_commit.message, 'RELEASING:') && 'production' || 'staging' }}
+      pr-number: ${{ github.event.pull_request.number }}
+      sha: ${{ github.event.pull_request.head.sha || github.sha }}
+    secrets: inherit
 
   galaxy-registry-preview:
     # Only run for PRs from the same repository
@@ -991,12 +963,12 @@ jobs:
         run: gzip --keep --verbose --force scalar.js
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@ac083cc84672d01c60d5e8561d0a939b697de542 # v1
+        uses: useblacksmith/setup-docker-builder@722e97d12b1d06a961800dd6c05d79d951ad3c80 # v1
         with:
           platforms: linux/amd64
 
       - name: Build Docker image
-        uses: useblacksmith/build-push-action@cbd1f60d194a98cb3be5523b15134501eaf0fbf3 # v2
+        uses: useblacksmith/build-push-action@fb9e3e6a9299c78462bfadd0d93352c316adc9b8 # v2
         with:
           context: integrations/docker
           file: integrations/docker/Dockerfile
@@ -1032,7 +1004,7 @@ jobs:
         run: gzip --keep --verbose --force scalar.js
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@ac083cc84672d01c60d5e8561d0a939b697de542 # v1
+        uses: useblacksmith/setup-docker-builder@722e97d12b1d06a961800dd6c05d79d951ad3c80 # v1
         with:
           platforms: |
             linux/amd64
@@ -1047,7 +1019,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and Push Docker image
-        uses: useblacksmith/build-push-action@cbd1f60d194a98cb3be5523b15134501eaf0fbf3 # v2
+        uses: useblacksmith/build-push-action@fb9e3e6a9299c78462bfadd0d93352c316adc9b8 # v2
         with:
           context: integrations/docker
           file: integrations/docker/Dockerfile
@@ -1092,7 +1064,7 @@ jobs:
           path: packages/mock-server/docker/dist/
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@ac083cc84672d01c60d5e8561d0a939b697de542 # v1
+        uses: useblacksmith/setup-docker-builder@722e97d12b1d06a961800dd6c05d79d951ad3c80 # v1
         with:
           platforms: |
             linux/amd64
@@ -1105,7 +1077,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and Push Docker image
-        uses: useblacksmith/build-push-action@cbd1f60d194a98cb3be5523b15134501eaf0fbf3 # v2
+        uses: useblacksmith/build-push-action@fb9e3e6a9299c78462bfadd0d93352c316adc9b8 # v2
         with:
           context: packages/mock-server/docker
           file: packages/mock-server/docker/Dockerfile
@@ -1277,14 +1249,14 @@ jobs:
         uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@ac083cc84672d01c60d5e8561d0a939b697de542 # v1
+        uses: useblacksmith/setup-docker-builder@722e97d12b1d06a961800dd6c05d79d951ad3c80 # v1
         with:
           platforms: |
             linux/amd64
             linux/arm64
 
       - name: Build and push Aspire Docker image
-        uses: useblacksmith/build-push-action@cbd1f60d194a98cb3be5523b15134501eaf0fbf3 # v2
+        uses: useblacksmith/build-push-action@fb9e3e6a9299c78462bfadd0d93352c316adc9b8 # v2
         with:
           context: integrations/dotnet
           file: integrations/dotnet/aspire/src/Scalar.Aspire.Service/Dockerfile

@@ -44,14 +44,11 @@ import type {
 
 const {
   app,
-  indent = 20,
   registryDocuments = { status: 'success', documents: [] },
   fetchRegistryDocument,
 } = defineProps<{
   /** The app state from @scalar/api-client. */
   app: AppState
-  /** Horizontal indent applied to nested sidebar items, in pixels. */
-  indent?: number
   /**
    * The list of all available registry documents, wrapped in a loading state
    * so the sidebar can render skeleton placeholders while the registry is
@@ -427,8 +424,7 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
     <template #default>
       <div class="flex flex-1">
         <ScalarSidebar
-          class="flex min-h-0 flex-1 flex-col max-md:pt-12"
-          :style="{ '--scalar-sidebar-indent': indent + 'px' }">
+          class="flex min-h-0 flex-1 flex-col max-md:pt-[calc(var(--app-desktop-tabs-height)+var(--spacing-header,48px)+2.5rem)]">
           <!-- Top-level sidebar header -->
           <div
             v-if="!isOnDocumentPage"

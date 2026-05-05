@@ -1,5 +1,5 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { assert, describe, expect, it } from 'vitest'
+import { assert, describe, expect, it, vi } from 'vitest'
 
 import type { ImportEventData } from './load-document-from-source'
 import { loadDocumentFromSource } from './load-document-from-source'
@@ -585,6 +585,40 @@ paths:
 
     expect(document['x-scalar-original-source-url']).toBe('/path/to/openapi.yaml')
     expect(document['x-scalar-watch-mode']).toBeUndefined()
+  })
+
+  it('trims surrounding whitespace from URL imports before fetching', async () => {
+    const remoteOpenApi = JSON.stringify({
+      openapi: '3.1.0',
+      info: {
+        title: 'Remote API',
+        version: '1.0.0',
+      },
+      paths: {},
+    })
+    const fetch = vi.fn(async () => new Response(remoteOpenApi))
+    const workspaceStore = createWorkspaceStore({ fetch })
+
+    const result = await loadDocumentFromSource(
+      workspaceStore,
+      {
+        source: 'https://example.com/openapi.json\n',
+        type: 'url',
+      },
+      'remote-api',
+      false,
+    )
+
+    expect(result).toBe(true)
+    expect(fetch).toHaveBeenCalledWith('https://example.com/openapi.json', {
+      headers: undefined,
+    })
+
+    const document = workspaceStore.workspace.documents['remote-api']
+
+    expect(document).toBeDefined()
+    assert(document)
+    expect(document['x-scalar-original-source-url']).toBe('https://example.com/openapi.json')
   })
 
   it('ignores watch mode when adding document from file', async () => {
