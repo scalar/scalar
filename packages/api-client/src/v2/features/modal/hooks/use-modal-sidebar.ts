@@ -3,6 +3,7 @@ import { createSidebarState, generateReverseIndex, getChildEntry } from '@scalar
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { type ComputedRef, computed, toValue, watch } from 'vue'
 
 import type { RoutePayload } from '@/v2/features/modal/helpers/resolve-route-parameters'
@@ -51,9 +52,10 @@ export const useModalSidebar = ({
   exampleName: ComputedRef<string | undefined>
   route: (payload: RoutePayload) => void
 }): UseModalSidebarReturn => {
-  const entries = computed(
-    () => workspaceStore?.workspace.documents[toValue(documentSlug) ?? '']?.['x-scalar-navigation']?.children ?? [],
-  )
+  const entries = computed<TraversedEntry[]>(() => {
+    const doc = workspaceStore?.workspace.documents[toValue(documentSlug) ?? '']
+    return isOpenApiDocument(doc) ? (doc['x-scalar-navigation']?.children ?? []) : []
+  })
   const state = createSidebarState(entries)
 
   /**

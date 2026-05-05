@@ -40,6 +40,7 @@ import {
 } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { computed, ref, watch, type ComputedRef } from 'vue'
 
 import { useCommandPaletteDocumentSelection } from '../hooks/use-command-palette-document-selection'
@@ -137,7 +138,7 @@ const availableTags = computed<TagOption[]>(() => {
 
   const document =
     workspaceStore.workspace.documents[selectedDocumentName.value]
-  if (!document) {
+  if (!isOpenApiDocument(document)) {
     return []
   }
 
@@ -181,7 +182,7 @@ const errorMessage: ComputedRef<string | null> = computed(() => {
     workspaceStore.workspace.documents[selectedDocumentName.value]
   const method = selectedMethod.value.method
 
-  if (document?.paths?.[normalizedRequestPath.value]?.[method]) {
+  if (isOpenApiDocument(document) && document.paths?.[normalizedRequestPath.value]?.[method]) {
     const documentLabel =
       availableDocuments.value.find(
         (doc) =>

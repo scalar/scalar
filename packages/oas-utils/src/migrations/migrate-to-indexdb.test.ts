@@ -1,5 +1,6 @@
 import { type SecurityScheme, securitySchemeSchema } from '@scalar/types/entities'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { assert, beforeEach, describe, expect, it } from 'vitest'
 import 'fake-indexeddb/auto'
 
@@ -453,26 +454,20 @@ describe('migrate-to-indexdb', () => {
       assert(resultWorkspace)
 
       // Verify security scheme is in document components
-      expect(
-        resultWorkspace.workspace.documents['test-api']!.components?.securitySchemes?.['api-key-auth'],
-      ).toMatchObject({
+      const apiKeyScheme = (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['test-api']!
+        .components?.securitySchemes?.['api-key-auth']
+      expect(apiKeyScheme).toMatchObject({
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
         description: 'API Key authentication',
       })
-      expect(
-        // @ts-expect-error - value is not in the type
-        resultWorkspace.workspace.documents['test-api']!.components?.securitySchemes?.['api-key-auth']?.value,
-      ).toBeUndefined()
-      expect(
-        // @ts-expect-error - uid is not in the type
-        resultWorkspace.workspace.documents['test-api']!.components?.securitySchemes?.['api-key-auth']?.uid,
-      ).toBeUndefined()
-      expect(
-        // @ts-expect-error - nameKey is not in the type
-        resultWorkspace.workspace.documents['test-api']!.components?.securitySchemes?.['api-key-auth']?.nameKey,
-      ).toBeUndefined()
+      // @ts-expect-error - value is not in the type
+      expect(apiKeyScheme?.value).toBeUndefined()
+      // @ts-expect-error - uid is not in the type
+      expect(apiKeyScheme?.uid).toBeUndefined()
+      // @ts-expect-error - nameKey is not in the type
+      expect(apiKeyScheme?.nameKey).toBeUndefined()
 
       // Verify security scheme secrets are in auth store
       expect(resultWorkspace.workspace.auth['test-api']?.secrets['api-key-auth']).toEqual({
@@ -501,25 +496,19 @@ describe('migrate-to-indexdb', () => {
       const resultWorkspace = result[0]!
 
       // Verify security scheme is in document components
-      expect(
-        resultWorkspace.workspace.documents['bearer-api']!.components?.securitySchemes?.['bearer-auth'],
-      ).toMatchObject({
+      const bearerScheme = (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['bearer-api']!
+        .components?.securitySchemes?.['bearer-auth']
+      expect(bearerScheme).toMatchObject({
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
       })
-      expect(
-        // @ts-expect-error - token is not in the type
-        resultWorkspace.workspace.documents['bearer-api']!.components?.securitySchemes?.['bearer-auth']?.token,
-      ).toBeUndefined()
-      expect(
-        // @ts-expect-error - uid is not in the type
-        resultWorkspace.workspace.documents['bearer-api']!.components?.securitySchemes?.['bearer-auth']?.uid,
-      ).toBeUndefined()
-      expect(
-        // @ts-expect-error - nameKey is not in the type
-        resultWorkspace.workspace.documents['bearer-api']!.components?.securitySchemes?.['bearer-auth']?.nameKey,
-      ).toBeUndefined()
+      // @ts-expect-error - token is not in the type
+      expect(bearerScheme?.token).toBeUndefined()
+      // @ts-expect-error - uid is not in the type
+      expect(bearerScheme?.uid).toBeUndefined()
+      // @ts-expect-error - nameKey is not in the type
+      expect(bearerScheme?.nameKey).toBeUndefined()
 
       // Verify security scheme secrets are in auth store
       expect(resultWorkspace.workspace.auth['bearer-api']!.secrets['bearer-auth']).toEqual({
@@ -552,28 +541,20 @@ describe('migrate-to-indexdb', () => {
       const resultWorkspace = result[0]!
 
       // Verify security scheme is in document components
-      expect(
-        resultWorkspace.workspace.documents['basic-auth-api']!.components?.securitySchemes?.['basic-auth'],
-      ).toMatchObject({
+      const basicScheme = (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['basic-auth-api']!
+        .components?.securitySchemes?.['basic-auth']
+      expect(basicScheme).toMatchObject({
         type: 'http',
         scheme: 'basic',
       })
-      expect(
-        // @ts-expect-error - username and password are not in the type
-        resultWorkspace.workspace.documents['basic-auth-api']!.components?.securitySchemes?.['basic-auth']?.username,
-      ).toBeUndefined()
-      expect(
-        // @ts-expect-error - username and password are not in the type
-        resultWorkspace.workspace.documents['basic-auth-api']!.components?.securitySchemes?.['basic-auth']?.password,
-      ).toBeUndefined()
-      expect(
-        // @ts-expect-error - uid is not in the type
-        resultWorkspace.workspace.documents['basic-auth-api']!.components?.securitySchemes?.['basic-auth']?.uid,
-      ).toBeUndefined()
-      expect(
-        // @ts-expect-error - nameKey is not in the type
-        resultWorkspace.workspace.documents['basic-auth-api']!.components?.securitySchemes?.['basic-auth']?.nameKey,
-      ).toBeUndefined()
+      // @ts-expect-error - username and password are not in the type
+      expect(basicScheme?.username).toBeUndefined()
+      // @ts-expect-error - username and password are not in the type
+      expect(basicScheme?.password).toBeUndefined()
+      // @ts-expect-error - uid is not in the type
+      expect(basicScheme?.uid).toBeUndefined()
+      // @ts-expect-error - nameKey is not in the type
+      expect(basicScheme?.nameKey).toBeUndefined()
 
       // Verify security scheme secrets are in auth store
       expect(resultWorkspace.workspace.auth['basic-auth-api']!.secrets['basic-auth']).toEqual({
@@ -617,7 +598,8 @@ describe('migrate-to-indexdb', () => {
       const resultWorkspace = result[0]!
 
       // Verify security scheme is in document components
-      const oauthScheme = resultWorkspace.workspace.documents['oauth-api']!.components?.securitySchemes?.['oauth2-auth']
+      const oauthScheme = (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['oauth-api']!
+        .components?.securitySchemes?.['oauth2-auth']
       if (oauthScheme && 'type' in oauthScheme && oauthScheme.type === 'oauth2') {
         expect(oauthScheme.type).toBe('oauth2')
         expect(oauthScheme.flows?.authorizationCode).toEqual({
@@ -707,13 +689,17 @@ describe('migrate-to-indexdb', () => {
       const resultWorkspace = result[0]!
 
       // Verify both documents have their security schemes
-      expect(resultWorkspace.workspace.documents['api-one']!.components?.securitySchemes?.['api-key']).toMatchObject({
+      expect(
+        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['api-one']!.components
+          ?.securitySchemes?.['api-key'],
+      ).toMatchObject({
         type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
       })
       expect(
-        resultWorkspace.workspace.documents['api-two']!.components?.securitySchemes?.['bearer-token'],
+        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['api-two']!.components
+          ?.securitySchemes?.['bearer-token'],
       ).toMatchObject({
         type: 'http',
         scheme: 'bearer',
@@ -742,8 +728,11 @@ describe('migrate-to-indexdb', () => {
       const resultWorkspace = result[0]!
 
       // Document should exist but have no security schemes
-      expect(resultWorkspace.workspace.documents['no-auth-api']).toBeDefined()
-      expect(resultWorkspace.workspace.documents['no-auth-api']!.components?.securitySchemes).toMatchObject({})
+      expect((resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['no-auth-api']).toBeDefined()
+      expect(
+        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['no-auth-api']!.components
+          ?.securitySchemes,
+      ).toMatchObject({})
 
       // Auth store should exist but be empty or have empty secrets
       expect(resultWorkspace.workspace.auth['no-auth-api']).toBeDefined()
@@ -1053,7 +1042,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['env-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['env-api']
         assert(doc)
 
         expect(doc['x-scalar-environments']).toStrictEqual({
@@ -1089,7 +1078,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['multi-env-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['multi-env-api']
         assert(doc)
 
         expect(doc['x-scalar-environments']).toStrictEqual({
@@ -1110,7 +1099,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['no-env-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['no-env-api']
         assert(doc)
         expect(doc['x-scalar-environments']).toBeUndefined()
       })
@@ -1134,7 +1123,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['active-env-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['active-env-api']
 
         assert(doc)
         expect(doc['x-scalar-active-environment']).toBe('production')
@@ -1146,7 +1135,9 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['no-active-env-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.[
+          'no-active-env-api'
+        ]
 
         assert(doc)
         expect(doc['x-scalar-active-environment']).toBeUndefined()
@@ -1168,7 +1159,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['server-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['server-api']
 
         assert(doc)
         expect(doc['x-scalar-selected-server']).toBe('https://api.example.com/v1')
@@ -1180,7 +1171,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['no-server-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['no-server-api']
 
         assert(doc)
         expect(doc['x-scalar-selected-server']).toBeUndefined()
@@ -1193,7 +1184,9 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['missing-server-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.[
+          'missing-server-api'
+        ]
 
         assert(doc)
         expect(doc['x-scalar-selected-server']).toBeUndefined()
@@ -1219,7 +1212,9 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['multi-server-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.[
+          'multi-server-api'
+        ]
 
         assert(doc)
         expect(doc['x-scalar-selected-server']).toBe('https://api.prod.example.com')
@@ -1234,7 +1229,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['icon-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['icon-api']
 
         assert(doc)
         expect(doc['x-scalar-icon']).toBe('interface-home')
@@ -1246,7 +1241,9 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['default-icon-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.[
+          'default-icon-api'
+        ]
 
         assert(doc)
         // The collection schema defaults to 'interface-content-folder'
@@ -1284,7 +1281,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['full-meta-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['full-meta-api']
 
         assert(doc)
 
@@ -1355,8 +1352,8 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc1 = result[0]?.workspace.documents['api-one']
-        const doc2 = result[0]?.workspace.documents['api-two']
+        const doc1 = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['api-one']
+        const doc2 = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['api-two']
 
         assert(doc1)
         assert(doc2)
@@ -1390,7 +1387,9 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['single-server-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.[
+          'single-server-api'
+        ]
 
         assert(doc)
         expect(doc.servers).toHaveLength(1)
@@ -1428,7 +1427,9 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['multi-server-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.[
+          'multi-server-api'
+        ]
 
         assert(doc)
         expect(doc.servers).toMatchObject([
@@ -1451,7 +1452,9 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['minimal-server-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.[
+          'minimal-server-api'
+        ]
 
         assert(doc)
         expect(doc.servers).toMatchObject([{ url: 'https://minimal.example.com' }])
@@ -1463,7 +1466,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['no-servers-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['no-servers-api']
 
         assert(doc)
         expect(doc.servers).toEqual([])
@@ -1495,7 +1498,9 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['templated-server-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.[
+          'templated-server-api'
+        ]
 
         assert(doc)
         expect(doc.servers).toMatchObject([
@@ -1534,7 +1539,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['default-var-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['default-var-api']
 
         assert(doc)
         expect(doc.servers).toMatchObject([
@@ -1577,7 +1582,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['multi-var-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['multi-var-api']
 
         assert(doc)
         expect(doc.servers).toMatchObject([
@@ -1641,8 +1646,8 @@ describe('migrate-to-indexdb', () => {
         expect(result).toHaveLength(1)
         const resultWorkspace = result[0]!
 
-        const doc1 = resultWorkspace.workspace.documents['api-one']
-        const doc2 = resultWorkspace.workspace.documents['api-two']
+        const doc1 = (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['api-one']
+        const doc2 = (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['api-two']
 
         assert(doc1)
         assert(doc2)
@@ -1692,8 +1697,8 @@ describe('migrate-to-indexdb', () => {
         const result = await transformLegacyDataToWorkspace(legacyData)
         const resultWorkspace = result[0]!
 
-        const docAlpha = resultWorkspace.workspace.documents['api-alpha']
-        const docBeta = resultWorkspace.workspace.documents['api-beta']
+        const docAlpha = (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['api-alpha']
+        const docBeta = (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['api-beta']
 
         assert(docAlpha)
         assert(docBeta)
@@ -1757,8 +1762,8 @@ describe('migrate-to-indexdb', () => {
 
         expect(result).toHaveLength(2)
 
-        const devDoc = result[0]?.workspace.documents['dev-api']
-        const prodDoc = result[1]?.workspace.documents['prod-api']
+        const devDoc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['dev-api']
+        const prodDoc = (result[1]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['prod-api']
 
         assert(devDoc)
         assert(prodDoc)
@@ -1805,8 +1810,8 @@ describe('migrate-to-indexdb', () => {
         const result = await transformLegacyDataToWorkspace(legacyData)
         const resultWorkspace = result[0]!
 
-        const docWith = resultWorkspace.workspace.documents['with-server']
-        const docWithout = resultWorkspace.workspace.documents['without-server']
+        const docWith = (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['with-server']
+        const docWithout = (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['without-server']
 
         assert(docWith)
         assert(docWithout)
@@ -1833,7 +1838,9 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['no-server-refs-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.[
+          'no-server-refs-api'
+        ]
 
         assert(doc)
         // Unreferenced servers should not appear in the document
@@ -1851,7 +1858,9 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['ghost-server-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.[
+          'ghost-server-api'
+        ]
 
         assert(doc)
         // Non-existent servers should be filtered out, not produce errors
@@ -1876,7 +1885,9 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['mixed-servers-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.[
+          'mixed-servers-api'
+        ]
 
         assert(doc)
         // Only the valid server should appear
@@ -1913,7 +1924,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['tags-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['tags-api']
 
         assert(doc)
         expect(doc.tags).toEqual([
@@ -1958,7 +1969,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['nested-tags-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['nested-tags-api']
 
         assert(doc)
 
@@ -2023,7 +2034,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['multi-group-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['multi-group-api']
 
         assert(doc)
         expect(doc.tags).toEqual([
@@ -2076,7 +2087,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['mixed-tags-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['mixed-tags-api']
 
         assert(doc)
         expect(doc.tags).toEqual([
@@ -2111,7 +2122,9 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['missing-children-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.[
+          'missing-children-api'
+        ]
 
         assert(doc)
         expect(doc.tags).toEqual([])
@@ -2140,7 +2153,9 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['documented-tags-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.[
+          'documented-tags-api'
+        ]
 
         assert(doc)
         expect(doc.tags).toEqual([
@@ -2178,7 +2193,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc.paths?.['/users']?.get).toEqual({
@@ -2219,7 +2234,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc.paths?.['/users']?.post).toEqual({
@@ -2272,7 +2287,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(getResolvedRef(doc.paths?.['/users/{id}']?.get)?.parameters).toMatchObject([
@@ -2321,7 +2336,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc.paths).toEqual({
@@ -2370,7 +2385,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -2446,7 +2461,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -2512,7 +2527,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['api']
         assert(doc)
 
         expect(doc).toMatchObject({
@@ -2570,7 +2585,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -2633,7 +2648,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['auth-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['auth-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -2708,7 +2723,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['auth-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['auth-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -2771,7 +2786,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -2831,7 +2846,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['config-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['config-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -2891,7 +2906,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['data-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['data-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -2951,7 +2966,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['upload-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['upload-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3028,7 +3043,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['auth-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['auth-api']
         expect(
           getResolvedRef(getResolvedRef(doc?.paths?.['/login']?.post)?.requestBody)?.['x-scalar-selected-content-type'],
         ).toEqual({
@@ -3063,7 +3078,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
         expect(getResolvedRef(doc?.paths?.['/users']?.get)?.requestBody).toBeUndefined()
       })
 
@@ -3094,7 +3109,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3220,7 +3235,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['test-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['test-api']
         expect(doc).toMatchObject({
           openapi: '3.1.0',
           info: { title: 'Test API', version: '1.0.0' },
@@ -3299,7 +3314,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['scalar-galaxy']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['scalar-galaxy']
         expect(doc).toMatchObject({
           openapi: '3.1.0',
           info: { title: 'Scalar Galaxy', version: '1.0.0' },
@@ -3405,7 +3420,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['test-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['test-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3474,7 +3489,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3531,7 +3546,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3581,7 +3596,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3625,7 +3640,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3663,7 +3678,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3697,7 +3712,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3729,7 +3744,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['local-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['local-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3768,7 +3783,9 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['multi-server-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.[
+          'multi-server-api'
+        ]
 
         assert(doc)
         expect(doc.servers).toEqual(
@@ -3813,7 +3830,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc.servers).toEqual([
@@ -3856,7 +3873,9 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['malformed-paths-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.[
+          'malformed-paths-api'
+        ]
 
         assert(doc)
         expect(doc.servers).toEqual([])
@@ -3898,7 +3917,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc.servers).toEqual(
@@ -3934,7 +3953,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -3980,7 +3999,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['mixed-paths-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['mixed-paths-api']
 
         assert(doc)
         expect(doc.servers).toEqual(
@@ -4023,7 +4042,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['complex-url-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['complex-url-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4055,7 +4074,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['no-protocol-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['no-protocol-api']
 
         assert(doc)
         expect(doc.servers).toEqual([])
@@ -4099,7 +4118,9 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['dedup-server-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.[
+          'dedup-server-api'
+        ]
 
         assert(doc)
         expect(doc.servers).toEqual([{ url: 'https://api.example.com' }])
@@ -4140,7 +4161,9 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['query-params-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.[
+          'query-params-api'
+        ]
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4179,7 +4202,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc.servers).toEqual([
@@ -4206,7 +4229,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['root-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['root-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4245,7 +4268,9 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['relative-paths-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.[
+          'relative-paths-api'
+        ]
 
         assert(doc)
         expect(doc.servers).toEqual([])
@@ -4280,7 +4305,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['subdomain-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['subdomain-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4312,7 +4337,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['nested-path-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['nested-path-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4358,7 +4383,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['protected-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['protected-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4422,7 +4447,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['protected-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['protected-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4490,7 +4515,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['protected-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['protected-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4559,7 +4584,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['oauth-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['oauth-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4610,7 +4635,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['public-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['public-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4642,7 +4667,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4711,7 +4736,9 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['mixed-security-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.[
+          'mixed-security-api'
+        ]
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4771,7 +4798,9 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['experimental-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.[
+          'experimental-api'
+        ]
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4804,7 +4833,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['internal-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['internal-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4838,7 +4867,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4880,7 +4909,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4921,7 +4950,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4937,7 +4966,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['empty-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['empty-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4963,7 +4992,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['legacy-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['legacy-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -4995,7 +5024,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['root-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['root-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -5025,7 +5054,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['root-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['root-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -5089,8 +5118,8 @@ describe('migrate-to-indexdb', () => {
         const result = await transformLegacyDataToWorkspace(legacyData)
         const resultWorkspace = result[0]!
 
-        const doc1 = resultWorkspace.workspace.documents['api-one']
-        const doc2 = resultWorkspace.workspace.documents['api-two']
+        const doc1 = (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['api-one']
+        const doc2 = (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['api-two']
 
         assert(doc1)
         assert(doc2)
@@ -5152,7 +5181,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['users-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['users-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -5219,7 +5248,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['webhook-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['webhook-api']
 
         assert(doc)
         expect(doc).toMatchObject({
@@ -5286,7 +5315,7 @@ describe('migrate-to-indexdb', () => {
           legacyData.records.collections['collection-1'].components.schemas.TreeNode
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['tree-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['tree-api']
         expect(doc).toMatchObject({
           openapi: '3.1.0',
           info: {
@@ -5353,7 +5382,7 @@ describe('migrate-to-indexdb', () => {
           legacyData.records.collections['collection-1'].components.schemas.Person
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['people-api']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['people-api']
         expect(doc).toMatchObject({
           openapi: '3.1.0',
           info: { title: 'People API', version: '1.0.0' },
@@ -5509,7 +5538,7 @@ describe('migrate-to-indexdb', () => {
         })
 
         const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = result[0]?.workspace.documents['scalar-galaxy']
+        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['scalar-galaxy']
 
         expect(doc).toMatchObject({
           openapi: '3.1.0',
@@ -5680,9 +5709,15 @@ describe('migrate-to-indexdb', () => {
       expect(documentNames).toContain('my-api-1')
       expect(documentNames).toContain('my-api-2')
 
-      expect(resultWorkspace.workspace.documents['my-api']?.info.version).toBe('1.0.0')
-      expect(resultWorkspace.workspace.documents['my-api-1']?.info.version).toBe('2.0.0')
-      expect(resultWorkspace.workspace.documents['my-api-2']?.info.version).toBe('3.0.0')
+      expect((resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['my-api']?.info.version).toBe(
+        '1.0.0',
+      )
+      expect((resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['my-api-1']?.info.version).toBe(
+        '2.0.0',
+      )
+      expect((resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['my-api-2']?.info.version).toBe(
+        '3.0.0',
+      )
     })
 
     it('handles documents with special characters in names', async () => {
@@ -5786,10 +5821,18 @@ describe('migrate-to-indexdb', () => {
       expect(documentNames).toContain('duplicate-api-1')
       expect(documentNames).toContain('another-unique-api')
 
-      expect(resultWorkspace.workspace.documents['unique-api']?.info.version).toBe('1.0.0')
-      expect(resultWorkspace.workspace.documents['duplicate-api']?.info.version).toBe('1.0.0')
-      expect(resultWorkspace.workspace.documents['duplicate-api-1']?.info.version).toBe('2.0.0')
-      expect(resultWorkspace.workspace.documents['another-unique-api']?.info.version).toBe('1.0.0')
+      expect((resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['unique-api']?.info.version).toBe(
+        '1.0.0',
+      )
+      expect(
+        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['duplicate-api']?.info.version,
+      ).toBe('1.0.0')
+      expect(
+        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['duplicate-api-1']?.info.version,
+      ).toBe('2.0.0')
+      expect(
+        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['another-unique-api']?.info.version,
+      ).toBe('1.0.0')
     })
 
     it('handles documents without title falling back to default title', async () => {
@@ -5906,11 +5949,21 @@ describe('migrate-to-indexdb', () => {
       expect(documentNames).toContain('repeated-api-3')
       expect(documentNames).toContain('repeated-api-4')
 
-      expect(resultWorkspace.workspace.documents['repeated-api']?.info.version).toBe('1.0.0')
-      expect(resultWorkspace.workspace.documents['repeated-api-1']?.info.version).toBe('2.0.0')
-      expect(resultWorkspace.workspace.documents['repeated-api-2']?.info.version).toBe('3.0.0')
-      expect(resultWorkspace.workspace.documents['repeated-api-3']?.info.version).toBe('4.0.0')
-      expect(resultWorkspace.workspace.documents['repeated-api-4']?.info.version).toBe('5.0.0')
+      expect(
+        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['repeated-api']?.info.version,
+      ).toBe('1.0.0')
+      expect(
+        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['repeated-api-1']?.info.version,
+      ).toBe('2.0.0')
+      expect(
+        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['repeated-api-2']?.info.version,
+      ).toBe('3.0.0')
+      expect(
+        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['repeated-api-3']?.info.version,
+      ).toBe('4.0.0')
+      expect(
+        (resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['repeated-api-4']?.info.version,
+      ).toBe('5.0.0')
     })
 
     it('preserves "Drafts" special case normalization with duplicates', async () => {
@@ -5952,8 +6005,12 @@ describe('migrate-to-indexdb', () => {
       expect(documentNames).toContain('drafts')
       expect(documentNames).toContain('drafts-1')
 
-      expect(resultWorkspace.workspace.documents['drafts']?.info.version).toBe('1.0.0')
-      expect(resultWorkspace.workspace.documents['drafts-1']?.info.version).toBe('2.0.0')
+      expect((resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['drafts']?.info.version).toBe(
+        '1.0.0',
+      )
+      expect((resultWorkspace.workspace.documents as Record<string, OpenApiDocument>)['drafts-1']?.info.version).toBe(
+        '2.0.0',
+      )
     })
 
     it('ensures uniqueness is per workspace, not global', async () => {
@@ -6030,10 +6087,18 @@ describe('migrate-to-indexdb', () => {
       expect(workspace2DocNames).toContain('shared-name-api-1')
       expect(workspace2DocNames).toContain('drafts')
 
-      expect(workspace1Result.workspace.documents['shared-name-api']?.info.version).toBe('1.0.0')
-      expect(workspace1Result.workspace.documents['shared-name-api-1']?.info.version).toBe('2.0.0')
-      expect(workspace2Result.workspace.documents['shared-name-api']?.info.version).toBe('3.0.0')
-      expect(workspace2Result.workspace.documents['shared-name-api-1']?.info.version).toBe('4.0.0')
+      expect(
+        (workspace1Result.workspace.documents as Record<string, OpenApiDocument>)['shared-name-api']?.info.version,
+      ).toBe('1.0.0')
+      expect(
+        (workspace1Result.workspace.documents as Record<string, OpenApiDocument>)['shared-name-api-1']?.info.version,
+      ).toBe('2.0.0')
+      expect(
+        (workspace2Result.workspace.documents as Record<string, OpenApiDocument>)['shared-name-api']?.info.version,
+      ).toBe('3.0.0')
+      expect(
+        (workspace2Result.workspace.documents as Record<string, OpenApiDocument>)['shared-name-api-1']?.info.version,
+      ).toBe('4.0.0')
     })
   })
 })

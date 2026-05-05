@@ -4,7 +4,7 @@ import {
   getSelectedServer,
   getServers,
 } from '@scalar/workspace-store/request-example'
-import { type WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import ServerSelector from '@/components/ServerSelector.vue'
@@ -12,7 +12,7 @@ import { useState } from '@/state/state'
 import Auth from '@/views/Settings/Auth.vue'
 
 const { document, name } = defineProps<{
-  document: WorkspaceDocument
+  document: OpenApiDocument
   name: string
 }>()
 

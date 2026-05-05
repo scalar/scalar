@@ -1,4 +1,5 @@
 import type { TraversedDocument } from '@scalar/workspace-store/schemas/navigation'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { type MaybeRefOrGetter, computed, toValue } from 'vue'
 
 import type { RegistryDocument } from '@/types/configuration'
@@ -151,8 +152,9 @@ export function useSidebarDocuments({
     }
 
     return Object.entries(store.workspace.documents).map(([name, doc]) => {
-      const registry = doc?.['x-scalar-registry-meta']
-      const navigation = doc?.['x-scalar-navigation'] as TraversedDocument | undefined
+      const isOpenApi = isOpenApiDocument(doc)
+      const registry = isOpenApi ? doc['x-scalar-registry-meta'] : undefined
+      const navigation = isOpenApi ? (doc['x-scalar-navigation'] as TraversedDocument | undefined) : undefined
 
       const title = navigation?.title || doc?.info?.title || 'Untitled'
 

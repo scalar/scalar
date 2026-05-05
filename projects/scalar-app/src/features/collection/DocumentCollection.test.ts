@@ -1,6 +1,6 @@
 import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { createRouter, createWebHistory } from 'vue-router'
@@ -14,7 +14,7 @@ import DocumentCollection from './DocumentCollection.vue'
  * Tests focus on document rendering, fallback states, routing integration, and prop handling
  */
 describe('DocumentCollection', () => {
-  const createMockDocument = (overrides?: Partial<WorkspaceDocument>): WorkspaceDocument =>
+  const createMockDocument = (overrides?: Partial<OpenApiDocument>): OpenApiDocument =>
     ({
       uid: 'test-doc-123',
       info: {
@@ -23,7 +23,7 @@ describe('DocumentCollection', () => {
       },
       'x-scalar-client-config-icon': 'interface-content-folder',
       ...overrides,
-    }) as WorkspaceDocument
+    }) as unknown as OpenApiDocument
 
   const createMockWorkspaceStore = (): WorkspaceStore =>
     ({
@@ -42,7 +42,7 @@ describe('DocumentCollection', () => {
     })
   }
 
-  const mountWithRouter = async (document: WorkspaceDocument | null, extraProps?: Record<string, unknown>) => {
+  const mountWithRouter = async (document: OpenApiDocument | null, extraProps?: Record<string, unknown>) => {
     const router = createRouterInstance()
     const workspaceStore = createMockWorkspaceStore()
 

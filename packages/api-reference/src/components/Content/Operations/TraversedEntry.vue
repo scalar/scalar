@@ -6,7 +6,6 @@ import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import type {
   TraversedEntry,
   TraversedModels,
@@ -15,7 +14,10 @@ import type {
   TraversedTag,
   TraversedWebhook,
 } from '@scalar/workspace-store/schemas/navigation'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type {
+  OpenApiDocument,
+  ServerObject,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import Model from '@/components/Content/Models/Model.vue'
 import ModelTag from '@/components/Content/Models/ModelTag.vue'
@@ -38,7 +40,7 @@ const {
   /** Traversed entries to render */
   entries: TraversedEntry[]
   /** The document object */
-  document: WorkspaceDocument
+  document: OpenApiDocument
   /** The http client options for the dropdown */
   clientOptions: ClientOptionGroup[]
   /** The subset of the configuration object required for the operation component */

@@ -71,7 +71,9 @@ const exampleName = computed<string | undefined>(() => 'default')
  * This is cheap — no document bundling, just computed refs and modal state.
  */
 const createProps = () => {
-  const document = computed(() => store.workspace.documents[documentSlug.value ?? ''] ?? null)
+  const document = computed<OpenApiDocument | null>(
+    () => (store.workspace.documents[documentSlug.value ?? ''] as OpenApiDocument | undefined) ?? null,
+  )
   const modalState = useModal()
   const requestBodyCompositionSelection = ref<Record<string, number>>({})
 
@@ -134,7 +136,7 @@ describe('Modal', () => {
     store.update('x-scalar-sidebar-width', undefined)
     store.workspace['x-scalar-active-environment'] = undefined
     store.workspace['x-scalar-environments'] = undefined
-    store.workspace.documents['test-doc']!['x-scalar-environments'] = undefined
+    ;(store.workspace.documents['test-doc'] as OpenApiDocument)['x-scalar-environments'] = undefined
   })
 
   it('renders when modal state is open', async () => {
@@ -308,7 +310,7 @@ describe('Modal', () => {
   })
 
   it('computes environment from workspace and document', async () => {
-    store.workspace.documents['test-doc']!['x-scalar-environments'] = {
+    ;(store.workspace.documents['test-doc'] as OpenApiDocument)['x-scalar-environments'] = {
       prod: {
         color: '#FFFFFF',
         variables: [{ name: 'API_KEY', value: 'doc-key-123' }],

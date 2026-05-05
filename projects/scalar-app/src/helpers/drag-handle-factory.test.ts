@@ -63,7 +63,7 @@ const getSidebarState = (store: ReturnType<typeof createWorkspaceStore>) => {
   const entries = computed(() => {
     const order = store.workspace['x-scalar-order'] ?? Object.keys(store.workspace.documents)
     return order
-      .map((doc) => store.workspace.documents[doc]?.['x-scalar-navigation'])
+      .map((doc) => (store.workspace.documents as Record<string, OpenApiDocument>)[doc]?.['x-scalar-navigation'])
       .filter((nav) => nav !== undefined) as TraversedEntry[]
   })
 
@@ -144,7 +144,7 @@ describe('handleDragEnd', () => {
 
   it('returns false when dragging document over non-document item', () => {
     const sidebarState = getSidebarState(store)
-    const navigation = store.workspace.documents['doc-1']?.['x-scalar-navigation']
+    const navigation = (store.workspace.documents as Record<string, OpenApiDocument>)['doc-1']?.['x-scalar-navigation']
     const tagId = navigation?.children?.find((child) => child.type === 'tag')?.id
 
     assert(tagId, 'Tag ID is required')
@@ -163,10 +163,10 @@ describe('handleDragEnd', () => {
   // TAGS
   //------------------------------------------------------------------------------------------------
   it('successfully reorders tags within the same parent', () => {
-    const document = store.workspace.documents['doc-1']
+    const document = (store.workspace.documents as Record<string, OpenApiDocument>)['doc-1']
 
     const sidebarState = getSidebarState(store)
-    const navigation = store.workspace.documents['doc-1']?.['x-scalar-navigation']
+    const navigation = (store.workspace.documents as Record<string, OpenApiDocument>)['doc-1']?.['x-scalar-navigation']
     const tags = navigation?.children?.filter((child) => child.type === 'tag') ?? []
     const tagUsers = tags.find((tag) => tag.name === 'users')
     const tagPets = tags.find((tag) => tag.name === 'pets')
@@ -181,7 +181,9 @@ describe('handleDragEnd', () => {
     store.buildSidebar('doc-1')
 
     // Check the order of the tags
-    const sidebarStructure = store.workspace.documents['doc-1']?.['x-scalar-navigation']
+    const sidebarStructure = (store.workspace.documents as Record<string, OpenApiDocument>)['doc-1']?.[
+      'x-scalar-navigation'
+    ]
     assert(sidebarStructure, 'Sidebar structure is required')
 
     const order = sidebarStructure.children?.map((child) => child.id)
@@ -198,11 +200,13 @@ describe('handleDragEnd', () => {
     )
 
     expect(result).toBe(true)
-    const updatedDoc = store.workspace.documents['doc-1']
+    const updatedDoc = (store.workspace.documents as Record<string, OpenApiDocument>)['doc-1']
     expect(updatedDoc?.['x-scalar-order']).toEqual([tagPets.id, tagUsers.id, 'doc-1/description/introduction'])
 
     // Check the order of the tags
-    const updatedSidebarStructre = store.workspace.documents['doc-1']?.['x-scalar-navigation']
+    const updatedSidebarStructre = (store.workspace.documents as Record<string, OpenApiDocument>)['doc-1']?.[
+      'x-scalar-navigation'
+    ]
     assert(updatedSidebarStructre, 'Updated sidebar structure is required')
     const updatedOrder = updatedSidebarStructre.children?.map((child) => child.id)
     expect(updatedOrder).toEqual([tagPets.id, tagUsers.id, 'doc-1/description/introduction'])
@@ -231,8 +235,8 @@ describe('handleDragEnd', () => {
     store.buildSidebar('doc-2')
 
     const sidebarState = getSidebarState(store)
-    const nav1 = store.workspace.documents['doc-1']?.['x-scalar-navigation']
-    const nav2 = store.workspace.documents['doc-2']?.['x-scalar-navigation']
+    const nav1 = (store.workspace.documents as Record<string, OpenApiDocument>)['doc-1']?.['x-scalar-navigation']
+    const nav2 = (store.workspace.documents as Record<string, OpenApiDocument>)['doc-2']?.['x-scalar-navigation']
     const tag1 = nav1?.children?.find((child) => child.type === 'tag' && child.name === 'users')
     const tag2 = nav2?.children?.find((child) => child.type === 'tag' && child.name === 'items')
 
@@ -251,7 +255,7 @@ describe('handleDragEnd', () => {
 
   it('returns false when trying to drop tag into parent', () => {
     const sidebarState = getSidebarState(store)
-    const navigation = store.workspace.documents['doc-1']?.['x-scalar-navigation']
+    const navigation = (store.workspace.documents as Record<string, OpenApiDocument>)['doc-1']?.['x-scalar-navigation']
     const tag = navigation?.children?.find((child) => child.type === 'tag')
 
     assert(tag, 'Tag is required')
@@ -271,7 +275,7 @@ describe('handleDragEnd', () => {
   //------------------------------------------------------------------------------------------------
   it('successfully reorders operations within the same parent', () => {
     store.buildSidebar('doc-1')
-    const document = store.workspace.documents['doc-1']
+    const document = (store.workspace.documents as Record<string, OpenApiDocument>)['doc-1']
 
     const sidebarState = getSidebarState(store)
     const navigation = document?.['x-scalar-navigation']
@@ -300,12 +304,16 @@ describe('handleDragEnd', () => {
     const result = handleDragEnd({ id: opPost.id, parentId: null }, { id: opGet.id, parentId: null, offset: 'before' })
 
     expect(result).toBe(true)
-    const tagObject = store.workspace.documents['doc-1']?.tags?.find((it) => it.name === 'users')
+    const tagObject = (store.workspace.documents as Record<string, OpenApiDocument>)['doc-1']?.tags?.find(
+      (it) => it.name === 'users',
+    )
     assert(tagObject, 'Tag object is required')
     expect(tagObject['x-scalar-order']).toEqual([opPost.id, opGet.id])
 
     // Check the order of the sidebar structure
-    const updatedNavigation = store.workspace.documents['doc-1']?.['x-scalar-navigation']
+    const updatedNavigation = (store.workspace.documents as Record<string, OpenApiDocument>)['doc-1']?.[
+      'x-scalar-navigation'
+    ]
     assert(updatedNavigation, 'Updated navigation is required')
     const updatedTag =
       updatedNavigation.children?.filter((child) => child.type === 'tag' && child.name === 'users') ?? []
@@ -316,7 +324,7 @@ describe('handleDragEnd', () => {
 
   it('returns false when trying to reorder operations from different parents', () => {
     const sidebarState = getSidebarState(store)
-    const navigation = store.workspace.documents['doc-1']?.['x-scalar-navigation']
+    const navigation = (store.workspace.documents as Record<string, OpenApiDocument>)['doc-1']?.['x-scalar-navigation']
     const tagUsers = navigation?.children?.find((child) => child.type === 'tag' && child.name === 'users')
     const tagPets = navigation?.children?.find((child) => child.type === 'tag' && child.name === 'pets')
 
@@ -405,7 +413,9 @@ describe('handleDragEnd', () => {
     store.buildSidebar('circular-doc')
 
     const sidebarState = getSidebarState(store)
-    const navigation = store.workspace.documents['circular-doc']?.['x-scalar-navigation']
+    const navigation = (store.workspace.documents as Record<string, OpenApiDocument>)['circular-doc']?.[
+      'x-scalar-navigation'
+    ]
 
     const tagPeople = navigation?.children?.find((child) => child.type === 'tag' && child.name === 'people')
     const tagAnimals = navigation?.children?.find((child) => child.type === 'tag' && child.name === 'animals')
@@ -434,7 +444,7 @@ describe('handleDragEnd', () => {
     expect(result).toBe(true)
 
     // Verify the operation was moved
-    const updatedDoc = store.workspace.documents['circular-doc']
+    const updatedDoc = (store.workspace.documents as Record<string, OpenApiDocument>)['circular-doc']
     const peopleOp = updatedDoc?.paths?.['/people']?.get as
       | { tags?: string[]; responses?: Record<string, unknown> }
       | undefined
@@ -566,7 +576,7 @@ describe('isDroppable', () => {
 
   it('returns false when dragging document over non-document', () => {
     const sidebarState = getSidebarState(store)
-    const navigation = store.workspace.documents['doc-1']?.['x-scalar-navigation']
+    const navigation = (store.workspace.documents as Record<string, OpenApiDocument>)['doc-1']?.['x-scalar-navigation']
     const tag = navigation?.children?.find((child) => child.type === 'tag')
 
     assert(tag, 'Tag is required')
@@ -586,7 +596,7 @@ describe('isDroppable', () => {
   //------------------------------------------------------------------------------------------------
   it('returns true when dragging tag over another tag with same parent', () => {
     const sidebarState = getSidebarState(store)
-    const navigation = store.workspace.documents['doc-1']?.['x-scalar-navigation']
+    const navigation = (store.workspace.documents as Record<string, OpenApiDocument>)['doc-1']?.['x-scalar-navigation']
     const tags = navigation?.children?.filter((child) => child.type === 'tag') ?? []
     const tag1 = tags[0]
     const tag2 = tags[1]
@@ -629,8 +639,8 @@ describe('isDroppable', () => {
     store.buildSidebar('doc-2')
 
     const sidebarState = getSidebarState(store)
-    const nav1 = store.workspace.documents['doc-1']?.['x-scalar-navigation']
-    const nav2 = store.workspace.documents['doc-2']?.['x-scalar-navigation']
+    const nav1 = (store.workspace.documents as Record<string, OpenApiDocument>)['doc-1']?.['x-scalar-navigation']
+    const nav2 = (store.workspace.documents as Record<string, OpenApiDocument>)['doc-2']?.['x-scalar-navigation']
     const tag1 = nav1?.children?.find((child) => child.type === 'tag' && child.name === 'users')
     const tag2 = nav2?.children?.find((child) => child.type === 'tag' && child.name === 'items')
 
@@ -654,7 +664,7 @@ describe('isDroppable', () => {
   //------------------------------------------------------------------------------------------------
   it('returns true when reordering operations with same parent', () => {
     const sidebarState = getSidebarState(store)
-    const navigation = store.workspace.documents['doc-1']?.['x-scalar-navigation']
+    const navigation = (store.workspace.documents as Record<string, OpenApiDocument>)['doc-1']?.['x-scalar-navigation']
     const tag = navigation?.children?.find((child) => child.type === 'tag' && child.name === 'users')
     const operations =
       tag && 'children' in tag ? (tag.children?.filter((child) => child.type === 'operation') ?? []) : []
@@ -678,7 +688,7 @@ describe('isDroppable', () => {
 
   it('returns false when trying to reorder operations with different parents', () => {
     const sidebarState = getSidebarState(store)
-    const navigation = store.workspace.documents['doc-1']?.['x-scalar-navigation']
+    const navigation = (store.workspace.documents as Record<string, OpenApiDocument>)['doc-1']?.['x-scalar-navigation']
     const tagUsers = navigation?.children?.find((child) => child.type === 'tag' && child.name === 'users')
     const tagPets = navigation?.children?.find((child) => child.type === 'tag' && child.name === 'pets')
     const op1 =
@@ -703,7 +713,7 @@ describe('isDroppable', () => {
 
   it('returns false when dragging example item', () => {
     const sidebarState = getSidebarState(store)
-    const navigation = store.workspace.documents['doc-1']?.['x-scalar-navigation']
+    const navigation = (store.workspace.documents as Record<string, OpenApiDocument>)['doc-1']?.['x-scalar-navigation']
     assert(navigation, 'Navigation is required')
 
     const tag = navigation.children?.find((child) => child.type === 'tag')

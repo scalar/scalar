@@ -38,6 +38,7 @@ import {
 } from '@/plugins/bundler'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
+import { isOpenApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { generateSchema } from '@/schemas/v3.1/openapi'
 import { recursiveRef } from '@/schemas/v3.1/openapi/reference'
@@ -499,9 +500,8 @@ export type WorkspaceStore = {
   /**
    * Imports a workspace from a serialized JSON string.
    *
-   * This method parses the input string using the InMemoryWorkspaceSchema,
-   * then updates the current workspace state, including documents, metadata,
-   * and configuration, with the imported values.
+   * Replaces the current workspace state — documents, metadata, and
+   * configuration — with the imported values.
    *
    * @param input - The serialized workspace JSON string to import.
    */
@@ -726,8 +726,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               // Don't mark as dirty when the document is first created or when
               // only metadata-only fields change. `x-scalar-registry-meta` is
               // updated programmatically (commit hash, conflict cache) and
-              // does not represent a user edit.
-              if (event.path.length > 0 && !METADATA_ONLY_DOCUMENT_KEYS.has(event.path[0] as string)) {
+              // does not represent a user edit. AsyncAPI documents do not
+              // participate in dirty tracking.
+              if (
+                isOpenApiDocument(document) &&
+                event.path.length > 0 &&
+                !METADATA_ONLY_DOCUMENT_KEYS.has(event.path[0] as string)
+              ) {
                 // The document has been modified since it was last saved
                 document['x-scalar-is-dirty'] = true
               }
@@ -755,8 +760,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               // Don't mark as dirty when the document is first created or when
               // only metadata-only fields change. `x-scalar-registry-meta` is
               // updated programmatically (commit hash, conflict cache) and
-              // does not represent a user edit.
-              if (event.path.length > 0 && !METADATA_ONLY_DOCUMENT_KEYS.has(event.path[0] as string)) {
+              // does not represent a user edit. AsyncAPI documents do not
+              // participate in dirty tracking.
+              if (
+                isOpenApiDocument(document) &&
+                event.path.length > 0 &&
+                !METADATA_ONLY_DOCUMENT_KEYS.has(event.path[0] as string)
+              ) {
                 // The document has been modified since it was last saved
                 document['x-scalar-is-dirty'] = true
               }
@@ -952,7 +962,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     originalDocuments[documentName] = newDocument
     intermediateDocuments[documentName] = deepClone(newDocument)
     // Mark the document as not dirty since we are saving it
-    activeDocument['x-scalar-is-dirty'] = false
+    if (isOpenApiDocument(activeDocument)) {
+      activeDocument['x-scalar-is-dirty'] = false
+    }
     return true
   }
 
@@ -1216,6 +1228,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return false
     }
 
+    // Sidebar navigation is OpenAPI-only for now.
+    if (!isOpenApiDocument(document)) {
+      return false
+    }
+
     // Generate the navigation structure for the sidebar.
     const navigation = createNavigation(documentName, document)
 
@@ -1269,13 +1286,15 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return console.error(`Document '${documentName}' does not exist in the workspace.`)
       }
 
+      const isOas = isOpenApiDocument(currentDocument)
+
       // Replace the whole document
       await addInMemoryDocument({
         name: documentName,
         document: input,
         // Preserve the current metadata
-        documentSource: currentDocument['x-scalar-original-source-url'],
-        documentHash: currentDocument['x-scalar-original-document-hash'],
+        documentSource: isOas ? currentDocument['x-scalar-original-source-url'] : undefined,
+        documentHash: isOas ? (currentDocument['x-scalar-original-document-hash'] ?? '') : '',
         meta: {
           // Preserve the registry meta
           'x-scalar-registry-meta': currentDocument['x-scalar-registry-meta'],
@@ -1375,7 +1394,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         name: documentName,
         document: baseline,
         documentSource: workspaceDocument['x-scalar-original-source-url'],
-        documentHash: workspaceDocument['x-scalar-original-document-hash'],
+        documentHash: workspaceDocument['x-scalar-original-document-hash'] ?? '',
         initialize: false,
         meta: {
           // Preserve the registry meta
