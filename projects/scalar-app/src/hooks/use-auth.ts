@@ -100,7 +100,7 @@ const refreshTokens = (): Promise<void> => {
 
   const execute = async (): Promise<void> => {
     try {
-      const response = await fetch(`${env.VITE_SERVICES_URL}/core/login/refresh`, {
+      const response = await fetch(`${env.VITE_API_URL}/core/login/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

@@ -14,7 +14,7 @@ export const DEFAULT_REFETCH_INTERVAL = 1000 * 60
 
 /** Single SDK client for the app */
 export const scalarClient = new Scalar({
-  serverURL: `${env.VITE_SERVICES_URL}/access`,
+  serverURL: `${env.VITE_API_URL}/access`,
   bearerAuth: async () => {
     // Ensure the access token is fresh
     await checkRefresh()

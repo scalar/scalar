@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { exchangeToken } from './exchange-token'
 
 vi.mock('@/environment', () => ({
-  env: { VITE_SERVICES_URL: 'https://api.scalar.test' },
+  env: { VITE_API_URL: 'https://api.scalar.test' },
 }))
 
 const VALID_RESPONSE = {

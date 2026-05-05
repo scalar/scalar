@@ -4,7 +4,7 @@ const deployEnvironments = union([literal('development'), literal('test'), liter
 
 const environmentSchema = object({
   VITE_ENV: deployEnvironments,
-  VITE_SERVICES_URL: string(),
+  VITE_API_URL: string(),
   VITE_DASHBOARD_URL: string(),
 })
 
