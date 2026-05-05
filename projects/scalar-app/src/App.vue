@@ -185,13 +185,10 @@ const registry = reactive({
       <template
         v-if="!isLoggedIn"
         #header-end>
-        <ScalarHeaderButton
-          is="a"
-          @click.prevent="handleLogin">
+        <ScalarHeaderButton @click.prevent="handleLogin">
           Log in
         </ScalarHeaderButton>
         <ScalarHeaderButton
-          is="a"
           cta
           @click.prevent="handleRegister">
           Register
