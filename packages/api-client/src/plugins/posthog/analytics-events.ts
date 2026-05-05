@@ -135,6 +135,10 @@ export const ANALYTICS_EVENTS = {
   OPERATION_DELETE: 'operation:delete',
   /** User changed the request body content-type filter — capture { content_type } to see format distribution */
   OPERATION_REQUEST_BODY_FILTER: 'operation:request_body_filter',
+  /** User set a server override on a specific operation — indicates need for per-operation server control */
+  OPERATION_SERVER_OVERRIDE: 'operation:server_override',
+  /** User set an auth override on a specific operation — indicates need for per-operation auth control */
+  OPERATION_AUTH_OVERRIDE: 'operation:auth_override',
 
   // --------------------------------------------------
   // Search
@@ -155,6 +159,49 @@ export const ANALYTICS_EVENTS = {
   SERVER_SELECT: 'server:select',
   /** User edited a server variable value — indicates parameterised server URLs in use */
   SERVER_VARIABLE_UPDATE: 'server:variable_update',
+
+  // --------------------------------------------------
+  // Settings
+  // --------------------------------------------------
+
+  /** User changed the proxy setting — capture { proxy_type: 'scalar' | 'none' } to measure CORS proxy reliance */
+  SETTINGS_PROXY_CHANGE: 'settings:proxy_change',
+  /** User selected a theme — capture { theme_slug } to know which themes to keep investing in */
+  SETTINGS_THEME_CHANGE: 'settings:theme_change',
+  /** User changed appearance mode — capture { color_mode: 'light' | 'dark' | 'system' } */
+  SETTINGS_COLOR_MODE_CHANGE: 'settings:color_mode_change',
+  /** User toggled telemetry — capture { enabled } to understand opt-out rates */
+  SETTINGS_TELEMETRY_CHANGE: 'settings:telemetry_change',
+  /** User toggled watch mode on a document — capture { enabled } to identify active-dev users */
+  SETTINGS_WATCH_MODE_TOGGLE: 'settings:watch_mode_toggle',
+
+  // --------------------------------------------------
+  // OpenAPI Editor
+  // --------------------------------------------------
+
+  /** User opened the OpenAPI editor for an operation */
+  EDITOR_OPEN: 'editor:open',
+  /** User switched editor language — capture { language: 'json' | 'yaml' } to know which to optimise */
+  EDITOR_LANGUAGE_CHANGE: 'editor:language_change',
+  /** User manually saved the document */
+  EDITOR_SAVE: 'editor:save',
+  /** User toggled auto-save — capture { enabled } to understand trust/workflow patterns */
+  EDITOR_AUTO_SAVE_TOGGLE: 'editor:auto_save_toggle',
+  /** User formatted the document */
+  EDITOR_FORMAT: 'editor:format',
+  /** User toggled maximized editor view — indicates complex specs needing more screen space */
+  EDITOR_MAXIMIZE_TOGGLE: 'editor:maximize_toggle',
+  /** Editor has validation diagnostics on save — capture { error_count, warning_count } */
+  EDITOR_DIAGNOSTICS: 'editor:diagnostics',
+
+  // --------------------------------------------------
+  // Cookies
+  // --------------------------------------------------
+
+  /** User created a new cookie — capture { scope: 'document' | 'workspace' } */
+  COOKIE_CREATE: 'cookie:create',
+  /** User deleted a cookie — capture { scope: 'document' | 'workspace' } */
+  COOKIE_DELETE: 'cookie:delete',
 
   // --------------------------------------------------
   // Tag
