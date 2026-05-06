@@ -430,6 +430,8 @@ describe('Modal', () => {
   })
 
   it('passes hideClientButton option to Operation component', async () => {
+    // This test mounts the Modal three times in sequence, which can exceed the
+    // default 5s timeout on slower CI runners. Allow extra headroom.
     const { props: baseProps, modalState } = createProps()
     modalState.open = true
 
@@ -489,5 +491,5 @@ describe('Modal', () => {
     const operationWithDefault = wrapperWithDefault.findComponent({ name: 'OperationBlock' })
     expect(operationWithDefault.exists()).toBe(true)
     expect(operationWithDefault.props('hideClientButton')).toBe(false)
-  })
+  }, 15000)
 })
