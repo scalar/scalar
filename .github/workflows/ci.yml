@@ -903,7 +903,7 @@ jobs:
       github.ref == 'refs/heads/main' &&
       startsWith(github.event.head_commit.message, 'RELEASING:') &&
       needs.check-changes.outputs.scalar_app_package_changed == 'true'
-    needs: [build, check-changes]
+    needs: [required-jobs-main, build, check-changes]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 15
     environment: production
