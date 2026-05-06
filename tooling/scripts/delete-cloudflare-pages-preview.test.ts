@@ -9,7 +9,8 @@ import { describe, expect, it } from 'vitest'
 const scriptPath = join(dirname(fileURLToPath(import.meta.url)), 'delete-cloudflare-pages-preview.sh')
 
 type RunOptions = {
-  perPage?: string
+  // Use `null` to omit the env var entirely so the script's own default applies.
+  perPage?: string | null
   branch?: string
 }
 
@@ -21,18 +22,27 @@ const runWithFakeCurl = (fakeCurlSource: string, options: RunOptions = {}) => {
   writeFileSync(fakeCurlPath, `#!/usr/bin/env node\n${fakeCurlSource}`)
   chmodSync(fakeCurlPath, 0o755)
 
+  const perPage = options.perPage === undefined ? '2' : options.perPage
+  const env: NodeJS.ProcessEnv = {
+    ...process.env,
+    BRANCH: options.branch ?? 'pr-123',
+    CLOUDFLARE_ACCOUNT_ID: 'account',
+    CLOUDFLARE_API_TOKEN: 'token',
+    CURL_COMMAND: fakeCurlPath,
+    PROJECT_NAME: 'project',
+    RECORD_FILE: recordFilePath,
+  }
+  if (perPage !== null) {
+    env.CLOUDFLARE_PER_PAGE = perPage
+  } else {
+    // Make sure a value inherited from the host environment cannot mask the
+    // script's own default.
+    delete env.CLOUDFLARE_PER_PAGE
+  }
+
   const result = spawnSync('bash', [scriptPath], {
     cwd: join(dirname(fileURLToPath(import.meta.url)), '../..'),
-    env: {
-      ...process.env,
-      BRANCH: options.branch ?? 'pr-123',
-      CLOUDFLARE_ACCOUNT_ID: 'account',
-      CLOUDFLARE_API_TOKEN: 'token',
-      CLOUDFLARE_PER_PAGE: options.perPage ?? '2',
-      CURL_COMMAND: fakeCurlPath,
-      PROJECT_NAME: 'project',
-      RECORD_FILE: recordFilePath,
-    },
+    env,
     encoding: 'utf8',
   })
 
@@ -192,6 +202,42 @@ process.stdout.write('200')
     expect(result.stdout).toContain('Failed to delete Cloudflare Pages deployment fails-to-delete (HTTP 400)')
     expect(result.stdout).toContain('active alias')
     expect(result.stdout).toContain('Failed to delete 1 of 2 deployment(s) for pr-123')
+  })
+
+  it("uses a default per_page within Cloudflare's 25-item cap for the list endpoint", () => {
+    // Cloudflare Pages\' deployments list endpoint caps `per_page` at 25 and
+    // responds with HTTP 400 ("Invalid list options provided. Review the `page`
+    // or `per_page` parameter.") for any larger value. The script must default
+    // to a value that does not exceed that cap.
+    const fakeCurlSource = String.raw`
+const { writeFileSync } = require('node:fs')
+const args = process.argv.slice(2)
+const output = args[args.indexOf('--output') + 1]
+const url = args.find((arg) => arg.startsWith('https://'))
+const method = args.includes('--request') ? args[args.indexOf('--request') + 1] : 'GET'
+
+if (method === 'GET') {
+  const perPage = Number(new URL(url).searchParams.get('per_page'))
+  if (perPage > 25) {
+    writeFileSync(output, JSON.stringify({
+      success: false,
+      errors: [{ message: 'Invalid list options provided. Review the page or per_page parameter.' }],
+    }))
+    process.stdout.write('400')
+    process.exit(0)
+  }
+}
+
+writeFileSync(output, JSON.stringify({ success: true, result: [] }))
+process.stdout.write('200')
+`
+
+    const { result } = runWithFakeCurl(fakeCurlSource, { perPage: null })
+
+    expect(result.stderr).toBe('')
+    expect(result.status).toBe(0)
+    expect(result.stdout).not.toContain('Failed to list Cloudflare Pages deployments')
+    expect(result.stdout).toContain('No preview deployments found for pr-123; nothing to delete')
   })
 
   it('reports Cloudflare API errors when listing fails', () => {

@@ -29,7 +29,11 @@ set -euo pipefail
 
 curl_command="${CURL_COMMAND:-curl}"
 base_url="${CLOUDFLARE_API_BASE_URL:-https://api.cloudflare.com/client/v4}"
-per_page="${CLOUDFLARE_PER_PAGE:-100}"
+# Cloudflare Pages caps `per_page` at 25 on the deployments list endpoint.
+# Anything larger fails with HTTP 400 "Invalid list options provided. Review
+# the page or per_page parameter.". Keep the default at the cap so we make as
+# few round trips as possible without tripping the limit.
+per_page="${CLOUDFLARE_PER_PAGE:-25}"
 
 # Use a single temp directory for all responses so we do not leak files in /tmp
 # across the run. The trap cleans up regardless of how the script exits.
