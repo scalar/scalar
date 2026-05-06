@@ -14,7 +14,9 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 env:
   # Exclude these packages from turbo as they are handled by dedicated jobs
-  TURBO_FLAGS: '--concurrency=100% --filter "!./integrations/{java,rust,dotnet,docker,fastapi,django-ninja}/**" --filter "!./projects/proxy-scalar-com/**"'
+  TURBO_FLAGS: '--concurrency=100% --filter
+    "!./integrations/{java,rust,dotnet,docker,fastapi,django-ninja}/**"
+    --filter "!./projects/proxy-scalar-com/**"'
   NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 jobs:
   # Initial build.
@@ -47,7 +49,9 @@ jobs:
           name: mock-server-docker-entrypoint
           path: packages/mock-server/docker/dist/docker-entrypoint.js
           retention-days: 3
-      - if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+      - if:
+          github.event_name == 'push' || (github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.fork == false)
         name: Upload webpack stats to RelativeCI
         uses: relative-ci/agent-action@1707825cbfcc7452b2913d273414705415ae64d4 # v3
         with:
@@ -370,7 +374,8 @@ jobs:
       - name: Run e2e tests (@scalar/api-reference)
         run: pnpm --filter api-reference test:e2e:ci
         # Only when the PR is from the same repository
-      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name ==
+          github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
         run: |
           pnpx netlify deploy --dir "./packages/api-reference/playwright-report" \
@@ -380,7 +385,8 @@ jobs:
             --filter @scalar/components \
             --alias=${{env.DEPLOY_ID}}
         # Only when the PR is from the same repository
-      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name ==
+          github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
         uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
         with:
@@ -438,7 +444,9 @@ jobs:
           report-tag: test-scalar-app-e2e
 
   test-component-snapshots:
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
+    if: github.event_name == 'pull_request' || github.event_name ==
+      'workflow_dispatch' || github.head_ref == 'changeset-release/main' ||
+      github.head_ref == 'main'
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     container:
@@ -467,7 +475,8 @@ jobs:
       - name: Run e2e tests (@scalar/components)
         run: pnpm --filter components test:e2e:ci
         # Only when the PR is from the same repository
-      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name ==
+          github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
         run: |
           pnpx netlify deploy --dir "./packages/components/playwright-report" \
@@ -477,7 +486,8 @@ jobs:
             --filter @scalar/components \
             --alias=${{env.DEPLOY_ID}}
         # Only when the PR is from the same repository
-      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name ==
+          github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
         uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
         with:
@@ -487,7 +497,9 @@ jobs:
           report-tag: test-components-snapshots
 
   test-cdn-snapshots:
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
+    if: github.event_name == 'pull_request' || github.event_name ==
+      'workflow_dispatch' || github.head_ref == 'changeset-release/main' ||
+      github.head_ref == 'main'
     needs: [build]
     runs-on: blacksmith-8vcpu-ubuntu-2204
     container:
@@ -514,7 +526,8 @@ jobs:
       - name: Run snapshot tests (@scalar/api-reference)
         run: pnpm --filter api-reference test:e2e:cdn:ci
         # Only when the PR is from the same repository
-      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name ==
+          github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
         run: |
           pnpx netlify deploy --dir "./packages/api-reference/playwright-report-cdn" \
@@ -524,7 +537,8 @@ jobs:
             --filter @scalar/components \
             --alias=${{env.DEPLOY_ID}}
         # Only when the PR is from the same repository
-      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name ==
+          github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
         uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
         with:
@@ -532,7 +546,9 @@ jobs:
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: packages/api-reference/playwright-results-cdn.json
           report-tag: test-cdn-snapshots
-          custom-info: These tests are **non-blocking** and will not prevent merging of your PR.
+          custom-info:
+            These tests are **non-blocking** and will not prevent merging of
+            your PR.
           footer: |
             > [!IMPORTANT]
             > These tests detect visual differences between the current PR and the latest CDN build which means **they may be affected by other changes in `main` that haven't been released yet**.
@@ -544,7 +560,8 @@ jobs:
 
   # We use this job for automated changelog generation
   create-github-release:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+    if: github.ref == 'refs/heads/main' &&
+      startsWith(github.event.head_commit.message, 'RELEASING:')
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 5
     permissions:
@@ -599,7 +616,8 @@ jobs:
   npm-publish:
     if: github.ref == 'refs/heads/main'
     # Use a GitHub-hosted runner for npm publish to ensure signed releases
-    runs-on: ${{ startsWith(github.event.head_commit.message, 'RELEASING:') && 'ubuntu-22.04' || 'blacksmith-4vcpu-ubuntu-2204' }}
+    runs-on: ${{ startsWith(github.event.head_commit.message, 'RELEASING:') &&
+      'ubuntu-22.04' || 'blacksmith-4vcpu-ubuntu-2204' }}
     timeout-minutes: 15
     # Avoid running this job in parallel:
     # `changesets/action` creates/updates the release branch, which shouldn't happen in parallel.
@@ -657,7 +675,8 @@ jobs:
           method: 'GET'
 
   push-to-scalar-registry:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+    if: github.ref == 'refs/heads/main' &&
+      startsWith(github.event.head_commit.message, 'RELEASING:')
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     needs: [build, test-packages]
@@ -679,21 +698,30 @@ jobs:
         name: Get version from package.json
         id: package-version
         working-directory: packages/galaxy
-        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >>
+          "$GITHUB_OUTPUT"
       - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
         name: Login to Scalar Registry
         run: npx @scalar/cli@latest auth login --token ${{ secrets.SCALAR_API_KEY }}
       - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
         name: Push OpenAPI Example to Scalar Registry
-        run: npx @scalar/cli@latest registry publish --namespace scalar --slug galaxy --version ${{ steps.package-version.outputs.VERSION }} packages/galaxy/dist/latest.yaml
+        run:
+          npx @scalar/cli@latest registry publish --namespace scalar --slug galaxy
+          --version ${{ steps.package-version.outputs.VERSION }}
+          packages/galaxy/dist/latest.yaml
       - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
         name: Push AsyncAPI Example to Scalar Registry
         # We're uploading it as a schema, because for documents do not support AsyncAPI yet.
-        run: npx @scalar/cli@latest schema publish --namespace scalar --slug asyncapi --version ${{ steps.package-version.outputs.VERSION }} packages/galaxy/dist/asyncapi/latest.yaml
+        run:
+          npx @scalar/cli@latest schema publish --namespace scalar --slug asyncapi
+          --version ${{ steps.package-version.outputs.VERSION }}
+          packages/galaxy/dist/asyncapi/latest.yaml
 
   deploy-examples:
     # Run only for PRs from the same repository
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+    if: github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !contains(github.actor, '[bot]')
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
@@ -730,7 +758,9 @@ jobs:
       - name: Set output
         id: set-output
         if: github.event_name == 'pull_request'
-        run: echo "url=https://${{ env.DEPLOY_ID }}--scalar-deploy-preview.netlify.app" >> $GITHUB_OUTPUT
+        run:
+          echo "url=https://${{ env.DEPLOY_ID }}--scalar-deploy-preview.netlify.app"
+          >> $GITHUB_OUTPUT
 
   deploy-api-reference:
     # Run only for same-repo PRs that touch @scalar/api-reference or its workspace deps
@@ -758,7 +788,8 @@ jobs:
           packages: '@scalar/api-reference...'
 
       - name: Build package root app
-        run: pnpm --filter @scalar/api-reference exec vite build . -c ./vite.previews.config.ts
+        run: pnpm --filter @scalar/api-reference exec vite build . -c
+          ./vite.previews.config.ts
 
       - name: Deploy to Cloudflare Pages
         id: deploy
@@ -766,7 +797,10 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy ./packages/api-reference/dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_API_REFERENCE }} --branch=pr-${{ github.event.pull_request.number }} --commit-hash=${{ github.event.pull_request.head.sha }}
+          command: pages deploy ./packages/api-reference/dist --project-name=${{
+            vars.CLOUDFLARE_PAGES_PROJECT_API_REFERENCE }} --branch=pr-${{
+            github.event.pull_request.number }} --commit-hash=${{
+            github.event.pull_request.head.sha }}
 
       - name: Set output
         id: set-output
@@ -834,7 +868,9 @@ jobs:
       - name: Set output
         id: set-output
         if: github.event_name == 'pull_request'
-        run: echo "url=https://${{ env.DEPLOY_ID }}--scalar-components.netlify.app" >> $GITHUB_OUTPUT
+        run:
+          echo "url=https://${{ env.DEPLOY_ID }}--scalar-components.netlify.app" >>
+          $GITHUB_OUTPUT
 
   # Run for:
   # - same-repo PR previews (staging)
@@ -855,7 +891,9 @@ jobs:
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     uses: ./.github/workflows/deploy-api-client.yml
     with:
-      environment: ${{ startsWith(github.event.head_commit.message, 'RELEASING:') && 'production' || 'staging' }}
+      environment:
+        ${{ startsWith(github.event.head_commit.message, 'RELEASING:') &&
+        'production' || 'staging' }}
       pr-number: ${{ github.event.pull_request.number }}
       sha: ${{ github.event.pull_request.head.sha || github.sha }}
     secrets: inherit
@@ -878,9 +916,9 @@ jobs:
         with:
           packages: 'scalar-app...'
         env:
-          VITE_BASE_SOCKET_URL: 'wss://api.scalar.com'
-          VITE_BASE_URL: 'https://api.scalar.com'
+          VITE_API_URL: 'https://api.scalar.com'
           VITE_DASHBOARD_URL: 'https://dashboard.scalar.com'
+          VITE_SERVICES_URL: 'https://services.scalar.com'
       - name: Check ToDesktop credentials
         id: todesktop-credentials
         env:
@@ -946,11 +984,15 @@ jobs:
         run: npx @scalar/cli@latest auth login --token ${{ secrets.SCALAR_API_KEY }}
 
       - name: Publish preview version to Scalar Registry
-        run: npx @scalar/cli@latest --version && npx @scalar/cli@latest registry publish --namespace scalar --slug galaxy --version ${{ env.PREVIEW_VERSION }} --force --no-current packages/galaxy/dist/latest.yaml
+        run:
+          npx @scalar/cli@latest --version && npx @scalar/cli@latest registry publish
+          --namespace scalar --slug galaxy --version ${{ env.PREVIEW_VERSION }}
+          --force --no-current packages/galaxy/dist/latest.yaml
 
       - name: Set preview URL output
         id: set-preview-url
-        run: echo "url=https://registry.scalar.com/@scalar/apis/galaxy/${{ env.PREVIEW_VERSION }}" >> $GITHUB_OUTPUT
+        run: echo "url=https://registry.scalar.com/@scalar/apis/galaxy/${{
+          env.PREVIEW_VERSION }}" >> $GITHUB_OUTPUT
 
   preview-comment:
     # Only run for PRs from the same repository
@@ -1069,7 +1111,9 @@ jobs:
           tags: scalarapi/api-reference:latest
 
   docker-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.docker_package_changed == 'true'
+    if: github.ref == 'refs/heads/main' &&
+      startsWith(github.event.head_commit.message, 'RELEASING:') &&
+      needs.check-changes.outputs.docker_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency:
@@ -1084,7 +1128,8 @@ jobs:
       - name: Get version from package.json
         id: package-version
         working-directory: integrations/docker
-        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >>
+          "$GITHUB_OUTPUT"
 
       - name: Download scalar.js artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -1133,7 +1178,9 @@ jobs:
           readme-filepath: ./integrations/docker/README.md
 
   mock-server-docker-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.mock_server_docker_package_changed == 'true'
+    if: github.ref == 'refs/heads/main' &&
+      startsWith(github.event.head_commit.message, 'RELEASING:') &&
+      needs.check-changes.outputs.mock_server_docker_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency:
@@ -1148,7 +1195,8 @@ jobs:
       - name: Get version from package.json
         id: package-version
         working-directory: packages/mock-server/docker
-        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >>
+          "$GITHUB_OUTPUT"
 
       - name: Download mock server docker entrypoint artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -1218,7 +1266,9 @@ jobs:
       - name: Cache NuGet packages
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
-          key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
+          key: ${{ github.repository }}-nuget-${{
+            hashFiles('integrations/dotnet/**/*.csproj',
+            'integrations/dotnet/**/Directory.Packages.props') }}
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Setup .NET
@@ -1242,7 +1292,9 @@ jobs:
         run: dotnet test -c Release --no-build
 
   aspnetcore-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.aspnetcore_package_changed == 'true'
+    if: github.ref == 'refs/heads/main' &&
+      startsWith(github.event.head_commit.message, 'RELEASING:') &&
+      needs.check-changes.outputs.aspnetcore_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     # We don't want to run `nuget push` (publishing to NuGet) in parallel.
@@ -1264,7 +1316,8 @@ jobs:
       - name: Get version from package.json
         id: package-version
         working-directory: integrations/dotnet/aspnetcore
-        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >>
+          "$GITHUB_OUTPUT"
 
       - name: Download scalar.js artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -1279,7 +1332,9 @@ jobs:
       - name: Cache NuGet packages
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
-          key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
+          key: ${{ github.repository }}-nuget-${{
+            hashFiles('integrations/dotnet/**/*.csproj',
+            'integrations/dotnet/**/Directory.Packages.props') }}
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Setup .NET
@@ -1300,10 +1355,13 @@ jobs:
 
       - name: Publish packages
         working-directory: integrations/dotnet/aspnetcore
-        run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
+        run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s
+          https://api.nuget.org/v3/index.json
 
   aspire-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.aspire_package_changed == 'true'
+    if: github.ref == 'refs/heads/main' &&
+      startsWith(github.event.head_commit.message, 'RELEASING:') &&
+      needs.check-changes.outputs.aspire_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency:
@@ -1324,7 +1382,8 @@ jobs:
       - name: Get version from package.json
         id: package-version
         working-directory: integrations/dotnet/aspire
-        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >>
+          "$GITHUB_OUTPUT"
 
       - name: Download scalar.js artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -1379,7 +1438,9 @@ jobs:
       - name: Cache NuGet packages
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
-          key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
+          key: ${{ github.repository }}-nuget-${{
+            hashFiles('integrations/dotnet/**/*.csproj',
+            'integrations/dotnet/**/Directory.Packages.props') }}
           path: ${{ env.NUGET_PACKAGES }}
 
       - name: Setup .NET
@@ -1393,11 +1454,13 @@ jobs:
 
       - name: Pack Scalar.Aspire NuGet package
         working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
-        run: dotnet pack -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
+        run: dotnet pack -c Release --no-restore --output nupkgs /p:Version=${{
+          steps.package-version.outputs.VERSION }}
 
       - name: Publish Scalar.Aspire NuGet package
         working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
-        run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
+        run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s
+          https://api.nuget.org/v3/index.json
 
   fastapi-build-test:
     if: needs.check-changes.outputs.fastapi_changed == 'true'
@@ -1429,7 +1492,9 @@ jobs:
         run: python run_tests.py
 
   fastapi-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.fastapi_package_changed == 'true'
+    if: github.ref == 'refs/heads/main' &&
+      startsWith(github.event.head_commit.message, 'RELEASING:') &&
+      needs.check-changes.outputs.fastapi_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency:
@@ -1491,7 +1556,9 @@ jobs:
         run: python run_tests.py
 
   django-ninja-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.django_ninja_package_changed == 'true'
+    if: github.ref == 'refs/heads/main' &&
+      startsWith(github.event.head_commit.message, 'RELEASING:') &&
+      needs.check-changes.outputs.django_ninja_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency:
@@ -1580,7 +1647,9 @@ jobs:
           cargo build --example warp --features warp
 
   rust-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.rust_package_changed == 'true'
+    if: github.ref == 'refs/heads/main' &&
+      startsWith(github.event.head_commit.message, 'RELEASING:') &&
+      needs.check-changes.outputs.rust_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency:
@@ -1618,7 +1687,8 @@ jobs:
       - name: Get version from package.json
         id: package-version
         working-directory: integrations/rust
-        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >>
+          "$GITHUB_OUTPUT"
 
       - name: Update Cargo.toml version
         working-directory: integrations/rust
@@ -1660,7 +1730,9 @@ jobs:
         run: mvn clean test
 
   java-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:') && needs.check-changes.outputs.java_package_changed == 'true'
+    if: github.ref == 'refs/heads/main' &&
+      startsWith(github.event.head_commit.message, 'RELEASING:') &&
+      needs.check-changes.outputs.java_package_changed == 'true'
     needs: [required-jobs-main, java-build-test, check-changes]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     concurrency:
@@ -1692,10 +1764,13 @@ jobs:
       - name: Get version from package.json
         id: package-version
         working-directory: integrations/java
-        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >>
+          "$GITHUB_OUTPUT"
       - name: Set version in parent POM
         working-directory: integrations/java
-        run: mvn versions:set -DnewVersion=${{ steps.package-version.outputs.VERSION }} -DgenerateBackupPoms=false
+        run:
+          mvn versions:set -DnewVersion=${{ steps.package-version.outputs.VERSION }}
+          -DgenerateBackupPoms=false
       - name: Build all Java modules
         working-directory: integrations/java
         run: mvn clean package -pl scalar-core,scalar-webmvc,scalar-webflux -am
@@ -1732,7 +1807,9 @@ jobs:
     steps:
       - name: Exit with error if some jobs are not successful
         run: exit 1
-        if: ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled')) }}
+        if: ${{ always() && (contains(needs.*.result, 'failure') ||
+          contains(needs.*.result, 'skipped') || contains(needs.*.result,
+          'cancelled')) }}
 
   required-jobs-main:
     if: github.ref == 'refs/heads/main'
@@ -1752,4 +1829,6 @@ jobs:
     steps:
       - name: Exit with error if some jobs are not successful
         run: exit 1
-        if: ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled')) }}
+        if: ${{ always() && (contains(needs.*.result, 'failure') ||
+          contains(needs.*.result, 'skipped') || contains(needs.*.result,
+          'cancelled')) }}
