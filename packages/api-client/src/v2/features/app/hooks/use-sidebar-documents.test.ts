@@ -1,9 +1,9 @@
-import type { AppState } from '@scalar/api-client/v2/features/app'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import type { TraversedDocument } from '@scalar/workspace-store/schemas/navigation'
 import { describe, expect, it } from 'vitest'
 import { computed, ref, shallowRef } from 'vue'
 
+import type { AppState } from '@/v2/features/app'
 import { useSidebarDocuments } from '@/v2/features/app/hooks/use-sidebar-documents'
 import type { RegistryDocument } from '@/v2/types/configuration'
 

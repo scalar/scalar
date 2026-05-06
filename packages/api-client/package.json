@@ -370,6 +370,7 @@
   },
   "devDependencies": {
     "@scalar/pre-post-request-scripts": "workspace:*",
+    "@scalar/sdk": "catalog:*",
     "@tailwindcss/cli": "catalog:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/shell-quote": "^1.7.5",
@@ -382,7 +383,6 @@
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
     "vite-svg-loader": "catalog:*",
-    "vitest": "catalog:*",
-    "@scalar/sdk": "catalog:*"
+    "vitest": "catalog:*"
   }
 }

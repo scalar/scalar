@@ -28,7 +28,6 @@ import {
   ScalarDropdown,
   ScalarDropdownItem,
   ScalarIcon,
-  ScalarListbox,
 } from '@scalar/components'
 import {
   HTTP_METHODS,
@@ -40,10 +39,20 @@ import { computed, ref, watch, type ComputedRef } from 'vue'
 
 import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 
+import { useCommandPaletteDocumentSelection } from '../hooks/use-command-palette-document-selection'
+import type { CommandPaletteDocument } from '../hooks/use-command-palette-documents'
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
+import CommandPaletteDocumentSelect from './CommandPaletteDocumentSelect.vue'
 
-const { workspaceStore, eventBus, documentName, tagId } = defineProps<{
+const {
+  workspaceStore,
+  eventBus,
+  documentName,
+  tagId,
+  documents,
+  activeDocumentName,
+} = defineProps<{
   /** The workspace store for accessing documents and operations */
   workspaceStore: WorkspaceStore
   /** Event bus for emitting operation creation events */
@@ -52,6 +61,19 @@ const { workspaceStore, eventBus, documentName, tagId } = defineProps<{
   documentName?: string
   /** Preselected tag id to add the request to (optional) */
   tagId?: string
+  /**
+   * Document options for the dropdown. When omitted we fall back to
+   * iterating the workspace store, which keeps the component usable in
+   * isolation (e.g. tests) without requiring the full command-palette
+   * plumbing.
+   */
+  documents?: CommandPaletteDocument[]
+  /**
+   * Document the user is currently viewing. Used as the preselection when
+   * the caller does not pass an explicit `documentName`, so opening the
+   * palette from inside a document targets that document by default.
+   */
+  activeDocumentName?: string
 }>()
 
 const emit = defineEmits<{
@@ -84,15 +106,13 @@ const normalizedRequestPath = computed<string>(() =>
     : `/${requestPathTrimmed.value}`,
 )
 
-/** All available documents (collections) in the workspace */
-const availableDocuments = computed(() =>
-  Object.entries(workspaceStore.workspace.documents).map(
-    ([name, document]) => ({
-      id: name,
-      label: document.info.title || name,
-    }),
-  ),
-)
+const { availableDocuments, selectedDocumentName } =
+  useCommandPaletteDocumentSelection({
+    workspaceStore,
+    documents: () => documents,
+    documentName: () => documentName,
+    activeDocumentName: () => activeDocumentName,
+  })
 
 /** Available HTTP methods for the dropdown (GET, POST, PUT, etc.) */
 const availableMethods: MethodOption[] = HTTP_METHODS.map((method) => ({
@@ -100,12 +120,6 @@ const availableMethods: MethodOption[] = HTTP_METHODS.map((method) => ({
   label: method.toUpperCase(),
   method,
 }))
-
-const selectedDocument = ref<{ id: string; label: string } | undefined>(
-  documentName
-    ? availableDocuments.value.find((document) => document.id === documentName)
-    : (availableDocuments.value[0] ?? undefined),
-)
 
 const selectedMethod = ref<MethodOption | undefined>(
   availableMethods.find((method) => method.method === 'get'),
@@ -116,11 +130,12 @@ const selectedMethod = ref<MethodOption | undefined>(
  * Includes a "No Tag" option for operations without a tag assignment.
  */
 const availableTags = computed<TagOption[]>(() => {
-  if (!selectedDocument.value) {
+  if (!selectedDocumentName.value) {
     return []
   }
 
-  const document = workspaceStore.workspace.documents[selectedDocument.value.id]
+  const document =
+    workspaceStore.workspace.documents[selectedDocumentName.value]
   if (!document) {
     return []
   }
@@ -138,8 +153,9 @@ const selectedTag = ref<TagOption | undefined>(
   tagId ? availableTags.value.find((tag) => tag.id === tagId) : undefined,
 )
 
-// Reset the selected tag to the "No Tag" option when the document changes
-watch(selectedDocument, () => {
+// Reset the selected tag to the "No Tag" option when the document
+// changes, since tag lists are scoped to a single document.
+watch(selectedDocumentName, () => {
   selectedTag.value = availableTags.value.find((tag) => tag.id === '')
 })
 
@@ -154,17 +170,25 @@ watch(selectedDocument, () => {
 const errorMessage: ComputedRef<string | null> = computed(() => {
   if (
     !requestPathTrimmed.value ||
-    !selectedDocument.value ||
+    !selectedDocumentName.value ||
     !selectedMethod.value
   ) {
     return null
   }
 
-  const document = workspaceStore.workspace.documents[selectedDocument.value.id]
+  const document =
+    workspaceStore.workspace.documents[selectedDocumentName.value]
   const method = selectedMethod.value.method
 
   if (document?.paths?.[normalizedRequestPath.value]?.[method]) {
-    return `A ${method.toUpperCase()} operation at "${normalizedRequestPath.value}" already exists in "${selectedDocument.value.label}". Try a different path or method.`
+    const documentLabel =
+      availableDocuments.value.find(
+        (doc) =>
+          doc.id === selectedDocumentName.value ||
+          doc.versions?.some((v) => v.id === selectedDocumentName.value),
+      )?.label ?? selectedDocumentName.value
+
+    return `A ${method.toUpperCase()} operation at "${normalizedRequestPath.value}" already exists in "${documentLabel}". Try a different path or method.`
   }
 
   return null
@@ -178,7 +202,7 @@ const errorMessage: ComputedRef<string | null> = computed(() => {
 const isDisabled = computed<boolean>(
   () =>
     !requestPathTrimmed.value ||
-    !selectedDocument.value ||
+    !selectedDocumentName.value ||
     !selectedMethod.value ||
     errorMessage.value !== null,
 )
@@ -202,18 +226,23 @@ const handleSelectTag = (tag: TagOption | undefined): void => {
  * Emits an event to create a new operation with the specified details.
  */
 const handleSubmit = (): void => {
-  if (isDisabled.value || !selectedDocument.value || !selectedMethod.value) {
+  if (
+    isDisabled.value ||
+    !selectedDocumentName.value ||
+    !selectedMethod.value
+  ) {
     return
   }
 
-  const document = workspaceStore.workspace.documents[selectedDocument.value.id]
+  const documentName = selectedDocumentName.value
+  const document = workspaceStore.workspace.documents[documentName]
 
   if (!document) {
     return
   }
 
   eventBus.emit('operation:create:operation', {
-    documentName: selectedDocument.value.id,
+    documentName,
     path: requestPathTrimmed.value,
     method: selectedMethod.value.method,
     operation: {
@@ -225,12 +254,12 @@ const handleSubmit = (): void => {
       }
 
       /** Build the sidebar */
-      workspaceStore.buildSidebar(selectedDocument.value?.id ?? '')
+      workspaceStore.buildSidebar(documentName)
 
       /** Navigate to the example via the event bus rather than the router */
       eventBus.emit('ui:navigate', {
         page: 'example',
-        documentSlug: selectedDocument.value?.id,
+        documentSlug: documentName,
         path: normalizedRequestPath.value,
         method: selectedMethod.value?.method ?? 'get',
         exampleName: 'default',
@@ -268,24 +297,13 @@ const handleBack = (event: KeyboardEvent): void => {
     <!-- Selectors for document, method, and tag -->
     <template #options>
       <div class="flex flex-1 gap-1">
-        <!-- Document (collection) selector -->
-        <ScalarListbox
-          v-model="selectedDocument"
-          :options="availableDocuments">
-          <ScalarButton
-            class="hover:bg-b-2 max-h-8 w-[150px] min-w-[150px] justify-between gap-1 p-2 text-xs"
-            variant="outlined">
-            <span :class="selectedDocument ? 'text-c-1 truncate' : 'text-c-3'">
-              {{
-                selectedDocument ? selectedDocument.label : 'Select Document'
-              }}
-            </span>
-            <ScalarIcon
-              class="text-c-3"
-              icon="ChevronDown"
-              size="md" />
-          </ScalarButton>
-        </ScalarListbox>
+        <!-- Document (collection) selector with built-in version picker -->
+        <CommandPaletteDocumentSelect
+          v-model="selectedDocumentName"
+          :documents="availableDocuments"
+          placeholder="Select Document"
+          searchPlaceholder="Search documents"
+          triggerClass="w-[150px] min-w-[150px]" />
 
         <!-- HTTP method selector (GET, POST, PUT, etc.) -->
         <ScalarDropdown

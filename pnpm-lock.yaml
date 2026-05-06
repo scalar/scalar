@@ -249,6 +249,9 @@ catalogs:
     vite-plugin-monaco-editor:
       specifier: 1.1.0
       version: 1.1.0
+    vite-plugin-monaco-editor-esm:
+      specifier: 2.0.2
+      version: 2.0.2
     vite-ssg:
       specifier: 28.3.0
       version: 28.3.0
@@ -2706,9 +2709,6 @@ importers:
       undici:
         specifier: 7.24.4
         version: 7.24.4
-      vite-plugin-monaco-editor:
-        specifier: catalog:*
-        version: 1.1.0(monaco-editor@0.55.1)
     devDependencies:
       '@playwright/test':
         specifier: catalog:*
@@ -2734,6 +2734,12 @@ importers:
       vite:
         specifier: catalog:*
         version: 8.0.0(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.3)
+      vite-plugin-monaco-editor:
+        specifier: catalog:*
+        version: 1.1.0(monaco-editor@0.55.1)
+      vite-plugin-monaco-editor-esm:
+        specifier: catalog:*
+        version: 2.0.2(monaco-editor@0.55.1)
       vue:
         specifier: catalog:*
         version: 3.5.30(typescript@5.9.3)
@@ -18247,6 +18253,11 @@ packages:
     peerDependenciesMeta:
       '@nuxt/kit':
         optional: true
+
+  vite-plugin-monaco-editor-esm@2.0.2:
+    resolution: {integrity: sha512-XVkOpL/r0rw1NpbO30vUwG4S0THkC9KB1vjjV8olGd49h4/EQsKl3DrxB6KRDwyZNC9mKiiZgk2L6njUYj3oKQ==}
+    peerDependencies:
+      monaco-editor: '>=0.33.0'
 
   vite-plugin-monaco-editor@1.1.0:
     resolution: {integrity: sha512-IvtUqZotrRoVqwT0PBBDIZPNraya3BxN/bfcNfnxZ5rkJiGcNtO5eAOWWSgT7zullIAEqQwxMU83yL9J5k7gww==}
@@ -38342,6 +38353,10 @@ snapshots:
       '@nuxt/kit': 4.3.1(magicast@0.5.2)
     transitivePeerDependencies:
       - supports-color
+
+  vite-plugin-monaco-editor-esm@2.0.2(monaco-editor@0.55.1):
+    dependencies:
+      monaco-editor: 0.55.1
 
   vite-plugin-monaco-editor@1.1.0(monaco-editor@0.55.1):
     dependencies:

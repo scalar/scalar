@@ -24,7 +24,6 @@ import {
   ScalarDropdown,
   ScalarDropdownItem,
   ScalarIcon,
-  ScalarListbox,
 } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -38,22 +37,45 @@ import { computed, ref, watch, type ComputedRef } from 'vue'
 
 import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 
+import { useCommandPaletteDocumentSelection } from '../hooks/use-command-palette-document-selection'
+import type { CommandPaletteDocument } from '../hooks/use-command-palette-documents'
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
+import CommandPaletteDocumentSelect from './CommandPaletteDocumentSelect.vue'
 
-const { workspaceStore, eventBus, documentName, operationId, example } =
-  defineProps<{
-    /** The workspace store for accessing documents and operations */
-    workspaceStore: WorkspaceStore
-    /** Event bus for emitting operation creation events */
-    eventBus: WorkspaceEventBus
-    /** Document id to create the example for */
-    documentName?: string
-    /** Preselected path and method to create the example for */
-    operationId?: string
-    /** Existing example for edit mode */
-    example?: TraversedExample
-  }>()
+const {
+  workspaceStore,
+  eventBus,
+  documentName,
+  operationId,
+  example,
+  documents,
+  activeDocumentName,
+} = defineProps<{
+  /** The workspace store for accessing documents and operations */
+  workspaceStore: WorkspaceStore
+  /** Event bus for emitting operation creation events */
+  eventBus: WorkspaceEventBus
+  /** Document id to create the example for */
+  documentName?: string
+  /** Preselected path and method to create the example for */
+  operationId?: string
+  /** Existing example for edit mode */
+  example?: TraversedExample
+  /**
+   * Document options for the dropdown. When omitted we fall back to
+   * iterating the workspace store, which keeps the component usable in
+   * isolation (e.g. tests) without requiring the full command-palette
+   * plumbing.
+   */
+  documents?: CommandPaletteDocument[]
+  /**
+   * Document the user is currently viewing. Used as the preselection when
+   * the caller does not pass an explicit `documentName`, so opening the
+   * palette from inside a document targets that document by default.
+   */
+  activeDocumentName?: string
+}>()
 
 const emit = defineEmits<{
   /** Emitted when the example is created successfully */
@@ -76,21 +98,13 @@ const isEditMode = computed(() => example !== undefined)
 const exampleName = ref(example?.name ?? '')
 const exampleNameTrimmed = computed(() => exampleName.value.trim())
 
-/** All available documents (collections) in the workspace */
-const availableDocuments = computed(() =>
-  Object.entries(workspaceStore.workspace.documents).map(
-    ([name, document]) => ({
-      id: name,
-      label: document.info.title || name,
-    }),
-  ),
-)
-
-const selectedDocument = ref<{ id: string; label: string } | undefined>(
-  documentName
-    ? availableDocuments.value.find((document) => document.id === documentName)
-    : (availableDocuments.value[0] ?? undefined),
-)
+const { availableDocuments, selectedDocumentName } =
+  useCommandPaletteDocumentSelection({
+    workspaceStore,
+    documents: () => documents,
+    documentName: () => documentName,
+    activeDocumentName: () => activeDocumentName,
+  })
 
 /**
  * Recursively traverse navigation entries to find all operations.
@@ -115,11 +129,12 @@ const getAllOperations = (entries: TraversedEntry[]): TraversedOperation[] => {
 
 /** All available operations for the selected document */
 const availableOperations = computed(() => {
-  if (!selectedDocument.value) {
+  if (!selectedDocumentName.value) {
     return []
   }
 
-  const document = workspaceStore.workspace.documents[selectedDocument.value.id]
+  const document =
+    workspaceStore.workspace.documents[selectedDocumentName.value]
   if (!document || !document['x-scalar-navigation']) {
     return []
   }
@@ -147,9 +162,9 @@ const selectedOperation = ref<OperationOption | undefined>(
     : undefined,
 )
 
-/** Reset operation selection when document changes */
+/** Reset operation selection when the document target changes */
 watch(
-  selectedDocument,
+  selectedDocumentName,
   () => {
     selectedOperation.value = operationId
       ? availableOperations.value.find(
@@ -178,7 +193,7 @@ const handleSelect = (operation: OperationOption | undefined): void => {
 const errorMessage: ComputedRef<string | null> = computed(() => {
   if (
     !exampleNameTrimmed.value ||
-    !selectedDocument.value ||
+    !selectedDocumentName.value ||
     !selectedOperation.value
   ) {
     return null
@@ -207,7 +222,7 @@ const errorMessage: ComputedRef<string | null> = computed(() => {
 const isDisabled = computed<boolean>(() => {
   if (
     !exampleNameTrimmed.value ||
-    !selectedDocument.value ||
+    !selectedDocumentName.value ||
     !selectedOperation.value
   ) {
     return true
@@ -225,13 +240,19 @@ const isDisabled = computed<boolean>(() => {
  * The route handler will create the example with the provided details.
  */
 const handleSubmit = (): void => {
-  if (isDisabled.value || !selectedDocument.value || !selectedOperation.value) {
+  if (
+    isDisabled.value ||
+    !selectedDocumentName.value ||
+    !selectedOperation.value
+  ) {
     return
   }
 
+  const documentName = selectedDocumentName.value
+
   if (isEditMode.value && example) {
     eventBus.emit('operation:rename:example', {
-      documentName: selectedDocument.value.id,
+      documentName,
       meta: {
         path: selectedOperation.value.path,
         method: selectedOperation.value.method,
@@ -246,7 +267,7 @@ const handleSubmit = (): void => {
   }
 
   eventBus.emit('operation:create:draft-example', {
-    documentName: selectedDocument.value.id,
+    documentName,
     meta: {
       path: selectedOperation.value.path,
       method: selectedOperation.value.method,
@@ -294,24 +315,13 @@ const handleCancel = (): void => {
       <div
         v-if="!isEditMode"
         class="flex flex-1 gap-1">
-        <!-- Document (collection) selector -->
-        <ScalarListbox
-          v-model="selectedDocument"
-          :options="availableDocuments">
-          <ScalarButton
-            class="hover:bg-b-2 max-h-8 w-[150px] min-w-[150px] justify-between gap-1 p-2 text-xs"
-            variant="outlined">
-            <span :class="selectedDocument ? 'text-c-1 truncate' : 'text-c-3'">
-              {{
-                selectedDocument ? selectedDocument.label : 'Select Document'
-              }}
-            </span>
-            <ScalarIcon
-              class="text-c-3"
-              icon="ChevronDown"
-              size="md" />
-          </ScalarButton>
-        </ScalarListbox>
+        <!-- Document (collection) selector with built-in version picker -->
+        <CommandPaletteDocumentSelect
+          v-model="selectedDocumentName"
+          :documents="availableDocuments"
+          placeholder="Select Document"
+          searchPlaceholder="Search documents"
+          triggerClass="w-[150px] min-w-[150px]" />
 
         <!-- Operation selector (path + method) -->
         <ScalarDropdown

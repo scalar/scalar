@@ -27,6 +27,8 @@ import { computed, reactive } from 'vue'
 
 import AppMenuItems from '@/features/header/AppMenuItems.vue'
 import { ImportListener } from '@/features/import-listener'
+import { deleteRegistryDocument } from '@/helpers/delete-registry-document'
+import { deleteRegistryVersion } from '@/helpers/delete-registry-version'
 import { fetchRegistryDocument } from '@/helpers/fetch-registry-document'
 import { publishRegistryDocument } from '@/helpers/publish-registry-document'
 import { publishRegistryVersion } from '@/helpers/publish-registry-version'
@@ -153,6 +155,8 @@ const registry = reactive({
   fetchDocument: fetchRegistryDocument,
   publishDocument: publishRegistryDocument,
   publishVersion: publishRegistryVersion,
+  deleteDocument: deleteRegistryDocument,
+  deleteVersion: deleteRegistryVersion,
   refreshDocuments: refreshRegistryDocuments,
 })
 </script>

@@ -1,4 +1,6 @@
 import type {
+  DeleteRegistryDocumentError,
+  DeleteRegistryVersionError,
   FetchRegistryDocumentError,
   PublishRegistryDocumentError,
   PublishRegistryVersionError,
@@ -78,6 +80,44 @@ export const messageForPublishDocumentError = (code: PublishRegistryDocumentErro
       return 'A document with this namespace and slug already exists. Pick a different slug or pull the existing one.'
     case 'UNAUTHORIZED':
       return 'You are not allowed to publish to this namespace.'
+    case 'FETCH_FAILED':
+      return networkMessage(detail)
+    case 'UNKNOWN':
+    default:
+      return unknownMessage(detail)
+  }
+}
+
+/**
+ * Maps a {@link DeleteRegistryVersionError} code to a user-facing
+ * message used by the destructive "Delete this version" flow in the
+ * document settings danger zone.
+ */
+export const messageForDeleteVersionError = (code: DeleteRegistryVersionError, detail?: string): string => {
+  switch (code) {
+    case 'NOT_FOUND':
+      return 'This version is no longer available on the registry.'
+    case 'UNAUTHORIZED':
+      return 'You are not allowed to delete from this namespace.'
+    case 'FETCH_FAILED':
+      return networkMessage(detail)
+    case 'UNKNOWN':
+    default:
+      return unknownMessage(detail)
+  }
+}
+
+/**
+ * Maps a {@link DeleteRegistryDocumentError} code to a user-facing
+ * message used by the destructive "Delete document from registry" flow
+ * in the document settings danger zone.
+ */
+export const messageForDeleteDocumentError = (code: DeleteRegistryDocumentError, detail?: string): string => {
+  switch (code) {
+    case 'NOT_FOUND':
+      return 'This document is no longer available on the registry.'
+    case 'UNAUTHORIZED':
+      return 'You are not allowed to delete from this namespace.'
     case 'FETCH_FAILED':
       return networkMessage(detail)
     case 'UNKNOWN':

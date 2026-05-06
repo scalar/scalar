@@ -212,7 +212,7 @@ const routerViewProps = computed<RouteProps>(() => {
     environment: app.environment.value,
     eventBus: app.eventBus,
     exampleName: app.activeEntities.exampleName.value,
-    fetchRegistryDocument: registry?.fetchDocument,
+    registry,
     layout,
     method: app.activeEntities.method.value,
     path: app.activeEntities.path.value,
@@ -404,8 +404,10 @@ const routerViewProps = computed<RouteProps>(() => {
       </ScalarModal>
       <!-- Popup command palette to add resources from anywhere -->
       <TheCommandPalette
+        :app="app"
         :eventBus="app.eventBus"
         :paletteState="paletteState"
+        :registryDocuments="registryDocuments"
         :workspaceStore="app.store.value!" />
     </main>
     <!-- Splash screen -->

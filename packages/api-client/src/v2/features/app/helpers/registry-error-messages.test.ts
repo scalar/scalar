@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  messageForDeleteDocumentError,
+  messageForDeleteVersionError,
   messageForFetchError,
   messageForPublishDocumentError,
   messageForPublishVersionError,
@@ -81,6 +83,46 @@ describe('registry-error-messages', () => {
 
     it('weaves the detail into UNKNOWN messages when provided', () => {
       expect(messageForPublishDocumentError('UNKNOWN', 'invalid namespace')).toContain('invalid namespace')
+    })
+  })
+
+  describe('messageForDeleteVersionError', () => {
+    it('signals the version is gone on NOT_FOUND', () => {
+      expect(messageForDeleteVersionError('NOT_FOUND')).toContain('no longer available')
+    })
+
+    it('returns a permission message for UNAUTHORIZED', () => {
+      expect(messageForDeleteVersionError('UNAUTHORIZED').toLowerCase()).toContain('not allowed')
+    })
+
+    it('uses the network fallback for FETCH_FAILED', () => {
+      expect(messageForDeleteVersionError('FETCH_FAILED')).toContain('Could not reach the registry')
+    })
+
+    it('weaves the detail into UNKNOWN messages when provided', () => {
+      expect(messageForDeleteVersionError('UNKNOWN', 'rate limited')).toContain('rate limited')
+    })
+  })
+
+  describe('messageForDeleteDocumentError', () => {
+    it('signals the document is gone on NOT_FOUND', () => {
+      expect(messageForDeleteDocumentError('NOT_FOUND')).toContain('no longer available')
+    })
+
+    it('returns a permission message for UNAUTHORIZED', () => {
+      expect(messageForDeleteDocumentError('UNAUTHORIZED').toLowerCase()).toContain('not allowed')
+    })
+
+    it('uses the network fallback for FETCH_FAILED', () => {
+      expect(messageForDeleteDocumentError('FETCH_FAILED')).toContain('Could not reach the registry')
+    })
+
+    it('uses a generic fallback for UNKNOWN with no detail', () => {
+      expect(messageForDeleteDocumentError('UNKNOWN')).toBe('Something went wrong. Please try again.')
+    })
+
+    it('weaves the detail into UNKNOWN messages when provided', () => {
+      expect(messageForDeleteDocumentError('UNKNOWN', 'invalid namespace')).toContain('invalid namespace')
     })
   })
 })

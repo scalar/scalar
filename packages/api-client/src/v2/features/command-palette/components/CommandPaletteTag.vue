@@ -39,16 +39,26 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import { ScalarButton } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { computed, ref, type ComputedRef } from 'vue'
 
+import { useCommandPaletteDocumentSelection } from '../hooks/use-command-palette-document-selection'
+import type { CommandPaletteDocument } from '../hooks/use-command-palette-documents'
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
+import CommandPaletteDocumentSelect from './CommandPaletteDocumentSelect.vue'
 
-const { workspaceStore, eventBus, documentName, tag } = defineProps<{
+const {
+  workspaceStore,
+  eventBus,
+  documentName,
+  tag,
+  documents,
+  activeDocumentName,
+} = defineProps<{
   /** The workspace store for accessing documents and tags */
   workspaceStore: WorkspaceStore
   /** Event bus for emitting tag creation events */
@@ -57,6 +67,19 @@ const { workspaceStore, eventBus, documentName, tag } = defineProps<{
   documentName?: string
   /** When provided, the component enters edit mode with this name pre-filled */
   tag?: TraversedTag
+  /**
+   * Document options for the dropdown. When omitted we fall back to
+   * iterating the workspace store, which keeps the component usable in
+   * isolation (e.g. tests) without requiring the full command-palette
+   * plumbing.
+   */
+  documents?: CommandPaletteDocument[]
+  /**
+   * Document the user is currently viewing. Used as the preselection when
+   * the caller does not pass an explicit `documentName`, so opening the
+   * palette from inside a document targets that document by default.
+   */
+  activeDocumentName?: string
 }>()
 
 const emit = defineEmits<{
@@ -71,21 +94,13 @@ const isEditMode = computed(() => tag !== undefined)
 const name = ref(tag?.name ?? '')
 const nameTrimmed = computed(() => name.value.trim())
 
-/** All available documents (collections) in the workspace */
-const availableDocuments = computed(() =>
-  Object.entries(workspaceStore.workspace.documents).map(
-    ([name, document]) => ({
-      id: name,
-      label: document.info.title || name,
-    }),
-  ),
-)
-
-const selectedDocument = ref<{ id: string; label: string } | undefined>(
-  documentName
-    ? availableDocuments.value.find((document) => document.id === documentName)
-    : (availableDocuments.value[0] ?? undefined),
-)
+const { availableDocuments, selectedDocumentName } =
+  useCommandPaletteDocumentSelection({
+    workspaceStore,
+    documents: () => documents,
+    documentName: () => documentName,
+    activeDocumentName: () => activeDocumentName,
+  })
 
 /**
  * Validation message surfaced under the input.
@@ -105,9 +120,9 @@ const errorMessage: ComputedRef<string | null> = computed(() => {
   }
 
   const document =
-    workspaceStore.workspace.documents[selectedDocument.value?.id ?? '']
+    workspaceStore.workspace.documents[selectedDocumentName.value ?? '']
 
-  if (!selectedDocument.value || !document) {
+  if (!selectedDocumentName.value || !document) {
     return null
   }
 
@@ -117,7 +132,14 @@ const errorMessage: ComputedRef<string | null> = computed(() => {
   }
 
   if (document.tags?.some((existing) => existing.name === nameTrimmed.value)) {
-    return `A tag named "${nameTrimmed.value}" already exists in "${selectedDocument.value.label}". Try a different name.`
+    const documentLabel =
+      availableDocuments.value.find(
+        (doc) =>
+          doc.id === selectedDocumentName.value ||
+          doc.versions?.some((v) => v.id === selectedDocumentName.value),
+      )?.label ?? selectedDocumentName.value
+
+    return `A tag named "${nameTrimmed.value}" already exists in "${documentLabel}". Try a different name.`
   }
 
   return null
@@ -131,8 +153,8 @@ const errorMessage: ComputedRef<string | null> = computed(() => {
  */
 const isDisabled = computed<boolean>(() => {
   const document =
-    workspaceStore.workspace.documents[selectedDocument.value?.id ?? '']
-  if (!nameTrimmed.value || !selectedDocument.value || !document) {
+    workspaceStore.workspace.documents[selectedDocumentName.value ?? '']
+  if (!nameTrimmed.value || !selectedDocumentName.value || !document) {
     return true
   }
 
@@ -148,9 +170,11 @@ const isDisabled = computed<boolean>(() => {
  * In edit mode, emits the new name. In create mode, creates the tag via the event bus.
  */
 const handleSubmit = (): void => {
-  if (isDisabled.value || !selectedDocument.value) {
+  if (isDisabled.value || !selectedDocumentName.value) {
     return
   }
+
+  const documentName = selectedDocumentName.value
 
   // In edit mode, emit the new name and close
   if (isEditMode.value && tag) {
@@ -158,7 +182,7 @@ const handleSubmit = (): void => {
       'tag:edit:tag',
       {
         tag,
-        documentName: selectedDocument.value.id,
+        documentName,
         newName: nameTrimmed.value,
       },
       { skipUnpackProxy: true },
@@ -169,7 +193,7 @@ const handleSubmit = (): void => {
 
   eventBus.emit('tag:create:tag', {
     name: nameTrimmed.value,
-    documentName: selectedDocument.value.id,
+    documentName,
   })
 
   emit('close')
@@ -210,24 +234,12 @@ const handleCancel = (): void => {
 
     <!-- Collection selector (hidden in edit mode) -->
     <template #options>
-      <ScalarListbox
+      <CommandPaletteDocumentSelect
         v-if="!isEditMode"
-        v-model="selectedDocument"
-        :options="availableDocuments">
-        <ScalarButton
-          class="hover:bg-b-2 max-h-8 w-fit justify-between gap-1 p-2 text-xs"
-          variant="outlined">
-          <span :class="selectedDocument ? 'text-c-1' : 'text-c-3'">
-            {{
-              selectedDocument ? selectedDocument.label : 'Select Collection'
-            }}
-          </span>
-          <ScalarIcon
-            class="text-c-3"
-            icon="ChevronDown"
-            size="md" />
-        </ScalarButton>
-      </ScalarListbox>
+        v-model="selectedDocumentName"
+        :documents="availableDocuments"
+        placeholder="Select Collection"
+        searchPlaceholder="Search collections" />
 
       <!-- Cancel button in edit mode -->
       <ScalarButton

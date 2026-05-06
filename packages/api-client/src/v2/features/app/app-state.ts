@@ -183,14 +183,15 @@ const DEFAULT_TEAM_WORKSPACE_SLUG = 'default'
 /** Default display name used when auto-creating a team workspace on demand. */
 const DEFAULT_TEAM_WORKSPACE_NAME = 'Workspace'
 /**
- * Temporary kill switch for team workspace functionality.
+ * Feature flag for team workspace functionality.
  *
- * While the team workspace experience is still being polished we hide the
- * "Team Workspaces" group from the picker and refuse to create new team
- * workspaces. Existing team workspaces remain in storage and can be restored
- * by flipping this flag back to `true`.
+ * When `true`, the picker shows a "Team Workspaces" group for non-local teams
+ * (with a placeholder option until a workspace exists), and routes can create
+ * the default team workspace on demand. Set to `false` to hide that group and
+ * block new team workspace creation while leaving existing persisted workspaces
+ * untouched.
  */
-const TEAM_WORKSPACES_ENABLED = false
+const TEAM_WORKSPACES_ENABLED = true
 
 // ---------------------------------------------------------------------------
 // App State

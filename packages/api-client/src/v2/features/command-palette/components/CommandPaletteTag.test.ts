@@ -469,10 +469,10 @@ describe('CommandPaletteTag', () => {
       },
     })
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    expect(listbox.exists()).toBe(true)
-    expect(listbox.props('options')).toHaveLength(2)
-    expect(listbox.props('options')).toEqual([
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.exists()).toBe(true)
+    expect(select.props('documents')).toHaveLength(2)
+    expect(select.props('documents')).toEqual([
       { id: 'doc1', label: 'Test Document' },
       { id: 'doc2', label: 'Second Document' },
     ])
@@ -490,8 +490,8 @@ describe('CommandPaletteTag', () => {
       },
     })
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    expect(listbox.props('modelValue')).toEqual({ id: 'doc1', label: 'Test Document' })
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('modelValue')).toBe('doc1')
   })
 
   it('handles empty documents list gracefully', async () => {
@@ -505,12 +505,12 @@ describe('CommandPaletteTag', () => {
       },
     })
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    expect(listbox.props('options')).toHaveLength(0)
-    expect(listbox.props('modelValue')).toBeUndefined()
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('documents')).toHaveLength(0)
+    expect(select.props('modelValue')).toBeUndefined()
   })
 
-  it('displays document title in listbox button', async () => {
+  it('displays the document title in the selector trigger', async () => {
     const document = createMockDocument({ info: { title: 'My Collection', version: '1.0.0' } })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
     const eventBus = createMockEventBus()
@@ -522,11 +522,11 @@ describe('CommandPaletteTag', () => {
       },
     })
 
-    const button = wrapper.findComponent({ name: 'ScalarButton' })
-    expect(button.text()).toContain('My Collection')
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.text()).toContain('My Collection')
   })
 
-  it('displays placeholder text when no document is selected', async () => {
+  it('displays the placeholder when no document is selected', async () => {
     const workspaceStore = await createMockWorkspaceStore({})
     const eventBus = createMockEventBus()
 
@@ -537,11 +537,11 @@ describe('CommandPaletteTag', () => {
       },
     })
 
-    const button = wrapper.findComponent({ name: 'ScalarButton' })
-    expect(button.text()).toContain('Select Collection')
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.text()).toContain('Select Collection')
   })
 
-  it('uses document name as fallback when title is missing', async () => {
+  it('falls back to the document name when the title is missing', async () => {
     const document = createMockDocument({ info: { title: '', version: '1.0.0' } })
     const workspaceStore = await createMockWorkspaceStore({ 'my-doc': document })
     const eventBus = createMockEventBus()
@@ -553,8 +553,8 @@ describe('CommandPaletteTag', () => {
       },
     })
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    expect(listbox.props('options')).toEqual([{ id: 'my-doc', label: 'my-doc' }])
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('documents')).toEqual([{ id: 'my-doc', label: 'my-doc' }])
   })
 
   it('allows creating tags with the same name in different documents', async () => {
@@ -573,8 +573,8 @@ describe('CommandPaletteTag', () => {
     })
 
     // Change to second document
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    await listbox.vm.$emit('update:modelValue', { id: 'doc2', label: 'Second Document' })
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    await select.vm.$emit('update:modelValue', 'doc2')
     await nextTick()
 
     const input = wrapper.findComponent({ name: 'CommandActionInput' })
@@ -681,9 +681,9 @@ describe('CommandPaletteTag', () => {
     await input.vm.$emit('update:modelValue', 'New Tag')
     await nextTick()
 
-    // Manually set selectedDocument to a non-existent document
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    await listbox.vm.$emit('update:modelValue', { id: 'non-existent', label: 'Non-existent' })
+    // Manually set the selected document to one the workspace store does not know about
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    await select.vm.$emit('update:modelValue', 'non-existent')
     await nextTick()
 
     const form = wrapper.findComponent({ name: 'CommandActionForm' })
@@ -758,7 +758,7 @@ describe('CommandPaletteTag', () => {
     expect(form.props('disabled')).toBe(false)
   })
 
-  it('updates selected document when listbox value changes', async () => {
+  it('updates the selected document when the document selector emits a new value', async () => {
     const document1 = createMockDocument()
     const document2 = createMockDocument({ info: { title: 'Second Document', version: '1.0.0' } })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document1, 'doc2': document2 })
@@ -771,13 +771,13 @@ describe('CommandPaletteTag', () => {
       },
     })
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    expect(listbox.props('modelValue')).toEqual({ id: 'doc1', label: 'Test Document' })
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('modelValue')).toBe('doc1')
 
-    await listbox.vm.$emit('update:modelValue', { id: 'doc2', label: 'Second Document' })
+    await select.vm.$emit('update:modelValue', 'doc2')
     await nextTick()
 
-    expect(listbox.props('modelValue')).toEqual({ id: 'doc2', label: 'Second Document' })
+    expect(wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' }).props('modelValue')).toBe('doc2')
   })
 
   it('validates tag name against the currently selected document', async () => {
@@ -806,11 +806,70 @@ describe('CommandPaletteTag', () => {
     expect(form.props('disabled')).toBe(true)
 
     // Switch to second document
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    await listbox.vm.$emit('update:modelValue', { id: 'doc2', label: 'Second Document' })
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    await select.vm.$emit('update:modelValue', 'doc2')
     await nextTick()
 
     form = wrapper.findComponent({ name: 'CommandActionForm' })
     expect(form.props('disabled')).toBe(false)
+  })
+
+  it('uses the documents prop instead of the workspace store when provided', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'doc-a': createMockDocument({ info: { title: 'A', version: '1' } }),
+      'doc-b': createMockDocument({ info: { title: 'B', version: '1' } }),
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteTag, {
+      props: {
+        workspaceStore,
+        eventBus,
+        documents: [{ id: 'doc-b', label: 'Grouped B' }],
+      },
+    })
+
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('documents')).toEqual([{ id: 'doc-b', label: 'Grouped B' }])
+    expect(select.props('modelValue')).toBe('doc-b')
+  })
+
+  it('preselects the active document when the caller does not pass documentName', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'doc-a': createMockDocument({ info: { title: 'A', version: '1' } }),
+      'doc-b': createMockDocument({ info: { title: 'B', version: '1' } }),
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteTag, {
+      props: {
+        workspaceStore,
+        eventBus,
+        activeDocumentName: 'doc-b',
+      },
+    })
+
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('modelValue')).toBe('doc-b')
+  })
+
+  it('prefers an explicit documentName over the active document', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'doc-a': createMockDocument({ info: { title: 'A', version: '1' } }),
+      'doc-b': createMockDocument({ info: { title: 'B', version: '1' } }),
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteTag, {
+      props: {
+        workspaceStore,
+        eventBus,
+        documentName: 'doc-a',
+        activeDocumentName: 'doc-b',
+      },
+    })
+
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('modelValue')).toBe('doc-a')
   })
 })
