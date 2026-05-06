@@ -76,8 +76,7 @@
     "electron": "41.2.2",
     "electron-vite": "6.0.0-beta.1",
     "vite": "catalog:*",
-    "vue": "catalog:*",
-    "vite-plugin-monaco-editor": "catalog:*",
-    "vite-plugin-monaco-editor-esm": "catalog:*"
+    "vite-plugin-monaco-editor-esm": "catalog:*",
+    "vue": "catalog:*"
   }
 }

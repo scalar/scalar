@@ -1,12 +1,10 @@
-import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
+import monacoEditorPlugin from 'vite-plugin-monaco-editor-esm'
 
-const require = createRequire(import.meta.url)
-const monacoEditorPlugin = require('vite-plugin-monaco-editor').default
 const { version: scalarAppVersion } = require('./package.json')
 
 export default defineConfig({

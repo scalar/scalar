@@ -361,7 +361,6 @@
     "radix-vue": "catalog:*",
     "set-cookie-parser": "catalog:*",
     "shell-quote": "^1.8.3",
-    "vite-plugin-monaco-editor-esm": "catalog:*",
     "vue": "catalog:*",
     "vue-router": "catalog:*",
     "yaml": "catalog:*",
@@ -381,6 +380,7 @@
     "posthog-js": "catalog:*",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
+    "vite-plugin-monaco-editor-esm": "catalog:*",
     "vite-svg-loader": "catalog:*",
     "vitest": "catalog:*"
   }
