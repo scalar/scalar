@@ -22,7 +22,11 @@ test.describe('collection-editor.monaco.e2e', () => {
     })
     const pageErrors: string[] = []
     page.on('pageerror', (error) => {
-      pageErrors.push(error.message)
+      // "Canceled" is thrown by Chromium when in-flight fetch requests or Monaco workers are
+      // aborted during SPA navigation — it is not a real error.
+      if (error.message !== 'Canceled') {
+        pageErrors.push(error.message)
+      }
     })
 
     await page.goto('/', { waitUntil: 'load', timeout: 60_000 })
