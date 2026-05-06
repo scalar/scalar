@@ -213,6 +213,18 @@ describe('useColorMode', () => {
     expect(() => toggleColorMode()).not.toThrow()
   })
 
+  it('uses system mode on SSG even when initialColorMode is set', ({ onTestFinished }) => {
+    vi.stubGlobal('window', undefined)
+    vi.stubGlobal('document', undefined)
+
+    onTestFinished(() => {
+      vi.unstubAllGlobals()
+    })
+
+    const { colorMode } = useColorMode({ initialColorMode: 'dark' })
+    expect(colorMode.value).toBe('system')
+  })
+
   it('handles missing matchMedia gracefully', ({ onTestFinished }) => {
     vi.stubGlobal('matchMedia', undefined)
 

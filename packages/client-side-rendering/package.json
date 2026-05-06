@@ -28,7 +28,10 @@
       "default": "./dist/index.js"
     }
   },
-  "files": ["dist", "CHANGELOG.md"],
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
   "dependencies": {
     "@scalar/schemas": "workspace:*",
     "@scalar/types": "workspace:*",
