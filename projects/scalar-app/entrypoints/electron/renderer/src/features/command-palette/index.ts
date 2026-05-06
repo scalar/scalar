@@ -1,12 +1,7 @@
-import {
-  type CommandPaletteAction,
-  baseClientActions,
-  baseRoutes,
-  useCommandPaletteState,
-} from '@scalar/api-client/v2/features/app'
 import { ScalarIconArrowSquareIn } from '@scalar/icons'
 import { computed, watch } from 'vue'
 
+import { type CommandPaletteAction, baseClientActions, baseRoutes, useCommandPaletteState } from '@/features/app'
 import { useAuth } from '@/hooks/use-auth'
 
 import CommandPaletteImport from './components/CommandPaletteImport.vue'

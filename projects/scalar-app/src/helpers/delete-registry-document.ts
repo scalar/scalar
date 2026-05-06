@@ -1,4 +1,4 @@
-import type { RegistryAdapter } from '@scalar/api-client/v2/features/app'
+import type { RegistryAdapter } from '@/features/app'
 
 import { mapRegistryError } from './registry-error-status'
 import { scalarClient } from './scalar-client'

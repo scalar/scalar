@@ -1,7 +1,6 @@
 import '@/style.css'
 import '@scalar/api-client/style.css'
 
-import { useCommandPaletteState } from '@scalar/api-client/v2/features/app'
 import { appState } from '@web/app-state'
 import { router } from '@web/router'
 import { initializeWebsiteTrackers } from '@web/tracking'
@@ -9,6 +8,7 @@ import { load, trackEvent } from 'fathom-client'
 import { createApp } from 'vue'
 
 import App, { type AppProps } from '@/App.vue'
+import { useCommandPaletteState } from '@/features/app'
 
 /**
  * Fathom Analytics offers simple & privacy-first tracking

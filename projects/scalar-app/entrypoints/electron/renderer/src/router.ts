@@ -1,5 +1,6 @@
-import { createAppRouter } from '@scalar/api-client/v2/features/app'
 import { trackPageview } from 'fathom-client'
+
+import { createAppRouter } from '@/features/app'
 
 export const router: ReturnType<typeof createAppRouter> = createAppRouter('desktop')
 

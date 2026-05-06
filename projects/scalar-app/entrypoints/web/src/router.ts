@@ -1,8 +1,8 @@
-import { createAppRouter } from '@scalar/api-client/v2/features/app'
 import { useToasts } from '@scalar/use-toasts'
 import { coerce, string } from '@scalar/validation'
 import { trackPageview } from 'fathom-client'
 
+import { createAppRouter } from '@/features/app'
 import { exchangeToken } from '@/helpers/auth/exchange-token'
 import { useAuth } from '@/hooks/use-auth'
 

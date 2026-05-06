@@ -1,6 +1,6 @@
-import { createAppState } from '@scalar/api-client/v2/features/app'
 import { router } from '@web/router'
 
+import { createAppState } from '@/features/app'
 import { useStateData } from '@/hooks/use-state-data'
 
 const { currentTeam, customThemes, fallbackThemeSlug } = useStateData()
