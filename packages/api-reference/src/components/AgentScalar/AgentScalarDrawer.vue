@@ -11,7 +11,7 @@ import { defineAsyncComponent } from 'vue'
 import { useAgentContext } from '@/hooks/use-agent'
 
 defineProps<{
-  agentScalarConfiguration: ApiReferenceConfigurationWithSource['agent']
+  agentScalarConfiguration?: ApiReferenceConfigurationWithSource['agent']
   externalUrls: ExternalUrls
   workspaceStore: WorkspaceStore
 }>()
