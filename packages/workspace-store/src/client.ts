@@ -36,9 +36,10 @@ import {
   restoreOriginalRefs,
   syncPathParameters,
 } from '@/plugins/bundler'
+import type { AsyncApiDocument } from '@/schemas/asyncapi/asyncapi-document'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
-import { isOpenApiDocument } from '@/schemas/type-guards'
+import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { generateSchema } from '@/schemas/v3.1/openapi'
 import { recursiveRef } from '@/schemas/v3.1/openapi/reference'
@@ -956,7 +957,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     return true
   }
 
-  // Add a document to the store synchronously from an in-memory OpenAPI document
+  // Add a document to the store synchronously from an in-memory OpenAPI or AsyncAPI document
   async function addInMemoryDocument(
     input: ObjectDoc & { initialize?: boolean; documentSource?: string; documentHash: string },
     navigationOptions?: NavigationOptions,
@@ -984,6 +985,28 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         extraDocumentConfigurations[name] = { fetch: input.fetch }
       }
     })
+
+    // AsyncAPI ingestion: skip the OpenAPI-specific upgrade, bundle, coerce,
+    // validate, and navigation pipeline. The OpenAPI `coerce` step would
+    // otherwise inject an empty `openapi: ''` field and break the type
+    // discriminator. Reference resolution and navigation generation for
+    // AsyncAPI are out of scope for the MVP — only the workspace-store
+    // managed metadata (source url, document hash, spec version) is set so
+    // change detection on rebase can compare hashes correctly.
+    if (isAsyncApiDocument(clonedRawInputDocument)) {
+      const asyncApiDocument = {
+        ...clonedRawInputDocument,
+        ...meta,
+        'x-original-aas-version': clonedRawInputDocument.asyncapi,
+        'x-scalar-original-document-hash': input.documentHash,
+        'x-scalar-original-source-url': input.documentSource,
+      } satisfies AsyncApiDocument
+
+      workspace.documents[name] = createOverridesProxy(createMagicProxy(asyncApiDocument) as AsyncApiDocument, {
+        overrides: unpackProxyObject(overrides[name]),
+      })
+      return
+    }
 
     const inputDocument = withMeasurementSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
 

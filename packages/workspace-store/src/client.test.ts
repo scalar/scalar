@@ -3821,6 +3821,52 @@ describe('create-workspace-store', () => {
       })
     })
   })
+
+  describe('asyncapi documents', () => {
+    it('preserves the asyncapi discriminator and sets workspace metadata on ingestion', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        document: {
+          asyncapi: '3.0.0',
+          info: { title: 'Streetlights API', version: '1.0.0' },
+        },
+        name: 'streetlights',
+      })
+
+      const document = store.workspace.documents['streetlights']
+
+      // The OpenAPI coerce step would otherwise inject `openapi: ''`, breaking
+      // the type discriminator. Asserting both presence and absence guards
+      // against that regression.
+      expect(document).toMatchObject({
+        asyncapi: '3.0.0',
+        info: { title: 'Streetlights API', version: '1.0.0' },
+        'x-original-aas-version': '3.0.0',
+        'x-scalar-original-document-hash': expect.any(String),
+      })
+      expect(document?.['x-scalar-original-document-hash']).not.toBe('')
+      expect(document).not.toHaveProperty('openapi')
+      expect(document).not.toHaveProperty('x-scalar-navigation')
+    })
+
+    it('records the source url when the asyncapi document is loaded from a URL', async () => {
+      const fetch = vi.fn(
+        async () =>
+          new Response(JSON.stringify({ asyncapi: '3.0.0', info: { title: 'Remote', version: '1.0.0' } }), {
+            headers: { 'content-type': 'application/json' },
+          }),
+      ) as unknown as typeof globalThis.fetch
+      const store = createWorkspaceStore({ fetch })
+
+      await store.addDocument({ url: 'https://example.com/asyncapi.json', name: 'remote' })
+
+      expect(store.workspace.documents['remote']).toMatchObject({
+        asyncapi: '3.0.0',
+        'x-scalar-original-source-url': 'https://example.com/asyncapi.json',
+      })
+    })
+  })
 })
 
 // Notes:
