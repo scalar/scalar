@@ -306,6 +306,15 @@ const unmountAll = (): void => {
 
   for (const selector of Object.keys(state.instances)) {
     destroyInstance(state, selector)
+    delete state.instances[selector]
+  }
+
+  // Clear the per-instance config registry too. The new page's `is:inline`
+  // registration scripts run during DOM swap (after this fires), so they
+  // repopulate the registry before `astro:page-load` triggers `mountAll`.
+  const win = window as ScalarWindow
+  if (win.__scalarAstro) {
+    win.__scalarAstro.configs = {}
   }
 }
 

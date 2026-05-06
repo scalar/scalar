@@ -111,6 +111,11 @@ describe('initScalarAstro', () => {
     document.dispatchEvent(new Event('astro:page-load'))
     await tick()
     document.dispatchEvent(new Event('astro:before-swap'))
+
+    // Simulate the new page's `is:inline` registration script repopulating the
+    // registry during the DOM swap, before `astro:page-load` fires.
+    registerConfig('a', { configuration: { url: '/a.json' }, cdn: null })
+
     document.dispatchEvent(new Event('astro:page-load'))
     await tick()
 
@@ -182,6 +187,27 @@ describe('initScalarAstro', () => {
     await tick()
 
     expect(scalar.createApiReference).toHaveBeenCalledWith(`#${CSS.escape('foo.bar:baz')}`, { url: '/x.json' })
+  })
+
+  it('does not leak instance state or registry entries across navigations', async () => {
+    const STATE_KEY_LOCAL = '__scalarAstroState'
+    initScalarAstro()
+
+    for (let i = 0; i < 100; i++) {
+      const id = `mount-${i}`
+      addMountElement(id, { url: `/${i}.json` })
+      document.dispatchEvent(new Event('astro:page-load'))
+      await tick()
+      document.dispatchEvent(new Event('astro:before-swap'))
+      // Simulate the next page's swap clearing out the old container.
+      document.getElementById(id)?.remove()
+    }
+
+    const state = (window as unknown as Record<string, { instances: Record<string, unknown> }>)[STATE_KEY_LOCAL]
+    const registry = (window as unknown as RegistryWindow).__scalarAstro?.configs ?? {}
+
+    expect(Object.keys(state.instances)).toHaveLength(0)
+    expect(Object.keys(registry)).toHaveLength(0)
   })
 
   it('keeps unmounting other instances even if one destroy throws', async () => {
