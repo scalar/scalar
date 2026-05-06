@@ -8,17 +8,17 @@ set -euo pipefail
 
 curl_command="${CURL_COMMAND:-curl}"
 base_url="${CLOUDFLARE_API_BASE_URL:-https://api.cloudflare.com/client/v4}"
+per_page="${CLOUDFLARE_PER_PAGE:-100}"
 
 echo "Looking for preview deployments on branch: $BRANCH"
 
 deployment_ids_file="$(mktemp)"
 page=1
-total_pages=1
 
-while [ "$page" -le "$total_pages" ]; do
+while true; do
   response_file="$(mktemp)"
   status_code="$("$curl_command" --silent --show-error --write-out '%{http_code}' --output "$response_file" \
-    "$base_url/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments?env=preview&page=$page&per_page=100" \
+    "$base_url/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments?env=preview&page=$page&per_page=$per_page" \
     --header "Authorization: Bearer $CLOUDFLARE_API_TOKEN")"
 
   if [ "$status_code" -lt 200 ] || [ "$status_code" -ge 300 ]; then
@@ -37,8 +37,15 @@ while [ "$page" -le "$total_pages" ]; do
     '.result // [] | .[] | select(.deployment_trigger.metadata.branch? == $branch) | .id' \
     "$response_file" >> "$deployment_ids_file"
 
-  total_pages="$(jq -r '.result_info.total_pages // 1' "$response_file")"
-  echo "Scanned Cloudflare deployment page $page of $total_pages"
+  result_count="$(jq -r '.result // [] | length' "$response_file")"
+  echo "Scanned Cloudflare deployment page $page"
+
+  # Stop once we receive a partial page. Cloudflare's listing endpoint does not
+  # always populate result_info.total_pages, so we paginate by page size instead.
+  if [ "$result_count" -lt "$per_page" ]; then
+    break
+  fi
+
   page=$((page + 1))
 done
 
@@ -49,6 +56,7 @@ if [ "${#deployment_ids[@]}" -eq 0 ]; then
   exit 0
 fi
 
+failed=0
 for deployment_id in "${deployment_ids[@]}"; do
   response_file="$(mktemp)"
   status_code="$("$curl_command" --silent --show-error --request DELETE --write-out '%{http_code}' --output "$response_file" \
@@ -58,14 +66,21 @@ for deployment_id in "${deployment_ids[@]}"; do
   if [ "$status_code" -lt 200 ] || [ "$status_code" -ge 300 ]; then
     echo "Failed to delete Cloudflare Pages deployment $deployment_id (HTTP $status_code)"
     jq -r '.errors[]?.message // .' "$response_file"
-    exit 1
+    failed=$((failed + 1))
+    continue
   fi
 
   if [ "$(jq -r '.success' "$response_file")" != 'true' ]; then
     echo "Failed to delete Cloudflare Pages deployment $deployment_id"
     jq -r '.errors[]?.message // .' "$response_file"
-    exit 1
+    failed=$((failed + 1))
+    continue
   fi
 
   echo "Deleted deployment $deployment_id"
 done
+
+if [ "$failed" -gt 0 ]; then
+  echo "Failed to delete $failed of ${#deployment_ids[@]} deployment(s) for $BRANCH"
+  exit 1
+fi
