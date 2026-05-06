@@ -117,6 +117,12 @@ const handleDeleteRegistryVersion = async ({
     return
   }
 
+  // Snapshot the active slug before any await: destructured props are
+  // reactive getters, so reading `documentSlug` after the registry
+  // round-trip could target whichever document is active if navigation
+  // happened in between.
+  const activeDocumentSlug = documentSlug
+
   const result = await registry.deleteVersion({
     namespace: meta.namespace,
     slug: meta.slug,
@@ -135,7 +141,7 @@ const handleDeleteRegistryVersion = async ({
   // host to refetch its registry listing so the cached entry catches
   // up. The refresh hook is optional - hosts that do not wire it up
   // simply wait for the next poll.
-  deleteLocalDocument(documentSlug)
+  deleteLocalDocument(activeDocumentSlug)
   await registry.refreshDocuments?.()
 
   done({ ok: true })
@@ -155,6 +161,15 @@ const handleDeleteRegistryDocument = async ({
     return
   }
 
+  // Snapshot slug and matching local rows before any await so a route
+  // change or workspace edit during the registry call cannot retarget
+  // cleanup (same rationale as `handleDeleteRegistryVersion`).
+  const activeDocumentSlug = documentSlug
+  const localNames = new Set(
+    getLocalDocumentsForRegistryGroup(meta.namespace, meta.slug),
+  )
+  localNames.add(activeDocumentSlug)
+
   const result = await registry.deleteDocument({
     namespace: meta.namespace,
     slug: meta.slug,
@@ -167,15 +182,8 @@ const handleDeleteRegistryDocument = async ({
     return
   }
 
-  // Snapshot the local doc names BEFORE we start emitting deletes -
-  // each delete mutates the workspace document map, which would
-  // otherwise shift the entries we are iterating over. Always include
-  // the active slug as a safety net in case the registry meta on it
-  // diverged from its siblings (e.g. a stale `version`).
-  const localNames = new Set(
-    getLocalDocumentsForRegistryGroup(meta.namespace, meta.slug),
-  )
-  localNames.add(documentSlug)
+  // Each delete mutates the workspace document map, so iterate the set
+  // we built before emitting (see snapshot above).
 
   for (const name of localNames) {
     deleteLocalDocument(name)
