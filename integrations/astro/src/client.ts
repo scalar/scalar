@@ -43,9 +43,19 @@ type GlobalState = {
   styleHref: string | null
 }
 
+type ClientConfigEntry = {
+  configuration?: unknown
+  cdn?: string | null
+}
+
+type AstroRegistry = {
+  configs?: Record<string, ClientConfigEntry>
+}
+
 type ScalarWindow = typeof window & {
   Scalar?: ScalarGlobal
   [stateKey]?: GlobalState
+  __scalarAstro?: AstroRegistry
 }
 
 type MountOptions = {
@@ -199,23 +209,19 @@ const readMountOptions = (container: HTMLElement): MountOptions | null => {
     return null
   }
 
-  const raw = container.dataset.scalarConfig
+  const win = window as ScalarWindow
+  const entry = win.__scalarAstro?.configs?.[container.id]
 
-  if (!raw) {
+  if (!entry) {
     return null
   }
 
-  try {
-    const parsed = JSON.parse(raw) as { configuration?: unknown; cdn?: string | null }
-    return {
-      // Escape the id so element ids containing CSS metacharacters (`.`, `:`,
-      // `[`, etc.) do not throw in `querySelector` or break selector-keyed state.
-      selector: `#${CSS.escape(container.id)}`,
-      configuration: parsed.configuration ?? {},
-      cdn: parsed.cdn ?? null,
-    }
-  } catch {
-    return null
+  return {
+    // Escape the id so element ids containing CSS metacharacters (`.`, `:`,
+    // `[`, etc.) do not throw in `querySelector` or break selector-keyed state.
+    selector: `#${CSS.escape(container.id)}`,
+    configuration: entry.configuration ?? {},
+    cdn: entry.cdn ?? null,
   }
 }
 

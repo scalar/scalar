@@ -1,6 +1,8 @@
 ---
 import { renderApiReference, type HtmlRenderingConfiguration } from '@scalar/client-side-rendering'
 
+import { serializeClientConfig } from './serialize-client-config'
+
 export interface Props {
   configuration: Partial<HtmlRenderingConfiguration>
   /**
@@ -42,7 +44,10 @@ const html =
       })
     : null
 
-const clientPayload = renderMode === 'client' ? JSON.stringify({ configuration: config, cdn: cdn ?? null }) : null
+const clientScript =
+  renderMode === 'client'
+    ? serializeClientConfig({ key: mountElementId, configuration: config, cdn: cdn ?? null })
+    : null
 ---
 
 {
@@ -50,7 +55,13 @@ const clientPayload = renderMode === 'client' ? JSON.stringify({ configuration: 
     <div set:html={html ?? ''}></div>
   ) : (
     <>
-      <div id={mountElementId} data-scalar-mount data-scalar-config={clientPayload}></div>
+      <div id={mountElementId} data-scalar-mount></div>
+      {/*
+        Per-instance registration script. Emits raw JS (not JSON) so function-
+        valued config props (`content`, `plugins`, `onLoaded`, custom `fetch`,
+        ...) survive into the browser instead of being dropped by `JSON.stringify`.
+      */}
+      <script is:inline set:html={clientScript ?? ''}></script>
       <script>
         import { initScalarAstro } from './client'
 

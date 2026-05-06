@@ -5,13 +5,23 @@ import { getStyleHref, initScalarAstro } from './client'
 const STATE_KEY = '__scalarAstroState'
 const DEFAULT_STYLE_HREF = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/dist/style.css'
 
+type RegistryEntry = { configuration: unknown; cdn: string | null }
+type RegistryWindow = { __scalarAstro?: { configs?: Record<string, RegistryEntry> } }
+
+const registerConfig = (id: string, entry: RegistryEntry) => {
+  const win = window as unknown as RegistryWindow
+  win.__scalarAstro ??= { configs: {} }
+  win.__scalarAstro.configs ??= {}
+  win.__scalarAstro.configs[id] = entry
+}
+
 const addMountElement = (id: string, configuration: object | null, cdn: string | null = null): HTMLElement => {
   const el = document.createElement('div')
   el.id = id
   el.setAttribute('data-scalar-mount', '')
 
   if (configuration !== null) {
-    el.setAttribute('data-scalar-config', JSON.stringify({ configuration, cdn }))
+    registerConfig(id, { configuration, cdn })
   }
 
   document.body.appendChild(el)
@@ -41,6 +51,7 @@ const resetEnvironment = () => {
   document.head.replaceChildren()
   delete (window as unknown as Record<string, unknown>)[STATE_KEY]
   delete (window as unknown as Record<string, unknown>).Scalar
+  delete (window as unknown as Record<string, unknown>).__scalarAstro
 }
 
 const tick = async () => {
@@ -118,7 +129,7 @@ describe('initScalarAstro', () => {
     expect(scalar.createApiReference).toHaveBeenCalledTimes(1)
   })
 
-  it('skips containers without a config attribute', async () => {
+  it('skips containers with no entry in the config registry', async () => {
     const el = document.createElement('div')
     el.id = 'a'
     el.setAttribute('data-scalar-mount', '')
@@ -131,18 +142,19 @@ describe('initScalarAstro', () => {
     expect(scalar.createApiReference).not.toHaveBeenCalled()
   })
 
-  it('skips containers with malformed JSON config', async () => {
-    const el = document.createElement('div')
-    el.id = 'a'
-    el.setAttribute('data-scalar-mount', '')
-    el.setAttribute('data-scalar-config', '{not valid json')
-    document.body.appendChild(el)
+  it('preserves function-valued config props through the registry', async () => {
+    const onLoaded = () => 'on-loaded'
+    const customFetch = (request: Request) => fetch(request)
+    addMountElement('a', { url: '/a.json', onLoaded, fetch: customFetch })
 
     initScalarAstro()
     document.dispatchEvent(new Event('astro:page-load'))
     await tick()
 
-    expect(scalar.createApiReference).not.toHaveBeenCalled()
+    expect(scalar.createApiReference).toHaveBeenCalledTimes(1)
+    const [, configurationPassed] = scalar.createApiReference.mock.calls[0] as [string, Record<string, unknown>]
+    expect(configurationPassed.onLoaded).toBe(onLoaded)
+    expect(configurationPassed.fetch).toBe(customFetch)
   })
 
   it.each([['javascript:alert(1)'], ['data:text/javascript,alert(1)'], ['vbscript:msgbox("x")']])(
