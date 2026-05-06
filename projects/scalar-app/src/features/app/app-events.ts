@@ -397,6 +397,12 @@ export function initializeAppEventHandlers({
       if (payload.path === 'authentication') {
         return execCallback(await fn({ name: 'operation.authentication', params }))
       }
+      if (payload.path === 'settings') {
+        return execCallback(await fn({ name: 'operation.settings', params }))
+      }
+      if (payload.path === 'editor') {
+        return execCallback(await fn({ name: 'operation.editor', params }))
+      }
     }
   })
 

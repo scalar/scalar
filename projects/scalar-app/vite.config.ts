@@ -38,5 +38,7 @@ export default defineConfig({
   },
   server: {
     port: 5065,
+    // E2E: browsers in Docker hit the host Vite server with this Host header (see playwright.config baseURL).
+    allowedHosts: ['host.docker.internal'],
   },
 })

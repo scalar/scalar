@@ -14,10 +14,11 @@ __pycache__/
 # Testing data
 test-*.json
 /test-results/
-/playwright-report/
+**/playwright-report/**
 /blob-report/
 /playwright/.cache/
 playwright-results.json
+**/test-results/**
 
 # Temporary Vite/Vitest config files
 *.config.ts.timestamp-*.mjs
