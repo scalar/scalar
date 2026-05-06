@@ -39,7 +39,7 @@ type ScalarGlobal = {
 type GlobalState = {
   instances: Record<string, ScalarApiReferenceInstance | null>
   initialized: boolean
-  cdnPromise: Promise<void> | null
+  cdnPromises: Record<string, Promise<void>>
   stylePromise: Promise<void> | null
   styleHref: string | null
 }
@@ -70,7 +70,7 @@ const getGlobalState = (): GlobalState => {
   win[stateKey] ??= {
     instances: {},
     initialized: false,
-    cdnPromise: null,
+    cdnPromises: {},
     stylePromise: null,
     styleHref: null,
   }
@@ -176,9 +176,22 @@ const ensureStylesLoaded = async (cdn: string | null): Promise<void> => {
   await state.stylePromise
 }
 
-const loadCdn = (cdn: string | null): Promise<void> =>
+const findExistingCdnScript = (src: string): HTMLScriptElement | null => {
+  const scripts = document.querySelectorAll<HTMLScriptElement>(`script[${CDN_MARKER}="true"]`)
+
+  for (const script of scripts) {
+    // Compare resolved hrefs so relative and absolute forms of the same URL match.
+    if (script.src === new URL(src, window.location.href).href) {
+      return script
+    }
+  }
+
+  return null
+}
+
+const loadCdn = (src: string): Promise<void> =>
   new Promise<void>((resolve, reject) => {
-    const existing = document.querySelector<HTMLScriptElement>(`script[${CDN_MARKER}="true"]`)
+    const existing = findExistingCdnScript(src)
 
     if (existing?.dataset.loaded === 'true') {
       resolve()
@@ -192,7 +205,7 @@ const loadCdn = (cdn: string | null): Promise<void> =>
     }
 
     const script = document.createElement('script')
-    script.src = cdn ?? DEFAULT_CDN
+    script.src = src
     script.dataset.scalarAstroCdn = 'true'
     script.addEventListener(
       'load',
@@ -207,20 +220,19 @@ const loadCdn = (cdn: string | null): Promise<void> =>
   })
 
 const ensureCdnLoaded = async (cdn: string | null): Promise<void> => {
-  const win = window as ScalarWindow
-
-  if (win.Scalar?.createApiReference) {
-    return
-  }
-
+  const src = cdn ?? DEFAULT_CDN
   const state = getGlobalState()
 
-  state.cdnPromise ??= loadCdn(cdn).catch((error) => {
-    state.cdnPromise = null
+  // Track promises per resolved URL so a later mount with a different `cdn`
+  // (for example a version pin or a self-hosted bundle) actually loads its
+  // requested script instead of returning early because some other CDN
+  // already populated `window.Scalar`.
+  state.cdnPromises[src] ??= loadCdn(src).catch((error) => {
+    delete state.cdnPromises[src]
     throw error
   })
 
-  await state.cdnPromise
+  await state.cdnPromises[src]
 }
 
 const readMountOptions = (container: HTMLElement): MountOptions | null => {
@@ -310,13 +322,11 @@ const unmountAll = (): void => {
     delete state.instances[selector]
   }
 
-  // Clear the per-instance config registry too. The new page's `is:inline`
-  // registration scripts run during DOM swap (after this fires), so they
-  // repopulate the registry before `astro:page-load` triggers `mountAll`.
-  const win = window as ScalarWindow
-  if (win.__scalarAstro) {
-    win.__scalarAstro.configs = {}
-  }
+  // Intentionally do not clear `window.__scalarAstro.configs`. In static
+  // Starlight builds, Astro's ClientRouter executes identical inline scripts
+  // only once per session, so a previously-visited page's registration script
+  // does not re-run on revisit. Wiping the registry here would leave that
+  // page's mount with no entry and render blank until a full reload.
 }
 
 /**

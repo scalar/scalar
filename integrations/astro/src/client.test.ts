@@ -37,12 +37,25 @@ const seedLoadedStylesheet = (href: string = DEFAULT_STYLE_HREF) => {
   document.head.appendChild(link)
 }
 
+const seedLoadedCdnScript = (src: string = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference') => {
+  const script = document.createElement('script')
+  script.src = src
+  script.dataset.scalarAstroCdn = 'true'
+  script.dataset.loaded = 'true'
+  document.head.appendChild(script)
+}
+
 const stubScalarGlobal = () => {
   const destroy = vi.fn()
   const createApiReference = vi.fn(() => ({ destroy }))
   ;(window as unknown as { Scalar: { createApiReference: typeof createApiReference } }).Scalar = {
     createApiReference,
   }
+  // Seed a matching loaded CDN script so `ensureCdnLoaded` short-circuits via
+  // the `dataset.loaded === 'true'` branch in `loadCdn`. Required because the
+  // loader no longer skips just because `window.Scalar` is set — that early
+  // return ignored the requested `cdn` URL and was the bug behind issue 6.
+  seedLoadedCdnScript()
   return { createApiReference, destroy }
 }
 
@@ -55,10 +68,11 @@ const resetEnvironment = () => {
 }
 
 const tick = async () => {
-  // A few microtask flushes cover the `await ensureStylesLoaded` + `await ensureCdnLoaded` chain.
-  await Promise.resolve()
-  await Promise.resolve()
-  await Promise.resolve()
+  // Flush enough microtasks to cover the `await ensureStylesLoaded` and
+  // `await ensureCdnLoaded` chains plus any chained `.catch(...)` handlers.
+  for (let i = 0; i < 10; i++) {
+    await Promise.resolve()
+  }
 }
 
 describe('initScalarAstro', () => {
@@ -112,15 +126,33 @@ describe('initScalarAstro', () => {
     await tick()
     document.dispatchEvent(new Event('astro:before-swap'))
 
-    // Simulate the new page's `is:inline` registration script repopulating the
-    // registry during the DOM swap, before `astro:page-load` fires.
-    registerConfig('a', { configuration: { url: '/a.json' }, cdn: null })
-
     document.dispatchEvent(new Event('astro:page-load'))
     await tick()
 
     expect(scalar.createApiReference).toHaveBeenCalledTimes(2)
     expect(scalar.destroy).toHaveBeenCalledOnce()
+  })
+
+  it('keeps the config registry across navigations so revisited pages still mount', async () => {
+    // Astro's ClientRouter dedupes identical inline scripts during a session,
+    // so a previously-visited page's registration script may not re-run on
+    // revisit. The registry must persist across `astro:before-swap` for the
+    // mount to find its config.
+    addMountElement('a', { url: '/a.json' })
+
+    initScalarAstro()
+    document.dispatchEvent(new Event('astro:page-load'))
+    await tick()
+
+    document.dispatchEvent(new Event('astro:before-swap'))
+
+    const registry = (window as unknown as RegistryWindow).__scalarAstro?.configs ?? {}
+    expect(registry.a).toEqual({ configuration: { url: '/a.json' }, cdn: null })
+
+    document.dispatchEvent(new Event('astro:page-load'))
+    await tick()
+
+    expect(scalar.createApiReference).toHaveBeenCalledTimes(2)
   })
 
   it('is idempotent — calling initScalarAstro twice does not double-mount', async () => {
@@ -174,7 +206,11 @@ describe('initScalarAstro', () => {
       await tick()
 
       expect(scalar.createApiReference).not.toHaveBeenCalled()
-      expect(document.querySelectorAll('script[data-scalar-astro-cdn="true"]')).toHaveLength(0)
+      // Make sure no script tag was created for the unsafe scheme. The
+      // beforeEach seeds an unrelated default-cdn script, so check by URL
+      // scheme rather than by total count.
+      const scripts = Array.from(document.querySelectorAll<HTMLScriptElement>('script[data-scalar-astro-cdn="true"]'))
+      expect(scripts.some((script) => script.src === cdn || script.getAttribute('src') === cdn)).toBe(false)
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('unsafe URL scheme'))
     },
   )
@@ -189,7 +225,7 @@ describe('initScalarAstro', () => {
     expect(scalar.createApiReference).toHaveBeenCalledWith(`#${CSS.escape('foo.bar:baz')}`, { url: '/x.json' })
   })
 
-  it('does not leak instance state or registry entries across navigations', async () => {
+  it('does not leak instance state across navigations', async () => {
     initScalarAstro()
 
     for (let i = 0; i < 100; i++) {
@@ -203,10 +239,8 @@ describe('initScalarAstro', () => {
     }
 
     const state = (window as unknown as Record<string, { instances: Record<string, unknown> }>)[STATE_KEY]
-    const registry = (window as unknown as RegistryWindow).__scalarAstro?.configs ?? {}
 
     expect(Object.keys(state.instances)).toHaveLength(0)
-    expect(Object.keys(registry)).toHaveLength(0)
   })
 
   it('keeps unmounting other instances even if one destroy throws', async () => {
@@ -313,6 +347,36 @@ describe('CDN and stylesheet deduplication', () => {
     await tick()
 
     expect(document.querySelectorAll('script[data-scalar-astro-cdn="true"]')).toHaveLength(1)
+  })
+
+  it('loads a distinct CDN script when a later mount requests a different cdn', async () => {
+    // A previously-loaded Scalar bundle must not short-circuit a later mount
+    // whose `cdn` points at a different URL. The earlier code cached a single
+    // `cdnPromise` and returned early once any `window.Scalar` was set, so the
+    // second `cdn` was ignored — the wrong Scalar runtime would render against
+    // styles or version pins meant for the requested bundle.
+    const existingScript = document.createElement('script')
+    existingScript.dataset.scalarAstroCdn = 'true'
+    existingScript.dataset.loaded = 'true'
+    existingScript.src = 'https://cdn-a.example.com/api-reference.js'
+    document.head.appendChild(existingScript)
+    ;(window as unknown as { Scalar: unknown }).Scalar = {
+      createApiReference: vi.fn(() => ({ destroy: vi.fn() })),
+    }
+
+    seedLoadedStylesheet('https://cdn-b.example.com/style.css')
+    addMountElement('b', { url: '/b.json' }, 'https://cdn-b.example.com/api-reference.js')
+
+    initScalarAstro()
+    document.dispatchEvent(new Event('astro:page-load'))
+    await tick()
+
+    const sources = Array.from(
+      document.querySelectorAll<HTMLScriptElement>('script[data-scalar-astro-cdn="true"]'),
+    ).map((s) => s.src)
+
+    expect(sources).toContain('https://cdn-a.example.com/api-reference.js')
+    expect(sources).toContain('https://cdn-b.example.com/api-reference.js')
   })
 })
 
