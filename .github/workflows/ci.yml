@@ -388,6 +388,51 @@ jobs:
             > [!IMPORTANT]
             > These tests include snapshots that may need to be updated if there are intentional changes to the UI components. To update the snapshots run `pnpm test:e2e --update-snapshots` in `packages/api-reference` and commit the changes.
 
+  test-e2e-scalar-app:
+    needs: [build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    container:
+      image: scalarapi/playwright-runner:1.59.1
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
+    permissions:
+      contents: read
+      pull-requests: write
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Build scalar-app and dependencies
+        uses: ./.github/actions/build
+        with:
+          packages: 'scalar-app...'
+      - name: Generate new DEPLOY_ID
+        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+      - name: Run e2e tests (scalar-app)
+        run: pnpm --filter scalar-app test:e2e:ci
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+        name: Deploy Playwright Report to Netlify
+        run: |
+          pnpx netlify deploy --dir "./projects/scalar-app/playwright-report" \
+            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
+            --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
+            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --filter @scalar/components \
+            --alias=${{env.DEPLOY_ID}}
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+        name: Add Netlify Playwright Report URL to the PR
+        uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
+        with:
+          comment-title: 'Scalar App End to End Test Results'
+          report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
+          report-file: projects/scalar-app/playwright-results.json
+          report-tag: test-scalar-app-e2e
+
   test-component-snapshots:
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
     needs: [build]
@@ -1633,6 +1678,7 @@ jobs:
         test-packages,
         test-integrations,
         test-proxy-server,
+        test-e2e-scalar-app,
         types,
       ]
     steps:
@@ -1652,6 +1698,7 @@ jobs:
         test-packages,
         test-integrations,
         test-proxy-server,
+        test-e2e-scalar-app,
         types,
       ]
     steps:
