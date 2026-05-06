@@ -211,6 +211,55 @@ describe('CDN and stylesheet deduplication', () => {
     resetEnvironment()
   })
 
+  it('attaches to a still-loading same-href stylesheet instead of removing it', async () => {
+    // Pre-place a Scalar-marked stylesheet that has not finished loading yet.
+    // The bug was that the loader would remove this element mid-load.
+    const existingLink = document.createElement('link')
+    existingLink.rel = 'stylesheet'
+    existingLink.href = DEFAULT_STYLE_HREF
+    existingLink.dataset.scalarAstroStyle = 'true'
+    document.head.appendChild(existingLink)
+
+    ;(window as unknown as { Scalar: unknown }).Scalar = {
+      createApiReference: vi.fn(() => ({ destroy: vi.fn() })),
+    }
+
+    addMountElement('a', { url: '/a.json' })
+    initScalarAstro()
+    document.dispatchEvent(new Event('astro:page-load'))
+    await Promise.resolve()
+
+    // The pre-placed link must survive untouched.
+    const links = document.querySelectorAll('link[data-scalar-astro-style="true"]')
+    expect(links).toHaveLength(1)
+    expect(links[0]).toBe(existingLink)
+
+    // Once the original link's load fires, the mount can proceed.
+    existingLink.dispatchEvent(new Event('load'))
+    await tick()
+    expect(existingLink.dataset.loaded).toBe('true')
+  })
+
+  it('replaces a Scalar stylesheet whose href no longer matches', async () => {
+    const stale = document.createElement('link')
+    stale.rel = 'stylesheet'
+    stale.href = 'https://old.example.com/dist/style.css'
+    stale.dataset.scalarAstroStyle = 'true'
+    stale.dataset.loaded = 'true'
+    document.head.appendChild(stale)
+
+    addMountElement('a', { url: '/a.json' }, 'https://new.example.com/dist/api-reference.js')
+
+    initScalarAstro()
+    document.dispatchEvent(new Event('astro:page-load'))
+    await Promise.resolve()
+
+    const links = document.querySelectorAll('link[data-scalar-astro-style="true"]')
+    expect(links).toHaveLength(1)
+    expect(links[0]).not.toBe(stale)
+    expect(links[0].getAttribute('href')).toBe('https://new.example.com/dist/style.css')
+  })
+
   it('appends only one stylesheet link when many containers mount in parallel', async () => {
     // No preloaded stylesheet — the first mount drives the actual load.
     for (let i = 0; i < 5; i++) {

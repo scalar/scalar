@@ -1,10 +1,11 @@
 /**
  * Client-side mounting logic for the Astro integration.
  *
- * Each `<ScalarComponent renderMode="client" />` renders a container element
- * tagged with `data-scalar-mount` and a JSON-encoded `data-scalar-config`. The
- * single hoisted script in the component imports `initScalarAstro` to wire up
- * the Astro view-transition lifecycle once per page.
+ * Each `<ScalarComponent renderMode="client" />` renders a container marked
+ * with `data-scalar-mount` and emits a per-instance inline script that
+ * registers its config on `window.__scalarAstro.configs` keyed by mount id.
+ * The single hoisted script in the component calls `initScalarAstro` to wire
+ * up the Astro view-transition lifecycle once per page.
  */
 
 const stateKey = '__scalarAstroState'
@@ -103,11 +104,29 @@ const loadStylesheet = (styleHref: string): Promise<void> =>
   new Promise<void>((resolve, reject) => {
     const existing = document.querySelector<HTMLLinkElement>(`link[${STYLE_MARKER}="true"]`)
 
-    if (existing?.getAttribute('href') === styleHref && existing.dataset.loaded === 'true') {
-      resolve()
+    if (existing?.getAttribute('href') === styleHref) {
+      if (existing.dataset.loaded === 'true') {
+        resolve()
+        return
+      }
+      // Same href, still loading: attach to the in-flight element instead of
+      // removing it, otherwise we orphan the partial download and race against
+      // anyone else awaiting that load.
+      existing.addEventListener(
+        'load',
+        () => {
+          existing.dataset.loaded = 'true'
+          resolve()
+        },
+        { once: true },
+      )
+      existing.addEventListener('error', () => reject(new Error('Failed to load Scalar CDN stylesheet')), {
+        once: true,
+      })
       return
     }
 
+    // Different href: replace the previous Scalar stylesheet entirely.
     if (existing) {
       existing.remove()
     }
