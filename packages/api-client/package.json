@@ -36,11 +36,6 @@
   },
   "type": "module",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
     "./style.css": "./dist/style.css",
     "./tailwind.config.css": "./dist/styles/tailwind.config.css",
     "./vue-styles.css": "./dist/vue-styles.css",

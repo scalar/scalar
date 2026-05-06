@@ -13,7 +13,7 @@ const {
   workspaceStore,
   prefilledMessage,
 } = defineProps<{
-  agentScalarConfiguration: ApiReferenceConfigurationWithSource['agent']
+  agentScalarConfiguration?: ApiReferenceConfigurationWithSource['agent']
   externalUrls: ExternalUrls
   workspaceStore: WorkspaceStore
   prefilledMessage?: Ref<string>
