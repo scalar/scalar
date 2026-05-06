@@ -8,20 +8,52 @@
  *  - Send example request
  */
 export default {}
+
+export type OperationProps = {
+  /** The slug of the currently selected document in the workspace */
+  documentSlug: string
+  /** The currently active document */
+  document: WorkspaceDocument | null
+  /** The workspace event bus */
+  eventBus: WorkspaceEventBus
+  /** The layout of the client */
+  layout: ClientLayout
+  /** The API path currently selected (e.g. "/users/{id}") */
+  path?: string
+  /** The HTTP method for the currently selected API path (e.g. GET, POST) */
+  method?: HttpMethod
+  /** The name of the currently selected example (for examples within an endpoint) */
+  exampleName?: string
+  /** The currently active environment */
+  environment: XScalarEnvironment
+  /** The workspace store */
+  workspaceStore: WorkspaceStore
+  /** Client plugins */
+  plugins: ClientPlugin[]
+  /** App or modal options forwarded to operation/auth blocks */
+  options?: MaybeRefOrGetter<ApiClientOptions>
+}
 </script>
 
 <script setup lang="ts">
 import { isElectron } from '@scalar/helpers/general/is-electron'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { ClientPlugin } from '@scalar/oas-utils/helpers'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import {
   getActiveProxyUrl,
   getRequestExampleContext,
 } from '@scalar/workspace-store/request-example'
-import { computed, toValue } from 'vue'
+import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
+import { computed, toValue, type MaybeRefOrGetter } from 'vue'
 
 import { OperationBlock } from '@/v2/blocks/operation-block'
 import { APP_VERSION } from '@/v2/constants'
-import type { RouteProps } from '@/v2/features/app/helpers/routes'
 import { mapHiddenClientsConfig } from '@/v2/features/modal/helpers/map-hidden-clients-config'
+import type { ClientLayout } from '@/v2/types/layout'
+import type { ApiClientOptions } from '@/v2/types/options'
 
 const {
   document,
@@ -36,7 +68,7 @@ const {
   plugins,
   documentSlug,
 } = defineProps<
-  RouteProps & {
+  OperationProps & {
     /** Selected anyOf/oneOf request-body variants keyed by schema path */
     requestBodyCompositionSelection?: Record<string, number>
   }

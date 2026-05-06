@@ -25,10 +25,7 @@
   "scripts": {
     "build": "vite build && pnpm build:styles && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "build:styles": "cp -r src/styles dist && tailwindcss --optimize -i src/style.css -o dist/style.css && cat dist/vue-styles.css >> dist/style.css",
-    "dev": "pnpm playground:web",
-    "playground:app": "vite ./playground/app -c ./vite.config.ts",
-    "playground:modal": "vite ./playground/modal -c ./vite.config.ts",
-    "playground:web": "vite ./playground/web -c ./vite.config.ts",
+    "dev": "vite ./playground/modal -c ./vite.config.ts",
     "preview": "vite preview",
     "test": "vitest --run",
     "test:benchmark": "vitest bench",
@@ -142,41 +139,6 @@
       "types": "./dist/v2/components/sidebar/index.d.ts",
       "default": "./dist/v2/components/sidebar/index.js"
     },
-    "./v2/features/app": {
-      "import": "./dist/v2/features/app/index.js",
-      "types": "./dist/v2/features/app/index.d.ts",
-      "default": "./dist/v2/features/app/index.js"
-    },
-    "./v2/features/app/components": {
-      "import": "./dist/v2/features/app/components/index.js",
-      "types": "./dist/v2/features/app/components/index.d.ts",
-      "default": "./dist/v2/features/app/components/index.js"
-    },
-    "./v2/features/collection/components/Editor": {
-      "import": "./dist/v2/features/collection/components/Editor/index.js",
-      "types": "./dist/v2/features/collection/components/Editor/index.d.ts",
-      "default": "./dist/v2/features/collection/components/Editor/index.js"
-    },
-    "./v2/features/command-palette": {
-      "import": "./dist/v2/features/command-palette/index.js",
-      "types": "./dist/v2/features/command-palette/index.d.ts",
-      "default": "./dist/v2/features/command-palette/index.js"
-    },
-    "./v2/features/editor": {
-      "import": "./dist/v2/features/editor/index.js",
-      "types": "./dist/v2/features/editor/index.d.ts",
-      "default": "./dist/v2/features/editor/index.js"
-    },
-    "./v2/features/environments": {
-      "import": "./dist/v2/features/environments/index.js",
-      "types": "./dist/v2/features/environments/index.d.ts",
-      "default": "./dist/v2/features/environments/index.js"
-    },
-    "./v2/features/global-cookies": {
-      "import": "./dist/v2/features/global-cookies/index.js",
-      "types": "./dist/v2/features/global-cookies/index.d.ts",
-      "default": "./dist/v2/features/global-cookies/index.js"
-    },
     "./v2/features/modal": {
       "import": "./dist/v2/features/modal/index.js",
       "types": "./dist/v2/features/modal/index.d.ts",
@@ -191,11 +153,6 @@
       "import": "./dist/v2/features/search/index.js",
       "types": "./dist/v2/features/search/index.d.ts",
       "default": "./dist/v2/features/search/index.js"
-    },
-    "./v2/features/settings": {
-      "import": "./dist/v2/features/settings/index.js",
-      "types": "./dist/v2/features/settings/index.d.ts",
-      "default": "./dist/v2/features/settings/index.js"
     },
     "./blocks/operation-block": {
       "import": "./dist/v2/blocks/operation-block/index.js",
@@ -272,40 +229,10 @@
       "types": "./dist/v2/components/sidebar/index.d.ts",
       "default": "./dist/v2/components/sidebar/index.js"
     },
-    "./app": {
-      "import": "./dist/v2/features/app/index.js",
-      "types": "./dist/v2/features/app/index.d.ts",
-      "default": "./dist/v2/features/app/index.js"
-    },
     "./modal": {
       "import": "./dist/v2/features/modal/index.js",
       "types": "./dist/v2/features/modal/index.d.ts",
       "default": "./dist/v2/features/modal/index.js"
-    },
-    "./features/collection/components/Editor": {
-      "import": "./dist/v2/features/collection/components/Editor/index.js",
-      "types": "./dist/v2/features/collection/components/Editor/index.d.ts",
-      "default": "./dist/v2/features/collection/components/Editor/index.js"
-    },
-    "./features/command-palette": {
-      "import": "./dist/v2/features/command-palette/index.js",
-      "types": "./dist/v2/features/command-palette/index.d.ts",
-      "default": "./dist/v2/features/command-palette/index.js"
-    },
-    "./features/editor": {
-      "import": "./dist/v2/features/editor/index.js",
-      "types": "./dist/v2/features/editor/index.d.ts",
-      "default": "./dist/v2/features/editor/index.js"
-    },
-    "./features/environments": {
-      "import": "./dist/v2/features/environments/index.js",
-      "types": "./dist/v2/features/environments/index.d.ts",
-      "default": "./dist/v2/features/environments/index.js"
-    },
-    "./features/global-cookies": {
-      "import": "./dist/v2/features/global-cookies/index.js",
-      "types": "./dist/v2/features/global-cookies/index.d.ts",
-      "default": "./dist/v2/features/global-cookies/index.js"
     },
     "./features/operation": {
       "import": "./dist/v2/features/operation/index.js",
@@ -316,11 +243,6 @@
       "import": "./dist/v2/features/search/index.js",
       "types": "./dist/v2/features/search/index.d.ts",
       "default": "./dist/v2/features/search/index.js"
-    },
-    "./features/settings": {
-      "import": "./dist/v2/features/settings/index.js",
-      "types": "./dist/v2/features/settings/index.d.ts",
-      "default": "./dist/v2/features/settings/index.js"
     }
   },
   "files": [

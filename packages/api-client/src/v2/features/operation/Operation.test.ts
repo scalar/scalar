@@ -3,8 +3,7 @@ import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import type { RouteProps } from '../app/helpers/routes'
-import Operation from './Operation.vue'
+import Operation, { type OperationProps } from './Operation.vue'
 
 describe('Operation', () => {
   const eventBus = createWorkspaceEventBus()
@@ -44,9 +43,9 @@ describe('Operation', () => {
     'x-scalar-navigation': defaultNavigation,
   }
 
-  const getDefaultProps = (): RouteProps => {
+  const getDefaultProps = (): OperationProps => {
     return {
-      document: defaultDocument as any,
+      document: defaultDocument,
       layout: 'web',
       eventBus,
       path: '/pets',
@@ -59,16 +58,12 @@ describe('Operation', () => {
       },
       workspaceStore: createWorkspaceStore(),
       documentSlug: 'test-document',
-      activeWorkspace: {
-        id: 'test-workspace',
-        label: 'Test Workspace',
-      },
       plugins: [],
     }
   }
 
-  const render = (overrides: Partial<RouteProps> = {}) => {
-    const props = { ...getDefaultProps(), ...overrides } as RouteProps
+  const render = (overrides: Partial<OperationProps> = {}) => {
+    const props = { ...getDefaultProps(), ...overrides } as OperationProps
 
     return mount(Operation, {
       props,
@@ -124,7 +119,7 @@ describe('Operation', () => {
     const wrapper = render({ ...defaultProps, document })
 
     const oc = wrapper.getComponent({ name: 'OperationBlock' })
-    const props = oc.props() as any
+    const props = oc.props()
     expect(props.securityRequirements).toEqual([{ apiKeyAuth: [] }])
     expect(props.selectedSecurity).toEqual({
       selectedIndex: 0,
@@ -194,7 +189,7 @@ describe('Operation', () => {
     const wrapper = render({ ...defaultProps, document })
 
     const oc = wrapper.getComponent({ name: 'OperationBlock' })
-    const props = oc.props() as any
+    const props = oc.props()
     expect(props.securityRequirements).toEqual([
       {
         bearerAuth: [],

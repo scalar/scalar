@@ -1,8 +1,4 @@
 <script lang="ts">
-import type { MaybeRefOrGetter } from 'vue'
-
-import type { ApiClientOptions } from '@/v2/types/options'
-
 export type ModalProps = {
   /** The workspace store must be initialized and passed in */
   workspaceStore: WorkspaceStore
@@ -51,6 +47,7 @@ import {
   ref,
   watch,
   type ComputedRef,
+  type MaybeRefOrGetter,
   type Ref,
 } from 'vue'
 
@@ -61,7 +58,7 @@ import { initializeModalEvents } from '@/v2/features/modal/modal-events'
 import Operation from '@/v2/features/operation/Operation.vue'
 import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
 import { useScrollLock } from '@/v2/hooks/use-scroll-lock'
-import type { ApiClientOptionsRef } from '@/v2/types/options'
+import type { ApiClientOptions, ApiClientOptionsRef } from '@/v2/types/options'
 
 const {
   document,

@@ -2,7 +2,6 @@ import { resolve } from 'node:path'
 
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
-import monacoEditorPlugin from 'vite-plugin-monaco-editor-esm'
 import svgLoader from 'vite-svg-loader'
 import { defineConfig } from 'vitest/config'
 
@@ -18,20 +17,7 @@ const entryPaths = await findEntryPoints()
 const entry = createLibEntry(entryPaths, import.meta.dirname)
 
 export default defineConfig({
-  plugins: [
-    vue(),
-    tailwindcss(),
-    svgLoader(),
-    monacoEditorPlugin({
-      languageWorkers: ['json', 'editorWorkerService', 'typescript'],
-      customWorkers: [
-        {
-          label: 'yaml',
-          entry: 'monaco-yaml/yaml.worker',
-        },
-      ],
-    }),
-  ],
+  plugins: [vue(), tailwindcss(), svgLoader()],
   define: {
     PACKAGE_VERSION: JSON.stringify(process.env.npm_package_version),
   },
@@ -75,11 +61,5 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: './test/vitest.setup.ts',
-    alias: [
-      {
-        find: /^monaco-editor$/,
-        replacement: resolve(import.meta.dirname, 'node_modules/monaco-editor/esm/vs/editor/editor.api'),
-      },
-    ],
   },
 })
