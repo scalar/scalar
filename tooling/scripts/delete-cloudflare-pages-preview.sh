@@ -1,4 +1,25 @@
 #!/usr/bin/env bash
+#
+# Delete all Cloudflare Pages preview deployments for a given PR branch.
+#
+# Each push to a PR creates a new immutable Cloudflare Pages deployment under
+# the `pr-<number>` branch alias. Cloudflare keeps every deployment around
+# forever, so once a PR is closed or merged we want to clean up after
+# ourselves and remove all of its preview deployments — both the latest one
+# pointed at by the branch alias and every prior unique-hash deployment in
+# the history.
+#
+# This script paginates through the project's preview deployments, filters
+# them down to the ones whose trigger branch matches $BRANCH (e.g. `pr-9101`),
+# and deletes each one via the Cloudflare API. It is typically invoked from
+# the `pull_request: closed` workflow, but can also be run locally to prune
+# stale previews.
+#
+# Required environment variables:
+#   CLOUDFLARE_API_TOKEN   API token with Pages:Edit permission
+#   CLOUDFLARE_ACCOUNT_ID  Cloudflare account ID that owns the project
+#   PROJECT_NAME           Cloudflare Pages project name (the preview project)
+#   BRANCH                 Branch alias to clean up (e.g. `pr-9101`)
 set -euo pipefail
 
 : "${CLOUDFLARE_API_TOKEN:?Missing CLOUDFLARE_API_TOKEN}"
