@@ -1,4 +1,5 @@
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
+import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { ConfigDefaults, PostHog } from 'posthog-js'
 import ph from 'posthog-js'
 
@@ -35,7 +36,7 @@ export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
       'log:user-logout': () => {
         posthog?.reset()
       },
-      '*': (event, payload) => {
+      '*': (event: keyof ApiReferenceEvents, payload: ApiReferenceEvents[keyof ApiReferenceEvents]) => {
         // We dont want to duplciate any events from above
         if (event === 'log:user-login' || event === 'log:user-logout') {
           return

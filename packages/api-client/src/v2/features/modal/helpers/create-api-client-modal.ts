@@ -2,8 +2,9 @@ import { type ModalState, useModal } from '@scalar/components'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import {
+  type ApiReferenceEvents,
   type EventGlob,
-  type WildcardListener,
+  type GlobListener,
   type WorkspaceEventBus,
   createWorkspaceEventBus,
 } from '@scalar/workspace-store/events'
@@ -135,17 +136,20 @@ export const createApiClientModal = ({
       // Exact-key handlers — a single glob listener dispatches to the correct
       // handler by looking up the event name, avoiding N individual subscriptions
       pluginUnsubscribes.push(
-        eventBus.onGlob('*', (event, payload) => {
-          const handler = on[event]
-          handler?.(payload as never)
-        }),
+        eventBus.onGlob(
+          '*',
+          (event: keyof ApiReferenceEvents, payload: ApiReferenceEvents[keyof ApiReferenceEvents]) => {
+            const handler = on[event] as ((payload: ApiReferenceEvents[keyof ApiReferenceEvents]) => void) | undefined
+            handler?.(payload)
+          },
+        ),
       )
 
       // Glob handlers ('*', 'prefix:*') get their own onGlob subscription
       for (const key of Object.keys(on)) {
         if (key === '*' || key.endsWith(':*')) {
           const pattern = key as EventGlob
-          const handler = on[pattern] as WildcardListener
+          const handler = on[pattern] as GlobListener<typeof pattern>
           pluginUnsubscribes.push(eventBus.onGlob(pattern, handler))
         }
       }

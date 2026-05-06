@@ -1,4 +1,10 @@
-export { type EventGlob, type WildcardListener, type WorkspaceEventBus, createWorkspaceEventBus } from './bus'
+export {
+  type EventGlob,
+  type GlobListener,
+  type WildcardListener,
+  type WorkspaceEventBus,
+  createWorkspaceEventBus,
+} from './bus'
 export type {
   ApiReferenceEvents,
   AuthMeta,

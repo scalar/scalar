@@ -123,7 +123,7 @@ describe('posthog-plugin', () => {
     plugin.lifecycle?.onInit?.()
 
     mockPostHogInstance.reset.mockClear()
-    plugin.on?.['log:user-logout']?.()
+    plugin.on?.['log:user-logout']?.(undefined)
 
     expect(mockPostHogInstance.reset).toHaveBeenCalled()
   })

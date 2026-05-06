@@ -1,4 +1,4 @@
-import type { ApiReferenceEvents, EventGlob, WildcardListener } from '@scalar/workspace-store/events'
+import type { ApiReferenceEvents, EventGlob, GlobListener } from '@scalar/workspace-store/events'
 import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
@@ -144,7 +144,7 @@ export type ClientPlugin = {
    */
   on?: Partial<
     { [K in keyof ApiReferenceEvents]: (payload: ApiReferenceEvents[K]) => void } & {
-      [G in EventGlob]: WildcardListener
+      [G in EventGlob]: GlobListener<G>
     }
   >
   /** Custom response body handlers for specific content types */

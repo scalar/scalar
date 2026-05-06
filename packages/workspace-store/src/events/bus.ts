@@ -44,6 +44,34 @@ export type WildcardListener = {
 }[keyof ApiReferenceEvents]
 
 /**
+ * Narrows a WildcardListener to only the events matched by a specific glob pattern.
+ *
+ * - `'*'` matches every event (equivalent to WildcardListener).
+ * - `'prefix:*'` matches only events whose key starts with `'prefix:'`.
+ *
+ * This gives full type safety when writing glob handlers in ClientPlugin.on:
+ * the `event` parameter is narrowed to matching keys, and `payload` is narrowed
+ * to the corresponding payload type via the discriminated union.
+ *
+ * @example
+ * on: {
+ *   'operation:*': (event, payload) => {
+ *     // event is narrowed to 'operation:create:operation' | 'operation:delete:operation' | ...
+ *     // payload is narrowed based on event
+ *   }
+ * }
+ */
+export type GlobListener<G extends EventGlob> = G extends '*'
+  ? WildcardListener
+  : G extends `${infer Prefix}:*`
+    ? {
+        [E in keyof ApiReferenceEvents as E extends `${Prefix}:${string}` ? E : never]: WildcardListenerBranch<E>
+      }[keyof {
+        [E in keyof ApiReferenceEvents as E extends `${Prefix}:${string}` ? E : never]: WildcardListenerBranch<E>
+      }]
+    : never
+
+/**
  * Helper type for event listeners that makes the payload optional
  * if the event allows undefined, otherwise requires it.
  */
