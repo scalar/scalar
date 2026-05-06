@@ -43,7 +43,7 @@ import { getRouteParam } from '@/features/app/helpers/get-route-param'
 import { groupWorkspacesByTeam } from '@/features/app/helpers/group-workspaces'
 import { useTheme } from '@/features/app/hooks/use-theme'
 import { getTabDetails } from '@/helpers/get-tab-details'
-import { workspaceStorage } from '@/v2/helpers/storage'
+import { workspaceStorage } from '@/helpers/storage'
 
 import { initializeAppEventHandlers } from './app-events'
 import { canLoadWorkspace, filterWorkspacesByTeam } from './helpers/filter-workspaces'

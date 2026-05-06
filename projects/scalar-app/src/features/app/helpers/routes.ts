@@ -1,5 +1,5 @@
 import { Operation } from '@scalar/api-client/features/operation'
-import type { ClientLayout } from '@scalar/api-client/types'
+import type { ApiClientOptions, ClientLayout } from '@scalar/api-client/types'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { mergeSearchParams } from '@scalar/helpers/url/merge-urls'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
@@ -11,7 +11,6 @@ import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspac
 import type { MaybeRefOrGetter } from 'vue'
 import type { RouteRecordRaw } from 'vue-router'
 
-import type { RegistryAdapter } from '@/types/configuration'
 import Authentication from '@/features/collection/components/Authentication.vue'
 import Cookies from '@/features/collection/components/Cookies.vue'
 import { Editor } from '@/features/collection/components/Editor'
@@ -24,8 +23,8 @@ import Settings from '@/features/collection/components/Settings.vue'
 import DocumentCollection from '@/features/collection/DocumentCollection.vue'
 import OperationCollection from '@/features/collection/OperationCollection.vue'
 import WorkspaceCollection from '@/features/collection/WorkspaceCollection.vue'
-import { workspaceStorage } from '@/v2/helpers/storage'
-import type { ApiClientOptions } from '@/v2/types/options'
+import { workspaceStorage } from '@/helpers/storage'
+import type { RegistryAdapter } from '@/types/configuration'
 
 /** These props are provided at the route level */
 export type RouteProps = {

@@ -8,7 +8,9 @@ export default {}
 </script>
 
 <script setup lang="ts">
+import { SidebarToggle } from '@scalar/api-client/components/sidebar'
 import type { ClientLayout } from '@scalar/api-client/types'
+import { useGlobalHotKeys } from '@scalar/api-client/v2/hooks'
 import { ScalarModal, ScalarTeleportRoot, useModal } from '@scalar/components'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
@@ -16,11 +18,6 @@ import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import { computed, onBeforeUnmount, toValue, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
-import type {
-  RegistryAdapter,
-  RegistryDocumentsState,
-} from '@/types/configuration'
-import { SidebarToggle } from '@/v2/components/sidebar'
 import AppHeader from '@/features/app/components/AppHeader.vue'
 import AppHeaderActions from '@/features/app/components/AppHeaderActions.vue'
 import AppSidebar from '@/features/app/components/AppSidebar.vue'
@@ -35,8 +32,11 @@ import { useDocumentWatcher } from '@/features/app/hooks/use-document-watcher'
 import type { CommandPaletteState } from '@/features/command-palette/hooks/use-command-palette-state'
 import TheCommandPalette from '@/features/command-palette/TheCommandPalette.vue'
 import { useMonacoEditorConfiguration } from '@/features/editor'
-import { useColorMode } from '@/v2/hooks/use-color-mode'
-import { useGlobalHotKeys } from '@/v2/hooks/use-global-hot-keys'
+import { useColorMode } from '@/hooks/use-color-mode'
+import type {
+  RegistryAdapter,
+  RegistryDocumentsState,
+} from '@/types/configuration'
 
 import type { AppState } from './app-state'
 import DesktopTabs from './components/DesktopTabs.vue'

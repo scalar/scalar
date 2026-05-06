@@ -2741,6 +2741,9 @@ importers:
       '@vitejs/plugin-vue':
         specifier: catalog:*
         version: 6.0.5(vite@8.0.0(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.30(typescript@5.9.3))
+      '@vue/test-utils':
+        specifier: catalog:*
+        version: 2.4.6
       electron:
         specifier: 41.2.2
         version: 41.2.2

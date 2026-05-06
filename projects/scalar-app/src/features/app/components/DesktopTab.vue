@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ContextMenu } from '@scalar/api-client/components/context-menu'
 import {
   ScalarDropdownButton,
   ScalarDropdownDivider,
@@ -20,8 +21,6 @@ import {
 import type { ScalarIconComponent } from '@scalar/icons/types'
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace'
 import { computed } from 'vue'
-
-import { ContextMenu } from '@/v2/components/context-menu'
 
 const {
   hotkey,

@@ -17,5 +17,6 @@ export const appState = await createAppState({
   telemetryDefault: true,
   options: {
     customFetch,
+    oauth2RedirectUri: '',
   },
 })

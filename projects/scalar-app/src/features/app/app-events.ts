@@ -1,3 +1,4 @@
+import { initializeWorkspaceEventHandlers } from '@scalar/api-client/v2/workspace-events'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { OperationExampleMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -5,7 +6,6 @@ import { type ShallowRef, computed } from 'vue'
 import { type NavigationFailure, NavigationFailureType, type Router } from 'vue-router'
 
 import type { ScalarClientAppRouteParams } from '@/features/app/helpers/routes'
-import { initializeWorkspaceEventHandlers } from '@/v2/workspace-events'
 
 export function initializeAppEventHandlers({
   eventBus,

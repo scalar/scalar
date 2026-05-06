@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { Resize } from '@scalar/api-client/components/resize'
+import DeleteSidebarListElement from '@scalar/api-client/components/Sidebar'
+import { DocumentSearchModal } from '@scalar/api-client/features/search'
 import {
   ScalarIconButton,
   ScalarModal,
@@ -21,7 +24,6 @@ import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 
-import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import type { AppState } from '@/features/app'
 import SidebarDocument from '@/features/app/components/SidebarDocument.vue'
 import SidebarItemMenu from '@/features/app/components/SidebarItemMenu.vue'
@@ -33,14 +35,12 @@ import {
   useSidebarDocuments,
   type SidebarDocumentItem,
 } from '@/features/app/hooks/use-sidebar-documents'
+import { dragHandleFactory } from '@/helpers/drag-handle-factory'
 import { safeRun } from '@/helpers/safe-run'
 import type {
   ImportDocumentFromRegistry,
   RegistryDocumentsState,
 } from '@/types/configuration'
-import { Resize } from '@/v2/components/resize'
-import { DocumentSearchModal } from '@/v2/features/search'
-import { dragHandleFactory } from '@/v2/helpers/drag-handle-factory'
 
 const {
   app,

@@ -3,13 +3,13 @@
   instead of a file upload slot
 -->
 <script setup lang="ts">
-import { CommandPaletteImport as BaseCommandPaletteImport } from '@scalar/api-client/v2/features/command-palette'
 import { ScalarButton } from '@scalar/components'
 import { ScalarIconUpload } from '@scalar/icons'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { ref } from 'vue'
 
+import { CommandPaletteImport as BaseCommandPaletteImport } from '@/features/command-palette'
 import { readFiles } from '@/loaders/read-files'
 
 const { workspaceStore, eventBus } = defineProps<{

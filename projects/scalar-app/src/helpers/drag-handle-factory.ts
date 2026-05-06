@@ -1,3 +1,4 @@
+import { getResolvedRefDeep } from '@scalar/api-client/blocks/operation-code-sample'
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
@@ -16,8 +17,6 @@ import type {
 import type { TagObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import { type MaybeRefOrGetter, toValue } from 'vue'
-
-import { getResolvedRefDeep } from '@/v2/blocks/operation-code-sample/helpers/get-resolved-ref-deep'
 
 /**
  * Reorders items in an array by moving an item from one index to another,
