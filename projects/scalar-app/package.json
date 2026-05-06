@@ -65,8 +65,7 @@
     "monaco-editor": "catalog:*",
     "monaco-yaml": "catalog:*",
     "posthog-js": "catalog:*",
-    "undici": "catalog:*",
-    "vite-plugin-monaco-editor": "catalog:*"
+    "undici": "catalog:*"
   },
   "devDependencies": {
     "@playwright/test": "catalog:*",
@@ -77,6 +76,8 @@
     "electron": "41.2.2",
     "electron-vite": "6.0.0-beta.1",
     "vite": "catalog:*",
-    "vue": "catalog:*"
+    "vue": "catalog:*",
+    "vite-plugin-monaco-editor": "catalog:*",
+    "vite-plugin-monaco-editor-esm": "catalog:*"
   }
 }
