@@ -1097,4 +1097,34 @@ describe('CommandPaletteRequest', () => {
       expect.objectContaining({ documentName: 'acme-v0' }),
     )
   })
+
+  it('blocks submit and shows a blocker when an AsyncAPI document is selected', async () => {
+    // Operation creation is OpenAPI-only — selecting an AsyncAPI document must
+    // surface an explicit error and prevent operation:create:operation from
+    // being emitted, even when the rest of the form looks valid.
+    const workspaceStore = await createMockWorkspaceStore({
+      'streetlights': { asyncapi: '3.0.0', info: { title: 'Streetlights', version: '1.0.0' } },
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteRequest, {
+      props: { workspaceStore, eventBus },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', '/users')
+    await nextTick()
+
+    const errorAlert = wrapper.find('[data-testid="command-palette-request-error"]')
+    expect(errorAlert.exists()).toBe(true)
+    expect(errorAlert.text()).toContain('AsyncAPI')
+
+    const form = wrapper.findComponent({ name: 'CommandActionForm' })
+    expect(form.props('disabled')).toBe(true)
+
+    await form.vm.$emit('submit')
+    await nextTick()
+
+    expect(eventBus.emit).not.toHaveBeenCalledWith('operation:create:operation', expect.anything())
+  })
 })

@@ -92,6 +92,13 @@ const errorMessage: ComputedRef<string | null> = computed(() => {
 
   const document = workspaceStore.workspace.documents[selectedDocument.value.id]
 
+  // cURL imports translate into OpenAPI operations — block AsyncAPI targets
+  // explicitly so the disabled submit button explains itself and the
+  // operation:create:operation event cannot fire against the wrong document.
+  if (document && !isOpenApiDocument(document)) {
+    return `"${selectedDocument.value.label}" is an AsyncAPI document. cURL imports can only target OpenAPI documents.`
+  }
+
   if (isOpenApiDocument(document) && document.paths?.[path]?.[method]) {
     return `A ${method.toUpperCase()} operation at "${path}" already exists in "${selectedDocument.value.label}". Importing this cURL would conflict with it.`
   }
@@ -119,6 +126,14 @@ const handleImportClick = (): void => {
   const documentName = selectedDocument.value
 
   if (isDisabled.value || !documentName) {
+    return
+  }
+
+  // Defensive guard — `errorMessage` blocks AsyncAPI selections via the
+  // disabled submit, but re-check here so we never emit the OpenAPI-only
+  // operation:create:operation event with an AsyncAPI target.
+  const document = workspaceStore.workspace.documents[documentName.id]
+  if (!isOpenApiDocument(document)) {
     return
   }
 

@@ -913,4 +913,40 @@ describe('CommandPaletteImportCurl', () => {
 
     expect(wrapper.emitted('close')).toHaveLength(1)
   })
+
+  it('blocks import and shows a blocker when the only document is AsyncAPI', async () => {
+    // cURL imports translate into OpenAPI operations — selecting an AsyncAPI
+    // document must surface an explicit error and prevent the
+    // operation:create:operation event from firing.
+    const workspaceStore = createWorkspaceStore()
+    await workspaceStore.addDocument({
+      name: 'streetlights',
+      document: { asyncapi: '3.0.0', info: { title: 'Streetlights', version: '1.0.0' } },
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteImportCurl, {
+      props: {
+        workspaceStore,
+        eventBus,
+        inputValue: 'curl https://example.com/users',
+      },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', 'example-1')
+    await nextTick()
+
+    const errorAlert = wrapper.find('[data-testid="command-palette-import-curl-error"]')
+    expect(errorAlert.exists()).toBe(true)
+    expect(errorAlert.text()).toContain('AsyncAPI')
+
+    const form = wrapper.findComponent({ name: 'CommandActionForm' })
+    expect(form.props('disabled')).toBe(true)
+
+    await form.vm.$emit('submit')
+    await nextTick()
+
+    expect(eventBus.emit).not.toHaveBeenCalledWith('operation:create:operation', expect.anything())
+  })
 })

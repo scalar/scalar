@@ -182,17 +182,25 @@ const errorMessage: ComputedRef<string | null> = computed(() => {
     workspaceStore.workspace.documents[selectedDocumentName.value]
   const method = selectedMethod.value.method
 
+  const documentLabel =
+    availableDocuments.value.find(
+      (doc) =>
+        doc.id === selectedDocumentName.value ||
+        doc.versions?.some((v) => v.id === selectedDocumentName.value),
+    )?.label ?? selectedDocumentName.value
+
+  // Operation creation is OpenAPI-only. When the user selects an AsyncAPI
+  // document we surface an explicit blocker so the disabled submit button
+  // is not confusing — letting it fall through silently would also let the
+  // operation:create:operation event fire against the wrong document type.
+  if (document && !isOpenApiDocument(document)) {
+    return `"${documentLabel}" is an AsyncAPI document. Requests can only be created in OpenAPI documents.`
+  }
+
   if (
     isOpenApiDocument(document) &&
     document.paths?.[normalizedRequestPath.value]?.[method]
   ) {
-    const documentLabel =
-      availableDocuments.value.find(
-        (doc) =>
-          doc.id === selectedDocumentName.value ||
-          doc.versions?.some((v) => v.id === selectedDocumentName.value),
-      )?.label ?? selectedDocumentName.value
-
     return `A ${method.toUpperCase()} operation at "${normalizedRequestPath.value}" already exists in "${documentLabel}". Try a different path or method.`
   }
 
@@ -242,7 +250,10 @@ const handleSubmit = (): void => {
   const documentName = selectedDocumentName.value
   const document = workspaceStore.workspace.documents[documentName]
 
-  if (!document) {
+  // Defensive guard — `errorMessage` already blocks submission for AsyncAPI
+  // documents, but the dropdown can still surface them so we re-check here
+  // before emitting the OpenAPI-only operation:create:operation event.
+  if (!isOpenApiDocument(document)) {
     return
   }
 
