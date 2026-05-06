@@ -1286,15 +1286,15 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return console.error(`Document '${documentName}' does not exist in the workspace.`)
       }
 
-      const isOas = isOpenApiDocument(currentDocument)
-
       // Replace the whole document
       await addInMemoryDocument({
         name: documentName,
         document: input,
-        // Preserve the current metadata
-        documentSource: isOas ? currentDocument['x-scalar-original-source-url'] : undefined,
-        documentHash: isOas ? (currentDocument['x-scalar-original-document-hash'] ?? '') : '',
+        // Preserve the current metadata. Source url, document hash, and
+        // registry meta are typed identically on the OpenAPI and AsyncAPI
+        // document shapes, so the union access does not need narrowing.
+        documentSource: currentDocument['x-scalar-original-source-url'],
+        documentHash: currentDocument['x-scalar-original-document-hash'],
         meta: {
           // Preserve the registry meta
           'x-scalar-registry-meta': currentDocument['x-scalar-registry-meta'],
@@ -1394,7 +1394,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         name: documentName,
         document: baseline,
         documentSource: workspaceDocument['x-scalar-original-source-url'],
-        documentHash: workspaceDocument['x-scalar-original-document-hash'] ?? '',
+        documentHash: workspaceDocument['x-scalar-original-document-hash'],
         initialize: false,
         meta: {
           // Preserve the registry meta

@@ -24,6 +24,10 @@ describe('asyncapi-document', () => {
           title: 'Streetlights API',
           version: '1.0.0',
         },
+        // Workspace-store-managed metadata shared with OpenAPI documents.
+        // The hash is required at the schema level even though AsyncAPI does
+        // not yet exercise hash-based change detection.
+        'x-scalar-original-document-hash': '',
       }
 
       const result = coerce(AsyncApiDocument, validInput)
@@ -39,6 +43,7 @@ describe('asyncapi-document', () => {
           version: '1.0.0',
           description: 'Turn the lights on and off.',
         },
+        'x-scalar-original-document-hash': '',
       }
 
       const result = coerce(AsyncApiDocument, validInput)
