@@ -1,9 +1,16 @@
 {
   "name": "scalar-app",
   "description": "HTTP Client to play with any API",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "projects/scalar-app"
+  },
   "version": "1.0.8",
-  "author": "Copyright API Documentation Inc. 2026",
-  "license": "UNLICENSED",
   "private": true,
   "engines": {
     "node": ">=20"
@@ -16,9 +23,9 @@
     "dev:app": "electron-vite dev",
     "dev:app:update": "electron-vite dev -- --runtime-simulate-updates=update-available",
     "dev:web": "vite",
+    "lint:fix": "biome check --write --unsafe && pnpm eslint \"**/*.vue\" --fix",
     "preview:app": "electron-vite preview",
     "preview:web": "vite preview",
-    "lint:fix": "biome check --write --unsafe && pnpm eslint \"**/*.vue\" --fix",
     "test": "vitest",
     "test:e2e": "playwright test",
     "todesktop:build": "todesktop build",
@@ -33,13 +40,6 @@
   },
   "type": "module",
   "main": "./dist/main/index.js",
-  "homepage": "https://github.com/scalar/scalar",
-  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "projects/scalar-app"
-  },
   "dependencies": {
     "@electron-toolkit/utils": "^4.0.0",
     "@scalar/api-client": "workspace:*",
