@@ -28,7 +28,7 @@ describe('ssr-html-attrs', () => {
     }))
     vi.doMock('@unhead/vue/server', () => ({
       createHead: (options?: { init?: Array<{ htmlAttrs?: { lang?: string } }> }) => ({ options }),
-      renderSSRHead: async (head: { options?: { init?: Array<{ htmlAttrs?: { lang?: string } }> } }) => {
+      renderSSRHead: (head: { options?: { init?: Array<{ htmlAttrs?: { lang?: string } }> } }) => {
         const lang = head.options?.init?.[0]?.htmlAttrs?.lang
         const langAttribute = lang ? ` lang="${lang}"` : ''
 
