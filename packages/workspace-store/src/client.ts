@@ -726,13 +726,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               // Don't mark as dirty when the document is first created or when
               // only metadata-only fields change. `x-scalar-registry-meta` is
               // updated programmatically (commit hash, conflict cache) and
-              // does not represent a user edit. AsyncAPI documents do not
-              // participate in dirty tracking.
-              if (
-                isOpenApiDocument(document) &&
-                event.path.length > 0 &&
-                !METADATA_ONLY_DOCUMENT_KEYS.has(event.path[0] as string)
-              ) {
+              // does not represent a user edit.
+              if (event.path.length > 0 && !METADATA_ONLY_DOCUMENT_KEYS.has(event.path[0] as string)) {
                 // The document has been modified since it was last saved
                 document['x-scalar-is-dirty'] = true
               }
@@ -760,13 +755,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               // Don't mark as dirty when the document is first created or when
               // only metadata-only fields change. `x-scalar-registry-meta` is
               // updated programmatically (commit hash, conflict cache) and
-              // does not represent a user edit. AsyncAPI documents do not
-              // participate in dirty tracking.
-              if (
-                isOpenApiDocument(document) &&
-                event.path.length > 0 &&
-                !METADATA_ONLY_DOCUMENT_KEYS.has(event.path[0] as string)
-              ) {
+              // does not represent a user edit.
+              if (event.path.length > 0 && !METADATA_ONLY_DOCUMENT_KEYS.has(event.path[0] as string)) {
                 // The document has been modified since it was last saved
                 document['x-scalar-is-dirty'] = true
               }
@@ -962,9 +952,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     originalDocuments[documentName] = newDocument
     intermediateDocuments[documentName] = deepClone(newDocument)
     // Mark the document as not dirty since we are saving it
-    if (isOpenApiDocument(activeDocument)) {
-      activeDocument['x-scalar-is-dirty'] = false
-    }
+    activeDocument['x-scalar-is-dirty'] = false
     return true
   }
 
