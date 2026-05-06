@@ -28,7 +28,13 @@ const DEFAULT_CONFIGURATION: Partial<HtmlRenderingConfiguration> = {
   // _integration: 'astro',
 }
 
-const { configuration, renderMode = 'static', mountElementId = 'scalar-app' }: Props = Astro.props
+// Generate a unique id per render so multiple `<ScalarComponent />` instances
+// on the same page do not collide on the default mount id.
+const {
+  configuration,
+  renderMode = 'static',
+  mountElementId = `scalar-app-${crypto.randomUUID()}`,
+}: Props = Astro.props
 
 const finalConfiguration = {
   ...DEFAULT_CONFIGURATION,

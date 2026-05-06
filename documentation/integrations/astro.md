@@ -116,4 +116,4 @@ import { ScalarComponent } from '@scalar/astro'
 #### Client render mode options
 
 - `renderMode`: `'static' | 'client'` (defaults to `'static'`)
-- `mountElementId`: custom mount element id for client mode (defaults to `'scalar-app'`)
+- `mountElementId`: custom mount element id for client mode (defaults to a random `scalar-app-<uuid>` so multiple components on the same page do not collide)
