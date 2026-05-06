@@ -907,6 +907,7 @@ jobs:
     needs: [build, check-changes]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 15
+    environment: ${{ github.event_name == 'pull_request' && 'staging' || 'production' }}
     permissions:
       contents: read
     steps:
@@ -916,12 +917,9 @@ jobs:
         with:
           packages: 'scalar-app...'
         env:
-          # Web UI
-          VITE_DASHBOARD_URL: 'https://dashboard.scalar.com'
-          # Public/documented API
-          VITE_API_URL: 'https://api.scalar.com'
-          # Internal API, used for the Web UI
-          VITE_SERVICES_URL: 'https://services.scalar.com'
+          VITE_DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
+          VITE_API_URL: ${{ vars.API_URL }}
+          VITE_SERVICES_URL: ${{ vars.SERVICES_URL }}
       - name: Check ToDesktop credentials
         id: todesktop-credentials
         env:
