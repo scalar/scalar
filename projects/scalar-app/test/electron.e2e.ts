@@ -32,6 +32,12 @@ test.describe('Electron', () => {
   )
 
   test('launch app', async () => {
+    // GitHub Actions and the Playwright Docker image are headless Linux: Electron needs X11/Wayland.
+    test.skip(
+      Boolean(process.env.CI),
+      'Electron needs a display server. Run locally: pnpm --filter scalar-app exec playwright test test/electron.e2e.ts',
+    )
+
     // Check whether the build was found
     const cwd = findFolder()
 

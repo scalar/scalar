@@ -48,6 +48,15 @@ export default defineConfig({
   forbidOnly: CI,
   retries: CI ? 1 : 0,
   reporter,
+  /** Basename-only `{testFilePath}` omits `test/`; keep artifacts under `test/`. */
+  snapshotPathTemplate: 'test/{testFileName}-snapshots/{arg}{ext}',
+  expect: {
+    toHaveScreenshot: {
+      scale: 'device',
+      maxDiffPixelRatio: 0.001,
+    },
+    timeout: 30_000,
+  },
   /**
    * Outside CI: Playwright test runner connects to browsers in Docker (`getDockerServer`).
    * In CI: tests run inside the `playwright-runner` job container; only start Vite here.
@@ -55,6 +64,7 @@ export default defineConfig({
   webServer: CI ? [viteWebPlayground] : [getDockerServer(), viteWebPlayground],
   use: {
     baseURL: CI || isLinux ? `http://localhost:${APP_PORT}/` : `http://host.docker.internal:${APP_PORT}/`,
+    deviceScaleFactor: 2,
     trace: 'on-first-retry',
     screenshot: { mode: 'only-on-failure' },
   },
