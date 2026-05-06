@@ -139,6 +139,16 @@
       "types": "./dist/v2/components/sidebar/index.d.ts",
       "default": "./dist/v2/components/sidebar/index.js"
     },
+    "./v2/features/command-palette": {
+      "import": "./dist/v2/features/command-palette/index.js",
+      "types": "./dist/v2/features/command-palette/index.d.ts",
+      "default": "./dist/v2/features/command-palette/index.js"
+    },
+    "./v2/features/environments": {
+      "import": "./dist/v2/features/environments/index.js",
+      "types": "./dist/v2/features/environments/index.d.ts",
+      "default": "./dist/v2/features/environments/index.js"
+    },
     "./v2/features/modal": {
       "import": "./dist/v2/features/modal/index.js",
       "types": "./dist/v2/features/modal/index.d.ts",
