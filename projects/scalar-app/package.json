@@ -90,6 +90,7 @@
     "@vue/test-utils": "catalog:*",
     "electron": "41.2.2",
     "electron-vite": "6.0.0-beta.1",
+    "fake-indexeddb": "catalog:*",
     "fastify": "catalog:*",
     "vite": "catalog:*",
     "vite-plugin-monaco-editor-esm": "catalog:*"

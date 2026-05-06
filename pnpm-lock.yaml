@@ -2780,6 +2780,9 @@ importers:
       electron-vite:
         specifier: 6.0.0-beta.1
         version: 6.0.0-beta.1(@swc/core@1.5.29(@swc/helpers@0.5.15))(vite@8.0.0(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.3))
+      fake-indexeddb:
+        specifier: catalog:*
+        version: 6.2.3
       fastify:
         specifier: catalog:*
         version: 5.8.4
