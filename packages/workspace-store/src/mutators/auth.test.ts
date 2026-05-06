@@ -748,6 +748,32 @@ describe('updateSelectedScopes', () => {
     assert(schemes, 'Selection should be initialized when updating scopes')
     expect(schemes.selectedSchemes[0]).toEqual({ oauth2: ['read:data'] })
   })
+
+  it('does not mutate document.security when fallback selection is used', async () => {
+    const documentName = 'test'
+    const document = createDocument({
+      security: [{ oauth2: [] }],
+    })
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document,
+    })
+
+    // No selected security stored, so updateSelectedScopes falls back to getSelectedSecurity.
+    updateSelectedScopes(store, store.workspace.activeDocument!, {
+      id: ['oauth2'],
+      name: 'oauth2',
+      scopes: ['read:data'],
+      meta: { type: 'document' },
+    })
+
+    expect(store.workspace.activeDocument?.security).toEqual([{ oauth2: [] }])
+
+    const selected = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(selected)
+    expect(selected.selectedSchemes[0]).toEqual({ oauth2: ['read:data'] })
+  })
 })
 
 describe('deleteSecurityScheme', () => {

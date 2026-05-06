@@ -376,63 +376,27 @@ export const updateSelectedScopes = (
     return store?.auth.getAuthSelectedSchemas({ type: 'operation', documentName, path: meta.path, method: meta.method })
   }
 
-  let target = getTarget()
+  const targetFromStore = getTarget()
+  const securityRequirements =
+    meta.type === 'document'
+      ? (document?.security ?? [])
+      : ((getResolvedRef(document?.paths?.[meta.path]?.[meta.method])?.security ?? []) as SecurityRequirementObject[])
+  const securitySchemes = document?.components?.securitySchemes ?? {}
+  const preferredScheme = id.length === 1 ? id[0] : id
 
-  // If no selection exists (e.g., when using preferredSecurityScheme), initialize it
-  // using the same logic as getSelectedSecurity to ensure consistency
-  if (!target) {
-    const securityRequirements = meta.type === 'document' ? (document?.security ?? []) : undefined
-    const securitySchemes = document?.components?.securitySchemes ?? {}
-
-    // Use the scheme being updated (from id) as the preferred scheme
-    // This ensures we initialize with the correct scheme that matches what the user is trying to select
-    const preferredScheme = id.length === 1 ? id[0] : id
-
-    // Compute the default selection using getSelectedSecurity logic
-    // Type assertion is safe here as we're passing the same structure getSelectedSecurity expects
-    const defaultSelection = getSelectedSecurity(
-      undefined,
-      undefined,
-      securityRequirements,
-      securitySchemes as Record<string, { type?: string; 'x-default-scopes'?: string[] } | undefined>,
-      preferredScheme,
-    )
-
-    // Deep clone the selection to avoid mutating the original document.security object
-    // This prevents scope updates from polluting the OpenAPI document structure
-    const clonedSelection = {
-      selectedIndex: defaultSelection.selectedIndex,
-      selectedSchemes: defaultSelection.selectedSchemes.map((scheme) => ({ ...scheme })),
-    }
-
-    // If we computed a selection, use it; otherwise create a minimal one with the scheme from id
-    const initialSelection =
-      clonedSelection.selectedSchemes.length > 0
-        ? clonedSelection
-        : {
-            selectedIndex: 0,
-            selectedSchemes: [
-              // Fallback: build a requirement from the id array with empty scopes
-              Object.fromEntries(id.map((schemeId) => [schemeId, []])) as SecurityRequirementObject,
-            ],
-          }
-
-    // Initialize the selection
-    if (meta.type === 'document') {
-      store?.auth.setAuthSelectedSchemas({ type: 'document', documentName }, initialSelection)
-    } else {
-      store?.auth.setAuthSelectedSchemas(
-        { type: 'operation', documentName, path: meta.path, method: meta.method },
-        initialSelection,
-      )
-    }
-
-    // Re-fetch the target after initialization
-    target = getTarget()
-    if (!target) {
-      return
-    }
-  }
+  const fallbackTarget = getSelectedSecurity(
+    undefined,
+    undefined,
+    securityRequirements,
+    securitySchemes as Record<string, { type?: string; 'x-default-scopes'?: string[] } | undefined>,
+    preferredScheme,
+  )
+  const target = targetFromStore
+    ? targetFromStore
+    : {
+        selectedIndex: fallbackTarget.selectedIndex,
+        selectedSchemes: fallbackTarget.selectedSchemes.map((scheme) => ({ ...scheme })),
+      }
 
   const nextSelectedSchemes = unpackProxyObject(target.selectedSchemes, { depth: 1 }) ?? []
   // Match the security requirement by scheme key names (order-insensitive: Object.keys order
