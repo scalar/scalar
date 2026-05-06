@@ -2283,6 +2283,9 @@ importers:
       vite:
         specifier: catalog:*
         version: 8.0.0(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.31.2)(tsx@4.19.4)(yaml@2.8.3)
+      vue-tsc:
+        specifier: catalog:*
+        version: 3.2.4(typescript@5.9.3)
 
   packages/sidebar:
     dependencies:
