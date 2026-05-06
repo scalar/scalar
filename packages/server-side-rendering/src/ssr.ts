@@ -94,7 +94,15 @@ function getInitialBodyClass(configuration: AnyApiReferenceConfiguration): 'dark
 
 type RenderedSsrHead = Awaited<ReturnType<typeof renderSSRHead>>
 
-const createHeadInstance = (pageTitle?: string) => createHead(pageTitle ? { init: [{ title: pageTitle }] } : undefined)
+const createHeadInstance = (pageTitle?: string) =>
+  createHead({
+    init: [
+      {
+        htmlAttrs: { lang: 'en' },
+        ...(pageTitle ? { title: pageTitle } : {}),
+      },
+    ],
+  })
 
 /**
  * Ensure the initial body class from Scalar config always exists.
@@ -393,7 +401,7 @@ export async function renderApiReference(options: {
   const configJs = serializeConfigToJs(unwrapConfig(options.config))
 
   return `<!doctype html>
-<html${head.htmlAttrs || ' lang="en"'}>
+<html${head.htmlAttrs}>
   <head>
     ${head.headTags}
     <style>${css}</style>
