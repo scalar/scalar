@@ -6,8 +6,9 @@ import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import monacoEditorPlugin from 'vite-plugin-monaco-editor-esm'
 
 import { scalarAppMonacoEditorPluginOptions } from './monaco-vite-plugin-options'
+import packageJson from './package.json' with { type: 'json' }
 
-const { version: scalarAppVersion } = require('./package.json')
+const { version: scalarAppVersion } = packageJson
 
 export default defineConfig({
   main: {
