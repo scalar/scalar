@@ -4,8 +4,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 
 import type { ImportDocumentFromRegistry } from '@/types/configuration'
-import type { SidebarDocumentVersion } from '@/v2/features/app/hooks/use-sidebar-documents'
-import { useVersionConflictCheck } from '@/v2/features/app/hooks/use-version-conflict-check'
+import type { SidebarDocumentVersion } from '@/features/app/hooks/use-sidebar-documents'
+import { useVersionConflictCheck } from '@/features/app/hooks/use-version-conflict-check'
 
 type FakeDocument = {
   'x-scalar-registry-meta'?: {

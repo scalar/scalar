@@ -4,11 +4,11 @@ import * as monaco from 'monaco-editor'
 import type { ComputedRef } from 'vue'
 import { type MaybeRefOrGetter, computed, markRaw, ref, shallowRef, toValue, watch } from 'vue'
 
-import { rangeToWholeLine } from '@/v2/features/editor'
-import { createJsonModel } from '@/v2/features/editor/helpers/json/create-json-model'
-import { ensureJsonPointerLinkSupport } from '@/v2/features/editor/helpers/json/json-pointer-links'
-import { parseJsonPointerPath } from '@/v2/features/editor/helpers/json/json-pointer-path'
-import type { EditorModel, Path } from '@/v2/features/editor/helpers/model'
+import { rangeToWholeLine } from '@/features/editor'
+import { createJsonModel } from '@/features/editor/helpers/json/create-json-model'
+import { ensureJsonPointerLinkSupport } from '@/features/editor/helpers/json/json-pointer-links'
+import { parseJsonPointerPath } from '@/features/editor/helpers/json/json-pointer-path'
+import type { EditorModel, Path } from '@/features/editor/helpers/model'
 
 type ConflictResolutionState = 'manual' | 'local' | 'remote' | 'ignore' | 'idle'
 

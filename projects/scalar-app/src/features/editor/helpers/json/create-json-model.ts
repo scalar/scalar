@@ -1,7 +1,7 @@
 import * as monaco from 'monaco-editor'
 
-import { getJsonAstNodeFromPath } from '@/v2/features/editor/helpers/json/get-json-ast-node-from-path'
-import type { EditorModel, Path } from '@/v2/features/editor/helpers/model'
+import { getJsonAstNodeFromPath } from '@/features/editor/helpers/json/get-json-ast-node-from-path'
+import type { EditorModel, Path } from '@/features/editor/helpers/model'
 
 import { configureJson } from '../configure-language-support'
 

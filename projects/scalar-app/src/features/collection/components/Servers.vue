@@ -16,8 +16,8 @@ import { computed, ref, watchEffect } from 'vue'
 
 import { ServerVariablesForm } from '@/components/Server'
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
-import type { CollectionProps } from '@/v2/features/app/helpers/routes'
-import Section from '@/v2/features/settings/components/Section.vue'
+import type { CollectionProps } from '@/features/app/helpers/routes'
+import Section from '@/features/settings/components/Section.vue'
 
 import Form from './Form.vue'
 

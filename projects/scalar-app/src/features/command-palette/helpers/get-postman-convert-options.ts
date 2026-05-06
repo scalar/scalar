@@ -1,6 +1,6 @@
 import type { ConvertOptions } from '@scalar/postman-to-openapi'
 
-import { pathKeysToRequestIndexPaths } from '@/v2/features/command-palette/helpers/postman-request-tree'
+import { pathKeysToRequestIndexPaths } from '@/features/command-palette/helpers/postman-request-tree'
 
 type GetPostmanConvertOptionsInput = {
   document?: ConvertOptions['document'] | null

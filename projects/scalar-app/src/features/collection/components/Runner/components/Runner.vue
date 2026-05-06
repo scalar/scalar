@@ -3,8 +3,8 @@ import { ScalarButton } from '@scalar/components'
 import { ScalarIconArrowCounterClockwise, ScalarIconPlay } from '@scalar/icons'
 import { computed, toValue } from 'vue'
 
-import type { CollectionProps } from '@/v2/features/app/helpers/routes'
-import Section from '@/v2/features/settings/components/Section.vue'
+import type { CollectionProps } from '@/features/app/helpers/routes'
+import Section from '@/features/settings/components/Section.vue'
 
 import { useRunnerExecution, useRunnerSelection } from '../hooks'
 import RunnerCard from './RunnerCard.vue'

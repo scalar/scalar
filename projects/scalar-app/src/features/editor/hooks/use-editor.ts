@@ -1,7 +1,7 @@
 import * as monaco from 'monaco-editor'
 import { type MaybeRefOrGetter, toValue, watch } from 'vue'
 
-import type { EditorModel, Path } from '@/v2/features/editor/helpers/model'
+import type { EditorModel, Path } from '@/features/editor/helpers/model'
 
 const HIGHLIGHT_DECORATION_CLASS = 'json-focus-highlight'
 

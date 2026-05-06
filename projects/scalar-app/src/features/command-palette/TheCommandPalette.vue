@@ -44,7 +44,7 @@ import {
 import { useRouter } from 'vue-router'
 
 import type { RegistryDocumentsState } from '@/types/configuration'
-import type { AppState } from '@/v2/features/app'
+import type { AppState } from '@/features/app'
 
 import { useCommandPaletteDocuments } from './hooks/use-command-palette-documents'
 import type {

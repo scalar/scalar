@@ -6,8 +6,9 @@ import { nextTick } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import 'fake-indexeddb/auto'
 
-import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
-import { useCommandPaletteState } from '@/v2/features/command-palette/hooks/use-command-palette-state'
+import type { CustomFetch } from '@scalar/api-client/blocks/operation-block'
+
+import { useCommandPaletteState } from '@/features/command-palette/hooks/use-command-palette-state'
 
 import App from './App.vue'
 import { createAppState } from './app-state'

@@ -1,6 +1,6 @@
 import { isMap, isPair, isScalar, isSeq, parseDocument } from 'yaml'
 
-import type { Path } from '@/v2/features/editor/helpers/model'
+import type { Path } from '@/features/editor/helpers/model'
 
 type YamlNodeRange = {
   startOffset: number

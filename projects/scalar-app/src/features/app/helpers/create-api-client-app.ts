@@ -5,9 +5,9 @@ import { createApp } from 'vue'
 import { createRouter as createVueRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 
 import type { RegistryAdapter } from '@/types/configuration'
-import App from '@/v2/features/app/App.vue'
-import { createAppState } from '@/v2/features/app/app-state'
-import { ROUTES } from '@/v2/features/app/helpers/routes'
+import App from '@/features/app/App.vue'
+import { createAppState } from '@/features/app/app-state'
+import { ROUTES } from '@/features/app/helpers/routes'
 import type { ApiClientOptions } from '@/v2/types/options'
 
 import { useCommandPaletteState } from '../../command-palette/hooks/use-command-palette-state'

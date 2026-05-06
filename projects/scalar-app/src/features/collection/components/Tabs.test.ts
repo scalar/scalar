@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { createRouter, createWebHistory } from 'vue-router'
 
-import { ROUTES } from '@/v2/features/app/helpers/routes'
+import { ROUTES } from '@/features/app/helpers/routes'
 
 import Tabs from './Tabs.vue'
 

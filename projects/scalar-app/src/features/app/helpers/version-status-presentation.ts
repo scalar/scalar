@@ -5,7 +5,7 @@ import {
   ScalarIconCloudWarning,
 } from '@scalar/icons'
 
-import type { VersionStatus } from '@/v2/features/app/helpers/compute-version-status'
+import type { VersionStatus } from '@/features/app/helpers/compute-version-status'
 
 /** Visual presentation for a single sync state. */
 type VersionStatusPresentation = {

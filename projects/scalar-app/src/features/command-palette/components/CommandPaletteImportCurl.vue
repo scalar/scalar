@@ -34,9 +34,9 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, type ComputedRef } from 'vue'
 
 import HttpMethod from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
-import CommandActionForm from '@/v2/features/command-palette/components/CommandActionForm.vue'
-import CommandActionInput from '@/v2/features/command-palette/components/CommandActionInput.vue'
-import { getOperationFromCurl } from '@/v2/features/command-palette/helpers/get-operation-from-curl'
+import CommandActionForm from '@/features/command-palette/components/CommandActionForm.vue'
+import CommandActionInput from '@/features/command-palette/components/CommandActionInput.vue'
+import { getOperationFromCurl } from '@/features/command-palette/helpers/get-operation-from-curl'
 
 const { workspaceStore, inputValue, eventBus } = defineProps<{
   /** The workspace store for accessing documents and operations */

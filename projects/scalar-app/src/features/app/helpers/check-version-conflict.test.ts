@@ -1,7 +1,7 @@
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
+import type { ImportDocumentFromRegistry } from '@/types/configuration'
 
 import { checkVersionConflict } from './check-version-conflict'
 

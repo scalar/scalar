@@ -6,9 +6,9 @@ import { computed } from 'vue'
 import {
   messageForDeleteDocumentError,
   messageForDeleteVersionError,
-} from '@/v2/features/app/helpers/registry-error-messages'
-import type { CollectionProps } from '@/v2/features/app/helpers/routes'
-import { CollectionSettings, DocumentSettings } from '@/v2/features/settings'
+} from '@/features/app/helpers/registry-error-messages'
+import type { CollectionProps } from '@/features/app/helpers/routes'
+import { CollectionSettings, DocumentSettings } from '@/features/settings'
 
 const {
   eventBus,

@@ -13,7 +13,7 @@ import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { nextTick, ref, watch } from 'vue'
 
-import { createTempOperation } from '@/v2/features/app/helpers/create-temp-operation'
+import { createTempOperation } from '@/features/app/helpers/create-temp-operation'
 
 const { item, eventBus, sidebarState, target, workspaceStore } = defineProps<{
   /** The item to display the decorator for */

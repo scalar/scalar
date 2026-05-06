@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
-import { ROUTES } from '@/v2/features/app/helpers/routes'
+import { ROUTES } from '@/features/app/helpers/routes'
 
 import WorkspaceCollection from './WorkspaceCollection.vue'
 

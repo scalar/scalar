@@ -1,8 +1,8 @@
 import { type MaybeRefOrGetter, onScopeDispose, toValue, watch } from 'vue'
 
-import { ensureJsonPointerLinkSupport } from '@/v2/features/editor/helpers/json/json-pointer-links'
-import { parseJsonPointerPath } from '@/v2/features/editor/helpers/json/json-pointer-path'
-import type { EditorModel } from '@/v2/features/editor/helpers/model'
+import { ensureJsonPointerLinkSupport } from '@/features/editor/helpers/json/json-pointer-links'
+import { parseJsonPointerPath } from '@/features/editor/helpers/json/json-pointer-path'
+import type { EditorModel } from '@/features/editor/helpers/model'
 
 const JSON_LANGUAGE_ID = 'json'
 

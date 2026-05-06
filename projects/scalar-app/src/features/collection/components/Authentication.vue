@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import {
+  AuthSelector,
+  type OAuth2Options,
+} from '@scalar/api-client/blocks/scalar-auth-selector-block'
 import { ScalarToggle } from '@scalar/components'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { AuthMeta } from '@scalar/workspace-store/events'
@@ -12,11 +16,9 @@ import {
 } from '@scalar/workspace-store/request-example'
 import { computed, ref, toValue, watchEffect } from 'vue'
 
-import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
-import type { OAuth2Options } from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
-import type { CollectionProps } from '@/v2/features/app/helpers/routes'
-import { getDefaultOperationSecurityToggle } from '@/v2/features/collection/helpers/get-default-operation-security-toggle'
-import Section from '@/v2/features/settings/components/Section.vue'
+import type { CollectionProps } from '@/features/app/helpers/routes'
+import { getDefaultOperationSecurityToggle } from '@/features/collection/helpers/get-default-operation-security-toggle'
+import Section from '@/features/settings/components/Section.vue'
 
 const {
   document,

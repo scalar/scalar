@@ -2,8 +2,8 @@ import type { TraversedDocument } from '@scalar/workspace-store/schemas/navigati
 import { type MaybeRefOrGetter, computed, toValue } from 'vue'
 
 import type { RegistryDocument } from '@/types/configuration'
-import type { AppState } from '@/v2/features/app'
-import { type VersionStatus, computeVersionStatus } from '@/v2/features/app/helpers/compute-version-status'
+import type { AppState } from '@/features/app'
+import { type VersionStatus, computeVersionStatus } from '@/features/app/helpers/compute-version-status'
 
 export type { VersionStatus }
 

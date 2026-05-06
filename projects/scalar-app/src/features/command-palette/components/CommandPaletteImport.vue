@@ -33,12 +33,12 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, watch } from 'vue'
 
 import { useFileDialog } from '@/hooks/use-file-dialog'
-import { getOpenApiDocumentDetails } from '@/v2/features/command-palette/helpers/get-openapi-document-details'
-import { importDocumentToWorkspace } from '@/v2/features/command-palette/helpers/import-document-to-workspace'
+import { getOpenApiDocumentDetails } from '@/features/command-palette/helpers/get-openapi-document-details'
+import { importDocumentToWorkspace } from '@/features/command-palette/helpers/import-document-to-workspace'
 import {
   loadDocumentFromSource,
   type ImportEventData,
-} from '@/v2/features/command-palette/helpers/load-document-from-source'
+} from '@/features/command-palette/helpers/load-document-from-source'
 import { isUrl } from '@/v2/helpers/is-url'
 
 import CommandActionForm from './CommandActionForm.vue'

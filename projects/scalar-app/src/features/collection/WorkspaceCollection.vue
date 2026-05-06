@@ -7,8 +7,8 @@ export default {}
 import { ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
-import type { RouteProps } from '@/v2/features/app/helpers/routes'
-import LabelInput from '@/v2/features/collection/components/LabelInput.vue'
+import type { RouteProps } from '@/features/app/helpers/routes'
+import LabelInput from '@/features/collection/components/LabelInput.vue'
 
 import Tabs from './components/Tabs.vue'
 

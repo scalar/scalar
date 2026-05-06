@@ -19,20 +19,20 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, watch } from 'vue'
 
-import PostmanImportPreview from '@/v2/features/command-palette/components/PostmanImportPreview.vue'
-import PostmanRequestTreeRow from '@/v2/features/command-palette/components/PostmanRequestTreeRow.vue'
-import { generateUniqueSlug } from '@/v2/features/command-palette/helpers/generate-unique-slug'
-import { getOpenApiFromPostman } from '@/v2/features/command-palette/helpers/get-openapi-from-postman'
-import { getPostmanConvertOptions } from '@/v2/features/command-palette/helpers/get-postman-convert-options'
-import { getPostmanDocumentDetails } from '@/v2/features/command-palette/helpers/get-postman-document-details'
-import { getCollidingPostmanRequestPathKeys } from '@/v2/features/command-palette/helpers/postman-request-collisions'
+import PostmanImportPreview from '@/features/command-palette/components/PostmanImportPreview.vue'
+import PostmanRequestTreeRow from '@/features/command-palette/components/PostmanRequestTreeRow.vue'
+import { generateUniqueSlug } from '@/features/command-palette/helpers/generate-unique-slug'
+import { getOpenApiFromPostman } from '@/features/command-palette/helpers/get-openapi-from-postman'
+import { getPostmanConvertOptions } from '@/features/command-palette/helpers/get-postman-convert-options'
+import { getPostmanDocumentDetails } from '@/features/command-palette/helpers/get-postman-document-details'
+import { getCollidingPostmanRequestPathKeys } from '@/features/command-palette/helpers/postman-request-collisions'
 import {
   applyPostmanFolderSelectionChange,
   applyPostmanRequestSelectionChange,
   buildPostmanRequestTree,
   countPostmanRequestLeaves,
   type PostmanTreeNode,
-} from '@/v2/features/command-palette/helpers/postman-request-tree'
+} from '@/features/command-palette/helpers/postman-request-tree'
 
 import CommandActionForm from './CommandActionForm.vue'
 

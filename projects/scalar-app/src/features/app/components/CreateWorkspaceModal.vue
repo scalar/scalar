@@ -5,7 +5,7 @@ import { computed, ref, watch, type ComputedRef, type Ref } from 'vue'
 import {
   CommandActionForm,
   CommandActionInput,
-} from '@/v2/features/command-palette'
+} from '@/features/command-palette'
 
 const { state } = defineProps<{
   state: ModalState

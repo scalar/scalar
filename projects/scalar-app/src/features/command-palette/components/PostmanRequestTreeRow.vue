@@ -16,7 +16,7 @@ import {
   folderHasPartialSelection,
   pathKey,
   type PostmanTreeNode,
-} from '@/v2/features/command-palette/helpers/postman-request-tree'
+} from '@/features/command-palette/helpers/postman-request-tree'
 
 import PostmanRequestTreeRow from './PostmanRequestTreeRow.vue'
 

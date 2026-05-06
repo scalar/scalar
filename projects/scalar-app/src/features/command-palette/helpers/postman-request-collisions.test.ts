@@ -1,7 +1,7 @@
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { buildPostmanRequestTree, pathKey } from '@/v2/features/command-palette/helpers/postman-request-tree'
+import { buildPostmanRequestTree, pathKey } from '@/features/command-palette/helpers/postman-request-tree'
 
 import { getCollidingPostmanRequestPathKeys } from './postman-request-collisions'
 

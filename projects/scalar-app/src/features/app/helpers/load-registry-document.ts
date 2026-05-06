@@ -2,7 +2,7 @@ import { coerce, object, string } from '@scalar/validation'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 import type { ImportDocumentFromRegistry } from '@/types/configuration'
-import { generateUniqueSlug } from '@/v2/features/command-palette/helpers/generate-unique-slug'
+import { generateUniqueSlug } from '@/features/command-palette/helpers/generate-unique-slug'
 
 /** Result of attempting to load a registry document into the workspace store. */
 type LoadRegistryDocumentResult = { ok: true; documentName: string } | { ok: false; error: string }

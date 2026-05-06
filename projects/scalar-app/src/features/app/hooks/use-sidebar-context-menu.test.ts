@@ -4,7 +4,7 @@ import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
-import { useSidebarContextMenu } from '@/v2/features/app/hooks/use-sidebar-context-menu'
+import { useSidebarContextMenu } from '@/features/app/hooks/use-sidebar-context-menu'
 
 /**
  * Minimal tree covering the entry shapes the hook reads: a document that

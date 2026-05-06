@@ -28,7 +28,7 @@ import { computed } from 'vue'
 
 import Computer from '@/assets/computer.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
-import type { RouteProps } from '@/v2/features/app/helpers/routes'
+import type { RouteProps } from '@/features/app/helpers/routes'
 
 const { eventBus, isTeamWorkspace, layout, workspaceStore } =
   defineProps<RouteProps>()

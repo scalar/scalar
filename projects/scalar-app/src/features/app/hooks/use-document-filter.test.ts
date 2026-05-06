@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { ref } from 'vue'
 
-import { useDocumentFilter } from '@/v2/features/app/hooks/use-document-filter'
+import { useDocumentFilter } from '@/features/app/hooks/use-document-filter'
 
 type Doc = { key: string; title: string }
 

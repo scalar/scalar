@@ -1,6 +1,6 @@
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
-import { generateUniqueSlug } from '@/v2/features/command-palette/helpers/generate-unique-slug'
+import { generateUniqueSlug } from '@/features/command-palette/helpers/generate-unique-slug'
 
 /** Result of attempting to create a draft registry document. */
 type CreateDraftRegistryDocumentResult = { ok: true; documentName: string } | { ok: false; error: string }

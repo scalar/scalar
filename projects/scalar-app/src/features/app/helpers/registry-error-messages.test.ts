@@ -6,7 +6,7 @@ import {
   messageForFetchError,
   messageForPublishDocumentError,
   messageForPublishVersionError,
-} from '@/v2/features/app/helpers/registry-error-messages'
+} from '@/features/app/helpers/registry-error-messages'
 
 describe('registry-error-messages', () => {
   describe('messageForFetchError', () => {

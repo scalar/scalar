@@ -20,7 +20,7 @@ import { computed } from 'vue'
 import { RouterView } from 'vue-router'
 
 import IconSelector from '@/components/IconSelector.vue'
-import type { RouteProps } from '@/v2/features/app/helpers/routes'
+import type { RouteProps } from '@/features/app/helpers/routes'
 import { downloadAsFile } from '@/v2/helpers/download-document'
 
 import LabelInput from './components/LabelInput.vue'

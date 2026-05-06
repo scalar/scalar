@@ -2,8 +2,8 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type MaybeRefOrGetter, toValue, watch } from 'vue'
 
 import type { ImportDocumentFromRegistry } from '@/types/configuration'
-import { checkVersionConflict } from '@/v2/features/app/helpers/check-version-conflict'
-import type { SidebarDocumentVersion } from '@/v2/features/app/hooks/use-sidebar-documents'
+import { checkVersionConflict } from '@/features/app/helpers/check-version-conflict'
+import type { SidebarDocumentVersion } from '@/features/app/hooks/use-sidebar-documents'
 
 /**
  * Kicks off background `checkVersionConflict` calls for every loaded

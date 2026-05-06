@@ -2,7 +2,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { RouteLocationNormalizedGeneric } from 'vue-router'
 
-import type { ScalarClientAppRouteParams } from '@/v2/features/app/helpers/routes'
+import type { ScalarClientAppRouteParams } from '@/features/app/helpers/routes'
 
 /** Extracts a string parameter from the route */
 export function getRouteParam(paramName: 'method', route: RouteLocationNormalizedGeneric | null): HttpMethod | undefined

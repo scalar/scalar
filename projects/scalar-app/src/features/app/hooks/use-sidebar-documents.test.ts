@@ -4,8 +4,8 @@ import { describe, expect, it } from 'vitest'
 import { computed, ref, shallowRef } from 'vue'
 
 import type { RegistryDocument } from '@/types/configuration'
-import type { AppState } from '@/v2/features/app'
-import { useSidebarDocuments } from '@/v2/features/app/hooks/use-sidebar-documents'
+import type { AppState } from '@/features/app'
+import { useSidebarDocuments } from '@/features/app/hooks/use-sidebar-documents'
 
 type FakeDocument = Partial<WorkspaceDocument> & {
   'x-scalar-registry-meta'?: {

@@ -12,18 +12,18 @@ import type { MaybeRefOrGetter } from 'vue'
 import type { RouteRecordRaw } from 'vue-router'
 
 import type { RegistryAdapter } from '@/types/configuration'
-import Authentication from '@/v2/features/collection/components/Authentication.vue'
-import Cookies from '@/v2/features/collection/components/Cookies.vue'
-import { Editor } from '@/v2/features/collection/components/Editor'
-import Environment from '@/v2/features/collection/components/Environment.vue'
-import GetStarted from '@/v2/features/collection/components/GetStarted.vue'
-import Overview from '@/v2/features/collection/components/Overview.vue'
-import { Runner } from '@/v2/features/collection/components/Runner'
-import Servers from '@/v2/features/collection/components/Servers.vue'
-import Settings from '@/v2/features/collection/components/Settings.vue'
-import DocumentCollection from '@/v2/features/collection/DocumentCollection.vue'
-import OperationCollection from '@/v2/features/collection/OperationCollection.vue'
-import WorkspaceCollection from '@/v2/features/collection/WorkspaceCollection.vue'
+import Authentication from '@/features/collection/components/Authentication.vue'
+import Cookies from '@/features/collection/components/Cookies.vue'
+import { Editor } from '@/features/collection/components/Editor'
+import Environment from '@/features/collection/components/Environment.vue'
+import GetStarted from '@/features/collection/components/GetStarted.vue'
+import Overview from '@/features/collection/components/Overview.vue'
+import { Runner } from '@/features/collection/components/Runner'
+import Servers from '@/features/collection/components/Servers.vue'
+import Settings from '@/features/collection/components/Settings.vue'
+import DocumentCollection from '@/features/collection/DocumentCollection.vue'
+import OperationCollection from '@/features/collection/OperationCollection.vue'
+import WorkspaceCollection from '@/features/collection/WorkspaceCollection.vue'
 import { workspaceStorage } from '@/v2/helpers/storage'
 import type { ApiClientOptions } from '@/v2/types/options'
 
@@ -196,7 +196,7 @@ export const ROUTES = [
               {
                 name: 'document.scripts',
                 path: 'scripts',
-                component: () => import('@/v2/features/collection/components/Scripts.vue'),
+                component: () => import('@/features/collection/components/Scripts.vue'),
               },
               // Document runner
               {

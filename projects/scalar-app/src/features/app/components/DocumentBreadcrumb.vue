@@ -13,13 +13,13 @@ import type {
   ImportDocumentFromRegistry,
   RegistryDocumentsState,
 } from '@/types/configuration'
-import { type AppState } from '@/v2/features/app/app-state'
-import type { VersionStatus } from '@/v2/features/app/helpers/compute-version-status'
-import { createDraftRegistryDocument } from '@/v2/features/app/helpers/create-draft-registry-document'
-import { loadRegistryDocument } from '@/v2/features/app/helpers/load-registry-document'
-import { VERSION_STATUS_PRESENTATION } from '@/v2/features/app/helpers/version-status-presentation'
-import { useActiveDocumentVersion } from '@/v2/features/app/hooks/use-active-document-version'
-import { useVersionConflictCheck } from '@/v2/features/app/hooks/use-version-conflict-check'
+import { type AppState } from '@/features/app/app-state'
+import type { VersionStatus } from '@/features/app/helpers/compute-version-status'
+import { createDraftRegistryDocument } from '@/features/app/helpers/create-draft-registry-document'
+import { loadRegistryDocument } from '@/features/app/helpers/load-registry-document'
+import { VERSION_STATUS_PRESENTATION } from '@/features/app/helpers/version-status-presentation'
+import { useActiveDocumentVersion } from '@/features/app/hooks/use-active-document-version'
+import { useVersionConflictCheck } from '@/features/app/hooks/use-version-conflict-check'
 import { safeRun } from '@/v2/helpers/safe-run'
 
 import CreateVersionModal from './CreateVersionModal.vue'

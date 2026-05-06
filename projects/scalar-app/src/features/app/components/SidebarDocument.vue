@@ -20,7 +20,7 @@ import {
 } from '@scalar/sidebar'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 
-import type { SidebarDocumentItem } from '@/v2/features/app/hooks/use-sidebar-documents'
+import type { SidebarDocumentItem } from '@/features/app/hooks/use-sidebar-documents'
 
 const { item, active, open, loading } = defineProps<{
   /** The document row to render. */

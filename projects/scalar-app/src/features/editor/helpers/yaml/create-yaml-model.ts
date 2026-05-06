@@ -1,8 +1,8 @@
 import * as monaco from 'monaco-editor'
 
-import { configureYaml } from '@/v2/features/editor/helpers/configure-language-support'
-import type { EditorModel, Path } from '@/v2/features/editor/helpers/model'
-import { getYamlNodeRangeFromPath } from '@/v2/features/editor/helpers/yaml/get-yaml-node-range-from-path'
+import { configureYaml } from '@/features/editor/helpers/configure-language-support'
+import type { EditorModel, Path } from '@/features/editor/helpers/model'
+import { getYamlNodeRangeFromPath } from '@/features/editor/helpers/yaml/get-yaml-node-range-from-path'
 
 /**
  * Creates a YAML model for use in the Monaco editor.

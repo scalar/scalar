@@ -38,11 +38,11 @@ import {
 } from 'vue'
 import type { RouteLocationNormalizedGeneric, RouteLocationRaw, Router } from 'vue-router'
 
-import type { ApiClientAppOptions } from '@/v2/features/app/helpers/create-api-client-app'
-import { getRouteParam } from '@/v2/features/app/helpers/get-route-param'
-import { groupWorkspacesByTeam } from '@/v2/features/app/helpers/group-workspaces'
-import { useTheme } from '@/v2/features/app/hooks/use-theme'
-import { getTabDetails } from '@/v2/helpers/get-tab-details'
+import type { ApiClientAppOptions } from '@/features/app/helpers/create-api-client-app'
+import { getRouteParam } from '@/features/app/helpers/get-route-param'
+import { groupWorkspacesByTeam } from '@/features/app/helpers/group-workspaces'
+import { useTheme } from '@/features/app/hooks/use-theme'
+import { getTabDetails } from '@/helpers/get-tab-details'
 import { workspaceStorage } from '@/v2/helpers/storage'
 
 import { initializeAppEventHandlers } from './app-events'

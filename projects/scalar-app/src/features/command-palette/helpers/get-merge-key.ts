@@ -2,7 +2,7 @@ import { HTTP_METHODS } from '@scalar/helpers/http/http-methods'
 import { extractPathFromUrl, normalizePath } from '@scalar/postman-to-openapi'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
-import { extractRequestMethod } from '@/v2/features/command-palette/helpers/postman-request-tree'
+import { extractRequestMethod } from '@/features/command-palette/helpers/postman-request-tree'
 
 /**
  * Extracts all path + method merge keys from an OpenAPI document.

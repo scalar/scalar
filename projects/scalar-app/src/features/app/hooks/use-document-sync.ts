@@ -5,14 +5,14 @@ import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 import { type ComputedRef, type Ref, computed, ref } from 'vue'
 
 import type { RegistryAdapter, RegistryDocumentsState, RegistryNamespacesState } from '@/types/configuration'
-import type { AppState } from '@/v2/features/app/app-state'
+import type { AppState } from '@/features/app/app-state'
 import {
   messageForFetchError,
   messageForPublishDocumentError,
   messageForPublishVersionError,
-} from '@/v2/features/app/helpers/registry-error-messages'
-import { useActiveDocumentVersion } from '@/v2/features/app/hooks/use-active-document-version'
-import { useNetworkStatus } from '@/v2/features/app/hooks/use-network-status'
+} from '@/features/app/helpers/registry-error-messages'
+import { useActiveDocumentVersion } from '@/features/app/hooks/use-active-document-version'
+import { useNetworkStatus } from '@/features/app/hooks/use-network-status'
 
 /**
  * Default namespaces state surfaced when the host application has not

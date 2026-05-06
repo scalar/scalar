@@ -14,11 +14,11 @@ import {
   watch,
 } from 'vue'
 
-import type { CollectionProps } from '@/v2/features/app/helpers/routes'
-import { useEditor, useJsonPointerLinkSupport } from '@/v2/features/editor'
-import { createJsonModel } from '@/v2/features/editor/helpers/json/create-json-model'
-import { createYamlModel } from '@/v2/features/editor/helpers/yaml/create-yaml-model'
-import { useEditorMarkers } from '@/v2/features/editor/hooks/use-editor-markers'
+import type { CollectionProps } from '@/features/app/helpers/routes'
+import { useEditor, useJsonPointerLinkSupport } from '@/features/editor'
+import { createJsonModel } from '@/features/editor/helpers/json/create-json-model'
+import { createYamlModel } from '@/features/editor/helpers/yaml/create-yaml-model'
+import { useEditorMarkers } from '@/features/editor/hooks/use-editor-markers'
 
 import EditorDiagnosticsPanel from './components/EditorDiagnosticsPanel.vue'
 import EditorSavePanel from './components/EditorSavePanel.vue'

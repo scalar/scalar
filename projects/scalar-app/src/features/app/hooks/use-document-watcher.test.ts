@@ -5,7 +5,7 @@ import { type FastifyInstance, fastify } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 
-import { useDocumentWatcher } from '@/v2/features/app/hooks/use-document-watcher'
+import { useDocumentWatcher } from '@/features/app/hooks/use-document-watcher'
 
 describe('useDocumentWatcher', () => {
   let server: FastifyInstance

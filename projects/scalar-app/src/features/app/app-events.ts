@@ -4,7 +4,7 @@ import type { OperationExampleMeta, WorkspaceEventBus } from '@scalar/workspace-
 import { type ShallowRef, computed } from 'vue'
 import { type NavigationFailure, NavigationFailureType, type Router } from 'vue-router'
 
-import type { ScalarClientAppRouteParams } from '@/v2/features/app/helpers/routes'
+import type { ScalarClientAppRouteParams } from '@/features/app/helpers/routes'
 import { initializeWorkspaceEventHandlers } from '@/v2/workspace-events'
 
 export function initializeAppEventHandlers({

@@ -5,7 +5,7 @@ import { useToasts } from '@scalar/use-toasts'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 import { useSplitResize } from '@/v2/components/resize'
-import { useThreeWayMergeEditor } from '@/v2/features/editor/hooks/use-three-way-merge-editor'
+import { useThreeWayMergeEditor } from '@/features/editor/hooks/use-three-way-merge-editor'
 
 const { conflicts, baseDocument, resolvedDocument } = defineProps<{
   conflicts: ReturnType<typeof merge>['conflicts']

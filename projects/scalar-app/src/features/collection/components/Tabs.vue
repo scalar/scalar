@@ -2,7 +2,7 @@
 import { capitalize, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 
-import type { CollectionProps } from '@/v2/features/app/helpers/routes'
+import type { CollectionProps } from '@/features/app/helpers/routes'
 
 const { type } = defineProps<{
   type: CollectionProps['collectionType']

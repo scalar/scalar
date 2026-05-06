@@ -27,17 +27,17 @@ import type {
   RegistryDocumentsState,
 } from '@/types/configuration'
 import { Resize } from '@/v2/components/resize'
-import type { AppState } from '@/v2/features/app'
-import SidebarDocument from '@/v2/features/app/components/SidebarDocument.vue'
-import SidebarItemMenu from '@/v2/features/app/components/SidebarItemMenu.vue'
-import { createTempOperation } from '@/v2/features/app/helpers/create-temp-operation'
-import { loadRegistryDocument } from '@/v2/features/app/helpers/load-registry-document'
-import { useDocumentFilter } from '@/v2/features/app/hooks/use-document-filter'
-import { useSidebarContextMenu } from '@/v2/features/app/hooks/use-sidebar-context-menu'
+import type { AppState } from '@/features/app'
+import SidebarDocument from '@/features/app/components/SidebarDocument.vue'
+import SidebarItemMenu from '@/features/app/components/SidebarItemMenu.vue'
+import { createTempOperation } from '@/features/app/helpers/create-temp-operation'
+import { loadRegistryDocument } from '@/features/app/helpers/load-registry-document'
+import { useDocumentFilter } from '@/features/app/hooks/use-document-filter'
+import { useSidebarContextMenu } from '@/features/app/hooks/use-sidebar-context-menu'
 import {
   useSidebarDocuments,
   type SidebarDocumentItem,
-} from '@/v2/features/app/hooks/use-sidebar-documents'
+} from '@/features/app/hooks/use-sidebar-documents'
 import { DocumentSearchModal } from '@/v2/features/search'
 import { dragHandleFactory } from '@/v2/helpers/drag-handle-factory'
 import { safeRun } from '@/v2/helpers/safe-run'

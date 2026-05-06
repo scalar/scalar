@@ -1,7 +1,7 @@
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
-import { getOpenApiMergeKeys, getPostmanMergeKeys } from '@/v2/features/command-palette/helpers/get-merge-key'
-import { getPostmanItemAtIndexPath } from '@/v2/features/command-palette/helpers/postman-request-tree'
+import { getOpenApiMergeKeys, getPostmanMergeKeys } from '@/features/command-palette/helpers/get-merge-key'
+import { getPostmanItemAtIndexPath } from '@/features/command-palette/helpers/postman-request-tree'
 
 /**
  * Among the selected Postman request path keys, returns keys whose requests map to the same

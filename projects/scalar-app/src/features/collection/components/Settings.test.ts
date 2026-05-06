@@ -6,7 +6,7 @@ import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/stri
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { CollectionProps } from '@/v2/features/app/helpers/routes'
+import type { CollectionProps } from '@/features/app/helpers/routes'
 import { mockEventBus } from '@/v2/helpers/test-utils'
 
 import Settings from './Settings.vue'

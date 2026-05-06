@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { computed, ref, shallowRef } from 'vue'
 
 import type { RegistryDocument } from '@/types/configuration'
-import type { AppState } from '@/v2/features/app'
+import type { AppState } from '@/features/app'
 
 import { useCommandPaletteDocuments } from './use-command-palette-documents'
 

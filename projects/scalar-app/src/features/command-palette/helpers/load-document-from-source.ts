@@ -4,7 +4,7 @@ import { parseJson, parseYaml } from '@scalar/json-magic/bundle/plugins/browser'
 import { isPostmanCollection } from '@scalar/postman-to-openapi'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
-import { getOpenApiFromPostman } from '@/v2/features/command-palette/helpers/get-openapi-from-postman'
+import { getOpenApiFromPostman } from '@/features/command-palette/helpers/get-openapi-from-postman'
 
 export type ImportEventData = {
   source: string
