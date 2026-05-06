@@ -26,7 +26,7 @@ export default defineConfig({
     tailwindcss(),
     svgLoader(),
     monacoEditorPlugin({
-      languageWorkers: ['json', 'editorWorkerService'],
+      languageWorkers: ['json', 'editorWorkerService', 'typescript'],
       customWorkers: [
         {
           label: 'yaml',

@@ -32,7 +32,7 @@ export default defineConfig({
     vue(),
     tailwindcss(),
     monacoEditorPlugin({
-      languageWorkers: ['json', 'editorWorkerService'],
+      languageWorkers: ['json', 'editorWorkerService', 'typescript'],
       customWorkers: [
         {
           label: 'yaml',

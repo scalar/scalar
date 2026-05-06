@@ -11,7 +11,7 @@ const OPENAPI_JSON_SCHEMA_URI = 'inmemory://model/scalar/openapi-json-schema'
  * @param globPattern - The glob pattern to match the files to configure language support for
  */
 export const configureJson = (globPattern: string): void => {
-  const defaults = monaco.json.jsonDefaults
+  const defaults = monaco.languages.json.jsonDefaults
   const current = defaults.diagnosticsOptions
 
   const existingSchemas = current.schemas ?? []
