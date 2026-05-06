@@ -43,8 +43,8 @@ import {
 } from 'vue'
 import { useRouter } from 'vue-router'
 
-import type { RegistryDocumentsState } from '@/types/configuration'
 import type { AppState } from '@/features/app'
+import type { RegistryDocumentsState } from '@/types/configuration'
 
 import { useCommandPaletteDocuments } from './hooks/use-command-palette-documents'
 import type {

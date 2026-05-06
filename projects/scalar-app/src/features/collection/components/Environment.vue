@@ -10,10 +10,10 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { EnvironmentsList } from '@scalar/api-client/features/environments'
 import { computed } from 'vue'
 
 import type { CollectionProps } from '@/features/app/helpers/routes'
-import { EnvironmentsList } from '@scalar/api-client/features/environments'
 import Section from '@/features/settings/components/Section.vue'
 
 const { document, eventBus, collectionType, workspaceStore } =

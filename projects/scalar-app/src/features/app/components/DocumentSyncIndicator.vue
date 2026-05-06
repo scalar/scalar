@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import type { RegistryDocumentsState } from '@/types/configuration'
 import type { AppState } from '@/features/app/app-state'
 import { VERSION_STATUS_PRESENTATION } from '@/features/app/helpers/version-status-presentation'
 import { useActiveDocumentVersion } from '@/features/app/hooks/use-active-document-version'
+import type { RegistryDocumentsState } from '@/types/configuration'
 
 const { app, registryDocuments = { status: 'success', documents: [] } } =
   defineProps<{

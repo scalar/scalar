@@ -1,13 +1,4 @@
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components'
-import { ScalarIconTrash } from '@scalar/icons'
-import type {
-  CollectionType,
-  WorkspaceEventBus,
-} from '@scalar/workspace-store/events'
-import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
-import { computed } from 'vue'
-
 import { CodeInput } from '@scalar/api-client/components/code-input'
 import {
   DataTable,
@@ -16,6 +7,14 @@ import {
   DataTableHeader,
   DataTableRow,
 } from '@scalar/api-client/components/data-table'
+import { ScalarButton } from '@scalar/components'
+import { ScalarIconTrash } from '@scalar/icons'
+import type {
+  CollectionType,
+  WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
+import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
+import { computed } from 'vue'
 
 const { cookies, eventBus, collectionType } = defineProps<
   {

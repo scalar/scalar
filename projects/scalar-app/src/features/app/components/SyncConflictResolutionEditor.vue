@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { useSplitResize } from '@scalar/api-client/components/resize'
 import { ScalarButton } from '@scalar/components'
 import { type merge } from '@scalar/json-magic/diff'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 
-import { useSplitResize } from '@scalar/api-client/components/resize'
 import { useThreeWayMergeEditor } from '@/features/editor/hooks/use-three-way-merge-editor'
 
 const { conflicts, baseDocument, resolvedDocument } = defineProps<{
