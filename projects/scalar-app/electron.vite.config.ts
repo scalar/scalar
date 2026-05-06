@@ -5,6 +5,8 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import monacoEditorPlugin from 'vite-plugin-monaco-editor-esm'
 
+import { scalarAppMonacoEditorPluginOptions } from './monaco-vite-plugin-options'
+
 const { version: scalarAppVersion } = require('./package.json')
 
 export default defineConfig({
@@ -57,19 +59,7 @@ export default defineConfig({
       },
       dedupe: ['vue', 'monaco-editor', 'monaco-yaml'],
     },
-    plugins: [
-      vue(),
-      tailwindcss(),
-      monacoEditorPlugin({
-        languageWorkers: ['json', 'editorWorkerService'],
-        customWorkers: [
-          {
-            label: 'yaml',
-            entry: 'monaco-yaml/yaml.worker',
-          },
-        ],
-      }),
-    ],
+    plugins: [vue(), tailwindcss(), monacoEditorPlugin(scalarAppMonacoEditorPluginOptions)],
     optimizeDeps: {
       exclude: ['monaco-editor', 'monaco-yaml'],
     },

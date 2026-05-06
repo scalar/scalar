@@ -3,6 +3,8 @@
   "include": [
     "entrypoints/electron/shims.d.ts",
     "electron.vite.config.*",
+    "monaco-vite-plugin-options.ts",
+    "vite.config.ts",
     "entrypoints/electron/main/**/*",
     "entrypoints/electron/preload/**/*",
     "entrypoints/electron/helpers/**/*",
