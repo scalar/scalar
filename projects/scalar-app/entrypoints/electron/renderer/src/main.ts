@@ -1,5 +1,4 @@
 import '@/style.css'
-import '@scalar/api-client/style.css'
 
 import { appState } from '@electron/renderer/src/app-state'
 import { commandPaletteState } from '@electron/renderer/src/features/command-palette'

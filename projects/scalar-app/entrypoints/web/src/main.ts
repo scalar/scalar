@@ -1,5 +1,4 @@
 import '@/style.css'
-import '@scalar/api-client/style.css'
 
 import { appState } from '@web/app-state'
 import { router } from '@web/router'
