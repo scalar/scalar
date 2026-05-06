@@ -5,6 +5,7 @@ const mockPostHogInstance = vi.hoisted(() => ({
   opt_in_capturing: vi.fn(),
   opt_out_capturing: vi.fn(),
   capture: vi.fn(),
+  identify: vi.fn(),
   reset: vi.fn(),
 }))
 
@@ -13,6 +14,9 @@ vi.mock('posthog-js', () => ({
     init: vi.fn(() => mockPostHogInstance),
   },
 }))
+
+// posthog-js only initializes in a browser environment, so we need window defined
+vi.stubGlobal('window', globalThis)
 
 import { PostHogClientPlugin } from './index'
 
@@ -61,9 +65,12 @@ describe('posthog-plugin', () => {
     expect(mockPostHogInstance.opt_in_capturing).toHaveBeenCalled()
   })
 
-  it('captures events via event bus subscriptions', () => {
+  it('captures events via the wildcard handler', () => {
     const plugin = PostHogClientPlugin(TEST_CONFIG)
     plugin.lifecycle?.onInit?.()
+
+    const wildcardHandler = plugin.on?.['*']
+    expect(wildcardHandler).toBeDefined()
 
     const trackedEvents = [
       'hooks:on:request:sent',
@@ -81,14 +88,51 @@ describe('posthog-plugin', () => {
 
     for (const event of trackedEvents) {
       mockPostHogInstance.capture.mockClear()
-      plugin.on?.[event]?.({} as never)
-      expect(mockPostHogInstance.capture).toHaveBeenCalledWith(event)
+      wildcardHandler?.(event as never, {} as never)
+      expect(mockPostHogInstance.capture).toHaveBeenCalledWith(event, {})
     }
+  })
+
+  it('does not capture log: events via the wildcard handler', () => {
+    const plugin = PostHogClientPlugin(TEST_CONFIG)
+    plugin.lifecycle?.onInit?.()
+    mockPostHogInstance.capture.mockClear()
+
+    const wildcardHandler = plugin.on?.['*']
+
+    wildcardHandler?.('log:user-login' as never, {} as never)
+    wildcardHandler?.('log:user-logout' as never, undefined as never)
+
+    expect(mockPostHogInstance.capture).not.toHaveBeenCalled()
+  })
+
+  it('identifies the user on log:user-login', () => {
+    const plugin = PostHogClientPlugin(TEST_CONFIG)
+    plugin.lifecycle?.onInit?.()
+
+    plugin.on?.['log:user-login']?.({ uid: 'u1', email: 'user@example.com', teamUid: 'team1' })
+
+    expect(mockPostHogInstance.identify).toHaveBeenCalledWith('u1', {
+      email: 'user@example.com',
+      teamUid: 'team1',
+    })
+  })
+
+  it('resets PostHog on log:user-logout', () => {
+    const plugin = PostHogClientPlugin(TEST_CONFIG)
+    plugin.lifecycle?.onInit?.()
+
+    mockPostHogInstance.reset.mockClear()
+    plugin.on?.['log:user-logout']?.()
+
+    expect(mockPostHogInstance.reset).toHaveBeenCalled()
   })
 
   it('resets PostHog on onDestroy', () => {
     const plugin = PostHogClientPlugin(TEST_CONFIG)
     plugin.lifecycle?.onInit?.()
+
+    mockPostHogInstance.reset.mockClear()
     plugin.lifecycle?.onDestroy?.()
 
     expect(mockPostHogInstance.reset).toHaveBeenCalled()

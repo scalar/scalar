@@ -1,7 +1,12 @@
 import { type ModalState, useModal } from '@scalar/components'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  type EventGlob,
+  type WildcardListener,
+  type WorkspaceEventBus,
+  createWorkspaceEventBus,
+} from '@scalar/workspace-store/events'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { type App, type MaybeRefOrGetter, computed, createApp, isRef, reactive, ref, toValue, watch } from 'vue'
 
@@ -125,8 +130,24 @@ export const createApiClientModal = ({
     plugin.lifecycle?.onInit?.()
 
     if (plugin.on) {
-      for (const [event, handler] of Object.entries(plugin.on)) {
-        pluginUnsubscribes.push(eventBus.on(event as any, handler as any))
+      const on = plugin.on
+
+      // Exact-key handlers — a single glob listener dispatches to the correct
+      // handler by looking up the event name, avoiding N individual subscriptions
+      pluginUnsubscribes.push(
+        eventBus.onGlob('*', (event, payload) => {
+          const handler = on[event]
+          handler?.(payload as never)
+        }),
+      )
+
+      // Glob handlers ('*', 'prefix:*') get their own onGlob subscription
+      for (const key of Object.keys(on)) {
+        if (key === '*' || key.endsWith(':*')) {
+          const pattern = key as EventGlob
+          const handler = on[pattern] as WildcardListener
+          pluginUnsubscribes.push(eventBus.onGlob(pattern, handler))
+        }
       }
     }
   }
