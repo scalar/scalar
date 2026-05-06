@@ -1,6 +1,7 @@
-import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Ref } from 'vue'
+
+import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
 
 /**
  * Configuration options for the API Client (app and modal).

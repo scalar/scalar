@@ -159,6 +159,11 @@
       "types": "./dist/v2/features/operation/index.d.ts",
       "default": "./dist/v2/features/operation/index.js"
     },
+    "./types": {
+      "import": "./dist/types/index.js",
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/types/index.js"
+    },
     "./v2/features/search": {
       "import": "./dist/v2/features/search/index.js",
       "types": "./dist/v2/features/search/index.d.ts",
@@ -268,7 +273,6 @@
     "@scalar/json-magic": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
-    "@scalar/postman-to-openapi": "workspace:*",
     "@scalar/sidebar": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/themes": "workspace:*",
@@ -277,7 +281,6 @@
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
-    "@scalar/validation": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "@types/har-format": "^1.2.16",
     "@vueuse/core": "catalog:*",
@@ -286,33 +289,24 @@
     "focus-trap": "^7.8.0",
     "fuse.js": "catalog:*",
     "js-base64": "catalog:*",
-    "monaco-editor": "catalog:*",
-    "monaco-yaml": "catalog:*",
     "nanoid": "catalog:*",
     "pretty-ms": "^9.3.0",
     "radix-vue": "catalog:*",
     "set-cookie-parser": "catalog:*",
-    "shell-quote": "^1.8.3",
     "vue": "catalog:*",
-    "vue-router": "catalog:*",
     "yaml": "catalog:*",
     "zod": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/pre-post-request-scripts": "workspace:*",
-    "@scalar/sdk": "catalog:*",
     "@tailwindcss/cli": "catalog:*",
     "@tailwindcss/vite": "catalog:*",
-    "@types/shell-quote": "^1.7.5",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
     "fake-indexeddb": "catalog:*",
-    "fastify": "catalog:*",
     "jsdom": "catalog:*",
     "posthog-js": "catalog:*",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
-    "vite-plugin-monaco-editor-esm": "catalog:*",
     "vite-svg-loader": "catalog:*",
     "vitest": "catalog:*"
   }
