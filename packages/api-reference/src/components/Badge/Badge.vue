@@ -24,7 +24,7 @@ const badgeStyle = computed(() =>
 </template>
 
 <style scoped>
-.badge {
+:where(.badge) {
   color: var(--badge-text-color, var(--scalar-color-2));
   font-size: var(--scalar-mini);
   background: var(--badge-background-color, var(--scalar-background-2));
@@ -34,23 +34,23 @@ const badgeStyle = computed(() =>
   border-radius: 12px;
   display: inline-block;
 }
-.badge.text-orange {
+:where(.badge).text-orange {
   background: color-mix(in srgb, var(--scalar-color-orange), transparent 90%);
   border: transparent;
 }
-.badge.text-yellow {
+:where(.badge).text-yellow {
   background: color-mix(in srgb, var(--scalar-color-yellow), transparent 90%);
   border: transparent;
 }
-.badge.text-red {
+:where(.badge).text-red {
   background: color-mix(in srgb, var(--scalar-color-red), transparent 90%);
   border: transparent;
 }
-.badge.text-purple {
+:where(.badge).text-purple {
   background: color-mix(in srgb, var(--scalar-color-purple), transparent 90%);
   border: transparent;
 }
-.badge.text-green {
+:where(.badge).text-green {
   background: color-mix(in srgb, var(--scalar-color-green), transparent 90%);
   border: transparent;
 }
