@@ -1,5 +1,5 @@
 ---
-import { renderApiReference, type HtmlRenderingConfiguration } from '@scalar/client-side-rendering'
+import { getConfiguration, renderApiReference, type HtmlRenderingConfiguration } from '@scalar/client-side-rendering'
 
 import { serializeClientConfig } from './serialize-client-config'
 
@@ -50,9 +50,16 @@ const html =
       })
     : null
 
+// Run the config through the same normalization the static path applies via
+// `renderApiReference`, so client mode also drops `content` when `url` is set
+// and resolves function-valued `content`.
 const clientScript =
   renderMode === 'client'
-    ? serializeClientConfig({ key: mountElementId, configuration: config, cdn: cdn ?? null })
+    ? serializeClientConfig({
+        key: mountElementId,
+        configuration: getConfiguration(config as Record<string, unknown>),
+        cdn: cdn ?? null,
+      })
     : null
 ---
 
