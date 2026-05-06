@@ -15,7 +15,7 @@ import {
 } from '@scalar/themes'
 import { computed } from 'vue'
 
-import IntegrationLogo from '@/components/ImportCollection/IntegrationLogo.vue'
+import IntegrationLogo from '@/features/settings/components/IntegrationLogo.vue'
 
 import Appearance from './components/Appearance.vue'
 import Section from './components/Section.vue'

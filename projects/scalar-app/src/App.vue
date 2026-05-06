@@ -20,11 +20,8 @@ import { type LoaderPlugin } from '@scalar/json-magic/bundle'
 import { requestScriptsPlugin } from '@scalar/pre-post-request-scripts/plugins'
 import { computed, reactive } from 'vue'
 
-import {
-  ClientApp,
-  type AppState,
-  type useCommandPaletteState,
-} from '@/features/app'
+import { ClientApp, type AppState } from '@/features/app'
+import type { useCommandPaletteState } from '@/features/command-palette/hooks/use-command-palette-state'
 import AppMenuItems from '@/features/header/AppMenuItems.vue'
 import { ImportListener } from '@/features/import-listener'
 import { deleteRegistryDocument } from '@/helpers/delete-registry-document'

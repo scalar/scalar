@@ -11,6 +11,7 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { CommandActionForm } from '@scalar/api-client/features/command-palette'
 import { useLoadingState } from '@scalar/components'
 import type { ConvertOptions } from '@scalar/postman-to-openapi'
 import { useToasts } from '@scalar/use-toasts'
@@ -33,8 +34,6 @@ import {
   countPostmanRequestLeaves,
   type PostmanTreeNode,
 } from '@/features/command-palette/helpers/postman-request-tree'
-
-import CommandActionForm from './CommandActionForm.vue'
 
 const {
   workspaceStore,

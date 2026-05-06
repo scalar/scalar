@@ -6,7 +6,7 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import { EnvironmentsList } from '@/v2/features/environments'
+import { EnvironmentsList } from '@scalar/api-client/features/environments'
 
 import Environment from './Environment.vue'
 

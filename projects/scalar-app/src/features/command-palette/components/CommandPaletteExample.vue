@@ -21,6 +21,10 @@ export default {
 <script setup lang="ts">
 import { HttpMethod as HttpMethodBadge } from '@scalar/api-client/blocks/operation-code-sample'
 import {
+  CommandActionForm,
+  CommandActionInput,
+} from '@scalar/api-client/features/command-palette'
+import {
   ScalarButton,
   ScalarDropdown,
   ScalarDropdownItem,
@@ -38,8 +42,6 @@ import { computed, ref, watch, type ComputedRef } from 'vue'
 
 import { useCommandPaletteDocumentSelection } from '../hooks/use-command-palette-document-selection'
 import type { CommandPaletteDocument } from '../hooks/use-command-palette-documents'
-import CommandActionForm from './CommandActionForm.vue'
-import CommandActionInput from './CommandActionInput.vue'
 import CommandPaletteDocumentSelect from './CommandPaletteDocumentSelect.vue'
 
 const {

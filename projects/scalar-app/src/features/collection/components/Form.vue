@@ -1,12 +1,13 @@
 <script setup lang="ts">
+import {
+  DataTable,
+  DataTableInput,
+  DataTableRow,
+} from '@scalar/api-client/components/data-table'
+import { ViewLayoutSection } from '@scalar/api-client/components/ViewLayout'
 import { ScalarIcon } from '@scalar/components'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { useId } from 'vue'
-
-import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
-import DataTable from '@/v2/components/data-table/DataTable.vue'
-import DataTableInput from '@/v2/components/data-table/DataTableInput.vue'
-import DataTableRow from '@/v2/components/data-table/DataTableRow.vue'
 
 defineProps<{
   title?: string

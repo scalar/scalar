@@ -8,7 +8,7 @@ import { load, trackEvent } from 'fathom-client'
 import { createApp } from 'vue'
 
 import App, { type AppProps } from '@/App.vue'
-import { useCommandPaletteState } from '@/features/app'
+import { useCommandPaletteState } from '@/features/command-palette/hooks/use-command-palette-state'
 
 /**
  * Fathom Analytics offers simple & privacy-first tracking

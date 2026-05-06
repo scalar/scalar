@@ -15,6 +15,11 @@ export default {
 
 <script setup lang="ts">
 import {
+  CommandActionForm,
+  CommandActionInput,
+} from '@scalar/api-client/features/command-palette'
+import { useFileDialog } from '@scalar/api-client/hooks/use-file-dialog'
+import {
   ScalarButton,
   ScalarCodeBlock,
   ScalarIcon,
@@ -32,17 +37,14 @@ import {
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, watch } from 'vue'
 
-import { useFileDialog } from '@/hooks/use-file-dialog'
 import { getOpenApiDocumentDetails } from '@/features/command-palette/helpers/get-openapi-document-details'
 import { importDocumentToWorkspace } from '@/features/command-palette/helpers/import-document-to-workspace'
 import {
   loadDocumentFromSource,
   type ImportEventData,
 } from '@/features/command-palette/helpers/load-document-from-source'
-import { isUrl } from '@/v2/helpers/is-url'
+import { isUrl } from '@/helpers/is-url'
 
-import CommandActionForm from './CommandActionForm.vue'
-import CommandActionInput from './CommandActionInput.vue'
 import WatchModeToggle from './WatchModeToggle.vue'
 
 const { workspaceStore, eventBus, fileLoader } = defineProps<{

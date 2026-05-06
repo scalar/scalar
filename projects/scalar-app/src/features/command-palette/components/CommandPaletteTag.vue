@@ -39,6 +39,10 @@ export default {
 </script>
 
 <script setup lang="ts">
+import {
+  CommandActionForm,
+  CommandActionInput,
+} from '@scalar/api-client/features/command-palette'
 import { ScalarButton } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -47,8 +51,6 @@ import { computed, ref, type ComputedRef } from 'vue'
 
 import { useCommandPaletteDocumentSelection } from '../hooks/use-command-palette-document-selection'
 import type { CommandPaletteDocument } from '../hooks/use-command-palette-documents'
-import CommandActionForm from './CommandActionForm.vue'
-import CommandActionInput from './CommandActionInput.vue'
 import CommandPaletteDocumentSelect from './CommandPaletteDocumentSelect.vue'
 
 const {

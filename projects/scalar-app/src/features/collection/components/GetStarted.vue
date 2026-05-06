@@ -19,6 +19,7 @@ export default {}
 </script>
 
 <script setup lang="ts">
+import { ScalarAsciiArt } from '@scalar/api-client/components/ScalarAsciiArt'
 import { ScalarButton, ScalarHotkey } from '@scalar/components'
 import {
   ScalarIconBracketsCurly,
@@ -27,7 +28,6 @@ import {
 import { computed } from 'vue'
 
 import Computer from '@/assets/computer.ascii?raw'
-import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import type { RouteProps } from '@/features/app/helpers/routes'
 
 const { eventBus, isTeamWorkspace, layout, workspaceStore } =

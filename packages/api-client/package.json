@@ -64,6 +64,36 @@
       "types": "./dist/components/Server/index.d.ts",
       "default": "./dist/components/Server/index.js"
     },
+    "./components/HttpMethod": {
+      "import": "./dist/components/HttpMethod/index.js",
+      "types": "./dist/components/HttpMethod/index.d.ts",
+      "default": "./dist/components/HttpMethod/index.js"
+    },
+    "./components/ViewLayout": {
+      "import": "./dist/components/ViewLayout/index.js",
+      "types": "./dist/components/ViewLayout/index.d.ts",
+      "default": "./dist/components/ViewLayout/index.js"
+    },
+    "./components/ScalarAsciiArt": {
+      "import": "./dist/components/ScalarAsciiArt/index.js",
+      "types": "./dist/components/ScalarAsciiArt/index.d.ts",
+      "default": "./dist/components/ScalarAsciiArt/index.js"
+    },
+    "./hooks/use-file-dialog": {
+      "import": "./dist/hooks/use-file-dialog.js",
+      "types": "./dist/hooks/use-file-dialog.d.ts",
+      "default": "./dist/hooks/use-file-dialog.js"
+    },
+    "./features/command-palette": {
+      "import": "./dist/v2/features/command-palette/index.js",
+      "types": "./dist/v2/features/command-palette/index.d.ts",
+      "default": "./dist/v2/features/command-palette/index.js"
+    },
+    "./features/environments": {
+      "import": "./dist/v2/features/environments/index.js",
+      "types": "./dist/v2/features/environments/index.d.ts",
+      "default": "./dist/v2/features/environments/index.js"
+    },
     "./v2/hooks": {
       "import": "./dist/v2/hooks/index.js",
       "types": "./dist/v2/hooks/index.d.ts",

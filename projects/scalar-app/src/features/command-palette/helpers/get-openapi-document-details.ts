@@ -1,6 +1,6 @@
 import { json, yaml } from '@scalar/oas-utils/helpers'
 
-import { isUrl } from '@/v2/helpers/is-url'
+import { isUrl } from '@/helpers/is-url'
 
 /**
  * Represents parsed details from an OpenAPI or Swagger specification.

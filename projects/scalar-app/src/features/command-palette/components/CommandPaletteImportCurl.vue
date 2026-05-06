@@ -25,6 +25,10 @@ export default {
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client/blocks/operation-code-sample'
 import {
+  CommandActionForm,
+  CommandActionInput,
+} from '@scalar/api-client/features/command-palette'
+import {
   ScalarButton,
   ScalarIcon,
   ScalarListbox,
@@ -34,8 +38,6 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, type ComputedRef } from 'vue'
 
-import CommandActionForm from '@/features/command-palette/components/CommandActionForm.vue'
-import CommandActionInput from '@/features/command-palette/components/CommandActionInput.vue'
 import { getOperationFromCurl } from '@/features/command-palette/helpers/get-operation-from-curl'
 
 const { workspaceStore, inputValue, eventBus } = defineProps<{

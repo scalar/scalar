@@ -1,7 +1,12 @@
 import { ScalarIconArrowSquareIn } from '@scalar/icons'
 import { computed, watch } from 'vue'
 
-import { type CommandPaletteAction, baseClientActions, baseRoutes, useCommandPaletteState } from '@/features/app'
+import {
+  type CommandPaletteAction,
+  baseClientActions,
+  baseRoutes,
+  useCommandPaletteState,
+} from '@/features/command-palette/hooks/use-command-palette-state'
 import { useAuth } from '@/hooks/use-auth'
 
 import CommandPaletteImport from './components/CommandPaletteImport.vue'

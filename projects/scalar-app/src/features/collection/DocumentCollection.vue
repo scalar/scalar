@@ -19,9 +19,9 @@ import { LibraryIcon } from '@scalar/icons/library'
 import { computed } from 'vue'
 import { RouterView } from 'vue-router'
 
-import IconSelector from '@/components/IconSelector.vue'
+import IconSelector from '@/features/collection/components/IconSelector.vue'
 import type { RouteProps } from '@/features/app/helpers/routes'
-import { downloadAsFile } from '@/v2/helpers/download-document'
+import { downloadAsFile } from '@/helpers/download-document'
 
 import LabelInput from './components/LabelInput.vue'
 import Tabs from './components/Tabs.vue'

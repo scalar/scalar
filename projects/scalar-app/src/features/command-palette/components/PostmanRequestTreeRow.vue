@@ -9,7 +9,7 @@ import { ScalarCheckboxInput } from '@scalar/components'
 import { ScalarIconCaretRight, ScalarIconWarning } from '@scalar/icons'
 import { computed, ref } from 'vue'
 
-import { HttpMethod } from '@/components/HttpMethod'
+import { HttpMethod } from '@scalar/api-client/components/HttpMethod'
 import {
   collectRequestPathKeysUnderFolder,
   folderFullySelected,

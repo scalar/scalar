@@ -42,6 +42,7 @@
   "main": "./dist/main/index.js",
   "dependencies": {
     "@electron-toolkit/utils": "^4.0.0",
+    "@headlessui/vue": "catalog:*",
     "@scalar/api-client": "workspace:*",
     "@scalar/components": "workspace:*",
     "@scalar/helpers": "workspace:*",
@@ -49,11 +50,13 @@
     "@scalar/json-magic": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
+    "@scalar/openapi-types": "workspace:*",
     "@scalar/postman-to-openapi": "workspace:*",
     "@scalar/pre-post-request-scripts": "workspace:*",
     "@scalar/sdk": "catalog:*",
     "@scalar/sidebar": "workspace:*",
     "@scalar/themes": "workspace:*",
+    "@scalar/types": "workspace:*",
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/validation": "workspace:*",
@@ -63,25 +66,32 @@
     "ansis": "catalog:*",
     "electron-window-state": "5.0.3",
     "fathom-client": "3.7.2",
+    "fuse.js": "catalog:*",
     "get-port-please": "catalog:*",
+    "js-base64": "catalog:*",
     "jwt-decode": "catalog:*",
     "monaco-editor": "catalog:*",
     "monaco-yaml": "catalog:*",
     "posthog-js": "catalog:*",
+    "shell-quote": "^1.8.3",
     "undici": "catalog:*",
-    "vue-router": "catalog:*"
+    "vue": "catalog:*",
+    "vue-router": "catalog:*",
+    "yaml": "catalog:*",
+    "zod": "catalog:*"
   },
   "devDependencies": {
     "@playwright/test": "catalog:*",
     "@tailwindcss/vite": "catalog:*",
     "@todesktop/cli": "1.23.2",
     "@types/node": "catalog:*",
+    "@types/shell-quote": "^1.7.5",
     "@vitejs/plugin-vue": "catalog:*",
+    "@vue/test-utils": "catalog:*",
     "electron": "41.2.2",
     "electron-vite": "6.0.0-beta.1",
+    "fastify": "catalog:*",
     "vite": "catalog:*",
-    "vite-plugin-monaco-editor-esm": "catalog:*",
-    "vue": "catalog:*",
-    "@vue/test-utils": "catalog:*"
+    "vite-plugin-monaco-editor-esm": "catalog:*"
   }
 }

@@ -8,14 +8,14 @@ import type {
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import { computed } from 'vue'
 
-import { CodeInput } from '@/v2/components/code-input'
+import { CodeInput } from '@scalar/api-client/components/code-input'
 import {
   DataTable,
   DataTableCell,
   DataTableCheckbox,
   DataTableHeader,
   DataTableRow,
-} from '@/v2/components/data-table'
+} from '@scalar/api-client/components/data-table'
 
 const { cookies, eventBus, collectionType } = defineProps<
   {

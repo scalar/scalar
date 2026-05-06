@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { CodeInput } from '@scalar/api-client/components/code-input'
+import { DeleteSidebarListElement } from '@scalar/api-client/components/Sidebar'
 import {
   ScalarButton,
   ScalarMarkdown,
@@ -17,8 +19,6 @@ import {
   type Ref,
 } from 'vue'
 
-import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
-import { CodeInput } from '@/v2/components/code-input'
 import type { CollectionProps } from '@/features/app/helpers/routes'
 import Section from '@/features/settings/components/Section.vue'
 

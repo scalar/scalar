@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ServerVariablesForm } from '@scalar/api-client/components/Server'
+import { DeleteSidebarListElement } from '@scalar/api-client/components/Sidebar'
 import {
   ScalarButton,
   ScalarMarkdown,
@@ -14,8 +16,6 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, watchEffect } from 'vue'
 
-import { ServerVariablesForm } from '@/components/Server'
-import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import type { CollectionProps } from '@/features/app/helpers/routes'
 import Section from '@/features/settings/components/Section.vue'
 

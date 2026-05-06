@@ -1,6 +1,6 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 
-import type { RegistryAdapter } from '@/features/app'
+import type { RegistryAdapter } from '@/types/configuration'
 
 import { mapRegistryError } from './registry-error-status'
 import { scalarClient } from './scalar-client'

@@ -4,7 +4,6 @@
   and provides functionality to create new workspaces with namespace support.
 -->
 <script setup lang="ts">
-import { CreateWorkspaceModal } from '@scalar/api-client/app'
 import {
   ScalarButton,
   ScalarDropdown,
@@ -16,6 +15,7 @@ import {
   type WorkspaceGroup,
 } from '@scalar/components'
 
+import { CreateWorkspaceModal } from '@/features/app'
 import { type CreateWorkspacePayload } from '@/features/import-listener/types'
 
 const { workspaceGroups: worksapceGroups, activeWorkspace } = defineProps<{

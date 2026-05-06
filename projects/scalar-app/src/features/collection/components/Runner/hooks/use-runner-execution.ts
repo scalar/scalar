@@ -15,7 +15,7 @@ import { type ComputedRef, type Ref, computed, ref } from 'vue'
 
 import { APP_VERSION } from '@/constants'
 import { safeRun } from '@/helpers/safe-run'
-import { type CustomFetch, type ResponseInstance, sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
+import { type CustomFetch, type ResponseInstance, sendRequest } from '@scalar/api-client/blocks/operation-block'
 
 import type { SelectedItem } from './use-runner-selection'
 

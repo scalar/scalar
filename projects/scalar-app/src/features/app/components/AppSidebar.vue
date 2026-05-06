@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Resize } from '@scalar/api-client/components/resize'
-import DeleteSidebarListElement from '@scalar/api-client/components/Sidebar'
+import { DeleteSidebarListElement } from '@scalar/api-client/components/Sidebar'
 import { DocumentSearchModal } from '@scalar/api-client/features/search'
 import {
   ScalarIconButton,
