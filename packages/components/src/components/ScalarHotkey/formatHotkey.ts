@@ -3,6 +3,27 @@ import { isMacOS } from '@scalar/helpers/general/is-mac-os'
 import { HOTKEY_LABELS, MODIFIER_KEY_SYMBOLS, MODIFIER_KEY_SYMBOLS_MACOS } from './constants'
 import type { HotKeyModifier } from './types'
 
+type HotkeySymbolSet = 'mac' | 'non-mac'
+
+const forcedHotkeySymbolSet = (): HotkeySymbolSet | undefined => {
+  const raw = import.meta.env.VITE_SCALAR_HOTKEY_SYMBOL_SET
+  if (raw === 'mac' || raw === 'non-mac') {
+    return raw
+  }
+  return undefined
+}
+
+const useMacHotkeySymbols = (): boolean => {
+  const forced = forcedHotkeySymbolSet()
+  if (forced === 'mac') {
+    return true
+  }
+  if (forced === 'non-mac') {
+    return false
+  }
+  return isMacOS()
+}
+
 // Type guards
 // ------------------------------------------------------------
 
@@ -17,7 +38,7 @@ function isDefault(modifier: HotKeyModifier): modifier is 'default' {
 /** Get the modifier key symbol for a modifier */
 export function getModifierKeySymbol(modifier: HotKeyModifier): string {
   const hotkey = isDefault(modifier) ? 'Meta' : modifier
-  return isMacOS() ? MODIFIER_KEY_SYMBOLS_MACOS[hotkey] : MODIFIER_KEY_SYMBOLS[hotkey]
+  return useMacHotkeySymbols() ? MODIFIER_KEY_SYMBOLS_MACOS[hotkey] : MODIFIER_KEY_SYMBOLS[hotkey]
 }
 
 /** Format the hotkey symbols for a hotkey */

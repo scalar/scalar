@@ -5,6 +5,7 @@
  */
 import { type Page, type PageAssertionsToHaveScreenshotOptions, expect, test } from '@playwright/test'
 
+import { waitForOperationEditorPathHighlight } from './helpers/wait-for-operation-editor-path-highlight'
 import { waitForScalarAppShellReady } from './helpers/wait-for-scalar-app-shell-ready'
 
 /** Path segment uses the same encoding as the collection editor e2e deep link. */
@@ -49,6 +50,7 @@ test.describe('scalar-app-layout.e2e', () => {
 
     const monaco = page.locator('.monaco-editor').first()
     await monaco.waitFor({ state: 'visible', timeout: 60_000 })
+    await waitForOperationEditorPathHighlight(page)
     await waitForFonts(page)
 
     const options = {

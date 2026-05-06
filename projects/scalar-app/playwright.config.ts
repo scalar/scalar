@@ -12,8 +12,12 @@ const APP_PORT = 5077
  * all interfaces so Docker (e.g. macOS `host.docker.internal`) can reach it when using
  * {@link getDockerServer}.
  */
+/**
+ * Force non-Mac hotkey glyphs in the browser so {@link ScalarHotkey} matches Linux CI when developers
+ * run E2E on macOS (same OpenAPI client bundle as production; only symbol set is pinned).
+ */
 const viteWebPlayground = {
-  command: `pnpm exec vite --config vite.config.ts --host 0.0.0.0 --port ${APP_PORT} --strictPort`,
+  command: `VITE_SCALAR_HOTKEY_SYMBOL_SET=non-mac pnpm exec vite --config vite.config.ts --host 0.0.0.0 --port ${APP_PORT} --strictPort`,
   url: `http://127.0.0.1:${APP_PORT}`,
   reuseExistingServer: !CI,
   timeout: 120_000,

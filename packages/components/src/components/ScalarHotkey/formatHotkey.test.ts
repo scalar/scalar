@@ -32,6 +32,20 @@ describe('formatHotkey', () => {
       mockIsMacOS.mockReturnValue(false)
       expect(getModifierKeySymbol('default')).toBe('ctrl')
     })
+
+    it('forces non-mac symbols when VITE_SCALAR_HOTKEY_SYMBOL_SET is non-mac', () => {
+      vi.stubEnv('VITE_SCALAR_HOTKEY_SYMBOL_SET', 'non-mac')
+      mockIsMacOS.mockReturnValue(true)
+      expect(getModifierKeySymbol('Meta')).toBe('ctrl')
+      vi.unstubAllEnvs()
+    })
+
+    it('forces mac symbols when VITE_SCALAR_HOTKEY_SYMBOL_SET is mac', () => {
+      vi.stubEnv('VITE_SCALAR_HOTKEY_SYMBOL_SET', 'mac')
+      mockIsMacOS.mockReturnValue(false)
+      expect(getModifierKeySymbol('Meta')).toBe('⌘')
+      vi.unstubAllEnvs()
+    })
   })
 
   describe('formatHotkeySymbols', () => {
