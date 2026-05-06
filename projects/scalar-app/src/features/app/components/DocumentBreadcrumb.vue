@@ -9,10 +9,6 @@ import { ScalarIconCaretDown } from '@scalar/icons'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, ref } from 'vue'
 
-import type {
-  ImportDocumentFromRegistry,
-  RegistryDocumentsState,
-} from '@/types/configuration'
 import { type AppState } from '@/features/app/app-state'
 import type { VersionStatus } from '@/features/app/helpers/compute-version-status'
 import { createDraftRegistryDocument } from '@/features/app/helpers/create-draft-registry-document'
@@ -20,7 +16,11 @@ import { loadRegistryDocument } from '@/features/app/helpers/load-registry-docum
 import { VERSION_STATUS_PRESENTATION } from '@/features/app/helpers/version-status-presentation'
 import { useActiveDocumentVersion } from '@/features/app/hooks/use-active-document-version'
 import { useVersionConflictCheck } from '@/features/app/hooks/use-version-conflict-check'
-import { safeRun } from '@/v2/helpers/safe-run'
+import { safeRun } from '@/helpers/safe-run'
+import type {
+  ImportDocumentFromRegistry,
+  RegistryDocumentsState,
+} from '@/types/configuration'
 
 import CreateVersionModal from './CreateVersionModal.vue'
 

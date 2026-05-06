@@ -1,14 +1,13 @@
-import type { ClientLayout } from '@scalar/api-client/types'
+import type { ApiClientOptions, ClientLayout } from '@scalar/api-client/types'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { Theme } from '@scalar/themes'
 import { createApp } from 'vue'
 import { createRouter as createVueRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 
-import type { RegistryAdapter } from '@/types/configuration'
 import App from '@/features/app/App.vue'
 import { createAppState } from '@/features/app/app-state'
 import { ROUTES } from '@/features/app/helpers/routes'
-import type { ApiClientOptions } from '@/v2/types/options'
+import type { RegistryAdapter } from '@/types/configuration'
 
 import { useCommandPaletteState } from '../../command-palette/hooks/use-command-palette-state'
 

@@ -47,11 +47,14 @@
     "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",
     "@scalar/json-magic": "workspace:*",
+    "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/postman-to-openapi": "workspace:*",
     "@scalar/pre-post-request-scripts": "workspace:*",
     "@scalar/sdk": "catalog:*",
+    "@scalar/sidebar": "workspace:*",
     "@scalar/themes": "workspace:*",
+    "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/validation": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
@@ -65,7 +68,8 @@
     "monaco-editor": "catalog:*",
     "monaco-yaml": "catalog:*",
     "posthog-js": "catalog:*",
-    "undici": "catalog:*"
+    "undici": "catalog:*",
+    "vue-router": "catalog:*"
   },
   "devDependencies": {
     "@playwright/test": "catalog:*",

@@ -23,6 +23,7 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { HttpMethod } from '@scalar/api-client/blocks/operation-code-sample'
 import {
   ScalarButton,
   ScalarIcon,
@@ -33,7 +34,6 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, type ComputedRef } from 'vue'
 
-import HttpMethod from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 import CommandActionForm from '@/features/command-palette/components/CommandActionForm.vue'
 import CommandActionInput from '@/features/command-palette/components/CommandActionInput.vue'
 import { getOperationFromCurl } from '@/features/command-palette/helpers/get-operation-from-curl'

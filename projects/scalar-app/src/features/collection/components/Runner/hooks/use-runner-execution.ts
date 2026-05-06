@@ -13,9 +13,9 @@ import {
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { type ComputedRef, type Ref, computed, ref } from 'vue'
 
+import { APP_VERSION } from '@/constants'
+import { safeRun } from '@/helpers/safe-run'
 import { type CustomFetch, type ResponseInstance, sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
-import { APP_VERSION } from '@/v2/constants'
-import { safeRun } from '@/v2/helpers/safe-run'
 
 import type { SelectedItem } from './use-runner-selection'
 

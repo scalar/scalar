@@ -23,6 +23,7 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { HttpMethod as HttpMethodBadge } from '@scalar/api-client/blocks/operation-code-sample'
 import {
   ScalarButton,
   ScalarDropdown,
@@ -36,8 +37,6 @@ import {
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, watch, type ComputedRef } from 'vue'
-
-import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 
 import { useCommandPaletteDocumentSelection } from '../hooks/use-command-palette-document-selection'
 import type { CommandPaletteDocument } from '../hooks/use-command-palette-documents'

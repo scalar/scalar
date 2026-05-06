@@ -22,11 +22,6 @@ import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
-import type {
-  ImportDocumentFromRegistry,
-  RegistryDocumentsState,
-} from '@/types/configuration'
-import { Resize } from '@/v2/components/resize'
 import type { AppState } from '@/features/app'
 import SidebarDocument from '@/features/app/components/SidebarDocument.vue'
 import SidebarItemMenu from '@/features/app/components/SidebarItemMenu.vue'
@@ -38,9 +33,14 @@ import {
   useSidebarDocuments,
   type SidebarDocumentItem,
 } from '@/features/app/hooks/use-sidebar-documents'
+import { safeRun } from '@/helpers/safe-run'
+import type {
+  ImportDocumentFromRegistry,
+  RegistryDocumentsState,
+} from '@/types/configuration'
+import { Resize } from '@/v2/components/resize'
 import { DocumentSearchModal } from '@/v2/features/search'
 import { dragHandleFactory } from '@/v2/helpers/drag-handle-factory'
-import { safeRun } from '@/v2/helpers/safe-run'
 
 const {
   app,

@@ -1,10 +1,9 @@
 <script setup lang="ts">
+import { HttpMethod as HttpMethodBadge } from '@scalar/api-client/blocks/operation-code-sample'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCheck, ScalarIconMinus, ScalarIconX } from '@scalar/icons'
 import { cva } from '@scalar/use-hooks/useBindCx'
 import { computed } from 'vue'
-
-import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 
 import type { RunResult, TestResult } from '../hooks'
 

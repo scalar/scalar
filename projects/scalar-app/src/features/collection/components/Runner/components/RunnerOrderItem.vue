@@ -1,8 +1,7 @@
 <script setup lang="ts">
+import { HttpMethod as HttpMethodBadge } from '@scalar/api-client/blocks/operation-code-sample'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { ScalarIconDotsSixVertical, ScalarIconX } from '@scalar/icons'
-
-import HttpMethodBadge from '@/v2/blocks/operation-code-sample/components/HttpMethod.vue'
 
 const {
   index,
