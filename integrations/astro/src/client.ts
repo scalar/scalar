@@ -23,6 +23,9 @@ type ScalarGlobal = {
 type GlobalState = {
   instances: Record<string, ScalarApiReferenceInstance | null>
   initialized: boolean
+  cdnPromise: Promise<void> | null
+  stylePromise: Promise<void> | null
+  styleHref: string | null
 }
 
 type ScalarWindow = typeof window & {
@@ -38,14 +41,22 @@ type MountOptions = {
 
 const getGlobalState = (): GlobalState => {
   const win = window as ScalarWindow
-  win[stateKey] ??= { instances: {}, initialized: false }
-  return win[stateKey] as GlobalState
+  win[stateKey] ??= {
+    instances: {},
+    initialized: false,
+    cdnPromise: null,
+    stylePromise: null,
+    styleHref: null,
+  }
+  return win[stateKey]
 }
 
 /**
  * Resolve the stylesheet URL for a given Scalar CDN script URL.
+ *
+ * Exported for unit testing.
  */
-const getStyleHref = (cdn: string | null): string => {
+export const getStyleHref = (cdn: string | null): string => {
   const cdnUrl = (cdn ?? DEFAULT_CDN).replace(/\/$/, '')
 
   if (/\/dist\/browser\/[^/]+\.js(?:\?.*)?$/.test(cdnUrl)) {
@@ -63,19 +74,19 @@ const getStyleHref = (cdn: string | null): string => {
   return `${cdnUrl}/dist/style.css`
 }
 
-const ensureStylesLoaded = async (cdn: string | null): Promise<void> => {
-  const styleHref = getStyleHref(cdn)
-  const existing = document.querySelector<HTMLLinkElement>(`link[${STYLE_MARKER}="true"]`)
+const loadStylesheet = (styleHref: string): Promise<void> =>
+  new Promise<void>((resolve, reject) => {
+    const existing = document.querySelector<HTMLLinkElement>(`link[${STYLE_MARKER}="true"]`)
 
-  if (existing?.getAttribute('href') === styleHref && existing.dataset.loaded === 'true') {
-    return
-  }
+    if (existing?.getAttribute('href') === styleHref && existing.dataset.loaded === 'true') {
+      resolve()
+      return
+    }
 
-  if (existing) {
-    existing.remove()
-  }
+    if (existing) {
+      existing.remove()
+    }
 
-  await new Promise<void>((resolve, reject) => {
     const link = document.createElement('link')
     link.rel = 'stylesheet'
     link.href = styleHref
@@ -91,16 +102,38 @@ const ensureStylesLoaded = async (cdn: string | null): Promise<void> => {
     link.addEventListener('error', () => reject(new Error('Failed to load Scalar CDN stylesheet')), { once: true })
     document.head.appendChild(link)
   })
-}
 
-const ensureCdnLoaded = async (cdn: string | null): Promise<void> => {
-  const win = window as ScalarWindow
+const ensureStylesLoaded = async (cdn: string | null): Promise<void> => {
+  const styleHref = getStyleHref(cdn)
+  const state = getGlobalState()
 
-  if (win.Scalar?.createApiReference) {
+  if (state.stylePromise && state.styleHref === styleHref) {
+    await state.stylePromise
     return
   }
 
-  await new Promise<void>((resolve, reject) => {
+  // Different href requested: wait for any in-flight load to settle first so
+  // we do not race against an older `<link>` element being removed.
+  if (state.stylePromise) {
+    try {
+      await state.stylePromise
+    } catch {
+      // ignore — we are about to replace the stylesheet anyway
+    }
+  }
+
+  state.styleHref = styleHref
+  state.stylePromise = loadStylesheet(styleHref).catch((error) => {
+    state.stylePromise = null
+    state.styleHref = null
+    throw error
+  })
+
+  await state.stylePromise
+}
+
+const loadCdn = (cdn: string | null): Promise<void> =>
+  new Promise<void>((resolve, reject) => {
     const existing = document.querySelector<HTMLScriptElement>(`script[${CDN_MARKER}="true"]`)
 
     if (existing?.dataset.loaded === 'true') {
@@ -128,6 +161,22 @@ const ensureCdnLoaded = async (cdn: string | null): Promise<void> => {
     script.addEventListener('error', () => reject(new Error('Failed to load Scalar CDN script')), { once: true })
     document.head.appendChild(script)
   })
+
+const ensureCdnLoaded = async (cdn: string | null): Promise<void> => {
+  const win = window as ScalarWindow
+
+  if (win.Scalar?.createApiReference) {
+    return
+  }
+
+  const state = getGlobalState()
+
+  state.cdnPromise ??= loadCdn(cdn).catch((error) => {
+    state.cdnPromise = null
+    throw error
+  })
+
+  await state.cdnPromise
 }
 
 const readMountOptions = (container: HTMLElement): MountOptions | null => {
@@ -157,7 +206,11 @@ const destroyInstance = (state: GlobalState, selector: string): void => {
   const instance = state.instances[selector]
 
   if (instance?.destroy) {
-    instance.destroy()
+    try {
+      instance.destroy()
+    } catch (error) {
+      console.error('[scalar/astro] failed to destroy instance', error)
+    }
   }
 
   state.instances[selector] = null
