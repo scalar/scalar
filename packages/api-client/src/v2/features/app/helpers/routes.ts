@@ -23,7 +23,7 @@ import OperationCollection from '@/v2/features/collection/OperationCollection.vu
 import WorkspaceCollection from '@/v2/features/collection/WorkspaceCollection.vue'
 import { Operation } from '@/v2/features/operation'
 import { workspaceStorage } from '@/v2/helpers/storage'
-import type { ImportDocumentFromRegistry } from '@/v2/types/configuration'
+import type { RegistryAdapter } from '@/v2/types/configuration'
 import type { ClientLayout } from '@/v2/types/layout'
 import type { ApiClientOptions } from '@/v2/types/options'
 
@@ -49,6 +49,10 @@ export type RouteProps = {
   workspaceStore: WorkspaceStore
   /** The currently active workspace */
   activeWorkspace: { id: string; label: string }
+  /**
+   * Whether the active workspace is backed by a team (i.e. not the built-in `local` team).
+   */
+  isTeamWorkspace?: boolean
   /** Client plugins */
   plugins: ClientPlugin[]
   /** Custom themes available to the team */
@@ -58,10 +62,14 @@ export type RouteProps = {
   /** Whether the current color mode is dark */
   isDarkMode?: boolean
   /**
-   * Fetches the full document from registry by meta. When provided, registry meta takes priority
-   * over x-scalar-original-source-url when syncing. Returns the document as a plain object.
+   * Adapter wiring the API client up to an external registry. When
+   * provided, the registry meta takes priority over
+   * `x-scalar-original-source-url` while syncing, and the document
+   * settings danger zone surfaces the destructive
+   * "Delete this version" / "Delete document from registry" flows.
+   * Omit to opt out of registry features entirely.
    */
-  fetchRegistryDocument?: ImportDocumentFromRegistry
+  registry?: RegistryAdapter
   /** Whether telemetry is enabled */
   telemetry?: boolean
   /** Updates the telemetry enabled state */
@@ -84,7 +92,7 @@ export type CollectionProps = RouteProps &
   )
 
 export type ScalarClientAppRouteParams =
-  | 'namespace'
+  | 'teamSlug'
   | 'workspaceSlug'
   | 'documentSlug'
   | 'pathEncoded'
@@ -94,7 +102,7 @@ export type ScalarClientAppRouteParams =
 /** Routes for the API client app and web, the same as modal + workspace routes */
 export const ROUTES = [
   {
-    path: '/@:namespace/:workspaceSlug',
+    path: '/@:teamSlug/:workspaceSlug',
     children: [
       {
         path: 'document/:documentSlug',

@@ -26,10 +26,11 @@ export default defineConfig({
   build: {
     outDir: './dist',
     ssr: false,
+    minify: false,
     sourcemap: true,
     lib: {
       formats: ['es'],
-      cssFileName: 'style',
+      cssFileName: 'vue-styles',
       entry,
     },
     rolldownOptions: {
@@ -40,5 +41,8 @@ export default defineConfig({
       output: createPreserveModulesOutput(),
     },
   },
-  test: {},
+  test: {
+    environment: 'jsdom',
+    root: resolve(import.meta.dirname, './'),
+  },
 })

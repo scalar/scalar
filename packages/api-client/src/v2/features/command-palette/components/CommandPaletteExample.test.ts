@@ -238,8 +238,8 @@ describe('CommandPaletteExample', () => {
       },
     })
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    const options = listbox.props('options')
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    const options = select.props('documents')
 
     expect(options).toHaveLength(2)
     expect(options[0].label).toBe('Document 1')
@@ -287,8 +287,8 @@ describe('CommandPaletteExample', () => {
       },
     })
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    expect(listbox.props('modelValue').label).toBe('Document 1')
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('modelValue')).toBe('doc1')
   })
 
   it('loads operations for the selected document', async () => {
@@ -418,8 +418,8 @@ describe('CommandPaletteExample', () => {
 
     await nextTick()
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    await listbox.vm.$emit('update:modelValue', { id: 'doc2', label: 'Document 2' })
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    await select.vm.$emit('update:modelValue', 'doc2')
     await nextTick()
 
     const dropdown = wrapper.findComponent({ name: 'ScalarDropdown' })
@@ -742,8 +742,8 @@ describe('CommandPaletteExample', () => {
       },
     })
 
-    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    const options = listbox.props('options')
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    const options = select.props('documents')
 
     expect(options[0].label).toBe('my-document')
   })
@@ -1049,5 +1049,162 @@ describe('CommandPaletteExample', () => {
     await nextTick()
 
     expect(wrapper.emitted('back')).toBeFalsy()
+  })
+
+  it('uses the documents prop instead of the workspace store when provided', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'doc-a': createMockDocument({ info: { title: 'A', version: '1' } }),
+      'doc-b': createMockDocument({ info: { title: 'B', version: '1' } }),
+    })
+    const eventBus = createWorkspaceEventBus()
+
+    const wrapper = mount(CommandPaletteExample, {
+      props: {
+        workspaceStore,
+        eventBus,
+        documents: [{ id: 'doc-b', label: 'Grouped B' }],
+      },
+    })
+
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('documents')).toEqual([{ id: 'doc-b', label: 'Grouped B' }])
+    expect(select.props('modelValue')).toBe('doc-b')
+  })
+
+  it('preselects the active document when the caller does not pass documentName', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'doc-a': createMockDocument({ info: { title: 'A', version: '1' } }),
+      'doc-b': createMockDocument({ info: { title: 'B', version: '1' } }),
+    })
+    const eventBus = createWorkspaceEventBus()
+
+    const wrapper = mount(CommandPaletteExample, {
+      props: {
+        workspaceStore,
+        eventBus,
+        activeDocumentName: 'doc-b',
+      },
+    })
+
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('modelValue')).toBe('doc-b')
+  })
+
+  it('prefers an explicit documentName over the active document', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'doc-a': createMockDocument({ info: { title: 'A', version: '1' } }),
+      'doc-b': createMockDocument({ info: { title: 'B', version: '1' } }),
+    })
+    const eventBus = createWorkspaceEventBus()
+
+    const wrapper = mount(CommandPaletteExample, {
+      props: {
+        workspaceStore,
+        eventBus,
+        documentName: 'doc-a',
+        activeDocumentName: 'doc-b',
+      },
+    })
+
+    const select = wrapper.findComponent({ name: 'CommandPaletteDocumentSelect' })
+    expect(select.props('modelValue')).toBe('doc-a')
+  })
+
+  it('shows an inline error when the example name conflicts with an existing one', async () => {
+    const document = createMockDocument({
+      paths: {
+        '/api/users': {
+          get: {
+            operationId: 'op1',
+            'x-draft-examples': ['default', 'custom'],
+          },
+        },
+      },
+    })
+    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
+
+    const wrapper = mount(CommandPaletteExample, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    await nextTick()
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', 'custom')
+    await nextTick()
+
+    const error = wrapper.find('[data-testid="command-palette-example-error"]')
+    expect(error.exists()).toBe(true)
+    expect(error.attributes('role')).toBe('alert')
+    expect(error.text()).toContain('custom')
+    expect(error.text()).toContain('already exists')
+
+    const form = wrapper.findComponent({ name: 'CommandActionForm' })
+    expect(form.props('disabled')).toBe(true)
+  })
+
+  it('does not show the inline error when the example name is unique', async () => {
+    const document = createMockDocument({
+      paths: {
+        '/api/users': {
+          get: {
+            operationId: 'op1',
+            'x-draft-examples': ['default'],
+          },
+        },
+      },
+    })
+    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
+
+    const wrapper = mount(CommandPaletteExample, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    await nextTick()
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', 'fresh-name')
+    await nextTick()
+
+    expect(wrapper.find('[data-testid="command-palette-example-error"]').exists()).toBe(false)
+  })
+
+  it('does not show the inline error in edit mode when the name is unchanged', async () => {
+    const document = createMockDocument({
+      paths: {
+        '/api/users': {
+          get: {
+            operationId: 'op1',
+            'x-draft-examples': ['default', 'custom'],
+          },
+        },
+      },
+    })
+    const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
+    const eventBus = createWorkspaceEventBus()
+
+    const wrapper = mount(CommandPaletteExample, {
+      props: {
+        workspaceStore,
+        eventBus,
+        documentName: 'doc1',
+        example: {
+          id: 'example-custom',
+          type: 'example',
+          title: 'custom',
+          name: 'custom',
+        },
+      },
+    })
+
+    expect(wrapper.find('[data-testid="command-palette-example-error"]').exists()).toBe(false)
   })
 })

@@ -15,7 +15,7 @@
     "coerce",
     "scalar"
   ],
-  "version": "0.3.0",
+  "version": "0.3.2",
   "engines": {
     "node": ">=20"
   },
@@ -34,6 +34,10 @@
       "default": "./dist/index.js"
     }
   },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
   "devDependencies": {
     "vite": "catalog:*",
     "vitest": "catalog:*"

@@ -271,6 +271,7 @@ export function createState({
       registryUrl,
       registryDocuments,
       config: config.value,
+      getAccessToken,
       api,
       removable,
     })
@@ -332,6 +333,7 @@ export function createState({
         registryUrl,
         registryDocuments,
         config: config.value,
+        getAccessToken,
         api,
         removable,
       })

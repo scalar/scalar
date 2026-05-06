@@ -1,5 +1,5 @@
+import { slugify } from '@scalar/helpers/string/slugify'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
-import { slug } from 'github-slugger'
 
 import type { TraverseSpecOptions } from '@/navigation/types'
 import type { IdGenerator } from '@/schemas/navigation'
@@ -27,7 +27,7 @@ export type NavigationOptions =
  */
 export const getNavigationOptions = (documentName: string, options?: NavigationOptions): TraverseSpecOptions => {
   const generateId: IdGenerator = (props) => {
-    const documentId = `${slug(documentName)}`
+    const documentId = slugify(documentName)
 
     // -------- Default text id generation logic --------
     if (props.type === 'text') {
@@ -51,7 +51,7 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
         return `${documentId}/${tagPrefix}/${options.generateTagSlug(props.tag)}`
       }
 
-      return `${documentId}/${tagPrefix}/${slug(props.tag.name ?? '')}`
+      return `${documentId}/${tagPrefix}/${slugify(props.tag.name ?? '')}`
     }
 
     // -------- Default operation id generation logic --------
@@ -93,7 +93,7 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
         })}`
       }
 
-      return `${prefixTag}webhook/${props.method?.toUpperCase()}/${slug(props.name)}`
+      return `${prefixTag}webhook/${props.method?.toUpperCase()}/${slugify(props.name)}`
     }
 
     // -------- Default model id generation logic --------
@@ -116,11 +116,11 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
         })}`
       }
 
-      return `${prefixTag}model/${slug(props.name, true)}`
+      return `${prefixTag}model/${slugify(props.name, { preserveCase: true })}`
     }
 
     if (props.type === 'example') {
-      return `${props.parentId}/example/${slug(props.name)}`
+      return `${props.parentId}/example/${slugify(props.name)}`
     }
 
     if (props.type === 'document') {

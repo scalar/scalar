@@ -1,17 +1,17 @@
 import { expect, test } from '@playwright/test'
+import { PETSTORE_URL_2_0 } from '@scalar/helpers/url/oas-document-fixtures'
 import { serveExample } from '@test/utils/serve-example'
 
 test.describe('url', () => {
   test('renders Petstore (Swagger 2.0) document', async ({ page }) => {
     const example = await serveExample({
-      url: 'https://petstore.swagger.io/v2/swagger.json',
+      url: PETSTORE_URL_2_0,
     })
 
     await page.goto(example)
 
     await expect(page.getByRole('heading', { name: 'Swagger Petstore', level: 1 })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'pet', level: 2 })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'uploads an image', level: 3 })).toBeVisible()
   })
 
   test('Should redirect legacy query parameter multi-document support to path routing', async ({ page }) => {

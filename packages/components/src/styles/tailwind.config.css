@@ -1,0 +1,18 @@
+/**
+ * Component Library Tailwind Configuration
+
+ * This file can be imported into other projects using Tailwind to
+ * generate the appropriate Tailwind utilities for the component library.
+ */
+
+/* Component Library Specific Tailwind Theme */
+@import "./theme.css";
+
+/* Search for Tailwind classes in the Component Library */
+@source "../";
+
+/* Component Library Specific Tailwind Utilities */
+@import "./utilities.css";
+
+/* Plugins */
+@plugin "@headlessui/tailwindcss";

@@ -314,6 +314,47 @@ describe('buildRequestBody', () => {
     expect(result.value[1].value).toBe('Test file')
   })
 
+  it('builds FormData for schema-generated multipart/form-data object examples', () => {
+    const requestBody = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              image: {
+                type: 'string',
+                format: 'binary',
+              },
+              description: {
+                type: 'string',
+                default: 'An image upload',
+              },
+            },
+            required: ['image'],
+          },
+        },
+      },
+    })
+
+    const result = buildRequestBody(requestBody, 'default')
+
+    expect(result?.mode).toBe('formdata')
+    assert(result?.mode === 'formdata')
+
+    expect(result.value).toStrictEqual([
+      {
+        type: 'text',
+        key: 'image',
+        value: '@filename',
+      },
+      {
+        type: 'text',
+        key: 'description',
+        value: 'An image upload',
+      },
+    ])
+  })
+
   it('returns File bodies for raw binary request examples', () => {
     const mockFile = new File(['binary content'], 'payload.bin', { type: 'application/octet-stream' })
     const requestBody = {
@@ -335,6 +376,29 @@ describe('buildRequestBody', () => {
 
     expect(result?.value).toBe(mockFile)
     assert(result?.value === mockFile)
+  })
+
+  it('returns raw File for multipart/form-data when example value is a File instance', () => {
+    const mockFile = new File(['binary content'], 'payload.bin', { type: 'application/octet-stream' })
+    const requestBody = {
+      content: {
+        'multipart/form-data': {
+          examples: {
+            default: {
+              value: mockFile,
+            },
+          },
+        },
+      },
+    }
+
+    const result = buildRequestBody(requestBody, 'default')
+
+    expect(result).toStrictEqual({
+      mode: 'raw',
+      value: mockFile,
+      contentType: 'application/octet-stream',
+    })
   })
 
   it('skips form entries with empty names', () => {

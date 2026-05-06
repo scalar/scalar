@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import type { AnyObject } from '@/types/index'
 
 import { DEFAULT_OPENAPI_VERSION, DEFAULT_TITLE, sanitize } from './sanitize'
 
@@ -102,7 +103,7 @@ describe('sanitize', () => {
         },
       })
 
-      expect(result.components?.securitySchemes).toStrictEqual({
+      expect((result.components as AnyObject)?.securitySchemes).toStrictEqual({
         bearerAuth: {
           type: 'http',
           scheme: 'bearer',
@@ -151,7 +152,9 @@ describe('sanitize', () => {
         },
       })
 
-      expect(result.components?.securitySchemes?.oauth2.flows.authorizationCode.scopes).toStrictEqual({
+      expect(
+        ((result.components as AnyObject)?.securitySchemes as AnyObject)?.oauth2?.flows?.authorizationCode?.scopes,
+      ).toStrictEqual({
         'read:data': '',
         'write:data': '',
       })

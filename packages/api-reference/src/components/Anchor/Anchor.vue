@@ -14,7 +14,7 @@ const labelId = useId()
 const { cx } = useBindCx()
 </script>
 <template>
-  <span v-bind="cx('group/heading word-break-all relative')">
+  <span v-bind="cx('group/heading wrap-break-word relative')">
     <span
       :id="labelId"
       class="contents">

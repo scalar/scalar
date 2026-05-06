@@ -1,0 +1,14 @@
+/**
+ * Sidebar Tailwind Generation
+ *
+ * This file is used to generate the Tailwind style
+ * sheet for the sidebar.
+ */
+
+/* Sidebar Tailwind Configuration */
+@import "./tailwind.config.css";
+
+/* Generate the Tailwind Utilities (scoped) */
+.scalar-app {
+  @import "tailwindcss/utilities.css";
+}

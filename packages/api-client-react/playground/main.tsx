@@ -1,3 +1,4 @@
+import { PETSTORE_URL_2_0 } from '@scalar/helpers/url/oas-document-fixtures'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 
@@ -10,7 +11,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <App initialRequest={{ path: '/planets', method: 'get' }} />
     <App
       initialRequest={{ path: '/pet', method: 'put' }}
-      url="https://petstore.swagger.io/v2/swagger.json"
+      url={PETSTORE_URL_2_0}
     />
   </React.StrictMode>,
 )

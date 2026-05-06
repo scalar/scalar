@@ -82,6 +82,33 @@ export const Multiselect: Story = {
   }),
 }
 
+export const Scrolling: Story = {
+  args: {
+    multiple: true,
+    options: Array.from({ length: 32 }, (_, i) => ({ id: i.toString(), label: `Option ${i}` })),
+  },
+  render: (args) => ({
+    components: {
+      ScalarListbox,
+      ScalarListboxInput,
+      ScalarIconCaretDown,
+    },
+    setup() {
+      const selected = ref<Option[]>([])
+      return { args, selected }
+    },
+    template: `
+<div class="flex items-center justify-center w-full min-h-128">
+  <ScalarListbox v-model="selected" v-bind="args" v-slot="{ open }">
+       <ScalarListboxInput class="w-48" :open>
+        {{ selected?.length ? selected.map(o => o.label).join(', ') : 'Select an option' }}
+    </ScalarListboxInput>
+  </ScalarListbox>
+</div>
+`,
+  }),
+}
+
 export const CustomClasses: Story = {
   args: {
     class: 'border border-red rounded',

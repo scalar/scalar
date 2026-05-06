@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.3.4
+
+### Patch Changes
+
+- [#8964](https://github.com/scalar/scalar/pull/8964): fix markdown inside HTML text tags like `<p>` so inline formatting is rendered.
+
 ## 0.3.3
 
 ### Patch Changes

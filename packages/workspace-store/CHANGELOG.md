@@ -1,5 +1,59 @@
 # @scalar/workspace-store
 
+## 0.49.3
+
+### Patch Changes
+
+- [#9054](https://github.com/scalar/scalar/pull/9054): fix multipart/form-data request body generation for schema-derived object examples
+
+## 0.49.2
+
+### Patch Changes
+
+- [#8921](https://github.com/scalar/scalar/pull/8921): Prevent infinite recursion when validating defaults on circular composed schemas.
+- [#9083](https://github.com/scalar/scalar/pull/9083): fix: prevent proxy leak into document meta breaking IndexedDB persistence
+- [#9059](https://github.com/scalar/scalar/pull/9059): feat: added the scalar-app back to open source
+- [#8921](https://github.com/scalar/scalar/pull/8921): fix nullable numeric schema defaults so empty-string defaults are normalized to null in generated request body examples.
+- [#9050](https://github.com/scalar/scalar/pull/9050): chore: depricate intermediate document state
+
+## 0.49.1
+
+### Patch Changes
+
+- [#9049](https://github.com/scalar/scalar/pull/9049): Flush pending debounced operation edits before executing API client requests.
+- [#9023](https://github.com/scalar/scalar/pull/9023): chore: use homemade slugger
+
+## 0.49.0
+
+### Minor Changes
+
+- [#9045](https://github.com/scalar/scalar/pull/9045): feat: extra metadata for registry documents
+- [#9045](https://github.com/scalar/scalar/pull/9045): chore: migrate api-client from namespaces to teamSlug and convert team workspaces
+
+### Patch Changes
+
+- [#9043](https://github.com/scalar/scalar/pull/9043): chore: move test documents to cdn
+- [#9045](https://github.com/scalar/scalar/pull/9045): feat: added once back to the event bus
+
+## 0.48.0
+
+### Minor Changes
+
+- [#9000](https://github.com/scalar/scalar/pull/9000): feat: extra metadata for registry documents
+- [#8986](https://github.com/scalar/scalar/pull/8986): chore: migrate api-client from namespaces to teamSlug and convert team workspaces
+
+### Patch Changes
+
+- [#9028](https://github.com/scalar/scalar/pull/9028): feat: added once back to the event bus
+
+## 0.47.1
+
+## 0.47.0
+
+### Minor Changes
+
+- [#8972](https://github.com/scalar/scalar/pull/8972): feat: support new ui events for the client
+
 ## 0.46.3
 
 ### Patch Changes

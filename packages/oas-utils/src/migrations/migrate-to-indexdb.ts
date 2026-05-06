@@ -3,6 +3,7 @@ import { extractConfigSecrets, removeSecretFields } from '@scalar/helpers/genera
 import { CONTENT_TYPES } from '@scalar/helpers/http/content-types'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
+import { slugger } from '@scalar/helpers/string/slugger'
 import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-path'
 import { type ThemeId, presets } from '@scalar/themes'
 import type { Oauth2Flow } from '@scalar/types/entities'
@@ -29,7 +30,6 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceExtensions, WorkspaceMeta } from '@scalar/workspace-store/schemas/workspace'
 import { ColorModeSchema } from '@scalar/workspace-store/schemas/workspace'
-import GithubSlugger from 'github-slugger'
 
 import { migrator } from '@/migrations/migrator'
 import type { v_2_5_0 } from '@/migrations/v-2.5.0/types.generated'
@@ -60,7 +60,6 @@ export const migrateLocalStorageToIndexDb = async () => {
     const shouldMigrate = await shouldMigrateToIndexDb(workspacePersistence)
 
     if (!shouldMigrate) {
-      console.info('ℹ️  No migration needed - IndexedDB already has workspaces or no legacy data exists')
       return
     }
 
@@ -83,11 +82,10 @@ export const migrateLocalStorageToIndexDb = async () => {
       workspaces.map((workspace) =>
         limit(() =>
           workspacePersistence.setItem(
-            { namespace: 'local', slug: workspace.slug },
+            { teamSlug: 'local', slug: workspace.slug },
             {
               name: workspace.name,
               workspace: workspace.workspace,
-              teamUid: 'local',
             },
           ),
         ),
@@ -159,7 +157,7 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
         const workspaceAuth: InMemoryWorkspace['auth'] = {}
 
         /** Create a slugger instance per workspace to handle duplicate document names */
-        const documentSlugger = new GithubSlugger()
+        const { slug } = slugger()
 
         /** Each collection becomes a document in the new system and grab the auth as well */
         const documents: { name: string; document: Record<string, unknown> }[] = workspace.collections.flatMap(
@@ -176,7 +174,7 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
             const normalizedName = documentName === 'Drafts' ? 'drafts' : documentName
 
             // Use GitHubSlugger to ensure unique document names
-            const uniqueName = documentSlugger.slug(normalizedName, false)
+            const uniqueName = slug(normalizedName)
 
             workspaceAuth[uniqueName] = auth
 

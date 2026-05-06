@@ -1,22 +1,17 @@
 /**
- * Component Library Styles
+ * Component Library Style Generation
+ *
+ * This file is used to generate the Tailwind style
+ * sheet for the component library.
  */
 
 @import "@scalar/themes/style.css"; /* Theme Base Styles and Reset */
 @import "@scalar/themes/tailwind.css"; /* Tailwind Theme + Config */
 
-/* Component Library Specific Tailwind Theme */
-@import "./theme.css";
+/* Component Library Tailwind Configuration */
+@import "./styles/tailwind.config.css";
 
+/* Generate the Tailwind Utilities (scoped) */
 .scalar-app {
   @import "tailwindcss/utilities.css";
 }
-
-/* Search for Tailwind classes in the Component Library */
-@source "./";
-
-/* Component Library Specific Tailwind Utilities */
-@import "./utilities.css";
-
-/* Plugins */
-@plugin "@headlessui/tailwindcss";

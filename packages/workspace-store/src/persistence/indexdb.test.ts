@@ -32,11 +32,19 @@ describe('indexdb', () => {
   beforeEach(async () => {
     dbConnection = await createIndexDbConnection({
       name: testDbName,
-      version: 1,
       tables: {
         users: { schema: UserSchema, keyPath: ['id'] as const },
         orders: { schema: OrderSchema, keyPath: ['userId', 'orderId'] as const },
       },
+      migrations: [
+        {
+          description: 'Initial test schema',
+          up: ({ db }) => {
+            db.createObjectStore('users', { keyPath: 'id' })
+            db.createObjectStore('orders', { keyPath: ['userId', 'orderId'] })
+          },
+        },
+      ],
     })
 
     return async () => {
@@ -315,5 +323,140 @@ describe('indexdb', () => {
       { id: 'user-1', name: 'Alice Updated', age: 31 },
       { id: 'user-2', name: 'Bob', age: 25 },
     ])
+  })
+
+  describe('migration runner', () => {
+    /**
+     * Helper to remove a database between sub-tests. The outer describe block
+     * scopes a single `testDbName`; these tests open their own databases so
+     * they can declare migration chains directly.
+     */
+    const deleteDatabase = (name: string) =>
+      new Promise<void>((resolve, reject) => {
+        const req = indexedDB.deleteDatabase(name)
+        req.onsuccess = () => resolve()
+        req.onerror = () => reject(req.error)
+        req.onblocked = () => resolve()
+      })
+
+    /** Wraps an IDB request as a Promise so we can await it inside a migration. */
+    const wrap = <T>(req: IDBRequest<T>) =>
+      new Promise<T>((resolve, reject) => {
+        req.onsuccess = () => resolve(req.result)
+        req.onerror = () => reject(req.error)
+      })
+
+    it('awaits async migrations before running the next one', async () => {
+      const dbName = 'migration-ordering-test'
+      await deleteDatabase(dbName)
+
+      // The first migration creates a store and writes a record asynchronously.
+      // The second migration reads that record back. If the runner started v2
+      // before v1 had a chance to finish its onsuccess work, v2 would see an
+      // empty store — which is exactly the latent ordering bug we are guarding
+      // against.
+      const observedByV2: Array<{ id: string; name: string }> = []
+
+      const connection = await createIndexDbConnection({
+        name: dbName,
+        tables: {
+          users: { schema: UserSchema, keyPath: ['id'] as const },
+        },
+        migrations: [
+          {
+            description: 'create users and seed asynchronously',
+            up: async ({ db, transaction }) => {
+              db.createObjectStore('users', { keyPath: 'id' })
+              // Mimic v2-team-to-local: do an IDB read first, then mutate.
+              // Even though there is nothing to read yet, awaiting a getAll
+              // forces the schema work below to happen across an await.
+              await wrap(transaction.objectStore('users').getAll())
+              await wrap(transaction.objectStore('users').put({ id: 'seed', name: 'Seed', age: 0 }))
+            },
+          },
+          {
+            description: 'observe seeded data',
+            up: async ({ transaction }) => {
+              const all = (await wrap(transaction.objectStore('users').getAll())) as Array<{
+                id: string
+                name: string
+                age: number
+              }>
+              for (const record of all) {
+                observedByV2.push({ id: record.id, name: record.name })
+              }
+            },
+          },
+        ],
+      })
+
+      try {
+        expect(observedByV2).toEqual([{ id: 'seed', name: 'Seed' }])
+      } finally {
+        connection.closeDatabase()
+        await deleteDatabase(dbName)
+      }
+    })
+
+    it('surfaces the descriptive label when an async migration rejects', async () => {
+      const dbName = 'migration-async-error-test'
+      await deleteDatabase(dbName)
+
+      try {
+        await expect(
+          createIndexDbConnection({
+            name: dbName,
+            tables: {
+              users: { schema: UserSchema, keyPath: ['id'] as const },
+            },
+            migrations: [
+              {
+                description: 'create users',
+                up: ({ db }) => {
+                  db.createObjectStore('users', { keyPath: 'id' })
+                },
+              },
+              {
+                description: 'fail asynchronously',
+                up: async ({ transaction }) => {
+                  // First await keeps the upgrade transaction alive.
+                  await wrap(transaction.objectStore('users').getAll())
+                  throw new Error('boom')
+                },
+              },
+            ],
+          }),
+        ).rejects.toThrow('Migration v2 (fail asynchronously) failed: boom')
+      } finally {
+        await deleteDatabase(dbName)
+      }
+    })
+
+    it('surfaces the descriptive label when a synchronous migration throws', async () => {
+      const dbName = 'migration-sync-error-test'
+      await deleteDatabase(dbName)
+
+      try {
+        await expect(
+          createIndexDbConnection({
+            name: dbName,
+            tables: {
+              users: { schema: UserSchema, keyPath: ['id'] as const },
+            },
+            migrations: [
+              {
+                description: 'create users',
+                up: ({ db }) => {
+                  db.createObjectStore('users', { keyPath: 'id' })
+                  throw new Error('sync boom')
+                },
+              },
+            ],
+          }),
+        ).rejects.toThrow('Migration v1 (create users) failed: sync boom')
+      } finally {
+        await deleteDatabase(dbName)
+      }
+    })
   })
 })

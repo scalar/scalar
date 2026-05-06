@@ -20,9 +20,8 @@
 
 ## Getting Started
 
-:::scalar-callout{ type=info }
-SDK generation is part of our paid plans and costs $100 per month per language. Keep this in mind when selecting which languages you'd like to generate SDKs for.
-:::
+> [!NOTE]
+> SDK generation is part of our paid plans and costs $100 per month per language. Keep this in mind when selecting which languages you'd like to generate SDKs for.
 
 Make sure you have created a Scalar Account & are logged in ([see create account guide](../registry/getting-started.md#create-your-scalar-account))
 

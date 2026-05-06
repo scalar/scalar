@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import { ApiReference } from '@scalar/api-reference'
+import {
+  PETSTORE_URL_2_0,
+  PETSTORE_URL_3_0,
+  PETSTORE_URL_3_1,
+} from '@scalar/helpers/url/oas-document-fixtures'
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 
 const configuration: AnyApiReferenceConfiguration = {
@@ -27,15 +32,15 @@ const configuration: AnyApiReferenceConfiguration = {
     },
     {
       title: 'Swagger Petstore 2.0',
-      url: 'https://petstore.swagger.io/v2/swagger.json',
+      url: PETSTORE_URL_2_0,
     },
     {
       title: 'Swagger Petstore 3.0',
-      url: 'https://petstore3.swagger.io/api/v3/openapi.json',
+      url: PETSTORE_URL_3_0,
     },
     {
       title: 'Swagger Petstore 3.1',
-      url: 'https://petstore31.swagger.io/api/v31/openapi.json',
+      url: PETSTORE_URL_3_1,
     },
     {
       title: 'Hello World (string)',

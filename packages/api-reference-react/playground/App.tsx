@@ -1,4 +1,5 @@
 import type { ApiReferenceConfiguration } from '@scalar/api-reference'
+import { PETSTORE_URL_2_0 } from '@scalar/helpers/url/oas-document-fixtures'
 import { generate } from 'random-words'
 import { useEffect, useState } from 'react'
 
@@ -36,7 +37,7 @@ function App() {
     <ApiReferenceReact
       configuration={[
         {
-          url: 'https://petstore.swagger.io/v2/swagger.json',
+          url: PETSTORE_URL_2_0,
         },
         {
           title: 'Scalar Galaxy', // optional, would fallback to 'API #1'

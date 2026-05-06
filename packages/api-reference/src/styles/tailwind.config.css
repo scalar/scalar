@@ -1,0 +1,18 @@
+/**
+ * API Reference Tailwind Configuration
+ *
+ * This file can be imported into other projects using Tailwind to
+ * generate the appropriate Tailwind utilities for the API Reference.
+ */
+
+/* Dependency Tailwind Configurations */
+@import "@scalar/components/tailwind.config.css";
+@import "@scalar/sidebar/tailwind.config.css";
+@import "@scalar/api-client/tailwind.config.css";
+@import "@scalar/agent-chat/tailwind.config.css";
+
+/* API Reference Tailwind Theme Extensions */
+@import "./theme.css";
+
+/* Search for Tailwind classes in the API Reference */
+@source "../";

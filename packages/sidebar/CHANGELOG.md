@@ -1,5 +1,28 @@
 # @scalar/sidebar
 
+## 0.9.11
+
+## 0.9.10
+
+### Patch Changes
+
+- [#9086](https://github.com/scalar/scalar/pull/9086): feat: code split tailwind CSS to reduce bundle size
+- [#9091](https://github.com/scalar/scalar/pull/9091): fix: tailwind styles regression
+
+## 0.9.9
+
+## 0.9.8
+
+## 0.9.7
+
+## 0.9.6
+
+## 0.9.5
+
+### Patch Changes
+
+- [#8972](https://github.com/scalar/scalar/pull/8972): fix: remove the broder from the item decorators
+
 ## 0.9.4
 
 ## 0.9.3

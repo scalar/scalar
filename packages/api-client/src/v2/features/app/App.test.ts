@@ -25,7 +25,7 @@ const MOCK_OPENAPI_DOC = {
  * Tests focus on core functionality like theme generation, environment merging, and layout rendering
  */
 describe('App', () => {
-  const WORKSPACE_NAMESPACE = 'local'
+  const WORKSPACE_TEAM_SLUG = 'local'
   const WORKSPACE_SLUG = 'default'
   const DOCUMENT_ID = 'doc1'
   const OAUTH_SCHEME_NAME = 'OAuth2Auth'
@@ -86,7 +86,7 @@ describe('App', () => {
 
     const persistence = await createWorkspaceStorePersistence()
     await persistence.workspace.setItem(
-      { namespace: WORKSPACE_NAMESPACE, slug: WORKSPACE_SLUG },
+      { teamSlug: WORKSPACE_TEAM_SLUG, slug: WORKSPACE_SLUG },
       {
         name: 'Default',
         workspace: store.exportWorkspace(),
@@ -116,7 +116,7 @@ describe('App', () => {
 
     await router.push({
       name: routeName,
-      params: { namespace: WORKSPACE_NAMESPACE, workspaceSlug: WORKSPACE_SLUG, documentSlug: DOCUMENT_ID },
+      params: { teamSlug: WORKSPACE_TEAM_SLUG, workspaceSlug: WORKSPACE_SLUG, documentSlug: DOCUMENT_ID },
     })
 
     await router.isReady()

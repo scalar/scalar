@@ -14,7 +14,7 @@ describe('upgrade', () => {
       paths: {},
     })
 
-    expect(specification.swagger).toBeUndefined()
+    expect((specification as Record<string, unknown>).swagger).toBeUndefined()
     expect(specification.openapi).toBe('3.1.1')
   })
 

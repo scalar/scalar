@@ -65,7 +65,7 @@ const shouldVirtualize = computed(() => {
   <ScalarVirtualText
     v-else-if="prettyPrintedContent !== undefined && shouldVirtualize"
     containerClass="custom-scroll scalar-code-block border rounded-b flex flex-1 max-h-screen"
-    contentClass="language-plaintext whitespace-pre font-code text-base"
+    contentClass="language-plaintext whitespace-pre font-code text-base p-2"
     :lineHeight="20"
     :text="prettyPrintedContent" />
 

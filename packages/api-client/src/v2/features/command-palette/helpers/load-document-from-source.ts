@@ -62,7 +62,9 @@ export const loadDocumentFromSource = async (
   watchMode: boolean,
 ): Promise<boolean> => {
   const { source, type } = importEventData
-  if (!source) {
+  const normalizedSource = type === 'url' ? source.trim() : source
+
+  if (!normalizedSource) {
     // No source provided, do nothing.
     return false
   }
@@ -71,7 +73,7 @@ export const loadDocumentFromSource = async (
   if (type === 'url') {
     return await workspaceStore.addDocument({
       name,
-      url: source,
+      url: normalizedSource,
       meta: {
         'x-scalar-watch-mode': watchMode,
       },

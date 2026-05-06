@@ -31,7 +31,6 @@ import {
 } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
 
 import { useFileDialog } from '@/hooks/use-file-dialog'
 import { getOpenApiDocumentDetails } from '@/v2/features/command-palette/helpers/get-openapi-document-details'
@@ -78,16 +77,18 @@ defineSlots<{
 
 const { toast } = useToasts()
 
-const router = useRouter()
 const loader = useLoadingState()
 
 const inputContent = ref('')
 const watchMode = ref(false)
 
+/** Trim paste noise for URL checks without changing raw JSON/YAML content. */
+const normalizedInputContent = computed<string>(() => inputContent.value.trim())
+
 /** Check if the input content is a URL */
-const isUrlInput = computed<boolean>(() => isUrl(inputContent.value))
+const isUrlInput = computed<boolean>(() => isUrl(normalizedInputContent.value))
 const isLocalUrlInput = computed<boolean>(
-  () => isUrlInput.value && isLocalUrl(inputContent.value),
+  () => isUrlInput.value && isLocalUrl(normalizedInputContent.value),
 )
 
 const documentDetails = computed(() =>
@@ -159,16 +160,18 @@ const handleImport = async (
       return type
     }
 
-    if (isUrlInput.value) {
+    if (isUrl(newSource.trim())) {
       return 'url'
     }
 
     return 'raw'
   })()
 
+  const source = eventType === 'url' ? newSource.trim() : newSource
+
   const isSuccessfullyLoaded = await loadDocumentFromSource(
     draftStore,
-    { source: newSource, type: eventType },
+    { source, type: eventType },
     TEMP_DOCUMENT_NAME,
     watchMode.value,
   )
@@ -199,9 +202,10 @@ const handleImport = async (
 
 /** Navigate to the document overview page after successful import */
 const navigateToDocument = (documentName: string): void => {
-  router.push({
-    name: 'document.overview',
-    params: { documentSlug: documentName },
+  eventBus.emit('ui:navigate', {
+    page: 'document',
+    path: 'overview',
+    documentSlug: documentName,
   })
 }
 

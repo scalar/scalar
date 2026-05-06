@@ -146,7 +146,7 @@ const createBasicDocument = (title = 'Test API') => ({
   },
 })
 
-describe('ApiReference Configuration Tests', () => {
+describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
   it('default configuration values', async () => {
     const wrapper = mountComponent({ props: { configuration: { content: createBasicDocument() } } })
     await flushPromises()

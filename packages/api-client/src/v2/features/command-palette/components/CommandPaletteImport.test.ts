@@ -7,17 +7,9 @@ import { nextTick } from 'vue'
 
 import CommandPaletteImport from './CommandPaletteImport.vue'
 
-// Mock router
-const mockPush = vi.fn()
-vi.mock('vue-router', () => ({
-  useRouter: () => ({
-    push: mockPush,
-  }),
-}))
-
 describe('CommandPaletteImport', () => {
   beforeEach(() => {
-    mockPush.mockClear()
+    vi.clearAllMocks()
   })
 
   afterEach(() => {
@@ -306,6 +298,25 @@ describe('CommandPaletteImport', () => {
 
     const input = wrapper.findComponent({ name: 'CommandActionInput' })
     await input.vm.$emit('update:modelValue', 'https://example.com/api.json')
+    await nextTick()
+
+    const watchToggle = wrapper.findComponent({ name: 'WatchModeToggle' })
+    expect(watchToggle.props('disabled')).toBe(false)
+  })
+
+  it('enables watch mode toggle for URL input with a trailing newline', async () => {
+    const workspaceStore = createWorkspaceStore()
+    const eventBus = createWorkspaceEventBus()
+
+    const wrapper = mount(CommandPaletteImport, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', 'https://example.com/api.json\n')
     await nextTick()
 
     const watchToggle = wrapper.findComponent({ name: 'WatchModeToggle' })

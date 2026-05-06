@@ -217,7 +217,7 @@ Use the extended `test` from `@test/helpers` which provides `snapshot()` and Sto
 import { test } from '@test/helpers'
 
 test.describe('ScalarExample', () => {
-  test.use({ component: 'ScalarExample', crop: true, background: true })
+  test.use({ component: 'ScalarExample', crop: 'component', background: true })
 
   test('Base', async ({ snapshot }) => {
     await snapshot('base')

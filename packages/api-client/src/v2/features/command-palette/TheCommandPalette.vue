@@ -43,19 +43,71 @@ import {
 } from 'vue'
 import { useRouter } from 'vue-router'
 
+import type { AppState } from '@/v2/features/app'
+import type { RegistryDocumentsState } from '@/v2/types/configuration'
+
+import { useCommandPaletteDocuments } from './hooks/use-command-palette-documents'
 import type {
   CommandPaletteEntry,
   CommandPaletteState,
 } from './hooks/use-command-palette-state'
 
-const { paletteState, workspaceStore, eventBus } = defineProps<{
+const {
+  paletteState,
+  workspaceStore,
+  eventBus,
+  app,
+  registryDocuments = { status: 'success', documents: [] },
+} = defineProps<{
   /** The command palette state management hook */
   paletteState: CommandPaletteState
   /** The workspace store for accessing documents and operations */
   workspaceStore: WorkspaceStore
   /** Event bus for emitting workspace events */
   eventBus: WorkspaceEventBus
+  /**
+   * App state, used to derive the active document for context-aware
+   * preselection in commands that target a specific document.
+   */
+  app: AppState
+  /**
+   * Registry documents that back this workspace. Mirrors the list the
+   * sidebar consumes so registry-grouped documents collapse to a single
+   * option in the palette's document selector.
+   */
+  registryDocuments?: RegistryDocumentsState
 }>()
+
+/**
+ * Document options for the palette's "select document" dropdowns. Mirrors
+ * the sidebar grouping so registry-backed documents that share an OpenAPI
+ * title collapse into a single entry pointing at the active version.
+ */
+const documentOptions = useCommandPaletteDocuments({
+  app,
+  managedDocs: () => registryDocuments.documents ?? [],
+})
+
+/**
+ * Document slug the user is currently viewing, if any. Commands that take
+ * a document target use this as the preselection so opening the palette
+ * from inside a document acts on that document by default.
+ */
+const activeDocumentName = computed(() => app.activeEntities.documentSlug.value)
+
+/**
+ * Command ids whose forms render a "select document" dropdown. We only
+ * forward the document-context props to these so the other palette
+ * components do not receive unrelated attribute fall-through.
+ */
+const DOCUMENT_AWARE_COMMAND_IDS: ReadonlySet<keyof CommandPalettePayload> =
+  new Set([
+    'create-request',
+    'add-tag',
+    'edit-tag',
+    'add-example',
+    'edit-example',
+  ])
 
 /** Starting index when no search result is selected */
 const NO_SELECTION_INDEX = -1
@@ -147,8 +199,19 @@ const handleCommandClick = (command: CommandPaletteEntry): void => {
     return
   }
 
-  // We are sure that the ids are of type FolderCommandIds because of the type assertion
-  paletteState.open(command.id as keyof CommandPalettePayload, {})
+  const id = command.id as keyof CommandPalettePayload
+
+  // Pre-fill the document target with whatever document the user is
+  // currently viewing so opening the palette from inside a document
+  // creates the new entity in that document by default. Commands that
+  // do not take a document target are unaffected because their payload
+  // type does not declare `documentName`.
+  const payload =
+    DOCUMENT_AWARE_COMMAND_IDS.has(id) && activeDocumentName.value
+      ? { documentName: activeDocumentName.value }
+      : {}
+
+  paletteState.open(id, payload as CommandPalettePayload[typeof id])
 }
 
 /**
@@ -173,11 +236,26 @@ const closeHandler = (): void => {
   selectedSearchResult.value = NO_SELECTION_INDEX
 }
 
-const paletteProps = computed(() => ({
-  workspaceStore,
-  eventBus,
-  ...paletteState.activeCommandProps.value,
-}))
+const paletteProps = computed(() => {
+  const base: Record<string, unknown> = {
+    workspaceStore,
+    eventBus,
+    ...paletteState.activeCommandProps.value,
+  }
+
+  // Forward documents + active-document context only to the commands that
+  // actually render a document selector, so the other palette components
+  // do not get unrelated attribute fall-through on their root element.
+  const id = paletteState.activeCommand.value?.id as
+    | keyof CommandPalettePayload
+    | undefined
+  if (id && DOCUMENT_AWARE_COMMAND_IDS.has(id)) {
+    base.documents = documentOptions.value
+    base.activeDocumentName = activeDocumentName.value
+  }
+
+  return base
+})
 
 const onOpen = (
   payload: CommandPaletteAction | KeyboardEventPayload | undefined,

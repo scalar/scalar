@@ -78,9 +78,8 @@ if (app.Environment.IsDevelopment())
 
 You're all set! 🎉 Navigate to `/scalar` to view your API Reference.
 
-:::scalar-callout{ type=info }
-For multiple OpenAPI documents, see [Multiple OpenAPI Documents](#configuration-options__multiple-openapi-documents).
-:::
+> [!NOTE]
+> For multiple OpenAPI documents, see [Multiple OpenAPI Documents](#configuration-options__multiple-openapi-documents).
 
 ## MapScalarApiReference Overloads
 
@@ -232,9 +231,8 @@ The `isDefault` parameter allows you to specify which document should be selecte
 
 You can also specify a document name directly in the URL path (e.g., `/scalar/v1`). However, this will override the document names specified in the `AddDocument` or `AddDocuments` methods.
 
-:::scalar-callout{ type=info }
-**Note on case sensitivity**: Scalar forwards document names to the OpenAPI generator exactly as they appear in the URL path or as they are defined, preserving the case. The behavior depends on whether your OpenAPI generator treats document names as case-sensitive. To avoid issues, use consistent casing for document names (e.g., lowercase `"v1"`).
-:::
+> [!NOTE]
+> **Note on case sensitivity**: Scalar forwards document names to the OpenAPI generator exactly as they appear in the URL path or as they are defined, preserving the case. The behavior depends on whether your OpenAPI generator treats document names as case-sensitive. To avoid issues, use consistent casing for document names (e.g., lowercase `"v1"`).
 
 ### Agent
 
@@ -268,15 +266,13 @@ For more details, see [Agent](../../configuration.md#agent) and [How to get an A
 Scalar allows you to pre-configure authentication details for your API, making it easier for developers to test your endpoints. Scalar supports API Key, OAuth2, and HTTP authentication schemes.
 
 
-:::scalar-callout{ type=warning }
-**Before you start**: Your OpenAPI document must already include authentication security schemes for Scalar to work with them. Scalar can only pre-fill authentication details for schemes that are already defined in your OpenAPI specification.
+> [!WARNING]
+> **Before you start**: Your OpenAPI document must already include authentication security schemes for Scalar to work with them. Scalar can only pre-fill authentication details for schemes that are already defined in your OpenAPI specification.
+>
+> The security schemes are added by your OpenAPI generator (`NSwag.AspNetCore`, `Swashbuckle.AspNetCore.SwaggerGen`, or `Microsoft.AspNetCore.OpenApi`). If you don't see authentication options in Scalar, check your OpenAPI generator's documentation to learn how to properly define security schemes.
 
-The security schemes are added by your OpenAPI generator (`NSwag.AspNetCore`, `Swashbuckle.AspNetCore.SwaggerGen`, or `Microsoft.AspNetCore.OpenApi`). If you don't see authentication options in Scalar, check your OpenAPI generator's documentation to learn how to properly define security schemes.
-:::
-
-:::scalar-callout{ type=danger }
-**Security Notice**: Pre-filled authentication details are visible in the browser and should **never** be used in production environments. Only use this feature for development and testing.
-:::
+> [!CAUTION]
+> **Security Notice**: Pre-filled authentication details are visible in the browser and should **never** be used in production environments. Only use this feature for development and testing.
 
 
 #### API Key Authentication
@@ -453,9 +449,8 @@ app.MapScalarApiReference(options => options
     .EnablePersistentAuthentication());
 ```
 
-:::scalar-callout{ type=danger }
-Persisting authentication information in the browser's local storage may present security risks. Use with caution.
-:::
+> [!CAUTION]
+> Persisting authentication information in the browser's local storage may present security risks. Use with caution.
 
 ### Custom HTTP Client
 
@@ -479,9 +474,8 @@ app.MapScalarApiReference(options =>
 });
 ```
 
-:::scalar-callout{ type=info }
-Fonts are loaded from a CDN by default. To disable this, use `DisableDefaultFonts()`.
-:::
+> [!NOTE]
+> Fonts are loaded from a CDN by default. To disable this, use `DisableDefaultFonts()`.
 
 ### Custom JavaScript Configuration
 
@@ -510,9 +504,8 @@ export default {
 }
 ```
 
-:::scalar-callout{ type=info }
-Make sure to expose the directory that contains your JavaScript module through static file middleware using `app.MapStaticAssets()` or `app.UseStaticFiles()`.
-:::
+> [!NOTE]
+> Make sure to expose the directory that contains your JavaScript module through static file middleware using `app.MapStaticAssets()` or `app.UseStaticFiles()`.
 
 ### Dependency Injection
 
@@ -524,9 +517,8 @@ builder.Services.Configure<ScalarOptions>(options => options.Title = "My API");
 builder.Services.AddOptions<ScalarOptions>().BindConfiguration("Scalar");
 ```
 
-:::scalar-callout{ type=info }
-Options set via `MapScalarApiReference` override those set through dependency injection.
-:::
+> [!NOTE]
+> Options set via `MapScalarApiReference` override those set through dependency injection.
 
 ## Additional Information
 

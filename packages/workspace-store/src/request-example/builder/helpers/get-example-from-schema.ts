@@ -216,6 +216,132 @@ const mergeExamples = (baseValue: unknown, newValue: unknown): unknown => {
 }
 
 type CompositionKeyword = 'anyOf' | 'oneOf'
+type SchemaPrimitiveType = 'string' | 'number' | 'boolean' | 'object' | 'array' | 'null' | 'integer'
+const MAX_SCHEMA_VALIDATION_DEPTH = MAX_LEVELS_DEEP * 5
+
+/** Cache composed schema resolution to preserve identity across recursion checks. */
+const composedSchemaResolutionCache = new WeakMap<object, SchemaObject | undefined>()
+
+const isValueOfType = (value: unknown, targetType: SchemaPrimitiveType): boolean => {
+  switch (targetType) {
+    case 'string':
+      return typeof value === 'string'
+    case 'number':
+      return typeof value === 'number' && !Number.isNaN(value)
+    case 'integer':
+      return typeof value === 'number' && Number.isInteger(value)
+    case 'boolean':
+      return typeof value === 'boolean'
+    case 'object':
+      return typeof value === 'object' && value !== null && !Array.isArray(value)
+    case 'array':
+      return Array.isArray(value)
+    case 'null':
+      return value === null
+    default:
+      return false
+  }
+}
+
+const resolveComposedSchemaMember = (schema: SchemaObject): SchemaObject | undefined => {
+  const rawSchema = getSchemaCacheTarget(schema)
+  if (composedSchemaResolutionCache.has(rawSchema)) {
+    return composedSchemaResolutionCache.get(rawSchema)
+  }
+
+  const resolved = '$ref' in schema ? resolve.schema(schema) : schema
+  composedSchemaResolutionCache.set(rawSchema, resolved)
+  return resolved
+}
+
+const schemaAllowsValue = (
+  schema: SchemaObject,
+  value: unknown,
+  seen: Set<object> = new Set(),
+  level: number = 0,
+): boolean => {
+  // Depth guard prevents stack overflows when composed schemas loop through wrapped resolver objects.
+  if (level > MAX_SCHEMA_VALIDATION_DEPTH) {
+    return true
+  }
+
+  const rawSchema = getSchemaCacheTarget(schema)
+
+  if (seen.has(rawSchema)) {
+    return true
+  }
+  seen.add(rawSchema)
+
+  if ('type' in schema && schema.type) {
+    const types = Array.isArray(schema.type) ? schema.type : [schema.type]
+    const matchesType = types.some((targetType) => {
+      if (targetType === 'number' && isValueOfType(value, 'integer')) {
+        return true
+      }
+
+      return isValueOfType(value, targetType)
+    })
+
+    if (!matchesType) {
+      seen.delete(rawSchema)
+      return false
+    }
+  }
+
+  const anyOf = schema.anyOf
+  if (Array.isArray(anyOf) && anyOf.length > 0) {
+    const matchesAnyOf = anyOf.some((item) => {
+      const resolved = resolveComposedSchemaMember(item as SchemaObject)
+      return !!resolved && schemaAllowsValue(resolved, value, seen, level + 1)
+    })
+
+    if (!matchesAnyOf) {
+      seen.delete(rawSchema)
+      return false
+    }
+  }
+
+  const oneOf = schema.oneOf
+  if (Array.isArray(oneOf) && oneOf.length > 0) {
+    const matchesOneOf = oneOf.some((item) => {
+      const resolved = resolveComposedSchemaMember(item as SchemaObject)
+      return !!resolved && schemaAllowsValue(resolved, value, seen, level + 1)
+    })
+
+    if (!matchesOneOf) {
+      seen.delete(rawSchema)
+      return false
+    }
+  }
+
+  const allOf = schema.allOf
+  if (Array.isArray(allOf) && allOf.length > 0) {
+    const matchesAllOf = allOf.every((item) => {
+      const resolved = resolveComposedSchemaMember(item as SchemaObject)
+      return !resolved || schemaAllowsValue(resolved, value, seen, level + 1)
+    })
+
+    if (!matchesAllOf) {
+      seen.delete(rawSchema)
+      return false
+    }
+  }
+
+  seen.delete(rawSchema)
+  return true
+}
+
+const INVALID_DEFAULT = Symbol('INVALID_DEFAULT')
+
+const normalizeSchemaDefault = (schema: SchemaObject): unknown | typeof INVALID_DEFAULT => {
+  const defaultValue = schema.default
+
+  if (schemaAllowsValue(schema, defaultValue)) {
+    return defaultValue
+  }
+
+  return INVALID_DEFAULT
+}
 
 const getCompositionSelectionKey = (schemaPath: string[], composition: CompositionKeyword): string =>
   [...schemaPath, composition].join('.')
@@ -629,8 +755,12 @@ export const getExampleFromSchema = (
     return cache(_schema, _schema.example, cacheKey)
   }
   if (_schema.default !== undefined) {
-    seen.delete(targetValue)
-    return cache(_schema, _schema.default, cacheKey)
+    const normalizedDefault = normalizeSchemaDefault(_schema)
+
+    if (normalizedDefault !== INVALID_DEFAULT) {
+      seen.delete(targetValue)
+      return cache(_schema, normalizedDefault, cacheKey)
+    }
   }
   if (_schema.const !== undefined) {
     seen.delete(targetValue)

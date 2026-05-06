@@ -5,14 +5,6 @@ import { nextTick } from 'vue'
 
 import CommandPaletteDocument from './CommandPaletteOpenApiDocument.vue'
 
-// Mock router
-const mockPush = vi.fn()
-vi.mock('vue-router', () => ({
-  useRouter: () => ({
-    push: mockPush,
-  }),
-}))
-
 describe('CommandPaletteDocument', () => {
   const createMockWorkspaceStore = async (documents: Record<string, Record<string, unknown>> = {}) => {
     const store = createWorkspaceStore()
@@ -25,11 +17,12 @@ describe('CommandPaletteDocument', () => {
   const createMockEventBus = () => ({
     emit: vi.fn(),
     on: vi.fn(),
+    once: vi.fn(),
     off: vi.fn(),
   })
 
   beforeEach(() => {
-    mockPush.mockClear()
+    vi.clearAllMocks()
   })
 
   afterEach(() => {
@@ -133,6 +126,75 @@ describe('CommandPaletteDocument', () => {
 
     const form = wrapper.findComponent({ name: 'CommandActionForm' })
     expect(form.props('disabled')).toBe(true)
+  })
+
+  it('shows an inline error when the document name already exists', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'Existing Document': { id: '123' },
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteDocument, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', 'Existing Document')
+    await nextTick()
+
+    const error = wrapper.find('[data-testid="command-palette-document-error"]')
+    expect(error.exists()).toBe(true)
+    expect(error.attributes('role')).toBe('alert')
+    expect(error.text()).toContain('Existing Document')
+    expect(error.text()).toContain('already exists')
+  })
+
+  it('does not show an inline error when the document name is empty', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'Existing Document': { id: '123' },
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteDocument, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    expect(wrapper.find('[data-testid="command-palette-document-error"]').exists()).toBe(false)
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', '   ')
+    await nextTick()
+
+    expect(wrapper.find('[data-testid="command-palette-document-error"]').exists()).toBe(false)
+  })
+
+  it('clears the inline error once the user types a unique name', async () => {
+    const workspaceStore = await createMockWorkspaceStore({
+      'Existing Document': { id: '123' },
+    })
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteDocument, {
+      props: {
+        workspaceStore,
+        eventBus,
+      },
+    })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', 'Existing Document')
+    await nextTick()
+    expect(wrapper.find('[data-testid="command-palette-document-error"]').exists()).toBe(true)
+
+    await input.vm.$emit('update:modelValue', 'Existing Document v2')
+    await nextTick()
+    expect(wrapper.find('[data-testid="command-palette-document-error"]').exists()).toBe(false)
   })
 
   it('enables form when document name is valid and unique', async () => {
@@ -489,7 +551,7 @@ describe('CommandPaletteDocument', () => {
     expect(wrapper.emitted('close')).toHaveLength(1)
   })
 
-  it('uses the trimmed document name in router params', async () => {
+  it('uses the trimmed document name when navigating after creation', async () => {
     const workspaceStore = await createMockWorkspaceStore()
     const eventBus = createMockEventBus()
 
@@ -512,11 +574,36 @@ describe('CommandPaletteDocument', () => {
     const callback = emitCall?.[1]?.callback
     callback?.(true)
 
-    expect(mockPush).toHaveBeenCalledWith({
-      name: 'document.overview',
-      params: {
-        documentSlug: 'My Document',
+    expect(eventBus.emit).toHaveBeenCalledWith('ui:navigate', {
+      page: 'document',
+      path: 'overview',
+      documentSlug: 'My Document',
+    })
+  })
+
+  it('does not navigate when document creation callback fails', async () => {
+    const workspaceStore = await createMockWorkspaceStore()
+    const eventBus = createMockEventBus()
+
+    const wrapper = mount(CommandPaletteDocument, {
+      props: {
+        workspaceStore,
+        eventBus,
       },
     })
+
+    const input = wrapper.findComponent({ name: 'CommandActionInput' })
+    await input.vm.$emit('update:modelValue', 'My Document')
+    await nextTick()
+
+    const form = wrapper.findComponent({ name: 'CommandActionForm' })
+    await form.vm.$emit('submit')
+    await nextTick()
+
+    const emitCall = eventBus.emit.mock.calls.find((call) => call[0] === 'document:create:empty-document')
+    const callback = emitCall?.[1]?.callback
+    callback?.(false)
+
+    expect(eventBus.emit).not.toHaveBeenCalledWith('ui:navigate', expect.anything())
   })
 })

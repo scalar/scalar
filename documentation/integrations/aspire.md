@@ -192,9 +192,8 @@ var scalar = builder.AddScalarApiReference(options =>
 });
 ```
 
-:::scalar-callout{ type=warning }
-The `AllowSelfSignedCertificates()` method should only be used in development environments, never in production.
-:::
+> [!WARNING]
+> The `AllowSelfSignedCertificates()` method should only be used in development environments, never in production.
 
 ### How HTTPS Support Works
 
@@ -204,9 +203,8 @@ The `AllowSelfSignedCertificates()` method should only be used in development en
 - **Certificate Validation**: Self-signed certificates can be trusted in development using `AllowSelfSignedCertificates()`
 - **Fallback Behavior**: If HTTPS is preferred but unavailable, HTTP endpoints are used as fallback. Conversely, if no HTTP endpoint is available, HTTPS endpoints are automatically used
 
-:::scalar-callout{ type=info }
-Currently, the API Reference interface is hosted over HTTP, even when communicating with HTTPS services. Support for hosting the Scalar interface under HTTPS will be added in a future release.
-:::
+> [!NOTE]
+> Currently, the API Reference interface is hosted over HTTP, even when communicating with HTTPS services. Support for hosting the Scalar interface under HTTPS will be added in a future release.
 
 ## Proxy Configuration
 
@@ -278,9 +276,8 @@ var scalar = builder.AddScalarApiReference(options =>
 });
 ```
 
-:::scalar-callout{ type=info }
-When the proxy is enabled, OAuth token requests are automatically proxied through the Scalar proxy to avoid CORS issues. However, interactive authorization requests are not proxied since they occur directly in the browser, so authorization URLs must be correctly configured and accessible. See the [Aspire playground on GitHub](https://github.com/scalar/scalar/blob/main/integrations/dotnet/aspire/playground/Scalar.Aspire.BookService/Program.cs#L15-L21).
-:::
+> [!NOTE]
+> When the proxy is enabled, OAuth token requests are automatically proxied through the Scalar proxy to avoid CORS issues. However, interactive authorization requests are not proxied since they occur directly in the browser, so authorization URLs must be correctly configured and accessible. See the [Aspire playground on GitHub](https://github.com/scalar/scalar/blob/main/integrations/dotnet/aspire/playground/Scalar.Aspire.BookService/Program.cs#L15-L21).
 
 ### Service-Specific Authentication
 

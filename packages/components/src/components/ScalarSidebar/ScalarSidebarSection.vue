@@ -53,6 +53,7 @@ const { cx } = useBindCx()
       :indent="level" />
     <ScalarSidebarButton
       is="div"
+      v-if="$slots.default"
       class="text-sm/4 py-1.75 font-bold"
       disabled
       :icon="icon"

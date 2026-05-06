@@ -39,16 +39,26 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import { ScalarButton } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
-import { computed, ref } from 'vue'
+import { computed, ref, type ComputedRef } from 'vue'
 
+import { useCommandPaletteDocumentSelection } from '../hooks/use-command-palette-document-selection'
+import type { CommandPaletteDocument } from '../hooks/use-command-palette-documents'
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
+import CommandPaletteDocumentSelect from './CommandPaletteDocumentSelect.vue'
 
-const { workspaceStore, eventBus, documentName, tag } = defineProps<{
+const {
+  workspaceStore,
+  eventBus,
+  documentName,
+  tag,
+  documents,
+  activeDocumentName,
+} = defineProps<{
   /** The workspace store for accessing documents and tags */
   workspaceStore: WorkspaceStore
   /** Event bus for emitting tag creation events */
@@ -57,6 +67,19 @@ const { workspaceStore, eventBus, documentName, tag } = defineProps<{
   documentName?: string
   /** When provided, the component enters edit mode with this name pre-filled */
   tag?: TraversedTag
+  /**
+   * Document options for the dropdown. When omitted we fall back to
+   * iterating the workspace store, which keeps the component usable in
+   * isolation (e.g. tests) without requiring the full command-palette
+   * plumbing.
+   */
+  documents?: CommandPaletteDocument[]
+  /**
+   * Document the user is currently viewing. Used as the preselection when
+   * the caller does not pass an explicit `documentName`, so opening the
+   * palette from inside a document targets that document by default.
+   */
+  activeDocumentName?: string
 }>()
 
 const emit = defineEmits<{
@@ -71,56 +94,75 @@ const isEditMode = computed(() => tag !== undefined)
 const name = ref(tag?.name ?? '')
 const nameTrimmed = computed(() => name.value.trim())
 
-/** All available documents (collections) in the workspace */
-const availableDocuments = computed(() =>
-  Object.entries(workspaceStore.workspace.documents).map(
-    ([name, document]) => ({
-      id: name,
-      label: document.info.title || name,
-    }),
-  ),
-)
-
-const selectedDocument = ref<{ id: string; label: string } | undefined>(
-  documentName
-    ? availableDocuments.value.find((document) => document.id === documentName)
-    : (availableDocuments.value[0] ?? undefined),
-)
+const { availableDocuments, selectedDocumentName } =
+  useCommandPaletteDocumentSelection({
+    workspaceStore,
+    documents: () => documents,
+    documentName: () => documentName,
+    activeDocumentName: () => activeDocumentName,
+  })
 
 /**
- * Check if the form should be disabled.
+ * Validation message surfaced under the input.
  *
- * In edit mode, disabled when:
- * - Tag name is empty
- * - Name is unchanged from the original
- * - The new name conflicts with an existing tag in the same document
+ * Resolves to `null` when the form is valid; otherwise to a human-readable
+ * reason the user can act on. Empty input is the default state so we keep
+ * the field free of error styling — `isDisabled` still blocks submission
+ * there, matching the {@link CommandPaletteOpenApiDocument} pattern.
  *
- * In create mode, disabled when:
- * - Tag name is empty
- * - No collection is selected
- * - The selected document does not exist
- * - A tag with the same name already exists in the selected document
+ * In edit mode, an unchanged name is treated as a no-op (no error shown,
+ * but submit stays disabled) so opening the modal does not greet the user
+ * with a confusing message about their current name.
+ */
+const errorMessage: ComputedRef<string | null> = computed(() => {
+  if (!nameTrimmed.value) {
+    return null
+  }
+
+  const document =
+    workspaceStore.workspace.documents[selectedDocumentName.value ?? '']
+
+  if (!selectedDocumentName.value || !document) {
+    return null
+  }
+
+  // Unchanged name in edit mode is a silent no-op rather than an error
+  if (isEditMode.value && nameTrimmed.value === tag?.name) {
+    return null
+  }
+
+  if (document.tags?.some((existing) => existing.name === nameTrimmed.value)) {
+    const documentLabel =
+      availableDocuments.value.find(
+        (doc) =>
+          doc.id === selectedDocumentName.value ||
+          doc.versions?.some((v) => v.id === selectedDocumentName.value),
+      )?.label ?? selectedDocumentName.value
+
+    return `A tag named "${nameTrimmed.value}" already exists in "${documentLabel}". Try a different name.`
+  }
+
+  return null
+})
+
+/**
+ * Submit is blocked while required fields are missing, the name is unchanged
+ * in edit mode, or a duplicate tag exists. The inline `errorMessage` makes
+ * the duplicate case explicit instead of leaving the user staring at a
+ * silently disabled button.
  */
 const isDisabled = computed<boolean>(() => {
   const document =
-    workspaceStore.workspace.documents[selectedDocument.value?.id ?? '']
-  if (!nameTrimmed.value || !selectedDocument.value || !document) {
+    workspaceStore.workspace.documents[selectedDocumentName.value ?? '']
+  if (!nameTrimmed.value || !selectedDocumentName.value || !document) {
     return true
   }
 
-  // In edit mode, disable if the name has not changed
-  if (isEditMode.value) {
-    if (nameTrimmed.value === tag?.name) {
-      return true
-    }
-  }
-
-  // Prevent creating duplicate tags with the same name
-  if (document.tags?.some((tag) => tag.name === nameTrimmed.value)) {
+  if (isEditMode.value && nameTrimmed.value === tag?.name) {
     return true
   }
 
-  return false
+  return errorMessage.value !== null
 })
 
 /**
@@ -128,9 +170,11 @@ const isDisabled = computed<boolean>(() => {
  * In edit mode, emits the new name. In create mode, creates the tag via the event bus.
  */
 const handleSubmit = (): void => {
-  if (isDisabled.value || !selectedDocument.value) {
+  if (isDisabled.value || !selectedDocumentName.value) {
     return
   }
+
+  const documentName = selectedDocumentName.value
 
   // In edit mode, emit the new name and close
   if (isEditMode.value && tag) {
@@ -138,7 +182,7 @@ const handleSubmit = (): void => {
       'tag:edit:tag',
       {
         tag,
-        documentName: selectedDocument.value.id,
+        documentName,
         newName: nameTrimmed.value,
       },
       { skipUnpackProxy: true },
@@ -149,7 +193,7 @@ const handleSubmit = (): void => {
 
   eventBus.emit('tag:create:tag', {
     name: nameTrimmed.value,
-    documentName: selectedDocument.value.id,
+    documentName,
   })
 
   emit('close')
@@ -180,26 +224,22 @@ const handleCancel = (): void => {
       placeholder="Tag Name"
       @delete="handleBack" />
 
+    <p
+      v-if="errorMessage"
+      class="text-red px-2 pb-1 text-xs"
+      data-testid="command-palette-tag-error"
+      role="alert">
+      {{ errorMessage }}
+    </p>
+
     <!-- Collection selector (hidden in edit mode) -->
     <template #options>
-      <ScalarListbox
+      <CommandPaletteDocumentSelect
         v-if="!isEditMode"
-        v-model="selectedDocument"
-        :options="availableDocuments">
-        <ScalarButton
-          class="hover:bg-b-2 max-h-8 w-fit justify-between gap-1 p-2 text-xs"
-          variant="outlined">
-          <span :class="selectedDocument ? 'text-c-1' : 'text-c-3'">
-            {{
-              selectedDocument ? selectedDocument.label : 'Select Collection'
-            }}
-          </span>
-          <ScalarIcon
-            class="text-c-3"
-            icon="ChevronDown"
-            size="md" />
-        </ScalarButton>
-      </ScalarListbox>
+        v-model="selectedDocumentName"
+        :documents="availableDocuments"
+        placeholder="Select Collection"
+        searchPlaceholder="Search collections" />
 
       <!-- Cancel button in edit mode -->
       <ScalarButton

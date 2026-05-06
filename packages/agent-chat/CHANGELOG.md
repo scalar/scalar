@@ -1,5 +1,31 @@
 # @scalar/agent-chat
 
+## 0.10.15
+
+## 0.10.14
+
+### Patch Changes
+
+- [#9086](https://github.com/scalar/scalar/pull/9086): feat: code split tailwind CSS to reduce bundle size
+
+## 0.10.13
+
+## 0.10.12
+
+## 0.10.11
+
+## 0.10.10
+
+### Patch Changes
+
+- [#8999](https://github.com/scalar/scalar/pull/8999): Include platform token in doc fetch
+
+## 0.10.9
+
+### Patch Changes
+
+- [#8989](https://github.com/scalar/scalar/pull/8989): fix: language around agent credits
+
 ## 0.10.8
 
 ## 0.10.7

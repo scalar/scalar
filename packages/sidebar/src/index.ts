@@ -1,5 +1,3 @@
-import './style.css'
-
 export { default as HttpMethod } from './components/HttpMethod.vue'
 export { default as ScalarSidebar } from './components/ScalarSidebar.vue'
 export { default as SidebarHttpBadge } from './components/SidebarHttpBadge.vue'

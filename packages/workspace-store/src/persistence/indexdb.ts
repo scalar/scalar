@@ -1,114 +1,194 @@
 import type { Static, TObject, TRecord } from '@scalar/typebox'
 
+/**
+ * Declarative shape for a table at its CURRENT (latest) version.
+ *
+ * This is used purely for TypeScript typing and runtime key serialization in
+ * the wrapper API returned by `get(name)`. IndexedDB schema (object stores,
+ * keyPaths, indexes) is NOT derived from this config — every schema change is
+ * expressed in a migration. That keeps fresh installs and upgraded installs on
+ * exactly the same code path and makes the TypeScript types safe to evolve
+ * without accidentally reshaping the underlying database.
+ */
 type TableEntry<S extends TObject, K extends readonly (keyof Static<S>)[]> = {
   schema: S
   keyPath: K
-  indexes?: Record<string, readonly (keyof Static<S>)[]>
+}
+
+/**
+ * Context passed to every migration. The upgrade `transaction` lives for as
+ * long as any IDB request on it is pending, so migrations may schedule async
+ * cursor / getAll work and still mutate the same transaction afterwards.
+ */
+export type MigrationContext = {
+  db: IDBDatabase
+  transaction: IDBTransaction
+  oldVersion: number
+  newVersion: number
+}
+
+/**
+ * A single, atomic schema (and/or data) change.
+ *
+ * Every structural change to the database — creating an object store, adding
+ * or removing an index, renaming a field, re-keying records — lives inside a
+ * migration. Fresh installs run the full chain from v1 up; existing installs
+ * run only the migrations whose position is past their current version.
+ *
+ * The version of a migration is its 1-based position in the `migrations`
+ * array passed to `createIndexDbConnection` — there is no `version` field to
+ * keep in sync. Append to the end to add a new migration; never reorder or
+ * insert in the middle (each position represents a real schema state that
+ * shipped to users).
+ *
+ * Migrations may run synchronously, or may return a Promise when they need
+ * to read existing data (via `getAll`, cursors, ...) before performing schema
+ * changes. The runner awaits each migration before starting the next, so a
+ * later migration always observes the fully-applied state of every earlier
+ * migration. To keep the upgrade transaction alive across awaits, every async
+ * migration must queue at least one IDB request before yielding.
+ */
+export type Migration = {
+  /** Short human-readable summary surfaced in errors / logs. */
+  description?: string
+  /** Runs inside the upgrade transaction. May be sync or async. */
+  up: (context: MigrationContext) => void | Promise<void>
 }
 
 /**
  * Initializes and manages an IndexedDB database connection for table-based persistence.
  *
- * @param name - The database name. Defaults to 'scalar-workspace-store'.
- * @param tables - Table definitions: the tables to create and their key schemas.
- * @param version - The database version. Bump this to trigger upgrades (default: 1).
- * @param migrations - Optional migration steps to run for version upgrades.
- * @returns An object with the following methods:
- *   - `get(tableName)` — Get a wrapper to interact with the object store for the given table name.
- *   - `closeDatabase()` — Closes the database connection.
+ * The database version is derived from `migrations.length`, so callers cannot
+ * accidentally drift between the declared version and the migrations that
+ * define it. Every structural change — including the initial schema — must
+ * be expressed as a migration; append new ones to the end of the array.
  *
- * Example usage:
+ * Example:
  * ```ts
- * import { Type } from '@scalar/typebox'
- * import { createIndexDbConnection } from './indexdb'
- *
- * // Define a schema for a user
- * const UserSchema = Type.Object({
- *   id: Type.String(),
- *   name: Type.String(),
- *   age: Type.Number(),
- * })
- *
- * // Define tables in the database
- * const dbConfig = {
- *   users: {
- *     schema: UserSchema,
- *     index: ['id'] as const,
- *   },
- * }
- *
- * // Open the database connection and get table API
- * const { get, closeDatabase } = await createIndexDbConnection({
+ * const connection = await createIndexDbConnection({
  *   name: 'my-app-db',
- *   tables: dbConfig,
- *   version: 1,
+ *   tables: {
+ *     users: { schema: UserSchema, keyPath: ['id'] as const },
+ *   },
+ *   migrations: [
+ *     {
+ *       description: 'Initial schema',
+ *       up: ({ db }) => {
+ *         if (!db.objectStoreNames.contains('users')) {
+ *           db.createObjectStore('users', { keyPath: 'id' })
+ *         }
+ *       },
+ *     },
+ *   ],
  * })
- *
- * // Get a strongly-typed users table API
- * const usersTable = get('users')
- *
- * // Add a user
- * await usersTable.addItem({ id: 'user-1' }, { name: 'Alice', age: 25 })
- *
- * // Retrieve a user by id
- * const user = await usersTable.getItem({ id: 'user-1' })
- *
- * // Don't forget to close the database when done!
- * closeDatabase()
  * ```
  */
 export const createIndexDbConnection = async <T extends Record<string, TableEntry<any, readonly (keyof any)[]>>>({
   name = 'scalar-workspace-store',
   tables,
-  version = 1,
-  migrations = [],
+  migrations,
 }: {
   name: string
   tables: T
-  version: number
-  migrations?: { version: number; exec: (db: IDBDatabase, event: IDBVersionChangeEvent) => {} }[]
+  migrations: readonly Migration[]
 }) => {
-  const db = indexedDB.open(name, version)
+  if (migrations.length === 0) {
+    throw new Error(
+      `createIndexDbConnection("${name}"): at least one migration is required. The initial schema must be defined as the first migration.`,
+    )
+  }
 
-  db.onupgradeneeded = (e) => {
-    // Initial setup of object stores
-    if (e.oldVersion < 1) {
-      const database = db.result
+  // The 1-based array position is the schema version. `migrations[0]` is v1,
+  // `migrations[1]` is v2, and so on. The latest version is just the length.
+  const latestVersion = migrations.length
 
-      // Initialize all the tables
-      Object.entries(tables).forEach(([name, options]) => {
-        if (!database.objectStoreNames.contains(name)) {
-          const objectStore = database.createObjectStore(name, {
-            keyPath: options.keyPath.length === 1 ? (options.keyPath[0] as string) : (options.keyPath as string[]),
-          })
+  const request = indexedDB.open(name, latestVersion)
 
-          // Create any indexes for the object store
-          Object.entries(options.indexes ?? {}).forEach(([indexName, indexPath]) => {
-            objectStore.createIndex(indexName, indexPath as string[])
-          })
-        }
-      })
+  // Captured here so the descriptive error from a failing migration can be
+  // surfaced through the `open` promise instead of the generic IDB
+  // `AbortError` that follows `transaction.abort()`.
+  let migrationError: Error | undefined
+
+  request.onupgradeneeded = (event) => {
+    const transaction = request.transaction
+    if (!transaction) {
+      // IDB always provides the upgrade transaction here; this is a guard for
+      // exotic environments and keeps types honest.
+      return
     }
 
-    // Run any future migrations here
-    migrations.forEach((migration) => {
-      if (e.oldVersion < migration.version) {
-        migration.exec(db.result, e)
+    const context: MigrationContext = {
+      db: request.result,
+      transaction,
+      oldVersion: event.oldVersion,
+      newVersion: event.newVersion ?? latestVersion,
+    }
+
+    // Run pending migrations sequentially, awaiting any async work before
+    // starting the next one. This is important when a migration reads
+    // existing data via IDB requests (e.g. `getAll`) and only performs the
+    // real schema changes inside the request callback — the next migration
+    // would otherwise execute against the pre-migration state.
+    //
+    // The upgrade transaction stays alive across awaits because every async
+    // migration in the codebase queues at least one IDB request before
+    // yielding, and microtasks complete before IDB checks for transaction
+    // commit at the next task boundary.
+    const runMigrations = async () => {
+      for (const [index, migration] of migrations.entries()) {
+        const version = index + 1
+        if (version <= event.oldVersion) {
+          continue
+        }
+        try {
+          await migration.up(context)
+        } catch (error) {
+          const label = migration.description ? `v${version} (${migration.description})` : `v${version}`
+          throw new Error(`Migration ${label} failed: ${(error as Error)?.message ?? error}`, { cause: error })
+        }
+      }
+    }
+
+    runMigrations().catch((error) => {
+      migrationError = error as Error
+      // Abort the upgrade transaction so we do not leave the DB in a half-
+      // migrated state. Aborting fires `request.onerror`; the captured
+      // `migrationError` takes precedence over the resulting `AbortError`.
+      try {
+        transaction.abort()
+      } catch {
+        // The transaction may already be in a finished state (e.g. when the
+        // failing migration itself triggered an abort). Nothing to do.
       }
     })
   }
 
   await new Promise((resolve, reject) => {
-    db.onsuccess = () => resolve(true)
-    db.onerror = () => reject(db.error)
+    request.onsuccess = () => resolve(true)
+    request.onerror = () => reject(migrationError ?? request.error)
+    // If another tab holds an older-version connection open we would otherwise
+    // hang forever waiting for the upgrade. Surface it as a clear rejection so
+    // the app can react (reload, notify the user, ...) instead of freezing.
+    request.onblocked = () =>
+      reject(
+        new Error(
+          `IndexedDB upgrade for "${name}" is blocked by another open connection. Close other tabs and try again.`,
+        ),
+      )
   })
 
   return {
-    get: <Name extends keyof T>(name: Name) => {
-      return createTableWrapper<T[Name]['schema'], T[Name]['keyPath'][number]>(name as string, db.result)
+    get: <Name extends keyof T>(tableName: Name) => {
+      // Surface a helpful error if a caller asks for a table that is not in
+      // the typed config — the underlying IDB call would otherwise throw a
+      // generic `NotFoundError` from a lazy `transaction()`.
+      if (!Object.hasOwn(tables, tableName as string)) {
+        throw new Error(`Unknown table "${String(tableName)}". Add it to the \`tables\` config of "${name}".`)
+      }
+      return createTableWrapper<T[Name]['schema'], T[Name]['keyPath'][number]>(tableName as string, request.result)
     },
     closeDatabase: () => {
-      db.result.close()
+      request.result.close()
     },
   }
 }
@@ -116,37 +196,8 @@ export const createIndexDbConnection = async <T extends Record<string, TableEntr
 /**
  * Utility wrapper for interacting with an IndexedDB object store, typed by the schema.
  *
- * Usage example:
- * ```
- * // Define a TypeBox schema for users
- * const UserSchema = Type.Object({
- *   id: Type.String(),
- *   name: Type.String(),
- *   age: Type.Number(),
- * })
- * 
- * // Open or create the users table
- * const usersTable = createTableWrapper<typeof UserSchema, 'id'>('users', openDatabase)
- * 
- * // Add a user
-  await usersTable.addItem({ id: 'user-1' }, { name: 'Alice', age: 24 })
- * 
- * // Get a user by id
- * const alic = await usersTable.getItem({ id: 'user-1' })
- * 
- * // Get users with a partial key (use [] if no composite key)
- * const users = await usersTable.getRange(['user-1'])
- * 
- * // Get all users
- * const allUsers = await usersTable.getAll()
- * ```
- *
  * @template T TypeBox schema type for objects in the store
  * @template K Key property names that compose the primary key
- *
- * @param name - Object store name
- * @param getDb - Function returning a Promise for the IDBDatabase
- * @returns Methods to interact with the object store
  */
 function createTableWrapper<T extends TRecord | TObject, const K extends keyof Static<T>>(
   name: string,
@@ -191,12 +242,6 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
    * Returns all records matching a partial (prefix) key. Use for composite keys.
    * For non-compound keys, pass single-element array: getRange(['some-id'])
    * For prefix search, pass subset of key parts.
-   * @param partialKey - Array of partial key values
-   * @returns Matching objects
-   *
-   * Example (composite [a,b]):
-   *   getRange(['foo']) // All with a === 'foo'
-   *   getRange(['foo', 'bar']) // All with a === 'foo' and b === 'bar'
    */
   function getRange(partialKey: IDBValidKey[], indexName?: string): Promise<Static<T>[]> {
     const store = getStore('readonly')
@@ -210,9 +255,9 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
     const range = IDBKeyRange.bound(partialKey, upperBound, false, true)
 
     return new Promise((resolve, reject) => {
-      const request = objectStoreOrIndex.openCursor(range)
-      request.onerror = () => reject(request.error)
-      request.onsuccess = (event) => {
+      const req = objectStoreOrIndex.openCursor(range)
+      req.onerror = () => reject(req.error)
+      req.onsuccess = (event) => {
         const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result
         if (cursor) {
           results.push(cursor.value)
@@ -226,8 +271,6 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
 
   /**
    * Deletes an item from the store by its composite key.
-   * @param key - Key values. For a single key: { id: '...' }
-   * @returns void
    */
   async function deleteItem(key: Record<K, IDBValidKey>): Promise<void> {
     const store = getStore('readwrite')
@@ -239,14 +282,6 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
 
   /**
    * Deletes all records matching a partial (prefix) key. Use for composite keys.
-   * For non-compound keys, pass single-element array: deleteRange(['some-id'])
-   * For prefix deletion, pass subset of key parts.
-   * @param partialKey - Array of partial key values
-   * @returns Number of deleted items
-   *
-   * Example (composite [a,b]):
-   *   deleteRange(['foo']) // Delete all with a === 'foo'
-   *   deleteRange(['foo', 'bar']) // Delete all with a === 'foo' and b === 'bar'
    */
   function deleteRange(partialKey: IDBValidKey[]): Promise<number> {
     const store = getStore('readwrite')
@@ -258,9 +293,9 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
     const range = IDBKeyRange.bound(partialKey, upperBound, false, true)
 
     return new Promise((resolve, reject) => {
-      const request = store.openCursor(range)
-      request.onerror = () => reject(request.error)
-      request.onsuccess = (event) => {
+      const req = store.openCursor(range)
+      req.onerror = () => reject(req.error)
+      req.onsuccess = (event) => {
         const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result
         if (cursor) {
           cursor.delete()
@@ -275,7 +310,6 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
 
   /**
    * Deletes all items from the table.
-   * @returns void
    */
   async function deleteAll(): Promise<void> {
     const store = getStore('readwrite')
@@ -284,7 +318,6 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
 
   /**
    * Retrieves all items from the table.
-   * @returns Array of all objects in the store
    */
   function getAll(): Promise<Static<T>[]> {
     const store = getStore('readonly')
@@ -302,7 +335,6 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
   }
 }
 
-// ---- Utility ----
 function requestAsPromise<T>(req: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     req.onsuccess = () => resolve(req.result)

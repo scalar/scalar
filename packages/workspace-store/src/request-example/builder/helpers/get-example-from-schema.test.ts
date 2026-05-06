@@ -718,6 +718,54 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toBe('BAD_REQUEST_EXCEPTION')
   })
 
+  it('ignores invalid defaults when they do not match primitive schema type', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'number',
+      default: 'invalid',
+    })
+
+    expect(getExampleFromSchema(schema)).toBe(1)
+  })
+
+  it('normalizes empty string defaults to null for nullable integers', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: ['integer', 'null'],
+      default: '',
+    })
+
+    expect(getExampleFromSchema(schema)).toBeNull()
+  })
+
+  it('ignores invalid defaults for composed schemas', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      oneOf: [{ type: 'string' }, { type: 'null' }],
+      default: 123,
+    })
+
+    expect(getExampleFromSchema(schema)).toBe('')
+  })
+
+  it('does not recurse forever when validating defaults on circular composed schemas', () => {
+    const schema = {
+      type: 'object',
+      default: {},
+      anyOf: [],
+    } as SchemaObject
+
+    schema.anyOf = [schema]
+
+    expect(getExampleFromSchema(schema)).toStrictEqual({})
+  })
+
+  it('keeps empty string defaults for nullable strings', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: ['string', 'null'],
+      default: '',
+    })
+
+    expect(getExampleFromSchema(schema)).toBe('')
+  })
+
   it('uses the const value', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'string',
