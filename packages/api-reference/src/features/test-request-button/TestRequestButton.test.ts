@@ -12,6 +12,8 @@ const createMockEventBus = (): WorkspaceEventBus => ({
   on: vi.fn(),
   once: vi.fn(),
   off: vi.fn(),
+  onGlob: vi.fn(),
+  offGlob: vi.fn(),
   emit: vi.fn(() => null),
 })
 

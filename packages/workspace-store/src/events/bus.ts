@@ -7,6 +7,43 @@ import type { ApiReferenceEvents } from './definitions'
 type Unsubscribe = () => void
 
 /**
+ * A glob pattern for subscribing to multiple events at once.
+ *
+ * - `'*'` matches every event.
+ * - A pattern ending with `':*'` (e.g. `'operation:*'`) matches every event
+ *   whose name starts with that prefix (e.g. `'operation:send:request:hotkey'`).
+ *
+ * @example
+ * bus.onAny('*', (event, payload) => console.log(event, payload))
+ * bus.onAny('operation:*', (event, payload) => console.log(event, payload))
+ */
+export type EventGlob = '*' | `${string}:*`
+
+/**
+ * A single branch of the WildcardListener discriminated union for one event key.
+ * Kept separate so it can be referenced by the union below.
+ */
+type WildcardListenerBranch<E extends keyof ApiReferenceEvents> = (event: E, payload: ApiReferenceEvents[E]) => void
+
+/**
+ * Listener type for wildcard / glob subscriptions.
+ *
+ * Expressed as a discriminated union over every event key so that narrowing
+ * on `event` inside the listener body also narrows `payload` to its exact type.
+ *
+ * @example
+ * bus.onGlob('*', (event, payload) => {
+ *   if (event === 'log:user-login') {
+ *     // payload is now { uid: string; email?: string; teamUid: string }
+ *     posthog.identify(payload.uid)
+ *   }
+ * })
+ */
+export type WildcardListener = {
+  [E in keyof ApiReferenceEvents]: WildcardListenerBranch<E>
+}[keyof ApiReferenceEvents]
+
+/**
  * Helper type for event listeners that makes the payload optional
  * if the event allows undefined, otherwise requires it.
  */
@@ -30,6 +67,7 @@ type EmitParameters<E extends keyof ApiReferenceEvents> = undefined extends ApiR
  *
  * - Full type safety for event names and payloads
  * - Debug mode for development
+ * - Glob pattern subscriptions via `onAny` / `offAny`
  */
 export type WorkspaceEventBus = {
   /**
@@ -76,6 +114,47 @@ export type WorkspaceEventBus = {
    * })
    */
   once<E extends keyof ApiReferenceEvents>(event: E, listener: EventListener<E>): Unsubscribe
+
+  /**
+   * Subscribe to all events matching a glob pattern.
+   *
+   * - `'*'` fires for every event on the bus.
+   * - `'operation:*'` fires for every event whose name starts with `'operation:'`.
+   *
+   * The listener receives the concrete event name and its payload.
+   *
+   * @param pattern - The glob pattern to match against event names
+   * @param listener - Callback that receives the event name and payload
+   * @returns Unsubscribe function to remove the listener
+   *
+   * @example
+   * // Listen to every event
+   * const off = bus.onGlob('*', (event, payload) => {
+   *   analytics.track(event, payload)
+   * })
+   *
+   * // Listen to all operation events
+   * const off = bus.onGlob('operation:*', (event, payload) => {
+   *   console.log('operation event:', event)
+   * })
+   *
+   * // Clean up
+   * off()
+   */
+  onGlob(pattern: EventGlob, listener: WildcardListener): Unsubscribe
+
+  /**
+   * Remove a glob listener added via `onGlob`.
+   *
+   * @param pattern - The glob pattern the listener was registered with
+   * @param listener - The listener function to remove
+   *
+   * @example
+   * const handler = (event, payload) => console.log(event, payload)
+   * bus.onGlob('operation:*', handler)
+   * bus.offGlob('operation:*', handler)
+   */
+  offGlob(pattern: EventGlob, listener: WildcardListener): void
 
   /**
    * Emit an event with its payload
@@ -144,6 +223,15 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
   const events = new Map<keyof ApiReferenceEvents, ListenerSet>()
 
   /**
+   * Map of glob patterns to their wildcard listener sets.
+   * Each key is an EventGlob string; the value is the set of listeners registered
+   * for that pattern. Using a Map here keeps per-pattern add/remove O(1) while
+   * emitting stays O(number of registered patterns) — typically a very small number.
+   */
+  type WildcardListenerSet = Set<WildcardListener>
+  const wildcardListeners = new Map<EventGlob, WildcardListenerSet>()
+
+  /**
    * Track pending log entries for batching
    */
   type PendingLogEntry = { message: string; args: unknown[] }
@@ -168,6 +256,32 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
   }
 
   /**
+   * Get or create a wildcard listener set for a glob pattern
+   */
+  const getWildcardListeners = (pattern: EventGlob): WildcardListenerSet => {
+    const listeners = wildcardListeners.get(pattern) ?? new Set()
+    wildcardListeners.set(pattern, listeners)
+    return listeners
+  }
+
+  /**
+   * Check whether a given event name matches a glob pattern.
+   * - `'*'` matches everything.
+   * - `'prefix:*'` matches any event that starts with `'prefix:'`.
+   *
+   * This is kept intentionally simple — no full glob syntax — so the hot-path
+   * check is a single string comparison with no allocations.
+   */
+  const matchesGlob = (pattern: EventGlob, event: keyof ApiReferenceEvents): boolean => {
+    if (pattern === '*') {
+      return true
+    }
+    // Pattern is guaranteed to end with ':*' by the EventGlob type
+    const prefix = pattern.slice(0, -1) // strip the trailing '*'
+    return (event as string).startsWith(prefix)
+  }
+
+  /**
    * Flush batched logs using console.groupCollapsed
    */
   const flushLogs = (): void => {
@@ -183,11 +297,11 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
           console.log(`[EventBus] ${firstLog.message}`, ...firstLog.args)
         }
       } else {
-        // Multiple logs, use a collapsed group
+        // Multiple logs: use a single collapsed group with one console.table call.
+        // Calling console.log N times (e.g. 105x) inside a setTimeout is expensive
+        // and triggers a [Violation] 'setTimeout' handler warning in Chrome DevTools.
         console.groupCollapsed(`[EventBus] ${pendingLogs.length} operations`)
-        for (const { message, args } of pendingLogs) {
-          console.log(message, ...args)
-        }
+        console.table(pendingLogs.map(({ message, args }) => ({ event: message, payload: args[0] ?? '' })))
         console.groupEnd()
       }
     }
@@ -257,24 +371,52 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
     const unpackedPayload = options?.skipUnpackProxy ? payload : unpackProxyObject(payload, { depth: 5 })
 
     const listeners = events.get(event)
+    const hasExactListeners = listeners && listeners.size > 0
 
-    if (!listeners || listeners.size === 0) {
+    if (!hasExactListeners && wildcardListeners.size === 0) {
       log(`🛑 No listeners for "${String(event)}"`)
       return
     }
 
-    log(`Emitting "${String(event)}" to ${listeners.size} listener(s)`, payload)
+    // Execute exact-match listeners
+    if (hasExactListeners) {
+      log(`Emitting "${String(event)}" to ${listeners.size} listener(s)`, payload)
 
-    // Convert to array to avoid issues if listeners modify the set during iteration
-    const listenersArray = Array.from(listeners)
+      // Convert to array to avoid issues if listeners modify the set during iteration
+      const listenersArray = Array.from(listeners)
 
-    // Execute all listeners
-    for (const listener of listenersArray) {
-      try {
-        listener(unpackedPayload)
-      } catch (error) {
-        // Do not let one listener error break other listeners
-        console.error(`[EventBus] Error in listener for "${String(event)}":`, error)
+      for (const listener of listenersArray) {
+        try {
+          listener(unpackedPayload)
+        } catch (error) {
+          // Do not let one listener error break other listeners
+          console.error(`[EventBus] Error in listener for "${String(event)}":`, error)
+        }
+      }
+    }
+
+    // Notify wildcard / glob listeners whose pattern matches this event.
+    // We iterate over all registered patterns — in practice this set is tiny
+    // (one or two patterns at most), so the linear scan costs essentially nothing.
+    if (wildcardListeners.size > 0) {
+      for (const [pattern, wListeners] of wildcardListeners) {
+        if (wListeners.size === 0 || !matchesGlob(pattern, event)) {
+          continue
+        }
+
+        log(`Emitting "${String(event)}" to ${wListeners.size} wildcard listener(s) for pattern "${pattern}"`, payload)
+
+        const wListenersArray = Array.from(wListeners)
+        for (const wListener of wListenersArray) {
+          try {
+            ;(wListener as (event: keyof ApiReferenceEvents, payload: unknown) => void)(event, unpackedPayload)
+          } catch (error) {
+            console.error(
+              `[EventBus] Error in wildcard listener for pattern "${pattern}" (event "${String(event)}"):`,
+              error,
+            )
+          }
+        }
       }
     }
   }
@@ -295,6 +437,29 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
     debouncedEmitter(debounceMapKey, () => performEmit(event, payload, options))
   }
 
+  const onGlob = (pattern: EventGlob, listener: WildcardListener): Unsubscribe => {
+    const listeners = getWildcardListeners(pattern)
+    listeners.add(listener)
+    log(`Added glob listener for pattern "${pattern}" (${listeners.size} total)`)
+
+    return () => offGlob(pattern, listener)
+  }
+
+  const offGlob = (pattern: EventGlob, listener: WildcardListener): void => {
+    const listeners = wildcardListeners.get(pattern)
+    if (!listeners) {
+      return
+    }
+
+    listeners.delete(listener)
+    log(`Removed glob listener for pattern "${pattern}" (${listeners.size} remaining)`)
+
+    // Clean up empty sets to avoid memory leaks
+    if (listeners.size === 0) {
+      wildcardListeners.delete(pattern)
+    }
+  }
+
   const flushDebouncedEmits = (): void => {
     flushDebouncedEmitters()
   }
@@ -303,6 +468,8 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
     on,
     once,
     off,
+    onGlob,
+    offGlob,
     emit,
     flushDebouncedEmits,
   }

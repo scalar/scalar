@@ -14,6 +14,63 @@ export type PostHogConfig = {
 }
 
 /**
+ * Extracts a safe, flat set of analytics properties from a raw event payload.
+ *
+ * Only a known whitelist of fields is forwarded to PostHog — no PII, no
+ * request bodies, no auth secrets. Nested values are accessed defensively
+ * so any event shape that does not carry a given field simply omits it.
+ */
+const extractProperties = (payload: unknown): Record<string, unknown> => {
+  if (!payload || typeof payload !== 'object') {
+    return {}
+  }
+
+  const p = payload as Record<string, unknown>
+  const properties: Record<string, unknown> = {}
+
+  // collectionType: 'document' | 'workspace'
+  if (typeof p['collectionType'] === 'string') {
+    properties['collectionType'] = p['collectionType']
+  }
+
+  // format: e.g. 'json' | 'yaml' on ui:download:document
+  if (typeof p['format'] === 'string') {
+    properties['format'] = p['format']
+  }
+
+  // contentType: content-type string on requestBody events
+  if (typeof p['contentType'] === 'string') {
+    properties['contentType'] = p['contentType']
+  }
+
+  // meta.type: 'document' | 'operation' on auth events
+  const meta = p['meta']
+  if (meta && typeof meta === 'object') {
+    const metaType = (meta as Record<string, unknown>)['type']
+    if (typeof metaType === 'string') {
+      properties['meta.type'] = metaType
+    }
+  }
+
+  // payload.type: scheme type on auth:update:security-scheme events
+  const innerPayload = p['payload']
+  if (innerPayload && typeof innerPayload === 'object') {
+    const payloadType = (innerPayload as Record<string, unknown>)['type']
+    if (typeof payloadType === 'string') {
+      properties['payload.type'] = payloadType
+    }
+
+    // payload.contentType: content type on requestBody:contentType events
+    const payloadContentType = (innerPayload as Record<string, unknown>)['contentType']
+    if (typeof payloadContentType === 'string') {
+      properties['payload.contentType'] = payloadContentType
+    }
+  }
+
+  return properties
+}
+
+/**
  * PostHog analytics plugin for the API Client.
  *
  * Loading this plugin opts in to analytics. If the plugin is not loaded,
@@ -27,17 +84,21 @@ export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
 
   return {
     on: {
-      'hooks:on:request:sent': () => posthog?.capture('hooks:on:request:sent'),
-      'operation:create:operation': () => posthog?.capture('operation:create:operation'),
-      'operation:delete:operation': () => posthog?.capture('operation:delete:operation'),
-      'document:create:empty-document': () => posthog?.capture('document:create:empty-document'),
-      'document:delete:document': () => posthog?.capture('document:delete:document'),
-      'tag:create:tag': () => posthog?.capture('tag:create:tag'),
-      'server:add:server': () => posthog?.capture('server:add:server'),
-      'auth:update:selected-security-schemes': () => posthog?.capture('auth:update:selected-security-schemes'),
-      'environment:upsert:environment': () => posthog?.capture('environment:upsert:environment'),
-      'ui:open:client-modal': () => posthog?.capture('ui:open:client-modal'),
-      'ui:download:document': () => posthog?.capture('ui:download:document'),
+      '*': (event, payload) => {
+        // User logged in lets register with posthog
+        if (event === 'log:user-login') {
+          posthog?.identify(payload.uid, { email: payload.email, teamUid: payload.teamUid })
+          return
+        }
+
+        // User is logging out
+        if (event === 'log:user-logout') {
+          posthog?.reset()
+          return
+        }
+
+        posthog?.capture(String(event), extractProperties(payload))
+      },
     },
     lifecycle: {
       onInit(context) {

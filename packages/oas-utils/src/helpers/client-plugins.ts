@@ -1,4 +1,4 @@
-import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
+import type { ApiReferenceEvents, EventGlob, WildcardListener } from '@scalar/workspace-store/events'
 import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
@@ -121,8 +121,32 @@ export type ClientPlugin = {
   components?: Partial<ClientPluginComponents>
   /** Lifecycle hooks for app-level concerns */
   lifecycle?: ClientPluginLifecycle
-  /** Subscribe to event bus events. The framework handles subscribe/unsubscribe automatically. */
-  on?: Partial<{ [K in keyof ApiReferenceEvents]: (payload: ApiReferenceEvents[K]) => void }>
+  /**
+   * Subscribe to event bus events. The framework handles subscribe/unsubscribe automatically.
+   *
+   * Supports the same glob patterns as `bus.onGlob`:
+   * - An exact event key fires only for that event.
+   * - `'*'` fires for every event on the bus.
+   * - `'operation:*'` fires for every event whose name starts with `'operation:'`.
+   *
+   * Glob listeners receive both the concrete event name and its payload.
+   * Exact-key listeners receive only the payload.
+   *
+   * @example
+   * // Listen to a specific event
+   * on: { 'operation:create:operation': (payload) => track(payload) }
+   *
+   * // Listen to all operation events
+   * on: { 'operation:*': (event, payload) => log(event, payload) }
+   *
+   * // Listen to every event
+   * on: { '*': (event, payload) => log(event, payload) }
+   */
+  on?: Partial<
+    { [K in keyof ApiReferenceEvents]: (payload: ApiReferenceEvents[K]) => void } & {
+      [G in EventGlob]: WildcardListener
+    }
+  >
   /** Custom response body handlers for specific content types */
   responseBody?: ResponseBodyHandler[]
 }

@@ -4,6 +4,9 @@ import { vi } from 'vitest'
 /** Mock event bus for all your testing needs */
 export const mockEventBus = {
   on: vi.fn(() => vi.fn()),
+  once: vi.fn(() => vi.fn()),
   off: vi.fn(),
+  onGlob: vi.fn(() => vi.fn()),
+  offGlob: vi.fn(),
   emit: vi.fn(() => null),
 } as unknown as WorkspaceEventBus
