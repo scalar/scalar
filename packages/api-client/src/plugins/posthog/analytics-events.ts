@@ -1,5 +1,7 @@
 /**
- * Centralized dictionary of PostHog analytics event names.
+ * Centralized dictionary of PostHog analytics event names
+ *
+ * TODO: The commented out ones are not yet wired up
  *
  * Naming convention follows PostHog best practices:
  * - Format: `category:object_action`
@@ -25,7 +27,7 @@ export const ANALYTICS_EVENTS = {
   // Auth
   // --------------------------------------------------
 
-  /** User selected an auth security scheme */
+  /** User selected an auth security scheme, type: 'document' | 'operation' */
   AUTH_SCHEME_SELECT: 'auth:scheme_select',
   /** User saved an API key */
   AUTH_API_KEY_SAVE: 'auth:api_key_save',
@@ -59,9 +61,9 @@ export const ANALYTICS_EVENTS = {
   // Scripts (pre-request / post-response)
   // --------------------------------------------------
 
-  /** User saved a pre-request script — capture { is_empty } to track adoption vs removal */
+  /** User saved a pre-request script — { type: 'operation' | 'document' } — capture { is_empty } to track adoption vs removal */
   SCRIPT_PRE_REQUEST_SAVE: 'script:pre_request_save',
-  /** User saved a post-response script — capture { is_empty } to track adoption vs removal */
+  /** User saved a post-response script — { type: 'operation' | 'document' } — capture { is_empty } to track adoption vs removal */
   SCRIPT_POST_RESPONSE_SAVE: 'script:post_response_save',
   /** Pre-request script ran — capture { success } to surface script error rates */
   SCRIPT_PRE_REQUEST_EXECUTE: 'script:pre_request_execute',
@@ -78,6 +80,15 @@ export const ANALYTICS_EVENTS = {
   SNIPPET_COPY: 'snippet:copy',
   /** User changed the snippet language/client — capture { client, language } to see browsing patterns */
   SNIPPET_LANGUAGE_CHANGE: 'snippet:language_change',
+
+  // --------------------------------------------------
+  // Cookies
+  // --------------------------------------------------
+
+  /** User upserted a cookie — capture { type: 'document' | 'workspace' } */
+  COOKIE_SAVE: 'cookie:save',
+  /** User deleted a cookie — capture { type: 'document' | 'workspace' } */
+  COOKIE_DELETE: 'cookie:delete',
 
   // --------------------------------------------------
   // Document
@@ -125,12 +136,10 @@ export const ANALYTICS_EVENTS = {
 
   /** User sent a request */
   REQUEST_SEND: 'operation:request_send',
-  /** Request completed with a 2xx response */
-  REQUEST_SUCCESS: 'operation:request_success',
-  /** Request completed with an error or non-2xx response */
-  REQUEST_FAIL: 'operation:request_fail',
-  /** User changed the HTTP method on the address bar — capture { method } to see method distribution */
+  /** User changed the HTTP method on the address bar */
   OPERATION_METHOD_CHANGE: 'operation:method_change',
+  /** User changed the path on the address bar */
+  OPERATION_PATH_CHANGE: 'operation:path_change',
   /** User copied the resolved request URL from the address bar */
   OPERATION_URL_COPY: 'operation:url_copy',
   /** User opened the request history dropdown */
@@ -203,15 +212,6 @@ export const ANALYTICS_EVENTS = {
   EDITOR_MAXIMIZE_TOGGLE: 'editor:maximize_toggle',
   /** Editor has validation diagnostics on save — capture { error_count, warning_count } */
   EDITOR_DIAGNOSTICS: 'editor:diagnostics',
-
-  // --------------------------------------------------
-  // Cookies
-  // --------------------------------------------------
-
-  /** User created a new cookie — capture { scope: 'document' | 'workspace' } */
-  COOKIE_CREATE: 'cookie:create',
-  /** User deleted a cookie — capture { scope: 'document' | 'workspace' } */
-  COOKIE_DELETE: 'cookie:delete',
 
   // --------------------------------------------------
   // Tag

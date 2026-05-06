@@ -42,9 +42,9 @@ export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
       'analytics:on:user-logout': () => posthog?.reset(),
 
       // ── Auth ────────────────────────────────────────────────────────────────
-      /** scope: 'document' | 'operation' — also fires OPERATION_AUTH_OVERRIDE when scoped to a specific endpoint */
+      /** type: 'document' | 'operation' — also fires OPERATION_AUTH_OVERRIDE when scoped to a specific endpoint */
       'auth:update:selected-security-schemes': ({ meta }) => {
-        posthog?.capture(ANALYTICS_EVENTS.AUTH_SCHEME_SELECT, { scope: meta.type })
+        posthog?.capture(ANALYTICS_EVENTS.AUTH_SCHEME_SELECT, { type: meta.type })
         if (meta.type === 'operation') {
           posthog?.capture(ANALYTICS_EVENTS.OPERATION_AUTH_OVERRIDE)
         }
@@ -66,21 +66,21 @@ export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
       'ui:open:command-palette': () => posthog?.capture(ANALYTICS_EVENTS.COMMAND_PALETTE_OPEN),
 
       // ── Cookies ─────────────────────────────────────────────────────────────
-      /** scope: 'document' | 'workspace' — index === undefined means this is a new cookie, not an update */
+      /** type: 'document' | 'workspace' — index === undefined means this is a new cookie, not an update */
       'cookie:upsert:cookie': ({ index, collectionType }) => {
         if (index === undefined) {
-          posthog?.capture(ANALYTICS_EVENTS.COOKIE_CREATE, { scope: collectionType })
+          posthog?.capture(ANALYTICS_EVENTS.COOKIE_SAVE, { type: collectionType })
         }
       },
-      /** scope: 'document' | 'workspace' */
+      /** type: 'document' | 'workspace' */
       'cookie:delete:cookie': ({ collectionType }) =>
-        posthog?.capture(ANALYTICS_EVENTS.COOKIE_DELETE, { scope: collectionType }),
+        posthog?.capture(ANALYTICS_EVENTS.COOKIE_DELETE, { type: collectionType }),
 
       // ── Document ────────────────────────────────────────────────────────────
       'document:create:empty-document': () => posthog?.capture(ANALYTICS_EVENTS.DOCUMENT_CREATE),
       'document:delete:document': () => posthog?.capture(ANALYTICS_EVENTS.DOCUMENT_DELETE),
-      /** Only fires when description specifically changes, not for title/version/contact updates */
       'document:update:info': (payload) => {
+        // Only fires when description specifically changes, not for title/version/contact updates
         if ('description' in payload) {
           posthog?.capture(ANALYTICS_EVENTS.DOCUMENT_DESCRIPTION_EDIT)
         }
@@ -94,50 +94,48 @@ export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
       // ── Operation ───────────────────────────────────────────────────────────
       'hooks:on:request:sent': ({ meta }) =>
         posthog?.capture(ANALYTICS_EVENTS.REQUEST_SEND, { method: meta.method, path: meta.path }),
-      'hooks:on:request:complete': ({ payload }) => {
-        if (!payload) {
-          return
-        }
-        posthog?.capture(payload.response.ok ? ANALYTICS_EVENTS.REQUEST_SUCCESS : ANALYTICS_EVENTS.REQUEST_FAIL, {
-          status_code: payload.response.status,
-        })
-      },
       'operation:create:operation': () => posthog?.capture(ANALYTICS_EVENTS.OPERATION_CREATE),
       'operation:delete:operation': () => posthog?.capture(ANALYTICS_EVENTS.OPERATION_DELETE),
-      'operation:update:pathMethod': ({ payload }) =>
-        posthog?.capture(ANALYTICS_EVENTS.OPERATION_METHOD_CHANGE, { method: payload.method }),
+      'operation:update:pathMethod': ({ payload, meta }) => {
+        if (payload.method !== meta.method) {
+          posthog?.capture(ANALYTICS_EVENTS.OPERATION_METHOD_CHANGE)
+        }
+        if (payload.path !== meta.path) {
+          posthog?.capture(ANALYTICS_EVENTS.OPERATION_PATH_CHANGE)
+        }
+      },
       'operation:update:requestBody:contentType': ({ payload }) =>
         posthog?.capture(ANALYTICS_EVENTS.OPERATION_REQUEST_BODY_FILTER, { content_type: payload.contentType }),
       'operation:reload:history': () => posthog?.capture(ANALYTICS_EVENTS.OPERATION_HISTORY_SELECT),
 
       // ── Scripts ─────────────────────────────────────────────────────────────
-      /** scope: 'operation' — fires for x-pre-request and x-post-response extension saves on an operation */
+      /** type: 'operation' — fires for x-pre-request and x-post-response extension saves on an operation */
       'operation:update:extension': ({ payload }) => {
         const ext = payload as Record<string, unknown>
         if ('x-pre-request' in ext) {
           posthog?.capture(ANALYTICS_EVENTS.SCRIPT_PRE_REQUEST_SAVE, {
-            scope: 'operation',
+            type: 'operation',
             is_empty: !ext['x-pre-request'],
           })
         }
         if ('x-post-response' in ext) {
           posthog?.capture(ANALYTICS_EVENTS.SCRIPT_POST_RESPONSE_SAVE, {
-            scope: 'operation',
+            type: 'operation',
             is_empty: !ext['x-post-response'],
           })
         }
       },
-      /** scope: 'document' — fires for x-pre-request and x-post-response extension saves at the document level */
+      /** type: 'document' — fires for x-pre-request and x-post-response extension saves at the document level */
       'document:update:extension': (payload) => {
         if ('x-pre-request' in payload) {
           posthog?.capture(ANALYTICS_EVENTS.SCRIPT_PRE_REQUEST_SAVE, {
-            scope: 'document',
+            type: 'document',
             is_empty: !payload['x-pre-request'],
           })
         }
         if ('x-post-response' in payload) {
           posthog?.capture(ANALYTICS_EVENTS.SCRIPT_POST_RESPONSE_SAVE, {
-            scope: 'document',
+            type: 'document',
             is_empty: !payload['x-post-response'],
           })
         }
@@ -147,18 +145,18 @@ export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
       'ui:focus:search': () => posthog?.capture(ANALYTICS_EVENTS.SEARCH_OPEN),
 
       // ── Server ──────────────────────────────────────────────────────────────
-      /** scope: 'document' | 'operation' — also fires OPERATION_SERVER_OVERRIDE when scoped to a specific endpoint */
+      /** also fires OPERATION_SERVER_OVERRIDE when scoped to a specific endpoint */
       'server:add:server': ({ meta }) => {
         posthog?.capture(ANALYTICS_EVENTS.SERVER_ADD)
         if (meta.type === 'operation') {
           posthog?.capture(ANALYTICS_EVENTS.OPERATION_SERVER_OVERRIDE)
         }
       },
-      /** scope: 'document' | 'operation' */
-      'server:update:selected': ({ meta }) => posthog?.capture(ANALYTICS_EVENTS.SERVER_SELECT, { scope: meta.type }),
-      /** scope: 'document' | 'operation' */
+      /** type: 'document' | 'operation' */
+      'server:update:selected': ({ meta }) => posthog?.capture(ANALYTICS_EVENTS.SERVER_SELECT, { type: meta.type }),
+      /** type: 'document' | 'operation' */
       'server:update:variables': ({ meta }) =>
-        posthog?.capture(ANALYTICS_EVENTS.SERVER_VARIABLE_UPDATE, { scope: meta.type }),
+        posthog?.capture(ANALYTICS_EVENTS.SERVER_VARIABLE_UPDATE, { type: meta.type }),
 
       // ── Settings ────────────────────────────────────────────────────────────
       // SETTINGS_TELEMETRY_CHANGE is tracked in lifecycle.onConfigChange below, not here
@@ -180,7 +178,6 @@ export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
 
       // ── UI / Misc ───────────────────────────────────────────────────────────
       'ui:open:client-modal': () => posthog?.capture(ANALYTICS_EVENTS.MODAL_OPEN),
-      'copy-url:address-bar': () => posthog?.capture(ANALYTICS_EVENTS.OPERATION_URL_COPY),
 
       // ══════════════════════════════════════════════════════════════════════════════
       // NOT YET WIRED — requires new definition events added to workspace-store
@@ -221,6 +218,7 @@ export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
       // Operation
       // OPERATION_HISTORY_OPEN   → needs 'operation:open:history'
       // OPERATION_SERVER_EXTRACT → needs 'operation:extract:server' (URL pasted and auto-parsed into server + path)
+      // OPERATION_URL_COPY       → needs 'operation:url_copy'
 
       // Search
       // SEARCH_RESULT_SELECT → needs 'search:select:result'

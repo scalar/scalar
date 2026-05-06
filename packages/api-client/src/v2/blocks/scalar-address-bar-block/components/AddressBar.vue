@@ -380,7 +380,6 @@ onMounted(() => {
   unsubscribes.push(
     eventBus.on('ui:focus:address-bar', handleFocusAddressBar),
     eventBus.on('ui:focus:send-button', handleFocusSendButton),
-    eventBus.on('copy-url:address-bar', copyUrl),
     eventBus.on('hooks:on:request:sent', startLoading),
     eventBus.on('hooks:on:request:complete', stopLoading),
   )
