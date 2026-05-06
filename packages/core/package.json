@@ -28,14 +28,11 @@
       "default": "./dist/libs/html-rendering/index.js"
     }
   },
-  "files": [
-    "dist",
-    "CHANGELOG.md"
-  ],
+  "files": ["dist", "CHANGELOG.md"],
   "dependencies": {
     "@scalar/client-side-rendering": "workspace:*",
-    "@scalar/types": "workspace:*",
     "@scalar/schemas": "workspace:*",
+    "@scalar/types": "workspace:*",
     "@scalar/validation": "workspace:*"
   },
   "devDependencies": {
