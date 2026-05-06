@@ -145,6 +145,33 @@ describe('initScalarAstro', () => {
     expect(scalar.createApiReference).not.toHaveBeenCalled()
   })
 
+  it.each([['javascript:alert(1)'], ['data:text/javascript,alert(1)'], ['vbscript:msgbox("x")']])(
+    'refuses to mount when cdn URL has unsafe scheme: %s',
+    async (cdn) => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      addMountElement('a', { url: '/a.json' }, cdn)
+
+      initScalarAstro()
+      document.dispatchEvent(new Event('astro:page-load'))
+      await tick()
+
+      expect(scalar.createApiReference).not.toHaveBeenCalled()
+      expect(document.querySelectorAll('script[data-scalar-astro-cdn="true"]')).toHaveLength(0)
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('unsafe URL scheme'))
+    },
+  )
+
+  it('escapes container ids that contain CSS metacharacters', async () => {
+    addMountElement('foo.bar:baz', { url: '/x.json' })
+
+    initScalarAstro()
+    document.dispatchEvent(new Event('astro:page-load'))
+    await tick()
+
+    expect(scalar.createApiReference).toHaveBeenCalledWith(`#${CSS.escape('foo.bar:baz')}`, { url: '/x.json' })
+  })
+
   it('keeps unmounting other instances even if one destroy throws', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 

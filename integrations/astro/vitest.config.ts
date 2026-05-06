@@ -7,5 +7,6 @@ export default defineConfig({
     environment: 'jsdom',
     include: ['src/**/*.test.ts'],
     root: fileURLToPath(new URL('./', import.meta.url)),
+    setupFiles: ['./vitest.setup.ts'],
   },
 })

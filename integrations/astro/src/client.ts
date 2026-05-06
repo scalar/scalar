@@ -11,6 +11,21 @@ const stateKey = '__scalarAstroState'
 const STYLE_MARKER = 'data-scalar-astro-style'
 const CDN_MARKER = 'data-scalar-astro-cdn'
 const DEFAULT_CDN = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
+const SAFE_PROTOCOLS = new Set(['http:', 'https:'])
+
+/**
+ * Reject CDN URLs that would let untrusted config execute code via
+ * `javascript:`, `data:`, or other non-http(s) schemes when assigned to
+ * `<script src>`. Defense in depth — the developer controls `cdn`, but a
+ * misconfiguration should fail closed rather than execute arbitrary code.
+ */
+const isSafeCdnUrl = (url: string): boolean => {
+  try {
+    return SAFE_PROTOCOLS.has(new URL(url, window.location.href).protocol)
+  } catch {
+    return false
+  }
+}
 
 type ScalarApiReferenceInstance = {
   destroy?: () => void
@@ -193,7 +208,9 @@ const readMountOptions = (container: HTMLElement): MountOptions | null => {
   try {
     const parsed = JSON.parse(raw) as { configuration?: unknown; cdn?: string | null }
     return {
-      selector: `#${container.id}`,
+      // Escape the id so element ids containing CSS metacharacters (`.`, `:`,
+      // `[`, etc.) do not throw in `querySelector` or break selector-keyed state.
+      selector: `#${CSS.escape(container.id)}`,
       configuration: parsed.configuration ?? {},
       cdn: parsed.cdn ?? null,
     }
@@ -226,6 +243,13 @@ const mountContainer = async (container: HTMLElement): Promise<void> => {
   const options = readMountOptions(container)
 
   if (!options) {
+    return
+  }
+
+  const cdnUrl = options.cdn ?? DEFAULT_CDN
+
+  if (!isSafeCdnUrl(cdnUrl)) {
+    console.error(`[scalar/astro] Refusing to load CDN with unsafe URL scheme: ${cdnUrl}`)
     return
   }
 
