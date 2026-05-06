@@ -27,10 +27,10 @@ export default defineConfig({
       '@v2': resolve(import.meta.dirname, './src/v2'),
       '@test': resolve(import.meta.dirname, './test'),
     },
-    dedupe: ['vue', 'monaco-editor', 'monaco-yaml'],
+    dedupe: ['vue'],
   },
   optimizeDeps: {
-    exclude: ['@scalar/*', 'monaco-editor', 'monaco-yaml'],
+    exclude: ['@scalar/*'],
   },
   server: {
     port: 5065,

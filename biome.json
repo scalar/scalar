@@ -257,7 +257,12 @@
       }
     },
     {
-      "includes": ["packages/*/src/**/index.{js,ts}", "projects/*/src/**/index.{js,ts}", "integrations/*/index.ts", "integrations/*/src/**/index.ts"],
+      "includes": [
+        "packages/*/src/**/index.{js,ts}",
+        "projects/*/src/**/index.{js,ts}",
+        "integrations/*/index.ts",
+        "integrations/*/src/**/index.ts"
+      ],
       "linter": {
         "rules": {
           "performance": {
