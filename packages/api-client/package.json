@@ -27,7 +27,6 @@
     "build:styles": "cp -r src/styles dist && tailwindcss --optimize -i src/style.css -o dist/style.css && cat dist/vue-styles.css >> dist/style.css",
     "dev": "pnpm playground:web",
     "playground:app": "vite ./playground/app -c ./vite.config.ts",
-    "playground:app:build": "vite build ./playground/app -c ./vite.previews.config.ts",
     "playground:modal": "vite ./playground/modal -c ./vite.config.ts",
     "playground:web": "vite ./playground/web -c ./vite.config.ts",
     "preview": "vite preview",
@@ -362,7 +361,6 @@
     "radix-vue": "catalog:*",
     "set-cookie-parser": "catalog:*",
     "shell-quote": "^1.8.3",
-    "vite-plugin-monaco-editor": "^1.1.0",
     "vue": "catalog:*",
     "vue-router": "catalog:*",
     "yaml": "catalog:*",
@@ -382,6 +380,7 @@
     "posthog-js": "catalog:*",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
+    "vite-plugin-monaco-editor-esm": "catalog:*",
     "vite-svg-loader": "catalog:*",
     "vitest": "catalog:*"
   }

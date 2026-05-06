@@ -1,13 +1,14 @@
-import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
+import monacoEditorPlugin from 'vite-plugin-monaco-editor-esm'
 
-const require = createRequire(import.meta.url)
-const monacoEditorPlugin = require('vite-plugin-monaco-editor').default
-const { version: scalarAppVersion } = require('./package.json')
+import { scalarAppMonacoEditorPluginOptions } from './monaco-vite-plugin-options'
+import packageJson from './package.json' with { type: 'json' }
+
+const { version: scalarAppVersion } = packageJson
 
 export default defineConfig({
   main: {
@@ -59,19 +60,7 @@ export default defineConfig({
       },
       dedupe: ['vue', 'monaco-editor', 'monaco-yaml'],
     },
-    plugins: [
-      vue(),
-      tailwindcss(),
-      monacoEditorPlugin({
-        languageWorkers: ['json', 'editorWorkerService'],
-        customWorkers: [
-          {
-            label: 'yaml',
-            entry: 'monaco-yaml/yaml.worker',
-          },
-        ],
-      }),
-    ],
+    plugins: [vue(), tailwindcss(), monacoEditorPlugin(scalarAppMonacoEditorPluginOptions)],
     optimizeDeps: {
       exclude: ['monaco-editor', 'monaco-yaml'],
     },

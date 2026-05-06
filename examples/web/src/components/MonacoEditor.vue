@@ -91,20 +91,14 @@ async function init() {
     // if YAML, set Monaco to use YAML
     // else use JSON syntax highlighting
     const editorModel = editor?.getModel()
-    if (model !== undefined && model !== null) {
+    if (editorModel) {
       if (
         newValue?.startsWith('openapi:') ||
         newValue?.startsWith('swagger:')
       ) {
-        monaco.editor.setModelLanguage(
-          editorModel as monaco.editor.ITextModel,
-          'yaml',
-        )
+        monaco.editor.setModelLanguage(editorModel, 'yaml')
       } else {
-        monaco.editor.setModelLanguage(
-          editorModel as monaco.editor.ITextModel,
-          'json',
-        )
+        monaco.editor.setModelLanguage(editorModel, 'json')
       }
     }
   })
@@ -168,7 +162,7 @@ async function init() {
               }
 
       // Set JSON schema for the editor
-      monaco.json.jsonDefaults.setDiagnosticsOptions({
+      monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
         validate: true,
         schemas: [jsonSchema],
       })
@@ -178,7 +172,7 @@ async function init() {
 }
 
 onMounted(() => {
-  init()
+  void init()
 })
 </script>
 

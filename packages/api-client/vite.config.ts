@@ -1,8 +1,8 @@
-import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
+import monacoEditorPlugin from 'vite-plugin-monaco-editor-esm'
 import svgLoader from 'vite-svg-loader'
 import { defineConfig } from 'vitest/config'
 
@@ -12,9 +12,6 @@ import {
   createPreserveModulesOutput,
   findEntryPoints,
 } from '../../tooling/scripts/vite-lib-config'
-
-const require = createRequire(import.meta.url)
-const monacoEditorPlugin = require('vite-plugin-monaco-editor').default
 
 const external = createExternalsFromPackageJson()
 const entryPaths = await findEntryPoints()
@@ -26,7 +23,7 @@ export default defineConfig({
     tailwindcss(),
     svgLoader(),
     monacoEditorPlugin({
-      languageWorkers: ['json', 'editorWorkerService'],
+      languageWorkers: ['json', 'editorWorkerService', 'typescript'],
       customWorkers: [
         {
           label: 'yaml',

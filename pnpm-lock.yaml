@@ -184,8 +184,8 @@ catalogs:
       specifier: ^1.5.0
       version: 1.5.0
     monaco-editor:
-      specifier: 0.55.1
-      version: 0.55.1
+      specifier: 0.54.0
+      version: 0.54.0
     monaco-yaml:
       specifier: 5.4.1
       version: 5.4.1
@@ -246,9 +246,6 @@ catalogs:
     vite-plugin-css-injected-by-js:
       specifier: ^5.0.0
       version: 5.0.0
-    vite-plugin-monaco-editor:
-      specifier: 1.1.0
-      version: 1.1.0
     vite-plugin-monaco-editor-esm:
       specifier: 2.0.2
       version: 2.0.2
@@ -746,7 +743,7 @@ importers:
         version: 13.9.0(vue@3.5.30(typescript@5.9.3))
       monaco-editor:
         specifier: catalog:*
-        version: 0.55.1
+        version: 0.54.0
       vue:
         specifier: catalog:*
         version: 3.5.30(typescript@5.9.3)
@@ -1315,10 +1312,10 @@ importers:
         version: 3.7.8
       monaco-editor:
         specifier: catalog:*
-        version: 0.55.1
+        version: 0.54.0
       monaco-yaml:
         specifier: catalog:*
-        version: 5.4.1(monaco-editor@0.55.1)
+        version: 5.4.1(monaco-editor@0.54.0)
       nanoid:
         specifier: catalog:*
         version: 5.1.6
@@ -1334,9 +1331,6 @@ importers:
       shell-quote:
         specifier: ^1.8.3
         version: 1.8.3
-      vite-plugin-monaco-editor:
-        specifier: ^1.1.0
-        version: 1.1.0(monaco-editor@0.55.1)
       vue:
         specifier: catalog:*
         version: 3.5.30(typescript@5.9.3)
@@ -1389,6 +1383,9 @@ importers:
       vite:
         specifier: catalog:*
         version: 8.0.0(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.3)
+      vite-plugin-monaco-editor-esm:
+        specifier: catalog:*
+        version: 2.0.2(monaco-editor@0.54.0)
       vite-svg-loader:
         specifier: catalog:*
         version: 5.1.1(vue@3.5.30(typescript@5.9.3))
@@ -2736,10 +2733,10 @@ importers:
         version: 4.0.0
       monaco-editor:
         specifier: catalog:*
-        version: 0.55.1
+        version: 0.54.0
       monaco-yaml:
         specifier: catalog:*
-        version: 5.4.1(monaco-editor@0.55.1)
+        version: 5.4.1(monaco-editor@0.54.0)
       posthog-js:
         specifier: catalog:*
         version: 1.363.2
@@ -2771,12 +2768,9 @@ importers:
       vite:
         specifier: catalog:*
         version: 8.0.0(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.3)
-      vite-plugin-monaco-editor:
-        specifier: catalog:*
-        version: 1.1.0(monaco-editor@0.55.1)
       vite-plugin-monaco-editor-esm:
         specifier: catalog:*
-        version: 2.0.2(monaco-editor@0.55.1)
+        version: 2.0.2(monaco-editor@0.54.0)
       vue:
         specifier: catalog:*
         version: 3.5.30(typescript@5.9.3)
@@ -11187,8 +11181,8 @@ packages:
     resolution: {integrity: sha512-cgwlv/1iFQiFnU96XXgROh8xTeetsnJiDsTc7TYCLFd9+/WNkIqPTxiM/8pSd8VIrhXGTf1Ny1q1hquVqDJB5w==}
     engines: {node: '>= 4'}
 
-  dompurify@3.2.7:
-    resolution: {integrity: sha512-WhL/YuveyGXJaerVlMYGWhvQswa7myDG17P7Vu65EWC05o8vfeNbvNf4d/BOvH99+ZW+LlQsc1GDKMa1vNK6dw==}
+  dompurify@3.1.7:
+    resolution: {integrity: sha512-VaTstWtsneJY8xzy7DekmYWEOZcmzIe3Qb3zPd4STve1OBTa+e+WmS1ITQec1fZYXI3HCsOZZiSMpG6oxoWMWQ==}
 
   dompurify@3.3.3:
     resolution: {integrity: sha512-Oj6pzI2+RqBfFG+qOaOLbFXLQ90ARpcGG6UePL82bJLtdsa6CYJD7nmiU8MW9nQNOtCHV3lZ/Bzq1X0QYbBZCA==}
@@ -14297,8 +14291,8 @@ packages:
   moment@2.30.1:
     resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
 
-  monaco-editor@0.55.1:
-    resolution: {integrity: sha512-jz4x+TJNFHwHtwuV9vA9rMujcZRb0CEilTEwG2rRSpe/A7Jdkuj8xPKttCgOh+v/lkHy7HsZ64oj+q3xoAFl9A==}
+  monaco-editor@0.54.0:
+    resolution: {integrity: sha512-hx45SEUoLatgWxHKCmlLJH81xBo0uXP4sRkESUpmDQevfi+e7K1VuiSprK6UpQ8u4zOcKNiH0pMvHvlMWA/4cw==}
 
   monaco-languageserver-types@0.4.0:
     resolution: {integrity: sha512-QQ3BZiU5LYkJElGncSNb5AKoJ/LCs6YBMCJMAz9EA7v+JaOdn3kx2cXpPTcZfKA5AEsR0vc97sAw+5mdNhVBmw==}
@@ -18293,11 +18287,6 @@ packages:
 
   vite-plugin-monaco-editor-esm@2.0.2:
     resolution: {integrity: sha512-XVkOpL/r0rw1NpbO30vUwG4S0THkC9KB1vjjV8olGd49h4/EQsKl3DrxB6KRDwyZNC9mKiiZgk2L6njUYj3oKQ==}
-    peerDependencies:
-      monaco-editor: '>=0.33.0'
-
-  vite-plugin-monaco-editor@1.1.0:
-    resolution: {integrity: sha512-IvtUqZotrRoVqwT0PBBDIZPNraya3BxN/bfcNfnxZ5rkJiGcNtO5eAOWWSgT7zullIAEqQwxMU83yL9J5k7gww==}
     peerDependencies:
       monaco-editor: '>=0.33.0'
 
@@ -29312,9 +29301,7 @@ snapshots:
     dependencies:
       domelementtype: 2.3.0
 
-  dompurify@3.2.7:
-    optionalDependencies:
-      '@types/trusted-types': 2.0.7
+  dompurify@3.1.7: {}
 
   dompurify@3.3.3:
     optionalDependencies:
@@ -33427,9 +33414,9 @@ snapshots:
   moment@2.30.1:
     optional: true
 
-  monaco-editor@0.55.1:
+  monaco-editor@0.54.0:
     dependencies:
-      dompurify: 3.2.7
+      dompurify: 3.1.7
       marked: 14.0.0
 
   monaco-languageserver-types@0.4.0:
@@ -33444,18 +33431,18 @@ snapshots:
 
   monaco-types@0.1.1: {}
 
-  monaco-worker-manager@2.0.1(monaco-editor@0.55.1):
+  monaco-worker-manager@2.0.1(monaco-editor@0.54.0):
     dependencies:
-      monaco-editor: 0.55.1
+      monaco-editor: 0.54.0
 
-  monaco-yaml@5.4.1(monaco-editor@0.55.1):
+  monaco-yaml@5.4.1(monaco-editor@0.54.0):
     dependencies:
       jsonc-parser: 3.3.1
-      monaco-editor: 0.55.1
+      monaco-editor: 0.54.0
       monaco-languageserver-types: 0.4.0
       monaco-marker-data-provider: 1.2.5
       monaco-types: 0.1.1
-      monaco-worker-manager: 2.0.1(monaco-editor@0.55.1)
+      monaco-worker-manager: 2.0.1(monaco-editor@0.54.0)
       path-browserify: 1.0.1
       prettier: 3.8.0
       vscode-languageserver-textdocument: 1.0.12
@@ -38391,13 +38378,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vite-plugin-monaco-editor-esm@2.0.2(monaco-editor@0.55.1):
+  vite-plugin-monaco-editor-esm@2.0.2(monaco-editor@0.54.0):
     dependencies:
-      monaco-editor: 0.55.1
-
-  vite-plugin-monaco-editor@1.1.0(monaco-editor@0.55.1):
-    dependencies:
-      monaco-editor: 0.55.1
+      monaco-editor: 0.54.0
 
   vite-plugin-vue-tracer@1.2.0(vite@8.0.2(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.30(typescript@5.9.3)):
     dependencies:
