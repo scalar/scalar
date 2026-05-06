@@ -916,8 +916,11 @@ jobs:
         with:
           packages: 'scalar-app...'
         env:
-          VITE_API_URL: 'https://api.scalar.com'
+          # Web UI
           VITE_DASHBOARD_URL: 'https://dashboard.scalar.com'
+          # Public/documented API
+          VITE_API_URL: 'https://api.scalar.com'
+          # Internal API, used for the Web UI
           VITE_SERVICES_URL: 'https://services.scalar.com'
       - name: Check ToDesktop credentials
         id: todesktop-credentials
