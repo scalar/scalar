@@ -1,4 +1,4 @@
-import type { ApiReferenceEvents, EventGlob, GlobListener } from '@scalar/workspace-store/events'
+import type { ApiReferenceEvents, EventGlob, GlobListener, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
@@ -149,6 +149,57 @@ export type ClientPlugin = {
   >
   /** Custom response body handlers for specific content types */
   responseBody?: ResponseBodyHandler[]
+}
+
+/**
+ * Subscribes a single plugin's `on` event handlers to the given event bus.
+ *
+ * - Exact-key handlers (e.g. `'log:user-login'`) are dispatched via a single
+ *   `onGlob('*')` listener that looks up the handler by event name. This avoids
+ *   creating N individual bus subscriptions.
+ * - Glob handlers (e.g. `'*'`, `'operation:*'`) are registered directly with
+ *   `onGlob` so they receive both the event name and payload as a discriminated union.
+ *
+ * Returns an unsubscribe function that removes all subscriptions added for this
+ * plugin. Call it when the plugin is torn down or the bus is destroyed.
+ *
+ * @example
+ * const unsubscribe = subscribePluginEvents(eventBus, plugin)
+ * // later...
+ * unsubscribe()
+ */
+export const subscribePluginEvents = (eventBus: WorkspaceEventBus, plugin: ClientPlugin): (() => void) => {
+  if (!plugin.on) {
+    return () => {}
+  }
+
+  const on = plugin.on
+  const unsubscribes: (() => void)[] = []
+
+  // Exact-key handlers — a single glob listener dispatches to the correct
+  // handler by looking up the event name, avoiding N individual subscriptions
+  unsubscribes.push(
+    eventBus.onGlob('*', (event: keyof ApiReferenceEvents, payload: ApiReferenceEvents[keyof ApiReferenceEvents]) => {
+      const handler = on[event] as ((payload: ApiReferenceEvents[keyof ApiReferenceEvents]) => void) | undefined
+      handler?.(payload)
+    }),
+  )
+
+  // Glob handlers ('*', 'prefix:*') get their own onGlob subscription so they
+  // receive both the event name and payload as a discriminated union
+  for (const key of Object.keys(on)) {
+    if (key === '*' || key.endsWith(':*')) {
+      const pattern = key as EventGlob
+      const handler = on[pattern] as GlobListener<typeof pattern>
+      unsubscribes.push(eventBus.onGlob(pattern, handler))
+    }
+  }
+
+  return () => {
+    for (const unsubscribe of unsubscribes) {
+      unsubscribe()
+    }
+  }
 }
 
 /**

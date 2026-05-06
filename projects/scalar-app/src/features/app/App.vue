@@ -18,11 +18,12 @@ import {
   type WorkspaceGroup,
 } from '@scalar/components'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
+import { ScalarModal, ScalarTeleportRoot, useModal } from '@scalar/components'
+import {
+  subscribePluginEvents,
+  type ClientPlugin,
+} from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
-import type {
-  EventGlob,
-  WildcardListener,
-} from '@scalar/workspace-store/events'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { computed, onBeforeUnmount, watch } from 'vue'
@@ -130,26 +131,7 @@ const pluginUnsubscribes: (() => void)[] = []
 for (const plugin of plugins) {
   plugin.lifecycle?.onInit?.({ config: { telemetry: app.telemetry.value } })
 
-  if (plugin.on) {
-    const on = plugin.on
-
-    // Exact-key handlers — subscribe each one directly on the bus
-    const unsubscribeExact = app.eventBus.onGlob('*', (event, payload) => {
-      const handler = on[event]
-      handler?.(payload as never)
-    })
-    pluginUnsubscribes.push(unsubscribeExact)
-
-    // Glob handlers — any key matching EventGlob ('*', 'operation:*', etc.)
-    for (const key of Object.keys(on)) {
-      if (key === '*' || key.endsWith(':*')) {
-        const pattern = key as EventGlob
-        const handler = on[pattern] as WildcardListener
-        const unsubscribeGlob = app.eventBus.onGlob(pattern, handler)
-        pluginUnsubscribes.push(unsubscribeGlob)
-      }
-    }
-  }
+  pluginUnsubscribes.push(subscribePluginEvents(app.eventBus, plugin))
 }
 
 /** Notify plugins when telemetry config changes */
