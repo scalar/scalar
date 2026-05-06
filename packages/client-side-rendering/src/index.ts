@@ -1,7 +1,8 @@
 export {
+  type AnyApiReferenceConfiguration,
+  type HtmlRenderingConfiguration,
   getConfiguration,
   getScriptTags,
   renderApiReference,
-  type AnyApiReferenceConfiguration,
-  type HtmlRenderingConfiguration,
 } from './html-rendering'
+export { escapeForInlineScript, serializeConfigToScript } from './serialize-config'

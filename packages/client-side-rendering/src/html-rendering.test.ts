@@ -99,7 +99,7 @@ describe('html-rendering', () => {
           content: { foo: 'bar' },
         },
       })
-      expect(html).toContain('"url": "https://api.example.com/spec"')
+      expect(html).toContain('"url":"https://api.example.com/spec"')
       expect(html).not.toContain('"content"')
     })
 
@@ -173,8 +173,8 @@ describe('html-rendering', () => {
       }
 
       const tags = getScriptTags(config, 'https://example.com/script.js')
-      expect(tags).toContain('"tagsSorter": "alpha"')
-      expect(tags).toContain('"operationsSorter": "method"')
+      expect(tags).toContain('"tagsSorter":"alpha"')
+      expect(tags).toContain('"operationsSorter":"method"')
     })
 
     it('generates complete HTML document with configuration', () => {
@@ -208,7 +208,7 @@ describe('html-rendering', () => {
       expect(html).toContain('<script src="https://example.com/script.js"></script>')
 
       // Check that configuration is properly embedded
-      expect(html).toContain('"theme": "kepler"')
+      expect(html).toContain('"theme":"kepler"')
       expect(html).toContain('"tagsSorter": (a, b) => a.name.localeCompare(b.name)')
       // Check the onLoaded callback is included (whitespace may vary)
       expect(html).toContain('"onLoaded":')
@@ -225,7 +225,7 @@ describe('html-rendering', () => {
       const tags = getScriptTags(config, 'https://example.com/script.js')
 
       // Check that non-function properties are JSON stringified
-      expect(tags).toContain('"theme": "kepler"')
+      expect(tags).toContain('"theme":"kepler"')
       // Check that function properties are preserved
       expect(tags).toContain('"tagsSorter": (a, b) => a.name.localeCompare(b.name)')
       expect(tags).toContain('"onLoaded": () => console.log("loaded")')
@@ -262,11 +262,11 @@ describe('html-rendering', () => {
 
       const tags = getScriptTags(config, 'https://example.com/script.js')
 
-      expect(tags).toContain('"theme": "kepler"')
+      expect(tags).toContain('"theme":"kepler"')
       expect(tags).toContain('"onLoaded": () => console.log("loaded")')
-      expect(tags).toContain('{\n        "theme": "kepler",')
-      expect(tags).toContain('\n        "onLoaded": () => console.log("loaded")\n      }')
-      expect(tags).not.toContain('"theme": "kepler",,')
+      // Function entries are spliced before the closing brace of the JSON object literal.
+      expect(tags).toContain('{"theme":"kepler", "onLoaded": () => console.log("loaded")}')
+      expect(tags).not.toContain('"theme":"kepler",,')
     })
 
     it('preserves plugins array containing functions', () => {

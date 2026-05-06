@@ -44,8 +44,7 @@ describe('serializeClientConfig', () => {
       cdn: null,
     })
 
-    expect(script).toContain('"plugins":["plain",')
-    expect(script).toContain('pluginFactory')
+    expect(script).toContain('"plugins": ["plain", function pluginFactory')
   })
 
   it('emits a config object when every prop is a function', () => {
@@ -57,9 +56,48 @@ describe('serializeClientConfig', () => {
 
     // Should not produce `{}` and then drop the function — the object literal
     // must contain the function entry.
-    expect(script).toContain('configuration:{"onLoaded":')
+    expect(script).toContain('configuration:{ "onLoaded":')
     expect(script).toContain('namedHandler')
     expect(script).not.toContain('configuration:{}')
+  })
+
+  it('escapes </script> in string config values so it cannot break out of the script tag', () => {
+    const script = serializeClientConfig({
+      key: 'mount-1',
+      configuration: { content: '</script><img src=x onerror=alert(1)>' },
+      cdn: null,
+    })
+
+    // The escaped `<\/script` is parsed as the same string by the JS engine
+    // but does not match the HTML parser's end-tag scanner.
+    expect(script).not.toContain('</script')
+    expect(script).toContain('<\\/script')
+  })
+
+  it('escapes </script> in function source', () => {
+    const script = serializeClientConfig({
+      key: 'mount-1',
+      configuration: {
+        onLoaded: function leak() {
+          return '</script>'
+        },
+      },
+      cdn: null,
+    })
+
+    expect(script).not.toContain('</script')
+    expect(script).toContain('<\\/script')
+  })
+
+  it('escapes </script> in the cdn URL', () => {
+    const script = serializeClientConfig({
+      key: 'mount-1',
+      configuration: {},
+      cdn: 'https://evil.example.com/</script><img src=x>',
+    })
+
+    expect(script).not.toContain('</script')
+    expect(script).toContain('<\\/script')
   })
 
   it('round-trips the cdn value via JSON', () => {
