@@ -1,10 +1,10 @@
+import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { computed, ref, shallowRef } from 'vue'
 
 import type { AppState } from '@/features/app'
-import { mockEventBus } from '@/v2/helpers/test-utils'
 
 import DocumentSyncIndicator from './DocumentSyncIndicator.vue'
 

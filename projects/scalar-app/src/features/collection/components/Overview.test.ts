@@ -1,3 +1,4 @@
+import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { xScalarEnvironmentSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
@@ -5,8 +6,6 @@ import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/stri
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
-
-import { mockEventBus } from '@/v2/helpers/test-utils'
 
 import Overview from './Overview.vue'
 

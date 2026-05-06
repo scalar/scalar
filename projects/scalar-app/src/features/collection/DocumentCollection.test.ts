@@ -1,3 +1,4 @@
+import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { mount } from '@vue/test-utils'
@@ -5,7 +6,6 @@ import { describe, expect, it, vi } from 'vitest'
 import { createRouter, createWebHistory } from 'vue-router'
 
 import { ROUTES } from '@/features/app/helpers/routes'
-import { mockEventBus } from '@/v2/helpers/test-utils'
 
 import DocumentCollection from './DocumentCollection.vue'
 

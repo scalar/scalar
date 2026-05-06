@@ -1,3 +1,4 @@
+import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { xScalarEnvironmentSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
@@ -6,7 +7,6 @@ import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { CollectionProps } from '@/features/app/helpers/routes'
-import { mockEventBus } from '@/v2/helpers/test-utils'
 
 import Cookies from './Cookies.vue'
 

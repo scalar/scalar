@@ -1,3 +1,4 @@
+import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import { flushPromises, mount } from '@vue/test-utils'
@@ -5,7 +6,6 @@ import { describe, expect, it, vi } from 'vitest'
 import { computed, ref, shallowRef } from 'vue'
 
 import type { AppState } from '@/features/app'
-import { mockEventBus } from '@/v2/helpers/test-utils'
 
 import DocumentBreadcrumb from './DocumentBreadcrumb.vue'
 

@@ -1,3 +1,4 @@
+import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import { xScalarEnvironmentsSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -6,7 +7,6 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import { EnvironmentsList } from '@/v2/features/environments'
-import { mockEventBus } from '@/v2/helpers/test-utils'
 
 import Environment from './Environment.vue'
 

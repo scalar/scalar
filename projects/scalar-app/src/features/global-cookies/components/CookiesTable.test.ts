@@ -1,8 +1,7 @@
+import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-
-import { mockEventBus } from '@/v2/helpers/test-utils'
 
 import CookiesTable from './CookiesTable.vue'
 

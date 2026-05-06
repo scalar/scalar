@@ -273,6 +273,11 @@
       "import": "./dist/v2/features/search/index.js",
       "types": "./dist/v2/features/search/index.d.ts",
       "default": "./dist/v2/features/search/index.js"
+    },
+    "./v2/helpers/test-utils": {
+      "import": "./dist/v2/helpers/test-utils.js",
+      "types": "./dist/v2/helpers/test-utils.d.ts",
+      "default": "./dist/v2/helpers/test-utils.js"
     }
   },
   "files": [
