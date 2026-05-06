@@ -255,7 +255,8 @@ const destroyInstance = (state: GlobalState, selector: string): void => {
     }
   }
 
-  state.instances[selector] = null
+  // Callers either `delete` the key (`unmountAll`) or overwrite it with a
+  // fresh instance (`mountContainer`), so we do not need to null it here.
 
   const container = document.querySelector(selector)
 

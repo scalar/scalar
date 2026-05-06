@@ -190,7 +190,6 @@ describe('initScalarAstro', () => {
   })
 
   it('does not leak instance state or registry entries across navigations', async () => {
-    const STATE_KEY_LOCAL = '__scalarAstroState'
     initScalarAstro()
 
     for (let i = 0; i < 100; i++) {
@@ -203,7 +202,7 @@ describe('initScalarAstro', () => {
       document.getElementById(id)?.remove()
     }
 
-    const state = (window as unknown as Record<string, { instances: Record<string, unknown> }>)[STATE_KEY_LOCAL]
+    const state = (window as unknown as Record<string, { instances: Record<string, unknown> }>)[STATE_KEY]
     const registry = (window as unknown as RegistryWindow).__scalarAstro?.configs ?? {}
 
     expect(Object.keys(state.instances)).toHaveLength(0)
