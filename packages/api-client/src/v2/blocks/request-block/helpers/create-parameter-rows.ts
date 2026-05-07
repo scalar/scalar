@@ -1,4 +1,4 @@
-import { isObject } from '@scalar/helpers/object/is-object'
+import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { deSerializeParameter, getExample } from '@scalar/workspace-store/request-example'
 import type {
@@ -31,16 +31,6 @@ const getParameterStyleAndExplode = (parameter: ParameterObject): { style: strin
   const explode = 'explode' in parameter && parameter.explode !== undefined ? parameter.explode : style === 'form'
 
   return { style, explode }
-}
-
-const getValueAtPath = (source: unknown, path: readonly string[]): unknown => {
-  return path.reduce<unknown>((value, key) => {
-    if (!isObject(value)) {
-      return undefined
-    }
-
-    return value[key]
-  }, source)
 }
 
 const toTableValue = (value: unknown): string => {
