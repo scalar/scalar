@@ -1,3 +1,4 @@
+import { isObject } from '@scalar/helpers/object/is-object'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { ConfigDefaults, PostHog } from 'posthog-js'
@@ -30,17 +31,20 @@ export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
 
   return {
     on: {
-      'log:user-login': ({ uid, email, teamUid }) => {
-        posthog?.identify(uid, { email, teamUid })
-      },
-      'log:user-logout': () => {
-        posthog?.reset()
-      },
       '*': (event: keyof ApiReferenceEvents, payload: ApiReferenceEvents[keyof ApiReferenceEvents]) => {
-        // We dont want to duplciate any events from above
-        if (event === 'log:user-login' || event === 'log:user-logout') {
+        // User logs in
+        if (event === 'log:user-login' && isObject(payload) && 'uid' in payload && typeof payload.uid === 'string') {
+          posthog?.identify(payload.uid, { email: payload.email, teamUid: payload.teamUid })
           return
         }
+
+        // User logs out
+        if (event === 'log:user-logout') {
+          posthog?.reset()
+          return
+        }
+
+        // The rest
         posthog?.capture(event, sanitizePayload(payload))
       },
     },
