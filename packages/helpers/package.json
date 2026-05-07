@@ -108,6 +108,11 @@
       "types": "./dist/testing/*.d.ts",
       "default": "./dist/testing/*.js"
     },
+    "./theme/*": {
+      "import": "./dist/theme/*.js",
+      "types": "./dist/theme/*.d.ts",
+      "default": "./dist/theme/*.js"
+    },
     "./types/*": {
       "import": "./dist/types/*.js",
       "types": "./dist/types/*.d.ts",
@@ -126,6 +131,7 @@
   "sideEffects": false,
   "devDependencies": {
     "@playwright/test": "catalog:*",
+    "@scalar/themes": "workspace:*",
     "jsdom": "catalog:*",
     "vitest": "catalog:*"
   }

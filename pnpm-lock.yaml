@@ -1808,6 +1808,9 @@ importers:
       '@playwright/test':
         specifier: catalog:*
         version: 1.59.1
+      '@scalar/themes':
+        specifier: workspace:*
+        version: link:../themes
       jsdom:
         specifier: catalog:*
         version: 27.4.0(@noble/hashes@1.8.0)
