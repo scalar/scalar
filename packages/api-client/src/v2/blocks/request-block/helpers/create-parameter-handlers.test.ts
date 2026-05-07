@@ -161,6 +161,66 @@ describe('createParameterHandlers', () => {
     )
   })
 
+  it('deletes expanded object child rows by upserting the parent without the child value', () => {
+    const parentParameter = {
+      name: 'pageable',
+      in: 'query',
+    } as const
+    const onDeleteExpandedRow = vi.fn()
+    const context: TableRow[] = [
+      {
+        name: 'page',
+        value: '1',
+        isDisabled: false,
+        originalParameter: parentParameter,
+        sourceParameterValuePath: ['page'],
+      },
+      {
+        name: 'size',
+        value: '20',
+        isRequired: true,
+        isDisabled: false,
+        originalParameter: parentParameter,
+        sourceParameterValuePath: ['size'],
+      },
+      {
+        name: 'sort',
+        value: 'username,asc',
+        isDisabled: false,
+        originalParameter: parentParameter,
+        sourceParameterValuePath: ['sort'],
+      },
+    ]
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, {
+      context,
+      onDeleteExpandedRow,
+    })
+
+    handlers.delete({ index: 1 })
+
+    expect(onDeleteExpandedRow).toHaveBeenCalledTimes(1)
+    expect(onDeleteExpandedRow).toHaveBeenCalledWith(context[1])
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:upsert:parameter',
+      {
+        type: 'query',
+        payload: {
+          name: 'pageable',
+          value: {
+            page: '1',
+            sort: 'username,asc',
+          },
+          isDisabled: false,
+        },
+        originalParameter: parentParameter,
+        meta: mockMeta,
+      },
+      {
+        skipUnpackProxy: true,
+      },
+    )
+  })
+
   it('deletes all parameters of the given type', () => {
     const handlers = createParameterHandlers('cookie', mockEventBus, mockMeta, { context: [] })
 

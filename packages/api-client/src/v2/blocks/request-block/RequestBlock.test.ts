@@ -2,7 +2,7 @@ import { type ApiReferenceEvents, createWorkspaceEventBus } from '@scalar/worksp
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { type DefineComponent, defineComponent, markRaw } from 'vue'
+import { type DefineComponent, defineComponent, markRaw, nextTick } from 'vue'
 
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
 import type { TableRow } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
@@ -357,6 +357,93 @@ describe('RequestBlock', () => {
       'username',
       'minAge',
       'address',
+    ])
+  })
+
+  it('removes deleted expanded query rows from the rendered rows', async () => {
+    const eventBus = createWorkspaceEventBus()
+    const fn = vi.fn()
+    const pageable = {
+      name: 'pageable',
+      in: 'query',
+      required: false,
+      schema: {
+        type: 'object',
+        properties: {
+          page: {
+            type: 'integer',
+            format: 'int32',
+          },
+          size: {
+            type: 'integer',
+            format: 'int32',
+          },
+          sort: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+          },
+        },
+      },
+    } satisfies NonNullable<OperationObject['parameters']>[number]
+    const wrapper = mount(RequestBlock, {
+      props: {
+        ...defaultProps,
+        eventBus,
+        operation: {
+          summary: '',
+          parameters: [pageable],
+        },
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    eventBus.on('operation:upsert:parameter', fn)
+
+    const getQueryParams = () => {
+      const queryParams = wrapper
+        .findAllComponents({ name: 'RequestParams' })
+        .find((component) => (component.props() as { title: string }).title === 'Query Parameters')
+
+      if (!queryParams) {
+        throw new Error('Query parameters section not found')
+      }
+
+      return queryParams
+    }
+
+    expect((getQueryParams().props() as { rows: TableRow[] }).rows.map((row) => row.name)).toStrictEqual([
+      'page',
+      'size',
+      'sort',
+    ])
+
+    getQueryParams().vm.$emit('delete', { index: 1 })
+    await nextTick()
+
+    expect(fn).toHaveBeenCalledTimes(1)
+    expect(fn).toHaveBeenCalledWith({
+      type: 'query',
+      payload: {
+        name: 'pageable',
+        value: {},
+        isDisabled: true,
+      },
+      originalParameter: pageable,
+      meta: {
+        method: 'get',
+        path: 'http://example.com/foo',
+        exampleKey: 'example-1',
+      },
+    })
+    expect((getQueryParams().props() as { rows: TableRow[] }).rows.map((row) => row.name)).toStrictEqual([
+      'page',
+      'sort',
     ])
   })
 

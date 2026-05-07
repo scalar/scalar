@@ -173,6 +173,44 @@ describe('createParameterRows', () => {
     expect(updatedRows[1]?.value).toBe('20')
   })
 
+  it('omits expanded rows hidden by path', () => {
+    const parameter: ParameterObject = {
+      name: 'pageable',
+      in: 'query',
+      schema: {
+        type: 'object',
+        required: ['page'],
+        properties: {
+          page: { type: 'integer', format: 'int32' },
+          size: { type: 'integer', format: 'int32' },
+        },
+      },
+      examples: {
+        default: {
+          value: {},
+          'x-disabled': false,
+        },
+      },
+    }
+
+    expect(
+      createParameterRows(parameter, 'default', {
+        hiddenValuePaths: [['page']],
+      }),
+    ).toStrictEqual([
+      {
+        name: 'size',
+        value: '',
+        description: undefined,
+        schema: { type: 'integer', format: 'int32' },
+        isRequired: false,
+        isDisabled: false,
+        originalParameter: parameter,
+        sourceParameterValuePath: ['size'],
+      },
+    ])
+  })
+
   it('keeps unsupported object serialization as one row', () => {
     const parameter: ParameterObject = {
       name: 'filter',
