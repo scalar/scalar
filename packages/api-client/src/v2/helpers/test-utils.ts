@@ -4,10 +4,10 @@ import { vi } from 'vitest'
 /** Creates a fresh mock event bus instance for testing */
 export const createMockEventBus = (): WorkspaceEventBus =>
   ({
-    on: vi.fn(),
-    once: vi.fn(),
+    on: vi.fn(() => vi.fn()),
+    once: vi.fn(() => vi.fn()),
     off: vi.fn(),
-    onGlob: vi.fn(),
+    onGlob: vi.fn(() => vi.fn()),
     offGlob: vi.fn(),
     emit: vi.fn(() => null),
     flushDebouncedEmits: vi.fn(),
