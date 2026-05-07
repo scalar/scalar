@@ -1,3 +1,4 @@
+import { isObject } from '@scalar/helpers/object/is-object'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { deSerializeParameter, getExample } from '@scalar/workspace-store/request-example'
 import type {
@@ -25,9 +26,6 @@ const resolveSchema = (schema: unknown): SchemaObject | undefined => {
   return resolvedSchema as SchemaObject | undefined
 }
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value)
-
 const getParameterStyleAndExplode = (parameter: ParameterObject): { style: string; explode: boolean } => {
   const style = 'style' in parameter && parameter.style ? parameter.style : 'form'
   const explode = 'explode' in parameter && parameter.explode !== undefined ? parameter.explode : style === 'form'
@@ -37,7 +35,7 @@ const getParameterStyleAndExplode = (parameter: ParameterObject): { style: strin
 
 const getValueAtPath = (source: unknown, path: readonly string[]): unknown => {
   return path.reduce<unknown>((value, key) => {
-    if (!isRecord(value)) {
+    if (!isObject(value)) {
       return undefined
     }
 
