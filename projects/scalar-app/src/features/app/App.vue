@@ -335,10 +335,13 @@ const routerViewProps = computed<RouteProps>(() => {
                 @revert="handleRevertDocument"
                 @save="handleSaveDocument" />
               <!--
-                Vertical divider
+                Vertical divider. Only shown when both the action cluster
+                on the left and the consumer `header-end` slot on the
+                right have content - otherwise it would render as a
+                lonely stripe with nothing to separate.
               -->
               <span
-                v-if="$slots['header-end']"
+                v-if="hasHeaderActionCluster && $slots['header-end']"
                 aria-hidden="true"
                 class="bg-border h-4 w-px shrink-0" />
               <slot
