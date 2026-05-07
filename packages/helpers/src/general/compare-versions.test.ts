@@ -36,6 +36,11 @@ describe('compareVersions', () => {
     expect(compareVersions('1.0.0-rc.2', '1.0.0-rc.10')).toBeLessThan(0)
   })
 
+  it('preserves hyphens inside the pre-release identifier', () => {
+    expect(compareVersions('1.0.0-beta-1', '1.0.0-beta-2')).toBeLessThan(0)
+    expect(compareVersions('1.0.0-beta-2', '1.0.0-beta-1')).toBeGreaterThan(0)
+  })
+
   it('orders shorter pre-release chains before longer ones with the same prefix', () => {
     expect(compareVersions('1.0.0-rc', '1.0.0-rc.1')).toBeLessThan(0)
   })

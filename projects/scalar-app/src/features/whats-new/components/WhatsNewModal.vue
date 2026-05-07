@@ -50,6 +50,11 @@ const hasMore = computed(() => visibleCount.value < notes.value.length)
  * Format an ISO date string (`YYYY-MM-DD`) as a localized, human-readable
  * date such as `April 25, 2026`. Falls back to the raw string if parsing
  * fails so a malformed entry never crashes the modal.
+ *
+ * Date-only strings are parsed as UTC midnight per the ECMAScript spec.
+ * Formatting with the user's default locale but `timeZone: 'UTC'` keeps the
+ * calendar day aligned with the release note (otherwise Americas/Pacific
+ * timezones would show the previous day).
  */
 const formatDate = (iso: string): string => {
   const parsed = new Date(iso)
@@ -57,6 +62,7 @@ const formatDate = (iso: string): string => {
     return iso
   }
   return parsed.toLocaleDateString(undefined, {
+    timeZone: 'UTC',
     year: 'numeric',
     month: 'long',
     day: 'numeric',

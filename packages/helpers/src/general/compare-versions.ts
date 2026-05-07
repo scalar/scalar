@@ -17,7 +17,9 @@
 export const compareVersions = (a: string, b: string): number => {
   const parsed = (input: string): { numeric: number[]; pre: string[] } => {
     const [withoutBuild = ''] = input.split('+')
-    const [core = '', preRelease] = withoutBuild.split('-')
+    const hyphenIndex = withoutBuild.indexOf('-')
+    const core = hyphenIndex === -1 ? withoutBuild : withoutBuild.slice(0, hyphenIndex)
+    const preRelease = hyphenIndex === -1 ? undefined : withoutBuild.slice(hyphenIndex + 1)
     const numeric = core.split('.').map((part) => Number.parseInt(part, 10) || 0)
     const pre = preRelease ? preRelease.split('.') : []
     return { numeric, pre }

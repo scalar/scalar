@@ -9,9 +9,10 @@
  */
 export const extractChangelogSection = (markdown: string, version: string): string | null => {
   const lines = markdown.split('\n')
-  // Match `## 3.5.1` (and tolerate trailing whitespace) but nothing deeper
-  // like `### Patch Changes` so we land on the right heading.
-  const headingPattern = new RegExp(`^##\\s+${version.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}\\s*$`)
+  // Match `## 3.5.1` only (not `### …`). Escape metacharacters in
+  // `version` with one backslash each; include `\]` in the class so `]`
+  // does not terminate it early.
+  const headingPattern = new RegExp(`^##\\s+${version.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`)
 
   let startIndex = -1
   for (let index = 0; index < lines.length; index += 1) {

@@ -39,12 +39,23 @@ describe('extractChangelogSection', () => {
   })
 
   it('returns null when the section is empty', () => {
-    const empty = `# @scalar/api-client\n\n## 1.0.0\n\n## 0.9.0\n\n- something`
+    const empty = '# @scalar/api-client\n\n## 1.0.0\n\n## 0.9.0\n\n- something'
     expect(extractChangelogSection(empty, '1.0.0')).toBeNull()
   })
 
   it('reads the very last section in a file', () => {
     const section = extractChangelogSection(SAMPLE_CHANGELOG, '3.5.0')
     expect(section).toContain('old entry that should never appear when extracting 3.5.2')
+  })
+
+  it('treats semver build metadata literally when the version contains +', () => {
+    const changelog = `## 2.0.0+electron.1
+
+### Build
+
+- desktop build metadata must not be parsed as a regex quantifier
+`
+    const section = extractChangelogSection(changelog, '2.0.0+electron.1')
+    expect(section).toContain('desktop build metadata')
   })
 })
