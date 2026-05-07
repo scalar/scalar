@@ -401,19 +401,38 @@ defineExpose({
 })
 </script>
 <template>
+  <!--
+    Address bar wrapper.
+
+    Below `md:` the bar wraps onto two rows:
+      - Row 1: method dropdown (hoisted out of the bar) + URL bar (with the
+        in-bar history button).
+      - Row 2: copy + send buttons, right-aligned.
+
+    At `md:` and above everything collapses back into a single row with the
+    method tucked inside the bar background and copy / send sitting flush
+    against the bar's right edge.
+  -->
   <div
     :id="id"
-    class="scalar-address-bar order-last flex h-auto w-full [--scalar-address-bar-height:32px] lg:order-0 lg:h-(--scalar-address-bar-height) lg:w-auto">
+    class="scalar-address-bar order-last flex h-auto w-full flex-wrap items-stretch gap-1 [--scalar-address-bar-height:32px] md:order-0 md:h-(--scalar-address-bar-height) md:w-auto md:flex-nowrap">
     <!--
-      Address Bar
-
-      Mobile splits the bar into two rows - method + URL on top, the action
-      cluster (copy / history / send) on its own row below - so the URL gets
-      the entire viewport width and every action stays comfortably tappable.
-      `lg:` collapses the bar back into a single row with the original sizing.
+      Method dropdown rendered outside the bar on mobile so the URL gets
+      the entire bar width to itself. Hidden at `md:` where the in-bar
+      copy below takes over.
     -->
+    <div class="flex h-(--scalar-address-bar-height) md:hidden">
+      <HttpMethod
+        :isEditable="layout !== 'modal'"
+        isSquare
+        :method="methodConflict ?? method"
+        teleport
+        @change="handleMethodChange" />
+    </div>
+
+    <!-- Address bar background (method + URL + history) -->
     <div
-      class="address-bar-bg-states text-xxs group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row flex-wrap items-stretch rounded-lg p-0.75 lg:order-none lg:h-(--scalar-address-bar-height) lg:max-w-[580px] lg:min-w-[580px] lg:flex-nowrap xl:max-w-[720px] xl:min-w-[720px]"
+      class="address-bar-bg-states text-xxs group relative flex h-(--scalar-address-bar-height) max-w-[calc(100dvw-24px)] min-w-0 flex-1 flex-row items-stretch rounded-lg p-0.75 md:max-w-[480px] lg:min-w-[420px] xl:max-w-[640px] xl:min-w-[560px]"
       :class="{
         'outline-c-danger outline': hasConflict,
         'rounded-b-none': isDropdownOpen,
@@ -427,7 +446,13 @@ defineExpose({
           class="absolute top-0 left-0 h-full w-full"
           :style />
       </div>
-      <div class="flex h-(--scalar-address-bar-height) gap-1 lg:h-auto">
+
+      <!--
+        Method dropdown rendered inside the bar at `md:` and above so the
+        method label keeps its visual home next to the URL. Hidden below
+        `md:` where the hoisted copy above takes over.
+      -->
+      <div class="hidden gap-1 md:flex">
         <HttpMethod
           :isEditable="layout !== 'modal'"
           isSquare
@@ -437,7 +462,7 @@ defineExpose({
       </div>
 
       <div
-        class="scroll-timeline-x scroll-timeline-x-hidden relative flex h-(--scalar-address-bar-height) min-w-0 flex-1 bg-blend-normal lg:h-auto">
+        class="scroll-timeline-x scroll-timeline-x-hidden relative flex min-w-0 flex-1 bg-blend-normal">
         <!-- Servers -->
         <ServerDropdown
           v-if="servers.length"
@@ -482,51 +507,15 @@ defineExpose({
       </div>
 
       <!--
-        Action cluster. On mobile this wraps to its own row beneath the URL
-        and floats the send button to the right edge with `ml-auto`, so the
-        user can tap any action without aiming at a 32px-tall row. `lg:`
-        collapses it back inline next to the URL.
+        History stays inside the bar at every breakpoint - the dropdown
+        anchors off the bar's right edge so hoisting it outside would
+        leave the popover visually disconnected.
       -->
-      <div
-        class="flex h-(--scalar-address-bar-height) w-full items-stretch gap-1 lg:w-auto lg:gap-0">
-        <!-- Copy url button -->
-        <ScalarButton
-          class="hover:bg-b-3 ml-auto lg:ml-1"
-          size="xs"
-          variant="ghost"
-          @click="copyUrl">
-          <ScalarIconCopy />
-          <span class="sr-only">Copy URL</span>
-        </ScalarButton>
-
-        <AddressBarHistory
-          :history="history"
-          :target="id"
-          @select:history:item="
-            (payload) => emit('select:history:item', payload)
-          "
-          @update:open="(value) => (isHistoryDropdownOpen = value)" />
-
-        <ScalarButton
-          ref="sendButtonRef"
-          class="relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
-          data-addressbar-action="send"
-          :disabled="isLoading"
-          @click="emit('execute')">
-          <span
-            aria-hidden="true"
-            class="inline-flex items-center gap-1">
-            <ScalarIcon
-              class="relative shrink-0 fill-current"
-              icon="Play"
-              size="xs" />
-            <span class="text-xxs hidden md:flex">Send</span>
-          </span>
-          <span class="sr-only">
-            Send {{ method }} request to {{ server?.url ?? '' }}{{ path }}
-          </span>
-        </ScalarButton>
-      </div>
+      <AddressBarHistory
+        :history="history"
+        :target="id"
+        @select:history:item="(payload) => emit('select:history:item', payload)"
+        @update:open="(value) => (isHistoryDropdownOpen = value)" />
 
       <!-- Error message -->
       <div
@@ -544,6 +533,45 @@ defineExpose({
           </div>
         </div>
       </div>
+    </div>
+
+    <!--
+      Copy + Send live outside the bar at every breakpoint. On mobile the
+      cluster is forced onto its own row with `w-full` and the copy
+      button uses `ml-auto` to right-align both buttons; at `md:` the
+      cluster collapses to its natural width and sits flush against the
+      bar's right edge.
+    -->
+    <div
+      class="flex h-(--scalar-address-bar-height) w-full items-stretch gap-1 md:w-auto">
+      <ScalarButton
+        class="hover:bg-b-3 ml-auto md:ml-0"
+        size="xs"
+        variant="ghost"
+        @click="copyUrl">
+        <ScalarIconCopy />
+        <span class="sr-only">Copy URL</span>
+      </ScalarButton>
+
+      <ScalarButton
+        ref="sendButtonRef"
+        class="relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
+        data-addressbar-action="send"
+        :disabled="isLoading"
+        @click="emit('execute')">
+        <span
+          aria-hidden="true"
+          class="inline-flex items-center gap-1">
+          <ScalarIcon
+            class="relative shrink-0 fill-current"
+            icon="Play"
+            size="xs" />
+          <span class="text-xxs hidden md:flex">Send</span>
+        </span>
+        <span class="sr-only">
+          Send {{ method }} request to {{ server?.url ?? '' }}{{ path }}
+        </span>
+      </ScalarButton>
     </div>
   </div>
 </template>
