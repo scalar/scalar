@@ -167,21 +167,9 @@ export const useCodeMirror = (
     () => toValue(params.placeholder),
   ]
 
-  // Unmounts CodeMirror if it's mounted already, and mounts CodeMirror, if the given ref exists.
-  watch(
-    params.codeMirrorRef,
-    () => {
-      codeMirror.value?.destroy()
-      mountCodeMirror()
-    },
-    { immediate: true },
-  )
-
-  // Cleanup codemirror
-  onBeforeUnmount(() => codeMirror.value?.destroy())
-
   // Builds the full extension list from the current param values.
   // NOTE: when adding a new param, add its getter here AND add its `toValue()` call inside `buildExtensions`.
+  // Must be declared before the immediate codeMirrorRef watch below to avoid a temporal dead zone error.
   const buildExtensions = (provider: Extension | null): Extension[] =>
     getCodeMirrorExtensions({
       onChange: params.onChange,
@@ -220,6 +208,19 @@ export const useCodeMirror = (
       }
     }
   }
+
+  // Unmounts CodeMirror if it's mounted already, and mounts CodeMirror, if the given ref exists.
+  watch(
+    params.codeMirrorRef,
+    () => {
+      codeMirror.value?.destroy()
+      mountCodeMirror()
+    },
+    { immediate: true },
+  )
+
+  // Cleanup codemirror
+  onBeforeUnmount(() => codeMirror.value?.destroy())
 
   // ---------------------------------------------------------------------------
 
