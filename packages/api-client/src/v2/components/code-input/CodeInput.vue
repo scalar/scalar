@@ -274,22 +274,32 @@ const contextFunctionDropdownItems = computed(() =>
     : [],
 )
 
-const pillPluginExtension = computed(() =>
-  pillPlugin({
-    environment,
-    isContextFunctionName,
-    isReadOnly: layout === 'modal',
-  }),
-)
+/**
+ * The pill plugin is created once and receives getter functions so it can
+ * always read the latest `environment` and `isReadOnly` values without the
+ * ViewPlugin instance ever needing to be replaced. Replacing the instance
+ * would require a full `StateEffect.reconfigure` on every environment change,
+ * which causes a costly CodeMirror measure cycle on every keystroke.
+ */
+const pillPluginExtension = pillPlugin({
+  environment: () => environment,
+  isContextFunctionName,
+  isReadOnly: () => layout === 'modal',
+})
 
 /**
  * Combined extensions for CodeMirror.
+ *
+ * Defined as a constant (not a computed) so the array reference is stable
+ * across renders. Individual extensions that need reactivity carry their own
+ * internal update mechanisms (e.g. the pill plugin reads environment via a
+ * getter on every CodeMirror update cycle).
  */
-const codeMirrorExtensions = computed((): Extension[] => [
+const codeMirrorExtensions: Extension[] = [
   ...buildExtensions(),
-  pillPluginExtension.value,
+  pillPluginExtension,
   backspaceCommand,
-])
+]
 
 const codeMirrorRef: Ref<HTMLDivElement | null> = ref(null)
 

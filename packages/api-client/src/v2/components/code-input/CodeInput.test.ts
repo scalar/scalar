@@ -1,6 +1,8 @@
+import { EditorView, StateEffect } from '@scalar/use-codemirror'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 
 import CodeInput from './CodeInput.vue'
 
@@ -805,5 +807,186 @@ describe('CodeInput', () => {
     componentInstance.showDropdown = true
 
     expect(componentInstance.displayVariablesDropdown).toBe(false)
+  })
+
+  describe('performance', () => {
+    afterEach(() => {
+      vi.restoreAllMocks()
+    })
+
+    /**
+     * Normalise the `effects` field from a dispatch TransactionSpec — it can be
+     * a single StateEffect, an array, or undefined — and check whether any
+     * effect is a `StateEffect.reconfigure`.
+     */
+    const hasReconfigure = (args: unknown[]): boolean => {
+      const spec = args[0] as { effects?: unknown } | undefined
+      if (!spec?.effects) return false
+      const effects = Array.isArray(spec.effects) ? spec.effects : [spec.effects]
+      return effects.some(
+        (e): e is { is: (t: unknown) => boolean } =>
+          typeof (e as { is?: unknown }).is === 'function' &&
+          (e as { is: (t: unknown) => boolean }).is(StateEffect.reconfigure),
+      )
+    }
+
+    /**
+     * Problem 1 (fixed): `codeMirrorExtensions` is now a stable module-level constant
+     * rather than a computed, so its array reference never changes across renders.
+     * The pill plugin receives a getter for `environment` and updates decorations
+     * internally on each CodeMirror update cycle — no ViewPlugin replacement needed.
+     */
+    it('codeMirrorExtensions is the same array reference after a same-value environment change', async () => {
+      const wrapper = mount(CodeInput, {
+        props: {
+          modelValue: 'hello',
+          layout: 'desktop' as const,
+          environment: mockEnvironment,
+        },
+      })
+
+      await nextTick()
+
+      const vm = wrapper.vm as any
+
+      // Capture the extensions array reference before the prop change.
+      const before = vm.codeMirrorExtensions
+
+      // Replace environment with a structurally identical object (new reference).
+      await wrapper.setProps({
+        environment: {
+          color: mockEnvironment.color,
+          variables: [...mockEnvironment.variables],
+        } satisfies XScalarEnvironment,
+      })
+
+      // Capture the extensions array reference after the prop change.
+      const after = vm.codeMirrorExtensions
+
+      // The array reference must be identical — no new ViewPlugin was constructed.
+      expect(before).toBe(after)
+    })
+
+    /**
+     * Problem 2 (fixed): Updating the `environment` prop to an object with identical
+     * values no longer causes a `StateEffect.reconfigure` dispatch. The pill plugin
+     * reads `environment` via a getter on every CodeMirror update cycle, so the
+     * ViewPlugin instance never needs to be replaced.
+     */
+    it('same-value environment prop change does not dispatch StateEffect.reconfigure', async () => {
+      const rafCallbacks: FrameRequestCallback[] = []
+      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+        rafCallbacks.push(cb)
+        return rafCallbacks.length
+      })
+
+      const dispatchSpy = vi.spyOn(EditorView.prototype, 'dispatch')
+
+      const wrapper = mount(CodeInput, {
+        props: {
+          modelValue: 'hello',
+          layout: 'desktop' as const,
+          environment: mockEnvironment,
+        },
+      })
+
+      // Settle initial mount and drain any rAF callbacks it scheduled.
+      await nextTick()
+      rafCallbacks.splice(0).forEach((cb) => cb(performance.now()))
+
+      // Reset the spy so we only count dispatches that happen after the prop change.
+      dispatchSpy.mockClear()
+
+      // Update environment to a new object reference with identical values.
+      await wrapper.setProps({
+        environment: {
+          color: mockEnvironment.color,
+          variables: [...mockEnvironment.variables],
+        } satisfies XScalarEnvironment,
+      })
+
+      await nextTick()
+      rafCallbacks.splice(0).forEach((cb) => cb(performance.now()))
+
+      const reconfigureCount = dispatchSpy.mock.calls.filter(hasReconfigure).length
+
+      expect(reconfigureCount).toBe(0)
+    })
+
+    /**
+     * Problem 3 (confirmed not regressed): Changing `modelValue` (simulating user
+     * typing) must NOT trigger a `StateEffect.reconfigure` dispatch. Typing should
+     * only update CodeMirror's document content.
+     */
+    it('modelValue change does not dispatch StateEffect.reconfigure', async () => {
+      const rafCallbacks: FrameRequestCallback[] = []
+      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+        rafCallbacks.push(cb)
+        return rafCallbacks.length
+      })
+
+      const dispatchSpy = vi.spyOn(EditorView.prototype, 'dispatch')
+
+      const wrapper = mount(CodeInput, {
+        props: {
+          modelValue: 'initial',
+          layout: 'desktop' as const,
+          environment: mockEnvironment,
+        },
+      })
+
+      // Settle initial mount and drain any rAF callbacks it scheduled.
+      await nextTick()
+      rafCallbacks.splice(0).forEach((cb) => cb(performance.now()))
+
+      // Snapshot how many reconfigures happened during mount — we only care about
+      // the delta caused by the modelValue change below.
+      const reconfiguresBefore = dispatchSpy.mock.calls.filter(hasReconfigure).length
+
+      await wrapper.setProps({ modelValue: 'updated' })
+
+      await nextTick()
+      rafCallbacks.splice(0).forEach((cb) => cb(performance.now()))
+
+      const reconfiguresAfter = dispatchSpy.mock.calls.filter(hasReconfigure).length
+
+      // A content-only change must not produce any additional reconfigure dispatches.
+      expect(reconfiguresAfter).toBe(reconfiguresBefore)
+    })
+
+    /**
+     * Problem 4: `backspaceCommand` is defined at module level and must be a stable
+     * reference across all `CodeInput` instances.
+     *
+     * It is the last element added in `codeMirrorExtensions`, so comparing the final
+     * element of the extensions array from two independent mounts verifies stability.
+     */
+    it('backspaceCommand is the same reference across separate CodeInput instances', () => {
+      const wrapperA = mount(CodeInput, {
+        props: {
+          modelValue: 'a',
+          layout: 'desktop' as const,
+          environment: mockEnvironment,
+        },
+      })
+
+      const wrapperB = mount(CodeInput, {
+        props: {
+          modelValue: 'b',
+          layout: 'desktop' as const,
+          environment: mockEnvironment,
+        },
+      })
+
+      const extensionsA: any[] = (wrapperA.vm as any).codeMirrorExtensions
+      const extensionsB: any[] = (wrapperB.vm as any).codeMirrorExtensions
+
+      // The last element is `backspaceCommand` (module-level constant).
+      // Both instances must reference the exact same object.
+      const backspaceA = extensionsA[extensionsA.length - 1]
+      const backspaceB = extensionsB[extensionsB.length - 1]
+
+      expect(backspaceA).toBe(backspaceB)
+    })
   })
 })

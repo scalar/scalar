@@ -111,26 +111,37 @@ class PillWidget extends WidgetType {
 /**
  * Styles the active environment variable pill.
  * This plugin creates decorations for environment variables in the editor.
+ *
+ * Accepts a getter function for `environment` and `isReadOnly` so the
+ * ViewPlugin instance remains stable across Vue prop updates — the getters
+ * are called on every `update()` instead, which avoids a full
+ * `StateEffect.reconfigure` whenever the environment reference changes.
  */
 export const pillPlugin = (props: {
-  environment: XScalarEnvironment | undefined
-  isReadOnly: boolean | undefined
+  /** Getter so the stable plugin instance always reads the latest environment. */
+  environment: (() => XScalarEnvironment | undefined) | XScalarEnvironment | undefined
+  isReadOnly: (() => boolean | undefined) | boolean | undefined
   isContextFunctionName?: (name: string) => boolean
-}) =>
-  ViewPlugin.fromClass(
+}) => {
+  const getEnvironment = (): XScalarEnvironment | undefined =>
+    typeof props.environment === 'function' ? props.environment() : props.environment
+
+  return ViewPlugin.fromClass(
     class {
       decorations: DecorationSet
       lastEnvironment: XScalarEnvironment | undefined
 
       constructor(view: EditorView) {
-        this.lastEnvironment = props.environment
+        this.lastEnvironment = getEnvironment()
         this.decorations = this.buildDecorations(view)
       }
 
       update(update: ViewUpdate): void {
+        const currentEnvironment = getEnvironment()
+
         // Rebuild decorations if environment changed
-        if (props.environment !== this.lastEnvironment) {
-          this.lastEnvironment = props.environment
+        if (currentEnvironment !== this.lastEnvironment) {
+          this.lastEnvironment = currentEnvironment
           this.decorations = this.buildDecorations(update.view)
           return
         }
@@ -142,6 +153,7 @@ export const pillPlugin = (props: {
       }
 
       buildDecorations(view: EditorView): DecorationSet {
+        const environment = getEnvironment()
         const builder = new RangeSetBuilder<Decoration>()
         const isContextFn = props.isContextFunctionName ?? (() => false)
 
@@ -169,7 +181,7 @@ export const pillPlugin = (props: {
               start,
               end,
               Decoration.widget({
-                widget: new PillWidget(variableName, props.environment, variant),
+                widget: new PillWidget(variableName, environment, variant),
                 side: 1,
               }),
             )
@@ -183,6 +195,7 @@ export const pillPlugin = (props: {
       decorations: (v) => v.decorations,
     },
   )
+}
 
 /**
  * Custom backspace handler for the editor.

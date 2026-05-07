@@ -139,7 +139,10 @@ export const useCodeMirror = (
     })
   }
 
-  // All options except provider
+  // Scalar fields that, when changed, require a full extension reconfiguration.
+  // Watched individually so Vue can do primitive === comparisons rather than
+  // comparing a freshly-allocated object on every reactive flush — which would
+  // always appear dirty and schedule a redundant StateEffect.reconfigure.
   const extensionConfig = computed(() => ({
     onChange: params.onChange,
     onBlur: params.onBlur,
@@ -158,6 +161,33 @@ export const useCodeMirror = (
     additionalExtensions: toValue(params.extensions),
     placeholder: toValue(params.placeholder),
   }))
+
+  // Primitive-level sources for the extensions watcher. Listed as individual
+  // getter functions so Vue's multi-source watch can do per-element === comparison.
+  // A single `computed(() => ({ ... }))` always produces a new object reference
+  // and would appear dirty on every flush; a single `computed(() => [...])` has
+  // the same problem. Individual sources are compared element-wise, so the watch
+  // only fires when a value actually changes.
+  const reconfigureSources = [
+    () => params.onChange,
+    () => params.onBlur,
+    () => params.onFocus,
+    () => toValue(params.disableTabIndent),
+    () => toValue(params.language),
+    () => toValue(params.classes),
+    () => toValue(params.readOnly),
+    () => toValue(params.lineNumbers),
+    () => toValue(params.withVariables),
+    () => toValue(params.forceFoldGutter),
+    () => toValue(params.disableEnter),
+    () => toValue(params.disableCloseBrackets),
+    () => toValue(params.withoutTheme),
+    () => toValue(params.lint),
+    // Array identity: only triggers when the caller passes a new array reference.
+    // Callers must keep their extensions array stable to avoid spurious reconfigures.
+    () => toValue(params.extensions),
+    () => toValue(params.placeholder),
+  ]
 
   // Unmounts CodeMirror if it's mounted already, and mounts CodeMirror, if the given ref exists.
   watch(
@@ -206,29 +236,34 @@ export const useCodeMirror = (
     },
   )
 
-  // Update the extensions whenever parameters changes
-  watch(
-    extensionConfig,
-    () => {
-      if (!codeMirror.value) {
-        return
-      }
-      // If a provider is
+  // Update the extensions when any scalar config field or the extensions array
+  // identity actually changes. We watch `reconfigureSignal` (a tuple of
+  // primitives + the array ref) rather than `extensionConfig` (an object)
+  // because Vue compares computed values with ===: an object computed always
+  // looks dirty, whereas a tuple of primitives only looks dirty when a value
+  // inside it changes.
+  //
+  // We intentionally do NOT use { immediate: true } here because
+  // mountCodeMirror() already applies the correct extensions when the editor
+  // is first created — an immediate run would schedule a redundant
+  // StateEffect.reconfigure on every mount.
+  watch(reconfigureSources, () => {
+    if (!codeMirror.value) {
+      return
+    }
 
-      const provider = hasProvider(params) ? toValue(params.provider) : null
-      const extensions = getCodeMirrorExtensions({
-        ...extensionConfig.value,
-        provider,
-      })
+    const provider = hasProvider(params) ? toValue(params.provider) : null
+    const extensions = getCodeMirrorExtensions({
+      ...extensionConfig.value,
+      provider,
+    })
 
-      requestAnimationFrame(() => {
-        codeMirror.value?.dispatch({
-          effects: StateEffect.reconfigure.of(extensions),
-        })
+    requestAnimationFrame(() => {
+      codeMirror.value?.dispatch({
+        effects: StateEffect.reconfigure.of(extensions),
       })
-    },
-    { immediate: true },
-  )
+    })
+  })
 
   // ---------------------------------------------------------------------------
 
