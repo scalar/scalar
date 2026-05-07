@@ -631,8 +631,12 @@ jobs:
         with:
           # The pull request title.
           title: 'chore: release'
-          # The command to update version, edit CHANGELOG, read and delete changesets.
-          version: 'pnpm changeset version'
+          # Bumps versions, updates CHANGELOG.md, and appends an
+          # AI-written entry to packages/api-client/RELEASE_NOTES.md so
+          # the in-app "What's new" modal stays in sync. The release-notes
+          # step short-circuits silently when ANTHROPIC_API_KEY is not
+          # available (forks, contributor PRs).
+          version: 'pnpm release:version'
           # The commit message to use.
           commit: 'chore: version packages'
           # The command to use to build and publish packages
@@ -644,6 +648,9 @@ jobs:
           # Permissions: Read and Write
           # Select packages: @scalar
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # Used by `pnpm release:version` to summarise the just-bumped
+          # CHANGELOG.md section into a friendly release-notes entry.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
       - name: Bust CDN cache
         if: steps.changesets.outputs.published == 'true'
