@@ -1,28 +1,9 @@
+import { setValueAtPath } from '@scalar/helpers/object/set-value-at-path'
 import type { OperationExampleMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 import type { TableRow } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
 
 type ParameterType = 'path' | 'cookie' | 'header' | 'query'
-
-const setValueAtPath = (target: Record<string, unknown>, path: readonly string[], value: unknown): void => {
-  const [key, ...rest] = path
-  if (!key) {
-    return
-  }
-
-  if (!rest.length) {
-    target[key] = value
-    return
-  }
-
-  const next =
-    typeof target[key] === 'object' && target[key] !== null && !Array.isArray(target[key])
-      ? (target[key] as Record<string, unknown>)
-      : {}
-
-  target[key] = next
-  setValueAtPath(next, rest, value)
-}
 
 const isEmptyValue = (value: unknown): boolean => value === undefined || value === null || value === ''
 
