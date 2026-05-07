@@ -182,8 +182,8 @@ export const useCodeMirror = (
 
   // Builds the full extension list from the current param values.
   // NOTE: when adding a new param, add its getter here AND add its `toValue()` call inside `buildExtensions`.
-  function buildExtensions(provider: Extension | null): Extension[] {
-    return getCodeMirrorExtensions({
+  const buildExtensions = (provider: Extension | null): Extension[] =>
+    getCodeMirrorExtensions({
       onChange: params.onChange,
       onBlur: params.onBlur,
       onFocus: params.onFocus,
@@ -202,7 +202,6 @@ export const useCodeMirror = (
       additionalExtensions: toValue(params.extensions),
       placeholder: toValue(params.placeholder),
     })
-  }
 
   // Initializes CodeMirror.
   function mountCodeMirror() {
