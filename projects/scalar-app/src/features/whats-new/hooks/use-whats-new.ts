@@ -15,7 +15,7 @@ import type { ReleaseNote } from '../types'
  * Do NOT change this key without a migration - it would silently re-trigger
  * the "new updates" indicator for every existing user.
  */
-export const WHATS_NEW_LAST_SEEN_KEY = 'scalar-client-whats-new-last-seen'
+export const WHATS_NEW_LAST_SEEN_KEY = 'scalar.whats-new-last-seen'
 
 /**
  * Filter the bundled list to versions the user actually has installed and
