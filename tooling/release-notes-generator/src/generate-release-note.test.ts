@@ -1,7 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import type { PullRequestSummary } from './fetch-pull-requests'
-import { buildPullRequestContext, buildSystemPrompt, generateReleaseNote } from './generate-release-note'
+import {
+  buildDependencyChangelogContext,
+  buildPullRequestContext,
+  buildSystemPrompt,
+  generateReleaseNote,
+} from './generate-release-note'
 
 const buildAnthropicResponse = (text: string): Response => {
   return new Response(
@@ -27,6 +32,39 @@ describe('buildSystemPrompt', () => {
   it('mentions the optional pull request context block', () => {
     const prompt = buildSystemPrompt()
     expect(prompt).toContain('Pull request context')
+  })
+
+  it('mentions the optional dependency CHANGELOG context block', () => {
+    const prompt = buildSystemPrompt()
+    expect(prompt).toContain('Dependency CHANGELOG')
+  })
+})
+
+describe('buildDependencyChangelogContext', () => {
+  it('returns an empty string when there are no dependency changelogs', () => {
+    expect(buildDependencyChangelogContext(undefined)).toBe('')
+    expect(buildDependencyChangelogContext([])).toBe('')
+  })
+
+  it('renders one block per dependency with its package name and version', () => {
+    const block = buildDependencyChangelogContext([
+      {
+        packageName: '@scalar/api-client',
+        version: '3.6.1',
+        changelogSection: '- [#9094](https://github.com/scalar/scalar/pull/9094): chore: reorganize app layout',
+      },
+    ])
+    expect(block).toContain('Dependency CHANGELOG sections')
+    expect(block).toContain('### Dependency CHANGELOG: @scalar/api-client@3.6.1')
+    expect(block).toContain('reorganize app layout')
+  })
+
+  it('renders dependencies in the order provided', () => {
+    const block = buildDependencyChangelogContext([
+      { packageName: '@scalar/api-client', version: '3.6.1', changelogSection: '- alpha entry' },
+      { packageName: '@scalar/components', version: '0.16.21', changelogSection: '- beta entry' },
+    ])
+    expect(block.indexOf('@scalar/api-client')).toBeLessThan(block.indexOf('@scalar/components'))
   })
 })
 
@@ -67,6 +105,7 @@ describe('generateReleaseNote', () => {
     )
 
     const note = await generateReleaseNote({
+      packageName: '@scalar/api-client',
       version: '3.5.2',
       date: '2026-05-01',
       changelogSection: '- fix(api-client): address bar key handling',
@@ -85,6 +124,7 @@ describe('generateReleaseNote', () => {
     const fetchImpl = vi.fn(async () => buildAnthropicResponse('```json\n{"title":"Quick polish pass"}\n```'))
 
     const note = await generateReleaseNote({
+      packageName: '@scalar/api-client',
       version: '3.5.2',
       date: '2026-05-01',
       changelogSection: '- chore: tweaks',
@@ -109,6 +149,7 @@ describe('generateReleaseNote', () => {
     )
 
     const note = await generateReleaseNote({
+      packageName: '@scalar/api-client',
       version: '3.5.2',
       date: '2026-05-01',
       changelogSection: '- something',
@@ -127,6 +168,7 @@ describe('generateReleaseNote', () => {
 
     await expect(
       generateReleaseNote({
+        packageName: '@scalar/api-client',
         version: '3.5.2',
         date: '2026-05-01',
         changelogSection: '- something',
@@ -142,6 +184,7 @@ describe('generateReleaseNote', () => {
 
     await expect(
       generateReleaseNote({
+        packageName: '@scalar/api-client',
         version: '3.5.2',
         date: '2026-05-01',
         changelogSection: '- something',
@@ -158,6 +201,7 @@ describe('generateReleaseNote', () => {
     )
 
     await generateReleaseNote({
+      packageName: '@scalar/api-client',
       version: '3.5.2',
       date: '2026-05-01',
       changelogSection: '- [#9049](https://github.com/scalar/scalar/pull/9049): fix address bar',
@@ -184,6 +228,7 @@ describe('generateReleaseNote', () => {
     const fetchImpl = vi.fn<typeof fetch>(async () => buildAnthropicResponse(JSON.stringify({ title: 'tiny' })))
 
     await generateReleaseNote({
+      packageName: '@scalar/api-client',
       version: '3.5.2',
       date: '2026-05-01',
       changelogSection: '- something',
@@ -197,11 +242,61 @@ describe('generateReleaseNote', () => {
     expect(parsed.messages[0]?.content).not.toContain('Pull request context')
   })
 
+  it('forwards dependency CHANGELOG sections into the user prompt', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      buildAnthropicResponse(JSON.stringify({ title: 'Polished release with bundled api-client updates' })),
+    )
+
+    await generateReleaseNote({
+      packageName: 'scalar-app',
+      version: '1.1.0',
+      date: '2026-05-06',
+      changelogSection: '- feat(scalar-app): bump bundled api client',
+      releaseUrl: 'https://example.com/r',
+      apiKey: 'test-key',
+      dependencyChangelogs: [
+        {
+          packageName: '@scalar/api-client',
+          version: '3.6.1',
+          changelogSection: '- [#9094](https://github.com/scalar/scalar/pull/9094): chore: reorganize app layout',
+        },
+      ],
+      fetchImpl,
+    })
+
+    const init = fetchImpl.mock.calls[0]?.[1] as RequestInit | undefined
+    const parsed = JSON.parse((init?.body as string) ?? '{}') as { messages: Array<{ content: string }> }
+    const userPrompt = parsed.messages[0]?.content ?? ''
+    expect(userPrompt).toContain('Package: scalar-app')
+    expect(userPrompt).toContain('Dependency CHANGELOG sections')
+    expect(userPrompt).toContain('### Dependency CHANGELOG: @scalar/api-client@3.6.1')
+    expect(userPrompt).toContain('reorganize app layout')
+  })
+
+  it('omits the dependency CHANGELOG block when none is provided', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () => buildAnthropicResponse(JSON.stringify({ title: 'tiny' })))
+
+    await generateReleaseNote({
+      packageName: 'scalar-app',
+      version: '1.1.0',
+      date: '2026-05-06',
+      changelogSection: '- something',
+      releaseUrl: 'https://example.com/r',
+      apiKey: 'test-key',
+      fetchImpl,
+    })
+
+    const init = fetchImpl.mock.calls[0]?.[1] as RequestInit | undefined
+    const parsed = JSON.parse((init?.body as string) ?? '{}') as { messages: Array<{ content: string }> }
+    expect(parsed.messages[0]?.content).not.toContain('Dependency CHANGELOG sections')
+  })
+
   it('throws when the response fails schema validation', async () => {
     const fetchImpl = vi.fn(async () => buildAnthropicResponse(JSON.stringify({ title: '' })))
 
     await expect(
       generateReleaseNote({
+        packageName: '@scalar/api-client',
         version: '3.5.2',
         date: '2026-05-01',
         changelogSection: '- something',

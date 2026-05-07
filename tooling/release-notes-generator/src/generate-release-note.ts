@@ -23,7 +23,24 @@ const DEFAULT_MODEL = 'claude-sonnet-4-5'
  */
 const MAX_OUTPUT_TOKENS = 1024
 
+/**
+ * One CHANGELOG section pulled from an internal dependency that ships
+ * inside the release we are summarising. Used to give the model context
+ * about every user-facing change that landed in the parent package even
+ * when the change technically lives in a sub-package.
+ */
+export type DependencyChangelog = {
+  /** NPM package name of the dependency (for example `@scalar/api-client`). */
+  packageName: string
+  /** Version of the dependency that landed in this release. */
+  version: string
+  /** Raw CHANGELOG.md section for that version. */
+  changelogSection: string
+}
+
 type GenerateOptions = {
+  /** NPM package name of the release being summarised (for example `scalar-app`). */
+  packageName: string
   /** Semver-style version string for the release being summarised. */
   version: string
   /** ISO `YYYY-MM-DD` release date. */
@@ -36,6 +53,13 @@ type GenerateOptions = {
   apiKey: string
   /** Optional model override. Defaults to `DEFAULT_MODEL`. */
   model?: string
+  /**
+   * CHANGELOG sections from internal dependencies whose changes ship
+   * inside the parent release. The output still reads as a single release
+   * note for the parent package, but the model treats these entries as
+   * additional user-facing changes that landed in this version. Optional.
+   */
+  dependencyChangelogs?: readonly DependencyChangelog[]
   /**
    * Pull request titles and descriptions referenced from the CHANGELOG
    * section. Used to give the model the human-written context behind
@@ -53,8 +77,8 @@ type GenerateOptions = {
  * unit-test the wording without a live API call.
  *
  * The tone instructions intentionally mirror the existing curated entries
- * in `packages/api-client/src/v2/features/whats-new/data/release-notes.ts`
- * and Scalar's house style (no contractions, friendly, user-facing).
+ * in `projects/scalar-app/RELEASE_NOTES.md` and Scalar's house style
+ * (no contractions, friendly, user-facing).
  */
 export const buildSystemPrompt = (): string => {
   return [
@@ -69,7 +93,8 @@ export const buildSystemPrompt = (): string => {
     '- If every entry is a chore or dependency bump, return a single short note that says polish and bug fixes shipped.',
     '',
     'Inputs:',
-    '- The CHANGELOG section is the source of truth for what changed.',
+    '- The CHANGELOG section is the source of truth for what changed in the released package.',
+    '- "Dependency CHANGELOG" blocks may follow with sections from internal dependencies that ship inside this release. Treat their entries as user-facing changes that landed in the parent release - the output is still a single release note for the parent package, not a per-dependency rollup.',
     '- A "Pull request context" block may follow with each PR\'s title and description. Use it to understand the why behind each entry, but do not invent details that are not supported by these inputs.',
     '',
     'Output format:',
@@ -101,19 +126,58 @@ export const buildPullRequestContext = (pullRequests: ReadonlyMap<number, PullRe
   return ['Pull request context (titles and descriptions for each PR referenced above):', '', ...blocks].join('\n')
 }
 
+/**
+ * Render the dependency CHANGELOG context blocks. Each entry shows up as
+ * its own labelled markdown section so the model can tell which sub
+ * package each change belongs to even though the output describes a
+ * single parent release.
+ *
+ * Exported so the prompt content is testable without a live API call.
+ */
+export const buildDependencyChangelogContext = (
+  dependencyChangelogs: readonly DependencyChangelog[] | undefined,
+): string => {
+  if (!dependencyChangelogs || dependencyChangelogs.length === 0) {
+    return ''
+  }
+  const blocks = dependencyChangelogs.map((entry) => {
+    return [
+      `### Dependency CHANGELOG: ${entry.packageName}@${entry.version}`,
+      '',
+      '```markdown',
+      entry.changelogSection,
+      '```',
+    ].join('\n')
+  })
+  return [
+    'Dependency CHANGELOG sections (changes from internal dependencies that ship inside this release):',
+    '',
+    ...blocks,
+  ].join('\n')
+}
+
 const buildUserPrompt = (
-  options: Pick<GenerateOptions, 'version' | 'date' | 'changelogSection' | 'releaseUrl' | 'pullRequests'>,
+  options: Pick<
+    GenerateOptions,
+    'packageName' | 'version' | 'date' | 'changelogSection' | 'releaseUrl' | 'pullRequests' | 'dependencyChangelogs'
+  >,
 ): string => {
   const sections: string[] = [
+    `Package: ${options.packageName}`,
     `Version: ${options.version}`,
     `Date: ${options.date}`,
     `Release URL (use as the "href" field): ${options.releaseUrl}`,
     '',
-    'CHANGELOG section:',
+    `CHANGELOG section for ${options.packageName}@${options.version}:`,
     '```markdown',
     options.changelogSection,
     '```',
   ]
+
+  const dependencyContext = buildDependencyChangelogContext(options.dependencyChangelogs)
+  if (dependencyContext) {
+    sections.push('', dependencyContext)
+  }
 
   const pullRequestContext = buildPullRequestContext(options.pullRequests)
   if (pullRequestContext) {
@@ -166,11 +230,13 @@ export const generateReleaseNote = async (options: GenerateOptions): Promise<Rel
         {
           role: 'user',
           content: buildUserPrompt({
+            packageName: options.packageName,
             version: options.version,
             date: options.date,
             changelogSection: options.changelogSection,
             releaseUrl: options.releaseUrl,
             pullRequests: options.pullRequests,
+            dependencyChangelogs: options.dependencyChangelogs,
           }),
         },
       ],
