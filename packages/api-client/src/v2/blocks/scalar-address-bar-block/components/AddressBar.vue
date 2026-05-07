@@ -402,37 +402,22 @@ defineExpose({
 </script>
 <template>
   <!--
-    Address bar wrapper.
+    Address bar.
 
-    Below `md:` the bar wraps onto two rows:
-      - Row 1: method dropdown (hoisted out of the bar) + URL bar (with the
-        in-bar history button).
-      - Row 2: copy + send buttons, right-aligned.
-
-    At `md:` and above everything collapses back into a single row with the
-    method tucked inside the bar background and copy / send sitting flush
-    against the bar's right edge.
+    The wide-container layout matches the original single-row bar:
+    `[Method | URL | Copy | History | Send]`. When the surrounding
+    `address-bar` container drops below `MOBILE_THRESHOLD` (see the
+    `@container` rules below) the bar collapses to `[URL | History]`
+    and a second row appears beneath it with a duplicate `Method`,
+    `Copy`, and `Send` so the URL gets the full container width while
+    every action stays on the same line as the send button.
   -->
   <div
     :id="id"
-    class="scalar-address-bar order-last flex h-auto w-full flex-wrap items-stretch gap-1 [--scalar-address-bar-height:32px] md:order-0 md:h-(--scalar-address-bar-height) md:w-auto md:flex-nowrap">
-    <!--
-      Method dropdown rendered outside the bar on mobile so the URL gets
-      the entire bar width to itself. Hidden at `md:` where the in-bar
-      copy below takes over.
-    -->
-    <div class="flex h-(--scalar-address-bar-height) md:hidden">
-      <HttpMethod
-        :isEditable="layout !== 'modal'"
-        isSquare
-        :method="methodConflict ?? method"
-        teleport
-        @change="handleMethodChange" />
-    </div>
-
-    <!-- Address bar background (method + URL + history) -->
+    class="scalar-address-bar order-last flex h-auto w-full flex-wrap items-stretch [--scalar-address-bar-height:32px]">
+    <!-- Address Bar -->
     <div
-      class="address-bar-bg-states text-xxs group relative flex h-(--scalar-address-bar-height) max-w-[calc(100dvw-24px)] min-w-0 flex-1 flex-row items-stretch rounded-lg p-0.75 md:max-w-[480px] lg:min-w-[420px] xl:max-w-[640px] xl:min-w-[560px]"
+      class="address-bar-bg-states text-xxs group relative flex h-(--scalar-address-bar-height) w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg p-0.75"
       :class="{
         'outline-c-danger outline': hasConflict,
         'rounded-b-none': isDropdownOpen,
@@ -448,11 +433,12 @@ defineExpose({
       </div>
 
       <!--
-        Method dropdown rendered inside the bar at `md:` and above so the
-        method label keeps its visual home next to the URL. Hidden below
-        `md:` where the hoisted copy above takes over.
+        Method, Copy, and Send carry an `in-bar-action` class so the
+        `@container` query below can hide them when the container drops
+        into mobile mode - the duplicate buttons in the trailing
+        `mobile-actions` row take over at that point.
       -->
-      <div class="hidden gap-1 md:flex">
+      <div class="in-bar-action flex gap-1">
         <HttpMethod
           :isEditable="layout !== 'modal'"
           isSquare
@@ -462,7 +448,7 @@ defineExpose({
       </div>
 
       <div
-        class="scroll-timeline-x scroll-timeline-x-hidden relative flex min-w-0 flex-1 bg-blend-normal">
+        class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full bg-blend-normal">
         <!-- Servers -->
         <ServerDropdown
           v-if="servers.length"
@@ -506,17 +492,21 @@ defineExpose({
         <div class="fade-right" />
       </div>
 
-      <!--
-        History stays inside the bar at every breakpoint - the dropdown
-        anchors off the bar's right edge so hoisting it outside would
-        leave the popover visually disconnected.
-      -->
+      <!-- Copy url button -->
+      <ScalarButton
+        class="in-bar-action hover:bg-b-3 mx-1"
+        size="xs"
+        variant="ghost"
+        @click="copyUrl">
+        <ScalarIconCopy />
+        <span class="sr-only">Copy URL</span>
+      </ScalarButton>
+
       <AddressBarHistory
         :history="history"
         :target="id"
         @select:history:item="(payload) => emit('select:history:item', payload)"
         @update:open="(value) => (isHistoryDropdownOpen = value)" />
-
       <!-- Error message -->
       <div
         v-if="hasConflict"
@@ -533,29 +523,10 @@ defineExpose({
           </div>
         </div>
       </div>
-    </div>
-
-    <!--
-      Copy + Send live outside the bar at every breakpoint. On mobile the
-      cluster is forced onto its own row with `w-full` and the copy
-      button uses `ml-auto` to right-align both buttons; at `md:` the
-      cluster collapses to its natural width and sits flush against the
-      bar's right edge.
-    -->
-    <div
-      class="flex h-(--scalar-address-bar-height) w-full items-stretch gap-1 md:w-auto">
-      <ScalarButton
-        class="hover:bg-b-3 ml-auto md:ml-0"
-        size="xs"
-        variant="ghost"
-        @click="copyUrl">
-        <ScalarIconCopy />
-        <span class="sr-only">Copy URL</span>
-      </ScalarButton>
 
       <ScalarButton
         ref="sendButtonRef"
-        class="relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
+        class="in-bar-action relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
         data-addressbar-action="send"
         :disabled="isLoading"
         @click="emit('execute')">
@@ -566,7 +537,48 @@ defineExpose({
             class="relative shrink-0 fill-current"
             icon="Play"
             size="xs" />
-          <span class="text-xxs hidden md:flex">Send</span>
+          <span class="text-xxs flex">Send</span>
+        </span>
+        <span class="sr-only">
+          Send {{ method }} request to {{ server?.url ?? '' }}{{ path }}
+        </span>
+      </ScalarButton>
+    </div>
+
+    <!--
+      Mobile actions row. Hidden by default and only revealed by the
+      narrow-container query below, where it carries duplicate Method
+      / Copy / Send buttons so all three end up on the same line beneath
+      the URL bar.
+    -->
+    <div
+      class="mobile-actions mt-2 flex h-(--scalar-address-bar-height) w-full items-stretch gap-1">
+      <HttpMethod
+        :isEditable="layout !== 'modal'"
+        isSquare
+        :method="methodConflict ?? method"
+        teleport
+        @change="handleMethodChange" />
+      <ScalarButton
+        class="hover:bg-b-3 ml-auto"
+        size="xs"
+        variant="ghost"
+        @click="copyUrl">
+        <ScalarIconCopy />
+        <span class="sr-only">Copy URL</span>
+      </ScalarButton>
+      <ScalarButton
+        class="relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
+        :disabled="isLoading"
+        @click="emit('execute')">
+        <span
+          aria-hidden="true"
+          class="inline-flex items-center gap-1">
+          <ScalarIcon
+            class="relative shrink-0 fill-current"
+            icon="Play"
+            size="xs" />
+          <span class="text-xxs">Send</span>
         </span>
         <span class="sr-only">
           Send {{ method }} request to {{ server?.url ?? '' }}{{ path }}
@@ -691,5 +703,58 @@ defineExpose({
 .address-bar-bg-states:has(.cm-focused) .fade-left,
 .address-bar-bg-states:has(.cm-focused) .fade-right {
   --scalar-address-bar-bg: var(--scalar-background-1);
+}
+
+/*
+ * Default state = mobile mode. The wrapper is `flex-wrap` so the
+ * `mobile-actions` row sits beneath the bar, and the bar itself spans
+ * the full container width.
+ *
+ * The `address-bar` container is declared on the operation header
+ * (Header.vue), so the query reflects the right column's width even
+ * when the sidebar opens or closes - no viewport-width math needed.
+ */
+.mobile-actions {
+  display: flex;
+}
+.in-bar-action {
+  display: none;
+}
+
+@container address-bar (min-width: 720px) {
+  /*
+   * Wide container: collapse back to the original single-row layout
+   * with method, copy, and send all sitting inside the bar. The
+   * mobile-actions row hides and the wrapper stops wrapping so the bar
+   * sizes to its content next to the sidebar toggle and environment
+   * selector.
+   */
+  .scalar-address-bar {
+    order: 0;
+    width: auto;
+    flex-wrap: nowrap;
+  }
+  .address-bar-bg-states {
+    width: auto;
+    max-width: 580px;
+    min-width: 580px;
+  }
+  .in-bar-action {
+    display: flex;
+  }
+  .mobile-actions {
+    display: none;
+  }
+}
+
+@container address-bar (min-width: 900px) {
+  /*
+   * Extra-wide container: roomier bar for environments that have plenty
+   * of horizontal space. Mirrors the original `xl:` viewport step.
+   */
+  .address-bar-bg-states {
+    max-width: 720px;
+    min-width: 720px;
+  }
 }
 </style>
