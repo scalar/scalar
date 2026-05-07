@@ -1,4 +1,3 @@
-#!/usr/bin/env tsx
 import { readFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 
@@ -15,9 +14,9 @@ import { writeReleaseNote } from './write-release-notes'
  *
  * `pnpm --filter <pkg> start ...` chdirs into the package directory
  * before running the script, which means `process.cwd()` is
- * `tooling/release-notes-generator`, not the repo root. pnpm exposes the
- * original directory through `INIT_CWD` for exactly this reason, so we
- * resolve relative paths against it when available and fall back to
+ * `tooling/scripts`, not the repo root. pnpm exposes the original
+ * directory through `INIT_CWD` for exactly this reason, so we resolve
+ * relative paths against it when available and fall back to
  * `process.cwd()` otherwise.
  */
 const resolveUserPath = (input: string): string => {
@@ -78,7 +77,7 @@ const readPackageJsonNextToChangelog = async (changelogPath: string): Promise<Pa
  * Returns `null` when the file or section cannot be found - missing
  * dependency CHANGELOGs degrade silently rather than failing the
  * release pipeline, matching the soft-fail philosophy used elsewhere
- * in this script.
+ * in this command.
  */
 const loadDependencyChangelog = async (changelogPath: string): Promise<DependencyChangelog | null> => {
   const resolvedPath = resolveUserPath(changelogPath)
@@ -114,10 +113,18 @@ const loadDependencyChangelog = async (changelogPath: string): Promise<Dependenc
   }
 }
 
-const program = new Command()
+type CommandOptions = {
+  package: string
+  changelog: string
+  output: string
+  version?: string
+  dependencyChangelog: string[]
+  date?: string
+  model?: string
+  dryRun?: boolean
+}
 
-program
-  .name('release-notes-generator')
+export const releaseNotesGenerator = new Command('release-notes-generator')
   .description('Generate AI-written release notes from a CHANGELOG and append them to the package RELEASE_NOTES.md.')
   .requiredOption('-p, --package <name>', 'NPM package name (e.g. scalar-app)')
   .requiredOption('-c, --changelog <path>', 'Path to the package CHANGELOG.md')
@@ -135,7 +142,7 @@ program
   .option('--date <YYYY-MM-DD>', 'Release date (defaults to today in UTC)')
   .option('--model <id>', 'Anthropic model to use (defaults to claude-sonnet-4-5)')
   .option('--dry-run', 'Print the generated note instead of writing it', false)
-  .action(async (options) => {
+  .action(async (options: CommandOptions) => {
     const apiKey = process.env.ANTHROPIC_API_KEY
     if (!apiKey) {
       // Soft-fail so contributors and PR builds running `pnpm changeset
@@ -174,7 +181,7 @@ program
     // its own version derived from the package.json next to its CHANGELOG
     // because Changesets bumps each package independently in the same
     // release.
-    const dependencyChangelogPaths = (options.dependencyChangelog ?? []) as string[]
+    const dependencyChangelogPaths = options.dependencyChangelog ?? []
     const dependencyChangelogs: DependencyChangelog[] = []
     for (const path of dependencyChangelogPaths) {
       const resolved = await loadDependencyChangelog(path)
@@ -226,8 +233,3 @@ program
     const result = await writeReleaseNote({ path: outputPath, note })
     console.log(`${result.created ? 'Created' : 'Updated'} ${result.path}`)
   })
-
-program.parseAsync().catch((error) => {
-  console.error(error instanceof Error ? error.message : String(error))
-  process.exit(1)
-})

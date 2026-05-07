@@ -12,6 +12,7 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
+    "@scalar/helpers": "workspace:*",
     "ansis": "catalog:*",
     "commander": "catalog:*",
     "picomatch": "catalog:*",

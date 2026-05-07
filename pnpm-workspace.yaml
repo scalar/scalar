@@ -5,7 +5,6 @@ packages:
   - playwright
   - tooling/scripts
   - tooling/changelog-generator
-  - tooling/release-notes-generator
   - projects/**/*
   - '!**/.next/**'
   - '!**/dist/**'

@@ -4,8 +4,9 @@ import { parseReleaseNotes } from '@scalar/helpers/markdown/release-notes'
  * Raw markdown source for the curated release notes. The file lives at
  * the root of `projects/scalar-app/` so it ships alongside the bundled
  * desktop and web builds, is editable by hand on patch releases, and is
- * the single source of truth shared with `tooling/release-notes-generator`
- * (which appends to the same file during `pnpm changeset version`).
+ * the single source of truth shared with the `release-notes-generator`
+ * command in `tooling/scripts` (which appends to the same file during
+ * `pnpm changeset version`).
  */
 import releaseNotesMarkdown from '../../../../RELEASE_NOTES.md?raw'
 import type { ReleaseNote } from '../types'

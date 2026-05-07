@@ -5,6 +5,7 @@ import { generateBlog } from '@/commands/generate-blog'
 import { generateReadme } from '@/commands/generate-readme'
 import { packages } from '@/commands/packages'
 import { updatePlaywrightDocker } from '@/commands/playwright-docker/push-container'
+import { releaseNotesGenerator } from '@/commands/release-notes-generator'
 import { run } from '@/commands/run'
 import { updateTestSnapshots } from '@/commands/update-snapshots'
 import { wait } from '@/commands/wait'
@@ -26,4 +27,5 @@ program.addCommand(run)
 program.addCommand(updatePlaywrightDocker)
 program.addCommand(generateReadme)
 program.addCommand(generateBlog)
+program.addCommand(releaseNotesGenerator)
 program.parse()
