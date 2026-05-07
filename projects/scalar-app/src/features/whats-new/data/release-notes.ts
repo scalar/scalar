@@ -8,7 +8,8 @@ import { parseReleaseNotes } from '@scalar/helpers/markdown/release-notes'
  * command in `tooling/scripts` (which appends to the same file during
  * `pnpm changeset version`).
  */
-import releaseNotesMarkdown from '../../../../RELEASE_NOTES.md?raw'
+import releaseNotesMarkdown from '@/../RELEASE_NOTES.md?raw'
+
 import type { ReleaseNote } from '../types'
 
 /**
