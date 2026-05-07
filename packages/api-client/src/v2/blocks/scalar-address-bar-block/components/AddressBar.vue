@@ -403,10 +403,17 @@ defineExpose({
 <template>
   <div
     :id="id"
-    class="scalar-address-bar order-last flex h-(--scalar-address-bar-height) w-full [--scalar-address-bar-height:32px] lg:order-0 lg:w-auto">
-    <!-- Address Bar -->
+    class="scalar-address-bar order-last flex h-auto w-full [--scalar-address-bar-height:32px] lg:order-0 lg:h-(--scalar-address-bar-height) lg:w-auto">
+    <!--
+      Address Bar
+
+      Mobile splits the bar into two rows - method + URL on top, the action
+      cluster (copy / history / send) on its own row below - so the URL gets
+      the entire viewport width and every action stays comfortably tappable.
+      `lg:` collapses the bar back into a single row with the original sizing.
+    -->
     <div
-      class="address-bar-bg-states text-xxs group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg p-0.75 lg:order-none lg:max-w-[580px] lg:min-w-[580px] xl:max-w-[720px] xl:min-w-[720px]"
+      class="address-bar-bg-states text-xxs group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row flex-wrap items-stretch rounded-lg p-0.75 lg:order-none lg:h-(--scalar-address-bar-height) lg:max-w-[580px] lg:min-w-[580px] lg:flex-nowrap xl:max-w-[720px] xl:min-w-[720px]"
       :class="{
         'outline-c-danger outline': hasConflict,
         'rounded-b-none': isDropdownOpen,
@@ -420,7 +427,7 @@ defineExpose({
           class="absolute top-0 left-0 h-full w-full"
           :style />
       </div>
-      <div class="flex gap-1">
+      <div class="flex h-(--scalar-address-bar-height) gap-1 lg:h-auto">
         <HttpMethod
           :isEditable="layout !== 'modal'"
           isSquare
@@ -430,7 +437,7 @@ defineExpose({
       </div>
 
       <div
-        class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full bg-blend-normal">
+        class="scroll-timeline-x scroll-timeline-x-hidden relative flex h-(--scalar-address-bar-height) min-w-0 flex-1 bg-blend-normal lg:h-auto">
         <!-- Servers -->
         <ServerDropdown
           v-if="servers.length"
@@ -474,21 +481,53 @@ defineExpose({
         <div class="fade-right" />
       </div>
 
-      <!-- Copy url button -->
-      <ScalarButton
-        class="hover:bg-b-3 mx-1"
-        size="xs"
-        variant="ghost"
-        @click="copyUrl">
-        <ScalarIconCopy />
-        <span class="sr-only">Copy URL</span>
-      </ScalarButton>
+      <!--
+        Action cluster. On mobile this wraps to its own row beneath the URL
+        and floats the send button to the right edge with `ml-auto`, so the
+        user can tap any action without aiming at a 32px-tall row. `lg:`
+        collapses it back inline next to the URL.
+      -->
+      <div
+        class="flex h-(--scalar-address-bar-height) w-full items-stretch gap-1 lg:w-auto lg:gap-0">
+        <!-- Copy url button -->
+        <ScalarButton
+          class="hover:bg-b-3 ml-auto lg:ml-1"
+          size="xs"
+          variant="ghost"
+          @click="copyUrl">
+          <ScalarIconCopy />
+          <span class="sr-only">Copy URL</span>
+        </ScalarButton>
 
-      <AddressBarHistory
-        :history="history"
-        :target="id"
-        @select:history:item="(payload) => emit('select:history:item', payload)"
-        @update:open="(value) => (isHistoryDropdownOpen = value)" />
+        <AddressBarHistory
+          :history="history"
+          :target="id"
+          @select:history:item="
+            (payload) => emit('select:history:item', payload)
+          "
+          @update:open="(value) => (isHistoryDropdownOpen = value)" />
+
+        <ScalarButton
+          ref="sendButtonRef"
+          class="relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
+          data-addressbar-action="send"
+          :disabled="isLoading"
+          @click="emit('execute')">
+          <span
+            aria-hidden="true"
+            class="inline-flex items-center gap-1">
+            <ScalarIcon
+              class="relative shrink-0 fill-current"
+              icon="Play"
+              size="xs" />
+            <span class="text-xxs hidden md:flex">Send</span>
+          </span>
+          <span class="sr-only">
+            Send {{ method }} request to {{ server?.url ?? '' }}{{ path }}
+          </span>
+        </ScalarButton>
+      </div>
+
       <!-- Error message -->
       <div
         v-if="hasConflict"
@@ -505,26 +544,6 @@ defineExpose({
           </div>
         </div>
       </div>
-
-      <ScalarButton
-        ref="sendButtonRef"
-        class="relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
-        data-addressbar-action="send"
-        :disabled="isLoading"
-        @click="emit('execute')">
-        <span
-          aria-hidden="true"
-          class="inline-flex items-center gap-1">
-          <ScalarIcon
-            class="relative shrink-0 fill-current"
-            icon="Play"
-            size="xs" />
-          <span class="text-xxs hidden lg:flex">Send</span>
-        </span>
-        <span class="sr-only">
-          Send {{ method }} request to {{ server?.url ?? '' }}{{ path }}
-        </span>
-      </ScalarButton>
     </div>
   </div>
 </template>

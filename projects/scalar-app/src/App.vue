@@ -18,7 +18,7 @@ import { PostHogClientPlugin } from '@scalar/api-client/plugins/posthog'
 import { ScalarHeaderButton } from '@scalar/components'
 import { type LoaderPlugin } from '@scalar/json-magic/bundle'
 import { requestScriptsPlugin } from '@scalar/pre-post-request-scripts/plugins'
-import { computed, reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
 
 import { ClientApp, type AppState } from '@/features/app'
 import type { useCommandPaletteState } from '@/features/command-palette/hooks/use-command-palette-state'
@@ -70,6 +70,19 @@ const openSettings = () => {
     page: 'workspace',
     path: 'settings',
   })
+}
+
+/**
+ * Ref to the inner ClientApp so the mobile menu's workspace picker can
+ * trigger the create-workspace modal that lives inside it. The modal
+ * state is owned by the inner app, but the picker that opens it now
+ * lives in the outer menu items, so we bridge the two through an
+ * exposed method on the inner component.
+ */
+const clientAppRef = ref<InstanceType<typeof ClientApp> | null>(null)
+
+const handleCreateWorkspaceFromMenu = () => {
+  clientAppRef.value?.openCreateWorkspace()
 }
 
 const navigateToDocument = (slug: string) => {
@@ -169,6 +182,7 @@ const registry = reactive({
     @navigateToDocument="navigateToDocument"
     @set:workspace="(id) => setActiveWorkspaceById(id)">
     <ClientApp
+      ref="clientAppRef"
       :getAppState
       :getCommandPaletteState
       :layout="isDesktop ? 'desktop' : 'web'"
@@ -176,13 +190,23 @@ const registry = reactive({
       :registry>
       <template #header-menu-items>
         <AppMenuItems
+          :app="app"
+          @createWorkspace="handleCreateWorkspaceFromMenu"
           @login="handleLogin"
           @openSettings="openSettings" />
       </template>
       <template
         v-if="!isLoggedIn"
         #header-end>
-        <ScalarHeaderButton @click.prevent="handleLogin">
+        <!--
+          The mobile top bar is space-constrained, so we hide the secondary
+          "Log in" affordance on small screens - it stays reachable from the
+          menu - and keep only the primary "Register" call to action and
+          the document save / discard cluster on the bar itself.
+        -->
+        <ScalarHeaderButton
+          class="max-md:hidden"
+          @click.prevent="handleLogin">
           Log in
         </ScalarHeaderButton>
         <ScalarHeaderButton

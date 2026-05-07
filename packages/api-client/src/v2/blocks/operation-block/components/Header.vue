@@ -90,9 +90,8 @@ const handleAddEnvironment = () => {
 
 <template>
   <div
-    class="lg:min-h-header t-app__top-container flex w-full flex-wrap items-center justify-center p-2 pt-2 lg:p-1 lg:pt-1">
-    <div
-      class="mb-2 flex w-1/2 flex-row items-center gap-1 lg:mb-0 lg:flex-1 lg:px-1">
+    class="lg:min-h-header t-app__top-container flex w-full flex-wrap items-center justify-center gap-y-2 p-2 pt-2 lg:gap-y-0 lg:p-1 lg:pt-1">
+    <div class="flex flex-1 flex-row items-center gap-1 lg:px-1">
       <!--
           Holds space for the sidebar toggle
 
@@ -120,8 +119,7 @@ const handleAddEnvironment = () => {
         (payload) => emit('select:history:item', payload)
       " />
 
-    <div
-      class="mb-2 flex w-1/2 flex-row items-center justify-end gap-2 lg:mb-0 lg:flex-1 lg:px-2.5">
+    <div class="flex flex-1 flex-row items-center justify-end gap-2 lg:px-2.5">
       <!--
         Environment Selector
         Hidden for `modal` layout

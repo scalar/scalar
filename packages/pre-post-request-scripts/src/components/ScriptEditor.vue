@@ -27,7 +27,7 @@ useCodeMirror({
 </script>
 
 <template>
-  <div class="script-editor text-sm">
+  <div class="script-editor py-2 text-sm">
     <div
       ref="codeMirrorRef"
       class="editor-container" />

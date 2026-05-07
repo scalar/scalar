@@ -300,7 +300,16 @@ const routerViewProps = computed<RouteProps>(() => {
             <slot name="header-menu-items" />
           </template>
           <template #breadcrumb>
+            <!--
+              The full breadcrumb is rendered alongside the menu trigger on
+              tablet and up. On mobile we collapse the entire top bar down to
+              just the menu trigger and the trailing action cluster, and the
+              workspace picker is reachable from inside the menu instead -
+              keeping the small-screen header readable without losing the
+              ability to switch workspaces.
+            -->
             <DocumentBreadcrumb
+              class="max-md:hidden"
               :app="app"
               :fetchRegistryDocument="registry?.fetchDocument"
               :registryDocuments="registryDocuments"
@@ -335,10 +344,14 @@ const routerViewProps = computed<RouteProps>(() => {
                 @revert="handleRevertDocument"
                 @save="handleSaveDocument" />
               <!--
-                Vertical divider
+                Vertical divider. Only renders when the action cluster
+                actually has buttons in it - on a fresh document with no
+                pending changes the cluster is empty, and a lone divider
+                between the menu trigger and the consumer's `#header-end`
+                slot would read as visual noise.
               -->
               <span
-                v-if="$slots['header-end']"
+                v-if="$slots['header-end'] && hasHeaderActionCluster"
                 aria-hidden="true"
                 class="bg-border h-4 w-px shrink-0" />
               <slot
