@@ -79,8 +79,7 @@
     "undici": "catalog:*",
     "vue": "catalog:*",
     "vue-router": "catalog:*",
-    "yaml": "catalog:*",
-    "zod": "catalog:*"
+    "yaml": "catalog:*"
   },
   "devDependencies": {
     "@playwright/test": "catalog:*",

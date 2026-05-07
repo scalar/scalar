@@ -2749,9 +2749,6 @@ importers:
       yaml:
         specifier: catalog:*
         version: 2.8.3
-      zod:
-        specifier: catalog:*
-        version: 4.3.5
     devDependencies:
       '@playwright/test':
         specifier: catalog:*

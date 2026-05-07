@@ -1,5 +1,3 @@
-import { z } from 'zod'
-
 /** Which theme bucket a CSS rule applies to after parsing. */
 type ColorMode = 'light' | 'dark'
 
@@ -48,25 +46,20 @@ export const getColorModesFromSelectors = (text: string) => {
 export const parseVariableValue = (value: string) => {
   const normalized = value.trim().toLowerCase()
 
-  const hexValue = z.union([z.string().regex(hexRegex), z.string().regex(hexAlphaRegex)]).safeParse(normalized)
-
-  if (!hexValue.error) {
-    return hexValue.data.toUpperCase()
+  if (hexRegex.test(normalized) || hexAlphaRegex.test(normalized)) {
+    return normalized.toUpperCase()
   }
 
-  const shortHexValue = z.string().regex(hexShortRegex).safeParse(normalized)
-
-  if (!shortHexValue.error) {
-    const [_, r, g, b] = shortHexValue.data.toUpperCase()
+  if (hexShortRegex.test(normalized)) {
+    const [_, r, g, b] = normalized.toUpperCase()
     return `#${r}${r}${g}${g}${b}${b}`
   }
 
-  const rgbValue = z.union([z.string().regex(rgbRegex), z.string().regex(rgbaRegex)]).safeParse(normalized)
+  const rgbaMatch = rgbaRegex.exec(normalized)
+  const rgbMatch = rgbaMatch ?? rgbRegex.exec(normalized)
 
-  if (!rgbValue.error) {
-    const [_, r = '0', g = '0', b = '0', a = '1'] = rgbValue.data.startsWith('rgba')
-      ? (rgbaRegex.exec(rgbValue.data) ?? [])
-      : (rgbRegex.exec(rgbValue.data) ?? [])
+  if (rgbMatch) {
+    const [_, r = '0', g = '0', b = '0', a = '1'] = rgbMatch
 
     const toHex = (v: string) => Number.parseInt(v, 10).toString(16).padStart(2, '0').toUpperCase()
     const alpha = Math.round(Number.parseFloat(a) * 255)
@@ -74,9 +67,8 @@ export const parseVariableValue = (value: string) => {
     return `#${toHex(r)}${toHex(g)}${toHex(b)}${alpha === 255 ? '' : toHex(String(alpha))}`
   }
 
-  const varValue = z.string().regex(varRegex).safeParse(normalized)
-  if (!varValue.error) {
-    return varValue.data
+  if (varRegex.test(normalized)) {
+    return normalized
   }
 
   return undefined
@@ -87,9 +79,9 @@ export const parseVariableValue = (value: string) => {
  * Missing names or non-var values are returned unchanged.
  */
 export const resolveVariableValue = (value: string, variables: Record<string, string>): string => {
-  const varValue = z.string().regex(varRegex).safeParse(value)
-  if (!varValue.error) {
-    const [_, varName] = varRegex.exec(varValue.data) ?? []
+  const varMatch = varRegex.exec(value)
+  if (varMatch) {
+    const [_, varName] = varMatch
     if (!varName) {
       return value
     }
@@ -110,9 +102,8 @@ export const resolveVariables = (variables: Record<string, string>): Record<stri
   const entries = Object.entries(variables)
 
   const resolved = entries.map(([name, value]) => {
-    const varValue = z.string().regex(varRegex).safeParse(value)
-    if (!varValue.error) {
-      return [name, resolveVariableValue(varValue.data, variables)]
+    if (varRegex.test(value)) {
+      return [name, resolveVariableValue(value, variables)]
     }
     return [name, value]
   })
