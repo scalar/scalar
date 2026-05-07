@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
 
+import { compareVersions } from '@scalar/helpers/general/compare-versions'
 import {
   DEFAULT_RELEASE_NOTES_PREAMBLE,
   type ReleaseNoteEntry,
@@ -61,7 +62,8 @@ export const mergeReleaseNotes = (existing: ReleaseNoteEntry[], next: ReleaseNot
     if (a.date !== b.date) {
       return a.date < b.date ? 1 : -1
     }
-    return a.version < b.version ? 1 : -1
+    // Semver ordering (newest version first), not lexicographic — e.g. 1.0.10 > 1.0.9.
+    return compareVersions(b.version, a.version)
   })
   return merged
 }

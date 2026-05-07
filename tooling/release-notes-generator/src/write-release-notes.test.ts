@@ -39,6 +39,14 @@ describe('mergeReleaseNotes', () => {
     )
     expect(merged.map((entry) => entry.version)).toEqual(['1.0.2', '1.0.1', '1.0.0'])
   })
+
+  it('breaks date ties using semver order, not lexicographic string order', () => {
+    const merged = mergeReleaseNotes(
+      [note('1.0.9', '2026-01-01'), note('1.0.10', '2026-01-01')],
+      note('1.0.11', '2026-01-01'),
+    )
+    expect(merged.map((entry) => entry.version)).toEqual(['1.0.11', '1.0.10', '1.0.9'])
+  })
 })
 
 describe('writeReleaseNote', () => {
