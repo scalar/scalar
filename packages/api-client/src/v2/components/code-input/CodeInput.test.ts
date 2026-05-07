@@ -961,6 +961,55 @@ describe('CodeInput', () => {
      * It is the last element added in `codeMirrorExtensions`, so comparing the final
      * element of the extensions array from two independent mounts verifies stability.
      */
+    /**
+     * Bug fix: when the environment prop changes without any editor interaction,
+     * CodeInput must dispatch a no-op transaction so CodeMirror's update() cycle
+     * fires and the pill plugin rebuilds its decorations with the fresh values.
+     *
+     * Without the fix, the pill plugin's update() would never be called (it only
+     * runs during CodeMirror's own transaction cycle), leaving pills showing stale
+     * variable values until the user interacted with the editor.
+     */
+    it('environment prop change dispatches a no-op transaction to refresh pill decorations', async () => {
+      const dispatchSpy = vi.spyOn(EditorView.prototype, 'dispatch')
+
+      const wrapper = mount(CodeInput, {
+        props: {
+          modelValue: '{{baseUrl}}',
+          layout: 'desktop' as const,
+          environment: mockEnvironment,
+          withVariables: true,
+        },
+      })
+
+      await nextTick()
+      dispatchSpy.mockClear()
+
+      // Change the environment to a genuinely different object (new color + variable value).
+      const updatedEnvironment: XScalarEnvironment = {
+        color: '#00ff00',
+        variables: [{ name: 'baseUrl', value: 'https://new.example.com' }],
+      }
+      await wrapper.setProps({ environment: updatedEnvironment })
+      await nextTick()
+
+      // At least one dispatch must have fired — the no-op that kicks the update() cycle.
+      expect(dispatchSpy).toHaveBeenCalled()
+
+      // It must be a plain no-op dispatch (no effects, no changes, no selection).
+      const noOpCall = dispatchSpy.mock.calls.find((args) => {
+        const spec = args[0] as Record<string, unknown> | undefined
+        if (!spec) return true
+        return !spec.changes && !spec.effects && !spec.selection && !spec.annotations
+      })
+      expect(noOpCall).toBeDefined()
+
+      // And it must not have triggered a StateEffect.reconfigure — the extensions
+      // array is stable and the pill plugin refreshes internally via update().
+      const reconfigureCount = dispatchSpy.mock.calls.filter(hasReconfigure).length
+      expect(reconfigureCount).toBe(0)
+    })
+
     it('backspaceCommand is the same reference across separate CodeInput instances', () => {
       const wrapperA = mount(CodeInput, {
         props: {

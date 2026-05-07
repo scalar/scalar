@@ -327,6 +327,19 @@ watch(codeMirror, () => {
   }
 })
 
+/**
+ * When the environment prop changes (user switches environments or edits a variable),
+ * dispatch a no-op transaction to kick CodeMirror's update cycle. The pill plugin's
+ * update() is only called during CodeMirror's own transaction processing, so without
+ * this, pills would show stale values until the next editor interaction.
+ */
+watch(
+  () => environment,
+  () => {
+    codeMirror.value?.dispatch({})
+  },
+)
+
 // ---------------------------------------------------------------------------
 // Environment variable dropdown
 
