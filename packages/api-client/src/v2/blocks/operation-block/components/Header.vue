@@ -90,13 +90,14 @@ const handleAddEnvironment = () => {
 
 <template>
   <!--
-    `t-app__top-container` opts into a named container so the AddressBar
-    can adapt to the right column's actual width (which shrinks when the
-    sidebar opens) instead of the viewport. The `container: <name> /
-    <type>` shorthand is declared in the scoped style block below.
+    `@container/address-bar` declares a named container so the
+    AddressBar can adapt to the right column's actual width (which
+    shrinks when the sidebar opens) instead of the viewport. The
+    `@container` family is built into Tailwind v4 - the slash + name
+    expands to `container: address-bar / inline-size`.
   -->
   <div
-    class="lg:min-h-header t-app__top-container flex w-full flex-wrap items-center justify-center gap-y-2 p-2 pt-2 lg:gap-y-0 lg:p-1 lg:pt-1">
+    class="lg:min-h-header t-app__top-container @container/address-bar flex w-full flex-wrap items-center justify-center gap-y-2 p-2 pt-2 lg:gap-y-0 lg:p-1 lg:pt-1">
     <div class="flex flex-1 flex-row items-center gap-1 lg:px-1">
       <!--
           Holds space for the sidebar toggle
@@ -194,17 +195,6 @@ const handleAddEnvironment = () => {
   </div>
 </template>
 <style scoped>
-/*
- * Named container so AddressBar.vue's @container queries can react to
- * the operation header's actual width. Tailwind's arbitrary-value
- * shorthand for these properties does not always emit reliably, so we
- * declare the container explicitly here using the `container` shorthand
- * (equivalent to `container-name: address-bar; container-type: inline-size`).
- */
-.t-app__top-container {
-  container: address-bar / inline-size;
-}
-
 .app-exit-button {
   color: white;
   background: rgba(0, 0, 0, 0.1);
