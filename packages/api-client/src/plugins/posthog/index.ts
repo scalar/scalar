@@ -32,9 +32,11 @@ export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
   return {
     on: {
       '*': (event: keyof ApiReferenceEvents, payload: ApiReferenceEvents[keyof ApiReferenceEvents]) => {
-        // User logs in
-        if (event === 'log:user-login' && isObject(payload) && 'uid' in payload && typeof payload.uid === 'string') {
-          posthog?.identify(payload.uid, { email: payload.email, teamUid: payload.teamUid })
+        // User logs in — never capture this event; identify only when payload is valid
+        if (event === 'log:user-login') {
+          if (isObject(payload) && 'uid' in payload && typeof payload.uid === 'string') {
+            posthog?.identify(payload.uid, { email: payload.email, teamUid: payload.teamUid })
+          }
           return
         }
 
