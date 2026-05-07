@@ -120,7 +120,6 @@ class PillWidget extends WidgetType {
 export const pillPlugin = (props: {
   /** Getter so the stable plugin instance always reads the latest environment. */
   environment: (() => XScalarEnvironment | undefined) | XScalarEnvironment | undefined
-  isReadOnly: (() => boolean | undefined) | boolean | undefined
   isContextFunctionName?: (name: string) => boolean
 }) => {
   const getEnvironment = (): XScalarEnvironment | undefined =>

@@ -249,20 +249,6 @@ const handleSelectChange = (value: string): void =>
 // CodeMirror setup
 
 /**
- * Build extensions array.
- * Note: Extensions are not reactive after initialization.
- */
-const buildExtensions = (): Extension[] => {
-  const extensionsList: Extension[] = [...extensions]
-
-  if (colorPicker) {
-    extensionsList.push(colorPickerExtension)
-  }
-
-  return extensionsList
-}
-
-/**
  * Reactive pill plugin for environment variable visualization.
  */
 const contextFunctionDropdownItems = computed(() =>
@@ -275,16 +261,15 @@ const contextFunctionDropdownItems = computed(() =>
 )
 
 /**
- * The pill plugin is created once and receives getter functions so it can
- * always read the latest `environment` and `isReadOnly` values without the
- * ViewPlugin instance ever needing to be replaced. Replacing the instance
- * would require a full `StateEffect.reconfigure` on every environment change,
- * which causes a costly CodeMirror measure cycle on every keystroke.
+ * The pill plugin is created once and receives a getter for `environment` so
+ * it can always read the latest value without the ViewPlugin instance ever
+ * needing to be replaced. Replacing the instance would require a full
+ * `StateEffect.reconfigure` on every environment change, causing a costly
+ * CodeMirror measure cycle on every keystroke.
  */
 const pillPluginExtension = pillPlugin({
   environment: () => environment,
   isContextFunctionName,
-  isReadOnly: () => layout === 'modal',
 })
 
 /**
@@ -296,7 +281,8 @@ const pillPluginExtension = pillPlugin({
  * getter on every CodeMirror update cycle).
  */
 const codeMirrorExtensions: Extension[] = [
-  ...buildExtensions(),
+  ...extensions,
+  ...(colorPicker ? [colorPickerExtension] : []),
   pillPluginExtension,
   backspaceCommand,
 ]

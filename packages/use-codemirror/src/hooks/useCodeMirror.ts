@@ -24,7 +24,7 @@ import {
   lineNumbers as lineNumbersExtension,
   placeholder as placeholderExtension,
 } from '@codemirror/view'
-import { type MaybeRefOrGetter, type Ref, computed, onBeforeUnmount, ref, toValue, watch } from 'vue'
+import { type MaybeRefOrGetter, type Ref, onBeforeUnmount, ref, toValue, watch } from 'vue'
 
 const CHEVRON_DOWN =
   '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m18 10-6 6-6-6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>'
@@ -139,35 +139,13 @@ export const useCodeMirror = (
     })
   }
 
-  // Scalar fields that, when changed, require a full extension reconfiguration.
-  // Watched individually so Vue can do primitive === comparisons rather than
-  // comparing a freshly-allocated object on every reactive flush — which would
-  // always appear dirty and schedule a redundant StateEffect.reconfigure.
-  const extensionConfig = computed(() => ({
-    onChange: params.onChange,
-    onBlur: params.onBlur,
-    onFocus: params.onFocus,
-    disableTabIndent: toValue(params.disableTabIndent),
-    language: toValue(params.language),
-    classes: toValue(params.classes),
-    readOnly: toValue(params.readOnly),
-    lineNumbers: toValue(params.lineNumbers),
-    withVariables: toValue(params.withVariables),
-    forceFoldGutter: toValue(params.forceFoldGutter),
-    disableEnter: toValue(params.disableEnter),
-    disableCloseBrackets: toValue(params.disableCloseBrackets),
-    withoutTheme: toValue(params.withoutTheme),
-    lint: toValue(params.lint),
-    additionalExtensions: toValue(params.extensions),
-    placeholder: toValue(params.placeholder),
-  }))
-
   // Primitive-level sources for the extensions watcher. Listed as individual
   // getter functions so Vue's multi-source watch can do per-element === comparison.
   // A single `computed(() => ({ ... }))` always produces a new object reference
   // and would appear dirty on every flush; a single `computed(() => [...])` has
   // the same problem. Individual sources are compared element-wise, so the watch
   // only fires when a value actually changes.
+  // NOTE: when adding a new param, add its getter here AND add its `toValue()` call inside `buildExtensions`.
   const reconfigureSources = [
     () => params.onChange,
     () => params.onBlur,
@@ -202,14 +180,35 @@ export const useCodeMirror = (
   // Cleanup codemirror
   onBeforeUnmount(() => codeMirror.value?.destroy())
 
+  // Builds the full extension list from the current param values.
+  // NOTE: when adding a new param, add its getter here AND add its `toValue()` call inside `buildExtensions`.
+  function buildExtensions(provider: Extension | null): Extension[] {
+    return getCodeMirrorExtensions({
+      onChange: params.onChange,
+      onBlur: params.onBlur,
+      onFocus: params.onFocus,
+      provider,
+      language: toValue(params.language),
+      classes: toValue(params.classes),
+      readOnly: toValue(params.readOnly),
+      lineNumbers: toValue(params.lineNumbers),
+      withVariables: toValue(params.withVariables),
+      forceFoldGutter: toValue(params.forceFoldGutter),
+      disableEnter: toValue(params.disableEnter),
+      disableCloseBrackets: toValue(params.disableCloseBrackets),
+      disableTabIndent: toValue(params.disableTabIndent),
+      withoutTheme: toValue(params.withoutTheme),
+      lint: toValue(params.lint),
+      additionalExtensions: toValue(params.extensions),
+      placeholder: toValue(params.placeholder),
+    })
+  }
+
   // Initializes CodeMirror.
   function mountCodeMirror() {
     if (params.codeMirrorRef.value) {
       const provider = hasProvider(params) ? toValue(params.provider) : null
-      const extensions = getCodeMirrorExtensions({
-        ...extensionConfig.value,
-        provider,
-      })
+      const extensions = buildExtensions(provider)
 
       codeMirror.value = new EditorView({
         parent: params.codeMirrorRef.value,
@@ -253,10 +252,7 @@ export const useCodeMirror = (
     }
 
     const provider = hasProvider(params) ? toValue(params.provider) : null
-    const extensions = getCodeMirrorExtensions({
-      ...extensionConfig.value,
-      provider,
-    })
+    const extensions = buildExtensions(provider)
 
     requestAnimationFrame(() => {
       codeMirror.value?.dispatch({

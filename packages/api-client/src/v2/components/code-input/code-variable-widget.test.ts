@@ -32,7 +32,7 @@ describe('code-variable-widget', () => {
     const doc = '{{testVar}}'
     const state = EditorState.create({
       doc,
-      extensions: [pillPlugin({ environment, isReadOnly: false })],
+      extensions: [pillPlugin({ environment })],
     })
 
     const view = new EditorView({
@@ -50,7 +50,7 @@ describe('code-variable-widget', () => {
     const doc = '{{testVar}} and {{apiKey}}'
     const state = EditorState.create({
       doc,
-      extensions: [pillPlugin({ environment, isReadOnly: false })],
+      extensions: [pillPlugin({ environment })],
     })
 
     const view = new EditorView({
@@ -69,7 +69,7 @@ describe('code-variable-widget', () => {
     const doc = '{{test\nVar}}'
     const state = EditorState.create({
       doc,
-      extensions: [pillPlugin({ environment, isReadOnly: false })],
+      extensions: [pillPlugin({ environment })],
     })
 
     // This should not throw an error
@@ -90,7 +90,7 @@ describe('code-variable-widget', () => {
     const doc = '{{testVar}}\n{{apiKey}}'
     const state = EditorState.create({
       doc,
-      extensions: [pillPlugin({ environment, isReadOnly: false })],
+      extensions: [pillPlugin({ environment })],
     })
 
     const view = new EditorView({
@@ -107,7 +107,7 @@ describe('code-variable-widget', () => {
     const doc = '{{testVar}}'
     const state = EditorState.create({
       doc,
-      extensions: [pillPlugin({ environment: undefined, isReadOnly: false })],
+      extensions: [pillPlugin({ environment: undefined })],
     })
 
     const view = new EditorView({
@@ -128,26 +128,8 @@ describe('code-variable-widget', () => {
         pillPlugin({
           environment,
           isContextFunctionName,
-          isReadOnly: false,
         }),
       ],
-    })
-
-    const view = new EditorView({
-      state,
-      parent: container,
-    })
-
-    expect(view.state.doc.toString()).toBe(doc)
-
-    view.destroy()
-  })
-
-  it('works in read-only mode', () => {
-    const doc = '{{testVar}}'
-    const state = EditorState.create({
-      doc,
-      extensions: [pillPlugin({ environment, isReadOnly: true })],
     })
 
     const view = new EditorView({
@@ -170,7 +152,7 @@ Variable}}
 
     const state = EditorState.create({
       doc,
-      extensions: [pillPlugin({ environment, isReadOnly: false })],
+      extensions: [pillPlugin({ environment })],
     })
 
     // This should not throw the line break decoration error
@@ -190,7 +172,7 @@ Variable}}
     const initialDoc = '{{testVar}}'
     const state = EditorState.create({
       doc: initialDoc,
-      extensions: [pillPlugin({ environment, isReadOnly: false })],
+      extensions: [pillPlugin({ environment })],
     })
 
     const view = new EditorView({
