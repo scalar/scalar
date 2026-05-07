@@ -25,13 +25,13 @@ describe('mergeReleaseNotes', () => {
     expect(merged[0]?.title).toBe('new title')
   })
 
-  it('orders entries newest-first by date', () => {
-    const existing = [note('1.0.0', '2026-01-01'), note('2.0.0', '2026-03-01')]
+  it('inserts by semver when the existing list is already ordered', () => {
+    const existing = [note('2.0.0', '2026-03-01'), note('1.0.0', '2026-01-01')]
     const merged = mergeReleaseNotes(existing, note('1.5.0', '2026-02-01'))
     expect(merged.map((entry) => entry.version)).toEqual(['2.0.0', '1.5.0', '1.0.0'])
   })
 
-  it('breaks date ties using the version string', () => {
+  it('orders same-calendar-day releases by semver', () => {
     const merged = mergeReleaseNotes(
       [note('1.0.1', '2026-01-01'), note('1.0.0', '2026-01-01')],
       note('1.0.2', '2026-01-01'),
@@ -39,12 +39,23 @@ describe('mergeReleaseNotes', () => {
     expect(merged.map((entry) => entry.version)).toEqual(['1.0.2', '1.0.1', '1.0.0'])
   })
 
-  it('breaks date ties using semver order, not lexicographic string order', () => {
+  it('uses semver order, not lexicographic version string order', () => {
     const merged = mergeReleaseNotes(
-      [note('1.0.9', '2026-01-01'), note('1.0.10', '2026-01-01')],
+      [note('1.0.10', '2026-01-01'), note('1.0.9', '2026-01-01')],
       note('1.0.11', '2026-01-01'),
     )
     expect(merged.map((entry) => entry.version)).toEqual(['1.0.11', '1.0.10', '1.0.9'])
+  })
+
+  it('uses release date when compareVersions ties the version strings', () => {
+    const merged = mergeReleaseNotes(
+      [
+        { version: '1.0.0+aaa', date: '2026-01-02', title: 'second' },
+        { version: '1.0.0+bbb', date: '2026-01-01', title: 'third' },
+      ],
+      { version: '1.0.0+ccc', date: '2026-01-03', title: 'first' },
+    )
+    expect(merged.map((entry) => entry.date)).toEqual(['2026-01-03', '2026-01-02', '2026-01-01'])
   })
 })
 
@@ -90,7 +101,7 @@ describe('writeReleaseNoteJson', () => {
     expect(written[0]?.title).toBe('corrected take')
   })
 
-  it('keeps entries sorted newest-first by date', async () => {
+  it('keeps entries ordered by semver (then date when versions tie)', async () => {
     const path = join(workDir, 'RELEASE_NOTES.json')
     await writeReleaseNoteJson({ path, note: note('1.0.0', '2026-01-01') })
     await writeReleaseNoteJson({ path, note: note('2.0.0', '2026-03-01') })
