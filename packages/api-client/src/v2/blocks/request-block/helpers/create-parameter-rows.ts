@@ -17,6 +17,9 @@ type ParameterWithRequiredSchema = ParameterWithSchemaObject & {
   schema: ReferenceType<SchemaObject>
 }
 
+/** Serialization mode for object-typed query parameters that we expand into multiple rows. */
+type ExpansionMode = 'form' | 'deepObject'
+
 const isParameterWithSchema = (parameter: ParameterObject): parameter is ParameterWithRequiredSchema =>
   'schema' in parameter && parameter.schema !== undefined
 
@@ -26,11 +29,40 @@ const resolveSchema = (schema: unknown): SchemaObject | undefined => {
   return resolvedSchema as SchemaObject | undefined
 }
 
+/**
+ * Resolves the OpenAPI serialization style and explode flag for a parameter, falling back to the
+ * spec defaults (style: 'form', explode: true when style is 'form').
+ */
 const getParameterStyleAndExplode = (parameter: ParameterObject): { style: string; explode: boolean } => {
   const style = 'style' in parameter && parameter.style ? parameter.style : 'form'
   const explode = 'explode' in parameter && parameter.explode !== undefined ? parameter.explode : style === 'form'
 
   return { style, explode }
+}
+
+/**
+ * Decides whether an object-typed query parameter should be expanded into one row per property,
+ * and which expansion mode to use. Returns null when the parameter should stay as a single row
+ * (non-query, non-object schema, or a serialization style we do not expand).
+ */
+const getExpansionMode = (parameter: ParameterObject, schema: SchemaObject | undefined): ExpansionMode | null => {
+  if (parameter.in !== 'query' || !isParameterWithSchema(parameter) || !schema || !isObjectSchema(schema)) {
+    return null
+  }
+
+  const { style, explode } = getParameterStyleAndExplode(parameter)
+  if (!explode) {
+    return null
+  }
+
+  if (style === 'form') {
+    return 'form'
+  }
+  if (style === 'deepObject') {
+    return 'deepObject'
+  }
+
+  return null
 }
 
 const toTableValue = (value: unknown): string => {
@@ -78,12 +110,41 @@ const toTableRow = ({
   sourceParameterValuePath,
 })
 
+/** Build the single-row representation used when a parameter is not expanded. */
+const toSingleParameterRow = (
+  parameter: ParameterObject,
+  schema: SchemaObject | undefined,
+  value: unknown,
+  isDisabled: boolean,
+): TableRow =>
+  toTableRow({
+    parameter,
+    name: parameter.name,
+    value,
+    description: parameter.description,
+    schema,
+    isRequired: parameter.required,
+    isDisabled,
+  })
+
+/**
+ * Walks an object schema and produces one row per property.
+ *
+ * - In `form` mode (the OpenAPI default for query parameters) only the top-level properties are
+ *   flattened, and each row is named after the property itself (`status`).
+ * - In `deepObject` mode we recurse into nested objects and emit bracketed names that mirror the
+ *   serialization on the wire (`filter[user][id]`).
+ *
+ * `pathPrefix` tracks the path inside the parent parameter value so the handler can later
+ * reassemble all sibling rows back into a single object payload.
+ */
 const getExpandedPropertyRows = ({
   parameter,
   schema,
   value,
   pathPrefix,
   namePrefix,
+  mode,
   isDisabled,
 }: {
   parameter: ParameterObject
@@ -91,6 +152,7 @@ const getExpandedPropertyRows = ({
   value: unknown
   pathPrefix: string[]
   namePrefix: string
+  mode: ExpansionMode
   isDisabled: boolean
 }): TableRow[] => {
   if (!schema.properties) {
@@ -108,15 +170,19 @@ const getExpandedPropertyRows = ({
     const path = [...pathPrefix, propertyName]
     const name = namePrefix ? `${namePrefix}[${propertyName}]` : propertyName
 
-    // Only recurse into nested objects for deepObject style (namePrefix is non-empty).
-    // Form-style explode flattens only the top-level properties per the OpenAPI 3.1 spec.
-    if (namePrefix && isObjectSchema(resolvedPropertySchema) && resolvedPropertySchema.properties) {
+    // Only deepObject style recurses into nested objects. The OpenAPI 3.1 spec says form-style
+    // explode flattens only the top-level properties.
+    const shouldRecurse =
+      mode === 'deepObject' && isObjectSchema(resolvedPropertySchema) && Boolean(resolvedPropertySchema.properties)
+
+    if (shouldRecurse) {
       return getExpandedPropertyRows({
         parameter,
         schema: resolvedPropertySchema,
         value,
         pathPrefix: path,
         namePrefix: name,
+        mode,
         isDisabled,
       })
     }
@@ -136,40 +202,27 @@ const getExpandedPropertyRows = ({
   })
 }
 
+/**
+ * Turns a single OpenAPI parameter into one or more table rows.
+ *
+ * For object-typed query parameters with `form`/`explode: true` (the default) or `deepObject`
+ * serialization, each property becomes its own row so the user can edit them individually,
+ * matching how tools like Postman present the same parameter. Every other parameter passes
+ * through as a single row.
+ */
 export const createParameterRows = (parameter: ParameterObject, exampleKey: string): TableRow[] => {
   const example = getExample(parameter, exampleKey, undefined)
   const isDisabled = isParamDisabled(parameter, example)
   const schema = getParameterSchema(parameter)
+  const mode = getExpansionMode(parameter, schema)
 
-  if (parameter.in !== 'query' || !isParameterWithSchema(parameter) || !schema || !isObjectSchema(schema)) {
-    return [
-      toTableRow({
-        parameter,
-        name: parameter.name,
-        value: example?.value,
-        description: parameter.description,
-        schema,
-        isRequired: parameter.required,
-        isDisabled,
-      }),
-    ]
+  // Non-expandable parameters: render as a single row.
+  if (mode === null || !schema || !isObjectSchema(schema)) {
+    return [toSingleParameterRow(parameter, schema, example?.value, isDisabled)]
   }
 
-  const { style, explode } = getParameterStyleAndExplode(parameter)
-  if (!explode || (style !== 'form' && style !== 'deepObject')) {
-    return [
-      toTableRow({
-        parameter,
-        name: parameter.name,
-        value: example?.value,
-        description: parameter.description,
-        schema,
-        isRequired: parameter.required,
-        isDisabled,
-      }),
-    ]
-  }
-
+  // Expand into per-property rows. The deserialized value is used so existing per-property values
+  // can be displayed in the table even when the example arrives as a serialized string.
   const value = example?.value === undefined ? undefined : deSerializeParameter(example.value, parameter)
 
   const rows = getExpandedPropertyRows({
@@ -177,21 +230,12 @@ export const createParameterRows = (parameter: ParameterObject, exampleKey: stri
     schema,
     value,
     pathPrefix: [],
-    namePrefix: style === 'deepObject' ? parameter.name : '',
+    // deepObject names every row with a `parent[child]` prefix; form-style names use bare property names.
+    namePrefix: mode === 'deepObject' ? parameter.name : '',
+    mode,
     isDisabled,
   })
 
-  return rows.length > 0
-    ? rows
-    : [
-        toTableRow({
-          parameter,
-          name: parameter.name,
-          value: example?.value,
-          description: parameter.description,
-          schema,
-          isRequired: parameter.required,
-          isDisabled,
-        }),
-      ]
+  // Fall back to a single row if the schema had no properties to expand.
+  return rows.length > 0 ? rows : [toSingleParameterRow(parameter, schema, example?.value, isDisabled)]
 }
