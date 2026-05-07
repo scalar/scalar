@@ -50,10 +50,16 @@ describe('useWhatsNew', () => {
     expect(notes.value).toEqual([])
   })
 
-  it('does not flag unseen entries on a fresh install', () => {
+  it('flags unseen entries on a fresh install when there is a release note to show', () => {
     const { hasUnseen, lastSeenVersion } = useWhatsNew({ currentVersion: '999.999.999' })
 
     expect(lastSeenVersion.value).toBeNull()
+    expect(hasUnseen.value).toBe(true)
+  })
+
+  it('does not flag unseen entries when there are no release notes to show', () => {
+    const { hasUnseen } = useWhatsNew({ currentVersion: '0.0.1' })
+
     expect(hasUnseen.value).toBe(false)
   })
 
@@ -72,5 +78,24 @@ describe('useWhatsNew', () => {
     markAllSeen()
     expect(lastSeenVersion.value).toBe(latest.value?.version)
     expect(localStorage.getItem(WHATS_NEW_LAST_SEEN_KEY)).toBe(latest.value?.version ?? null)
+  })
+
+  it('shares the seen state across multiple instances so markAllSeen clears the dot everywhere', () => {
+    // The "What's new" launcher (Get Started) and the modal each call
+    // `useWhatsNew()` independently. They must observe the same reactive
+    // state - otherwise marking the latest release as seen from inside
+    // the modal would not clear the unseen dot on the launcher until the
+    // next page reload.
+    const launcher = useWhatsNew({ currentVersion: '999.999.999' })
+    const modal = useWhatsNew({ currentVersion: '999.999.999' })
+
+    expect(launcher.hasUnseen.value).toBe(true)
+    expect(modal.hasUnseen.value).toBe(true)
+
+    modal.markAllSeen()
+
+    expect(modal.hasUnseen.value).toBe(false)
+    expect(launcher.hasUnseen.value).toBe(false)
+    expect(launcher.lastSeenVersion.value).toBe(modal.latest.value?.version)
   })
 })

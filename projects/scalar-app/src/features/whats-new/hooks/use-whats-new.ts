@@ -1,6 +1,6 @@
 import { compareVersions, isVersionLessThanOrEqual } from '@scalar/helpers/general/compare-versions'
 import { safeLocalStorage } from '@scalar/helpers/object/local-storage'
-import { type ComputedRef, type Ref, computed, ref } from 'vue'
+import { type ComputedRef, computed, ref } from 'vue'
 
 import { APP_VERSION } from '@/constants'
 
@@ -38,6 +38,17 @@ const readLastSeen = (): string | null => {
 }
 
 /**
+ * Module-scoped reactive state for the most recent acknowledged release.
+ *
+ * Shared across every `useWhatsNew()` invocation so calling `markAllSeen`
+ * from one component (the modal) immediately clears the "new" dot rendered
+ * by another (the Get Started launcher) - without this, each call would
+ * create its own independent ref and the dot would only refresh after a
+ * reload re-read localStorage.
+ */
+const lastSeenVersionRef = ref<string | null>(readLastSeen())
+
+/**
  * Reactive state for the "What's new" feature.
  */
 type UseWhatsNewReturn = {
@@ -50,13 +61,13 @@ type UseWhatsNewReturn = {
   latest: ComputedRef<ReleaseNote | null>
   /**
    * `true` when the latest visible release has not been acknowledged
-   * yet. Fresh installs are treated as "already up to date" so brand-new
-   * users do not see a "new" dot before they have had a chance to use
-   * the product.
+   * yet. A user who has never opened the modal (no record in
+   * localStorage) is treated as having unseen updates so they notice the
+   * dot the first time they land on the Get Started page.
    */
   hasUnseen: ComputedRef<boolean>
   /** Last version the user acknowledged, or `null` if never. */
-  lastSeenVersion: Ref<string | null>
+  lastSeenVersion: ComputedRef<string | null>
   /**
    * Mark all current entries as seen by writing the latest version to
    * localStorage. Safe to call repeatedly; no-op when there are no notes.
@@ -83,7 +94,15 @@ type UseWhatsNewOptions = {
 export const useWhatsNew = (options: UseWhatsNewOptions = {}): UseWhatsNewReturn => {
   const currentVersion = options.currentVersion ?? APP_VERSION
 
-  const lastSeenVersion = ref<string | null>(readLastSeen())
+  // Re-sync the shared ref with localStorage on every invocation. Production
+  // code only writes through `markAllSeen` (which keeps the ref and storage
+  // in lock-step), so this is normally a no-op - but it lets the composable
+  // pick up values written outside its own setter, for example a direct
+  // `localStorage.setItem` from a test or a stale value from a previous tab.
+  const stored = readLastSeen()
+  if (stored !== lastSeenVersionRef.value) {
+    lastSeenVersionRef.value = stored
+  }
 
   const notes = computed<ReleaseNote[]>(() => buildVisibleNotes(bundledReleaseNotes, currentVersion))
 
@@ -93,17 +112,16 @@ export const useWhatsNew = (options: UseWhatsNewOptions = {}): UseWhatsNewReturn
     if (!latest.value) {
       return false
     }
-    if (lastSeenVersion.value === null) {
-      return false
-    }
-    return lastSeenVersion.value !== latest.value.version
+    return lastSeenVersionRef.value !== latest.value.version
   })
+
+  const lastSeenVersion = computed<string | null>(() => lastSeenVersionRef.value)
 
   const markAllSeen = (): void => {
     if (!latest.value) {
       return
     }
-    lastSeenVersion.value = latest.value.version
+    lastSeenVersionRef.value = latest.value.version
     safeLocalStorage().setItem(WHATS_NEW_LAST_SEEN_KEY, latest.value.version)
   }
 
