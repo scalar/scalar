@@ -47,6 +47,7 @@ const mergeFlowSecrets = <const T extends readonly (keyof typeof SECRET_TO_INPUT
   properties: T,
   configSecrets: Record<string, unknown>,
   authStoreSecrets: Record<string, unknown> = {},
+  oauth2RedirectUri?: string,
 ): Record<T[number], string> =>
   Object.fromEntries(
     properties.map((property) => {
@@ -60,9 +61,13 @@ const mergeFlowSecrets = <const T extends readonly (keyof typeof SECRET_TO_INPUT
           ? configSecrets[SECRET_TO_INPUT_FIELD_MAP[property]]
           : undefined
 
+      // oauth2RedirectUri (top-level config option) is used as a global fallback for the redirect URI,
+      // applied only when neither the auth store nor per-scheme config have a value. This ensures
+      // the configured redirect URI persists when switching between documents with the same OAuth config,
+      // because each document starts with no stored redirect URI (authStoreValue === undefined).
       const value =
         property === 'x-scalar-secret-redirect-uri'
-          ? (authStoreValue ?? configValue ?? configInputValue ?? '')
+          ? (authStoreValue ?? configValue ?? configInputValue ?? oauth2RedirectUri ?? '')
           : authStoreValue || configValue || configInputValue || ''
 
       return [property, value]
@@ -101,6 +106,7 @@ const extractCredentialsLocation = (
 const extractOAuthFlowSecrets = (
   flows: Record<string, unknown> | undefined,
   storeSecrets?: Partial<SecretsOAuthFlows> | Partial<SecretsOpenIdConnect>,
+  oauth2RedirectUri?: string,
 ): {
   flows: OAuthFlowsObjectSecret
   selectedScopes: string[]
@@ -131,6 +137,7 @@ const extractOAuthFlowSecrets = (
           ],
           flow,
           storeSecrets?.implicit,
+          oauth2RedirectUri,
         ),
         ...extractRefreshTokenSecret(storeSecrets?.implicit),
       } satisfies OAuthFlowImplicitSecret
@@ -191,6 +198,7 @@ const extractOAuthFlowSecrets = (
           ],
           flow,
           storeSecrets?.authorizationCode,
+          oauth2RedirectUri,
         ),
         ...extractCredentialsLocation(flow, storeSecrets?.authorizationCode),
         ...extractRefreshTokenSecret(storeSecrets?.authorizationCode),
@@ -210,6 +218,7 @@ export const extractSecuritySchemeSecrets = (
   authStore: AuthStore,
   name: string,
   documentSlug: string,
+  oauth2RedirectUri?: string,
 ): SecuritySchemeObjectSecret => {
   const secrets = authStore.getAuthSecrets(documentSlug, name)
 
@@ -236,7 +245,7 @@ export const extractSecuritySchemeSecrets = (
   // Handle OAuth2 security schemes and all supported flows
   if (scheme.type === 'oauth2') {
     const storeSecrets = secrets?.type === 'oauth2' ? secrets : undefined
-    const extracted = extractOAuthFlowSecrets(scheme.flows, storeSecrets)
+    const extracted = extractOAuthFlowSecrets(scheme.flows, storeSecrets, oauth2RedirectUri)
     const configuredDefaultScopes = Array.isArray(scheme['x-default-scopes'])
       ? scheme['x-default-scopes'].filter((scope): scope is string => typeof scope === 'string')
       : []
@@ -260,6 +269,7 @@ export const extractSecuritySchemeSecrets = (
         authorizationCode: storeSecrets?.authorizationCode,
       },
       storeSecrets,
+      oauth2RedirectUri,
     )
 
     return {
