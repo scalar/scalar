@@ -110,13 +110,29 @@ const meta = computed(() => ({
   exampleKey,
 }))
 
+const deletedExpandedParameterPaths = ref<Record<string, string[][]>>({})
+
+const getExpandedParameterKey = (parameter: {
+  in: string
+  name: string
+}): string => `${parameter.in}:${parameter.name}`
+
+const getHiddenValuePaths = (parameter: {
+  in: string
+  name: string
+}): string[][] =>
+  deletedExpandedParameterPaths.value[getExpandedParameterKey(parameter)] ?? []
+
 /** Parameters grouped by type (path, query, header, cookie) */
 const sections = computed(() =>
   groupBy(
     operation.parameters
       ?.map((param) => getResolvedRef(param))
       .flatMap((param) =>
-        createParameterRows(param, exampleKey).map((row) => ({
+        createParameterRows(param, exampleKey, {
+          hiddenValuePaths:
+            param.in === 'query' ? getHiddenValuePaths(param) : [],
+        }).map((row) => ({
           ...row,
           in: param.in,
         })),
@@ -329,6 +345,13 @@ watch(
   },
 )
 
+watch(
+  () => [method, path, exampleKey],
+  () => {
+    deletedExpandedParameterPaths.value = {}
+  },
+)
+
 /** Handle operation summary updates */
 const handleSummaryUpdate = (event: Event): void => {
   const summary = (event.target as HTMLInputElement).value
@@ -353,6 +376,20 @@ const parameterHandlers = computed(() => ({
   }),
   query: createParameterHandlers('query', eventBus, meta.value, {
     context: sections.value.query ?? [],
+    onDeleteExpandedRow: (row) => {
+      if (!row.originalParameter || !row.sourceParameterValuePath) {
+        return
+      }
+
+      const key = getExpandedParameterKey(row.originalParameter)
+      deletedExpandedParameterPaths.value = {
+        ...deletedExpandedParameterPaths.value,
+        [key]: [
+          ...(deletedExpandedParameterPaths.value[key] ?? []),
+          row.sourceParameterValuePath,
+        ],
+      }
+    },
   }),
 }))
 

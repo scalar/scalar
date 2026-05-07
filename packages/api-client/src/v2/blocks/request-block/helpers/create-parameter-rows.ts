@@ -81,6 +81,8 @@ const toTableValue = (value: unknown): string => {
   return String(value)
 }
 
+const toPathKey = (path: readonly string[]): string => path.join('\u0000')
+
 const toTableRow = ({
   parameter,
   name,
@@ -146,6 +148,7 @@ const getExpandedPropertyRows = ({
   namePrefix,
   mode,
   isDisabled,
+  hiddenValuePaths,
 }: {
   parameter: ParameterObject
   schema: Extract<SchemaObject, { type: 'object' }>
@@ -154,6 +157,7 @@ const getExpandedPropertyRows = ({
   namePrefix: string
   mode: ExpansionMode
   isDisabled: boolean
+  hiddenValuePaths: ReadonlySet<string>
 }): TableRow[] => {
   if (!schema.properties) {
     return []
@@ -170,6 +174,10 @@ const getExpandedPropertyRows = ({
     const path = [...pathPrefix, propertyName]
     const name = namePrefix ? `${namePrefix}[${propertyName}]` : propertyName
 
+    if (hiddenValuePaths.has(toPathKey(path))) {
+      return []
+    }
+
     // Only deepObject style recurses into nested objects. The OpenAPI 3.1 spec says form-style
     // explode flattens only the top-level properties.
     const shouldRecurse =
@@ -184,6 +192,7 @@ const getExpandedPropertyRows = ({
         namePrefix: name,
         mode,
         isDisabled,
+        hiddenValuePaths,
       })
     }
 
@@ -210,7 +219,11 @@ const getExpandedPropertyRows = ({
  * matching how tools like Postman present the same parameter. Every other parameter passes
  * through as a single row.
  */
-export const createParameterRows = (parameter: ParameterObject, exampleKey: string): TableRow[] => {
+export const createParameterRows = (
+  parameter: ParameterObject,
+  exampleKey: string,
+  options: { hiddenValuePaths?: readonly string[][] } = {},
+): TableRow[] => {
   const example = getExample(parameter, exampleKey, undefined)
   const isDisabled = isParamDisabled(parameter, example)
   const schema = getParameterSchema(parameter)
@@ -225,6 +238,13 @@ export const createParameterRows = (parameter: ParameterObject, exampleKey: stri
   // can be displayed in the table even when the example arrives as a serialized string.
   const value = example?.value === undefined ? undefined : deSerializeParameter(example.value, parameter)
 
+  // Fall back to a single row only when the schema has no properties to expand.
+  if (!schema.properties) {
+    return [toSingleParameterRow(parameter, schema, example?.value, isDisabled)]
+  }
+
+  const hiddenValuePaths = new Set(options.hiddenValuePaths?.map(toPathKey) ?? [])
+
   const rows = getExpandedPropertyRows({
     parameter,
     schema,
@@ -234,8 +254,8 @@ export const createParameterRows = (parameter: ParameterObject, exampleKey: stri
     namePrefix: mode === 'deepObject' ? parameter.name : '',
     mode,
     isDisabled,
+    hiddenValuePaths,
   })
 
-  // Fall back to a single row if the schema had no properties to expand.
-  return rows.length > 0 ? rows : [toSingleParameterRow(parameter, schema, example?.value, isDisabled)]
+  return rows
 }
