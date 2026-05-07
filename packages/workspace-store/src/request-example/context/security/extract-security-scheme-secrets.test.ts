@@ -943,6 +943,128 @@ describe('extractSecuritySchemeSecrets', () => {
       expect((result as OAuth2ObjectSecret).flows.authorizationCode?.['x-scalar-secret-redirect-uri']).toBe('')
     })
 
+    it('uses oauth2RedirectUri as fallback when no auth store or config redirect URI is set for authorizationCode', () => {
+      const authStore = createAuthStore()
+      const scheme: ConfigAuthScheme = {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            tokenUrl: 'https://example.com/oauth/token',
+            scopes: {},
+            refreshUrl: '',
+            'x-usePkce': 'no',
+          },
+        },
+      }
+
+      const result = extractSecuritySchemeSecrets(
+        scheme,
+        authStore,
+        schemeName,
+        documentSlug,
+        'https://app.example.com/oauth/callback',
+      )
+
+      expect((result as OAuth2ObjectSecret).flows.authorizationCode?.['x-scalar-secret-redirect-uri']).toBe(
+        'https://app.example.com/oauth/callback',
+      )
+    })
+
+    it('oauth2RedirectUri does not override an explicitly cleared redirect URI in auth store', () => {
+      const authStore = createAuthStore()
+      authStore.setAuthSecrets(documentSlug, schemeName, {
+        type: 'oauth2',
+        authorizationCode: {
+          'x-scalar-secret-redirect-uri': '',
+        },
+      })
+
+      const scheme: ConfigAuthScheme = {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            tokenUrl: 'https://example.com/oauth/token',
+            scopes: {},
+            refreshUrl: '',
+            'x-usePkce': 'no',
+          },
+        },
+      }
+
+      const result = extractSecuritySchemeSecrets(
+        scheme,
+        authStore,
+        schemeName,
+        documentSlug,
+        'https://app.example.com/oauth/callback',
+      )
+
+      expect((result as OAuth2ObjectSecret).flows.authorizationCode?.['x-scalar-secret-redirect-uri']).toBe('')
+    })
+
+    it('uses oauth2RedirectUri as fallback for implicit flow when no auth store or config redirect URI', () => {
+      const authStore = createAuthStore()
+      const scheme: ConfigAuthScheme = {
+        type: 'oauth2',
+        flows: {
+          implicit: {
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            scopes: {},
+            refreshUrl: '',
+          },
+        },
+      }
+
+      const result = extractSecuritySchemeSecrets(
+        scheme,
+        authStore,
+        schemeName,
+        documentSlug,
+        'https://app.example.com/oauth/callback',
+      )
+
+      expect((result as OAuth2ObjectSecret).flows.implicit?.['x-scalar-secret-redirect-uri']).toBe(
+        'https://app.example.com/oauth/callback',
+      )
+    })
+
+    it('auth store redirect URI takes priority over oauth2RedirectUri', () => {
+      const authStore = createAuthStore()
+      authStore.setAuthSecrets(documentSlug, schemeName, {
+        type: 'oauth2',
+        authorizationCode: {
+          'x-scalar-secret-redirect-uri': 'https://store.example.com/callback',
+        },
+      })
+
+      const scheme: ConfigAuthScheme = {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/oauth/authorize',
+            tokenUrl: 'https://example.com/oauth/token',
+            scopes: {},
+            refreshUrl: '',
+            'x-usePkce': 'no',
+          },
+        },
+      }
+
+      const result = extractSecuritySchemeSecrets(
+        scheme,
+        authStore,
+        schemeName,
+        documentSlug,
+        'https://app.example.com/oauth/callback',
+      )
+
+      expect((result as OAuth2ObjectSecret).flows.authorizationCode?.['x-scalar-secret-redirect-uri']).toBe(
+        'https://store.example.com/callback',
+      )
+    })
+
     it('handles authorizationCode flow with PKCE enabled', () => {
       const authStore = createAuthStore()
       const scheme: ConfigAuthScheme = {
