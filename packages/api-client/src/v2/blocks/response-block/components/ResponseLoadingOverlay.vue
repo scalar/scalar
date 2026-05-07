@@ -16,6 +16,10 @@ const loader = useLoadingState()
 const timeout = ref<ReturnType<typeof setTimeout>>()
 
 const startLoading = () => {
+  // Replace any pending delayed start so overlapping `hooks:on:request:sent` events
+  // (rapid send, navigation, double submit) cannot leave an orphaned timer that
+  // calls `loader.start()` after the matching request already completed.
+  clearTimeout(timeout.value)
   timeout.value = setTimeout(() => loader.start(), 1000)
 }
 
