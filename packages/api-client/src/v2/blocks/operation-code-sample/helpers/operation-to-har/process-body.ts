@@ -93,6 +93,8 @@ export const processBody = ({
   requestBodyCompositionSelection,
 }: ProcessBodyProps): PostData | undefined => {
   const _contentType = contentType || Object.keys(requestBody.content)[0] || ''
+  /** Empty when "Other" is selected so snippets do not inject `Content-Type: other`. */
+  const harMimeType = _contentType === 'other' ? '' : _contentType
   const formatBinaryFile = (file: File) => {
     const unwrappedFile = unpackProxyObject(file)
     return `@${unwrappedFile.name || 'filename'}`
@@ -114,27 +116,27 @@ export const processBody = ({
 
     if (isFormData && typeof exampleValue === 'object' && exampleValue !== null) {
       return {
-        mimeType: _contentType,
+        mimeType: harMimeType,
         params: objectToFormParams(exampleValue, _contentType === 'multipart/form-data' ? encoding : undefined),
       }
     }
 
     if (isXml && typeof exampleValue === 'object' && exampleValue !== null) {
       return {
-        mimeType: _contentType,
+        mimeType: harMimeType,
         text: json2xml(exampleValue),
       }
     }
 
     if (exampleValue instanceof File) {
       return {
-        mimeType: _contentType,
+        mimeType: harMimeType,
         text: formatBinaryFile(exampleValue),
       }
     }
 
     return {
-      mimeType: _contentType,
+      mimeType: harMimeType,
       text: typeof exampleValue === 'string' ? exampleValue : JSON.stringify(exampleValue),
     }
   }
@@ -158,20 +160,20 @@ export const processBody = ({
     if (extractedExample !== undefined) {
       if (isFormData && typeof extractedExample === 'object' && extractedExample !== null) {
         return {
-          mimeType: _contentType,
+          mimeType: harMimeType,
           params: objectToFormParams(extractedExample, _contentType === 'multipart/form-data' ? encoding : undefined),
         }
       }
 
       if (isXml && typeof extractedExample === 'object' && extractedExample !== null) {
         return {
-          mimeType: _contentType,
+          mimeType: harMimeType,
           text: json2xml(extractedExample),
         }
       }
 
       return {
-        mimeType: _contentType,
+        mimeType: harMimeType,
         text: typeof extractedExample === 'string' ? extractedExample : JSON.stringify(extractedExample),
       }
     }

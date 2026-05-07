@@ -856,4 +856,310 @@ describe('RequestBody', () => {
       }
     }
   })
+
+  it('appends OpenAPI-defined content types to the dropdown and includes the built-in Other option', async () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': { schema: { type: 'object' } },
+        'text/csv': { schema: { type: 'string' } },
+        'application/vnd.api+json': { schema: { type: 'object' } },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody,
+      },
+      global: {
+        stubs: {
+          ScalarButton: {
+            template: '<button><slot /></button>',
+            props: ['variant', 'size', 'fullWidth'],
+          },
+          ScalarIcon: true,
+          ScalarListbox: {
+            name: 'ScalarListbox',
+            template: '<div><slot /></div>',
+            props: ['modelValue', 'options', 'teleport'],
+            emits: ['update:modelValue'],
+          },
+          CollapsibleSection: {
+            template: '<div><slot name="title" /><slot /></div>',
+          },
+          DataTable: {
+            template: '<div><slot /></div>',
+          },
+          DataTableHeader: {
+            template: '<div><slot /></div>',
+          },
+          DataTableRow: {
+            template: '<div><slot /></div>',
+          },
+          CodeInput: {
+            template: '<div data-testid="code-input"></div>',
+            props: ['modelValue', 'language', 'environment'],
+            emits: ['update:modelValue'],
+          },
+        },
+      },
+    })
+
+    await nextTick()
+
+    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+    expect(listbox.exists()).toBe(true)
+
+    const options = listbox.props('options') as Array<{ id: string; label: string }>
+
+    // Built-in options must come first.
+    expect(options[0]).toEqual({ id: 'multipart/form-data', label: 'Multipart Form' })
+
+    const otherOption = options.find((o) => o.id === 'other')
+    expect(otherOption).toEqual({ id: 'other', label: 'Other' })
+
+    // OpenAPI-defined types that are not built-in must be appended at the bottom, in spec order,
+    // using the MIME essence (no charset or other parameters) as the label.
+    const ids = options.map((o) => o.id)
+    const csvIndex = ids.indexOf('text/csv')
+    const vendorIndex = ids.indexOf('application/vnd.api+json')
+    const noneIndex = ids.indexOf('none')
+    expect(csvIndex).toBeGreaterThan(noneIndex)
+    expect(vendorIndex).toBeGreaterThan(csvIndex)
+    expect(options[csvIndex]).toEqual({ id: 'text/csv', label: 'text/csv' })
+    expect(options[vendorIndex]).toEqual({
+      id: 'application/vnd.api+json',
+      label: 'application/vnd.api+json',
+    })
+
+    // Built-in content types from the spec must not be duplicated.
+    expect(ids.filter((id) => id === 'application/json')).toHaveLength(1)
+  })
+
+  it('uses MIME essence for extra option labels and skips extras whose essence matches a built-in', async () => {
+    const jsonWithCharset = 'application/json; charset=utf-8'
+    const csvWithCharset = 'text/csv; charset=utf-8'
+
+    const requestBody: RequestBodyObject = {
+      content: {
+        [jsonWithCharset]: { schema: { type: 'object' } },
+        [csvWithCharset]: { schema: { type: 'string' } },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody,
+      },
+      global: {
+        stubs: {
+          ScalarButton: {
+            template: '<button><slot /></button>',
+            props: ['variant', 'size', 'fullWidth'],
+          },
+          ScalarIcon: true,
+          ScalarListbox: {
+            name: 'ScalarListbox',
+            template: '<div><slot /></div>',
+            props: ['modelValue', 'options', 'teleport'],
+            emits: ['update:modelValue'],
+          },
+          CollapsibleSection: {
+            template: '<div><slot name="title" /><slot /></div>',
+          },
+          DataTable: {
+            template: '<div><slot /></div>',
+          },
+          DataTableHeader: {
+            template: '<div><slot /></div>',
+          },
+          DataTableRow: {
+            template: '<div><slot /></div>',
+          },
+          CodeInput: {
+            template: '<div data-testid="code-input"></div>',
+            props: ['modelValue', 'language', 'environment'],
+            emits: ['update:modelValue'],
+          },
+        },
+      },
+    })
+
+    await nextTick()
+
+    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+    const options = listbox.props('options') as Array<{ id: string; label: string }>
+
+    expect(options.some((o) => o.id === jsonWithCharset)).toBe(false)
+
+    const csvOption = options.find((o) => o.id === csvWithCharset)
+    expect(csvOption).toEqual({ id: csvWithCharset, label: 'text/csv' })
+  })
+
+  it('shows the friendly built-in label when the stored selection uses a MIME type with parameters', async () => {
+    const jsonWithCharset = 'application/json; charset=utf-8'
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: {
+            [jsonWithCharset]: { schema: { type: 'object' } },
+          },
+          'x-scalar-selected-content-type': {
+            'example-1': jsonWithCharset,
+          },
+        },
+      },
+      global: {
+        stubs: {
+          ScalarButton: {
+            template: '<button data-testid="trigger"><slot /></button>',
+            props: ['variant', 'size', 'fullWidth'],
+          },
+          ScalarIcon: true,
+          ScalarListbox: {
+            name: 'ScalarListbox',
+            template: '<div><slot /></div>',
+            props: ['modelValue', 'options', 'teleport'],
+            emits: ['update:modelValue'],
+          },
+          CollapsibleSection: {
+            template: '<div><slot name="title" /><slot /></div>',
+          },
+          DataTable: {
+            template: '<div><slot /></div>',
+          },
+          DataTableHeader: {
+            template: '<div><slot /></div>',
+          },
+          DataTableRow: {
+            template: '<div><slot /></div>',
+          },
+          CodeInput: {
+            template: '<div data-testid="code-input"></div>',
+            props: ['modelValue', 'language', 'environment'],
+            emits: ['update:modelValue'],
+          },
+        },
+      },
+    })
+
+    await nextTick()
+
+    expect(wrapper.find('[data-testid="trigger"]').text()).toContain('JSON')
+  })
+
+  it('emits the selected OpenAPI content type verbatim when the user picks a custom one', async () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': { schema: { type: 'object' } },
+        'text/csv': { schema: { type: 'string' } },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody,
+      },
+      global: {
+        stubs: {
+          ScalarButton: {
+            template: '<button><slot /></button>',
+            props: ['variant', 'size', 'fullWidth'],
+          },
+          ScalarIcon: true,
+          ScalarListbox: {
+            name: 'ScalarListbox',
+            template: '<div><slot /></div>',
+            props: ['modelValue', 'options', 'teleport'],
+            emits: ['update:modelValue'],
+          },
+          CollapsibleSection: {
+            template: '<div><slot name="title" /><slot /></div>',
+          },
+          DataTable: {
+            template: '<div><slot /></div>',
+          },
+          DataTableHeader: {
+            template: '<div><slot /></div>',
+          },
+          DataTableRow: {
+            template: '<div><slot /></div>',
+          },
+          CodeInput: {
+            template: '<div data-testid="code-input"></div>',
+            props: ['modelValue', 'language', 'environment'],
+            emits: ['update:modelValue'],
+          },
+        },
+      },
+    })
+
+    await nextTick()
+
+    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+    await listbox.vm.$emit('update:modelValue', { id: 'text/csv', label: 'text/csv' })
+    await nextTick()
+
+    const events = wrapper.emitted('update:contentType')
+    expect(events).toBeTruthy()
+    expect(events?.[events.length - 1]?.[0]).toEqual({ value: 'text/csv' })
+  })
+
+  it('renders the actual content type string when the selected one is not in the built-in list', async () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'text/csv': { schema: { type: 'string' } },
+      },
+      'x-scalar-selected-content-type': {
+        'example-1': 'text/csv',
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody,
+      },
+      global: {
+        stubs: {
+          ScalarButton: {
+            template: '<button data-testid="trigger"><slot /></button>',
+            props: ['variant', 'size', 'fullWidth'],
+          },
+          ScalarIcon: true,
+          ScalarListbox: {
+            template: '<div><slot /></div>',
+            props: ['modelValue', 'options', 'teleport'],
+            emits: ['update:modelValue'],
+          },
+          CollapsibleSection: {
+            template: '<div><slot name="title" /><slot /></div>',
+          },
+          DataTable: {
+            template: '<div><slot /></div>',
+          },
+          DataTableHeader: {
+            template: '<div><slot /></div>',
+          },
+          DataTableRow: {
+            template: '<div><slot /></div>',
+          },
+          CodeInput: {
+            template: '<div data-testid="code-input"></div>',
+            props: ['modelValue', 'language', 'environment'],
+            emits: ['update:modelValue'],
+          },
+        },
+      },
+    })
+
+    await nextTick()
+
+    // The trigger label should show the actual content type, not "None".
+    expect(wrapper.find('[data-testid="trigger"]').text()).toContain('text/csv')
+  })
 })

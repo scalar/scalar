@@ -64,6 +64,27 @@ describe('getDefaultHeaders', () => {
     expect(contentTypeHeader).toBeUndefined()
   })
 
+  it('does not add Content-Type header when contentType is "other"', () => {
+    const operation: OperationObject = {
+      requestBody: {
+        'x-scalar-selected-content-type': {
+          'example-1': 'other',
+        },
+        content: {
+          'application/json': {},
+        },
+      },
+    }
+
+    const headers = getDefaultHeaders({
+      method: 'post',
+      operation,
+      exampleName: 'example-1',
+    })
+
+    expect(headers['content-type']).toBeUndefined()
+  })
+
   it('adds Content-Type header for POST requests when the request body defines one', () => {
     const operation: OperationObject = {
       requestBody: {
@@ -268,6 +289,82 @@ describe('getDefaultHeaders', () => {
 
     const acceptHeader = headers['accept']
     expect(acceptHeader).toBe('*/*')
+  })
+
+  it('omits default headers that match enabled OpenAPI header parameters when hideOverriddenHeaders is true', () => {
+    const operation: OperationObject = {
+      parameters: [
+        {
+          name: 'Accept',
+          in: 'header',
+          required: true,
+          schema: { type: 'string' },
+        },
+      ],
+    }
+
+    const withDefaults = getDefaultHeaders({
+      method: 'get',
+      operation,
+      exampleName: 'example-1',
+    })
+    expect(withDefaults['accept']).toBeDefined()
+
+    const filtered = getDefaultHeaders({
+      method: 'get',
+      operation,
+      exampleName: 'example-1',
+      hideOverriddenHeaders: true,
+    })
+    expect(filtered['accept']).toBeUndefined()
+  })
+
+  it('keeps default Accept when a matching header parameter exists but is disabled for the example', () => {
+    const operation: OperationObject = {
+      parameters: [
+        {
+          name: 'Accept',
+          in: 'header',
+          required: false,
+          schema: { type: 'string' },
+        },
+      ],
+    }
+
+    const filtered = getDefaultHeaders({
+      method: 'get',
+      operation,
+      exampleName: 'example-1',
+      hideOverriddenHeaders: true,
+    })
+    expect(filtered['accept']).toBeDefined()
+  })
+
+  it('omits default Accept when an optional header parameter is explicitly enabled for the example', () => {
+    const operation: OperationObject = {
+      parameters: [
+        {
+          name: 'Accept',
+          in: 'header',
+          required: false,
+          schema: { type: 'string' },
+          examples: {
+            'example-1': {
+              'x-disabled': false,
+              value: 'application/json',
+            },
+          },
+        },
+      ],
+    }
+
+    const filtered = getDefaultHeaders({
+      method: 'get',
+      operation,
+      exampleName: 'example-1',
+      hideOverriddenHeaders: true,
+    })
+    expect(filtered['accept']).toBeUndefined()
   })
 
   it('filters out disabled headers when hideDisabledHeaders is true', () => {
