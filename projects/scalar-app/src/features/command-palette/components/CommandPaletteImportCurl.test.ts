@@ -559,8 +559,8 @@ describe('CommandPaletteImportCurl', () => {
     await form.vm.$emit('submit')
     await nextTick()
 
-    const emitCall = eventBus.emit.mock.calls.find((call) => call[0] === 'operation:create:operation')
-    const callback = emitCall?.[1]?.callback
+    const emitCall = vi.mocked(mockEventBus.emit).mock.calls.find((call) => call[0] === 'operation:create:operation')
+    const callback = (emitCall?.[1] as any)?.callback
     callback?.(true)
 
     expect(workspaceStore.buildSidebar).toHaveBeenCalledWith('test-doc')
@@ -593,11 +593,11 @@ describe('CommandPaletteImportCurl', () => {
     await form.vm.$emit('submit')
     await nextTick()
 
-    const emitCall = eventBus.emit.mock.calls.find((call) => call[0] === 'operation:create:operation')
-    const callback = emitCall?.[1]?.callback
+    const emitCall = vi.mocked(mockEventBus.emit).mock.calls.find((call) => call[0] === 'operation:create:operation')
+    const callback = (emitCall?.[1] as any)?.callback
     callback?.(true)
 
-    expect(eventBus.emit).toHaveBeenCalledWith('ui:navigate', {
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:navigate', {
       page: 'example',
       documentSlug: 'test-doc',
       path: '/users',
@@ -633,11 +633,11 @@ describe('CommandPaletteImportCurl', () => {
     await form.vm.$emit('submit')
     await nextTick()
 
-    const emitCall = eventBus.emit.mock.calls.find((call) => call[0] === 'operation:create:operation')
-    const callback = emitCall?.[1]?.callback
+    const emitCall = vi.mocked(mockEventBus.emit).mock.calls.find((call) => call[0] === 'operation:create:operation')
+    const callback = (emitCall?.[1] as any)?.callback
     callback?.(true)
 
-    expect(eventBus.emit).toHaveBeenCalledWith(
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
       'ui:navigate',
       expect.objectContaining({
         page: 'example',
@@ -675,12 +675,12 @@ describe('CommandPaletteImportCurl', () => {
     await form.vm.$emit('submit')
     await nextTick()
 
-    const emitCall = eventBus.emit.mock.calls.find((call) => call[0] === 'operation:create:operation')
-    const callback = emitCall?.[1]?.callback
+    const emitCall = vi.mocked(mockEventBus.emit).mock.calls.find((call) => call[0] === 'operation:create:operation')
+    const callback = (emitCall?.[1] as any)?.callback
     callback?.(false)
 
     expect(workspaceStore.buildSidebar).not.toHaveBeenCalled()
-    expect(eventBus.emit).not.toHaveBeenCalledWith('ui:navigate', expect.anything())
+    expect(mockEventBus.emit).not.toHaveBeenCalledWith('ui:navigate', expect.anything())
   })
 
   it('renders submit button with correct text', () => {

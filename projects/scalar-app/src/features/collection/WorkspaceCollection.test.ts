@@ -45,7 +45,7 @@ describe('WorkspaceCollection', () => {
 
     await router.isReady()
 
-    return { wrapper, eventBus }
+    return { wrapper, eventBus: mockEventBus }
   }
 
   describe('workspace title input', () => {

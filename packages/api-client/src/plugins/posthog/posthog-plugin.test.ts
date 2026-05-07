@@ -35,7 +35,7 @@ describe('posthog-plugin', () => {
 
   it('initializes PostHog on onInit', () => {
     const plugin = PostHogClientPlugin(TEST_CONFIG)
-    plugin.lifecycle?.onInit?.()
+    plugin.lifecycle?.onInit?.({ config: {} })
 
     expect(mockPostHogInstance.register).toHaveBeenCalledWith({ product: 'api-client' })
     expect(mockPostHogInstance.opt_in_capturing).toHaveBeenCalled()
@@ -67,7 +67,7 @@ describe('posthog-plugin', () => {
 
   it('captures events via the wildcard handler', () => {
     const plugin = PostHogClientPlugin(TEST_CONFIG)
-    plugin.lifecycle?.onInit?.()
+    plugin.lifecycle?.onInit?.({ config: {} })
 
     const wildcardHandler = plugin.on?.['*']
     expect(wildcardHandler).toBeDefined()
@@ -95,7 +95,7 @@ describe('posthog-plugin', () => {
 
   it('does not capture log: events via the wildcard handler', () => {
     const plugin = PostHogClientPlugin(TEST_CONFIG)
-    plugin.lifecycle?.onInit?.()
+    plugin.lifecycle?.onInit?.({ config: {} })
     mockPostHogInstance.capture.mockClear()
 
     const wildcardHandler = plugin.on?.['*']
@@ -106,11 +106,11 @@ describe('posthog-plugin', () => {
     expect(mockPostHogInstance.capture).not.toHaveBeenCalled()
   })
 
-  it('identifies the user on log:user-login', () => {
+  it('identifies the user on log:user-login via the wildcard handler', () => {
     const plugin = PostHogClientPlugin(TEST_CONFIG)
-    plugin.lifecycle?.onInit?.()
+    plugin.lifecycle?.onInit?.({ config: {} })
 
-    plugin.on?.['log:user-login']?.({ uid: 'u1', email: 'user@example.com', teamUid: 'team1' })
+    plugin.on?.['*']?.('log:user-login' as never, { uid: 'u1', email: 'user@example.com', teamUid: 'team1' } as never)
 
     expect(mockPostHogInstance.identify).toHaveBeenCalledWith('u1', {
       email: 'user@example.com',
@@ -118,19 +118,19 @@ describe('posthog-plugin', () => {
     })
   })
 
-  it('resets PostHog on log:user-logout', () => {
+  it('resets PostHog on log:user-logout via the wildcard handler', () => {
     const plugin = PostHogClientPlugin(TEST_CONFIG)
-    plugin.lifecycle?.onInit?.()
+    plugin.lifecycle?.onInit?.({ config: {} })
 
     mockPostHogInstance.reset.mockClear()
-    plugin.on?.['log:user-logout']?.(undefined)
+    plugin.on?.['*']?.('log:user-logout' as never, undefined as never)
 
     expect(mockPostHogInstance.reset).toHaveBeenCalled()
   })
 
   it('resets PostHog on onDestroy', () => {
     const plugin = PostHogClientPlugin(TEST_CONFIG)
-    plugin.lifecycle?.onInit?.()
+    plugin.lifecycle?.onInit?.({ config: {} })
 
     mockPostHogInstance.reset.mockClear()
     plugin.lifecycle?.onDestroy?.()

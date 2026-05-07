@@ -564,11 +564,13 @@ describe('CommandPaletteDocument', () => {
     await form.vm.$emit('submit')
     await nextTick()
 
-    const emitCall = eventBus.emit.mock.calls.find((call) => call[0] === 'document:create:empty-document')
-    const callback = emitCall?.[1]?.callback
+    const emitCall = vi
+      .mocked(mockEventBus.emit)
+      .mock.calls.find((call) => call[0] === 'document:create:empty-document')
+    const callback = (emitCall?.[1] as any)?.callback
     callback?.(true)
 
-    expect(eventBus.emit).toHaveBeenCalledWith('ui:navigate', {
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:navigate', {
       page: 'document',
       path: 'overview',
       documentSlug: 'My Document',
@@ -594,10 +596,12 @@ describe('CommandPaletteDocument', () => {
     await form.vm.$emit('submit')
     await nextTick()
 
-    const emitCall = eventBus.emit.mock.calls.find((call) => call[0] === 'document:create:empty-document')
-    const callback = emitCall?.[1]?.callback
+    const emitCall = vi
+      .mocked(mockEventBus.emit)
+      .mock.calls.find((call) => call[0] === 'document:create:empty-document')
+    const callback = (emitCall?.[1] as any)?.callback
     callback?.(false)
 
-    expect(eventBus.emit).not.toHaveBeenCalledWith('ui:navigate', expect.anything())
+    expect(mockEventBus.emit).not.toHaveBeenCalledWith('ui:navigate', expect.anything())
   })
 })
