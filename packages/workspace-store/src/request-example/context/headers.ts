@@ -7,6 +7,24 @@ import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/stric
 const DEFAULT_ACCEPT = '*/*'
 
 /**
+ * Drops default header entries that are disabled for this example via
+ * `operation['x-scalar-disable-parameters']['default-headers'][exampleName]`.
+ *
+ * Context builders keep the full default header map for the UI; call this when merging into the
+ * outbound request (for example in `requestFactory`).
+ */
+export const filterDisabledDefaultHeaders = (
+  operation: OperationObject,
+  exampleName: string,
+  headers: Record<string, string>,
+): Record<string, string> => {
+  const disabledHeaders = operation['x-scalar-disable-parameters']?.['default-headers']?.[exampleName] ?? {}
+  return Object.fromEntries(
+    Object.entries(headers).filter(([headerName]) => disabledHeaders[headerName.toLowerCase()] !== true),
+  )
+}
+
+/**
  * Generates a list of default headers for an OpenAPI operation and HTTP method.
  *
  * This function intelligently adds standard HTTP headers based on the request context:
@@ -45,7 +63,6 @@ export const getDefaultHeaders = ({
     isElectron: boolean
   }
 }): Record<string, string> => {
-  const disabledHeaders = operation['x-scalar-disable-parameters']?.['default-headers']?.[exampleName] ?? {}
   const headers = new Headers()
   const requestBody = getResolvedRef(operation.requestBody)
 
@@ -72,12 +89,11 @@ export const getDefaultHeaders = ({
     headers.set('User-Agent', `Scalar/${options.appVersion}`)
   }
 
-  // Filter out disabled headers if requested
+  const asRecord = Object.fromEntries(headers.entries())
+
   if (hideDisabledHeaders) {
-    return Object.fromEntries(
-      Array.from(headers.entries()).filter(([headerName]) => disabledHeaders[headerName.toLowerCase()] !== true),
-    )
+    return filterDisabledDefaultHeaders(operation, exampleName, asRecord)
   }
 
-  return Object.fromEntries(headers.entries())
+  return asRecord
 }
