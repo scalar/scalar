@@ -40,7 +40,6 @@ import type { AsyncApiDocument } from '@/schemas/asyncapi/asyncapi-document'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
-import { coerceValue } from '@/schemas/typebox-coerce'
 import { generateSchema } from '@/schemas/v3.1/openapi'
 import { recursiveRef } from '@/schemas/v3.1/openapi/reference'
 import {
@@ -1573,7 +1572,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           }
 
           const mergedDocument = getNewActiveDocument()
-          const newActiveDocument = coerceValue(OpenAPIDocumentSchemaStrict, mergedDocument)
 
           // Detect whether the rebase folded in any local edits. When the
           // merged result matches the upstream snapshot the pull was
@@ -1583,28 +1581,26 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           // the document as dirty so the push flow can surface them, the
           // same way `git pull --rebase` leaves you "ahead of origin"
           // once your local commits get replayed on top.
-          //
-          // We compare the pre-coerce merged document against upstream
-          // because `coerceValue` normalises the merged result against
-          // the strict schema and that normalisation can introduce diffs
-          // even for pure fast-forwards. The merged document is what the
-          // two-way merge actually produced, so its byte-for-byte equality
-          // with upstream is the real fast-forward signal.
           const hasLocalChangesAgainstUpstream = diff(newDocumentOrigin, mergedDocument).length > 0
 
           // The merged result becomes the new saved baseline so a subsequent
           // revert restores to the post-rebase state, not to the
           // pre-rebase original. Mirror the same content into the
           // deprecated intermediate map so any lingering consumer reads
-          // the post-rebase state too.
-          originalDocuments[name] = newActiveDocument
-          intermediateDocuments[name] = deepClone(newActiveDocument)
+          // the post-rebase state too. We do not coerce against the strict
+          // OpenAPI schema here — `addInMemoryDocument` re-runs the full
+          // ingestion pipeline (which handles AsyncAPI vs OpenAPI separately
+          // and coerces OpenAPI documents internally), and pre-coercing
+          // would inject OpenAPI fields into AsyncAPI documents and break
+          // the document type discriminator.
+          originalDocuments[name] = mergedDocument
+          intermediateDocuments[name] = deepClone(mergedDocument)
 
           // add the new active document to the workspace but don't re-initialize
           await addInMemoryDocument({
             ...input,
             document: {
-              ...newActiveDocument,
+              ...mergedDocument,
               // force regeneration of navigation
               // when we are rebasing, we want to ensure that the navigation is always up to date
               [extensions.document.navigation]: undefined,
