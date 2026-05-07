@@ -1,7 +1,47 @@
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { getDefaultHeaders } from './headers'
+import { filterDisabledDefaultHeaders, getDefaultHeaders } from './headers'
+
+describe('filterDisabledDefaultHeaders', () => {
+  it('removes headers marked disabled for the example', () => {
+    const operation: OperationObject = {
+      'x-scalar-disable-parameters': {
+        'default-headers': {
+          'example-1': {
+            accept: true,
+          },
+        },
+      },
+    }
+
+    const filtered = filterDisabledDefaultHeaders(operation, 'example-1', {
+      Accept: '*/*',
+      'Content-Type': 'application/json',
+    })
+
+    expect(filtered.Accept).toBeUndefined()
+    expect(filtered['Content-Type']).toBe('application/json')
+  })
+
+  it('matches disable keys case-insensitively', () => {
+    const operation: OperationObject = {
+      'x-scalar-disable-parameters': {
+        'default-headers': {
+          default: {
+            accept: true,
+          },
+        },
+      },
+    }
+
+    const filtered = filterDisabledDefaultHeaders(operation, 'default', {
+      accept: 'text/plain',
+    })
+
+    expect(filtered.accept).toBeUndefined()
+  })
+})
 
 describe('getDefaultHeaders', () => {
   it('does not add Content-Type header when contentType is "none"', () => {

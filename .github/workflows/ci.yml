@@ -79,6 +79,7 @@ jobs:
       galaxy_changed: ${{ steps.set-outputs.outputs.galaxy_changed }}
       api_client_changed: ${{ steps.set-outputs.outputs.api_client_changed }}
       api_reference_changed: ${{ steps.set-outputs.outputs.api_reference_changed }}
+      scalar_app_package_changed: ${{ steps.set-outputs.outputs.scalar_app_package_changed }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
@@ -115,6 +116,8 @@ jobs:
               - projects/scalar-app/**
             api_reference_changed:
               - packages/api-reference/**
+            scalar_app_package:
+              - projects/scalar-app/package.json
 
       - name: Check whether integration package.json files were modified
         id: changed-package-files
@@ -159,6 +162,7 @@ jobs:
           echo "galaxy_changed=${{ steps.changed-packages-files.outputs.galaxy_changed_any_changed }}" >> $GITHUB_OUTPUT
           echo "api_client_changed=${{ steps.changed-packages-files.outputs.api_client_changed_any_changed }}" >> $GITHUB_OUTPUT
           echo "api_reference_changed=${{ steps.changed-packages-files.outputs.api_reference_changed_any_changed }}" >> $GITHUB_OUTPUT
+          echo "scalar_app_package_changed=${{ steps.changed-packages-files.outputs.scalar_app_package_any_changed }}" >> $GITHUB_OUTPUT
 
   format:
     if: github.event_name == 'pull_request'
@@ -865,6 +869,42 @@ jobs:
       pr-number: ${{ github.event.pull_request.number }}
       sha: ${{ github.event.pull_request.head.sha || github.sha }}
     secrets: inherit
+
+  todesktop-build:
+    if: |
+      github.ref == 'refs/heads/main' &&
+      startsWith(github.event.head_commit.message, 'RELEASING:') &&
+      needs.check-changes.outputs.scalar_app_package_changed == 'true'
+    needs: [required-jobs-main, build, check-changes]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 15
+    environment: production
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Build workspace deps
+        uses: ./.github/actions/build
+        with:
+          packages: 'scalar-app...'
+        env:
+          VITE_DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
+          VITE_API_URL: ${{ vars.API_URL }}
+          VITE_SERVICES_URL: ${{ vars.SERVICES_URL }}
+      - name: Check ToDesktop credentials
+        env:
+          TODESKTOP_EMAIL: ${{ vars.TODESKTOP_EMAIL || secrets.TODESKTOP_EMAIL }}
+          TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
+        run: |
+          if [ -z "${TODESKTOP_EMAIL}" ] || [ -z "${TODESKTOP_ACCESS_TOKEN}" ]; then
+            echo "Missing required ToDesktop credentials (TODESKTOP_EMAIL and TODESKTOP_ACCESS_TOKEN)." >&2
+            exit 1
+          fi
+      - name: Send build to ToDesktop cloud
+        run: pnpm --filter scalar-app todesktop:build:ci
+        env:
+          TODESKTOP_EMAIL: ${{ vars.TODESKTOP_EMAIL || secrets.TODESKTOP_EMAIL }}
+          TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
 
   galaxy-registry-preview:
     # Only run for PRs from the same repository

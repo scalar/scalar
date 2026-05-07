@@ -14,6 +14,7 @@ import {
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
 import type { RequestExampleMeta } from '@/request-example/types'
 
+import { filterDisabledDefaultHeaders } from '../context/headers'
 import { type RequestBody, buildRequestBody } from './body/build-request-body'
 import { buildRequestParameters } from './header/build-request-parameters'
 
@@ -236,7 +237,10 @@ export const requestFactory = ({
   const params = buildRequestParameters(operation.parameters ?? [], exampleName)
   const security = buildRequestSecurity(selectedSecuritySchemes)
 
-  const headers = new Headers({ ...defaultHeaders, ...params.headers })
+  const headers = new Headers({
+    ...filterDisabledDefaultHeaders(operation, exampleName, defaultHeaders),
+    ...params.headers,
+  })
 
   // If the method can have a body, build the request body, otherwise set it to null
   const body = canMethodHaveBody(method)

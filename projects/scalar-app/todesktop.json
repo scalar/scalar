@@ -6,7 +6,7 @@
   "nodeVersion": "24",
   "packageManager": "pnpm",
   "pnpmVersion": "10.16.1",
-  "uploadSizeLimit": 50,
+  "uploadSizeLimit": 100,
   "bundleWorkspacePackages": {
     "enabled": true
   },
@@ -14,7 +14,7 @@
     "extends": "package.json",
     "productName": "Scalar",
     "author": {
-      "name": "Scalar (https://github.com/scalar)",
+      "name": "Scalar <support@scalar.com> (https://github.com/scalar)",
       "email": "support@scalar.com",
       "url": "https://scalar.com"
     },

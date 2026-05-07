@@ -1,5 +1,5 @@
 import { autoUpdate, flip, shift, useFloating } from '@floating-ui/vue'
-import { computed, ref, unref, watch } from 'vue'
+import { computed, onScopeDispose, ref, unref, watch } from 'vue'
 
 import { DEFAULT_DELAY, DEFAULT_OFFSET, ELEMENT_CLASS, ELEMENT_ID } from './constants'
 import type { Timer, TooltipConfiguration } from './types'
@@ -265,4 +265,23 @@ export function useTooltip(opts: TooltipConfiguration) {
     },
     { immediate: true },
   )
+
+  // Cleanup the tooltip when the component is unmounted
+  onScopeDispose(() => {
+    clearTimer()
+
+    const target = unref(opts.targetRef)
+    if (target) {
+      target.removeEventListener('mouseenter', showTooltipAfterDelay)
+      target.removeEventListener('mouseleave', hideTooltip)
+      target.removeEventListener('focus', showTooltip)
+      target.removeEventListener('blur', hideTooltip)
+      target.removeAttribute('aria-describedby')
+    }
+
+    // If the tooltip is showing on this target hide it
+    if (unref(config.value?.targetRef) === unref(opts.targetRef)) {
+      config.value = undefined
+    }
+  })
 }

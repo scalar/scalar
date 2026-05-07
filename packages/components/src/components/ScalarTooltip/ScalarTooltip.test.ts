@@ -150,4 +150,34 @@ describe('ScalarTooltip', () => {
     expect(tooltip?.style.display).toBe('block')
     expect(tooltip?.textContent).toBe('Tooltip Content')
   })
+
+  it('hides the tooltip when the component unmounts while the tooltip is open', async () => {
+    const wrapper = mount(ScalarTooltip, {
+      props: {
+        content: 'Tooltip Content',
+        delay: 0,
+      },
+      slots: {
+        default: '<button type="button">Hover me</button>',
+      },
+    })
+
+    await nextTick()
+
+    await wrapper.find('button').trigger('mouseenter')
+    await vi.runAllTimers()
+    await nextTick()
+
+    const tooltip = document.getElementById(ELEMENT_ID)
+    expect(tooltip?.style.display).toBe('block')
+
+    wrapper.unmount()
+    await nextTick()
+
+    const tooltipAfterUnmount = document.getElementById(ELEMENT_ID)
+    expect(
+      tooltipAfterUnmount?.style.display,
+      'global tooltip portal must be hidden when the ScalarTooltip instance is torn down',
+    ).toBe('none')
+  })
 })
