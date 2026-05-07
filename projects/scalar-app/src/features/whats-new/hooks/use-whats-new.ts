@@ -87,7 +87,7 @@ type UseWhatsNewOptions = {
 /**
  * Composable that powers the "What's new" entry point on the Get Started
  * page. The release-notes content is bundled with the package via
- * `RELEASE_NOTES.md` (parsed at module load) so the modal works fully
+ * `RELEASE_NOTES.json` (imported at build time) so the modal works fully
  * offline and stays in sync with the installed version - no network
  * fetch, no CDN, no cache to keep fresh.
  */

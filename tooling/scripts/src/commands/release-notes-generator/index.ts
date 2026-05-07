@@ -6,7 +6,8 @@ import { Command } from 'commander'
 import { extractChangelogSection } from './extract-changelog-section'
 import { extractPullRequestNumbers, fetchPullRequests } from './fetch-pull-requests'
 import { type DependencyChangelog, generateReleaseNote } from './generate-release-note'
-import { writeReleaseNote } from './write-release-notes'
+import { writeReleaseNoteJson } from './write-release-notes-json'
+import { writeReleaseNotesMarkdown } from './write-release-notes-markdown'
 
 /**
  * Resolve a user-provided path against the directory the user actually
@@ -117,6 +118,7 @@ type CommandOptions = {
   package: string
   changelog: string
   output: string
+  markdown?: string
   version?: string
   dependencyChangelog: string[]
   date?: string
@@ -125,10 +127,19 @@ type CommandOptions = {
 }
 
 export const releaseNotesGenerator = new Command('release-notes-generator')
-  .description('Generate AI-written release notes from a CHANGELOG and append them to the package RELEASE_NOTES.md.')
+  .description(
+    'Generate AI-written release notes from a CHANGELOG and append them to the package RELEASE_NOTES.json (the source of truth for the in-app "What\'s new" modal). Optionally regenerates a derived RELEASE_NOTES.md alongside it.',
+  )
   .requiredOption('-p, --package <name>', 'NPM package name (e.g. scalar-app)')
   .requiredOption('-c, --changelog <path>', 'Path to the package CHANGELOG.md')
-  .requiredOption('-o, --output <path>', 'Path to the package RELEASE_NOTES.md to update')
+  .requiredOption(
+    '-o, --output <path>',
+    'Path to the package RELEASE_NOTES.json to update. This is the source of truth that the in-app "What\'s new" modal imports directly.',
+  )
+  .option(
+    '-m, --markdown <path>',
+    'Optional path to a derived RELEASE_NOTES.md to regenerate from the JSON in the same run. Edits made to this file will be overwritten on the next release.',
+  )
   .option(
     '-v, --version <semver>',
     'Version that was just released. Defaults to the version in the package.json next to --changelog.',
@@ -154,6 +165,7 @@ export const releaseNotesGenerator = new Command('release-notes-generator')
 
     const changelogPath = resolveUserPath(options.changelog)
     const outputPath = resolveUserPath(options.output)
+    const markdownPath = options.markdown ? resolveUserPath(options.markdown) : null
 
     const version = options.version ?? (await readPackageJsonNextToChangelog(changelogPath)).version
     if (!version) {
@@ -230,6 +242,14 @@ export const releaseNotesGenerator = new Command('release-notes-generator')
       return
     }
 
-    const result = await writeReleaseNote({ path: outputPath, note })
-    console.log(`${result.created ? 'Created' : 'Updated'} ${result.path}`)
+    const jsonResult = await writeReleaseNoteJson({ path: outputPath, note })
+    console.log(`${jsonResult.created ? 'Created' : 'Updated'} ${jsonResult.path}`)
+
+    if (markdownPath) {
+      // Re-emit the human-friendly view from the same merged-and-sorted
+      // entries so the markdown file always matches the source-of-truth
+      // JSON byte-for-byte (no double-merge, no re-sort drift).
+      const markdownResult = await writeReleaseNotesMarkdown({ path: markdownPath, entries: jsonResult.entries })
+      console.log(`${markdownResult.created ? 'Created' : 'Updated'} ${markdownResult.path}`)
+    }
   })

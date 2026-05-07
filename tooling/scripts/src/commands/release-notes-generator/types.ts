@@ -4,7 +4,7 @@ import { z } from 'zod'
  * Mirror of the `ReleaseNote` type used by the Scalar app's "What's new"
  * modal. Kept as a Zod schema so we can validate the AI-generated payload
  * before it ever leaves CI - a malformed entry would otherwise break the
- * runtime parser.
+ * bundled release-notes JSON consumed by the app.
  *
  * Keep this in sync with
  * `projects/scalar-app/src/features/whats-new/types.ts`.
