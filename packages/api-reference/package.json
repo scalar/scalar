@@ -99,6 +99,10 @@
     "!dist/webpack-stats.json",
     "CHANGELOG.md"
   ],
+  "sideEffects": [
+    "**/*.css",
+    "./dist/browser/**"
+  ],
   "browser": "./dist/browser/standalone.js",
   "esm.sh": {
     "bundle": true
