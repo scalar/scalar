@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
+import { ScalarIcon } from '@scalar/components/scalar-icon'
+import { ScalarMarkdown } from '@scalar/components/scalar-markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   DiscriminatorObject,

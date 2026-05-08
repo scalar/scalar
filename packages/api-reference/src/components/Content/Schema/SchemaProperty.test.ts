@@ -1,4 +1,4 @@
-import { ScalarListbox } from '@scalar/components'
+import { ScalarListbox } from '@scalar/components/scalar-listbox'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'

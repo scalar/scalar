@@ -2,8 +2,8 @@
 import {
   ScalarDropdown,
   ScalarDropdownItem,
-  useModal,
-} from '@scalar/components'
+} from '@scalar/components/scalar-dropdown'
+import { useModal } from '@scalar/components/scalar-modal'
 import { ScalarIconMagnifyingGlass, ScalarIconUpload } from '@scalar/icons'
 
 import Catalog from '@/views/Catalog/Catalog.vue'

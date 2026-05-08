@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { ScalarSidebar, ScalarSidebarItems } from '@scalar/components'
+import {
+  ScalarSidebar,
+  ScalarSidebarItems,
+} from '@scalar/components/scalar-sidebar'
 
 import { filterItems } from '@/helpers/filter-items'
 import type {

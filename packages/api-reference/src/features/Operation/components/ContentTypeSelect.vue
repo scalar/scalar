@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { cva, ScalarButton, ScalarListbox } from '@scalar/components'
+import { ScalarButton } from '@scalar/components/scalar-button'
+import { ScalarListbox } from '@scalar/components/scalar-listbox'
 import { ScalarIconCaretDown } from '@scalar/icons'
+import { cva } from '@scalar/use-hooks/useBindCx'
 import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 

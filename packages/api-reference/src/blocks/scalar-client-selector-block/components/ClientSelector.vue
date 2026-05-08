@@ -4,7 +4,8 @@ import {
   DEFAULT_CLIENT,
   type ClientOptionGroup,
 } from '@scalar/api-client/blocks/operation-code-sample'
-import { ScalarCodeBlock, ScalarMarkdown } from '@scalar/components'
+import { ScalarCodeBlock } from '@scalar/components/scalar-code-block'
+import { ScalarMarkdown } from '@scalar/components/scalar-markdown'
 import type { AvailableClient } from '@scalar/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarSdkInstallation } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-sdk-installation'

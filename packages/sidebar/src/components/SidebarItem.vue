@@ -3,7 +3,7 @@ import {
   ScalarSidebarGroup,
   ScalarSidebarItem,
   ScalarSidebarSection,
-} from '@scalar/components'
+} from '@scalar/components/scalar-sidebar'
 import { LibraryIcon } from '@scalar/icons/library'
 import { computed } from 'vue'
 

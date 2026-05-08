@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { ScalarMarkdown, ScalarWrappingText } from '@scalar/components'
+import { ScalarMarkdown } from '@scalar/components/scalar-markdown'
+import { ScalarWrappingText } from '@scalar/components/scalar-wrapping-text'
 
 defineProps<{
   label: string

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ScalarCodeBlock } from '@scalar/components'
+import { ScalarCodeBlock } from '@scalar/components/scalar-code-block'
 
 const props = defineProps<{
   content: any

@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import {
-  ScalarIconButton,
-  ScalarSidebarSearchButton,
-  useModal,
-} from '@scalar/components'
+import { ScalarIconButton } from '@scalar/components/scalar-icon-button'
+import { useModal } from '@scalar/components/scalar-modal'
+import { ScalarSidebarSearchButton } from '@scalar/components/scalar-sidebar'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'

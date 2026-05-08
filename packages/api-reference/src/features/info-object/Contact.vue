@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { cva } from '@scalar/components'
 import { ScalarIconEnvelopeSimple } from '@scalar/icons'
+import { cva } from '@scalar/use-hooks/useBindCx'
 import type { ContactObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 const variants = cva({
