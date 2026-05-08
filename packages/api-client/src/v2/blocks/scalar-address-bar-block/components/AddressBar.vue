@@ -106,6 +106,7 @@ const emit = defineEmits<{
 
 const id = useId()
 const sendButtonRef = useTemplateRef('sendButtonRef')
+const mobileSendButtonRef = useTemplateRef('mobileSendButtonRef')
 const addressBarRef = useTemplateRef('addressBarRef')
 
 const { percentage, startLoading, stopLoading, isLoading } =
@@ -155,7 +156,17 @@ watch(uniqueKey, () => {
 // Focus helpers
 // ───────────────────────────────────────────────────────────────────
 
-const handleFocusSendButton = (): void => sendButtonRef.value?.$el?.focus()
+const handleFocusSendButton = (): void => {
+  const desktop = sendButtonRef.value?.$el
+  const mobile = mobileSendButtonRef.value?.$el
+
+  // Focus whichever send button is currently visible
+  if (desktop && desktop.offsetParent !== null) {
+    desktop.focus()
+  } else {
+    mobile?.focus()
+  }
+}
 
 const handleFocusAddressBar = (
   payload: ApiReferenceEvents['ui:focus:address-bar'],
@@ -566,7 +577,9 @@ defineExpose({
         <span class="sr-only">Copy URL</span>
       </ScalarButton>
       <ScalarButton
+        ref="mobileSendButtonRef"
         class="relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
+        data-addressbar-action="send"
         :disabled="isLoading"
         @click="emit('execute')">
         <span
