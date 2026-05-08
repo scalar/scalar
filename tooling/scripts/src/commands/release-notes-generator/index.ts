@@ -1,11 +1,12 @@
 import { readFile } from 'node:fs/promises'
-import { dirname, resolve } from 'node:path'
+import { dirname } from 'node:path'
 
 import { Command } from 'commander'
 
 import { extractChangelogSection } from './extract-changelog-section'
 import { extractPullRequestNumbers, fetchPullRequests } from './fetch-pull-requests'
 import { type DependencyChangelog, generateReleaseNote } from './generate-release-note'
+import { resolveUserPath } from './resolve-user-path'
 import { writeReleaseNoteJson } from './write-release-notes-json'
 import { writeReleaseNotesMarkdown } from './write-release-notes-markdown'
 import { writeReleaseNotesJsonSchema } from './write-release-notes-schema'
@@ -20,21 +21,6 @@ import { writeReleaseNotesJsonSchema } from './write-release-notes-schema'
  */
 const deriveSchemaPath = (jsonPath: string): string => {
   return jsonPath.endsWith('.json') ? `${jsonPath.slice(0, -'.json'.length)}.schema.json` : `${jsonPath}.schema.json`
-}
-
-/**
- * Resolve a user-provided path against the directory the user actually
- * ran the command from.
- *
- * `pnpm --filter <pkg> start ...` chdirs into the package directory
- * before running the script, which means `process.cwd()` is
- * `tooling/scripts`, not the repo root. pnpm exposes the original
- * directory through `INIT_CWD` for exactly this reason, so we resolve
- * relative paths against it when available and fall back to
- * `process.cwd()` otherwise.
- */
-const resolveUserPath = (input: string): string => {
-  return resolve(process.env.INIT_CWD ?? process.cwd(), input)
 }
 
 /**

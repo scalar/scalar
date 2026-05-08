@@ -6,6 +6,65 @@ import { compareVersions } from '@scalar/helpers/general/compare-versions'
 import { type ReleaseNote, releaseNoteSchema } from './types'
 
 /**
+ * Validate each element of a parsed JSON array as a release note. Malformed
+ * entries log a warning and are skipped (same behaviour as the generator when
+ * merging into existing JSON).
+ */
+const parseReleaseNoteEntries = (parsed: readonly unknown[], pathForLogs: string): ReleaseNote[] => {
+  const valid: ReleaseNote[] = []
+  for (const candidate of parsed) {
+    const result = releaseNoteSchema.safeParse(candidate)
+    if (result.success) {
+      valid.push(result.data)
+      continue
+    }
+    const version =
+      typeof candidate === 'object' && candidate !== null && 'version' in candidate ? String(candidate.version) : '?'
+    console.warn(`Skipping malformed entry for version ${version} in ${pathForLogs}: ${result.error.message}`)
+  }
+  return valid
+}
+
+/**
+ * Read `RELEASE_NOTES.json` from disk, require a JSON array root, and return
+ * every entry that passes `releaseNoteSchema`. Used when the markdown mirror
+ * must be refreshed from hand-edited JSON without running the AI generator.
+ *
+ * @throws When the file is missing, JSON is invalid, the root is not an array,
+ * or every array element fails validation.
+ */
+export const readReleaseNotesJsonFile = async (path: string): Promise<ReleaseNote[]> => {
+  let raw: string
+  try {
+    raw = await readFile(path, 'utf-8')
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      throw new Error(`Release notes JSON not found: ${path}`)
+    }
+    throw error
+  }
+
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(raw)
+  } catch (error) {
+    throw new Error(`Could not parse ${path} as JSON: ${(error as Error).message}`)
+  }
+
+  if (!Array.isArray(parsed)) {
+    throw new Error(`Expected ${path} to contain a JSON array of release notes.`)
+  }
+
+  const valid = parseReleaseNoteEntries(parsed, path)
+  if (parsed.length > 0 && valid.length === 0) {
+    throw new Error(
+      `No valid release note entries in ${path} (all ${String(parsed.length)} entries failed validation).`,
+    )
+  }
+  return valid
+}
+
+/**
  * Total order for release notes: higher semver first (`compareVersions`);
  * when versions compare equal, newer `date` first (ISO `YYYY-MM-DD`
  * strings sort lexicographically by calendar day).
@@ -153,16 +212,5 @@ const readJsonIfExists = async (path: string): Promise<ReleaseNote[] | null> => 
     return []
   }
 
-  const valid: ReleaseNote[] = []
-  for (const candidate of parsed) {
-    const result = releaseNoteSchema.safeParse(candidate)
-    if (result.success) {
-      valid.push(result.data)
-      continue
-    }
-    const version =
-      typeof candidate === 'object' && candidate !== null && 'version' in candidate ? String(candidate.version) : '?'
-    console.warn(`Skipping malformed entry for version ${version} in ${path}: ${result.error.message}`)
-  }
-  return valid
+  return parseReleaseNoteEntries(parsed, path)
 }
