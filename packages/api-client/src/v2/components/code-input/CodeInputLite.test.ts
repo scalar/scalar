@@ -338,4 +338,244 @@ describe('CodeInputLite', () => {
     const pill = wrapper.find('.scalar-pill').element as HTMLElement
     expect(pill.getAttribute('aria-describedby')).toBeNull()
   })
+
+  describe('select-mode dispatch', () => {
+    it('renders DataTableInputSelect when an enum is provided and forwards the values', () => {
+      const wrapper = mountInput({
+        modelValue: 'a',
+        enum: ['a', 'b', 'c'],
+      })
+      const select = wrapper.findComponent({ name: 'DataTableInputSelect' })
+      expect(select.exists()).toBe(true)
+      expect(select.props('value')).toEqual(['a', 'b', 'c'])
+      expect(wrapper.find('input').exists()).toBe(false)
+    })
+
+    it('forwards the schema type as the select type when an enum is provided', () => {
+      const wrapper = mountInput({
+        modelValue: '1',
+        enum: ['1', '2', '3'],
+        type: 'integer',
+      })
+      const select = wrapper.findComponent({ name: 'DataTableInputSelect' })
+      expect(select.props('type')).toBe('integer')
+    })
+
+    it('picks the first non-null type for tuple schema types in enum mode', () => {
+      const wrapper = mountInput({
+        modelValue: 'x',
+        enum: ['x', 'y'],
+        type: ['null', 'string'],
+      })
+      const select = wrapper.findComponent({ name: 'DataTableInputSelect' })
+      expect(select.props('type')).toBe('string')
+    })
+
+    it('renders a boolean select with true/false when type is boolean', () => {
+      const wrapper = mountInput({
+        modelValue: 'true',
+        type: 'boolean',
+      })
+      const select = wrapper.findComponent({ name: 'DataTableInputSelect' })
+      expect(select.exists()).toBe(true)
+      expect(select.props('value')).toEqual(['true', 'false'])
+    })
+
+    it('includes null in the boolean select when nullable is true', () => {
+      const wrapper = mountInput({
+        modelValue: 'null',
+        type: 'boolean',
+        nullable: true,
+      })
+      const select = wrapper.findComponent({ name: 'DataTableInputSelect' })
+      expect(select.props('value')).toEqual(['true', 'false', 'null'])
+    })
+
+    it('renders a boolean select when type is a tuple containing boolean', () => {
+      const wrapper = mountInput({
+        modelValue: 'false',
+        type: ['boolean', 'string'],
+      })
+      const select = wrapper.findComponent({ name: 'DataTableInputSelect' })
+      expect(select.exists()).toBe(true)
+      expect(select.props('value')).toEqual(['true', 'false'])
+    })
+
+    it('prefers enum over boolean when both are set', () => {
+      const wrapper = mountInput({
+        modelValue: 'a',
+        type: 'boolean',
+        enum: ['a', 'b'],
+      })
+      const select = wrapper.findComponent({ name: 'DataTableInputSelect' })
+      // Enum wins — value array is the enum, not true/false
+      expect(select.props('value')).toEqual(['a', 'b'])
+    })
+
+    it('renders an examples select when examples are provided and no enum/boolean apply', () => {
+      const wrapper = mountInput({
+        modelValue: 'foo',
+        examples: ['foo', 'bar', 'baz'],
+      })
+      const select = wrapper.findComponent({ name: 'DataTableInputSelect' })
+      expect(select.exists()).toBe(true)
+      expect(select.props('value')).toEqual(['foo', 'bar', 'baz'])
+    })
+
+    it('forwards the default prop into the select', () => {
+      const wrapper = mountInput({
+        modelValue: 'a',
+        enum: ['a', 'b'],
+        default: 'b',
+      })
+      const select = wrapper.findComponent({ name: 'DataTableInputSelect' })
+      expect(select.props('default')).toBe('b')
+    })
+
+    it('emits update:modelValue when the select reports a change', async () => {
+      const wrapper = mountInput({
+        modelValue: 'true',
+        type: 'boolean',
+      })
+      const select = wrapper.findComponent({ name: 'DataTableInputSelect' })
+      await select.vm.$emit('update:modelValue', 'false')
+      const events = wrapper.emitted('update:modelValue')
+      expect(events?.at(-1)).toEqual(['false'])
+    })
+
+    it('falls back to the input editor when no select-mode props are set', () => {
+      const wrapper = mountInput({
+        modelValue: 'plain text',
+      })
+      expect(wrapper.findComponent({ name: 'DataTableInputSelect' }).exists()).toBe(false)
+      expect(wrapper.find('input').exists()).toBe(true)
+    })
+
+    it('does not render a select when the enum array is empty', () => {
+      const wrapper = mountInput({
+        modelValue: 'plain',
+        enum: [],
+      })
+      expect(wrapper.findComponent({ name: 'DataTableInputSelect' }).exists()).toBe(false)
+      expect(wrapper.find('input').exists()).toBe(true)
+    })
+
+    it('does not render a select when the examples array is empty', () => {
+      const wrapper = mountInput({
+        modelValue: 'plain',
+        examples: [],
+      })
+      expect(wrapper.findComponent({ name: 'DataTableInputSelect' }).exists()).toBe(false)
+      expect(wrapper.find('input').exists()).toBe(true)
+    })
+  })
+
+  describe('readOnly', () => {
+    it('applies the native readonly attribute when readOnly is true', () => {
+      const wrapper = mountInput({ modelValue: 'hello', readOnly: true })
+      const input = wrapper.get('input').element as HTMLInputElement
+      expect(input.readOnly).toBe(true)
+    })
+
+    it('does not set readonly by default', () => {
+      const wrapper = mountInput({ modelValue: 'hello' })
+      const input = wrapper.get('input').element as HTMLInputElement
+      expect(input.readOnly).toBe(false)
+    })
+
+    it('skips the backspace `}}` shortcut so it does not bypass readonly', () => {
+      const wrapper = mountInput({ modelValue: '{{baseUrl}}', readOnly: true })
+      const input = wrapper.get('input').element as HTMLInputElement
+      input.value = '{{baseUrl}}'
+      input.setSelectionRange(input.value.length, input.value.length)
+
+      const event = new KeyboardEvent('keydown', { key: 'Backspace', cancelable: true })
+      input.dispatchEvent(event)
+
+      // Our handler bails before preventDefault so the browser's readonly
+      // semantics are preserved
+      expect(event.defaultPrevented).toBe(false)
+      expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    })
+  })
+
+  describe('linethrough', () => {
+    it('applies a strike-through class to the disabled label when set', () => {
+      const wrapper = mountInput({
+        modelValue: 'overridden',
+        disabled: true,
+        linethrough: true,
+      })
+      const label = wrapper.find('[data-testid="code-input-lite-disabled"]')
+      expect(label.classes()).toContain('line-through')
+    })
+
+    it('applies a strike-through class to the editor wrapper when set', () => {
+      const wrapper = mountInput({
+        modelValue: 'overridden',
+        linethrough: true,
+      })
+      expect(wrapper.find('.code-input-lite').classes()).toContain('line-through')
+    })
+  })
+
+  describe('serialization for non-string model values', () => {
+    it('renders a number model value as its string form in the input', async () => {
+      const wrapper = mountInput({ modelValue: 42 as unknown as string })
+      await nextTick()
+      const input = wrapper.get('input').element as HTMLInputElement
+      expect(input.value).toBe('42')
+    })
+
+    it('renders a boolean model value as its string form in the input', async () => {
+      const wrapper = mountInput({ modelValue: true as unknown as string })
+      await nextTick()
+      const input = wrapper.get('input').element as HTMLInputElement
+      expect(input.value).toBe('true')
+    })
+
+    it('JSON-stringifies array model values', async () => {
+      const wrapper = mountInput({ modelValue: ['a', 'b'] as unknown as string })
+      await nextTick()
+      const input = wrapper.get('input').element as HTMLInputElement
+      expect(input.value).toBe('["a","b"]')
+    })
+
+    it('renders nullish model values as an empty string', async () => {
+      const wrapper = mountInput({ modelValue: null as unknown as string })
+      await nextTick()
+      const input = wrapper.get('input').element as HTMLInputElement
+      expect(input.value).toBe('')
+    })
+  })
+
+  describe('slots', () => {
+    it('renders the icon slot inside the editor wrapper', () => {
+      const wrapper = mount(CodeInputLite, {
+        attachTo: document.body,
+        props: {
+          modelValue: 'hello',
+          environment: env,
+        } as InstanceType<typeof CodeInputLite>['$props'],
+        slots: {
+          icon: '<button data-testid="trash" type="button">×</button>',
+        },
+      })
+      expect(wrapper.find('[data-testid="trash"]').exists()).toBe(true)
+    })
+
+    it('renders the warning slot inside the editor wrapper', () => {
+      const wrapper = mount(CodeInputLite, {
+        attachTo: document.body,
+        props: {
+          modelValue: 'hello',
+          environment: env,
+        } as InstanceType<typeof CodeInputLite>['$props'],
+        slots: {
+          warning: '<span data-testid="warn">!</span>',
+        },
+      })
+      expect(wrapper.find('[data-testid="warn"]').exists()).toBe(true)
+    })
+  })
 })

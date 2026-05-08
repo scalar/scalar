@@ -5,7 +5,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import { computed, ref, useTemplateRef } from 'vue'
 
 import type { VueClassProp } from '@/types/vue'
-import { CodeInput } from '@/v2/components/code-input'
+import { CodeInputLite } from '@/v2/components/code-input'
 
 import DataTableCell from './DataTableCell.vue'
 import DataTableInputSelect from './DataTableInputSelect.vue'
@@ -102,7 +102,7 @@ const handleLabelClick = () => {
               ($event.target as HTMLInputElement).value ?? '',
             )
           " />
-        <CodeInput
+        <CodeInputLite
           v-else
           v-bind="$attrs"
           :id="id"
@@ -113,17 +113,10 @@ const handleLabelClick = () => {
             description && 'pr-8',
             type === 'password' && 'scalar-password-input',
           ]"
-          :description="description"
-          disableCloseBrackets
-          disableTabIndent
           :environment="environment"
-          :lineWrapping="Boolean(lineWrapping)"
-          :max="max"
-          :min="min"
           :modelValue="modelValue ?? ''"
           :readOnly="readOnly"
           :required="Boolean(required)"
-          spellcheck="false"
           :type="inputType"
           :withFakeData="withFakeData"
           @blur="handleBlur"

@@ -44,18 +44,22 @@ import {
   type App,
 } from 'vue'
 
+import DataTableInputSelect from '@/v2/components/data-table/DataTableInputSelect.vue'
 import EnvironmentVariableDropdown from '@/v2/features/environments/components/EnvironmentVariablesDropdown.vue'
 import type { ClientLayout } from '@/v2/types/layout'
 
+import type { CodeInputModelValue } from './CodeInput.vue'
 import type { PillContext } from './pill-context'
 import PillTooltipHost from './PillTooltipHost.vue'
 
 type Props = {
-  modelValue: string
+  modelValue: CodeInputModelValue
   /** Environment for variable substitution. Pass undefined to disable env vars */
   environment: XScalarEnvironment | undefined
   /** Render as a non-interactive read-only label */
   disabled?: boolean
+  /** Render the input with the native `readonly` attribute (still focusable, no edits) */
+  readOnly?: boolean
   /** Show error styling */
   error?: boolean
   /** Layout context affects styling and dropdown visibility */
@@ -74,12 +78,25 @@ type Props = {
   withFakeData?: boolean
   /** Always emit change events even if the value is unchanged */
   alwaysEmitChange?: boolean
+  /** Strike-through styling for the input text (e.g. overridden values) */
+  linethrough?: boolean
+  /** Schema type — drives boolean select mode when `boolean` is included */
+  type?: string | string[]
+  /** Predefined enum values; when set the input is replaced by a select */
+  enum?: string[]
+  /** Example values; when set (and no enum/boolean) the input is replaced by a select */
+  examples?: string[]
+  /** Default value to suggest in select modes */
+  default?: CodeInputModelValue
+  /** Whether the boolean select includes a `null` option */
+  nullable?: boolean
 }
 
 const {
   modelValue,
   environment,
   disabled = false,
+  readOnly = false,
   error = false,
   layout = 'desktop',
   placeholder,
@@ -89,6 +106,12 @@ const {
   alwaysEmitChange = false,
   withVariables = true,
   withFakeData = false,
+  linethrough = false,
+  type,
+  enum: enumProp,
+  examples,
+  default: defaultProp,
+  nullable = false,
 } = defineProps<Props>()
 
 const emit = defineEmits<{
@@ -109,6 +132,44 @@ const dropdownRef = ref<InstanceType<
 > | null>(null)
 
 const isFocused = ref(false)
+
+// ───────────────────────────────────────────────────────────────────
+// Rendering-mode detection (parity with CodeInput's select dispatch)
+// ───────────────────────────────────────────────────────────────────
+
+/** Convert any incoming model value to a string for the input element. */
+const serializeValue = (value: CodeInputModelValue): string => {
+  if (typeof value === 'string') {
+    return value
+  }
+  if (value == null) {
+    return ''
+  }
+  return JSON.stringify(value)
+}
+
+/** True when the schema type is exactly `boolean` (or includes it in a tuple type). */
+const isBooleanMode = computed((): boolean => {
+  if (enumProp?.length) {
+    return false
+  }
+  return type === 'boolean' || (Array.isArray(type) && type.includes('boolean'))
+})
+
+const booleanOptions = computed((): string[] =>
+  nullable ? ['true', 'false', 'null'] : ['true', 'false'],
+)
+
+/** Default type when the schema is a tuple — picks the first non-null entry. */
+const defaultType = computed((): string | undefined => {
+  if (Array.isArray(type)) {
+    return type.find((t) => t !== 'null') ?? 'string'
+  }
+  return type
+})
+
+const handleSelectChange = (value: string): void =>
+  emit('update:modelValue', value)
 
 // ───────────────────────────────────────────────────────────────────
 // Pill rendering
@@ -293,7 +354,7 @@ const ensureTooltipsActive = (): void => {
 
 watch(
   [() => modelValue, () => environment, () => withVariables],
-  () => renderOverlay(modelValue ?? ''),
+  () => renderOverlay(serializeValue(modelValue)),
   { immediate: true, flush: 'post' },
 )
 
@@ -310,7 +371,7 @@ const syncScroll = (): void => {
 // ───────────────────────────────────────────────────────────────────
 
 const emitChange = (value: string): void => {
-  if (!alwaysEmitChange && value === modelValue) {
+  if (!alwaysEmitChange && value === serializeValue(modelValue)) {
     updateDropdownVisibility()
     return
   }
@@ -420,7 +481,7 @@ const updateDropdownVisibility = (): void => {
 }
 
 const handleDropdownSelect = (item: string): void => {
-  if (!inputRef.value) {
+  if (!inputRef.value || readOnly) {
     return
   }
 
@@ -479,8 +540,9 @@ const handleKeyDown = (event: KeyboardEvent): void => {
     return
   }
 
-  // Backspace deletes a `}}` pair as a unit so it mirrors the matching `{{`
-  if (event.key === 'Backspace' && inputRef.value) {
+  // Backspace deletes a `}}` pair as a unit so it mirrors the matching `{{`.
+  // Skip when the input is readonly so we never bypass the native attribute.
+  if (event.key === 'Backspace' && !readOnly && inputRef.value) {
     const input = inputRef.value
     const start = input.selectionStart ?? 0
     const end = input.selectionEnd ?? 0
@@ -503,17 +565,19 @@ const handleKeyDown = (event: KeyboardEvent): void => {
 // internal mutations (backspace deletion, dropdown insertion, etc.). Instead
 // we set the initial value on mount and reflect later prop changes via watch.
 onMounted(() => {
-  if (inputRef.value && inputRef.value.value !== (modelValue ?? '')) {
-    inputRef.value.value = modelValue ?? ''
-    renderOverlay(modelValue ?? '')
+  const initial = serializeValue(modelValue)
+  if (inputRef.value && inputRef.value.value !== initial) {
+    inputRef.value.value = initial
+    renderOverlay(initial)
   }
 })
 
 watch(
   () => modelValue,
   (next) => {
-    if (inputRef.value && inputRef.value.value !== (next ?? '')) {
-      inputRef.value.value = next ?? ''
+    const serialized = serializeValue(next)
+    if (inputRef.value && inputRef.value.value !== serialized) {
+      inputRef.value.value = serialized
       syncScroll()
     }
   },
@@ -587,17 +651,45 @@ defineExpose({
 </script>
 
 <template>
+  <!-- Disabled mode: read-only label -->
   <div
     v-if="disabled"
     class="text-c-2 flex cursor-default items-center justify-center"
     :class="{
       'font-code pr-2 pl-1 text-base': layout === 'modal',
       'px-2': layout !== 'modal',
+      'line-through': linethrough,
     }"
     data-testid="code-input-lite-disabled">
     <span class="whitespace-nowrap">{{ modelValue }}</span>
   </div>
 
+  <!-- Enum mode: select dropdown with predefined values -->
+  <DataTableInputSelect
+    v-else-if="enumProp?.length"
+    :default="defaultProp"
+    :modelValue="modelValue"
+    :type="defaultType"
+    :value="enumProp"
+    @update:modelValue="handleSelectChange" />
+
+  <!-- Boolean mode: select dropdown with true/false (and optionally null) -->
+  <DataTableInputSelect
+    v-else-if="isBooleanMode"
+    :default="defaultProp"
+    :modelValue="modelValue"
+    :value="booleanOptions"
+    @update:modelValue="handleSelectChange" />
+
+  <!-- Examples mode: select dropdown with example values -->
+  <DataTableInputSelect
+    v-else-if="examples?.length"
+    :default="defaultProp"
+    :modelValue="modelValue"
+    :value="examples"
+    @update:modelValue="handleSelectChange" />
+
+  <!-- Editor mode -->
   <div
     v-else
     :id="componentId"
@@ -605,6 +697,7 @@ defineExpose({
     class="code-input-lite group/code-input-lite font-code peer relative w-full text-xs leading-[1.44] -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline"
     :class="{
       'code-input-lite--error': error,
+      'line-through': linethrough,
     }">
     <div
       ref="overlayRef"
@@ -636,6 +729,7 @@ defineExpose({
       autocorrect="off"
       class="code-input-lite__input"
       :placeholder="placeholder"
+      :readonly="readOnly || undefined"
       :role="withVariables ? 'combobox' : undefined"
       spellcheck="false"
       type="text"
@@ -645,6 +739,20 @@ defineExpose({
       @keydown="handleKeyDown"
       @scroll="syncScroll"
       @select="handleSelect" />
+
+    <!-- Warning slot (positioned absolutely) -->
+    <div
+      v-if="$slots.warning"
+      class="centered-y text-orange absolute right-7 text-xs">
+      <slot name="warning" />
+    </div>
+
+    <!-- Icon slot (positioned absolutely) -->
+    <div
+      v-if="$slots.icon"
+      class="centered-y absolute right-0 flex h-full items-center p-1.5 group-has-[.code-input-lite__input:focus-visible]:z-1">
+      <slot name="icon" />
+    </div>
 
     <div
       v-if="required"
