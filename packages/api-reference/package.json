@@ -96,7 +96,8 @@
   },
   "files": [
     "dist",
-    "!dist/browser/webpack-stats*.json",
+    "!dist/browser/webpack-stats.json",
+    "!dist/browser/webpack-stats.esm.json",
     "CHANGELOG.md"
   ],
   "sideEffects": [
