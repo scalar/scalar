@@ -7,9 +7,12 @@ import {
   ScalarMenuResources,
   ScalarMenuSection,
   ScalarMenuTeamPicker,
+  type ScalarMenuTeamOption,
 } from '@scalar/components'
 import { ScalarIconGear } from '@scalar/icons'
+import { computed } from 'vue'
 
+import { useAuth } from '@/hooks/use-auth'
 import { useTeams } from '@/hooks/use-teams'
 
 defineProps<{
@@ -48,8 +51,28 @@ const slots = defineSlots<{
   end?(): unknown
 }>()
 
-const { team } = useTeams()
-console.log(team.value)
+const { currentTeam, teams: allTeams } = useTeams()
+const { refreshTokens } = useAuth()
+
+/** Convert teams to menu items */
+const teams = computed<ScalarMenuTeamOption[]>(
+  () =>
+    allTeams.value?.map((t) => ({
+      id: t.uid,
+      label: t.name,
+      src: t.imageUri,
+    })) ?? [],
+)
+
+/** Select the current team option */
+const team = computed<ScalarMenuTeamOption | undefined>(() => {
+  return teams.value.find((t) => t.id === currentTeam.value?.uid)
+})
+
+const handleAddTeam = () => {}
+
+/** Looks like we refresh our token with the teamUid to change teams */
+const switchTeam = (team?: ScalarMenuTeamOption) => refreshTokens(team?.id)
 </script>
 
 <template>
@@ -87,7 +110,11 @@ console.log(team.value)
               </ScalarMenuLink>
             </slot>
           </ScalarMenuSection>
-          <!-- <ScalarMenuTeamPicker /> -->
+          <ScalarMenuTeamPicker
+            :team
+            :teams
+            @add="handleAddTeam"
+            @update:team="switchTeam" />
           <ScalarMenuResources />
         </template>
       </ScalarMenu>

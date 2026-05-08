@@ -4,6 +4,10 @@ vi.mock('@/environment', () => ({
   env: { VITE_SERVICES_URL: 'https://api.scalar.test' },
 }))
 
+vi.mock('@scalar/use-toasts', () => ({
+  useToasts: () => ({ toast: vi.fn() }),
+}))
+
 import { useAuth } from './use-auth'
 
 /**

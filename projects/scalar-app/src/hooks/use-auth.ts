@@ -1,3 +1,4 @@
+import { useToasts } from '@scalar/use-toasts'
 import { coerce, validate } from '@scalar/validation'
 import { jwtDecode } from 'jwt-decode'
 import { computed, readonly, ref } from 'vue'
@@ -6,6 +7,8 @@ import { env } from '@/environment'
 import { isTokenExpired } from '@/helpers/auth/is-token-expired'
 import { type AccessTokenPayload, accessTokenPayloadSchema, tokenResponseSchema } from '@/helpers/auth/schema'
 import { queryClient } from '@/helpers/query-client'
+
+const { toast } = useToasts()
 
 const ACCESS_TOKEN_KEY = 'scalar-access-token'
 const REFRESH_TOKEN_KEY = 'scalar-refresh-token'
@@ -116,21 +119,21 @@ const refreshTokens = (teamUid?: string): Promise<void> => {
       }
 
       if (!response.ok) {
-        console.warn('[useAuth]: Token refresh failed with status', response.status)
+        toast('Token refresh failed', 'error')
         return
       }
 
       const json = await response.json()
 
       if (!validate(tokenResponseSchema, json)) {
-        console.warn('[useAuth]: Token refresh returned an invalid response')
+        toast('Token refresh returned an invalid response', 'error')
         return
       }
 
       const data = coerce(tokenResponseSchema, json)
       setTokens(data.accessToken, data.refreshToken)
     } catch {
-      console.warn('[useAuth]: Could not refresh token')
+      toast('Could not refresh token', 'error')
     }
   }
 
