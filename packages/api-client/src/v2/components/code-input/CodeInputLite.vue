@@ -776,17 +776,28 @@ defineExpose({
 .code-input-lite {
   font-family: var(--scalar-font-code);
   font-size: var(--scalar-small);
+  /* The wrapper is flex so the input can stretch to the parent's height,
+     which lets the overlay (positioned absolute, inset: 0) match it
+     character-for-character at any container size. */
+  display: flex;
+  align-items: stretch;
 }
 
 .code-input-lite__input,
 .code-input-lite__overlay {
   font-family: inherit;
   font-size: inherit;
+  font-weight: inherit;
+  font-style: inherit;
   line-height: inherit;
   letter-spacing: inherit;
-  /* Identical box model so the overlay aligns character-for-character with the input */
+  /* Identical box model so the overlay aligns character-for-character with
+     the input. We deliberately set no vertical padding here — the input
+     vertically centres single-line text natively, and the overlay does the
+     same via flexbox below. Consumers add horizontal padding via deep
+     selectors to BOTH layers when they need a cushion. */
   box-sizing: border-box;
-  padding: 8px 0;
+  padding: 0;
   margin: 0;
   border: 0;
   white-space: pre;
@@ -795,6 +806,10 @@ defineExpose({
 .code-input-lite__overlay {
   position: absolute;
   inset: 0;
+  /* Vertically centre the rendered text + pills so they line up with the
+     input's native single-line baseline regardless of container height. */
+  display: flex;
+  align-items: center;
   overflow: hidden;
   pointer-events: none;
   color: var(--scalar-color-1);
@@ -802,7 +817,8 @@ defineExpose({
 
 .code-input-lite__input {
   position: relative;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   background: transparent;
   outline: none;
   /* Hide the input's own text — visible text comes from the overlay. The
