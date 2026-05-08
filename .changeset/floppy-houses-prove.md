@@ -3,4 +3,6 @@
 '@scalar/api-client': patch
 ---
 
-fix(workspace-store, api-client): share executable URL build for copy and buildRequest
+fix: share executable URL build for copy and buildRequest
+
+Copy URL from the operation address bar now matches the URL that is actually sent: path parameters, operation query string, environment substitution, and security schemes that use in: query are all applied the same way as Send.
