@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { ScalarButton } from '@scalar/components/scalar-button'
 import {
-  ScalarButton,
   ScalarLoading,
   useLoadingState,
-} from '@scalar/components'
+} from '@scalar/components/scalar-loading'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 

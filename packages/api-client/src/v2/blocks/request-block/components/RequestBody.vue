@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import { ScalarButton } from '@scalar/components/scalar-button'
+import { ScalarIcon } from '@scalar/components/scalar-icon'
+import { ScalarListbox } from '@scalar/components/scalar-listbox'
 import { CONTENT_TYPES } from '@scalar/helpers/http/content-types'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'

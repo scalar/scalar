@@ -1,4 +1,4 @@
-import { type ModalState, useModal } from '@scalar/components'
+import { type ModalState, useModal } from '@scalar/components/scalar-modal'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -9,9 +9,9 @@ import {
   type RoutePayload,
   resolveRouteParameters,
 } from '@/v2/features/modal/helpers/resolve-route-parameters'
-import type { ApiClientOptions, ApiClientOptionsRef } from '@/v2/types/options'
 import { useModalSidebar } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import Modal, { type ModalProps } from '@/v2/features/modal/Modal.vue'
+import type { ApiClientOptions, ApiClientOptionsRef } from '@/v2/types/options'
 
 type CreateApiClientOptions = {
   /** Element to mount the client modal to. */

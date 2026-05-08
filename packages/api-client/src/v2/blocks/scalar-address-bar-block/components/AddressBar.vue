@@ -33,11 +33,9 @@ export type AddressBarProps = {
 }
 </script>
 <script setup lang="ts">
-import {
-  ScalarButton,
-  ScalarIcon,
-  ScalarWrappingText,
-} from '@scalar/components'
+import { ScalarButton } from '@scalar/components/scalar-button'
+import { ScalarIcon } from '@scalar/components/scalar-icon'
+import { ScalarWrappingText } from '@scalar/components/scalar-wrapping-text'
 import { getSelector } from '@scalar/helpers/dom/get-selector'
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'

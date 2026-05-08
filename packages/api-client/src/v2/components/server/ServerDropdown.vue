@@ -21,11 +21,9 @@ export type ServerDropdownProps = {
 }
 </script>
 <script setup lang="ts">
-import {
-  ScalarButton,
-  ScalarFloatingBackdrop,
-  ScalarPopover,
-} from '@scalar/components'
+import { ScalarButton } from '@scalar/components/scalar-button'
+import { ScalarFloatingBackdrop } from '@scalar/components/scalar-floating'
+import { ScalarPopover } from '@scalar/components/scalar-popover'
 import { ScalarIconPencilSimple, ScalarIconPlus } from '@scalar/icons'
 import type {
   ApiReferenceEvents,

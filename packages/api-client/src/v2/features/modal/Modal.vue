@@ -33,7 +33,8 @@ export default {}
 </script>
 
 <script setup lang="ts">
-import { type ModalState, type ScalarListboxOption } from '@scalar/components'
+import type { ScalarListboxOption } from '@scalar/components/scalar-listbox'
+import type { ModalState } from '@scalar/components/scalar-modal'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'

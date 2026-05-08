@@ -1,4 +1,4 @@
-import type { ModalState } from '@scalar/components'
+import type { ModalState } from '@scalar/components/scalar-modal'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'

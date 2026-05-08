@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIcon } from '@scalar/components/scalar-icon'
 import { computed, nextTick, ref } from 'vue'
 
 const { activeColor } = defineProps<{
