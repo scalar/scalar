@@ -23,7 +23,7 @@ describe('DataTableInput', () => {
         },
       })
 
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
       expect(codeInput.exists()).toBe(true)
     })
 
@@ -59,7 +59,7 @@ describe('DataTableInput', () => {
       await toggleButton?.trigger('click')
       await wrapper.vm.$nextTick()
 
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
       expect(codeInput.exists()).toBe(true)
     })
 
@@ -71,7 +71,7 @@ describe('DataTableInput', () => {
         },
       })
 
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
       expect(codeInput.exists()).toBe(true)
     })
 
@@ -99,7 +99,7 @@ describe('DataTableInput', () => {
         },
       })
 
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
       await codeInput.vm.$emit('update:modelValue', 'updated value')
 
       expect(wrapper.emitted('update:modelValue')).toBeTruthy()
@@ -114,7 +114,7 @@ describe('DataTableInput', () => {
         },
       })
 
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
       await codeInput.vm.$emit('focus')
 
       expect(wrapper.emitted('inputFocus')).toBeTruthy()
@@ -128,7 +128,7 @@ describe('DataTableInput', () => {
         },
       })
 
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
       await codeInput.vm.$emit('blur')
 
       expect(wrapper.emitted('inputBlur')).toBeTruthy()
@@ -312,7 +312,7 @@ describe('DataTableInput', () => {
       await wrapper.vm.$nextTick()
 
       // Should now show CodeInput instead of masked input
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
       expect(codeInput.exists()).toBe(true)
 
       // Click toggle again to mask
