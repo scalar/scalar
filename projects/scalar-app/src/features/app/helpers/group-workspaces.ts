@@ -43,7 +43,7 @@ export function groupWorkspacesByTeam(
     placeholder?: {
       /** Slug used for the on-demand team workspace (e.g. `'default'`). */
       slug: string
-      /** Display label for the placeholder option (e.g. `'Workspace'`). */
+      /** Display label for the placeholder option (e.g. `'Team workspace'`). */
       label: string
     }
   },

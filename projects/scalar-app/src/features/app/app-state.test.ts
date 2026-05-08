@@ -192,7 +192,7 @@ describe('app-state', () => {
     expect(teamGroup?.options).toEqual([
       {
         id: getWorkspaceId('placeholder-team', 'default'),
-        label: 'Workspace',
+        label: 'Team workspace',
       },
     ])
     expect(groups.find((g) => g.label === 'Local Workspaces')).toBeDefined()

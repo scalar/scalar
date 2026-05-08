@@ -180,8 +180,10 @@ const DEFAULT_DEBOUNCE_DELAY = 1000
 const DEFAULT_SIDEBAR_WIDTH = 288
 /** Default slug used when auto-creating a team workspace on demand. */
 const DEFAULT_TEAM_WORKSPACE_SLUG = 'default'
+/** Default display name for the local workspace when it is first created. */
+const DEFAULT_LOCAL_WORKSPACE_NAME = 'Local workspace'
 /** Default display name used when auto-creating a team workspace on demand. */
-const DEFAULT_TEAM_WORKSPACE_NAME = 'Workspace'
+const DEFAULT_TEAM_WORKSPACE_NAME = 'Team workspace'
 /**
  * Feature flag for team workspace functionality.
  *
@@ -681,7 +683,7 @@ export const createAppState = async ({
 
     // If loading failed (workspace does not exist), create the default workspace and navigate to it.
     const createResult = await createWorkspace({
-      name: 'Default Workspace',
+      name: DEFAULT_LOCAL_WORKSPACE_NAME,
       slug: 'default',
     })
 
