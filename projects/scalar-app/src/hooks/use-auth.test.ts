@@ -259,6 +259,28 @@ describe('refreshTokens', () => {
       }),
     )
   })
+
+  it('includes teamUid in the request body when provided', async () => {
+    const { setTokens, refreshTokens } = useAuth()
+    setTokens(validAccessToken, validRefreshToken)
+
+    const fetchSpy = mockFetch({
+      accessToken: refreshedAccessToken,
+      refreshToken: refreshedRefreshToken,
+    })
+
+    await refreshTokens('team-switch-123')
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'https://api.scalar.test/core/login/refresh',
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ refreshToken: validRefreshToken, teamUid: 'team-switch-123' }),
+      }),
+    )
+  })
 })
 
 describe('refreshTokens single-flight dedupe', () => {

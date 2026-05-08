@@ -6,8 +6,11 @@ import {
   ScalarMenuProducts,
   ScalarMenuResources,
   ScalarMenuSection,
+  ScalarMenuTeamPicker,
 } from '@scalar/components'
 import { ScalarIconGear } from '@scalar/icons'
+
+import { useTeams } from '@/hooks/use-teams'
 
 defineProps<{
   /**
@@ -44,6 +47,9 @@ const slots = defineSlots<{
   /** Slot for customizing the end of the header */
   end?(): unknown
 }>()
+
+const { team } = useTeams()
+console.log(team.value)
 </script>
 
 <template>
@@ -81,6 +87,7 @@ const slots = defineSlots<{
               </ScalarMenuLink>
             </slot>
           </ScalarMenuSection>
+          <!-- <ScalarMenuTeamPicker /> -->
           <ScalarMenuResources />
         </template>
       </ScalarMenu>

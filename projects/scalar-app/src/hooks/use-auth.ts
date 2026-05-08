@@ -88,7 +88,7 @@ let pendingRefresh: Promise<void> | null = null
  * tabs; when the lock is already held elsewhere we no-op and let the winning
  * tab propagate the result via the `storage` event.
  */
-const refreshTokens = (): Promise<void> => {
+const refreshTokens = (teamUid?: string): Promise<void> => {
   if (pendingRefresh) {
     return pendingRefresh
   }
@@ -104,7 +104,10 @@ const refreshTokens = (): Promise<void> => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ refreshToken: token }),
+        body: JSON.stringify({
+          refreshToken: token,
+          ...(teamUid ? { teamUid } : {}),
+        }),
       })
 
       if (response.status === 401 || response.status === 403) {
