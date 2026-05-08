@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import {
-  ScalarButton,
-  ScalarIcon,
-  ScalarSearchInput,
-  useModal,
-} from '@scalar/components'
+import { ScalarButton } from '@scalar/components/scalar-button'
+import { ScalarIcon } from '@scalar/components/scalar-icon'
+import { useModal } from '@scalar/components/scalar-modal'
+import { ScalarSearchInput } from '@scalar/components/scalar-search-input'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type {
   OAuthFlow,

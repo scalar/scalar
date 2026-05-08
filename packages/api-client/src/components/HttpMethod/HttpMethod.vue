@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { cva, cx, ScalarListbox } from '@scalar/components'
+import { ScalarListbox } from '@scalar/components/scalar-listbox'
 import {
   getHttpMethodInfo,
   REQUEST_METHODS,
 } from '@scalar/helpers/http/http-info'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
+import { cva, cx } from '@scalar/use-hooks/useBindCx'
 import { computed } from 'vue'
 
 const props = withDefaults(

@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { ScalarButton } from '@scalar/components/scalar-button'
 import {
-  ScalarButton,
   ScalarListbox,
   type ScalarListboxOption,
-} from '@scalar/components'
+} from '@scalar/components/scalar-listbox'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { computed } from 'vue'
 

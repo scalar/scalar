@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useBindCx } from '@scalar/components'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
 defineProps<{
   columns: (string | undefined)[]
