@@ -107,7 +107,7 @@ export const useStateData = () => {
       ])
         .then(([user, teams]) => {
           currentTeam.value = teams.find((t) => t.uid === user?.activeTeamId) ?? undefined
-          fallbackThemeSlug.value = user?.theme || 'default'
+          fallbackThemeSlug.value = user?.theme || currentTeam.value?.theme || 'default'
         })
         .catch(() => toast('Failed to load user data', 'error'))
         .finally(() => {

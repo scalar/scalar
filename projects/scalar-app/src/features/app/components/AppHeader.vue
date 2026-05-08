@@ -52,7 +52,7 @@ const slots = defineSlots<{
 }>()
 
 const { currentTeam, teams: allTeams } = useTeams()
-const { refreshTokens } = useAuth()
+const { isLoggedIn, refreshTokens } = useAuth()
 
 /** Convert teams to menu items */
 const teams = computed<ScalarMenuTeamOption[]>(
@@ -69,10 +69,8 @@ const team = computed<ScalarMenuTeamOption | undefined>(() => {
   return teams.value.find((t) => t.id === currentTeam.value?.uid)
 })
 
-const handleAddTeam = () => {}
-
 /** Looks like we refresh our token with the teamUid to change teams */
-const switchTeam = (team?: ScalarMenuTeamOption) => refreshTokens(team?.id)
+const switchTeam = (t?: ScalarMenuTeamOption) => refreshTokens(t?.id)
 </script>
 
 <template>
@@ -96,6 +94,12 @@ const switchTeam = (team?: ScalarMenuTeamOption) => refreshTokens(team?.id)
         </template>
         <template #sections="{ close }">
           <ScalarMenuSection>
+            <ScalarMenuTeamPicker
+              v-if="isLoggedIn"
+              disableAddTeam
+              :team
+              :teams
+              @update:team="switchTeam" />
             <slot name="menuItems">
               <ScalarMenuLink
                 is="button"
@@ -110,11 +114,6 @@ const switchTeam = (team?: ScalarMenuTeamOption) => refreshTokens(team?.id)
               </ScalarMenuLink>
             </slot>
           </ScalarMenuSection>
-          <ScalarMenuTeamPicker
-            :team
-            :teams
-            @add="handleAddTeam"
-            @update:team="switchTeam" />
           <ScalarMenuResources />
         </template>
       </ScalarMenu>

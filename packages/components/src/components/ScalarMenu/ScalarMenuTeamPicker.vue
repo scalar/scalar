@@ -32,6 +32,8 @@ const props = defineProps<{
   team?: ScalarMenuTeamOption | undefined
   /** The list of teams to choose from */
   teams: ScalarMenuTeamOption[]
+  /** Whether to disable the "Add team" button */
+  disableAddTeam?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -88,6 +90,7 @@ defineOptions({ inheritAttrs: false })
           </DropdownMenu.RadioItem>
         </DropdownMenu.RadioGroup>
         <DropdownMenu.Item
+          v-if="!disableAddTeam"
           :as="ScalarDropdownButton"
           class="flex items-center"
           @click="emit('add')">
