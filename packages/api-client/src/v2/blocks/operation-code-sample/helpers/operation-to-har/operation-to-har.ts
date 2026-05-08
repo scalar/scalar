@@ -5,6 +5,7 @@ import {
   type SecuritySchemeObjectSecret,
   filterGlobalCookie,
   getDefaultHeaders,
+  restoreConventionalDefaultHeaderNames,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
@@ -106,6 +107,7 @@ export const operationToHar = ({
         options: { isElectron: isElectron(), appVersion: APP_VERSION },
       })
     : {}
+  const defaultHeadersWithConventionalNames = restoreConventionalDefaultHeaderNames(defaultHeaders)
 
   const disabledGlobalCookies =
     operation['x-scalar-disable-parameters']?.['global-cookies']?.[example ?? 'default'] ?? {}
@@ -116,7 +118,7 @@ export const operationToHar = ({
   const harRequest: HarRequest = {
     method,
     url: serverUrl,
-    headers: Object.entries(defaultHeaders).map(([name, value]) => ({ name, value })),
+    headers: Object.entries(defaultHeadersWithConventionalNames).map(([name, value]) => ({ name, value })),
     queryString: [],
     postData: undefined,
     httpVersion: 'HTTP/1.1',

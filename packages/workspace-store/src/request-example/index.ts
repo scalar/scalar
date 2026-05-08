@@ -49,6 +49,8 @@ export {
   getServers,
   isAuthOptional,
   mergeSecurity,
+  restoreConventionalDefaultHeaderNames,
+  restoreConventionalHeaderName,
 } from './context'
 export {
   CONTEXT_FUNCTION_NAMES,

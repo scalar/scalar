@@ -1,7 +1,12 @@
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { filterDisabledDefaultHeaders, getDefaultHeaders } from './headers'
+import {
+  filterDisabledDefaultHeaders,
+  getDefaultHeaders,
+  restoreConventionalDefaultHeaderNames,
+  restoreConventionalHeaderName,
+} from './headers'
 
 describe('filterDisabledDefaultHeaders', () => {
   it('removes headers marked disabled for the example', () => {
@@ -491,5 +496,41 @@ describe('getDefaultHeaders', () => {
     const contentTypeHeader = headers['content-type']
 
     expect(contentTypeHeader).toBeUndefined()
+  })
+})
+
+describe('restoreConventionalDefaultHeaderNames', () => {
+  it('restores conventional casing for known default headers', () => {
+    const restored = restoreConventionalDefaultHeaderNames({
+      accept: 'application/json',
+      'content-type': 'application/json',
+      'user-agent': 'Scalar/1.2.3',
+    })
+
+    expect(restored).toStrictEqual({
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'User-Agent': 'Scalar/1.2.3',
+    })
+  })
+
+  it('leaves unknown header names unchanged', () => {
+    const restored = restoreConventionalDefaultHeaderNames({
+      'x-custom-header': 'custom',
+    })
+
+    expect(restored).toStrictEqual({
+      'x-custom-header': 'custom',
+    })
+  })
+})
+
+describe('restoreConventionalHeaderName', () => {
+  it('restores conventional casing for a known default header', () => {
+    expect(restoreConventionalHeaderName('content-type')).toBe('Content-Type')
+  })
+
+  it('returns unknown header names unchanged', () => {
+    expect(restoreConventionalHeaderName('x-trace-id')).toBe('x-trace-id')
   })
 })

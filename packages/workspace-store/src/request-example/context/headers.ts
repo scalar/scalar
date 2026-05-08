@@ -8,6 +8,27 @@ import { isParamDisabled } from '@/request-example/builder/header/is-param-disab
 /** Default Accept header value to accept all response types. */
 const DEFAULT_ACCEPT = '*/*'
 
+const CONVENTIONAL_DEFAULT_HEADER_NAMES: Record<string, string> = {
+  accept: 'Accept',
+  'content-type': 'Content-Type',
+  'user-agent': 'User-Agent',
+}
+
+/**
+ * Restores conventional casing for well-known default headers.
+ *
+ * We keep this intentionally scoped to the defaults we auto-generate so we do not
+ * unexpectedly rewrite user-defined header parameter names.
+ */
+export const restoreConventionalHeaderName = (headerName: string): string =>
+  CONVENTIONAL_DEFAULT_HEADER_NAMES[headerName.toLowerCase()] ?? headerName
+
+/**
+ * Restores conventional casing for default header keys.
+ */
+export const restoreConventionalDefaultHeaderNames = (headers: Record<string, string>): Record<string, string> =>
+  Object.fromEntries(Object.entries(headers).map(([name, value]) => [restoreConventionalHeaderName(name), value]))
+
 /**
  * Lowercase names of **enabled** operation parameters with `in: header` for the given example.
  * Uses the same rules as the request builder (`isParamDisabled`): optional parameters are treated
