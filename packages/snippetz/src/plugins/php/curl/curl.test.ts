@@ -679,6 +679,58 @@ curl_close($ch);`)
     expect(result).toContain("'Content-Type: application/x-www-form-urlencoded'")
   })
 
+  it('sets CURLOPT_CUSTOMREQUEST for DELETE requests', () => {
+    const result = phpCurl.generate({
+      url: 'https://access.scalar.com/v1/themes/{slug}',
+      method: 'DELETE',
+      headers: [
+        {
+          name: 'Authorization',
+          value: 'Bearer YOUR_SECRET_TOKEN',
+        },
+      ],
+    })
+
+    expect(result).toBe(`$ch = curl_init("https://access.scalar.com/v1/themes/{slug}");
+
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer YOUR_SECRET_TOKEN']);
+
+curl_exec($ch);
+
+curl_close($ch);`)
+  })
+
+  it('sets CURLOPT_CUSTOMREQUEST for PUT requests', () => {
+    const result = phpCurl.generate({
+      url: 'https://example.com',
+      method: 'PUT',
+    })
+
+    expect(result).toBe(`$ch = curl_init("https://example.com");
+
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+
+curl_exec($ch);
+
+curl_close($ch);`)
+  })
+
+  it('sets CURLOPT_CUSTOMREQUEST for PATCH requests', () => {
+    const result = phpCurl.generate({
+      url: 'https://example.com',
+      method: 'PATCH',
+    })
+
+    expect(result).toBe(`$ch = curl_init("https://example.com");
+
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+
+curl_exec($ch);
+
+curl_close($ch);`)
+  })
+
   it('prettifies JSON body using PHP array', () => {
     const result = phpCurl.generate({
       url: 'https://example.com',
