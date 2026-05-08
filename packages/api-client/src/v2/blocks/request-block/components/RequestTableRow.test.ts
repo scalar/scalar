@@ -42,9 +42,8 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
-    expect(codeInputs[0]?.props('modelValue')).toBe('test-key')
-    expect(codeInputs[1]?.props('modelValue')).toBe('test-value')
+    expect(wrapper.findComponent({ name: 'CodeInputLite' }).props('modelValue')).toBe('test-key')
+    expect(wrapper.findComponent({ name: 'CodeInput' }).props('modelValue')).toBe('test-value')
   })
 
   it('displays checkbox when no globalRoute is provided', () => {
@@ -118,7 +117,7 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const keyInput = wrapper.findAllComponents({ name: 'CodeInput' })[0]
+    const keyInput = wrapper.findComponent({ name: 'CodeInputLite' })
     await keyInput?.vm.$emit('update:modelValue', 'new-key')
 
     expect(wrapper.emitted('upsertRow')).toBeTruthy()
@@ -142,7 +141,7 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+    const valueInput = wrapper.findComponent({ name: 'CodeInput' })
     await valueInput?.vm.$emit('update:modelValue', 'new-value')
 
     expect(wrapper.emitted('upsertRow')).toBeTruthy()
@@ -166,9 +165,8 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
-    expect(codeInputs[0]?.props('disabled')).toBe(true)
-    expect(codeInputs[1]?.props('disabled')).toBe(true)
+    expect(wrapper.findComponent({ name: 'CodeInputLite' }).props('disabled')).toBe(true)
+    expect(wrapper.findComponent({ name: 'CodeInput' }).props('disabled')).toBe(true)
   })
 
   it('displays tooltip when schema exists', () => {
@@ -276,7 +274,7 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const keyInput = wrapper.findAllComponents({ name: 'CodeInput' })[0]
+    const keyInput = wrapper.findComponent({ name: 'CodeInputLite' })
     expect(keyInput?.props('required')).toBe(true)
   })
 
@@ -294,7 +292,7 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const keyInput = wrapper.findAllComponents({ name: 'CodeInput' })[0]
+    const keyInput = wrapper.findComponent({ name: 'CodeInputLite' })
     await keyInput?.vm.$emit('update:modelValue', 'new-name')
 
     expect(wrapper.emitted('upsertRow')).toBeTruthy()
@@ -554,7 +552,7 @@ describe('RequestTableRow', () => {
       },
     })
 
-    const keyInput = wrapper.findAllComponents({ name: 'CodeInput' })[0]
+    const keyInput = wrapper.findComponent({ name: 'CodeInputLite' })
     await keyInput?.vm.$emit('update:modelValue', 'new-name')
 
     expect(wrapper.emitted('upsertRow')).toBeTruthy()
@@ -743,7 +741,7 @@ describe('RequestTableRow', () => {
         },
       })
 
-      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      const valueInput = wrapper.findComponent({ name: 'CodeInput' })
       expect(valueInput?.props('enum')).toEqual(['active', 'inactive', 'pending'])
     })
 
@@ -766,7 +764,7 @@ describe('RequestTableRow', () => {
         },
       })
 
-      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      const valueInput = wrapper.findComponent({ name: 'CodeInput' })
       expect(valueInput?.props('enum')).toEqual([])
     })
 
@@ -786,7 +784,7 @@ describe('RequestTableRow', () => {
         },
       })
 
-      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      const valueInput = wrapper.findComponent({ name: 'CodeInput' })
       expect(valueInput?.props('enum')).toEqual([])
     })
 
@@ -813,7 +811,7 @@ describe('RequestTableRow', () => {
         },
       })
 
-      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      const valueInput = wrapper.findComponent({ name: 'CodeInput' })
       expect(valueInput?.props('enum')).toEqual(['tag1', 'tag2', 'tag3'])
     })
 
@@ -840,7 +838,7 @@ describe('RequestTableRow', () => {
         },
       })
 
-      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      const valueInput = wrapper.findComponent({ name: 'CodeInput' })
       // When items has a $ref, getResolvedRef should be called
       // We expect an empty array since we do not have a real ref resolver in tests
       expect(valueInput?.props('enum')).toEqual([])
@@ -868,7 +866,7 @@ describe('RequestTableRow', () => {
         },
       })
 
-      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      const valueInput = wrapper.findComponent({ name: 'CodeInput' })
       expect(valueInput?.props('enum')).toEqual([])
     })
 
@@ -892,7 +890,7 @@ describe('RequestTableRow', () => {
         },
       })
 
-      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      const valueInput = wrapper.findComponent({ name: 'CodeInput' })
       // Enum values are converted to strings for display in the select dropdown
       expect(valueInput?.props('enum')).toEqual(['1', '2', '3', '4', '5'])
     })
@@ -917,7 +915,7 @@ describe('RequestTableRow', () => {
         },
       })
 
-      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      const valueInput = wrapper.findComponent({ name: 'CodeInput' })
       // Enum values are converted to strings for display in the select dropdown
       expect(valueInput?.props('enum')).toEqual(['value1', '2', 'null', 'true'])
     })
@@ -942,7 +940,7 @@ describe('RequestTableRow', () => {
         },
       })
 
-      const valueInput = wrapper.findAllComponents({ name: 'CodeInput' })[1]
+      const valueInput = wrapper.findComponent({ name: 'CodeInput' })
       expect(valueInput?.props('enum')).toEqual([])
     })
   })
