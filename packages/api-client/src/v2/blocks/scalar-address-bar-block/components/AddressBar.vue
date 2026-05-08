@@ -413,10 +413,10 @@ defineExpose({
     send button.
   -->
   <div
-    :id="id"
     class="order-last flex h-auto w-full grow-2 flex-wrap items-stretch [--scalar-address-bar-height:32px] @3xl:order-0 @3xl:w-auto @3xl:flex-nowrap">
     <!-- Address Bar -->
     <div
+      :id="id"
       class="address-bar-bg-states text-xxs group relative flex h-(--scalar-address-bar-height) w-full flex-1 flex-row items-stretch rounded-lg p-0.75 @3xl:w-auto"
       :class="{
         'outline-c-danger outline': hasConflict,
