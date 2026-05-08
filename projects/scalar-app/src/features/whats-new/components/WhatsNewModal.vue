@@ -25,6 +25,7 @@ import { ScalarIconArrowSquareOut, ScalarIconSparkle } from '@scalar/icons'
 import { computed, ref, watch } from 'vue'
 
 import { useWhatsNew } from '../hooks/use-whats-new'
+import ReleaseNoteContent from './ReleaseNoteContent.vue'
 
 const { state } = defineProps<{
   state: ModalState
@@ -153,6 +154,9 @@ watch(
             {{ highlight }}
           </li>
         </ul>
+        <ReleaseNoteContent
+          v-if="note.content && note.content.length > 0"
+          :blocks="note.content" />
         <div v-if="note.href">
           <a
             class="text-c-accent inline-flex items-center gap-1 text-xs hover:underline"

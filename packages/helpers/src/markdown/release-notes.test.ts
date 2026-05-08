@@ -81,4 +81,121 @@ describe('serializeReleaseNotes', () => {
     })
     expect(output.startsWith('# Custom preamble\n\n## 1.0.0')).toBe(true)
   })
+
+  it('renders paragraph and heading content blocks as markdown headings and copy', () => {
+    const serialized = serializeReleaseNotes(
+      [
+        {
+          version: '1.0.0',
+          date: '2026-01-01',
+          title: 'Rich entry',
+          content: [
+            { type: 'heading', text: 'A subsection' },
+            { type: 'paragraph', text: 'First paragraph of context.' },
+            { type: 'heading', text: 'A smaller heading', level: 4 },
+            { type: 'paragraph', text: 'Second paragraph adds more detail.' },
+          ],
+        },
+      ],
+      { preamble: '# Test\n' },
+    )
+    expect(serialized).toContain('### A subsection')
+    expect(serialized).toContain('First paragraph of context.')
+    expect(serialized).toContain('#### A smaller heading')
+    expect(serialized).toContain('Second paragraph adds more detail.')
+  })
+
+  it('renders bullet and numbered lists from content blocks', () => {
+    const serialized = serializeReleaseNotes(
+      [
+        {
+          version: '1.0.0',
+          date: '2026-01-01',
+          title: 'Lists',
+          content: [
+            { type: 'list', items: ['Apple', 'Banana'] },
+            { type: 'list', items: ['Step one', 'Step two'], ordered: true },
+          ],
+        },
+      ],
+      { preamble: '# Test\n' },
+    )
+    expect(serialized).toContain('- Apple')
+    expect(serialized).toContain('- Banana')
+    expect(serialized).toContain('1. Step one')
+    expect(serialized).toContain('2. Step two')
+  })
+
+  it('renders image blocks as markdown images with optional captions', () => {
+    const serialized = serializeReleaseNotes(
+      [
+        {
+          version: '1.0.0',
+          date: '2026-01-01',
+          title: 'Image',
+          content: [
+            { type: 'image', src: 'https://example.com/a.png', alt: 'Alt text' },
+            {
+              type: 'image',
+              src: 'https://example.com/b.png',
+              alt: 'Alt text',
+              caption: 'A short caption.',
+            },
+          ],
+        },
+      ],
+      { preamble: '# Test\n' },
+    )
+    expect(serialized).toContain('![Alt text](https://example.com/a.png)')
+    expect(serialized).toContain('![Alt text](https://example.com/b.png)')
+    expect(serialized).toContain('_A short caption._')
+  })
+
+  it('renders video blocks as inline video tags with the requested attributes', () => {
+    const serialized = serializeReleaseNotes(
+      [
+        {
+          version: '1.0.0',
+          date: '2026-01-01',
+          title: 'Video',
+          content: [
+            {
+              type: 'video',
+              src: 'https://example.com/demo.mp4',
+              poster: 'https://example.com/poster.png',
+              autoplay: true,
+              loop: true,
+              muted: true,
+              caption: 'Demo of the new feature.',
+            },
+          ],
+        },
+      ],
+      { preamble: '# Test\n' },
+    )
+    expect(serialized).toContain('<video src="https://example.com/demo.mp4"')
+    expect(serialized).toContain('poster="https://example.com/poster.png"')
+    expect(serialized).toContain('autoplay')
+    expect(serialized).toContain('loop')
+    expect(serialized).toContain('muted')
+    expect(serialized).toContain('controls')
+    expect(serialized).toContain('playsinline')
+    expect(serialized).toContain('_Demo of the new feature._')
+  })
+
+  it('omits controls on a video block when explicitly disabled', () => {
+    const serialized = serializeReleaseNotes(
+      [
+        {
+          version: '1.0.0',
+          date: '2026-01-01',
+          title: 'Video',
+          content: [{ type: 'video', src: 'https://example.com/demo.mp4', controls: false }],
+        },
+      ],
+      { preamble: '# Test\n' },
+    )
+    expect(serialized).not.toContain('controls')
+    expect(serialized).toContain('playsinline')
+  })
 })
