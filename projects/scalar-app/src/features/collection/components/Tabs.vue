@@ -32,7 +32,8 @@ const routes = computed(() => {
 </script>
 
 <template>
-  <div class="flex w-full gap-2 border-b pl-1.5 md:ml-1.5 md:pl-0">
+  <div
+    class="custom-scroll flex w-full gap-2 overflow-x-auto border-b pl-1.5 md:ml-1.5 md:pl-0">
     <RouterLink
       v-for="route in routes"
       :key="route"

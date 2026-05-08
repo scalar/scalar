@@ -309,8 +309,8 @@ const routerViewProps = computed<RouteProps>(() => {
               ability to switch workspaces.
             -->
             <DocumentBreadcrumb
-              class="max-md:hidden"
               :app="app"
+              class="max-md:hidden"
               :fetchRegistryDocument="registry?.fetchDocument"
               :registryDocuments="registryDocuments"
               @createWorkspace="createWorkspaceModalState.show()" />
@@ -369,8 +369,8 @@ const routerViewProps = computed<RouteProps>(() => {
             :sidebarWidth="app.sidebar.width.value"
             @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate" />
 
-          <!-- Router view min-h-0 is required for scrolling, do not remove it -->
-          <div class="bg-b-1 relative min-h-0 flex-1">
+          <!-- Router view min-h/w-0 is required for scrolling, do not remove it -->
+          <div class="bg-b-1 relative min-h-0 min-w-0 flex-1">
             <RouterView v-bind="routerViewProps" />
           </div>
         </div>
