@@ -25,9 +25,10 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "pnpm build:default && pnpm build:styles && pnpm build:standalone && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "build": "pnpm build:default && pnpm build:styles && pnpm build:standalone && pnpm build:standalone:esm && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "build:default": "vite build",
     "build:standalone": "vite build -c vite.standalone.config.ts",
+    "build:standalone:esm": "vite build -c vite.standalone.esm.config.ts",
     "build:styles": "cp -r src/styles dist && tailwindcss --optimize -i src/style.css -o dist/style.css && cat dist/vue-styles.css >> dist/style.css",
     "dev": "vite",
     "dev:standalone": "vite -c vite.standalone.config.ts",
