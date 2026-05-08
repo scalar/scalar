@@ -126,6 +126,7 @@ const componentId = attrs.id || `id-${nanoid()}`
 
 const inputRef = useTemplateRef<HTMLInputElement>('inputRef')
 const overlayRef = useTemplateRef<HTMLDivElement>('overlayRef')
+const overlayContentRef = useTemplateRef<HTMLSpanElement>('overlayContentRef')
 const measureRef = useTemplateRef<HTMLSpanElement>('measureRef')
 const dropdownRef = ref<InstanceType<
   typeof EnvironmentVariableDropdown
@@ -287,11 +288,13 @@ const renderOverlay = (text: string): void => {
 
   teardownPillTooltips()
 
+  const target = overlayContentRef.value ?? overlayRef.value
+
   // Fast path: no pill markers in the text → set textContent and skip the
   // regex/innerHTML pipeline entirely. Most table cell values (header keys,
   // query keys, plain values) hit this branch.
   if (!withVariables || text.length === 0 || !text.includes('{{')) {
-    overlayRef.value.textContent = text
+    target.textContent = text
     return
   }
 
@@ -329,7 +332,7 @@ const renderOverlay = (text: string): void => {
     html += escapeHtml(text.slice(lastIndex))
   }
 
-  overlayRef.value.innerHTML = html
+  target.innerHTML = html
 
   // Pills are rendered visually but tooltip apps stay unmounted until the
   // user actually engages with the input. `ensureTooltipsActive` flips this
@@ -704,7 +707,17 @@ defineExpose({
       aria-hidden="true"
       class="code-input-lite__overlay"
       @click="handleOverlayClick"
-      @pointerover="ensureTooltipsActive" />
+      @pointerover="ensureTooltipsActive">
+      <!--
+        Inner span is the single flex item that holds the rendered text +
+        pills. Wrapping the content avoids text nodes becoming anonymous
+        flex items, which would otherwise break ligatures and kerning
+        between adjacent text and pill spans.
+      -->
+      <span
+        ref="overlayContentRef"
+        class="code-input-lite__overlay-content" />
+    </div>
 
     <span
       ref="measureRef"
@@ -784,35 +797,50 @@ defineExpose({
 }
 
 .code-input-lite__input,
-.code-input-lite__overlay {
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-  font-style: inherit;
-  line-height: inherit;
+.code-input-lite__overlay-content {
+  /*
+    `font: inherit` shorthand resets ALL font sub-properties — font-stretch,
+    font-feature-settings, font-variant-numeric, etc. — that browsers set on
+    <input> via UA stylesheets. Listing the longhand properties one by one
+    leaves those untouched and the input's text drifts visually from the
+    overlay's text.
+  */
+  font: inherit;
   letter-spacing: inherit;
+}
+
+.code-input-lite__input,
+.code-input-lite__overlay {
   /* Identical box model so the overlay aligns character-for-character with
-     the input. We deliberately set no vertical padding here — the input
-     vertically centres single-line text natively, and the overlay does the
-     same via flexbox below. Consumers add horizontal padding via deep
-     selectors to BOTH layers when they need a cushion. */
+     the input. No vertical padding here: the input vertically centres
+     single-line text natively, and the overlay does the same via flexbox
+     below. Consumers add horizontal padding via deep selectors to BOTH
+     layers when they need a cushion. */
   box-sizing: border-box;
   padding: 0;
   margin: 0;
   border: 0;
-  white-space: pre;
 }
 
 .code-input-lite__overlay {
   position: absolute;
   inset: 0;
-  /* Vertically centre the rendered text + pills so they line up with the
-     input's native single-line baseline regardless of container height. */
+  /* Vertically centre the inner content so it lines up with the input's
+     native single-line baseline at any container height. */
   display: flex;
   align-items: center;
   overflow: hidden;
   pointer-events: none;
   color: var(--scalar-color-1);
+}
+
+.code-input-lite__overlay-content {
+  /* Single inline flex item holding the rendered text + pills. flex: 1
+     stretches it to the full overlay width so horizontal scroll positions
+     match the input. white-space: pre keeps single-line layout. */
+  flex: 1;
+  min-width: 0;
+  white-space: pre;
 }
 
 .code-input-lite__input {
@@ -821,14 +849,24 @@ defineExpose({
   min-width: 0;
   background: transparent;
   outline: none;
+  white-space: pre;
   /* Hide the input's own text — visible text comes from the overlay. The
      caret stays visible via caret-color. */
   color: transparent;
   caret-color: var(--scalar-color-1);
 }
 
+/*
+  Selection background is translucent so the overlay's visible text shows
+  through. With color: transparent the input's selected text stays hidden,
+  leaving the overlay's rendered text visible underneath the tint.
+*/
 .code-input-lite__input::selection {
-  background: var(--scalar-background-3);
+  background: color-mix(
+    in srgb,
+    var(--scalar-color-blue, #3b82f6) 30%,
+    transparent
+  );
   color: transparent;
 }
 
