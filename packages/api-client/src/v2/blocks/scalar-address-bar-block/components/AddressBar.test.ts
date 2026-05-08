@@ -127,11 +127,11 @@ describe('AddressBar', () => {
     )
   })
 
-  it('emits operation:update:pathMethod with blurTargetSelector for Send button on CodeInput submit', async () => {
+  it('emits operation:update:pathMethod with blurTargetSelector for Send button on CodeInputLite submit', async () => {
     const { wrapper, eventBus } = mountWithProps()
     const emitSpy = vi.spyOn(eventBus, 'emit')
 
-    const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+    const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
     const submitEvent = new KeyboardEvent('keydown', { key: 'Enter' })
     await codeInput.vm.$emit('submit', '/api/test', submitEvent)
     await nextTick()
@@ -322,7 +322,7 @@ describe('AddressBar', () => {
         return eventBus
       })
 
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
       const blurEvent = new FocusEvent('blur', { relatedTarget: null })
       await codeInput.vm.$emit('blur', '/api/users', blurEvent)
       await nextTick()
@@ -365,7 +365,7 @@ describe('AddressBar', () => {
       /**
        * Trigger a path blur which should clear the conflict.
        */
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
       const blurEvent = new FocusEvent('blur', { relatedTarget: null })
       await codeInput.vm.$emit('blur', '/api/products', blurEvent)
       await nextTick()
@@ -408,7 +408,7 @@ describe('AddressBar', () => {
         await nextTick()
         animationFrameCallbacks.length = 0
 
-        const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+        const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
         const submitEvent = new KeyboardEvent('keydown', { key: 'Enter' })
         await codeInput.vm.$emit('submit', '/api/new-path', submitEvent)
         await nextTick()
@@ -420,7 +420,7 @@ describe('AddressBar', () => {
           callback(performance.now())
         }
 
-        expect(codeInput.vm.codeMirror.state.doc.toString()).toBe('')
+        expect(codeInput.vm.getValue()).toBe('')
       } finally {
         requestAnimationFrameSpy.mockRestore()
         if (originalGetClientRects) {
@@ -459,14 +459,14 @@ describe('AddressBar', () => {
       try {
         await nextTick()
 
-        const codeInput = wrapper.findComponent({ name: 'CodeInput' })
-        codeInput.vm.setCodeMirrorContent('/users')
+        const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
+        codeInput.vm.setContent('/users')
 
         for (const callback of animationFrameCallbacks) {
           callback(performance.now())
         }
 
-        expect(codeInput.vm.codeMirror.state.doc.toString()).toBe('/users')
+        expect(codeInput.vm.getValue()).toBe('/users')
       } finally {
         requestAnimationFrameSpy.mockRestore()
         if (originalGetClientRects) {
@@ -490,7 +490,7 @@ describe('AddressBar', () => {
 
       const emitSpy = vi.spyOn(eventBus, 'emit')
 
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
       const submitEvent = new KeyboardEvent('keydown', { key: 'Enter' })
 
       /**
@@ -541,7 +541,7 @@ describe('AddressBar', () => {
         return eventBus
       })
 
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
       const submitEvent = new KeyboardEvent('keydown', { key: 'Enter' })
       codeInput.vm.$emit('submit', pastedUrl, submitEvent)
 
@@ -570,15 +570,15 @@ describe('AddressBar', () => {
       try {
         await nextTick()
 
-        const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+        const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
         const pastedUrl = 'https://api.example.com/v2/users'
-        codeInput.vm.setCodeMirrorContent(pastedUrl)
+        codeInput.vm.setContent(pastedUrl)
 
         for (const callback of animationFrameCallbacks) {
           callback(performance.now())
         }
 
-        expect(codeInput.vm.codeMirror.state.doc.toString()).toBe(pastedUrl)
+        expect(codeInput.vm.getValue()).toBe(pastedUrl)
 
         const emitSpy = vi.spyOn(eventBus, 'emit')
         const submitEvent = new KeyboardEvent('keydown', { key: 'Enter' })
@@ -597,7 +597,7 @@ describe('AddressBar', () => {
       }
     })
 
-    it('submits the empty masked path instead of the CodeMirror placeholder on Enter', async () => {
+    it('submits the empty masked path on Enter even when the placeholder is visible', async () => {
       const animationFrameCallbacks: FrameRequestCallback[] = []
       const requestAnimationFrameSpy = vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((callback) => {
         animationFrameCallbacks.push(callback)
@@ -631,14 +631,12 @@ describe('AddressBar', () => {
 
         await nextTick()
 
-        const codeInput = wrapper.findComponent({ name: 'CodeInput' })
-        expect(codeInput.vm.codeMirror.state.doc.toString()).toBe('')
-        const editorContent = codeInput.find('.cm-content')
-        editorContent.element.append('Enter a URL')
-        expect(editorContent.text()).toBe('Enter a URL')
+        const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
+        expect(codeInput.vm.getValue()).toBe('')
+        const inputEl = codeInput.find('input')
 
         const emitSpy = vi.spyOn(eventBus, 'emit')
-        await editorContent.trigger('keydown.enter')
+        await inputEl.trigger('keydown', { key: 'Enter' })
         await nextTick()
 
         expect(emitSpy).toHaveBeenCalledWith(
@@ -734,7 +732,7 @@ describe('AddressBar', () => {
 
       const emitSpy = vi.spyOn(eventBus, 'emit')
 
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
       const blurEvent = new FocusEvent('blur', { relatedTarget: null })
       await codeInput.vm.$emit('blur', '/api/users', blurEvent)
       await nextTick()
@@ -757,7 +755,7 @@ describe('AddressBar', () => {
 
       const emitSpy = vi.spyOn(eventBus, 'emit')
 
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
       const blurEvent = new FocusEvent('blur', { relatedTarget: null })
       await codeInput.vm.$emit('blur', '', blurEvent)
       await nextTick()
@@ -778,7 +776,7 @@ describe('AddressBar', () => {
 
       const emitSpy = vi.spyOn(eventBus, 'emit')
 
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
       const blurEvent = new FocusEvent('blur', { relatedTarget: null })
       await codeInput.vm.$emit('blur', 'api/users', blurEvent)
       await nextTick()
@@ -799,7 +797,7 @@ describe('AddressBar', () => {
 
       const emitSpy = vi.spyOn(eventBus, 'emit')
 
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
       const blurEvent = new FocusEvent('blur', { relatedTarget: null })
       await codeInput.vm.$emit('blur', '/api/users/{name}', blurEvent)
       await nextTick()
@@ -818,7 +816,7 @@ describe('AddressBar', () => {
       const emitSpy = vi.spyOn(eventBus, 'emit')
 
       const { event, sendEl, cleanup } = makeSendBlurEvent()
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
       await codeInput.vm.$emit('blur', '/api/new-path', event)
       await nextTick()
 
@@ -839,7 +837,7 @@ describe('AddressBar', () => {
       const emitSpy = vi.spyOn(eventBus, 'emit')
 
       const { event, sidebarEl, cleanup } = makeSidebarBlurEvent('my-sidebar-item')
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
       await codeInput.vm.$emit('blur', '/api/new-path', event)
       await nextTick()
 
@@ -870,7 +868,7 @@ describe('AddressBar', () => {
       })
 
       try {
-        const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+        const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
         await codeInput.vm.$emit('blur', '/api/new-path', event)
         await nextTick()
 
@@ -892,7 +890,7 @@ describe('AddressBar', () => {
 
       const emitSpy = vi.spyOn(eventBus, 'emit')
 
-      const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+      const codeInput = wrapper.findComponent({ name: 'CodeInputLite' })
       const blurEvent = new FocusEvent('blur', { relatedTarget: null })
       await codeInput.vm.$emit('blur', '/api/users', blurEvent)
       await nextTick()
