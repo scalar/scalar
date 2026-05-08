@@ -13,7 +13,7 @@ import { computed, ref, watch } from 'vue'
 
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
 import { validateParameter } from '@/v2/blocks/request-block/helpers/validate-parameter'
-import { CodeInput } from '@/v2/components/code-input'
+import { CodeInput, CodeInputLite } from '@/v2/components/code-input'
 import {
   DataTableCell,
   DataTableCheckbox,
@@ -190,19 +190,15 @@ const handleUpdateRow = (
 
     <!-- Name -->
     <DataTableCell>
-      <CodeInput
+      <CodeInputLite
         :aria-label="`${label} Key`"
-        disableCloseBrackets
         :disabled="data.isReadonly"
         disableEnter
-        disableTabIndent
         :environment="environment"
-        lineWrapping
         :modelValue="name"
         placeholder="Key"
         :required="Boolean(data.isRequired)"
         @navigate="(route) => emit('navigate', route)"
-        @selectVariable="(v: string) => handleUpdateRow({ name: v })"
         @update:modelValue="(v) => handleUpdateRow({ name: v })" />
     </DataTableCell>
 
@@ -210,7 +206,7 @@ const handleUpdateRow = (
     <DataTableCell>
       <CodeInput
         :aria-label="`${label} Value`"
-        class="pr-6 group-hover:pr-10 group-has-[.cm-focused]:pr-10"
+        class="pr-6 group-hover:pr-10 group-has-[.cm-focused]:pr-10 group-has-[.code-input-lite__input:focus-visible]:pr-10"
         :default="defaultValue"
         disableCloseBrackets
         :disabled="data.isReadonly"
@@ -238,7 +234,7 @@ const handleUpdateRow = (
               !data.isRequired &&
               data.isReadonly !== true
             "
-            class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context -mr-0.5 hidden h-fit rounded p-1 group-hover:flex group-has-[.cm-focused]:flex"
+            class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context -mr-0.5 hidden h-fit rounded p-1 group-hover:flex group-has-[.cm-focused]:flex group-has-[.code-input-lite__input:focus-visible]:flex"
             size="sm"
             variant="ghost"
             @click="emit('deleteRow')">
