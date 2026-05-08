@@ -120,7 +120,7 @@ const handleAddEnvironment = () => {
         (payload) => emit('select:history:item', payload)
       " />
 
-    <div class="mb-2 flex flex-1 items-center justify-end @3xl:mb-0">
+    <div class="mb-2 flex flex-1 items-center justify-end gap-2 @3xl:mb-0">
       <!--
         Environment Selector
         Hidden for `modal` layout

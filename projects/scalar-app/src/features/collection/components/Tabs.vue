@@ -45,11 +45,11 @@ const routes = computed(() => {
         :href="href"
         @click="navigate">
         <span
-          class="flex-center hover:text-c-1 h-full border-b"
+          class="flex-center hover:text-c-1 -mb-px h-full pb-px"
           :class="
             isActive
-              ? 'text-c-1 border-c-1'
-              : 'text-c-2 hover:text-c-1 border-transparent'
+              ? 'text-c-1 border-c-1 border-b'
+              : 'text-c-2 hover:text-c-1'
           ">
           {{ capitalize(route) }}
         </span>
