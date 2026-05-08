@@ -189,6 +189,7 @@ const shouldRenderRequestBody = computed(
         compact
         :compositionPath="['requestBody']"
         :eventBus="eventBus"
+        hideDescription
         name="Request Body"
         :options="{
           hideReadOnly: true,

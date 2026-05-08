@@ -24,6 +24,7 @@ const {
   compact,
   noncollapsible = false,
   hideHeading,
+  hideDescription = false,
   additionalProperties,
   discriminator,
   breadcrumb,
@@ -43,6 +44,8 @@ const {
   noncollapsible?: boolean
   /** Hide the heading */
   hideHeading?: boolean
+  /** Hide the schema description */
+  hideDescription?: boolean
   /** Show a special one way toggle for additional properties, also has a top border when open */
   additionalProperties?: boolean
   /** Hide model names in type display */
@@ -71,6 +74,10 @@ const shouldShowToggle = computed((): boolean => {
 
 /** Gets the description to show for the schema */
 const schemaDescription = computed(() => {
+  if (hideDescription) {
+    return null
+  }
+
   // For the request body we want to show the base description or the first allOf schema description
   if (schema?.allOf && schema.allOf.length > 0 && name === 'Request Body') {
     return schema.description || schema.allOf[0]?.description || null
