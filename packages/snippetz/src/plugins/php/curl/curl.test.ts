@@ -30,6 +30,51 @@ curl_exec($ch);
 curl_close($ch);`)
   })
 
+  it('returns a DELETE request', () => {
+    const result = phpCurl.generate({
+      url: 'https://example.com',
+      method: 'delete',
+    })
+
+    expect(result).toBe(`$ch = curl_init("https://example.com");
+
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+
+curl_exec($ch);
+
+curl_close($ch);`)
+  })
+
+  it('returns a PUT request', () => {
+    const result = phpCurl.generate({
+      url: 'https://example.com',
+      method: 'put',
+    })
+
+    expect(result).toBe(`$ch = curl_init("https://example.com");
+
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+
+curl_exec($ch);
+
+curl_close($ch);`)
+  })
+
+  it('returns a PATCH request', () => {
+    const result = phpCurl.generate({
+      url: 'https://example.com',
+      method: 'patch',
+    })
+
+    expect(result).toBe(`$ch = curl_init("https://example.com");
+
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+
+curl_exec($ch);
+
+curl_close($ch);`)
+  })
+
   it('has headers', () => {
     const result = phpCurl.generate({
       url: 'https://example.com',
