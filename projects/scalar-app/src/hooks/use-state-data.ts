@@ -23,6 +23,13 @@ export const useStateData = () => {
   const customThemes = ref<Theme[]>([])
   const fallbackThemeSlug = ref<string>('default')
   const currentTeam = ref<Team | undefined>(undefined)
+  /**
+   * Tracks whether we are currently fetching the user/teams payload that
+   * resolves `currentTeam`. App state consumers gate route handling on this
+   * so a reload onto a team workspace URL does not bounce the user back to
+   * the local default before the team data has had a chance to populate.
+   */
+  const isCurrentTeamLoading = ref(false)
 
   const { getAccessToken } = useAuth()
   const { toast } = useToasts()
@@ -34,8 +41,11 @@ export const useStateData = () => {
         currentTeam.value = undefined
         customThemes.value = []
         fallbackThemeSlug.value = 'default'
+        isCurrentTeamLoading.value = false
         return
       }
+
+      isCurrentTeamLoading.value = true
 
       // Fetch all themes and pre-fill the per-theme query cache entries so
       // any useQuery(['themes', slug]) call elsewhere reads from cache.
@@ -84,6 +94,9 @@ export const useStateData = () => {
           fallbackThemeSlug.value = user?.theme || 'default'
         })
         .catch(() => toast('Failed to load user data', 'error'))
+        .finally(() => {
+          isCurrentTeamLoading.value = false
+        })
     },
     { immediate: true },
   )
@@ -92,5 +105,6 @@ export const useStateData = () => {
     customThemes,
     currentTeam,
     fallbackThemeSlug,
+    isCurrentTeamLoading,
   }
 }

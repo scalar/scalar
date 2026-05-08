@@ -134,8 +134,12 @@ export type AppState = {
   router: Router
   /** The current route derived from the router */
   currentRoute: Ref<RouteLocationNormalizedGeneric | null>
-  /** Whether the workspace is currently syncing */
-  loading: Ref<boolean>
+  /**
+   * Whether the shell should keep the splash screen up. True while the
+   * workspace store is syncing or while the host is still resolving the
+   * active team (see `createAppState`'s `isCurrentTeamLoading` argument).
+   */
+  loading: ComputedRef<boolean>
   /** Runtime behaviour overrides */
   options?: ApiClientAppOptions
   /** The currently active entities */
@@ -200,6 +204,7 @@ export const createAppState = async ({
   router,
   fileLoader,
   currentTeam,
+  isCurrentTeamLoading = false,
   fallbackThemeSlug = () => 'default',
   customThemes = () => [],
   telemetryDefault,
@@ -209,6 +214,14 @@ export const createAppState = async ({
   fileLoader?: LoaderPlugin
   /** The currently active team */
   currentTeam?: MaybeRefOrGetter<Team | undefined>
+  /**
+   * Whether the host is still resolving `currentTeam`. While this is `true`,
+   * route handling is deferred and the splash screen stays up so a reload
+   * onto a team workspace URL does not race the team fetch and bounce the
+   * user back to the local default workspace. The deferred route is
+   * re-processed automatically once this flips to `false`.
+   */
+  isCurrentTeamLoading?: MaybeRefOrGetter<boolean>
   customThemes?: MaybeRefOrGetter<Theme[]>
   fallbackThemeSlug?: MaybeRefOrGetter<string>
   telemetryDefault?: boolean
@@ -1024,6 +1037,15 @@ export const createAppState = async ({
 
   /** When the route changes we need to update the active entities in the store */
   const handleRouteChange = (to: RouteLocationNormalizedGeneric) => {
+    // While the host is still resolving the active team, defer route
+    // handling. Otherwise the team check below would compare a real
+    // team-scoped URL against a stale `'local'` fallback and redirect the
+    // user away from a workspace they actually have access to. The watcher
+    // on `isCurrentTeamLoading` re-runs this handler once the team lands.
+    if (toValue(isCurrentTeamLoading)) {
+      return
+    }
+
     const slug = getRouteParam('workspaceSlug', to)
     const document = getRouteParam('documentSlug', to)
     const nextTeamSlug = getRouteParam('teamSlug', to)
@@ -1123,6 +1145,37 @@ export const createAppState = async ({
   }
 
   // ---------------------------------------------------------------------------
+  // Team-loading driven route replay
+  //
+  // On reload, the route fires before `currentTeam` resolves. We skip route
+  // processing while the team is loading (see `handleRouteChange`) and replay
+  // it here once the team lands, so the workspace check sees the real team
+  // and does not bounce a team URL back to the local default.
+  watch(
+    () => toValue(isCurrentTeamLoading),
+    (loading) => {
+      if (loading) {
+        return
+      }
+      const route = router.currentRoute.value
+      if (route) {
+        // `handleRouteChange` is fire-and-forget here, mirroring how
+        // `router.afterEach` invokes it. We only need the side effects -
+        // the returned promise has no caller-relevant resolution value.
+        void handleRouteChange(route)
+      }
+    },
+  )
+
+  /**
+   * Splash-screen gate exposed to the shell. Combines workspace syncing with
+   * the host-driven team fetch so the UI stays on the splash until both the
+   * active workspace and the active team are ready - otherwise a reload onto
+   * a team workspace flashes the local fallback before the team resolves.
+   */
+  const loading = computed(() => isSyncingWorkspace.value || toValue(isCurrentTeamLoading))
+
+  // ---------------------------------------------------------------------------
   // Events handling
 
   initializeAppEventHandlers({
@@ -1183,7 +1236,7 @@ export const createAppState = async ({
     eventBus,
     router,
     currentRoute,
-    loading: isSyncingWorkspace,
+    loading,
     activeEntities: {
       workspaceSlug,
       documentSlug,

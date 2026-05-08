@@ -292,6 +292,49 @@ describe('app-state', () => {
     expect(pushed[0]?.params?.documentSlug).toBe('drafts')
   })
 
+  it('does not redirect a team workspace URL to local while the active team is still loading', async () => {
+    // Reproduces the reload bug: the user has switched to a team
+    // workspace, then refreshes the page. The route fires before
+    // `currentTeam` resolves, so without the gate the team check would
+    // see the stale `'local'` fallback and bounce the user back to the
+    // local default. With the gate, route handling defers until the team
+    // lands and we end up on the team workspace as intended.
+    await persistWorkspace({ teamSlug: 'reload-team', slug: 'team-default', name: 'Team Default' })
+
+    const router = setupRouter()
+    const currentTeam = ref<Team | undefined>(undefined)
+    const isCurrentTeamLoading = ref(true)
+
+    const appState = await createAppState({ router, currentTeam, isCurrentTeamLoading })
+
+    await router.push({
+      name: 'workspace.get-started',
+      params: { teamSlug: 'reload-team', workspaceSlug: 'team-default' },
+    })
+    await router.isReady()
+    await waitForNavigation()
+
+    // While the team is loading the splash should still be up and the
+    // team URL must not have been swapped for the local default.
+    expect(appState.loading.value).toBe(true)
+    expect(router.currentRoute.value.params.teamSlug).toBe('reload-team')
+    expect(router.currentRoute.value.params.workspaceSlug).toBe('team-default')
+    expect(appState.store.value).toBeNull()
+
+    // The host resolves the team. The route handler should now replay
+    // and load the team workspace without redirecting away.
+    currentTeam.value = teamWithSlug('reload-team')
+    isCurrentTeamLoading.value = false
+
+    await vi.waitFor(() => {
+      expect(appState.store.value).not.toBeNull()
+    })
+
+    expect(router.currentRoute.value.params.teamSlug).toBe('reload-team')
+    expect(router.currentRoute.value.params.workspaceSlug).toBe('team-default')
+    expect(appState.workspace.activeWorkspace.value?.id).toBe(getWorkspaceId('reload-team', 'team-default'))
+  })
+
   it('redirects to the saved tab path when switching workspaces after initial load', async () => {
     const savedTabPath = '/@local/switch-target/document/drafts/servers'
     await persistWorkspace({ slug: 'switch-source' })
