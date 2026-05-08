@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { compareVersions, isVersionLessThanOrEqual } from './compare-versions'
+import { compareVersions, isVersionLessThan, isVersionLessThanOrEqual } from './compare-versions'
 
 describe('compareVersions', () => {
   it('returns 0 for identical versions', () => {
@@ -47,6 +47,27 @@ describe('compareVersions', () => {
 
   it('orders numeric pre-release identifiers below alphanumeric ones', () => {
     expect(compareVersions('1.0.0-1', '1.0.0-alpha')).toBeLessThan(0)
+  })
+})
+
+describe('isVersionLessThan', () => {
+  it('is true when the first version is lower', () => {
+    expect(isVersionLessThan('1.2.3', '1.2.4')).toBe(true)
+    expect(isVersionLessThan('1.2.3', '1.3.0')).toBe(true)
+    expect(isVersionLessThan('1.2.3', '2.0.0')).toBe(true)
+  })
+
+  it('is false when the first version is greater or equal', () => {
+    expect(isVersionLessThan('1.2.4', '1.2.3')).toBe(false)
+    expect(isVersionLessThan('1.3.0', '1.2.3')).toBe(false)
+    expect(isVersionLessThan('2.0.0', '1.2.3')).toBe(false)
+    expect(isVersionLessThan('1.2.3', '1.2.3')).toBe(false)
+  })
+
+  it('treats missing segments like compareVersions (parity with legacy migration checks)', () => {
+    expect(isVersionLessThan('1', '1.0.0')).toBe(false)
+    expect(isVersionLessThan('1.2', '1.2.0')).toBe(false)
+    expect(isVersionLessThan('1.0', '1.1.0')).toBe(true)
   })
 })
 

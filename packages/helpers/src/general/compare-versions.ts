@@ -89,6 +89,11 @@ export const compareVersions = (a: string, b: string): number => {
   return 0
 }
 
+/** Convenience wrapper: `true` when `a` is strictly less than `b`. */
+export const isVersionLessThan = (a: string, b: string): boolean => {
+  return compareVersions(a, b) < 0
+}
+
 /** Convenience wrapper: `true` when `a` is less than or equal to `b`. */
 export const isVersionLessThanOrEqual = (a: string, b: string): boolean => {
   return compareVersions(a, b) <= 0

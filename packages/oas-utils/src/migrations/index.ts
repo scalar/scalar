@@ -5,4 +5,3 @@ export {
   transformLegacyDataToWorkspace,
 } from './migrate-to-indexdb'
 export { migrator } from './migrator'
-export { semverLessThan } from './semver'
