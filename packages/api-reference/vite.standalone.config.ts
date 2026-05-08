@@ -46,7 +46,7 @@ export default defineConfig({
     vue(),
     tailwindcss(),
     cssInjectedByJsPlugin(),
-    webpackStats({ fileName: 'webpack-stats.umd.json' }),
+    webpackStats(),
     banner({
       outDir: 'dist/browser',
       content: replaceVariables(licenseBannerTemplate, {
