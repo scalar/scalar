@@ -521,7 +521,13 @@ defineExpose({
 .address-bar-path {
   height: 100%;
 }
-.address-bar-path :deep(.code-input-lite__input) {
+/*
+  Apply the right-side cushion to BOTH layers so the input's rendered text
+  and the overlay's rendered text stay aligned character-for-character.
+  Applying to only one would shift caret + selection out of sync with pills.
+*/
+.address-bar-path :deep(.code-input-lite__input),
+.address-bar-path :deep(.code-input-lite__overlay) {
   /* Keep the cursor visible past the fade-right overlay while typing */
   padding-right: 24px;
 }
