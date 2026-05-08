@@ -2,6 +2,7 @@
  * Snapshot: request table parameter info popover (narrow max width + wrapped description).
  *
  * Seeds a dedicated workspace document at runtime (does not change default app-state seed data).
+ * Navigates via the sidebar (Back → collection → operation) so IndexedDB persistence never races a full reload.
  *
  * Refresh baseline from `projects/scalar-app`:
  * `CI=1 pnpm exec playwright test test/request-table-tooltip.e2e.ts --update-snapshots`
@@ -10,10 +11,16 @@ import { type Page, type PageAssertionsToHaveScreenshotOptions, expect, test } f
 
 import { waitForScalarAppShellReady } from './helpers/wait-for-scalar-app-shell-ready'
 
-/** Matches {@link seedRequestTableTooltipDocument}; used in the example URL path. */
+/** Matches {@link seedRequestTableTooltipDocument}; used in route assertions and OpenAPI `name`. */
 const TOOLTIP_TEST_DOCUMENT = 'e2e-request-table-tooltip'
 
-const EXAMPLE_ROUTE = `/@local/default/document/${TOOLTIP_TEST_DOCUMENT}/path/%252F/method/get/example/default`
+/** {@link seedRequestTableTooltipDocument} sets `info.title`; sidebar lists documents by this title. */
+const TOOLTIP_DOCUMENT_SIDEBAR_TITLE = 'E2E request table tooltip'
+
+/** OpenAPI operation summary; sidebar lists operations by summary when present. */
+const TOOLTIP_OPERATION_SIDEBAR_TITLE = 'Tooltip width snapshot'
+
+const DOCUMENT_DRAFTS_OVERVIEW = '/@local/default/document/drafts/overview'
 
 const viewport = { width: 1280, height: 800 } as const
 
@@ -79,16 +86,24 @@ test.describe('request-table-tooltip.e2e', () => {
   test('request table tooltip popover snapshot', async ({ page }) => {
     await page.setViewportSize(viewport)
 
-    await page.goto('/', { waitUntil: 'load', timeout: 60_000 })
+    await page.goto(DOCUMENT_DRAFTS_OVERVIEW, { waitUntil: 'load', timeout: 60_000 })
     await waitForScalarAppShellReady(page)
+    await expect(page).toHaveURL(/\/document\/drafts\//)
 
     await seedRequestTableTooltipDocument(page)
 
-    await page.goto(EXAMPLE_ROUTE, { waitUntil: 'load', timeout: 60_000 })
+    await page.getByRole('button', { name: 'Back' }).click()
+    await expect(page).toHaveURL(/\/get-started/)
+
+    const sidebar = page.locator('aside')
+    await sidebar.getByText(TOOLTIP_DOCUMENT_SIDEBAR_TITLE, { exact: true }).click()
+    await expect(page).toHaveURL(new RegExp(`/document/${TOOLTIP_TEST_DOCUMENT}/`))
+
+    await sidebar.getByRole('button', { name: TOOLTIP_OPERATION_SIDEBAR_TITLE }).click()
     await expect(page).toHaveURL(/\/example\/default/)
 
-    const infoRow = page.locator('[id="snapshotTooltipWidth"]')
-    await expect(infoRow).toBeVisible({ timeout: 30_000 })
+    const infoRow = page.locator('#snapshotTooltipWidth')
+    await infoRow.waitFor({ state: 'visible', timeout: 60_000 })
 
     await infoRow.getByRole('button', { name: 'More Information' }).click()
 
