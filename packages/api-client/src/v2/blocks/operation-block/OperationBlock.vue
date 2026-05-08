@@ -199,12 +199,6 @@ const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
  * `resolveExecutableRequestUrl`), including security query params.
  */
 const copyAddressBarUrl = async (): Promise<void> => {
-  const variablesStore = createVariablesStoreForRequest()
-  const envVariables = {
-    ...getEnvironmentVariables(environment),
-    ...variablesStore.getVariables(),
-  }
-
   const { request } = requestFactory({
     defaultHeaders,
     environment,
@@ -220,7 +214,7 @@ const copyAddressBarUrl = async (): Promise<void> => {
     requestBodyCompositionSelection,
   })
 
-  await copyToClipboard(resolveExecutableRequestUrl(request, envVariables))
+  await copyToClipboard(resolveExecutableRequestUrl(request, getEnvironmentVariables(environment)))
 }
 
 /** Execute the current operation example */
