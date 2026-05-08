@@ -43,7 +43,6 @@ import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-path'
 import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
-import { EditorView } from '@scalar/use-codemirror'
 import type {
   ApiReferenceEvents,
   ServerMeta,
@@ -68,7 +67,7 @@ import { isPlaceholderPath } from '@/v2/blocks/scalar-address-bar-block/helpers/
 import { refocusBlurTarget } from '@/v2/blocks/scalar-address-bar-block/helpers/refocus-blur-target'
 import { useLoadingAnimation } from '@/v2/blocks/scalar-address-bar-block/hooks/use-loading-animation'
 import { usePathMasking } from '@/v2/blocks/scalar-address-bar-block/hooks/use-path-masking'
-import { CodeInput } from '@/v2/components/code-input'
+import { CodeInputLite } from '@/v2/components/code-input'
 import { ServerDropdown } from '@/v2/components/server'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -115,11 +114,6 @@ const isHistoryDropdownOpen = ref(false)
 // ───────────────────────────────────────────────────────────────────
 // Derived state
 // ───────────────────────────────────────────────────────────────────
-
-/** Keeps the cursor visible past the fade-right overlay while typing */
-const addressBarScrollMargins = EditorView.scrollMargins.of(() => ({
-  right: 24,
-}))
 
 /** Animated background transform for the loading indicator */
 const style = computed(() => ({
@@ -174,7 +168,7 @@ const handleFocusAddressBar = (
   addressBarRef.value?.focus('end')
 
   if (payload && 'clear' in payload && payload.clear) {
-    addressBarRef.value?.setCodeMirrorContent('')
+    addressBarRef.value?.setContent('')
   }
 
   if (payload && 'event' in payload) {
@@ -193,7 +187,7 @@ const handleFocusAddressBar = (
 // ───────────────────────────────────────────────────────────────────
 
 usePathMasking({
-  isReady: () => addressBarRef.value?.codeMirror,
+  isReady: () => addressBarRef.value?.inputRef,
   operationKey: () => uniqueKey.value,
   shouldMask: () => isPlaceholderPath(path, documentSlug),
   // Defer to the next frame so focus() runs after click-handler side
@@ -202,8 +196,7 @@ usePathMasking({
   // update against the now-empty value.
   onMask: () =>
     requestAnimationFrame(() => {
-      const editorContent =
-        addressBarRef.value?.codeMirror?.state.doc.toString()
+      const editorContent = addressBarRef.value?.getValue()
 
       if (editorContent && editorContent !== path) {
         return
@@ -261,8 +254,8 @@ const emitPathMethodUpdate = (
   const extractedPath = extractAndSelectServer(targetPath)
   const normalizedPath = normalizePath(extractedPath)
 
-  // Keep CodeMirror in sync so a conflict does not leave a stale value on screen
-  addressBarRef.value?.setCodeMirrorContent(normalizedPath)
+  // Keep the input in sync so a conflict does not leave a stale value on screen
+  addressBarRef.value?.setContent(normalizedPath)
 
   eventBus.emit('operation:update:pathMethod', {
     meta: { method, path },
@@ -284,15 +277,15 @@ const emitPathMethodUpdate = (
       }
 
       // Edge case: pasting a full URL extracts the server but leaves the path
-      // unchanged. CodeMirror still shows the full URL, so force it back to
+      // unchanged. The input still shows the full URL, so force it back to
       // just the path.
-      const mirrorContent = addressBarRef.value?.codeMirrorRef?.textContent
+      const mirrorContent = addressBarRef.value?.getValue()
       if (
         status === 'no-change' &&
         mirrorContent &&
         mirrorContent !== extractedPath
       ) {
-        addressBarRef.value?.setCodeMirrorContent(extractedPath)
+        addressBarRef.value?.setContent(extractedPath)
       }
 
       nextTick(() => refocusBlurTarget(returnedSelector))
@@ -339,7 +332,8 @@ const handlePathSubmit = (
 
 /** Unset the server when backspace is pressed on an empty path */
 const handlePathBackspace = (event: KeyboardEvent): void => {
-  if ((event.target as HTMLElement)?.innerText === '\n') {
+  const target = event.target as HTMLInputElement | null
+  if (target && target.value === '') {
     eventBus.emit('server:update:selected', { url: '', meta: serverMeta })
   }
 }
@@ -463,23 +457,18 @@ defineExpose({
 
         <div class="fade-left" />
         <!-- Path + URL + env vars -->
-        <CodeInput
+        <CodeInputLite
           ref="addressBarRef"
           alwaysEmitChange
           aria-label="Path"
-          class="min-w-fit pl-px outline-none"
-          disableCloseBrackets
+          class="address-bar-path min-w-fit pl-px outline-none"
           :disabled="layout === 'modal'"
           disableEnter
-          disableTabIndent
           :emitOnBlur="false"
           :environment="environment"
-          :extensions="[addressBarScrollMargins]"
-          importCurl
           :layout="layout"
           :modelValue="path"
           :placeholder="server ? '' : 'Enter a URL'"
-          server
           @blur="handlePathBlur"
           @keydown.delete="handlePathBackspace"
           @keydown.tab="tabbedOut = true"
@@ -584,19 +573,12 @@ defineExpose({
   </div>
 </template>
 <style scoped>
-:deep(.cm-editor) {
+.address-bar-path {
   height: 100%;
-  outline: none;
-  width: 100%;
 }
-:deep(.cm-line) {
-  padding: 0;
-}
-:deep(.cm-content) {
-  padding: 0;
-  display: flex;
-  align-items: center;
-  font-size: var(--scalar-small);
+.address-bar-path :deep(.code-input-lite__input) {
+  /* Keep the cursor visible past the fade-right overlay while typing */
+  padding-right: 24px;
 }
 .scroll-timeline-x {
   scroll-timeline: --scroll-timeline x;
@@ -607,18 +589,7 @@ defineExpose({
 .scroll-timeline-x-hidden {
   overflow-x: auto;
 }
-.scroll-timeline-x-hidden :deep(.cm-scroller) {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  padding-right: 20px;
-  overflow: auto;
-}
 .scroll-timeline-x-hidden::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-  display: none;
-}
-.scroll-timeline-x-hidden :deep(.cm-scroller::-webkit-scrollbar) {
   width: 0;
   height: 0;
   display: none;
@@ -690,14 +661,14 @@ defineExpose({
   );
   background: var(--scalar-address-bar-bg);
 }
-.address-bar-bg-states:has(.cm-focused) {
+.address-bar-bg-states:has(.code-input-lite__input:focus-visible) {
   --scalar-address-bar-bg: var(--scalar-background-1);
   border-color: var(--scalar-border-color);
   outline-width: 1px;
   outline-style: solid;
 }
-.address-bar-bg-states:has(.cm-focused) .fade-left,
-.address-bar-bg-states:has(.cm-focused) .fade-right {
+.address-bar-bg-states:has(.code-input-lite__input:focus-visible) .fade-left,
+.address-bar-bg-states:has(.code-input-lite__input:focus-visible) .fade-right {
   --scalar-address-bar-bg: var(--scalar-background-1);
 }
 </style>
