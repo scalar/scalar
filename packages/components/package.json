@@ -41,6 +41,176 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./scalar-button": {
+      "types": "./dist/components/ScalarButton/index.d.ts",
+      "import": "./dist/components/ScalarButton/index.js",
+      "default": "./dist/components/ScalarButton/index.js"
+    },
+    "./scalar-card": {
+      "types": "./dist/components/ScalarCard/index.d.ts",
+      "import": "./dist/components/ScalarCard/index.js",
+      "default": "./dist/components/ScalarCard/index.js"
+    },
+    "./scalar-checkbox-input": {
+      "types": "./dist/components/ScalarCheckboxInput/index.d.ts",
+      "import": "./dist/components/ScalarCheckboxInput/index.js",
+      "default": "./dist/components/ScalarCheckboxInput/index.js"
+    },
+    "./scalar-code-block": {
+      "types": "./dist/components/ScalarCodeBlock/index.d.ts",
+      "import": "./dist/components/ScalarCodeBlock/index.js",
+      "default": "./dist/components/ScalarCodeBlock/index.js"
+    },
+    "./scalar-color-mode-toggle": {
+      "types": "./dist/components/ScalarColorModeToggle/index.d.ts",
+      "import": "./dist/components/ScalarColorModeToggle/index.js",
+      "default": "./dist/components/ScalarColorModeToggle/index.js"
+    },
+    "./scalar-combobox": {
+      "types": "./dist/components/ScalarCombobox/index.d.ts",
+      "import": "./dist/components/ScalarCombobox/index.js",
+      "default": "./dist/components/ScalarCombobox/index.js"
+    },
+    "./scalar-copy": {
+      "types": "./dist/components/ScalarCopy/index.d.ts",
+      "import": "./dist/components/ScalarCopy/index.js",
+      "default": "./dist/components/ScalarCopy/index.js"
+    },
+    "./scalar-dropdown": {
+      "types": "./dist/components/ScalarDropdown/index.d.ts",
+      "import": "./dist/components/ScalarDropdown/index.js",
+      "default": "./dist/components/ScalarDropdown/index.js"
+    },
+    "./scalar-error-boundary": {
+      "types": "./dist/components/ScalarErrorBoundary/index.d.ts",
+      "import": "./dist/components/ScalarErrorBoundary/index.js",
+      "default": "./dist/components/ScalarErrorBoundary/index.js"
+    },
+    "./scalar-file-upload": {
+      "types": "./dist/components/ScalarFileUpload/index.d.ts",
+      "import": "./dist/components/ScalarFileUpload/index.js",
+      "default": "./dist/components/ScalarFileUpload/index.js"
+    },
+    "./scalar-floating": {
+      "types": "./dist/components/ScalarFloating/index.d.ts",
+      "import": "./dist/components/ScalarFloating/index.js",
+      "default": "./dist/components/ScalarFloating/index.js"
+    },
+    "./scalar-form": {
+      "types": "./dist/components/ScalarForm/index.d.ts",
+      "import": "./dist/components/ScalarForm/index.js",
+      "default": "./dist/components/ScalarForm/index.js"
+    },
+    "./scalar-header": {
+      "types": "./dist/components/ScalarHeader/index.d.ts",
+      "import": "./dist/components/ScalarHeader/index.js",
+      "default": "./dist/components/ScalarHeader/index.js"
+    },
+    "./scalar-hotkey": {
+      "types": "./dist/components/ScalarHotkey/index.d.ts",
+      "import": "./dist/components/ScalarHotkey/index.js",
+      "default": "./dist/components/ScalarHotkey/index.js"
+    },
+    "./scalar-icon": {
+      "types": "./dist/components/ScalarIcon/index.d.ts",
+      "import": "./dist/components/ScalarIcon/index.js",
+      "default": "./dist/components/ScalarIcon/index.js"
+    },
+    "./scalar-icon-button": {
+      "types": "./dist/components/ScalarIconButton/index.d.ts",
+      "import": "./dist/components/ScalarIconButton/index.js",
+      "default": "./dist/components/ScalarIconButton/index.js"
+    },
+    "./scalar-listbox": {
+      "types": "./dist/components/ScalarListbox/index.d.ts",
+      "import": "./dist/components/ScalarListbox/index.js",
+      "default": "./dist/components/ScalarListbox/index.js"
+    },
+    "./scalar-loading": {
+      "types": "./dist/components/ScalarLoading/index.d.ts",
+      "import": "./dist/components/ScalarLoading/index.js",
+      "default": "./dist/components/ScalarLoading/index.js"
+    },
+    "./scalar-markdown": {
+      "types": "./dist/components/ScalarMarkdown/index.d.ts",
+      "import": "./dist/components/ScalarMarkdown/index.js",
+      "default": "./dist/components/ScalarMarkdown/index.js"
+    },
+    "./scalar-menu": {
+      "types": "./dist/components/ScalarMenu/index.d.ts",
+      "import": "./dist/components/ScalarMenu/index.js",
+      "default": "./dist/components/ScalarMenu/index.js"
+    },
+    "./scalar-modal": {
+      "types": "./dist/components/ScalarModal/index.d.ts",
+      "import": "./dist/components/ScalarModal/index.js",
+      "default": "./dist/components/ScalarModal/index.js"
+    },
+    "./scalar-popover": {
+      "types": "./dist/components/ScalarPopover/index.d.ts",
+      "import": "./dist/components/ScalarPopover/index.js",
+      "default": "./dist/components/ScalarPopover/index.js"
+    },
+    "./scalar-save-prompt": {
+      "types": "./dist/components/ScalarSavePrompt/index.d.ts",
+      "import": "./dist/components/ScalarSavePrompt/index.js",
+      "default": "./dist/components/ScalarSavePrompt/index.js"
+    },
+    "./scalar-search-input": {
+      "types": "./dist/components/ScalarSearchInput/index.d.ts",
+      "import": "./dist/components/ScalarSearchInput/index.js",
+      "default": "./dist/components/ScalarSearchInput/index.js"
+    },
+    "./scalar-search-results": {
+      "types": "./dist/components/ScalarSearchResults/index.d.ts",
+      "import": "./dist/components/ScalarSearchResults/index.js",
+      "default": "./dist/components/ScalarSearchResults/index.js"
+    },
+    "./scalar-sidebar": {
+      "types": "./dist/components/ScalarSidebar/index.d.ts",
+      "import": "./dist/components/ScalarSidebar/index.js",
+      "default": "./dist/components/ScalarSidebar/index.js"
+    },
+    "./scalar-teleport": {
+      "types": "./dist/components/ScalarTeleport/index.d.ts",
+      "import": "./dist/components/ScalarTeleport/index.js",
+      "default": "./dist/components/ScalarTeleport/index.js"
+    },
+    "./scalar-text-area": {
+      "types": "./dist/components/ScalarTextArea/index.d.ts",
+      "import": "./dist/components/ScalarTextArea/index.js",
+      "default": "./dist/components/ScalarTextArea/index.js"
+    },
+    "./scalar-text-input": {
+      "types": "./dist/components/ScalarTextInput/index.d.ts",
+      "import": "./dist/components/ScalarTextInput/index.js",
+      "default": "./dist/components/ScalarTextInput/index.js"
+    },
+    "./scalar-theme-swatches": {
+      "types": "./dist/components/ScalarThemeSwatches/index.d.ts",
+      "import": "./dist/components/ScalarThemeSwatches/index.js",
+      "default": "./dist/components/ScalarThemeSwatches/index.js"
+    },
+    "./scalar-toggle": {
+      "types": "./dist/components/ScalarToggle/index.d.ts",
+      "import": "./dist/components/ScalarToggle/index.js",
+      "default": "./dist/components/ScalarToggle/index.js"
+    },
+    "./scalar-tooltip": {
+      "types": "./dist/components/ScalarTooltip/index.d.ts",
+      "import": "./dist/components/ScalarTooltip/index.js",
+      "default": "./dist/components/ScalarTooltip/index.js"
+    },
+    "./scalar-virtual-text": {
+      "types": "./dist/components/ScalarVirtualText/index.d.ts",
+      "import": "./dist/components/ScalarVirtualText/index.js",
+      "default": "./dist/components/ScalarVirtualText/index.js"
+    },
+    "./scalar-wrapping-text": {
+      "types": "./dist/components/ScalarWrappingText/index.d.ts",
+      "import": "./dist/components/ScalarWrappingText/index.js",
+      "default": "./dist/components/ScalarWrappingText/index.js"
+    },
     "./style.css": "./dist/style.css",
     "./tailwind.config.css": "./dist/styles/tailwind.config.css",
     "./vue-styles.css": "./dist/vue-styles.css"
