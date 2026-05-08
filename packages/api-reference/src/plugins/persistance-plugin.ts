@@ -9,18 +9,11 @@ import { authStorage, clientStorage } from '@/helpers/storage'
 export const persistencePlugin = ({
   debounceDelay = 500,
   maxWait = 10000,
-  prefix = '',
   persistAuth = false,
 }: {
   debounceDelay?: number
   /** Maximum time in milliseconds to wait before forcing execution, even with continuous calls. */
   maxWait?: number
-  /**
-   * Prefix to use for local storage keys.
-   * This can be a string or a function returning a string.
-   * For example, to persist data per document, use the document name as the prefix.
-   */
-  prefix?: string | (() => string)
   /**
    * Determines whether authentication details should be persisted.
    * Accepts a boolean or a function that returns a boolean.
@@ -32,19 +25,6 @@ export const persistencePlugin = ({
   const { execute } = debounce({ delay: debounceDelay, maxWait })
   const authPersistence = authStorage()
   const clientPersistence = clientStorage()
-
-  /**
-   * Resolves the prefix to use for local storage keys.
-   * If 'prefix' is a string, returns it directly.
-   * If 'prefix' is a function, calls and returns its value.
-   */
-  const getPrefix = () => {
-    if (typeof prefix === 'string') {
-      return prefix
-    }
-
-    return prefix()
-  }
 
   const getPersistAuth = () => {
     if (typeof persistAuth === 'function') {
@@ -72,8 +52,11 @@ export const persistencePlugin = ({
         }
 
         // Persist auth and [server](TODO)
+        // Use event.documentName as both the debounce key and the storage key so that
+        // concurrent auth changes across multiple documents do not clobber each other and
+        // the correct slug is used even when the active document has already changed.
         if (getPersistAuth() && event.type === 'auth') {
-          execute('auth', () => authPersistence.setAuth(getPrefix(), event.value))
+          execute(`auth-${event.documentName}`, () => authPersistence.setAuth(event.documentName, event.value))
         }
 
         // No action for other event types
