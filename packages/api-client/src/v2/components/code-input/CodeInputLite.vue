@@ -153,6 +153,17 @@ const buildPillContext = (variableName: string): PillContext => {
 
 let pillTooltipApps: App[] = []
 
+/**
+ * Tooltips are the most expensive part of the render — each pill creates a
+ * Vue app + a `useTooltip` watch + four DOM listeners. We defer that work
+ * until the user actually interacts (focus, pointerover, or the autocomplete
+ * dropdown opens) so a page full of idle instances costs nothing extra.
+ *
+ * Once `tooltipsActive` flips to true it stays on; subsequent overlay
+ * rebuilds remount tooltips for the new pills as before.
+ */
+let tooltipsActive = false
+
 const teardownPillTooltips = (): void => {
   for (const app of pillTooltipApps) {
     app.unmount()
@@ -189,7 +200,7 @@ let lastOverlayKey: string | null = null
  * a pill could keep showing a stale tooltip value after the env updates.
  */
 const renderKeyForEnvironment = (text: string): string => {
-  if (!withVariables) {
+  if (!withVariables || !text.includes('{{')) {
     return ''
   }
   const regex = new RegExp(REGEX.VARIABLES.source, REGEX.VARIABLES.flags)
@@ -215,7 +226,10 @@ const renderOverlay = (text: string): void => {
 
   teardownPillTooltips()
 
-  if (!withVariables || text.length === 0) {
+  // Fast path: no pill markers in the text → set textContent and skip the
+  // regex/innerHTML pipeline entirely. Most table cell values (header keys,
+  // query keys, plain values) hit this branch.
+  if (!withVariables || text.length === 0 || !text.includes('{{')) {
     overlayRef.value.textContent = text
     return
   }
@@ -255,6 +269,25 @@ const renderOverlay = (text: string): void => {
   }
 
   overlayRef.value.innerHTML = html
+
+  // Pills are rendered visually but tooltip apps stay unmounted until the
+  // user actually engages with the input. `ensureTooltipsActive` flips this
+  // on first focus / pointerover and remounts on subsequent rebuilds.
+  if (tooltipsActive) {
+    mountPillTooltips()
+  }
+}
+
+/**
+ * Idempotent: flips `tooltipsActive` on first call and mounts tooltips for
+ * the pills currently in the overlay. Bound to focus + pointerover so the
+ * first interaction (whichever comes first) wires hover behaviour.
+ */
+const ensureTooltipsActive = (): void => {
+  if (tooltipsActive) {
+    return
+  }
+  tooltipsActive = true
   mountPillTooltips()
 }
 
@@ -293,6 +326,7 @@ const handleInput = (event: Event): void => {
 
 const handleInputFocus = (): void => {
   isFocused.value = true
+  ensureTooltipsActive()
 }
 
 const handleInputBlur = (event: FocusEvent): void => {
@@ -576,7 +610,8 @@ defineExpose({
       ref="overlayRef"
       aria-hidden="true"
       class="code-input-lite__overlay"
-      @click="handleOverlayClick" />
+      @click="handleOverlayClick"
+      @pointerover="ensureTooltipsActive" />
 
     <span
       ref="measureRef"
