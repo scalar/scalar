@@ -14,6 +14,8 @@ import {
   extractBodyFieldNames,
   extractParameterDescriptions,
   extractParameterNames,
+  extractSchemaDescriptions,
+  extractSchemaFieldNames,
 } from '@/helpers/openapi'
 
 function responseExampleValueToString(value: unknown): string {
@@ -158,14 +160,16 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
   if (entry.type === 'model') {
     const schema = getResolvedRef(document?.components?.schemas?.[entry.name])
     const schemaDescription = schema?.description ?? ''
+    const propertyNames = extractSchemaFieldNames(schema)
+    const propertyDescriptions = extractSchemaDescriptions(schema)
 
     index.push({
       type: 'model',
       title: entry.title,
       description: 'Model',
       id: entry.id,
-      body: '',
-      bodyDescriptions: schemaDescription ? [schemaDescription] : [],
+      body: propertyNames,
+      bodyDescriptions: schemaDescription ? [schemaDescription, ...propertyDescriptions] : propertyDescriptions,
       entry,
     })
 

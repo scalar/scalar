@@ -157,6 +157,39 @@ export function extractBodyDescriptions(operation: OperationObject): string[] {
 }
 
 /**
+ * Extracts the property names of a schema for the search index.
+ *
+ * Same depth and composition behavior as `extractBodyFieldNames` — descends transparently through
+ * `oneOf`/`anyOf`/`allOf`, walks one level into nested object properties, dedupes.
+ */
+export function extractSchemaFieldNames(schema: SchemaObject | undefined): string[] {
+  const names: string[] = []
+  collectSchemaProperties(schema, {
+    visit: (key) => pushUnique(names, key),
+    visited: new Set<SchemaObject>(),
+    maxPropertyDepth: 2,
+  })
+  return names
+}
+
+/**
+ * Extracts the property descriptions of a schema for the search index.
+ */
+export function extractSchemaDescriptions(schema: SchemaObject | undefined): string[] {
+  const descriptions: string[] = []
+  collectSchemaProperties(schema, {
+    visit: (_key, propertySchema) => {
+      if (propertySchema && 'description' in propertySchema && typeof propertySchema.description === 'string') {
+        pushUnique(descriptions, propertySchema.description)
+      }
+    },
+    visited: new Set<SchemaObject>(),
+    maxPropertyDepth: 2,
+  })
+  return descriptions
+}
+
+/**
  * Deep merge for objects
  */
 export function deepMerge(source: Record<any, any>, target: Record<any, any>) {

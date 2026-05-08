@@ -361,7 +361,7 @@ describe('createSearchIndex', () => {
   })
 
   describe('schemas', () => {
-    it('adds a single schema', () => {
+    it('adds a single schema with property names and descriptions', () => {
       const index = createSearchIndex(
         createMockDocument({
           components: {
@@ -370,6 +370,10 @@ describe('createSearchIndex', () => {
                 type: 'object',
                 title: 'User Model',
                 description: 'A user object',
+                properties: {
+                  name: { type: 'string', description: 'Display name' },
+                  email: { type: 'string' },
+                },
               },
             },
           },
@@ -386,15 +390,15 @@ describe('createSearchIndex', () => {
         {
           title: 'User Model',
           description: 'Model',
-          body: '',
-          bodyDescriptions: ['A user object'],
+          body: ['name', 'email'],
+          bodyDescriptions: ['A user object', 'Display name'],
         },
       ])
 
       expect(index.length).toEqual(3)
     })
 
-    it('adds schema without description', () => {
+    it('adds schema without description or properties', () => {
       const index = createSearchIndex(
         createMockDocument({
           components: {
@@ -418,7 +422,7 @@ describe('createSearchIndex', () => {
         {
           title: 'Post Model',
           description: 'Model',
-          body: '',
+          body: [],
           bodyDescriptions: [],
         },
       ])
@@ -449,6 +453,44 @@ describe('createSearchIndex', () => {
       expect(index[1]).toMatchObject({ type: 'heading', title: 'Models' })
       expect(index[2]).toMatchObject({ title: 'User Model', bodyDescriptions: ['A user object'] })
       expect(index[3]).toMatchObject({ title: 'Post Model', bodyDescriptions: ['A post object'] })
+    })
+
+    it('collects property names through a oneOf model schema', () => {
+      // Mirrors the Galaxy spec's CelestialBody — top-level oneOf of two $ref-ed object schemas.
+      const planet = {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          failureCallbackUrl: { type: 'string' },
+        },
+      }
+      const satellite = {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          diameter: { type: 'number' },
+        },
+      }
+      const document = createMockDocument({
+        components: {
+          schemas: {
+            Planet: planet,
+            Satellite: satellite,
+            CelestialBody: {
+              title: 'CelestialBody',
+              oneOf: [
+                { $ref: '#/components/schemas/Planet', '$ref-value': planet },
+                { $ref: '#/components/schemas/Satellite', '$ref-value': satellite },
+              ],
+            },
+          },
+        },
+      } as unknown as Partial<OpenApiDocument>)
+
+      const index = createSearchIndex(document)
+      const celestialEntry = index.find((item) => item.type === 'model' && item.title === 'CelestialBody')
+
+      expect(celestialEntry?.body).toEqual(['name', 'failureCallbackUrl', 'diameter'])
     })
   })
 

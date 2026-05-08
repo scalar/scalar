@@ -7,6 +7,8 @@ import {
   extractBodyFieldNames,
   extractParameterDescriptions,
   extractParameterNames,
+  extractSchemaDescriptions,
+  extractSchemaFieldNames,
 } from './openapi'
 
 describe('openapi', () => {
@@ -342,6 +344,32 @@ describe('openapi', () => {
       expect(extractBodyFieldNames(operation)).toEqual(['name', 'failureCallbackUrl', 'orbitalPeriod'])
     })
 
+    it('collects properties from every branch of an anyOf', () => {
+      const operation = {
+        summary: 'Test',
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                anyOf: [
+                  {
+                    type: 'object',
+                    properties: { emailAddress: { type: 'string' } },
+                  },
+                  {
+                    type: 'object',
+                    properties: { phoneNumber: { type: 'string' } },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      } as unknown as OperationObject
+
+      expect(extractBodyFieldNames(operation)).toEqual(['emailAddress', 'phoneNumber'])
+    })
+
     it('collects properties from every member of an allOf', () => {
       const operation = {
         summary: 'Test',
@@ -497,6 +525,62 @@ describe('openapi', () => {
       } as unknown as OperationObject
 
       expect(extractBodyDescriptions(operation)).toEqual(['Planet name', 'Orbital period in days'])
+    })
+  })
+
+  describe('extractSchemaFieldNames', () => {
+    it('returns empty array for an undefined schema', () => {
+      expect(extractSchemaFieldNames(undefined)).toEqual([])
+    })
+
+    it('extracts top-level property names from an object schema', () => {
+      const schema = {
+        type: 'object',
+        properties: {
+          id: { type: 'integer' },
+          name: { type: 'string' },
+          diameter: { type: 'number' },
+        },
+      } as unknown as SchemaObject
+
+      expect(extractSchemaFieldNames(schema)).toEqual(['id', 'name', 'diameter'])
+    })
+
+    it('descends through a oneOf of $ref schemas', () => {
+      const planet = {
+        type: 'object',
+        properties: { name: { type: 'string' }, failureCallbackUrl: { type: 'string' } },
+      } as unknown as SchemaObject
+      const satellite = {
+        type: 'object',
+        properties: { name: { type: 'string' }, diameter: { type: 'number' } },
+      } as unknown as SchemaObject
+      const schema = {
+        oneOf: [
+          { $ref: '#/components/schemas/Planet', '$ref-value': planet },
+          { $ref: '#/components/schemas/Satellite', '$ref-value': satellite },
+        ],
+      } as unknown as SchemaObject
+
+      expect(extractSchemaFieldNames(schema)).toEqual(['name', 'failureCallbackUrl', 'diameter'])
+    })
+  })
+
+  describe('extractSchemaDescriptions', () => {
+    it('returns empty array for an undefined schema', () => {
+      expect(extractSchemaDescriptions(undefined)).toEqual([])
+    })
+
+    it('extracts top-level property descriptions', () => {
+      const schema = {
+        type: 'object',
+        properties: {
+          diameter: { type: 'number', description: 'Diameter in kilometers' },
+          name: { type: 'string' },
+        },
+      } as unknown as SchemaObject
+
+      expect(extractSchemaDescriptions(schema)).toEqual(['Diameter in kilometers'])
     })
   })
 })

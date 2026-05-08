@@ -881,6 +881,31 @@ describe('search quality', () => {
     expect(search('integer', document)).toHaveLength(0)
   })
 
+  it('finds a model entry by one of its property names', () => {
+    // Mirrors the Galaxy spec's `Satellite` model — a standalone component schema with a
+    // top-level `diameter` property. Searching `diameter` should surface the model.
+    const document = {
+      components: {
+        schemas: {
+          Satellite: {
+            type: 'object',
+            description: 'Every satellite in the Scalar Galaxy',
+            properties: {
+              id: { type: 'integer' },
+              name: { type: 'string' },
+              diameter: { type: 'number', description: 'Diameter in kilometers' },
+            },
+          },
+        },
+      },
+    } as unknown as Partial<OpenApiDocument>
+
+    const result = search('diameter', document)
+
+    expect(result[0]?.item?.type).toEqual('model')
+    expect(result[0]?.item?.title).toEqual('Satellite')
+  })
+
   it('finds operations whose body schema is a oneOf of $ref-ed object schemas', () => {
     // Mirrors the Galaxy spec's "Create a celestial body" endpoint: the request body schema is a
     // top-level `oneOf` of two `$ref`-ed object schemas. A property defined inside one branch
