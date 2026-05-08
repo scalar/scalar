@@ -1,4 +1,4 @@
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -269,6 +269,166 @@ describe('openapi', () => {
       expect(result.join(' ')).not.toContain('optional')
       expect(result.join(' ')).not.toContain('string')
     })
+
+    it('collects properties from every branch of a oneOf', () => {
+      const operation = {
+        summary: 'Test',
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                oneOf: [
+                  {
+                    type: 'object',
+                    properties: {
+                      planetName: { type: 'string' },
+                      failureCallbackUrl: { type: 'string' },
+                    },
+                  },
+                  {
+                    type: 'object',
+                    properties: {
+                      satelliteName: { type: 'string' },
+                      orbitalPeriod: { type: 'number' },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      } as unknown as OperationObject
+
+      expect(extractBodyFieldNames(operation)).toEqual([
+        'planetName',
+        'failureCallbackUrl',
+        'satelliteName',
+        'orbitalPeriod',
+      ])
+    })
+
+    it('resolves $ref schemas inside a oneOf', () => {
+      // Mirrors the Galaxy spec's CelestialBody shape: a oneOf of two $ref-ed object schemas.
+      const planetSchema = {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          failureCallbackUrl: { type: 'string' },
+        },
+      } as unknown as SchemaObject
+      const satelliteSchema = {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          orbitalPeriod: { type: 'number' },
+        },
+      } as unknown as SchemaObject
+      const operation = {
+        summary: 'Test',
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                oneOf: [
+                  { $ref: '#/components/schemas/Planet', '$ref-value': planetSchema },
+                  { $ref: '#/components/schemas/Satellite', '$ref-value': satelliteSchema },
+                ],
+              },
+            },
+          },
+        },
+      } as unknown as OperationObject
+
+      expect(extractBodyFieldNames(operation)).toEqual(['name', 'failureCallbackUrl', 'orbitalPeriod'])
+    })
+
+    it('collects properties from every member of an allOf', () => {
+      const operation = {
+        summary: 'Test',
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                allOf: [
+                  {
+                    type: 'object',
+                    properties: { id: { type: 'string' } },
+                  },
+                  {
+                    type: 'object',
+                    properties: { createdAt: { type: 'string' } },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      } as unknown as OperationObject
+
+      expect(extractBodyFieldNames(operation)).toEqual(['id', 'createdAt'])
+    })
+
+    it('descends through composition nested inside a property', () => {
+      const operation = {
+        summary: 'Test',
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  payload: {
+                    oneOf: [
+                      {
+                        type: 'object',
+                        properties: {
+                          textValue: { type: 'string' },
+                        },
+                      },
+                      {
+                        type: 'object',
+                        properties: {
+                          numberValue: { type: 'number' },
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        },
+      } as unknown as OperationObject
+
+      expect(extractBodyFieldNames(operation)).toEqual(['payload', 'textValue', 'numberValue'])
+    })
+
+    it('does not loop on a recursive schema', () => {
+      const treeProperties: Record<string, unknown> = {
+        value: { type: 'string' },
+      }
+      const treeSchema = {
+        type: 'object',
+        properties: treeProperties,
+      } as unknown as SchemaObject
+      // Wire up the recursive child after creation so both refer to the same object.
+      treeProperties.child = {
+        $ref: '#/components/schemas/Tree',
+        '$ref-value': treeSchema,
+      }
+
+      const operation = {
+        summary: 'Test',
+        requestBody: {
+          content: {
+            'application/json': { schema: treeSchema },
+          },
+        },
+      } as unknown as OperationObject
+
+      // Should terminate and emit each unique property name exactly once.
+      expect(extractBodyFieldNames(operation)).toEqual(['value', 'child'])
+    })
   })
 
   describe('extractBodyDescriptions', () => {
@@ -307,6 +467,36 @@ describe('openapi', () => {
         },
       }
       expect(extractBodyDescriptions(operation)).toEqual(['User display name', 'User email address'])
+    })
+
+    it('extracts descriptions from oneOf branches', () => {
+      const operation = {
+        summary: 'Test',
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                oneOf: [
+                  {
+                    type: 'object',
+                    properties: {
+                      name: { type: 'string', description: 'Planet name' },
+                    },
+                  },
+                  {
+                    type: 'object',
+                    properties: {
+                      orbit: { type: 'number', description: 'Orbital period in days' },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      } as unknown as OperationObject
+
+      expect(extractBodyDescriptions(operation)).toEqual(['Planet name', 'Orbital period in days'])
     })
   })
 })

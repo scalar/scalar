@@ -1,5 +1,6 @@
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
+  MediaTypeObject,
   OpenApiDocument,
   OperationObject,
   ParameterObject,
@@ -32,10 +33,45 @@ function pushUnique(target: string[], value: string | undefined): void {
   }
 }
 
+type CollectOptions = {
+  visit: (key: string, schema: SchemaObject | undefined) => void
+  visited: Set<SchemaObject>
+  maxPropertyDepth: number
+}
+
+/**
+ * Recursively visits every property of a schema, descending transparently through composition
+ * keywords (`oneOf`, `anyOf`, `allOf`) and one level into nested object properties.
+ *
+ * Composition is treated as transparent — a `oneOf` of two object variants is *the same level* as a
+ * single object, just expressed as multiple shapes. Property nesting is capped to keep the index
+ * focused on shallow, commonly-searched fields. A visited-set keyed by resolved-schema identity
+ * guards against recursive (`Tree → Tree`) schemas.
+ */
+function collectSchemaProperties(schema: SchemaObject | undefined, options: CollectOptions, propertyDepth = 0): void {
+  if (!schema || options.visited.has(schema)) {
+    return
+  }
+  options.visited.add(schema)
+
+  const variants = [...(schema.oneOf ?? []), ...(schema.anyOf ?? []), ...(schema.allOf ?? [])]
+  variants.forEach((variantRef) => {
+    collectSchemaProperties(resolveSchemaRef(variantRef), options, propertyDepth)
+  })
+
+  if (isObjectSchema(schema) && schema.properties) {
+    Object.entries(schema.properties).forEach(([key, propRef]) => {
+      const property = resolveSchemaRef(propRef)
+      options.visit(key, property)
+      if (propertyDepth + 1 < options.maxPropertyDepth) {
+        collectSchemaProperties(property, options, propertyDepth + 1)
+      }
+    })
+  }
+}
+
 /**
  * Walks the request body schemas of an operation and yields each property schema with its key.
- * Visits top-level properties plus one level of nested object properties — matching the depth that was
- * previously indexed for search.
  */
 function forEachRequestBodyProperty(
   operation: OperationObject,
@@ -46,25 +82,11 @@ function forEachRequestBodyProperty(
     return
   }
 
+  const visited = new Set<SchemaObject>()
   Object.values(content).forEach((media) => {
-    const resolvedMedia = getResolvedRef(media)
+    const resolvedMedia = getResolvedRef(media) as MediaTypeObject | undefined
     const schema = getResolvedRef(resolvedMedia?.schema)
-
-    if (!schema || !isObjectSchema(schema) || !schema.properties) {
-      return
-    }
-
-    Object.entries(schema.properties).forEach(([key, propRef]) => {
-      const property = resolveSchemaRef(propRef)
-      visit(key, property)
-
-      if (property && isObjectSchema(property) && property.properties) {
-        Object.entries(property.properties).forEach(([nestedKey, nestedRef]) => {
-          const nestedProperty = resolveSchemaRef(nestedRef)
-          visit(nestedKey, nestedProperty)
-        })
-      }
-    })
+    collectSchemaProperties(schema, { visit, visited, maxPropertyDepth: 2 })
   })
 }
 

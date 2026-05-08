@@ -880,4 +880,51 @@ describe('search quality', () => {
     expect(search('REQUIRED', document)).toHaveLength(0)
     expect(search('integer', document)).toHaveLength(0)
   })
+
+  it('finds operations whose body schema is a oneOf of $ref-ed object schemas', () => {
+    // Mirrors the Galaxy spec's "Create a celestial body" endpoint: the request body schema is a
+    // top-level `oneOf` of two `$ref`-ed object schemas. A property defined inside one branch
+    // (e.g. `failureCallbackUrl` on `Planet`) should still surface the operation in search.
+    const planet = {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        failureCallbackUrl: { type: 'string' },
+      },
+    }
+    const satellite = {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        orbitalPeriod: { type: 'number' },
+      },
+    }
+
+    const document = {
+      paths: {
+        '/celestial-bodies': {
+          post: {
+            summary: 'Create a celestial body',
+            operationId: 'createCelestialBody',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    oneOf: [
+                      { $ref: '#/components/schemas/Planet', '$ref-value': planet },
+                      { $ref: '#/components/schemas/Satellite', '$ref-value': satellite },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    } as unknown as Partial<OpenApiDocument>
+
+    const result = search('failureCallbackUrl', document)
+
+    expect(result[0]?.item?.title).toEqual('Create a celestial body')
+  })
 })
