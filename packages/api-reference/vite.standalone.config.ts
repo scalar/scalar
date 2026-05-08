@@ -69,6 +69,11 @@ export default defineConfig({
       // is ever rendered in the standalone API reference. They leak in through the
       // @scalar/components barrel via @scalar/api-client but are never mounted.
       external: [/^radix-vue/, /^@scalar\/openapi-parser/],
+      // Treat every non-CSS module as side-effect-free so Rolldown can drop
+      // unreachable code paths from the bundle (matches the default lib config).
+      treeshake: {
+        moduleSideEffects: (id) => id.includes('.css'),
+      },
       output: {
         entryFileNames: '[name].js',
         globals: {
