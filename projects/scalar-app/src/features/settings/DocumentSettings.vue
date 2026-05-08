@@ -201,7 +201,7 @@ const handleDeleteRegistryDocumentSubmit = (payload: {
         <!-- Published version: registry-side delete. -->
         <div
           v-if="registryMeta.isVersionPublished"
-          class="flex items-center justify-between gap-4 rounded-lg border p-3 text-sm">
+          class="flex flex-col items-center justify-between gap-4 rounded-lg border p-3 text-sm sm:flex-row">
           <div class="min-w-0 flex-1">
             <h4>Delete this version from the registry</h4>
             <p class="text-c-2 mt-1">

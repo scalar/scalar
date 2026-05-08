@@ -33,7 +33,7 @@ const routes = computed(() => {
 
 <template>
   <div
-    class="custom-scroll flex w-full gap-2 overflow-x-auto border-b pl-1.5 md:ml-1.5 md:pl-0">
+    class="custom-scroll flex w-full gap-2 overflow-x-auto pl-1.5 md:ml-1.5 md:pl-0">
     <RouterLink
       v-for="route in routes"
       :key="route"
@@ -41,7 +41,7 @@ const routes = computed(() => {
       custom
       :to="{ name: `${type}.${route}` }">
       <a
-        class="-ml-2 flex h-10 cursor-pointer items-center px-2 text-center text-sm font-medium whitespace-nowrap no-underline -outline-offset-1 has-[:focus-visible]:outline"
+        class="-ml-2 flex h-10 cursor-pointer items-center border-b px-2 text-center text-sm font-medium whitespace-nowrap no-underline -outline-offset-1 has-[:focus-visible]:outline"
         :href="href"
         @click="navigate">
         <span
