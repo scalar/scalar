@@ -101,6 +101,11 @@
       "import": "./dist/components/ScalarForm/index.js",
       "default": "./dist/components/ScalarForm/index.js"
     },
+    "./helpers": {
+      "types": "./dist/helpers/index.d.ts",
+      "import": "./dist/helpers/index.js",
+      "default": "./dist/helpers/index.js"
+    },
     "./scalar-header": {
       "types": "./dist/components/ScalarHeader/index.d.ts",
       "import": "./dist/components/ScalarHeader/index.js",

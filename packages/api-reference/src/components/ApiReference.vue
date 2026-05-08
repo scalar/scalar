@@ -16,7 +16,7 @@ import {
   createApiClientModal,
   type ApiClientModal,
 } from '@scalar/api-client/modal'
-import { addScalarClassesToHeadless } from '@scalar/components'
+import { addScalarClassesToHeadless } from '@scalar/components/helpers'
 import {
   ScalarColorModeToggleButton,
   ScalarColorModeToggleIcon,
