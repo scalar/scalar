@@ -194,6 +194,86 @@ describe('traverse-webhooks', () => {
       expect(tagsMap.size).toBe(0)
     })
 
+    it('skips $ref-wrapped webhooks with x-internal sibling extension', () => {
+      // The wrapper has x-internal as a sibling to $ref. The resolved target does not.
+      // See: https://github.com/scalar/scalar/issues/9114
+      const document: OpenApiDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {},
+        webhooks: {
+          'hidden-webhook': {
+            post: {
+              'x-internal': true,
+              $ref: '#/components/pathItems/HiddenWebhook',
+              // biome-ignore lint/suspicious/noExplicitAny: simulating bundled $ref-value
+              '$ref-value': {
+                summary: 'Should not show',
+                operationId: 'hiddenWebhook',
+              },
+            } as any,
+          },
+        },
+        'x-scalar-original-document-hash': '',
+      }
+
+      const tagsMap: TagsMap = new Map()
+
+      const result = traverseWebhooks({
+        document,
+        tagsMap,
+        generateId: (options) => {
+          if (options.type === 'webhook') {
+            return `${options.parentTag?.tag.name ?? 'untagged'}-${options.method || 'unknown'}-${options.name}`
+          }
+          return 'unknown-id'
+        },
+        documentId: 'document-id',
+        untaggedWebhooksParentId: 'document-id',
+      })
+
+      expect(result).toEqual([])
+    })
+
+    it('skips $ref-wrapped webhooks with x-scalar-ignore sibling extension', () => {
+      const document: OpenApiDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {},
+        webhooks: {
+          'ignored-webhook': {
+            post: {
+              'x-scalar-ignore': true,
+              $ref: '#/components/pathItems/IgnoredWebhook',
+              // biome-ignore lint/suspicious/noExplicitAny: simulating bundled $ref-value
+              '$ref-value': {
+                summary: 'Should not show',
+                operationId: 'ignoredWebhook',
+              },
+            } as any,
+          },
+        },
+        'x-scalar-original-document-hash': '',
+      }
+
+      const tagsMap: TagsMap = new Map()
+
+      const result = traverseWebhooks({
+        document,
+        tagsMap,
+        generateId: (options) => {
+          if (options.type === 'webhook') {
+            return `${options.parentTag?.tag.name ?? 'untagged'}-${options.method || 'unknown'}-${options.name}`
+          }
+          return 'unknown-id'
+        },
+        documentId: 'document-id',
+        untaggedWebhooksParentId: 'document-id',
+      })
+
+      expect(result).toEqual([])
+    })
+
     it('should handle deprecated webhooks', () => {
       const document: OpenApiDocument = {
         openapi: '3.1.0',

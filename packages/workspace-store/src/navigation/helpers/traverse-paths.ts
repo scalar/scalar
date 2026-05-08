@@ -3,7 +3,8 @@ import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 
-import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
+import { isHidden } from '@/helpers/is-hidden'
 import { traverseOperationExamples } from '@/navigation/helpers/traverse-examples'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import { XScalarStabilityValues } from '@/schemas/extensions/operation'
@@ -121,13 +122,13 @@ export const traversePaths = ({
 
     pathKeys.forEach((method) => {
       const _operation = pathItemObject?.[method]
-      const operation = getResolvedRef(_operation)
+      const operation = getResolvedRef(_operation, mergeSiblingReferences)
       if (!operation) {
         return
       }
 
       // Skip if the operation is internal or scalar-ignore
-      if (operation['x-internal'] || operation['x-scalar-ignore'] || !isHttpMethod(method)) {
+      if (isHidden(operation) || !isHttpMethod(method)) {
         return
       }
 
