@@ -15,7 +15,7 @@ import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'
 import type { ApiClientModal } from '@scalar/api-client/modal'
 import { ScalarColorModeToggleButton, ScalarColorModeToggleIcon } from '@scalar/components/scalar-color-mode-toggle'
 import { ScalarSidebarFooter } from '@scalar/components/scalar-sidebar'
-import { addScalarClassesToHeadless } from '@scalar/components'
+import { addScalarClassesToHeadless } from '@scalar/components/helpers'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import {
