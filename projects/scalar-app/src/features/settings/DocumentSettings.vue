@@ -148,8 +148,7 @@ const handleDeleteRegistryDocumentSubmit = (payload: {
             :modelValue="watchMode ?? false"
             @update:modelValue="(value) => emit('update:watchMode', value)" />
         </div>
-        <div
-          class="text-c-1 flex items-center overflow-x-auto border-t py-1.5 whitespace-nowrap">
+        <div class="text-c-1 flex items-center overflow-x-auto border-t py-1.5">
           <div class="flex items-center">
             <template v-if="documentUrl">
               <span class="bg-b-2 sticky left-0 pr-2 pl-3">Source</span>
