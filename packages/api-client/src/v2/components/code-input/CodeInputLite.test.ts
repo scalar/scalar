@@ -303,17 +303,37 @@ describe('CodeInputLite', () => {
     expect(input.selectionStart).toBe('{{baseUrl}}'.length)
   })
 
-  it('attaches a hover tooltip to each pill via aria-describedby', async () => {
+  it('does not mount pill tooltips before the user interacts', async () => {
     const wrapper = mountInput({ modelValue: '{{baseUrl}}' })
     await nextTick()
     const pill = wrapper.find('.scalar-pill').element as HTMLElement
-    // useTooltip sets `aria-describedby` on the target element when the
-    // tooltip is wired up — assert against that observable side effect.
+    // No focus, no hover → tooltip Vue apps stay unmounted, so `useTooltip`
+    // has not set aria-describedby on the pill yet.
+    expect(pill.getAttribute('aria-describedby')).toBeNull()
+  })
+
+  it('attaches a hover tooltip to each pill once the input is focused', async () => {
+    const wrapper = mountInput({ modelValue: '{{baseUrl}}' })
+    await nextTick()
+    await wrapper.get('input').trigger('focus')
+    await nextTick()
+    const pill = wrapper.find('.scalar-pill').element as HTMLElement
     expect(pill.getAttribute('aria-describedby')).toBeTruthy()
   })
 
-  it('does not attach pill tooltips in modal layout', async () => {
+  it('attaches a hover tooltip when the user hovers the overlay before focusing', async () => {
+    const wrapper = mountInput({ modelValue: '{{baseUrl}}' })
+    await nextTick()
+    await wrapper.find('.code-input-lite__overlay').trigger('pointerover')
+    await nextTick()
+    const pill = wrapper.find('.scalar-pill').element as HTMLElement
+    expect(pill.getAttribute('aria-describedby')).toBeTruthy()
+  })
+
+  it('does not attach pill tooltips in modal layout even after focus', async () => {
     const wrapper = mountInput({ modelValue: '{{baseUrl}}', layout: 'modal' })
+    await nextTick()
+    await wrapper.get('input').trigger('focus')
     await nextTick()
     const pill = wrapper.find('.scalar-pill').element as HTMLElement
     expect(pill.getAttribute('aria-describedby')).toBeNull()
