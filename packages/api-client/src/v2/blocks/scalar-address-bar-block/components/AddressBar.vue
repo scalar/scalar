@@ -414,10 +414,10 @@ defineExpose({
   -->
   <div
     :id="id"
-    class="order-last flex h-auto w-full flex-wrap items-stretch [--scalar-address-bar-height:32px] @3xl:order-0 @3xl:w-auto @3xl:flex-nowrap">
+    class="order-last flex h-auto w-full grow-2 flex-wrap items-stretch [--scalar-address-bar-height:32px] @3xl:order-0 @3xl:w-auto @3xl:flex-nowrap">
     <!-- Address Bar -->
     <div
-      class="address-bar-bg-states text-xxs group relative flex h-(--scalar-address-bar-height) w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg p-0.75 @3xl:w-auto @3xl:max-w-[580px] @3xl:min-w-[580px] @4xl:max-w-[720px] @4xl:min-w-[720px]"
+      class="address-bar-bg-states text-xxs group relative flex h-(--scalar-address-bar-height) w-full flex-1 flex-row items-stretch rounded-lg p-0.75 @3xl:w-auto"
       :class="{
         'outline-c-danger outline': hasConflict,
         'rounded-b-none': isDropdownOpen,

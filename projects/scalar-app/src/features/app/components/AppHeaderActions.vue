@@ -53,7 +53,6 @@ const emit = defineEmits<{
         class="size-3.5"
         size="sm"
         thickness="1.5" />
-      <span class="max-md:hidden">Discard</span>
     </ScalarHeaderButton>
     <ScalarHeaderButton
       aria-label="Save"
