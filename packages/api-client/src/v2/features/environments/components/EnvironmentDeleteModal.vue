@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarModal, type ModalState } from '@scalar/components'
+import { ScalarButton } from '@scalar/components/scalar-button'
+import { ScalarModal, type ModalState } from '@scalar/components/scalar-modal'
 
 const { state, name = 'unknown' } = defineProps<{
   state: ModalState

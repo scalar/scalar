@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import {
-  addScalarClassesToHeadless,
-  ScalarTeleportRoot,
-  type ModalState,
-} from '@scalar/components'
+import { addScalarClassesToHeadless } from '@scalar/components/helpers'
+import type { ModalState } from '@scalar/components/scalar-modal'
+import { ScalarTeleportRoot } from '@scalar/components/scalar-teleport'
 import { useFocusTrap } from '@vueuse/integrations/useFocusTrap'
 import { nextTick, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 

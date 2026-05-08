@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import {
-  ScalarButton,
-  ScalarIcon,
-  ScalarIconButton,
-  ScalarSearchInput,
-  useModal,
-} from '@scalar/components'
+import { ScalarButton } from '@scalar/components/scalar-button'
+import { ScalarIcon } from '@scalar/components/scalar-icon'
+import { ScalarIconButton } from '@scalar/components/scalar-icon-button'
+import { useModal } from '@scalar/components/scalar-modal'
+import { ScalarSearchInput } from '@scalar/components/scalar-search-input'
 import { ScalarIconPencilSimple, ScalarIconTrash } from '@scalar/icons'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type {

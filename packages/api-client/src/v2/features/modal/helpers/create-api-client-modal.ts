@@ -1,4 +1,4 @@
-import { type ModalState, useModal } from '@scalar/components'
+import { type ModalState, useModal } from '@scalar/components/scalar-modal'
 import { type ClientPlugin, subscribePluginEvents } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ScalarListboxCheckbox, ScalarMarkdown } from '@scalar/components'
+import { ScalarListboxCheckbox } from '@scalar/components/scalar-listbox'
+import { ScalarMarkdown } from '@scalar/components/scalar-markdown'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, useId } from 'vue'
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarHotkey } from '@scalar/components'
+import { ScalarHotkey } from '@scalar/components/scalar-hotkey'
 
 import Computer from '@/assets/computer.ascii?raw'
 import { ScalarAsciiArt } from '@/components/ScalarAsciiArt'
