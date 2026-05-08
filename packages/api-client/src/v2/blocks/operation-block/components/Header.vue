@@ -97,7 +97,7 @@ const handleAddEnvironment = () => {
     `w-full` mobile state cannot feed back into its own breakpoint.
   -->
   <div
-    class="lg:min-h-header t-app__top-container @container flex w-full flex-wrap items-center justify-center p-2 @4xl:p-1">
+    class="lg:min-h-header t-app__top-container @container flex w-full flex-wrap items-center justify-center p-2">
     <!-- Left spacer to center bar -->
     <div class="flex flex-1"></div>
     <AddressBar

@@ -99,10 +99,6 @@ defineSlots<{
   'header-end'?: () => unknown
 }>()
 
-defineExpose({
-  openCreateWorkspace: () => createWorkspaceModalState.show(),
-})
-
 const app = getAppState()
 const paletteState = getCommandPaletteState()
 
@@ -141,6 +137,7 @@ onBeforeUnmount(() => {
   for (const plugin of plugins) {
     plugin.lifecycle?.onDestroy?.()
   }
+  unsubscribeOpenCreateWorkspace()
 })
 
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */
@@ -169,6 +166,17 @@ useMonacoEditorConfiguration({
 })
 
 const createWorkspaceModalState = useModal()
+
+/**
+ * Bridge for surfaces outside this component (for example the outer app
+ * shell's mobile menu) that need to open the create-workspace modal. We
+ * subscribe to a UI event instead of exposing an imperative method, so
+ * callers stay decoupled from this component's internals.
+ */
+const unsubscribeOpenCreateWorkspace = app.eventBus.on(
+  'ui:open:create-workspace',
+  () => createWorkspaceModalState.show(),
+)
 
 /**
  * Owns the document-level Save / Revert / Pull / Push / Publish flow.

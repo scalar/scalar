@@ -18,7 +18,7 @@ import { PostHogClientPlugin } from '@scalar/api-client/plugins/posthog'
 import { ScalarHeaderButton } from '@scalar/components'
 import { type LoaderPlugin } from '@scalar/json-magic/bundle'
 import { requestScriptsPlugin } from '@scalar/pre-post-request-scripts/plugins'
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive } from 'vue'
 
 import { ClientApp, type AppState } from '@/features/app'
 import type { useCommandPaletteState } from '@/features/command-palette/hooks/use-command-palette-state'
@@ -73,16 +73,14 @@ const openSettings = () => {
 }
 
 /**
- * Ref to the inner ClientApp so the mobile menu's workspace picker can
- * trigger the create-workspace modal that lives inside it. The modal
- * state is owned by the inner app, but the picker that opens it now
- * lives in the outer menu items, so we bridge the two through an
- * exposed method on the inner component.
+ * The create-workspace modal lives inside `ClientApp`, but the mobile
+ * menu rendering its trigger lives in this outer shell. We bridge the
+ * two through the workspace event bus rather than reaching into
+ * `ClientApp` via a template ref, which keeps the inner component's
+ * internals private and matches the existing `ui:open:*` pattern.
  */
-const clientAppRef = ref<InstanceType<typeof ClientApp> | null>(null)
-
 const handleCreateWorkspaceFromMenu = () => {
-  clientAppRef.value?.openCreateWorkspace()
+  app.eventBus.emit('ui:open:create-workspace')
 }
 
 const navigateToDocument = (slug: string) => {
@@ -182,7 +180,6 @@ const registry = reactive({
     @navigateToDocument="navigateToDocument"
     @set:workspace="(id) => setActiveWorkspaceById(id)">
     <ClientApp
-      ref="clientAppRef"
       :getAppState
       :getCommandPaletteState
       :layout="isDesktop ? 'desktop' : 'web'"
