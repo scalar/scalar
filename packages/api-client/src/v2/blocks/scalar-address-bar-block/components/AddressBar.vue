@@ -41,20 +41,14 @@ import {
 import { getSelector } from '@scalar/helpers/dom/get-selector'
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-path'
 import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
 import { EditorView } from '@scalar/use-codemirror'
-import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type {
   ApiReferenceEvents,
   ServerMeta,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
-import {
-  getEnvironmentVariables,
-  getResolvedUrl,
-} from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import {
@@ -339,17 +333,9 @@ const handlePathBackspace = (event: KeyboardEvent): void => {
   }
 }
 
-// ───────────────────────────────────────────────────────────────────
-// Clipboard
-// ───────────────────────────────────────────────────────────────────
-
-const { copyToClipboard } = useClipboard()
-
-/** Copy the fully resolved URL (with environment variables applied) */
-const copyUrl = async (): Promise<void> => {
-  const resolvedUrl = getResolvedUrl({ server, path })
-  const variables = getEnvironmentVariables(environment)
-  await copyToClipboard(replaceEnvVariables(resolvedUrl, variables))
+/** Address bar copy is handled in OperationBlock (same URL as Send). */
+const requestCopyUrl = (): void => {
+  eventBus.emit('copy-url:address-bar')
 }
 
 // ───────────────────────────────────────────────────────────────────
@@ -380,7 +366,6 @@ onMounted(() => {
   unsubscribes.push(
     eventBus.on('ui:focus:address-bar', handleFocusAddressBar),
     eventBus.on('ui:focus:send-button', handleFocusSendButton),
-    eventBus.on('copy-url:address-bar', copyUrl),
     eventBus.on('hooks:on:request:sent', startLoading),
     eventBus.on('hooks:on:request:complete', stopLoading),
   )
@@ -479,7 +464,7 @@ defineExpose({
         class="hover:bg-b-3 mx-1"
         size="xs"
         variant="ghost"
-        @click="copyUrl">
+        @click="requestCopyUrl">
         <ScalarIconCopy />
         <span class="sr-only">Copy URL</span>
       </ScalarButton>

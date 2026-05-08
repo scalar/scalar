@@ -1,6 +1,10 @@
 export { getExampleFromBody } from './body/get-request-body-example'
 export { getSelectedBodyContentType } from './body/get-selected-body-content-type'
-export { type RequestPayload, buildRequest } from './build-request'
+export {
+  type RequestPayload,
+  buildRequest,
+  resolveExecutableRequestUrl,
+} from './build-request'
 export { deSerializeParameter } from './header/de-serialize-parameter'
 export { filterGlobalCookie } from './header/filter-global-cookies'
 export {
@@ -19,6 +23,7 @@ export { getResolvedUrl } from './helpers/get-resolved-url'
 export { getServerVariables } from './helpers/get-server-variables'
 export type { RequestFactory } from './request-factory'
 export { requestFactory } from './request-factory'
+export { resolveRequestFactoryUrl } from './resolve-request-factory-url'
 export { buildRequestSecurity } from './security/build-request-security'
 export type {
   ApiKeyObjectSecret,
