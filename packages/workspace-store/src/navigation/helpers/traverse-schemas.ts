@@ -69,9 +69,21 @@ export const traverseSchemas = ({
 
   // biome-ignore lint/suspicious/useGuardForIn: we do have an if statement after de-ref
   for (const name in schemas) {
+    if (!Object.hasOwn(schemas, name)) {
+      continue
+    }
+
+    // The schema may be a $ref wrapper with sibling x-internal / x-scalar-ignore extensions.
+    // getResolvedRef returns only the dereferenced content, so we need to check the wrapper too.
+    const wrapper = schemas[name] as Record<string, unknown> | undefined
     const schema = getResolvedRef(schemas[name])
 
-    if (schema?.['x-internal'] || schema?.['x-scalar-ignore'] || !Object.hasOwn(schemas, name)) {
+    if (
+      wrapper?.['x-internal'] ||
+      wrapper?.['x-scalar-ignore'] ||
+      schema?.['x-internal'] ||
+      schema?.['x-scalar-ignore']
+    ) {
       continue
     }
 
