@@ -314,7 +314,6 @@ const clientStore = createWorkspaceStore({
   verbose: isDevelopment,
   plugins: [
     persistencePlugin({
-      prefix: () => activeSlug.value,
       persistAuth: () => mergedConfig.value.persistAuth ?? false,
     }),
   ],
