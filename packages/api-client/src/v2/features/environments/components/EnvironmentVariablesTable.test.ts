@@ -35,7 +35,7 @@ describe('EnvironmentVariablesTable', () => {
      * variable (name + value) and 2 for the empty row (name + value).
      * When we update the name in the empty row, it should emit an event.
      */
-    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
+    const codeInputs = wrapper.findAllComponents({ name: 'CodeInputLite' })
     expect(codeInputs).toHaveLength(4)
 
     const emptyRowNameInput = codeInputs.at(2)!
@@ -68,7 +68,7 @@ describe('EnvironmentVariablesTable', () => {
      * it should emit an update event with the index.
      * CodeInput index 1 is the value input for the first variable row.
      */
-    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
+    const codeInputs = wrapper.findAllComponents({ name: 'CodeInputLite' })
     const firstValueInput = codeInputs.at(1)!
     await firstValueInput.vm.$emit('update:modelValue', 'https://api.newdomain.com')
 
@@ -129,7 +129,7 @@ describe('EnvironmentVariablesTable', () => {
      * no event should be emitted because we require a name to create
      * a new variable. CodeInput index 3 is the value input for the empty row.
      */
-    const codeInputs = wrapper.findAllComponents({ name: 'CodeInput' })
+    const codeInputs = wrapper.findAllComponents({ name: 'CodeInputLite' })
     const emptyRowValueInput = codeInputs.at(3)!
     await emptyRowValueInput.vm.$emit('update:modelValue', 'some-value')
 
@@ -155,7 +155,7 @@ describe('EnvironmentVariablesTable', () => {
      * With 2 existing variables, there should be 6 CodeInput components:
      * 2 variables × 2 inputs (name + value) + 1 empty row × 2 inputs.
      */
-    const codeInputsWithVariables = wrapperWithVariables.findAllComponents({ name: 'CodeInput' })
+    const codeInputsWithVariables = wrapperWithVariables.findAllComponents({ name: 'CodeInputLite' })
     expect(codeInputsWithVariables).toHaveLength(6)
 
     const emptyEnvironment = createMockEnvironment([])
@@ -173,7 +173,7 @@ describe('EnvironmentVariablesTable', () => {
      * With no existing variables, there should still be 2 CodeInput components
      * for the empty row (name + value).
      */
-    const codeInputsEmpty = wrapperEmpty.findAllComponents({ name: 'CodeInput' })
+    const codeInputsEmpty = wrapperEmpty.findAllComponents({ name: 'CodeInputLite' })
     expect(codeInputsEmpty).toHaveLength(2)
   })
 })
