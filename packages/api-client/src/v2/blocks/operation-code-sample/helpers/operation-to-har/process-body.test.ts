@@ -576,8 +576,11 @@ describe('processBody', () => {
         mimeType: 'multipart/form-data',
         params: [
           { name: 'files', value: 'SGVsbG8gV29ybGQ=' },
-          { name: 'metadata.uploadDate', value: '2024-01-01' },
-          { name: 'metadata.category', value: 'images' },
+          {
+            name: 'metadata',
+            value: JSON.stringify({ uploadDate: '2024-01-01', category: 'images' }),
+            contentType: 'application/json',
+          },
         ],
       })
     })
@@ -630,8 +633,11 @@ describe('processBody', () => {
           { name: 'title', value: 'My Image' },
           { name: 'description', value: 'A beautiful image' },
           { name: 'tags', value: 'photo' },
-          { name: 'settings.public', value: 'true' },
-          { name: 'settings.quality', value: 'high' },
+          {
+            name: 'settings',
+            value: JSON.stringify({ public: true, quality: 'high' }),
+            contentType: 'application/json',
+          },
         ],
       })
     })
@@ -706,8 +712,11 @@ describe('processBody', () => {
           { name: 'file', value: '@mars.jpg' },
           { name: 'name', value: 'Mars Rover Photo' },
           { name: 'category', value: 'space' },
-          { name: 'metadata.location', value: 'Mars' },
-          { name: 'metadata.date', value: '2024-01-15' },
+          {
+            name: 'metadata',
+            value: JSON.stringify({ location: 'Mars', date: '2024-01-15' }),
+            contentType: 'application/json',
+          },
         ],
       })
     })
@@ -758,6 +767,89 @@ describe('processBody', () => {
           { name: 'text', value: 'Simple text' },
           { name: 'number', value: '42' },
           { name: 'boolean', value: 'true' },
+        ],
+      })
+    })
+
+    it('encodes nested object property as a single JSON part (issue #4834)', () => {
+      const content = {
+        'multipart/form-data': {
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            required: ['file', 'props'],
+            properties: {
+              file: {
+                description: 'File to upload',
+                type: 'string',
+                format: 'binary',
+              },
+              props: {
+                type: 'object',
+                required: ['name', 'description'],
+                properties: {
+                  name: { type: 'string' },
+                  description: { type: 'string' },
+                  created_at: { type: ['string', 'null'], format: 'date-time' },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [
+          { name: 'file', value: '@filename' },
+          {
+            name: 'props',
+            value: JSON.stringify({ name: '', description: '', created_at: null }),
+            contentType: 'application/json',
+          },
+        ],
+      })
+    })
+
+    it('respects an explicit encoding.contentType over the application/json default', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            settings: {
+              contentType: 'application/vnd.custom+json',
+            },
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              settings: {
+                type: 'object',
+                properties: {
+                  enabled: { type: 'boolean', example: true },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'settings',
+            value: JSON.stringify({ enabled: true }),
+            contentType: 'application/vnd.custom+json',
+          },
         ],
       })
     })

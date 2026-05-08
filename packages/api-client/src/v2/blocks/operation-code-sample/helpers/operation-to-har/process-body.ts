@@ -27,6 +27,7 @@ const objectToFormParams = (
   obj: object | { name: string; value: unknown; isDisabled: boolean }[],
   encoding?: MultipartEncodingMap,
   parentKey?: string,
+  isMultipart = false,
 ): Param[] => {
   const params: Param[] = []
 
@@ -40,19 +41,33 @@ const objectToFormParams = (
       continue
     }
 
-    const partContentType = parentKey ? undefined : encoding?.[key]?.contentType
+    const explicitContentType = parentKey ? undefined : encoding?.[key]?.contentType
 
     // Handle File objects by converting them to 'BINARY'
     if (value instanceof File) {
       const file = unpackProxyObject(value)
-      params.push({ name: key, value: `@${file.name}`, ...(partContentType ? { contentType: partContentType } : {}) })
+      params.push({
+        name: key,
+        value: `@${file.name}`,
+        ...(explicitContentType ? { contentType: explicitContentType } : {}),
+      })
     }
     // Multipart encodings can override the entire top-level part payload
-    else if (partContentType && typeof value === 'object') {
+    else if (explicitContentType && typeof value === 'object') {
       params.push({
         name: key,
         value: JSON.stringify(unpackProxyObject(value)),
-        contentType: partContentType,
+        contentType: explicitContentType,
+      })
+    }
+    // Per OpenAPI 3.x: a top-level multipart property whose value is an object (and not a File)
+    // defaults to a single part encoded as application/json, rather than being flattened
+    // into multiple parts with dotted keys.
+    else if (isMultipart && !parentKey && typeof value === 'object' && !Array.isArray(value)) {
+      params.push({
+        name: key,
+        value: JSON.stringify(unpackProxyObject(value)),
+        contentType: 'application/json',
       })
     }
     // Handle arrays by adding each item with the same key
@@ -62,6 +77,15 @@ const objectToFormParams = (
         if (item instanceof File) {
           const file = unpackProxyObject(item)
           params.push({ name: key, value: `@${file.name}` })
+        }
+        // Per OpenAPI 3.x: a top-level multipart array of complex items defaults each part
+        // to application/json, instead of flattening object items into dotted keys.
+        else if (isMultipart && !parentKey && typeof item === 'object' && item !== null) {
+          params.push({
+            name: key,
+            value: JSON.stringify(unpackProxyObject(item)),
+            contentType: 'application/json',
+          })
         } else {
           params.push({ name: key, value: String(item) })
         }
@@ -75,7 +99,11 @@ const objectToFormParams = (
         params.push({ name: `${key}.${param.name}`, value: param.value })
       }
     } else {
-      params.push({ name: key, value: String(value), ...(partContentType ? { contentType: partContentType } : {}) })
+      params.push({
+        name: key,
+        value: String(value),
+        ...(explicitContentType ? { contentType: explicitContentType } : {}),
+      })
     }
   }
 
@@ -117,7 +145,12 @@ export const processBody = ({
     if (isFormData && typeof exampleValue === 'object' && exampleValue !== null) {
       return {
         mimeType: harMimeType,
-        params: objectToFormParams(exampleValue, _contentType === 'multipart/form-data' ? encoding : undefined),
+        params: objectToFormParams(
+          exampleValue,
+          _contentType === 'multipart/form-data' ? encoding : undefined,
+          undefined,
+          _contentType === 'multipart/form-data',
+        ),
       }
     }
 
@@ -161,7 +194,12 @@ export const processBody = ({
       if (isFormData && typeof extractedExample === 'object' && extractedExample !== null) {
         return {
           mimeType: harMimeType,
-          params: objectToFormParams(extractedExample, _contentType === 'multipart/form-data' ? encoding : undefined),
+          params: objectToFormParams(
+            extractedExample,
+            _contentType === 'multipart/form-data' ? encoding : undefined,
+            undefined,
+            _contentType === 'multipart/form-data',
+          ),
         }
       }
 
