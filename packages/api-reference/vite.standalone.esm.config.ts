@@ -68,11 +68,38 @@ export default defineConfig({
       // Match the UMD config: ScalarMenu (the only radix-vue consumer) is never
       // mounted in the standalone reference, so radix-vue can be safely externalized.
       external: [/^radix-vue/, /^@scalar\/openapi-parser/],
+      // Treat every non-CSS module as side-effect-free so Rolldown can drop
+      // unreachable code paths from the single-file standalone bundle.
+      treeshake: {
+        moduleSideEffects: (id) => id.includes('.css'),
+      },
       output: {
         entryFileNames: '[name].js',
-        // Collapse all chunks into a single file so the ESM bundle matches the UMD
-        // layout (one JS file) and the size comparison is apples-to-apples.
-        codeSplitting: false,
+        chunkFileNames: 'chunks/[name]-[hash].js',
+        // Enable code splitting so genuinely-async boundaries become real lazy
+        // chunks: the API client modal (heaviest by far — pulls in CodeMirror),
+        // the AgentScalar drawer, the YAML parser used for downloads, and the
+        // icon library's per-SVG dynamic imports.
+        //
+        // `minShareCount: Infinity` disables Rolldown's automatic shared-chunk
+        // extraction for synchronous code so static graphs stay in the entry
+        // bundle. Code that's used by *both* the entry and a lazy chunk still
+        // gets hoisted into a shared chunk — that's how ESM avoids duplication.
+        codeSplitting: {
+          minShareCount: Number.POSITIVE_INFINITY,
+          // Coalesce the ~84 per-SVG dynamic imports from `@scalar/icons/library`
+          // into a single `chunks/icons-*.js` instead of one tiny file per icon.
+          groups: [
+            {
+              name(moduleId) {
+                if (moduleId.includes('/library/icons/') && moduleId.endsWith('.svg.js')) {
+                  return 'icons'
+                }
+                return null
+              },
+            },
+          ],
+        },
         // Vite forces `minifyWhitespace: false` for ES library builds, so we bypass
         // it by enabling Rolldown's native minifier on the output. This produces a
         // fully-minified bundle equivalent to what UMD already gets from Rolldown.
