@@ -1,5 +1,4 @@
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/media-type'
 import type {
   OpenApiDocument,
   OperationObject,
@@ -10,25 +9,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
-/** Object schema shape with properties, used when logging request body. */
-type ObjectSchemaWithProperties = {
-  properties: Record<string, SchemaReferenceType<SchemaObject>>
-  required?: string[]
-}
-
 const isSchemaObject = (value: unknown): value is SchemaObject => typeof value === 'object' && value !== null
-
-const schemaTypeToString = (schema: SchemaObject): string => {
-  if (!('type' in schema)) {
-    return ''
-  }
-
-  if (typeof schema.type === 'string') {
-    return schema.type
-  }
-
-  return Array.isArray(schema.type) ? schema.type.join('|') : ''
-}
 
 /**
  * Resolves a schema reference from workspace-store to a SchemaObject.
@@ -42,116 +23,115 @@ function resolveSchemaRef(ref: SchemaReferenceType<SchemaObject>): SchemaObject 
   return ref
 }
 
-/**
- * Formats a property object into a string.
- */
-function formatProperty(key: string, obj: ObjectSchemaWithProperties): string {
-  let output = key
-  const isRequired = obj.required?.includes(key)
-  output += isRequired ? ' REQUIRED ' : ' optional '
-  const propRef = obj.properties[key]
-  if (!propRef) {
-    return output
+function pushUnique(target: string[], value: string | undefined): void {
+  if (!value) {
+    return
   }
-  const property = resolveSchemaRef(propRef)
-
-  if (property) {
-    output += schemaTypeToString(property)
-
-    if ('description' in property && typeof property.description === 'string') {
-      output += ` ${property.description}`
-    }
+  if (!target.includes(value)) {
+    target.push(value)
   }
-
-  return output
 }
 
 /**
- * Recursively logs the properties of an object.
+ * Walks the request body schemas of an operation and yields each property schema with its key.
+ * Visits top-level properties plus one level of nested object properties — matching the depth that was
+ * previously indexed for search.
  */
-function recursiveLogger(obj: MediaTypeObject): string[] {
-  const results: string[] = ['Body']
-  const schema = getResolvedRef(obj?.schema)
-
-  if (!schema || !isObjectSchema(schema) || !schema.properties) {
-    return results
+function forEachRequestBodyProperty(
+  operation: OperationObject,
+  visit: (key: string, schema: SchemaObject | undefined) => void,
+): void {
+  const content = getResolvedRef(operation?.requestBody)?.content
+  if (!content) {
+    return
   }
 
-  const properties = schema.properties
-  const schemaWithProps: ObjectSchemaWithProperties = {
-    properties,
-    required: schema.required,
-  }
-  Object.keys(properties).forEach((key) => {
-    if (!obj.schema) {
+  Object.values(content).forEach((media) => {
+    const resolvedMedia = getResolvedRef(media)
+    const schema = getResolvedRef(resolvedMedia?.schema)
+
+    if (!schema || !isObjectSchema(schema) || !schema.properties) {
       return
     }
 
-    results.push(formatProperty(key, schemaWithProps))
+    Object.entries(schema.properties).forEach(([key, propRef]) => {
+      const property = resolveSchemaRef(propRef)
+      visit(key, property)
 
-    const propRef = properties[key]
-    if (!propRef) {
-      return
-    }
-    const property = resolveSchemaRef(propRef)
-    if (property && isObjectSchema(property) && property.properties) {
-      const nestedProperties = property.properties
-      Object.keys(nestedProperties).forEach((subKey) => {
-        const ref = nestedProperties[subKey]
-        if (!ref) {
-          return
-        }
-        const nested = resolveSchemaRef(ref)
-        const typeStr = nested ? schemaTypeToString(nested) : ''
-        results.push(`${subKey} ${typeStr}`)
-      })
+      if (property && isObjectSchema(property) && property.properties) {
+        Object.entries(property.properties).forEach(([nestedKey, nestedRef]) => {
+          const nestedProperty = resolveSchemaRef(nestedRef)
+          visit(nestedKey, nestedProperty)
+        })
+      }
+    })
+  })
+}
+
+/**
+ * Extracts the names of every parameter on an operation.
+ *
+ * The returned strings contain only parameter names (e.g. `userId`, `limit`) so they can be indexed
+ * as a high-signal field for search. Filter-style metadata like `REQUIRED`, `optional`, `query` and
+ * the schema type are intentionally excluded — those tokens dilute fuzzy matches and produce false
+ * positives for queries like `query` or `integer`.
+ */
+export function extractParameterNames(parameters: ReferenceType<ParameterObject>[]): string[] {
+  const names: string[] = []
+
+  parameters.forEach((parameter) => {
+    const resolved = getResolvedRef(parameter)
+    pushUnique(names, resolved?.name)
+  })
+
+  return names
+}
+
+/**
+ * Extracts the descriptions of every parameter on an operation.
+ *
+ * Kept separate from parameter names so the search index can weight each independently.
+ */
+export function extractParameterDescriptions(parameters: ReferenceType<ParameterObject>[]): string[] {
+  const descriptions: string[] = []
+
+  parameters.forEach((parameter) => {
+    const resolved = getResolvedRef(parameter)
+    pushUnique(descriptions, resolved?.description)
+  })
+
+  return descriptions
+}
+
+/**
+ * Extracts the names of properties from the request body schema(s) of an operation.
+ *
+ * Walks every media type and includes both top-level and one level of nested property names so
+ * common fields like `email` or `username` surface in search regardless of how the body is shaped.
+ */
+export function extractBodyFieldNames(operation: OperationObject): string[] {
+  const names: string[] = []
+
+  forEachRequestBodyProperty(operation, (key) => {
+    pushUnique(names, key)
+  })
+
+  return names
+}
+
+/**
+ * Extracts the descriptions of properties from the request body schema(s) of an operation.
+ */
+export function extractBodyDescriptions(operation: OperationObject): string[] {
+  const descriptions: string[] = []
+
+  forEachRequestBodyProperty(operation, (_key, schema) => {
+    if (schema && 'description' in schema && typeof schema.description === 'string') {
+      pushUnique(descriptions, schema.description)
     }
   })
 
-  return results
-}
-
-/**
- * Extracts the request body from an operation.
- */
-export function extractRequestBody(operation: OperationObject): string[] | null {
-  const content = getResolvedRef(operation?.requestBody)?.content
-  const contentValue = Object.values(content ?? {})
-  if (contentValue.length === 0) {
-    // No content found
-    return null
-  }
-
-  return contentValue.flatMap((media) => recursiveLogger(media))
-}
-
-/**
- * Formats a parameter into a searchable string.
- */
-function formatParameter(param: ParameterObject): string {
-  const output = [param.name]
-  output.push(param.required ? 'REQUIRED' : 'optional')
-  output.push(param.in)
-
-  if ('schema' in param && param.schema) {
-    const schema = getResolvedRef(param.schema)
-    if (schema) {
-      output.push(schemaTypeToString(schema))
-    }
-  }
-
-  if (param.description) {
-    output.push(param.description)
-  }
-
-  return output.join(' ')
-}
-
-/**
- * Extracts parameters from an operation into searchable strings.
- */
-export function extractParameters(parameters: ReferenceType<ParameterObject>[]): string[] | null {
-  return parameters.map((parameter) => formatParameter(getResolvedRef(parameter)))
+  return descriptions
 }
 
 /**

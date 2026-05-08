@@ -781,4 +781,103 @@ describe('search quality', () => {
     expect(result[0]?.item?.type).toEqual('operation')
     expect(result[0]?.item?.title).toEqual('Upload file')
   })
+
+  it('ranks an operation that defines a parameter above one that mentions it in prose', () => {
+    const query = 'limit'
+
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/users': {
+          get: {
+            summary: 'List users',
+            operationId: 'listUsers',
+            parameters: [
+              {
+                in: 'query',
+                name: 'limit',
+                description: 'Maximum number of results',
+                schema: { type: 'integer' },
+              },
+            ],
+          },
+        },
+        '/rate-info': {
+          get: {
+            summary: 'Rate info',
+            description: 'Returns the current API rate limit window for the caller.',
+            operationId: 'getRateInfo',
+          },
+        },
+      },
+    }
+
+    const result = search(query, document)
+
+    expect(result[0]?.item?.title).toEqual('List users')
+  })
+
+  it('ranks an operation that defines a body field above one that mentions it in prose', () => {
+    const query = 'email'
+
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/users': {
+          post: {
+            summary: 'Create user',
+            operationId: 'createUser',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    required: ['email'],
+                    properties: {
+                      email: { type: 'string' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/notifications': {
+          get: {
+            summary: 'List notifications',
+            description: 'Returns notifications including any pending email delivery confirmations.',
+            operationId: 'listNotifications',
+          },
+        },
+      },
+    }
+
+    const result = search(query, document)
+
+    expect(result[0]?.item?.title).toEqual('Create user')
+  })
+
+  it('does not match parameter filter metadata like "query" or "REQUIRED"', () => {
+    // These filter-style tokens used to be packed into the indexed parameter string and
+    // produced false-positive matches. They should no longer be searchable.
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/users': {
+          get: {
+            summary: 'List users',
+            operationId: 'listUsers',
+            parameters: [
+              {
+                in: 'query',
+                name: 'limit',
+                required: true,
+                schema: { type: 'integer' },
+              },
+            ],
+          },
+        },
+      },
+    }
+
+    expect(search('REQUIRED', document)).toHaveLength(0)
+    expect(search('integer', document)).toHaveLength(0)
+  })
 })

@@ -130,7 +130,7 @@ describe('createSearchIndex', () => {
       expect(index.map((item) => item.title)).toEqual(['Introduction', 'Get Users', 'Create User', 'Get Posts'])
     })
 
-    it('includes path item parameters in operation index body', () => {
+    it('includes path item parameter names and descriptions in the operation index', () => {
       const document = createMockDocument({
         paths: {
           '/users/{userId}': {
@@ -155,8 +155,9 @@ describe('createSearchIndex', () => {
       expect(operationEntry).toMatchObject({
         type: 'operation',
         title: 'Get User',
-        body: '',
-        parameters: ['userId REQUIRED path Unique user identifier'],
+        body: [],
+        parameters: ['userId'],
+        parameterDescriptions: ['Unique user identifier'],
       })
     })
 
@@ -190,7 +191,7 @@ describe('createSearchIndex', () => {
       expect(operationEntry).toMatchObject({
         type: 'operation',
         title: 'Create User',
-        body: expect.arrayContaining(['Body', 'name optional string', 'email optional string']),
+        body: ['name', 'email'],
       })
     })
 
@@ -223,7 +224,7 @@ describe('createSearchIndex', () => {
       expect(operationEntry).toMatchObject({
         type: 'operation',
         title: 'Create User',
-        body: expect.arrayContaining(['Body', 'xmlField optional string']),
+        body: ['xmlField'],
       })
     })
 
@@ -264,7 +265,7 @@ describe('createSearchIndex', () => {
       expect(operationEntry).toMatchObject({
         type: 'operation',
         title: 'Create User',
-        body: expect.arrayContaining(['jsonField optional string', 'xmlField optional number']),
+        body: ['jsonField', 'xmlField'],
       })
     })
 
@@ -292,11 +293,13 @@ describe('createSearchIndex', () => {
       expect(operationEntry).toEqual({
         type: 'operation',
         title: 'Get Users',
-        parameters: ['limit optional query Number of users to return'],
+        parameters: ['limit'],
+        parameterDescriptions: ['Number of users to return'],
         path: '/users',
         method: 'get',
         responseExamples: [],
-        body: '',
+        body: [],
+        bodyDescriptions: [],
         description: '',
         entry: expect.any(Object),
         id: expect.any(String),
@@ -383,7 +386,8 @@ describe('createSearchIndex', () => {
         {
           title: 'User Model',
           description: 'Model',
-          body: 'A user object',
+          body: '',
+          bodyDescriptions: ['A user object'],
         },
       ])
 
@@ -415,6 +419,7 @@ describe('createSearchIndex', () => {
           title: 'Post Model',
           description: 'Model',
           body: '',
+          bodyDescriptions: [],
         },
       ])
     })
@@ -442,8 +447,8 @@ describe('createSearchIndex', () => {
       expect(index.length).toEqual(4) // Introduction + models heading + 2 schemas
       expect(index[0]).toMatchObject({ type: 'heading', title: 'Introduction' })
       expect(index[1]).toMatchObject({ type: 'heading', title: 'Models' })
-      expect(index[2]).toMatchObject({ title: 'User Model', body: 'A user object' })
-      expect(index[3]).toMatchObject({ title: 'Post Model', body: 'A post object' })
+      expect(index[2]).toMatchObject({ title: 'User Model', bodyDescriptions: ['A user object'] })
+      expect(index[3]).toMatchObject({ title: 'Post Model', bodyDescriptions: ['A post object'] })
     })
   })
 
@@ -505,7 +510,8 @@ describe('createSearchIndex', () => {
           method: 'delete',
           title: 'User Deleted Webhook',
           description: 'Webhook',
-          body: 'Triggered when a user is deleted',
+          body: '',
+          bodyDescriptions: ['Triggered when a user is deleted'],
         },
       ])
     })
@@ -536,6 +542,7 @@ describe('createSearchIndex', () => {
           title: 'User Updated Webhook',
           description: 'Webhook',
           body: '',
+          bodyDescriptions: [],
         },
       ])
     })
