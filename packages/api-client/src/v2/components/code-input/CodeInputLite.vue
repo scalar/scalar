@@ -804,8 +804,13 @@ defineExpose({
     <input> via UA stylesheets. Listing the longhand properties one by one
     leaves those untouched and the input's text drifts visually from the
     overlay's text.
+
+    Then we override font-size to `var(--scalar-small)` (14px) so the input
+    text matches the CodeMirror baseline (cm-content set the same explicit
+    font-size). Inheriting alone would pick up the wrapper's `text-xs` (12px).
   */
   font: inherit;
+  font-size: var(--scalar-small);
   letter-spacing: inherit;
 }
 
@@ -857,18 +862,13 @@ defineExpose({
 }
 
 /*
-  Selection background is translucent so the overlay's visible text shows
-  through. With color: transparent the input's selected text stays hidden,
-  leaving the overlay's rendered text visible underneath the tint.
+  Use the browser's native selection rendering. The input's text is normally
+  transparent, but the browser's `::selection` default re-colors selected
+  text to its system selection foreground — so the user sees normally
+  rendered text on the system selection background within the selected
+  range. The overlay's pills are occluded inside the selection, which is
+  acceptable: it matches how every other native input handles selection.
 */
-.code-input-lite__input::selection {
-  background: color-mix(
-    in srgb,
-    var(--scalar-color-blue, #3b82f6) 30%,
-    transparent
-  );
-  color: transparent;
-}
 
 .code-input-lite__input::placeholder {
   color: var(--scalar-color-3);
