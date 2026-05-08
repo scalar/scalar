@@ -406,18 +406,18 @@ defineExpose({
 
     The wide-container layout matches the original single-row bar:
     `[Method | URL | Copy | History | Send]`. When the surrounding
-    `address-bar` container drops below `MOBILE_THRESHOLD` (see the
-    `@container` rules below) the bar collapses to `[URL | History]`
-    and a second row appears beneath it with a duplicate `Method`,
-    `Copy`, and `Send` so the URL gets the full container width while
-    every action stays on the same line as the send button.
+    `@container` drops below `@3xl` the bar collapses to
+    `[URL | History]` and a second row appears beneath it with a
+    duplicate `Method`, `Copy`, and `Send` so the URL gets the full
+    container width while every action stays on the same line as the
+    send button.
   -->
   <div
     :id="id"
-    class="scalar-address-bar order-last flex h-auto w-full flex-wrap items-stretch [--scalar-address-bar-height:32px]">
+    class="@container order-last flex h-auto w-full flex-wrap items-stretch [--scalar-address-bar-height:32px] @3xl:order-0 @3xl:w-auto @3xl:flex-nowrap">
     <!-- Address Bar -->
     <div
-      class="address-bar-bg-states text-xxs group relative flex h-(--scalar-address-bar-height) w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg p-0.75"
+      class="address-bar-bg-states text-xxs group relative flex h-(--scalar-address-bar-height) w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg p-0.75 @3xl:w-auto @3xl:max-w-[580px] @3xl:min-w-[580px] @4xl:max-w-[720px] @4xl:min-w-[720px]"
       :class="{
         'outline-c-danger outline': hasConflict,
         'rounded-b-none': isDropdownOpen,
@@ -433,12 +433,11 @@ defineExpose({
       </div>
 
       <!--
-        Method, Copy, and Send carry an `in-bar-action` class so the
-        `@container` query below can hide them when the container drops
-        into mobile mode - the duplicate buttons in the trailing
-        `mobile-actions` row take over at that point.
+        Method, Copy, and Send are hidden in mobile mode (container
+        narrower than `@3xl`) and the duplicate buttons in the trailing
+        mobile actions row take over at that point.
       -->
-      <div class="in-bar-action flex gap-1">
+      <div class="hidden gap-1 @3xl:flex">
         <HttpMethod
           :isEditable="layout !== 'modal'"
           isSquare
@@ -494,7 +493,7 @@ defineExpose({
 
       <!-- Copy url button -->
       <ScalarButton
-        class="in-bar-action hover:bg-b-3 mx-1"
+        class="hover:bg-b-3 mx-1 hidden @3xl:flex"
         size="xs"
         variant="ghost"
         @click="copyUrl">
@@ -526,7 +525,7 @@ defineExpose({
 
       <ScalarButton
         ref="sendButtonRef"
-        class="in-bar-action relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
+        class="relative hidden h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold @3xl:flex"
         data-addressbar-action="send"
         :disabled="isLoading"
         @click="emit('execute')">
@@ -546,13 +545,12 @@ defineExpose({
     </div>
 
     <!--
-      Mobile actions row. Hidden by default and only revealed by the
-      narrow-container query below, where it carries duplicate Method
-      / Copy / Send buttons so all three end up on the same line beneath
-      the URL bar.
+      Mobile actions row. Visible by default and hidden once the
+      container reaches `@3xl`, where the duplicate Method / Copy /
+      Send buttons move back into the bar itself.
     -->
     <div
-      class="mobile-actions mt-2 flex h-(--scalar-address-bar-height) w-full items-stretch gap-1">
+      class="mt-2 flex h-(--scalar-address-bar-height) w-full items-stretch gap-1 @3xl:hidden">
       <HttpMethod
         :isEditable="layout !== 'modal'"
         isSquare
@@ -703,58 +701,5 @@ defineExpose({
 .address-bar-bg-states:has(.cm-focused) .fade-left,
 .address-bar-bg-states:has(.cm-focused) .fade-right {
   --scalar-address-bar-bg: var(--scalar-background-1);
-}
-
-/*
- * Default state = mobile mode. The wrapper is `flex-wrap` so the
- * `mobile-actions` row sits beneath the bar, and the bar itself spans
- * the full container width.
- *
- * The `address-bar` container is declared on the operation header
- * (Header.vue), so the query reflects the right column's width even
- * when the sidebar opens or closes - no viewport-width math needed.
- */
-.mobile-actions {
-  display: flex;
-}
-.in-bar-action {
-  display: none;
-}
-
-@container address-bar (min-width: 720px) {
-  /*
-   * Wide container: collapse back to the original single-row layout
-   * with method, copy, and send all sitting inside the bar. The
-   * mobile-actions row hides and the wrapper stops wrapping so the bar
-   * sizes to its content next to the sidebar toggle and environment
-   * selector.
-   */
-  .scalar-address-bar {
-    order: 0;
-    width: auto;
-    flex-wrap: nowrap;
-  }
-  .address-bar-bg-states {
-    width: auto;
-    max-width: 580px;
-    min-width: 580px;
-  }
-  .in-bar-action {
-    display: flex;
-  }
-  .mobile-actions {
-    display: none;
-  }
-}
-
-@container address-bar (min-width: 900px) {
-  /*
-   * Extra-wide container: roomier bar for environments that have plenty
-   * of horizontal space. Mirrors the original `xl:` viewport step.
-   */
-  .address-bar-bg-states {
-    max-width: 720px;
-    min-width: 720px;
-  }
 }
 </style>

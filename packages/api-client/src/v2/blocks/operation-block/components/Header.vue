@@ -89,16 +89,10 @@ const handleAddEnvironment = () => {
 </script>
 
 <template>
-  <!--
-    `@container/address-bar` declares a named container so the
-    AddressBar can adapt to the right column's actual width (which
-    shrinks when the sidebar opens) instead of the viewport. The
-    `@container` family is built into Tailwind v4 - the slash + name
-    expands to `container: address-bar / inline-size`.
-  -->
   <div
-    class="lg:min-h-header t-app__top-container @container/address-bar flex w-full flex-wrap items-center justify-center gap-y-2 p-2 pt-2 lg:gap-y-0 lg:p-1 lg:pt-1">
-    <div class="flex flex-1 flex-row items-center gap-1 lg:px-1">
+    class="lg:min-h-header t-app__top-container flex w-full flex-wrap items-center justify-center p-2 pt-2 lg:p-1 lg:pt-1">
+    <div
+      class="mb-2 flex w-1/2 flex-row items-center gap-1 lg:mb-0 lg:flex-1 lg:px-1">
       <!--
           Holds space for the sidebar toggle
 
@@ -126,7 +120,8 @@ const handleAddEnvironment = () => {
         (payload) => emit('select:history:item', payload)
       " />
 
-    <div class="flex flex-1 flex-row items-center justify-end gap-2 lg:px-2.5">
+    <div
+      class="mb-2 flex w-1/2 flex-row items-center justify-end gap-2 lg:mb-0 lg:flex-1 lg:px-2.5">
       <!--
         Environment Selector
         Hidden for `modal` layout
