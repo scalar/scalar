@@ -1,8 +1,14 @@
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { getTag } from '@/navigation/helpers/get-tag'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
+import type { XInternal } from '@/schemas/extensions/document/x-internal'
+import type { XScalarIgnore } from '@/schemas/extensions/document/x-scalar-ignore'
 import type { ParentTag, TraversedSchema } from '@/schemas/navigation'
 import type { OpenApiDocument, SchemaObject } from '@/schemas/v3.1/strict/openapi-document'
+
+/** Returns true when an entity is marked as hidden from navigation via x-internal or x-scalar-ignore. */
+const isHidden = (entity: (XInternal & XScalarIgnore) | undefined) =>
+  Boolean(entity?.['x-internal'] || entity?.['x-scalar-ignore'])
 
 /** Creates a traversed schema entry from an OpenAPI schema object.
  *
@@ -75,15 +81,10 @@ export const traverseSchemas = ({
 
     // The schema may be a $ref wrapper with sibling x-internal / x-scalar-ignore extensions.
     // getResolvedRef returns only the dereferenced content, so we need to check the wrapper too.
-    const wrapper = schemas[name] as Record<string, unknown> | undefined
+    const wrapper = schemas[name] as (XInternal & XScalarIgnore) | undefined
     const schema = getResolvedRef(schemas[name])
 
-    if (
-      wrapper?.['x-internal'] ||
-      wrapper?.['x-scalar-ignore'] ||
-      schema?.['x-internal'] ||
-      schema?.['x-scalar-ignore']
-    ) {
+    if (isHidden(wrapper) || isHidden(schema)) {
       continue
     }
 
