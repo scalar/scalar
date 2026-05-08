@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ScalarWrappingText } from '@scalar/components'
+import { ScalarWrappingText } from '@scalar/components/scalar-wrapping-text'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed } from 'vue'

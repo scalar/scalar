@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarMarkdown } from '@scalar/components'
+import { ScalarMarkdown } from '@scalar/components/scalar-markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 

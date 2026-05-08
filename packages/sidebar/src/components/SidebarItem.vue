@@ -1,9 +1,5 @@
 <script lang="ts" setup>
-import {
-  ScalarSidebarGroup,
-  ScalarSidebarItem,
-  ScalarSidebarSection,
-} from '@scalar/components'
+import { ScalarSidebarGroup, ScalarSidebarItem, ScalarSidebarSection } from '@scalar/components/scalar-sidebar'
 import { LibraryIcon } from '@scalar/icons/library'
 import { computed } from 'vue'
 

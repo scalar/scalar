@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useLoadingState } from '@scalar/components'
+import { useLoadingState } from '@scalar/components/scalar-loading'
 import { isValidUrl } from '@scalar/helpers/url/is-valid-url'
 import { ScalarIconArrowUpRight } from '@scalar/icons'
 import type { ExternalUrls } from '@scalar/types/api-reference'

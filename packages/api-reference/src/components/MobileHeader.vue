@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { cva, ScalarIconButton } from '@scalar/components'
+import { ScalarIconButton } from '@scalar/components/scalar-icon-button'
+import { cva } from '@scalar/use-hooks/useBindCx'
 import { ScalarIconList, ScalarIconX } from '@scalar/icons'
 
 defineProps<{

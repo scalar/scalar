@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIcon } from '@scalar/components/scalar-icon'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed } from 'vue'

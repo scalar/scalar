@@ -1,5 +1,5 @@
 import { Chat } from '@ai-sdk/vue'
-import { type ModalState, useModal } from '@scalar/components'
+import { type ModalState, useModal } from '@scalar/components/scalar-modal'
 import { type ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import { useToasts } from '@scalar/use-toasts'

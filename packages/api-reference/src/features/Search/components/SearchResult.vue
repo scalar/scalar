@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarSearchResultItem } from '@scalar/components'
+import { ScalarSearchResultItem } from '@scalar/components/scalar-search-results'
 import {
   ScalarIconBracketsCurly,
   ScalarIconTag,

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { OperationCodeSample } from '@scalar/api-client/blocks/operation-code-sample'
-import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
+import { ScalarErrorBoundary } from '@scalar/components/scalar-error-boundary'
+import { ScalarMarkdown } from '@scalar/components/scalar-markdown'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'

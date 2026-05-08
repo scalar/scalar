@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ScalarFormSection } from '@scalar/components'
+import { ScalarFormSection } from '@scalar/components/scalar-form'
 import type { ExternalUrls } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
