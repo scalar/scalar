@@ -1,8 +1,5 @@
 <script lang="ts" setup>
-import {
-  ScalarCheckboxRadioGroup,
-  type ScalarCheckboxOption,
-} from '@scalar/components'
+import { ScalarCheckboxRadioGroup, type ScalarCheckboxOption } from '@scalar/components/scalar-checkbox-input'
 import { computed } from 'vue'
 
 const ModernOption = { label: 'Modern', value: 'modern' } as const

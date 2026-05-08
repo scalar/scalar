@@ -1,9 +1,7 @@
 <script lang="ts" setup>
-import {
-  ScalarCodeBlock,
-  ScalarFormField,
-  ScalarFormSection,
-} from '@scalar/components'
+import { ScalarCodeBlock } from '@scalar/components/scalar-code-block'
+import { ScalarFormSection } from '@scalar/components/scalar-form'
+import { ScalarFormField } from '@scalar/components/scalar-form'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { type ThemeId } from '@scalar/themes'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'

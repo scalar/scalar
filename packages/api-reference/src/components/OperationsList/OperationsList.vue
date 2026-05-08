@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import {
-  ScalarCard,
-  ScalarCardHeader,
-  ScalarCardSection,
-} from '@scalar/components'
+import { ScalarCard, ScalarCardHeader, ScalarCardSection } from '@scalar/components/scalar-card'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { computed } from 'vue'

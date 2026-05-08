@@ -1,9 +1,6 @@
 <script setup lang="ts">
-import {
-  ScalarDropdown,
-  ScalarDropdownItem,
-  useModal,
-} from '@scalar/components'
+import { useModal } from '@scalar/components/scalar-modal'
+import { ScalarDropdown, ScalarDropdownItem } from '@scalar/components/scalar-dropdown'
 import { ScalarIconMagnifyingGlass, ScalarIconUpload } from '@scalar/icons'
 
 import Catalog from '@/views/Catalog/Catalog.vue'

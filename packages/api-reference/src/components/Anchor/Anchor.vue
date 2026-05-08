@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ScalarButton, useBindCx } from '@scalar/components'
+import { ScalarButton } from '@scalar/components/scalar-button'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { ScalarIconHash } from '@scalar/icons'
 import { useId } from 'vue'
 

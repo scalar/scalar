@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import {
-  ScalarMarkdown,
-  ScalarMarkdownSummary,
-  ScalarWrappingText,
-} from '@scalar/components'
+import { ScalarMarkdown } from '@scalar/components/scalar-markdown'
+import { ScalarWrappingText } from '@scalar/components/scalar-wrapping-text'
+import { ScalarMarkdownSummary } from '@scalar/components/scalar-markdown'
 import { ScalarIconCaretRight } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'

@@ -13,12 +13,9 @@ if (version && typeof window !== 'undefined') {
 import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'
 import type { ApiClientModal } from '@scalar/api-client/modal'
-import {
-  addScalarClassesToHeadless,
-  ScalarColorModeToggleButton,
-  ScalarColorModeToggleIcon,
-  ScalarSidebarFooter,
-} from '@scalar/components'
+import { ScalarColorModeToggleButton, ScalarColorModeToggleIcon } from '@scalar/components/scalar-color-mode-toggle'
+import { ScalarSidebarFooter } from '@scalar/components/scalar-sidebar'
+import { addScalarClassesToHeadless } from '@scalar/components'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import {

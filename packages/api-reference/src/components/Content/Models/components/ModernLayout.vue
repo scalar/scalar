@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarErrorBoundary } from '@scalar/components'
+import { ScalarErrorBoundary } from '@scalar/components/scalar-error-boundary'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 

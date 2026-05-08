@@ -1,4 +1,4 @@
-import { ScalarListbox } from '@scalar/components'
+import { ScalarListbox } from '@scalar/components/scalar-listbox'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
