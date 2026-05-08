@@ -97,8 +97,7 @@ watch(
   <ScalarModal
     bodyClass="flex flex-col overflow-hidden p-0"
     size="md"
-    :state="state"
-    title="What's new">
+    :state="state">
     <header class="flex items-center gap-3 px-5 pt-4 pb-3">
       <span
         aria-hidden="true"
