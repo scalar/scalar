@@ -24,10 +24,18 @@ export const useStateData = () => {
   const fallbackThemeSlug = ref<string>('default')
   const currentTeam = ref<Team | undefined>(undefined)
   /**
-   * Tracks whether we are currently fetching the user/teams payload that
-   * resolves `currentTeam`. App state consumers gate route handling on this
-   * so a reload onto a team workspace URL does not bounce the user back to
-   * the local default before the team data has had a chance to populate.
+   * Tracks whether we are currently performing the *initial* fetch of the
+   * user/teams payload that resolves `currentTeam`. App state consumers gate
+   * route handling and the splash screen on this so a reload onto a team
+   * workspace URL does not bounce the user back to the local default before
+   * the team data has had a chance to populate.
+   *
+   * Stays `false` for subsequent background token refreshes (focus /
+   * visibilitychange driven). The watcher below still re-fetches the user
+   * and teams to keep the cache fresh, but we deliberately do not re-raise
+   * this flag - flipping it back to `true` would put the splash screen back
+   * over an already-mounted workspace and short-circuit `handleRouteChange`
+   * for an active session.
    */
   const isCurrentTeamLoading = ref(false)
 
@@ -36,7 +44,7 @@ export const useStateData = () => {
 
   watch(
     getAccessToken,
-    (accessToken) => {
+    (accessToken, previousAccessToken) => {
       if (!accessToken) {
         currentTeam.value = undefined
         customThemes.value = []
@@ -45,7 +53,15 @@ export const useStateData = () => {
         return
       }
 
-      isCurrentTeamLoading.value = true
+      // Only gate the UI on the *first* authenticated fetch for this
+      // session. The watcher fires on initial load (previousAccessToken is
+      // undefined), on fresh login (previousAccessToken is null), and on
+      // every background token refresh (previousAccessToken is the prior
+      // token string). Splash + route deferral must only apply to the
+      // first two; refreshes are silent revalidations.
+      if (!previousAccessToken) {
+        isCurrentTeamLoading.value = true
+      }
 
       // Fetch all themes and pre-fill the per-theme query cache entries so
       // any useQuery(['themes', slug]) call elsewhere reads from cache.
