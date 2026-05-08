@@ -79,27 +79,12 @@ export default defineConfig({
         // Enable code splitting so genuinely-async boundaries become real lazy
         // chunks: the API client modal (heaviest by far — pulls in CodeMirror),
         // the AgentScalar drawer, the YAML parser used for downloads, and the
-        // icon library's per-SVG dynamic imports.
-        //
-        // `minShareCount: Infinity` disables Rolldown's automatic shared-chunk
-        // extraction for synchronous code so static graphs stay in the entry
-        // bundle. Code that's used by *both* the entry and a lazy chunk still
-        // gets hoisted into a shared chunk — that's how ESM avoids duplication.
-        codeSplitting: {
-          minShareCount: Number.POSITIVE_INFINITY,
-          // Coalesce the ~84 per-SVG dynamic imports from `@scalar/icons/library`
-          // into a single `chunks/icons-*.js` instead of one tiny file per icon.
-          groups: [
-            {
-              name(moduleId) {
-                if (moduleId.includes('/library/icons/') && moduleId.endsWith('.svg.js')) {
-                  return 'icons'
-                }
-                return null
-              },
-            },
-          ],
-        },
+        // ~84 per-SVG dynamic imports from `@scalar/icons/library`. Each icon
+        // becomes its own ~1 KB chunk that only fetches if the sidebar actually
+        // renders that icon — the typical API only references a handful of them
+        // out of the catalog, so this nets a smaller real-world page weight than
+        // bundling them all into a single ~125 KB chunk.
+        codeSplitting: true,
         // Vite forces `minifyWhitespace: false` for ES library builds, so we bypass
         // it by enabling Rolldown's native minifier on the output. This produces a
         // fully-minified bundle equivalent to what UMD already gets from Rolldown.
