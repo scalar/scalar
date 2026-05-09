@@ -42,7 +42,6 @@ import type {
 
 import type { AppState } from './app-state'
 import DesktopTabs from './components/DesktopTabs.vue'
-import { useTheme } from './hooks/use-theme'
 
 const {
   layout,
@@ -163,14 +162,11 @@ useDocumentWatcher({
 useColorMode({ workspaceStore: app.store })
 
 /** Theme — resolved from custom themes, user/team preference, and workspace store */
-const { customThemes, fallbackThemeSlug } = useThemes()
-const theme = useTheme({
-  customThemes,
-  fallbackThemeSlug,
+const { customThemes, themeStyles, themeStyleTag } = useThemes({
   store: app.store,
 })
 
-const currentTheme = computed(() => theme.themeStyles.value.themeStyles)
+const currentTheme = computed(() => themeStyles.value.themeStyles)
 const isDarkMode = computed(() => app.isDarkMode.value)
 
 /** Setup monaco editor configuration */
@@ -235,7 +231,7 @@ const routerViewProps = computed<RouteProps>(() => {
     isTeamWorkspace: app.workspace.isTeamWorkspace.value,
     plugins,
     isDarkMode: app.isDarkMode.value,
-    currentTheme: theme.themeStyles.value.themeStyles,
+    currentTheme: themeStyles.value.themeStyles,
     customThemes: customThemes.value,
     telemetry: app.telemetry.value,
     onUpdateTelemetry: (value: boolean) => {
@@ -249,7 +245,7 @@ const routerViewProps = computed<RouteProps>(() => {
 <template>
   <ScalarTeleportRoot>
     <!-- Theme style tag -->
-    <div v-html="theme.themeStyleTag.value" />
+    <div v-html="themeStyleTag" />
 
     <!-- Toasts -->
     <ScalarToasts />
