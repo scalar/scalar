@@ -1,4 +1,4 @@
-# How PAR Technology Corporation Enhanced Its Developer Experience With a Modern, Open Standards Platform
+# How PAR Technology Corporation Enhanced Its Developer Experience With Scalar: a Modern, Open Standards API Management Platform
 
 ## Overview
 
@@ -7,6 +7,12 @@ PAR Technology Corporation (“PAR”), [partech.com](https://partech.com/), a g
 In 2025, PAR set out to modernize the foundation of this portal to ensure long-term reliability, improve the developer journey, and align with open, future-proof API standards. As part of this initiative, the PAR Product Operations organization evaluated a range of modern documentation and API-forward platforms.
 
 Ultimately, PAR selected Scalar, [scalar.com](https://scalar.com), as the best aligned partner with its long-term developer experience strategy.
+
+<scalar-image
+  src="/partech-pos-terminal-branding.png"
+  alt="A PAR point-of-sale terminal displaying the PAR logo and a partner symbol on its screen"
+  size="full">
+</scalar-image>
 
 ## Why PAR Pursued a Platform Update
 

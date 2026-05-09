@@ -688,6 +688,15 @@
             "title": "How PAR Technology Corporation Enhanced Its Developer Experience With a Modern, Open Standards Platform",
             "filepath": "documentation/guides/customers/partech.md",
             "showInSidebar": false,
+            "head": {
+              "meta": [
+                {
+                  "property": "og:image",
+                  "name": "og:image",
+                  "content": "https://scalar.com/partech-pos-terminal-branding.png"
+                }
+              ]
+            },
             "layout": {
               "toc": false,
               "sidebar": false,
