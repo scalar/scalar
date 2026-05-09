@@ -16,7 +16,7 @@ import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
-import { computed, onBeforeUnmount, toValue, watch } from 'vue'
+import { computed, onBeforeUnmount, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import AppHeader from '@/features/app/components/AppHeader.vue'
@@ -34,6 +34,7 @@ import type { CommandPaletteState } from '@/features/command-palette/hooks/use-c
 import TheCommandPalette from '@/features/command-palette/TheCommandPalette.vue'
 import { useMonacoEditorConfiguration } from '@/features/editor'
 import { useColorMode } from '@/hooks/use-color-mode'
+import { useThemes } from '@/hooks/use-themes'
 import type {
   RegistryAdapter,
   RegistryDocumentsState,
@@ -41,6 +42,7 @@ import type {
 
 import type { AppState } from './app-state'
 import DesktopTabs from './components/DesktopTabs.vue'
+import { useTheme } from './hooks/use-theme'
 
 const {
   layout,
@@ -160,7 +162,15 @@ useDocumentWatcher({
 /** Color mode */
 useColorMode({ workspaceStore: app.store })
 
-const currentTheme = computed(() => app.theme.styles.value.themeStyles)
+/** Theme — resolved from custom themes, user/team preference, and workspace store */
+const { customThemes, fallbackThemeSlug } = useThemes()
+const theme = useTheme({
+  customThemes,
+  fallbackThemeSlug,
+  store: app.store,
+})
+
+const currentTheme = computed(() => theme.themeStyles.value.themeStyles)
 const isDarkMode = computed(() => app.isDarkMode.value)
 
 /** Setup monaco editor configuration */
@@ -225,8 +235,8 @@ const routerViewProps = computed<RouteProps>(() => {
     isTeamWorkspace: app.workspace.isTeamWorkspace.value,
     plugins,
     isDarkMode: app.isDarkMode.value,
-    currentTheme: app.theme.styles.value.themeStyles,
-    customThemes: toValue(app.theme.customThemes),
+    currentTheme: theme.themeStyles.value.themeStyles,
+    customThemes: customThemes.value,
     telemetry: app.telemetry.value,
     onUpdateTelemetry: (value: boolean) => {
       app.telemetry.value = value
@@ -239,7 +249,7 @@ const routerViewProps = computed<RouteProps>(() => {
 <template>
   <ScalarTeleportRoot>
     <!-- Theme style tag -->
-    <div v-html="app.theme.themeStyleTag.value" />
+    <div v-html="theme.themeStyleTag.value" />
 
     <!-- Toasts -->
     <ScalarToasts />

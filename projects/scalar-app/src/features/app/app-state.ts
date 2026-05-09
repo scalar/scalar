@@ -7,7 +7,6 @@ import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { migrateLocalStorageToIndexDb } from '@scalar/oas-utils/migrations'
 import type { Team } from '@scalar/sdk/models/components'
 import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
-import type { Theme } from '@scalar/themes'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import {
   type OperationExampleMeta,
@@ -42,7 +41,6 @@ import type { RouteLocationNormalizedGeneric, RouteLocationRaw, Router } from 'v
 import type { ApiClientAppOptions } from '@/features/app/helpers/create-api-client-app'
 import { getRouteParam } from '@/features/app/helpers/get-route-param'
 import { groupWorkspacesByTeam } from '@/features/app/helpers/group-workspaces'
-import { useTheme } from '@/features/app/hooks/use-theme'
 import { getTabDetails } from '@/helpers/get-tab-details'
 import { workspaceStorage } from '@/helpers/storage'
 
@@ -164,15 +162,6 @@ export type AppState = {
   document: ComputedRef<WorkspaceDocument | null>
   /** Whether the current color mode is dark */
   isDarkMode: ComputedRef<boolean>
-  /** The currently active theme */
-  theme: {
-    /** The computed CSS styles for the current theme, as a string */
-    styles: ComputedRef<{ themeStyles: string; themeSlug: string }>
-    /** The computed value for the <style> tag containing the current theme styles */
-    themeStyleTag: ComputedRef<string>
-    /** The custom themes to use */
-    customThemes: MaybeRefOrGetter<Theme[]>
-  }
   telemetry: Ref<boolean>
 }
 
@@ -208,8 +197,6 @@ export const createAppState = async ({
   fileLoader,
   currentTeam,
   isCurrentTeamLoading = false,
-  fallbackThemeSlug = () => 'default',
-  customThemes = () => [],
   telemetryDefault,
   options,
 }: {
@@ -225,8 +212,6 @@ export const createAppState = async ({
    * re-processed automatically once this flips to `false`.
    */
   isCurrentTeamLoading?: MaybeRefOrGetter<boolean>
-  customThemes?: MaybeRefOrGetter<Theme[]>
-  fallbackThemeSlug?: MaybeRefOrGetter<string>
   telemetryDefault?: boolean
   /** Runtime behaviour overrides */
   options?: ApiClientAppOptions
@@ -1200,12 +1185,6 @@ export const createAppState = async ({
     renameWorkspace,
   })
 
-  const theme = useTheme({
-    fallbackThemeSlug,
-    customThemes,
-    store: store,
-  })
-
   const isDarkMode = computed(() => {
     const colorMode = store.value?.workspace['x-scalar-color-mode'] ?? 'system'
     if (colorMode === 'system') {
@@ -1256,11 +1235,6 @@ export const createAppState = async ({
     environment,
     document: activeDocument,
     isDarkMode,
-    theme: {
-      styles: theme.themeStyles,
-      themeStyleTag: theme.themeStyleTag,
-      customThemes,
-    },
     telemetry,
     options,
   }
