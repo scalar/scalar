@@ -193,6 +193,22 @@ Collapsible section with children:
 
 Modes: `flat`, `nested`, `folder` (default).
 
+**Folder landing pages:** Add a `page` property to make clicking the folder navigate to a page:
+
+```json
+"/company": {
+  "type": "group",
+  "title": "Company",
+  "mode": "folder",
+  "page": { "type": "page", "title": "About Us", "filepath": "docs/company/index.md" },
+  "children": {
+    "/team": { "type": "page", "title": "Our Team", "filepath": "docs/company/team.md" }
+  }
+}
+```
+
+**Default open state:** Use `open: true` to expand a folder by default.
+
 #### Link (`type: "link"`)
 
 External URL:
