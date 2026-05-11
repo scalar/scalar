@@ -28,8 +28,8 @@ export type FastifyApiReferenceOptions = {
    *
    * The specification is sourced from, in order of precedence:
    * - `configuration.spec.content`
-   * - `configuration.spec.url` – fetched via `@scalar/openapi-parser/plugins/fetch-urls`
-   * - `@fastify/swagger` – if `configuration.spec` is not provided
+   * - `@fastify/swagger` – if `configuration.spec.content` is not provided
+   * - `configuration.spec.url`
    *
    * These endpoints can be used to fetch the OpenAPI specification for your own programmatic use.
    *

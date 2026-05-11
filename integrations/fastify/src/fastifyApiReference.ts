@@ -83,18 +83,18 @@ const fastifyApiReference = fp<
           },
         }
       }
-      if (url) {
-        return {
-          type: 'url' as const,
-          get: () => url,
-        }
-      }
-
       // Even if @fastify/swagger is loaded, when the `decorator` option is set, the `swagger` function is not available.
       if (fastify.hasPlugin('@fastify/swagger') && typeof fastify.swagger === 'function') {
         return {
           type: 'swagger' as const,
           get: () => fastify.swagger(),
+        }
+      }
+
+      if (url) {
+        return {
+          type: 'url' as const,
+          get: () => url,
         }
       }
 

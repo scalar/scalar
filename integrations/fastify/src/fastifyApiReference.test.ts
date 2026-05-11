@@ -365,6 +365,34 @@ describe('fastifyApiReference', () => {
     })
   })
 
+  it('prefers @fastify/swagger over configuration.url when both are configured', async () => {
+    const spec = exampleDocument()
+    fastify = Fastify({
+      logger: false,
+    })
+
+    await fastify.register(fastifySwagger, {
+      mode: 'static',
+      specification: {
+        document: spec,
+      },
+      exposeRoute: false,
+    })
+    await fastify.register(fastifyApiReference, {
+      configuration: {
+        url: '/openapi.yaml',
+      },
+    })
+
+    const address = await fastify.listen({ port: 0 })
+    const htmlResponse = await fetch(`${address}/reference/`)
+    const openApiDocumentResponse = await fetch(`${address}/reference/openapi.json`)
+
+    expect(openApiDocumentResponse.status).toBe(200)
+    expect(await openApiDocumentResponse.json()).toEqual(spec)
+    expect(await htmlResponse.text()).toContain('./openapi.json')
+  })
+
   it('has the default title', async () => {
     fastify = Fastify({
       logger: false,
