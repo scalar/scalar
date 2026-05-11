@@ -47,8 +47,6 @@ const formatProp = (payload: unknown): Record<string, unknown> => {
   return value !== undefined ? { format: value } : {}
 }
 
-const passthrough = <T>(payload: T): T => payload
-
 const empty = (): Record<string, unknown> => ({})
 
 /**
@@ -133,7 +131,7 @@ export const TRACKED_EVENTS: TrackedEventsMap = {
   'workspace:update:color-mode': empty,
   'workspace:update:theme': empty,
   'workspace:update:selected-client': empty,
-  'workspace:update:active-proxy': passthrough,
+  'workspace:update:active-proxy': (payload) => ({ on: payload ?? 'off' }),
   'workspace:update:active-environment': empty,
 
   // Meta events
