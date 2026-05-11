@@ -79,30 +79,37 @@ export const getFormBodyRows = (
   const schemaWithProperties = formBodySchema && isObjectSchema(formBodySchema) ? formBodySchema : undefined
   const requiredSet = schemaWithProperties ? new Set(schemaWithProperties.required ?? []) : undefined
 
+  // Pre-compute the leaf-by-dotted-name index up front so both the array and the
+  // schema-driven branches can pull each row's leaf schema and required flag without
+  // re-walking the schema. Without this, edited rows lose the per-leaf `Required`
+  // badge because a top-level `properties[name]` lookup misses dotted names.
+  const leafByDottedName = new Map<string, LeafRow>()
+  if (schemaWithProperties) {
+    for (const leaf of collectLeafProperties(schemaWithProperties)) {
+      leafByDottedName.set(leaf.path.join('.'), leaf)
+    }
+  }
+
   const mapRow = ({
     name,
     value,
     isDisabled = false,
-    leafSchema,
-    isRequiredOverride,
   }: {
     name: string
     value: string | File
     isDisabled?: boolean
-    leafSchema?: SchemaObject
-    isRequiredOverride?: boolean
   }): TableRow => {
     const row: TableRow = { name, value, isDisabled }
-    // Recursive walker can supply the resolved leaf schema and required flag directly;
-    // for flat inputs we fall back to the top-level property lookup.
-    const usingRecursive = leafSchema !== undefined || isRequiredOverride !== undefined
-    if (!usingRecursive && (!schemaWithProperties || !name)) {
+    if (!schemaWithProperties || !name) {
       return row
     }
-    const propSchema = leafSchema ?? resolve.schema(schemaWithProperties?.properties?.[name])
+    // Prefer the pre-resolved leaf (handles dotted names like `props.name`); fall back
+    // to a top-level property lookup so user-added rows keep working.
+    const leaf = leafByDottedName.get(name)
+    const propSchema = leaf?.schema ?? resolve.schema(schemaWithProperties.properties?.[name])
     row.schema = propSchema
     row.description = propSchema?.description
-    row.isRequired = isRequiredOverride ?? requiredSet?.has(name) ?? false
+    row.isRequired = leaf?.isRequired ?? requiredSet?.has(name) ?? false
     return row
   }
 
@@ -122,27 +129,19 @@ export const getFormBodyRows = (
   // Schema-driven path: when the form body schema describes nested objects, emit one row
   // per leaf so users can edit individual fields. The dotted name (`props.name`) is folded
   // back into a single JSON multipart part by `process-body.ts` before the request is sent.
-  if (schemaWithProperties && typeof example.value === 'object') {
-    const leaves = collectLeafProperties(schemaWithProperties)
-    if (leaves.length > 0) {
-      return leaves.map(({ path, schema: leafSchema, isRequired }) => {
-        const rawValue = getValueAtPath(example.value, path)
-        // Missing values and explicit `null` (e.g. for a nullable schema) render as empty
-        // inputs so the user can type a value rather than seeing the string "null".
-        const value =
-          rawValue instanceof File
-            ? rawValue
-            : rawValue === undefined || rawValue === null
-              ? ''
-              : stringifyValue(rawValue)
-        return mapRow({
-          name: path.join('.'),
-          value,
-          leafSchema,
-          isRequiredOverride: isRequired,
-        })
-      })
-    }
+  if (leafByDottedName.size > 0 && typeof example.value === 'object') {
+    return Array.from(leafByDottedName.values()).map(({ path }) => {
+      const rawValue = getValueAtPath(example.value, path)
+      // Missing values and explicit `null` (e.g. for a nullable schema) render as empty
+      // inputs so the user can type a value rather than seeing the string "null".
+      const value =
+        rawValue instanceof File
+          ? rawValue
+          : rawValue === undefined || rawValue === null
+            ? ''
+            : stringifyValue(rawValue)
+      return mapRow({ name: path.join('.'), value })
+    })
   }
 
   // We got an object try to convert it to an array of rows

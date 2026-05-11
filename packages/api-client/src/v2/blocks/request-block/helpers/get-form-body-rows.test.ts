@@ -394,6 +394,47 @@ describe('getFormBodyRows', () => {
       expect(result[0]?.isRequired).toBe(false)
     })
 
+    it('keeps the leaf schema + required flag on dotted-name array rows (after edits)', () => {
+      // Once the user edits any row, `example.value` is stored as a flat row array. The
+      // dotted name still needs to resolve to its nested leaf in the schema so the
+      // `Required` badge and per-field schema metadata survive across re-renders.
+      const example: ExampleObject = {
+        value: [
+          { name: 'file', value: '@filename', isDisabled: false },
+          { name: 'props.name', value: 'edited', isDisabled: false },
+          { name: 'props.description', value: '', isDisabled: false },
+          { name: 'props.created_at', value: '', isDisabled: false },
+        ],
+      }
+      const formBodySchema: SchemaObject = {
+        type: 'object',
+        required: ['file', 'props'],
+        properties: {
+          file: { type: 'string', format: 'binary' },
+          props: {
+            type: 'object',
+            required: ['name', 'description'],
+            properties: {
+              name: { type: 'string' },
+              description: { type: 'string' },
+              created_at: { type: 'string', format: 'date-time' },
+            },
+          },
+        },
+      }
+
+      const result = getFormBodyRows(example, 'multipart/form-data', formBodySchema)
+
+      expect(result.map((row) => [row.name, row.isRequired])).toEqual([
+        ['file', true],
+        ['props.name', true],
+        ['props.description', true],
+        ['props.created_at', false],
+      ])
+      expect(result[1]?.schema).toBeDefined()
+      expect(result[2]?.schema).toBeDefined()
+    })
+
     it('preserves File values when walking nested schema', () => {
       const file = new File([''], 'avatar.png', { type: 'image/png' })
       const example: ExampleObject = {
