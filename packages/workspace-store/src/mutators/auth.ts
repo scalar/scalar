@@ -391,12 +391,7 @@ export const updateSelectedScopes = (
     securitySchemes as Record<string, { type?: string; 'x-default-scopes'?: string[] } | undefined>,
     preferredScheme,
   )
-  const target = targetFromStore
-    ? targetFromStore
-    : {
-        selectedIndex: fallbackTarget.selectedIndex,
-        selectedSchemes: fallbackTarget.selectedSchemes.map((scheme) => ({ ...scheme })),
-      }
+  const target = targetFromStore ?? fallbackTarget
 
   const nextSelectedSchemes = unpackProxyObject(target.selectedSchemes, { depth: 1 }) ?? []
   // Match the security requirement by scheme key names (order-insensitive: Object.keys order

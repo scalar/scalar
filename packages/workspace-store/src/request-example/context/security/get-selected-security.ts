@@ -25,26 +25,21 @@ const applyDefaultScopes = (
   requirement: NonNullable<OpenApiDocument['security']>[number],
   securitySchemes: Record<string, DefaultScopeScheme | undefined>,
 ): NonNullable<OpenApiDocument['security']>[number] => {
-  let didApplyDefaultScopes = false
-
-  const hydratedRequirement = Object.fromEntries(
+  return Object.fromEntries(
     Object.entries(requirement).map(([name, scopes]) => {
       if (Array.isArray(scopes) && scopes.length > 0) {
-        return [name, scopes]
+        return [name, [...scopes]]
       }
 
       const scheme = getResolvedRef(securitySchemes[name])
       const defaultScopes = scheme?.type === 'oauth2' ? scheme['x-default-scopes'] : undefined
       if (Array.isArray(defaultScopes) && defaultScopes.length > 0) {
-        didApplyDefaultScopes = true
         return [name, [...defaultScopes]]
       }
 
-      return [name, scopes]
+      return [name, Array.isArray(scopes) ? [...scopes] : scopes]
     }),
   )
-
-  return didApplyDefaultScopes ? hydratedRequirement : requirement
 }
 
 /**
