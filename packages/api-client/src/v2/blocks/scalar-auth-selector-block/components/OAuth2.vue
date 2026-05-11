@@ -75,12 +75,14 @@ const {
 }>()
 
 const emits = defineEmits<{
+  (e: 'update:selectedScopes', payload: { scopes: string[] }): void
   (
-    e: 'update:selectedScopes',
-    payload: Pick<
-      ApiReferenceEvents['auth:update:selected-scopes'],
-      'scopes' | 'newScopePayload' | 'editScopePayload' | 'deleteScopePayload'
-    >,
+    e: 'upsert:scope',
+    payload: Omit<ApiReferenceEvents['auth:upsert:scopes'], 'name'>,
+  ): void
+  (
+    e: 'delete:scope',
+    payload: Omit<ApiReferenceEvents['auth:delete:scopes'], 'name'>,
   ): void
 }>()
 
@@ -499,7 +501,9 @@ const handleSecretLocationUpdate = (value: string): void => {
         :flow
         :flowType="type"
         :selectedScopes
-        @update:selectedScopes="(v) => emits('update:selectedScopes', v)" />
+        @update:selectedScopes="(v) => emits('update:selectedScopes', v)"
+        @upsert:scope="(v) => emits('upsert:scope', v)"
+        @delete:scope="(v) => emits('delete:scope', v)" />
     </DataTableRow>
 
     <DataTableRow class="min-w-full">

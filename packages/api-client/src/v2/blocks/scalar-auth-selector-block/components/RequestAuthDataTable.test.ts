@@ -236,6 +236,50 @@ describe('RequestAuthDataTable', () => {
         meta: { type: 'document' },
       })
     })
+
+    it('emits auth:upsert:scopes on the bus when RequestAuthTab forwards an upsert:scope event', async () => {
+      const eventBus = createWorkspaceEventBus()
+      const fn = vi.fn()
+      eventBus.on('auth:upsert:scopes', fn)
+      const wrapper = mountWithProps({ eventBus })
+
+      const requestAuthTab = wrapper.findComponent({ name: 'RequestAuthTab' })
+      await requestAuthTab.vm?.$emit('upsert:scope', {
+        name: 'OAuth',
+        flowType: 'authorizationCode',
+        scope: 'read:items',
+        description: 'Read access',
+      })
+
+      expect(fn).toHaveBeenCalledTimes(1)
+      expect(fn).toHaveBeenCalledWith({
+        name: 'OAuth',
+        flowType: 'authorizationCode',
+        scope: 'read:items',
+        description: 'Read access',
+      })
+    })
+
+    it('emits auth:delete:scopes on the bus when RequestAuthTab forwards a delete:scope event', async () => {
+      const eventBus = createWorkspaceEventBus()
+      const fn = vi.fn()
+      eventBus.on('auth:delete:scopes', fn)
+      const wrapper = mountWithProps({ eventBus })
+
+      const requestAuthTab = wrapper.findComponent({ name: 'RequestAuthTab' })
+      await requestAuthTab.vm?.$emit('delete:scope', {
+        name: 'OAuth',
+        flowType: 'authorizationCode',
+        scope: 'read:items',
+      })
+
+      expect(fn).toHaveBeenCalledTimes(1)
+      expect(fn).toHaveBeenCalledWith({
+        name: 'OAuth',
+        flowType: 'authorizationCode',
+        scope: 'read:items',
+      })
+    })
   })
 
   describe('props passing', () => {

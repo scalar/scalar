@@ -305,14 +305,14 @@ export const updateSelectedAuthTab = (
 
 /**
  * Updates the scopes for a specific security requirement in the selected security schemes of
- * a document or operation. Also allow to add a new scope to the scheme.
+ * a document or operation. This mutator only touches selection state; managing the scope
+ * definitions on the OAuth flow is handled by `upsertScope` and `deleteScope`.
  *
  * @param document - The OpenAPI WorkspaceDocument to update.
  * @param id - An array of scheme names that uniquely identifies the target security requirement.
  *             For example: ['OAuth', 'ApiKeyAuth']
  * @param name - The security scheme name to update scopes for (e.g., 'OAuth').
  * @param scopes - The new list of scopes to set. For example: ['read:pets', 'write:pets']
- * @param newScopePayload - The payload to add a new scope with
  * @param meta - The context specifying whether the update is at the document-level or operation-level.
  *
  * Example usage:
@@ -339,15 +339,7 @@ export const updateSelectedAuthTab = (
 export const updateSelectedScopes = (
   store: WorkspaceStore | null,
   document: WorkspaceDocument | null,
-  {
-    id,
-    name,
-    scopes,
-    newScopePayload,
-    editScopePayload,
-    deleteScopePayload,
-    meta,
-  }: AuthEvents['auth:update:selected-scopes'],
+  { id, name, scopes, meta }: AuthEvents['auth:update:selected-scopes'],
 ) => {
   if (!isOpenApiDocument(document)) {
     return
@@ -379,56 +371,152 @@ export const updateSelectedScopes = (
     return
   }
 
-  // Helper for resolving the OAuth flow we need to mutate when a scope CRUD payload is provided
-  const getFlow = (flowType: keyof OAuth2Object['flows']) => {
-    const securityScheme = getResolvedRef(document.components?.securitySchemes?.[name])
-    return (securityScheme as OAuth2Object)?.flows?.[flowType]
-  }
-
-  // If we have a new scope payload, add it to the scheme
-  if (newScopePayload) {
-    const flow = getFlow(newScopePayload.flowType)
-    if (!flow) {
-      return
-    }
-    flow.scopes ||= {}
-
-    flow.scopes[newScopePayload.name] = newScopePayload.description
-    scheme[name] = [...scopes, newScopePayload.name]
-    return
-  }
-
-  // Edit an existing scope: optionally rename and update the description
-  if (editScopePayload) {
-    const flow = getFlow(editScopePayload.flowType)
-    if (!flow?.scopes || !(editScopePayload.oldName in flow.scopes)) {
-      return
-    }
-
-    // Renaming: remove the old key so the order in the object stays predictable
-    if (editScopePayload.oldName !== editScopePayload.name) {
-      delete flow.scopes[editScopePayload.oldName]
-    }
-    flow.scopes[editScopePayload.name] = editScopePayload.description
-
-    scheme[name] = scopes
-    return
-  }
-
-  // Delete an existing scope from the flow definition
-  if (deleteScopePayload) {
-    const flow = getFlow(deleteScopePayload.flowType)
-    if (!flow?.scopes) {
-      return
-    }
-    delete flow.scopes[deleteScopePayload.name]
-
-    scheme[name] = scopes
-    return
-  }
-
   // Set the scopes array for the named security scheme within the found security requirement
   scheme[name] = scopes
+}
+
+/**
+ * Resolves the OAuth flow on a security scheme by name + flow type.
+ * Returns `null` when the scheme or flow cannot be found, or the scheme is not an OAuth2 / OpenID Connect scheme.
+ */
+const resolveOAuthFlow = (document: WorkspaceDocument, name: string, flowType: keyof OAuth2Object['flows']) => {
+  if (!isOpenApiDocument(document)) {
+    return null
+  }
+  const securityScheme = getResolvedRef(document.components?.securitySchemes?.[name])
+  if (!securityScheme) {
+    return null
+  }
+  if (securityScheme.type !== 'oauth2' && securityScheme.type !== 'openIdConnect') {
+    return null
+  }
+  return (securityScheme as OAuth2Object).flows?.[flowType] ?? null
+}
+
+/**
+ * Walks every selection container that lives under a document (the document-level
+ * `x-scalar-selected-security` plus the equivalent on every path / method) and invokes
+ * `transform` on each one. Transforms mutate the `selectedSchemes` array in place so reactive
+ * consumers pick up the change.
+ */
+const walkSelectedSchemes = (
+  store: WorkspaceStore | null,
+  document: WorkspaceDocument,
+  transform: (selectedSchemes: SecurityRequirementObject[]) => void,
+) => {
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const documentName = document['x-scalar-navigation']?.name
+  if (!documentName) {
+    return
+  }
+
+  const documentSchemes = store?.auth.getAuthSelectedSchemas({ type: 'document', documentName })?.selectedSchemes
+  if (documentSchemes) {
+    transform(documentSchemes)
+  }
+
+  Object.entries(document.paths ?? {}).forEach(([path, pathItemObject]) => {
+    Object.entries(pathItemObject).forEach(([method, operation]) => {
+      if (typeof operation !== 'object') {
+        return
+      }
+      const operationSchemes = store?.auth.getAuthSelectedSchemas({
+        type: 'operation',
+        documentName,
+        path,
+        method,
+      })?.selectedSchemes
+      if (operationSchemes) {
+        transform(operationSchemes)
+      }
+    })
+  })
+}
+
+/**
+ * Adds a new scope to an OAuth flow, or renames / updates the description of an existing one.
+ *
+ * When `oldScope` differs from `scope`, this mutator also rewrites every selection entry
+ * that references the matching security scheme so consumers do not need a follow-up
+ * `auth:update:selected-scopes`.
+ */
+export const upsertScope = (
+  store: WorkspaceStore | null,
+  document: WorkspaceDocument | null,
+  { name, flowType, scope, description, oldScope }: AuthEvents['auth:upsert:scopes'],
+) => {
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const flow = resolveOAuthFlow(document, name, flowType)
+  if (!flow) {
+    return
+  }
+  flow.scopes ||= {}
+
+  const isRename = Boolean(oldScope) && oldScope !== scope
+
+  // Rename: drop the previous key so iteration order stays predictable.
+  if (isRename) {
+    if (!(oldScope! in flow.scopes)) {
+      return
+    }
+    delete flow.scopes[oldScope!]
+  }
+
+  flow.scopes[scope] = description
+
+  if (!isRename) {
+    return
+  }
+
+  // Mirror the rename across any selection entry that references this security scheme.
+  walkSelectedSchemes(store, document, (selectedSchemes) => {
+    selectedSchemes.forEach((requirement) => {
+      if (!isNonOptionalSecurityRequirement(requirement)) {
+        return
+      }
+      const scopes = requirement[name]
+      if (!Array.isArray(scopes) || !scopes.includes(oldScope!)) {
+        return
+      }
+      requirement[name] = scopes.map((current) => (current === oldScope ? scope : current))
+    })
+  })
+}
+
+/**
+ * Removes a scope from an OAuth flow and strips it from any selection state that references
+ * the matching security scheme.
+ */
+export const deleteScope = (
+  store: WorkspaceStore | null,
+  document: WorkspaceDocument | null,
+  { name, flowType, scope }: AuthEvents['auth:delete:scopes'],
+) => {
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const flow = resolveOAuthFlow(document, name, flowType)
+  if (!flow?.scopes) {
+    return
+  }
+  delete flow.scopes[scope]
+
+  walkSelectedSchemes(store, document, (selectedSchemes) => {
+    selectedSchemes.forEach((requirement) => {
+      if (!isNonOptionalSecurityRequirement(requirement)) {
+        return
+      }
+      const scopes = requirement[name]
+      if (!Array.isArray(scopes) || !scopes.includes(scope)) {
+        return
+      }
+      requirement[name] = scopes.filter((current) => current !== scope)
+    })
+  })
 }
 
 /**
@@ -560,6 +648,8 @@ export const authMutatorsFactory = ({
       updateSelectedAuthTab(store, document, payload),
     updateSelectedScopes: (payload: AuthEvents['auth:update:selected-scopes']) =>
       updateSelectedScopes(store, document, payload),
+    upsertScope: (payload: AuthEvents['auth:upsert:scopes']) => upsertScope(store, document, payload),
+    deleteScope: (payload: AuthEvents['auth:delete:scopes']) => deleteScope(store, document, payload),
     deleteSecurityScheme: (payload: AuthEvents['auth:delete:security-scheme']) =>
       deleteSecurityScheme(store, document, payload),
   }

@@ -30,12 +30,14 @@ const { selectedScopes, flow, flowType } = defineProps<{
 }>()
 
 const emits = defineEmits<{
+  (e: 'update:selectedScopes', payload: { scopes: string[] }): void
   (
-    e: 'update:selectedScopes',
-    payload: Pick<
-      ApiReferenceEvents['auth:update:selected-scopes'],
-      'scopes' | 'newScopePayload' | 'editScopePayload' | 'deleteScopePayload'
-    >,
+    e: 'upsert:scope',
+    payload: Omit<ApiReferenceEvents['auth:upsert:scopes'], 'name'>,
+  ): void
+  (
+    e: 'delete:scope',
+    payload: Omit<ApiReferenceEvents['auth:delete:scopes'], 'name'>,
   ): void
 }>()
 
@@ -118,47 +120,31 @@ const openEditScopeModal = (scope: { id: string; description: string }) => {
   scopeFormModal.show()
 }
 
+/**
+ * Submit handler shared by Add Scope and Edit Scope. For renames, the `upsertScope` mutator on
+ * the workspace store rewrites the selection state in place, so the component does not need to
+ * emit a follow-up `update:selectedScopes`.
+ */
 const handleScopeFormSubmit = (payload: {
   name: string
   description: string
   oldName?: string
 }) => {
-  if (payload.oldName) {
-    // Rename the scope in the current selection too so consumers stay in sync
-    const nextSelection = selectedScopes.map((scope) =>
-      scope === payload.oldName ? payload.name : scope,
-    )
-    emits('update:selectedScopes', {
-      scopes: nextSelection,
-      editScopePayload: {
-        oldName: payload.oldName,
-        name: payload.name,
-        description: payload.description,
-        flowType,
-      },
-    })
-    return
-  }
-
-  emits('update:selectedScopes', {
-    scopes: selectedScopes,
-    newScopePayload: {
-      name: payload.name,
-      description: payload.description,
-      flowType,
-    },
+  emits('upsert:scope', {
+    scope: payload.name,
+    description: payload.description,
+    flowType,
+    ...(payload.oldName ? { oldScope: payload.oldName } : {}),
   })
 }
 
-/** Remove the scope from the flow and from any selection that referenced it */
+/**
+ * Remove the scope from the flow. Selection cleanup (dropping the deleted key from any
+ * currently-selected scopes) is handled by the `deleteScope` mutator on the workspace store,
+ * so the component does not need to emit a follow-up `update:selectedScopes` here.
+ */
 const handleDeleteScope = (scopeKey: string) => {
-  emits('update:selectedScopes', {
-    scopes: selectedScopes.filter((scope) => scope !== scopeKey),
-    deleteScopePayload: {
-      name: scopeKey,
-      flowType,
-    },
-  })
+  emits('delete:scope', { scope: scopeKey, flowType })
 }
 </script>
 

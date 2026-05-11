@@ -139,7 +139,7 @@ describe('OAuthScopesInput', () => {
     expect(emit2?.scopes).toEqual([])
   })
 
-  it('emits deleteScopePayload and removes the scope from the selection when delete is clicked', async () => {
+  it('emits delete:scope when the delete button is clicked and leaves selection cleanup to the store', async () => {
     const wrapper = mountComponent({ selected: ['read:items', 'write:items'] })
     await openDisclosure(wrapper)
 
@@ -147,15 +147,16 @@ describe('OAuthScopesInput', () => {
     expect(deleteBtn, 'Delete button for read:items should exist').toBeTruthy()
     await deleteBtn!.trigger('click')
 
-    const emit = wrapper.emitted('update:selectedScopes')?.at(-1)?.[0] as any
-    expect(emit?.scopes).toEqual(['write:items'])
-    expect(emit?.deleteScopePayload).toEqual({
-      name: 'read:items',
+    expect(wrapper.emitted('delete:scope')?.at(-1)?.[0]).toEqual({
+      scope: 'read:items',
       flowType: 'authorizationCode',
     })
+    // Selection cleanup is owned by the deleteScope mutator, the component does not emit a
+    // follow-up update:selectedScopes here.
+    expect(wrapper.emitted('update:selectedScopes')).toBeUndefined()
   })
 
-  it('emits editScopePayload and renames the scope in the selection when edit submits a new name', async () => {
+  it('emits upsert:scope with oldScope and leaves selection cleanup to the store', async () => {
     const wrapper = mountComponent({ selected: ['read:items'] })
     await openDisclosure(wrapper)
 
@@ -174,17 +175,18 @@ describe('OAuthScopesInput', () => {
     })
     await nextTick()
 
-    const emit = wrapper.emitted('update:selectedScopes')?.at(-1)?.[0] as any
-    expect(emit?.scopes).toEqual(['read:stuff'])
-    expect(emit?.editScopePayload).toEqual({
-      oldName: 'read:items',
-      name: 'read:stuff',
+    expect(wrapper.emitted('upsert:scope')?.at(-1)?.[0]).toEqual({
+      scope: 'read:stuff',
       description: 'Read everything',
       flowType: 'authorizationCode',
+      oldScope: 'read:items',
     })
+    // Selection rename is owned by the upsertScope mutator, the component does not emit a
+    // follow-up update:selectedScopes here.
+    expect(wrapper.emitted('update:selectedScopes')).toBeUndefined()
   })
 
-  it('still emits newScopePayload when the Add Scope modal submits without oldName', async () => {
+  it('emits upsert:scope without oldScope when adding a new scope', async () => {
     const wrapper = mountComponent({ selected: ['read:items'] })
 
     const addBtn = wrapper.findAll('button').find((b) => b.text() === 'Add Scope')
@@ -199,13 +201,13 @@ describe('OAuthScopesInput', () => {
     })
     await nextTick()
 
-    const emit = wrapper.emitted('update:selectedScopes')?.at(-1)?.[0] as any
-    expect(emit?.scopes).toEqual(['read:items'])
-    expect(emit?.newScopePayload).toEqual({
-      name: 'delete:items',
+    expect(wrapper.emitted('upsert:scope')?.at(-1)?.[0]).toEqual({
+      scope: 'delete:items',
       description: 'Delete items',
       flowType: 'authorizationCode',
     })
+    // Adding a scope does not change selection on its own
+    expect(wrapper.emitted('update:selectedScopes')).toBeUndefined()
   })
 
   it('collapses the panel when the last scope is deleted while expanded', async () => {

@@ -75,6 +75,16 @@ const handleScopesUpdate = (
     meta,
   })
 
+/** Handles scope-definition upserts (add / rename / description change) */
+const handleScopeUpsert = (
+  params: ApiReferenceEvents['auth:upsert:scopes'],
+): void => eventBus.emit('auth:upsert:scopes', params)
+
+/** Handles scope-definition deletes */
+const handleScopeDelete = (
+  params: ApiReferenceEvents['auth:delete:scopes'],
+): void => eventBus.emit('auth:delete:scopes', params)
+
 /** Determines if a tab is currently active */
 const isTabActive = (index: number): boolean => activeAuthIndex === index
 
@@ -129,7 +139,9 @@ defineExpose({
         :securitySchemes
         :selectedSecuritySchemas="activeScheme.value"
         :server
-        @update:selectedScopes="handleScopesUpdate" />
+        @delete:scope="handleScopeDelete"
+        @update:selectedScopes="handleScopesUpdate"
+        @upsert:scope="handleScopeUpsert" />
     </DataTable>
 
     <!-- Empty State -->
