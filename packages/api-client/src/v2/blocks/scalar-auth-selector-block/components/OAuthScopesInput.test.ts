@@ -219,7 +219,7 @@ describe('OAuthScopesInput', () => {
     expect(wrapper.findAll('tr').length).toBe(1)
 
     // Simulate the parent applying the delete: the flow ends up with no scopes
-    await wrapper.setProps({ selectedScopes: [], flow: { scopes: {} } })
+    await wrapper.setProps({ selectedScopes: [], flow: { scopes: {} } as any })
     await nextTick()
 
     // The empty-state copy is shown and the panel is no longer expanded

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ScalarModal, type ModalState } from '@scalar/components'
-import { useToasts } from '@scalar/use-toasts'
 import { computed, ref, watch } from 'vue'
 
 import {
@@ -45,36 +44,57 @@ const scopeData = ref({
   description: '',
 })
 
-const { toast } = useToasts()
+/**
+ * Tracks whether the user has interacted with the name field so we can defer the
+ * "name is required" hint until after the first edit, rather than on initial render.
+ */
+const hasTouchedName = ref(false)
+
+watch(
+  () => scopeData.value.name,
+  () => {
+    hasTouchedName.value = true
+  },
+)
+
+const trimmedName = computed(() => scopeData.value.name.trim())
 
 /**
  * Whether the chosen name collides with an existing scope on the flow.
  * In edit mode we allow keeping the original name unchanged.
  */
 const isDuplicateName = computed(() => {
-  const name = scopeData.value.name
-  if (!name) {
+  if (!trimmedName.value) {
     return false
   }
-  if (isEditMode.value && name === scope?.name) {
+  if (isEditMode.value && trimmedName.value === scope?.name) {
     return false
   }
-  return scopes.includes(name)
+  return scopes.includes(trimmedName.value)
 })
 
+/** Human readable validation message rendered inline in the modal */
+const validationError = computed<string | null>(() => {
+  if (isDuplicateName.value) {
+    return `A scope named "${trimmedName.value}" already exists.`
+  }
+  if (hasTouchedName.value && !trimmedName.value) {
+    return 'Scope name is required.'
+  }
+  return null
+})
+
+const isSubmitDisabled = computed(
+  () => !trimmedName.value || isDuplicateName.value,
+)
+
 const handleSubmit = () => {
-  if (!scopeData.value.name) {
-    toast(
-      isEditMode.value
-        ? 'Please fill in the name before saving the scope.'
-        : 'Please fill in the name before adding a scope.',
-      'error',
-    )
+  if (isSubmitDisabled.value) {
     return
   }
 
   emit('submit', {
-    name: scopeData.value.name,
+    name: trimmedName.value,
     description: scopeData.value.description,
     ...(isEditMode.value && scope ? { oldName: scope.name } : {}),
   })
@@ -91,6 +111,8 @@ watch(
     scopeData.value = scope
       ? { name: scope.name, description: scope.description }
       : { name: '', description: '' }
+    // Reset the dirty flag so re-opening the modal does not flash a stale error
+    hasTouchedName.value = false
   },
 )
 </script>
@@ -101,7 +123,7 @@ watch(
     :state="state"
     :title="title">
     <CommandActionForm
-      :disabled="!scopeData.name || isDuplicateName"
+      :disabled="isSubmitDisabled"
       @cancel="emit('cancel')"
       @submit="handleSubmit">
       <!-- Name -->
@@ -124,18 +146,15 @@ watch(
           placeholder="Read user data" />
       </div>
 
+      <!-- Inline validation error -->
+      <div
+        v-if="validationError"
+        class="text-red text-xs"
+        role="alert">
+        {{ validationError }}
+      </div>
+
       <template #submit>{{ submitLabel }}</template>
     </CommandActionForm>
   </ScalarModal>
 </template>
-
-<style scoped>
-.form-group {
-  margin-bottom: 1rem;
-}
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-}
-</style>
