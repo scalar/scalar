@@ -1,13 +1,7 @@
 import { type ModalState, useModal } from '@scalar/components'
 import { type ClientPlugin, subscribePluginEvents } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import {
-  type ApiReferenceEvents,
-  type EventGlob,
-  type GlobListener,
-  type WorkspaceEventBus,
-  createWorkspaceEventBus,
-} from '@scalar/workspace-store/events'
+import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { type App, type MaybeRefOrGetter, computed, createApp, isRef, reactive, ref, toValue, watch } from 'vue'
 
