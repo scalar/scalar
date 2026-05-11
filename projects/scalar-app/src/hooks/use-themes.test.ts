@@ -108,7 +108,7 @@ describe('useThemes', () => {
       expect(customThemes.value).toEqual([])
     })
 
-    it('returns fetched themes when the query resolves', async () => {
+    it('returns fetched themes when the query resolves', () => {
       const themes: Theme[] = [customTheme]
       mockQueryData.value = themes
 
