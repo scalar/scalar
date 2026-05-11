@@ -28,7 +28,9 @@ describe('escapeForInlineScript', () => {
 
 describe('serializeConfigToScript', () => {
   it('returns a JSON-safe object literal when no functions are present', () => {
-    expect(serializeConfigToScript({ url: '/a.json', theme: 'kepler' })).toBe('{"url":"/a.json","theme":"kepler"}')
+    expect(serializeConfigToScript({ url: '/a.json', theme: 'kepler' })).toBe(
+      ['{', '        "url": "/a.json",', '        "theme": "kepler"', '      }'].join('\n'),
+    )
   })
 
   it('inlines function-valued props as raw source', () => {
@@ -39,7 +41,7 @@ describe('serializeConfigToScript', () => {
       },
     })
 
-    expect(result).toContain('"url":"/a.json"')
+    expect(result).toContain('"url": "/a.json"')
     expect(result).toContain('"onLoaded":')
     expect(result).toContain('namedHandler')
     expect(result).toMatch(/return ['"]hello['"]/)

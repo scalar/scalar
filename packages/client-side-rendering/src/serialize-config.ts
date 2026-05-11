@@ -24,6 +24,8 @@ const serializeArrayWithFunctions = (arr: readonly unknown[]): string =>
  * - Preserves top-level function-valued props (and arrays containing
  *   functions) by emitting raw source via `Function#toString` instead of
  *   silently dropping them (which `JSON.stringify` would do).
+ * - Pretty-prints with 2-space indent and indents continuation lines with 6
+ *   spaces so the output drops neatly into a `<script>` block.
  * - Escapes any `</script` or `<!--` sequences in the result.
  */
 export const serializeConfigToScript = (config: Record<string, unknown>): string => {
@@ -32,23 +34,28 @@ export const serializeConfigToScript = (config: Record<string, unknown>): string
 
   for (const [key, value] of Object.entries(config)) {
     if (typeof value === 'function') {
-      functionEntries.push(`${JSON.stringify(key)}: ${(value as (...args: unknown[]) => unknown).toString()}`)
+      functionEntries.push(`"${key}": ${(value as (...args: unknown[]) => unknown).toString()}`)
       delete jsonSafe[key]
     } else if (Array.isArray(value) && value.some((item) => typeof item === 'function')) {
-      functionEntries.push(`${JSON.stringify(key)}: ${serializeArrayWithFunctions(value)}`)
+      functionEntries.push(`"${key}": ${serializeArrayWithFunctions(value)}`)
       delete jsonSafe[key]
     }
   }
 
-  const json = JSON.stringify(jsonSafe)
+  const json = JSON.stringify(jsonSafe, null, 2)
+  const indented = json
+    .split('\n')
+    .map((line, index) => (index === 0 ? line : `      ${line}`))
+    .join('\n')
 
   let result: string
   if (functionEntries.length === 0) {
-    result = json
+    result = indented
   } else if (json === '{}') {
-    result = `{ ${functionEntries.join(', ')} }`
+    result = `{\n        ${functionEntries.join(',\n        ')}\n      }`
   } else {
-    result = `${json.slice(0, -1)}, ${functionEntries.join(', ')}}`
+    const withoutClose = indented.split('\n').slice(0, -1).join('\n')
+    result = `${withoutClose},\n        ${functionEntries.join(',\n        ')}\n      }`
   }
 
   return escapeForInlineScript(result)
