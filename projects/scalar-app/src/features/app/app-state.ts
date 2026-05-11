@@ -1,4 +1,4 @@
-import type { ScalarListboxOption, WorkspaceGroup } from '@scalar/components'
+import type { ScalarListboxOption } from '@scalar/components'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
@@ -30,22 +30,19 @@ import {
   type Ref,
   type ShallowRef,
   computed,
-  readonly,
   ref,
   shallowRef,
-  toValue,
   watch,
 } from 'vue'
 import type { RouteLocationNormalizedGeneric, RouteLocationRaw, Router } from 'vue-router'
 
 import type { ApiClientAppOptions } from '@/features/app/helpers/create-api-client-app'
 import { getRouteParam } from '@/features/app/helpers/get-route-param'
-import { groupWorkspacesByTeam } from '@/features/app/helpers/group-workspaces'
 import { getTabDetails } from '@/helpers/get-tab-details'
 import { workspaceStorage } from '@/helpers/storage'
 
 import { initializeAppEventHandlers } from './app-events'
-import { canLoadWorkspace, filterWorkspacesByTeam } from './helpers/filter-workspaces'
+import { canLoadWorkspace } from './helpers/filter-workspaces'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -101,13 +98,6 @@ export type AppState = {
     }) => Promise<{ name: string; slug: string; teamSlug: string } | undefined>
     /** All workspace list */
     workspaceList: Ref<WorkspaceOption[]>
-    /** Filtered workspace list, based on the current teamSlug */
-    filteredWorkspaceList: ComputedRef<WorkspaceOption[]>
-    /**
-     * Groups workspaces into team and local categories for display in the workspace picker.
-     * Team workspaces are shown first (when not on local team), followed by local workspaces.
-     */
-    workspaceGroups: ComputedRef<WorkspaceGroup[]>
     /** The currently active workspace */
     activeWorkspace: ShallowRef<{ id: string; label: string } | null>
     /** Navigates to the specified workspace */
@@ -153,8 +143,6 @@ export type AppState = {
     method: Ref<HttpMethod | undefined>
     /** The name of the currently selected example (for examples within an endpoint) */
     exampleName: Ref<string | undefined>
-    /** The slug of the selected team context (read-only; use setTeamSlug to change) */
-    teamSlug: Readonly<Ref<string>>
   }
   /** The currently active environment */
   environment: ComputedRef<XScalarEnvironment>
@@ -173,21 +161,11 @@ const DEFAULT_DEBOUNCE_DELAY = 1000
 /** Default sidebar width in pixels. */
 const DEFAULT_SIDEBAR_WIDTH = 288
 /** Default slug used when auto-creating a team workspace on demand. */
-const DEFAULT_TEAM_WORKSPACE_SLUG = 'default'
+export const DEFAULT_TEAM_WORKSPACE_SLUG = 'default'
 /** Default display name for the local workspace when it is first created. */
-const DEFAULT_LOCAL_WORKSPACE_NAME = 'Local workspace'
+export const DEFAULT_LOCAL_WORKSPACE_NAME = 'Local workspace'
 /** Default display name used when auto-creating a team workspace on demand. */
-const DEFAULT_TEAM_WORKSPACE_NAME = 'Team workspace'
-/**
- * Feature flag for team workspace functionality.
- *
- * When `true`, the picker shows a "Team Workspaces" group for non-local teams
- * (with a placeholder option until a workspace exists), and routes can create
- * the default team workspace on demand. Set to `false` to hide that group and
- * block new team workspace creation while leaving existing persisted workspaces
- * untouched.
- */
-const TEAM_WORKSPACES_ENABLED = true
+export const DEFAULT_TEAM_WORKSPACE_NAME = 'Team workspace'
 
 // ---------------------------------------------------------------------------
 // App State
@@ -195,8 +173,6 @@ const TEAM_WORKSPACES_ENABLED = true
 export const createAppState = async ({
   router,
   fileLoader,
-  currentTeam,
-  isCurrentTeamLoading = false,
   telemetryDefault,
   options,
 }: {
@@ -232,8 +208,6 @@ export const createAppState = async ({
   // ---------------------------------------------------------------------------
   // Active entities
   // ---------------------------------------------------------------------------
-  const teamSlug = computed(() => toValue(currentTeam)?.slug ?? 'local')
-
   // Team slug parsed from the current URL (the `@teamSlug` segment). Stays in sync with the route.
   const routeTeamSlug = ref<string | undefined>(undefined)
   const workspaceSlug = ref<string | undefined>(undefined)
@@ -255,27 +229,6 @@ export const createAppState = async ({
   // Workspace persistence state management
   const activeWorkspace = shallowRef<{ id: string; label: string } | null>(null)
   const workspaces = ref<WorkspaceOption[]>([])
-  const filteredWorkspaces = computed(() => filterWorkspacesByTeam(workspaces.value, teamSlug.value))
-  const workspaceGroups = computed(() => {
-    // While team workspaces are disabled we render the picker as if the user
-    // were always on the local team. This hides the "Team Workspaces" section
-    // (and any placeholder option) without removing the underlying data, so
-    // re-enabling the feature is a one-line change.
-    if (!TEAM_WORKSPACES_ENABLED) {
-      return groupWorkspacesByTeam(filteredWorkspaces.value, 'local')
-    }
-
-    return groupWorkspacesByTeam(filteredWorkspaces.value, teamSlug.value, {
-      // Surface a fake default workspace for non-local teams so logged-in
-      // users always see a team workspace entry in the picker. Clicking it
-      // navigates to a normal workspace route; the route handler creates the
-      // workspace on demand when it does not yet exist.
-      placeholder: {
-        slug: DEFAULT_TEAM_WORKSPACE_SLUG,
-        label: DEFAULT_TEAM_WORKSPACE_NAME,
-      },
-    })
-  })
   /**
    * `true` when the active workspace is backed by a team (i.e. not the
    * built-in `'local'` team). We look the workspace up in the full
@@ -511,7 +464,7 @@ export const createAppState = async ({
    * route that through the normal navigation flow so the route handler
    * can create the workspace on demand.
    */
-  const navigateToWorkspaceGetStarted = (workspaceId: string): void => {
+  const navigateToWorkspaceGetStarted = (workspaceId: string, activeTeamSlug?: string): void => {
     const emitNavigation = (target: string, slug: string) => {
       eventBus.emit('ui:navigate', {
         page: 'workspace',
@@ -527,11 +480,6 @@ export const createAppState = async ({
       return
     }
 
-    if (!TEAM_WORKSPACES_ENABLED) {
-      return
-    }
-
-    const activeTeamSlug = teamSlug.value
     if (
       activeTeamSlug &&
       activeTeamSlug !== 'local' &&
@@ -552,11 +500,7 @@ export const createAppState = async ({
    *   // -> Navigates to /workspace/my-awesome-api (if available)
    */
   const createWorkspace = async ({ teamSlug, slug, name }: { teamSlug?: string; slug?: string; name: string }) => {
-    // Block team workspace creation while the feature is disabled. If a team
-    // workspace already exists we silently navigate to it (e.g. when the route
-    // handler tries to auto-create on demand); otherwise we fall back to the
-    // local default so the user lands somewhere usable.
-    if (!TEAM_WORKSPACES_ENABLED && teamSlug && teamSlug !== 'local') {
+    if (teamSlug && teamSlug !== 'local') {
       const existing = workspaces.value.find((w) => w.teamSlug === teamSlug)
       if (existing) {
         await navigateToWorkspace(existing.teamSlug, existing.slug)
@@ -1030,15 +974,6 @@ export const createAppState = async ({
 
   /** When the route changes we need to update the active entities in the store */
   const handleRouteChange = (to: RouteLocationNormalizedGeneric) => {
-    // While the host is still resolving the active team, defer route
-    // handling. Otherwise the team check below would compare a real
-    // team-scoped URL against a stale `'local'` fallback and redirect the
-    // user away from a workspace they actually have access to. The watcher
-    // on `isCurrentTeamLoading` re-runs this handler once the team lands.
-    if (toValue(isCurrentTeamLoading)) {
-      return
-    }
-
     const slug = getRouteParam('workspaceSlug', to)
     const document = getRouteParam('documentSlug', to)
     const nextTeamSlug = getRouteParam('teamSlug', to)
@@ -1137,36 +1072,13 @@ export const createAppState = async ({
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Team-loading driven route replay
-  //
-  // On reload, the route fires before `currentTeam` resolves. We skip route
-  // processing while the team is loading (see `handleRouteChange`) and replay
-  // it here once the team lands, so the workspace check sees the real team
-  // and does not bounce a team URL back to the local default.
-  watch(
-    () => toValue(isCurrentTeamLoading),
-    (loading) => {
-      if (loading) {
-        return
-      }
-      const route = router.currentRoute.value
-      if (route) {
-        // `handleRouteChange` is fire-and-forget here, mirroring how
-        // `router.afterEach` invokes it. We only need the side effects -
-        // the returned promise has no caller-relevant resolution value.
-        void handleRouteChange(route)
-      }
-    },
-  )
-
   /**
    * Splash-screen gate exposed to the shell. Combines workspace syncing with
    * the host-driven team fetch so the UI stays on the splash until both the
    * active workspace and the active team are ready - otherwise a reload onto
    * a team workspace flashes the local fallback before the team resolves.
    */
-  const loading = computed(() => isSyncingWorkspace.value || toValue(isCurrentTeamLoading))
+  const loading = computed(() => isSyncingWorkspace.value)
 
   // ---------------------------------------------------------------------------
   // Events handling
@@ -1212,8 +1124,6 @@ export const createAppState = async ({
     workspace: {
       create: createWorkspace,
       workspaceList: workspaces,
-      filteredWorkspaceList: filteredWorkspaces,
-      workspaceGroups,
       activeWorkspace,
       navigateToWorkspace,
       navigateToWorkspaceGetStarted,
@@ -1230,7 +1140,6 @@ export const createAppState = async ({
       path,
       method,
       exampleName,
-      teamSlug: readonly(teamSlug),
     },
     environment,
     document: activeDocument,

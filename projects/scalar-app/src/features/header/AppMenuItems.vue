@@ -14,7 +14,7 @@ import { computed } from 'vue'
 import type { AppState } from '@/features/app'
 import { useAuth } from '@/hooks/use-auth'
 
-const { app } = defineProps<{
+const { app, workspaceGroups: propsWorkspaceGroups } = defineProps<{
   /**
    * App state used to surface the workspace picker inside the menu. The
    * top-level breadcrumb already exposes the picker on tablet and up, but
@@ -22,6 +22,7 @@ const { app } = defineProps<{
    * canonical place to switch workspaces on small screens.
    */
   app: AppState
+  workspaceGroups: WorkspaceGroup[]
 }>()
 
 const emit = defineEmits<{
@@ -38,7 +39,7 @@ const { isLoggedIn, logout } = useAuth()
  * stay in sync.
  */
 const workspaceGroups = computed<WorkspaceGroup[]>(() =>
-  app.workspace.workspaceGroups.value.map((group) => ({
+  propsWorkspaceGroups.map((group) => ({
     label: group.label ?? '',
     options: group.options.map((option) => ({
       id: option.id,

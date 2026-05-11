@@ -11,7 +11,12 @@ export default {}
 import { SidebarToggle } from '@scalar/api-client/components/sidebar'
 import type { ClientLayout } from '@scalar/api-client/types'
 import { useGlobalHotKeys } from '@scalar/api-client/v2/hooks'
-import { ScalarModal, ScalarTeleportRoot, useModal } from '@scalar/components'
+import {
+  ScalarModal,
+  ScalarTeleportRoot,
+  useModal,
+  type WorkspaceGroup,
+} from '@scalar/components'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
@@ -34,6 +39,7 @@ import type { CommandPaletteState } from '@/features/command-palette/hooks/use-c
 import TheCommandPalette from '@/features/command-palette/TheCommandPalette.vue'
 import { useMonacoEditorConfiguration } from '@/features/editor'
 import { useColorMode } from '@/hooks/use-color-mode'
+import { useTeams } from '@/hooks/use-teams'
 import { useThemes } from '@/hooks/use-themes'
 import type {
   RegistryAdapter,
@@ -49,6 +55,7 @@ const {
   getAppState,
   getCommandPaletteState,
   registry,
+  workspaceGroups,
 } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
   plugins?: ClientPlugin[]
@@ -63,6 +70,7 @@ const {
    * the client can rely on the full surface.
    */
   registry?: RegistryAdapter
+  workspaceGroups: WorkspaceGroup[]
 }>()
 
 /**
@@ -81,12 +89,8 @@ defineSlots<{
    * team-aware consumers (e.g. Scalar Cloud) to render a team avatar so the
    * left-most chrome reads as "this team's workspace" rather than the
    * generic Scalar wordmark.
-   *
-   * Receives `isTeamWorkspace` so consumers can opt into rendering a team
-   * image only when the active workspace actually belongs to a team, while
-   * keeping the default Scalar logo for local workspaces.
    */
-  'header-logo'?: (payload: { isTeamWorkspace: boolean }) => unknown
+  'header-logo'?: () => unknown
   /**
    * Slot for customizing the menu items section of the app header.
    * Defaults to a workspace picker bound to the current app state. Overriding this slot
@@ -103,6 +107,8 @@ defineSlots<{
 
 const app = getAppState()
 const paletteState = getCommandPaletteState()
+
+const { currentTeam } = useTeams()
 
 /** Expose workspace store to window for debugging purposes. */
 if (typeof window !== 'undefined') {
@@ -303,7 +309,9 @@ const routerViewProps = computed<RouteProps>(() => {
           :eventBus="app.eventBus"
           :tabs="app.tabs.state.value" />
         <AppHeader
-          :menuTitle="app.workspace.isTeamWorkspace.value ? 'Team' : 'Local'"
+          :menuTitle="
+            app.workspace.isTeamWorkspace.value ? currentTeam?.name : undefined
+          "
           @navigate:to:settings="
             app.eventBus.emit('ui:navigate', {
               page: 'workspace',

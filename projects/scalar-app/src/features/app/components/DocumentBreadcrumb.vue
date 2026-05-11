@@ -4,6 +4,7 @@ import {
   useModal,
   type ScalarComboboxOption,
   type ScalarComboboxOptionGroup,
+  type WorkspaceGroup,
 } from '@scalar/components'
 import { safeRun } from '@scalar/helpers/types/safe-run'
 import { ScalarIconCaretDown } from '@scalar/icons'
@@ -28,6 +29,7 @@ const {
   app,
   registryDocuments = { status: 'success', documents: [] },
   fetchRegistryDocument,
+  workspaceGroups: propsWorkspaceGroups,
 } = defineProps<{
   /** The app state used to read the active document and emit navigation events. */
   app: AppState
@@ -42,6 +44,8 @@ const {
    * one that has not been loaded into the local workspace store yet.
    */
   fetchRegistryDocument?: ImportDocumentFromRegistry
+  /** List of workspace groups */
+  workspaceGroups: WorkspaceGroup[]
 }>()
 
 const emit = defineEmits<{
@@ -83,7 +87,7 @@ const activeWorkspaceId = computed(
  * group label clearly separates `Team Workspaces` from `Local Workspaces`.
  */
 const workspaceGroups = computed<ScalarComboboxOptionGroup[]>(() =>
-  app.workspace.workspaceGroups.value.map((group) => ({
+  propsWorkspaceGroups.map((group) => ({
     // `WorkspaceGroup.label` is optional, but the combobox requires a
     // string. Falling back to an empty string lets the option group still
     // render its rows; the `group` slot below renders nothing for empty

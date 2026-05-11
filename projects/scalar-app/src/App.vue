@@ -21,6 +21,12 @@ import { requestScriptsPlugin } from '@scalar/pre-post-request-scripts/plugins'
 import { computed, reactive } from 'vue'
 
 import { ClientApp, type AppState } from '@/features/app'
+import {
+  DEFAULT_TEAM_WORKSPACE_NAME,
+  DEFAULT_TEAM_WORKSPACE_SLUG,
+} from '@/features/app/app-state'
+import { filterWorkspacesByTeam } from '@/features/app/helpers/filter-workspaces'
+import { groupWorkspacesByTeam } from '@/features/app/helpers/group-workspaces'
 import type { useCommandPaletteState } from '@/features/command-palette/hooks/use-command-palette-state'
 import AppMenuItems from '@/features/header/AppMenuItems.vue'
 import { ImportListener } from '@/features/import-listener'
@@ -33,12 +39,17 @@ import { useAuth } from '@/hooks/use-auth'
 import { useAuthHandlers } from '@/hooks/use-auth-handlers'
 import { useRegistryDocuments } from '@/hooks/use-registry-documents'
 import { useRegistryNamespaces } from '@/hooks/use-registry-namespaces'
+import { useTeams } from '@/hooks/use-teams'
+import { useUser } from '@/hooks/use-user'
 
 const { getAppState, getCommandPaletteState, fileLoader } =
   defineProps<AppProps>()
 
 const app = getAppState()
 const { isLoggedIn } = useAuth()
+const { isLoading: isUserLoading } = useUser()
+const { currentTeam, isLoading: isTeamLoading } = useTeams()
+
 const { handleLogin, handleRegister } = useAuthHandlers()
 const {
   documents,
@@ -49,6 +60,22 @@ const { namespaces, isLoading: isNamespacesLoading } = useRegistryNamespaces()
 
 /** Whether the app is running on electron */
 const isDesktop = window.electron === true
+
+//--------------------------------------------------
+// Team sync with app state
+//--------------------------------------------------
+// Ideally we would pull this out of the appState but to minimize
+// bugs we can do this for now then refactor it later
+// watch([isUserLoading, isTeamLoading], ([userLoading, teamLoading]) => {
+//   console.log('we are loading: ', userLoading || teamLoading)
+//   app.isTeamLoading.value = userLoading || teamLoading
+// })
+
+// watch(currentTeam, (team) => {
+//   console.log('active Team Slug is: ', team?.slug || 'local')
+//   console.log(team)
+//   app.activeEntities.teamSlug.value = team?.slug || 'local'
+// })
 
 //--------------------------------------------------
 // Workspace handling
@@ -142,12 +169,6 @@ const registryNamespaces = computed(() => {
 })
 
 /**
- * Registry adapter passed to the API client. We wrap it in `reactive` so
- * the inner refs (`documents`, `namespaces`) are auto-unwrapped on access
- * - the adapter shape expects the raw loading-aware state, but we still
- * want the values to update as the underlying queries refetch.
- */
-/**
  * Forces the registry-documents query to refetch and waits for the new
  * listing. Used by the API client's sync flow after a `CONFLICT` push so
  * the next `computeVersionStatus` pass sees the new upstream commit
@@ -157,6 +178,12 @@ const refreshRegistryDocuments = async (): Promise<void> => {
   await refetchRegistryDocuments()
 }
 
+/**
+ * Registry adapter passed to the API client. We wrap it in `reactive` so
+ * the inner refs (`documents`, `namespaces`) are auto-unwrapped on access
+ * - the adapter shape expects the raw loading-aware state, but we still
+ * want the values to update as the underlying queries refetch.
+ */
 const registry = reactive({
   documents: registryDocuments,
   namespaces: registryNamespaces,
@@ -167,14 +194,44 @@ const registry = reactive({
   deleteVersion: deleteRegistryVersion,
   refreshDocuments: refreshRegistryDocuments,
 })
+
+//--------------------------------------------------
+// Workspaces
+//--------------------------------------------------
+
+/**
+ * Groups workspaces into team and local categories for display in the workspace picker.
+ * Team workspaces are shown first (when not on local team), followed by local workspaces.
+ */
+const workspaces = computed(() => {
+  const teamSlug = currentTeam.value?.slug || 'local'
+  const filteredWorkspaces = filterWorkspacesByTeam(
+    app.workspace.workspaceList.value,
+    teamSlug,
+  )
+
+  return {
+    filtered: filteredWorkspaces,
+    grouped: groupWorkspacesByTeam(filteredWorkspaces, teamSlug, {
+      // Surface a fake default workspace for non-local teams so logged-in
+      // users always see a team workspace entry in the picker. Clicking it
+      // navigates to a normal workspace route; the route handler creates the
+      // workspace on demand when it does not yet exist.
+      placeholder: {
+        slug: DEFAULT_TEAM_WORKSPACE_SLUG,
+        label: DEFAULT_TEAM_WORKSPACE_NAME,
+      },
+    }),
+  }
+})
 </script>
 <template>
   <ImportListener
     :activeWorkspace="app.workspace.activeWorkspace.value"
     :darkMode="app.isDarkMode.value"
     :fileLoader="fileLoader"
-    :isOnlyOneWorkspace="app.workspace.filteredWorkspaceList.value.length <= 1"
-    :workspaceGroups="app.workspace.workspaceGroups.value"
+    :isOnlyOneWorkspace="workspaces.filtered.length <= 1"
+    :workspaceGroups="workspaces.grouped"
     :workspaceStore="app.store.value"
     @create:workspace="(payload) => app.workspace.create(payload)"
     @navigateToDocument="navigateToDocument"
@@ -184,13 +241,22 @@ const registry = reactive({
       :getCommandPaletteState
       :layout="isDesktop ? 'desktop' : 'web'"
       :plugins="plugins"
-      :registry>
+      :registry
+      :workspaceGroups="workspaces.grouped">
       <template #header-menu-items>
         <AppMenuItems
           :app="app"
+          :workspaceGroups="workspaces.grouped"
           @createWorkspace="handleCreateWorkspaceFromMenu"
           @login="handleLogin"
           @openSettings="openSettings" />
+      </template>
+      <template
+        v-if="currentTeam?.imageUri"
+        #header-logo>
+        <img
+          alt="Team logo"
+          :src="currentTeam.imageUri" />
       </template>
       <template
         v-if="!isLoggedIn"
