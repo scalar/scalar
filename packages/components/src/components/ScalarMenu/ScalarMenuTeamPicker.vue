@@ -27,13 +27,17 @@ import {
 import { ScalarMenuLink, type ScalarMenuTeamOption } from './'
 import ScalarMenuTeamProfile from './ScalarMenuTeamProfile.vue'
 
-const props = defineProps<{
+const {
+  team,
+  teams,
+  allowAddTeam = true,
+} = defineProps<{
   /** The currently selected team */
   team?: ScalarMenuTeamOption | undefined
   /** The list of teams to choose from */
   teams: ScalarMenuTeamOption[]
   /** Whether to disable the "Add team" button */
-  disableAddTeam?: boolean
+  allowAddTeam?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -45,11 +49,11 @@ const emit = defineEmits<{
 
 /** A model that tracks the team id */
 const model = computed<string | undefined>({
-  get: () => props.team?.id,
+  get: () => team?.id,
   set: (v) =>
     emit(
       'update:team',
-      props.teams.find((t) => t.id === v),
+      teams.find((t) => t.id === v),
     ),
 })
 
@@ -90,7 +94,7 @@ defineOptions({ inheritAttrs: false })
           </DropdownMenu.RadioItem>
         </DropdownMenu.RadioGroup>
         <DropdownMenu.Item
-          v-if="!disableAddTeam"
+          v-if="allowAddTeam"
           :as="ScalarDropdownButton"
           class="flex items-center"
           @click="emit('add')">

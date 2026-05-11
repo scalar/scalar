@@ -96,7 +96,7 @@ const switchTeam = (t?: ScalarMenuTeamOption) => refreshTokens(t?.id)
           <ScalarMenuSection>
             <ScalarMenuTeamPicker
               v-if="isLoggedIn"
-              disableAddTeam
+              :allowAddTeam="false"
               :team
               :teams
               @update:team="switchTeam" />
