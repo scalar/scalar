@@ -170,24 +170,32 @@ export type ClientPlugin = {
  */
 export const subscribePluginEvents = (eventBus: WorkspaceEventBus, plugin: ClientPlugin): (() => void) => {
   if (!plugin.on) {
-    return () => {}
+    return () => {
+      // no-op
+    }
   }
 
   const on = plugin.on
   const unsubscribes: (() => void)[] = []
 
+  const keys = Object.keys(on)
+  const hasExactKeyHandlers = keys.some((key) => !key.includes('*'))
+
   // Exact-key handlers — a single glob listener dispatches to the correct
-  // handler by looking up the event name, avoiding N individual subscriptions
-  unsubscribes.push(
-    eventBus.onGlob('*', (event: keyof ApiReferenceEvents, payload: ApiReferenceEvents[keyof ApiReferenceEvents]) => {
-      const handler = on[event] as ((payload: ApiReferenceEvents[keyof ApiReferenceEvents]) => void) | undefined
-      handler?.(payload)
-    }),
-  )
+  // handler by looking up the event name, avoiding N individual subscriptions.
+  // Only registered when the plugin defines at least one non-glob handler key.
+  if (hasExactKeyHandlers) {
+    unsubscribes.push(
+      eventBus.onGlob('*', (event: keyof ApiReferenceEvents, payload: ApiReferenceEvents[keyof ApiReferenceEvents]) => {
+        const handler = on[event] as ((payload: ApiReferenceEvents[keyof ApiReferenceEvents]) => void) | undefined
+        handler?.(payload)
+      }),
+    )
+  }
 
   // Glob handlers ('*', 'prefix:*') get their own onGlob subscription so they
   // receive both the event name and payload as a discriminated union
-  for (const key of Object.keys(on)) {
+  for (const key of keys) {
     if (key === '*' || key.endsWith(':*')) {
       const pattern = key as EventGlob
       const handler = on[pattern] as GlobListener<typeof pattern>
