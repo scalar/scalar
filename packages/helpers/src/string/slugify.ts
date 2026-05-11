@@ -12,7 +12,13 @@ const RE_COMBINING_MARKS = /\p{M}/gu
 /** Cache of compiled non-word regexes keyed by their `allowedSpecialChars` string. */
 const reNonWordCache = new Map<string, RegExp>()
 
-/** Unicode normalization form identifiers as defined by the ECMAScript specification. */
+/**
+ * Unicode normalization forms used by `String.prototype.normalize()`:
+ * - `NFC`: canonical decomposition followed by recomposition (default for most text).
+ * - `NFD`: canonical decomposition (splits accents from base letters).
+ * - `NFKC`: compatibility decomposition followed by recomposition (folds ligatures and width variants).
+ * - `NFKD`: compatibility decomposition (like `NFKC` without recomposition).
+ */
 export type NormalizationForm = 'NFC' | 'NFD' | 'NFKC' | 'NFKD'
 
 export type SlugifyOptions = {
