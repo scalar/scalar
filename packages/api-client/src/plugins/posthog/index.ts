@@ -4,7 +4,7 @@ import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { ConfigDefaults, PostHog } from 'posthog-js'
 import ph from 'posthog-js'
 
-import { sanitizePayload } from './sanitize-payload'
+import { sanitizeEventPayload } from './sanitize-payload'
 
 export type PostHogConfig = {
   /** Your PostHog project API key */
@@ -46,8 +46,11 @@ export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
           return
         }
 
-        // The rest
-        posthog?.capture(event, sanitizePayload(payload))
+        // Only capture events that are in the allowlist
+        const properties = sanitizeEventPayload(event, payload)
+        if (properties) {
+          posthog?.capture(event, properties)
+        }
       },
     },
     lifecycle: {
