@@ -1,8 +1,23 @@
 ---
-import { renderApiReference, type HtmlRenderingConfiguration } from '@scalar/client-side-rendering'
+import { getConfiguration, renderApiReference, type HtmlRenderingConfiguration } from '@scalar/client-side-rendering'
+
+import { serializeClientConfig } from './serialize-client-config'
 
 export interface Props {
   configuration: Partial<HtmlRenderingConfiguration>
+  /**
+   * Rendering strategy for Astro pages.
+   *
+   * - `static` renders pre-generated HTML (default)
+   * - `client` mounts Scalar on the client and re-mounts on `astro:page-load`
+   */
+  renderMode?: 'static' | 'client'
+  /**
+   * Element id used as the client mount point.
+   *
+   * Only used when `renderMode` is `client`.
+   */
+  mountElementId?: string
 }
 
 /**
@@ -13,18 +28,58 @@ const DEFAULT_CONFIGURATION: Partial<HtmlRenderingConfiguration> = {
   // _integration: 'astro',
 }
 
-const { configuration } = Astro.props
+// Generate a unique id per render so multiple `<ScalarComponent />` instances
+// on the same page do not collide on the default mount id.
+const {
+  configuration,
+  renderMode = 'static',
+  mountElementId = `scalar-app-${crypto.randomUUID()}`,
+}: Props = Astro.props
 
 const finalConfiguration = {
   ...DEFAULT_CONFIGURATION,
   ...configuration,
 }
 const { cdn, pageTitle, ...config } = finalConfiguration
-const html = renderApiReference({
-  config,
-  cdn,
-  pageTitle,
-})
+const html =
+  renderMode === 'static'
+    ? renderApiReference({
+        config,
+        cdn,
+        pageTitle,
+      })
+    : null
+
+// Run the config through the same normalization the static path applies via
+// `renderApiReference`, so client mode also drops `content` when `url` is set
+// and resolves function-valued `content`.
+const clientScript =
+  renderMode === 'client'
+    ? serializeClientConfig({
+        key: mountElementId,
+        configuration: getConfiguration(config as Record<string, unknown>),
+        cdn: cdn ?? null,
+      })
+    : null
 ---
 
-<div set:html={html}></div>
+{
+  renderMode === 'static' ? (
+    <div set:html={html ?? ''}></div>
+  ) : (
+    <>
+      <div id={mountElementId} data-scalar-mount></div>
+      {/*
+        Per-instance registration script. Emits raw JS (not JSON) so function-
+        valued config props (`content`, `plugins`, `onLoaded`, custom `fetch`,
+        ...) survive into the browser instead of being dropped by `JSON.stringify`.
+      */}
+      <script is:inline set:html={clientScript ?? ''}></script>
+      <script>
+        import { initScalarAstro } from './client'
+
+        initScalarAstro()
+      </script>
+    </>
+  )
+}
