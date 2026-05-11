@@ -246,4 +246,27 @@ describe('DownloadLink', () => {
       expect(button.attributes('type')).toBe('button')
     })
   })
+
+  describe('Document type label', () => {
+    it('renders the OpenAPI label by default', () => {
+      const wrapper = createWrapper({ documentDownloadType: 'json' })
+
+      expect(wrapper.find('.download-button span').text()).toBe('Download OpenAPI Document')
+    })
+
+    it('renders the AsyncAPI label when documentType is asyncapi', () => {
+      const wrapper = createWrapper({ documentDownloadType: 'json' }, { documentType: 'asyncapi' })
+
+      expect(wrapper.find('.download-button span').text()).toBe('Download AsyncAPI Document')
+    })
+
+    it('renders the AsyncAPI label on the direct download link', () => {
+      const wrapper = createWrapper(
+        { documentDownloadType: 'direct' },
+        { documentUrl: 'https://example.com/asyncapi.json', documentType: 'asyncapi' },
+      )
+
+      expect(wrapper.find('a.download-link span').text()).toBe('Download AsyncAPI Document')
+    })
+  })
 })

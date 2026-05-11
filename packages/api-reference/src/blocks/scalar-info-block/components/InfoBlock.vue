@@ -76,6 +76,7 @@ const introCardsSlot = computed(() =>
     <template #download-link>
       <DownloadLink
         :documentDownloadType
+        :documentType
         :documentUrl
         :eventBus />
     </template>
