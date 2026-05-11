@@ -1,7 +1,9 @@
 import type { ClientOptionGroup } from '@scalar/api-client/blocks/operation-code-sample'
+import * as apiClientModalModule from '@scalar/api-client/modal'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { toValue } from 'vue'
 
 import ApiReference from './ApiReference.vue'
 
@@ -718,5 +720,29 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
     await flushPromises()
     expect(document.body.classList.contains('dark-mode')).toBe(true)
     darkWrapper.unmount()
+  })
+})
+
+describe('ApiReference custom fetch forwarding', () => {
+  it('passes configuration.fetch to the API client modal as customFetch', async () => {
+    const customFetch = vi.fn() as unknown as typeof fetch
+    const spy = vi.spyOn(apiClientModalModule, 'createApiClientModal')
+
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          fetch: customFetch,
+        },
+      },
+    })
+    await flushPromises()
+
+    expect(spy).toHaveBeenCalled()
+    const passedOptions = toValue(spy.mock.calls.at(-1)?.[0].options)
+    expect(passedOptions?.customFetch).toBe(customFetch)
+
+    wrapper.unmount()
+    spy.mockRestore()
   })
 })

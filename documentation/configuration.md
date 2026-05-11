@@ -1102,12 +1102,12 @@ Custom functions to control specific behaviors and URL generation.
 
 **Type:** `(input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>`
 
-Custom [fetch function](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) to fetch documents with a custom logic. Can be used to add custom headers, handle auth, etc.
+Custom [fetch function](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) used both when loading the OpenAPI document and when sending "Test Request" calls from the API client. Can be used to add custom headers, attach credentials (for example `credentials: 'include'`), handle auth, etc.
 
 ```javascript
 {
   fetch: (input: string | URL | globalThis.Request, init?: RequestInit) => {
-    return window.fetch(input, init)
+    return window.fetch(input, { ...init, credentials: 'include' })
   }
 }
 ```
