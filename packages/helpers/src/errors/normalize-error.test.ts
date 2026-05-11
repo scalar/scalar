@@ -16,6 +16,19 @@ describe('normalize-error', () => {
       expect(result).toBe(ERRORS.INVALID_URL)
     })
 
+    it('returns INVALID_URL_PROTOCOL error for raw undici invalid protocol message', () => {
+      const message = 'Invalid URL protocol: the URL must start with `http:` or `https:`.'
+      const result = prettyErrorMessage(message)
+      expect(result).toBe(ERRORS.INVALID_URL_PROTOCOL)
+    })
+
+    it('returns INVALID_URL_PROTOCOL error for Electron-wrapped undici invalid protocol message', () => {
+      const message =
+        "Error invoking remote method 'customFetch': InvalidArgumentError: Invalid URL protocol: the URL must start with `http:` or `https:`."
+      const result = prettyErrorMessage(message)
+      expect(result).toBe(ERRORS.INVALID_URL_PROTOCOL)
+    })
+
     it('returns INVALID_HEADER error for fetch invalid name failure', () => {
       const message = `Failed to execute 'fetch' on 'Window': Invalid name`
       const result = prettyErrorMessage(message)
