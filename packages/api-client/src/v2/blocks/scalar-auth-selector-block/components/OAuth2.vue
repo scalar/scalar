@@ -79,7 +79,7 @@ const emits = defineEmits<{
     e: 'update:selectedScopes',
     payload: Pick<
       ApiReferenceEvents['auth:update:selected-scopes'],
-      'scopes' | 'newScopePayload'
+      'scopes' | 'newScopePayload' | 'editScopePayload' | 'deleteScopePayload'
     >,
   ): void
 }>()

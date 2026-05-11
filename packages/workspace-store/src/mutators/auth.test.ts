@@ -638,6 +638,264 @@ describe('updateSelectedScopes', () => {
     updateSelectedScopes(createWorkspaceStore(), null, { id: ['x'], name: 'x', scopes: [], meta: { type: 'document' } })
   })
 
+  it('adds a new scope to the flow and selects it via newScopePayload', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument({
+        components: {
+          securitySchemes: {
+            OAuth: {
+              type: 'oauth2',
+              flows: {
+                authorizationCode: {
+                  authorizationUrl: 'https://example.com/auth',
+                  tokenUrl: 'https://example.com/token',
+                  refreshUrl: '',
+                  'x-usePkce': 'no',
+                  scopes: { 'read:items': 'Read access' },
+                },
+              },
+            },
+          },
+        },
+      }),
+    })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ OAuth: ['read:items'] }] },
+    )
+
+    updateSelectedScopes(store, getActiveOpenApiDocument(store)!, {
+      id: ['OAuth'],
+      name: 'OAuth',
+      scopes: ['read:items'],
+      newScopePayload: {
+        name: 'write:items',
+        description: 'Write access',
+        flowType: 'authorizationCode',
+      },
+      meta: { type: 'document' },
+    })
+
+    const flow = (getResolvedRef(getActiveOpenApiDocument(store)?.components?.securitySchemes?.OAuth) as OAuth2Object)
+      .flows?.authorizationCode
+    expect(flow?.scopes).toEqual({
+      'read:items': 'Read access',
+      'write:items': 'Write access',
+    })
+
+    const schemes = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(schemes)
+    expect(schemes.selectedSchemes[0]).toEqual({ OAuth: ['read:items', 'write:items'] })
+  })
+
+  it('renames and updates the description of a scope via editScopePayload', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument({
+        components: {
+          securitySchemes: {
+            OAuth: {
+              type: 'oauth2',
+              flows: {
+                authorizationCode: {
+                  authorizationUrl: 'https://example.com/auth',
+                  tokenUrl: 'https://example.com/token',
+                  refreshUrl: '',
+                  'x-usePkce': 'no',
+                  scopes: {
+                    'read:items': 'Read access',
+                    'write:items': 'Write access',
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+    })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ OAuth: ['read:items'] }] },
+    )
+
+    updateSelectedScopes(store, getActiveOpenApiDocument(store)!, {
+      id: ['OAuth'],
+      name: 'OAuth',
+      // Caller already pre-computed the renamed scope in the selection
+      scopes: ['read:stuff'],
+      editScopePayload: {
+        oldName: 'read:items',
+        name: 'read:stuff',
+        description: 'Read everything',
+        flowType: 'authorizationCode',
+      },
+      meta: { type: 'document' },
+    })
+
+    const flow = (getResolvedRef(getActiveOpenApiDocument(store)?.components?.securitySchemes?.OAuth) as OAuth2Object)
+      .flows?.authorizationCode
+    expect(flow?.scopes).toEqual({
+      'write:items': 'Write access',
+      'read:stuff': 'Read everything',
+    })
+
+    const schemes = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(schemes)
+    expect(schemes.selectedSchemes[0]).toEqual({ OAuth: ['read:stuff'] })
+  })
+
+  it('updates only the description when name is unchanged in editScopePayload', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument({
+        components: {
+          securitySchemes: {
+            OAuth: {
+              type: 'oauth2',
+              flows: {
+                authorizationCode: {
+                  authorizationUrl: 'https://example.com/auth',
+                  tokenUrl: 'https://example.com/token',
+                  refreshUrl: '',
+                  'x-usePkce': 'no',
+                  scopes: { 'read:items': 'Old description' },
+                },
+              },
+            },
+          },
+        },
+      }),
+    })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ OAuth: ['read:items'] }] },
+    )
+
+    updateSelectedScopes(store, getActiveOpenApiDocument(store)!, {
+      id: ['OAuth'],
+      name: 'OAuth',
+      scopes: ['read:items'],
+      editScopePayload: {
+        oldName: 'read:items',
+        name: 'read:items',
+        description: 'New description',
+        flowType: 'authorizationCode',
+      },
+      meta: { type: 'document' },
+    })
+
+    const flow = (getResolvedRef(getActiveOpenApiDocument(store)?.components?.securitySchemes?.OAuth) as OAuth2Object)
+      .flows?.authorizationCode
+    expect(flow?.scopes).toEqual({ 'read:items': 'New description' })
+  })
+
+  it('is a no-op when editScopePayload references a missing scope', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument({
+        components: {
+          securitySchemes: {
+            OAuth: {
+              type: 'oauth2',
+              flows: {
+                authorizationCode: {
+                  authorizationUrl: 'https://example.com/auth',
+                  tokenUrl: 'https://example.com/token',
+                  refreshUrl: '',
+                  'x-usePkce': 'no',
+                  scopes: { 'read:items': 'Read access' },
+                },
+              },
+            },
+          },
+        },
+      }),
+    })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ OAuth: ['read:items'] }] },
+    )
+
+    updateSelectedScopes(store, getActiveOpenApiDocument(store)!, {
+      id: ['OAuth'],
+      name: 'OAuth',
+      scopes: ['read:items'],
+      editScopePayload: {
+        oldName: 'does-not-exist',
+        name: 'rename',
+        description: 'desc',
+        flowType: 'authorizationCode',
+      },
+      meta: { type: 'document' },
+    })
+
+    const flow = (getResolvedRef(getActiveOpenApiDocument(store)?.components?.securitySchemes?.OAuth) as OAuth2Object)
+      .flows?.authorizationCode
+    expect(flow?.scopes).toEqual({ 'read:items': 'Read access' })
+  })
+
+  it('removes a scope from the flow via deleteScopePayload', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument({
+        components: {
+          securitySchemes: {
+            OAuth: {
+              type: 'oauth2',
+              flows: {
+                authorizationCode: {
+                  authorizationUrl: 'https://example.com/auth',
+                  tokenUrl: 'https://example.com/token',
+                  refreshUrl: '',
+                  'x-usePkce': 'no',
+                  scopes: {
+                    'read:items': 'Read access',
+                    'write:items': 'Write access',
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+    })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ OAuth: ['read:items', 'write:items'] }] },
+    )
+
+    updateSelectedScopes(store, getActiveOpenApiDocument(store)!, {
+      id: ['OAuth'],
+      name: 'OAuth',
+      // Caller already removed the deleted scope from the selection
+      scopes: ['write:items'],
+      deleteScopePayload: {
+        name: 'read:items',
+        flowType: 'authorizationCode',
+      },
+      meta: { type: 'document' },
+    })
+
+    const flow = (getResolvedRef(getActiveOpenApiDocument(store)?.components?.securitySchemes?.OAuth) as OAuth2Object)
+      .flows?.authorizationCode
+    expect(flow?.scopes).toEqual({ 'write:items': 'Write access' })
+
+    const schemes = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(schemes)
+    expect(schemes.selectedSchemes[0]).toEqual({ OAuth: ['write:items'] })
+  })
+
   it('is a no-op when selected schemes are missing or scheme id not found', async () => {
     const document = createDocument()
 

@@ -176,7 +176,10 @@ const handleApiKeySecuritySchemeUpdate = (
 /** Handles scope selection updates for OAuth2 */
 const handleScopesUpdate = (
   name: string,
-  event: { scopes: string[] },
+  event: Pick<
+    ApiReferenceEvents['auth:update:selected-scopes'],
+    'scopes' | 'newScopePayload' | 'editScopePayload' | 'deleteScopePayload'
+  >,
 ): void => {
   emits('update:selectedScopes', {
     id: Object.keys(selectedSecuritySchemas),

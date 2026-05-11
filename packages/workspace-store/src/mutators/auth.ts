@@ -339,7 +339,15 @@ export const updateSelectedAuthTab = (
 export const updateSelectedScopes = (
   store: WorkspaceStore | null,
   document: WorkspaceDocument | null,
-  { id, name, scopes, newScopePayload, meta }: AuthEvents['auth:update:selected-scopes'],
+  {
+    id,
+    name,
+    scopes,
+    newScopePayload,
+    editScopePayload,
+    deleteScopePayload,
+    meta,
+  }: AuthEvents['auth:update:selected-scopes'],
 ) => {
   if (!isOpenApiDocument(document)) {
     return
@@ -371,10 +379,15 @@ export const updateSelectedScopes = (
     return
   }
 
+  // Helper for resolving the OAuth flow we need to mutate when a scope CRUD payload is provided
+  const getFlow = (flowType: keyof OAuth2Object['flows']) => {
+    const securityScheme = getResolvedRef(document.components?.securitySchemes?.[name])
+    return (securityScheme as OAuth2Object)?.flows?.[flowType]
+  }
+
   // If we have a new scope payload, add it to the scheme
   if (newScopePayload) {
-    const securityScheme = getResolvedRef(document.components?.securitySchemes?.[name])
-    const flow = (securityScheme as OAuth2Object)?.flows?.[newScopePayload?.flowType]
+    const flow = getFlow(newScopePayload.flowType)
     if (!flow) {
       return
     }
@@ -382,6 +395,35 @@ export const updateSelectedScopes = (
 
     flow.scopes[newScopePayload.name] = newScopePayload.description
     scheme[name] = [...scopes, newScopePayload.name]
+    return
+  }
+
+  // Edit an existing scope: optionally rename and update the description
+  if (editScopePayload) {
+    const flow = getFlow(editScopePayload.flowType)
+    if (!flow?.scopes || !(editScopePayload.oldName in flow.scopes)) {
+      return
+    }
+
+    // Renaming: remove the old key so the order in the object stays predictable
+    if (editScopePayload.oldName !== editScopePayload.name) {
+      delete flow.scopes[editScopePayload.oldName]
+    }
+    flow.scopes[editScopePayload.name] = editScopePayload.description
+
+    scheme[name] = scopes
+    return
+  }
+
+  // Delete an existing scope from the flow definition
+  if (deleteScopePayload) {
+    const flow = getFlow(deleteScopePayload.flowType)
+    if (!flow?.scopes) {
+      return
+    }
+    delete flow.scopes[deleteScopePayload.name]
+
+    scheme[name] = scopes
     return
   }
 

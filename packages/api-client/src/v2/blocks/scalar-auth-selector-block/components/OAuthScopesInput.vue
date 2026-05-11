@@ -3,9 +3,11 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import {
   ScalarButton,
   ScalarIcon,
+  ScalarIconButton,
   ScalarSearchInput,
   useModal,
 } from '@scalar/components'
+import { ScalarIconPencilSimple, ScalarIconTrash } from '@scalar/icons'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type {
   OAuthFlow,
@@ -32,12 +34,18 @@ const emits = defineEmits<{
     e: 'update:selectedScopes',
     payload: Pick<
       ApiReferenceEvents['auth:update:selected-scopes'],
-      'scopes' | 'newScopePayload'
+      'scopes' | 'newScopePayload' | 'editScopePayload' | 'deleteScopePayload'
     >,
   ): void
 }>()
 
 const searchQuery = ref('')
+
+/**
+ * The scope currently being edited, used to switch the shared modal into edit mode.
+ * Null means the modal is in "add" mode.
+ */
+const editingScope = ref<{ name: string; description: string } | null>(null)
 
 /** List of all available scopes */
 const scopes = computed(() =>
@@ -93,7 +101,65 @@ const selectAllScopes = () =>
 /** Deselect all scopes */
 const deselectAllScopes = () => emits('update:selectedScopes', { scopes: [] })
 
-const addNewScopeModal = useModal()
+const scopeFormModal = useModal()
+
+/** Open the modal in "add new scope" mode */
+const openAddScopeModal = () => {
+  editingScope.value = null
+  scopeFormModal.show()
+}
+
+/** Open the modal in "edit scope" mode prefilled with the chosen row */
+const openEditScopeModal = (scope: { id: string; description: string }) => {
+  editingScope.value = {
+    name: scope.id,
+    description: scope.description ?? '',
+  }
+  scopeFormModal.show()
+}
+
+const handleScopeFormSubmit = (payload: {
+  name: string
+  description: string
+  oldName?: string
+}) => {
+  if (payload.oldName) {
+    // Rename the scope in the current selection too so consumers stay in sync
+    const nextSelection = selectedScopes.map((scope) =>
+      scope === payload.oldName ? payload.name : scope,
+    )
+    emits('update:selectedScopes', {
+      scopes: nextSelection,
+      editScopePayload: {
+        oldName: payload.oldName,
+        name: payload.name,
+        description: payload.description,
+        flowType,
+      },
+    })
+    return
+  }
+
+  emits('update:selectedScopes', {
+    scopes: selectedScopes,
+    newScopePayload: {
+      name: payload.name,
+      description: payload.description,
+      flowType,
+    },
+  })
+}
+
+/** Remove the scope from the flow and from any selection that referenced it */
+const handleDeleteScope = (scopeKey: string) => {
+  emits('update:selectedScopes', {
+    scopes: selectedScopes.filter((scope) => scope !== scopeKey),
+    deleteScopePayload: {
+      name: scopeKey,
+      flowType,
+    },
+  })
+}
 </script>
 
 <template>
@@ -101,6 +167,7 @@ const addNewScopeModal = useModal()
     <div class="flex h-fit w-full">
       <div class="text-c-1 h-full items-center"></div>
       <Disclosure
+        :key="hasScopes ? 'with-scopes' : 'empty'"
         as="div"
         class="bl flex w-full flex-col">
         <DisclosureButton
@@ -125,7 +192,7 @@ const addNewScopeModal = useModal()
               class="pr-0.75 pl-1 transition-none"
               size="sm"
               variant="ghost"
-              @click.stop="addNewScopeModal.show()">
+              @click.stop="openAddScopeModal">
               Add Scope
             </ScalarButton>
 
@@ -168,7 +235,7 @@ const addNewScopeModal = useModal()
               <DataTableRow
                 v-for="{ id, label, description } in filteredScopes"
                 :key="id"
-                class="text-c-2"
+                class="text-c-2 group/scope-row"
                 @click="setScope(id, !selectedScopes.includes(id))">
                 <DataTableCell
                   class="no-scrollbar hover:text-c-1 box-border flex !max-h-[initial] w-full cursor-pointer items-center gap-1 overflow-x-scroll px-3 py-1.5 text-nowrap">
@@ -177,6 +244,28 @@ const addNewScopeModal = useModal()
                     <span>&ndash;</span>
                     <span>{{ description }}</span>
                   </template>
+
+                  <!-- Edit + Delete actions, revealed on row hover -->
+                  <span
+                    class="ml-auto flex items-center gap-0.5 opacity-0 transition-opacity group-focus-within/scope-row:opacity-100 group-hover/scope-row:opacity-100">
+                    <ScalarIconButton
+                      class="-m-0.5 shrink-0 p-0.5"
+                      :icon="ScalarIconPencilSimple"
+                      :label="`Edit ${label}`"
+                      size="xs"
+                      @click.stop="
+                        openEditScopeModal({
+                          id,
+                          description: description ?? '',
+                        })
+                      " />
+                    <ScalarIconButton
+                      class="-m-0.5 shrink-0 p-0.5"
+                      :icon="ScalarIconTrash"
+                      :label="`Delete ${label}`"
+                      size="xs"
+                      @click.stop="handleDeleteScope(id)" />
+                  </span>
                 </DataTableCell>
                 <DataTableCheckbox
                   :modelValue="selectedScopes.includes(id)"
@@ -188,17 +277,12 @@ const addNewScopeModal = useModal()
       </Disclosure>
     </div>
 
-    <!-- Add new scope modal -->
+    <!-- Shared add/edit scope modal -->
     <OAuthScopesAddModal
+      :scope="editingScope"
       :scopes="Object.keys(flow.scopes ?? {})"
-      :state="addNewScopeModal"
-      @submit="
-        (payload) =>
-          emits('update:selectedScopes', {
-            scopes: selectedScopes,
-            newScopePayload: { ...payload, flowType },
-          })
-      " />
+      :state="scopeFormModal"
+      @submit="handleScopeFormSubmit" />
   </DataTableCell>
 </template>
 

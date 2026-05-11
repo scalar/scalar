@@ -139,6 +139,94 @@ describe('OAuthScopesInput', () => {
     expect(emit2?.scopes).toEqual([])
   })
 
+  it('emits deleteScopePayload and removes the scope from the selection when delete is clicked', async () => {
+    const wrapper = mountComponent({ selected: ['read:items', 'write:items'] })
+    await openDisclosure(wrapper)
+
+    const deleteBtn = wrapper.findAll('button').find((b) => b.text() === 'Delete read:items')
+    expect(deleteBtn, 'Delete button for read:items should exist').toBeTruthy()
+    await deleteBtn!.trigger('click')
+
+    const emit = wrapper.emitted('update:selectedScopes')?.at(-1)?.[0] as any
+    expect(emit?.scopes).toEqual(['write:items'])
+    expect(emit?.deleteScopePayload).toEqual({
+      name: 'read:items',
+      flowType: 'authorizationCode',
+    })
+  })
+
+  it('emits editScopePayload and renames the scope in the selection when edit submits a new name', async () => {
+    const wrapper = mountComponent({ selected: ['read:items'] })
+    await openDisclosure(wrapper)
+
+    const editBtn = wrapper.findAll('button').find((b) => b.text() === 'Edit read:items')
+    expect(editBtn, 'Edit button for read:items should exist').toBeTruthy()
+    await editBtn!.trigger('click')
+    await nextTick()
+
+    const modal = wrapper.findComponent({ name: 'OAuthScopesAddModal' })
+    expect(modal.exists()).toBe(true)
+
+    modal.vm.$emit('submit', {
+      name: 'read:stuff',
+      description: 'Read everything',
+      oldName: 'read:items',
+    })
+    await nextTick()
+
+    const emit = wrapper.emitted('update:selectedScopes')?.at(-1)?.[0] as any
+    expect(emit?.scopes).toEqual(['read:stuff'])
+    expect(emit?.editScopePayload).toEqual({
+      oldName: 'read:items',
+      name: 'read:stuff',
+      description: 'Read everything',
+      flowType: 'authorizationCode',
+    })
+  })
+
+  it('still emits newScopePayload when the Add Scope modal submits without oldName', async () => {
+    const wrapper = mountComponent({ selected: ['read:items'] })
+
+    const addBtn = wrapper.findAll('button').find((b) => b.text() === 'Add Scope')
+    expect(addBtn, 'Add Scope button should exist').toBeTruthy()
+    await addBtn!.trigger('click')
+    await nextTick()
+
+    const modal = wrapper.findComponent({ name: 'OAuthScopesAddModal' })
+    modal.vm.$emit('submit', {
+      name: 'delete:items',
+      description: 'Delete items',
+    })
+    await nextTick()
+
+    const emit = wrapper.emitted('update:selectedScopes')?.at(-1)?.[0] as any
+    expect(emit?.scopes).toEqual(['read:items'])
+    expect(emit?.newScopePayload).toEqual({
+      name: 'delete:items',
+      description: 'Delete items',
+      flowType: 'authorizationCode',
+    })
+  })
+
+  it('collapses the panel when the last scope is deleted while expanded', async () => {
+    const wrapper = mountComponent({
+      selected: ['read:items'],
+      flow: { scopes: { 'read:items': 'Read access to items' } },
+    })
+
+    // Open the panel and confirm the scope row is visible
+    await openDisclosure(wrapper)
+    expect(wrapper.findAll('tr').length).toBe(1)
+
+    // Simulate the parent applying the delete: the flow ends up with no scopes
+    await wrapper.setProps({ selectedScopes: [], flow: { scopes: {} } })
+    await nextTick()
+
+    // The empty-state copy is shown and the panel is no longer expanded
+    expect(wrapper.text()).toContain('No Scopes Defined')
+    expect(wrapper.findAll('tr').length).toBe(0)
+  })
+
   it('handles empty scopes gracefully', async () => {
     const wrapper = mountComponent({ flow: { scopes: {} } })
 

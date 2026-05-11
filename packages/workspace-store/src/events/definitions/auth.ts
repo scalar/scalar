@@ -141,6 +141,26 @@ export type AuthEvents = {
       description: string
       flowType: keyof OAuthFlowsObject
     }
+    /**
+     * Rename and/or update the description of an existing scope on the flow.
+     * The caller is responsible for ensuring `scopes` already reflects the renamed value.
+     */
+    editScopePayload?: {
+      /** The current scope key to look up on the flow */
+      oldName: string
+      /** The new scope key (can equal `oldName` if only the description changed) */
+      name: string
+      description: string
+      flowType: keyof OAuthFlowsObject
+    }
+    /**
+     * Remove an existing scope from the flow.
+     * The caller is responsible for ensuring `scopes` already omits the removed value.
+     */
+    deleteScopePayload?: {
+      name: string
+      flowType: keyof OAuthFlowsObject
+    }
     /** Meta information for the auth update */
     meta: AuthMeta
   }
