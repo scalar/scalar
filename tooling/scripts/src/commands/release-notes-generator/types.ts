@@ -148,7 +148,7 @@ const hrefBlockSchema = z
  * discriminator (`type`) is the same field every block uses so the
  * generated JSON schema produces clean autocomplete in editors.
  */
-export const contentBlockSchema = z
+const contentBlockSchema = z
   .discriminatedUnion('type', [
     paragraphBlockSchema,
     headingBlockSchema,
@@ -173,7 +173,7 @@ export const aiReleaseNoteSchema = z
   .strict()
   .describe('Minimal AI-generated release note payload before merge with trusted metadata.')
 
-export type AiReleaseNote = z.infer<typeof aiReleaseNoteSchema>
+type AiReleaseNote = z.infer<typeof aiReleaseNoteSchema>
 
 export const releaseNoteSchema = z
   .object({
@@ -199,7 +199,7 @@ export const releaseNotesFileSchema = z
   .array(releaseNoteSchema)
   .describe('Curated, user-facing release notes for the Scalar app. Newest entry first.')
 
-export type ContentBlock = z.infer<typeof contentBlockSchema>
+type ContentBlock = z.infer<typeof contentBlockSchema>
 export type ReleaseNote = z.infer<typeof releaseNoteSchema>
 
 /**
