@@ -1,8 +1,8 @@
-import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
+import { createMockEventBus, mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import CommandPaletteRequest from './CommandPaletteRequest.vue'
@@ -34,7 +34,7 @@ describe('CommandPaletteRequest', () => {
     vi.clearAllMocks()
   })
 
-  afterEach(() => {
+  afterAll(() => {
     vi.restoreAllMocks()
   })
 

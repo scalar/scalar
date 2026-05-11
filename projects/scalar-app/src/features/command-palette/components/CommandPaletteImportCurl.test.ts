@@ -1,7 +1,7 @@
-import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
+import { createMockEventBus, mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import CommandPaletteImportCurl from './CommandPaletteImportCurl.vue'
@@ -11,7 +11,7 @@ describe('CommandPaletteImportCurl', () => {
     vi.clearAllMocks()
   })
 
-  afterEach(() => {
+  afterAll(() => {
     vi.restoreAllMocks()
   })
 

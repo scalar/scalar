@@ -93,6 +93,29 @@ describe('posthog-plugin', () => {
     }
   })
 
+  it('does not capture events that are not in the allowlist', () => {
+    const plugin = PostHogClientPlugin(TEST_CONFIG)
+    plugin.lifecycle?.onInit?.({ config: {} })
+    mockPostHogInstance.capture.mockClear()
+
+    const wildcardHandler = plugin.on?.['*']
+
+    // These events are intentionally excluded from the analytics allowlist
+    const untrackedEvents = [
+      'auth:update:security-scheme-secrets',
+      'operation:update:requestBody:value',
+      'operation:upsert:parameter',
+      'select:nav-item',
+      'analytics:on:loaded',
+    ] as const
+
+    for (const event of untrackedEvents) {
+      wildcardHandler?.(event as never, {} as never)
+    }
+
+    expect(mockPostHogInstance.capture).not.toHaveBeenCalled()
+  })
+
   it('does not capture log: events via the wildcard handler', () => {
     const plugin = PostHogClientPlugin(TEST_CONFIG)
     plugin.lifecycle?.onInit?.({ config: {} })
