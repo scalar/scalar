@@ -15,6 +15,7 @@ import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'
 import {
   createApiClientModal,
   type ApiClientModal,
+  type ApiClientOptions,
 } from '@scalar/api-client/modal'
 import {
   addScalarClassesToHeadless,
@@ -238,6 +239,11 @@ const mergedConfig = computed<ApiReferenceConfiguration>(() => ({
   ...configList.value[activeSlug.value]?.config,
   // Any overrides from the localhost toolbar
   ...configurationOverrides.value,
+}))
+
+const apiClientOptions = computed<ApiClientOptions>(() => ({
+  ...mergedConfig.value,
+  customFetch: mergedConfig.value.fetch,
 }))
 
 /** Convenience break out var to determine which routing mode we are using */
@@ -790,7 +796,7 @@ onMounted(() => {
     el: modal.value,
     eventBus,
     workspaceStore: clientStore,
-    options: mergedConfig,
+    options: apiClientOptions,
     plugins: [
       ...pluginManager.getApiClientPlugins(),
       ...mapConfigPlugins(mergedConfig, environment),
