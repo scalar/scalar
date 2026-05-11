@@ -3,7 +3,7 @@ import type { Theme } from '@scalar/themes'
 import { resolveThemeStyles } from './resolve-theme-styles'
 
 /** The resolved theme styles with the slug that produced them */
-export type ResolvedThemeStyles = { themeStyles: string; themeSlug: string }
+type ResolvedThemeStyles = { themeStyles: string; themeSlug: string }
 
 /**
  * Determines the active theme styles given a workspace theme slug, a fallback
