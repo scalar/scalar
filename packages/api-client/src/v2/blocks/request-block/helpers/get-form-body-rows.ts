@@ -1,3 +1,4 @@
+import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import { resolve } from '@scalar/workspace-store/resolve'
@@ -14,18 +15,6 @@ const stringifyValue = (value: unknown) => {
     return JSON.stringify(value)
   }
   return String(value)
-}
-
-/** Look up a nested value in the example by walking the path. Returns `undefined` if any segment is missing. */
-const getValueAtPath = (root: unknown, path: string[]): unknown => {
-  let cursor: unknown = root
-  for (const segment of path) {
-    if (cursor instanceof File || !isObject(cursor)) {
-      return undefined
-    }
-    cursor = (cursor as Record<string, unknown>)[segment]
-  }
-  return cursor
 }
 
 type LeafRow = {
