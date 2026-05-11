@@ -557,7 +557,7 @@ defineExpose({
         class="hover:bg-b-3 ml-auto"
         size="xs"
         variant="ghost"
-        @click="copyUrl">
+        @click="requestCopyUrl">
         <ScalarIconCopy />
         <span class="sr-only">Copy URL</span>
       </ScalarButton>
