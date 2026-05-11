@@ -12,9 +12,15 @@ describe('serializeReleaseNotes', () => {
       version: '1.0.0',
       date: '2026-01-01',
       title: 'Hello world',
-      description: 'Initial release.',
-      highlights: ['First feature.', 'Second feature.'],
-      href: 'https://example.com/release/1.0.0',
+      content: [
+        { type: 'paragraph', text: 'Initial release.' },
+        { type: 'list', items: ['First feature.', 'Second feature.'], ordered: false },
+        {
+          type: 'href',
+          href: 'https://example.com/release/1.0.0',
+          label: 'Read full release notes',
+        },
+      ],
     }
 
     const output = serializeReleaseNotes([entry])
@@ -33,9 +39,15 @@ describe('serializeReleaseNotes', () => {
         version: '2.0.0',
         date: '2026-02-01',
         title: 'Big release',
-        description: 'Lots of changes.',
-        highlights: ['Improved A.', 'Polished B.'],
-        href: 'https://example.com/release/2.0.0',
+        content: [
+          { type: 'paragraph', text: 'Lots of changes.' },
+          { type: 'list', items: ['Improved A.', 'Polished B.'], ordered: false },
+          {
+            type: 'href',
+            href: 'https://example.com/release/2.0.0',
+            label: 'Read full release notes',
+          },
+        ],
       },
       {
         version: '1.0.0',
@@ -58,8 +70,10 @@ describe('serializeReleaseNotes', () => {
       version: '1.0.0',
       date: '2026-01-01',
       title: 'Multi paragraph',
-      description: 'First paragraph of context.\n\nSecond paragraph adds more detail.',
-      highlights: ['Highlight one.'],
+      content: [
+        { type: 'paragraph', text: 'First paragraph of context.\n\nSecond paragraph adds more detail.' },
+        { type: 'list', items: ['Highlight one.'], ordered: false },
+      ],
     }
     const serialized = serializeReleaseNotes([entry], { preamble: '# Test\n' })
     expect(serialized).toContain('First paragraph of context.\n\nSecond paragraph adds more detail.')
@@ -105,6 +119,27 @@ describe('serializeReleaseNotes', () => {
     expect(serialized).toContain('Second paragraph adds more detail.')
   })
 
+  it('renders href blocks as markdown anchors', () => {
+    const serialized = serializeReleaseNotes(
+      [
+        {
+          version: '1.0.0',
+          date: '2026-01-01',
+          title: 'With link',
+          content: [
+            {
+              type: 'href',
+              href: 'https://example.com/changelog#100',
+              label: 'See changelog',
+            },
+          ],
+        },
+      ],
+      { preamble: '# Test\n' },
+    )
+    expect(serialized).toContain('[See changelog](https://example.com/changelog#100)')
+  })
+
   it('renders bullet and numbered lists from content blocks', () => {
     const serialized = serializeReleaseNotes(
       [
@@ -113,7 +148,7 @@ describe('serializeReleaseNotes', () => {
           date: '2026-01-01',
           title: 'Lists',
           content: [
-            { type: 'list', items: ['Apple', 'Banana'] },
+            { type: 'list', items: ['Apple', 'Banana'], ordered: false },
             { type: 'list', items: ['Step one', 'Step two'], ordered: true },
           ],
         },

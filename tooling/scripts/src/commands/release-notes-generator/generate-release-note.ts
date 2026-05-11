@@ -1,5 +1,5 @@
 import type { PullRequestSummary } from './fetch-pull-requests'
-import { type ReleaseNote, releaseNoteSchema } from './types'
+import { type ReleaseNote, aiReleaseNoteSchema, buildReleaseNoteFromAiOutput } from './types'
 
 /**
  * URL of the Anthropic Messages API. Pinned to a specific version so a
@@ -99,7 +99,8 @@ export const buildSystemPrompt = (): string => {
     '',
     'Output format:',
     '- You MUST respond with a single JSON object and nothing else. No markdown fences, no commentary.',
-    '- Keys: version, date, title, description (optional), highlights (optional array, max 5), href.',
+    '- Keys only: version, title, description (optional), highlights (optional array, max 5). No other keys.',
+    '- version must match the package version from the user message (semver string).',
     '- title is one short sentence (max ~80 chars).',
     '- description is one paragraph that sets context. Omit it when there is only one thing to say.',
     '- highlights are single-sentence bullet points. Omit when there are fewer than two interesting changes.',
@@ -166,7 +167,7 @@ const buildUserPrompt = (
     `Package: ${options.packageName}`,
     `Version: ${options.version}`,
     `Date: ${options.date}`,
-    `Release URL (use as the "href" field): ${options.releaseUrl}`,
+    `Release URL (for maintainers only — do not include this in your JSON): ${options.releaseUrl}`,
     '',
     `CHANGELOG section for ${options.packageName}@${options.version}:`,
     '```markdown',
@@ -208,8 +209,9 @@ const extractJsonText = (response: AnthropicResponse): string => {
 
 /**
  * Call the Anthropic Messages API to turn a CHANGELOG section into a
- * polished `ReleaseNote`. Validates the response against the shared Zod
- * schema and throws when the model returns something we cannot trust.
+ * polished `ReleaseNote`. Validates the model JSON against `aiReleaseNoteSchema`
+ * (strict), then builds the stored shape with `buildReleaseNoteFromAiOutput`
+ * (trusted `version`, `date`, `href`; body in `content` blocks).
  */
 export const generateReleaseNote = async (options: GenerateOptions): Promise<ReleaseNote> => {
   const fetchImpl = options.fetchImpl ?? fetch
@@ -261,21 +263,20 @@ export const generateReleaseNote = async (options: GenerateOptions): Promise<Rel
     throw new Error(`Anthropic returned invalid JSON: ${(error as Error).message}\nRaw text:\n${jsonText}`)
   }
 
-  // Stamp version, date, and href so the model cannot drift even if it
-  // tries - these are facts we already know on the CI side.
-  const merged = {
-    ...(typeof parsed === 'object' && parsed !== null ? parsed : {}),
-    version: options.version,
-    date: options.date,
-    href: options.releaseUrl,
+  if (typeof parsed !== 'object' || parsed === null) {
+    throw new Error(`Anthropic returned JSON that is not an object.\nRaw text:\n${jsonText}`)
   }
 
-  const result = releaseNoteSchema.safeParse(merged)
-  if (!result.success) {
+  const aiResult = aiReleaseNoteSchema.safeParse(parsed)
+  if (!aiResult.success) {
     throw new Error(
-      `Generated release note failed validation:\n${result.error.message}\nPayload:\n${JSON.stringify(merged, null, 2)}`,
+      `AI-generated release note failed validation:\n${aiResult.error.message}\nPayload:\n${JSON.stringify(parsed, null, 2)}`,
     )
   }
 
-  return result.data
+  return buildReleaseNoteFromAiOutput(aiResult.data, {
+    version: options.version,
+    date: options.date,
+    href: options.releaseUrl,
+  })
 }

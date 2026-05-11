@@ -1,18 +1,20 @@
 import { z } from 'zod'
 
 /**
- * Mirror of the `ReleaseNote` type used by the Scalar app's "What's new"
- * modal. Kept as a Zod schema so we can validate the AI-generated payload
- * before it ever leaves CI - a malformed entry would otherwise break the
- * bundled release-notes JSON consumed by the app.
+ * Release note shapes for the Scalar app's "What's new" modal.
  *
- * The schema is also the source for the auto-generated
- * `RELEASE_NOTES.schema.json` file next to each release JSON, so editors
- * can offer autocomplete and validation when someone edits a release
- * entry by hand on the release PR (for example to add a video clip or an
- * extra paragraph that the AI generator could not produce on its own).
+ * - **`aiReleaseNoteSchema`** — fixed contract for the Anthropic JSON
+ *   response (`version`, `title`, `description`, `highlights` only). Do not
+ *   add fields here without updating the model prompt. `buildReleaseNoteFromAiOutput`
+ *   maps that payload into the stored shape (top-level `title` plus `content` blocks).
+ * - **`releaseNoteSchema`** — on-disk shape: `version`, `date`, and `title`
+ *   stay top-level; summary bullets and rich media live in optional `content`
+ *   blocks (`paragraph`, `list`, `heading`, `image`, `video`, `href`). Use
+ *   `{ type: 'href', href, label }` for outbound URLs (for example changelog or
+ *   GitHub release). Source for
+ *   `RELEASE_NOTES.schema.json`.
  *
- * Keep this in sync with
+ * Keep `releaseNoteSchema` in sync with
  * `projects/scalar-app/src/features/whats-new/types.ts`.
  */
 
@@ -36,14 +38,17 @@ const descriptionSchema = z
     'Optional one-paragraph summary rendered above any rich content. Mostly used by AI-generated entries; reach for `content` paragraphs when you need rich copy.',
   )
 
-const highlightsSchema = z
-  .array(z.string().min(1).max(280).describe('A single-sentence highlight rendered as a bullet point.'))
-  .max(8)
-  .describe(
-    'Optional bullet list of single-sentence highlights, rendered above any rich content. Mostly used by AI-generated entries.',
-  )
+const highlightItemSchema = z
+  .string()
+  .min(1)
+  .max(280)
+  .describe('A single-sentence highlight rendered as a bullet point.')
 
-const hrefSchema = z.string().url().describe('Optional URL for the "Read full release notes" link. Opens in a new tab.')
+/** Highlights in model output: same item rules as list blocks in `content`. */
+const aiHighlightsSchema = z
+  .array(highlightItemSchema)
+  .max(5)
+  .describe('Optional bullet list of single-sentence highlights (at most five items for generated notes).')
 
 const paragraphBlockSchema = z
   .object({
@@ -130,6 +135,14 @@ const videoBlockSchema = z
   })
   .describe('An inline video clip. Self-hosted MP4/WebM URLs work best - autoplay clips should also set `muted: true`.')
 
+const hrefBlockSchema = z
+  .object({
+    type: z.literal('href').describe('Discriminator for an outbound URL block.'),
+    href: z.string().url().describe('Destination URL (opened in a new tab).'),
+    label: z.string().min(1).max(120).describe('Accessible link text (for example "Read full release notes").'),
+  })
+  .describe('Call-to-action link (for example to full release notes on GitHub).')
+
 /**
  * One rich content block rendered inside a release note. The
  * discriminator (`type`) is the same field every block uses so the
@@ -142,24 +155,38 @@ export const contentBlockSchema = z
     listBlockSchema,
     imageBlockSchema,
     videoBlockSchema,
+    hrefBlockSchema,
   ])
-  .describe('Rich content block rendered inside a release note (paragraph, heading, list, image, or video).')
+  .describe('Rich content block rendered inside a release note (paragraph, heading, list, image, video, or href).')
+
+/**
+ * JSON object returned by the release-notes model. Strict: unknown keys fail
+ * validation so the contract stays stable and CI never merges stray fields.
+ */
+export const aiReleaseNoteSchema = z
+  .object({
+    version: versionSchema,
+    title: titleSchema,
+    description: descriptionSchema.optional(),
+    highlights: aiHighlightsSchema.optional(),
+  })
+  .strict()
+  .describe('Minimal AI-generated release note payload before merge with trusted metadata.')
+
+export type AiReleaseNote = z.infer<typeof aiReleaseNoteSchema>
 
 export const releaseNoteSchema = z
   .object({
     version: versionSchema,
     date: dateSchema,
     title: titleSchema,
-    description: descriptionSchema.optional(),
-    highlights: highlightsSchema.optional(),
     content: z
       .array(contentBlockSchema)
       .max(40)
       .optional()
       .describe(
-        'Optional ordered list of rich content blocks. Use this to add multi-paragraph copy, screenshots, or demo videos that the simple `description`/`highlights` fields cannot express.',
+        'Body copy and rich blocks after the headline: `paragraph` for intro text, `list` for bullet highlights, then headings, media, and optional `href` blocks (for example full release notes).',
       ),
-    href: hrefSchema.optional(),
   })
   .describe('A single curated release note rendered in the "What\'s new" modal.')
 
@@ -174,3 +201,32 @@ export const releaseNotesFileSchema = z
 
 export type ContentBlock = z.infer<typeof contentBlockSchema>
 export type ReleaseNote = z.infer<typeof releaseNoteSchema>
+
+/**
+ * Build a stored `ReleaseNote` from validated AI fields: `title` stays
+ * top-level; `description` and `highlights` become `paragraph` and `list`
+ * blocks so the emitted JSON matches the hand-editable shape.
+ */
+export const buildReleaseNoteFromAiOutput = (
+  ai: AiReleaseNote,
+  trusted: { version: string; date: string; href: string },
+): ReleaseNote => {
+  const content: ContentBlock[] = []
+  if (ai.description !== undefined) {
+    content.push({ type: 'paragraph', text: ai.description })
+  }
+  if (ai.highlights !== undefined && ai.highlights.length > 0) {
+    content.push({ type: 'list', items: [...ai.highlights], ordered: false })
+  }
+  content.push({
+    type: 'href',
+    href: trusted.href,
+    label: 'Read full release notes',
+  })
+  return releaseNoteSchema.parse({
+    version: trusted.version,
+    date: trusted.date,
+    title: ai.title,
+    content,
+  })
+}

@@ -21,4 +21,18 @@ This release focuses on the desktop experience: the app layout has been reorgani
 - Importing an OpenAPI document by URL no longer fails when the pasted value has surrounding whitespace.
 - Login on the Electron app has been fixed so returning users no longer hit a stuck sign-in screen.
 
+Below is sample rich media so you can verify image and video blocks in the modal. Remove or replace this content before shipping if you do not want it in the real release.
+
+### Sample image
+
+![Placeholder rectangle with the text What's new preview](https://placehold.co/720x360/1e293b/94a3b8/png?text=What%27s%20new%20preview)
+
+_Placeholder image (replace with a real screenshot when ready)._
+
+### Sample video
+
+<video src="https://www.w3schools.com/html/mov_bbb.mp4" muted controls playsinline></video>
+
+_Short sample clip for layout testing (external demo file)._
+
 [Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#109)

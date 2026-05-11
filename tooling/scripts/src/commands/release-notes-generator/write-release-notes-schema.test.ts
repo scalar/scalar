@@ -30,7 +30,7 @@ describe('buildReleaseNotesJsonSchema', () => {
       }
     }
     const blockTypes = schema.items.properties.content.items.oneOf.map((entry) => entry.properties.type.const)
-    expect(blockTypes).toEqual(['paragraph', 'heading', 'list', 'image', 'video'])
+    expect(blockTypes).toEqual(['paragraph', 'heading', 'list', 'image', 'video', 'href'])
   })
 })
 

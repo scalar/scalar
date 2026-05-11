@@ -22,25 +22,8 @@
         "maxLength": 120,
         "description": "Short, sentence-case headline summarizing the release."
       },
-      "description": {
-        "type": "string",
-        "minLength": 1,
-        "maxLength": 500,
-        "description": "Optional one-paragraph summary rendered above any rich content. Mostly used by AI-generated entries; reach for `content` paragraphs when you need rich copy."
-      },
-      "highlights": {
-        "maxItems": 8,
-        "type": "array",
-        "items": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 280,
-          "description": "A single-sentence highlight rendered as a bullet point."
-        },
-        "description": "Optional bullet list of single-sentence highlights, rendered above any rich content. Mostly used by AI-generated entries."
-      },
       "content": {
-        "description": "Optional ordered list of rich content blocks. Use this to add multi-paragraph copy, screenshots, or demo videos that the simple `description`/`highlights` fields cannot express.",
+        "description": "Body copy and rich blocks after the headline: `paragraph` for intro text, `list` for bullet highlights, then headings, media, and optional `href` blocks (for example full release notes).",
         "maxItems": 40,
         "type": "array",
         "items": {
@@ -60,10 +43,7 @@
                   "description": "Plain-text paragraph copy. Use multiple paragraph blocks for multi-paragraph notes."
                 }
               },
-              "required": [
-                "type",
-                "text"
-              ],
+              "required": ["type", "text"],
               "additionalProperties": false,
               "description": "A free-form paragraph rendered between other content blocks."
             },
@@ -95,10 +75,7 @@
                   ]
                 }
               },
-              "required": [
-                "type",
-                "text"
-              ],
+              "required": ["type", "text"],
               "additionalProperties": false,
               "description": "A subsection heading inside a release entry."
             },
@@ -127,10 +104,7 @@
                   "type": "boolean"
                 }
               },
-              "required": [
-                "type",
-                "items"
-              ],
+              "required": ["type", "items"],
               "additionalProperties": false,
               "description": "A bullet (or numbered) list of single-sentence items."
             },
@@ -172,11 +146,7 @@
                   "maximum": 9007199254740991
                 }
               },
-              "required": [
-                "type",
-                "src",
-                "alt"
-              ],
+              "required": ["type", "src", "alt"],
               "additionalProperties": false,
               "description": "An inline image. Provide alt text for accessibility and an optional caption rendered beneath."
             },
@@ -221,28 +191,40 @@
                   "type": "boolean"
                 }
               },
-              "required": [
-                "type",
-                "src"
-              ],
+              "required": ["type", "src"],
               "additionalProperties": false,
               "description": "An inline video clip. Self-hosted MP4/WebM URLs work best - autoplay clips should also set `muted: true`."
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "href",
+                  "description": "Discriminator for an outbound URL block."
+                },
+                "href": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "Destination URL (opened in a new tab)."
+                },
+                "label": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120,
+                  "description": "Accessible link text (for example \"Read full release notes\")."
+                }
+              },
+              "required": ["type", "href", "label"],
+              "additionalProperties": false,
+              "description": "Call-to-action link (for example to full release notes on GitHub)."
             }
           ],
-          "description": "Rich content block rendered inside a release note (paragraph, heading, list, image, or video)."
+          "description": "Rich content block rendered inside a release note (paragraph, heading, list, image, video, or href)."
         }
-      },
-      "href": {
-        "type": "string",
-        "format": "uri",
-        "description": "Optional URL for the \"Read full release notes\" link. Opens in a new tab."
       }
     },
-    "required": [
-      "version",
-      "date",
-      "title"
-    ],
+    "required": ["version", "date", "title"],
     "additionalProperties": false,
     "description": "A single curated release note rendered in the \"What's new\" modal."
   },

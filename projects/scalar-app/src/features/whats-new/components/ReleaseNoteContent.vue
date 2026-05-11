@@ -5,13 +5,15 @@
  * and so the per-block rendering rules live in a single place.
  *
  * Block types are kept narrow on purpose - paragraph, heading, list,
- * image, and video - so the data stays easy to author by hand on the
+ * image, video, and href - so the data stays easy to author by hand on the
  * release PR and the renderer stays small enough to read in one screen.
  */
 export default {}
 </script>
 
 <script setup lang="ts">
+import { ScalarIconArrowSquareOut } from '@scalar/icons'
+
 import type { ContentBlock } from '../types'
 
 const { blocks } = defineProps<{
@@ -98,5 +100,20 @@ const { blocks } = defineProps<{
         {{ block.caption }}
       </figcaption>
     </figure>
+
+    <div
+      v-else-if="block.type === 'href'"
+      class="text-c-accent">
+      <a
+        class="inline-flex items-center gap-1 text-xs hover:underline"
+        :href="block.href"
+        rel="noopener noreferrer"
+        target="_blank">
+        {{ block.label }}
+        <ScalarIconArrowSquareOut
+          class="size-3"
+          weight="bold" />
+      </a>
+    </div>
   </template>
 </template>

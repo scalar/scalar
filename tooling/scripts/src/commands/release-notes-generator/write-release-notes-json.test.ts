@@ -75,7 +75,10 @@ describe('writeReleaseNoteJson', () => {
 
     const result = await writeReleaseNoteJson({
       path,
-      note: { ...note('1.0.0', '2026-01-01'), description: 'Hello world.' },
+      note: {
+        ...note('1.0.0', '2026-01-01'),
+        content: [{ type: 'paragraph', text: 'Hello world.' }],
+      },
     })
 
     expect(result.created).toBe(true)
@@ -84,7 +87,12 @@ describe('writeReleaseNoteJson', () => {
     const written = JSON.parse(await readFile(path, 'utf-8'))
     expect(Array.isArray(written)).toBe(true)
     expect(written).toEqual([
-      { version: '1.0.0', date: '2026-01-01', title: 'release 1.0.0', description: 'Hello world.' },
+      {
+        version: '1.0.0',
+        date: '2026-01-01',
+        title: 'release 1.0.0',
+        content: [{ type: 'paragraph', text: 'Hello world.' }],
+      },
     ])
   })
 

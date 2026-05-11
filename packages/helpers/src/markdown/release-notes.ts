@@ -19,6 +19,9 @@
  * - Pending edits are now flushed before a request runs.
  * - Switched to our own slug generator.
  *
+ * Rich blocks (images, extra headings) follow the same pattern inside the
+ * entry body after the title line.
+ *
  * [Read full release notes](https://github.com/scalar/scalar/releases/tag/%40scalar%2Fapi-client%403.5.1)
  * ```
  *
@@ -68,8 +71,14 @@ export type VideoBlock = {
   controls?: boolean
 }
 
+export type HrefBlock = {
+  type: 'href'
+  href: string
+  label: string
+}
+
 /** Rich content block rendered between other blocks inside a release entry. */
-export type ContentBlock = ParagraphBlock | HeadingBlock | ListBlock | ImageBlock | VideoBlock
+export type ContentBlock = ParagraphBlock | HeadingBlock | ListBlock | ImageBlock | VideoBlock | HrefBlock
 
 /** One release note row. Mirrors the Scalar app's `ReleaseNote` shape. */
 export type ReleaseNoteEntry = {
@@ -79,14 +88,8 @@ export type ReleaseNoteEntry = {
   date: string
   /** Short, sentence-case headline. */
   title: string
-  /** Optional one-paragraph summary (paragraphs joined with two newlines). */
-  description?: string
-  /** Optional bullet list of single-sentence highlights. */
-  highlights?: string[]
-  /** Optional ordered list of rich content blocks (paragraphs, images, videos, ...). */
+  /** Optional body: paragraphs, lists, headings, images, videos, and links. */
   content?: ContentBlock[]
-  /** Optional URL for the "Read full release notes" link. */
-  href?: string
 }
 
 /**
@@ -132,12 +135,6 @@ const serializeEntry = (entry: ReleaseNoteEntry): string => {
   const blocks: string[] = []
   blocks.push(`## ${entry.version} (${entry.date})`)
   blocks.push(`### ${entry.title}`)
-  if (entry.description && entry.description.trim().length > 0) {
-    blocks.push(entry.description.trim())
-  }
-  if (entry.highlights && entry.highlights.length > 0) {
-    blocks.push(entry.highlights.map((highlight) => `- ${highlight.trim()}`).join('\n'))
-  }
   if (entry.content && entry.content.length > 0) {
     for (const block of entry.content) {
       const rendered = serializeContentBlock(block)
@@ -145,9 +142,6 @@ const serializeEntry = (entry: ReleaseNoteEntry): string => {
         blocks.push(rendered)
       }
     }
-  }
-  if (entry.href) {
-    blocks.push(`[Read full release notes](${entry.href})`)
   }
   return `${blocks.join('\n\n')}\n`
 }
@@ -167,6 +161,10 @@ const serializeContentBlock = (block: ContentBlock): string => {
     return block.text.trim()
   }
 
+  if (block.type === 'href') {
+    return `[${block.label.trim()}](${block.href})`
+  }
+
   if (block.type === 'heading') {
     const prefix = block.level === 4 ? '####' : '###'
     return `${prefix} ${block.text.trim()}`
@@ -182,27 +180,33 @@ const serializeContentBlock = (block: ContentBlock): string => {
     return block.caption ? `${image}\n\n_${block.caption.trim()}_` : image
   }
 
-  // Video block. Use the `<video>` HTML element so GitHub and most
-  // documentation viewers render it inline. The poster, autoplay,
-  // loop, and muted attributes mirror the JSON to keep the markdown
-  // preview consistent with the in-app rendering.
-  const attrs: string[] = [`src="${block.src}"`]
-  if (block.poster) {
-    attrs.push(`poster="${block.poster}"`)
+  if (block.type === 'video') {
+    // Video block. Use the `<video>` HTML element so GitHub and most
+    // documentation viewers render it inline. The poster, autoplay,
+    // loop, and muted attributes mirror the JSON to keep the markdown
+    // preview consistent with the in-app rendering.
+    const attrs: string[] = [`src="${block.src}"`]
+    if (block.poster) {
+      attrs.push(`poster="${block.poster}"`)
+    }
+    if (block.autoplay) {
+      attrs.push('autoplay')
+    }
+    if (block.loop) {
+      attrs.push('loop')
+    }
+    if (block.muted) {
+      attrs.push('muted')
+    }
+    if (block.controls !== false) {
+      attrs.push('controls')
+    }
+    attrs.push('playsinline')
+    const video = `<video ${attrs.join(' ')}></video>`
+    return block.caption ? `${video}\n\n_${block.caption.trim()}_` : video
   }
-  if (block.autoplay) {
-    attrs.push('autoplay')
-  }
-  if (block.loop) {
-    attrs.push('loop')
-  }
-  if (block.muted) {
-    attrs.push('muted')
-  }
-  if (block.controls !== false) {
-    attrs.push('controls')
-  }
-  attrs.push('playsinline')
-  const video = `<video ${attrs.join(' ')}></video>`
-  return block.caption ? `${video}\n\n_${block.caption.trim()}_` : video
+
+  const _exhaustive: never = block
+  void _exhaustive
+  return ''
 }

@@ -7,21 +7,20 @@
  * so we maintain a small parallel list with a friendly tone, grouped per
  * release.
  *
- * The shape is mirrored as a Zod schema in
+ * The on-disk shape is mirrored as `releaseNoteSchema` in
  * `tooling/scripts/src/commands/release-notes-generator/types.ts`. The
- * release-notes generator validates AI output against that schema and
- * emits a `RELEASE_NOTES.schema.json` next to the JSON file so manual
- * edits get autocomplete and validation in the editor. Keep both shapes
- * in sync.
+ * generator validates model JSON against a smaller `aiReleaseNoteSchema`
+ * first, then `buildReleaseNoteFromAiOutput` maps into this shape;
+ * `RELEASE_NOTES.schema.json` describes the full entry type for manual edits.
+ * Keep both TS types and `releaseNoteSchema` in sync.
  */
 
 /**
- * One rich content block rendered inside a release note. Use these to
- * mix in paragraphs, screenshots, or demo videos when the simple
- * `description`/`highlights` fields are not enough (for example a release
- * that ships a flagship visual feature).
+ * One block in the release body (`content`). Use `paragraph` for intro
+ * copy, `list` for bullet highlights, headings/images/videos for richer
+ * notes, and `href` blocks for outbound CTAs (for example full release notes).
  */
-export type ContentBlock = ParagraphBlock | HeadingBlock | ListBlock | ImageBlock | VideoBlock
+export type ContentBlock = ParagraphBlock | HeadingBlock | ListBlock | ImageBlock | VideoBlock | HrefBlock
 
 /** Free-form paragraph of plain text. Use one block per paragraph. */
 export type ParagraphBlock = {
@@ -93,6 +92,13 @@ export type VideoBlock = {
   controls?: boolean
 }
 
+/** Outbound URL opened in a new tab (for example GitHub release or changelog). */
+export type HrefBlock = {
+  type: 'href'
+  href: string
+  label: string
+}
+
 export type ReleaseNote = {
   /**
    * Semantic version of the release this entry describes (e.g. `3.5.1`).
@@ -108,27 +114,9 @@ export type ReleaseNote = {
   /** Short, sentence-case headline summarizing the release. */
   title: string
   /**
-   * Optional one-paragraph summary. Use this to set context before the
-   * `highlights` bullet list, or on its own when there is just one thing
-   * to say. Mostly used by AI-generated entries; reach for `content`
-   * paragraphs when you need rich copy.
-   */
-  description?: string
-  /**
-   * Optional list of bullet points highlighting the most user-facing
-   * changes. Keep each item to a single sentence. Mostly used by
-   * AI-generated entries.
-   */
-  highlights?: string[]
-  /**
-   * Optional ordered list of rich content blocks. Use this to add
-   * multi-paragraph copy, screenshots, or demo videos that the simple
-   * `description`/`highlights` fields cannot express.
+   * Optional body: paragraphs, bullet lists, subheadings, images, videos,
+   * and `href` blocks. Put summary copy in `paragraph` blocks, highlights in
+   * a `list` block, and full-release URLs in `{ type: 'href', href, label }`.
    */
   content?: ContentBlock[]
-  /**
-   * Optional href for a "Read more" link, typically a GitHub release page
-   * or a blog post. Opens in a new tab.
-   */
-  href?: string
 }
