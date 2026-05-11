@@ -1,7 +1,7 @@
 import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import { apiReferenceConfigurationWithSourceSchema } from '@scalar/schemas/api-reference'
 import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed } from 'vue'
 
 import DownloadLink from './DownloadLink.vue'
@@ -11,7 +11,7 @@ describe('DownloadLink', () => {
     vi.clearAllMocks()
   })
 
-  afterEach(() => {
+  afterAll(() => {
     vi.resetAllMocks()
   })
 
