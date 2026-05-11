@@ -631,4 +631,74 @@ describe('buildRequestBody', () => {
     assert(result?.value === 'null')
     expect(typeof result?.value).toBe('string')
   })
+
+  it('regroups dotted multipart rows back into a single JSON-stringified text part', () => {
+    const requestBody = {
+      content: {
+        'multipart/form-data': {
+          examples: {
+            default: {
+              value: [
+                { name: 'file', value: '@filename' },
+                { name: 'props.name', value: 'Widget' },
+                { name: 'props.description', value: 'A useful widget' },
+                { name: 'props.created_at', value: '2026-01-02T03:04:05Z' },
+                { name: 'props.note', value: 'ignored', isDisabled: true },
+              ],
+            },
+          },
+        },
+      },
+    }
+
+    const result = buildRequestBody(requestBody, 'default')
+    expect(result?.mode).toBe('formdata')
+    assert(result?.mode === 'formdata')
+
+    // The wire sends one `props` part (not three `props.*` parts), so the wire shape is
+    // consistent between the initial schema-derived example and edited form rows. The
+    // part is plain text because browser FormData adds a `filename="blob"` header to
+    // every Blob, which generic multipart parsers then misinterpret as a file upload.
+    expect(result.value).toEqual([
+      { type: 'text', key: 'file', value: '@filename' },
+      {
+        type: 'text',
+        key: 'props',
+        value: JSON.stringify({
+          name: 'Widget',
+          description: 'A useful widget',
+          created_at: '2026-01-02T03:04:05Z',
+        }),
+      },
+    ])
+  })
+
+  it('keeps a flat multipart row whose name happens to contain dots (filename)', () => {
+    const requestBody = {
+      content: {
+        'multipart/form-data': {
+          examples: {
+            default: {
+              value: [
+                {
+                  name: 'scalar.jpeg',
+                  value: new File(['scalar'], 'scalar.jpeg', { type: 'image/jpeg' }),
+                },
+                { name: 'caption', value: 'logo' },
+              ],
+            },
+          },
+        },
+      },
+    }
+
+    const result = buildRequestBody(requestBody, 'default')
+    expect(result?.mode).toBe('formdata')
+    assert(result?.mode === 'formdata')
+
+    expect(result.value).toHaveLength(2)
+    expect(result.value[0]?.type).toBe('file')
+    expect(result.value[0]?.key).toBe('scalar.jpeg')
+    expect(result.value[1]).toEqual({ type: 'text', key: 'caption', value: 'logo' })
+  })
 })

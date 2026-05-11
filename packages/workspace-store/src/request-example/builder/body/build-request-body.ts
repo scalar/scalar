@@ -1,5 +1,6 @@
 // import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { isObject } from '@scalar/helpers/object/is-object'
+import { setValueAtPath } from '@scalar/helpers/object/set-value-at-path'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/request-body'
 
@@ -49,6 +50,26 @@ const getMultipartEncodingContentType = (requestBody: RequestBodyObject, bodyCon
   requestBody.content[bodyContentType]?.encoding?.[fieldName]?.contentType
 
 /**
+ * A multipart row name carries a dotted path into a nested object when it contains a
+ * dot AND its value is not a File. Filenames in flat rows (e.g. `scalar.jpeg`) keep
+ * their literal name and stay flat.
+ */
+const isDottedNestedRow = (name: string, value: unknown): boolean => !(value instanceof File) && name.includes('.')
+
+/**
+ * Fold dotted-name row entries (e.g. `props.name`, `props.description`) back into a
+ * single nested object so the wire shape stays one JSON multipart part per top-level
+ * object property — even though the form UI displays one row per leaf.
+ */
+const foldDottedRowsToObject = (rows: { name: string; value: unknown }[]): Record<string, unknown> => {
+  const root: Record<string, unknown> = {}
+  for (const { name, value } of rows) {
+    setValueAtPath(root, name.split('.'), value)
+  }
+  return root
+}
+
+/**
  * Create the fetch request body
  */
 export const buildRequestBody = (
@@ -93,8 +114,30 @@ export const buildRequestBody = (
             value: [],
           }
 
+    // When a multipart form was built from a nested object schema the UI emits leaf
+    // rows with dotted names (e.g. `props.name`). Regroup them so the wire still gets
+    // one JSON multipart part per top-level object property — matching the
+    // OpenAPI 3.x multipart-as-JSON default. Url-encoded forms do not nest, so we
+    // skip this for them.
+    const shouldRegroupDotted =
+      result.mode === 'formdata' && exampleValue.some(({ name, value }) => isDottedNestedRow(name, value))
+
+    type Entry = { name: string; value: unknown }
+    let entries: Entry[]
+    if (shouldRegroupDotted) {
+      const flatRows: Entry[] = []
+      const dottedRows: Entry[] = []
+      for (const row of exampleValue) {
+        ;(isDottedNestedRow(row.name, row.value) ? dottedRows : flatRows).push(row)
+      }
+      const regrouped = foldDottedRowsToObject(dottedRows)
+      entries = [...flatRows, ...Object.entries(regrouped).map(([name, value]) => ({ name, value }))]
+    } else {
+      entries = exampleValue
+    }
+
     // Loop over all entries and add them to the form
-    exampleValue.forEach(({ name, value }) => {
+    entries.forEach(({ name, value }) => {
       if (!name) {
         return
       }
