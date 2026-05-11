@@ -7,11 +7,10 @@ import { computed, toValue, watch } from 'vue'
 
 import { queryClient } from '@/helpers/query-client'
 import { DEFAULT_REFETCH_INTERVAL, scalarClient } from '@/helpers/scalar-client'
+import { getActiveThemeStyles } from '@/helpers/theme/get-active-theme-styles'
 import { useAuth } from '@/hooks/use-auth'
 import { useTeams } from '@/hooks/use-teams'
 import { useUsers } from '@/hooks/use-users'
-import { getActiveThemeStyles } from '@/helpers/theme/get-active-theme-styles'
-
 
 /**
  * Fetches custom themes from the API and resolves the active theme CSS for the
@@ -112,8 +111,9 @@ export const useThemes = ({
   })
 
   /** A `<style>` tag wrapping the resolved CSS, ready for `v-html` injection */
-  const themeStyleTag = computed<string>(() =>
-     `<style id="scalar-theme" data-testid="${themeStyles.value.themeSlug}">${themeStyles.value.themeStyles}</style>`
+  const themeStyleTag = computed<string>(
+    () =>
+      `<style id="scalar-theme" data-testid="${themeStyles.value.themeSlug}">${themeStyles.value.themeStyles}</style>`,
   )
 
   return {
