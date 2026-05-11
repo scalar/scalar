@@ -1,6 +1,5 @@
 import '@/style.css'
 
-import { appState } from '@web/app-state'
 import { router } from '@web/router'
 import { initializeWebsiteTrackers } from '@web/tracking'
 import { load, trackEvent } from 'fathom-client'
@@ -30,7 +29,6 @@ if (!el) {
   // Pass in our initial props at the top level
 
   const app = createApp(App, {
-    getAppState: () => appState,
     getCommandPaletteState: () => useCommandPaletteState(),
   } satisfies AppProps)
 

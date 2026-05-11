@@ -1,6 +1,5 @@
 import '@/style.css'
 
-import { appState } from '@electron/renderer/src/app-state'
 import { commandPaletteState } from '@electron/renderer/src/features/command-palette'
 import { router } from '@electron/renderer/src/router'
 import { load, trackEvent } from 'fathom-client'
@@ -32,7 +31,6 @@ if (window.electron) {
     // Pass in our initial props at the top level
 
     const app = createApp(App, {
-      getAppState: () => appState,
       getCommandPaletteState: () => commandPaletteState,
       fileLoader: readFiles(),
     } satisfies AppProps)

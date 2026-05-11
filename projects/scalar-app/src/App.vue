@@ -1,8 +1,5 @@
 <script lang="ts">
 export type AppProps = {
-  /** The app state.
-   */
-  getAppState: () => AppState
   /** The command palette state.
    */
   getCommandPaletteState: () => ReturnType<typeof useCommandPaletteState>
@@ -34,10 +31,8 @@ import { useAuthHandlers } from '@/hooks/use-auth-handlers'
 import { useRegistryDocuments } from '@/hooks/use-registry-documents'
 import { useRegistryNamespaces } from '@/hooks/use-registry-namespaces'
 
-const { getAppState, getCommandPaletteState, fileLoader } =
-  defineProps<AppProps>()
+const { getCommandPaletteState, fileLoader } = defineProps<AppProps>()
 
-const app = getAppState()
 const { isLoggedIn } = useAuth()
 const { handleLogin, handleRegister } = useAuthHandlers()
 const {
