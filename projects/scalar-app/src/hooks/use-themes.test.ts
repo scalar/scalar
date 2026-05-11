@@ -22,8 +22,8 @@ vi.mock('@/hooks/use-auth', () => ({
 }))
 
 const mockCurrentUser = ref<{ theme?: string } | undefined>(undefined)
-vi.mock('@/hooks/use-users', () => ({
-  useUsers: () => ({ currentUser: mockCurrentUser }),
+vi.mock('@/hooks/use-user', () => ({
+  useUser: () => ({ currentUser: mockCurrentUser }),
 }))
 
 const mockCurrentTeam = ref<{ theme?: string } | undefined>(undefined)
