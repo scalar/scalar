@@ -115,7 +115,19 @@ export const shellCurl: Plugin = {
             const escapedFileName = escapeSingleQuotes(`${param.fileName}${multipartValueSuffix}`)
             parts.push(`--form '${escapedName}=@${escapedFileName}'`)
           } else {
-            const escapedValue = escapeSingleQuotes(`${param.value ?? ''}${multipartValueSuffix}`)
+            const rawValue = param.value ?? ''
+            // Pretty-print parts whose contentType is JSON so the snippet stays readable,
+            // mirroring what we already do for `--data` JSON bodies above.
+            const isJsonPart = !!param.contentType && /^application\/json\b/i.test(param.contentType)
+            let displayValue = rawValue
+            if (isJsonPart && rawValue) {
+              try {
+                displayValue = JSON.stringify(JSON.parse(rawValue), null, 2)
+              } catch {
+                // Fall back to the raw value if it is not valid JSON.
+              }
+            }
+            const escapedValue = escapeSingleQuotes(`${displayValue}${multipartValueSuffix}`)
             parts.push(`--form '${escapedName}=${escapedValue}'`)
           }
         })
