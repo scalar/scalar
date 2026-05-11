@@ -10,6 +10,7 @@ export const ERRORS = {
   BUILDING_REQUEST_FAILED: 'An error occurred while building the request',
   DEFAULT: 'An unknown error has occurred.',
   INVALID_URL: 'The URL seems to be invalid. Try adding a valid URL.',
+  INVALID_URL_PROTOCOL: 'The URL must start with http:// or https://.',
   INVALID_HEADER: 'There is an invalid header present, please double check your params.',
   MISSING_FILE: 'File uploads are not saved in history, you must re-upload the file.',
   REQUEST_ABORTED: 'The request has been cancelled',
@@ -28,6 +29,14 @@ export const prettyErrorMessage = (message: string) => {
   // Invalid URL
   if (message === `Failed to construct 'URL': Invalid URL`) {
     return ERRORS.INVALID_URL
+  }
+
+  // Invalid URL protocol (thrown by undici in the Electron main process when
+  // a non-http(s) URL is sent — e.g. a relative path). The message may arrive
+  // wrapped by Electron's IPC layer (`Error invoking remote method ...`), so
+  // match on substring rather than equality.
+  if (message.includes('Invalid URL protocol')) {
+    return ERRORS.INVALID_URL_PROTOCOL
   }
 
   // Invalid Header
