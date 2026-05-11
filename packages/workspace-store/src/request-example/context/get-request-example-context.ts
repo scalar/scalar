@@ -17,6 +17,7 @@ import { getSelectedServer, getServers } from '@/request-example/context/servers
 import type { RequestExampleMeta, Result } from '@/request-example/types'
 import type { XScalarEnvironment } from '@/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
+import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { OperationObject } from '@/schemas/v3.1/strict/operation'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 import type { ServerObject } from '@/schemas/v3.1/strict/server'
@@ -78,6 +79,12 @@ export const getRequestExampleContext = (
     return {
       ok: false,
       error: `Document ${documentName} not found`,
+    }
+  }
+  if (!isOpenApiDocument(document)) {
+    return {
+      ok: false,
+      error: `Document ${documentName} is not an OpenAPI document`,
     }
   }
 

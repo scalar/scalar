@@ -25,6 +25,8 @@ export {
   getSelectedBodyContentType,
   getServerVariables,
   requestFactory,
+  resolveExecutableRequestUrl,
+  resolveRequestFactoryUrl,
   serializeContentValue,
   serializeDeepObjectStyle,
   serializeFormStyle,

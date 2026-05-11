@@ -25,6 +25,12 @@ type FakeDocument = Partial<WorkspaceDocument> & {
  * Creates the tiny slice of `AppState` the hook actually consumes. A full
  * `AppState` is heavy to construct and would pull in router/persistence
  * machinery that is unrelated to the grouping logic exercised here.
+ *
+ * Stamps `openapi: '3.1.0'` onto every fixture document so it passes the
+ * `isOpenApiDocument` discriminator. Real workspace documents always carry a
+ * spec discriminator (`openapi` for OpenAPI, `asyncapi` for AsyncAPI); the hook
+ * uses that to skip non-OpenAPI documents when reading OpenAPI-only extensions
+ * like `x-scalar-registry-meta` and `x-scalar-navigation`.
  */
 const createFakeApp = ({
   documents = {},
@@ -35,7 +41,10 @@ const createFakeApp = ({
   isTeamWorkspace?: boolean
   documentSlug?: string
 }) => {
-  const store = shallowRef({ workspace: { documents } })
+  const stamped = Object.fromEntries(
+    Object.entries(documents).map(([name, doc]) => [name, { openapi: '3.1.0', ...doc }]),
+  )
+  const store = shallowRef({ workspace: { documents: stamped } })
   const teamFlag = ref(isTeamWorkspace)
   const slug = ref<string | undefined>(documentSlug)
 

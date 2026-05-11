@@ -360,6 +360,106 @@ describe('traverseSchemas', () => {
     expect(result[0]?.title).toBe('ValidSchema')
   })
 
+  it('skips $ref wrapper schemas with x-internal sibling extension', () => {
+    // The wrapper has x-internal as a sibling to $ref. The resolved target does not.
+    // See: https://github.com/scalar/scalar/issues/9114
+    const content = coerceValue(OpenAPIDocumentSchema, {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      components: {
+        schemas: {
+          'Method.v1_users_search_output': {
+            'x-internal': true,
+            $ref: '#/components/schemas/Resource.User',
+            '$ref-value': {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+              },
+            },
+          },
+          'Resource.User': {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+            },
+          },
+        },
+      },
+    })
+
+    const result = traverseSchemas({
+      document: content,
+      tagsMap: mockTagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'model') {
+          if (props.name) {
+            return `model-${props.name}`
+          }
+          return 'model'
+        }
+
+        return 'unknown-id'
+      },
+    })
+
+    expect(result).toHaveLength(1)
+    expect(result[0]?.name).toBe('Resource.User')
+  })
+
+  it('skips $ref wrapper schemas with x-scalar-ignore sibling extension', () => {
+    const content = coerceValue(OpenAPIDocumentSchema, {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      components: {
+        schemas: {
+          'Method.v1_users_search_output': {
+            'x-scalar-ignore': true,
+            $ref: '#/components/schemas/Resource.User',
+            '$ref-value': {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+              },
+            },
+          },
+          'Resource.User': {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+            },
+          },
+        },
+      },
+    })
+
+    const result = traverseSchemas({
+      document: content,
+      tagsMap: mockTagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'model') {
+          if (props.name) {
+            return `model-${props.name}`
+          }
+          return 'model'
+        }
+
+        return 'unknown-id'
+      },
+    })
+
+    expect(result).toHaveLength(1)
+    expect(result[0]?.name).toBe('Resource.User')
+  })
+
   it('uses the title attribute of the schema', () => {
     const content = coerceValue(OpenAPIDocumentSchema, {
       openapi: '3.1.0',

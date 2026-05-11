@@ -1,5 +1,6 @@
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 
+import { isHidden } from '@/helpers/is-hidden'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getXKeysFromObject } from '@/navigation/helpers/get-x-keys'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
@@ -99,7 +100,7 @@ const getSortedTagEntries = ({
     const { tag, entries } = getTag({ tagsMap, name: key, documentId, generateId })
 
     // Skip if the tag is internal or scalar-ignore
-    if (tag['x-internal'] || tag['x-scalar-ignore']) {
+    if (isHidden(tag)) {
       return []
     }
 

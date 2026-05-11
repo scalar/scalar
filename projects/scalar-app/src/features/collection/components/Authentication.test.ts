@@ -3,8 +3,8 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
@@ -51,7 +51,7 @@ const baseDocument = {
       },
     },
   },
-} satisfies WorkspaceDocument
+} satisfies OpenApiDocument
 
 const baseEnvironment = {
   description: 'Default environment',
@@ -76,7 +76,7 @@ const defaultProps = {
 
 const mountWithProps = (
   custom: Partial<{
-    document: WorkspaceDocument | null
+    document: OpenApiDocument | null
     environment: typeof baseEnvironment
     collectionType: 'document' | 'operation'
     path: string
@@ -186,7 +186,7 @@ describe('document collection', () => {
         ...baseDocument,
         security: undefined,
         components: undefined,
-      } as WorkspaceDocument,
+      } as OpenApiDocument,
     })
 
     const authSelector = wrapper.findComponent(AuthSelector)

@@ -2,6 +2,7 @@ import { combineUrlAndPath } from '@scalar/helpers/url/merge-urls'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import type { WorkspaceDocument } from '@/schemas'
+import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { OperationObject } from '@/schemas/v3.1/strict/operation'
 
 /**
@@ -107,10 +108,9 @@ export const getSelectedServer = (
   configServers: ServerObject[] | null,
   servers: ServerObject[],
 ): ServerObject | null => {
+  const documentSelectedServer = isOpenApiDocument(document) ? document['x-scalar-selected-server'] : undefined
   const selectedServerUrl =
-    configServers != null
-      ? document?.['x-scalar-selected-server']
-      : (operation?.['x-scalar-selected-server'] ?? document?.['x-scalar-selected-server'])
+    configServers != null ? documentSelectedServer : (operation?.['x-scalar-selected-server'] ?? documentSelectedServer)
 
   if (selectedServerUrl == null) {
     return servers[0] ?? null

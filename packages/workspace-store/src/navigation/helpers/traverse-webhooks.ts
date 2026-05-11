@@ -2,7 +2,8 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 
-import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
+import { isHidden } from '@/helpers/is-hidden'
 import { isDeprecatedOperation } from '@/navigation/helpers/traverse-paths'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { ParentTag, TraversedWebhook } from '@/schemas/navigation'
@@ -103,13 +104,13 @@ export const traverseWebhooks = ({
 
     pathKeys.forEach((method) => {
       const _operation = pathItemObject?.[method]
-      const operation = getResolvedRef(_operation)
+      const operation = getResolvedRef(_operation, mergeSiblingReferences)
       if (!operation) {
         return
       }
 
       // Skip if the operation is internal or scalar-ignore
-      if (operation['x-internal'] || operation['x-scalar-ignore']) {
+      if (isHidden(operation)) {
         return
       }
 

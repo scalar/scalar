@@ -6,6 +6,16 @@ const defaultTransform = <Node>(node: RefNode<Node>) => {
 }
 
 /**
+ * Transform for getResolvedRef that merges sibling properties of a $ref wrapper
+ * onto the dereferenced value. Wrapper siblings take precedence over the resolved value,
+ * which matches OpenAPI 3.1 semantics where annotations alongside $ref override the target.
+ */
+export const mergeSiblingReferences = <Node>(node: RefNode<Node>): Node => {
+  const { '$ref-value': value, ...rest } = node
+  return { ...value, ...rest } as Node
+}
+
+/**
  * Resolves a node that may be a $ref object to its actual value.
  * If the node contains a $ref, applies the provided transform (default: returns '$ref-value').
  * Otherwise, returns the node as-is.

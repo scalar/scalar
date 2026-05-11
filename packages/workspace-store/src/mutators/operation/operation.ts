@@ -12,6 +12,7 @@ import { getOperationEntries } from '@/navigation'
 import { getNavigationOptions } from '@/navigation/get-navigation-options'
 import { updateOrderIds } from '@/navigation/helpers/update-order-ids'
 import type { WorkspaceDocument } from '@/schemas'
+import { isOpenApiDocument } from '@/schemas/type-guards'
 
 /**
  * Creates a new operation at a specific path and method in the document.
@@ -34,7 +35,7 @@ export const createOperation = (
   payload: OperationEvents['operation:create:operation'],
 ): string | undefined => {
   const document = workspaceStore?.workspace.documents[payload.documentName]
-  if (!document) {
+  if (!isOpenApiDocument(document)) {
     payload.callback?.(false)
     return undefined
   }
@@ -109,7 +110,7 @@ export const updateOperationMeta = (
   document: WorkspaceDocument | null,
   { meta, payload }: OperationEvents['operation:update:meta'],
 ) => {
-  if (!document || !store) {
+  if (!store || !isOpenApiDocument(document)) {
     return
   }
 
@@ -168,15 +169,20 @@ export const updateOperationPathMethod = (
   const finalMethod = methodChanged ? method : meta.method
   const finalPath = pathChanged ? path : meta.path
 
+  if (!store || !isOpenApiDocument(document)) {
+    console.error('Document or workspace not found', { document })
+    return
+  }
+
   // Check for conflicts at the target location
-  if (document?.paths?.[finalPath]?.[finalMethod as HttpMethod]) {
+  if (document.paths?.[finalPath]?.[finalMethod as HttpMethod]) {
     callback('conflict', blurTargetSelector)
     return
   }
 
-  const documentNavigation = document?.['x-scalar-navigation']
-  if (!documentNavigation || !store) {
-    console.error('Document or workspace not found', { document })
+  const documentNavigation = document['x-scalar-navigation']
+  if (!documentNavigation) {
+    console.error('Document navigation missing', { document })
     return
   }
 
@@ -268,7 +274,7 @@ export const deleteOperation = (
   { meta, documentName }: OperationEvents['operation:delete:operation'],
 ) => {
   const document = workspace?.workspace.documents[documentName]
-  if (!document) {
+  if (!isOpenApiDocument(document)) {
     return
   }
 
@@ -295,7 +301,7 @@ export const createOperationDraftExample = (
   { meta: { path, method }, documentName, exampleName }: OperationEvents['operation:create:draft-example'],
 ) => {
   const document = workspace?.workspace.documents[documentName]
-  if (!document) {
+  if (!isOpenApiDocument(document)) {
     console.error('Document not found', { documentName })
     return
   }
@@ -330,7 +336,7 @@ export const deleteOperationExample = (
 ) => {
   // Find the document in workspace based on documentName
   const document = workspace?.workspace.documents[documentName]
-  if (!document) {
+  if (!isOpenApiDocument(document)) {
     return
   }
 
@@ -393,7 +399,7 @@ export const renameOperationExample = (
   { meta: { path, method, exampleKey }, documentName, payload }: OperationEvents['operation:rename:example'],
 ) => {
   const document = workspace?.workspace.documents[documentName]
-  if (!document) {
+  if (!isOpenApiDocument(document)) {
     return
   }
 

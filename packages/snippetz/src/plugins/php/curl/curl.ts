@@ -40,6 +40,8 @@ export const phpCurl: Plugin = {
     // Method
     if (normalizedRequest.method === 'POST') {
       parts.push('curl_setopt($ch, CURLOPT_POST, true);')
+    } else if (normalizedRequest.method !== 'GET') {
+      parts.push(`curl_setopt($ch, CURLOPT_CUSTOMREQUEST, '${normalizedRequest.method}');`)
     }
 
     // Basic Auth

@@ -9,7 +9,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 
-import { allFilesMatch } from '../test/helpers'
+import { allFilesMatch, getOpenApiServerDocument } from '../test/helpers'
 import {
   createServerWorkspaceStore,
   escapePaths,
@@ -286,7 +286,7 @@ describe('create-server-store', () => {
         ],
       })
 
-      const document = store.getWorkspace().documents['doc-1']
+      const document = getOpenApiServerDocument(store, 'doc-1')
       expect(document?.['x-scalar-order']).toEqual(['doc-1/description/introduction', 'doc-1/workspace-operation'])
       expect(document?.['x-scalar-navigation']?.children?.[1]?.id).toBe('doc-1/workspace-operation')
     })
@@ -311,7 +311,7 @@ describe('create-server-store', () => {
         },
       )
 
-      const document = store.getWorkspace().documents['doc-2']
+      const document = getOpenApiServerDocument(store, 'doc-2')
       expect(document?.['x-scalar-order']).toEqual(['doc-2/description/introduction', 'doc-2/add-document-operation'])
       expect(document?.['x-scalar-navigation']?.children?.[1]?.id).toBe('doc-2/add-document-operation')
     })

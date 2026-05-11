@@ -47,6 +47,7 @@ import { ScalarButton } from '@scalar/components'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { computed, ref, type ComputedRef } from 'vue'
 
 import { useCommandPaletteDocumentSelection } from '../hooks/use-command-palette-document-selection'
@@ -133,7 +134,10 @@ const errorMessage: ComputedRef<string | null> = computed(() => {
     return null
   }
 
-  if (document.tags?.some((existing) => existing.name === nameTrimmed.value)) {
+  if (
+    isOpenApiDocument(document) &&
+    document.tags?.some((existing) => existing.name === nameTrimmed.value)
+  ) {
     const documentLabel =
       availableDocuments.value.find(
         (doc) =>
@@ -156,7 +160,11 @@ const errorMessage: ComputedRef<string | null> = computed(() => {
 const isDisabled = computed<boolean>(() => {
   const document =
     workspaceStore.workspace.documents[selectedDocumentName.value ?? '']
-  if (!nameTrimmed.value || !selectedDocumentName.value || !document) {
+  if (
+    !nameTrimmed.value ||
+    !selectedDocumentName.value ||
+    !isOpenApiDocument(document)
+  ) {
     return true
   }
 

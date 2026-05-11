@@ -38,6 +38,7 @@ import type {
   TraversedExample,
   TraversedOperation,
 } from '@scalar/workspace-store/schemas/navigation'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { computed, ref, watch, type ComputedRef } from 'vue'
 
 import { useCommandPaletteDocumentSelection } from '../hooks/use-command-palette-document-selection'
@@ -136,7 +137,7 @@ const availableOperations = computed(() => {
 
   const document =
     workspaceStore.workspace.documents[selectedDocumentName.value]
-  if (!document || !document['x-scalar-navigation']) {
+  if (!isOpenApiDocument(document) || !document['x-scalar-navigation']) {
     return []
   }
 

@@ -781,4 +781,175 @@ describe('search quality', () => {
     expect(result[0]?.item?.type).toEqual('operation')
     expect(result[0]?.item?.title).toEqual('Upload file')
   })
+
+  it('ranks an operation that defines a parameter above one that mentions it in prose', () => {
+    const query = 'limit'
+
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/users': {
+          get: {
+            summary: 'List users',
+            operationId: 'listUsers',
+            parameters: [
+              {
+                in: 'query',
+                name: 'limit',
+                description: 'Maximum number of results',
+                schema: { type: 'integer' },
+              },
+            ],
+          },
+        },
+        '/rate-info': {
+          get: {
+            summary: 'Rate info',
+            description: 'Returns the current API rate limit window for the caller.',
+            operationId: 'getRateInfo',
+          },
+        },
+      },
+    }
+
+    const result = search(query, document)
+
+    expect(result[0]?.item?.title).toEqual('List users')
+  })
+
+  it('ranks an operation that defines a body field above one that mentions it in prose', () => {
+    const query = 'email'
+
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/users': {
+          post: {
+            summary: 'Create user',
+            operationId: 'createUser',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    required: ['email'],
+                    properties: {
+                      email: { type: 'string' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/notifications': {
+          get: {
+            summary: 'List notifications',
+            description: 'Returns notifications including any pending email delivery confirmations.',
+            operationId: 'listNotifications',
+          },
+        },
+      },
+    }
+
+    const result = search(query, document)
+
+    expect(result[0]?.item?.title).toEqual('Create user')
+  })
+
+  it('does not match parameter filter metadata like "query" or "REQUIRED"', () => {
+    // These filter-style tokens used to be packed into the indexed parameter string and
+    // produced false-positive matches. They should no longer be searchable.
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/users': {
+          get: {
+            summary: 'List users',
+            operationId: 'listUsers',
+            parameters: [
+              {
+                in: 'query',
+                name: 'limit',
+                required: true,
+                schema: { type: 'integer' },
+              },
+            ],
+          },
+        },
+      },
+    }
+
+    expect(search('REQUIRED', document)).toHaveLength(0)
+    expect(search('integer', document)).toHaveLength(0)
+  })
+
+  it('finds a model entry by one of its property names', () => {
+    // Mirrors the Galaxy spec's `Satellite` model — a standalone component schema with a
+    // top-level `diameter` property. Searching `diameter` should surface the model.
+    const document = {
+      components: {
+        schemas: {
+          Satellite: {
+            type: 'object',
+            description: 'Every satellite in the Scalar Galaxy',
+            properties: {
+              id: { type: 'integer' },
+              name: { type: 'string' },
+              diameter: { type: 'number', description: 'Diameter in kilometers' },
+            },
+          },
+        },
+      },
+    } as unknown as Partial<OpenApiDocument>
+
+    const result = search('diameter', document)
+
+    expect(result[0]?.item?.type).toEqual('model')
+    expect(result[0]?.item?.title).toEqual('Satellite')
+  })
+
+  it('finds operations whose body schema is a oneOf of $ref-ed object schemas', () => {
+    // Mirrors the Galaxy spec's "Create a celestial body" endpoint: the request body schema is a
+    // top-level `oneOf` of two `$ref`-ed object schemas. A property defined inside one branch
+    // (e.g. `failureCallbackUrl` on `Planet`) should still surface the operation in search.
+    const planet = {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        failureCallbackUrl: { type: 'string' },
+      },
+    }
+    const satellite = {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        orbitalPeriod: { type: 'number' },
+      },
+    }
+
+    const document = {
+      paths: {
+        '/celestial-bodies': {
+          post: {
+            summary: 'Create a celestial body',
+            operationId: 'createCelestialBody',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    oneOf: [
+                      { $ref: '#/components/schemas/Planet', '$ref-value': planet },
+                      { $ref: '#/components/schemas/Satellite', '$ref-value': satellite },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    } as unknown as Partial<OpenApiDocument>
+
+    const result = search('failureCallbackUrl', document)
+
+    expect(result[0]?.item?.title).toEqual('Create a celestial body')
+  })
 })
