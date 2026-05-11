@@ -5,7 +5,7 @@ import { computed, watch } from 'vue'
 import { queryClient } from '@/helpers/query-client'
 import { DEFAULT_REFETCH_INTERVAL, scalarClient } from '@/helpers/scalar-client'
 import { useAuth } from '@/hooks/use-auth'
-import { useUsers } from '@/hooks/use-users'
+import { useUser } from '@/hooks/use-user'
 
 /**
  * Fetches and caches the teams list, then derives the active team from the
@@ -21,7 +21,7 @@ export const useTeams = (options?: Omit<UseQueryOptions, 'queryKey' | 'queryFn'>
   const queryKey = ['teams'] satisfies QueryKey
 
   const { toast } = useToasts()
-  const { currentUser } = useUsers()
+  const { currentUser } = useUser()
 
   const query = useQuery(
     {

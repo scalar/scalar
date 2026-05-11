@@ -10,7 +10,7 @@ import { DEFAULT_REFETCH_INTERVAL, scalarClient } from '@/helpers/scalar-client'
 import { getActiveThemeStyles } from '@/helpers/theme/get-active-theme-styles'
 import { useAuth } from '@/hooks/use-auth'
 import { useTeams } from '@/hooks/use-teams'
-import { useUsers } from '@/hooks/use-users'
+import { useUser } from '@/hooks/use-user'
 
 /**
  * Fetches custom themes from the API and resolves the active theme CSS for the
@@ -49,7 +49,7 @@ export const useThemes = ({
   const queryKey = ['themes'] satisfies QueryKey
 
   const { toast } = useToasts()
-  const { currentUser } = useUsers()
+  const { currentUser } = useUser()
   const { currentTeam } = useTeams()
 
   // ---------------------------------------------------------------------------
