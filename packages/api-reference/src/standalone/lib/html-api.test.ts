@@ -170,7 +170,7 @@ describe('createApiReference', () => {
     const element = document.querySelector('#mount-point')
     const config = { _integration: 'html' }
 
-    const apiReference = createApiReference(element!, apiReferenceConfigurationSchema.parse(config))
+    const apiReference = createApiReference(element!, coerce(apiReferenceConfigurationSchema, config))
 
     consoleWarnSpy.mockClear()
     apiReference.destroy()
