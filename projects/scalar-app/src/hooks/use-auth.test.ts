@@ -433,7 +433,7 @@ describe('refreshTokens single-flight dedupe', () => {
     expect(fetchSpy).toHaveBeenCalledTimes(2)
 
     // Verify the second call included the teamUid in the body
-    const secondCallBody = JSON.parse(fetchSpy.mock.calls[1][1].body)
+    const secondCallBody = JSON.parse((fetchSpy.mock.calls[1]![1] as RequestInit).body as string)
     expect(secondCallBody).toHaveProperty('teamUid', 'team-switch-123')
 
     const response = {
