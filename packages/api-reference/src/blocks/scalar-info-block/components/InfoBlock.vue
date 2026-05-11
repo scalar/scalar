@@ -19,11 +19,12 @@ const {
   eventBus,
   documentDownloadType = 'both',
   documentUrl,
+  documentType,
 } = defineProps<{
   /** Optional unique identifier for the info block. */
   id?: string
-  /** Original openapi version of the input document */
-  oasVersion?: string
+  /** Original specification version of the input document (OpenAPI or AsyncAPI). */
+  specificationVersion?: string
   /** The Info object from the OpenAPI document. */
   info: InfoObject | undefined
   /** The external documentation object from the OpenAPI document, if present. */
@@ -42,6 +43,8 @@ const {
   documentDownloadType?: ApiReferenceConfiguration['documentDownloadType']
   /** URL of the OpenAPI document. Used when documentDownloadType is 'direct'. */
   documentUrl?: string
+  /** The kind of document being rendered. Drives download button labels. */
+  documentType?: 'openapi' | 'asyncapi'
 }>()
 
 /**
@@ -58,12 +61,13 @@ const introCardsSlot = computed(() =>
   <IntroductionLayout
     :id
     :documentExtensions
+    :documentType
     :eventBus="eventBus"
     :externalDocs
     :headingSlugGenerator
     :info
     :infoExtensions
-    :oasVersion>
+    :specificationVersion>
     <template #[introCardsSlot]>
       <IntroductionCard :row="layout === 'classic'">
         <slot name="selectors" />

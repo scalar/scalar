@@ -8,7 +8,7 @@ import IntroductionLayout from './IntroductionLayout.vue'
 const mockProps = {
   id: '',
   headingSlugGenerator: (heading: Heading) => `document/${heading.slug}`,
-  oasVersion: undefined,
+  specificationVersion: undefined,
   getOriginalDocument: () => '{}',
   eventBus: null,
 }

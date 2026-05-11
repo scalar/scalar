@@ -20,11 +20,12 @@ import { SpecificationExtension } from '@/features/specification-extension'
 import InfoDescription from './InfoDescription.vue'
 import InfoLinks from './InfoLinks.vue'
 import InfoVersion from './InfoVersion.vue'
-import OpenApiVersion from './OpenApiVersion.vue'
+import SpecificationVersion from './SpecificationVersion.vue'
 
 defineProps<{
   id: string | undefined
-  oasVersion: string | undefined
+  documentType?: 'openapi' | 'asyncapi'
+  specificationVersion: string | undefined
   info: InfoObject | undefined
   externalDocs?: ExternalDocumentationObject
   documentExtensions?: Record<string, unknown>
@@ -49,7 +50,9 @@ defineProps<{
           <InfoVersion
             v-if="info"
             :version="info?.version" />
-          <OpenApiVersion :oasVersion="oasVersion" />
+          <SpecificationVersion
+            :documentType
+            :version="specificationVersion" />
         </div>
         <SectionHeader
           :loading="!info?.title"

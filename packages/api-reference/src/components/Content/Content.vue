@@ -13,7 +13,10 @@ import {
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { TraversedEntry as TraversedEntryType } from '@scalar/workspace-store/schemas/navigation'
-import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
+import {
+  isAsyncApiDocument,
+  isOpenApiDocument,
+} from '@scalar/workspace-store/schemas/type-guards'
 import type {
   Workspace,
   WorkspaceDocument,
@@ -90,6 +93,17 @@ const openApiClientDocument = computed(() =>
   isOpenApiDocument(clientDocument) ? clientDocument : undefined,
 )
 
+const documentType = computed<'openapi' | 'asyncapi'>(() =>
+  isAsyncApiDocument(document) ? 'asyncapi' : 'openapi',
+)
+
+const specificationVersion = computed(() => {
+  if (isAsyncApiDocument(document)) {
+    return document['x-original-aas-version'] ?? document.asyncapi
+  }
+  return openApiDocument.value?.['x-original-oas-version']
+})
+
 /** Computed property to get all OpenAPI extension fields from the root document object */
 const documentExtensions = computed(() => getXKeysFromObject(document))
 
@@ -141,6 +155,7 @@ onMounted(() => {
       :id="infoSectionId"
       :documentDownloadType="options.documentDownloadType"
       :documentExtensions
+      :documentType
       :documentUrl="document?.['x-scalar-original-source-url']"
       :eventBus
       :externalDocs="openApiDocument?.externalDocs"
@@ -148,7 +163,7 @@ onMounted(() => {
       :info="document?.info"
       :infoExtensions
       :layout="options.layout"
-      :oasVersion="openApiDocument?.['x-original-oas-version']">
+      :specificationVersion>
       <template #selectors>
         <!-- Server Selector -->
         <ScalarErrorBoundary>
