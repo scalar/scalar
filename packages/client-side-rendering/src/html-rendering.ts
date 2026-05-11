@@ -1,5 +1,7 @@
 import type { AnyApiReferenceConfiguration, HtmlRenderingConfiguration } from '@scalar/types/api-reference'
 
+import { escapeForInlineScript, serializeConfigToScript } from './serialize-config'
+
 export type { AnyApiReferenceConfiguration, HtmlRenderingConfiguration }
 
 const DEFAULT_CDN = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
@@ -103,50 +105,15 @@ export function renderApiReference(
 }
 
 /**
- * Helper function to serialize arrays that may contain functions
- */
-const serializeArrayWithFunctions = (arr: unknown[]): string => {
-  return `[${arr.map((item) => (typeof item === 'function' ? item.toString() : JSON.stringify(item))).join(', ')}]`
-}
-
-/**
  * The script tags to load the @scalar/api-reference package from the CDN.
  */
 export function getScriptTags(configuration: Record<string, unknown>, cdn?: string): string {
-  const restConfig = { ...configuration }
-
-  const functionProps: string[] = []
-
-  for (const [key, value] of Object.entries(configuration)) {
-    if (typeof value === 'function') {
-      functionProps.push(`"${key}": ${value.toString()}`)
-      delete restConfig[key]
-    } else if (Array.isArray(value) && value.some((item) => typeof item === 'function')) {
-      functionProps.push(`"${key}": ${serializeArrayWithFunctions(value)}`)
-      delete restConfig[key]
-    }
-  }
-
-  const jsonString = JSON.stringify(restConfig, null, 2)
-  const indentedJsonString = jsonString
-    .split('\n')
-    .map((line, index) => (index === 0 ? line : `      ${line}`))
-    .join('\n')
-
-  let configString = indentedJsonString
-
-  if (functionProps.length > 0) {
-    if (jsonString === '{}') {
-      configString = `{\n        ${functionProps.join(',\n        ')}\n      }`
-    } else {
-      const jsonWithoutClosingBrace = indentedJsonString.split('\n').slice(0, -1).join('\n')
-      configString = `${jsonWithoutClosingBrace},\n        ${functionProps.join(',\n        ')}\n      }`
-    }
-  }
+  const configString = serializeConfigToScript(configuration)
+  const cdnUrl = escapeForInlineScript(cdn ?? DEFAULT_CDN)
 
   return `
     <!-- Load the Script -->
-    <script src="${cdn ?? DEFAULT_CDN}"></script>
+    <script src="${cdnUrl}"></script>
 
     <!-- Initialize the Scalar API Reference -->
     <script type="text/javascript">
