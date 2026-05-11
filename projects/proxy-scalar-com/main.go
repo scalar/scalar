@@ -151,15 +151,15 @@ var forbiddenHeadersForProxy = []forbiddenHeaderRewrite{
 var scalarURLValidationErrors = []proxyValidationError{
 	{
 		statusCode: http.StatusBadRequest,
-		message:    "The `scalar_url` query parameter is required. Try to add `?scalar_url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets` to the URL.",
+		message:    "Bad Request: The `scalar_url` query parameter is required. Try to add `?scalar_url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets` to the URL.",
 	},
 	{
 		statusCode: http.StatusBadRequest,
-		message:    "The `scalar_url` query parameter must be an absolute URL. Relative URLs like `/foobar` are not supported.",
+		message:    "Bad Request: The `scalar_url` query parameter must be an absolute URL. Relative URLs like `/foobar` are not supported.",
 	},
 	{
 		statusCode: http.StatusForbidden,
-		message:    "Forbidden: access to private addresses is not allowed",
+		message:    "Forbidden: Access to private addresses is not allowed. Please use a public domain name.",
 	},
 }
 
