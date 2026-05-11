@@ -19,33 +19,6 @@
         "ordered": false
       },
       {
-        "type": "paragraph",
-        "text": "Below is sample rich media so you can verify image and video blocks in the modal. Remove or replace this content before shipping if you do not want it in the real release."
-      },
-      {
-        "type": "heading",
-        "text": "Sample image"
-      },
-      {
-        "type": "image",
-        "src": "https://placehold.co/720x360/1e293b/94a3b8/png?text=What%27s%20new%20preview",
-        "alt": "Placeholder rectangle with the text What's new preview",
-        "caption": "Placeholder image (replace with a real screenshot when ready).",
-        "width": 720,
-        "height": 360
-      },
-      {
-        "type": "heading",
-        "text": "Sample video"
-      },
-      {
-        "type": "video",
-        "src": "https://www.w3schools.com/html/mov_bbb.mp4",
-        "caption": "Short sample clip for layout testing (external demo file).",
-        "controls": true,
-        "muted": true
-      },
-      {
         "type": "href",
         "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#109",
         "label": "Read full release notes"
