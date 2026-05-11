@@ -1,5 +1,6 @@
 import { createMockEventBus, mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import type { OperationEvents } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -677,8 +678,8 @@ describe('CommandPaletteRequest', () => {
     await nextTick()
 
     const emitCall = vi.mocked(mockEventBus.emit).mock.calls.find((call) => call[0] === 'operation:create:operation')
-    const callback = (emitCall?.[1] as any)?.callback
-    callback?.(true)
+    const payload = emitCall?.[1] as OperationEvents['operation:create:operation'] | undefined
+    payload?.callback?.(true)
 
     expect(workspaceStore.buildSidebar).toHaveBeenCalledWith('doc1')
   })
@@ -704,8 +705,8 @@ describe('CommandPaletteRequest', () => {
     await nextTick()
 
     const emitCall = vi.mocked(mockEventBus.emit).mock.calls.find((call) => call[0] === 'operation:create:operation')
-    const callback = (emitCall?.[1] as any)?.callback
-    callback?.(true)
+    const payload = emitCall?.[1] as OperationEvents['operation:create:operation'] | undefined
+    payload?.callback?.(true)
 
     expect(mockEventBus.emit).toHaveBeenCalledWith('ui:navigate', {
       page: 'example',
@@ -739,8 +740,8 @@ describe('CommandPaletteRequest', () => {
     await nextTick()
 
     const emitCall = vi.mocked(mockEventBus.emit).mock.calls.find((call) => call[0] === 'operation:create:operation')
-    const callback = (emitCall?.[1] as any)?.callback
-    callback?.(false)
+    const payload = emitCall?.[1] as OperationEvents['operation:create:operation'] | undefined
+    payload?.callback?.(false)
 
     expect(workspaceStore.buildSidebar).not.toHaveBeenCalled()
     expect(mockEventBus.emit).not.toHaveBeenCalledWith('ui:navigate', expect.anything())
@@ -812,8 +813,8 @@ describe('CommandPaletteRequest', () => {
     await nextTick()
 
     const emitCall = vi.mocked(mockEventBus.emit).mock.calls.find((call) => call[0] === 'operation:create:operation')
-    const callback = emitCall?.[1]?.callback
-    callback?.(true)
+    const payload = emitCall?.[1] as OperationEvents['operation:create:operation'] | undefined
+    payload?.callback?.(true)
 
     expect(eventBus.emit).toHaveBeenCalledWith(
       'ui:navigate',

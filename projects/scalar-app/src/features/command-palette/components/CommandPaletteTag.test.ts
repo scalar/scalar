@@ -707,7 +707,9 @@ describe('CommandPaletteTag', () => {
     await nextTick()
 
     const emitCall = vi.mocked(mockEventBus.emit).mock.calls.find((call) => call[0] === 'tag:create:tag')
-    const callback = emitCall?.[1]?.callback
+    const callback = (emitCall?.[1] as Record<string, unknown> | undefined)?.callback as
+      | ((success: boolean) => void)
+      | undefined
     callback?.(false)
 
     expect(workspaceStore.buildSidebar).not.toHaveBeenCalled()
