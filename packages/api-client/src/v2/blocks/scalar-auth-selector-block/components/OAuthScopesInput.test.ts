@@ -248,4 +248,16 @@ describe('OAuthScopesInput', () => {
     expect(rows.length).toBe(0)
     expect(wrapper.emitted('update:selectedScopes')).toBeUndefined()
   })
+
+  it('opens the add-scope modal when Add Scope is clicked while the flow defines no scopes', async () => {
+    const wrapper = mountComponent({ flow: { scopes: {} } })
+
+    const addBtn = wrapper.findAll('button').find((b) => b.text() === 'Add Scope')
+    expect(addBtn, 'Add Scope button should exist').toBeTruthy()
+    await addBtn!.trigger('click')
+    await nextTick()
+
+    const modal = wrapper.findComponent({ name: 'OAuthScopesAddModal' })
+    expect(modal.props('state').open).toBe(true)
+  })
 })

@@ -156,23 +156,29 @@ const handleDeleteScope = (scopeKey: string) => {
         :key="hasScopes ? 'with-scopes' : 'empty'"
         as="div"
         class="bl flex w-full flex-col">
-        <DisclosureButton
-          v-slot="{ open }"
-          :class="[
-            'group/scopes-accordion flex h-auto min-h-8 items-center gap-1.5 pr-2.25 pl-3 text-left',
-            hasScopes ? 'hover:text-c-1 cursor-pointer' : 'cursor-default',
-            (selectedScopes.length || 0) > 0 ? 'text-c-1' : 'text-c-3',
-          ]"
-          :disabled="!hasScopes">
-          <div class="flex-1">
+        <!--
+          Keep Add Scope (and other actions) outside the summary DisclosureButton.
+          When there are no scopes the summary control is disabled; a native disabled
+          button blocks pointer events for all descendants, which would make Add Scope unusable.
+        -->
+        <div
+          class="group/scopes-accordion flex h-auto min-h-8 items-center gap-1.5 pr-2.25 pl-3 text-left">
+          <DisclosureButton
+            :class="[
+              'min-w-0 flex-1 text-left',
+              hasScopes ? 'hover:text-c-1 cursor-pointer' : 'cursor-default',
+              (selectedScopes.length || 0) > 0 ? 'text-c-1' : 'text-c-3',
+            ]"
+            :disabled="!hasScopes">
             <template v-if="hasScopes">
               Scopes Selected
               {{ selectedScopes.length || 0 }} /
               {{ Object.keys(flow?.scopes ?? {}).length || 0 }}
             </template>
             <template v-else> No Scopes Defined </template>
-          </div>
-          <div class="flex items-center gap-1.75">
+          </DisclosureButton>
+
+          <div class="flex shrink-0 items-center gap-1.75">
             <!-- Add new scope -->
             <ScalarButton
               class="pr-0.75 pl-1 transition-none"
@@ -202,13 +208,17 @@ const handleDeleteScope = (scopeKey: string) => {
               Select All
             </ScalarButton>
 
-            <ScalarIcon
+            <DisclosureButton
               v-if="hasScopes"
-              class="text-c-3 group-hover/scopes-accordion:text-c-2"
-              :icon="open ? 'ChevronDown' : 'ChevronRight'"
-              size="md" />
+              v-slot="{ open }"
+              class="text-c-3 hover:text-c-2 -m-0.5 flex shrink-0 items-center justify-center rounded p-0.5 focus-visible:outline-offset-2">
+              <ScalarIcon
+                class="group-hover/scopes-accordion:text-c-2"
+                :icon="open ? 'ChevronDown' : 'ChevronRight'"
+                size="md" />
+            </DisclosureButton>
           </div>
-        </DisclosureButton>
+        </div>
         <!-- Scopes List -->
         <DisclosurePanel as="template">
           <div>

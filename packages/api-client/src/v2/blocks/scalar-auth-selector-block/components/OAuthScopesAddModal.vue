@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarModal, type ModalState } from '@scalar/components'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 
 import {
   CommandActionForm,
@@ -111,8 +111,13 @@ watch(
     scopeData.value = scope
       ? { name: scope.name, description: scope.description }
       : { name: '', description: '' }
-    // Reset the dirty flag so re-opening the modal does not flash a stale error
-    hasTouchedName.value = false
+    // Clearing `name` schedules the `scopeData.name` watcher, which sets
+    // `hasTouchedName` back to true in the same flush. Defer the reset so it
+    // runs after that watcher and reopening add mode does not show a false
+    // "Scope name is required" error.
+    void nextTick(() => {
+      hasTouchedName.value = false
+    })
   },
 )
 </script>

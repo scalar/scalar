@@ -69,6 +69,27 @@ describe('OAuthScopesAddModal', () => {
     expect(state.open).toBe(false)
   })
 
+  it('does not show the required-name error when reopening add mode after a previous submit', async () => {
+    const wrapper = mountWithProps({ scopes: [] })
+    let state = await openModal(wrapper)
+
+    const inputs = wrapper.findAllComponents({ name: 'CommandActionInput' })
+    await inputs[0]!.vm.$emit('update:modelValue', 'read:user')
+    await nextTick()
+
+    const form = wrapper.findComponent({ name: 'CommandActionForm' })
+    await form.vm.$emit('submit')
+    await nextTick()
+
+    expect(state.open).toBe(false)
+
+    state = await openModal(wrapper)
+    await nextTick()
+
+    expect(queryAlert()).toBeNull()
+    expect(state.open).toBe(true)
+  })
+
   it('trims whitespace from the submitted name', async () => {
     const wrapper = mountWithProps({ scopes: [] })
     await openModal(wrapper)
