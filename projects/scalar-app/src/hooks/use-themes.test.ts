@@ -3,6 +3,8 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, nextTick, ref } from 'vue'
 
+import { getActiveThemeStyles } from '@/helpers/theme/get-active-theme-styles'
+
 import { useThemes } from './use-themes'
 
 // ---------------------------------------------------------------------------
@@ -48,11 +50,6 @@ vi.mock('@tanstack/vue-query', () => ({
 vi.mock('@/helpers/query-client', () => ({
   queryClient: { fetchQuery: vi.fn() },
 }))
-
-vi.mock('@/helpers/theme-styles', async () => {
-  const actual = await vi.importActual<typeof import('@/helpers/theme-styles')>('../helpers/theme-styles')
-  return actual
-})
 
 vi.mock('@/helpers/scalar-client', () => ({
   DEFAULT_REFETCH_INTERVAL: 60_000,
@@ -151,95 +148,79 @@ describe('useThemes', () => {
   })
 
   // -------------------------------------------------------------------------
-  // CSS resolution — themeStyles & themeStyleTag
-  // (ported from the old use-theme.test.ts and expanded)
+  // themeStyles — verifies the hook delegates to getActiveThemeStyles and
+  // wraps the result in a <style> tag. Pure resolution logic (fallback
+  // chains, custom vs built-in, etc.) is covered by
+  // get-active-theme-styles.test.ts.
   // -------------------------------------------------------------------------
   describe('themeStyles', () => {
-    it('returns the default theme when store is null', () => {
-      const { themeStyleTag } = useThemes({ store: null })
+    it('delegates to getActiveThemeStyles with the correct arguments', () => {
+      mockCurrentUser.value = { theme: 'purple' }
+      mockQueryData.value = [customTheme]
 
-      expect(themeStyleTag.value).toContain('<style id="scalar-theme" data-testid="default">')
-      expect(themeStyleTag.value).toContain('</style>')
+      const { themeStyles } = useThemes({ store: mockStore('my-custom-theme') })
+
+      const expected = getActiveThemeStyles('my-custom-theme', 'purple', [customTheme])
+      expect(themeStyles.value).toEqual(expected)
     })
 
-    it('uses the workspace theme when available', () => {
+    it('passes undefined as workspace slug when store is null', () => {
+      const { themeStyles } = useThemes({ store: null })
+
+      const expected = getActiveThemeStyles(undefined, 'default', [])
+      expect(themeStyles.value).toEqual(expected)
+    })
+
+    it('passes an empty custom themes array while the query is loading', () => {
+      const { themeStyles } = useThemes({ store: mockStore('default') })
+
+      const expected = getActiveThemeStyles('default', 'default', [])
+      expect(themeStyles.value).toEqual(expected)
+    })
+  })
+
+  // -------------------------------------------------------------------------
+  // themeStyleTag — verifies the <style> tag wrapper format
+  // -------------------------------------------------------------------------
+  describe('themeStyleTag', () => {
+    it('wraps resolved styles in a <style> tag with the correct id and data-testid', () => {
       const { themeStyleTag } = useThemes({ store: mockStore('purple') })
 
       expect(themeStyleTag.value).toContain('<style id="scalar-theme" data-testid="purple">')
+      expect(themeStyleTag.value).toContain('</style>')
     })
 
-    it('uses the default theme when workspace theme is "none" and fallback does not exist', () => {
-      // fallbackThemeSlug will be 'dark' (via user pref) but 'dark' is not
-      // a built-in preset slug, so resolution falls through to 'default'.
-      mockCurrentUser.value = { theme: 'dark' }
-
-      const { themeStyleTag } = useThemes({ store: mockStore('none') })
-
-      expect(themeStyleTag.value).toContain('<style id="scalar-theme" data-testid="default">')
-    })
-
-    it('resolves a custom theme when the workspace references it', () => {
+    it('includes the resolved CSS content', () => {
       mockQueryData.value = [customTheme]
 
       const { themeStyleTag } = useThemes({ store: mockStore('my-custom-theme') })
 
-      expect(themeStyleTag.value).toContain('<style id="scalar-theme" data-testid="my-custom-theme">')
       expect(themeStyleTag.value).toContain('--custom-color: red')
-      expect(themeStyleTag.value).toContain('</style>')
     })
+  })
 
-    it('reactively updates when the store changes', async () => {
+  // -------------------------------------------------------------------------
+  // Reactivity — the core value-add of the hook over raw helpers
+  // -------------------------------------------------------------------------
+  describe('reactivity', () => {
+    it('updates when the store ref changes', async () => {
       const storeRef = ref<WorkspaceStore>(mockStore('default'))
 
       const { themeStyleTag } = useThemes({ store: storeRef })
-
-      const initialValue = themeStyleTag.value
+      expect(themeStyleTag.value).toContain('data-testid="default"')
 
       storeRef.value = mockStore('purple')
       await nextTick()
 
-      expect(themeStyleTag.value).not.toBe(initialValue)
       expect(themeStyleTag.value).toContain('data-testid="purple"')
     })
 
-    it('falls back to the default theme when the theme slug is not found', () => {
-      const { themeStyleTag } = useThemes({ store: mockStore('non-existent-theme') })
-
-      expect(themeStyleTag.value).toContain('<style id="scalar-theme" data-testid="default">')
-      expect(themeStyleTag.value).toContain('</style>')
-    })
-
-    it('falls back to the fallback theme slug when workspace theme is not found', () => {
-      // 'purple' is a real preset, so the fallback resolves successfully
-      mockCurrentUser.value = { theme: 'purple' }
-
-      const { themeStyleTag } = useThemes({ store: mockStore('non-existent-theme') })
-
-      expect(themeStyleTag.value).toContain('data-testid="purple"')
-    })
-
-    it('uses the fallback theme when workspace theme is "none"', () => {
-      mockCurrentUser.value = { theme: 'purple' }
-
-      const { themeStyleTag } = useThemes({ store: mockStore('none') })
-
-      expect(themeStyleTag.value).toContain('data-testid="purple"')
-    })
-
-    it('uses the fallback theme when workspace has no theme set', () => {
-      mockCurrentUser.value = { theme: 'purple' }
-
-      const { themeStyleTag } = useThemes({ store: mockStore(undefined) })
-
-      expect(themeStyleTag.value).toContain('data-testid="purple"')
-    })
-
-    it('reactively updates when custom themes arrive', async () => {
-      // Start with no custom themes — the unknown slug falls through to default
+    it('updates when custom themes arrive from the query', async () => {
       const { themeStyleTag } = useThemes({ store: mockStore('my-custom-theme') })
+
+      // Custom theme not loaded yet — falls through to default
       expect(themeStyleTag.value).toContain('data-testid="default"')
 
-      // Simulate the query resolving with custom themes
       mockQueryData.value = [customTheme]
       await nextTick()
 
@@ -247,13 +228,10 @@ describe('useThemes', () => {
       expect(themeStyleTag.value).toContain('--custom-color: red')
     })
 
-    it('reactively updates when fallback theme slug changes', async () => {
+    it('updates when the fallback theme slug changes', async () => {
       const { themeStyleTag } = useThemes({ store: mockStore('none') })
-
-      // Default fallback
       expect(themeStyleTag.value).toContain('data-testid="default"')
 
-      // Change user preference to a valid preset
       mockCurrentUser.value = { theme: 'purple' }
       await nextTick()
 
