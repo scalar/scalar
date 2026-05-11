@@ -214,7 +214,9 @@ const copyAddressBarUrl = async (): Promise<void> => {
     requestBodyCompositionSelection,
   })
 
-  await copyToClipboard(resolveExecutableRequestUrl(request, getEnvironmentVariables(environment)))
+  await copyToClipboard(
+    resolveExecutableRequestUrl(request, getEnvironmentVariables(environment)),
+  )
 }
 
 /** Execute the current operation example */
