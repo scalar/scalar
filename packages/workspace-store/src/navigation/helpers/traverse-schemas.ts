@@ -68,7 +68,6 @@ export const traverseSchemas = ({
   const schemas = document.components?.schemas ?? {}
   const untagged: TraversedSchema[] = []
 
-  // biome-ignore lint/suspicious/useGuardForIn: we do have an if statement after de-ref
   for (const name in schemas) {
     if (!Object.hasOwn(schemas, name)) {
       continue
