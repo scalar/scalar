@@ -673,6 +673,43 @@ describe('buildRequestBody', () => {
     ])
   })
 
+  it('emits the regrouped multipart object at the position of its first dotted row', () => {
+    const requestBody = {
+      content: {
+        'multipart/form-data': {
+          examples: {
+            default: {
+              value: [
+                { name: 'before', value: 'first' },
+                { name: 'props.name', value: 'Widget' },
+                { name: 'middle', value: 'second' },
+                { name: 'props.description', value: 'A useful widget' },
+                { name: 'after', value: 'third' },
+              ],
+            },
+          },
+        },
+      },
+    }
+
+    const result = buildRequestBody(requestBody, 'default')
+    expect(result?.mode).toBe('formdata')
+    assert(result?.mode === 'formdata')
+
+    // The regrouped `props` part stays where the user placed its first dotted row,
+    // so flat rows around it keep their relative order.
+    expect(result.value).toEqual([
+      { type: 'text', key: 'before', value: 'first' },
+      {
+        type: 'text',
+        key: 'props',
+        value: JSON.stringify({ name: 'Widget', description: 'A useful widget' }),
+      },
+      { type: 'text', key: 'middle', value: 'second' },
+      { type: 'text', key: 'after', value: 'third' },
+    ])
+  })
+
   it('keeps a flat multipart row whose name happens to contain dots (filename)', () => {
     const requestBody = {
       content: {

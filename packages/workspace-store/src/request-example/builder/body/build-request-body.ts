@@ -125,13 +125,24 @@ export const buildRequestBody = (
     type Entry = { name: string; value: unknown }
     let entries: Entry[]
     if (shouldRegroupDotted) {
-      const flatRows: Entry[] = []
-      const dottedRows: Entry[] = []
-      for (const row of exampleValue) {
-        ;(isDottedNestedRow(row.name, row.value) ? dottedRows : flatRows).push(row)
-      }
+      // Emit the regrouped top-level object at the position of its first dotted row so
+      // interleaved flat rows stay in the order the user arranged them.
+      const dottedRows = exampleValue.filter(({ name, value }) => isDottedNestedRow(name, value))
       const regrouped = foldDottedRowsToObject(dottedRows)
-      entries = [...flatRows, ...Object.entries(regrouped).map(([name, value]) => ({ name, value }))]
+      const emittedTopKeys = new Set<string>()
+      entries = []
+      for (const row of exampleValue) {
+        if (!isDottedNestedRow(row.name, row.value)) {
+          entries.push(row)
+          continue
+        }
+        const topKey = row.name.split('.')[0]
+        if (!topKey || emittedTopKeys.has(topKey)) {
+          continue
+        }
+        emittedTopKeys.add(topKey)
+        entries.push({ name: topKey, value: regrouped[topKey] })
+      }
     } else {
       entries = exampleValue
     }
