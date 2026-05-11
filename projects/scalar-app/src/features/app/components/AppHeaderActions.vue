@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components'
+import { ScalarHeaderButton } from '@scalar/components'
 import {
   ScalarIconArrowCounterClockwise,
   ScalarIconCloudArrowDown,
@@ -42,36 +42,32 @@ const emit = defineEmits<{
     something to revert.
   -->
   <template v-if="showLocalSaveActions">
-    <ScalarButton
+    <ScalarHeaderButton
       v-if="isActiveDocumentDirty"
-      aria-label="Revert changes"
-      class="text-c-2 hover:text-c-1 size-6 shrink-0 p-0"
+      aria-label="Discard changes"
+      class="shrink-0 gap-1.5"
       data-testid="app-header-revert-button"
-      size="xs"
-      type="button"
-      variant="ghost"
+      title="Discard"
       @click="emit('revert')">
       <ScalarIconArrowCounterClockwise
         class="size-3.5"
         size="sm"
         thickness="1.5" />
-    </ScalarButton>
-    <ScalarButton
+    </ScalarHeaderButton>
+    <ScalarHeaderButton
       aria-label="Save"
-      class="shrink-0 gap-1.5"
+      class="shrink-0 gap-1.5 disabled:opacity-50"
+      cta
       data-testid="app-header-save-button"
       :disabled="!isActiveDocumentDirty"
-      size="xs"
       title="Save"
-      type="button"
-      variant="solid"
       @click="emit('save')">
       <ScalarIconFloppyDisk
         class="size-3.5"
         size="sm"
         thickness="1.5" />
       <span class="max-md:hidden">Save</span>
-    </ScalarButton>
+    </ScalarHeaderButton>
   </template>
   <!--
     Team workspace cluster for registry-backed documents. The same Revert
@@ -81,29 +77,26 @@ const emit = defineEmits<{
     of them is actionable at a time.
   -->
   <template v-if="showTeamSyncActions">
-    <ScalarButton
+    <ScalarHeaderButton
       v-if="isActiveDocumentDirty"
-      aria-label="Revert changes"
-      class="text-c-2 hover:text-c-1 size-6 shrink-0 p-0"
+      aria-label="Discard changes"
+      class="shrink-0 gap-1.5"
       data-testid="app-header-revert-button"
-      size="xs"
-      type="button"
-      variant="ghost"
+      title="Discard"
       @click="emit('revert')">
       <ScalarIconArrowCounterClockwise
         class="size-3.5"
         size="sm"
         thickness="1.5" />
-    </ScalarButton>
-    <ScalarButton
+      <span class="max-md:hidden">Discard</span>
+    </ScalarHeaderButton>
+    <ScalarHeaderButton
       :aria-label="isOffline ? 'Pull (offline)' : 'Pull'"
-      class="shrink-0 gap-1.5"
+      class="shrink-0 gap-1.5 disabled:opacity-50"
+      cta
       data-testid="app-header-pull-button"
       :disabled="!canPullActiveDocument"
-      size="xs"
       :title="isOffline ? 'You are offline.' : 'Pull'"
-      type="button"
-      variant="solid"
       @click="emit('pull')">
       <ScalarIconCloudSlash
         v-if="isOffline"
@@ -116,16 +109,14 @@ const emit = defineEmits<{
         size="sm"
         thickness="1.5" />
       <span class="max-md:hidden">Pull</span>
-    </ScalarButton>
-    <ScalarButton
+    </ScalarHeaderButton>
+    <ScalarHeaderButton
       :aria-label="isOffline ? 'Push (offline)' : 'Push'"
-      class="shrink-0 gap-1.5"
+      class="shrink-0 gap-1.5 disabled:opacity-50"
+      cta
       data-testid="app-header-push-button"
       :disabled="!canPushActiveDocument"
-      size="xs"
       :title="isOffline ? 'You are offline.' : 'Push'"
-      type="button"
-      variant="solid"
       @click="emit('push')">
       <ScalarIconCloudSlash
         v-if="isOffline"
@@ -138,7 +129,7 @@ const emit = defineEmits<{
         size="sm"
         thickness="1.5" />
       <span class="max-md:hidden">Push</span>
-    </ScalarButton>
+    </ScalarHeaderButton>
   </template>
   <!--
     Team workspace cluster for documents that have not been published
@@ -146,16 +137,14 @@ const emit = defineEmits<{
     registry; once that succeeds the document gets a registry meta and
     switches over to the Pull / Push cluster above on the next render.
   -->
-  <ScalarButton
+  <ScalarHeaderButton
     v-if="showTeamPublishAction"
     :aria-label="isOffline ? 'Publish (offline)' : 'Publish'"
-    class="shrink-0 gap-1.5"
+    class="shrink-0 gap-1.5 disabled:opacity-50"
+    cta
     data-testid="app-header-publish-button"
     :disabled="isOffline"
-    size="xs"
     :title="isOffline ? 'You are offline.' : 'Publish'"
-    type="button"
-    variant="solid"
     @click="emit('publish')">
     <ScalarIconCloudSlash
       v-if="isOffline"
@@ -168,5 +157,5 @@ const emit = defineEmits<{
       size="sm"
       thickness="1.5" />
     <span class="max-md:hidden">Publish</span>
-  </ScalarButton>
+  </ScalarHeaderButton>
 </template>

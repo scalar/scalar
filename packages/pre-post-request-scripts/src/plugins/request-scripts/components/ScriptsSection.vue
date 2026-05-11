@@ -50,7 +50,8 @@ const updatePostResponseScript = (value: string) => {
       </template>
 
       <!-- Pre-request -->
-      <div class="text-c-3 flex h-8 items-center border-y px-3 text-sm">
+      <div
+        class="text-c-3 flex min-h-8 items-center border-y px-3 py-2 text-sm">
         Pre-request — run before the request is sent (e.g. set variables,
         headers).
       </div>
@@ -59,7 +60,8 @@ const updatePostResponseScript = (value: string) => {
         @update:modelValue="updatePreRequestScript" />
 
       <!-- Post-response -->
-      <div class="text-c-3 flex h-8 items-center border-y px-3 text-sm">
+      <div
+        class="text-c-3 flex min-h-8 items-center border-y px-3 py-2 text-sm">
         Post-response — run after the response is received (e.g. tests,
         assertions).
       </div>

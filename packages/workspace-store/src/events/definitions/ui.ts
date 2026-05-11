@@ -174,6 +174,16 @@ export type UIEvents = {
   'ui:open:settings': KeyboardEventPayload | undefined
 
   /**
+   * Open the "Create workspace" modal.
+   *
+   * Lets surfaces that do not have direct access to the modal state (for
+   * example the mobile menu rendered by the outer app shell, outside of the
+   * component that owns the modal) request that the modal be shown without
+   * coupling them to the modal's implementation.
+   */
+  'ui:open:create-workspace': undefined
+
+  /**
    * Open the API Client modal to a specific operation.
    * This allows deep linking into specific endpoints from external sources.
    */

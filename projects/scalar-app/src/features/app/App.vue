@@ -101,10 +101,6 @@ defineSlots<{
   'header-end'?: () => unknown
 }>()
 
-defineExpose({
-  openCreateWorkspace: () => createWorkspaceModalState.show(),
-})
-
 const app = getAppState()
 const paletteState = getCommandPaletteState()
 
@@ -143,6 +139,7 @@ onBeforeUnmount(() => {
   for (const plugin of plugins) {
     plugin.lifecycle?.onDestroy?.()
   }
+  unsubscribeOpenCreateWorkspace()
 })
 
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */
@@ -176,6 +173,17 @@ useMonacoEditorConfiguration({
 })
 
 const createWorkspaceModalState = useModal()
+
+/**
+ * Bridge for surfaces outside this component (for example the outer app
+ * shell's mobile menu) that need to open the create-workspace modal. We
+ * subscribe to a UI event instead of exposing an imperative method, so
+ * callers stay decoupled from this component's internals.
+ */
+const unsubscribeOpenCreateWorkspace = app.eventBus.on(
+  'ui:open:create-workspace',
+  () => createWorkspaceModalState.show(),
+)
 
 /**
  * Owns the document-level Save / Revert / Pull / Push / Publish flow.
@@ -310,8 +318,17 @@ const routerViewProps = computed<RouteProps>(() => {
             <slot name="header-menu-items" />
           </template>
           <template #breadcrumb>
+            <!--
+              The full breadcrumb is rendered alongside the menu trigger on
+              tablet and up. On mobile we collapse the entire top bar down to
+              just the menu trigger and the trailing action cluster, and the
+              workspace picker is reachable from inside the menu instead -
+              keeping the small-screen header readable without losing the
+              ability to switch workspaces.
+            -->
             <DocumentBreadcrumb
               :app="app"
+              class="max-md:hidden"
               :fetchRegistryDocument="registry?.fetchDocument"
               :registryDocuments="registryDocuments"
               @createWorkspace="createWorkspaceModalState.show()" />
@@ -345,10 +362,14 @@ const routerViewProps = computed<RouteProps>(() => {
                 @revert="handleRevertDocument"
                 @save="handleSaveDocument" />
               <!--
-                Vertical divider
+                Vertical divider. Only renders when the action cluster
+                actually has buttons in it - on a fresh document with no
+                pending changes the cluster is empty, and a lone divider
+                between the menu trigger and the consumer's `#header-end`
+                slot would read as visual noise.
               -->
               <span
-                v-if="$slots['header-end']"
+                v-if="$slots['header-end'] && hasHeaderActionCluster"
                 aria-hidden="true"
                 class="bg-border h-4 w-px shrink-0" />
               <slot
@@ -366,8 +387,8 @@ const routerViewProps = computed<RouteProps>(() => {
             :sidebarWidth="app.sidebar.width.value"
             @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate" />
 
-          <!-- Router view min-h-0 is required for scrolling, do not remove it -->
-          <div class="bg-b-1 relative min-h-0 flex-1">
+          <!-- Router view min-h/w-0 is required for scrolling, do not remove it -->
+          <div class="bg-b-1 relative min-h-0 min-w-0 flex-1">
             <RouterView v-bind="routerViewProps" />
           </div>
         </div>

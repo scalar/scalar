@@ -100,6 +100,7 @@ const emit = defineEmits<{
 
 const id = useId()
 const sendButtonRef = useTemplateRef('sendButtonRef')
+const mobileSendButtonRef = useTemplateRef('mobileSendButtonRef')
 const addressBarRef = useTemplateRef('addressBarRef')
 
 const { percentage, startLoading, stopLoading, isLoading } =
@@ -149,7 +150,17 @@ watch(uniqueKey, () => {
 // Focus helpers
 // ───────────────────────────────────────────────────────────────────
 
-const handleFocusSendButton = (): void => sendButtonRef.value?.$el?.focus()
+const handleFocusSendButton = (): void => {
+  const desktop = sendButtonRef.value?.$el
+  const mobile = mobileSendButtonRef.value?.$el
+
+  // Focus whichever send button is currently visible
+  if (desktop && desktop.offsetParent !== null) {
+    desktop.focus()
+  } else {
+    mobile?.focus()
+  }
+}
 
 const handleFocusAddressBar = (
   payload: ApiReferenceEvents['ui:focus:address-bar'],
@@ -386,12 +397,23 @@ defineExpose({
 })
 </script>
 <template>
+  <!--
+    Address bar.
+
+    The wide-container layout matches the original single-row bar:
+    `[Method | URL | Copy | History | Send]`. When the surrounding
+    `@container` drops below `@3xl` the bar collapses to
+    `[URL | History]` and a second row appears beneath it with a
+    duplicate `Method`, `Copy`, and `Send` so the URL gets the full
+    container width while every action stays on the same line as the
+    send button.
+  -->
   <div
-    :id="id"
-    class="scalar-address-bar order-last flex h-(--scalar-address-bar-height) w-full [--scalar-address-bar-height:32px] lg:order-0 lg:w-auto">
+    class="order-last flex h-auto w-full grow-2 flex-wrap items-stretch [--scalar-address-bar-height:32px] @3xl:order-0 @3xl:w-auto @3xl:flex-nowrap">
     <!-- Address Bar -->
     <div
-      class="address-bar-bg-states text-xxs group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg p-0.75 lg:order-none lg:max-w-[580px] lg:min-w-[580px] xl:max-w-[720px] xl:min-w-[720px]"
+      :id="id"
+      class="address-bar-bg-states text-xxs group relative flex h-(--scalar-address-bar-height) w-full flex-1 flex-row items-stretch rounded-lg p-0.75 @3xl:w-auto"
       :class="{
         'outline-c-danger outline': hasConflict,
         'rounded-b-none': isDropdownOpen,
@@ -405,7 +427,13 @@ defineExpose({
           class="absolute top-0 left-0 h-full w-full"
           :style />
       </div>
-      <div class="flex gap-1">
+
+      <!--
+        Method, Copy, and Send are hidden in mobile mode (container
+        narrower than `@3xl`) and the duplicate buttons in the trailing
+        mobile actions row take over at that point.
+      -->
+      <div class="hidden gap-1 @3xl:flex">
         <HttpMethod
           :isEditable="layout !== 'modal'"
           isSquare
@@ -461,7 +489,7 @@ defineExpose({
 
       <!-- Copy url button -->
       <ScalarButton
-        class="hover:bg-b-3 mx-1"
+        class="hover:bg-b-3 mx-1 hidden @3xl:flex"
         size="xs"
         variant="ghost"
         @click="requestCopyUrl">
@@ -493,6 +521,48 @@ defineExpose({
 
       <ScalarButton
         ref="sendButtonRef"
+        class="relative hidden h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold @3xl:flex"
+        data-addressbar-action="send"
+        :disabled="isLoading"
+        @click="emit('execute')">
+        <span
+          aria-hidden="true"
+          class="inline-flex items-center gap-1">
+          <ScalarIcon
+            class="relative shrink-0 fill-current"
+            icon="Play"
+            size="xs" />
+          <span class="text-xxs flex">Send</span>
+        </span>
+        <span class="sr-only">
+          Send {{ method }} request to {{ server?.url ?? '' }}{{ path }}
+        </span>
+      </ScalarButton>
+    </div>
+
+    <!--
+      Mobile actions row. Visible by default and hidden once the
+      container reaches `@3xl`, where the duplicate Method / Copy /
+      Send buttons move back into the bar itself.
+    -->
+    <div
+      class="mt-2 flex h-(--scalar-address-bar-height) w-full items-stretch gap-1 @3xl:hidden">
+      <HttpMethod
+        :isEditable="layout !== 'modal'"
+        isSquare
+        :method="methodConflict ?? method"
+        teleport
+        @change="handleMethodChange" />
+      <ScalarButton
+        class="hover:bg-b-3 ml-auto"
+        size="xs"
+        variant="ghost"
+        @click="requestCopyUrl">
+        <ScalarIconCopy />
+        <span class="sr-only">Copy URL</span>
+      </ScalarButton>
+      <ScalarButton
+        ref="mobileSendButtonRef"
         class="relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
         data-addressbar-action="send"
         :disabled="isLoading"
@@ -504,7 +574,7 @@ defineExpose({
             class="relative shrink-0 fill-current"
             icon="Play"
             size="xs" />
-          <span class="text-xxs hidden lg:flex">Send</span>
+          <span class="text-xxs">Send</span>
         </span>
         <span class="sr-only">
           Send {{ method }} request to {{ server?.url ?? '' }}{{ path }}
