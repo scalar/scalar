@@ -209,6 +209,7 @@ describe('serializeReleaseNotes', () => {
       { preamble: '# Test\n' },
     )
     expect(serialized).toContain('<video src="https://example.com/demo.mp4"')
+    expect(serialized).toContain('style="max-width: 100%; width: 100%; height: auto;"')
     expect(serialized).toContain('poster="https://example.com/poster.png"')
     expect(serialized).toContain('autoplay')
     expect(serialized).toContain('loop')
@@ -231,6 +232,7 @@ describe('serializeReleaseNotes', () => {
       { preamble: '# Test\n' },
     )
     expect(serialized).not.toContain('controls')
+    expect(serialized).toContain('style="max-width: 100%; width: 100%; height: auto;"')
     expect(serialized).toContain('playsinline')
   })
 })

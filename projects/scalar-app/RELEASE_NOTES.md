@@ -31,7 +31,7 @@ _Placeholder image (replace with a real screenshot when ready)._
 
 ### Sample video
 
-<video src="https://www.w3schools.com/html/mov_bbb.mp4" muted controls playsinline></video>
+<video src="https://www.w3schools.com/html/mov_bbb.mp4" style="max-width: 100%; width: 100%; height: auto;" muted controls playsinline></video>
 
 _Short sample clip for layout testing (external demo file)._
 

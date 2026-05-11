@@ -151,10 +151,10 @@ const serializeEntry = (entry: ReleaseNoteEntry): string => {
  * is later joined by blank lines, so callers must not append leading or
  * trailing blank lines themselves.
  *
- * Image and video blocks fall back to plain markdown / HTML elements
- * that GitHub renders natively. Captions render as italic text on the
- * line below so they stay readable even in editors that do not parse
- * `<figure>` tags.
+ * Image blocks use markdown images; video blocks use `<video>` with
+ * responsive inline styles so they fill the article width like images in
+ * prose layouts. Captions render as italic text on the line below so they
+ * stay readable even in editors that do not parse `<figure>` tags.
  */
 const serializeContentBlock = (block: ContentBlock): string => {
   if (block.type === 'paragraph') {
@@ -182,10 +182,11 @@ const serializeContentBlock = (block: ContentBlock): string => {
 
   if (block.type === 'video') {
     // Video block. Use the `<video>` HTML element so GitHub and most
-    // documentation viewers render it inline. The poster, autoplay,
-    // loop, and muted attributes mirror the JSON to keep the markdown
-    // preview consistent with the in-app rendering.
-    const attrs: string[] = [`src="${block.src}"`]
+    // documentation viewers render it inline. Width/height styles match
+    // typical responsive `<img>` behaviour (full width of the column).
+    // Poster, autoplay, loop, and muted mirror the JSON for parity with
+    // the in-app modal.
+    const attrs: string[] = [`src="${block.src}"`, 'style="max-width: 100%; width: 100%; height: auto;"']
     if (block.poster) {
       attrs.push(`poster="${block.poster}"`)
     }
