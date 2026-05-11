@@ -66,6 +66,8 @@ const filteredScopes = computed(() => {
   )
 })
 
+const hasScopes = computed(() => Object.keys(flow?.scopes ?? {}).length > 0)
+
 const allScopesSelected = computed(
   () => selectedScopes.length === Object.keys(flow?.scopes ?? {}).length,
 )
@@ -104,13 +106,18 @@ const addNewScopeModal = useModal()
         <DisclosureButton
           v-slot="{ open }"
           :class="[
-            'group/scopes-accordion hover:text-c-1 flex h-auto min-h-8 cursor-pointer items-center gap-1.5 pr-2.25 pl-3 text-left',
+            'group/scopes-accordion flex h-auto min-h-8 items-center gap-1.5 pr-2.25 pl-3 text-left',
+            hasScopes ? 'hover:text-c-1 cursor-pointer' : 'cursor-default',
             (selectedScopes.length || 0) > 0 ? 'text-c-1' : 'text-c-3',
-          ]">
+          ]"
+          :disabled="!hasScopes">
           <div class="flex-1">
-            Scopes Selected
-            {{ selectedScopes.length || 0 }} /
-            {{ Object.keys(flow?.scopes ?? {}).length || 0 }}
+            <template v-if="hasScopes">
+              Scopes Selected
+              {{ selectedScopes.length || 0 }} /
+              {{ Object.keys(flow?.scopes ?? {}).length || 0 }}
+            </template>
+            <template v-else> No Scopes Defined </template>
           </div>
           <div class="flex items-center gap-1.75">
             <!-- Add new scope -->
@@ -124,7 +131,7 @@ const addNewScopeModal = useModal()
 
             <!-- Deselect All -->
             <ScalarButton
-              v-if="allScopesSelected"
+              v-if="hasScopes && allScopesSelected"
               class="pr-0.75 pl-1 transition-none"
               size="sm"
               variant="ghost"
@@ -134,7 +141,7 @@ const addNewScopeModal = useModal()
 
             <!-- Select All -->
             <ScalarButton
-              v-if="!allScopesSelected"
+              v-if="hasScopes && !allScopesSelected"
               class="pr-0.75 pl-1 transition-none"
               size="sm"
               variant="ghost"
@@ -143,6 +150,7 @@ const addNewScopeModal = useModal()
             </ScalarButton>
 
             <ScalarIcon
+              v-if="hasScopes"
               class="text-c-3 group-hover/scopes-accordion:text-c-2"
               :icon="open ? 'ChevronDown' : 'ChevronRight'"
               size="md" />
@@ -165,10 +173,10 @@ const addNewScopeModal = useModal()
                 <DataTableCell
                   class="no-scrollbar hover:text-c-1 box-border flex !max-h-[initial] w-full cursor-pointer items-center gap-1 overflow-x-scroll px-3 py-1.5 text-nowrap">
                   <span class="font-code text-xs">{{ label }}</span>
-                  <span>&ndash;</span>
-                  <span v-if="description">
-                    {{ description }}
-                  </span>
+                  <template v-if="String(description ?? '').trim()">
+                    <span>&ndash;</span>
+                    <span>{{ description }}</span>
+                  </template>
                 </DataTableCell>
                 <DataTableCheckbox
                   :modelValue="selectedScopes.includes(id)"

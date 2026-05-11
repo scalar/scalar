@@ -30,6 +30,26 @@ describe('OAuthScopesInput', () => {
     await nextTick()
   }
 
+  it('renders scope label without dash when description is empty', async () => {
+    const wrapper = mountComponent({
+      flow: {
+        scopes: {
+          'read:items': 'Read access to items',
+          'write:items': '',
+        },
+      },
+    })
+    await openDisclosure(wrapper)
+
+    const rows = wrapper.findAll('tr')
+    expect(rows.length).toBe(2)
+    expect(rows[0]!.text()).toContain('read:items')
+    expect(rows[0]!.text()).toContain('Read access to items')
+    expect(rows[0]!.text()).toContain('–')
+    expect(rows[1]!.text()).toContain('write:items')
+    expect(rows[1]!.text()).not.toContain('–')
+  })
+
   it('renders count and expands to show scopes', async () => {
     const wrapper = mountComponent()
 
@@ -122,16 +142,20 @@ describe('OAuthScopesInput', () => {
   it('handles empty scopes gracefully', async () => {
     const wrapper = mountComponent({ flow: { scopes: {} } })
 
-    expect(wrapper.text()).toContain('0 / 0')
+    // Shows the empty-state copy instead of the scope count
+    expect(wrapper.text()).toContain('No Scopes Defined')
+    expect(wrapper.text()).not.toContain('Scopes Selected')
+
+    // Neither Select All nor Deselect All should be rendered when there are no scopes
+    const deselectAllBtn = wrapper.findAll('button').find((b) => b.text() === 'Deselect All')
+    expect(deselectAllBtn, 'Deselect All button should not exist when there are no scopes').toBeFalsy()
+    const selectAllBtn = wrapper.findAll('button').find((b) => b.text() === 'Select All')
+    expect(selectAllBtn, 'Select All button should not exist when there are no scopes').toBeFalsy()
+
+    // The disclosure should not expand because the chevron toggle is hidden and the button is disabled
     await openDisclosure(wrapper)
     const rows = wrapper.findAll('tr')
     expect(rows.length).toBe(0)
-
-    // With no scopes, Deselect All is shown (all 0 selected)
-    const deselectAllBtn = wrapper.findAll('button').find((b) => b.text() === 'Deselect All')
-    expect(deselectAllBtn, 'Deselect All button should exist when there are 0/0 scopes').toBeTruthy()
-    await deselectAllBtn!.trigger('click')
-    const emit = wrapper.emitted('update:selectedScopes')?.at(-1)?.[0] as any
-    expect(emit?.scopes).toEqual([])
+    expect(wrapper.emitted('update:selectedScopes')).toBeUndefined()
   })
 })
