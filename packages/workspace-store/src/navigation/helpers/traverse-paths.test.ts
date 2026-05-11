@@ -263,6 +263,78 @@ describe('traversePaths', () => {
     expect(tagsMap.get('Ignored')?.entries).toEqual([])
   })
 
+  it('skips $ref-wrapped operations with x-internal sibling extension', () => {
+    // The wrapper has x-internal as a sibling to $ref. The resolved target does not.
+    // See: https://github.com/scalar/scalar/issues/9114
+    const document = createDocument()
+    document.paths = {
+      '/hidden': {
+        get: {
+          'x-internal': true,
+          $ref: '#/components/operations/HiddenOp',
+          // biome-ignore lint/suspicious/noExplicitAny: simulating bundled $ref-value
+          '$ref-value': {
+            tags: ['Hidden'],
+            summary: 'Should not show',
+            operationId: 'hiddenOp',
+          },
+        } as any,
+      },
+    }
+
+    const tagsMap: TagsMap = new Map([
+      ['Hidden', { id: 'tag/hidden', parentId: 'doc-1', tag: { name: 'Hidden' }, entries: [] }],
+    ])
+
+    traversePaths({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'operation') {
+          return `${props.method?.toUpperCase()}-${props.path}`
+        }
+        return 'unknown-id'
+      },
+    })
+    expect(tagsMap.get('Hidden')?.entries).toEqual([])
+  })
+
+  it('skips $ref-wrapped operations with x-scalar-ignore sibling extension', () => {
+    const document = createDocument()
+    document.paths = {
+      '/ignored': {
+        get: {
+          'x-scalar-ignore': true,
+          $ref: '#/components/operations/IgnoredOp',
+          // biome-ignore lint/suspicious/noExplicitAny: simulating bundled $ref-value
+          '$ref-value': {
+            tags: ['Ignored'],
+            summary: 'Should not show',
+            operationId: 'ignoredOp',
+          },
+        } as any,
+      },
+    }
+
+    const tagsMap: TagsMap = new Map([
+      ['Ignored', { id: 'tag/ignored', parentId: 'doc-1', tag: { name: 'Ignored' }, entries: [] }],
+    ])
+
+    traversePaths({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'operation') {
+          return `${props.method?.toUpperCase()}-${props.path}`
+        }
+        return 'unknown-id'
+      },
+    })
+    expect(tagsMap.get('Ignored')?.entries).toEqual([])
+  })
+
   it('should handle operations with missing summary', () => {
     const document = createDocument()
     document.paths = {

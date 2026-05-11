@@ -1,4 +1,5 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { assert, describe, expect, it, vi } from 'vitest'
 
 import type { ImportEventData } from './load-document-from-source'
@@ -51,7 +52,7 @@ describe('loadDocumentFromSource', () => {
     expect(result).toBe(true)
 
     // Find the document that was added
-    const documents = Object.values(workspaceStore.workspace.documents)
+    const documents = Object.values(workspaceStore.workspace.documents) as OpenApiDocument[]
     const addedDocument = documents.find((doc) => doc.info.title === 'Raw API')
 
     expect(addedDocument).toBeDefined()
@@ -87,7 +88,7 @@ paths:
     expect(result).toBe(true)
 
     // Find the document that was added
-    const documents = Object.values(workspaceStore.workspace.documents)
+    const documents = Object.values(workspaceStore.workspace.documents) as OpenApiDocument[]
     const addedDocument = documents.find((doc) => doc.info.title === 'YAML API')
 
     expect(addedDocument).toBeDefined()
@@ -166,7 +167,7 @@ paths:
 
     expect(result).toBe(true)
 
-    const documents = Object.values(workspaceStore.workspace.documents)
+    const documents = Object.values(workspaceStore.workspace.documents) as OpenApiDocument[]
     const addedDocument = documents.find((doc) => doc.info.title === 'Complex API')
 
     expect(addedDocument).toBeDefined()
@@ -195,7 +196,7 @@ paths:
 
     expect(result).toBe(true)
 
-    const documents = Object.values(workspaceStore.workspace.documents)
+    const documents = Object.values(workspaceStore.workspace.documents) as OpenApiDocument[]
     const addedDocument = documents.find((doc) => doc.info.title === 'Minified API')
 
     expect(addedDocument).toBeDefined()
@@ -237,7 +238,7 @@ paths:
 
     expect(result).toBe(true)
 
-    const documents = Object.values(workspaceStore.workspace.documents)
+    const documents = Object.values(workspaceStore.workspace.documents) as OpenApiDocument[]
     const addedDocument = documents.find((doc) => doc.info.title === 'My Postman API')
 
     expect(addedDocument).toBeDefined()
@@ -274,7 +275,7 @@ paths:
 
     expect(result).toBe(true)
 
-    const documents = Object.values(workspaceStore.workspace.documents)
+    const documents = Object.values(workspaceStore.workspace.documents) as OpenApiDocument[]
     const addedDocument = documents.find((doc) => doc.info.title === 'Exported Postman API')
 
     expect(addedDocument).toBeDefined()
@@ -340,7 +341,7 @@ paths:
 
     expect(result).toBe(true)
 
-    const documents = Object.values(workspaceStore.workspace.documents)
+    const documents = Object.values(workspaceStore.workspace.documents) as OpenApiDocument[]
     const addedDocument = documents.find((doc) => doc.info.title === 'Complex Postman Collection')
 
     expect(addedDocument).toBeDefined()
@@ -372,7 +373,7 @@ paths:
 
     expect(result).toBe(true)
 
-    const documents = Object.values(workspaceStore.workspace.documents)
+    const documents = Object.values(workspaceStore.workspace.documents) as OpenApiDocument[]
     const addedDocument = documents.find((doc) => doc.info.title === 'Postman Collection Watch Test')
 
     expect(addedDocument).toBeDefined()
@@ -430,7 +431,7 @@ paths:
 
     expect(result).toBe(true)
 
-    const documents = Object.values(workspaceStore.workspace.documents)
+    const documents = Object.values(workspaceStore.workspace.documents) as OpenApiDocument[]
     const addedDocument = documents.find((doc) => doc.info.title === 'Empty Postman Collection')
 
     expect(addedDocument).toBeDefined()
@@ -477,7 +478,7 @@ paths:
 
     expect(result).toBe(true)
 
-    const documents = Object.values(workspaceStore.workspace.documents)
+    const documents = Object.values(workspaceStore.workspace.documents) as OpenApiDocument[]
     const addedDocument = documents.find((doc) => doc.info.title === 'Authenticated API')
 
     expect(addedDocument).toBeDefined()
@@ -547,7 +548,7 @@ paths:
 
     expect(result).toBe(true)
 
-    const documents = Object.values(workspaceStore.workspace.documents)
+    const documents = Object.values(workspaceStore.workspace.documents) as OpenApiDocument[]
     const addedDocument = documents.find((doc) => doc.info.title === 'API with Variables')
 
     expect(addedDocument).toBeDefined()
@@ -578,7 +579,7 @@ paths:
 
     expect(result).toBe(true)
 
-    const document = workspaceStore.workspace.documents['file-api']
+    const document = workspaceStore.workspace.documents['file-api'] as OpenApiDocument | undefined
 
     expect(document).toBeDefined()
     assert(document)
@@ -645,7 +646,7 @@ paths:
 
     expect(result).toBe(true)
 
-    const document = workspaceStore.workspace.documents['file-api-watch-test']
+    const document = workspaceStore.workspace.documents['file-api-watch-test'] as OpenApiDocument | undefined
 
     expect(document).toBeDefined()
     assert(document)

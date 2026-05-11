@@ -13,6 +13,7 @@ import {
 } from '@scalar/sidebar'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { computed, ref } from 'vue'
 
 import { Resize } from '@/v2/components/resize'
@@ -84,7 +85,9 @@ const isDraft = (item: TraversedEntry) => {
 }
 
 /** We handle search results out here so we can show them in the sidebar */
-const { query, results } = useSearchIndex(() => documents)
+const { query, results } = useSearchIndex(() =>
+  documents.filter(isOpenApiDocument),
+)
 
 /** We show either the search results or the sidebar items */
 const items = computed(() => results.value ?? sidebarState.items.value)

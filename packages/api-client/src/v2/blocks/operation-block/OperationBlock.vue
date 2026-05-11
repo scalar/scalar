@@ -97,6 +97,7 @@ import {
   AVAILABLE_CLIENTS,
   type AvailableClients,
 } from '@scalar/types/snippetz'
+import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
@@ -111,6 +112,7 @@ import {
   createVariablesStoreForRequest,
   getEnvironmentVariables,
   requestFactory,
+  resolveExecutableRequestUrl,
   type MergedSecuritySchemes,
   type RequestPayload,
   type SecuritySchemeObjectSecret,
@@ -182,6 +184,7 @@ const {
 const clientOptions = computed(() => generateClientOptions(httpClients))
 
 const { toast } = useToasts()
+const { copyToClipboard } = useClipboard()
 
 // Refs
 const abortController = ref<AbortController | null>(null)
@@ -190,6 +193,31 @@ const requestPayload = ref<RequestPayload | null>(null)
 
 /** Cancel the request */
 const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
+
+/**
+ * Copy the executable URL — same pipeline as Send (`requestFactory` +
+ * `resolveExecutableRequestUrl`), including security query params.
+ */
+const copyAddressBarUrl = async (): Promise<void> => {
+  const { request } = requestFactory({
+    defaultHeaders,
+    environment,
+    exampleName: exampleKey,
+    globalCookies: [...workspaceCookies, ...documentCookies],
+    method,
+    operation,
+    path,
+    proxyUrl,
+    server,
+    selectedSecuritySchemes,
+    isElectron: isElectron(),
+    requestBodyCompositionSelection,
+  })
+
+  await copyToClipboard(
+    resolveExecutableRequestUrl(request, getEnvironmentVariables(environment)),
+  )
+}
 
 /** Execute the current operation example */
 const handleExecute = async () => {
@@ -347,10 +375,12 @@ const handleExecute = async () => {
 onMounted(() => {
   eventBus.on('operation:send:request:hotkey', handleExecute)
   eventBus.on('operation:cancel:request', cancelRequest)
+  eventBus.on('copy-url:address-bar', copyAddressBarUrl)
 })
 onBeforeUnmount(() => {
   eventBus.off('operation:send:request:hotkey', handleExecute)
   eventBus.off('operation:cancel:request', cancelRequest)
+  eventBus.off('copy-url:address-bar', copyAddressBarUrl)
 })
 
 const operationHistory = computed<History[]>(() =>

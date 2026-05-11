@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { RequestFactory } from '@/request-example/builder/request-factory'
 
-import { buildRequest } from './build-request'
+import { buildRequest, resolveExecutableRequestUrl } from './build-request'
 
 const createFactory = (overrides: Partial<RequestFactory> = {}): RequestFactory => ({
   options: {},
@@ -708,5 +708,25 @@ describe('buildRequest', () => {
     const values = (requestInit.headers as Headers).get('X-Custom')
     expect(values).toContain('existing')
     expect(values).toContain('from-security')
+  })
+})
+
+describe('resolveExecutableRequestUrl', () => {
+  it('includes security query params in the URL like buildRequest', () => {
+    const url = resolveExecutableRequestUrl(
+      createFactory({
+        security: [{ in: 'query', name: 'api_key', value: 'secret' }],
+      }),
+      {},
+    )
+    expect(new URL(url).searchParams.get('api_key')).toBe('secret')
+  })
+
+  it('matches buildRequest URL when the request is not proxied', () => {
+    const factory = createFactory({
+      path: { raw: '/users/{id}', variables: { id: '7' } },
+      proxyUrl: '',
+    })
+    expect(resolveExecutableRequestUrl(factory, {})).toBe(buildRequest(factory, { envVariables: {} }).requestPayload[0])
   })
 })

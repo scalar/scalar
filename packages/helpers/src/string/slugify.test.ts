@@ -82,4 +82,56 @@ describe('slugify', () => {
   it('keeps allowed special chars while preserving case when configured', () => {
     expect(slugify('MyAPI v1.2', { preserveCase: true, allowedSpecialChars: '.' })).toBe('MyAPI-v1.2')
   })
+
+  // normalizationForm
+
+  it('uses NFC normalization by default', () => {
+    // Café written as NFD (e + combining acute) should round-trip to NFC form.
+    expect(slugify('cafe\u0301')).toBe('café')
+  })
+
+  it('preserves NFD decomposed form when normalizationForm is NFD', () => {
+    // With NFD output, the combining acute stays as a separate code point.
+    const result = slugify('café', { normalizationForm: 'NFD' })
+    // The result should be NFD-normalized, so the é is decomposed.
+    expect(result).toBe('cafe\u0301')
+  })
+
+  it('applies NFKC normalization to compatibility equivalents', () => {
+    // The fi ligature (U+FB01) decomposes to "fi" under NFKC/NFKD.
+    expect(slugify('\uFB01le', { normalizationForm: 'NFKC' })).toBe('file')
+  })
+
+  it('applies NFKD normalization to compatibility equivalents', () => {
+    expect(slugify('\uFB01le', { normalizationForm: 'NFKD' })).toBe('file')
+  })
+
+  // stripAccents
+
+  it('strips accent marks from Latin letters', () => {
+    expect(slugify('Crème Brûlée', { stripAccents: true })).toBe('creme-brulee')
+  })
+
+  it('strips accents from a variety of diacritics', () => {
+    expect(slugify('naïve résumé façade', { stripAccents: true })).toBe('naive-resume-facade')
+  })
+
+  it('strips accents while preserving case', () => {
+    expect(slugify('Héllo Wörld', { stripAccents: true, preserveCase: true })).toBe('Hello-World')
+  })
+
+  it('strips accents from non-Latin scripts with diacritics', () => {
+    // Vietnamese uses combining diacritics; stripping them degrades but does not break slugging.
+    const result = slugify('Hà Nội', { stripAccents: true })
+    expect(result).toBe('ha-noi')
+  })
+
+  it('stripAccents takes precedence over normalizationForm', () => {
+    // Even if normalizationForm is set to NFKC, stripAccents forces NFD internally.
+    expect(slugify('Crème', { stripAccents: true, normalizationForm: 'NFKC' })).toBe('creme')
+  })
+
+  it('leaves plain ASCII unchanged when stripAccents is true', () => {
+    expect(slugify('Hello World', { stripAccents: true })).toBe('hello-world')
+  })
 })

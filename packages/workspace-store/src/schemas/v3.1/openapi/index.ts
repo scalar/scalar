@@ -15,6 +15,7 @@ import {
 } from '@scalar/validation'
 
 import { extensions } from '@/schemas/extensions'
+import { WorkspaceManagedExtensions } from '@/schemas/extensions/document/workspace-managed-extensions'
 import { XInternal } from '@/schemas/extensions/document/x-internal'
 import { XScalarEnvironments } from '@/schemas/extensions/document/x-scalar-environments'
 import { XScalarIcon } from '@/schemas/extensions/document/x-scalar-icon'
@@ -1002,11 +1003,6 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
       'x-original-oas-version': optional(
         string({ typeComment: 'Original OpenAPI Specification version of the source document.' }),
       ),
-      'x-scalar-original-source-url': optional(
-        string({
-          typeComment: 'Original document source URL when loading a document from an external source.',
-        }),
-      ),
       [extensions.document.navigation]: optional(
         any({
           typeComment:
@@ -1073,6 +1069,8 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     [
       openApiDocumentCore,
       openApiExtensionsPartial,
+      // Shared with AsyncAPI — see workspace-managed-extensions.ts.
+      WorkspaceManagedExtensions,
       XTagGroups,
       XScalarEnvironments,
       XScalarSelectedServer,

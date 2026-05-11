@@ -1,3 +1,4 @@
+import { getActiveOpenApiDocument } from '@test/helpers'
 import { assert, describe, expect, it } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
@@ -10,11 +11,11 @@ import {
   updateSelectedScopes,
   updateSelectedSecuritySchemes,
 } from '@/mutators/auth'
-import type { WorkspaceDocument } from '@/schemas'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 import type { OAuth2Object, SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
 
-function createDocument(initial?: Partial<WorkspaceDocument>): WorkspaceDocument {
+function createDocument(initial?: Partial<OpenApiDocument>): OpenApiDocument {
   return {
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },
@@ -71,7 +72,7 @@ describe('updateSelectedSecuritySchemes', () => {
       meta: { type: 'document' },
     })
 
-    const securitySchemes = store.workspace.activeDocument?.components?.securitySchemes
+    const securitySchemes = getActiveOpenApiDocument(store)?.components?.securitySchemes
     assert(securitySchemes)
 
     // A unique name should be generated because ApiKeyAuth already exists
@@ -163,7 +164,7 @@ describe('updateSelectedSecuritySchemes', () => {
     })
 
     // Components should include the newly created scheme
-    expect(store.workspace.activeDocument?.components?.securitySchemes?.['BearerAuth']).toEqual({
+    expect(getActiveOpenApiDocument(store)?.components?.securitySchemes?.['BearerAuth']).toEqual({
       type: 'http',
       scheme: 'bearer',
     })
@@ -718,7 +719,8 @@ describe('deleteSecurityScheme', () => {
 
     deleteSecurityScheme(store, store.workspace.activeDocument!, { names: ['A', 'B', 'X'] })
 
-    const components = store.workspace.activeDocument?.components
+    const activeDocument = getActiveOpenApiDocument(store)
+    const components = activeDocument?.components
     // Components
     assert(components?.securitySchemes)
     expect(components.securitySchemes?.A).toBeUndefined()
@@ -731,10 +733,10 @@ describe('deleteSecurityScheme', () => {
     expect(docSchemes.selectedSchemes).toEqual([{ C: [] }])
 
     // Document security array
-    expect(store.workspace.activeDocument?.security).toEqual([{ D: [] }])
+    expect(activeDocument?.security).toEqual([{ D: [] }])
 
     // Operation level filtering
-    const op = getResolvedRef(store.workspace.activeDocument?.paths!['/p']?.get)
+    const op = getResolvedRef(activeDocument?.paths!['/p']?.get)
     assert(op)
     expect(op.security).toEqual([{ E: [] }])
     const opSchemes = store.auth.getAuthSelectedSchemas({ type: 'operation', documentName, path: '/p', method: 'get' })

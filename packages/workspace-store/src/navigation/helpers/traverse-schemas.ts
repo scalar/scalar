@@ -1,4 +1,5 @@
-import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
+import { isHidden } from '@/helpers/is-hidden'
 import { getTag } from '@/navigation/helpers/get-tag'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { ParentTag, TraversedSchema } from '@/schemas/navigation'
@@ -67,11 +68,16 @@ export const traverseSchemas = ({
   const schemas = document.components?.schemas ?? {}
   const untagged: TraversedSchema[] = []
 
-  // biome-ignore lint/suspicious/useGuardForIn: we do have an if statement after de-ref
   for (const name in schemas) {
-    const schema = getResolvedRef(schemas[name])
+    if (!Object.hasOwn(schemas, name)) {
+      continue
+    }
 
-    if (schema?.['x-internal'] || schema?.['x-scalar-ignore'] || !Object.hasOwn(schemas, name)) {
+    // Merge wrapper siblings onto the dereferenced schema so x-internal / x-scalar-ignore
+    // set alongside a $ref are honored (e.g. https://github.com/scalar/scalar/issues/9114).
+    const schema = getResolvedRef(schemas[name], mergeSiblingReferences)
+
+    if (isHidden(schema)) {
       continue
     }
 

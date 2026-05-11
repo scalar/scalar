@@ -3,6 +3,7 @@ import { findVariables } from '@scalar/helpers/regex/find-variables'
 import type { ServerEvents, ServerMeta } from '@/events/definitions/server'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
+import { isOpenApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { type ServerObject, ServerObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument } from '@/schemas/workspace'
@@ -21,7 +22,7 @@ type ServerTarget = {
  * Document-level servers live on the document; operation-level servers on the operation object.
  */
 const getServerTarget = (document: WorkspaceDocument | null, meta: ServerMeta): ServerTarget | null => {
-  if (!document) {
+  if (!isOpenApiDocument(document)) {
     return null
   }
   if (meta.type === 'document') {

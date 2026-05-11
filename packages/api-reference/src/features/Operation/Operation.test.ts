@@ -3,8 +3,10 @@ import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
+import {
+  OpenAPIDocumentSchema,
+  type OpenApiDocument,
+} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
 
@@ -97,7 +99,7 @@ describe('Operation', () => {
     enableConsoleError()
   })
 
-  const createMockDocument = (): WorkspaceDocument =>
+  const createMockDocument = (): OpenApiDocument =>
     coerceValue(OpenAPIDocumentSchema, {
       openapi: '3.1.0',
       info: {

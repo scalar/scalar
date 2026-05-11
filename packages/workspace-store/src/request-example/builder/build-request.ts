@@ -7,6 +7,7 @@ import { buildRequestCookieHeader } from '@/request-example/builder/header/build
 import { applyAllowReservedToUrl } from '@/request-example/builder/helpers/apply-allow-reserved-to-url'
 import type { RequestFactory } from '@/request-example/builder/request-factory'
 import { resolveRequestFactoryUrl } from '@/request-example/builder/resolve-request-factory-url'
+import type { BuildRequestSecurityResult } from '@/request-example/builder/security/build-request-security'
 import { contextFunctions, isContextFunctionName } from '@/request-example/functions'
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
 
@@ -26,6 +27,58 @@ const FORBIDDEN_HEADERS: ForbiddenHeaderRewrite[] = [
   { header: 'referer', scalarHeader: X_SCALAR_REFERER },
   { header: 'user-agent', scalarHeader: X_SCALAR_USER_AGENT },
 ]
+
+const formatSecurityValue = (
+  security: BuildRequestSecurityResult,
+  replace: (value: string) => string | null,
+): string => {
+  const substitutedValue = replaceEnvVariables(security.value, replace)
+  if (security.format === 'basic') {
+    return `Basic ${encodeBase64(substitutedValue)}`
+  }
+
+  if (security.format === 'bearer') {
+    return `Bearer ${substitutedValue}`
+  }
+
+  return substitutedValue
+}
+
+const createEnvReplaceFn = (envVariables: Record<string, string>): ((value: string) => string | null) => {
+  return (value: string): string | null => {
+    if (isContextFunctionName(value)) {
+      return contextFunctions[value].fn() ?? null
+    }
+    return envVariables[value] ?? null
+  }
+}
+
+/**
+ * Resolved request URL string (path vars, operation query, **security query**
+ * params, env substitution, reserved-query rules) without proxy rewriting —
+ * aligned with {@link buildRequest} before `redirectToProxy`.
+ */
+export const resolveExecutableRequestUrl = (request: RequestFactory, envVariables: Record<string, string>): string => {
+  const replace = createEnvReplaceFn(envVariables)
+
+  const securityQueryParams = new URLSearchParams()
+  if (!request.options?.disableSecurity) {
+    request.security.forEach((security) => {
+      if (security.in !== 'query') {
+        return
+      }
+      const name = replaceEnvVariables(security.name, replace)
+      securityQueryParams.append(name, formatSecurityValue(security, replace))
+    })
+  }
+
+  const requestUrl = resolveRequestFactoryUrl(request, {
+    envVariables: replace,
+    securityQueryParams,
+  })
+
+  return applyAllowReservedToUrl(requestUrl, request.allowedReservedQueryParameters ?? new Set())
+}
 
 /**
  * Built request response
@@ -49,12 +102,7 @@ export const buildRequest = (
   },
 ): BuildRequestResponse => {
   /** Replace the value with the environment variable or context function */
-  const replace = (value: string): string | null => {
-    if (isContextFunctionName(value)) {
-      return contextFunctions[value].fn() ?? null
-    }
-    return options.envVariables[value] ?? null
-  }
+  const replace = createEnvReplaceFn(options.envVariables)
 
   /** Create a new abort controller */
   const controller = new AbortController()
@@ -116,18 +164,7 @@ export const buildRequest = (
       // - For 'basic': prefix with 'Basic' and base64-encode the value (username:password).
       // - For 'bearer': prefix with 'Bearer'.
       // - Otherwise: use the substituted value as is (for API keys, etc).
-      const securityValue = (() => {
-        const substitutedValue = replaceEnvVariables(security.value, replace)
-        if (security.format === 'basic') {
-          return `Basic ${encodeBase64(substitutedValue)}`
-        }
-
-        if (security.format === 'bearer') {
-          return `Bearer ${substitutedValue}`
-        }
-
-        return substitutedValue
-      })()
+      const securityValue = formatSecurityValue(security, replace)
 
       if (security.in === 'header') {
         // Set the header (use replaced header name so {{ env }} placeholders work)

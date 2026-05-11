@@ -12,8 +12,8 @@ export default {}
 export type OperationProps = {
   /** The slug of the currently selected document in the workspace */
   documentSlug: string
-  /** The currently active document */
-  document: WorkspaceDocument | null
+  /** The currently active document — OpenAPI-only, the operation page has no AsyncAPI path */
+  document: OpenApiDocument | null
   /** The workspace event bus */
   eventBus: WorkspaceEventBus
   /** The layout of the client */
@@ -46,7 +46,7 @@ import {
   getRequestExampleContext,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, toValue, type MaybeRefOrGetter } from 'vue'
 
 import { OperationBlock } from '@/v2/blocks/operation-block'

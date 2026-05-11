@@ -36,9 +36,10 @@ import {
   restoreOriginalRefs,
   syncPathParameters,
 } from '@/plugins/bundler'
+import type { AsyncApiDocument } from '@/schemas/asyncapi/asyncapi-document'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
-import { coerceValue } from '@/schemas/typebox-coerce'
+import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
 import { generateSchema } from '@/schemas/v3.1/openapi'
 import { recursiveRef } from '@/schemas/v3.1/openapi/reference'
 import {
@@ -499,9 +500,8 @@ export type WorkspaceStore = {
   /**
    * Imports a workspace from a serialized JSON string.
    *
-   * This method parses the input string using the InMemoryWorkspaceSchema,
-   * then updates the current workspace state, including documents, metadata,
-   * and configuration, with the imported values.
+   * Replaces the current workspace state — documents, metadata, and
+   * configuration — with the imported values.
    *
    * @param input - The serialized workspace JSON string to import.
    */
@@ -956,7 +956,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     return true
   }
 
-  // Add a document to the store synchronously from an in-memory OpenAPI document
+  // Add a document to the store synchronously from an in-memory OpenAPI or AsyncAPI document
   async function addInMemoryDocument(
     input: ObjectDoc & { initialize?: boolean; documentSource?: string; documentHash: string },
     navigationOptions?: NavigationOptions,
@@ -984,6 +984,28 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         extraDocumentConfigurations[name] = { fetch: input.fetch }
       }
     })
+
+    // AsyncAPI ingestion: skip the OpenAPI-specific upgrade, bundle, coerce,
+    // validate, and navigation pipeline. The OpenAPI `coerce` step would
+    // otherwise inject an empty `openapi: ''` field and break the type
+    // discriminator. Reference resolution and navigation generation for
+    // AsyncAPI are out of scope for the MVP — only the workspace-store
+    // managed metadata (source url, document hash, spec version) is set so
+    // change detection on rebase can compare hashes correctly.
+    if (isAsyncApiDocument(clonedRawInputDocument)) {
+      const asyncApiDocument = {
+        ...clonedRawInputDocument,
+        ...meta,
+        'x-original-aas-version': clonedRawInputDocument.asyncapi,
+        'x-scalar-original-document-hash': input.documentHash,
+        'x-scalar-original-source-url': input.documentSource,
+      } satisfies AsyncApiDocument
+
+      workspace.documents[name] = createOverridesProxy(createMagicProxy(asyncApiDocument) as AsyncApiDocument, {
+        overrides: unpackProxyObject(overrides[name]),
+      })
+      return
+    }
 
     const inputDocument = withMeasurementSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
 
@@ -1216,6 +1238,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return false
     }
 
+    // Sidebar navigation is OpenAPI-only for now.
+    if (!isOpenApiDocument(document)) {
+      return false
+    }
+
     // Generate the navigation structure for the sidebar.
     const navigation = createNavigation(documentName, document)
 
@@ -1273,7 +1300,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       await addInMemoryDocument({
         name: documentName,
         document: input,
-        // Preserve the current metadata
+        // Preserve the current metadata. Source url, document hash, and
+        // registry meta are typed identically on the OpenAPI and AsyncAPI
+        // document shapes, so the union access does not need narrowing.
         documentSource: currentDocument['x-scalar-original-source-url'],
         documentHash: currentDocument['x-scalar-original-document-hash'],
         meta: {
@@ -1543,7 +1572,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           }
 
           const mergedDocument = getNewActiveDocument()
-          const newActiveDocument = coerceValue(OpenAPIDocumentSchemaStrict, mergedDocument)
 
           // Detect whether the rebase folded in any local edits. When the
           // merged result matches the upstream snapshot the pull was
@@ -1553,28 +1581,26 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           // the document as dirty so the push flow can surface them, the
           // same way `git pull --rebase` leaves you "ahead of origin"
           // once your local commits get replayed on top.
-          //
-          // We compare the pre-coerce merged document against upstream
-          // because `coerceValue` normalises the merged result against
-          // the strict schema and that normalisation can introduce diffs
-          // even for pure fast-forwards. The merged document is what the
-          // two-way merge actually produced, so its byte-for-byte equality
-          // with upstream is the real fast-forward signal.
           const hasLocalChangesAgainstUpstream = diff(newDocumentOrigin, mergedDocument).length > 0
 
           // The merged result becomes the new saved baseline so a subsequent
           // revert restores to the post-rebase state, not to the
           // pre-rebase original. Mirror the same content into the
           // deprecated intermediate map so any lingering consumer reads
-          // the post-rebase state too.
-          originalDocuments[name] = newActiveDocument
-          intermediateDocuments[name] = deepClone(newActiveDocument)
+          // the post-rebase state too. We do not coerce against the strict
+          // OpenAPI schema here — `addInMemoryDocument` re-runs the full
+          // ingestion pipeline (which handles AsyncAPI vs OpenAPI separately
+          // and coerces OpenAPI documents internally), and pre-coercing
+          // would inject OpenAPI fields into AsyncAPI documents and break
+          // the document type discriminator.
+          originalDocuments[name] = mergedDocument
+          intermediateDocuments[name] = deepClone(mergedDocument)
 
           // add the new active document to the workspace but don't re-initialize
           await addInMemoryDocument({
             ...input,
             document: {
-              ...newActiveDocument,
+              ...mergedDocument,
               // force regeneration of navigation
               // when we are rebasing, we want to ensure that the navigation is always up to date
               [extensions.document.navigation]: undefined,

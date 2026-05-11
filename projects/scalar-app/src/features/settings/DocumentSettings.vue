@@ -148,8 +148,7 @@ const handleDeleteRegistryDocumentSubmit = (payload: {
             :modelValue="watchMode ?? false"
             @update:modelValue="(value) => emit('update:watchMode', value)" />
         </div>
-        <div
-          class="text-c-1 flex items-center overflow-x-auto border-t py-1.5 whitespace-nowrap">
+        <div class="text-c-1 flex items-center overflow-x-auto border-t py-1.5">
           <div class="flex items-center">
             <template v-if="documentUrl">
               <span class="bg-b-2 sticky left-0 pr-2 pl-3">Source</span>
@@ -202,7 +201,7 @@ const handleDeleteRegistryDocumentSubmit = (payload: {
         <!-- Published version: registry-side delete. -->
         <div
           v-if="registryMeta.isVersionPublished"
-          class="flex items-center justify-between gap-4 rounded-lg border p-3 text-sm">
+          class="flex flex-col items-center justify-between gap-4 rounded-lg border p-3 text-sm sm:flex-row">
           <div class="min-w-0 flex-1">
             <h4>Delete this version from the registry</h4>
             <p class="text-c-2 mt-1">

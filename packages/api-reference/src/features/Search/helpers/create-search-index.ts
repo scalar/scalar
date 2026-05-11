@@ -9,7 +9,14 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import type { FuseData } from '@/features/Search/types'
-import { extractParameters, extractRequestBody } from '@/helpers/openapi'
+import {
+  extractBodyDescriptions,
+  extractBodyFieldNames,
+  extractParameterDescriptions,
+  extractParameterNames,
+  extractSchemaDescriptions,
+  extractSchemaFieldNames,
+} from '@/helpers/openapi'
 
 function responseExampleValueToString(value: unknown): string {
   if (typeof value === 'string') {
@@ -104,8 +111,10 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
       parameters: combineParams(pathItem?.parameters, operation.parameters),
     }
 
-    const parameters = extractParameters(operationWithPathParams.parameters ?? [])
-    const body = extractRequestBody(operationWithPathParams)
+    const parameters = extractParameterNames(operationWithPathParams.parameters ?? [])
+    const parameterDescriptions = extractParameterDescriptions(operationWithPathParams.parameters ?? [])
+    const body = extractBodyFieldNames(operationWithPathParams)
+    const bodyDescriptions = extractBodyDescriptions(operationWithPathParams)
     const responseExamples = extractResponseExamples(operationWithPathParams.responses)
 
     index.push({
@@ -115,8 +124,10 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
       description: operationWithPathParams.description || '',
       method: entry.method,
       path: entry.path,
-      body: body || '',
-      parameters: parameters ?? '',
+      body,
+      bodyDescriptions,
+      parameters,
+      parameterDescriptions,
       responseExamples,
       operationId: operationWithPathParams.operationId,
       entry,
@@ -128,6 +139,7 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
   // Webhook
   if (entry.type === 'webhook') {
     const webhook = getResolvedRef(document?.webhooks?.[entry.name]?.[entry.method]) ?? {}
+    const webhookDescription = webhook.description || ''
 
     index.push({
       id: entry.id,
@@ -135,7 +147,8 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
       title: entry.title,
       description: 'Webhook',
       method: entry.method,
-      body: webhook.description || '',
+      body: '',
+      bodyDescriptions: webhookDescription ? [webhookDescription] : [],
       operationId: webhook.operationId,
       entry,
     })
@@ -146,15 +159,17 @@ function addEntryToIndex(entry: TraversedEntry, index: FuseData[], document?: Op
   // Model
   if (entry.type === 'model') {
     const schema = getResolvedRef(document?.components?.schemas?.[entry.name])
-
-    const description = schema?.description ?? ''
+    const schemaDescription = schema?.description ?? ''
+    const propertyNames = extractSchemaFieldNames(schema)
+    const propertyDescriptions = extractSchemaDescriptions(schema)
 
     index.push({
       type: 'model',
       title: entry.title,
       description: 'Model',
       id: entry.id,
-      body: description,
+      body: propertyNames,
+      bodyDescriptions: schemaDescription ? [schemaDescription, ...propertyDescriptions] : propertyDescriptions,
       entry,
     })
 

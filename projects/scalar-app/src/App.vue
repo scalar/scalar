@@ -72,6 +72,17 @@ const openSettings = () => {
   })
 }
 
+/**
+ * The create-workspace modal lives inside `ClientApp`, but the mobile
+ * menu rendering its trigger lives in this outer shell. We bridge the
+ * two through the workspace event bus rather than reaching into
+ * `ClientApp` via a template ref, which keeps the inner component's
+ * internals private and matches the existing `ui:open:*` pattern.
+ */
+const handleCreateWorkspaceFromMenu = () => {
+  app.eventBus.emit('ui:open:create-workspace')
+}
+
 const navigateToDocument = (slug: string) => {
   app.eventBus.emit('ui:navigate', {
     page: 'document',
@@ -176,13 +187,23 @@ const registry = reactive({
       :registry>
       <template #header-menu-items>
         <AppMenuItems
+          :app="app"
+          @createWorkspace="handleCreateWorkspaceFromMenu"
           @login="handleLogin"
           @openSettings="openSettings" />
       </template>
       <template
         v-if="!isLoggedIn"
         #header-end>
-        <ScalarHeaderButton @click.prevent="handleLogin">
+        <!--
+          The mobile top bar is space-constrained, so we hide the secondary
+          "Log in" affordance on small screens - it stays reachable from the
+          menu - and keep only the primary "Register" call to action and
+          the document save / discard cluster on the bar itself.
+        -->
+        <ScalarHeaderButton
+          class="max-md:hidden"
+          @click.prevent="handleLogin">
           Log in
         </ScalarHeaderButton>
         <ScalarHeaderButton

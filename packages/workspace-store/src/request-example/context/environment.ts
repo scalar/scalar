@@ -1,5 +1,6 @@
 import type { WorkspaceStore } from '@/client'
 import { type XScalarEnvironment, xScalarEnvironmentSchema } from '@/schemas/extensions/document/x-scalar-environments'
+import { isOpenApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import type { WorkspaceDocument } from '@/schemas/workspace'
 
@@ -45,7 +46,7 @@ export const getActiveEnvironment = (
   const workspaceEnv = workspace.workspace['x-scalar-environments']?.[activeEnv] ?? {
     variables: [],
   }
-  const documentEnv = document?.['x-scalar-environments']?.[activeEnv] ?? {
+  const documentEnv = (isOpenApiDocument(document) ? document['x-scalar-environments']?.[activeEnv] : undefined) ?? {
     variables: [],
   }
 
