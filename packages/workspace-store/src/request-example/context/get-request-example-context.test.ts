@@ -1,7 +1,7 @@
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { assert, describe, expect, it } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 import { getRequestExampleContext } from './get-request-example-context'
 

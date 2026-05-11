@@ -768,7 +768,7 @@ describe('updateSelectedScopes', () => {
       meta: { type: 'document' },
     })
 
-    expect(store.workspace.activeDocument?.security).toEqual([{ oauth2: [] }])
+    expect(getActiveOpenApiDocument(store)?.security).toEqual([{ oauth2: [] }])
 
     const selected = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
     assert(selected)
