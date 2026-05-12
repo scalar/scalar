@@ -57,10 +57,7 @@ const { handleLogin, handleRegister } = useAuthHandlers({
   // Lets go to the team workspace on login
   onAuthenticated: async () => {
     await teamsSuspense()
-    app.workspace.navigateToWorkspaceGetStarted(
-      `${currentTeamSlug.value}/${DEFAULT_TEAM_WORKSPACE_SLUG}`,
-      currentTeamSlug.value,
-    )
+    await app.workspace.resumeOrGetStarted(currentTeamSlug.value)
   },
 })
 
@@ -79,17 +76,8 @@ const isDesktop = window.electron === true
 //--------------------------------------------------
 
 /** Ensure we redirect to the team workspace on team change */
-const handleTeamChange = async () => {
-  const workspaceId = workspaceGroups.value[0]?.options[0]?.id
-  if (!workspaceId) {
-    return
-  }
-
-  app.workspace.navigateToWorkspaceGetStarted(
-    workspaceId,
-    currentTeamSlug.value,
-  )
-}
+const handleTeamChange = async () =>
+  await app.workspace.resumeOrGetStarted(currentTeamSlug.value)
 
 //--------------------------------------------------
 // Workspace handling

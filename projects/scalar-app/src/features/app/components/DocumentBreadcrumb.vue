@@ -256,13 +256,10 @@ const handleDocumentTitleClick = () => {
  * fresh workspace and may not yet have any documents loaded.
  */
 const handleWorkspaceSelect = (option: ScalarComboboxOption | undefined) => {
-  if (!option) {
+  if (!option || option.id === activeWorkspaceId.value) {
     return
   }
-  if (option.id === activeWorkspaceId.value) {
-    return
-  }
-  app.workspace.navigateToWorkspaceGetStarted(option.id, currentTeamSlug.value)
+  app.workspace.resumeOrGetStarted(currentTeamSlug.value, option.id)
 }
 
 const handleVersionSelect = async (option: VersionOption | undefined) => {

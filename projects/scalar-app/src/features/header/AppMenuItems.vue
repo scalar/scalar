@@ -43,7 +43,8 @@ const handleSelectWorkspace = (id: string | undefined) => {
   if (!id || id === activeWorkspaceId.value) {
     return
   }
-  app.workspace.navigateToWorkspaceGetStarted(id, currentTeamSlug.value)
+
+  app.workspace.resumeOrGetStarted(currentTeamSlug.value, id)
 }
 </script>
 

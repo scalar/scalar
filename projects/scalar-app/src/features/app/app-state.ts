@@ -98,6 +98,12 @@ export type AppState = {
      * so both surfaces stay in sync when the user switches workspaces.
      */
     navigateToWorkspaceGetStarted: (workspaceId: string, activeTeamSlug: string) => void
+    /**
+     * Navigates to the team's workspace, restoring the last active tab
+     * when one exists in persistence. Falls back to the get-started page
+     * when the workspace has no prior session.
+     */
+    resumeOrGetStarted: (teamSlug: string, workspaceId?: string) => Promise<void>
     /** Whether the workspace page is open */
     isOpen: ComputedRef<boolean>
     /**
@@ -472,6 +478,32 @@ export const createAppState = async ({
     ) {
       emitNavigation(activeTeamSlug, DEFAULT_TEAM_WORKSPACE_SLUG)
     }
+  }
+
+  /**
+   * Navigates to the team's workspace, restoring the last active tab when
+   * one exists in persistence. Falls back to the get-started page when
+   * the workspace has no prior session.
+   *
+   * Use this instead of `navigateToWorkspaceGetStarted` when the intent
+   * is "take me back to where I was" rather than "show me onboarding".
+   */
+  const resumeOrGetStarted = async (teamSlug: string, workspaceIdParam?: string): Promise<void> => {
+    const workspace = workspaces.value?.find((w) => w.teamSlug === teamSlug)
+    const slug = workspace?.slug ?? DEFAULT_TEAM_WORKSPACE_SLUG
+    const workspaceId = workspaceIdParam ?? workspace?.id ?? getWorkspaceId(teamSlug, slug)
+
+    const persisted = await persistence.getItem({ teamSlug, slug })
+    const tabs = persisted?.workspace.meta?.['x-scalar-tabs']
+    const index = persisted?.workspace.meta?.['x-scalar-active-tab'] ?? 0
+    const tab = tabs?.[index]
+
+    if (tab?.path) {
+      await router.push(tab.path)
+      return
+    }
+
+    navigateToWorkspaceGetStarted(workspaceId, teamSlug)
   }
 
   /**
@@ -1097,6 +1129,7 @@ export const createAppState = async ({
       activeWorkspace,
       navigateToWorkspace,
       navigateToWorkspaceGetStarted,
+      resumeOrGetStarted,
       isOpen: computed(() => Boolean(workspaceSlug.value && !documentSlug.value)),
       isTeamWorkspace,
     },
