@@ -18,6 +18,7 @@ export function createWindow({ isDev }: { isDev?: boolean }): BrowserWindow {
     width: mainWindowState.width,
     height: mainWindowState.height,
     show: false,
+    transparent: true,
     title: 'Scalar',
     trafficLightPosition: { x: 9.5, y: 12 },
     // Borderless Window, for macOS only
