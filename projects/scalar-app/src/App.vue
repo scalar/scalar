@@ -47,8 +47,8 @@ const { getAppState, getCommandPaletteState, fileLoader } =
 
 const app = getAppState()
 const { isLoggedIn } = useAuth()
-const { isLoading: isUserLoading } = useUser()
-const { currentTeam, isLoading: isTeamLoading } = useTeams()
+const { refetch: userRefetch } = useUser()
+const { currentTeam } = useTeams()
 
 const { handleLogin, handleRegister } = useAuthHandlers()
 const {
@@ -61,12 +61,24 @@ const { namespaces, isLoading: isNamespacesLoading } = useRegistryNamespaces()
 /** Whether the app is running on electron */
 const isDesktop = window.electron === true
 
+//--------------------------------------------------
+// Team
+//--------------------------------------------------
+
 /** Current teams slug */
 const currentTeamSlug = computed(() => currentTeam.value?.slug || 'local')
 
-//--------------------------------------------------
-// Team sync with app state
-//--------------------------------------------------
+/** Trigger a refetch of the user data, currentTeam will refetch via the tokenData */
+const handleTeamChange = async () => {
+  await userRefetch()
+
+  const workspaceId = filteredWorkspaces.value[0]?.id
+  if (!workspaceId) {
+    return
+  }
+  app.workspace.navigateToWorkspaceGetStarted(workspaceId)
+}
+
 // Ideally we would pull this out of the appState but to minimize
 // bugs we can do this for now then refactor it later
 // watch([isUserLoading, isTeamLoading], ([userLoading, teamLoading]) => {
@@ -245,6 +257,7 @@ const registry = reactive({
     @navigateToDocument="navigateToDocument"
     @set:workspace="(id) => setActiveWorkspaceById(id)">
     <ClientApp
+      :@changed:team="handleTeamChange"
       :getAppState
       :getCommandPaletteState
       :layout="isDesktop ? 'desktop' : 'web'"
@@ -259,13 +272,16 @@ const registry = reactive({
           @login="handleLogin"
           @openSettings="openSettings" />
       </template>
+
+      <!-- Team Logo -->
       <template
         v-if="currentTeam?.imageUri"
         #header-logo>
         <img
-          alt="Team logo"
+          :alt="currentTeam?.name || 'Team logo'"
           :src="currentTeam.imageUri" />
       </template>
+
       <template
         v-if="!isLoggedIn"
         #header-end>

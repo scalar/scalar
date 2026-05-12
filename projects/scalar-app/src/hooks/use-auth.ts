@@ -1,3 +1,4 @@
+import { type Result, err, ok } from '@scalar/helpers/types/result'
 import { useToasts } from '@scalar/use-toasts'
 import { coerce, validate } from '@scalar/validation'
 import { jwtDecode } from 'jwt-decode'
@@ -78,6 +79,30 @@ const logout = () => {
 }
 
 /**
+ * Discriminated reasons a token refresh attempt can fail. Callers can
+ * `switch` on these to decide whether to retry, log out, or just toast.
+ *
+ * - `no-refresh-token` – Nothing to send; treat as already logged out.
+ * - `unauthorized` – Server rejected the token (401/403); user was logged out.
+ * - `server-error` – Non-2xx other than 401/403; tokens unchanged.
+ * - `invalid-response` – Body failed schema validation; tokens unchanged.
+ * - `network-error` – `fetch` threw; tokens unchanged.
+ * - `lock-busy` – Another tab holds the lock; success will arrive via the
+ *   `storage` event. Background callers can ignore this; team-switch callers
+ *   should treat it as a failure because the other tab will not be refreshing
+ *   with our `teamUid`.
+ */
+export type RefreshTokensError =
+  | 'no-refresh-token'
+  | 'unauthorized'
+  | 'server-error'
+  | 'invalid-response'
+  | 'network-error'
+  | 'lock-busy'
+
+export type RefreshTokensResult = Result<AccessTokenPayload, RefreshTokensError>
+
+/**
  * In-flight refresh promises keyed by `teamUid` (or an empty string for
  * background refreshes). This ensures that a team-switch refresh is never
  * silently deduped into an unrelated background refresh, while concurrent
@@ -85,17 +110,39 @@ const logout = () => {
  *
  * Cross-tab deduplication is handled separately via `navigator.locks`.
  */
-const pendingRefreshes = new Map<string, Promise<void>>()
+const pendingRefreshes = new Map<string, Promise<RefreshTokensResult>>()
 
 /**
  * Call POST /core/login/refresh and update token state.
+ *
+ * Returns a discriminated {@link Result} so callers know whether the refresh
+ * succeeded and, on failure, can branch on the specific error code.
  *
  * Concurrent callers in the same tab share a single in-flight request. A
  * `navigator.locks` request additionally prevents concurrent refreshes across
  * tabs; when the lock is already held elsewhere we no-op and let the winning
  * tab propagate the result via the `storage` event.
+ *
+ * @example
+ * const result = await refreshTokens(teamUid)
+ * if (result.ok) {
+ *   console.log('Refreshed for', result.data.email)
+ * } else {
+ *   switch (result.error) {
+ *     case 'unauthorized':
+ *       // Already logged out — bounce to login page
+ *       break
+ *     case 'lock-busy':
+ *     case 'network-error':
+ *     case 'server-error':
+ *       // Transient — caller may retry or ignore
+ *       break
+ *     default:
+ *       break
+ *   }
+ * }
  */
-const refreshTokens = (teamUid?: string): Promise<void> => {
+const refreshTokens = (teamUid?: string): Promise<RefreshTokensResult> => {
   const dedupeKey = teamUid ?? ''
 
   const existing = pendingRefreshes.get(dedupeKey)
@@ -105,10 +152,10 @@ const refreshTokens = (teamUid?: string): Promise<void> => {
 
   const token = refreshToken.value
   if (!token) {
-    return Promise.resolve()
+    return Promise.resolve(err('no-refresh-token', 'No refresh token available'))
   }
 
-  const execute = async (): Promise<void> => {
+  const execute = async (): Promise<RefreshTokensResult> => {
     try {
       const response = await fetch(`${env.VITE_SERVICES_URL}/core/login/refresh`, {
         method: 'POST',
@@ -122,37 +169,50 @@ const refreshTokens = (teamUid?: string): Promise<void> => {
 
       if (response.status === 401 || response.status === 403) {
         logout()
-        return
+        return err('unauthorized', 'Refresh token was rejected')
       }
 
       if (!response.ok) {
         toast('Token refresh failed', 'error')
-        return
+        return err('server-error', `Token refresh failed with status ${response.status}`)
       }
 
       const json = await response.json()
 
       if (!validate(tokenResponseSchema, json)) {
         toast('Token refresh returned an invalid response', 'error')
-        return
+        return err('invalid-response', 'Token refresh returned an invalid response')
       }
 
       const data = coerce(tokenResponseSchema, json)
       setTokens(data.accessToken, data.refreshToken)
+
+      // `tokenData` is a computed derived from `accessToken` — it is
+      // synchronously invalidated by `setTokens` above, so reading
+      // `.value` here always returns the freshly decoded payload.
+      if (!tokenData.value) {
+        return err('invalid-response', 'Token was stored but could not be decoded')
+      }
+      return ok(tokenData.value)
     } catch {
       toast('Could not refresh token', 'error')
+      return err('network-error', 'Could not reach the auth service')
     }
   }
 
-  const run = async (): Promise<void> => {
+  const run = async (): Promise<RefreshTokensResult> => {
     if (window?.navigator?.locks?.request) {
-      await window.navigator.locks.request('scalar-refresh-request', { ifAvailable: true }, async (lock) =>
-        lock ? execute() : undefined,
+      // The `LockManager.request` generic struggles with discriminated
+      // unions so we widen to `unknown` and narrow back afterwards.
+      const result: unknown = await window.navigator.locks.request(
+        'scalar-refresh-request',
+        { ifAvailable: true },
+        async (lock) => (lock ? execute() : err('lock-busy', 'Another tab is refreshing')),
       )
-      return
+      return (result as RefreshTokensResult | undefined) ?? err('lock-busy', 'Another tab is refreshing')
     }
 
-    await execute()
+    return execute()
   }
 
   const promise = run().finally(() => {

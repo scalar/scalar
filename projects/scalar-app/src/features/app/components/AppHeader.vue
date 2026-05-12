@@ -29,6 +29,8 @@ defineProps<{
 const emit = defineEmits<{
   /** Emitted when the user wants to open the workspace settings */
   (e: 'navigate:to:settings'): void
+  /** Emitted when the user has changed team */
+  (e: 'changed:team'): void
 }>()
 
 const slots = defineSlots<{
@@ -52,7 +54,7 @@ const slots = defineSlots<{
 }>()
 
 const { currentTeam, teams: allTeams } = useTeams()
-const { isLoggedIn, refreshTokens } = useAuth()
+const { isLoggedIn, logout, refreshTokens } = useAuth()
 
 /** Convert teams to menu items */
 const teams = computed<ScalarMenuTeamOption[]>(
@@ -65,12 +67,19 @@ const teams = computed<ScalarMenuTeamOption[]>(
 )
 
 /** Select the current team option */
-const team = computed<ScalarMenuTeamOption | undefined>(() => {
-  return teams.value.find((t) => t.id === currentTeam.value?.uid)
-})
+const team = computed<ScalarMenuTeamOption | undefined>(() =>
+  teams.value.find((t) => t.id === currentTeam.value?.uid),
+)
 
-/** Looks like we refresh our token with the teamUid to change teams */
-const switchTeam = (t?: ScalarMenuTeamOption) => refreshTokens(t?.id)
+/** Refresh tokens with the selected team UID then navigate to the workspace root */
+const switchTeam = async (t?: ScalarMenuTeamOption) => {
+  const result = await refreshTokens(t?.id)
+  if (result.ok) {
+    emit('change:team')
+  } else {
+    logout()
+  }
+}
 </script>
 
 <template>

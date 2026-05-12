@@ -14,7 +14,7 @@ import { computed } from 'vue'
 import type { AppState } from '@/features/app'
 import { useAuth } from '@/hooks/use-auth'
 
-const { app, workspaceGroups: propsWorkspaceGroups } = defineProps<{
+const { app, workspaceGroups } = defineProps<{
   /**
    * App state used to surface the workspace picker inside the menu. The
    * top-level breadcrumb already exposes the picker on tablet and up, but
@@ -32,21 +32,6 @@ const emit = defineEmits<{
 }>()
 
 const { isLoggedIn, logout } = useAuth()
-
-/**
- * Workspaces grouped by team, mapped into the shape the menu picker
- * expects. Mirrors the breadcrumb's workspace combobox so both surfaces
- * stay in sync.
- */
-const workspaceGroups = computed<WorkspaceGroup[]>(() =>
-  propsWorkspaceGroups.map((group) => ({
-    label: group.label ?? '',
-    options: group.options.map((option) => ({
-      id: option.id,
-      label: option.label,
-    })),
-  })),
-)
 
 const activeWorkspaceId = computed<string | undefined>(
   () => app.workspace.activeWorkspace.value?.id ?? undefined,

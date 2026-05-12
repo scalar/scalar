@@ -73,6 +73,10 @@ const {
   workspaceGroups: WorkspaceGroup[]
 }>()
 
+const emit = defineEmits<{
+  (e: 'changed:team'): void
+}>()
+
 /**
  * Reactive view of the registry documents list with a sane default for
  * setups that did not wire an adapter up. The sidebar and breadcrumb
@@ -312,6 +316,7 @@ const routerViewProps = computed<RouteProps>(() => {
           :menuTitle="
             app.workspace.isTeamWorkspace.value ? currentTeam?.name : undefined
           "
+          @changed:team="emit('changed:team')"
           @navigate:to:settings="
             app.eventBus.emit('ui:navigate', {
               page: 'workspace',
@@ -355,6 +360,7 @@ const routerViewProps = computed<RouteProps>(() => {
               class="max-md:hidden"
               :fetchRegistryDocument="registry?.fetchDocument"
               :registryDocuments="registryDocuments"
+              :workspaceGroups
               @createWorkspace="createWorkspaceModalState.show()" />
           </template>
           <!--
