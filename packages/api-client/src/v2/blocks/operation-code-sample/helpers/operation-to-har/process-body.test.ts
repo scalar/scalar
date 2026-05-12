@@ -1200,6 +1200,43 @@ describe('processBody', () => {
       })
     })
 
+    it('falls back to repeated-name parts when style: deepObject is set on an array', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            tags: {
+              style: 'deepObject',
+              explode: true,
+            },
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              tags: {
+                type: 'array',
+                example: ['a', 'b', 'c'],
+                items: { type: 'string' },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [
+          { name: 'tags', value: 'a' },
+          { name: 'tags', value: 'b' },
+          { name: 'tags', value: 'c' },
+        ],
+      })
+    })
+
     it('falls back to per-file parts when style is set on an array of Files', () => {
       const content = {
         'multipart/form-data': {

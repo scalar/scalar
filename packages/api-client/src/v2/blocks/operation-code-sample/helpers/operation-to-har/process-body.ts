@@ -83,10 +83,23 @@ const objectToFormParams = (
       const explode = partEncoding?.explode ?? style === 'form'
 
       if (style === 'deepObject') {
-        // explode:false with deepObject is undefined per spec; we invoke the serializer
-        // either way so authors get useful output instead of nothing.
-        for (const entry of serializeDeepObjectStyle(key, unpacked)) {
-          params.push({ name: entry.key, value: String(entry.value) })
+        if (Array.isArray(unpacked)) {
+          // OAS 3.1.1 marks deepObject-on-array as n/a; fall back to the form/explode:true
+          // shape so the array still reaches the wire instead of being silently dropped.
+          const serialized = serializeFormStyle(unpacked, true)
+          if (Array.isArray(serialized)) {
+            for (const entry of serialized) {
+              params.push({ name: entry.key || key, value: String(entry.value) })
+            }
+          } else {
+            params.push({ name: key, value: String(serialized) })
+          }
+        } else {
+          // explode:false with deepObject is undefined per spec; we invoke the serializer
+          // either way so authors get useful output instead of nothing.
+          for (const entry of serializeDeepObjectStyle(key, unpacked)) {
+            params.push({ name: entry.key, value: String(entry.value) })
+          }
         }
       } else if (style === 'spaceDelimited') {
         params.push({ name: key, value: String(serializeSpaceDelimitedStyle(unpacked)) })
