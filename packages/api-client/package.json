@@ -334,6 +334,7 @@
     "focus-trap": "^7.8.0",
     "fuse.js": "catalog:*",
     "js-base64": "catalog:*",
+    "jsonc-parser": "catalog:*",
     "nanoid": "catalog:*",
     "pretty-ms": "^9.3.0",
     "radix-vue": "catalog:*",

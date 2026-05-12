@@ -72,6 +72,7 @@ catalogs:
     github-slugger: 2.0.0
     js-base64: ^3.7.8
     jsdom: 27.4.0
+    jsonc-parser: 3.3.1
     jwt-decode: 4.0.0
     microdiff: ^1.5.0
     monaco-editor: 0.54.0

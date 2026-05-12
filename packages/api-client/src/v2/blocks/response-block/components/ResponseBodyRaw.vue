@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { ScalarCodeBlockCopy } from '@scalar/components'
-import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { useCodeMirror, type CodeMirrorLanguage } from '@scalar/use-codemirror'
-import { ref, toRef, useId } from 'vue'
+import { applyEdits, format } from 'jsonc-parser'
+import { computed, ref, toRef, useId } from 'vue'
 
 const props = defineProps<{
   content: any
@@ -13,11 +13,32 @@ const codeMirrorRef = ref<HTMLDivElement | null>(null)
 /** Base id for the code block */
 const id = useId()
 
+/** Matches CodeMirror JSON mode and keeps JSONC (comments, trailing commas) via jsonc-parser. */
+const jsoncFormatOptions = {
+  tabSize: 2,
+  insertSpaces: true,
+  eol: '\n',
+} as const
+
+const prettyPrintedContent = computed(() => {
+  if (props.language === 'json' && typeof props.content === 'string') {
+    try {
+      const edits = format(props.content, undefined, jsoncFormatOptions)
+      if (edits.length > 0) {
+        return applyEdits(props.content, edits)
+      }
+    } catch {
+      // applyEdits can throw on malformed edit sequences
+    }
+  }
+  return props.content
+})
+
 const { codeMirror } = useCodeMirror({
   codeMirrorRef,
   readOnly: true,
   lineNumbers: true,
-  content: toRef(() => prettyPrintJson(props.content)),
+  content: toRef(() => prettyPrintedContent.value),
   language: toRef(() => props.language),
   forceFoldGutter: true,
 })
@@ -39,9 +60,9 @@ const getCurrentContent = () => {
     <!-- Copy button -->
     <ScalarCodeBlockCopy
       v-if="getCurrentContent()"
+      :aria-controls="id"
       class="absolute top-2 right-2"
-      :content="getCurrentContent()"
-      :aria-controls="id" />
+      :content="getCurrentContent()" />
   </div>
 </template>
 <style scoped>
