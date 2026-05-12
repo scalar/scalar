@@ -104,7 +104,6 @@ const rawLanguage = computed(
         :key="`preview-${responseBody.dataUrl}`"
         :alpha="mediaConfig.alpha"
         :content="data"
-        :language="rawLanguage as CodeMirrorLanguage"
         :mode="mediaConfig.preview"
         :src="responseBody.dataUrl"
         :type="mimeEssence" />
