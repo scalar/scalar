@@ -25,15 +25,20 @@ export const useTeams = (options?: Omit<UseQueryOptions, 'queryKey' | 'queryFn'>
       enabled: isLoggedIn,
       refetchOnMount: true,
       refetchInterval: DEFAULT_REFETCH_INTERVAL,
-      meta: { toastError: 'Failed to fetch teams' },
+      meta: { errorMessage: 'Failed to fetch teams' },
       ...options,
     },
     queryClient,
   )
 
+  const teams = computed(() => query.data.value?.teams)
+  const currentTeam = computed(() => query.data.value?.teams?.find((t) => t.uid === tokenData.value?.teamUid))
+  const currentTeamSlug = computed(() => currentTeam.value?.slug || 'local')
+
   return {
     ...query,
-    teams: computed(() => query.data.value?.teams),
-    currentTeam: computed(() => query.data.value?.teams?.find((t) => t.uid === tokenData.value?.teamUid)),
+    teams,
+    currentTeam,
+    currentTeamSlug,
   }
 }

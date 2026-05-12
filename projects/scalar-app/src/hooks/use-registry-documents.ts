@@ -21,7 +21,7 @@ export const useRegistryDocuments = (options?: Omit<UseQueryOptions, 'queryKey' 
       enabled: isLoggedIn,
       refetchOnMount: true,
       refetchInterval: DEFAULT_REFETCH_INTERVAL,
-      meta: { toastError: 'Failed to fetch documents' },
+      meta: { errorMessage: 'Failed to fetch documents' },
       ...options,
     },
     queryClient,

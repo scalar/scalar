@@ -21,7 +21,7 @@ export const useUser = (options?: Omit<UseQueryOptions, 'queryKey' | 'queryFn'>)
       queryKey,
       queryFn: () => scalarClient.authentication.getCurrentUser(),
       enabled: isLoggedIn,
-      meta: { toastError: 'Failed to fetch user' },
+      meta: { errorMessage: 'Failed to fetch user' },
       ...options,
     },
     queryClient,

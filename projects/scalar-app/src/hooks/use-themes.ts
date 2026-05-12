@@ -80,7 +80,7 @@ export const useThemes = ({
       enabled: isLoggedIn,
       refetchOnMount: true,
       refetchInterval: DEFAULT_REFETCH_INTERVAL,
-      meta: { toastError: 'Failed to load themes' },
+      meta: { errorMessage: 'Failed to load themes' },
       ...options,
     },
     queryClient,

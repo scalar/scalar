@@ -107,7 +107,7 @@ export type AppState = {
      * Mirrors the picker affordances in the breadcrumb and header menu
      * so both surfaces stay in sync when the user switches workspaces.
      */
-    navigateToWorkspaceGetStarted: (workspaceId: string) => void
+    navigateToWorkspaceGetStarted: (workspaceId: string, activeTeamSlug: string) => void
     /** Whether the workspace page is open */
     isOpen: ComputedRef<boolean>
     /**
@@ -469,7 +469,7 @@ export const createAppState = async ({
    * route that through the normal navigation flow so the route handler
    * can create the workspace on demand.
    */
-  const navigateToWorkspaceGetStarted = (workspaceId: string, activeTeamSlug?: string): void => {
+  const navigateToWorkspaceGetStarted = (workspaceId: string, activeTeamSlug: string): void => {
     const emitNavigation = (target: string, slug: string) => {
       eventBus.emit('ui:navigate', {
         page: 'workspace',
@@ -987,6 +987,7 @@ export const createAppState = async ({
     to: RouteLocationNormalizedGeneric,
     { teamSlug, filteredWorkspaces }: { teamSlug: string; filteredWorkspaces: WorkspaceOption[] },
   ) => {
+    console.trace(to.fullPath)
     const slug = getRouteParam('workspaceSlug', to)
     const document = getRouteParam('documentSlug', to)
     const nextTeamSlug = getRouteParam('teamSlug', to)

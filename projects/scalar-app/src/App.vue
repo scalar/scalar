@@ -15,7 +15,7 @@ export type AppProps = {
 
 <script setup lang="ts">
 import { PostHogClientPlugin } from '@scalar/api-client/plugins/posthog'
-import { ScalarHeaderButton, ScalarMenuTeamProfile } from '@scalar/components'
+import { ScalarHeaderButton } from '@scalar/components'
 import { type LoaderPlugin } from '@scalar/json-magic/bundle'
 import { requestScriptsPlugin } from '@scalar/pre-post-request-scripts/plugins'
 import { computed, reactive } from 'vue'
@@ -40,15 +40,13 @@ import { useAuthHandlers } from '@/hooks/use-auth-handlers'
 import { useRegistryDocuments } from '@/hooks/use-registry-documents'
 import { useRegistryNamespaces } from '@/hooks/use-registry-namespaces'
 import { useTeams } from '@/hooks/use-teams'
-import { useUser } from '@/hooks/use-user'
 
 const { getAppState, getCommandPaletteState, fileLoader } =
   defineProps<AppProps>()
 
 const app = getAppState()
 const { isLoggedIn } = useAuth()
-const { refetch: userRefetch } = useUser()
-const { currentTeam } = useTeams()
+const { currentTeam, currentTeamSlug } = useTeams()
 
 const { handleLogin, handleRegister } = useAuthHandlers()
 const {
@@ -65,42 +63,29 @@ const isDesktop = window.electron === true
 // Team
 //--------------------------------------------------
 
-/** Current teams slug */
-const currentTeamSlug = computed(() => currentTeam.value?.slug || 'local')
-
 /** Trigger a refetch of the user data, currentTeam will refetch via the tokenData */
 const handleTeamChange = async () => {
-  await userRefetch()
-
-  const workspaceId = filteredWorkspaces.value[0]?.id
+  const workspaceId = workspaceGroups.value[0]?.options[0]?.id
   if (!workspaceId) {
     return
   }
-  app.workspace.navigateToWorkspaceGetStarted(workspaceId)
+
+  app.workspace.navigateToWorkspaceGetStarted(
+    workspaceId,
+    currentTeamSlug.value,
+  )
 }
-
-// Ideally we would pull this out of the appState but to minimize
-// bugs we can do this for now then refactor it later
-// watch([isUserLoading, isTeamLoading], ([userLoading, teamLoading]) => {
-//   console.log('we are loading: ', userLoading || teamLoading)
-//   app.isTeamLoading.value = userLoading || teamLoading
-// })
-
-// watch(currentTeam, (team) => {
-//   console.log('active Team Slug is: ', team?.slug || 'local')
-//   console.log(team)
-//   app.activeEntities.teamSlug.value = team?.slug || 'local'
-// })
 
 //--------------------------------------------------
 // Workspace handling
 //--------------------------------------------------
 /** Routes to the get-started page of the workspace identified by `id`. */
 const setActiveWorkspaceById = (id?: string) => {
+  console.trace('setActiveWorkspaceById', id)
   if (!id) {
     return
   }
-  app.workspace.navigateToWorkspaceGetStarted(id)
+  app.workspace.navigateToWorkspaceGetStarted(id, currentTeamSlug.value)
 }
 
 const filteredWorkspaces = computed(() =>
@@ -273,11 +258,14 @@ const registry = reactive({
           @openSettings="openSettings" />
       </template>
 
+      <!-- Team Logo -->
       <template
         v-if="currentTeam?.imageUri"
         #header-logo>
-        <ScalarMenuTeamProfile
-          :label="currentTeam.name"
+        <img
+          :alt="currentTeam.name"
+          class="size-5 rounded"
+          role="presentation"
           :src="currentTeam.imageUri" />
       </template>
 

@@ -18,6 +18,8 @@ import { loadRegistryDocument } from '@/features/app/helpers/load-registry-docum
 import { VERSION_STATUS_PRESENTATION } from '@/features/app/helpers/version-status-presentation'
 import { useActiveDocumentVersion } from '@/features/app/hooks/use-active-document-version'
 import { useVersionConflictCheck } from '@/features/app/hooks/use-version-conflict-check'
+import { safeRun } from '@/helpers/safe-run'
+import { useTeams } from '@/hooks/use-teams'
 import type {
   ImportDocumentFromRegistry,
   RegistryDocumentsState,
@@ -217,6 +219,8 @@ const navigateToDocument = (documentSlug: string) => {
   })
 }
 
+const { currentTeamSlug } = useTeams()
+
 /**
  * Click handler for the workspace label when it renders as a plain link
  * (i.e. the user is NOT yet on the get-started page). Navigating there
@@ -227,7 +231,7 @@ const handleWorkspaceLinkClick = () => {
   if (!id) {
     return
   }
-  app.workspace.navigateToWorkspaceGetStarted(id)
+  app.workspace.navigateToWorkspaceGetStarted(id, currentTeamSlug.value)
 }
 
 /**
@@ -258,7 +262,7 @@ const handleWorkspaceSelect = (option: ScalarComboboxOption | undefined) => {
   if (option.id === activeWorkspaceId.value) {
     return
   }
-  app.workspace.navigateToWorkspaceGetStarted(option.id)
+  app.workspace.navigateToWorkspaceGetStarted(option.id, currentTeamSlug.value)
 }
 
 const handleVersionSelect = async (option: VersionOption | undefined) => {

@@ -26,7 +26,7 @@ export const useRegistryNamespaces = (options?: Omit<UseQueryOptions, 'queryKey'
       enabled: isLoggedIn,
       refetchOnMount: true,
       refetchInterval: DEFAULT_REFETCH_INTERVAL,
-      meta: { toastError: 'Failed to fetch namespaces' },
+      meta: { errorMessage: 'Failed to fetch namespaces' },
       ...options,
     },
     queryClient,
