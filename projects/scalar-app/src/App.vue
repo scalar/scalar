@@ -46,7 +46,12 @@ const { getAppState, getCommandPaletteState, fileLoader } =
 
 const app = getAppState()
 const { isLoggedIn } = useAuth()
-const { currentTeam, currentTeamSlug, suspense: teamsSuspense } = useTeams()
+const {
+  currentTeam,
+  currentTeamSlug,
+  isLoading: isTeamsLoading,
+  suspense: teamsSuspense,
+} = useTeams()
 
 const { handleLogin, handleRegister } = useAuthHandlers({
   // Lets go to the team workspace on login
@@ -124,6 +129,15 @@ const workspaceGroups = computed(() =>
 //--------------------------------------------------
 // Navigation/Routing
 //--------------------------------------------------
+
+/** This is used for reload, the others are used on login */
+app.router.beforeEach(async () => {
+  if (isTeamsLoading.value) {
+    await teamsSuspense()
+  }
+
+  return true
+})
 
 /**
  * Temporarily here to add some metadata to the route change handler
