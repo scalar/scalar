@@ -97,7 +97,7 @@ const logout = () => {
  *   should treat it as a failure because the other tab will not be refreshing
  *   with our `teamUid`.
  */
-export type RefreshTokensError =
+type RefreshTokensError =
   | 'no-refresh-token'
   | 'unauthorized'
   | 'server-error'
@@ -105,7 +105,7 @@ export type RefreshTokensError =
   | 'network-error'
   | 'lock-busy'
 
-export type RefreshTokensResult = Result<AccessTokenPayload, RefreshTokensError>
+type RefreshTokensResult = Result<AccessTokenPayload, RefreshTokensError>
 
 /**
  * In-flight refresh promises keyed by `teamUid` (or an empty string for

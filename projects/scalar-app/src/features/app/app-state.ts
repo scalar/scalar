@@ -168,7 +168,7 @@ const DEFAULT_SIDEBAR_WIDTH = 288
 /** Default slug used when auto-creating a team workspace on demand. */
 export const DEFAULT_TEAM_WORKSPACE_SLUG = 'default'
 /** Default display name for the local workspace when it is first created. */
-export const DEFAULT_LOCAL_WORKSPACE_NAME = 'Local workspace'
+const DEFAULT_LOCAL_WORKSPACE_NAME = 'Local workspace'
 /** Default display name used when auto-creating a team workspace on demand. */
 export const DEFAULT_TEAM_WORKSPACE_NAME = 'Team workspace'
 
