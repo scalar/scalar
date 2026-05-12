@@ -160,11 +160,11 @@ test.describe('response-body-raw-json-bigint.e2e', () => {
     const main = page.locator('main')
 
     await main.getByRole('button', { name: 'Preview', exact: true }).click()
-    const previewBlock = main.locator('.body-json-preview').first()
+    const previewBlock = main.getByTestId('response-body-raw')
     await assertBigIntBodyAndScreenshot(page, previewBlock, 'response-preview-json-bigint.png')
 
     await main.getByRole('button', { name: 'Raw', exact: true }).click()
-    const rawBlock = main.locator('.body-raw').first()
+    const rawBlock = main.getByTestId('response-body-raw')
     await assertBigIntBodyAndScreenshot(page, rawBlock, 'response-raw-json-bigint.png')
   })
 })

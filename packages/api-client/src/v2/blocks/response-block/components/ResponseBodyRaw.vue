@@ -46,7 +46,8 @@ const getCurrentContent = () => {
 </script>
 <template>
   <div
-    class="scalar-code-block group/code-block relative grid min-h-0 overflow-hidden p-px outline-none has-focus-visible:outline">
+    class="scalar-code-block group/code-block relative grid min-h-0 overflow-hidden p-px outline-none has-focus-visible:outline"
+    data-testid="response-body-raw">
     <div
       class="custom-scroll relative pr-1"
       tabindex="0">
