@@ -1200,11 +1200,11 @@ describe('processBody', () => {
       })
     })
 
-    it('stringifies nested objects to "[object Object]" under style: form (spec-undefined fallback)', () => {
+    it('JSON-stringifies nested objects under style: form (spec-undefined fallback)', () => {
       // RFC6570 form-style serialization only addresses one level of nesting.
-      // Deeper structures are spec-undefined; we surface the degenerate String(value)
-      // output as a pinned regression test so future refactors notice if the contract
-      // changes. The documented escape hatch is style: deepObject + explode: true.
+      // Deeper structures are spec-undefined; we JSON-stringify them so authors get
+      // readable output instead of the degenerate "[object Object]" from String(value).
+      // The cleaner documented alternative is style: deepObject + explode: true.
       const content = {
         'multipart/form-data': {
           encoding: {
@@ -1242,7 +1242,7 @@ describe('processBody', () => {
         mimeType: 'multipart/form-data',
         params: [
           { name: 'name', value: 'widget' },
-          { name: 'meta', value: '[object Object]' },
+          { name: 'meta', value: '{"region":"eu"}' },
         ],
       })
     })

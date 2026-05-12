@@ -26,6 +26,18 @@ type ProcessBodyProps = Pick<OperationToHarProps, 'contentType' | 'example' | 'r
 type MultipartEncodingMap = MediaTypeObject['encoding']
 
 /**
+ * Stringify a value emitted by `serializeFormStyle` into a HAR param value.
+ *
+ * Form-style serialization only addresses one level of nesting per RFC6570;
+ * deeper structures (an object or array still sitting in `entry.value`) are
+ * spec-undefined. JSON-stringify them so authors get readable output instead
+ * of `String(value)` returning `"[object Object]"`. Primitives pass through
+ * `String()` to preserve the existing wire shape (e.g. `true` → `"true"`).
+ */
+const stringifyEntryValue = (value: unknown): string =>
+  value !== null && typeof value === 'object' ? JSON.stringify(value) : String(value)
+
+/**
  * Converts a form-data body into HAR `Param[]` entries for `multipart/form-data`
  * and `application/x-www-form-urlencoded` requests.
  *
@@ -109,7 +121,7 @@ const objectToFormParams = (
           const serialized = serializeFormStyle(unpacked, true)
           if (Array.isArray(serialized)) {
             for (const entry of serialized) {
-              params.push({ name: entry.key || key, value: String(entry.value) })
+              params.push({ name: entry.key || key, value: stringifyEntryValue(entry.value) })
             }
           } else {
             params.push({ name: key, value: String(serialized) })
@@ -131,7 +143,11 @@ const objectToFormParams = (
           for (const entry of serialized) {
             // Arrays: entry.key === '' → fall back to the outer name.
             // Objects: entry.key is the inner property name (spec strips the outer name).
-            params.push({ name: entry.key || key, value: String(entry.value) })
+            // Nested objects/arrays inside entry.value are spec-undefined (RFC6570 form-style
+            // only addresses one level of nesting); JSON-stringify them instead of letting
+            // String() emit "[object Object]". The escape hatch for cleaner output is
+            // style: deepObject + explode: true.
+            params.push({ name: entry.key || key, value: stringifyEntryValue(entry.value) })
           }
         } else {
           params.push({ name: key, value: String(serialized) })
