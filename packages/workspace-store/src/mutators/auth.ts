@@ -369,7 +369,7 @@ export const updateSelectedScopes = (
     return
   }
 
-  const nextSelectedSchemes = unpackProxyObject(target.selectedSchemes, { depth: null }) ?? []
+  const nextSelectedSchemes = unpackProxyObject(target.selectedSchemes, { depth: 1 }) ?? []
   // Match the security requirement by scheme key names, e.g. id ["OAuth"] matches { OAuth: [...] }
   const nextScheme = nextSelectedSchemes.find(
     (candidate) => JSON.stringify(Object.keys(candidate)) === JSON.stringify(id),
