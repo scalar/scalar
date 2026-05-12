@@ -13,6 +13,21 @@ import { getOAuthCallbackData } from './oauth-callback'
 /** Oauth2 security schemes which are not implicit */
 type NonImplicitFlows = Omit<OAuthFlowsObjectSecret, 'implicit'>
 
+const authorizationCodeUsesPkcePublicClient = (
+  flowType: keyof NonImplicitFlows,
+  flow: NonImplicitFlows[keyof NonImplicitFlows],
+): boolean => {
+  if (flowType !== 'authorizationCode') {
+    return false
+  }
+  const authCode = flow as OAuthFlowsObjectSecret['authorizationCode']
+  if (!authCode) {
+    return false
+  }
+  const pkceMode = authCode['x-usePkce']
+  return pkceMode === 'SHA-256' || pkceMode === 'plain'
+}
+
 type PKCEState = {
   codeVerifier: string
   codeChallenge: string
@@ -319,7 +334,8 @@ const authorizeServers = async (
 
   /** Where to add the credentials */
   const addCredentialsToBody = flow['x-scalar-credentials-location'] === 'body'
-  const hasClientSecret = Boolean(flow['x-scalar-secret-client-secret'])
+  const pkcePublicClient = authorizationCodeUsesPkcePublicClient(type, flow)
+  const hasClientSecret = Boolean(flow['x-scalar-secret-client-secret']) && !pkcePublicClient
   /**
    * Public authorization-code clients still need client_id in the token body.
    * We only send it implicitly for that case to avoid conflicting with Basic auth.
@@ -446,7 +462,8 @@ export const refreshOauth2Token = async (
   formData.set('refresh_token', refreshToken)
 
   const addCredentialsToBody = flow['x-scalar-credentials-location'] === 'body'
-  const hasClientSecret = Boolean(flow['x-scalar-secret-client-secret'])
+  const pkcePublicClient = authorizationCodeUsesPkcePublicClient(type, flow)
+  const hasClientSecret = Boolean(flow['x-scalar-secret-client-secret']) && !pkcePublicClient
   /**
    * Public authorization-code clients still need client_id in the refresh body per RFC 6749 Section 6.
    * We only send it implicitly for that case to avoid conflicting with Basic auth.

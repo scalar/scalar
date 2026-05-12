@@ -95,7 +95,7 @@ func TestBasicEndpoints(t *testing.T) {
 			t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, w.Code)
 		}
 
-		expectedError := "The `scalar_url` query parameter is required. Try to add `?scalar_url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets` to the URL."
+		expectedError := scalarURLValidationErrors[0].message
 		if w.Body.String() != expectedError+"\n" {
 			t.Errorf("Expected error message about missing scalar_url parameter")
 		}
@@ -114,9 +114,25 @@ func TestBasicEndpoints(t *testing.T) {
 			t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, w.Code)
 		}
 
-		expectedError := "The `scalar_url` query parameter is required. Try to add `?scalar_url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets` to the URL."
+		expectedError := scalarURLValidationErrors[0].message
 		if w.Body.String() != expectedError+"\n" {
 			t.Errorf("Expected error message about missing scalar_url parameter")
+		}
+	})
+
+	t.Run("Returns a descriptive error when scalar_url is relative", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url=/foobar", nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, w.Code)
+		}
+
+		expectedError := scalarURLValidationErrors[1].message
+		if w.Body.String() != expectedError+"\n" {
+			t.Errorf("Expected relative URL validation error message")
 		}
 	})
 }
@@ -737,7 +753,7 @@ func TestSSEStreaming(t *testing.T) {
 func TestCidrPolicy(t *testing.T) {
 	proxyServer := NewProxyServer(false)
 
-	t.Run("Should not authorize localhost", func(t *testing.T) {
+	t.Run("Returns relative URL error for localhost without scheme", func(t *testing.T) {
 		// Create a new request
 		req := httptest.NewRequest(http.MethodGet, "/?scalar_url=localhost", nil)
 		w := httptest.NewRecorder()
@@ -746,8 +762,13 @@ func TestCidrPolicy(t *testing.T) {
 		proxyServer.handleRequest(w, req)
 
 		// Check the response
-		if w.Code != http.StatusForbidden {
-			t.Errorf("Expected status code %d, got %d", http.StatusForbidden, w.Code)
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, w.Code)
+		}
+
+		expectedError := scalarURLValidationErrors[1].message
+		if w.Body.String() != expectedError+"\n" {
+			t.Errorf("Expected relative URL validation error message")
 		}
 	})
 

@@ -3,8 +3,40 @@ import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
 import ResponseBodyPreview from './ResponseBodyPreview.vue'
+import ResponseBodyRaw from './ResponseBodyRaw.vue'
 
 describe('ResponseBodyPreview', () => {
+  describe('json mode', () => {
+    it('renders ResponseBodyRaw with pretty-print for json mode', () => {
+      const wrapper = mount(ResponseBodyPreview, {
+        props: {
+          src: 'blob:http://localhost/fake',
+          type: 'application/json',
+          mode: 'json',
+          content: '{"a":1}',
+        },
+      })
+
+      const raw = wrapper.findComponent(ResponseBodyRaw)
+      expect(raw.exists()).toBe(true)
+      expect(raw.props('prettyPrintJson')).toBe(true)
+      expect(raw.props('content')).toBe('{"a":1}')
+    })
+
+    it('does not render image wrapper for json mode', () => {
+      const wrapper = mount(ResponseBodyPreview, {
+        props: {
+          src: 'blob:http://localhost/fake',
+          type: 'application/json',
+          mode: 'json',
+          content: '{}',
+        },
+      })
+
+      expect(wrapper.find('img').exists()).toBe(false)
+    })
+  })
+
   describe('image mode', () => {
     it('renders image element for image mode', () => {
       const wrapper = mount(ResponseBodyPreview, {

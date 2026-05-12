@@ -166,6 +166,26 @@ describe('createApiReference', () => {
     )
   })
 
+  it('removes the deprecated document listeners on destroy', () => {
+    const element = document.querySelector('#mount-point')
+    const config = { _integration: 'html' }
+
+    const apiReference = createApiReference(element!, coerce(apiReferenceConfigurationSchema, config))
+
+    consoleWarnSpy.mockClear()
+    apiReference.destroy()
+
+    document.dispatchEvent(new Event('scalar:reload-references'))
+    document.dispatchEvent(new Event('scalar:destroy-references'))
+    document.dispatchEvent(new CustomEvent('scalar:update-references-config', { detail: {} }))
+
+    // Listeners are scoped to the instance's `AbortController`, so dispatching
+    // these events after `destroy()` must not run their deprecation warnings —
+    // otherwise each remount during Astro view transitions would leak three
+    // permanent listeners on `document`.
+    expect(consoleWarnSpy).not.toHaveBeenCalled()
+  })
+
   it('allows mounting after creation', async () => {
     const config = { _integration: 'html' }
     const app = createApiReference(coerce(apiReferenceConfigurationSchema, config))
