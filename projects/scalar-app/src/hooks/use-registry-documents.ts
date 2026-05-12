@@ -11,8 +11,8 @@ import { useAuth } from '@/hooks/use-auth'
  * @returns The query result extended with a `documents` computed ref (defaults to `[]`).
  */
 export const useRegistryDocuments = (options?: Omit<UseQueryOptions, 'queryKey' | 'queryFn'>) => {
-  const { isLoggedIn } = useAuth()
-  const queryKey = ['documents'] satisfies QueryKey
+  const { tokenData, isLoggedIn } = useAuth()
+  const queryKey = ['documents', tokenData.value?.teamUid] satisfies QueryKey
 
   const query = useQuery(
     {

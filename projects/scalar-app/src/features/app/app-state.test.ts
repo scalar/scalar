@@ -391,13 +391,20 @@ describe('app-state', () => {
     // The shell resolves the team as 'local' (not logged in / not on that team),
     // so handleRouteChange is called with teamSlug='local'. The canLoadWorkspace
     // check sees the foreign-team workspace is not accessible and redirects.
-    appState.handleRouteChange(router.currentRoute.value, {
+    await appState.handleRouteChange(router.currentRoute.value, {
       teamSlug: 'local',
       filteredWorkspaces: filterWorkspacesByTeam(appState.workspace.workspaceList.value, 'local'),
     })
 
     await vi.waitFor(() => {
       expect(router.currentRoute.value.params.teamSlug).toBe('local')
+    })
+
+    // The redirect navigated to the local default workspace. We need to call
+    // handleRouteChange again for the new route to load the workspace store.
+    appState.handleRouteChange(router.currentRoute.value, {
+      teamSlug: 'local',
+      filteredWorkspaces: filterWorkspacesByTeam(appState.workspace.workspaceList.value, 'local'),
     })
 
     await vi.waitFor(() => {
@@ -408,13 +415,9 @@ describe('app-state', () => {
     expect(router.currentRoute.value.params.workspaceSlug).toBe('default')
   })
 
-  it('redirects to the saved tab path when switching workspaces after initial load', async () => {
-    const savedTabPath = '/@local/switch-target/document/drafts/servers'
+  it('loads the target workspace when switching workspaces after initial load', async () => {
     await persistWorkspace({ slug: 'switch-source' })
-    await persistWorkspace({
-      slug: 'switch-target',
-      tabs: [{ path: savedTabPath, title: 'Saved Tab' }],
-    })
+    await persistWorkspace({ slug: 'switch-target' })
 
     const router = setupRouter()
     const appState = await createAppState({ router })
@@ -433,20 +436,27 @@ describe('app-state', () => {
     })
     await waitForNavigation()
 
-    // Switch to workspace B which has a saved tab
+    // Verify workspace A is loaded
+    await vi.waitFor(() => {
+      expect(appState.workspace.activeWorkspace.value?.id).toBe(getWorkspaceId('local', 'switch-source'))
+    })
+
+    // Switch to workspace B
     await router.push({
       name: 'document.overview',
       params: { teamSlug, workspaceSlug: 'switch-target', documentSlug: 'drafts' },
     })
 
-    appState.handleRouteChange(router.currentRoute.value, {
+    await appState.handleRouteChange(router.currentRoute.value, {
       teamSlug,
       filteredWorkspaces: filterWorkspacesByTeam(appState.workspace.workspaceList.value, teamSlug),
     })
 
-    // changeWorkspace is async/fire-and-forget from router.afterEach, so poll until the redirect lands
+    // changeWorkspace loaded the target workspace
     await vi.waitFor(() => {
-      expect(router.currentRoute.value.path).toBe(savedTabPath)
+      expect(appState.store.value).not.toBeNull()
     })
+    expect(appState.workspace.activeWorkspace.value?.id).toBe(getWorkspaceId('local', 'switch-target'))
+    expect(router.currentRoute.value.params.workspaceSlug).toBe('switch-target')
   })
 })

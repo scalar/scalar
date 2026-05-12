@@ -16,8 +16,8 @@ import { useAuth } from '@/hooks/use-auth'
  * (defaults to `[]`).
  */
 export const useRegistryNamespaces = (options?: Omit<UseQueryOptions, 'queryKey' | 'queryFn'>) => {
-  const { isLoggedIn } = useAuth()
-  const queryKey = ['namespaces'] satisfies QueryKey
+  const { tokenData, isLoggedIn } = useAuth()
+  const queryKey = ['namespaces', tokenData.value?.teamUid] satisfies QueryKey
 
   const query = useQuery(
     {
