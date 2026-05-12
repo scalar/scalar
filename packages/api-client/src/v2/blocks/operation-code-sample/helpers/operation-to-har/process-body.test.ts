@@ -1350,6 +1350,44 @@ describe('processBody', () => {
   })
 
   describe('application/x-www-form-urlencoded', () => {
+    it('serializes encoding.style "form" with explode: true on an object using inner property names', () => {
+      const content = {
+        'application/x-www-form-urlencoded': {
+          encoding: {
+            props: {
+              style: 'form',
+              explode: true,
+            },
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              props: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'widget' },
+                  count: { type: 'integer', example: 3 },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'application/x-www-form-urlencoded',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          { name: 'name', value: 'widget' },
+          { name: 'count', value: '3' },
+        ],
+      })
+    })
+
     it('extracts examples from form data schema', () => {
       const content = {
         'application/x-www-form-urlencoded': {
