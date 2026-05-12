@@ -865,6 +865,11 @@
                         "type": "page",
                         "filepath": "documentation/guides/docs/configuration/navigation.md"
                       },
+                      "versions": {
+                        "title": "Versions",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/configuration/versions.md"
+                      },
                       "redirects": {
                         "filepath": "documentation/guides/docs/configuration/redirects.md",
                         "type": "page",
