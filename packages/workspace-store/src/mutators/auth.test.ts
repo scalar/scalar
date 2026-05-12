@@ -636,6 +636,30 @@ describe('updateSelectedScopes', () => {
     expect(scheme.selectedSchemes[0]).toEqual({ a: ['one'], b: [] })
   })
 
+  it('matches security requirement when id key order differs from stored requirement', async () => {
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      document: createDocument(),
+    })
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ b: [], a: [] }] },
+    )
+
+    updateSelectedScopes(store, store.workspace.activeDocument!, {
+      id: ['a', 'b'],
+      name: 'a',
+      scopes: ['scope-a'],
+      meta: { type: 'document' },
+    })
+
+    const scheme = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(scheme)
+    expect(scheme.selectedSchemes[0]).toEqual({ b: [], a: ['scope-a'] })
+  })
+
   it('is a no-op when document is null', () => {
     updateSelectedScopes(createWorkspaceStore(), null, { id: ['x'], name: 'x', scopes: [], meta: { type: 'document' } })
   })

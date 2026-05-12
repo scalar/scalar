@@ -96,10 +96,16 @@ type NonImplicitFlow =
   | OAuthFlowClientCredentialsSecret
   | OAuthFlowAuthorizationCodeSecret
 
-/** We filter selected scopes to only include scopes that are in this flow*/
-const selectedScopes = computed(() =>
-  selectedScopesProp.filter((scope) => scope in (flow.value.scopes ?? {})),
-)
+/** We filter selected scopes to only include scopes that are defined on this flow (own keys only). */
+const selectedScopes = computed(() => {
+  const definedScopes = flow.value.scopes
+  if (!definedScopes) {
+    return []
+  }
+  return selectedScopesProp.filter((scope) =>
+    Object.hasOwn(definedScopes, scope),
+  )
+})
 
 /**
  * PKCE public clients do not use a client_secret. Hide the field when the

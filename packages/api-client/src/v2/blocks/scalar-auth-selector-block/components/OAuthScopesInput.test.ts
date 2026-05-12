@@ -225,6 +225,34 @@ describe('OAuthScopesInput', () => {
     expect(wrapper.emitted('update:selectedScopes')).toBeUndefined()
   })
 
+  it('auto-expands the panel after adding the first scope from an empty flow', async () => {
+    const wrapper = mountComponent({ flow: { scopes: {} } })
+    expect(wrapper.findAll('tr').length).toBe(0)
+
+    const addBtn = wrapper.findAll('button').find((b) => b.text() === 'Add Scope')
+    expect(addBtn, 'Add Scope button should exist').toBeTruthy()
+    await addBtn!.trigger('click')
+    await nextTick()
+
+    const modal = wrapper.findComponent({ name: 'OAuthScopesAddModal' })
+    modal.vm.$emit('submit', {
+      name: 'first:scope',
+      description: 'First scope',
+    })
+    await nextTick()
+
+    await wrapper.setProps({
+      flow: {
+        scopes: { 'first:scope': 'First scope' },
+      } as any,
+    })
+    await nextTick()
+
+    const rows = wrapper.findAll('tr')
+    expect(rows.length).toBe(1)
+    expect(wrapper.text()).toContain('first:scope')
+  })
+
   it('auto-expands the panel after adding a new scope so the user sees it', async () => {
     const wrapper = mountComponent()
     // Panel starts collapsed
@@ -281,8 +309,8 @@ describe('OAuthScopesInput', () => {
     })
     await nextTick()
 
-    // Apply the rename in the parent. Since the flow still has the same number of
-    // scopes, the disclosure key prefix does not change and no remount is triggered.
+    // Apply the rename in the parent. Edits do not bump the disclosure remount key,
+    // so the panel keeps whatever open/closed state the user already had.
     await wrapper.setProps({
       flow: {
         scopes: {

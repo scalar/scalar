@@ -13,7 +13,7 @@ import type {
   OAuthFlow,
   OAuthFlowsObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 
 import {
   DataTableCell,
@@ -116,9 +116,20 @@ const scopeFormModal = useModal()
  * the moment a brand-new scope is added. Bumping this counter is paired with toggling
  * `expandOnNextMount` so the remount opens the panel, then reverts to the default
  * closed-on-mount behavior for any future unrelated remounts (e.g. collapse on empty).
+ *
+ * The Disclosure `:key` is only this counter — not a separate `hasScopes` segment — so
+ * adding the first scope does not remount twice (empty prefix → with-scopes prefix),
+ * which would reopen with `defaultOpen=false` and collapse the panel right when rows appear.
  */
 const remountKey = ref(0)
 const expandOnNextMount = ref(false)
+
+watch(hasScopes, (has, had) => {
+  if (had && !has) {
+    expandOnNextMount.value = false
+    remountKey.value += 1
+  }
+})
 
 /** Open the modal in "add new scope" mode */
 const openAddScopeModal = () => {
@@ -182,7 +193,7 @@ const handleDeleteScope = (scopeKey: string) => {
     <div class="flex h-fit w-full">
       <div class="text-c-1 h-full items-center"></div>
       <Disclosure
-        :key="`${hasScopes ? 'with-scopes' : 'empty'}-${remountKey}`"
+        :key="remountKey"
         as="div"
         class="bl flex w-full flex-col"
         :defaultOpen="expandOnNextMount">

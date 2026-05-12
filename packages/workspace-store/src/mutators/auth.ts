@@ -311,6 +311,17 @@ export const updateSelectedAuthTab = (
 }
 
 /**
+ * Returns whether `id` lists the same scheme names as `requirement` (OpenAPI security requirement keys),
+ * ignoring key order. UI payloads use `Object.keys(selectedSecuritySchemas)` which follows insertion order;
+ * stored copies may serialize with a different order.
+ */
+const securityRequirementIdsMatch = (requirement: SecurityRequirementObject, id: readonly string[]): boolean => {
+  const sortedRequirementKeys = [...Object.keys(requirement)].sort((a, b) => a.localeCompare(b))
+  const sortedId = [...id].sort((a, b) => a.localeCompare(b))
+  return JSON.stringify(sortedRequirementKeys) === JSON.stringify(sortedId)
+}
+
+/**
  * Updates the scopes for a specific security requirement in the selected security schemes of
  * a document or operation. This mutator only touches selection state; managing the scope
  * definitions on the OAuth flow is handled by `upsertScope` and `deleteScope`.
@@ -370,10 +381,9 @@ export const updateSelectedScopes = (
   }
 
   const nextSelectedSchemes = unpackProxyObject(target.selectedSchemes, { depth: 1 }) ?? []
-  // Match the security requirement by scheme key names, e.g. id ["OAuth"] matches { OAuth: [...] }
-  const nextScheme = nextSelectedSchemes.find(
-    (candidate) => JSON.stringify(Object.keys(candidate)) === JSON.stringify(id),
-  )
+  // Match the security requirement by scheme key names (order-insensitive: Object.keys order
+  // can differ between the store copy and the UI payload for the same requirement object).
+  const nextScheme = nextSelectedSchemes.find((candidate) => securityRequirementIdsMatch(candidate, id))
   if (!isNonOptionalSecurityRequirement(nextScheme)) {
     return
   }
