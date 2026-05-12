@@ -2,8 +2,10 @@
  * Guided UI snapshots: workspace shell, workspace settings tabs, document collection tabs
  * (via collection settings), document search modal, and example operation tabs.
  *
- * Refresh baselines from `projects/scalar-app`:
- * `CI=1 pnpm exec playwright test test/scalar-app-page-tour.e2e.ts --update-snapshots`
+ * Long request URL (address bar layout) lives in a dedicated test so baselines can be refreshed in
+ * isolation: `CI=1 pnpm exec playwright test test/scalar-app-page-tour.e2e.ts -g "long request URL" --update-snapshots`
+ *
+ * Full tour baselines: `CI=1 pnpm exec playwright test test/scalar-app-page-tour.e2e.ts --update-snapshots`
  */
 import { type Page, type PageAssertionsToHaveScreenshotOptions, expect, test } from '@playwright/test'
 
@@ -12,6 +14,59 @@ import { waitForScalarAppShellReady } from './helpers/wait-for-scalar-app-shell-
 
 const DOCUMENT_DRAFTS_OVERVIEW = '/@local/default/document/drafts/overview'
 const OPERATION_EXAMPLE_DEFAULT = '/@local/default/document/drafts/path/%252F/method/get/example/default'
+
+/** Document name for the long-URL snapshot; isolated from the seeded `drafts` document. */
+const LONG_URL_TEST_DOCUMENT = 'e2e-long-request-url'
+
+/** OpenAPI path and server URL chosen so the composed request URL exceeds typical viewport width. */
+const LONG_REQUEST_PATH = `/e2e-long-address-bar/${'segment-'.repeat(12)}end`
+const LONG_SERVER_URL = `https://e2e-long-origin.example.com/${'nested/'.repeat(18)}v1`
+
+/**
+ * Adds a dedicated OpenAPI document with a long server URL and operation path so the address bar
+ * renders a wide request URL string. Kept separate from the `drafts` document so other tour
+ * snapshots stay stable.
+ */
+const seedLongRequestUrlDocument = async (page: Page): Promise<void> => {
+  await page.evaluate(
+    async ({ documentName, path, serverUrl }: { documentName: string; path: string; serverUrl: string }) => {
+      const store = window.dumpAppState().store.value
+
+      if (!store) {
+        throw new Error('Workspace store is not ready')
+      }
+
+      const ok = await store.addDocument({
+        name: documentName,
+        document: {
+          openapi: '3.1.0',
+          info: {
+            title: 'E2E long request URL',
+            version: '1.0.0',
+          },
+          servers: [{ url: serverUrl }],
+          paths: {
+            [path]: {
+              get: {
+                summary: 'Long request URL snapshot',
+                responses: {
+                  '200': {
+                    description: 'ok',
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      if (!ok) {
+        throw new Error('store.addDocument returned false')
+      }
+    },
+    { documentName: LONG_URL_TEST_DOCUMENT, path: LONG_REQUEST_PATH, serverUrl: LONG_SERVER_URL },
+  )
+}
 
 const viewport = { width: 1280, height: 800 } as const
 
@@ -139,5 +194,21 @@ test.describe('scalar-app-page-tour.e2e', () => {
       }
       await snapshotMain(page, `operation-tab-${label.toLowerCase()}`)
     }
+  })
+
+  test('long request URL in example view (address bar layout)', async ({ page }) => {
+    await page.setViewportSize(viewport)
+
+    await page.goto(DOCUMENT_DRAFTS_OVERVIEW, { waitUntil: 'load', timeout: 60_000 })
+    await waitForScalarAppShellReady(page)
+    await expect(page).toHaveURL(/\/document\/drafts\//)
+
+    await seedLongRequestUrlDocument(page)
+
+    const longOperationExample = `/@local/default/document/${LONG_URL_TEST_DOCUMENT}/path/${encodeURIComponent(LONG_REQUEST_PATH)}/method/get/example/default`
+    await page.goto(longOperationExample, { waitUntil: 'load', timeout: 60_000 })
+    await expect(page).toHaveURL(/\/example\/default/)
+    await page.locator('[data-addressbar-action="send"]').first().waitFor({ state: 'visible', timeout: 60_000 })
+    await snapshotMain(page, 'operation-example-long-request-url')
   })
 })
