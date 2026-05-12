@@ -1,6 +1,10 @@
 export { getExampleFromBody } from './body/get-request-body-example'
 export { getSelectedBodyContentType } from './body/get-selected-body-content-type'
 export {
+  BUILD_REQUEST_FAILED,
+  type BuildRequestData,
+  type BuildRequestFailureCode,
+  type BuildRequestResult,
   type RequestPayload,
   buildRequest,
   resolveExecutableRequestUrl,
@@ -23,7 +27,13 @@ export { getResolvedUrl } from './helpers/get-resolved-url'
 export { getServerVariables } from './helpers/get-server-variables'
 export type { RequestFactory } from './request-factory'
 export { requestFactory } from './request-factory'
-export { resolveRequestFactoryUrl } from './resolve-request-factory-url'
+export {
+  INVALID_REQUEST_FACTORY_URL,
+  MISSING_REQUEST_SERVER_BASE,
+  type ResolveRequestFactoryUrlError,
+  type ResolveRequestFactoryUrlResult,
+  resolveRequestFactoryUrl,
+} from './resolve-request-factory-url'
 export { buildRequestSecurity } from './security/build-request-security'
 export type {
   ApiKeyObjectSecret,

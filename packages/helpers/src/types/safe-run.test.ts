@@ -1,11 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { safeRun } from './safe-run'
+import { err, ok } from '@/types/result'
+import { safeRun } from '@/types/safe-run'
 
 describe('safeRun', () => {
-  // Suppress and capture the helper's diagnostic `console.error` calls so the
-  // test output stays clean while still letting us assert that failures are
-  // logged for devtools visibility.
   beforeEach(() => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined)
   })
@@ -17,42 +15,45 @@ describe('safeRun', () => {
   it('returns the resolved value as `data` when the async function succeeds', async () => {
     const result = await safeRun(async () => 42)
 
-    expect(result).toEqual({ ok: true, data: 42 })
+    expect(result).toEqual(ok(42))
   })
 
-  it('also accepts synchronous functions and wraps the return value', async () => {
+  it('returns `Result` synchronously when the callback returns a non-promise value', () => {
+    const result = safeRun(() => 'hello')
+
+    expect(result).toEqual(ok('hello'))
+  })
+
+  it('still allows `await` when the callback is synchronous', async () => {
     const result = await safeRun(() => 'hello')
 
-    expect(result).toEqual({ ok: true, data: 'hello' })
+    expect(result).toEqual(ok('hello'))
   })
 
   it('captures a rejected promise as a failure result with the error message', async () => {
     const result = await safeRun(() => Promise.reject(new Error('boom')))
 
-    expect(result).toEqual({ ok: false, error: 'boom' })
+    expect(result).toEqual(err('boom'))
   })
 
-  it('captures a synchronously thrown error the same way as a rejected promise', async () => {
-    const result = await safeRun((): never => {
+  it('captures a synchronously thrown error the same way as a rejected promise', () => {
+    const result = safeRun((): never => {
       throw new Error('sync boom')
     })
 
-    expect(result).toEqual({ ok: false, error: 'sync boom' })
+    expect(result).toEqual(err('sync boom'))
   })
 
-  it('stringifies non-Error throwables so the result always carries a string error', async () => {
-    // Code occasionally throws plain strings or numbers (especially through
-    // dynamic boundaries). The helper should still surface a usable message
-    // rather than `[object Object]` or `undefined`.
-    const stringResult = await safeRun(() => {
+  it('stringifies non-Error throwables so the result always carries a string error', () => {
+    const stringResult = safeRun(() => {
       throw 'plain string failure'
     })
-    const numberResult = await safeRun(() => {
+    const numberResult = safeRun(() => {
       throw 404
     })
 
-    expect(stringResult).toEqual({ ok: false, error: 'plain string failure' })
-    expect(numberResult).toEqual({ ok: false, error: '404' })
+    expect(stringResult).toEqual(err('plain string failure'))
+    expect(numberResult).toEqual(err('404'))
   })
 
   it('logs failures through `console.error` so unexpected errors stay visible in devtools', async () => {
@@ -73,8 +74,6 @@ describe('safeRun', () => {
     const result = await safeRun<User>(async () => ({ id: 1, name: 'Ada' }))
 
     if (result.ok) {
-      // The cast-free property access here is the actual assertion - if the
-      // generic dropped through to `unknown`, the file would not compile.
       expect(result.data.name).toBe('Ada')
     } else {
       throw new Error('Expected the result to be successful.')
@@ -82,11 +81,17 @@ describe('safeRun', () => {
   })
 
   it('never rejects, even when the inner function throws, so callers can rely on a single resolved branch', async () => {
-    // The whole point of the helper is to stop exceptions from bubbling. We
-    // deliberately never wrap the await in `expect().rejects` here because
-    // that would mask a regression where `safeRun` started rethrowing.
     const promise = safeRun(() => Promise.reject(new Error('should not bubble')))
 
-    await expect(promise).resolves.toEqual({ ok: false, error: 'should not bubble' })
+    await expect(promise).resolves.toEqual(err('should not bubble'))
+  })
+
+  it('logs synchronous failures through `console.error`', () => {
+    const error = new Error('logged')
+    safeRun(() => {
+      throw error
+    })
+
+    expect(console.error).toHaveBeenCalledWith(error)
   })
 })

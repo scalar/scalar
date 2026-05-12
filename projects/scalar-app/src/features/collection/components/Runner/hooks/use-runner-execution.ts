@@ -1,3 +1,4 @@
+import { type CustomFetch, type ResponseInstance, sendRequest } from '@scalar/api-client/blocks/operation-block'
 import { useLoadingState } from '@scalar/components'
 import { isElectron } from '@scalar/helpers/general/is-electron'
 import { executePostResponseScript, executePreRequestScript, getScript } from '@scalar/pre-post-request-scripts'
@@ -14,8 +15,6 @@ import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/stric
 import { type ComputedRef, type Ref, computed, ref } from 'vue'
 
 import { APP_VERSION } from '@/constants'
-import { safeRun } from '@/helpers/safe-run'
-import { type CustomFetch, type ResponseInstance, sendRequest } from '@scalar/api-client/blocks/operation-block'
 
 import type { SelectedItem } from './use-runner-selection'
 
@@ -246,19 +245,16 @@ export function useRunnerExecution({
           ...variablesStore.getVariables(),
         }
 
-        const requestResult = await safeRun(() => {
-          return buildRequest(requestBuilder, { envVariables })
-        })
-
-        if (!requestResult.ok) {
-          runResult.error = new Error(requestResult.error)
+        const built = buildRequest(requestBuilder, { envVariables })
+        if (!built.ok) {
+          runResult.error = new Error(built.message ?? built.error)
           runResults.value = [...runResults.value, runResult]
           continue
         }
 
         const [sendError, sendResult] = await sendRequest({
-          isUsingProxy: requestResult.data.isUsingProxy,
-          requestPayload: requestResult.data.requestPayload,
+          isUsingProxy: built.data.isUsingProxy,
+          requestPayload: built.data.requestPayload,
           customFetch,
         })
 

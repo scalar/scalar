@@ -40,9 +40,20 @@ export const mapConfigPlugins = (
 
       plugin.hooks.beforeRequest = onBeforeRequest
         ? async (payload) => {
+            const built = buildRequest(payload.requestBuilder, {
+              envVariables,
+              allowMissingRequestServerBase: true,
+            })
+            if (!built.ok) {
+              console.error(
+                '[@scalar/api-reference] onBeforeRequest was not run because the request could not be built:',
+                built.message ?? built.error,
+              )
+              return
+            }
             await onBeforeRequest({
               // We need to build the request to get the fetch `Request`
-              request: buildSafeBodyRequest(...buildRequest(payload.requestBuilder, { envVariables }).requestPayload),
+              request: buildSafeBodyRequest(...built.data.requestPayload),
               requestBuilder: payload.requestBuilder,
               envVariables,
             })

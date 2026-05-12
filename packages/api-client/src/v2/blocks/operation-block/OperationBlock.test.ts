@@ -1,4 +1,5 @@
 import { ERRORS } from '@scalar/helpers/errors/normalize-error'
+import { err, ok } from '@scalar/helpers/types/result'
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
 import type { AuthMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { type RequestPayload, buildRequest, requestFactory } from '@scalar/workspace-store/request-example'
@@ -225,11 +226,13 @@ describe('OperationBlock', () => {
       }),
     }))
 
-    vi.mocked(buildRequest).mockReturnValue({
-      controller: mockController,
-      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
-      isUsingProxy: false,
-    })
+    vi.mocked(buildRequest).mockReturnValue(
+      ok({
+        controller: mockController,
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        isUsingProxy: false,
+      }),
+    )
   })
 
   afterEach(() => {
@@ -440,11 +443,45 @@ describe('OperationBlock', () => {
     expect(sendRequest).toHaveBeenCalledOnce()
   })
 
-  it('displays toast error when buildRequest fails', async () => {
-    const mockError = new Error('Invalid URL')
-    vi.mocked(buildRequest).mockImplementation(() => {
-      throw mockError
+  it('displays toast error when buildRequest returns a failure result', async () => {
+    vi.mocked(buildRequest).mockReturnValue(
+      err(
+        'MISSING_REQUEST_SERVER_BASE',
+        'No server URL is configured for this request. Add a servers entry to your OpenAPI document (or set a server in the client) before sending.',
+      ),
+    )
+
+    const wrapper = mount(OperationBlock, {
+      props: createDefaultProps(),
     })
+
+    await triggerExecute(wrapper)
+
+    expect(mockToast).toHaveBeenCalledWith(
+      'No server URL is configured for this request. Add a servers entry to your OpenAPI document (or set a server in the client) before sending.',
+      'error',
+    )
+    expect(sendRequest).not.toHaveBeenCalled()
+  })
+
+  it('passes allowMissingRequestServerBase true when layout is modal', async () => {
+    const wrapper = mount(OperationBlock, {
+      props: { ...createDefaultProps(), layout: 'modal' },
+    })
+
+    await triggerExecute(wrapper)
+
+    expect(buildRequest).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        envVariables: {},
+        allowMissingRequestServerBase: true,
+      }),
+    )
+  })
+
+  it('displays toast error when buildRequest returns BUILD_REQUEST_FAILED', async () => {
+    vi.mocked(buildRequest).mockReturnValue(err('BUILD_REQUEST_FAILED' as const, 'Invalid URL'))
 
     const wrapper = mount(OperationBlock, {
       props: createDefaultProps(),
@@ -459,11 +496,13 @@ describe('OperationBlock', () => {
   it('displays toast error when sendRequest fails', async () => {
     const mockController = new AbortController()
 
-    vi.mocked(buildRequest).mockReturnValue({
-      controller: mockController,
-      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
-      isUsingProxy: false,
-    })
+    vi.mocked(buildRequest).mockReturnValue(
+      ok({
+        controller: mockController,
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        isUsingProxy: false,
+      }),
+    )
 
     const mockError = new Error(ERRORS.REQUEST_FAILED)
     vi.mocked(sendRequest).mockResolvedValue([mockError, null])
@@ -482,11 +521,13 @@ describe('OperationBlock', () => {
     const mockController = new AbortController()
     const abortSpy = vi.spyOn(mockController, 'abort')
 
-    vi.mocked(buildRequest).mockReturnValue({
-      controller: mockController,
-      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
-      isUsingProxy: false,
-    })
+    vi.mocked(buildRequest).mockReturnValue(
+      ok({
+        controller: mockController,
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        isUsingProxy: false,
+      }),
+    )
 
     vi.mocked(sendRequest).mockResolvedValue([
       null,
@@ -515,11 +556,13 @@ describe('OperationBlock', () => {
   it('passes props to requestFactory and buildRequest', async () => {
     const mockController = new AbortController()
 
-    vi.mocked(buildRequest).mockReturnValue({
-      controller: mockController,
-      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
-      isUsingProxy: false,
-    })
+    vi.mocked(buildRequest).mockReturnValue(
+      ok({
+        controller: mockController,
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        isUsingProxy: false,
+      }),
+    )
 
     vi.mocked(sendRequest).mockResolvedValue([
       null,
@@ -568,6 +611,7 @@ describe('OperationBlock', () => {
       }),
       {
         envVariables: {},
+        allowMissingRequestServerBase: false,
       },
     )
   })
@@ -581,14 +625,16 @@ describe('OperationBlock', () => {
       }),
     })
 
-    vi.mocked(buildRequest).mockReturnValue({
-      controller: mockController,
-      requestPayload: [
-        'https://proxy.example.com/?scalar_url=https%3A%2F%2Fapi.example.com%2Fapi%2Fusers',
-        { method: 'GET', headers: new Headers() },
-      ],
-      isUsingProxy: true,
-    })
+    vi.mocked(buildRequest).mockReturnValue(
+      ok({
+        controller: mockController,
+        requestPayload: [
+          'https://proxy.example.com/?scalar_url=https%3A%2F%2Fapi.example.com%2Fapi%2Fusers',
+          { method: 'GET', headers: new Headers() },
+        ],
+        isUsingProxy: true,
+      }),
+    )
 
     vi.mocked(sendRequest).mockResolvedValue([
       null,
@@ -619,11 +665,13 @@ describe('OperationBlock', () => {
   it('stores response after successful request execution', async () => {
     const mockController = new AbortController()
 
-    vi.mocked(buildRequest).mockReturnValue({
-      controller: mockController,
-      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
-      isUsingProxy: false,
-    })
+    vi.mocked(buildRequest).mockReturnValue(
+      ok({
+        controller: mockController,
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        isUsingProxy: false,
+      }),
+    )
 
     const mockResponse: ResponseInstance = {
       status: 200,
@@ -699,11 +747,13 @@ describe('OperationBlock', () => {
       bytes: vi.fn(),
     }
 
-    vi.mocked(buildRequest).mockReturnValue({
-      controller: mockController,
-      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
-      isUsingProxy: false,
-    })
+    vi.mocked(buildRequest).mockReturnValue(
+      ok({
+        controller: mockController,
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        isUsingProxy: false,
+      }),
+    )
 
     vi.mocked(sendRequest).mockResolvedValue([
       null,
@@ -758,11 +808,13 @@ describe('OperationBlock', () => {
       bytes: vi.fn(),
     }
 
-    vi.mocked(buildRequest).mockReturnValue({
-      controller: mockController,
-      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
-      isUsingProxy: false,
-    })
+    vi.mocked(buildRequest).mockReturnValue(
+      ok({
+        controller: mockController,
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        isUsingProxy: false,
+      }),
+    )
 
     vi.mocked(sendRequest).mockResolvedValue([
       null,
@@ -817,11 +869,13 @@ describe('OperationBlock', () => {
       bytes: vi.fn(),
     }
 
-    vi.mocked(buildRequest).mockReturnValue({
-      controller: mockController,
-      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
-      isUsingProxy: false,
-    })
+    vi.mocked(buildRequest).mockReturnValue(
+      ok({
+        controller: mockController,
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        isUsingProxy: false,
+      }),
+    )
 
     vi.mocked(sendRequest).mockResolvedValue([
       null,
@@ -876,11 +930,13 @@ describe('OperationBlock', () => {
       bytes: vi.fn(),
     }
 
-    vi.mocked(buildRequest).mockReturnValue({
-      controller: mockController,
-      requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
-      isUsingProxy: false,
-    })
+    vi.mocked(buildRequest).mockReturnValue(
+      ok({
+        controller: mockController,
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        isUsingProxy: false,
+      }),
+    )
 
     vi.mocked(sendRequest).mockResolvedValue([
       null,

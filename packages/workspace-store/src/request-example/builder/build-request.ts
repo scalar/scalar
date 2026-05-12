@@ -1,12 +1,17 @@
 import { X_SCALAR_DATE, X_SCALAR_DNT, X_SCALAR_REFERER, X_SCALAR_USER_AGENT } from '@scalar/helpers/http/scalar-headers'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
+import { type Result, err, ok } from '@scalar/helpers/types/result'
+import { safeRun } from '@scalar/helpers/types/safe-run'
 import { redirectToProxy, shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { encode as encodeBase64 } from 'js-base64'
 
 import { buildRequestCookieHeader } from '@/request-example/builder/header/build-request-cookie-header'
 import { applyAllowReservedToUrl } from '@/request-example/builder/helpers/apply-allow-reserved-to-url'
 import type { RequestFactory } from '@/request-example/builder/request-factory'
-import { resolveRequestFactoryUrl } from '@/request-example/builder/resolve-request-factory-url'
+import {
+  type ResolveRequestFactoryUrlError,
+  resolveRequestFactoryUrl,
+} from '@/request-example/builder/resolve-request-factory-url'
 import type { BuildRequestSecurityResult } from '@/request-example/builder/security/build-request-security'
 import { contextFunctions, isContextFunctionName } from '@/request-example/functions'
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
@@ -57,8 +62,15 @@ const createEnvReplaceFn = (envVariables: Record<string, string>): ((value: stri
  * Resolved request URL string (path vars, operation query, **security query**
  * params, env substitution, reserved-query rules) without proxy rewriting —
  * aligned with {@link buildRequest} before `redirectToProxy`.
+ *
+ * By default allows incomplete merged URLs (same as permissive copy / preview); pass
+ * `allowMissingRequestServerBase: false` to enforce a complete absolute URL.
  */
-export const resolveExecutableRequestUrl = (request: RequestFactory, envVariables: Record<string, string>): string => {
+export const resolveExecutableRequestUrl = (
+  request: RequestFactory,
+  envVariables: Record<string, string>,
+  resolveOptions?: { allowMissingRequestServerBase?: boolean },
+): string => {
   const replace = createEnvReplaceFn(envVariables)
 
   const securityQueryParams = new URLSearchParams()
@@ -75,9 +87,14 @@ export const resolveExecutableRequestUrl = (request: RequestFactory, envVariable
   const requestUrl = resolveRequestFactoryUrl(request, {
     envVariables: replace,
     securityQueryParams,
+    allowMissingRequestServerBase: resolveOptions?.allowMissingRequestServerBase ?? true,
   })
 
-  return applyAllowReservedToUrl(requestUrl, request.allowedReservedQueryParameters ?? new Set())
+  if (!requestUrl.ok) {
+    throw new Error(requestUrl.message ?? requestUrl.error)
+  }
+
+  return applyAllowReservedToUrl(requestUrl.data, request.allowedReservedQueryParameters ?? new Set())
 }
 
 /**
@@ -86,7 +103,7 @@ export const resolveExecutableRequestUrl = (request: RequestFactory, envVariable
  * We no longer return a Request object, but a tuple of [url, init] that maps directly to the fetch() argument list so
  * we can do things that the browser doesn't allow like GET + body
  * */
-type BuildRequestResponse = {
+export type BuildRequestData = {
   /** Create a new request payload object with the replaced values ready to be sent to the server */
   requestPayload: RequestPayload
   /** The abort controller */
@@ -95,12 +112,38 @@ type BuildRequestResponse = {
   isUsingProxy: boolean
 }
 
+/** Catch-all code when an unexpected synchronous error escapes a helper during request construction. */
+export const BUILD_REQUEST_FAILED = 'BUILD_REQUEST_FAILED' as const
+
+export type BuildRequestFailureCode = ResolveRequestFactoryUrlError | typeof BUILD_REQUEST_FAILED
+
+export type BuildRequestResult = Result<BuildRequestData, BuildRequestFailureCode>
+
 export const buildRequest = (
   request: RequestFactory,
   options: {
     envVariables: Record<string, string>
+    /**
+     * When true, allows an empty resolved server base URL (embedded modal, API reference callbacks, tests).
+     * @default false
+     */
+    allowMissingRequestServerBase?: boolean
   },
-): BuildRequestResponse => {
+): BuildRequestResult => {
+  const guarded = safeRun(() => buildRequestInner(request, options))
+  if (!guarded.ok) {
+    return err(BUILD_REQUEST_FAILED, guarded.error)
+  }
+  return guarded.data
+}
+
+const buildRequestInner = (
+  request: RequestFactory,
+  options: {
+    envVariables: Record<string, string>
+    allowMissingRequestServerBase?: boolean
+  },
+): BuildRequestResult => {
   /** Replace the value with the environment variable or context function */
   const replace = createEnvReplaceFn(options.envVariables)
 
@@ -188,10 +231,15 @@ export const buildRequest = (
   }
 
   /** Resolve the request URL with the replaced values */
-  const requestUrl = resolveRequestFactoryUrl(request, {
+  const requestUrlResult = resolveRequestFactoryUrl(request, {
     envVariables: replace,
     securityQueryParams: securityQueryParams,
+    allowMissingRequestServerBase: options.allowMissingRequestServerBase,
   })
+  if (!requestUrlResult.ok) {
+    return err(requestUrlResult.error, requestUrlResult.message)
+  }
+  const requestUrl = requestUrlResult.data
 
   /** Check if the request should be proxied */
   const isUsingProxy = shouldUseProxy(request.proxyUrl, requestUrl)
@@ -235,7 +283,7 @@ export const buildRequest = (
   const encodedUrl = applyAllowReservedToUrl(requestUrl, request.allowedReservedQueryParameters ?? new Set())
   const finalUrl = isUsingProxy ? redirectToProxy(request.proxyUrl, encodedUrl) : encodedUrl
 
-  return {
+  return ok({
     requestPayload: [
       finalUrl,
       {
@@ -253,5 +301,5 @@ export const buildRequest = (
     ],
     controller,
     isUsingProxy,
-  }
+  })
 }

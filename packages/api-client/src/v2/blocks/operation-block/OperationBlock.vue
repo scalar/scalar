@@ -161,6 +161,7 @@ const {
   hideClientButton,
   httpClients = AVAILABLE_CLIENTS,
   history = [],
+  layout,
   method,
   operation,
   path,
@@ -274,30 +275,17 @@ const handleExecute = async () => {
   }
 
   // Build the fetch Request after hooks may have mutated the factory
-  const requestResult = (() => {
-    try {
-      return {
-        ok: true,
-        result: buildRequest(requestBuilder, {
-          envVariables,
-        }),
-      } as const
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error)
-      return {
-        ok: false,
-        error: message,
-      } as const
-    }
-  })()
-
-  if (requestResult.ok === false) {
-    toast(requestResult.error, 'error')
+  const built = buildRequest(requestBuilder, {
+    envVariables,
+    allowMissingRequestServerBase: layout === 'modal',
+  })
+  if (!built.ok) {
+    toast(built.message ?? built.error, 'error')
     return
   }
 
   // Store the abort controller for cancellation
-  abortController.value = requestResult.result.controller
+  abortController.value = built.data.controller
 
   // Execute the hooks
   eventBus.emit('hooks:on:request:sent', {
@@ -310,8 +298,8 @@ const handleExecute = async () => {
 
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
-    isUsingProxy: requestResult.result.isUsingProxy,
-    requestPayload: requestResult.result.requestPayload,
+    isUsingProxy: built.data.isUsingProxy,
+    requestPayload: built.data.requestPayload,
     plugins,
     customFetch: toValue(options)?.customFetch,
   })

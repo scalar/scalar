@@ -1,5 +1,8 @@
 export type {
   ApiKeyObjectSecret,
+  BuildRequestData,
+  BuildRequestFailureCode,
+  BuildRequestResult,
   HttpObjectSecret,
   OAuth2ObjectSecret,
   OAuthFlowAuthorizationCodeSecret,
@@ -9,9 +12,14 @@ export type {
   OAuthFlowsObjectSecret,
   OpenIdConnectObjectSecret,
   RequestPayload,
+  ResolveRequestFactoryUrlError,
+  ResolveRequestFactoryUrlResult,
   SecuritySchemeObjectSecret,
 } from './builder'
 export {
+  BUILD_REQUEST_FAILED,
+  INVALID_REQUEST_FACTORY_URL,
+  MISSING_REQUEST_SERVER_BASE,
   type RequestFactory,
   buildRequest,
   buildRequestSecurity,

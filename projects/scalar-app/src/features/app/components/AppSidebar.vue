@@ -12,6 +12,7 @@ import {
   ScalarSidebarSection,
   useModal,
 } from '@scalar/components'
+import { safeRun } from '@scalar/helpers/types/safe-run'
 import {
   ScalarIconFolderDashed,
   ScalarIconFunnel,
@@ -37,7 +38,6 @@ import {
   type SidebarDocumentItem,
 } from '@/features/app/hooks/use-sidebar-documents'
 import { dragHandleFactory } from '@/helpers/drag-handle-factory'
-import { safeRun } from '@/helpers/safe-run'
 import type {
   ImportDocumentFromRegistry,
   RegistryDocumentsState,
