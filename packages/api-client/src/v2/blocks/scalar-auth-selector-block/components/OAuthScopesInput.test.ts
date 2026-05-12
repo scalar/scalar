@@ -201,7 +201,7 @@ describe('OAuthScopesInput', () => {
     expect(wrapper.emitted('update:selectedScopes')).toBeUndefined()
   })
 
-  it('emits upsert:scope without oldScope when adding a new scope', async () => {
+  it('emits upsert:scope with enable when adding a new scope so the mutator auto-selects it', async () => {
     const wrapper = mountComponent({ selected: ['read:items'] })
 
     const addBtn = wrapper.findAll('button').find((b) => b.text() === 'Add Scope')
@@ -220,9 +220,32 @@ describe('OAuthScopesInput', () => {
       scope: 'delete:items',
       description: 'Delete items',
       flowType: 'authorizationCode',
+      enable: true,
     })
-    // Adding a scope does not change selection on its own
+    // Selection is owned by the upsertScope mutator (driven by `enable: true`), the component
+    // does not emit a follow-up update:selectedScopes here.
     expect(wrapper.emitted('update:selectedScopes')).toBeUndefined()
+  })
+
+  it('does not pass enable when editing an existing scope', async () => {
+    const wrapper = mountComponent({ selected: ['read:items'] })
+    await openDisclosure(wrapper)
+
+    const editBtn = wrapper.findAll('button').find((b) => b.text() === 'Edit read:items')
+    expect(editBtn, 'Edit button for read:items should exist').toBeTruthy()
+    await editBtn!.trigger('click')
+    await nextTick()
+
+    const modal = wrapper.findComponent({ name: 'OAuthScopesAddModal' })
+    modal.vm.$emit('submit', {
+      name: 'read:stuff',
+      description: 'Read everything',
+      oldName: 'read:items',
+    })
+    await nextTick()
+
+    const payload = wrapper.emitted('upsert:scope')?.at(-1)?.[0] as Record<string, unknown>
+    expect(payload).not.toHaveProperty('enable')
   })
 
   it('auto-expands the panel after adding the first scope from an empty flow', async () => {

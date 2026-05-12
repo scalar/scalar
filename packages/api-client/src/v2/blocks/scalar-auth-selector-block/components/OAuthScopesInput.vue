@@ -151,22 +151,27 @@ const openEditScopeModal = (scope: { id: string; description: string }) => {
  * the workspace store rewrites the selection state in place, so the component does not need to
  * emit a follow-up `update:selectedScopes`.
  *
- * When adding a brand-new scope (no `oldName`), the Disclosure is remounted with
- * `defaultOpen=true` so the user immediately sees the scope they just added.
+ * When adding a brand-new scope (no `oldName`), the payload sets `enable: true` so the
+ * `upsertScope` mutator also adds the new scope to any selection requirement that references
+ * this scheme. The Disclosure is then remounted with `defaultOpen=true` so the user
+ * immediately sees (and sees selected) the scope they just added.
  */
 const handleScopeFormSubmit = async (payload: {
   name: string
   description: string
   oldName?: string
 }) => {
+  const isAdd = !payload.oldName
+
   emits('upsert:scope', {
     scope: payload.name,
     description: payload.description,
     flowType,
     ...(payload.oldName ? { oldScope: payload.oldName } : {}),
+    ...(isAdd ? { enable: true } : {}),
   })
 
-  if (payload.oldName) {
+  if (!isAdd) {
     return
   }
 

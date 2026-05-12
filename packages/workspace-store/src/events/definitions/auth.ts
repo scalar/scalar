@@ -145,10 +145,12 @@ export type AuthEvents = {
    * - When `oldScope` is omitted, a new scope is added (no-op if the scope already exists).
    * - When `oldScope` is provided, the existing scope is replaced. The `scope` key may equal
    *   `oldScope` for description-only updates.
+   * - When `enable` is true, the resulting `scope` is additionally added to every selection
+   *   requirement (document- and operation-level) that already references this security scheme,
+   *   so callers do not need a follow-up `auth:update:selected-scopes`.
    *
-   * This event only mutates the scope definition on the flow. Selection state is owned by
-   * `auth:update:selected-scopes` and must be updated separately when callers want a newly
-   * added scope to be selected or a renamed scope to remain selected.
+   * Renames always rewrite the previous scope key inside matching selections. `enable` is
+   * intended for "add and select" flows where the new scope should be immediately active.
    */
   'auth:upsert:scopes': {
     /** The name of the security scheme that owns the flow */
@@ -161,6 +163,11 @@ export type AuthEvents = {
     description: string
     /** When set, the existing scope with this key is replaced (rename + description update) */
     oldScope?: string
+    /**
+     * When true, ensure the resulting `scope` is included in every selection requirement
+     * (document- and operation-level) that references this security scheme by name.
+     */
+    enable?: boolean
   }
 
   /**

@@ -469,11 +469,15 @@ const walkSelectedSchemes = (
  * When `oldScope` differs from `scope`, this mutator also rewrites every selection entry
  * that references the matching security scheme so consumers do not need a follow-up
  * `auth:update:selected-scopes`.
+ *
+ * When `enable` is true, the resulting `scope` is additionally appended to every selection
+ * requirement that already references this security scheme, enabling an "add and select"
+ * flow without a separate selection mutation.
  */
 export const upsertScope = (
   store: WorkspaceStore | null,
   document: WorkspaceDocument | null,
-  { name, flowType, scope, description, oldScope }: AuthEvents['auth:upsert:scopes'],
+  { name, flowType, scope, description, oldScope, enable }: AuthEvents['auth:upsert:scopes'],
 ) => {
   if (!isOpenApiDocument(document)) {
     return
@@ -496,21 +500,36 @@ export const upsertScope = (
 
   flow.scopes[scope] = description
 
-  if (!isRename) {
+  if (!isRename && !enable) {
     return
   }
 
-  // Mirror the rename across any selection entry that references this security scheme.
+  // Mirror the rename and/or apply `enable` across selection entries that reference this scheme.
   walkSelectedSchemes(store, document, (selectedSchemes) => {
     selectedSchemes.forEach((requirement) => {
       if (!isNonOptionalSecurityRequirement(requirement)) {
         return
       }
       const scopes = requirement[name]
-      if (!Array.isArray(scopes) || !scopes.includes(oldScope!)) {
+      if (!Array.isArray(scopes)) {
         return
       }
-      requirement[name] = scopes.map((current) => (current === oldScope ? scope : current))
+
+      let nextScopes = scopes
+
+      // Rewrite the old key in place when this requirement had the renamed scope selected.
+      if (isRename && nextScopes.includes(oldScope!)) {
+        nextScopes = nextScopes.map((current) => (current === oldScope ? scope : current))
+      }
+
+      // Append the resulting scope when the caller asked for "add and select".
+      if (enable && !nextScopes.includes(scope)) {
+        nextScopes = [...nextScopes, scope]
+      }
+
+      if (nextScopes !== scopes) {
+        requirement[name] = nextScopes
+      }
     })
   })
 }
