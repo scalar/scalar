@@ -1200,6 +1200,53 @@ describe('processBody', () => {
       })
     })
 
+    it('stringifies nested objects to "[object Object]" under style: form (spec-undefined fallback)', () => {
+      // RFC6570 form-style serialization only addresses one level of nesting.
+      // Deeper structures are spec-undefined; we surface the degenerate String(value)
+      // output as a pinned regression test so future refactors notice if the contract
+      // changes. The documented escape hatch is style: deepObject + explode: true.
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            props: {
+              style: 'form',
+              explode: true,
+            },
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              props: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'widget' },
+                  meta: {
+                    type: 'object',
+                    properties: {
+                      region: { type: 'string', example: 'eu' },
+                    },
+                  },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [
+          { name: 'name', value: 'widget' },
+          { name: 'meta', value: '[object Object]' },
+        ],
+      })
+    })
+
     it('falls back to repeated-name parts when style: deepObject is set on an array', () => {
       const content = {
         'multipart/form-data': {
