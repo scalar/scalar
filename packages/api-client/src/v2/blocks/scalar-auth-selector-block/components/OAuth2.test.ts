@@ -528,6 +528,73 @@ describe('OAuth2', () => {
     expect(emitted).toHaveBeenCalledTimes(1)
   })
 
+  it('hides Client Secret for authorization code when PKCE uses SHA-256', async () => {
+    const wrapper = mountWithProps({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          refreshUrl: 'https://example.com/token',
+          'x-usePkce': 'SHA-256',
+          scopes: {},
+          'x-scalar-secret-client-id': 'client-id',
+          'x-scalar-secret-client-secret': 'stored-secret',
+          'x-scalar-secret-token': '',
+          'x-scalar-secret-redirect-uri': 'https://app.example/callback',
+        },
+      },
+    })
+
+    await nextTick()
+
+    expect(wrapper.text()).toContain('Client ID')
+    expect(wrapper.text()).not.toContain('Client Secret')
+  })
+
+  it('hides Client Secret for authorization code when PKCE uses plain', async () => {
+    const wrapper = mountWithProps({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          refreshUrl: 'https://example.com/token',
+          'x-usePkce': 'plain',
+          scopes: {},
+          'x-scalar-secret-client-id': 'client-id',
+          'x-scalar-secret-client-secret': 'stored-secret',
+          'x-scalar-secret-token': '',
+          'x-scalar-secret-redirect-uri': 'https://app.example/callback',
+        },
+      },
+    })
+
+    await nextTick()
+
+    expect(wrapper.text()).not.toContain('Client Secret')
+  })
+
+  it('shows Client Secret for authorization code when PKCE is disabled', async () => {
+    const wrapper = mountWithProps({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          refreshUrl: 'https://example.com/token',
+          'x-usePkce': 'no',
+          scopes: {},
+          'x-scalar-secret-client-id': 'client-id',
+          'x-scalar-secret-client-secret': '',
+          'x-scalar-secret-token': '',
+          'x-scalar-secret-redirect-uri': 'https://app.example/callback',
+        },
+      },
+    })
+
+    await nextTick()
+
+    expect(wrapper.text()).toContain('Client Secret')
+  })
+
   it('emits clear security scheme secrets for openIdConnect flow', async () => {
     const wrapper = mountWithProps({
       scheme: { type: 'openIdConnect' },

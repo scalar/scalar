@@ -99,6 +99,24 @@ const selectedScopes = computed(() =>
   selectedScopesProp.filter((scope) => scope in (flow.value.scopes ?? {})),
 )
 
+/**
+ * PKCE public clients do not use a client_secret. Hide the field when the
+ * document enables PKCE so readers are not prompted for an unused secret.
+ */
+const showClientSecret = computed(() => {
+  if (!('x-scalar-secret-client-secret' in flow.value)) {
+    return false
+  }
+  const pkceMode =
+    'x-usePkce' in flow.value ? flow.value['x-usePkce'] : undefined
+  return pkceMode !== 'SHA-256' && pkceMode !== 'plain'
+})
+
+const clientSecretValue = computed((): string => {
+  const f = flow.value as { 'x-scalar-secret-client-secret'?: string }
+  return f['x-scalar-secret-client-secret'] ?? ''
+})
+
 /** Updates the security scheme base */
 const handleOauth2Update = (
   payload: Partial<OAuthFlow & XScalarCredentialsLocation>,
@@ -448,10 +466,10 @@ const handleSecretLocationUpdate = (value: string): void => {
       </RequestAuthDataTableInput>
     </DataTableRow>
 
-    <DataTableRow v-if="'x-scalar-secret-client-secret' in flow">
+    <DataTableRow v-if="showClientSecret">
       <RequestAuthDataTableInput
         :environment
-        :modelValue="flow['x-scalar-secret-client-secret']"
+        :modelValue="clientSecretValue"
         placeholder="XYZ123"
         type="password"
         @update:modelValue="
