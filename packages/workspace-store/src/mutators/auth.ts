@@ -299,8 +299,15 @@ export const updateSelectedAuthTab = (
     )
   }
 
-  // Set the selected index
-  target.selectedIndex = index
+  store?.auth.setAuthSelectedSchemas(
+    meta.type === 'document'
+      ? { type: 'document', documentName }
+      : { type: 'operation', documentName, path: meta.path, method: meta.method },
+    {
+      selectedIndex: index,
+      selectedSchemes: unpackProxyObject(target.selectedSchemes, { depth: null }) ?? [],
+    },
+  )
 }
 
 /**
@@ -362,17 +369,22 @@ export const updateSelectedScopes = (
     return
   }
 
-  // Find the security requirement that matches the given id (scheme key names)
-  // For example: if id = ["OAuth"], matches { OAuth: [...] }
-  const scheme = target.selectedSchemes.find((scheme) => JSON.stringify(Object.keys(scheme)) === JSON.stringify(id))
-
-  // If the scheme is optional, do nothing as it cannot have scopes
-  if (!isNonOptionalSecurityRequirement(scheme)) {
+  const nextSelectedSchemes = unpackProxyObject(target.selectedSchemes, { depth: null }) ?? []
+  // Match the security requirement by scheme key names, e.g. id ["OAuth"] matches { OAuth: [...] }
+  const nextScheme = nextSelectedSchemes.find(
+    (candidate) => JSON.stringify(Object.keys(candidate)) === JSON.stringify(id),
+  )
+  if (!isNonOptionalSecurityRequirement(nextScheme)) {
     return
   }
+  nextScheme[name] = scopes
 
-  // Set the scopes array for the named security scheme within the found security requirement
-  scheme[name] = scopes
+  store?.auth.setAuthSelectedSchemas(
+    meta.type === 'document'
+      ? { type: 'document', documentName }
+      : { type: 'operation', documentName, path: meta.path, method: meta.method },
+    { selectedIndex: target.selectedIndex, selectedSchemes: nextSelectedSchemes },
+  )
 }
 
 /**
@@ -396,15 +408,15 @@ const resolveOAuthFlow = (document: WorkspaceDocument, name: string, flowType: k
 /**
  * Walks every selection container that lives under a document (the document-level
  * `x-scalar-selected-security` plus the equivalent on every path / method) and invokes
- * `transform` on each one. Transforms mutate the `selectedSchemes` array in place so reactive
- * consumers pick up the change.
+ * `transform` on a plain copy of `selectedSchemes`, then writes back through
+ * `setAuthSelectedSchemas` so persistence hooks run.
  */
 const walkSelectedSchemes = (
   store: WorkspaceStore | null,
   document: WorkspaceDocument,
   transform: (selectedSchemes: SecurityRequirementObject[]) => void,
 ) => {
-  if (!isOpenApiDocument(document)) {
+  if (!isOpenApiDocument(document) || !store) {
     return
   }
   const documentName = document['x-scalar-navigation']?.name
@@ -412,25 +424,31 @@ const walkSelectedSchemes = (
     return
   }
 
-  const documentSchemes = store?.auth.getAuthSelectedSchemas({ type: 'document', documentName })?.selectedSchemes
-  if (documentSchemes) {
-    transform(documentSchemes)
+  const apply = (
+    payload:
+      | { type: 'document'; documentName: string }
+      | { type: 'operation'; documentName: string; path: string; method: string },
+  ) => {
+    const target = store.auth.getAuthSelectedSchemas(payload)
+    if (!target) {
+      return
+    }
+    const nextSchemes = unpackProxyObject(target.selectedSchemes, { depth: 1 }) ?? []
+    transform(nextSchemes)
+    store.auth.setAuthSelectedSchemas(payload, {
+      selectedIndex: target.selectedIndex,
+      selectedSchemes: nextSchemes,
+    })
   }
+
+  apply({ type: 'document', documentName })
 
   Object.entries(document.paths ?? {}).forEach(([path, pathItemObject]) => {
     Object.entries(pathItemObject).forEach(([method, operation]) => {
       if (typeof operation !== 'object') {
         return
       }
-      const operationSchemes = store?.auth.getAuthSelectedSchemas({
-        type: 'operation',
-        documentName,
-        path,
-        method,
-      })?.selectedSchemes
-      if (operationSchemes) {
-        transform(operationSchemes)
-      }
+      apply({ type: 'operation', documentName, path, method })
     })
   })
 }
@@ -580,10 +598,13 @@ export const deleteSecurityScheme = (
 
   // -- Remove from document-level `x-scalar-selected-security` extension, if present
   if (documentSelectedSecurity) {
-    documentSelectedSecurity.selectedSchemes = filterSecuritySchemes(documentSelectedSecurity.selectedSchemes)
-    documentSelectedSecurity.selectedIndex = clampIndex(
-      documentSelectedSecurity.selectedIndex,
-      documentSelectedSecurity.selectedSchemes.length,
+    const filtered = filterSecuritySchemes(documentSelectedSecurity.selectedSchemes)
+    store?.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      {
+        selectedIndex: clampIndex(documentSelectedSecurity.selectedIndex, filtered.length),
+        selectedSchemes: filtered,
+      },
     )
   }
 
@@ -608,7 +629,6 @@ export const deleteSecurityScheme = (
         resolvedOperation['security'] = filterSecuritySchemes(resolvedOperation['security'])
       }
 
-      // // Remove from operation-level x-scalar-selected-security array
       const operationSelectedSecurity = store?.auth.getAuthSelectedSchemas({
         type: 'operation',
         documentName,
@@ -616,10 +636,13 @@ export const deleteSecurityScheme = (
         method,
       })
       if (operationSelectedSecurity) {
-        operationSelectedSecurity.selectedSchemes = filterSecuritySchemes(operationSelectedSecurity.selectedSchemes)
-        operationSelectedSecurity.selectedIndex = clampIndex(
-          operationSelectedSecurity.selectedIndex,
-          operationSelectedSecurity.selectedSchemes.length,
+        const filtered = filterSecuritySchemes(operationSelectedSecurity.selectedSchemes)
+        store?.auth.setAuthSelectedSchemas(
+          { type: 'operation', documentName, path, method },
+          {
+            selectedIndex: clampIndex(operationSelectedSecurity.selectedIndex, filtered.length),
+            selectedSchemes: filtered,
+          },
         )
       }
     })
