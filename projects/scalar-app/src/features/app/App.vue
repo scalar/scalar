@@ -41,7 +41,6 @@ import { useMonacoEditorConfiguration } from '@/features/editor'
 import { useColorMode } from '@/hooks/use-color-mode'
 import { useTeams } from '@/hooks/use-teams'
 import { useThemes } from '@/hooks/use-themes'
-import { useUser } from '@/hooks/use-user'
 import type {
   RegistryAdapter,
   RegistryDocumentsState,
@@ -275,8 +274,6 @@ const routerViewProps = computed<RouteProps>(() => {
     options: app.options,
   }
 })
-
-const { isLoading: isUserLoading } = useUser()
 </script>
 
 <template>
@@ -292,7 +289,7 @@ const { isLoading: isUserLoading } = useUser()
       v-if="
         app.store.value !== null &&
         app.workspace.activeWorkspace.value !== null &&
-        !(app.loading.value || isUserLoading)
+        !app.loading.value
       ">
       <div
         class="relative flex h-dvh w-dvw flex-col"
