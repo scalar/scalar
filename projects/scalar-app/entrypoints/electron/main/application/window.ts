@@ -4,6 +4,17 @@ import { shell } from 'electron/common'
 import { BrowserWindow } from 'electron/main'
 import windowStateKeeper from 'electron-window-state'
 
+/**
+ * Per-platform window chrome. macOS uses a hidden title bar plus transparency; Linux uses
+ * transparency only (`titleBarStyle` is macOS-only). Windows is omitted so maximize and Aero Snap work.
+ */
+const PLATFORM_WINDOW_CHROME: Partial<Record<NodeJS.Platform, Partial<Electron.BrowserWindowConstructorOptions>>> = {
+  // macOS
+  darwin: { titleBarStyle: 'hidden', transparent: true },
+  // Linux
+  linux: { transparent: true },
+}
+
 export function createWindow({ isDev }: { isDev?: boolean }): BrowserWindow {
   // Load the previous state with fallback to defaults
   const mainWindowState = windowStateKeeper({
@@ -20,11 +31,9 @@ export function createWindow({ isDev }: { isDev?: boolean }): BrowserWindow {
     show: false,
     title: 'Scalar',
     trafficLightPosition: { x: 9.5, y: 12 },
-    // Borderless window + transparency: macOS only. Transparent windows on Windows
-    // break system maximize (Alt+Space, double-click title bar, Aero Snap).
-    ...(process.platform === 'darwin' ? { titleBarStyle: 'hidden' as const, transparent: true } : {}),
+    // Add platform-specific window chrome
+    ...(PLATFORM_WINDOW_CHROME[process.platform] ?? {}),
     autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? {} : {}),
     webPreferences: {
       preload: join(import.meta.dirname, '../preload/index.mjs'),
       sandbox: false,
