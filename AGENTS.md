@@ -192,6 +192,39 @@ If the helper you need already exists there, import it from `@scalar/helpers`. O
 - **E2E**: Playwright in `packages/api-reference` and `packages/components`
 - **Integration tests**: `pnpm vitest integrations/*`
 
+### Running Tests
+
+**Always scope test runs to the package you modified.** Do not run `pnpm test` from the repo root when working on a single package — it runs the entire monorepo test suite, which is slow, noisy, and can surface unrelated pre-existing failures that obscure real problems.
+
+**Preferred: run from repo root with a path filter (single run)**
+
+```bash
+# Run all tests for a specific package once and exit
+pnpm vitest packages/<name> --run
+
+# Examples
+pnpm vitest packages/helpers --run
+pnpm vitest packages/oas-utils --run
+pnpm vitest integrations/fastify --run
+```
+
+**Alternative: run from inside the package directory**
+
+```bash
+cd packages/<name>
+pnpm test --run   # or: pnpm vitest --run
+```
+
+**Watch mode (while actively developing)**
+
+```bash
+pnpm vitest packages/<name>          # from repo root
+# or
+cd packages/<name> && pnpm test      # from package directory
+```
+
+Only use the root `pnpm test` (no path argument) when you intentionally want to verify the full monorepo — for example, as a final pre-merge sanity check.
+
 ### Testing Standards
 
 - Always import `describe`, `it`, and `expect` explicitly from `vitest` (no globals)
@@ -327,7 +360,19 @@ pnpm biome check --write --diagnostic-level=error --no-errors-on-unmatched --fil
 pnpm prettier --write $CHANGED
 ```
 
-**2. Type-check only the affected package(s):**
+**2. Run tests only for the affected package(s):**
+
+```bash
+# Replace <package-name> with the actual package directory name (e.g. helpers, oas-utils, api-client)
+pnpm vitest packages/<package-name> --run
+
+# For integrations
+pnpm vitest integrations/<integration-name> --run
+```
+
+Do not run `pnpm test` from the repo root — scope it to the package you changed.
+
+**3. Type-check only the affected package(s):**
 
 ```bash
 # Replace <package-name> with the actual package (e.g. api-client, helpers, oas-utils)
