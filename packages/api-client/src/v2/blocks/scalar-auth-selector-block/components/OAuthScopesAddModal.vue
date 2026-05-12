@@ -124,6 +124,7 @@ watch(
 
 <template>
   <ScalarModal
+    bodyClass="overflow-y-auto"
     size="xs"
     :state="state"
     :title="title">
@@ -132,22 +133,22 @@ watch(
       @cancel="emit('cancel')"
       @submit="handleSubmit">
       <!-- Name -->
-      <div class="flex h-8 items-start gap-2 text-sm">
+      <div class="flex min-h-8 items-start gap-2 text-sm">
         Name:
         <CommandActionInput
           v-model="scopeData.name"
           autofocus
-          class="!p-0"
+          class="field-sizing-content !p-0"
           placeholder="read:user" />
       </div>
 
       <!-- Description -->
-      <div class="flex h-8 items-start gap-2 text-sm">
+      <div class="flex min-h-8 items-start gap-2 text-sm">
         Description:
         <CommandActionInput
           v-model="scopeData.description"
           :autofocus="false"
-          class="!p-0"
+          class="field-sizing-content !p-0"
           placeholder="Read user data" />
       </div>
 
