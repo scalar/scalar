@@ -250,16 +250,16 @@ const handleDocumentTitleClick = () => {
 
 /**
  * Selecting a workspace from the combobox routes to that workspace's
- * get-started page. We deliberately go to get-started rather than the
- * environment overview because the workspace switch is the natural moment
- * to surface onboarding guidance - the user has effectively arrived at a
- * fresh workspace and may not yet have any documents loaded.
+ * last active tab when one exists in persistence, falling back to the
+ * get-started page for workspaces with no prior session.
  */
-const handleWorkspaceSelect = (option: ScalarComboboxOption | undefined) => {
+const handleWorkspaceSelect = async (
+  option: ScalarComboboxOption | undefined,
+) => {
   if (!option || option.id === activeWorkspaceId.value) {
     return
   }
-  app.workspace.resumeOrGetStarted(currentTeamSlug.value, option.id)
+  await app.workspace.resumeOrGetStarted(currentTeamSlug.value, option.id)
 }
 
 const handleVersionSelect = async (option: VersionOption | undefined) => {

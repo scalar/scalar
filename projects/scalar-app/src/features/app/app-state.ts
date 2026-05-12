@@ -489,11 +489,20 @@ export const createAppState = async ({
    * is "take me back to where I was" rather than "show me onboarding".
    */
   const resumeOrGetStarted = async (teamSlug: string, workspaceIdParam?: string): Promise<void> => {
-    const workspace = workspaces.value?.find((w) => w.teamSlug === teamSlug)
+    // When an explicit workspaceId is provided, look it up directly; otherwise
+    // fall back to picking the first workspace belonging to the team. Either
+    // way we only loop over the workspaces list once.
+    const workspace = (() => {
+      if (workspaceIdParam) {
+        return workspaces.value?.find((w) => w.id === workspaceIdParam)
+      }
+      return workspaces.value?.find((w) => w.teamSlug === teamSlug)
+    })()
+    const resolvedTeamSlug = workspace?.teamSlug ?? teamSlug
     const slug = workspace?.slug ?? DEFAULT_TEAM_WORKSPACE_SLUG
-    const workspaceId = workspaceIdParam ?? workspace?.id ?? getWorkspaceId(teamSlug, slug)
+    const workspaceId = workspaceIdParam ?? workspace?.id ?? getWorkspaceId(resolvedTeamSlug, slug)
 
-    const persisted = await persistence.getItem({ teamSlug, slug })
+    const persisted = await persistence.getItem({ teamSlug: resolvedTeamSlug, slug })
     const tabs = persisted?.workspace.meta?.['x-scalar-tabs']
     const index = persisted?.workspace.meta?.['x-scalar-active-tab'] ?? 0
     const tab = tabs?.[index]
@@ -503,7 +512,7 @@ export const createAppState = async ({
       return
     }
 
-    navigateToWorkspaceGetStarted(workspaceId, teamSlug)
+    navigateToWorkspaceGetStarted(workspaceId, resolvedTeamSlug)
   }
 
   /**

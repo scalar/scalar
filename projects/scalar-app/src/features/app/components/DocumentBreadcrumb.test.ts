@@ -105,6 +105,22 @@ const createFakeApp = ({
           })
         }
       },
+      // Mirrors `resumeOrGetStarted` falling through to get-started when no
+      // persisted tab exists, which is always the case in tests since there
+      // is no IndexedDB available.
+      resumeOrGetStarted: async (teamSlug: string, workspaceId?: string) => {
+        const found = workspaceId
+          ? workspaceList.find((w) => w.id === workspaceId)
+          : workspaceList.find((w) => w.teamSlug === teamSlug)
+        if (found) {
+          mockEventBus.emit('ui:navigate', {
+            page: 'workspace',
+            path: 'get-started',
+            teamSlug: found.teamSlug,
+            workspaceSlug: found.slug,
+          })
+        }
+      },
     },
     activeEntities: {
       documentSlug: ref(activeDocumentName),

@@ -39,12 +39,12 @@ const activeWorkspaceId = computed<string | undefined>(
   () => app.workspace.activeWorkspace.value?.id ?? undefined,
 )
 
-const handleSelectWorkspace = (id: string | undefined) => {
+const handleSelectWorkspace = async (id: string | undefined) => {
   if (!id || id === activeWorkspaceId.value) {
     return
   }
 
-  app.workspace.resumeOrGetStarted(currentTeamSlug.value, id)
+  await app.workspace.resumeOrGetStarted(currentTeamSlug.value, id)
 }
 </script>
 

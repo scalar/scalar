@@ -41,6 +41,8 @@ import { useRegistryDocuments } from '@/hooks/use-registry-documents'
 import { useRegistryNamespaces } from '@/hooks/use-registry-namespaces'
 import { useTeams } from '@/hooks/use-teams'
 
+import { safeRun } from './helpers/safe-run'
+
 const { getAppState, getCommandPaletteState, fileLoader } =
   defineProps<AppProps>()
 
@@ -131,7 +133,7 @@ const workspaceGroups = computed(() =>
  */
 app.router.afterEach(async (to) => {
   if (isTeamsLoading.value) {
-    await teamsSuspense()
+    await safeRun(() => teamsSuspense())
   }
 
   app.handleRouteChange(to, {
