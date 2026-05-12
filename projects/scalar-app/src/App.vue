@@ -46,14 +46,19 @@ const { getAppState, getCommandPaletteState, fileLoader } =
 
 const app = getAppState()
 const { isLoggedIn } = useAuth()
-const {
-  currentTeam,
-  currentTeamSlug,
-  isLoading: isTeamsLoading,
-  suspense: teamsSuspense,
-} = useTeams()
+const { currentTeam, currentTeamSlug, suspense: teamsSuspense } = useTeams()
 
-const { handleLogin, handleRegister } = useAuthHandlers()
+const { handleLogin, handleRegister } = useAuthHandlers({
+  // Lets go to the team workspace on login
+  onAuthenticated: async () => {
+    await teamsSuspense()
+    app.workspace.navigateToWorkspaceGetStarted(
+      `${currentTeamSlug.value}/${DEFAULT_TEAM_WORKSPACE_SLUG}`,
+      currentTeamSlug.value,
+    )
+  },
+})
+
 const {
   documents,
   isLoading: isDocumentsLoading,
@@ -86,7 +91,6 @@ const handleTeamChange = async () => {
 //--------------------------------------------------
 /** Routes to the get-started page of the workspace identified by `id`. */
 const setActiveWorkspaceById = (id?: string) => {
-  console.trace('setActiveWorkspaceById', id)
   if (!id) {
     return
   }
@@ -120,15 +124,6 @@ const workspaceGroups = computed(() =>
 //--------------------------------------------------
 // Navigation/Routing
 //--------------------------------------------------
-
-/** Lets wait until teams have loaded before progressing */
-app.router.beforeEach(async () => {
-  if (isTeamsLoading.value) {
-    await teamsSuspense()
-  }
-
-  return true
-})
 
 /**
  * Temporarily here to add some metadata to the route change handler

@@ -3,14 +3,26 @@ import { coerce, string } from '@scalar/validation'
 import { trackPageview } from 'fathom-client'
 
 import { createAppRouter } from '@/features/app'
+import { DEFAULT_TEAM_WORKSPACE_SLUG } from '@/features/app/app-state'
 import { exchangeToken } from '@/helpers/auth/exchange-token'
+import { queryClient } from '@/helpers/query-client'
+import { scalarClient } from '@/helpers/scalar-client'
 import { useAuth } from '@/hooks/use-auth'
 
 /** Create the router for the web app */
 export const router: ReturnType<typeof createAppRouter> = createAppRouter('web')
 
-const { isLoggedIn, setTokens } = useAuth()
+const { isLoggedIn, setTokens, tokenData } = useAuth()
 const { toast } = useToasts()
+
+/** Fetches (or returns cached) teams and resolves the current team slug from the JWT. */
+const fetchCurrentTeamSlug = async (): Promise<string> => {
+  const teamsData = await queryClient.fetchQuery({
+    queryKey: ['teams'],
+    queryFn: () => scalarClient.teams.listTeams(),
+  })
+  return teamsData?.teams?.find((t) => t.uid === tokenData.value?.teamUid)?.slug ?? 'local'
+}
 
 router.beforeEach(async (to) => {
   const parsedExchangeToken = coerce(string(), to.query.exchangeToken)
@@ -26,9 +38,15 @@ router.beforeEach(async (to) => {
     } else {
       setTokens(data.accessToken, data.refreshToken)
       toast('Logged in successfully', 'info')
+
+      const teamSlug = await fetchCurrentTeamSlug()
+
+      return {
+        path: `/@${teamSlug}/${DEFAULT_TEAM_WORKSPACE_SLUG}/get-started`,
+      }
     }
 
-    // Update the router param query
+    // Login failed — strip the exchange token and continue to the original route
     const { exchangeToken: _, ...query } = to.query
     return { ...to, query }
   }
