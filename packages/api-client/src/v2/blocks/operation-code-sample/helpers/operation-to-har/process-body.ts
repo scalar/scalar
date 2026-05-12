@@ -1,7 +1,14 @@
 import { json2xml } from '@scalar/helpers/file/json2xml'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
-import { getExample, getExampleFromSchema } from '@scalar/workspace-store/request-example'
+import {
+  getExample,
+  getExampleFromSchema,
+  serializeDeepObjectStyle,
+  serializeFormStyle,
+  serializePipeDelimitedStyle,
+  serializeSpaceDelimitedStyle,
+} from '@scalar/workspace-store/request-example'
 import type {
   MediaTypeObject,
   RequestBodyObject,
@@ -52,8 +59,52 @@ const objectToFormParams = (
         partEncoding.allowReserved !== undefined)
     const explicitContentType = hasFormStyle ? undefined : partEncoding?.contentType
 
+    // Per OpenAPI 3.1.1 §Encoding Object: when style/explode/allowReserved is set, the part
+    // value is serialized as if it were a query-style parameter and contentType is ignored.
+    // The query delimiters are stripped per Appendix C, so part names/values come straight
+    // from the serializer. Primitives skip this branch and fall through to the String(value)
+    // path below since style is a no-op for primitives. Files skip too — RFC6570 expansion
+    // of binary data is undefined per spec line 4181.
+    // allowReserved only affects percent-encoding, which is a no-op at the HAR layer (values
+    // are raw bytes in part bodies); its presence still opts into this branch per spec.
+    if (
+      isMultipart &&
+      !parentKey &&
+      hasFormStyle &&
+      typeof value === 'object' &&
+      value !== null &&
+      !(value instanceof File)
+    ) {
+      const unpacked = unpackProxyObject(value)
+      const style = partEncoding?.style ?? 'form'
+      // OAS defaults: explode is true for "form", false for everything else.
+      const explode = partEncoding?.explode ?? style === 'form'
+
+      if (style === 'deepObject') {
+        // explode:false with deepObject is undefined per spec; we invoke the serializer
+        // either way so authors get useful output instead of nothing.
+        for (const entry of serializeDeepObjectStyle(key, unpacked)) {
+          params.push({ name: entry.key, value: String(entry.value) })
+        }
+      } else if (style === 'spaceDelimited') {
+        params.push({ name: key, value: String(serializeSpaceDelimitedStyle(unpacked)) })
+      } else if (style === 'pipeDelimited') {
+        params.push({ name: key, value: String(serializePipeDelimitedStyle(unpacked)) })
+      } else {
+        const serialized = serializeFormStyle(unpacked, explode)
+        if (Array.isArray(serialized)) {
+          for (const entry of serialized) {
+            // Arrays: entry.key === '' → fall back to the outer name.
+            // Objects: entry.key is the inner property name (spec strips the outer name).
+            params.push({ name: entry.key || key, value: String(entry.value) })
+          }
+        } else {
+          params.push({ name: key, value: String(serialized) })
+        }
+      }
+    }
     // Handle File objects by converting them to 'BINARY'
-    if (value instanceof File) {
+    else if (value instanceof File) {
       const file = unpackProxyObject(value)
       params.push({
         name: key,
