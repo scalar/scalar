@@ -20,6 +20,9 @@ const fetchCurrentTeamSlug = async (): Promise<string> => {
   const teamsData = await queryClient.fetchQuery({
     queryKey: ['teams'],
     queryFn: () => scalarClient.teams.listTeams(),
+    meta: {
+      errorMessage: 'Failed to fetch teams. Please try logging in again.',
+    },
   })
   return teamsData?.teams?.find((t) => t.uid === tokenData.value?.teamUid)?.slug ?? 'local'
 }
@@ -39,10 +42,15 @@ router.beforeEach(async (to) => {
       setTokens(data.accessToken, data.refreshToken)
       toast('Logged in successfully', 'info')
 
-      const teamSlug = await fetchCurrentTeamSlug()
-
-      return {
-        path: `/@${teamSlug}/${DEFAULT_TEAM_WORKSPACE_SLUG}/get-started`,
+      try {
+        const teamSlug = await fetchCurrentTeamSlug()
+        if (teamSlug) {
+          return {
+            path: `/@${teamSlug}/${DEFAULT_TEAM_WORKSPACE_SLUG}/get-started`,
+          }
+        }
+      } catch {
+        // If fetching teams fails, fall through to strip the exchangeToken and continue navigation
       }
     }
 
