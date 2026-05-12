@@ -511,9 +511,6 @@ export const createAppState = async ({
         await navigateToWorkspace(existing.teamSlug, existing.slug)
         return { teamSlug: existing.teamSlug, slug: existing.slug, name: existing.label }
       }
-      console.warn('Team workspace creation is currently disabled. Falling back to the local default workspace.')
-      await navigateToWorkspace('local', 'default')
-      return undefined
     }
 
     // Restrict users to a single workspace per team. Local workspaces remain

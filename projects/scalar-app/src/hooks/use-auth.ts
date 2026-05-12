@@ -75,6 +75,8 @@ const logout = () => {
   localStorage.removeItem(ACCESS_TOKEN_KEY)
   localStorage.removeItem(REFRESH_TOKEN_KEY)
 
+  // Cancel all queries and clear cache
+  void queryClient.cancelQueries()
   queryClient.clear()
 }
 
