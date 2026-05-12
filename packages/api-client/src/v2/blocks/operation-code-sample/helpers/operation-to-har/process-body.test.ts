@@ -815,6 +815,111 @@ describe('processBody', () => {
       })
     })
 
+    it('respects encoding.style "form" with explode: true by flattening nested objects', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            props: {
+              style: 'form',
+              explode: true,
+            },
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              props: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'widget' },
+                  count: { type: 'integer', example: 3 },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [
+          { name: 'props.name', value: 'widget' },
+          { name: 'props.count', value: '3' },
+        ],
+      })
+    })
+
+    it('treats explode: true alone as an opt-in to form-style flattening', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            props: {
+              explode: true,
+            },
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              props: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'widget' },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [{ name: 'props.name', value: 'widget' }],
+      })
+    })
+
+    it('ignores encoding.contentType when style is set', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            props: {
+              style: 'form',
+              contentType: 'application/json',
+            },
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              props: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'widget' },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [{ name: 'props.name', value: 'widget' }],
+      })
+    })
+
     it('respects an explicit encoding.contentType over the application/json default', () => {
       const content = {
         'multipart/form-data': {

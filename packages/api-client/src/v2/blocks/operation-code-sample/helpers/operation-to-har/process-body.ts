@@ -41,7 +41,16 @@ const objectToFormParams = (
       continue
     }
 
-    const explicitContentType = parentKey ? undefined : encoding?.[key]?.contentType
+    const partEncoding = parentKey ? undefined : encoding?.[key]
+    // Per OpenAPI 3.1.1: when style, explode, or allowReserved is explicitly set on the
+    // encoding entry, contentType (implicit or explicit) is ignored and the value is
+    // serialized as if it were a query-style parameter.
+    const hasFormStyle =
+      !!partEncoding &&
+      (partEncoding.style !== undefined ||
+        partEncoding.explode !== undefined ||
+        partEncoding.allowReserved !== undefined)
+    const explicitContentType = hasFormStyle ? undefined : partEncoding?.contentType
 
     // Handle File objects by converting them to 'BINARY'
     if (value instanceof File) {
@@ -63,7 +72,7 @@ const objectToFormParams = (
     // Per OpenAPI 3.x: a top-level multipart property whose value is an object (and not a File)
     // defaults to a single part encoded as application/json, rather than being flattened
     // into multiple parts with dotted keys.
-    else if (isMultipart && !parentKey && typeof value === 'object' && !Array.isArray(value)) {
+    else if (isMultipart && !parentKey && !hasFormStyle && typeof value === 'object' && !Array.isArray(value)) {
       params.push({
         name: key,
         value: JSON.stringify(unpackProxyObject(value)),
@@ -80,7 +89,7 @@ const objectToFormParams = (
         }
         // Per OpenAPI 3.x: a top-level multipart array of complex items defaults each part
         // to application/json, instead of flattening object items into dotted keys.
-        else if (isMultipart && !parentKey && typeof item === 'object' && item !== null) {
+        else if (isMultipart && !parentKey && !hasFormStyle && typeof item === 'object' && item !== null) {
           params.push({
             name: key,
             value: JSON.stringify(unpackProxyObject(item)),
