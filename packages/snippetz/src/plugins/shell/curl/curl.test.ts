@@ -670,6 +670,63 @@ describe('shellCurl', () => {
     expect(result).toBe(`curl 'https://example.com/api$v1/prices?amount=%2450.00'`)
   })
 
+  it('pretty-prints --data bodies whose mimeType uses a +json suffix', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/vnd.api+json',
+        text: JSON.stringify({ a: 1 }),
+      },
+    })
+
+    expect(result).toBe(`curl https://example.com \\
+  --request POST \\
+  --data '{
+  "a": 1
+}'`)
+  })
+
+  it('pretty-prints --data bodies whose mimeType includes a charset parameter', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/json;charset=utf-8',
+        text: JSON.stringify({ a: 1 }),
+      },
+    })
+
+    expect(result).toBe(`curl https://example.com \\
+  --request POST \\
+  --data '{
+  "a": 1
+}'`)
+  })
+
+  it('pretty-prints --form parts whose contentType uses a +json suffix', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'props',
+            value: '{"a":1}',
+            contentType: 'application/vnd.custom+json',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`curl https://example.com \\
+  --request POST \\
+  --form 'props={
+  "a": 1
+};type=application/vnd.custom+json'`)
+  })
+
   it('escapes single quotes in JSON body', () => {
     const result = shellCurl.generate({
       url: 'https://editor.scalar.com/test',
