@@ -26,6 +26,7 @@ import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { createNavigation } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
+import { traverseAsyncDocument } from '@/navigation/helpers/traverse-async-document'
 import {
   externalValueResolver,
   loadingStatus,
@@ -986,12 +987,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     })
 
     // AsyncAPI ingestion: skip the OpenAPI-specific upgrade, bundle, coerce,
-    // validate, and navigation pipeline. The OpenAPI `coerce` step would
-    // otherwise inject an empty `openapi: ''` field and break the type
-    // discriminator. Reference resolution and navigation generation for
-    // AsyncAPI are out of scope for the MVP — only the workspace-store
-    // managed metadata (source url, document hash, spec version) is set so
-    // change detection on rebase can compare hashes correctly.
+    // and validate pipeline (the OpenAPI `coerce` step would otherwise inject
+    // an empty `openapi: ''` field and break the type discriminator). We do
+    // build a small navigation tree (introduction + info.description headings)
+    // so the sidebar can surface the description. Reference resolution and
+    // remaining sections (channels, operations, messages) stay out of scope
+    // for the MVP.
     if (isAsyncApiDocument(clonedRawInputDocument)) {
       const asyncApiDocument = {
         ...clonedRawInputDocument,
@@ -999,6 +1000,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         'x-original-aas-version': clonedRawInputDocument.asyncapi,
         'x-scalar-original-document-hash': input.documentHash,
         'x-scalar-original-source-url': input.documentSource,
+        'x-scalar-navigation': traverseAsyncDocument(
+          name,
+          clonedRawInputDocument as AsyncApiDocument,
+          navigationOptions,
+        ),
       } satisfies AsyncApiDocument
 
       workspace.documents[name] = createOverridesProxy(createMagicProxy(asyncApiDocument) as AsyncApiDocument, {
