@@ -121,6 +121,11 @@ export type AppState = {
   eventBus: WorkspaceEventBus
   /** The router instance */
   router: Router
+  /** Fired on every route change */
+  handleRouteChange: (
+    to: RouteLocationNormalizedGeneric,
+    metadata: { teamSlug: string; filteredWorkspaces: WorkspaceOption[] },
+  ) => void
   /** The current route derived from the router */
   currentRoute: Ref<RouteLocationNormalizedGeneric | null>
   /**
@@ -222,7 +227,6 @@ export const createAppState = async ({
 
   // ---------------------------------------------------------------------------
   // Router state
-  router.afterEach((to) => handleRouteChange(to))
   const currentRoute = computed(() => router.currentRoute.value ?? null)
 
   // ---------------------------------------------------------------------------
@@ -562,7 +566,12 @@ export const createAppState = async ({
    *    - If found, navigates to the active tab path (if available).
    *    - If not found, creates the default workspace and navigates to it.
    */
-  const changeWorkspace = async (teamSlug: string, slug: string, to?: RouteLocationNormalizedGeneric) => {
+  const changeWorkspace = async (
+    teamSlug: string,
+    slug: string,
+    filteredWorkspaces: WorkspaceOption[],
+    to?: RouteLocationNormalizedGeneric,
+  ) => {
     /** For initial load we want to fall through to our router default behaviour */
     const isInitialLoad = activeWorkspace.value === null
 
@@ -617,8 +626,8 @@ export const createAppState = async ({
 
     // Navigate to the default workspace, or fall back to the first available workspace
     const targetWorkspace =
-      filteredWorkspaces.value.find((workspace) => workspace.teamSlug === 'local' && workspace.slug === 'default') ??
-      filteredWorkspaces.value[0]
+      filteredWorkspaces.find((workspace) => workspace.teamSlug === 'local' && workspace.slug === 'default') ??
+      filteredWorkspaces[0]
 
     if (targetWorkspace) {
       return navigateToWorkspace(targetWorkspace.teamSlug, targetWorkspace.slug)
@@ -973,7 +982,10 @@ export const createAppState = async ({
   // Path syncing
 
   /** When the route changes we need to update the active entities in the store */
-  const handleRouteChange = (to: RouteLocationNormalizedGeneric) => {
+  const handleRouteChange = (
+    to: RouteLocationNormalizedGeneric,
+    { teamSlug, filteredWorkspaces }: { teamSlug: string; filteredWorkspaces: WorkspaceOption[] },
+  ) => {
     const slug = getRouteParam('workspaceSlug', to)
     const document = getRouteParam('documentSlug', to)
     const nextTeamSlug = getRouteParam('teamSlug', to)
@@ -989,7 +1001,7 @@ export const createAppState = async ({
     )
 
     // If the workspace exists but is not accessible by the current team, redirect to the default workspace.
-    if (workspace && !canLoadWorkspace(workspace.teamSlug, teamSlug.value)) {
+    if (workspace && !canLoadWorkspace(workspace.teamSlug, teamSlug)) {
       return navigateToWorkspace('local', 'default')
     }
 
@@ -1011,7 +1023,7 @@ export const createAppState = async ({
       // or are being redirected on login), create it on demand before letting
       // the workspace switcher take over. Otherwise `changeWorkspace` would
       // fall back to the local default and silently swallow the navigation.
-      const isUnknownTeamWorkspace = nextTeamSlug !== 'local' && nextTeamSlug === teamSlug.value && !workspace
+      const isUnknownTeamWorkspace = nextTeamSlug !== 'local' && nextTeamSlug === teamSlug && !workspace
       if (isUnknownTeamWorkspace) {
         return createWorkspace({
           teamSlug: nextTeamSlug,
@@ -1019,7 +1031,7 @@ export const createAppState = async ({
           name: DEFAULT_TEAM_WORKSPACE_NAME,
         })
       }
-      return changeWorkspace(nextTeamSlug, slug, to)
+      return changeWorkspace(nextTeamSlug, slug, filteredWorkspaces, to)
     }
 
     // Update the active document if the document slug has changes
@@ -1132,6 +1144,7 @@ export const createAppState = async ({
     },
     eventBus,
     router,
+    handleRouteChange,
     currentRoute,
     loading,
     activeEntities: {

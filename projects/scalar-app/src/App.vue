@@ -61,6 +61,9 @@ const { namespaces, isLoading: isNamespacesLoading } = useRegistryNamespaces()
 /** Whether the app is running on electron */
 const isDesktop = window.electron === true
 
+/** Current teams slug */
+const currentTeamSlug = computed(() => currentTeam.value?.slug || 'local')
+
 //--------------------------------------------------
 // Team sync with app state
 //--------------------------------------------------
@@ -87,6 +90,41 @@ const setActiveWorkspaceById = (id?: string) => {
   }
   app.workspace.navigateToWorkspaceGetStarted(id)
 }
+
+const filteredWorkspaces = computed(() =>
+  filterWorkspacesByTeam(
+    app.workspace.workspaceList.value,
+    currentTeamSlug.value,
+  ),
+)
+
+/**
+ * Temporarily here to add some metadata to the route change handler
+ * We should move it elsewhere as we remove things from app-state into their own
+ */
+app.router.afterEach((to) =>
+  app.handleRouteChange(to, {
+    teamSlug: currentTeamSlug.value,
+    filteredWorkspaces: filteredWorkspaces.value,
+  }),
+)
+
+/**
+ * Groups workspaces into team and local categories for display in the workspace picker.
+ * Team workspaces are shown first (when not on local team), followed by local workspaces.
+ */
+const workspaceGroups = computed(() =>
+  groupWorkspacesByTeam(filteredWorkspaces.value, currentTeamSlug.value, {
+    // Surface a fake default workspace for non-local teams so logged-in
+    // users always see a team workspace entry in the picker. Clicking it
+    // navigates to a normal workspace route; the route handler creates the
+    // workspace on demand when it does not yet exist.
+    placeholder: {
+      slug: DEFAULT_TEAM_WORKSPACE_SLUG,
+      label: DEFAULT_TEAM_WORKSPACE_NAME,
+    },
+  }),
+)
 
 //--------------------------------------------------
 // Navigation
@@ -194,44 +232,14 @@ const registry = reactive({
   deleteVersion: deleteRegistryVersion,
   refreshDocuments: refreshRegistryDocuments,
 })
-
-//--------------------------------------------------
-// Workspaces
-//--------------------------------------------------
-
-/**
- * Groups workspaces into team and local categories for display in the workspace picker.
- * Team workspaces are shown first (when not on local team), followed by local workspaces.
- */
-const workspaces = computed(() => {
-  const teamSlug = currentTeam.value?.slug || 'local'
-  const filteredWorkspaces = filterWorkspacesByTeam(
-    app.workspace.workspaceList.value,
-    teamSlug,
-  )
-
-  return {
-    filtered: filteredWorkspaces,
-    grouped: groupWorkspacesByTeam(filteredWorkspaces, teamSlug, {
-      // Surface a fake default workspace for non-local teams so logged-in
-      // users always see a team workspace entry in the picker. Clicking it
-      // navigates to a normal workspace route; the route handler creates the
-      // workspace on demand when it does not yet exist.
-      placeholder: {
-        slug: DEFAULT_TEAM_WORKSPACE_SLUG,
-        label: DEFAULT_TEAM_WORKSPACE_NAME,
-      },
-    }),
-  }
-})
 </script>
 <template>
   <ImportListener
     :activeWorkspace="app.workspace.activeWorkspace.value"
     :darkMode="app.isDarkMode.value"
     :fileLoader="fileLoader"
-    :isOnlyOneWorkspace="workspaces.filtered.length <= 1"
-    :workspaceGroups="workspaces.grouped"
+    :isOnlyOneWorkspace="filteredWorkspaces.length <= 1"
+    :workspaceGroups
     :workspaceStore="app.store.value"
     @create:workspace="(payload) => app.workspace.create(payload)"
     @navigateToDocument="navigateToDocument"
@@ -242,11 +250,11 @@ const workspaces = computed(() => {
       :layout="isDesktop ? 'desktop' : 'web'"
       :plugins="plugins"
       :registry
-      :workspaceGroups="workspaces.grouped">
+      :workspaceGroups>
       <template #header-menu-items>
         <AppMenuItems
           :app="app"
-          :workspaceGroups="workspaces.grouped"
+          :workspaceGroups
           @createWorkspace="handleCreateWorkspaceFromMenu"
           @login="handleLogin"
           @openSettings="openSettings" />
