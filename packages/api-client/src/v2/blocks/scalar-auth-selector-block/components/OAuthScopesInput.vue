@@ -265,16 +265,19 @@ const handleDeleteScope = (scopeKey: string) => {
                 class="text-c-2 group/scope-row"
                 @click="setScope(id, !selectedScopes.includes(id))">
                 <DataTableCell
-                  class="no-scrollbar hover:text-c-1 box-border flex !max-h-[initial] w-full cursor-pointer items-center gap-1 overflow-x-scroll px-3 py-1.5 text-nowrap">
-                  <span class="font-code text-xs">{{ label }}</span>
-                  <template v-if="String(description ?? '').trim()">
-                    <span>&ndash;</span>
-                    <span>{{ description }}</span>
-                  </template>
-
-                  <!-- Edit + delete -->
-                  <span
-                    class="ml-auto flex shrink-0 items-center opacity-0 transition-opacity group-focus-within/scope-row:opacity-100 group-hover/scope-row:opacity-100">
+                  class="box-border flex !max-h-[initial] w-full min-w-0 cursor-pointer items-stretch overflow-hidden px-0 py-0">
+                  <!-- Text scrolls horizontally; action rail stays fixed -->
+                  <div
+                    class="no-scrollbar text-c-2 group-hover/scope-row:text-c-1 flex min-h-8 min-w-0 flex-1 items-center gap-1 overflow-x-auto px-3 py-1.5 pr-20 text-xs text-nowrap">
+                    <span class="font-code shrink-0 text-xs">{{ label }}</span>
+                    <template v-if="String(description ?? '').trim()">
+                      <span class="shrink-0">&ndash;</span>
+                      <span class="whitespace-nowrap">{{ description }}</span>
+                    </template>
+                  </div>
+                  <div
+                    class="oauth-scope-row-action-rail absolute top-0 right-0 z-[1] flex h-full min-w-[4.5rem] items-center justify-end gap-0.5 py-1 pr-2 pl-4 opacity-0 transition-opacity group-focus-within/scope-row:opacity-100 group-hover/scope-row:opacity-100"
+                    @click.stop>
                     <ScalarIconButton
                       :icon="ScalarIconPencilSimple"
                       :label="`Edit ${label}`"
@@ -290,7 +293,7 @@ const handleDeleteScope = (scopeKey: string) => {
                       :label="`Delete ${label}`"
                       size="sm"
                       @click.stop="handleDeleteScope(id)" />
-                  </span>
+                  </div>
                 </DataTableCell>
                 <DataTableCheckbox
                   :modelValue="selectedScopes.includes(id)"
@@ -312,6 +315,21 @@ const handleDeleteScope = (scopeKey: string) => {
 </template>
 
 <style>
+/* Matches AddressBar.vue `.address-bar-bg-states` / `.fade-right` (header URL input). */
+.oauth-scope-row-action-rail {
+  --oauth-scope-row-rail-bg: color-mix(
+    in srgb,
+    var(--scalar-background-1),
+    var(--scalar-background-2)
+  );
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--oauth-scope-row-rail-bg), transparent 100%) 0%,
+    color-mix(in srgb, var(--oauth-scope-row-rail-bg), transparent 20%) 30%,
+    var(--oauth-scope-row-rail-bg) 100%
+  );
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
