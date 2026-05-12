@@ -5,14 +5,17 @@ import { queryClient } from '@/helpers/query-client'
 import { DEFAULT_REFETCH_INTERVAL, scalarClient } from '@/helpers/scalar-client'
 import { useAuth } from '@/hooks/use-auth'
 
+import { useTeams } from './use-teams'
+
 /**
  * Fetches and caches API documents from the Scalar registry for your current team
  *
  * @returns The query result extended with a `documents` computed ref (defaults to `[]`).
  */
 export const useRegistryDocuments = (options?: Omit<UseQueryOptions, 'queryKey' | 'queryFn'>) => {
-  const { tokenData, isLoggedIn } = useAuth()
-  const queryKey = ['documents', tokenData.value?.teamUid] satisfies QueryKey
+  const { isLoggedIn } = useAuth()
+  const { currentTeamSlug } = useTeams()
+  const queryKey = ['documents', currentTeamSlug] satisfies QueryKey
 
   const query = useQuery(
     {
@@ -29,6 +32,8 @@ export const useRegistryDocuments = (options?: Omit<UseQueryOptions, 'queryKey' 
 
   return {
     ...query,
-    documents: computed(() => query.data.value ?? []),
+    documents: computed(() => {
+      return query.data.value ?? []
+    }),
   }
 }

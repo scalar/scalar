@@ -116,7 +116,7 @@ const createFakeApp = ({
     eventBus: mockEventBus,
   } as unknown as AppState
 
-  return { app }
+  return { app, workspaceGroups }
 }
 
 /**

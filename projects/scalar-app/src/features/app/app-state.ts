@@ -183,16 +183,6 @@ export const createAppState = async ({
 }: {
   router: Router
   fileLoader?: LoaderPlugin
-  /** The currently active team */
-  currentTeam?: MaybeRefOrGetter<Team | undefined>
-  /**
-   * Whether the host is still resolving `currentTeam`. While this is `true`,
-   * route handling is deferred and the splash screen stays up so a reload
-   * onto a team workspace URL does not race the team fetch and bounce the
-   * user back to the local default workspace. The deferred route is
-   * re-processed automatically once this flips to `false`.
-   */
-  isCurrentTeamLoading?: MaybeRefOrGetter<boolean>
   telemetryDefault?: boolean
   /** Runtime behaviour overrides */
   options?: ApiClientAppOptions

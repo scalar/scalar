@@ -5,6 +5,8 @@ import { queryClient } from '@/helpers/query-client'
 import { DEFAULT_REFETCH_INTERVAL, scalarClient } from '@/helpers/scalar-client'
 import { useAuth } from '@/hooks/use-auth'
 
+import { useTeams } from './use-teams'
+
 /**
  * Fetches and caches the namespaces the current team can publish into.
  *
@@ -16,8 +18,9 @@ import { useAuth } from '@/hooks/use-auth'
  * (defaults to `[]`).
  */
 export const useRegistryNamespaces = (options?: Omit<UseQueryOptions, 'queryKey' | 'queryFn'>) => {
-  const { tokenData, isLoggedIn } = useAuth()
-  const queryKey = ['namespaces', tokenData.value?.teamUid] satisfies QueryKey
+  const { isLoggedIn } = useAuth()
+  const { currentTeamSlug } = useTeams()
+  const queryKey = ['namespaces', currentTeamSlug] satisfies QueryKey
 
   const query = useQuery(
     {
