@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest'
 
 import type { AsyncApiDocument } from '@/schemas/asyncapi/asyncapi-document'
 
-import { traverseAsyncDocument } from './traverse-async-document'
+import { traverseAsyncApiDocument } from './traverse-asyncapi-document'
 
-describe('traverseAsyncDocument', () => {
+describe('traverseAsyncApiDocument', () => {
   it('emits a single Introduction entry when description is empty', () => {
     const document: AsyncApiDocument = {
       asyncapi: '3.0.0',
@@ -12,7 +12,7 @@ describe('traverseAsyncDocument', () => {
       'x-scalar-original-document-hash': '',
     }
 
-    const nav = traverseAsyncDocument('streetlights', document)
+    const nav = traverseAsyncApiDocument('streetlights', document)
 
     expect(nav.children).toEqual([{ id: expect.any(String), title: 'Introduction', type: 'text' }])
   })
@@ -29,7 +29,7 @@ describe('traverseAsyncDocument', () => {
       'x-scalar-original-document-hash': '',
     }
 
-    const nav = traverseAsyncDocument('streetlights', document)
+    const nav = traverseAsyncApiDocument('streetlights', document)
 
     const intro = nav.children?.[0]
     expect(intro?.title).toBe('Introduction')

@@ -26,7 +26,7 @@ import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { createNavigation } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
-import { traverseAsyncDocument } from '@/navigation/helpers/traverse-async-document'
+import { traverseAsyncApiDocument } from '@/navigation/helpers/traverse-asyncapi-document'
 import {
   externalValueResolver,
   loadingStatus,
@@ -1000,7 +1000,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         'x-original-aas-version': clonedRawInputDocument.asyncapi,
         'x-scalar-original-document-hash': input.documentHash,
         'x-scalar-original-source-url': input.documentSource,
-        'x-scalar-navigation': traverseAsyncDocument(
+        'x-scalar-navigation': traverseAsyncApiDocument(
           name,
           clonedRawInputDocument as AsyncApiDocument,
           navigationOptions,

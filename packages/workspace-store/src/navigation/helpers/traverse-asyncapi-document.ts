@@ -11,7 +11,7 @@ import type { InfoObject } from '@/schemas/v3.1/strict/info'
  * `traverseDescription`. Channels, operations, servers, messages, and bindings
  * are still unrendered and get no sidebar entries.
  */
-export const traverseAsyncDocument = (
+export const traverseAsyncApiDocument = (
   documentName: string,
   document: AsyncApiDocument,
   options?: NavigationOptions,

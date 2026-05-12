@@ -1,4 +1,4 @@
-import { createAsyncNavigation, createNavigation } from '@scalar/workspace-store/navigation'
+import { createAsyncApiNavigation, createNavigation } from '@scalar/workspace-store/navigation'
 import type { AsyncApiDocument } from '@scalar/workspace-store/schemas/asyncapi/asyncapi-document'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
@@ -34,7 +34,7 @@ function createMockDocument(document: Partial<OpenApiDocument>) {
   return doc
 }
 
-function createMockAsyncDocument(document: Partial<AsyncApiDocument>) {
+function createMockAsyncApiDocument(document: Partial<AsyncApiDocument>) {
   const doc = {
     asyncapi: '3.0.0',
     info: {
@@ -45,7 +45,7 @@ function createMockAsyncDocument(document: Partial<AsyncApiDocument>) {
     ...document,
   } as AsyncApiDocument
 
-  doc['x-scalar-navigation'] = createAsyncNavigation('test', doc)
+  doc['x-scalar-navigation'] = createAsyncApiNavigation('test', doc)
 
   return doc
 }
@@ -765,7 +765,7 @@ describe('createSearchIndex', () => {
 
   describe('asyncapi documents', () => {
     it('indexes the default Introduction entry when description is empty', () => {
-      const document = createMockAsyncDocument({})
+      const document = createMockAsyncApiDocument({})
 
       const index = createSearchIndex(document)
 
@@ -779,7 +779,7 @@ describe('createSearchIndex', () => {
     })
 
     it('indexes Introduction plus headings extracted from info.description', () => {
-      const document = createMockAsyncDocument({
+      const document = createMockAsyncApiDocument({
         info: {
           title: 'Streetlights',
           version: '1.0.0',
