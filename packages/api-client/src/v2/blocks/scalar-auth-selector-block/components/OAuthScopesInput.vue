@@ -272,14 +272,13 @@ const handleDeleteScope = (scopeKey: string) => {
                     <span>{{ description }}</span>
                   </template>
 
-                  <!-- Edit + Delete actions, revealed on row hover -->
+                  <!-- Edit + delete -->
                   <span
-                    class="ml-auto flex items-center gap-0.5 opacity-0 transition-opacity group-focus-within/scope-row:opacity-100 group-hover/scope-row:opacity-100">
+                    class="ml-auto flex shrink-0 items-center opacity-0 transition-opacity group-focus-within/scope-row:opacity-100 group-hover/scope-row:opacity-100">
                     <ScalarIconButton
-                      class="-m-0.5 shrink-0 p-0.5"
                       :icon="ScalarIconPencilSimple"
                       :label="`Edit ${label}`"
-                      size="xs"
+                      size="sm"
                       @click.stop="
                         openEditScopeModal({
                           id,
@@ -287,10 +286,9 @@ const handleDeleteScope = (scopeKey: string) => {
                         })
                       " />
                     <ScalarIconButton
-                      class="-m-0.5 shrink-0 p-0.5"
                       :icon="ScalarIconTrash"
                       :label="`Delete ${label}`"
-                      size="xs"
+                      size="sm"
                       @click.stop="handleDeleteScope(id)" />
                   </span>
                 </DataTableCell>
