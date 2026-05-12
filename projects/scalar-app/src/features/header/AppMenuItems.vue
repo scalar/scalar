@@ -13,6 +13,7 @@ import { computed } from 'vue'
 
 import type { AppState } from '@/features/app'
 import { useAuth } from '@/hooks/use-auth'
+import { useTeams } from '@/hooks/use-teams'
 
 const { app, workspaceGroups } = defineProps<{
   /**
@@ -32,6 +33,7 @@ const emit = defineEmits<{
 }>()
 
 const { isLoggedIn, logout } = useAuth()
+const { currentTeamSlug } = useTeams()
 
 const activeWorkspaceId = computed<string | undefined>(
   () => app.workspace.activeWorkspace.value?.id ?? undefined,
@@ -41,7 +43,7 @@ const handleSelectWorkspace = (id: string | undefined) => {
   if (!id || id === activeWorkspaceId.value) {
     return
   }
-  app.workspace.navigateToWorkspaceGetStarted(id)
+  app.workspace.navigateToWorkspaceGetStarted(id, currentTeamSlug.value)
 }
 </script>
 

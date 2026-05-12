@@ -294,6 +294,7 @@ if (typeof window !== 'undefined') {
 export const useAuth = () => ({
   checkRefresh,
   getAccessToken,
+  accessToken,
   isLoggedIn: readonly(isLoggedIn),
   logout,
   refreshTokens,

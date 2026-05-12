@@ -13,8 +13,8 @@ import { useAuth } from '@/hooks/use-auth'
  * @returns The query result extended with a `user` computed ref (defaults to `null`).
  */
 export const useUser = (options?: Omit<UseQueryOptions, 'queryKey' | 'queryFn'>) => {
-  const { isLoggedIn, getAccessToken } = useAuth()
-  const queryKey = ['me', getAccessToken()] satisfies QueryKey
+  const { isLoggedIn, accessToken } = useAuth()
+  const queryKey = ['me', accessToken] satisfies QueryKey
 
   const query = useQuery(
     {

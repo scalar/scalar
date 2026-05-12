@@ -54,7 +54,7 @@ const slots = defineSlots<{
 }>()
 
 const { currentTeam, teams: allTeams } = useTeams()
-const { isLoggedIn, logout, refreshTokens } = useAuth()
+const { isLoggedIn, refreshTokens } = useAuth()
 
 /** Convert teams to menu items */
 const teams = computed<ScalarMenuTeamOption[]>(
@@ -80,8 +80,6 @@ const switchTeam = async (t?: ScalarMenuTeamOption) => {
   const result = await refreshTokens(t?.id)
   if (result.ok) {
     emit('changed:team')
-  } else {
-    logout()
   }
 }
 </script>

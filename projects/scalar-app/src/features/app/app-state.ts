@@ -505,14 +505,6 @@ export const createAppState = async ({
    *   // -> Navigates to /workspace/my-awesome-api (if available)
    */
   const createWorkspace = async ({ teamSlug, slug, name }: { teamSlug?: string; slug?: string; name: string }) => {
-    if (teamSlug && teamSlug !== 'local') {
-      const existing = workspaces.value.find((w) => w.teamSlug === teamSlug)
-      if (existing) {
-        await navigateToWorkspace(existing.teamSlug, existing.slug)
-        return { teamSlug: existing.teamSlug, slug: existing.slug, name: existing.label }
-      }
-    }
-
     // Restrict users to a single workspace per team. Local workspaces remain
     // unrestricted. This guard is temporary while multi-workspace support for
     // teams is being designed. When a team workspace already exists, navigate
