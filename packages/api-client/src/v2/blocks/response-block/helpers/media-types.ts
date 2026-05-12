@@ -1,6 +1,6 @@
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 
-export type MediaPreview = 'object' | 'image' | 'video' | 'audio'
+export type MediaPreview = 'object' | 'image' | 'video' | 'audio' | 'json'
 
 type MediaConfig = {
   preview?: MediaPreview
@@ -16,15 +16,36 @@ const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'application/gzip': { extension: '.gz' },
   'application/java-archive': { extension: '.jar' },
   'application/javascript': { extension: '.js', raw: true },
-  'application/json': { extension: '.json', raw: true, language: 'json' },
-  'application/ld+json': { extension: '.jsonld', raw: true, language: 'json' },
+  'application/json': {
+    extension: '.json',
+    raw: true,
+    language: 'json',
+    preview: 'json',
+  },
+  'application/ld+json': {
+    extension: '.jsonld',
+    raw: true,
+    language: 'json',
+    preview: 'json',
+  },
   'application/problem+json': {
     extension: '.json',
     raw: true,
     language: 'json',
+    preview: 'json',
   },
-  'application/vnd.api+json': { extension: '.json', raw: true, language: 'json' },
-  'application/dns-json': { extension: '.json', raw: true, language: 'json' },
+  'application/vnd.api+json': {
+    extension: '.json',
+    raw: true,
+    language: 'json',
+    preview: 'json',
+  },
+  'application/dns-json': {
+    extension: '.json',
+    raw: true,
+    language: 'json',
+    preview: 'json',
+  },
   'application/msword': { extension: '.doc' },
   'application/octet-stream': { extension: '.bin' },
   'application/ogg': { extension: '.ogx' },
@@ -108,7 +129,12 @@ const mediaTypes: { [type: string]: MediaConfig | undefined } = {
     preview: 'object',
   },
   'text/javascript': { extension: '.js', raw: true },
-  'text/json': { extension: '.json', raw: true, language: 'json' },
+  'text/json': {
+    extension: '.json',
+    raw: true,
+    language: 'json',
+    preview: 'json',
+  },
   'text/plain': { extension: '.txt', raw: true },
   'text/xml': { extension: '.xml', raw: true, language: 'xml' },
   'text/yaml': { extension: '.yaml', raw: true, language: 'yaml' },
@@ -142,6 +168,7 @@ export function getMediaTypeConfig(type: string): MediaConfig | undefined {
       extension: '.json',
       raw: true,
       language: 'json',
+      preview: 'json',
     }
   }
 

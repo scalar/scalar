@@ -1,11 +1,11 @@
 /**
- * Snapshot: response Body → Raw JSON shows unsafe integer digits without IEEE double rounding
- * (regression guard for text-based formatting vs JSON.parse / JSON.stringify).
+ * Snapshots: response Body → Preview and Raw JSON both show unsafe integer digits without IEEE
+ * double rounding (regression guard for text-based formatting vs JSON.parse / JSON.stringify).
  *
  * Intercepts GET to a dedicated loopback port and returns JSON with id 9007199254740993; the
  * incorrect double round-trip would display 9007199254740992.
  *
- * Refresh baseline from `projects/scalar-app`:
+ * Refresh baselines from `projects/scalar-app`:
  * `CI=1 pnpm exec playwright test test/response-body-raw-json-bigint.e2e.ts --update-snapshots`
  */
 import { type Page, type PageAssertionsToHaveScreenshotOptions, expect, test } from '@playwright/test'
@@ -36,6 +36,18 @@ const waitForFonts = async (page: Page): Promise<void> => {
   await page.evaluate(async () => {
     await document.fonts.ready
   })
+}
+
+const assertBigIntBodyAndScreenshot = async (
+  page: Page,
+  block: ReturnType<Page['locator']>,
+  snapshotFileName: string,
+): Promise<void> => {
+  await expect(block).toBeVisible({ timeout: 15_000 })
+  await expect(block).toContainText(BIG_INT_ID)
+  await expect(block).not.toContainText(WRONG_ROUNDED_ID)
+  await waitForFonts(page)
+  await expect(block).toHaveScreenshot(snapshotFileName, shotOptions)
 }
 
 const BIG_INT_ID = '9007199254740993'
@@ -120,7 +132,7 @@ const seedBigIntResponseDocument = async (page: Page): Promise<void> => {
 test.describe('response-body-raw-json-bigint.e2e', () => {
   test.setTimeout(120_000)
 
-  test('response raw JSON body snapshot preserves unsafe integer digits', async ({ page }) => {
+  test('response Preview and Raw JSON body snapshots preserve unsafe integer digits', async ({ page }) => {
     await registerBigIntMockRoutes(page)
 
     await page.setViewportSize(viewport)
@@ -145,14 +157,14 @@ test.describe('response-body-raw-json-bigint.e2e', () => {
     await sendButton.click()
     await expect(sendButton).not.toBeDisabled({ timeout: 60_000 })
 
-    // await page.locator('main').getByRole('button', { name: 'Raw', exact: true }).click()
+    const main = page.locator('main')
 
-    const rawBlock = page.locator('.body-raw').first()
-    await expect(rawBlock).toBeVisible({ timeout: 15_000 })
-    await expect(rawBlock).toContainText(BIG_INT_ID)
-    await expect(rawBlock).not.toContainText(WRONG_ROUNDED_ID)
+    await main.getByRole('button', { name: 'Preview', exact: true }).click()
+    const previewBlock = main.locator('.body-json-preview').first()
+    await assertBigIntBodyAndScreenshot(page, previewBlock, 'response-preview-json-bigint.png')
 
-    await waitForFonts(page)
-    await expect(rawBlock).toHaveScreenshot('response-raw-json-bigint.png', shotOptions)
+    await main.getByRole('button', { name: 'Raw', exact: true }).click()
+    const rawBlock = main.locator('.body-raw').first()
+    await assertBigIntBodyAndScreenshot(page, rawBlock, 'response-raw-json-bigint.png')
   })
 })

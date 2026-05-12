@@ -1,44 +1,40 @@
 <script lang="ts" setup>
 import { ScalarCodeBlockCopy } from '@scalar/components'
 import { useCodeMirror, type CodeMirrorLanguage } from '@scalar/use-codemirror'
-import { applyEdits, format } from 'jsonc-parser'
 import { computed, ref, toRef, useId } from 'vue'
 
+import { prettifyJsoncString } from '@/v2/blocks/response-block/helpers/prettify-jsonc-string'
+
 const props = defineProps<{
-  content: any
+  content: unknown
   language: CodeMirrorLanguage | undefined
+  /** When true, JSON/JSONC strings are pretty-printed for the Preview tab (wire bytes stay unchanged in Raw). */
+  prettyPrintJson?: boolean
 }>()
 
 const codeMirrorRef = ref<HTMLDivElement | null>(null)
 /** Base id for the code block */
 const id = useId()
 
-/** Text-based format avoids JSON.parse/stringify so large integers keep full precision; aligns with JSONC in CodeMirror JSON mode. */
-const jsoncFormatOptions = {
-  tabSize: 2,
-  insertSpaces: true,
-  eol: '\n',
-} as const
-
-const prettyPrintedContent = computed(() => {
-  if (props.language === 'json' && typeof props.content === 'string') {
-    try {
-      const edits = format(props.content, undefined, jsoncFormatOptions)
-      if (edits.length > 0) {
-        return applyEdits(props.content, edits)
-      }
-    } catch {
-      // applyEdits can throw on malformed edit sequences
+const displayContent = computed((): string => {
+  const { content, language, prettyPrintJson = false } = props
+  if (typeof content !== 'string') {
+    if (content == null) {
+      return ''
     }
+    return String(content)
   }
-  return props.content
+  if (prettyPrintJson && language === 'json') {
+    return prettifyJsoncString(content)
+  }
+  return content
 })
 
 const { codeMirror } = useCodeMirror({
   codeMirrorRef,
   readOnly: true,
   lineNumbers: true,
-  content: toRef(() => prettyPrintedContent.value),
+  content: toRef(displayContent),
   language: toRef(() => props.language),
   forceFoldGutter: true,
 })
@@ -50,9 +46,12 @@ const getCurrentContent = () => {
 </script>
 <template>
   <div
-    class="scalar-code-block group/code-block body-raw relative grid min-h-0 overflow-hidden p-px outline-none has-focus-visible:outline">
+    :class="[
+      'scalar-code-block group/code-block relative grid min-h-0 overflow-hidden p-px outline-none has-focus-visible:outline',
+      prettyPrintJson ? 'body-json-preview' : 'body-raw',
+    ]">
     <div
-      class="body-raw-scroller custom-scroll relative pr-1"
+      class="custom-scroll relative pr-1"
       tabindex="0">
       <!-- CodeMirror container -->
       <div ref="codeMirrorRef" />
@@ -77,7 +76,8 @@ const getCurrentContent = () => {
   border-radius: var(--scalar-radius) 0 0 var(--scalar-radius);
 }
 
-.body-raw :deep(.cm-scroller) {
+.body-raw :deep(.cm-scroller),
+.body-json-preview :deep(.cm-scroller) {
   overflow: auto;
   min-width: 100%;
 }

@@ -10,6 +10,7 @@ describe('mediaTypes', () => {
         extension: '.json',
         raw: true,
         language: 'json',
+        preview: 'json',
       },
     },
     {
@@ -18,6 +19,7 @@ describe('mediaTypes', () => {
         extension: '.json',
         raw: true,
         language: 'json',
+        preview: 'json',
       },
     },
     {
@@ -26,6 +28,7 @@ describe('mediaTypes', () => {
         extension: '.jsonld',
         raw: true,
         language: 'json',
+        preview: 'json',
       },
     },
     {
