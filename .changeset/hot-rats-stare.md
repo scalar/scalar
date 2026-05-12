@@ -2,4 +2,4 @@
 '@scalar/api-client': patch
 ---
 
-fix: adress bar layout issue
+fix: prevent address bar from stretching past max width
