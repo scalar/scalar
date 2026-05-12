@@ -63,8 +63,9 @@ const objectToFormParams = (
     // value is serialized as if it were a query-style parameter and contentType is ignored.
     // The query delimiters are stripped per Appendix C, so part names/values come straight
     // from the serializer. Primitives skip this branch and fall through to the String(value)
-    // path below since style is a no-op for primitives. Files skip too — RFC6570 expansion
-    // of binary data is undefined per spec line 4181.
+    // path below since style is a no-op for primitives. Files skip too, as do arrays
+    // containing Files — RFC6570 expansion of binary data is undefined per spec line 4181,
+    // and the array branch below already emits one `@filename` part per File.
     // allowReserved only affects percent-encoding, which is a no-op at the HAR layer (values
     // are raw bytes in part bodies); its presence still opts into this branch per spec.
     if (
@@ -73,7 +74,8 @@ const objectToFormParams = (
       hasFormStyle &&
       typeof value === 'object' &&
       value !== null &&
-      !(value instanceof File)
+      !(value instanceof File) &&
+      !(Array.isArray(value) && value.some((item) => item instanceof File))
     ) {
       const unpacked = unpackProxyObject(value)
       const style = partEncoding?.style ?? 'form'

@@ -1200,6 +1200,43 @@ describe('processBody', () => {
       })
     })
 
+    it('falls back to per-file parts when style is set on an array of Files', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            attachments: {
+              style: 'form',
+              explode: true,
+            },
+          },
+          examples: {
+            default: {
+              value: {
+                attachments: [
+                  new File(['a'], 'a.txt', { type: 'text/plain' }),
+                  new File(['b'], 'b.txt', { type: 'text/plain' }),
+                ],
+              },
+            },
+          },
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+        example: 'default',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [
+          { name: 'attachments', value: '@a.txt' },
+          { name: 'attachments', value: '@b.txt' },
+        ],
+      })
+    })
+
     it('respects an explicit encoding.contentType over the application/json default', () => {
       const content = {
         'multipart/form-data': {
