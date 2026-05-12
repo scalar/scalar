@@ -13,7 +13,7 @@ const codeMirrorRef = ref<HTMLDivElement | null>(null)
 /** Base id for the code block */
 const id = useId()
 
-/** Matches CodeMirror JSON mode and keeps JSONC (comments, trailing commas) via jsonc-parser. */
+/** Text-based format avoids JSON.parse/stringify so large integers keep full precision; aligns with JSONC in CodeMirror JSON mode. */
 const jsoncFormatOptions = {
   tabSize: 2,
   insertSpaces: true,
