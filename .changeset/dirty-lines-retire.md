@@ -2,9 +2,8 @@
 '@scalar/api-client': patch
 ---
 
-fix: improve OAuth scopes selector empty and missing-description states
+fix: OAuth scope CRUD UI
 
-Polish the OAuth scopes selector in `@scalar/api-client` for two edge cases:
-
-- When the OAuth flow defines no scopes, the row now reads **"No Scopes Defined"**, the **Deselect All** / **Select All** buttons are hidden, and the `>` expand chevron is hidden. The disclosure summary control is disabled so the empty panel cannot be expanded, and **Add Scope** sits outside that disabled control so it stays clickable.
-- When an individual scope has no description (empty string or missing), the trailing `–` separator is no longer rendered next to the scope label.
+- **Scope definitions vs selection**: adding, editing, or removing a scope on the OAuth flow now goes through dedicated workspace events `auth:upsert:scopes` and `auth:delete:scopes`, plumbed from `OAuth2` → `RequestAuthTab` → `RequestAuthDataTable` and registered in `initializeWorkspaceEventHandlers`. Updating checked scopes remains `auth:update:selected-scopes` without `newScopePayload`.
+- **OAuthScopesInput**: row hover actions to edit or delete a scope; one shared add/edit modal; when the flow defines no scopes, the summary shows **No Scopes Defined**, **Select All** / **Deselect All** and the expand chevron are hidden, the disclosure summary is disabled, and **Add Scope** stays outside so it remains clickable; the `–` before a description is omitted when the description is empty or missing.
+- **OAuthScopesAddModal**: supports edit mode (`scope` prop), inline errors for missing name and duplicate names (replacing toast-only validation), trims submitted names, and tests clean up teleported modal DOM between runs.
