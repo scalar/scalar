@@ -108,6 +108,7 @@ const createFakeApp = ({
       // Mirrors `resumeOrGetStarted` falling through to get-started when no
       // persisted tab exists, which is always the case in tests since there
       // is no IndexedDB available.
+      // biome-ignore lint/suspicious/useAwait: its cool
       resumeOrGetStarted: async (teamSlug: string, workspaceId?: string) => {
         const found = workspaceId
           ? workspaceList.find((w) => w.id === workspaceId)
