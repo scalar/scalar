@@ -363,6 +363,32 @@
     },
 
     {
+      "description": "Third-party GitHub Actions that receive secrets at runtime. Updates must be reviewed individually — never auto-merge, never group, never auto-approve via dependency dashboard.",
+      "matchDepTypes": ["action"],
+      "matchPackageNames": [
+        "relative-ci/agent-action",
+        "cloudflare/wrangler-action",
+        "changesets/action",
+        "peter-evans/create-pull-request",
+        "peter-evans/dockerhub-description",
+        "akhilmhdh/contributors-readme-action",
+        "daun/playwright-report-summary",
+        "thollander/actions-comment-pull-request",
+        "amannn/action-semantic-pull-request",
+        "fjogeleit/http-request-action",
+        "useblacksmith/build-push-action",
+        "docker/login-action"
+      ],
+      "groupName": null,
+      "automerge": false,
+      "dependencyDashboardApproval": true,
+      "labels": ["dependencies", "security-sensitive"],
+      "prBodyNotes": [
+        ":lock: **Security-sensitive update.** This action receives secrets at runtime. Review the diff between the current and target commit SHAs before merging. Check the action's changelog and any third-party dependencies it pulls in."
+      ]
+    },
+
+    {
       "description": "Disable engine updates like node, github runner, and uses-with",
       "matchDepTypes": ["engines", "github-runner", "uses-with"],
       "enabled": false

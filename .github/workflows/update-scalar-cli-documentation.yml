@@ -7,6 +7,9 @@ on:
   # Allow manual triggering
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   update-cli-docs:
     name: Update CLI Documentation

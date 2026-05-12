@@ -21,6 +21,9 @@ on:
         description: 'The Cloudflare Pages deployment URL (staging only)'
         value: ${{ jobs.deploy.outputs.preview-url }}
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -34,6 +37,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
 
       # Build
       - name: Build workspace deps

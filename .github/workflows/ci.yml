@@ -9,6 +9,9 @@ on:
       - main
   pull_request:
   workflow_dispatch: null
+# Workflow-level default: read-only. Individual jobs widen as needed.
+permissions:
+  contents: read
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}-base-ci
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -25,8 +28,13 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
+      # Required for build provenance attestation (scalar.js CDN artifact).
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
       - name: Build
         uses: ./.github/actions/build
         with:
@@ -35,6 +43,15 @@ jobs:
         run: |
           mkdir -p temp-artifacts
           cp packages/api-reference/dist/browser/standalone.js temp-artifacts/scalar.js
+      # Build provenance for the CDN artifact: lets consumers verify with
+      # `gh attestation verify scalar.js --repo scalar/scalar` that the file
+      # was produced by this workflow on this commit. Only runs on main pushes
+      # so PR builds aren't signed with provenance.
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        name: Attest scalar.js build provenance
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
+        with:
+          subject-path: temp-artifacts/scalar.js
       - name: Upload scalar.js artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
@@ -82,6 +99,8 @@ jobs:
       scalar_app_package_changed: ${{ steps.set-outputs.outputs.scalar_app_package_changed }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
 
       - name: Check whether integration files were modified
         id: changed-integration-files
