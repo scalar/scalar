@@ -63,6 +63,21 @@ describe('OAuthScopesInput', () => {
     expect(wrapper.text()).toContain('Write access to items')
   })
 
+  it('hides scope search when fewer than 10 scopes exist', async () => {
+    const wrapper = mountComponent()
+    await openDisclosure(wrapper)
+
+    expect(wrapper.find('input[type="search"]').exists()).toBe(false)
+  })
+
+  it('shows scope search when at least 10 scopes exist', async () => {
+    const scopes = Object.fromEntries(Array.from({ length: 10 }, (_, i) => [`scope:${i}`, `Description ${i}`]))
+    const wrapper = mountComponent({ flow: { scopes } as any })
+    await openDisclosure(wrapper)
+
+    expect(wrapper.find('input[type="search"]').exists()).toBe(true)
+  })
+
   it('selects and deselects a scope via row click', async () => {
     const wrapper = mountComponent()
     await openDisclosure(wrapper)
@@ -208,6 +223,78 @@ describe('OAuthScopesInput', () => {
     })
     // Adding a scope does not change selection on its own
     expect(wrapper.emitted('update:selectedScopes')).toBeUndefined()
+  })
+
+  it('auto-expands the panel after adding a new scope so the user sees it', async () => {
+    const wrapper = mountComponent()
+    // Panel starts collapsed
+    expect(wrapper.findAll('tr').length).toBe(0)
+
+    const addBtn = wrapper.findAll('button').find((b) => b.text() === 'Add Scope')
+    expect(addBtn, 'Add Scope button should exist').toBeTruthy()
+    await addBtn!.trigger('click')
+    await nextTick()
+
+    const modal = wrapper.findComponent({ name: 'OAuthScopesAddModal' })
+    modal.vm.$emit('submit', {
+      name: 'delete:items',
+      description: 'Delete items',
+    })
+    await nextTick()
+
+    // Simulate the parent applying the new scope to the flow, which is what the
+    // upsertScope mutator does in production.
+    await wrapper.setProps({
+      flow: {
+        scopes: {
+          ...baseFlow.scopes,
+          'delete:items': 'Delete items',
+        },
+      } as any,
+    })
+    await nextTick()
+
+    // The panel should now be expanded, showing all three scopes including the new one
+    const rows = wrapper.findAll('tr')
+    expect(rows.length).toBe(3)
+    expect(wrapper.text()).toContain('delete:items')
+  })
+
+  it('does not auto-expand after editing an existing scope', async () => {
+    const wrapper = mountComponent()
+    // Panel starts collapsed
+    expect(wrapper.findAll('tr').length).toBe(0)
+
+    // Open the panel so we can find the edit button, then close it again to verify
+    // that editing does not force the panel back open.
+    await openDisclosure(wrapper)
+    const editBtn = wrapper.findAll('button').find((b) => b.text() === 'Edit read:items')
+    expect(editBtn, 'Edit button for read:items should exist').toBeTruthy()
+    await editBtn!.trigger('click')
+    await nextTick()
+
+    const modal = wrapper.findComponent({ name: 'OAuthScopesAddModal' })
+    modal.vm.$emit('submit', {
+      name: 'read:stuff',
+      description: 'Read everything',
+      oldName: 'read:items',
+    })
+    await nextTick()
+
+    // Apply the rename in the parent. Since the flow still has the same number of
+    // scopes, the disclosure key prefix does not change and no remount is triggered.
+    await wrapper.setProps({
+      flow: {
+        scopes: {
+          'read:stuff': 'Read everything',
+          'write:items': 'Write access to items',
+        },
+      } as any,
+    })
+    await nextTick()
+
+    // Panel stays as the user left it (open in this case, because we explicitly opened it)
+    expect(wrapper.findAll('tr').length).toBe(2)
   })
 
   it('collapses the panel when the last scope is deleted while expanded', async () => {

@@ -13,7 +13,7 @@ import type {
   OAuthFlow,
   OAuthFlowsObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 
 import {
   DataTableCell,
@@ -58,13 +58,19 @@ const scopes = computed(() =>
   })),
 )
 
+const scopeCount = computed(() => Object.keys(flow?.scopes ?? {}).length)
+
+/** Search is only useful once the list is long enough to scan */
+const showScopeSearch = computed(() => scopeCount.value >= 10)
+
 const filteredScopes = computed(() => {
-  if (!searchQuery.value) {
+  const query = showScopeSearch.value ? searchQuery.value : ''
+  if (!query) {
     return scopes.value
   }
 
   const regex = new RegExp(
-    searchQuery.value
+    query
       .split('')
       .map((c) => c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
       .join('.*'),
@@ -105,6 +111,15 @@ const deselectAllScopes = () => emits('update:selectedScopes', { scopes: [] })
 
 const scopeFormModal = useModal()
 
+/**
+ * Forces the Disclosure to remount with `defaultOpen` set so the panel auto-expands
+ * the moment a brand-new scope is added. Bumping this counter is paired with toggling
+ * `expandOnNextMount` so the remount opens the panel, then reverts to the default
+ * closed-on-mount behavior for any future unrelated remounts (e.g. collapse on empty).
+ */
+const remountKey = ref(0)
+const expandOnNextMount = ref(false)
+
 /** Open the modal in "add new scope" mode */
 const openAddScopeModal = () => {
   editingScope.value = null
@@ -124,8 +139,11 @@ const openEditScopeModal = (scope: { id: string; description: string }) => {
  * Submit handler shared by Add Scope and Edit Scope. For renames, the `upsertScope` mutator on
  * the workspace store rewrites the selection state in place, so the component does not need to
  * emit a follow-up `update:selectedScopes`.
+ *
+ * When adding a brand-new scope (no `oldName`), the Disclosure is remounted with
+ * `defaultOpen=true` so the user immediately sees the scope they just added.
  */
-const handleScopeFormSubmit = (payload: {
+const handleScopeFormSubmit = async (payload: {
   name: string
   description: string
   oldName?: string
@@ -136,6 +154,17 @@ const handleScopeFormSubmit = (payload: {
     flowType,
     ...(payload.oldName ? { oldScope: payload.oldName } : {}),
   })
+
+  if (payload.oldName) {
+    return
+  }
+
+  expandOnNextMount.value = true
+  remountKey.value += 1
+  // Reset after the remount so subsequent unrelated remounts (e.g. when the last
+  // scope is deleted) still default to a closed panel.
+  await nextTick()
+  expandOnNextMount.value = false
 }
 
 /**
@@ -153,9 +182,10 @@ const handleDeleteScope = (scopeKey: string) => {
     <div class="flex h-fit w-full">
       <div class="text-c-1 h-full items-center"></div>
       <Disclosure
-        :key="hasScopes ? 'with-scopes' : 'empty'"
+        :key="`${hasScopes ? 'with-scopes' : 'empty'}-${remountKey}`"
         as="div"
-        class="bl flex w-full flex-col">
+        class="bl flex w-full flex-col"
+        :defaultOpen="expandOnNextMount">
         <!--
           Keep Add Scope (and other actions) outside the summary DisclosureButton.
           When there are no scopes the summary control is disabled; a native disabled
@@ -223,6 +253,7 @@ const handleDeleteScope = (scopeKey: string) => {
         <DisclosurePanel as="template">
           <div>
             <ScalarSearchInput
+              v-if="showScopeSearch"
               v-model="searchQuery"
               class="flex items-center text-xs" />
             <table
