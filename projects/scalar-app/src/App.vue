@@ -78,7 +78,7 @@ const isDesktop = window.electron === true
 // Team
 //--------------------------------------------------
 
-/** Trigger a refetch of the user data, currentTeam will refetch via the tokenData */
+/** Ensure we redirect to the team workspace on team change */
 const handleTeamChange = async () => {
   const workspaceId = workspaceGroups.value[0]?.options[0]?.id
   if (!workspaceId) {
