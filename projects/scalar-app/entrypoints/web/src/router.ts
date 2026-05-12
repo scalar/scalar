@@ -6,6 +6,7 @@ import { createAppRouter } from '@/features/app'
 import { DEFAULT_TEAM_WORKSPACE_SLUG } from '@/features/app/app-state'
 import { exchangeToken } from '@/helpers/auth/exchange-token'
 import { queryClient } from '@/helpers/query-client'
+import { safeRun } from '@/helpers/safe-run'
 import { scalarClient } from '@/helpers/scalar-client'
 import { useAuth } from '@/hooks/use-auth'
 
@@ -42,15 +43,14 @@ router.beforeEach(async (to) => {
       setTokens(data.accessToken, data.refreshToken)
       toast('Logged in successfully', 'info')
 
-      try {
-        const teamSlug = await fetchCurrentTeamSlug()
-        if (teamSlug) {
-          return {
-            path: `/@${teamSlug}/${DEFAULT_TEAM_WORKSPACE_SLUG}/get-started`,
-          }
+      // If fetching teams fails, `safeRun` swallows the rejection so we
+      // fall through to strip the exchangeToken below instead of stranding
+      // the user on the splash with the token still in the URL.
+      const outcome = await safeRun(() => fetchCurrentTeamSlug())
+      if (outcome.ok && outcome.data) {
+        return {
+          path: `/@${outcome.data}/${DEFAULT_TEAM_WORKSPACE_SLUG}/get-started`,
         }
-      } catch {
-        // If fetching teams fails, fall through to strip the exchangeToken and continue navigation
       }
     }
 
