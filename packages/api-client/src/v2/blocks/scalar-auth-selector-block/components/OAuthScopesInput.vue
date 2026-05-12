@@ -88,7 +88,7 @@ const allScopesSelected = computed(
   () => selectedScopes.length === Object.keys(flow?.scopes ?? {}).length,
 )
 
-function setScope(scopeKey: string, checked: boolean) {
+const setScope = (scopeKey: string, checked: boolean) => {
   if (checked) {
     // Select the scope
     return emits('update:selectedScopes', {
