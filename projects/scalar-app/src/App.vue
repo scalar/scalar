@@ -15,7 +15,7 @@ export type AppProps = {
 
 <script setup lang="ts">
 import { PostHogClientPlugin } from '@scalar/api-client/plugins/posthog'
-import { ScalarHeaderButton } from '@scalar/components'
+import { ScalarHeaderButton, ScalarMenuTeamProfile } from '@scalar/components'
 import { type LoaderPlugin } from '@scalar/json-magic/bundle'
 import { requestScriptsPlugin } from '@scalar/pre-post-request-scripts/plugins'
 import { computed, reactive } from 'vue'
@@ -257,13 +257,13 @@ const registry = reactive({
     @navigateToDocument="navigateToDocument"
     @set:workspace="(id) => setActiveWorkspaceById(id)">
     <ClientApp
-      :@changed:team="handleTeamChange"
       :getAppState
       :getCommandPaletteState
       :layout="isDesktop ? 'desktop' : 'web'"
       :plugins="plugins"
       :registry
-      :workspaceGroups>
+      :workspaceGroups
+      @changed:team="handleTeamChange">
       <template #header-menu-items>
         <AppMenuItems
           :app="app"
@@ -273,12 +273,11 @@ const registry = reactive({
           @openSettings="openSettings" />
       </template>
 
-      <!-- Team Logo -->
       <template
         v-if="currentTeam?.imageUri"
         #header-logo>
-        <img
-          :alt="currentTeam?.name || 'Team logo'"
+        <ScalarMenuTeamProfile
+          :label="currentTeam.name"
           :src="currentTeam.imageUri" />
       </template>
 

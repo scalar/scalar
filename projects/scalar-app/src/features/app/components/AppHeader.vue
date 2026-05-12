@@ -75,7 +75,7 @@ const team = computed<ScalarMenuTeamOption | undefined>(() =>
 const switchTeam = async (t?: ScalarMenuTeamOption) => {
   const result = await refreshTokens(t?.id)
   if (result.ok) {
-    emit('change:team')
+    emit('changed:team')
   } else {
     logout()
   }

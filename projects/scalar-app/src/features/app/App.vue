@@ -41,6 +41,7 @@ import { useMonacoEditorConfiguration } from '@/features/editor'
 import { useColorMode } from '@/hooks/use-color-mode'
 import { useTeams } from '@/hooks/use-teams'
 import { useThemes } from '@/hooks/use-themes'
+import { useUser } from '@/hooks/use-user'
 import type {
   RegistryAdapter,
   RegistryDocumentsState,
@@ -274,6 +275,8 @@ const routerViewProps = computed<RouteProps>(() => {
     options: app.options,
   }
 })
+
+const { isLoading: isUserLoading } = useUser()
 </script>
 
 <template>
@@ -289,7 +292,7 @@ const routerViewProps = computed<RouteProps>(() => {
       v-if="
         app.store.value !== null &&
         app.workspace.activeWorkspace.value !== null &&
-        !app.loading.value
+        !(app.loading.value || isUserLoading)
       ">
       <div
         class="relative flex h-dvh w-dvw flex-col"
@@ -313,9 +316,7 @@ const routerViewProps = computed<RouteProps>(() => {
           :eventBus="app.eventBus"
           :tabs="app.tabs.state.value" />
         <AppHeader
-          :menuTitle="
-            app.workspace.isTeamWorkspace.value ? currentTeam?.name : undefined
-          "
+          :menuTitle="currentTeam?.name"
           @changed:team="emit('changed:team')"
           @navigate:to:settings="
             app.eventBus.emit('ui:navigate', {
@@ -331,11 +332,9 @@ const routerViewProps = computed<RouteProps>(() => {
             `ScalarMenuButton` fall back to its default Scalar wordmark.
           -->
           <template
-            v-if="$slots['header-logo'] && app.workspace.isTeamWorkspace.value"
+            v-if="$slots['header-logo']"
             #logo>
-            <slot
-              :isTeamWorkspace="app.workspace.isTeamWorkspace.value"
-              name="header-logo" />
+            <slot name="header-logo" />
           </template>
           <template #menuItems>
             <!--
