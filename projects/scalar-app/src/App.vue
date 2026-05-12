@@ -130,20 +130,22 @@ const workspaceGroups = computed(() =>
 // Navigation/Routing
 //--------------------------------------------------
 
-/** This is used for reload, the others are used on login */
-app.router.beforeEach(async () => {
+/**
+ * Waits for teams to finish loading, then forwards the route to
+ * `handleRouteChange` with the resolved team context.
+ *
+ * The gate lives here (in `afterEach`) rather than in a `beforeEach`
+ * because `afterEach` hooks fire even for the initial navigation that
+ * is already in-flight when `app.mount()` runs `<script setup>`.
+ * A `beforeEach` registered at this point would miss that first route
+ * and `handleRouteChange` would see `currentTeamSlug` as `'local'`,
+ * incorrectly bouncing team-workspace URLs to the local default.
+ */
+app.router.afterEach(async (to) => {
   if (isTeamsLoading.value) {
     await teamsSuspense()
   }
 
-  return true
-})
-
-/**
- * Temporarily here to add some metadata to the route change handler
- * This will be removed later
- */
-app.router.afterEach((to) => {
   app.handleRouteChange(to, {
     teamSlug: currentTeamSlug.value,
     filteredWorkspaces: filteredWorkspaces.value,
