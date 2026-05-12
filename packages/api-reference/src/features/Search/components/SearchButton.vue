@@ -7,6 +7,7 @@ import {
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { AsyncApiDocument } from '@scalar/workspace-store/schemas/asyncapi/asyncapi-document'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
@@ -16,7 +17,7 @@ const { searchHotKey = 'k', hideModels = false } = defineProps<{
   forceIcon?: boolean
   searchHotKey?: string
   hideModels?: boolean
-  document?: OpenApiDocument
+  document?: OpenApiDocument | AsyncApiDocument
   eventBus: WorkspaceEventBus
 }>()
 

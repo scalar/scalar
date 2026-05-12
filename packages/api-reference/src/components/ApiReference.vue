@@ -335,15 +335,14 @@ const { toggleColorMode, isDarkMode } = useColorMode({
 })
 
 /**
- * The active document narrowed to an OpenAPI document.
- *
- * api-reference is OpenAPI-native, so AsyncAPI documents are surfaced as
- * undefined to downstream components.
+ * The active document for the Search feature. Both OpenAPI and AsyncAPI
+ * documents now carry an `x-scalar-navigation` tree, so the indexer accepts
+ * either — operation/model lookups inside the indexer stay gated on the
+ * OpenAPI-specific shape.
  */
-const activeOpenApiDocument = computed(() => {
-  const doc = workspaceStore.workspace.activeDocument
-  return isOpenApiDocument(doc) ? doc : undefined
-})
+const activeSearchDocument = computed(
+  () => workspaceStore.workspace.activeDocument,
+)
 
 /**
  * Create top level sidebar entries for each document
@@ -357,9 +356,16 @@ const itemsFromWorkspace = computed<TraversedEntry[]>(() => {
       description: document.info.description,
       name: document.info.title ?? slug,
       title: document.info.title ?? slug,
-      children: isOpenApiDocument(document)
-        ? (document['x-scalar-navigation']?.children ?? [])
-        : [],
+      // Both OpenAPI and AsyncAPI documents carry an x-scalar-navigation tree
+      // built during ingestion. The AsyncAPI side types it loosely as `unknown`
+      // to keep the runtime schema's Static<> inference matching the TS type,
+      // so we narrow with a cast here — the tree itself has the same shape.
+      children:
+        (
+          document as {
+            'x-scalar-navigation'?: { children?: TraversedEntry[] }
+          }
+        )['x-scalar-navigation']?.children ?? [],
     }),
   )
 })
@@ -1054,7 +1060,7 @@ const showMCPButton = computed(() => {
           <SearchButton
             v-if="!mergedConfig.hideSearch"
             class="my-2"
-            :document="activeOpenApiDocument"
+            :document="activeSearchDocument"
             :eventBus="eventBus"
             :hideModels="mergedConfig.hideModels"
             :searchHotKey="mergedConfig.searchHotKey"
@@ -1090,7 +1096,7 @@ const showMCPButton = computed(() => {
                 v-if="!mergedConfig.hideSearch"
                 class="flex gap-1.5 px-3 pt-3">
                 <SearchButton
-                  :document="activeOpenApiDocument"
+                  :document="activeSearchDocument"
                   :eventBus="eventBus"
                   :hideModels="mergedConfig.hideModels"
                   :searchHotKey="mergedConfig.searchHotKey" />
@@ -1184,7 +1190,7 @@ const showMCPButton = computed(() => {
               <SearchButton
                 v-if="!mergedConfig.hideSearch"
                 class="t-doc__sidebar max-w-64"
-                :document="activeOpenApiDocument"
+                :document="activeSearchDocument"
                 :eventBus="eventBus"
                 :hideModels="mergedConfig.hideModels"
                 :searchHotKey="mergedConfig.searchHotKey" />
