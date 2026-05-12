@@ -302,6 +302,8 @@ To make authentication easier you can prefill the credentials for your users:
             tokenUrl: 'https://auth.example.com/oauth2/token',
             'x-scalar-redirect-uri': 'https://your-app.com/callback',
             // Use PKCE for additional security: 'SHA-256', 'plain', or 'no'
+            // With 'SHA-256' or 'plain', authorizationCode is treated as a public client.
+            // The Client Secret field is hidden and client_secret is not sent in token/refresh requests.
             'x-usePkce': 'SHA-256',
             // Preselected scopes
             selectedScopes: ['profile', 'email'],
@@ -362,6 +364,8 @@ To make authentication easier you can prefill the credentials for your users:
   }
 }
 ```
+
+For OAuth2 `authorizationCode` flows, when `x-usePkce` is set to `'SHA-256'` or `'plain'`, Scalar treats the flow as a public PKCE client. In that mode, the Client Secret input is hidden in the authentication form, and `client_secret` is not included in token exchange or refresh requests.
 
 The `authentication` configuration accepts:
 

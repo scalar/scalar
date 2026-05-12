@@ -90,20 +90,6 @@ const rawLanguage = computed(
           v-model="toggle" />
       </div>
 
-      <!-- Plugin custom raw component -->
-      <component
-        :is="pluginHandler.rawComponent"
-        v-if="pluginHandler?.rawComponent && hasRaw && showRaw"
-        :key="`plugin-raw-${responseBody.dataUrl}`"
-        :content="data"
-        :contentType="mimeEssence" />
-      <!-- Default raw renderer (used when plugin provides decode but no custom component) -->
-      <ResponseBodyRaw
-        v-else-if="hasRaw && showRaw"
-        :key="`raw-${responseBody.dataUrl}`"
-        :content="data"
-        :language="rawLanguage as CodeMirrorLanguage" />
-
       <!-- Plugin custom preview component -->
       <component
         :is="pluginHandler.previewComponent"
@@ -112,14 +98,29 @@ const rawLanguage = computed(
         :content="data"
         :contentType="mimeEssence"
         :dataUrl="responseBody.dataUrl" />
-      <!-- Default preview renderer -->
+      <!-- Default preview renderer (JSON, image, video, HTML object, …) -->
       <ResponseBodyPreview
         v-else-if="mediaConfig?.preview && showPreview"
         :key="`preview-${responseBody.dataUrl}`"
         :alpha="mediaConfig.alpha"
+        :content="data"
         :mode="mediaConfig.preview"
         :src="responseBody.dataUrl"
         :type="mimeEssence" />
+
+      <!-- Plugin custom raw component -->
+      <component
+        :is="pluginHandler.rawComponent"
+        v-if="pluginHandler?.rawComponent && hasRaw && showRaw"
+        :key="`plugin-raw-${responseBody.dataUrl}`"
+        :content="data"
+        :contentType="mimeEssence" />
+      <!-- Default raw: exact decoded body (no JSON pretty-print) -->
+      <ResponseBodyRaw
+        v-else-if="hasRaw && showRaw && !pluginHandler?.rawComponent"
+        :key="`raw-${responseBody.dataUrl}`"
+        :content="data"
+        :language="rawLanguage as CodeMirrorLanguage" />
 
       <ResponseBodyInfo v-if="!hasRaw && !hasPreview">
         Binary file

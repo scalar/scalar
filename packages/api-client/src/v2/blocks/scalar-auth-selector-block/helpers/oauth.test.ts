@@ -278,20 +278,25 @@ describe('oauth', () => {
       expect(error).toBe(null)
       expect(result).toEqual({ accessToken })
 
-      // Check fetch parameters
+      // Check fetch parameters — PKCE public clients omit client_secret and Basic auth
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Basic ${secretAuth}`,
         },
-        body: new URLSearchParams({
-          redirect_uri: flows.authorizationCode['x-scalar-secret-redirect-uri'],
-          code,
-          grant_type: 'authorization_code',
-          code_verifier: 'AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8',
-        }),
+        body: expect.any(URLSearchParams),
       })
+
+      const pkceTokenArgs = vi.mocked(global.fetch).mock.calls[0]
+      expect(pkceTokenArgs).toBeDefined()
+      const pkceTokenBody = pkceTokenArgs![1]?.body as URLSearchParams
+      const pkceExpectedParams = new URLSearchParams()
+      pkceExpectedParams.set('client_id', flows.authorizationCode['x-scalar-secret-client-id'])
+      pkceExpectedParams.set('redirect_uri', flows.authorizationCode['x-scalar-secret-redirect-uri'])
+      pkceExpectedParams.set('code', code)
+      pkceExpectedParams.set('grant_type', 'authorization_code')
+      pkceExpectedParams.set('code_verifier', 'AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8')
+      expect(pkceTokenBody.toString()).toBe(pkceExpectedParams.toString())
     })
 
     it('should include x-scalar-security-body parameters in authorization code token request', async () => {
@@ -723,10 +728,9 @@ describe('oauth', () => {
       const callArgs = vi.mocked(global.fetch).mock.calls[0]
       expect(callArgs).toBeDefined()
       const body = callArgs![1]?.body as URLSearchParams
-      // Order matches implementation: client_id/client_secret, redirect_uri, code, grant_type, code_verifier
+      // PKCE + public client: client_id in body, no client_secret
       const expectedParams = new URLSearchParams()
       expectedParams.set('client_id', flows.authorizationCode['x-scalar-secret-client-id'])
-      expectedParams.set('client_secret', flows.authorizationCode['x-scalar-secret-client-secret'])
       expectedParams.set('redirect_uri', flows.authorizationCode['x-scalar-secret-redirect-uri'])
       expectedParams.set('code', code)
       expectedParams.set('grant_type', 'authorization_code')
@@ -1883,6 +1887,33 @@ describe('oauth', () => {
       expect(body.has('client_secret')).toBe(false)
       expect(body.get('grant_type')).toBe('refresh_token')
       expect(body.get('refresh_token')).toBe('refresh_token_123')
+    })
+
+    it('omits client_secret on refresh when PKCE mode is SHA-256 even if a secret is stored', async () => {
+      const pkcePublicScheme = {
+        authorizationCode: {
+          ...refreshScheme.authorizationCode,
+          'x-usePkce': 'SHA-256',
+          'x-scalar-secret-client-secret': clientSecret,
+        },
+      } satisfies OAuthFlowsObjectSecret
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            access_token: 'new_access_token',
+          }),
+      })
+
+      await refreshOauth2Token(pkcePublicScheme, 'authorizationCode', '', mockServer)
+
+      const callArgs = vi.mocked(global.fetch).mock.calls[0]
+      const body = callArgs![1]?.body as URLSearchParams
+      expect(body.get('client_id')).toBe(refreshScheme.authorizationCode['x-scalar-secret-client-id'])
+      expect(body.has('client_secret')).toBe(false)
+      expect(callArgs![1]?.headers).toEqual({
+        'Content-Type': 'application/x-www-form-urlencoded',
+      })
     })
 
     it('omits client_id from the body for confidential clients using header credentials', async () => {

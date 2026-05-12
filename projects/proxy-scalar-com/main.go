@@ -136,11 +136,31 @@ type forbiddenHeaderRewrite struct {
 	scalarHeader string
 }
 
+type proxyValidationError struct {
+	statusCode int
+	message    string
+}
+
 var forbiddenHeadersForProxy = []forbiddenHeaderRewrite{
 	{header: "date", scalarHeader: "x-scalar-date"},
 	{header: "dnt", scalarHeader: "x-scalar-dnt"},
 	{header: "referer", scalarHeader: "x-scalar-referer"},
 	{header: "user-agent", scalarHeader: "x-scalar-user-agent"},
+}
+
+var scalarURLValidationErrors = []proxyValidationError{
+	{
+		statusCode: http.StatusBadRequest,
+		message:    "Bad Request: The `scalar_url` query parameter is required. Try to add `?scalar_url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets` to the URL.",
+	},
+	{
+		statusCode: http.StatusBadRequest,
+		message:    "Bad Request: The `scalar_url` query parameter must be an absolute URL. Relative URLs like `/foobar` are not supported.",
+	},
+	{
+		statusCode: http.StatusForbidden,
+		message:    "Forbidden: Access to private addresses is not allowed. Please use a public domain name.",
+	},
 }
 
 type streamingResponseWriter struct {
@@ -287,22 +307,10 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 	// Get and validate the target URL from the `scalar_url` query parameter
 	target := r.URL.Query().Get("scalar_url")
 
-	// Show an error if the scalar_url is missing
-	if target == "" {
-		http.Error(w, "The `scalar_url` query parameter is required. Try to add `?scalar_url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets` to the URL.", http.StatusBadRequest)
-		return
-	}
-
-	// Validate the URL
-	remote, err := url.Parse(target)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusServiceUnavailable)
-		return
-	}
-
-	// Deny any private, link-local, or loopback addresses
-	if !ps.bypassCidr && isBlockedHost(remote.Host) {
-		http.Error(w, "Forbidden: access to private addresses is not allowed", http.StatusForbidden)
+	remote, validationErrors := ps.validateScalarURL(target)
+	if len(validationErrors) > 0 {
+		firstError := validationErrors[0]
+		http.Error(w, firstError.message, firstError.statusCode)
 		return
 	}
 
@@ -311,6 +319,38 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 		// Log any errors
 		log.Printf("[Proxy Error:] %v\n", err)
 	}
+}
+
+func (ps *ProxyServer) validateScalarURL(target string) (*url.URL, []proxyValidationError) {
+	errors := []proxyValidationError{}
+
+	if target == "" {
+		errors = append(errors, scalarURLValidationErrors[0])
+		return nil, errors
+	}
+
+	remote, err := url.Parse(target)
+	if err != nil {
+		errors = append(errors, proxyValidationError{
+			statusCode: http.StatusServiceUnavailable,
+			message:    err.Error(),
+		})
+
+		return nil, errors
+	}
+
+	if !remote.IsAbs() || remote.Host == "" {
+		errors = append(errors, scalarURLValidationErrors[1])
+		return nil, errors
+	}
+
+	// Deny any private, link-local, or loopback addresses
+	if !ps.bypassCidr && isBlockedHost(remote.Host) {
+		errors = append(errors, scalarURLValidationErrors[2])
+		return nil, errors
+	}
+
+	return remote, errors
 }
 
 // executeProxyRequest handles the proxying logic

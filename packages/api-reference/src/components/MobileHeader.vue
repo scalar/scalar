@@ -22,7 +22,7 @@ const variants = cva({
   base: 'lg:hidden items-center bg-b-1 sticky top-(--scalar-custom-header-height,0) z-10 [grid-area:header]',
   variants: {
     open: {
-      true: 'h-(--refs-sidebar-height) custom-scrollbar flex flex-col',
+      true: 'h-(--refs-sidebar-height) custom-scrollbar flex flex-col z-50',
     },
   },
 })

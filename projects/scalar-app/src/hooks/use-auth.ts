@@ -1,3 +1,4 @@
+import { useToasts } from '@scalar/use-toasts'
 import { coerce, validate } from '@scalar/validation'
 import { jwtDecode } from 'jwt-decode'
 import { computed, readonly, ref } from 'vue'
@@ -6,6 +7,8 @@ import { env } from '@/environment'
 import { isTokenExpired } from '@/helpers/auth/is-token-expired'
 import { type AccessTokenPayload, accessTokenPayloadSchema, tokenResponseSchema } from '@/helpers/auth/schema'
 import { queryClient } from '@/helpers/query-client'
+
+const { toast } = useToasts()
 
 const ACCESS_TOKEN_KEY = 'scalar-access-token'
 const REFRESH_TOKEN_KEY = 'scalar-refresh-token'
@@ -75,10 +78,14 @@ const logout = () => {
 }
 
 /**
- * In-flight refresh promise used to dedupe concurrent callers within this tab.
+ * In-flight refresh promises keyed by `teamUid` (or an empty string for
+ * background refreshes). This ensures that a team-switch refresh is never
+ * silently deduped into an unrelated background refresh, while concurrent
+ * callers with the *same* `teamUid` still share a single request.
+ *
  * Cross-tab deduplication is handled separately via `navigator.locks`.
  */
-let pendingRefresh: Promise<void> | null = null
+const pendingRefreshes = new Map<string, Promise<void>>()
 
 /**
  * Call POST /core/login/refresh and update token state.
@@ -88,9 +95,12 @@ let pendingRefresh: Promise<void> | null = null
  * tabs; when the lock is already held elsewhere we no-op and let the winning
  * tab propagate the result via the `storage` event.
  */
-const refreshTokens = (): Promise<void> => {
-  if (pendingRefresh) {
-    return pendingRefresh
+const refreshTokens = (teamUid?: string): Promise<void> => {
+  const dedupeKey = teamUid ?? ''
+
+  const existing = pendingRefreshes.get(dedupeKey)
+  if (existing) {
+    return existing
   }
 
   const token = refreshToken.value
@@ -104,7 +114,10 @@ const refreshTokens = (): Promise<void> => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ refreshToken: token }),
+        body: JSON.stringify({
+          refreshToken: token,
+          ...(teamUid ? { teamUid } : {}),
+        }),
       })
 
       if (response.status === 401 || response.status === 403) {
@@ -113,21 +126,21 @@ const refreshTokens = (): Promise<void> => {
       }
 
       if (!response.ok) {
-        console.warn('[useAuth]: Token refresh failed with status', response.status)
+        toast('Token refresh failed', 'error')
         return
       }
 
       const json = await response.json()
 
       if (!validate(tokenResponseSchema, json)) {
-        console.warn('[useAuth]: Token refresh returned an invalid response')
+        toast('Token refresh returned an invalid response', 'error')
         return
       }
 
       const data = coerce(tokenResponseSchema, json)
       setTokens(data.accessToken, data.refreshToken)
     } catch {
-      console.warn('[useAuth]: Could not refresh token')
+      toast('Could not refresh token', 'error')
     }
   }
 
@@ -142,11 +155,13 @@ const refreshTokens = (): Promise<void> => {
     await execute()
   }
 
-  pendingRefresh = run().finally(() => {
-    pendingRefresh = null
+  const promise = run().finally(() => {
+    pendingRefreshes.delete(dedupeKey)
   })
 
-  return pendingRefresh
+  pendingRefreshes.set(dedupeKey, promise)
+
+  return promise
 }
 
 /**

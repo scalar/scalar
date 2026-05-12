@@ -1,5 +1,4 @@
 import type { Team } from '@scalar/sdk/models/components'
-import type { Theme } from '@scalar/themes'
 import { useToasts } from '@scalar/use-toasts'
 import { ref, watch } from 'vue'
 
@@ -20,9 +19,8 @@ import { useAuth } from '@/hooks/use-auth'
  * uses ['me']) will read from cache and avoid duplicate network requests.
  */
 export const useStateData = () => {
-  const customThemes = ref<Theme[]>([])
-  const fallbackThemeSlug = ref<string>('default')
   const currentTeam = ref<Team | undefined>(undefined)
+
   /**
    * Tracks whether we are currently performing the *initial* fetch of the
    * user/teams payload that resolves `currentTeam`. App state consumers gate
@@ -45,11 +43,11 @@ export const useStateData = () => {
   watch(
     getAccessToken,
     (accessToken, previousAccessToken) => {
+      currentTeam.value = undefined
+      isCurrentTeamLoading.value = false
+
       if (!accessToken) {
         currentTeam.value = undefined
-        customThemes.value = []
-        fallbackThemeSlug.value = 'default'
-        isCurrentTeamLoading.value = false
         return
       }
 
@@ -62,34 +60,6 @@ export const useStateData = () => {
       if (!previousAccessToken) {
         isCurrentTeamLoading.value = true
       }
-
-      // Fetch all themes and pre-fill the per-theme query cache entries so
-      // any useQuery(['themes', slug]) call elsewhere reads from cache.
-      queryClient
-        .fetchQuery({
-          queryKey: ['themes'],
-          queryFn: () => scalarClient.themes.listThemes().then((response) => response.themes ?? []),
-          staleTime: DEFAULT_REFETCH_INTERVAL,
-        })
-        .then((themes) => {
-          Promise.all(
-            themes.map((t) =>
-              queryClient.fetchQuery({
-                queryKey: ['themes', t.slug],
-                queryFn: () => scalarClient.themes.getTheme({ slug: t.slug }).then((response) => response.res ?? ''),
-                staleTime: DEFAULT_REFETCH_INTERVAL,
-              }),
-            ),
-          )
-            .then((_themes) => {
-              customThemes.value = themes.map((theme, i) => ({
-                ...theme,
-                theme: _themes[i]!,
-              }))
-            })
-            .catch(() => toast('Failed to load themes', 'error'))
-        })
-        .catch(() => toast('Failed to load themes', 'error'))
 
       // ['me'] matches the query key in use-current-user.ts so both hooks
       // share a single network request via the queryClient cache.
@@ -107,7 +77,6 @@ export const useStateData = () => {
       ])
         .then(([user, teams]) => {
           currentTeam.value = teams.find((t) => t.uid === user?.activeTeamId) ?? undefined
-          fallbackThemeSlug.value = user?.theme || 'default'
         })
         .catch(() => toast('Failed to load user data', 'error'))
         .finally(() => {
@@ -118,9 +87,7 @@ export const useStateData = () => {
   )
 
   return {
-    customThemes,
     currentTeam,
-    fallbackThemeSlug,
     isCurrentTeamLoading,
   }
 }

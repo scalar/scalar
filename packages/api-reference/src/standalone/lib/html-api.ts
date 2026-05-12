@@ -215,6 +215,16 @@ export const createApiReference: CreateApiReference = (
     }
   }
 
+  // Tie the deprecated `document` listeners to an AbortController so `destroy`
+  // can remove them all at once. Without this, every `createApiReference()`
+  // call leaks three permanent listeners — visible during Astro view
+  // transitions where each navigation creates a new instance.
+  const abortController = new AbortController()
+  const listenerOptions: AddEventListenerOptions = {
+    capture: false,
+    signal: abortController.signal,
+  }
+
   /**
    * Reload the API Reference
    * @deprecated
@@ -249,11 +259,12 @@ export const createApiReference: CreateApiReference = (
       app = createReferenceApp()
       app.mount(currentElement)
     },
-    false,
+    listenerOptions,
   )
 
   /** Destroy the current API Reference instance */
   const destroy = () => {
+    abortController.abort()
     props.configuration = {}
     app.unmount()
   }
@@ -268,7 +279,7 @@ export const createApiReference: CreateApiReference = (
       console.warn('scalar:destroy-references event has been deprecated, please use scalarInstance.destroy instead.')
       destroy()
     },
-    false,
+    listenerOptions,
   )
 
   /**
@@ -285,7 +296,7 @@ export const createApiReference: CreateApiReference = (
         Object.assign(props, ev.detail)
       }
     },
-    false,
+    listenerOptions,
   )
 
   const instance = {

@@ -177,6 +177,9 @@ catalogs:
     jsdom:
       specifier: 27.4.0
       version: 27.4.0
+    jsonc-parser:
+      specifier: 3.3.1
+      version: 3.3.1
     jwt-decode:
       specifier: 4.0.0
       version: 4.0.0
@@ -1304,6 +1307,9 @@ importers:
       js-base64:
         specifier: catalog:*
         version: 3.7.8
+      jsonc-parser:
+        specifier: catalog:*
+        version: 3.3.1
       nanoid:
         specifier: catalog:*
         version: 5.1.6
@@ -18631,6 +18637,9 @@ packages:
   vue-component-type-helpers@3.2.7:
     resolution: {integrity: sha512-+gPp5YGmhfsj1IN+xUo7y0fb4clfnOiiUA39y07yW1VzCRjzVgwLbtmdWlghh7mXrPsEaYc7rrIir/HT6C8vYQ==}
 
+  vue-component-type-helpers@3.2.8:
+    resolution: {integrity: sha512-9689efAXhN/EV86plgkL/XFiJSXhGtWPG6JDboZ+QnjlUWUUQrQ0ILKQtw4iQsuwIwu5k6Aw+JnehDe7161e7A==}
+
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
     engines: {node: '>=12'}
@@ -25738,7 +25747,7 @@ snapshots:
       storybook: 10.3.5(@testing-library/dom@10.4.1)(prettier@3.8.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       type-fest: 2.19.0
       vue: 3.5.30(typescript@5.9.3)
-      vue-component-type-helpers: 3.2.7
+      vue-component-type-helpers: 3.2.8
 
   '@sveltejs/acorn-typescript@1.0.5(acorn@8.16.0)':
     dependencies:
@@ -38789,6 +38798,8 @@ snapshots:
   vue-component-type-helpers@2.2.10: {}
 
   vue-component-type-helpers@3.2.7: {}
+
+  vue-component-type-helpers@3.2.8: {}
 
   vue-demi@0.14.10(vue@3.5.30(typescript@5.9.3)):
     dependencies:
