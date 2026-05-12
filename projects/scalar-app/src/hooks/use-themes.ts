@@ -1,9 +1,8 @@
 import type { Theme } from '@scalar/themes'
-import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type QueryKey, type UseQueryOptions, useQuery } from '@tanstack/vue-query'
 import type { ComputedRef, MaybeRefOrGetter } from 'vue'
-import { computed, toValue, watch } from 'vue'
+import { computed, toValue } from 'vue'
 
 import { queryClient } from '@/helpers/query-client'
 import { DEFAULT_REFETCH_INTERVAL, scalarClient } from '@/helpers/scalar-client'
@@ -48,7 +47,6 @@ export const useThemes = ({
   const { isLoggedIn } = useAuth()
   const queryKey = ['themes'] satisfies QueryKey
 
-  const { toast } = useToasts()
   const { currentUser } = useUser()
   const { currentTeam } = useTeams()
 
@@ -82,18 +80,10 @@ export const useThemes = ({
       enabled: isLoggedIn,
       refetchOnMount: true,
       refetchInterval: DEFAULT_REFETCH_INTERVAL,
+      meta: { toastError: 'Failed to load themes' },
       ...options,
     },
     queryClient,
-  )
-
-  watch(
-    () => query.error.value,
-    (error) => {
-      if (error) {
-        toast('Failed to load themes', 'error')
-      }
-    },
   )
 
   /** The custom themes for the current user/team, fetched from the server */

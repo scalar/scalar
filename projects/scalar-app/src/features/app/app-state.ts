@@ -233,6 +233,7 @@ export const createAppState = async ({
   // Workspace persistence state management
   const activeWorkspace = shallowRef<{ id: string; label: string } | null>(null)
   const workspaces = ref<WorkspaceOption[]>([])
+
   /**
    * `true` when the active workspace is backed by a team (i.e. not the
    * built-in `'local'` team). We look the workspace up in the full

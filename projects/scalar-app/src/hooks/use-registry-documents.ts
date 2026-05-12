@@ -1,6 +1,5 @@
-import { useToasts } from '@scalar/use-toasts'
 import { type QueryKey, type UseQueryOptions, useQuery } from '@tanstack/vue-query'
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 
 import { queryClient } from '@/helpers/query-client'
 import { DEFAULT_REFETCH_INTERVAL, scalarClient } from '@/helpers/scalar-client'
@@ -15,9 +14,6 @@ export const useRegistryDocuments = (options?: Omit<UseQueryOptions, 'queryKey' 
   const { isLoggedIn } = useAuth()
   const queryKey = ['documents'] satisfies QueryKey
 
-  // Set some defaults
-  const { toast } = useToasts()
-
   const query = useQuery(
     {
       queryKey,
@@ -25,18 +21,10 @@ export const useRegistryDocuments = (options?: Omit<UseQueryOptions, 'queryKey' 
       enabled: isLoggedIn,
       refetchOnMount: true,
       refetchInterval: DEFAULT_REFETCH_INTERVAL,
+      meta: { toastError: 'Failed to fetch documents' },
       ...options,
     },
     queryClient,
-  )
-
-  watch(
-    () => query.error.value,
-    (error) => {
-      if (error) {
-        toast('Failed to fetch documents', 'error')
-      }
-    },
   )
 
   return {
