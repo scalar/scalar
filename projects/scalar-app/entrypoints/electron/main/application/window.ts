@@ -18,11 +18,11 @@ export function createWindow({ isDev }: { isDev?: boolean }): BrowserWindow {
     width: mainWindowState.width,
     height: mainWindowState.height,
     show: false,
-    transparent: true,
     title: 'Scalar',
     trafficLightPosition: { x: 9.5, y: 12 },
-    // Borderless Window, for macOS only
-    ...(process.platform === 'darwin' ? { titleBarStyle: 'hidden' } : {}),
+    // Borderless window + transparency: macOS only. Transparent windows on Windows
+    // break system maximize (Alt+Space, double-click title bar, Aero Snap).
+    ...(process.platform === 'darwin' ? { titleBarStyle: 'hidden' as const, transparent: true } : {}),
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? {} : {}),
     webPreferences: {
