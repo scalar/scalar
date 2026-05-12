@@ -356,16 +356,7 @@ const itemsFromWorkspace = computed<TraversedEntry[]>(() => {
       description: document.info.description,
       name: document.info.title ?? slug,
       title: document.info.title ?? slug,
-      // Both OpenAPI and AsyncAPI documents carry an x-scalar-navigation tree
-      // built during ingestion. The AsyncAPI side types it loosely as `unknown`
-      // to keep the runtime schema's Static<> inference matching the TS type,
-      // so we narrow with a cast here — the tree itself has the same shape.
-      children:
-        (
-          document as {
-            'x-scalar-navigation'?: { children?: TraversedEntry[] }
-          }
-        )['x-scalar-navigation']?.children ?? [],
+      children: document['x-scalar-navigation']?.children ?? [],
     }),
   )
 })

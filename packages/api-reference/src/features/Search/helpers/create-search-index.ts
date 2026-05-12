@@ -100,12 +100,7 @@ export function createSearchIndex(document: OpenApiDocument | AsyncApiDocument |
     })
   }
 
-  // Both OpenAPI and AsyncAPI documents carry `x-scalar-navigation`. AsyncAPI
-  // types it as `unknown`, so we cast loosely to read `children` uniformly.
-  const navigation = (document as { 'x-scalar-navigation'?: { children?: TraversedEntry[] } } | undefined)?.[
-    'x-scalar-navigation'
-  ]
-  processEntries(navigation?.children ?? [])
+  processEntries(document?.['x-scalar-navigation']?.children ?? [])
 
   return index
 }

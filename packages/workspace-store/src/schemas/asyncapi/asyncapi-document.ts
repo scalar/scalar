@@ -1,10 +1,11 @@
-import { intersection, object, optional, string, unknown } from '@scalar/validation'
+import { any, intersection, object, optional, string } from '@scalar/validation'
 
 import { extensions } from '@/schemas/extensions'
 import { WorkspaceManagedExtensions } from '@/schemas/extensions/document/workspace-managed-extensions'
 import { XScalarIsDirty } from '@/schemas/extensions/document/x-scalar-is-dirty'
 import { XScalarOriginalDocumentHash } from '@/schemas/extensions/document/x-scalar-original-document-hash'
 import { XScalarRegistryMeta } from '@/schemas/extensions/document/x-scalar-registry-meta'
+import type { TraversedDocument } from '@/schemas/navigation'
 
 /**
  * Minimal AsyncAPI Info Object.
@@ -76,7 +77,11 @@ export const AsyncApiDocument = intersection(
           typeComment: 'REQUIRED. The AsyncAPI Specification version the document uses (for example "3.0.0").',
         }),
         info: AsyncApiInfoObject,
-        [extensions.document.navigation]: optional(unknown()),
+        // Workspace-store-built navigation tree. The shape is the same shared
+        // `TraversedDocument` used on the OpenAPI side; we use `any()` here
+        // rather than re-declaring the recursive tree in @scalar/validation
+        // primitives, while the TS type below stays strict for consumers.
+        [extensions.document.navigation]: optional(any()),
       },
       { typeName: 'AsyncApiDocumentCore' },
     ),
@@ -99,12 +104,8 @@ export type AsyncApiDocument = {
   asyncapi: string
   /** REQUIRED. Provides metadata about the application. */
   info: AsyncApiInfoObject
-  /**
-   * Workspace-store-built navigation tree. Populated during ingestion. Typed as
-   * `unknown` to keep the runtime schema's `Static<>` inference matching this TS
-   * type; consumers narrow with the shared `TraversedDocument` type at access.
-   */
-  'x-scalar-navigation'?: unknown
+  /** Workspace-store-built navigation tree. Populated during ingestion. */
+  'x-scalar-navigation'?: TraversedDocument
 } & AsyncApiExtensions &
   WorkspaceManagedExtensions &
   XScalarOriginalDocumentHash &
