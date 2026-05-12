@@ -26,9 +26,25 @@ type ProcessBodyProps = Pick<OperationToHarProps, 'contentType' | 'example' | 'r
 type MultipartEncodingMap = MediaTypeObject['encoding']
 
 /**
- * Converts an object to an array of form parameters
- * @param obj - The object to convert
- * @returns Array of form parameters with name and value properties
+ * Converts a form-data body into HAR `Param[]` entries for `multipart/form-data`
+ * and `application/x-www-form-urlencoded` requests.
+ *
+ * Per OpenAPI 3.1.x Encoding Object, each property's serialization is governed
+ * by an optional Encoding entry. When `style` / `explode` / `allowReserved` is
+ * set, the value is serialized RFC6570-style and `contentType` is ignored.
+ * When only `contentType` is set, the property becomes a single part with that
+ * type. Otherwise spec defaults apply (object → `application/json` for multipart,
+ * primitives → `text/plain`).
+ *
+ * @param obj - The form-data payload, either an object keyed by property name
+ *   or a HAR-style `{ name, value, isDisabled }[]` array.
+ * @param encoding - The `encoding` map from the Media Type Object, if any.
+ *   Used only at the top level (`parentKey` undefined).
+ * @param parentKey - When set, we are flattening a nested object inside another
+ *   property; encoding is ignored and keys are joined with `.` (legacy default).
+ * @param isMultipart - True for `multipart/form-data`. Gates the spec defaults
+ *   for object/array properties that should become a single `application/json`
+ *   part. Urlencoded bodies skip those branches and fall through to flattening.
  */
 const objectToFormParams = (
   obj: object | { name: string; value: unknown; isDisabled: boolean }[],
@@ -59,17 +75,18 @@ const objectToFormParams = (
         partEncoding.allowReserved !== undefined)
     const explicitContentType = hasFormStyle ? undefined : partEncoding?.contentType
 
-    // Per OpenAPI 3.1.1 §Encoding Object: when style/explode/allowReserved is set on a
+    // Per OpenAPI 3.1.x Encoding Object: when style/explode/allowReserved is set on a
     // `multipart/form-data` or `application/x-www-form-urlencoded` part, the value is
     // serialized as if it were a query-style parameter and contentType is ignored. For
-    // multipart the query delimiters are stripped per Appendix C; HAR represents both
+    // multipart the query delimiters are stripped per §Appendix C; HAR represents both
     // content types via `PostData.params`, so the same shape works for both.
     // Primitives skip this branch and fall through to the String(value) path below since
     // style is a no-op for primitives. Files skip too, as do arrays containing Files —
-    // RFC6570 expansion of binary data is undefined per spec line 4181, and the array
-    // branch below already emits one `@filename` part per File.
-    // allowReserved only affects percent-encoding, which is a no-op at the HAR layer
-    // (values are raw bytes); its presence still opts into this branch per spec.
+    // RFC6570 expansion of binary data is undefined per §Appendix C, and the array branch
+    // below already emits one `@filename` part per File.
+    // allowReserved only affects percent-encoding, which is a no-op at the HAR layer per
+    // OAS 3.1.2 ("`allowReserved` has no effect" for multipart); its presence still opts
+    // into this branch per spec.
     if (
       !parentKey &&
       hasFormStyle &&
@@ -79,8 +96,10 @@ const objectToFormParams = (
       !(Array.isArray(value) && value.some((item) => item instanceof File))
     ) {
       const unpacked = unpackProxyObject(value)
+      // OAS 3.1.x Encoding Object: encoding follows query-parameter defaults — when no
+      // `style` is set, the default is "form"; when no `explode` is set, the default is
+      // `true` for "form" and `false` for every other style.
       const style = partEncoding?.style ?? 'form'
-      // OAS defaults: explode is true for "form", false for everything else.
       const explode = partEncoding?.explode ?? style === 'form'
 
       if (style === 'deepObject') {
@@ -119,7 +138,8 @@ const objectToFormParams = (
         }
       }
     }
-    // Handle File objects by converting them to 'BINARY'
+    // File values render as `@filename` references, the conventional cURL syntax for an
+    // attached file. Picked up by snippet renderers downstream (e.g. `--form 'x=@file.png'`).
     else if (value instanceof File) {
       const file = unpackProxyObject(value)
       params.push({
@@ -128,7 +148,10 @@ const objectToFormParams = (
         ...(explicitContentType ? { contentType: explicitContentType } : {}),
       })
     }
-    // Multipart encodings can override the entire top-level part payload
+    // Per OAS 3.1.x Encoding Object: an explicit `encoding[key].contentType` on a
+    // complex value overrides the default and emits a single part containing the value
+    // JSON-stringified into that media type. Only reachable when style/explode/allowReserved
+    // are unset (otherwise contentType is ignored — see the style branch above).
     else if (explicitContentType && typeof value === 'object') {
       params.push({
         name: key,
@@ -167,7 +190,12 @@ const objectToFormParams = (
         }
       }
     }
-    // Handle nested objects by flattening them
+    // Legacy fallback: flatten nested objects into dotted-key parts. Reached when the
+    // multipart JSON-default branches above don't apply — i.e. either inside a recursive
+    // call (`parentKey` set) or on `application/x-www-form-urlencoded` bodies without an
+    // explicit encoding entry. Strict OAS 3.1.x would use `style: form, explode: true` as
+    // the urlencoded default (inner keys become top-level params); we keep dotted keys for
+    // backwards compatibility with consumers that already parse this shape.
     else if (typeof value === 'object') {
       const nestedParams = objectToFormParams(value, undefined, key)
 
