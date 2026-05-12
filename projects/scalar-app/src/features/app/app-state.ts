@@ -540,11 +540,8 @@ export const createAppState = async ({
     teamSlug: string,
     slug: string,
     filteredWorkspaces: ComputedRef<WorkspaceOption[]>,
-    to?: RouteLocationNormalizedGeneric,
+    to: RouteLocationNormalizedGeneric,
   ) => {
-    /** For initial load we want to fall through to our router default behaviour */
-    const isInitialLoad = activeWorkspace.value === null
-
     // Clear the current store and set loading to true before loading new workspace.
     store.value = null
     isSyncingWorkspace.value = true
@@ -553,19 +550,8 @@ export const createAppState = async ({
     const result = await loadWorkspace(teamSlug, slug)
 
     if (result.success) {
-      // Navigate to the correct tab if the workspace has a tab already
-      const index = result.workspace['x-scalar-active-tab'] ?? 0
       const tabs = result.workspace['x-scalar-tabs']
-      const tab = tabs?.[index]
-
-      // On initial load let the URL-based routing (catch-all → getLastPath) take precedence
-      if (tab && !isInitialLoad) {
-        // Preserve query parameters when navigating to the active tab
-        await router.replace({
-          path: tab.path,
-          query: currentRoute.value?.query ?? {},
-        })
-      }
+      const index = result.workspace['x-scalar-active-tab'] ?? 0
 
       // Heal the active tab index if it is out of bounds
       if (tabs && index >= tabs.length) {
@@ -574,7 +560,7 @@ export const createAppState = async ({
         })
       }
 
-      // Initialize the tabs if they does not exist
+      // Initialize the tabs if they do not exist
       if (!tabs) {
         eventBus.emit('tabs:update:tabs', {
           'x-scalar-tabs': [createTabFromRoute(currentRoute.value)],
@@ -582,13 +568,12 @@ export const createAppState = async ({
         })
       }
 
-      // On initial load the router.replace above is skipped, so syncTabs/syncSidebar
-      // are never reached via handleRouteChange's normal flow. Call them here to
-      // align the tab bar and sidebar with the URL-based route.
-      if (isInitialLoad && to) {
-        syncTabs(to)
-        syncSidebar(to)
-      }
+      // Sync the tab bar and sidebar to the route that triggered this
+      // workspace switch. We deliberately do NOT router.replace to a stored
+      // tab path here — the caller already navigated to `to`, so replacing
+      // would fight the in-flight navigation and cause a double route.
+      syncTabs(to)
+      syncSidebar(to)
 
       isSyncingWorkspace.value = false
       return

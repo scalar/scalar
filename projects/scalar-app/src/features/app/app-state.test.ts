@@ -395,7 +395,7 @@ describe('app-state', () => {
     const appState = await createAppState({ router })
     const teamSlug = 'local'
 
-    // Initial load on workspace A — consumes the isInitialLoad flag
+    // Initial load on workspace A
     await router.push({
       name: 'document.overview',
       params: { teamSlug, workspaceSlug: 'switch-source', documentSlug: 'drafts' },
