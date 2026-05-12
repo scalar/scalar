@@ -1,9 +1,8 @@
-import type { Team } from '@scalar/sdk/models/components'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceStorePersistence, getWorkspaceId } from '@scalar/workspace-store/persistence'
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { nextTick, ref } from 'vue'
+import { nextTick } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import 'fake-indexeddb/auto'
 
@@ -11,18 +10,6 @@ import { createAppState } from './app-state'
 import { filterWorkspacesByTeam } from './helpers/filter-workspaces'
 import { groupWorkspacesByTeam } from './helpers/group-workspaces'
 import { ROUTES } from './helpers/routes'
-
-/**
- * Builds a `currentTeam` ref suitable for `createAppState`. The app
- * derives `activeEntities.teamSlug` from this, so passing a team here
- * is the test-time replacement for the previous `setTeamSlug` setter.
- */
-const teamWithSlug = (slug: string): Team => ({
-  uid: `team-${slug}`,
-  name: slug,
-  slug,
-  theme: 'default',
-})
 
 const persistWorkspace = async ({
   teamSlug = 'local',

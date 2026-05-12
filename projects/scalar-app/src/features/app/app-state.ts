@@ -5,7 +5,6 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { slugify } from '@scalar/helpers/string/slugify'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { migrateLocalStorageToIndexDb } from '@scalar/oas-utils/migrations'
-import type { Team } from '@scalar/sdk/models/components'
 import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import {
@@ -24,16 +23,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-scalar-tabs'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
-import {
-  type ComputedRef,
-  type MaybeRefOrGetter,
-  type Ref,
-  type ShallowRef,
-  computed,
-  ref,
-  shallowRef,
-  watch,
-} from 'vue'
+import { type ComputedRef, type Ref, type ShallowRef, computed, ref, shallowRef, watch } from 'vue'
 import type { RouteLocationNormalizedGeneric, RouteLocationRaw, Router } from 'vue-router'
 
 import type { ApiClientAppOptions } from '@/features/app/helpers/create-api-client-app'

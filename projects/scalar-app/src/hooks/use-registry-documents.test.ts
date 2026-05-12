@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { computed, nextTick, ref } from 'vue'
+import { computed, isRef, nextTick, ref } from 'vue'
 
 import { useRegistryDocuments } from './use-registry-documents'
 
@@ -8,11 +8,17 @@ import { useRegistryDocuments } from './use-registry-documents'
 // ---------------------------------------------------------------------------
 
 const mockIsLoggedIn = ref(false)
-const mockTokenData = ref<{ teamUid?: string } | null>(null)
 vi.mock('@/hooks/use-auth', () => ({
   useAuth: () => ({
     isLoggedIn: mockIsLoggedIn,
-    tokenData: mockTokenData,
+  }),
+}))
+
+const mockCurrentTeamSlug = computed(() => mockTeamSlugValue.value)
+const mockTeamSlugValue = ref('local')
+vi.mock('./use-teams', () => ({
+  useTeams: () => ({
+    currentTeamSlug: mockCurrentTeamSlug,
   }),
 }))
 
@@ -22,7 +28,7 @@ vi.mock('@/hooks/use-auth', () => ({
  * tests drive `mockQueryData` directly.
  *
  * We also capture the options passed to `useQuery` so tests can inspect the
- * query key — this validates that the `teamUid` segment is wired correctly.
+ * query key — this validates that the `currentTeamSlug` segment is wired correctly.
  */
 const mockQueryData = ref<Array<{ uid: string; name: string }> | undefined>(undefined)
 let capturedQueryOptions: Record<string, unknown> | undefined
@@ -64,7 +70,7 @@ describe('useRegistryDocuments', () => {
   beforeEach(() => {
     mockQueryData.value = undefined
     mockIsLoggedIn.value = false
-    mockTokenData.value = null
+    mockTeamSlugValue.value = 'local'
     capturedQueryOptions = undefined
   })
 
@@ -100,31 +106,27 @@ describe('useRegistryDocuments', () => {
   })
 
   // -------------------------------------------------------------------------
-  // query key — teamUid segment
+  // query key — currentTeamSlug segment
   // -------------------------------------------------------------------------
   describe('query key', () => {
-    it('includes the teamUid from tokenData in the query key', () => {
-      mockTokenData.value = { teamUid: 'team-abc-123' }
+    it('includes currentTeamSlug as a reactive ref in the query key', () => {
+      mockTeamSlugValue.value = 'acme'
 
       useRegistryDocuments()
 
-      expect(capturedQueryOptions?.queryKey).toEqual(['documents', 'team-abc-123'])
+      const queryKey = capturedQueryOptions?.queryKey as unknown[]
+      expect(queryKey[0]).toBe('documents')
+      expect(isRef(queryKey[1])).toBe(true)
+      expect((queryKey[1] as { value: string }).value).toBe('acme')
     })
 
-    it('uses undefined as the teamUid segment when tokenData is null', () => {
-      mockTokenData.value = null
+    it('defaults the team slug to "local" when no team is active', () => {
+      mockTeamSlugValue.value = 'local'
 
       useRegistryDocuments()
 
-      expect(capturedQueryOptions?.queryKey).toEqual(['documents', undefined])
-    })
-
-    it('uses undefined as the teamUid segment when tokenData has no teamUid', () => {
-      mockTokenData.value = {}
-
-      useRegistryDocuments()
-
-      expect(capturedQueryOptions?.queryKey).toEqual(['documents', undefined])
+      const queryKey = capturedQueryOptions?.queryKey as unknown[]
+      expect((queryKey[1] as { value: string }).value).toBe('local')
     })
   })
 
