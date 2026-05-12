@@ -984,7 +984,6 @@ export const createAppState = async ({
     to: RouteLocationNormalizedGeneric,
     { teamSlug, filteredWorkspaces }: { teamSlug: string; filteredWorkspaces: WorkspaceOption[] },
   ) => {
-    console.trace(to.fullPath)
     const slug = getRouteParam('workspaceSlug', to)
     const document = getRouteParam('documentSlug', to)
     const nextTeamSlug = getRouteParam('teamSlug', to)

@@ -78,6 +78,9 @@ const logout = () => {
   // Cancel all queries and clear cache
   void queryClient.cancelQueries()
   queryClient.clear()
+
+  // Lets hard route to ensure we are no longer on the team workspace
+  window.location.href = '/'
 }
 
 /**

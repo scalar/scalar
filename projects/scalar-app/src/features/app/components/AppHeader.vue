@@ -73,6 +73,10 @@ const team = computed<ScalarMenuTeamOption | undefined>(() =>
 
 /** Refresh tokens with the selected team UID then navigate to the workspace root */
 const switchTeam = async (t?: ScalarMenuTeamOption) => {
+  if (!t || t.id === currentTeam.value?.uid) {
+    return
+  }
+
   const result = await refreshTokens(t?.id)
   if (result.ok) {
     emit('changed:team')

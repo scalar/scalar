@@ -46,7 +46,12 @@ const { getAppState, getCommandPaletteState, fileLoader } =
 
 const app = getAppState()
 const { isLoggedIn } = useAuth()
-const { currentTeam, currentTeamSlug } = useTeams()
+const {
+  currentTeam,
+  currentTeamSlug,
+  isLoading: isTeamsLoading,
+  suspense: teamsSuspense,
+} = useTeams()
 
 const { handleLogin, handleRegister } = useAuthHandlers()
 const {
@@ -96,17 +101,6 @@ const filteredWorkspaces = computed(() =>
 )
 
 /**
- * Temporarily here to add some metadata to the route change handler
- * We should move it elsewhere as we remove things from app-state into their own
- */
-app.router.afterEach((to) =>
-  app.handleRouteChange(to, {
-    teamSlug: currentTeamSlug.value,
-    filteredWorkspaces: filteredWorkspaces.value,
-  }),
-)
-
-/**
  * Groups workspaces into team and local categories for display in the workspace picker.
  * Team workspaces are shown first (when not on local team), followed by local workspaces.
  */
@@ -124,8 +118,29 @@ const workspaceGroups = computed(() =>
 )
 
 //--------------------------------------------------
-// Navigation
+// Navigation/Routing
 //--------------------------------------------------
+
+/** Lets wait until teams have loaded before progressing */
+app.router.beforeEach(async () => {
+  if (isTeamsLoading.value) {
+    await teamsSuspense()
+  }
+
+  return true
+})
+
+/**
+ * Temporarily here to add some metadata to the route change handler
+ * This will be removed later
+ */
+app.router.afterEach((to) => {
+  app.handleRouteChange(to, {
+    teamSlug: currentTeamSlug.value,
+    filteredWorkspaces: filteredWorkspaces.value,
+  })
+})
+
 // Emits a navigation event to open the workspace settings page
 const openSettings = () => {
   app.eventBus.emit('ui:navigate', {
