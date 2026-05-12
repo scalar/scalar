@@ -147,8 +147,8 @@ app.router.afterEach(async (to) => {
   }
 
   app.handleRouteChange(to, {
-    teamSlug: currentTeamSlug.value,
-    filteredWorkspaces: filteredWorkspaces.value,
+    teamSlug: currentTeamSlug,
+    filteredWorkspaces: filteredWorkspaces,
   })
 })
 

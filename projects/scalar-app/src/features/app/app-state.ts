@@ -114,7 +114,7 @@ export type AppState = {
   /** Fired on every route change */
   handleRouteChange: (
     to: RouteLocationNormalizedGeneric,
-    metadata: { teamSlug: string; filteredWorkspaces: WorkspaceOption[] },
+    metadata: { teamSlug: ComputedRef<string>; filteredWorkspaces: ComputedRef<WorkspaceOption[]> },
   ) => void
   /** The current route derived from the router */
   currentRoute: Ref<RouteLocationNormalizedGeneric | null>
@@ -539,7 +539,7 @@ export const createAppState = async ({
   const changeWorkspace = async (
     teamSlug: string,
     slug: string,
-    filteredWorkspaces: WorkspaceOption[],
+    filteredWorkspaces: ComputedRef<WorkspaceOption[]>,
     to?: RouteLocationNormalizedGeneric,
   ) => {
     /** For initial load we want to fall through to our router default behaviour */
@@ -596,8 +596,8 @@ export const createAppState = async ({
 
     // Navigate to the default workspace, or fall back to the first available workspace
     const targetWorkspace =
-      filteredWorkspaces.find((workspace) => workspace.teamSlug === 'local' && workspace.slug === 'default') ??
-      filteredWorkspaces[0]
+      filteredWorkspaces.value.find((workspace) => workspace.teamSlug === 'local' && workspace.slug === 'default') ??
+      filteredWorkspaces.value[0]
 
     if (targetWorkspace) {
       return navigateToWorkspace(targetWorkspace.teamSlug, targetWorkspace.slug)
@@ -954,7 +954,10 @@ export const createAppState = async ({
   /** When the route changes we need to update the active entities in the store */
   const handleRouteChange = (
     to: RouteLocationNormalizedGeneric,
-    { teamSlug, filteredWorkspaces }: { teamSlug: string; filteredWorkspaces: WorkspaceOption[] },
+    {
+      teamSlug,
+      filteredWorkspaces,
+    }: { teamSlug: ComputedRef<string>; filteredWorkspaces: ComputedRef<WorkspaceOption[]> },
   ) => {
     const slug = getRouteParam('workspaceSlug', to)
     const document = getRouteParam('documentSlug', to)
@@ -971,7 +974,7 @@ export const createAppState = async ({
     )
 
     // If the workspace exists but is not accessible by the current team, redirect to the default workspace.
-    if (workspace && !canLoadWorkspace(workspace.teamSlug, teamSlug)) {
+    if (workspace && !canLoadWorkspace(workspace.teamSlug, teamSlug.value)) {
       return navigateToWorkspace('local', 'default')
     }
 
@@ -993,7 +996,7 @@ export const createAppState = async ({
       // or are being redirected on login), create it on demand before letting
       // the workspace switcher take over. Otherwise `changeWorkspace` would
       // fall back to the local default and silently swallow the navigation.
-      const isUnknownTeamWorkspace = nextTeamSlug !== 'local' && nextTeamSlug === teamSlug && !workspace
+      const isUnknownTeamWorkspace = nextTeamSlug !== 'local' && nextTeamSlug === teamSlug.value && !workspace
       if (isUnknownTeamWorkspace) {
         return createWorkspace({
           teamSlug: nextTeamSlug,

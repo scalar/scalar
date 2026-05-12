@@ -2,7 +2,7 @@ import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceStorePersistence, getWorkspaceId } from '@scalar/workspace-store/persistence'
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { computed, nextTick } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import 'fake-indexeddb/auto'
 
@@ -35,6 +35,15 @@ const persistWorkspace = async ({
 
 const setupRouter = () => createRouter({ history: createMemoryHistory(), routes: ROUTES })
 
+/**
+ * Builds the `{ teamSlug, filteredWorkspaces }` metadata object that
+ * `handleRouteChange` expects with `ComputedRef` values.
+ */
+const routeMetadata = (appState: Awaited<ReturnType<typeof createAppState>>, teamSlug: string) => ({
+  teamSlug: computed(() => teamSlug),
+  filteredWorkspaces: computed(() => filterWorkspacesByTeam(appState.workspace.workspaceList.value, teamSlug)),
+})
+
 const waitForNavigation = async () => {
   await nextTick()
   await flushPromises()
@@ -61,10 +70,7 @@ describe('app-state', () => {
     await router.isReady()
 
     // Simulate what App.vue does in router.afterEach
-    appState.handleRouteChange(router.currentRoute.value, {
-      teamSlug: 'local',
-      filteredWorkspaces: filterWorkspacesByTeam(appState.workspace.workspaceList.value, 'local'),
-    })
+    appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, 'local'))
     await waitForNavigation()
 
     // The URL routing should take precedence over the saved tab on initial load
@@ -84,10 +90,7 @@ describe('app-state', () => {
     })
     await router.isReady()
 
-    appState.handleRouteChange(router.currentRoute.value, {
-      teamSlug: 'local',
-      filteredWorkspaces: filterWorkspacesByTeam(appState.workspace.workspaceList.value, 'local'),
-    })
+    appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, 'local'))
     await waitForNavigation()
 
     expect(router.currentRoute.value.name).toBe('document.overview')
@@ -108,10 +111,7 @@ describe('app-state', () => {
       params: { teamSlug: 'local', workspaceSlug: 'sync-tabs', documentSlug: 'drafts' },
     })
 
-    appState.handleRouteChange(router.currentRoute.value, {
-      teamSlug: 'local',
-      filteredWorkspaces: filterWorkspacesByTeam(appState.workspace.workspaceList.value, 'local'),
-    })
+    appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, 'local'))
 
     // Wait until the workspace has finished loading — once store.value is populated
     // the tabs computed switches from the currentRoute fallback to persisted tabs.
@@ -223,10 +223,7 @@ describe('app-state', () => {
     await router.isReady()
 
     // Simulate what App.vue does: call handleRouteChange with the team context
-    appState.handleRouteChange(router.currentRoute.value, {
-      teamSlug,
-      filteredWorkspaces: filterWorkspacesByTeam(appState.workspace.workspaceList.value, teamSlug),
-    })
+    appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, teamSlug))
     await waitForNavigation()
 
     await vi.waitFor(() => {
@@ -258,10 +255,7 @@ describe('app-state', () => {
     await router.isReady()
 
     // Simulate the shell calling handleRouteChange with team context
-    appState.handleRouteChange(router.currentRoute.value, {
-      teamSlug,
-      filteredWorkspaces: filterWorkspacesByTeam(appState.workspace.workspaceList.value, teamSlug),
-    })
+    appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, teamSlug))
     await waitForNavigation()
 
     await vi.waitFor(() => {
@@ -342,10 +336,7 @@ describe('app-state', () => {
     expect(router.currentRoute.value.params.workspaceSlug).toBe('team-default')
 
     // Simulate the shell resolving the team and then calling handleRouteChange
-    appState.handleRouteChange(router.currentRoute.value, {
-      teamSlug,
-      filteredWorkspaces: filterWorkspacesByTeam(appState.workspace.workspaceList.value, teamSlug),
-    })
+    appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, teamSlug))
 
     await vi.waitFor(() => {
       expect(appState.store.value).not.toBeNull()
@@ -378,10 +369,7 @@ describe('app-state', () => {
     // The shell resolves the team as 'local' (not logged in / not on that team),
     // so handleRouteChange is called with teamSlug='local'. The canLoadWorkspace
     // check sees the foreign-team workspace is not accessible and redirects.
-    await appState.handleRouteChange(router.currentRoute.value, {
-      teamSlug: 'local',
-      filteredWorkspaces: filterWorkspacesByTeam(appState.workspace.workspaceList.value, 'local'),
-    })
+    await appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, 'local'))
 
     await vi.waitFor(() => {
       expect(router.currentRoute.value.params.teamSlug).toBe('local')
@@ -389,10 +377,7 @@ describe('app-state', () => {
 
     // The redirect navigated to the local default workspace. We need to call
     // handleRouteChange again for the new route to load the workspace store.
-    appState.handleRouteChange(router.currentRoute.value, {
-      teamSlug: 'local',
-      filteredWorkspaces: filterWorkspacesByTeam(appState.workspace.workspaceList.value, 'local'),
-    })
+    appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, 'local'))
 
     await vi.waitFor(() => {
       expect(appState.store.value).not.toBeNull()
@@ -417,10 +402,7 @@ describe('app-state', () => {
     })
     await router.isReady()
 
-    appState.handleRouteChange(router.currentRoute.value, {
-      teamSlug,
-      filteredWorkspaces: filterWorkspacesByTeam(appState.workspace.workspaceList.value, teamSlug),
-    })
+    appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, teamSlug))
     await waitForNavigation()
 
     // Verify workspace A is loaded
@@ -434,10 +416,7 @@ describe('app-state', () => {
       params: { teamSlug, workspaceSlug: 'switch-target', documentSlug: 'drafts' },
     })
 
-    await appState.handleRouteChange(router.currentRoute.value, {
-      teamSlug,
-      filteredWorkspaces: filterWorkspacesByTeam(appState.workspace.workspaceList.value, teamSlug),
-    })
+    await appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, teamSlug))
 
     // changeWorkspace loaded the target workspace
     await vi.waitFor(() => {

@@ -2,7 +2,7 @@ import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
 import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { computed, nextTick } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import 'fake-indexeddb/auto'
 
@@ -126,8 +126,10 @@ describe('App', () => {
     // Simulate what App.vue's router.afterEach does — call handleRouteChange
     // so the workspace loads from IndexedDB.
     appState.handleRouteChange(router.currentRoute.value, {
-      teamSlug: WORKSPACE_TEAM_SLUG,
-      filteredWorkspaces: filterWorkspacesByTeam(appState.workspace.workspaceList.value, WORKSPACE_TEAM_SLUG),
+      teamSlug: computed(() => WORKSPACE_TEAM_SLUG),
+      filteredWorkspaces: computed(() =>
+        filterWorkspacesByTeam(appState.workspace.workspaceList.value, WORKSPACE_TEAM_SLUG),
+      ),
     })
 
     const commandPaletteState = useCommandPaletteState()
