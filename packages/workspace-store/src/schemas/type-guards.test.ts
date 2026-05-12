@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isAsyncApiDocument, isOpenApiDocument } from './type-guards'
+import { getDocumentType, isAsyncApiDocument, isOpenApiDocument } from './type-guards'
 import type { WorkspaceDocument } from './workspace'
 
 describe('type-guards', () => {
@@ -36,6 +36,22 @@ describe('type-guards', () => {
         const version: string = document.openapi
         expect(version).toBe('3.1.0')
       }
+    })
+  })
+
+  describe('getDocumentType', () => {
+    it('returns "openapi" for an OpenAPI document', () => {
+      expect(getDocumentType(openApiDocument)).toBe('openapi')
+    })
+
+    it('returns "asyncapi" for an AsyncAPI document', () => {
+      expect(getDocumentType(asyncApiDocument)).toBe('asyncapi')
+    })
+
+    it('returns undefined when the value matches neither shape', () => {
+      expect(getDocumentType({ info: { title: 'No version' } })).toBeUndefined()
+      expect(getDocumentType(undefined)).toBeUndefined()
+      expect(getDocumentType(null)).toBeUndefined()
     })
   })
 

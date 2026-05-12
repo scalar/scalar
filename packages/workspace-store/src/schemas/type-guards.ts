@@ -24,3 +24,21 @@ export const isAsyncApiDocument = (value: unknown): value is AsyncApiDocument =>
   value !== null &&
   'asyncapi' in value &&
   typeof (value as { asyncapi: unknown }).asyncapi === 'string'
+
+/**
+ * Identify the document type of a value.
+ *
+ * Returns `'openapi'` or `'asyncapi'` when the value matches one of the known
+ * document shapes, or `undefined` when it matches neither.
+ */
+export const getDocumentType = (value: unknown): 'openapi' | 'asyncapi' | undefined => {
+  if (isOpenApiDocument(value)) {
+    return 'openapi'
+  }
+
+  if (isAsyncApiDocument(value)) {
+    return 'asyncapi'
+  }
+
+  return undefined
+}

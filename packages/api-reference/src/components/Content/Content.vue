@@ -14,6 +14,7 @@ import {
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { TraversedEntry as TraversedEntryType } from '@scalar/workspace-store/schemas/navigation'
 import {
+  getDocumentType,
   isAsyncApiDocument,
   isOpenApiDocument,
 } from '@scalar/workspace-store/schemas/type-guards'
@@ -93,9 +94,7 @@ const openApiClientDocument = computed(() =>
   isOpenApiDocument(clientDocument) ? clientDocument : undefined,
 )
 
-const documentType = computed<'openapi' | 'asyncapi'>(() =>
-  isAsyncApiDocument(document) ? 'asyncapi' : 'openapi',
-)
+const documentType = computed(() => getDocumentType(document))
 
 const specificationVersion = computed(() => {
   if (isAsyncApiDocument(document)) {
