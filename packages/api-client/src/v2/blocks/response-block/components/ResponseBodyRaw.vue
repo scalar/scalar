@@ -46,10 +46,7 @@ const getCurrentContent = () => {
 </script>
 <template>
   <div
-    :class="[
-      'scalar-code-block group/code-block relative grid min-h-0 overflow-hidden p-px outline-none has-focus-visible:outline',
-      prettyPrintJson ? 'body-json-preview' : 'body-raw',
-    ]">
+    class="scalar-code-block group/code-block relative grid min-h-0 overflow-hidden p-px outline-none has-focus-visible:outline">
     <div
       class="custom-scroll relative pr-1"
       tabindex="0">
@@ -76,8 +73,7 @@ const getCurrentContent = () => {
   border-radius: var(--scalar-radius) 0 0 var(--scalar-radius);
 }
 
-.body-raw :deep(.cm-scroller),
-.body-json-preview :deep(.cm-scroller) {
+:deep(.cm-scroller) {
   overflow: auto;
   min-width: 100%;
 }
