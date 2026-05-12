@@ -335,6 +335,43 @@ describe('traversePaths', () => {
     expect(tagsMap.get('Ignored')?.entries).toEqual([])
   })
 
+  it('reproduces empty operations for bundled path-item $ref wrappers', () => {
+    const document = createDocument()
+    document.paths = {
+      '/api/0/organizations/{organization_slug}/events/': {
+        $ref: '#/x-ext/sentry-path-item',
+        // biome-ignore lint/suspicious/noExplicitAny: simulating bundled path-item $ref-value
+        '$ref-value': {
+          get: {
+            tags: ['Events'],
+            summary: 'List organization events',
+            operationId: 'listOrganizationEvents',
+          },
+        },
+      } as any,
+    }
+
+    const tagsMap: TagsMap = new Map([
+      ['Events', { id: 'tag/events', parentId: 'doc-1', tag: { name: 'Events' }, entries: [] }],
+    ])
+
+    const result = traversePaths({
+      document,
+      tagsMap,
+      documentId: 'doc-1',
+      generateId: (props) => {
+        if (props.type === 'operation') {
+          return `${props.method?.toUpperCase()}-${props.path}`
+        }
+        return 'unknown-id'
+      },
+    })
+
+    // Repro for DOC-5398: wrapped path-item refs are currently skipped, so no operations are discovered.
+    expect(tagsMap.get('Events')?.entries).toEqual([])
+    expect(result.untaggedOperations).toEqual([])
+  })
+
   it('should handle operations with missing summary', () => {
     const document = createDocument()
     document.paths = {
