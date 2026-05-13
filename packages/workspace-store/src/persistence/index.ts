@@ -183,7 +183,7 @@ export const createWorkspaceStorePersistence = async () => {
           workspaceIntermediateDocuments.map((item) => [item.documentName, item.data]),
         ),
         overrides: Object.fromEntries(workspaceOverrides.map((item) => [item.documentName, item.data])),
-        meta: workspaceMeta?.data,
+        meta: workspaceMeta?.data ?? {},
         history: Object.fromEntries(workspaceHistory.map((item) => [item.documentName, item.data])),
         auth: Object.fromEntries(workspaceAuth.map((item) => [item.documentName, item.data])),
       },
