@@ -2,18 +2,23 @@
 /**
  * CodeInputLite
  *
- * Single-line text input that renders `{{varname}}` matches as styled pills
- * and offers an environment-variable autocomplete dropdown when the user
- * types `{{`.
+ * Single-line editor that renders `{{varname}}` matches as atomic pill
+ * widgets and offers an environment-variable autocomplete dropdown when the
+ * user types `{{`.
  *
- * Internally it pairs a native `<input>` (the source of truth — native cursor,
- * IME, selection, paste, undo) with an absolutely positioned overlay that
- * mirrors the value with pill spans on top.
+ * Internally it is a `contenteditable` div. Plain text lives in text nodes;
+ * each `{{name}}` becomes a `<span contenteditable="false">name</span>` pill.
+ * Because the pill is `contenteditable="false"`, the browser treats it as a
+ * single atom: arrow keys jump over it, Backspace/Delete removes it as one
+ * unit, and the caret can sit before or after it but never inside. The pill
+ * therefore renders just the variable name (no `{{` / `}}` in the DOM) and
+ * can carry whatever padding/border-radius it likes without breaking
+ * cursor alignment, because there is no longer a hidden character-positioned
+ * input to align against.
  *
- * Pills are styled spans, not atomic widgets, so they must occupy the exact
- * horizontal space of their underlying `{{...}}` text. They can style
- * background, color, border-radius, and box-shadow freely; horizontal padding,
- * margins, and layout-affecting borders are off-limits.
+ * The component still exposes the value as a plain `{{name}}`-bearing string
+ * via `update:modelValue`; the DOM ↔ model conversion lives in `renderModel`
+ * and `serializeEditor`.
  */
 export default {
   inheritAttrs: false,
@@ -124,15 +129,13 @@ const emit = defineEmits<{
 const attrs = useAttrs() as { 'id'?: string; 'aria-label'?: string }
 const componentId = attrs.id || `id-${nanoid()}`
 
-const inputRef = useTemplateRef<HTMLInputElement>('inputRef')
-const overlayRef = useTemplateRef<HTMLDivElement>('overlayRef')
-const overlayContentRef = useTemplateRef<HTMLSpanElement>('overlayContentRef')
-const measureRef = useTemplateRef<HTMLSpanElement>('measureRef')
+const editorRef = useTemplateRef<HTMLDivElement>('editorRef')
 const dropdownRef = ref<InstanceType<
   typeof EnvironmentVariableDropdown
 > | null>(null)
 
 const isFocused = ref(false)
+const isEmpty = ref(true)
 
 // ───────────────────────────────────────────────────────────────────
 // Rendering-mode detection (parity with CodeInput's select dispatch)
@@ -175,14 +178,6 @@ const handleSelectChange = (value: string): void =>
 // ───────────────────────────────────────────────────────────────────
 // Pill rendering
 // ───────────────────────────────────────────────────────────────────
-
-const escapeHtml = (s: string): string =>
-  s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
 
 const lookupVariableValue = (name: string): string | undefined => {
   const v = environment?.variables?.find((x) => x.name === name)
@@ -234,10 +229,10 @@ const teardownPillTooltips = (): void => {
 }
 
 const mountPillTooltips = (): void => {
-  if (!overlayRef.value || layout === 'modal') {
+  if (!editorRef.value || layout === 'modal') {
     return
   }
-  const pills = overlayRef.value.querySelectorAll<HTMLElement>('.scalar-pill')
+  const pills = editorRef.value.querySelectorAll<HTMLElement>('.scalar-pill')
   for (const pillEl of pills) {
     const variableName = pillEl.dataset.variable ?? ''
     const context = buildPillContext(variableName)
@@ -249,102 +244,149 @@ const mountPillTooltips = (): void => {
   }
 }
 
-/**
- * Skip work when the resulting overlay HTML would be identical. The cache key
- * combines the inputs that affect rendering — we never rebuild the DOM unless
- * one of them actually changed.
- */
-let lastOverlayKey: string | null = null
+// ───────────────────────────────────────────────────────────────────
+// DOM ↔ model conversion
+// ───────────────────────────────────────────────────────────────────
 
 /**
- * The render key includes the data we read from `environment` for each pill so
- * that adding/removing/renaming a variable invalidates the cache. Without this
- * a pill could keep showing a stale tooltip value after the env updates.
+ * Build a pill `<span>` for the given variable. `contentEditable = 'false'`
+ * is what makes the browser treat the pill as a single atom: arrow keys jump
+ * over it, Backspace removes it as a whole, and the caret can never land
+ * inside. The visible text is just the variable name; `{{` / `}}` only live
+ * in the serialized model string.
  */
-const renderKeyForEnvironment = (text: string): string => {
-  if (!withVariables || !text.includes('{{')) {
-    return ''
+const createPillElement = (
+  name: string,
+  start: number,
+  end: number,
+): HTMLSpanElement => {
+  const isCtx = isContextFunctionName(name)
+  const span = document.createElement('span')
+  span.className = isCtx ? 'scalar-pill scalar-pill--context-fn' : 'scalar-pill'
+  span.contentEditable = 'false'
+  span.dataset.variable = name
+  // Offsets are in *model* coordinates (where the pill stands in for the
+  // full `{{name}}` string). Kept around so click forwarding and tests can
+  // map a pill back to its position in the emitted value.
+  span.dataset.pillStart = String(start)
+  span.dataset.pillEnd = String(end)
+
+  const color = isCtx
+    ? 'var(--scalar-color-3)'
+    : environment?.color || 'var(--scalar-color-1)'
+  span.style.setProperty('--tw-bg-base', color)
+
+  const isUndefinedEnv = !isCtx && lookupVariableValue(name) === undefined
+  if (isUndefinedEnv) {
+    span.style.opacity = '0.5'
   }
-  const regex = new RegExp(REGEX.VARIABLES.source, REGEX.VARIABLES.flags)
-  let m: RegExpExecArray | null
-  let key = ''
-  while ((m = regex.exec(text)) !== null) {
-    const name = m[1] ?? ''
-    key += `|${name}=${lookupVariableValue(name) ?? ''}`
-  }
-  return key
+
+  span.textContent = name
+  return span
 }
 
-const renderOverlay = (text: string): void => {
-  if (!overlayRef.value) {
+/** Render a model string into the editor as a mix of text nodes + pills. */
+const renderModel = (text: string): void => {
+  const editor = editorRef.value
+  if (!editor) {
     return
   }
-
-  const key = `${withVariables ? '1' : '0'}|${environment?.color || ''}|${text}|${renderKeyForEnvironment(text)}`
-  if (key === lastOverlayKey) {
-    return
-  }
-  lastOverlayKey = key
 
   teardownPillTooltips()
+  editor.replaceChildren()
 
-  const target = overlayContentRef.value ?? overlayRef.value
-
-  // Fast path: no pill markers in the text → set textContent and skip the
-  // regex/innerHTML pipeline entirely. Most table cell values (header keys,
-  // query keys, plain values) hit this branch.
-  if (!withVariables || text.length === 0 || !text.includes('{{')) {
-    target.textContent = text
+  if (!withVariables || !text.includes('{{')) {
+    if (text) {
+      editor.appendChild(document.createTextNode(text))
+    }
+    isEmpty.value = text.length === 0
     return
   }
 
   const regex = new RegExp(REGEX.VARIABLES.source, REGEX.VARIABLES.flags)
   let lastIndex = 0
-  let html = ''
   let match: RegExpExecArray | null
 
   while ((match = regex.exec(text)) !== null) {
     const start = match.index
     const end = start + match[0].length
-
     if (start > lastIndex) {
-      html += escapeHtml(text.slice(lastIndex, start))
+      editor.appendChild(document.createTextNode(text.slice(lastIndex, start)))
     }
-
-    const variableName = match[1] ?? ''
-    const isCtx = isContextFunctionName(variableName)
-    const cls = isCtx ? 'scalar-pill scalar-pill--context-fn' : 'scalar-pill'
-    const color = isCtx
-      ? 'var(--scalar-color-3)'
-      : environment?.color || 'var(--scalar-color-1)'
-    const isUndefinedEnv =
-      !isCtx && lookupVariableValue(variableName) === undefined
-    const opacity = isUndefinedEnv ? 'opacity:0.5;' : ''
-
-    // `data-pill-start` records the character offset of the pill so click
-    // forwarding can place the input caret at the matching position.
-    html += `<span class="${cls}" data-variable="${escapeHtml(variableName)}" data-pill-start="${start}" data-pill-end="${end}" style="--tw-bg-base: ${color};${opacity}">${escapeHtml(match[0])}</span>`
-
+    editor.appendChild(createPillElement(match[1] ?? '', start, end))
     lastIndex = end
   }
 
   if (lastIndex < text.length) {
-    html += escapeHtml(text.slice(lastIndex))
+    editor.appendChild(document.createTextNode(text.slice(lastIndex)))
   }
 
-  target.innerHTML = html
-
-  // Pills are rendered visually but tooltip apps stay unmounted until the
-  // user actually engages with the input. `ensureTooltipsActive` flips this
-  // on first focus / pointerover and remounts on subsequent rebuilds.
+  isEmpty.value = false
   if (tooltipsActive) {
     mountPillTooltips()
   }
 }
 
+/** Length the given child contributes to the serialized model string. */
+const modelLengthOf = (node: Node): number => {
+  if (node.nodeType === Node.TEXT_NODE) {
+    return (node.textContent ?? '').length
+  }
+  if (node instanceof HTMLElement && node.classList.contains('scalar-pill')) {
+    return `{{${node.dataset.variable ?? ''}}}`.length
+  }
+  // Defensive: a stray element (e.g. browser-inserted <br>) — use its text.
+  return (node.textContent ?? '').length
+}
+
+/** Read the editor DOM back into a `{{name}}`-bearing model string. */
+const serializeEditor = (): string => {
+  const editor = editorRef.value
+  if (!editor) {
+    return ''
+  }
+  let out = ''
+  for (const node of Array.from(editor.childNodes)) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      out += node.textContent ?? ''
+    } else if (
+      node instanceof HTMLElement &&
+      node.classList.contains('scalar-pill')
+    ) {
+      out += `{{${node.dataset.variable ?? ''}}}`
+    } else if (node instanceof HTMLElement) {
+      // Browsers sometimes inject <br> or wrapper <div>s on paste / Enter;
+      // flatten them by reading their text only.
+      out += node.textContent ?? ''
+    }
+  }
+  return out
+}
+
+/**
+ * Structural signature: two values produce the same signature iff their
+ * sequence of pills is identical. Plain-text edits that don't change the
+ * pill set don't need a DOM rebuild, which preserves the live caret.
+ */
+const pillSignature = (text: string): string => {
+  if (!withVariables || !text.includes('{{')) {
+    return ''
+  }
+  const regex = new RegExp(REGEX.VARIABLES.source, REGEX.VARIABLES.flags)
+  let sig = ''
+  let m: RegExpExecArray | null
+  while ((m = regex.exec(text)) !== null) {
+    sig += `|${m[1] ?? ''}`
+  }
+  return sig
+}
+
+let lastPillSignature: string | null = null
+let lastEnvKey = ''
+
 /**
  * Idempotent: flips `tooltipsActive` on first call and mounts tooltips for
- * the pills currently in the overlay. Bound to focus + pointerover so the
+ * the pills currently in the editor. Bound to focus + pointerover so the
  * first interaction (whichever comes first) wires hover behaviour.
  */
 const ensureTooltipsActive = (): void => {
@@ -355,69 +397,103 @@ const ensureTooltipsActive = (): void => {
   mountPillTooltips()
 }
 
-watch(
-  [() => modelValue, () => environment, () => withVariables],
-  () => renderOverlay(serializeValue(modelValue)),
-  { immediate: true, flush: 'post' },
-)
+// ───────────────────────────────────────────────────────────────────
+// Caret ↔ model offset
+// ───────────────────────────────────────────────────────────────────
 
-// Keep the overlay scrolled in lock-step with the input
-const syncScroll = (): void => {
-  if (!inputRef.value || !overlayRef.value) {
+/**
+ * Offset of the current selection's start in the model string. Returns
+ * `null` when there is no usable selection inside the editor.
+ */
+const getModelCaret = (): number | null => {
+  const editor = editorRef.value
+  if (!editor) {
+    return null
+  }
+  const selection = window.getSelection()
+  if (!selection || selection.rangeCount === 0) {
+    return null
+  }
+  const range = selection.getRangeAt(0)
+  if (
+    range.startContainer !== editor &&
+    !editor.contains(range.startContainer)
+  ) {
+    return null
+  }
+
+  // Anchored on the editor itself — `startOffset` is a child index.
+  if (range.startContainer === editor) {
+    let pos = 0
+    for (
+      let i = 0;
+      i < range.startOffset && i < editor.childNodes.length;
+      i++
+    ) {
+      pos += modelLengthOf(editor.childNodes[i] as Node)
+    }
+    return pos
+  }
+
+  let pos = 0
+  for (const child of Array.from(editor.childNodes)) {
+    if (child === range.startContainer) {
+      return pos + range.startOffset
+    }
+    // Pills are `contenteditable=false` so the selection shouldn't end up
+    // inside one. If it does (e.g. some browser quirk), snap to a sensible
+    // boundary instead of getting stuck.
+    if (child.contains(range.startContainer)) {
+      return range.startOffset === 0 ? pos : pos + modelLengthOf(child)
+    }
+    pos += modelLengthOf(child)
+  }
+  return pos
+}
+
+/** Place the caret at the given model offset, walking the DOM to find it. */
+const setModelCaret = (target: number): void => {
+  const editor = editorRef.value
+  if (!editor) {
     return
   }
-  overlayRef.value.scrollLeft = inputRef.value.scrollLeft
-}
+  const range = document.createRange()
+  let pos = 0
+  let placed = false
 
-// ───────────────────────────────────────────────────────────────────
-// Change / focus / blur
-// ───────────────────────────────────────────────────────────────────
+  for (const child of Array.from(editor.childNodes)) {
+    const len = modelLengthOf(child)
+    if (pos + len >= target) {
+      if (child.nodeType === Node.TEXT_NODE) {
+        const into = Math.max(
+          0,
+          Math.min(target - pos, (child.textContent ?? '').length),
+        )
+        range.setStart(child, into)
+      } else if (target - pos <= 0) {
+        range.setStartBefore(child)
+      } else {
+        range.setStartAfter(child)
+      }
+      placed = true
+      break
+    }
+    pos += len
+  }
 
-const emitChange = (value: string): void => {
-  if (!alwaysEmitChange && value === serializeValue(modelValue)) {
-    updateDropdownVisibility()
+  if (!placed) {
+    range.selectNodeContents(editor)
+    range.collapse(false)
+  } else {
+    range.collapse(true)
+  }
+
+  const selection = window.getSelection()
+  if (!selection) {
     return
   }
-  emit('update:modelValue', value)
-  renderOverlay(value)
-  updateDropdownVisibility()
-}
-
-const handleInput = (event: Event): void => {
-  emitChange((event.target as HTMLInputElement).value)
-  syncScroll()
-}
-
-const handleInputFocus = (): void => {
-  isFocused.value = true
-  ensureTooltipsActive()
-}
-
-const handleInputBlur = (event: FocusEvent): void => {
-  isFocused.value = false
-  showDropdown.value = false
-  const value = inputRef.value?.value ?? ''
-
-  if (emitOnBlur && modelValue) {
-    emit('submit', value, event)
-  }
-
-  emit('blur', value, event)
-}
-
-// ───────────────────────────────────────────────────────────────────
-// Caret pixel position (for anchoring the env-var dropdown)
-// ───────────────────────────────────────────────────────────────────
-
-const measureTextWidth = (textBefore: string): number => {
-  if (!inputRef.value || !measureRef.value) {
-    return 0
-  }
-  const cs = window.getComputedStyle(inputRef.value)
-  measureRef.value.style.font = cs.font
-  measureRef.value.style.letterSpacing = cs.letterSpacing
-  measureRef.value.textContent = textBefore
-  return measureRef.value.getBoundingClientRect().width
+  selection.removeAllRanges()
+  selection.addRange(range)
 }
 
 // ───────────────────────────────────────────────────────────────────
@@ -446,12 +522,16 @@ const displayVariablesDropdown = computed(
 )
 
 const updateDropdownVisibility = (): void => {
-  if (!inputRef.value) {
+  const editor = editorRef.value
+  if (!editor) {
     return
   }
-
-  const cursor = inputRef.value.selectionStart ?? 0
-  const text = inputRef.value.value.slice(0, cursor)
+  const caret = getModelCaret()
+  if (caret === null) {
+    showDropdown.value = false
+    return
+  }
+  const text = serializeEditor().slice(0, caret)
   const lastOpen = text.lastIndexOf('{{')
   const lastClose = text.lastIndexOf('}}')
 
@@ -463,45 +543,113 @@ const updateDropdownVisibility = (): void => {
   dropdownQuery.value = text.slice(lastOpen + 2)
   showDropdown.value = true
 
-  // Anchor the dropdown to the start of `{{`
+  // Anchor the dropdown beneath the current caret. `range.getBoundingClientRect`
+  // gives us the precise caret rect for the cost of a single read.
   nextTick(() => {
-    if (!inputRef.value) {
+    const selection = window.getSelection()
+    if (!selection || selection.rangeCount === 0 || !editorRef.value) {
       return
     }
-    const input = inputRef.value
-    const anchorOffset =
-      (input.selectionStart ?? 0) - dropdownQuery.value.length - 2
-    const inputRect = input.getBoundingClientRect()
-    const padLeft = Number.parseFloat(
-      window.getComputedStyle(input).paddingLeft || '0',
-    )
-    const x = measureTextWidth(input.value.slice(0, anchorOffset))
+    const r = selection.getRangeAt(0).cloneRange()
+    r.collapse(true)
+    const rect = r.getBoundingClientRect()
+    const editorRect = editorRef.value.getBoundingClientRect()
+    // An empty range collapses to a zero rect in some browsers; fall back to
+    // the editor edge so the dropdown still appears somewhere reasonable.
     dropdownPosition.value = {
-      left: inputRect.left + padLeft + x - input.scrollLeft,
-      top: inputRect.bottom,
+      left: rect.left || editorRect.left,
+      top: rect.bottom || editorRect.bottom,
     }
   })
 }
 
 const handleDropdownSelect = (item: string): void => {
-  if (!inputRef.value || readOnly) {
+  if (readOnly) {
     return
   }
+  const caret = getModelCaret() ?? 0
+  const value = serializeEditor()
+  const from = Math.max(0, caret - dropdownQuery.value.length - 2)
+  const to = caret
+  const next = `${value.slice(0, from)}{{${item}}}${value.slice(to)}`
+  const nextCursor = from + `{{${item}}}`.length
 
-  const formatted = `{{${item}}}`
-  const cursor = inputRef.value.selectionStart ?? 0
-  const from = Math.max(0, cursor - dropdownQuery.value.length - 2)
-  const to = cursor
-
-  const value = inputRef.value.value
-  const next = `${value.slice(0, from)}${formatted}${value.slice(to)}`
-  const nextCursor = from + formatted.length
-
-  inputRef.value.value = next
-  inputRef.value.setSelectionRange(nextCursor, nextCursor)
+  // The pill set changes — force a re-render and replace the caret.
+  lastPillSignature = pillSignature(next)
+  renderModel(next)
+  setModelCaret(nextCursor)
 
   showDropdown.value = false
-  emitChange(next)
+  emitChange(next, { skipDropdownCheck: true })
+}
+
+// ───────────────────────────────────────────────────────────────────
+// Change / focus / blur
+// ───────────────────────────────────────────────────────────────────
+
+const emitChange = (
+  value: string,
+  opts: { skipDropdownCheck?: boolean } = {},
+): void => {
+  const same = value === serializeValue(modelValue)
+  if (alwaysEmitChange || !same) {
+    emit('update:modelValue', value)
+  }
+  if (!opts.skipDropdownCheck) {
+    updateDropdownVisibility()
+  }
+}
+
+const handleInput = (): void => {
+  const text = serializeEditor()
+  isEmpty.value = text.length === 0
+
+  // Re-render only when the typed change affects the pill set — e.g. the
+  // user typed `}}` to close a `{{name}}` pattern, or pasted a value. For
+  // plain-text edits the DOM the browser produced is already correct, and
+  // skipping the rebuild keeps the live selection intact (important for IME
+  // composition and double-click word selection).
+  const sig = pillSignature(text)
+  if (sig !== lastPillSignature) {
+    const caret = getModelCaret()
+    lastPillSignature = sig
+    renderModel(text)
+    if (caret !== null) {
+      setModelCaret(caret)
+    }
+  }
+
+  emitChange(text)
+}
+
+const handleFocus = (): void => {
+  isFocused.value = true
+  ensureTooltipsActive()
+}
+
+const handleBlur = (event: FocusEvent): void => {
+  isFocused.value = false
+  showDropdown.value = false
+  const value = serializeEditor()
+  if (emitOnBlur && modelValue) {
+    emit('submit', value, event)
+  }
+  emit('blur', value, event)
+}
+
+/**
+ * Strip rich content on paste — the editor is single-line plain text plus
+ * pill atoms, never arbitrary HTML. `contenteditable="plaintext-only"`
+ * would do the same but isn't supported reliably across browsers, so we
+ * intercept paste manually and use `insertText` to honor undo.
+ */
+const handlePaste = (event: ClipboardEvent): void => {
+  event.preventDefault()
+  const text = event.clipboardData?.getData('text/plain') ?? ''
+  if (!text) {
+    return
+  }
+  document.execCommand('insertText', false, text.replace(/\r?\n/g, ' '))
 }
 
 // ───────────────────────────────────────────────────────────────────
@@ -533,83 +681,85 @@ const handleKeyDown = (event: KeyboardEvent): void => {
   }
 
   if (event.key === 'Enter') {
-    // `disableEnter` suppresses the browser's default (e.g. form submission)
-    // but never blocks our @submit emission — consumers like the AddressBar
-    // rely on Enter to commit the value while also preventing newline insertion.
+    // Always block the browser's default Enter — a contenteditable div would
+    // otherwise insert <br> / <div>, breaking single-line semantics. Submit
+    // emission is independent and used by AddressBar / table editors.
+    event.preventDefault()
     if (disableEnter) {
-      event.preventDefault()
+      // No-op besides preventDefault; matches the previous contract.
     }
-    emit('submit', inputRef.value?.value ?? '', event)
+    emit('submit', serializeEditor(), event)
     return
   }
 
-  // Backspace deletes a `}}` pair as a unit so it mirrors the matching `{{`.
-  // Skip when the input is readonly so we never bypass the native attribute.
-  if (event.key === 'Backspace' && !readOnly && inputRef.value) {
-    const input = inputRef.value
-    const start = input.selectionStart ?? 0
-    const end = input.selectionEnd ?? 0
-    if (
-      start === end &&
-      start >= 2 &&
-      input.value.slice(start - 2, start) === '}}'
-    ) {
-      event.preventDefault()
-      const next = `${input.value.slice(0, start - 2)}${input.value.slice(start)}`
-      input.value = next
-      input.setSelectionRange(start - 2, start - 2)
-      emitChange(next)
-    }
-  }
+  // Backspace / Delete: pill atomicity is handled by the browser thanks to
+  // `contenteditable="false"` on pills — no manual `}}`-pair handling needed.
 }
 
-// The input is uncontrolled: we never bind `:value` to modelValue, because
-// that would re-apply modelValue on every component re-render and overwrite
-// internal mutations (backspace deletion, dropdown insertion, etc.). Instead
-// we set the initial value on mount and reflect later prop changes via watch.
+// ───────────────────────────────────────────────────────────────────
+// Click forwarding & lifecycle
+// ───────────────────────────────────────────────────────────────────
+
+/**
+ * Clicking a pill: anchor the caret right after it so typing continues
+ * naturally. Real browsers usually do this for us when clicking a
+ * `contenteditable=false` node, but doing it explicitly guarantees a
+ * consistent caret position across browsers and matches the prior behaviour
+ * (tests assert that clicking `{{baseUrl}}/users` places the caret at
+ * offset 11).
+ */
+const handleEditorClick = (event: MouseEvent): void => {
+  const target = (event.target as HTMLElement | null)?.closest<HTMLElement>(
+    '.scalar-pill',
+  )
+  if (!target) {
+    return
+  }
+  const editor = editorRef.value
+  if (!editor) {
+    return
+  }
+  editor.focus()
+  const range = document.createRange()
+  range.setStartAfter(target)
+  range.collapse(true)
+  const selection = window.getSelection()
+  selection?.removeAllRanges()
+  selection?.addRange(range)
+  updateDropdownVisibility()
+}
+
 onMounted(() => {
   const initial = serializeValue(modelValue)
-  if (inputRef.value && inputRef.value.value !== initial) {
-    inputRef.value.value = initial
-    renderOverlay(initial)
-  }
+  lastPillSignature = pillSignature(initial)
+  lastEnvKey = `${environment?.color ?? ''}|${withVariables ? '1' : '0'}`
+  renderModel(initial)
+  isEmpty.value = initial.length === 0
 })
 
 watch(
   () => modelValue,
   (next) => {
     const serialized = serializeValue(next)
-    if (inputRef.value && inputRef.value.value !== serialized) {
-      inputRef.value.value = serialized
-      syncScroll()
+    if (serializeEditor() === serialized) {
+      return
     }
+    lastPillSignature = pillSignature(serialized)
+    renderModel(serialized)
+    isEmpty.value = serialized.length === 0
   },
 )
 
-const handleSelect = (): void => {
-  syncScroll()
-  updateDropdownVisibility()
-}
-
-/**
- * Forward pill clicks to the input. Pills are interactive (so hover/focus
- * tooltips work), so clicks land on them instead of the input. Move focus
- * back to the input and place the caret right after the pill so typing picks
- * up where the user pointed.
- */
-const handleOverlayClick = (event: MouseEvent): void => {
-  const target = (event.target as HTMLElement | null)?.closest<HTMLElement>(
-    '.scalar-pill',
-  )
-  if (!target || !inputRef.value) {
+watch([() => environment, () => withVariables], () => {
+  // Env swaps change pill colors and "undefined" opacity — force a rebuild.
+  const envKey = `${environment?.color ?? ''}|${withVariables ? '1' : '0'}`
+  if (envKey === lastEnvKey) {
     return
   }
-  const end = Number.parseInt(target.dataset.pillEnd ?? '', 10)
-  inputRef.value.focus()
-  if (Number.isFinite(end)) {
-    inputRef.value.setSelectionRange(end, end)
-  }
-}
+  lastEnvKey = envKey
+  lastPillSignature = pillSignature(serializeEditor())
+  renderModel(serializeEditor())
+})
 
 onBeforeUnmount(() => {
   teardownPillTooltips()
@@ -620,36 +770,39 @@ onBeforeUnmount(() => {
 // ───────────────────────────────────────────────────────────────────
 
 defineExpose({
-  /** Focus the input. `position` controls caret placement. */
+  /** Focus the editor. `position` controls caret placement. */
   focus: (position?: 'start' | 'end' | number): void => {
-    if (!inputRef.value) {
+    const editor = editorRef.value
+    if (!editor) {
       return
     }
-    inputRef.value.focus()
+    editor.focus()
     if (!isDefined(position)) {
       return
     }
-    const length = inputRef.value.value.length
+    const length = serializeEditor().length
     const pos =
       position === 'start' ? 0 : position === 'end' ? length : position
-    inputRef.value.setSelectionRange(pos, pos)
+    setModelCaret(pos)
   },
-  /** Replace the current value programmatically and re-render the overlay. */
+  /** Replace the current value programmatically and re-render the pills. */
   setContent: (next = ''): void => {
-    if (!inputRef.value || inputRef.value.value === next) {
+    if (serializeEditor() === next) {
       return
     }
-    inputRef.value.value = next
-    renderOverlay(next)
-    syncScroll()
+    lastPillSignature = pillSignature(next)
+    renderModel(next)
+    isEmpty.value = next.length === 0
   },
-  /** Read the current input value. */
-  getValue: (): string => inputRef.value?.value ?? '',
-  /** Caret offset in the input value. */
-  cursorPosition: (): number | undefined =>
-    inputRef.value?.selectionStart ?? undefined,
+  /** Read the current value as a `{{name}}`-bearing string. */
+  getValue: (): string => serializeEditor(),
+  /** Caret offset in the model string. */
+  cursorPosition: (): number | undefined => {
+    const c = getModelCaret()
+    return c === null ? undefined : c
+  },
   isFocused,
-  inputRef,
+  editorRef,
 })
 </script>
 
@@ -700,32 +853,18 @@ defineExpose({
     class="code-input-lite group/code-input-lite font-code peer relative w-full text-xs leading-[1.44] -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline"
     :class="{
       'code-input-lite--error': error,
+      'code-input-lite--empty': isEmpty,
       'line-through': linethrough,
     }">
+    <!--
+      Single editable surface. Plain text lives in text nodes; each
+      `{{name}}` is rendered as a `<span contenteditable="false">` pill so
+      the browser treats it as an atom (arrow keys hop over it, Backspace
+      removes the whole thing, caret cannot enter). DOM ↔ model conversion
+      happens in `renderModel` and `serializeEditor`.
+    -->
     <div
-      ref="overlayRef"
-      aria-hidden="true"
-      class="code-input-lite__overlay"
-      @click="handleOverlayClick"
-      @pointerover="ensureTooltipsActive">
-      <!--
-        Inner span is the single flex item that holds the rendered text +
-        pills. Wrapping the content avoids text nodes becoming anonymous
-        flex items, which would otherwise break ligatures and kerning
-        between adjacent text and pill spans.
-      -->
-      <span
-        ref="overlayContentRef"
-        class="code-input-lite__overlay-content" />
-    </div>
-
-    <span
-      ref="measureRef"
-      aria-hidden="true"
-      class="code-input-lite__measure" />
-
-    <input
-      ref="inputRef"
+      ref="editorRef"
       :aria-activedescendant="
         displayVariablesDropdown ? `${componentId}-listbox` : undefined
       "
@@ -736,22 +875,20 @@ defineExpose({
       :aria-expanded="displayVariablesDropdown ? 'true' : undefined"
       :aria-invalid="error ? 'true' : undefined"
       :aria-label="attrs['aria-label']"
+      :aria-readonly="readOnly ? 'true' : undefined"
       :aria-required="required ? 'true' : undefined"
-      autocapitalize="off"
-      autocomplete="off"
-      autocorrect="off"
-      class="code-input-lite__input"
-      :placeholder="placeholder"
-      :readonly="readOnly || undefined"
-      :role="withVariables ? 'combobox' : undefined"
+      class="code-input-lite__editor"
+      :contenteditable="readOnly ? 'false' : 'true'"
+      :data-placeholder="placeholder"
+      :role="withVariables ? 'combobox' : 'textbox'"
       spellcheck="false"
-      type="text"
-      @blur="handleInputBlur"
-      @focus="handleInputFocus"
+      @blur="handleBlur"
+      @click="handleEditorClick"
+      @focus="handleFocus"
       @input="handleInput"
       @keydown="handleKeyDown"
-      @scroll="syncScroll"
-      @select="handleSelect" />
+      @paste="handlePaste"
+      @pointerover="ensureTooltipsActive" />
 
     <!-- Warning slot (positioned absolutely) -->
     <div
@@ -763,7 +900,7 @@ defineExpose({
     <!-- Icon slot (positioned absolutely) -->
     <div
       v-if="$slots.icon"
-      class="centered-y absolute right-0 flex h-full items-center p-1.5 group-has-[.code-input-lite__input:focus-visible]:z-1">
+      class="centered-y absolute right-0 flex h-full items-center p-1.5 group-has-[.code-input-lite__editor:focus]:z-1">
       <slot name="icon" />
     </div>
 
@@ -789,124 +926,79 @@ defineExpose({
 .code-input-lite {
   font-family: var(--scalar-font-code);
   font-size: var(--scalar-small);
-  /* The wrapper is flex so the input can stretch to the parent's height,
-     which lets the overlay (positioned absolute, inset: 0) match it
-     character-for-character at any container size. */
+  /* Wrapper is a flex container so the editor can centre-align vertically
+     within whatever height the parent cell gives us. */
   display: flex;
-  align-items: stretch;
+  align-items: center;
 }
 
-.code-input-lite__input,
-.code-input-lite__overlay-content {
+.code-input-lite__editor {
   /*
-    `font: inherit` shorthand resets ALL font sub-properties — font-stretch,
-    font-feature-settings, font-variant-numeric, etc. — that browsers set on
-    <input> via UA stylesheets. Listing the longhand properties one by one
-    leaves those untouched and the input's text drifts visually from the
-    overlay's text.
-
-    Then we override font-size to `var(--scalar-small)` (14px) so the input
-    text matches the CodeMirror baseline (cm-content set the same explicit
-    font-size). Inheriting alone would pick up the wrapper's `text-xs` (12px).
+    `font: inherit` resets the UA font sub-properties; the explicit
+    `font-size` then matches the CodeMirror baseline (`--scalar-small`),
+    so this editor visually agrees with the heavy `CodeInput` sibling.
   */
   font: inherit;
   font-size: var(--scalar-small);
   letter-spacing: inherit;
-}
-
-.code-input-lite__input,
-.code-input-lite__overlay {
-  /* Identical box model so the overlay aligns character-for-character with
-     the input. No vertical padding here: the input vertically centres
-     single-line text natively, and the overlay does the same via flexbox
-     below. Consumers add horizontal padding via deep selectors to BOTH
-     layers when they need a cushion. */
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-  border: 0;
-}
-
-.code-input-lite__overlay {
-  position: absolute;
-  inset: 0;
-  /* Vertically centre the inner content so it lines up with the input's
-     native single-line baseline at any container height. */
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  pointer-events: none;
-  color: var(--scalar-color-1);
-}
-
-.code-input-lite__overlay-content {
-  /* Single inline flex item holding the rendered text + pills. flex: 1
-     stretches it to the full overlay width so horizontal scroll positions
-     match the input. white-space: pre keeps single-line layout. */
-  flex: 1;
-  min-width: 0;
-  white-space: pre;
-}
-
-.code-input-lite__input {
-  position: relative;
   flex: 1;
   min-width: 0;
   background: transparent;
   outline: none;
-  white-space: pre;
-  /* Hide the input's own text — visible text comes from the overlay. The
-     caret stays visible via caret-color. */
-  color: transparent;
+  color: var(--scalar-color-1);
   caret-color: var(--scalar-color-1);
-}
-
-/*
-  Use the browser's native selection rendering. The input's text is normally
-  transparent, but the browser's `::selection` default re-colors selected
-  text to its system selection foreground — so the user sees normally
-  rendered text on the system selection background within the selected
-  range. The overlay's pills are occluded inside the selection, which is
-  acceptable: it matches how every other native input handles selection.
-*/
-
-.code-input-lite__input::placeholder {
-  color: var(--scalar-color-3);
-}
-
-.code-input-lite__measure {
-  position: absolute;
-  visibility: hidden;
-  pointer-events: none;
+  /* Single-line semantics: no wrap, horizontal scroll keeps the caret
+     visible for long values. The scrollbar itself is hidden — a CodeInputLite
+     lives inside a table cell, where a chrome scrollbar would be noisy. */
   white-space: pre;
-  top: 0;
-  left: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  padding: 0 0.5em;
+  box-sizing: border-box;
+  line-height: 1.44;
 }
 
-.code-input-lite--error .code-input-lite__input {
+.code-input-lite__editor::-webkit-scrollbar {
+  display: none;
+}
+
+/* Placeholder — a CSS pseudo-element on the empty editor. `pointer-events:
+   none` so clicking through it still focuses the editor underneath. */
+.code-input-lite--empty .code-input-lite__editor::before {
+  content: attr(data-placeholder);
+  color: var(--scalar-color-3);
+  pointer-events: none;
+}
+
+.code-input-lite--error .code-input-lite__editor {
   outline: 1px solid var(--scalar-color-red);
 }
 </style>
 
 <style>
 /*
-  Pill styling for the overlay. Pills must occupy the same horizontal space as
-  their underlying `{{name}}` text — no horizontal padding, margins, or
-  layout-affecting borders. Use background, color, border-radius, and
-  box-shadow for any visual treatment.
+  Pill styling. Each pill is `<span contenteditable="false">name</span>` — an
+  atomic widget in the editing surface. Because the pill no longer needs to
+  match the width of any hidden underlying text, it can carry whatever
+  horizontal padding it likes; the caret naturally lands before or after the
+  pill rather than at a per-character position inside it.
 */
 .scalar-pill {
   color: var(--scalar-color-1);
   border-radius: 30px;
-  display: inline;
+  display: inline-block;
   font-size: inherit;
+  line-height: 1.4;
+  vertical-align: baseline;
   background: var(--scalar-background-3);
-  /* Pills are interactive so the per-pill tooltip can attach hover/focus
-     listeners. The rest of the overlay remains inert via pointer-events: none
-     on `.code-input-lite__overlay`, and our @click handler forwards focus + caret
-     position back to the input. */
-  pointer-events: auto;
+  padding: 0 0.5em;
   cursor: text;
+  /* `user-select: all` causes a single click on the pill to select it as a
+     whole — matches the "pill is one block" mental model and gives a clear
+     visual when the user is about to delete it. */
+  user-select: all;
+  -webkit-user-select: all;
 }
 
 .dark-mode .scalar-pill {
@@ -922,7 +1014,8 @@ defineExpose({
 }
 
 .scalar-pill--context-fn {
-  /* box-shadow stands in for the dashed border so it does not change layout */
+  /* Inset box-shadow stands in for a border so the pill's layout box doesn't
+     change between context-fn pills and regular ones. */
   box-shadow: 0 0 0 1px
     color-mix(in srgb, var(--scalar-color-3), transparent 35%) inset;
 }
