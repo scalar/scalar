@@ -457,28 +457,27 @@ const handleNavigateSettings = () => {
 watch(
   [() => path, () => method, () => exampleKey],
   ([newPath, newMethod, newExampleKey]) => {
-    const newKey = getOperationExampleKey(newMethod, newPath, newExampleKey)
-    const cached = responseCache.get(newKey)
+    const cached = responseCache.get(
+      getOperationExampleKey(newMethod, newPath, newExampleKey),
+    )
+    // `history` is chronological (oldest first), so the last element is the
+    // most recent response for this path + method. `.at(-1)` returns
+    // `undefined` for an empty array, which folds the "no history" and
+    // "history exists" branches together.
+    const latest = history.at(-1)
+
     if (cached) {
       response.value = cached.response
       requestPayload.value = cached.requestPayload
-    } else if (history.length > 0) {
-      // `history` is chronological (oldest first); the last element is the
-      // most recent response for this path + method.
-      const latest = history[history.length - 1]
-      if (latest) {
-        response.value = harToFetchResponse({
-          harResponse: latest.response,
-          url: latest.request.url,
-          method: newMethod,
-          path: newPath,
-          duration: latest.time,
-        })
-        requestPayload.value = null
-      } else {
-        response.value = null
-        requestPayload.value = null
-      }
+    } else if (latest) {
+      response.value = harToFetchResponse({
+        harResponse: latest.response,
+        url: latest.request.url,
+        method: newMethod,
+        path: newPath,
+        duration: latest.time,
+      })
+      requestPayload.value = null
     } else {
       response.value = null
       requestPayload.value = null
