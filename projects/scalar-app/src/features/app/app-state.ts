@@ -73,7 +73,7 @@ type WorkspaceOption = ScalarListboxOption & {
  * round-trip through the `id` channel without colliding with a real UUID.
  */
 const PLACEHOLDER_WORKSPACE_PREFIX = 'pending:'
-export const getPlaceholderWorkspaceId = (teamSlug: string, slug: string): string =>
+const getPlaceholderWorkspaceId = (teamSlug: string, slug: string): string =>
   `${PLACEHOLDER_WORKSPACE_PREFIX}${teamSlug}/${slug}`
 const parsePlaceholderWorkspaceId = (id: string): { teamSlug: string; slug: string } | undefined => {
   if (!id.startsWith(PLACEHOLDER_WORKSPACE_PREFIX)) {
