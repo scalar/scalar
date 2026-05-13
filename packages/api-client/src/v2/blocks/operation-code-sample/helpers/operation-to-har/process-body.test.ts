@@ -1755,6 +1755,47 @@ describe('processBody', () => {
         ],
       })
     })
+
+    // Per OAS 3.1.x Encoding Object, `contentType` SHALL be ignored when the request body
+    // media type is not a multipart. An object value with a `contentType`-only encoding
+    // entry should still fall through to the dotted-key flattening default, not be
+    // JSON-stringified into a single part.
+    it('ignores encoding.contentType on urlencoded bodies and keeps dotted-key flattening', () => {
+      const content = {
+        'application/x-www-form-urlencoded': {
+          encoding: {
+            user: {
+              contentType: 'application/json;charset=utf-8',
+            },
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              user: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'Scalar' },
+                  role: { type: 'string', example: 'maintainer' },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'application/x-www-form-urlencoded',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          { name: 'user.name', value: 'Scalar' },
+          { name: 'user.role', value: 'maintainer' },
+        ],
+      })
+    })
   })
 
   describe('binary files', () => {

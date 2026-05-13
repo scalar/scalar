@@ -85,7 +85,11 @@ const objectToFormParams = (
       (partEncoding.style !== undefined ||
         partEncoding.explode !== undefined ||
         partEncoding.allowReserved !== undefined)
-    const explicitContentType = hasFormStyle ? undefined : partEncoding?.contentType
+    // Per OAS 3.1.x Encoding Object: `contentType` SHALL be ignored if the request body
+    // media type is not a multipart. For `application/x-www-form-urlencoded` we still
+    // honor `style`/`explode`/`allowReserved` (handled above), but a `contentType`-only
+    // entry has no effect — values fall through to the dotted-key flattening default.
+    const explicitContentType = hasFormStyle || !isMultipart ? undefined : partEncoding?.contentType
 
     // Per OpenAPI 3.1.x Encoding Object: when style/explode/allowReserved is set on a
     // `multipart/form-data` or `application/x-www-form-urlencoded` part, the value is
