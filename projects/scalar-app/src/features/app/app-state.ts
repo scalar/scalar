@@ -14,7 +14,7 @@ import {
 } from '@scalar/workspace-store/events'
 import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-unique-value'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
-import { createWorkspaceStorePersistence, getWorkspaceId } from '@scalar/workspace-store/persistence'
+import { createWorkspaceStorePersistence, generateWorkspaceUid } from '@scalar/workspace-store/persistence'
 import { persistencePlugin } from '@scalar/workspace-store/plugins/client'
 import { getActiveEnvironment } from '@scalar/workspace-store/request-example'
 import type { Workspace, WorkspaceDocument } from '@scalar/workspace-store/schemas'
@@ -48,7 +48,44 @@ export type GetEntryByLocation = (location: {
     })
   | undefined
 
-type WorkspaceOption = ScalarListboxOption & { teamSlug: string; slug: string }
+/**
+ * Picker / route shape for a single workspace.
+ *
+ * `id` always equals `workspaceUid`: that is the stable identifier the
+ * runtime uses to load chunks, persist updates, and match the active
+ * workspace. `teamUid` is the source of truth for team membership.
+ *
+ * `teamSlug` and `slug` come along as URL metadata only — they drive
+ * `/@<teamSlug>/<workspaceSlug>` and can change without the workspace
+ * itself changing. Never key persistence or active-workspace lookups
+ * off the slug pair.
+ */
+type WorkspaceOption = ScalarListboxOption & {
+  workspaceUid: string
+  teamUid: string
+  teamSlug: string
+  slug: string
+}
+
+/**
+ * Synthetic placeholder workspace id used by the picker when a team has
+ * no real workspace yet. Encoded as `pending:<teamSlug>/<slug>` so it can
+ * round-trip through the `id` channel without colliding with a real UUID.
+ */
+const PLACEHOLDER_WORKSPACE_PREFIX = 'pending:'
+export const getPlaceholderWorkspaceId = (teamSlug: string, slug: string): string =>
+  `${PLACEHOLDER_WORKSPACE_PREFIX}${teamSlug}/${slug}`
+const parsePlaceholderWorkspaceId = (id: string): { teamSlug: string; slug: string } | undefined => {
+  if (!id.startsWith(PLACEHOLDER_WORKSPACE_PREFIX)) {
+    return undefined
+  }
+  const rest = id.slice(PLACEHOLDER_WORKSPACE_PREFIX.length)
+  const slashIndex = rest.indexOf('/')
+  if (slashIndex === -1) {
+    return undefined
+  }
+  return { teamSlug: rest.slice(0, slashIndex), slug: rest.slice(slashIndex + 1) }
+}
 
 /** Defines the overall application state structure and its main feature modules */
 export type AppState = {
@@ -80,30 +117,53 @@ export type AppState = {
   }
   /** The workspace management */
   workspace: {
-    /** Creates a new workspace and navigates to it */
+    /**
+     * Creates a new workspace and navigates to it. `teamSlug` / `slug`
+     * are URL metadata for the new record; `teamUid` is the canonical
+     * team identifier and defaults to `'local'`.
+     */
     create: (payload: {
+      teamUid?: string
       teamSlug?: string
       slug?: string
       name: string
-    }) => Promise<{ name: string; slug: string; teamSlug: string } | undefined>
+    }) => Promise<{ workspaceUid: string; teamUid: string; teamSlug: string; slug: string; name: string } | undefined>
     /** All workspace list */
     workspaceList: Ref<WorkspaceOption[]>
-    /** The currently active workspace */
-    activeWorkspace: ShallowRef<{ id: string; label: string } | null>
-    /** Navigates to the specified workspace */
+    /**
+     * Currently active workspace. `id` is the workspaceUid; `teamUid`
+     * carries the canonical team identifier and `teamSlug` / `slug` are
+     * the URL metadata for the active record.
+     */
+    activeWorkspace: ShallowRef<{
+      id: string
+      label: string
+      workspaceUid: string
+      teamUid: string
+      teamSlug: string
+      slug: string
+    } | null>
+    /** Navigates to the specified workspace using its URL slug pair. */
     navigateToWorkspace: (teamSlug?: string, slug?: string) => Promise<void>
     /**
-     * Routes to the get-started page of a workspace identified by id.
-     * Mirrors the picker affordances in the breadcrumb and header menu
-     * so both surfaces stay in sync when the user switches workspaces.
+     * Routes to the get-started page of a workspace identified by its
+     * stable `workspaceUid`. The picker, breadcrumb, and header menu all
+     * funnel through here so they stay in sync.
+     *
+     * Synthetic placeholder ids (see `getPlaceholderWorkspaceId`) are
+     * accepted as well so the picker can offer a not-yet-persisted team
+     * workspace and let the route handler create it on demand.
      */
     navigateToWorkspaceGetStarted: (workspaceId: string, activeTeamSlug: string) => void
     /**
      * Navigates to the team's workspace, restoring the last active tab
      * when one exists in persistence. Falls back to the get-started page
      * when the workspace has no prior session.
+     *
+     * `workspaceUid` is the canonical pointer; `teamSlug` is only used
+     * when no UID is provided (picks the first workspace for the team).
      */
-    resumeOrGetStarted: (teamSlug: string, workspaceId?: string) => Promise<void>
+    resumeOrGetStarted: (teamSlug: string, workspaceUid?: string) => Promise<void>
     /** Whether the workspace page is open */
     isOpen: ComputedRef<boolean>
     /**
@@ -117,10 +177,19 @@ export type AppState = {
   eventBus: WorkspaceEventBus
   /** The router instance */
   router: Router
-  /** Fired on every route change */
+  /**
+   * Fired on every route change. `teamSlug` is the current user's team
+   * slug (used for `canLoadWorkspace`) and `teamUid` is the canonical
+   * team identifier used to resolve workspaces when the URL's slug has
+   * gone stale.
+   */
   handleRouteChange: (
     to: RouteLocationNormalizedGeneric,
-    metadata: { teamSlug: ComputedRef<string>; filteredWorkspaces: ComputedRef<WorkspaceOption[]> },
+    metadata: {
+      teamSlug: ComputedRef<string>
+      teamUid: ComputedRef<string>
+      filteredWorkspaces: ComputedRef<WorkspaceOption[]>
+    },
   ) => void
   /** The current route derived from the router */
   currentRoute: Ref<RouteLocationNormalizedGeneric | null>
@@ -217,24 +286,27 @@ export const createAppState = async ({
 
   // ---------------------------------------------------------------------------
   // Workspace persistence state management
-  const activeWorkspace = shallowRef<{ id: string; label: string } | null>(null)
+  /**
+   * Active workspace pointer. `id` mirrors `workspaceUid` so consumers
+   * built around `{ id, label }` keep working, while UID/teamUid/slugs
+   * are surfaced explicitly for code that needs the canonical identity.
+   */
+  const activeWorkspace = shallowRef<{
+    id: string
+    label: string
+    workspaceUid: string
+    teamUid: string
+    teamSlug: string
+    slug: string
+  } | null>(null)
   const workspaces = ref<WorkspaceOption[]>([])
 
   /**
-   * `true` when the active workspace is backed by a team (i.e. not the
-   * built-in `'local'` team). We look the workspace up in the full
-   * `workspaces` list because `activeWorkspace` only stores `{ id, label }`,
-   * whereas `WorkspaceOption` carries the `teamUid` we need. Consumers can
-   * read this via `app.workspace.isTeamWorkspace` to gate team-only UI.
+   * `true` when the active workspace is backed by a team (i.e. its
+   * `teamUid` is not the built-in `'local'` sentinel). Reads directly
+   * off `activeWorkspace.teamUid` so it survives slug renames.
    */
-  const isTeamWorkspace = computed(() => {
-    const id = activeWorkspace.value?.id
-    if (!id) {
-      return false
-    }
-    const workspace = workspaces.value.find((w) => w.id === id)
-    return Boolean(workspace && workspace.teamSlug !== 'local')
-  })
+  const isTeamWorkspace = computed(() => Boolean(activeWorkspace.value && activeWorkspace.value.teamUid !== 'local'))
   const store = shallowRef<WorkspaceStore | null>(null)
 
   // Load persisted telemetry preference, falling back to the provided default
@@ -257,8 +329,10 @@ export const createAppState = async ({
 
   /** Update the workspace list when the component is mounted */
   workspaces.value = await persistence.getAll().then((w) =>
-    w.map(({ teamSlug, slug, name }) => ({
-      id: getWorkspaceId(teamSlug, slug),
+    w.map(({ workspaceUid, teamUid, teamSlug, slug, name }) => ({
+      id: workspaceUid,
+      workspaceUid,
+      teamUid,
       teamSlug,
       slug,
       label: name,
@@ -267,42 +341,35 @@ export const createAppState = async ({
 
   /**
    * Renames the currently active workspace.
-   * Updates the workspace name in persistence and updates activeWorkspace if successful.
-   * Returns early if team slug or workspaceSlug is not set, or if update fails.
+   * Updates the workspace name in persistence and refreshes the cached
+   * workspace list / active workspace pointer when the write succeeds.
    */
   const renameWorkspace = async (name: string) => {
-    const teamSlugValue = routeTeamSlug.value
-    const slugValue = workspaceSlug.value
-    if (!teamSlugValue || !slugValue) {
+    const active = activeWorkspace.value
+    if (!active) {
       return
     }
-    const workspaceId = getWorkspaceId(teamSlugValue, slugValue)
-    const updateResult = await persistence.updateName({ teamSlug: teamSlugValue, slug: slugValue }, name)
-
-    // If `the update fails, return early
-    if (updateResult === undefined) {
+    const updated = await persistence.updateName(active.workspaceUid, name)
+    if (!updated) {
       return
     }
 
-    // Update the workspace list
-    workspaces.value = workspaces.value.map((workspace) => {
-      // If the workspace is the currently active workspace, update the label
-      if (workspace.id === workspaceId) {
-        return { ...workspace, label: name }
-      }
-      return workspace
-    })
-    activeWorkspace.value = { id: workspaceId, label: name }
+    workspaces.value = workspaces.value.map((workspace) =>
+      workspace.workspaceUid === active.workspaceUid ? { ...workspace, label: name } : workspace,
+    )
+    activeWorkspace.value = { ...active, label: name }
   }
 
   /**
-   * Creates a client-side workspace store with persistence enabled for the given workspace id.
+   * Creates a client-side workspace store with persistence enabled for
+   * the given `workspaceUid`. The chunk tables are keyed by UID, so the
+   * workspace survives any future slug rename without re-keying.
    */
-  const createClientStore = async ({ teamSlug, slug }: { teamSlug: string; slug: string }): Promise<WorkspaceStore> => {
+  const createClientStore = async (workspaceUid: string): Promise<WorkspaceStore> => {
     return createWorkspaceStore({
       plugins: [
         await persistencePlugin({
-          workspaceId: getWorkspaceId(teamSlug, slug),
+          workspaceId: workspaceUid,
           debounceDelay: DEFAULT_DEBOUNCE_DELAY,
         }),
       ],
@@ -312,51 +379,70 @@ export const createAppState = async ({
   }
 
   /**
-   * Attempts to load and activate a workspace by id.
-   * Returns true when the workspace was found and activated.
+   * Activates a previously-loaded workspace record. Centralised so every
+   * load path produces an identical `activeWorkspace` shape.
    */
-  const loadWorkspace = async (
+  const setActiveWorkspaceFromRecord = (record: {
+    workspaceUid: string
+    teamUid: string
+    teamSlug: string
+    slug: string
+    name: string
+  }) => {
+    activeWorkspace.value = {
+      id: record.workspaceUid,
+      workspaceUid: record.workspaceUid,
+      teamUid: record.teamUid,
+      teamSlug: record.teamSlug,
+      slug: record.slug,
+      label: record.name,
+    }
+  }
+
+  /**
+   * Attempts to load a workspace by its URL slug pair. The slug pair is
+   * mutable metadata, so this is only used when the runtime starts with
+   * a URL in hand; everything else should route through the UID-keyed
+   * helpers.
+   */
+  const loadWorkspaceBySlug = async (
     teamSlug: string,
     slug: string,
-  ): Promise<{ success: true; workspace: Workspace } | { success: false }> => {
-    const workspace = await persistence.getItem({ teamSlug, slug })
-
+  ): Promise<{ success: true; workspace: Workspace; workspaceUid: string } | { success: false }> => {
+    const workspace = await persistence.getItemBySlug({ teamSlug, slug })
     if (!workspace) {
-      return {
-        success: false,
-      }
+      return { success: false }
     }
 
-    const client = await createClientStore({ teamSlug, slug })
+    const client = await createClientStore(workspace.workspaceUid)
     client.loadWorkspace(workspace.workspace)
-    activeWorkspace.value = { id: getWorkspaceId(workspace.teamSlug, workspace.slug), label: workspace.name }
+    setActiveWorkspaceFromRecord(workspace)
     store.value = client
 
-    return {
-      success: true,
-      workspace: client.workspace,
-    }
+    return { success: true, workspace: client.workspace, workspaceUid: workspace.workspaceUid }
   }
 
   /**
    * Creates and persists a new workspace.
    *
-   * Local workspaces are seeded with a blank "drafts" document so the user
-   * lands on a usable starting point. Team workspaces start empty - their
-   * documents come from the registry, so seeding a local-only draft would
-   * just create dead state that is never synced.
+   * Local workspaces are seeded with a blank "drafts" document so the
+   * user lands on a usable starting point. Team workspaces start empty —
+   * their documents come from the registry, so seeding a local-only
+   * draft would just create dead state that is never synced.
    */
   const createAndPersistWorkspace = async ({
     name,
+    teamUid,
     teamSlug,
     slug,
   }: {
     name: string
-    teamSlug?: string
+    teamUid: string
+    teamSlug: string
     slug: string
   }) => {
     const draftStore = createWorkspaceStore()
-    const isTeam = Boolean(teamSlug && teamSlug !== 'local')
+    const isTeam = teamUid !== 'local'
 
     if (!isTeam) {
       await draftStore.addDocument({
@@ -380,22 +466,21 @@ export const createAppState = async ({
       })
     }
 
-    // Persist the workspace
+    const workspaceUid = generateWorkspaceUid()
     const workspace = await persistence.setItem(
-      { teamSlug, slug },
-      {
-        name: name,
-        workspace: draftStore.exportWorkspace(),
-      },
+      { workspaceUid, teamUid, teamSlug, slug },
+      { name, workspace: draftStore.exportWorkspace() },
     )
 
-    // Update the workspace list
     workspaces.value.push({
-      id: getWorkspaceId(workspace.teamSlug, workspace.slug),
+      id: workspace.workspaceUid,
+      workspaceUid: workspace.workspaceUid,
+      teamUid: workspace.teamUid,
       teamSlug: workspace.teamSlug,
       slug: workspace.slug,
       label: workspace.name,
     })
+
     return workspace
   }
 
@@ -441,7 +526,8 @@ export const createAppState = async ({
   }
 
   /**
-   * Routes to the get-started page of a workspace identified by id.
+   * Routes to the get-started page of a workspace identified by its
+   * stable `workspaceUid`.
    *
    * Get-started is the right landing surface on a workspace switch
    * because the user has effectively arrived at a fresh workspace and
@@ -449,11 +535,10 @@ export const createAppState = async ({
    * against the unfiltered `workspaces` list so callers can switch into
    * a workspace that is not visible under the current team filter.
    *
-   * When team workspaces are enabled and the active team has no real
-   * workspace yet, the picker may surface a synthetic placeholder option
-   * (id: `getWorkspaceId(teamSlug, DEFAULT_TEAM_WORKSPACE_SLUG)`). We
-   * route that through the normal navigation flow so the route handler
-   * can create the workspace on demand.
+   * The picker may also surface a synthetic placeholder option (see
+   * `getPlaceholderWorkspaceId`) for teams that have no real workspace
+   * yet. We accept that shape too and route it through the normal flow
+   * so the route handler can create the workspace on demand.
    */
   const navigateToWorkspaceGetStarted = (workspaceId: string, activeTeamSlug: string): void => {
     const emitNavigation = (target: string, slug: string) => {
@@ -465,44 +550,43 @@ export const createAppState = async ({
       })
     }
 
-    const workspace = workspaces.value?.find((w) => w.id === workspaceId)
+    const workspace = workspaces.value?.find((w) => w.workspaceUid === workspaceId)
     if (workspace) {
       emitNavigation(workspace.teamSlug, workspace.slug)
       return
     }
 
-    if (
-      activeTeamSlug &&
-      activeTeamSlug !== 'local' &&
-      workspaceId === getWorkspaceId(activeTeamSlug, DEFAULT_TEAM_WORKSPACE_SLUG)
-    ) {
-      emitNavigation(activeTeamSlug, DEFAULT_TEAM_WORKSPACE_SLUG)
+    const placeholder = parsePlaceholderWorkspaceId(workspaceId)
+    if (placeholder && activeTeamSlug && activeTeamSlug !== 'local' && placeholder.teamSlug === activeTeamSlug) {
+      emitNavigation(placeholder.teamSlug, placeholder.slug)
     }
   }
 
   /**
-   * Navigates to the team's workspace, restoring the last active tab when
-   * one exists in persistence. Falls back to the get-started page when
-   * the workspace has no prior session.
+   * Navigates to the team's workspace, restoring the last active tab
+   * when one exists in persistence. Falls back to the get-started page
+   * when the workspace has no prior session.
    *
-   * Use this instead of `navigateToWorkspaceGetStarted` when the intent
-   * is "take me back to where I was" rather than "show me onboarding".
+   * Pass `workspaceUid` when the caller knows the canonical identifier
+   * (e.g. picker selection). Otherwise we pick the first workspace
+   * matching `teamSlug` — slug-only is the right fallback for callers
+   * that are dispatched by `useTeams` and only have a slug in hand.
    */
-  const resumeOrGetStarted = async (teamSlug: string, workspaceIdParam?: string): Promise<void> => {
-    // When an explicit workspaceId is provided, look it up directly; otherwise
-    // fall back to picking the first workspace belonging to the team. Either
-    // way we only loop over the workspaces list once.
+  const resumeOrGetStarted = async (teamSlug: string, workspaceUidParam?: string): Promise<void> => {
     const workspace = (() => {
-      if (workspaceIdParam) {
-        return workspaces.value?.find((w) => w.id === workspaceIdParam)
+      if (workspaceUidParam) {
+        return workspaces.value?.find((w) => w.workspaceUid === workspaceUidParam)
       }
       return workspaces.value?.find((w) => w.teamSlug === teamSlug)
     })()
+
     const resolvedTeamSlug = workspace?.teamSlug ?? teamSlug
     const slug = workspace?.slug ?? DEFAULT_TEAM_WORKSPACE_SLUG
-    const workspaceId = workspaceIdParam ?? workspace?.id ?? getWorkspaceId(resolvedTeamSlug, slug)
+    const workspaceUid = workspace?.workspaceUid
 
-    const persisted = await persistence.getItem({ teamSlug: resolvedTeamSlug, slug })
+    // Read tabs straight from persistence (when we have a real UID) so
+    // we restore exactly the session the user last had open.
+    const persisted = workspaceUid ? await persistence.getItem(workspaceUid) : undefined
     const tabs = persisted?.workspace.meta?.['x-scalar-tabs']
     const index = persisted?.workspace.meta?.['x-scalar-active-tab'] ?? 0
     const tab = tabs?.[index]
@@ -512,96 +596,121 @@ export const createAppState = async ({
       return
     }
 
-    navigateToWorkspaceGetStarted(workspaceId, resolvedTeamSlug)
+    if (workspace) {
+      navigateToWorkspaceGetStarted(workspace.workspaceUid, resolvedTeamSlug)
+      return
+    }
+
+    // No real workspace yet — bounce through the placeholder so the
+    // route handler can create one on demand.
+    navigateToWorkspaceGetStarted(getPlaceholderWorkspaceId(resolvedTeamSlug, slug), resolvedTeamSlug)
   }
 
   /**
    * Creates a new workspace with the provided name.
-   * - Generates a unique slug for the workspace (uses the provided slug if it is unique, otherwise generates a unique slug).
-   * - Adds a default blank document ("drafts") to the workspace.
-   * - Persists the workspace and navigates to it.
    *
-   * Example usage:
-   *   await createWorkspace({ name: 'My Awesome API' })
-   *   // -> Navigates to /workspace/my-awesome-api (if available)
+   * - Picks a unique slug (uses the provided one if free, otherwise
+   *   suffixes via `generateUniqueValue`).
+   * - Records `teamUid` as the canonical team identifier; the slug only
+   *   shapes the URL and can change later via `updateSlugs`.
+   * - Adds a default blank document ("drafts") for local workspaces.
+   * - Persists the workspace and navigates to it.
    */
-  const createWorkspace = async ({ teamSlug, slug, name }: { teamSlug?: string; slug?: string; name: string }) => {
-    // Restrict users to a single workspace per team. Local workspaces remain
-    // unrestricted. This guard is temporary while multi-workspace support for
-    // teams is being designed. When a team workspace already exists, navigate
-    // to it instead of creating a duplicate.
-    if (teamSlug && teamSlug !== 'local') {
-      const existing = workspaces.value.find((w) => w.teamSlug === teamSlug)
+  const createWorkspace = async ({
+    teamUid,
+    teamSlug,
+    slug,
+    name,
+  }: {
+    teamUid?: string
+    teamSlug?: string
+    slug?: string
+    name: string
+  }) => {
+    const resolvedTeamUid = teamUid ?? 'local'
+    const resolvedTeamSlug = teamSlug ?? 'local'
+
+    // Restrict users to a single workspace per team. Local workspaces
+    // remain unrestricted. When a team workspace already exists for the
+    // given `teamUid`, navigate to it instead of creating a duplicate.
+    if (resolvedTeamUid !== 'local') {
+      const existing = workspaces.value.find((w) => w.teamUid === resolvedTeamUid)
       if (existing) {
-        console.warn(`A workspace already exists for team "${teamSlug}". Navigating to the existing workspace instead.`)
+        console.warn(
+          `A workspace already exists for team "${resolvedTeamUid}". Navigating to the existing workspace instead.`,
+        )
         await navigateToWorkspace(existing.teamSlug, existing.slug)
-        return { teamSlug: existing.teamSlug, slug: existing.slug, name: existing.label }
+        return {
+          workspaceUid: existing.workspaceUid,
+          teamUid: existing.teamUid,
+          teamSlug: existing.teamSlug,
+          slug: existing.slug,
+          name: existing.label,
+        }
       }
     }
 
     // Clear up the current store, in order to show the loading state
     store.value = null
 
-    // Generate a unique slug/id for the workspace, based on the name.
+    // Slug uniqueness is enforced by the `[teamSlug, slug]` unique
+    // index. We pre-check via `hasSlug` so collisions are visible to
+    // the user before we hit the database.
     const newWorkspaceSlug = await generateUniqueValue({
-      defaultValue: slug ?? name, // Use the provided id if it exists, otherwise use the name
-      validation: async (value) => !(await persistence.has({ teamSlug: teamSlug ?? 'local', slug: value })),
+      defaultValue: slug ?? name,
+      validation: async (value) => !(await persistence.hasSlug({ teamSlug: resolvedTeamSlug, slug: value })),
       maxRetries: 100,
       transformation: slugify,
     })
 
-    // Failed to generate a unique workspace id, so we can't create the workspace.
     if (!newWorkspaceSlug) {
       return undefined
     }
 
-    const newWorkspaceDetails = {
-      teamSlug,
-      slug: newWorkspaceSlug,
+    const createdWorkspace = await createAndPersistWorkspace({
       name,
-    }
+      teamUid: resolvedTeamUid,
+      teamSlug: resolvedTeamSlug,
+      slug: newWorkspaceSlug,
+    })
 
-    // Create a new client store with the workspace ID and add a default document.
-    const createdWorkspace = await createAndPersistWorkspace(newWorkspaceDetails)
-
-    // Navigate to the newly created workspace.
     await navigateToWorkspace(createdWorkspace.teamSlug, createdWorkspace.slug)
     return createdWorkspace
   }
 
   /**
-   * Handles changing the active workspace when the workspace slug changes in the route.
-   * This function:
-   *  - Clears the current workspace store and sets loading state.
-   *  - Attempts to load the workspace by slug.
-   *    - If found, navigates to the active tab path (if available).
-   *    - If not found, creates the default workspace and navigates to it.
+   * Handles changing the active workspace when the workspace slug
+   * changes in the route.
+   *
+   * - Tries to resolve the URL's `[teamSlug, slug]` pair via persistence.
+   * - When the lookup fails but the URL's team matches the current
+   *   user's `teamUid`, falls back to the first workspace owned by that
+   *   `teamUid`. This is the slug-rename recovery path: server rotated
+   *   the slug, the URL is stale, but the workspace still exists locally
+   *   under the same UID.
+   * - When neither succeeds, falls back to the local default workspace
+   *   (creating it on demand if needed).
    */
   const changeWorkspace = async (
     teamSlug: string,
     slug: string,
+    teamUid: string,
     filteredWorkspaces: ComputedRef<WorkspaceOption[]>,
     to: RouteLocationNormalizedGeneric,
   ) => {
-    // Clear the current store and set loading to true before loading new workspace.
     store.value = null
     isSyncingWorkspace.value = true
 
-    // Try to load the workspace
-    const result = await loadWorkspace(teamSlug, slug)
+    const result = await loadWorkspaceBySlug(teamSlug, slug)
 
     if (result.success) {
       const tabs = result.workspace['x-scalar-tabs']
       const index = result.workspace['x-scalar-active-tab'] ?? 0
 
-      // Heal the active tab index if it is out of bounds
       if (tabs && index >= tabs.length) {
-        eventBus.emit('tabs:update:tabs', {
-          'x-scalar-active-tab': 0,
-        })
+        eventBus.emit('tabs:update:tabs', { 'x-scalar-active-tab': 0 })
       }
 
-      // Initialize the tabs if they do not exist
       if (!tabs) {
         eventBus.emit('tabs:update:tabs', {
           'x-scalar-tabs': [createTabFromRoute(currentRoute.value)],
@@ -609,10 +718,6 @@ export const createAppState = async ({
         })
       }
 
-      // Sync the tab bar and sidebar to the route that triggered this
-      // workspace switch. We deliberately do NOT router.replace to a stored
-      // tab path here — the caller already navigated to `to`, so replacing
-      // would fight the in-flight navigation and cause a double route.
       syncTabs(to)
       syncSidebar(to)
 
@@ -620,16 +725,28 @@ export const createAppState = async ({
       return
     }
 
-    // Navigate to the default workspace, or fall back to the first available workspace
+    // Slug-rename recovery: if the URL's team matches the current user's
+    // team UID and we have any workspace under that UID, redirect to its
+    // *current* slug pair. The slugs in IndexedDB are the user's last
+    // known truth and stay valid even when the URL drifts.
+    if (teamSlug === teamUid || teamUid !== 'local') {
+      const teamWorkspace = workspaces.value.find((w) => w.teamUid === teamUid)
+      if (teamWorkspace && (teamWorkspace.teamSlug !== teamSlug || teamWorkspace.slug !== slug)) {
+        isSyncingWorkspace.value = false
+        return navigateToWorkspace(teamWorkspace.teamSlug, teamWorkspace.slug)
+      }
+    }
+
     const targetWorkspace =
       filteredWorkspaces.value.find((workspace) => workspace.teamSlug === 'local' && workspace.slug === 'default') ??
       filteredWorkspaces.value[0]
 
     if (targetWorkspace) {
+      isSyncingWorkspace.value = false
       return navigateToWorkspace(targetWorkspace.teamSlug, targetWorkspace.slug)
     }
 
-    // If loading failed (workspace does not exist), create the default workspace and navigate to it.
+    // Nothing to load: create the default local workspace and go there.
     const createResult = await createWorkspace({
       name: DEFAULT_LOCAL_WORKSPACE_NAME,
       slug: 'default',
@@ -977,13 +1094,26 @@ export const createAppState = async ({
   // ---------------------------------------------------------------------------
   // Path syncing
 
-  /** When the route changes we need to update the active entities in the store */
+  /**
+   * When the route changes we update the active entities in the store
+   * and switch workspaces if needed.
+   *
+   * The URL is treated as a slug-pair *hint*. We look up persistence by
+   * that pair, but the active workspace identity is the resolved
+   * `workspaceUid` / `teamUid` — never the slug. That is what lets the
+   * runtime survive server-side slug renames without losing state.
+   */
   const handleRouteChange = (
     to: RouteLocationNormalizedGeneric,
     {
       teamSlug,
+      teamUid,
       filteredWorkspaces,
-    }: { teamSlug: ComputedRef<string>; filteredWorkspaces: ComputedRef<WorkspaceOption[]> },
+    }: {
+      teamSlug: ComputedRef<string>
+      teamUid: ComputedRef<string>
+      filteredWorkspaces: ComputedRef<WorkspaceOption[]>
+    },
   ) => {
     const slug = getRouteParam('workspaceSlug', to)
     const document = getRouteParam('documentSlug', to)
@@ -1016,21 +1146,24 @@ export const createAppState = async ({
       workspaceStorage.setCurrentPath(to.path)
     }
 
-    if (getWorkspaceId(nextTeamSlug, slug) !== activeWorkspace.value?.id) {
+    const active = activeWorkspace.value
+    const isSameWorkspace = Boolean(active && workspace && active.workspaceUid === workspace.workspaceUid)
+
+    if (!isSameWorkspace) {
       // If the user is navigating into their team context but the team
-      // workspace does not exist yet (e.g. they clicked the picker placeholder
-      // or are being redirected on login), create it on demand before letting
-      // the workspace switcher take over. Otherwise `changeWorkspace` would
-      // fall back to the local default and silently swallow the navigation.
+      // workspace does not exist yet (picker placeholder, login redirect,
+      // …), create it on demand. Otherwise `changeWorkspace` would fall
+      // back to the local default and silently swallow the navigation.
       const isUnknownTeamWorkspace = nextTeamSlug !== 'local' && nextTeamSlug === teamSlug.value && !workspace
       if (isUnknownTeamWorkspace) {
         return createWorkspace({
+          teamUid: teamUid.value,
           teamSlug: nextTeamSlug,
           slug,
           name: DEFAULT_TEAM_WORKSPACE_NAME,
         })
       }
-      return changeWorkspace(nextTeamSlug, slug, filteredWorkspaces, to)
+      return changeWorkspace(nextTeamSlug, slug, teamUid.value, filteredWorkspaces, to)
     }
 
     // Update the active document if the document slug has changes

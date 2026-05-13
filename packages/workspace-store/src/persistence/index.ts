@@ -36,6 +36,25 @@ type WorkspaceStoreShape = {
 }
 
 /**
+ * Composes the legacy `${teamSlug}/${slug}` workspace id. Kept for callers
+ * that still build router-level identifiers from slug pairs (for example
+ * synthetic picker placeholders for not-yet-persisted team workspaces).
+ *
+ * The persistence layer itself no longer uses this format — chunk records
+ * are keyed by `workspaceUid`. Prefer `workspaceUid` whenever you have it.
+ */
+export const getWorkspaceId = (teamSlug: string, slug: string) => `${teamSlug}/${slug}`
+
+/**
+ * Generates a fresh `workspaceUid` for new workspaces.
+ *
+ * Wraps `crypto.randomUUID` so every caller produces UIDs in a consistent
+ * shape and we can swap the implementation later without rippling through
+ * the codebase.
+ */
+export const generateWorkspaceUid = (): string => crypto.randomUUID()
+
+/**
  * Creates the persistence layer for the workspace store using IndexedDB.
  *
  * Storage model:

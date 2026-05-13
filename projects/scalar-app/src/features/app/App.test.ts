@@ -1,5 +1,5 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
+import { createWorkspaceStorePersistence, generateWorkspaceUid } from '@scalar/workspace-store/persistence'
 import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { computed, nextTick } from 'vue'
@@ -87,8 +87,25 @@ describe('App', () => {
     })
 
     const persistence = await createWorkspaceStorePersistence()
+
+    // The fake-indexeddb instance is shared across tests in this file, so
+    // we have to make setup idempotent: if a workspace already lives at
+    // this slug pair (left over from a previous test), reuse its UID
+    // instead of generating a new one and tripping the unique
+    // `[teamSlug, slug]` index.
+    const existing = await persistence.workspace.getItemBySlug({
+      teamSlug: WORKSPACE_TEAM_SLUG,
+      slug: WORKSPACE_SLUG,
+    })
+    const workspaceUid = existing?.workspaceUid ?? generateWorkspaceUid()
+
     await persistence.workspace.setItem(
-      { teamSlug: WORKSPACE_TEAM_SLUG, slug: WORKSPACE_SLUG },
+      {
+        workspaceUid,
+        teamUid: 'local',
+        teamSlug: WORKSPACE_TEAM_SLUG,
+        slug: WORKSPACE_SLUG,
+      },
       {
         name: 'Default',
         workspace: store.exportWorkspace(),
@@ -127,6 +144,7 @@ describe('App', () => {
     // so the workspace loads from IndexedDB.
     appState.handleRouteChange(router.currentRoute.value, {
       teamSlug: computed(() => WORKSPACE_TEAM_SLUG),
+      teamUid: computed(() => 'local'),
       filteredWorkspaces: computed(() =>
         filterWorkspacesByTeam(appState.workspace.workspaceList.value, WORKSPACE_TEAM_SLUG),
       ),

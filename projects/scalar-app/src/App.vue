@@ -50,6 +50,7 @@ const { isLoggedIn } = useAuth()
 const {
   currentTeam,
   currentTeamSlug,
+  currentTeamUid,
   isLoading: isTeamsLoading,
   suspense: teamsSuspense,
 } = useTeams()
@@ -137,6 +138,7 @@ app.router.afterEach(async (to) => {
 
   app.handleRouteChange(to, {
     teamSlug: currentTeamSlug,
+    teamUid: currentTeamUid,
     filteredWorkspaces: filteredWorkspaces,
   })
 })
