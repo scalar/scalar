@@ -1,9 +1,5 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import {
-  createWorkspaceStorePersistence,
-  generateWorkspaceUid,
-  getWorkspaceId,
-} from '@scalar/workspace-store/persistence'
+import { createWorkspaceStorePersistence, generateWorkspaceUid } from '@scalar/workspace-store/persistence'
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { computed, nextTick } from 'vue'
@@ -13,6 +9,7 @@ import 'fake-indexeddb/auto'
 import { createAppState } from './app-state'
 import { filterWorkspacesByTeam } from './helpers/filter-workspaces'
 import { groupWorkspacesByTeam } from './helpers/group-workspaces'
+import { getPlaceholderWorkspaceId } from './helpers/placeholder-workspace-id'
 import { ROUTES } from './helpers/routes'
 
 /**
@@ -234,7 +231,10 @@ describe('app-state', () => {
     expect(teamGroup).toBeDefined()
     expect(teamGroup?.options).toEqual([
       {
-        id: getWorkspaceId('placeholder-team', 'default'),
+        // The picker placeholder uses the `pending:` prefix so picker
+        // consumers can tell it apart from a real `workspaceUid` and
+        // route it to the team's get-started page.
+        id: getPlaceholderWorkspaceId('placeholder-team', 'default'),
         label: 'Team workspace',
       },
     ])
@@ -379,8 +379,9 @@ describe('app-state', () => {
     expect(appState.workspace.isTeamWorkspace.value).toBe(true)
     expect(router.currentRoute.value.params.teamSlug).toBe(teamSlug)
     // `id` is now the stable workspaceUid, so we check by slug pair via
-    // the dedicated fields. `getWorkspaceId` is retained for callers that
-    // still build composite ids (e.g. picker placeholders).
+    // the dedicated `teamSlug` / `slug` fields. Picker placeholders for
+    // teams without a real workspace are built separately via
+    // `getPlaceholderWorkspaceId` and do not flow through this path.
     expect(appState.workspace.activeWorkspace.value?.teamSlug).toBe(teamSlug)
     expect(appState.workspace.activeWorkspace.value?.slug).toBe('team-default')
   })
@@ -557,5 +558,25 @@ describe('app-state', () => {
     const after = appState.workspace.workspaceList.value.map((w) => ({ ...w }))
 
     expect(after).toEqual(before)
+  })
+
+  it('routes a picker placeholder selection to the team get-started page instead of the local default', async () => {
+    // Regression: the picker surfaces a synthetic "Team workspace"
+    // option for non-local teams that do not yet own a real workspace.
+    // Its id is `pending:<teamSlug>/<slug>`. The picker forwards it as
+    // `resumeOrGetStarted({ workspaceUid })`. The UID lookup misses
+    // (real UIDs are UUIDs), so without the placeholder fast-path the
+    // call falls through to `navigateToWorkspace('local', 'default')`
+    // and silently bounces the user to the local workspace.
+    const router = setupRouter()
+    const appState = await createAppState({ router })
+
+    const placeholderId = getPlaceholderWorkspaceId('acme', 'default')
+    await appState.workspace.resumeOrGetStarted({ workspaceUid: placeholderId })
+    await waitForNavigation()
+
+    expect(router.currentRoute.value.name).toBe('workspace.get-started')
+    expect(router.currentRoute.value.params.teamSlug).toBe('acme')
+    expect(router.currentRoute.value.params.workspaceSlug).toBe('default')
   })
 })

@@ -33,6 +33,7 @@ import { workspaceStorage } from '@/helpers/storage'
 
 import { initializeAppEventHandlers } from './app-events'
 import { canLoadWorkspace } from './helpers/filter-workspaces'
+import { getPlaceholderWorkspaceId, parsePlaceholderWorkspaceId } from './helpers/placeholder-workspace-id'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -65,26 +66,6 @@ type WorkspaceOption = ScalarListboxOption & {
   teamUid: string
   teamSlug: string
   slug: string
-}
-
-/**
- * Synthetic placeholder workspace id used by the picker when a team has
- * no real workspace yet. Encoded as `pending:<teamSlug>/<slug>` so it can
- * round-trip through the `id` channel without colliding with a real UUID.
- */
-const PLACEHOLDER_WORKSPACE_PREFIX = 'pending:'
-const getPlaceholderWorkspaceId = (teamSlug: string, slug: string): string =>
-  `${PLACEHOLDER_WORKSPACE_PREFIX}${teamSlug}/${slug}`
-const parsePlaceholderWorkspaceId = (id: string): { teamSlug: string; slug: string } | undefined => {
-  if (!id.startsWith(PLACEHOLDER_WORKSPACE_PREFIX)) {
-    return undefined
-  }
-  const rest = id.slice(PLACEHOLDER_WORKSPACE_PREFIX.length)
-  const slashIndex = rest.indexOf('/')
-  if (slashIndex === -1) {
-    return undefined
-  }
-  return { teamSlug: rest.slice(0, slashIndex), slug: rest.slice(slashIndex + 1) }
 }
 
 /** Defines the overall application state structure and its main feature modules */
@@ -650,7 +631,11 @@ export const createAppState = async ({
    *
    * - `{ workspaceUid }` routes to that exact workspace by its stable
    *   identifier. Used by pickers where the user selected a specific
-   *   workspace from the list.
+   *   workspace from the list. The picker may also forward a synthetic
+   *   placeholder id (see `getPlaceholderWorkspaceId`) for a team that
+   *   does not own a real workspace yet — those route through the
+   *   team's get-started page so the route handler can create the
+   *   workspace on demand.
    * - `{ teamUid }` routes to the first workspace owned by that team.
    *   Used after login or team switch where the caller only knows
    *   which team is active. If no workspace exists for the team yet,
@@ -672,6 +657,20 @@ export const createAppState = async ({
     // the saved tab path below points at a routable URL.
     if (teamUid && teamSlug) {
       await reconcileTeamSlug(teamUid, teamSlug)
+    }
+
+    // Picker placeholder fast-path: the id is `pending:<teamSlug>/<slug>`
+    // and points at a team that has no real workspace yet. There is
+    // nothing to resume — route straight to the team's get-started page
+    // and let the route handler create the workspace on demand. Without
+    // this branch the UID lookup below would miss and the caller would
+    // silently land on the local default workspace.
+    if (workspaceUid) {
+      const placeholder = parsePlaceholderWorkspaceId(workspaceUid)
+      if (placeholder) {
+        navigateToWorkspaceGetStarted(workspaceUid, placeholder.teamSlug)
+        return
+      }
     }
 
     const workspace = (() => {
