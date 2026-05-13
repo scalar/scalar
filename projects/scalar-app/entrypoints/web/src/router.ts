@@ -1,3 +1,4 @@
+import { safeRun } from '@scalar/helpers/types/safe-run'
 import { useToasts } from '@scalar/use-toasts'
 import { coerce, string } from '@scalar/validation'
 import { trackPageview } from 'fathom-client'
@@ -6,7 +7,6 @@ import { createAppRouter } from '@/features/app'
 import { DEFAULT_TEAM_WORKSPACE_SLUG } from '@/features/app/app-state'
 import { exchangeToken } from '@/helpers/auth/exchange-token'
 import { queryClient } from '@/helpers/query-client'
-import { safeRun } from '@/helpers/safe-run'
 import { scalarClient } from '@/helpers/scalar-client'
 import { useAuth } from '@/hooks/use-auth'
 

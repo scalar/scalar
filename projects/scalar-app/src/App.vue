@@ -16,6 +16,7 @@ export type AppProps = {
 <script setup lang="ts">
 import { PostHogClientPlugin } from '@scalar/api-client/plugins/posthog'
 import { ScalarHeaderButton } from '@scalar/components'
+import { safeRun } from '@scalar/helpers/types/safe-run'
 import { type LoaderPlugin } from '@scalar/json-magic/bundle'
 import { requestScriptsPlugin } from '@scalar/pre-post-request-scripts/plugins'
 import { computed, reactive } from 'vue'
@@ -40,8 +41,6 @@ import { useAuthHandlers } from '@/hooks/use-auth-handlers'
 import { useRegistryDocuments } from '@/hooks/use-registry-documents'
 import { useRegistryNamespaces } from '@/hooks/use-registry-namespaces'
 import { useTeams } from '@/hooks/use-teams'
-
-import { safeRun } from './helpers/safe-run'
 
 const { getAppState, getCommandPaletteState, fileLoader } =
   defineProps<AppProps>()
