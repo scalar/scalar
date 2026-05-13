@@ -295,9 +295,44 @@ const mergeItemsIntoResult = (result: SchemaObject, items: SchemaObject): void =
 }
 
 /**
+ * Tracks `$ref` strings currently being merged so {@link mergeItems} can break
+ * cycles caused by self-referencing schemas (e.g. a tree node whose `children`
+ * array items `$ref` back to the node itself). Without this guard, mergeItems
+ * and mergePropertiesIntoResult drive each other into infinite mutual
+ * recursion: each call to `mergeItems(node, node)` walks `properties.children`,
+ * whose items resolve back to `node`, which calls `mergeItems(node, node)`
+ * again, ad infinitum.
+ *
+ * Reference equality can't catch the cycle because `resolve.schema()` returns
+ * a fresh (coerced) object on every call, but the resolved object preserves
+ * the original `$ref` string via `mergeSiblingReferences`, so `$ref` is a
+ * stable identity we can track.
+ */
+const inFlightRefs = new Set<string>()
+
+/**
  * Helper function for merging items that returns a new object.
  */
 const mergeItems = (existing: SchemaObject, incoming: SchemaObject): SchemaObject => {
+  const incomingRef = (incoming as { $ref?: string }).$ref
+  if (typeof incomingRef === 'string' && inFlightRefs.has(incomingRef)) {
+    // Cycle: we are already merging this referenced schema higher in the call
+    // stack. Return the partially merged `existing` as-is.
+    return existing
+  }
+  if (typeof incomingRef === 'string') {
+    inFlightRefs.add(incomingRef)
+  }
+  try {
+    return mergeItemsInner(existing, incoming)
+  } finally {
+    if (typeof incomingRef === 'string') {
+      inFlightRefs.delete(incomingRef)
+    }
+  }
+}
+
+const mergeItemsInner = (existing: SchemaObject, incoming: SchemaObject): SchemaObject => {
   // Handle allOf in either schema
   if (existing.allOf || incoming.allOf) {
     // Build array without spreads for better performance
