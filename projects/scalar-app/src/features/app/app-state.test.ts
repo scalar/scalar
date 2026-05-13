@@ -456,9 +456,9 @@ describe('app-state', () => {
 
   it('redirects to the canonical slug pair when the URL slugs are stale for a known team UID', async () => {
     // The user lands on a stale `/@old-slug/api` URL after the server
-    // renamed the team. The workspace still exists locally under the
-    // same teamUid, so `changeWorkspace` should redirect to the
-    // workspace's current slug rather than falling back to local.
+    // renamed the team. The local catalog already reflects the rename
+    // (teamSlug=new-slug). The route's `teamSlug` mismatch is detected
+    // and the user is redirected to the workspace's current slug pair.
     const teamUid = 'rename-team-uid'
     await persistWorkspace({ teamUid, teamSlug: 'new-slug', slug: 'api', name: 'Renamed Workspace' })
 
@@ -471,13 +471,54 @@ describe('app-state', () => {
     })
     await router.isReady()
 
-    // Simulate the shell resolving the current team and forwarding the
-    // route. `teamUid` is the canonical identifier; the slug in the URL
-    // is the stale one that no longer resolves.
-    appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, 'old-slug', teamUid))
+    // `useTeams` resolves with the *current* server-advertised slug
+    // (`new-slug`) — the URL is the stale value the user reloaded onto.
+    appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, 'new-slug', teamUid))
     await waitForNavigation()
 
     expect(router.currentRoute.value.params.teamSlug).toBe('new-slug')
     expect(router.currentRoute.value.params.workspaceSlug).toBe('api')
+  })
+
+  it('reconciles the cached team slug and strips stale tab metadata when the server slug changes', async () => {
+    // Persist a workspace whose locally-known teamSlug is `acme` but
+    // whose meta tabs were captured under that old slug. After
+    // reconciliation, the catalog should report the new slug and the
+    // stale tab paths should be gone from persistence.
+    const teamUid = 'acme-uid'
+    await persistWorkspace({
+      teamUid,
+      teamSlug: 'acme',
+      slug: 'api',
+      name: 'Acme API',
+      tabs: [{ path: '/@acme/api/document/drafts', title: 'Drafts' }],
+    })
+
+    const router = setupRouter()
+    const appState = await createAppState({ router })
+
+    await appState.workspace.reconcileTeamSlug(teamUid, 'acme-corp')
+
+    const workspace = appState.workspace.workspaceList.value.find((w) => w.teamUid === teamUid)
+    expect(workspace?.teamSlug).toBe('acme-corp')
+
+    // Persisted meta no longer references the stale `/@acme/...` path.
+    const persistence = await createWorkspaceStorePersistence()
+    const persisted = await persistence.workspace.getItemBySlug({ teamSlug: 'acme-corp', slug: 'api' })
+    expect(persisted?.workspace.meta).not.toHaveProperty('x-scalar-tabs')
+    expect(persisted?.workspace.meta).not.toHaveProperty('x-scalar-active-tab')
+  })
+
+  it('reconcileTeamSlug is a no-op when teamUid is local', async () => {
+    await persistWorkspace({ slug: 'local-one', name: 'Local One' })
+
+    const router = setupRouter()
+    const appState = await createAppState({ router })
+
+    const before = appState.workspace.workspaceList.value.map((w) => ({ ...w }))
+    await appState.workspace.reconcileTeamSlug('local', 'whatever')
+    const after = appState.workspace.workspaceList.value.map((w) => ({ ...w }))
+
+    expect(after).toEqual(before)
   })
 })

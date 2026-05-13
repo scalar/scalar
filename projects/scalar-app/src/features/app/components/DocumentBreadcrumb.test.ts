@@ -109,10 +109,19 @@ const createFakeApp = ({
       // persisted tab exists, which is always the case in tests since there
       // is no IndexedDB available.
       // biome-ignore lint/suspicious/useAwait: its cool
-      resumeOrGetStarted: async (teamSlug: string, workspaceId?: string) => {
-        const found = workspaceId
-          ? workspaceList.find((w) => w.id === workspaceId)
-          : workspaceList.find((w) => w.teamSlug === teamSlug)
+      resumeOrGetStarted: async ({
+        workspaceUid,
+        teamUid: targetTeamUid,
+      }: {
+        workspaceUid?: string
+        teamUid?: string
+        teamSlug?: string
+      }) => {
+        const found = workspaceUid
+          ? workspaceList.find((w) => w.id === workspaceUid)
+          : targetTeamUid
+            ? workspaceList.find((w) => w.teamSlug === targetTeamUid)
+            : undefined
         if (found) {
           mockEventBus.emit('ui:navigate', {
             page: 'workspace',
