@@ -125,16 +125,22 @@ export type ClientPlugin = {
    * Subscribe to every event on the bus. The framework wires this up to
    * `bus.onAny` and handles subscribe/unsubscribe automatically.
    *
-   * The listener receives the concrete event name as the first argument and
-   * its payload as the second. Because the type is a discriminated union over
-   * every event key, narrowing on `event` inside the body also narrows
-   * `payload` to its exact type — no manual casting required.
+   * The listener receives a single tagged-union argument `{ event, payload }`
+   * where `event` is the discriminant. Narrowing on `event` automatically
+   * narrows `payload` to the exact type for that event — no casts, no `as`
+   * assertions, and no manual runtime type checks just to satisfy the
+   * compiler. Destructuring in the parameter list works too.
    *
    * @example
-   * on: (event, payload) => {
+   * on: ({ event, payload }) => {
    *   if (event === 'log:user-login') {
-   *     // payload is narrowed to the login payload type
-   *     posthog.identify(payload.uid)
+   *     // payload is narrowed to { uid: string; email?: string; teamUid: string }
+   *     posthog.identify(payload.uid, { email: payload.email })
+   *   }
+   *
+   *   if (event === 'operation:create:operation') {
+   *     // payload is narrowed to the operation-create payload
+   *     analytics.track('operation_created', payload)
    *   }
    * }
    */
@@ -146,8 +152,12 @@ export type ClientPlugin = {
 /**
  * Subscribes a single plugin's `on` listener to the given event bus via `onAny`.
  *
+ * The plugin's `on` is passed straight through to `bus.onAny`, so it will
+ * receive every event emitted on the bus as a `{ event, payload }` object.
+ * Plugins without an `on` listener get a no-op unsubscribe.
+ *
  * Returns an unsubscribe function. Call it when the plugin is torn down or
- * the bus is destroyed.
+ * the bus is destroyed to remove the wildcard listener.
  *
  * @example
  * const unsubscribe = subscribePluginEvents(eventBus, plugin)
