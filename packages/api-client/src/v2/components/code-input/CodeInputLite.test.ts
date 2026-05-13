@@ -392,14 +392,18 @@ describe('CodeInputLite', () => {
     expect(pill.attributes('data-pill-end')).toBe('15')
   })
 
-  it('forwards pill clicks to the editor, focusing and placing the caret after the pill', async () => {
+  it('selects the whole pill on click so Backspace deletes it as one unit', async () => {
     const wrapper = mountInput({ modelValue: '{{baseUrl}}/users' })
     await nextTick()
     const pill = wrapper.find('.scalar-pill')
     await pill.trigger('click')
     const editor = wrapper.get('.code-input-lite__editor').element as HTMLDivElement
     expect(document.activeElement).toBe(editor)
-    expect(api(wrapper).cursorPosition()).toBe('{{baseUrl}}'.length)
+    // The native selection should cover the pill's visible text exactly
+    // (just the variable name — `{{` / `}}` only live in the model).
+    const selection = window.getSelection()
+    expect(selection?.toString()).toBe('baseUrl')
+    expect(selection?.isCollapsed).toBe(false)
   })
 
   it('does not mount pill tooltips before the user interacts', async () => {
