@@ -1,30 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { escapeForInlineScript, serializeConfigToScript } from './serialize-config'
-
-describe('escapeForInlineScript', () => {
-  it('escapes lowercase </script>', () => {
-    expect(escapeForInlineScript('a</script>b')).toBe('a<\\/script>b')
-  })
-
-  it('escapes uppercase or mixed-case </script>', () => {
-    expect(escapeForInlineScript('a</SCRIPT>b')).toBe('a<\\/SCRIPT>b')
-    expect(escapeForInlineScript('a</ScRiPt>b')).toBe('a<\\/ScRiPt>b')
-  })
-
-  it('escapes <!-- so it cannot start an HTML comment', () => {
-    expect(escapeForInlineScript('a<!--b')).toBe('a<\\!--b')
-  })
-
-  it('leaves other content untouched', () => {
-    expect(escapeForInlineScript('regular text < > / \\')).toBe('regular text < > / \\')
-  })
-
-  it('is idempotent — escaping an already-escaped value does nothing', () => {
-    const once = escapeForInlineScript('</script><!--')
-    expect(escapeForInlineScript(once)).toBe(once)
-  })
-})
+import { serializeConfigToScript } from './serialize-config'
 
 describe('serializeConfigToScript', () => {
   it('serializes plain values as a valid JS object literal', () => {

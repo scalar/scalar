@@ -28,7 +28,7 @@ describe('html-rendering', () => {
     it('escapes HTML in page title', () => {
       const html = renderApiReference({ config: {}, pageTitle: '<script>alert("xss")</script>' })
       expect(html).not.toContain('<script>alert')
-      expect(html).toContain('<title>&lt;script&gt;alert("xss")&lt;/script&gt;</title>')
+      expect(html).toContain('<title>&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;</title>')
     })
 
     it('includes both custom CSS and custom theme when provided', () => {
@@ -125,6 +125,16 @@ describe('html-rendering', () => {
     it('uses custom CDN when provided', () => {
       const tags = getScriptTags(apiReferenceConfigurationWithSourceSchema({}), 'https://example.com/script.js')
       expect(tags).toContain('https://example.com/script.js')
+    })
+
+    it('HTML-escapes the CDN URL so it cannot break out of the script src attribute', () => {
+      const malicious = 'https://example.com/x.js"><img src=x onerror=alert(1)>'
+      const tags = getScriptTags(apiReferenceConfigurationWithSourceSchema({}), malicious)
+
+      // The unescaped `"` would have closed the attribute and let the trailing
+      // markup be parsed as HTML; `&quot;` keeps it inside the attribute value.
+      expect(tags).not.toContain('"><img src=x onerror=alert(1)>')
+      expect(tags).toContain('&quot;&gt;&lt;img src=x onerror=alert(1)&gt;')
     })
 
     it('preserves function properties in configuration', () => {

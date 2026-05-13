@@ -5,4 +5,4 @@ export {
   getScriptTags,
   renderApiReference,
 } from './html-rendering'
-export { escapeForInlineScript, serializeConfigToScript } from './serialize-config'
+export { serializeConfigToScript } from './serialize-config'

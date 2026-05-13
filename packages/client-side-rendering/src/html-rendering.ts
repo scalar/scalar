@@ -1,17 +1,18 @@
 import type { AnyApiReferenceConfiguration, HtmlRenderingConfiguration } from '@scalar/types/api-reference'
 
-import { escapeForInlineScript, serializeConfigToScript } from './serialize-config'
+import { serializeConfigToScript } from './serialize-config'
 
 export type { AnyApiReferenceConfiguration, HtmlRenderingConfiguration }
 
 const DEFAULT_CDN = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
 
 /**
- * Escape HTML special characters in user-provided strings.
+ * Escape characters that could let a user-controlled string break out of any
+ * HTML context — element text content and single- or double-quoted attribute
+ * values both need `&`, `<`, `>`, `"`, and `'` neutralized.
  */
-const escapeHtml = (str: string): string => {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}
+const escapeHtml = (str: string): string =>
+  str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
 
 /**
  * Helper function to add consistent indentation to multiline strings
@@ -109,7 +110,7 @@ export function renderApiReference(
  */
 export function getScriptTags(configuration: Record<string, unknown>, cdn?: string): string {
   const configString = serializeConfigToScript(configuration)
-  const cdnUrl = escapeForInlineScript(cdn ?? DEFAULT_CDN)
+  const cdnUrl = escapeHtml(cdn ?? DEFAULT_CDN)
 
   return `
     <!-- Load the Script -->

@@ -1,9 +1,12 @@
 ---
-'@scalar/client-side-rendering': patch
+'@scalar/client-side-rendering': minor
 ---
 
-fix(client-side-rendering): escape `</script>` and `<!--` in inline-script config
+fix(client-side-rendering): escape user-controlled values in the rendered HTML
 
-User-controlled values in the configuration (a `content` string, a custom callback's source, the CDN URL, etc.) used to be embedded into the inline `<script>` tag verbatim. A value containing `</script>` would terminate the surrounding script element early, breaking the API reference mount and letting any trailing characters be parsed as HTML.
+User-controlled values used to be embedded into the rendered page verbatim in two places:
 
-The serialization now goes through [`serialize-javascript`](https://github.com/yahoo/serialize-javascript), which preserves function-valued config props (instead of `JSON.stringify` silently dropping them) and applies HTML-safe escaping for `</script`, `<!--`, `<![CDATA[`, and the U+2028 / U+2029 line separators. The escape preserves the JavaScript string value while preventing the HTML parser from matching the dangerous sequence.
+- **Inline `<script>` body** — config props like `content`, a custom callback's source, etc. A value containing `</script>` would terminate the surrounding script element early, breaking the API reference mount and letting any trailing characters be parsed as HTML.
+- **`<script src="…">` attribute** — the CDN URL. A value containing `"` would close the attribute and let trailing markup be parsed as HTML.
+
+The config payload now goes through [`serialize-javascript`](https://github.com/yahoo/serialize-javascript), which preserves function-valued props (instead of `JSON.stringify` silently dropping them) and applies HTML-safe escaping for `</script`, `<!--`, `<![CDATA[`, and the U+2028 / U+2029 line separators. The CDN URL is now HTML-attribute-escaped (`&`, `<`, `>`, `"`, `'`) so it cannot break out of the `src` value.
