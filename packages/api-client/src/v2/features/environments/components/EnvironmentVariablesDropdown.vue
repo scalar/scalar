@@ -208,8 +208,8 @@ onClickOutside(
           v-for="(item, index) in filteredVariables"
           :key="`${item.kind}-${item.key}`">
           <li
-            class="font-code text-xxs hover:bg-b-2 flex h-8 cursor-pointer items-center justify-between gap-1.5 rounded p-1.5 transition-colors duration-150"
-            :class="{ 'bg-b-2': index === selectedVariableIndex }"
+            class="font-code text-xxs hover:bg-b-3 flex h-8 cursor-pointer items-center justify-between gap-1.5 rounded p-1.5 transition-colors duration-150"
+            :class="{ 'bg-b-3': index === selectedVariableIndex }"
             @click="selectVariable(item.key)">
             <div class="flex items-center gap-2 whitespace-nowrap">
               <span
@@ -234,7 +234,7 @@ onClickOutside(
       </ul>
       <ScalarButton
         v-else
-        class="font-code text-xxs bg-b-inherit hover:bg-b-2 flex h-8 w-full justify-start gap-2 px-1.5 transition-colors duration-150"
+        class="font-code text-xxs bg-b-inherit hover:bg-b-3 flex h-8 w-full justify-start gap-2 px-1.5 transition-colors duration-150"
         variant="outlined"
         @click="redirectToEnvironment">
         <ScalarIconPlus class="size-3" />

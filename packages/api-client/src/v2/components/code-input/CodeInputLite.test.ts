@@ -1,9 +1,15 @@
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { afterEach, describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
 import CodeInputLite from './CodeInputLite.vue'
+
+// `attachTo: document.body` keeps the wrappers mounted across tests, so any
+// teleported dropdown (rendered into the body) leaks into later assertions
+// that use `document.querySelectorAll(...)`. Auto-unmount each wrapper after
+// every test so the DOM starts clean every time.
+enableAutoUnmount(afterEach)
 
 const env: XScalarEnvironment = {
   color: '#ff0000',
@@ -267,6 +273,70 @@ describe('CodeInputLite', () => {
     input.dispatchEvent(event)
     expect(event.defaultPrevented).toBe(true)
     expect(wrapper.emitted('submit')).toBeUndefined()
+  })
+
+  it('opens the dropdown with the first item selected so Enter picks it immediately', async () => {
+    const wrapper = mountInput({ modelValue: '' })
+    const input = wrapper.get('input').element as HTMLInputElement
+    input.value = '{{'
+    input.setSelectionRange(2, 2)
+    await wrapper.get('input').trigger('input')
+    await nextTick()
+
+    expect(wrapper.findComponent({ name: 'EnvironmentVariablesDropdown' }).exists()).toBe(true)
+
+    // The dropdown is teleported, so query the document body directly.
+    const rows = Array.from(document.querySelectorAll('li')) as HTMLLIElement[]
+    expect(rows.length).toBeGreaterThan(0)
+
+    // The first row must be visibly highlighted as soon as the dropdown opens.
+    expect(rows[0]?.classList.contains('bg-b-3')).toBe(true)
+
+    // Hitting Enter without any arrow key navigation commits the first item.
+    await wrapper.get('input').trigger('keydown', { key: 'Enter' })
+    await nextTick()
+    const events = wrapper.emitted('update:modelValue')
+    expect(events?.at(-1)?.[0]).toMatch(/^\{\{.+\}\}$/)
+  })
+
+  it('moves the dropdown selection on ArrowDown / ArrowUp', async () => {
+    const wrapper = mountInput({ modelValue: '' })
+    const input = wrapper.get('input').element as HTMLInputElement
+    input.value = '{{'
+    input.setSelectionRange(2, 2)
+    await wrapper.get('input').trigger('input')
+    await nextTick()
+
+    expect(wrapper.findComponent({ name: 'EnvironmentVariablesDropdown' }).exists()).toBe(true)
+    const rows = Array.from(document.querySelectorAll('li')) as HTMLLIElement[]
+    expect(rows.length).toBeGreaterThan(1)
+
+    // Initially the first row is selected.
+    expect(rows[0]?.classList.contains('bg-b-3')).toBe(true)
+
+    // ArrowDown moves the highlight to the next row.
+    await wrapper.get('input').trigger('keydown', { key: 'ArrowDown' })
+    await nextTick()
+    expect(rows[0]?.classList.contains('bg-b-3')).toBe(false)
+    expect(rows[1]?.classList.contains('bg-b-3')).toBe(true)
+
+    // ArrowUp moves it back.
+    await wrapper.get('input').trigger('keydown', { key: 'ArrowUp' })
+    await nextTick()
+    expect(rows[0]?.classList.contains('bg-b-3')).toBe(true)
+    expect(rows[1]?.classList.contains('bg-b-3')).toBe(false)
+  })
+
+  it('does not handle arrow keys when the dropdown is closed', async () => {
+    const wrapper = mountInput({ modelValue: 'hello' })
+    await nextTick()
+    expect(wrapper.findComponent({ name: 'EnvironmentVariablesDropdown' }).exists()).toBe(false)
+
+    const event = new KeyboardEvent('keydown', { key: 'ArrowDown', cancelable: true, bubbles: true })
+    ;(wrapper.get('input').element as HTMLInputElement).dispatchEvent(event)
+    // With the dropdown closed the handler must leave the event alone so the
+    // browser keeps native caret behaviour and parents can react if they want.
+    expect(event.defaultPrevented).toBe(false)
   })
 
   it('closes the dropdown on Escape and does not submit', async () => {
