@@ -436,7 +436,7 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
           <div
             v-if="!isOnDocumentPage"
             class="flex flex-col gap-1.5 px-(--scalar-sidebar-padding) pt-(--scalar-sidebar-padding)">
-            <div class="flex items-center gap-1">
+            <div class="mr-1 flex items-center gap-1">
               <ScalarSidebarButton
                 is="div"
                 class="text-sidebar-c-1 font-sidebar-active flex-1"

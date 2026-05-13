@@ -91,7 +91,7 @@ const handleDragEnd = (
     </template>
     <!-- Document back row -->
     <template #back>
-      <div class="flex items-center gap-1">
+      <div class="mr-1 flex items-center gap-1">
         <ScalarSidebarButton
           is="button"
           class="text-sidebar-c-1 font-sidebar-active hover:text-sidebar-c-1 flex-1"
