@@ -18,7 +18,6 @@ import { loadRegistryDocument } from '@/features/app/helpers/load-registry-docum
 import { VERSION_STATUS_PRESENTATION } from '@/features/app/helpers/version-status-presentation'
 import { useActiveDocumentVersion } from '@/features/app/hooks/use-active-document-version'
 import { useVersionConflictCheck } from '@/features/app/hooks/use-version-conflict-check'
-import { safeRun } from '@/helpers/safe-run'
 import { useTeams } from '@/hooks/use-teams'
 import type {
   ImportDocumentFromRegistry,
