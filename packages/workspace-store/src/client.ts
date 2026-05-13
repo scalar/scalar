@@ -1000,11 +1000,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         'x-original-aas-version': clonedRawInputDocument.asyncapi,
         'x-scalar-original-document-hash': input.documentHash,
         'x-scalar-original-source-url': input.documentSource,
-        'x-scalar-navigation': traverseAsyncApiDocument(
-          name,
-          clonedRawInputDocument as AsyncApiDocument,
-          navigationOptions,
-        ),
+        'x-scalar-navigation': traverseAsyncApiDocument(name, clonedRawInputDocument, navigationOptions),
       } satisfies AsyncApiDocument
 
       workspace.documents[name] = createOverridesProxy(createMagicProxy(asyncApiDocument) as AsyncApiDocument, {

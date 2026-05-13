@@ -77,11 +77,12 @@ export const AsyncApiDocument = intersection(
           typeComment: 'REQUIRED. The AsyncAPI Specification version the document uses (for example "3.0.0").',
         }),
         info: AsyncApiInfoObject,
-        // Workspace-store-built navigation tree. The shape is the same shared
-        // `TraversedDocument` used on the OpenAPI side; we use `any()` here
-        // rather than re-declaring the recursive tree in @scalar/validation
-        // primitives, while the TS type below stays strict for consumers.
-        [extensions.document.navigation]: optional(any()),
+        [extensions.document.navigation]: optional(
+          any({
+            typeComment:
+              'Client navigation tree (TraversedDocument) for this AsyncAPI description. Matches TraversedDocumentObjectRef in strict schemas.',
+          }),
+        ),
       },
       { typeName: 'AsyncApiDocumentCore' },
     ),
