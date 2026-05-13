@@ -395,7 +395,8 @@ export const createWorkspaceStorePersistence = async () => {
       /**
        * Updates the mutable slug metadata for an existing workspace.
        * Returns the updated record, or `undefined` when the workspace
-       * does not exist.
+       * does not exist, or when another workspace already owns the target
+       * `[teamSlug, slug]` pair (the `teamSlug_slug` index is unique).
        *
        * Use this when the server tells us a team slug or workspace slug
        * has changed. The `workspaceUid` stays the same, so all chunk
@@ -409,12 +410,23 @@ export const createWorkspaceStorePersistence = async () => {
         if (!workspace) {
           return undefined
         }
+
+        const nextTeamSlug = slugs.teamSlug ?? workspace.teamSlug
+        const nextSlug = slugs.slug ?? workspace.slug
+
+        if (nextTeamSlug !== workspace.teamSlug || nextSlug !== workspace.slug) {
+          const occupant = await findByTeamSlugAndSlug(nextTeamSlug, nextSlug)
+          if (occupant && occupant.workspaceUid !== workspaceUid) {
+            return undefined
+          }
+        }
+
         return (await workspaceTable.addItem(
           { workspaceUid },
           {
             ...workspace,
-            teamSlug: slugs.teamSlug ?? workspace.teamSlug,
-            slug: slugs.slug ?? workspace.slug,
+            teamSlug: nextTeamSlug,
+            slug: nextSlug,
           },
         )) as WorkspaceRecord
       },

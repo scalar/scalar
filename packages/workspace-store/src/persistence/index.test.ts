@@ -334,6 +334,38 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
       const result = await persistence.workspace.updateSlugs('missing-uid', { slug: 'whatever' })
       expect(result).toBeUndefined()
     })
+
+    it('returns undefined when another workspace already owns the target slug pair', async () => {
+      const firstUid = newUid()
+      const secondUid = newUid()
+
+      await persistence.workspace.setItem(
+        { workspaceUid: firstUid, teamSlug: 'team-1', slug: 'api' },
+        { name: 'First', workspace: blankWorkspace() },
+      )
+      await persistence.workspace.setItem(
+        { workspaceUid: secondUid, teamSlug: 'team-1', slug: 'other' },
+        { name: 'Second', workspace: blankWorkspace() },
+      )
+
+      const result = await persistence.workspace.updateSlugs(secondUid, { slug: 'api' })
+      expect(result).toBeUndefined()
+
+      const second = await persistence.workspace.getItem(secondUid)
+      expect(second?.slug).toBe('other')
+    })
+
+    it('allows a no-op update when the slug pair is unchanged', async () => {
+      const workspaceUid = newUid()
+
+      await persistence.workspace.setItem(
+        { workspaceUid, teamSlug: 'team-1', slug: 'api' },
+        { name: 'API', workspace: blankWorkspace() },
+      )
+
+      const updated = await persistence.workspace.updateSlugs(workspaceUid, { teamSlug: 'team-1', slug: 'api' })
+      expect(updated).toMatchObject({ workspaceUid, teamSlug: 'team-1', slug: 'api' })
+    })
   })
 
   describe('workspace.has and workspace.hasSlug', () => {
