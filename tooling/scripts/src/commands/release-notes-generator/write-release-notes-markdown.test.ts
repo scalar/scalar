@@ -33,7 +33,12 @@ describe('writeReleaseNotesMarkdown', () => {
 
     const result = await writeReleaseNotesMarkdown({
       path,
-      entries: [{ ...note('1.0.0', '2026-01-01'), description: 'Hello world.' }],
+      entries: [
+        {
+          ...note('1.0.0', '2026-01-01'),
+          content: [{ type: 'paragraph', text: 'Hello world.' }],
+        },
+      ],
     })
 
     expect(result.created).toBe(true)

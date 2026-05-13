@@ -97,6 +97,7 @@ describe('generateReleaseNote', () => {
     const fetchImpl = vi.fn(async () =>
       buildAnthropicResponse(
         JSON.stringify({
+          version: '3.5.2',
           title: 'Smoother address bar typing',
           description: 'Typing in the address bar no longer drops keystrokes when the URL is very long.',
           highlights: ['Fixed dropped keystrokes in the address bar.', 'Surfaced response timing in the response tab.'],
@@ -116,12 +117,29 @@ describe('generateReleaseNote', () => {
 
     expect(note.version).toBe('3.5.2')
     expect(note.date).toBe('2026-05-01')
-    expect(note.href).toBe('https://github.com/scalar/scalar/releases/tag/x')
-    expect(note.highlights).toHaveLength(2)
+    expect(note.title).toBe('Smoother address bar typing')
+    expect(note.content).toEqual([
+      {
+        type: 'paragraph',
+        text: 'Typing in the address bar no longer drops keystrokes when the URL is very long.',
+      },
+      {
+        type: 'list',
+        items: ['Fixed dropped keystrokes in the address bar.', 'Surfaced response timing in the response tab.'],
+        ordered: false,
+      },
+      {
+        type: 'href',
+        href: 'https://github.com/scalar/scalar/releases/tag/x',
+        label: 'Read full release notes',
+      },
+    ])
   })
 
   it('strips a stray ```json fence around the response', async () => {
-    const fetchImpl = vi.fn(async () => buildAnthropicResponse('```json\n{"title":"Quick polish pass"}\n```'))
+    const fetchImpl = vi.fn(async () =>
+      buildAnthropicResponse('```json\n{"version":"3.5.2","title":"Quick polish pass"}\n```'),
+    )
 
     const note = await generateReleaseNote({
       packageName: '@scalar/api-client',
@@ -134,16 +152,21 @@ describe('generateReleaseNote', () => {
     })
 
     expect(note.title).toBe('Quick polish pass')
+    expect(note.content).toEqual([
+      {
+        type: 'href',
+        href: 'https://example.com/r',
+        label: 'Read full release notes',
+      },
+    ])
   })
 
-  it('overrides version, date, and href with the trusted values', async () => {
+  it('overrides version and date with the trusted values and stamps the release URL on the link block', async () => {
     const fetchImpl = vi.fn(async () =>
       buildAnthropicResponse(
         JSON.stringify({
           version: '99.99.99',
-          date: '1999-01-01',
           title: 'Hello',
-          href: 'https://attacker.example.com',
         }),
       ),
     )
@@ -160,7 +183,11 @@ describe('generateReleaseNote', () => {
 
     expect(note.version).toBe('3.5.2')
     expect(note.date).toBe('2026-05-01')
-    expect(note.href).toBe('https://github.com/scalar/scalar/releases/tag/api-client@3.5.2')
+    expect(note.content?.at(-1)).toEqual({
+      type: 'href',
+      href: 'https://github.com/scalar/scalar/releases/tag/api-client@3.5.2',
+      label: 'Read full release notes',
+    })
   })
 
   it('throws when the API call fails', async () => {
@@ -197,7 +224,7 @@ describe('generateReleaseNote', () => {
 
   it('forwards pull request context into the user prompt', async () => {
     const fetchImpl = vi.fn<typeof fetch>(async () =>
-      buildAnthropicResponse(JSON.stringify({ title: 'Address bar fixes' })),
+      buildAnthropicResponse(JSON.stringify({ version: '3.5.2', title: 'Address bar fixes' })),
     )
 
     await generateReleaseNote({
@@ -225,7 +252,9 @@ describe('generateReleaseNote', () => {
   })
 
   it('omits the pull request context block when none is provided', async () => {
-    const fetchImpl = vi.fn<typeof fetch>(async () => buildAnthropicResponse(JSON.stringify({ title: 'tiny' })))
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      buildAnthropicResponse(JSON.stringify({ version: '3.5.2', title: 'tiny' })),
+    )
 
     await generateReleaseNote({
       packageName: '@scalar/api-client',
@@ -244,7 +273,9 @@ describe('generateReleaseNote', () => {
 
   it('forwards dependency CHANGELOG sections into the user prompt', async () => {
     const fetchImpl = vi.fn<typeof fetch>(async () =>
-      buildAnthropicResponse(JSON.stringify({ title: 'Polished release with bundled api-client updates' })),
+      buildAnthropicResponse(
+        JSON.stringify({ version: '1.1.0', title: 'Polished release with bundled api-client updates' }),
+      ),
     )
 
     await generateReleaseNote({
@@ -274,7 +305,9 @@ describe('generateReleaseNote', () => {
   })
 
   it('omits the dependency CHANGELOG block when none is provided', async () => {
-    const fetchImpl = vi.fn<typeof fetch>(async () => buildAnthropicResponse(JSON.stringify({ title: 'tiny' })))
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      buildAnthropicResponse(JSON.stringify({ version: '3.5.2', title: 'tiny' })),
+    )
 
     await generateReleaseNote({
       packageName: 'scalar-app',
@@ -292,7 +325,7 @@ describe('generateReleaseNote', () => {
   })
 
   it('throws when the response fails schema validation', async () => {
-    const fetchImpl = vi.fn(async () => buildAnthropicResponse(JSON.stringify({ title: '' })))
+    const fetchImpl = vi.fn(async () => buildAnthropicResponse(JSON.stringify({ version: '3.5.2', title: '' })))
 
     await expect(
       generateReleaseNote({

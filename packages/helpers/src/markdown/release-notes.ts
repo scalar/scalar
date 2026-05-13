@@ -19,12 +19,66 @@
  * - Pending edits are now flushed before a request runs.
  * - Switched to our own slug generator.
  *
+ * Rich blocks (images, extra headings) follow the same pattern inside the
+ * entry body after the title line.
+ *
  * [Read full release notes](https://github.com/scalar/scalar/releases/tag/%40scalar%2Fapi-client%403.5.1)
  * ```
  *
  * Anything before the first `## ` heading is the preamble (passed in via
  * `serializeReleaseNotes` options or defaulted).
  */
+
+/** Free-form paragraph of plain text. */
+export type ParagraphBlock = {
+  type: 'paragraph'
+  text: string
+}
+
+/** Subsection heading inside a release entry. Defaults to level 3. */
+export type HeadingBlock = {
+  type: 'heading'
+  text: string
+  level?: 3 | 4
+}
+
+/** Bullet (or numbered) list. */
+export type ListBlock = {
+  type: 'list'
+  items: string[]
+  ordered?: boolean
+}
+
+/** Inline image with optional caption. */
+export type ImageBlock = {
+  type: 'image'
+  src: string
+  alt: string
+  caption?: string
+  width?: number
+  height?: number
+}
+
+/** Inline video clip with optional caption and playback hints. */
+export type VideoBlock = {
+  type: 'video'
+  src: string
+  poster?: string
+  caption?: string
+  autoplay?: boolean
+  loop?: boolean
+  muted?: boolean
+  controls?: boolean
+}
+
+export type HrefBlock = {
+  type: 'href'
+  href: string
+  label: string
+}
+
+/** Rich content block rendered between other blocks inside a release entry. */
+export type ContentBlock = ParagraphBlock | HeadingBlock | ListBlock | ImageBlock | VideoBlock | HrefBlock
 
 /** One release note row. Mirrors the Scalar app's `ReleaseNote` shape. */
 export type ReleaseNoteEntry = {
@@ -34,12 +88,8 @@ export type ReleaseNoteEntry = {
   date: string
   /** Short, sentence-case headline. */
   title: string
-  /** Optional one-paragraph summary (paragraphs joined with two newlines). */
-  description?: string
-  /** Optional bullet list of single-sentence highlights. */
-  highlights?: string[]
-  /** Optional URL for the "Read full release notes" link. */
-  href?: string
+  /** Optional body: paragraphs, lists, headings, images, videos, and links. */
+  content?: ContentBlock[]
 }
 
 /**
@@ -85,14 +135,79 @@ const serializeEntry = (entry: ReleaseNoteEntry): string => {
   const blocks: string[] = []
   blocks.push(`## ${entry.version} (${entry.date})`)
   blocks.push(`### ${entry.title}`)
-  if (entry.description && entry.description.trim().length > 0) {
-    blocks.push(entry.description.trim())
-  }
-  if (entry.highlights && entry.highlights.length > 0) {
-    blocks.push(entry.highlights.map((highlight) => `- ${highlight.trim()}`).join('\n'))
-  }
-  if (entry.href) {
-    blocks.push(`[Read full release notes](${entry.href})`)
+  if (entry.content && entry.content.length > 0) {
+    for (const block of entry.content) {
+      const rendered = serializeContentBlock(block)
+      if (rendered) {
+        blocks.push(rendered)
+      }
+    }
   }
   return `${blocks.join('\n\n')}\n`
+}
+
+/**
+ * Render a single content block as a markdown fragment. Each fragment
+ * is later joined by blank lines, so callers must not append leading or
+ * trailing blank lines themselves.
+ *
+ * Image blocks use markdown images; video blocks use `<video>` with
+ * responsive inline styles so they fill the article width like images in
+ * prose layouts. Captions render as italic text on the line below so they
+ * stay readable even in editors that do not parse `<figure>` tags.
+ */
+const serializeContentBlock = (block: ContentBlock): string => {
+  if (block.type === 'paragraph') {
+    return block.text.trim()
+  }
+
+  if (block.type === 'href') {
+    return `[${block.label.trim()}](${block.href})`
+  }
+
+  if (block.type === 'heading') {
+    const prefix = block.level === 4 ? '####' : '###'
+    return `${prefix} ${block.text.trim()}`
+  }
+
+  if (block.type === 'list') {
+    const marker = block.ordered ? (index: number): string => `${index + 1}.` : (): string => '-'
+    return block.items.map((item, index) => `${marker(index)} ${item.trim()}`).join('\n')
+  }
+
+  if (block.type === 'image') {
+    const image = `![${block.alt}](${block.src})`
+    return block.caption ? `${image}\n\n_${block.caption.trim()}_` : image
+  }
+
+  if (block.type === 'video') {
+    // Video block. Use the `<video>` HTML element so GitHub and most
+    // documentation viewers render it inline. Width/height styles match
+    // typical responsive `<img>` behaviour (full width of the column).
+    // Poster, autoplay, loop, and muted mirror the JSON for parity with
+    // the in-app modal.
+    const attrs: string[] = [`src="${block.src}"`, 'style="max-width: 100%; width: 100%; height: auto;"']
+    if (block.poster) {
+      attrs.push(`poster="${block.poster}"`)
+    }
+    if (block.autoplay) {
+      attrs.push('autoplay')
+    }
+    if (block.loop) {
+      attrs.push('loop')
+    }
+    if (block.muted) {
+      attrs.push('muted')
+    }
+    if (block.controls !== false) {
+      attrs.push('controls')
+    }
+    attrs.push('playsinline')
+    const video = `<video ${attrs.join(' ')}></video>`
+    return block.caption ? `${video}\n\n_${block.caption.trim()}_` : video
+  }
+
+  const _exhaustive: never = block
+  void _exhaustive
+  return ''
 }

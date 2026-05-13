@@ -21,10 +21,11 @@ export default {}
 
 <script setup lang="ts">
 import { ScalarButton, ScalarModal, type ModalState } from '@scalar/components'
-import { ScalarIconArrowSquareOut, ScalarIconSparkle } from '@scalar/icons'
+import { ScalarIconSparkle } from '@scalar/icons'
 import { computed, ref, watch } from 'vue'
 
 import { useWhatsNew } from '../hooks/use-whats-new'
+import ReleaseNoteContent from './ReleaseNoteContent.vue'
 
 const { state } = defineProps<{
   state: ModalState
@@ -139,32 +140,9 @@ watch(
             v{{ note.version }}
           </span>
         </div>
-        <p
-          v-if="note.description"
-          class="text-c-2 text-sm leading-relaxed">
-          {{ note.description }}
-        </p>
-        <ul
-          v-if="note.highlights && note.highlights.length > 0"
-          class="text-c-2 ml-4 flex list-disc flex-col gap-1 text-sm leading-relaxed">
-          <li
-            v-for="(highlight, index) in note.highlights"
-            :key="index">
-            {{ highlight }}
-          </li>
-        </ul>
-        <div v-if="note.href">
-          <a
-            class="text-c-accent inline-flex items-center gap-1 text-xs hover:underline"
-            :href="note.href"
-            rel="noopener noreferrer"
-            target="_blank">
-            Read full release notes
-            <ScalarIconArrowSquareOut
-              class="size-3"
-              weight="bold" />
-          </a>
-        </div>
+        <ReleaseNoteContent
+          v-if="note.content && note.content.length > 0"
+          :blocks="note.content" />
       </li>
     </ol>
 
