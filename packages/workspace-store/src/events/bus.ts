@@ -7,77 +7,42 @@ import type { ApiReferenceEvents } from './definitions'
 type Unsubscribe = () => void
 
 /**
- * A glob pattern for subscribing to multiple events at once.
- *
- * - `'*'` matches every event.
- * - A pattern ending with `':*'` (e.g. `'operation:*'`) matches every event
- *   whose name starts with that prefix (e.g. `'operation:send:request:hotkey'`).
- *
- * @example
- * bus.onAny('*', (event, payload) => console.log(event, payload))
- * bus.onAny('operation:*', (event, payload) => console.log(event, payload))
- */
-export type EventGlob = '*' | `${string}:*`
-
-/**
- * A single branch of the WildcardListener discriminated union for one event key.
- * Kept separate so it can be referenced by the union below.
- */
-type WildcardListenerBranch<E extends keyof ApiReferenceEvents> = (event: E, payload: ApiReferenceEvents[E]) => void
-
-/**
- * Listener type for wildcard / glob subscriptions.
- *
- * Expressed as a discriminated union over every event key so that narrowing
- * on `event` inside the listener body also narrows `payload` to its exact type.
- *
- * @example
- * bus.onGlob('*', (event, payload) => {
- *   if (event === 'log:user-login') {
- *     // payload is now { uid: string; email?: string; teamUid: string }
- *     posthog.identify(payload.uid)
- *   }
- * })
- */
-export type WildcardListener = {
-  [E in keyof ApiReferenceEvents]: WildcardListenerBranch<E>
-}[keyof ApiReferenceEvents]
-
-/**
- * Narrows a WildcardListener to only the events matched by a specific glob pattern.
- *
- * - `'*'` matches every event (equivalent to WildcardListener).
- * - `'prefix:*'` matches only events whose key starts with `'prefix:'`.
- *
- * This gives full type safety when writing glob handlers in ClientPlugin.on:
- * the `event` parameter is narrowed to matching keys, and `payload` is narrowed
- * to the corresponding payload type via the discriminated union.
- *
- * @example
- * on: {
- *   'operation:*': (event, payload) => {
- *     // event is narrowed to 'operation:create:operation' | 'operation:delete:operation' | ...
- *     // payload is narrowed based on event
- *   }
- * }
- */
-export type GlobListener<G extends EventGlob> = G extends '*'
-  ? WildcardListener
-  : G extends `${infer Prefix}:*`
-    ? {
-        [E in keyof ApiReferenceEvents as E extends `${Prefix}:${string}` ? E : never]: WildcardListenerBranch<E>
-      }[keyof {
-        [E in keyof ApiReferenceEvents as E extends `${Prefix}:${string}` ? E : never]: WildcardListenerBranch<E>
-      }]
-    : never
-
-/**
  * Helper type for event listeners that makes the payload optional
  * if the event allows undefined, otherwise requires it.
  */
 type EventListener<E extends keyof ApiReferenceEvents> = undefined extends ApiReferenceEvents[E]
   ? (payload?: ApiReferenceEvents[E]) => void
   : (payload: ApiReferenceEvents[E]) => void
+
+/**
+ * Tagged-union representation of every event — one branch per event key, each
+ * pairing the event name with its specific payload type.
+ *
+ * Because `event` acts as the discriminant, TypeScript narrows `payload` to
+ * the exact type of the matched event when you check `event === '...'` inside
+ * a listener (including when the argument is destructured).
+ */
+export type AnyEvent = {
+  [E in keyof ApiReferenceEvents]: { event: E; payload: ApiReferenceEvents[E] }
+}[keyof ApiReferenceEvents]
+
+/**
+ * Listener type for `onAny` subscriptions.
+ *
+ * Receives a single tagged-union object containing the concrete `event` name
+ * and its `payload`. Narrowing on `event` narrows `payload` to the exact type
+ * for that event — no manual casting or runtime payload checks required just
+ * to satisfy types.
+ *
+ * @example
+ * bus.onAny(({ event, payload }) => {
+ *   if (event === 'log:user-login') {
+ *     // payload is { uid: string; email?: string; teamUid: string }
+ *     posthog.identify(payload.uid)
+ *   }
+ * })
+ */
+export type AnyEventListener = (event: AnyEvent) => void
 
 /**
  * Helper type for emit parameters that uses rest parameters
@@ -95,7 +60,7 @@ type EmitParameters<E extends keyof ApiReferenceEvents> = undefined extends ApiR
  *
  * - Full type safety for event names and payloads
  * - Debug mode for development
- * - Glob pattern subscriptions via `onAny` / `offAny`
+ * - Listen to every event via `onAny` / `offAny`
  */
 export type WorkspaceEventBus = {
   /**
@@ -144,45 +109,44 @@ export type WorkspaceEventBus = {
   once<E extends keyof ApiReferenceEvents>(event: E, listener: EventListener<E>): Unsubscribe
 
   /**
-   * Subscribe to all events matching a glob pattern.
+   * Subscribe to every event emitted on the bus.
    *
-   * - `'*'` fires for every event on the bus.
-   * - `'operation:*'` fires for every event whose name starts with `'operation:'`.
+   * The listener receives the concrete event name as the first argument and
+   * the (proxy-unpacked) payload as the second. Use this on the consumer side
+   * when you need to handle every event generically — for example, analytics,
+   * logging, or forwarding events across a boundary.
    *
-   * The listener receives the concrete event name and its payload.
+   * Because the listener type is a discriminated union over every event key,
+   * narrowing on `event` inside the listener body also narrows `payload` to
+   * its exact type.
    *
-   * @param pattern - The glob pattern to match against event names
-   * @param listener - Callback that receives the event name and payload
+   * @param listener - Callback invoked for every emitted event
    * @returns Unsubscribe function to remove the listener
    *
    * @example
-   * // Listen to every event
-   * const off = bus.onGlob('*', (event, payload) => {
-   *   analytics.track(event, payload)
-   * })
-   *
-   * // Listen to all operation events
-   * const off = bus.onGlob('operation:*', (event, payload) => {
-   *   console.log('operation event:', event)
+   * const off = bus.onAny((event, payload) => {
+   *   if (event === 'log:user-login') {
+   *     // payload is narrowed to the login payload type
+   *     posthog.identify(payload.uid)
+   *   }
    * })
    *
    * // Clean up
    * off()
    */
-  onGlob(pattern: EventGlob, listener: WildcardListener): Unsubscribe
+  onAny(listener: AnyEventListener): Unsubscribe
 
   /**
-   * Remove a glob listener added via `onGlob`.
+   * Remove a wildcard listener previously registered with `onAny`.
    *
-   * @param pattern - The glob pattern the listener was registered with
    * @param listener - The listener function to remove
    *
    * @example
    * const handler = (event, payload) => console.log(event, payload)
-   * bus.onGlob('operation:*', handler)
-   * bus.offGlob('operation:*', handler)
+   * bus.onAny(handler)
+   * bus.offAny(handler)
    */
-  offGlob(pattern: EventGlob, listener: WildcardListener): void
+  offAny(listener: AnyEventListener): void
 
   /**
    * Emit an event with its payload
@@ -251,13 +215,10 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
   const events = new Map<keyof ApiReferenceEvents, ListenerSet>()
 
   /**
-   * Map of glob patterns to their wildcard listener sets.
-   * Each key is an EventGlob string; the value is the set of listeners registered
-   * for that pattern. Using a Map here keeps per-pattern add/remove O(1) while
-   * emitting stays O(number of registered patterns) — typically a very small number.
+   * Set of wildcard listeners that receive every emitted event.
+   * Using a Set keeps add/remove O(1) and iteration order stable.
    */
-  type WildcardListenerSet = Set<WildcardListener>
-  const wildcardListeners = new Map<EventGlob, WildcardListenerSet>()
+  const anyListeners = new Set<AnyEventListener>()
 
   /**
    * Track pending log entries for batching
@@ -284,32 +245,6 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
   }
 
   /**
-   * Get or create a wildcard listener set for a glob pattern
-   */
-  const getWildcardListeners = (pattern: EventGlob): WildcardListenerSet => {
-    const listeners = wildcardListeners.get(pattern) ?? new Set()
-    wildcardListeners.set(pattern, listeners)
-    return listeners
-  }
-
-  /**
-   * Check whether a given event name matches a glob pattern.
-   * - `'*'` matches everything.
-   * - `'prefix:*'` matches any event that starts with `'prefix:'`.
-   *
-   * This is kept intentionally simple — no full glob syntax — so the hot-path
-   * check is a single string comparison with no allocations.
-   */
-  const matchesGlob = (pattern: EventGlob, event: keyof ApiReferenceEvents): boolean => {
-    if (pattern === '*') {
-      return true
-    }
-    // Pattern is guaranteed to end with ':*' by the EventGlob type
-    const prefix = pattern.slice(0, -1) // strip the trailing '*'
-    return (event as string).startsWith(prefix)
-  }
-
-  /**
    * Flush batched logs using console.groupCollapsed
    */
   const flushLogs = (): void => {
@@ -325,11 +260,11 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
           console.log(`[EventBus] ${firstLog.message}`, ...firstLog.args)
         }
       } else {
-        // Multiple logs: use a single collapsed group with one console.table call.
-        // Calling console.log N times (e.g. 105x) inside a setTimeout is expensive
-        // and triggers a [Violation] 'setTimeout' handler warning in Chrome DevTools.
+        // Multiple logs, use a collapsed group
         console.groupCollapsed(`[EventBus] ${pendingLogs.length} operations`)
-        console.table(pendingLogs.map(({ message, args }) => ({ event: message, payload: args[0] ?? '' })))
+        for (const { message, args } of pendingLogs) {
+          console.log(message, ...args)
+        }
         console.groupEnd()
       }
     }
@@ -385,6 +320,18 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
     }
   }
 
+  const onAny = (listener: AnyEventListener): Unsubscribe => {
+    anyListeners.add(listener)
+    log(`Added wildcard listener (${anyListeners.size} total)`)
+
+    return () => offAny(listener)
+  }
+
+  const offAny = (listener: AnyEventListener): void => {
+    anyListeners.delete(listener)
+    log(`Removed wildcard listener (${anyListeners.size} remaining)`)
+  }
+
   /**
    * Internal function that performs the actual emission logic
    * This is extracted so it can be wrapped with debouncing
@@ -399,15 +346,16 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
     const unpackedPayload = options?.skipUnpackProxy ? payload : unpackProxyObject(payload, { depth: 5 })
 
     const listeners = events.get(event)
-    const hasExactListeners = listeners && listeners.size > 0
+    const hasExactListeners = listeners !== undefined && listeners.size > 0
 
-    if (!hasExactListeners && wildcardListeners.size === 0) {
+    if (!hasExactListeners && anyListeners.size === 0) {
       log(`🛑 No listeners for "${String(event)}"`)
       return
     }
 
-    // Execute exact-match listeners
-    if (hasExactListeners) {
+    // Execute exact-match listeners first so the deterministic, type-specific
+    // handlers see the event before any generic/wildcard observers.
+    if (hasExactListeners && listeners) {
       log(`Emitting "${String(event)}" to ${listeners.size} listener(s)`, payload)
 
       // Convert to array to avoid issues if listeners modify the set during iteration
@@ -423,27 +371,21 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
       }
     }
 
-    // Notify wildcard / glob listeners whose pattern matches this event.
-    // We iterate over all registered patterns — in practice this set is tiny
-    // (one or two patterns at most), so the linear scan costs essentially nothing.
-    if (wildcardListeners.size > 0) {
-      for (const [pattern, wListeners] of wildcardListeners) {
-        if (wListeners.size === 0 || !matchesGlob(pattern, event)) {
-          continue
-        }
+    // Notify wildcard listeners after specific ones have run.
+    if (anyListeners.size > 0) {
+      log(`Emitting "${String(event)}" to ${anyListeners.size} wildcard listener(s)`, payload)
 
-        log(`Emitting "${String(event)}" to ${wListeners.size} wildcard listener(s) for pattern "${pattern}"`, payload)
+      // Build the tagged-union argument once and reuse it across listeners.
+      // The cast bridges from the loose internal `(event, payload)` pair to
+      // the discriminated-union shape exposed to consumers.
+      const anyEvent = { event, payload: unpackedPayload } as AnyEvent
 
-        const wListenersArray = Array.from(wListeners)
-        for (const wListener of wListenersArray) {
-          try {
-            ;(wListener as (event: keyof ApiReferenceEvents, payload: unknown) => void)(event, unpackedPayload)
-          } catch (error) {
-            console.error(
-              `[EventBus] Error in wildcard listener for pattern "${pattern}" (event "${String(event)}"):`,
-              error,
-            )
-          }
+      const anyListenersArray = Array.from(anyListeners)
+      for (const listener of anyListenersArray) {
+        try {
+          listener(anyEvent)
+        } catch (error) {
+          console.error(`[EventBus] Error in wildcard listener for "${String(event)}":`, error)
         }
       }
     }
@@ -465,29 +407,6 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
     debouncedEmitter(debounceMapKey, () => performEmit(event, payload, options))
   }
 
-  const onGlob = (pattern: EventGlob, listener: WildcardListener): Unsubscribe => {
-    const listeners = getWildcardListeners(pattern)
-    listeners.add(listener)
-    log(`Added glob listener for pattern "${pattern}" (${listeners.size} total)`)
-
-    return () => offGlob(pattern, listener)
-  }
-
-  const offGlob = (pattern: EventGlob, listener: WildcardListener): void => {
-    const listeners = wildcardListeners.get(pattern)
-    if (!listeners) {
-      return
-    }
-
-    listeners.delete(listener)
-    log(`Removed glob listener for pattern "${pattern}" (${listeners.size} remaining)`)
-
-    // Clean up empty sets to avoid memory leaks
-    if (listeners.size === 0) {
-      wildcardListeners.delete(pattern)
-    }
-  }
-
   const flushDebouncedEmits = (): void => {
     flushDebouncedEmitters()
   }
@@ -496,8 +415,8 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
     on,
     once,
     off,
-    onGlob,
-    offGlob,
+    onAny,
+    offAny,
     emit,
     flushDebouncedEmits,
   }

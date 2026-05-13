@@ -405,39 +405,36 @@ describe('createWorkspaceEventBus', () => {
     vi.useRealTimers()
   })
 
-  describe('onGlob / offGlob', () => {
-    it('catches every event with the wildcard pattern', () => {
+  describe('onAny / offAny', () => {
+    it('catches every event with name and payload', () => {
       const bus = createWorkspaceEventBus()
       const handler = vi.fn()
 
-      bus.onGlob('*', handler)
+      bus.onAny(handler)
       bus.emit('update:dark-mode', true)
       bus.emit('update:active-document', 'doc-123')
 
       expect(handler).toHaveBeenCalledTimes(2)
-      expect(handler).toHaveBeenNthCalledWith(1, 'update:dark-mode', true)
-      expect(handler).toHaveBeenNthCalledWith(2, 'update:active-document', 'doc-123')
+      expect(handler).toHaveBeenNthCalledWith(1, { event: 'update:dark-mode', payload: true })
+      expect(handler).toHaveBeenNthCalledWith(2, { event: 'update:active-document', payload: 'doc-123' })
     })
 
-    it('catches only matching events with a prefix glob pattern', () => {
+    it('forwards undefined payloads on the tagged-union argument', () => {
       const bus = createWorkspaceEventBus()
       const handler = vi.fn()
 
-      bus.onGlob('operation:*', handler)
+      bus.onAny(handler)
       bus.emit('operation:cancel:request')
-      bus.emit('update:dark-mode', true)
-      bus.emit('operation:send:request:hotkey')
 
-      expect(handler).toHaveBeenCalledTimes(2)
-      expect(handler).toHaveBeenNthCalledWith(1, 'operation:cancel:request', undefined)
-      expect(handler).toHaveBeenNthCalledWith(2, 'operation:send:request:hotkey', undefined)
+      expect(handler).toHaveBeenCalledTimes(1)
+      expect(handler).toHaveBeenCalledWith({ event: 'operation:cancel:request', payload: undefined })
     })
 
     it('returns an unsubscribe function that stops the listener', () => {
       const bus = createWorkspaceEventBus()
       const handler = vi.fn()
 
-      const unsubscribe = bus.onGlob('*', handler)
+      const unsubscribe = bus.onAny(handler)
       bus.emit('update:dark-mode', true)
       expect(handler).toHaveBeenCalledTimes(1)
 
@@ -446,69 +443,53 @@ describe('createWorkspaceEventBus', () => {
       expect(handler).toHaveBeenCalledTimes(1)
     })
 
-    it('offGlob removes a specific listener without affecting others', () => {
+    it('offAny removes a specific listener without affecting others', () => {
       const bus = createWorkspaceEventBus()
       const handler1 = vi.fn()
       const handler2 = vi.fn()
 
-      bus.onGlob('*', handler1)
-      bus.onGlob('*', handler2)
+      bus.onAny(handler1)
+      bus.onAny(handler2)
 
-      bus.offGlob('*', handler1)
+      bus.offAny(handler1)
       bus.emit('update:dark-mode', true)
 
       expect(handler1).not.toHaveBeenCalled()
-      expect(handler2).toHaveBeenCalledWith('update:dark-mode', true)
+      expect(handler2).toHaveBeenCalledWith({ event: 'update:dark-mode', payload: true })
     })
 
-    it('two different patterns work independently', () => {
-      const bus = createWorkspaceEventBus()
-      const allHandler = vi.fn()
-      const opHandler = vi.fn()
-
-      bus.onGlob('*', allHandler)
-      bus.onGlob('operation:*', opHandler)
-
-      bus.emit('update:dark-mode', true)
-      bus.emit('operation:cancel:request')
-
-      expect(allHandler).toHaveBeenCalledTimes(2)
-      expect(opHandler).toHaveBeenCalledTimes(1)
-      expect(opHandler).toHaveBeenCalledWith('operation:cancel:request', undefined)
-    })
-
-    it('cleans up the pattern entry when the last glob listener is removed', () => {
-      const bus = createWorkspaceEventBus()
-      const handler = vi.fn()
-
-      bus.onGlob('*', handler)
-      bus.offGlob('*', handler)
-
-      // After removing, emitting should still not throw
-      expect(() => bus.emit('update:dark-mode', true)).not.toThrow()
-      expect(handler).not.toHaveBeenCalled()
-    })
-
-    it('does not break exact-match listeners when a glob listener is also registered', () => {
+    it('does not break exact-match listeners when a wildcard listener is also registered', () => {
       const bus = createWorkspaceEventBus()
       const exactHandler = vi.fn()
-      const globHandler = vi.fn()
+      const anyHandler = vi.fn()
 
       bus.on('update:dark-mode', exactHandler)
-      bus.onGlob('*', globHandler)
+      bus.onAny(anyHandler)
 
       bus.emit('update:dark-mode', false)
 
       expect(exactHandler).toHaveBeenCalledWith(false)
-      expect(globHandler).toHaveBeenCalledWith('update:dark-mode', false)
+      expect(anyHandler).toHaveBeenCalledWith({ event: 'update:dark-mode', payload: false })
     })
 
-    it('glob listener receives debounced events once settled', () => {
+    it('invokes exact-match listeners before wildcard listeners', () => {
+      const bus = createWorkspaceEventBus()
+      const order: string[] = []
+
+      bus.on('update:dark-mode', () => order.push('exact'))
+      bus.onAny(() => order.push('wildcard'))
+
+      bus.emit('update:dark-mode', true)
+
+      expect(order).toEqual(['exact', 'wildcard'])
+    })
+
+    it('wildcard listener receives debounced events once settled', () => {
       vi.useFakeTimers()
       const bus = createWorkspaceEventBus()
       const handler = vi.fn()
 
-      bus.onGlob('update:*', handler)
+      bus.onAny(handler)
       bus.emit('update:dark-mode', true, { debounceKey: 'test' })
       bus.emit('update:dark-mode', false, { debounceKey: 'test' })
 
@@ -517,122 +498,76 @@ describe('createWorkspaceEventBus', () => {
       vi.advanceTimersByTime(400)
 
       expect(handler).toHaveBeenCalledTimes(1)
-      expect(handler).toHaveBeenCalledWith('update:dark-mode', false)
+      expect(handler).toHaveBeenCalledWith({ event: 'update:dark-mode', payload: false })
 
       vi.useRealTimers()
     })
 
-    it('all glob listeners on the same pattern fire when that pattern matches', () => {
+    it('all wildcard listeners fire on every emit', () => {
       const bus = createWorkspaceEventBus()
       const handler1 = vi.fn()
       const handler2 = vi.fn()
       const handler3 = vi.fn()
 
-      bus.onGlob('operation:*', handler1)
-      bus.onGlob('operation:*', handler2)
-      bus.onGlob('operation:*', handler3)
+      bus.onAny(handler1)
+      bus.onAny(handler2)
+      bus.onAny(handler3)
 
       bus.emit('operation:cancel:request')
 
-      expect(handler1).toHaveBeenCalledWith('operation:cancel:request', undefined)
-      expect(handler2).toHaveBeenCalledWith('operation:cancel:request', undefined)
-      expect(handler3).toHaveBeenCalledWith('operation:cancel:request', undefined)
+      const expected = { event: 'operation:cancel:request', payload: undefined }
+      expect(handler1).toHaveBeenCalledWith(expected)
+      expect(handler2).toHaveBeenCalledWith(expected)
+      expect(handler3).toHaveBeenCalledWith(expected)
     })
 
-    it('a throwing glob listener does not prevent other glob listeners from firing', () => {
+    it('a throwing wildcard listener does not prevent other wildcard listeners from firing', () => {
       const bus = createWorkspaceEventBus()
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
       const throwingHandler = vi.fn(() => {
-        throw new Error('glob boom')
+        throw new Error('any boom')
       })
       const safeHandler = vi.fn()
 
-      bus.onGlob('*', throwingHandler)
-      bus.onGlob('*', safeHandler)
+      bus.onAny(throwingHandler)
+      bus.onAny(safeHandler)
 
       expect(() => bus.emit('update:dark-mode', true)).not.toThrow()
 
       expect(throwingHandler).toHaveBeenCalledTimes(1)
-      expect(safeHandler).toHaveBeenCalledWith('update:dark-mode', true)
+      expect(safeHandler).toHaveBeenCalledWith({ event: 'update:dark-mode', payload: true })
+
+      errorSpy.mockRestore()
     })
 
-    it('a throwing glob listener does not prevent exact-match listeners from firing', () => {
+    it('a throwing wildcard listener does not prevent exact-match listeners from firing', () => {
       const bus = createWorkspaceEventBus()
-      const throwingGlobHandler = vi.fn(() => {
-        throw new Error('glob boom')
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      const throwingAnyHandler = vi.fn(() => {
+        throw new Error('any boom')
       })
       const exactHandler = vi.fn()
 
       bus.on('update:dark-mode', exactHandler)
-      bus.onGlob('*', throwingGlobHandler)
+      bus.onAny(throwingAnyHandler)
 
       expect(() => bus.emit('update:dark-mode', true)).not.toThrow()
 
       expect(exactHandler).toHaveBeenCalledWith(true)
+
+      errorSpy.mockRestore()
     })
 
-    it('offGlob on a pattern that was never registered does not throw', () => {
+    it('offAny on a listener that was never registered does not throw', () => {
       const bus = createWorkspaceEventBus()
       const handler = vi.fn()
 
-      expect(() => bus.offGlob('operation:*', handler)).not.toThrow()
+      expect(() => bus.offAny(handler)).not.toThrow()
     })
 
-    it('offGlob removing a listener that is not registered for that pattern does not throw', () => {
-      const bus = createWorkspaceEventBus()
-      const handler1 = vi.fn()
-      const handler2 = vi.fn()
-
-      bus.onGlob('*', handler1)
-
-      // handler2 was never added — should be a no-op
-      expect(() => bus.offGlob('*', handler2)).not.toThrow()
-
-      bus.emit('update:dark-mode', true)
-      expect(handler1).toHaveBeenCalledTimes(1)
-    })
-
-    it('same listener registered under two patterns is tracked independently', () => {
-      const bus = createWorkspaceEventBus()
-      const handler = vi.fn()
-
-      bus.onGlob('*', handler)
-      bus.onGlob('operation:*', handler)
-
-      // Removing from one pattern leaves the other intact
-      bus.offGlob('operation:*', handler)
-
-      bus.emit('operation:cancel:request')
-
-      // Should still fire once via '*', but not twice
-      expect(handler).toHaveBeenCalledTimes(1)
-      expect(handler).toHaveBeenCalledWith('operation:cancel:request', undefined)
-    })
-
-    it('a deeply nested prefix pattern only matches events under that prefix', () => {
-      const bus = createWorkspaceEventBus()
-      const handler = vi.fn()
-
-      bus.onGlob('operation:update:*', handler)
-
-      bus.emit('operation:cancel:request') // should NOT match
-      bus.emit('operation:send:request:hotkey') // should NOT match
-      bus.emit('operation:update:meta', {
-        payload: { summary: 'new' },
-        meta: { method: 'get', path: '/pets' },
-      })
-      bus.emit('operation:update:pathMethod', {
-        payload: { method: 'post', path: '/pets' },
-        meta: { method: 'get', path: '/pets' },
-        blurTargetSelector: null,
-        callback: vi.fn(),
-      })
-
-      expect(handler).toHaveBeenCalledTimes(2)
-      expect(handler.mock.calls[0]?.[0]).toBe('operation:update:meta')
-      expect(handler.mock.calls[1]?.[0]).toBe('operation:update:pathMethod')
-    })
-
-    it('handles removing a glob listener during emission without breaking other listeners', () => {
+    it('handles removing a wildcard listener during emission without breaking other listeners', () => {
       const bus = createWorkspaceEventBus()
       const handler1 = vi.fn()
       const handler2 = vi.fn()
@@ -640,13 +575,13 @@ describe('createWorkspaceEventBus', () => {
 
       let unsubscribe2: (() => void) | null = null
 
-      bus.onGlob('*', () => {
+      bus.onAny(() => {
         unsubscribe2?.()
         handler1()
       })
 
-      unsubscribe2 = bus.onGlob('*', handler2)
-      bus.onGlob('*', handler3)
+      unsubscribe2 = bus.onAny(handler2)
+      bus.onAny(handler3)
 
       // All three fire on the first emit (snapshot taken before mutation)
       bus.emit('update:dark-mode', true)

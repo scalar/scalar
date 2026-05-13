@@ -74,6 +74,8 @@ export const TRACKED_EVENTS: TrackedEventsMap = {
   'auth:update:selected-scopes': metaType,
   'auth:delete:security-scheme': empty,
   'auth:clear:security-scheme-secrets': empty,
+  'auth:upsert:scopes': empty,
+  'auth:delete:scopes': empty,
 
   // Cookie events — track whether it belongs to a document or workspace
   'cookie:upsert:cookie': collectionType,
@@ -110,6 +112,7 @@ export const TRACKED_EVENTS: TrackedEventsMap = {
   'ui:open:settings': empty,
   'ui:download:document': formatProp,
   'ui:toggle:sidebar': empty,
+  'ui:save:local-document': empty,
   'copy-url:address-bar': empty,
   'tabs:add:tab': empty,
   'tabs:copy:url': empty,

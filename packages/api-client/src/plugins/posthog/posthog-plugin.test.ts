@@ -69,7 +69,7 @@ describe('posthog-plugin', () => {
     const plugin = PostHogClientPlugin(TEST_CONFIG)
     plugin.lifecycle?.onInit?.({ config: {} })
 
-    const wildcardHandler = plugin.on?.['*']
+    const wildcardHandler = plugin.on
     expect(wildcardHandler).toBeDefined()
 
     const trackedEvents = [
@@ -88,7 +88,7 @@ describe('posthog-plugin', () => {
 
     for (const event of trackedEvents) {
       mockPostHogInstance.capture.mockClear()
-      wildcardHandler?.(event as never, {} as never)
+      wildcardHandler?.({ event, payload: {} } as never)
       expect(mockPostHogInstance.capture).toHaveBeenCalledWith(event, {})
     }
   })
@@ -98,7 +98,7 @@ describe('posthog-plugin', () => {
     plugin.lifecycle?.onInit?.({ config: {} })
     mockPostHogInstance.capture.mockClear()
 
-    const wildcardHandler = plugin.on?.['*']
+    const wildcardHandler = plugin.on
 
     // These events are intentionally excluded from the analytics allowlist
     const untrackedEvents = [
@@ -110,7 +110,7 @@ describe('posthog-plugin', () => {
     ] as const
 
     for (const event of untrackedEvents) {
-      wildcardHandler?.(event as never, {} as never)
+      wildcardHandler?.({ event, payload: {} } as never)
     }
 
     expect(mockPostHogInstance.capture).not.toHaveBeenCalled()
@@ -121,10 +121,10 @@ describe('posthog-plugin', () => {
     plugin.lifecycle?.onInit?.({ config: {} })
     mockPostHogInstance.capture.mockClear()
 
-    const wildcardHandler = plugin.on?.['*']
+    const wildcardHandler = plugin.on
 
-    wildcardHandler?.('log:user-login' as never, {} as never)
-    wildcardHandler?.('log:user-logout' as never, undefined as never)
+    wildcardHandler?.({ event: 'log:user-login', payload: {} } as never)
+    wildcardHandler?.({ event: 'log:user-logout', payload: undefined } as never)
 
     expect(mockPostHogInstance.capture).not.toHaveBeenCalled()
   })
@@ -133,7 +133,10 @@ describe('posthog-plugin', () => {
     const plugin = PostHogClientPlugin(TEST_CONFIG)
     plugin.lifecycle?.onInit?.({ config: {} })
 
-    plugin.on?.['*']?.('log:user-login' as never, { uid: 'u1', email: 'user@example.com', teamUid: 'team1' } as never)
+    plugin.on?.({
+      event: 'log:user-login',
+      payload: { uid: 'u1', email: 'user@example.com', teamUid: 'team1' },
+    })
 
     expect(mockPostHogInstance.identify).toHaveBeenCalledWith('u1', {
       email: 'user@example.com',
@@ -146,7 +149,7 @@ describe('posthog-plugin', () => {
     plugin.lifecycle?.onInit?.({ config: {} })
 
     mockPostHogInstance.reset.mockClear()
-    plugin.on?.['*']?.('log:user-logout' as never, undefined as never)
+    plugin.on?.({ event: 'log:user-logout', payload: undefined })
 
     expect(mockPostHogInstance.reset).toHaveBeenCalled()
   })

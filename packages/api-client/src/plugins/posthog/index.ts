@@ -1,6 +1,4 @@
-import { isObject } from '@scalar/helpers/object/is-object'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { ConfigDefaults, PostHog } from 'posthog-js'
 import ph from 'posthog-js'
 
@@ -30,29 +28,29 @@ export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
   let posthog: PostHog | null = null
 
   return {
-    on: {
-      '*': (event: keyof ApiReferenceEvents, payload: ApiReferenceEvents[keyof ApiReferenceEvents]) => {
-        // User logs in — never capture this event; identify only when payload is valid
-        if (event === 'log:user-login') {
-          if (isObject(payload) && 'uid' in payload && typeof payload.uid === 'string') {
-            posthog?.identify(payload.uid, { email: payload.email, teamUid: payload.teamUid })
-          }
-          return
+    on: ({ event, payload }) => {
+      // User logs in — never capture this event; identify only when payload has a uid.
+      // Thanks to the tagged-union narrowing, `payload` is the login payload here;
+      // the `payload?.uid` guard is purely defensive against bad runtime data.
+      if (event === 'log:user-login') {
+        if (payload?.uid) {
+          posthog?.identify(payload.uid, { email: payload.email, teamUid: payload.teamUid })
         }
+        return
+      }
 
-        // User logs out
-        if (event === 'log:user-logout') {
-          posthog?.reset()
-          return
-        }
+      // User logs out
+      if (event === 'log:user-logout') {
+        posthog?.reset()
+        return
+      }
 
-        // Only capture events that are in the allowlist
-        const result = sanitizeEventPayload(event, payload)
-        if (result !== null) {
-          const properties = typeof result === 'object' && result !== null ? result : { value: result }
-          posthog?.capture(event, properties)
-        }
-      },
+      // Only capture events that are in the allowlist
+      const result = sanitizeEventPayload(event, payload)
+      if (result !== null) {
+        const properties = typeof result === 'object' && result !== null ? result : { value: result }
+        posthog?.capture(event, properties)
+      }
     },
     lifecycle: {
       onInit(context) {

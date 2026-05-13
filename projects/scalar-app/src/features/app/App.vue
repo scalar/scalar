@@ -17,8 +17,6 @@ import {
   useModal,
   type WorkspaceGroup,
 } from '@scalar/components'
-import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import { ScalarModal, ScalarTeleportRoot, useModal } from '@scalar/components'
 import {
   subscribePluginEvents,
   type ClientPlugin,
