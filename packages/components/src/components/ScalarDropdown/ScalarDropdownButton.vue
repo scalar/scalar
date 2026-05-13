@@ -32,8 +32,9 @@ const variants = cva({
     'block h-8 min-w-0 gap-1.5 rounded px-2.5 py-1.5 text-left',
     // Text / background style
     'truncate  no-underline text-sm text-c-1',
-    // Interaction
-    'cursor-pointer hover:bg-b-2',
+    // Interaction — hover:bg-b-2 handles mouse, data-[highlighted]:bg-b-2 handles
+    // Radix keyboard navigation and mouse-hover within Radix menu items
+    'cursor-pointer hover:bg-b-2 data-[highlighted]:bg-b-2',
   ],
   variants: {
     disabled: { true: 'pointer-events-none text-c-3' },
@@ -53,7 +54,8 @@ const variants = cva({
   </component>
 </template>
 <style scoped>
-.dark-mode .scalar-dropdown-item:hover {
+.dark-mode .scalar-dropdown-item:hover,
+.dark-mode .scalar-dropdown-item[data-highlighted] {
   filter: brightness(1.1);
 }
 </style>
