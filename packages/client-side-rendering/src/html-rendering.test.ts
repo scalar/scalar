@@ -100,7 +100,8 @@ describe('html-rendering', () => {
           content: { foo: 'bar' },
         },
       })
-      expect(html).toContain('"url": "https://api.example.com/spec"')
+      // The serializer unicode-escapes `/` as `/` for inline-script safety.
+      expect(html).toContain('"url": "https:\\u002F\\u002Fapi.example.com\\u002Fspec"')
       expect(html).not.toContain('"content"')
     })
 
@@ -289,8 +290,11 @@ describe('html-rendering', () => {
 
       const tags = getScriptTags(config, 'https://example.com/script.js')
 
-      // Check that plugins array is preserved with function
-      expect(tags).toContain('"plugins": [() => ({')
+      // The function body comes from `Function#toString()` and contains the
+      // post-transpile source — assert on the substantive tokens, not on the
+      // exact line-wrapping that the pretty-printer produces.
+      expect(tags).toContain('"plugins":')
+      expect(tags).toContain('() => ({')
       expect(tags).toContain('name: "test-plugin"')
       expect(tags).toContain('extensions: [')
       expect(tags).toContain('name: "x-custom-extension"')

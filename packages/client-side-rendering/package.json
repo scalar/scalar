@@ -35,9 +35,11 @@
   "dependencies": {
     "@scalar/schemas": "workspace:*",
     "@scalar/types": "workspace:*",
-    "@scalar/validation": "workspace:*"
+    "@scalar/validation": "workspace:*",
+    "serialize-javascript": "^7.0.5"
   },
   "devDependencies": {
+    "@types/serialize-javascript": "^5.0.4",
     "vite": "catalog:*"
   }
 }
