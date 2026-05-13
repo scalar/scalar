@@ -86,11 +86,34 @@ describe('posthog-plugin', () => {
       'ui:download:document',
     ] as const
 
+    // Empty payloads produce no extracted properties, so PostHog is called
+    // without a properties argument — we still want to know the event fired,
+    // just without a noisy `{}` payload attached.
     for (const event of trackedEvents) {
       mockPostHogInstance.capture.mockClear()
       wildcardHandler?.({ event, payload: {} } as never)
-      expect(mockPostHogInstance.capture).toHaveBeenCalledWith(event, {})
+      expect(mockPostHogInstance.capture).toHaveBeenCalledWith(event)
     }
+  })
+
+  it('captures with extracted properties when the payload provides them', () => {
+    const plugin = PostHogClientPlugin(TEST_CONFIG)
+    plugin.lifecycle?.onInit?.({ config: {} })
+
+    // `auth:update:selected-security-schemes` extracts `meta.type` when present
+    mockPostHogInstance.capture.mockClear()
+    plugin.on?.({
+      event: 'auth:update:selected-security-schemes',
+      payload: { meta: { type: 'apiKey' } },
+    } as never)
+    expect(mockPostHogInstance.capture).toHaveBeenCalledWith('auth:update:selected-security-schemes', {
+      'meta.type': 'apiKey',
+    })
+
+    // `ui:download:document` extracts `format` when present
+    mockPostHogInstance.capture.mockClear()
+    plugin.on?.({ event: 'ui:download:document', payload: { format: 'yaml' } } as never)
+    expect(mockPostHogInstance.capture).toHaveBeenCalledWith('ui:download:document', { format: 'yaml' })
   })
 
   it('does not capture events that are not in the allowlist', () => {

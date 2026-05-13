@@ -47,10 +47,21 @@ export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
 
       // Only capture events that are in the allowlist
       const result = sanitizeEventPayload(event, payload)
-      if (result !== null) {
-        const properties = typeof result === 'object' && result !== null ? result : { value: result }
-        posthog?.capture(event, properties)
+      if (result === null) {
+        return
       }
+
+      const properties = typeof result === 'object' && result !== null ? result : { value: result }
+
+      // When the extractor returned no useful properties, fire the event
+      // without a properties argument so PostHog records the event fact alone
+      // (rather than a noisy `{}` payload).
+      if (Object.keys(properties).length === 0) {
+        posthog?.capture(event)
+        return
+      }
+
+      posthog?.capture(event, properties)
     },
     lifecycle: {
       onInit(context) {
