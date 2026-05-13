@@ -6,6 +6,7 @@ import { generateReadme } from '@/commands/generate-readme'
 import { packages } from '@/commands/packages'
 import { updatePlaywrightDocker } from '@/commands/playwright-docker/push-container'
 import { releaseNotesGenerator } from '@/commands/release-notes-generator'
+import { syncReleaseNotesMarkdown } from '@/commands/release-notes-generator/sync-release-notes-markdown'
 import { run } from '@/commands/run'
 import { updateTestSnapshots } from '@/commands/update-snapshots'
 import { wait } from '@/commands/wait'
@@ -28,4 +29,5 @@ program.addCommand(updatePlaywrightDocker)
 program.addCommand(generateReadme)
 program.addCommand(generateBlog)
 program.addCommand(releaseNotesGenerator)
+program.addCommand(syncReleaseNotesMarkdown)
 program.parse()

@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ReleaseNote } from './types'
-import { mergeReleaseNotes, writeReleaseNoteJson } from './write-release-notes-json'
+import { mergeReleaseNotes, readReleaseNotesJsonFile, writeReleaseNoteJson } from './write-release-notes-json'
 
 const note = (version: string, date: string, title = `release ${version}`): ReleaseNote => ({
   version,
@@ -75,7 +75,10 @@ describe('writeReleaseNoteJson', () => {
 
     const result = await writeReleaseNoteJson({
       path,
-      note: { ...note('1.0.0', '2026-01-01'), description: 'Hello world.' },
+      note: {
+        ...note('1.0.0', '2026-01-01'),
+        content: [{ type: 'paragraph', text: 'Hello world.' }],
+      },
     })
 
     expect(result.created).toBe(true)
@@ -84,7 +87,12 @@ describe('writeReleaseNoteJson', () => {
     const written = JSON.parse(await readFile(path, 'utf-8'))
     expect(Array.isArray(written)).toBe(true)
     expect(written).toEqual([
-      { version: '1.0.0', date: '2026-01-01', title: 'release 1.0.0', description: 'Hello world.' },
+      {
+        version: '1.0.0',
+        date: '2026-01-01',
+        title: 'release 1.0.0',
+        content: [{ type: 'paragraph', text: 'Hello world.' }],
+      },
     ])
   })
 
@@ -144,5 +152,71 @@ describe('writeReleaseNoteJson', () => {
     expect(result.entries.map((entry) => entry.version)).toEqual(['1.1.0', '1.0.0'])
     expect(warn).toHaveBeenCalled()
     warn.mockRestore()
+  })
+})
+
+describe('readReleaseNotesJsonFile', () => {
+  let workDir: string
+
+  beforeEach(async () => {
+    workDir = await mkdtemp(join(tmpdir(), 'release-notes-read-'))
+  })
+
+  afterEach(() => {
+    workDir = ''
+  })
+
+  it('returns valid entries in file order', async () => {
+    const path = join(workDir, 'RELEASE_NOTES.json')
+    const entries = [note('2.0.0', '2026-02-01'), note('1.0.0', '2026-01-01')]
+    await writeFile(path, `${JSON.stringify(entries, null, 2)}\n`, 'utf-8')
+
+    const read = await readReleaseNotesJsonFile(path)
+    expect(read.map((entry) => entry.version)).toEqual(['2.0.0', '1.0.0'])
+  })
+
+  it('rejects a missing file', async () => {
+    const path = join(workDir, 'missing.json')
+    await expect(readReleaseNotesJsonFile(path)).rejects.toThrow(/not found/)
+  })
+
+  it('rejects invalid JSON', async () => {
+    const path = join(workDir, 'bad.json')
+    await writeFile(path, '{', 'utf-8')
+    await expect(readReleaseNotesJsonFile(path)).rejects.toThrow(/Could not parse/)
+  })
+
+  it('rejects a non-array root', async () => {
+    const path = join(workDir, 'root.json')
+    await writeFile(path, JSON.stringify({}), 'utf-8')
+    await expect(readReleaseNotesJsonFile(path)).rejects.toThrow(/JSON array/)
+  })
+
+  it('rejects when every entry fails validation', async () => {
+    const path = join(workDir, 'all-bad.json')
+    await writeFile(path, JSON.stringify([{ version: 'x', date: 'y', title: 'z' }]), 'utf-8')
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    await expect(readReleaseNotesJsonFile(path)).rejects.toThrow(/No valid release note entries/)
+    warn.mockRestore()
+  })
+
+  it('keeps valid entries when some entries fail validation', async () => {
+    const path = join(workDir, 'mixed.json')
+    await writeFile(
+      path,
+      JSON.stringify([{ version: 'bad', date: 'bad', title: 'bad' }, note('1.0.0', '2026-01-01')]),
+      'utf-8',
+    )
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const read = await readReleaseNotesJsonFile(path)
+    expect(read).toHaveLength(1)
+    expect(read[0]?.version).toBe('1.0.0')
+    warn.mockRestore()
+  })
+
+  it('accepts an empty array', async () => {
+    const path = join(workDir, 'empty.json')
+    await writeFile(path, '[]\n', 'utf-8')
+    await expect(readReleaseNotesJsonFile(path)).resolves.toEqual([])
   })
 })

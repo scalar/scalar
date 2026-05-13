@@ -206,6 +206,19 @@ The version is auto-detected from the `package.json` next to `--changelog`. Pass
 
 Add `--dry-run` to print the generated note without touching the files on disk.
 
+### `sync-release-notes-markdown`
+
+Rewrite the derived `RELEASE_NOTES.md` from an existing `RELEASE_NOTES.json` only. Use this after hand-editing the JSON so the markdown mirror stays in sync without running the AI generator or reading `CHANGELOG.md`.
+
+**Usage:**
+```bash
+pnpm --filter @scalar-internal/build-scripts start sync-release-notes-markdown \
+  --json projects/scalar-app/RELEASE_NOTES.json \
+  --markdown projects/scalar-app/RELEASE_NOTES.md
+```
+
+The command preserves the order of entries exactly as they appear in the JSON file. It exits with an error if the JSON file is missing, not valid JSON, not a root-level array, or contains no valid entries after schema validation (warnings are printed for individual bad entries when at least one entry is still valid).
+
 **Authentication:**
 - **Anthropic** - reads `ANTHROPIC_API_KEY` from the environment. When the variable is missing the command prints a warning and exits successfully so contributors and PR builds running `pnpm changeset version` locally without the secret are not blocked.
 - **GitHub** - reads `GITHUB_TOKEN` from the environment to fetch PR titles and descriptions. The repo is public, so an unauthenticated call works too, but the 60 requests / hour / IP rate limit is easy to blow through in CI. Failures (no token, rate limited, network blip) degrade silently to a CHANGELOG-only prompt rather than failing the release pipeline.

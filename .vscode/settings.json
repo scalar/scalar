@@ -94,5 +94,11 @@
   "json.schemaDownload.enable": true,
   "json.schemaDownload.trustedDomains": {
     "https://registry.scalar.com": true
-  }
+  },
+  "json.schemas": [
+    {
+      "fileMatch": ["**/RELEASE_NOTES.json"],
+      "url": "./projects/scalar-app/RELEASE_NOTES.schema.json"
+    }
+  ]
 }
