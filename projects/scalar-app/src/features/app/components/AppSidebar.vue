@@ -444,20 +444,25 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                 All Documents
               </ScalarSidebarButton>
               <ScalarIconButton
+                class="rounded-full"
                 :icon="ScalarIconGearSix"
                 label="Workspace settings"
                 size="sm"
+                variant="gradient"
                 @click="handleOpenSettings" />
               <ScalarIconButton
+                class="rounded-full"
                 :icon="ScalarIconFunnel"
                 label="Filter documents"
                 size="sm"
+                variant="gradient"
                 @click="handleFilterOrSearch" />
               <ScalarIconButton
-                class="rounded-full border"
+                class="rounded-full"
                 :icon="ScalarIconPlus"
                 label="Add document"
                 size="sm"
+                variant="gradient"
                 @click="handleCreate" />
             </div>
             <ScalarSidebarSearchInput

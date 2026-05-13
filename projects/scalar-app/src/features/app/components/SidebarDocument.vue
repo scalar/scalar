@@ -102,20 +102,25 @@ const handleDragEnd = (
           Back
         </ScalarSidebarButton>
         <ScalarIconButton
+          class="rounded-full"
           :icon="ScalarIconGearSix"
           label="Collection settings"
           size="sm"
+          variant="gradient"
           @click="emit('openSettings')" />
         <ScalarIconButton
+          class="rounded-full"
           :icon="ScalarIconMagnifyingGlass"
           label="Search collection"
           size="sm"
+          variant="gradient"
           @click="emit('search')" />
         <ScalarIconButton
-          class="rounded-full border"
+          class="rounded-full"
           :icon="ScalarIconPlus"
           label="Add operation"
           size="sm"
+          variant="gradient"
           @click="emit('createOperation', item)" />
       </div>
     </template>
