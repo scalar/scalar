@@ -790,11 +790,13 @@ export const createAppState = async ({
    * changes in the route.
    *
    * - Tries to resolve the URL's `[teamSlug, slug]` pair via persistence.
-   * - When the lookup fails but the URL's team matches the current
-   *   user's `teamUid`, falls back to the first workspace owned by that
-   *   `teamUid`. This is the slug-rename recovery path: server rotated
-   *   the slug, the URL is stale, but the workspace still exists locally
-   *   under the same UID.
+   * - When the lookup fails on a non-`local` team route while the shell
+   *   has a real `teamUid`, falls back to the first workspace owned by
+   *   that `teamUid` when its slug pair differs from the URL. This is
+   *   the slug-rename recovery path: server rotated the slug, the URL is
+   *   stale, but the workspace still exists locally under the same UID.
+   *   Intentional `/@local/…` URLs never use this branch so they can
+   *   resolve to local defaults even while authenticated.
    * - When neither succeeds, falls back to the local default workspace
    *   (creating it on demand if needed).
    */
@@ -832,11 +834,16 @@ export const createAppState = async ({
       return
     }
 
-    // Slug-rename recovery: if the URL's team matches the current user's
-    // team UID and we have any workspace under that UID, redirect to its
-    // *current* slug pair. The slugs in IndexedDB are the user's last
-    // known truth and stay valid even when the URL drifts.
-    if (teamSlug === teamUid || teamUid !== 'local') {
+    // Slug-rename recovery: when the URL targets a *team* path (not
+    // `/@local/…`) and the shell has resolved a real team membership,
+    // try redirecting to the catalog's current slug pair for that
+    // `teamUid`. The route's `[teamSlug, slug]` can be stale after a
+    // server-side rename; IndexedDB keeps the canonical slugs.
+    //
+    // We must not run this for `/@local/…` while authenticated: in that
+    // case `teamUid` is still the org UID from the token, so a naive
+    // `teamUid !== 'local'` check would hijack intentional local routes.
+    if (teamSlug !== 'local' && teamUid !== 'local') {
       const teamWorkspace = workspaces.value.find((w) => w.teamUid === teamUid)
       if (teamWorkspace && (teamWorkspace.teamSlug !== teamSlug || teamWorkspace.slug !== slug)) {
         isSyncingWorkspace.value = false

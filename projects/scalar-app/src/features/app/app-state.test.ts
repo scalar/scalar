@@ -49,6 +49,15 @@ const persistWorkspace = async ({
   )
 }
 
+/** Avoids duplicate `local`/`default` rows — the catalog index is unique on `[teamSlug, slug]`. */
+const ensureLocalDefaultWorkspace = async (): Promise<void> => {
+  const persistence = await createWorkspaceStorePersistence()
+  if (await persistence.workspace.getItemBySlug({ slug: 'default' })) {
+    return
+  }
+  await persistWorkspace({ slug: 'default', name: 'Local Default' })
+}
+
 const setupRouter = () => createRouter({ history: createMemoryHistory(), routes: ROUTES })
 
 /**
@@ -478,6 +487,34 @@ describe('app-state', () => {
 
     expect(router.currentRoute.value.params.teamSlug).toBe('new-slug')
     expect(router.currentRoute.value.params.workspaceSlug).toBe('api')
+  })
+
+  it('falls through to the local default when /@local/… misses while the shell team is non-local', async () => {
+    const teamUid = 'logged-in-team-uid'
+    const teamSlug = 'acme-local-fallback-test'
+    await ensureLocalDefaultWorkspace()
+    await persistWorkspace({
+      teamUid,
+      teamSlug,
+      slug: 'only-team-ws',
+      name: 'Team WS',
+    })
+
+    const router = setupRouter()
+    const appState = await createAppState({ router })
+
+    await router.push({
+      name: 'workspace.get-started',
+      params: { teamSlug: 'local', workspaceSlug: 'does-not-exist' },
+    })
+    await router.isReady()
+
+    // Shell team is the org, but the URL explicitly targets a missing local workspace.
+    await appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, teamSlug, teamUid))
+    await waitForNavigation()
+
+    expect(router.currentRoute.value.params.teamSlug).toBe('local')
+    expect(router.currentRoute.value.params.workspaceSlug).toBe('default')
   })
 
   it('reconciles the cached team slug and strips stale tab metadata when the server slug changes', async () => {
