@@ -149,6 +149,28 @@ describe('SchemaObjectProperties', () => {
     expect(prop.attributes('data-name')).toBe('propertyName')
   })
 
+  it('resolves $ref in additionalProperties and passes the resolved schema to SchemaProperty', () => {
+    const schema = {
+      type: 'object',
+      additionalProperties: {
+        $ref: '#/components/schemas/Resource',
+        '$ref-value': { type: 'object', properties: { id: { type: 'string' } } },
+      },
+    } as SchemaObject
+
+    const wrapper = mount(SchemaObjectProperties, {
+      props: { schema, options: {}, eventBus: null },
+    })
+
+    const prop = wrapper.findComponent({ name: 'SchemaProperty' })
+    expect(prop.exists()).toBe(true)
+    // The resolved schema should be passed, not { type: 'anything' }
+    expect(prop.props('schema')).toMatchObject({
+      type: 'object',
+      properties: { id: { type: 'string' } },
+    })
+  })
+
   it('does not render anything if schema has no properties, patternProperties, or additionalProperties', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'object',
