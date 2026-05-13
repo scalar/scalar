@@ -140,6 +140,7 @@ onBeforeUnmount(() => {
     plugin.lifecycle?.onDestroy?.()
   }
   unsubscribeOpenCreateWorkspace()
+  unsubscribeSaveLocalDocumentHotkey()
 })
 
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */
@@ -217,6 +218,18 @@ const {
   app,
   registry,
   registryDocuments: () => registryDocuments.value,
+})
+
+/** Cmd/Ctrl+S matches the header Save control for local workspaces (see AppHeaderActions). */
+const unsubscribeSaveLocalDocumentHotkey = app.eventBus.on('ui:save:local-document', (payload) => {
+  if (!showLocalSaveActions.value) {
+    return
+  }
+  payload.event.preventDefault()
+  if (!isActiveDocumentDirty.value) {
+    return
+  }
+  void handleSaveDocument()
 })
 
 /** Props to pass to the RouterView component. */

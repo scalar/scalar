@@ -225,6 +225,15 @@ export type UIEvents = {
    */
   'ui:open:command-palette': CommandPaletteAction | KeyboardEventPayload | undefined
 
+  /**
+   * Request persisting the active document from a keyboard shortcut (Cmd/Ctrl+S).
+   *
+   * Hosts that show a local-only Save control (for example scalar-app) should
+   * listen, call `event.preventDefault()` when they handle the shortcut, and
+   * run their save path only when a save is actually allowed.
+   */
+  'ui:save:local-document': KeyboardEventPayload
+
   // ────────────────────────────────────────────────────────────
   // Navigation Item Events
   // ────────────────────────────────────────────────────────────

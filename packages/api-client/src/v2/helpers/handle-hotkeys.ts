@@ -16,6 +16,7 @@ const DEFAULT_HOTKEYS: HotKeyConfig = {
   l: { event: 'ui:focus:address-bar', modifiers: ['default'] },
   j: { event: 'ui:focus:search', modifiers: ['default'] },
   i: { event: 'ui:open:settings', modifiers: ['default'] },
+  s: { event: 'ui:save:local-document', modifiers: ['default'] },
 }
 
 /** Hotkey map by layout, we can allow the user to override this later */
