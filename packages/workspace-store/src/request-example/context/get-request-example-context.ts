@@ -73,7 +73,7 @@ export const getRequestExampleContext = (
     fallbackDocument: WorkspaceDocument | null
   }> = {},
 ): Result<BuildRequestExampleContext> => {
-  const { path, method, exampleName } = requestExampleMeta
+  const { path, method, exampleName, isWebhook } = requestExampleMeta
   const document = workspaceStore.workspace.documents[documentName] ?? options.fallbackDocument ?? undefined
   if (!document) {
     return {
@@ -88,11 +88,13 @@ export const getRequestExampleContext = (
     }
   }
 
-  const pathItem = getResolvedRef(document.paths?.[path])
+  // Webhooks are modeled as PathItem objects under `document.webhooks` and are keyed by
+  // their webhook name rather than a URL path. Operations live under `document.paths`.
+  const pathItem = isWebhook ? getResolvedRef(document.webhooks?.[path]) : getResolvedRef(document.paths?.[path])
   if (!pathItem) {
     return {
       ok: false,
-      error: `Path ${path} not found`,
+      error: isWebhook ? `Webhook ${path} not found` : `Path ${path} not found`,
     }
   }
 
@@ -100,7 +102,7 @@ export const getRequestExampleContext = (
   if (!resolvedOperation) {
     return {
       ok: false,
-      error: `Method ${method} not found on path ${path}`,
+      error: isWebhook ? `Method ${method} not found on webhook ${path}` : `Method ${method} not found on path ${path}`,
     }
   }
 

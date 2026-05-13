@@ -12,6 +12,8 @@ export type ModalProps = {
   method: ComputedRef<HttpMethod | undefined>
   /** The example name must be initialized and passed in */
   exampleName: ComputedRef<string | undefined>
+  /** When true, the current route refers to a webhook from `document.webhooks` */
+  isWebhook?: ComputedRef<boolean>
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
   requestBodyCompositionSelection: Ref<Record<string, number>>
   /** Controls the visibility of the modal */
@@ -183,6 +185,7 @@ defineExpose({
         :environment
         :eventBus
         :exampleName="exampleName?.value"
+        :isWebhook="isWebhook?.value ?? false"
         layout="modal"
         :method="method?.value"
         :options
