@@ -377,24 +377,38 @@ npx @scalar/cli project preview
 
 ## Versions
 
-Use `versions` instead of `navigation` to create multi-version documentation:
+Use `versions` instead of `navigation` to create multi-version documentation.
+
+A version with the key `default` is required — it is the version shown by default. Additional versions (for example `v1`) can use any identifier and appear in the version selector. Inside each version's `routes`, wrap pages in a top-level `group` so they render correctly in the sidebar.
 
 ```json
 {
   "scalar": "2.0.0",
   "versions": {
-    "v2": {
+    "default": {
       "title": "Version 2.0",
       "routes": {
-        "/": { "type": "page", "title": "Intro", "filepath": "docs/v2/intro.md" },
-        "/api": { "type": "openapi", "title": "API", "filepath": "docs/v2/openapi.yaml" }
+        "/": {
+          "type": "group",
+          "title": "Documentation",
+          "children": {
+            "/": { "type": "page", "title": "Intro", "filepath": "docs/v2/intro.md" },
+            "/api": { "type": "openapi", "title": "API", "filepath": "docs/v2/openapi.yaml" }
+          }
+        }
       }
     },
     "v1": {
       "title": "Version 1.0",
       "routes": {
-        "/": { "type": "page", "title": "Intro", "filepath": "docs/v1/intro.md" },
-        "/api": { "type": "openapi", "title": "API", "filepath": "docs/v1/openapi.yaml" }
+        "/": {
+          "type": "group",
+          "title": "Documentation",
+          "children": {
+            "/": { "type": "page", "title": "Intro", "filepath": "docs/v1/intro.md" },
+            "/api": { "type": "openapi", "title": "API", "filepath": "docs/v1/openapi.yaml" }
+          }
+        }
       }
     }
   }
