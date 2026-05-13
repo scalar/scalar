@@ -28,3 +28,13 @@
  */
 @custom-variant hocus (&:hover, &:focus-visible);
 @custom-variant hocus-within (&:hover, &:focus-within);
+
+/**
+ * Radix UI highlighted variant
+ *
+ * Matches elements that have the `data-highlighted` attribute set by Radix UI
+ * when they are the currently highlighted item in a menu (via keyboard or mouse).
+ *
+ * @see https://www.radix-ui.com/primitives/docs/components/dropdown-menu#item
+ */
+@custom-variant highlighted (&[data-highlighted]);
