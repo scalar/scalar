@@ -1,5 +1,3 @@
-import { v4 as uuidv4 } from 'uuid'
-
 import type { Migration } from '@/persistence/indexdb'
 
 /**
@@ -109,11 +107,15 @@ export const pickUniqueSlug = (desired: string, taken: ReadonlySet<string>): str
 }
 
 /**
- * Generates a UUID via the `uuid` package so the migration runs everywhere
- * `crypto.randomUUID` is missing (older browsers, some test runners, SSR).
+ * Generates a UUID. Wrapped in a function so tests can stub it and so the
+ * migration does not silently break in environments where `crypto.randomUUID`
+ * is unavailable.
  */
 const generateUid = (): string => {
-  return uuidv4()
+  if (typeof globalThis.crypto?.randomUUID === 'function') {
+    return globalThis.crypto.randomUUID()
+  }
+  throw new Error('crypto.randomUUID is not available in this environment; cannot run v2 migration')
 }
 
 /**
