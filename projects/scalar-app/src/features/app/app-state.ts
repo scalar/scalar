@@ -771,7 +771,10 @@ export const createAppState = async ({
       return router.push(route)
     }
 
-    // Navigate to the document overview page
+    // Selecting a document expands it and jumps to its first operation.
+    // The overview page is usually empty or just an intro paragraph — dropping
+    // straight into a working request is what users want here. We fall back
+    // to the overview only when the document has no operations at all.
     if (entry.type === 'document') {
       // If we are already in the document, just toggle expansion
       if (sidebarState.selectedItem.value === id) {
@@ -779,9 +782,35 @@ export const createAppState = async ({
         return
       }
 
-      // Otherwise, select it
-      sidebarState.setSelected(id)
       sidebarState.setExpanded(id, true)
+
+      // Depth-first search for the first operation in the document's subtree.
+      // Operations may sit directly under the document or be nested inside
+      // tag / group containers, so we recurse through `children`.
+      const findFirstOperation = (node: TraversedEntry): TraversedEntry | undefined => {
+        if (!('children' in node) || !node.children) {
+          return undefined
+        }
+        for (const child of node.children) {
+          if (child.type === 'operation') {
+            return child
+          }
+          const nested = findFirstOperation(child)
+          if (nested) {
+            return nested
+          }
+        }
+        return undefined
+      }
+
+        // Delegate to the operation branch so example selection, sidebar
+        // expansion, and navigation stay in one place.
+      const firstOperation = findFirstOperation(entry)
+      if (firstOperation) {
+        return handleSelectItem(firstOperation.id)
+      }
+
+      sidebarState.setSelected(id)
       return navigate({
         name: 'document.overview',
         params: { documentSlug: entry.name },
