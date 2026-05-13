@@ -5,7 +5,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { slugify } from '@scalar/helpers/string/slugify'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { migrateLocalStorageToIndexDb } from '@scalar/oas-utils/migrations'
-import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
+import { createSidebarState, generateReverseIndex, getChildEntry } from '@scalar/sidebar'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import {
   type OperationExampleMeta,
@@ -784,28 +784,7 @@ export const createAppState = async ({
 
       sidebarState.setExpanded(id, true)
 
-      // Depth-first search for the first operation in the document's subtree.
-      // Operations may sit directly under the document or be nested inside
-      // tag / group containers, so we recurse through `children`.
-      const findFirstOperation = (node: TraversedEntry): TraversedEntry | undefined => {
-        if (!('children' in node) || !node.children) {
-          return undefined
-        }
-        for (const child of node.children) {
-          if (child.type === 'operation') {
-            return child
-          }
-          const nested = findFirstOperation(child)
-          if (nested) {
-            return nested
-          }
-        }
-        return undefined
-      }
-
-        // Delegate to the operation branch so example selection, sidebar
-        // expansion, and navigation stay in one place.
-      const firstOperation = findFirstOperation(entry)
+      const firstOperation = getChildEntry('operation', entry)
       if (firstOperation) {
         return handleSelectItem(firstOperation.id)
       }
