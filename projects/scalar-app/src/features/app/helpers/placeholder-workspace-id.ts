@@ -12,7 +12,7 @@
  * through the picker's `id` channel without colliding with a real
  * `workspaceUid` (which is always a UUID).
  */
-export const PLACEHOLDER_WORKSPACE_PREFIX = 'pending:'
+const PLACEHOLDER_WORKSPACE_PREFIX = 'pending:'
 
 /** Builds the canonical `pending:<teamSlug>/<slug>` placeholder id. */
 export const getPlaceholderWorkspaceId = (teamSlug: string, slug: string): string =>
