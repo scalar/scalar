@@ -1,31 +1,17 @@
+import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import { apiReferenceConfigurationWithSourceSchema } from '@scalar/schemas/api-reference'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed } from 'vue'
 
 import DownloadLink from './DownloadLink.vue'
 
-/**
- * Creates a minimal mock event bus for testing.
- * We only implement the methods that DownloadLink uses.
- */
-const createMockEventBus = (): WorkspaceEventBus => ({
-  on: vi.fn(),
-  once: vi.fn(),
-  off: vi.fn(),
-  emit: vi.fn(() => null),
-})
-
 describe('DownloadLink', () => {
-  let mockEventBus: WorkspaceEventBus
-
   beforeEach(() => {
     vi.clearAllMocks()
-    mockEventBus = createMockEventBus()
   })
 
-  afterEach(() => {
+  afterAll(() => {
     vi.resetAllMocks()
   })
 

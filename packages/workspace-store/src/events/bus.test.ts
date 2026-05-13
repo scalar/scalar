@@ -404,4 +404,196 @@ describe('createWorkspaceEventBus', () => {
 
     vi.useRealTimers()
   })
+
+  describe('onAny / offAny', () => {
+    it('catches every event with name and payload', () => {
+      const bus = createWorkspaceEventBus()
+      const handler = vi.fn()
+
+      bus.onAny(handler)
+      bus.emit('update:dark-mode', true)
+      bus.emit('update:active-document', 'doc-123')
+
+      expect(handler).toHaveBeenCalledTimes(2)
+      expect(handler).toHaveBeenNthCalledWith(1, { event: 'update:dark-mode', payload: true })
+      expect(handler).toHaveBeenNthCalledWith(2, { event: 'update:active-document', payload: 'doc-123' })
+    })
+
+    it('forwards undefined payloads on the tagged-union argument', () => {
+      const bus = createWorkspaceEventBus()
+      const handler = vi.fn()
+
+      bus.onAny(handler)
+      bus.emit('operation:cancel:request')
+
+      expect(handler).toHaveBeenCalledTimes(1)
+      expect(handler).toHaveBeenCalledWith({ event: 'operation:cancel:request', payload: undefined })
+    })
+
+    it('returns an unsubscribe function that stops the listener', () => {
+      const bus = createWorkspaceEventBus()
+      const handler = vi.fn()
+
+      const unsubscribe = bus.onAny(handler)
+      bus.emit('update:dark-mode', true)
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      unsubscribe()
+      bus.emit('update:dark-mode', false)
+      expect(handler).toHaveBeenCalledTimes(1)
+    })
+
+    it('offAny removes a specific listener without affecting others', () => {
+      const bus = createWorkspaceEventBus()
+      const handler1 = vi.fn()
+      const handler2 = vi.fn()
+
+      bus.onAny(handler1)
+      bus.onAny(handler2)
+
+      bus.offAny(handler1)
+      bus.emit('update:dark-mode', true)
+
+      expect(handler1).not.toHaveBeenCalled()
+      expect(handler2).toHaveBeenCalledWith({ event: 'update:dark-mode', payload: true })
+    })
+
+    it('does not break exact-match listeners when a wildcard listener is also registered', () => {
+      const bus = createWorkspaceEventBus()
+      const exactHandler = vi.fn()
+      const anyHandler = vi.fn()
+
+      bus.on('update:dark-mode', exactHandler)
+      bus.onAny(anyHandler)
+
+      bus.emit('update:dark-mode', false)
+
+      expect(exactHandler).toHaveBeenCalledWith(false)
+      expect(anyHandler).toHaveBeenCalledWith({ event: 'update:dark-mode', payload: false })
+    })
+
+    it('invokes exact-match listeners before wildcard listeners', () => {
+      const bus = createWorkspaceEventBus()
+      const order: string[] = []
+
+      bus.on('update:dark-mode', () => order.push('exact'))
+      bus.onAny(() => order.push('wildcard'))
+
+      bus.emit('update:dark-mode', true)
+
+      expect(order).toEqual(['exact', 'wildcard'])
+    })
+
+    it('wildcard listener receives debounced events once settled', () => {
+      vi.useFakeTimers()
+      const bus = createWorkspaceEventBus()
+      const handler = vi.fn()
+
+      bus.onAny(handler)
+      bus.emit('update:dark-mode', true, { debounceKey: 'test' })
+      bus.emit('update:dark-mode', false, { debounceKey: 'test' })
+
+      expect(handler).toHaveBeenCalledTimes(0)
+
+      vi.advanceTimersByTime(400)
+
+      expect(handler).toHaveBeenCalledTimes(1)
+      expect(handler).toHaveBeenCalledWith({ event: 'update:dark-mode', payload: false })
+
+      vi.useRealTimers()
+    })
+
+    it('all wildcard listeners fire on every emit', () => {
+      const bus = createWorkspaceEventBus()
+      const handler1 = vi.fn()
+      const handler2 = vi.fn()
+      const handler3 = vi.fn()
+
+      bus.onAny(handler1)
+      bus.onAny(handler2)
+      bus.onAny(handler3)
+
+      bus.emit('operation:cancel:request')
+
+      const expected = { event: 'operation:cancel:request', payload: undefined }
+      expect(handler1).toHaveBeenCalledWith(expected)
+      expect(handler2).toHaveBeenCalledWith(expected)
+      expect(handler3).toHaveBeenCalledWith(expected)
+    })
+
+    it('a throwing wildcard listener does not prevent other wildcard listeners from firing', () => {
+      const bus = createWorkspaceEventBus()
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      const throwingHandler = vi.fn(() => {
+        throw new Error('any boom')
+      })
+      const safeHandler = vi.fn()
+
+      bus.onAny(throwingHandler)
+      bus.onAny(safeHandler)
+
+      expect(() => bus.emit('update:dark-mode', true)).not.toThrow()
+
+      expect(throwingHandler).toHaveBeenCalledTimes(1)
+      expect(safeHandler).toHaveBeenCalledWith({ event: 'update:dark-mode', payload: true })
+
+      errorSpy.mockRestore()
+    })
+
+    it('a throwing wildcard listener does not prevent exact-match listeners from firing', () => {
+      const bus = createWorkspaceEventBus()
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      const throwingAnyHandler = vi.fn(() => {
+        throw new Error('any boom')
+      })
+      const exactHandler = vi.fn()
+
+      bus.on('update:dark-mode', exactHandler)
+      bus.onAny(throwingAnyHandler)
+
+      expect(() => bus.emit('update:dark-mode', true)).not.toThrow()
+
+      expect(exactHandler).toHaveBeenCalledWith(true)
+
+      errorSpy.mockRestore()
+    })
+
+    it('offAny on a listener that was never registered does not throw', () => {
+      const bus = createWorkspaceEventBus()
+      const handler = vi.fn()
+
+      expect(() => bus.offAny(handler)).not.toThrow()
+    })
+
+    it('handles removing a wildcard listener during emission without breaking other listeners', () => {
+      const bus = createWorkspaceEventBus()
+      const handler1 = vi.fn()
+      const handler2 = vi.fn()
+      const handler3 = vi.fn()
+
+      let unsubscribe2: (() => void) | null = null
+
+      bus.onAny(() => {
+        unsubscribe2?.()
+        handler1()
+      })
+
+      unsubscribe2 = bus.onAny(handler2)
+      bus.onAny(handler3)
+
+      // All three fire on the first emit (snapshot taken before mutation)
+      bus.emit('update:dark-mode', true)
+      expect(handler1).toHaveBeenCalledTimes(1)
+      expect(handler2).toHaveBeenCalledTimes(1)
+      expect(handler3).toHaveBeenCalledTimes(1)
+
+      // handler2 was removed mid-first-emit, so it should not fire again
+      bus.emit('update:dark-mode', false)
+      expect(handler1).toHaveBeenCalledTimes(2)
+      expect(handler2).toHaveBeenCalledTimes(1)
+      expect(handler3).toHaveBeenCalledTimes(2)
+    })
+  })
 })

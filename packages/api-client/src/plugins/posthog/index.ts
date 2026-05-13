@@ -2,6 +2,8 @@ import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { ConfigDefaults, PostHog } from 'posthog-js'
 import ph from 'posthog-js'
 
+import { sanitizeEventPayload } from './sanitize-event-payload'
+
 export type PostHogConfig = {
   /** Your PostHog project API key */
   apiKey: string
@@ -26,18 +28,40 @@ export const PostHogClientPlugin = (config: PostHogConfig): ClientPlugin => {
   let posthog: PostHog | null = null
 
   return {
-    on: {
-      'hooks:on:request:sent': () => posthog?.capture('hooks:on:request:sent'),
-      'operation:create:operation': () => posthog?.capture('operation:create:operation'),
-      'operation:delete:operation': () => posthog?.capture('operation:delete:operation'),
-      'document:create:empty-document': () => posthog?.capture('document:create:empty-document'),
-      'document:delete:document': () => posthog?.capture('document:delete:document'),
-      'tag:create:tag': () => posthog?.capture('tag:create:tag'),
-      'server:add:server': () => posthog?.capture('server:add:server'),
-      'auth:update:selected-security-schemes': () => posthog?.capture('auth:update:selected-security-schemes'),
-      'environment:upsert:environment': () => posthog?.capture('environment:upsert:environment'),
-      'ui:open:client-modal': () => posthog?.capture('ui:open:client-modal'),
-      'ui:download:document': () => posthog?.capture('ui:download:document'),
+    on: ({ event, payload }) => {
+      // User logs in — never capture this event; identify only when payload has a uid.
+      // Thanks to the tagged-union narrowing, `payload` is the login payload here;
+      // the `payload?.uid` guard is purely defensive against bad runtime data.
+      if (event === 'log:user-login') {
+        if (payload?.uid) {
+          posthog?.identify(payload.uid, { email: payload.email, teamUid: payload.teamUid })
+        }
+        return
+      }
+
+      // User logs out
+      if (event === 'log:user-logout') {
+        posthog?.reset()
+        return
+      }
+
+      // Only capture events that are in the allowlist
+      const result = sanitizeEventPayload(event, payload)
+      if (result === null) {
+        return
+      }
+
+      const properties = typeof result === 'object' && result !== null ? result : { value: result }
+
+      // When the extractor returned no useful properties, fire the event
+      // without a properties argument so PostHog records the event fact alone
+      // (rather than a noisy `{}` payload).
+      if (Object.keys(properties).length === 0) {
+        posthog?.capture(event)
+        return
+      }
+
+      posthog?.capture(event, properties)
     },
     lifecycle: {
       onInit(context) {

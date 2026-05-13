@@ -1,4 +1,4 @@
-import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
+import type { AnyEventListener, ApiReferenceEvents, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
@@ -121,10 +121,57 @@ export type ClientPlugin = {
   components?: Partial<ClientPluginComponents>
   /** Lifecycle hooks for app-level concerns */
   lifecycle?: ClientPluginLifecycle
-  /** Subscribe to event bus events. The framework handles subscribe/unsubscribe automatically. */
-  on?: Partial<{ [K in keyof ApiReferenceEvents]: (payload: ApiReferenceEvents[K]) => void }>
+  /**
+   * Subscribe to every event on the bus. The framework wires this up to
+   * `bus.onAny` and handles subscribe/unsubscribe automatically.
+   *
+   * The listener receives a single tagged-union argument `{ event, payload }`
+   * where `event` is the discriminant. Narrowing on `event` automatically
+   * narrows `payload` to the exact type for that event — no casts, no `as`
+   * assertions, and no manual runtime type checks just to satisfy the
+   * compiler. Destructuring in the parameter list works too.
+   *
+   * @example
+   * on: ({ event, payload }) => {
+   *   if (event === 'log:user-login') {
+   *     // payload is narrowed to { uid: string; email?: string; teamUid: string }
+   *     posthog.identify(payload.uid, { email: payload.email })
+   *   }
+   *
+   *   if (event === 'operation:create:operation') {
+   *     // payload is narrowed to the operation-create payload
+   *     analytics.track('operation_created', payload)
+   *   }
+   * }
+   */
+  on?: AnyEventListener
   /** Custom response body handlers for specific content types */
   responseBody?: ResponseBodyHandler[]
+}
+
+/**
+ * Subscribes a single plugin's `on` listener to the given event bus via `onAny`.
+ *
+ * The plugin's `on` is passed straight through to `bus.onAny`, so it will
+ * receive every event emitted on the bus as a `{ event, payload }` object.
+ * Plugins without an `on` listener get a no-op unsubscribe.
+ *
+ * Returns an unsubscribe function. Call it when the plugin is torn down or
+ * the bus is destroyed to remove the wildcard listener.
+ *
+ * @example
+ * const unsubscribe = subscribePluginEvents(eventBus, plugin)
+ * // later...
+ * unsubscribe()
+ */
+export const subscribePluginEvents = (eventBus: WorkspaceEventBus, plugin: ClientPlugin): (() => void) => {
+  if (!plugin.on) {
+    return () => {
+      // no-op
+    }
+  }
+
+  return eventBus.onAny(plugin.on)
 }
 
 /**

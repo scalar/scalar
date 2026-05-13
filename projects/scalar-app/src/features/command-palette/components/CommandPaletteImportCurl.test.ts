@@ -1,29 +1,23 @@
+import { createMockEventBus, mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import CommandPaletteImportCurl from './CommandPaletteImportCurl.vue'
 
 describe('CommandPaletteImportCurl', () => {
-  const createMockEventBus = () => ({
-    emit: vi.fn(),
-    on: vi.fn(),
-    once: vi.fn(),
-    off: vi.fn(),
-  })
-
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  afterEach(() => {
+  afterAll(() => {
     vi.restoreAllMocks()
   })
 
   it('renders with required props', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -38,7 +32,7 @@ describe('CommandPaletteImportCurl', () => {
 
   it('initializes with empty example key', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -54,7 +48,7 @@ describe('CommandPaletteImportCurl', () => {
 
   it('renders input placeholder text', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -70,7 +64,7 @@ describe('CommandPaletteImportCurl', () => {
 
   it('disables form when example key is empty', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -86,7 +80,7 @@ describe('CommandPaletteImportCurl', () => {
 
   it('disables form when example key is only whitespace', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -113,7 +107,7 @@ describe('CommandPaletteImportCurl', () => {
         info: { title: 'Test', version: '1.0.0' },
       },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -133,7 +127,7 @@ describe('CommandPaletteImportCurl', () => {
 
   it('updates example key when input changes', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -152,7 +146,7 @@ describe('CommandPaletteImportCurl', () => {
 
   it('displays HTTP method badge', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -169,7 +163,7 @@ describe('CommandPaletteImportCurl', () => {
 
   it('displays parsed URL in preview', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -185,7 +179,7 @@ describe('CommandPaletteImportCurl', () => {
 
   it('renders HTTP method', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -201,7 +195,7 @@ describe('CommandPaletteImportCurl', () => {
 
   it('renders document selector', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -221,7 +215,7 @@ describe('CommandPaletteImportCurl', () => {
       name: 'test-doc',
       document: { openapi: '3.1.0', info: { title: 'Test', version: '1.0.0' } },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -237,7 +231,7 @@ describe('CommandPaletteImportCurl', () => {
 
   it('displays placeholder when no document is selected', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -267,7 +261,7 @@ describe('CommandPaletteImportCurl', () => {
         },
       },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -301,7 +295,7 @@ describe('CommandPaletteImportCurl', () => {
         },
       },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -333,7 +327,7 @@ describe('CommandPaletteImportCurl', () => {
         paths: {},
       },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -360,7 +354,7 @@ describe('CommandPaletteImportCurl', () => {
         paths: {},
       },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -387,7 +381,7 @@ describe('CommandPaletteImportCurl', () => {
         info: { title: 'Test', version: '1.0.0' },
       },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -418,7 +412,7 @@ describe('CommandPaletteImportCurl', () => {
         info: { title: 'Test', version: '1.0.0' },
       },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -458,7 +452,7 @@ describe('CommandPaletteImportCurl', () => {
         info: { title: 'Test', version: '1.0.0' },
       },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -492,7 +486,7 @@ describe('CommandPaletteImportCurl', () => {
         },
       },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -516,7 +510,7 @@ describe('CommandPaletteImportCurl', () => {
 
   it('emits back event when delete is triggered on input', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -545,7 +539,7 @@ describe('CommandPaletteImportCurl', () => {
         info: { title: 'Test', version: '1.0.0' },
       },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     vi.spyOn(workspaceStore, 'buildSidebar')
 
@@ -565,8 +559,8 @@ describe('CommandPaletteImportCurl', () => {
     await form.vm.$emit('submit')
     await nextTick()
 
-    const emitCall = eventBus.emit.mock.calls.find((call) => call[0] === 'operation:create:operation')
-    const callback = emitCall?.[1]?.callback
+    const emitCall = vi.mocked(mockEventBus.emit).mock.calls.find((call) => call[0] === 'operation:create:operation')
+    const callback = (emitCall?.[1] as any)?.callback
     callback?.(true)
 
     expect(workspaceStore.buildSidebar).toHaveBeenCalledWith('test-doc')
@@ -581,7 +575,7 @@ describe('CommandPaletteImportCurl', () => {
         info: { title: 'Test', version: '1.0.0' },
       },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -599,11 +593,11 @@ describe('CommandPaletteImportCurl', () => {
     await form.vm.$emit('submit')
     await nextTick()
 
-    const emitCall = eventBus.emit.mock.calls.find((call) => call[0] === 'operation:create:operation')
-    const callback = emitCall?.[1]?.callback
+    const emitCall = vi.mocked(mockEventBus.emit).mock.calls.find((call) => call[0] === 'operation:create:operation')
+    const callback = (emitCall?.[1] as any)?.callback
     callback?.(true)
 
-    expect(eventBus.emit).toHaveBeenCalledWith('ui:navigate', {
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:navigate', {
       page: 'example',
       documentSlug: 'test-doc',
       path: '/users',
@@ -621,7 +615,7 @@ describe('CommandPaletteImportCurl', () => {
         info: { title: 'Test', version: '1.0.0' },
       },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -639,11 +633,11 @@ describe('CommandPaletteImportCurl', () => {
     await form.vm.$emit('submit')
     await nextTick()
 
-    const emitCall = eventBus.emit.mock.calls.find((call) => call[0] === 'operation:create:operation')
-    const callback = emitCall?.[1]?.callback
+    const emitCall = vi.mocked(mockEventBus.emit).mock.calls.find((call) => call[0] === 'operation:create:operation')
+    const callback = (emitCall?.[1] as any)?.callback
     callback?.(true)
 
-    expect(eventBus.emit).toHaveBeenCalledWith(
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
       'ui:navigate',
       expect.objectContaining({
         page: 'example',
@@ -661,7 +655,7 @@ describe('CommandPaletteImportCurl', () => {
         info: { title: 'Test', version: '1.0.0' },
       },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     vi.spyOn(workspaceStore, 'buildSidebar')
 
@@ -681,17 +675,17 @@ describe('CommandPaletteImportCurl', () => {
     await form.vm.$emit('submit')
     await nextTick()
 
-    const emitCall = eventBus.emit.mock.calls.find((call) => call[0] === 'operation:create:operation')
-    const callback = emitCall?.[1]?.callback
+    const emitCall = vi.mocked(mockEventBus.emit).mock.calls.find((call) => call[0] === 'operation:create:operation')
+    const callback = (emitCall?.[1] as any)?.callback
     callback?.(false)
 
     expect(workspaceStore.buildSidebar).not.toHaveBeenCalled()
-    expect(eventBus.emit).not.toHaveBeenCalledWith('ui:navigate', expect.anything())
+    expect(mockEventBus.emit).not.toHaveBeenCalledWith('ui:navigate', expect.anything())
   })
 
   it('renders submit button with correct text', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -715,7 +709,7 @@ describe('CommandPaletteImportCurl', () => {
         info: { title: 'Test', version: '1.0.0' },
       },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -743,7 +737,7 @@ describe('CommandPaletteImportCurl', () => {
 
   it('renders ChevronDown icon', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -774,7 +768,7 @@ describe('CommandPaletteImportCurl', () => {
         info: { title: 'Doc 2', version: '1.0.0' },
       },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -816,7 +810,7 @@ describe('CommandPaletteImportCurl', () => {
         info: { title: 'Doc 2', version: '1.0.0' },
       },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -851,7 +845,7 @@ describe('CommandPaletteImportCurl', () => {
         info: { title: 'Test', version: '1.0.0' },
       },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {
@@ -893,7 +887,7 @@ describe('CommandPaletteImportCurl', () => {
         info: { title: 'Test', version: '1.0.0' },
       },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteImportCurl, {
       props: {

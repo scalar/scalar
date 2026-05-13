@@ -10,6 +10,7 @@ import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/stric
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createMockEventBus } from '@/v2/helpers/test-utils'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import { responseCache } from './helpers/response-cache'
@@ -81,18 +82,6 @@ vi.mock('@/components/ViewLayout/ViewLayoutContent.vue', () => ({
     template: '<div data-test="view-layout-content"><slot /></div>',
   },
 }))
-
-/**
- * Creates a minimal mock event bus for testing.
- * We only implement the methods that OperationBlock uses.
- */
-const createMockEventBus = (): WorkspaceEventBus => ({
-  on: vi.fn(),
-  once: vi.fn(),
-  off: vi.fn(),
-  emit: vi.fn(() => null),
-  flushDebouncedEmits: vi.fn(),
-})
 
 /**
  * Creates a minimal mock environment for testing.

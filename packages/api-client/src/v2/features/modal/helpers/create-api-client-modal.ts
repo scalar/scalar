@@ -1,5 +1,5 @@
 import { type ModalState, useModal } from '@scalar/components'
-import type { ClientPlugin } from '@scalar/oas-utils/helpers'
+import { type ClientPlugin, subscribePluginEvents } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
@@ -124,11 +124,7 @@ export const createApiClientModal = ({
   for (const plugin of plugins) {
     plugin.lifecycle?.onInit?.()
 
-    if (plugin.on) {
-      for (const [event, handler] of Object.entries(plugin.on)) {
-        pluginUnsubscribes.push(eventBus.on(event as any, handler as any))
-      }
-    }
+    pluginUnsubscribes.push(subscribePluginEvents(eventBus, plugin))
   }
 
   /** Clean up plugin lifecycle and event bus subscriptions when the app is unmounted */
