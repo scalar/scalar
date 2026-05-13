@@ -560,6 +560,41 @@ describe('app-state', () => {
     expect(after).toEqual(before)
   })
 
+  it('reconcileTeamSlug skips in-memory slug refresh when persistence rejects a slug collision', async () => {
+    const teamUid = 'collision-team-uid'
+    await persistWorkspace({
+      teamUid,
+      teamSlug: 'acme-new',
+      slug: 'api',
+      name: 'Already on new slug',
+    })
+    await persistWorkspace({
+      teamUid,
+      teamSlug: 'acme-old',
+      slug: 'api',
+      name: 'Stale slug row',
+    })
+
+    const router = setupRouter()
+    const appState = await createAppState({ router })
+
+    await appState.workspace.reconcileTeamSlug(teamUid, 'acme-new')
+
+    const staleRow = appState.workspace.workspaceList.value.find((w) => w.label === 'Stale slug row')
+    expect(staleRow?.teamSlug).toBe('acme-old')
+
+    const persistence = await createWorkspaceStorePersistence()
+    expect(await persistence.workspace.getItemBySlug({ teamSlug: 'acme-old', slug: 'api' })).toMatchObject({
+      name: 'Stale slug row',
+    })
+    expect(
+      (await persistence.workspace.getAllByTeamUid(teamUid))
+        .filter((w) => w.slug === 'api')
+        .map((w) => w.teamSlug)
+        .sort(),
+    ).toEqual(['acme-new', 'acme-old'])
+  })
+
   it('routes a picker placeholder selection to the team get-started page instead of the local default', async () => {
     // Regression: the picker surfaces a synthetic "Team workspace"
     // option for non-local teams that do not yet own a real workspace.

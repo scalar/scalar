@@ -409,6 +409,10 @@ export const createAppState = async ({
    *
    * `teamUid === 'local'` is a no-op so signed-out users do not have
    * their local workspaces accidentally rewritten.
+   *
+   * When another workspace already owns the target `[teamSlug, slug]`
+   * pair, persistence skips that row — the in-memory catalog matches
+   * only rows that actually moved.
    */
   const reconcileTeamSlug = async (teamUid: string, teamSlug: string): Promise<void> => {
     if (!teamUid || teamUid === 'local') {
@@ -422,11 +426,19 @@ export const createAppState = async ({
       return
     }
 
+    const updatedWorkspaceUids = new Set<string>()
+
     await Promise.all(
       stale.map(async (workspace) => {
         // Sync the catalog row's slug so future URL lookups resolve via
-        // `[teamSlug, slug]` again.
-        await persistence.updateSlugs(workspace.workspaceUid, { teamSlug })
+        // `[teamSlug, slug]` again. When another row already owns the
+        // target pair, persistence rejects the write — keep the in-memory
+        // catalog aligned with IndexedDB by skipping failed rows.
+        const updated = await persistence.updateSlugs(workspace.workspaceUid, { teamSlug })
+        if (!updated) {
+          return
+        }
+        updatedWorkspaceUids.add(workspace.workspaceUid)
 
         // Strip stale tab fields from the persisted meta chunk. We read
         // the full meta object first so unrelated meta fields (color
@@ -440,18 +452,25 @@ export const createAppState = async ({
       }),
     )
 
+    if (updatedWorkspaceUids.size === 0) {
+      return
+    }
+
     // Refresh the in-memory list and active pointer so consumers see the
     // new slug without waiting for the next IndexedDB roundtrip.
     workspaces.value = workspaces.value.map((workspace) =>
-      workspace.teamUid === teamUid ? { ...workspace, teamSlug } : workspace,
+      updatedWorkspaceUids.has(workspace.workspaceUid) ? { ...workspace, teamSlug } : workspace,
     )
-    if (activeWorkspace.value?.teamUid === teamUid) {
-      activeWorkspace.value = { ...activeWorkspace.value, teamSlug }
+    const active = activeWorkspace.value
+    if (active && updatedWorkspaceUids.has(active.workspaceUid)) {
+      activeWorkspace.value = { ...active, teamSlug }
     }
 
     // The active workspace store mirrors persistence in memory. Clear
     // its in-memory tabs too so the tab bar does not keep pushing the
-    // router back to a stale `/@<old-slug>/...` path.
+    // router back to a stale `/@<old-slug>/...` path. Any successful
+    // slug move for this team can leave tab paths behind for every open
+    // workspace on the team, not only the rows we touched.
     const activeStore = store.value
     if (activeStore && activeWorkspace.value?.teamUid === teamUid) {
       activeStore.update('x-scalar-tabs', [])
