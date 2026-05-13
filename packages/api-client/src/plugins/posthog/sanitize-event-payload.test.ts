@@ -7,7 +7,6 @@ import { TRACKED_EVENTS, sanitizeEventPayload } from './sanitize-event-payload'
  * Bypass the generic payload constraint for tests that deliberately pass
  * malformed data to verify runtime defensive behaviour.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sanitize = sanitizeEventPayload as (
   event: keyof ApiReferenceEvents,
   payload: any,

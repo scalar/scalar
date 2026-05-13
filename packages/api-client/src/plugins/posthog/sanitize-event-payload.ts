@@ -1,52 +1,25 @@
+import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 
-// Helpers — defensive extraction from unknown payloads so each extractor
-// stays concise without repeating the same type-narrowing boilerplate.
-
-const extractString = (obj: unknown, key: string): string | undefined => {
-  if (!obj || typeof obj !== 'object') {
-    return undefined
+/**
+ * Builds an extractor that pulls a string from `payload` at `path` and emits
+ * it under `{ [key]: value }`. Returns `{}` when the leaf is missing or is
+ * not a string.
+ *
+ * `key` defaults to the dotted form of `path` (e.g. `['meta', 'type']` becomes
+ * `'meta.type'`), matching the existing PostHog property names.
+ *
+ * Built on `getValueAtPath`, so null/undefined traversal and missing segments
+ * are handled centrally.
+ */
+const stringAtPath = (path: string[], key: string = path.join('.')) => {
+  return (payload: unknown): Record<string, unknown> => {
+    const value = getValueAtPath(payload, path)
+    return typeof value === 'string' ? { [key]: value } : {}
   }
-  const value = (obj as Record<string, unknown>)[key]
-  return typeof value === 'string' ? value : undefined
 }
 
-const extractNestedString = (obj: unknown, outerKey: string, innerKey: string): string | undefined => {
-  if (!obj || typeof obj !== 'object') {
-    return undefined
-  }
-  const nested = (obj as Record<string, unknown>)[outerKey]
-  return extractString(nested, innerKey)
-}
-
-// Extractor shorthands — used repeatedly across the allowlist so that
-// each entry is a one-liner instead of a duplicated closure.
-
-const metaType = (payload: unknown): Record<string, unknown> => {
-  const value = extractNestedString(payload, 'meta', 'type')
-  return value !== undefined ? { 'meta.type': value } : {}
-}
-
-const payloadType = (payload: unknown): Record<string, unknown> => {
-  const value = extractNestedString(payload, 'payload', 'type')
-  return value !== undefined ? { 'payload.type': value } : {}
-}
-
-const collectionType = (payload: unknown): Record<string, unknown> => {
-  const value = extractString(payload, 'collectionType')
-  return value !== undefined ? { collectionType: value } : {}
-}
-
-const payloadContentType = (payload: unknown): Record<string, unknown> => {
-  const value = extractNestedString(payload, 'payload', 'contentType')
-  return value !== undefined ? { 'payload.contentType': value } : {}
-}
-
-const formatProp = (payload: unknown): Record<string, unknown> => {
-  const value = extractString(payload, 'format')
-  return value !== undefined ? { format: value } : {}
-}
-
+/** Extractor for events whose only useful property is the fact they fired. */
 const empty = (): Record<string, unknown> => ({})
 
 /**
@@ -67,25 +40,25 @@ type TrackedEventsMap = {
 
 export const TRACKED_EVENTS: TrackedEventsMap = {
   // Auth events — track the scheme type so we know which auth methods are popular
-  'auth:update:selected-security-schemes': metaType,
-  'auth:update:active-index': metaType,
-  'auth:update:security-scheme': payloadType,
-  'auth:clear:selected-security-schemes': metaType,
-  'auth:update:selected-scopes': metaType,
+  'auth:update:selected-security-schemes': stringAtPath(['meta', 'type']),
+  'auth:update:active-index': stringAtPath(['meta', 'type']),
+  'auth:update:security-scheme': stringAtPath(['payload', 'type']),
+  'auth:clear:selected-security-schemes': stringAtPath(['meta', 'type']),
+  'auth:update:selected-scopes': stringAtPath(['meta', 'type']),
   'auth:delete:security-scheme': empty,
   'auth:clear:security-scheme-secrets': empty,
   'auth:upsert:scopes': empty,
   'auth:delete:scopes': empty,
 
   // Cookie events — track whether it belongs to a document or workspace
-  'cookie:upsert:cookie': collectionType,
-  'cookie:delete:cookie': collectionType,
+  'cookie:upsert:cookie': stringAtPath(['collectionType']),
+  'cookie:delete:cookie': stringAtPath(['collectionType']),
 
   // Environment events — same document-vs-workspace distinction
-  'environment:upsert:environment': collectionType,
-  'environment:delete:environment': collectionType,
-  'environment:upsert:environment-variable': collectionType,
-  'environment:delete:environment-variable': collectionType,
+  'environment:upsert:environment': stringAtPath(['collectionType']),
+  'environment:delete:environment': stringAtPath(['collectionType']),
+  'environment:upsert:environment-variable': stringAtPath(['collectionType']),
+  'environment:delete:environment-variable': stringAtPath(['collectionType']),
 
   // Document lifecycle
   'document:create:empty-document': empty,
@@ -101,7 +74,7 @@ export const TRACKED_EVENTS: TrackedEventsMap = {
   'operation:delete:operation': empty,
   'operation:create:draft-example': empty,
   'operation:delete:example': empty,
-  'operation:update:requestBody:contentType': payloadContentType,
+  'operation:update:requestBody:contentType': stringAtPath(['payload', 'contentType']),
   'operation:update:pathMethod': empty,
   'operation:rename:example': empty,
   'operation:reload:history': empty,
@@ -110,7 +83,7 @@ export const TRACKED_EVENTS: TrackedEventsMap = {
   'ui:open:client-modal': empty,
   'ui:open:command-palette': empty,
   'ui:open:settings': empty,
-  'ui:download:document': formatProp,
+  'ui:download:document': stringAtPath(['format']),
   'ui:toggle:sidebar': empty,
   'ui:save:local-document': empty,
   'copy-url:address-bar': empty,
