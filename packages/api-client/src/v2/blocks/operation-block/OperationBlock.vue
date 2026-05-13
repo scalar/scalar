@@ -440,10 +440,19 @@ const handleNavigateSettings = () => {
 }
 
 /**
- * When the path, method, or example key changes: save current response to
- * cache (so it can be restored when navigating back), then restore from cache
- * for the new operation or clear if no cached response. Response is only
- * cleared on page refresh or when making a new request for that operation.
+ * When the path, method, or example key changes, restore the response panel
+ * for the new operation from the best available source:
+ *
+ *   1. `responseCache` — in-memory, populated on every successful send.
+ *      Has the live response object (including streams) so it wins.
+ *   2. `history` — persisted in the workspace store. Used as a fallback when
+ *      the in-memory cache is empty (page reload, fresh app session, etc.)
+ *      so navigating to an operation that has been called before shows the
+ *      last response instead of an empty panel.
+ *   3. Otherwise clear.
+ *
+ * Only the response is restored from history — the user's request inputs are
+ * left alone, so we never silently overwrite an in-progress draft.
  */
 watch(
   [() => path, () => method, () => exampleKey],
@@ -453,6 +462,23 @@ watch(
     if (cached) {
       response.value = cached.response
       requestPayload.value = cached.requestPayload
+    } else if (history.length > 0) {
+      // `history` is chronological (oldest first); the last element is the
+      // most recent response for this path + method.
+      const latest = history[history.length - 1]
+      if (latest) {
+        response.value = harToFetchResponse({
+          harResponse: latest.response,
+          url: latest.request.url,
+          method: newMethod,
+          path: newPath,
+          duration: latest.time,
+        })
+        requestPayload.value = null
+      } else {
+        response.value = null
+        requestPayload.value = null
+      }
     } else {
       response.value = null
       requestPayload.value = null
