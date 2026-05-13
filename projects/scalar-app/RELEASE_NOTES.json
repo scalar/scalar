@@ -3,13 +3,26 @@
     "version": "1.0.9",
     "date": "2026-05-06",
     "title": "Refreshed app layout and friendlier command palette",
-    "description": "This release focuses on the desktop experience: the app layout has been reorganised so tabs sit above the page and small screens have more room to breathe, and the command palette now surfaces inline validation instead of silently disabling actions.",
-    "highlights": [
-      "The app layout reorganises tabs to the top of the page and adapts better to narrow windows.",
-      "Command palette actions show inline errors when their inputs are invalid instead of becoming unclickable.",
-      "Importing an OpenAPI document by URL no longer fails when the pasted value has surrounding whitespace.",
-      "Login on the Electron app has been fixed so returning users no longer hit a stuck sign-in screen."
-    ],
-    "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#109"
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release focuses on the desktop experience: the app layout has been reorganised so tabs sit above the page and small screens have more room to breathe, and the command palette now surfaces inline validation instead of silently disabling actions."
+      },
+      {
+        "type": "list",
+        "items": [
+          "The app layout reorganises tabs to the top of the page and adapts better to narrow windows.",
+          "Command palette actions show inline errors when their inputs are invalid instead of becoming unclickable.",
+          "Importing an OpenAPI document by URL no longer fails when the pasted value has surrounding whitespace.",
+          "Login on the Electron app has been fixed so returning users no longer hit a stuck sign-in screen."
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#109",
+        "label": "Read full release notes"
+      }
+    ]
   }
 ]
