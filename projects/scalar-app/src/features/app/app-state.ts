@@ -701,12 +701,12 @@ export const createAppState = async ({
     })()
 
     if (workspace) {
-      // Read tabs straight from persistence so we restore exactly the
-      // session the user last had open. The reconciliation above will
-      // have stripped any URLs that referenced a stale team slug.
-      const persisted = await persistence.getItem(workspace.workspaceUid)
-      const tabs = persisted?.workspace.meta?.['x-scalar-tabs']
-      const index = persisted?.workspace.meta?.['x-scalar-active-tab'] ?? 0
+      // Read tabs from the meta chunk only so large OpenAPI rows are not
+      // assembled into memory. The reconciliation above will have stripped
+      // any URLs that referenced a stale team slug.
+      const meta = await metaPersistence.getItem(workspace.workspaceUid)
+      const tabs = meta['x-scalar-tabs']
+      const index = meta['x-scalar-active-tab'] ?? 0
       const tab = tabs?.[index]
 
       if (tab?.path) {
