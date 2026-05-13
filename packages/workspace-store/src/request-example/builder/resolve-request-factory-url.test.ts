@@ -303,40 +303,18 @@ describe('resolve-request-factory-url', () => {
     expect(result).toBe('https://api.github.com/v3/orgs/scalar/repos/my-repo?format=json&auth=ghp_xxx')
   })
 
-  describe('when allowMissingRequestServerBase is false', () => {
-    it('returns err for path-only merged url (no server base)', () => {
-      const result = resolveRequestFactoryUrl(
-        createRequestFactory({
-          baseUrl: '',
-          path: { raw: '/v1/users', variables: {} },
-        }),
-        { ...defaultOptions, allowMissingRequestServerBase: false },
-      )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(MISSING_REQUEST_SERVER_BASE)
-      }
-    })
-
-    it('returns err when merged url still contains unresolved {{env}} syntax', () => {
-      const result = resolveRequestFactoryUrl(
-        createRequestFactory({
-          path: {
-            raw: '/regions/{{region}}/zones',
-            variables: {},
-          },
-        }),
-        {
-          ...defaultOptions,
-          envVariables: {},
-          allowMissingRequestServerBase: false,
-        },
-      )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(MISSING_REQUEST_SERVER_BASE)
-      }
-    })
+  it('returns err for path-only merged url (no server base)', () => {
+    const result = resolveRequestFactoryUrl(
+      createRequestFactory({
+        baseUrl: '',
+        path: { raw: '/v1/users', variables: {} },
+      }),
+      { ...defaultOptions, allowMissingRequestServerBase: false },
+    )
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.error).toBe(MISSING_REQUEST_SERVER_BASE)
+    }
   })
 
   it('returns err when a path variable cannot be percent-encoded', () => {

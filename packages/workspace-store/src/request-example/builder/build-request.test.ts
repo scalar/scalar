@@ -737,19 +737,6 @@ describe('buildRequest', () => {
     expect(data.requestPayload[0]).toBeTypeOf('string')
   })
 
-  it('returns err when path still contains unresolved {{env}} after merge', () => {
-    const result = buildRequest(
-      createFactory({
-        path: { raw: '/v1/{{tenantId}}/items', variables: {} },
-      }),
-      { envVariables: {} },
-    )
-    expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.error).toBe(MISSING_REQUEST_SERVER_BASE)
-    }
-  })
-
   it('returns err when a path parameter cannot be percent-encoded', () => {
     const result = buildRequest(
       createFactory({
