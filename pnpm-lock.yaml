@@ -243,6 +243,9 @@ catalogs:
     type-fest:
       specifier: ^5.3.1
       version: 5.3.1
+    uuid:
+      specifier: 14.0.0
+      version: 14.0.0
     vite:
       specifier: 8.0.0
       version: 8.0.0
@@ -2598,6 +2601,9 @@ importers:
       type-fest:
         specifier: catalog:*
         version: 5.3.1
+      uuid:
+        specifier: catalog:*
+        version: 14.0.0
       vue:
         specifier: catalog:*
         version: 3.5.30(typescript@5.9.3)
@@ -18144,6 +18150,10 @@ packages:
 
   uuid@11.1.0:
     resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
+    hasBin: true
+
+  uuid@14.0.0:
+    resolution: {integrity: sha512-Qo+uWgilfSmAhXCMav1uYFynlQO7fMFiMVZsQqZRMIXp0O7rR7qjkj+cPvBHLgBqi960QCoo/PH2/6ZtVqKvrg==}
     hasBin: true
 
   uuid@8.3.2:
@@ -38197,6 +38207,8 @@ snapshots:
   utils-merge@1.0.1: {}
 
   uuid@11.1.0: {}
+
+  uuid@14.0.0: {}
 
   uuid@8.3.2: {}
 

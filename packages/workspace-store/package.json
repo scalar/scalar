@@ -155,6 +155,7 @@
     "@scalar/validation": "workspace:*",
     "js-base64": "catalog:*",
     "type-fest": "catalog:*",
+    "uuid": "catalog:*",
     "vue": "catalog:*",
     "yaml": "catalog:*"
   },
