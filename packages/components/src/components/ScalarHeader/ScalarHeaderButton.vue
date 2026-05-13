@@ -28,7 +28,7 @@ defineSlots<{
 }>()
 
 const variants = cva({
-  base: 'group/button flex items-center rounded  px-3 py-2 text-base/4 no-underline',
+  base: 'group/button flex items-center rounded px-3 py-2 text-base/4 no-underline',
   variants: {
     cta: {
       true: 'font-bold bg-b-header-cta text-sm/4 text-c-header-cta hover:bg-h-header-cta',
