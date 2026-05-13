@@ -1,6 +1,6 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
@@ -334,9 +334,9 @@ describe('ServerSelector', () => {
 
     const wrapper = mount(ServerSelector, {
       props: {
-        servers: store.workspace.activeDocument!.servers!,
+        servers: (store.workspace.activeDocument as OpenApiDocument).servers!,
         eventBus,
-        selectedServer: store.workspace.activeDocument!.servers![1]!,
+        selectedServer: (store.workspace.activeDocument as OpenApiDocument).servers![1]!,
       },
     })
 
@@ -355,7 +355,8 @@ describe('ServerSelector', () => {
     })
 
     // Update the default value in the store
-    store.workspace.activeDocument!.servers![1]!.variables!.protocol!.default = '1234'
+    const activeDocument = store.workspace.activeDocument as OpenApiDocument
+    activeDocument.servers![1]!.variables!.protocol!.default = '1234'
     await nextTick()
 
     // Check that the variables form props have been updated

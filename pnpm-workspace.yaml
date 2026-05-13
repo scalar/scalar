@@ -72,6 +72,7 @@ catalogs:
     github-slugger: 2.0.0
     js-base64: ^3.7.8
     jsdom: 27.4.0
+    jsonc-parser: 3.3.1
     jwt-decode: 4.0.0
     microdiff: ^1.5.0
     monaco-editor: 0.54.0
@@ -92,6 +93,7 @@ catalogs:
     type-fest: ^5.3.1
     truncate-json: 3.0.1
     tsx: 4.19.4
+    undici: 7.24.4
     vite-plugin-monaco-editor-esm: 2.0.2
     vite-ssg: 28.3.0
     vite-svg-loader: 5.1.1

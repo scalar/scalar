@@ -34,7 +34,8 @@ const isInvalid = computed(() => invalidParameterMessage.value.ok === false)
     </button>
     <template #popover>
       <div
-        class="w-content text-xxs text-c-1 grid min-w-48 gap-1.5 rounded px-1.5 pt-2 pb-1.5 leading-none *:max-w-64">
+        class="text-xxs text-c-1 grid w-fit max-w-xs min-w-0 gap-1.5 rounded px-1.5 pt-2 pb-1.5 leading-none break-words"
+        data-testid="request-table-tooltip-content">
         <div
           v-if="invalidParameterMessage.ok === false"
           class="text-error-1">

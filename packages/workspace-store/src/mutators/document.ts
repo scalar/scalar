@@ -2,6 +2,7 @@ import type { WorkspaceStore } from '@/client'
 import type { DocumentEvents } from '@/events/definitions/document'
 import { mergeObjects } from '@/helpers/merge-object'
 import type { WorkspaceDocument } from '@/schemas'
+import { isOpenApiDocument } from '@/schemas/type-guards'
 
 /**
  * Updates extension fields on the document (e.g. x-pre-request, x-post-response).
@@ -11,7 +12,7 @@ export const updateDocumentExtension = (
   document: WorkspaceDocument | null,
   payload: DocumentEvents['document:update:extension'],
 ) => {
-  if (!document) {
+  if (!isOpenApiDocument(document)) {
     return
   }
   mergeObjects(document, payload)
@@ -26,7 +27,7 @@ export const updateDocumentExtension = (
  * If document is null, does nothing.
  */
 export const updateWatchMode = (document: WorkspaceDocument | null, watchMode: boolean) => {
-  if (!document) {
+  if (!isOpenApiDocument(document)) {
     return
   }
 
@@ -48,7 +49,7 @@ export const updateDocumentInfo = (
   document: WorkspaceDocument | null,
   payload: DocumentEvents['document:update:info'],
 ) => {
-  if (!document) {
+  if (!isOpenApiDocument(document)) {
     return
   }
   // Merge the given payload into the document's info object
@@ -68,7 +69,7 @@ export const updateDocumentInfo = (
  * Does not perform a sidebar rebuild for performance benefit
  */
 export const updateDocumentIcon = (document: WorkspaceDocument | null, icon: string) => {
-  if (!document || !document['x-scalar-navigation']) {
+  if (!isOpenApiDocument(document) || !document['x-scalar-navigation']) {
     return
   }
 

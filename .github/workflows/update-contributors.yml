@@ -5,6 +5,9 @@ on:
     # Run every Friday at 15:00 UTC
     - cron: '0 15 * * 5'
 
+permissions:
+  contents: read
+
 jobs:
   update-readme:
     name: Update the README

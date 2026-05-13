@@ -1,3 +1,4 @@
+import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
@@ -14,13 +15,6 @@ describe('CommandPaletteTag', () => {
     }
     return store
   }
-
-  const createMockEventBus = () => ({
-    emit: vi.fn(),
-    on: vi.fn(),
-    once: vi.fn(),
-    off: vi.fn(),
-  })
 
   /**
    * Creates a proper OpenAPI document with tags.
@@ -46,7 +40,7 @@ describe('CommandPaletteTag', () => {
 
   it('renders with required props', async () => {
     const workspaceStore = await createMockWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -60,7 +54,7 @@ describe('CommandPaletteTag', () => {
 
   it('initializes with empty tag name', async () => {
     const workspaceStore = await createMockWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -76,7 +70,7 @@ describe('CommandPaletteTag', () => {
   it('disables form when tag name is empty', async () => {
     const document = createMockDocument()
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -92,7 +86,7 @@ describe('CommandPaletteTag', () => {
   it('disables form when tag name is only whitespace', async () => {
     const document = createMockDocument()
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -111,7 +105,7 @@ describe('CommandPaletteTag', () => {
 
   it('disables form when no collection is selected', async () => {
     const workspaceStore = await createMockWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -133,7 +127,7 @@ describe('CommandPaletteTag', () => {
       tags: [{ name: 'Existing Tag' }],
     })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -155,7 +149,7 @@ describe('CommandPaletteTag', () => {
       tags: [{ name: 'Existing Tag' }],
     })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -180,7 +174,7 @@ describe('CommandPaletteTag', () => {
       tags: [{ name: 'Existing Tag' }],
     })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -203,7 +197,7 @@ describe('CommandPaletteTag', () => {
       tags: [{ name: 'Existing Tag' }],
     })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -227,7 +221,7 @@ describe('CommandPaletteTag', () => {
       tags: [{ name: 'Existing Tag' }],
     })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -252,7 +246,7 @@ describe('CommandPaletteTag', () => {
       tags: [{ name: 'Existing Tag' }],
     })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -274,7 +268,7 @@ describe('CommandPaletteTag', () => {
       tags: [{ name: 'My Tag' }],
     })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -294,7 +288,7 @@ describe('CommandPaletteTag', () => {
   it('updates tag name when input changes', async () => {
     const document = createMockDocument()
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -313,7 +307,7 @@ describe('CommandPaletteTag', () => {
   it('emits close event when form is submitted', async () => {
     const document = createMockDocument()
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -337,7 +331,7 @@ describe('CommandPaletteTag', () => {
   it('emits tag:create:tag event with correct payload', async () => {
     const document = createMockDocument()
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -366,7 +360,7 @@ describe('CommandPaletteTag', () => {
   it('does not submit when form is disabled due to empty name', async () => {
     const document = createMockDocument()
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -388,7 +382,7 @@ describe('CommandPaletteTag', () => {
       tags: [{ name: 'Existing Tag' }],
     })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -412,7 +406,7 @@ describe('CommandPaletteTag', () => {
   it('emits back event when delete is triggered on input', async () => {
     const document = createMockDocument()
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -434,7 +428,7 @@ describe('CommandPaletteTag', () => {
   it('handles multiple back events', async () => {
     const document = createMockDocument()
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -460,7 +454,7 @@ describe('CommandPaletteTag', () => {
     const document1 = createMockDocument()
     const document2 = createMockDocument({ info: { title: 'Second Document', version: '1.0.0' } })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document1, 'doc2': document2 })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -481,7 +475,7 @@ describe('CommandPaletteTag', () => {
   it('initializes with first available document selected', async () => {
     const document = createMockDocument()
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -496,7 +490,7 @@ describe('CommandPaletteTag', () => {
 
   it('handles empty documents list gracefully', async () => {
     const workspaceStore = await createMockWorkspaceStore({})
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -513,7 +507,7 @@ describe('CommandPaletteTag', () => {
   it('displays the document title in the selector trigger', async () => {
     const document = createMockDocument({ info: { title: 'My Collection', version: '1.0.0' } })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -528,7 +522,7 @@ describe('CommandPaletteTag', () => {
 
   it('displays the placeholder when no document is selected', async () => {
     const workspaceStore = await createMockWorkspaceStore({})
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -544,7 +538,7 @@ describe('CommandPaletteTag', () => {
   it('falls back to the document name when the title is missing', async () => {
     const document = createMockDocument({ info: { title: '', version: '1.0.0' } })
     const workspaceStore = await createMockWorkspaceStore({ 'my-doc': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -563,7 +557,7 @@ describe('CommandPaletteTag', () => {
     })
     const document2 = createMockDocument({ info: { title: 'Second Document', version: '1.0.0' } })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document1, 'doc2': document2 })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -590,7 +584,7 @@ describe('CommandPaletteTag', () => {
       tags: [{ name: 'Existing' }],
     })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -625,7 +619,7 @@ describe('CommandPaletteTag', () => {
   it('emits close event only once per submission', async () => {
     const document = createMockDocument()
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -648,7 +642,7 @@ describe('CommandPaletteTag', () => {
   it('handles document without tags array', async () => {
     const document = createMockDocument()
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -668,7 +662,7 @@ describe('CommandPaletteTag', () => {
   it('disables form when selected document does not exist', async () => {
     const document = createMockDocument()
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -693,7 +687,7 @@ describe('CommandPaletteTag', () => {
   it('does not call buildSidebar when tag creation callback fails', async () => {
     const document = createMockDocument()
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     vi.spyOn(workspaceStore, 'buildSidebar')
 
@@ -712,8 +706,10 @@ describe('CommandPaletteTag', () => {
     await form.vm.$emit('submit')
     await nextTick()
 
-    const emitCall = eventBus.emit.mock.calls.find((call) => call[0] === 'tag:create:tag')
-    const callback = emitCall?.[1]?.callback
+    const emitCall = vi.mocked(mockEventBus.emit).mock.calls.find((call) => call[0] === 'tag:create:tag')
+    const callback = (emitCall?.[1] as Record<string, unknown> | undefined)?.callback as
+      | ((success: boolean) => void)
+      | undefined
     callback?.(false)
 
     expect(workspaceStore.buildSidebar).not.toHaveBeenCalled()
@@ -722,7 +718,7 @@ describe('CommandPaletteTag', () => {
   it('renders submit button with correct text', async () => {
     const document = createMockDocument()
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -741,7 +737,7 @@ describe('CommandPaletteTag', () => {
       tags: [{ name: 'MyTag' }],
     })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -762,7 +758,7 @@ describe('CommandPaletteTag', () => {
     const document1 = createMockDocument()
     const document2 = createMockDocument({ info: { title: 'Second Document', version: '1.0.0' } })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document1, 'doc2': document2 })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -789,7 +785,7 @@ describe('CommandPaletteTag', () => {
       tags: [{ name: 'Tag B' }],
     })
     const workspaceStore = await createMockWorkspaceStore({ 'doc1': document1, 'doc2': document2 })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -819,7 +815,7 @@ describe('CommandPaletteTag', () => {
       'doc-a': createMockDocument({ info: { title: 'A', version: '1' } }),
       'doc-b': createMockDocument({ info: { title: 'B', version: '1' } }),
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -839,7 +835,7 @@ describe('CommandPaletteTag', () => {
       'doc-a': createMockDocument({ info: { title: 'A', version: '1' } }),
       'doc-b': createMockDocument({ info: { title: 'B', version: '1' } }),
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {
@@ -858,7 +854,7 @@ describe('CommandPaletteTag', () => {
       'doc-a': createMockDocument({ info: { title: 'A', version: '1' } }),
       'doc-b': createMockDocument({ info: { title: 'B', version: '1' } }),
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteTag, {
       props: {

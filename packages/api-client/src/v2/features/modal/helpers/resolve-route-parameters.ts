@@ -3,6 +3,7 @@ import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getOperationEntries } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry, TraversedExample } from '@scalar/workspace-store/schemas/navigation'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 
 /** Payload for routing and opening the API client modal. */
 export type RoutePayload = {
@@ -27,15 +28,23 @@ const isExample = (entry: TraversedEntry): entry is TraversedExample => entry.ty
 /**
  * Gets the document from the workspace store.
  * Returns undefined if the document slug is not provided or the document does not exist.
+ * Modal routing is OpenAPI-only — AsyncAPI docs surface as undefined here.
  */
-const getDocument = (ctx: ResolverContext) => ctx.store.workspace.documents[ctx.documentSlug ?? '']
+const getDocument = (ctx: ResolverContext) => {
+  const doc = ctx.store.workspace.documents[ctx.documentSlug ?? '']
+  return isOpenApiDocument(doc) ? doc : undefined
+}
 
 /**
  * Resolves the document slug from a raw input value.
  *
  * When "default" is specified and no document exists with that slug,
  * we fall back to the active document or the first available document.
- * This ensures a valid document is selected even when the caller does not know which documents exist.
+ * Modal routing is OpenAPI-only, so the fallback skips AsyncAPI documents —
+ * otherwise opening the modal with default params on a workspace that has
+ * an AsyncAPI active or first document would hand a slug back that
+ * `getDocument` then resolves to undefined, rendering the modal with
+ * `document: null` even when OpenAPI documents exist.
  */
 export const resolveDocumentSlug = (store: WorkspaceStore, slug: string | undefined): string | undefined => {
   const hasMatchingDocument = slug !== 'default' || store.workspace.documents[slug] !== undefined
@@ -44,8 +53,14 @@ export const resolveDocumentSlug = (store: WorkspaceStore, slug: string | undefi
     return slug
   }
 
-  // Fall back to active document, then first available document
-  return store.workspace['x-scalar-active-document'] || Object.keys(store.workspace.documents)[0]
+  // Prefer the active document when it is OpenAPI; otherwise pick the first
+  // OpenAPI document in the workspace.
+  const activeSlug = store.workspace['x-scalar-active-document']
+  if (activeSlug && isOpenApiDocument(store.workspace.documents[activeSlug])) {
+    return activeSlug
+  }
+
+  return Object.entries(store.workspace.documents).find(([, document]) => isOpenApiDocument(document))?.[0]
 }
 
 /**

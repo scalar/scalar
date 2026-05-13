@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { CONTENT_TYPES } from '@scalar/helpers/http/content-types'
+import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
@@ -78,18 +79,59 @@ const selectedContentType = computed(
   () => getSelectedBodyContentType(requestBody, exampleKey) ?? 'none',
 )
 
-/** Convert content types to options for the dropdown */
-const contentTypeOptions = objectEntries(CONTENT_TYPES).map(([id, label]) => ({
-  id,
-  label,
-}))
+/**
+ * Strips MIME parameters (such as `charset=utf-8`) for dropdown labels, aligned with how we treat
+ * media types elsewhere (see api-reference `normalizeMimeType` / WHATWG essence).
+ */
+const contentTypeLabel = (raw: string): string => parseMimeType(raw).essence
+
+/**
+ * Build the dropdown options for the content type selector.
+ *
+ * The list is composed of two groups:
+ *   1. The built-in content types we ship friendly labels for (JSON, XML, Multipart Form, etc.).
+ *   2. Any additional content types defined on the OpenAPI request body that are not in the built-in list
+ *      (for example `text/csv`, `application/pdf`, vendor types like `application/vnd.api+json`, ...).
+ *
+ * The OpenAPI-defined extras are appended at the bottom so the well-known options stay on top, and
+ * users can always pick the exact content type the operation actually accepts.
+ */
+const contentTypeOptions = computed<{ id: string; label: string }[]>(() => {
+  const builtIn = objectEntries(CONTENT_TYPES).map(([id, label]) => ({
+    id,
+    label,
+  }))
+
+  const extras = Object.keys(requestBody?.content ?? {})
+    .filter((type) => {
+      if (type in CONTENT_TYPES) {
+        return false
+      }
+      // Same essence as a built-in (e.g. `application/json; charset=utf-8`) — do not duplicate the row.
+      return !(contentTypeLabel(type) in CONTENT_TYPES)
+    })
+    .map((type) => ({ id: type, label: contentTypeLabel(type) }))
+
+  return [...builtIn, ...extras]
+})
 
 const selectedContentTypeModel = computed<{ id: string; label: string }>({
   get: () => {
-    const found = contentTypeOptions.find(
+    const found = contentTypeOptions.value.find(
       (it) => it.id === selectedContentType.value,
     )
-    return found ?? contentTypeOptions.at(-1)!
+    if (found) {
+      return found
+    }
+
+    const essence = contentTypeLabel(selectedContentType.value)
+    const friendly =
+      CONTENT_TYPES[essence as keyof typeof CONTENT_TYPES] ?? essence
+
+    return {
+      id: selectedContentType.value,
+      label: friendly,
+    }
   },
   set: (v) => {
     emits('update:contentType', { value: v.id })
@@ -159,11 +201,7 @@ const bodySchema = computed<SchemaObject | undefined>(() => {
             class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-3 font-normal"
             fullWidth
             variant="ghost">
-            <span>{{
-              CONTENT_TYPES[
-                selectedContentType as keyof typeof CONTENT_TYPES
-              ] ?? selectedContentType
-            }}</span>
+            <span>{{ selectedContentTypeModel.label }}</span>
             <ScalarIcon
               icon="ChevronDown"
               size="md" />

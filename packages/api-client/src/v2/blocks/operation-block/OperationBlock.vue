@@ -97,6 +97,7 @@ import {
   AVAILABLE_CLIENTS,
   type AvailableClients,
 } from '@scalar/types/snippetz'
+import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
@@ -111,6 +112,7 @@ import {
   createVariablesStoreForRequest,
   getEnvironmentVariables,
   requestFactory,
+  resolveExecutableRequestUrl,
   type MergedSecuritySchemes,
   type RequestPayload,
   type SecuritySchemeObjectSecret,
@@ -159,6 +161,7 @@ const {
   hideClientButton,
   httpClients = AVAILABLE_CLIENTS,
   history = [],
+  layout,
   method,
   operation,
   path,
@@ -182,6 +185,7 @@ const {
 const clientOptions = computed(() => generateClientOptions(httpClients))
 
 const { toast } = useToasts()
+const { copyToClipboard } = useClipboard()
 
 // Refs
 const abortController = ref<AbortController | null>(null)
@@ -190,6 +194,31 @@ const requestPayload = ref<RequestPayload | null>(null)
 
 /** Cancel the request */
 const cancelRequest = () => abortController.value?.abort(ERRORS.REQUEST_ABORTED)
+
+/**
+ * Copy the executable URL — same pipeline as Send (`requestFactory` +
+ * `resolveExecutableRequestUrl`), including security query params.
+ */
+const copyAddressBarUrl = async (): Promise<void> => {
+  const { request } = requestFactory({
+    defaultHeaders,
+    environment,
+    exampleName: exampleKey,
+    globalCookies: [...workspaceCookies, ...documentCookies],
+    method,
+    operation,
+    path,
+    proxyUrl,
+    server,
+    selectedSecuritySchemes,
+    isElectron: isElectron(),
+    requestBodyCompositionSelection,
+  })
+
+  await copyToClipboard(
+    resolveExecutableRequestUrl(request, getEnvironmentVariables(environment)),
+  )
+}
 
 /** Execute the current operation example */
 const handleExecute = async () => {
@@ -246,30 +275,17 @@ const handleExecute = async () => {
   }
 
   // Build the fetch Request after hooks may have mutated the factory
-  const requestResult = (() => {
-    try {
-      return {
-        ok: true,
-        result: buildRequest(requestBuilder, {
-          envVariables,
-        }),
-      } as const
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error)
-      return {
-        ok: false,
-        error: message,
-      } as const
-    }
-  })()
-
-  if (requestResult.ok === false) {
-    toast(requestResult.error, 'error')
+  const built = buildRequest(requestBuilder, {
+    envVariables,
+    allowMissingRequestServerBase: layout === 'modal',
+  })
+  if (!built.ok) {
+    toast(built.message ?? built.error, 'error')
     return
   }
 
   // Store the abort controller for cancellation
-  abortController.value = requestResult.result.controller
+  abortController.value = built.data.controller
 
   // Execute the hooks
   eventBus.emit('hooks:on:request:sent', {
@@ -282,8 +298,8 @@ const handleExecute = async () => {
 
   /** Execute the request */
   const [sendError, sendResult] = await sendRequest({
-    isUsingProxy: requestResult.result.isUsingProxy,
-    requestPayload: requestResult.result.requestPayload,
+    isUsingProxy: built.data.isUsingProxy,
+    requestPayload: built.data.requestPayload,
     plugins,
     customFetch: toValue(options)?.customFetch,
   })
@@ -347,10 +363,12 @@ const handleExecute = async () => {
 onMounted(() => {
   eventBus.on('operation:send:request:hotkey', handleExecute)
   eventBus.on('operation:cancel:request', cancelRequest)
+  eventBus.on('copy-url:address-bar', copyAddressBarUrl)
 })
 onBeforeUnmount(() => {
   eventBus.off('operation:send:request:hotkey', handleExecute)
   eventBus.off('operation:cancel:request', cancelRequest)
+  eventBus.off('copy-url:address-bar', copyAddressBarUrl)
 })
 
 const operationHistory = computed<History[]>(() =>

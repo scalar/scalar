@@ -1,7 +1,25 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { RequestFactory } from './request-factory'
-import { resolveRequestFactoryUrl } from './resolve-request-factory-url'
+import {
+  INVALID_REQUEST_FACTORY_URL,
+  MISSING_REQUEST_SERVER_BASE,
+  resolveRequestFactoryUrl,
+} from './resolve-request-factory-url'
+
+const defaultOptions = { envVariables: {}, securityQueryParams: new URLSearchParams() }
+
+const unwrap = (request: RequestFactory, options: Parameters<typeof resolveRequestFactoryUrl>[1]) => {
+  const merged = resolveRequestFactoryUrl(request, {
+    ...options,
+    allowMissingRequestServerBase: options.allowMissingRequestServerBase ?? true,
+  })
+  expect(merged.ok).toBe(true)
+  if (!merged.ok) {
+    throw new Error('expected resolveRequestFactoryUrl ok')
+  }
+  return merged.data
+}
 
 const createRequestFactory = (overrides: Partial<RequestFactory> = {}): RequestFactory => ({
   options: {},
@@ -21,8 +39,6 @@ const createRequestFactory = (overrides: Partial<RequestFactory> = {}): RequestF
   ...overrides,
 })
 
-const defaultOptions = { envVariables: {}, securityQueryParams: new URLSearchParams() }
-
 describe('resolve-request-factory-url', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
@@ -30,7 +46,7 @@ describe('resolve-request-factory-url', () => {
 
   it('returns a simple URL from baseUrl and path', () => {
     const request = createRequestFactory()
-    const result = resolveRequestFactoryUrl(request, defaultOptions)
+    const result = unwrap(request, defaultOptions)
 
     expect(result).toBe('https://api.example.com/v1/users')
   })
@@ -47,7 +63,7 @@ describe('resolve-request-factory-url', () => {
     })
 
     const request = createRequestFactory()
-    const result = resolveRequestFactoryUrl(request, defaultOptions)
+    const result = unwrap(request, defaultOptions)
 
     expect(result).toBe('https://api.example.com/v1/users')
   })
@@ -57,7 +73,7 @@ describe('resolve-request-factory-url', () => {
       baseUrl: 'https://api.example.com/',
       path: { raw: '/v1/users', variables: {} },
     })
-    const result = resolveRequestFactoryUrl(request, defaultOptions)
+    const result = unwrap(request, defaultOptions)
 
     expect(result).toBe('https://api.example.com/v1/users')
   })
@@ -69,7 +85,7 @@ describe('resolve-request-factory-url', () => {
         variables: { userId: '123', postId: '456' },
       },
     })
-    const result = resolveRequestFactoryUrl(request, defaultOptions)
+    const result = unwrap(request, defaultOptions)
 
     expect(result).toBe('https://api.example.com/users/123/posts/456')
   })
@@ -81,7 +97,7 @@ describe('resolve-request-factory-url', () => {
         variables: { query: 'hello world' },
       },
     })
-    const result = resolveRequestFactoryUrl(request, defaultOptions)
+    const result = unwrap(request, defaultOptions)
 
     expect(result).toBe('https://api.example.com/search/hello%20world')
   })
@@ -92,7 +108,7 @@ describe('resolve-request-factory-url', () => {
     query.set('limit', '10')
 
     const request = createRequestFactory({ query })
-    const result = resolveRequestFactoryUrl(request, defaultOptions)
+    const result = unwrap(request, defaultOptions)
 
     expect(result).toBe('https://api.example.com/v1/users?page=1&limit=10')
   })
@@ -105,7 +121,7 @@ describe('resolve-request-factory-url', () => {
     query.append('bbox', '52')
 
     const request = createRequestFactory({ query })
-    const result = resolveRequestFactoryUrl(request, defaultOptions)
+    const result = unwrap(request, defaultOptions)
 
     expect(result).toBe('https://api.example.com/v1/users?bbox=13&bbox=48&bbox=18&bbox=52')
   })
@@ -115,7 +131,7 @@ describe('resolve-request-factory-url', () => {
     securityQueryParams.set('api_key', 'secret123')
 
     const request = createRequestFactory()
-    const result = resolveRequestFactoryUrl(request, {
+    const result = unwrap(request, {
       envVariables: {},
       securityQueryParams,
     })
@@ -125,7 +141,7 @@ describe('resolve-request-factory-url', () => {
 
   it('does not add security query params when securityQueryParams is empty', () => {
     const request = createRequestFactory()
-    const result = resolveRequestFactoryUrl(request, defaultOptions)
+    const result = unwrap(request, defaultOptions)
 
     expect(result).toBe('https://api.example.com/v1/users')
   })
@@ -138,7 +154,7 @@ describe('resolve-request-factory-url', () => {
     securityQueryParams.set('token', 'xyz')
 
     const request = createRequestFactory({ query })
-    const result = resolveRequestFactoryUrl(request, {
+    const result = unwrap(request, {
       envVariables: {},
       securityQueryParams,
     })
@@ -150,7 +166,7 @@ describe('resolve-request-factory-url', () => {
     const request = createRequestFactory({
       baseUrl: '{{BASE_URL}}/api',
     })
-    const result = resolveRequestFactoryUrl(request, {
+    const result = unwrap(request, {
       ...defaultOptions,
       envVariables: { BASE_URL: 'https://staging.example.com' },
     })
@@ -165,7 +181,7 @@ describe('resolve-request-factory-url', () => {
         variables: { userId: '{{USER_ID}}' },
       },
     })
-    const result = resolveRequestFactoryUrl(request, {
+    const result = unwrap(request, {
       ...defaultOptions,
       envVariables: { USER_ID: '42' },
     })
@@ -180,7 +196,7 @@ describe('resolve-request-factory-url', () => {
         variables: {},
       },
     })
-    const result = resolveRequestFactoryUrl(request, {
+    const result = unwrap(request, {
       ...defaultOptions,
       envVariables: { version: 'v2', userId: '42' },
     })
@@ -193,7 +209,7 @@ describe('resolve-request-factory-url', () => {
     query.set('{{KEY_NAME}}', '{{KEY_VALUE}}')
 
     const request = createRequestFactory({ query })
-    const result = resolveRequestFactoryUrl(request, {
+    const result = unwrap(request, {
       ...defaultOptions,
       envVariables: { KEY_NAME: 'search', KEY_VALUE: 'test' },
     })
@@ -206,7 +222,7 @@ describe('resolve-request-factory-url', () => {
       baseUrl: '',
       path: { raw: '/api/users', variables: {} },
     })
-    const result = resolveRequestFactoryUrl(request, defaultOptions)
+    const result = unwrap(request, defaultOptions)
 
     expect(result).toBe('http://localhost:3000/api/users')
   })
@@ -216,7 +232,7 @@ describe('resolve-request-factory-url', () => {
       baseUrl: '/api/v2',
       path: { raw: '/users', variables: {} },
     })
-    const result = resolveRequestFactoryUrl(request, defaultOptions)
+    const result = unwrap(request, defaultOptions)
 
     expect(result).toBe('http://localhost:3000/api/v2/users')
   })
@@ -229,7 +245,7 @@ describe('resolve-request-factory-url', () => {
     securityQueryParams.set('token', 'from-security')
 
     const request = createRequestFactory({ query })
-    const result = resolveRequestFactoryUrl(request, {
+    const result = unwrap(request, {
       envVariables: {},
       securityQueryParams,
     })
@@ -243,7 +259,7 @@ describe('resolve-request-factory-url', () => {
     securityQueryParams.set('client_secret', 'xyz')
 
     const request = createRequestFactory()
-    const result = resolveRequestFactoryUrl(request, {
+    const result = unwrap(request, {
       envVariables: {},
       securityQueryParams,
     })
@@ -255,7 +271,7 @@ describe('resolve-request-factory-url', () => {
     const request = createRequestFactory({
       baseUrl: '{{MISSING_VAR}}',
     })
-    const result = resolveRequestFactoryUrl(request, defaultOptions)
+    const result = unwrap(request, defaultOptions)
 
     expect(result).toBe('http://localhost:3000/%7B%7BMISSING_VAR%7D%7D/v1/users')
   })
@@ -275,7 +291,7 @@ describe('resolve-request-factory-url', () => {
       },
       query,
     })
-    const result = resolveRequestFactoryUrl(request, {
+    const result = unwrap(request, {
       envVariables: {
         API_HOST: 'https://api.github.com',
         API_VERSION: 'v3',
@@ -285,5 +301,35 @@ describe('resolve-request-factory-url', () => {
     })
 
     expect(result).toBe('https://api.github.com/v3/orgs/scalar/repos/my-repo?format=json&auth=ghp_xxx')
+  })
+
+  it('returns err for path-only merged url (no server base)', () => {
+    const result = resolveRequestFactoryUrl(
+      createRequestFactory({
+        baseUrl: '',
+        path: { raw: '/v1/users', variables: {} },
+      }),
+      { ...defaultOptions, allowMissingRequestServerBase: false },
+    )
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.error).toBe(MISSING_REQUEST_SERVER_BASE)
+    }
+  })
+
+  it('returns err when a path variable cannot be percent-encoded', () => {
+    const result = resolveRequestFactoryUrl(
+      createRequestFactory({
+        path: {
+          raw: '/users/{id}',
+          variables: { id: '\uD800' },
+        },
+      }),
+      { ...defaultOptions, allowMissingRequestServerBase: true },
+    )
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.error).toBe(INVALID_REQUEST_FACTORY_URL)
+    }
   })
 })

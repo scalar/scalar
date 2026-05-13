@@ -45,6 +45,29 @@ const createBaseArgs = (overrides: Partial<FactoryArgs> = {}): FactoryArgs => ({
 })
 
 describe('requestFactory', () => {
+  it('does not include default headers disabled for the example', () => {
+    const operation: OperationObject = {
+      parameters: [],
+      'x-scalar-disable-parameters': {
+        'default-headers': {
+          default: {
+            accept: true,
+          },
+        },
+      },
+    }
+
+    const { request } = requestFactory(
+      createBaseArgs({
+        operation,
+        defaultHeaders: { Accept: '*/*', 'X-Custom': 'yes' },
+      }),
+    )
+
+    expect(request.headers.get('Accept')).toBeNull()
+    expect(request.headers.get('X-Custom')).toBe('yes')
+  })
+
   it('returns a factory with empty base URL when server is null', () => {
     const { request } = requestFactory(createBaseArgs())
 

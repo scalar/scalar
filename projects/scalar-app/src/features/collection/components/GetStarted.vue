@@ -20,15 +20,17 @@ export default {}
 
 <script setup lang="ts">
 import { ScalarAsciiArt } from '@scalar/api-client/components/ScalarAsciiArt'
-import { ScalarButton, ScalarHotkey } from '@scalar/components'
+import { ScalarButton, ScalarHotkey, useModal } from '@scalar/components'
 import {
   ScalarIconBracketsCurly,
   ScalarIconDownloadSimple,
+  ScalarIconSparkle,
 } from '@scalar/icons'
 import { computed } from 'vue'
 
 import Computer from '@/assets/computer.ascii?raw'
 import type { RouteProps } from '@/features/app/helpers/routes'
+import { useWhatsNew, WhatsNewModal } from '@/features/whats-new'
 
 const { eventBus, isTeamWorkspace, layout, workspaceStore } =
   defineProps<RouteProps>()
@@ -84,6 +86,15 @@ const isEmptyTeamWorkspace = computed(() => {
   const documentNames = Object.keys(workspaceStore?.workspace?.documents ?? {})
   return documentNames.every((name) => name === 'drafts')
 })
+
+/**
+ * "What's new" entry point. The modal itself owns acknowledging the
+ * latest release - we just need somewhere to mount it and a small dot
+ * indicator on the trigger so returning users notice when there is
+ * something fresh to read.
+ */
+const whatsNewModalState = useModal()
+const { hasUnseen: hasUnseenReleaseNotes } = useWhatsNew()
 </script>
 
 <template>
@@ -151,6 +162,26 @@ const isEmptyTeamWorkspace = computed(() => {
             :modifier="['default']" />
         </button>
         <!--
+          Recent release notes. Always visible so curious users can browse
+          what changed, with a small accent dot lighting up only when there
+          is an unseen release.
+        -->
+        <button
+          class="hover:text-c-1 flex w-full items-center justify-between gap-8"
+          type="button"
+          @click="whatsNewModalState.show()">
+          <span class="flex items-center gap-2">
+            What's new
+            <span
+              v-if="hasUnseenReleaseNotes"
+              aria-label="New updates available"
+              class="bg-c-accent inline-block size-1.5 rounded-full" />
+          </span>
+          <ScalarIconSparkle
+            class="size-3.5"
+            weight="bold" />
+        </button>
+        <!--
           Browser-only nudge to install the desktop app. Hidden in the desktop
           and modal layouts because the user is already running the native app
           (or embedded in a host page).
@@ -167,5 +198,6 @@ const isEmptyTeamWorkspace = computed(() => {
         </a>
       </div>
     </div>
+    <WhatsNewModal :state="whatsNewModalState" />
   </div>
 </template>

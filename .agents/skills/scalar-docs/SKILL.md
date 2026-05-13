@@ -56,6 +56,7 @@ Validate config: `npx @scalar/cli project check-config`
 | `scalar`     | `string` | Configuration version. Use `"2.0.0"`                                       |
 | `info`       | `object` | Project metadata (title, description)                                       |
 | `navigation` | `object` | Navigation structure (header, routes, sidebar, tabs)                        |
+| `versions`   | `object` | Multi-version navigation. Use instead of `navigation` for versioned docs    |
 | `siteConfig` | `object` | Site-level settings (domain, theme, head, logo, routing)                    |
 | `assetsDir`  | `string` | Relative path to assets folder from config root                             |
 
@@ -192,6 +193,22 @@ Collapsible section with children:
 ```
 
 Modes: `flat`, `nested`, `folder` (default).
+
+**Folder landing pages:** Add a `page` property to make clicking the folder navigate to a page:
+
+```json
+"/company": {
+  "type": "group",
+  "title": "Company",
+  "mode": "folder",
+  "page": { "type": "page", "title": "About Us", "filepath": "docs/company/index.md" },
+  "children": {
+    "/team": { "type": "page", "title": "Our Team", "filepath": "docs/company/team.md" }
+  }
+}
+```
+
+**Default open state:** Use `open: true` to expand a folder by default.
 
 #### Link (`type: "link"`)
 
@@ -358,6 +375,50 @@ npx @scalar/cli project preview
 
 ---
 
+## Versions
+
+Use `versions` instead of `navigation` to create multi-version documentation.
+
+A version with the key `default` is required — it is the version shown by default. Additional versions (for example `v1`) can use any identifier and appear in the version selector. Inside each version's `routes`, wrap pages in a top-level `group` so they render correctly in the sidebar.
+
+```json
+{
+  "scalar": "2.0.0",
+  "versions": {
+    "default": {
+      "title": "Version 2.0",
+      "routes": {
+        "/": {
+          "type": "group",
+          "title": "Documentation",
+          "children": {
+            "/": { "type": "page", "title": "Intro", "filepath": "docs/v2/intro.md" },
+            "/api": { "type": "openapi", "title": "API", "filepath": "docs/v2/openapi.yaml" }
+          }
+        }
+      }
+    },
+    "v1": {
+      "title": "Version 1.0",
+      "routes": {
+        "/": {
+          "type": "group",
+          "title": "Documentation",
+          "children": {
+            "/": { "type": "page", "title": "Intro", "filepath": "docs/v1/intro.md" },
+            "/api": { "type": "openapi", "title": "API", "filepath": "docs/v1/openapi.yaml" }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Each version entry supports: `title`, `routes` (required), `header`, `sidebar`, `tabs`.
+
+---
+
 ## Common Patterns
 
 **Multi-project on same domain:** Same `customDomain` or `subdomain`, different `subpath` per repo.
@@ -378,6 +439,7 @@ npx @scalar/cli project preview
 - [Docs Starter Kit](https://github.com/scalar/starter)
 - [Configuration reference](https://docs.scalar.com/products/docs/configuration/scalar.config.json)
 - [Navigation](https://docs.scalar.com/products/docs/configuration/navigation)
+- [Versions](https://docs.scalar.com/products/docs/configuration/versions)
 - [Site config](https://docs.scalar.com/products/docs/configuration/site-config)
 - [Themes](https://docs.scalar.com/products/docs/configuration/themes)
 - [Domains](https://docs.scalar.com/products/docs/configuration/domains)

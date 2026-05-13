@@ -135,14 +135,54 @@ export type AuthEvents = {
     name: string
     /** The scopes to update the selected scopes with */
     scopes: string[]
-    /** We can add a new scope as well then select it */
-    newScopePayload?: {
-      name: string
-      description: string
-      flowType: keyof OAuthFlowsObject
-    }
     /** Meta information for the auth update */
     meta: AuthMeta
+  }
+
+  /**
+   * Add a new scope to an OAuth2 flow, or rename / update the description of an existing scope.
+   *
+   * - When `oldScope` is omitted, a new scope is added (no-op if the scope already exists).
+   * - When `oldScope` is provided, the existing scope is replaced. The `scope` key may equal
+   *   `oldScope` for description-only updates.
+   * - When `enable` is true, the resulting `scope` is additionally added to every selection
+   *   requirement (document- and operation-level) that already references this security scheme,
+   *   so callers do not need a follow-up `auth:update:selected-scopes`.
+   *
+   * Renames always rewrite the previous scope key inside matching selections. `enable` is
+   * intended for "add and select" flows where the new scope should be immediately active.
+   */
+  'auth:upsert:scopes': {
+    /** The name of the security scheme that owns the flow */
+    name: string
+    /** Which OAuth flow on the scheme to update */
+    flowType: keyof OAuthFlowsObject
+    /** The desired scope key */
+    scope: string
+    /** Description for the scope */
+    description: string
+    /** When set, the existing scope with this key is replaced (rename + description update) */
+    oldScope?: string
+    /**
+     * When true, ensure the resulting `scope` is included in every selection requirement
+     * (document- and operation-level) that references this security scheme by name.
+     */
+    enable?: boolean
+  }
+
+  /**
+   * Remove a scope from an OAuth2 flow.
+   *
+   * Selection state is owned by `auth:update:selected-scopes`. Callers that want to drop the
+   * removed scope from current selections must emit `auth:update:selected-scopes` separately.
+   */
+  'auth:delete:scopes': {
+    /** The name of the security scheme that owns the flow */
+    name: string
+    /** Which OAuth flow on the scheme to delete the scope from */
+    flowType: keyof OAuthFlowsObject
+    /** The scope key to delete */
+    scope: string
   }
 
   /**

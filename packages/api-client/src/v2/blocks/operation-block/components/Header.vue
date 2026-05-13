@@ -89,17 +89,17 @@ const handleAddEnvironment = () => {
 </script>
 
 <template>
+  <!--
+    `@container` declares an unnamed container so the AddressBar can
+    adapt to the right column's actual width (which shrinks when the
+    sidebar opens) instead of the viewport. The query is declared here
+    on the parent rather than on the AddressBar itself so the bar's
+    `w-full` mobile state cannot feed back into its own breakpoint.
+  -->
   <div
-    class="lg:min-h-header t-app__top-container flex w-full flex-wrap items-center justify-center p-2 pt-2 lg:p-1 lg:pt-1">
-    <div
-      class="mb-2 flex w-1/2 flex-row items-center gap-1 lg:mb-0 lg:flex-1 lg:px-1">
-      <!--
-          Holds space for the sidebar toggle
-
-          Hidden for `modal` layout
-      -->
-      <div class="size-8"></div>
-    </div>
+    class="lg:min-h-header t-app__top-container @container flex w-full flex-wrap items-center justify-center p-2">
+    <!-- Left spacer to center bar -->
+    <div class="flex flex-1"></div>
     <AddressBar
       :activeEnvironment
       :documentSlug
@@ -120,8 +120,7 @@ const handleAddEnvironment = () => {
         (payload) => emit('select:history:item', payload)
       " />
 
-    <div
-      class="mb-2 flex w-1/2 flex-row items-center justify-end gap-2 lg:mb-0 lg:flex-1 lg:px-2.5">
+    <div class="mb-2 flex flex-1 items-center justify-end gap-2 @3xl:mb-0">
       <!--
         Environment Selector
         Hidden for `modal` layout

@@ -174,6 +174,16 @@ export type UIEvents = {
   'ui:open:settings': KeyboardEventPayload | undefined
 
   /**
+   * Open the "Create workspace" modal.
+   *
+   * Lets surfaces that do not have direct access to the modal state (for
+   * example the mobile menu rendered by the outer app shell, outside of the
+   * component that owns the modal) request that the modal be shown without
+   * coupling them to the modal's implementation.
+   */
+  'ui:open:create-workspace': undefined
+
+  /**
    * Open the API Client modal to a specific operation.
    * This allows deep linking into specific endpoints from external sources.
    */
@@ -214,6 +224,15 @@ export type UIEvents = {
    * If undefined is passed, opens the palette without a pre-selected action.
    */
   'ui:open:command-palette': CommandPaletteAction | KeyboardEventPayload | undefined
+
+  /**
+   * Request persisting the active document from a keyboard shortcut (Cmd/Ctrl+S).
+   *
+   * Hosts that show a local-only Save control (for example scalar-app) should
+   * listen, call `event.preventDefault()` when they handle the shortcut, and
+   * run their save path only when a save is actually allowed.
+   */
+  'ui:save:local-document': KeyboardEventPayload
 
   // ────────────────────────────────────────────────────────────
   // Navigation Item Events

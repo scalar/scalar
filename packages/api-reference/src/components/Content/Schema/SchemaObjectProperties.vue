@@ -147,6 +147,7 @@ const getPropertyDescription = (
  * Get the value for additional properties.
  *
  * When additionalProperties is true or an empty object, it should render as { type: 'anything' }.
+ * $ref values are resolved before the type check so the referenced schema is rendered correctly.
  */
 const getAdditionalPropertiesValue = (
   additionalProperties: Extract<
@@ -154,21 +155,26 @@ const getAdditionalPropertiesValue = (
     { type: 'object' }
   >['additionalProperties'],
 ): SchemaObject => {
+  // Resolve $ref first so the type check below works on the actual schema
+  const resolved =
+    typeof additionalProperties === 'boolean'
+      ? additionalProperties
+      : resolve.schema(additionalProperties)
+
   if (
-    additionalProperties === true ||
-    (typeof additionalProperties === 'object' &&
-      Object.keys(additionalProperties).length === 0) ||
-    typeof additionalProperties !== 'object' ||
-    !('type' in additionalProperties)
+    resolved === true ||
+    (typeof resolved === 'object' && Object.keys(resolved).length === 0) ||
+    typeof resolved !== 'object' ||
+    !('type' in resolved)
   ) {
     return {
       // @ts-expect-error - ask hans
       type: 'anything',
-      ...(typeof additionalProperties === 'object' ? additionalProperties : {}),
+      ...(typeof resolved === 'object' ? resolved : {}),
     }
   }
 
-  return additionalProperties
+  return resolved
 }
 </script>
 

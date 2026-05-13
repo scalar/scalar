@@ -1,13 +1,11 @@
-import type { ScalarListboxOption, WorkspaceGroup } from '@scalar/components'
+import type { ScalarListboxOption } from '@scalar/components'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { slugify } from '@scalar/helpers/string/slugify'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { migrateLocalStorageToIndexDb } from '@scalar/oas-utils/migrations'
-import type { Team } from '@scalar/sdk/models/components'
 import { createSidebarState, generateReverseIndex } from '@scalar/sidebar'
-import type { Theme } from '@scalar/themes'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import {
   type OperationExampleMeta,
@@ -24,29 +22,17 @@ import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-scalar-tabs'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import {
-  type ComputedRef,
-  type MaybeRefOrGetter,
-  type Ref,
-  type ShallowRef,
-  computed,
-  readonly,
-  ref,
-  shallowRef,
-  toValue,
-  watch,
-} from 'vue'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
+import { type ComputedRef, type Ref, type ShallowRef, computed, ref, shallowRef, watch } from 'vue'
 import type { RouteLocationNormalizedGeneric, RouteLocationRaw, Router } from 'vue-router'
 
 import type { ApiClientAppOptions } from '@/features/app/helpers/create-api-client-app'
 import { getRouteParam } from '@/features/app/helpers/get-route-param'
-import { groupWorkspacesByTeam } from '@/features/app/helpers/group-workspaces'
-import { useTheme } from '@/features/app/hooks/use-theme'
 import { getTabDetails } from '@/helpers/get-tab-details'
 import { workspaceStorage } from '@/helpers/storage'
 
 import { initializeAppEventHandlers } from './app-events'
-import { canLoadWorkspace, filterWorkspacesByTeam } from './helpers/filter-workspaces'
+import { canLoadWorkspace } from './helpers/filter-workspaces'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -102,13 +88,6 @@ export type AppState = {
     }) => Promise<{ name: string; slug: string; teamSlug: string } | undefined>
     /** All workspace list */
     workspaceList: Ref<WorkspaceOption[]>
-    /** Filtered workspace list, based on the current teamSlug */
-    filteredWorkspaceList: ComputedRef<WorkspaceOption[]>
-    /**
-     * Groups workspaces into team and local categories for display in the workspace picker.
-     * Team workspaces are shown first (when not on local team), followed by local workspaces.
-     */
-    workspaceGroups: ComputedRef<WorkspaceGroup[]>
     /** The currently active workspace */
     activeWorkspace: ShallowRef<{ id: string; label: string } | null>
     /** Navigates to the specified workspace */
@@ -118,7 +97,13 @@ export type AppState = {
      * Mirrors the picker affordances in the breadcrumb and header menu
      * so both surfaces stay in sync when the user switches workspaces.
      */
-    navigateToWorkspaceGetStarted: (workspaceId: string) => void
+    navigateToWorkspaceGetStarted: (workspaceId: string, activeTeamSlug: string) => void
+    /**
+     * Navigates to the team's workspace, restoring the last active tab
+     * when one exists in persistence. Falls back to the get-started page
+     * when the workspace has no prior session.
+     */
+    resumeOrGetStarted: (teamSlug: string, workspaceId?: string) => Promise<void>
     /** Whether the workspace page is open */
     isOpen: ComputedRef<boolean>
     /**
@@ -132,10 +117,19 @@ export type AppState = {
   eventBus: WorkspaceEventBus
   /** The router instance */
   router: Router
+  /** Fired on every route change */
+  handleRouteChange: (
+    to: RouteLocationNormalizedGeneric,
+    metadata: { teamSlug: ComputedRef<string>; filteredWorkspaces: ComputedRef<WorkspaceOption[]> },
+  ) => void
   /** The current route derived from the router */
   currentRoute: Ref<RouteLocationNormalizedGeneric | null>
-  /** Whether the workspace is currently syncing */
-  loading: Ref<boolean>
+  /**
+   * Whether the shell should keep the splash screen up. True while the
+   * workspace store is syncing or while the host is still resolving the
+   * active team (see `createAppState`'s `isCurrentTeamLoading` argument).
+   */
+  loading: ComputedRef<boolean>
   /** Runtime behaviour overrides */
   options?: ApiClientAppOptions
   /** The currently active entities */
@@ -150,8 +144,6 @@ export type AppState = {
     method: Ref<HttpMethod | undefined>
     /** The name of the currently selected example (for examples within an endpoint) */
     exampleName: Ref<string | undefined>
-    /** The slug of the selected team context (read-only; use setTeamSlug to change) */
-    teamSlug: Readonly<Ref<string>>
   }
   /** The currently active environment */
   environment: ComputedRef<XScalarEnvironment>
@@ -159,15 +151,6 @@ export type AppState = {
   document: ComputedRef<WorkspaceDocument | null>
   /** Whether the current color mode is dark */
   isDarkMode: ComputedRef<boolean>
-  /** The currently active theme */
-  theme: {
-    /** The computed CSS styles for the current theme, as a string */
-    styles: ComputedRef<{ themeStyles: string; themeSlug: string }>
-    /** The computed value for the <style> tag containing the current theme styles */
-    themeStyleTag: ComputedRef<string>
-    /** The custom themes to use */
-    customThemes: MaybeRefOrGetter<Theme[]>
-  }
   telemetry: Ref<boolean>
 }
 
@@ -179,19 +162,11 @@ const DEFAULT_DEBOUNCE_DELAY = 1000
 /** Default sidebar width in pixels. */
 const DEFAULT_SIDEBAR_WIDTH = 288
 /** Default slug used when auto-creating a team workspace on demand. */
-const DEFAULT_TEAM_WORKSPACE_SLUG = 'default'
+export const DEFAULT_TEAM_WORKSPACE_SLUG = 'default'
+/** Default display name for the local workspace when it is first created. */
+const DEFAULT_LOCAL_WORKSPACE_NAME = 'Local workspace'
 /** Default display name used when auto-creating a team workspace on demand. */
-const DEFAULT_TEAM_WORKSPACE_NAME = 'Workspace'
-/**
- * Feature flag for team workspace functionality.
- *
- * When `true`, the picker shows a "Team Workspaces" group for non-local teams
- * (with a placeholder option until a workspace exists), and routes can create
- * the default team workspace on demand. Set to `false` to hide that group and
- * block new team workspace creation while leaving existing persisted workspaces
- * untouched.
- */
-const TEAM_WORKSPACES_ENABLED = true
+export const DEFAULT_TEAM_WORKSPACE_NAME = 'Team workspace'
 
 // ---------------------------------------------------------------------------
 // App State
@@ -199,18 +174,11 @@ const TEAM_WORKSPACES_ENABLED = true
 export const createAppState = async ({
   router,
   fileLoader,
-  currentTeam,
-  fallbackThemeSlug = () => 'default',
-  customThemes = () => [],
   telemetryDefault,
   options,
 }: {
   router: Router
   fileLoader?: LoaderPlugin
-  /** The currently active team */
-  currentTeam?: MaybeRefOrGetter<Team | undefined>
-  customThemes?: MaybeRefOrGetter<Theme[]>
-  fallbackThemeSlug?: MaybeRefOrGetter<string>
   telemetryDefault?: boolean
   /** Runtime behaviour overrides */
   options?: ApiClientAppOptions
@@ -231,8 +199,6 @@ export const createAppState = async ({
   // ---------------------------------------------------------------------------
   // Active entities
   // ---------------------------------------------------------------------------
-  const teamSlug = computed(() => toValue(currentTeam)?.slug ?? 'local')
-
   // Team slug parsed from the current URL (the `@teamSlug` segment). Stays in sync with the route.
   const routeTeamSlug = ref<string | undefined>(undefined)
   const workspaceSlug = ref<string | undefined>(undefined)
@@ -247,34 +213,13 @@ export const createAppState = async ({
 
   // ---------------------------------------------------------------------------
   // Router state
-  router.afterEach((to) => handleRouteChange(to))
   const currentRoute = computed(() => router.currentRoute.value ?? null)
 
   // ---------------------------------------------------------------------------
   // Workspace persistence state management
   const activeWorkspace = shallowRef<{ id: string; label: string } | null>(null)
   const workspaces = ref<WorkspaceOption[]>([])
-  const filteredWorkspaces = computed(() => filterWorkspacesByTeam(workspaces.value, teamSlug.value))
-  const workspaceGroups = computed(() => {
-    // While team workspaces are disabled we render the picker as if the user
-    // were always on the local team. This hides the "Team Workspaces" section
-    // (and any placeholder option) without removing the underlying data, so
-    // re-enabling the feature is a one-line change.
-    if (!TEAM_WORKSPACES_ENABLED) {
-      return groupWorkspacesByTeam(filteredWorkspaces.value, 'local')
-    }
 
-    return groupWorkspacesByTeam(filteredWorkspaces.value, teamSlug.value, {
-      // Surface a fake default workspace for non-local teams so logged-in
-      // users always see a team workspace entry in the picker. Clicking it
-      // navigates to a normal workspace route; the route handler creates the
-      // workspace on demand when it does not yet exist.
-      placeholder: {
-        slug: DEFAULT_TEAM_WORKSPACE_SLUG,
-        label: DEFAULT_TEAM_WORKSPACE_NAME,
-      },
-    })
-  })
   /**
    * `true` when the active workspace is backed by a team (i.e. not the
    * built-in `'local'` team). We look the workspace up in the full
@@ -510,7 +455,7 @@ export const createAppState = async ({
    * route that through the normal navigation flow so the route handler
    * can create the workspace on demand.
    */
-  const navigateToWorkspaceGetStarted = (workspaceId: string): void => {
+  const navigateToWorkspaceGetStarted = (workspaceId: string, activeTeamSlug: string): void => {
     const emitNavigation = (target: string, slug: string) => {
       eventBus.emit('ui:navigate', {
         page: 'workspace',
@@ -526,11 +471,6 @@ export const createAppState = async ({
       return
     }
 
-    if (!TEAM_WORKSPACES_ENABLED) {
-      return
-    }
-
-    const activeTeamSlug = teamSlug.value
     if (
       activeTeamSlug &&
       activeTeamSlug !== 'local' &&
@@ -538,6 +478,41 @@ export const createAppState = async ({
     ) {
       emitNavigation(activeTeamSlug, DEFAULT_TEAM_WORKSPACE_SLUG)
     }
+  }
+
+  /**
+   * Navigates to the team's workspace, restoring the last active tab when
+   * one exists in persistence. Falls back to the get-started page when
+   * the workspace has no prior session.
+   *
+   * Use this instead of `navigateToWorkspaceGetStarted` when the intent
+   * is "take me back to where I was" rather than "show me onboarding".
+   */
+  const resumeOrGetStarted = async (teamSlug: string, workspaceIdParam?: string): Promise<void> => {
+    // When an explicit workspaceId is provided, look it up directly; otherwise
+    // fall back to picking the first workspace belonging to the team. Either
+    // way we only loop over the workspaces list once.
+    const workspace = (() => {
+      if (workspaceIdParam) {
+        return workspaces.value?.find((w) => w.id === workspaceIdParam)
+      }
+      return workspaces.value?.find((w) => w.teamSlug === teamSlug)
+    })()
+    const resolvedTeamSlug = workspace?.teamSlug ?? teamSlug
+    const slug = workspace?.slug ?? DEFAULT_TEAM_WORKSPACE_SLUG
+    const workspaceId = workspaceIdParam ?? workspace?.id ?? getWorkspaceId(resolvedTeamSlug, slug)
+
+    const persisted = await persistence.getItem({ teamSlug: resolvedTeamSlug, slug })
+    const tabs = persisted?.workspace.meta?.['x-scalar-tabs']
+    const index = persisted?.workspace.meta?.['x-scalar-active-tab'] ?? 0
+    const tab = tabs?.[index]
+
+    if (tab?.path) {
+      await router.push(tab.path)
+      return
+    }
+
+    navigateToWorkspaceGetStarted(workspaceId, resolvedTeamSlug)
   }
 
   /**
@@ -551,21 +526,6 @@ export const createAppState = async ({
    *   // -> Navigates to /workspace/my-awesome-api (if available)
    */
   const createWorkspace = async ({ teamSlug, slug, name }: { teamSlug?: string; slug?: string; name: string }) => {
-    // Block team workspace creation while the feature is disabled. If a team
-    // workspace already exists we silently navigate to it (e.g. when the route
-    // handler tries to auto-create on demand); otherwise we fall back to the
-    // local default so the user lands somewhere usable.
-    if (!TEAM_WORKSPACES_ENABLED && teamSlug && teamSlug !== 'local') {
-      const existing = workspaces.value.find((w) => w.teamSlug === teamSlug)
-      if (existing) {
-        await navigateToWorkspace(existing.teamSlug, existing.slug)
-        return { teamSlug: existing.teamSlug, slug: existing.slug, name: existing.label }
-      }
-      console.warn('Team workspace creation is currently disabled. Falling back to the local default workspace.')
-      await navigateToWorkspace('local', 'default')
-      return undefined
-    }
-
     // Restrict users to a single workspace per team. Local workspaces remain
     // unrestricted. This guard is temporary while multi-workspace support for
     // teams is being designed. When a team workspace already exists, navigate
@@ -617,10 +577,12 @@ export const createAppState = async ({
    *    - If found, navigates to the active tab path (if available).
    *    - If not found, creates the default workspace and navigates to it.
    */
-  const changeWorkspace = async (teamSlug: string, slug: string, to?: RouteLocationNormalizedGeneric) => {
-    /** For initial load we want to fall through to our router default behaviour */
-    const isInitialLoad = activeWorkspace.value === null
-
+  const changeWorkspace = async (
+    teamSlug: string,
+    slug: string,
+    filteredWorkspaces: ComputedRef<WorkspaceOption[]>,
+    to: RouteLocationNormalizedGeneric,
+  ) => {
     // Clear the current store and set loading to true before loading new workspace.
     store.value = null
     isSyncingWorkspace.value = true
@@ -629,19 +591,8 @@ export const createAppState = async ({
     const result = await loadWorkspace(teamSlug, slug)
 
     if (result.success) {
-      // Navigate to the correct tab if the workspace has a tab already
-      const index = result.workspace['x-scalar-active-tab'] ?? 0
       const tabs = result.workspace['x-scalar-tabs']
-      const tab = tabs?.[index]
-
-      // On initial load let the URL-based routing (catch-all → getLastPath) take precedence
-      if (tab && !isInitialLoad) {
-        // Preserve query parameters when navigating to the active tab
-        await router.replace({
-          path: tab.path,
-          query: currentRoute.value?.query ?? {},
-        })
-      }
+      const index = result.workspace['x-scalar-active-tab'] ?? 0
 
       // Heal the active tab index if it is out of bounds
       if (tabs && index >= tabs.length) {
@@ -650,7 +601,7 @@ export const createAppState = async ({
         })
       }
 
-      // Initialize the tabs if they does not exist
+      // Initialize the tabs if they do not exist
       if (!tabs) {
         eventBus.emit('tabs:update:tabs', {
           'x-scalar-tabs': [createTabFromRoute(currentRoute.value)],
@@ -658,13 +609,12 @@ export const createAppState = async ({
         })
       }
 
-      // On initial load the router.replace above is skipped, so syncTabs/syncSidebar
-      // are never reached via handleRouteChange's normal flow. Call them here to
-      // align the tab bar and sidebar with the URL-based route.
-      if (isInitialLoad && to) {
-        syncTabs(to)
-        syncSidebar(to)
-      }
+      // Sync the tab bar and sidebar to the route that triggered this
+      // workspace switch. We deliberately do NOT router.replace to a stored
+      // tab path here — the caller already navigated to `to`, so replacing
+      // would fight the in-flight navigation and cause a double route.
+      syncTabs(to)
+      syncSidebar(to)
 
       isSyncingWorkspace.value = false
       return
@@ -681,7 +631,7 @@ export const createAppState = async ({
 
     // If loading failed (workspace does not exist), create the default workspace and navigate to it.
     const createResult = await createWorkspace({
-      name: 'Default Workspace',
+      name: DEFAULT_LOCAL_WORKSPACE_NAME,
       slug: 'default',
     })
 
@@ -707,7 +657,10 @@ export const createAppState = async ({
     const order = activeStore.workspace['x-scalar-order'] ?? Object.keys(activeStore.workspace.documents)
 
     return sortByOrder(Object.keys(activeStore.workspace.documents), order, (item) => item)
-      .map((doc) => activeStore.workspace.documents[doc]?.['x-scalar-navigation'])
+      .map((doc) => {
+        const entry = activeStore.workspace.documents[doc]
+        return isOpenApiDocument(entry) ? entry['x-scalar-navigation'] : undefined
+      })
       .filter(isDefined) as TraversedEntry[]
   })
 
@@ -930,7 +883,9 @@ export const createAppState = async ({
    * consistent (e.g., after adding a new example via the UI).
    */
   const refreshSidebarAfterExampleCreation = (payload: OperationExampleMeta & { documentName?: string }) => {
-    const documentName = payload.documentName ?? activeDocument.value?.['x-scalar-navigation']?.name
+    const activeDoc = activeDocument.value
+    const documentName =
+      payload.documentName ?? (isOpenApiDocument(activeDoc) ? activeDoc['x-scalar-navigation']?.name : undefined)
     if (!documentName) {
       return
     }
@@ -1023,7 +978,13 @@ export const createAppState = async ({
   // Path syncing
 
   /** When the route changes we need to update the active entities in the store */
-  const handleRouteChange = (to: RouteLocationNormalizedGeneric) => {
+  const handleRouteChange = (
+    to: RouteLocationNormalizedGeneric,
+    {
+      teamSlug,
+      filteredWorkspaces,
+    }: { teamSlug: ComputedRef<string>; filteredWorkspaces: ComputedRef<WorkspaceOption[]> },
+  ) => {
     const slug = getRouteParam('workspaceSlug', to)
     const document = getRouteParam('documentSlug', to)
     const nextTeamSlug = getRouteParam('teamSlug', to)
@@ -1069,7 +1030,7 @@ export const createAppState = async ({
           name: DEFAULT_TEAM_WORKSPACE_NAME,
         })
       }
-      return changeWorkspace(nextTeamSlug, slug, to)
+      return changeWorkspace(nextTeamSlug, slug, filteredWorkspaces, to)
     }
 
     // Update the active document if the document slug has changes
@@ -1122,6 +1083,14 @@ export const createAppState = async ({
     }
   }
 
+  /**
+   * Splash-screen gate exposed to the shell. Combines workspace syncing with
+   * the host-driven team fetch so the UI stays on the splash until both the
+   * active workspace and the active team are ready - otherwise a reload onto
+   * a team workspace flashes the local fallback before the team resolves.
+   */
+  const loading = computed(() => isSyncingWorkspace.value)
+
   // ---------------------------------------------------------------------------
   // Events handling
 
@@ -1137,12 +1106,6 @@ export const createAppState = async ({
     onToggleSidebar: () => (isSidebarOpen.value = !isSidebarOpen.value),
     closeSidebar: () => (isSidebarOpen.value = false),
     renameWorkspace,
-  })
-
-  const theme = useTheme({
-    fallbackThemeSlug,
-    customThemes,
-    store: store,
   })
 
   const isDarkMode = computed(() => {
@@ -1172,34 +1135,28 @@ export const createAppState = async ({
     workspace: {
       create: createWorkspace,
       workspaceList: workspaces,
-      filteredWorkspaceList: filteredWorkspaces,
-      workspaceGroups,
       activeWorkspace,
       navigateToWorkspace,
       navigateToWorkspaceGetStarted,
+      resumeOrGetStarted,
       isOpen: computed(() => Boolean(workspaceSlug.value && !documentSlug.value)),
       isTeamWorkspace,
     },
     eventBus,
     router,
+    handleRouteChange,
     currentRoute,
-    loading: isSyncingWorkspace,
+    loading,
     activeEntities: {
       workspaceSlug,
       documentSlug,
       path,
       method,
       exampleName,
-      teamSlug: readonly(teamSlug),
     },
     environment,
     document: activeDocument,
     isDarkMode,
-    theme: {
-      styles: theme.themeStyles,
-      themeStyleTag: theme.themeStyleTag,
-      customThemes,
-    },
     telemetry,
     options,
   }

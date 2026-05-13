@@ -1,5 +1,11 @@
 export { getActiveEnvironment } from './environment'
 export { type BuildRequestExampleContext, getRequestExampleContext } from './get-request-example-context'
+export {
+  filterDisabledDefaultHeaders,
+  getDefaultHeaders,
+  restoreConventionalDefaultHeaderNames,
+  restoreConventionalHeaderName,
+} from './headers'
 export { combineParams } from './helpers/combine-params'
 export { getActiveProxyUrl } from './proxy'
 export { getSecurityRequirements } from './security/get-security-requirements'

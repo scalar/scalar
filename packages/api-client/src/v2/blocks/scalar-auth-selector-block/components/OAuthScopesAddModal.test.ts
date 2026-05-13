@@ -1,66 +1,64 @@
 import { useModal } from '@scalar/components'
 import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
 import OAuthScopesAddModal from './OAuthScopesAddModal.vue'
 
-/**
- * Mock the toast composable to capture toast calls in tests.
- */
-const mockToast = vi.fn()
-vi.mock('@scalar/use-toasts', () => ({
-  useToasts: () => ({
-    toast: mockToast,
-  }),
-}))
-
 describe('OAuthScopesAddModal', () => {
+  /** Wrappers are unmounted in afterEach to avoid teleported DOM leaking between tests. */
+  const wrappers: Array<ReturnType<typeof mount>> = []
+
   const mountWithProps = (
     custom: Partial<{
       scopes: string[]
+      scope: { name: string; description: string } | null
     }> = {},
   ) => {
     const state = useModal()
     const scopes = custom.scopes ?? []
+    const scope = custom.scope ?? null
 
-    return mount(OAuthScopesAddModal, {
+    const wrapper = mount(OAuthScopesAddModal, {
       props: {
         state,
         scopes,
+        scope,
       },
       attachTo: document.body,
     })
+    wrappers.push(wrapper)
+    return wrapper
   }
 
-  beforeEach(() => {
-    mockToast.mockClear()
-  })
-
-  it('emits submit event with scope data when form is submitted with valid name', async () => {
-    const wrapper = mountWithProps({ scopes: [] })
+  const openModal = async (wrapper: ReturnType<typeof mountWithProps>) => {
     const state = wrapper.props('state')
     state.show()
     await nextTick()
+    return state
+  }
 
-    // Find the name input component and set a value
-    const nameInputs = wrapper.findAllComponents({ name: 'CommandActionInput' })
-    expect(nameInputs.length).toBeGreaterThanOrEqual(2)
+  afterEach(() => {
+    while (wrappers.length > 0) {
+      wrappers.pop()?.unmount()
+    }
+  })
 
-    // First input is the name field
-    await nameInputs[0]!.vm.$emit('update:modelValue', 'read:user')
+  it('emits submit with the scope data when the form is submitted with a valid name', async () => {
+    const wrapper = mountWithProps({ scopes: [] })
+    const state = await openModal(wrapper)
+
+    const inputs = wrapper.findAllComponents({ name: 'CommandActionInput' })
+    expect(inputs.length).toBeGreaterThanOrEqual(2)
+
+    await inputs[0]!.vm.$emit('update:modelValue', 'read:user')
+    await inputs[1]!.vm.$emit('update:modelValue', 'Read user data')
     await nextTick()
 
-    // Second input is the description field
-    await nameInputs[1]!.vm.$emit('update:modelValue', 'Read user data')
-    await nextTick()
-
-    // Find and trigger the submit event
     const form = wrapper.findComponent({ name: 'CommandActionForm' })
     await form.vm.$emit('submit')
     await nextTick()
 
-    // Check that submit event was emitted with correct data
     const submitEvents = wrapper.emitted('submit')
     expect(submitEvents).toBeTruthy()
     expect(submitEvents).toHaveLength(1)
@@ -68,59 +66,125 @@ describe('OAuthScopesAddModal', () => {
       name: 'read:user',
       description: 'Read user data',
     })
-
-    // Check that modal was hidden
     expect(state.open).toBe(false)
   })
 
-  it('shows error toast and does not emit submit when form is submitted without name', async () => {
+  it('does not show the required-name error when reopening add mode after a previous submit', async () => {
     const wrapper = mountWithProps({ scopes: [] })
-    const state = wrapper.props('state')
-    state.show()
+    let state = await openModal(wrapper)
+
+    const inputs = wrapper.findAllComponents({ name: 'CommandActionInput' })
+    await inputs[0]!.vm.$emit('update:modelValue', 'read:user')
     await nextTick()
 
-    // Only set description, leave name empty
-    const nameInputs = wrapper.findAllComponents({ name: 'CommandActionInput' })
-    expect(nameInputs.length).toBeGreaterThanOrEqual(2)
-
-    // Set only the description (second input), leave name (first input) empty
-    await nameInputs[1]!.vm.$emit('update:modelValue', 'Read user data')
-    await nextTick()
-
-    // Find and trigger the submit event
     const form = wrapper.findComponent({ name: 'CommandActionForm' })
     await form.vm.$emit('submit')
     await nextTick()
 
-    // Check that toast was called with error message
-    expect(mockToast).toHaveBeenCalledTimes(1)
-    expect(mockToast).toHaveBeenCalledWith('Please fill in the name before adding a scope.', 'error')
+    expect(state.open).toBe(false)
 
-    // Check that submit event was not emitted
-    const submitEvents = wrapper.emitted('submit')
-    expect(submitEvents).toBeUndefined()
+    state = await openModal(wrapper)
+    await nextTick()
 
-    // Check that modal is still open
+    expect(queryAlert()).toBeNull()
     expect(state.open).toBe(true)
   })
 
-  it('disables form when scope name already exists in scopes array', async () => {
-    const existingScopes = ['read:user', 'write:user']
-    const wrapper = mountWithProps({ scopes: existingScopes })
-    const state = wrapper.props('state')
-    state.show()
+  it('trims whitespace from the submitted name', async () => {
+    const wrapper = mountWithProps({ scopes: [] })
+    await openModal(wrapper)
+
+    const inputs = wrapper.findAllComponents({ name: 'CommandActionInput' })
+    await inputs[0]!.vm.$emit('update:modelValue', '  read:user  ')
     await nextTick()
 
-    // Find the name input component and set it to an existing scope name
-    const nameInputs = wrapper.findAllComponents({ name: 'CommandActionInput' })
-    expect(nameInputs.length).toBeGreaterThanOrEqual(2)
-
-    // Set the name to an existing scope
-    await nameInputs[0]!.vm.$emit('update:modelValue', 'read:user')
+    const form = wrapper.findComponent({ name: 'CommandActionForm' })
+    await form.vm.$emit('submit')
     await nextTick()
 
-    // Check that the form is disabled
+    expect(wrapper.emitted('submit')?.[0]?.[0]).toMatchObject({
+      name: 'read:user',
+    })
+  })
+
+  /** The modal is teleported by Headless UI's Dialog, so DOM queries must go through body. */
+  const queryAlert = (): HTMLElement | null => document.body.querySelector('[role="alert"]')
+
+  it('shows an inline error and does not emit submit when the form is submitted without a name', async () => {
+    const wrapper = mountWithProps({ scopes: [] })
+    const state = await openModal(wrapper)
+
+    const inputs = wrapper.findAllComponents({ name: 'CommandActionInput' })
+    // Set only the description so the name field stays empty
+    await inputs[1]!.vm.$emit('update:modelValue', 'Read user data')
+    // Touch the name field so the "required" error surfaces, then clear it
+    await inputs[0]!.vm.$emit('update:modelValue', 'x')
+    await inputs[0]!.vm.$emit('update:modelValue', '')
+    await nextTick()
+
+    const error = queryAlert()
+    expect(error).not.toBeNull()
+    expect(error?.textContent).toContain('Scope name is required.')
+
     const form = wrapper.findComponent({ name: 'CommandActionForm' })
     expect(form.props('disabled')).toBe(true)
+    await form.vm.$emit('submit')
+    await nextTick()
+
+    expect(wrapper.emitted('submit')).toBeUndefined()
+    expect(state.open).toBe(true)
+  })
+
+  it('shows a duplicate-name inline error when the scope name already exists', async () => {
+    const wrapper = mountWithProps({ scopes: ['read:user', 'write:user'] })
+    await openModal(wrapper)
+
+    const inputs = wrapper.findAllComponents({ name: 'CommandActionInput' })
+    await inputs[0]!.vm.$emit('update:modelValue', 'read:user')
+    await nextTick()
+
+    const error = queryAlert()
+    expect(error).not.toBeNull()
+    expect(error?.textContent).toContain('A scope named "read:user" already exists.')
+
+    const form = wrapper.findComponent({ name: 'CommandActionForm' })
+    expect(form.props('disabled')).toBe(true)
+  })
+
+  it('does not show a duplicate error in edit mode when the original name is unchanged', async () => {
+    const wrapper = mountWithProps({
+      scopes: ['read:user'],
+      scope: { name: 'read:user', description: 'Read user' },
+    })
+    await openModal(wrapper)
+
+    // Initial render uses the existing name and should be free of errors
+    expect(queryAlert()).toBeNull()
+
+    const form = wrapper.findComponent({ name: 'CommandActionForm' })
+    expect(form.props('disabled')).toBe(false)
+  })
+
+  it('emits submit with oldName in edit mode', async () => {
+    const wrapper = mountWithProps({
+      scopes: ['read:user'],
+      scope: { name: 'read:user', description: 'Read user' },
+    })
+    await openModal(wrapper)
+
+    const inputs = wrapper.findAllComponents({ name: 'CommandActionInput' })
+    await inputs[0]!.vm.$emit('update:modelValue', 'read:stuff')
+    await inputs[1]!.vm.$emit('update:modelValue', 'Read everything')
+    await nextTick()
+
+    const form = wrapper.findComponent({ name: 'CommandActionForm' })
+    await form.vm.$emit('submit')
+    await nextTick()
+
+    expect(wrapper.emitted('submit')?.[0]?.[0]).toEqual({
+      name: 'read:stuff',
+      description: 'Read everything',
+      oldName: 'read:user',
+    })
   })
 })

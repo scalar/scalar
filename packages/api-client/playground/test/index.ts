@@ -37,13 +37,19 @@ const { request: requestBuilder } = requestFactory({
   operation: context.data.operation,
   path: '/planets',
   proxyUrl: 'https://proxy.scalar.com',
-  server: null,
+  server: context.data.servers.selected,
   selectedSecuritySchemes: [],
 })
 
-const { requestPayload, isUsingProxy } = buildRequest(requestBuilder, {
+const built = buildRequest(requestBuilder, {
   envVariables: getEnvironmentVariables(context.data.environment.environment),
 })
+
+if (!built.ok) {
+  throw new Error(built.message ?? built.error)
+}
+
+const { requestPayload, isUsingProxy } = built.data
 
 void sendRequest({
   requestPayload,

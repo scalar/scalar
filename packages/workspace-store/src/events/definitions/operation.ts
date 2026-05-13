@@ -193,7 +193,7 @@ export type OperationEvents = {
      */
     payload: {
       name: string
-      value: string
+      value: string | Record<string, unknown>
       isDisabled: boolean
     }
     /**

@@ -171,6 +171,12 @@ export function initializeWorkspaceEventHandlers({
   eventBus.on('auth:update:selected-scopes', (payload) =>
     withHook('auth:update:selected-scopes', mutators.value.active().auth.updateSelectedScopes, hooks)(payload),
   )
+  eventBus.on('auth:upsert:scopes', (payload) =>
+    withHook('auth:upsert:scopes', mutators.value.active().auth.upsertScope, hooks)(payload),
+  )
+  eventBus.on('auth:delete:scopes', (payload) =>
+    withHook('auth:delete:scopes', mutators.value.active().auth.deleteScope, hooks)(payload),
+  )
   eventBus.on('auth:update:selected-security-schemes', (payload) =>
     withHook(
       'auth:update:selected-security-schemes',

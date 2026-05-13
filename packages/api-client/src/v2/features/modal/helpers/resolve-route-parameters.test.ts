@@ -92,6 +92,53 @@ describe('resolve-route-parameters', () => {
     expect(result).toBeUndefined()
   })
 
+  it('skips an AsyncAPI active document and falls back to the first OpenAPI document', async () => {
+    // Modal routing is OpenAPI-only — picking the AsyncAPI active doc here
+    // would hand the modal a slug that resolves to `document: null`.
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'async-doc',
+      document: { asyncapi: '3.0.0', info: { title: 'Streetlights', version: '1.0.0' } },
+    })
+    await store.addDocument({
+      name: 'openapi-doc',
+      document: getDocument(),
+    })
+    store.update('x-scalar-active-document', 'async-doc')
+
+    const result = resolveDocumentSlug(store, 'default')
+
+    expect(result).toBe('openapi-doc')
+  })
+
+  it('skips an AsyncAPI first document and returns the first OpenAPI document', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'async-doc',
+      document: { asyncapi: '3.0.0', info: { title: 'Streetlights', version: '1.0.0' } },
+    })
+    await store.addDocument({
+      name: 'openapi-doc',
+      document: getDocument(),
+    })
+
+    const result = resolveDocumentSlug(store, 'default')
+
+    expect(result).toBe('openapi-doc')
+  })
+
+  it('returns undefined when only AsyncAPI documents exist', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'async-doc',
+      document: { asyncapi: '3.0.0', info: { title: 'Streetlights', version: '1.0.0' } },
+    })
+
+    const result = resolveDocumentSlug(store, 'default')
+
+    expect(result).toBeUndefined()
+  })
+
   // ─────────────────────────────────────────────────────────────────────────────
   // resolvePath
   // ─────────────────────────────────────────────────────────────────────────────

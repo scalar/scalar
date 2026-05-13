@@ -1,21 +1,36 @@
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import { type MediaPreview } from '@/v2/blocks/response-block/helpers/media-types'
 
 import ResponseBodyInfo from './ResponseBodyInfo.vue'
+import ResponseBodyRaw from './ResponseBodyRaw.vue'
 
 const {
   src,
   type,
   mode,
   alpha = false,
+  content,
 } = defineProps<{
   src: string
   type: string
   mode: MediaPreview
   alpha?: boolean | undefined
+  /** Decoded body; used when `mode` is `json` for pretty-printed preview (no JSON.parse round-trip). */
+  content?: unknown
 }>()
+
+const jsonPreviewContent = computed((): string => {
+  const value = content
+  if (typeof value === 'string') {
+    return value
+  }
+  if (value == null) {
+    return ''
+  }
+  return String(value)
+})
 
 const error = ref(false)
 
@@ -25,8 +40,13 @@ watch(
 )
 </script>
 <template>
+  <ResponseBodyRaw
+    v-if="mode === 'json'"
+    :content="jsonPreviewContent"
+    language="json"
+    prettyPrintJson />
   <div
-    v-if="!error && src"
+    v-else-if="!error && src"
     class="flex justify-center overflow-auto rounded-b"
     :class="{ 'bg-preview p-2': alpha }">
     <img

@@ -1,5 +1,6 @@
+import { isVersionLessThan } from '@scalar/helpers/general/compare-versions'
+
 import { getLocalStorageVersion, parseLocalStorage } from '@/migrations/local-storage'
-import { semverLessThan } from '@/migrations/semver'
 import { migrate_v_2_1_0 } from '@/migrations/v-2.1.0/migration'
 import { migrate_v_2_2_0 } from '@/migrations/v-2.2.0/migration'
 import { migrate_v_2_3_0 } from '@/migrations/v-2.3.0/migration'
@@ -26,23 +27,23 @@ export const migrator = (): { arrays: v_2_5_0['DataArray']; records: v_2_5_0['Da
   } as any
 
   // 0.0.0 -> 2.1.0 migration
-  if (semverLessThan(dataVersion, '2.1.0')) {
+  if (isVersionLessThan(dataVersion, '2.1.0')) {
     data = migrate_v_2_1_0(data)
   }
   // 2.1.0 -> 2.2.0 migration
-  if (semverLessThan(dataVersion, '2.2.0')) {
+  if (isVersionLessThan(dataVersion, '2.2.0')) {
     data = migrate_v_2_2_0(data)
   }
   // 2.2.0 -> 2.3.0 migration
-  if (semverLessThan(dataVersion, '2.3.0')) {
+  if (isVersionLessThan(dataVersion, '2.3.0')) {
     data = migrate_v_2_3_0(data)
   }
   // 2.3.0 -> 2.4.0 migration
-  if (semverLessThan(dataVersion, '2.4.0')) {
+  if (isVersionLessThan(dataVersion, '2.4.0')) {
     data = migrate_v_2_4_0(data)
   }
   // 2.4.0 -> 2.5.0 migration
-  if (semverLessThan(dataVersion, '2.5.0')) {
+  if (isVersionLessThan(dataVersion, '2.5.0')) {
     data = migrate_v_2_5_0(data)
   }
 

@@ -1,7 +1,52 @@
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { getDefaultHeaders } from './headers'
+import {
+  filterDisabledDefaultHeaders,
+  getDefaultHeaders,
+  restoreConventionalDefaultHeaderNames,
+  restoreConventionalHeaderName,
+} from './headers'
+
+describe('filterDisabledDefaultHeaders', () => {
+  it('removes headers marked disabled for the example', () => {
+    const operation: OperationObject = {
+      'x-scalar-disable-parameters': {
+        'default-headers': {
+          'example-1': {
+            accept: true,
+          },
+        },
+      },
+    }
+
+    const filtered = filterDisabledDefaultHeaders(operation, 'example-1', {
+      Accept: '*/*',
+      'Content-Type': 'application/json',
+    })
+
+    expect(filtered.Accept).toBeUndefined()
+    expect(filtered['Content-Type']).toBe('application/json')
+  })
+
+  it('matches disable keys case-insensitively', () => {
+    const operation: OperationObject = {
+      'x-scalar-disable-parameters': {
+        'default-headers': {
+          default: {
+            accept: true,
+          },
+        },
+      },
+    }
+
+    const filtered = filterDisabledDefaultHeaders(operation, 'default', {
+      accept: 'text/plain',
+    })
+
+    expect(filtered.accept).toBeUndefined()
+  })
+})
 
 describe('getDefaultHeaders', () => {
   it('does not add Content-Type header when contentType is "none"', () => {
@@ -22,6 +67,27 @@ describe('getDefaultHeaders', () => {
 
     const contentTypeHeader = headers['content-type']
     expect(contentTypeHeader).toBeUndefined()
+  })
+
+  it('does not add Content-Type header when contentType is "other"', () => {
+    const operation: OperationObject = {
+      requestBody: {
+        'x-scalar-selected-content-type': {
+          'example-1': 'other',
+        },
+        content: {
+          'application/json': {},
+        },
+      },
+    }
+
+    const headers = getDefaultHeaders({
+      method: 'post',
+      operation,
+      exampleName: 'example-1',
+    })
+
+    expect(headers['content-type']).toBeUndefined()
   })
 
   it('adds Content-Type header for POST requests when the request body defines one', () => {
@@ -230,6 +296,82 @@ describe('getDefaultHeaders', () => {
     expect(acceptHeader).toBe('*/*')
   })
 
+  it('omits default headers that match enabled OpenAPI header parameters when hideOverriddenHeaders is true', () => {
+    const operation: OperationObject = {
+      parameters: [
+        {
+          name: 'Accept',
+          in: 'header',
+          required: true,
+          schema: { type: 'string' },
+        },
+      ],
+    }
+
+    const withDefaults = getDefaultHeaders({
+      method: 'get',
+      operation,
+      exampleName: 'example-1',
+    })
+    expect(withDefaults['accept']).toBeDefined()
+
+    const filtered = getDefaultHeaders({
+      method: 'get',
+      operation,
+      exampleName: 'example-1',
+      hideOverriddenHeaders: true,
+    })
+    expect(filtered['accept']).toBeUndefined()
+  })
+
+  it('keeps default Accept when a matching header parameter exists but is disabled for the example', () => {
+    const operation: OperationObject = {
+      parameters: [
+        {
+          name: 'Accept',
+          in: 'header',
+          required: false,
+          schema: { type: 'string' },
+        },
+      ],
+    }
+
+    const filtered = getDefaultHeaders({
+      method: 'get',
+      operation,
+      exampleName: 'example-1',
+      hideOverriddenHeaders: true,
+    })
+    expect(filtered['accept']).toBeDefined()
+  })
+
+  it('omits default Accept when an optional header parameter is explicitly enabled for the example', () => {
+    const operation: OperationObject = {
+      parameters: [
+        {
+          name: 'Accept',
+          in: 'header',
+          required: false,
+          schema: { type: 'string' },
+          examples: {
+            'example-1': {
+              'x-disabled': false,
+              value: 'application/json',
+            },
+          },
+        },
+      ],
+    }
+
+    const filtered = getDefaultHeaders({
+      method: 'get',
+      operation,
+      exampleName: 'example-1',
+      hideOverriddenHeaders: true,
+    })
+    expect(filtered['accept']).toBeUndefined()
+  })
+
   it('filters out disabled headers when hideDisabledHeaders is true', () => {
     const operation: OperationObject = {
       'x-scalar-disable-parameters': {
@@ -354,5 +496,41 @@ describe('getDefaultHeaders', () => {
     const contentTypeHeader = headers['content-type']
 
     expect(contentTypeHeader).toBeUndefined()
+  })
+})
+
+describe('restoreConventionalDefaultHeaderNames', () => {
+  it('restores conventional casing for known default headers', () => {
+    const restored = restoreConventionalDefaultHeaderNames({
+      accept: 'application/json',
+      'content-type': 'application/json',
+      'user-agent': 'Scalar/1.2.3',
+    })
+
+    expect(restored).toStrictEqual({
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'User-Agent': 'Scalar/1.2.3',
+    })
+  })
+
+  it('leaves unknown header names unchanged', () => {
+    const restored = restoreConventionalDefaultHeaderNames({
+      'x-custom-header': 'custom',
+    })
+
+    expect(restored).toStrictEqual({
+      'x-custom-header': 'custom',
+    })
+  })
+})
+
+describe('restoreConventionalHeaderName', () => {
+  it('restores conventional casing for a known default header', () => {
+    expect(restoreConventionalHeaderName('content-type')).toBe('Content-Type')
+  })
+
+  it('returns unknown header names unchanged', () => {
+    expect(restoreConventionalHeaderName('x-trace-id')).toBe('x-trace-id')
   })
 })

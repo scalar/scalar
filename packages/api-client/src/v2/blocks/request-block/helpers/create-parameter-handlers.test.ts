@@ -78,6 +78,63 @@ describe('createParameterHandlers', () => {
     )
   })
 
+  it('upserts expanded object parameter rows through the parent parameter', () => {
+    const parentParameter = {
+      name: 'pageable',
+      in: 'query',
+    } as const
+    const context: TableRow[] = [
+      {
+        name: 'page',
+        value: '1',
+        isDisabled: false,
+        originalParameter: parentParameter,
+        sourceParameterValuePath: ['page'],
+      },
+      {
+        name: 'size',
+        value: '',
+        isDisabled: false,
+        originalParameter: parentParameter,
+        sourceParameterValuePath: ['size'],
+      },
+      {
+        name: 'sort',
+        value: 'username,asc',
+        isDisabled: false,
+        originalParameter: parentParameter,
+        sourceParameterValuePath: ['sort'],
+      },
+    ]
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, {
+      context,
+    })
+
+    handlers.upsert(1, { name: 'size', value: '20', isDisabled: false })
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:upsert:parameter',
+      {
+        type: 'query',
+        payload: {
+          name: 'pageable',
+          value: {
+            page: '1',
+            size: '20',
+            sort: 'username,asc',
+          },
+          isDisabled: false,
+        },
+        originalParameter: parentParameter,
+        meta: mockMeta,
+      },
+      {
+        skipUnpackProxy: true,
+        debounceKey: 'update:parameter-query-1',
+      },
+    )
+  })
+
   it('deletes a parameter at the correct index', () => {
     const mockRow: TableRow = {
       name: 'id',
@@ -96,6 +153,66 @@ describe('createParameterHandlers', () => {
       'operation:delete:parameter',
       {
         originalParameter: { name: 'id', in: 'path' },
+        meta: mockMeta,
+      },
+      {
+        skipUnpackProxy: true,
+      },
+    )
+  })
+
+  it('deletes expanded object child rows by upserting the parent without the child value', () => {
+    const parentParameter = {
+      name: 'pageable',
+      in: 'query',
+    } as const
+    const onDeleteExpandedRow = vi.fn()
+    const context: TableRow[] = [
+      {
+        name: 'page',
+        value: '1',
+        isDisabled: false,
+        originalParameter: parentParameter,
+        sourceParameterValuePath: ['page'],
+      },
+      {
+        name: 'size',
+        value: '20',
+        isRequired: true,
+        isDisabled: false,
+        originalParameter: parentParameter,
+        sourceParameterValuePath: ['size'],
+      },
+      {
+        name: 'sort',
+        value: 'username,asc',
+        isDisabled: false,
+        originalParameter: parentParameter,
+        sourceParameterValuePath: ['sort'],
+      },
+    ]
+    const handlers = createParameterHandlers('query', mockEventBus, mockMeta, {
+      context,
+      onDeleteExpandedRow,
+    })
+
+    handlers.delete({ index: 1 })
+
+    expect(onDeleteExpandedRow).toHaveBeenCalledTimes(1)
+    expect(onDeleteExpandedRow).toHaveBeenCalledWith(context[1])
+    expect(mockEventBus.emit).toHaveBeenCalledWith(
+      'operation:upsert:parameter',
+      {
+        type: 'query',
+        payload: {
+          name: 'pageable',
+          value: {
+            page: '1',
+            sort: 'username,asc',
+          },
+          isDisabled: false,
+        },
+        originalParameter: parentParameter,
         meta: mockMeta,
       },
       {

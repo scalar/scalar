@@ -10,6 +10,7 @@ The API Client supports keyboard shortcuts to speed up your workflow. On macOS, 
 | ⌘ K | Open command palette |
 | ⌘ B | Toggle sidebar |
 | ⌘ L | Focus address bar |
+| ⌘ S | Save local workspace (same as the header Save control when it is shown) |
 | Escape | Close modal |
 
 ## Desktop Only

@@ -57,7 +57,7 @@ export default defineConfig({
   expect: {
     toHaveScreenshot: {
       scale: 'device',
-      maxDiffPixelRatio: 0.001,
+      maxDiffPixelRatio: 0.0001,
     },
     timeout: 30_000,
   },

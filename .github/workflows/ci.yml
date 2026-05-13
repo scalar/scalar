@@ -9,6 +9,9 @@ on:
       - main
   pull_request:
   workflow_dispatch: null
+# Workflow-level default: read-only. Individual jobs widen as needed.
+permissions:
+  contents: read
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}-base-ci
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -25,8 +28,13 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
+      # Required for build provenance attestation (scalar.js CDN artifact).
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
       - name: Build
         uses: ./.github/actions/build
         with:
@@ -35,6 +43,15 @@ jobs:
         run: |
           mkdir -p temp-artifacts
           cp packages/api-reference/dist/browser/standalone.js temp-artifacts/scalar.js
+      # Build provenance for the CDN artifact: lets consumers verify with
+      # `gh attestation verify scalar.js --repo scalar/scalar` that the file
+      # was produced by this workflow on this commit. Only runs on main pushes
+      # so PR builds aren't signed with provenance.
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        name: Attest scalar.js build provenance
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
+        with:
+          subject-path: temp-artifacts/scalar.js
       - name: Upload scalar.js artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
@@ -79,8 +96,11 @@ jobs:
       galaxy_changed: ${{ steps.set-outputs.outputs.galaxy_changed }}
       api_client_changed: ${{ steps.set-outputs.outputs.api_client_changed }}
       api_reference_changed: ${{ steps.set-outputs.outputs.api_reference_changed }}
+      scalar_app_package_changed: ${{ steps.set-outputs.outputs.scalar_app_package_changed }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
 
       - name: Check whether integration files were modified
         id: changed-integration-files
@@ -115,6 +135,8 @@ jobs:
               - projects/scalar-app/**
             api_reference_changed:
               - packages/api-reference/**
+            scalar_app_package:
+              - projects/scalar-app/package.json
 
       - name: Check whether integration package.json files were modified
         id: changed-package-files
@@ -159,6 +181,7 @@ jobs:
           echo "galaxy_changed=${{ steps.changed-packages-files.outputs.galaxy_changed_any_changed }}" >> $GITHUB_OUTPUT
           echo "api_client_changed=${{ steps.changed-packages-files.outputs.api_client_changed_any_changed }}" >> $GITHUB_OUTPUT
           echo "api_reference_changed=${{ steps.changed-packages-files.outputs.api_reference_changed_any_changed }}" >> $GITHUB_OUTPUT
+          echo "scalar_app_package_changed=${{ steps.changed-packages-files.outputs.scalar_app_package_any_changed }}" >> $GITHUB_OUTPUT
 
   format:
     if: github.event_name == 'pull_request'
@@ -631,8 +654,16 @@ jobs:
         with:
           # The pull request title.
           title: 'chore: release'
-          # The command to update version, edit CHANGELOG, read and delete changesets.
-          version: 'pnpm changeset version'
+          # Bumps versions, updates CHANGELOG.md, and appends an
+          # AI-written entry to projects/scalar-app/RELEASE_NOTES.json
+          # (the source of truth bundled with the in-app "What's new"
+          # modal) plus a regenerated RELEASE_NOTES.md view. The note
+          # rolls up the scalar-app CHANGELOG with the bundled
+          # @scalar/api-client CHANGELOG, since the api-client is the
+          # headline dependency that ships inside the desktop and web
+          # builds. The release-notes step short-circuits silently when
+          # ANTHROPIC_API_KEY is not available (forks, contributor PRs).
+          version: 'pnpm release:version'
           # The commit message to use.
           commit: 'chore: version packages'
           # The command to use to build and publish packages
@@ -644,6 +675,9 @@ jobs:
           # Permissions: Read and Write
           # Select packages: @scalar
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # Used by `pnpm release:version` to summarise the just-bumped
+          # CHANGELOG.md section into a friendly release-notes entry.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
       - name: Bust CDN cache
         if: steps.changesets.outputs.published == 'true'
@@ -855,6 +889,42 @@ jobs:
       pr-number: ${{ github.event.pull_request.number }}
       sha: ${{ github.event.pull_request.head.sha || github.sha }}
     secrets: inherit
+
+  todesktop-build:
+    if: |
+      github.ref == 'refs/heads/main' &&
+      startsWith(github.event.head_commit.message, 'RELEASING:') &&
+      needs.check-changes.outputs.scalar_app_package_changed == 'true'
+    needs: [required-jobs-main, build, check-changes]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 15
+    environment: production
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Build workspace deps
+        uses: ./.github/actions/build
+        with:
+          packages: 'scalar-app...'
+        env:
+          VITE_DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
+          VITE_API_URL: ${{ vars.API_URL }}
+          VITE_SERVICES_URL: ${{ vars.SERVICES_URL }}
+      - name: Check ToDesktop credentials
+        env:
+          TODESKTOP_EMAIL: ${{ vars.TODESKTOP_EMAIL || secrets.TODESKTOP_EMAIL }}
+          TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
+        run: |
+          if [ -z "${TODESKTOP_EMAIL}" ] || [ -z "${TODESKTOP_ACCESS_TOKEN}" ]; then
+            echo "Missing required ToDesktop credentials (TODESKTOP_EMAIL and TODESKTOP_ACCESS_TOKEN)." >&2
+            exit 1
+          fi
+      - name: Send build to ToDesktop cloud
+        run: pnpm --filter scalar-app todesktop:build:ci
+        env:
+          TODESKTOP_EMAIL: ${{ vars.TODESKTOP_EMAIL || secrets.TODESKTOP_EMAIL }}
+          TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
 
   galaxy-registry-preview:
     # Only run for PRs from the same repository

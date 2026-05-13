@@ -194,6 +194,36 @@ describe('RequestBody', () => {
     expect(wrapper.text()).toContain('The user data to create')
   })
 
+  it('renders overflow schema descriptions once', () => {
+    const properties = Object.fromEntries(
+      Array.from({ length: 13 }, (_, index) => [`property${index + 1}`, { type: 'string' }]),
+    )
+
+    const wrapper = mount(RequestBody, {
+      props: {
+        eventBus: null,
+        options: defaultRequestOptions,
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'object',
+                description: 'The object schema description',
+                properties,
+              }),
+            },
+          },
+        },
+      },
+      slots: {
+        title: 'Body',
+      },
+    })
+
+    expect(wrapper.text()).toContain('Show additional properties')
+    expect(wrapper.text().match(/The object schema description/g)).toHaveLength(1)
+  })
+
   it('keeps operation model names visible when hideModels is enabled', () => {
     const wrapper = mount(RequestBody, {
       props: {

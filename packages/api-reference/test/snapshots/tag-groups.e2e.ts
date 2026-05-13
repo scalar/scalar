@@ -9,7 +9,7 @@ import { serveExample } from '@test/utils/serve-example'
 import { sources } from '../utils/sources'
 
 /** Tag groups source */
-const source = sources[2]
+const source = sources.find((s) => s.slug === 'tag-groups')!
 
 /** Options for the page screenshots */
 const getScreenshotOptions = (...mask: Locator[]) =>

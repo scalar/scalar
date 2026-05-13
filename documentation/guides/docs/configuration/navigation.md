@@ -390,13 +390,15 @@ Groups allow you to organize related pages, API references, and links into colla
 
 ### Properties
 
-| Property   | Type                             | Required | Description                          |
-| ---------- | -------------------------------- | -------- | ------------------------------------ |
-| `type`     | `"group"`                        | Yes      | Must be `"group"`                    |
-| `title`    | `string`                         | No       | The display text in the navigation   |
-| `children` | `object`                         | Yes      | An object containing nested routes   |
-| `mode`     | `"flat" \| "nested" \| "folder"` | No       | How the group is displayed           |
-| `icon`     | `string`                         | No       | An icon to display next to the group |
+| Property   | Type                             | Required | Description                                                      |
+| ---------- | -------------------------------- | -------- | ---------------------------------------------------------------- |
+| `type`     | `"group"`                        | Yes      | Must be `"group"`                                                |
+| `title`    | `string`                         | No       | The display text in the navigation                               |
+| `children` | `object`                         | Yes      | An object containing nested routes                               |
+| `mode`     | `"flat" \| "nested" \| "folder"` | No       | How the group is displayed                                       |
+| `icon`     | `string`                         | No       | An icon to display next to the group                             |
+| `page`     | `object`                         | No       | A page to navigate to when clicking the folder (folder mode only) |
+| `open`     | `boolean`                        | No       | Whether the folder is expanded by default (folder mode only)     |
 
 ### Display Modes
 
@@ -440,6 +442,72 @@ Groups can contain other groups to create deep navigation hierarchies:
           }
         }
       }
+    }
+  }
+}
+```
+
+### Folder Landing Pages
+
+Folders can have an associated landing page using the `page` property. When a user clicks on the folder title in the sidebar, they navigate to this page instead of just expanding the folder. This is useful for sections that need both an overview page and child pages.
+
+```json
+"/company": {
+  "type": "group",
+  "title": "Company",
+  "mode": "folder",
+  "icon": "phosphor/regular/building",
+  "page": {
+    "type": "page",
+    "title": "About Us",
+    "filepath": "docs/company/index.md"
+  },
+  "children": {
+    "/team": {
+      "type": "page",
+      "title": "Our Team",
+      "filepath": "docs/company/team.md"
+    },
+    "/careers": {
+      "type": "page",
+      "title": "Careers",
+      "filepath": "docs/company/careers.md"
+    }
+  }
+}
+```
+
+In this example, clicking "Company" in the sidebar navigates to the "About Us" page (`docs/company/index.md`), while the folder can still be expanded to show "Our Team" and "Careers" as child pages.
+
+The `page` property accepts the same configuration as a regular page route:
+
+| Property      | Type      | Required | Description                        |
+| ------------- | --------- | -------- | ---------------------------------- |
+| `type`        | `"page"`  | Yes      | Must be `"page"`                   |
+| `title`       | `string`  | No       | The display text for the page      |
+| `filepath`    | `string`  | Yes      | Relative path to the markdown file |
+| `description` | `string`  | No       | A description for SEO and metadata |
+
+### Default Folder State
+
+By default, folders start in a collapsed state. Use the `open` property to have a folder expanded when the page loads:
+
+```json
+"/guides": {
+  "type": "group",
+  "title": "Guides",
+  "mode": "folder",
+  "open": true,
+  "children": {
+    "/quickstart": {
+      "type": "page",
+      "title": "Quickstart",
+      "filepath": "docs/guides/quickstart.md"
+    },
+    "/advanced": {
+      "type": "page",
+      "title": "Advanced Usage",
+      "filepath": "docs/guides/advanced.md"
     }
   }
 }

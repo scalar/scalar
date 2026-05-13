@@ -2,7 +2,7 @@
   "name": "scalar-app",
   "description": "HTTP Client to play with any API",
   "license": "MIT",
-  "author": "Scalar (https://github.com/scalar)",
+  "author": "Scalar <support@scalar.com> (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
   "repository": {
@@ -30,6 +30,7 @@
     "test:e2e": "PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:5001/ playwright test",
     "test:e2e:ci": "CI=1 playwright test",
     "test:e2e:install": "playwright install",
+    "test:e2e:update-snapshots": "pnpm test:e2e --update-snapshots",
     "todesktop:build": "todesktop build",
     "todesktop:build:ci": "todesktop build --async",
     "todesktop:release": "todesktop release",
@@ -79,13 +80,12 @@
     "undici": "catalog:*",
     "vue": "catalog:*",
     "vue-router": "catalog:*",
-    "yaml": "catalog:*",
-    "zod": "catalog:*"
+    "yaml": "catalog:*"
   },
   "devDependencies": {
     "@playwright/test": "catalog:*",
     "@tailwindcss/vite": "catalog:*",
-    "@todesktop/cli": "1.23.2",
+    "@todesktop/cli": "1.24.0",
     "@types/node": "catalog:*",
     "@types/shell-quote": "^1.7.5",
     "@vitejs/plugin-vue": "catalog:*",

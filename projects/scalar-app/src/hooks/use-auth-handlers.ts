@@ -8,7 +8,10 @@ import { useAuth } from '@/hooks/use-auth'
  *
  * Normally a good candiate for a helper but it touches state so must be a hook
  */
-export const useAuthHandlers = () => {
+export const useAuthHandlers = (options?: {
+  /** Called after a successful login or register (Electron only — web redirects to the dashboard). */
+  onAuthenticated?: () => void | Promise<void>
+}) => {
   const { toast } = useToasts()
   const { setTokens } = useAuth()
 
@@ -32,6 +35,7 @@ export const useAuthHandlers = () => {
     } else {
       toast('Logged in successfully', 'info')
       setTokens(result.accessToken, result.refreshToken)
+      await options?.onAuthenticated?.()
     }
   }
 
@@ -55,6 +59,7 @@ export const useAuthHandlers = () => {
     } else {
       toast('Registered successfully', 'info')
       setTokens(result.accessToken, result.refreshToken)
+      await options?.onAuthenticated?.()
     }
   }
 

@@ -16,7 +16,7 @@ runs:
         node-version: ${{ inputs.node-version }}
     - name: Install dependencies
       shell: bash
-      run: pnpm install
+      run: pnpm install --frozen-lockfile
     - name: Build packages
       shell: bash
       run: pnpm turbo ${{ env.TURBO_FLAGS }} --filter '${{inputs.packages}}' build

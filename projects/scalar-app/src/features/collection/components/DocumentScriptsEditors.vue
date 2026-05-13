@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarIconArrowRight, ScalarIconCheckCircle } from '@scalar/icons'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import * as monaco from 'monaco-editor'
 import {
   computed,
@@ -12,7 +12,7 @@ import {
 } from 'vue'
 
 const { document } = defineProps<{
-  document: WorkspaceDocument | null
+  document: OpenApiDocument | null
 }>()
 
 const emit = defineEmits<{

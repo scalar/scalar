@@ -1,29 +1,15 @@
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import TestRequestButton from './TestRequestButton.vue'
 
-/**
- * Creates a minimal mock event bus for testing.
- * We only implement the methods that TestRequestButton uses.
- */
-const createMockEventBus = (): WorkspaceEventBus => ({
-  on: vi.fn(),
-  once: vi.fn(),
-  off: vi.fn(),
-  emit: vi.fn(() => null),
-})
-
 describe('TestRequestButton', () => {
-  let mockEventBus: WorkspaceEventBus
-
   beforeEach(() => {
     vi.clearAllMocks()
-    mockEventBus = createMockEventBus()
   })
 
-  afterEach(() => {
+  afterAll(() => {
     vi.resetAllMocks()
   })
 

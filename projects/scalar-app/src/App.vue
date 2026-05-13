@@ -16,11 +16,18 @@ export type AppProps = {
 <script setup lang="ts">
 import { PostHogClientPlugin } from '@scalar/api-client/plugins/posthog'
 import { ScalarHeaderButton } from '@scalar/components'
+import { safeRun } from '@scalar/helpers/types/safe-run'
 import { type LoaderPlugin } from '@scalar/json-magic/bundle'
 import { requestScriptsPlugin } from '@scalar/pre-post-request-scripts/plugins'
 import { computed, reactive } from 'vue'
 
 import { ClientApp, type AppState } from '@/features/app'
+import {
+  DEFAULT_TEAM_WORKSPACE_NAME,
+  DEFAULT_TEAM_WORKSPACE_SLUG,
+} from '@/features/app/app-state'
+import { filterWorkspacesByTeam } from '@/features/app/helpers/filter-workspaces'
+import { groupWorkspacesByTeam } from '@/features/app/helpers/group-workspaces'
 import type { useCommandPaletteState } from '@/features/command-palette/hooks/use-command-palette-state'
 import AppMenuItems from '@/features/header/AppMenuItems.vue'
 import { ImportListener } from '@/features/import-listener'
@@ -33,13 +40,28 @@ import { useAuth } from '@/hooks/use-auth'
 import { useAuthHandlers } from '@/hooks/use-auth-handlers'
 import { useRegistryDocuments } from '@/hooks/use-registry-documents'
 import { useRegistryNamespaces } from '@/hooks/use-registry-namespaces'
+import { useTeams } from '@/hooks/use-teams'
 
 const { getAppState, getCommandPaletteState, fileLoader } =
   defineProps<AppProps>()
 
 const app = getAppState()
 const { isLoggedIn } = useAuth()
-const { handleLogin, handleRegister } = useAuthHandlers()
+const {
+  currentTeam,
+  currentTeamSlug,
+  isLoading: isTeamsLoading,
+  suspense: teamsSuspense,
+} = useTeams()
+
+const { handleLogin, handleRegister } = useAuthHandlers({
+  // Lets go to the team workspace on login
+  onAuthenticated: async () => {
+    await teamsSuspense()
+    await app.workspace.resumeOrGetStarted(currentTeamSlug.value)
+  },
+})
+
 const {
   documents,
   isLoading: isDocumentsLoading,
@@ -51,6 +73,14 @@ const { namespaces, isLoading: isNamespacesLoading } = useRegistryNamespaces()
 const isDesktop = window.electron === true
 
 //--------------------------------------------------
+// Team
+//--------------------------------------------------
+
+/** Ensure we redirect to the team workspace on team change */
+const handleTeamChange = async () =>
+  await app.workspace.resumeOrGetStarted(currentTeamSlug.value)
+
+//--------------------------------------------------
 // Workspace handling
 //--------------------------------------------------
 /** Routes to the get-started page of the workspace identified by `id`. */
@@ -58,18 +88,76 @@ const setActiveWorkspaceById = (id?: string) => {
   if (!id) {
     return
   }
-  app.workspace.navigateToWorkspaceGetStarted(id)
+  app.workspace.navigateToWorkspaceGetStarted(id, currentTeamSlug.value)
 }
 
+const filteredWorkspaces = computed(() =>
+  filterWorkspacesByTeam(
+    app.workspace.workspaceList.value,
+    currentTeamSlug.value,
+  ),
+)
+
+/**
+ * Groups workspaces into team and local categories for display in the workspace picker.
+ * Team workspaces are shown first (when not on local team), followed by local workspaces.
+ */
+const workspaceGroups = computed(() =>
+  groupWorkspacesByTeam(filteredWorkspaces.value, currentTeamSlug.value, {
+    // Surface a fake default workspace for non-local teams so logged-in
+    // users always see a team workspace entry in the picker. Clicking it
+    // navigates to a normal workspace route; the route handler creates the
+    // workspace on demand when it does not yet exist.
+    placeholder: {
+      slug: DEFAULT_TEAM_WORKSPACE_SLUG,
+      label: DEFAULT_TEAM_WORKSPACE_NAME,
+    },
+  }),
+)
+
 //--------------------------------------------------
-// Navigation
+// Navigation/Routing
 //--------------------------------------------------
+
+/**
+ * Waits for teams to finish loading, then forwards the route to
+ * `handleRouteChange` with the resolved team context.
+ *
+ * The gate lives here (in `afterEach`) rather than in a `beforeEach`
+ * because `afterEach` hooks fire even for the initial navigation that
+ * is already in-flight when `app.mount()` runs `<script setup>`.
+ * A `beforeEach` registered at this point would miss that first route
+ * and `handleRouteChange` would see `currentTeamSlug` as `'local'`,
+ * incorrectly bouncing team-workspace URLs to the local default.
+ */
+app.router.afterEach(async (to) => {
+  if (isTeamsLoading.value) {
+    await safeRun(() => teamsSuspense())
+  }
+
+  app.handleRouteChange(to, {
+    teamSlug: currentTeamSlug,
+    filteredWorkspaces: filteredWorkspaces,
+  })
+})
+
 // Emits a navigation event to open the workspace settings page
 const openSettings = () => {
   app.eventBus.emit('ui:navigate', {
     page: 'workspace',
     path: 'settings',
   })
+}
+
+/**
+ * The create-workspace modal lives inside `ClientApp`, but the mobile
+ * menu rendering its trigger lives in this outer shell. We bridge the
+ * two through the workspace event bus rather than reaching into
+ * `ClientApp` via a template ref, which keeps the inner component's
+ * internals private and matches the existing `ui:open:*` pattern.
+ */
+const handleCreateWorkspaceFromMenu = () => {
+  app.eventBus.emit('ui:open:create-workspace')
 }
 
 const navigateToDocument = (slug: string) => {
@@ -131,12 +219,6 @@ const registryNamespaces = computed(() => {
 })
 
 /**
- * Registry adapter passed to the API client. We wrap it in `reactive` so
- * the inner refs (`documents`, `namespaces`) are auto-unwrapped on access
- * - the adapter shape expects the raw loading-aware state, but we still
- * want the values to update as the underlying queries refetch.
- */
-/**
  * Forces the registry-documents query to refetch and waits for the new
  * listing. Used by the API client's sync flow after a `CONFLICT` push so
  * the next `computeVersionStatus` pass sees the new upstream commit
@@ -146,6 +228,12 @@ const refreshRegistryDocuments = async (): Promise<void> => {
   await refetchRegistryDocuments()
 }
 
+/**
+ * Registry adapter passed to the API client. We wrap it in `reactive` so
+ * the inner refs (`documents`, `namespaces`) are auto-unwrapped on access
+ * - the adapter shape expects the raw loading-aware state, but we still
+ * want the values to update as the underlying queries refetch.
+ */
 const registry = reactive({
   documents: registryDocuments,
   namespaces: registryNamespaces,
@@ -162,8 +250,8 @@ const registry = reactive({
     :activeWorkspace="app.workspace.activeWorkspace.value"
     :darkMode="app.isDarkMode.value"
     :fileLoader="fileLoader"
-    :isOnlyOneWorkspace="app.workspace.filteredWorkspaceList.value.length <= 1"
-    :workspaceGroups="app.workspace.workspaceGroups.value"
+    :isOnlyOneWorkspace="filteredWorkspaces.length <= 1"
+    :workspaceGroups
     :workspaceStore="app.store.value"
     @create:workspace="(payload) => app.workspace.create(payload)"
     @navigateToDocument="navigateToDocument"
@@ -173,16 +261,41 @@ const registry = reactive({
       :getCommandPaletteState
       :layout="isDesktop ? 'desktop' : 'web'"
       :plugins="plugins"
-      :registry>
+      :registry
+      :workspaceGroups
+      @changed:team="handleTeamChange">
       <template #header-menu-items>
         <AppMenuItems
+          :app="app"
+          :workspaceGroups
+          @createWorkspace="handleCreateWorkspaceFromMenu"
           @login="handleLogin"
           @openSettings="openSettings" />
       </template>
+
+      <!-- Team Logo -->
+      <template
+        v-if="currentTeam?.imageUri"
+        #header-logo>
+        <img
+          :alt="currentTeam.name"
+          class="size-5 rounded"
+          role="presentation"
+          :src="currentTeam.imageUri" />
+      </template>
+
       <template
         v-if="!isLoggedIn"
         #header-end>
-        <ScalarHeaderButton @click.prevent="handleLogin">
+        <!--
+          The mobile top bar is space-constrained, so we hide the secondary
+          "Log in" affordance on small screens - it stays reachable from the
+          menu - and keep only the primary "Register" call to action and
+          the document save / discard cluster on the bar itself.
+        -->
+        <ScalarHeaderButton
+          class="max-md:hidden"
+          @click.prevent="handleLogin">
           Log in
         </ScalarHeaderButton>
         <ScalarHeaderButton

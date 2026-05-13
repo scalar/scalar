@@ -1,6 +1,7 @@
+import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import CommandPaletteDocument from './CommandPaletteOpenApiDocument.vue'
@@ -14,24 +15,17 @@ describe('CommandPaletteDocument', () => {
     return store
   }
 
-  const createMockEventBus = () => ({
-    emit: vi.fn(),
-    on: vi.fn(),
-    once: vi.fn(),
-    off: vi.fn(),
-  })
-
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  afterEach(() => {
+  afterAll(() => {
     vi.restoreAllMocks()
   })
 
   it('renders with required props', async () => {
     const workspaceStore = await createMockWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -45,7 +39,7 @@ describe('CommandPaletteDocument', () => {
 
   it('initializes with empty document name', async () => {
     const workspaceStore = await createMockWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -60,7 +54,7 @@ describe('CommandPaletteDocument', () => {
 
   it('initializes with default document icon', async () => {
     const workspaceStore = await createMockWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -75,7 +69,7 @@ describe('CommandPaletteDocument', () => {
 
   it('disables form when document name is empty', async () => {
     const workspaceStore = await createMockWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -90,7 +84,7 @@ describe('CommandPaletteDocument', () => {
 
   it('disables form when document name is only whitespace', async () => {
     const workspaceStore = await createMockWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -111,7 +105,7 @@ describe('CommandPaletteDocument', () => {
     const workspaceStore = await createMockWorkspaceStore({
       'Existing Document': { id: '123' },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -132,7 +126,7 @@ describe('CommandPaletteDocument', () => {
     const workspaceStore = await createMockWorkspaceStore({
       'Existing Document': { id: '123' },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -156,7 +150,7 @@ describe('CommandPaletteDocument', () => {
     const workspaceStore = await createMockWorkspaceStore({
       'Existing Document': { id: '123' },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -178,7 +172,7 @@ describe('CommandPaletteDocument', () => {
     const workspaceStore = await createMockWorkspaceStore({
       'Existing Document': { id: '123' },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -201,7 +195,7 @@ describe('CommandPaletteDocument', () => {
     const workspaceStore = await createMockWorkspaceStore({
       'Existing Document': { id: '123' },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -222,7 +216,7 @@ describe('CommandPaletteDocument', () => {
     const workspaceStore = await createMockWorkspaceStore({
       'My Document': { id: '123' },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -241,7 +235,7 @@ describe('CommandPaletteDocument', () => {
 
   it('updates document name when input changes', async () => {
     const workspaceStore = await createMockWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -259,7 +253,7 @@ describe('CommandPaletteDocument', () => {
 
   it('updates document icon when icon selector changes', async () => {
     const workspaceStore = await createMockWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -277,7 +271,7 @@ describe('CommandPaletteDocument', () => {
 
   it('emits close event when form is submitted', async () => {
     const workspaceStore = await createMockWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -300,7 +294,7 @@ describe('CommandPaletteDocument', () => {
 
   it('emits document:create:empty-document event with correct payload', async () => {
     const workspaceStore = await createMockWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -333,7 +327,7 @@ describe('CommandPaletteDocument', () => {
 
   it('does not submit when form is disabled due to empty name', async () => {
     const workspaceStore = await createMockWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -355,7 +349,7 @@ describe('CommandPaletteDocument', () => {
     const workspaceStore = await createMockWorkspaceStore({
       'Existing Document': { id: '123' },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -378,7 +372,7 @@ describe('CommandPaletteDocument', () => {
 
   it('emits back event when delete is triggered on input', async () => {
     const workspaceStore = await createMockWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -399,7 +393,7 @@ describe('CommandPaletteDocument', () => {
 
   it('handles multiple back events', async () => {
     const workspaceStore = await createMockWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -423,7 +417,7 @@ describe('CommandPaletteDocument', () => {
 
   it('renders icon selector with correct default placement', async () => {
     const workspaceStore = await createMockWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -438,7 +432,7 @@ describe('CommandPaletteDocument', () => {
 
   it('renders submit button with correct text', async () => {
     const workspaceStore = await createMockWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -454,7 +448,7 @@ describe('CommandPaletteDocument', () => {
 
   it('handles empty workspace documents object', async () => {
     const workspaceStore = await createMockWorkspaceStore({})
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -475,7 +469,7 @@ describe('CommandPaletteDocument', () => {
     const workspaceStore = await createMockWorkspaceStore({
       'MyDocument': { id: '123' },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -497,7 +491,7 @@ describe('CommandPaletteDocument', () => {
     const workspaceStore = await createMockWorkspaceStore({
       'Existing': { id: '123' },
     })
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -531,7 +525,7 @@ describe('CommandPaletteDocument', () => {
 
   it('emits close event only once per submission', async () => {
     const workspaceStore = await createMockWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -553,7 +547,7 @@ describe('CommandPaletteDocument', () => {
 
   it('uses the trimmed document name when navigating after creation', async () => {
     const workspaceStore = await createMockWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -570,11 +564,13 @@ describe('CommandPaletteDocument', () => {
     await form.vm.$emit('submit')
     await nextTick()
 
-    const emitCall = eventBus.emit.mock.calls.find((call) => call[0] === 'document:create:empty-document')
-    const callback = emitCall?.[1]?.callback
+    const emitCall = vi
+      .mocked(mockEventBus.emit)
+      .mock.calls.find((call) => call[0] === 'document:create:empty-document')
+    const callback = (emitCall?.[1] as any)?.callback
     callback?.(true)
 
-    expect(eventBus.emit).toHaveBeenCalledWith('ui:navigate', {
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:navigate', {
       page: 'document',
       path: 'overview',
       documentSlug: 'My Document',
@@ -583,7 +579,7 @@ describe('CommandPaletteDocument', () => {
 
   it('does not navigate when document creation callback fails', async () => {
     const workspaceStore = await createMockWorkspaceStore()
-    const eventBus = createMockEventBus()
+    const eventBus = mockEventBus
 
     const wrapper = mount(CommandPaletteDocument, {
       props: {
@@ -600,10 +596,12 @@ describe('CommandPaletteDocument', () => {
     await form.vm.$emit('submit')
     await nextTick()
 
-    const emitCall = eventBus.emit.mock.calls.find((call) => call[0] === 'document:create:empty-document')
-    const callback = emitCall?.[1]?.callback
+    const emitCall = vi
+      .mocked(mockEventBus.emit)
+      .mock.calls.find((call) => call[0] === 'document:create:empty-document')
+    const callback = (emitCall?.[1] as any)?.callback
     callback?.(false)
 
-    expect(eventBus.emit).not.toHaveBeenCalledWith('ui:navigate', expect.anything())
+    expect(mockEventBus.emit).not.toHaveBeenCalledWith('ui:navigate', expect.anything())
   })
 })

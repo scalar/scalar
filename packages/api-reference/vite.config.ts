@@ -35,6 +35,12 @@ export default defineConfig({
     },
     dedupe: ['vue'],
   },
+  optimizeDeps: {
+    // posthog-js ships a pre-bundled dist/module.js — excluding it prevents Vite from
+    // crawling its transitive @opentelemetry/otlp-exporter-base dep, which imports the
+    // Node.js 'stream' and 'zlib' built-ins and triggers a browser-externalization warning.
+    exclude: ['posthog-js'],
+  },
   build: {
     outDir: './dist',
     minify: false,

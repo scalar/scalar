@@ -42,6 +42,8 @@ describe('getOpenApiFromPostman', () => {
   })
 
   it('passes the JSON string directly to convert function', () => {
+    vi.mocked(convert).mockClear()
+
     const postmanJson = '{"info":{"name":"API"}}'
 
     const mockOpenAPI: OpenAPIV3_1.Document = {

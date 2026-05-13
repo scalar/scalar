@@ -1,6 +1,6 @@
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -26,16 +26,10 @@ describe('WorkspaceCollection', () => {
       },
     })
 
-    const eventBus = {
-      on: vi.fn(),
-      off: vi.fn(),
-      emit: vi.fn(),
-    } as unknown as WorkspaceEventBus
-
     const wrapper = mount(WorkspaceCollection, {
       props: {
         activeWorkspace: { id: 'workspace-1', label: activeWorkspaceLabel },
-        eventBus,
+        eventBus: mockEventBus,
         documentSlug: 'drafts',
         document: null,
         layout: 'desktop' as any,
@@ -51,7 +45,7 @@ describe('WorkspaceCollection', () => {
 
     await router.isReady()
 
-    return { wrapper, eventBus }
+    return { wrapper, eventBus: mockEventBus }
   }
 
   describe('workspace title input', () => {

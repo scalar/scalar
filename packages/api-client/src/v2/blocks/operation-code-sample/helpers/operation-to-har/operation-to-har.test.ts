@@ -1199,6 +1199,51 @@ describe('operationToHar', () => {
     })
   })
 
+  describe('default headers', () => {
+    it('uses conventional casing for default headers in HAR output', () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                },
+              }),
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'OK',
+            content: {
+              'application/json': {},
+            },
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/api/users',
+        includeDefaultHeaders: true,
+      })
+
+      expect(result.headers).toContainEqual({
+        name: 'Accept',
+        value: 'application/json',
+      })
+      expect(result.headers).toContainEqual({
+        name: 'Content-Type',
+        value: 'application/json',
+      })
+      expect(result.headers.some((header) => header.name === 'accept')).toBe(false)
+      expect(result.headers.some((header) => header.name === 'content-type')).toBe(false)
+    })
+  })
+
   describe('defaultDisabledParameters', () => {
     it('includes optional query parameters by default', () => {
       const operation: OperationObject = {

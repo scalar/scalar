@@ -1,12 +1,17 @@
+import { isElectron } from '@scalar/helpers/general/is-electron'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
-import { filterGlobalCookie } from '@scalar/workspace-store/request-example'
+import {
+  type SecuritySchemeObjectSecret,
+  filterGlobalCookie,
+  getDefaultHeaders,
+  restoreConventionalDefaultHeaderNames,
+} from '@scalar/workspace-store/request-example'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
 
-import { getDefaultHeaders } from '@/v2/blocks/request-block/helpers/get-default-headers'
+import { APP_VERSION } from '@/v2/constants'
 
 import { processBody } from './process-body'
 import { processParameters } from './process-parameters'
@@ -96,10 +101,13 @@ export const operationToHar = ({
     ? getDefaultHeaders({
         method,
         operation,
-        exampleKey: example ?? 'default',
+        exampleName: example ?? 'default',
         hideDisabledHeaders: true,
-      }).filter((header) => !header.isOverridden)
-    : []
+        hideOverriddenHeaders: true,
+        options: { isElectron: isElectron(), appVersion: APP_VERSION },
+      })
+    : {}
+  const defaultHeadersWithConventionalNames = restoreConventionalDefaultHeaderNames(defaultHeaders)
 
   const disabledGlobalCookies =
     operation['x-scalar-disable-parameters']?.['global-cookies']?.[example ?? 'default'] ?? {}
@@ -110,7 +118,7 @@ export const operationToHar = ({
   const harRequest: HarRequest = {
     method,
     url: serverUrl,
-    headers: defaultHeaders.map((header) => ({ name: header.name, value: header.defaultValue })),
+    headers: Object.entries(defaultHeadersWithConventionalNames).map(([name, value]) => ({ name, value })),
     queryString: [],
     postData: undefined,
     httpVersion: 'HTTP/1.1',

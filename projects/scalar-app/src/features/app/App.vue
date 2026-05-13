@@ -11,11 +11,20 @@ export default {}
 import { SidebarToggle } from '@scalar/api-client/components/sidebar'
 import type { ClientLayout } from '@scalar/api-client/types'
 import { useGlobalHotKeys } from '@scalar/api-client/v2/hooks'
-import { ScalarModal, ScalarTeleportRoot, useModal } from '@scalar/components'
-import type { ClientPlugin } from '@scalar/oas-utils/helpers'
+import {
+  ScalarModal,
+  ScalarTeleportRoot,
+  useModal,
+  type WorkspaceGroup,
+} from '@scalar/components'
+import {
+  subscribePluginEvents,
+  type ClientPlugin,
+} from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
-import { computed, onBeforeUnmount, toValue, watch } from 'vue'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
+import { computed, onBeforeUnmount, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import AppHeader from '@/features/app/components/AppHeader.vue'
@@ -33,6 +42,8 @@ import type { CommandPaletteState } from '@/features/command-palette/hooks/use-c
 import TheCommandPalette from '@/features/command-palette/TheCommandPalette.vue'
 import { useMonacoEditorConfiguration } from '@/features/editor'
 import { useColorMode } from '@/hooks/use-color-mode'
+import { useTeams } from '@/hooks/use-teams'
+import { useThemes } from '@/hooks/use-themes'
 import type {
   RegistryAdapter,
   RegistryDocumentsState,
@@ -47,6 +58,7 @@ const {
   getAppState,
   getCommandPaletteState,
   registry,
+  workspaceGroups,
 } = defineProps<{
   layout: Exclude<ClientLayout, 'modal'>
   plugins?: ClientPlugin[]
@@ -61,6 +73,11 @@ const {
    * the client can rely on the full surface.
    */
   registry?: RegistryAdapter
+  workspaceGroups: WorkspaceGroup[]
+}>()
+
+const emit = defineEmits<{
+  (e: 'changed:team'): void
 }>()
 
 /**
@@ -79,12 +96,8 @@ defineSlots<{
    * team-aware consumers (e.g. Scalar Cloud) to render a team avatar so the
    * left-most chrome reads as "this team's workspace" rather than the
    * generic Scalar wordmark.
-   *
-   * Receives `isTeamWorkspace` so consumers can opt into rendering a team
-   * image only when the active workspace actually belongs to a team, while
-   * keeping the default Scalar logo for local workspaces.
    */
-  'header-logo'?: (payload: { isTeamWorkspace: boolean }) => unknown
+  'header-logo'?: () => unknown
   /**
    * Slot for customizing the menu items section of the app header.
    * Defaults to a workspace picker bound to the current app state. Overriding this slot
@@ -99,12 +112,10 @@ defineSlots<{
   'header-end'?: () => unknown
 }>()
 
-defineExpose({
-  openCreateWorkspace: () => createWorkspaceModalState.show(),
-})
-
 const app = getAppState()
 const paletteState = getCommandPaletteState()
+
+const { currentTeam } = useTeams()
 
 /** Expose workspace store to window for debugging purposes. */
 if (typeof window !== 'undefined') {
@@ -112,17 +123,13 @@ if (typeof window !== 'undefined') {
   window.dumpAppState = () => app
 }
 
-/** Call lifecycle hooks on plugins and subscribe to event bus events */
+// Allow the plugins to hook into the eventBus
 const pluginUnsubscribes: (() => void)[] = []
 
 for (const plugin of plugins) {
   plugin.lifecycle?.onInit?.({ config: { telemetry: app.telemetry.value } })
 
-  if (plugin.on) {
-    for (const [event, handler] of Object.entries(plugin.on)) {
-      pluginUnsubscribes.push(app.eventBus.on(event as any, handler as any))
-    }
-  }
+  pluginUnsubscribes.push(subscribePluginEvents(app.eventBus, plugin))
 }
 
 /** Notify plugins when telemetry config changes */
@@ -135,12 +142,14 @@ watch(app.telemetry, () => {
 })
 
 onBeforeUnmount(() => {
-  for (const unsub of pluginUnsubscribes) {
-    unsub()
+  for (const unsubscribe of pluginUnsubscribes) {
+    unsubscribe()
   }
   for (const plugin of plugins) {
     plugin.lifecycle?.onDestroy?.()
   }
+  unsubscribeOpenCreateWorkspace()
+  unsubscribeSaveLocalDocumentHotkey()
 })
 
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */
@@ -159,7 +168,12 @@ useDocumentWatcher({
 /** Color mode */
 useColorMode({ workspaceStore: app.store })
 
-const currentTheme = computed(() => app.theme.styles.value.themeStyles)
+/** Theme — resolved from custom themes, user/team preference, and workspace store */
+const { customThemes, themeStyles, themeStyleTag } = useThemes({
+  store: app.store,
+})
+
+const currentTheme = computed(() => themeStyles.value.themeStyles)
 const isDarkMode = computed(() => app.isDarkMode.value)
 
 /** Setup monaco editor configuration */
@@ -169,6 +183,17 @@ useMonacoEditorConfiguration({
 })
 
 const createWorkspaceModalState = useModal()
+
+/**
+ * Bridge for surfaces outside this component (for example the outer app
+ * shell's mobile menu) that need to open the create-workspace modal. We
+ * subscribe to a UI event instead of exposing an imperative method, so
+ * callers stay decoupled from this component's internals.
+ */
+const unsubscribeOpenCreateWorkspace = app.eventBus.on(
+  'ui:open:create-workspace',
+  () => createWorkspaceModalState.show(),
+)
 
 /**
  * Owns the document-level Save / Revert / Pull / Push / Publish flow.
@@ -204,11 +229,29 @@ const {
   registryDocuments: () => registryDocuments.value,
 })
 
+/** Cmd/Ctrl+S matches the header Save control for local workspaces (see AppHeaderActions). */
+const unsubscribeSaveLocalDocumentHotkey = app.eventBus.on(
+  'ui:save:local-document',
+  (payload) => {
+    if (!showLocalSaveActions.value) {
+      return
+    }
+    payload.event.preventDefault()
+    if (!isActiveDocumentDirty.value) {
+      return
+    }
+    void handleSaveDocument()
+  },
+)
+
 /** Props to pass to the RouterView component. */
 const routerViewProps = computed<RouteProps>(() => {
+  // The API client is OpenAPI-native; AsyncAPI docs surface as `null` here so operation /
+  // collection views render their empty state instead of trying to read `.paths`.
+  const activeDocument = app.store.value?.workspace.activeDocument
   return {
     documentSlug: app.activeEntities.documentSlug.value ?? '',
-    document: app.store.value?.workspace.activeDocument ?? null,
+    document: isOpenApiDocument(activeDocument) ? activeDocument : null,
     environment: app.environment.value,
     eventBus: app.eventBus,
     exampleName: app.activeEntities.exampleName.value,
@@ -221,8 +264,8 @@ const routerViewProps = computed<RouteProps>(() => {
     isTeamWorkspace: app.workspace.isTeamWorkspace.value,
     plugins,
     isDarkMode: app.isDarkMode.value,
-    currentTheme: app.theme.styles.value.themeStyles,
-    customThemes: toValue(app.theme.customThemes),
+    currentTheme: themeStyles.value.themeStyles,
+    customThemes: customThemes.value,
     telemetry: app.telemetry.value,
     onUpdateTelemetry: (value: boolean) => {
       app.telemetry.value = value
@@ -235,7 +278,7 @@ const routerViewProps = computed<RouteProps>(() => {
 <template>
   <ScalarTeleportRoot>
     <!-- Theme style tag -->
-    <div v-html="app.theme.themeStyleTag.value" />
+    <div v-html="themeStyleTag" />
 
     <!-- Toasts -->
     <ScalarToasts />
@@ -269,7 +312,8 @@ const routerViewProps = computed<RouteProps>(() => {
           :eventBus="app.eventBus"
           :tabs="app.tabs.state.value" />
         <AppHeader
-          :menuTitle="app.workspace.isTeamWorkspace.value ? 'Team' : 'Local'"
+          :menuTitle="currentTeam?.name"
+          @changed:team="emit('changed:team')"
           @navigate:to:settings="
             app.eventBus.emit('ui:navigate', {
               page: 'workspace',
@@ -284,11 +328,9 @@ const routerViewProps = computed<RouteProps>(() => {
             `ScalarMenuButton` fall back to its default Scalar wordmark.
           -->
           <template
-            v-if="$slots['header-logo'] && app.workspace.isTeamWorkspace.value"
+            v-if="$slots['header-logo']"
             #logo>
-            <slot
-              :isTeamWorkspace="app.workspace.isTeamWorkspace.value"
-              name="header-logo" />
+            <slot name="header-logo" />
           </template>
           <template #menuItems>
             <!--
@@ -300,10 +342,20 @@ const routerViewProps = computed<RouteProps>(() => {
             <slot name="header-menu-items" />
           </template>
           <template #breadcrumb>
+            <!--
+              The full breadcrumb is rendered alongside the menu trigger on
+              tablet and up. On mobile we collapse the entire top bar down to
+              just the menu trigger and the trailing action cluster, and the
+              workspace picker is reachable from inside the menu instead -
+              keeping the small-screen header readable without losing the
+              ability to switch workspaces.
+            -->
             <DocumentBreadcrumb
               :app="app"
+              class="max-md:hidden"
               :fetchRegistryDocument="registry?.fetchDocument"
               :registryDocuments="registryDocuments"
+              :workspaceGroups
               @createWorkspace="createWorkspaceModalState.show()" />
           </template>
           <!--
@@ -335,10 +387,14 @@ const routerViewProps = computed<RouteProps>(() => {
                 @revert="handleRevertDocument"
                 @save="handleSaveDocument" />
               <!--
-                Vertical divider
+                Vertical divider. Only renders when the action cluster
+                actually has buttons in it - on a fresh document with no
+                pending changes the cluster is empty, and a lone divider
+                between the menu trigger and the consumer's `#header-end`
+                slot would read as visual noise.
               -->
               <span
-                v-if="$slots['header-end']"
+                v-if="$slots['header-end'] && hasHeaderActionCluster"
                 aria-hidden="true"
                 class="bg-border h-4 w-px shrink-0" />
               <slot
@@ -356,8 +412,8 @@ const routerViewProps = computed<RouteProps>(() => {
             :sidebarWidth="app.sidebar.width.value"
             @update:sidebarWidth="app.sidebar.handleSidebarWidthUpdate" />
 
-          <!-- Router view min-h-0 is required for scrolling, do not remove it -->
-          <div class="bg-b-1 relative min-h-0 flex-1">
+          <!-- Router view min-h/w-0 is required for scrolling, do not remove it -->
+          <div class="bg-b-1 relative min-h-0 min-w-0 flex-1">
             <RouterView v-bind="routerViewProps" />
           </div>
         </div>

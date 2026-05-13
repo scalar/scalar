@@ -12,7 +12,7 @@
       "@types/node": "catalog:*",
       "lodash": "4.18.1",
       "property-information": "7.1.0",
-      "undici": "7.24.4"
+      "undici": "catalog:*"
     }
   },
   "devDependencies": {
@@ -67,7 +67,8 @@
     "types:check:raw": "pnpm run -r --parallel types:check",
     "types:build": "turbo types:build",
     "renovate:validate": "pnpm dlx --package renovate renovate-config-validator",
-    "script": "pnpm --filter @scalar-internal/build-scripts start"
+    "script": "pnpm --filter @scalar-internal/build-scripts start",
+    "release:version": "changeset version && pnpm --filter @scalar/helpers build && pnpm --filter @scalar-internal/build-scripts start release-notes-generator --package scalar-app --changelog projects/scalar-app/CHANGELOG.md --output projects/scalar-app/RELEASE_NOTES.json --markdown projects/scalar-app/RELEASE_NOTES.md --dependency-changelog packages/api-client/CHANGELOG.md"
   },
   "remarkConfig": {
     "plugins": [

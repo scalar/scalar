@@ -6,6 +6,7 @@ import { isNonOptionalSecurityRequirement } from '@/helpers/is-non-optional-secu
 import { mergeObjects } from '@/helpers/merge-object'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { WorkspaceDocument } from '@/schemas'
+import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 import type { OAuth2Object } from '@/schemas/v3.1/strict/security-scheme'
 
@@ -38,7 +39,10 @@ export const updateSelectedSecuritySchemes = async (
   document: WorkspaceDocument | null,
   { selectedRequirements, newSchemes, meta }: AuthEvents['auth:update:selected-security-schemes'],
 ) => {
-  const documentName = document?.['x-scalar-navigation']?.name
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const documentName = document['x-scalar-navigation']?.name
   if (!documentName) {
     return
   }
@@ -125,7 +129,10 @@ const clearSelectedSecuritySchemes = (
   document: WorkspaceDocument | null,
   { meta }: AuthEvents['auth:clear:selected-security-schemes'],
 ) => {
-  const documentName = document?.['x-scalar-navigation']?.name
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const documentName = document['x-scalar-navigation']?.name
   if (!documentName) {
     return
   }
@@ -163,7 +170,10 @@ export const updateSecurityScheme = (
   document: WorkspaceDocument | null,
   { payload, name }: AuthEvents['auth:update:security-scheme'],
 ) => {
-  const target = getResolvedRef(document?.components?.securitySchemes?.[name])
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const target = getResolvedRef(document.components?.securitySchemes?.[name])
   if (!target) {
     console.error(`Security scheme ${name} not found`)
     return
@@ -182,7 +192,10 @@ const updateSecuritySchemeSecrets = (
   document: WorkspaceDocument | null,
   { payload, name, overwrite = false }: AuthEvents['auth:update:security-scheme-secrets'],
 ) => {
-  const documentName = document?.['x-scalar-navigation']?.name
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const documentName = document['x-scalar-navigation']?.name
   if (!documentName) {
     return
   }
@@ -206,7 +219,10 @@ const clearSecuritySchemeSecrets = (
   document: WorkspaceDocument | null,
   { name }: AuthEvents['auth:clear:security-scheme-secrets'],
 ) => {
-  const documentName = document?.['x-scalar-navigation']?.name
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const documentName = document['x-scalar-navigation']?.name
   if (!documentName) {
     return
   }
@@ -245,13 +261,16 @@ export const updateSelectedAuthTab = (
   document: WorkspaceDocument | null,
   { index, meta }: AuthEvents['auth:update:active-index'],
 ) => {
-  const documentName = document?.['x-scalar-navigation']?.name
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const documentName = document['x-scalar-navigation']?.name
   if (!documentName) {
     return
   }
 
   // Ensure the path/method exists in the document
-  if (meta.type === 'operation' && document?.paths?.[meta.path]?.[meta.method] === undefined) {
+  if (meta.type === 'operation' && document.paths?.[meta.path]?.[meta.method] === undefined) {
     return
   }
 
@@ -280,20 +299,38 @@ export const updateSelectedAuthTab = (
     )
   }
 
-  // Set the selected index
-  target.selectedIndex = index
+  store?.auth.setAuthSelectedSchemas(
+    meta.type === 'document'
+      ? { type: 'document', documentName }
+      : { type: 'operation', documentName, path: meta.path, method: meta.method },
+    {
+      selectedIndex: index,
+      selectedSchemes: unpackProxyObject(target.selectedSchemes, { depth: null }) ?? [],
+    },
+  )
+}
+
+/**
+ * Returns whether `id` lists the same scheme names as `requirement` (OpenAPI security requirement keys),
+ * ignoring key order. UI payloads use `Object.keys(selectedSecuritySchemas)` which follows insertion order;
+ * stored copies may serialize with a different order.
+ */
+const securityRequirementIdsMatch = (requirement: SecurityRequirementObject, id: readonly string[]): boolean => {
+  const sortedRequirementKeys = [...Object.keys(requirement)].sort((a, b) => a.localeCompare(b))
+  const sortedId = [...id].sort((a, b) => a.localeCompare(b))
+  return JSON.stringify(sortedRequirementKeys) === JSON.stringify(sortedId)
 }
 
 /**
  * Updates the scopes for a specific security requirement in the selected security schemes of
- * a document or operation. Also allow to add a new scope to the scheme.
+ * a document or operation. This mutator only touches selection state; managing the scope
+ * definitions on the OAuth flow is handled by `upsertScope` and `deleteScope`.
  *
  * @param document - The OpenAPI WorkspaceDocument to update.
  * @param id - An array of scheme names that uniquely identifies the target security requirement.
  *             For example: ['OAuth', 'ApiKeyAuth']
  * @param name - The security scheme name to update scopes for (e.g., 'OAuth').
  * @param scopes - The new list of scopes to set. For example: ['read:pets', 'write:pets']
- * @param newScopePayload - The payload to add a new scope with
  * @param meta - The context specifying whether the update is at the document-level or operation-level.
  *
  * Example usage:
@@ -320,9 +357,12 @@ export const updateSelectedAuthTab = (
 export const updateSelectedScopes = (
   store: WorkspaceStore | null,
   document: WorkspaceDocument | null,
-  { id, name, scopes, newScopePayload, meta }: AuthEvents['auth:update:selected-scopes'],
+  { id, name, scopes, meta }: AuthEvents['auth:update:selected-scopes'],
 ) => {
-  const documentName = document?.['x-scalar-navigation']?.name
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const documentName = document['x-scalar-navigation']?.name
   if (!documentName) {
     return
   }
@@ -340,31 +380,190 @@ export const updateSelectedScopes = (
     return
   }
 
-  // Find the security requirement that matches the given id (scheme key names)
-  // For example: if id = ["OAuth"], matches { OAuth: [...] }
-  const scheme = target.selectedSchemes.find((scheme) => JSON.stringify(Object.keys(scheme)) === JSON.stringify(id))
+  const nextSelectedSchemes = unpackProxyObject(target.selectedSchemes, { depth: 1 }) ?? []
+  // Match the security requirement by scheme key names (order-insensitive: Object.keys order
+  // can differ between the store copy and the UI payload for the same requirement object).
+  const nextScheme = nextSelectedSchemes.find((candidate) => securityRequirementIdsMatch(candidate, id))
+  if (!isNonOptionalSecurityRequirement(nextScheme)) {
+    return
+  }
+  nextScheme[name] = scopes
 
-  // If the scheme is optional, do nothing as it cannot have scopes
-  if (!isNonOptionalSecurityRequirement(scheme)) {
+  store?.auth.setAuthSelectedSchemas(
+    meta.type === 'document'
+      ? { type: 'document', documentName }
+      : { type: 'operation', documentName, path: meta.path, method: meta.method },
+    { selectedIndex: target.selectedIndex, selectedSchemes: nextSelectedSchemes },
+  )
+}
+
+/**
+ * Resolves the OAuth flow on a security scheme by name + flow type.
+ * Returns `null` when the scheme or flow cannot be found, or the scheme is not an OAuth2 / OpenID Connect scheme.
+ */
+const resolveOAuthFlow = (document: WorkspaceDocument, name: string, flowType: keyof OAuth2Object['flows']) => {
+  if (!isOpenApiDocument(document)) {
+    return null
+  }
+  const securityScheme = getResolvedRef(document.components?.securitySchemes?.[name])
+  if (!securityScheme) {
+    return null
+  }
+  if (securityScheme.type !== 'oauth2' && securityScheme.type !== 'openIdConnect') {
+    return null
+  }
+  return (securityScheme as OAuth2Object).flows?.[flowType] ?? null
+}
+
+/**
+ * Walks every selection container that lives under a document (the document-level
+ * `x-scalar-selected-security` plus the equivalent on every path / method) and invokes
+ * `transform` on a plain copy of `selectedSchemes`, then writes back through
+ * `setAuthSelectedSchemas` so persistence hooks run.
+ */
+const walkSelectedSchemes = (
+  store: WorkspaceStore | null,
+  document: WorkspaceDocument,
+  transform: (selectedSchemes: SecurityRequirementObject[]) => void,
+) => {
+  if (!isOpenApiDocument(document) || !store) {
+    return
+  }
+  const documentName = document['x-scalar-navigation']?.name
+  if (!documentName) {
     return
   }
 
-  // If we have a new scope payload, add it to the scheme
-  if (newScopePayload) {
-    const securityScheme = getResolvedRef(document.components?.securitySchemes?.[name])
-    const flow = (securityScheme as OAuth2Object)?.flows?.[newScopePayload?.flowType]
-    if (!flow) {
+  const apply = (
+    payload:
+      | { type: 'document'; documentName: string }
+      | { type: 'operation'; documentName: string; path: string; method: string },
+  ) => {
+    const target = store.auth.getAuthSelectedSchemas(payload)
+    if (!target) {
       return
     }
-    flow.scopes ||= {}
+    const nextSchemes = unpackProxyObject(target.selectedSchemes, { depth: 1 }) ?? []
+    transform(nextSchemes)
+    store.auth.setAuthSelectedSchemas(payload, {
+      selectedIndex: target.selectedIndex,
+      selectedSchemes: nextSchemes,
+    })
+  }
 
-    flow.scopes[newScopePayload.name] = newScopePayload.description
-    scheme[name] = [...scopes, newScopePayload.name]
+  apply({ type: 'document', documentName })
+
+  Object.entries(document.paths ?? {}).forEach(([path, pathItemObject]) => {
+    Object.entries(pathItemObject).forEach(([method, operation]) => {
+      if (typeof operation !== 'object') {
+        return
+      }
+      apply({ type: 'operation', documentName, path, method })
+    })
+  })
+}
+
+/**
+ * Adds a new scope to an OAuth flow, or renames / updates the description of an existing one.
+ *
+ * When `oldScope` differs from `scope`, this mutator also rewrites every selection entry
+ * that references the matching security scheme so consumers do not need a follow-up
+ * `auth:update:selected-scopes`.
+ *
+ * When `enable` is true, the resulting `scope` is additionally appended to every selection
+ * requirement that already references this security scheme, enabling an "add and select"
+ * flow without a separate selection mutation.
+ */
+export const upsertScope = (
+  store: WorkspaceStore | null,
+  document: WorkspaceDocument | null,
+  { name, flowType, scope, description, oldScope, enable }: AuthEvents['auth:upsert:scopes'],
+) => {
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const flow = resolveOAuthFlow(document, name, flowType)
+  if (!flow) {
+    return
+  }
+  flow.scopes ||= {}
+
+  const isRename = Boolean(oldScope) && oldScope !== scope
+
+  // Rename: drop the previous key so iteration order stays predictable.
+  if (isRename) {
+    if (!(oldScope! in flow.scopes)) {
+      return
+    }
+    delete flow.scopes[oldScope!]
+  }
+
+  flow.scopes[scope] = description
+
+  if (!isRename && !enable) {
     return
   }
 
-  // Set the scopes array for the named security scheme within the found security requirement
-  scheme[name] = scopes
+  // Mirror the rename and/or apply `enable` across selection entries that reference this scheme.
+  walkSelectedSchemes(store, document, (selectedSchemes) => {
+    selectedSchemes.forEach((requirement) => {
+      if (!isNonOptionalSecurityRequirement(requirement)) {
+        return
+      }
+      const scopes = requirement[name]
+      if (!Array.isArray(scopes)) {
+        return
+      }
+
+      let nextScopes = scopes
+
+      // Rewrite the old key in place when this requirement had the renamed scope selected.
+      if (isRename && nextScopes.includes(oldScope!)) {
+        nextScopes = nextScopes.map((current) => (current === oldScope ? scope : current))
+      }
+
+      // Append the resulting scope when the caller asked for "add and select".
+      if (enable && !nextScopes.includes(scope)) {
+        nextScopes = [...nextScopes, scope]
+      }
+
+      if (nextScopes !== scopes) {
+        requirement[name] = nextScopes
+      }
+    })
+  })
+}
+
+/**
+ * Removes a scope from an OAuth flow and strips it from any selection state that references
+ * the matching security scheme.
+ */
+export const deleteScope = (
+  store: WorkspaceStore | null,
+  document: WorkspaceDocument | null,
+  { name, flowType, scope }: AuthEvents['auth:delete:scopes'],
+) => {
+  if (!isOpenApiDocument(document)) {
+    return
+  }
+  const flow = resolveOAuthFlow(document, name, flowType)
+  if (!flow?.scopes) {
+    return
+  }
+  delete flow.scopes[scope]
+
+  walkSelectedSchemes(store, document, (selectedSchemes) => {
+    selectedSchemes.forEach((requirement) => {
+      if (!isNonOptionalSecurityRequirement(requirement)) {
+        return
+      }
+      const scopes = requirement[name]
+      if (!Array.isArray(scopes) || !scopes.includes(scope)) {
+        return
+      }
+      requirement[name] = scopes.filter((current) => current !== scope)
+    })
+  })
 }
 
 /**
@@ -391,9 +590,12 @@ export const deleteSecurityScheme = (
   document: WorkspaceDocument | null,
   { names }: AuthEvents['auth:delete:security-scheme'],
 ) => {
-  const documentName = document?.['x-scalar-navigation']?.name
-  if (!documentName) {
+  if (!isOpenApiDocument(document)) {
     // Early exit if there is no document to modify
+    return
+  }
+  const documentName = document['x-scalar-navigation']?.name
+  if (!documentName) {
     return
   }
 
@@ -425,10 +627,13 @@ export const deleteSecurityScheme = (
 
   // -- Remove from document-level `x-scalar-selected-security` extension, if present
   if (documentSelectedSecurity) {
-    documentSelectedSecurity.selectedSchemes = filterSecuritySchemes(documentSelectedSecurity.selectedSchemes)
-    documentSelectedSecurity.selectedIndex = clampIndex(
-      documentSelectedSecurity.selectedIndex,
-      documentSelectedSecurity.selectedSchemes.length,
+    const filtered = filterSecuritySchemes(documentSelectedSecurity.selectedSchemes)
+    store?.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      {
+        selectedIndex: clampIndex(documentSelectedSecurity.selectedIndex, filtered.length),
+        selectedSchemes: filtered,
+      },
     )
   }
 
@@ -453,7 +658,6 @@ export const deleteSecurityScheme = (
         resolvedOperation['security'] = filterSecuritySchemes(resolvedOperation['security'])
       }
 
-      // // Remove from operation-level x-scalar-selected-security array
       const operationSelectedSecurity = store?.auth.getAuthSelectedSchemas({
         type: 'operation',
         documentName,
@@ -461,10 +665,13 @@ export const deleteSecurityScheme = (
         method,
       })
       if (operationSelectedSecurity) {
-        operationSelectedSecurity.selectedSchemes = filterSecuritySchemes(operationSelectedSecurity.selectedSchemes)
-        operationSelectedSecurity.selectedIndex = clampIndex(
-          operationSelectedSecurity.selectedIndex,
-          operationSelectedSecurity.selectedSchemes.length,
+        const filtered = filterSecuritySchemes(operationSelectedSecurity.selectedSchemes)
+        store?.auth.setAuthSelectedSchemas(
+          { type: 'operation', documentName, path, method },
+          {
+            selectedIndex: clampIndex(operationSelectedSecurity.selectedIndex, filtered.length),
+            selectedSchemes: filtered,
+          },
         )
       }
     })
@@ -493,6 +700,8 @@ export const authMutatorsFactory = ({
       updateSelectedAuthTab(store, document, payload),
     updateSelectedScopes: (payload: AuthEvents['auth:update:selected-scopes']) =>
       updateSelectedScopes(store, document, payload),
+    upsertScope: (payload: AuthEvents['auth:upsert:scopes']) => upsertScope(store, document, payload),
+    deleteScope: (payload: AuthEvents['auth:delete:scopes']) => deleteScope(store, document, payload),
     deleteSecurityScheme: (payload: AuthEvents['auth:delete:security-scheme']) =>
       deleteSecurityScheme(store, document, payload),
   }

@@ -23,6 +23,7 @@ const externalizeElectronPlugin = (): Plugin => ({
         id: source,
       }
     }
+    return
   },
 })
 
@@ -61,6 +62,10 @@ export default defineConfig(async ({ command, mode }) => {
             exclude: ['**/node_modules/**', '**/dist/**', '**/tmp/**', 'entrypoints/electron/**/*.test.ts'],
             include: ['src/**/*.test.ts', 'entrypoints/web/**/*.test.ts'],
             name: 'vite',
+            // Polyfills for ResizeObserver / IntersectionObserver that
+            // jsdom does not ship by default but are required by
+            // @headlessui/vue Dialog and a handful of other components.
+            setupFiles: [resolve(import.meta.dirname, 'test/vitest.setup.ts')],
             alias: [
               {
                 find: /^monaco-editor$/,

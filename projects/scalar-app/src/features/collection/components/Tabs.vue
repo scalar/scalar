@@ -32,7 +32,8 @@ const routes = computed(() => {
 </script>
 
 <template>
-  <div class="flex w-full gap-2 border-b pl-1.5 md:ml-1.5 md:pl-0">
+  <div
+    class="scrollbar-none flex w-full gap-2 overflow-x-auto border-b pl-1.5 md:ml-1.5 md:pl-0">
     <RouterLink
       v-for="route in routes"
       :key="route"
@@ -44,11 +45,11 @@ const routes = computed(() => {
         :href="href"
         @click="navigate">
         <span
-          class="flex-center hover:text-c-1 h-full border-b"
+          class="flex-center hover:text-c-1 h-full"
           :class="
             isActive
-              ? 'text-c-1 border-c-1'
-              : 'text-c-2 hover:text-c-1 border-transparent'
+              ? 'text-c-1 border-c-1 border-b'
+              : 'text-c-2 hover:text-c-1'
           ">
           {{ capitalize(route) }}
         </span>
@@ -56,3 +57,10 @@ const routes = computed(() => {
     </RouterLink>
   </div>
 </template>
+
+<style scoped>
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+</style>

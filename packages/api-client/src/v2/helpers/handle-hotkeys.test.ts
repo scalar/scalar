@@ -359,4 +359,31 @@ describe('handle-hotkey-down', () => {
 
     expect(mockEventBus.emit).not.toHaveBeenCalled()
   })
+
+  it('fires ui:save:local-document on Cmd+S in web layout', () => {
+    vi.mocked(isMacOS).mockReturnValue(true)
+
+    const event = createKeyboardEvent('s', { metaKey: true })
+    handleHotkeys(event, mockEventBus, 'web')
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:save:local-document', { event }, { skipUnpackProxy: true })
+  })
+
+  it('fires ui:save:local-document on Ctrl+S in web layout on non-macOS', () => {
+    vi.mocked(isMacOS).mockReturnValue(false)
+
+    const event = createKeyboardEvent('s', { ctrlKey: true })
+    handleHotkeys(event, mockEventBus, 'web')
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:save:local-document', { event }, { skipUnpackProxy: true })
+  })
+
+  it('fires ui:save:local-document on Cmd+S in desktop layout', () => {
+    vi.mocked(isMacOS).mockReturnValue(true)
+
+    const event = createKeyboardEvent('s', { metaKey: true })
+    handleHotkeys(event, mockEventBus, 'desktop')
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:save:local-document', { event }, { skipUnpackProxy: true })
+  })
 })

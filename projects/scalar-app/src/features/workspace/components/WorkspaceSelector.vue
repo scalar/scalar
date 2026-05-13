@@ -18,7 +18,7 @@ import {
 import { CreateWorkspaceModal } from '@/features/app'
 import { type CreateWorkspacePayload } from '@/features/import-listener/types'
 
-const { workspaceGroups: worksapceGroups, activeWorkspace } = defineProps<{
+const { workspaceGroups, activeWorkspace } = defineProps<{
   /** List of workspace groups */
   workspaceGroups: WorkspaceGroup[]
   /** The active workspace */
@@ -53,7 +53,7 @@ const createWorkspaceModal = useModal()
       <!-- Workspace list -->
       <template #items>
         <template
-          v-for="group in worksapceGroups"
+          v-for="group in workspaceGroups"
           :key="group.label">
           <!-- If the group has children, render as a group -->
           <template v-if="group.options && group.options.length > 0">

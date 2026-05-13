@@ -6,8 +6,14 @@ import {
   ScalarMenuProducts,
   ScalarMenuResources,
   ScalarMenuSection,
+  ScalarMenuTeamPicker,
+  type ScalarMenuTeamOption,
 } from '@scalar/components'
 import { ScalarIconGear } from '@scalar/icons'
+import { computed } from 'vue'
+
+import { useAuth } from '@/hooks/use-auth'
+import { useTeams } from '@/hooks/use-teams'
 
 defineProps<{
   /**
@@ -23,6 +29,8 @@ defineProps<{
 const emit = defineEmits<{
   /** Emitted when the user wants to open the workspace settings */
   (e: 'navigate:to:settings'): void
+  /** Emitted when the user has changed team */
+  (e: 'changed:team'): void
 }>()
 
 const slots = defineSlots<{
@@ -44,6 +52,36 @@ const slots = defineSlots<{
   /** Slot for customizing the end of the header */
   end?(): unknown
 }>()
+
+const { currentTeam, teams: allTeams } = useTeams()
+const { isLoggedIn, refreshTokens } = useAuth()
+
+/** Convert teams to menu items */
+const teams = computed<ScalarMenuTeamOption[]>(
+  () =>
+    allTeams.value?.map((t) => ({
+      id: t.uid,
+      label: t.name,
+      src: t.imageUri,
+    })) ?? [],
+)
+
+/** Select the current team option */
+const team = computed<ScalarMenuTeamOption | undefined>(() =>
+  teams.value.find((t) => t.id === currentTeam.value?.uid),
+)
+
+/** Refresh tokens with the selected team UID then navigate to the workspace root */
+const switchTeam = async (t?: ScalarMenuTeamOption) => {
+  if (!t || t.id === currentTeam.value?.uid) {
+    return
+  }
+
+  const result = await refreshTokens(t?.id)
+  if (result.ok) {
+    emit('changed:team')
+  }
+}
 </script>
 
 <template>
@@ -67,6 +105,12 @@ const slots = defineSlots<{
         </template>
         <template #sections="{ close }">
           <ScalarMenuSection>
+            <ScalarMenuTeamPicker
+              v-if="isLoggedIn"
+              :allowAddTeam="false"
+              :team
+              :teams
+              @update:team="switchTeam" />
             <slot name="menuItems">
               <ScalarMenuLink
                 is="button"

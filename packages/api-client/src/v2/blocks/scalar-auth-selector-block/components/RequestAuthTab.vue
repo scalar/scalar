@@ -66,6 +66,8 @@ const emits = defineEmits<{
     e: 'update:selectedScopes',
     payload: Omit<ApiReferenceEvents['auth:update:selected-scopes'], 'meta'>,
   ): void
+  (e: 'upsert:scope', payload: ApiReferenceEvents['auth:upsert:scopes']): void
+  (e: 'delete:scope', payload: ApiReferenceEvents['auth:delete:scopes']): void
 }>()
 
 /**
@@ -183,6 +185,22 @@ const handleScopesUpdate = (
     name,
     ...event,
   })
+}
+
+/** Handles scope-definition upserts (add / rename / description change) */
+const handleScopeUpsert = (
+  name: string,
+  event: Omit<ApiReferenceEvents['auth:upsert:scopes'], 'name'>,
+): void => {
+  emits('upsert:scope', { ...event, name })
+}
+
+/** Handles scope-definition deletes */
+const handleScopeDelete = (
+  name: string,
+  event: Omit<ApiReferenceEvents['auth:delete:scopes'], 'name'>,
+): void => {
+  emits('delete:scope', { ...event, name })
 }
 
 /**
@@ -359,7 +377,9 @@ const getFlowTabClasses = (flowKey: string, index: number): string => {
           :selectedScopes="scopes"
           :server
           :type="key"
-          @update:selectedScopes="(event) => handleScopesUpdate(name, event)" />
+          @delete:scope="(event) => handleScopeDelete(name, event)"
+          @update:selectedScopes="(event) => handleScopesUpdate(name, event)"
+          @upsert:scope="(event) => handleScopeUpsert(name, event)" />
       </template>
     </template>
 

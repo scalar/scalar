@@ -1,5 +1,16 @@
-import { expect, test } from '@playwright/test'
+import { type Page, expect, test } from '@playwright/test'
 import { serveExample } from '@test/utils/serve-example'
+
+/**
+ * Locate a download button by the format shown on its (hover-revealed) badge.
+ *
+ * The visible label is "Download OpenAPI Document" on both buttons, so we
+ * filter by the inner `.extension` badge to distinguish json from yaml.
+ */
+const getDownloadButton = (page: Page, format: 'json' | 'yaml') =>
+  page
+    .getByRole('button', { name: 'Download OpenAPI Document' })
+    .filter({ has: page.locator('.extension', { hasText: format }) })
 
 test.describe('hideDownloadButton', () => {
   test('shows download button by default', async ({ page }) => {
@@ -7,8 +18,8 @@ test.describe('hideDownloadButton', () => {
 
     await page.goto(example)
 
-    await expect(page.getByText('Download OpenAPI Document json', { exact: true })).toBeVisible()
-    await expect(page.getByText('Download OpenAPI Document yaml', { exact: true })).toBeVisible()
+    await expect(getDownloadButton(page, 'json')).toHaveCount(1)
+    await expect(getDownloadButton(page, 'yaml')).toHaveCount(1)
   })
 
   test('hides download button when set to true', async ({ page }) => {
@@ -16,7 +27,7 @@ test.describe('hideDownloadButton', () => {
 
     await page.goto(example)
 
-    await expect(page.getByText('Download OpenAPI Document json', { exact: true })).not.toBeVisible()
-    await expect(page.getByText('Download OpenAPI Document yaml', { exact: true })).not.toBeVisible()
+    await expect(getDownloadButton(page, 'json')).toHaveCount(0)
+    await expect(getDownloadButton(page, 'yaml')).toHaveCount(0)
   })
 })

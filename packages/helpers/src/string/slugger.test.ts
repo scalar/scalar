@@ -97,4 +97,21 @@ describe('slugger', () => {
     slug('MyAPI v1.2')
     expect(slug('MyAPI v1.2')).toBe('myapi-v1.2-1')
   })
+
+  it('strips accents when stripAccents is configured', () => {
+    const { slug } = slugger({ stripAccents: true })
+    expect(slug('Crème Brûlée')).toBe('creme-brulee')
+  })
+
+  it('tracks collisions for accent-stripped slugs', () => {
+    const { slug } = slugger({ stripAccents: true })
+    slug('Crème')
+    expect(slug('Creme')).toBe('creme-1')
+  })
+
+  it('applies normalizationForm when configured', () => {
+    const { slug } = slugger({ normalizationForm: 'NFKC' })
+    // fi ligature normalizes to "fi" under NFKC
+    expect(slug('\uFB01le')).toBe('file')
+  })
 })

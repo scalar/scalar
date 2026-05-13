@@ -65,14 +65,15 @@ Your editor will now provide autocomplete suggestions and highlight invalid prop
 
 ### Root properties
 
-| Property     | Type     | Description                                                                                                |
-| ------------ | -------- | ---------------------------------------------------------------------------------------------------------- |
-| `$schema`    | `string` | JSON Schema URL for editor autocomplete and validation                                                     |
-| `scalar`     | `string` | Configuration version. Use `"2.0.0"` for the latest format                                                 |
-| `info`       | `object` | Project metadata (title, description)                                                                      |
-| `navigation` | `object` | Navigation structure (header links, routes, sidebar, tabs). See [navigation.md](navigation.md) for details |
-| `siteConfig` | `object` | Site-level configuration (domain, theme, head, logo)                                                       |
-| `assetsDir`  | `string` | Path to the assets directory (relative to repository root)                                                 |
+| Property     | Type     | Description                                                                                                         |
+| ------------ | -------- | ------------------------------------------------------------------------------------------------------------------- |
+| `$schema`    | `string` | JSON Schema URL for editor autocomplete and validation                                                              |
+| `scalar`     | `string` | Configuration version. Use `"2.0.0"` for the latest format                                                          |
+| `info`       | `object` | Project metadata (title, description)                                                                               |
+| `navigation` | `object` | Navigation structure (header links, routes, sidebar, tabs). See [Navigation](navigation.md) for details             |
+| `versions`   | `object` | Multi-version navigation structure. Use instead of `navigation` for versioned docs. See [Versions](versions.md)    |
+| `siteConfig` | `object` | Site-level configuration (domain, theme, head, logo)                                                                |
+| `assetsDir`  | `string` | Path to the assets directory (relative to repository root)                                                          |
 
 ### info
 

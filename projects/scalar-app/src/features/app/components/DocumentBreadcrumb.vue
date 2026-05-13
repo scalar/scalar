@@ -4,7 +4,9 @@ import {
   useModal,
   type ScalarComboboxOption,
   type ScalarComboboxOptionGroup,
+  type WorkspaceGroup,
 } from '@scalar/components'
+import { safeRun } from '@scalar/helpers/types/safe-run'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, ref } from 'vue'
@@ -16,7 +18,7 @@ import { loadRegistryDocument } from '@/features/app/helpers/load-registry-docum
 import { VERSION_STATUS_PRESENTATION } from '@/features/app/helpers/version-status-presentation'
 import { useActiveDocumentVersion } from '@/features/app/hooks/use-active-document-version'
 import { useVersionConflictCheck } from '@/features/app/hooks/use-version-conflict-check'
-import { safeRun } from '@/helpers/safe-run'
+import { useTeams } from '@/hooks/use-teams'
 import type {
   ImportDocumentFromRegistry,
   RegistryDocumentsState,
@@ -28,6 +30,7 @@ const {
   app,
   registryDocuments = { status: 'success', documents: [] },
   fetchRegistryDocument,
+  workspaceGroups: propsWorkspaceGroups,
 } = defineProps<{
   /** The app state used to read the active document and emit navigation events. */
   app: AppState
@@ -42,6 +45,8 @@ const {
    * one that has not been loaded into the local workspace store yet.
    */
   fetchRegistryDocument?: ImportDocumentFromRegistry
+  /** List of workspace groups */
+  workspaceGroups: WorkspaceGroup[]
 }>()
 
 const emit = defineEmits<{
@@ -83,7 +88,7 @@ const activeWorkspaceId = computed(
  * group label clearly separates `Team Workspaces` from `Local Workspaces`.
  */
 const workspaceGroups = computed<ScalarComboboxOptionGroup[]>(() =>
-  app.workspace.workspaceGroups.value.map((group) => ({
+  propsWorkspaceGroups.map((group) => ({
     // `WorkspaceGroup.label` is optional, but the combobox requires a
     // string. Falling back to an empty string lets the option group still
     // render its rows; the `group` slot below renders nothing for empty
@@ -213,6 +218,8 @@ const navigateToDocument = (documentSlug: string) => {
   })
 }
 
+const { currentTeamSlug } = useTeams()
+
 /**
  * Click handler for the workspace label when it renders as a plain link
  * (i.e. the user is NOT yet on the get-started page). Navigating there
@@ -223,7 +230,7 @@ const handleWorkspaceLinkClick = () => {
   if (!id) {
     return
   }
-  app.workspace.navigateToWorkspaceGetStarted(id)
+  app.workspace.navigateToWorkspaceGetStarted(id, currentTeamSlug.value)
 }
 
 /**
@@ -242,19 +249,16 @@ const handleDocumentTitleClick = () => {
 
 /**
  * Selecting a workspace from the combobox routes to that workspace's
- * get-started page. We deliberately go to get-started rather than the
- * environment overview because the workspace switch is the natural moment
- * to surface onboarding guidance - the user has effectively arrived at a
- * fresh workspace and may not yet have any documents loaded.
+ * last active tab when one exists in persistence, falling back to the
+ * get-started page for workspaces with no prior session.
  */
-const handleWorkspaceSelect = (option: ScalarComboboxOption | undefined) => {
-  if (!option) {
+const handleWorkspaceSelect = async (
+  option: ScalarComboboxOption | undefined,
+) => {
+  if (!option || option.id === activeWorkspaceId.value) {
     return
   }
-  if (option.id === activeWorkspaceId.value) {
-    return
-  }
-  app.workspace.navigateToWorkspaceGetStarted(option.id)
+  await app.workspace.resumeOrGetStarted(currentTeamSlug.value, option.id)
 }
 
 const handleVersionSelect = async (option: VersionOption | undefined) => {

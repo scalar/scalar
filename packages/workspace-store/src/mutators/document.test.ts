@@ -1,7 +1,8 @@
+import { getOpenApiDocument } from '@test/helpers'
 import { describe, expect, it, vi } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
-import type { WorkspaceDocument } from '@/schemas'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 import {
   createEmptyDocument,
@@ -12,9 +13,9 @@ import {
   updateWatchMode,
 } from './document'
 
-type TestDocument = WorkspaceDocument & Record<string, unknown>
+type TestDocument = OpenApiDocument & Record<string, unknown>
 
-function createDocument(initial?: Partial<WorkspaceDocument> & Record<string, unknown>): TestDocument {
+function createDocument(initial?: Partial<OpenApiDocument> & Record<string, unknown>): TestDocument {
   return {
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },
@@ -459,7 +460,7 @@ describe('createEmptyDocument', () => {
       callback: callback,
     })
 
-    const document = store.workspace.documents['my-api']
+    const document = getOpenApiDocument(store, 'my-api')
     expect(document).toBeDefined()
     expect(document?.openapi).toBe('3.1.0')
     expect(document?.info.title).toBe('my-api')

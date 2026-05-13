@@ -1,4 +1,5 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { loadDocumentFromSource } from './load-document-from-source'
@@ -136,7 +137,7 @@ describe('loadDocumentFromSource', () => {
 
     // Find the document that was added
     const documents = Object.values(workspaceStore.workspace.documents)
-    const addedDocument = documents.find((doc) => doc.info.title === 'Raw API')
+    const addedDocument = documents.find((doc) => doc.info.title === 'Raw API') as OpenApiDocument | undefined
 
     expect(addedDocument).toBeDefined()
     expect(addedDocument?.info.title).toBe('Raw API')
@@ -167,7 +168,7 @@ paths:
 
     // Find the document that was added
     const documents = Object.values(workspaceStore.workspace.documents)
-    const addedDocument = documents.find((doc) => doc.info.title === 'YAML API')
+    const addedDocument = documents.find((doc) => doc.info.title === 'YAML API') as OpenApiDocument | undefined
 
     expect(addedDocument).toBeDefined()
     expect(addedDocument?.info.title).toBe('YAML API')
@@ -246,7 +247,7 @@ paths:
     expect(result).toBe(true)
 
     const documents = Object.values(workspaceStore.workspace.documents)
-    const addedDocument = documents.find((doc) => doc.info.title === 'Complex API')
+    const addedDocument = documents.find((doc) => doc.info.title === 'Complex API') as OpenApiDocument | undefined
 
     expect(addedDocument).toBeDefined()
     expect(addedDocument?.info.title).toBe('Complex API')
@@ -275,7 +276,7 @@ paths:
     expect(result).toBe(true)
 
     const documents = Object.values(workspaceStore.workspace.documents)
-    const addedDocument = documents.find((doc) => doc.info.title === 'Minified API')
+    const addedDocument = documents.find((doc) => doc.info.title === 'Minified API') as OpenApiDocument | undefined
 
     expect(addedDocument).toBeDefined()
     expect(addedDocument?.info.title).toBe('Minified API')
@@ -317,7 +318,7 @@ paths:
     expect(result).toBe(true)
 
     const documents = Object.values(workspaceStore.workspace.documents)
-    const addedDocument = documents.find((doc) => doc.info.title === 'My Postman API')
+    const addedDocument = documents.find((doc) => doc.info.title === 'My Postman API') as OpenApiDocument | undefined
 
     expect(addedDocument).toBeDefined()
     expect(addedDocument?.info.title).toBe('My Postman API')
@@ -384,7 +385,9 @@ paths:
     expect(result).toBe(true)
 
     const documents = Object.values(workspaceStore.workspace.documents)
-    const addedDocument = documents.find((doc) => doc.info.title === 'Complex Postman Collection')
+    const addedDocument = documents.find((doc) => doc.info.title === 'Complex Postman Collection') as
+      | OpenApiDocument
+      | undefined
 
     expect(addedDocument).toBeDefined()
     expect(addedDocument?.info.title).toBe('Complex Postman Collection')
@@ -474,7 +477,9 @@ paths:
     expect(result).toBe(true)
 
     const documents = Object.values(workspaceStore.workspace.documents)
-    const addedDocument = documents.find((doc) => doc.info.title === 'Empty Postman Collection')
+    const addedDocument = documents.find((doc) => doc.info.title === 'Empty Postman Collection') as
+      | OpenApiDocument
+      | undefined
 
     expect(addedDocument).toBeDefined()
     expect(addedDocument?.info.title).toBe('Empty Postman Collection')
@@ -521,7 +526,7 @@ paths:
     expect(result).toBe(true)
 
     const documents = Object.values(workspaceStore.workspace.documents)
-    const addedDocument = documents.find((doc) => doc.info.title === 'Authenticated API')
+    const addedDocument = documents.find((doc) => doc.info.title === 'Authenticated API') as OpenApiDocument | undefined
 
     expect(addedDocument).toBeDefined()
     expect(addedDocument?.openapi).toBeDefined()
@@ -591,7 +596,9 @@ paths:
     expect(result).toBe(true)
 
     const documents = Object.values(workspaceStore.workspace.documents)
-    const addedDocument = documents.find((doc) => doc.info.title === 'API with Variables')
+    const addedDocument = documents.find((doc) => doc.info.title === 'API with Variables') as
+      | OpenApiDocument
+      | undefined
 
     expect(addedDocument).toBeDefined()
     expect(addedDocument?.openapi).toBeDefined()

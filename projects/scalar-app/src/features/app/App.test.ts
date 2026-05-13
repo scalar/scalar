@@ -2,7 +2,7 @@ import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
 import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { computed, nextTick } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import 'fake-indexeddb/auto'
 
@@ -12,6 +12,7 @@ import { useCommandPaletteState } from '@/features/command-palette/hooks/use-com
 
 import App from './App.vue'
 import { createAppState } from './app-state'
+import { filterWorkspacesByTeam } from './helpers/filter-workspaces'
 import { ROUTES } from './helpers/routes'
 
 /** Minimal valid OpenAPI document used for mock fetch responses */
@@ -122,6 +123,15 @@ describe('App', () => {
 
     await router.isReady()
 
+    // Simulate what App.vue's router.afterEach does — call handleRouteChange
+    // so the workspace loads from IndexedDB.
+    appState.handleRouteChange(router.currentRoute.value, {
+      teamSlug: computed(() => WORKSPACE_TEAM_SLUG),
+      filteredWorkspaces: computed(() =>
+        filterWorkspacesByTeam(appState.workspace.workspaceList.value, WORKSPACE_TEAM_SLUG),
+      ),
+    })
+
     const commandPaletteState = useCommandPaletteState()
 
     const wrapper = mount(App, {
@@ -129,6 +139,7 @@ describe('App', () => {
         layout,
         getAppState: () => appState,
         getCommandPaletteState: () => commandPaletteState,
+        workspaceGroups: [],
       },
       global: {
         plugins: [router],
