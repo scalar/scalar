@@ -1,8 +1,11 @@
 // import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { setValueAtPath } from '@scalar/helpers/object/set-value-at-path'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/request-body'
+import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
 import { getExampleFromBody } from './get-request-body-example'
 import { getSelectedBodyContentType } from './get-selected-body-content-type'
@@ -50,11 +53,32 @@ const getMultipartEncodingContentType = (requestBody: RequestBodyObject, bodyCon
   requestBody.content[bodyContentType]?.encoding?.[fieldName]?.contentType
 
 /**
- * A multipart row name carries a dotted path into a nested object when it contains a
- * dot AND its value is not a File. Filenames in flat rows (e.g. `scalar.jpeg`) keep
- * their literal name and stay flat.
+ * Build a predicate that recognizes multipart rows whose dotted name encodes a path
+ * into a nested object property of the multipart schema. Without a schema (or when
+ * the dotted prefix is not declared as a nested object), a row like `user.email`
+ * is treated as a literal name and stays flat — only schema-derived leaves emitted
+ * by `get-form-body-rows.ts` are folded back via `foldDottedRowsToObject`.
  */
-const isDottedNestedRow = (name: string, value: unknown): boolean => !(value instanceof File) && name.includes('.')
+const buildDottedNestedRowPredicate = (schema: unknown) => {
+  const resolved = schema ? (getResolvedRef(schema) as SchemaObject | undefined) : undefined
+  if (!resolved || !isObjectSchema(resolved) || !resolved.properties) {
+    return (_name: string, _value: unknown) => false
+  }
+  const nestedTopKeys = new Set<string>()
+  for (const [key, child] of Object.entries(resolved.properties)) {
+    const childResolved = child ? (getResolvedRef(child) as SchemaObject | undefined) : undefined
+    if (childResolved && isObjectSchema(childResolved) && childResolved.properties) {
+      nestedTopKeys.add(key)
+    }
+  }
+  return (name: string, value: unknown) => {
+    if (value instanceof File || !name.includes('.')) {
+      return false
+    }
+    const head = name.split('.', 1)[0]
+    return !!head && nestedTopKeys.has(head)
+  }
+}
 
 /**
  * Fold dotted-name row entries (e.g. `props.name`, `props.description`) back into a
@@ -118,7 +142,9 @@ export const buildRequestBody = (
     // rows with dotted names (e.g. `props.name`). Regroup them so the wire still gets
     // one JSON multipart part per top-level object property — matching the
     // OpenAPI 3.x multipart-as-JSON default. Url-encoded forms do not nest, so we
-    // skip this for them.
+    // skip this for them. The predicate is schema-driven, so a user-named row like
+    // `user.email` whose top-level prefix is not a nested object stays flat.
+    const isDottedNestedRow = buildDottedNestedRowPredicate(requestBody.content[bodyContentType]?.schema)
     const shouldRegroupDotted =
       result.mode === 'formdata' && exampleValue.some(({ name, value }) => isDottedNestedRow(name, value))
 

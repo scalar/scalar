@@ -633,9 +633,24 @@ describe('buildRequestBody', () => {
   })
 
   it('regroups dotted multipart rows back into a single JSON-stringified text part', () => {
-    const requestBody = {
+    const requestBody = coerceValue(RequestBodyObjectSchema, {
       content: {
         'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              file: { type: 'string' },
+              props: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  description: { type: 'string' },
+                  created_at: { type: 'string' },
+                  note: { type: 'string' },
+                },
+              },
+            },
+          },
           examples: {
             default: {
               value: [
@@ -649,7 +664,7 @@ describe('buildRequestBody', () => {
           },
         },
       },
-    }
+    })
 
     const result = buildRequestBody(requestBody, 'default')
     expect(result?.mode).toBe('formdata')
@@ -674,9 +689,24 @@ describe('buildRequestBody', () => {
   })
 
   it('emits the regrouped multipart object at the position of its first dotted row', () => {
-    const requestBody = {
+    const requestBody = coerceValue(RequestBodyObjectSchema, {
       content: {
         'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              before: { type: 'string' },
+              middle: { type: 'string' },
+              after: { type: 'string' },
+              props: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  description: { type: 'string' },
+                },
+              },
+            },
+          },
           examples: {
             default: {
               value: [
@@ -690,7 +720,7 @@ describe('buildRequestBody', () => {
           },
         },
       },
-    }
+    })
 
     const result = buildRequestBody(requestBody, 'default')
     expect(result?.mode).toBe('formdata')
@@ -737,5 +767,68 @@ describe('buildRequestBody', () => {
     expect(result.value[0]?.type).toBe('file')
     expect(result.value[0]?.key).toBe('scalar.jpeg')
     expect(result.value[1]).toEqual({ type: 'text', key: 'caption', value: 'logo' })
+  })
+
+  it('keeps non-File multipart rows whose names contain literal dots when the schema does not declare them as nested objects', () => {
+    const requestBody = {
+      content: {
+        'multipart/form-data': {
+          examples: {
+            default: {
+              value: [
+                { name: 'user.email', value: 'foo@bar.com' },
+                { name: 'config.json', value: '{"k":1}' },
+                { name: 'image.url', value: 'https://example.com/a.png' },
+              ],
+            },
+          },
+        },
+      },
+    }
+
+    const result = buildRequestBody(requestBody, 'default')
+    expect(result?.mode).toBe('formdata')
+    assert(result?.mode === 'formdata')
+
+    // Without a schema declaring `user`/`config`/`image` as nested object properties,
+    // these names are literal and must be sent as-is — not folded into nested objects.
+    expect(result.value).toEqual([
+      { type: 'text', key: 'user.email', value: 'foo@bar.com' },
+      { type: 'text', key: 'config.json', value: '{"k":1}' },
+      { type: 'text', key: 'image.url', value: 'https://example.com/a.png' },
+    ])
+  })
+
+  it('keeps multipart rows with literal dots flat when the schema declares the dotted name as a top-level property', () => {
+    const requestBody = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              'user.email': { type: 'string' },
+              caption: { type: 'string' },
+            },
+          },
+          examples: {
+            default: {
+              value: [
+                { name: 'user.email', value: 'foo@bar.com' },
+                { name: 'caption', value: 'profile' },
+              ],
+            },
+          },
+        },
+      },
+    })
+
+    const result = buildRequestBody(requestBody, 'default')
+    expect(result?.mode).toBe('formdata')
+    assert(result?.mode === 'formdata')
+
+    expect(result.value).toEqual([
+      { type: 'text', key: 'user.email', value: 'foo@bar.com' },
+      { type: 'text', key: 'caption', value: 'profile' },
+    ])
   })
 })
