@@ -29,6 +29,7 @@ export const sources = [
   },
   {
     title: 'Scalar Galaxy Events (AsyncAPI)',
+    slug: 'scalar-galaxy-events',
     url: 'https://registry.scalar.com/@scalar/schemas/asyncapi?format=json',
   },
   {
