@@ -440,11 +440,9 @@ export const createAppState = async ({
         }
         updatedWorkspaceUids.add(workspace.workspaceUid)
 
-        // Strip stale tab fields from the persisted meta chunk. We read
-        // the full meta object first so unrelated meta fields (color
-        // mode, theme, ...) are preserved on the rewrite.
-        const persisted = await persistence.getItem(workspace.workspaceUid)
-        const meta = persisted?.workspace.meta
+        // Strip stale tab fields from the persisted meta chunk. Read only
+        // the meta row so large OpenAPI chunks are not assembled into memory.
+        const meta = await metaPersistence.getItem(workspace.workspaceUid)
         if (meta && ('x-scalar-tabs' in meta || 'x-scalar-active-tab' in meta)) {
           const { 'x-scalar-tabs': _tabs, 'x-scalar-active-tab': _activeTab, ...rest } = meta
           await metaPersistence.setItem(workspace.workspaceUid, rest)

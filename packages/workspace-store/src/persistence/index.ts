@@ -185,6 +185,14 @@ export const createWorkspaceStorePersistence = async () => {
       connection.closeDatabase()
     },
     meta: {
+      /**
+       * Loads persisted workspace meta only (no document or other chunk
+       * reads). Returns an empty object when no meta row exists yet.
+       */
+      getItem: async (workspaceUid: string): Promise<InMemoryWorkspace['meta']> => {
+        const row = await metaTable.getItem({ workspaceUid })
+        return (row?.data ?? {}) as InMemoryWorkspace['meta']
+      },
       /** Set meta data for a workspace. */
       setItem: async (workspaceUid: string, data: WorkspaceMeta) => {
         await metaTable.addItem({ workspaceUid }, { data })

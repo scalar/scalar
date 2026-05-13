@@ -415,6 +415,40 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
         'x-scalar-color-mode': 'dark',
         'x-scalar-active-document': 'api-doc',
       })
+
+      expect(await persistence.meta.getItem(workspaceUid)).toEqual(fetched?.workspace.meta)
+    })
+
+    it('returns meta via meta.getItem without requiring a full workspace assembly', async () => {
+      const workspaceUid = newUid()
+
+      await persistence.workspace.setItem(
+        { workspaceUid, slug: 'heavy' },
+        {
+          name: 'Heavy',
+          workspace: {
+            ...blankWorkspace(),
+            documents: {
+              big: {
+                openapi: '3.1.0',
+                info: { title: 'Big', version: '1.0.0' },
+                paths: { '/a': { get: { responses: { '200': { description: 'ok' } } } } },
+                'x-scalar-original-document-hash': '',
+              },
+            },
+            meta: { 'x-scalar-color-mode': 'dark', 'x-scalar-tabs': [] },
+          },
+        },
+      )
+
+      expect(await persistence.meta.getItem(workspaceUid)).toEqual({
+        'x-scalar-color-mode': 'dark',
+        'x-scalar-tabs': [],
+      })
+    })
+
+    it('returns an empty object from meta.getItem when no meta row exists', async () => {
+      expect(await persistence.meta.getItem('no-such-workspace')).toEqual({})
     })
 
     it('persists multiple documents for a single workspace', async () => {
