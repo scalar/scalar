@@ -221,16 +221,19 @@ const {
 })
 
 /** Cmd/Ctrl+S matches the header Save control for local workspaces (see AppHeaderActions). */
-const unsubscribeSaveLocalDocumentHotkey = app.eventBus.on('ui:save:local-document', (payload) => {
-  if (!showLocalSaveActions.value) {
-    return
-  }
-  payload.event.preventDefault()
-  if (!isActiveDocumentDirty.value) {
-    return
-  }
-  void handleSaveDocument()
-})
+const unsubscribeSaveLocalDocumentHotkey = app.eventBus.on(
+  'ui:save:local-document',
+  (payload) => {
+    if (!showLocalSaveActions.value) {
+      return
+    }
+    payload.event.preventDefault()
+    if (!isActiveDocumentDirty.value) {
+      return
+    }
+    void handleSaveDocument()
+  },
+)
 
 /** Props to pass to the RouterView component. */
 const routerViewProps = computed<RouteProps>(() => {
