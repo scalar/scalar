@@ -36,7 +36,7 @@ describe('v2-team-to-local', () => {
       expect(plan[0]?.after.workspaceUid).not.toBe(plan[1]?.after.workspaceUid)
     })
 
-    it('preserves teamUid, teamSlug and slug for local workspaces', () => {
+    it('keeps local workspaces under the local team with their original slug', () => {
       const plan = planWorkspaceMigration([{ name: 'Local One', namespace: 'local', slug: 'one', teamUid: 'local' }])
 
       expect(plan[0]?.before).toEqual({ namespace: 'local', slug: 'one' })
@@ -48,49 +48,67 @@ describe('v2-team-to-local', () => {
       })
     })
 
-    it('preserves team association via teamUid for team workspaces', () => {
+    it('relocates team workspaces into the local team', () => {
       const plan = planWorkspaceMigration([
         { name: 'Team Workspace', namespace: 'acme', slug: 'api', teamUid: 'acme-uid' },
       ])
 
+      // Team association is intentionally dropped: the new UX assumes a
+      // single team workspace, so we collapse legacy team workspaces into
+      // the local team and let the server rebuild the team workspace on
+      // next sign-in.
       expect(plan[0]?.after).toMatchObject({
-        teamUid: 'acme-uid',
-        teamSlug: 'acme',
+        teamUid: 'local',
+        teamSlug: 'local',
         slug: 'api',
         name: 'Team Workspace',
       })
     })
 
-    it('defaults teamUid to "local" when the legacy record had none', () => {
-      const plan = planWorkspaceMigration([{ name: 'Untagged', namespace: 'local', slug: 'one' }])
+    it('forces teamUid to "local" regardless of the legacy value', () => {
+      const plan = planWorkspaceMigration([
+        { name: 'Untagged', namespace: 'local', slug: 'one' },
+        { name: 'Tagged', namespace: 'acme', slug: 'two', teamUid: 'acme-uid' },
+      ])
 
-      expect(plan[0]?.after.teamUid).toBe('local')
+      for (const entry of plan) {
+        expect(entry.after.teamUid).toBe('local')
+      }
     })
 
-    it('keeps team workspaces and local workspaces with the same slug separate', () => {
+    it('suffixes team slugs that collide with an existing local slug', () => {
       const plan = planWorkspaceMigration([
         { name: 'Local API', namespace: 'local', slug: 'api', teamUid: 'local' },
         { name: 'Team API', namespace: 'acme', slug: 'api', teamUid: 'acme-uid' },
       ])
 
-      // No collision: the two records live under different teamSlugs and
-      // the `[teamSlug, slug]` pair stays unique.
-      expect(plan[0]?.after.slug).toBe('api')
-      expect(plan[1]?.after.slug).toBe('api')
-      expect(plan[0]?.after.teamSlug).toBe('local')
-      expect(plan[1]?.after.teamSlug).toBe('acme')
+      // The local workspace was reserved first, so it keeps `api`. The
+      // team workspace yields and gets a unique suffix.
+      expect(plan[0]?.after).toMatchObject({ teamSlug: 'local', slug: 'api' })
+      expect(plan[1]?.after).toMatchObject({ teamSlug: 'local', slug: 'api-2' })
     })
 
-    it('resolves duplicate slugs within the same team as a safety net', () => {
-      // v1 guarantees this never happens via its `[namespace, slug]` primary
-      // key, but defensive coding protects against corrupted legacy data.
+    it('suffixes multiple team workspaces colliding on the same slug', () => {
       const plan = planWorkspaceMigration([
-        { name: 'First', namespace: 'acme', slug: 'api', teamUid: 'acme-uid' },
-        { name: 'Second', namespace: 'acme', slug: 'api', teamUid: 'acme-uid' },
-        { name: 'Third', namespace: 'acme', slug: 'api', teamUid: 'acme-uid' },
+        { name: 'Local API', namespace: 'local', slug: 'api', teamUid: 'local' },
+        { name: 'Team A API', namespace: 'team-a', slug: 'api', teamUid: 'team-a-uid' },
+        { name: 'Team B API', namespace: 'team-b', slug: 'api', teamUid: 'team-b-uid' },
       ])
 
       expect(plan.map((entry) => entry.after.slug)).toEqual(['api', 'api-2', 'api-3'])
+      expect(plan.every((entry) => entry.after.teamSlug === 'local')).toBe(true)
+    })
+
+    it('keeps the local slug even when the team workspace comes first in the input', () => {
+      // The pre-scan reserves all local slugs up front, so iteration order
+      // does not influence which workspace keeps the canonical slug.
+      const plan = planWorkspaceMigration([
+        { name: 'Team API', namespace: 'acme', slug: 'api', teamUid: 'acme-uid' },
+        { name: 'Local API', namespace: 'local', slug: 'api', teamUid: 'local' },
+      ])
+
+      expect(plan[0]?.after).toMatchObject({ name: 'Team API', slug: 'api-2' })
+      expect(plan[1]?.after).toMatchObject({ name: 'Local API', slug: 'api' })
     })
   })
 
@@ -192,13 +210,13 @@ describe('v2-team-to-local', () => {
 
         persistence = await createWorkspaceStorePersistence()
 
-        // The migrated workspace can be looked up via its mutable slug pair
-        // because that index is what powers URL routing.
-        const migrated = await persistence.workspace.getItemBySlug({ teamSlug: 'acme', slug: 'api' })
+        // The migrated workspace has been collapsed into the local team
+        // and is now addressable via `[local, api]`.
+        const migrated = await persistence.workspace.getItemBySlug({ teamSlug: 'local', slug: 'api' })
         expect(migrated).toBeDefined()
         expect(migrated?.workspaceUid).toEqual(expect.stringMatching(/^[0-9a-f-]{36}$/i))
-        expect(migrated?.teamUid).toBe('acme-team-uid')
-        expect(migrated?.teamSlug).toBe('acme')
+        expect(migrated?.teamUid).toBe('local')
+        expect(migrated?.teamSlug).toBe('local')
         expect(migrated?.slug).toBe('api')
         expect(migrated).not.toHaveProperty('namespace')
 
@@ -217,13 +235,13 @@ describe('v2-team-to-local', () => {
       }
     })
 
-    it('preserves team membership for every legacy workspace', async () => {
+    it('collapses every workspace into the local team', async () => {
       let persistence: Awaited<ReturnType<typeof createWorkspaceStorePersistence>> | undefined
       try {
         await seedV1Database([
           { namespace: 'local', slug: 'personal', name: 'Personal', teamUid: 'local' },
           { namespace: 'acme', slug: 'api', name: 'Acme API', teamUid: 'acme-uid' },
-          { namespace: 'globex', slug: 'api', name: 'Globex API', teamUid: 'globex-uid' },
+          { namespace: 'globex', slug: 'one', name: 'Globex One', teamUid: 'globex-uid' },
         ])
 
         persistence = await createWorkspaceStorePersistence()
@@ -231,63 +249,49 @@ describe('v2-team-to-local', () => {
         const all = await persistence.workspace.getAll()
         expect(all).toHaveLength(3)
 
-        const byName = Object.fromEntries(all.map((workspace) => [workspace.name, workspace]))
-        expect(byName['Personal']).toMatchObject({ teamUid: 'local', teamSlug: 'local', slug: 'personal' })
-        expect(byName['Acme API']).toMatchObject({ teamUid: 'acme-uid', teamSlug: 'acme', slug: 'api' })
-        expect(byName['Globex API']).toMatchObject({ teamUid: 'globex-uid', teamSlug: 'globex', slug: 'api' })
+        // Every workspace is now local. Team UID, team slug, and the
+        // teamUid index all agree.
+        for (const workspace of all) {
+          expect(workspace.teamUid).toBe('local')
+          expect(workspace.teamSlug).toBe('local')
+        }
+
+        const localWorkspaces = await persistence.workspace.getAllByTeamUid('local')
+        expect(localWorkspaces.map((workspace) => workspace.slug).sort()).toEqual(['api', 'one', 'personal'])
+
+        // No workspace remains under the legacy team UIDs.
+        expect(await persistence.workspace.getAllByTeamUid('acme-uid')).toEqual([])
+        expect(await persistence.workspace.getAllByTeamUid('globex-uid')).toEqual([])
       } finally {
         await cleanup(persistence)
       }
     })
 
-    it('allows fetching every workspace for a team via the teamUid index', async () => {
+    it('suffixes the migrated slug when a local workspace already owns it', async () => {
       let persistence: Awaited<ReturnType<typeof createWorkspaceStorePersistence>> | undefined
       try {
         await seedV1Database([
+          { namespace: 'local', slug: 'api', name: 'Local API', teamUid: 'local' },
           { namespace: 'acme', slug: 'api', name: 'Acme API', teamUid: 'acme-uid' },
-          { namespace: 'acme-staging', slug: 'api', name: 'Acme Staging', teamUid: 'acme-uid' },
           { namespace: 'globex', slug: 'api', name: 'Globex API', teamUid: 'globex-uid' },
         ])
 
         persistence = await createWorkspaceStorePersistence()
 
-        const acmeWorkspaces = await persistence.workspace.getAllByTeamUid('acme-uid')
-        expect(acmeWorkspaces.map((workspace) => workspace.name).sort()).toEqual(['Acme API', 'Acme Staging'])
+        const all = await persistence.workspace.getAll()
+        const slugsByName = Object.fromEntries(all.map((workspace) => [workspace.name, workspace.slug]))
 
-        const globexWorkspaces = await persistence.workspace.getAllByTeamUid('globex-uid')
-        expect(globexWorkspaces.map((workspace) => workspace.name)).toEqual(['Globex API'])
-
-        const missingWorkspaces = await persistence.workspace.getAllByTeamUid('missing-uid')
-        expect(missingWorkspaces).toEqual([])
+        // The local workspace keeps its slug. Team workspaces yield and
+        // receive deterministic `-2`, `-3` suffixes.
+        expect(slugsByName['Local API']).toBe('api')
+        expect([slugsByName['Acme API'], slugsByName['Globex API']].sort()).toEqual(['api-2', 'api-3'])
+        expect(all.every((workspace) => workspace.teamSlug === 'local')).toBe(true)
       } finally {
         await cleanup(persistence)
       }
     })
 
-    it('allows fetching workspaces by their current team slug via the slug index', async () => {
-      let persistence: Awaited<ReturnType<typeof createWorkspaceStorePersistence>> | undefined
-      try {
-        await seedV1Database([
-          { namespace: 'acme', slug: 'api', name: 'Acme API', teamUid: 'acme-uid' },
-          { namespace: 'local', slug: 'personal', name: 'Personal', teamUid: 'local' },
-        ])
-
-        persistence = await createWorkspaceStorePersistence()
-
-        const acmeWorkspaces = await persistence.workspace.getAllByTeamSlug('acme')
-        expect(acmeWorkspaces.map((workspace) => workspace.slug)).toEqual(['api'])
-
-        const localWorkspaces = await persistence.workspace.getAllByTeamSlug('local')
-        expect(localWorkspaces.map((workspace) => workspace.slug)).toEqual(['personal'])
-
-        const orphanWorkspaces = await persistence.workspace.getAllByTeamSlug('orphan')
-        expect(orphanWorkspaces).toEqual([])
-      } finally {
-        await cleanup(persistence)
-      }
-    })
-
-    it('drops the legacy namespace field on every migrated record', async () => {
+    it('drops the legacy namespace and teamUid fields from every record', async () => {
       let persistence: Awaited<ReturnType<typeof createWorkspaceStorePersistence>> | undefined
       try {
         await seedV1Database([
@@ -301,8 +305,8 @@ describe('v2-team-to-local', () => {
         for (const workspace of all) {
           expect(workspace).not.toHaveProperty('namespace')
           expect(workspace).toHaveProperty('workspaceUid')
-          expect(workspace).toHaveProperty('teamUid')
-          expect(workspace).toHaveProperty('teamSlug')
+          expect(workspace).toHaveProperty('teamUid', 'local')
+          expect(workspace).toHaveProperty('teamSlug', 'local')
           expect(workspace).toHaveProperty('slug')
         }
       } finally {
@@ -333,7 +337,7 @@ describe('v2-team-to-local', () => {
 
         persistence = await createWorkspaceStorePersistence()
 
-        const migrated = await persistence.workspace.getItemBySlug({ teamSlug: 'acme', slug: 'api' })
+        const migrated = await persistence.workspace.getItemBySlug({ teamSlug: 'local', slug: 'api' })
         expect(migrated?.workspace.meta).toEqual({ 'x-scalar-color-mode': 'dark', 'x-scalar-theme': 'moon' })
         expect(migrated?.workspace.documents['doc-1']).toBeDefined()
       } finally {
@@ -341,7 +345,7 @@ describe('v2-team-to-local', () => {
       }
     })
 
-    it('preserves tab metadata because slugs are not rewritten by the migration', async () => {
+    it('strips x-scalar-tabs and x-scalar-active-tab from the meta chunk', async () => {
       let persistence: Awaited<ReturnType<typeof createWorkspaceStorePersistence>> | undefined
       try {
         await seedV1Database([
@@ -352,22 +356,38 @@ describe('v2-team-to-local', () => {
             teamUid: 'acme-uid',
             meta: {
               'x-scalar-color-mode': 'dark',
+              'x-scalar-theme': 'moon',
+              // Both fields reference the old namespace-based URL and would
+              // route the client to a stale path after collapsing to local.
               'x-scalar-tabs': [{ path: '/@acme/api/document/drafts', name: 'Drafts' }],
               'x-scalar-active-tab': 0,
+            },
+          },
+          {
+            namespace: 'local',
+            slug: 'personal',
+            name: 'Personal',
+            teamUid: 'local',
+            meta: {
+              'x-scalar-color-mode': 'light',
+              // Even local workspaces lose their tabs because a colliding
+              // team slug may have been suffixed and shifted the layout.
+              'x-scalar-tabs': [{ path: '/@local/personal/document/drafts', name: 'Drafts' }],
+              'x-scalar-active-tab': 1,
             },
           },
         ])
 
         persistence = await createWorkspaceStorePersistence()
 
-        const migrated = await persistence.workspace.getItemBySlug({ teamSlug: 'acme', slug: 'api' })
-        // The slug pair has not changed, so the stored tab URL still points
-        // at a routable location and must survive the upgrade verbatim.
-        expect(migrated?.workspace.meta).toEqual({
+        const migratedAcme = await persistence.workspace.getItemBySlug({ teamSlug: 'local', slug: 'api' })
+        expect(migratedAcme?.workspace.meta).toEqual({
           'x-scalar-color-mode': 'dark',
-          'x-scalar-tabs': [{ path: '/@acme/api/document/drafts', name: 'Drafts' }],
-          'x-scalar-active-tab': 0,
+          'x-scalar-theme': 'moon',
         })
+
+        const migratedLocal = await persistence.workspace.getItemBySlug({ teamSlug: 'local', slug: 'personal' })
+        expect(migratedLocal?.workspace.meta).toEqual({ 'x-scalar-color-mode': 'light' })
       } finally {
         await cleanup(persistence)
       }

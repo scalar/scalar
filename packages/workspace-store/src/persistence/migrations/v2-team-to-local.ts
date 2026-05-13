@@ -3,7 +3,8 @@ import { v4 as uuidv4 } from 'uuid'
 import type { Migration } from '@/persistence/indexdb'
 
 /**
- * v2 — move to UID-based identity for workspaces and teams.
+ * v2 — move to UID-based identity and collapse every workspace into the
+ * local team.
  *
  * Server-side slugs (both team and workspace) can change at any time and
  * there is no reliable way for the client to map a stale slug back to its
@@ -19,13 +20,21 @@ import type { Migration } from '@/persistence/indexdb'
  * - The workspace object store is re-created with `workspaceUid` as its
  *   primary key. A fresh UUID is generated for every existing record so
  *   the new identifier is guaranteed to be stable across slug renames.
- * - The original `teamUid` from each record is preserved as the team's
- *   canonical identifier (defaulting to `'local'` for personal workspaces
- *   that never had one). The team's `namespace` is preserved verbatim as
- *   the new `teamSlug` so URLs keep working.
+ * - Every workspace is relocated to the local team. Both `teamUid` and
+ *   `teamSlug` are set to `'local'`, regardless of where the workspace
+ *   came from. The client only supports a single team workspace going
+ *   forward, so any pre-existing team association is intentionally
+ *   dropped — the app will rebuild the user's team workspace from the
+ *   server on first sign-in.
+ * - Workspace slugs are preserved when possible. If two legacy records
+ *   would collide on the same `[local, <slug>]` pair after collapse, the
+ *   later record gets a unique suffix (`-2`, `-3`, ...). Records that
+ *   were already under the local team keep their slug as-is; team
+ *   workspaces yield first because their slug came from a namespace the
+ *   user no longer controls.
  * - Two indexes are added to the workspace store:
  *     - `teamSlug_slug` on `['teamSlug', 'slug']` with `unique: true`,
- *       so the URL `/@<teamSlug>/<workspaceSlug>` can resolve to a single
+ *       so the URL `/@<teamSlug>/<workspaceSlug>` resolves to a single
  *       workspace and the app can rely on slug-pair uniqueness.
  *     - `teamUid` on `['teamUid']`, so we can fetch every workspace for a
  *       team without scanning the store.
@@ -34,12 +43,11 @@ import type { Migration } from '@/persistence/indexdb'
  *   `workspaceUid` as its key path (replacing the old `workspaceId`
  *   field). All chunk records are re-keyed from the legacy
  *   `${namespace}/${slug}` value to the new `workspaceUid`.
- *
- * The migration also defends against the (vanishingly unlikely) case of a
- * `[teamSlug, slug]` collision in legacy data — the unique index would
- * otherwise reject the upgrade. If two records would land on the same pair,
- * the second one gets a `-2`, `-3`, ... suffix appended to its slug so the
- * unique index can be created safely.
+ * - Saved tabs (`x-scalar-tabs`) and the active tab index
+ *   (`x-scalar-active-tab`) are stripped from every workspace's meta
+ *   chunk. Tab paths embed the old `@<namespace>/<slug>` URL and slugs
+ *   may have been rewritten to resolve collisions, so keeping them would
+ *   route the client to stale paths on next load.
  *
  * All work happens inside the upgrade transaction. The migration awaits
  * every IDB request it queues so the database is fully migrated before
@@ -82,10 +90,11 @@ type WorkspaceRecordV2 = {
  * Picks a slug that does not collide with anything in `taken`.
  * Falls back to `<slug>-2`, `<slug>-3`, ... when the desired slug is already used.
  *
- * In practice this is dead code: v1's `[namespace, slug]` primary key already
- * guarantees `[teamSlug, slug]` uniqueness once we map `namespace -> teamSlug`.
- * It exists as a safety net so a corrupted legacy database cannot brick the
- * upgrade by violating the new unique index.
+ * Collapsing every legacy workspace into the local team can produce
+ * `[local, <slug>]` collisions whenever a team workspace shared a slug
+ * with an existing local workspace (or with another team workspace). The
+ * unique `[teamSlug, slug]` index would otherwise reject the upgrade, so
+ * this helper resolves collisions deterministically.
  */
 export const pickUniqueSlug = (desired: string, taken: ReadonlySet<string>): string => {
   if (!taken.has(desired)) {
@@ -110,45 +119,74 @@ const generateUid = (): string => {
 /**
  * Computes the new shape for every workspace.
  *
- * For each v1 record:
- * - A fresh `workspaceUid` is generated so the workspace has a stable
- *   identity that survives team/workspace slug renames.
- * - `teamUid` is preserved verbatim (defaulting to `'local'`).
- * - `teamSlug` mirrors the legacy `namespace`. `slug` is preserved.
- * - If a `[teamSlug, slug]` pair would collide with another record (which
- *   should never happen given v1's invariants but we defend against
- *   corruption), the slug gets a unique suffix.
+ * Every record is collapsed into the local team: `teamUid` and `teamSlug`
+ * are both forced to `'local'`. Slug uniqueness is enforced by reserving
+ * the legacy local-team slugs first (they keep their slug verbatim), then
+ * placing every team workspace on top with a `-2`, `-3`, ... suffix when
+ * the desired slug is already taken.
+ *
+ * A fresh `workspaceUid` is generated for every record so the new
+ * identifier is stable across future slug renames.
  */
 export const planWorkspaceMigration = (
   workspaces: readonly WorkspaceRecordV1[],
 ): Array<{ before: { namespace: string; slug: string }; after: WorkspaceRecordV2 }> => {
-  const takenByTeamSlug = new Map<string, Set<string>>()
-
-  const reserveSlug = (teamSlug: string, desired: string): string => {
-    const reserved = takenByTeamSlug.get(teamSlug) ?? new Set<string>()
-    const final = pickUniqueSlug(desired, reserved)
-    reserved.add(final)
-    takenByTeamSlug.set(teamSlug, reserved)
-    return final
-  }
+  // Reserve every legacy local slug up front so genuine local workspaces
+  // never lose their slug to a colliding team workspace. Without this the
+  // suffixing would depend on iteration order and could rename the user's
+  // local workspace just because a team workspace happened to come first.
+  const reservedSlugs = new Set<string>(
+    workspaces.filter((workspace) => workspace.namespace === 'local').map((workspace) => workspace.slug),
+  )
 
   return workspaces.map((workspace) => {
-    const teamSlug = workspace.namespace
-    const slug = reserveSlug(teamSlug, workspace.slug)
+    const isLocal = workspace.namespace === 'local'
+
+    // Local workspaces keep their slug because it was already reserved
+    // above. Team workspaces pick a unique slug, suffixing on collision.
+    const slug = isLocal ? workspace.slug : pickUniqueSlug(workspace.slug, reservedSlugs)
+
+    if (!isLocal) {
+      reservedSlugs.add(slug)
+    }
 
     return {
       before: { namespace: workspace.namespace, slug: workspace.slug },
       after: {
         workspaceUid: generateUid(),
-        // Personal workspaces never had a real team UID in v1; fall back to
-        // the `'local'` sentinel so the new `teamUid` field is always set.
-        teamUid: workspace.teamUid ?? 'local',
-        teamSlug,
+        // Team membership is intentionally dropped: the client now ships
+        // with a "single team workspace" UX, so any pre-existing team
+        // association is rebuilt from the server on next sign-in.
+        teamUid: 'local',
+        teamSlug: 'local',
         slug,
         name: workspace.name,
       },
     }
   })
+}
+
+/**
+ * Keys on the workspace meta record that embed URL paths tied to the old
+ * `@<namespace>/<slug>` routing scheme. We strip them during the migration
+ * so the client can rebuild them from the current route on next load.
+ */
+const STALE_META_KEYS = ['x-scalar-tabs', 'x-scalar-active-tab'] as const
+
+/**
+ * Returns a new meta object with stale, URL-bound fields removed. Leaves
+ * every other key untouched so color mode, theme, active document, etc.
+ * survive.
+ */
+const stripStaleMetaFields = (meta: unknown): unknown => {
+  if (!meta || typeof meta !== 'object') {
+    return meta
+  }
+  const copy = { ...(meta as Record<string, unknown>) }
+  for (const key of STALE_META_KEYS) {
+    delete copy[key]
+  }
+  return copy
 }
 
 /** Wraps an IDB request so we can `await` it inside the upgrade transaction. */
@@ -176,7 +214,7 @@ const readLegacyChunkRecords = async (
 }
 
 export const v2TeamToLocalMigration: Migration = {
-  description: 'Switch to UID-based identity: workspaceUid primary key, teamUid as team source of truth',
+  description: 'Switch to UID-based identity: workspaceUid primary key, collapse every workspace into the local team',
   up: async ({ db, transaction }) => {
     if (!db.objectStoreNames.contains('workspace')) {
       // The workspace store must exist after v1; if it does not, something
@@ -261,7 +299,16 @@ export const v2TeamToLocalMigration: Migration = {
           continue
         }
         const { workspaceId: _legacyId, ...rest } = record
-        store.put({ ...rest, workspaceUid })
+        // The meta chunk holds x-scalar-tabs with full URL paths built
+        // from the pre-migration namespace/slug. Those paths are no
+        // longer routable after collapsing into the local team (and slugs
+        // may have been suffixed on collision), so drop them here and
+        // let the client rebuild tabs from the live route.
+        const nextData =
+          tableName === 'meta'
+            ? stripStaleMetaFields((rest as { data?: unknown }).data)
+            : (rest as { data?: unknown }).data
+        store.put({ ...rest, data: nextData, workspaceUid })
       }
     }
     for (const tableName of COMPOSITE_KEY_CHUNK_TABLES) {
