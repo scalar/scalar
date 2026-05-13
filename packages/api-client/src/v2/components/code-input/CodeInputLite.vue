@@ -701,12 +701,11 @@ const handleKeyDown = (event: KeyboardEvent): void => {
 // ───────────────────────────────────────────────────────────────────
 
 /**
- * Clicking a pill: anchor the caret right after it so typing continues
- * naturally. Real browsers usually do this for us when clicking a
- * `contenteditable=false` node, but doing it explicitly guarantees a
- * consistent caret position across browsers and matches the prior behaviour
- * (tests assert that clicking `{{baseUrl}}/users` places the caret at
- * offset 11).
+ * Clicking a pill selects it as a whole. The pill is `contenteditable=false`
+ * so the selection covers it atomically — a subsequent Backspace deletes the
+ * entire pill in one keystroke, and typing replaces it with the typed text.
+ * This matches the "pill is one block" mental model used by chip / mention
+ * widgets in Slack, Notion, etc.
  */
 const handleEditorClick = (event: MouseEvent): void => {
   const target = (event.target as HTMLElement | null)?.closest<HTMLElement>(
@@ -721,8 +720,7 @@ const handleEditorClick = (event: MouseEvent): void => {
   }
   editor.focus()
   const range = document.createRange()
-  range.setStartAfter(target)
-  range.collapse(true)
+  range.selectNode(target)
   const selection = window.getSelection()
   selection?.removeAllRanges()
   selection?.addRange(range)
@@ -850,7 +848,7 @@ defineExpose({
     v-else
     :id="componentId"
     v-bind="$attrs"
-    class="code-input-lite group/code-input-lite font-code peer relative w-full text-xs leading-[1.44] -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline"
+    class="code-input-lite group/code-input-lite font-code peer relative w-full leading-[1.44] -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline"
     :class="{
       'code-input-lite--error': error,
       'code-input-lite--empty': isEmpty,
@@ -925,21 +923,18 @@ defineExpose({
 <style scoped>
 .code-input-lite {
   font-family: var(--scalar-font-code);
-  font-size: var(--scalar-small);
   /* Wrapper is a flex container so the editor can centre-align vertically
-     within whatever height the parent cell gives us. */
+     within whatever height the parent cell gives us. Font size is left to
+     inherit so the component takes its surroundings' sizing — a table cell,
+     an address bar, etc. — instead of forcing one of its own. */
   display: flex;
   align-items: center;
 }
 
 .code-input-lite__editor {
-  /*
-    `font: inherit` resets the UA font sub-properties; the explicit
-    `font-size` then matches the CodeMirror baseline (`--scalar-small`),
-    so this editor visually agrees with the heavy `CodeInput` sibling.
-  */
+  /* Everything font-related inherits: family from the wrapper's `font-code`
+     class, size + line-height from whatever the parent context uses. */
   font: inherit;
-  font-size: var(--scalar-small);
   letter-spacing: inherit;
   flex: 1;
   min-width: 0;
