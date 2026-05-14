@@ -10,7 +10,7 @@
   release - edits made directly here will be overwritten.
 -->
 
-## 1.0.12 (2026-05-14)
+## 1.0.13 (2026-05-14)
 
 ### Scalar Client 1.0 — team workspaces, registry sync, conflict resolution, and a rebuilt experience
 
