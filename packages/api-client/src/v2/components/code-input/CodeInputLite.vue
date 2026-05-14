@@ -804,7 +804,7 @@ defineExpose({
     v-else
     :id="componentId"
     v-bind="$attrs"
-    class="code-input-lite group/code-input-lite font-code peer relative w-full leading-[1.44] -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline"
+    class="code-input-lite group/code-input-lite peer relative w-full leading-[1.44] -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline"
     :class="{
       'code-input-lite--error': error,
       'code-input-lite--empty': isEmpty,
@@ -878,18 +878,17 @@ defineExpose({
 
 <style scoped>
 .code-input-lite {
-  font-family: var(--scalar-font-code);
   /* Wrapper is a flex container so the editor can centre-align vertically
-     within whatever height the parent cell gives us. Font size is left to
-     inherit so the component takes its surroundings' sizing — a table cell,
-     an address bar, etc. — instead of forcing one of its own. */
+     within whatever height the parent cell gives us. Font (family, size,
+     line-height) is left to inherit so the component takes its surroundings'
+     typography — a table cell, an address bar, etc. — instead of forcing
+     one of its own. */
   display: flex;
   align-items: center;
 }
 
 .code-input-lite__editor {
-  /* Everything font-related inherits: family from the wrapper's `font-code`
-     class, size + line-height from whatever the parent context uses. */
+  /* Everything font-related inherits from the surrounding context. */
   font: inherit;
   letter-spacing: inherit;
   flex: 1;
@@ -908,18 +907,29 @@ defineExpose({
   padding: 0 0.5em;
   box-sizing: border-box;
   line-height: 1.44;
+  /* Positioning context for the absolutely positioned placeholder. */
+  position: relative;
 }
 
 .code-input-lite__editor::-webkit-scrollbar {
   display: none;
 }
 
-/* Placeholder — a CSS pseudo-element on the empty editor. `pointer-events:
-   none` so clicking through it still focuses the editor underneath. */
+/* Placeholder — a CSS pseudo-element on the empty editor. It is positioned
+   absolutely so it does not occupy flow space inside the contenteditable;
+   otherwise the caret would sit after the placeholder text instead of at the
+   start of the field. `pointer-events: none` so clicking through it still
+   focuses the editor underneath. */
 .code-input-lite--empty .code-input-lite__editor::before {
   content: attr(data-placeholder);
   color: var(--scalar-color-3);
   pointer-events: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0.5em;
+  display: flex;
+  align-items: center;
 }
 
 .code-input-lite--error .code-input-lite__editor {
