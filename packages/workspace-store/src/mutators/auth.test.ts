@@ -774,6 +774,147 @@ describe('updateSelectedScopes', () => {
     assert(selected)
     expect(selected.selectedSchemes[0]).toEqual({ oauth2: ['read:data'] })
   })
+
+  it('falls back to operation-level security when no selection is stored for the operation', async () => {
+    const documentName = 'test'
+    const document = createDocument({
+      components: {
+        securitySchemes: {
+          oauth2: {
+            type: 'oauth2',
+            flows: {
+              authorizationCode: {
+                authorizationUrl: 'https://example.com/authorize',
+                tokenUrl: 'https://example.com/token',
+                refreshUrl: 'https://example.com/refresh',
+                scopes: {
+                  'read:data': 'Read data',
+                  'write:data': 'Write data',
+                },
+                'x-usePkce': 'no',
+                'x-scalar-credentials-location': 'header',
+              },
+            },
+          },
+        },
+      },
+      // Deliberately empty at the document level so the fallback must read
+      // operation-level security via the resolved path item.
+      security: [],
+      paths: {
+        '/pets': {
+          get: {
+            security: [{ oauth2: [] }],
+          },
+        },
+      },
+    })
+
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: documentName, document })
+
+    // No selection stored for the operation — the helper has to resolve it from path.method.security.
+    expect(
+      store.auth.getAuthSelectedSchemas({ type: 'operation', documentName, path: '/pets', method: 'get' }),
+    ).toBeUndefined()
+
+    updateSelectedScopes(store, store.workspace.activeDocument!, {
+      id: ['oauth2'],
+      name: 'oauth2',
+      scopes: ['read:data'],
+      meta: { type: 'operation', path: '/pets', method: 'get' },
+    })
+
+    const opSelection = store.auth.getAuthSelectedSchemas({
+      type: 'operation',
+      documentName,
+      path: '/pets',
+      method: 'get',
+    })
+    assert(opSelection, 'Operation-level selection should be initialized by the fallback')
+    expect(opSelection.selectedSchemes[0]).toEqual({ oauth2: ['read:data'] })
+
+    // Document-level selection should remain untouched by an operation-level update.
+    expect(store.auth.getAuthSelectedSchemas({ type: 'document', documentName })).toBeUndefined()
+  })
+
+  it('falls back to a multi-scheme requirement when id contains multiple keys and nothing is stored', async () => {
+    const documentName = 'test'
+    const document = createDocument({
+      components: {
+        securitySchemes: {
+          oauth2: {
+            type: 'oauth2',
+            flows: {
+              authorizationCode: {
+                authorizationUrl: 'https://example.com/authorize',
+                tokenUrl: 'https://example.com/token',
+                refreshUrl: 'https://example.com/refresh',
+                scopes: { 'read:data': 'Read data' },
+                'x-usePkce': 'no',
+                'x-scalar-credentials-location': 'header',
+              },
+            },
+          },
+          apiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
+        },
+      },
+      // A combined requirement (both schemes must be satisfied together).
+      security: [{ oauth2: [], apiKey: [] }],
+    })
+
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: documentName, document })
+
+    expect(store.auth.getAuthSelectedSchemas({ type: 'document', documentName })).toBeUndefined()
+
+    // `id` has two entries — exercises the `id.length === 1 ? id[0] : id` array branch in
+    // buildFallbackSelectedSecurity's preferredScheme calculation.
+    updateSelectedScopes(store, store.workspace.activeDocument!, {
+      id: ['oauth2', 'apiKey'],
+      name: 'oauth2',
+      scopes: ['read:data'],
+      meta: { type: 'document' },
+    })
+
+    const selected = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(selected, 'Selection should be initialized from the combined requirement')
+    expect(selected.selectedSchemes[0]).toEqual({ oauth2: ['read:data'], apiKey: [] })
+  })
+
+  it('uses the stored selection without consulting document security when a target already exists', async () => {
+    // This test pins the laziness guarantee: when the store has a selection, the fallback
+    // (which would otherwise read document.security / components.securitySchemes) must not
+    // run. We prove this indirectly by leaving the document completely empty of any security
+    // context — if the fallback were executed, it would have nothing to produce a target from
+    // and the update would silently no-op. Because the stored selection is used directly, the
+    // update succeeds.
+    const documentName = 'test'
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentName,
+      // No `security`, no `components`, no `paths` — the fallback would yield nothing usable.
+      document: createDocument(),
+    })
+
+    store.auth.setAuthSelectedSchemas(
+      { type: 'document', documentName },
+      { selectedIndex: 0, selectedSchemes: [{ OAuth: [] }] },
+    )
+
+    updateSelectedScopes(store, store.workspace.activeDocument!, {
+      id: ['OAuth'],
+      name: 'OAuth',
+      scopes: ['read'],
+      meta: { type: 'document' },
+    })
+
+    const selected = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
+    assert(selected)
+    expect(selected.selectedSchemes[0]).toEqual({ OAuth: ['read'] })
+    // selectedIndex from the stored target is preserved (the fallback would have recomputed it).
+    expect(selected.selectedIndex).toBe(0)
+  })
 })
 
 describe('deleteSecurityScheme', () => {
