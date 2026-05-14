@@ -1,5 +1,11 @@
 # scalar-app
 
+## 1.0.12
+
+### Patch Changes
+
+- [#9214](https://github.com/scalar/scalar/pull/9214): fix(scalar-app): csp issue
+
 ## 1.0.11
 
 ### Patch Changes
