@@ -10,6 +10,20 @@
   release - edits made directly here will be overwritten.
 -->
 
+## 1.0.10 (2026-05-14)
+
+### Mobile layout, team switching, and quality polish
+
+This release brings responsive design improvements for small screens, lets you switch between teams, and includes quality-of-life fixes across request building, authentication, and the response viewer.
+
+- Responsive layout now stacks the address bar and hides the breadcrumb on mobile
+- Team switching is available from the header menu
+- Copy URL from the address bar now matches the URL that is actually sent
+- OAuth scopes can be added, edited, and deleted inline with proper validation
+- JSON responses preserve exact numeric literals without precision loss
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1010)
+
 ## 1.0.9 (2026-05-06)
 
 ### Refreshed app layout and friendlier command palette
