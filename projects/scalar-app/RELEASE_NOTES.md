@@ -12,27 +12,51 @@
 
 ## 1.0.10 (2026-05-14)
 
-### Mobile layout, team switching, and quality polish
+### Scalar Client 1.0 — team workspaces, registry sync, conflict resolution, and a rebuilt experience
 
-This release brings responsive design improvements for small screens, lets you switch between teams, and includes quality-of-life fixes across request building, authentication, and the response viewer.
+<video src="https://cdn.scalar.com/scalar-app/changelog/1.0.10/video.mp4" style="max-width: 100%; width: 100%; height: auto;" autoplay loop muted controls playsinline></video>
 
-- Responsive layout now stacks the address bar and hides the breadcrumb on mobile
-- Team switching is available from the header menu
-- Copy URL from the address bar now matches the URL that is actually sent
-- OAuth scopes can be added, edited, and deleted inline with proper validation
-- JSON responses preserve exact numeric literals without precision loss
+_Intro walkthrough — What's new in Scalar Client 1.0_
 
-[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1010)
+Scalar Client 1.0 is the first major release of the open-source HTTP client as a focused desktop and web app. Workspaces are now built around teams and the Scalar Registry: you can sync in real time, resolve conflicts when edits diverge, and manage API descriptions and versions without leaving the client. Local workspaces stay fast and offline-friendly with explicit save and revert before anything ships upstream.
 
-## 1.0.9 (2026-05-06)
+### Team workspaces and Scalar Registry
 
-### Refreshed app layout and friendlier command palette
+![Team workspaces and Scalar Registry](https://cdn.scalar.com/scalar-app/changelog/1.0.10/team.png)
 
-This release focuses on the desktop experience: the app layout has been reorganised so tabs sit above the page and small screens have more room to breathe, and the command palette now surfaces inline validation instead of silently disabling actions.
+_Team workspaces and Scalar Registry_
 
-- The app layout reorganises tabs to the top of the page and adapts better to narrow windows.
-- Command palette actions show inline errors when their inputs are invalid instead of becoming unclickable.
-- Importing an OpenAPI document by URL no longer fails when the pasted value has surrounding whitespace.
-- Login on the Electron app has been fixed so returning users no longer hit a stuck sign-in screen.
+- First-class team workspaces with a stable team identity that survives slug renames on the server.
+- Live sync with the Scalar Registry so shared API descriptions stay aligned across machines.
+- Conflict detection and resolution when local edits and registry changes disagree.
+- Team switching from the header menu, with routing that follows the active team after sign-in.
+- Returning to a workspace restores the tabs and routes you had open last time.
 
-[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#109)
+### Local workspaces
+
+![Local workspaces](https://cdn.scalar.com/scalar-app/changelog/1.0.10/local.png)
+
+_Local workspaces_
+
+- Save and revert flows for local-only drafts so you can experiment safely before publishing.
+- Clear separation between personal local workspaces and team-backed workspaces.
+- IndexedDB-backed persistence with a migration path from older localStorage installs.
+
+### Registry from the client
+
+![Registry from the client](https://cdn.scalar.com/scalar-app/changelog/1.0.10/versions.png)
+
+_Registry from the client_
+
+- Add, update, and remove API descriptions tied to the registry without switching tools.
+- Create and manage document versions from the same UI you use to send requests.
+- Integrated registry adapter so the client speaks the same contracts as the hosted product.
+
+### Client shell, layout, and polish
+
+- Layout tuned for small screens: breadcrumbs tuck away, workspace switching moves into the menu, and the address bar stacks cleanly with send actions.
+- Command palette surfaces inline validation instead of silently disabling invalid actions.
+- Electron window transparency and splash handling so team workspace reloads and resize flashes feel steadier.
+- Monaco editor bundling moved to ESM-aligned workers for a more reliable desktop build.
+
+[Read the full changelog on GitHub](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md)
