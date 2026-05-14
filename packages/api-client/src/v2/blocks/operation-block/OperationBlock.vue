@@ -460,11 +460,19 @@ watch(
     const cached = responseCache.get(
       getOperationExampleKey(newMethod, newPath, newExampleKey),
     )
-    // `history` is chronological (oldest first), so the last element is the
-    // most recent response for this path + method. `.at(-1)` returns
-    // `undefined` for an empty array, which folds the "no history" and
-    // "history exists" branches together.
-    const latest = history.at(-1)
+    // History is keyed only by document/path/method but each entry carries
+    // the example it came from, so we walk from the end and pick the most
+    // recent entry that matches the active example. Otherwise a cache miss
+    // on example B would restore example A's response.
+    const latest = (() => {
+      for (let i = history.length - 1; i >= 0; i--) {
+        const entry = history[i]
+        if (entry?.meta.example === newExampleKey) {
+          return entry
+        }
+      }
+      return undefined
+    })()
 
     if (cached) {
       response.value = cached.response

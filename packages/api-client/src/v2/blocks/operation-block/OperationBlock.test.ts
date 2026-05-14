@@ -961,6 +961,56 @@ describe('OperationBlock', () => {
     expect(getResponseBlockProps(wrapper).requestPayload).not.toBeNull()
   })
 
+  it('only falls back to history entries that were created for the active example', async () => {
+    // Two history entries on the same path/method but for different
+    // example keys. The active example is `default`, so the response panel
+    // must show the `default` entry — not the most recent overall.
+    const buildEntry = (exampleKey: string, body: string, status: number) => ({
+      time: 100,
+      timestamp: Date.now(),
+      request: {
+        method: 'GET',
+        url: 'https://api.example.com/api/users',
+        httpVersion: 'HTTP/1.1',
+        headers: [],
+        queryString: [],
+        cookies: [],
+        headersSize: -1,
+        bodySize: -1,
+      },
+      response: {
+        status,
+        statusText: 'OK',
+        httpVersion: 'HTTP/1.1',
+        headers: [],
+        cookies: [],
+        content: { size: body.length, mimeType: 'application/json', text: body },
+        redirectURL: '',
+        headersSize: -1,
+        bodySize: body.length,
+      },
+      meta: { example: exampleKey },
+      requestMetadata: { variables: {} },
+    })
+
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        // Chronological order: `default` first, then `alternative` newer.
+        history: [
+          buildEntry('default', '{"from":"default"}', 200),
+          buildEntry('alternative', '{"from":"alternative"}', 201),
+        ],
+      },
+    })
+
+    await wrapper.vm.$nextTick()
+
+    const restored = getResponseBlockProps(wrapper).response
+    expect(restored?.status).toBe(200)
+    expect(restored && 'data' in restored ? restored.data : undefined).toBe('{"from":"default"}')
+  })
+
   it('falls back to the last history entry when the in-memory cache is empty', async () => {
     // Simulates landing on an operation that has been called before in a
     // previous session: `responseCache` is empty but the workspace store
