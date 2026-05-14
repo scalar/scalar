@@ -15,9 +15,22 @@ describe('extractServer', () => {
     expect(extractServerFromPath('https://api.example.com/v1/users')).toEqual(['https://api.example.com', '/v1/users'])
   })
 
-  it('returns null for URLs without protocol', () => {
-    expect(extractServerFromPath('api.example.com')).toBeNull()
-    expect(extractServerFromPath('api.example.com/v1/users')).toBeNull()
+  it('extracts bare-hostname URLs without a protocol', () => {
+    expect(extractServerFromPath('google.com')).toEqual(['google.com', '/'])
+    expect(extractServerFromPath('google.com/v1/users')).toEqual(['google.com', '/v1/users'])
+    expect(extractServerFromPath('api.example.com')).toEqual(['api.example.com', '/'])
+    expect(extractServerFromPath('api.example.com/v1/users')).toEqual(['api.example.com', '/v1/users'])
+    expect(extractServerFromPath('api.example.com:8080/v1/users')).toEqual(['api.example.com:8080', '/v1/users'])
+    expect(extractServerFromPath('api.example.com/search?q=test#section')).toEqual([
+      'api.example.com',
+      '/search?q=test#section',
+    ])
+  })
+
+  it('returns null for protocol-less inputs that are not hostnames', () => {
+    expect(extractServerFromPath('api/v1/users')).toBeNull()
+    expect(extractServerFromPath('localhost')).toBeNull()
+    expect(extractServerFromPath('users')).toBeNull()
   })
 
   it('normalizes standard ports and preserves custom ports', () => {

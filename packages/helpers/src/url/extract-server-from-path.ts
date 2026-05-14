@@ -19,10 +19,39 @@
  * @example
  * extractServer('//api.example.com/v1/users')
  * // Returns: ['//api.example.com', '/v1/users']
+ *
+ * @example
+ * extractServer('google.com/v1/users')
+ * // Returns: ['google.com', '/v1/users']
  */
 export const extractServerFromPath = (path = ''): [string, string] | null => {
   if (!path.trim()) {
     return null
+  }
+
+  /**
+   * Handle bare-hostname URLs without a protocol (e.g., "google.com/path").
+   * Only treat the input as a server when the candidate host contains a dot,
+   * so plain path-only inputs like "api/v1/users" stay paths.
+   */
+  if (!path.startsWith('/') && !path.includes('://')) {
+    const hostEnd = path.search(/[/?#]/)
+    const host = hostEnd === -1 ? path : path.slice(0, hostEnd)
+
+    if (host.includes('.')) {
+      try {
+        const url = new URL(`https://${path}`)
+        if (url.origin === 'null') {
+          return null
+        }
+        /** Strip the protocol we added back out so the server stays a bare host */
+        const origin = url.host
+        const remainingPath = decodeURIComponent(url.pathname) + url.search + url.hash
+        return [origin, remainingPath]
+      } catch {
+        return null
+      }
+    }
   }
 
   /** Handle protocol-relative URLs (e.g., "//api.example.com") */
