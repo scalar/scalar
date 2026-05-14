@@ -8,7 +8,6 @@ import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getSelectedSecurity } from '@/request-example/context/security/get-selected-security'
 import type { WorkspaceDocument } from '@/schemas'
 import { isOpenApiDocument } from '@/schemas/type-guards'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 import type { OAuth2Object } from '@/schemas/v3.1/strict/security-scheme'
 
@@ -324,36 +323,6 @@ const securityRequirementIdsMatch = (requirement: SecurityRequirementObject, id:
 }
 
 /**
- * Builds the default selected-security state for a target (document or operation) by
- * resolving its security requirements, the document's security schemes, and a preferred
- * scheme derived from `id`. This is only used as a fallback when the store has not yet
- * recorded a selection for the target.
- *
- * Kept separate from `updateSelectedScopes` so the work only happens when the fallback
- * is actually needed (it is invoked lazily via `??`).
- */
-const buildFallbackSelectedSecurity = (
-  document: OpenApiDocument,
-  meta: AuthEvents['auth:update:selected-scopes']['meta'],
-  id: string[],
-) => {
-  const securityRequirements =
-    meta.type === 'document'
-      ? (document.security ?? [])
-      : ((getResolvedRef(document.paths?.[meta.path]?.[meta.method])?.security ?? []) as SecurityRequirementObject[])
-
-  const securitySchemes = (document.components?.securitySchemes ?? {}) as Record<
-    string,
-    { type?: string; 'x-default-scopes'?: string[] } | undefined
-  >
-
-  // Single-id selections map to a string key; multi-id selections stay as the full array.
-  const preferredScheme = id.length === 1 ? id[0] : id
-
-  return getSelectedSecurity(undefined, undefined, securityRequirements, securitySchemes, preferredScheme)
-}
-
-/**
  * Updates the scopes for a specific security requirement in the selected security schemes of
  * a document or operation. This mutator only touches selection state; managing the scope
  * definitions on the OAuth flow is handled by `upsertScope` and `deleteScope`.
@@ -407,9 +376,23 @@ export const updateSelectedScopes = (
     return store?.auth.getAuthSelectedSchemas({ type: 'operation', documentName, path: meta.path, method: meta.method })
   }
 
-  // Resolve the target lazily: `buildFallbackSelectedSecurity` only runs when the store
-  // has no selection yet, so the requirement/scheme scan is skipped in the common case.
-  const target = getTarget() ?? buildFallbackSelectedSecurity(document, meta, id)
+  // Resolve the target lazily: only build a fallback selection when the store has none.
+  //
+  // We pass `[]` for security requirements because a `preferredSecurityScheme` is always
+  // supplied (derived from `id`), which makes `getSelectedSecurity` build the requirement
+  // from that scheme alone and never read the requirements array.
+  const target =
+    getTarget() ??
+    getSelectedSecurity(
+      undefined,
+      undefined,
+      [],
+      (document.components?.securitySchemes ?? {}) as Record<
+        string,
+        { type?: string; 'x-default-scopes'?: string[] } | undefined
+      >,
+      id.length === 1 ? id[0] : id,
+    )
 
   const nextSelectedSchemes = unpackProxyObject(target.selectedSchemes, { depth: 1 }) ?? []
   // Match the security requirement by scheme key names (order-insensitive: Object.keys order

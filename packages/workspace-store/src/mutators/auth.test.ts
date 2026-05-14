@@ -775,7 +775,7 @@ describe('updateSelectedScopes', () => {
     expect(selected.selectedSchemes[0]).toEqual({ oauth2: ['read:data'] })
   })
 
-  it('falls back to operation-level security when no selection is stored for the operation', async () => {
+  it('writes the fallback selection at the operation level when meta is operation', async () => {
     const documentName = 'test'
     const document = createDocument({
       components: {
@@ -798,14 +798,9 @@ describe('updateSelectedScopes', () => {
           },
         },
       },
-      // Deliberately empty at the document level so the fallback must read
-      // operation-level security via the resolved path item.
-      security: [],
       paths: {
         '/pets': {
-          get: {
-            security: [{ oauth2: [] }],
-          },
+          get: {},
         },
       },
     })
@@ -813,7 +808,8 @@ describe('updateSelectedScopes', () => {
     const store = createWorkspaceStore()
     await store.addDocument({ name: documentName, document })
 
-    // No selection stored for the operation — the helper has to resolve it from path.method.security.
+    // No selection stored for either target.
+    expect(store.auth.getAuthSelectedSchemas({ type: 'document', documentName })).toBeUndefined()
     expect(
       store.auth.getAuthSelectedSchemas({ type: 'operation', documentName, path: '/pets', method: 'get' }),
     ).toBeUndefined()
@@ -825,6 +821,7 @@ describe('updateSelectedScopes', () => {
       meta: { type: 'operation', path: '/pets', method: 'get' },
     })
 
+    // The fallback selection is persisted at the operation level (not the document level).
     const opSelection = store.auth.getAuthSelectedSchemas({
       type: 'operation',
       documentName,
@@ -833,12 +830,10 @@ describe('updateSelectedScopes', () => {
     })
     assert(opSelection, 'Operation-level selection should be initialized by the fallback')
     expect(opSelection.selectedSchemes[0]).toEqual({ oauth2: ['read:data'] })
-
-    // Document-level selection should remain untouched by an operation-level update.
     expect(store.auth.getAuthSelectedSchemas({ type: 'document', documentName })).toBeUndefined()
   })
 
-  it('falls back to a multi-scheme requirement when id contains multiple keys and nothing is stored', async () => {
+  it('builds a multi-scheme fallback requirement when id has multiple keys and nothing is stored', async () => {
     const documentName = 'test'
     const document = createDocument({
       components: {
@@ -859,8 +854,6 @@ describe('updateSelectedScopes', () => {
           apiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
         },
       },
-      // A combined requirement (both schemes must be satisfied together).
-      security: [{ oauth2: [], apiKey: [] }],
     })
 
     const store = createWorkspaceStore()
@@ -868,8 +861,8 @@ describe('updateSelectedScopes', () => {
 
     expect(store.auth.getAuthSelectedSchemas({ type: 'document', documentName })).toBeUndefined()
 
-    // `id` has two entries — exercises the `id.length === 1 ? id[0] : id` array branch in
-    // buildFallbackSelectedSecurity's preferredScheme calculation.
+    // `id` has two entries — exercises the `id.length === 1 ? id[0] : id` array branch when
+    // deriving the preferred scheme for the fallback.
     updateSelectedScopes(store, store.workspace.activeDocument!, {
       id: ['oauth2', 'apiKey'],
       name: 'oauth2',
@@ -878,17 +871,15 @@ describe('updateSelectedScopes', () => {
     })
 
     const selected = store.auth.getAuthSelectedSchemas({ type: 'document', documentName })
-    assert(selected, 'Selection should be initialized from the combined requirement')
+    assert(selected, 'Selection should be initialized from a multi-scheme fallback requirement')
     expect(selected.selectedSchemes[0]).toEqual({ oauth2: ['read:data'], apiKey: [] })
   })
 
   it('uses the stored selection without consulting document security when a target already exists', async () => {
-    // This test pins the laziness guarantee: when the store has a selection, the fallback
-    // (which would otherwise read document.security / components.securitySchemes) must not
-    // run. We prove this indirectly by leaving the document completely empty of any security
-    // context — if the fallback were executed, it would have nothing to produce a target from
-    // and the update would silently no-op. Because the stored selection is used directly, the
-    // update succeeds.
+    // Pins the laziness guarantee: when the store has a selection, the fallback (which would
+    // otherwise have to consult `document.components`) must not run. We prove this indirectly
+    // by leaving the document completely empty of any security context — the stored selection
+    // is used directly and the update succeeds.
     const documentName = 'test'
     const store = createWorkspaceStore()
     await store.addDocument({
