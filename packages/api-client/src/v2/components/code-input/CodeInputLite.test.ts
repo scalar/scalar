@@ -681,4 +681,39 @@ describe('CodeInputLite', () => {
       expect(wrapper.find('[data-testid="warn"]').exists()).toBe(true)
     })
   })
+
+  describe('required indicator', () => {
+    it('renders the required indicator when required is true', () => {
+      const wrapper = mountInput({ modelValue: '', required: true })
+      expect(wrapper.find('.required').exists()).toBe(true)
+    })
+
+    it('hides the required indicator while the editor is focused', () => {
+      // jsdom does not evaluate the Tailwind `peer-has-[...]` selector, so we
+      // assert the focus-hiding class is wired up rather than the computed style.
+      const wrapper = mountInput({ modelValue: '', required: true })
+      expect(wrapper.find('.required').classes()).toContain('peer-has-[.code-input-lite__editor:focus]:opacity-0')
+    })
+  })
+
+  describe('autofocus', () => {
+    it('focuses the editor on mount when the autofocus attribute is present', () => {
+      const wrapper = mount(CodeInputLite, {
+        attachTo: document.body,
+        props: {
+          modelValue: '',
+          environment: env,
+        } as InstanceType<typeof CodeInputLite>['$props'],
+        attrs: { autofocus: '' },
+      })
+      const editor = wrapper.get('.code-input-lite__editor').element
+      expect(document.activeElement).toBe(editor)
+    })
+
+    it('does not focus the editor on mount without the autofocus attribute', () => {
+      const wrapper = mountInput({ modelValue: '' })
+      const editor = wrapper.get('.code-input-lite__editor').element
+      expect(document.activeElement).not.toBe(editor)
+    })
+  })
 })
