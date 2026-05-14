@@ -1,5 +1,46 @@
 # @scalar/api-reference
 
+## 1.57.0
+
+### Minor Changes
+
+- [#9211](https://github.com/scalar/scalar/pull/9211): feat: make `WorkspaceDocument` an union of OpenApiDocument and AsyncApiDocument
+
+### Patch Changes
+
+- [#9211](https://github.com/scalar/scalar/pull/9211): fix(api-reference): clean up deprecated document listeners on destroy
+
+  `createApiReference()` registered three document-level listeners
+  (`scalar:reload-references`, `scalar:destroy-references`,
+  `scalar:update-references-config`) but `destroy()` only unmounted the
+  Vue app — the listeners stayed attached forever. In environments that
+  mount and destroy instances repeatedly (notably the Astro integration's
+  `renderMode="client"` with view transitions), each navigation leaked
+  three permanent listeners on `document`.
+
+  Tie the listeners to an `AbortController` and abort it from `destroy()`
+  so they all come off in one shot.
+
+- [#9211](https://github.com/scalar/scalar/pull/9211): fix: show "Download AsyncAPI Document" label for AsyncAPI documents
+- [#9211](https://github.com/scalar/scalar/pull/9211): fix: rename the "OAS" version badge to "OpenAPI" and show an "AsyncAPI" badge for AsyncAPI documents
+- [#9211](https://github.com/scalar/scalar/pull/9211): fix(api-client): block invalid request URLs before send and surface `buildRequest` failures as results
+
+  Request construction now treats a bad merged URL as a first-class failure instead of throwing deep inside helpers. After `mergeUrls`, `resolveRequestFactoryUrl` rejects incomplete targets when strict mode applies: relative URLs, an empty server base, or path strings that still contain unresolved `{{variable}}` placeholders. Callers may set `allowMissingRequestServerBase` where a full absolute URL is intentionally optional (for example the embedded modal layout in `OperationBlock`, or API Reference `onBeforeRequest` hooks that build against the document origin).
+
+  `buildRequest` returns a `Result` (`ok` / `err`) with stable error codes such as `MISSING_REQUEST_SERVER_BASE`, `INVALID_REQUEST_FACTORY_URL`, and `BUILD_REQUEST_FAILED` for unexpected synchronous failures. Those failures are wrapped with `safeRun` from `@scalar/helpers`, which logs to `console.error` and maps throws to a string message on the result. The API Reference plugin path logs and skips `onBeforeRequest` when a preview request cannot be built, so user hooks never run against a half-built fetch payload.
+
+  Downstream packages (`api-client`, `api-reference`, `scalar-app` where applicable) unwrap the result, show toasts or logs, and avoid calling `sendRequest` until the URL is valid.
+
+- [#9211](https://github.com/scalar/scalar/pull/9211): fix(api-reference): improve search ranking for parameter, request-body, and model field names, including polymorphic (oneOf/anyOf/allOf) schemas
+- [#9211](https://github.com/scalar/scalar/pull/9211): fix: resolve $ref in additionalProperties before rendering schema
+- [#9211](https://github.com/scalar/scalar/pull/9211): chore: use the new schemas
+- [#9211](https://github.com/scalar/scalar/pull/9211): Fix mobile sidebar z-index to ensure it appears above all content when open
+- [#9211](https://github.com/scalar/scalar/pull/9211): Avoid repeating request body schema descriptions above collapsed overflow properties.
+- [#9211](https://github.com/scalar/scalar/pull/9211): feat: add more analytics events
+- [#9211](https://github.com/scalar/scalar/pull/9211): fix: agent scalar warnings
+- [#9211](https://github.com/scalar/scalar/pull/9211): fix(api-reference): lower badge style specificity
+- [#9211](https://github.com/scalar/scalar/pull/9211): fix: posthog stream warning
+
 ## 1.56.0
 
 ### Minor Changes

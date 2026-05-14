@@ -1,5 +1,11 @@
 # @scalar/use-hooks
 
+## 0.4.5
+
+### Patch Changes
+
+- [#9211](https://github.com/scalar/scalar/pull/9211): chore: remove zod
+
 ## 0.4.4
 
 ### Patch Changes

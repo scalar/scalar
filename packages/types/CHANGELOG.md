@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.11.0
+
+### Minor Changes
+
+- [#9211](https://github.com/scalar/scalar/pull/9211): feat: write pure types without using the zod schemas
+
 ## 0.10.0
 
 ### Minor Changes

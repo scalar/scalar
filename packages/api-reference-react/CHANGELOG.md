@@ -1,5 +1,7 @@
 # @scalar/api-reference-react
 
+## 0.9.36
+
 ## 0.9.35
 
 ## 0.9.34

@@ -1,5 +1,15 @@
 # @scalar/agent-chat
 
+## 0.12.0
+
+### Minor Changes
+
+- [#9211](https://github.com/scalar/scalar/pull/9211): feat: make `WorkspaceDocument` an union of OpenApiDocument and AsyncApiDocument
+
+### Patch Changes
+
+- [#9211](https://github.com/scalar/scalar/pull/9211): chore: remove zod and use the custom validation library
+
 ## 0.11.0
 
 ### Minor Changes

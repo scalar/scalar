@@ -1,5 +1,11 @@
 # @scalar/server-side-rendering
 
+## 0.1.15
+
+### Patch Changes
+
+- [#9211](https://github.com/scalar/scalar/pull/9211): Integrate Unhead server-side head rendering in SSR output so `metaData` and title tags are included in the server-rendered HTML document.
+
 ## 0.1.14
 
 ### Patch Changes
