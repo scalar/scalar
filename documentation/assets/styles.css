@@ -10,3 +10,20 @@
 .dark-mode .light-only {
   display: none;
 }
+
+/* TODO: Remove these styles after cleaning up the docs pages */
+
+/* Make adjacent buttons have secondary styles*/
+.t-editor__button + .t-editor__button {
+  --button-background: var(--scalar-background-2);
+  --font-color: var(--scalar-color-1);
+  --font-color-hover: var(--scalar-color-1);
+  --button-border-color: var(--button-background);
+  --button-border-color-hover: var(--button-background);
+  --button-background-hover: color-mix(in srgb, var(--scalar-background-3), var(--scalar-background-2));
+}
+
+/* Reset the visited color for anchors being used as buttons */
+.t-editor__button.t-editor__anchor:visited {
+  color: var(--font-color, var(--scalar-background-1));
+}

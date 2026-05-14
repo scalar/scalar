@@ -576,6 +576,7 @@
   }
   .gallery li img {
     min-width: 100%;
+    max-width: unset;
     height: 100%;
     max-height: 600px;
     object-fit: cover;
