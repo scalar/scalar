@@ -444,13 +444,13 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                 All Documents
               </ScalarSidebarButton>
               <ScalarIconButton
-                class="bg-b-2 hover:bg-b-3 rounded-full"
+                class="hover:bg-b-2 rounded-full border"
                 :icon="ScalarIconGearSix"
                 label="Workspace settings"
                 size="sm"
                 @click="handleOpenSettings" />
               <ScalarIconButton
-                class="bg-b-2 hover:bg-b-3 rounded-full"
+                class="hover:bg-b-2 rounded-full border"
                 :icon="ScalarIconFunnel"
                 label="Filter documents"
                 size="sm"
