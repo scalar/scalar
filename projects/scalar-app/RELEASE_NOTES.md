@@ -10,6 +10,20 @@
   release - edits made directly here will be overwritten.
 -->
 
+## 1.0.11 (2026-05-14)
+
+### Release notes modal, team switching, and mobile layout improvements
+
+This release brings a new What's New modal so you can browse curated release notes inside the client, team switching and workspace routing improvements, better mobile layout support, and a collection of fixes for OAuth scopes, request URL building, and JSON response formatting.
+
+- A What's New modal lets you browse release notes without leaving the client
+- Team switching is now available with clearer workspace routing
+- Mobile layout is optimized with a two-row address bar and cleaner top bar
+- Request URLs are validated before send and Copy URL now matches the actual request
+- OAuth scope management has a dedicated UI for adding, editing, and removing scopes
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1011)
+
 ## 1.0.10 (2026-05-14)
 
 ### Scalar Client 1.0 — team workspaces, registry sync, conflict resolution, and a rebuilt experience
