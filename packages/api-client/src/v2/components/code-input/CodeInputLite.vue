@@ -676,6 +676,12 @@ onMounted(() => {
   lastEnvKey = computeEnvKey()
   renderModel(initial)
   isEmpty.value = initial.length === 0
+
+  // `autofocus` on a contenteditable div is not honoured natively, so focus
+  // the editor ourselves when the consumer passes the attribute.
+  if (Object.hasOwn(attrs, 'autofocus')) {
+    editorRef.value?.focus()
+  }
 })
 
 watch(
@@ -855,7 +861,7 @@ defineExpose({
   </div>
   <div
     v-if="required"
-    class="required centered-y text-xxs text-c-3 group-[.error]:text-red bg-b-1 pointer-events-none absolute right-0 mr-0.5 pt-px pr-2 opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)] transition-opacity duration-150">
+    class="required centered-y text-xxs text-c-3 group-[.error]:text-red bg-b-1 pointer-events-none absolute right-0 mr-0.5 pt-px pr-2 opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)] transition-opacity duration-150 peer-has-[.code-input-lite__editor:focus]:opacity-0">
     Required
   </div>
 
