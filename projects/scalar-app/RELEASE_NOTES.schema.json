@@ -43,7 +43,10 @@
                   "description": "Plain-text paragraph copy. Use multiple paragraph blocks for multi-paragraph notes."
                 }
               },
-              "required": ["type", "text"],
+              "required": [
+                "type",
+                "text"
+              ],
               "additionalProperties": false,
               "description": "A free-form paragraph rendered between other content blocks."
             },
@@ -75,7 +78,10 @@
                   ]
                 }
               },
-              "required": ["type", "text"],
+              "required": [
+                "type",
+                "text"
+              ],
               "additionalProperties": false,
               "description": "A subsection heading inside a release entry."
             },
@@ -104,7 +110,10 @@
                   "type": "boolean"
                 }
               },
-              "required": ["type", "items"],
+              "required": [
+                "type",
+                "items"
+              ],
               "additionalProperties": false,
               "description": "A bullet (or numbered) list of single-sentence items."
             },
@@ -146,7 +155,11 @@
                   "maximum": 9007199254740991
                 }
               },
-              "required": ["type", "src", "alt"],
+              "required": [
+                "type",
+                "src",
+                "alt"
+              ],
               "additionalProperties": false,
               "description": "An inline image. Provide alt text for accessibility and an optional caption rendered beneath."
             },
@@ -191,7 +204,10 @@
                   "type": "boolean"
                 }
               },
-              "required": ["type", "src"],
+              "required": [
+                "type",
+                "src"
+              ],
               "additionalProperties": false,
               "description": "An inline video clip. Self-hosted MP4/WebM URLs work best - autoplay clips should also set `muted: true`."
             },
@@ -215,7 +231,11 @@
                   "description": "Accessible link text (for example \"Read full release notes\")."
                 }
               },
-              "required": ["type", "href", "label"],
+              "required": [
+                "type",
+                "href",
+                "label"
+              ],
               "additionalProperties": false,
               "description": "Call-to-action link (for example to full release notes on GitHub)."
             }
@@ -224,7 +244,11 @@
         }
       }
     },
-    "required": ["version", "date", "title"],
+    "required": [
+      "version",
+      "date",
+      "title"
+    ],
     "additionalProperties": false,
     "description": "A single curated release note rendered in the \"What's new\" modal."
   },

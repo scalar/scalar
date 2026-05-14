@@ -10,6 +10,20 @@
   release - edits made directly here will be overwritten.
 -->
 
+## 1.0.12 (2026-05-14)
+
+### Request URL validation, OAuth scope management, and mobile layout improvements
+
+This release strengthens request construction by validating URLs before send and surfacing build failures with clear error codes. OAuth scope management now supports adding, editing, and removing scopes through a refined UI. JSON responses show formatted preview and raw tabs without precision loss for large numbers. The mobile layout is optimized with a two-row address bar and streamlined top navigation.
+
+- Request URLs are now validated before send, blocking incomplete URLs and unresolved variables with clear error messages
+- OAuth scopes can be added, edited, and removed with inline validation and a cleaner UI that hides controls when no scopes are defined
+- JSON responses display in a formatted Preview tab and a Raw tab that preserves numeric precision for 64-bit IDs and large values
+- Mobile layout optimized with a two-row address bar, hidden document breadcrumb, and streamlined header buttons
+- Copy URL now matches the exact URL that will be sent, including path parameters and environment substitution
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1012)
+
 ## 1.0.11 (2026-05-14)
 
 ### Scalar Client 1.0 — team workspaces, registry sync, conflict resolution, and a rebuilt experience
