@@ -433,7 +433,7 @@ defineExpose({
         narrower than `@3xl`) and the duplicate buttons in the trailing
         mobile actions row take over at that point.
       -->
-      <div class="hidden gap-0.5 @3xl:flex">
+      <div class="hidden @3xl:flex">
         <HttpMethod
           :isEditable="layout !== 'modal'"
           isSquare
@@ -443,7 +443,7 @@ defineExpose({
       </div>
 
       <div
-        class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full gap-1 bg-blend-normal">
+        class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full bg-blend-normal">
         <!-- Servers -->
         <ServerDropdown
           v-if="servers.length"
@@ -466,7 +466,7 @@ defineExpose({
           ref="addressBarRef"
           alwaysEmitChange
           aria-label="Path"
-          class="min-w-fit pl-px outline-none"
+          class="ml-1 min-w-fit pl-px outline-none"
           disableCloseBrackets
           :disabled="layout === 'modal'"
           disableEnter
