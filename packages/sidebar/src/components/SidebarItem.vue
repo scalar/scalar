@@ -239,7 +239,7 @@ const children = computed(() =>
       #aside>
       <SidebarHttpBadge
         :active="isSelected(item.id)"
-        class="mr-1 ml-2 h-4 self-start"
+        class="ml-2 h-4 self-start"
         :class="{
           // Hide the badge when we're showing the decorator
           'group-hover/button:opacity-0 group-focus-visible/button:opacity-0 group-has-[~*_[aria-expanded=true]]/button:opacity-0 group-has-[~*:focus-within]/button:opacity-0 group-has-[~*:hover]/button:opacity-0':
@@ -247,6 +247,14 @@ const children = computed(() =>
         }"
         :method="item.method"
         :webhook="item.type === 'webhook'" />
+    </template>
+    <!--
+      Hide the chevron
+    -->
+    <template
+      v-if="'method' in item"
+      #toggle>
+      <!-- Nothing -->
     </template>
     <template
       v-if="slots.decorator"

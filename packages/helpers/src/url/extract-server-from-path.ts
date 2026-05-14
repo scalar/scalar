@@ -19,10 +19,54 @@
  * @example
  * extractServer('//api.example.com/v1/users')
  * // Returns: ['//api.example.com', '/v1/users']
+ *
+ * @example
+ * extractServer('google.com/v1/users')
+ * // Returns: ['google.com', '/v1/users']
  */
 export const extractServerFromPath = (path = ''): [string, string] | null => {
   if (!path.trim()) {
     return null
+  }
+
+  /**
+   * Handle bare-hostname URLs without a protocol (e.g., "google.com/path").
+   * Only treat the input as a server when the candidate host contains a dot,
+   * so plain path-only inputs like "api/v1/users" stay paths.
+   *
+   * The protocol check is scoped to the start of the string so that inputs
+   * like "api.example.com/auth?redirect=https://app.com/cb" are still treated
+   * as bare hostnames rather than being skipped because of a "://" inside the
+   * query string, path, or fragment.
+   */
+  if (!path.startsWith('/') && !/^[a-z][a-z0-9+\-.]*:\/\//i.test(path)) {
+    const hostEnd = path.search(/[/?#]/)
+    const host = hostEnd === -1 ? path : path.slice(0, hostEnd)
+
+    if (host.includes('.')) {
+      try {
+        const url = new URL(`https://${path}`)
+        if (url.origin === 'null') {
+          return null
+        }
+        /**
+         * Preserve any explicit port from the input. The URL API strips the
+         * default port for the parsing scheme (443 for https), which would
+         * otherwise lose information the user explicitly provided. Since the
+         * actual protocol is unknown for bare hostnames, we must not apply
+         * protocol-dependent port normalization.
+         */
+        let origin = url.host
+        const explicitPortMatch = host.match(/:(\d+)$/)
+        if (explicitPortMatch && !url.port) {
+          origin = `${url.hostname}:${explicitPortMatch[1]}`
+        }
+        const remainingPath = decodeURIComponent(url.pathname) + url.search + url.hash
+        return [origin, remainingPath]
+      } catch {
+        return null
+      }
+    }
   }
 
   /** Handle protocol-relative URLs (e.g., "//api.example.com") */

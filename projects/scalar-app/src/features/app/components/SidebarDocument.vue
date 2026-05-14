@@ -91,7 +91,7 @@ const handleDragEnd = (
     </template>
     <!-- Document back row -->
     <template #back>
-      <div class="flex items-center gap-1">
+      <div class="mr-1 flex items-center gap-1">
         <ScalarSidebarButton
           is="button"
           class="text-sidebar-c-1 font-sidebar-active hover:text-sidebar-c-1 flex-1"
@@ -102,20 +102,23 @@ const handleDragEnd = (
           Back
         </ScalarSidebarButton>
         <ScalarIconButton
+          class="hover:bg-b-2 rounded-full border"
           :icon="ScalarIconGearSix"
           label="Collection settings"
           size="sm"
           @click="emit('openSettings')" />
         <ScalarIconButton
+          class="hover:bg-b-2 rounded-full border"
           :icon="ScalarIconMagnifyingGlass"
           label="Search collection"
           size="sm"
           @click="emit('search')" />
         <ScalarIconButton
-          class="rounded-full border"
+          class="rounded-full"
           :icon="ScalarIconPlus"
           label="Add operation"
           size="sm"
+          variant="gradient"
           @click="emit('createOperation', item)" />
       </div>
     </template>

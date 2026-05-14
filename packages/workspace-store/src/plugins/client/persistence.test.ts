@@ -4,7 +4,7 @@ const addWindowListener = vi.fn()
 const addDocumentListener = vi.fn()
 
 const createPersistence = () => ({
-  meta: { setItem: vi.fn() },
+  meta: { getItem: vi.fn(), setItem: vi.fn() },
   documents: { setItem: vi.fn() },
   intermediateDocuments: { setItem: vi.fn() },
   originalDocuments: { setItem: vi.fn() },

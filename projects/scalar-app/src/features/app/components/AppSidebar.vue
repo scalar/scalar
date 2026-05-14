@@ -435,8 +435,8 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
           <!-- Top-level sidebar header -->
           <div
             v-if="!isOnDocumentPage"
-            class="flex flex-col gap-1.5 p-(--scalar-sidebar-padding)">
-            <div class="flex items-center gap-1">
+            class="flex flex-col gap-1.5 px-(--scalar-sidebar-padding) pt-(--scalar-sidebar-padding)">
+            <div class="mr-1 flex items-center gap-1">
               <ScalarSidebarButton
                 is="div"
                 class="text-sidebar-c-1 font-sidebar-active flex-1"
@@ -444,20 +444,23 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                 All Documents
               </ScalarSidebarButton>
               <ScalarIconButton
+                class="hover:bg-b-2 rounded-full border"
                 :icon="ScalarIconGearSix"
                 label="Workspace settings"
                 size="sm"
                 @click="handleOpenSettings" />
               <ScalarIconButton
+                class="hover:bg-b-2 rounded-full border"
                 :icon="ScalarIconFunnel"
                 label="Filter documents"
                 size="sm"
                 @click="handleFilterOrSearch" />
               <ScalarIconButton
-                class="rounded-full border"
+                class="rounded-full"
                 :icon="ScalarIconPlus"
                 label="Add document"
                 size="sm"
+                variant="gradient"
                 @click="handleCreate" />
             </div>
             <ScalarSidebarSearchInput

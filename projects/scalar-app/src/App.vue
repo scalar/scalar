@@ -50,6 +50,7 @@ const { isLoggedIn } = useAuth()
 const {
   currentTeam,
   currentTeamSlug,
+  currentTeamUid,
   isLoading: isTeamsLoading,
   suspense: teamsSuspense,
 } = useTeams()
@@ -58,7 +59,10 @@ const { handleLogin, handleRegister } = useAuthHandlers({
   // Lets go to the team workspace on login
   onAuthenticated: async () => {
     await teamsSuspense()
-    await app.workspace.resumeOrGetStarted(currentTeamSlug.value)
+    await app.workspace.resumeOrGetStarted({
+      teamUid: currentTeamUid.value,
+      teamSlug: currentTeamSlug.value,
+    })
   },
 })
 
@@ -78,7 +82,10 @@ const isDesktop = window.electron === true
 
 /** Ensure we redirect to the team workspace on team change */
 const handleTeamChange = async () =>
-  await app.workspace.resumeOrGetStarted(currentTeamSlug.value)
+  await app.workspace.resumeOrGetStarted({
+    teamUid: currentTeamUid.value,
+    teamSlug: currentTeamSlug.value,
+  })
 
 //--------------------------------------------------
 // Workspace handling
@@ -135,8 +142,9 @@ app.router.afterEach(async (to) => {
     await safeRun(() => teamsSuspense())
   }
 
-  app.handleRouteChange(to, {
+  await app.handleRouteChange(to, {
     teamSlug: currentTeamSlug,
+    teamUid: currentTeamUid,
     filteredWorkspaces: filteredWorkspaces,
   })
 })

@@ -188,10 +188,12 @@ describe('groupWorkspacesByTeam', () => {
       placeholder: { slug: 'default', label: 'Workspace' },
     })
 
+    // The placeholder uses the `pending:` prefix so picker consumers
+    // can tell it apart from a real `workspaceUid` (which is a UUID).
     expect(result).toEqual([
       {
         label: 'Team Workspaces',
-        options: [{ id: 'team-123/default', label: 'Workspace' }],
+        options: [{ id: 'pending:team-123/default', label: 'Workspace' }],
       },
       {
         label: 'Local Workspaces',

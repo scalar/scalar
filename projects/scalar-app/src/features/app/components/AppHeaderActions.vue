@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarHeaderButton } from '@scalar/components'
+import { ScalarButton, ScalarHeaderButton } from '@scalar/components'
 import {
   ScalarIconArrowCounterClockwise,
   ScalarIconCloudArrowDown,
@@ -45,7 +45,6 @@ const emit = defineEmits<{
     <ScalarHeaderButton
       v-if="isActiveDocumentDirty"
       aria-label="Discard changes"
-      class="shrink-0 gap-1.5"
       data-testid="app-header-revert-button"
       title="Discard"
       @click="emit('revert')">
@@ -54,20 +53,21 @@ const emit = defineEmits<{
         size="sm"
         thickness="1.5" />
     </ScalarHeaderButton>
-    <ScalarHeaderButton
+    <ScalarButton
       aria-label="Save"
-      class="shrink-0 gap-1.5 disabled:opacity-50"
-      cta
+      class="gap-1.5"
       data-testid="app-header-save-button"
       :disabled="!isActiveDocumentDirty"
+      size="sm"
       title="Save"
+      variant="gradient"
       @click="emit('save')">
       <ScalarIconFloppyDisk
         class="size-3.5"
         size="sm"
         thickness="1.5" />
       <span class="max-md:hidden">Save</span>
-    </ScalarHeaderButton>
+    </ScalarButton>
   </template>
   <!--
     Team workspace cluster for registry-backed documents. The same Revert

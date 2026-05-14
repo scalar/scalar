@@ -1,5 +1,5 @@
 ---
-'scalar-app': minor
+'scalar-app': patch
 '@scalar/helpers': minor
 ---
 

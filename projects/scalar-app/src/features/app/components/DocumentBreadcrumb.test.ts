@@ -45,22 +45,29 @@ const createFakeApp = ({
   activeDocumentName,
   isTeamWorkspace = true,
   teamSlug = 'acme',
-  workspaceList = [
-    { id: 'ws-1', label: 'Acme Workspace', teamSlug: 'acme', slug: 'default' },
-    { id: 'ws-2', label: 'Marketing API', teamSlug: 'acme', slug: 'marketing' },
+  teamUid = 'acme-team-uid',
+  workspaceList: workspaceListArg = [
+    { id: 'ws-1', label: 'Acme Workspace', teamSlug: 'acme', slug: 'default', teamUid },
+    { id: 'ws-2', label: 'Marketing API', teamSlug: 'acme', slug: 'marketing', teamUid },
   ],
 }: {
   documents: Record<string, FakeDocument>
   activeDocumentName?: string
   isTeamWorkspace?: boolean
   teamSlug?: string
+  teamUid?: string
   workspaceList?: Array<{
     id: string
     label: string
     teamSlug: string
     slug: string
+    teamUid?: string
   }>
 }) => {
+  const workspaceList = workspaceListArg.map((workspace) => ({
+    ...workspace,
+    teamUid: workspace.teamUid ?? teamUid,
+  }))
   const store = shallowRef({
     workspace: {
       documents,
@@ -109,10 +116,19 @@ const createFakeApp = ({
       // persisted tab exists, which is always the case in tests since there
       // is no IndexedDB available.
       // biome-ignore lint/suspicious/useAwait: its cool
-      resumeOrGetStarted: async (teamSlug: string, workspaceId?: string) => {
-        const found = workspaceId
-          ? workspaceList.find((w) => w.id === workspaceId)
-          : workspaceList.find((w) => w.teamSlug === teamSlug)
+      resumeOrGetStarted: async ({
+        workspaceUid,
+        teamUid: targetTeamUid,
+      }: {
+        workspaceUid?: string
+        teamUid?: string
+        teamSlug?: string
+      }) => {
+        const found = workspaceUid
+          ? workspaceList.find((w) => w.id === workspaceUid)
+          : targetTeamUid
+            ? workspaceList.find((w) => w.teamUid === targetTeamUid)
+            : undefined
         if (found) {
           mockEventBus.emit('ui:navigate', {
             page: 'workspace',
@@ -199,6 +215,38 @@ describe('DocumentBreadcrumb', () => {
       path: 'get-started',
       teamSlug: 'acme',
       workspaceSlug: 'marketing',
+    })
+  })
+
+  it('resumeOrGetStarted test double resolves the team branch by teamUid, matching app-state', async () => {
+    const stableTeamUid = 'team-uid-stable'
+    const renamedTeamSlug = 'renamed-url-slug'
+    const { app } = createFakeApp({
+      documents: { pets: { info: { title: 'Pets API', version: '1.0.0' } } },
+      teamSlug: renamedTeamSlug,
+      teamUid: stableTeamUid,
+      workspaceList: [
+        {
+          id: 'ws-1',
+          label: 'Solo workspace',
+          teamSlug: renamedTeamSlug,
+          slug: 'default',
+          teamUid: stableTeamUid,
+        },
+      ],
+    })
+    vi.mocked(mockEventBus.emit).mockClear()
+
+    await app.workspace.resumeOrGetStarted({
+      teamUid: stableTeamUid,
+      teamSlug: renamedTeamSlug,
+    })
+
+    expect(mockEventBus.emit).toHaveBeenCalledWith('ui:navigate', {
+      page: 'workspace',
+      path: 'get-started',
+      teamSlug: renamedTeamSlug,
+      workspaceSlug: 'default',
     })
   })
 

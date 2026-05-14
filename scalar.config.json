@@ -1954,6 +1954,38 @@
                       ]
                     }
                   },
+                  "release-notes": {
+                    "filepath": "projects/scalar-app/RELEASE_NOTES.md",
+                    "type": "page",
+                    "title": "Release notes",
+                    "description": "What is new in recent Scalar desktop app releases.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/api-client/release-notes"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "What is new in recent Scalar desktop app releases."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Release notes - Scalar API Client"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "What is new in recent Scalar desktop app releases."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
                   "import": {
                     "filepath": "documentation/guides/app/import.md",
                     "type": "page",

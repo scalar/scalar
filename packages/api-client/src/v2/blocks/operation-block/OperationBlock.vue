@@ -440,22 +440,59 @@ const handleNavigateSettings = () => {
 }
 
 /**
- * When the path, method, or example key changes: save current response to
- * cache (so it can be restored when navigating back), then restore from cache
- * for the new operation or clear if no cached response. Response is only
- * cleared on page refresh or when making a new request for that operation.
+ * When the path, method, or example key changes, restore the response panel
+ * for the new operation from the best available source:
+ *
+ *   1. `responseCache` — in-memory, populated on every successful send.
+ *      Has the live response object (including streams) so it wins.
+ *   2. `history` — persisted in the workspace store. Used as a fallback when
+ *      the in-memory cache is empty (page reload, fresh app session, etc.)
+ *      so navigating to an operation that has been called before shows the
+ *      last response instead of an empty panel.
+ *   3. Otherwise clear.
+ *
+ * Only the response is restored from history — the user's request inputs are
+ * left alone, so we never silently overwrite an in-progress draft.
  */
 watch(
   [() => path, () => method, () => exampleKey],
   ([newPath, newMethod, newExampleKey]) => {
-    const newKey = getOperationExampleKey(newMethod, newPath, newExampleKey)
-    const cached = responseCache.get(newKey)
+    const cached = responseCache.get(
+      getOperationExampleKey(newMethod, newPath, newExampleKey),
+    )
+
     if (cached) {
       response.value = cached.response
       requestPayload.value = cached.requestPayload
     } else {
-      response.value = null
-      requestPayload.value = null
+      // History is keyed only by document/path/method but each entry carries
+      // the example it came from, so we walk from the end and pick the most
+      // recent entry that matches the active example. Otherwise a cache miss
+      // on example B would restore example A's response. Only runs on a
+      // cache miss — the common case (in-session navigation) skips it.
+      const latest = (() => {
+        for (let i = history.length - 1; i >= 0; i--) {
+          const entry = history[i]
+          if (entry?.meta.example === newExampleKey) {
+            return entry
+          }
+        }
+        return undefined
+      })()
+
+      if (latest) {
+        response.value = harToFetchResponse({
+          harResponse: latest.response,
+          url: latest.request.url,
+          method: newMethod,
+          path: newPath,
+          duration: latest.time,
+        })
+        requestPayload.value = null
+      } else {
+        response.value = null
+        requestPayload.value = null
+      }
     }
 
     // Cancel any in-flight request

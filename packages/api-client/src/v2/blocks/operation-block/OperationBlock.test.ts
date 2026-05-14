@@ -960,4 +960,196 @@ describe('OperationBlock', () => {
     expect(restored && 'data' in restored ? restored.data : undefined).toBe('{"users": []}')
     expect(getResponseBlockProps(wrapper).requestPayload).not.toBeNull()
   })
+
+  it('only falls back to history entries that were created for the active example', async () => {
+    // Two history entries on the same path/method but for different
+    // example keys. The active example is `default`, so the response panel
+    // must show the `default` entry — not the most recent overall.
+    const buildEntry = (exampleKey: string, body: string, status: number) => ({
+      time: 100,
+      timestamp: Date.now(),
+      request: {
+        method: 'GET',
+        url: 'https://api.example.com/api/users',
+        httpVersion: 'HTTP/1.1',
+        headers: [],
+        queryString: [],
+        cookies: [],
+        headersSize: -1,
+        bodySize: -1,
+      },
+      response: {
+        status,
+        statusText: 'OK',
+        httpVersion: 'HTTP/1.1',
+        headers: [],
+        cookies: [],
+        content: { size: body.length, mimeType: 'application/json', text: body },
+        redirectURL: '',
+        headersSize: -1,
+        bodySize: body.length,
+      },
+      meta: { example: exampleKey },
+      requestMetadata: { variables: {} },
+    })
+
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        // Chronological order: `default` first, then `alternative` newer.
+        history: [
+          buildEntry('default', '{"from":"default"}', 200),
+          buildEntry('alternative', '{"from":"alternative"}', 201),
+        ],
+      },
+    })
+
+    await wrapper.vm.$nextTick()
+
+    const restored = getResponseBlockProps(wrapper).response
+    expect(restored?.status).toBe(200)
+    expect(restored && 'data' in restored ? restored.data : undefined).toBe('{"from":"default"}')
+  })
+
+  it('falls back to the last history entry when the in-memory cache is empty', async () => {
+    // Simulates landing on an operation that has been called before in a
+    // previous session: `responseCache` is empty but the workspace store
+    // still holds the operation's history. The response panel should show
+    // the most recent historical response instead of an empty state.
+    const historyEntry = {
+      time: 250,
+      timestamp: Date.now(),
+      request: {
+        method: 'GET',
+        url: 'https://api.example.com/api/users',
+        httpVersion: 'HTTP/1.1',
+        headers: [],
+        queryString: [],
+        cookies: [],
+        headersSize: -1,
+        bodySize: -1,
+      },
+      response: {
+        status: 201,
+        statusText: 'Created',
+        httpVersion: 'HTTP/1.1',
+        headers: [{ name: 'Content-Type', value: 'application/json' }],
+        cookies: [],
+        content: {
+          size: 19,
+          mimeType: 'application/json',
+          text: '{"from":"history"}',
+        },
+        redirectURL: '',
+        headersSize: -1,
+        bodySize: 19,
+      },
+      meta: { example: 'default' },
+      requestMetadata: { variables: {} },
+    }
+
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        history: [historyEntry],
+      },
+    })
+
+    await wrapper.vm.$nextTick()
+
+    const restored = getResponseBlockProps(wrapper).response
+    expect(restored).not.toBeNull()
+    expect(restored?.status).toBe(201)
+    expect(restored && 'data' in restored ? restored.data : undefined).toBe('{"from":"history"}')
+  })
+
+  it('prefers the in-memory cache over history when both are available', async () => {
+    // After a fresh send, `responseCache` holds the live response (with
+    // streams, full body, etc.). The history fallback should only kick in
+    // when the cache misses — it must not overwrite a cache hit.
+    const liveResponse: ResponseInstance = {
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      cookieHeaderKeys: [],
+      duration: 100,
+      method: 'get',
+      path: '/api/users',
+      data: '{"from":"cache"}',
+      size: 16,
+      ok: true,
+      redirected: false,
+      type: 'basic',
+      url: 'https://api.example.com/api/users',
+      body: null,
+      bodyUsed: false,
+      arrayBuffer: vi.fn(),
+      blob: vi.fn(),
+      formData: vi.fn(),
+      json: vi.fn(),
+      text: vi.fn(),
+      clone: vi.fn(),
+      bytes: vi.fn(),
+    }
+
+    const historyEntry = {
+      time: 250,
+      timestamp: Date.now(),
+      request: {
+        method: 'GET',
+        url: 'https://api.example.com/api/users',
+        httpVersion: 'HTTP/1.1',
+        headers: [],
+        queryString: [],
+        cookies: [],
+        headersSize: -1,
+        bodySize: -1,
+      },
+      response: {
+        status: 201,
+        statusText: 'Created',
+        httpVersion: 'HTTP/1.1',
+        headers: [],
+        cookies: [],
+        content: { size: 19, mimeType: 'application/json', text: '{"from":"history"}' },
+        redirectURL: '',
+        headersSize: -1,
+        bodySize: 19,
+      },
+      meta: { example: 'default' },
+      requestMetadata: { variables: {} },
+    }
+
+    vi.mocked(buildRequest).mockReturnValue(
+      ok({
+        controller: new AbortController(),
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        isUsingProxy: false,
+      }),
+    )
+    vi.mocked(sendRequest).mockResolvedValue([
+      null,
+      {
+        timestamp: Date.now(),
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        response: liveResponse,
+        originalResponse: new Response(),
+      },
+    ])
+
+    const wrapper = mount(OperationBlock, {
+      props: { ...createDefaultProps(), history: [historyEntry] },
+    })
+
+    // Send a request so the cache is populated with the live response.
+    await triggerExecute(wrapper)
+    // Navigate away and back — the cache should win over history.
+    await wrapper.setProps({ path: '/api/posts' })
+    await wrapper.vm.$nextTick()
+    await wrapper.setProps({ path: '/api/users' })
+    await wrapper.vm.$nextTick()
+
+    const restored = getResponseBlockProps(wrapper).response
+    expect(restored && 'data' in restored ? restored.data : undefined).toBe('{"from":"cache"}')
+  })
 })
