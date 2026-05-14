@@ -6,15 +6,7 @@ import {
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 
 import type { PillContext } from '../pill-context'
-
-/** Resolve a variable name to its value in the given environment, if any. */
-const lookupVariableValue = (environment: XScalarEnvironment | undefined, name: string): string | undefined => {
-  const variable = environment?.variables?.find((entry) => entry.name === name)
-  if (!variable) {
-    return undefined
-  }
-  return typeof variable.value === 'string' ? variable.value : variable.value?.default
-}
+import { lookupVariableValue } from './lookup-variable-value'
 
 /**
  * Build the tooltip context shown when hovering a pill.
