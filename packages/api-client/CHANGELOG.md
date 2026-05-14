@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 3.8.1
+
+### Patch Changes
+
+- [#9216](https://github.com/scalar/scalar/pull/9216): chore: bumping release
+- [#9218](https://github.com/scalar/scalar/pull/9218): chore: bump
+
 ## 3.8.0
 
 ### Minor Changes

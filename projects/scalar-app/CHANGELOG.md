@@ -1,5 +1,13 @@
 # scalar-app
 
+## 1.0.13
+
+### Patch Changes
+
+- [#9216](https://github.com/scalar/scalar/pull/9216): chore: bumping release
+- [#9217](https://github.com/scalar/scalar/pull/9217): chore: deploy scalar app
+- [#9218](https://github.com/scalar/scalar/pull/9218): chore: bump
+
 ## 1.0.12
 
 ### Patch Changes
