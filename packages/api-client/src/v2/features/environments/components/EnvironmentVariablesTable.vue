@@ -8,7 +8,7 @@ import type {
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { computed } from 'vue'
 
-import { CodeInput } from '@/v2/components/code-input'
+import { CodeInputLite } from '@/v2/components/code-input'
 import {
   DataTable,
   DataTableCell,
@@ -114,12 +114,9 @@ const handleVariableDelete = (index: number): void =>
       class="group/row">
       <!-- Name -->
       <DataTableCell>
-        <CodeInput
+        <CodeInputLite
           aria-label="Environment Variable Name"
-          disableCloseBrackets
-          disableTabIndent
           :environment="undefined"
-          lineWrapping
           :modelValue="row.name"
           placeholder="Name"
           @update:modelValue="
@@ -129,11 +126,9 @@ const handleVariableDelete = (index: number): void =>
 
       <!-- Value -->
       <DataTableCell>
-        <CodeInput
+        <CodeInputLite
           aria-label="Environment Variable Value"
-          disableTabIndent
           :environment="undefined"
-          lineWrapping
           :modelValue="row.value"
           placeholder="Value"
           @update:modelValue="

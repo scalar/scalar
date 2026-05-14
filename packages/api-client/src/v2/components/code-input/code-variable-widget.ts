@@ -63,10 +63,14 @@ class PillWidget extends WidgetType {
       span.style.opacity = this.variableInfo.isDefined ? '1' : '0.5'
     }
 
+    // PillTooltipHost is renderless and attaches `useTooltip` listeners to
+    // `target` directly — mount onto a throwaway container so the pill DOM
+    // we just built is preserved.
     this.app = createApp(PillTooltipHost, {
       context: this.variableInfo,
+      target: span,
     })
-    this.app.mount(span)
+    this.app.mount(document.createElement('div'))
 
     return span
   }
