@@ -433,7 +433,7 @@ defineExpose({
         narrower than `@3xl`) and the duplicate buttons in the trailing
         mobile actions row take over at that point.
       -->
-      <div class="gap-.5 hidden @3xl:flex">
+      <div class="hidden gap-0.5 @3xl:flex">
         <HttpMethod
           :isEditable="layout !== 'modal'"
           isSquare
