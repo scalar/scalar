@@ -129,7 +129,24 @@ const emit = defineEmits<{
 }>()
 
 const attrs = useAttrs() as { 'id'?: string; 'aria-label'?: string }
-const componentId = attrs.id || `id-${nanoid()}`
+
+/**
+ * The component ID is only meaningfully read after the user starts
+ * interacting (it feeds `aria-controls` / `aria-activedescendant` on the
+ * autocomplete dropdown). For pages with hundreds of idle instances, paying
+ * for a `nanoid()` per mount is wasted work, so we defer generation until
+ * the first focus and leave the wrapper without an `id` attribute in the
+ * meantime. Consumers who pass their own `id` attr keep it as-is.
+ */
+const generatedComponentId = ref<string | null>(null)
+const componentId = computed(
+  (): string | undefined => attrs.id ?? generatedComponentId.value ?? undefined,
+)
+const ensureComponentId = (): void => {
+  if (!attrs.id && generatedComponentId.value === null) {
+    generatedComponentId.value = `id-${nanoid()}`
+  }
+}
 
 const editorRef = useTemplateRef<HTMLDivElement>('editorRef')
 const dropdownRef = ref<InstanceType<
@@ -580,6 +597,7 @@ const handleInput = (): void => {
 
 const handleFocus = (): void => {
   isFocused.value = true
+  ensureComponentId()
   ensureTooltipsActive()
 }
 
@@ -711,6 +729,14 @@ watch([() => environment, () => withVariables], () => {
     return
   }
   lastEnvKey = envKey
+  // Short-circuit when this instance has no pills to repaint. The vast
+  // majority of rows in a request table are plain text (or empty), so we
+  // skip the DOM walk + rebuild for them whenever the environment changes.
+  // Anything that introduces pills later goes through `handleInput` /
+  // the `modelValue` watcher and updates `lastPillSignature` then.
+  if (lastPillSignature === '') {
+    return
+  }
   lastPillSignature = pillSignature(serializeEditor(), withVariables)
   renderModel(serializeEditor())
 })
