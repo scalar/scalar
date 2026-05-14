@@ -292,6 +292,36 @@ jobs:
           fi
           pnpm turbo "${args[@]}" test
 
+  # pnpm workspaces under projects/* with a `test` script. Excludes
+  # projects/proxy-scalar-com (Go) — those run in test-proxy-server.
+  test-projects:
+    needs: [build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Build packages (workspace deps for projects)
+        uses: ./.github/actions/build
+        with:
+          packages: './packages/**'
+      - name: Run project tests
+        run: |
+          args=()
+          for dir in projects/*/; do
+            [ -f "${dir}package.json" ] || continue
+            [ "${dir}" = 'projects/proxy-scalar-com/' ] && continue
+            if grep -q '"test"' "${dir}package.json" 2>/dev/null; then
+              args+=(--filter "./${dir%/}")
+            fi
+          done
+          if [ ${#args[@]} -eq 0 ]; then
+            echo "No projects with a pnpm test script (excluding Go proxy), skipping."
+            exit 0
+          fi
+          pnpm turbo "${args[@]}" test
+
   test-integrations:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
@@ -1738,6 +1768,7 @@ jobs:
         format,
         knip,
         test-packages,
+        test-projects,
         test-integrations,
         test-proxy-server,
         test-e2e-scalar-app,
@@ -1758,6 +1789,7 @@ jobs:
         build,
         test-server-side-rendering,
         test-packages,
+        test-projects,
         test-integrations,
         test-proxy-server,
         test-e2e-scalar-app,
