@@ -1545,7 +1545,8 @@ jobs:
     concurrency:
       group: django-ninja-publish
       cancel-in-progress: false
-    needs: [required-jobs-main, django-ninja-build-test, check-changes, npm-publish]
+    needs:
+      [required-jobs-main, django-ninja-build-test, check-changes, npm-publish]
     permissions:
       contents: read
     steps:
