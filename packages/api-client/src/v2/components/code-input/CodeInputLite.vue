@@ -809,13 +809,7 @@ defineExpose({
       'code-input-lite--empty': isEmpty,
       'line-through': linethrough,
     }">
-    <!--
-      Single editable surface. Plain text lives in text nodes; each
-      `{{name}}` is rendered as a `<span contenteditable="false">` pill so
-      the browser treats it as an atom (arrow keys hop over it, Backspace
-      removes the whole thing, caret cannot enter). DOM ↔ model conversion
-      happens in `renderModel` and `serializeEditor`.
-    -->
+    <!-- The single editable surface; see the file header for how pills work. -->
     <div
       ref="editorRef"
       :aria-activedescendant="
@@ -845,12 +839,9 @@ defineExpose({
   </div>
 
   <!--
-    Warning / icon / required indicators are rendered as siblings of the
-    mode templates so they show up in disabled mode and the select modes
-    too, and so their `absolute right-0` positioning anchors to the
-    surrounding cell rather than the shrink-wrapped mode wrapper. Matches
-    CodeInput.vue's layout. The parent `DataTableCell` already provides
-    the `relative` positioning context they rely on.
+    Slots and the required indicator are siblings of the mode templates so
+    they render in every mode and so `absolute right-0` anchors to the
+    surrounding (relative) cell rather than the shrink-wrapped mode wrapper.
   -->
   <div
     v-if="$slots.warning"
@@ -881,11 +872,8 @@ defineExpose({
 
 <style scoped>
 .code-input-lite {
-  /* Wrapper is a flex container so the editor can centre-align vertically
-     within whatever height the parent cell gives us. Font (family, size,
-     line-height) is left to inherit so the component takes its surroundings'
-     typography — a table cell, an address bar, etc. — instead of forcing
-     one of its own. */
+  /* Flex so the editor centres vertically in whatever height the cell gives us.
+     Font properties inherit so we adopt the surrounding typography. */
   display: flex;
   align-items: center;
 }
@@ -900,9 +888,8 @@ defineExpose({
   outline: none;
   color: var(--scalar-color-1);
   caret-color: var(--scalar-color-1);
-  /* Single-line semantics: no wrap, horizontal scroll keeps the caret
-     visible for long values. The scrollbar itself is hidden — a CodeInputLite
-     lives inside a table cell, where a chrome scrollbar would be noisy. */
+  /* Single-line: horizontal scroll keeps the caret visible for long values;
+     the scrollbar itself is hidden (would be noisy inside a table cell). */
   white-space: pre;
   overflow-x: auto;
   overflow-y: hidden;
@@ -918,11 +905,9 @@ defineExpose({
   display: none;
 }
 
-/* Placeholder — a CSS pseudo-element on the empty editor. It is positioned
-   absolutely so it does not occupy flow space inside the contenteditable;
-   otherwise the caret would sit after the placeholder text instead of at the
-   start of the field. `pointer-events: none` so clicking through it still
-   focuses the editor underneath. */
+/* Absolute so the placeholder does not occupy flow space inside the
+   contenteditable; otherwise the caret would land after it on focus.
+   `pointer-events: none` lets clicks fall through to focus the editor. */
 .code-input-lite--empty .code-input-lite__editor::before {
   content: attr(data-placeholder);
   color: var(--scalar-color-3);
@@ -941,13 +926,8 @@ defineExpose({
 </style>
 
 <style>
-/*
-  Pill styling. Each pill is `<span contenteditable="false">name</span>` — an
-  atomic widget in the editing surface. Because the pill no longer needs to
-  match the width of any hidden underlying text, it can carry whatever
-  horizontal padding it likes; the caret naturally lands before or after the
-  pill rather than at a per-character position inside it.
-*/
+/* Pill styling. Each pill is `<span contenteditable="false">name</span>` —
+   an atomic widget; the caret lands before or after it, never inside. */
 .scalar-pill {
   color: var(--scalar-color-1);
   border-radius: 30px;
@@ -958,9 +938,7 @@ defineExpose({
   background: var(--scalar-background-3);
   padding: 0 0.5em;
   cursor: text;
-  /* `user-select: all` causes a single click on the pill to select it as a
-     whole — matches the "pill is one block" mental model and gives a clear
-     visual when the user is about to delete it. */
+  /* Single click selects the whole pill — chip/mention model, deletes in one go. */
   user-select: all;
   -webkit-user-select: all;
 }
@@ -978,8 +956,7 @@ defineExpose({
 }
 
 .scalar-pill--context-fn {
-  /* Inset box-shadow stands in for a border so the pill's layout box doesn't
-     change between context-fn pills and regular ones. */
+  /* Inset box-shadow as a border so the layout box stays identical to plain pills. */
   box-shadow: 0 0 0 1px
     color-mix(in srgb, var(--scalar-color-3), transparent 35%) inset;
 }
