@@ -186,4 +186,30 @@ describe('extractServer', () => {
     const longPath = '/path'.repeat(10)
     expect(extractServerFromPath(`https://api.example.com${longPath}`)).toEqual(['https://api.example.com', longPath])
   })
+
+  it('extracts bare-hostname URLs when :// appears in the query string, path, or fragment', () => {
+    expect(extractServerFromPath('api.example.com/auth?redirect=https://app.com/cb')).toEqual([
+      'api.example.com',
+      '/auth?redirect=https://app.com/cb',
+    ])
+    expect(extractServerFromPath('api.example.com/redirect?url=ftp://files.example.com/file')).toEqual([
+      'api.example.com',
+      '/redirect?url=ftp://files.example.com/file',
+    ])
+    expect(extractServerFromPath('api.example.com/docs#section://example')).toEqual([
+      'api.example.com',
+      '/docs#section://example',
+    ])
+  })
+
+  it('preserves explicit port for bare-hostname URLs regardless of the port number', () => {
+    /** Port 443 must be preserved even though it is the default for https */
+    expect(extractServerFromPath('api.example.com:443/v1')).toEqual(['api.example.com:443', '/v1'])
+    expect(extractServerFromPath('api.example.com:443')).toEqual(['api.example.com:443', '/'])
+    /** Port 80 stays preserved (regression check for the existing behavior) */
+    expect(extractServerFromPath('api.example.com:80/v1')).toEqual(['api.example.com:80', '/v1'])
+    expect(extractServerFromPath('api.example.com:80')).toEqual(['api.example.com:80', '/'])
+    /** Non-default ports continue to round-trip */
+    expect(extractServerFromPath('api.example.com:8443/v1')).toEqual(['api.example.com:8443', '/v1'])
+  })
 })

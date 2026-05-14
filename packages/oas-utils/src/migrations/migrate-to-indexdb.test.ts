@@ -4059,36 +4059,6 @@ describe('migrate-to-indexdb', () => {
         })
       })
 
-      it('does not extract from paths that look like URLs but have no protocol', async () => {
-        const request = requestSchema.parse({
-          uid: 'request-1',
-          path: 'api.example.com/users',
-          method: 'get',
-          summary: 'Get users',
-        })
-
-        const legacyData = createLegacyData({
-          title: 'No Protocol API',
-          collection: { requests: ['request-1'] },
-          requests: [request],
-        })
-
-        const result = await transformLegacyDataToWorkspace(legacyData)
-        const doc = (result[0]?.workspace.documents as Record<string, OpenApiDocument> | undefined)?.['no-protocol-api']
-
-        assert(doc)
-        expect(doc.servers).toEqual([])
-        expect(doc).toMatchObject({
-          paths: {
-            '/api.example.com/users': {
-              get: {
-                summary: 'Get users',
-              },
-            },
-          },
-        })
-      })
-
       it('extracts same server from multiple paths without duplication', async () => {
         const request1 = requestSchema.parse({
           uid: 'request-1',
