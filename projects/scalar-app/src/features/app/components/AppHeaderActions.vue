@@ -45,7 +45,6 @@ const emit = defineEmits<{
     <ScalarHeaderButton
       v-if="isActiveDocumentDirty"
       aria-label="Discard changes"
-      class="shrink-0 gap-1.5"
       data-testid="app-header-revert-button"
       title="Discard"
       @click="emit('revert')">
@@ -56,9 +55,10 @@ const emit = defineEmits<{
     </ScalarHeaderButton>
     <ScalarButton
       aria-label="Save"
-      class="gap-1.5 py-2 disabled:opacity-50"
+      class="gap-1.5"
       data-testid="app-header-save-button"
       :disabled="!isActiveDocumentDirty"
+      size="sm"
       title="Save"
       variant="gradient"
       @click="emit('save')">

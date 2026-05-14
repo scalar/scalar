@@ -1018,13 +1018,13 @@ export const createAppState = async ({
       return router.push(route)
     }
 
-    // Selecting a document expands it and jumps to its first operation.
-    // The overview page is usually empty or just an intro paragraph — dropping
-    // straight into a working request is what users want here. We fall back
-    // to the overview only when the document has no operations at all.
+    // Selecting a document expands it and jumps to its first operation,
+    // falling back to the overview only when there are no operations.
     if (entry.type === 'document') {
-      // If we are already in the document, just toggle expansion
-      if (sidebarState.selectedItem.value === id) {
+      // Toggle expansion when the document or any descendant is already selected.
+      // Strict equality on `selectedItem` would miss this, since clicking a
+      // document recurses into a leaf (operation/example).
+      if (sidebarState.isSelected(id)) {
         sidebarState.setExpanded(id, !sidebarState.isExpanded(id))
         return
       }

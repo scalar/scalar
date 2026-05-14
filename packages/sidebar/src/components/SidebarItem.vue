@@ -254,7 +254,7 @@ const children = computed(() =>
     <template
       v-if="'method' in item"
       #toggle>
-      <span class="hidden" />
+      <!-- Nothing -->
     </template>
     <template
       v-if="slots.decorator"
