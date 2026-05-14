@@ -54,7 +54,9 @@ import EnvironmentVariableDropdown from '@/v2/features/environments/components/E
 import type { ClientLayout } from '@/v2/types/layout'
 
 import type { CodeInputModelValue } from './CodeInput.vue'
-import type { PillContext } from './pill-context'
+import { buildPillContext } from './helpers/build-pill-context'
+import { pillSignature } from './helpers/pill-signature'
+import { serializeValue } from './helpers/serialize-value'
 import PillTooltipHost from './PillTooltipHost.vue'
 
 type Props = {
@@ -141,17 +143,6 @@ const isEmpty = ref(true)
 // Rendering-mode detection (parity with CodeInput's select dispatch)
 // ───────────────────────────────────────────────────────────────────
 
-/** Convert any incoming model value to a string for the input element. */
-const serializeValue = (value: CodeInputModelValue): string => {
-  if (typeof value === 'string') {
-    return value
-  }
-  if (value == null) {
-    return ''
-  }
-  return JSON.stringify(value)
-}
-
 /** True when the schema type is exactly `boolean` (or includes it in a tuple type). */
 const isBooleanMode = computed((): boolean => {
   if (enumProp?.length) {
@@ -187,23 +178,6 @@ const lookupVariableValue = (name: string): string | undefined => {
   return typeof v.value === 'string' ? v.value : v.value?.default
 }
 
-const buildPillContext = (variableName: string): PillContext => {
-  if (isContextFunctionName(variableName)) {
-    return {
-      type: 'contextFunction',
-      identifier: variableName,
-      details: getContextFunctionComment(variableName as ContextFunctionName),
-    }
-  }
-  const value = lookupVariableValue(variableName)
-  return {
-    type: 'environment',
-    name: variableName,
-    value: value || 'No value',
-    isDefined: Boolean(value),
-  }
-}
-
 // ───────────────────────────────────────────────────────────────────
 // Per-pill tooltip apps
 // ───────────────────────────────────────────────────────────────────
@@ -235,7 +209,7 @@ const mountPillTooltips = (): void => {
   const pills = editorRef.value.querySelectorAll<HTMLElement>('.scalar-pill')
   for (const pillEl of pills) {
     const variableName = pillEl.dataset.variable ?? ''
-    const context = buildPillContext(variableName)
+    const context = buildPillContext(variableName, environment)
     const app = createApp(PillTooltipHost, { context, target: pillEl })
     // Mount onto a throwaway container — PillTooltipHost is renderless and
     // the tooltip behaviour attaches to `target` directly via useTooltip.
@@ -361,24 +335,6 @@ const serializeEditor = (): string => {
     }
   }
   return out
-}
-
-/**
- * Structural signature: two values produce the same signature iff their
- * sequence of pills is identical. Plain-text edits that don't change the
- * pill set don't need a DOM rebuild, which preserves the live caret.
- */
-const pillSignature = (text: string): string => {
-  if (!withVariables || !text.includes('{{')) {
-    return ''
-  }
-  const regex = new RegExp(REGEX.VARIABLES.source, REGEX.VARIABLES.flags)
-  let sig = ''
-  let m: RegExpExecArray | null
-  while ((m = regex.exec(text)) !== null) {
-    sig += `|${m[1] ?? ''}`
-  }
-  return sig
 }
 
 let lastPillSignature: string | null = null
@@ -575,7 +531,7 @@ const handleDropdownSelect = (item: string): void => {
   const nextCursor = from + `{{${item}}}`.length
 
   // The pill set changes — force a re-render and replace the caret.
-  lastPillSignature = pillSignature(next)
+  lastPillSignature = pillSignature(next, withVariables)
   renderModel(next)
   setModelCaret(nextCursor)
 
@@ -609,7 +565,7 @@ const handleInput = (): void => {
   // plain-text edits the DOM the browser produced is already correct, and
   // skipping the rebuild keeps the live selection intact (important for IME
   // composition and double-click word selection).
-  const sig = pillSignature(text)
+  const sig = pillSignature(text, withVariables)
   if (sig !== lastPillSignature) {
     const caret = getModelCaret()
     lastPillSignature = sig
@@ -729,7 +685,7 @@ const handleEditorClick = (event: MouseEvent): void => {
 
 onMounted(() => {
   const initial = serializeValue(modelValue)
-  lastPillSignature = pillSignature(initial)
+  lastPillSignature = pillSignature(initial, withVariables)
   lastEnvKey = `${environment?.color ?? ''}|${withVariables ? '1' : '0'}`
   renderModel(initial)
   isEmpty.value = initial.length === 0
@@ -742,7 +698,7 @@ watch(
     if (serializeEditor() === serialized) {
       return
     }
-    lastPillSignature = pillSignature(serialized)
+    lastPillSignature = pillSignature(serialized, withVariables)
     renderModel(serialized)
     isEmpty.value = serialized.length === 0
   },
@@ -755,7 +711,7 @@ watch([() => environment, () => withVariables], () => {
     return
   }
   lastEnvKey = envKey
-  lastPillSignature = pillSignature(serializeEditor())
+  lastPillSignature = pillSignature(serializeEditor(), withVariables)
   renderModel(serializeEditor())
 })
 
@@ -788,7 +744,7 @@ defineExpose({
     if (serializeEditor() === next) {
       return
     }
-    lastPillSignature = pillSignature(next)
+    lastPillSignature = pillSignature(next, withVariables)
     renderModel(next)
     isEmpty.value = next.length === 0
   },
