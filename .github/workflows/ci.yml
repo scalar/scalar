@@ -272,14 +272,6 @@ jobs:
       - name: Check built declaration alias imports
         if: matrix.shard-index == 1
         run: pnpm lint:check:dist-dts-aliases
-      - name: Setup Go
-        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
-        with:
-          go-version-file: projects/proxy-scalar-com/go.mod
-          cache: false
-      - name: Start test servers
-        run: pnpm script run test-servers & pnpm script wait -p 5051 5052
-        timeout-minutes: 1
       - name: Run tests
         run: |
           dirs=()
@@ -326,20 +318,6 @@ jobs:
         # For now we will integrate the E2E tests with the integrations tests as they are quite fast and this avoids another job.
       - name: Run e2e tests
         run: pnpm --filter @scalar/nuxt test:e2e
-
-  test-proxy-server:
-    needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Setup Go
-        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
-        with:
-          go-version-file: projects/proxy-scalar-com/go.mod
-          cache: false
-      - name: Run tests for the proxy server (Go)
-        run: cd projects/proxy-scalar-com && go test -v
 
   test-server-side-rendering:
     needs: [build]
@@ -1747,7 +1725,6 @@ jobs:
         knip,
         test-packages,
         test-integrations,
-        test-proxy-server,
         test-e2e-scalar-app,
         types,
       ]
@@ -1767,7 +1744,6 @@ jobs:
         test-server-side-rendering,
         test-packages,
         test-integrations,
-        test-proxy-server,
         test-e2e-scalar-app,
         types,
       ]
