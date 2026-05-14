@@ -55,6 +55,7 @@ import type { ClientLayout } from '@/v2/types/layout'
 
 import type { CodeInputModelValue } from './CodeInput.vue'
 import { buildPillContext } from './helpers/build-pill-context'
+import { lookupVariableValue } from './helpers/lookup-variable-value'
 import { pillSignature } from './helpers/pill-signature'
 import { serializeValue } from './helpers/serialize-value'
 import PillTooltipHost from './PillTooltipHost.vue'
@@ -184,18 +185,6 @@ const handleSelectChange = (value: string): void =>
   emit('update:modelValue', value)
 
 // ───────────────────────────────────────────────────────────────────
-// Pill rendering
-// ───────────────────────────────────────────────────────────────────
-
-const lookupVariableValue = (name: string): string | undefined => {
-  const v = environment?.variables?.find((x) => x.name === name)
-  if (!v) {
-    return undefined
-  }
-  return typeof v.value === 'string' ? v.value : v.value?.default
-}
-
-// ───────────────────────────────────────────────────────────────────
 // Per-pill tooltip apps
 // ───────────────────────────────────────────────────────────────────
 
@@ -267,7 +256,8 @@ const createPillElement = (
     : environment?.color || 'var(--scalar-color-1)'
   span.style.setProperty('--tw-bg-base', color)
 
-  const isUndefinedEnv = !isCtx && lookupVariableValue(name) === undefined
+  const isUndefinedEnv =
+    !isCtx && lookupVariableValue(environment, name) === undefined
   if (isUndefinedEnv) {
     span.style.opacity = '0.5'
   }
@@ -356,6 +346,35 @@ const serializeEditor = (): string => {
 
 let lastPillSignature: string | null = null
 let lastEnvKey = ''
+
+/**
+ * Cache key for the current environment + `withVariables` state. Pill
+ * rendering depends on:
+ *   - `withVariables` — whether `{{name}}` is rendered as a pill at all
+ *   - `environment.color` — pill background colour
+ *   - the set of variables and their resolved values — drives pill
+ *     opacity (`isDefined`) and tooltip text
+ *
+ * Including the variable name/value pairs is what makes the watcher
+ * notice variables being added, removed, or edited even when the env
+ * colour does not change. Without it, the `envKey === lastEnvKey` guard
+ * skips the rebuild and pills display stale opacity / tooltip values
+ * until the input text itself changes (or the component remounts).
+ */
+const computeEnvKey = (): string => {
+  const color = environment?.color ?? ''
+  const flag = withVariables ? '1' : '0'
+  const variables = environment?.variables ?? []
+  let vars = ''
+  for (const v of variables) {
+    const value =
+      typeof v.value === 'string' ? v.value : (v.value?.default ?? '')
+    // Use unit separators (\x1f) so a name/value cannot collide with a
+    // literal `|` or `=` typed inside a variable value.
+    vars += `\x1f${v.name}\x1e${value}`
+  }
+  return `${color}|${flag}|${vars}`
+}
 
 /**
  * Idempotent: flips `tooltipsActive` on first call and mounts tooltips for
@@ -704,7 +723,7 @@ const handleEditorClick = (event: MouseEvent): void => {
 onMounted(() => {
   const initial = serializeValue(modelValue)
   lastPillSignature = pillSignature(initial, withVariables)
-  lastEnvKey = `${environment?.color ?? ''}|${withVariables ? '1' : '0'}`
+  lastEnvKey = computeEnvKey()
   renderModel(initial)
   isEmpty.value = initial.length === 0
 })
@@ -722,24 +741,31 @@ watch(
   },
 )
 
-watch([() => environment, () => withVariables], () => {
-  // Env swaps change pill colors and "undefined" opacity — force a rebuild.
-  const envKey = `${environment?.color ?? ''}|${withVariables ? '1' : '0'}`
-  if (envKey === lastEnvKey) {
-    return
-  }
-  lastEnvKey = envKey
-  // Short-circuit when this instance has no pills to repaint. The vast
-  // majority of rows in a request table are plain text (or empty), so we
-  // skip the DOM walk + rebuild for them whenever the environment changes.
-  // Anything that introduces pills later goes through `handleInput` /
-  // the `modelValue` watcher and updates `lastPillSignature` then.
-  if (lastPillSignature === '') {
-    return
-  }
-  lastPillSignature = pillSignature(serializeEditor(), withVariables)
-  renderModel(serializeEditor())
-})
+watch(
+  [() => environment, () => withVariables],
+  () => {
+    // Env swaps change pill colors and "undefined" opacity — force a rebuild.
+    const envKey = computeEnvKey()
+    if (envKey === lastEnvKey) {
+      return
+    }
+    lastEnvKey = envKey
+    // Short-circuit when this instance has no pills to repaint. The vast
+    // majority of rows in a request table are plain text (or empty), so we
+    // skip the DOM walk + rebuild for them whenever the environment changes.
+    // Anything that introduces pills later goes through `handleInput` /
+    // the `modelValue` watcher and updates `lastPillSignature` then.
+    if (lastPillSignature === '') {
+      return
+    }
+    lastPillSignature = pillSignature(serializeEditor(), withVariables)
+    renderModel(serializeEditor())
+  },
+  // Variables can be mutated in place (e.g. editing a value in the
+  // environment editor) without the surrounding object reference
+  // changing, so we need a deep watch to catch those edits.
+  { deep: true },
+)
 
 onBeforeUnmount(() => {
   teardownPillTooltips()
