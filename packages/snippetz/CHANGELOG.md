@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.9.8
+
+### Patch Changes
+
+- [#9211](https://github.com/scalar/scalar/pull/9211): fix(snippetz): emit `CURLOPT_CUSTOMREQUEST` for PHP cURL snippets when the method is not GET or POST, so DELETE/PUT/PATCH requests render with the correct verb
+
 ## 0.9.7
 
 ### Patch Changes

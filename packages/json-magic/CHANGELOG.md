@@ -1,5 +1,11 @@
 # @scalar/json-magic
 
+## 0.12.14
+
+### Patch Changes
+
+- [#9211](https://github.com/scalar/scalar/pull/9211): fix: strip a leading UTF-8 BOM before JSON.parse in normalize so BOM-prefixed files parse correctly
+
 ## 0.12.13
 
 ### Patch Changes

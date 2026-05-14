@@ -1,5 +1,41 @@
 # @scalar/helpers
 
+## 0.8.0
+
+### Minor Changes
+
+- [#9211](https://github.com/scalar/scalar/pull/9211): feat: add compareVersions and serializeReleaseNotes helpers
+- [#9211](https://github.com/scalar/scalar/pull/9211): feat: support media attachments for the changelog modal
+- [#9211](https://github.com/scalar/scalar/pull/9211): feat(helpers): add `setValueAtPath` for path-array-based nested object writes
+
+### Patch Changes
+
+- [#9211](https://github.com/scalar/scalar/pull/9211): fix(api-client): block invalid request URLs before send and surface `buildRequest` failures as results
+
+  Request construction now treats a bad merged URL as a first-class failure instead of throwing deep inside helpers. After `mergeUrls`, `resolveRequestFactoryUrl` rejects incomplete targets when strict mode applies: relative URLs, an empty server base, or path strings that still contain unresolved `{{variable}}` placeholders. Callers may set `allowMissingRequestServerBase` where a full absolute URL is intentionally optional (for example the embedded modal layout in `OperationBlock`, or API Reference `onBeforeRequest` hooks that build against the document origin).
+
+  `buildRequest` returns a `Result` (`ok` / `err`) with stable error codes such as `MISSING_REQUEST_SERVER_BASE`, `INVALID_REQUEST_FACTORY_URL`, and `BUILD_REQUEST_FAILED` for unexpected synchronous failures. Those failures are wrapped with `safeRun` from `@scalar/helpers`, which logs to `console.error` and maps throws to a string message on the result. The API Reference plugin path logs and skips `onBeforeRequest` when a preview request cannot be built, so user hooks never run against a half-built fetch payload.
+
+  Downstream packages (`api-client`, `api-reference`, `scalar-app` where applicable) unwrap the result, show toasts or logs, and avoid calling `sendRequest` until the URL is valid.
+
+- [#9211](https://github.com/scalar/scalar/pull/9211): fix(helpers): show friendly error message for relative / non-http URLs in the API client
+- [#9211](https://github.com/scalar/scalar/pull/9211): feat: better server extraction from partial urls
+- [#9211](https://github.com/scalar/scalar/pull/9211): fix(api-client): request body content types — OpenAPI extras, MIME labels, and "Other" without auto Content-Type
+
+  The request body dropdown lists built-in types first, then any additional media types from the OpenAPI operation. Labels use the MIME essence (no `charset` in the label). The **Other** option is available again for a raw body: it does **not** add an automatic `Content-Type` header (users can set one manually). Code snippets avoid injecting `Content-Type: other`.
+
+  `getDefaultHeaders` and `filterDisabledDefaultHeaders` are exported from `@scalar/workspace-store/request-example`; the API client uses them for code snippets instead of a duplicate helper.
+
+- [#9211](https://github.com/scalar/scalar/pull/9211): feat(helpers): add `normalizationForm` and `stripAccents` options to `slugify` and `slugger`
+  - `normalizationForm` (`'NFC' | 'NFD' | 'NFKC' | 'NFKD'`, default `'NFC'`) passes the chosen form to `String.prototype.normalize()` before slugifying.
+  - `stripAccents` (`boolean`, default `false`) decomposes accented letters via NFD and removes all Unicode combining marks so e.g. `"Crème Brûlée"` becomes `"creme-brulee"`. Takes precedence over `normalizationForm`.
+
+- [#9211](https://github.com/scalar/scalar/pull/9211): fix: forward selected forbidden headers via `X-Scalar-*` when proxying
+
+  Browsers strip selected forbidden headers from outgoing requests. When using the Scalar proxy (or running in Electron), we now rewrite a small allowlist (`Date`, `DNT`, and `Referer`) to `X-Scalar-*` headers so the proxy can forward the intended upstream headers without opening support for the full forbidden-header set.
+
+- [#9211](https://github.com/scalar/scalar/pull/9211): Add `@scalar/helpers/theme/load-css-variables` for parsing Scalar theme CSS into light/dark custom property maps (moved from scalar-app).
+
 ## 0.7.0
 
 ### Minor Changes
