@@ -887,12 +887,21 @@ jobs:
   deploy-api-client:
     # Run for PR previews and every main push. On main, we wait for npm-publish
     # so we know whether this commit actually released and should deploy to
-    # production (otherwise staging). `!cancelled()` lets this job proceed when
-    # npm-publish is skipped (PRs) or succeeded-without-publish (main pushes
-    # that only opened/updated the release PR). A failed npm-publish blocks
-    # deploys so a broken publish never silently lands on staging.
+    # production (otherwise staging).
+    #
+    # `!cancelled()` lets this job proceed when npm-publish is skipped (PRs) or
+    # succeeded-without-publish (main pushes that only opened/updated the
+    # release PR). Because `!cancelled()` overrides the implicit `success()`
+    # check that GitHub Actions normally applies to all `needs`, we must
+    # re-add explicit success gates for `build` and `check-changes` — otherwise
+    # a broken build on main would still deploy to staging. For `npm-publish`
+    # we keep the relaxed `!= 'failure'` check so a legitimate skip (PRs) or
+    # success-without-publish (no changesets to release) still allows deploy,
+    # but a failed publish blocks it.
     if: |
       !cancelled() &&
+      needs.build.result == 'success' &&
+      needs.check-changes.result == 'success' &&
       needs.npm-publish.result != 'failure' &&
       (
         (
