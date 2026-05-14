@@ -78,27 +78,35 @@ function close() {
         </ScalarMenuButton>
       </slot>
     </DropdownMenu.Trigger>
-    <DropdownMenu.Content
-      align="start"
-      :as="ScalarDropdownMenu"
-      class="max-h-radix-popper z-context"
-      :sideOffset="5"
-      v-bind="$attrs">
-      <!-- Menu content -->
-      <!-- Base Product List (can be overridden by slot) -->
-      <slot
-        :close="close"
-        name="products">
-        <ScalarMenuProducts />
-      </slot>
-      <slot
-        :close="close"
-        name="profile" />
-      <slot
-        :close="close"
-        name="sections">
-        <ScalarMenuResources />
-      </slot>
-    </DropdownMenu.Content>
+    <!--
+      Portal keeps the popper out of the header flex subtree. Without it,
+      WebKit (especially on iPhone) can treat the wide menu surface as part of
+      the flex item's min-content width, so the trigger stretches to match the
+      panel instead of staying compact.
+    -->
+    <DropdownMenu.Portal>
+      <DropdownMenu.Content
+        align="start"
+        :as="ScalarDropdownMenu"
+        class="max-h-radix-popper z-context"
+        :sideOffset="5"
+        v-bind="$attrs">
+        <!-- Menu content -->
+        <!-- Base Product List (can be overridden by slot) -->
+        <slot
+          :close="close"
+          name="products">
+          <ScalarMenuProducts />
+        </slot>
+        <slot
+          :close="close"
+          name="profile" />
+        <slot
+          :close="close"
+          name="sections">
+          <ScalarMenuResources />
+        </slot>
+      </DropdownMenu.Content>
+    </DropdownMenu.Portal>
   </DropdownMenu.Root>
 </template>

@@ -1,6 +1,6 @@
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { defineComponent } from 'vue'
+import { defineComponent, nextTick } from 'vue'
 
 import { ScalarMenu } from './'
 
@@ -8,6 +8,22 @@ import { ScalarMenu } from './'
 const triggerSelector = 'button[aria-expanded]'
 
 const trigger = (wrapper: ReturnType<typeof mount>) => wrapper.get(triggerSelector)
+
+/** Menu content is portaled to `body`, so it sits outside the wrapper root. */
+const openMenuPanel = async (wrapper: ReturnType<typeof mount>): Promise<HTMLElement> => {
+  await trigger(wrapper).trigger('click')
+  await nextTick()
+  await flushPromises()
+  const id = trigger(wrapper).attributes('aria-controls')
+  if (!id) {
+    throw new Error('expected aria-controls on open menu trigger')
+  }
+  const el = document.getElementById(id)
+  if (!el) {
+    throw new Error(`expected menu panel #${id} in document`)
+  }
+  return el
+}
 
 describe('ScalarMenu', () => {
   it('exposes Open Menu as the default trigger label while closed', () => {
@@ -23,9 +39,9 @@ describe('ScalarMenu', () => {
   it('shows default product entries after the trigger opens the menu', async () => {
     const wrapper = mount(ScalarMenu, { attachTo: document.body })
     try {
-      await trigger(wrapper).trigger('click')
-      expect(wrapper.text()).toContain('Dashboard')
-      expect(wrapper.text()).toContain('Client')
+      const panel = await openMenuPanel(wrapper)
+      expect(panel.textContent).toContain('Dashboard')
+      expect(panel.textContent).toContain('Client')
     } finally {
       wrapper.unmount()
     }
@@ -56,8 +72,11 @@ describe('ScalarMenu', () => {
     })
     const wrapper = mount(WithSlot, { attachTo: document.body })
     try {
-      await trigger(wrapper).trigger('click')
-      await wrapper.get('[data-testid="products-close"]').trigger('click')
+      const panel = await openMenuPanel(wrapper)
+      const closeBtn = panel.querySelector<HTMLButtonElement>('[data-testid="products-close"]')
+      expect(closeBtn).not.toBeNull()
+      closeBtn!.click()
+      await flushPromises()
       expect(trigger(wrapper).attributes('aria-expanded')).toBe('false')
     } finally {
       wrapper.unmount()
@@ -76,8 +95,8 @@ describe('ScalarMenu', () => {
     })
     const wrapper = mount(WithProfile, { attachTo: document.body })
     try {
-      await trigger(wrapper).trigger('click')
-      expect(wrapper.get('[data-testid="profile-slot"]').text()).toContain('Workspace')
+      const panel = await openMenuPanel(wrapper)
+      expect(panel.querySelector('[data-testid="profile-slot"]')?.textContent).toContain('Workspace')
     } finally {
       wrapper.unmount()
     }
@@ -155,9 +174,9 @@ describe('ScalarMenu', () => {
     })
     const wrapper = mount(WithSections, { attachTo: document.body })
     try {
-      await trigger(wrapper).trigger('click')
-      expect(wrapper.get('[data-testid="custom-sections"]').text()).toContain('Only custom sections')
-      expect(wrapper.text()).not.toContain('Terms & Conditions')
+      const panel = await openMenuPanel(wrapper)
+      expect(panel.querySelector('[data-testid="custom-sections"]')?.textContent).toContain('Only custom sections')
+      expect(panel.textContent).not.toContain('Terms & Conditions')
     } finally {
       wrapper.unmount()
     }
@@ -169,8 +188,8 @@ describe('ScalarMenu', () => {
       attrs: { 'data-testid': 'menu-surface' },
     })
     try {
-      await trigger(wrapper).trigger('click')
-      expect(wrapper.find('[data-testid="menu-surface"]').exists()).toBe(true)
+      await openMenuPanel(wrapper)
+      expect(document.querySelector('[data-testid="menu-surface"]')).not.toBeNull()
     } finally {
       wrapper.unmount()
     }
