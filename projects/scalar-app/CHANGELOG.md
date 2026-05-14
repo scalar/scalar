@@ -4,14 +4,6 @@
 
 ### Patch Changes
 
-- [#9216](https://github.com/scalar/scalar/pull/9216): chore: bumping release
-- [#9217](https://github.com/scalar/scalar/pull/9217): chore: deploy scalar app
-- [#9218](https://github.com/scalar/scalar/pull/9218): chore: bump
-
-## 1.0.12
-
-### Patch Changes
-
 - [#9063](https://github.com/scalar/scalar/pull/9063): feat(scalar-app): add a "What's new" modal accessible from the Get Started page so users can browse curated release notes inside the client. A small accent dot appears on the trigger when there are unseen releases. Release notes are bundled with the package via `RELEASE_NOTES.json` (the source of truth, imported directly so no runtime markdown parsing is needed) and filtered to the version the user has actually installed. The release-notes generator updates the JSON file during `pnpm changeset version` and regenerates a derived `RELEASE_NOTES.md` view alongside it.
 - [#9180](https://github.com/scalar/scalar/pull/9180): feat: added team switching and fixed up team redirection and workspace routing
 - [#9109](https://github.com/scalar/scalar/pull/9109): fix: monaco editor vite plugin

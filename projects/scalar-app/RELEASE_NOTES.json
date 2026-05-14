@@ -2,18 +2,6 @@
   {
     "version": "1.0.13",
     "date": "2026-05-14",
-    "title": "Polish and bug fixes shipped",
-    "content": [
-      {
-        "type": "href",
-        "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1013",
-        "label": "Read full release notes"
-      }
-    ]
-  },
-  {
-    "version": "1.0.12",
-    "date": "2026-05-14",
     "title": "Scalar Client 1.0 — team workspaces, registry sync, conflict resolution, and a rebuilt experience",
     "content": [
       {

@@ -12,12 +12,6 @@
 
 ## 1.0.13 (2026-05-14)
 
-### Polish and bug fixes shipped
-
-[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1013)
-
-## 1.0.12 (2026-05-14)
-
 ### Scalar Client 1.0 — team workspaces, registry sync, conflict resolution, and a rebuilt experience
 
 <video src="https://cdn.scalar.com/scalar-app/changelog/1.0.10/video.mp4" style="max-width: 100%; width: 100%; height: auto;" autoplay loop muted controls playsinline></video>
