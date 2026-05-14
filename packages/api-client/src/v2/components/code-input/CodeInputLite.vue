@@ -842,26 +842,30 @@ defineExpose({
       @keydown="handleKeyDown"
       @paste="handlePaste"
       @pointerover="ensureTooltipsActive" />
+  </div>
 
-    <!-- Warning slot (positioned absolutely) -->
-    <div
-      v-if="$slots.warning"
-      class="centered-y text-orange absolute right-7 text-xs">
-      <slot name="warning" />
-    </div>
-
-    <!-- Icon slot (positioned absolutely) -->
-    <div
-      v-if="$slots.icon"
-      class="centered-y absolute right-0 flex h-full items-center p-1.5 group-has-[.code-input-lite__editor:focus]:z-1">
-      <slot name="icon" />
-    </div>
-
-    <div
-      v-if="required"
-      class="required centered-y text-xxs text-c-3 group-[.error]:text-red bg-b-1 pointer-events-none absolute right-0 mr-0.5 pt-px pr-2 opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)] transition-opacity duration-150">
-      Required
-    </div>
+  <!--
+    Warning / icon / required indicators are rendered as siblings of the
+    mode templates so they show up in disabled mode and the select modes
+    too, and so their `absolute right-0` positioning anchors to the
+    surrounding cell rather than the shrink-wrapped mode wrapper. Matches
+    CodeInput.vue's layout. The parent `DataTableCell` already provides
+    the `relative` positioning context they rely on.
+  -->
+  <div
+    v-if="$slots.warning"
+    class="centered-y text-orange absolute right-7 text-xs">
+    <slot name="warning" />
+  </div>
+  <div
+    v-if="$slots.icon"
+    class="centered-y absolute right-0 flex h-full items-center p-1.5 group-has-[.code-input-lite__editor:focus]:z-1">
+    <slot name="icon" />
+  </div>
+  <div
+    v-if="required"
+    class="required centered-y text-xxs text-c-3 group-[.error]:text-red bg-b-1 pointer-events-none absolute right-0 mr-0.5 pt-px pr-2 opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)] transition-opacity duration-150">
+    Required
   </div>
 
   <EnvironmentVariableDropdown
