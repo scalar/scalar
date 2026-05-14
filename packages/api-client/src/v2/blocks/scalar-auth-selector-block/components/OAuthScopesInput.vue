@@ -273,7 +273,7 @@ const handleDeleteScope = (scopeKey: string) => {
               v-model="searchQuery"
               class="flex items-center text-xs" />
             <table
-              class="grid max-h-40 auto-rows-auto overflow-x-hidden overflow-y-scroll"
+              class="grid max-h-40 auto-rows-auto overflow-x-hidden overflow-y-auto"
               :style="{ gridTemplateColumns: '1fr auto' }">
               <DataTableRow
                 v-for="{ id, label, description } in filteredScopes"
