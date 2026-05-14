@@ -258,7 +258,10 @@ const handleWorkspaceSelect = async (
   if (!option || option.id === activeWorkspaceId.value) {
     return
   }
-  await app.workspace.resumeOrGetStarted(currentTeamSlug.value, option.id)
+  // The picker emits the workspace's UID as `option.id`. UID is the
+  // canonical pointer, so we route by it directly — no team context
+  // needed.
+  await app.workspace.resumeOrGetStarted({ workspaceUid: option.id })
 }
 
 const handleVersionSelect = async (option: VersionOption | undefined) => {

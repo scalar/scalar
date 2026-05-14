@@ -1,5 +1,5 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { createWorkspaceStorePersistence, getWorkspaceId } from '@scalar/workspace-store/persistence'
+import { createWorkspaceStorePersistence, generateWorkspaceUid } from '@scalar/workspace-store/persistence'
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { computed, nextTick } from 'vue'
@@ -9,14 +9,24 @@ import 'fake-indexeddb/auto'
 import { createAppState } from './app-state'
 import { filterWorkspacesByTeam } from './helpers/filter-workspaces'
 import { groupWorkspacesByTeam } from './helpers/group-workspaces'
+import { getPlaceholderWorkspaceId } from './helpers/placeholder-workspace-id'
 import { ROUTES } from './helpers/routes'
 
+/**
+ * Seeds a workspace into IndexedDB at a known slug pair so the app state
+ * under test can resolve it via the URL. The default `teamUid` mirrors
+ * the team slug so tests written before UID-based identity (which
+ * passed only `teamSlug`) keep working — team-scoped lookups still
+ * group correctly.
+ */
 const persistWorkspace = async ({
+  teamUid,
   teamSlug = 'local',
   slug,
   name = 'Test Workspace',
   tabs,
 }: {
+  teamUid?: string
   teamSlug?: string
   slug: string
   name?: string
@@ -30,17 +40,32 @@ const persistWorkspace = async ({
   }
 
   const persistence = await createWorkspaceStorePersistence()
-  await persistence.workspace.setItem({ teamSlug, slug }, { name, workspace: store.exportWorkspace() })
+  await persistence.workspace.setItem(
+    { workspaceUid: generateWorkspaceUid(), teamUid: teamUid ?? teamSlug, teamSlug, slug },
+    { name, workspace: store.exportWorkspace() },
+  )
+}
+
+/** Avoids duplicate `local`/`default` rows — the catalog index is unique on `[teamSlug, slug]`. */
+const ensureLocalDefaultWorkspace = async (): Promise<void> => {
+  const persistence = await createWorkspaceStorePersistence()
+  if (await persistence.workspace.getItemBySlug({ slug: 'default' })) {
+    return
+  }
+  await persistWorkspace({ slug: 'default', name: 'Local Default' })
 }
 
 const setupRouter = () => createRouter({ history: createMemoryHistory(), routes: ROUTES })
 
 /**
- * Builds the `{ teamSlug, filteredWorkspaces }` metadata object that
- * `handleRouteChange` expects with `ComputedRef` values.
+ * Builds the metadata object that `handleRouteChange` expects with
+ * `ComputedRef` values. `teamUid` defaults to the slug so tests that
+ * only care about slug-level routing keep working without thinking
+ * about UID identity explicitly.
  */
-const routeMetadata = (appState: Awaited<ReturnType<typeof createAppState>>, teamSlug: string) => ({
+const routeMetadata = (appState: Awaited<ReturnType<typeof createAppState>>, teamSlug: string, teamUid = teamSlug) => ({
   teamSlug: computed(() => teamSlug),
+  teamUid: computed(() => teamUid),
   filteredWorkspaces: computed(() => filterWorkspacesByTeam(appState.workspace.workspaceList.value, teamSlug)),
 })
 
@@ -128,23 +153,27 @@ describe('app-state', () => {
   })
 
   it('navigates to the existing team workspace instead of creating a duplicate', async () => {
-    await persistWorkspace({ teamSlug: 'acme', slug: 'first-team-workspace', name: 'First' })
+    await persistWorkspace({ teamUid: 'acme-uid', teamSlug: 'acme', slug: 'first-team-workspace', name: 'First' })
 
     const router = setupRouter()
     const appState = await createAppState({ router })
 
     const result = await appState.workspace.create({
+      teamUid: 'acme-uid',
       teamSlug: 'acme',
       name: 'Second',
     })
 
-    expect(result).toEqual({
+    // The existing workspace is returned verbatim — `teamUid` matches so
+    // the dedup branch fires before any new workspace can be persisted.
+    expect(result).toMatchObject({
+      teamUid: 'acme-uid',
       teamSlug: 'acme',
       slug: 'first-team-workspace',
       name: 'First',
     })
 
-    const acmeWorkspaces = appState.workspace.workspaceList.value.filter((w) => w.teamSlug === 'acme')
+    const acmeWorkspaces = appState.workspace.workspaceList.value.filter((w) => w.teamUid === 'acme-uid')
     expect(acmeWorkspaces).toHaveLength(1)
 
     await waitForNavigation()
@@ -202,7 +231,10 @@ describe('app-state', () => {
     expect(teamGroup).toBeDefined()
     expect(teamGroup?.options).toEqual([
       {
-        id: getWorkspaceId('placeholder-team', 'default'),
+        // The picker placeholder uses the `pending:` prefix so picker
+        // consumers can tell it apart from a real `workspaceUid` and
+        // route it to the team's get-started page.
+        id: getPlaceholderWorkspaceId('placeholder-team', 'default'),
         label: 'Team workspace',
       },
     ])
@@ -346,7 +378,12 @@ describe('app-state', () => {
     // team-backed workspace — not redirected to local/default.
     expect(appState.workspace.isTeamWorkspace.value).toBe(true)
     expect(router.currentRoute.value.params.teamSlug).toBe(teamSlug)
-    expect(appState.workspace.activeWorkspace.value?.id).toBe(getWorkspaceId(teamSlug, 'team-default'))
+    // `id` is now the stable workspaceUid, so we check by slug pair via
+    // the dedicated `teamSlug` / `slug` fields. Picker placeholders for
+    // teams without a real workspace are built separately via
+    // `getPlaceholderWorkspaceId` and do not flow through this path.
+    expect(appState.workspace.activeWorkspace.value?.teamSlug).toBe(teamSlug)
+    expect(appState.workspace.activeWorkspace.value?.slug).toBe('team-default')
   })
 
   it('redirects off a team workspace URL when the resolved team context is still local', async () => {
@@ -405,9 +442,10 @@ describe('app-state', () => {
     appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, teamSlug))
     await waitForNavigation()
 
-    // Verify workspace A is loaded
+    // Verify workspace A is loaded (by slug pair — `id` is now the
+    // workspaceUid which we cannot predict from the seed.)
     await vi.waitFor(() => {
-      expect(appState.workspace.activeWorkspace.value?.id).toBe(getWorkspaceId('local', 'switch-source'))
+      expect(appState.workspace.activeWorkspace.value?.slug).toBe('switch-source')
     })
 
     // Switch to workspace B
@@ -422,7 +460,158 @@ describe('app-state', () => {
     await vi.waitFor(() => {
       expect(appState.store.value).not.toBeNull()
     })
-    expect(appState.workspace.activeWorkspace.value?.id).toBe(getWorkspaceId('local', 'switch-target'))
+    expect(appState.workspace.activeWorkspace.value?.slug).toBe('switch-target')
     expect(router.currentRoute.value.params.workspaceSlug).toBe('switch-target')
+  })
+
+  it('redirects to the canonical slug pair when the URL slugs are stale for a known team UID', async () => {
+    // The user lands on a stale `/@old-slug/api` URL after the server
+    // renamed the team. The local catalog already reflects the rename
+    // (teamSlug=new-slug). The route's `teamSlug` mismatch is detected
+    // and the user is redirected to the workspace's current slug pair.
+    const teamUid = 'rename-team-uid'
+    await persistWorkspace({ teamUid, teamSlug: 'new-slug', slug: 'api', name: 'Renamed Workspace' })
+
+    const router = setupRouter()
+    const appState = await createAppState({ router })
+
+    await router.push({
+      name: 'workspace.get-started',
+      params: { teamSlug: 'old-slug', workspaceSlug: 'api' },
+    })
+    await router.isReady()
+
+    // `useTeams` resolves with the *current* server-advertised slug
+    // (`new-slug`) — the URL is the stale value the user reloaded onto.
+    appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, 'new-slug', teamUid))
+    await waitForNavigation()
+
+    expect(router.currentRoute.value.params.teamSlug).toBe('new-slug')
+    expect(router.currentRoute.value.params.workspaceSlug).toBe('api')
+  })
+
+  it('falls through to the local default when /@local/… misses while the shell team is non-local', async () => {
+    const teamUid = 'logged-in-team-uid'
+    const teamSlug = 'acme-local-fallback-test'
+    await ensureLocalDefaultWorkspace()
+    await persistWorkspace({
+      teamUid,
+      teamSlug,
+      slug: 'only-team-ws',
+      name: 'Team WS',
+    })
+
+    const router = setupRouter()
+    const appState = await createAppState({ router })
+
+    await router.push({
+      name: 'workspace.get-started',
+      params: { teamSlug: 'local', workspaceSlug: 'does-not-exist' },
+    })
+    await router.isReady()
+
+    // Shell team is the org, but the URL explicitly targets a missing local workspace.
+    await appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, teamSlug, teamUid))
+    await waitForNavigation()
+
+    expect(router.currentRoute.value.params.teamSlug).toBe('local')
+    expect(router.currentRoute.value.params.workspaceSlug).toBe('default')
+  })
+
+  it('reconciles the cached team slug and strips stale tab metadata when the server slug changes', async () => {
+    // Persist a workspace whose locally-known teamSlug is `acme` but
+    // whose meta tabs were captured under that old slug. After
+    // reconciliation, the catalog should report the new slug and the
+    // stale tab paths should be gone from persistence.
+    const teamUid = 'acme-uid'
+    await persistWorkspace({
+      teamUid,
+      teamSlug: 'acme',
+      slug: 'api',
+      name: 'Acme API',
+      tabs: [{ path: '/@acme/api/document/drafts', title: 'Drafts' }],
+    })
+
+    const router = setupRouter()
+    const appState = await createAppState({ router })
+
+    await appState.workspace.reconcileTeamSlug(teamUid, 'acme-corp')
+
+    const workspace = appState.workspace.workspaceList.value.find((w) => w.teamUid === teamUid)
+    expect(workspace?.teamSlug).toBe('acme-corp')
+
+    // Persisted meta no longer references the stale `/@acme/...` path.
+    const persistence = await createWorkspaceStorePersistence()
+    const persisted = await persistence.workspace.getItemBySlug({ teamSlug: 'acme-corp', slug: 'api' })
+    expect(persisted?.workspace.meta).not.toHaveProperty('x-scalar-tabs')
+    expect(persisted?.workspace.meta).not.toHaveProperty('x-scalar-active-tab')
+  })
+
+  it('reconcileTeamSlug is a no-op when teamUid is local', async () => {
+    await persistWorkspace({ slug: 'local-one', name: 'Local One' })
+
+    const router = setupRouter()
+    const appState = await createAppState({ router })
+
+    const before = appState.workspace.workspaceList.value.map((w) => ({ ...w }))
+    await appState.workspace.reconcileTeamSlug('local', 'whatever')
+    const after = appState.workspace.workspaceList.value.map((w) => ({ ...w }))
+
+    expect(after).toEqual(before)
+  })
+
+  it('reconcileTeamSlug skips in-memory slug refresh when persistence rejects a slug collision', async () => {
+    const teamUid = 'collision-team-uid'
+    await persistWorkspace({
+      teamUid,
+      teamSlug: 'acme-new',
+      slug: 'api',
+      name: 'Already on new slug',
+    })
+    await persistWorkspace({
+      teamUid,
+      teamSlug: 'acme-old',
+      slug: 'api',
+      name: 'Stale slug row',
+    })
+
+    const router = setupRouter()
+    const appState = await createAppState({ router })
+
+    await appState.workspace.reconcileTeamSlug(teamUid, 'acme-new')
+
+    const staleRow = appState.workspace.workspaceList.value.find((w) => w.label === 'Stale slug row')
+    expect(staleRow?.teamSlug).toBe('acme-old')
+
+    const persistence = await createWorkspaceStorePersistence()
+    expect(await persistence.workspace.getItemBySlug({ teamSlug: 'acme-old', slug: 'api' })).toMatchObject({
+      name: 'Stale slug row',
+    })
+    expect(
+      (await persistence.workspace.getAllByTeamUid(teamUid))
+        .filter((w) => w.slug === 'api')
+        .map((w) => w.teamSlug)
+        .sort(),
+    ).toEqual(['acme-new', 'acme-old'])
+  })
+
+  it('routes a picker placeholder selection to the team get-started page instead of the local default', async () => {
+    // Regression: the picker surfaces a synthetic "Team workspace"
+    // option for non-local teams that do not yet own a real workspace.
+    // Its id is `pending:<teamSlug>/<slug>`. The picker forwards it as
+    // `resumeOrGetStarted({ workspaceUid })`. The UID lookup misses
+    // (real UIDs are UUIDs), so without the placeholder fast-path the
+    // call falls through to `navigateToWorkspace('local', 'default')`
+    // and silently bounces the user to the local workspace.
+    const router = setupRouter()
+    const appState = await createAppState({ router })
+
+    const placeholderId = getPlaceholderWorkspaceId('acme', 'default')
+    await appState.workspace.resumeOrGetStarted({ workspaceUid: placeholderId })
+    await waitForNavigation()
+
+    expect(router.currentRoute.value.name).toBe('workspace.get-started')
+    expect(router.currentRoute.value.params.teamSlug).toBe('acme')
+    expect(router.currentRoute.value.params.workspaceSlug).toBe('default')
   })
 })

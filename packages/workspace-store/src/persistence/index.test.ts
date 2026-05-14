@@ -3,6 +3,18 @@ import 'fake-indexeddb/auto'
 
 import { createWorkspaceStorePersistence } from './index'
 
+const blankWorkspace = () => ({
+  documents: {},
+  originalDocuments: {},
+  intermediateDocuments: {},
+  overrides: {},
+  meta: {},
+  history: {},
+  auth: {},
+})
+
+const newUid = () => globalThis.crypto.randomUUID()
+
 describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
   const testDbName = 'scalar-workspace-store'
   let persistence: Awaited<ReturnType<typeof createWorkspaceStorePersistence>>
@@ -22,325 +34,47 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
     }
   })
 
-  describe('workspace.getAllByTeamSlug', () => {
-    it('returns empty array when no workspaces exist', async () => {
-      const workspaces = await persistence.workspace.getAllByTeamSlug('team-1')
+  describe('workspace.setItem', () => {
+    it('persists the full identity tuple alongside the workspace name', async () => {
+      const workspaceUid = newUid()
 
-      expect(workspaces).toEqual([])
+      const workspace = await persistence.workspace.setItem(
+        { workspaceUid, teamUid: 'team-1-uid', teamSlug: 'team-1', slug: 'workspace-1' },
+        { name: 'Workspace 1', workspace: blankWorkspace() },
+      )
+
+      expect(workspace).toEqual({
+        workspaceUid,
+        teamUid: 'team-1-uid',
+        teamSlug: 'team-1',
+        slug: 'workspace-1',
+        name: 'Workspace 1',
+      })
     })
 
-    it('returns all workspaces for a specific teamSlug', async () => {
-      await persistence.workspace.setItem(
-        { teamSlug: 'team-1', slug: 'workspace-1' },
-        {
-          name: 'Team Workspace 1',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
+    it('defaults teamUid, teamSlug, and slug to local-friendly values', async () => {
+      const workspaceUid = newUid()
 
       await persistence.workspace.setItem(
-        { teamSlug: 'team-1', slug: 'workspace-2' },
-        {
-          name: 'Team Workspace 2',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
+        { workspaceUid, slug: 'personal' },
+        { name: 'Personal', workspace: blankWorkspace() },
       )
 
-      const workspaces = await persistence.workspace.getAllByTeamSlug('team-1')
-
-      expect(workspaces).toHaveLength(2)
-      expect(workspaces).toEqual([
-        { name: 'Team Workspace 1', teamSlug: 'team-1', slug: 'workspace-1' },
-        { name: 'Team Workspace 2', teamSlug: 'team-1', slug: 'workspace-2' },
-      ])
+      const fetched = await persistence.workspace.getItem(workspaceUid)
+      expect(fetched).toMatchObject({ teamUid: 'local', teamSlug: 'local', slug: 'personal' })
     })
+  })
 
-    it('returns only workspaces that match the teamSlug', async () => {
-      await persistence.workspace.setItem(
-        { teamSlug: 'team-1', slug: 'team1-workspace' },
-        {
-          name: 'Team 1 Workspace',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
+  describe('workspace.getItem', () => {
+    it('returns the full workspace including all chunks', async () => {
+      const workspaceUid = newUid()
 
       await persistence.workspace.setItem(
-        { teamSlug: 'team-2', slug: 'team2-workspace' },
-        {
-          name: 'Team 2 Workspace',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      await persistence.workspace.setItem(
-        { slug: 'local-workspace' },
-        {
-          name: 'Local Workspace',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      const team1Workspaces = await persistence.workspace.getAllByTeamSlug('team-1')
-      const team2Workspaces = await persistence.workspace.getAllByTeamSlug('team-2')
-
-      expect(team1Workspaces).toHaveLength(1)
-      expect(team1Workspaces[0]?.slug).toBe('team1-workspace')
-      expect(team1Workspaces[0]?.teamSlug).toBe('team-1')
-
-      expect(team2Workspaces).toHaveLength(1)
-      expect(team2Workspaces[0]?.slug).toBe('team2-workspace')
-      expect(team2Workspaces[0]?.teamSlug).toBe('team-2')
-    })
-
-    it('returns local workspaces when teamSlug is local', async () => {
-      await persistence.workspace.setItem(
-        { slug: 'local-1' },
-        {
-          name: 'Local Workspace 1',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      await persistence.workspace.setItem(
-        { slug: 'local-2' },
-        {
-          name: 'Local Workspace 2',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      const localWorkspaces = await persistence.workspace.getAllByTeamSlug('local')
-
-      expect(localWorkspaces).toHaveLength(2)
-      expect(localWorkspaces.every((w) => w.teamSlug === 'local')).toBe(true)
-    })
-
-    it('returns empty array when teamSlug does not exist', async () => {
-      await persistence.workspace.setItem(
-        { teamSlug: 'team-1', slug: 'workspace-1' },
-        {
-          name: 'Workspace',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      const workspaces = await persistence.workspace.getAllByTeamSlug('non-existent-team')
-
-      expect(workspaces).toEqual([])
-    })
-
-    it('returns remaining workspaces after deletion', async () => {
-      await persistence.workspace.setItem(
-        { teamSlug: 'team-1', slug: 'workspace-1' },
-        {
-          name: 'Workspace 1',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      await persistence.workspace.setItem(
-        { teamSlug: 'team-1', slug: 'workspace-2' },
-        {
-          name: 'Workspace 2',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      await persistence.workspace.setItem(
-        { teamSlug: 'team-1', slug: 'workspace-3' },
-        {
-          name: 'Workspace 3',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      await persistence.workspace.deleteItem({ teamSlug: 'team-1', slug: 'workspace-2' })
-
-      const workspaces = await persistence.workspace.getAllByTeamSlug('team-1')
-
-      expect(workspaces).toHaveLength(2)
-      expect(workspaces.map((w) => w.slug)).toEqual(['workspace-1', 'workspace-3'])
-    })
-
-    it('relocates a workspace when its teamSlug changes', async () => {
-      await persistence.workspace.setItem(
-        { teamSlug: 'team-1', slug: 'workspace-1' },
-        {
-          name: 'Workspace 1',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      const team1WorkspacesBefore = await persistence.workspace.getAllByTeamSlug('team-1')
-      expect(team1WorkspacesBefore).toHaveLength(1)
-
-      // The previous record is no longer findable under team-1; a new record
-      // lives under team-2. Because teamSlug is part of the primary key, the
-      // old record must be deleted explicitly — setting the new record does
-      // not rewrite the old one.
-      await persistence.workspace.deleteItem({ teamSlug: 'team-1', slug: 'workspace-1' })
-      await persistence.workspace.setItem(
-        { teamSlug: 'team-2', slug: 'workspace-1' },
-        {
-          name: 'Workspace 1',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      const team1WorkspacesAfter = await persistence.workspace.getAllByTeamSlug('team-1')
-      const team2Workspaces = await persistence.workspace.getAllByTeamSlug('team-2')
-
-      expect(team1WorkspacesAfter).toEqual([])
-      expect(team2Workspaces).toHaveLength(1)
-      expect(team2Workspaces[0]?.slug).toBe('workspace-1')
-    })
-
-    it('handles multiple teams with different workspaces', async () => {
-      const teams = ['team-a', 'team-b', 'team-c']
-
-      for (const team of teams) {
-        for (let j = 1; j <= 3; j++) {
-          await persistence.workspace.setItem(
-            { teamSlug: team, slug: `${team}-workspace-${j}` },
-            {
-              name: `${team} Workspace ${j}`,
-              workspace: {
-                documents: {},
-                originalDocuments: {},
-                intermediateDocuments: {},
-                overrides: {},
-                meta: {},
-                history: {},
-                auth: {},
-              },
-            },
-          )
-        }
-      }
-
-      const teamAWorkspaces = await persistence.workspace.getAllByTeamSlug('team-a')
-      const teamBWorkspaces = await persistence.workspace.getAllByTeamSlug('team-b')
-      const teamCWorkspaces = await persistence.workspace.getAllByTeamSlug('team-c')
-
-      expect(teamAWorkspaces).toHaveLength(3)
-      expect(teamBWorkspaces).toHaveLength(3)
-      expect(teamCWorkspaces).toHaveLength(3)
-
-      expect(teamAWorkspaces.every((w) => w.teamSlug === 'team-a')).toBe(true)
-      expect(teamBWorkspaces.every((w) => w.teamSlug === 'team-b')).toBe(true)
-      expect(teamCWorkspaces.every((w) => w.teamSlug === 'team-c')).toBe(true)
-    })
-
-    it('returns workspaces with complete metadata', async () => {
-      await persistence.workspace.setItem(
-        { teamSlug: 'team-1', slug: 'api-workspace' },
+        { workspaceUid, teamSlug: 'team-1', slug: 'api' },
         {
           name: 'API Workspace',
           workspace: {
+            ...blankWorkspace(),
             documents: {
               'doc-1': {
                 openapi: '3.1.0',
@@ -349,878 +83,464 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
                 'x-scalar-original-document-hash': '',
               },
             },
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
+            meta: { 'x-scalar-color-mode': 'dark' },
           },
         },
       )
 
-      const workspaces = await persistence.workspace.getAllByTeamSlug('team-1')
+      const fetched = await persistence.workspace.getItem(workspaceUid)
+      expect(fetched?.name).toBe('API Workspace')
+      expect(fetched?.workspace.meta).toEqual({ 'x-scalar-color-mode': 'dark' })
+      expect(fetched?.workspace.documents['doc-1']).toBeDefined()
+    })
 
-      expect(workspaces).toHaveLength(1)
-      expect(workspaces[0]).toEqual({
-        name: 'API Workspace',
-        teamSlug: 'team-1',
-        slug: 'api-workspace',
-      })
+    it('returns undefined for a missing workspace', async () => {
+      const fetched = await persistence.workspace.getItem('missing-uid')
+      expect(fetched).toBeUndefined()
+    })
+  })
+
+  describe('workspace.getItemBySlug', () => {
+    it('resolves a workspace via its [teamSlug, slug] pair', async () => {
+      const workspaceUid = newUid()
+
+      await persistence.workspace.setItem(
+        { workspaceUid, teamUid: 'team-1-uid', teamSlug: 'team-1', slug: 'api' },
+        { name: 'Team API', workspace: blankWorkspace() },
+      )
+
+      const fetched = await persistence.workspace.getItemBySlug({ teamSlug: 'team-1', slug: 'api' })
+      expect(fetched?.workspaceUid).toBe(workspaceUid)
+      expect(fetched?.name).toBe('Team API')
+    })
+
+    it('defaults teamSlug to "local" when omitted', async () => {
+      const workspaceUid = newUid()
+
+      await persistence.workspace.setItem(
+        { workspaceUid, slug: 'personal' },
+        { name: 'Personal', workspace: blankWorkspace() },
+      )
+
+      const fetched = await persistence.workspace.getItemBySlug({ slug: 'personal' })
+      expect(fetched?.workspaceUid).toBe(workspaceUid)
+    })
+
+    it('returns undefined when no workspace matches the slug pair', async () => {
+      const fetched = await persistence.workspace.getItemBySlug({ teamSlug: 'team-1', slug: 'nothing-here' })
+      expect(fetched).toBeUndefined()
     })
   })
 
   describe('workspace.getAll', () => {
-    it('returns empty array when no workspaces exist', async () => {
-      const workspaces = await persistence.workspace.getAll()
-
-      expect(workspaces).toEqual([])
-    })
-
-    it('returns all workspace IDs and names', async () => {
-      await persistence.workspace.setItem(
-        { slug: 'workspace-1' },
-        {
-          name: 'Workspace One',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
+    it('returns every workspace shell record', async () => {
+      const firstUid = newUid()
+      const secondUid = newUid()
 
       await persistence.workspace.setItem(
-        { slug: 'workspace-2' },
-        {
-          name: 'Workspace Two',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
+        { workspaceUid: firstUid, slug: 'workspace-1' },
+        { name: 'Workspace One', workspace: blankWorkspace() },
       )
-
-      const workspaces = await persistence.workspace.getAll()
-
-      expect(workspaces).toHaveLength(2)
-      expect(workspaces).toEqual([
-        { name: 'Workspace One', teamSlug: 'local', slug: 'workspace-1' },
-        { name: 'Workspace Two', teamSlug: 'local', slug: 'workspace-2' },
-      ])
-    })
-
-    it('returns all workspaces with different names', async () => {
       await persistence.workspace.setItem(
-        { slug: 'ws-alpha' },
-        {
-          name: 'Alpha Project',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
+        { workspaceUid: secondUid, slug: 'workspace-2' },
+        { name: 'Workspace Two', workspace: blankWorkspace() },
       )
 
-      await persistence.workspace.setItem(
-        { slug: 'ws-beta' },
-        {
-          name: 'Beta Testing',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      await persistence.workspace.setItem(
-        { slug: 'ws-gamma' },
-        {
-          name: 'Gamma Release',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      const workspaces = await persistence.workspace.getAll()
-
-      expect(workspaces).toHaveLength(3)
-      expect(workspaces.map((w) => w.name)).toEqual(['Alpha Project', 'Beta Testing', 'Gamma Release'])
-      expect(workspaces.map((w) => w.slug)).toEqual(['ws-alpha', 'ws-beta', 'ws-gamma'])
-    })
-
-    it('returns remaining workspaces after deletion', async () => {
-      await persistence.workspace.setItem(
-        { slug: 'workspace-1' },
-        {
-          name: 'Workspace One',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      await persistence.workspace.setItem(
-        { slug: 'workspace-2' },
-        {
-          name: 'Workspace Two',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      await persistence.workspace.setItem(
-        { slug: 'workspace-3' },
-        {
-          name: 'Workspace Three',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      await persistence.workspace.deleteItem({ slug: 'workspace-2' })
-
-      const workspaces = await persistence.workspace.getAll()
-
-      expect(workspaces).toHaveLength(2)
-      expect(workspaces).toEqual([
-        { slug: 'workspace-1', name: 'Workspace One', teamSlug: 'local' },
-        { slug: 'workspace-3', name: 'Workspace Three', teamSlug: 'local' },
-      ])
-    })
-
-    it('returns updated workspace name after update', async () => {
-      await persistence.workspace.setItem(
-        { slug: 'workspace-1' },
-        {
-          name: 'Original Name',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      await persistence.workspace.setItem(
-        { slug: 'workspace-1' },
-        {
-          name: 'Updated Name',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      const workspaces = await persistence.workspace.getAll()
-
-      expect(workspaces).toHaveLength(1)
-      expect(workspaces[0]).toEqual({
-        slug: 'workspace-1',
-        name: 'Updated Name',
-        teamSlug: 'local',
-      })
-    })
-
-    it('returns workspaces after multiple deletions', async () => {
-      for (let i = 1; i <= 5; i++) {
-        await persistence.workspace.setItem(
-          { slug: `workspace-${i}` },
-          {
-            name: `Workspace ${i}`,
-            workspace: {
-              documents: {},
-              originalDocuments: {},
-              intermediateDocuments: {},
-              overrides: {},
-              meta: {},
-              history: {},
-              auth: {},
-            },
-          },
-        )
+      const all = await persistence.workspace.getAll()
+      expect(all).toHaveLength(2)
+      expect(all.map((workspace) => workspace.name).sort()).toEqual(['Workspace One', 'Workspace Two'])
+      // Shell records never include chunk data.
+      for (const workspace of all) {
+        expect(workspace).not.toHaveProperty('workspace')
       }
-
-      await persistence.workspace.deleteItem({ slug: 'workspace-2' })
-      await persistence.workspace.deleteItem({ slug: 'workspace-4' })
-
-      const workspaces = await persistence.workspace.getAll()
-
-      expect(workspaces).toHaveLength(3)
-      expect(workspaces.map((w) => w.slug)).toEqual(['workspace-1', 'workspace-3', 'workspace-5'])
     })
 
-    it('handles workspace with complex data', async () => {
+    it('returns an empty array when nothing has been persisted', async () => {
+      expect(await persistence.workspace.getAll()).toEqual([])
+    })
+  })
+
+  describe('workspace.getAllByTeamUid', () => {
+    it('returns every workspace belonging to a team by its UID', async () => {
       await persistence.workspace.setItem(
-        { slug: 'complex-workspace' },
+        { workspaceUid: newUid(), teamUid: 'team-a-uid', teamSlug: 'team-a', slug: 'api' },
+        { name: 'Team A API', workspace: blankWorkspace() },
+      )
+      await persistence.workspace.setItem(
+        { workspaceUid: newUid(), teamUid: 'team-a-uid', teamSlug: 'team-a-staging', slug: 'api' },
+        { name: 'Team A Staging', workspace: blankWorkspace() },
+      )
+      await persistence.workspace.setItem(
+        { workspaceUid: newUid(), teamUid: 'team-b-uid', teamSlug: 'team-b', slug: 'api' },
+        { name: 'Team B API', workspace: blankWorkspace() },
+      )
+
+      const teamAWorkspaces = await persistence.workspace.getAllByTeamUid('team-a-uid')
+      expect(teamAWorkspaces.map((workspace) => workspace.name).sort()).toEqual(['Team A API', 'Team A Staging'])
+
+      const teamBWorkspaces = await persistence.workspace.getAllByTeamUid('team-b-uid')
+      expect(teamBWorkspaces.map((workspace) => workspace.name)).toEqual(['Team B API'])
+
+      const missingTeamWorkspaces = await persistence.workspace.getAllByTeamUid('missing-uid')
+      expect(missingTeamWorkspaces).toEqual([])
+    })
+
+    it('continues to resolve a workspace by its UID after its team slug changes', async () => {
+      const workspaceUid = newUid()
+
+      await persistence.workspace.setItem(
+        { workspaceUid, teamUid: 'team-a-uid', teamSlug: 'old-name', slug: 'api' },
+        { name: 'Team A API', workspace: blankWorkspace() },
+      )
+
+      // Server-side rename: same team UID, different slug. The workspace
+      // remains addressable via teamUid and only its mutable slug shifts.
+      await persistence.workspace.updateSlugs(workspaceUid, { teamSlug: 'new-name' })
+
+      const teamWorkspaces = await persistence.workspace.getAllByTeamUid('team-a-uid')
+      expect(teamWorkspaces).toHaveLength(1)
+      expect(teamWorkspaces[0]?.teamSlug).toBe('new-name')
+    })
+  })
+
+  describe('workspace.getAllByTeamSlug', () => {
+    it('returns workspaces by current team slug', async () => {
+      await persistence.workspace.setItem(
+        { workspaceUid: newUid(), teamSlug: 'team-1', slug: 'workspace-1' },
+        { name: 'Team Workspace 1', workspace: blankWorkspace() },
+      )
+      await persistence.workspace.setItem(
+        { workspaceUid: newUid(), teamSlug: 'team-1', slug: 'workspace-2' },
+        { name: 'Team Workspace 2', workspace: blankWorkspace() },
+      )
+      await persistence.workspace.setItem(
+        { workspaceUid: newUid(), slug: 'local-workspace' },
+        { name: 'Local Workspace', workspace: blankWorkspace() },
+      )
+
+      const team1Workspaces = await persistence.workspace.getAllByTeamSlug('team-1')
+      expect(team1Workspaces.map((workspace) => workspace.slug).sort()).toEqual(['workspace-1', 'workspace-2'])
+
+      const localWorkspaces = await persistence.workspace.getAllByTeamSlug('local')
+      expect(localWorkspaces.map((workspace) => workspace.slug)).toEqual(['local-workspace'])
+    })
+  })
+
+  describe('workspace.deleteItem', () => {
+    it('removes the workspace and every chunk that referenced it', async () => {
+      const workspaceUid = newUid()
+
+      await persistence.workspace.setItem(
+        { workspaceUid, slug: 'doomed' },
         {
-          name: 'Complex API Workspace',
+          name: 'Doomed',
           workspace: {
+            ...blankWorkspace(),
             documents: {
               'doc-1': {
                 openapi: '3.1.0',
-                info: { title: 'API Doc', version: '1.0.0' },
+                info: { title: 'API', version: '1.0.0' },
                 paths: {},
                 'x-scalar-original-document-hash': '',
               },
             },
-            originalDocuments: {
-              'doc-1': { openapi: '3.1.0', info: { title: 'Original', version: '1.0.0' } },
-            },
-            intermediateDocuments: {
-              'doc-1': { intermediate: true },
-            },
-            overrides: {
-              'doc-1': { custom: 'value' },
-            },
-            meta: {
-              'x-scalar-active-document': 'doc-1',
-              'x-scalar-color-mode': 'dark',
-            },
-            history: {},
-            auth: {},
+            meta: { 'x-scalar-color-mode': 'dark' },
           },
         },
       )
 
-      const workspaces = await persistence.workspace.getAll()
+      await persistence.workspace.deleteItem(workspaceUid)
 
-      // getAll only returns the workspace record, not the full chunk data
-      expect(workspaces).toHaveLength(1)
-      expect(workspaces[0]).toEqual({
-        slug: 'complex-workspace',
-        name: 'Complex API Workspace',
-        teamSlug: 'local',
-      })
-    })
-
-    it('returns empty array after all workspaces are deleted', async () => {
-      await persistence.workspace.setItem(
-        { slug: 'workspace-1' },
-        {
-          name: 'Workspace One',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
+      expect(await persistence.workspace.has(workspaceUid)).toBe(false)
+      // Chunks are gone too: re-creating the workspace under the same UID
+      // with a blank shape yields a blank workspace, never the original
+      // chunks. If deletion had left anything behind we would see `doc-1`
+      // here.
+      const recreated = await persistence.workspace.setItem(
+        { workspaceUid, slug: 'doomed' },
+        { name: 'Doomed (revived)', workspace: blankWorkspace() },
       )
-
-      await persistence.workspace.setItem(
-        { slug: 'workspace-2' },
-        {
-          name: 'Workspace Two',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      await persistence.workspace.deleteItem({ slug: 'workspace-1' })
-      await persistence.workspace.deleteItem({ slug: 'workspace-2' })
-
-      const workspaces = await persistence.workspace.getAll()
-
-      expect(workspaces).toEqual([])
-    })
-
-    it('returns workspaces in consistent order', async () => {
-      const workspaceIds = ['workspace-c', 'workspace-a', 'workspace-b']
-
-      for (const id of workspaceIds) {
-        await persistence.workspace.setItem(
-          { slug: id },
-          {
-            name: `Name ${id}`,
-            workspace: {
-              documents: {},
-              originalDocuments: {},
-              intermediateDocuments: {},
-              overrides: {},
-              meta: {},
-              history: {},
-              auth: {},
-            },
-          },
-        )
-      }
-
-      const workspaces = await persistence.workspace.getAll()
-
-      expect(workspaces).toHaveLength(3)
-      // Order should be maintained based on insertion or alphabetical
-      const slugs = workspaces.map((w) => w.slug)
-      expect(slugs).toContain('workspace-a')
-      expect(slugs).toContain('workspace-b')
-      expect(slugs).toContain('workspace-c')
-    })
-  })
-
-  describe('workspace.has', () => {
-    it('returns false when the workspace does not exist', async () => {
-      const exists = await persistence.workspace.has({ slug: 'missing-workspace' })
-      expect(exists).toBe(false)
-    })
-
-    it('returns true when the workspace exists', async () => {
-      await persistence.workspace.setItem(
-        { slug: 'workspace-1' },
-        {
-          name: 'Exists',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      const exists = await persistence.workspace.has({ slug: 'workspace-1' })
-      expect(exists).toBe(true)
-    })
-
-    it('returns false after the workspace is deleted', async () => {
-      await persistence.workspace.setItem(
-        { slug: 'workspace-2' },
-        {
-          name: 'To Delete',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-      expect(await persistence.workspace.has({ slug: 'workspace-2' })).toBe(true)
-
-      await persistence.workspace.deleteItem({ slug: 'workspace-2' })
-      expect(await persistence.workspace.has({ slug: 'workspace-2' })).toBe(false)
-    })
-
-    it('returns false if only chunks exist without a workspace record', async () => {
-      const orphanId = 'orphan-workspace'
-      // Write chunks without creating the workspace record
-      await persistence.meta.setItem(orphanId, { 'x-scalar-color-mode': 'dark' })
-      await persistence.documents.setItem(orphanId, 'doc-1', {
-        openapi: '3.1.0',
-        info: { title: 'Doc', version: '1.0.0' },
-        paths: {},
-        'x-scalar-original-document-hash': '',
-      })
-      await persistence.originalDocuments.setItem(orphanId, 'doc-1', { openapi: '3.1.0' })
-      await persistence.intermediateDocuments.setItem(orphanId, 'doc-1', { interim: true })
-      await persistence.overrides.setItem(orphanId, 'doc-1', { x: 1 })
-
-      const exists = await persistence.workspace.has({ slug: orphanId })
-      expect(exists).toBe(false)
+      expect(recreated.workspaceUid).toBe(workspaceUid)
+      const refetched = await persistence.workspace.getItem(workspaceUid)
+      expect(refetched?.workspace.documents).toEqual({})
     })
   })
 
   describe('workspace.updateName', () => {
     it('returns undefined when workspace does not exist', async () => {
-      const result = await persistence.workspace.updateName({ slug: 'missing-workspace' }, 'New Name')
+      const result = await persistence.workspace.updateName('missing-uid', 'New Name')
       expect(result).toBeUndefined()
     })
 
-    it('updates the name and returns the updated workspace', async () => {
-      await persistence.workspace.setItem(
-        { teamSlug: 'team-1', slug: 'workspace-1' },
-        {
-          name: 'Original Name',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      const result = await persistence.workspace.updateName(
-        { teamSlug: 'team-1', slug: 'workspace-1' },
-        'Renamed Workspace',
-      )
-
-      expect(result).toBeDefined()
-      expect(result?.name).toBe('Renamed Workspace')
-      expect(result?.teamSlug).toBe('team-1')
-      expect(result?.slug).toBe('workspace-1')
-    })
-
-    it('leaves other workspace fields unchanged', async () => {
-      const workspaceData = {
-        documents: {
-          'doc-1': {
-            openapi: '3.1.0',
-            info: { title: 'API', version: '1.0.0' },
-            paths: {},
-            'x-scalar-original-document-hash': '',
-          },
-        },
-        originalDocuments: {},
-        intermediateDocuments: {},
-        overrides: {},
-        meta: {},
-        history: {},
-        auth: {},
-      }
+    it('updates the name and preserves the rest of the identity tuple', async () => {
+      const workspaceUid = newUid()
 
       await persistence.workspace.setItem(
-        { teamSlug: 'team-1', slug: 'api-workspace' },
-        {
-          name: 'Old Name',
-          workspace: workspaceData,
-        },
+        { workspaceUid, teamUid: 'team-1-uid', teamSlug: 'team-1', slug: 'workspace-1' },
+        { name: 'Original Name', workspace: blankWorkspace() },
       )
 
-      const result = await persistence.workspace.updateName({ teamSlug: 'team-1', slug: 'api-workspace' }, 'New Name')
+      const updated = await persistence.workspace.updateName(workspaceUid, 'Renamed Workspace')
 
-      expect(result?.name).toBe('New Name')
-      expect(result?.teamSlug).toBe('team-1')
-
-      const fullWorkspace = await persistence.workspace.getItem({
+      expect(updated).toEqual({
+        workspaceUid,
+        teamUid: 'team-1-uid',
         teamSlug: 'team-1',
-        slug: 'api-workspace',
+        slug: 'workspace-1',
+        name: 'Renamed Workspace',
       })
-      expect(fullWorkspace?.name).toBe('New Name')
-      expect(fullWorkspace?.workspace.documents).toEqual(workspaceData.documents)
-      expect(fullWorkspace?.workspace.meta).toEqual(workspaceData.meta)
-    })
-
-    it('works with custom team slug', async () => {
-      await persistence.workspace.setItem(
-        { teamSlug: 'team-acme', slug: 'project-alpha' },
-        {
-          name: 'Project Alpha',
-          workspace: {
-            documents: {},
-            originalDocuments: {},
-            intermediateDocuments: {},
-            overrides: {},
-            meta: {},
-            history: {},
-            auth: {},
-          },
-        },
-      )
-
-      const result = await persistence.workspace.updateName(
-        { teamSlug: 'team-acme', slug: 'project-alpha' },
-        'Project Alpha v2',
-      )
-
-      expect(result?.name).toBe('Project Alpha v2')
-      expect(result?.teamSlug).toBe('team-acme')
-      expect(result?.slug).toBe('project-alpha')
     })
   })
 
-  describe('workspace chunks', () => {
-    describe('meta.setItem', () => {
-      it('sets workspace meta information', async () => {
-        const teamSlug = 'local'
-        const slug = 'workspace-1'
-        const workspaceId = `${teamSlug}/${slug}`
+  describe('workspace.updateSlugs', () => {
+    it('updates just the teamSlug while leaving everything else intact', async () => {
+      const workspaceUid = newUid()
 
-        await persistence.workspace.setItem(
-          { teamSlug, slug },
-          {
-            name: 'Test Workspace',
-            workspace: {
-              documents: {},
-              originalDocuments: {},
-              intermediateDocuments: {},
-              overrides: {},
-              meta: {},
-              history: {},
-              auth: {},
-            },
-          },
-        )
+      await persistence.workspace.setItem(
+        { workspaceUid, teamUid: 'team-1-uid', teamSlug: 'old-team', slug: 'api' },
+        { name: 'API', workspace: blankWorkspace() },
+      )
 
-        await persistence.meta.setItem(workspaceId, {
-          'x-scalar-color-mode': 'dark',
-          'x-scalar-active-document': 'api-doc',
-        })
+      const updated = await persistence.workspace.updateSlugs(workspaceUid, { teamSlug: 'new-team' })
 
-        const workspace = await persistence.workspace.getItem({ teamSlug, slug })
-        expect(workspace?.workspace.meta).toEqual({
-          'x-scalar-color-mode': 'dark',
-          'x-scalar-active-document': 'api-doc',
-        })
-      })
-
-      it('updates existing meta information', async () => {
-        const teamSlug = 'local'
-        const slug = 'workspace-1'
-        const workspaceId = `${teamSlug}/${slug}`
-
-        await persistence.workspace.setItem(
-          { teamSlug, slug },
-          {
-            name: 'Test',
-            workspace: {
-              documents: {},
-              originalDocuments: {},
-              intermediateDocuments: {},
-              overrides: {},
-              meta: {},
-              history: {},
-              auth: {},
-            },
-          },
-        )
-
-        await persistence.meta.setItem(workspaceId, {
-          'x-scalar-color-mode': 'dark',
-        })
-
-        await persistence.meta.setItem(workspaceId, {
-          'x-scalar-color-mode': 'dark',
-          'x-scalar-theme': 'moon',
-        })
-
-        const workspace = await persistence.workspace.getItem({ teamSlug, slug })
-        expect(workspace?.workspace.meta).toEqual({
-          'x-scalar-color-mode': 'dark',
-          'x-scalar-theme': 'moon',
-        })
+      expect(updated).toMatchObject({
+        workspaceUid,
+        teamUid: 'team-1-uid',
+        teamSlug: 'new-team',
+        slug: 'api',
+        name: 'API',
       })
     })
 
-    describe('documents.setItem', () => {
-      it('sets a workspace document', async () => {
-        const teamSlug = 'local'
-        const slug = 'workspace-1'
-        const workspaceId = `${teamSlug}/${slug}`
-        const documentName = 'api-doc'
+    it('updates just the workspace slug while leaving everything else intact', async () => {
+      const workspaceUid = newUid()
 
-        await persistence.workspace.setItem(
-          { teamSlug, slug },
-          {
-            name: 'Test Workspace',
-            workspace: {
-              documents: {},
-              originalDocuments: {},
-              intermediateDocuments: {},
-              overrides: {},
-              meta: {},
-              history: {},
-              auth: {},
-            },
-          },
-        )
+      await persistence.workspace.setItem(
+        { workspaceUid, teamUid: 'team-1-uid', teamSlug: 'team-1', slug: 'old-slug' },
+        { name: 'API', workspace: blankWorkspace() },
+      )
 
-        const document = {
-          openapi: '3.1.0',
-          info: { title: 'Test API', version: '1.0.0' },
-          paths: {},
-          'x-scalar-original-document-hash': '',
-        }
+      const updated = await persistence.workspace.updateSlugs(workspaceUid, { slug: 'new-slug' })
 
-        await persistence.documents.setItem(workspaceId, documentName, document)
-
-        const workspace = await persistence.workspace.getItem({ teamSlug, slug })
-        expect(workspace?.workspace.documents[documentName]).toEqual(document)
-      })
-
-      it('sets multiple documents for the same workspace', async () => {
-        const teamSlug = 'local'
-        const slug = 'workspace-1'
-        const workspaceId = `${teamSlug}/${slug}`
-
-        await persistence.workspace.setItem(
-          { teamSlug, slug },
-          {
-            name: 'Multi-Doc Workspace',
-            workspace: {
-              documents: {},
-              originalDocuments: {},
-              intermediateDocuments: {},
-              overrides: {},
-              meta: {},
-              history: {},
-              auth: {},
-            },
-          },
-        )
-
-        const doc1 = {
-          openapi: '3.1.0',
-          info: { title: 'API 1', version: '1.0.0' },
-          paths: {},
-          'x-scalar-original-document-hash': '',
-        }
-
-        const doc2 = {
-          openapi: '3.1.0',
-          info: { title: 'API 2', version: '2.0.0' },
-          paths: {},
-          'x-scalar-original-document-hash': '',
-        }
-
-        await persistence.documents.setItem(workspaceId, 'doc-1', doc1)
-        await persistence.documents.setItem(workspaceId, 'doc-2', doc2)
-
-        const workspace = await persistence.workspace.getItem({ teamSlug, slug })
-        expect(Object.keys(workspace?.workspace.documents ?? {})).toHaveLength(2)
-        expect(workspace?.workspace.documents['doc-1']).toEqual(doc1)
-        expect(workspace?.workspace.documents['doc-2']).toEqual(doc2)
+      expect(updated).toMatchObject({
+        workspaceUid,
+        teamUid: 'team-1-uid',
+        teamSlug: 'team-1',
+        slug: 'new-slug',
       })
     })
 
-    describe('originalDocuments.setItem', () => {
-      it('sets an original document', async () => {
-        const teamSlug = 'local'
-        const slug = 'workspace-1'
-        const workspaceId = `${teamSlug}/${slug}`
-        const documentName = 'api-doc'
-
-        await persistence.workspace.setItem(
-          { teamSlug, slug },
-          {
-            name: 'Test',
-            workspace: {
-              documents: {},
-              originalDocuments: {},
-              intermediateDocuments: {},
-              overrides: {},
-              meta: {},
-              history: {},
-              auth: {},
-            },
-          },
-        )
-
-        const originalDoc = {
-          openapi: '3.1.0',
-          info: { title: 'Original API', version: '1.0.0' },
-          paths: { '/users': { get: {} } },
-        }
-
-        await persistence.originalDocuments.setItem(workspaceId, documentName, originalDoc)
-
-        const workspace = await persistence.workspace.getItem({ teamSlug, slug })
-        expect(workspace?.workspace.originalDocuments[documentName]).toEqual(originalDoc)
-      })
+    it('returns undefined when the workspace does not exist', async () => {
+      const result = await persistence.workspace.updateSlugs('missing-uid', { slug: 'whatever' })
+      expect(result).toBeUndefined()
     })
 
-    describe('intermediateDocuments.setItem', () => {
-      it('sets an intermediate document', async () => {
-        const teamSlug = 'local'
-        const slug = 'workspace-1'
-        const workspaceId = `${teamSlug}/${slug}`
-        const documentName = 'api-doc'
+    it('returns undefined when another workspace already owns the target slug pair', async () => {
+      const firstUid = newUid()
+      const secondUid = newUid()
 
-        await persistence.workspace.setItem(
-          { teamSlug, slug },
-          {
-            name: 'Test',
-            workspace: {
-              documents: {},
-              originalDocuments: {},
-              intermediateDocuments: {},
-              overrides: {},
-              meta: {},
-              history: {},
-              auth: {},
-            },
-          },
-        )
+      await persistence.workspace.setItem(
+        { workspaceUid: firstUid, teamSlug: 'team-1', slug: 'api' },
+        { name: 'First', workspace: blankWorkspace() },
+      )
+      await persistence.workspace.setItem(
+        { workspaceUid: secondUid, teamSlug: 'team-1', slug: 'other' },
+        { name: 'Second', workspace: blankWorkspace() },
+      )
 
-        const intermediateDoc = {
-          version: 2,
-          processed: true,
-          timestamp: Date.now(),
-        }
+      const result = await persistence.workspace.updateSlugs(secondUid, { slug: 'api' })
+      expect(result).toBeUndefined()
 
-        await persistence.intermediateDocuments.setItem(workspaceId, documentName, intermediateDoc)
-
-        const workspace = await persistence.workspace.getItem({ teamSlug, slug })
-        expect(workspace?.workspace.intermediateDocuments[documentName]).toEqual(intermediateDoc)
-      })
+      const second = await persistence.workspace.getItem(secondUid)
+      expect(second?.slug).toBe('other')
     })
 
-    describe('overrides.setItem', () => {
-      it('sets document overrides', async () => {
-        const teamSlug = 'local'
-        const slug = 'workspace-1'
-        const workspaceId = `${teamSlug}/${slug}`
-        const documentName = 'api-doc'
+    it('allows a no-op update when the slug pair is unchanged', async () => {
+      const workspaceUid = newUid()
 
-        await persistence.workspace.setItem(
-          { teamSlug, slug },
-          {
-            name: 'Test',
-            workspace: {
-              documents: {},
-              originalDocuments: {},
-              intermediateDocuments: {},
-              overrides: {},
-              meta: {},
-              history: {},
-              auth: {},
-            },
-          },
-        )
+      await persistence.workspace.setItem(
+        { workspaceUid, teamSlug: 'team-1', slug: 'api' },
+        { name: 'API', workspace: blankWorkspace() },
+      )
 
-        const overrides = {
-          customProperty: 'custom value',
-          baseURL: 'https://api.example.com',
-        }
+      const updated = await persistence.workspace.updateSlugs(workspaceUid, { teamSlug: 'team-1', slug: 'api' })
+      expect(updated).toMatchObject({ workspaceUid, teamSlug: 'team-1', slug: 'api' })
+    })
+  })
 
-        await persistence.overrides.setItem(workspaceId, documentName, overrides)
+  describe('workspace.has and workspace.hasSlug', () => {
+    it('reports whether a workspace exists by UID', async () => {
+      const workspaceUid = newUid()
+      expect(await persistence.workspace.has(workspaceUid)).toBe(false)
 
-        const workspace = await persistence.workspace.getItem({ teamSlug, slug })
-        expect(workspace?.workspace.overrides[documentName]).toEqual(overrides)
-      })
+      await persistence.workspace.setItem(
+        { workspaceUid, slug: 'exists' },
+        { name: 'Exists', workspace: blankWorkspace() },
+      )
+      expect(await persistence.workspace.has(workspaceUid)).toBe(true)
+
+      await persistence.workspace.deleteItem(workspaceUid)
+      expect(await persistence.workspace.has(workspaceUid)).toBe(false)
     })
 
-    describe('history.setItem', () => {
-      it('sets document history', async () => {
-        const teamSlug = 'local'
-        const slug = 'workspace-1'
-        const workspaceId = `${teamSlug}/${slug}`
-        const documentName = 'api-doc'
+    it('reports whether a workspace exists by [teamSlug, slug]', async () => {
+      expect(await persistence.workspace.hasSlug({ teamSlug: 'team-1', slug: 'missing' })).toBe(false)
 
-        await persistence.workspace.setItem(
-          { teamSlug, slug },
-          {
-            name: 'Test',
-            workspace: {
-              documents: {},
-              originalDocuments: {},
-              intermediateDocuments: {},
-              overrides: {},
-              meta: {},
-              history: {},
-              auth: {},
-            },
-          },
-        )
+      await persistence.workspace.setItem(
+        { workspaceUid: newUid(), teamSlug: 'team-1', slug: 'api' },
+        { name: 'Team API', workspace: blankWorkspace() },
+      )
 
-        const history = {
-          '/users': {
-            get: [
-              {
-                time: 1000,
-                meta: { example: 'default' },
-                timestamp: Date.now(),
-                request: {
-                  url: 'https://api.example.com/users',
-                  method: 'GET',
-                  headers: [],
-                  httpVersion: 'HTTP/1.1',
-                  cookies: [],
-                  headersSize: -1,
-                  queryString: [],
-                  bodySize: -1,
-                },
-                response: {
-                  status: 200,
-                  statusText: 'OK',
-                  httpVersion: 'HTTP/1.1',
-                  cookies: [],
-                  headers: [],
-                  content: {
-                    size: 0,
-                    mimeType: 'application/json',
-                  },
-                  redirectURL: '',
-                  headersSize: -1,
-                  bodySize: 0,
-                },
-                requestMetadata: {
-                  variables: {},
-                },
+      expect(await persistence.workspace.hasSlug({ teamSlug: 'team-1', slug: 'api' })).toBe(true)
+      expect(await persistence.workspace.hasSlug({ teamSlug: 'team-1', slug: 'other' })).toBe(false)
+    })
+  })
+
+  describe('workspace chunk APIs', () => {
+    it('persists meta under the given workspace UID', async () => {
+      const workspaceUid = newUid()
+
+      await persistence.workspace.setItem(
+        { workspaceUid, slug: 'workspace-1' },
+        { name: 'Test', workspace: blankWorkspace() },
+      )
+
+      await persistence.meta.setItem(workspaceUid, {
+        'x-scalar-color-mode': 'dark',
+        'x-scalar-active-document': 'api-doc',
+      })
+
+      const fetched = await persistence.workspace.getItem(workspaceUid)
+      expect(fetched?.workspace.meta).toEqual({
+        'x-scalar-color-mode': 'dark',
+        'x-scalar-active-document': 'api-doc',
+      })
+
+      expect(await persistence.meta.getItem(workspaceUid)).toEqual(fetched?.workspace.meta)
+    })
+
+    it('returns meta via meta.getItem without requiring a full workspace assembly', async () => {
+      const workspaceUid = newUid()
+
+      await persistence.workspace.setItem(
+        { workspaceUid, slug: 'heavy' },
+        {
+          name: 'Heavy',
+          workspace: {
+            ...blankWorkspace(),
+            documents: {
+              big: {
+                openapi: '3.1.0',
+                info: { title: 'Big', version: '1.0.0' },
+                paths: { '/a': { get: { responses: { '200': { description: 'ok' } } } } },
+                'x-scalar-original-document-hash': '',
               },
-            ],
+            },
+            meta: { 'x-scalar-color-mode': 'dark', 'x-scalar-tabs': [] },
           },
-        }
+        },
+      )
 
-        await persistence.history.setItem(workspaceId, documentName, history)
-
-        const workspace = await persistence.workspace.getItem({ teamSlug, slug })
-        expect(workspace?.workspace.history[documentName]).toEqual(history)
+      expect(await persistence.meta.getItem(workspaceUid)).toEqual({
+        'x-scalar-color-mode': 'dark',
+        'x-scalar-tabs': [],
       })
+    })
+
+    it('returns an empty object from meta.getItem when no meta row exists', async () => {
+      expect(await persistence.meta.getItem('no-such-workspace')).toEqual({})
+    })
+
+    it('persists multiple documents for a single workspace', async () => {
+      const workspaceUid = newUid()
+
+      await persistence.workspace.setItem(
+        { workspaceUid, slug: 'multi' },
+        { name: 'Multi-Doc', workspace: blankWorkspace() },
+      )
+
+      const doc1 = {
+        openapi: '3.1.0',
+        info: { title: 'API 1', version: '1.0.0' },
+        paths: {},
+        'x-scalar-original-document-hash': '',
+      }
+      const doc2 = {
+        openapi: '3.1.0',
+        info: { title: 'API 2', version: '2.0.0' },
+        paths: {},
+        'x-scalar-original-document-hash': '',
+      }
+      await persistence.documents.setItem(workspaceUid, 'doc-1', doc1)
+      await persistence.documents.setItem(workspaceUid, 'doc-2', doc2)
+
+      const fetched = await persistence.workspace.getItem(workspaceUid)
+      expect(Object.keys(fetched?.workspace.documents ?? {}).sort()).toEqual(['doc-1', 'doc-2'])
+      expect(fetched?.workspace.documents['doc-1']).toEqual(doc1)
+      expect(fetched?.workspace.documents['doc-2']).toEqual(doc2)
+    })
+
+    it('isolates chunks across workspaces with the same slug pair on different teams', async () => {
+      // Two workspaces share the same `slug` but live under different teams,
+      // so they get distinct UIDs and never see each other's chunks. This is
+      // exactly the data shape the new UID-based identity is meant to protect.
+      const acmeUid = newUid()
+      const globexUid = newUid()
+
+      await persistence.workspace.setItem(
+        { workspaceUid: acmeUid, teamUid: 'acme-uid', teamSlug: 'acme', slug: 'api' },
+        { name: 'Acme API', workspace: blankWorkspace() },
+      )
+      await persistence.workspace.setItem(
+        { workspaceUid: globexUid, teamUid: 'globex-uid', teamSlug: 'globex', slug: 'api' },
+        { name: 'Globex API', workspace: blankWorkspace() },
+      )
+
+      const acmeDoc = {
+        openapi: '3.1.0',
+        info: { title: 'Acme', version: '1.0.0' },
+        paths: {},
+        'x-scalar-original-document-hash': '',
+      }
+      const globexDoc = {
+        openapi: '3.1.0',
+        info: { title: 'Globex', version: '1.0.0' },
+        paths: {},
+        'x-scalar-original-document-hash': '',
+      }
+      await persistence.documents.setItem(acmeUid, 'doc', acmeDoc)
+      await persistence.documents.setItem(globexUid, 'doc', globexDoc)
+
+      const acmeWorkspace = await persistence.workspace.getItem(acmeUid)
+      const globexWorkspace = await persistence.workspace.getItem(globexUid)
+      expect(acmeWorkspace?.workspace.documents['doc']).toEqual(acmeDoc)
+      expect(globexWorkspace?.workspace.documents['doc']).toEqual(globexDoc)
+    })
+
+    it('deletes a single document along with its sibling chunks', async () => {
+      const workspaceUid = newUid()
+
+      await persistence.workspace.setItem(
+        { workspaceUid, slug: 'workspace-1' },
+        { name: 'Test', workspace: blankWorkspace() },
+      )
+      await persistence.documents.setItem(workspaceUid, 'doc-1', {
+        openapi: '3.1.0',
+        info: { title: 'API', version: '1.0.0' },
+        paths: {},
+        'x-scalar-original-document-hash': '',
+      })
+      await persistence.documents.setItem(workspaceUid, 'doc-2', {
+        openapi: '3.1.0',
+        info: { title: 'API 2', version: '1.0.0' },
+        paths: {},
+        'x-scalar-original-document-hash': '',
+      })
+
+      await persistence.workspace.deleteDocument(workspaceUid, 'doc-1')
+
+      const fetched = await persistence.workspace.getItem(workspaceUid)
+      expect(Object.keys(fetched?.workspace.documents ?? {})).toEqual(['doc-2'])
     })
   })
 })

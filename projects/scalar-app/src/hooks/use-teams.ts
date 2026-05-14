@@ -34,11 +34,18 @@ export const useTeams = (options?: Omit<UseQueryOptions, 'queryKey' | 'queryFn'>
   const teams = computed(() => query.data.value?.teams)
   const currentTeam = computed(() => query.data.value?.teams?.find((t) => t.uid === tokenData.value?.teamUid))
   const currentTeamSlug = computed(() => currentTeam.value?.slug || 'local')
+  /**
+   * Stable identifier for the active team. Use this instead of the slug
+   * when persisting or looking up team-owned data — slugs are mutable on
+   * the server, the UID is not.
+   */
+  const currentTeamUid = computed(() => currentTeam.value?.uid || 'local')
 
   return {
     ...query,
     teams,
     currentTeam,
     currentTeamSlug,
+    currentTeamUid,
   }
 }

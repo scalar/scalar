@@ -9,7 +9,7 @@ import { type ThemeId, presets } from '@scalar/themes'
 import type { Oauth2Flow } from '@scalar/types/entities'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
-import { createWorkspaceStorePersistence } from '@scalar/workspace-store/persistence'
+import { createWorkspaceStorePersistence, generateWorkspaceUid } from '@scalar/workspace-store/persistence'
 import {
   type XScalarEnvironments,
   xScalarEnvironmentSchema,
@@ -78,12 +78,22 @@ export const migrateLocalStorageToIndexDb = async () => {
 
     const limit = createLimiter(MAX_CONCURRENT_DB_WRITES)
 
-    // Step 3: Save to IndexedDB
+    // Step 3: Save to IndexedDB. Every migrated workspace is keyed by a
+    // fresh `workspaceUid` and lands under the local team — legacy
+    // installs predate the team concept, so there is no team membership
+    // to preserve. The slug from legacy data becomes the URL-facing slug
+    // and is unique within the local team by construction (it derives
+    // from the legacy workspace UID).
     await Promise.all(
       workspaces.map((workspace) =>
         limit(() =>
           workspacePersistence.setItem(
-            { teamSlug: 'local', slug: workspace.slug },
+            {
+              workspaceUid: generateWorkspaceUid(),
+              teamUid: 'local',
+              teamSlug: 'local',
+              slug: workspace.slug,
+            },
             {
               name: workspace.name,
               workspace: workspace.workspace,

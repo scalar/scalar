@@ -1,5 +1,6 @@
 import type { ScalarListboxOption, WorkspaceGroup } from '@scalar/components'
-import { getWorkspaceId } from '@scalar/workspace-store/persistence'
+
+import { getPlaceholderWorkspaceId } from './placeholder-workspace-id'
 
 /**
  * Represents a workspace with team information.
@@ -20,10 +21,11 @@ export type WorkspaceItem = {
  * followed by local workspaces.
  *
  * When `placeholder` is provided and the current non-local team has no real
- * workspaces yet, a single "fake" option is added to the team group. The
- * option uses the same id format as a real workspace (`teamSlug/slug`) so
- * clicking it routes through the normal navigation flow. The route handler is
- * responsible for creating the workspace on demand when it does not yet exist.
+ * workspaces yet, a single synthetic option is added to the team group. Its
+ * id uses the `pending:<teamSlug>/<slug>` placeholder format (see
+ * `placeholder-workspace-id.ts`) so the picker can route the selection
+ * through `resumeOrGetStarted` without colliding with a real `workspaceUid`.
+ * The route handler then creates the workspace on demand.
  *
  * @param workspaces - Array of workspaces to group
  * @param currentTeamSlug - Current team identifier ('local' for local team)
@@ -35,10 +37,11 @@ export function groupWorkspacesByTeam(
   currentTeamSlug: string,
   options?: {
     /**
-     * Surfaces a fake default option for the current non-local team when it
-     * has no real workspaces yet. The option's id is
-     * `getWorkspaceId(currentTeamSlug, slug)` so the picker can navigate to it
-     * like any other workspace.
+     * Surfaces a synthetic default option for the current non-local team
+     * when it has no real workspaces yet. The option's id is built via
+     * `getPlaceholderWorkspaceId(currentTeamSlug, slug)` so picker
+     * consumers can recognize it as a placeholder and route to the team's
+     * get-started page (which then creates the workspace on demand).
      */
     placeholder?: {
       /** Slug used for the on-demand team workspace (e.g. `'default'`). */
@@ -76,14 +79,15 @@ export function groupWorkspacesByTeam(
         options: teamWorkspaces,
       })
     } else if (options?.placeholder) {
-      // No real team workspace yet: surface a fake option using a real
-      // workspace id so the picker can navigate to it normally. The route
-      // handler creates the workspace on demand when it is not yet persisted.
+      // No real team workspace yet: surface a synthetic option using the
+      // `pending:` placeholder id so picker consumers can detect it and
+      // route through the team's get-started page. The route handler
+      // creates the workspace on demand when it lands there.
       result.push({
         label: 'Team Workspaces',
         options: [
           {
-            id: getWorkspaceId(currentTeamSlug, options.placeholder.slug),
+            id: getPlaceholderWorkspaceId(currentTeamSlug, options.placeholder.slug),
             label: options.placeholder.label,
           },
         ],
