@@ -460,35 +460,39 @@ watch(
     const cached = responseCache.get(
       getOperationExampleKey(newMethod, newPath, newExampleKey),
     )
-    // History is keyed only by document/path/method but each entry carries
-    // the example it came from, so we walk from the end and pick the most
-    // recent entry that matches the active example. Otherwise a cache miss
-    // on example B would restore example A's response.
-    const latest = (() => {
-      for (let i = history.length - 1; i >= 0; i--) {
-        const entry = history[i]
-        if (entry?.meta.example === newExampleKey) {
-          return entry
-        }
-      }
-      return undefined
-    })()
 
     if (cached) {
       response.value = cached.response
       requestPayload.value = cached.requestPayload
-    } else if (latest) {
-      response.value = harToFetchResponse({
-        harResponse: latest.response,
-        url: latest.request.url,
-        method: newMethod,
-        path: newPath,
-        duration: latest.time,
-      })
-      requestPayload.value = null
     } else {
-      response.value = null
-      requestPayload.value = null
+      // History is keyed only by document/path/method but each entry carries
+      // the example it came from, so we walk from the end and pick the most
+      // recent entry that matches the active example. Otherwise a cache miss
+      // on example B would restore example A's response. Only runs on a
+      // cache miss — the common case (in-session navigation) skips it.
+      const latest = (() => {
+        for (let i = history.length - 1; i >= 0; i--) {
+          const entry = history[i]
+          if (entry?.meta.example === newExampleKey) {
+            return entry
+          }
+        }
+        return undefined
+      })()
+
+      if (latest) {
+        response.value = harToFetchResponse({
+          harResponse: latest.response,
+          url: latest.request.url,
+          method: newMethod,
+          path: newPath,
+          duration: latest.time,
+        })
+        requestPayload.value = null
+      } else {
+        response.value = null
+        requestPayload.value = null
+      }
     }
 
     // Cancel any in-flight request
