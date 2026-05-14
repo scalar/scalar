@@ -102,18 +102,16 @@ const handleDragEnd = (
           Back
         </ScalarSidebarButton>
         <ScalarIconButton
-          class="rounded-full"
+          class="bg-b-2 hover:bg-b-3 rounded-full"
           :icon="ScalarIconGearSix"
           label="Collection settings"
           size="sm"
-          variant="gradient"
           @click="emit('openSettings')" />
         <ScalarIconButton
-          class="rounded-full"
+          class="bg-b-2 hover:bg-b-3 rounded-full"
           :icon="ScalarIconMagnifyingGlass"
           label="Search collection"
           size="sm"
-          variant="gradient"
           @click="emit('search')" />
         <ScalarIconButton
           class="rounded-full"
