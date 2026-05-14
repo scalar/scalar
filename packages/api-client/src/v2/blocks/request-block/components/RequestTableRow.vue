@@ -202,7 +202,7 @@ const handleUpdateRow = (
     <DataTableCell>
       <CodeInputLite
         :aria-label="`${label} Value`"
-        class="pr-6 group-hover:pr-10 group-has-[.code-input-lite__input:focus-visible]:pr-10"
+        class="pr-6 group-hover:pr-10 group-has-[.code-input-lite__editor:focus]:pr-10"
         :default="defaultValue"
         :disabled="data.isReadonly"
         disableEnter
@@ -225,7 +225,7 @@ const handleUpdateRow = (
               !data.isRequired &&
               data.isReadonly !== true
             "
-            class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context -mr-0.5 hidden h-fit rounded p-1 group-hover:flex group-has-[.code-input-lite__input:focus-visible]:flex"
+            class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context -mr-0.5 hidden h-fit rounded p-1 group-hover:flex group-has-[.code-input-lite__editor:focus]:flex"
             size="sm"
             variant="ghost"
             @click="emit('deleteRow')">
