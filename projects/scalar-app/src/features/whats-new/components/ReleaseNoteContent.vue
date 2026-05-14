@@ -33,13 +33,13 @@ const { blocks } = defineProps<{
 
     <h4
       v-else-if="block.type === 'heading' && (block.level ?? 3) === 3"
-      class="text-c-1 text-sm font-semibold">
+      class="text-c-1 pt-2 text-sm font-semibold">
       {{ block.text }}
     </h4>
 
     <h5
       v-else-if="block.type === 'heading'"
-      class="text-c-1 text-xs font-semibold tracking-wide uppercase">
+      class="text-c-1 pt-1 text-xs font-semibold tracking-wide uppercase">
       {{ block.text }}
     </h5>
 
