@@ -5,6 +5,7 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 import monacoEditorPlugin from 'vite-plugin-monaco-editor-esm'
 
+import { devLocalhostCspPlugin } from './dev-localhost-csp-plugin'
 import { scalarAppMonacoEditorPluginOptions } from './monaco-vite-plugin-options'
 import packageJson from './package.json' with { type: 'json' }
 
@@ -29,7 +30,7 @@ export default defineConfig({
     exclude: ['monaco-editor', 'monaco-yaml'],
   },
   publicDir: resolve('public-web'),
-  plugins: [vue(), tailwindcss(), monacoEditorPlugin(scalarAppMonacoEditorPluginOptions)],
+  plugins: [vue(), tailwindcss(), monacoEditorPlugin(scalarAppMonacoEditorPluginOptions), devLocalhostCspPlugin()],
   build: {
     outDir: resolve('dist/web'),
     rolldownOptions: {
