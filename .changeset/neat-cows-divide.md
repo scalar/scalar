@@ -1,5 +1,5 @@
 ---
-'scalar-app': minor
+'scalar-app': patch
 ---
 
 feat: handle workspace uid and slug reconciliation
