@@ -2,23 +2,11 @@
 /**
  * CodeInputLite
  *
- * Single-line editor that renders `{{varname}}` matches as atomic pill
- * widgets and offers an environment-variable autocomplete dropdown when the
- * user types `{{`.
- *
- * Internally it is a `contenteditable` div. Plain text lives in text nodes;
- * each `{{name}}` becomes a `<span contenteditable="false">name</span>` pill.
- * Because the pill is `contenteditable="false"`, the browser treats it as a
- * single atom: arrow keys jump over it, Backspace/Delete removes it as one
- * unit, and the caret can sit before or after it but never inside. The pill
- * therefore renders just the variable name (no `{{` / `}}` in the DOM) and
- * can carry whatever padding/border-radius it likes without breaking
- * cursor alignment, because there is no longer a hidden character-positioned
- * input to align against.
- *
- * The component still exposes the value as a plain `{{name}}`-bearing string
- * via `update:modelValue`; the DOM ↔ model conversion lives in `renderModel`
- * and `serializeEditor`.
+ * Single-line `contenteditable` editor that renders `{{varname}}` as atomic
+ * pill spans (`contenteditable="false"`) and offers an env-variable
+ * autocomplete on `{{`. The value is still exposed as a `{{name}}`-bearing
+ * string via `update:modelValue`; DOM ↔ model conversion lives in
+ * `renderModel` and `serializeEditor`.
  */
 export default {
   inheritAttrs: false,
@@ -132,12 +120,9 @@ const emit = defineEmits<{
 const attrs = useAttrs() as { 'id'?: string; 'aria-label'?: string }
 
 /**
- * The component ID is only meaningfully read after the user starts
- * interacting (it feeds `aria-controls` / `aria-activedescendant` on the
- * autocomplete dropdown). For pages with hundreds of idle instances, paying
- * for a `nanoid()` per mount is wasted work, so we defer generation until
- * the first focus and leave the wrapper without an `id` attribute in the
- * meantime. Consumers who pass their own `id` attr keep it as-is.
+ * The id only matters once the dropdown opens (`aria-controls` /
+ * `aria-activedescendant`), so we defer `nanoid()` until first focus to
+ * keep idle instances cheap. A consumer-supplied `id` attr is preserved.
  */
 const generatedComponentId = ref<string | null>(null)
 const componentId = computed(
@@ -191,13 +176,10 @@ const handleSelectChange = (value: string): void =>
 let pillTooltipApps: App[] = []
 
 /**
- * Tooltips are the most expensive part of the render — each pill creates a
- * Vue app + a `useTooltip` watch + four DOM listeners. We defer that work
- * until the user actually interacts (focus, pointerover, or the autocomplete
- * dropdown opens) so a page full of idle instances costs nothing extra.
- *
- * Once `tooltipsActive` flips to true it stays on; subsequent overlay
- * rebuilds remount tooltips for the new pills as before.
+ * Per-pill tooltips are the heaviest part of the render (a Vue app +
+ * `useTooltip` watch + listeners each), so we defer mounting them until
+ * the first interaction (focus, pointerover, or dropdown open). Once on,
+ * subsequent rebuilds remount tooltips for the new pills.
  */
 let tooltipsActive = false
 
@@ -217,8 +199,7 @@ const mountPillTooltips = (): void => {
     const variableName = pillEl.dataset.variable ?? ''
     const context = buildPillContext(variableName, environment)
     const app = createApp(PillTooltipHost, { context, target: pillEl })
-    // Mount onto a throwaway container — PillTooltipHost is renderless and
-    // the tooltip behaviour attaches to `target` directly via useTooltip.
+    // PillTooltipHost is renderless; useTooltip attaches to `target` directly.
     app.mount(document.createElement('div'))
     pillTooltipApps.push(app)
   }
@@ -230,10 +211,8 @@ const mountPillTooltips = (): void => {
 
 /**
  * Build a pill `<span>` for the given variable. `contentEditable = 'false'`
- * is what makes the browser treat the pill as a single atom: arrow keys jump
- * over it, Backspace removes it as a whole, and the caret can never land
- * inside. The visible text is just the variable name; `{{` / `}}` only live
- * in the serialized model string.
+ * makes the browser treat it as a single atom (arrow keys jump over it,
+ * Backspace deletes it whole); `{{` / `}}` only live in the model string.
  */
 const createPillElement = (
   name: string,
@@ -245,9 +224,8 @@ const createPillElement = (
   span.className = isCtx ? 'scalar-pill scalar-pill--context-fn' : 'scalar-pill'
   span.contentEditable = 'false'
   span.dataset.variable = name
-  // Offsets are in *model* coordinates (where the pill stands in for the
-  // full `{{name}}` string). Kept around so click forwarding and tests can
-  // map a pill back to its position in the emitted value.
+  // Model-coordinate offsets (the pill stands in for the full `{{name}}`).
+  // Used by click forwarding and tests to map a pill back to the value.
   span.dataset.pillStart = String(start)
   span.dataset.pillEnd = String(end)
 
@@ -336,8 +314,7 @@ const serializeEditor = (): string => {
     ) {
       out += `{{${node.dataset.variable ?? ''}}}`
     } else if (node instanceof HTMLElement) {
-      // Browsers sometimes inject <br> or wrapper <div>s on paste / Enter;
-      // flatten them by reading their text only.
+      // Flatten any stray <br> / <div> the browser may inject on paste/Enter.
       out += node.textContent ?? ''
     }
   }
@@ -348,18 +325,10 @@ let lastPillSignature: string | null = null
 let lastEnvKey = ''
 
 /**
- * Cache key for the current environment + `withVariables` state. Pill
- * rendering depends on:
- *   - `withVariables` — whether `{{name}}` is rendered as a pill at all
- *   - `environment.color` — pill background colour
- *   - the set of variables and their resolved values — drives pill
- *     opacity (`isDefined`) and tooltip text
- *
- * Including the variable name/value pairs is what makes the watcher
- * notice variables being added, removed, or edited even when the env
- * colour does not change. Without it, the `envKey === lastEnvKey` guard
- * skips the rebuild and pills display stale opacity / tooltip values
- * until the input text itself changes (or the component remounts).
+ * Cache key for the env + `withVariables` state. Includes variable
+ * name/value pairs so the watcher notices adds/removes/edits even when
+ * `environment.color` is unchanged — without that, pills keep stale
+ * `isDefined` opacity and tooltip values until the input itself changes.
  */
 const computeEnvKey = (): string => {
   const color = environment?.color ?? ''
@@ -369,18 +338,13 @@ const computeEnvKey = (): string => {
   for (const v of variables) {
     const value =
       typeof v.value === 'string' ? v.value : (v.value?.default ?? '')
-    // Use unit separators (\x1f) so a name/value cannot collide with a
-    // literal `|` or `=` typed inside a variable value.
+    // Unit separators (\x1f / \x1e) so values can safely contain `|` or `=`.
     vars += `\x1f${v.name}\x1e${value}`
   }
   return `${color}|${flag}|${vars}`
 }
 
-/**
- * Idempotent: flips `tooltipsActive` on first call and mounts tooltips for
- * the pills currently in the editor. Bound to focus + pointerover so the
- * first interaction (whichever comes first) wires hover behaviour.
- */
+/** Idempotent: first call flips `tooltipsActive` and mounts pill tooltips. */
 const ensureTooltipsActive = (): void => {
   if (tooltipsActive) {
     return
@@ -393,10 +357,7 @@ const ensureTooltipsActive = (): void => {
 // Caret ↔ model offset
 // ───────────────────────────────────────────────────────────────────
 
-/**
- * Offset of the current selection's start in the model string. Returns
- * `null` when there is no usable selection inside the editor.
- */
+/** Selection start as a model-string offset, or `null` if not inside the editor. */
 const getModelCaret = (): number | null => {
   const editor = editorRef.value
   if (!editor) {
@@ -414,7 +375,7 @@ const getModelCaret = (): number | null => {
     return null
   }
 
-  // Anchored on the editor itself — `startOffset` is a child index.
+  // Anchored on the editor itself: `startOffset` is a child index.
   if (range.startContainer === editor) {
     let pos = 0
     for (
@@ -432,9 +393,8 @@ const getModelCaret = (): number | null => {
     if (child === range.startContainer) {
       return pos + range.startOffset
     }
-    // Pills are `contenteditable=false` so the selection shouldn't end up
-    // inside one. If it does (e.g. some browser quirk), snap to a sensible
-    // boundary instead of getting stuck.
+    // Pills are non-editable; if a browser quirk still lands a selection
+    // inside one, snap to the nearest boundary instead of getting stuck.
     if (child.contains(range.startContainer)) {
       return range.startOffset === 0 ? pos : pos + modelLengthOf(child)
     }
@@ -535,8 +495,7 @@ const updateDropdownVisibility = (): void => {
   dropdownQuery.value = text.slice(lastOpen + 2)
   showDropdown.value = true
 
-  // Anchor the dropdown beneath the current caret. `range.getBoundingClientRect`
-  // gives us the precise caret rect for the cost of a single read.
+  // Anchor under the caret; `getBoundingClientRect` gives the caret rect in one read.
   nextTick(() => {
     const selection = window.getSelection()
     if (!selection || selection.rangeCount === 0 || !editorRef.value) {
@@ -546,8 +505,7 @@ const updateDropdownVisibility = (): void => {
     r.collapse(true)
     const rect = r.getBoundingClientRect()
     const editorRect = editorRef.value.getBoundingClientRect()
-    // An empty range collapses to a zero rect in some browsers; fall back to
-    // the editor edge so the dropdown still appears somewhere reasonable.
+    // Some browsers collapse empty ranges to a zero rect — fall back to the editor edge.
     dropdownPosition.value = {
       left: rect.left || editorRect.left,
       top: rect.bottom || editorRect.bottom,
@@ -566,7 +524,7 @@ const handleDropdownSelect = (item: string): void => {
   const next = `${value.slice(0, from)}{{${item}}}${value.slice(to)}`
   const nextCursor = from + `{{${item}}}`.length
 
-  // The pill set changes — force a re-render and replace the caret.
+  // Pill set changed — force a re-render and reposition the caret.
   lastPillSignature = pillSignature(next, withVariables)
   renderModel(next)
   setModelCaret(nextCursor)
@@ -596,11 +554,9 @@ const handleInput = (): void => {
   const text = serializeEditor()
   isEmpty.value = text.length === 0
 
-  // Re-render only when the typed change affects the pill set — e.g. the
-  // user typed `}}` to close a `{{name}}` pattern, or pasted a value. For
-  // plain-text edits the DOM the browser produced is already correct, and
-  // skipping the rebuild keeps the live selection intact (important for IME
-  // composition and double-click word selection).
+  // Only rebuild when the pill set changes (e.g. `}}` closed a pattern, or
+  // a value was pasted). Skipping it for plain-text edits preserves the
+  // live selection — important for IME composition and double-click select.
   const sig = pillSignature(text, withVariables)
   if (sig !== lastPillSignature) {
     const caret = getModelCaret()
@@ -631,10 +587,8 @@ const handleBlur = (event: FocusEvent): void => {
 }
 
 /**
- * Strip rich content on paste — the editor is single-line plain text plus
- * pill atoms, never arbitrary HTML. `contenteditable="plaintext-only"`
- * would do the same but isn't supported reliably across browsers, so we
- * intercept paste manually and use `insertText` to honor undo.
+ * Strip rich content on paste; `contenteditable="plaintext-only"` is not
+ * reliable cross-browser, so we intercept and use `insertText` to keep undo.
  */
 const handlePaste = (event: ClipboardEvent): void => {
   event.preventDefault()
@@ -674,18 +628,17 @@ const handleKeyDown = (event: KeyboardEvent): void => {
   }
 
   if (event.key === 'Enter') {
-    // Always block the browser's default Enter — a contenteditable div would
-    // otherwise insert <br> / <div>, breaking single-line semantics. Submit
-    // emission is independent and used by AddressBar / table editors.
+    // Block the browser default so a contenteditable div does not insert
+    // <br> / <div> and break single-line semantics, then emit submit
+    // (used by AddressBar / table editors). `disableEnter` is currently a
+    // no-op beyond preventDefault — kept for API parity with CodeInput.
     event.preventDefault()
-    if (disableEnter) {
-      // No-op besides preventDefault; matches the previous contract.
-    }
+    void disableEnter
     emit('submit', serializeEditor(), event)
     return
   }
 
-  // Backspace / Delete: pill atomicity is handled by the browser thanks to
+  // Backspace / Delete: pill atomicity is handled by the browser via
   // `contenteditable="false"` on pills — no manual `}}`-pair handling needed.
 }
 
@@ -694,11 +647,8 @@ const handleKeyDown = (event: KeyboardEvent): void => {
 // ───────────────────────────────────────────────────────────────────
 
 /**
- * Clicking a pill selects it as a whole. The pill is `contenteditable=false`
- * so the selection covers it atomically — a subsequent Backspace deletes the
- * entire pill in one keystroke, and typing replaces it with the typed text.
- * This matches the "pill is one block" mental model used by chip / mention
- * widgets in Slack, Notion, etc.
+ * Clicking a pill selects it whole, so a subsequent Backspace deletes it
+ * in one keystroke and typing replaces it — the usual chip/mention model.
  */
 const handleEditorClick = (event: MouseEvent): void => {
   const target = (event.target as HTMLElement | null)?.closest<HTMLElement>(
@@ -744,26 +694,23 @@ watch(
 watch(
   [() => environment, () => withVariables],
   () => {
-    // Env swaps change pill colors and "undefined" opacity — force a rebuild.
+    // Env changes affect pill colour and `isDefined` opacity — rebuild.
     const envKey = computeEnvKey()
     if (envKey === lastEnvKey) {
       return
     }
     lastEnvKey = envKey
-    // Short-circuit when this instance has no pills to repaint. The vast
-    // majority of rows in a request table are plain text (or empty), so we
-    // skip the DOM walk + rebuild for them whenever the environment changes.
-    // Anything that introduces pills later goes through `handleInput` /
-    // the `modelValue` watcher and updates `lastPillSignature` then.
+    // Most rows are plain text; skip the DOM walk when there are no pills.
+    // Pills introduced later flow through `handleInput` / the modelValue
+    // watcher, which update `lastPillSignature`.
     if (lastPillSignature === '') {
       return
     }
     lastPillSignature = pillSignature(serializeEditor(), withVariables)
     renderModel(serializeEditor())
   },
-  // Variables can be mutated in place (e.g. editing a value in the
-  // environment editor) without the surrounding object reference
-  // changing, so we need a deep watch to catch those edits.
+  // Variables are often mutated in place (e.g. editing a value in the env
+  // editor) without the object reference changing — deep watch catches it.
   { deep: true },
 )
 
