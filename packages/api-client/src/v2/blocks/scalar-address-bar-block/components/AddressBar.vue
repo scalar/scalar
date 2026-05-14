@@ -443,7 +443,7 @@ defineExpose({
       </div>
 
       <div
-        class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full bg-blend-normal">
+        class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full gap-1 bg-blend-normal">
         <!-- Servers -->
         <ServerDropdown
           v-if="servers.length"
@@ -461,7 +461,6 @@ defineExpose({
             (payload) => eventBus.emit('server:update:variables', payload)
           " />
 
-        <div class="fade-left" />
         <!-- Path + URL + env vars -->
         <CodeInput
           ref="addressBarRef"
@@ -484,7 +483,6 @@ defineExpose({
           @keydown.delete="handlePathBackspace"
           @keydown.tab="tabbedOut = true"
           @submit="handlePathSubmit" />
-        <div class="fade-right" />
       </div>
 
       <!-- Copy url button -->
@@ -599,10 +597,17 @@ defineExpose({
   font-size: var(--scalar-small);
 }
 .scroll-timeline-x {
-  scroll-timeline: --scroll-timeline x;
-  /* Firefox supports */
-  scroll-timeline: --scroll-timeline horizontal;
-  -ms-overflow-style: none; /* IE and Edge */
+  -ms-overflow-style: none;
+  /* Fade the URL at the viewport edges. Mask lives on the scrollport (this
+     element) rather than on `.cm-scroller`, whose width follows the URL's
+     full content and pushes the right edge off-screen when overflowing. */
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 6px,
+    black calc(100% - 24px),
+    transparent 100%
+  );
 }
 .scroll-timeline-x-hidden {
   overflow-x: auto;
@@ -641,47 +646,7 @@ defineExpose({
   color: var(--scalar-color-3);
   pointer-events: none;
 }
-.fade-left,
-.fade-right {
-  content: '';
-  position: sticky;
-  height: 100%;
-  animation-name: fadein;
-  animation-duration: 1ms;
-  animation-direction: reverse;
-  animation-timeline: --scroll-timeline;
-  pointer-events: none;
-  z-index: 1;
-}
-.fade-left {
-  background: linear-gradient(
-    -90deg,
-    color-mix(in srgb, var(--scalar-address-bar-bg), transparent 100%) 0%,
-    color-mix(in srgb, var(--scalar-address-bar-bg), transparent 20%) 30%,
-    var(--scalar-address-bar-bg) 100%
-  );
-  left: -1px;
-  min-width: 6px;
-  animation-direction: normal;
-}
-.fade-right {
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--scalar-address-bar-bg), transparent 100%) 0%,
-    color-mix(in srgb, var(--scalar-address-bar-bg), transparent 20%) 30%,
-    var(--scalar-address-bar-bg) 100%
-  );
-  right: -1px;
-  min-width: 24px;
-}
-@keyframes fadein {
-  0% {
-    opacity: 0;
-  }
-  1% {
-    opacity: 1;
-  }
-}
+
 .address-bar-bg-states {
   --scalar-address-bar-bg: color-mix(
     in srgb,
@@ -695,9 +660,5 @@ defineExpose({
   border-color: var(--scalar-border-color);
   outline-width: 1px;
   outline-style: solid;
-}
-.address-bar-bg-states:has(.cm-focused) .fade-left,
-.address-bar-bg-states:has(.cm-focused) .fade-right {
-  --scalar-address-bar-bg: var(--scalar-background-1);
 }
 </style>
