@@ -1,5 +1,11 @@
 # @scalar/sidebar
 
+## 0.9.12
+
+### Patch Changes
+
+- [#9199](https://github.com/scalar/scalar/pull/9199): feat: some polish for the scalar-app
+
 ## 0.9.11
 
 ## 0.9.10

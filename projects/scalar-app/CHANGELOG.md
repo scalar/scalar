@@ -1,5 +1,45 @@
 # scalar-app
 
+## 1.0.10
+
+### Patch Changes
+
+- [#9063](https://github.com/scalar/scalar/pull/9063): feat(scalar-app): add a "What's new" modal accessible from the Get Started page so users can browse curated release notes inside the client. A small accent dot appears on the trigger when there are unseen releases. Release notes are bundled with the package via `RELEASE_NOTES.json` (the source of truth, imported directly so no runtime markdown parsing is needed) and filtered to the version the user has actually installed. The release-notes generator updates the JSON file during `pnpm changeset version` and regenerates a derived `RELEASE_NOTES.md` view alongside it.
+- [#9180](https://github.com/scalar/scalar/pull/9180): feat: added team switching and fixed up team redirection and workspace routing
+- [#9109](https://github.com/scalar/scalar/pull/9109): fix: monaco editor vite plugin
+- [#9199](https://github.com/scalar/scalar/pull/9199): feat: some polish for the scalar-app
+- [#9167](https://github.com/scalar/scalar/pull/9167): feat: support media attachments for the changelog modal
+- [#9203](https://github.com/scalar/scalar/pull/9203): chore: added scalar domain to csp; allow localhost img/media sources during Vite dev only
+- [#9152](https://github.com/scalar/scalar/pull/9152): feat: add team switching to the scalar app
+- [#9147](https://github.com/scalar/scalar/pull/9147): fix: rename default workspace labels to Local workspace and Team workspace
+- [#9125](https://github.com/scalar/scalar/pull/9125): feat: add more analytics events
+- [#9081](https://github.com/scalar/scalar/pull/9081): feat: integrate the new registry adapter
+- [#9118](https://github.com/scalar/scalar/pull/9118): fix: remove shortcuts label from the editor page
+- [#9195](https://github.com/scalar/scalar/pull/9195): feat: handle workspace uid and slug reconciliation
+
+  App is updated to treat workspaceUid / teamUid as canonical, to reconcile server-driven team slug changes against persisted records (and clear stale tab metadata where needed), and to route workspace resume flows through a clearer resumeOrGetStarted API. migrate-to-indexdb (localStorage → IndexedDB) writes new records using the same UID + local team model.
+
+- [#9135](https://github.com/scalar/scalar/pull/9135): feat: optimize layout for mobile
+  - Hide the document breadcrumb on small screens and surface workspace
+    switching from the menu instead, so the top bar stays uncluttered.
+  - Convert the document save / discard / pull / push / publish buttons to
+    header-button styling and only render the trailing divider when there
+    are actual cluster buttons next to it.
+  - Stack the address bar onto two rows on small screens so the URL and
+    the action cluster (copy / history / send) each get a full row.
+  - Hide the "Log in" affordance from the small-screen top bar (the menu
+    still owns it) and keep only the primary "Register" CTA there.
+  - Give the pre-request and post-response script editors proper vertical
+    padding so the help text no longer clips when it wraps.
+
+- [#9149](https://github.com/scalar/scalar/pull/9149): fix: keep splash until team loads so team workspace reloads stick
+- [#9179](https://github.com/scalar/scalar/pull/9179): fix: enable transparent Electron window to reduce resize flash
+
+  The desktop shell uses a dark-themed surface; Electron’s default backing color can show through briefly while the webview repaints during aggressive window resizing. A transparent window lets the renderer’s own background (CSS / theme) own what users see in those gaps.
+
+- [#9110](https://github.com/scalar/scalar/pull/9110): build: switch Monaco Vite plugin to ESM and align workers
+- [#9113](https://github.com/scalar/scalar/pull/9113): chore: move app files from client to scalar-app
+
 ## 1.0.9
 
 ### Patch Changes

@@ -1,5 +1,20 @@
 # @scalar/oas-utils
 
+## 0.16.0
+
+### Minor Changes
+
+- [#9195](https://github.com/scalar/scalar/pull/9195): feat: UID-based workspaces and local-team migration
+
+  IndexedDB v2 migrates existing data into the new shape, collapses all workspaces into the local team (aligned with a single team workspace on the client for now), resolves slug collisions deterministically, re-keys chunk stores by workspaceUid, and strips x-scalar-tabs and x-scalar-active-tab from meta chunks so routing does not follow stale paths after migration or slug changes.
+
+- [#9018](https://github.com/scalar/scalar/pull/9018): feat: make `WorkspaceDocument` an union of OpenApiDocument and AsyncApiDocument
+
+### Patch Changes
+
+- [#9063](https://github.com/scalar/scalar/pull/9063): refactor(oas-utils): drop local `migrations/semver` and use `isVersionLessThan` from `@scalar/helpers` in the workspace migrator. The previous `semverLessThan` export is removed from `@scalar/oas-utils/migrations`; import from `@scalar/helpers/general/compare-versions` instead.
+- [#9125](https://github.com/scalar/scalar/pull/9125): feat: add more analytics events
+
 ## 0.15.3
 
 ## 0.15.2

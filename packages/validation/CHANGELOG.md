@@ -1,5 +1,11 @@
 # @scalar/validation
 
+## 0.4.0
+
+### Minor Changes
+
+- [#8844](https://github.com/scalar/scalar/pull/8844): feat: support default values for coersion
+
 ## 0.3.2
 
 ### Patch Changes

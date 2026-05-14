@@ -1,5 +1,21 @@
 # @scalar/components
 
+## 0.24.3
+
+### Patch Changes
+
+- [#9199](https://github.com/scalar/scalar/pull/9199): feat: some polish for the scalar-app
+- [#9198](https://github.com/scalar/scalar/pull/9198): fix(components): add `highlighted` Tailwind variant for Radix menu item highlight state
+
+  Adds a new `highlighted` custom Tailwind variant (matching `[data-highlighted]`) to `@scalar/themes` and uses it in `ScalarDropdownButton` to restore the hover and keyboard-navigation highlight in the workspace and team picker dropdowns.
+
+- [#9152](https://github.com/scalar/scalar/pull/9152): feat: add team switching to the scalar app
+- [#9118](https://github.com/scalar/scalar/pull/9118): fix: respect optional `VITE_SCALAR_HOTKEY_SYMBOL_SET` on ScalarHotkey to override OS-based modifier
+
+  This can be really useful when we want to have deterministic results on the CI
+
+- [#9123](https://github.com/scalar/scalar/pull/9123): fix(components): remove tooltip when scope is disposed
+
 ## 0.24.2
 
 ### Patch Changes

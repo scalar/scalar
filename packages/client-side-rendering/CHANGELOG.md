@@ -1,5 +1,11 @@
 # @scalar/client-side-rendering
 
+## 0.1.8
+
+### Patch Changes
+
+- [#8844](https://github.com/scalar/scalar/pull/8844): chore: use the new schemas from the new package
+
 ## 0.1.7
 
 ## 0.1.6

@@ -1,5 +1,59 @@
 # @scalar/workspace-store
 
+## 0.50.0
+
+### Minor Changes
+
+- [#9195](https://github.com/scalar/scalar/pull/9195): feat: UID-based workspaces and local-team migration
+
+  IndexedDB v2 migrates existing data into the new shape, collapses all workspaces into the local team (aligned with a single team workspace on the client for now), resolves slug collisions deterministically, re-keys chunk stores by workspaceUid, and strips x-scalar-tabs and x-scalar-active-tab from meta chunks so routing does not follow stale paths after migration or slug changes.
+
+- [#9018](https://github.com/scalar/scalar/pull/9018): feat: make `WorkspaceDocument` an union of OpenApiDocument and AsyncApiDocument
+
+### Patch Changes
+
+- [#9185](https://github.com/scalar/scalar/pull/9185): feat: add Cmd/Ctrl+S for `ui:save:local-document` so hosts (e.g. scalar-app) can match the header Save control for local workspaces
+- [#9018](https://github.com/scalar/scalar/pull/9018): fix: stop coercing rebased documents against the strict OpenAPI schema so AsyncAPI documents survive a rebase without having OpenAPI fields injected
+- [#9184](https://github.com/scalar/scalar/pull/9184): fix(api-client): block invalid request URLs before send and surface `buildRequest` failures as results
+
+  Request construction now treats a bad merged URL as a first-class failure instead of throwing deep inside helpers. After `mergeUrls`, `resolveRequestFactoryUrl` rejects incomplete targets when strict mode applies: relative URLs, an empty server base, or path strings that still contain unresolved `{{variable}}` placeholders. Callers may set `allowMissingRequestServerBase` where a full absolute URL is intentionally optional (for example the embedded modal layout in `OperationBlock`, or API Reference `onBeforeRequest` hooks that build against the document origin).
+
+  `buildRequest` returns a `Result` (`ok` / `err`) with stable error codes such as `MISSING_REQUEST_SERVER_BASE`, `INVALID_REQUEST_FACTORY_URL`, and `BUILD_REQUEST_FAILED` for unexpected synchronous failures. Those failures are wrapped with `safeRun` from `@scalar/helpers`, which logs to `console.error` and maps throws to a string message on the result. The API Reference plugin path logs and skips `onBeforeRequest` when a preview request cannot be built, so user hooks never run against a half-built fetch payload.
+
+  Downstream packages (`api-client`, `api-reference`, `scalar-app` where applicable) unwrap the result, show toasts or logs, and avoid calling `sendRequest` until the URL is valid.
+
+- [#9142](https://github.com/scalar/scalar/pull/9142): remove outdated Biome suppression in schema traversal loop
+- [#9098](https://github.com/scalar/scalar/pull/9098): fix urlencoded request body serialization for nested object and array values
+- [#9168](https://github.com/scalar/scalar/pull/9168): fix: OAuth scope CRUD mutators
+  - New mutators **`upsertScope`** and **`deleteScope`** backed by new `AuthEvents` entries; **`updateSelectedScopes`** only updates selection state.
+  - **Rename**: `upsertScope` rewrites the scope key in the flow and mirrors the new key in every document- and operation-level selected requirement for that scheme.
+  - **Delete**: `deleteScope` removes the scope from the flow and drops it from matching selections.
+
+- [#9142](https://github.com/scalar/scalar/pull/9142): fix(workspace-store): respect x-internal and x-scalar-ignore on $ref wrapper schemas, operations, and webhooks in the sidebar
+- [#8984](https://github.com/scalar/scalar/pull/8984): fix: initialize selection when updating OAuth2 scopes with preferredSecurityScheme
+
+  When preferredSecurityScheme is used, the selection is computed on-the-fly by getSelectedSecurity but not persisted to the auth store. This caused updateSelectedScopes to fail silently when users tried to select scopes, as it couldn't find a stored selection to update.
+
+  The fix initializes the selection in the auth store when it doesn't exist, allowing scope updates to work correctly with preferredSecurityScheme.
+
+- [#9150](https://github.com/scalar/scalar/pull/9150): fix: share executable URL build for copy and buildRequest
+
+  Copy URL from the operation address bar now matches the URL that is actually sent: path parameters, operation query string, environment substitution, and security schemes that use in: query are all applied the same way as Send.
+
+- [#9159](https://github.com/scalar/scalar/pull/9159): feat(workspace-store): add `getDocumentType` helper to identify OpenAPI vs AsyncAPI documents
+- [#9125](https://github.com/scalar/scalar/pull/9125): feat: add more analytics events
+- [#9055](https://github.com/scalar/scalar/pull/9055): fix(api-client): expand object query parameters in the request UI
+- [#9127](https://github.com/scalar/scalar/pull/9127): fix: omit disabled default headers when building requests
+- [#9134](https://github.com/scalar/scalar/pull/9134): fix(api-client): request body content types — OpenAPI extras, MIME labels, and "Other" without auto Content-Type
+
+  The request body dropdown lists built-in types first, then any additional media types from the OpenAPI operation. Labels use the MIME essence (no `charset` in the label). The **Other** option is available again for a raw body: it does **not** add an automatic `Content-Type` header (users can set one manually). Code snippets avoid injecting `Content-Type: other`.
+
+  `getDefaultHeaders` and `filterDisabledDefaultHeaders` are exported from `@scalar/workspace-store/request-example`; the API client uses them for code snippets instead of a duplicate helper.
+
+- [#9035](https://github.com/scalar/scalar/pull/9035): fix: forward selected forbidden headers via `X-Scalar-*` when proxying
+
+  Browsers strip selected forbidden headers from outgoing requests. When using the Scalar proxy (or running in Electron), we now rewrite a small allowlist (`Date`, `DNT`, and `Referer`) to `X-Scalar-*` headers so the proxy can forward the intended upstream headers without opening support for the full forbidden-header set.
+
 ## 0.49.3
 
 ### Patch Changes
