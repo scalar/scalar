@@ -423,13 +423,13 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
 <template>
   <Resize
     v-model:width="sidebarWidth"
-    class="flex flex-col max-md:inset-y-0 max-md:z-2 max-md:w-full!"
+    class="flex min-h-0 shrink-0 flex-col max-md:inset-y-0 max-md:z-2 max-md:w-full!"
     :class="{
       'max-md:absolute! max-md:flex!': app.sidebar.isOpen.value,
       'max-md:hidden!': !app.sidebar.isOpen.value,
     }">
     <template #default>
-      <div class="flex flex-1">
+      <div class="flex min-h-0 flex-1">
         <ScalarSidebar
           class="flex min-h-0 flex-1 flex-col max-md:pt-[calc(var(--app-desktop-tabs-height)+var(--spacing-header,48px)+2.5rem)]">
           <!-- Top-level sidebar header -->
@@ -470,7 +470,7 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
           </div>
 
           <!-- Document list (top-level) -->
-          <div class="custom-scroll flex flex-1 flex-col">
+          <div class="custom-scroll flex min-h-0 flex-1 flex-col">
             <!--
               Empty state: no documents in the workspace yet. Matches the
               minimal `empty folder` appearance.
