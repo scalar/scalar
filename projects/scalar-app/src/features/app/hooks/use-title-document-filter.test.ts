@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { ref } from 'vue'
 
-import { useDocumentFilter } from '@/features/app/hooks/use-document-filter'
+import { useTitleDocumentFilter } from '@/features/app/hooks/use-title-document-filter'
 
 type Doc = { key: string; title: string }
 
@@ -11,15 +11,15 @@ const docs: Doc[] = [
   { key: 'users', title: 'Users Service' },
 ]
 
-describe('use-document-filter', () => {
+describe('use-title-document-filter', () => {
   it('returns every item when the query is empty', () => {
-    const { filteredItems } = useDocumentFilter(() => docs)
+    const { filteredItems } = useTitleDocumentFilter(() => docs)
 
     expect(filteredItems.value).toStrictEqual(docs)
   })
 
   it('filters items by title using fuzzy matching', () => {
-    const { query, filteredItems } = useDocumentFilter(() => docs)
+    const { query, filteredItems } = useTitleDocumentFilter(() => docs)
 
     query.value = 'pets'
 
@@ -27,7 +27,7 @@ describe('use-document-filter', () => {
   })
 
   it('tolerates small typos thanks to the fuzzy threshold', () => {
-    const { query, filteredItems } = useDocumentFilter(() => docs)
+    const { query, filteredItems } = useTitleDocumentFilter(() => docs)
 
     query.value = 'ordrs'
 
@@ -35,7 +35,7 @@ describe('use-document-filter', () => {
   })
 
   it('trims whitespace from the query before filtering', () => {
-    const { query, filteredItems } = useDocumentFilter(() => docs)
+    const { query, filteredItems } = useTitleDocumentFilter(() => docs)
 
     query.value = '   '
 
@@ -45,7 +45,7 @@ describe('use-document-filter', () => {
   })
 
   it('returns an empty array when nothing matches', () => {
-    const { query, filteredItems } = useDocumentFilter(() => docs)
+    const { query, filteredItems } = useTitleDocumentFilter(() => docs)
 
     query.value = 'billing'
 
@@ -53,7 +53,7 @@ describe('use-document-filter', () => {
   })
 
   it('starts hidden and toggles visibility on', () => {
-    const { isVisible, toggle } = useDocumentFilter(() => docs)
+    const { isVisible, toggle } = useTitleDocumentFilter(() => docs)
 
     expect(isVisible.value).toBe(false)
 
@@ -63,7 +63,7 @@ describe('use-document-filter', () => {
   })
 
   it('clears the query when toggling from visible to hidden', () => {
-    const { isVisible, query, toggle } = useDocumentFilter(() => docs)
+    const { isVisible, query, toggle } = useTitleDocumentFilter(() => docs)
 
     toggle()
     query.value = 'pets'
@@ -75,7 +75,7 @@ describe('use-document-filter', () => {
   })
 
   it('reset hides the input and clears the query', () => {
-    const { isVisible, query, reset, toggle } = useDocumentFilter(() => docs)
+    const { isVisible, query, reset, toggle } = useTitleDocumentFilter(() => docs)
 
     toggle()
     query.value = 'pets'
@@ -88,7 +88,7 @@ describe('use-document-filter', () => {
 
   it('reacts to changes in the source list', () => {
     const source = ref<Doc[]>([{ key: 'pets', title: 'Pets API' }])
-    const { query, filteredItems } = useDocumentFilter(source)
+    const { query, filteredItems } = useTitleDocumentFilter(source)
 
     query.value = 'orders'
     expect(filteredItems.value).toStrictEqual([])
@@ -105,7 +105,7 @@ describe('use-document-filter', () => {
     type RichDoc = Doc & { metadata: { owner: string } }
     const rich: RichDoc[] = [{ key: 'pets', title: 'Pets API', metadata: { owner: 'alice' } }]
 
-    const { filteredItems } = useDocumentFilter(() => rich)
+    const { filteredItems } = useTitleDocumentFilter(() => rich)
 
     // The hook should pass items through untouched rather than reshaping
     // them to only include the fields it indexes on.

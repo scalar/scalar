@@ -6,7 +6,6 @@ import {
   ScalarButton,
   ScalarDropdown,
   ScalarDropdownItem,
-  ScalarIcon,
   ScalarIconButton,
   ScalarModal,
   ScalarSidebar,
@@ -18,6 +17,7 @@ import {
 } from '@scalar/components'
 import { safeRun } from '@scalar/helpers/types/safe-run'
 import {
+  ScalarIconCaretUpDown,
   ScalarIconFolderDashed,
   ScalarIconFunnel,
   ScalarIconGearSix,
@@ -486,7 +486,7 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
             </div>
             <div
               v-if="isFilterVisible"
-              class="bg-sidebar-b-2/50 flex flex-col gap-2.5 rounded-md p-2">
+              class="bg-sidebar-b-2/50 flex flex-col gap-1.5 rounded-md">
               <ScalarSidebarSearchInput
                 v-model="filterQuery"
                 autofocus
@@ -494,28 +494,19 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
               <div
                 v-if="showNamespaceFilterRow && namespaceFilterSummary"
                 class="flex flex-col gap-1">
-                <span
-                  :id="registryScopeLabelId"
-                  class="text-sidebar-c-1 px-0.5 text-xs font-medium">
-                  Registry scope
-                </span>
                 <ScalarDropdown
                   class="w-full min-w-0"
                   placement="bottom-start"
                   resize>
                   <ScalarButton
                     :aria-labelledby="registryScopeLabelId"
-                    class="border-sidebar-border-search bg-sidebar-b-search text-sidebar-c-1 h-8 w-full min-w-0 justify-between gap-2 rounded border px-2 font-normal outline-none"
+                    class="border-sidebar-border-search bg-sidebar-b-search text-sidebar-c-1 h-8 w-full min-w-0 justify-start gap-1 rounded border px-2 font-normal outline-none"
                     fullWidth
                     variant="ghost">
-                    <span
-                      class="min-w-0 truncate text-left text-xs font-medium">
+                    <ScalarIconCaretUpDown class="size-4" />
+                    <span class="min-w-0 truncate text-left">
                       {{ namespaceFilterTriggerLabel }}
                     </span>
-                    <ScalarIcon
-                      class="text-sidebar-c-search shrink-0"
-                      icon="ChevronDown"
-                      size="sm" />
                   </ScalarButton>
                   <template #items>
                     <ScalarDropdownItem
