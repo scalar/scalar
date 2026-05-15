@@ -9,7 +9,7 @@ In 2025, PAR set out to modernize the foundation of this portal to ensure long-t
 Ultimately, PAR selected Scalar, [scalar.com](https://scalar.com), as the best aligned partner with its long-term developer experience strategy.
 
 <scalar-image
-  src="/partech-pos-terminal-branding.png"
+  src="/partech-branding.png"
   alt="A PAR point-of-sale terminal displaying the PAR logo and a partner symbol on its screen"
   size="full">
 </scalar-image>
