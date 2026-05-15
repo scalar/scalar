@@ -1,6 +1,5 @@
-import type { MaybeRefOrGetter } from 'vue'
+import { type MaybeRefOrGetter, computed, toValue } from 'vue'
 
-import { useMergeDocumentFilterOutputs } from '@/features/app/hooks/use-merge-document-filters'
 import { useRegistryNamespaceDocumentFilter } from '@/features/app/hooks/use-registry-namespace-document-filter'
 import type { SidebarDocumentItem } from '@/features/app/hooks/use-sidebar-documents'
 import { useTitleDocumentFilter } from '@/features/app/hooks/use-title-document-filter'
@@ -15,9 +14,9 @@ type UseSidebarDocumentsFilterArgs = {
  * Title fuzzy filter plus optional registry namespace scope for the app
  * sidebar document list (team workspaces only for the namespace UI).
  *
- * Implemented as {@link useTitleDocumentFilter} +
- * {@link useRegistryNamespaceDocumentFilter} composed by
- * {@link useMergeDocumentFilterOutputs}.
+ * Composes {@link useTitleDocumentFilter} with
+ * {@link useRegistryNamespaceDocumentFilter} and merges their outputs for the
+ * sidebar template.
  */
 export const useSidebarDocumentsFilter = ({ pinned, rest, isTeamWorkspace }: UseSidebarDocumentsFilterArgs) => {
   const titleFilter = useTitleDocumentFilter(rest)
@@ -28,10 +27,20 @@ export const useSidebarDocumentsFilter = ({ pinned, rest, isTeamWorkspace }: Use
     titleFilterVisible: () => titleFilter.isVisible.value,
   })
 
-  return useMergeDocumentFilterOutputs({
-    titleFilter,
-    namespaceFilter,
-    pinned,
-    titleFilteredRest: titleFilter.filteredItems,
-  })
+  const displayRestDocuments = computed(() => namespaceFilter.applyNamespaceFilter(titleFilter.filteredItems.value))
+  const displayPinnedDocuments = computed(() => namespaceFilter.applyNamespaceFilter(toValue(pinned)))
+
+  return {
+    registryScopeLabelId: namespaceFilter.registryScopeLabelId,
+    isFilterVisible: titleFilter.isVisible,
+    filterQuery: titleFilter.query,
+    toggleFilter: titleFilter.toggle,
+    filterNamespaceId: namespaceFilter.filterNamespaceId,
+    namespaceFilterSummary: namespaceFilter.namespaceFilterSummary,
+    showNamespaceFilterRow: namespaceFilter.showNamespaceFilterRow,
+    namespaceFilterOptions: namespaceFilter.namespaceFilterOptions,
+    namespaceFilterTriggerLabel: namespaceFilter.namespaceFilterTriggerLabel,
+    displayRestDocuments,
+    displayPinnedDocuments,
+  }
 }
