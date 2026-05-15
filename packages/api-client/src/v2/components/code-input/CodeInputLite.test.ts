@@ -787,7 +787,25 @@ describe('CodeInputLite', () => {
   describe('required indicator', () => {
     it('renders the required indicator when required is true', () => {
       const wrapper = mountInput({ modelValue: '', required: true })
-      expect(wrapper.find('.required').exists()).toBe(true)
+      const indicator = wrapper.find('.required')
+      expect(indicator.exists()).toBe(true)
+      expect(indicator.text()).toBe('Required')
+    })
+
+    it('sets aria-required on the editor when required is true', () => {
+      const wrapper = mountInput({ modelValue: '', required: true })
+      expect(wrapper.get('.code-input-lite__editor').attributes('aria-required')).toBe('true')
+    })
+
+    it('does not render the required indicator when required is false', () => {
+      const wrapper = mountInput({ modelValue: '', required: false })
+      expect(wrapper.find('.required').exists()).toBe(false)
+    })
+
+    it('does not render the required indicator by default', () => {
+      const wrapper = mountInput({ modelValue: '' })
+      expect(wrapper.find('.required').exists()).toBe(false)
+      expect(wrapper.get('.code-input-lite__editor').attributes('aria-required')).toBeUndefined()
     })
 
     it('hides the required indicator while the editor is focused', () => {
@@ -795,6 +813,17 @@ describe('CodeInputLite', () => {
       // assert the focus-hiding class is wired up rather than the computed style.
       const wrapper = mountInput({ modelValue: '', required: true })
       expect(wrapper.find('.required').classes()).toContain('peer-has-[.code-input-lite__editor:focus]:opacity-0')
+    })
+
+    it('still renders the required indicator alongside select mode', () => {
+      const wrapper = mountInput({
+        modelValue: 'a',
+        required: true,
+        enum: ['a', 'b'],
+      })
+      // The indicator is a sibling of the mode wrappers so it shows in every mode.
+      expect(wrapper.find('.required').exists()).toBe(true)
+      expect(wrapper.findComponent({ name: 'DataTableInputSelect' }).exists()).toBe(true)
     })
   })
 
