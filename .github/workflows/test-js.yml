@@ -1,0 +1,91 @@
+name: JS Tests
+
+# Reusable workflow that runs the JS-side test suites that are required for
+# every PR and every push to main. The sharding loop for `test-packages` and
+# the discovery loop for `test-projects` live here exactly once so the two
+# orchestrators (pr.yml and main.yml) cannot drift.
+#
+# This workflow does NOT run path-gated jobs (e2e, snapshots, etc) — those
+# stay in pr.yml because they have wiring (Playwright report deploys, PR
+# comments) that does not belong on main pushes.
+
+on:
+  workflow_call:
+    inputs:
+      shard-total:
+        description: 'Number of test-packages shards to run in parallel'
+        type: number
+        required: false
+        default: 3
+
+permissions:
+  contents: read
+
+jobs:
+  test-packages:
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        shard-index: [1, 2, 3]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+      - name: Check built declaration alias imports
+        if: matrix.shard-index == 1
+        run: pnpm lint:check:dist-dts-aliases
+      - name: Run tests
+        env:
+          SHARD_INDEX: ${{ matrix.shard-index }}
+          SHARD_TOTAL: ${{ inputs.shard-total }}
+        run: |
+          dirs=()
+          for dir in packages/*/; do
+            if grep -q '"test"' "${dir}package.json" 2>/dev/null; then
+              dirs+=("$dir")
+            fi
+          done
+          args=()
+          for i in "${!dirs[@]}"; do
+            if (( i % SHARD_TOTAL == SHARD_INDEX - 1 )); then
+              args+=(--filter "./${dirs[$i]%/}")
+            fi
+          done
+          if [ ${#args[@]} -eq 0 ]; then
+            echo "No packages assigned to this shard, skipping."
+            exit 0
+          fi
+          pnpm turbo "${args[@]}" test
+
+  test-projects:
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+      - name: Run project tests
+        run: |
+          args=()
+          for dir in projects/*/; do
+            [ -f "${dir}package.json" ] || continue
+            [ "${dir}" = 'projects/proxy-scalar-com/' ] && continue
+            if grep -q '"test"' "${dir}package.json" 2>/dev/null; then
+              args+=(--filter "./${dir%/}")
+            fi
+          done
+          if [ ${#args[@]} -eq 0 ]; then
+            echo "No projects with a pnpm test script (excluding Go proxy), skipping."
+            exit 0
+          fi
+          pnpm turbo "${args[@]}" test

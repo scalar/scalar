@@ -116,7 +116,9 @@ jobs:
           retention-days: 3
           compression-level: 0
 
+      # Never let an upload failure here mark the build job as failed.
       - name: Upload webpack stats to RelativeCI
+        continue-on-error: true
         uses: relative-ci/agent-action@1707825cbfcc7452b2913d273414705415ae64d4 # v3
         with:
           key: ${{ secrets.RELATIVE_CI_KEY }}
@@ -136,70 +138,11 @@ jobs:
       - uses: ./.github/actions/restore-build
       - run: pnpm turbo ${{ env.TURBO_FLAGS }} types:check
 
-  test-packages:
+  # test-packages (sharded) and test-projects live in test-js.yml so the
+  # shell loops cannot drift between pr.yml and main.yml.
+  test-js:
     needs: [build]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
-    timeout-minutes: 10
-    permissions:
-      contents: read
-    strategy:
-      fail-fast: false
-      matrix:
-        shard-index: [1, 2, 3]
-        shard-total: [3]
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-        with:
-          persist-credentials: false
-      - uses: ./.github/actions/restore-build
-      - if: matrix.shard-index == 1
-        run: pnpm lint:check:dist-dts-aliases
-      - name: Run tests
-        run: |
-          dirs=()
-          for dir in packages/*/; do
-            if grep -q '"test"' "${dir}package.json" 2>/dev/null; then
-              dirs+=("$dir")
-            fi
-          done
-          args=()
-          for i in "${!dirs[@]}"; do
-            if (( i % ${{ matrix.shard-total }} == ${{ matrix.shard-index }} - 1 )); then
-              args+=(--filter "./${dirs[$i]%/}")
-            fi
-          done
-          if [ ${#args[@]} -eq 0 ]; then
-            echo "No packages assigned to this shard, skipping."
-            exit 0
-          fi
-          pnpm turbo "${args[@]}" test
-
-  test-projects:
-    needs: [build]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
-    timeout-minutes: 15
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-        with:
-          persist-credentials: false
-      - uses: ./.github/actions/restore-build
-      - name: Run project tests
-        run: |
-          args=()
-          for dir in projects/*/; do
-            [ -f "${dir}package.json" ] || continue
-            [ "${dir}" = 'projects/proxy-scalar-com/' ] && continue
-            if grep -q '"test"' "${dir}package.json" 2>/dev/null; then
-              args+=(--filter "./${dir%/}")
-            fi
-          done
-          if [ ${#args[@]} -eq 0 ]; then
-            echo "No projects with a pnpm test script (excluding Go proxy), skipping."
-            exit 0
-          fi
-          pnpm turbo "${args[@]}" test
+    uses: ./.github/workflows/test-js.yml
 
   test-integrations:
     needs: [build]
@@ -306,8 +249,7 @@ jobs:
       - check-changes
       - build
       - types
-      - test-packages
-      - test-projects
+      - test-js
       - test-integrations
       - test-proxy-server
       - test-server-side-rendering

@@ -42,11 +42,14 @@ runs:
       shell: bash
       run: |
         set -euo pipefail
-        # Collect every dist/ directory under packages, integrations, and
-        # projects. -prune avoids recursing into nested node_modules.
+        # Only top-level workspace package roots: packages/*/dist,
+        # integrations/*/dist, projects/*/dist. Deeper `dist` directories
+        # (e.g. fixtures, examples, packages/mock-server/docker/dist) are
+        # intentionally excluded; the mock-server entrypoint is uploaded
+        # as its own artifact, and source-tree `dist` folders should never
+        # be part of the workspace build output.
         find packages integrations projects \
-          -name node_modules -prune -o \
-          -type d -name dist -print 2>/dev/null \
+          -mindepth 2 -maxdepth 2 -type d -name dist 2>/dev/null \
           | sort -u > .workspace-dist.list
 
         if [ ! -s .workspace-dist.list ]; then
@@ -57,7 +60,9 @@ runs:
         echo "Archiving the following dist directories:"
         cat .workspace-dist.list
 
-        # zstd; -T0 = all cores. Captures only the listed directories so
-        # node_modules and source files never end up in the tarball.
-        tar --zstd -cf workspace-dist.tar.zst -T .workspace-dist.list
+        # Write to a temp file then atomic-rename. If tar fails midway,
+        # set -euo pipefail aborts before the rename, so a half-written
+        # archive is never visible to the upload step.
+        tar --zstd -cf workspace-dist.tar.zst.tmp -T .workspace-dist.list
+        mv workspace-dist.tar.zst.tmp workspace-dist.tar.zst
         ls -lh workspace-dist.tar.zst

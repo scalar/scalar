@@ -49,5 +49,4 @@ runs:
         rm workspace-dist.tar.zst
         echo "Restored workspace dist directories:"
         find packages integrations projects \
-          -name node_modules -prune -o \
-          -type d -name dist -print 2>/dev/null | sort
+          -mindepth 2 -maxdepth 2 -type d -name dist 2>/dev/null | sort
