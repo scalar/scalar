@@ -1,5 +1,6 @@
 import {
   ScalarSidebarGroup,
+  ScalarSidebarGroupToggle,
   ScalarSidebarItem,
   ScalarSidebarItem as ScalarSidebarItemComponent,
   ScalarSidebarSection,
@@ -1103,6 +1104,32 @@ describe('SidebarItem', () => {
 
       // In client layout, operations/webhooks with children should render as groups
       expect(wrapper.findComponent(ScalarSidebarGroup).exists()).toBe(true)
+    })
+
+    it('does not render the chevron beside the HTTP method badge', () => {
+      const item: Item = {
+        id: '1',
+        title: 'Operation with examples',
+        type: 'operation',
+        ref: 'ref-1',
+        method: 'post',
+        path: '/users',
+        children: [{ id: '2', title: 'Example 1', type: 'example', name: 'example1' }],
+      }
+
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          layout: 'client',
+          item,
+          isExpanded: () => true,
+        },
+      })
+
+      // The HTTP badge is rendered for items with a method
+      expect(wrapper.findComponent(SidebarHttpBadge).exists()).toBe(true)
+      // The chevron toggle should be hidden when the item has a method
+      expect(wrapper.findComponent(ScalarSidebarGroupToggle).exists()).toBe(false)
     })
 
     it('handles missing optional props gracefully', () => {
