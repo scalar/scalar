@@ -48,6 +48,12 @@ jobs:
       # step the stickydisk would only accumulate fresh entries alongside
       # any stale or poisoned ones; with it, the disk state at job end
       # contains exactly what was rebuilt from scratch in this run.
+      #
+      # IMPORTANT: both caches use `find -mindepth 1 -delete`, NOT `rm -rf`
+      # on the directory itself. The directories are stickydisk mount
+      # points; removing the mount point can break the binding so the
+      # job-end snapshot is never persisted back. We only ever empty the
+      # contents.
       - name: Clear existing cache contents
         run: |
           set -euo pipefail
@@ -55,9 +61,9 @@ jobs:
           du -sh ./.turbo 2>/dev/null || echo "  ./.turbo: missing"
           du -sh ~/.local/share/pnpm/store 2>/dev/null || echo "  pnpm store: missing"
 
-          rm -rf ./.turbo
-          # Keep the directory itself so the stickydisk mount remains valid;
-          # only remove its contents.
+          if [ -d ./.turbo ]; then
+            find ./.turbo -mindepth 1 -delete
+          fi
           if [ -d ~/.local/share/pnpm/store ]; then
             find ~/.local/share/pnpm/store -mindepth 1 -delete
           fi

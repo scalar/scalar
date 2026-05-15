@@ -210,11 +210,24 @@ runs:
         STATUS_FILE="$(mktemp)"
         # `status --output` writes the full JSON shape:
         #   { "changesets": [...], "releases": [ { name, type, ... } ] }
-        # Failure (e.g. malformed changeset) falls through to path-based
-        # detection via the combine step below.
+        #
+        # Failure mode (malformed changeset, npm registry hiccup, etc.):
+        # we MUST be conservative and mark every JS scope as affected so a
+        # transitive-dependency change does not silently skip required
+        # tests. Path-based detection alone is not sufficient because the
+        # whole point of the changesets layer is to catch deep-dep impacts
+        # that path detection cannot see.
         if ! npx -y "@changesets/cli@${CHANGESETS_CLI_VERSION}" status --output="$STATUS_FILE" 2>&1; then
-          echo "::warning::changeset status failed; relying on path-based detection only"
-          echo "ok=false" >> "$GITHUB_OUTPUT"
+          echo "::warning::changeset status failed; conservatively marking every JS scope as affected"
+          {
+            echo "ok=false"
+            echo "api_reference=true"
+            echo "api_client=true"
+            echo "components=true"
+            echo "icons=true"
+            echo "galaxy=true"
+            echo "scalar_app=true"
+          } >> "$GITHUB_OUTPUT"
           exit 0
         fi
 

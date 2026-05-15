@@ -11,12 +11,14 @@ name: JS Tests
 
 on:
   workflow_call:
-    inputs:
-      shard-total:
-        description: 'Number of test-packages shards to run in parallel'
-        type: number
-        required: false
-        default: 3
+
+# Total number of test-packages shards. Hardcoded rather than parameterised
+# because the matrix and the modulo distribution have to stay in sync: if
+# this changes, the `shard-index` matrix below MUST change to the same
+# length. Making this an input would let a caller silently desync the two
+# and leave packages untested.
+env:
+  SHARD_TOTAL: '3'
 
 permissions:
   contents: read
@@ -30,6 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # MUST have exactly SHARD_TOTAL entries (see env block above).
         shard-index: [1, 2, 3]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -43,7 +46,6 @@ jobs:
       - name: Run tests
         env:
           SHARD_INDEX: ${{ matrix.shard-index }}
-          SHARD_TOTAL: ${{ inputs.shard-total }}
         run: |
           dirs=()
           for dir in packages/*/; do

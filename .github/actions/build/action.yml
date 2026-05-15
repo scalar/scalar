@@ -72,9 +72,12 @@ runs:
         # intentionally excluded; the mock-server entrypoint is uploaded
         # as its own artifact, and source-tree `dist` folders should never
         # be part of the workspace build output.
+        # Use NUL-delimited input/output so paths with whitespace or other
+        # special characters survive the round-trip. `tar --null -T` consumes
+        # the same delimiter, eliminating the newline-separated-paths foot-gun.
         find packages integrations projects \
-          -mindepth 2 -maxdepth 2 -type d -name dist 2>/dev/null \
-          | sort -u > .workspace-dist.list
+          -mindepth 2 -maxdepth 2 -type d -name dist -print0 2>/dev/null \
+          | sort -zu > .workspace-dist.list
 
         if [ ! -s .workspace-dist.list ]; then
           echo "No dist directories found to archive" >&2
@@ -82,11 +85,11 @@ runs:
         fi
 
         echo "Archiving the following dist directories:"
-        cat .workspace-dist.list
+        tr '\0' '\n' < .workspace-dist.list
 
         # Write to a temp file then atomic-rename. If tar fails midway,
         # set -euo pipefail aborts before the rename, so a half-written
         # archive is never visible to the upload step.
-        tar -czf workspace-dist.tar.gz.tmp -T .workspace-dist.list
+        tar --null -czf workspace-dist.tar.gz.tmp -T .workspace-dist.list
         mv workspace-dist.tar.gz.tmp workspace-dist.tar.gz
         ls -lh workspace-dist.tar.gz
