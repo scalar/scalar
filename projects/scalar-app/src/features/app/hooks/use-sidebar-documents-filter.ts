@@ -36,7 +36,6 @@ export const useSidebarDocumentsFilter = ({ pinned, rest, isTeamWorkspace }: Use
     filterQuery: titleFilter.query,
     toggleFilter: titleFilter.toggle,
     filterNamespaceId: namespaceFilter.filterNamespaceId,
-    namespaceFilterSummary: namespaceFilter.namespaceFilterSummary,
     showNamespaceFilterRow: namespaceFilter.showNamespaceFilterRow,
     namespaceFilterOptions: namespaceFilter.namespaceFilterOptions,
     namespaceFilterTriggerLabel: namespaceFilter.namespaceFilterTriggerLabel,

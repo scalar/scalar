@@ -88,7 +88,6 @@ const {
   filterQuery,
   toggleFilter,
   filterNamespaceId,
-  namespaceFilterSummary,
   showNamespaceFilterRow,
   namespaceFilterOptions,
   namespaceFilterTriggerLabel,
@@ -486,46 +485,44 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
             </div>
             <div
               v-if="isFilterVisible"
-              class="bg-sidebar-b-2/50 flex flex-col gap-1.5 rounded-md">
+              class="flex flex-col gap-1.5 rounded-md">
               <ScalarSidebarSearchInput
                 v-model="filterQuery"
                 autofocus
                 placeholder="Filter by title..." />
-              <div
-                v-if="showNamespaceFilterRow && namespaceFilterSummary"
-                class="flex flex-col gap-1">
-                <ScalarDropdown
-                  class="w-full min-w-0"
-                  placement="bottom-start"
-                  resize>
-                  <ScalarButton
-                    :aria-labelledby="registryScopeLabelId"
-                    class="border-sidebar-border-search bg-sidebar-b-search text-sidebar-c-1 h-8 w-full min-w-0 justify-start gap-1 rounded border px-2 font-normal outline-none"
-                    fullWidth
-                    variant="ghost">
-                    <ScalarIconCaretUpDown class="size-4" />
-                    <span class="min-w-0 truncate text-left">
-                      {{ namespaceFilterTriggerLabel }}
+
+              <ScalarDropdown
+                v-if="showNamespaceFilterRow"
+                class="w-full min-w-0"
+                placement="bottom-start"
+                resize>
+                <ScalarButton
+                  :aria-labelledby="registryScopeLabelId"
+                  class="border-sidebar-border-search bg-sidebar-b-search text-sidebar-c-1 h-8 w-full min-w-0 justify-start gap-1 rounded border px-2 font-normal outline-none"
+                  fullWidth
+                  variant="ghost">
+                  <ScalarIconCaretUpDown class="size-4" />
+                  <span class="min-w-0 truncate text-left">
+                    {{ namespaceFilterTriggerLabel }}
+                  </span>
+                </ScalarButton>
+                <template #items>
+                  <ScalarDropdownItem
+                    v-for="opt in namespaceFilterOptions"
+                    :key="String(opt.id)"
+                    class="flex w-full min-w-0 items-center justify-between gap-2"
+                    :title="opt.description"
+                    @click="filterNamespaceId = opt.id">
+                    <span class="text-c-1 min-w-0 flex-1 truncate text-left">
+                      {{ opt.label }}
                     </span>
-                  </ScalarButton>
-                  <template #items>
-                    <ScalarDropdownItem
-                      v-for="opt in namespaceFilterOptions"
-                      :key="String(opt.id)"
-                      class="flex w-full min-w-0 items-center justify-between gap-2"
-                      :title="opt.description"
-                      @click="filterNamespaceId = opt.id">
-                      <span class="text-c-1 min-w-0 flex-1 truncate text-left">
-                        {{ opt.label }}
-                      </span>
-                      <span
-                        class="text-c-3 shrink-0 text-xs font-medium tabular-nums">
-                        {{ opt.count }}
-                      </span>
-                    </ScalarDropdownItem>
-                  </template>
-                </ScalarDropdown>
-              </div>
+                    <span
+                      class="text-c-3 shrink-0 text-xs font-medium tabular-nums">
+                      {{ opt.count }}
+                    </span>
+                  </ScalarDropdownItem>
+                </template>
+              </ScalarDropdown>
             </div>
           </div>
 

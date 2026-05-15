@@ -121,7 +121,6 @@ export const useRegistryNamespaceDocumentFilter = <T extends RegistryNamespaceIt
   return {
     registryScopeLabelId,
     filterNamespaceId,
-    namespaceFilterSummary,
     showNamespaceFilterRow,
     namespaceFilterOptions,
     namespaceFilterTriggerLabel,
