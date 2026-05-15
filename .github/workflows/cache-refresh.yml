@@ -1,18 +1,9 @@
 name: Cache Refresh
 
 # Weekly cold rebuild of the main-branch turbo and pnpm-store caches.
-#
-# Goal: bound how long a stale or poisoned cache entry can survive on the
-# main-branch stickydisks. Once a week we wipe the disks clean, run a full
-# install + build from scratch, and let the stickydisk mechanism snapshot
-# the resulting fresh state.
-#
-# IMPORTANT: this workflow MUST write to the same cache keys that pr.yml
-# and main.yml read. The setup-node composite computes that key from
-# `github.repository`, `github.ref_name`, the .nvmrc Node version, and the
-# `cache-version` input. We deliberately do NOT pass `cache-version` here
-# so we inherit the default ('v1') that the CI workflows use; otherwise the
-# refresh would populate an orphan stickydisk and never benefit CI.
+# Wipe the disks, run a full install + build, and let the stickydisk
+# mechanism snapshot the resulting fresh state. Bounds how long a stale
+# or poisoned cache entry can survive on the main stickydisks.
 
 on:
   schedule:
@@ -39,21 +30,11 @@ jobs:
           persist-credentials: false
           ref: main
 
-      # Mount the same stickydisks that CI uses. The composite is a no-op on
-      # non-blacksmith runners, but this job always runs on blacksmith so the
-      # disks are guaranteed to be mounted.
       - uses: ./.github/actions/setup-node
 
-      # Wipe the mounted cache contents BEFORE re-populating. Without this
-      # step the stickydisk would only accumulate fresh entries alongside
-      # any stale or poisoned ones; with it, the disk state at job end
-      # contains exactly what was rebuilt from scratch in this run.
-      #
-      # IMPORTANT: both caches use `find -mindepth 1 -delete`, NOT `rm -rf`
-      # on the directory itself. The directories are stickydisk mount
-      # points; removing the mount point can break the binding so the
-      # job-end snapshot is never persisted back. We only ever empty the
-      # contents.
+      # Empty cache contents (do NOT `rm -rf` the directory itself: that
+      # is the stickydisk mount point and removing it can break the
+      # persistence binding).
       - name: Clear existing cache contents
         run: |
           set -euo pipefail
@@ -71,13 +52,9 @@ jobs:
       - name: Install dependencies (cold)
         run: pnpm install --frozen-lockfile
 
-      # `TURBO_FLAGS` MUST be templated by GitHub Actions, not expanded as a
-      # shell variable. Its value contains literal double quotes around
-      # filter patterns; GitHub Actions templating injects those quotes as
-      # part of the shell command for the shell to parse, whereas a shell
-      # variable expansion would only word-split on whitespace and leave
-      # the quote characters inside the arguments (causing turbo to read
-      # `{a,b}` as a regex repetition quantifier and fail).
+      # `TURBO_FLAGS` MUST stay templated (`${{ env.TURBO_FLAGS }}`), not
+      # shell-expanded: its value embeds literal quotes around filter
+      # patterns and only the GHA templater handles those correctly.
       - name: Build all packages (cold)
         env:
           TURBO_FLAGS: '--concurrency=100% --filter "!./integrations/{java,rust,dotnet,docker,fastapi,django-ninja}/**" --filter "!./projects/proxy-scalar-com/**"'

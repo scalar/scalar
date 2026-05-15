@@ -1,42 +1,28 @@
 name: 'Restore Build'
 description: |
-  Restore a pre-built workspace produced by the `build` job.
+  Restore a pre-built workspace produced by an earlier `build` job in the
+  same workflow run. Sets up pnpm + node, installs dependencies, downloads
+  the `workspace-dist` artifact, and extracts every `dist/` directory back
+  into place.
 
-  Downstream test, lint, and deploy jobs use this composite instead of
-  re-running the full `pnpm turbo build` pipeline. The composite:
-    1. Sets up pnpm + node (shared caches via setup-node composite)
-    2. Runs `pnpm install --frozen-lockfile --prefer-offline` (typically a
-       warm pnpm-store hit)
-    3. Downloads the `workspace-dist` artifact uploaded by the build job and
-       extracts it so every `packages|integrations|projects */dist` directory
-       is in place.
-
-  IMPORTANT: Artifacts are scoped to a single workflow run. This composite
-  intentionally never accepts a `run-id` input — production-publish workflows
-  must build their own artifact within the same run, never reuse a PR's.
-inputs:
-  node-version:
-    description: 'Node.js version to use (optional, defaults to reading from .nvmrc)'
-    required: false
-  artifact-name:
-    description: 'Name of the workspace-dist artifact to download'
-    required: false
-    default: 'workspace-dist'
+  Intentionally never accepts a `run-id` input: artifacts must come from
+  the same run as the consumer, so a PR-produced artifact can never feed a
+  release job.
 runs:
   using: 'composite'
   steps:
-    - name: Setup Node
-      uses: ./.github/actions/setup-node
-      with:
-        node-version: ${{ inputs.node-version }}
+    - uses: ./.github/actions/setup-node
+
     - name: Install dependencies
       shell: bash
       run: pnpm install --frozen-lockfile --prefer-offline
-    - name: Download workspace dist artifact
+
+    - name: Download workspace-dist artifact
       uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
       with:
-        name: ${{ inputs.artifact-name }}
+        name: workspace-dist
         path: .
+
     - name: Extract workspace dist
       shell: bash
       run: |
@@ -45,8 +31,6 @@ runs:
           echo "Expected workspace-dist.tar.gz but it was not in the artifact" >&2
           exit 1
         fi
-        # gzip is universally available in every container image we run on
-        # (zstd is not — the playwright-runner image lacks it).
         tar -xzf workspace-dist.tar.gz
         rm workspace-dist.tar.gz
         echo "Restored workspace dist directories:"

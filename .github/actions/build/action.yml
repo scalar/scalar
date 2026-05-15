@@ -1,80 +1,47 @@
 name: 'Build'
 description: |
-  Install workspace deps and run a turbo build, with a persistent branch-scoped
-  turbo cache. The optional `archive-output` step packages the resulting
-  `dist/` directories into a single tarball at `./workspace-dist.tar.gz` so
-  downstream jobs can fan out via `actions/upload-artifact` + the
-  `restore-build` composite instead of re-running the build.
+  Install workspace deps and run a turbo build with the branch-scoped
+  caches from setup-node. When `archive-output: true`, also tar up every
+  workspace `dist/` directory into `./workspace-dist.tar.gz` so downstream
+  jobs can fan out via the `restore-build` composite instead of rebuilding.
 
-  We use gzip (rather than zstd) because several downstream jobs run inside
-  the `scalarapi/playwright-runner` container, which does not ship the
-  `zstd` binary. gzip is in every base image; the size penalty at typical
-  workspace-dist sizes (~10 MB compressed) is negligible.
+  gzip rather than zstd because the `scalarapi/playwright-runner` container
+  (used by integration and e2e tests) does not ship the zstd binary.
 inputs:
-  node-version:
-    description: 'Node.js version to use (optional, defaults to reading from .nvmrc)'
-    required: false
   packages:
     description: 'Package glob pattern to build (e.g., "@scalar/api-reference" or "packages/*")'
     required: true
   archive-output:
-    description: |
-      When 'true', create ./workspace-dist.tar.gz containing every
-      packages|integrations|projects */dist directory. Default 'false' to keep
-      the existing call sites unchanged.
+    description: 'When true, write ./workspace-dist.tar.gz alongside the build.'
     required: false
     default: 'false'
 runs:
   using: 'composite'
   steps:
-    - name: Setup Node
-      uses: ./.github/actions/setup-node
-      with:
-        node-version: ${{ inputs.node-version }}
+    - uses: ./.github/actions/setup-node
+
     - name: Install dependencies
       shell: bash
       run: pnpm install --frozen-lockfile --prefer-offline
-    # `inputs.packages` is bound to a step-level env var rather than
-    # templated directly into the shell line. The previous form
-    #   pnpm turbo ... --filter '${{ inputs.packages }}' build
-    # depended on literal single quotes around the expression to survive
-    # bash brace expansion of patterns like `./{packages,integrations}/**`,
-    # which makes the action vulnerable to malformed inputs containing a
-    # single quote. The env-var pattern is the standard shellcheck- and
-    # GitHub-security-advisory-recommended way to defang this.
-    #
-    # `TURBO_FLAGS` MUST be templated by GitHub Actions, NOT referenced as a
-    # shell variable. Its value contains literal double quotes (around
-    # filter patterns like "!./integrations/{...}/**"); GitHub Actions
-    # templating injects those quotes as part of the shell command, which
-    # the shell then parses correctly. A shell variable expansion would
-    # only word-split on whitespace and leave the quote characters inside
-    # the arguments, causing turbo to try to parse `{a,b}` as a regex
-    # repetition quantifier and fail.
+
+    # `inputs.packages` goes through an env var so a malformed input
+    # containing a single quote cannot break out of shell quoting.
+    # `TURBO_FLAGS` MUST stay templated (`${{ env.TURBO_FLAGS }}`), not
+    # shell-expanded: its value embeds literal double quotes around filter
+    # patterns, which only the GHA templater handles correctly.
     - name: Build packages
       shell: bash
       env:
         PACKAGES_FILTER: ${{ inputs.packages }}
       run: pnpm turbo ${{ env.TURBO_FLAGS }} --filter "$PACKAGES_FILTER" build
 
-    # Single-tarball capture of every workspace dist directory. gzip is the
-    # universal compression format inside the container images we run on
-    # (the `scalarapi/playwright-runner` image used by test-integrations
-    # and the e2e jobs ships without zstd, so we cannot use --zstd here).
+    # NUL-delimited find + tar so paths with spaces/newlines survive.
+    # Atomic rename so a partial tar never reaches the upload step.
     - if: inputs.archive-output == 'true'
       name: Archive workspace dist directories
       shell: bash
       run: |
         set -euo pipefail
-        # Only top-level workspace package roots: packages/*/dist,
-        # integrations/*/dist, projects/*/dist. Deeper `dist` directories
-        # (e.g. fixtures, examples, packages/mock-server/docker/dist) are
-        # intentionally excluded; the mock-server entrypoint is uploaded
-        # as its own artifact, and source-tree `dist` folders should never
-        # be part of the workspace build output.
-        # Use NUL-delimited input/output so paths with whitespace or other
-        # special characters survive the round-trip. `tar --null -T` consumes
-        # the same delimiter, eliminating the newline-separated-paths foot-gun.
         find packages integrations projects \
           -mindepth 2 -maxdepth 2 -type d -name dist -print0 2>/dev/null \
           | sort -zu > .workspace-dist.list
@@ -84,12 +51,9 @@ runs:
           exit 1
         fi
 
-        echo "Archiving the following dist directories:"
+        echo "Archiving:"
         tr '\0' '\n' < .workspace-dist.list
 
-        # Write to a temp file then atomic-rename. If tar fails midway,
-        # set -euo pipefail aborts before the rename, so a half-written
-        # archive is never visible to the upload step.
         tar --null -czf workspace-dist.tar.gz.tmp -T .workspace-dist.list
         mv workspace-dist.tar.gz.tmp workspace-dist.tar.gz
         ls -lh workspace-dist.tar.gz

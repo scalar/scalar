@@ -1,39 +1,17 @@
 name: 'Check Changes'
 description: |
   Detect which areas of the monorepo are affected by the current event and
-  emit one boolean output per scope. Used by both `pr.yml` (to skip
-  irrelevant test and preview-deploy jobs) and `main.yml` (to gate
-  integration publishes on actual changes).
+  emit one boolean output per scope.
 
-  Detection runs in two layers for the JS scopes:
+  JS scopes are the OR of two layers:
+    1. Path-based (step-security/changed-files): direct file edits.
+    2. Graph-based (pnpm filter `...[base]`): the package plus every
+       workspace dependent of it. Catches transitive changes (e.g. a PR
+       editing @scalar/helpers should still flag api-reference).
 
-    1. Path-based (step-security/changed-files): fast, no install needed,
-       captures direct file modifications. Used as the primary signal for
-       non-pnpm integrations (rust, django-ninja, docker source) and for
-       every `*_package_changed` output that drives a production publish.
-    2. Graph-based (pnpm filter `...[base]`): walks the workspace
-       `package.json` graph and returns every package that has either
-       directly changed since the base commit OR has a transitive
-       workspace dependency that has. This is the only layer that can
-       answer "preview my api-reference because helpers changed" on a PR
-       that has no changeset yet.
-
-  Why not changesets?
-
-    For production publishes we do not need graph awareness here at all:
-    `changesets/action` has already version-bumped each integration's
-    `package.json` by the time publish-integrations runs, so path-detecting
-    those bumps (the `*_package_changed` outputs) is exact and sufficient.
-
-    For PR previews changesets are unreliable: a contributor often opens
-    the PR before writing a changeset, and refactors in low-level packages
-    routinely ship under another package's changeset. The pnpm graph is
-    derived from the actual workspace dependency edges and is correct from
-    the first commit of a PR.
-
-  The final output for each JS scope is the OR of path-based + graph-based.
-  Path-based remains the safety net if the graph step cannot resolve a base
-  ref (first push to a new branch, force push, missing history).
+  Production *_package_changed outputs stay path-only: by the time they
+  matter, `changesets/action` has already committed the version bump and
+  the path detection on that bumped `package.json` is exact.
 
 outputs:
   # Integration source trees (drive *-build-test jobs on PRs)
@@ -107,13 +85,10 @@ outputs:
     description: 'projects/scalar-app/package.json (drives todesktop on main)'
     value: ${{ steps.changed-packages-files.outputs.scalar_app_package_any_changed }}
 
-  # Broad JS-side gates
+  # Broad JS-side gate (drives the format job).
   js_changed:
     description: 'Any JS/TS file or workspace config touched'
     value: ${{ steps.changed-js.outputs.js_any_changed }}
-  lockfile_changed:
-    description: 'pnpm-lock.yaml or workspace package.json files touched'
-    value: ${{ steps.changed-js.outputs.lockfile_any_changed }}
 
 runs:
   using: 'composite'
@@ -181,7 +156,7 @@ runs:
           mock_server_docker_package:
             - packages/mock-server/docker/package.json
 
-    - name: Check broad JS scopes
+    - name: Check broad JS scope
       id: changed-js
       uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
       with:
@@ -193,20 +168,11 @@ runs:
             - 'pnpm-lock.yaml'
             - 'pnpm-workspace.yaml'
             - 'turbo.json'
-          lockfile:
-            - 'pnpm-lock.yaml'
-            - '**/package.json'
-            - 'pnpm-workspace.yaml'
 
     # -------------------------------------------------------------------------
     # Layer 2: graph-based detection via pnpm filter `...[base]`
-    #
-    # `pnpm m ls --filter "...[<base>]" --json` returns every workspace
-    # package whose tracked files changed since `<base>` PLUS every package
-    # that transitively depends on one of those (the leading `...` is pnpm's
-    # "include dependents" prefix). This reads `pnpm-workspace.yaml` and the
-    # individual `package.json` files at the current commit; it does not
-    # need `node_modules` installed.
+    # (changed packages + every transitive dependent). Reads package.json
+    # files only; no `pnpm install` needed.
     # -------------------------------------------------------------------------
     - name: Install pnpm (for graph analysis)
       uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
