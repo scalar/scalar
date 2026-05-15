@@ -31,7 +31,6 @@ export const useSidebarDocumentsFilter = ({ pinned, rest, isTeamWorkspace }: Use
   const displayPinnedDocuments = computed(() => namespaceFilter.applyNamespaceFilter(toValue(pinned)))
 
   return {
-    registryScopeLabelId: namespaceFilter.registryScopeLabelId,
     isFilterVisible: titleFilter.isVisible,
     filterQuery: titleFilter.query,
     toggleFilter: titleFilter.toggle,

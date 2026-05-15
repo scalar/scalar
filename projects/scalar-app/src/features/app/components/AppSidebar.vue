@@ -83,7 +83,6 @@ const { pinned, rest } = useSidebarDocuments({
 })
 
 const {
-  registryScopeLabelId,
   isFilterVisible,
   filterQuery,
   toggleFilter,
@@ -331,15 +330,31 @@ const isOnDocumentPage = computed(() =>
   Boolean(app.activeEntities.documentSlug.value),
 )
 
-const showFilterNoMatches = computed(
-  () =>
-    isFilterVisible.value &&
-    !isOnDocumentPage.value &&
-    !isEmpty.value &&
-    !isLoadingRegistry.value &&
+/**
+ * Inline hint when filters remove every sidebar row. Suppressed while the
+ * workspace is empty, the registry list is still loading, or the user is
+ * inside a document (filter UI is not active there).
+ */
+const showFilterNoMatches = computed((): boolean => {
+  // Filter UI only applies on the top-level workspace document list.
+  const isWorkspaceListFilterActive =
+    isFilterVisible.value && !isOnDocumentPage.value
+  if (!isWorkspaceListFilterActive) {
+    return false
+  }
+
+  // Need a real list first: avoid overlapping empty/loading states.
+  const workspaceListReady = !isEmpty.value && !isLoadingRegistry.value
+  if (!workspaceListReady) {
+    return false
+  }
+
+  // Title + namespace filters removed every visible row.
+  return (
     displayPinnedDocuments.value.length === 0 &&
-    displayRestDocuments.value.length === 0,
-)
+    displayRestDocuments.value.length === 0
+  )
+})
 
 const handleOpenSettings = () => {
   if (isOnDocumentPage.value) {
@@ -497,7 +512,6 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                 placement="bottom-start"
                 resize>
                 <ScalarButton
-                  :aria-labelledby="registryScopeLabelId"
                   class="border-sidebar-border-search bg-sidebar-b-search text-sidebar-c-1 h-8 w-full min-w-0 justify-start gap-1 rounded border px-2 font-normal outline-none"
                   fullWidth
                   variant="ghost">
@@ -556,7 +570,10 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                 <!-- Show pinned documents after we add support for it -->
                 <ScalarSidebarSection v-if="displayPinnedDocuments.length">
                   <template
-                    v-if="pinned.length && rest.length"
+                    v-if="
+                      displayPinnedDocuments.length &&
+                      displayRestDocuments.length
+                    "
                     #default>
                     Pinned
                   </template>
@@ -586,7 +603,10 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
 
                 <ScalarSidebarSection>
                   <template
-                    v-if="pinned.length && rest.length"
+                    v-if="
+                      displayPinnedDocuments.length &&
+                      displayRestDocuments.length
+                    "
                     #default>
                     All documents
                   </template>

@@ -1,4 +1,4 @@
-import { type MaybeRefOrGetter, computed, ref, toValue, useId, watch } from 'vue'
+import { type MaybeRefOrGetter, computed, ref, toValue, watch } from 'vue'
 
 /** Sentinel: include every registry namespace in the document list. */
 export const FILTER_NAMESPACE_ALL = 'all' as const
@@ -116,10 +116,7 @@ export const useRegistryNamespaceDocumentFilter = <T extends RegistryNamespaceIt
     },
   )
 
-  const registryScopeLabelId = useId()
-
   return {
-    registryScopeLabelId,
     filterNamespaceId,
     showNamespaceFilterRow,
     namespaceFilterOptions,
