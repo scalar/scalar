@@ -98,6 +98,11 @@ defineProps<{
    * @default var(--scalar-border-color)
    */
   searchBorderColor?: string
+  /**
+   * Sets the placeholder for the search input
+   * @default 'Search...'
+   */
+  searchPlaceholder?: string
 }>()
 
 const selected = defineModel<string>('selected')
@@ -131,7 +136,7 @@ const selected = defineModel<string>('selected')
         <slot name="search">
           <div
             class="p-(--scalar-sidebar-padding) pb-0 sticky z-1 top-0 bg-sidebar-b-1">
-            <ScalarSidebarSearchInput />
+            <ScalarSidebarSearchInput :placeholder="searchPlaceholder" />
           </div>
         </slot>
         <slot>
