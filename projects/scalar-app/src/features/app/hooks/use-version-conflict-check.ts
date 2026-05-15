@@ -2,7 +2,7 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type MaybeRefOrGetter, toValue, watch } from 'vue'
 
 import { checkVersionConflict } from '@/features/app/helpers/check-version-conflict'
-import type { SidebarDocumentVersion } from '@/features/app/hooks/use-sidebar-documents'
+import type { SidebarDocumentVersion } from '@/features/app/hooks/use-sidebar-documents/types'
 import type { ImportDocumentFromRegistry } from '@/types/configuration'
 
 /**

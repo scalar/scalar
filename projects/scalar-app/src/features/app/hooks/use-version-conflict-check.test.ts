@@ -3,7 +3,7 @@ import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 
-import type { SidebarDocumentVersion } from '@/features/app/hooks/use-sidebar-documents'
+import type { SidebarDocumentVersion } from '@/features/app/hooks/use-sidebar-documents/types'
 import { useVersionConflictCheck } from '@/features/app/hooks/use-version-conflict-check'
 import type { ImportDocumentFromRegistry } from '@/types/configuration'
 
