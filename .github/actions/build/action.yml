@@ -2,9 +2,14 @@ name: 'Build'
 description: |
   Install workspace deps and run a turbo build, with a persistent branch-scoped
   turbo cache. The optional `archive-output` step packages the resulting
-  `dist/` directories into a single tarball at `./workspace-dist.tar.zst` so
+  `dist/` directories into a single tarball at `./workspace-dist.tar.gz` so
   downstream jobs can fan out via `actions/upload-artifact` + the
   `restore-build` composite instead of re-running the build.
+
+  We use gzip (rather than zstd) because several downstream jobs run inside
+  the `scalarapi/playwright-runner` container, which does not ship the
+  `zstd` binary. gzip is in every base image; the size penalty at typical
+  workspace-dist sizes (~10 MB compressed) is negligible.
 inputs:
   node-version:
     description: 'Node.js version to use (optional, defaults to reading from .nvmrc)'
@@ -14,7 +19,7 @@ inputs:
     required: true
   archive-output:
     description: |
-      When 'true', create ./workspace-dist.tar.zst containing every
+      When 'true', create ./workspace-dist.tar.gz containing every
       packages|integrations|projects */dist directory. Default 'false' to keep
       the existing call sites unchanged.
     required: false
@@ -52,10 +57,10 @@ runs:
         PACKAGES_FILTER: ${{ inputs.packages }}
       run: pnpm turbo ${{ env.TURBO_FLAGS }} --filter "$PACKAGES_FILTER" build
 
-    # Single-tarball capture of every workspace dist directory. zstd is ~5x
-    # faster than gzip at comparable ratios and is the default for recent
-    # actions/upload-artifact builds, so this is both faster to produce and
-    # faster to upload than a per-file artifact glob.
+    # Single-tarball capture of every workspace dist directory. gzip is the
+    # universal compression format inside the container images we run on
+    # (the `scalarapi/playwright-runner` image used by test-integrations
+    # and the e2e jobs ships without zstd, so we cannot use --zstd here).
     - if: inputs.archive-output == 'true'
       name: Archive workspace dist directories
       shell: bash
@@ -82,6 +87,6 @@ runs:
         # Write to a temp file then atomic-rename. If tar fails midway,
         # set -euo pipefail aborts before the rename, so a half-written
         # archive is never visible to the upload step.
-        tar --zstd -cf workspace-dist.tar.zst.tmp -T .workspace-dist.list
-        mv workspace-dist.tar.zst.tmp workspace-dist.tar.zst
-        ls -lh workspace-dist.tar.zst
+        tar -czf workspace-dist.tar.gz.tmp -T .workspace-dist.list
+        mv workspace-dist.tar.gz.tmp workspace-dist.tar.gz
+        ls -lh workspace-dist.tar.gz

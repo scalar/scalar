@@ -41,12 +41,14 @@ runs:
       shell: bash
       run: |
         set -euo pipefail
-        if [ ! -f workspace-dist.tar.zst ]; then
-          echo "Expected workspace-dist.tar.zst but it was not in the artifact" >&2
+        if [ ! -f workspace-dist.tar.gz ]; then
+          echo "Expected workspace-dist.tar.gz but it was not in the artifact" >&2
           exit 1
         fi
-        tar --zstd -xf workspace-dist.tar.zst
-        rm workspace-dist.tar.zst
+        # gzip is universally available in every container image we run on
+        # (zstd is not — the playwright-runner image lacks it).
+        tar -xzf workspace-dist.tar.gz
+        rm workspace-dist.tar.gz
         echo "Restored workspace dist directories:"
         find packages integrations projects \
           -mindepth 2 -maxdepth 2 -type d -name dist 2>/dev/null | sort
