@@ -30,6 +30,11 @@
       "import": "./dist/api-reference/index.js",
       "types": "./dist/api-reference/index.d.ts",
       "default": "./dist/api-reference/index.js"
+    },
+    "./asyncapi/3.1": {
+      "import": "./dist/asyncapi/3.1/index.js",
+      "types": "./dist/asyncapi/3.1/index.d.ts",
+      "default": "./dist/asyncapi/3.1/index.js"
     }
   },
   "files": [
