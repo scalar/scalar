@@ -677,11 +677,7 @@ jobs:
           # The commit message to use.
           commit: 'chore: version packages'
           # The command to use to build and publish packages.
-          # --parallel 1 serializes publishes per package; npm's
-          # registry occasionally returns HTTP 409 "Failed to save packument"
-          # on near-simultaneous PUTs to the same packument (which `pnpm -r
-          # publish` does by default across the workspace).
-          publish: 'pnpm -r publish --access public --no-git-checks --parallel 1'
+          publish: 'pnpm -r publish --access public --no-git-checks'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # https://www.npmjs.com/settings/YOUR_ACCOUNT_HANDLE/tokens/granular-access-tokens/new
