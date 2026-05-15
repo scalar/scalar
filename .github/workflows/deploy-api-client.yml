@@ -16,6 +16,11 @@ on:
         description: 'Commit SHA to deploy — PR head SHA for previews, git SHA for releases'
         type: string
         required: true
+    secrets:
+      CLOUDFLARE_API_TOKEN:
+        required: true
+      CLOUDFLARE_ACCOUNT_ID:
+        required: true
     outputs:
       preview-url:
         description: 'The Cloudflare Pages deployment URL (staging only)'

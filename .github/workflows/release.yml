@@ -1,0 +1,285 @@
+name: Release
+
+# Reusable workflow that handles every production publish. Only ever invoked
+# from main.yml (after required tests pass on a push to `main`). PRs cannot
+# call this workflow — they trigger pr.yml, which never references release.yml.
+# This is the structural separation that prevents PR-side secret exposure.
+#
+# Stages:
+#   1. npm-publish (changesets/action). MUST run on a github-hosted runner;
+#      npm provenance via OIDC rejects self-hosted runners.
+#   2. create-github-release (only when something was published)
+#   3. push-to-scalar-registry (galaxy registry)
+#   4. publish-integrations (fan-out to Docker, NuGet, PyPI, crates, Maven)
+#   5. todesktop (only when scalar-app version bumped)
+
+on:
+  workflow_call:
+    inputs:
+      # All `check-changes` outputs are forwarded as inputs so we can gate
+      # integration publishes without re-running the path-detection step.
+      aspnetcore_package_changed:
+        type: string
+        required: true
+      aspire_package_changed:
+        type: string
+        required: true
+      fastapi_package_changed:
+        type: string
+        required: true
+      django_ninja_package_changed:
+        type: string
+        required: true
+      rust_package_changed:
+        type: string
+        required: true
+      java_package_changed:
+        type: string
+        required: true
+      docker_package_changed:
+        type: string
+        required: true
+      mock_server_docker_package_changed:
+        type: string
+        required: true
+      galaxy_changed:
+        type: string
+        required: true
+      scalar_app_package_changed:
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+# Top-level concurrency: only one release run at a time, never cancel.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  TURBO_FLAGS: '--concurrency=100% --filter "!./integrations/{java,rust,dotnet,docker,fastapi,django-ninja}/**" --filter "!./projects/proxy-scalar-com/**"'
+  SCALAR_CLI_VERSION: '1.9.4'
+
+jobs:
+  npm-publish:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    environment: production-npm
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
+      # Required for npm provenance statements
+      id-token: write
+    outputs:
+      published: ${{ steps.changesets.outputs.published }}
+      publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          # changesets/action pushes a release PR back to the repo, so it
+          # needs the credentials persisted on the checkout.
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          # Build everything: changesets/action runs `pnpm release:version`
+          # then `pnpm -r publish`, both of which expect every workspace to
+          # have its dist directory ready.
+          packages: './**'
+
+      - name: Stash any local changes from the build
+        run: |
+          git status
+          git stash || true
+
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@e0145edc7d9d8679003495b11f87bd8ef63c0cba # v1
+        with:
+          title: 'chore: release'
+          version: 'pnpm release:version'
+          commit: 'chore: version packages'
+          publish: 'pnpm -r publish --access public --no-git-checks'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Bust jsDelivr CDN cache
+        if: steps.changesets.outputs.published == 'true'
+        uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d # v1.16.4
+        with:
+          url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference'
+          method: 'GET'
+
+  create-github-release:
+    if: needs.npm-publish.outputs.published == 'true'
+    needs: [npm-publish]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Generate release tag
+        id: tag
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          TAG="release-${DATE}-${SHORT_SHA}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "date=$DATE" >> "$GITHUB_OUTPUT"
+
+      - name: Get PR body from merged release PR
+        id: pr-body
+        run: |
+          PR_DATA=$(gh api repos/${{ github.repository }}/commits/${{ github.sha }}/pulls --jq '.[0]')
+          PR_BODY=$(echo "$PR_DATA" | jq -r '.body // ""')
+
+          if [ -z "$PR_BODY" ] || [ "$PR_BODY" == "null" ]; then
+            echo "PR body not found, using default notes"
+            echo "Release ${{ steps.tag.outputs.date }}" > release-notes.md
+          else
+            echo "$PR_BODY" | awk '
+              /^# Releases/ { found=1 }
+              /<!-- CURSOR_SUMMARY -->/ { exit }
+              found { print }
+            ' > release-notes.md
+
+            if [ ! -s release-notes.md ]; then
+              echo "$PR_BODY" > release-notes.md
+            fi
+          fi
+
+      - name: Create GitHub Release
+        run: |
+          gh release create "${{ steps.tag.outputs.tag }}" \
+            --title "Release ${{ steps.tag.outputs.date }}" \
+            --notes-file release-notes.md
+
+  push-to-scalar-registry:
+    if: needs.npm-publish.outputs.published == 'true' && inputs.galaxy_changed == 'true'
+    needs: [npm-publish]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    environment: production-scalar-registry
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+
+      - name: Build @scalar/galaxy
+        uses: ./.github/actions/build
+        with:
+          packages: '@scalar/galaxy...'
+
+      - name: Get version from package.json
+        id: package-version
+        working-directory: packages/galaxy
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Install pinned @scalar/cli
+        run: npm install -g "@scalar/cli@${{ env.SCALAR_CLI_VERSION }}"
+
+      - name: Login to Scalar Registry
+        env:
+          SCALAR_API_KEY: ${{ secrets.SCALAR_API_KEY }}
+        run: scalar auth login --token "$SCALAR_API_KEY"
+
+      - name: Push OpenAPI Example to Scalar Registry
+        run: |
+          scalar registry publish --namespace scalar --slug galaxy \
+            --version "${{ steps.package-version.outputs.VERSION }}" \
+            packages/galaxy/dist/latest.yaml
+
+      - name: Push AsyncAPI Example to Scalar Registry
+        # Uploaded as a schema because the documents API does not yet support AsyncAPI.
+        run: |
+          scalar schema publish --namespace scalar --slug asyncapi \
+            --version "${{ steps.package-version.outputs.VERSION }}" \
+            packages/galaxy/dist/asyncapi/latest.yaml
+
+  # Fan out to every non-JS integration registry. Each job inside this
+  # reusable workflow uses its own GitHub Environment so credentials are
+  # scoped per-registry.
+  publish-integrations:
+    needs: [npm-publish]
+    uses: ./.github/workflows/publish-integrations.yml
+    with:
+      published: ${{ needs.npm-publish.outputs.published }}
+      aspnetcore_package_changed: ${{ inputs.aspnetcore_package_changed }}
+      aspire_package_changed: ${{ inputs.aspire_package_changed }}
+      fastapi_package_changed: ${{ inputs.fastapi_package_changed }}
+      django_ninja_package_changed: ${{ inputs.django_ninja_package_changed }}
+      rust_package_changed: ${{ inputs.rust_package_changed }}
+      java_package_changed: ${{ inputs.java_package_changed }}
+      docker_package_changed: ${{ inputs.docker_package_changed }}
+      mock_server_docker_package_changed: ${{ inputs.mock_server_docker_package_changed }}
+    secrets: inherit
+
+  todesktop:
+    needs: [npm-publish]
+    uses: ./.github/workflows/todesktop.yml
+    with:
+      published: ${{ needs.npm-publish.outputs.published }}
+      scalar_app_package_changed: ${{ inputs.scalar_app_package_changed }}
+    secrets: inherit
+
+  # Production deploy of the API client (scalar-app web) after a release.
+  deploy-api-client:
+    needs: [npm-publish]
+    if: needs.npm-publish.outputs.published == 'true'
+    uses: ./.github/workflows/deploy-api-client.yml
+    with:
+      environment: production
+      pr-number: ''
+      sha: ${{ github.sha }}
+    secrets:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  # Production Storybook deploy (was deploy-components in the old ci.yml).
+  deploy-components:
+    needs: [npm-publish]
+    if: needs.npm-publish.outputs.published == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    environment: production-netlify
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          packages: './packages/**'
+      - name: Generate DEPLOY_ID
+        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
+      - name: Install Netlify CLI
+        run: pnpm install -g netlify
+      - name: Build storybook
+        run: pnpm --filter components build:storybook
+      - name: Deploy Storybook to Netlify (Production)
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: |
+          netlify deploy --dir "./packages/components/storybook-static" \
+            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
+            --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS }} \
+            --auth "$NETLIFY_AUTH_TOKEN" \
+            --filter @scalar/components \
+            --prod

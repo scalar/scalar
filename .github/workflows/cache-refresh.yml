@@ -1,0 +1,66 @@
+name: Cache Refresh
+
+# Weekly cold rebuild on main. This bounds how long a poisoned cache entry
+# could live: even if a cache-poisoning attack somehow lands, the entry has
+# at most ~7 days to be picked up before this workflow blows it away.
+#
+# Conservative on cost: only rebuilds the main turbo cache and the pnpm
+# store. It does NOT run tests — pr.yml and main.yml will rebuild any
+# affected caches naturally on the next change.
+
+on:
+  schedule:
+    # Sundays 03:00 UTC. Quiet time, no overlap with usual release flow.
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cache-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+          ref: main
+
+      # The setup-node composite mounts the branch-scoped stickydisks. Bumping
+      # the cache-version forces them to be re-initialised cold from this run.
+      - uses: ./.github/actions/setup-node
+        with:
+          # Rotate weekly: yyyy-Www so each Sunday gets a fresh suffix.
+          # Cron uses GHA's date in UTC.
+          cache-version: weekly
+
+      - name: Install dependencies (cold)
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages (cold)
+        run: |
+          # shellcheck disable=SC2086 # TURBO_FLAGS must word-split into multiple args
+          pnpm turbo $TURBO_FLAGS --filter './{packages,integrations}/**' build
+        env:
+          TURBO_FLAGS: '--concurrency=100% --filter "!./integrations/{java,rust,dotnet,docker,fastapi,django-ninja}/**" --filter "!./projects/proxy-scalar-com/**"'
+
+      - name: Report cache footprints
+        run: |
+          {
+            echo "## Cache refresh summary"
+            echo ''
+            echo '| Path | Size |'
+            echo '|---|---|'
+            for p in ./.turbo ~/.local/share/pnpm/store; do
+              if [ -d "$p" ]; then
+                echo "| $p | $(du -sh "$p" | cut -f1) |"
+              fi
+            done
+          } >> "$GITHUB_STEP_SUMMARY"

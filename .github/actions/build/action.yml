@@ -1,5 +1,10 @@
 name: 'Build'
-description: 'Build packages using blacksmith runners with persistent turbo cache'
+description: |
+  Install workspace deps and run a turbo build, with a persistent branch-scoped
+  turbo cache. The optional `archive-output` step packages the resulting
+  `dist/` directories into a single tarball at `./workspace-dist.tar.zst` so
+  downstream jobs can fan out via `actions/upload-artifact` + the
+  `restore-build` composite instead of re-running the build.
 inputs:
   node-version:
     description: 'Node.js version to use (optional, defaults to reading from .nvmrc)'
@@ -7,6 +12,13 @@ inputs:
   packages:
     description: 'Package glob pattern to build (e.g., "@scalar/api-reference" or "packages/*")'
     required: true
+  archive-output:
+    description: |
+      When 'true', create ./workspace-dist.tar.zst containing every
+      packages|integrations|projects */dist directory. Default 'false' to keep
+      the existing call sites unchanged.
+    required: false
+    default: 'false'
 runs:
   using: 'composite'
   steps:
@@ -16,7 +28,36 @@ runs:
         node-version: ${{ inputs.node-version }}
     - name: Install dependencies
       shell: bash
-      run: pnpm install --frozen-lockfile
+      run: pnpm install --frozen-lockfile --prefer-offline
     - name: Build packages
       shell: bash
       run: pnpm turbo ${{ env.TURBO_FLAGS }} --filter '${{inputs.packages}}' build
+
+    # Single-tarball capture of every workspace dist directory. zstd is ~5x
+    # faster than gzip at comparable ratios and is the default for recent
+    # actions/upload-artifact builds, so this is both faster to produce and
+    # faster to upload than a per-file artifact glob.
+    - if: inputs.archive-output == 'true'
+      name: Archive workspace dist directories
+      shell: bash
+      run: |
+        set -euo pipefail
+        # Collect every dist/ directory under packages, integrations, and
+        # projects. -prune avoids recursing into nested node_modules.
+        find packages integrations projects \
+          -name node_modules -prune -o \
+          -type d -name dist -print 2>/dev/null \
+          | sort -u > .workspace-dist.list
+
+        if [ ! -s .workspace-dist.list ]; then
+          echo "No dist directories found to archive" >&2
+          exit 1
+        fi
+
+        echo "Archiving the following dist directories:"
+        cat .workspace-dist.list
+
+        # zstd; -T0 = all cores. Captures only the listed directories so
+        # node_modules and source files never end up in the tarball.
+        tar --zstd -cf workspace-dist.tar.zst -T .workspace-dist.list
+        ls -lh workspace-dist.tar.zst

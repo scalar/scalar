@@ -1,0 +1,59 @@
+name: ToDesktop Build
+
+# Reusable workflow that ships a desktop build to ToDesktop's cloud. Called
+# from release.yml after npm-publish succeeds AND the scalar-app package
+# version actually changed in this release.
+
+on:
+  workflow_call:
+    inputs:
+      published:
+        type: string
+        required: true
+      scalar_app_package_changed:
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  todesktop-build:
+    if: inputs.published == 'true' && inputs.scalar_app_package_changed == 'true'
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 15
+    environment: production-todesktop
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+
+      # ToDesktop bundles the app from source, so we need a fresh build with
+      # the production env vars; restoring the workspace-dist artifact would
+      # not pick up the env-dependent vite build.
+      - name: Build workspace deps
+        uses: ./.github/actions/build
+        with:
+          packages: 'scalar-app...'
+        env:
+          VITE_DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
+          VITE_API_URL: ${{ vars.API_URL }}
+          VITE_SERVICES_URL: ${{ vars.SERVICES_URL }}
+
+      - name: Check ToDesktop credentials
+        env:
+          TODESKTOP_EMAIL: ${{ vars.TODESKTOP_EMAIL || secrets.TODESKTOP_EMAIL }}
+          TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
+        run: |
+          if [ -z "${TODESKTOP_EMAIL}" ] || [ -z "${TODESKTOP_ACCESS_TOKEN}" ]; then
+            echo "Missing required ToDesktop credentials (TODESKTOP_EMAIL and TODESKTOP_ACCESS_TOKEN)." >&2
+            exit 1
+          fi
+
+      - name: Send build to ToDesktop cloud
+        run: pnpm --filter scalar-app todesktop:build:ci
+        env:
+          TODESKTOP_EMAIL: ${{ vars.TODESKTOP_EMAIL || secrets.TODESKTOP_EMAIL }}
+          TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}

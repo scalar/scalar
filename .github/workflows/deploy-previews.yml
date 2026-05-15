@@ -1,0 +1,247 @@
+name: Deploy Previews
+
+# Reusable workflow that deploys PR preview environments (examples, api
+# reference, components storybook, scalar registry galaxy). All jobs are
+# path-gated by the caller and only run for same-repo PRs (forks cannot
+# read the deploy secrets).
+#
+# Every deploy job:
+#   - Uses `restore-build` to download the workspace-dist artifact instead of
+#     rebuilding. The build job in pr.yml is the single source of truth.
+#   - Runs in the `staging` GitHub Environment so its tokens are scoped.
+
+on:
+  workflow_call:
+    inputs:
+      api_reference_changed:
+        type: string
+        required: true
+      api_client_changed:
+        type: string
+        required: true
+      components_changed:
+        type: string
+        required: true
+      galaxy_changed:
+        type: string
+        required: true
+      pr-number:
+        type: string
+        required: true
+      pr-head-sha:
+        type: string
+        required: true
+    outputs:
+      examples-url:
+        value: ${{ jobs.deploy-examples.outputs.preview-url }}
+      api-reference-url:
+        value: ${{ jobs.deploy-api-reference.outputs.preview-url }}
+      components-url:
+        value: ${{ jobs.deploy-components.outputs.preview-url }}
+      api-client-url:
+        value: ${{ jobs.deploy-api-client.outputs.preview-url }}
+      galaxy-url:
+        value: ${{ jobs.galaxy-registry-preview.outputs.preview-url }}
+
+permissions:
+  contents: read
+
+env:
+  # Pinned to a specific @scalar/cli release. Bump via Renovate (renovate.json
+  # has a rule that watches this key). Never use `latest` here: this workflow
+  # logs into the Scalar Registry with SCALAR_API_KEY and a moving tag would
+  # be a supply-chain risk.
+  SCALAR_CLI_VERSION: '1.9.4'
+
+jobs:
+  deploy-examples:
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    environment: staging
+    concurrency:
+      group: deploy-examples-${{ inputs.pr-number }}
+      cancel-in-progress: true
+    outputs:
+      preview-url: ${{ steps.set-output.outputs.url }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+
+      - name: Generate DEPLOY_ID
+        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
+
+      - name: Install Netlify CLI
+        run: pnpm install -g netlify
+
+      - name: Deploy to Netlify
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: |
+          netlify deploy --dir "./examples/web/dist" \
+            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
+            --site ${{ vars.NETLIFY_SITE_ID_PREVIEW }} \
+            --auth "$NETLIFY_AUTH_TOKEN" \
+            --filter @scalar-examples/web \
+            --alias=${{env.DEPLOY_ID}}
+
+      - name: Set output
+        id: set-output
+        run: echo "url=https://${{ env.DEPLOY_ID }}--scalar-deploy-preview.netlify.app" >> "$GITHUB_OUTPUT"
+
+  deploy-api-reference:
+    if: inputs.api_reference_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 15
+    environment: staging
+    concurrency:
+      group: deploy-api-reference-${{ inputs.pr-number }}
+      cancel-in-progress: true
+    outputs:
+      preview-url: ${{ steps.set-output.outputs.url }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+
+      # The previews app is a separate vite build, so we still run it here
+      # even though restore-build already populated packages/*/dist.
+      - name: Build package root app
+        run: pnpm --filter @scalar/api-reference exec vite build . -c ./vite.previews.config.ts
+
+      - name: Deploy to Cloudflare Pages
+        id: deploy
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ./packages/api-reference/dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_API_REFERENCE }} --branch=pr-${{ inputs.pr-number }} --commit-hash=${{ inputs.pr-head-sha }}
+
+      - name: Set output
+        id: set-output
+        run: |
+          ALIAS_URL='${{ steps.deploy.outputs.pages-deployment-alias-url }}'
+          DEPLOYMENT_URL='${{ steps.deploy.outputs.deployment-url }}'
+          if [ -n "$ALIAS_URL" ]; then
+            echo "url=$ALIAS_URL" >> "$GITHUB_OUTPUT"
+          else
+            echo "url=$DEPLOYMENT_URL" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy-components:
+    if: inputs.components_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    environment: staging
+    concurrency:
+      group: deploy-components-${{ inputs.pr-number }}
+      cancel-in-progress: true
+    outputs:
+      preview-url: ${{ steps.set-output.outputs.url }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+
+      - name: Generate DEPLOY_ID
+        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
+
+      - name: Install Netlify CLI
+        run: pnpm install -g netlify
+
+      - name: Build storybook
+        run: pnpm --filter components build:storybook
+
+      - name: Deploy Storybook to Netlify (Preview)
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: |
+          netlify deploy --dir "./packages/components/storybook-static" \
+            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
+            --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS }} \
+            --auth "$NETLIFY_AUTH_TOKEN" \
+            --filter @scalar/components \
+            --alias=${{env.DEPLOY_ID}}
+
+      - name: Set output
+        id: set-output
+        run: echo "url=https://${{ env.DEPLOY_ID }}--scalar-components.netlify.app" >> "$GITHUB_OUTPUT"
+
+  deploy-api-client:
+    if: inputs.api_client_changed == 'true'
+    uses: ./.github/workflows/deploy-api-client.yml
+    with:
+      environment: staging
+      pr-number: ${{ inputs.pr-number }}
+      sha: ${{ inputs.pr-head-sha }}
+    secrets:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  galaxy-registry-preview:
+    if: inputs.galaxy_changed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    environment: staging-scalar-registry
+    permissions:
+      contents: read
+    outputs:
+      preview-url: ${{ steps.set-preview-url.outputs.url }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+
+      - name: Extract version and generate preview version
+        id: preview-version
+        working-directory: packages/galaxy
+        env:
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          # Sanitize branch name to alphanumerics + dashes for use in a version tag
+          BRANCH_NAME="${GITHUB_HEAD_REF//[^a-zA-Z0-9-]/-}"
+          PREVIEW_VERSION="${VERSION}-${BRANCH_NAME}"
+          {
+            echo "VERSION=$VERSION"
+            echo "BRANCH_NAME=$BRANCH_NAME"
+            echo "PREVIEW_VERSION=$PREVIEW_VERSION"
+          } >> "$GITHUB_ENV"
+          echo "version=$PREVIEW_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Install pinned @scalar/cli
+        run: npm install -g "@scalar/cli@${{ env.SCALAR_CLI_VERSION }}"
+
+      - name: Login to Scalar Registry
+        env:
+          SCALAR_API_KEY: ${{ secrets.SCALAR_API_KEY }}
+        run: scalar auth login --token "$SCALAR_API_KEY"
+
+      - name: Publish preview version to Scalar Registry
+        run: |
+          scalar --version
+          scalar registry publish --namespace scalar --slug galaxy \
+            --version "${{ env.PREVIEW_VERSION }}" --force --no-current \
+            packages/galaxy/dist/latest.yaml
+
+      - name: Set preview URL output
+        id: set-preview-url
+        run: echo "url=https://registry.scalar.com/@scalar/apis/galaxy/${{ env.PREVIEW_VERSION }}" >> "$GITHUB_OUTPUT"
