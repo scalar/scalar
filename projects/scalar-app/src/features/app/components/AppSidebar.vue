@@ -28,26 +28,19 @@ import { useToasts } from '@scalar/use-toasts'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
-import {
-  computed,
-  onBeforeMount,
-  onBeforeUnmount,
-  ref,
-  useId,
-  watch,
-} from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 
 import type { AppState } from '@/features/app'
 import SidebarDocument from '@/features/app/components/SidebarDocument.vue'
 import SidebarItemMenu from '@/features/app/components/SidebarItemMenu.vue'
 import { createTempOperation } from '@/features/app/helpers/create-temp-operation'
 import { loadRegistryDocument } from '@/features/app/helpers/load-registry-document'
-import { useDocumentFilter } from '@/features/app/hooks/use-document-filter'
 import { useSidebarContextMenu } from '@/features/app/hooks/use-sidebar-context-menu'
 import {
   useSidebarDocuments,
   type SidebarDocumentItem,
 } from '@/features/app/hooks/use-sidebar-documents'
+import { useSidebarDocumentsFilter } from '@/features/app/hooks/use-sidebar-documents-filter'
 import { dragHandleFactory } from '@/helpers/drag-handle-factory'
 import type {
   ImportDocumentFromRegistry,
@@ -73,8 +66,6 @@ const {
 
 const { toast } = useToasts()
 
-const registryScopeLabelId = useId()
-
 /**
  * Whether the caller is still fetching the list of registry documents. We
  * only surface the loading state on team workspaces because local workspaces
@@ -91,6 +82,24 @@ const { pinned, rest } = useSidebarDocuments({
   managedDocs: () => registryDocuments.documents ?? [],
 })
 
+const {
+  registryScopeLabelId,
+  isFilterVisible,
+  filterQuery,
+  toggleFilter,
+  filterNamespaceId,
+  namespaceFilterSummary,
+  showNamespaceFilterRow,
+  namespaceFilterOptions,
+  namespaceFilterTriggerLabel,
+  displayRestDocuments,
+  displayPinnedDocuments,
+} = useSidebarDocumentsFilter({
+  pinned,
+  rest,
+  isTeamWorkspace: () => app.workspace.isTeamWorkspace.value,
+})
+
 /**
  * Whether the workspace truly has no documents to show. Distinct from the
  * filter producing no results: we only surface the "No APIs yet" empty state
@@ -100,129 +109,6 @@ const { pinned, rest } = useSidebarDocuments({
 const isEmpty = computed(
   () => !isLoadingRegistry.value && rest.value.length === 0,
 )
-
-/**
- * Fuzzy filter over the top-level documents. Owns its own input visibility,
- * query string and Fuse index. See `use-document-filter.ts` for details.
- */
-const {
-  isVisible: isFilterVisible,
-  query: filterQuery,
-  filteredItems: filteredRest,
-  toggle: toggleFilter,
-} = useDocumentFilter(rest)
-
-/** Namespace segment for team-workspace document filter (with title search). */
-const FILTER_NAMESPACE_ALL = 'all' as const
-/** Entries with no registry coordinates (drafts and other workspace-only docs). */
-const FILTER_NAMESPACE_LOCAL = '__local__' as const
-
-type NamespaceFilterId =
-  | typeof FILTER_NAMESPACE_ALL
-  | typeof FILTER_NAMESPACE_LOCAL
-  | string
-
-const filterNamespaceId = ref<NamespaceFilterId>(FILTER_NAMESPACE_ALL)
-
-const namespaceFilterSummary = computed(() => {
-  if (!app.workspace.isTeamWorkspace.value) {
-    return null
-  }
-  const docs = [...pinned.value, ...rest.value]
-  const counts = new Map<string, number>()
-  let localCount = 0
-  for (const doc of docs) {
-    const ns = doc.registry?.namespace
-    if (ns) {
-      counts.set(ns, (counts.get(ns) ?? 0) + 1)
-    } else {
-      localCount++
-    }
-  }
-  if (counts.size === 0 && localCount === 0) {
-    return null
-  }
-  const namespaces = [...counts.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([id, count]) => ({ id, label: id, count }))
-  return { localCount, namespaces }
-})
-
-const showNamespaceFilterRow = computed(
-  () =>
-    isFilterVisible.value &&
-    app.workspace.isTeamWorkspace.value &&
-    namespaceFilterSummary.value !== null,
-)
-
-type NamespaceFilterOption = {
-  id: NamespaceFilterId
-  label: string
-  /** Optional second line for rows that benefit from extra context. */
-  description?: string
-  count: number
-}
-
-/** Options shown in the registry scope dropdown (trigger shows the active label). */
-const namespaceFilterOptions = computed((): NamespaceFilterOption[] => {
-  const summary = namespaceFilterSummary.value
-  if (!summary) {
-    return []
-  }
-  const totalDocs = pinned.value.length + rest.value.length
-  const options: NamespaceFilterOption[] = [
-    { id: FILTER_NAMESPACE_ALL, label: 'All namespaces', count: totalDocs },
-  ]
-  for (const ns of summary.namespaces) {
-    options.push({ id: ns.id, label: ns.label, count: ns.count })
-  }
-  if (summary.localCount > 0) {
-    options.push({
-      id: FILTER_NAMESPACE_LOCAL,
-      label: 'Workspace only',
-      description: 'Drafts and docs without a registry link',
-      count: summary.localCount,
-    })
-  }
-  return options
-})
-
-const namespaceFilterTriggerLabel = computed(() => {
-  const id = filterNamespaceId.value
-  const match = namespaceFilterOptions.value.find((o) => o.id === id)
-  return match?.label ?? 'All namespaces'
-})
-
-const applyNamespaceFilter = (
-  items: SidebarDocumentItem[],
-): SidebarDocumentItem[] => {
-  if (
-    !app.workspace.isTeamWorkspace.value ||
-    filterNamespaceId.value === FILTER_NAMESPACE_ALL
-  ) {
-    return items
-  }
-  if (filterNamespaceId.value === FILTER_NAMESPACE_LOCAL) {
-    return items.filter((item) => !item.registry)
-  }
-  return items.filter(
-    (item) => item.registry?.namespace === filterNamespaceId.value,
-  )
-}
-
-const displayRestDocuments = computed(() =>
-  applyNamespaceFilter(filteredRest.value),
-)
-
-const displayPinnedDocuments = computed(() =>
-  applyNamespaceFilter(pinned.value),
-)
-
-watch(isFilterVisible, (open) => {
-  if (!open) {
-    filterNamespaceId.value = FILTER_NAMESPACE_ALL
-  }
-})
 
 const sidebarState = app.sidebar.state
 
