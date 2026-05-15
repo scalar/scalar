@@ -4,7 +4,6 @@ import Fuse from 'fuse.js'
 import { type MaybeRefOrGetter, computed, ref, toValue } from 'vue'
 
 import type { AppState } from '@/features/app'
-import { SIDEBAR_TITLE_FUSE_OPTIONS } from '@/features/app/hooks/use-sidebar-documents/helpers/filter-items-by-title'
 import { groupWorkspaceEntries } from '@/features/app/hooks/use-sidebar-documents/helpers/group-workspace-documents'
 import {
   FILTER_NAMESPACE_ALL,
@@ -17,11 +16,6 @@ import {
 } from '@/features/app/hooks/use-sidebar-documents/helpers/registry-namespace-filter'
 import type { SidebarDocumentItem, WorkspaceDocumentEntry } from '@/features/app/hooks/use-sidebar-documents/types'
 import type { RegistryDocument } from '@/types/configuration'
-
-export type { VersionStatus } from '@/features/app/helpers/compute-version-status'
-export type { NamespaceFilterId, NamespaceFilterOption }
-
-export type { SidebarDocumentItem, SidebarDocumentVersion } from '@/features/app/hooks/use-sidebar-documents/types'
 
 /**
  * Builds a unified list of sidebar documents.
@@ -104,9 +98,26 @@ export function useSidebarDocuments({
   // --- Title filter (Fuzzy, `rest` only; pinned is namespace-only)
 
   const isFilterVisible = ref(false)
+
+  /** Toggle the visibility of the title filter. */
+  const toggleFilter = () => {
+    isFilterVisible.value = !isFilterVisible.value
+    if (!isFilterVisible.value) {
+      filterQuery.value = ''
+      filterNamespaceId.value = FILTER_NAMESPACE_ALL
+    }
+  }
+
   const filterQuery = ref('')
 
-  const titleFuse = computed(() => new Fuse(rest.value, SIDEBAR_TITLE_FUSE_OPTIONS))
+  const titleFuse = computed(
+    () =>
+      new Fuse(rest.value, {
+        keys: ['title'],
+        threshold: 0.3,
+        ignoreLocation: true,
+      }),
+  )
 
   const titleFilteredRest = computed(() => {
     const trimmed = filterQuery.value.trim()
@@ -116,19 +127,9 @@ export function useSidebarDocuments({
     return titleFuse.value.search(trimmed).map((result) => result.item)
   })
 
-  const toggleFilter = () => {
-    isFilterVisible.value = !isFilterVisible.value
-    if (!isFilterVisible.value) {
-      filterQuery.value = ''
-      filterNamespaceId.value = FILTER_NAMESPACE_ALL
-    }
-  }
-
   // --- Registry namespace filter (team workspaces)
-
-  const filterNamespaceId = ref<NamespaceFilterId>(FILTER_NAMESPACE_ALL)
-
   const isTeamWorkspace = () => app.workspace.isTeamWorkspace.value
+  const filterNamespaceId = ref<NamespaceFilterId>(FILTER_NAMESPACE_ALL)
 
   const namespaceFilterSummary = computed(() => {
     if (!isTeamWorkspace()) {

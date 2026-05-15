@@ -13,7 +13,7 @@ export type NamespaceFilterOption = {
   count: number
 }
 
-export type RegistryNamespaceSummary = {
+type RegistryNamespaceSummary = {
   localCount: number
   namespaces: { id: string; label: string; count: number }[]
 }
