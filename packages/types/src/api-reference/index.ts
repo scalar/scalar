@@ -1,3 +1,13 @@
+export type {
+  AuthenticationConfiguration,
+  Oauth2Flow,
+  SecurityScheme,
+  SecuritySchemeApiKey,
+  SecuritySchemeHttp,
+  SecuritySchemeOauth2,
+  SecuritySchemeOpenIdConnect,
+} from './authentication-configuration'
+export { pkceOptions } from './authentication-configuration'
 export type { ApiReferenceInstance, CreateApiReference } from './html-api'
 export type { HtmlRenderingConfiguration } from './html-rendering-configuration'
 export type {
@@ -8,15 +18,9 @@ export type {
   ApiReferenceConfigurationWithMultipleSources,
   ApiReferenceConfigurationWithSource,
   ApiReferencePlugin,
-  AuthenticationConfiguration,
   BaseConfiguration,
   ExternalUrls,
   LifecycleHooks,
-  SecurityScheme,
-  SecuritySchemeApiKey,
-  SecuritySchemeHttp,
-  SecuritySchemeOauth2,
-  SecuritySchemeOpenIdConnect,
   SourceConfiguration,
   SpecificationExtension,
   ViewComponent,

@@ -1,4 +1,3 @@
-import { type SecurityScheme, securitySchemeSchema } from '@scalar/types/entities'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { assert, beforeEach, describe, expect, it } from 'vitest'
@@ -6,6 +5,78 @@ import 'fake-indexeddb/auto'
 
 import { shouldMigrateToIndexDb, transformLegacyDataToWorkspace } from './migrate-to-indexdb'
 import type { v_2_5_0 } from './v-2.5.0/types.generated'
+
+/** Legacy IndexedDB security scheme rows used by migrate-to-indexdb tests (formerly built via Zod) */
+const legacyApiKeyScheme = (input: {
+  uid: string
+  nameKey: string
+  name?: string
+  in?: 'query' | 'header' | 'cookie'
+  value?: string
+  description?: string
+}): v_2_5_0['SecurityScheme'] => {
+  return {
+    description: input.description,
+    uid: input.uid,
+    nameKey: input.nameKey,
+    type: 'apiKey',
+    name: input.name ?? '',
+    in: input.in ?? 'header',
+    value: input.value ?? '',
+  } as v_2_5_0['SecurityScheme']
+}
+
+const legacyHttpBearerScheme = (input: {
+  uid: string
+  nameKey: string
+  bearerFormat?: string
+  token?: string
+}): v_2_5_0['SecurityScheme'] => {
+  return {
+    description: undefined,
+    uid: input.uid,
+    nameKey: input.nameKey,
+    type: 'http',
+    scheme: 'bearer',
+    bearerFormat: (input.bearerFormat ?? 'JWT') as 'JWT' | string,
+    username: '',
+    password: '',
+    token: input.token ?? '',
+  } as v_2_5_0['SecurityScheme']
+}
+
+const legacyHttpBasicScheme = (input: {
+  uid: string
+  nameKey: string
+  username: string
+  password: string
+}): v_2_5_0['SecurityScheme'] => {
+  return {
+    description: undefined,
+    uid: input.uid,
+    nameKey: input.nameKey,
+    type: 'http',
+    scheme: 'basic',
+    bearerFormat: 'JWT',
+    username: input.username,
+    password: input.password,
+    token: '',
+  } as v_2_5_0['SecurityScheme']
+}
+
+const legacyOauth2Scheme = (input: {
+  uid: string
+  nameKey: string
+  flows: Record<string, unknown>
+}): v_2_5_0['SecurityScheme'] => {
+  return {
+    description: undefined,
+    uid: input.uid,
+    nameKey: input.nameKey,
+    type: 'oauth2',
+    flows: input.flows,
+  } as v_2_5_0['SecurityScheme']
+}
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -229,7 +300,7 @@ const createLegacyData = (
     workspaces?: v_2_5_0['Workspace'][]
     /** Explicit collection array, overrides the collection shorthand */
     collections?: v_2_5_0['Collection'][]
-    securitySchemes?: SecurityScheme[]
+    securitySchemes?: v_2_5_0['SecurityScheme'][]
     cookies?: v_2_5_0['Cookie'][]
     environments?: v_2_5_0['Environment'][]
     requestExamples?: v_2_5_0['RequestExample'][]
@@ -432,10 +503,9 @@ describe('migrate-to-indexdb', () => {
 
   describe('transformLegacyDataToWorkspace - Security Schemes', () => {
     it('should transform API key security schemes into document components and auth store', async () => {
-      const scheme = securitySchemeSchema.parse({
+      const scheme = legacyApiKeyScheme({
         uid: 'security-1',
         nameKey: 'api-key-auth',
-        type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
         value: 'secret-api-key-123',
@@ -477,11 +547,9 @@ describe('migrate-to-indexdb', () => {
     })
 
     it('should transform HTTP bearer security schemes into document components and auth store', async () => {
-      const scheme = securitySchemeSchema.parse({
+      const scheme = legacyHttpBearerScheme({
         uid: 'security-1',
         nameKey: 'bearer-auth',
-        type: 'http',
-        scheme: 'bearer',
         bearerFormat: 'JWT',
         token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
       })
@@ -520,11 +588,9 @@ describe('migrate-to-indexdb', () => {
     })
 
     it('should transform HTTP basic security schemes into document components and auth store', async () => {
-      const scheme = securitySchemeSchema.parse({
+      const scheme = legacyHttpBasicScheme({
         uid: 'security-1',
         nameKey: 'basic-auth',
-        type: 'http',
-        scheme: 'basic',
         username: 'admin',
         password: 'secret123',
       })
@@ -566,10 +632,9 @@ describe('migrate-to-indexdb', () => {
     })
 
     it('should transform OAuth2 security schemes into document components and auth store', async () => {
-      const scheme = securitySchemeSchema.parse({
+      const scheme = legacyOauth2Scheme({
         uid: 'security-1',
         nameKey: 'oauth2-auth',
-        type: 'oauth2',
         flows: {
           authorizationCode: {
             type: 'authorizationCode',
@@ -584,6 +649,8 @@ describe('migrate-to-indexdb', () => {
             clientSecret: 'secret-456',
             token: 'access-token-789',
             'x-scalar-redirect-uri': 'http://localhost:3000/callback',
+            refreshUrl: '',
+            'x-usePkce': 'no',
           },
         },
       })
@@ -640,20 +707,17 @@ describe('migrate-to-indexdb', () => {
         collections: ['collection-1', 'collection-2'],
       })
 
-      const scheme1 = securitySchemeSchema.parse({
+      const scheme1 = legacyApiKeyScheme({
         uid: 'security-1',
         nameKey: 'api-key',
-        type: 'apiKey',
         name: 'X-API-Key',
         in: 'header',
         value: 'key-123',
       })
 
-      const scheme2 = securitySchemeSchema.parse({
+      const scheme2 = legacyHttpBearerScheme({
         uid: 'security-2',
         nameKey: 'bearer-token',
-        type: 'http',
-        scheme: 'bearer',
         token: 'token-456',
       })
 
@@ -4327,10 +4391,9 @@ describe('migrate-to-indexdb', () => {
 
     describe('request with security', () => {
       it('transforms a request with security requirements', async () => {
-        const scheme = securitySchemeSchema.parse({
+        const scheme = legacyApiKeyScheme({
           uid: 'security-1',
           nameKey: 'api-key',
-          type: 'apiKey',
           name: 'X-API-Key',
           in: 'header',
           value: 'secret-key',
@@ -4380,20 +4443,17 @@ describe('migrate-to-indexdb', () => {
       })
 
       it('transforms a request with multiple security requirements (AND)', async () => {
-        const apiKeyScheme = securitySchemeSchema.parse({
+        const apiKeyScheme = legacyApiKeyScheme({
           uid: 'security-1',
           nameKey: 'api-key',
-          type: 'apiKey',
           name: 'X-API-Key',
           in: 'header',
           value: 'key-123',
         })
 
-        const bearerScheme = securitySchemeSchema.parse({
+        const bearerScheme = legacyHttpBearerScheme({
           uid: 'security-2',
           nameKey: 'bearer-auth',
-          type: 'http',
-          scheme: 'bearer',
           token: 'token-456',
         })
 
@@ -4448,20 +4508,17 @@ describe('migrate-to-indexdb', () => {
       })
 
       it('transforms a request with alternative security requirements (OR)', async () => {
-        const apiKeyScheme = securitySchemeSchema.parse({
+        const apiKeyScheme = legacyApiKeyScheme({
           uid: 'security-1',
           nameKey: 'api-key',
-          type: 'apiKey',
           name: 'X-API-Key',
           in: 'header',
           value: 'key-123',
         })
 
-        const bearerScheme = securitySchemeSchema.parse({
+        const bearerScheme = legacyHttpBearerScheme({
           uid: 'security-2',
           nameKey: 'bearer-auth',
-          type: 'http',
-          scheme: 'bearer',
           token: 'token-456',
         })
 
@@ -4516,10 +4573,9 @@ describe('migrate-to-indexdb', () => {
       })
 
       it('transforms a request with OAuth2 security and scopes', async () => {
-        const oauthScheme = securitySchemeSchema.parse({
+        const oauthScheme = legacyOauth2Scheme({
           uid: 'security-1',
           nameKey: 'oauth2',
-          type: 'oauth2',
           flows: {
             authorizationCode: {
               type: 'authorizationCode',
@@ -4530,6 +4586,7 @@ describe('migrate-to-indexdb', () => {
                 'write:users': 'Write user data',
               },
               selectedScopes: ['read:users'],
+              refreshUrl: '',
             },
           },
         })
@@ -4654,20 +4711,17 @@ describe('migrate-to-indexdb', () => {
       })
 
       it('transforms different security requirements across multiple requests', async () => {
-        const apiKeyScheme = securitySchemeSchema.parse({
+        const apiKeyScheme = legacyApiKeyScheme({
           uid: 'security-1',
           nameKey: 'api-key',
-          type: 'apiKey',
           name: 'X-API-Key',
           in: 'header',
           value: 'key-123',
         })
 
-        const bearerScheme = securitySchemeSchema.parse({
+        const bearerScheme = legacyHttpBearerScheme({
           uid: 'security-2',
           nameKey: 'bearer-auth',
-          type: 'http',
-          scheme: 'bearer',
           token: 'token-456',
         })
 

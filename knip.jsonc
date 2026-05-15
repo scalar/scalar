@@ -218,15 +218,13 @@
       "entry": [
         "src/index.ts",
         "src/api-reference/index.ts",
-        "src/entities/index.ts",
         "src/legacy/index.ts",
         "src/snippetz/index.ts",
         "src/utils/index.ts",
-        // We are ignoring this for now, we should remove this zod schemas
-        "src/api-reference/api-client-plugin.ts",
-        "src/api-reference/api-reference-plugin.ts",
-        "src/api-reference/base-configuration.ts",
-        "src/api-reference/api-reference-configuration.ts"
+        "src/openapi-extensions/operation/index.ts",
+        "src/openapi-extensions/security/index.ts",
+        "src/openapi-extensions/tag/index.ts",
+        "src/openapi-extensions/workspace/index.ts"
       ]
     },
     "packages/use-codemirror": {

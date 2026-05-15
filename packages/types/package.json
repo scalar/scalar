@@ -38,11 +38,6 @@
       "types": "./dist/api-reference/index.d.ts",
       "default": "./dist/api-reference/index.js"
     },
-    "./entities": {
-      "import": "./dist/entities/index.js",
-      "types": "./dist/entities/index.d.ts",
-      "default": "./dist/entities/index.js"
-    },
     "./legacy": {
       "import": "./dist/legacy/index.js",
       "types": "./dist/legacy/index.d.ts",
@@ -89,13 +84,11 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@scalar/helpers": "workspace:*",
-    "nanoid": "catalog:*",
-    "type-fest": "catalog:*",
-    "zod": "catalog:*"
+    "@scalar/helpers": "workspace:*"
   },
   "devDependencies": {
     "@types/har-format": "^1.2.16",
-    "vite": "catalog:*"
+    "vite": "catalog:*",
+    "type-fest": "catalog:*"
   }
 }

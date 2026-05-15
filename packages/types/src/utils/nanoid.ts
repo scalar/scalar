@@ -1,16 +1,7 @@
-import { nanoid } from 'nanoid'
-import { z } from 'zod'
-
-/** Generates a default value */
-export const nanoidSchema = z
-  .string()
-  .min(7)
-  .default(() => nanoid())
-
 /** UID format for objects */
-export type Nanoid = z.infer<typeof nanoidSchema>
+export type Nanoid = string
 
-/** All of our Zod brands for entities, used to brand nanoidSchemas. */
+/** All of our entity brands (legacy; UIDs are plain strings in the type layer) */
 export type ENTITY_BRANDS = {
   COLLECTION: 'collection'
   COOKIE: 'cookie'

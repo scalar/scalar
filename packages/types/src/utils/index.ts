@@ -1,3 +1,2 @@
-export type { ENTITY_BRANDS } from './nanoid'
-export { nanoidSchema } from './nanoid'
+export type { ENTITY_BRANDS, Nanoid } from './nanoid'
 export type { UnknownObject } from './utility-types'

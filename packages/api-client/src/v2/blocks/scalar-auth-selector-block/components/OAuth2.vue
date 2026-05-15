@@ -5,8 +5,13 @@ export type OAuth2Options = Pick<ApiClientConfiguration, 'oauth2RedirectUri'>
 
 <script setup lang="ts">
 import { ScalarButton, useLoadingState } from '@scalar/components'
-import type { ApiClientConfiguration } from '@scalar/types/api-reference'
-import { pkceOptions } from '@scalar/types/entities'
+import {
+  pkceOptions,
+  type ApiClientConfiguration,
+} from '@scalar/types/api-reference'
+import type { XScalarEnvironment } from '@scalar/types/openapi-extensions/document/x-scalar-environments'
+import type { XScalarCredentialsLocation } from '@scalar/types/openapi-extensions/security/x-scalar-credentials-location'
+import type { XusePkce } from '@scalar/types/openapi-extensions/security/x-use-pkce'
 import { useToasts } from '@scalar/use-toasts'
 import type { SecretsOAuthFlows } from '@scalar/workspace-store/entities/auth'
 import type {
@@ -21,9 +26,6 @@ import {
   type OAuthFlowsObjectSecret,
   type SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
-import type { XScalarEnvironment } from '@scalar/types/openapi-extensions/document/x-scalar-environments'
-import type { XScalarCredentialsLocation } from '@scalar/types/openapi-extensions/security/x-scalar-credentials-location'
-import type { XusePkce } from '@scalar/types/openapi-extensions/security/x-use-pkce'
 import type {
   OAuthFlow,
   ServerObject,
@@ -525,9 +527,9 @@ const handleSecretLocationUpdate = (value: string): void => {
         :flow
         :flowType="type"
         :selectedScopes
+        @delete:scope="(v) => emits('delete:scope', v)"
         @update:selectedScopes="(v) => emits('update:selectedScopes', v)"
-        @upsert:scope="(v) => emits('upsert:scope', v)"
-        @delete:scope="(v) => emits('delete:scope', v)" />
+        @upsert:scope="(v) => emits('upsert:scope', v)" />
     </DataTableRow>
 
     <DataTableRow class="min-w-full">

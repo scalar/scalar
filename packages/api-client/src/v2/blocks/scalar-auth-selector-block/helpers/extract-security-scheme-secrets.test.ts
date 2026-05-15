@@ -1,4 +1,4 @@
-import type { SecurityScheme } from '@scalar/types/entities'
+import type { SecurityScheme } from '@scalar/types/api-reference'
 import { createAuthStore } from '@scalar/workspace-store/entities/auth'
 import type {
   ApiKeyObjectSecret,
