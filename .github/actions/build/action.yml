@@ -29,9 +29,24 @@ runs:
     - name: Install dependencies
       shell: bash
       run: pnpm install --frozen-lockfile --prefer-offline
+    # `inputs.packages` is bound to a step-level env var rather than
+    # templated directly into the shell line. The previous form
+    #   pnpm turbo ... --filter '${{ inputs.packages }}' build
+    # depended on literal single quotes around the expression to survive
+    # bash brace expansion of patterns like `./{packages,integrations}/**`,
+    # which makes the action vulnerable to malformed inputs containing a
+    # single quote. The env-var pattern is the standard shellcheck- and
+    # GitHub-security-advisory-recommended way to defang this.
+    #
+    # `TURBO_FLAGS` is intentionally word-split (multiple turbo flags in a
+    # single env var), so shellcheck's SC2086 warning is suppressed inline.
     - name: Build packages
       shell: bash
-      run: pnpm turbo ${{ env.TURBO_FLAGS }} --filter '${{inputs.packages}}' build
+      env:
+        PACKAGES_FILTER: ${{ inputs.packages }}
+      run: |
+        # shellcheck disable=SC2086 # TURBO_FLAGS must word-split into multiple args
+        pnpm turbo $TURBO_FLAGS --filter "$PACKAGES_FILTER" build
 
     # Single-tarball capture of every workspace dist directory. zstd is ~5x
     # faster than gzip at comparable ratios and is the default for recent
