@@ -1,5 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type { Tab } from '@scalar/types/openapi-extensions/workspace'
+import type { Tab } from '@scalar/types/extensions/workspace'
 
 import type { GetEntryByLocation } from '@/features/app/app-state'
 

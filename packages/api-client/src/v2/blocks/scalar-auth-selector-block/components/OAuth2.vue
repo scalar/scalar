@@ -9,9 +9,9 @@ import {
   pkceOptions,
   type ApiClientConfiguration,
 } from '@scalar/types/api-reference'
-import type { XScalarEnvironment } from '@scalar/types/openapi-extensions/document/x-scalar-environments'
-import type { XScalarCredentialsLocation } from '@scalar/types/openapi-extensions/security/x-scalar-credentials-location'
-import type { XusePkce } from '@scalar/types/openapi-extensions/security/x-use-pkce'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { XScalarCredentialsLocation } from '@scalar/types/extensions/security/x-scalar-credentials-location'
+import type { XusePkce } from '@scalar/types/extensions/security/x-use-pkce'
 import { useToasts } from '@scalar/use-toasts'
 import type { SecretsOAuthFlows } from '@scalar/workspace-store/entities/auth'
 import type {

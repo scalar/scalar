@@ -20,7 +20,7 @@ import {
   isAuthOptional,
   type MergedSecuritySchemes,
 } from '@scalar/workspace-store/request-example'
-import type { XScalarEnvironment } from '@scalar/types/openapi-extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
 import type {
   OpenApiDocument,
   SecurityRequirementObject,

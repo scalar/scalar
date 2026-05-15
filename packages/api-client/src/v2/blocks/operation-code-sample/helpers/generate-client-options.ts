@@ -1,5 +1,5 @@
 import { AVAILABLE_CLIENTS, type AvailableClients, snippetz } from '@scalar/snippetz'
-import type { XCodeSample } from '@scalar/types/openapi-extensions/operation'
+import type { XCodeSample } from '@scalar/types/extensions/operation'
 import { capitalize } from 'vue'
 
 import type { ClientOptionGroup } from '@/v2/blocks/operation-code-sample/types'

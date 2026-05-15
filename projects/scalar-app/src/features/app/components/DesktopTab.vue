@@ -19,7 +19,7 @@ import {
   ScalarIconXSquare,
 } from '@scalar/icons'
 import type { ScalarIconComponent } from '@scalar/icons/types'
-import type { Tab } from '@scalar/types/openapi-extensions/workspace'
+import type { Tab } from '@scalar/types/extensions/workspace'
 import { computed } from 'vue'
 
 const {

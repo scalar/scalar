@@ -1,5 +1,5 @@
 import { AVAILABLE_CLIENTS } from '@scalar/snippetz'
-import type { XCodeSample } from '@scalar/types/openapi-extensions/operation'
+import type { XCodeSample } from '@scalar/types/extensions/operation'
 import { describe, expect, it } from 'vitest'
 
 import { generateClientOptions, generateCustomId } from './generate-client-options'

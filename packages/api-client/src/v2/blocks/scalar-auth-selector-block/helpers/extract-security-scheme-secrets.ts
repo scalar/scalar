@@ -15,7 +15,7 @@ import type {
   OpenIdConnectObjectSecret,
   SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
-import type { XScalarCredentialsLocation } from '@scalar/types/openapi-extensions/security/x-scalar-credentials-location'
+import type { XScalarCredentialsLocation } from '@scalar/types/extensions/security/x-scalar-credentials-location'
 import type {
   OAuthFlowAuthorizationCode,
   OAuthFlowClientCredentials,

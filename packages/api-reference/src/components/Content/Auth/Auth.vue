@@ -8,7 +8,7 @@ import {
   getSelectedSecurity,
   type MergedSecuritySchemes,
 } from '@scalar/workspace-store/request-example'
-import type { XScalarEnvironment } from '@scalar/types/openapi-extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'

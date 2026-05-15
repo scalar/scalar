@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { XBadge } from '@scalar/types/openapi-extensions/operation'
+import type { XBadge } from '@scalar/types/extensions/operation'
 import { computed } from 'vue'
 
 import { Badge } from '@/components/Badge'

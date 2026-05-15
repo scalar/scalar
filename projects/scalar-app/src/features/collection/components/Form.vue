@@ -6,7 +6,7 @@ import {
 } from '@scalar/api-client/components/data-table'
 import { ViewLayoutSection } from '@scalar/api-client/components/ViewLayout'
 import { ScalarIcon } from '@scalar/components'
-import type { XScalarEnvironment } from '@scalar/types/openapi-extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
 import { useId } from 'vue'
 
 defineProps<{

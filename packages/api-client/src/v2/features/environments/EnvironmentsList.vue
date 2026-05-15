@@ -5,7 +5,7 @@ import type {
   CollectionType,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
-import type { XScalarEnvironments } from '@scalar/types/openapi-extensions/document/x-scalar-environments'
+import type { XScalarEnvironments } from '@scalar/types/extensions/document/x-scalar-environments'
 import { ref } from 'vue'
 
 import EnvironmentCreateModal from '@/v2/features/environments/components/EnvironmentCreateModal.vue'

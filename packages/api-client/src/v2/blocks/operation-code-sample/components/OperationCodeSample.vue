@@ -128,7 +128,7 @@ import { type AvailableClients } from '@scalar/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
-import type { XScalarCookie } from '@scalar/types/openapi-extensions/general/x-scalar-cookies'
+import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
 import type {
   OperationObject,
   ServerObject,

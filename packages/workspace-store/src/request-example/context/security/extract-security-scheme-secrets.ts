@@ -3,7 +3,7 @@ import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { SecurityScheme } from '@scalar/types/api-reference'
 import type { AuthStore, SecretsOAuthFlows, SecretsOpenIdConnect } from '@scalar/workspace-store/entities/auth'
 import type { DeepPartial } from '@scalar/workspace-store/helpers/overrides-proxy'
-import type { XScalarCredentialsLocation } from '@scalar/types/openapi-extensions/security/x-scalar-credentials-location'
+import type { XScalarCredentialsLocation } from '@scalar/types/extensions/security/x-scalar-credentials-location'
 import type {
   OAuthFlowAuthorizationCode,
   OAuthFlowClientCredentials,

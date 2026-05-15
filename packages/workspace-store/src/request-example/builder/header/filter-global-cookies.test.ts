@@ -1,4 +1,4 @@
-import type { XScalarCookie } from '@scalar/types/openapi-extensions/general/x-scalar-cookies'
+import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
 import { describe, expect, it } from 'vitest'
 
 import { filterGlobalCookie } from './filter-global-cookies'

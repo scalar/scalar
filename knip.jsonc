@@ -221,10 +221,10 @@
         "src/legacy/index.ts",
         "src/snippetz/index.ts",
         "src/utils/index.ts",
-        "src/openapi-extensions/operation/index.ts",
-        "src/openapi-extensions/security/index.ts",
-        "src/openapi-extensions/tag/index.ts",
-        "src/openapi-extensions/workspace/index.ts"
+        "src/extensions/operation/index.ts",
+        "src/extensions/security/index.ts",
+        "src/extensions/tag/index.ts",
+        "src/extensions/workspace/index.ts"
       ]
     },
     "packages/use-codemirror": {

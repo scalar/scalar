@@ -45,7 +45,7 @@ import {
   getActiveProxyUrl,
   getRequestExampleContext,
 } from '@scalar/workspace-store/request-example'
-import type { XScalarEnvironment } from '@scalar/types/openapi-extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, toValue, type MaybeRefOrGetter } from 'vue'
 

@@ -13,7 +13,7 @@ import type {
   CollectionType,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
-import type { XScalarCookie } from '@scalar/types/openapi-extensions/general/x-scalar-cookies'
+import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
 import { computed } from 'vue'
 
 const { cookies, eventBus, collectionType } = defineProps<
