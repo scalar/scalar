@@ -85,7 +85,7 @@ const switchTeam = async (t?: ScalarMenuTeamOption) => {
 </script>
 
 <template>
-  <ScalarHeader class="w-full pl-3 *:first:flex-none">
+  <ScalarHeader class="w-full pl-3">
     <template #start>
       <ScalarMenu>
         <template
