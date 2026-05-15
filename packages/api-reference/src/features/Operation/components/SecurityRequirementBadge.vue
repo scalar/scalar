@@ -44,7 +44,7 @@ const isOrAlternatives = computed(
     v-if="requiredSecurity.state !== 'none'"
     placement="bottom-end">
     <button
-      class="security-requirement-badge inline-flex w-fit items-center justify-center gap-1 text-sm"
+      class="security-requirement-badge inline-flex w-fit shrink-0 items-center justify-center gap-1 text-sm"
       :class="
         requiredSecurity.state === 'optional'
           ? 'text-c-2'
