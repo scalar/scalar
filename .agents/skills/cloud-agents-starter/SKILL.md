@@ -181,7 +181,6 @@ To approximate CI locally:
 ```bash
 pnpm install
 pnpm build:packages
-pnpm script run test-servers & pnpm script wait -p 5051 5052
 pnpm vitest packages/* --silent
 pnpm vitest integrations/* --silent
 pnpm types:check

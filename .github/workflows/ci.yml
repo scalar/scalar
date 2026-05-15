@@ -272,14 +272,6 @@ jobs:
       - name: Check built declaration alias imports
         if: matrix.shard-index == 1
         run: pnpm lint:check:dist-dts-aliases
-      - name: Setup Go
-        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
-        with:
-          go-version-file: projects/proxy-scalar-com/go.mod
-          cache: false
-      - name: Start test servers
-        run: pnpm script run test-servers & pnpm script wait -p 5051 5052
-        timeout-minutes: 1
       - name: Run tests
         run: |
           dirs=()
@@ -296,6 +288,36 @@ jobs:
           done
           if [ ${#args[@]} -eq 0 ]; then
             echo "No packages assigned to this shard, skipping."
+            exit 0
+          fi
+          pnpm turbo "${args[@]}" test
+
+  # pnpm workspaces under projects/* with a `test` script. Excludes
+  # projects/proxy-scalar-com (Go) — those run in test-proxy-server.
+  test-projects:
+    needs: [build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Build packages (workspace deps for projects)
+        uses: ./.github/actions/build
+        with:
+          packages: './packages/**'
+      - name: Run project tests
+        run: |
+          args=()
+          for dir in projects/*/; do
+            [ -f "${dir}package.json" ] || continue
+            [ "${dir}" = 'projects/proxy-scalar-com/' ] && continue
+            if grep -q '"test"' "${dir}package.json" 2>/dev/null; then
+              args+=(--filter "./${dir%/}")
+            fi
+          done
+          if [ ${#args[@]} -eq 0 ]; then
+            echo "No projects with a pnpm test script (excluding Go proxy), skipping."
             exit 0
           fi
           pnpm turbo "${args[@]}" test
@@ -1778,6 +1800,7 @@ jobs:
         format,
         knip,
         test-packages,
+        test-projects,
         test-integrations,
         test-proxy-server,
         test-e2e-scalar-app,
@@ -1798,6 +1821,7 @@ jobs:
         build,
         test-server-side-rendering,
         test-packages,
+        test-projects,
         test-integrations,
         test-proxy-server,
         test-e2e-scalar-app,
