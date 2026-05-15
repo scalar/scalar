@@ -103,7 +103,13 @@ while true; do
   page=$((page + 1))
 done
 
-mapfile -t deployment_ids < <(sort -u "$deployment_ids_file")
+# Avoid `mapfile` (bash 4+); macOS still ships bash 3.2 as /bin/bash.
+deployment_ids=()
+while IFS= read -r line || [ -n "$line" ]; do
+  if [ -n "$line" ]; then
+    deployment_ids+=("$line")
+  fi
+done < <(sort -u "$deployment_ids_file")
 
 if [ "${#deployment_ids[@]}" -eq 0 ]; then
   echo "No preview deployments found for $BRANCH; nothing to delete"

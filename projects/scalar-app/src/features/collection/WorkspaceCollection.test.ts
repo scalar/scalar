@@ -1,6 +1,6 @@
 import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -9,6 +9,10 @@ import { ROUTES } from '@/features/app/helpers/routes'
 import WorkspaceCollection from './WorkspaceCollection.vue'
 
 describe('WorkspaceCollection', () => {
+  beforeEach(() => {
+    vi.mocked(mockEventBus.emit).mockClear()
+  })
+
   const createRouterInstance = () =>
     createRouter({
       history: createWebHistory(),

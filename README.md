@@ -400,6 +400,13 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/wilhelmer">
+                    <img src="https://avatars.githubusercontent.com/u/2234833?v=4" width="100;" alt="wilhelmer"/>
+                    <br />
+                    <sub><b>wilhelmer</b></sub>
+                </a>
+            </td>
+            <td align="center">
                 <a href="https://github.com/baywet">
                     <img src="https://avatars.githubusercontent.com/u/7905502?v=4" width="100;" alt="baywet"/>
                     <br />
@@ -413,20 +420,13 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
                     <sub><b>YagUber</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/Mason-Little">
                     <img src="https://avatars.githubusercontent.com/u/105008441?v=4" width="100;" alt="Mason-Little"/>
                     <br />
                     <sub><b>Mason-Little</b></sub>
-                </a>
-            </td>
-		</tr>
-		<tr>
-            <td align="center">
-                <a href="https://github.com/wilhelmer">
-                    <img src="https://avatars.githubusercontent.com/u/2234833?v=4" width="100;" alt="wilhelmer"/>
-                    <br />
-                    <sub><b>wilhelmer</b></sub>
                 </a>
             </td>
             <td align="center">

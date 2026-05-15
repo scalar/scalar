@@ -93,6 +93,7 @@ const meta: Meta = {
     searchBackground: 'transparent',
     searchColor: 'var(--scalar-color-3)',
     searchBorderColor: 'var(--scalar-border-color)',
+    searchPlaceholder: 'Search...',
   },
   argTypes: {
     class: { control: 'text' },
@@ -124,6 +125,7 @@ const meta: Meta = {
     searchBackground: { control: 'color' },
     searchColor: { control: 'color' },
     searchBorderColor: { control: 'color' },
+    searchPlaceholder: { control: 'text' },
   },
   render: (args) => ({
     components: {

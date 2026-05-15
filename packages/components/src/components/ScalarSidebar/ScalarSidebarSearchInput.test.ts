@@ -89,6 +89,13 @@ describe('ScalarSidebarSearchInput', () => {
     expect(label.classes()).toContain('text-sidebar-c-1')
   })
 
+  it('applies placeholder from props', () => {
+    const wrapper = mount(ScalarSidebarSearchInput, {
+      props: { placeholder: 'Filter items...' },
+    })
+    expect(wrapper.find('input').attributes('placeholder')).toBe('Filter items...')
+  })
+
   it('forwards additional attributes to input element', () => {
     const wrapper = mount(ScalarSidebarSearchInput, {
       attrs: {

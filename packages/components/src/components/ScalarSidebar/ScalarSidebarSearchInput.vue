@@ -18,12 +18,10 @@ import { onMounted, ref } from 'vue'
 import { ScalarIconButton } from '../ScalarIconButton'
 import { type LoadingState, ScalarLoading } from '../ScalarLoading'
 
-const { autofocus, placeholder = 'Search...' } = defineProps<{
+const { autofocus } = defineProps<{
   autofocus?: boolean
   loader?: LoadingState
   label?: string
-  /** Visible placeholder on the input (screen readers still use `label`). */
-  placeholder?: string
 }>()
 
 const inputRef = ref<HTMLInputElement | null>(null)
@@ -55,16 +53,16 @@ onMounted(() => autofocus && inputRef.value?.focus())
     <ScalarIconMagnifyingGlass class="text-sidebar-c-search size-4" />
     <input
       ref="inputRef"
-      v-bind="otherAttrs"
       v-model="model"
       :aria-label="label ?? 'Enter search query'"
       autocapitalize="off"
       autocomplete="off"
       autocorrect="off"
       class="flex-1 appearance-none rounded border-none bg-transparent outline-none"
-      :placeholder="placeholder"
+      placeholder="Search..."
       spellcheck="false"
-      type="search" />
+      type="search"
+      v-bind="otherAttrs" />
     <ScalarLoading
       v-if="loader && loader.isActive"
       class="mr-3 self-center"
