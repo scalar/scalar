@@ -1,36 +1,16 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { defineComponent, nextTick } from 'vue'
+import { defineComponent } from 'vue'
 
 import { ScalarMenu } from './'
-
-/** Radix sets aria-expanded on the menu trigger */
-const triggerSelector = 'button[aria-expanded]'
-
-const trigger = (wrapper: ReturnType<typeof mount>) => wrapper.get(triggerSelector)
-
-/** Menu content is portaled to `body`, so it sits outside the wrapper root. */
-const openMenuPanel = async (wrapper: ReturnType<typeof mount>): Promise<HTMLElement> => {
-  await trigger(wrapper).trigger('click')
-  await nextTick()
-  await flushPromises()
-  const id = trigger(wrapper).attributes('aria-controls')
-  if (!id) {
-    throw new Error('expected aria-controls on open menu trigger')
-  }
-  const el = document.getElementById(id)
-  if (!el) {
-    throw new Error(`expected menu panel #${id} in document`)
-  }
-  return el
-}
+import { getScalarMenuTrigger, openScalarMenuPanel } from './openScalarMenuPanel'
 
 describe('ScalarMenu', () => {
   it('exposes Open Menu as the default trigger label while closed', () => {
     const wrapper = mount(ScalarMenu, { attachTo: document.body })
     try {
       expect(wrapper.text()).toMatch(/Open Menu/)
-      expect(trigger(wrapper).attributes('aria-expanded')).toBe('false')
+      expect(getScalarMenuTrigger(wrapper).attributes('aria-expanded')).toBe('false')
     } finally {
       wrapper.unmount()
     }
@@ -39,7 +19,7 @@ describe('ScalarMenu', () => {
   it('shows default product entries after the trigger opens the menu', async () => {
     const wrapper = mount(ScalarMenu, { attachTo: document.body })
     try {
-      const panel = await openMenuPanel(wrapper)
+      const panel = await openScalarMenuPanel(wrapper)
       expect(panel.textContent).toContain('Dashboard')
       expect(panel.textContent).toContain('Client')
     } finally {
@@ -50,7 +30,7 @@ describe('ScalarMenu', () => {
   it('marks the trigger closed after the trigger toggles the menu again', async () => {
     const wrapper = mount(ScalarMenu, { attachTo: document.body })
     try {
-      const t = trigger(wrapper)
+      const t = getScalarMenuTrigger(wrapper)
       await t.trigger('click')
       expect(t.attributes('aria-expanded')).toBe('true')
       await t.trigger('click')
@@ -72,12 +52,12 @@ describe('ScalarMenu', () => {
     })
     const wrapper = mount(WithSlot, { attachTo: document.body })
     try {
-      const panel = await openMenuPanel(wrapper)
+      const panel = await openScalarMenuPanel(wrapper)
       const closeBtn = panel.querySelector<HTMLButtonElement>('[data-testid="products-close"]')
       expect(closeBtn).not.toBeNull()
       closeBtn!.click()
       await flushPromises()
-      expect(trigger(wrapper).attributes('aria-expanded')).toBe('false')
+      expect(getScalarMenuTrigger(wrapper).attributes('aria-expanded')).toBe('false')
     } finally {
       wrapper.unmount()
     }
@@ -95,7 +75,7 @@ describe('ScalarMenu', () => {
     })
     const wrapper = mount(WithProfile, { attachTo: document.body })
     try {
-      const panel = await openMenuPanel(wrapper)
+      const panel = await openScalarMenuPanel(wrapper)
       expect(panel.querySelector('[data-testid="profile-slot"]')?.textContent).toContain('Workspace')
     } finally {
       wrapper.unmount()
@@ -140,7 +120,7 @@ describe('ScalarMenu', () => {
       expect(title.text()).toBe('Team')
       // The title sits inside the rendered trigger, not somewhere
       // unrelated in the document.
-      expect(trigger(wrapper).element.contains(title.element)).toBe(true)
+      expect(getScalarMenuTrigger(wrapper).element.contains(title.element)).toBe(true)
     } finally {
       wrapper.unmount()
     }
@@ -174,7 +154,7 @@ describe('ScalarMenu', () => {
     })
     const wrapper = mount(WithSections, { attachTo: document.body })
     try {
-      const panel = await openMenuPanel(wrapper)
+      const panel = await openScalarMenuPanel(wrapper)
       expect(panel.querySelector('[data-testid="custom-sections"]')?.textContent).toContain('Only custom sections')
       expect(panel.textContent).not.toContain('Terms & Conditions')
     } finally {
@@ -188,7 +168,7 @@ describe('ScalarMenu', () => {
       attrs: { 'data-testid': 'menu-surface' },
     })
     try {
-      await openMenuPanel(wrapper)
+      await openScalarMenuPanel(wrapper)
       expect(document.querySelector('[data-testid="menu-surface"]')).not.toBeNull()
     } finally {
       wrapper.unmount()
