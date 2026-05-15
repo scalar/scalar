@@ -329,7 +329,7 @@ If both a Linear ticket and a GitHub issue are provided, include both.
 
 ### Changesets
 
-For code changes in `packages/*` and `integrations/*`, include a changeset using `patch` or `minor` (do not use `major`).
+For code changes in `packages/*`, `integrations/*`, and `projects/*`, include a changeset using `patch` or `minor` (do not use `major`).
 
 Before opening or updating a PR, run:
 
