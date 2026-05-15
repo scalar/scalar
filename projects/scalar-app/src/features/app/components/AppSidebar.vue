@@ -36,11 +36,8 @@ import SidebarItemMenu from '@/features/app/components/SidebarItemMenu.vue'
 import { createTempOperation } from '@/features/app/helpers/create-temp-operation'
 import { loadRegistryDocument } from '@/features/app/helpers/load-registry-document'
 import { useSidebarContextMenu } from '@/features/app/hooks/use-sidebar-context-menu'
-import {
-  useSidebarDocuments,
-  type SidebarDocumentItem,
-} from '@/features/app/hooks/use-sidebar-documents'
-import { useSidebarDocumentsFilter } from '@/features/app/hooks/use-sidebar-documents-filter'
+import { useSidebarDocuments } from '@/features/app/hooks/use-sidebar-documents'
+import type { SidebarDocumentItem } from '@/features/app/hooks/use-sidebar-documents/types'
 import { dragHandleFactory } from '@/helpers/drag-handle-factory'
 import type {
   ImportDocumentFromRegistry,
@@ -77,12 +74,8 @@ const isLoadingRegistry = computed(
     app.workspace.isTeamWorkspace.value,
 )
 
-const { pinned, rest } = useSidebarDocuments({
-  app,
-  managedDocs: () => registryDocuments.documents ?? [],
-})
-
 const {
+  isEmpty,
   isFilterVisible,
   filterQuery,
   toggleFilter,
@@ -92,21 +85,10 @@ const {
   namespaceFilterTriggerLabel,
   displayRestDocuments,
   displayPinnedDocuments,
-} = useSidebarDocumentsFilter({
-  pinned,
-  rest,
-  isTeamWorkspace: () => app.workspace.isTeamWorkspace.value,
+} = useSidebarDocuments({
+  app,
+  managedDocs: () => registryDocuments.documents ?? [],
 })
-
-/**
- * Whether the workspace truly has no documents to show. Distinct from the
- * filter producing no results: we only surface the "No APIs yet" empty state
- * when the workspace is genuinely empty so users see a clear call-to-action
- * instead of a confusing blank space.
- */
-const isEmpty = computed(
-  () => !isLoadingRegistry.value && rest.value.length === 0,
-)
 
 const sidebarState = app.sidebar.state
 

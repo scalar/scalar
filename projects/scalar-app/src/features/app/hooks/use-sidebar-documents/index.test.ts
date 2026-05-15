@@ -3,9 +3,10 @@ import type { TraversedDocument } from '@scalar/workspace-store/schemas/navigati
 import { describe, expect, it } from 'vitest'
 import { computed, ref, shallowRef } from 'vue'
 
-import type { RegistryDocument } from '@/types/configuration'
 import type { AppState } from '@/features/app'
 import { useSidebarDocuments } from '@/features/app/hooks/use-sidebar-documents'
+import { FILTER_NAMESPACE_ALL } from '@/features/app/hooks/use-sidebar-documents/helpers/registry-namespace-filter'
+import type { RegistryDocument } from '@/types/configuration'
 
 type FakeDocument = Partial<WorkspaceDocument> & {
   'x-scalar-registry-meta'?: {
@@ -834,5 +835,84 @@ describe('use-sidebar-documents', () => {
     // if pinning is reintroduced without updating the sidebar consumers.
     expect(pinned.value).toStrictEqual([])
     expect(rest.value).toStrictEqual(documents.value)
+  })
+
+  it('clears the title filter query when the filter is toggled off', () => {
+    const petsNav = nav('pets', 'Pets API')
+    const { app } = createFakeApp({
+      documents: {
+        pets: {
+          info: { title: 'Pets API', version: '1.0.0' },
+          'x-scalar-navigation': petsNav,
+        },
+      },
+    })
+
+    const { toggleFilter, filterQuery, isFilterVisible } = useSidebarDocuments({
+      app,
+      managedDocs: () => [],
+    })
+
+    toggleFilter()
+    filterQuery.value = 'orders'
+    toggleFilter()
+
+    expect(isFilterVisible.value).toBe(false)
+    expect(filterQuery.value).toBe('')
+  })
+
+  it('resets the namespace filter when the title filter is hidden', () => {
+    const { app } = createFakeApp({
+      documents: {
+        a: {
+          info: { title: 'A', version: '1.0.0' },
+          'x-scalar-registry-meta': { namespace: 'ns1', slug: 'a', version: '1.0.0' },
+        },
+        b: {
+          info: { title: 'B', version: '1.0.0' },
+          'x-scalar-registry-meta': { namespace: 'ns2', slug: 'b', version: '1.0.0' },
+        },
+      },
+      isTeamWorkspace: true,
+    })
+
+    const { toggleFilter, filterNamespaceId } = useSidebarDocuments({
+      app,
+      managedDocs: () => [],
+    })
+
+    toggleFilter()
+    filterNamespaceId.value = 'ns1'
+    toggleFilter()
+
+    expect(filterNamespaceId.value).toBe(FILTER_NAMESPACE_ALL)
+  })
+
+  it('narrows displayRestDocuments by the title query', () => {
+    const petsNav = nav('pets', 'Pets API')
+    const ordersNav = nav('orders', 'Orders API')
+    const { app } = createFakeApp({
+      documents: {
+        pets: {
+          info: { title: 'Pets API', version: '1.0.0' },
+          'x-scalar-navigation': petsNav,
+        },
+        orders: {
+          info: { title: 'Orders API', version: '1.0.0' },
+          'x-scalar-navigation': ordersNav,
+        },
+      },
+      isTeamWorkspace: false,
+    })
+
+    const { filterQuery, displayRestDocuments, toggleFilter } = useSidebarDocuments({
+      app,
+      managedDocs: () => [],
+    })
+
+    toggleFilter()
+    filterQuery.value = 'pets'
+
+    expect(displayRestDocuments.value.map((d) => d.key)).toStrictEqual(['pets'])
   })
 })

@@ -1,12 +1,12 @@
 import { type ComputedRef, computed } from 'vue'
 
-import type { RegistryDocumentsState } from '@/types/configuration'
 import type { AppState } from '@/features/app/app-state'
 import {
   type SidebarDocumentItem,
   type SidebarDocumentVersion,
   useSidebarDocuments,
 } from '@/features/app/hooks/use-sidebar-documents'
+import type { RegistryDocumentsState } from '@/types/configuration'
 
 /**
  * Resolves everything UI surfaces need to know about the document the user
