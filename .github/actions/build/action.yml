@@ -38,15 +38,19 @@ runs:
     # single quote. The env-var pattern is the standard shellcheck- and
     # GitHub-security-advisory-recommended way to defang this.
     #
-    # `TURBO_FLAGS` is intentionally word-split (multiple turbo flags in a
-    # single env var), so shellcheck's SC2086 warning is suppressed inline.
+    # `TURBO_FLAGS` MUST be templated by GitHub Actions, NOT referenced as a
+    # shell variable. Its value contains literal double quotes (around
+    # filter patterns like "!./integrations/{...}/**"); GitHub Actions
+    # templating injects those quotes as part of the shell command, which
+    # the shell then parses correctly. A shell variable expansion would
+    # only word-split on whitespace and leave the quote characters inside
+    # the arguments, causing turbo to try to parse `{a,b}` as a regex
+    # repetition quantifier and fail.
     - name: Build packages
       shell: bash
       env:
         PACKAGES_FILTER: ${{ inputs.packages }}
-      run: |
-        # shellcheck disable=SC2086 # TURBO_FLAGS must word-split into multiple args
-        pnpm turbo $TURBO_FLAGS --filter "$PACKAGES_FILTER" build
+      run: pnpm turbo ${{ env.TURBO_FLAGS }} --filter "$PACKAGES_FILTER" build
 
     # Single-tarball capture of every workspace dist directory. zstd is ~5x
     # faster than gzip at comparable ratios and is the default for recent

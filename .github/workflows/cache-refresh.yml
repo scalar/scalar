@@ -65,12 +65,17 @@ jobs:
       - name: Install dependencies (cold)
         run: pnpm install --frozen-lockfile
 
+      # `TURBO_FLAGS` MUST be templated by GitHub Actions, not expanded as a
+      # shell variable. Its value contains literal double quotes around
+      # filter patterns; GitHub Actions templating injects those quotes as
+      # part of the shell command for the shell to parse, whereas a shell
+      # variable expansion would only word-split on whitespace and leave
+      # the quote characters inside the arguments (causing turbo to read
+      # `{a,b}` as a regex repetition quantifier and fail).
       - name: Build all packages (cold)
-        run: |
-          # shellcheck disable=SC2086 # TURBO_FLAGS must word-split into multiple args
-          pnpm turbo $TURBO_FLAGS --filter './{packages,integrations}/**' build
         env:
           TURBO_FLAGS: '--concurrency=100% --filter "!./integrations/{java,rust,dotnet,docker,fastapi,django-ninja}/**" --filter "!./projects/proxy-scalar-com/**"'
+        run: pnpm turbo ${{ env.TURBO_FLAGS }} --filter './{packages,integrations}/**' build
 
       - name: Report cache footprints
         run: |
