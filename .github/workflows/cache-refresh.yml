@@ -1,12 +1,18 @@
 name: Cache Refresh
 
-# Weekly cold rebuild on main. This bounds how long a poisoned cache entry
-# could live: even if a cache-poisoning attack somehow lands, the entry has
-# at most ~7 days to be picked up before this workflow blows it away.
+# Weekly cold rebuild of the main-branch turbo and pnpm-store caches.
 #
-# Conservative on cost: only rebuilds the main turbo cache and the pnpm
-# store. It does NOT run tests — pr.yml and main.yml will rebuild any
-# affected caches naturally on the next change.
+# Goal: bound how long a stale or poisoned cache entry can survive on the
+# main-branch stickydisks. Once a week we wipe the disks clean, run a full
+# install + build from scratch, and let the stickydisk mechanism snapshot
+# the resulting fresh state.
+#
+# IMPORTANT: this workflow MUST write to the same cache keys that pr.yml
+# and main.yml read. The setup-node composite computes that key from
+# `github.repository`, `github.ref_name`, the .nvmrc Node version, and the
+# `cache-version` input. We deliberately do NOT pass `cache-version` here
+# so we inherit the default ('v1') that the CI workflows use; otherwise the
+# refresh would populate an orphan stickydisk and never benefit CI.
 
 on:
   schedule:
@@ -24,7 +30,7 @@ concurrency:
 jobs:
   refresh:
     runs-on: blacksmith-4vcpu-ubuntu-2204
-    timeout-minutes: 20
+    timeout-minutes: 25
     permissions:
       contents: read
     steps:
@@ -33,13 +39,28 @@ jobs:
           persist-credentials: false
           ref: main
 
-      # The setup-node composite mounts the branch-scoped stickydisks. Bumping
-      # the cache-version forces them to be re-initialised cold from this run.
+      # Mount the same stickydisks that CI uses. The composite is a no-op on
+      # non-blacksmith runners, but this job always runs on blacksmith so the
+      # disks are guaranteed to be mounted.
       - uses: ./.github/actions/setup-node
-        with:
-          # Rotate weekly: yyyy-Www so each Sunday gets a fresh suffix.
-          # Cron uses GHA's date in UTC.
-          cache-version: weekly
+
+      # Wipe the mounted cache contents BEFORE re-populating. Without this
+      # step the stickydisk would only accumulate fresh entries alongside
+      # any stale or poisoned ones; with it, the disk state at job end
+      # contains exactly what was rebuilt from scratch in this run.
+      - name: Clear existing cache contents
+        run: |
+          set -euo pipefail
+          echo "Cache state before clear:"
+          du -sh ./.turbo 2>/dev/null || echo "  ./.turbo: missing"
+          du -sh ~/.local/share/pnpm/store 2>/dev/null || echo "  pnpm store: missing"
+
+          rm -rf ./.turbo
+          # Keep the directory itself so the stickydisk mount remains valid;
+          # only remove its contents.
+          if [ -d ~/.local/share/pnpm/store ]; then
+            find ~/.local/share/pnpm/store -mindepth 1 -delete
+          fi
 
       - name: Install dependencies (cold)
         run: pnpm install --frozen-lockfile

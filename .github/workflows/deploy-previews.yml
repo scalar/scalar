@@ -55,6 +55,10 @@ env:
 
 jobs:
   deploy-examples:
+    # The examples app is a thin wrapper around @scalar/api-reference, so
+    # there is no reason to redeploy a fresh preview when api-reference is
+    # unchanged. Path-gating here also lines up with the other deploy jobs.
+    if: inputs.api_reference_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     environment: staging
@@ -72,6 +76,14 @@ jobs:
 
       - name: Restore pre-built workspace
         uses: ./.github/actions/restore-build
+
+      # The build job in pr.yml builds packages and integrations only, not
+      # examples — examples are not part of the published surface. We build
+      # @scalar-examples/web here on demand. restore-build has already
+      # populated every workspace dependency's dist directory, so this is a
+      # single-package build.
+      - name: Build @scalar-examples/web
+        run: pnpm --filter @scalar-examples/web build
 
       - name: Generate DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
