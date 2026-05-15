@@ -57,6 +57,31 @@
       "import": "./dist/utils/index.js",
       "types": "./dist/utils/index.d.ts",
       "default": "./dist/utils/index.js"
+    },
+    "./openapi-extensions/operation": {
+      "import": "./dist/openapi-extensions/operation/index.js",
+      "types": "./dist/openapi-extensions/operation/index.d.ts",
+      "default": "./dist/openapi-extensions/operation/index.js"
+    },
+    "./openapi-extensions/security": {
+      "import": "./dist/openapi-extensions/security/index.js",
+      "types": "./dist/openapi-extensions/security/index.d.ts",
+      "default": "./dist/openapi-extensions/security/index.js"
+    },
+    "./openapi-extensions/tag": {
+      "import": "./dist/openapi-extensions/tag/index.js",
+      "types": "./dist/openapi-extensions/tag/index.d.ts",
+      "default": "./dist/openapi-extensions/tag/index.js"
+    },
+    "./openapi-extensions/workspace": {
+      "import": "./dist/openapi-extensions/workspace/index.js",
+      "types": "./dist/openapi-extensions/workspace/index.d.ts",
+      "default": "./dist/openapi-extensions/workspace/index.js"
+    },
+    "./openapi-extensions/*": {
+      "import": "./dist/openapi-extensions/*.js",
+      "types": "./dist/openapi-extensions/*.d.ts",
+      "default": "./dist/openapi-extensions/*.js"
     }
   },
   "files": [

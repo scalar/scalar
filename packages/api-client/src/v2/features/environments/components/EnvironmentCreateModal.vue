@@ -4,7 +4,7 @@ import type {
   CollectionType,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
-import type { XScalarEnvironments } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { XScalarEnvironments } from '@scalar/types/openapi-extensions/document/x-scalar-environments'
 import { computed, ref, watch } from 'vue'
 
 import {

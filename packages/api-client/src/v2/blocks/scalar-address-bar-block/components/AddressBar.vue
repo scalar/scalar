@@ -49,7 +49,7 @@ import type {
   ServerMeta,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
-import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/openapi-extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import {
   computed,

@@ -4,7 +4,7 @@ import { ScalarIconGlobe, ScalarIconTrash } from '@scalar/icons'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/openapi-extensions/document/x-scalar-environments'
 import type {
   ParameterObject,
   SchemaObject,

@@ -1,7 +1,7 @@
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { RequestFactory } from '@scalar/workspace-store/request-example'
-import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/openapi-extensions/document/x-scalar-environments'
 import { assert, describe, expect, it, vi } from 'vitest'
 import { type ComputedRef, type Ref, computed, nextTick, ref } from 'vue'
 

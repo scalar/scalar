@@ -21,8 +21,8 @@ import {
   type MergedSecuritySchemes,
   type SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
-import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
+import type { XScalarEnvironment } from '@scalar/types/openapi-extensions/document/x-scalar-environments'
+import type { XScalarCookie } from '@scalar/types/openapi-extensions/general/x-scalar-cookies'
 import type {
   OpenApiDocument,
   OperationObject,

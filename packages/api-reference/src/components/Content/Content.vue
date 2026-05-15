@@ -11,7 +11,7 @@ import {
   getServers,
   mergeSecurity,
 } from '@scalar/workspace-store/request-example'
-import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/openapi-extensions/document/x-scalar-environments'
 import type { TraversedEntry as TraversedEntryType } from '@scalar/workspace-store/schemas/navigation'
 import {
   getDocumentType,

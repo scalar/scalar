@@ -2,7 +2,7 @@
 import { ScalarButton, useLoadingState } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/openapi-extensions/document/x-scalar-environments'
 import { type OpenIdConnectObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { fetchOpenIDConnectDiscovery } from '@/v2/blocks/scalar-auth-selector-block/helpers/fetch-openid-connect-discovery'

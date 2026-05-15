@@ -10,12 +10,10 @@ import type { Oauth2Flow } from '@scalar/types/entities'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
 import { createWorkspaceStorePersistence, generateWorkspaceUid } from '@scalar/workspace-store/persistence'
-import {
-  type XScalarEnvironments,
-  xScalarEnvironmentSchema,
-} from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { XScalarEnvironments } from '@scalar/types/openapi-extensions/document/x-scalar-environments'
+import { xScalarEnvironmentSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { xScalarCookieSchema } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
-import type { XTagGroup } from '@scalar/workspace-store/schemas/extensions/tag'
+import type { XTagGroup } from '@scalar/types/openapi-extensions/tag'
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'

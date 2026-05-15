@@ -1,10 +1,8 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import {
-  type XScalarCookie,
-  xScalarCookieSchema,
-} from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
+import type { XScalarCookie } from '@scalar/types/openapi-extensions/general/x-scalar-cookies'
+import { xScalarCookieSchema } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 

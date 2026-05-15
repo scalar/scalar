@@ -1,4 +1,4 @@
-import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
+import type { XCodeSample } from '@scalar/types/openapi-extensions/operation'
 import { describe, expect, it } from 'vitest'
 
 import type { ClientOptionGroup, CustomClientOption } from '@/v2/blocks/operation-code-sample'

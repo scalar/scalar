@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/openapi-extensions/document/x-scalar-environments'
 import { useId } from 'vue'
 
 import type { VueClassProp } from '@/types/vue'

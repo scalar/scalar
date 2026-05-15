@@ -21,9 +21,9 @@ import {
   type OAuthFlowsObjectSecret,
   type SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
-import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { XScalarCredentialsLocation } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-credentials-location'
-import { type XusePkce } from '@scalar/workspace-store/schemas/extensions/security/x-use-pkce'
+import type { XScalarEnvironment } from '@scalar/types/openapi-extensions/document/x-scalar-environments'
+import type { XScalarCredentialsLocation } from '@scalar/types/openapi-extensions/security/x-scalar-credentials-location'
+import type { XusePkce } from '@scalar/types/openapi-extensions/security/x-use-pkce'
 import type {
   OAuthFlow,
   ServerObject,

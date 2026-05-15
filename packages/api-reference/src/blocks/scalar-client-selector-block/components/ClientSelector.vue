@@ -7,7 +7,7 @@ import {
 import { ScalarCodeBlock, ScalarMarkdown } from '@scalar/components'
 import type { AvailableClient } from '@scalar/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { XScalarSdkInstallation } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-sdk-installation'
+import type { XScalarSdkInstallation } from '@scalar/types/openapi-extensions/document/x-scalar-sdk-installation'
 import { computed, useId, useTemplateRef } from 'vue'
 
 import {

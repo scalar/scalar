@@ -1,5 +1,5 @@
 import type { TargetId } from '@scalar/types/snippetz'
-import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
+import type { XCodeSample } from '@scalar/types/openapi-extensions/operation'
 
 import type { ClientOptionGroup, CustomClientOption } from '@/v2/blocks/operation-code-sample'
 import { generateCustomId } from '@/v2/blocks/operation-code-sample/helpers/generate-client-options'

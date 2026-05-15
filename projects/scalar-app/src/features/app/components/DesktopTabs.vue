@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-scalar-tabs'
+import type { Tab } from '@scalar/types/openapi-extensions/workspace/x-scalar-tabs'
 import { computed } from 'vue'
 
 import DesktopTab from '@/features/app/components/DesktopTab.vue'

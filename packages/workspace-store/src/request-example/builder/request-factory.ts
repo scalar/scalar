@@ -1,8 +1,8 @@
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import { replacePathVariables } from '@scalar/helpers/regex/replace-variables'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
+import type { XScalarEnvironment } from '@scalar/types/openapi-extensions/document/x-scalar-environments'
+import type { XScalarCookie } from '@scalar/types/openapi-extensions/general/x-scalar-cookies'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 
