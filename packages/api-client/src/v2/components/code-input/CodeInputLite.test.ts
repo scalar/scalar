@@ -212,6 +212,24 @@ describe('CodeInputLite', () => {
     expect(wrapper.findComponent({ name: 'EnvironmentVariablesDropdown' }).exists()).toBe(false)
   })
 
+  it('does not open the dropdown when withVariables is false', async () => {
+    const wrapper = mountInput({ modelValue: '', withVariables: false })
+    api(wrapper).setContent('{{')
+    api(wrapper).focus('end')
+    await wrapper.get('.code-input-lite__editor').trigger('input')
+    await nextTick()
+    expect(wrapper.findComponent({ name: 'EnvironmentVariablesDropdown' }).exists()).toBe(false)
+  })
+
+  it('does not open the dropdown when no environment is provided and fake data is off', async () => {
+    const wrapper = mountInput({ modelValue: '', environment: undefined })
+    api(wrapper).setContent('{{')
+    api(wrapper).focus('end')
+    await wrapper.get('.code-input-lite__editor').trigger('input')
+    await nextTick()
+    expect(wrapper.findComponent({ name: 'EnvironmentVariablesDropdown' }).exists()).toBe(false)
+  })
+
   it('closes the dropdown after the closing `}}`', async () => {
     const wrapper = mountInput({ modelValue: '' })
     api(wrapper).setContent('{{baseUrl}}')
@@ -255,6 +273,13 @@ describe('CodeInputLite', () => {
 
   it('skips submit on blur when emitOnBlur is false', async () => {
     const wrapper = mountInput({ modelValue: '/users', emitOnBlur: false })
+    await wrapper.get('.code-input-lite__editor').trigger('blur')
+    expect(wrapper.emitted('submit')).toBeUndefined()
+    expect(wrapper.emitted('blur')).toBeTruthy()
+  })
+
+  it('does not emit submit on blur when the model value is empty', async () => {
+    const wrapper = mountInput({ modelValue: '', emitOnBlur: true })
     await wrapper.get('.code-input-lite__editor').trigger('blur')
     expect(wrapper.emitted('submit')).toBeUndefined()
     expect(wrapper.emitted('blur')).toBeTruthy()
@@ -515,6 +540,37 @@ describe('CodeInputLite', () => {
       expect(select.props('value')).toEqual(['a', 'b'])
     })
 
+    it('prefers the boolean select over examples when both are set', () => {
+      const wrapper = mountInput({
+        modelValue: 'true',
+        type: 'boolean',
+        examples: ['example1', 'example2'],
+      })
+      const select = wrapper.findComponent({ name: 'DataTableInputSelect' })
+      // Boolean wins — value array is true/false, not the examples
+      expect(select.props('value')).toEqual(['true', 'false'])
+    })
+
+    it('prioritizes the disabled label over enum select mode', () => {
+      const wrapper = mountInput({
+        modelValue: 'a',
+        disabled: true,
+        enum: ['a', 'b', 'c'],
+      })
+      expect(wrapper.find('[data-testid="code-input-lite-disabled"]').exists()).toBe(true)
+      expect(wrapper.findComponent({ name: 'DataTableInputSelect' }).exists()).toBe(false)
+    })
+
+    it('falls back to string for a tuple type containing only null in enum mode', () => {
+      const wrapper = mountInput({
+        modelValue: 'x',
+        enum: ['x', 'y'],
+        type: ['null'],
+      })
+      const select = wrapper.findComponent({ name: 'DataTableInputSelect' })
+      expect(select.props('type')).toBe('string')
+    })
+
     it('renders an examples select when examples are provided and no enum/boolean apply', () => {
       const wrapper = mountInput({
         modelValue: 'foo',
@@ -626,11 +682,57 @@ describe('CodeInputLite', () => {
     })
   })
 
+  describe('error state', () => {
+    it('applies the error class and aria-invalid when error is true', () => {
+      const wrapper = mountInput({ modelValue: 'test', error: true })
+      expect(wrapper.find('.code-input-lite').classes()).toContain('code-input-lite--error')
+      expect(wrapper.get('.code-input-lite__editor').attributes('aria-invalid')).toBe('true')
+    })
+
+    it('does not apply error styling by default', () => {
+      const wrapper = mountInput({ modelValue: 'test' })
+      expect(wrapper.find('.code-input-lite').classes()).not.toContain('code-input-lite--error')
+      expect(wrapper.get('.code-input-lite__editor').attributes('aria-invalid')).toBeUndefined()
+    })
+  })
+
+  describe('component id', () => {
+    it('uses a consumer-supplied id attribute on the editor wrapper', () => {
+      const wrapper = mount(CodeInputLite, {
+        attachTo: document.body,
+        props: {
+          modelValue: 'test',
+          environment: env,
+        } as InstanceType<typeof CodeInputLite>['$props'],
+        attrs: { id: 'custom-id' },
+      })
+      expect(wrapper.find('#custom-id').exists()).toBe(true)
+    })
+
+    it('does not assign an id to the editor wrapper before the first focus', () => {
+      const wrapper = mountInput({ modelValue: 'test' })
+      expect(wrapper.find('.code-input-lite').attributes('id')).toBeUndefined()
+    })
+
+    it('generates an id once the editor is focused', async () => {
+      const wrapper = mountInput({ modelValue: 'test' })
+      await wrapper.get('.code-input-lite__editor').trigger('focus')
+      await nextTick()
+      expect(wrapper.find('.code-input-lite').attributes('id')).toMatch(/^id-/)
+    })
+  })
+
   describe('serialization for non-string model values', () => {
     it('renders a number model value as its string form in the editor', async () => {
       const wrapper = mountInput({ modelValue: 42 as unknown as string })
       await nextTick()
       expect(api(wrapper).getValue()).toBe('42')
+    })
+
+    it('renders a zero model value as "0"', async () => {
+      const wrapper = mountInput({ modelValue: 0 as unknown as string })
+      await nextTick()
+      expect(api(wrapper).getValue()).toBe('0')
     })
 
     it('renders a boolean model value as its string form in the editor', async () => {
@@ -685,7 +787,25 @@ describe('CodeInputLite', () => {
   describe('required indicator', () => {
     it('renders the required indicator when required is true', () => {
       const wrapper = mountInput({ modelValue: '', required: true })
-      expect(wrapper.find('.required').exists()).toBe(true)
+      const indicator = wrapper.find('.required')
+      expect(indicator.exists()).toBe(true)
+      expect(indicator.text()).toBe('Required')
+    })
+
+    it('sets aria-required on the editor when required is true', () => {
+      const wrapper = mountInput({ modelValue: '', required: true })
+      expect(wrapper.get('.code-input-lite__editor').attributes('aria-required')).toBe('true')
+    })
+
+    it('does not render the required indicator when required is false', () => {
+      const wrapper = mountInput({ modelValue: '', required: false })
+      expect(wrapper.find('.required').exists()).toBe(false)
+    })
+
+    it('does not render the required indicator by default', () => {
+      const wrapper = mountInput({ modelValue: '' })
+      expect(wrapper.find('.required').exists()).toBe(false)
+      expect(wrapper.get('.code-input-lite__editor').attributes('aria-required')).toBeUndefined()
     })
 
     it('hides the required indicator while the editor is focused', () => {
@@ -693,6 +813,17 @@ describe('CodeInputLite', () => {
       // assert the focus-hiding class is wired up rather than the computed style.
       const wrapper = mountInput({ modelValue: '', required: true })
       expect(wrapper.find('.required').classes()).toContain('peer-has-[.code-input-lite__editor:focus]:opacity-0')
+    })
+
+    it('still renders the required indicator alongside select mode', () => {
+      const wrapper = mountInput({
+        modelValue: 'a',
+        required: true,
+        enum: ['a', 'b'],
+      })
+      // The indicator is a sibling of the mode wrappers so it shows in every mode.
+      expect(wrapper.find('.required').exists()).toBe(true)
+      expect(wrapper.findComponent({ name: 'DataTableInputSelect' }).exists()).toBe(true)
     })
   })
 
