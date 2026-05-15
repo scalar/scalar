@@ -1,12 +1,31 @@
 name: 'Check Changes'
 description: |
-  Detect which areas of the monorepo were touched by the current event. Emits
-  one boolean output per scope. Used by both `pr.yml` (to skip irrelevant
-  jobs) and `main.yml` (to gate integration publishes on actual changes).
+  Detect which areas of the monorepo are affected by the current event and
+  emit one boolean output per scope. Used by both `pr.yml` (to skip
+  irrelevant jobs) and `main.yml` (to gate integration publishes on actual
+  changes).
 
-  This is a composite rather than a standalone reusable workflow because we
-  want the outputs surfaced as a single job's outputs in the calling
-  workflow, and composite actions compose more cleanly with `needs.<job>`.
+  Two layers of detection feed every JS scope:
+
+    1. Path-based (step-security/changed-files): fast, no install needed,
+       captures direct file modifications. Used as the primary signal for
+       non-pnpm integrations (rust, django-ninja, docker source) and as a
+       safety net for everything else.
+    2. Changesets-based (`changeset status --output=...`): walks the workspace
+       graph honouring `.changeset/config.json` (`updateInternalDependencies`
+       and `fixed`) to compute every package that will publish in the next
+       release. By the repo's own convention every meaningful change ships
+       with a changeset, so this set IS the set of "things whose behaviour
+       could have changed".
+
+  The final output for each JS scope is the OR of both layers. The path
+  fallback ensures that a PR which forgets a changeset still triggers tests
+  on the directly-touched scope.
+
+  Integration scopes (java/rust/dotnet/docker/python) keep their path-based
+  gates because they are triggered by changes to the integration's own
+  source code; the workspace-graph signal is also folded in for those that
+  are pnpm workspace members (aspire, aspnetcore, fastapi, java, docker).
 outputs:
   # Integration source trees (drive *-build-test jobs)
   dotnet_changed:
@@ -54,25 +73,25 @@ outputs:
     description: 'packages/mock-server/docker/package.json'
     value: ${{ steps.changed-package-files.outputs.mock_server_docker_package_any_changed }}
 
-  # JS package scopes (drive JS test / preview-deploy gates)
+  # JS package scopes — union of path-based and changesets-based detection.
   icons_changed:
-    description: 'packages/icons/** or ScalarIcon component'
-    value: ${{ steps.changed-packages-files.outputs.icons_changed_any_changed }}
+    description: 'packages/icons/**, ScalarIcon component, or any changeset that releases @scalar/icons (direct or transitive)'
+    value: ${{ steps.combine.outputs.icons }}
   galaxy_changed:
-    description: 'packages/galaxy/**'
-    value: ${{ steps.changed-packages-files.outputs.galaxy_changed_any_changed }}
+    description: 'packages/galaxy/** or any changeset that releases @scalar/galaxy'
+    value: ${{ steps.combine.outputs.galaxy }}
   api_client_changed:
-    description: 'packages/api-client/** or projects/scalar-app/**'
-    value: ${{ steps.changed-packages-files.outputs.api_client_changed_any_changed }}
+    description: 'packages/api-client/**, projects/scalar-app/**, or any changeset that releases @scalar/api-client'
+    value: ${{ steps.combine.outputs.api_client }}
   api_reference_changed:
-    description: 'packages/api-reference/**'
-    value: ${{ steps.changed-packages-files.outputs.api_reference_changed_any_changed }}
+    description: 'packages/api-reference/** or any changeset that releases @scalar/api-reference'
+    value: ${{ steps.combine.outputs.api_reference }}
   components_changed:
-    description: 'packages/components/**'
-    value: ${{ steps.changed-packages-files.outputs.components_changed_any_changed }}
+    description: 'packages/components/** or any changeset that releases @scalar/components'
+    value: ${{ steps.combine.outputs.components }}
   scalar_app_package_changed:
-    description: 'projects/scalar-app/package.json (drives todesktop)'
-    value: ${{ steps.changed-packages-files.outputs.scalar_app_package_any_changed }}
+    description: 'projects/scalar-app/package.json or any changeset that releases scalar-app (drives todesktop)'
+    value: ${{ steps.combine.outputs.scalar_app }}
 
   # Broad JS-side gates
   js_changed:
@@ -85,6 +104,9 @@ outputs:
 runs:
   using: 'composite'
   steps:
+    # -------------------------------------------------------------------------
+    # Layer 1: path-based detection (cheap, no install needed)
+    # -------------------------------------------------------------------------
     - name: Check whether integration files were modified
       id: changed-integration-files
       uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
@@ -145,9 +167,6 @@ runs:
           mock_server_docker_package:
             - packages/mock-server/docker/package.json
 
-    # Broad JS gates. `js` captures any TS/JS source or build config; tightening
-    # this is a future cost-saving lever. `lockfile` is its own scope because
-    # any lockfile change must rebuild the artifact even if no source moved.
     - name: Check broad JS scopes
       id: changed-js
       uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
@@ -164,3 +183,100 @@ runs:
             - 'pnpm-lock.yaml'
             - '**/package.json'
             - 'pnpm-workspace.yaml'
+
+    # -------------------------------------------------------------------------
+    # Layer 2: changesets-based detection
+    #
+    # `changeset status --output=<file>` walks the workspace using the rules
+    # in .changeset/config.json. The output's `releases[]` array contains
+    # every package that will publish in the next release, including those
+    # auto-bumped by `updateInternalDependencies` and `fixed` group rules.
+    # We treat any release with type != "none" as "affected".
+    #
+    # We invoke @changesets/cli via npx so this step does not need a full
+    # pnpm install. Node is provided by the runner image; npx caches the
+    # download between runs.
+    # -------------------------------------------------------------------------
+    - name: Compute affected packages from changesets
+      id: changesets
+      shell: bash
+      env:
+        # Keep in sync with package.json devDependencies. Renovate updates
+        # both automatically.
+        CHANGESETS_CLI_VERSION: '2.29.8'
+      run: |
+        set -euo pipefail
+
+        STATUS_FILE="$(mktemp)"
+        # `status --output` writes the full JSON shape:
+        #   { "changesets": [...], "releases": [ { name, type, ... } ] }
+        # Failure (e.g. malformed changeset) falls through to path-based
+        # detection via the combine step below.
+        if ! npx -y "@changesets/cli@${CHANGESETS_CLI_VERSION}" status --output="$STATUS_FILE" 2>&1; then
+          echo "::warning::changeset status failed; relying on path-based detection only"
+          echo "ok=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        # Affected = every release that is not type "none".
+        AFFECTED=$(jq -r '.releases[]? | select(.type != "none") | .name' "$STATUS_FILE" | sort -u)
+
+        echo "Packages with pending releases (direct + dependents):"
+        if [ -z "$AFFECTED" ]; then
+          echo "  (none)"
+        else
+          echo "$AFFECTED" | sed 's/^/  /'
+        fi
+
+        emit_flag() {
+          local pkg="$1"
+          local out="$2"
+          if echo "$AFFECTED" | grep -qFx "$pkg"; then
+            echo "${out}=true" >> "$GITHUB_OUTPUT"
+          fi
+        }
+
+        emit_flag '@scalar/api-reference' api_reference
+        emit_flag '@scalar/api-client' api_client
+        emit_flag '@scalar/components' components
+        emit_flag '@scalar/icons' icons
+        emit_flag '@scalar/galaxy' galaxy
+        emit_flag 'scalar-app' scalar_app
+        echo "ok=true" >> "$GITHUB_OUTPUT"
+
+    # -------------------------------------------------------------------------
+    # Combine: emit final scope outputs as OR(path-based, changesets-based).
+    # -------------------------------------------------------------------------
+    - name: Combine path-based and changesets-based flags
+      id: combine
+      shell: bash
+      env:
+        PATH_ICONS: ${{ steps.changed-packages-files.outputs.icons_changed_any_changed }}
+        PATH_GALAXY: ${{ steps.changed-packages-files.outputs.galaxy_changed_any_changed }}
+        PATH_API_CLIENT: ${{ steps.changed-packages-files.outputs.api_client_changed_any_changed }}
+        PATH_API_REFERENCE: ${{ steps.changed-packages-files.outputs.api_reference_changed_any_changed }}
+        PATH_COMPONENTS: ${{ steps.changed-packages-files.outputs.components_changed_any_changed }}
+        PATH_SCALAR_APP: ${{ steps.changed-packages-files.outputs.scalar_app_package_any_changed }}
+        CS_ICONS: ${{ steps.changesets.outputs.icons }}
+        CS_GALAXY: ${{ steps.changesets.outputs.galaxy }}
+        CS_API_CLIENT: ${{ steps.changesets.outputs.api_client }}
+        CS_API_REFERENCE: ${{ steps.changesets.outputs.api_reference }}
+        CS_COMPONENTS: ${{ steps.changesets.outputs.components }}
+        CS_SCALAR_APP: ${{ steps.changesets.outputs.scalar_app }}
+      run: |
+        set -euo pipefail
+        or_flag() {
+          if [ "$1" = "true" ] || [ "$2" = "true" ]; then
+            echo true
+          else
+            echo false
+          fi
+        }
+        {
+          echo "icons=$(or_flag "$PATH_ICONS" "$CS_ICONS")"
+          echo "galaxy=$(or_flag "$PATH_GALAXY" "$CS_GALAXY")"
+          echo "api_client=$(or_flag "$PATH_API_CLIENT" "$CS_API_CLIENT")"
+          echo "api_reference=$(or_flag "$PATH_API_REFERENCE" "$CS_API_REFERENCE")"
+          echo "components=$(or_flag "$PATH_COMPONENTS" "$CS_COMPONENTS")"
+          echo "scalar_app=$(or_flag "$PATH_SCALAR_APP" "$CS_SCALAR_APP")"
+        } >> "$GITHUB_OUTPUT"
