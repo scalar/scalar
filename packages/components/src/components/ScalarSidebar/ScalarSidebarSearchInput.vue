@@ -18,10 +18,12 @@ import { onMounted, ref } from 'vue'
 import { ScalarIconButton } from '../ScalarIconButton'
 import { type LoadingState, ScalarLoading } from '../ScalarLoading'
 
-const { autofocus } = defineProps<{
+const { autofocus, placeholder = 'Search...' } = defineProps<{
   autofocus?: boolean
   loader?: LoadingState
   label?: string
+  /** Visible placeholder on the input (screen readers still use `label`). */
+  placeholder?: string
 }>()
 
 const inputRef = ref<HTMLInputElement | null>(null)
@@ -60,7 +62,7 @@ onMounted(() => autofocus && inputRef.value?.focus())
       autocomplete="off"
       autocorrect="off"
       class="flex-1 appearance-none rounded border-none bg-transparent outline-none"
-      placeholder="Search..."
+      :placeholder="placeholder"
       spellcheck="false"
       type="search" />
     <ScalarLoading

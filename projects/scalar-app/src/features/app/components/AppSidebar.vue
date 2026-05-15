@@ -3,6 +3,10 @@ import { Resize } from '@scalar/api-client/components/resize'
 import { DeleteSidebarListElement } from '@scalar/api-client/components/Sidebar'
 import { DocumentSearchModal } from '@scalar/api-client/features/search'
 import {
+  ScalarButton,
+  ScalarDropdown,
+  ScalarDropdownItem,
+  ScalarIcon,
   ScalarIconButton,
   ScalarModal,
   ScalarSidebar,
@@ -24,7 +28,14 @@ import { useToasts } from '@scalar/use-toasts'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
-import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
+import {
+  computed,
+  onBeforeMount,
+  onBeforeUnmount,
+  ref,
+  useId,
+  watch,
+} from 'vue'
 
 import type { AppState } from '@/features/app'
 import SidebarDocument from '@/features/app/components/SidebarDocument.vue'
@@ -62,6 +73,8 @@ const {
 
 const { toast } = useToasts()
 
+const registryScopeLabelId = useId()
+
 /**
  * Whether the caller is still fetching the list of registry documents. We
  * only surface the loading state on team workspaces because local workspaces
@@ -98,6 +111,118 @@ const {
   filteredItems: filteredRest,
   toggle: toggleFilter,
 } = useDocumentFilter(rest)
+
+/** Namespace segment for team-workspace document filter (with title search). */
+const FILTER_NAMESPACE_ALL = 'all' as const
+/** Entries with no registry coordinates (drafts and other workspace-only docs). */
+const FILTER_NAMESPACE_LOCAL = '__local__' as const
+
+type NamespaceFilterId =
+  | typeof FILTER_NAMESPACE_ALL
+  | typeof FILTER_NAMESPACE_LOCAL
+  | string
+
+const filterNamespaceId = ref<NamespaceFilterId>(FILTER_NAMESPACE_ALL)
+
+const namespaceFilterSummary = computed(() => {
+  if (!app.workspace.isTeamWorkspace.value) {
+    return null
+  }
+  const docs = [...pinned.value, ...rest.value]
+  const counts = new Map<string, number>()
+  let localCount = 0
+  for (const doc of docs) {
+    const ns = doc.registry?.namespace
+    if (ns) {
+      counts.set(ns, (counts.get(ns) ?? 0) + 1)
+    } else {
+      localCount++
+    }
+  }
+  if (counts.size === 0 && localCount === 0) {
+    return null
+  }
+  const namespaces = [...counts.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([id, count]) => ({ id, label: id, count }))
+  return { localCount, namespaces }
+})
+
+const showNamespaceFilterRow = computed(
+  () =>
+    isFilterVisible.value &&
+    app.workspace.isTeamWorkspace.value &&
+    namespaceFilterSummary.value !== null,
+)
+
+type NamespaceFilterOption = {
+  id: NamespaceFilterId
+  label: string
+  /** Optional second line for rows that benefit from extra context. */
+  description?: string
+  count: number
+}
+
+/** Options shown in the registry scope dropdown (trigger shows the active label). */
+const namespaceFilterOptions = computed((): NamespaceFilterOption[] => {
+  const summary = namespaceFilterSummary.value
+  if (!summary) {
+    return []
+  }
+  const totalDocs = pinned.value.length + rest.value.length
+  const options: NamespaceFilterOption[] = [
+    { id: FILTER_NAMESPACE_ALL, label: 'All namespaces', count: totalDocs },
+  ]
+  for (const ns of summary.namespaces) {
+    options.push({ id: ns.id, label: ns.label, count: ns.count })
+  }
+  if (summary.localCount > 0) {
+    options.push({
+      id: FILTER_NAMESPACE_LOCAL,
+      label: 'Workspace only',
+      description: 'Drafts and docs without a registry link',
+      count: summary.localCount,
+    })
+  }
+  return options
+})
+
+const namespaceFilterTriggerLabel = computed(() => {
+  const id = filterNamespaceId.value
+  const match = namespaceFilterOptions.value.find((o) => o.id === id)
+  return match?.label ?? 'All namespaces'
+})
+
+const applyNamespaceFilter = (
+  items: SidebarDocumentItem[],
+): SidebarDocumentItem[] => {
+  if (
+    !app.workspace.isTeamWorkspace.value ||
+    filterNamespaceId.value === FILTER_NAMESPACE_ALL
+  ) {
+    return items
+  }
+  if (filterNamespaceId.value === FILTER_NAMESPACE_LOCAL) {
+    return items.filter((item) => !item.registry)
+  }
+  return items.filter(
+    (item) => item.registry?.namespace === filterNamespaceId.value,
+  )
+}
+
+const displayRestDocuments = computed(() =>
+  applyNamespaceFilter(filteredRest.value),
+)
+
+const displayPinnedDocuments = computed(() =>
+  applyNamespaceFilter(pinned.value),
+)
+
+watch(isFilterVisible, (open) => {
+  if (!open) {
+    filterNamespaceId.value = FILTER_NAMESPACE_ALL
+  }
+})
 
 const sidebarState = app.sidebar.state
 
@@ -321,6 +446,16 @@ const isOnDocumentPage = computed(() =>
   Boolean(app.activeEntities.documentSlug.value),
 )
 
+const showFilterNoMatches = computed(
+  () =>
+    isFilterVisible.value &&
+    !isOnDocumentPage.value &&
+    !isEmpty.value &&
+    !isLoadingRegistry.value &&
+    displayPinnedDocuments.value.length === 0 &&
+    displayRestDocuments.value.length === 0,
+)
+
 const handleOpenSettings = () => {
   if (isOnDocumentPage.value) {
     app.eventBus.emit('ui:navigate', {
@@ -463,10 +598,58 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                 variant="gradient"
                 @click="handleCreate" />
             </div>
-            <ScalarSidebarSearchInput
+            <div
               v-if="isFilterVisible"
-              v-model="filterQuery"
-              autofocus />
+              class="bg-sidebar-b-2/50 flex flex-col gap-2.5 rounded-md p-2">
+              <ScalarSidebarSearchInput
+                v-model="filterQuery"
+                autofocus
+                placeholder="Filter by title..." />
+              <div
+                v-if="showNamespaceFilterRow && namespaceFilterSummary"
+                class="flex flex-col gap-1">
+                <span
+                  :id="registryScopeLabelId"
+                  class="text-sidebar-c-1 px-0.5 text-xs font-medium">
+                  Registry scope
+                </span>
+                <ScalarDropdown
+                  class="w-full min-w-0"
+                  placement="bottom-start"
+                  resize>
+                  <ScalarButton
+                    :aria-labelledby="registryScopeLabelId"
+                    class="border-sidebar-border-search bg-sidebar-b-search text-sidebar-c-1 h-8 w-full min-w-0 justify-between gap-2 rounded border px-2 font-normal outline-none"
+                    fullWidth
+                    variant="ghost">
+                    <span
+                      class="min-w-0 truncate text-left text-xs font-medium">
+                      {{ namespaceFilterTriggerLabel }}
+                    </span>
+                    <ScalarIcon
+                      class="text-sidebar-c-search shrink-0"
+                      icon="ChevronDown"
+                      size="sm" />
+                  </ScalarButton>
+                  <template #items>
+                    <ScalarDropdownItem
+                      v-for="opt in namespaceFilterOptions"
+                      :key="String(opt.id)"
+                      class="flex w-full min-w-0 items-center justify-between gap-2"
+                      :title="opt.description"
+                      @click="filterNamespaceId = opt.id">
+                      <span class="text-c-1 min-w-0 flex-1 truncate text-left">
+                        {{ opt.label }}
+                      </span>
+                      <span
+                        class="text-c-3 shrink-0 text-xs font-medium tabular-nums">
+                        {{ opt.count }}
+                      </span>
+                    </ScalarDropdownItem>
+                  </template>
+                </ScalarDropdown>
+              </div>
+            </div>
           </div>
 
           <!-- Document list (top-level) -->
@@ -484,81 +667,94 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
               <p class="text-sm font-medium">Nothing added yet</p>
             </div>
             <ScalarSidebarItems v-else>
-              <!-- Show pinned documents after we add support for it -->
-              <ScalarSidebarSection v-if="pinned.length">
-                <template
-                  v-if="pinned.length && rest.length"
-                  #default>
-                  Pinned
-                </template>
-                <template #items>
-                  <SidebarDocument
-                    v-for="item in pinned"
-                    :key="item.key"
-                    :active="isDocActive(item)"
-                    :isDroppable="isDroppable"
-                    :isExpanded="isExpanded"
-                    :isSelected="isSelected"
-                    :item="item"
-                    :loading="loadingKeys[item.key]"
-                    :open="isDocActive(item)"
-                    @addEmptyFolder="handleAddEmptyFolder"
-                    @back="handleBack"
-                    @click="handleDocumentClick(item)"
-                    @createOperation="handleCreateOperation"
-                    @dragEnd="handleDragEnd"
-                    @openMenu="openMenu"
-                    @openSettings="handleOpenSettings"
-                    @search="handleFilterOrSearch"
-                    @selectItem="handleSelectItem"
-                    @toggleGroup="handleToggleGroup" />
-                </template>
-              </ScalarSidebarSection>
+              <template v-if="showFilterNoMatches">
+                <ScalarSidebarSection>
+                  <template #items>
+                    <li
+                      class="text-sidebar-c-search list-none px-(--scalar-sidebar-padding) py-5 text-center text-xs leading-relaxed">
+                      No documents match these filters. Try another namespace or
+                      clear the title search.
+                    </li>
+                  </template>
+                </ScalarSidebarSection>
+              </template>
+              <template v-else>
+                <!-- Show pinned documents after we add support for it -->
+                <ScalarSidebarSection v-if="displayPinnedDocuments.length">
+                  <template
+                    v-if="pinned.length && rest.length"
+                    #default>
+                    Pinned
+                  </template>
+                  <template #items>
+                    <SidebarDocument
+                      v-for="item in displayPinnedDocuments"
+                      :key="item.key"
+                      :active="isDocActive(item)"
+                      :isDroppable="isDroppable"
+                      :isExpanded="isExpanded"
+                      :isSelected="isSelected"
+                      :item="item"
+                      :loading="loadingKeys[item.key]"
+                      :open="isDocActive(item)"
+                      @addEmptyFolder="handleAddEmptyFolder"
+                      @back="handleBack"
+                      @click="handleDocumentClick(item)"
+                      @createOperation="handleCreateOperation"
+                      @dragEnd="handleDragEnd"
+                      @openMenu="openMenu"
+                      @openSettings="handleOpenSettings"
+                      @search="handleFilterOrSearch"
+                      @selectItem="handleSelectItem"
+                      @toggleGroup="handleToggleGroup" />
+                  </template>
+                </ScalarSidebarSection>
 
-              <ScalarSidebarSection>
-                <template
-                  v-if="pinned.length && rest.length"
-                  #default>
-                  All documents
-                </template>
-                <template #items>
-                  <!--
+                <ScalarSidebarSection>
+                  <template
+                    v-if="pinned.length && rest.length"
+                    #default>
+                    All documents
+                  </template>
+                  <template #items>
+                    <!--
                     Skeleton rows shown while the caller is still fetching
                     the registry document list. We only render skeletons in
                     the top-level view (when no document is drilled-in) so
                     the collection view is never masked by placeholders.
                   -->
-                  <template v-if="isLoadingRegistry && !isOnDocumentPage">
-                    <li
-                      v-for="n in 4"
-                      :key="`registry-skeleton-${n}`"
-                      aria-hidden="true"
-                      class="sidebar-skeleton-row px-(--scalar-sidebar-padding) py-1">
-                      <span class="bg-b-3 block h-6 rounded-md" />
-                    </li>
+                    <template v-if="isLoadingRegistry && !isOnDocumentPage">
+                      <li
+                        v-for="n in 4"
+                        :key="`registry-skeleton-${n}`"
+                        aria-hidden="true"
+                        class="sidebar-skeleton-row px-(--scalar-sidebar-padding) py-1">
+                        <span class="bg-b-3 block h-6 rounded-md" />
+                      </li>
+                    </template>
+                    <SidebarDocument
+                      v-for="item in displayRestDocuments"
+                      :key="item.key"
+                      :active="isDocActive(item)"
+                      :isDroppable="isDroppable"
+                      :isExpanded="isExpanded"
+                      :isSelected="isSelected"
+                      :item="item"
+                      :loading="loadingKeys[item.key]"
+                      :open="isDocActive(item)"
+                      @addEmptyFolder="handleAddEmptyFolder"
+                      @back="handleBack"
+                      @click="handleDocumentClick(item)"
+                      @createOperation="handleCreateOperation"
+                      @dragEnd="handleDragEnd"
+                      @openMenu="openMenu"
+                      @openSettings="handleOpenSettings"
+                      @search="handleFilterOrSearch"
+                      @selectItem="handleSelectItem"
+                      @toggleGroup="handleToggleGroup" />
                   </template>
-                  <SidebarDocument
-                    v-for="item in filteredRest"
-                    :key="item.key"
-                    :active="isDocActive(item)"
-                    :isDroppable="isDroppable"
-                    :isExpanded="isExpanded"
-                    :isSelected="isSelected"
-                    :item="item"
-                    :loading="loadingKeys[item.key]"
-                    :open="isDocActive(item)"
-                    @addEmptyFolder="handleAddEmptyFolder"
-                    @back="handleBack"
-                    @click="handleDocumentClick(item)"
-                    @createOperation="handleCreateOperation"
-                    @dragEnd="handleDragEnd"
-                    @openMenu="openMenu"
-                    @openSettings="handleOpenSettings"
-                    @search="handleFilterOrSearch"
-                    @selectItem="handleSelectItem"
-                    @toggleGroup="handleToggleGroup" />
-                </template>
-              </ScalarSidebarSection>
+                </ScalarSidebarSection>
+              </template>
             </ScalarSidebarItems>
           </div>
 
