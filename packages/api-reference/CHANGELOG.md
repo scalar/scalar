@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.57.2
+
+### Patch Changes
+
+- [#9234](https://github.com/scalar/scalar/pull/9234): fix(api-reference): prevent security badge from shrinking
+
 ## 1.57.1
 
 ## 1.57.0
