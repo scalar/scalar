@@ -56,6 +56,7 @@ const {
 } = useTeams()
 
 const { handleLogin, handleRegister } = useAuthHandlers({
+  eventBus: app.eventBus,
   // Lets go to the team workspace on login
   onAuthenticated: async () => {
     await teamsSuspense()
