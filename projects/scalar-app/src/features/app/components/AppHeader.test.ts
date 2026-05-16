@@ -29,31 +29,86 @@ describe('AppHeader', () => {
     expect(wrapper.find('[data-test="custom-logo"]').exists()).toBe(false)
   })
 
-  it('renders the `menuTitle` prop inline inside the menu trigger so consumers can label the active scope', () => {
-    // The menu trigger doubles as the leading breadcrumb segment by way of
-    // the `menuTitle` prop ("Team" / "Local"). A prop (rather than a slot)
-    // keeps consumers from having to thread a string through a slot just
-    // to communicate which workspace type is active.
+  it('renders the `breadcrumb` slot alongside the menu trigger so consumers can surface the active document and version', () => {
+    // The breadcrumb sits in the start section of the header next to the
+    // menu trigger. Hosts typically thread a document/version picker
+    // through this slot, so we just verify that arbitrary content reaches
+    // the DOM rather than coupling to picker internals.
     const wrapper = mount(AppHeader, {
-      props: {
-        menuTitle: 'Team',
+      slots: {
+        breadcrumb: '<span data-test="breadcrumb">overview / v1</span>',
       },
     })
 
-    // The button hosts the trigger - find it via the radix-set
-    // aria-expanded attribute so the assertion does not couple to the
-    // surrounding chrome.
-    const trigger = wrapper.find('button[aria-expanded]')
-    expect(trigger.text()).toContain('Team')
+    const breadcrumb = wrapper.find('[data-test="breadcrumb"]')
+    expect(breadcrumb.exists()).toBe(true)
+    expect(breadcrumb.text()).toBe('overview / v1')
   })
 
-  it('omits the menu trigger label when no `menuTitle` prop is provided', () => {
+  it('does not render the `breadcrumb` slot wrapper when no breadcrumb is provided', () => {
+    // Absence of the slot means the start section should only host the
+    // menu trigger - guarding against an empty wrapper that would otherwise
+    // affect layout and spacing.
     const wrapper = mount(AppHeader)
 
-    // Without a label the trigger should still mount cleanly (only the
-    // logo + caret) - the absence of stray text is the contract here.
-    const trigger = wrapper.find('button[aria-expanded]')
-    expect(trigger.text()).not.toContain('Team')
-    expect(trigger.text()).not.toContain('Local')
+    expect(wrapper.find('[data-test="breadcrumb"]').exists()).toBe(false)
+  })
+
+  it('renders the `end` slot in the trailing section of the header for consumer-controlled actions', () => {
+    // The end slot hosts things like the publish button or user menu in
+    // the team workspace. Verifying that arbitrary content reaches the DOM
+    // is the contract; the surrounding `ScalarHeader` chrome is covered
+    // by its own tests in `@scalar/components`.
+    const wrapper = mount(AppHeader, {
+      slots: {
+        end: '<button data-test="end-action">Publish</button>',
+      },
+    })
+
+    const endAction = wrapper.find('[data-test="end-action"]')
+    expect(endAction.exists()).toBe(true)
+    expect(endAction.text()).toBe('Publish')
+  })
+
+  it('overrides the default Settings menu item when the `menuItems` slot is provided', async () => {
+    // The default menu item is a "Settings" link. Consumers replace the
+    // whole section through `menuItems` rather than appending, so the
+    // default must be absent when the slot is filled. We open the menu
+    // first because the items only render once the popover is expanded.
+    const wrapper = mount(AppHeader, {
+      slots: {
+        menuItems: '<button data-test="custom-menu-item">Custom action</button>',
+      },
+      attachTo: document.body,
+    })
+
+    await wrapper.find('button[aria-expanded]').trigger('click')
+
+    const customItem = document.querySelector('[data-test="custom-menu-item"]')
+    expect(customItem).not.toBeNull()
+    expect(customItem?.textContent).toBe('Custom action')
+
+    // The default Settings entry should not appear when the slot wins.
+    expect(document.body.textContent).not.toContain('Settings')
+
+    wrapper.unmount()
+  })
+
+  it('emits `navigate:to:settings` when the default Settings menu item is activated', async () => {
+    // The default menu item exists so hosts that do not customize the
+    // menu still get a working settings entry point. Clicking it should
+    // bubble an intent (not a route) so the host owns navigation.
+    const wrapper = mount(AppHeader, { attachTo: document.body })
+
+    await wrapper.find('button[aria-expanded]').trigger('click')
+
+    const settings = Array.from(document.querySelectorAll('button')).find((b) => b.textContent?.includes('Settings'))
+    expect(settings).toBeDefined()
+    settings?.click()
+
+    expect(wrapper.emitted('navigate:to:settings')).toBeTruthy()
+    expect(wrapper.emitted('navigate:to:settings')?.length).toBe(1)
+
+    wrapper.unmount()
   })
 })
