@@ -275,4 +275,13 @@ public static partial class ScalarOptionsExtensions
         options.JavaScriptConfiguration = javaScriptConfiguration;
         return options;
     }
+
+    /// <summary>
+    /// Controls whether to add a cryptographic nonce as an attribute to the script tags.
+    /// </summary>
+    public static ScalarOptions WithNonce(this ScalarOptions options, string nonce)
+    {
+        options.Nonce = nonce;
+        return options;
+    }
 }

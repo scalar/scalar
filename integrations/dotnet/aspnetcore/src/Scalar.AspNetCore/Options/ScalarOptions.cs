@@ -76,4 +76,10 @@ public partial class ScalarOptions
     /// </remarks>
     [StringSyntax(StringSyntaxAttribute.Uri)]
     public string? JavaScriptConfiguration { get; set; }
+
+
+    /// <summary>
+    /// A cryptographic nonce to be added as an attribute to the script tags. 
+    /// </summary>
+    public string? Nonce { get; set; }
 }
