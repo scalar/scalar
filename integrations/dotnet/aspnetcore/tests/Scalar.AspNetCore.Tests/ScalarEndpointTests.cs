@@ -296,7 +296,6 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         var nonce = GenerateNounce();
         var localFactory = factory.WithWebHostBuilder(builder =>
         {
-            // builder.ConfigureTestServices(services => services.Configure<ScalarOptions>(o => o.WithTheme(ScalarTheme.Mars)));
             builder.Configure(options =>
             {
                 options.UseRouting();
