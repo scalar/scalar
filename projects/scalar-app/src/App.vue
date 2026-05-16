@@ -177,11 +177,11 @@ const navigateToDocument = ({
 }: NavigateToDocumentPayload) => {
   if (operationPath && operationMethod) {
     app.eventBus.emit('ui:navigate', {
-      page: 'operation',
-      path: 'overview',
+      page: 'example',
       documentSlug: slug,
-      operationPath,
+      path: operationPath,
       method: operationMethod,
+      exampleName: 'default',
     })
     return
   }
