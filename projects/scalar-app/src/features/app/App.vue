@@ -91,7 +91,7 @@ const registryDocuments = computed<RegistryDocumentsState>(
   () => registry?.documents ?? { status: 'success', documents: [] },
 )
 
-const slots = defineSlots<{
+defineSlots<{
   /**
    * Replaces the Scalar logo inside the header menu button. Typically used by
    * team-aware consumers (e.g. Scalar Cloud) to render a team avatar so the
