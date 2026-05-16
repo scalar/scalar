@@ -147,6 +147,13 @@ public static class ScalarEndpointRouteBuilderExtensions
 
             var escapedRequestPath = Uri.EscapeDataString(httpContext.Request.Path);
 
+            var nonceAttribute = string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(options.Nonce))
+            {
+                nonceAttribute = $" nonce=\"{options.Nonce}\"";
+            }
+
             return Results.Content(
                 $$"""
                   <!doctype html>
@@ -160,9 +167,9 @@ public static class ScalarEndpointRouteBuilderExtensions
                   <body>
                       {{options.HeaderContent}}
                       <div id="app"></div>
-                      <script src="{{standaloneResourceUrl}}"></script>
-                      <script type="module" src="{{ScalarJavaScriptHelperFile}}"></script>
-                      <script type="module">
+                      <script src="{{standaloneResourceUrl}}"{{nonceAttribute}}></script>
+                      <script type="module" src="{{ScalarJavaScriptHelperFile}}"{{nonceAttribute}}></script>
+                      <script type="module"{{nonceAttribute}}>
                           import { initialize } from './{{ScalarJavaScriptHelperFile}}'
                           initialize(
                           '{{escapedRequestPath}}',
