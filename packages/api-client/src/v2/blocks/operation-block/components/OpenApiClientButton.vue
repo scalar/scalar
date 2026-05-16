@@ -7,6 +7,8 @@ const {
   integration,
   isDevelopment,
   url,
+  operationPath,
+  operationMethod,
   buttonSource,
   source = 'api-reference',
 } = defineProps<{
@@ -15,6 +17,10 @@ const {
   isDevelopment?: boolean
   integration?: string | null
   url?: string
+  /** Operation path to open in the client after import */
+  operationPath?: string
+  /** HTTP method for the operation to open in the client after import */
+  operationMethod?: string
 }>()
 
 /** Link to import an OpenAPI document */
@@ -43,6 +49,11 @@ const href = computed((): string | undefined => {
 
   // URL that we'd like to import
   link.searchParams.set('url', absoluteUrl)
+
+  if (operationPath?.length && operationMethod?.length) {
+    link.searchParams.set('operation_path', operationPath)
+    link.searchParams.set('operation_method', operationMethod.toLowerCase())
+  }
 
   // Integration identifier
   if (integration !== null) {

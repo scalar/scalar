@@ -31,6 +31,7 @@ import { groupWorkspacesByTeam } from '@/features/app/helpers/group-workspaces'
 import type { useCommandPaletteState } from '@/features/command-palette/hooks/use-command-palette-state'
 import AppMenuItems from '@/features/header/AppMenuItems.vue'
 import { ImportListener } from '@/features/import-listener'
+import type { NavigateToDocumentPayload } from '@/features/import-listener/types'
 import { deleteRegistryDocument } from '@/helpers/delete-registry-document'
 import { deleteRegistryVersion } from '@/helpers/delete-registry-version'
 import { fetchRegistryDocument } from '@/helpers/fetch-registry-document'
@@ -169,7 +170,22 @@ const handleCreateWorkspaceFromMenu = () => {
   app.eventBus.emit('ui:open:create-workspace')
 }
 
-const navigateToDocument = (slug: string) => {
+const navigateToDocument = ({
+  slug,
+  operationPath,
+  operationMethod,
+}: NavigateToDocumentPayload) => {
+  if (operationPath && operationMethod) {
+    app.eventBus.emit('ui:navigate', {
+      page: 'operation',
+      path: 'overview',
+      documentSlug: slug,
+      operationPath,
+      method: operationMethod,
+    })
+    return
+  }
+
   app.eventBus.emit('ui:navigate', {
     page: 'document',
     path: 'overview',

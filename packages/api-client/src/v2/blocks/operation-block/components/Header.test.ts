@@ -52,6 +52,19 @@ describe('Header', () => {
     expect(emitted?.length).toBe(1)
   })
 
+  it('passes current path and method to OpenApiClientButton in modal layout', () => {
+    const modalWithUrl = render({
+      layout: 'modal',
+      documentUrl: 'https://example.com/openapi.json',
+      path: '/users/{id}',
+      method: 'post',
+    })
+    const button = modalWithUrl.getComponent(OpenApiClientButton)
+
+    expect(button.props('operationPath')).toBe('/users/{id}')
+    expect(button.props('operationMethod')).toBe('post')
+  })
+
   it('renders OpenApiClientButton only in modal layout with documentUrl when not hidden', () => {
     const modalWithUrl = render({ layout: 'modal', documentUrl: 'https://example.com/openapi.json' })
     expect(modalWithUrl.findComponent(OpenApiClientButton).exists()).toBe(true)
