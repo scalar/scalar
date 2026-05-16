@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -286,5 +287,42 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         content.Should().Contain("<title>Scalar API Reference | v1</title>");
+    }
+
+    [Fact]
+    public async Task MapScalarApiReference_ShouldUseNonce_WhenRequested()
+    {
+        // Arrange
+        var nonce = GenerateNounce();
+        var localFactory = factory.WithWebHostBuilder(builder =>
+        {
+            // builder.ConfigureTestServices(services => services.Configure<ScalarOptions>(o => o.WithTheme(ScalarTheme.Mars)));
+            builder.Configure(options =>
+            {
+                options.UseRouting();
+                options.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapScalarApiReference(o => o.WithNonce(nonce));
+                });
+            });
+        });
+        var client = localFactory.CreateClient();
+
+        // Act
+        var index = await client.GetAsync("/scalar", TestContext.Current.CancellationToken);
+
+        // Assert
+        index.StatusCode.Should().Be(HttpStatusCode.OK);
+        var indexContent = await index.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        indexContent.Should().Contain($" nonce=\"{nonce}\"");
+    }
+
+    private static string GenerateNounce()
+    {
+        using var rng = RandomNumberGenerator.Create();
+        var nonceBytes = new byte[32];
+        rng.GetBytes(nonceBytes);
+        return Convert.ToBase64String(nonceBytes);
     }
 }
