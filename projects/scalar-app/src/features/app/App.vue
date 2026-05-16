@@ -312,7 +312,6 @@ const routerViewProps = computed<RouteProps>(() => {
           :eventBus="app.eventBus"
           :tabs="app.tabs.state.value" />
         <AppHeader
-          :menuTitle="currentTeam?.name"
           @changed:team="emit('changed:team')"
           @navigate:to:settings="
             app.eventBus.emit('ui:navigate', {

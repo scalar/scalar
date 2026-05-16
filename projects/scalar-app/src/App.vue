@@ -285,7 +285,10 @@ const registry = reactive({
       <template
         v-if="currentTeam"
         #header-logo>
-        <ScalarMenuTeamProfile :team="currentTeam" />
+        <ScalarMenuTeamProfile
+          class="font-medium"
+          :label="currentTeam.name"
+          :src="currentTeam.imageUri" />
       </template>
 
       <template
