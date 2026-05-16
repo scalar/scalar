@@ -10,6 +10,19 @@
   release - edits made directly here will be overwritten.
 -->
 
+## 1.1.0 (2026-05-16)
+
+### Improved sidebar filtering and analytics fixes
+
+This release brings better document organization with combined title and namespace filtering in the sidebar, plus fixes for analytics tracking and content security.
+
+- Sidebar now filters documents by both title and namespace together with clearer controls
+- Fixed analytics events not tracking login and logout actions
+- Improved team picker to match dashboard design
+- Relaxed image loading restrictions to support HTTPS sources
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#110)
+
 ## 1.0.13 (2026-05-14)
 
 ### Scalar Client 1.0 — team workspaces, registry sync, conflict resolution, and a rebuilt experience

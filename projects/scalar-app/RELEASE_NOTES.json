@@ -1,5 +1,31 @@
 [
   {
+    "version": "1.1.0",
+    "date": "2026-05-16",
+    "title": "Improved sidebar filtering and analytics fixes",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release brings better document organization with combined title and namespace filtering in the sidebar, plus fixes for analytics tracking and content security."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Sidebar now filters documents by both title and namespace together with clearer controls",
+          "Fixed analytics events not tracking login and logout actions",
+          "Improved team picker to match dashboard design",
+          "Relaxed image loading restrictions to support HTTPS sources"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#110",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "1.0.13",
     "date": "2026-05-14",
     "title": "Scalar Client 1.0 — team workspaces, registry sync, conflict resolution, and a rebuilt experience",
