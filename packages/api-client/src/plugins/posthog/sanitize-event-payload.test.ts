@@ -15,7 +15,8 @@ const sanitize = sanitizeEventPayload as (
 describe('sanitizeEventPayload', () => {
   it('returns null for an untracked event', () => {
     expect(sanitize('unknown:event' as keyof ApiReferenceEvents, {})).toBeNull()
-    expect(sanitize('log:user-login', { uid: '123' })).toBeNull()
+    // Opted-out event: known to the event bus but explicitly excluded from analytics.
+    expect(sanitize('auth:update:security-scheme-secrets', {})).toBeNull()
   })
 
   it('returns empty object for tracked events that extract no properties', () => {
@@ -24,6 +25,8 @@ describe('sanitizeEventPayload', () => {
     expect(sanitize('operation:send:request:hotkey', null)).toEqual({})
     expect(sanitize('ui:open:command-palette', { secret: 'abc' })).toEqual({})
     expect(sanitize('log:login-click', {})).toEqual({})
+    expect(sanitize('log:user-login', { uid: '123', email: 'test@example.com', teamUid: 't1' })).toEqual({})
+    expect(sanitize('log:user-logout', undefined)).toEqual({})
     expect(sanitize('hooks:on:request:sent', {})).toEqual({})
   })
 
@@ -194,6 +197,8 @@ describe('TRACKED_EVENTS', () => {
     'update:selected-client',
     'log:login-click',
     'log:register-click',
+    'log:user-login',
+    'log:user-logout',
   ]
 
   it('has an extractor function for every tracked event', () => {
