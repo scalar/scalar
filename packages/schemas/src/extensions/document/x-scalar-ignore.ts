@@ -1,0 +1,11 @@
+import { boolean, object, optional } from '@scalar/validation'
+
+export const XScalarIgnore = object(
+  {
+    'x-scalar-ignore': optional(boolean()),
+  },
+  {
+    typeName: 'XScalarIgnore',
+    typeComment: 'Internal extension to mark an entity as ignored',
+  },
+)
