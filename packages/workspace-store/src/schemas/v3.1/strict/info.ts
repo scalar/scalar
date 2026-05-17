@@ -1,10 +1,7 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
-import {
-  type XScalarSdkInstallation,
-  XScalarSdkInstallationSchema,
-} from '@/schemas/extensions/document/x-scalar-sdk-installation'
+import { type XScalarSdkInstallation, XScalarSdkInstallationSchema } from '@/schemas/extensions/document'
 
 import type { ContactObject } from './contact'
 import type { LicenseObject } from './license'

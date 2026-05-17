@@ -1,1 +1,2 @@
-export type { XTagGroup } from './x-tag-groups'
+export { XDisplayName, XDisplayNameSchema } from './x-display-name'
+export { XTagGroup, XTagGroups, XTagGroupsSchema } from './x-tag-groups'

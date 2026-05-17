@@ -1,17 +1,26 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
-import { type XInternal, XInternalSchema } from '@/schemas/extensions/document/x-internal'
-import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
-import { type XTags, XTagsSchema } from '@/schemas/extensions/document/x-tags'
+import {
+  type XInternal,
+  XInternalSchema,
+  type XScalarIgnore,
+  XScalarIgnoreSchema,
+  type XTags,
+  XTagsSchema,
+} from '@/schemas/extensions/document'
 import {
   type XAdditionalPropertiesName,
   XAdditionalPropertiesNameSchema,
-} from '@/schemas/extensions/schema/x-additional-properties-name'
-import { type XEnumDescriptions, XEnumDescriptionsSchema } from '@/schemas/extensions/schema/x-enum-descriptions'
-import { type XEnumVarNames, XEnumVarNamesSchema } from '@/schemas/extensions/schema/x-enum-varnames'
-import { type XExamples, XExamplesSchema } from '@/schemas/extensions/schema/x-examples'
-import { type XVariable, XVariableSchema } from '@/schemas/extensions/schema/x-variable'
+  type XEnumDescriptions,
+  XEnumDescriptionsSchema,
+  type XEnumVarNames,
+  XEnumVarNamesSchema,
+  type XExamples,
+  XExamplesSchema,
+  type XVariable,
+  XVariableSchema,
+} from '@/schemas/extensions/schema'
 import type { ExternalDocumentationObject } from '@/schemas/v3.1/strict/external-documentation'
 import type { XMLObject } from '@/schemas/v3.1/strict/xml'
 

@@ -2,11 +2,7 @@ import { Type } from '@scalar/typebox'
 import { array, intersection, object, optional, string } from '@scalar/validation'
 
 import { compose } from '@/schemas/compose'
-import {
-  type XScalarOrder,
-  XScalarOrder as XScalarOrderFields,
-  XScalarOrderSchema,
-} from '@/schemas/extensions/general/x-scalar-order'
+import { XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/general'
 
 const XTagGroupSchema = compose(
   Type.Object({
@@ -44,7 +40,7 @@ export const XTagGroup = intersection(
         typeName: 'XTagGroupBase',
       },
     ),
-    XScalarOrderFields,
+    XScalarOrder,
   ],
   {
     typeName: 'XTagGroup',

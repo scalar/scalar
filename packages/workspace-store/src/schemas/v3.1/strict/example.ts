@@ -1,7 +1,7 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
-import { XDisabledSchema } from '@/schemas/extensions/example/x-disabled'
+import { XDisabledSchema } from '@/schemas/extensions/example'
 
 /**
  * An object grouping an internal or external example value with basic summary and description metadata. This object is typically used in fields named examples (plural), and is a referenceable alternative to older example (singular) fields that do not support referencing or metadata.

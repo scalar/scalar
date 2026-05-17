@@ -1,0 +1,5 @@
+export { XAdditionalPropertiesName } from './x-additional-properties-name'
+export { XEnumDescriptions } from './x-enum-descriptions'
+export { XEnumVarNames } from './x-enum-varnames'
+export { XExamples } from './x-examples'
+export { XVariable } from './x-variable'

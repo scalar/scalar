@@ -1,4 +1,4 @@
-import type { XScalarTabs } from '@/schemas/extensions/workspace/x-scalar-tabs'
+import type { XScalarTabs } from '@/schemas/extensions/workspace'
 
 /** Event definitions to control the tabs */
 export type TabEvents = {

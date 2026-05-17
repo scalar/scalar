@@ -14,7 +14,7 @@ import {
 } from '@/request-example/builder/resolve-request-factory-url'
 import type { BuildRequestSecurityResult } from '@/request-example/builder/security/build-request-security'
 import { contextFunctions, isContextFunctionName } from '@/request-example/functions'
-import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
+import type { XScalarCookie } from '@/schemas/extensions/general'
 
 /**
  * The payload to build a request, useful when bypassing limitations of the browser Request object

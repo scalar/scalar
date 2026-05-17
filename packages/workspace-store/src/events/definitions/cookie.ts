@@ -1,5 +1,5 @@
 import type { CollectionType } from '@/events/definitions/common'
-import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
+import type { XScalarCookie } from '@/schemas/extensions/general'
 
 /** Event definitions for all things cookie related */
 export type CookieEvents = {

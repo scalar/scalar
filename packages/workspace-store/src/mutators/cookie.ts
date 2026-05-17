@@ -1,6 +1,6 @@
 import type { CookieEvents } from '@/events/definitions/cookie'
 import type { Workspace, WorkspaceDocument } from '@/schemas'
-import { type XScalarCookie, xScalarCookieSchema } from '@/schemas/extensions/general/x-scalar-cookies'
+import { type XScalarCookie, xScalarCookieSchema } from '@/schemas/extensions/general'
 import { isAsyncApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
 

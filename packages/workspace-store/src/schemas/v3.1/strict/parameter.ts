@@ -1,9 +1,8 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
-import { type XInternal, XInternalSchema } from '@/schemas/extensions/document/x-internal'
-import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
-import { XGlobalSchema } from '@/schemas/extensions/parameter/x-global'
+import { type XInternal, XInternalSchema, type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document'
+import { XGlobalSchema } from '@/schemas/extensions/parameter'
 import type { ExampleObject } from '@/schemas/v3.1/strict/example'
 import type { MediaTypeObject } from '@/schemas/v3.1/strict/media-type'
 import { ExampleObjectRef, MediaTypeObjectRef, SchemaObjectRef } from '@/schemas/v3.1/strict/ref-definitions'

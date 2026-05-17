@@ -2,25 +2,21 @@ import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
 import {
-  type XScalarCredentialsLocation,
-  XScalarCredentialsLocationSchema,
-} from '@/schemas/extensions/security/x-scalar-credentials-location'
-import {
-  type XScalarSecurityBody,
-  XScalarSecurityBodySchema,
-} from '@/schemas/extensions/security/x-scalar-security-body'
-import {
-  type XScalarSecurityQuery,
-  XScalarSecurityQuerySchema,
-} from '@/schemas/extensions/security/x-scalar-security-query'
-import {
   type XScalarAuthUrl,
   XScalarAuthUrlSchema,
+  type XScalarCredentialsLocation,
+  XScalarCredentialsLocationSchema,
+  type XScalarSecurityBody,
+  XScalarSecurityBodySchema,
+  type XScalarSecurityQuery,
+  XScalarSecurityQuerySchema,
   type XScalarTokenUrl,
   XScalarTokenUrlSchema,
-} from '@/schemas/extensions/security/x-scalar-security-secrets'
-import { type XTokenName, XTokenNameSchema } from '@/schemas/extensions/security/x-tokenName'
-import { type XusePkce, XusePkceSchema } from '@/schemas/extensions/security/x-use-pkce'
+  type XTokenName,
+  XTokenNameSchema,
+  type XusePkce,
+  XusePkceSchema,
+} from '@/schemas/extensions/security'
 
 /** Common properties used across all OAuth flows */
 const OAuthFlowCommonSchema = compose(

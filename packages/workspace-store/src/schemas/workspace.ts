@@ -3,18 +3,21 @@ import { AVAILABLE_CLIENTS, type AvailableClients } from '@scalar/types/snippetz
 
 import { compose } from '@/schemas/compose'
 import { extensions } from '@/schemas/extensions'
-import {
-  type XScalarEnvironments,
-  xScalarEnvironmentsSchema,
-} from '@/schemas/extensions/document/x-scalar-environments'
+import { type XScalarEnvironments, xScalarEnvironmentsSchema } from '@/schemas/extensions/document'
 import {
   type XScalarActiveEnvironment,
+  type XScalarCookies,
+  type XScalarOrder,
   XScalarActiveEnvironmentSchema,
-} from '@/schemas/extensions/general/x-scalar-active-environment'
-import { type XScalarCookies, xScalarCookiesSchema } from '@/schemas/extensions/general/x-scalar-cookies'
-import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/general/x-scalar-order'
-import { type XScalarActiveProxy, XScalarActiveProxySchema } from '@/schemas/extensions/workspace/x-scalar-active-proxy'
-import { type XScalarTabs, XScalarTabsSchema } from '@/schemas/extensions/workspace/x-scalar-tabs'
+  xScalarCookiesSchema,
+  XScalarOrderSchema,
+} from '@/schemas/extensions/general'
+import {
+  type XScalarActiveProxy,
+  type XScalarTabs,
+  XScalarActiveProxySchema,
+  XScalarTabsSchema,
+} from '@/schemas/extensions/workspace'
 
 import type { AsyncApiDocument } from './asyncapi/asyncapi-document'
 import type { OpenAPIExtensions, OpenApiDocument } from './v3.1/strict/openapi-document'

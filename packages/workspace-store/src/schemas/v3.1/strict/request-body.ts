@@ -1,10 +1,7 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
-import {
-  type XScalarSelectedContentType,
-  XScalarSelectedContentTypeSchema,
-} from '@/schemas/extensions/operation/x-scalar-selected-content-type'
+import { type XScalarSelectedContentType, XScalarSelectedContentTypeSchema } from '@/schemas/extensions/operation'
 
 import type { MediaTypeObject } from './media-type'
 import { MediaTypeObjectRef } from './ref-definitions'

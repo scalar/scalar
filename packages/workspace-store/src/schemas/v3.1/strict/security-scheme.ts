@@ -1,7 +1,7 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
-import { type XDefaultScopes, XDefaultScopesSchema } from '@/schemas/extensions/security/x-default-scopes'
+import { type XDefaultScopes, XDefaultScopesSchema } from '@/schemas/extensions/security'
 import type { OAuthFlowsObject } from '@/schemas/v3.1/strict/oauthflows'
 import { OAuthFlowsObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 

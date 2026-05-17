@@ -1,10 +1,9 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
-import { type XInternal, XInternalSchema } from '@/schemas/extensions/document/x-internal'
-import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
-import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/general/x-scalar-order'
-import { type XDisplayName, XDisplayNameSchema } from '@/schemas/extensions/tag/x-display-name'
+import { type XInternal, XInternalSchema, type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document'
+import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/general'
+import { type XDisplayName, XDisplayNameSchema } from '@/schemas/extensions/tag'
 
 import type { ExternalDocumentationObject } from './external-documentation'
 import { ExternalDocumentationObjectRef } from './ref-definitions'

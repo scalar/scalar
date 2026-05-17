@@ -5,35 +5,33 @@ import { extensions } from '@/schemas/extensions'
 import {
   type WorkspaceManagedExtensions,
   WorkspaceManagedExtensionsSchema,
-} from '@/schemas/extensions/document/workspace-managed-extensions'
-import {
   type XScalarEnvironments,
-  xScalarEnvironmentsSchema,
-} from '@/schemas/extensions/document/x-scalar-environments'
-import { type XScalarIcon, XScalarIconSchema } from '@/schemas/extensions/document/x-scalar-icon'
-import { type XScalarIsDirty, XScalarIsDirtySchema } from '@/schemas/extensions/document/x-scalar-is-dirty'
-import {
+  type XScalarIcon,
+  XScalarIconSchema,
+  type XScalarIsDirty,
+  XScalarIsDirtySchema,
   type XScalarOriginalDocumentHash,
   XScalarOriginalDocumentHashSchema,
-} from '@/schemas/extensions/document/x-scalar-original-document-hash'
-import {
   type XScalarRegistryMeta,
   XScalarRegistryMetaSchema,
-} from '@/schemas/extensions/document/x-scalar-registry-meta'
-import { type XScalarWatchMode, XScalarWatchModeSchema } from '@/schemas/extensions/document/x-scalar-watch-mode'
-import { type XPostResponse, XPostResponseSchema } from '@/schemas/extensions/general/x-post-response'
-import { type XPreRequest, XPreRequestSchema } from '@/schemas/extensions/general/x-pre-request'
+  type XScalarWatchMode,
+  XScalarWatchModeSchema,
+  xScalarEnvironmentsSchema,
+} from '@/schemas/extensions/document'
 import {
+  type XPostResponse,
+  XPostResponseSchema,
+  type XPreRequest,
+  XPreRequestSchema,
   type XScalarActiveEnvironment,
   XScalarActiveEnvironmentSchema,
-} from '@/schemas/extensions/general/x-scalar-active-environment'
-import { type XScalarCookies, xScalarCookiesSchema } from '@/schemas/extensions/general/x-scalar-cookies'
-import { type XScalarOrder, XScalarOrderSchema } from '@/schemas/extensions/general/x-scalar-order'
-import {
-  type XScalarSelectedServer,
-  XScalarSelectedServerSchema,
-} from '@/schemas/extensions/server/x-scalar-selected-server'
-import { type XTagGroups, XTagGroupsSchema } from '@/schemas/extensions/tag/x-tag-groups'
+  type XScalarCookies,
+  type XScalarOrder,
+  XScalarOrderSchema,
+  xScalarCookiesSchema,
+} from '@/schemas/extensions/general'
+import { type XScalarSelectedServer, XScalarSelectedServerSchema } from '@/schemas/extensions/server'
+import { type XTagGroups, XTagGroupsSchema } from '@/schemas/extensions/tag'
 import {
   TraversedDescriptionSchemaDefinition,
   type TraversedDocument,

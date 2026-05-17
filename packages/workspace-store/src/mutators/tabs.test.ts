@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { Workspace } from '@/schemas'
-import type { Tab } from '@/schemas/extensions/workspace/x-scalar-tabs'
+import type { Tab } from '@/schemas/extensions/workspace'
 
 import {
   addTab,

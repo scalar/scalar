@@ -1,9 +1,11 @@
 import { intersection, object, optional, string } from '@scalar/validation'
 
-import { WorkspaceManagedExtensions } from '@/schemas/extensions/document/workspace-managed-extensions'
-import { XScalarIsDirty } from '@/schemas/extensions/document/x-scalar-is-dirty'
-import { XScalarOriginalDocumentHash } from '@/schemas/extensions/document/x-scalar-original-document-hash'
-import { XScalarRegistryMeta } from '@/schemas/extensions/document/x-scalar-registry-meta'
+import {
+  WorkspaceManagedExtensions,
+  XScalarIsDirty,
+  XScalarOriginalDocumentHash,
+  XScalarRegistryMeta,
+} from '@/schemas/extensions/document'
 
 /**
  * Minimal AsyncAPI Info Object.

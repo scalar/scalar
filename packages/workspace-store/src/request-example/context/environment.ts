@@ -1,5 +1,5 @@
 import type { WorkspaceStore } from '@/client'
-import { type XScalarEnvironment, xScalarEnvironmentSchema } from '@/schemas/extensions/document/x-scalar-environments'
+import { type XScalarEnvironment, xScalarEnvironmentSchema } from '@/schemas/extensions/document'
 import { isOpenApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import type { WorkspaceDocument } from '@/schemas/workspace'

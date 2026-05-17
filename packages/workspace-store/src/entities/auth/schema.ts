@@ -1,15 +1,15 @@
 import { type Static, Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
-import { XScalarCredentialsLocationSchema } from '@/schemas/extensions/security/x-scalar-credentials-location'
 import {
+  XScalarCredentialsLocationSchema,
   XScalarSecretClientIdSchema,
   XScalarSecretClientSecretSchema,
   XScalarSecretHTTPSchema,
   XScalarSecretRefreshTokenSchema,
   XScalarSecretRedirectUriSchema,
   XScalarSecretTokenSchema,
-} from '@/schemas/extensions/security/x-scalar-security-secrets'
+} from '@/schemas/extensions/security'
 import {
   OAuthFlowAuthorizationCodeSchema,
   OAuthFlowClientCredentialsSchema,

@@ -6,7 +6,7 @@ import {
   type XScalarEnvironment,
   xScalarEnvVarSchema,
   xScalarEnvironmentSchema,
-} from '@/schemas/extensions/document/x-scalar-environments'
+} from '@/schemas/extensions/document'
 import { isAsyncApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
 
