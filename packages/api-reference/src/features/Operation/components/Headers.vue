@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
+import type { HeaderObject } from '@scalar/types/openapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { HeaderObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import Header from './Header.vue'
 

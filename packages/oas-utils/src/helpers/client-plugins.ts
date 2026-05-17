@@ -1,7 +1,7 @@
 import type { AnyEventListener, ApiReferenceEvents, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
+import type { OperationObject } from '@scalar/types/openapi/3.1'
 import type { Component, DefineComponent } from 'vue'
 
 /** Shared fields present on every response body handler variant */

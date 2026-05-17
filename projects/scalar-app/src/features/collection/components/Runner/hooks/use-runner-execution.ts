@@ -11,7 +11,7 @@ import {
   getRequestExampleContext,
   requestFactory,
 } from '@scalar/workspace-store/request-example'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 import { type ComputedRef, type Ref, computed, ref } from 'vue'
 
 import { APP_VERSION } from '@/constants'

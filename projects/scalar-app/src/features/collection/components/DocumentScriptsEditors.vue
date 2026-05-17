@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarIconArrowRight, ScalarIconCheckCircle } from '@scalar/icons'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 import * as monaco from 'monaco-editor'
 import {
   computed,

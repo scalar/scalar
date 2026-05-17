@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { ScalarMarkdown, ScalarWrappingText } from '@scalar/components'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { resolve } from '@scalar/workspace-store/resolve'
 import type {
   DiscriminatorObject,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/types/openapi/3.1'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { resolve } from '@scalar/workspace-store/resolve'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed, type Component } from 'vue'
 

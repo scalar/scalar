@@ -10,13 +10,10 @@ import {
   ScalarIconPlay,
   ScalarIconWebhooksLogo,
 } from '@scalar/icons'
+import type { OperationObject, ServerObject } from '@scalar/types/openapi/3.1'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
-import type {
-  OperationObject,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, provide, ref } from 'vue'
 
 import { Anchor } from '@/components/Anchor'

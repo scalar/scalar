@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
-import type {
-  ExampleObject,
-  SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ExampleObject, SchemaObject } from '@scalar/types/openapi/3.1'
+import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { ref, watch } from 'vue'
 
 import { useFileDialog } from '@/hooks/use-file-dialog'

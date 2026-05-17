@@ -1,4 +1,4 @@
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SecuritySchemeObject } from '@scalar/types/openapi/3.1'
 
 type AuthOption = { label: string; payload: SecuritySchemeObject }
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ClientOptionGroup } from '@scalar/api-client/blocks/operation-code-sample'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
+import type { OpenApiDocument, ServerObject } from '@scalar/types/openapi/3.1'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -14,10 +15,6 @@ import type {
   TraversedTag,
   TraversedWebhook,
 } from '@scalar/workspace-store/schemas/navigation'
-import type {
-  OpenApiDocument,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import Model from '@/components/Content/Models/Model.vue'
 import ModelTag from '@/components/Content/Models/ModelTag.vue'

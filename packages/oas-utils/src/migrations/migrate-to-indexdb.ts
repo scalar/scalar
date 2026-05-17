@@ -20,13 +20,13 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type {
   OperationObject,
   ParameterObject,
-  ParameterWithContentObject,
-  ParameterWithSchemaObject,
+  ParameterObjectWithContent,
+  ParameterObjectWithSchema,
   PathItemObject,
   RequestBodyObject,
   ServerObject,
   TagObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/types/openapi/3.1'
 import type { WorkspaceExtensions, WorkspaceMeta } from '@scalar/workspace-store/schemas/workspace'
 import { ColorModeSchema } from '@scalar/workspace-store/schemas/workspace'
 
@@ -525,9 +525,9 @@ const mergeExamplesIntoParameters = (
         in: param.in,
         required: param.required ?? param.in === 'path',
         deprecated: param.deprecated ?? false,
-        content: param.content as ParameterWithContentObject['content'],
+        content: param.content as ParameterObjectWithContent['content'],
         ...(param.description && { description: param.description }),
-      } satisfies ParameterWithContentObject
+      } satisfies ParameterObjectWithContent
     }
 
     // Param with Schema Type
@@ -538,15 +538,15 @@ const mergeExamplesIntoParameters = (
         required: param.required ?? param.in === 'path',
         deprecated: param.deprecated ?? false,
         ...(param.description && { description: param.description }),
-        ...(param.schema ? { schema: param.schema as ParameterWithSchemaObject['schema'] } : {}),
+        ...(param.schema ? { schema: param.schema as ParameterObjectWithSchema['schema'] } : {}),
         ...(param.style && { style: param.style }),
         ...(param.explode !== undefined && { explode: param.explode }),
         ...(param.example !== undefined && { example: param.example }),
         ...(param.examples &&
           typeof param.examples === 'object' && {
-            examples: param.examples as ParameterWithSchemaObject['examples'],
+            examples: param.examples as ParameterObjectWithSchema['examples'],
           }),
-      } satisfies ParameterWithSchemaObject
+      } satisfies ParameterObjectWithSchema
     }
 
     paramEntries.set(`${param.in}:${param.name}`, {
@@ -617,7 +617,7 @@ const mergeExamplesIntoParameters = (
   // Build the final parameter list, only attaching `examples` when there are any
   return Array.from(paramEntries.values()).map(({ param, examples }) => {
     if (Object.keys(examples).length > 0) {
-      ;(param as ParameterWithSchemaObject).examples = examples
+      ;(param as ParameterObjectWithSchema).examples = examples
     }
     return param
   })

@@ -1,5 +1,5 @@
 import { objectKeys } from '@scalar/helpers/object/object-keys'
-import type { MediaTypeObject, ResponseObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { MediaTypeObject, ResponseObject } from '@scalar/types/openapi/3.1'
 
 import { normalizeMimeTypeObject } from './normalize-mime-type-object'
 

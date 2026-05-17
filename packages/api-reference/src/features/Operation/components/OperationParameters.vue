@@ -5,7 +5,7 @@ import type {
   ParameterObject,
   ReferenceType,
   RequestBodyObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/types/openapi/3.1'
 import { computed } from 'vue'
 
 import { flattenDeepObjectQueryParameter } from '@/features/Operation/helpers/flatten-deep-object-query-parameter'

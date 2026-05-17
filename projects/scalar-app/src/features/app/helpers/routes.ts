@@ -7,7 +7,7 @@ import type { Theme } from '@scalar/themes'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 import type { MaybeRefOrGetter } from 'vue'
 import type { RouteRecordRaw } from 'vue-router'
 

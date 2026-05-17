@@ -6,7 +6,7 @@ import type {
   OAuth2ObjectSecret,
   OpenIdConnectObjectSecret,
 } from '@scalar/workspace-store/request-example'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SecuritySchemeObject } from '@scalar/types/openapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import { type ConfigAuthScheme, extractSecuritySchemeSecrets } from './extract-security-scheme-secrets'

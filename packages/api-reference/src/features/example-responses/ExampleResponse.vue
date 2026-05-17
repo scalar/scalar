@@ -2,12 +2,12 @@
 import { getResolvedRefDeep } from '@scalar/api-client/blocks/operation-code-sample'
 import { ScalarCodeBlock, ScalarVirtualText } from '@scalar/components'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
-import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type {
   ExampleObject,
   MediaTypeObject,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/types/openapi/3.1'
+import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import { computed } from 'vue'
 
 const { example, response } = defineProps<{

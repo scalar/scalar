@@ -1,5 +1,5 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { SchemaObjectSchema } from '@scalar/types/openapi/3.1'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 

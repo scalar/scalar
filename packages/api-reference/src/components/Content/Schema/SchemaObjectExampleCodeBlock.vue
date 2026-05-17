@@ -6,7 +6,7 @@ import {
   ScalarCardSection,
   ScalarCodeBlock,
 } from '@scalar/components'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@scalar/types/openapi/3.1'
 import { computed, ref } from 'vue'
 
 const { schema } = defineProps<{ schema: SchemaObject }>()

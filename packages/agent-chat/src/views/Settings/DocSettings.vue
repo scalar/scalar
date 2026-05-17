@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 import {
   getActiveEnvironment,
   getSelectedServer,
   getServers,
 } from '@scalar/workspace-store/request-example'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import ServerSelector from '@/components/ServerSelector.vue'

@@ -12,6 +12,7 @@ import {
 import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
 import type { XScalarCredentialsLocation } from '@scalar/types/extensions/security/x-scalar-credentials-location'
 import type { XusePkce } from '@scalar/types/extensions/security/x-use-pkce'
+import type { OAuthFlow, ServerObject } from '@scalar/types/openapi/3.1'
 import { useToasts } from '@scalar/use-toasts'
 import type { SecretsOAuthFlows } from '@scalar/workspace-store/entities/auth'
 import type {
@@ -26,10 +27,6 @@ import {
   type OAuthFlowsObjectSecret,
   type SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
-import type {
-  OAuthFlow,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, watch } from 'vue'
 
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'

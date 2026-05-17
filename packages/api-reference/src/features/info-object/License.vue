@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarIconGavel } from '@scalar/icons'
-import type { LicenseObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { LicenseObject } from '@scalar/types/openapi/3.1'
 
 defineProps<{
   value?: LicenseObject

@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type {
   OpenApiDocument,
   OperationObject,
@@ -9,7 +7,9 @@ import type {
   RequestBodyObject,
   ResponseObject,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/types/openapi/3.1'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import { computed } from 'vue'
 
 // import { snippetz, type HarRequest } from '@scalar/snippetz'

@@ -5,7 +5,7 @@ import {
   type ScalarListboxOption,
 } from '@scalar/components'
 import { ScalarIconCaretDown } from '@scalar/icons'
-import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { MediaTypeObject } from '@scalar/types/openapi/3.1'
 import { computed } from 'vue'
 
 const { examples = {} } = defineProps<{

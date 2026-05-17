@@ -1,4 +1,4 @@
-import type { MediaTypeObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { MediaTypeObject, ParameterObject } from '@scalar/types/openapi/3.1'
 
 /**
  * Extract content value from parameter object

@@ -1,4 +1,4 @@
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ParameterObject } from '@scalar/types/openapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import { getParameterContentValue } from '@/v2/blocks/request-block/helpers/get-parameter-content'

@@ -5,6 +5,13 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
+import type {
+  OpenApiDocument,
+  OperationObject,
+  ServerObject,
+} from '@scalar/types/openapi/3.1'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
 import type {
@@ -21,13 +28,6 @@ import {
   type MergedSecuritySchemes,
   type SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
-import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
-import type {
-  OpenApiDocument,
-  OperationObject,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, useId, watch } from 'vue'
 
 import SectionFilter from '@/components/SectionFilter.vue'

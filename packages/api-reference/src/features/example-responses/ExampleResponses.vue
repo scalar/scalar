@@ -8,13 +8,13 @@ import {
   ScalarMarkdown,
 } from '@scalar/components'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
-import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { getExample } from '@scalar/workspace-store/request-example'
 import type {
   MediaTypeObject,
   ResponsesObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/types/openapi/3.1'
+import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getExample } from '@scalar/workspace-store/request-example'
 import { computed, ref, toValue, useId, watch } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'

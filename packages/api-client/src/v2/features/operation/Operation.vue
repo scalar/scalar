@@ -39,14 +39,14 @@ export type OperationProps = {
 import { isElectron } from '@scalar/helpers/general/is-electron'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import {
   getActiveProxyUrl,
   getRequestExampleContext,
 } from '@scalar/workspace-store/request-example'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, toValue, type MaybeRefOrGetter } from 'vue'
 
 import { OperationBlock } from '@/v2/blocks/operation-block'

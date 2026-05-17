@@ -1,4 +1,4 @@
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import { buildPostmanRequestTree, pathKey } from '@/features/command-palette/helpers/postman-request-tree'

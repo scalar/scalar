@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { AuthSelector } from '@scalar/api-client/blocks/scalar-auth-selector-block'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { ServerObject } from '@scalar/types/openapi/3.1'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import {
@@ -8,9 +10,7 @@ import {
   getSelectedSecurity,
   type MergedSecuritySchemes,
 } from '@scalar/workspace-store/request-example'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { computed } from 'vue'
 

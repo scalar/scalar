@@ -14,11 +14,11 @@ export default {
 import { CommandActionForm } from '@scalar/api-client/features/command-palette'
 import { useLoadingState } from '@scalar/components'
 import type { ConvertOptions } from '@scalar/postman-to-openapi'
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 import { useToasts } from '@scalar/use-toasts'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, watch } from 'vue'
 
 import PostmanImportPreview from '@/features/command-palette/components/PostmanImportPreview.vue'

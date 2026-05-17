@@ -3,7 +3,7 @@ import type { AvailableClient, ClientId, TargetId } from '@scalar/snippetz'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
 import type { XCodeSample } from '@scalar/types/extensions/operation'
-import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject, ServerObject } from '@scalar/types/openapi/3.1'
 
 import { operationToHar } from '@/v2/blocks/operation-code-sample/helpers/operation-to-har/operation-to-har'
 

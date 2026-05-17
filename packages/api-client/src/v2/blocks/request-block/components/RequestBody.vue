@@ -3,6 +3,8 @@ import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { CONTENT_TYPES } from '@scalar/helpers/http/content-types'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { RequestBodyObject, SchemaObject } from '@scalar/types/openapi/3.1'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
@@ -10,11 +12,6 @@ import {
   getSelectedBodyContentType,
 } from '@scalar/workspace-store/request-example'
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
-import type {
-  RequestBodyObject,
-  SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { useFileDialog } from '@/hooks/use-file-dialog'

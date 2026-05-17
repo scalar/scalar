@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
+import type { SchemaObject } from '@scalar/types/openapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { Anchor } from '@/components/Anchor'
 import { SectionAccordion, SectionHeaderTag } from '@/components/Section'

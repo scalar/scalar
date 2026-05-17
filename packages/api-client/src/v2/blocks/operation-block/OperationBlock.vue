@@ -93,6 +93,9 @@ import { isElectron } from '@scalar/helpers/general/is-electron'
 import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { executeHook, type ClientPlugin } from '@scalar/oas-utils/helpers'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
+import type { OpenApiDocument, ServerObject } from '@scalar/types/openapi/3.1'
 import {
   AVAILABLE_CLIENTS,
   type AvailableClients,
@@ -117,12 +120,6 @@ import {
   type RequestPayload,
   type SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
-import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
-import type {
-  OpenApiDocument,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import { computed, onBeforeUnmount, onMounted, ref, toValue, watch } from 'vue'
 

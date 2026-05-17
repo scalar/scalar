@@ -1,12 +1,12 @@
 <script setup lang="ts">
+import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { ServerObject } from '@scalar/types/openapi/3.1'
 import type {
   ApiReferenceEvents,
   AuthMeta,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import type { OAuth2Options } from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'

@@ -1,4 +1,4 @@
-import type { ResponseObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ResponseObject } from '@scalar/types/openapi/3.1'
 
 import { normalizeMimeType } from './normalize-mime-type'
 

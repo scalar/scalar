@@ -11,7 +11,7 @@ import {
   serializeSimpleStyle,
   serializeSpaceDelimitedStyle,
 } from '@scalar/workspace-store/request-example'
-import type { OperationObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject, ParameterObject } from '@scalar/types/openapi/3.1'
 import type { Request as HarRequest } from 'har-format'
 
 import { isParamDisabled } from '@/v2/blocks/request-block/helpers/is-param-disabled'

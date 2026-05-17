@@ -1,5 +1,5 @@
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { ReferenceType, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ReferenceType, SchemaObject } from '@scalar/types/openapi/3.1'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
 /**

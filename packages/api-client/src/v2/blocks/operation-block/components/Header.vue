@@ -48,12 +48,12 @@ export type HeaderProps = {
 import { ScalarIcon, ScalarIconButton } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { ScalarIconGearSix } from '@scalar/icons'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { ServerObject } from '@scalar/types/openapi/3.1'
 import type {
   ServerMeta,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { AddressBar, type History } from '@/v2/blocks/scalar-address-bar-block'
 import EnvironmentSelector from '@/v2/blocks/scalar-address-bar-block/components/EnvironmentSelector.vue'

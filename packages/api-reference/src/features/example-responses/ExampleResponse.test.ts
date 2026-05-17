@@ -1,10 +1,10 @@
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import type { ExampleObject, MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ExampleObject, MediaTypeObject } from '@scalar/types/openapi/3.1'
 import {
   ExampleObjectSchema,
   MediaTypeObjectSchema,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/types/openapi/3.1'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 

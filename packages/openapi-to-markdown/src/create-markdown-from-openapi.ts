@@ -1,7 +1,7 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import { readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { normalize } from '@scalar/json-magic/helpers/normalize'
-import type { OpenApiDocument, PathItemObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, PathItemObject } from '@scalar/types/openapi/3.1'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { minify } from 'html-minifier-terser'
 import rehypeParse from 'rehype-parse'

@@ -8,11 +8,8 @@ import {
   useModal,
 } from '@scalar/components'
 import { ScalarIconPencilSimple, ScalarIconTrash } from '@scalar/icons'
+import type { OAuthFlow, OAuthFlowsObject } from '@scalar/types/openapi/3.1'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
-import type {
-  OAuthFlow,
-  OAuthFlowsObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, nextTick, ref, watch } from 'vue'
 
 import {

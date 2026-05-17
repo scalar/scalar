@@ -47,6 +47,11 @@ export type OperationProps = {
 import type { ClientOptionGroup } from '@scalar/api-client/blocks/operation-code-sample'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
+import type {
+  OpenApiDocument,
+  PathItemObject,
+  ServerObject,
+} from '@scalar/types/openapi/3.1'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -55,11 +60,6 @@ import {
   combineParams,
   type MergedSecuritySchemes,
 } from '@scalar/workspace-store/request-example'
-import type {
-  OpenApiDocument,
-  PathItemObject,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
 import { filterSelectedSecurity } from '@/features/Operation/helpers/filter-selected-security'

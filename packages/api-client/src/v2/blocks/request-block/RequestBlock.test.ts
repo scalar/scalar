@@ -1,5 +1,5 @@
 import { type ApiReferenceEvents, createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject } from '@scalar/types/openapi/3.1'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { type DefineComponent, defineComponent, markRaw, nextTick } from 'vue'

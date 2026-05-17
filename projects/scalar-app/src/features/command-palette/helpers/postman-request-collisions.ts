@@ -1,4 +1,4 @@
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 
 import { getOpenApiMergeKeys, getPostmanMergeKeys } from '@/features/command-palette/helpers/get-merge-key'
 import { getPostmanItemAtIndexPath } from '@/features/command-palette/helpers/postman-request-tree'

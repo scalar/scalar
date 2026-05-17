@@ -9,7 +9,7 @@ import type {
   TraversedWebhook,
 } from '@scalar/workspace-store/schemas/navigation'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { ServerObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { ServerObjectSchema } from '@scalar/types/openapi/3.1'
 import type { ComponentProps } from '@test/utils/types'
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'

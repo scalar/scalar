@@ -6,7 +6,7 @@ import type {
   OpenApiDocument,
   OperationObject,
   ResponsesObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/types/openapi/3.1'
 
 import type { FuseData } from '@/features/Search/types'
 import {

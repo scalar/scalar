@@ -5,7 +5,7 @@ import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import type { OAuthFlowsObjectSecret } from '@scalar/workspace-store/request-example'
 import { getServerVariables } from '@scalar/workspace-store/request-example'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/types/openapi/3.1'
 import { encode, fromUint8Array } from 'js-base64'
 
 import { getOAuthCallbackData } from './oauth-callback'

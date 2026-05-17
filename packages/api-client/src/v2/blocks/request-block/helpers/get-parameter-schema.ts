@@ -1,5 +1,5 @@
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { ParameterObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ParameterObject, SchemaObject } from '@scalar/types/openapi/3.1'
 
 import { getParameterContentValue } from './get-parameter-content'
 

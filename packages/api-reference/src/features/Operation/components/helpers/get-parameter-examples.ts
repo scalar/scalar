@@ -1,4 +1,4 @@
-import type { ParameterObject, ResponseObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ParameterObject, ResponseObject } from '@scalar/types/openapi/3.1'
 import { isObjectLike } from '@scalar/helpers/object/is-object'
 
 const filterUndefined = (example: unknown): example is unknown => example !== undefined

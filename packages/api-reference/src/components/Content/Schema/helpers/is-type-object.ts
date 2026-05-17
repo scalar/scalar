@@ -1,4 +1,4 @@
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@scalar/types/openapi/3.1'
 
 /*
  * Checks whether a JSON schema is of type object

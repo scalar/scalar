@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarListbox } from '@scalar/components'
 import { ScalarIconCaretDown } from '@scalar/icons'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/types/openapi/3.1'
 import { computed } from 'vue'
 
 const { target, servers, selectedServer } = defineProps<{

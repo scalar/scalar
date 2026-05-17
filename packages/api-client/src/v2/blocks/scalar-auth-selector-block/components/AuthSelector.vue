@@ -9,6 +9,12 @@ import {
   type ScalarButton as ScalarButtonType,
 } from '@scalar/components'
 import { ScalarIconCaretDown, ScalarIconTrash } from '@scalar/icons'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type {
+  OpenApiDocument,
+  SecurityRequirementObject,
+  ServerObject,
+} from '@scalar/types/openapi/3.1'
 import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
 import type {
   AuthMeta,
@@ -20,12 +26,6 @@ import {
   isAuthOptional,
   type MergedSecuritySchemes,
 } from '@scalar/workspace-store/request-example'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
-import type {
-  OpenApiDocument,
-  SecurityRequirementObject,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref, useId } from 'vue'
 
 import DeleteRequestAuthModal from '@/v2/blocks/scalar-auth-selector-block/components/DeleteRequestAuthModal.vue'

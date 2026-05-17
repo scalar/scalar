@@ -125,14 +125,11 @@ import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { type AvailableClients } from '@scalar/snippetz'
+import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
+import type { OperationObject, ServerObject } from '@scalar/types/openapi/3.1'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
-import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
-import type {
-  OperationObject,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { operationToHar } from '@v2/blocks/operation-code-sample/helpers/operation-to-har/operation-to-har'
 import {
   computed,

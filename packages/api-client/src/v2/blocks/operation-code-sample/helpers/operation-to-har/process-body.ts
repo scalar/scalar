@@ -6,7 +6,7 @@ import type {
   MediaTypeObject,
   RequestBodyObject,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/types/openapi/3.1'
 import { getResolvedRefDeep } from '@v2/blocks/operation-code-sample/helpers/get-resolved-ref-deep'
 import type { Param, PostData } from 'har-format'
 

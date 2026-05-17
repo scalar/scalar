@@ -1,6 +1,6 @@
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { OAuthFlowsObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OAuthFlowsObject } from '@scalar/types/openapi/3.1'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'

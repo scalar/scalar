@@ -1,5 +1,11 @@
 <script setup lang="ts">
 import { ScalarMarkdownSummary } from '@scalar/components'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type {
+  ApiKeyObject,
+  SecurityRequirementObject,
+  ServerObject,
+} from '@scalar/types/openapi/3.1'
 import type {
   SecretsApiKey,
   SecretsHttp,
@@ -13,12 +19,6 @@ import type {
   MergedSecuritySchemes,
   SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
-import type {
-  ApiKeyObject,
-  SecurityRequirementObject,
-  ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { capitalize, computed, ref } from 'vue'
 
 import { DataTableCell, DataTableRow } from '@/v2/components/data-table'

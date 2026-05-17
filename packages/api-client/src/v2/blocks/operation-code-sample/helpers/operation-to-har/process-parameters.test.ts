@@ -1,5 +1,5 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { type OperationObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { type OperationObject, SchemaObjectSchema } from '@scalar/types/openapi/3.1'
 import type { Request as HarRequest } from 'har-format'
 import { describe, expect, it } from 'vitest'
 

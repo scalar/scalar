@@ -1,6 +1,6 @@
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { DiscriminatorObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { DiscriminatorObject, SchemaObject } from '@scalar/types/openapi/3.1'
 
 import { isTypeObject } from './is-type-object'
 

@@ -1,5 +1,5 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { loadDocumentFromSource } from './load-document-from-source'

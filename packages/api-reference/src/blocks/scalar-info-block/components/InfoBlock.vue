@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   ExternalDocumentationObject,
   InfoObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/types/openapi/3.1'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed } from 'vue'
 
 import DownloadLink from '@/blocks/scalar-info-block/components/DownloadLink.vue'

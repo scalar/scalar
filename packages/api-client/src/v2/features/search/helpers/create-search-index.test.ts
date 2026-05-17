@@ -1,5 +1,5 @@
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import { createSearchIndex } from './create-search-index'

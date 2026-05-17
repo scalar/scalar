@@ -1,6 +1,6 @@
 import { replaceVariables } from '@scalar/helpers/regex/replace-variables'
 import { mergeUrls } from '@scalar/helpers/url/merge-urls'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/types/openapi/3.1'
 
 /**
  * Processes a server URL by replacing variables with their default values and merging with the path

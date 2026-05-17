@@ -4,7 +4,7 @@ import type {
   ParameterObject,
   SchemaObject,
   ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/types/openapi/3.1'
 
 import { parseCurlCommand } from './parse-curl'
 

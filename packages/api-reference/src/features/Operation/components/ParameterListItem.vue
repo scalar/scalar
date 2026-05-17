@@ -12,7 +12,7 @@ import type {
   ParameterObject,
   ResponseObject,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/types/openapi/3.1'
 import { computed, ref } from 'vue'
 
 import { getRefName } from '@/components/Content/Schema/helpers/get-ref-name'

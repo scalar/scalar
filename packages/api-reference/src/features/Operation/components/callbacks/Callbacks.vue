@@ -7,7 +7,7 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type {
   CallbackObject,
   OperationObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/types/openapi/3.1'
 import { computed } from 'vue'
 
 import type { OperationProps } from '@/features/Operation/Operation.vue'

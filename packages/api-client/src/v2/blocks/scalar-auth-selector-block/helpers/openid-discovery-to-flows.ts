@@ -1,6 +1,6 @@
 import { OpenIDConnectSchema, type SecretsOpenIdConnect } from '@scalar/workspace-store/entities/auth'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import type { OAuthFlowsObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OAuthFlowsObject } from '@scalar/types/openapi/3.1'
 
 import type { OpenIDConnectDiscovery } from './fetch-openid-connect-discovery'
 

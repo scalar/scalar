@@ -1,6 +1,6 @@
 import { HTTP_METHODS } from '@scalar/helpers/http/http-methods'
 import { extractPathFromUrl, normalizePath } from '@scalar/postman-to-openapi'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 
 import { extractRequestMethod } from '@/features/command-palette/helpers/postman-request-tree'
 

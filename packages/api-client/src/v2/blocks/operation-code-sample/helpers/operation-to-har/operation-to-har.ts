@@ -8,7 +8,7 @@ import {
   restoreConventionalDefaultHeaderNames,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
-import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject, ServerObject } from '@scalar/types/openapi/3.1'
 import type { Request as HarRequest } from 'har-format'
 
 import { APP_VERSION } from '@/v2/constants'
