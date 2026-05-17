@@ -8,6 +8,8 @@ import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { type Difference, apply, diff, merge } from '@scalar/json-magic/diff'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { upgrade } from '@scalar/openapi-upgrader'
+import { generateSchema } from '@scalar/schemas/openapi/3.1'
+import { recursiveRef } from '@scalar/schemas/openapi/3.1/reference'
 import type { Record } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
 import { coerce } from '@scalar/validation'
@@ -40,8 +42,6 @@ import type { AsyncApiDocument } from '@/schemas/asyncapi/asyncapi-document'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
-import { generateSchema } from '@/schemas/v3.1/openapi'
-import { recursiveRef } from '@/schemas/v3.1/openapi/reference'
 import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenAPIExtensions,

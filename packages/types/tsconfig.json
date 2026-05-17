@@ -1,5 +1,12 @@
 {
   "extends": "../../tsconfig.json",
   "include": ["src", "test"],
-  "compilerOptions": {}
+  "exclude": ["dist"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@scalar/types/extensions/*": ["src/extensions/*"],
+      "@scalar/types/openapi/*": ["src/openapi/*"]
+    }
+  }
 }

@@ -30,6 +30,16 @@
       "import": "./dist/api-reference/index.js",
       "types": "./dist/api-reference/index.d.ts",
       "default": "./dist/api-reference/index.js"
+    },
+    "./openapi/3.1": {
+      "import": "./dist/openapi/3.1/index.js",
+      "types": "./dist/openapi/3.1/index.d.ts",
+      "default": "./dist/openapi/3.1/index.js"
+    },
+    "./openapi/3.1/reference": {
+      "import": "./dist/openapi/3.1/reference.js",
+      "types": "./dist/openapi/3.1/reference.d.ts",
+      "default": "./dist/openapi/3.1/reference.js"
     }
   },
   "files": [
@@ -37,7 +47,8 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@scalar/validation": "workspace:*"
+    "@scalar/validation": "workspace:*",
+    "@scalar/helpers": "workspace:*"
   },
   "devDependencies": {
     "@scalar/types": "workspace:*",

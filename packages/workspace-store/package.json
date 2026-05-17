@@ -152,6 +152,7 @@
     "@scalar/snippetz": "workspace:*",
     "@scalar/typebox": "catalog:*",
     "@scalar/types": "workspace:*",
+    "@scalar/schemas": "workspace:*",
     "@scalar/validation": "workspace:*",
     "js-base64": "catalog:*",
     "type-fest": "catalog:*",

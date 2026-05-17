@@ -1,3 +1,10 @@
+import type {
+  OAuthFlowAuthorizationCode,
+  OAuthFlowClientCredentials,
+  OAuthFlowImplicit,
+  OAuthFlowPassword,
+} from './oauth-flow'
+
 export type OAuthFlowsObject = {
   /** Configuration for the OAuth Implicit flow */
   implicit?: OAuthFlowImplicit

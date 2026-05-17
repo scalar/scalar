@@ -4,9 +4,11 @@
  * We will dump the types to the types package which is going to be pure types with no dependencies on the schemas package
  */
 
-import { generateTypes } from '@scalar/validation'
 import fs from 'node:fs/promises'
 import path from 'node:path'
+
+import { generateTypes } from '@scalar/validation'
+
 import { apiReferenceConfigurationSchema } from '../src/api-reference/api-reference-configuration'
 
 /** Generate the types */
