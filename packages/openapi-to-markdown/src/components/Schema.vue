@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { resolve } from '@scalar/workspace-store/resolve'
-import type { MaybeRefSchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
-
-const MAX_DEPTH = 10
+import {
+  resolve,
+  type MaybeRefSchemaObject,
+} from '@scalar/workspace-store/resolve'
 
 const { schema, depth = 0 } = defineProps<{
   schema: MaybeRefSchemaObject
   depth?: number
 }>()
+
+const MAX_DEPTH = 10
 
 type ResolvedSchema = NonNullable<
   ReturnType<typeof resolve.schema<MaybeRefSchemaObject>>
@@ -199,8 +201,8 @@ const sortProperties = (
           v-for="(subSchema, index) in getSchemaArray(resolvedSchema, 'allOf')"
           :key="index">
           <Schema
-            :schema="subSchema"
-            :depth="depth + 1" />
+            :depth="depth + 1"
+            :schema="subSchema" />
         </section>
       </section>
     </template>
@@ -214,8 +216,8 @@ const sortProperties = (
           v-for="(subSchema, index) in getSchemaArray(resolvedSchema, 'anyOf')"
           :key="index">
           <Schema
-            :schema="subSchema"
-            :depth="depth + 1" />
+            :depth="depth + 1"
+            :schema="subSchema" />
         </section>
       </section>
     </template>
@@ -229,8 +231,8 @@ const sortProperties = (
           v-for="(subSchema, index) in getSchemaArray(resolvedSchema, 'oneOf')"
           :key="index">
           <Schema
-            :schema="subSchema"
-            :depth="depth + 1" />
+            :depth="depth + 1"
+            :schema="subSchema" />
         </section>
       </section>
     </template>
@@ -242,8 +244,8 @@ const sortProperties = (
         </header>
         <section>
           <Schema
-            :schema="getSchemaNot(resolvedSchema)!"
-            :depth="depth + 1" />
+            :depth="depth + 1"
+            :schema="getSchemaNot(resolvedSchema)!" />
         </section>
       </section>
     </template>
@@ -306,8 +308,8 @@ const sortProperties = (
                   getResolvedSchemaType(propSchema) === 'object' ||
                   Object.keys(getResolvedSchemaProperties(propSchema)).length
                 "
-                :schema="propSchema"
-                :depth="depth + 1" />
+                :depth="depth + 1"
+                :schema="propSchema" />
               <template
                 v-if="
                   getResolvedSchemaType(propSchema) === 'array' &&
@@ -318,8 +320,8 @@ const sortProperties = (
                     <strong>Items:</strong>
                   </header>
                   <Schema
-                    :schema="getResolvedSchemaItems(propSchema)!"
-                    :depth="depth + 1" />
+                    :depth="depth + 1"
+                    :schema="getResolvedSchemaItems(propSchema)!" />
                 </section>
               </template>
             </li>
@@ -340,8 +342,8 @@ const sortProperties = (
         </header>
         <section>
           <Schema
-            :schema="getSchemaItems(resolvedSchema)!"
-            :depth="depth + 1" />
+            :depth="depth + 1"
+            :schema="getSchemaItems(resolvedSchema)!" />
         </section>
         <ul
           v-if="

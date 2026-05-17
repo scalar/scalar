@@ -3,7 +3,7 @@ import type {
   OAuthFlowClientCredentials,
   OAuthFlowImplicit,
   OAuthFlowPassword,
-} from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
+} from '@scalar/types/openapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import type { OpenIDConnectDiscovery } from './fetch-openid-connect-discovery'

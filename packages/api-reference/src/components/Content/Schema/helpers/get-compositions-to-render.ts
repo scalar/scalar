@@ -1,7 +1,7 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
-import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/types/openapi/3.1'
-import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+import { isArraySchema } from '@scalar/types/openapi/3.1'
+import { resolve } from '@scalar/workspace-store/resolve'
 
 import { type CompositionKeyword, compositions } from './schema-composition'
 import { shouldRenderArrayItemComposition } from './should-render-array-item-composition'

@@ -1,6 +1,6 @@
 import { REFERENCE_LS_KEYS, safeLocalStorage } from '@scalar/helpers/object/local-storage'
+import { coerce } from '@scalar/validation'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 
 // Local storage helper instance, safely wrapped.
 const storage = safeLocalStorage()
@@ -44,7 +44,7 @@ export const authStorage = () => {
      */
     getAuth: (slug: string) => {
       const parsed = JSON.parse(storage.getItem(getKey(slug)) ?? '{}')
-      return coerceValue(AuthSchema, parsed)
+      return coerce(AuthSchema, parsed)
     },
     /**
      * Stores the authentication schemes in local storage.

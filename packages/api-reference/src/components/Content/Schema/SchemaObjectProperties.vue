@@ -118,7 +118,7 @@ const additionalPropertiesEnum = computed(() => {
  * - the referenced schema's own description (for example discriminator parent docs)
  */
 const getPropertySchema = (
-  property: SchemaReferenceType<SchemaObject> | undefined,
+  property: SchemaReferenceType | undefined,
 ): SchemaObject | undefined => {
   if (!property) {
     return undefined
@@ -132,7 +132,7 @@ const getPropertySchema = (
 }
 
 const getPropertyDescription = (
-  property: SchemaReferenceType<SchemaObject> | undefined,
+  property: SchemaReferenceType | undefined,
 ): string | undefined => {
   if (!property) {
     return undefined
@@ -188,6 +188,7 @@ const getAdditionalPropertiesValue = (
       :compact
       :compositionPath="compositionPath"
       :compositionPathSegment="property"
+      :description="getPropertyDescription(schema.properties[property])"
       :discriminator
       :eventBus="eventBus"
       :hideHeading
@@ -196,7 +197,6 @@ const getAdditionalPropertiesValue = (
       :name="property"
       :options="options"
       :required="schema.required?.includes(property)"
-      :description="getPropertyDescription(schema.properties[property])"
       :schema="getPropertySchema(schema.properties[property])"
       :schemaContext="schemaContext" />
   </template>
@@ -210,6 +210,7 @@ const getAdditionalPropertiesValue = (
       :compact
       :compositionPath="compositionPath"
       :compositionPathSegment="key"
+      :description="getPropertyDescription(property)"
       :discriminator
       :eventBus="eventBus"
       :hideHeading
@@ -217,7 +218,6 @@ const getAdditionalPropertiesValue = (
       :level
       :name="key"
       :options="options"
-      :description="getPropertyDescription(property)"
       :schema="getPropertySchema(property)"
       :schemaContext="schemaContext" />
   </template>

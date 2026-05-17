@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components'
 import { ScalarIconPlus } from '@scalar/icons'
-import type { SchemaObject } from '@scalar/types/openapi/3.1'
+import { isArraySchema, type SchemaObject } from '@scalar/types/openapi/3.1'
 import { resolve } from '@scalar/workspace-store/resolve'
-import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 import { computed, ref } from 'vue'
 
 import SchemaEnumPropertyItem from './SchemaEnumPropertyItem.vue'

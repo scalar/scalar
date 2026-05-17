@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import { isDefined } from '@scalar/helpers/array/is-defined'
-import type { SchemaObject } from '@scalar/types/openapi/3.1'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { resolve } from '@scalar/workspace-store/resolve'
 import {
   isArraySchema,
   isNumberSchema,
   isStringSchema,
-} from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+  type SchemaObject,
+} from '@scalar/types/openapi/3.1'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { resolve } from '@scalar/workspace-store/resolve'
 import { computed, toRef } from 'vue'
 
 import { Badge } from '@/components/Badge'
@@ -245,7 +245,7 @@ const displayType = computed(() => {
 
 const exampleValue = computed(() => {
   if (isDefined(props.value?.example)) {
-    return props.value.example
+    return props.value?.example
   }
 
   if (props.value && isArraySchema(props.value)) {

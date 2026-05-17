@@ -1,5 +1,5 @@
-import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject, SchemaReferenceType } from '@scalar/types/openapi/3.1'
+import { resolve } from '@scalar/workspace-store/resolve'
 
 import { getRefName } from './get-ref-name'
 
@@ -9,7 +9,7 @@ import { getRefName } from './get-ref-name'
  * Handles $ref, title, name, type, and schema dictionary lookup
  */
 export const getModelNameFromSchema = (
-  schemaOrRef: SchemaObject | SchemaReferenceType<SchemaObject>,
+  schemaOrRef: SchemaObject | SchemaReferenceType,
 ): {
   /** The key in components.schemas (extracted from $ref), used for sidebar navigation. */
   schemaKey: string | null

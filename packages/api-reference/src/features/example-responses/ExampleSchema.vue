@@ -2,8 +2,7 @@
 import { getResolvedRefDeep } from '@scalar/api-client/blocks/operation-code-sample'
 import { ScalarCodeBlock, ScalarVirtualText } from '@scalar/components'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
-import type { ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/reference'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import type { ReferenceType, SchemaObject } from '@scalar/types/openapi/3.1'
 import { computed } from 'vue'
 
 const { id, schema } = defineProps<{

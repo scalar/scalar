@@ -1283,6 +1283,9 @@ importers:
       '@scalar/use-toasts':
         specifier: workspace:*
         version: link:../use-toasts
+      '@scalar/validation':
+        specifier: workspace:*
+        version: link:../validation
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store
@@ -1984,6 +1987,9 @@ importers:
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
+      '@scalar/validation':
+        specifier: workspace:*
+        version: link:../validation
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store
@@ -2085,6 +2091,9 @@ importers:
       '@scalar/json-magic':
         specifier: workspace:*
         version: link:../json-magic
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../types
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store
@@ -2189,6 +2198,9 @@ importers:
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../types
       '@scalar/use-codemirror':
         specifier: workspace:*
         version: link:../use-codemirror

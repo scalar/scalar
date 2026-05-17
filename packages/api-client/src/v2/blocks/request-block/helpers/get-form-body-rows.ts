@@ -1,8 +1,8 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
-import { resolve } from '@scalar/workspace-store/resolve'
 import type { ExampleObject, SchemaObject } from '@scalar/types/openapi/3.1'
-import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+import { isObjectSchema } from '@scalar/types/openapi/3.1'
+import { resolve } from '@scalar/workspace-store/resolve'
 
 import type { TableRow } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
 

@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { ScalarWrappingText } from '@scalar/components'
-import type { SchemaObject } from '@scalar/types/openapi/3.1'
-import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+import { isArraySchema, type SchemaObject } from '@scalar/types/openapi/3.1'
 import { computed } from 'vue'
 
 import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'

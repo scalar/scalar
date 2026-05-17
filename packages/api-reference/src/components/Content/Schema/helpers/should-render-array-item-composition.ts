@@ -1,5 +1,5 @@
 import type { SchemaObject } from '@scalar/types/openapi/3.1'
-import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+import { isArraySchema } from '@scalar/types/openapi/3.1'
 
 import { hasComplexArrayItems } from './has-complex-array-items'
 

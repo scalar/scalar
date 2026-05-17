@@ -4,7 +4,7 @@ import { type IntersectionMember, coerce, intersection, object, optional, string
 
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 
-type MaybeRefSchemaObject = SchemaObject | SchemaReferenceType
+export type MaybeRefSchemaObject = SchemaObject | SchemaReferenceType
 
 type ResolvedSchema<T> = T extends undefined ? undefined : SchemaObject & { $ref?: string }
 

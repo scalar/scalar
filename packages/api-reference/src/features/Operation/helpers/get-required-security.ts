@@ -1,8 +1,6 @@
+import type { OpenApiDocument, OperationObject, SecuritySchemeObject } from '@scalar/types/openapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { isNonOptionalSecurityRequirement } from '@scalar/workspace-store/helpers/is-non-optional-security-requirement'
-import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 
 export type RequiredSecurityState = 'required' | 'optional' | 'none'
 

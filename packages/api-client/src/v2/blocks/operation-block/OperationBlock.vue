@@ -95,7 +95,11 @@ import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-met
 import { executeHook, type ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
-import type { OpenApiDocument, ServerObject } from '@scalar/types/openapi/3.1'
+import type {
+  OpenApiDocument,
+  OperationObject,
+  ServerObject,
+} from '@scalar/types/openapi/3.1'
 import {
   AVAILABLE_CLIENTS,
   type AvailableClients,
@@ -120,7 +124,6 @@ import {
   type RequestPayload,
   type SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import { computed, onBeforeUnmount, onMounted, ref, toValue, watch } from 'vue'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'

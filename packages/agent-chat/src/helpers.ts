@@ -1,5 +1,7 @@
 import { REFERENCE_LS_KEYS, safeLocalStorage } from '@scalar/helpers/object/local-storage'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenApiDocument, OperationObject } from '@scalar/types/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
@@ -13,9 +15,6 @@ import {
   mergeSecurity,
 } from '@scalar/workspace-store/request-example'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import type { OpenApiDocument, OperationObject } from '@scalar/types/openapi/3.1'
-
 export function getOperations(doc: Partial<OpenAPIV3_1.Document>) {
   return Object.values(doc.paths ?? {}).flatMap((path) => Object.values(path ?? {})) as OperationObject[]
 }
@@ -87,7 +86,7 @@ export const authStorage = () => {
      */
     getAuth: (slug: string) => {
       const parsed = JSON.parse(storage.getItem(getKey(slug)) ?? '{}')
-      return coerceValue(AuthSchema, parsed)
+      return coerce(AuthSchema, parsed)
     },
     /**
      * Stores the authentication schemes in local storage.

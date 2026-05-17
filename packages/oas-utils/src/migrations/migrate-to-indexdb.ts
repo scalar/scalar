@@ -10,6 +10,7 @@ import type { Oauth2Flow } from '@scalar/types/api-reference'
 import type { XScalarEnvironments } from '@scalar/types/extensions/document/x-scalar-environments'
 import type { XTagGroup } from '@scalar/types/extensions/tag'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { coerce } from '@scalar/validation'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
 import { createWorkspaceStorePersistence, generateWorkspaceUid } from '@scalar/workspace-store/persistence'
 import { xScalarEnvironmentSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -972,7 +973,7 @@ const transformCollectionToDocument = (
 
   return {
     document: safeDocument,
-    auth: coerceValue(AuthSchema, {
+    auth: coerce(AuthSchema, {
       secrets: collection.securitySchemes.reduce((acc, uid) => {
         const securityScheme = dataRecords.securitySchemes[uid]
         if (!securityScheme) {

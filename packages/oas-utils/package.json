@@ -49,6 +49,7 @@
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
+    "@scalar/validation": "workspace:*",
     "flatted": "catalog:*",
     "vue": "catalog:*",
     "yaml": "catalog:*"

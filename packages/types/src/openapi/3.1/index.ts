@@ -5,7 +5,6 @@ import type {
   HttpSecuritySchemeObject,
   ImplicitOAuthFlowObject,
   OAuth2SecuritySchemeObject,
-  OAuthFlowsObject,
   OpenIdConnectSecuritySchemeObject,
   ParameterObject,
   ParameterObjectWithContent,
@@ -60,7 +59,11 @@ export type SchemaReferenceType = ReferenceType<SchemaObject>
 export type ApiKeyObject = ApiKeySecuritySchemeObject
 export type HttpObject = HttpSecuritySchemeObject
 export type OAuth2Object = OAuth2SecuritySchemeObject
-export type OAuthFlow = OAuthFlowsObject
+export type OAuthFlow =
+  | ImplicitOAuthFlowObject
+  | PasswordOAuthFlowObject
+  | ClientCredentialsOAuthFlowObject
+  | AuthorizationCodeOAuthFlowObject
 export type OpenIdConnectObject = OpenIdConnectSecuritySchemeObject
 
 export type OAuthFlowImplicit = ImplicitOAuthFlowObject

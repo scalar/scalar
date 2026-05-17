@@ -1,19 +1,14 @@
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
+import type { ParameterObject, ParameterObjectWithSchema, ReferenceType, SchemaObject } from '@scalar/types/openapi/3.1'
+import { isObjectSchema } from '@scalar/types/openapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { deSerializeParameter, getExample } from '@scalar/workspace-store/request-example'
-import type {
-  ParameterObject,
-  ParameterWithSchemaObject,
-  ReferenceType,
-  SchemaObject,
-} from '@scalar/types/openapi/3.1'
-import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
 import type { TableRow } from '../components/RequestTableRow.vue'
 import { getParameterSchema } from './get-parameter-schema'
 import { isParamDisabled } from './is-param-disabled'
 
-type ParameterWithRequiredSchema = ParameterWithSchemaObject & {
+type ParameterWithRequiredSchema = ParameterObjectWithSchema & {
   schema: ReferenceType<SchemaObject>
 }
 

@@ -1,8 +1,8 @@
 import { objectKeys } from '@scalar/helpers/object/object-keys'
+import type { SchemaObject } from '@scalar/types/openapi/3.1'
+import { isArraySchema } from '@scalar/types/openapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { SchemaObject } from '@scalar/types/openapi/3.1'
-import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
 /**
  * Merges multiple OpenAPI schema objects into a single schema object.

@@ -4,6 +4,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import type { DragOffset, DraggingItem, HoveredItem, SidebarState } from '@scalar/sidebar'
+import type { OpenApiDocument, OperationObject, TagObject } from '@scalar/types/openapi/3.1'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import { getOpenapiObject, getParentEntry } from '@scalar/workspace-store/navigation'
@@ -14,8 +15,6 @@ import type {
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
-import type { OpenApiDocument, TagObject } from '@scalar/types/openapi/3.1'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
 import { type MaybeRefOrGetter, toValue } from 'vue'
 
 /**

@@ -1,6 +1,6 @@
-import { resolve } from '@scalar/workspace-store/resolve'
 import type { ReferenceType, SchemaObject } from '@scalar/types/openapi/3.1'
-import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+import { isArraySchema } from '@scalar/types/openapi/3.1'
+import { resolve } from '@scalar/workspace-store/resolve'
 
 /**
  * Formats an array type string with proper wrapping for union types.

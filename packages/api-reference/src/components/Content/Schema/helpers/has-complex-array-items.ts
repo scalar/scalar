@@ -1,6 +1,6 @@
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SchemaObject } from '@scalar/types/openapi/3.1'
-import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+import { isArraySchema } from '@scalar/types/openapi/3.1'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
 /** Composition keywords that indicate complex schema structure */
 const COMPOSITION_KEYWORDS = ['allOf', 'oneOf', 'anyOf'] as const

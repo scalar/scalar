@@ -319,6 +319,7 @@
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/sidebar": "workspace:*",
+    "@scalar/validation": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/typebox": "^0.1.3",

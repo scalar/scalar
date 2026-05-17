@@ -1,6 +1,6 @@
-import { OpenIDConnectSchema, type SecretsOpenIdConnect } from '@scalar/workspace-store/entities/auth'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OAuthFlowsObject } from '@scalar/types/openapi/3.1'
+import { coerce } from '@scalar/validation'
+import { OpenIDConnectSchema, type SecretsOpenIdConnect } from '@scalar/workspace-store/entities/auth'
 
 import type { OpenIDConnectDiscovery } from './fetch-openid-connect-discovery'
 
@@ -57,5 +57,5 @@ export const openIDDiscoveryToFlows = (discovery: OpenIDConnectDiscovery): Secre
     }
   }
 
-  return coerceValue(OpenIDConnectSchema, flows)
+  return coerce(OpenIDConnectSchema, flows)
 }

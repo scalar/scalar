@@ -1,4 +1,3 @@
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   MediaTypeObject,
   OpenApiDocument,
@@ -8,7 +7,8 @@ import type {
   SchemaObject,
   SchemaReferenceType,
 } from '@scalar/types/openapi/3.1'
-import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+import { isObjectSchema } from '@scalar/types/openapi/3.1'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
 const isSchemaObject = (value: unknown): value is SchemaObject => typeof value === 'object' && value !== null
 
@@ -16,7 +16,7 @@ const isSchemaObject = (value: unknown): value is SchemaObject => typeof value =
  * Resolves a schema reference from workspace-store to a SchemaObject.
  * Returns undefined when a reference exists but has not been resolved yet.
  */
-function resolveSchemaRef(ref: SchemaReferenceType<SchemaObject>): SchemaObject | undefined {
+function resolveSchemaRef(ref: SchemaReferenceType): SchemaObject | undefined {
   if (typeof ref === 'object' && ref !== null && '$ref' in ref) {
     return isSchemaObject(ref['$ref-value']) ? ref['$ref-value'] : undefined
   }

@@ -1,13 +1,8 @@
+import type { ParameterObject, ParameterObjectWithSchema, ReferenceType, SchemaObject } from '@scalar/types/openapi/3.1'
+import { isObjectSchema } from '@scalar/types/openapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type {
-  ParameterObject,
-  ParameterWithSchemaObject,
-  ReferenceType,
-  SchemaObject,
-} from '@scalar/types/openapi/3.1'
-import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
 
-type ParameterWithRequiredSchema = ParameterWithSchemaObject & {
+type ParameterWithRequiredSchema = ParameterObjectWithSchema & {
   schema: ReferenceType<SchemaObject>
 }
 
