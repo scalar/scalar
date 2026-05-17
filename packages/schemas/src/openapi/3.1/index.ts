@@ -267,7 +267,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     const: optional(any({ typeComment: 'Constant value that must match exactly.' })),
     contentMediaType: optional(string({ typeComment: 'Media type for content validation.' })),
     contentEncoding: optional(string({ typeComment: 'Content encoding.' })),
-    contentSchema: optional(maybeRef(lazy((): Schema => schema))),
+    contentSchema: optional(maybeRef(lazy(() => schema))),
     deprecated: optional(boolean({ typeComment: 'Whether the schema is deprecated.' })),
     discriminator: optional(discriminatorObject),
     readOnly: optional(boolean({ typeComment: 'Whether the schema is read-only.' })),
@@ -287,10 +287,10 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
         typeName: 'SchemaExamplesArray',
       }),
     ),
-    allOf: optional(array(maybeRef(lazy((): Schema => schema)), { typeName: 'SchemaObjectAllOf' })),
-    oneOf: optional(array(maybeRef(lazy((): Schema => schema)), { typeName: 'SchemaObjectOneOf' })),
-    anyOf: optional(array(maybeRef(lazy((): Schema => schema)), { typeName: 'SchemaObjectAnyOf' })),
-    not: optional(maybeRef(lazy((): Schema => schema))),
+    allOf: optional(array(maybeRef(lazy(() => schema)), { typeName: 'SchemaObjectAllOf' })),
+    oneOf: optional(array(maybeRef(lazy(() => schema)), { typeName: 'SchemaObjectOneOf' })),
+    anyOf: optional(array(maybeRef(lazy(() => schema)), { typeName: 'SchemaObjectAnyOf' })),
+    not: optional(maybeRef(lazy(() => schema))),
   })
 
   const schemaScalarMarker = object({
@@ -326,19 +326,17 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
       type: literal('object'),
       maxProperties: optional(number({ typeComment: 'Maximum number of properties.' })),
       minProperties: optional(number({ typeComment: 'Minimum number of properties.' })),
-      properties: optional(
-        record(string(), maybeRef(lazy((): Schema => schema)), { typeName: 'SchemaObjectProperties' }),
-      ),
+      properties: optional(record(string(), maybeRef(lazy(() => schema)), { typeName: 'SchemaObjectProperties' })),
       required: optional(array(string(), { typeName: 'SchemaObjectRequired' })),
       additionalProperties: optional(
-        union([boolean(), maybeRef(lazy((): Schema => schema))], {
+        union([boolean(), maybeRef(lazy(() => schema))], {
           typeName: 'SchemaObjectAdditionalProperties',
         }),
       ),
       patternProperties: optional(
-        record(string(), maybeRef(lazy((): Schema => schema)), { typeName: 'SchemaObjectPatternProperties' }),
+        record(string(), maybeRef(lazy(() => schema)), { typeName: 'SchemaObjectPatternProperties' }),
       ),
-      propertyNames: optional(maybeRef(lazy((): Schema => schema))),
+      propertyNames: optional(maybeRef(lazy(() => schema))),
     },
     { typeName: 'ObjectSchemaObject' },
   )
@@ -349,10 +347,8 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
       maxItems: optional(number({ typeComment: 'Maximum number of items in array.' })),
       minItems: optional(number({ typeComment: 'Minimum number of items in array.' })),
       uniqueItems: optional(boolean({ typeComment: 'Whether array items must be unique.' })),
-      items: optional(maybeRef(lazy((): Schema => schema))),
-      prefixItems: optional(
-        array(maybeRef(lazy((): Schema => schema)), { typeComment: 'Schema for tuple validation.' }),
-      ),
+      items: optional(maybeRef(lazy(() => schema))),
+      prefixItems: optional(array(maybeRef(lazy(() => schema)), { typeComment: 'Schema for tuple validation.' })),
     },
     { typeName: 'ArraySchemaObject' },
   )
@@ -555,28 +551,22 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
   const components: Schema = object(
     {
       schemas: optional(record(string(), maybeRef(schema), { typeName: 'ComponentsSchemas' })),
-      responses: optional(
-        record(string(), maybeRef(lazy((): Schema => response)), { typeName: 'ComponentsResponses' }),
-      ),
-      parameters: optional(
-        record(string(), maybeRef(lazy((): Schema => parameter)), { typeName: 'ComponentsParameters' }),
-      ),
-      examples: optional(record(string(), maybeRef(lazy((): Schema => example)), { typeName: 'ComponentsExamples' })),
+      responses: optional(record(string(), maybeRef(lazy(() => response)), { typeName: 'ComponentsResponses' })),
+      parameters: optional(record(string(), maybeRef(lazy(() => parameter)), { typeName: 'ComponentsParameters' })),
+      examples: optional(record(string(), maybeRef(lazy(() => example)), { typeName: 'ComponentsExamples' })),
       requestBodies: optional(
-        record(string(), maybeRef(lazy((): Schema => requestBody)), { typeName: 'ComponentsRequestBodies' }),
+        record(string(), maybeRef(lazy(() => requestBody)), { typeName: 'ComponentsRequestBodies' }),
       ),
-      headers: optional(record(string(), maybeRef(lazy((): Schema => header)), { typeName: 'ComponentsHeaders' })),
+      headers: optional(record(string(), maybeRef(lazy(() => header)), { typeName: 'ComponentsHeaders' })),
       securitySchemes: optional(
-        record(string(), maybeRef(lazy((): Schema => securityScheme)), { typeName: 'ComponentsSecuritySchemes' }),
+        record(string(), maybeRef(lazy(() => securityScheme)), { typeName: 'ComponentsSecuritySchemes' }),
       ),
-      links: optional(record(string(), maybeRef(lazy((): Schema => link)), { typeName: 'ComponentsLinks' })),
-      callbacks: optional(
-        record(string(), maybeRef(lazy((): Schema => callback)), { typeName: 'ComponentsCallbacks' }),
-      ),
+      links: optional(record(string(), maybeRef(lazy(() => link)), { typeName: 'ComponentsLinks' })),
+      callbacks: optional(record(string(), maybeRef(lazy(() => callback)), { typeName: 'ComponentsCallbacks' })),
       pathItems: optional(
         record(
           string(),
-          lazy((): Schema => pathItem),
+          lazy(() => pathItem),
           { typeName: 'ComponentsPathItems' },
         ),
       ),
@@ -648,9 +638,9 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
               'When this is true, header values of type array or object generate a single header whose value is a comma-separated list of the array items or key-value pairs of the map, see Style Examples.',
           }),
         ),
-        schema: optional(maybeRef(lazy((): Schema => schema))),
+        schema: optional(maybeRef(lazy(() => schema))),
         example: optional(any()),
-        examples: optional(record(string(), maybeRef(lazy((): Schema => example)), { typeName: 'HeaderExamples' })),
+        examples: optional(record(string(), maybeRef(lazy(() => example)), { typeName: 'HeaderExamples' })),
       },
       { typeName: 'HeaderObjectWithSchema' },
     ),
@@ -663,7 +653,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
         content: optional(
           record(
             string(),
-            lazy((): Schema => mediaType),
+            lazy(() => mediaType),
             { typeName: 'HeaderContent' },
           ),
         ),
@@ -682,16 +672,16 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
             'The Content-Type for encoding a specific property. The value is a comma-separated list, each element of which is either a specific media type (e.g. image/png) or a wildcard media type (e.g. image/*).',
         }),
       ),
-      headers: optional(record(string(), maybeRef(lazy((): Schema => header)), { typeName: 'EncodingHeaders' })),
+      headers: optional(record(string(), maybeRef(lazy(() => header)), { typeName: 'EncodingHeaders' })),
     },
     { typeName: 'EncodingObject' },
   )
 
   const mediaType: Schema = object(
     {
-      schema: optional(maybeRef(lazy((): Schema => schema))),
+      schema: optional(maybeRef(lazy(() => schema))),
       example: optional(any({ typeComment: 'Example of the media type.' })),
-      examples: optional(record(string(), maybeRef(lazy((): Schema => example)), { typeName: 'MediaTypeExamples' })),
+      examples: optional(record(string(), maybeRef(lazy(() => example)), { typeName: 'MediaTypeExamples' })),
       encoding: optional(
         record(string(), encoding, {
           typeComment:
@@ -756,9 +746,9 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
               'When this is true, parameter values of type array or object generate separate parameters for each array item or object property.',
           }),
         ),
-        schema: optional(maybeRef(lazy((): Schema => schema))),
+        schema: optional(maybeRef(lazy(() => schema))),
         example: optional(any()),
-        examples: optional(record(string(), maybeRef(lazy((): Schema => example)), { typeName: 'ParameterExamples' })),
+        examples: optional(record(string(), maybeRef(lazy(() => example)), { typeName: 'ParameterExamples' })),
       },
       { typeName: 'ParameterObjectWithSchema' },
     ),
@@ -812,7 +802,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
         content: optional(
           record(
             string(),
-            lazy((): Schema => mediaType),
+            lazy(() => mediaType),
             { typeName: 'ParameterContent' },
           ),
         ),
@@ -837,7 +827,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
         ),
         content: record(
           string(),
-          lazy((): Schema => mediaType),
+          lazy(() => mediaType),
           {
             typeComment:
               'REQUIRED. The content of the request body. The key is a media type or media type range and the value describes it.',
@@ -895,24 +885,24 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
         typeComment:
           'REQUIRED. A description of the response. CommonMark syntax MAY be used for rich text representation.',
       }),
-      headers: optional(record(string(), maybeRef(lazy((): Schema => header)), { typeName: 'ResponseHeaders' })),
+      headers: optional(record(string(), maybeRef(lazy(() => header)), { typeName: 'ResponseHeaders' })),
       content: optional(
         record(
           string(),
-          lazy((): Schema => mediaType),
+          lazy(() => mediaType),
           { typeName: 'ResponseContent' },
         ),
       ),
-      links: optional(record(string(), maybeRef(lazy((): Schema => link)), { typeName: 'ResponseLinks' })),
+      links: optional(record(string(), maybeRef(lazy(() => link)), { typeName: 'ResponseLinks' })),
     },
     { typeName: 'ResponseObject' },
   )
 
-  const responsesObject: Schema = record(string(), maybeRef(lazy((): Schema => response)), {
+  const responsesObject: Schema = record(string(), maybeRef(lazy(() => response)), {
     typeName: 'ResponsesObject',
   })
 
-  const callback: Schema = record(string(), maybeRef(lazy((): Schema => pathItem)), {
+  const callback: Schema = record(string(), maybeRef(lazy(() => pathItem)), {
     typeName: 'CallbackObject',
   })
 
@@ -940,9 +930,9 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
               'Unique string used to identify the operation. The id MUST be unique among all operations described in the API. The operationId value is case-sensitive.',
           }),
         ),
-        parameters: optional(array(maybeRef(lazy((): Schema => parameter)), { typeName: 'OperationParameters' })),
-        requestBody: optional(maybeRef(lazy((): Schema => requestBody))),
-        responses: optional(lazy((): Schema => responsesObject)),
+        parameters: optional(array(maybeRef(lazy(() => parameter)), { typeName: 'OperationParameters' })),
+        requestBody: optional(maybeRef(lazy(() => requestBody))),
+        responses: optional(lazy(() => responsesObject)),
         deprecated: optional(
           boolean({
             typeComment:
@@ -951,9 +941,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
         ),
         security: optional(array(securityRequirement, { typeName: 'OperationSecurity' })),
         servers: optional(array(servers, { typeName: 'OperationServers' })),
-        callbacks: optional(
-          record(string(), maybeRef(lazy((): Schema => callback)), { typeName: 'OperationCallbacks' }),
-        ),
+        callbacks: optional(record(string(), maybeRef(lazy(() => callback)), { typeName: 'OperationCallbacks' })),
       },
       { typeName: 'OperationObject' },
     ),
@@ -988,17 +976,17 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
             'An optional string description, intended to apply to all operations in this path. CommonMark syntax MAY be used for rich text representation.',
         }),
       ),
-      get: optional(maybeRef(lazy((): Schema => operation))),
-      put: optional(maybeRef(lazy((): Schema => operation))),
-      post: optional(maybeRef(lazy((): Schema => operation))),
-      delete: optional(maybeRef(lazy((): Schema => operation))),
-      patch: optional(maybeRef(lazy((): Schema => operation))),
-      connect: optional(maybeRef(lazy((): Schema => operation))),
-      options: optional(maybeRef(lazy((): Schema => operation))),
-      head: optional(maybeRef(lazy((): Schema => operation))),
-      trace: optional(maybeRef(lazy((): Schema => operation))),
+      get: optional(maybeRef(lazy(() => operation))),
+      put: optional(maybeRef(lazy(() => operation))),
+      post: optional(maybeRef(lazy(() => operation))),
+      delete: optional(maybeRef(lazy(() => operation))),
+      patch: optional(maybeRef(lazy(() => operation))),
+      connect: optional(maybeRef(lazy(() => operation))),
+      options: optional(maybeRef(lazy(() => operation))),
+      head: optional(maybeRef(lazy(() => operation))),
+      trace: optional(maybeRef(lazy(() => operation))),
       servers: optional(array(servers, { typeName: 'PathItemServers' })),
-      parameters: optional(array(maybeRef(lazy((): Schema => parameter)), { typeName: 'PathItemParameters' })),
+      parameters: optional(array(maybeRef(lazy(() => parameter)), { typeName: 'PathItemParameters' })),
     },
     { typeName: 'PathItemObject' },
   )
