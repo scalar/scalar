@@ -2,7 +2,7 @@ pre-commit:
   commands:
     schemas-types-generate:
       glob: 'packages/schemas/**/*'
-      run: pnpm --filter @scalar/schemas types:generate && git add packages/types/src/openapi/3.1/index.generated.d.ts
+      run: pnpm --filter @scalar/schemas types:generate && git add packages/types/src/openapi/3.1/index.generated.ts
       stage_fixed: true
     packages-format:
       glob: 'pnpm-lock.yaml'
