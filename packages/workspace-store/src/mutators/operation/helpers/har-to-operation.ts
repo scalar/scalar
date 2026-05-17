@@ -1,6 +1,6 @@
 import type { HarRequest } from '@scalar/snippetz'
+import type { OperationObject, ParameterObject } from '@scalar/types/openapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { OperationObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/reference'
 
 import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'

@@ -1,9 +1,9 @@
+import { type OpenApiDocument, SchemaObjectSchema } from '@scalar/types/openapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import type { TraversedTag } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
-import { type OpenApiDocument, SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 
 import { traverseDocument } from './traverse-document'
 

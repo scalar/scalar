@@ -1,9 +1,4 @@
-import type {
-  ExampleObject,
-  MediaTypeObject,
-  ParameterObject,
-  RequestBodyObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ExampleObject, MediaTypeObject, ParameterObject, RequestBodyObject } from '@scalar/types/openapi/3.1'
 
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 

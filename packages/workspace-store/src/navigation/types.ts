@@ -1,5 +1,6 @@
+import type { TagObject } from '@scalar/types/openapi/3.1'
+
 import type { IdGenerator, TraversedEntry } from '@/schemas/navigation'
-import type { TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
 /** Map of tagNames and their entries */
 export type TagsMap = Map<string, { id: string; parentId: string; tag: TagObject; entries: TraversedEntry[] }>

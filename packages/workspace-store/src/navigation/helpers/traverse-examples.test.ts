@@ -1,6 +1,5 @@
+import type { OperationObject } from '@scalar/types/openapi/3.1'
 import { describe, expect, it } from 'vitest'
-
-import type { OperationObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { traverseOperationExamples } from './traverse-examples'
 

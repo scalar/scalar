@@ -1,7 +1,7 @@
+import { type SchemaObject, SchemaObjectSchema } from '@scalar/types/openapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import { coerceValue } from '@/schemas/typebox-coerce'
-import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 
 import { getExampleFromSchema } from './get-example-from-schema'
 

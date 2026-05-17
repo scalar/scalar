@@ -1,9 +1,5 @@
+import type { ExampleObject, RequestBodyObject, SchemaObject } from '@scalar/types/openapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type {
-  ExampleObject,
-  RequestBodyObject,
-  SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { getResolvedRefDeep } from '@/helpers/get-resolved-ref-deep'
 import { getExample } from '@/request-example/builder/helpers/get-example'

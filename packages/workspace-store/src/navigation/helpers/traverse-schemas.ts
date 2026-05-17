@@ -1,9 +1,10 @@
+import type { OpenApiDocument, SchemaObject } from '@scalar/types/openapi/3.1'
+
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { isHidden } from '@/helpers/is-hidden'
 import { getTag } from '@/navigation/helpers/get-tag'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { ParentTag, TraversedSchema } from '@/schemas/navigation'
-import type { OpenApiDocument, SchemaObject } from '@/schemas/v3.1/strict/openapi-document'
 
 /** Creates a traversed schema entry from an OpenAPI schema object.
  *

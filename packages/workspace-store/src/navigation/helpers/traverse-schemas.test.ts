@@ -1,9 +1,9 @@
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
+import { OpenAPIDocumentSchema } from '@scalar/types/openapi/3.1'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import type { TagsMap } from '@/navigation/types'
 import { coerceValue } from '@/schemas/typebox-coerce'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
-import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
 
 import { traverseSchemas } from './traverse-schemas'
 

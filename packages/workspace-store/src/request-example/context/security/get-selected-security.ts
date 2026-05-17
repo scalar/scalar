@@ -1,10 +1,7 @@
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
+import type { OpenApiDocument, SecurityRequirementObject } from '@scalar/types/openapi/3.1'
 import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type {
-  OpenApiDocument,
-  SecurityRequirementObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { isAuthOptional } from './is-auth-optional'
 

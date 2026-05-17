@@ -1,8 +1,9 @@
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
+
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { type NavigationOptions, getNavigationOptions } from '@/navigation/get-navigation-options'
 import type { TagsMap } from '@/navigation/types'
 import type { TraversedDocument, TraversedEntry } from '@/schemas/navigation'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 import { traverseDescription } from './traverse-description'
 import { traversePaths } from './traverse-paths'

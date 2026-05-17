@@ -1,5 +1,6 @@
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
+
 import type { AsyncApiDocument } from './asyncapi/asyncapi-document'
-import type { OpenApiDocument } from './v3.1/strict/openapi-document'
 
 /**
  * Narrow a value to an OpenAPI document.

@@ -1,9 +1,9 @@
 import { Type } from '@scalar/typebox'
+import { SchemaObjectSchema } from '@scalar/types/openapi/3.1'
 
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { compose } from '@/schemas/compose'
 import { coerceValue } from '@/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 import type { MaybeRefSchemaObject, SchemaObject } from '@/schemas/v3.1/strict/schema'
 
 type ResolvedSchema<T> = T extends undefined ? undefined : SchemaObject & { $ref?: string }

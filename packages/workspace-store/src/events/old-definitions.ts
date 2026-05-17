@@ -1,8 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { AvailableClients } from '@scalar/snippetz'
+import type { ServerObject } from '@scalar/types/openapi/3.1'
 import type { Simplify } from 'type-fest'
-
-import type { ServerObject } from '@/schemas/v3.1/strict/openapi-document'
 
 /**
  * Event definitions for scalar blocks

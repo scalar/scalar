@@ -7,6 +7,13 @@ import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import { upgrade } from '@scalar/openapi-upgrader'
+import {
+  type ComponentsObject,
+  OpenAPIDocumentSchema,
+  type OpenApiDocument,
+  type OperationObject,
+  type PathsObject,
+} from '@scalar/types/openapi/3.1'
 
 import { keyOf } from '@/helpers/general'
 import { createNavigation } from '@/navigation'
@@ -14,13 +21,6 @@ import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import { extensions } from '@/schemas/extensions'
 import type { TraversedDocument } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
-import {
-  type ComponentsObject,
-  OpenAPIDocumentSchema,
-  type OpenApiDocument,
-  type OperationObject,
-  type PathsObject,
-} from '@/schemas/v3.1/strict/openapi-document'
 
 import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/workspace'
 

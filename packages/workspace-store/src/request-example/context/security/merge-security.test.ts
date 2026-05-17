@@ -1,11 +1,8 @@
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
+import { type ComponentsObject, SecuritySchemeObjectSchema } from '@scalar/types/openapi/3.1'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import {
-  type ComponentsObject,
-  SecuritySchemeObjectSchema,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 import { computed, reactive } from 'vue'
 

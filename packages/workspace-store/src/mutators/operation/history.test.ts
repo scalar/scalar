@@ -1,10 +1,10 @@
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 import { getOpenApiDocument } from '@test/helpers'
 import { assert, describe, expect, it, vi } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { addResponseToHistory, reloadOperationHistory } from '@/mutators/operation/history'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 const createDocument = (initial?: Partial<OpenApiDocument>): OpenApiDocument => {
   return {

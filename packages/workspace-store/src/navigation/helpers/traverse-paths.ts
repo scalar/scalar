@@ -2,6 +2,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
+import type { OpenApiDocument, OperationObject } from '@scalar/types/openapi/3.1'
 
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { isHidden } from '@/helpers/is-hidden'
@@ -9,7 +10,6 @@ import { traverseOperationExamples } from '@/navigation/helpers/traverse-example
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import { XScalarStabilityValues } from '@/schemas/extensions/operation'
 import type { ParentTag, TraversedExample, TraversedOperation } from '@/schemas/navigation'
-import type { OpenApiDocument, OperationObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { getTag } from './get-tag'
 

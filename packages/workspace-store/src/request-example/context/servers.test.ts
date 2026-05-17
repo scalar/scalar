@@ -1,4 +1,4 @@
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/types/openapi/3.1'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { WorkspaceDocument } from '@/schemas'

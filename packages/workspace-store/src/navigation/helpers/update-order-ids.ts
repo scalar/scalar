@@ -1,11 +1,11 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { TagObject } from '@scalar/types/openapi/3.1'
 
 import type { WorkspaceStore } from '@/client'
 import { canHaveOrder, getOpenapiObject } from '@/navigation/helpers/get-openapi-object'
 import { getParentEntry } from '@/navigation/helpers/get-parent-entry'
 import type { IdGenerator, TraversedOperation, TraversedTag, TraversedWebhook, WithParent } from '@/schemas/navigation'
 import { isOpenApiDocument } from '@/schemas/type-guards'
-import type { TagObject } from '@/schemas/v3.1/strict/openapi-document'
 import type { OperationObject } from '@/schemas/v3.1/strict/operation'
 
 type UpdateOrderIdParams = {

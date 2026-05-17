@@ -1,10 +1,10 @@
 import type { Static } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
+import type { TraversedEntrySchema } from '@scalar/types/openapi/3.1'
 import type { RequiredDeep } from 'type-fest'
 import { describe, expect, it } from 'vitest'
 
 import { coerceValue } from '@/schemas/typebox-coerce'
-import type { TraversedEntrySchema } from '@/schemas/v3.1/strict/openapi-document'
 
 import {
   TraversedDescriptionSchemaDefinition,

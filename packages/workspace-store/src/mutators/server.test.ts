@@ -1,7 +1,7 @@
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 import {
   addServer,

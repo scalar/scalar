@@ -1,3 +1,4 @@
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 import { assert, describe, expect, it } from 'vitest'
 
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
@@ -6,7 +7,6 @@ import {
   updateOperationRequestBodyExample,
   updateOperationRequestBodyFormValue,
 } from '@/mutators/operation/body'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 const createDocument = (initial?: Partial<OpenApiDocument>): OpenApiDocument => {
   return {

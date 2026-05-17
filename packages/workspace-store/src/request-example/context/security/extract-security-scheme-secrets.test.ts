@@ -1,6 +1,6 @@
 import type { SecurityScheme } from '@scalar/types/api-reference'
+import type { SecuritySchemeObject } from '@scalar/types/openapi/3.1'
 import { createAuthStore } from '@scalar/workspace-store/entities/auth'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import type {

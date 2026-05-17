@@ -1,18 +1,12 @@
 {
   "extends": "./tsconfig.json",
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "**/*.test.ts",
-    "dist"
-  ],
+  "include": ["src"],
+  "exclude": ["**/*.test.ts", "**/*.test-d.ts"],
   "compilerOptions": {
-    "baseUrl": ".",
+    "rootDir": "src",
+    "skipLibCheck": true,
     "declaration": true,
     "declarationMap": true,
-    "noEmit": false,
-    "outDir": "dist/",
-    "rootDir": "src",
+    "outDir": "dist/"
   }
 }

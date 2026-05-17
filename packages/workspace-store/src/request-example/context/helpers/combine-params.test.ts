@@ -1,5 +1,5 @@
+import type { ParameterObject } from '@scalar/types/openapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { expect, it } from 'vitest'
 
 import { combineParams } from './combine-params'

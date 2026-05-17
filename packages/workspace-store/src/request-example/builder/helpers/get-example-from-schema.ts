@@ -1,8 +1,8 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import type { SchemaObject } from '@scalar/types/openapi/3.1'
 
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { resolve } from '@/resolve'
-import type { SchemaObject } from '@/schemas/v3.1/strict/openapi-document'
 
 /** Maximum recursion depth to prevent infinite loops in circular references */
 const MAX_LEVELS_DEEP = 10

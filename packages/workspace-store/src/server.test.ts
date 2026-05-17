@@ -3,11 +3,11 @@ import fs from 'node:fs/promises'
 import type { AddressInfo } from 'node:net'
 import { cwd } from 'node:process'
 
+import { SchemaObjectSchema } from '@scalar/types/openapi/3.1'
 import { type FastifyInstance, fastify } from 'fastify'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { coerceValue } from '@/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 
 import { allFilesMatch, getOpenApiServerDocument } from '../test/helpers'
 import {

@@ -1,6 +1,6 @@
 import type { HarRequest } from '@scalar/snippetz'
+import type { OperationObject } from '@scalar/types/openapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { assert, describe, expect, it } from 'vitest'
 
 import { harToOperation } from './har-to-operation'

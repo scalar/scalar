@@ -37,5 +37,5 @@ await fs.mkdir(openApi31Dir, { recursive: true })
 
 await Promise.all([
   fs.writeFile(path.join(genDir, 'api-reference.d.ts'), apiReferenceConfigurationTypes),
-  fs.writeFile(path.join(openApi31Dir, 'index.generated.d.ts'), openApi31Types),
+  fs.writeFile(path.join(openApi31Dir, 'index.generated.ts'), openApi31Types),
 ])

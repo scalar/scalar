@@ -1,11 +1,11 @@
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
+import type { OpenApiDocument, TagObject } from '@scalar/types/openapi/3.1'
 
 import { isHidden } from '@/helpers/is-hidden'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getXKeysFromObject } from '@/navigation/helpers/get-x-keys'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { TraversedEntry, TraversedTag } from '@/schemas/navigation'
-import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { getTag } from './get-tag'
 

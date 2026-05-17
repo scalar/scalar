@@ -1,9 +1,9 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { OpenApiDocument, TagObject } from '@scalar/types/openapi/3.1'
 import { assert, describe, expect, it } from 'vitest'
 
 import type { TagsMap } from '@/navigation/types'
 import type { TraversedEntry, TraversedTag } from '@/schemas/navigation'
-import type { OpenApiDocument, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
 import { traverseTags } from './traverse-tags'
 

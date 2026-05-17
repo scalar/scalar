@@ -1,11 +1,11 @@
 import { findVariables } from '@scalar/helpers/regex/find-variables'
+import { type ServerObject, ServerObjectSchema } from '@scalar/types/openapi/3.1'
 
 import type { ServerEvents, ServerMeta } from '@/events/definitions/server'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { isOpenApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
-import { type ServerObject, ServerObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 import type { WorkspaceDocument } from '@/schemas/workspace'
 
 /**

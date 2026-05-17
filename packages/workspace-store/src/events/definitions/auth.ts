@@ -1,12 +1,8 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { OAuthFlowsObject, SecurityRequirementObject, SecuritySchemeObject } from '@scalar/types/openapi/3.1'
 import type { PartialDeep } from 'type-fest'
 
 import type { SecretsAuth } from '@/entities/auth/schema'
-import type {
-  OAuthFlowsObject,
-  SecurityRequirementObject,
-  SecuritySchemeObject,
-} from '@/schemas/v3.1/strict/openapi-document'
 import type { ApiKeyObject, HttpObject, OAuth2Object, OpenIdConnectObject } from '@/schemas/v3.1/strict/security-scheme'
 
 /**

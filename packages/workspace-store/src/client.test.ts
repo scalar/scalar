@@ -2,12 +2,12 @@ import { cwd } from 'node:process'
 
 import { consoleErrorSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 import { getActiveOpenApiDocument, getOpenApiDocument } from '@test/helpers'
 import fastify, { type FastifyInstance } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { type WorkspaceDocumentInput, createWorkspaceStore } from '@/client'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import { createServerWorkspaceStore } from '@/server'
 
 // Test document

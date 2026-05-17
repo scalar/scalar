@@ -1,4 +1,5 @@
 import { type Static, Type } from '@scalar/typebox'
+import { SecurityRequirementObjectSchema } from '@scalar/types/openapi/3.1'
 
 import { compose } from '@/schemas/compose'
 import {
@@ -6,8 +7,8 @@ import {
   XScalarSecretClientIdSchema,
   XScalarSecretClientSecretSchema,
   XScalarSecretHTTPSchema,
-  XScalarSecretRefreshTokenSchema,
   XScalarSecretRedirectUriSchema,
+  XScalarSecretRefreshTokenSchema,
   XScalarSecretTokenSchema,
 } from '@/schemas/extensions/security'
 import {
@@ -16,7 +17,6 @@ import {
   OAuthFlowImplicitSchema,
   OAuthFlowPasswordSchema,
 } from '@/schemas/v3.1/strict/oauth-flow'
-import { SecurityRequirementObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
 
 const SecretsApiKeySchema = compose(
   Type.Object({

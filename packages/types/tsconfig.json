@@ -1,12 +1,10 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src", "test"],
-  "exclude": ["dist"],
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
-      "@scalar/types/extensions/*": ["src/extensions/*"],
-      "@scalar/types/openapi/*": ["src/openapi/*"]
+      "@/*": ["./src/*"],
+      "@test/*": ["./test/*"]
     }
-  }
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts", "vitest.config.ts"]
 }

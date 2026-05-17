@@ -1,3 +1,4 @@
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 import { getActiveOpenApiDocument } from '@test/helpers'
 import { assert, describe, expect, it } from 'vitest'
 
@@ -13,7 +14,6 @@ import {
   updateSelectedSecuritySchemes,
   upsertScope,
 } from '@/mutators/auth'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 import type { OAuth2Object, SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
 
