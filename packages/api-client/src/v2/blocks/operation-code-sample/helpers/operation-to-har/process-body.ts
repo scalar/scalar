@@ -1,12 +1,8 @@
 import { json2xml } from '@scalar/helpers/file/json2xml'
+import type { MediaTypeObject, RequestBodyObject, SchemaObject } from '@scalar/types/openapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import { getExample, getExampleFromSchema } from '@scalar/workspace-store/request-example'
-import type {
-  MediaTypeObject,
-  RequestBodyObject,
-  SchemaObject,
-} from '@scalar/types/openapi/3.1'
 import { getResolvedRefDeep } from '@v2/blocks/operation-code-sample/helpers/get-resolved-ref-deep'
 import type { Param, PostData } from 'har-format'
 

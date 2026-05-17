@@ -38,6 +38,7 @@ export default {
 
 <script setup lang="ts">
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
 import {
   colorPicker as colorPickerExtension,
   useCodeMirror,
@@ -50,7 +51,6 @@ import {
   getContextFunctionComment,
   isContextFunctionName,
 } from '@scalar/workspace-store/request-example'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
 import { nanoid } from 'nanoid'
 import { computed, ref, toRef, useAttrs, watch, type Ref } from 'vue'
 

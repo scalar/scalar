@@ -6,13 +6,13 @@ import {
   ScalarWrappingText,
 } from '@scalar/components'
 import { ScalarIconCaretRight } from '@scalar/icons'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   ParameterObject,
   ResponseObject,
   SchemaObject,
 } from '@scalar/types/openapi/3.1'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { computed, ref } from 'vue'
 
 import { getRefName } from '@/components/Content/Schema/helpers/get-ref-name'

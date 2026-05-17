@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { ScalarIconButton } from '@scalar/components'
 import { ScalarIconNotePencil, ScalarIconTrash } from '@scalar/icons'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
 import type {
   CollectionType,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
 
 import EnvironmentVariablesTable from '@/v2/features/environments/components/EnvironmentVariablesTable.vue'
 

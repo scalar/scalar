@@ -1,9 +1,5 @@
+import type { OpenApiDocument, OperationObject, SecuritySchemeObject } from '@scalar/types/openapi/3.1'
 import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
-import type {
-  OpenApiDocument,
-  OperationObject,
-  SecuritySchemeObject,
-} from '@scalar/types/openapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import { filterSelectedSecurity } from './filter-selected-security'

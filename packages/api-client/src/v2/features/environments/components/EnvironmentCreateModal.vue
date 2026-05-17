@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ScalarModal, type ModalState } from '@scalar/components'
+import type { XScalarEnvironments } from '@scalar/types/extensions/document/x-scalar-environments'
 import type {
   CollectionType,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
-import type { XScalarEnvironments } from '@scalar/types/extensions/document/x-scalar-environments'
 import { computed, ref, watch } from 'vue'
 
 import {

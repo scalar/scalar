@@ -1,8 +1,4 @@
-import type {
-  ParameterObject,
-  ParameterObjectWithContent,
-  ParameterObjectWithSchema,
-} from '@scalar/types/openapi/3.1'
+import type { ParameterObject, ParameterObjectWithContent, ParameterObjectWithSchema } from '@scalar/types/openapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import { getExample } from './get-example'

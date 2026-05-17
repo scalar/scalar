@@ -1,12 +1,7 @@
+import type { MediaTypeObject, OpenApiDocument, OperationObject, ResponsesObject } from '@scalar/types/openapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { combineParams } from '@scalar/workspace-store/request-example'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import type {
-  MediaTypeObject,
-  OpenApiDocument,
-  OperationObject,
-  ResponsesObject,
-} from '@scalar/types/openapi/3.1'
 
 import type { FuseData } from '@/features/Search/types'
 import {

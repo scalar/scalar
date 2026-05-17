@@ -1,10 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type {
-  OperationObject,
-  ParameterObject,
-  SchemaObject,
-  ServerObject,
-} from '@scalar/types/openapi/3.1'
+import type { OperationObject, ParameterObject, SchemaObject, ServerObject } from '@scalar/types/openapi/3.1'
 
 import { parseCurlCommand } from './parse-curl'
 

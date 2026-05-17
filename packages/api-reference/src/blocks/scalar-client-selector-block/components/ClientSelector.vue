@@ -6,8 +6,8 @@ import {
 } from '@scalar/api-client/blocks/operation-code-sample'
 import { ScalarCodeBlock, ScalarMarkdown } from '@scalar/components'
 import type { AvailableClient } from '@scalar/snippetz'
-import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarSdkInstallation } from '@scalar/types/extensions/document/x-scalar-sdk-installation'
+import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, useId, useTemplateRef } from 'vue'
 
 import {

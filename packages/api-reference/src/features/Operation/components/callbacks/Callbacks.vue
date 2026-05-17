@@ -2,12 +2,9 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
+import type { CallbackObject, OperationObject } from '@scalar/types/openapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type {
-  CallbackObject,
-  OperationObject,
-} from '@scalar/types/openapi/3.1'
 import { computed } from 'vue'
 
 import type { OperationProps } from '@/features/Operation/Operation.vue'

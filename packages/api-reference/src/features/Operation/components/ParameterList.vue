@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { ParameterObject } from '@scalar/types/openapi/3.1'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { useId } from 'vue'
 
 import type { OperationProps } from '@/features/Operation/Operation.vue'

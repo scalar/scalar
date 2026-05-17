@@ -3,6 +3,7 @@ import { generateClientOptions } from '@scalar/api-client/blocks/operation-code-
 import { mapHiddenClientsConfig } from '@scalar/api-client/modal'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
 import type { Heading } from '@scalar/types/legacy'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -11,7 +12,6 @@ import {
   getServers,
   mergeSecurity,
 } from '@scalar/workspace-store/request-example'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
 import type { TraversedEntry as TraversedEntryType } from '@scalar/workspace-store/schemas/navigation'
 import {
   getDocumentType,

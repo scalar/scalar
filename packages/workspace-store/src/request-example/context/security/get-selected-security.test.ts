@@ -157,7 +157,9 @@ describe('getSelectedSecurity', () => {
         undefined,
         undefined,
         securityRequirements as unknown as SecurityRequirementObject[],
-        securitySchemes, 'bearerAuth')
+        securitySchemes,
+        'bearerAuth',
+      )
 
       expect(result).toEqual({
         selectedIndex: 0,
@@ -176,7 +178,9 @@ describe('getSelectedSecurity', () => {
         undefined,
         undefined,
         securityRequirements as unknown as SecurityRequirementObject[],
-        securitySchemes, ['oauth2'])
+        securitySchemes,
+        ['oauth2'],
+      )
 
       expect(result).toEqual({
         selectedIndex: 0,
@@ -198,7 +202,9 @@ describe('getSelectedSecurity', () => {
         undefined,
         undefined,
         securityRequirements as unknown as SecurityRequirementObject[],
-        securitySchemes, 'oauth2')
+        securitySchemes,
+        'oauth2',
+      )
 
       expect(result).toEqual({
         selectedIndex: 0,
@@ -218,7 +224,9 @@ describe('getSelectedSecurity', () => {
         undefined,
         undefined,
         securityRequirements as unknown as SecurityRequirementObject[],
-        securitySchemes, 'oauth2')
+        securitySchemes,
+        'oauth2',
+      )
 
       expect(result).toEqual({
         selectedIndex: 0,
@@ -237,10 +245,9 @@ describe('getSelectedSecurity', () => {
         undefined,
         undefined,
         securityRequirements as unknown as SecurityRequirementObject[],
-        securitySchemes, [
-        'oauth2',
-        'apiKey',
-      ])
+        securitySchemes,
+        ['oauth2', 'apiKey'],
+      )
 
       expect(result).toEqual({
         selectedIndex: 0,
@@ -263,10 +270,9 @@ describe('getSelectedSecurity', () => {
         undefined,
         undefined,
         securityRequirements as unknown as SecurityRequirementObject[],
-        securitySchemes, [
-        ['oauth2', 'basic'],
-        'apiKey',
-      ])
+        securitySchemes,
+        [['oauth2', 'basic'], 'apiKey'],
+      )
 
       expect(result).toEqual({
         selectedIndex: 0,
@@ -309,7 +315,9 @@ describe('getSelectedSecurity', () => {
         undefined,
         undefined,
         securityRequirements as unknown as SecurityRequirementObject[],
-        securitySchemes, 'apiKey')
+        securitySchemes,
+        'apiKey',
+      )
 
       expect(result).toEqual({
         selectedIndex: 0,

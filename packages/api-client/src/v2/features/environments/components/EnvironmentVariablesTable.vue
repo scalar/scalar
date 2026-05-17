@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components'
 import { ScalarIconTrash } from '@scalar/icons'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
 import type {
   CollectionType,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
 import { computed } from 'vue'
 
 import { CodeInput } from '@/v2/components/code-input'
