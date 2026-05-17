@@ -3,11 +3,10 @@ import fs from 'node:fs/promises'
 import type { AddressInfo } from 'node:net'
 import { cwd } from 'node:process'
 
-import { SchemaObjectSchema } from '@scalar/types/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import { type FastifyInstance, fastify } from 'fastify'
 import { beforeEach, describe, expect, it } from 'vitest'
-
-import { coerceValue } from '@/schemas/typebox-coerce'
 
 import { allFilesMatch, getOpenApiServerDocument } from '../test/helpers'
 import {
@@ -623,7 +622,7 @@ describe('externalize-component-references', () => {
         openapi: '',
         components: {
           schemas: {
-            'User': coerceValue(SchemaObjectSchema, {
+            'User': coerce(openapiSchemas.schema, {
               'type': 'object',
               'required': ['id', 'name', 'email'],
               'properties': {
@@ -660,7 +659,7 @@ describe('externalize-component-references', () => {
         openapi: '',
         components: {
           schemas: {
-            'User': coerceValue(SchemaObjectSchema, {
+            'User': coerce(openapiSchemas.schema, {
               'type': 'object',
               'required': ['id', 'name', 'email'],
               'properties': {

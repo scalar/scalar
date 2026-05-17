@@ -1,9 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
 import type { ParameterObject } from '@scalar/types/openapi/3.1'
-import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import type { ExampleObject, OperationObject, ServerObject } from '@scalar/types/openapi/3.1'
 import { assert, describe, expect, it } from 'vitest'
 
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'

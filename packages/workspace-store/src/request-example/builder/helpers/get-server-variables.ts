@@ -1,6 +1,4 @@
-import { objectEntries } from '@scalar/helpers/object/object-entries'
-
-import type { ServerObject } from '@/schemas/v3.1/strict/server'
+import type { ServerObject } from '@scalar/types/openapi/3.1'
 
 /**
  * Extracts the default values of variables defined in a ServerObject into a simple key-value map.
@@ -13,7 +11,7 @@ export const getServerVariables = (server: ServerObject | null) => {
   if (!server) {
     return {}
   }
-  return objectEntries(server?.variables ?? {}).reduce<Record<string, string>>((acc, [name, variable]) => {
+  return Object.entries(server?.variables ?? {}).reduce<Record<string, string>>((acc, [name, variable]) => {
     if (variable.default) {
       acc[name] = variable.default
     }

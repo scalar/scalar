@@ -3,7 +3,7 @@ import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { WorkspaceDocument } from '@/schemas'
 import { isOpenApiDocument } from '@/schemas/type-guards'
-import type { ExampleObject } from '@/schemas/v3.1/strict/example'
+import type { ExampleObject } from '@scalar/types/openapi/3.1'
 
 /** Ensure the json that we need exists up to the example object in the request body */
 const findOrCreateRequestBodyExample = (

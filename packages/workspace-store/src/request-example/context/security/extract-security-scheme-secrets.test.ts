@@ -1417,7 +1417,6 @@ describe('extractSecuritySchemeSecrets', () => {
           authorizationUrl: 'https://example.com/oauth/authorize',
           scopes: { openid: 'OpenID' },
           refreshUrl: '',
-          // @ts-expect-error - invalid type
           selectedScopes: ['openid'],
           'x-scalar-secret-client-id': 'client-id',
           'x-scalar-secret-redirect-uri': 'https://app.example.com/callback',
@@ -1617,8 +1616,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
       const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, 'non-existing-document')
 
-      // @ts-expect-error - invalid type
-      expect(result['x-scalar-secret-token']).toBe('')
+      expect((result as { 'x-scalar-secret-token'?: string })['x-scalar-secret-token']).toBe('')
     })
 
     it('returns empty secrets when scheme name does not exist in auth store', () => {
@@ -1636,8 +1634,7 @@ describe('extractSecuritySchemeSecrets', () => {
 
       const result = extractSecuritySchemeSecrets(scheme, authStore, 'non-existing-scheme', documentSlug)
 
-      // @ts-expect-error - invalid type
-      expect(result['x-scalar-secret-token']).toBe('')
+      expect((result as { 'x-scalar-secret-token'?: string })['x-scalar-secret-token']).toBe('')
     })
   })
 

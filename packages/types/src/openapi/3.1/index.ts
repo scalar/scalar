@@ -1,17 +1,24 @@
 import type {
   ApiKeySecuritySchemeObject,
+  AuthorizationCodeOAuthFlowObject,
+  ClientCredentialsOAuthFlowObject,
   HttpSecuritySchemeObject,
-  MediaTypeObject,
+  ImplicitOAuthFlowObject,
   OAuth2SecuritySchemeObject,
   OAuthFlowsObject,
   OpenIdConnectSecuritySchemeObject,
   ParameterObject,
+  ParameterObjectWithContent,
+  ParameterObjectWithSchema,
+  PasswordOAuthFlowObject,
   SchemaObject,
 } from './index.generated'
 import type { ReferenceType } from './reference'
 
 export type {
+  AuthorizationCodeOAuthFlowObject,
   CallbackObject,
+  ClientCredentialsOAuthFlowObject,
   ComponentsObject,
   ContactObject,
   DiscriminatorObject,
@@ -19,6 +26,7 @@ export type {
   ExampleObject,
   ExternalDocumentationObject,
   HeaderObject,
+  ImplicitOAuthFlowObject,
   InfoObject,
   LicenseObject,
   LinkObject,
@@ -26,8 +34,12 @@ export type {
   OAuthFlowsObject,
   OpenApiDocument,
   OpenApiExtensions,
+  OpenApiSecurity,
   OperationObject,
   ParameterObject,
+  ParameterObjectWithContent,
+  ParameterObjectWithSchema,
+  PasswordOAuthFlowObject,
   PathItemObject,
   PathsObject,
   RequestBodyObject,
@@ -50,6 +62,11 @@ export type HttpObject = HttpSecuritySchemeObject
 export type OAuth2Object = OAuth2SecuritySchemeObject
 export type OAuthFlow = OAuthFlowsObject
 export type OpenIdConnectObject = OpenIdConnectSecuritySchemeObject
+
+export type OAuthFlowImplicit = ImplicitOAuthFlowObject
+export type OAuthFlowPassword = PasswordOAuthFlowObject
+export type OAuthFlowClientCredentials = ClientCredentialsOAuthFlowObject
+export type OAuthFlowAuthorizationCode = AuthorizationCodeOAuthFlowObject
 
 export const isObjectSchema = (schema: SchemaObject): schema is Extract<SchemaObject, { type: 'object' }> => {
   return (
@@ -87,8 +104,11 @@ export const isSchema = (schema: SchemaObject | undefined): schema is Exclude<Sc
  * Type guard to check if the given parameter is a ParameterWithContentObject,
  * i.e., it has a 'content' property defined.
  */
-export const isContentTypeParameterObject = (
-  parameter: ParameterObject,
-): parameter is ParameterObject & { content: Record<string, MediaTypeObject> } => {
+export const isContentTypeParameterObject = (parameter: ParameterObject): parameter is ParameterObjectWithContent => {
   return 'content' in parameter && parameter.content !== undefined
+}
+
+/** Parameter object that uses `schema` / `examples` rather than `content`. */
+export const isSchemaParameterObject = (parameter: ParameterObject): parameter is ParameterObjectWithSchema => {
+  return !isContentTypeParameterObject(parameter)
 }

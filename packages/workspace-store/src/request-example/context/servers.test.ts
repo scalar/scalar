@@ -2,7 +2,7 @@ import type { ServerObject } from '@scalar/types/openapi/3.1'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { WorkspaceDocument } from '@/schemas'
-import type { OperationObject } from '@/schemas/v3.1/strict/operation'
+import type { OperationObject } from '@scalar/types/openapi/3.1'
 
 import { getSelectedServer, getServers } from './servers'
 

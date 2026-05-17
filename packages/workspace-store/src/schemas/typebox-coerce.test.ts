@@ -1,7 +1,8 @@
 import { Storage } from '@google-cloud/storage'
 import { Type } from '@scalar/typebox'
-import { Value } from '@scalar/typebox/value'
-import { ComponentsObjectSchema, OpenAPIDocumentSchema } from '@scalar/types/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
+import { coerce, validate } from '@scalar/validation'
 import { describe, expect, it } from 'vitest'
 
 import { compose } from '@/schemas/compose'
@@ -145,7 +146,8 @@ describe('should correctly cast/default values to make the input schema complian
       const content = buffer.toString()
 
       // validate after we coerce the document
-      return Value.Check(OpenAPIDocumentSchema, coerceValue(OpenAPIDocumentSchema, content))
+      const parsed = JSON.parse(content) as OpenApiDocument
+      return validate(openapiSchemas.openapi, coerce(openapiSchemas.openapi, parsed))
     })
 
     expect(result).toBe(true)
@@ -195,7 +197,7 @@ describe('should correctly cast/default values to make the input schema complian
       },
     }
 
-    const result = coerceValue(ComponentsObjectSchema, input)
+    const result = coerce(openapiSchemas.components, input)
 
     expect(result).toEqual({
       securitySchemes: {

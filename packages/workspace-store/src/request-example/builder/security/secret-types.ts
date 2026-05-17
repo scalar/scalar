@@ -10,12 +10,15 @@ import type {
   XScalarTokenUrl,
 } from '@/schemas/extensions/security'
 import type {
+  ApiKeyObject,
+  HttpObject,
+  OAuth2Object,
   OAuthFlowAuthorizationCode,
   OAuthFlowClientCredentials,
   OAuthFlowImplicit,
   OAuthFlowPassword,
-} from '@/schemas/v3.1/strict/oauth-flow'
-import type { ApiKeyObject, HttpObject, OAuth2Object, OpenIdConnectObject } from '@/schemas/v3.1/strict/security-scheme'
+  OpenIdConnectObject,
+} from '@scalar/types/openapi/3.1'
 
 type OAuthFlowCommonSecret = XScalarSecretClientId &
   XScalarSecretToken &

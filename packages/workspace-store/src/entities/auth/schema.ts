@@ -1,5 +1,6 @@
 import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
 import {
+  type IntersectionMember,
   type Static,
   array,
   intersection,
@@ -68,10 +69,12 @@ export type SecretsOAuth = Static<typeof SecretsOAuth>
 export const OpenIDConnectSchema = intersection([
   object({ type: literal('openIdConnect') }),
   object({
-    implicit: optional(intersection([implicitOAuth2Flow, SecretsOAuthFlowCommon, XScalarSecretRedirectUri])),
+    implicit: optional(
+      intersection([implicitOAuth2Flow as IntersectionMember, SecretsOAuthFlowCommon, XScalarSecretRedirectUri]),
+    ),
     password: optional(
       intersection([
-        passwordOAuth2Flow,
+        passwordOAuth2Flow as IntersectionMember,
         SecretsOAuthFlowCommon,
         XScalarSecretHTTP,
         XScalarSecretClientSecret,
@@ -80,7 +83,7 @@ export const OpenIDConnectSchema = intersection([
     ),
     clientCredentials: optional(
       intersection([
-        clientCredentialsOAuth2Flow,
+        clientCredentialsOAuth2Flow as IntersectionMember,
         SecretsOAuthFlowCommon,
         XScalarSecretClientSecret,
         XScalarCredentialsLocation,
@@ -88,7 +91,7 @@ export const OpenIDConnectSchema = intersection([
     ),
     authorizationCode: optional(
       intersection([
-        authorizationCodeOAuth2Flow,
+        authorizationCodeOAuth2Flow as IntersectionMember,
         SecretsOAuthFlowCommon,
         XScalarSecretClientSecret,
         XScalarSecretRedirectUri,

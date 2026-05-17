@@ -1,3 +1,4 @@
+import type { SecurityRequirementObject } from '@scalar/types/openapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import { getSelectedSecurity } from './get-selected-security'
@@ -11,7 +12,11 @@ describe('getSelectedSecurity', () => {
     }
     const securityRequirements = [{ apiKey: [] }, { basicAuth: [] }, { oauth2: [] }]
 
-    const result = getSelectedSecurity(documentSelectedSecurity, operationSelectedSecurity, securityRequirements)
+    const result = getSelectedSecurity(
+      documentSelectedSecurity,
+      operationSelectedSecurity,
+      securityRequirements as unknown as SecurityRequirementObject[],
+    )
 
     expect(result).toEqual({
       selectedIndex: 2,
@@ -27,7 +32,11 @@ describe('getSelectedSecurity', () => {
     const operationSelectedSecurity = undefined
     const securityRequirements = [{ apiKey: [] }, { bearerAuth: [] }]
 
-    const result = getSelectedSecurity(documentSelectedSecurity, operationSelectedSecurity, securityRequirements)
+    const result = getSelectedSecurity(
+      documentSelectedSecurity,
+      operationSelectedSecurity,
+      securityRequirements as unknown as SecurityRequirementObject[],
+    )
 
     expect(result).toEqual({
       selectedIndex: 1,
@@ -41,7 +50,11 @@ describe('getSelectedSecurity', () => {
     // Empty requirement makes auth optional
     const securityRequirements = [{ apiKey: [] }, {}]
 
-    const result = getSelectedSecurity(documentSelectedSecurity, operationSelectedSecurity, securityRequirements)
+    const result = getSelectedSecurity(
+      documentSelectedSecurity,
+      operationSelectedSecurity,
+      securityRequirements as unknown as SecurityRequirementObject[],
+    )
 
     expect(result).toEqual({
       selectedIndex: -1,
@@ -54,7 +67,11 @@ describe('getSelectedSecurity', () => {
     const operationSelectedSecurity = undefined
     const securityRequirements = [{ apiKey: [] }, { oauth2: [] }, { basicAuth: [] }]
 
-    const result = getSelectedSecurity(documentSelectedSecurity, operationSelectedSecurity, securityRequirements)
+    const result = getSelectedSecurity(
+      documentSelectedSecurity,
+      operationSelectedSecurity,
+      securityRequirements as unknown as SecurityRequirementObject[],
+    )
 
     expect(result).toEqual({
       selectedIndex: 0,
@@ -115,7 +132,11 @@ describe('getSelectedSecurity', () => {
     const operationSelectedSecurity = undefined
     const securityRequirements: Array<Record<string, string[]>> = []
 
-    const result = getSelectedSecurity(documentSelectedSecurity, operationSelectedSecurity, securityRequirements)
+    const result = getSelectedSecurity(
+      documentSelectedSecurity,
+      operationSelectedSecurity,
+      securityRequirements as unknown as SecurityRequirementObject[],
+    )
 
     expect(result).toEqual({
       selectedIndex: -1,
@@ -132,7 +153,11 @@ describe('getSelectedSecurity', () => {
         oauth2: { type: 'oauth2' },
       }
 
-      const result = getSelectedSecurity(undefined, undefined, securityRequirements, securitySchemes, 'bearerAuth')
+      const result = getSelectedSecurity(
+        undefined,
+        undefined,
+        securityRequirements as unknown as SecurityRequirementObject[],
+        securitySchemes, 'bearerAuth')
 
       expect(result).toEqual({
         selectedIndex: 0,
@@ -147,7 +172,11 @@ describe('getSelectedSecurity', () => {
         oauth2: { type: 'oauth2' },
       }
 
-      const result = getSelectedSecurity(undefined, undefined, securityRequirements, securitySchemes, ['oauth2'])
+      const result = getSelectedSecurity(
+        undefined,
+        undefined,
+        securityRequirements as unknown as SecurityRequirementObject[],
+        securitySchemes, ['oauth2'])
 
       expect(result).toEqual({
         selectedIndex: 0,
@@ -165,7 +194,11 @@ describe('getSelectedSecurity', () => {
         },
       }
 
-      const result = getSelectedSecurity(undefined, undefined, securityRequirements, securitySchemes, 'oauth2')
+      const result = getSelectedSecurity(
+        undefined,
+        undefined,
+        securityRequirements as unknown as SecurityRequirementObject[],
+        securitySchemes, 'oauth2')
 
       expect(result).toEqual({
         selectedIndex: 0,
@@ -181,7 +214,11 @@ describe('getSelectedSecurity', () => {
         oauth2: { type: 'oauth2' },
       }
 
-      const result = getSelectedSecurity(undefined, undefined, securityRequirements, securitySchemes, 'oauth2')
+      const result = getSelectedSecurity(
+        undefined,
+        undefined,
+        securityRequirements as unknown as SecurityRequirementObject[],
+        securitySchemes, 'oauth2')
 
       expect(result).toEqual({
         selectedIndex: 0,
@@ -196,7 +233,11 @@ describe('getSelectedSecurity', () => {
         oauth2: { type: 'oauth2' },
       }
 
-      const result = getSelectedSecurity(undefined, undefined, securityRequirements, securitySchemes, [
+      const result = getSelectedSecurity(
+        undefined,
+        undefined,
+        securityRequirements as unknown as SecurityRequirementObject[],
+        securitySchemes, [
         'oauth2',
         'apiKey',
       ])
@@ -218,7 +259,11 @@ describe('getSelectedSecurity', () => {
         basic: { type: 'http' },
       }
 
-      const result = getSelectedSecurity(undefined, undefined, securityRequirements, securitySchemes, [
+      const result = getSelectedSecurity(
+        undefined,
+        undefined,
+        securityRequirements as unknown as SecurityRequirementObject[],
+        securitySchemes, [
         ['oauth2', 'basic'],
         'apiKey',
       ])
@@ -243,7 +288,7 @@ describe('getSelectedSecurity', () => {
       const result = getSelectedSecurity(
         documentSelectedSecurity,
         undefined,
-        securityRequirements,
+        securityRequirements as unknown as SecurityRequirementObject[],
         securitySchemes,
         'oauth2',
       )
@@ -260,7 +305,11 @@ describe('getSelectedSecurity', () => {
         apiKey: { type: 'apiKey' },
       }
 
-      const result = getSelectedSecurity(undefined, undefined, securityRequirements, securitySchemes, 'apiKey')
+      const result = getSelectedSecurity(
+        undefined,
+        undefined,
+        securityRequirements as unknown as SecurityRequirementObject[],
+        securitySchemes, 'apiKey')
 
       expect(result).toEqual({
         selectedIndex: 0,

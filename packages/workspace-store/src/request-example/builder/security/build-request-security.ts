@@ -117,8 +117,13 @@ export const buildRequestSecurity = (
 
     // OAuth2
     if (scheme.type === 'oauth2') {
-      const flows = Object.values(scheme?.flows ?? {})
-      const token = flows.filter(isDefined).find((f) => f['x-scalar-secret-token'])?.['x-scalar-secret-token'] ?? ''
+      const flows = Object.values(scheme.flows ?? {})
+      const token =
+        flows
+          .filter(isDefined)
+          .find((flow) => 'x-scalar-secret-token' in flow && flow['x-scalar-secret-token'])?.[
+          'x-scalar-secret-token'
+        ] ?? ''
 
       return result.push({
         in: 'header',
@@ -130,8 +135,13 @@ export const buildRequestSecurity = (
 
     // OpenID Connect
     if (scheme.type === 'openIdConnect') {
-      const flows = Object.values(scheme?.flows ?? {})
-      const token = flows.filter(isDefined).find((f) => f['x-scalar-secret-token'])?.['x-scalar-secret-token'] ?? ''
+      const flows = Object.values(scheme.flows ?? {})
+      const token =
+        flows
+          .filter(isDefined)
+          .find((flow) => 'x-scalar-secret-token' in flow && flow['x-scalar-secret-token'])?.[
+          'x-scalar-secret-token'
+        ] ?? ''
 
       return result.push({
         in: 'header',

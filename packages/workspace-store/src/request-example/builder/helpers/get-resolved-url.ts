@@ -2,7 +2,7 @@ import { replaceVariables } from '@scalar/helpers/regex/replace-variables'
 import { mergeUrls } from '@scalar/helpers/url/merge-urls'
 
 import { getServerVariables } from '@/request-example/builder/helpers/get-server-variables'
-import type { ServerObject } from '@/schemas/v3.1/strict/server'
+import type { ServerObject } from '@scalar/types/openapi/3.1'
 
 /**
  * Resolves the full request URL by:

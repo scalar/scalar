@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest'
 
 import { syncParametersForPathChange } from '@/mutators/operation/helpers/sync-path-parameters'
-import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
+import type { ReferenceType } from '@scalar/types/openapi/3.1'
 
 type TestParameter = {
   name: string

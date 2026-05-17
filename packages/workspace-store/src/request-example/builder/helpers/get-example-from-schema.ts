@@ -534,8 +534,8 @@ const handleArraySchema = (
       }
 
       const examples = allOf
-        .map((s) =>
-          getExampleFromSchema(resolve.schema(s), options, {
+        .map((subschema) =>
+          getExampleFromSchema(resolve.schema(subschema as SchemaObject), options, {
             level: level + 1,
             parentSchema: schema,
             schemaPath: itemsSchemaPath,

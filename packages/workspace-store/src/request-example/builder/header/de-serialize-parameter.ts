@@ -1,4 +1,4 @@
-import type { ParameterObject, ParameterWithSchemaObject } from '@scalar/types/openapi/3.1'
+import type { ParameterObject, ParameterObjectWithSchema } from '@scalar/types/openapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
 /** Helper that de-serializes the example value based on the parameter type */
@@ -29,7 +29,7 @@ const deSerializeContentExample = (example: unknown, contentType: string) => {
 const parseableTypesSet = new Set(['array', 'object', 'boolean', 'number', 'integer', 'null'])
 
 /** De-serialize the example value based on the schema type */
-const deSerializeSchemaExample = (example: unknown, schema: ParameterWithSchemaObject['schema']) => {
+const deSerializeSchemaExample = (example: unknown, schema: ParameterObjectWithSchema['schema']) => {
   const resolvedSchema = getResolvedRef(schema)
 
   if (typeof example === 'string' && resolvedSchema && 'type' in resolvedSchema) {

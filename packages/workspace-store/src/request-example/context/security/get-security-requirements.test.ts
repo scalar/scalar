@@ -1,3 +1,4 @@
+import type { SecurityRequirementObject } from '@scalar/types/openapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import { getSecurityRequirements } from './get-security-requirements'
@@ -7,7 +8,10 @@ describe('get-security-requirements', () => {
     const documentSecurity = [{ apiKey: [] }]
     const operationSecurity = [{ oauth2: ['read:users'] }]
 
-    const result = getSecurityRequirements(documentSecurity, operationSecurity)
+    const result = getSecurityRequirements(
+      documentSecurity as unknown as SecurityRequirementObject[],
+      operationSecurity as unknown as SecurityRequirementObject[],
+    )
 
     expect(result).toEqual([{ oauth2: ['read:users'] }])
   })
@@ -16,7 +20,10 @@ describe('get-security-requirements', () => {
     const documentSecurity = [{ apiKey: [] }, {}]
     const operationSecurity = [{}]
 
-    const result = getSecurityRequirements(documentSecurity, operationSecurity)
+    const result = getSecurityRequirements(
+      documentSecurity as unknown as SecurityRequirementObject[],
+      operationSecurity as unknown as SecurityRequirementObject[],
+    )
 
     // Document security is returned as-is because it already includes optional
     expect(result).toEqual([{ apiKey: [] }, {}])
@@ -26,7 +33,10 @@ describe('get-security-requirements', () => {
     const documentSecurity = [{ apiKey: [] }, { oauth2: ['read'] }]
     const operationSecurity = [{}]
 
-    const result = getSecurityRequirements(documentSecurity, operationSecurity)
+    const result = getSecurityRequirements(
+      documentSecurity as unknown as SecurityRequirementObject[],
+      operationSecurity as unknown as SecurityRequirementObject[],
+    )
 
     // Optional security object is added to document security
     expect(result).toEqual([{ apiKey: [] }, { oauth2: ['read'] }, {}])
@@ -35,7 +45,7 @@ describe('get-security-requirements', () => {
   it('returns document security when operation security is undefined', () => {
     const documentSecurity = [{ bearerAuth: [] }]
 
-    const result = getSecurityRequirements(documentSecurity, undefined)
+    const result = getSecurityRequirements(documentSecurity as unknown as SecurityRequirementObject[], undefined)
     expect(result).toEqual([{ bearerAuth: [] }])
   })
 

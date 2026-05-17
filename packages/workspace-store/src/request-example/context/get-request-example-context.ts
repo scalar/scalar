@@ -18,9 +18,7 @@ import type { RequestExampleMeta, Result } from '@/request-example/types'
 import type { XScalarEnvironment } from '@/schemas/extensions/document'
 import type { XScalarCookie } from '@/schemas/extensions/general'
 import { isOpenApiDocument } from '@/schemas/type-guards'
-import type { OperationObject } from '@/schemas/v3.1/strict/operation'
-import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
-import type { ServerObject } from '@/schemas/v3.1/strict/server'
+import type { OperationObject, SecurityRequirementObject, ServerObject } from '@scalar/types/openapi/3.1'
 import type { WorkspaceDocument } from '@/schemas/workspace'
 
 export type BuildRequestExampleContext = {

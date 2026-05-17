@@ -1,28 +1,12 @@
 import { HTTP_METHODS, type HttpMethod } from '@scalar/helpers/http/http-methods'
 import { type TLiteral, Type } from '@scalar/typebox'
+import type { InfoObject, OperationObject, SchemaObject, TagObject } from '@scalar/types/openapi/3.1'
 
 import { compose } from '@/schemas/compose'
-import type { InfoObject } from '@/schemas/v3.1/strict/info'
-import type { OperationObject } from '@/schemas/v3.1/strict/operation'
-import { TraversedEntryObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
-import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
-import type { TagObject } from '@/schemas/v3.1/strict/tag'
+import { type NavigationBase, NavigationBaseSchemaDefinition } from '@/schemas/navigation-base'
+import { TraversedEntryObjectRef } from '@/schemas/navigation-ref-definitions'
 
-export const NavigationBaseSchemaDefinition = Type.Object({
-  id: Type.String(),
-  title: Type.String(),
-})
-
-type BaseSchema = {
-  /**
-   * The unique identifier for the entry
-   *
-   * Must be unique across the entire navigation structure.
-   */
-  id: string
-  /** The user readable title of the entry */
-  title: string
-}
+type BaseSchema = NavigationBase
 
 export const TraversedDocumentSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
@@ -188,16 +172,7 @@ export type TraversedModels = BaseSchema & {
   children?: TraversedEntry[]
 }
 
-export const TraversedEntrySchemaDefinition = Type.Union([
-  TraversedDescriptionSchemaDefinition,
-  TraversedOperationSchemaDefinition,
-  TraversedSchemaSchemaDefinition,
-  TraversedTagSchemaDefinition,
-  TraversedWebhookSchemaDefinition,
-  TraversedExampleSchemaDefinition,
-  TraversedDocumentSchemaDefinition,
-  TraversedModelsSchemaDefinition,
-])
+export { TraversedEntrySchemaDefinition } from '@/schemas/navigation-ref-definitions'
 
 export type TraversedEntry =
   | TraversedDescription

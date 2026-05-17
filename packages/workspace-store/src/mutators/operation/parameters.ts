@@ -4,8 +4,7 @@ import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { WorkspaceDocument } from '@/schemas'
 import type { DisableParametersConfig } from '@/schemas/extensions/operation'
 import { isOpenApiDocument } from '@/schemas/type-guards'
-import type { ExampleObject } from '@/schemas/v3.1/strict/example'
-import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
+import type { ExampleObject, ReferenceType } from '@scalar/types/openapi/3.1'
 
 /**
  * Updates an existing parameter of a given `type` by its index within that

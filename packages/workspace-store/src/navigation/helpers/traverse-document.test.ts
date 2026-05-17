@@ -1,9 +1,10 @@
-import { type OpenApiDocument, SchemaObjectSchema } from '@scalar/types/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import { describe, expect, it } from 'vitest'
 
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import type { TraversedTag } from '@/schemas/navigation'
-import { coerceValue } from '@/schemas/typebox-coerce'
 
 import { traverseDocument } from './traverse-document'
 
@@ -174,7 +175,7 @@ describe('traverseDocument', () => {
       },
       components: {
         schemas: {
-          TestModel: coerceValue(SchemaObjectSchema, {
+          TestModel: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               id: {
@@ -214,7 +215,7 @@ describe('traverseDocument', () => {
       },
       components: {
         schemas: {
-          TestModel: coerceValue(SchemaObjectSchema, {
+          TestModel: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               id: {

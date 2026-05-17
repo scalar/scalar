@@ -1,5 +1,6 @@
-import { type RequestBodyObject, RequestBodyObjectSchema } from '@scalar/types/openapi/3.1'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import type { RequestBodyObject } from '@scalar/types/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import { describe, expect, it } from 'vitest'
 
 import { getExampleFromBody } from './get-request-body-example'
@@ -24,7 +25,7 @@ describe('get-request-body-example', () => {
   })
 
   it('generates example from schema when no example exists', () => {
-    const requestBody = coerceValue(RequestBodyObjectSchema, {
+    const requestBody = coerce(openapiSchemas.requestBody, {
       content: {
         'application/json': {
           schema: {
@@ -115,7 +116,7 @@ describe('get-request-body-example', () => {
   })
 
   it('uses requestBodyCompositionSelection when generating an example from schema', () => {
-    const requestBody = coerceValue(RequestBodyObjectSchema, {
+    const requestBody = coerce(openapiSchemas.requestBody, {
       content: {
         'application/json': {
           schema: {
@@ -144,7 +145,7 @@ describe('get-request-body-example', () => {
   })
 
   it('deep resolves nested refs when generating selected nested composition examples', () => {
-    const requestBody = coerceValue(RequestBodyObjectSchema, {
+    const requestBody = coerce(openapiSchemas.requestBody, {
       content: {
         'application/json': {
           schema: {

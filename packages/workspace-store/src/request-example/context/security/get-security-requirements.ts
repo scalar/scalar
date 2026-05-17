@@ -1,5 +1,5 @@
 import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
+import type { OperationObject } from '@scalar/types/openapi/3.1'
 
 /**
  * Compute what the security requirements should be for a request

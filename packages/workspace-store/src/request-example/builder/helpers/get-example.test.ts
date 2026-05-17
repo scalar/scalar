@@ -1,4 +1,8 @@
-import type { ParameterObject, ParameterWithContentObject, ParameterWithSchemaObject } from '@scalar/types/openapi/3.1'
+import type {
+  ParameterObject,
+  ParameterObjectWithContent,
+  ParameterObjectWithSchema,
+} from '@scalar/types/openapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import { getExample } from './get-example'
@@ -65,7 +69,7 @@ describe('content-based parameters', () => {
           examples: { b: { value: 'yep' } },
         },
       },
-    } satisfies ParameterWithContentObject
+    } satisfies ParameterObjectWithContent
 
     const result = getExample(param, 'missing', 'application/json')
     expect(result?.value).toBeUndefined()
@@ -149,7 +153,7 @@ describe('content-based parameters', () => {
     const stringified = JSON.stringify({ data: 'json' })
     const param = {
       example: stringified,
-    } as unknown as ParameterWithContentObject
+    } as unknown as ParameterObjectWithContent
 
     const result = getExample(param, undefined, undefined)
     expect(result).toEqual({ value: stringified })
@@ -159,7 +163,7 @@ describe('content-based parameters', () => {
     const stringified = JSON.stringify([1, 2, 3])
     const param = {
       example: stringified,
-    } as unknown as ParameterWithContentObject
+    } as unknown as ParameterObjectWithContent
 
     const result = getExample(param, undefined, undefined)
     expect(result).toEqual({ value: stringified })
@@ -184,7 +188,7 @@ describe('schema-based parameters', () => {
         type: 'object',
         example: { id: 1, name: 'Product' },
       },
-    } as ParameterWithSchemaObject
+    } as ParameterObjectWithSchema
 
     const result = getExample(param, undefined, undefined)
     expect(result).toEqual({ value: { id: 1, name: 'Product' } })
@@ -199,7 +203,7 @@ describe('schema-based parameters', () => {
           { id: 3, title: 'Another Task' },
         ],
       },
-    } as ParameterWithSchemaObject
+    } as ParameterObjectWithSchema
 
     const result = getExample(param, undefined, undefined)
     expect(result).toEqual({ value: { id: 2, title: 'Task' } })
@@ -211,7 +215,7 @@ describe('schema-based parameters', () => {
         type: 'array',
         example: [1, 2, 3, 4],
       },
-    } as ParameterWithSchemaObject
+    } as ParameterObjectWithSchema
 
     const result = getExample(param, undefined, undefined)
     expect(result).toEqual({ value: [1, 2, 3, 4] })
@@ -223,7 +227,7 @@ describe('schema-based parameters', () => {
         type: 'boolean',
         example: true,
       },
-    } as ParameterWithSchemaObject
+    } as ParameterObjectWithSchema
     const result = getExample(param, undefined, undefined)
     expect(result).toEqual({ value: true })
   })
@@ -234,7 +238,7 @@ describe('schema-based parameters', () => {
         example1: { value: 'first' },
         example2: { value: 'second' },
       },
-    } as unknown as ParameterWithSchemaObject
+    } as unknown as ParameterObjectWithSchema
 
     const result = getExample(param, 'example2', undefined)
     expect(result).toEqual({ value: 'second' })
@@ -246,7 +250,7 @@ describe('schema-based parameters', () => {
         example1: { value: 'first' },
         example2: { value: 'second' },
       },
-    } as unknown as ParameterWithSchemaObject
+    } as unknown as ParameterObjectWithSchema
 
     const result = getExample(param, undefined, undefined)
     expect(result).toEqual({ value: 'first' })
@@ -258,7 +262,7 @@ describe('schema-based parameters', () => {
         type: 'string',
         default: 'default value',
       },
-    } as ParameterWithSchemaObject
+    } as ParameterObjectWithSchema
 
     const result = getExample(param, undefined, undefined)
     expect(result).toEqual({ value: 'default value' })
@@ -270,7 +274,7 @@ describe('schema-based parameters', () => {
         type: 'string',
         enum: ['active', 'inactive', 'pending'],
       },
-    } as unknown as ParameterWithSchemaObject
+    } as unknown as ParameterObjectWithSchema
 
     const result = getExample(param, undefined, undefined)
     expect(result).toEqual({ value: 'active' })
@@ -285,7 +289,7 @@ describe('schema-based parameters', () => {
         examples: ['examples array value'],
         example: 'example field value',
       },
-    } as ParameterWithSchemaObject
+    } as ParameterObjectWithSchema
 
     const result = getExample(param, undefined, undefined)
     expect(result).toEqual({ value: 'default value' })
@@ -296,7 +300,7 @@ describe('schema-based parameters', () => {
       schema: {
         type: 'string',
       },
-    } as ParameterWithSchemaObject
+    } as ParameterObjectWithSchema
 
     const result = getExample(param, undefined, undefined)
     expect(result).toBeUndefined()
@@ -495,7 +499,7 @@ describe('other cases', () => {
         type: 'string',
         example: null,
       },
-    } as ParameterWithSchemaObject
+    } as ParameterObjectWithSchema
 
     const result = getExample(param, undefined, undefined)
     expect(result).toEqual({ value: null })
@@ -515,7 +519,7 @@ describe('other cases', () => {
           type,
           example: value,
         },
-      } as ParameterWithSchemaObject
+      } as ParameterObjectWithSchema
 
       const result = getExample(param, undefined, undefined)
       expect(result).toEqual({ value })

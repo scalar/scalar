@@ -1,8 +1,9 @@
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
-import { type ComponentsObject, SecuritySchemeObjectSchema } from '@scalar/types/openapi/3.1'
+import type { ComponentsObject } from '@scalar/types/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { describe, expect, it } from 'vitest'
 import { computed, reactive } from 'vue'
 
@@ -182,7 +183,7 @@ describe('mergeSecurity', () => {
 
   it('handles deeply nested OAuth2 configuration merging', () => {
     const securitySchemes = {
-      oauth2: coerceValue(SecuritySchemeObjectSchema, {
+      oauth2: coerce(openapiSchemas.securityScheme, {
         type: 'oauth2',
         flows: {
           authorizationCode: {
@@ -227,7 +228,7 @@ describe('mergeSecurity', () => {
 
   it('does not mutate source document schemes when deeply merging oauth2 config', () => {
     const securitySchemes = reactive<NonNullable<ComponentsObject['securitySchemes']>>({
-      oauth2: coerceValue(SecuritySchemeObjectSchema, {
+      oauth2: coerce(openapiSchemas.securityScheme, {
         type: 'oauth2',
         flows: {
           authorizationCode: {
@@ -352,7 +353,7 @@ describe('mergeSecurity', () => {
         bearerFormat: 'JWT',
         description: 'Bearer token authentication',
       },
-      oauth2AllFlows: coerceValue(SecuritySchemeObjectSchema, {
+      oauth2AllFlows: coerce(openapiSchemas.securityScheme, {
         type: 'oauth2',
         description: 'OAuth2 with all flows',
         flows: {
@@ -557,7 +558,7 @@ describe('mergeSecurity', () => {
       },
       oauth2: {
         $ref: '#/components/securitySchemes/oauth2',
-        '$ref-value': coerceValue(SecuritySchemeObjectSchema, {
+        '$ref-value': coerce(openapiSchemas.securityScheme, {
           type: 'oauth2',
           description: 'OAuth2 authentication',
           flows: {
@@ -648,7 +649,7 @@ describe('mergeSecurity', () => {
       },
       oauth2: {
         $ref: '#/components/securitySchemes/oauth2',
-        '$ref-value': coerceValue(SecuritySchemeObjectSchema, {
+        '$ref-value': coerce(openapiSchemas.securityScheme, {
           type: 'oauth2',
           description: 'OAuth2 authentication',
           flows: {
@@ -800,7 +801,7 @@ describe('mergeSecurity', () => {
     const redirectAuthStore = createWorkspaceStore().auth
 
     const securitySchemes: ComponentsObject['securitySchemes'] = {
-      oauth2: coerceValue(SecuritySchemeObjectSchema, {
+      oauth2: coerce(openapiSchemas.securityScheme, {
         type: 'oauth2',
         flows: {
           authorizationCode: {

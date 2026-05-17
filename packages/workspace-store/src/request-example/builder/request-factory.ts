@@ -4,7 +4,7 @@ import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-sca
 import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
 import type { ServerObject } from '@scalar/types/openapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
+import type { OperationObject } from '@scalar/types/openapi/3.1'
 
 import { getServerVariables } from '@/request-example/builder/helpers/get-server-variables'
 import {

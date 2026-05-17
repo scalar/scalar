@@ -1,4 +1,4 @@
-import type { ParameterObject, ParameterWithSchemaObject } from '@scalar/types/openapi/3.1'
+import type { ParameterObject, ParameterObjectWithSchema } from '@scalar/types/openapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import { deSerializeParameter } from './de-serialize-parameter'
@@ -23,7 +23,7 @@ describe('de-serialize-parameter', () => {
     })
 
     it('parses JSON string to array when schema type is array', () => {
-      const param: ParameterWithSchemaObject = {
+      const param: ParameterObjectWithSchema = {
         name: 'test',
         in: 'query',
         schema: {
@@ -56,7 +56,7 @@ describe('de-serialize-parameter', () => {
     })
 
     it('returns original string when JSON parsing fails for schema type', () => {
-      const param: ParameterWithSchemaObject = {
+      const param: ParameterObjectWithSchema = {
         name: 'test',
         in: 'query',
         schema: {
@@ -71,7 +71,7 @@ describe('de-serialize-parameter', () => {
     })
 
     it('handles schema with array of types and uses first type', () => {
-      const param: ParameterWithSchemaObject = {
+      const param: ParameterObjectWithSchema = {
         name: 'test',
         in: 'query',
         schema: {
@@ -86,7 +86,7 @@ describe('de-serialize-parameter', () => {
     })
 
     it('parses boolean string when schema type is boolean', () => {
-      const param: ParameterWithSchemaObject = {
+      const param: ParameterObjectWithSchema = {
         name: 'test',
         in: 'query',
         schema: {
@@ -101,7 +101,7 @@ describe('de-serialize-parameter', () => {
     })
 
     it('parses number string when schema type is number', () => {
-      const param: ParameterWithSchemaObject = {
+      const param: ParameterObjectWithSchema = {
         name: 'test',
         in: 'query',
         schema: {
@@ -116,7 +116,7 @@ describe('de-serialize-parameter', () => {
     })
 
     it('parses integer string when schema type is integer', () => {
-      const param: ParameterWithSchemaObject = {
+      const param: ParameterObjectWithSchema = {
         name: 'test',
         in: 'query',
         schema: {
@@ -131,7 +131,7 @@ describe('de-serialize-parameter', () => {
     })
 
     it('parses null string when schema type is null', () => {
-      const param: ParameterWithSchemaObject = {
+      const param: ParameterObjectWithSchema = {
         name: 'test',
         in: 'query',
         schema: {
@@ -146,7 +146,7 @@ describe('de-serialize-parameter', () => {
     })
 
     it('does not parse string when schema type is string', () => {
-      const param: ParameterWithSchemaObject = {
+      const param: ParameterObjectWithSchema = {
         name: 'test',
         in: 'query',
         schema: {
@@ -190,7 +190,7 @@ describe('de-serialize-parameter', () => {
     })
 
     it('returns non-string example unchanged for schema type', () => {
-      const param: ParameterWithSchemaObject = {
+      const param: ParameterObjectWithSchema = {
         name: 'test',
         in: 'query',
         schema: {
@@ -248,7 +248,7 @@ describe('de-serialize-parameter', () => {
     })
 
     it('handles schema without type property', () => {
-      const param: ParameterWithSchemaObject = {
+      const param: ParameterObjectWithSchema = {
         name: 'test',
         in: 'query',
         // @ts-expect-error - just for testing
@@ -266,7 +266,7 @@ describe('de-serialize-parameter', () => {
     })
 
     it('handles empty array type', () => {
-      const param: ParameterWithSchemaObject = {
+      const param: ParameterObjectWithSchema = {
         name: 'test',
         in: 'query',
         schema: {
@@ -281,7 +281,7 @@ describe('de-serialize-parameter', () => {
     })
 
     it('handles null and undefined examples', () => {
-      const param: ParameterWithSchemaObject = {
+      const param: ParameterObjectWithSchema = {
         name: 'test',
         in: 'query',
         schema: {
@@ -294,7 +294,7 @@ describe('de-serialize-parameter', () => {
     })
 
     it('splits comma-separated string into array when schema type is array and JSON parse fails', () => {
-      const param: ParameterWithSchemaObject = {
+      const param: ParameterObjectWithSchema = {
         name: 'actionType',
         in: 'query',
         schema: {
@@ -310,7 +310,7 @@ describe('de-serialize-parameter', () => {
     })
 
     it('splits comma-separated string with spaces into array when schema type is array', () => {
-      const param: ParameterWithSchemaObject = {
+      const param: ParameterObjectWithSchema = {
         name: 'tags',
         in: 'query',
         schema: {
@@ -326,7 +326,7 @@ describe('de-serialize-parameter', () => {
     })
 
     it('handles single value for array schema type that is not valid JSON', () => {
-      const param: ParameterWithSchemaObject = {
+      const param: ParameterObjectWithSchema = {
         name: 'ids',
         in: 'query',
         schema: {
@@ -342,7 +342,7 @@ describe('de-serialize-parameter', () => {
     })
 
     it('still parses valid JSON arrays for array schema type', () => {
-      const param: ParameterWithSchemaObject = {
+      const param: ParameterObjectWithSchema = {
         name: 'ids',
         in: 'query',
         schema: {

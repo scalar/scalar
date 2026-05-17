@@ -1,5 +1,5 @@
-import { RequestBodyObjectSchema } from '@scalar/types/openapi/3.1'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import { assert, describe, expect, it } from 'vitest'
 
 import { buildRequestBody } from './build-request-body'
@@ -11,7 +11,7 @@ describe('buildRequestBody', () => {
   })
 
   it('returns null when no example value exists', () => {
-    const requestBody = coerceValue(RequestBodyObjectSchema, {
+    const requestBody = coerce(openapiSchemas.requestBody, {
       content: {
         'application/json': {
           schema: {},
@@ -42,7 +42,7 @@ describe('buildRequestBody', () => {
   })
 
   it('uses requestBodyCompositionSelection when building a generated JSON body', () => {
-    const requestBody = coerceValue(RequestBodyObjectSchema, {
+    const requestBody = coerce(openapiSchemas.requestBody, {
       content: {
         'application/json': {
           schema: {
@@ -343,7 +343,7 @@ describe('buildRequestBody', () => {
   })
 
   it('builds FormData for schema-generated multipart/form-data object examples', () => {
-    const requestBody = coerceValue(RequestBodyObjectSchema, {
+    const requestBody = coerce(openapiSchemas.requestBody, {
       content: {
         'multipart/form-data': {
           schema: {

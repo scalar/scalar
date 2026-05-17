@@ -1,7 +1,7 @@
-import { type SchemaObject, SchemaObjectSchema } from '@scalar/types/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import type { SchemaObject } from '@scalar/types/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import { describe, expect, it } from 'vitest'
-
-import { coerceValue } from '@/schemas/typebox-coerce'
 
 import { getExampleFromSchema } from './get-example-from-schema'
 
@@ -9,7 +9,7 @@ describe('getExampleFromSchema', () => {
   it('sets example values', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           example: 10,
         }),
       ),
@@ -19,7 +19,7 @@ describe('getExampleFromSchema', () => {
   it('uses first example, if multiple are configured', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           examples: [10],
         }),
       ),
@@ -29,7 +29,7 @@ describe('getExampleFromSchema', () => {
   it('takes the first enum as example', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           enum: ['available', 'pending', 'sold'],
         }),
       ),
@@ -39,7 +39,7 @@ describe('getExampleFromSchema', () => {
   it('uses empty quotes as a fallback for strings', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'string',
         }),
       ),
@@ -49,7 +49,7 @@ describe('getExampleFromSchema', () => {
   it('only includes required attributes and attributes with example values', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'object',
           required: ['first_name', 'last_name'],
           properties: {
@@ -88,7 +88,7 @@ describe('getExampleFromSchema', () => {
   it('includes every available attributes', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'object',
           required: ['first_name'],
           properties: {
@@ -128,7 +128,7 @@ describe('getExampleFromSchema', () => {
   it('uses example value for first type in non-null union types', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: ['string', 'number'],
         }),
       ),
@@ -138,7 +138,7 @@ describe('getExampleFromSchema', () => {
   it('uses null for nullable union types', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: ['string', 'null'],
         }),
       ),
@@ -148,7 +148,7 @@ describe('getExampleFromSchema', () => {
   it('sets example values', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           example: 10,
         }),
       ),
@@ -158,7 +158,7 @@ describe('getExampleFromSchema', () => {
   it('goes through properties recursively with objects', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'object',
           properties: {
             category: {
@@ -197,7 +197,7 @@ describe('getExampleFromSchema', () => {
   it('goes through properties recursively with arrays', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'object',
           properties: {
             tags: {
@@ -226,7 +226,7 @@ describe('getExampleFromSchema', () => {
   it('uses empty [] as a fallback for arrays', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'object',
           properties: {
             title: {
@@ -243,7 +243,7 @@ describe('getExampleFromSchema', () => {
   it('uses given fallback for strings', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'string',
         }),
         {
@@ -255,7 +255,7 @@ describe('getExampleFromSchema', () => {
 
   it('returns emails as an example value', () => {
     const result = getExampleFromSchema(
-      coerceValue(SchemaObjectSchema, {
+      coerce(openapiSchemas.schema, {
         type: 'string',
         format: 'email',
       }),
@@ -270,7 +270,7 @@ describe('getExampleFromSchema', () => {
   it('uses variables as an example value', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           'type': 'string',
           'x-variable': 'id',
         }),
@@ -286,7 +286,7 @@ describe('getExampleFromSchema', () => {
   it('uses true as a fallback for booleans', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'boolean',
         }),
       ),
@@ -296,7 +296,7 @@ describe('getExampleFromSchema', () => {
   it('uses 1 as a fallback for integers', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'integer',
         }),
       ),
@@ -306,7 +306,7 @@ describe('getExampleFromSchema', () => {
   it('returns an array if the schema type is array', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'array',
         }),
       ),
@@ -316,7 +316,7 @@ describe('getExampleFromSchema', () => {
   it('uses array example values', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'array',
           example: ['foobar'],
           items: {
@@ -330,7 +330,7 @@ describe('getExampleFromSchema', () => {
   it('uses specified object as array default', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'array',
           items: {
             type: 'object',
@@ -356,7 +356,7 @@ describe('getExampleFromSchema', () => {
   it('uses the first example in object anyOf', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'object',
           anyOf: [
             {
@@ -380,7 +380,7 @@ describe('getExampleFromSchema', () => {
   it('uses the first example in object oneOf', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'object',
           oneOf: [
             {
@@ -404,7 +404,7 @@ describe('getExampleFromSchema', () => {
   it('uses the first example in object anyOf when type is not defined', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           anyOf: [
             {
               type: 'object',
@@ -425,7 +425,7 @@ describe('getExampleFromSchema', () => {
   })
 
   it('uses compositionSelection to pick second anyOf variant for example', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       anyOf: [
         { type: 'object', properties: { foo: { type: 'number' } } },
         { type: 'object', properties: { bar: { type: 'string' } } },
@@ -464,7 +464,7 @@ describe('getExampleFromSchema', () => {
   })
 
   it('uses compositionSelection for root-level oneOf/anyOf in example', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       anyOf: [{ type: 'string' }, { type: 'object', properties: { id: { type: 'integer' } } }],
     })
     expect(
@@ -498,7 +498,7 @@ describe('getExampleFromSchema', () => {
   })
 
   it('uses compositionSelection for nested anyOf schemas in objects', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       type: 'object',
       properties: {
         payload: {
@@ -542,7 +542,7 @@ describe('getExampleFromSchema', () => {
   it('uses the first example in object oneOf when type is not defined', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           oneOf: [
             {
               type: 'object',
@@ -565,7 +565,7 @@ describe('getExampleFromSchema', () => {
   it('uses all examples in object allOf', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           allOf: [
             {
               type: 'object',
@@ -588,7 +588,7 @@ describe('getExampleFromSchema', () => {
   it('merges allOf items in arrays', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'array',
           items: {
             allOf: [
@@ -615,7 +615,7 @@ describe('getExampleFromSchema', () => {
   it('handles array items with allOf containing objects', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'array',
           items: {
             allOf: [
@@ -646,7 +646,7 @@ describe('getExampleFromSchema', () => {
   it('uses the first example in array anyOf', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'array',
           items: {
             anyOf: [
@@ -668,7 +668,7 @@ describe('getExampleFromSchema', () => {
   it('uses one example in array oneOf', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'array',
           items: {
             oneOf: [
@@ -690,7 +690,7 @@ describe('getExampleFromSchema', () => {
   it('uses all examples in array allOf', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'array',
           items: {
             allOf: [
@@ -710,7 +710,7 @@ describe('getExampleFromSchema', () => {
   })
 
   it('uses the default value', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       type: 'string',
       default: 'BAD_REQUEST_EXCEPTION',
     })
@@ -719,7 +719,7 @@ describe('getExampleFromSchema', () => {
   })
 
   it('ignores invalid defaults when they do not match primitive schema type', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       type: 'number',
       default: 'invalid',
     })
@@ -728,7 +728,7 @@ describe('getExampleFromSchema', () => {
   })
 
   it('normalizes empty string defaults to null for nullable integers', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       type: ['integer', 'null'],
       default: '',
     })
@@ -737,7 +737,7 @@ describe('getExampleFromSchema', () => {
   })
 
   it('ignores invalid defaults for composed schemas', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       oneOf: [{ type: 'string' }, { type: 'null' }],
       default: 123,
     })
@@ -758,7 +758,7 @@ describe('getExampleFromSchema', () => {
   })
 
   it('keeps empty string defaults for nullable strings', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       type: ['string', 'null'],
       default: '',
     })
@@ -767,7 +767,7 @@ describe('getExampleFromSchema', () => {
   })
 
   it('uses the const value', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       type: 'string',
       const: 'BAD_REQUEST_EXCEPTION',
     })
@@ -778,7 +778,7 @@ describe('getExampleFromSchema', () => {
   it('uses 1 as the default for a number', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'number',
         }),
       ),
@@ -788,7 +788,7 @@ describe('getExampleFromSchema', () => {
   it('uses min as the default for a number', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'number',
           minimum: 200,
         }),
@@ -799,7 +799,7 @@ describe('getExampleFromSchema', () => {
   it('returns plaintext', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'string',
           example: 'foobar',
         }),
@@ -808,7 +808,7 @@ describe('getExampleFromSchema', () => {
   })
 
   it('converts a whole schema to an example response', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       required: ['name', 'photoUrls'],
       type: 'object',
       properties: {
@@ -904,7 +904,7 @@ describe('getExampleFromSchema', () => {
     it('outputs XML', () => {
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               id: {
@@ -925,7 +925,7 @@ describe('getExampleFromSchema', () => {
     it('uses the xml.name for the root element if present', () => {
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             xml: {
               name: 'foobar',
@@ -953,7 +953,7 @@ describe('getExampleFromSchema', () => {
     it('add XML wrappers where needed', () => {
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               photoUrls: {
@@ -981,7 +981,7 @@ describe('getExampleFromSchema', () => {
     it(`doesn't wrap items when not needed`, () => {
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               photoUrls: {
@@ -1007,7 +1007,7 @@ describe('getExampleFromSchema', () => {
   it('use the first item of oneOf', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           oneOf: [
             {
               maxLength: 255,
@@ -1025,7 +1025,7 @@ describe('getExampleFromSchema', () => {
   it('does not use the first item of oneOf if it is null', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           oneOf: [
             {
               type: 'null',
@@ -1043,7 +1043,7 @@ describe('getExampleFromSchema', () => {
   it('uses the first item of oneOf if there is only one item', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           oneOf: [
             {
               type: 'null',
@@ -1057,7 +1057,7 @@ describe('getExampleFromSchema', () => {
   it('works with allOf', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           allOf: [
             {
               type: 'string',
@@ -1071,7 +1071,7 @@ describe('getExampleFromSchema', () => {
   it('uses all schemas in allOf', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           allOf: [
             {
               type: 'object',
@@ -1101,7 +1101,7 @@ describe('getExampleFromSchema', () => {
   it('returns null for unknown types', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'fantasy',
         }),
       ),
@@ -1111,7 +1111,7 @@ describe('getExampleFromSchema', () => {
   it('returns readOnly attributes by default', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           example: 'foobar',
           readOnly: true,
         }),
@@ -1122,7 +1122,7 @@ describe('getExampleFromSchema', () => {
   it('returns readOnly attributes in read mode', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           example: 'foobar',
           readOnly: true,
         }),
@@ -1136,7 +1136,7 @@ describe('getExampleFromSchema', () => {
   it(`doesn't return readOnly attributes in write mode`, () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           example: 'foobar',
           readOnly: true,
         }),
@@ -1150,7 +1150,7 @@ describe('getExampleFromSchema', () => {
   it('returns writeOnly attributes by default', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           example: 'foobar',
           writeOnly: true,
         }),
@@ -1161,7 +1161,7 @@ describe('getExampleFromSchema', () => {
   it('returns writeOnly attributes in write mode', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           example: 'foobar',
           writeOnly: true,
         }),
@@ -1175,7 +1175,7 @@ describe('getExampleFromSchema', () => {
   it(`doesn't return writeOnly attributes in read mode`, () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           example: 'foobar',
           writeOnly: true,
         }),
@@ -1199,7 +1199,7 @@ describe('getExampleFromSchema', () => {
 
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: true,
           }),
@@ -1212,7 +1212,7 @@ describe('getExampleFromSchema', () => {
     it('adds an additionalProperty with specific types', () => {
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: {
               type: 'integer',
@@ -1225,7 +1225,7 @@ describe('getExampleFromSchema', () => {
 
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: {
               type: 'boolean',
@@ -1238,7 +1238,7 @@ describe('getExampleFromSchema', () => {
 
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: {
               type: 'boolean',
@@ -1252,7 +1252,7 @@ describe('getExampleFromSchema', () => {
 
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: {
               type: 'string',
@@ -1265,7 +1265,7 @@ describe('getExampleFromSchema', () => {
 
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: {
               type: 'object',
@@ -1287,7 +1287,7 @@ describe('getExampleFromSchema', () => {
     it('uses x-additionalPropertiesName when provided', () => {
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: {
               type: 'string',
@@ -1301,7 +1301,7 @@ describe('getExampleFromSchema', () => {
 
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: {
               type: 'integer',
@@ -1315,7 +1315,7 @@ describe('getExampleFromSchema', () => {
 
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: {
               type: 'boolean',
@@ -1331,7 +1331,7 @@ describe('getExampleFromSchema', () => {
     it('uses x-additionalPropertiesName with complex object types', () => {
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: {
               type: 'object',
@@ -1360,7 +1360,7 @@ describe('getExampleFromSchema', () => {
     it('uses x-additionalPropertiesName with any type (additionalProperties: true)', () => {
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: {
               'x-additionalPropertiesName': 'dynamicField',
@@ -1375,7 +1375,7 @@ describe('getExampleFromSchema', () => {
     it('uses x-additionalPropertiesName with empty object (additionalProperties: {})', () => {
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: {
               'x-additionalPropertiesName': 'flexibleProperty',
@@ -1390,7 +1390,7 @@ describe('getExampleFromSchema', () => {
     it('trims whitespace from x-additionalPropertiesName', () => {
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: {
               type: 'string',
@@ -1406,7 +1406,7 @@ describe('getExampleFromSchema', () => {
     it('falls back to additionalProperty when x-additionalPropertiesName is empty string', () => {
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: {
               type: 'string',
@@ -1422,7 +1422,7 @@ describe('getExampleFromSchema', () => {
     it('falls back to additionalProperty when x-additionalPropertiesName is only whitespace', () => {
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: {
               type: 'string',
@@ -1438,7 +1438,7 @@ describe('getExampleFromSchema', () => {
     it('does not add additional properties when additionalProperties is false', () => {
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               name: { type: 'string' },
@@ -1454,7 +1454,7 @@ describe('getExampleFromSchema', () => {
     it('coerces the type when x-additionalPropertiesName is not a string', () => {
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: {
               type: 'string',
@@ -1468,7 +1468,7 @@ describe('getExampleFromSchema', () => {
 
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: {
               type: 'string',
@@ -1482,7 +1482,7 @@ describe('getExampleFromSchema', () => {
 
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: {
               type: 'string',
@@ -1498,7 +1498,7 @@ describe('getExampleFromSchema', () => {
     it('handles x-additionalPropertiesName with special characters', () => {
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: {
               type: 'string',
@@ -1512,7 +1512,7 @@ describe('getExampleFromSchema', () => {
 
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: {
               type: 'string',
@@ -1526,7 +1526,7 @@ describe('getExampleFromSchema', () => {
 
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             additionalProperties: {
               type: 'string',
@@ -1542,7 +1542,7 @@ describe('getExampleFromSchema', () => {
     it('works with x-additionalPropertiesName in nested schemas', () => {
       expect(
         getExampleFromSchema(
-          coerceValue(SchemaObjectSchema, {
+          coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               config: {
@@ -1565,7 +1565,7 @@ describe('getExampleFromSchema', () => {
     it('handles multiple additionalProperties with different x-additionalPropertiesName', () => {
       // This test demonstrates that the function correctly handles
       // the x-additionalPropertiesName extension in different contexts
-      const schema1 = coerceValue(SchemaObjectSchema, {
+      const schema1 = coerce(openapiSchemas.schema, {
         type: 'object',
         additionalProperties: {
           type: 'string',
@@ -1573,7 +1573,7 @@ describe('getExampleFromSchema', () => {
         },
       })
 
-      const schema2 = coerceValue(SchemaObjectSchema, {
+      const schema2 = coerce(openapiSchemas.schema, {
         type: 'object',
         additionalProperties: {
           type: 'number',
@@ -1664,7 +1664,7 @@ describe('getExampleFromSchema', () => {
   it('works with anyOf', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           title: 'Foo',
           type: 'object',
           anyOf: [
@@ -1705,7 +1705,7 @@ describe('getExampleFromSchema', () => {
   it('handles patternProperties', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'object',
           patternProperties: {
             '^(.*)$': {
@@ -1828,7 +1828,7 @@ describe('getExampleFromSchema', () => {
   it('omits deprecated properties', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           type: 'object',
           properties: {
             name: {
@@ -1851,7 +1851,7 @@ describe('getExampleFromSchema', () => {
   it('expands objects and arrays in arrays (without a type)', () => {
     expect(
       getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
+        coerce(openapiSchemas.schema, {
           'type': 'array',
           'description': "The summary of user's quality of service (QoS) information.",
           'items': {
@@ -1899,7 +1899,7 @@ describe('getExampleFromSchema', () => {
 
   describe('caching', () => {
     it('returns different results when different options are passed', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'object',
         required: ['name'],
         properties: {
@@ -1941,7 +1941,7 @@ describe('getExampleFromSchema', () => {
     })
 
     it('returns the same cached object reference for identical calls', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'object',
         properties: {
           user: {

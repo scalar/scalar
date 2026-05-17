@@ -7,20 +7,15 @@ import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import { upgrade } from '@scalar/openapi-upgrader'
-import {
-  type ComponentsObject,
-  OpenAPIDocumentSchema,
-  type OpenApiDocument,
-  type OperationObject,
-  type PathsObject,
-} from '@scalar/types/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import type { ComponentsObject, OpenApiDocument, OperationObject, PathsObject } from '@scalar/types/openapi/3.1'
+import { coerce } from '@scalar/validation'
 
 import { keyOf } from '@/helpers/general'
 import { createNavigation } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import { extensions } from '@/schemas/extensions'
 import type { TraversedDocument } from '@/schemas/navigation'
-import { coerceValue } from '@/schemas/typebox-coerce'
 
 import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/workspace'
 
@@ -384,7 +379,7 @@ export async function createServerWorkspaceStore(
   ) => {
     const { name, ...documentMeta } = meta
 
-    const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document, '3.1'))
+    const documentV3 = coerce(openapiSchemas.openapi, upgrade(document, '3.1'))
 
     // add the assets
     assets[meta.name] = {

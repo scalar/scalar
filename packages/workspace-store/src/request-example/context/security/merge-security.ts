@@ -1,12 +1,12 @@
 import { objectEntries } from '@scalar/helpers/object/object-entries'
-import { SecuritySchemeObjectSchema } from '@scalar/schemas/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import type { ComponentsObject, SecuritySchemeObject } from '@scalar/types/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { mergeObjects } from '@scalar/workspace-store/helpers/merge-object'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
 
@@ -41,7 +41,7 @@ export const mergeSecurity = (
   /** Convert the config secrets to the new secret extensions */
   return objectEntries(mergedSchemes).reduce((acc, [name, value]) => {
     // We coerce in case the scheme is missing any key fields like type
-    const coerced = coerceValue(SecuritySchemeObjectSchema, value)
+    const coerced = coerce(openapiSchemas.securityScheme, value)
     // We then overwrite it back with the original value to keep any other fields like description, etc.
     const merged = { ...coerced, ...value }
 

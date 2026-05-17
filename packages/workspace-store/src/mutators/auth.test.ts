@@ -14,8 +14,7 @@ import {
   updateSelectedSecuritySchemes,
   upsertScope,
 } from '@/mutators/auth'
-import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
-import type { OAuth2Object, SecuritySchemeObject } from '@/schemas/v3.1/strict/security-scheme'
+import type { OAuth2Object, SecurityRequirementObject, SecuritySchemeObject } from '@scalar/types/openapi/3.1'
 
 function createDocument(initial?: Partial<OpenApiDocument>): OpenApiDocument {
   return {

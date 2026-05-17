@@ -1,6 +1,5 @@
 import type { Static } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
-import type { TraversedEntrySchema } from '@scalar/types/openapi/3.1'
 import type { RequiredDeep } from 'type-fest'
 import { describe, expect, it } from 'vitest'
 
@@ -19,7 +18,7 @@ import {
 describe('navigation', () => {
   describe('strict type checking', () => {
     it('performs deep type checking on all schemas', () => {
-      type SchemaType = RequiredDeep<Static<typeof TraversedEntrySchema>>
+      type SchemaType = RequiredDeep<Static<typeof TraversedEntrySchemaDefinition>>
       type TypescriptType = RequiredDeep<TraversedEntry>
 
       const _test: SchemaType = {} as TypescriptType

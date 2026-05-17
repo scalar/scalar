@@ -61,7 +61,25 @@ import { XScalarSelectedServer } from '@/extensions/server'
 import { XDisplayName, XTagGroups } from '@/extensions/tag'
 import { recursiveRef } from '@/openapi/3.1/reference'
 
-export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
+export type OpenapiSchemas = {
+  openapi: Schema
+  schema: Schema
+  example: Schema
+  parameter: Schema
+  operation: Schema
+  server: Schema
+  requestBody: Schema
+  components: Schema
+  pathItem: Schema
+  securityScheme: Schema
+  securityRequirement: Schema
+  authorizationCodeOAuth2Flow: Schema
+  clientCredentialsOAuth2Flow: Schema
+  implicitOAuth2Flow: Schema
+  passwordOAuth2Flow: Schema
+}
+
+export const generateSchema = (maybeRef: (inner: Schema) => Schema): OpenapiSchemas => {
   const contact = object(
     {
       name: optional(string({ typeComment: 'The name of the contact.' })),
@@ -142,7 +160,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     { typeName: 'ServerVariableObject' },
   )
 
-  const servers = object(
+  const server = object(
     {
       url: string({
         typeComment:
@@ -875,7 +893,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
           typeComment: 'A description of the link. CommonMark syntax MAY be used for rich text representation.',
         }),
       ),
-      server: optional(servers),
+      server: optional(server),
     },
     { typeName: 'LinkObject' },
   )
@@ -941,7 +959,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
           }),
         ),
         security: optional(array(securityRequirement, { typeName: 'OperationSecurity' })),
-        servers: optional(array(servers, { typeName: 'OperationServers' })),
+        servers: optional(array(server, { typeName: 'OperationServers' })),
         callbacks: optional(record(string(), maybeRef(lazy(() => callback)), { typeName: 'OperationCallbacks' })),
       }),
       XBadges,
@@ -986,7 +1004,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
       options: optional(maybeRef(lazy(() => operation))),
       head: optional(maybeRef(lazy(() => operation))),
       trace: optional(maybeRef(lazy(() => operation))),
-      servers: optional(array(servers, { typeName: 'PathItemServers' })),
+      servers: optional(array(server, { typeName: 'PathItemServers' })),
       parameters: optional(array(maybeRef(lazy(() => parameter)), { typeName: 'PathItemParameters' })),
     },
     { typeName: 'PathItemObject' },
@@ -1006,7 +1024,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
         }),
       ),
       servers: optional(
-        array(servers, {
+        array(server, {
           typeComment:
             'An array of Server Objects, which provide connectivity information to a target server. If the servers field is not provided, or is an empty array, the default value would be a Server Object with a url value of /.',
           typeName: 'OpenApiServers',
@@ -1078,6 +1096,14 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
 
   return {
     openapi,
+    schema,
+    example,
+    parameter,
+    operation,
+    server: server,
+    requestBody,
+    components,
+    pathItem,
     securityScheme,
     securityRequirement,
     authorizationCodeOAuth2Flow,
@@ -1087,4 +1113,4 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
   }
 }
 
-export const openapiSchemas = generateSchema(recursiveRef)
+export const openapiSchemas: OpenapiSchemas = generateSchema(recursiveRef)

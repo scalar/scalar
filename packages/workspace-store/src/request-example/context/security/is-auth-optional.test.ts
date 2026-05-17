@@ -1,3 +1,4 @@
+import type { OpenApiSecurity } from '@scalar/types/openapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import { isAuthOptional } from './is-auth-optional'
@@ -9,7 +10,7 @@ describe('isAuthOptional', () => {
       {}, // Empty requirement makes auth optional
     ]
 
-    const result = isAuthOptional(securityRequirements)
+    const result = isAuthOptional(securityRequirements as unknown as OpenApiSecurity)
     expect(result).toBe(true)
   })
 
@@ -19,19 +20,19 @@ describe('isAuthOptional', () => {
       {}, // Empty requirement
     ]
 
-    const result = isAuthOptional(securityRequirements)
+    const result = isAuthOptional(securityRequirements as unknown as OpenApiSecurity)
     expect(result).toBe(false)
   })
 
   it('returns false when there are no empty requirements', () => {
     const securityRequirements = [{ apiKey: [] }, { oauth2: [] }]
-    const result = isAuthOptional(securityRequirements)
+    const result = isAuthOptional(securityRequirements as unknown as OpenApiSecurity)
     expect(result).toBe(false)
   })
 
   it('returns false when the security requirements array is empty', () => {
     const securityRequirements: Array<Record<string, string[]>> = []
-    const result = isAuthOptional(securityRequirements)
+    const result = isAuthOptional(securityRequirements as unknown as OpenApiSecurity)
     expect(result).toBe(false)
   })
 })

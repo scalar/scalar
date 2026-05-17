@@ -1,4 +1,4 @@
-import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/request-body'
+import type { RequestBodyObject } from '@scalar/types/openapi/3.1'
 
 /**
  * Returns the selected body content type for the given request body and exampleKey.

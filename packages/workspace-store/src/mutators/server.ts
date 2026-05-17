@@ -1,11 +1,12 @@
 import { findVariables } from '@scalar/helpers/regex/find-variables'
-import { type ServerObject, ServerObjectSchema } from '@scalar/types/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import type { ServerObject } from '@scalar/types/openapi/3.1'
+import { coerce } from '@scalar/validation'
 
 import type { ServerEvents, ServerMeta } from '@/events/definitions/server'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { isOpenApiDocument } from '@/schemas/type-guards'
-import { coerceValue } from '@/schemas/typebox-coerce'
 import type { WorkspaceDocument } from '@/schemas/workspace'
 
 /**
@@ -67,7 +68,7 @@ export const addServer = (
     return undefined
   }
 
-  const parsed = coerceValue(ServerObjectSchema, { url })
+  const parsed = coerce(openapiSchemas.server, { url })
 
   if (!target.servers) {
     target.servers = []
@@ -186,7 +187,7 @@ export const updateServer = (
   }
 
   const oldUrl = oldServer.url
-  const updatedServer = coerceValue(ServerObjectSchema, { ...oldServer, ...server })
+  const updatedServer = coerce(openapiSchemas.server, { ...oldServer, ...server })
 
   const hasUrlChanged = oldUrl && oldUrl !== updatedServer.url
   if (hasUrlChanged) {

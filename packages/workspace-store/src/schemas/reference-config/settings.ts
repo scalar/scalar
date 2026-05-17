@@ -1,8 +1,12 @@
 import { Type } from '@scalar/typebox'
-import { ServerObjectSchema } from '@scalar/types/openapi/3.1'
+import type { ServerObject } from '@scalar/types/openapi/3.1'
 import type { RequiredDeep } from 'type-fest'
 
-import type { ServerObject } from '@/schemas/v3.1/strict/server'
+const ServerObjectSchema = Type.Object({
+  url: Type.String(),
+  description: Type.Optional(Type.String()),
+  variables: Type.Optional(Type.Record(Type.String(), Type.Object({}))),
+})
 
 export const SettingsSchema = Type.Partial(
   Type.Object({

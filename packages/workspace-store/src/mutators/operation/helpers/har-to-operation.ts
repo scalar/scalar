@@ -1,9 +1,7 @@
 import type { HarRequest } from '@scalar/snippetz'
-import type { OperationObject, ParameterObject } from '@scalar/types/openapi/3.1'
+import type { OperationObject, ParameterObject, ReferenceType } from '@scalar/types/openapi/3.1'
+import { isContentTypeParameterObject, isSchemaParameterObject } from '@scalar/types/openapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/reference'
-
-import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'
 
 type HarToOperationProps = {
   /** HAR request to convert */
@@ -23,11 +21,11 @@ const preprocessParameters = (
 ) => {
   parameters.forEach((param) => {
     const resolvedParam = getResolvedRef(param)
-    if (isContentTypeParameterObject(resolvedParam)) {
+    if (!isSchemaParameterObject(resolvedParam)) {
       return
     }
 
-    setParameterDisabled(getResolvedRef(param), exampleKey, true)
+    setParameterDisabled(resolvedParam, exampleKey, true)
 
     if (resolvedParam.in === 'path') {
       resolvedParam.examples ||= {}
@@ -80,12 +78,13 @@ export const harToOperation = ({
     for (const queryParam of harRequest.queryString) {
       const param = findOrCreateParameter(baseOperation.parameters, queryParam.name, 'query')
 
-      if (!param || isContentTypeParameterObject(param)) {
+      const resolvedParam = getResolvedRef(param)
+      if (!isSchemaParameterObject(resolvedParam)) {
         continue
       }
 
-      param.examples ||= {}
-      param.examples[exampleKey] = {
+      resolvedParam.examples ||= {}
+      resolvedParam.examples[exampleKey] = {
         value: queryParam.value,
         'x-disabled': false,
       }
@@ -97,12 +96,13 @@ export const harToOperation = ({
     for (const header of harRequest.headers) {
       const param = findOrCreateParameter(baseOperation.parameters, header.name, 'header')
 
-      if (!param || isContentTypeParameterObject(param)) {
+      const resolvedParam = getResolvedRef(param)
+      if (!isSchemaParameterObject(resolvedParam)) {
         continue
       }
 
-      param.examples ||= {}
-      param.examples[exampleKey] = {
+      resolvedParam.examples ||= {}
+      resolvedParam.examples[exampleKey] = {
         value: header.value,
         'x-disabled': false,
       }
@@ -114,12 +114,13 @@ export const harToOperation = ({
     for (const cookie of harRequest.cookies) {
       const param = findOrCreateParameter(baseOperation.parameters, cookie.name, 'cookie')
 
-      if (!param || isContentTypeParameterObject(param)) {
+      const resolvedParam = getResolvedRef(param)
+      if (!isSchemaParameterObject(resolvedParam)) {
         continue
       }
 
-      param.examples ||= {}
-      param.examples[exampleKey] = {
+      resolvedParam.examples ||= {}
+      resolvedParam.examples[exampleKey] = {
         value: cookie.value,
         'x-disabled': false,
       }
@@ -190,7 +191,7 @@ export const harToOperation = ({
 }
 
 const setParameterDisabled = (param: ParameterObject, exampleKey: string, disabled: boolean): void => {
-  if (isContentTypeParameterObject(param)) {
+  if (!isSchemaParameterObject(param)) {
     return
   }
 
