@@ -1055,12 +1055,12 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     { typeName: 'OpenApiDocumentCore' },
   )
 
-  const openapi = intersection(
+  const openapiExtensions = intersection(
     [
-      openApiDocumentCore,
       XOriginalOasVersion,
       XScalarNavigation,
       // Shared with AsyncAPI — see workspace-managed-extensions.ts.
+      // TODO: remove this doesn't make sense flattening the extensions here
       WorkspaceManagedExtensions,
       XTagGroups,
       XScalarEnvironments,
@@ -1077,10 +1077,15 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
       XPostResponse,
     ],
     {
-      typeName: 'OpenApiDocument',
-      typeComment: 'Root OpenAPI 3.1 document including Scalar workspace extensions (OpenApiExtensionsSchema).',
+      typeName: 'OpenApiExtensions',
+      typeComment: 'OpenAPI extensions shared by OpenAPI and AsyncAPI documents.',
     },
   )
+
+  const openapi = intersection([openApiDocumentCore, openapiExtensions], {
+    typeName: 'OpenApiDocument',
+    typeComment: 'Root OpenAPI 3.1 document including Scalar workspace extensions (OpenApiExtensionsSchema).',
+  })
 
   return openapi
 }

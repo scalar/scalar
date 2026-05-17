@@ -768,6 +768,52 @@ describe('intersection', () => {
     expect(validate(T, { a: 1, nested: { z: 'ok' } })).toBe(true)
     expect(validate(T, { a: 1, nested: { z: 1 } })).toBe(false)
   })
+
+  it('validates nested intersection members recursively', () => {
+    const extensions = intersection([object({ env: optional(string()) }), object({ order: optional(number()) })], {
+      typeName: 'Extensions',
+    })
+    const document = intersection([
+      object({
+        openapi: literal('3.1.0'),
+        info: object({ title: string(), version: string() }),
+      }),
+      object({ navigation: optional(boolean()) }),
+      extensions,
+    ])
+
+    expect(
+      validate(document, {
+        openapi: '3.1.0',
+        info: { title: 'API', version: '1.0.0' },
+        navigation: true,
+        env: 'staging',
+        order: 1,
+      }),
+    ).toBe(true)
+    expect(
+      validate(document, {
+        openapi: '3.1.0',
+        info: { title: 'API', version: '1.0.0' },
+        navigation: true,
+        order: 'not-a-number',
+      }),
+    ).toBe(false)
+    expect(
+      validate(document, {
+        openapi: '3.0.0',
+        info: { title: 'API', version: '1.0.0' },
+        env: 'staging',
+      }),
+    ).toBe(false)
+  })
+
+  it('fails nested intersection when a deeply nested member rejects the value', () => {
+    const inner = intersection([object({ a: number() }), object({ b: string() })])
+    const outer = intersection([object({ c: boolean() }), inner])
+    expect(validate(outer, { a: 1, b: 'ok', c: true })).toBe(true)
+    expect(validate(outer, { a: 1, b: 1, c: true })).toBe(false)
+  })
 })
 
 describe('notDefined', () => {

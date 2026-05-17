@@ -11,7 +11,7 @@ import { upgrade } from '@scalar/openapi-upgrader'
 import { generateSchema } from '@scalar/schemas/openapi/3.1'
 import { recursiveRef } from '@scalar/schemas/openapi/3.1/reference'
 import type { Record } from '@scalar/typebox'
-import { Value } from '@scalar/typebox/value'
+import type { OpenApiDocument, OpenApiExtensions } from '@scalar/types/openapi/3.1'
 import { coerce } from '@scalar/validation'
 import type { PartialDeep } from 'type-fest'
 import { reactive } from 'vue'
@@ -42,11 +42,6 @@ import type { AsyncApiDocument } from '@/schemas/asyncapi/asyncapi-document'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
-import {
-  OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
-  type OpenAPIExtensions,
-  type OpenApiDocument,
-} from '@/schemas/v3.1/strict/openapi-document'
 import type {
   DocumentMetaExtensions,
   Workspace,
@@ -617,7 +612,7 @@ const purgeInternalDocumentKeys = <T extends Record<string, unknown>>(input: T):
     'x-scalar-original-document-hash',
     'x-scalar-original-source-url',
     'x-scalar-registry-meta',
-  ] satisfies (keyof OpenAPIExtensions | BundlerKeys)[] as string[]
+  ] satisfies (keyof OpenApiExtensions | BundlerKeys)[] as string[]
 
   // Remove top-level properties that should only exist temporarily or for internal usage
   // These properties are used for internal purposes and are not needed in the final bundled document
@@ -1057,22 +1052,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // We coerce the values only when the document is not preprocessed by the server-side-store
       const coerced = withMeasurementSync('coerceValue', () => coerce(openapiSchema, deepClone(strictDocument)))
       withMeasurementSync('mergeObjects', () => mergeObjects(strictDocument, coerced))
-    }
-
-    const isValid = Value.Check(OpenAPIDocumentSchemaStrict, strictDocument)
-
-    if (!isValid) {
-      const validationErrors = Array.from(Value.Errors(OpenAPIDocumentSchemaStrict, strictDocument))
-
-      console.warn('document validation errors: ')
-      console.warn(
-        validationErrors.map((error) => ({
-          message: error.message,
-          path: error.path,
-          schema: error.schema,
-          value: error.value,
-        })),
-      )
     }
 
     // Skip navigation generation if the document already has a server-side generated navigation structure

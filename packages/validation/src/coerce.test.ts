@@ -1119,6 +1119,52 @@ describe('intersection', () => {
     expect(coerce(T, { a: 'a' })).toEqual({ type: 'a', a: 'a' })
     expect(coerce(T, { a: 'a', c: 'c' })).toEqual({ type: 'a', a: 'a', c: 'c' })
   })
+
+  it('merges coerced properties through nested intersection members', () => {
+    const extensions = intersection([object({ env: optional(string()) }), object({ order: optional(number()) })], {
+      typeName: 'Extensions',
+    })
+    const document = intersection([
+      object({
+        openapi: literal('3.1.0'),
+        info: object({ title: string(), version: string() }),
+      }),
+      object({ navigation: optional(boolean()) }),
+      extensions,
+    ])
+
+    expect(
+      coerce(document, {
+        openapi: '3.1.0',
+        info: { title: 'API', version: '1.0.0' },
+        navigation: true,
+        env: 'staging',
+        order: 2,
+      }),
+    ).toStrictEqual({
+      openapi: '3.1.0',
+      info: { title: 'API', version: '1.0.0' },
+      navigation: true,
+      env: 'staging',
+      order: 2,
+    })
+    expect(coerce(document, { openapi: '3.1.0', info: { title: 'API' }, order: 'nope' })).toStrictEqual({
+      openapi: '3.1.0',
+      info: { title: 'API', version: '' },
+      order: 0,
+    })
+  })
+
+  it('accumulates scores from nested intersection members in unions', () => {
+    const extensions = intersection([object({ shared: number() }), object({ extra: string() })])
+    const document = intersection([object({ id: literal('doc') }), extensions])
+    const T = union([object({ id: literal('other') }), document])
+    expect(coerce(T, { id: 'doc', shared: 1, extra: 'ok' })).toStrictEqual({
+      id: 'doc',
+      shared: 1,
+      extra: 'ok',
+    })
+  })
 })
 
 describe('notDefined', () => {

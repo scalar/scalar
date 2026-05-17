@@ -1,7 +1,7 @@
 /**
  * Generate types for the schemas
  *
- * We will dump the types to the types package which is going to be pure types with no dependencies on the schemas package
+ * We dump the types to the types package which is pure types with no dependency on the schemas package.
  */
 
 import fs from 'node:fs/promises'
@@ -10,16 +10,32 @@ import path from 'node:path'
 import { generateTypes } from '@scalar/validation'
 
 import { apiReferenceConfigurationSchema } from '../src/api-reference/api-reference-configuration'
+import { generateSchema } from '../src/openapi/3.1/index'
+import { recursiveRef } from '../src/openapi/3.1/reference'
 
-/** Generate the types */
+const generatedAt = new Date().toISOString()
+
 const apiReferenceConfigurationTypes = generateTypes(apiReferenceConfigurationSchema, {
-  generatedAt: new Date().toISOString(),
+  generatedAt,
   maxDepth: Number.POSITIVE_INFINITY,
   typeName: 'ApiReferenceConfiguration',
 })
 
-/** Write the types to the types package */
-const outDir = path.join(import.meta.dirname, '../../types/src/gen')
-// Create the directory if it doesn't exist
-await fs.mkdir(outDir, { recursive: true })
-await fs.writeFile(path.join(outDir, 'api-reference.d.ts'), apiReferenceConfigurationTypes)
+const openApi31Types = generateTypes(generateSchema(recursiveRef), {
+  generatedAt,
+  maxDepth: Number.POSITIVE_INFINITY,
+  typeName: 'OpenApiDocument',
+})
+
+const typesPackageSrc = path.join(import.meta.dirname, '../../types/src')
+
+const genDir = path.join(typesPackageSrc, 'gen')
+const openApi31Dir = path.join(typesPackageSrc, 'openapi/3.1')
+
+await fs.mkdir(genDir, { recursive: true })
+await fs.mkdir(openApi31Dir, { recursive: true })
+
+await Promise.all([
+  fs.writeFile(path.join(genDir, 'api-reference.d.ts'), apiReferenceConfigurationTypes),
+  fs.writeFile(path.join(openApi31Dir, 'index.generated.d.ts'), openApi31Types),
+])
