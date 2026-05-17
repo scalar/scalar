@@ -3,9 +3,10 @@ import type { TraversedDocument } from '@scalar/workspace-store/schemas/navigati
 import { describe, expect, it } from 'vitest'
 import { computed, ref, shallowRef } from 'vue'
 
-import type { RegistryDocument } from '@/types/configuration'
 import type { AppState } from '@/features/app'
 import { useSidebarDocuments } from '@/features/app/hooks/use-sidebar-documents'
+import { FILTER_NAMESPACE_ALL } from '@/features/app/hooks/use-sidebar-documents/helpers/registry-namespace-filter'
+import type { RegistryDocument } from '@/types/configuration'
 
 type FakeDocument = Partial<WorkspaceDocument> & {
   'x-scalar-registry-meta'?: {
@@ -73,14 +74,14 @@ describe('use-sidebar-documents', () => {
     // Simulate a workspace that is still loading by resetting the store.
     app.store.value = null
 
-    const { documents, pinned, rest } = useSidebarDocuments({
+    const { documents, displayPinnedDocuments, displayRestDocuments } = useSidebarDocuments({
       app,
       managedDocs: () => [],
     })
 
     expect(documents.value).toStrictEqual([])
-    expect(pinned.value).toStrictEqual([])
-    expect(rest.value).toStrictEqual([])
+    expect(displayPinnedDocuments.value).toStrictEqual([])
+    expect(displayRestDocuments.value).toStrictEqual([])
   })
 
   it('maps workspace documents to sidebar items on local workspaces', () => {
@@ -95,9 +96,9 @@ describe('use-sidebar-documents', () => {
       },
     })
 
-    const { rest } = useSidebarDocuments({ app, managedDocs: () => [] })
+    const { displayRestDocuments } = useSidebarDocuments({ app, managedDocs: () => [] })
 
-    expect(rest.value).toStrictEqual([
+    expect(displayRestDocuments.value).toStrictEqual([
       {
         key: 'pets',
         title: 'Pets API',
@@ -118,7 +119,7 @@ describe('use-sidebar-documents', () => {
 
     // Every entry must have a unique `key` so the sidebar `v-for` does not
     // render duplicate Vue `:key`s.
-    const keys = rest.value.map((d) => d.key)
+    const keys = displayRestDocuments.value.map((d) => d.key)
     expect(new Set(keys).size).toBe(keys.length)
   })
 
@@ -129,9 +130,9 @@ describe('use-sidebar-documents', () => {
       },
     })
 
-    const { rest } = useSidebarDocuments({ app, managedDocs: () => [] })
+    const { displayRestDocuments } = useSidebarDocuments({ app, managedDocs: () => [] })
 
-    expect(rest.value[0]?.title).toBe('Untitled')
+    expect(displayRestDocuments.value[0]?.title).toBe('Untitled')
   })
 
   it('prefers the navigation title over the info title', () => {
@@ -144,9 +145,9 @@ describe('use-sidebar-documents', () => {
       },
     })
 
-    const { rest } = useSidebarDocuments({ app, managedDocs: () => [] })
+    const { displayRestDocuments } = useSidebarDocuments({ app, managedDocs: () => [] })
 
-    expect(rest.value[0]?.title).toBe('Navigation Title')
+    expect(displayRestDocuments.value[0]?.title).toBe('Navigation Title')
   })
 
   it('does not merge registry documents or populate the registry field on local workspaces', () => {
@@ -160,7 +161,7 @@ describe('use-sidebar-documents', () => {
       isTeamWorkspace: false,
     })
 
-    const { rest } = useSidebarDocuments({
+    const { displayRestDocuments } = useSidebarDocuments({
       app,
       managedDocs: () => [
         {
@@ -177,7 +178,7 @@ describe('use-sidebar-documents', () => {
     // coordinates. This avoids duplicate Vue `:key`s when two local documents
     // share the same `x-scalar-registry-meta`. `registry` is also left
     // undefined and the registry-only Orders entry is not merged in.
-    expect(rest.value).toStrictEqual([
+    expect(displayRestDocuments.value).toStrictEqual([
       {
         key: 'pets',
         title: 'Pets API',
@@ -204,12 +205,12 @@ describe('use-sidebar-documents', () => {
       isTeamWorkspace: false,
     })
 
-    const { rest } = useSidebarDocuments({ app, managedDocs: () => [] })
+    const { displayRestDocuments } = useSidebarDocuments({ app, managedDocs: () => [] })
 
     // Both entries must survive and have distinct keys, otherwise Vue would
     // render only one of them under a duplicated `:key`.
-    expect(rest.value).toHaveLength(2)
-    expect(rest.value.map((d) => d.key)).toStrictEqual(['pets-a', 'pets-b'])
+    expect(displayRestDocuments.value).toHaveLength(2)
+    expect(displayRestDocuments.value.map((d) => d.key)).toStrictEqual(['pets-a', 'pets-b'])
   })
 
   it('groups team-workspace documents that share the same registry coordinates', () => {
@@ -227,7 +228,7 @@ describe('use-sidebar-documents', () => {
       isTeamWorkspace: true,
     })
 
-    const { rest } = useSidebarDocuments({
+    const { displayRestDocuments } = useSidebarDocuments({
       app,
       managedDocs: () => [
         {
@@ -245,7 +246,7 @@ describe('use-sidebar-documents', () => {
     // Every title — parent and version rows — is the registry's title so the
     // sidebar matches what the registry advertises, not the locally loaded
     // workspace titles.
-    expect(rest.value).toStrictEqual([
+    expect(displayRestDocuments.value).toStrictEqual([
       {
         key: '@acme/pets',
         title: 'Pets API',
@@ -298,7 +299,7 @@ describe('use-sidebar-documents', () => {
       isTeamWorkspace: true,
     })
 
-    const { rest } = useSidebarDocuments({
+    const { displayRestDocuments } = useSidebarDocuments({
       app,
       managedDocs: () => [
         {
@@ -318,7 +319,7 @@ describe('use-sidebar-documents', () => {
     // (only set when the version is loaded) and the registry hash (only set
     // when the registry advertises one) so consumers can detect drift.
     // Matching hashes mean no upstream changes are pending.
-    expect(rest.value[0]?.versions).toStrictEqual([
+    expect(displayRestDocuments.value[0]?.versions).toStrictEqual([
       {
         key: '@acme/pets@2.0.0',
         version: '2.0.0',
@@ -360,7 +361,7 @@ describe('use-sidebar-documents', () => {
       isTeamWorkspace: true,
     })
 
-    const { rest } = useSidebarDocuments({
+    const { displayRestDocuments } = useSidebarDocuments({
       app,
       managedDocs: () => [
         {
@@ -376,7 +377,7 @@ describe('use-sidebar-documents', () => {
     // advertises `new-hash`, which means there are upstream changes the
     // user has not pulled yet. With no cached conflict result, the version
     // surfaces as a plain `pull`.
-    expect(rest.value[0]?.versions?.[0]).toStrictEqual({
+    expect(displayRestDocuments.value[0]?.versions?.[0]).toStrictEqual({
       key: 'pets-v1',
       version: '1.0.0',
       title: 'Pets API',
@@ -407,7 +408,7 @@ describe('use-sidebar-documents', () => {
       isTeamWorkspace: true,
     })
 
-    const { rest } = useSidebarDocuments({
+    const { displayRestDocuments } = useSidebarDocuments({
       app,
       managedDocs: () => [
         {
@@ -419,7 +420,7 @@ describe('use-sidebar-documents', () => {
       ],
     })
 
-    expect(rest.value[0]?.versions?.[0]?.status).toBe('conflict')
+    expect(displayRestDocuments.value[0]?.versions?.[0]?.status).toBe('conflict')
   })
 
   it('falls back to `pull` when the cached conflict result was computed against a stale registry hash', () => {
@@ -442,7 +443,7 @@ describe('use-sidebar-documents', () => {
       isTeamWorkspace: true,
     })
 
-    const { rest } = useSidebarDocuments({
+    const { displayRestDocuments } = useSidebarDocuments({
       app,
       managedDocs: () => [
         {
@@ -454,7 +455,7 @@ describe('use-sidebar-documents', () => {
       ],
     })
 
-    expect(rest.value[0]?.versions?.[0]?.status).toBe('pull')
+    expect(displayRestDocuments.value[0]?.versions?.[0]?.status).toBe('pull')
   })
 
   it('surfaces `push` when the document is dirty and the hash matches the registry', () => {
@@ -474,7 +475,7 @@ describe('use-sidebar-documents', () => {
       isTeamWorkspace: true,
     })
 
-    const { rest } = useSidebarDocuments({
+    const { displayRestDocuments } = useSidebarDocuments({
       app,
       managedDocs: () => [
         {
@@ -486,7 +487,7 @@ describe('use-sidebar-documents', () => {
       ],
     })
 
-    expect(rest.value[0]?.versions?.[0]?.status).toBe('push')
+    expect(displayRestDocuments.value[0]?.versions?.[0]?.status).toBe('push')
   })
 
   it('promotes the active document when it belongs to a group', () => {
@@ -505,7 +506,7 @@ describe('use-sidebar-documents', () => {
       documentSlug: 'pets-v1',
     })
 
-    const { rest } = useSidebarDocuments({
+    const { displayRestDocuments } = useSidebarDocuments({
       app,
       managedDocs: () => [
         {
@@ -521,9 +522,9 @@ describe('use-sidebar-documents', () => {
     // is the document the user is currently viewing. The version list
     // ordering itself is not changed — only `activeVersionKey` and the
     // mirrored parent fields move.
-    expect(rest.value[0]?.activeVersionKey).toBe('pets-v1')
-    expect(rest.value[0]?.documentName).toBe('pets-v1')
-    expect(rest.value[0]?.versions?.map((v) => v.version)).toStrictEqual(['2.0.0', '1.0.0'])
+    expect(displayRestDocuments.value[0]?.activeVersionKey).toBe('pets-v1')
+    expect(displayRestDocuments.value[0]?.documentName).toBe('pets-v1')
+    expect(displayRestDocuments.value[0]?.versions?.map((v) => v.version)).toStrictEqual(['2.0.0', '1.0.0'])
   })
 
   it('surfaces drafts ahead of registry-advertised versions, newest draft first', () => {
@@ -546,7 +547,7 @@ describe('use-sidebar-documents', () => {
       isTeamWorkspace: true,
     })
 
-    const { rest } = useSidebarDocuments({
+    const { displayRestDocuments } = useSidebarDocuments({
       app,
       managedDocs: () => [
         {
@@ -558,7 +559,7 @@ describe('use-sidebar-documents', () => {
       ],
     })
 
-    expect(rest.value[0]?.versions?.map((v) => v.version)).toStrictEqual(['3.0.0', '2.0.0', '1.0.0'])
+    expect(displayRestDocuments.value[0]?.versions?.map((v) => v.version)).toStrictEqual(['3.0.0', '2.0.0', '1.0.0'])
   })
 
   it('emits a versions array even when only a single version exists', () => {
@@ -572,7 +573,7 @@ describe('use-sidebar-documents', () => {
       isTeamWorkspace: true,
     })
 
-    const { rest } = useSidebarDocuments({
+    const { displayRestDocuments } = useSidebarDocuments({
       app,
       managedDocs: () => [
         {
@@ -587,7 +588,7 @@ describe('use-sidebar-documents', () => {
     // Registry-backed entries always carry a versions array so the sidebar
     // can render the version row consistently — there is no special-case
     // collapsing to undefined for single-version documents.
-    expect(rest.value[0]?.versions).toStrictEqual([
+    expect(displayRestDocuments.value[0]?.versions).toStrictEqual([
       {
         key: 'pets',
         version: '1.0.0',
@@ -608,7 +609,7 @@ describe('use-sidebar-documents', () => {
       isTeamWorkspace: true,
     })
 
-    const { rest } = useSidebarDocuments({
+    const { displayRestDocuments } = useSidebarDocuments({
       app,
       managedDocs: () => [
         {
@@ -620,7 +621,7 @@ describe('use-sidebar-documents', () => {
       ],
     })
 
-    expect(rest.value).toStrictEqual([
+    expect(displayRestDocuments.value).toStrictEqual([
       {
         key: '@acme/pets',
         title: 'Pets API',
@@ -669,7 +670,7 @@ describe('use-sidebar-documents', () => {
       isTeamWorkspace: true,
     })
 
-    const { rest } = useSidebarDocuments({
+    const { displayRestDocuments } = useSidebarDocuments({
       app,
       managedDocs: () => [
         {
@@ -684,8 +685,8 @@ describe('use-sidebar-documents', () => {
     // Local renames must not leak into the sidebar — the sidebar mirrors the
     // registry so users can recognise the entry as the same document the
     // registry advertises.
-    expect(rest.value[0]?.title).toBe('Pets API')
-    expect(rest.value[0]?.versions?.[0]?.title).toBe('Pets API')
+    expect(displayRestDocuments.value[0]?.title).toBe('Pets API')
+    expect(displayRestDocuments.value[0]?.versions?.[0]?.title).toBe('Pets API')
   })
 
   it('falls back to the slug when a registry document has no title', () => {
@@ -694,7 +695,7 @@ describe('use-sidebar-documents', () => {
       isTeamWorkspace: true,
     })
 
-    const { rest } = useSidebarDocuments({
+    const { displayRestDocuments } = useSidebarDocuments({
       app,
       managedDocs: () => [
         {
@@ -706,8 +707,8 @@ describe('use-sidebar-documents', () => {
       ],
     })
 
-    expect(rest.value[0]?.title).toBe('orders')
-    expect(rest.value[0]?.versions?.[0]?.title).toBe('orders')
+    expect(displayRestDocuments.value[0]?.title).toBe('orders')
+    expect(displayRestDocuments.value[0]?.versions?.[0]?.title).toBe('orders')
   })
 
   it('keeps standalone documents separate from grouped and registry entries', () => {
@@ -722,7 +723,7 @@ describe('use-sidebar-documents', () => {
       isTeamWorkspace: true,
     })
 
-    const { rest } = useSidebarDocuments({
+    const { displayRestDocuments } = useSidebarDocuments({
       app,
       managedDocs: () => [
         {
@@ -741,7 +742,7 @@ describe('use-sidebar-documents', () => {
     })
 
     // grouped (registry order) -> standalone (workspace docs without registry)
-    expect(rest.value.map((d) => d.key)).toStrictEqual(['@acme/pets', '@acme/orders', 'drafts'])
+    expect(displayRestDocuments.value.map((d) => d.key)).toStrictEqual(['@acme/pets', '@acme/orders', 'drafts'])
   })
 
   it('reacts to changes in the managedDocs getter', () => {
@@ -751,12 +752,12 @@ describe('use-sidebar-documents', () => {
       isTeamWorkspace: true,
     })
 
-    const { rest } = useSidebarDocuments({
+    const { displayRestDocuments } = useSidebarDocuments({
       app,
       managedDocs: () => registry.value,
     })
 
-    expect(rest.value).toStrictEqual([])
+    expect(displayRestDocuments.value).toStrictEqual([])
 
     registry.value = [
       {
@@ -767,8 +768,8 @@ describe('use-sidebar-documents', () => {
       },
     ]
 
-    expect(rest.value.map((d) => d.key)).toStrictEqual(['@acme/pets'])
-    expect(rest.value[0]?.versions).toHaveLength(1)
+    expect(displayRestDocuments.value.map((d) => d.key)).toStrictEqual(['@acme/pets'])
+    expect(displayRestDocuments.value[0]?.versions).toHaveLength(1)
   })
 
   it('reacts to toggling the team-workspace flag', () => {
@@ -782,7 +783,7 @@ describe('use-sidebar-documents', () => {
       isTeamWorkspace: false,
     })
 
-    const { rest } = useSidebarDocuments({
+    const { displayRestDocuments } = useSidebarDocuments({
       app,
       managedDocs: () => [
         {
@@ -798,9 +799,9 @@ describe('use-sidebar-documents', () => {
     // collisions when multiple local documents share the same registry
     // meta), the `registry` field is undefined, and the registry-only Orders
     // entry is ignored entirely.
-    expect(rest.value.map((d) => d.key)).toStrictEqual(['pets'])
-    expect(rest.value[0]?.registry).toBeUndefined()
-    expect(rest.value[0]?.versions).toBeUndefined()
+    expect(displayRestDocuments.value.map((d) => d.key)).toStrictEqual(['pets'])
+    expect(displayRestDocuments.value[0]?.registry).toBeUndefined()
+    expect(displayRestDocuments.value[0]?.versions).toBeUndefined()
 
     teamFlag.value = true
 
@@ -809,30 +810,109 @@ describe('use-sidebar-documents', () => {
     // Registry-advertised entries are emitted first (in registry order) and
     // workspace documents that point at unknown registry coordinates are
     // appended after, so Orders (advertised) precedes Pets (orphan).
-    expect(rest.value.map((d) => d.key)).toStrictEqual(['@acme/orders', '@acme/pets'])
-    expect(rest.value[1]?.registry).toStrictEqual({
+    expect(displayRestDocuments.value.map((d) => d.key)).toStrictEqual(['@acme/orders', '@acme/pets'])
+    expect(displayRestDocuments.value[1]?.registry).toStrictEqual({
       namespace: 'acme',
       slug: 'pets',
     })
-    expect(rest.value[1]?.versions).toHaveLength(1)
+    expect(displayRestDocuments.value[1]?.versions).toHaveLength(1)
   })
 
-  it('splits pinned and rest based on isPinned (currently no documents are pinned)', () => {
+  it('keeps displayPinnedDocuments empty while nothing is pinned', () => {
     const { app } = createFakeApp({
       documents: {
         pets: { info: { title: 'Pets', version: '1.0.0' } },
       },
     })
 
-    const { documents, pinned, rest } = useSidebarDocuments({
+    const { documents, displayPinnedDocuments, displayRestDocuments } = useSidebarDocuments({
       app,
       managedDocs: () => [],
     })
 
     // The hook currently returns `isPinned: false` for every entry, so every
-    // document lives under `rest`. This test pins that contract so we notice
-    // if pinning is reintroduced without updating the sidebar consumers.
-    expect(pinned.value).toStrictEqual([])
-    expect(rest.value).toStrictEqual(documents.value)
+    // document appears in `displayRestDocuments` and `displayPinnedDocuments`
+    // stays empty until pinning is implemented.
+    expect(displayPinnedDocuments.value).toStrictEqual([])
+    expect(displayRestDocuments.value).toStrictEqual(documents.value)
+  })
+
+  it('clears the title filter query when the filter is toggled off', () => {
+    const petsNav = nav('pets', 'Pets API')
+    const { app } = createFakeApp({
+      documents: {
+        pets: {
+          info: { title: 'Pets API', version: '1.0.0' },
+          'x-scalar-navigation': petsNav,
+        },
+      },
+    })
+
+    const { toggleFilter, filterQuery, isFilterVisible } = useSidebarDocuments({
+      app,
+      managedDocs: () => [],
+    })
+
+    toggleFilter()
+    filterQuery.value = 'orders'
+    toggleFilter()
+
+    expect(isFilterVisible.value).toBe(false)
+    expect(filterQuery.value).toBe('')
+  })
+
+  it('resets the namespace filter when the title filter is hidden', () => {
+    const { app } = createFakeApp({
+      documents: {
+        a: {
+          info: { title: 'A', version: '1.0.0' },
+          'x-scalar-registry-meta': { namespace: 'ns1', slug: 'a', version: '1.0.0' },
+        },
+        b: {
+          info: { title: 'B', version: '1.0.0' },
+          'x-scalar-registry-meta': { namespace: 'ns2', slug: 'b', version: '1.0.0' },
+        },
+      },
+      isTeamWorkspace: true,
+    })
+
+    const { toggleFilter, filterNamespaceId } = useSidebarDocuments({
+      app,
+      managedDocs: () => [],
+    })
+
+    toggleFilter()
+    filterNamespaceId.value = 'ns1'
+    toggleFilter()
+
+    expect(filterNamespaceId.value).toBe(FILTER_NAMESPACE_ALL)
+  })
+
+  it('narrows displayRestDocuments by the title query', () => {
+    const petsNav = nav('pets', 'Pets API')
+    const ordersNav = nav('orders', 'Orders API')
+    const { app } = createFakeApp({
+      documents: {
+        pets: {
+          info: { title: 'Pets API', version: '1.0.0' },
+          'x-scalar-navigation': petsNav,
+        },
+        orders: {
+          info: { title: 'Orders API', version: '1.0.0' },
+          'x-scalar-navigation': ordersNav,
+        },
+      },
+      isTeamWorkspace: false,
+    })
+
+    const { filterQuery, displayRestDocuments, toggleFilter } = useSidebarDocuments({
+      app,
+      managedDocs: () => [],
+    })
+
+    toggleFilter()
+    filterQuery.value = 'pets'
+
+    expect(displayRestDocuments.value.map((d) => d.key)).toStrictEqual(['pets'])
   })
 })

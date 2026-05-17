@@ -3,6 +3,9 @@ import { Resize } from '@scalar/api-client/components/resize'
 import { DeleteSidebarListElement } from '@scalar/api-client/components/Sidebar'
 import { DocumentSearchModal } from '@scalar/api-client/features/search'
 import {
+  ScalarButton,
+  ScalarDropdown,
+  ScalarDropdownItem,
   ScalarIconButton,
   ScalarModal,
   ScalarSidebar,
@@ -14,6 +17,7 @@ import {
 } from '@scalar/components'
 import { safeRun } from '@scalar/helpers/types/safe-run'
 import {
+  ScalarIconCaretUpDown,
   ScalarIconFolderDashed,
   ScalarIconFunnel,
   ScalarIconGearSix,
@@ -31,12 +35,9 @@ import SidebarDocument from '@/features/app/components/SidebarDocument.vue'
 import SidebarItemMenu from '@/features/app/components/SidebarItemMenu.vue'
 import { createTempOperation } from '@/features/app/helpers/create-temp-operation'
 import { loadRegistryDocument } from '@/features/app/helpers/load-registry-document'
-import { useDocumentFilter } from '@/features/app/hooks/use-document-filter'
 import { useSidebarContextMenu } from '@/features/app/hooks/use-sidebar-context-menu'
-import {
-  useSidebarDocuments,
-  type SidebarDocumentItem,
-} from '@/features/app/hooks/use-sidebar-documents'
+import { useSidebarDocuments } from '@/features/app/hooks/use-sidebar-documents'
+import type { SidebarDocumentItem } from '@/features/app/hooks/use-sidebar-documents/types'
 import { dragHandleFactory } from '@/helpers/drag-handle-factory'
 import type {
   ImportDocumentFromRegistry,
@@ -73,31 +74,21 @@ const isLoadingRegistry = computed(
     app.workspace.isTeamWorkspace.value,
 )
 
-const { pinned, rest } = useSidebarDocuments({
+const {
+  isEmpty,
+  isFilterVisible,
+  filterQuery,
+  toggleFilter,
+  filterNamespaceId,
+  showNamespaceFilterRow,
+  namespaceFilterOptions,
+  namespaceFilterTriggerLabel,
+  displayRestDocuments,
+  displayPinnedDocuments,
+} = useSidebarDocuments({
   app,
   managedDocs: () => registryDocuments.documents ?? [],
 })
-
-/**
- * Whether the workspace truly has no documents to show. Distinct from the
- * filter producing no results: we only surface the "No APIs yet" empty state
- * when the workspace is genuinely empty so users see a clear call-to-action
- * instead of a confusing blank space.
- */
-const isEmpty = computed(
-  () => !isLoadingRegistry.value && rest.value.length === 0,
-)
-
-/**
- * Fuzzy filter over the top-level documents. Owns its own input visibility,
- * query string and Fuse index. See `use-document-filter.ts` for details.
- */
-const {
-  isVisible: isFilterVisible,
-  query: filterQuery,
-  filteredItems: filteredRest,
-  toggle: toggleFilter,
-} = useDocumentFilter(rest)
 
 const sidebarState = app.sidebar.state
 
@@ -321,6 +312,32 @@ const isOnDocumentPage = computed(() =>
   Boolean(app.activeEntities.documentSlug.value),
 )
 
+/**
+ * Inline hint when filters remove every sidebar row. Suppressed while the
+ * workspace is empty, the registry list is still loading, or the user is
+ * inside a document (filter UI is not active there).
+ */
+const showFilterNoMatches = computed((): boolean => {
+  // Filter UI only applies on the top-level workspace document list.
+  const isWorkspaceListFilterActive =
+    isFilterVisible.value && !isOnDocumentPage.value
+  if (!isWorkspaceListFilterActive) {
+    return false
+  }
+
+  // Need a real list first: avoid overlapping empty/loading states.
+  const workspaceListReady = !isEmpty.value && !isLoadingRegistry.value
+  if (!workspaceListReady) {
+    return false
+  }
+
+  // Title + namespace filters removed every visible row.
+  return (
+    displayPinnedDocuments.value.length === 0 &&
+    displayRestDocuments.value.length === 0
+  )
+})
+
 const handleOpenSettings = () => {
   if (isOnDocumentPage.value) {
     app.eventBus.emit('ui:navigate', {
@@ -423,13 +440,13 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
 <template>
   <Resize
     v-model:width="sidebarWidth"
-    class="flex flex-col max-md:inset-y-0 max-md:z-2 max-md:w-full!"
+    class="flex min-h-0 shrink-0 flex-col max-md:inset-y-0 max-md:z-2 max-md:w-full!"
     :class="{
       'max-md:absolute! max-md:flex!': app.sidebar.isOpen.value,
       'max-md:hidden!': !app.sidebar.isOpen.value,
     }">
     <template #default>
-      <div class="flex flex-1">
+      <div class="flex min-h-0 flex-1">
         <ScalarSidebar
           class="flex min-h-0 flex-1 flex-col max-md:pt-[calc(var(--app-desktop-tabs-height)+var(--spacing-header,48px)+2.5rem)]">
           <!-- Top-level sidebar header -->
@@ -463,14 +480,50 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
                 variant="gradient"
                 @click="handleCreate" />
             </div>
-            <ScalarSidebarSearchInput
+            <div
               v-if="isFilterVisible"
-              v-model="filterQuery"
-              autofocus />
+              class="flex flex-col gap-1.5 rounded-md">
+              <ScalarSidebarSearchInput
+                v-model="filterQuery"
+                autofocus
+                placeholder="Filter by title..." />
+
+              <ScalarDropdown
+                v-if="showNamespaceFilterRow"
+                class="w-full min-w-0"
+                placement="bottom-start"
+                resize>
+                <ScalarButton
+                  class="border-sidebar-border-search bg-sidebar-b-search text-sidebar-c-1 h-8 w-full min-w-0 justify-start gap-1 rounded border px-2 font-normal outline-none"
+                  fullWidth
+                  variant="ghost">
+                  <ScalarIconCaretUpDown class="size-4" />
+                  <span class="min-w-0 truncate text-left">
+                    {{ namespaceFilterTriggerLabel }}
+                  </span>
+                </ScalarButton>
+                <template #items>
+                  <ScalarDropdownItem
+                    v-for="opt in namespaceFilterOptions"
+                    :key="String(opt.id)"
+                    class="flex w-full min-w-0 items-center justify-between gap-2"
+                    :title="opt.description"
+                    @click="filterNamespaceId = opt.id">
+                    <span class="text-c-1 min-w-0 flex-1 truncate text-left">
+                      {{ opt.label }}
+                    </span>
+                    <span
+                      class="text-c-3 shrink-0 text-xs font-medium tabular-nums">
+                      {{ opt.count }}
+                    </span>
+                  </ScalarDropdownItem>
+                </template>
+              </ScalarDropdown>
+            </div>
           </div>
 
           <!-- Document list (top-level) -->
-          <div class="custom-scroll flex flex-1 flex-col">
+          <div class="custom-scroll flex min-h-0 flex-1 flex-col">
             <!--
               Empty state: no documents in the workspace yet. Matches the
               minimal `empty folder` appearance.
@@ -484,81 +537,100 @@ const sidebarWidth = defineModel<number>('sidebarWidth', {
               <p class="text-sm font-medium">Nothing added yet</p>
             </div>
             <ScalarSidebarItems v-else>
-              <!-- Show pinned documents after we add support for it -->
-              <ScalarSidebarSection v-if="pinned.length">
-                <template
-                  v-if="pinned.length && rest.length"
-                  #default>
-                  Pinned
-                </template>
-                <template #items>
-                  <SidebarDocument
-                    v-for="item in pinned"
-                    :key="item.key"
-                    :active="isDocActive(item)"
-                    :isDroppable="isDroppable"
-                    :isExpanded="isExpanded"
-                    :isSelected="isSelected"
-                    :item="item"
-                    :loading="loadingKeys[item.key]"
-                    :open="isDocActive(item)"
-                    @addEmptyFolder="handleAddEmptyFolder"
-                    @back="handleBack"
-                    @click="handleDocumentClick(item)"
-                    @createOperation="handleCreateOperation"
-                    @dragEnd="handleDragEnd"
-                    @openMenu="openMenu"
-                    @openSettings="handleOpenSettings"
-                    @search="handleFilterOrSearch"
-                    @selectItem="handleSelectItem"
-                    @toggleGroup="handleToggleGroup" />
-                </template>
-              </ScalarSidebarSection>
+              <template v-if="showFilterNoMatches">
+                <ScalarSidebarSection>
+                  <template #items>
+                    <li
+                      class="text-sidebar-c-search list-none px-(--scalar-sidebar-padding) py-5 text-center text-xs leading-relaxed">
+                      No documents match these filters. Try another namespace or
+                      clear the title search.
+                    </li>
+                  </template>
+                </ScalarSidebarSection>
+              </template>
+              <template v-else>
+                <!-- Show pinned documents after we add support for it -->
+                <ScalarSidebarSection v-if="displayPinnedDocuments.length">
+                  <template
+                    v-if="
+                      displayPinnedDocuments.length &&
+                      displayRestDocuments.length
+                    "
+                    #default>
+                    Pinned
+                  </template>
+                  <template #items>
+                    <SidebarDocument
+                      v-for="item in displayPinnedDocuments"
+                      :key="item.key"
+                      :active="isDocActive(item)"
+                      :isDroppable="isDroppable"
+                      :isExpanded="isExpanded"
+                      :isSelected="isSelected"
+                      :item="item"
+                      :loading="loadingKeys[item.key]"
+                      :open="isDocActive(item)"
+                      @addEmptyFolder="handleAddEmptyFolder"
+                      @back="handleBack"
+                      @click="handleDocumentClick(item)"
+                      @createOperation="handleCreateOperation"
+                      @dragEnd="handleDragEnd"
+                      @openMenu="openMenu"
+                      @openSettings="handleOpenSettings"
+                      @search="handleFilterOrSearch"
+                      @selectItem="handleSelectItem"
+                      @toggleGroup="handleToggleGroup" />
+                  </template>
+                </ScalarSidebarSection>
 
-              <ScalarSidebarSection>
-                <template
-                  v-if="pinned.length && rest.length"
-                  #default>
-                  All documents
-                </template>
-                <template #items>
-                  <!--
+                <ScalarSidebarSection>
+                  <template
+                    v-if="
+                      displayPinnedDocuments.length &&
+                      displayRestDocuments.length
+                    "
+                    #default>
+                    All documents
+                  </template>
+                  <template #items>
+                    <!--
                     Skeleton rows shown while the caller is still fetching
                     the registry document list. We only render skeletons in
                     the top-level view (when no document is drilled-in) so
                     the collection view is never masked by placeholders.
                   -->
-                  <template v-if="isLoadingRegistry && !isOnDocumentPage">
-                    <li
-                      v-for="n in 4"
-                      :key="`registry-skeleton-${n}`"
-                      aria-hidden="true"
-                      class="sidebar-skeleton-row px-(--scalar-sidebar-padding) py-1">
-                      <span class="bg-b-3 block h-6 rounded-md" />
-                    </li>
+                    <template v-if="isLoadingRegistry && !isOnDocumentPage">
+                      <li
+                        v-for="n in 4"
+                        :key="`registry-skeleton-${n}`"
+                        aria-hidden="true"
+                        class="sidebar-skeleton-row px-(--scalar-sidebar-padding) py-1">
+                        <span class="bg-b-3 block h-6 rounded-md" />
+                      </li>
+                    </template>
+                    <SidebarDocument
+                      v-for="item in displayRestDocuments"
+                      :key="item.key"
+                      :active="isDocActive(item)"
+                      :isDroppable="isDroppable"
+                      :isExpanded="isExpanded"
+                      :isSelected="isSelected"
+                      :item="item"
+                      :loading="loadingKeys[item.key]"
+                      :open="isDocActive(item)"
+                      @addEmptyFolder="handleAddEmptyFolder"
+                      @back="handleBack"
+                      @click="handleDocumentClick(item)"
+                      @createOperation="handleCreateOperation"
+                      @dragEnd="handleDragEnd"
+                      @openMenu="openMenu"
+                      @openSettings="handleOpenSettings"
+                      @search="handleFilterOrSearch"
+                      @selectItem="handleSelectItem"
+                      @toggleGroup="handleToggleGroup" />
                   </template>
-                  <SidebarDocument
-                    v-for="item in filteredRest"
-                    :key="item.key"
-                    :active="isDocActive(item)"
-                    :isDroppable="isDroppable"
-                    :isExpanded="isExpanded"
-                    :isSelected="isSelected"
-                    :item="item"
-                    :loading="loadingKeys[item.key]"
-                    :open="isDocActive(item)"
-                    @addEmptyFolder="handleAddEmptyFolder"
-                    @back="handleBack"
-                    @click="handleDocumentClick(item)"
-                    @createOperation="handleCreateOperation"
-                    @dragEnd="handleDragEnd"
-                    @openMenu="openMenu"
-                    @openSettings="handleOpenSettings"
-                    @search="handleFilterOrSearch"
-                    @selectItem="handleSelectItem"
-                    @toggleGroup="handleToggleGroup" />
-                </template>
-              </ScalarSidebarSection>
+                </ScalarSidebarSection>
+              </template>
             </ScalarSidebarItems>
           </div>
 

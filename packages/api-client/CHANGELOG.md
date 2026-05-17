@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 3.8.2
+
+### Patch Changes
+
+- [#9236](https://github.com/scalar/scalar/pull/9236): fix: some analytics events not firing
+
 ## 3.8.1
 
 ### Patch Changes

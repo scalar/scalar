@@ -1,5 +1,20 @@
 # scalar-app
 
+## 1.1.0
+
+### Minor Changes
+
+- [#9229](https://github.com/scalar/scalar/pull/9229): feat: sidebar document filters and registry namespace UX
+  - Rework `AppSidebar` (and related UI) so document lists respect title + namespace filtering together, with clearer controls and layout/markup cleanup.
+  - Fix sidebar navigation scrolling, a small `PublishDocumentModal` issue, and a minor tweak to `ScalarSidebarSearchInput`.
+
+### Patch Changes
+
+- [#9232](https://github.com/scalar/scalar/pull/9232): fix: allow images from any HTTPS source in CSP
+- [#9235](https://github.com/scalar/scalar/pull/9235): fix: align team picker with dashboard
+- [#9221](https://github.com/scalar/scalar/pull/9221): fix: csp issue
+- [#9236](https://github.com/scalar/scalar/pull/9236): fix: some analytics events not firing
+
 ## 1.0.13
 
 ### Patch Changes

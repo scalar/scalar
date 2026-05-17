@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.25.0
+
+### Minor Changes
+
+- [#9229](https://github.com/scalar/scalar/pull/9229): feat: sidebar document filters and registry namespace UX
+  - Rework `AppSidebar` (and related UI) so document lists respect title + namespace filtering together, with clearer controls and layout/markup cleanup.
+  - Fix sidebar navigation scrolling, a small `PublishDocumentModal` issue, and a minor tweak to `ScalarSidebarSearchInput`.
+
 ## 0.24.4
 
 ### Patch Changes

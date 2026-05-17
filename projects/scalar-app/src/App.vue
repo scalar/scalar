@@ -15,7 +15,7 @@ export type AppProps = {
 
 <script setup lang="ts">
 import { PostHogClientPlugin } from '@scalar/api-client/plugins/posthog'
-import { ScalarHeaderButton } from '@scalar/components'
+import { ScalarHeaderButton, ScalarMenuTeamProfile } from '@scalar/components'
 import { safeRun } from '@scalar/helpers/types/safe-run'
 import { type LoaderPlugin } from '@scalar/json-magic/bundle'
 import { requestScriptsPlugin } from '@scalar/pre-post-request-scripts/plugins'
@@ -56,6 +56,7 @@ const {
 } = useTeams()
 
 const { handleLogin, handleRegister } = useAuthHandlers({
+  eventBus: app.eventBus,
   // Lets go to the team workspace on login
   onAuthenticated: async () => {
     await teamsSuspense()
@@ -283,12 +284,11 @@ const registry = reactive({
 
       <!-- Team Logo -->
       <template
-        v-if="currentTeam?.imageUri"
+        v-if="currentTeam"
         #header-logo>
-        <img
-          :alt="currentTeam.name"
-          class="size-5 rounded"
-          role="presentation"
+        <ScalarMenuTeamProfile
+          class="font-medium"
+          :label="currentTeam.name"
           :src="currentTeam.imageUri" />
       </template>
 

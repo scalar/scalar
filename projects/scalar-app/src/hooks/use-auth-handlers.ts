@@ -1,4 +1,5 @@
 import { useToasts } from '@scalar/use-toasts'
+import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 import { loginUrl, registerUrl } from '@/helpers/auth/login-url'
 import { useAuth } from '@/hooks/use-auth'
@@ -8,9 +9,14 @@ import { useAuth } from '@/hooks/use-auth'
  *
  * Normally a good candiate for a helper but it touches state so must be a hook
  */
-export const useAuthHandlers = (options?: {
+export const useAuthHandlers = ({
+  eventBus,
+  onAuthenticated,
+}: {
+  /** Workspace event bus, used to emit analytics events for auth button clicks. */
+  eventBus: WorkspaceEventBus
   /** Called after a successful login or register (Electron only — web redirects to the dashboard). */
-  onAuthenticated?: () => void | Promise<void>
+  onAuthenticated: () => void | Promise<void>
 }) => {
   const { toast } = useToasts()
   const { setTokens } = useAuth()
@@ -22,6 +28,8 @@ export const useAuthHandlers = (options?: {
    * On web, redirects to the dashboard login page.
    */
   const handleLogin = async (): Promise<void> => {
+    eventBus.emit('log:login-click', undefined)
+
     if (window.electron !== true) {
       window.location.href = loginUrl()
       return
@@ -35,7 +43,7 @@ export const useAuthHandlers = (options?: {
     } else {
       toast('Logged in successfully', 'info')
       setTokens(result.accessToken, result.refreshToken)
-      await options?.onAuthenticated?.()
+      await onAuthenticated?.()
     }
   }
 
@@ -46,6 +54,8 @@ export const useAuthHandlers = (options?: {
    * On web, redirects to the dashboard registration page.
    */
   const handleRegister = async (): Promise<void> => {
+    eventBus.emit('log:register-click', undefined)
+
     if (window.electron !== true) {
       window.location.href = registerUrl()
       return
@@ -59,7 +69,7 @@ export const useAuthHandlers = (options?: {
     } else {
       toast('Registered successfully', 'info')
       setTokens(result.accessToken, result.refreshToken)
-      await options?.onAuthenticated?.()
+      await onAuthenticated?.()
     }
   }
 

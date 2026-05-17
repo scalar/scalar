@@ -15,17 +15,6 @@ import { computed } from 'vue'
 import { useAuth } from '@/hooks/use-auth'
 import { useTeams } from '@/hooks/use-teams'
 
-defineProps<{
-  /**
-   * Inline label rendered inside the menu trigger between the logo and the
-   * caret. Used to surface the active scope ("Team" / "Local") so the menu
-   * trigger doubles as the leading breadcrumb segment. Pass a plain string
-   * so consumers do not have to pierce through a slot pipeline just to
-   * tell the header which workspace type is active.
-   */
-  menuTitle?: string
-}>()
-
 const emit = defineEmits<{
   /** Emitted when the user wants to open the workspace settings */
   (e: 'navigate:to:settings'): void
@@ -92,13 +81,6 @@ const switchTeam = async (t?: ScalarMenuTeamOption) => {
           v-if="slots.logo"
           #logo>
           <slot name="logo" />
-        </template>
-        <template
-          v-if="menuTitle"
-          #title>
-          <span class="max-md:hidden">
-            {{ menuTitle }}
-          </span>
         </template>
         <template #products>
           <ScalarMenuProducts selected="client" />

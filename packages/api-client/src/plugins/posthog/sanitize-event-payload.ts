@@ -118,6 +118,8 @@ export const TRACKED_EVENTS: TrackedEventsMap = {
   // Account funnel events
   'log:login-click': empty,
   'log:register-click': empty,
+  'log:user-login': empty,
+  'log:user-logout': empty,
 
   // ---------------------------------------------------------------------------
   // Do not track — explicitly opted out so new events cause a type error
@@ -127,8 +129,6 @@ export const TRACKED_EVENTS: TrackedEventsMap = {
   'analytics:on:show-more': undefined,
   'analytics:on:loaded': undefined,
   'document:update:extension': undefined,
-  'log:user-login': undefined,
-  'log:user-logout': undefined,
   'operation:update:meta': undefined,
   'operation:update:extension': undefined,
   'operation:upsert:parameter': undefined,
