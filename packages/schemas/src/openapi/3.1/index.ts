@@ -59,6 +59,7 @@ import {
 } from '@/extensions/security'
 import { XScalarSelectedServer } from '@/extensions/server'
 import { XDisplayName, XTagGroups } from '@/extensions/tag'
+import { recursiveRef } from '@/openapi/3.1/reference'
 
 export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
   const contact = object(
@@ -93,9 +94,9 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     { typeName: 'LicenseObject' },
   )
 
-  const info = intersection([
-    object(
-      {
+  const info = intersection(
+    [
+      object({
         title: string({ typeComment: 'REQUIRED. The title of the API.' }),
         version: string({
           typeComment:
@@ -112,11 +113,11 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
         ),
         contact: optional(contact),
         license: optional(license),
-      },
-      { typeName: 'InfoObject' },
-    ),
-    XScalarSdkInstallation,
-  ])
+      }),
+      XScalarSdkInstallation,
+    ],
+    { typeName: 'InfoObject' },
+  )
 
   const serverVariable = object(
     {
@@ -177,9 +178,9 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     { typeName: 'ExternalDocumentationObject' },
   )
 
-  const tag = intersection([
-    object(
-      {
+  const tag = intersection(
+    [
+      object({
         name: string({ typeComment: 'REQUIRED. The name of the tag.' }),
         description: optional(
           string({
@@ -187,14 +188,14 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
           }),
         ),
         externalDocs: optional(externalDocs),
-      },
-      { typeName: 'TagObject' },
-    ),
-    XDisplayName,
-    XInternal,
-    XScalarIgnore,
-    XScalarOrder,
-  ])
+      }),
+      XDisplayName,
+      XInternal,
+      XScalarIgnore,
+      XScalarOrder,
+    ],
+    { typeName: 'TagObject' },
+  )
 
   const securityRequirement = record(string(), array(string()), {
     typeName: 'SecurityRequirementObject',
@@ -446,55 +447,55 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     { typeName: 'OAuthFlowBaseCore' },
   )
 
-  const implicitOAuth2Flow = intersection([
-    oauthFlowCore,
-    ...oauthFlowExtensionObjects,
-    object(
-      {
+  const implicitOAuth2Flow = intersection(
+    [
+      oauthFlowCore,
+      ...oauthFlowExtensionObjects,
+      object({
         authorizationUrl: string({
           typeComment:
             'REQUIRED. The authorization URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS.',
         }),
-      },
-      { typeName: 'ImplicitOAuthFlowObject' },
-    ),
-  ])
+      }),
+    ],
+    { typeName: 'ImplicitOAuthFlowObject' },
+  )
 
-  const passwordOAuth2Flow = intersection([
-    oauthFlowCore,
-    ...oauthFlowExtensionObjects,
-    object(
-      {
+  const passwordOAuth2Flow = intersection(
+    [
+      oauthFlowCore,
+      ...oauthFlowExtensionObjects,
+      object({
         tokenUrl: string({
           typeComment:
             'REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS.',
         }),
-      },
-      { typeName: 'PasswordOAuthFlowObject' },
-    ),
-    XScalarCredentialsLocation,
-  ])
+      }),
+      XScalarCredentialsLocation,
+    ],
+    { typeName: 'PasswordOAuthFlowObject' },
+  )
 
-  const clientCredentialsOAuth2Flow = intersection([
-    oauthFlowCore,
-    ...oauthFlowExtensionObjects,
-    object(
-      {
+  const clientCredentialsOAuth2Flow = intersection(
+    [
+      oauthFlowCore,
+      ...oauthFlowExtensionObjects,
+      object({
         tokenUrl: string({
           typeComment:
             'REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS.',
         }),
-      },
-      { typeName: 'ClientCredentialsOAuthFlowObject' },
-    ),
-    XScalarCredentialsLocation,
-  ])
+      }),
+      XScalarCredentialsLocation,
+    ],
+    { typeName: 'ClientCredentialsOAuthFlowObject' },
+  )
 
-  const authorizationCodeOAuth2Flow = intersection([
-    oauthFlowCore,
-    ...oauthFlowExtensionObjects,
-    object(
-      {
+  const authorizationCodeOAuth2Flow = intersection(
+    [
+      oauthFlowCore,
+      ...oauthFlowExtensionObjects,
+      object({
         authorizationUrl: string({
           typeComment:
             'REQUIRED. The authorization URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS.',
@@ -503,12 +504,12 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
           typeComment:
             'REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS.',
         }),
-      },
-      { typeName: 'AuthorizationCodeOAuthFlowObject' },
-    ),
-    XusePkce,
-    XScalarCredentialsLocation,
-  ])
+      }),
+      XusePkce,
+      XScalarCredentialsLocation,
+    ],
+    { typeName: 'AuthorizationCodeOAuthFlowObject' },
+  )
 
   const oauth2Flows = object(
     {
@@ -520,17 +521,17 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     { typeName: 'OAuthFlowsObject' },
   )
 
-  const oauth2SecurityScheme = intersection([
-    object(
-      {
+  const oauth2SecurityScheme = intersection(
+    [
+      object({
         ...securitySchemeBase.properties,
         type: literal('oauth2'),
         flows: oauth2Flows,
-      },
-      { typeName: 'OAuth2SecuritySchemeObject' },
-    ),
-    XDefaultScopes,
-  ])
+      }),
+      XDefaultScopes,
+    ],
+    { typeName: 'OAuth2SecuritySchemeObject' },
+  )
 
   const openIdConnectSecurityScheme = object(
     {
@@ -574,9 +575,9 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     { typeName: 'ComponentsObject' },
   )
 
-  const example = intersection([
-    object(
-      {
+  const example = intersection(
+    [
+      object({
         summary: optional(string({ typeComment: 'Short description for the example.' })),
         description: optional(
           string({
@@ -595,11 +596,11 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
               'A URI that identifies the literal example. The value field and externalValue field are mutually exclusive.',
           }),
         ),
-      },
-      { typeName: 'ExampleObject' },
-    ),
-    XDisabled,
-  ])
+      }),
+      XDisabled,
+    ],
+    { typeName: 'ExampleObject' },
+  )
 
   const headerBase = object(
     {
@@ -693,9 +694,9 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     { typeName: 'MediaTypeObject' },
   )
 
-  const parameterWithSchema: Schema = intersection([
-    object(
-      {
+  const parameterWithSchema: Schema = intersection(
+    [
+      object({
         name: string({
           typeComment:
             'REQUIRED. The name of the parameter. Parameter names are case sensitive. If in is "path", the name field MUST correspond to a template expression occurring within the path field in the Paths Object.',
@@ -749,17 +750,17 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
         schema: optional(maybeRef(lazy(() => schema))),
         example: optional(any()),
         examples: optional(record(string(), maybeRef(lazy(() => example)), { typeName: 'ParameterExamples' })),
-      },
-      { typeName: 'ParameterObjectWithSchema' },
-    ),
-    XGlobal,
-    XInternal,
-    XScalarIgnore,
-  ])
+      }),
+      XGlobal,
+      XInternal,
+      XScalarIgnore,
+    ],
+    { typeName: 'ParameterObjectWithSchema' },
+  )
 
-  const parameterWithContent: Schema = intersection([
-    object(
-      {
+  const parameterWithContent: Schema = intersection(
+    [
+      object({
         name: string({
           typeComment:
             'REQUIRED. The name of the parameter. Parameter names are case sensitive. If in is "path", the name field MUST correspond to a template expression occurring within the path field in the Paths Object.',
@@ -806,19 +807,19 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
             { typeName: 'ParameterContent' },
           ),
         ),
-      },
-      { typeName: 'ParameterObjectWithContent' },
-    ),
-    XGlobal,
-    XInternal,
-    XScalarIgnore,
-  ])
+      }),
+      XGlobal,
+      XInternal,
+      XScalarIgnore,
+    ],
+    { typeName: 'ParameterObjectWithContent' },
+  )
 
   const parameter = union([parameterWithSchema, parameterWithContent], { typeName: 'ParameterObject' })
 
-  const requestBody: Schema = intersection([
-    object(
-      {
+  const requestBody: Schema = intersection(
+    [
+      object({
         description: optional(
           string({
             typeComment:
@@ -837,11 +838,11 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
         required: optional(
           boolean({ typeComment: 'Determines if the request body is required in the request. Defaults to false.' }),
         ),
-      },
-      { typeName: 'RequestBodyObject' },
-    ),
-    XScalarSelectedContentType,
-  ])
+      }),
+      XScalarSelectedContentType,
+    ],
+    { typeName: 'RequestBodyObject' },
+  )
 
   const link = object(
     {
@@ -906,9 +907,9 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     typeName: 'CallbackObject',
   })
 
-  const operation: Schema = intersection([
-    object(
-      {
+  const operation: Schema = intersection(
+    [
+      object({
         tags: optional(
           array(string(), {
             typeComment:
@@ -942,20 +943,20 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
         security: optional(array(securityRequirement, { typeName: 'OperationSecurity' })),
         servers: optional(array(servers, { typeName: 'OperationServers' })),
         callbacks: optional(record(string(), maybeRef(lazy(() => callback)), { typeName: 'OperationCallbacks' })),
-      },
-      { typeName: 'OperationObject' },
-    ),
-    XBadges,
-    XInternal,
-    XScalarIgnore,
-    XCodeSamples,
-    XScalarStability,
-    XScalarDisableParameters,
-    XPostResponse,
-    XPreRequest,
-    XDraftExamples,
-    XScalarSelectedServer,
-  ])
+      }),
+      XBadges,
+      XInternal,
+      XScalarIgnore,
+      XCodeSamples,
+      XScalarStability,
+      XScalarDisableParameters,
+      XPostResponse,
+      XPreRequest,
+      XDraftExamples,
+      XScalarSelectedServer,
+    ],
+    { typeName: 'OperationObject' },
+  )
 
   const pathItem: Schema = object(
     {
@@ -1075,5 +1076,15 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     typeComment: 'Root OpenAPI 3.1 document including Scalar workspace extensions (OpenApiExtensionsSchema).',
   })
 
-  return openapi
+  return {
+    openapi,
+    securityScheme,
+    securityRequirement,
+    authorizationCodeOAuth2Flow,
+    clientCredentialsOAuth2Flow,
+    implicitOAuth2Flow,
+    passwordOAuth2Flow,
+  }
 }
+
+export const openapiSchemas = generateSchema(recursiveRef)

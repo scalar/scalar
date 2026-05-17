@@ -1,4 +1,5 @@
 import { Type } from '@scalar/typebox'
+import type { OpenApiDocument, OpenApiExtensions } from '@scalar/types/openapi/3.1'
 import { AVAILABLE_CLIENTS, type AvailableClients } from '@scalar/types/snippetz'
 
 import { compose } from '@/schemas/compose'
@@ -6,24 +7,23 @@ import { extensions } from '@/schemas/extensions'
 import { type XScalarEnvironments, xScalarEnvironmentsSchema } from '@/schemas/extensions/document'
 import {
   type XScalarActiveEnvironment,
+  XScalarActiveEnvironmentSchema,
   type XScalarCookies,
   type XScalarOrder,
-  XScalarActiveEnvironmentSchema,
-  xScalarCookiesSchema,
   XScalarOrderSchema,
+  xScalarCookiesSchema,
 } from '@/schemas/extensions/general'
 import {
   type XScalarActiveProxy,
-  type XScalarTabs,
   XScalarActiveProxySchema,
+  type XScalarTabs,
   XScalarTabsSchema,
 } from '@/schemas/extensions/workspace'
 
 import type { AsyncApiDocument } from './asyncapi/asyncapi-document'
-import type { OpenAPIExtensions, OpenApiDocument } from './v3.1/strict/openapi-document'
 
 export type WorkspaceDocumentMeta = Omit<
-  OpenAPIExtensions,
+  OpenApiExtensions,
   'x-original-oas-version' | 'x-scalar-original-source-url' | 'x-scalar-original-document-hash'
 >
 
@@ -73,4 +73,4 @@ export type Workspace = WorkspaceMeta & {
   activeDocument: WorkspaceDocument | undefined
 } & WorkspaceExtensions
 
-export type DocumentMetaExtensions = WorkspaceDocumentMeta & OpenAPIExtensions
+export type DocumentMetaExtensions = WorkspaceDocumentMeta & OpenApiExtensions

@@ -1,145 +1,130 @@
-import { type Static, Type } from '@scalar/typebox'
-import { SecurityRequirementObjectSchema } from '@scalar/types/openapi/3.1'
-
-import { compose } from '@/schemas/compose'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
 import {
-  XScalarCredentialsLocationSchema,
-  XScalarSecretClientIdSchema,
-  XScalarSecretClientSecretSchema,
-  XScalarSecretHTTPSchema,
-  XScalarSecretRedirectUriSchema,
-  XScalarSecretRefreshTokenSchema,
-  XScalarSecretTokenSchema,
+  type Static,
+  array,
+  intersection,
+  literal,
+  number,
+  object,
+  optional,
+  record,
+  string,
+  union,
+} from '@scalar/validation'
+
+import {
+  XScalarCredentialsLocation,
+  XScalarSecretClientId,
+  XScalarSecretClientSecret,
+  XScalarSecretHTTP,
+  XScalarSecretRedirectUri,
+  XScalarSecretRefreshToken,
+  XScalarSecretToken,
 } from '@/schemas/extensions/security'
-import {
-  OAuthFlowAuthorizationCodeSchema,
-  OAuthFlowClientCredentialsSchema,
-  OAuthFlowImplicitSchema,
-  OAuthFlowPasswordSchema,
-} from '@/schemas/v3.1/strict/oauth-flow'
 
-const SecretsApiKeySchema = compose(
-  Type.Object({
-    type: Type.Literal('apiKey'),
-  }),
-  XScalarSecretTokenSchema,
-)
+const {
+  authorizationCodeOAuth2Flow,
+  clientCredentialsOAuth2Flow,
+  implicitOAuth2Flow,
+  passwordOAuth2Flow,
+  securityRequirement,
+} = openapiSchemas
 
-export type SecretsApiKey = Static<typeof SecretsApiKeySchema>
+const SecretsOAuthFlowCommon = intersection([XScalarSecretClientId, XScalarSecretToken, XScalarSecretRefreshToken])
 
-const SecretsHttpSchema = compose(
-  Type.Object({
-    type: Type.Literal('http'),
-  }),
-  XScalarSecretTokenSchema,
-  XScalarSecretHTTPSchema,
-)
-
-export type SecretsHttp = Static<typeof SecretsHttpSchema>
-
-const SecretsOAuthFlowCommonSchema = compose(
-  XScalarSecretClientIdSchema,
-  XScalarSecretTokenSchema,
-  XScalarSecretRefreshTokenSchema,
-)
-
-const SecretsOAuthFlowsSchema = Type.Object({
-  implicit: Type.Optional(compose(SecretsOAuthFlowCommonSchema, XScalarSecretRedirectUriSchema)),
-  password: Type.Optional(
-    compose(
-      SecretsOAuthFlowCommonSchema,
-      XScalarSecretHTTPSchema,
-      XScalarSecretClientSecretSchema,
-      XScalarCredentialsLocationSchema,
-    ),
+const SecretsOAuthFlows = object({
+  implicit: optional(intersection([SecretsOAuthFlowCommon, XScalarSecretRedirectUri])),
+  password: optional(
+    intersection([SecretsOAuthFlowCommon, XScalarSecretHTTP, XScalarSecretClientSecret, XScalarCredentialsLocation]),
   ),
-  clientCredentials: Type.Optional(
-    compose(SecretsOAuthFlowCommonSchema, XScalarSecretClientSecretSchema, XScalarCredentialsLocationSchema),
+  clientCredentials: optional(
+    intersection([SecretsOAuthFlowCommon, XScalarSecretClientSecret, XScalarCredentialsLocation]),
   ),
-  authorizationCode: Type.Optional(
-    compose(
-      SecretsOAuthFlowCommonSchema,
-      XScalarSecretClientSecretSchema,
-      XScalarSecretRedirectUriSchema,
-      XScalarCredentialsLocationSchema,
-    ),
+  authorizationCode: optional(
+    intersection([
+      SecretsOAuthFlowCommon,
+      XScalarSecretClientSecret,
+      XScalarSecretRedirectUri,
+      XScalarCredentialsLocation,
+    ]),
   ),
 })
 
-export type SecretsOAuthFlows = Static<typeof SecretsOAuthFlowsSchema>
+const SecretsApiKey = intersection([object({ type: literal('apiKey') }), XScalarSecretToken])
 
-const OAuthSchema = compose(
-  Type.Object({
-    type: Type.Literal('oauth2'),
-  }),
-  SecretsOAuthFlowsSchema,
-)
+export type SecretsApiKey = Static<typeof SecretsApiKey>
 
-export type SecretsOAuth = Static<typeof OAuthSchema>
+const SecretsHttp = intersection([object({ type: literal('http') }), XScalarSecretToken, XScalarSecretHTTP])
+
+export type SecretsHttp = Static<typeof SecretsHttp>
+
+export type SecretsOAuthFlows = Static<typeof SecretsOAuthFlows>
+
+const SecretsOAuth = intersection([object({ type: literal('oauth2') }), SecretsOAuthFlows])
+
+export type SecretsOAuth = Static<typeof SecretsOAuth>
 
 /** OpenID Connect schema contain the base flows as well since it doesn't exist in the spec */
-export const OpenIDConnectSchema = Type.Object({
-  type: Type.Literal('openIdConnect'),
-  implicit: Type.Optional(
-    compose(OAuthFlowImplicitSchema, SecretsOAuthFlowCommonSchema, XScalarSecretRedirectUriSchema),
-  ),
-  password: Type.Optional(
-    compose(
-      OAuthFlowPasswordSchema,
-      SecretsOAuthFlowCommonSchema,
-      XScalarSecretHTTPSchema,
-      XScalarSecretClientSecretSchema,
-      XScalarCredentialsLocationSchema,
+export const OpenIDConnectSchema = intersection([
+  object({ type: literal('openIdConnect') }),
+  object({
+    implicit: optional(intersection([implicitOAuth2Flow, SecretsOAuthFlowCommon, XScalarSecretRedirectUri])),
+    password: optional(
+      intersection([
+        passwordOAuth2Flow,
+        SecretsOAuthFlowCommon,
+        XScalarSecretHTTP,
+        XScalarSecretClientSecret,
+        XScalarCredentialsLocation,
+      ]),
     ),
-  ),
-  clientCredentials: Type.Optional(
-    compose(
-      OAuthFlowClientCredentialsSchema,
-      SecretsOAuthFlowCommonSchema,
-      XScalarSecretClientSecretSchema,
-      XScalarCredentialsLocationSchema,
+    clientCredentials: optional(
+      intersection([
+        clientCredentialsOAuth2Flow,
+        SecretsOAuthFlowCommon,
+        XScalarSecretClientSecret,
+        XScalarCredentialsLocation,
+      ]),
     ),
-  ),
-  authorizationCode: Type.Optional(
-    compose(
-      OAuthFlowAuthorizationCodeSchema,
-      SecretsOAuthFlowCommonSchema,
-      XScalarSecretClientSecretSchema,
-      XScalarSecretRedirectUriSchema,
-      XScalarCredentialsLocationSchema,
+    authorizationCode: optional(
+      intersection([
+        authorizationCodeOAuth2Flow,
+        SecretsOAuthFlowCommon,
+        XScalarSecretClientSecret,
+        XScalarSecretRedirectUri,
+        XScalarCredentialsLocation,
+      ]),
     ),
-  ),
-})
+  }),
+])
 
 export type SecretsOpenIdConnect = Static<typeof OpenIDConnectSchema>
 
-export const SecretsAuthUnionSchema = Type.Union([
-  SecretsApiKeySchema,
-  SecretsHttpSchema,
-  OAuthSchema,
-  OpenIDConnectSchema,
-])
+export const SecretsAuthUnionSchema = union([SecretsApiKey, SecretsHttp, SecretsOAuth, OpenIDConnectSchema])
+
 export type SecretsAuthUnion = Static<typeof SecretsAuthUnionSchema>
 
-export const SecretsAuthSchema = Type.Record(Type.String(), SecretsAuthUnionSchema)
+export const SecretsAuthSchema = record(string(), SecretsAuthUnionSchema)
+
 export type SecretsAuth = Static<typeof SecretsAuthSchema>
 
-const SelectedSecuritySchema = Type.Object({
-  selectedIndex: Type.Number(),
-  selectedSchemes: Type.Array(SecurityRequirementObjectSchema),
+const SelectedSecuritySchema = object({
+  selectedIndex: number(),
+  selectedSchemes: array(securityRequirement),
 })
 
 export type SelectedSecurity = Static<typeof SelectedSecuritySchema>
 
-export const AuthSchema = Type.Object({
+export const AuthSchema = object({
   secrets: SecretsAuthSchema,
-  selected: Type.Object({
-    document: Type.Optional(SelectedSecuritySchema),
-    path: Type.Optional(Type.Record(Type.String(), Type.Record(Type.String(), Type.Optional(SelectedSecuritySchema)))),
+  selected: object({
+    document: optional(SelectedSecuritySchema),
+    path: optional(record(string(), record(string(), optional(SelectedSecuritySchema)))),
   }),
 })
 
 export type Auth = Static<typeof AuthSchema>
 
-export const DocumentAuthSchema = Type.Record(Type.String(), AuthSchema)
-export type DocumentAuth = Record<string, Auth>
+export const DocumentAuthSchema = record(string(), AuthSchema)
+
+export type DocumentAuth = Static<typeof DocumentAuthSchema>

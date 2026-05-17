@@ -1,3 +1,5 @@
+import type { OAuth2Object, SecurityRequirementObject } from '@scalar/types/openapi/3.1'
+
 import type { WorkspaceStore } from '@/client'
 import type { AuthEvents } from '@/events/definitions/auth'
 import { generateUniqueValue } from '@/helpers/generate-unique-value'
@@ -8,8 +10,6 @@ import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getSelectedSecurity } from '@/request-example/context/security/get-selected-security'
 import type { WorkspaceDocument } from '@/schemas'
 import { isOpenApiDocument } from '@/schemas/type-guards'
-import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
-import type { OAuth2Object } from '@/schemas/v3.1/strict/security-scheme'
 
 /**
  * Updates the selected security schemes for either the entire document or a specific operation.

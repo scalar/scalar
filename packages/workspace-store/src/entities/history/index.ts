@@ -1,9 +1,9 @@
+import { coerce } from '@scalar/validation'
 import { reactive } from 'vue'
 
 import { type DocumentHistory, DocumentHistorySchema, type HistoryEntry } from '@/entities/history/schema'
 import { safeAssign } from '@/helpers/general'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
-import { coerceValue } from '@/schemas/typebox-coerce'
 
 /**
  * Interface for the HistoryStore.
@@ -151,7 +151,7 @@ export const createHistoryStore = ({
   }
 
   const load: HistoryStore['load'] = (data) => {
-    const coercedData = coerceValue(DocumentHistorySchema, data)
+    const coercedData = coerce(DocumentHistorySchema, data)
     safeAssign(history, coercedData)
 
     // Trigger change events for all loaded documents

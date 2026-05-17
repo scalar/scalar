@@ -570,7 +570,7 @@ export type WorkspaceStore = {
   >
 }
 
-const openapiSchema = generateSchema(recursiveRef)
+const openapiSchema = generateSchema(recursiveRef).openapi
 
 /**
  * Top-level document keys that the dirty-tracker treats as metadata-only.

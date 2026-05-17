@@ -1,9 +1,16 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type { OAuthFlowsObject, SecurityRequirementObject, SecuritySchemeObject } from '@scalar/types/openapi/3.1'
+import type {
+  ApiKeyObject,
+  HttpObject,
+  OAuth2Object,
+  OAuthFlowsObject,
+  OpenIdConnectObject,
+  SecurityRequirementObject,
+  SecuritySchemeObject,
+} from '@scalar/types/openapi/3.1'
 import type { PartialDeep } from 'type-fest'
 
 import type { SecretsAuth } from '@/entities/auth/schema'
-import type { ApiKeyObject, HttpObject, OAuth2Object, OpenIdConnectObject } from '@/schemas/v3.1/strict/security-scheme'
 
 /**
  * AuthMeta defines the meta information needed to specify whether the authentication operation

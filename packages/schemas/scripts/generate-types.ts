@@ -10,7 +10,7 @@ import path from 'node:path'
 import { generateTypes } from '@scalar/validation'
 
 import { apiReferenceConfigurationSchema } from '../src/api-reference/api-reference-configuration'
-import { generateSchema } from '../src/openapi/3.1/index'
+import { generateSchema } from '../src/openapi/3.1'
 import { recursiveRef } from '../src/openapi/3.1/reference'
 
 const generatedAt = new Date().toISOString()
@@ -21,7 +21,7 @@ const apiReferenceConfigurationTypes = generateTypes(apiReferenceConfigurationSc
   typeName: 'ApiReferenceConfiguration',
 })
 
-const openApi31Types = generateTypes(generateSchema(recursiveRef), {
+const openApi31Types = generateTypes(generateSchema(recursiveRef).openapi, {
   generatedAt,
   maxDepth: Number.POSITIVE_INFINITY,
   typeName: 'OpenApiDocument',

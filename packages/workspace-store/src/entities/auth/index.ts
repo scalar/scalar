@@ -1,4 +1,5 @@
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
+import { coerce } from '@scalar/validation'
 import type { PartialDeep } from 'type-fest'
 import { reactive } from 'vue'
 
@@ -11,7 +12,6 @@ import {
 } from '@/entities/auth/schema'
 import { safeAssign } from '@/helpers/general'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
-import { coerceValue } from '@/schemas/typebox-coerce'
 
 export type {
   Auth,
@@ -126,7 +126,7 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
 
   const setAuthSecrets: AuthStore['setAuthSecrets'] = (documentName, schemeName, data) => {
     auth[documentName] ||= { secrets: {}, selected: { document: undefined, path: undefined } }
-    auth[documentName].secrets[schemeName] = coerceValue(SecretsAuthUnionSchema, data)
+    auth[documentName].secrets[schemeName] = coerce(SecretsAuthUnionSchema, data)
 
     hooks?.onAuthChange?.(documentName)
   }
@@ -199,7 +199,7 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
   }
 
   const load: AuthStore['load'] = (data) => {
-    safeAssign(auth, coerceValue(DocumentAuthSchema, data))
+    safeAssign(auth, coerce(DocumentAuthSchema, data))
 
     // Trigger change events for all loaded documents
     Object.keys(data).forEach((documentName) => {
