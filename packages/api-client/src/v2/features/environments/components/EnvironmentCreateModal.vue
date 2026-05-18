@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarModal, type ModalState } from '@scalar/components'
-import type { XScalarEnvironments } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { XScalarEnvironments } from '@scalar/types/extensions/document'
 import type {
   CollectionType,
   WorkspaceEventBus,

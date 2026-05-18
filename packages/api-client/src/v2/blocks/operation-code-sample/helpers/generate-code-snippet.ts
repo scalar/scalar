@@ -1,9 +1,9 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { AvailableClient, ClientId, TargetId } from '@scalar/snippetz'
-import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
-import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
+import type { XScalarCookie } from '@scalar/types/extensions/general'
 import type { XCodeSample } from '@scalar/types/extensions/operation'
 import type { OperationObject, ServerObject } from '@scalar/types/openapi/3.1'
+import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 
 import { operationToHar } from '@/v2/blocks/operation-code-sample/helpers/operation-to-har/operation-to-har'
 

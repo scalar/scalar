@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarButton, useModal } from '@scalar/components'
 import { ScalarIconPlus } from '@scalar/icons'
-import type { XScalarEnvironments } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { XScalarEnvironments } from '@scalar/types/extensions/document'
 import type {
   CollectionType,
   WorkspaceEventBus,

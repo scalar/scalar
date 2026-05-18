@@ -1,5 +1,6 @@
+import type { XScalarEnvVar, XScalarEnvironment } from '@scalar/types/extensions/document'
+
 import type { CollectionType } from '@/events/definitions/common'
-import type { XScalarEnvVar, XScalarEnvironment } from '@/schemas/extensions/document'
 
 /** Event definitions for all things environment related */
 export type EnvironmentEvents = {

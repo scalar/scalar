@@ -1,5 +1,6 @@
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { type SchemaObject, SchemaObjectSchema } from '@scalar/types/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import type { SchemaObject } from '@scalar/types/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -32,7 +33,7 @@ vi.mock('./SchemaProperty.vue', () => ({
 
 describe('SchemaObjectProperties', () => {
   it('renders properties as SchemaProperty components', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       type: 'object',
       properties: {
         foo: { type: 'string' },
@@ -50,7 +51,7 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('marks required properties', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       type: 'object',
       properties: {
         foo: { type: 'string' },
@@ -68,7 +69,7 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('renders patternProperties as SchemaProperty components', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       type: 'object',
       patternProperties: {
         '^x-': { type: 'string' },
@@ -87,7 +88,7 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('renders additionalProperties as SchemaProperty with default name', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       type: 'object',
       additionalProperties: { type: 'string' },
     })
@@ -102,7 +103,7 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('renders additionalProperties with x-additionalPropertiesName', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       type: 'object',
       additionalProperties: {
         type: 'string',
@@ -120,7 +121,7 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('handles additionalProperties as boolean true correctly', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       type: 'object',
       additionalProperties: true,
     })
@@ -135,7 +136,7 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('handles additionalProperties as empty object correctly', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       type: 'object',
       additionalProperties: {},
     })
@@ -172,7 +173,7 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('does not render anything if schema has no properties, patternProperties, or additionalProperties', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       type: 'object',
     })
 
@@ -184,7 +185,7 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('does not render additionalProperties when set to false', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       type: 'object',
       properties: {
         name: { type: 'string' },
@@ -204,7 +205,7 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('sorts properties alphabetically when all have same required status', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       type: 'object',
       properties: {
         zebra: { type: 'string' },
@@ -225,7 +226,7 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('sorts required properties first, then alphabetically', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       type: 'object',
       properties: {
         zebra: { type: 'string' },
@@ -283,7 +284,7 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('orders properties by x-order specification extension', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       type: 'object',
       properties: {
         zebra: { type: 'string', 'x-order': 3 },
@@ -339,7 +340,7 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('falls back to default sorting for properties without x-order', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       type: 'object',
       properties: {
         zebra: { type: 'string', 'x-order': 1 },
@@ -416,7 +417,7 @@ describe('SchemaObjectProperties', () => {
           },
         },
       },
-    } as SchemaObject
+    } as unknown as SchemaObject
 
     const wrapper = mount(SchemaObjectProperties, {
       props: { schema, options: {}, eventBus: null },

@@ -1,7 +1,7 @@
+import type { SecurityRequirementObject } from '@scalar/types/openapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import type { MergedSecuritySchemes } from '@/request-example/context/security/merge-security'
-import type { SecurityRequirementObject } from '@scalar/types/openapi/3.1'
 
 import { getSecuritySchemes } from './get-security-schemes'
 

@@ -1,4 +1,4 @@
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
 import type { RequestBodyObject } from '@scalar/types/openapi/3.1'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'

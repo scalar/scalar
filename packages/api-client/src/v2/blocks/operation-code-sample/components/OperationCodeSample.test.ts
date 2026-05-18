@@ -1,9 +1,9 @@
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import type { AvailableClient } from '@scalar/types/snippetz'
-import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
 import type { OperationObject, ServerObject } from '@scalar/types/openapi/3.1'
-import { SchemaObjectSchema } from '@scalar/types/openapi/3.1'
+import type { AvailableClient } from '@scalar/types/snippetz'
+import { coerce } from '@scalar/validation'
+import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
@@ -423,7 +423,7 @@ describe('RequestExample', () => {
             requestBody: {
               content: {
                 'application/json': {
-                  schema: coerceValue(SchemaObjectSchema, {
+                  schema: coerce(openapiSchemas.schema, {
                     anyOf: [
                       {
                         type: 'object',
@@ -915,7 +915,7 @@ describe('RequestExample', () => {
             requestBody: {
               content: {
                 'application/json': {
-                  schema: coerceValue(SchemaObjectSchema, {
+                  schema: coerce(openapiSchemas.schema, {
                     type: 'object',
                     properties: {
                       event: { type: 'string' },

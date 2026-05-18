@@ -1,11 +1,16 @@
-import { intersection, object, optional, string } from '@scalar/validation'
-
 import {
+  WorkspaceManagedExtensions as WorkspaceManagedExtensionsSchema,
+  XScalarIsDirty as XScalarIsDirtySchema,
+  XScalarOriginalDocumentHash as XScalarOriginalDocumentHashSchema,
+  XScalarRegistryMeta as XScalarRegistryMetaSchema,
+} from '@scalar/schemas/extensions/document'
+import type {
   WorkspaceManagedExtensions,
   XScalarIsDirty,
   XScalarOriginalDocumentHash,
   XScalarRegistryMeta,
-} from '@/schemas/extensions/document'
+} from '@scalar/types/extensions/document'
+import { intersection, object, optional, string } from '@scalar/validation'
 
 /**
  * Minimal AsyncAPI Info Object.
@@ -83,10 +88,10 @@ export const AsyncApiDocument = intersection(
     AsyncApiExtensions,
     // Shared store-managed metadata. Composed from the same extension modules
     // the OpenAPI side uses so the two document shapes cannot drift apart.
-    WorkspaceManagedExtensions,
-    XScalarOriginalDocumentHash,
-    XScalarIsDirty,
-    XScalarRegistryMeta,
+    WorkspaceManagedExtensionsSchema,
+    XScalarOriginalDocumentHashSchema,
+    XScalarIsDirtySchema,
+    XScalarRegistryMetaSchema,
   ],
   {
     typeName: 'AsyncApiDocument',

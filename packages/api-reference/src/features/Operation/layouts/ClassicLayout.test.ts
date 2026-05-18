@@ -1,8 +1,8 @@
 import { ScalarListbox } from '@scalar/components'
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
 import type { OperationObject, ServerObject } from '@scalar/types/openapi/3.1'
-import { SchemaObjectSchema } from '@scalar/types/openapi/3.1'
+import { coerce } from '@scalar/validation'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
@@ -28,7 +28,7 @@ const operation: OperationObject = {
     required: true,
     content: {
       'application/json': {
-        schema: coerceValue(SchemaObjectSchema, {
+        schema: coerce(openapiSchemas.schema, {
           anyOf: [
             {
               title: 'Primary',
@@ -63,7 +63,7 @@ const nestedOperation: OperationObject = {
     required: true,
     content: {
       'application/json': {
-        schema: coerceValue(SchemaObjectSchema, {
+        schema: coerce(openapiSchemas.schema, {
           type: 'object',
           properties: {
             payload: {
@@ -217,13 +217,13 @@ describe('ClassicLayout', () => {
           required: true,
           content: {
             'application/json': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: { foo: { type: 'string' } },
               }),
             },
             'application/x-www-form-urlencoded': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: { bar: { type: 'string' } },
               }),

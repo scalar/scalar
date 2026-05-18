@@ -10,12 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/openapi-to-markdown"
   },
-  "keywords": [
-    "openapi",
-    "markdown",
-    "llm",
-    "swagger"
-  ],
+  "keywords": ["openapi", "markdown", "llm", "swagger"],
   "version": "0.5.17",
   "engines": {
     "node": ">=22"
@@ -46,16 +41,13 @@
       "default": "./dist/css/*.css"
     }
   },
-  "files": [
-    "dist",
-    "CHANGELOG.md"
-  ],
+  "files": ["dist", "CHANGELOG.md"],
   "dependencies": {
     "@scalar/components": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
-    "@scalar/workspace-store": "workspace:*",
     "@scalar/types": "workspace:*",
+    "@scalar/workspace-store": "workspace:*",
     "html-minifier-terser": "^7.2.0",
     "rehype-parse": "^9.0.1",
     "rehype-remark": "^10.0.1",

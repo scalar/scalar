@@ -1,8 +1,8 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
 import type { OperationObject, ServerObject } from '@scalar/types/openapi/3.1'
-import { SchemaObjectSchema } from '@scalar/types/openapi/3.1'
+import { coerce } from '@scalar/validation'
+import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import { describe, expect, it } from 'vitest'
 
 import { operationToHar } from './operation-to-har'
@@ -174,7 +174,7 @@ describe('operationToHar', () => {
             name: 'userId',
             in: 'path',
             required: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
             }),
             examples: {
@@ -190,7 +190,7 @@ describe('operationToHar', () => {
             name: 'test',
             in: 'query',
             required: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
             }),
             examples: {
@@ -238,7 +238,7 @@ describe('operationToHar', () => {
             name: 'filter',
             in: 'query',
             required: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
             }),
             examples: {
@@ -288,7 +288,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
@@ -327,7 +327,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
@@ -361,7 +361,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 anyOf: [
                   {
                     type: 'object',
@@ -399,7 +399,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   payload: {
@@ -619,7 +619,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   stringProp: { type: 'string' },
@@ -671,7 +671,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
@@ -679,7 +679,7 @@ describe('operationToHar', () => {
               }),
             },
             'application/xml': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
@@ -709,7 +709,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
@@ -717,7 +717,7 @@ describe('operationToHar', () => {
               }),
             },
             'application/xml': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
@@ -748,7 +748,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/x-www-form-urlencoded': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
@@ -789,7 +789,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'multipart/form-data': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   file: { type: 'string', format: 'binary' },
@@ -830,7 +830,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'text/plain': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'string',
               }),
             },
@@ -858,7 +858,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/xml': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   user: {
@@ -901,7 +901,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/vnd.api+json': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   data: {
@@ -977,7 +977,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/xml': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
@@ -1010,7 +1010,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
@@ -1044,7 +1044,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/xml': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
@@ -1079,7 +1079,7 @@ describe('operationToHar', () => {
           {
             name: 'Content-Type',
             in: 'header',
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
             }),
           },
@@ -1087,7 +1087,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
@@ -1138,7 +1138,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'multipart/form-data': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   file: { type: 'string', format: 'binary' },
@@ -1172,7 +1172,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'text/plain': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'string',
               }),
             },
@@ -1205,7 +1205,7 @@ describe('operationToHar', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
@@ -1252,7 +1252,7 @@ describe('operationToHar', () => {
             name: 'q',
             in: 'query',
             required: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               example: 'findme',
             }),
@@ -1281,7 +1281,7 @@ describe('operationToHar', () => {
             name: 'q',
             in: 'query',
             required: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               example: 'findme',
             }),

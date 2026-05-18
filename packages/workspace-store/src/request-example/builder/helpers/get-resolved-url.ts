@@ -1,8 +1,8 @@
 import { replaceVariables } from '@scalar/helpers/regex/replace-variables'
 import { mergeUrls } from '@scalar/helpers/url/merge-urls'
+import type { ServerObject } from '@scalar/types/openapi/3.1'
 
 import { getServerVariables } from '@/request-example/builder/helpers/get-server-variables'
-import type { ServerObject } from '@scalar/types/openapi/3.1'
 
 /**
  * Resolves the full request URL by:

@@ -1,3 +1,12 @@
+import {
+  XScalarCredentialsLocation,
+  XScalarSecretClientId,
+  XScalarSecretClientSecret,
+  XScalarSecretHTTP,
+  XScalarSecretRedirectUri,
+  XScalarSecretRefreshToken,
+  XScalarSecretToken,
+} from '@scalar/schemas/extensions/security'
 import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
 import {
   type IntersectionMember,
@@ -12,16 +21,6 @@ import {
   string,
   union,
 } from '@scalar/validation'
-
-import {
-  XScalarCredentialsLocation,
-  XScalarSecretClientId,
-  XScalarSecretClientSecret,
-  XScalarSecretHTTP,
-  XScalarSecretRedirectUri,
-  XScalarSecretRefreshToken,
-  XScalarSecretToken,
-} from '@/schemas/extensions/security'
 
 const {
   authorizationCodeOAuth2Flow,

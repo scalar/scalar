@@ -1,16 +1,16 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { SecurityScheme } from '@scalar/types/api-reference'
-import type { XScalarCredentialsLocation } from '@scalar/types/extensions/security/x-scalar-credentials-location'
-import type { SecuritySchemeObject } from '@scalar/types/openapi/3.1'
-import type { AuthStore, SecretsOAuthFlows, SecretsOpenIdConnect } from '@scalar/workspace-store/entities/auth'
-import type { DeepPartial } from '@scalar/workspace-store/helpers/overrides-proxy'
+import type { XScalarCredentialsLocation } from '@scalar/types/extensions/security'
 import type {
   OAuthFlowAuthorizationCode,
   OAuthFlowClientCredentials,
   OAuthFlowImplicit,
   OAuthFlowPassword,
+  SecuritySchemeObject,
 } from '@scalar/types/openapi/3.1'
+import type { AuthStore, SecretsOAuthFlows, SecretsOpenIdConnect } from '@scalar/workspace-store/entities/auth'
+import type { DeepPartial } from '@scalar/workspace-store/helpers/overrides-proxy'
 
 import type {
   ApiKeyObjectSecret,

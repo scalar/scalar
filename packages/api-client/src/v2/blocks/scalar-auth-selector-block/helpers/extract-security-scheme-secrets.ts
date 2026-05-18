@@ -1,7 +1,7 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { SecurityScheme } from '@scalar/types/api-reference'
-import type { XScalarCredentialsLocation } from '@scalar/types/extensions/security/x-scalar-credentials-location'
+import type { XScalarCredentialsLocation } from '@scalar/types/extensions/security'
 import type {
   OAuthFlowAuthorizationCode,
   OAuthFlowClientCredentials,

@@ -9,7 +9,7 @@ import {
 } from '@scalar/api-client/components/data-table'
 import { ScalarButton } from '@scalar/components'
 import { ScalarIconTrash } from '@scalar/icons'
-import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
+import type { XScalarCookie } from '@scalar/types/extensions/general'
 import type {
   CollectionType,
   WorkspaceEventBus,

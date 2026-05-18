@@ -8,7 +8,7 @@ import type {
   XScalarSecretRefreshToken,
   XScalarSecretToken,
   XScalarTokenUrl,
-} from '@/schemas/extensions/security'
+} from '@scalar/types/extensions/security'
 import type {
   ApiKeyObject,
   HttpObject,

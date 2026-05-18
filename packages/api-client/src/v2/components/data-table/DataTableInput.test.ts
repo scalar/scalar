@@ -1,4 +1,4 @@
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
 import { type VueWrapper, enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
 

@@ -1,5 +1,5 @@
 import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
-import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
+import type { XScalarCookie } from '@scalar/types/extensions/general'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 

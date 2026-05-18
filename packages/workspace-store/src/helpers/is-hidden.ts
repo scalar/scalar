@@ -1,4 +1,4 @@
-import type { XInternal, XScalarIgnore } from '@/schemas/extensions/document'
+import type { XInternal, XScalarIgnore } from '@scalar/types/extensions/document'
 
 /**
  * Returns true when an OpenAPI entity (tag, operation, schema, …) is marked as hidden

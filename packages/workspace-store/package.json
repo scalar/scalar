@@ -100,66 +100,6 @@
       "types": "./dist/schemas/*.d.ts",
       "default": "./dist/schemas/*.js"
     },
-    "./schemas/extensions/document": {
-      "import": "./dist/schemas/extensions/document/index.js",
-      "types": "./dist/schemas/extensions/document/index.d.ts",
-      "default": "./dist/schemas/extensions/document/index.js"
-    },
-    "./schemas/extensions/example": {
-      "import": "./dist/schemas/extensions/example/index.js",
-      "types": "./dist/schemas/extensions/example/index.d.ts",
-      "default": "./dist/schemas/extensions/example/index.js"
-    },
-    "./schemas/extensions/general": {
-      "import": "./dist/schemas/extensions/general/index.js",
-      "types": "./dist/schemas/extensions/general/index.d.ts",
-      "default": "./dist/schemas/extensions/general/index.js"
-    },
-    "./schemas/extensions/operation": {
-      "import": "./dist/schemas/extensions/operation/index.js",
-      "types": "./dist/schemas/extensions/operation/index.d.ts",
-      "default": "./dist/schemas/extensions/operation/index.js"
-    },
-    "./schemas/extensions/parameter": {
-      "import": "./dist/schemas/extensions/parameter/index.js",
-      "types": "./dist/schemas/extensions/parameter/index.d.ts",
-      "default": "./dist/schemas/extensions/parameter/index.js"
-    },
-    "./schemas/extensions/schema": {
-      "import": "./dist/schemas/extensions/schema/index.js",
-      "types": "./dist/schemas/extensions/schema/index.d.ts",
-      "default": "./dist/schemas/extensions/schema/index.js"
-    },
-    "./schemas/extensions/security": {
-      "import": "./dist/schemas/extensions/security/index.js",
-      "types": "./dist/schemas/extensions/security/index.d.ts",
-      "default": "./dist/schemas/extensions/security/index.js"
-    },
-    "./schemas/extensions/server": {
-      "import": "./dist/schemas/extensions/server/index.js",
-      "types": "./dist/schemas/extensions/server/index.d.ts",
-      "default": "./dist/schemas/extensions/server/index.js"
-    },
-    "./schemas/extensions/tag": {
-      "import": "./dist/schemas/extensions/tag/index.js",
-      "types": "./dist/schemas/extensions/tag/index.d.ts",
-      "default": "./dist/schemas/extensions/tag/index.js"
-    },
-    "./schemas/extensions/workspace": {
-      "import": "./dist/schemas/extensions/workspace/index.js",
-      "types": "./dist/schemas/extensions/workspace/index.d.ts",
-      "default": "./dist/schemas/extensions/workspace/index.js"
-    },
-    "./schemas/v3.1/strict/openapi-document": {
-      "import": "./dist/schemas/v3.1/strict/openapi-document.js",
-      "types": "./dist/schemas/v3.1/strict/openapi-document.d.ts",
-      "default": "./dist/schemas/v3.1/strict/openapi-document.js"
-    },
-    "./schemas/v3.1/strict/type-guards": {
-      "import": "./dist/schemas/v3.1/strict/type-guards.js",
-      "types": "./dist/schemas/v3.1/strict/type-guards.d.ts",
-      "default": "./dist/schemas/v3.1/strict/type-guards.js"
-    },
     "./server": {
       "import": "./dist/server.js",
       "types": "./dist/server.d.ts",
@@ -179,10 +119,10 @@
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/openapi-upgrader": "workspace:*",
+    "@scalar/schemas": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/typebox": "catalog:*",
     "@scalar/types": "workspace:*",
-    "@scalar/schemas": "workspace:*",
     "@scalar/validation": "workspace:*",
     "js-base64": "catalog:*",
     "type-fest": "catalog:*",

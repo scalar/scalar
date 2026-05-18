@@ -1,7 +1,7 @@
+import type { Tab } from '@scalar/types/extensions/workspace'
 import { describe, expect, it } from 'vitest'
 
 import type { Workspace } from '@/schemas'
-import type { Tab } from '@/schemas/extensions/workspace'
 
 import {
   addTab,

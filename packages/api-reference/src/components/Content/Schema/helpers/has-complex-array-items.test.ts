@@ -1,6 +1,6 @@
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
 import type { SchemaObject } from '@scalar/types/openapi/3.1'
-import { SchemaObjectSchema } from '@scalar/types/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import { describe, expect, it } from 'vitest'
 
 import { hasComplexArrayItems } from './has-complex-array-items'
@@ -8,7 +8,7 @@ import { hasComplexArrayItems } from './has-complex-array-items'
 describe('has-complex-array-items', () => {
   describe('hasComplexArrayItems', () => {
     it('returns false for non-array schema', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'string',
       })
 
@@ -16,7 +16,7 @@ describe('has-complex-array-items', () => {
     })
 
     it('returns false for array with primitive items', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: { type: 'string' },
       })
@@ -25,7 +25,7 @@ describe('has-complex-array-items', () => {
     })
 
     it('returns false for array with number items', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: { type: 'number' },
       })
@@ -34,7 +34,7 @@ describe('has-complex-array-items', () => {
     })
 
     it('returns true for array with object items', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           type: 'object',
@@ -48,7 +48,7 @@ describe('has-complex-array-items', () => {
     })
 
     it('returns true for array with items that have properties but no explicit type', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           properties: {
@@ -61,7 +61,7 @@ describe('has-complex-array-items', () => {
     })
 
     it('returns true for array with items that have union type including object', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           type: ['object', 'null'],
@@ -86,7 +86,7 @@ describe('has-complex-array-items', () => {
     })
 
     it('returns true for array with items containing discriminator', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           discriminator: {
@@ -100,7 +100,7 @@ describe('has-complex-array-items', () => {
     })
 
     it('returns true for array with items containing allOf composition', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           allOf: [
@@ -114,7 +114,7 @@ describe('has-complex-array-items', () => {
     })
 
     it('returns true for array with items containing oneOf composition', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           oneOf: [
@@ -128,7 +128,7 @@ describe('has-complex-array-items', () => {
     })
 
     it('returns true for array with items containing anyOf composition', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           anyOf: [
@@ -142,7 +142,7 @@ describe('has-complex-array-items', () => {
     })
 
     it('returns true for nested array with complex items (array of arrays of objects)', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           type: 'array',
@@ -173,7 +173,7 @@ describe('has-complex-array-items', () => {
     })
 
     it('returns true for nested array with items containing compositions', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           type: 'array',
@@ -187,7 +187,7 @@ describe('has-complex-array-items', () => {
     })
 
     it('returns true for nested array with items that have properties', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           type: 'array',
@@ -203,7 +203,7 @@ describe('has-complex-array-items', () => {
     })
 
     it('returns true for deeply nested arrays (array of arrays of arrays with objects)', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           type: 'array',
@@ -223,7 +223,7 @@ describe('has-complex-array-items', () => {
     })
 
     it('returns false for nested array with primitive items (array of arrays of strings)', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           type: 'array',
@@ -239,7 +239,7 @@ describe('has-complex-array-items', () => {
     })
 
     it('returns false for array without items', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
       })
 
@@ -247,7 +247,7 @@ describe('has-complex-array-items', () => {
     })
 
     it('returns false for array with items as non-object', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: 'string',
       })

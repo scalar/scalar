@@ -1,8 +1,7 @@
 import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { xScalarEnvironmentSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { OpenAPIDocumentSchema } from '@scalar/types/openapi/3.1'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -15,10 +14,10 @@ describe('Cookies', () => {
     vi.clearAllMocks()
   })
 
-  const baseEnvironment = coerceValue(xScalarEnvironmentSchema, {
+  const baseEnvironment = {
     color: '#FFFFFF',
     variables: [],
-  })
+  } satisfies XScalarEnvironment
 
   const createWorkspaceStoreInstance = () => {
     const store = createWorkspaceStore()
@@ -26,12 +25,15 @@ describe('Cookies', () => {
   }
 
   const createDocumentProps = (overrides: Partial<CollectionProps> = {}) => {
-    const document = coerceValue(OpenAPIDocumentSchema, {
+    const document = {
+      openapi: '3.1.0',
+      'x-scalar-original-document-hash': 'test-hash',
       info: {
         title: 'Test API',
+        version: '1.0.0',
         description: 'Test description',
       },
-    })
+    } satisfies OpenApiDocument
 
     return {
       documentSlug: 'test-document',
@@ -102,12 +104,15 @@ describe('Cookies', () => {
         { name: 'authToken', value: 'token456', domain: 'example.com' },
       ]
 
-      const document = coerceValue(OpenAPIDocumentSchema, {
+      const document = {
+        openapi: '3.1.0',
+        'x-scalar-original-document-hash': 'test-hash',
         info: {
           title: 'Test API',
+          version: '1.0.0',
         },
         'x-scalar-cookies': documentCookies,
-      })
+      } satisfies OpenApiDocument
 
       const props = createDocumentProps({ document })
       const wrapper = mount(Cookies, { props })
@@ -130,13 +135,14 @@ describe('Cookies', () => {
     })
 
     it('defaults to empty array when document cookies are undefined', () => {
-      const document = coerceValue(OpenAPIDocumentSchema, {
+      const document = {
+        openapi: '3.1.0',
+        'x-scalar-original-document-hash': 'test-hash',
         info: {
           title: 'Test API',
+          version: '1.0.0',
         },
-      })
-      // Explicitly ensure x-scalar-cookies is not set
-      delete document['x-scalar-cookies']
+      } satisfies OpenApiDocument
 
       const props = createDocumentProps({ document })
       const wrapper = mount(Cookies, { props })
@@ -158,12 +164,15 @@ describe('Cookies', () => {
     })
 
     it('handles empty array cookies from document', () => {
-      const document = coerceValue(OpenAPIDocumentSchema, {
+      const document = {
+        openapi: '3.1.0',
+        'x-scalar-original-document-hash': 'test-hash',
         info: {
           title: 'Test API',
+          version: '1.0.0',
         },
         'x-scalar-cookies': [],
-      })
+      } satisfies OpenApiDocument
 
       const props = createDocumentProps({ document })
       const wrapper = mount(Cookies, { props })

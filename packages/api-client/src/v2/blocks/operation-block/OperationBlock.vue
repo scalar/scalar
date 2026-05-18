@@ -93,8 +93,8 @@ import { isElectron } from '@scalar/helpers/general/is-electron'
 import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { executeHook, type ClientPlugin } from '@scalar/oas-utils/helpers'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
-import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
+import type { XScalarCookie } from '@scalar/types/extensions/general'
 import type {
   OpenApiDocument,
   OperationObject,

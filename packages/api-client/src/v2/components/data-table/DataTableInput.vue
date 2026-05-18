@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarIconButton } from '@scalar/components'
 import { ScalarIconEye, ScalarIconEyeSlash, ScalarIconX } from '@scalar/icons'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
 import { computed, ref, useTemplateRef } from 'vue'
 
 import type { VueClassProp } from '@/types/vue'

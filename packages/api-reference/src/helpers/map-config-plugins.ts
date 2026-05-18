@@ -1,8 +1,8 @@
 import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
 import { buildRequest, getEnvironmentVariables } from '@scalar/workspace-store/request-example'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
 import { type ComputedRef, watch } from 'vue'
 
 /**

@@ -53,15 +53,45 @@
       "types": "./dist/utils/index.d.ts",
       "default": "./dist/utils/index.js"
     },
+    "./extensions/document": {
+      "import": "./dist/extensions/document/index.js",
+      "types": "./dist/extensions/document/index.d.ts",
+      "default": "./dist/extensions/document/index.js"
+    },
+    "./extensions/example": {
+      "import": "./dist/extensions/example/index.js",
+      "types": "./dist/extensions/example/index.d.ts",
+      "default": "./dist/extensions/example/index.js"
+    },
+    "./extensions/general": {
+      "import": "./dist/extensions/general/index.js",
+      "types": "./dist/extensions/general/index.d.ts",
+      "default": "./dist/extensions/general/index.js"
+    },
     "./extensions/operation": {
       "import": "./dist/extensions/operation/index.js",
       "types": "./dist/extensions/operation/index.d.ts",
       "default": "./dist/extensions/operation/index.js"
     },
+    "./extensions/parameter": {
+      "import": "./dist/extensions/parameter/index.js",
+      "types": "./dist/extensions/parameter/index.d.ts",
+      "default": "./dist/extensions/parameter/index.js"
+    },
+    "./extensions/schema": {
+      "import": "./dist/extensions/schema/index.js",
+      "types": "./dist/extensions/schema/index.d.ts",
+      "default": "./dist/extensions/schema/index.js"
+    },
     "./extensions/security": {
       "import": "./dist/extensions/security/index.js",
       "types": "./dist/extensions/security/index.d.ts",
       "default": "./dist/extensions/security/index.js"
+    },
+    "./extensions/server": {
+      "import": "./dist/extensions/server/index.js",
+      "types": "./dist/extensions/server/index.d.ts",
+      "default": "./dist/extensions/server/index.js"
     },
     "./extensions/tag": {
       "import": "./dist/extensions/tag/index.js",
@@ -98,7 +128,7 @@
   },
   "devDependencies": {
     "@types/har-format": "^1.2.16",
-    "vite": "catalog:*",
-    "type-fest": "catalog:*"
+    "type-fest": "catalog:*",
+    "vite": "catalog:*"
   }
 }

@@ -1,5 +1,6 @@
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { type OperationObject, SchemaObjectSchema } from '@scalar/types/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import type { OperationObject } from '@scalar/types/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import type { Request as HarRequest } from 'har-format'
 import { describe, expect, it } from 'vitest'
 
@@ -38,7 +39,7 @@ describe('parameter styles', () => {
                 value: 'blue',
               },
             },
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
             }),
           },
@@ -58,7 +59,7 @@ describe('parameter styles', () => {
             in: 'path',
             style: 'matrix',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: { type: 'string' },
               example: ['blue', 'black', 'brown'],
@@ -79,7 +80,7 @@ describe('parameter styles', () => {
             in: 'path',
             style: 'matrix',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
@@ -104,7 +105,7 @@ describe('parameter styles', () => {
             in: 'path',
             style: 'matrix',
             explode: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               example: 'blue',
             }),
@@ -124,7 +125,7 @@ describe('parameter styles', () => {
             in: 'path',
             style: 'matrix',
             explode: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: { type: 'string' },
               example: ['blue', 'black', 'brown'],
@@ -145,7 +146,7 @@ describe('parameter styles', () => {
             in: 'path',
             style: 'matrix',
             explode: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
@@ -172,7 +173,7 @@ describe('parameter styles', () => {
             in: 'path',
             style: 'label',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               example: 'blue',
             }),
@@ -192,7 +193,7 @@ describe('parameter styles', () => {
             in: 'path',
             style: 'label',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: { type: 'string' },
               example: ['blue', 'black', 'brown'],
@@ -213,7 +214,7 @@ describe('parameter styles', () => {
             in: 'path',
             style: 'label',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
@@ -238,7 +239,7 @@ describe('parameter styles', () => {
             in: 'path',
             style: 'label',
             explode: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               example: 'blue',
             }),
@@ -258,7 +259,7 @@ describe('parameter styles', () => {
             in: 'path',
             style: 'label',
             explode: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: { type: 'string' },
               example: ['blue', 'black', 'brown'],
@@ -279,7 +280,7 @@ describe('parameter styles', () => {
             in: 'path',
             style: 'label',
             explode: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
@@ -306,7 +307,7 @@ describe('parameter styles', () => {
             in: 'path',
             style: 'simple',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               example: 'blue',
             }),
@@ -326,7 +327,7 @@ describe('parameter styles', () => {
             in: 'path',
             style: 'simple',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: { type: 'string' },
               example: ['blue', 'black', 'brown'],
@@ -347,7 +348,7 @@ describe('parameter styles', () => {
             in: 'path',
             style: 'simple',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
@@ -372,7 +373,7 @@ describe('parameter styles', () => {
             in: 'path',
             style: 'simple',
             explode: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               example: 'blue',
             }),
@@ -392,7 +393,7 @@ describe('parameter styles', () => {
             in: 'path',
             style: 'simple',
             explode: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: { type: 'string' },
               example: ['blue', 'black', 'brown'],
@@ -413,7 +414,7 @@ describe('parameter styles', () => {
             in: 'path',
             style: 'simple',
             explode: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
@@ -441,7 +442,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'form',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               example: 'blue',
             }),
@@ -463,7 +464,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'form',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: { type: 'string' },
               example: ['blue', 'black', 'brown'],
@@ -486,7 +487,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'form',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
@@ -513,7 +514,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'form',
             explode: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               example: 'blue',
             }),
@@ -535,7 +536,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'form',
             explode: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: { type: 'string' },
               example: ['blue', 'black', 'brown'],
@@ -562,7 +563,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'form',
             explode: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
@@ -595,7 +596,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'spaceDelimited',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: { type: 'string' },
               example: ['blue', 'black', 'brown'],
@@ -618,7 +619,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'spaceDelimited',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
@@ -647,7 +648,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'pipeDelimited',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: { type: 'string' },
               example: ['blue', 'black', 'brown'],
@@ -670,7 +671,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'pipeDelimited',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
@@ -699,7 +700,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'deepObject',
             explode: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               properties: {
                 R: { type: 'integer' },
@@ -730,7 +731,7 @@ describe('parameter styles', () => {
             name: 'Authorization',
             in: 'header',
             required: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               example: 'Bearer token123',
             }),
@@ -752,7 +753,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'simple',
             explode: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: { type: 'string' },
               example: ['application/json', 'application/xml', 'text/plain'],
@@ -776,7 +777,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'simple',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: { type: 'string' },
               example: ['application/json', 'application/xml', 'text/plain'],
@@ -799,7 +800,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'simple',
             explode: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               properties: {
                 version: { type: 'string' },
@@ -825,7 +826,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'simple',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               properties: {
                 version: { type: 'string' },
@@ -850,7 +851,7 @@ describe('parameter styles', () => {
             in: 'header',
             required: true,
             style: 'form', // This should be ignored and default to 'simple'
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               example: 'Bearer token123',
             }),
@@ -873,7 +874,7 @@ describe('parameter styles', () => {
             name: 'X-New-Header',
             in: 'header',
             required: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               example: 'newValue',
             }),
@@ -898,7 +899,7 @@ describe('parameter styles', () => {
             name: 'sessionId',
             in: 'cookie',
             required: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
             }),
             examples: { 'alpha': { value: 'abc123' } },
@@ -921,7 +922,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'form',
             explode: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: { type: 'string' },
               example: ['dark', 'compact', 'notifications'],
@@ -948,7 +949,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'form',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: { type: 'string' },
               example: ['dark', 'compact', 'notifications'],
@@ -971,7 +972,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'form',
             explode: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               properties: {
                 theme: { type: 'string' },
@@ -1002,7 +1003,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'form',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               properties: {
                 theme: { type: 'string' },
@@ -1028,7 +1029,7 @@ describe('parameter styles', () => {
             in: 'cookie',
             required: true,
             style: 'simple', // This should be ignored and default to 'form'
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               example: 'abc123',
             }),
@@ -1048,7 +1049,7 @@ describe('parameter styles', () => {
             name: 'userId',
             in: 'cookie',
             required: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'integer',
               example: 12345,
             }),
@@ -1068,7 +1069,7 @@ describe('parameter styles', () => {
             name: 'premium',
             in: 'cookie',
             required: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'boolean',
               example: true,
             }),
@@ -1088,7 +1089,7 @@ describe('parameter styles', () => {
             name: 'sessionId',
             in: 'cookie',
             required: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               example: 'abc123',
             }),
@@ -1097,7 +1098,7 @@ describe('parameter styles', () => {
             name: 'theme',
             in: 'cookie',
             required: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               example: 'dark',
             }),
@@ -1122,7 +1123,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'form',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: { type: 'string' },
               example: ['dark', 'compact', 'notifications'],
@@ -1145,7 +1146,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'form',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               properties: {
                 theme: { type: 'string' },
@@ -1170,7 +1171,7 @@ describe('parameter styles', () => {
             name: 'sessionId',
             in: 'cookie',
             required: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               nullable: true,
               example: null,
@@ -1191,7 +1192,7 @@ describe('parameter styles', () => {
             name: 'sessionId',
             in: 'cookie',
             required: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
             }),
           },
@@ -1215,7 +1216,7 @@ describe('parameter styles', () => {
             name: 'sessionId',
             in: 'cookie',
             required: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               example: '',
             }),
@@ -1235,7 +1236,7 @@ describe('parameter styles', () => {
             name: 'auth_token',
             in: 'cookie',
             required: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               example:
                 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
@@ -1262,7 +1263,7 @@ describe('parameter styles', () => {
             name: 'user_pref',
             in: 'cookie',
             required: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               example: 'name=John Doe&email=john@example.com',
             }),
@@ -1284,7 +1285,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'form',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: { type: 'integer' },
               example: [85, 92, 78, 96],
@@ -1307,7 +1308,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'form',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: { type: 'boolean' },
               example: [true, false, true, true],
@@ -1330,7 +1331,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'form',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: {},
               example: ['string', 123, true, null],
@@ -1353,7 +1354,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'form',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               properties: {
                 preferences: {
@@ -1399,7 +1400,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'form',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: { type: 'string' },
               example: [],
@@ -1422,7 +1423,7 @@ describe('parameter styles', () => {
             required: true,
             style: 'form',
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               example: {},
             }),
@@ -1445,7 +1446,7 @@ describe('parameter styles', () => {
             name: 'newCookie',
             in: 'cookie',
             required: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               example: 'newValue',
             }),
@@ -1470,7 +1471,7 @@ describe('parameter styles', () => {
             name: 'email',
             in: 'query',
             required: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
             }),
           },
@@ -1490,7 +1491,7 @@ describe('parameter styles', () => {
             in: 'query',
             required: false,
             explode: false,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: {
                 type: 'string',
@@ -1518,7 +1519,7 @@ describe('parameter styles', () => {
             name: 'domains',
             in: 'query',
             required: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: {
                 type: 'string',
@@ -1552,7 +1553,7 @@ describe('parameter styles', () => {
             name: 'domains',
             in: 'query',
             required: true,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: {
                 type: 'string',
@@ -1613,7 +1614,7 @@ describe('parameter styles', () => {
             required: false,
             content: {
               'application/json': {
-                schema: coerceValue(SchemaObjectSchema, {
+                schema: coerce(openapiSchemas.schema, {
                   type: 'object',
                 }),
                 examples: {
@@ -1645,7 +1646,7 @@ describe('parameter styles', () => {
             required: false,
             content: {
               'text/plain': {
-                schema: coerceValue(SchemaObjectSchema, {
+                schema: coerce(openapiSchemas.schema, {
                   type: 'string',
                 }),
                 examples: {
@@ -1675,7 +1676,7 @@ describe('parameter styles', () => {
             required: false,
             content: {
               'text/xml': {
-                schema: coerceValue(SchemaObjectSchema, {
+                schema: coerce(openapiSchemas.schema, {
                   type: 'string',
                 }),
                 examples: {
@@ -1707,7 +1708,7 @@ describe('parameter styles', () => {
             required: false,
             content: {
               'application/xml': {
-                schema: coerceValue(SchemaObjectSchema, {
+                schema: coerce(openapiSchemas.schema, {
                   type: 'string',
                 }),
                 examples: {
@@ -1742,7 +1743,7 @@ describe('parameter styles', () => {
             required: false,
             content: {
               'application/x-www-form-urlencoded': {
-                schema: coerceValue(SchemaObjectSchema, {
+                schema: coerce(openapiSchemas.schema, {
                   type: 'string',
                 }),
                 examples: {
@@ -1774,7 +1775,7 @@ describe('parameter styles', () => {
             required: false,
             content: {
               'text/html': {
-                schema: coerceValue(SchemaObjectSchema, {
+                schema: coerce(openapiSchemas.schema, {
                   type: 'string',
                 }),
                 examples: {
@@ -1806,7 +1807,7 @@ describe('parameter styles', () => {
             required: false,
             content: {
               'application/octet-stream': {
-                schema: coerceValue(SchemaObjectSchema, {
+                schema: coerce(openapiSchemas.schema, {
                   type: 'string',
                   format: 'binary',
                 }),
@@ -1837,7 +1838,7 @@ describe('parameter styles', () => {
             required: false,
             content: {
               'application/json': {
-                schema: coerceValue(SchemaObjectSchema, {
+                schema: coerce(openapiSchemas.schema, {
                   type: 'array',
                   items: {
                     type: 'string',
@@ -1872,7 +1873,7 @@ describe('parameter styles', () => {
             required: false,
             content: {
               'application/json': {
-                schema: coerceValue(SchemaObjectSchema, {
+                schema: coerce(openapiSchemas.schema, {
                   type: 'object',
                 }),
                 examples: {
@@ -1913,7 +1914,7 @@ describe('parameter styles', () => {
             required: false,
             content: {
               'application/json': {
-                schema: coerceValue(SchemaObjectSchema, {
+                schema: coerce(openapiSchemas.schema, {
                   type: 'object',
                 }),
                 examples: {
@@ -1945,7 +1946,7 @@ describe('parameter styles', () => {
           {
             name: 'username',
             in: 'path',
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
             }),
           },
@@ -1962,7 +1963,7 @@ describe('parameter styles', () => {
           {
             name: 'username',
             in: 'path',
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
               example: 'scalarUser',
             }),
@@ -1981,7 +1982,7 @@ describe('parameter styles', () => {
             name: 'username',
             in: 'path',
             example: 'scalarUser',
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
             }),
           },
@@ -1998,7 +1999,7 @@ describe('parameter styles', () => {
           {
             name: 'username',
             in: 'path',
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
             }),
             examples: {
@@ -2131,7 +2132,7 @@ describe('allowReserved query parameter encoding', () => {
           name: 'query',
           in: 'query',
           required: true,
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'string',
             example: 'hello world&foo=bar',
           }),
@@ -2151,7 +2152,7 @@ describe('allowReserved query parameter encoding', () => {
           in: 'query',
           required: true,
           allowReserved: true,
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'string',
             example: 'hello world&foo=bar',
           }),
@@ -2171,7 +2172,7 @@ describe('allowReserved query parameter encoding', () => {
           in: 'query',
           required: true,
           allowReserved: false,
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'string',
             example: 'test/path?query=value',
           }),
@@ -2192,7 +2193,7 @@ describe('allowReserved query parameter encoding', () => {
           required: true,
           style: 'form',
           explode: true,
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'array',
             items: { type: 'string' },
             example: ['tag one', 'tag&two'],
@@ -2218,7 +2219,7 @@ describe('allowReserved query parameter encoding', () => {
           style: 'form',
           explode: true,
           allowReserved: true,
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'array',
             items: { type: 'string' },
             example: ['tag one', 'tag&two'],
@@ -2243,7 +2244,7 @@ describe('allowReserved query parameter encoding', () => {
           required: true,
           style: 'deepObject',
           explode: true,
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               name: { type: 'string' },
@@ -2268,7 +2269,7 @@ describe('allowReserved query parameter encoding', () => {
           style: 'deepObject',
           explode: true,
           allowReserved: true,
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               name: { type: 'string' },
@@ -2341,7 +2342,7 @@ describe('allowReserved query parameter encoding', () => {
           required: true,
           style: 'spaceDelimited',
           explode: false,
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'array',
             items: { type: 'string' },
             example: ['red&blue', 'green'],
@@ -2363,7 +2364,7 @@ describe('allowReserved query parameter encoding', () => {
           required: true,
           style: 'pipeDelimited',
           explode: false,
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'array',
             items: { type: 'string' },
             example: ['red&blue', 'green'],
@@ -2393,7 +2394,7 @@ describe('processParameters defaultDisabled', () => {
       name: 'filter',
       in: 'query',
       required: false,
-      schema: coerceValue(SchemaObjectSchema, {
+      schema: coerce(openapiSchemas.schema, {
         type: 'string',
         example: 'active',
       }),
@@ -2428,7 +2429,7 @@ describe('processParameters defaultDisabled', () => {
           name: 'filter',
           in: 'query',
           required: false,
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'string',
             example: 'active',
           }),

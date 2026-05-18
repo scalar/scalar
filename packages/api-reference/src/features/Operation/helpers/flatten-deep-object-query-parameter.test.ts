@@ -1,15 +1,15 @@
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { ParameterObjectSchema, SchemaObjectSchema } from '@scalar/types/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import { describe, expect, it } from 'vitest'
 
 import { flattenDeepObjectQueryParameter } from './flatten-deep-object-query-parameter'
 
 describe('flatten-deep-object-query-parameter', () => {
   it('returns non deepObject parameters unchanged', () => {
-    const parameter = coerceValue(ParameterObjectSchema, {
+    const parameter = coerce(openapiSchemas.parameter, {
       in: 'query',
       name: 'search',
-      schema: coerceValue(SchemaObjectSchema, {
+      schema: coerce(openapiSchemas.schema, {
         type: 'string',
       }),
       required: false,
@@ -22,12 +22,12 @@ describe('flatten-deep-object-query-parameter', () => {
   })
 
   it('flattens deepObject query parameters to bracket names', () => {
-    const parameter = coerceValue(ParameterObjectSchema, {
+    const parameter = coerce(openapiSchemas.parameter, {
       in: 'query',
       name: 'page',
       style: 'deepObject',
       explode: true,
-      schema: coerceValue(SchemaObjectSchema, {
+      schema: coerce(openapiSchemas.schema, {
         type: 'object',
         properties: {
           number: {
@@ -61,12 +61,12 @@ describe('flatten-deep-object-query-parameter', () => {
   })
 
   it('does not re-add the top-level parameter for empty nested object properties', () => {
-    const parameter = coerceValue(ParameterObjectSchema, {
+    const parameter = coerce(openapiSchemas.parameter, {
       in: 'query',
       name: 'filter',
       style: 'deepObject',
       explode: true,
-      schema: coerceValue(SchemaObjectSchema, {
+      schema: coerce(openapiSchemas.schema, {
         type: 'object',
         properties: {
           pagination: {

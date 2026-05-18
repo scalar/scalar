@@ -1,4 +1,4 @@
-import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
+import type { XScalarCookie } from '@scalar/types/extensions/general'
 
 import { matchesDomain } from './matches-domain'
 

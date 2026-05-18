@@ -1,5 +1,5 @@
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/types/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
@@ -23,7 +23,7 @@ describe('OperationParameters', () => {
             {
               in: 'path',
               name: 'userId',
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'string',
               }),
               required: true,
@@ -49,7 +49,7 @@ describe('OperationParameters', () => {
             {
               in: 'query',
               name: 'search',
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'string',
               }),
               required: false,
@@ -74,7 +74,7 @@ describe('OperationParameters', () => {
               name: 'page',
               style: 'deepObject',
               explode: true,
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   number: {
@@ -118,7 +118,7 @@ describe('OperationParameters', () => {
               name: 'filter',
               style: 'deepObject',
               explode: true,
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   pagination: {
@@ -152,7 +152,7 @@ describe('OperationParameters', () => {
               name: 'filter',
               style: 'deepObject',
               explode: true,
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   pagination: {
@@ -189,7 +189,7 @@ describe('OperationParameters', () => {
             {
               in: 'header',
               name: 'Authorization',
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'string',
               }),
               required: true,
@@ -215,7 +215,7 @@ describe('OperationParameters', () => {
             {
               in: 'cookie',
               name: 'debug',
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'integer',
                 enum: [0, 1],
                 default: 0,
@@ -241,7 +241,7 @@ describe('OperationParameters', () => {
             {
               in: 'cookie',
               name: 'csrftoken',
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'string',
                 default: 'the-example-token',
               }),
@@ -267,7 +267,7 @@ describe('OperationParameters', () => {
           requestBody: {
             content: {
               'application/json': {
-                schema: coerceValue(SchemaObjectSchema, {
+                schema: coerce(openapiSchemas.schema, {
                   type: 'object',
                   properties: {
                     name: { type: 'string' },
@@ -293,7 +293,7 @@ describe('OperationParameters', () => {
           requestBody: {
             content: {
               'application/json': {
-                schema: coerceValue(SchemaObjectSchema, {
+                schema: coerce(openapiSchemas.schema, {
                   type: 'object',
                   properties: {
                     regularProperty: {
@@ -331,7 +331,7 @@ describe('OperationParameters', () => {
           requestBody: {
             content: {
               'application/x-www-form-urlencoded': {
-                schema: coerceValue(SchemaObjectSchema, {
+                schema: coerce(openapiSchemas.schema, {
                   type: 'object',
                   properties: {
                     username: { type: 'string' },
@@ -362,7 +362,7 @@ describe('OperationParameters', () => {
             {
               in: 'query',
               name: 'param1',
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'string',
               }),
               required: false,
@@ -371,7 +371,7 @@ describe('OperationParameters', () => {
             {
               in: 'query',
               name: 'param2',
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'string',
               }),
               required: false,
@@ -381,7 +381,7 @@ describe('OperationParameters', () => {
             {
               in: 'query',
               name: 'param3',
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'string',
               }),
               required: false,
@@ -405,7 +405,7 @@ describe('OperationParameters', () => {
             {
               in: 'query',
               name: 'param1',
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'string',
               }),
               required: false,
@@ -414,7 +414,7 @@ describe('OperationParameters', () => {
             {
               in: 'query',
               name: 'param2',
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'string',
               }),
               required: false,
@@ -424,7 +424,7 @@ describe('OperationParameters', () => {
             {
               in: 'query',
               name: 'param3',
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'string',
               }),
               required: false,
@@ -448,7 +448,7 @@ describe('OperationParameters', () => {
             {
               in: 'query',
               name: 'param1',
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'string',
               }),
               required: false,
@@ -457,7 +457,7 @@ describe('OperationParameters', () => {
             {
               in: 'query',
               name: 'param2',
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'string',
               }),
               required: false,
@@ -468,7 +468,7 @@ describe('OperationParameters', () => {
             {
               in: 'query',
               name: 'param3',
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'string',
               }),
               required: false,
@@ -478,7 +478,7 @@ describe('OperationParameters', () => {
             {
               in: 'query',
               name: 'param4',
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'string',
               }),
               required: false,
@@ -488,7 +488,7 @@ describe('OperationParameters', () => {
             {
               in: 'query',
               name: 'param5',
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'string',
               }),
               required: false,

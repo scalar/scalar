@@ -1,4 +1,7 @@
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
+import type { XScalarCookie } from '@scalar/types/extensions/general'
+import type { OperationObject, SecurityRequirementObject, ServerObject } from '@scalar/types/openapi/3.1'
 
 import type { WorkspaceStore } from '@/client'
 import type { SelectedSecurity } from '@/entities/auth'
@@ -15,10 +18,7 @@ import { getSelectedSecurity } from '@/request-example/context/security/get-sele
 import { type MergedSecuritySchemes, mergeSecurity } from '@/request-example/context/security/merge-security'
 import { getSelectedServer, getServers } from '@/request-example/context/servers'
 import type { RequestExampleMeta, Result } from '@/request-example/types'
-import type { XScalarEnvironment } from '@/schemas/extensions/document'
-import type { XScalarCookie } from '@/schemas/extensions/general'
 import { isOpenApiDocument } from '@/schemas/type-guards'
-import type { OperationObject, SecurityRequirementObject, ServerObject } from '@scalar/types/openapi/3.1'
 import type { WorkspaceDocument } from '@/schemas/workspace'
 
 export type BuildRequestExampleContext = {

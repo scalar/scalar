@@ -1,10 +1,11 @@
+import type { DisableParametersConfig } from '@scalar/types/extensions/operation'
+import type { ExampleObject, ReferenceType } from '@scalar/types/openapi/3.1'
+
 import type { OperationEvents } from '@/events/definitions/operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { WorkspaceDocument } from '@/schemas'
-import type { DisableParametersConfig } from '@/schemas/extensions/operation'
 import { isOpenApiDocument } from '@/schemas/type-guards'
-import type { ExampleObject, ReferenceType } from '@scalar/types/openapi/3.1'
 
 /**
  * Updates an existing parameter of a given `type` by its index within that

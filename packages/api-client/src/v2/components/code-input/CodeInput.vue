@@ -38,7 +38,7 @@ export default {
 
 <script setup lang="ts">
 import { isDefined } from '@scalar/helpers/array/is-defined'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
 import {
   colorPicker as colorPickerExtension,
   useCodeMirror,

@@ -1,12 +1,12 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { isObject } from '@scalar/helpers/object/is-object'
-import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
+import { XScalarCookie } from '@scalar/schemas/extensions/general'
+import type { XScalarCookie as XScalarCookieType } from '@scalar/types/extensions/general'
 import type { ParameterObject, ReferenceType } from '@scalar/types/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 
 import { deSerializeParameter } from '@/request-example/builder/header/de-serialize-parameter'
-import { xScalarCookieSchema } from '@/schemas/extensions/general'
 
 import { getExample } from '../helpers/get-example'
 import { isParamDisabled } from './is-param-disabled'
@@ -40,14 +40,14 @@ export const buildRequestParameters = (
   /** The key of the current example */
   exampleName: string = 'default',
 ): {
-  cookies: XScalarCookie[]
+  cookies: XScalarCookieType[]
   headers: Record<string, string>
   pathVariables: Record<string, string>
   allowReservedQueryParameters: Set<string>
   urlParams: URLSearchParams
 } => {
   const result = {
-    cookies: [] as XScalarCookie[],
+    cookies: [] as XScalarCookieType[],
     headers: {} as Record<string, string>,
     pathVariables: {} as Record<string, string>,
     allowReservedQueryParameters: new Set<string>(),
@@ -258,7 +258,7 @@ const processCookieParameter = (
   paramName: string,
   replacedValue: unknown,
   explode: boolean,
-  cookies: XScalarCookie[],
+  cookies: XScalarCookieType[],
 ): void => {
   // Cookies only support form style according to OpenAPI 3.1.1
   const serialized = serializeFormStyleForCookies(replacedValue, explode)
@@ -268,7 +268,7 @@ const processCookieParameter = (
     for (const entry of serialized) {
       const key = entry.key || paramName
       cookies.push(
-        coerceValue(xScalarCookieSchema, {
+        coerce(XScalarCookie, {
           name: key,
           value: String(entry.value),
           path: '/',
@@ -278,7 +278,7 @@ const processCookieParameter = (
   } else {
     // Otherwise, convert to string for cookie value
     cookies.push(
-      coerceValue(xScalarCookieSchema, {
+      coerce(XScalarCookie, {
         name: paramName,
         value: String(serialized),
         path: '/',

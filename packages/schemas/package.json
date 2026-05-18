@@ -40,6 +40,36 @@
       "import": "./dist/openapi/3.1/reference.js",
       "types": "./dist/openapi/3.1/reference.d.ts",
       "default": "./dist/openapi/3.1/reference.js"
+    },
+    "./extensions/document": {
+      "import": "./dist/extensions/document/index.js",
+      "types": "./dist/extensions/document/index.d.ts",
+      "default": "./dist/extensions/document/index.js"
+    },
+    "./extensions/general": {
+      "import": "./dist/extensions/general/index.js",
+      "types": "./dist/extensions/general/index.d.ts",
+      "default": "./dist/extensions/general/index.js"
+    },
+    "./extensions/operation": {
+      "import": "./dist/extensions/operation/index.js",
+      "types": "./dist/extensions/operation/index.d.ts",
+      "default": "./dist/extensions/operation/index.js"
+    },
+    "./extensions/security": {
+      "import": "./dist/extensions/security/index.js",
+      "types": "./dist/extensions/security/index.d.ts",
+      "default": "./dist/extensions/security/index.js"
+    },
+    "./extensions/workspace": {
+      "import": "./dist/extensions/workspace/index.js",
+      "types": "./dist/extensions/workspace/index.d.ts",
+      "default": "./dist/extensions/workspace/index.js"
+    },
+    "./extensions/*": {
+      "import": "./dist/extensions/*.js",
+      "types": "./dist/extensions/*.d.ts",
+      "default": "./dist/extensions/*.js"
     }
   },
   "files": [
@@ -47,8 +77,8 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@scalar/validation": "workspace:*",
-    "@scalar/helpers": "workspace:*"
+    "@scalar/helpers": "workspace:*",
+    "@scalar/validation": "workspace:*"
   },
   "devDependencies": {
     "@scalar/types": "workspace:*",

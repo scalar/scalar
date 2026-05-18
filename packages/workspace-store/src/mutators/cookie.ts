@@ -1,8 +1,10 @@
+import { XScalarCookie } from '@scalar/schemas/extensions/general'
+import type { XScalarCookie as XScalarCookieType } from '@scalar/types/extensions/general'
+import { coerce } from '@scalar/validation'
+
 import type { CookieEvents } from '@/events/definitions/cookie'
 import type { Workspace, WorkspaceDocument } from '@/schemas'
-import { type XScalarCookie, xScalarCookieSchema } from '@/schemas/extensions/general'
 import { isAsyncApiDocument } from '@/schemas/type-guards'
-import { coerceValue } from '@/schemas/typebox-coerce'
 
 type Event<T extends keyof CookieEvents> = Omit<CookieEvents[T], 'collectionType'>
 
@@ -19,7 +21,7 @@ type Event<T extends keyof CookieEvents> = Omit<CookieEvents[T], 'collectionType
 export const upsertCookie = (
   collection: WorkspaceDocument | Workspace | null,
   { payload, index }: Event<'cookie:upsert:cookie'>,
-): XScalarCookie | undefined => {
+): XScalarCookieType | undefined => {
   if (!collection || isAsyncApiDocument(collection)) {
     return
   }
@@ -35,7 +37,7 @@ export const upsertCookie = (
     }
 
     // Ensure we parse the payload but keep the existing cookie data
-    const parsed = coerceValue(xScalarCookieSchema, {
+    const parsed = coerce(XScalarCookie, {
       ...collection['x-scalar-cookies'][index],
       ...payload,
     })
@@ -46,7 +48,7 @@ export const upsertCookie = (
   }
 
   // Add new cookie
-  const parsed = coerceValue(xScalarCookieSchema, payload)
+  const parsed = coerce(XScalarCookie, payload)
   collection['x-scalar-cookies'].push(parsed)
   return parsed
 }

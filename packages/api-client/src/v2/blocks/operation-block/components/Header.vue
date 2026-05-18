@@ -48,7 +48,7 @@ export type HeaderProps = {
 import { ScalarIcon, ScalarIconButton } from '@scalar/components'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { ScalarIconGearSix } from '@scalar/icons'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
 import type { ServerObject } from '@scalar/types/openapi/3.1'
 import type {
   ServerMeta,

@@ -1,6 +1,6 @@
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
 import { EditorState, EditorView } from '@scalar/use-codemirror'
 import { isContextFunctionName } from '@scalar/workspace-store/request-example'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { pillPlugin } from './code-variable-widget'

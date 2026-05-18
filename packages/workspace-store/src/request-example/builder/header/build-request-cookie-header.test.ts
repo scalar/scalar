@@ -1,5 +1,5 @@
 import { X_SCALAR_COOKIE } from '@scalar/helpers/http/scalar-headers'
-import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
+import type { XScalarCookie } from '@scalar/types/extensions/general'
 import { describe, expect, it } from 'vitest'
 
 import { buildRequestCookieHeader, getCookieHeader } from './build-request-cookie-header'

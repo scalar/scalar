@@ -1,10 +1,11 @@
+import { isSchemaParameterObject } from '@scalar/types/openapi/3.1'
+
 import type { WorkspaceStore } from '@/client'
 import type { HooksEvents } from '@/events/definitions/hooks'
 import type { OperationEvents } from '@/events/definitions/operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { WorkspaceDocument } from '@/schemas'
 import { isOpenApiDocument } from '@/schemas/type-guards'
-import { isSchemaParameterObject } from '@scalar/types/openapi/3.1'
 
 import { fetchRequestToHar } from './helpers/fetch-request-to-har'
 import { fetchResponseToHar } from './helpers/fetch-response-to-har'

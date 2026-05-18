@@ -3,6 +3,7 @@ import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { type Result, err, ok } from '@scalar/helpers/types/result'
 import { safeRun } from '@scalar/helpers/types/safe-run'
 import { redirectToProxy, shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
+import type { XScalarCookie } from '@scalar/types/extensions/general'
 import { encode as encodeBase64 } from 'js-base64'
 
 import { buildRequestCookieHeader } from '@/request-example/builder/header/build-request-cookie-header'
@@ -14,7 +15,6 @@ import {
 } from '@/request-example/builder/resolve-request-factory-url'
 import type { BuildRequestSecurityResult } from '@/request-example/builder/security/build-request-security'
 import { contextFunctions, isContextFunctionName } from '@/request-example/functions'
-import type { XScalarCookie } from '@/schemas/extensions/general'
 
 /**
  * The payload to build a request, useful when bypassing limitations of the browser Request object

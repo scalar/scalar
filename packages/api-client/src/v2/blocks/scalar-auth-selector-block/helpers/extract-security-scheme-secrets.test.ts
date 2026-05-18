@@ -1,4 +1,5 @@
 import type { SecurityScheme } from '@scalar/types/api-reference'
+import type { SecuritySchemeObject } from '@scalar/types/openapi/3.1'
 import { createAuthStore } from '@scalar/workspace-store/entities/auth'
 import type {
   ApiKeyObjectSecret,
@@ -6,7 +7,6 @@ import type {
   OAuth2ObjectSecret,
   OpenIdConnectObjectSecret,
 } from '@scalar/workspace-store/request-example'
-import type { SecuritySchemeObject } from '@scalar/types/openapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import { type ConfigAuthScheme, extractSecuritySchemeSecrets } from './extract-security-scheme-secrets'
@@ -1448,7 +1448,6 @@ describe('extractSecuritySchemeSecrets', () => {
           authorizationUrl: 'https://example.com/oauth/authorize',
           scopes: { openid: 'OpenID' },
           refreshUrl: '',
-          // @ts-expect-error - invalid type
           selectedScopes: ['openid'],
           'x-scalar-secret-client-id': 'client-id',
           'x-scalar-secret-redirect-uri': 'https://app.example.com/callback',

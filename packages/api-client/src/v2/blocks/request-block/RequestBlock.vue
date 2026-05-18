@@ -5,8 +5,8 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
-import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
+import type { XScalarCookie } from '@scalar/types/extensions/general'
 import type {
   OpenApiDocument,
   OperationObject,

@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises'
+import { isDeepStrictEqual } from 'node:util'
 
 import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 
@@ -6,11 +7,23 @@ import type { WorkspaceStore } from '@/client'
 import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { ServerWorkspaceStore } from '@/server'
 
+const fileContentsMatch = (actual: string, expected: string): boolean => {
+  if (actual === expected) {
+    return true
+  }
+
+  try {
+    return isDeepStrictEqual(JSON.parse(actual), JSON.parse(expected))
+  } catch {
+    return false
+  }
+}
+
 export async function allFilesMatch(fileList: { path: string; content: string }[]): Promise<boolean> {
   for (const { content, path } of fileList) {
     try {
       const actualContent = await fs.readFile(path, 'utf8')
-      if (actualContent !== content) {
+      if (!fileContentsMatch(actualContent, content)) {
         return false
       }
     } catch {

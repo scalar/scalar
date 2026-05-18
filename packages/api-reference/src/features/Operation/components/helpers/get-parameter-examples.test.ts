@@ -1,16 +1,16 @@
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { ParameterObjectSchema, SchemaObjectSchema } from '@scalar/types/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import { describe, expect, it } from 'vitest'
 
 import { getParameterExamples } from './get-parameter-examples'
 
 describe('get-parameter-examples', () => {
   it('ignores undefined example keys and returns no examples', () => {
-    const parameter = coerceValue(ParameterObjectSchema, {
+    const parameter = coerce(openapiSchemas.parameter, {
       in: 'query',
       name: 'filter[status]',
       required: false,
-      schema: coerceValue(SchemaObjectSchema, {
+      schema: coerce(openapiSchemas.schema, {
         type: 'string',
       }),
       example: undefined,
@@ -27,11 +27,11 @@ describe('get-parameter-examples', () => {
   })
 
   it('uses parameter example fallback when defined and no other examples exist', () => {
-    const parameter = coerceValue(ParameterObjectSchema, {
+    const parameter = coerce(openapiSchemas.parameter, {
       in: 'query',
       name: 'filter[status]',
       required: false,
-      schema: coerceValue(SchemaObjectSchema, {
+      schema: coerce(openapiSchemas.schema, {
         type: 'string',
       }),
       example: 'active',
@@ -47,11 +47,11 @@ describe('get-parameter-examples', () => {
   })
 
   it('prefers schema examples and removes undefined entries', () => {
-    const parameter = coerceValue(ParameterObjectSchema, {
+    const parameter = coerce(openapiSchemas.parameter, {
       in: 'query',
       name: 'filter[status]',
       required: false,
-      schema: coerceValue(SchemaObjectSchema, {
+      schema: coerce(openapiSchemas.schema, {
         type: 'string',
       }),
       example: 'active',

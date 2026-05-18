@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarButton, useLoadingState } from '@scalar/components'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
 import { type OpenIdConnectObject } from '@scalar/types/openapi/3.1'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'

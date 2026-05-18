@@ -1,4 +1,9 @@
-import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
+import type {
+  OAuth2Object,
+  OpenApiDocument,
+  SecurityRequirementObject,
+  SecuritySchemeObject,
+} from '@scalar/types/openapi/3.1'
 import { getActiveOpenApiDocument } from '@test/helpers'
 import { assert, describe, expect, it } from 'vitest'
 
@@ -14,7 +19,6 @@ import {
   updateSelectedSecuritySchemes,
   upsertScope,
 } from '@/mutators/auth'
-import type { OAuth2Object, SecurityRequirementObject, SecuritySchemeObject } from '@scalar/types/openapi/3.1'
 
 function createDocument(initial?: Partial<OpenApiDocument>): OpenApiDocument {
   return {

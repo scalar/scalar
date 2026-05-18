@@ -1,4 +1,4 @@
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
 
 /**
  * Flattens the environment variables array into a key-value object.

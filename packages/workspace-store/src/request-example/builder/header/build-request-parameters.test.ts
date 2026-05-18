@@ -1,5 +1,4 @@
-import type { ParameterObject } from '@scalar/types/openapi/3.1'
-import type { ExampleObject } from '@scalar/types/openapi/3.1'
+import type { ExampleObject, ParameterObject } from '@scalar/types/openapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import { buildRequestParameters } from './build-request-parameters'

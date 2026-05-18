@@ -1,9 +1,8 @@
 import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { xScalarEnvironmentSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { OpenAPIDocumentSchema } from '@scalar/types/openapi/3.1'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -25,10 +24,10 @@ describe('Settings', () => {
     vi.clearAllMocks()
   })
 
-  const baseEnvironment = coerceValue(xScalarEnvironmentSchema, {
+  const baseEnvironment = {
     color: '#FFFFFF',
     variables: [],
-  })
+  } satisfies XScalarEnvironment
 
   const createWorkspaceStoreInstance = () => {
     const store = createWorkspaceStore()
@@ -39,14 +38,17 @@ describe('Settings', () => {
   }
 
   const createDocumentProps = (overrides: Partial<CollectionProps> = {}) => {
-    const document = coerceValue(OpenAPIDocumentSchema, {
+    const document = {
+      openapi: '3.1.0',
+      'x-scalar-original-document-hash': 'test-hash',
       info: {
         title: 'Test API',
+        version: '1.0.0',
         description: 'Test description',
       },
       'x-scalar-original-source-url': 'https://example.com/openapi.json',
       'x-scalar-watch-mode': true,
-    })
+    } satisfies OpenApiDocument
 
     return {
       documentSlug: 'test-document',
@@ -167,11 +169,14 @@ describe('Settings', () => {
     })
 
     it('handles missing document properties gracefully', () => {
-      const document = coerceValue(OpenAPIDocumentSchema, {
+      const document = {
+        openapi: '3.1.0',
+        'x-scalar-original-document-hash': 'test-hash',
         info: {
           title: 'Test API',
+          version: '1.0.0',
         },
-      })
+      } satisfies OpenApiDocument
 
       const props = createDocumentProps({
         document,
@@ -282,7 +287,9 @@ describe('Settings', () => {
   })
 
   const buildRegistryDoc = (version: string, commitHash?: string) =>
-    coerceValue(OpenAPIDocumentSchema, {
+    ({
+      openapi: '3.1.0',
+      'x-scalar-original-document-hash': 'test-hash',
       info: { title: 'Pets API', version },
       'x-scalar-registry-meta': {
         namespace: 'acme',
@@ -290,7 +297,7 @@ describe('Settings', () => {
         version,
         ...(commitHash ? { commitHash } : {}),
       },
-    })
+    }) satisfies OpenApiDocument
 
   /**
    * Builds a stub `RegistryAdapter` shaped just enough for the danger
@@ -461,9 +468,11 @@ describe('Settings', () => {
       workspaceStore.workspace.documents = {
         'pets-1-0-0': buildRegistryDoc('1.0.0'),
         'pets-2-0-0': buildRegistryDoc('2.0.0'),
-        'unrelated-doc': coerceValue(OpenAPIDocumentSchema, {
-          info: { title: 'Other' },
-        }),
+        'unrelated-doc': {
+          openapi: '3.1.0',
+          'x-scalar-original-document-hash': 'test-hash',
+          info: { title: 'Other', version: '1.0.0' },
+        } satisfies OpenApiDocument,
       }
 
       const eventBus = createWorkspaceEventBus()

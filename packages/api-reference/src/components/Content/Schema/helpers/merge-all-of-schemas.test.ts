@@ -1,5 +1,6 @@
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { type SchemaObject, SchemaObjectSchema } from '@scalar/types/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import type { SchemaObject } from '@scalar/types/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import { describe, expect, it } from 'vitest'
 
 import { mergeAllOfSchemas } from './merge-all-of-schemas'
@@ -106,7 +107,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('preserves the original type and description when duplicates exist', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       type: 'array',
       description: 'Original description',
       allOf: [
@@ -630,7 +631,7 @@ describe('mergeAllOfSchemas', () => {
   it('keeps $refs', () => {
     // Create schemas that reference each other using $ref
     const schemas = [
-      coerceValue(SchemaObjectSchema, {
+      coerce(openapiSchemas.schema, {
         type: 'object',
         properties: {
           parent: {
@@ -797,7 +798,7 @@ describe('mergeAllOfSchemas', () => {
     // Create a deeply nested allOf structure that would exceed MAX_DEPTH
     const createDeepAllOf = (depth: number): SchemaObject => {
       if (depth === 0) {
-        return coerceValue(SchemaObjectSchema, {
+        return coerce(openapiSchemas.schema, {
           type: 'object',
           properties: {
             baseProperty: { type: 'string' },
@@ -805,7 +806,7 @@ describe('mergeAllOfSchemas', () => {
         })
       }
 
-      return coerceValue(SchemaObjectSchema, {
+      return coerce(openapiSchemas.schema, {
         allOf: [
           {
             type: 'object',
@@ -875,7 +876,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('merges schemas with all possible schema object properties', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
+    const schema = coerce(openapiSchemas.schema, {
       allOf: [
         {
           type: 'object',

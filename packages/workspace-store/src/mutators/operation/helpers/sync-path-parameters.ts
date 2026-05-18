@@ -1,8 +1,8 @@
 import { findVariables } from '@scalar/helpers/regex/find-variables'
+import type { ParameterObject, ReferenceType } from '@scalar/types/openapi/3.1'
 
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getParameterPositions } from '@/mutators/operation/helpers/get-parameter-position'
-import type { ParameterObject, ReferenceType } from '@scalar/types/openapi/3.1'
 
 // We use a minimal parameter object becuase we use this function during bundling and we don't want to prevalidate the parameters
 export type MinimalParameterObject = Pick<ParameterObject, 'name' | 'in'>

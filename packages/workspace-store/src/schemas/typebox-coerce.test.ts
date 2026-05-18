@@ -1,6 +1,6 @@
 import { Storage } from '@google-cloud/storage'
-import { Type } from '@scalar/typebox'
 import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import { Type } from '@scalar/typebox'
 import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 import { coerce, validate } from '@scalar/validation'
 import { describe, expect, it } from 'vitest'

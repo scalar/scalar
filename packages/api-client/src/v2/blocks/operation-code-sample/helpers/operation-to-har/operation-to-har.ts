@@ -1,5 +1,7 @@
 import { isElectron } from '@scalar/helpers/general/is-electron'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { XScalarCookie } from '@scalar/types/extensions/general'
+import type { OperationObject, ServerObject } from '@scalar/types/openapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   type SecuritySchemeObjectSecret,
@@ -7,8 +9,6 @@ import {
   getDefaultHeaders,
   restoreConventionalDefaultHeaderNames,
 } from '@scalar/workspace-store/request-example'
-import type { XScalarCookie } from '@scalar/types/extensions/general/x-scalar-cookies'
-import type { OperationObject, ServerObject } from '@scalar/types/openapi/3.1'
 import type { Request as HarRequest } from 'har-format'
 
 import { APP_VERSION } from '@/v2/constants'

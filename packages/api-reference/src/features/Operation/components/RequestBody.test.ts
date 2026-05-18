@@ -1,5 +1,5 @@
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/types/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -22,7 +22,7 @@ describe('RequestBody', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
@@ -51,7 +51,7 @@ describe('RequestBody', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 title: 'Pet',
                 properties: {
@@ -105,7 +105,7 @@ describe('RequestBody', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   data: { type: 'string' },
@@ -132,7 +132,7 @@ describe('RequestBody', () => {
           required: true,
           content: {
             'application/json': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
@@ -176,7 +176,7 @@ describe('RequestBody', () => {
           description: 'The user data to create',
           content: {
             'application/json': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
@@ -206,7 +206,7 @@ describe('RequestBody', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 description: 'The object schema description',
                 properties,
@@ -235,7 +235,7 @@ describe('RequestBody', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: coerceValue(SchemaObjectSchema, {
+              schema: coerce(openapiSchemas.schema, {
                 type: 'object',
                 properties: {
                   name: { type: 'string' },
@@ -261,10 +261,10 @@ describe('RequestBody', () => {
         requestBody: {
           content: {
             'application/json': {
-              schema: coerceValue(SchemaObjectSchema, { type: 'object' }),
+              schema: coerce(openapiSchemas.schema, { type: 'object' }),
             },
             'application/x-www-form-urlencoded': {
-              schema: coerceValue(SchemaObjectSchema, { type: 'object' }),
+              schema: coerce(openapiSchemas.schema, { type: 'object' }),
             },
           },
         },

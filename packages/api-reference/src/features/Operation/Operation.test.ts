@@ -1,10 +1,10 @@
 import { enableConsoleError, enableConsoleWarn } from '@scalar/helpers/testing/console-spies'
 import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
-import { OpenAPIDocumentSchema, type OpenApiDocument } from '@scalar/types/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 import { coerce } from '@scalar/validation'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
 
@@ -29,7 +29,7 @@ const mountOperationWithConfig = (
     document?: any
   } = {},
 ) => {
-  const defaultDocument = coerceValue(OpenAPIDocumentSchema, {
+  const defaultDocument = coerce(openapiSchemas.openapi, {
     openapi: '3.1.0',
     info: {
       title: 'Test API',
@@ -97,7 +97,7 @@ describe('Operation', () => {
   })
 
   const createMockDocument = (): OpenApiDocument =>
-    coerceValue(OpenAPIDocumentSchema, {
+    coerce(openapiSchemas.openapi, {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -186,7 +186,7 @@ describe('Operation', () => {
   })
 
   it('renders path parameters from operation parameters only when no pathItem parameters', () => {
-    const documentWithOnlyOperationParams = coerceValue(OpenAPIDocumentSchema, {
+    const documentWithOnlyOperationParams = coerce(openapiSchemas.openapi, {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -232,7 +232,7 @@ describe('Operation', () => {
   })
 
   it('handles webhook path parameters correctly', () => {
-    const documentWithWebhooks = coerceValue(OpenAPIDocumentSchema, {
+    const documentWithWebhooks = coerce(openapiSchemas.openapi, {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -275,7 +275,7 @@ describe('Operation', () => {
   })
 
   it('overrides path parameters with operation parameters of the same name', () => {
-    const documentWithOverridingParams = coerceValue(OpenAPIDocumentSchema, {
+    const documentWithOverridingParams = coerce(openapiSchemas.openapi, {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -422,7 +422,7 @@ describe('Operation', () => {
   })
 
   it('passes expandAllResponses config to OperationResponses component', () => {
-    const documentWithResponses = coerceValue(OpenAPIDocumentSchema, {
+    const documentWithResponses = coerce(openapiSchemas.openapi, {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -489,7 +489,7 @@ describe('Operation', () => {
   })
 
   it('falls back to path-level server when operation servers are missing', () => {
-    const doc = coerceValue(OpenAPIDocumentSchema, {
+    const doc = coerce(openapiSchemas.openapi, {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       servers: [

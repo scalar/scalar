@@ -1,5 +1,5 @@
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/types/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -23,7 +23,7 @@ describe('ParameterListItem', () => {
           in: 'query',
           name: 'pet',
           required: false,
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             title: 'Pet',
             properties: {

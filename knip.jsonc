@@ -177,7 +177,15 @@
       ]
     },
     "packages/schemas": {
-      "entry": ["src/index.ts", "src/api-reference/index.ts"]
+      "entry": [
+        "src/index.ts",
+        "src/api-reference/index.ts",
+        "src/extensions/document/index.ts",
+        "src/extensions/general/index.ts",
+        "src/extensions/operation/index.ts",
+        "src/extensions/security/index.ts",
+        "src/extensions/workspace/index.ts"
+      ]
     },
     "packages/nextjs-openapi": {
       "entry": ["src/index.ts", "playground/app/api/**/*.ts"],
@@ -221,8 +229,14 @@
         "src/legacy/index.ts",
         "src/snippetz/index.ts",
         "src/utils/index.ts",
+        "src/extensions/document/index.ts",
+        "src/extensions/example/index.ts",
+        "src/extensions/general/index.ts",
         "src/extensions/operation/index.ts",
+        "src/extensions/parameter/index.ts",
+        "src/extensions/schema/index.ts",
         "src/extensions/security/index.ts",
+        "src/extensions/server/index.ts",
         "src/extensions/tag/index.ts",
         "src/extensions/workspace/index.ts"
       ]

@@ -1,5 +1,4 @@
-import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
-import type { OperationObject } from '@scalar/types/openapi/3.1'
+import type { OpenApiDocument, OperationObject } from '@scalar/types/openapi/3.1'
 
 /**
  * Compute what the security requirements should be for a request

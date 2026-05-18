@@ -1,5 +1,5 @@
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/types/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -362,7 +362,7 @@ describe('ExampleResponses', () => {
             description: 'OK',
             content: {
               'application/json': {
-                schema: coerceValue(SchemaObjectSchema, {
+                schema: coerce(openapiSchemas.schema, {
                   type: 'object',
                   properties: {
                     message: {

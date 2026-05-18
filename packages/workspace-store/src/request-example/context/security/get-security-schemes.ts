@@ -1,7 +1,8 @@
+import type { SecurityRequirementObject } from '@scalar/types/openapi/3.1'
+
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
 import type { MergedSecuritySchemes } from '@/request-example/context/security/merge-security'
-import type { SecurityRequirementObject } from '@scalar/types/openapi/3.1'
 
 /**
  * Get the selected security schemes from security requirements.

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
 import type { ExampleObject, SchemaObject } from '@scalar/types/openapi/3.1'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { ref, watch } from 'vue'

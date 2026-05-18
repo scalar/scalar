@@ -1,6 +1,6 @@
 import { ScalarListbox } from '@scalar/components'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/types/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -14,7 +14,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               additionalProperties: {
                 nullable: true,
@@ -35,7 +35,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               properties: {
                 test: {
@@ -58,7 +58,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
               description: 'This object groups the available filters.',
               properties: {
@@ -85,7 +85,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'object',
             }),
             options: {},
@@ -105,7 +105,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: {
                 type: 'object',
@@ -131,7 +131,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: {
                 type: 'string',
@@ -154,7 +154,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'string',
             }),
             options: {},
@@ -172,7 +172,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'integer',
             }),
             options: {},
@@ -190,7 +190,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'number',
             }),
             options: {},
@@ -208,7 +208,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'boolean',
             }),
             options: {},
@@ -230,7 +230,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               enum: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'],
             }),
             options: {},
@@ -248,7 +248,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               enum: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'],
             }),
             options: {},
@@ -267,7 +267,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               enum: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'],
             }),
             options: {},
@@ -286,7 +286,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               enum: ['a'],
             }),
             options: {},
@@ -303,7 +303,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               items: {
                 enum: ['a', 'b', 'c'],
               },
@@ -320,7 +320,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               'type': 'string',
               'enum': ['Ice giant', 'Dwarf', 'Gas', 'Iron'],
               'title': 'Planet',
@@ -353,7 +353,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               anyOf: [{ type: 'string', enum: ['a', 'b', 'c'] }, { type: 'null' }],
             }),
             options: {},
@@ -373,7 +373,7 @@ describe('SchemaProperty', () => {
           eventBus: null,
           variant: 'patternProperties',
           name: '^foo-',
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'string',
           }),
           options: {},
@@ -410,7 +410,7 @@ describe('SchemaProperty', () => {
         props: {
           name: 'regularProperty',
           eventBus: null,
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'string',
           }),
           options: {},
@@ -435,7 +435,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: {
                 oneOf: [
@@ -463,7 +463,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               type: 'array',
               items: {
                 type: 'object',
@@ -500,7 +500,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               allOf: [
                 {
                   properties: {
@@ -530,7 +530,7 @@ describe('SchemaProperty', () => {
         const wrapper = mount(SchemaProperty, {
           props: {
             eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
+            schema: coerce(openapiSchemas.schema, {
               allOf: [
                 {
                   type: 'object',
@@ -629,7 +629,7 @@ describe('SchemaProperty', () => {
 
   describe('discriminator context isolation', () => {
     it('isolates child properties from parent discriminator context', async () => {
-      const childPropertySchema = coerceValue(SchemaObjectSchema, {
+      const childPropertySchema = coerce(openapiSchemas.schema, {
         type: 'object',
         properties: {
           galaxy: {
@@ -671,7 +671,7 @@ describe('SchemaProperty', () => {
       const wrapper = mount(SchemaProperty, {
         props: {
           eventBus: null,
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'boolean',
             example: true,
           }),
@@ -687,7 +687,7 @@ describe('SchemaProperty', () => {
       const wrapper = mount(SchemaProperty, {
         props: {
           eventBus: null,
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'boolean',
             example: false,
           }),
@@ -703,7 +703,7 @@ describe('SchemaProperty', () => {
       const wrapper = mount(SchemaProperty, {
         props: {
           eventBus: null,
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'integer',
             example: 0,
           }),
@@ -725,7 +725,7 @@ describe('SchemaProperty', () => {
           breadcrumb: ['body', 'BaseObject'],
           level: 2,
           name: 'myField',
-          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          schema: coerce(openapiSchemas.schema, { type: 'string' }),
           options: {},
         },
       })
@@ -740,7 +740,7 @@ describe('SchemaProperty', () => {
           breadcrumb: ['body', 'BaseObject'],
           level: 3,
           name: 'nestedField',
-          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          schema: coerce(openapiSchemas.schema, { type: 'string' }),
           options: {},
         },
       })

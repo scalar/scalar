@@ -7,17 +7,8 @@ import { slugger } from '@scalar/helpers/string/slugger'
 import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-path'
 import { type ThemeId, presets } from '@scalar/themes'
 import type { Oauth2Flow } from '@scalar/types/api-reference'
-import type { XScalarEnvironments } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { XScalarEnvironments } from '@scalar/types/extensions/document'
 import type { XTagGroup } from '@scalar/types/extensions/tag'
-import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { coerce } from '@scalar/validation'
-import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
-import { createWorkspaceStorePersistence, generateWorkspaceUid } from '@scalar/workspace-store/persistence'
-import { xScalarEnvironmentSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { xScalarCookieSchema } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
-import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
-import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type {
   OperationObject,
   ParameterObject,
@@ -28,6 +19,15 @@ import type {
   ServerObject,
   TagObject,
 } from '@scalar/types/openapi/3.1'
+import { coerce } from '@scalar/validation'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
+import { createWorkspaceStorePersistence, generateWorkspaceUid } from '@scalar/workspace-store/persistence'
+import { xScalarEnvironmentSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import { xScalarCookieSchema } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
+import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { WorkspaceExtensions, WorkspaceMeta } from '@scalar/workspace-store/schemas/workspace'
 import { ColorModeSchema } from '@scalar/workspace-store/schemas/workspace'
 

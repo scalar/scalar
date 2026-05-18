@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
 import type { ServerObject } from '@scalar/types/openapi/3.1'
 import type {
   ApiReferenceEvents,

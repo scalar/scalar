@@ -1,5 +1,5 @@
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/types/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import { describe, expect, it } from 'vitest'
 
 import { processBody } from './process-body'
@@ -8,7 +8,7 @@ describe('processBody', () => {
   it('extracts example from simple object schema', () => {
     const content = {
       'application/json': {
-        schema: coerceValue(SchemaObjectSchema, {
+        schema: coerce(openapiSchemas.schema, {
           type: 'object',
           properties: {
             name: { type: 'string', example: 'John Doe' },
@@ -34,7 +34,7 @@ describe('processBody', () => {
   it('extracts example from schema with examples array', () => {
     const content = {
       'application/json': {
-        schema: coerceValue(SchemaObjectSchema, {
+        schema: coerce(openapiSchemas.schema, {
           type: 'object',
           properties: {
             status: { type: 'string', examples: ['active', 'inactive'] },
@@ -58,7 +58,7 @@ describe('processBody', () => {
   it('extracts nested object examples', () => {
     const content = {
       'application/json': {
-        schema: coerceValue(SchemaObjectSchema, {
+        schema: coerce(openapiSchemas.schema, {
           type: 'object',
           properties: {
             user: {
@@ -98,7 +98,7 @@ describe('processBody', () => {
   it('extracts array examples', () => {
     const content = {
       'application/json': {
-        schema: coerceValue(SchemaObjectSchema, {
+        schema: coerce(openapiSchemas.schema, {
           type: 'object',
           properties: {
             tags: {
@@ -137,7 +137,7 @@ describe('processBody', () => {
   it('extracts primitive type examples', () => {
     const content = {
       'application/json': {
-        schema: coerceValue(SchemaObjectSchema, {
+        schema: coerce(openapiSchemas.schema, {
           type: 'string',
           example: 'Hello, World!',
         }),
@@ -155,7 +155,7 @@ describe('processBody', () => {
   it('extracts number examples', () => {
     const content = {
       'application/json': {
-        schema: coerceValue(SchemaObjectSchema, {
+        schema: coerce(openapiSchemas.schema, {
           type: 'number',
           example: 42,
         }),
@@ -173,7 +173,7 @@ describe('processBody', () => {
   it('extracts boolean examples', () => {
     const content = {
       'application/json': {
-        schema: coerceValue(SchemaObjectSchema, {
+        schema: coerce(openapiSchemas.schema, {
           type: 'boolean',
           example: true,
         }),
@@ -191,7 +191,7 @@ describe('processBody', () => {
   it('handles mixed example types in object', () => {
     const content = {
       'application/json': {
-        schema: coerceValue(SchemaObjectSchema, {
+        schema: coerce(openapiSchemas.schema, {
           type: 'object',
           properties: {
             stringField: { type: 'string', example: 'test' },
@@ -219,7 +219,7 @@ describe('processBody', () => {
   it('handles nested arrays with examples', () => {
     const content = {
       'application/json': {
-        schema: coerceValue(SchemaObjectSchema, {
+        schema: coerce(openapiSchemas.schema, {
           type: 'object',
           properties: {
             matrix: {
@@ -250,7 +250,7 @@ describe('processBody', () => {
   it('handles object with some properties having examples and others not', () => {
     const content = {
       'application/json': {
-        schema: coerceValue(SchemaObjectSchema, {
+        schema: coerce(openapiSchemas.schema, {
           type: 'object',
           properties: {
             name: { type: 'string', example: 'Alice' },
@@ -278,7 +278,7 @@ describe('processBody', () => {
   it('skips readOnly properties', () => {
     const content = {
       'application/json': {
-        schema: coerceValue(SchemaObjectSchema, {
+        schema: coerce(openapiSchemas.schema, {
           type: 'object',
           properties: {
             name: { type: 'string', example: 'Alice' },
@@ -301,7 +301,7 @@ describe('processBody', () => {
   it('handles custom content type with schema examples', () => {
     const content = {
       'application/xml': {
-        schema: coerceValue(SchemaObjectSchema, {
+        schema: coerce(openapiSchemas.schema, {
           type: 'string',
           example: '<user><name>Bob</name></user>',
         }),
@@ -334,7 +334,7 @@ describe('processBody', () => {
   it('handles schema without examples', () => {
     const content = {
       'application/json': {
-        schema: coerceValue(SchemaObjectSchema, {
+        schema: coerce(openapiSchemas.schema, {
           type: 'object',
           properties: {
             name: { type: 'string' },
@@ -358,7 +358,7 @@ describe('processBody', () => {
   it('prioritizes external example over schema examples', () => {
     const content = {
       'application/json': {
-        schema: coerceValue(SchemaObjectSchema, {
+        schema: coerce(openapiSchemas.schema, {
           type: 'object',
           properties: {
             name: { type: 'string', example: 'Schema Example' },
@@ -426,7 +426,7 @@ describe('processBody', () => {
     it('extracts examples from form data schema', () => {
       const content = {
         'multipart/form-data': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               file: {
@@ -473,7 +473,7 @@ describe('processBody', () => {
               contentType: 'application/json;charset=utf-8',
             },
           },
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               user: {
@@ -508,7 +508,7 @@ describe('processBody', () => {
     it('handles file upload with fileName and contentType', () => {
       const content = {
         'multipart/form-data': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               image: {
@@ -544,7 +544,7 @@ describe('processBody', () => {
     it('handles multiple file uploads with examples', () => {
       const content = {
         'multipart/form-data': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               files: {
@@ -585,7 +585,7 @@ describe('processBody', () => {
     it('handles multipart form data with mixed content types', () => {
       const content = {
         'multipart/form-data': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               image: {
@@ -639,7 +639,7 @@ describe('processBody', () => {
     it('handles multipart form data without external example', () => {
       const content = {
         'multipart/form-data': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               file: { type: 'string', format: 'binary' },
@@ -672,7 +672,7 @@ describe('processBody', () => {
     it('handles multipart form data with array of files', () => {
       const content = {
         'multipart/form-data': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               file: {
@@ -715,7 +715,7 @@ describe('processBody', () => {
     it('handles multipart form data with empty object', () => {
       const content = {
         'multipart/form-data': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {},
           }),
@@ -736,7 +736,7 @@ describe('processBody', () => {
     it('handles multipart form data with primitive values', () => {
       const content = {
         'multipart/form-data': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               text: { type: 'string', example: 'Simple text' },
@@ -765,7 +765,7 @@ describe('processBody', () => {
     it('handles file upload with comment', () => {
       const content = {
         'multipart/form-data': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               document: {
@@ -802,7 +802,7 @@ describe('processBody', () => {
     it('extracts examples from form data schema', () => {
       const content = {
         'application/x-www-form-urlencoded': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               username: { type: 'string', example: 'testuser' },
@@ -833,7 +833,7 @@ describe('processBody', () => {
     it('handles form data with array examples', () => {
       const content = {
         'application/x-www-form-urlencoded': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               categories: {
@@ -873,7 +873,7 @@ describe('processBody', () => {
     it('handles form data with multiple array items', () => {
       const content = {
         'application/x-www-form-urlencoded': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               tags: {
@@ -912,7 +912,7 @@ describe('processBody', () => {
     it('handles deeply nested objects in form data', () => {
       const content = {
         'application/x-www-form-urlencoded': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               user: {
@@ -963,7 +963,7 @@ describe('processBody', () => {
     it('handles form data with mixed primitive types', () => {
       const content = {
         'application/x-www-form-urlencoded': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               stringField: { type: 'string', example: 'hello world' },
@@ -1004,7 +1004,7 @@ describe('processBody', () => {
 
       const content = {
         'application/x-www-form-urlencoded': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               name: { type: 'string', example: 'Schema Example' },
@@ -1039,7 +1039,7 @@ describe('processBody', () => {
     it('handles form data with empty object', () => {
       const content = {
         'application/x-www-form-urlencoded': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {},
           }),
@@ -1060,7 +1060,7 @@ describe('processBody', () => {
     it('handles form data with properties without examples', () => {
       const content = {
         'application/x-www-form-urlencoded': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               name: { type: 'string', example: 'John' },
@@ -1091,7 +1091,7 @@ describe('processBody', () => {
     it('handles nested form data', () => {
       const content = {
         'application/x-www-form-urlencoded': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               user: {
@@ -1148,7 +1148,7 @@ describe('processBody', () => {
     it('extracts binary file examples', () => {
       const content = {
         'image/png': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'string',
             format: 'binary',
             example: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
@@ -1170,7 +1170,7 @@ describe('processBody', () => {
     it('handles PDF file with example', () => {
       const content = {
         'application/pdf': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'string',
             format: 'binary',
             example:
@@ -1195,7 +1195,7 @@ describe('processBody', () => {
     it('handles deeply nested objects with examples', () => {
       const content = {
         'application/json': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               company: {
@@ -1262,7 +1262,7 @@ describe('processBody', () => {
     it('handles mixed example and examples properties', () => {
       const content = {
         'application/json': {
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             type: 'object',
             properties: {
               user: {

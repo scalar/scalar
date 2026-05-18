@@ -1,14 +1,14 @@
+import {
+  XScalarEnvVar as XScalarEnvVarSchema,
+  XScalarEnvironment as XScalarEnvironmentSchema,
+} from '@scalar/schemas/extensions/document'
+import type { XScalarEnvVar, XScalarEnvironment } from '@scalar/types/extensions/document'
+import { coerce } from '@scalar/validation'
+
 import type { EnvironmentEvents } from '@/events/definitions/environment'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { Workspace, WorkspaceDocument } from '@/schemas'
-import {
-  type XScalarEnvVar,
-  type XScalarEnvironment,
-  xScalarEnvVarSchema,
-  xScalarEnvironmentSchema,
-} from '@/schemas/extensions/document'
 import { isAsyncApiDocument } from '@/schemas/type-guards'
-import { coerceValue } from '@/schemas/typebox-coerce'
 
 type Event<T extends keyof EnvironmentEvents> = Omit<EnvironmentEvents[T], 'collectionType'>
 
@@ -40,7 +40,7 @@ export const upsertEnvironment = (
   const isNewEnvironment = !collection['x-scalar-environments'][oldEnvironmentName ?? environmentName]
 
   // Ensure we parse the payload but keep the old variables
-  const parsed = coerceValue(xScalarEnvironmentSchema, {
+  const parsed = coerce(XScalarEnvironmentSchema, {
     ...unpackProxyObject(collection['x-scalar-environments'][oldEnvironmentName ?? environmentName], { depth: 1 }),
     ...payload,
   })
@@ -107,7 +107,7 @@ export const upsertEnvironmentVariable = (
   }
 
   // Ensure we parse the variable for type safety
-  const parsed = coerceValue(xScalarEnvVarSchema, variable)
+  const parsed = coerce(XScalarEnvVarSchema, variable)
 
   if (index !== undefined) {
     // Delete the row if the name is empty

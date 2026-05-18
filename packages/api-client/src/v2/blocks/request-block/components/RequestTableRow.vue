@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon, ScalarIconButton } from '@scalar/components'
 import { ScalarIconGlobe, ScalarIconTrash } from '@scalar/icons'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
 import type { ParameterObject, SchemaObject } from '@scalar/types/openapi/3.1'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'

@@ -1,8 +1,7 @@
 import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
+import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { xScalarEnvironmentSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { OpenAPIDocumentSchema } from '@scalar/types/openapi/3.1'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
@@ -14,13 +13,13 @@ describe('Overview', () => {
     vi.clearAllMocks()
   })
 
-  const baseEnvironment = coerceValue(xScalarEnvironmentSchema, {
+  const baseEnvironment = {
     color: '#FFFFFF',
     variables: [
       { name: 'API_URL', value: 'https://api.example.com' },
       { name: 'API_KEY', value: 'test-key-123' },
     ],
-  })
+  } satisfies XScalarEnvironment
 
   const mountWithProps = (
     custom: Partial<{
@@ -29,12 +28,15 @@ describe('Overview', () => {
   ) => {
     const description = 'description' in custom ? custom.description : 'Test description'
 
-    const document = coerceValue(OpenAPIDocumentSchema, {
+    const document = {
+      openapi: '3.1.0',
+      'x-scalar-original-document-hash': 'test-hash',
       info: {
         title: 'Test API',
+        version: '1.0.0',
         description,
       },
-    })
+    } satisfies OpenApiDocument
 
     return mount(Overview, {
       props: {

@@ -1,5 +1,5 @@
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 

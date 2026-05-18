@@ -1,4 +1,5 @@
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
 import {
   Decoration,
   type DecorationSet,
@@ -9,7 +10,6 @@ import {
   WidgetType,
 } from '@scalar/use-codemirror'
 import { type ContextFunctionName, getContextFunctionComment } from '@scalar/workspace-store/request-example'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
 import { createApp } from 'vue'
 
 import PillTooltipHost from './PillTooltipHost.vue'

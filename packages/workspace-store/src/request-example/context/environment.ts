@@ -1,7 +1,9 @@
+import { XScalarEnvironment } from '@scalar/schemas/extensions/document'
+import type { XScalarEnvironment as XScalarEnvironmentType } from '@scalar/types/extensions/document'
+import { coerce } from '@scalar/validation'
+
 import type { WorkspaceStore } from '@/client'
-import { type XScalarEnvironment, xScalarEnvironmentSchema } from '@/schemas/extensions/document'
 import { isOpenApiDocument } from '@/schemas/type-guards'
-import { coerceValue } from '@/schemas/typebox-coerce'
 import type { WorkspaceDocument } from '@/schemas/workspace'
 
 /**
@@ -22,13 +24,13 @@ export const getActiveEnvironment = (
   document: WorkspaceDocument | null,
 ): {
   name: string | null
-  environment: XScalarEnvironment
+  environment: XScalarEnvironmentType
 } => {
   // If workspace is null, return default (empty) environment
   if (workspace === null) {
     return {
       name: null,
-      environment: coerceValue(xScalarEnvironmentSchema, {}),
+      environment: coerce(XScalarEnvironment, {}),
     }
   }
   // Get the name of the currently active environment from workspace
@@ -38,7 +40,7 @@ export const getActiveEnvironment = (
   if (!activeEnv) {
     return {
       name: null,
-      environment: coerceValue(xScalarEnvironmentSchema, {}),
+      environment: coerce(XScalarEnvironment, {}),
     }
   }
 
@@ -53,7 +55,7 @@ export const getActiveEnvironment = (
   // Merge workspace and document variables, with document variables appended
   return {
     name: activeEnv,
-    environment: coerceValue(xScalarEnvironmentSchema, {
+    environment: coerce(XScalarEnvironment, {
       ...workspaceEnv,
       ...documentEnv,
       variables: [...workspaceEnv.variables, ...documentEnv.variables],

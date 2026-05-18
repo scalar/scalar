@@ -1,5 +1,5 @@
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/types/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import { describe, expect, it } from 'vitest'
 
 import { getSchemaType } from './get-schema-type'
@@ -7,7 +7,7 @@ import { getSchemaType } from './get-schema-type'
 describe('get-schema-type', () => {
   describe('getSchemaType', () => {
     it('returns joined types when type is an array', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: ['string', 'number', 'boolean'],
       })
 
@@ -17,7 +17,7 @@ describe('get-schema-type', () => {
     })
 
     it('returns raw type when title is present', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         title: 'User Profile',
         type: 'object',
       })
@@ -28,7 +28,7 @@ describe('get-schema-type', () => {
     })
 
     it('returns type with content encoding when both present', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'string',
         contentEncoding: 'base64',
       })
@@ -39,7 +39,7 @@ describe('get-schema-type', () => {
     })
 
     it('returns type when only type is present', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'integer',
       })
 
@@ -49,7 +49,7 @@ describe('get-schema-type', () => {
     })
 
     it('returns empty string when no type is present', () => {
-      const schema = coerceValue(SchemaObjectSchema, {})
+      const schema = coerce(openapiSchemas.schema, {})
 
       const result = getSchemaType(schema)
 
@@ -69,7 +69,7 @@ describe('get-schema-type', () => {
     })
 
     it('prioritizes array type over title', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: ['string', 'null'],
         title: 'Optional String',
       })
@@ -80,7 +80,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles empty array type', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: [],
       })
 
@@ -90,7 +90,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles single item array type', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: ['string'],
       })
 
@@ -100,7 +100,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles content encoding without type', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         contentEncoding: 'base64',
       })
 
@@ -110,7 +110,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles complex schema with all properties', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: ['string', 'number'],
         title: 'Mixed Value',
         contentEncoding: 'utf8',
@@ -122,7 +122,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array type containing object', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: ['string', 'object', 'null'],
       })
 
@@ -132,7 +132,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array type with only object', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: ['object'],
       })
 
@@ -142,7 +142,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with object items', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           type: 'object',
@@ -155,7 +155,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles nullable array schema with object items', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: ['array', 'null'],
         items: {
           type: 'object',
@@ -168,7 +168,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array type with array and other types', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: ['array', 'string', 'null'],
         items: {
           type: 'number',
@@ -181,7 +181,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array type with array but no items', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: ['array', 'string'],
       })
 
@@ -191,7 +191,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array type with array and items but no other types', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: ['array'],
         items: {
           type: 'boolean',
@@ -204,7 +204,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with items that have no type', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {},
       })
@@ -215,7 +215,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with items that have title', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           title: 'User Object',
@@ -229,7 +229,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with items that have content encoding', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           type: 'string',
@@ -243,7 +243,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with items that are arrays', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           type: 'array',
@@ -271,7 +271,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema without items property', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
       })
 
@@ -281,7 +281,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles nullable array schema without items property', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         nullable: true,
       })
@@ -292,7 +292,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles schema with only type property', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'string',
       })
 
@@ -302,7 +302,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles schema with only content encoding', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         contentEncoding: 'base64',
       })
 
@@ -312,7 +312,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles schema with nullable property but no type', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         nullable: true,
       })
 
@@ -322,7 +322,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles schema with items but no type', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         items: {
           type: 'string',
         },
@@ -334,7 +334,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles deeply nested array items', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           type: 'array',
@@ -353,7 +353,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array type with multiple array types', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: ['array', 'array'],
         items: {
           type: 'string',
@@ -366,7 +366,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array type with array and complex items', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: ['array', 'object'],
         items: {
           type: ['string', 'number'],
@@ -379,7 +379,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with nullable items', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           type: 'string',
@@ -393,7 +393,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with items that have array type', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           type: ['string', 'array'],
@@ -409,7 +409,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with items that have array type and other properties', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           type: ['string', 'array'],
@@ -426,7 +426,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with items that have array type', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           type: ['string', 'array'],
@@ -442,7 +442,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with items that have array type and content encoding', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           type: ['string', 'array'],
@@ -459,7 +459,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with items that have only array type', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           type: ['array'],
@@ -475,7 +475,7 @@ describe('get-schema-type', () => {
     })
 
     it('handles array schema with items that have array type but no items', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      const schema = coerce(openapiSchemas.schema, {
         type: 'array',
         items: {
           type: ['string', 'array'],
@@ -489,7 +489,7 @@ describe('get-schema-type', () => {
 
     describe('title property', () => {
       it('returns array type if items are not defined', () => {
-        const schema = coerceValue(SchemaObjectSchema, {
+        const schema = coerce(openapiSchemas.schema, {
           title: 'CustomArray',
           type: 'array',
         })
@@ -498,7 +498,7 @@ describe('get-schema-type', () => {
       })
 
       it('ignores the title for an array type if items are defined', () => {
-        const schema = coerceValue(SchemaObjectSchema, {
+        const schema = coerce(openapiSchemas.schema, {
           title: 'CustomArray',
           type: 'array',
           items: {
@@ -512,7 +512,7 @@ describe('get-schema-type', () => {
 
     describe('xml.name property', () => {
       it('returns raw type when xml.name is present', () => {
-        const schema = coerceValue(SchemaObjectSchema, {
+        const schema = coerce(openapiSchemas.schema, {
           type: 'object',
           xml: {
             name: 'XmlTag',
@@ -525,7 +525,7 @@ describe('get-schema-type', () => {
       })
 
       it('returns raw type when both title and xml.name are present', () => {
-        const schema = coerceValue(SchemaObjectSchema, {
+        const schema = coerce(openapiSchemas.schema, {
           title: 'Schema Title',
           type: 'object',
           xml: {
@@ -539,7 +539,7 @@ describe('get-schema-type', () => {
       })
 
       it('returns type with content encoding when xml.name is present', () => {
-        const schema = coerceValue(SchemaObjectSchema, {
+        const schema = coerce(openapiSchemas.schema, {
           type: 'string',
           contentEncoding: 'base64',
           xml: {
@@ -553,7 +553,7 @@ describe('get-schema-type', () => {
       })
 
       it('returns raw type when xml.name is present on primitive schemas', () => {
-        const schema = coerceValue(SchemaObjectSchema, {
+        const schema = coerce(openapiSchemas.schema, {
           type: 'string',
           xml: {
             name: 'XmlTag',
@@ -566,7 +566,7 @@ describe('get-schema-type', () => {
       })
 
       it('returns array for an array type when items are not defined', () => {
-        const schema = coerceValue(SchemaObjectSchema, {
+        const schema = coerce(openapiSchemas.schema, {
           type: 'array',
           xml: {
             name: 'XmlArray',
@@ -579,7 +579,7 @@ describe('get-schema-type', () => {
       })
 
       it('ignores xml.name for an array type when items are defined', () => {
-        const schema = coerceValue(SchemaObjectSchema, {
+        const schema = coerce(openapiSchemas.schema, {
           type: 'array',
           items: {
             type: 'string',
@@ -595,7 +595,7 @@ describe('get-schema-type', () => {
       })
 
       it('handles xml.name with array type in type array', () => {
-        const schema = coerceValue(SchemaObjectSchema, {
+        const schema = coerce(openapiSchemas.schema, {
           type: ['array', 'null'],
           xml: {
             name: 'NullableXmlArray',
@@ -608,7 +608,7 @@ describe('get-schema-type', () => {
       })
 
       it('handles xml.name with complex array type', () => {
-        const schema = coerceValue(SchemaObjectSchema, {
+        const schema = coerce(openapiSchemas.schema, {
           type: ['string', 'null'],
           xml: {
             name: 'NullableString',
@@ -621,7 +621,7 @@ describe('get-schema-type', () => {
       })
 
       it('handles xml object without name property', () => {
-        const schema = coerceValue(SchemaObjectSchema, {
+        const schema = coerce(openapiSchemas.schema, {
           type: 'object',
           xml: {},
         })
@@ -632,7 +632,7 @@ describe('get-schema-type', () => {
       })
 
       it('handles xml.name with empty string', () => {
-        const schema = coerceValue(SchemaObjectSchema, {
+        const schema = coerce(openapiSchemas.schema, {
           type: 'object',
           xml: {
             name: '',
@@ -653,14 +653,14 @@ describe('get-schema-type', () => {
         ]
 
         schemas.forEach(({ type, xml, expected }) => {
-          const schema = coerceValue(SchemaObjectSchema, { type, xml })
+          const schema = coerce(openapiSchemas.schema, { type, xml })
           const result = getSchemaType(schema)
           expect(result).toBe(expected)
         })
       })
 
       it('handles xml.name with all properties present', () => {
-        const schema = coerceValue(SchemaObjectSchema, {
+        const schema = coerce(openapiSchemas.schema, {
           type: 'string',
           title: 'Schema Title',
           contentEncoding: 'base64',
@@ -675,7 +675,7 @@ describe('get-schema-type', () => {
       })
 
       it('handles xml.name in array items', () => {
-        const schema = coerceValue(SchemaObjectSchema, {
+        const schema = coerce(openapiSchemas.schema, {
           type: 'array',
           items: {
             type: 'object',
@@ -691,7 +691,7 @@ describe('get-schema-type', () => {
       })
 
       it('handles xml.name in nested array items', () => {
-        const schema = coerceValue(SchemaObjectSchema, {
+        const schema = coerce(openapiSchemas.schema, {
           type: 'array',
           items: {
             type: 'array',
@@ -710,7 +710,7 @@ describe('get-schema-type', () => {
       })
 
       it('returns structural item type when both title and xml.name exist in array items', () => {
-        const schema = coerceValue(SchemaObjectSchema, {
+        const schema = coerce(openapiSchemas.schema, {
           type: 'array',
           items: {
             type: 'object',

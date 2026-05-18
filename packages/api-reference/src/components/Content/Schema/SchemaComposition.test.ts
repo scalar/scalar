@@ -1,5 +1,5 @@
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/types/openapi/3.1'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
+import { coerce } from '@scalar/validation'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -12,7 +12,7 @@ describe('SchemaComposition', () => {
         props: {
           eventBus: null,
           composition: 'anyOf',
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             anyOf: [
               {
                 title: 'Any',
@@ -34,7 +34,7 @@ describe('SchemaComposition', () => {
         props: {
           eventBus: null,
           composition: 'oneOf',
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             oneOf: [
               {
                 type: 'object',
@@ -55,7 +55,7 @@ describe('SchemaComposition', () => {
         props: {
           eventBus: null,
           composition: 'anyOf',
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             anyOf: [
               {
                 type: 'array',
@@ -81,7 +81,7 @@ describe('SchemaComposition', () => {
         props: {
           eventBus: null,
           composition: 'oneOf',
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             oneOf: [{ type: 'object' }],
           }),
           level: 0,
@@ -98,7 +98,7 @@ describe('SchemaComposition', () => {
         props: {
           eventBus: null,
           composition: 'oneOf',
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             oneOf: [{ type: 'boolean' }, { type: 'object', properties: { foo: { type: 'string' } } }],
           }),
           level: 0,
@@ -142,7 +142,7 @@ describe('SchemaComposition', () => {
         props: {
           eventBus: null,
           composition: 'anyOf',
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             anyOf: [
               {
                 type: 'object',
@@ -175,7 +175,7 @@ describe('SchemaComposition', () => {
         props: {
           eventBus: null,
           composition: 'oneOf',
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             oneOf: [
               {
                 type: 'string',
@@ -204,7 +204,7 @@ describe('SchemaComposition', () => {
         props: {
           eventBus: null,
           composition: 'oneOf',
-          schema: coerceValue(SchemaObjectSchema, {
+          schema: coerce(openapiSchemas.schema, {
             oneOf: [
               { title: 'Planet', type: 'object' },
               { type: 'object', properties: { test: { type: 'string' } } },
@@ -225,7 +225,7 @@ describe('SchemaComposition', () => {
       props: {
         eventBus: null,
         composition: 'anyOf',
-        schema: coerceValue(SchemaObjectSchema, {
+        schema: coerce(openapiSchemas.schema, {
           anyOf: [
             {
               type: 'object',
@@ -263,7 +263,7 @@ describe('SchemaComposition', () => {
       props: {
         eventBus: null,
         composition: 'allOf',
-        schema: coerceValue(SchemaObjectSchema, {
+        schema: coerce(openapiSchemas.schema, {
           allOf: [
             {
               type: 'object',
@@ -303,7 +303,7 @@ describe('SchemaComposition', () => {
       props: {
         eventBus: null,
         composition: 'anyOf',
-        schema: coerceValue(SchemaObjectSchema, {
+        schema: coerce(openapiSchemas.schema, {
           anyOf: [
             {
               type: 'string',
@@ -355,7 +355,7 @@ describe('SchemaComposition', () => {
       props: {
         eventBus: null,
         composition: 'anyOf',
-        schema: coerceValue(SchemaObjectSchema, {
+        schema: coerce(openapiSchemas.schema, {
           anyOf: [
             {
               type: 'string',

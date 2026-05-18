@@ -1,7 +1,8 @@
+import type { InfoObject } from '@scalar/types/openapi/3.1'
+
 import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/navigation/helpers/utils'
 import type { TraverseSpecOptions } from '@/navigation/types'
 import type { TraversedDescription } from '@/schemas/navigation'
-import type { InfoObject } from '@scalar/types/openapi/3.1'
 
 const DEFAULT_DESCRIPTION_ENTRY = {
   TITLE: 'Introduction',

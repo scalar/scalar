@@ -33,8 +33,8 @@ describe('create-server-store', () => {
       'parameters': {
         'planetId': {
           'name': 'planetId',
-          'description': 'The ID of the planet to get',
           'in': 'path',
+          'description': 'The ID of the planet to get',
           'required': true,
           'schema': {
             'type': 'integer',

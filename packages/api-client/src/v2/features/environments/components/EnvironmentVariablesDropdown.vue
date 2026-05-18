@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarTeleport } from '@scalar/components'
 import { ScalarIconPlus } from '@scalar/icons'
-import type { XScalarEnvironment } from '@scalar/types/extensions/document/x-scalar-environments'
+import type { XScalarEnvironment } from '@scalar/types/extensions/document'
 import { POPULAR_CONTEXT_FUNCTION_KEYS } from '@scalar/workspace-store/request-example'
 import { onClickOutside } from '@vueuse/core'
 import Fuse from 'fuse.js'

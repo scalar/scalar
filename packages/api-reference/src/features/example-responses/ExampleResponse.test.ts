@@ -1,7 +1,7 @@
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
+import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
 import type { ExampleObject, MediaTypeObject } from '@scalar/types/openapi/3.1'
-import { ExampleObjectSchema, MediaTypeObjectSchema } from '@scalar/types/openapi/3.1'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { coerce } from '@scalar/validation'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -31,7 +31,7 @@ describe('ExampleResponse', () => {
     })
 
     it('renders example with summary and description', () => {
-      const example = coerceValue(ExampleObjectSchema, {
+      const example = coerce(openapiSchemas.example, {
         summary: 'Success response example',
         description: 'This is a successful API response',
         value: { id: 1, name: 'John Doe', email: 'john@example.com' },
@@ -56,7 +56,7 @@ describe('ExampleResponse', () => {
     })
 
     it('falls back to schema when no example is provided', () => {
-      const response = coerceValue(MediaTypeObjectSchema, {
+      const response = {
         schema: {
           type: 'object',
           properties: {
@@ -64,7 +64,7 @@ describe('ExampleResponse', () => {
             code: { type: 'number' },
           },
         },
-      })
+      } satisfies MediaTypeObject
 
       const wrapper = mount(ExampleResponse, {
         props: {
