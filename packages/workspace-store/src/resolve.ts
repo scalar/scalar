@@ -20,6 +20,10 @@ export const resolve = {
     }
 
     const resolved = getResolvedRef(schema, mergeSiblingReferences)
-    return coerce(resolvedSchemaShape, resolved) as ResolvedSchema<T>
+    const result = coerce(resolvedSchemaShape, resolved) as ResolvedSchema<T>
+
+    // We need to assign it to the original schema object
+    // To ensure we don't create new objects everytime
+    return Object.assign(schema, result)
   },
 }

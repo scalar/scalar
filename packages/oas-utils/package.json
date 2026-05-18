@@ -38,6 +38,7 @@
   "files": ["dist", "CHANGELOG.md"],
   "dependencies": {
     "@scalar/helpers": "workspace:*",
+    "@scalar/schemas": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
     "@scalar/validation": "workspace:*",

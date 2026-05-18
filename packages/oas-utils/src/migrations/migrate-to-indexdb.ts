@@ -19,12 +19,12 @@ import type {
   ServerObject,
   TagObject,
 } from '@scalar/types/openapi/3.1'
+import { XScalarEnvironment } from '@scalar/schemas/extensions/document'
+import { XScalarCookie } from '@scalar/schemas/extensions/general'
 import { coerce } from '@scalar/validation'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
 import { createWorkspaceStorePersistence, generateWorkspaceUid } from '@scalar/workspace-store/persistence'
-import { xScalarEnvironmentSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { xScalarCookieSchema } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
@@ -199,7 +199,7 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
         const environmentEntries = Object.entries(workspace.environments)
         if (environmentEntries.length > 0) {
           extensions['x-scalar-environments'] = {
-            default: coerceValue(xScalarEnvironmentSchema, {
+            default: coerce(XScalarEnvironment, {
               variables: environmentEntries.map(([name, value]) => ({
                 name,
                 value,
@@ -212,7 +212,7 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
         if (workspace.cookies.length > 0) {
           extensions['x-scalar-cookies'] = workspace.cookies.flatMap((uid) => {
             const cookie = legacyData.records.cookies[uid]
-            return cookie ? coerceValue(xScalarCookieSchema, cookie) : []
+            return cookie ? coerce(XScalarCookie, cookie) : []
           })
         }
 
@@ -332,7 +332,7 @@ const transformLegacyEnvironments = (
   return Object.fromEntries(
     entries.map(([envName, env]) => [
       envName,
-      coerceValue(xScalarEnvironmentSchema, {
+      coerce(XScalarEnvironment, {
         color: env.color,
         variables: Object.entries(env.variables || {}).map(([name, value]) => ({
           name,

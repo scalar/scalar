@@ -59,7 +59,7 @@ import {
 } from '@/extensions/security'
 import { XScalarSelectedServer } from '@/extensions/server'
 import { XDisplayName, XTagGroups } from '@/extensions/tag'
-import { recursiveRef } from '@/openapi/3.1/reference'
+import { normalRef, recursiveRef } from '@/openapi/3.1/reference'
 
 export type OpenapiSchemas = {
   openapi: Schema
@@ -78,6 +78,199 @@ export type OpenapiSchemas = {
   implicitOAuth2Flow: Schema
   passwordOAuth2Flow: Schema
 }
+
+const externalDocs = object(
+  {
+    url: string({
+      typeComment: 'REQUIRED. The URI for the target documentation. This MUST be in the form of a URI.',
+    }),
+    description: optional(
+      string({
+        typeComment:
+          'A description of the target documentation. CommonMark syntax MAY be used for rich text representation.',
+      }),
+    ),
+  },
+  { typeName: 'ExternalDocumentationObject' },
+)
+
+const xml = object(
+  {
+    name: optional(
+      string({
+        typeComment:
+          'Replaces the name of the element/attribute used for the described schema property. When defined within items, it will affect the name of the individual XML elements within the list. When defined alongside type being "array" (outside the items), it will affect the wrapping element if and only if wrapped is true. If wrapped is false, it will be ignored.',
+      }),
+    ),
+    namespace: optional(
+      string({
+        typeComment: 'The URI of the namespace definition. Value MUST be in the form of a non-relative URI.',
+      }),
+    ),
+    prefix: optional(string({ typeComment: 'The prefix to be used for the name.' })),
+    attribute: optional(
+      boolean({
+        typeComment:
+          'Declares whether the property definition translates to an attribute instead of an element. Default value is false.',
+      }),
+    ),
+    wrapped: optional(
+      boolean({
+        typeComment:
+          'MAY be used only for an array definition. Signifies whether the array is wrapped (for example, <books><book/><book/></books>) or unwrapped (<book/><book/>). Default value is false. The definition takes effect only when defined alongside type being "array" (outside the items).',
+      }),
+    ),
+  },
+  { typeName: 'XMLObject' },
+)
+
+const discriminatorObject = object(
+  {
+    propertyName: string({
+      typeComment:
+        'REQUIRED. The name of the property in the payload that will hold the discriminating value. This property SHOULD be required in the payload schema, as the behavior when the property is absent is undefined.',
+    }),
+    mapping: optional(
+      record(string(), string(), {
+        typeComment: 'An object to hold mappings between payload values and schema names or URI references.',
+      }),
+    ),
+  },
+  { typeName: 'DiscriminatorObject' },
+)
+
+const schemaExtensionObjects = [
+  XScalarIgnore,
+  XInternal,
+  XVariable,
+  XExamples,
+  XEnumDescriptions,
+  XEnumVarNames,
+  XAdditionalPropertiesName,
+  XTags,
+] as const
+
+const coreSchemaProperties = object({
+  name: optional(string({ typeComment: 'Schema name (extension).' })),
+  title: optional(string({ typeComment: 'A title for the schema.' })),
+  description: optional(string({ typeComment: 'A description of the schema.' })),
+  default: optional(any({ typeComment: 'Default value for the schema.' })),
+  enum: optional(array(any(), { typeComment: 'Array of allowed values.', typeName: 'JsonSchemaEnum' })),
+  const: optional(any({ typeComment: 'Constant value that must match exactly.' })),
+  contentMediaType: optional(string({ typeComment: 'Media type for content validation.' })),
+  contentEncoding: optional(string({ typeComment: 'Content encoding.' })),
+  contentSchema: optional(normalRef(lazy(() => schema))),
+  deprecated: optional(boolean({ typeComment: 'Whether the schema is deprecated.' })),
+  discriminator: optional(discriminatorObject),
+  readOnly: optional(boolean({ typeComment: 'Whether the schema is read-only.' })),
+  writeOnly: optional(boolean({ typeComment: 'Whether the schema is write-only.' })),
+  xml: optional(xml),
+  externalDocs: optional(externalDocs),
+  example: optional(
+    any({
+      typeComment:
+        'A free-form field to include an example of an instance for this schema. Deprecated in favor of the JSON Schema examples keyword.',
+    }),
+  ),
+  examples: optional(
+    array(any(), {
+      typeComment:
+        'An array of examples of valid instances for this schema. This keyword follows the JSON Schema Draft 2020-12 specification.',
+      typeName: 'SchemaExamplesArray',
+    }),
+  ),
+  allOf: optional(array(normalRef(lazy(() => schema)), { typeName: 'SchemaObjectAllOf' })),
+  oneOf: optional(array(normalRef(lazy(() => schema)), { typeName: 'SchemaObjectOneOf' })),
+  anyOf: optional(array(normalRef(lazy(() => schema)), { typeName: 'SchemaObjectAnyOf' })),
+  not: optional(normalRef(lazy(() => schema))),
+})
+
+const numericSchema: Schema = object(
+  {
+    type: union([literal('number'), literal('integer')]),
+    format: optional(string({ typeComment: 'Different subtypes.' })),
+    multipleOf: optional(number({ typeComment: 'Number must be a multiple of this value.' })),
+    maximum: optional(number({ typeComment: 'Maximum value (inclusive).' })),
+    exclusiveMaximum: optional(number({ typeComment: 'Maximum value (exclusive).' })),
+    minimum: optional(number({ typeComment: 'Minimum value (inclusive).' })),
+    exclusiveMinimum: optional(number({ typeComment: 'Minimum value (exclusive).' })),
+  },
+  { typeName: 'NumberSchemaObject' },
+)
+
+const stringSchema = object(
+  {
+    type: literal('string'),
+    format: optional(string({ typeComment: 'Different subtypes.' })),
+    maxLength: optional(number({ typeComment: 'Maximum string length.' })),
+    minLength: optional(number({ typeComment: 'Minimum string length.' })),
+    pattern: optional(string({ typeComment: 'Regular expression pattern.' })),
+  },
+  { typeName: 'StringSchemaObject' },
+)
+
+const objectSchema = object(
+  {
+    type: literal('object'),
+    maxProperties: optional(number({ typeComment: 'Maximum number of properties.' })),
+    minProperties: optional(number({ typeComment: 'Minimum number of properties.' })),
+    properties: optional(record(string(), normalRef(lazy(() => schema)), { typeName: 'SchemaObjectProperties' })),
+    required: optional(array(string(), { typeName: 'SchemaObjectRequired' })),
+    additionalProperties: optional(
+      union([normalRef(lazy(() => schema)), object({}), boolean()], {
+        typeName: 'SchemaObjectAdditionalProperties',
+      }),
+    ),
+    patternProperties: optional(
+      record(string(), normalRef(lazy(() => schema)), { typeName: 'SchemaObjectPatternProperties' }),
+    ),
+    propertyNames: optional(normalRef(lazy(() => schema))),
+  },
+  { typeName: 'ObjectSchemaObject' },
+)
+
+const arraySchema = object(
+  {
+    type: literal('array'),
+    maxItems: optional(number({ typeComment: 'Maximum number of items in array.' })),
+    minItems: optional(number({ typeComment: 'Minimum number of items in array.' })),
+    uniqueItems: optional(boolean({ typeComment: 'Whether array items must be unique.' })),
+    items: optional(normalRef(lazy(() => schema))),
+    prefixItems: optional(array(normalRef(lazy(() => schema)), { typeComment: 'Schema for tuple validation.' })),
+  },
+  { typeName: 'ArraySchemaObject' },
+)
+
+const schemaTypeMulti = union(
+  [
+    literal('null'),
+    literal('boolean'),
+    literal('string'),
+    literal('number'),
+    literal('integer'),
+    literal('object'),
+    literal('array'),
+  ],
+  { typeName: 'SchemaObjectMultiTypeKeywords' },
+)
+
+const otherTypeSchema = object(
+  {
+    type: union([literal('null'), literal('boolean'), array(schemaTypeMulti)], {
+      typeName: 'SchemaObjectOtherTypeKeyword',
+    }),
+  },
+  { typeName: 'MultiTypeSchemaObject' },
+)
+
+const schema: Schema = intersection(
+  [
+    coreSchemaProperties,
+    ...schemaExtensionObjects,
+    union([otherTypeSchema, numericSchema, stringSchema, objectSchema, arraySchema, object({})]),
+  ],
+  { typeName: 'SchemaObject' },
+)
 
 export const generateSchema = (maybeRef: (inner: Schema) => Schema): OpenapiSchemas => {
   const contact = object(
@@ -181,21 +374,6 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema): OpenapiSche
     { typeName: 'ServerObject' },
   )
 
-  const externalDocs = object(
-    {
-      url: string({
-        typeComment: 'REQUIRED. The URI for the target documentation. This MUST be in the form of a URI.',
-      }),
-      description: optional(
-        string({
-          typeComment:
-            'A description of the target documentation. CommonMark syntax MAY be used for rich text representation.',
-        }),
-      ),
-    },
-    { typeName: 'ExternalDocumentationObject' },
-  )
-
   const tag = intersection(
     [
       object({
@@ -220,188 +398,6 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema): OpenapiSche
     typeComment:
       'Lists the required security schemes to execute this operation. An empty object ({}) indicates anonymous access is supported.',
   })
-
-  const xml = object(
-    {
-      name: optional(
-        string({
-          typeComment:
-            'Replaces the name of the element/attribute used for the described schema property. When defined within items, it will affect the name of the individual XML elements within the list. When defined alongside type being "array" (outside the items), it will affect the wrapping element if and only if wrapped is true. If wrapped is false, it will be ignored.',
-        }),
-      ),
-      namespace: optional(
-        string({
-          typeComment: 'The URI of the namespace definition. Value MUST be in the form of a non-relative URI.',
-        }),
-      ),
-      prefix: optional(string({ typeComment: 'The prefix to be used for the name.' })),
-      attribute: optional(
-        boolean({
-          typeComment:
-            'Declares whether the property definition translates to an attribute instead of an element. Default value is false.',
-        }),
-      ),
-      wrapped: optional(
-        boolean({
-          typeComment:
-            'MAY be used only for an array definition. Signifies whether the array is wrapped (for example, <books><book/><book/></books>) or unwrapped (<book/><book/>). Default value is false. The definition takes effect only when defined alongside type being "array" (outside the items).',
-        }),
-      ),
-    },
-    { typeName: 'XMLObject' },
-  )
-
-  const discriminatorObject = object(
-    {
-      propertyName: string({
-        typeComment:
-          'REQUIRED. The name of the property in the payload that will hold the discriminating value. This property SHOULD be required in the payload schema, as the behavior when the property is absent is undefined.',
-      }),
-      mapping: optional(
-        record(string(), string(), {
-          typeComment: 'An object to hold mappings between payload values and schema names or URI references.',
-        }),
-      ),
-    },
-    { typeName: 'DiscriminatorObject' },
-  )
-
-  const schemaExtensionObjects = [
-    XScalarIgnore,
-    XInternal,
-    XVariable,
-    XExamples,
-    XEnumDescriptions,
-    XEnumVarNames,
-    XAdditionalPropertiesName,
-    XTags,
-  ] as const
-
-  const coreSchemaProperties = object({
-    name: optional(string({ typeComment: 'Schema name (extension).' })),
-    title: optional(string({ typeComment: 'A title for the schema.' })),
-    description: optional(string({ typeComment: 'A description of the schema.' })),
-    default: optional(any({ typeComment: 'Default value for the schema.' })),
-    enum: optional(array(any(), { typeComment: 'Array of allowed values.', typeName: 'JsonSchemaEnum' })),
-    const: optional(any({ typeComment: 'Constant value that must match exactly.' })),
-    contentMediaType: optional(string({ typeComment: 'Media type for content validation.' })),
-    contentEncoding: optional(string({ typeComment: 'Content encoding.' })),
-    contentSchema: optional(maybeRef(lazy(() => schema))),
-    deprecated: optional(boolean({ typeComment: 'Whether the schema is deprecated.' })),
-    discriminator: optional(discriminatorObject),
-    readOnly: optional(boolean({ typeComment: 'Whether the schema is read-only.' })),
-    writeOnly: optional(boolean({ typeComment: 'Whether the schema is write-only.' })),
-    xml: optional(xml),
-    externalDocs: optional(externalDocs),
-    example: optional(
-      any({
-        typeComment:
-          'A free-form field to include an example of an instance for this schema. Deprecated in favor of the JSON Schema examples keyword.',
-      }),
-    ),
-    examples: optional(
-      array(any(), {
-        typeComment:
-          'An array of examples of valid instances for this schema. This keyword follows the JSON Schema Draft 2020-12 specification.',
-        typeName: 'SchemaExamplesArray',
-      }),
-    ),
-    allOf: optional(array(maybeRef(lazy(() => schema)), { typeName: 'SchemaObjectAllOf' })),
-    oneOf: optional(array(maybeRef(lazy(() => schema)), { typeName: 'SchemaObjectOneOf' })),
-    anyOf: optional(array(maybeRef(lazy(() => schema)), { typeName: 'SchemaObjectAnyOf' })),
-    not: optional(maybeRef(lazy(() => schema))),
-  })
-
-  const schemaScalarMarker = object({
-    __scalar_: string({ typeComment: 'Internal marker for schema object disambiguation.' }),
-  })
-
-  const numericSchema: Schema = object(
-    {
-      type: union([literal('number'), literal('integer')]),
-      format: optional(string({ typeComment: 'Different subtypes.' })),
-      multipleOf: optional(number({ typeComment: 'Number must be a multiple of this value.' })),
-      maximum: optional(number({ typeComment: 'Maximum value (inclusive).' })),
-      exclusiveMaximum: optional(number({ typeComment: 'Maximum value (exclusive).' })),
-      minimum: optional(number({ typeComment: 'Minimum value (inclusive).' })),
-      exclusiveMinimum: optional(number({ typeComment: 'Minimum value (exclusive).' })),
-    },
-    { typeName: 'NumberSchemaObject' },
-  )
-
-  const stringSchema = object(
-    {
-      type: literal('string'),
-      format: optional(string({ typeComment: 'Different subtypes.' })),
-      maxLength: optional(number({ typeComment: 'Maximum string length.' })),
-      minLength: optional(number({ typeComment: 'Minimum string length.' })),
-      pattern: optional(string({ typeComment: 'Regular expression pattern.' })),
-    },
-    { typeName: 'StringSchemaObject' },
-  )
-
-  const objectSchema = object(
-    {
-      type: literal('object'),
-      maxProperties: optional(number({ typeComment: 'Maximum number of properties.' })),
-      minProperties: optional(number({ typeComment: 'Minimum number of properties.' })),
-      properties: optional(record(string(), maybeRef(lazy(() => schema)), { typeName: 'SchemaObjectProperties' })),
-      required: optional(array(string(), { typeName: 'SchemaObjectRequired' })),
-      additionalProperties: optional(
-        union([boolean(), maybeRef(lazy(() => schema))], {
-          typeName: 'SchemaObjectAdditionalProperties',
-        }),
-      ),
-      patternProperties: optional(
-        record(string(), maybeRef(lazy(() => schema)), { typeName: 'SchemaObjectPatternProperties' }),
-      ),
-      propertyNames: optional(maybeRef(lazy(() => schema))),
-    },
-    { typeName: 'ObjectSchemaObject' },
-  )
-
-  const arraySchema = object(
-    {
-      type: literal('array'),
-      maxItems: optional(number({ typeComment: 'Maximum number of items in array.' })),
-      minItems: optional(number({ typeComment: 'Minimum number of items in array.' })),
-      uniqueItems: optional(boolean({ typeComment: 'Whether array items must be unique.' })),
-      items: optional(maybeRef(lazy(() => schema))),
-      prefixItems: optional(array(maybeRef(lazy(() => schema)), { typeComment: 'Schema for tuple validation.' })),
-    },
-    { typeName: 'ArraySchemaObject' },
-  )
-
-  const schemaTypeMulti = union(
-    [
-      literal('null'),
-      literal('boolean'),
-      literal('string'),
-      literal('number'),
-      literal('integer'),
-      literal('object'),
-      literal('array'),
-    ],
-    { typeName: 'SchemaObjectMultiTypeKeywords' },
-  )
-
-  const otherTypeSchema = object(
-    {
-      type: union([literal('null'), literal('boolean'), array(schemaTypeMulti)], {
-        typeName: 'SchemaObjectOtherTypeKeyword',
-      }),
-    },
-    { typeName: 'MultiTypeSchemaObject' },
-  )
-
-  const schema: Schema = intersection(
-    [
-      coreSchemaProperties,
-      ...schemaExtensionObjects,
-      union([schemaScalarMarker, otherTypeSchema, numericSchema, stringSchema, objectSchema, arraySchema]),
-    ],
-    { typeName: 'SchemaObject' },
-  )
 
   const securitySchemeBase = object({
     description: optional(
@@ -1100,7 +1096,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema): OpenapiSche
     example,
     parameter,
     operation,
-    server: server,
+    server,
     requestBody,
     components,
     pathItem,

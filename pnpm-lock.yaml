@@ -1984,6 +1984,9 @@ importers:
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
+      '@scalar/schemas':
+        specifier: workspace:*
+        version: link:../schemas
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes

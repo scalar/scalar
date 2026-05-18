@@ -1043,6 +1043,13 @@ describe('union', () => {
     })
   })
 
+  it('prefers property-less object schema over boolean for empty objects', () => {
+    const T = union([boolean(), object({})])
+    expect(coerce(T, {})).toEqual({})
+    expect(coerce(T, true)).toBe(true)
+    expect(coerce(T, false)).toBe(false)
+  })
+
   it('picks the branch whose type discriminator matches a union of literals', () => {
     const T = union([
       object({

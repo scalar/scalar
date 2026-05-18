@@ -35,6 +35,13 @@ const scoreUnion = (schema: Schema, value: unknown): number => {
       return 0
     }
 
+    const keys = Object.keys(schema.properties)
+
+    // If there are no properties, we want to score 1 since we want to outscore if there are inline primitives
+    if (keys.length === 0) {
+      return 1
+    }
+
     // Missing keys contribute 0 (including optional keys — matches prior union heuristics).
     // Discriminator properties (`literal` or `union` of literals): recurse with scoreUnion;
     // matching values get a high weight (×10) so `type: literal('A')` beats unrelated fields
