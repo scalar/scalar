@@ -14,6 +14,8 @@
     "projects/proxy-scalar-com/**"
   ],
   "ignoreFiles": [
+    // Docusaurus build output — generated at dev/build time, not source entry points
+    "integrations/docusaurus/playground/.docusaurus/**",
     // CSS files imported via @import or Vue components — knip cannot trace CSS imports
     "**/*.css",
     // Referenced in scalar.config.json
@@ -59,12 +61,22 @@
     "packages/api-reference/vitest.config.ts": ["unresolved"],
     // Nuxt virtual alias resolved at runtime by Nuxt, not by knip static analysis
     "integrations/nuxt/src/runtime/components/ScalarApiReference.vue": ["unresolved"],
-    "integrations/nuxt/src/runtime/pages/ScalarPage.vue": ["unresolved"]
+    "integrations/nuxt/src/runtime/pages/ScalarPage.vue": ["unresolved"],
+    // Public extension schemas re-exported for downstream packages
+    "packages/schemas/src/extensions/tag/index.ts": ["exports"],
+    "packages/schemas/src/extensions/tag/x-tag-groups.ts": ["exports"],
+    // Legacy compatibility aliases consumed via @scalar/types/api-reference
+    "packages/types/src/api-reference/authentication-configuration.ts": ["types"],
+    // Generated OpenAPI types are public API surface; knip cannot trace external type-only imports
+    "packages/types/src/openapi/3.1/index.generated.ts": ["types"],
+    // HAR-style schema building blocks exported for typing coercion results
+    "packages/workspace-store/src/entities/history/schema.ts": ["types"],
+    // Intentional alias for recursive TypeBox schema definition
+    "packages/workspace-store/src/schemas/navigation-ref-definitions.ts": ["duplicates"]
   },
   "workspaces": {
     "packages/api-client": {
       "entry": [
-        "src/index.ts",
         "src/components/HttpMethod/index.ts",
         "src/components/Server/index.ts",
         "src/components/Sidebar/index.ts",
@@ -178,13 +190,15 @@
     },
     "packages/schemas": {
       "entry": [
-        "src/index.ts",
         "src/api-reference/index.ts",
         "src/extensions/document/index.ts",
         "src/extensions/general/index.ts",
         "src/extensions/operation/index.ts",
         "src/extensions/security/index.ts",
-        "src/extensions/workspace/index.ts"
+        "src/extensions/tag/index.ts",
+        "src/extensions/workspace/index.ts",
+        "src/openapi/3.1/index.ts",
+        "src/openapi/3.1/reference.ts"
       ]
     },
     "packages/nextjs-openapi": {
@@ -206,7 +220,7 @@
       ]
     },
     "packages/openapi-types": {
-      "entry": ["src/index.ts", "src/helpers/index.ts"]
+      "entry": ["src/index.ts", "src/helpers/index.ts", "src/openapi-types.ts"]
     },
     "packages/sidebar": {
       "entry": [
@@ -229,6 +243,9 @@
         "src/legacy/index.ts",
         "src/snippetz/index.ts",
         "src/utils/index.ts",
+        "src/openapi/3.1/index.ts",
+        "src/openapi/3.1/index.generated.ts",
+        "src/openapi/3.1/reference.ts",
         "src/extensions/document/index.ts",
         "src/extensions/example/index.ts",
         "src/extensions/general/index.ts",
@@ -267,12 +284,7 @@
         "./src/request-example/index.ts",
         "./src/schemas.ts",
         "./src/schemas/*.ts",
-        "./src/schemas/extensions/operation/index.ts",
-        "./src/schemas/extensions/tag/index.ts",
-        "./src/schemas/extensions/workspace/index.ts",
-        "./src/schemas/extensions/security/index.ts",
-        "./src/schemas/v3.1/strict/openapi-document.ts",
-        "./src/schemas/v3.1/strict/type-guards.ts",
+        "./src/entities/history/index.ts",
         "./src/server.ts",
         "./src/resolve.ts"
       ]
