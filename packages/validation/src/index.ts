@@ -17,6 +17,7 @@ export {
   type RecordSchema,
   type Schema,
   type StringSchema,
+  type UnionMember,
   type UnionSchema,
   type UnknownSchema,
   any,

@@ -1,19 +1,16 @@
-import type { Static } from '@scalar/typebox'
-import { Value } from '@scalar/typebox/value'
+import { type Static, coerce, validate } from '@scalar/validation'
 import type { RequiredDeep } from 'type-fest'
 import { describe, expect, it } from 'vitest'
-
-import { coerceValue } from '@/schemas/typebox-coerce'
 
 import {
   TraversedDescriptionSchemaDefinition,
   type TraversedEntry,
-  TraversedEntrySchemaDefinition,
   TraversedOperationSchemaDefinition,
   TraversedSchemaSchemaDefinition,
   TraversedTagSchemaDefinition,
   TraversedWebhookSchemaDefinition,
 } from './navigation'
+import { TraversedEntrySchemaDefinition } from './navigation-entry'
 
 describe('navigation', () => {
   describe('strict type checking', () => {
@@ -37,9 +34,9 @@ describe('navigation', () => {
           children: [],
         }
 
-        const result = coerceValue(TraversedDescriptionSchemaDefinition, validInput)
+        const result = coerce(TraversedDescriptionSchemaDefinition, validInput)
         expect(result).toEqual(validInput)
-        expect(Value.Check(TraversedDescriptionSchemaDefinition, result)).toBe(true)
+        expect(validate(TraversedDescriptionSchemaDefinition, result)).toBe(true)
       })
 
       it('parses description entry without optional children', () => {
@@ -49,9 +46,9 @@ describe('navigation', () => {
           type: 'text',
         }
 
-        const result = coerceValue(TraversedDescriptionSchemaDefinition, validInput)
+        const result = coerce(TraversedDescriptionSchemaDefinition, validInput)
         expect(result).toEqual(validInput)
-        expect(Value.Check(TraversedDescriptionSchemaDefinition, result)).toBe(true)
+        expect(validate(TraversedDescriptionSchemaDefinition, result)).toBe(true)
       })
 
       it('rejects invalid description entry', () => {
@@ -61,7 +58,7 @@ describe('navigation', () => {
           type: 'invalid-type', // wrong type
         }
 
-        expect(Value.Check(TraversedDescriptionSchemaDefinition, invalidInput)).toBe(false)
+        expect(validate(TraversedDescriptionSchemaDefinition, invalidInput)).toBe(false)
       })
     })
 
@@ -77,9 +74,9 @@ describe('navigation', () => {
           isDeprecated: false,
         }
 
-        const result = coerceValue(TraversedOperationSchemaDefinition, validInput)
+        const result = coerce(TraversedOperationSchemaDefinition, validInput)
         expect(result).toEqual(validInput)
-        expect(Value.Check(TraversedOperationSchemaDefinition, result)).toBe(true)
+        expect(validate(TraversedOperationSchemaDefinition, result)).toBe(true)
       })
 
       it('parses operation entry without optional isDeprecated', () => {
@@ -92,9 +89,9 @@ describe('navigation', () => {
           path: '/users',
         }
 
-        const result = coerceValue(TraversedOperationSchemaDefinition, validInput)
+        const result = coerce(TraversedOperationSchemaDefinition, validInput)
         expect(result).toEqual(validInput)
-        expect(Value.Check(TraversedOperationSchemaDefinition, result)).toBe(true)
+        expect(validate(TraversedOperationSchemaDefinition, result)).toBe(true)
       })
 
       it('rejects operation entry with invalid HTTP method', () => {
@@ -107,7 +104,7 @@ describe('navigation', () => {
           path: '/users',
         }
 
-        expect(Value.Check(TraversedOperationSchemaDefinition, invalidInput)).toBe(false)
+        expect(validate(TraversedOperationSchemaDefinition, invalidInput)).toBe(false)
       })
     })
 
@@ -121,9 +118,9 @@ describe('navigation', () => {
           name: 'User',
         }
 
-        const result = coerceValue(TraversedSchemaSchemaDefinition, validInput)
+        const result = coerce(TraversedSchemaSchemaDefinition, validInput)
         expect(result).toEqual(validInput)
-        expect(Value.Check(TraversedSchemaSchemaDefinition, result)).toBe(true)
+        expect(validate(TraversedSchemaSchemaDefinition, result)).toBe(true)
       })
 
       it('rejects schema entry with wrong type', () => {
@@ -135,7 +132,7 @@ describe('navigation', () => {
           name: 'User',
         }
 
-        expect(Value.Check(TraversedSchemaSchemaDefinition, invalidInput)).toBe(false)
+        expect(validate(TraversedSchemaSchemaDefinition, invalidInput)).toBe(false)
       })
     })
 
@@ -151,9 +148,9 @@ describe('navigation', () => {
           isDeprecated: true,
         }
 
-        const result = coerceValue(TraversedWebhookSchemaDefinition, validInput)
+        const result = coerce(TraversedWebhookSchemaDefinition, validInput)
         expect(result).toEqual(validInput)
-        expect(Value.Check(TraversedWebhookSchemaDefinition, result)).toBe(true)
+        expect(validate(TraversedWebhookSchemaDefinition, result)).toBe(true)
       })
 
       it('parses webhook entry without optional fields', () => {
@@ -166,9 +163,9 @@ describe('navigation', () => {
           name: 'userUpdated',
         }
 
-        const result = coerceValue(TraversedWebhookSchemaDefinition, validInput)
+        const result = coerce(TraversedWebhookSchemaDefinition, validInput)
         expect(result).toEqual(validInput)
-        expect(Value.Check(TraversedWebhookSchemaDefinition, result)).toBe(true)
+        expect(validate(TraversedWebhookSchemaDefinition, result)).toBe(true)
       })
     })
 
@@ -188,9 +185,9 @@ describe('navigation', () => {
           },
         }
 
-        const result = coerceValue(TraversedTagSchemaDefinition, validInput)
+        const result = coerce(TraversedTagSchemaDefinition, validInput)
         expect(result).toEqual(validInput)
-        expect(Value.Check(TraversedTagSchemaDefinition, result)).toBe(true)
+        expect(validate(TraversedTagSchemaDefinition, result)).toBe(true)
       })
 
       it('parses minimal tag entry', () => {
@@ -202,9 +199,9 @@ describe('navigation', () => {
           isGroup: false,
         }
 
-        const result = coerceValue(TraversedTagSchemaDefinition, validInput)
+        const result = coerce(TraversedTagSchemaDefinition, validInput)
         expect(result).toEqual(validInput)
-        expect(Value.Check(TraversedTagSchemaDefinition, result)).toBe(true)
+        expect(validate(TraversedTagSchemaDefinition, result)).toBe(true)
       })
     })
 
@@ -249,7 +246,7 @@ describe('navigation', () => {
         ]
 
         validEntries.forEach((entry) => {
-          expect(Value.Check(TraversedEntrySchemaDefinition, entry)).toBe(true)
+          expect(validate(TraversedEntrySchemaDefinition, entry)).toBe(true)
         })
       })
 
@@ -260,14 +257,14 @@ describe('navigation', () => {
           type: 'invalid-type', // not a valid type
         }
 
-        expect(Value.Check(TraversedEntrySchemaDefinition, invalidEntry)).toBe(false)
+        expect(validate(TraversedEntrySchemaDefinition, invalidEntry)).toBe(false)
       })
 
       it('rejects non-object input', () => {
-        expect(Value.Check(TraversedEntrySchemaDefinition, 'string')).toBe(false)
-        expect(Value.Check(TraversedEntrySchemaDefinition, 123)).toBe(false)
-        expect(Value.Check(TraversedEntrySchemaDefinition, null)).toBe(false)
-        expect(Value.Check(TraversedEntrySchemaDefinition, undefined)).toBe(false)
+        expect(validate(TraversedEntrySchemaDefinition, 'string')).toBe(false)
+        expect(validate(TraversedEntrySchemaDefinition, 123)).toBe(false)
+        expect(validate(TraversedEntrySchemaDefinition, null)).toBe(false)
+        expect(validate(TraversedEntrySchemaDefinition, undefined)).toBe(false)
       })
     })
   })

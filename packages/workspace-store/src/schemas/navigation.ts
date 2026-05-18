@@ -1,188 +1,141 @@
-import { HTTP_METHODS, type HttpMethod } from '@scalar/helpers/http/http-methods'
-import { type TLiteral, Type } from '@scalar/typebox'
 import type { InfoObject, OperationObject, SchemaObject, TagObject } from '@scalar/types/openapi/3.1'
+import {
+  type Static,
+  array,
+  boolean,
+  coerce,
+  intersection,
+  lazy,
+  literal,
+  object,
+  optional,
+  record,
+  string,
+  unknown,
+} from '@scalar/validation'
 
-import { compose } from '@/schemas/compose'
-import { type NavigationBase, NavigationBaseSchemaDefinition } from '@/schemas/navigation-base'
-import { TraversedEntryObjectRef } from '@/schemas/navigation-ref-definitions'
+import { TraversedEntrySchemaDefinition } from './navigation-entry'
+import { httpMethodSchema } from './navigation-http-method'
+import { assert } from 'vitest'
 
-type BaseSchema = NavigationBase
-
-export const TraversedDocumentSchemaDefinition = compose(
-  NavigationBaseSchemaDefinition,
-  Type.Object({
-    type: Type.Literal('document'),
-    name: Type.String(),
-    children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
-    icon: Type.Optional(Type.String()),
+export const NavigationBaseSchemaDefinition = object({
+  id: string({
+    typeComment: 'The unique identifier for the entry. Must be unique across the entire navigation structure.',
   }),
-)
+  title: string({ typeComment: 'The user readable title of the entry' }),
+})
 
-/**
- * An entry representing an OpenAPI in the navigation structure.
- *
- * Used in the client to represent the root document and its operations or tags.
- */
-export type TraversedDocument = BaseSchema & {
-  type: 'document'
-  /** Document name */
-  name: string
-  /** Child entries under the document */
-  children?: TraversedEntry[]
-  icon?: string
-}
+export type NavigationBase = Static<typeof NavigationBaseSchemaDefinition>
 
-export const TraversedDescriptionSchemaDefinition = compose(
+export const TraversedDocumentSchemaDefinition = intersection([
   NavigationBaseSchemaDefinition,
-  Type.Object({
-    type: Type.Literal('text'),
-    children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
+  object({
+    type: literal('document'),
+    name: string(),
+    children: optional(array(lazy(() => TraversedEntrySchemaDefinition))),
+    icon: optional(string()),
   }),
-)
+])
 
-/**
- * An entry representing a markdown description in the navigation structure.
- */
-export type TraversedDescription = BaseSchema & {
-  type: 'text'
-  children?: TraversedEntry[]
-}
+/** An entry representing an OpenAPI document in the navigation structure. */
+export type TraversedDocument = Static<typeof TraversedDocumentSchemaDefinition>
 
-export const TraversedExampleSchemaDefinition = compose(
+export const TraversedDescriptionSchemaDefinition = intersection([
   NavigationBaseSchemaDefinition,
-  Type.Object({
-    type: Type.Literal('example'),
-    name: Type.String(),
+  object({
+    type: literal('text'),
+    children: optional(array(lazy(() => TraversedEntrySchemaDefinition))),
   }),
-)
+])
 
-/**
- * An entry representing an operation example in the navigation structure.
- */
-export type TraversedExample = BaseSchema & {
-  type: 'example'
-  name: string
-}
+/** An entry representing a markdown description in the navigation structure. */
+export type TraversedDescription = Static<typeof TraversedDescriptionSchemaDefinition>
 
-export const TraversedOperationSchemaDefinition = compose(
+export const TraversedExampleSchemaDefinition = intersection([
   NavigationBaseSchemaDefinition,
-  Type.Object({
-    type: Type.Literal('operation'),
-    ref: Type.String(),
-    method: Type.Union(HTTP_METHODS.map((method) => Type.Literal(method))) as unknown as TLiteral<HttpMethod>,
-    path: Type.String(),
-    isDeprecated: Type.Optional(Type.Boolean()),
-    children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
+  object({
+    type: literal('example'),
+    name: string(),
   }),
-)
-/**
- * An entry representing an operation in the navigation structure.
- */
-export type TraversedOperation = BaseSchema & {
-  type: 'operation'
-  ref: string
-  method: HttpMethod
-  path: string
-  isDeprecated?: boolean
-  children?: TraversedEntry[]
-}
+])
 
-export const TraversedSchemaSchemaDefinition = compose(
+/** An entry representing an operation example in the navigation structure. */
+export type TraversedExample = Static<typeof TraversedExampleSchemaDefinition>
+
+export const TraversedOperationSchemaDefinition = intersection([
   NavigationBaseSchemaDefinition,
-  Type.Object({
-    type: Type.Literal('model'),
-    ref: Type.String(),
-    name: Type.String(),
+  object({
+    type: literal('operation'),
+    ref: string(),
+    method: httpMethodSchema,
+    path: string(),
+    isDeprecated: optional(boolean()),
+    children: optional(array(lazy(() => TraversedEntrySchemaDefinition))),
   }),
-)
+])
 
-/**
- * An entry representing a model in the navigation structure.
- */
-export type TraversedSchema = BaseSchema & {
-  type: 'model'
-  ref: string
-  name: string
-}
+/** An entry representing an operation in the navigation structure. */
+export type TraversedOperation = Static<typeof TraversedOperationSchemaDefinition>
 
-export const TraversedWebhookSchemaDefinition = compose(
+export const TraversedSchemaSchemaDefinition = intersection([
   NavigationBaseSchemaDefinition,
-  Type.Object({
-    type: Type.Literal('webhook'),
-    ref: Type.String(),
-    method: Type.Union(HTTP_METHODS.map((method) => Type.Literal(method))) as unknown as TLiteral<HttpMethod>,
-    name: Type.String(),
-    isDeprecated: Type.Optional(Type.Boolean()),
+  object({
+    type: literal('model'),
+    ref: string(),
+    name: string(),
   }),
-)
+])
 
-/**
- * An entry representing a webhook in the navigation structure.
- */
-export type TraversedWebhook = BaseSchema & {
-  type: 'webhook'
-  ref: string
-  method: HttpMethod
-  name: string
-  isDeprecated?: boolean
-}
+/** An entry representing a model in the navigation structure. */
+export type TraversedSchema = Static<typeof TraversedSchemaSchemaDefinition>
 
-export const TraversedTagSchemaDefinition = compose(
+export const TraversedWebhookSchemaDefinition = intersection([
   NavigationBaseSchemaDefinition,
-  Type.Object({
-    type: Type.Literal('tag'),
-    name: Type.String(),
-    description: Type.Optional(Type.String()),
-    children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
-    isGroup: Type.Boolean(),
-    isWebhooks: Type.Optional(Type.Boolean()),
-    xKeys: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
+  object({
+    type: literal('webhook'),
+    ref: string(),
+    method: httpMethodSchema,
+    name: string(),
+    isDeprecated: optional(boolean()),
   }),
-)
+])
+
+/** An entry representing a webhook in the navigation structure. */
+export type TraversedWebhook = Static<typeof TraversedWebhookSchemaDefinition>
+
+export const TraversedTagSchemaDefinition = intersection([
+  NavigationBaseSchemaDefinition,
+  object({
+    type: literal('tag'),
+    name: string(),
+    description: optional(string()),
+    children: optional(array(lazy(() => TraversedEntrySchemaDefinition))),
+    isGroup: boolean(),
+    isWebhooks: optional(boolean()),
+    xKeys: optional(record(string(), unknown())),
+  }),
+])
 
 /**
  * An entry representing a tag in the navigation structure.
  *
  * Used to group operations or webhooks under a common heading.
  */
-export type TraversedTag = BaseSchema & {
-  type: 'tag'
-  name: string
-  description?: string
-  children?: TraversedEntry[]
-  isGroup: boolean
-  isWebhooks?: boolean
-  xKeys?: Record<string, unknown>
-}
+export type TraversedTag = Static<typeof TraversedTagSchemaDefinition>
 
-export const TraversedModelsSchemaDefinition = compose(
+export const TraversedModelsSchemaDefinition = intersection([
   NavigationBaseSchemaDefinition,
-  Type.Object({
-    type: Type.Literal('models'),
-    name: Type.String(),
-    children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
+  object({
+    type: literal('models'),
+    name: string(),
+    children: optional(array(lazy(() => TraversedEntrySchemaDefinition))),
   }),
-)
-/**
- *  Top level models navigation entry.
- */
-export type TraversedModels = BaseSchema & {
-  type: 'models'
-  name: string
-  children?: TraversedEntry[]
-}
+])
 
-export { TraversedEntrySchemaDefinition } from '@/schemas/navigation-ref-definitions'
+/** Top level models navigation entry. */
+export type TraversedModels = Static<typeof TraversedModelsSchemaDefinition>
 
-export type TraversedEntry =
-  | TraversedDescription
-  | TraversedOperation
-  | TraversedSchema
-  | TraversedTag
-  | TraversedWebhook
-  | TraversedExample
-  | TraversedDocument
-  | TraversedModels
+export type TraversedEntry = Static<typeof TraversedEntrySchemaDefinition>
 
 /**
  * Type helper for when we are storing the parent entry in the entry itself.

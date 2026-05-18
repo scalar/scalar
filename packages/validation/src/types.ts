@@ -34,6 +34,17 @@ export type Static<T> = _Static<T, 10>
 type LazyStatic<F extends () => Schema> = F extends () => infer S ? (S extends Schema ? _Static<S, 10> : never) : never
 
 /**
+ * Folds union member schemas into a union of their static types.
+ * Uses `Schema` for tuple positions (not a narrower alias) so `infer First extends …` does not
+ * reject valid tuple elements and collapse to `never`.
+ */
+type UnionObjectStatics<Schemas extends readonly Schema[], Depth extends number> = Schemas extends readonly []
+  ? never
+  : Schemas extends readonly [infer First extends Schema, ...infer Rest extends readonly Schema[]]
+    ? _Static<First, Depth> | UnionObjectStatics<Rest, Depth>
+    : _Static<Schemas[number], Depth>
+
+/**
  * Folds intersection member schemas into an intersection of their static types.
  * Uses `Schema` for tuple positions (not a narrower alias) so `infer First extends …` does not
  * reject valid tuple elements and collapse to `{}`.
@@ -96,7 +107,7 @@ type _Static<T, Depth extends number = 10> = Depth extends 0
                             : T extends IntersectionSchema<infer Schemas>
                               ? IntersectObjectStatics<Schemas, Prev<Depth>>
                               : T extends UnionSchema<infer Schemas>
-                                ? _Static<Schemas[number], Prev<Depth>>
+                                ? UnionObjectStatics<Schemas, Prev<Depth>>
                                 : T extends EvaluateSchema<infer S>
                                   ? _Static<S, Prev<Depth>>
                                   : T extends LazySchema<infer S>

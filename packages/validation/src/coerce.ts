@@ -211,7 +211,7 @@ const coerceInner = (schema: Schema, value: unknown, cache: WeakMap<object, Set<
         const score = scoreUnion(branchSchema, value)
         return score > acc.score ? { schema: branchSchema, score } : acc
       },
-      { schema: schema.schemas[0], score: 0 },
+      { schema: schema.schemas[0]!, score: 0 },
     )
     // We need some way to pick one of the union values
     return coerceInner(branch.schema, value, cache)

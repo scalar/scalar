@@ -70,9 +70,7 @@
     // Generated OpenAPI types are public API surface; knip cannot trace external type-only imports
     "packages/types/src/openapi/3.1/index.generated.ts": ["types"],
     // HAR-style schema building blocks exported for typing coercion results
-    "packages/workspace-store/src/entities/history/schema.ts": ["types"],
-    // Intentional alias for recursive TypeBox schema definition
-    "packages/workspace-store/src/schemas/navigation-ref-definitions.ts": ["duplicates"]
+    "packages/workspace-store/src/entities/history/schema.ts": ["types"]
   },
   "workspaces": {
     "packages/api-client": {
