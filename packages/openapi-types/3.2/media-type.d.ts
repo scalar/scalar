@@ -16,9 +16,9 @@ export type MediaTypeObject = {
   examples?: Record<string, ExampleObject | ReferenceObject>
   description?: string
   /** A schema describing the complete content of the request, response, parameter, or header. */
-  schema?: SchemaObject
+  schema?: SchemaObject | ReferenceObject
   /** A schema describing each item within a [sequential media type](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#sequential-media-types). */
-  itemSchema?: SchemaObject
+  itemSchema?: SchemaObject | ReferenceObject
   /** A map between a property name and its encoding information, as defined under [Encoding By Name](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#encoding-by-name).  The `encoding` field SHALL only apply when the media type is `multipart` or `application/x-www-form-urlencoded`. If no Encoding Object is provided for a property, the behavior is determined by the default values documented for the Encoding Object. This field MUST NOT be present if `prefixEncoding` or `itemEncoding` are present. */
   encoding?: Record<string, EncodingObject>
   /** An array of positional encoding information, as defined under [Encoding By Position](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md#encoding-by-position).  The `prefixEncoding` field SHALL only apply when the media type is `multipart`. If no Encoding Object is provided for a property, the behavior is determined by the default values documented for the Encoding Object. This field MUST NOT be present if `encoding` is present. */
