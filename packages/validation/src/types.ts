@@ -23,6 +23,17 @@ import type {
 export type Static<T> = _Static<T, 10>
 
 /**
+ * Indirection through a named generic alias for `LazySchema`.
+ *
+ * TypeScript caches and lazily expands named generic type aliases, so referencing
+ * `LazyStatic<F>` instead of inlining `_Static<ReturnType<F>>` lets the resolved
+ * type be re-entered for circular schemas (`lazy(() => self)`) without hitting the
+ * depth limit. Accessing properties on the resulting type expands one level at a
+ * time on demand, instead of materialising the whole structure up front.
+ */
+type LazyStatic<F extends () => Schema> = F extends () => infer S ? (S extends Schema ? _Static<S, 10> : never) : never
+
+/**
  * Folds intersection member schemas into an intersection of their static types.
  * Uses `Schema` for tuple positions (not a narrower alias) so `infer First extends …` does not
  * reject valid tuple elements and collapse to `{}`.
@@ -89,7 +100,7 @@ type _Static<T, Depth extends number = 10> = Depth extends 0
                                 : T extends EvaluateSchema<infer S>
                                   ? _Static<S, Prev<Depth>>
                                   : T extends LazySchema<infer S>
-                                    ? _Static<ReturnType<S>, Prev<Depth>>
+                                    ? LazyStatic<S>
                                     : never
 
 // Helper type to decrement depth counter

@@ -94,15 +94,21 @@ export type OptionalSchema<S extends Schema> = {
 } & Documentation
 
 /**
- * `UnionSchema<any>` avoids a variance pitfall: `UnionSchema<[A, B]>` is not assignable to
- * `UnionSchema<ObjectSchema<any>[]>`, which breaks `infer` when resolving `Static`.
+ * Members that may appear inside an `intersection([...])`.
+ *
+ * This is intentionally a discriminant-only structural type rather than a union of the full
+ * schema types. If we use the full schema types here, the constraint check at the call site
+ * of `intersection` forces TypeScript to *eagerly* evaluate each tuple element, which breaks
+ * circular type inference when a member transitively contains a `lazy(() => self)` reference.
+ *
+ * The narrower discriminant shape only requires TypeScript to verify the `type` literal, which
+ * is cheap and does not trigger evaluation of nested schemas. Every `ObjectSchema`, `UnionSchema`,
+ * `IntersectionSchema`, and `LazySchema` is still assignable to this type because each carries
+ * the appropriate `type` field, so the public API and compile-time safety are preserved.
  */
-export type IntersectionMember =
-  | ObjectSchema<any>
-  | UnionSchema<any>
-  | IntersectionSchema<readonly IntersectionMember[]>
+export type IntersectionMember = { type: 'object' } | { type: 'union' } | { type: 'intersection' } | { type: 'lazy' }
 
-export type IntersectionSchema<Schemas extends readonly IntersectionMember[]> = {
+export type IntersectionSchema<Schemas extends readonly Schema[]> = {
   type: 'intersection'
   schemas: Schemas
 } & Documentation
@@ -147,7 +153,7 @@ export type Schema =
   | ObjectSchema<Record<string, any>>
   | UnionSchema<any[]>
   | OptionalSchema<any>
-  | IntersectionSchema<readonly IntersectionMember[]>
+  | IntersectionSchema<readonly Schema[]>
   | LiteralSchema<any>
   | LazySchema<any>
   | EvaluateSchema<any>
@@ -241,15 +247,24 @@ const union = <Schemas extends Schema[]>(schemas: Schemas, options?: Documentati
   typeComment: options?.typeComment,
 })
 
+/**
+ * The conditional return type is what unlocks circular `intersection([... lazy(() => self) ...])`.
+ *
+ * The input constraint is the lightweight `IntersectionMember` (discriminant-only) so the call-site
+ * constraint check does not force TypeScript to eagerly evaluate each tuple element. The conditional
+ * `Schemas extends readonly Schema[]` is always true in practice (every passed value is a real schema)
+ * and lets us produce a precise `IntersectionSchema<Schemas>` without re-introducing the heavy check.
+ */
 const intersection = <const Schemas extends readonly IntersectionMember[]>(
   schemas: Schemas,
   options?: Documentation,
-): IntersectionSchema<Schemas> => ({
-  type: 'intersection',
-  schemas,
-  typeName: options?.typeName,
-  typeComment: options?.typeComment,
-})
+): Schemas extends readonly Schema[] ? IntersectionSchema<Schemas> : never =>
+  ({
+    type: 'intersection',
+    schemas,
+    typeName: options?.typeName,
+    typeComment: options?.typeComment,
+  }) as never
 
 const optional = <S extends Schema>(schema: S, options?: Documentation): OptionalSchema<S> => ({
   type: 'optional',
