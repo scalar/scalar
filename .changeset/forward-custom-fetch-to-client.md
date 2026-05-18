@@ -1,5 +1,7 @@
 ---
 '@scalar/api-reference': patch
+'@scalar/schemas': patch
+'@scalar/types': patch
 ---
 
-fix: forward `configuration.fetch` to the API client so "Test Request" calls use the custom fetch (enabling things like `credentials: 'include'`), not only the OpenAPI document load
+feat: add `customFetch` to the api-reference configuration and forward it to the API client so requests (including "Test Request" calls) use the custom fetch — enabling things like `credentials: 'include'`. The previous `fetch` option is deprecated and migrated automatically with a console warning.

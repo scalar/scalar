@@ -29,7 +29,11 @@ export const apiReferenceConfigurationSchema = intersection([
       typeComment: '@deprecated Use proxyUrl instead',
     }),
     fetch: optional(fn<typeof fetch>(), {
-      typeComment: 'Custom fetch function for custom logic. Can be used to add custom headers, handle auth, etc.',
+      typeComment: '@deprecated Use `customFetch` instead.',
+    }),
+    customFetch: optional(fn<typeof fetch>(), {
+      typeComment:
+        "Custom fetch function used both when loading the OpenAPI document and when sending requests from the API client. Can be used to add custom headers, attach credentials (for example `credentials: 'include'`), handle auth, etc.",
     }),
     plugins: optional(array(apiReferencePluginSchema), {
       typeComment: 'Plugins for the API reference',
@@ -259,6 +263,16 @@ export const apiReferenceConfigurationWithSourceSchema = (rawInput: unknown) => 
     }
 
     delete input.proxy
+  }
+
+  if (input.fetch) {
+    console.warn(`[DEPRECATED] You're using the deprecated 'fetch' attribute. Use 'customFetch' instead.`)
+
+    if (!input.customFetch) {
+      input.customFetch = input.fetch
+    }
+
+    delete input.fetch
   }
 
   if (input.proxyUrl === OLD_PROXY_URL) {

@@ -724,9 +724,32 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
 })
 
 describe('ApiReference custom fetch forwarding', () => {
-  it('passes configuration.fetch to the API client modal as customFetch', async () => {
+  it('passes configuration.customFetch to the API client modal', async () => {
     const customFetch = vi.fn() as unknown as typeof fetch
     const spy = vi.spyOn(apiClientModalModule, 'createApiClientModal')
+
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: createBasicDocument(),
+          customFetch,
+        },
+      },
+    })
+    await flushPromises()
+
+    expect(spy).toHaveBeenCalled()
+    const passedOptions = toValue(spy.mock.calls.at(-1)?.[0].options)
+    expect(passedOptions?.customFetch).toBe(customFetch)
+
+    wrapper.unmount()
+    spy.mockRestore()
+  })
+
+  it('migrates the deprecated configuration.fetch to customFetch', async () => {
+    const customFetch = vi.fn() as unknown as typeof fetch
+    const spy = vi.spyOn(apiClientModalModule, 'createApiClientModal')
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     const wrapper = mountComponent({
       props: {
@@ -741,8 +764,10 @@ describe('ApiReference custom fetch forwarding', () => {
     expect(spy).toHaveBeenCalled()
     const passedOptions = toValue(spy.mock.calls.at(-1)?.[0].options)
     expect(passedOptions?.customFetch).toBe(customFetch)
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining(`deprecated 'fetch' attribute`))
 
     wrapper.unmount()
     spy.mockRestore()
+    warn.mockRestore()
   })
 })

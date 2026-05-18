@@ -1102,7 +1102,7 @@ By default we're using Inter and JetBrains Mono, served from our fonts CDN at `h
 
 Custom functions to control specific behaviors and URL generation.
 
-#### fetch
+#### customFetch
 
 **Type:** `(input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>`
 
@@ -1110,11 +1110,13 @@ Custom [fetch function](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_A
 
 ```javascript
 {
-  fetch: (input: string | URL | globalThis.Request, init?: RequestInit) => {
+  customFetch: (input: string | URL | globalThis.Request, init?: RequestInit) => {
     return window.fetch(input, { ...init, credentials: 'include' })
   }
 }
 ```
+
+> The previous `fetch` option is deprecated. It still works and is migrated automatically (with a console warning), but new code should use `customFetch`.
 
 #### generateHeadingSlug
 
