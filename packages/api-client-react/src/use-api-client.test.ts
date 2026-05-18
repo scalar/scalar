@@ -223,6 +223,19 @@ describe('use-api-client', () => {
     await waitFor(() => expect(mockWorkspaceStore.addDocument).toHaveBeenCalledWith({ name: 'default', url: '' }))
   })
 
+  it('does not register a content hash when url is an empty string', async () => {
+    const { useApiClient } = await import('./use-api-client')
+    const contentHashSlug = generateHash(JSON.stringify({}))
+
+    renderHook(() => useApiClient({ configuration: { url: '' } }))
+
+    await waitFor(() => expect(mockWorkspaceStore.addDocument).toHaveBeenCalled())
+
+    const registrationNames = mockWorkspaceStore.addDocument.mock.calls.map((call) => call[0].name)
+    expect(registrationNames).not.toContain(contentHashSlug)
+    expect(mockWorkspaceStore.addDocument).toHaveBeenCalledTimes(1)
+  })
+
   it('calls addDocument with "default" slug when configuration has no url or content', async () => {
     const { useApiClient } = await import('./use-api-client')
     renderHook(() => useApiClient({ configuration: { url: '' } }))

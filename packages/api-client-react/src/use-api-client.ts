@@ -36,10 +36,10 @@ export type UseApiClientModalProps = {
 const documentSet = new Set<string>()
 
 const getDocumentSlug = (configuration: ApiClientConfigurationReact) => {
-  if (configuration.url) {
-    return configuration.url
+  if (configuration.url !== undefined) {
+    return configuration.url || 'default'
   }
-  return generateHash(JSON.stringify(configuration.content ?? {}))
+  return generateHash(JSON.stringify(configuration.content))
 }
 
 /**
@@ -108,7 +108,7 @@ export const useApiClient = ({
       return
     }
 
-    const slug = configuration.url || 'default'
+    const slug = getDocumentSlug(configuration)
     documentSlugRef.current = slug
 
     if (documentSet.has(slug)) {
