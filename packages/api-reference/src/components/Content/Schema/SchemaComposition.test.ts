@@ -167,7 +167,7 @@ describe('SchemaComposition', () => {
 
       const schemaComponent = wrapper.findComponent({ name: 'Schema' })
       expect(schemaComponent.exists()).toBe(true)
-      expect(schemaComponent.props('schema')).toEqual({ '__scalar_': '', const: 'Baz' })
+      expect(schemaComponent.props('schema')).toEqual({ const: 'Baz' })
     })
 
     it('renders enum schema in composition panel', () => {
@@ -251,7 +251,7 @@ describe('SchemaComposition', () => {
     expect(schemaComponent.props('schema')).toEqual({
       type: 'object',
       properties: {
-        foo: { '__scalar_': '', const: 'Foo' },
+        foo: { const: 'Foo' },
       },
       required: ['foo'],
     })
@@ -287,11 +287,10 @@ describe('SchemaComposition', () => {
 
     const schemaComponent = wrapper.findComponent({ name: 'Schema' })
     expect(schemaComponent.props('schema')).toEqual({
-      '__scalar_': '',
       type: 'object',
       properties: {
-        foo: { '__scalar_': '', const: 'Foo' },
-        bar: { '__scalar_': '', const: 'Bar' },
+        foo: { const: 'Foo' },
+        bar: { const: 'Bar' },
       },
       required: ['foo'],
     })

@@ -340,14 +340,14 @@ describe('SchemaObjectProperties', () => {
   })
 
   it('falls back to default sorting for properties without x-order', () => {
-    const schema = coerce(openapiSchemas.schema, {
+    const schema: SchemaObject = {
       type: 'object',
       properties: {
         zebra: { type: 'string', 'x-order': 1 },
         alpha: { type: 'number' },
         beta: { type: 'boolean', 'x-order': 2 },
       },
-    })
+    }
 
     const wrapper = mount(SchemaObjectProperties, {
       props: { schema, options: {}, eventBus: null },

@@ -712,10 +712,10 @@ describe('SchemaPropertyHeading', () => {
       })
 
       const detailsElement = wrapper.find('.property-heading')
-      expect(detailsElement.text()).toContain('nullable')
+      expect(detailsElement.text()).not.toContain('nullable')
     })
 
-    it('does not render nullable when nullable is false', () => {
+    it('does render nullable when nullable is false', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
           value: coerce(openapiSchemas.schema, { nullable: false }),

@@ -51,9 +51,9 @@ describe('get-parameter-examples', () => {
       in: 'query',
       name: 'filter[status]',
       required: false,
-      schema: coerce(openapiSchemas.schema, {
+      schema: {
         type: 'string',
-      }),
+      },
       example: 'active',
       examples: {
         first: { value: undefined },
@@ -66,6 +66,7 @@ describe('get-parameter-examples', () => {
       contentExamples: undefined,
     })
 
-    expect(examples).toStrictEqual([{ value: undefined }, 'archived'])
+    // Example objects with only `value: undefined` serialize as `{}`.
+    expect(examples).toStrictEqual([{}, 'archived'])
   })
 })

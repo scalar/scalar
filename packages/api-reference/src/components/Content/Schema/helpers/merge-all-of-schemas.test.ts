@@ -1,9 +1,43 @@
 import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
 import type { SchemaObject } from '@scalar/types/openapi/3.1'
 import { coerce } from '@scalar/validation'
-import { describe, expect, it } from 'vitest'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas'
+import { assert, describe, expect, it } from 'vitest'
 
 import { mergeAllOfSchemas } from './merge-all-of-schemas'
+
+/** Load a schema through the workspace store so coercion does not strip extra properties. */
+const loadSchemaThroughWorkspaceStore = async (
+  schema: SchemaObject,
+  extraSchemas: Record<string, SchemaObject> = {},
+): Promise<SchemaObject> => {
+  const store = createWorkspaceStore()
+
+  await store.addDocument({
+    name: 'test',
+    document: {
+      openapi: '3.1.1',
+      info: { title: 'Test API', version: '1.0.0' },
+      components: {
+        schemas: {
+          ...extraSchemas,
+          TestSchema: schema,
+        },
+      },
+    },
+  })
+
+  const document = store.workspace.documents.test
+  if (!isOpenApiDocument(document)) {
+    throw new Error('Document is not an OpenAPI document')
+  }
+
+  const storedSchema = document.components?.schemas?.TestSchema
+  assert(storedSchema)
+
+  return storedSchema
+}
 
 describe('mergeAllOfSchemas', () => {
   it('returns empty object for empty or invalid input', () => {
@@ -628,22 +662,24 @@ describe('mergeAllOfSchemas', () => {
     })
   })
 
-  it('keeps $refs', () => {
-    // Create schemas that reference each other using $ref
-    const schemas = [
-      coerce(openapiSchemas.schema, {
-        type: 'object',
-        properties: {
-          parent: {
-            $ref: '#/components/schemas/Node',
-            '$ref-value': { type: 'object' },
+  it('keeps $refs', async () => {
+    const schema = await loadSchemaThroughWorkspaceStore(
+      {
+        allOf: [
+          {
+            type: 'object',
+            properties: {
+              parent: {
+                $ref: '#/components/schemas/Node',
+              },
+            },
           },
-        },
-      }),
-    ]
+        ],
+      },
+      { Node: { type: 'object' } },
+    )
 
-    // This should not throw an error and should return a merged result
-    const result = mergeAllOfSchemas({ allOf: schemas } as SchemaObject)
+    const result = mergeAllOfSchemas(schema)
 
     expect(result).toStrictEqual({
       type: 'object',
@@ -875,11 +911,12 @@ describe('mergeAllOfSchemas', () => {
     })
   })
 
-  it('merges schemas with all possible schema object properties', () => {
-    const schema = coerce(openapiSchemas.schema, {
+  it('merges schemas with all possible schema object properties', async () => {
+    const schema = await loadSchemaThroughWorkspaceStore({
       allOf: [
         {
           type: 'object',
+          // @ts-expect-error
           format: 'custom-format',
           title: 'First Schema',
           description: 'First description',
@@ -955,6 +992,7 @@ describe('mergeAllOfSchemas', () => {
           type: 'object',
           title: 'Second Schema',
           description: 'Second description',
+          // @ts-expect-error
           format: 'another-format',
           required: ['prop3', 'prop4'],
           properties: {
