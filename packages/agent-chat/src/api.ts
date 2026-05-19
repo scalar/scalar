@@ -1,5 +1,5 @@
-import { n } from 'neverpanic'
 import { type Schema, type Static, array, coerce, object, string, validate } from '@scalar/validation'
+import { n } from 'neverpanic'
 
 import { createError } from '@/entities/error/helpers'
 import { registryApiMetadata } from '@/entities/registry/document'
@@ -103,7 +103,10 @@ export function createApi({
         }
       }
 
-      return { success: true, data: coerce(responseSchema, fetchDataResult.data) as Static<T> }
+      return {
+        success: true,
+        data: coerce(responseSchema, fetchDataResult.data) as unknown as Static<T>,
+      }
     },
   )
 

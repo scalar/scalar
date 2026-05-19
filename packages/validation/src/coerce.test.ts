@@ -1414,4 +1414,24 @@ describe('cyclic structures', () => {
     const result = coerce(T, input)
     expect(result).toStrictEqual({ type: 'a', a: '', c: '' })
   })
+
+  it('correctly coerces a recursive schema', () => {
+    const T = lazy(() => object({ name: string(), child: optional(lazy(() => T)) }))
+    const input = { name: 1, child: { name: 'child', child: { name: 'grandchild' } } }
+    // @ts-expect-error
+    input.child.child.child = input
+
+    const result = coerce(T, input)
+
+    expect(result).toStrictEqual({
+      name: '',
+      child: {
+        name: 'child',
+        child: {
+          name: 'grandchild',
+          child: { name: '', child: { name: 'child', child: { name: 'grandchild', child: '[Circular]' } } },
+        },
+      },
+    })
+  })
 })
