@@ -336,7 +336,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         var indexContent = await index.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         indexContent.Should().NotContain(" nonce=\"");
-        (index.Headers.CacheControl?.NoStore).Should().NotBe(true);
+        index.Headers.CacheControl.Should().BeNull();
     }
 
     [Fact]
