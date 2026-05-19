@@ -77,10 +77,14 @@ public partial class ScalarOptions
     [StringSyntax(StringSyntaxAttribute.Uri)]
     public string? JavaScriptConfiguration { get; set; }
 
-
     /// <summary>
-    /// A cryptographic nonce to be added as an attribute to the script tags.
+    /// A cryptographic nonce emitted as an attribute on the rendered script tags.
     /// </summary>
+    /// <remarks>
+    /// A matching <c>Content-Security-Policy: script-src 'nonce-{value}'</c> header must be sent on the same response. Reusing a
+    /// static value defeats CSP — for safe per-request generation, set <see cref="DynamicNonce" /> (via the parameterless
+    /// <c>WithNonce()</c> extension) instead.
+    /// </remarks>
     public string? Nonce { get; set; }
 
     /// <summary>

@@ -277,8 +277,18 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
-    /// Controls whether to add a cryptographic nonce as an attribute to the script tags.
+    /// Sets a static cryptographic nonce to emit on the rendered script tags.
     /// </summary>
+    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
+    /// <param name="nonce">The nonce value to emit on each script tag.</param>
+    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
+    /// <remarks>
+    /// A matching <c>Content-Security-Policy: script-src 'nonce-{value}'</c> header must be sent on the same response for the nonce
+    /// to have any effect. Because nonces must be unpredictable and used only once, prefer the parameterless
+    /// <see cref="WithNonce(ScalarOptions)" /> overload for automatic per-request generation, or compute a value from your own CSP
+    /// middleware via the <c>MapScalarApiReference(Action&lt;ScalarOptions, HttpContext&gt;)</c> overload. Passing a static value
+    /// at startup defeats CSP protection and is only appropriate when the value comes from a per-request source.
+    /// </remarks>
     public static ScalarOptions WithNonce(this ScalarOptions options, string nonce)
     {
         options.Nonce = nonce;
