@@ -52,7 +52,7 @@ const safeSrc = computed((): string => {
     return ''
   }
 
-  if (src.startsWith('data:')) {
+  if (/^data:/i.test(src)) {
     // The MIME type must be one of the known safe kinds AND be terminated by
     // `;` (parameters / `;base64`) or `,` (start of the payload). Anchoring
     // at the terminator prevents prefix-matching tricks like

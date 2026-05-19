@@ -756,5 +756,18 @@ describe('ResponseBodyPreview', () => {
 
       expect(wrapper.find('img').exists()).toBe(true)
     })
+
+    it('accepts data: URIs regardless of scheme casing', () => {
+      // URI schemes are case-insensitive per RFC 3986.
+      const wrapper = mount(ResponseBodyPreview, {
+        props: {
+          src: 'Data:image/png;base64,iVBORw0KGgo=',
+          type: 'image/png',
+          mode: 'image',
+        },
+      })
+
+      expect(wrapper.find('img').exists()).toBe(true)
+    })
   })
 })
