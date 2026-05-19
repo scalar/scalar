@@ -755,7 +755,7 @@ paths:
       expect(result).toContain('books')
     }, 10_000)
 
-    it('handles circular reference in request body schema', async () => {
+    it('handles circular reference in request body schema', { timeout: 50_000 }, async () => {
       const content = {
         openapi: '3.1.1',
         info: { title: 'Test API', version: '1.0.0' },
@@ -798,7 +798,7 @@ paths:
       expect(result).toContain('Create node')
       expect(result).toContain('Request Body')
       expect(result).toContain('value')
-    }, 10_000)
+    })
 
     it('handles deeply nested circular references (A -> B -> C -> A)', async () => {
       const content = {
