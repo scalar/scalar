@@ -1,5 +1,10 @@
 import { describe, expectTypeOf, it } from 'vitest'
 
+import type {
+  Document as OpenAPIV3_2Document,
+  MediaTypeObject as OpenAPIV3_2MediaTypeObject,
+  SchemaObject as OpenAPIV3_2SchemaObject,
+} from '../3.2'
 import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1, OpenAPIV3_2 } from './openapi-types'
 
 describe('OpenAPI', () => {
@@ -82,5 +87,51 @@ describe('OpenAPI', () => {
 
     // @ts-expect-error name is a string
     assertType('NOT_A_METHOD' as OpenAPI.HttpMethod)
+  })
+})
+
+describe('@scalar/openapi-types/3.2', () => {
+  it('allows boolean schemas anywhere a schema object is accepted', () => {
+    expectTypeOf<true>().toExtend<OpenAPIV3_2SchemaObject>()
+    expectTypeOf<false>().toExtend<OpenAPIV3_2SchemaObject>()
+
+    const schema: OpenAPIV3_2SchemaObject = {
+      type: 'object',
+      properties: {
+        anything: true,
+        nothing: false,
+      },
+      allOf: [true, false, { type: 'string' }],
+    }
+
+    const document: OpenAPIV3_2Document = {
+      openapi: '3.2.0',
+      info: {
+        title: 'Boolean schema test',
+        version: '1.0.0',
+      },
+      components: {
+        schemas: {
+          Anything: true,
+          Nothing: false,
+        },
+      },
+    }
+
+    expectTypeOf(schema).not.toBeAny()
+    expectTypeOf(document).not.toBeAny()
+  })
+
+  it('allows media type schemas to be references', () => {
+    const mediaType: OpenAPIV3_2MediaTypeObject = {
+      schema: {
+        $ref: '#/components/schemas/Pet',
+      },
+      itemSchema: {
+        $ref: '#/components/schemas/Pet',
+      },
+    }
+
+    expectTypeOf(mediaType).not.toBeAny()
   })
 })
