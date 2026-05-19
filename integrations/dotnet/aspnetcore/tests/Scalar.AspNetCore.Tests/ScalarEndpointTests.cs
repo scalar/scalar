@@ -380,6 +380,37 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         Regex.Count(secondHtml, $" nonce=\"{Regex.Escape(secondNonce!)}\"").Should().Be(3);
     }
 
+    [Fact]
+    public async Task MapScalarApiReference_ShouldPreferDynamicNonceOverStaticValue_WhenBothAreSet()
+    {
+        // Arrange
+        const string staticNonce = "static-nonce-should-not-be-rendered";
+        var localFactory = factory.WithWebHostBuilder(builder =>
+        {
+            builder.Configure(options =>
+            {
+                options.UseRouting();
+                options.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapScalarApiReference(o => o.WithNonce(staticNonce).WithNonce());
+                });
+            });
+        });
+        var client = localFactory.CreateClient();
+
+        // Act
+        var index = await client.GetAsync("/scalar", TestContext.Current.CancellationToken);
+
+        // Assert
+        index.StatusCode.Should().Be(HttpStatusCode.OK);
+        var indexContent = await index.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        indexContent.Should().NotContain(staticNonce);
+        var rendered = ExtractNonce(indexContent);
+        rendered.Should().NotBeNullOrEmpty();
+        rendered.Should().NotBe(staticNonce);
+    }
+
     private static string? ExtractNonce(string html)
     {
         var match = Regex.Match(html, " nonce=\"([^\"]+)\"");
