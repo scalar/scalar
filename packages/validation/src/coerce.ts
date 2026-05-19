@@ -238,8 +238,24 @@ const coerceInner = (schema: Schema, value: unknown, cache: WeakMap<object, Set<
   return value
 }
 
+/**
+ * Falls back to `any` when `S` widens all the way to the full `Schema` union and
+ * returns the precise `Static<S>` otherwise. Computing `Static<Schema>` forces
+ * TypeScript to expand every variant of the recursive `Schema` definition and
+ * exhausts the depth limit, surfacing at call sites as
+ * `TS2589: Type instantiation is excessively deep and possibly infinite`.
+ * Degrading to `any` in that single case keeps the type tractable; callers that
+ * pass a specific schema (for example an `intersection(...)` literal) still get
+ * the precise static type.
+ *
+ * `[Schema] extends [S]` is wrapped in tuples to prevent distribution over union
+ * members — we want a single check that the whole `Schema` union is assignable
+ * to `S`, not a check that runs once per variant.
+ */
+type SafeStatic<S extends Schema> = [Schema] extends [S] ? any : Static<S>
+
 export const coerce = <S extends Schema>(
   schema: S,
   value: unknown,
   cache: WeakMap<object, Set<Schema>> = new WeakMap(),
-): Static<S> => coerceInner(schema, value, cache) as Static<S>
+): SafeStatic<S> => coerceInner(schema, value, cache) as SafeStatic<S>

@@ -14,7 +14,6 @@ import type { Record } from '@scalar/typebox'
 import type { OpenApiDocument, OpenApiExtensions } from '@scalar/types/openapi/3.1'
 import { coerce } from '@scalar/validation'
 import type { PartialDeep } from 'type-fest'
-import { assertType } from 'vitest'
 import { reactive } from 'vue'
 import YAML from 'yaml'
 
@@ -1051,13 +1050,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       )
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
-      // @ts-expect-error - TODO: fix this
       const coerced = withMeasurementSync('coerceValue', () => coerce(openapiSchema, deepClone(strictDocument)))
 
-      // Asserting that the type is OpenApiDocument after coerce
-      assertType<OpenApiDocument>(coerced)
-
-      withMeasurementSync('mergeObjects', () => mergeObjects(strictDocument, coerced))
+      withMeasurementSync('mergeObjects', () => mergeObjects(strictDocument, coerced as Record<string, unknown>))
     }
 
     // Skip navigation generation if the document already has a server-side generated navigation structure

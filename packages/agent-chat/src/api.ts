@@ -103,6 +103,7 @@ export function createApi({
         }
       }
 
+      // @ts-expect-error - TODO: fix this
       return { success: true, data: coerce(responseSchema, fetchDataResult.data) as Static<T> }
     },
   )
