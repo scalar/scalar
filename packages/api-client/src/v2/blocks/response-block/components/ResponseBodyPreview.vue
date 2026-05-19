@@ -82,6 +82,24 @@ const safeSrc = computed((): string => {
 
 const error = ref(false)
 
+/**
+ * Whether the embedded document is a PDF.
+ *
+ * PDFs are rendered by the browser's own PDF engine (e.g. PDFium), which runs
+ * in an isolated context that cannot reach this app's origin — its DOM,
+ * cookies or storage. A PDF's embedded JavaScript therefore cannot be used to
+ * attack us, and a strict `sandbox=""` does not confine that engine; it only
+ * prevents Chromium from loading the PDF viewer at all (it boots as a scripted
+ * extension page), leaving the user with a blank frame. So PDFs are rendered
+ * without the `sandbox` attribute, matching the original `<object>` behaviour.
+ *
+ * Everything else that reaches the iframe (notably `text/html`, the genuine
+ * XSS vector) keeps the strict empty sandbox.
+ */
+const isPdf = computed(
+  (): boolean => type.trim().toLowerCase() === 'application/pdf',
+)
+
 watch(
   () => src,
   () => (error.value = false),
@@ -127,10 +145,11 @@ watch(
     </audio>
     <!--
       `<object>` would execute scripts inside the embedded document in the
-      app's origin, so we render arbitrary previews inside a strictly
-      sandboxed `<iframe>` instead. The empty `sandbox` attribute disables
-      scripts, forms, popups and same-origin access, leaving only inert
-      rendering (e.g. the browser's built-in PDF viewer).
+      app's origin, so we render arbitrary previews inside an `<iframe>`
+      instead. Non-PDF documents (notably `text/html`) get an empty `sandbox`
+      attribute, which disables scripts, forms, popups and same-origin access.
+      PDFs are exempted (see `isPdf` above): the empty sandbox does not confine
+      the browser's PDF engine, it only stops the viewer from loading at all.
 
       Note: an `error` event on `<iframe>` is not reliably fired for failed
       navigations — browsers usually fire `load` even when the response is
@@ -143,8 +162,8 @@ watch(
       v-else
       class="aspect-[4/3] w-full border-0"
       :src="safeSrc"
-      referrerpolicy="no-referrer"
-      sandbox="" />
+      :sandbox="isPdf ? undefined : ''"
+      referrerpolicy="no-referrer" />
   </div>
   <ResponseBodyInfo v-else>Preview unavailable</ResponseBodyInfo>
 </template>

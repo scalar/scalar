@@ -319,7 +319,7 @@ describe('ResponseBodyPreview', () => {
   })
 
   describe('object mode', () => {
-    it('renders a sandboxed iframe for object mode', () => {
+    it('renders an iframe for object mode instead of an object element', () => {
       const wrapper = mount(ResponseBodyPreview, {
         props: {
           src: 'data:application/pdf;base64,JVBERi0=',
@@ -333,7 +333,7 @@ describe('ResponseBodyPreview', () => {
       expect(wrapper.find('object').exists()).toBe(false)
     })
 
-    it('sets the iframe src and locks down the sandbox', () => {
+    it('sets the iframe src and referrer policy', () => {
       const wrapper = mount(ResponseBodyPreview, {
         props: {
           src: 'data:application/pdf;base64,JVBERi0=',
@@ -344,8 +344,6 @@ describe('ResponseBodyPreview', () => {
 
       const iframe = wrapper.find('iframe')
       expect(iframe.attributes('src')).toBe('data:application/pdf;base64,JVBERi0=')
-      // Empty sandbox disables scripts, forms, popups and same-origin access.
-      expect(iframe.attributes('sandbox')).toBe('')
       expect(iframe.attributes('referrerpolicy')).toBe('no-referrer')
     })
   })
@@ -541,7 +539,7 @@ describe('ResponseBodyPreview', () => {
       expect(wrapper.find('.bg-preview').exists()).toBe(true)
     })
 
-    it('displays PDF document in a sandboxed iframe', () => {
+    it('displays PDF document in an iframe', () => {
       const wrapper = mount(ResponseBodyPreview, {
         props: {
           src: 'https://example.com/document.pdf',
@@ -553,7 +551,6 @@ describe('ResponseBodyPreview', () => {
       const iframe = wrapper.find('iframe')
       expect(iframe.exists()).toBe(true)
       expect(iframe.attributes('src')).toBe('https://example.com/document.pdf')
-      expect(iframe.attributes('sandbox')).toBe('')
       expect(wrapper.find('object').exists()).toBe(false)
     })
 
@@ -678,7 +675,25 @@ describe('ResponseBodyPreview', () => {
       expect(wrapper.find('img').attributes('referrerpolicy')).toBe('no-referrer')
     })
 
-    it('renders document previews inside a sandboxed iframe with no permissions', () => {
+    it('renders non-PDF documents inside a sandboxed iframe with no permissions', () => {
+      // text/html is the genuine XSS vector and must stay strictly sandboxed.
+      const wrapper = mount(ResponseBodyPreview, {
+        props: {
+          src: 'https://example.com/page.html',
+          type: 'text/html',
+          mode: 'object',
+        },
+      })
+
+      const iframe = wrapper.find('iframe')
+      expect(iframe.exists()).toBe(true)
+      expect(iframe.attributes('sandbox')).toBe('')
+      expect(iframe.attributes('referrerpolicy')).toBe('no-referrer')
+    })
+
+    it('does not sandbox PDFs, since the empty sandbox only blocks the viewer', () => {
+      // A PDF's scripts run in the browser's isolated PDF engine, not our
+      // origin, so the strict sandbox would just produce a blank frame.
       const wrapper = mount(ResponseBodyPreview, {
         props: {
           src: 'https://example.com/file.pdf',
@@ -689,8 +704,20 @@ describe('ResponseBodyPreview', () => {
 
       const iframe = wrapper.find('iframe')
       expect(iframe.exists()).toBe(true)
-      expect(iframe.attributes('sandbox')).toBe('')
+      expect(iframe.attributes('sandbox')).toBeUndefined()
       expect(iframe.attributes('referrerpolicy')).toBe('no-referrer')
+    })
+
+    it('matches the application/pdf type case-insensitively when deciding the sandbox', () => {
+      const wrapper = mount(ResponseBodyPreview, {
+        props: {
+          src: 'https://example.com/file.pdf',
+          type: 'Application/PDF',
+          mode: 'object',
+        },
+      })
+
+      expect(wrapper.find('iframe').attributes('sandbox')).toBeUndefined()
     })
 
     it('adds referrerpolicy="no-referrer" to video elements', () => {
