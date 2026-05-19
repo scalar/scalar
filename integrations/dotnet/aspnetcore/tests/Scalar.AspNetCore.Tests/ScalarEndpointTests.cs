@@ -294,7 +294,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
     public async Task MapScalarApiReference_ShouldUseNonce_WhenRequested()
     {
         // Arrange
-        var nonce = GenerateNounce();
+        var nonce = GenerateNonce();
         var localFactory = factory.WithWebHostBuilder(builder =>
         {
             builder.Configure(options =>
@@ -383,7 +383,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         return match.Success ? match.Groups[1].Value : null;
     }
 
-    private static string GenerateNounce()
+    private static string GenerateNonce()
     {
         using var rng = RandomNumberGenerator.Create();
         var nonceBytes = new byte[32];
