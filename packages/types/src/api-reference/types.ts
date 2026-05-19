@@ -144,8 +144,18 @@ type ExtendedConfiguration = {
   layout: 'modern' | 'classic'
   /** @deprecated Use proxyUrl instead */
   proxy?: string
-  /** Custom fetch function for custom logic. Can be used to add custom headers, handle auth, etc. */
+  /**
+   * Custom fetch function for custom logic. Can be used to add custom headers, handle auth, etc.
+   *
+   * @deprecated Use `customFetch` instead.
+   */
   fetch?: typeof fetch
+  /**
+   * Custom fetch function used both when loading the OpenAPI document and when sending requests from the API client.
+   *
+   * Can be used to add custom headers, attach credentials (for example `credentials: 'include'`), handle auth, etc.
+   */
+  customFetch?: typeof fetch
   /** Plugins for the API reference */
   plugins?: ApiReferencePlugin[]
   /** Allows the user to inject an editor for the spec */
