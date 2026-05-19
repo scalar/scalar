@@ -62,7 +62,9 @@ across all supported OpenAPI versions (2.0, 3.0, 3.1, and 3.2).
 
 Type guard that returns `true` when `value` is not a `ReferenceObject` (i.e. it
 does not have a string `$ref` property). Useful when walking a document that may
-mix references and inline objects.
+mix references and inline objects. Like the schema discriminators, it narrows
+the reference members out of a `SchemaObject | ReferenceObject` union from any
+supported OpenAPI version.
 
 ```ts
 import { isDereferenced } from '@scalar/openapi-types/helpers'
