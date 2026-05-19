@@ -32,6 +32,50 @@ const jsonPreviewContent = computed((): string => {
   return String(value)
 })
 
+/**
+ * Validates the `src` against an allow-list of safe protocols before it is
+ * passed to a rendering element. This blocks XSS vectors such as
+ * `javascript:` and `vbscript:` URIs and also prevents accidentally embedding
+ * a `data:text/html` payload that could execute script in the app origin.
+ *
+ * Allowed:
+ *   - `blob:` (the standard case — generated client-side by `URL.createObjectURL`)
+ *   - `http:` / `https:`
+ *   - `data:` URIs whose MIME type is a known safe media kind
+ *     (`image/*`, `video/*`, `audio/*`, `application/pdf`, `application/octet-stream`)
+ *
+ * Anything else (including malformed or relative URLs) collapses to an empty
+ * string so the template falls back to the "Preview unavailable" message.
+ */
+const safeSrc = computed((): string => {
+  if (!src) {
+    return ''
+  }
+
+  if (src.startsWith('data:')) {
+    return /^data:(image\/|video\/|audio\/|application\/pdf|application\/octet-stream)/i.test(
+      src,
+    )
+      ? src
+      : ''
+  }
+
+  try {
+    const parsed = new URL(src)
+    if (
+      parsed.protocol === 'blob:' ||
+      parsed.protocol === 'http:' ||
+      parsed.protocol === 'https:'
+    ) {
+      return src
+    }
+  } catch {
+    // Malformed or relative URL — refuse to render.
+  }
+
+  return ''
+})
+
 const error = ref(false)
 
 watch(
@@ -46,14 +90,15 @@ watch(
     language="json"
     prettyPrintJson />
   <div
-    v-else-if="!error && src"
+    v-else-if="!error && safeSrc"
     class="flex justify-center overflow-auto rounded-b"
     :class="{ 'bg-preview p-2': alpha }">
     <img
       v-if="mode === 'image'"
       class="h-full max-w-full"
       :class="{ rounded: alpha }"
-      :src="src"
+      :src="safeSrc"
+      referrerpolicy="no-referrer"
       @error="error = true" />
     <video
       v-else-if="mode === 'video'"
@@ -62,7 +107,7 @@ watch(
       width="100%"
       @error="error = true">
       <source
-        :src="src"
+        :src="safeSrc"
         :type="type" />
     </video>
     <audio
@@ -71,14 +116,22 @@ watch(
       controls
       @error="error = true">
       <source
-        :src="src"
+        :src="safeSrc"
         :type="type" />
     </audio>
-    <object
+    <!--
+      `<object>` would execute scripts inside the embedded document in the
+      app's origin, so we render arbitrary previews inside a strictly
+      sandboxed `<iframe>` instead. The empty `sandbox` attribute disables
+      scripts, forms, popups and same-origin access, leaving only inert
+      rendering (e.g. the browser's built-in PDF viewer).
+    -->
+    <iframe
       v-else
-      class="aspect-[4/3] w-full"
-      :data="src"
-      :type="type"
+      class="aspect-[4/3] w-full border-0"
+      :src="safeSrc"
+      sandbox=""
+      referrerpolicy="no-referrer"
       @error="error = true" />
   </div>
   <ResponseBodyInfo v-else>Preview unavailable</ResponseBodyInfo>

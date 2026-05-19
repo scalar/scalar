@@ -112,7 +112,7 @@ describe('ResponseBodyPreview', () => {
     it('handles image load error', async () => {
       const wrapper = mount(ResponseBodyPreview, {
         props: {
-          src: 'invalid-image-url',
+          src: 'blob:http://localhost/fake',
           type: 'image/png',
           mode: 'image',
         },
@@ -199,7 +199,7 @@ describe('ResponseBodyPreview', () => {
     it('handles video load error', async () => {
       const wrapper = mount(ResponseBodyPreview, {
         props: {
-          src: 'invalid-video-url',
+          src: 'blob:http://localhost/fake',
           type: 'video/mp4',
           mode: 'video',
         },
@@ -281,7 +281,7 @@ describe('ResponseBodyPreview', () => {
     it('handles audio load error', async () => {
       const wrapper = mount(ResponseBodyPreview, {
         props: {
-          src: 'invalid-audio-url',
+          src: 'blob:http://localhost/fake',
           type: 'audio/mpeg',
           mode: 'audio',
         },
@@ -319,7 +319,7 @@ describe('ResponseBodyPreview', () => {
   })
 
   describe('object mode', () => {
-    it('renders object element for object mode', () => {
+    it('renders a sandboxed iframe for object mode', () => {
       const wrapper = mount(ResponseBodyPreview, {
         props: {
           src: 'data:application/pdf;base64,JVBERi0=',
@@ -328,11 +328,12 @@ describe('ResponseBodyPreview', () => {
         },
       })
 
-      const object = wrapper.find('object')
-      expect(object.exists()).toBe(true)
+      const iframe = wrapper.find('iframe')
+      expect(iframe.exists()).toBe(true)
+      expect(wrapper.find('object').exists()).toBe(false)
     })
 
-    it('sets correct data and type attributes on object', () => {
+    it('sets the iframe src and locks down the sandbox', () => {
       const wrapper = mount(ResponseBodyPreview, {
         props: {
           src: 'data:application/pdf;base64,JVBERi0=',
@@ -341,27 +342,28 @@ describe('ResponseBodyPreview', () => {
         },
       })
 
-      const object = wrapper.find('object')
-      expect(object.attributes('data')).toBe('data:application/pdf;base64,JVBERi0=')
-      expect(object.attributes('type')).toBe('application/pdf')
+      const iframe = wrapper.find('iframe')
+      expect(iframe.attributes('src')).toBe('data:application/pdf;base64,JVBERi0=')
+      // Empty sandbox disables scripts, forms, popups and same-origin access.
+      expect(iframe.attributes('sandbox')).toBe('')
+      expect(iframe.attributes('referrerpolicy')).toBe('no-referrer')
     })
 
-    it('handles object load error', async () => {
+    it('handles iframe load error', async () => {
       const wrapper = mount(ResponseBodyPreview, {
         props: {
-          src: 'invalid-pdf-url',
+          src: 'blob:http://localhost/fake-pdf',
           type: 'application/pdf',
           mode: 'object',
         },
       })
 
-      const object = wrapper.find('object')
-      await object.trigger('error')
+      const iframe = wrapper.find('iframe')
+      await iframe.trigger('error')
       await nextTick()
 
-      // Should show error message instead of object
       expect(wrapper.text()).toContain('Preview unavailable')
-      expect(wrapper.find('object').exists()).toBe(false)
+      expect(wrapper.find('iframe').exists()).toBe(false)
     })
   })
 
@@ -382,7 +384,7 @@ describe('ResponseBodyPreview', () => {
     it('resets error state when src changes', async () => {
       const wrapper = mount(ResponseBodyPreview, {
         props: {
-          src: 'invalid-image-url',
+          src: 'blob:http://localhost/fake',
           type: 'image/png',
           mode: 'image',
         },
@@ -409,7 +411,7 @@ describe('ResponseBodyPreview', () => {
     it('shows error message after failed load', async () => {
       const wrapper = mount(ResponseBodyPreview, {
         props: {
-          src: 'broken-url',
+          src: 'https://example.com/image.png',
           type: 'image/png',
           mode: 'image',
         },
@@ -449,7 +451,7 @@ describe('ResponseBodyPreview', () => {
     it('resets error when src changes', async () => {
       const wrapper = mount(ResponseBodyPreview, {
         props: {
-          src: 'invalid-url',
+          src: 'blob:http://localhost/initial',
           type: 'image/png',
           mode: 'image',
         },
@@ -461,7 +463,7 @@ describe('ResponseBodyPreview', () => {
       expect(wrapper.text()).toContain('Preview unavailable')
 
       // Change src
-      await wrapper.setProps({ src: 'new-url' })
+      await wrapper.setProps({ src: 'blob:http://localhost/next' })
       await nextTick()
 
       // Error should be reset, image should be visible
@@ -503,7 +505,8 @@ describe('ResponseBodyPreview', () => {
       })
 
       expect(wrapper.find('audio').exists()).toBe(false)
-      expect(wrapper.find('object').exists()).toBe(true)
+      expect(wrapper.find('iframe').exists()).toBe(true)
+      expect(wrapper.find('object').exists()).toBe(false)
     })
   })
 
@@ -555,7 +558,7 @@ describe('ResponseBodyPreview', () => {
       expect(wrapper.find('.bg-preview').exists()).toBe(true)
     })
 
-    it('displays PDF document', () => {
+    it('displays PDF document in a sandboxed iframe', () => {
       const wrapper = mount(ResponseBodyPreview, {
         props: {
           src: 'https://example.com/document.pdf',
@@ -564,9 +567,11 @@ describe('ResponseBodyPreview', () => {
         },
       })
 
-      const object = wrapper.find('object')
-      expect(object.exists()).toBe(true)
-      expect(object.attributes('type')).toBe('application/pdf')
+      const iframe = wrapper.find('iframe')
+      expect(iframe.exists()).toBe(true)
+      expect(iframe.attributes('src')).toBe('https://example.com/document.pdf')
+      expect(iframe.attributes('sandbox')).toBe('')
+      expect(wrapper.find('object').exists()).toBe(false)
     })
 
     it('displays MP4 video', () => {
@@ -596,6 +601,113 @@ describe('ResponseBodyPreview', () => {
       const audio = wrapper.find('audio')
       expect(audio.exists()).toBe(true)
       expect(audio.attributes('controls')).toBeDefined()
+    })
+  })
+
+  describe('security', () => {
+    it('refuses to render a javascript: URL as an image', () => {
+      const wrapper = mount(ResponseBodyPreview, {
+        props: {
+          src: 'javascript:alert(1)',
+          type: 'image/png',
+          mode: 'image',
+        },
+      })
+
+      expect(wrapper.find('img').exists()).toBe(false)
+      expect(wrapper.text()).toContain('Preview unavailable')
+    })
+
+    it('refuses to embed a data:text/html payload', () => {
+      const wrapper = mount(ResponseBodyPreview, {
+        props: {
+          src: 'data:text/html,<script>alert(1)</script>',
+          type: 'text/html',
+          mode: 'object',
+        },
+      })
+
+      expect(wrapper.find('iframe').exists()).toBe(false)
+      expect(wrapper.text()).toContain('Preview unavailable')
+    })
+
+    it('refuses to render a relative or malformed URL', () => {
+      const wrapper = mount(ResponseBodyPreview, {
+        props: {
+          src: 'not a url',
+          type: 'image/png',
+          mode: 'image',
+        },
+      })
+
+      expect(wrapper.find('img').exists()).toBe(false)
+      expect(wrapper.text()).toContain('Preview unavailable')
+    })
+
+    it('refuses file: URLs', () => {
+      const wrapper = mount(ResponseBodyPreview, {
+        props: {
+          src: 'file:///etc/passwd',
+          type: 'image/png',
+          mode: 'image',
+        },
+      })
+
+      expect(wrapper.find('img').exists()).toBe(false)
+      expect(wrapper.text()).toContain('Preview unavailable')
+    })
+
+    it('allows blob: URLs (the standard URL.createObjectURL output)', () => {
+      const wrapper = mount(ResponseBodyPreview, {
+        props: {
+          src: 'blob:http://localhost/abc-123',
+          type: 'image/png',
+          mode: 'image',
+        },
+      })
+
+      const img = wrapper.find('img')
+      expect(img.exists()).toBe(true)
+      expect(img.attributes('src')).toBe('blob:http://localhost/abc-123')
+    })
+
+    it('allows data: URLs for known media kinds', () => {
+      const wrapper = mount(ResponseBodyPreview, {
+        props: {
+          src: 'data:image/png;base64,iVBORw0KGgo=',
+          type: 'image/png',
+          mode: 'image',
+        },
+      })
+
+      expect(wrapper.find('img').exists()).toBe(true)
+    })
+
+    it('adds referrerpolicy="no-referrer" to images', () => {
+      const wrapper = mount(ResponseBodyPreview, {
+        props: {
+          src: 'https://example.com/image.png',
+          type: 'image/png',
+          mode: 'image',
+        },
+      })
+
+      expect(wrapper.find('img').attributes('referrerpolicy')).toBe('no-referrer')
+    })
+
+    it('renders document previews inside a sandboxed iframe with no permissions', () => {
+      const wrapper = mount(ResponseBodyPreview, {
+        props: {
+          src: 'https://example.com/file.pdf',
+          type: 'application/pdf',
+          mode: 'object',
+        },
+      })
+
+      const iframe = wrapper.find('iframe')
+      expect(iframe.exists()).toBe(true)
+      expect(iframe.attributes('sandbox')).toBe('')
+      expect(iframe.attributes('referrerpolicy')).toBe('no-referrer')
     })
   })
 })
