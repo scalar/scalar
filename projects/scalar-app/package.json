@@ -57,6 +57,7 @@
     "@scalar/openapi-types": "workspace:*",
     "@scalar/postman-to-openapi": "workspace:*",
     "@scalar/pre-post-request-scripts": "workspace:*",
+    "@scalar/schemas": "workspace:*",
     "@scalar/sdk": "catalog:*",
     "@scalar/sidebar": "workspace:*",
     "@scalar/themes": "workspace:*",

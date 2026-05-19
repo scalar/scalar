@@ -2704,6 +2704,9 @@ importers:
       '@scalar/pre-post-request-scripts':
         specifier: workspace:*
         version: link:../../packages/pre-post-request-scripts
+      '@scalar/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
       '@scalar/sdk':
         specifier: catalog:*
         version: 0.1.5(zod@4.3.5)
