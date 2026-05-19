@@ -288,6 +288,8 @@ public static partial class ScalarOptionsExtensions
     /// <see cref="WithNonce(ScalarOptions)" /> overload for automatic per-request generation, or compute a value from your own CSP
     /// middleware via the <c>MapScalarApiReference(Action&lt;ScalarOptions, HttpContext&gt;)</c> overload. Passing a static value
     /// at startup defeats CSP protection and is only appropriate when the value comes from a per-request source.
+    /// Emitting a nonce also sets <c>Cache-Control: no-store</c> on the response, overriding any prior value, since a nonced
+    /// response cannot be safely cached.
     /// </remarks>
     public static ScalarOptions WithNonce(this ScalarOptions options, string nonce)
     {
@@ -304,7 +306,8 @@ public static partial class ScalarOptionsExtensions
     /// The generated value is also stored on <c>HttpContext.Items</c> under the key
     /// <see cref="ScalarOptions.NonceHttpContextItemKey" /> so downstream middleware can read it and emit a matching
     /// <c>Content-Security-Policy: script-src 'nonce-{value}'</c> header (typically via <c>HttpResponse.OnStarting</c>, since this
-    /// endpoint runs at the end of the request pipeline).
+    /// endpoint runs at the end of the request pipeline). Emitting a nonce also sets <c>Cache-Control: no-store</c> on the response,
+    /// overriding any prior value, since a nonced response cannot be safely cached.
     /// </remarks>
     public static ScalarOptions WithNonce(this ScalarOptions options)
     {
