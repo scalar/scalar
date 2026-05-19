@@ -28,6 +28,11 @@ export const getPropertyDescription = (value: SchemaObject | undefined): string 
   if (!isSchema(value)) {
     return null
   }
+
+  if (!('type' in value)) {
+    return null
+  }
+
   /** Just grab the first type from the array if it's an array */
   const type = Array.isArray(value.type) ? value.type[0] : value.type
   if (!type) {

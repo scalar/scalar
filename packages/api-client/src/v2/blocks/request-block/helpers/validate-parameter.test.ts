@@ -9,7 +9,7 @@ describe('validateParameter', () => {
   })
 
   it('returns true when schema has no type', () => {
-    expect(validateParameter({ __scalar_: '' }, 'some value')).toEqual({ ok: true })
+    expect(validateParameter({} as SchemaObject, 'some value')).toEqual({ ok: true })
   })
 
   it('correctly validate a number type #1', () => {

@@ -1,3 +1,4 @@
+import type { SchemaObject } from '@scalar/types/openapi/3.1'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -829,7 +830,7 @@ describe('RequestTableRow', () => {
                 $ref: '#/components/schemas/Category',
                 '$ref-value': { type: 'string' },
               },
-            },
+            } as SchemaObject,
           },
           environment,
         },

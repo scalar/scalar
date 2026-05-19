@@ -1,16 +1,15 @@
+import { EnvironmentsList } from '@scalar/api-client/features/environments'
 import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { xScalarEnvironmentsSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { XScalarEnvironments } from '@scalar/schemas/extensions/document'
 import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
+import { coerce } from '@scalar/validation'
+import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import { EnvironmentsList } from '@scalar/api-client/features/environments'
-
 import Environment from './Environment.vue'
 
-const mockEnvironments = coerceValue(xScalarEnvironmentsSchema, {
+const mockEnvironments = coerce(XScalarEnvironments, {
   'x-scalar-environments': {
     production: {
       color: '#FF0000',

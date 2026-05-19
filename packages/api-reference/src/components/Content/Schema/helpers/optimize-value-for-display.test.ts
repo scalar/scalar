@@ -1,5 +1,5 @@
-import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/types/openapi/3.1'
+import { resolve } from '@scalar/workspace-store/resolve'
 import { describe, expect, it } from 'vitest'
 
 import { optimizeValueForDisplay } from './optimize-value-for-display'
@@ -16,26 +16,24 @@ describe('optimizeValueForDisplay', () => {
   })
 
   it('should return the original value if discriminator schemas is not an array', () => {
-    const input = { __scalar_: '', oneOf: 'not an array' }
+    const input = { oneOf: 'not an array' }
     // @ts-expect-error a test
     expect(optimizeValueForDisplay(input)).toEqual(input)
   })
 
   it('should ignore the not discriminator type', () => {
-    const input = { __scalar_: '', not: { type: 'string' } } as SchemaObject
+    const input = { not: { type: 'string' } } as SchemaObject
     expect(optimizeValueForDisplay(input)).toEqual(input)
   })
 
   it('should mark as nullable if schema contains null type', () => {
     const input: SchemaObject = {
-      __scalar_: '',
       oneOf: [{ type: 'string' }, { type: 'null' }],
     }
     expect(optimizeValueForDisplay(input)).toEqual({
-      __scalar_: '',
       type: 'string',
       nullable: true,
-    })
+    } as SchemaObject)
   })
 
   it('should remove null types from schemas', () => {
@@ -45,20 +43,18 @@ describe('optimizeValueForDisplay', () => {
     expect(optimizeValueForDisplay(input)).toEqual({
       anyOf: [{ type: 'string' }, { type: 'number' }],
       nullable: true,
-    })
+    } as SchemaObject)
   })
 
   it('should merge single remaining schema after null removal', () => {
     const input: SchemaObject = {
-      __scalar_: '',
       oneOf: [{ type: 'string', format: 'date-time' }, { type: 'null' }],
     }
     expect(optimizeValueForDisplay(input)).toEqual({
-      __scalar_: '',
       type: 'string',
       format: 'date-time',
       nullable: true,
-    })
+    } as SchemaObject)
   })
 
   it('should handle multiple remaining schemas', () => {
@@ -68,41 +64,35 @@ describe('optimizeValueForDisplay', () => {
     expect(optimizeValueForDisplay(input)).toEqual({
       anyOf: [{ type: 'string' }, { type: 'number' }],
       nullable: true,
-    })
+    } as SchemaObject)
   })
 
   it('should preserve other properties when optimizing', () => {
     const input: SchemaObject = {
-      __scalar_: '',
       description: 'test field',
       oneOf: [{ type: 'string' }, { type: 'null' }],
     }
     expect(optimizeValueForDisplay(input)).toEqual({
-      __scalar_: '',
       description: 'test field',
       type: 'string',
       nullable: true,
-    })
+    } as SchemaObject)
   })
 
   it('should handle allOf discriminator', () => {
     const input: SchemaObject = {
-      __scalar_: '',
       allOf: [{ type: 'string' }, { type: 'null' }],
     }
     expect(optimizeValueForDisplay(input)).toEqual({
-      __scalar_: '',
       type: 'string',
       nullable: true,
-    })
+    } as SchemaObject)
   })
 
   it('preserves schema properties when merging allOf schemas', () => {
     const input: SchemaObject = {
-      __scalar_: '',
       oneOf: [
         {
-          __scalar_: '',
           title: 'Planet',
           allOf: [
             {
@@ -120,7 +110,6 @@ describe('optimizeValueForDisplay', () => {
           ],
         },
         {
-          __scalar_: '',
           title: 'Satellite',
           allOf: [
             {
@@ -339,7 +328,6 @@ describe('optimizeValueForDisplay', () => {
       },
       oneOf: [
         {
-          '__scalar_': '',
           title: 'FirstSchema',
           allOf: [
             { required: ['id'], type: 'object' },
@@ -347,7 +335,6 @@ describe('optimizeValueForDisplay', () => {
           ],
         },
         {
-          '__scalar_': '',
           title: 'SecondSchema',
           allOf: [
             { required: ['id'], type: 'object' },
@@ -362,7 +349,6 @@ describe('optimizeValueForDisplay', () => {
     expect(result).toEqual({
       oneOf: [
         {
-          '__scalar_': '',
           type: 'object',
           properties: {
             id: { type: 'string' },
@@ -370,7 +356,7 @@ describe('optimizeValueForDisplay', () => {
           title: 'FirstSchema',
           allOf: [
             { required: ['id'], type: 'object' },
-            { properties: { name: { type: 'string' } }, 'type': 'object' },
+            { properties: { name: { type: 'string' } }, type: 'object' },
           ],
         },
         {
@@ -379,9 +365,8 @@ describe('optimizeValueForDisplay', () => {
             id: { type: 'string' },
           },
           title: 'SecondSchema',
-          '__scalar_': '',
           allOf: [
-            { required: ['id'], 'type': 'object' },
+            { required: ['id'], type: 'object' },
             { properties: { email: { type: 'string' } }, type: 'object' },
           ],
         },

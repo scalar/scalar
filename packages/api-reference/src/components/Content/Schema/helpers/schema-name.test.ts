@@ -33,7 +33,7 @@ describe('schema-name', () => {
     })
 
     it('returns null for empty object', () => {
-      const schema: SchemaObject = { __scalar_: '' }
+      const schema: SchemaObject = {}
       expect(getModelNameFromSchema(schema)).toBe(null)
     })
   })

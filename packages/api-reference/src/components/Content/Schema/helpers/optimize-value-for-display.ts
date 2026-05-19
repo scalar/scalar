@@ -1,5 +1,5 @@
-import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/types/openapi/3.1'
+import { resolve } from '@scalar/workspace-store/resolve'
 
 import { compositions } from './schema-composition'
 
@@ -74,7 +74,6 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
       return { ...rootProperties, ...schema }
     })
 
-    // @ts-expect-error - We avoid using coerceValue here as it may be dangerous, so we type cast
     const result = { [composition]: mergedSchemas } as SchemaObject
     if (typeof value.description === 'string') {
       result.description = value.description

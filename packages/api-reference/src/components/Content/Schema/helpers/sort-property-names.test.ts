@@ -627,7 +627,6 @@ describe('sortPropertyNames', () => {
     })
 
     it('should handle schema with composition keywords', () => {
-      // @ts-expect-error - we want to test the case where the schema has composition keywords
       const schema: SchemaObject = {
         oneOf: [{ type: 'string' }, { type: 'number' }],
         properties: {

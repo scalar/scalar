@@ -99,8 +99,11 @@ export const isNumberSchema = (
   )
 }
 
-/** Special type guard to remove our internal type */
-export const isSchema = (schema: SchemaObject | undefined): schema is Exclude<SchemaObject, { __scalar_: string }> =>
+/** Schema object that declares a JSON Schema `type`. */
+export type SchemaObjectWithType = Extract<SchemaObject, { type: unknown }>
+
+/** Type guard for schema objects that declare a `type`. */
+export const isSchema = (schema: SchemaObject | undefined): schema is SchemaObjectWithType =>
   schema !== undefined && 'type' in schema
 
 /**
