@@ -12,12 +12,16 @@
     <div id="app"></div>
     <script src="{{env "CDN_URL"}}"></script>
     <script>
+      // Optional URL prefix when serving under a subpath (for example, "/docs").
+      // Strip any trailing slash so the prefix concatenates cleanly.
+      const basePath = '{{env "BASE_PATH"}}'.replace(/\/$/, '')
+
       async function init() {
         let mountedDocuments = []
 
         // First, try to load the generated configuration
         try {
-          const response = await fetch('/configuration.json')
+          const response = await fetch(`${basePath}/configuration.json`)
 
           if (response.ok) {
             const mountedConfig = await response.json()

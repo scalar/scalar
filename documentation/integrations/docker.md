@@ -90,12 +90,27 @@ services:
     restart: unless-stopped
 ```
 
+## Hosting Under a Subpath
+
+When serving the API reference under a subpath (for example, behind a reverse proxy at `/docs`), set the `BASE_PATH` environment variable so the container generates URLs with the correct prefix:
+
+```bash
+docker run \
+  -p 8080:8080 \
+  -e BASE_PATH=/docs \
+  -e API_REFERENCE_CONFIG='{"pathRouting":{"basePath":"/docs"},"sources":[{"url":"https://api.example.com/openapi.json"}]}' \
+  scalarapi/api-reference:latest
+```
+
+`BASE_PATH` only changes the URLs the client requests (such as `/docs/configuration.json` and mounted document URLs). It does not change the internal Caddy routes, so your reverse proxy or ingress is still expected to strip the prefix before forwarding requests to the container.
+
 ## Environment Variables
 
-| Variable               | Description                                     | Default     |
-| ---------------------- | ----------------------------------------------- | ----------- |
-| `API_REFERENCE_CONFIG` | JSON configuration for the API Reference | -           |
-| `CDN_URL`              | URL for the API Reference CDN                   | `scalar.js` |
+| Variable               | Description                                                       | Default     |
+| ---------------------- | ----------------------------------------------------------------- | ----------- |
+| `API_REFERENCE_CONFIG` | JSON configuration for the API Reference                          | -           |
+| `BASE_PATH`            | URL prefix when serving under a subpath (for example, `/docs`)    | -           |
+| `CDN_URL`              | URL for the API Reference CDN                                     | `scalar.js` |
 
 **Note:** Either `API_REFERENCE_CONFIG` must be set OR documents must be mounted to `/docs`
 

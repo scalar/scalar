@@ -4,7 +4,10 @@
 # Scans mounted directories for OpenAPI documents and generates configuration
 
 MOUNT_DIR="/docs"
-BASE_URL="/openapi"
+# Optional URL prefix when serving under a subpath (for example, "/docs").
+# Strip any trailing slash so the prefix concatenates cleanly.
+BASE_PATH="${BASE_PATH%/}"
+BASE_URL="${BASE_PATH}/openapi"
 CONFIG_FILE="/tmp/configuration.json"
 
 echo "Scanning for OpenAPI documents in: $MOUNT_DIR"
