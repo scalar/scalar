@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Mime;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -147,12 +148,9 @@ public static class ScalarEndpointRouteBuilderExtensions
 
             var escapedRequestPath = Uri.EscapeDataString(httpContext.Request.Path);
 
-            var nonceAttribute = string.Empty;
-
-            if (!string.IsNullOrWhiteSpace(options.Nonce))
-            {
-                nonceAttribute = $" nonce=\"{options.Nonce}\"";
-            }
+            var nonceAttribute = string.IsNullOrWhiteSpace(options.Nonce)
+                ? string.Empty
+                : $" nonce=\"{HtmlEncoder.Default.Encode(options.Nonce)}\"";
 
             return Results.Content(
                 $$"""
