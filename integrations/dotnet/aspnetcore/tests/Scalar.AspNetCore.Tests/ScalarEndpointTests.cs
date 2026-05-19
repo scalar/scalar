@@ -419,9 +419,8 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
 
     private static string GenerateNonce()
     {
-        using var rng = RandomNumberGenerator.Create();
-        var nonceBytes = new byte[32];
-        rng.GetBytes(nonceBytes);
-        return Convert.ToBase64String(nonceBytes);
+        Span<byte> bytes = stackalloc byte[32];
+        RandomNumberGenerator.Fill(bytes);
+        return Convert.ToBase64String(bytes);
     }
 }
