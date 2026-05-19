@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
+using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -315,7 +316,9 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         index.StatusCode.Should().Be(HttpStatusCode.OK);
         var indexContent = await index.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
-        Regex.Matches(indexContent, $" nonce=\"{Regex.Escape(nonce)}\"").Count.Should().Be(3);
+        // HtmlEncoder escapes characters such as '+' (common in base64) as numeric entities, so match the encoded form.
+        var encodedNonce = HtmlEncoder.Default.Encode(nonce);
+        Regex.Count(indexContent, $" nonce=\"{Regex.Escape(encodedNonce)}\"").Should().Be(3);
         index.Headers.CacheControl!.NoStore.Should().BeTrue();
     }
 
@@ -373,8 +376,8 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         secondNonce.Should().NotBeNullOrEmpty();
         firstNonce.Should().NotBe(secondNonce);
 
-        Regex.Matches(firstHtml, $" nonce=\"{Regex.Escape(firstNonce!)}\"").Count.Should().Be(3);
-        Regex.Matches(secondHtml, $" nonce=\"{Regex.Escape(secondNonce!)}\"").Count.Should().Be(3);
+        Regex.Count(firstHtml, $" nonce=\"{Regex.Escape(firstNonce!)}\"").Should().Be(3);
+        Regex.Count(secondHtml, $" nonce=\"{Regex.Escape(secondNonce!)}\"").Should().Be(3);
     }
 
     private static string? ExtractNonce(string html)
