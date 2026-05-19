@@ -6,7 +6,7 @@ import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointe
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { isHidden } from '@/helpers/is-hidden'
 import { traverseOperationExamples } from '@/navigation/helpers/traverse-examples'
-import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
+import type { OperationTitleSource, TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import { XScalarStabilityValues } from '@/schemas/extensions/operation'
 import type { ParentTag, TraversedExample, TraversedOperation } from '@/schemas/navigation'
 import type { OpenApiDocument, OperationObject } from '@/schemas/v3.1/strict/openapi-document'
@@ -37,6 +37,7 @@ const createOperationEntry = ({
   generateId,
   parentId,
   parentTag,
+  operationTitleSource,
 }: {
   ref: string
   operation: OperationObject
@@ -45,6 +46,7 @@ const createOperationEntry = ({
   parentTag?: ParentTag
   generateId: TraverseSpecOptions['generateId']
   parentId: string
+  operationTitleSource?: OperationTitleSource
 }): TraversedOperation => {
   const id = generateId({
     type: 'operation',
@@ -54,7 +56,7 @@ const createOperationEntry = ({
     path: path,
     parentId: parentId,
   })
-  const title = operation.summary?.trim() ? operation.summary : path
+  const title = operationTitleSource === 'path' ? path : operation.summary?.trim() ? operation.summary : path
 
   const isDeprecated = isDeprecatedOperation(operation)
 
@@ -105,6 +107,7 @@ export const traversePaths = ({
   tagsMap,
   generateId,
   documentId,
+  operationTitleSource,
 }: {
   document: OpenApiDocument
   /** Map of tags and their entries */
@@ -113,6 +116,8 @@ export const traversePaths = ({
   generateId: TraverseSpecOptions['generateId']
   /** Document ID */
   documentId: string
+  /** Whether to use the operation summary or the operation path for sidebar titles */
+  operationTitleSource?: OperationTitleSource
 }): { untaggedOperations: TraversedOperation[] } => {
   const untaggedOperations: TraversedOperation[] = []
 
@@ -152,6 +157,7 @@ export const traversePaths = ({
               parentTag: { tag, id: tagId },
               generateId,
               parentId: tagId,
+              operationTitleSource,
             }),
           )
         })
@@ -165,6 +171,7 @@ export const traversePaths = ({
             path,
             generateId,
             parentId: documentId,
+            operationTitleSource,
           }),
         )
       }

@@ -16,6 +16,7 @@ export type NavigationOptions =
         | 'operationsSorter'
         | 'tagsSorter'
         | 'hideModels'
+        | 'operationTitleSource'
       >
     >
   | undefined
@@ -136,6 +137,7 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
     hideModels: options?.hideModels ?? false,
     operationsSorter: options?.operationsSorter,
     tagsSorter: options?.tagsSorter,
+    operationTitleSource: options?.operationTitleSource,
     generateId,
   }
 }
