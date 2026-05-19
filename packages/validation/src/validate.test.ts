@@ -768,6 +768,52 @@ describe('intersection', () => {
     expect(validate(T, { a: 1, nested: { z: 'ok' } })).toBe(true)
     expect(validate(T, { a: 1, nested: { z: 1 } })).toBe(false)
   })
+
+  it('validates nested intersection members recursively', () => {
+    const extensions = intersection([object({ env: optional(string()) }), object({ order: optional(number()) })], {
+      typeName: 'Extensions',
+    })
+    const document = intersection([
+      object({
+        openapi: literal('3.1.0'),
+        info: object({ title: string(), version: string() }),
+      }),
+      object({ navigation: optional(boolean()) }),
+      extensions,
+    ])
+
+    expect(
+      validate(document, {
+        openapi: '3.1.0',
+        info: { title: 'API', version: '1.0.0' },
+        navigation: true,
+        env: 'staging',
+        order: 1,
+      }),
+    ).toBe(true)
+    expect(
+      validate(document, {
+        openapi: '3.1.0',
+        info: { title: 'API', version: '1.0.0' },
+        navigation: true,
+        order: 'not-a-number',
+      }),
+    ).toBe(false)
+    expect(
+      validate(document, {
+        openapi: '3.0.0',
+        info: { title: 'API', version: '1.0.0' },
+        env: 'staging',
+      }),
+    ).toBe(false)
+  })
+
+  it('fails nested intersection when a deeply nested member rejects the value', () => {
+    const inner = intersection([object({ a: number() }), object({ b: string() })])
+    const outer = intersection([object({ c: boolean() }), inner])
+    expect(validate(outer, { a: 1, b: 'ok', c: true })).toBe(true)
+    expect(validate(outer, { a: 1, b: 1, c: true })).toBe(false)
+  })
 })
 
 describe('notDefined', () => {
@@ -894,5 +940,43 @@ describe('lazy', () => {
     const value = new Date()
     const result = validate(T, value)
     expect(result).toBe(false)
+  })
+})
+
+describe('cyclic structures', () => {
+  it('terminates on a self-referential value paired with a recursive lazy schema', () => {
+    type Node = { name: string; child?: Node }
+    const T: ReturnType<typeof lazy> = lazy(() => object({ name: string(), child: optional(T) }))
+
+    const node: Node = { name: 'root' }
+    node.child = node
+
+    expect(() => validate(T, node)).not.toThrow()
+    expect(validate(T, node)).toBe(true)
+  })
+
+  it('still rejects a cyclic value when a property fails validation', () => {
+    type Node = { name: unknown; child?: Node }
+    const T: ReturnType<typeof lazy> = lazy(() => object({ name: string(), child: optional(T) }))
+
+    const node: Node = { name: 42 }
+    node.child = node
+
+    expect(validate(T, node)).toBe(false)
+  })
+
+  it('terminates on mutually-recursive lazy schemas with cyclic data', () => {
+    type A = { kind: 'a'; next?: B }
+    type B = { kind: 'b'; next?: A }
+    const SchemaA: ReturnType<typeof lazy> = lazy(() => object({ kind: literal('a'), next: optional(SchemaB) }))
+    const SchemaB: ReturnType<typeof lazy> = lazy(() => object({ kind: literal('b'), next: optional(SchemaA) }))
+
+    const a: A = { kind: 'a' }
+    const b: B = { kind: 'b' }
+    a.next = b
+    b.next = a
+
+    expect(() => validate(SchemaA, a)).not.toThrow()
+    expect(validate(SchemaA, a)).toBe(true)
   })
 })

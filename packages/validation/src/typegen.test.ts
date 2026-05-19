@@ -6,8 +6,8 @@ import {
   boolean,
   evaluate,
   fn,
-  lazy,
   intersection,
+  lazy,
   literal,
   notDefined,
   nullable,
@@ -183,6 +183,26 @@ describe('typegen', () => {
     expect(out).toContain('export type Config =')
     expect(out).toContain('a: number')
     expect(out).toContain('b: string')
+  })
+
+  it('emits nested named intersections by reference instead of inlining members', () => {
+    const extensions = intersection([object({ env: optional(string()) }), object({ order: optional(number()) })], {
+      typeName: 'OpenApiExtensions',
+      typeComment: 'Shared document extensions.',
+    })
+    const document = intersection(
+      [object({ openapi: literal('3.1.0'), title: string() }), object({ navigation: optional(boolean()) }), extensions],
+      { typeName: 'OpenApiDocument' },
+    )
+    const out = generateTypes(document, { generatedAt: fixedGeneratedAt, typeName: 'OpenApiDocument' })
+    expect(out).toContain('export type OpenApiExtensions =')
+    expect(out).toContain('env?: string')
+    expect(out).toContain('order?: number')
+    expect(out).toContain('export type OpenApiDocument =')
+    expect(out).toContain('OpenApiDocument = {')
+    expect(out).toContain('navigation?: boolean')
+    expect(out).toContain('& OpenApiExtensions')
+    expect(out.match(/export type OpenApiExtensions/g)?.length).toBe(1)
   })
 
   it('overrides an existing typeName on the schema with the option', () => {

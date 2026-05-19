@@ -2,6 +2,100 @@ import { isObject } from './helpers/is-object'
 import type { Schema } from './schema'
 
 /**
+ * Internal validation implementation. Threads a `cache` of visited
+ * `(object, schema)` pairs through every recursive call so cyclic graphs
+ * terminate instead of recursing forever. If the same value has already been
+ * entered for the same schema in this run, we assume it is valid: the value
+ * is being checked higher up the call stack and any concrete mismatch would
+ * surface there rather than via re-entry on the cycle.
+ */
+const validateInner = (schema: Schema | undefined, value: unknown, cache: WeakMap<object, Set<Schema>>): boolean => {
+  if (!schema) {
+    return false
+  }
+
+  // Short-circuit on cycles: the same value is already being validated against this schema.
+  if (isObject(value) && cache.get(value)?.has(schema)) {
+    return true
+  }
+  // Track visited schemas to prevent infinite recursion on cyclic graphs.
+  if (isObject(value)) {
+    const schemas = cache.get(value) || new Set<Schema>()
+    schemas.add(schema)
+    cache.set(value, schemas)
+  }
+
+  if (schema.type === 'any' || schema.type === 'unknown') {
+    return true
+  }
+  if (schema.type === 'function') {
+    return typeof value === 'function'
+  }
+  if (schema.type === 'number') {
+    return typeof value === 'number' && !Number.isNaN(value) && Number.isFinite(value)
+  }
+  if (schema.type === 'string') {
+    return typeof value === 'string'
+  }
+  if (schema.type === 'boolean') {
+    return typeof value === 'boolean'
+  }
+  if (schema.type === 'nullable') {
+    return value === null
+  }
+  if (schema.type === 'notDefined') {
+    return value === undefined
+  }
+  if (schema.type === 'array') {
+    return Array.isArray(value) && value.every((item) => validateInner(schema.items, item, cache))
+  }
+  if (schema.type === 'record') {
+    if (!isObject(value)) {
+      return false
+    }
+
+    const keys = Object.keys(value)
+    return keys.every((key) => validateInner(schema.key, key, cache) && validateInner(schema.value, value[key], cache))
+  }
+  if (schema.type === 'object') {
+    if (!isObject(value)) {
+      return false
+    }
+    const schemaKeys = Object.keys(schema.properties)
+    return schemaKeys.every((key) => validateInner(schema.properties[key], value[key], cache))
+  }
+  if (schema.type === 'optional') {
+    return value === undefined || validateInner(schema.schema, value, cache)
+  }
+  if (schema.type === 'union') {
+    return schema.schemas.some((branch) => validateInner(branch, value, cache))
+  }
+  if (schema.type === 'intersection') {
+    if (schema.schemas.length === 0) {
+      // Vacuous: no constraints (matches `Array.prototype.every` on an empty list).
+      return true
+    }
+    if (!isObject(value)) {
+      return false
+    }
+    return schema.schemas.every((subSchema) => validateInner(subSchema, value, cache))
+  }
+  if (schema.type === 'literal') {
+    return value === schema.value
+  }
+  if (schema.type === 'lazy') {
+    return validateInner(schema.schema(), value, cache)
+  }
+  if (schema.type === 'evaluate') {
+    return validateInner(schema.schema, schema.expression(value), cache)
+  }
+  // We need to assert here that schema has the type never so we know we handle all cases
+  const _exhaustive: never = schema
+  console.warn('Unknown schema type:', _exhaustive)
+  return false
+}
+
+/**
  * Validates that a given value matches the specified schema.
  *
  * The schema describes the expected structure/type of data.
@@ -33,79 +127,15 @@ import type { Schema } from './schema'
  * validate(schema, { id: 1, name: 2 }) // false
  * ```
  *
+ * The optional `cache` argument tracks visited object–schema pairs to stop
+ * infinite recursion on cyclic value graphs (for example a node whose child
+ * points back at itself paired with a `lazy` schema). Callers normally omit it.
+ *
  * If schema is `undefined`, validation fails.
  * Returns true if the value matches the schema, false otherwise.
  */
-export const validate = (schema: Schema | undefined, value: unknown): boolean => {
-  if (!schema) {
-    return false
-  }
-  if (schema.type === 'any' || schema.type === 'unknown') {
-    return true
-  }
-  if (schema.type === 'function') {
-    return typeof value === 'function'
-  }
-  if (schema.type === 'number') {
-    return typeof value === 'number' && !Number.isNaN(value) && Number.isFinite(value)
-  }
-  if (schema.type === 'string') {
-    return typeof value === 'string'
-  }
-  if (schema.type === 'boolean') {
-    return typeof value === 'boolean'
-  }
-  if (schema.type === 'nullable') {
-    return value === null
-  }
-  if (schema.type === 'notDefined') {
-    return value === undefined
-  }
-  if (schema.type === 'array') {
-    return Array.isArray(value) && value.every((item) => validate(schema.items, item))
-  }
-  if (schema.type === 'record') {
-    if (!isObject(value)) {
-      return false
-    }
-
-    const keys = Object.keys(value)
-    return keys.every((key) => validate(schema.key, key) && validate(schema.value, value[key]))
-  }
-  if (schema.type === 'object') {
-    if (!isObject(value)) {
-      return false
-    }
-    const schemaKeys = Object.keys(schema.properties)
-    return schemaKeys.every((key) => validate(schema.properties[key], value[key]))
-  }
-  if (schema.type === 'optional') {
-    return value === undefined || validate(schema.schema, value)
-  }
-  if (schema.type === 'union') {
-    return schema.schemas.some((schema) => validate(schema, value))
-  }
-  if (schema.type === 'intersection') {
-    if (schema.schemas.length === 0) {
-      // Vacuous: no constraints (matches `Array.prototype.every` on an empty list).
-      return true
-    }
-    if (!isObject(value)) {
-      return false
-    }
-    return schema.schemas.every((subSchema) => validate(subSchema, value))
-  }
-  if (schema.type === 'literal') {
-    return value === schema.value
-  }
-  if (schema.type === 'lazy') {
-    return validate(schema.schema(), value)
-  }
-  if (schema.type === 'evaluate') {
-    return validate(schema.schema, schema.expression(value))
-  }
-  // We need to assert here that schema has the type never so we know we handle all cases
-  const _exhaustive: never = schema
-  console.warn('Unknown schema type:', _exhaustive)
-  return false
-}
+export const validate = (
+  schema: Schema | undefined,
+  value: unknown,
+  cache: WeakMap<object, Set<Schema>> = new WeakMap(),
+): boolean => validateInner(schema, value, cache)

@@ -1043,6 +1043,13 @@ describe('union', () => {
     })
   })
 
+  it('prefers property-less object schema over boolean for empty objects', () => {
+    const T = union([boolean(), object({})])
+    expect(coerce(T, {})).toEqual({})
+    expect(coerce(T, true)).toBe(true)
+    expect(coerce(T, false)).toBe(false)
+  })
+
   it('picks the branch whose type discriminator matches a union of literals', () => {
     const T = union([
       object({
@@ -1118,6 +1125,52 @@ describe('intersection', () => {
     ])
     expect(coerce(T, { a: 'a' })).toEqual({ type: 'a', a: 'a' })
     expect(coerce(T, { a: 'a', c: 'c' })).toEqual({ type: 'a', a: 'a', c: 'c' })
+  })
+
+  it('merges coerced properties through nested intersection members', () => {
+    const extensions = intersection([object({ env: optional(string()) }), object({ order: optional(number()) })], {
+      typeName: 'Extensions',
+    })
+    const document = intersection([
+      object({
+        openapi: literal('3.1.0'),
+        info: object({ title: string(), version: string() }),
+      }),
+      object({ navigation: optional(boolean()) }),
+      extensions,
+    ])
+
+    expect(
+      coerce(document, {
+        openapi: '3.1.0',
+        info: { title: 'API', version: '1.0.0' },
+        navigation: true,
+        env: 'staging',
+        order: 2,
+      }),
+    ).toStrictEqual({
+      openapi: '3.1.0',
+      info: { title: 'API', version: '1.0.0' },
+      navigation: true,
+      env: 'staging',
+      order: 2,
+    })
+    expect(coerce(document, { openapi: '3.1.0', info: { title: 'API' }, order: 'nope' })).toStrictEqual({
+      openapi: '3.1.0',
+      info: { title: 'API', version: '' },
+      order: 0,
+    })
+  })
+
+  it('accumulates scores from nested intersection members in unions', () => {
+    const extensions = intersection([object({ shared: number() }), object({ extra: string() })])
+    const document = intersection([object({ id: literal('doc') }), extensions])
+    const T = union([object({ id: literal('other') }), document])
+    expect(coerce(T, { id: 'doc', shared: 1, extra: 'ok' })).toStrictEqual({
+      id: 'doc',
+      shared: 1,
+      extra: 'ok',
+    })
   })
 })
 
@@ -1268,5 +1321,97 @@ describe('evaluate', () => {
     const value = { x: 1 }
     const result = coerce(T, value)
     expect(result).toEqual(value)
+  })
+})
+
+describe('cyclic structures', () => {
+  it('terminates on a self-referential value paired with a recursive lazy schema', () => {
+    // Cyclic reference to the same schema
+    const T = lazy(() => object({ name: string(), child: optional(lazy(() => T)) }))
+
+    const node = { name: 'root' }
+    // @ts-expect-error - we want to create a cyclic reference
+    node.child = node
+
+    expect(() => coerce(T, node)).not.toThrow()
+    const result = coerce(T, node)
+    expect(result).toStrictEqual({ name: 'root', child: node })
+    expect(result).not.toBe(node)
+    expect(result.child).toBe(node)
+  })
+
+  it('coerces properties before returning the original reference on a cycle', () => {
+    const T = lazy(() => object({ name: string({ default: 'Marc' }), child: optional(lazy(() => T)) }))
+
+    const node = { name: 42 }
+    // @ts-expect-error - we want to create a cyclic reference
+    node.child = node
+
+    const result = coerce(T, node)
+    expect(result).toStrictEqual({ name: 'Marc', child: node })
+    expect(result.child).toBe(node)
+  })
+
+  it('terminates on mutually-recursive lazy schemas with cyclic data', () => {
+    const SchemaA = lazy(() => object({ kind: literal('a'), next: optional(lazy(() => SchemaB)) }))
+    const SchemaB = lazy(() => object({ kind: literal('b'), next: optional(lazy(() => SchemaA)) }))
+
+    const a = { kind: 'a' }
+    const b = { kind: 'b' }
+    // @ts-expect-error - we want to create a cyclic reference
+    a.next = b
+    // @ts-expect-error - we want to create a cyclic reference
+    b.next = a
+
+    expect(() => coerce(SchemaA, a)).not.toThrow()
+    const result = coerce(SchemaA, a)
+    expect(result).toStrictEqual({ kind: 'a', next: { kind: 'b', next: a } })
+    expect(result.next?.next).toBe(a)
+  })
+
+  it('preserves a cyclic reference when a property uses any()', () => {
+    const T = object({
+      id: number(),
+      parent: optional(any()),
+    })
+
+    const node = { id: 1, parent: undefined as { id: number; parent?: unknown } | undefined }
+    node.parent = node
+
+    const result = coerce(T, node)
+    expect(result).toStrictEqual({ id: 1, parent: node })
+    expect(result).not.toBe(node)
+    expect(result.parent).toBe(node)
+  })
+
+  it('terminates when record values form a cycle', () => {
+    const nodeSchema = object({ next: optional(any()) })
+    const T = record(string(), nodeSchema)
+
+    const a: { next?: unknown } = {}
+    const b: { next?: unknown } = { next: a }
+    a.next = b
+
+    expect(() => coerce(T, { left: a, right: b })).not.toThrow()
+    const result = coerce(T, { left: a, right: b })
+    expect(result).toStrictEqual({
+      left: { next: b },
+      right: { next: a },
+    })
+    expect(result.left?.next).toBe(b)
+    expect(result.right?.next).toBe(a)
+  })
+
+  it('handle cyclic references when using intersection and union types', () => {
+    const T = intersection([
+      union([object({ type: literal('a'), a: string() }), object({ type: literal('b'), b: string() })]),
+      object({ c: string() }),
+    ])
+    const input = { hello: '', a: undefined }
+    // @ts-expect-error
+    input.a = input
+    expect(() => coerce(T, input)).not.toThrow()
+    const result = coerce(T, input)
+    expect(result).toStrictEqual({ type: 'a', a: '', c: '' })
   })
 })

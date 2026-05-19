@@ -35,6 +35,13 @@ const scoreUnion = (schema: Schema, value: unknown): number => {
       return 0
     }
 
+    const keys = Object.keys(schema.properties)
+
+    // If there are no properties, we want to score 1 since we want to outscore if there are inline primitives
+    if (keys.length === 0) {
+      return 1
+    }
+
     // Missing keys contribute 0 (including optional keys — matches prior union heuristics).
     // Discriminator properties (`literal` or `union` of literals): recurse with scoreUnion;
     // matching values get a high weight (×10) so `type: literal('A')` beats unrelated fields
@@ -90,6 +97,139 @@ const scoreUnion = (schema: Schema, value: unknown): number => {
   return validate(schema, value) ? 1 : 0
 }
 
+const coerceInner = (schema: Schema, value: unknown, cache: WeakMap<object, Set<Schema>>): unknown => {
+  // Prevent infinite recursion
+  if (isObject(value) && cache.get(value)?.has(schema)) {
+    return value
+  }
+  // Track visited schemas to prevent infinite recursion
+  if (isObject(value)) {
+    const schemas = cache.get(value) || new Set<Schema>()
+    schemas.add(schema)
+    cache.set(value, schemas)
+  }
+
+  // If no schema is provided, return the value as is
+  if (!schema) {
+    return value
+  }
+
+  if (schema.type === 'any' || schema.type === 'unknown') {
+    return value
+  }
+  if (schema.type === 'function') {
+    if (typeof value === 'function') {
+      return value
+    }
+    return () => undefined
+  }
+  if (schema.type === 'number') {
+    if (validate(schema, value)) {
+      return value
+    }
+    return schema.default ?? 0
+  }
+  if (schema.type === 'string') {
+    if (validate(schema, value)) {
+      return value
+    }
+    return schema.default ?? ''
+  }
+  if (schema.type === 'boolean') {
+    if (validate(schema, value)) {
+      return value
+    }
+    return schema.default ?? false
+  }
+  if (schema.type === 'nullable') {
+    return null
+  }
+  if (schema.type === 'notDefined') {
+    return undefined
+  }
+  if (schema.type === 'optional') {
+    if (value === undefined) {
+      return undefined
+    }
+    return coerceInner(schema.schema, value, cache)
+  }
+  if (schema.type === 'array') {
+    if (!Array.isArray(value)) {
+      return []
+    }
+    return value.map((item) => coerceInner(schema.items, item, cache))
+  }
+  if (schema.type === 'record') {
+    if (!isObject(value)) {
+      return {}
+    }
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entryValue]) => [key, coerceInner(schema.value, entryValue, cache)]),
+    )
+  }
+  if (schema.type === 'object') {
+    const keys = Object.keys(schema.properties)
+    const target = isObject(value) ? value : null
+    const entries: [string, unknown][] = []
+    for (const key of keys) {
+      const propSchema = schema.properties[key]
+      const raw = target?.[key as keyof typeof target]
+      if (propSchema.type === 'optional' && raw === undefined) {
+        continue
+      }
+      entries.push([key, coerceInner(propSchema, raw, cache)])
+    }
+    return Object.fromEntries(entries)
+  }
+  if (schema.type === 'union') {
+    const branch = schema.schemas.reduce(
+      (acc, branchSchema) => {
+        const score = scoreUnion(branchSchema, value)
+        return score > acc.score ? { schema: branchSchema, score } : acc
+      },
+      { schema: schema.schemas[0]!, score: 0 },
+    )
+    // We need some way to pick one of the union values
+    return coerceInner(branch.schema, value, cache)
+  }
+  if (schema.type === 'intersection') {
+    return schema.schemas.reduce<Record<string, unknown>>(
+      (acc, subSchema) => Object.assign(acc, coerceInner(subSchema, value, cache) as Record<string, unknown>),
+      {},
+    )
+  }
+  if (schema.type === 'literal') {
+    return schema.value
+  }
+  if (schema.type === 'lazy') {
+    return coerceInner(schema.schema(), value, cache)
+  }
+  if (schema.type === 'evaluate') {
+    return coerceInner(schema.schema, schema.expression(value), cache)
+  }
+
+  // We need to assert here that schema has the type never so we know we handle all cases
+  const _exhaustive: never = schema
+  console.warn('Unknown schema type:', _exhaustive)
+  return value
+}
+
+/**
+ * Falls back to `any` when `S` widens all the way to the full `Schema` union and
+ * returns the precise `Static<S>` otherwise. Computing `Static<Schema>` forces
+ * TypeScript to expand every variant of the recursive `Schema` definition and
+ * exhausts the depth limit, surfacing at call sites as
+ * `TS2589: Type instantiation is excessively deep and possibly infinite`.
+ * Degrading to `any` in that single case keeps the type tractable; callers that
+ * pass a specific schema (for example an `intersection(...)` literal) still get
+ * the precise static type.
+ *
+ * `[Schema] extends [S]` is wrapped in tuples to prevent distribution over union
+ * members — we want a single check that the whole `Schema` union is assignable
+ * to `S`, not a check that runs once per variant.
+ */
+type SafeStatic<S extends Schema> = [Schema] extends [S] ? any : Static<S>
+
 /**
  * Coerces an unknown value toward the static type implied by `schema`. Values that
  * pass {@link validate} for that branch are kept; otherwise primitives default to
@@ -108,123 +248,14 @@ const scoreUnion = (schema: Schema, value: unknown): number => {
  * The optional `cache` argument tracks visited object–schema pairs to stop infinite recursion
  * on cyclic graphs; callers normally omit it.
  */
+/**
+ * Internal coercion implementation. Takes the wide `Schema` union and returns `unknown` so that
+ * recursive calls do not pay the cost of relating two generic `Static<S>` instantiations, which
+ * can overflow the type checker now that `LazyStatic` resolves recursive schemas without a depth
+ * cap. The public `coerce` wrapper preserves the typed surface.
+ */
 export const coerce = <S extends Schema>(
   schema: S,
   value: unknown,
   cache: WeakMap<object, Set<Schema>> = new WeakMap(),
-): Static<S> => {
-  // Prevent infinite recursion
-  if (isObject(value) && cache.get(value)?.has(schema)) {
-    return value as Static<S>
-  }
-  // Track visited schemas to prevent infinite recursion
-  if (isObject(value)) {
-    const schemas = cache.get(value) || new Set<Schema>()
-    schemas.add(schema)
-    cache.set(value, schemas)
-  }
-
-  // If no schema is provided, return the value as is
-  if (!schema) {
-    return value as Static<S>
-  }
-
-  if (schema.type === 'any' || schema.type === 'unknown') {
-    return value as unknown as Static<S>
-  }
-  if (schema.type === 'function') {
-    if (typeof value === 'function') {
-      return value as Static<S>
-    }
-    return (() => undefined) as unknown as Static<S>
-  }
-  if (schema.type === 'number') {
-    if (validate(schema, value)) {
-      return value as Static<S>
-    }
-    return (schema.default ?? 0) as Static<S>
-  }
-  if (schema.type === 'string') {
-    if (validate(schema, value)) {
-      return value as unknown as Static<S>
-    }
-    return (schema.default ?? '') as unknown as Static<S>
-  }
-  if (schema.type === 'boolean') {
-    if (validate(schema, value)) {
-      return value as unknown as Static<S>
-    }
-    return (schema.default ?? false) as unknown as Static<S>
-  }
-  if (schema.type === 'nullable') {
-    return null as unknown as Static<S>
-  }
-  if (schema.type === 'notDefined') {
-    return undefined as unknown as Static<S>
-  }
-  if (schema.type === 'optional') {
-    if (value === undefined) {
-      return undefined as unknown as Static<S>
-    }
-    return coerce(schema.schema, value, cache)
-  }
-  if (schema.type === 'array') {
-    if (!Array.isArray(value)) {
-      return [] as unknown as Static<S>
-    }
-    return value.map((item) => coerce(schema.items, item, cache)) as unknown as Static<S>
-  }
-  if (schema.type === 'record') {
-    if (!isObject(value)) {
-      return {} as unknown as Static<S>
-    }
-    return Object.fromEntries(
-      Object.entries(value).map(([key, value]) => [key, coerce(schema.value, value, cache)]),
-    ) as unknown as Static<S>
-  }
-  if (schema.type === 'object') {
-    const keys = Object.keys(schema.properties)
-    const target = isObject(value) ? value : null
-    const entries: [string, unknown][] = []
-    for (const key of keys) {
-      const propSchema = schema.properties[key]
-      const raw = target?.[key as keyof typeof target]
-      if (propSchema.type === 'optional' && raw === undefined) {
-        continue
-      }
-      entries.push([key, coerce(propSchema, raw, cache)])
-    }
-    return Object.fromEntries(entries) as unknown as Static<S>
-  }
-  if (schema.type === 'union') {
-    const branch = schema.schemas.reduce(
-      (acc, schema) => {
-        const score = scoreUnion(schema, value)
-        return score > acc.score ? { schema, score } : acc
-      },
-      { schema: schema.schemas[0], score: 0 },
-    )
-    // We need some way to pick one of the union values
-    return coerce(branch.schema, value, cache)
-  }
-  if (schema.type === 'intersection') {
-    return schema.schemas.reduce<Record<string, unknown>>(
-      (acc, subSchema) => Object.assign(acc, coerce(subSchema, value, cache) as Record<string, unknown>),
-      {},
-    ) as unknown as Static<S>
-  }
-  if (schema.type === 'literal') {
-    return schema.value
-  }
-  if (schema.type === 'lazy') {
-    return coerce(schema.schema(), value, cache)
-  }
-  if (schema.type === 'evaluate') {
-    return coerce(schema.schema, schema.expression(value), cache)
-  }
-
-  // We need to assert here that schema has the type never so we know we handle all cases
-  const _exhaustive: never = schema
-  console.warn('Unknown schema type:', _exhaustive)
-  return value as unknown as Static<S>
-}
+): SafeStatic<S> => coerceInner(schema, value, cache) as SafeStatic<S>
