@@ -83,7 +83,8 @@ public partial class ScalarOptions
     /// <remarks>
     /// A matching <c>Content-Security-Policy: script-src 'nonce-{value}'</c> header must be sent on the same response. Reusing a
     /// static value defeats CSP — for safe per-request generation, set <see cref="DynamicNonce" /> (via the parameterless
-    /// <c>WithNonce()</c> extension) instead.
+    /// <c>WithNonce()</c> extension) instead. When <see cref="DynamicNonce" /> is also enabled, the generated value takes
+    /// precedence and this static value is ignored.
     /// </remarks>
     public string? Nonce { get; set; }
 
