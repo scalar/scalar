@@ -666,11 +666,29 @@ jobs:
     outputs:
       published: ${{ steps.changesets.outputs.published }}
       publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
+      # 'true' when this commit bumped projects/scalar-app/package.json's
+      # version. scalar-app is private, so it never appears in
+      # `publishedPackages` — this lets downstream jobs (web prod deploy,
+      # ToDesktop build) treat a scalar-app version bump as a release even
+      # when no public packages were published in the same commit.
+      scalar_app_released: ${{ steps.scalar-app-release.outputs.released }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
+      - name: Detect scalar-app version bump
+        id: scalar-app-release
+        run: |
+          CURRENT_VERSION=$(jq -r .version projects/scalar-app/package.json)
+          PREV_VERSION=$(git show HEAD~1:projects/scalar-app/package.json 2>/dev/null | jq -r .version || echo "")
+          if [ -n "$PREV_VERSION" ] && [ "$CURRENT_VERSION" != "$PREV_VERSION" ]; then
+            echo "scalar-app version changed: $PREV_VERSION -> $CURRENT_VERSION"
+            echo "released=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "scalar-app version unchanged: $CURRENT_VERSION"
+            echo "released=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Build
         uses: ./.github/actions/build
         with:
@@ -936,18 +954,20 @@ jobs:
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     uses: ./.github/workflows/deploy-api-client.yml
     with:
-      # 'production' only when npm-publish actually published at least one
-      # package on this commit; otherwise 'staging' (which is also what every
-      # PR preview uses).
-      environment: ${{ needs.npm-publish.outputs.published == 'true' && 'production' || 'staging' }}
+      # 'production' when this commit released at least one public package
+      # to npm OR bumped scalar-app's version. scalar-app is private so it
+      # never appears in `publishedPackages`; without the explicit version
+      # bump check, a release PR containing only scalar-app changesets would
+      # publish nothing and silently fall back to staging.
+      environment: ${{ (needs.npm-publish.outputs.published == 'true' || needs.npm-publish.outputs.scalar_app_released == 'true') && 'production' || 'staging' }}
       pr-number: ${{ github.event.pull_request.number }}
       sha: ${{ github.event.pull_request.head.sha || github.sha }}
     secrets: inherit
 
   todesktop-build:
-    if: |
-      needs.npm-publish.outputs.published == 'true' &&
-      needs.check-changes.outputs.scalar_app_package_changed == 'true'
+    # Run whenever scalar-app's version was bumped on this commit. scalar-app
+    # is private, so `npm-publish.outputs.published` cannot be relied on here.
+    if: needs.npm-publish.outputs.scalar_app_released == 'true'
     needs: [required-jobs-main, build, check-changes, npm-publish]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 15
