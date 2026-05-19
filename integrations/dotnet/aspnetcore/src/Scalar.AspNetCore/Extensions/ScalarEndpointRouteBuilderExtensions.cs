@@ -259,7 +259,11 @@ public static class ScalarEndpointRouteBuilderExtensions
     {
         Span<byte> bytes = stackalloc byte[32];
         RandomNumberGenerator.Fill(bytes);
-        return Convert.ToBase64String(bytes);
+        // Base64url avoids '+' and '/', which HtmlEncoder.Default would otherwise escape as numeric entities.
+        return Convert.ToBase64String(bytes)
+            .TrimEnd('=')
+            .Replace('+', '-')
+            .Replace('/', '_');
     }
 
     private static bool ShouldRedirectToTrailingSlash(HttpContext httpContext, string? documentName, [NotNullWhen(true)] out string? redirectUrl)
