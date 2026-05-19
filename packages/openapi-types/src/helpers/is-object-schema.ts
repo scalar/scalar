@@ -7,6 +7,18 @@
  * become accessible without a manual cast.
  *
  * Works with `SchemaObject` types from OpenAPI 2.0, 3.0, 3.1, and 3.2.
+ *
+ * @example
+ * ```ts
+ * const petSchema = specification.components?.schemas?.Pet
+ *
+ * if (isObjectSchema(petSchema)) {
+ *   // `petSchema.properties` is now accessible without a cast.
+ *   for (const [name, property] of Object.entries(petSchema.properties ?? {})) {
+ *     console.log(name, property)
+ *   }
+ * }
+ * ```
  */
 export const isObjectSchema = <T>(
   schema: T,
