@@ -1,6 +1,7 @@
 'use client'
 
 import type { ApiClientModal, ApiClientOptions, RoutePayload } from '@scalar/api-client/modal'
+import { generateHash } from '@scalar/helpers/string/generate-hash'
 import { useEffect, useRef, useState } from 'react'
 
 import './style.css'
@@ -14,10 +15,17 @@ globalThis.__VUE_OPTIONS_API__ = true
 globalThis.__VUE_PROD_HYDRATION_MISMATCH_DETAILS__ = true
 globalThis.__VUE_PROD_DEVTOOLS__ = false
 
-export type ApiClientConfigurationReact = ApiClientOptions & {
-  // content?: Record<string, unknown>
-  url: string
-}
+export type ApiClientConfigurationReact = ApiClientOptions &
+  (
+    | {
+        content?: never
+        url: string
+      }
+    | {
+        content: Record<string, unknown>
+        url?: never
+      }
+  )
 
 export type UseApiClientModalProps = {
   /** Configuration for the Api Client (url or inline content) */
@@ -26,6 +34,13 @@ export type UseApiClientModalProps = {
 
 /** Tracks which documents are/have been loaded so we dont duplicate */
 const documentSet = new Set<string>()
+
+const getDocumentSlug = (configuration: ApiClientConfigurationReact) => {
+  if (configuration.url !== undefined) {
+    return configuration.url || 'default'
+  }
+  return generateHash(JSON.stringify(configuration.content))
+}
 
 /**
  * Returns the singleton Api Client
@@ -52,16 +67,14 @@ export const useApiClient = ({
     let cancelled = false
 
     // Strip document-specific fields before passing to the modal constructor.
-    const { url, ...modalOptions } = configuration
+    const { url, content, ...modalOptions } = configuration
+
+    const slug = getDocumentSlug(configuration)
 
     void getOrCreateApiClient(modalOptions)?.then((_client) => {
       if (cancelled || !_client) {
         return
       }
-
-      // Compute the slug here so we can batch all three state updates into one render,
-      // preventing a render where `client` is set but `documentSlug` is still ''.
-      const slug = url || ''
 
       // React always provides the complete modal option set for this hook instance,
       // so we overwrite to clear options removed by consumers.
@@ -74,7 +87,11 @@ export const useApiClient = ({
 
       if (slug && !documentSet.has(slug)) {
         documentSet.add(slug)
-        void _client.workspaceStore.addDocument({ name: slug, url })
+        if (url !== undefined) {
+          void _client.workspaceStore.addDocument({ name: slug, url })
+        } else {
+          void _client.workspaceStore.addDocument({ name: slug, document: content })
+        }
       }
     })
 
@@ -91,7 +108,7 @@ export const useApiClient = ({
       return
     }
 
-    const slug = configuration.url || 'default'
+    const slug = getDocumentSlug(configuration)
     documentSlugRef.current = slug
 
     if (documentSet.has(slug)) {
@@ -99,8 +116,12 @@ export const useApiClient = ({
     }
     documentSet.add(slug)
 
-    void workspaceStore.addDocument({ name: slug, url: configuration.url })
-  }, [client, configuration.url, workspaceStore])
+    if (configuration.url !== undefined) {
+      void workspaceStore.addDocument({ name: slug, url: configuration.url })
+    } else {
+      void workspaceStore.addDocument({ name: slug, document: configuration.content })
+    }
+  }, [client, configuration.url, configuration.content, workspaceStore])
 
   // Update the modal options when the configuration changes
   useEffect(() => {
@@ -108,7 +129,7 @@ export const useApiClient = ({
       return
     }
 
-    const { url: _, ...modalOptions } = configuration
+    const { url: _url, content: _content, ...modalOptions } = configuration
     if (isObjectEqual(previousModalOptionsRef.current, modalOptions)) {
       return
     }
