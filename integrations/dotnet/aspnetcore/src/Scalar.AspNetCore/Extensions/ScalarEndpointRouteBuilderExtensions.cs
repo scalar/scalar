@@ -152,6 +152,12 @@ public static class ScalarEndpointRouteBuilderExtensions
                 ? string.Empty
                 : $" nonce=\"{HtmlEncoder.Default.Encode(options.Nonce)}\"";
 
+            if (!string.IsNullOrWhiteSpace(options.Nonce))
+            {
+                // Prevent intermediaries and browsers from replaying a one-time nonce to another client.
+                httpContext.Response.Headers.CacheControl = "no-store";
+            }
+
             return Results.Content(
                 $$"""
                   <!doctype html>
