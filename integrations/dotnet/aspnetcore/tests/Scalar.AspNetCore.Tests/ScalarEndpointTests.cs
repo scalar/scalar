@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -315,6 +316,53 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         var indexContent = await index.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         indexContent.Should().Contain($" nonce=\"{nonce}\"");
+    }
+
+    [Fact]
+    public async Task MapScalarApiReference_ShouldGenerateNoncePerRequest_WhenWithNonceCalledWithoutArgs()
+    {
+        // Arrange
+        var localFactory = factory.WithWebHostBuilder(builder =>
+        {
+            builder.Configure(options =>
+            {
+                options.UseRouting();
+                options.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapScalarApiReference(o => o.WithNonce());
+                });
+            });
+        });
+        var client = localFactory.CreateClient();
+
+        // Act
+        var first = await client.GetAsync("/scalar", TestContext.Current.CancellationToken);
+        var second = await client.GetAsync("/scalar", TestContext.Current.CancellationToken);
+
+        // Assert
+        first.StatusCode.Should().Be(HttpStatusCode.OK);
+        second.StatusCode.Should().Be(HttpStatusCode.OK);
+        first.Headers.CacheControl!.NoStore.Should().BeTrue();
+        second.Headers.CacheControl!.NoStore.Should().BeTrue();
+
+        var firstHtml = await first.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var secondHtml = await second.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        var firstNonce = ExtractNonce(firstHtml);
+        var secondNonce = ExtractNonce(secondHtml);
+
+        firstNonce.Should().NotBeNullOrEmpty();
+        secondNonce.Should().NotBeNullOrEmpty();
+        firstNonce.Should().NotBe(secondNonce);
+
+        Regex.Matches(firstHtml, $" nonce=\"{Regex.Escape(firstNonce!)}\"").Count.Should().Be(3);
+        Regex.Matches(secondHtml, $" nonce=\"{Regex.Escape(secondNonce!)}\"").Count.Should().Be(3);
+    }
+
+    private static string? ExtractNonce(string html)
+    {
+        var match = Regex.Match(html, " nonce=\"([^\"]+)\"");
+        return match.Success ? match.Groups[1].Value : null;
     }
 
     private static string GenerateNounce()

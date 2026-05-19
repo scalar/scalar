@@ -284,4 +284,21 @@ public static partial class ScalarOptionsExtensions
         options.Nonce = nonce;
         return options;
     }
+
+    /// <summary>
+    /// Configures Scalar to generate a fresh cryptographically random nonce on every request and emit it on each script tag.
+    /// </summary>
+    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
+    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
+    /// <remarks>
+    /// The generated value is also stored on <c>HttpContext.Items</c> under the key
+    /// <see cref="ScalarOptions.NonceHttpContextItemKey" /> so downstream middleware can read it and emit a matching
+    /// <c>Content-Security-Policy: script-src 'nonce-{value}'</c> header (typically via <c>HttpResponse.OnStarting</c>, since this
+    /// endpoint runs at the end of the request pipeline).
+    /// </remarks>
+    public static ScalarOptions WithNonce(this ScalarOptions options)
+    {
+        options.DynamicNonce = true;
+        return options;
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Mime;
+using System.Security.Cryptography;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
@@ -148,15 +149,21 @@ public static class ScalarEndpointRouteBuilderExtensions
 
             var escapedRequestPath = Uri.EscapeDataString(httpContext.Request.Path);
 
-            var nonceAttribute = string.IsNullOrWhiteSpace(options.Nonce)
-                ? string.Empty
-                : $" nonce=\"{HtmlEncoder.Default.Encode(options.Nonce)}\"";
+            // Auto-generated values win when both are set — a per-request nonce is the secure path.
+            var effectiveNonce = options.DynamicNonce
+                ? GenerateNonce()
+                : options.Nonce;
 
-            if (!string.IsNullOrWhiteSpace(options.Nonce))
+            if (!string.IsNullOrWhiteSpace(effectiveNonce))
             {
+                httpContext.Items[ScalarOptions.NonceHttpContextItemKey] = effectiveNonce;
                 // Prevent intermediaries and browsers from replaying a one-time nonce to another client.
                 httpContext.Response.Headers.CacheControl = "no-store";
             }
+
+            var nonceAttribute = string.IsNullOrWhiteSpace(effectiveNonce)
+                ? string.Empty
+                : $" nonce=\"{HtmlEncoder.Default.Encode(effectiveNonce)}\"";
 
             return Results.Content(
                 $$"""
@@ -246,6 +253,13 @@ public static class ScalarEndpointRouteBuilderExtensions
         // We don't have pre-compress files in Debug builds
         return resourceFile.CreateReadStream();
 #endif
+    }
+
+    private static string GenerateNonce()
+    {
+        Span<byte> bytes = stackalloc byte[32];
+        RandomNumberGenerator.Fill(bytes);
+        return Convert.ToBase64String(bytes);
     }
 
     private static bool ShouldRedirectToTrailingSlash(HttpContext httpContext, string? documentName, [NotNullWhen(true)] out string? redirectUrl)

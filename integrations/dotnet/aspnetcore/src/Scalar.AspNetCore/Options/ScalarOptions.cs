@@ -79,7 +79,21 @@ public partial class ScalarOptions
 
 
     /// <summary>
-    /// A cryptographic nonce to be added as an attribute to the script tags. 
+    /// A cryptographic nonce to be added as an attribute to the script tags.
     /// </summary>
     public string? Nonce { get; set; }
+
+    /// <summary>
+    /// Controls whether Scalar generates a fresh cryptographically random nonce on every request.
+    /// </summary>
+    /// <remarks>
+    /// When set to <c>true</c>, a new value is created per request and emitted on each script tag. The generated value is also
+    /// written to <c>HttpContext.Items</c> under the key <see cref="NonceHttpContextItemKey" /> so a CSP middleware can pick it up.
+    /// </remarks>
+    public bool DynamicNonce { get; set; }
+
+    /// <summary>
+    /// The key used to store the active nonce on <c>HttpContext.Items</c> when <see cref="DynamicNonce" /> is enabled.
+    /// </summary>
+    public const string NonceHttpContextItemKey = "Scalar.Nonce";
 }
