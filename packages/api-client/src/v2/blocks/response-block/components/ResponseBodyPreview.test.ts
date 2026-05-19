@@ -348,23 +348,6 @@ describe('ResponseBodyPreview', () => {
       expect(iframe.attributes('sandbox')).toBe('')
       expect(iframe.attributes('referrerpolicy')).toBe('no-referrer')
     })
-
-    it('handles iframe load error', async () => {
-      const wrapper = mount(ResponseBodyPreview, {
-        props: {
-          src: 'blob:http://localhost/fake-pdf',
-          type: 'application/pdf',
-          mode: 'object',
-        },
-      })
-
-      const iframe = wrapper.find('iframe')
-      await iframe.trigger('error')
-      await nextTick()
-
-      expect(wrapper.text()).toContain('Preview unavailable')
-      expect(wrapper.find('iframe').exists()).toBe(false)
-    })
   })
 
   describe('error handling', () => {
@@ -708,6 +691,70 @@ describe('ResponseBodyPreview', () => {
       expect(iframe.exists()).toBe(true)
       expect(iframe.attributes('sandbox')).toBe('')
       expect(iframe.attributes('referrerpolicy')).toBe('no-referrer')
+    })
+
+    it('adds referrerpolicy="no-referrer" to video elements', () => {
+      const wrapper = mount(ResponseBodyPreview, {
+        props: {
+          src: 'https://example.com/video.mp4',
+          type: 'video/mp4',
+          mode: 'video',
+        },
+      })
+
+      expect(wrapper.find('video').attributes('referrerpolicy')).toBe('no-referrer')
+    })
+
+    it('adds referrerpolicy="no-referrer" to audio elements', () => {
+      const wrapper = mount(ResponseBodyPreview, {
+        props: {
+          src: 'https://example.com/audio.mp3',
+          type: 'audio/mpeg',
+          mode: 'audio',
+        },
+      })
+
+      expect(wrapper.find('audio').attributes('referrerpolicy')).toBe('no-referrer')
+    })
+
+    it('rejects data: URIs whose MIME type is not terminated by ; or ,', () => {
+      // No `;` or `,` means the regex cannot tell where the MIME type ends —
+      // refuse it rather than guess.
+      const wrapper = mount(ResponseBodyPreview, {
+        props: {
+          src: 'data:image/png-but-not-really',
+          type: 'image/png',
+          mode: 'image',
+        },
+      })
+
+      expect(wrapper.find('img').exists()).toBe(false)
+      expect(wrapper.text()).toContain('Preview unavailable')
+    })
+
+    it('rejects data: URIs that nest text/html behind an image/ prefix', () => {
+      const wrapper = mount(ResponseBodyPreview, {
+        props: {
+          src: 'data:image/,<script>alert(1)</script>',
+          type: 'image/png',
+          mode: 'image',
+        },
+      })
+
+      expect(wrapper.find('img').exists()).toBe(false)
+      expect(wrapper.text()).toContain('Preview unavailable')
+    })
+
+    it('accepts data: URIs with parameters after the MIME type', () => {
+      const wrapper = mount(ResponseBodyPreview, {
+        props: {
+          src: 'data:image/png;base64,iVBORw0KGgo=',
+          type: 'image/png',
+          mode: 'image',
+        },
+      })
+
+      expect(wrapper.find('img').exists()).toBe(true)
     })
   })
 })

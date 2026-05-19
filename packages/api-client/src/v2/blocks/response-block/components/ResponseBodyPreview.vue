@@ -53,7 +53,11 @@ const safeSrc = computed((): string => {
   }
 
   if (src.startsWith('data:')) {
-    return /^data:(image\/|video\/|audio\/|application\/pdf|application\/octet-stream)/i.test(
+    // The MIME type must be one of the known safe kinds AND be terminated by
+    // `;` (parameters / `;base64`) or `,` (start of the payload). Anchoring
+    // at the terminator prevents prefix-matching tricks like
+    // `data:image/png-but-actually-html,…`.
+    return /^data:(?:(?:image|video|audio)\/[a-z0-9.+-]+|application\/pdf|application\/octet-stream)[;,]/i.test(
       src,
     )
       ? src
@@ -104,6 +108,7 @@ watch(
       v-else-if="mode === 'video'"
       autoplay
       controls
+      referrerpolicy="no-referrer"
       width="100%"
       @error="error = true">
       <source
@@ -114,6 +119,7 @@ watch(
       v-else-if="mode === 'audio'"
       class="my-12"
       controls
+      referrerpolicy="no-referrer"
       @error="error = true">
       <source
         :src="safeSrc"
@@ -125,14 +131,20 @@ watch(
       sandboxed `<iframe>` instead. The empty `sandbox` attribute disables
       scripts, forms, popups and same-origin access, leaving only inert
       rendering (e.g. the browser's built-in PDF viewer).
+
+      Note: an `error` event on `<iframe>` is not reliably fired for failed
+      navigations — browsers usually fire `load` even when the response is
+      blank or an error page, and a cross-origin sandboxed frame cannot be
+      introspected from JavaScript. There is therefore no useful runtime
+      fallback for an unreachable URL; the URL allow-list above is what
+      keeps unsafe content out in the first place.
     -->
     <iframe
       v-else
       class="aspect-[4/3] w-full border-0"
       :src="safeSrc"
-      sandbox=""
       referrerpolicy="no-referrer"
-      @error="error = true" />
+      sandbox="" />
   </div>
   <ResponseBodyInfo v-else>Preview unavailable</ResponseBodyInfo>
 </template>
