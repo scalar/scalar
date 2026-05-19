@@ -1,5 +1,5 @@
-import { xScalarEnvironmentsSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { XScalarEnvironments } from '@scalar/schemas/extensions/document'
+import { coerce } from '@scalar/validation'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -10,7 +10,7 @@ import EnvironmentCreateModal from './components/EnvironmentCreateModal.vue'
 import EnvironmentDeleteModal from './components/EnvironmentDeleteModal.vue'
 import EnvironmentsList from './EnvironmentsList.vue'
 
-const mockEnvironments = coerceValue(xScalarEnvironmentsSchema, {
+const mockEnvironments = coerce(XScalarEnvironments, {
   'x-scalar-environments': {
     production: {
       color: '#FF0000',

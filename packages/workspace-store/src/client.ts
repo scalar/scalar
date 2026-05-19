@@ -1051,6 +1051,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       )
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
+      // @ts-expect-error - TODO: fix this
       const coerced = withMeasurementSync('coerceValue', () => coerce(openapiSchema, deepClone(strictDocument)))
 
       // Asserting that the type is OpenApiDocument after coerce

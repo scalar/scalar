@@ -407,6 +407,8 @@ describe('traverseSchemas', () => {
       },
     })
 
+    expect(content).toBe({})
+    expect(result).toEqual([])
     expect(result).toHaveLength(1)
     expect(result[0]?.name).toBe('Resource.User')
   })

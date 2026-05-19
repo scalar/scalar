@@ -5,12 +5,12 @@ import { describe, expect, it } from 'vitest'
 import {
   TraversedDescriptionSchemaDefinition,
   type TraversedEntry,
+  TraversedEntrySchemaDefinition,
   TraversedOperationSchemaDefinition,
   TraversedSchemaSchemaDefinition,
   TraversedTagSchemaDefinition,
   TraversedWebhookSchemaDefinition,
 } from './navigation'
-import { TraversedEntrySchemaDefinition } from './navigation-entry'
 
 describe('navigation', () => {
   describe('strict type checking', () => {

@@ -1,5 +1,5 @@
-import { xScalarEnvironmentSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { XScalarEnvironment } from '@scalar/schemas/extensions/document'
+import { coerce } from '@scalar/validation'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -8,7 +8,7 @@ import { mockEventBus } from '@/v2/helpers/test-utils'
 import EnvironmentVariablesTable from './EnvironmentVariablesTable.vue'
 
 const createMockEnvironment = (variables: any[] = []) =>
-  coerceValue(xScalarEnvironmentSchema, {
+  coerce(XScalarEnvironment, {
     color: '#FF0000',
     variables,
   })

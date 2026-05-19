@@ -1315,6 +1315,9 @@ describe('extractSecuritySchemeSecrets', () => {
 
     it('returns openIdConnect scheme with discovered flows from auth store', () => {
       const authStore = createAuthStore()
+      authStore.setAuthSecrets('', '', {
+        type: 'openIdConnect',
+      })
       authStore.setAuthSecrets(documentSlug, schemeName, {
         type: 'openIdConnect',
         implicit: {
@@ -1417,7 +1420,6 @@ describe('extractSecuritySchemeSecrets', () => {
           authorizationUrl: 'https://example.com/oauth/authorize',
           scopes: { openid: 'OpenID' },
           refreshUrl: '',
-          selectedScopes: ['openid'],
           'x-scalar-secret-client-id': 'client-id',
           'x-scalar-secret-redirect-uri': 'https://app.example.com/callback',
           'x-scalar-secret-token': 'token',

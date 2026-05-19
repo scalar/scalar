@@ -3,7 +3,6 @@ import {
   type Static,
   array,
   boolean,
-  coerce,
   intersection,
   lazy,
   literal,
@@ -11,12 +10,28 @@ import {
   optional,
   record,
   string,
+  union,
   unknown,
 } from '@scalar/validation'
 
-import { TraversedEntrySchemaDefinition } from './navigation-entry'
 import { httpMethodSchema } from './navigation-http-method'
-import { assert } from 'vitest'
+
+/**
+ * Recursive navigation entry union.
+ *
+ * Lives in a separate module so leaf schemas can reference it via `lazy(() => …)` without
+ * circular const initializer inference in `navigation.ts`.
+ */
+export const TraversedEntrySchemaDefinition = union([
+  lazy(() => TraversedDocumentSchemaDefinition),
+  lazy(() => TraversedDescriptionSchemaDefinition),
+  lazy(() => TraversedExampleSchemaDefinition),
+  lazy(() => TraversedOperationSchemaDefinition),
+  lazy(() => TraversedSchemaSchemaDefinition),
+  lazy(() => TraversedWebhookSchemaDefinition),
+  lazy(() => TraversedTagSchemaDefinition),
+  lazy(() => TraversedModelsSchemaDefinition),
+] as const)
 
 export const NavigationBaseSchemaDefinition = object({
   id: string({
@@ -37,8 +52,18 @@ export const TraversedDocumentSchemaDefinition = intersection([
   }),
 ])
 
-/** An entry representing an OpenAPI document in the navigation structure. */
-export type TraversedDocument = Static<typeof TraversedDocumentSchemaDefinition>
+/**
+ * An entry representing an OpenAPI document in the navigation structure.
+ *
+ * The `children` field is pinned to the named `TraversedEntry` union below so
+ * recursive references share a single stable identity. Letting it fall out of
+ * `Static<typeof TraversedDocumentSchemaDefinition>` would unfold the inner
+ * `lazy(() => TraversedEntrySchemaDefinition)` through an `infer` conditional
+ * and produce a structurally distinct copy of the union at every reference.
+ */
+export type TraversedDocument = Omit<Static<typeof TraversedDocumentSchemaDefinition>, 'children'> & {
+  children?: TraversedEntry[]
+}
 
 export const TraversedDescriptionSchemaDefinition = intersection([
   NavigationBaseSchemaDefinition,
@@ -49,7 +74,9 @@ export const TraversedDescriptionSchemaDefinition = intersection([
 ])
 
 /** An entry representing a markdown description in the navigation structure. */
-export type TraversedDescription = Static<typeof TraversedDescriptionSchemaDefinition>
+export type TraversedDescription = Omit<Static<typeof TraversedDescriptionSchemaDefinition>, 'children'> & {
+  children?: TraversedEntry[]
+}
 
 export const TraversedExampleSchemaDefinition = intersection([
   NavigationBaseSchemaDefinition,
@@ -75,7 +102,9 @@ export const TraversedOperationSchemaDefinition = intersection([
 ])
 
 /** An entry representing an operation in the navigation structure. */
-export type TraversedOperation = Static<typeof TraversedOperationSchemaDefinition>
+export type TraversedOperation = Omit<Static<typeof TraversedOperationSchemaDefinition>, 'children'> & {
+  children?: TraversedEntry[]
+}
 
 export const TraversedSchemaSchemaDefinition = intersection([
   NavigationBaseSchemaDefinition,
@@ -121,7 +150,9 @@ export const TraversedTagSchemaDefinition = intersection([
  *
  * Used to group operations or webhooks under a common heading.
  */
-export type TraversedTag = Static<typeof TraversedTagSchemaDefinition>
+export type TraversedTag = Omit<Static<typeof TraversedTagSchemaDefinition>, 'children'> & {
+  children?: TraversedEntry[]
+}
 
 export const TraversedModelsSchemaDefinition = intersection([
   NavigationBaseSchemaDefinition,
@@ -133,9 +164,31 @@ export const TraversedModelsSchemaDefinition = intersection([
 ])
 
 /** Top level models navigation entry. */
-export type TraversedModels = Static<typeof TraversedModelsSchemaDefinition>
+export type TraversedModels = Omit<Static<typeof TraversedModelsSchemaDefinition>, 'children'> & {
+  children?: TraversedEntry[]
+}
 
-export type TraversedEntry = Static<typeof TraversedEntrySchemaDefinition>
+/**
+ * Defined as a direct named union of the leaf entry types (rather than
+ * `Static<typeof TraversedEntrySchemaDefinition>`) so the type has a single
+ * stable identity. The schema-derived form unfolds the recursive `lazy()`
+ * members through `infer` conditionals, which produces fresh structural
+ * instantiations every time the type is referenced. That makes TypeScript
+ * complain with "Two different types with this name exist, but they are
+ * unrelated" whenever a `TraversedEntry` is compared to a `children` element
+ * (a `TraversedEntry` produced by a different unfolding path).
+ *
+ * Using a direct named union keeps the type identity stable across all uses.
+ */
+export type TraversedEntry =
+  | TraversedDocument
+  | TraversedDescription
+  | TraversedExample
+  | TraversedOperation
+  | TraversedSchema
+  | TraversedWebhook
+  | TraversedTag
+  | TraversedModels
 
 /**
  * Type helper for when we are storing the parent entry in the entry itself.

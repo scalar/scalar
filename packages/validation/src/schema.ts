@@ -91,12 +91,26 @@ export type UnionSchema<Schemas extends readonly Schema[]> = {
  * at the call site forces TypeScript to eagerly evaluate tuple elements and breaks circular
  * inference when members use `lazy(() => self)` (for example recursive navigation trees).
  */
+
+// | NumberSchema
+// | StringSchema
+// | BooleanSchema
+// | NullableSchema
+// | NotDefinedSchema
+// | AnySchema
+// | UnknownSchema
+// | FunctionSchema<any>
+// | ArraySchema<any>
+// | RecordSchema<any, any>
+// | ObjectSchema<Record<string, any>>
+// | UnionSchema<readonly Schema[]>
+// | OptionalSchema<any>
+// | IntersectionSchema<readonly Schema[]>
+// | LiteralSchema<any>
+// | LazySchema<any>
+// | EvaluateSchema<any>
+
 export type UnionMember =
-  | { type: 'object' }
-  | { type: 'union' }
-  | { type: 'intersection' }
-  | { type: 'lazy' }
-  | { type: 'literal' }
   | { type: 'number' }
   | { type: 'string' }
   | { type: 'boolean' }
@@ -107,6 +121,12 @@ export type UnionMember =
   | { type: 'function' }
   | { type: 'array' }
   | { type: 'record' }
+  | { type: 'object' }
+  | { type: 'union' }
+  | { type: 'optional' }
+  | { type: 'intersection' }
+  | { type: 'literal' }
+  | { type: 'lazy' }
   | { type: 'evaluate' }
 
 /**

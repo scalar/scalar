@@ -1448,7 +1448,6 @@ describe('extractSecuritySchemeSecrets', () => {
           authorizationUrl: 'https://example.com/oauth/authorize',
           scopes: { openid: 'OpenID' },
           refreshUrl: '',
-          selectedScopes: ['openid'],
           'x-scalar-secret-client-id': 'client-id',
           'x-scalar-secret-redirect-uri': 'https://app.example.com/callback',
           'x-scalar-secret-token': 'token',
