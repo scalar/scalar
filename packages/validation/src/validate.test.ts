@@ -942,3 +942,41 @@ describe('lazy', () => {
     expect(result).toBe(false)
   })
 })
+
+describe('cyclic structures', () => {
+  it('terminates on a self-referential value paired with a recursive lazy schema', () => {
+    type Node = { name: string; child?: Node }
+    const T: ReturnType<typeof lazy> = lazy(() => object({ name: string(), child: optional(T) }))
+
+    const node: Node = { name: 'root' }
+    node.child = node
+
+    expect(() => validate(T, node)).not.toThrow()
+    expect(validate(T, node)).toBe(true)
+  })
+
+  it('still rejects a cyclic value when a property fails validation', () => {
+    type Node = { name: unknown; child?: Node }
+    const T: ReturnType<typeof lazy> = lazy(() => object({ name: string(), child: optional(T) }))
+
+    const node: Node = { name: 42 }
+    node.child = node
+
+    expect(validate(T, node)).toBe(false)
+  })
+
+  it('terminates on mutually-recursive lazy schemas with cyclic data', () => {
+    type A = { kind: 'a'; next?: B }
+    type B = { kind: 'b'; next?: A }
+    const SchemaA: ReturnType<typeof lazy> = lazy(() => object({ kind: literal('a'), next: optional(SchemaB) }))
+    const SchemaB: ReturnType<typeof lazy> = lazy(() => object({ kind: literal('b'), next: optional(SchemaA) }))
+
+    const a: A = { kind: 'a' }
+    const b: B = { kind: 'b' }
+    a.next = b
+    b.next = a
+
+    expect(() => validate(SchemaA, a)).not.toThrow()
+    expect(validate(SchemaA, a)).toBe(true)
+  })
+})
