@@ -1,9 +1,11 @@
-import { intersection, object, optional, string } from '@scalar/validation'
+import { any, intersection, object, optional, string } from '@scalar/validation'
 
+import { extensions } from '@/schemas/extensions'
 import { WorkspaceManagedExtensions } from '@/schemas/extensions/document/workspace-managed-extensions'
 import { XScalarIsDirty } from '@/schemas/extensions/document/x-scalar-is-dirty'
 import { XScalarOriginalDocumentHash } from '@/schemas/extensions/document/x-scalar-original-document-hash'
 import { XScalarRegistryMeta } from '@/schemas/extensions/document/x-scalar-registry-meta'
+import type { TraversedDocument } from '@/schemas/navigation'
 
 /**
  * Minimal AsyncAPI Info Object.
@@ -75,6 +77,12 @@ export const AsyncApiDocument = intersection(
           typeComment: 'REQUIRED. The AsyncAPI Specification version the document uses (for example "3.0.0").',
         }),
         info: AsyncApiInfoObject,
+        [extensions.document.navigation]: optional(
+          any({
+            typeComment:
+              'Client navigation tree (TraversedDocument) for this AsyncAPI description. Matches TraversedDocumentObjectRef in strict schemas.',
+          }),
+        ),
       },
       { typeName: 'AsyncApiDocumentCore' },
     ),
@@ -97,6 +105,8 @@ export type AsyncApiDocument = {
   asyncapi: string
   /** REQUIRED. Provides metadata about the application. */
   info: AsyncApiInfoObject
+  /** Workspace-store-built navigation tree. Populated during ingestion. */
+  'x-scalar-navigation'?: TraversedDocument
 } & AsyncApiExtensions &
   WorkspaceManagedExtensions &
   XScalarOriginalDocumentHash &

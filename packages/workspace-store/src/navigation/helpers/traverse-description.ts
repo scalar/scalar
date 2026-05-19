@@ -1,5 +1,6 @@
 import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/navigation/helpers/utils'
 import type { TraverseSpecOptions } from '@/navigation/types'
+import type { AsyncApiInfoObject } from '@/schemas/asyncapi/asyncapi-document'
 import type { TraversedDescription } from '@/schemas/navigation'
 import type { InfoObject } from '@/schemas/v3.1/strict/info'
 
@@ -11,7 +12,7 @@ const DEFAULT_DESCRIPTION_ENTRY = {
 const getDefaultDescriptionEntry = (
   generateId: TraverseSpecOptions['generateId'],
   parentId: string,
-  info: InfoObject,
+  info: InfoObject | AsyncApiInfoObject,
 ) => {
   const id = generateId({
     type: 'text',
@@ -55,7 +56,7 @@ export const traverseDescription = ({
 }: {
   generateId: TraverseSpecOptions['generateId']
   parentId: string
-  info: InfoObject
+  info: InfoObject | AsyncApiInfoObject
 }): TraversedDescription[] => {
   const description = info.description?.trim()
 

@@ -1,3 +1,4 @@
+import type { AsyncApiDocument } from '@scalar/workspace-store/schemas/asyncapi/asyncapi-document'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import type { FuseResult } from 'fuse.js'
 import { type MaybeRefOrGetter, computed, ref, toValue } from 'vue'
@@ -9,9 +10,12 @@ import type { FuseData } from '../types'
 const MAX_SEARCH_RESULTS = 25
 
 /**
- * Creates the search index from an OpenAPI document.
+ * Creates the search index for the active workspace document. Both OpenAPI
+ * and AsyncAPI documents are accepted — the indexer reads `x-scalar-navigation`
+ * from either and only touches OpenAPI-specific shapes (paths, schemas) when
+ * the navigation entry is an OpenAPI one.
  */
-export function useSearchIndex(document: MaybeRefOrGetter<OpenApiDocument | undefined>) {
+export function useSearchIndex(document: MaybeRefOrGetter<OpenApiDocument | AsyncApiDocument | undefined>) {
   const searchIndex = computed<FuseData[]>(() => createSearchIndex(toValue(document)))
 
   /** When the document changes we replace the search index */

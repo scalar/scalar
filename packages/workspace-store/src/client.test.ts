@@ -3847,7 +3847,14 @@ describe('create-workspace-store', () => {
       })
       expect(document?.['x-scalar-original-document-hash']).not.toBe('')
       expect(document).not.toHaveProperty('openapi')
-      expect(document).not.toHaveProperty('x-scalar-navigation')
+      // AsyncAPI docs now get an x-scalar-navigation tree so the sidebar can
+      // surface info.description. The minimal fixture has no description, so
+      // only the default Introduction entry appears.
+      expect(document?.['x-scalar-navigation']).toMatchObject({
+        type: 'document',
+        name: 'streetlights',
+        children: [{ type: 'text', title: 'Introduction' }],
+      })
     })
 
     it('records the source url when the asyncapi document is loaded from a URL', async () => {

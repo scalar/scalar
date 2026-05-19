@@ -1,4 +1,5 @@
-import { createNavigation } from '@scalar/workspace-store/navigation'
+import { createAsyncApiNavigation, createNavigation } from '@scalar/workspace-store/navigation'
+import type { AsyncApiDocument } from '@scalar/workspace-store/schemas/asyncapi/asyncapi-document'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
@@ -20,6 +21,7 @@ const introductionSearchEntry = {
 
 function createMockDocument(document: Partial<OpenApiDocument>) {
   const doc = {
+    openapi: '3.1.0',
     info: {
       title: 'Test API',
       version: '1.0.0',
@@ -28,6 +30,22 @@ function createMockDocument(document: Partial<OpenApiDocument>) {
   } as OpenApiDocument
 
   doc['x-scalar-navigation'] = createNavigation('test', doc, { hideModels: false })
+
+  return doc
+}
+
+function createMockAsyncApiDocument(document: Partial<AsyncApiDocument>) {
+  const doc = {
+    asyncapi: '3.0.0',
+    info: {
+      title: 'Test AsyncAPI',
+      version: '1.0.0',
+    },
+    'x-scalar-original-document-hash': '',
+    ...document,
+  } as AsyncApiDocument
+
+  doc['x-scalar-navigation'] = createAsyncApiNavigation('test', doc)
 
   return doc
 }
@@ -742,6 +760,37 @@ describe('createSearchIndex', () => {
       ])
 
       expect(index.length).toEqual(1)
+    })
+  })
+
+  describe('asyncapi documents', () => {
+    it('indexes the default Introduction entry when description is empty', () => {
+      const document = createMockAsyncApiDocument({})
+
+      const index = createSearchIndex(document)
+
+      expect(index).toMatchObject([
+        {
+          type: 'heading',
+          title: 'Introduction',
+          description: 'Heading',
+        },
+      ])
+    })
+
+    it('indexes Introduction plus headings extracted from info.description', () => {
+      const document = createMockAsyncApiDocument({
+        info: {
+          title: 'Streetlights',
+          version: '1.0.0',
+          description: 'Some leading text.\n\n## Event-Driven Features\n\n## Resources\n',
+        },
+      })
+
+      const index = createSearchIndex(document)
+
+      expect(index.map((entry) => entry.title)).toEqual(['Introduction', 'Event-Driven Features', 'Resources'])
+      index.forEach((entry) => expect(entry.type).toBe('heading'))
     })
   })
 
