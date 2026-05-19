@@ -36,6 +36,11 @@ export function createWindow({ isDev }: { isDev?: boolean }): BrowserWindow {
     autoHideMenuBar: true,
     webPreferences: {
       preload: join(import.meta.dirname, '../preload/index.mjs'),
+      // Explicitly enable context isolation (the Electron default) so the renderer and preload
+      // run in separate JavaScript contexts. We already bridge APIs via contextBridge in the
+      // preload, so this is purely making the secure default visible to static analyzers.
+      contextIsolation: true,
+      nodeIntegration: false,
       sandbox: false,
     },
   })
