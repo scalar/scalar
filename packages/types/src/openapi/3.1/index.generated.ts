@@ -6,66 +6,66 @@
 
 export type ContactObject = {
   /** The name of the contact. */
-  name?: string;
+  name?: string
   /** The URI for the contact information. This MUST be in the form of a URI. */
-  url?: string;
+  url?: string
   /** The email address of the contact person/organization. This MUST be in the form of an email address. */
-  email?: string;
+  email?: string
 }
 
 export type LicenseObject = {
   /** REQUIRED. The license name used for the API. */
-  name?: string;
+  name?: string
   /** An SPDX license expression for the API. The identifier field is mutually exclusive of the url field. */
-  identifier?: string;
+  identifier?: string
   /** A URI for the license used for the API. This MUST be in the form of a URI. The url field is mutually exclusive of the identifier field. */
-  url?: string;
+  url?: string
 }
 
 /** Scalar SDK installation entry */
 export type XScalarSdkInstallationItem = {
-  lang: string;
-  source?: string;
-  description?: string;
+  lang: string
+  source?: string
+  description?: string
 }
 
 /** Scalar SDK installation information */
 export type XScalarSdkInstallation = {
   /** Scalar SDK installation information */
-  "x-scalar-sdk-installation"?: XScalarSdkInstallationItem[];
+  'x-scalar-sdk-installation'?: XScalarSdkInstallationItem[]
 }
 
 export type InfoObject = {
   /** REQUIRED. The title of the API. */
-  title: string;
+  title: string
   /** REQUIRED. The version of the OpenAPI Document (which is distinct from the OpenAPI Specification version or the version of the API being described or the version of the OpenAPI Description). */
-  version: string;
+  version: string
   /** A short summary of the API. */
-  summary?: string;
+  summary?: string
   /** A description of the API. CommonMark syntax MAY be used for rich text representation. */
-  description?: string;
+  description?: string
   /** A URI for the Terms of Service for the API. This MUST be in the form of a URI. */
-  termsOfService?: string;
-  contact?: ContactObject;
-  license?: LicenseObject;
+  termsOfService?: string
+  contact?: ContactObject
+  license?: LicenseObject
 } & XScalarSdkInstallation
 
 export type ServerVariableObject = {
   /** An enumeration of string values to be used if the substitution options are from a limited set. The array MUST NOT be empty. */
-  enum?: string[];
+  enum?: string[]
   /** The default value to use for substitution, which SHALL be sent if an alternate value is not supplied. If the enum is defined, the value MUST exist in the enum's values. Note that this behavior is different from the Schema Object's default keyword, which documents the receiver's behavior rather than inserting the value into the data. */
-  default?: string;
+  default?: string
   /** An optional description for the server variable. CommonMark syntax MAY be used for rich text representation. */
-  description?: string;
+  description?: string
 }
 
 export type ServerObject = {
   /** REQUIRED. A URL to the target host. This URL supports Server Variables and MAY be relative, to indicate that the host location is relative to the location where the document containing the Server Object is being served. Variable substitutions will be made when a variable is named in {braces}. */
-  url: string;
+  url: string
   /** An optional string describing the host designated by the URL. CommonMark syntax MAY be used for rich text representation. */
-  description?: string;
+  description?: string
   /** A map between a variable name and its value. The value is used for substitution in the server's URL template. */
-  variables?: Record<string, ServerVariableObject>;
+  variables?: Record<string, ServerVariableObject>
 }
 
 /** An array of Server Objects, which provide connectivity information to a target server. If the servers field is not provided, or is an empty array, the default value would be a Server Object with a url value of /. */
@@ -76,44 +76,44 @@ export type OperationTags = string[]
 
 export type ExternalDocumentationObject = {
   /** REQUIRED. The URI for the target documentation. This MUST be in the form of a URI. */
-  url: string;
+  url: string
   /** A description of the target documentation. CommonMark syntax MAY be used for rich text representation. */
-  description?: string;
+  description?: string
 }
 
 /** REQUIRED. The location of the parameter. Possible values are "query", "header", "path" or "cookie". */
-export type ParameterLocation = "query" | "header" | "path" | "cookie"
+export type ParameterLocation = 'query' | 'header' | 'path' | 'cookie'
 
 /** Array of allowed values. */
 export type JsonSchemaEnum = any[]
 
 export type ReferenceObject = {
   /** REQUIRED. The reference identifier. This MUST be in the form of a URI. */
-  $ref: string;
+  $ref: string
   /** A short summary which by default SHOULD override that of the referenced component. If the referenced object-type does not allow a summary field, then this field has no effect. */
-  summary?: string;
+  summary?: string
   /** A description which by default SHOULD override that of the referenced component. CommonMark syntax MAY be used for rich text representation. If the referenced object-type does not allow a description field, then this field has no effect. */
-  description?: string;
+  description?: string
 }
 
 export type DiscriminatorObject = {
   /** REQUIRED. The name of the property in the payload that will hold the discriminating value. This property SHOULD be required in the payload schema, as the behavior when the property is absent is undefined. */
-  propertyName: string;
+  propertyName: string
   /** An object to hold mappings between payload values and schema names or URI references. */
-  mapping?: Record<string, string>;
+  mapping?: Record<string, string>
 }
 
 export type XMLObject = {
   /** Replaces the name of the element/attribute used for the described schema property. When defined within items, it will affect the name of the individual XML elements within the list. When defined alongside type being "array" (outside the items), it will affect the wrapping element if and only if wrapped is true. If wrapped is false, it will be ignored. */
-  name?: string;
+  name?: string
   /** The URI of the namespace definition. Value MUST be in the form of a non-relative URI. */
-  namespace?: string;
+  namespace?: string
   /** The prefix to be used for the name. */
-  prefix?: string;
+  prefix?: string
   /** Declares whether the property definition translates to an attribute instead of an element. Default value is false. */
-  attribute?: boolean;
+  attribute?: boolean
   /** MAY be used only for an array definition. Signifies whether the array is wrapped (for example, <books><book/><book/></books>) or unwrapped (<book/><book/>). Default value is false. The definition takes effect only when defined alongside type being "array" (outside the items). */
-  wrapped?: boolean;
+  wrapped?: boolean
 }
 
 /** An array of examples of valid instances for this schema. This keyword follows the JSON Schema Draft 2020-12 specification. */
@@ -127,319 +127,360 @@ export type SchemaObjectAnyOf = (SchemaObject | ReferenceObject)[]
 
 /** Internal extension to mark an entity as ignored */
 export type XScalarIgnore = {
-  "x-scalar-ignore"?: boolean;
+  'x-scalar-ignore'?: boolean
 }
 
 /** Extension to mark an entity as internal */
 export type XInternal = {
   /** Extension to mark an entity as internal */
-  "x-internal"?: boolean;
+  'x-internal'?: boolean
 }
 
 /** Variable name for schema substitution */
 export type XVariable = {
-  "x-variable"?: string;
+  'x-variable'?: string
 }
 
 /** Named examples for a schema */
 export type XExamples = {
-  "x-examples"?: Record<string, any>;
+  'x-examples'?: Record<string, any>
 }
 
 /** Descriptions for enum values */
 export type XEnumDescriptions = {
-  "x-enumDescriptions"?: (Record<string, string>) | (string[]);
-  "x-enum-descriptions"?: (Record<string, string>) | (string[]);
+  'x-enumDescriptions'?: Record<string, string> | string[]
+  'x-enum-descriptions'?: Record<string, string> | string[]
 }
 
 /** Variable names for enum values */
 export type XEnumVarNames = {
-  "x-enum-varnames"?: string[];
-  "x-enumNames"?: string[];
+  'x-enum-varnames'?: string[]
+  'x-enumNames'?: string[]
 }
 
 /** Name for additional properties in the schema */
 export type XAdditionalPropertiesName = {
-  "x-additionalPropertiesName"?: string;
+  'x-additionalPropertiesName'?: string
 }
 
 /** Custom tag ordering or grouping hints for schema objects */
 export type XTags = {
-  "x-tags"?: string[];
+  'x-tags'?: string[]
 }
 
-export type SchemaObjectMultiTypeKeywords = "null" | "boolean" | "string" | "number" | "integer" | "object" | "array"
+export type SchemaObjectMultiTypeKeywords = 'null' | 'boolean' | 'string' | 'number' | 'integer' | 'object' | 'array'
 
-export type SchemaObjectOtherTypeKeyword = "null" | "boolean" | (SchemaObjectMultiTypeKeywords[])
+export type SchemaObjectOtherTypeKeyword = 'null' | 'boolean' | SchemaObjectMultiTypeKeywords[]
 
 export type MultiTypeSchemaObject = {
-  type: SchemaObjectOtherTypeKeyword;
+  type: SchemaObjectOtherTypeKeyword
 }
 
 export type NumberSchemaObject = {
-  type: "number" | "integer";
+  type: 'number' | 'integer'
   /** Different subtypes. */
-  format?: string;
+  format?: string
   /** Number must be a multiple of this value. */
-  multipleOf?: number;
+  multipleOf?: number
   /** Maximum value (inclusive). */
-  maximum?: number;
+  maximum?: number
   /** Maximum value (exclusive). */
-  exclusiveMaximum?: number;
+  exclusiveMaximum?: number
   /** Minimum value (inclusive). */
-  minimum?: number;
+  minimum?: number
   /** Minimum value (exclusive). */
-  exclusiveMinimum?: number;
+  exclusiveMinimum?: number
 }
 
 export type StringSchemaObject = {
-  type: "string";
+  type: 'string'
   /** Different subtypes. */
-  format?: string;
+  format?: string
   /** Maximum string length. */
-  maxLength?: number;
+  maxLength?: number
   /** Minimum string length. */
-  minLength?: number;
+  minLength?: number
   /** Regular expression pattern. */
-  pattern?: string;
+  pattern?: string
 }
 
 export type SchemaObjectProperties = Record<string, SchemaObject | ReferenceObject>
 
 export type SchemaObjectRequired = string[]
 
-export type SchemaObjectAdditionalProperties = (SchemaObject | ReferenceObject) | ({}) | boolean
+export type SchemaObjectAdditionalProperties = (SchemaObject | ReferenceObject) | {} | boolean
 
 export type SchemaObjectPatternProperties = Record<string, SchemaObject | ReferenceObject>
 
 export type ObjectSchemaObject = {
-  type: "object";
+  type: 'object'
   /** Maximum number of properties. */
-  maxProperties?: number;
+  maxProperties?: number
   /** Minimum number of properties. */
-  minProperties?: number;
-  properties?: SchemaObjectProperties;
-  required?: SchemaObjectRequired;
-  additionalProperties?: SchemaObjectAdditionalProperties;
-  patternProperties?: SchemaObjectPatternProperties;
-  propertyNames?: SchemaObject | ReferenceObject;
+  minProperties?: number
+  properties?: SchemaObjectProperties
+  required?: SchemaObjectRequired
+  additionalProperties?: SchemaObjectAdditionalProperties
+  patternProperties?: SchemaObjectPatternProperties
+  propertyNames?: SchemaObject | ReferenceObject
 }
 
 export type ArraySchemaObject = {
-  type: "array";
+  type: 'array'
   /** Maximum number of items in array. */
-  maxItems?: number;
+  maxItems?: number
   /** Minimum number of items in array. */
-  minItems?: number;
+  minItems?: number
   /** Whether array items must be unique. */
-  uniqueItems?: boolean;
-  items?: SchemaObject | ReferenceObject;
+  uniqueItems?: boolean
+  items?: SchemaObject | ReferenceObject
   /** Schema for tuple validation. */
-  prefixItems?: (SchemaObject | ReferenceObject)[];
+  prefixItems?: (SchemaObject | ReferenceObject)[]
 }
 
-export type SchemaObject = ({
+export type SchemaObject = {
   /** Schema name (extension). */
-  name?: string;
+  name?: string
   /** A title for the schema. */
-  title?: string;
+  title?: string
   /** A description of the schema. */
-  description?: string;
+  description?: string
   /** Default value for the schema. */
-  default?: any;
+  default?: any
   /** Array of allowed values. */
-  enum?: JsonSchemaEnum;
+  enum?: JsonSchemaEnum
   /** Constant value that must match exactly. */
-  const?: any;
+  const?: any
   /** Media type for content validation. */
-  contentMediaType?: string;
+  contentMediaType?: string
   /** Content encoding. */
-  contentEncoding?: string;
-  contentSchema?: SchemaObject | ReferenceObject;
+  contentEncoding?: string
+  contentSchema?: SchemaObject | ReferenceObject
   /** Whether the schema is deprecated. */
-  deprecated?: boolean;
-  discriminator?: DiscriminatorObject;
+  deprecated?: boolean
+  discriminator?: DiscriminatorObject
   /** Whether the schema is read-only. */
-  readOnly?: boolean;
+  readOnly?: boolean
   /** Whether the schema is write-only. */
-  writeOnly?: boolean;
-  xml?: XMLObject;
-  externalDocs?: ExternalDocumentationObject;
+  writeOnly?: boolean
+  xml?: XMLObject
+  externalDocs?: ExternalDocumentationObject
   /** A free-form field to include an example of an instance for this schema. Deprecated in favor of the JSON Schema examples keyword. */
-  example?: any;
+  example?: any
   /** An array of examples of valid instances for this schema. This keyword follows the JSON Schema Draft 2020-12 specification. */
-  examples?: SchemaExamplesArray;
-  allOf?: SchemaObjectAllOf;
-  oneOf?: SchemaObjectOneOf;
-  anyOf?: SchemaObjectAnyOf;
-  not?: SchemaObject | ReferenceObject;
-}) & XScalarIgnore & XInternal & XVariable & XExamples & XEnumDescriptions & XEnumVarNames & XAdditionalPropertiesName & XTags & (MultiTypeSchemaObject | NumberSchemaObject | StringSchemaObject | ObjectSchemaObject | ArraySchemaObject | ({}))
+  examples?: SchemaExamplesArray
+  allOf?: SchemaObjectAllOf
+  oneOf?: SchemaObjectOneOf
+  anyOf?: SchemaObjectAnyOf
+  not?: SchemaObject | ReferenceObject
+} & XScalarIgnore &
+  XInternal &
+  XVariable &
+  XExamples &
+  XEnumDescriptions &
+  XEnumVarNames &
+  XAdditionalPropertiesName &
+  XTags &
+  (MultiTypeSchemaObject | NumberSchemaObject | StringSchemaObject | ObjectSchemaObject | ArraySchemaObject | {})
 
 export type ReferenceObjectExtensions = {
   /** Indicates the current status of the reference resolution. Can be either 'loading' while fetching the reference or 'error' if the resolution failed. */
-  $status?: "loading" | "error";
+  $status?: 'loading' | 'error'
   /** Indicates whether this reference should be resolved globally across all documents, rather than just within the current document context. */
-  $global?: boolean;
+  $global?: boolean
 }
 
 /** Whether a parameter example is disabled in the API client */
 export type XDisabled = {
-  "x-disabled"?: boolean;
+  'x-disabled'?: boolean
 }
 
 export type ExampleObject = {
   /** Short description for the example. */
-  summary?: string;
+  summary?: string
   /** Long description for the example. CommonMark syntax MAY be used for rich text representation. */
-  description?: string;
+  description?: string
   /** Embedded literal example. The value field and externalValue field are mutually exclusive. */
-  value?: any;
+  value?: any
   /** A URI that identifies the literal example. The value field and externalValue field are mutually exclusive. */
-  externalValue?: string;
+  externalValue?: string
 } & XDisabled
 
-export type ParameterExamples = Record<string, ExampleObject | (ReferenceObject & {
-  "$ref-value": ExampleObject;
-} & ReferenceObjectExtensions)>
+export type ParameterExamples = Record<
+  string,
+  | ExampleObject
+  | (ReferenceObject & {
+      '$ref-value': ExampleObject
+    } & ReferenceObjectExtensions)
+>
 
 /** Marks a parameter as global across the workspace */
 export type XGlobal = {
-  "x-global"?: boolean;
+  'x-global'?: boolean
 }
 
-export type ParameterObjectWithSchema = ({
+export type ParameterObjectWithSchema = {
   /** REQUIRED. The name of the parameter. Parameter names are case sensitive. If in is "path", the name field MUST correspond to a template expression occurring within the path field in the Paths Object. */
-  name: string;
+  name: string
   /** REQUIRED. The location of the parameter. Possible values are "query", "header", "path" or "cookie". */
-  in: ParameterLocation;
+  in: ParameterLocation
   /** A brief description of the parameter. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */
-  description?: string;
+  description?: string
   /** Determines whether this parameter is mandatory. If the parameter location is "path", this field is REQUIRED and its value MUST be true. */
-  required?: boolean;
+  required?: boolean
   /** Specifies that a parameter is deprecated and SHOULD be transitioned out of usage. Default value is false. */
-  deprecated?: boolean;
+  deprecated?: boolean
   /** If true, clients MAY pass a zero-length string value in place of parameters that would otherwise be omitted entirely. This field is valid only for query parameters. */
-  allowEmptyValue?: boolean;
+  allowEmptyValue?: boolean
   /** When this is true, parameter values are serialized using reserved expansion, as defined by RFC6570. This field only applies to parameters with an in value of query. The default value is false. */
-  allowReserved?: boolean;
+  allowReserved?: boolean
   /** Describes how the parameter value will be serialized (depending on the schema type). */
-  style?: string;
+  style?: string
   /** When this is true, parameter values of type array or object generate separate parameters for each array item or object property. */
-  explode?: boolean;
-  schema?: SchemaObject | (ReferenceObject & {
-    "$ref-value": SchemaObject;
-  } & ReferenceObjectExtensions);
-  example?: any;
-  examples?: ParameterExamples;
-}) & XGlobal & XInternal & XScalarIgnore
+  explode?: boolean
+  schema?:
+    | SchemaObject
+    | (ReferenceObject & {
+        '$ref-value': SchemaObject
+      } & ReferenceObjectExtensions)
+  example?: any
+  examples?: ParameterExamples
+} & XGlobal &
+  XInternal &
+  XScalarIgnore
 
-export type MediaTypeExamples = Record<string, ExampleObject | (ReferenceObject & {
-  "$ref-value": ExampleObject;
-} & ReferenceObjectExtensions)>
+export type MediaTypeExamples = Record<
+  string,
+  | ExampleObject
+  | (ReferenceObject & {
+      '$ref-value': ExampleObject
+    } & ReferenceObjectExtensions)
+>
 
 export type HeaderBase = {
   /** A brief description of the header. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */
-  description?: string;
+  description?: string
   /** Determines whether this header is mandatory. The default value is false. */
-  required?: boolean;
+  required?: boolean
   /** Specifies that the header is deprecated and SHOULD be transitioned out of usage. Default value is false. */
-  deprecated?: boolean;
+  deprecated?: boolean
 }
 
-export type HeaderExamples = Record<string, ExampleObject | (ReferenceObject & {
-  "$ref-value": ExampleObject;
-} & ReferenceObjectExtensions)>
+export type HeaderExamples = Record<
+  string,
+  | ExampleObject
+  | (ReferenceObject & {
+      '$ref-value': ExampleObject
+    } & ReferenceObjectExtensions)
+>
 
 export type HeaderObjectWithSchema = {
   /** Describes how the header value will be serialized. The default (and only legal value for headers) is "simple". */
-  style?: string;
+  style?: string
   /** When this is true, header values of type array or object generate a single header whose value is a comma-separated list of the array items or key-value pairs of the map, see Style Examples. */
-  explode?: boolean;
-  schema?: SchemaObject | (ReferenceObject & {
-    "$ref-value": SchemaObject;
-  } & ReferenceObjectExtensions);
-  example?: any;
-  examples?: HeaderExamples;
+  explode?: boolean
+  schema?:
+    | SchemaObject
+    | (ReferenceObject & {
+        '$ref-value': SchemaObject
+      } & ReferenceObjectExtensions)
+  example?: any
+  examples?: HeaderExamples
 }
 
 export type HeaderContent = Record<string, MediaTypeObject>
 
 export type HeaderObjectWithContent = {
-  content?: HeaderContent;
+  content?: HeaderContent
 }
 
 export type HeaderObject = (HeaderBase & HeaderObjectWithSchema) | (HeaderBase & HeaderObjectWithContent)
 
-export type EncodingHeaders = Record<string, HeaderObject | (ReferenceObject & {
-  "$ref-value": HeaderObject;
-} & ReferenceObjectExtensions)>
+export type EncodingHeaders = Record<
+  string,
+  | HeaderObject
+  | (ReferenceObject & {
+      '$ref-value': HeaderObject
+    } & ReferenceObjectExtensions)
+>
 
 export type EncodingObject = {
   /** The Content-Type for encoding a specific property. The value is a comma-separated list, each element of which is either a specific media type (e.g. image/png) or a wildcard media type (e.g. image/*). */
-  contentType?: string;
-  headers?: EncodingHeaders;
+  contentType?: string
+  headers?: EncodingHeaders
 }
 
 /** A map between a property name and its encoding information. The key, being the property name, MUST exist in the schema as a property. */
 export type MediaTypeEncoding = Record<string, EncodingObject>
 
 export type MediaTypeObject = {
-  schema?: SchemaObject | (ReferenceObject & {
-    "$ref-value": SchemaObject;
-  } & ReferenceObjectExtensions);
+  schema?:
+    | SchemaObject
+    | (ReferenceObject & {
+        '$ref-value': SchemaObject
+      } & ReferenceObjectExtensions)
   /** Example of the media type. */
-  example?: any;
-  examples?: MediaTypeExamples;
+  example?: any
+  examples?: MediaTypeExamples
   /** A map between a property name and its encoding information. The key, being the property name, MUST exist in the schema as a property. */
-  encoding?: MediaTypeEncoding;
+  encoding?: MediaTypeEncoding
 }
 
 export type ParameterContent = Record<string, MediaTypeObject>
 
 export type ParameterObjectWithContent = {
   /** REQUIRED. The name of the parameter. Parameter names are case sensitive. If in is "path", the name field MUST correspond to a template expression occurring within the path field in the Paths Object. */
-  name: string;
+  name: string
   /** REQUIRED. The location of the parameter. Possible values are "query", "header", "path" or "cookie". */
-  in: ParameterLocation;
+  in: ParameterLocation
   /** A brief description of the parameter. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */
-  description?: string;
+  description?: string
   /** Determines whether this parameter is mandatory. If the parameter location is "path", this field is REQUIRED and its value MUST be true. */
-  required?: boolean;
+  required?: boolean
   /** Specifies that a parameter is deprecated and SHOULD be transitioned out of usage. Default value is false. */
-  deprecated?: boolean;
+  deprecated?: boolean
   /** If true, clients MAY pass a zero-length string value in place of parameters that would otherwise be omitted entirely. This field is valid only for query parameters. */
-  allowEmptyValue?: boolean;
+  allowEmptyValue?: boolean
   /** When this is true, parameter values are serialized using reserved expansion, as defined by RFC6570. This field only applies to parameters with an in value of query. The default value is false. */
-  allowReserved?: boolean;
-  content?: ParameterContent;
-} & XGlobal & XInternal & XScalarIgnore
+  allowReserved?: boolean
+  content?: ParameterContent
+} & XGlobal &
+  XInternal &
+  XScalarIgnore
 
 export type ParameterObject = ParameterObjectWithSchema | ParameterObjectWithContent
 
-export type OperationParameters = (ParameterObject | (ReferenceObject & {
-  "$ref-value": ParameterObject;
-} & ReferenceObjectExtensions))[]
+export type OperationParameters = (
+  | ParameterObject
+  | (ReferenceObject & {
+      '$ref-value': ParameterObject
+    } & ReferenceObjectExtensions)
+)[]
 
 /** REQUIRED. The content of the request body. The key is a media type or media type range and the value describes it. */
 export type RequestBodyContent = Record<string, MediaTypeObject>
 
 /** Selected content type per media type key */
 export type XScalarSelectedContentType = {
-  "x-scalar-selected-content-type"?: Record<string, string>;
+  'x-scalar-selected-content-type'?: Record<string, string>
 }
 
 export type RequestBodyObject = {
   /** A brief description of the request body. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */
-  description?: string;
+  description?: string
   /** REQUIRED. The content of the request body. The key is a media type or media type range and the value describes it. */
-  content: RequestBodyContent;
+  content: RequestBodyContent
   /** Determines if the request body is required in the request. Defaults to false. */
-  required?: boolean;
+  required?: boolean
 } & XScalarSelectedContentType
 
-export type ResponseHeaders = Record<string, HeaderObject | (ReferenceObject & {
-  "$ref-value": HeaderObject;
-} & ReferenceObjectExtensions)>
+export type ResponseHeaders = Record<
+  string,
+  | HeaderObject
+  | (ReferenceObject & {
+      '$ref-value': HeaderObject
+    } & ReferenceObjectExtensions)
+>
 
 export type ResponseContent = Record<string, MediaTypeObject>
 
@@ -448,33 +489,41 @@ export type LinkParameters = Record<string, any>
 
 export type LinkObject = {
   /** A URI reference to an OAS operation. This field is mutually exclusive of the operationId field, and MUST point to an Operation Object. */
-  operationRef?: string;
+  operationRef?: string
   /** The name of an existing, resolvable OAS operation, as defined with a unique operationId. This field is mutually exclusive of the operationRef field. */
-  operationId?: string;
+  operationId?: string
   /** A map representing parameters to pass to an operation as specified with operationId or identified via operationRef. */
-  parameters?: LinkParameters;
+  parameters?: LinkParameters
   /** A literal value or {expression} to use as a request body when calling the target operation. */
-  requestBody?: any;
+  requestBody?: any
   /** A description of the link. CommonMark syntax MAY be used for rich text representation. */
-  description?: string;
-  server?: ServerObject;
+  description?: string
+  server?: ServerObject
 }
 
-export type ResponseLinks = Record<string, LinkObject | (ReferenceObject & {
-  "$ref-value": LinkObject;
-} & ReferenceObjectExtensions)>
+export type ResponseLinks = Record<
+  string,
+  | LinkObject
+  | (ReferenceObject & {
+      '$ref-value': LinkObject
+    } & ReferenceObjectExtensions)
+>
 
 export type ResponseObject = {
   /** REQUIRED. A description of the response. CommonMark syntax MAY be used for rich text representation. */
-  description: string;
-  headers?: ResponseHeaders;
-  content?: ResponseContent;
-  links?: ResponseLinks;
+  description: string
+  headers?: ResponseHeaders
+  content?: ResponseContent
+  links?: ResponseLinks
 }
 
-export type ResponsesObject = Record<string, ResponseObject | (ReferenceObject & {
-  "$ref-value": ResponseObject;
-} & ReferenceObjectExtensions)>
+export type ResponsesObject = Record<
+  string,
+  | ResponseObject
+  | (ReferenceObject & {
+      '$ref-value': ResponseObject
+    } & ReferenceObjectExtensions)
+>
 
 /** Lists the required security schemes to execute this operation. An empty object ({}) indicates anonymous access is supported. */
 export type SecurityRequirementObject = Record<string, string[]>
@@ -483,148 +532,188 @@ export type OperationSecurity = SecurityRequirementObject[]
 
 export type OperationServers = ServerObject[]
 
-export type CallbackObject = Record<string, PathItemObject | (ReferenceObject & {
-  "$ref-value": PathItemObject;
-} & ReferenceObjectExtensions)>
+export type CallbackObject = Record<
+  string,
+  | PathItemObject
+  | (ReferenceObject & {
+      '$ref-value': PathItemObject
+    } & ReferenceObjectExtensions)
+>
 
-export type OperationCallbacks = Record<string, CallbackObject | (ReferenceObject & {
-  "$ref-value": CallbackObject;
-} & ReferenceObjectExtensions)>
+export type OperationCallbacks = Record<
+  string,
+  | CallbackObject
+  | (ReferenceObject & {
+      '$ref-value': CallbackObject
+    } & ReferenceObjectExtensions)
+>
 
 /** Configuration for a single badge in the x-badges extension */
 export type XBadge = {
   /** The text that displays in the badge. This is required for all badges. */
-  name: string;
+  name: string
   /** The position of the badge in relation to the header */
-  position?: "before" | "after";
+  position?: 'before' | 'after'
   /** The color of the badge in various formats (keywords, RGB, RGBA, HSL, HSLA, Hexadecimal) */
-  color?: string;
+  color?: string
 }
 
 /** Badges for an operation in the Scalar UI */
 export type XBadges = {
   /** Badges displayed for this operation in documentation */
-  "x-badges"?: XBadge[];
+  'x-badges'?: XBadge[]
 }
 
 /** A single code sample for documentation or examples */
 export type XCodeSample = {
-  lang?: string;
-  label?: string;
-  source: string;
+  lang?: string
+  label?: string
+  source: string
 }
 
 /** Code samples attached to an operation */
 export type XCodeSamples = {
-  "x-codeSamples"?: XCodeSample[];
-  "x-code-samples"?: XCodeSample[];
-  "x-custom-examples"?: XCodeSample[];
+  'x-codeSamples'?: XCodeSample[]
+  'x-code-samples'?: XCodeSample[]
+  'x-custom-examples'?: XCodeSample[]
 }
 
 /** Stability of the operation in the Scalar UI */
 export type XScalarStability = {
   /** Stability level of the operation */
-  "x-scalar-stability"?: "deprecated" | "experimental" | "stable";
+  'x-scalar-stability'?: 'deprecated' | 'experimental' | 'stable'
 }
 
 /** Disabled parameter state by category and example */
 export type DisableParametersConfig = {
-  "global-cookies"?: Record<string, Record<string, boolean>>;
-  "global-headers"?: Record<string, Record<string, boolean>>;
-  "default-headers"?: Record<string, Record<string, boolean>>;
+  'global-cookies'?: Record<string, Record<string, boolean>>
+  'global-headers'?: Record<string, Record<string, boolean>>
+  'default-headers'?: Record<string, Record<string, boolean>>
 }
 
 /** Tracks which parameters are disabled across examples */
 export type XScalarDisableParameters = {
   /** Disabled parameter state by category and example */
-  "x-scalar-disable-parameters"?: DisableParametersConfig;
+  'x-scalar-disable-parameters'?: DisableParametersConfig
 }
 
 /** Post-response script for the operation */
 export type XPostResponse = {
   /** Post-response script for the operation */
-  "x-post-response"?: string;
+  'x-post-response'?: string
 }
 
 /** Pre-request script for the operation */
 export type XPreRequest = {
-  "x-pre-request"?: string;
+  'x-pre-request'?: string
 }
 
 /** Draft example names for an operation */
 export type XDraftExamples = {
-  "x-draft-examples"?: string[];
+  'x-draft-examples'?: string[]
 }
 
 /** The selected server URL for the document */
 export type XScalarSelectedServer = {
-  "x-scalar-selected-server"?: string;
+  'x-scalar-selected-server'?: string
 }
 
-export type OperationObject = ({
+export type OperationObject = {
   /** A list of tags for API documentation control. Tags can be used for logical grouping of operations by resources or any other qualifier. */
-  tags?: OperationTags;
+  tags?: OperationTags
   /** A short summary of what the operation does. */
-  summary?: string;
+  summary?: string
   /** A verbose explanation of the operation behavior. CommonMark syntax MAY be used for rich text representation. */
-  description?: string;
-  externalDocs?: ExternalDocumentationObject;
+  description?: string
+  externalDocs?: ExternalDocumentationObject
   /** Unique string used to identify the operation. The id MUST be unique among all operations described in the API. The operationId value is case-sensitive. */
-  operationId?: string;
-  parameters?: OperationParameters;
-  requestBody?: RequestBodyObject | (ReferenceObject & {
-    "$ref-value": RequestBodyObject;
-  } & ReferenceObjectExtensions);
-  responses?: ResponsesObject;
+  operationId?: string
+  parameters?: OperationParameters
+  requestBody?:
+    | RequestBodyObject
+    | (ReferenceObject & {
+        '$ref-value': RequestBodyObject
+      } & ReferenceObjectExtensions)
+  responses?: ResponsesObject
   /** Declares this operation to be deprecated. Consumers SHOULD refrain from usage of the declared operation. Default value is false. */
-  deprecated?: boolean;
-  security?: OperationSecurity;
-  servers?: OperationServers;
-  callbacks?: OperationCallbacks;
-}) & XBadges & XInternal & XScalarIgnore & XCodeSamples & XScalarStability & XScalarDisableParameters & XPostResponse & XPreRequest & XDraftExamples & XScalarSelectedServer
+  deprecated?: boolean
+  security?: OperationSecurity
+  servers?: OperationServers
+  callbacks?: OperationCallbacks
+} & XBadges &
+  XInternal &
+  XScalarIgnore &
+  XCodeSamples &
+  XScalarStability &
+  XScalarDisableParameters &
+  XPostResponse &
+  XPreRequest &
+  XDraftExamples &
+  XScalarSelectedServer
 
 export type PathItemServers = ServerObject[]
 
-export type PathItemParameters = (ParameterObject | (ReferenceObject & {
-  "$ref-value": ParameterObject;
-} & ReferenceObjectExtensions))[]
+export type PathItemParameters = (
+  | ParameterObject
+  | (ReferenceObject & {
+      '$ref-value': ParameterObject
+    } & ReferenceObjectExtensions)
+)[]
 
 export type PathItemObject = {
   /** Allows for a referenced definition of this path item. The value MUST be in the form of a URI, and the referenced structure MUST be in the form of a Path Item Object. */
-  $ref?: string;
+  $ref?: string
   /** An optional string summary, intended to apply to all operations in this path. */
-  summary?: string;
+  summary?: string
   /** An optional string description, intended to apply to all operations in this path. CommonMark syntax MAY be used for rich text representation. */
-  description?: string;
-  get?: OperationObject | (ReferenceObject & {
-    "$ref-value": OperationObject;
-  } & ReferenceObjectExtensions);
-  put?: OperationObject | (ReferenceObject & {
-    "$ref-value": OperationObject;
-  } & ReferenceObjectExtensions);
-  post?: OperationObject | (ReferenceObject & {
-    "$ref-value": OperationObject;
-  } & ReferenceObjectExtensions);
-  delete?: OperationObject | (ReferenceObject & {
-    "$ref-value": OperationObject;
-  } & ReferenceObjectExtensions);
-  patch?: OperationObject | (ReferenceObject & {
-    "$ref-value": OperationObject;
-  } & ReferenceObjectExtensions);
-  connect?: OperationObject | (ReferenceObject & {
-    "$ref-value": OperationObject;
-  } & ReferenceObjectExtensions);
-  options?: OperationObject | (ReferenceObject & {
-    "$ref-value": OperationObject;
-  } & ReferenceObjectExtensions);
-  head?: OperationObject | (ReferenceObject & {
-    "$ref-value": OperationObject;
-  } & ReferenceObjectExtensions);
-  trace?: OperationObject | (ReferenceObject & {
-    "$ref-value": OperationObject;
-  } & ReferenceObjectExtensions);
-  servers?: PathItemServers;
-  parameters?: PathItemParameters;
+  description?: string
+  get?:
+    | OperationObject
+    | (ReferenceObject & {
+        '$ref-value': OperationObject
+      } & ReferenceObjectExtensions)
+  put?:
+    | OperationObject
+    | (ReferenceObject & {
+        '$ref-value': OperationObject
+      } & ReferenceObjectExtensions)
+  post?:
+    | OperationObject
+    | (ReferenceObject & {
+        '$ref-value': OperationObject
+      } & ReferenceObjectExtensions)
+  delete?:
+    | OperationObject
+    | (ReferenceObject & {
+        '$ref-value': OperationObject
+      } & ReferenceObjectExtensions)
+  patch?:
+    | OperationObject
+    | (ReferenceObject & {
+        '$ref-value': OperationObject
+      } & ReferenceObjectExtensions)
+  connect?:
+    | OperationObject
+    | (ReferenceObject & {
+        '$ref-value': OperationObject
+      } & ReferenceObjectExtensions)
+  options?:
+    | OperationObject
+    | (ReferenceObject & {
+        '$ref-value': OperationObject
+      } & ReferenceObjectExtensions)
+  head?:
+    | OperationObject
+    | (ReferenceObject & {
+        '$ref-value': OperationObject
+      } & ReferenceObjectExtensions)
+  trace?:
+    | OperationObject
+    | (ReferenceObject & {
+        '$ref-value': OperationObject
+      } & ReferenceObjectExtensions)
+  servers?: PathItemServers
+  parameters?: PathItemParameters
 }
 
 /** The available paths and operations for the API. */
@@ -633,51 +722,75 @@ export type PathsObject = Record<string, PathItemObject>
 /** The incoming webhooks that MAY be received as part of this API and that the API consumer MAY choose to implement. */
 export type WebhooksObject = Record<string, PathItemObject>
 
-export type ComponentsSchemas = Record<string, SchemaObject | (ReferenceObject & {
-  "$ref-value": SchemaObject;
-} & ReferenceObjectExtensions)>
+export type ComponentsSchemas = Record<
+  string,
+  | SchemaObject
+  | (ReferenceObject & {
+      '$ref-value': SchemaObject
+    } & ReferenceObjectExtensions)
+>
 
-export type ComponentsResponses = Record<string, ResponseObject | (ReferenceObject & {
-  "$ref-value": ResponseObject;
-} & ReferenceObjectExtensions)>
+export type ComponentsResponses = Record<
+  string,
+  | ResponseObject
+  | (ReferenceObject & {
+      '$ref-value': ResponseObject
+    } & ReferenceObjectExtensions)
+>
 
-export type ComponentsParameters = Record<string, ParameterObject | (ReferenceObject & {
-  "$ref-value": ParameterObject;
-} & ReferenceObjectExtensions)>
+export type ComponentsParameters = Record<
+  string,
+  | ParameterObject
+  | (ReferenceObject & {
+      '$ref-value': ParameterObject
+    } & ReferenceObjectExtensions)
+>
 
-export type ComponentsExamples = Record<string, ExampleObject | (ReferenceObject & {
-  "$ref-value": ExampleObject;
-} & ReferenceObjectExtensions)>
+export type ComponentsExamples = Record<
+  string,
+  | ExampleObject
+  | (ReferenceObject & {
+      '$ref-value': ExampleObject
+    } & ReferenceObjectExtensions)
+>
 
-export type ComponentsRequestBodies = Record<string, RequestBodyObject | (ReferenceObject & {
-  "$ref-value": RequestBodyObject;
-} & ReferenceObjectExtensions)>
+export type ComponentsRequestBodies = Record<
+  string,
+  | RequestBodyObject
+  | (ReferenceObject & {
+      '$ref-value': RequestBodyObject
+    } & ReferenceObjectExtensions)
+>
 
-export type ComponentsHeaders = Record<string, HeaderObject | (ReferenceObject & {
-  "$ref-value": HeaderObject;
-} & ReferenceObjectExtensions)>
+export type ComponentsHeaders = Record<
+  string,
+  | HeaderObject
+  | (ReferenceObject & {
+      '$ref-value': HeaderObject
+    } & ReferenceObjectExtensions)
+>
 
 export type ApiKeySecuritySchemeObject = {
   /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
-  description?: string;
-  type: "apiKey";
+  description?: string
+  type: 'apiKey'
   /** REQUIRED. The name of the header, query or cookie parameter to be used. */
-  name: string;
+  name: string
   /** REQUIRED. The location of the API key. Valid values are "query", "header", or "cookie". */
-  in: "query" | "header" | "cookie";
+  in: 'query' | 'header' | 'cookie'
 }
 
 /** REQUIRED. The name of the HTTP Authentication scheme to be used in the Authorization header as defined in RFC7235. */
-export type HttpSecuritySchemeScheme = "basic" | "bearer"
+export type HttpSecuritySchemeScheme = 'basic' | 'bearer'
 
 export type HttpSecuritySchemeObject = {
   /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
-  description?: string;
-  type: "http";
+  description?: string
+  type: 'http'
   /** REQUIRED. The name of the HTTP Authentication scheme to be used in the Authorization header as defined in RFC7235. */
-  scheme: HttpSecuritySchemeScheme;
+  scheme: HttpSecuritySchemeScheme
   /** A hint to the client to identify how the bearer token is formatted. Bearer tokens are usually generated by an authorization server, so this information is primarily for documentation purposes. */
-  bearerFormat?: string;
+  bearerFormat?: string
 }
 
 /** REQUIRED. The available scopes for the OAuth2 security scheme. A map between the scope name and a short description for it. The map MAY be empty. */
@@ -685,124 +798,161 @@ export type OAuthFlowScopes = Record<string, string>
 
 export type OAuthFlowBaseCore = {
   /** The URL to be used for obtaining refresh tokens. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
-  refreshUrl: string;
+  refreshUrl: string
   /** REQUIRED. The available scopes for the OAuth2 security scheme. A map between the scope name and a short description for it. The map MAY be empty. */
-  scopes: OAuthFlowScopes;
+  scopes: OAuthFlowScopes
 }
 
 /** Security query parameter values for the scheme */
 export type XScalarSecurityQuery = {
-  "x-scalar-security-query"?: Record<string, string>;
+  'x-scalar-security-query'?: Record<string, string>
 }
 
 /** Security body field values for the scheme */
 export type XScalarSecurityBody = {
-  "x-scalar-security-body"?: Record<string, string>;
+  'x-scalar-security-body'?: Record<string, string>
 }
 
 /** Custom token name for API key security schemes */
 export type XTokenName = {
-  "x-tokenName"?: string;
+  'x-tokenName'?: string
 }
 
 /** Persisted OAuth authorization URL override */
 export type XScalarAuthUrl = {
-  "x-scalar-secret-auth-url"?: string;
+  'x-scalar-secret-auth-url'?: string
 }
 
 /** Persisted OAuth token URL override */
 export type XScalarTokenUrl = {
-  "x-scalar-secret-token-url"?: string;
+  'x-scalar-secret-token-url'?: string
 }
 
-export type ImplicitOAuthFlowObject = OAuthFlowBaseCore & XScalarSecurityQuery & XScalarSecurityBody & XTokenName & XScalarAuthUrl & XScalarTokenUrl & {
-  /** REQUIRED. The authorization URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
-  authorizationUrl: string;
-}
+export type ImplicitOAuthFlowObject = OAuthFlowBaseCore &
+  XScalarSecurityQuery &
+  XScalarSecurityBody &
+  XTokenName &
+  XScalarAuthUrl &
+  XScalarTokenUrl & {
+    /** REQUIRED. The authorization URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
+    authorizationUrl: string
+  }
 
 /** Location for credentials in the request */
 export type XScalarCredentialsLocation = {
   /** Where credentials are sent for this security scheme */
-  "x-scalar-credentials-location"?: "header" | "body";
+  'x-scalar-credentials-location'?: 'header' | 'body'
 }
 
-export type PasswordOAuthFlowObject = OAuthFlowBaseCore & XScalarSecurityQuery & XScalarSecurityBody & XTokenName & XScalarAuthUrl & XScalarTokenUrl & {
-  /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
-  tokenUrl: string;
-} & XScalarCredentialsLocation
+export type PasswordOAuthFlowObject = OAuthFlowBaseCore &
+  XScalarSecurityQuery &
+  XScalarSecurityBody &
+  XTokenName &
+  XScalarAuthUrl &
+  XScalarTokenUrl & {
+    /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
+    tokenUrl: string
+  } & XScalarCredentialsLocation
 
-export type ClientCredentialsOAuthFlowObject = OAuthFlowBaseCore & XScalarSecurityQuery & XScalarSecurityBody & XTokenName & XScalarAuthUrl & XScalarTokenUrl & {
-  /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
-  tokenUrl: string;
-} & XScalarCredentialsLocation
+export type ClientCredentialsOAuthFlowObject = OAuthFlowBaseCore &
+  XScalarSecurityQuery &
+  XScalarSecurityBody &
+  XTokenName &
+  XScalarAuthUrl &
+  XScalarTokenUrl & {
+    /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
+    tokenUrl: string
+  } & XScalarCredentialsLocation
 
 /** PKCE setting for OAuth2 */
 export type XusePkce = {
   /** PKCE mode for the OAuth2 authorization code flow */
-  "x-usePkce": "SHA-256" | "plain" | "no";
+  'x-usePkce': 'SHA-256' | 'plain' | 'no'
 }
 
-export type AuthorizationCodeOAuthFlowObject = OAuthFlowBaseCore & XScalarSecurityQuery & XScalarSecurityBody & XTokenName & XScalarAuthUrl & XScalarTokenUrl & {
-  /** REQUIRED. The authorization URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
-  authorizationUrl: string;
-  /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
-  tokenUrl: string;
-} & XusePkce & XScalarCredentialsLocation
+export type AuthorizationCodeOAuthFlowObject = OAuthFlowBaseCore &
+  XScalarSecurityQuery &
+  XScalarSecurityBody &
+  XTokenName &
+  XScalarAuthUrl &
+  XScalarTokenUrl & {
+    /** REQUIRED. The authorization URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
+    authorizationUrl: string
+    /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
+    tokenUrl: string
+  } & XusePkce &
+  XScalarCredentialsLocation
 
 export type OAuthFlowsObject = {
-  implicit?: ImplicitOAuthFlowObject;
-  password?: PasswordOAuthFlowObject;
-  clientCredentials?: ClientCredentialsOAuthFlowObject;
-  authorizationCode?: AuthorizationCodeOAuthFlowObject;
+  implicit?: ImplicitOAuthFlowObject
+  password?: PasswordOAuthFlowObject
+  clientCredentials?: ClientCredentialsOAuthFlowObject
+  authorizationCode?: AuthorizationCodeOAuthFlowObject
 }
 
 /** Default OAuth scopes for the security scheme */
 export type XDefaultScopes = {
-  "x-default-scopes"?: string[];
+  'x-default-scopes'?: string[]
 }
 
 export type OAuth2SecuritySchemeObject = {
   /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
-  description?: string;
-  type: "oauth2";
-  flows: OAuthFlowsObject;
+  description?: string
+  type: 'oauth2'
+  flows: OAuthFlowsObject
 } & XDefaultScopes
 
 export type OpenIdConnectSecuritySchemeObject = {
   /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
-  description?: string;
-  type: "openIdConnect";
+  description?: string
+  type: 'openIdConnect'
   /** REQUIRED. Well-known URL to discover the [[OpenID-Connect-Discovery]] provider metadata. */
-  openIdConnectUrl: string;
+  openIdConnectUrl: string
 }
 
-export type SecuritySchemeObject = ApiKeySecuritySchemeObject | HttpSecuritySchemeObject | OAuth2SecuritySchemeObject | OpenIdConnectSecuritySchemeObject
+export type SecuritySchemeObject =
+  | ApiKeySecuritySchemeObject
+  | HttpSecuritySchemeObject
+  | OAuth2SecuritySchemeObject
+  | OpenIdConnectSecuritySchemeObject
 
-export type ComponentsSecuritySchemes = Record<string, SecuritySchemeObject | (ReferenceObject & {
-  "$ref-value": SecuritySchemeObject;
-} & ReferenceObjectExtensions)>
+export type ComponentsSecuritySchemes = Record<
+  string,
+  | SecuritySchemeObject
+  | (ReferenceObject & {
+      '$ref-value': SecuritySchemeObject
+    } & ReferenceObjectExtensions)
+>
 
-export type ComponentsLinks = Record<string, LinkObject | (ReferenceObject & {
-  "$ref-value": LinkObject;
-} & ReferenceObjectExtensions)>
+export type ComponentsLinks = Record<
+  string,
+  | LinkObject
+  | (ReferenceObject & {
+      '$ref-value': LinkObject
+    } & ReferenceObjectExtensions)
+>
 
-export type ComponentsCallbacks = Record<string, CallbackObject | (ReferenceObject & {
-  "$ref-value": CallbackObject;
-} & ReferenceObjectExtensions)>
+export type ComponentsCallbacks = Record<
+  string,
+  | CallbackObject
+  | (ReferenceObject & {
+      '$ref-value': CallbackObject
+    } & ReferenceObjectExtensions)
+>
 
 export type ComponentsPathItems = Record<string, PathItemObject>
 
 export type ComponentsObject = {
-  schemas?: ComponentsSchemas;
-  responses?: ComponentsResponses;
-  parameters?: ComponentsParameters;
-  examples?: ComponentsExamples;
-  requestBodies?: ComponentsRequestBodies;
-  headers?: ComponentsHeaders;
-  securitySchemes?: ComponentsSecuritySchemes;
-  links?: ComponentsLinks;
-  callbacks?: ComponentsCallbacks;
-  pathItems?: ComponentsPathItems;
+  schemas?: ComponentsSchemas
+  responses?: ComponentsResponses
+  parameters?: ComponentsParameters
+  examples?: ComponentsExamples
+  requestBodies?: ComponentsRequestBodies
+  headers?: ComponentsHeaders
+  securitySchemes?: ComponentsSecuritySchemes
+  links?: ComponentsLinks
+  callbacks?: ComponentsCallbacks
+  pathItems?: ComponentsPathItems
 }
 
 /** A declaration of which security mechanisms can be used across the API. The list of values includes alternative Security Requirement Objects that can be used. Only one of the Security Requirement Objects need to be satisfied to authorize a request. */
@@ -810,65 +960,68 @@ export type OpenApiSecurity = SecurityRequirementObject[]
 
 /** Display name override for a tag */
 export type XDisplayName = {
-  "x-displayName"?: string;
+  'x-displayName'?: string
 }
 
 /** Custom order for elements in the Scalar UI */
 export type XScalarOrder = {
-  "x-scalar-order"?: string[];
+  'x-scalar-order'?: string[]
 }
 
 export type TagObject = {
   /** REQUIRED. The name of the tag. */
-  name: string;
+  name: string
   /** A description for the tag. CommonMark syntax MAY be used for rich text representation. */
-  description?: string;
-  externalDocs?: ExternalDocumentationObject;
-} & XDisplayName & XInternal & XScalarIgnore & XScalarOrder
+  description?: string
+  externalDocs?: ExternalDocumentationObject
+} & XDisplayName &
+  XInternal &
+  XScalarIgnore &
+  XScalarOrder
 
 export type OpenApiDocumentCore = {
   /** REQUIRED. This string MUST be the version number of the OpenAPI Specification that the OpenAPI Document uses. The openapi field SHOULD be used by tooling to interpret the OpenAPI Document. This is not related to the API info.version string. */
-  openapi: string;
-  info: InfoObject;
+  openapi: string
+  info: InfoObject
   /** The default value for the $schema keyword within Schema Objects contained within this OAS document. This MUST be in the form of a URI. */
-  jsonSchemaDialect?: string;
+  jsonSchemaDialect?: string
   /** An array of Server Objects, which provide connectivity information to a target server. If the servers field is not provided, or is an empty array, the default value would be a Server Object with a url value of /. */
-  servers?: OpenApiServers;
+  servers?: OpenApiServers
   /** The available paths and operations for the API. */
-  paths?: PathsObject;
+  paths?: PathsObject
   /** The incoming webhooks that MAY be received as part of this API and that the API consumer MAY choose to implement. */
-  webhooks?: WebhooksObject;
-  components?: ComponentsObject;
+  webhooks?: WebhooksObject
+  components?: ComponentsObject
   /** A declaration of which security mechanisms can be used across the API. The list of values includes alternative Security Requirement Objects that can be used. Only one of the Security Requirement Objects need to be satisfied to authorize a request. */
-  security?: OpenApiSecurity;
+  security?: OpenApiSecurity
   /** A list of tags used by the OpenAPI Description with additional metadata. The order of the tags can be used to reflect on their order by the parsing tools. */
-  tags?: TagObject[];
-  externalDocs?: ExternalDocumentationObject;
+  tags?: TagObject[]
+  externalDocs?: ExternalDocumentationObject
 }
 
 /** Original OpenAPI Specification version of the source document */
 export type XOriginalOasVersion = {
   /** Original OpenAPI Specification version of the source document. */
-  "x-original-oas-version"?: string;
+  'x-original-oas-version'?: string
 }
 
 /** Client navigation tree for this OpenAPI description */
 export type XScalarNavigation = {
   /** Client navigation tree (TraversedDocument) for this OpenAPI description. Matches TraversedDocumentObjectRef in strict schemas. */
-  "x-scalar-navigation"?: any;
+  'x-scalar-navigation'?: any
 }
 
 /** Workspace-store-managed metadata extensions shared by OpenAPI and AsyncAPI documents. */
 export type WorkspaceManagedExtensions = {
   /** Original document source url — when loaded from an external source. */
-  "x-scalar-original-source-url"?: string;
+  'x-scalar-original-source-url'?: string
 }
 
 export type XTagGroupBase = {
   /** The group name. */
-  name: string;
+  name: string
   /** List of tags to include in this group. */
-  tags: string[];
+  tags: string[]
 }
 
 /** A tag group with optional custom ordering */
@@ -877,103 +1030,120 @@ export type XTagGroup = XTagGroupBase & XScalarOrder
 /** Groups of tags for the OpenAPI document */
 export type XTagGroups = {
   /** Tag groups for organizing tags in the UI */
-  "x-tagGroups"?: XTagGroup[];
+  'x-tagGroups'?: XTagGroup[]
 }
 
 export type XScalarEnvVar = {
-  name: string;
-  value: ({
-    description?: string;
-    default: string;
-  }) | string;
+  name: string
+  value:
+    | {
+        description?: string
+        default: string
+      }
+    | string
 }
 
 /** A map of environments by name */
 export type XScalarEnvironment = {
-  description?: string;
+  description?: string
   /** Color for the environment */
-  color: string;
+  color: string
   /** An array of variables */
-  variables: XScalarEnvVar[];
+  variables: XScalarEnvVar[]
 }
 
 /** A record of environments by name */
 export type XScalarEnvironments = {
-  "x-scalar-environments"?: Record<string, XScalarEnvironment>;
+  'x-scalar-environments'?: Record<string, XScalarEnvironment>
 }
 
 /** A custom icon representing the collection */
 export type XScalarIcon = {
-  "x-scalar-icon"?: string;
+  'x-scalar-icon'?: string
 }
 
 /** A persisted cookie definition for the workspace */
 export type XScalarCookie = {
   /** Defines the cookie name and its value. */
-  name: string;
+  name: string
   /** Defines the cookie value. */
-  value: string;
+  value: string
   /** Allows this domain and all subdomains. */
-  domain?: string;
+  domain?: string
   /** Restricts this cookie to requests that contain this path. */
-  path?: string;
+  path?: string
   /** Indicates if the cookie is disabled. */
-  isDisabled?: boolean;
+  isDisabled?: boolean
 }
 
 /** Persisted workspace cookies */
 export type XScalarCookies = {
   /** Cookies persisted for the workspace */
-  "x-scalar-cookies"?: XScalarCookie[];
+  'x-scalar-cookies'?: XScalarCookie[]
 }
 
 /** Original input document hash */
 export type XScalarOriginalDocumentHash = {
   /** Original input document hash */
-  "x-scalar-original-document-hash": string;
+  'x-scalar-original-document-hash': string
 }
 
 /** Tracks whether the document has been modified since it was last saved */
 export type XScalarIsDirty = {
   /** Whether the document state is dirty, this is used to track if the document has been modified since it was last saved */
-  "x-scalar-is-dirty"?: boolean;
+  'x-scalar-is-dirty'?: boolean
 }
 
 /** The active environment for the document */
 export type XScalarActiveEnvironment = {
-  "x-scalar-active-environment"?: string;
+  'x-scalar-active-environment'?: string
 }
 
 /** Whether the document is in watch mode */
 export type XScalarWatchMode = {
   /** Whether the document is in watch mode */
-  "x-scalar-watch-mode"?: boolean;
+  'x-scalar-watch-mode'?: boolean
 }
 
 /** Registry meta namespace and slug */
 export type XScalarRegistryMetaInner = {
   /** The namespace under which this registry meta is scoped. */
-  namespace: string;
+  namespace: string
   /** A unique slug identifier for this registry meta within the namespace. */
-  slug: string;
+  slug: string
   /** The version of the registry meta. */
-  version: string;
+  version: string
   /** Last known commit hash of this document. Is going to be used to track if the document has been modified since it was last saved. */
-  commitHash?: string;
+  commitHash?: string
   /** Registry commit hash that the cached hasConflict flag was computed against. The cache is invalid when this no longer matches the registry hash. */
-  conflictCheckedAgainstHash?: string;
+  conflictCheckedAgainstHash?: string
   /** Cached outcome of the last conflict check, valid only while conflictCheckedAgainstHash matches the registry hash. */
-  hasConflict?: boolean;
+  hasConflict?: boolean
 }
 
 /** The registry meta for the document */
 export type XScalarRegistryMeta = {
   /** Registry meta namespace and slug */
-  "x-scalar-registry-meta"?: XScalarRegistryMetaInner;
+  'x-scalar-registry-meta'?: XScalarRegistryMetaInner
 }
 
 /** OpenAPI extensions shared by OpenAPI and AsyncAPI documents. */
-export type OpenApiExtensions = XOriginalOasVersion & XScalarNavigation & WorkspaceManagedExtensions & XTagGroups & XScalarEnvironments & XScalarSelectedServer & XScalarIcon & XScalarOrder & XScalarCookies & XScalarOriginalDocumentHash & XScalarIsDirty & XScalarActiveEnvironment & XScalarWatchMode & XScalarRegistryMeta & XPreRequest & XPostResponse
+export type OpenApiExtensions = XOriginalOasVersion &
+  XScalarNavigation &
+  WorkspaceManagedExtensions &
+  XTagGroups &
+  XScalarEnvironments &
+  XScalarSelectedServer &
+  XScalarIcon &
+  XScalarOrder &
+  XScalarCookies &
+  XScalarOriginalDocumentHash &
+  XScalarIsDirty &
+  XScalarActiveEnvironment &
+  XScalarWatchMode &
+  XScalarRegistryMeta &
+  XPreRequest &
+  XPostResponse
 
 /** Root OpenAPI 3.1 document including Scalar workspace extensions (OpenApiExtensionsSchema). */
 export type OpenApiDocument = OpenApiDocumentCore & OpenApiExtensions
