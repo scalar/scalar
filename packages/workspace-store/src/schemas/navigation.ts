@@ -1,7 +1,6 @@
 import { HTTP_METHODS, type HttpMethod } from '@scalar/helpers/http/http-methods'
 import { type TLiteral, Type } from '@scalar/typebox'
 
-import type { AsyncApiInfoObject } from '@/schemas/asyncapi/asyncapi-document'
 import { compose } from '@/schemas/compose'
 import type { InfoObject } from '@/schemas/v3.1/strict/info'
 import type { OperationObject } from '@/schemas/v3.1/strict/operation'
@@ -221,12 +220,12 @@ export type WithParent<Entry extends TraversedEntry> = Entry & {
 
 export type DocumentIdProps = {
   name: string
-  info: InfoObject | AsyncApiInfoObject
+  info: InfoObject
   type: 'document'
 }
 
 type DescriptionIdProps = {
-  info: InfoObject | AsyncApiInfoObject
+  info: InfoObject
   type: 'text'
   slug?: string
   depth?: number
