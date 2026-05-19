@@ -315,7 +315,25 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         index.StatusCode.Should().Be(HttpStatusCode.OK);
         var indexContent = await index.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
-        indexContent.Should().Contain($" nonce=\"{nonce}\"");
+        Regex.Matches(indexContent, $" nonce=\"{Regex.Escape(nonce)}\"").Count.Should().Be(3);
+        index.Headers.CacheControl!.NoStore.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task MapScalarApiReference_ShouldNotEmitNonceAttribute_WhenNonceNotConfigured()
+    {
+        // Arrange
+        var client = factory.CreateClient();
+
+        // Act
+        var index = await client.GetAsync("/scalar", TestContext.Current.CancellationToken);
+
+        // Assert
+        index.StatusCode.Should().Be(HttpStatusCode.OK);
+        var indexContent = await index.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        indexContent.Should().NotContain(" nonce=\"");
+        (index.Headers.CacheControl?.NoStore).Should().NotBe(true);
     }
 
     [Fact]
