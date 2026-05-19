@@ -10,7 +10,7 @@ import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { upgrade } from '@scalar/openapi-upgrader'
 import type { Record } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
-import { coerce } from '@scalar/validation'
+import { type Schema, coerce } from '@scalar/validation'
 import type { PartialDeep } from 'type-fest'
 import { reactive } from 'vue'
 import YAML from 'yaml'
@@ -1055,7 +1055,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       )
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
-      const coerced = withMeasurementSync('coerceValue', () => coerce(openapiSchema, deepClone(strictDocument)))
+      const coerced = withMeasurementSync('coerceValue', () =>
+        coerce(openapiSchema as Schema, deepClone(strictDocument)),
+      )
       withMeasurementSync('mergeObjects', () => mergeObjects(strictDocument, coerced))
     }
 
