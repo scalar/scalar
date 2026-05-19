@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 
 import type { SchemaObject as SchemaObjectV3_1 } from '../../3.1/schema'
 import { isUntypedSchema } from './is-untyped-schema'
@@ -25,8 +25,26 @@ describe('isUntypedSchema', () => {
     expect(isUntypedSchema(true)).toBe(false)
   })
 
+  it('returns false for ReferenceObject values', () => {
+    expect(isUntypedSchema({ $ref: '#/components/schemas/Pet' })).toBe(false)
+    expect(isUntypedSchema({ $ref: '#/components/schemas/Pet', description: 'a pet' })).toBe(false)
+  })
+
+  it('returns false for arrays', () => {
+    expect(isUntypedSchema([])).toBe(false)
+    expect(isUntypedSchema([{ type: 'string' }])).toBe(false)
+  })
+
   it('accepts the UntypedObject variant of the strict 3.1 SchemaObject', () => {
     const schema: SchemaObjectV3_1 = { description: 'untyped' }
     expect(isUntypedSchema(schema)).toBe(true)
+  })
+
+  it('narrows a SchemaObject | ReferenceObject union away from references', () => {
+    const schema: SchemaObjectV3_1 | { $ref: string } = { description: 'untyped' }
+
+    if (isUntypedSchema(schema)) {
+      expectTypeOf(schema).not.toExtend<{ $ref: string }>()
+    }
   })
 })
