@@ -407,8 +407,6 @@ describe('traverseSchemas', () => {
       },
     })
 
-    expect(content).toBe({})
-    expect(result).toEqual([])
     expect(result).toHaveLength(1)
     expect(result[0]?.name).toBe('Resource.User')
   })
@@ -441,6 +439,8 @@ describe('traverseSchemas', () => {
         },
       },
     })
+
+    console.log({ content: content.components?.schemas })
 
     const result = traverseSchemas({
       document: content,

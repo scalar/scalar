@@ -558,7 +558,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema): OpenapiSche
 
   const components: Schema = object(
     {
-      schemas: optional(record(string(), maybeRef(schema), { typeName: 'ComponentsSchemas' })),
+      schemas: optional(record(string(), normalRef(schema), { typeName: 'ComponentsSchemas' })),
       responses: optional(record(string(), maybeRef(lazy(() => response)), { typeName: 'ComponentsResponses' })),
       parameters: optional(record(string(), maybeRef(lazy(() => parameter)), { typeName: 'ComponentsParameters' })),
       examples: optional(record(string(), maybeRef(lazy(() => example)), { typeName: 'ComponentsExamples' })),
@@ -646,7 +646,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema): OpenapiSche
               'When this is true, header values of type array or object generate a single header whose value is a comma-separated list of the array items or key-value pairs of the map, see Style Examples.',
           }),
         ),
-        schema: optional(maybeRef(lazy(() => schema))),
+        schema: optional(normalRef(lazy(() => schema))),
         example: optional(any()),
         examples: optional(record(string(), maybeRef(lazy(() => example)), { typeName: 'HeaderExamples' })),
       },
@@ -687,7 +687,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema): OpenapiSche
 
   const mediaType: Schema = object(
     {
-      schema: optional(maybeRef(lazy(() => schema))),
+      schema: optional(normalRef(lazy(() => schema))),
       example: optional(any({ typeComment: 'Example of the media type.' })),
       examples: optional(record(string(), maybeRef(lazy(() => example)), { typeName: 'MediaTypeExamples' })),
       encoding: optional(
@@ -754,7 +754,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema): OpenapiSche
               'When this is true, parameter values of type array or object generate separate parameters for each array item or object property.',
           }),
         ),
-        schema: optional(maybeRef(lazy(() => schema))),
+        schema: optional(normalRef(lazy(() => schema))),
         example: optional(any()),
         examples: optional(record(string(), maybeRef(lazy(() => example)), { typeName: 'ParameterExamples' })),
       }),

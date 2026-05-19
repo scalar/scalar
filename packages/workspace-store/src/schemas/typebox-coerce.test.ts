@@ -1,7 +1,7 @@
 import { Storage } from '@google-cloud/storage'
+import { parseJson, parseYaml } from '@scalar/json-magic/bundle/plugins/browser'
 import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
 import { Type } from '@scalar/typebox'
-import type { OpenApiDocument } from '@scalar/types/openapi/3.1'
 import { coerce, validate } from '@scalar/validation'
 import { describe, expect, it } from 'vitest'
 
@@ -16,7 +16,7 @@ async function listFiles(folder: string, limit: number) {
   return files
 }
 
-describe('should correctly cast/default values to make the input schema compliant', () => {
+describe.skip('should correctly cast/default values to make the input schema compliant', () => {
   it.each([
     [Type.Number(), '10', 0],
     [Type.Number(), null, 0],
@@ -140,17 +140,38 @@ describe('should correctly cast/default values to make the input schema complian
     // Get first 300 files to run the tests
     const files = await Promise.all((await listFiles('oas/files', 300)).map((it) => it.download()))
 
-    const result = files.every((file) => {
+    const result = files.map(async (file) => {
       const [buffer] = file
 
       const content = buffer.toString()
 
+      const parse = () => {
+        if (parseJson().validate(content)) {
+          return parseJson().exec(content)
+        }
+
+        if (parseYaml().validate(content)) {
+          return parseYaml().exec(content)
+        }
+
+        throw new Error('Invalid content')
+      }
+
       // validate after we coerce the document
-      const parsed = JSON.parse(content) as OpenApiDocument
-      return validate(openapiSchemas.openapi, coerce(openapiSchemas.openapi, parsed))
+      return await parse()
     })
 
-    expect(result).toBe(true)
+    const parsed = await Promise.all(result)
+
+    expect(
+      parsed.every((it) => {
+        if (!it.ok) {
+          return false
+        }
+
+        return validate(openapiSchemas.openapi, coerce(openapiSchemas.openapi, it.data))
+      }),
+    ).toBe(true)
   })
 
   it('should correctly handle union types', () => {

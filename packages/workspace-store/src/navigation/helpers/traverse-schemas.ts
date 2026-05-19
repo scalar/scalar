@@ -1,9 +1,10 @@
 import type { OpenApiDocument, SchemaObject } from '@scalar/types/openapi/3.1'
 
-import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isHidden } from '@/helpers/is-hidden'
 import { getTag } from '@/navigation/helpers/get-tag'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
+import { resolve } from '@/resolve'
 import type { ParentTag, TraversedSchema } from '@/schemas/navigation'
 
 /** Creates a traversed schema entry from an OpenAPI schema object.
@@ -76,7 +77,8 @@ export const traverseSchemas = ({
 
     // Merge wrapper siblings onto the dereferenced schema so x-internal / x-scalar-ignore
     // set alongside a $ref are honored (e.g. https://github.com/scalar/scalar/issues/9114).
-    const schema = getResolvedRef(schemas[name], mergeSiblingReferences)
+    // const schema = getResolvedRef(schemas[name], mergeSiblingReferences)
+    const schema = resolve.schema(schemas[name])
 
     if (isHidden(schema)) {
       continue

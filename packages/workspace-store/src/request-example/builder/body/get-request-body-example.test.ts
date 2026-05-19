@@ -1,7 +1,11 @@
 import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
 import type { RequestBodyObject } from '@scalar/types/openapi/3.1'
 import { coerce } from '@scalar/validation'
-import { describe, expect, it } from 'vitest'
+import { assert, describe, expect, it } from 'vitest'
+
+import { createWorkspaceStore } from '@/client'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { isOpenApiDocument } from '@/schemas'
 
 import { getExampleFromBody } from './get-request-body-example'
 
@@ -144,70 +148,94 @@ describe('get-request-body-example', () => {
     expect(result).toEqual({ value: { source: 'service' } })
   })
 
-  it('deep resolves nested refs when generating selected nested composition examples', () => {
-    const requestBody = coerce(openapiSchemas.requestBody, {
-      content: {
-        'application/json': {
-          schema: {
-            type: 'object',
-            properties: {
-              payload: {
-                anyOf: [
-                  {
-                    $ref: '#/components/schemas/NestedFilePayload',
-                    '$ref-value': {
+  it('deep resolves nested refs when generating selected nested composition examples', async () => {
+    const store = createWorkspaceStore()
+
+    await store.addDocument({
+      name: 'test',
+      document: {
+        paths: {
+          '/': {
+            get: {
+              requestBody: {
+                content: {
+                  'application/json': {
+                    schema: {
                       type: 'object',
                       properties: {
-                        payloadType: { type: 'string', const: 'file' },
-                        fileName: { type: 'string', example: 'buildings.geojson' },
-                        transform: {
-                          oneOf: [
+                        payload: {
+                          anyOf: [
                             {
-                              $ref: '#/components/schemas/ReprojectTransform',
-                              '$ref-value': {
-                                type: 'object',
-                                properties: {
-                                  mode: { type: 'string', const: 'reproject' },
-                                  epsg: { type: 'integer', example: 4326 },
-                                },
-                              },
+                              $ref: '#/$defs/aFilePayload',
+                            },
+                            {
+                              $ref: '#/$defs/NestedServicePayload',
                             },
                           ],
                         },
                       },
                     },
                   },
+                },
+              },
+            },
+          },
+        },
+        $defs: {
+          aFilePayload: {
+            type: 'object',
+            properties: {
+              payloadType: { type: 'string', const: 'file' },
+              fileName: { type: 'string', example: 'buildings.geojson' },
+              transform: {
+                oneOf: [
                   {
-                    $ref: '#/components/schemas/NestedServicePayload',
-                    '$ref-value': {
-                      type: 'object',
-                      properties: {
-                        payloadType: { type: 'string', const: 'service' },
-                        layerName: { type: 'string', example: 'zoning' },
-                        transform: {
-                          oneOf: [
-                            {
-                              $ref: '#/components/schemas/BufferTransform',
-                              '$ref-value': {
-                                type: 'object',
-                                properties: {
-                                  mode: { type: 'string', const: 'buffer' },
-                                  distanceMeters: { type: 'integer', example: 25 },
-                                },
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    },
+                    $ref: '#/$defs/ReprojectTransform',
                   },
                 ],
               },
             },
           },
+          ReprojectTransform: {
+            type: 'object',
+            properties: {
+              mode: { type: 'string', const: 'reproject' },
+              epsg: { type: 'integer', example: 4326 },
+            },
+          },
+          NestedServicePayload: {
+            type: 'object',
+            properties: {
+              payloadType: { type: 'string', const: 'service' },
+              layerName: { type: 'string', example: 'zoning' },
+              transform: {
+                oneOf: [
+                  {
+                    $ref: '#/$defs/BufferTransform',
+                  },
+                ],
+              },
+            },
+          },
+          BufferTransform: {
+            type: 'object',
+            properties: {
+              mode: { type: 'string', const: 'buffer' },
+              distanceMeters: { type: 'integer', example: 25 },
+            },
+          },
         },
       },
     })
+
+    const document = store.workspace.documents.test
+    if (!isOpenApiDocument(document)) {
+      throw new Error('Document is not an OpenAPI document')
+    }
+    const requestBody = getResolvedRef(getResolvedRef(document.paths?.['/']?.get)?.requestBody)!
+
+    expect(requestBody).toBeDefined()
+    assert(requestBody)
 
     const result = getExampleFromBody(requestBody, 'application/json', 'default', {
       'requestBody.payload.anyOf': 1,
