@@ -5,6 +5,8 @@ import { objectEntries } from '@scalar/helpers/object/object-entries'
 import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { slugger } from '@scalar/helpers/string/slugger'
 import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-path'
+import { XScalarEnvironment } from '@scalar/schemas/extensions/document'
+import { XScalarCookie } from '@scalar/schemas/extensions/general'
 import { type ThemeId, presets } from '@scalar/themes'
 import type { Oauth2Flow } from '@scalar/types/api-reference'
 import type { XScalarEnvironments } from '@scalar/types/extensions/document'
@@ -19,8 +21,6 @@ import type {
   ServerObject,
   TagObject,
 } from '@scalar/types/openapi/3.1'
-import { XScalarEnvironment } from '@scalar/schemas/extensions/document'
-import { XScalarCookie } from '@scalar/schemas/extensions/general'
 import { coerce } from '@scalar/validation'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
@@ -33,6 +33,9 @@ import { ColorModeSchema } from '@scalar/workspace-store/schemas/workspace'
 
 import { migrator } from '@/migrations/migrator'
 import type { v_2_5_0 } from '@/migrations/v-2.5.0/types.generated'
+
+/** Default environment color for legacy data that did not store a color. */
+const DEFAULT_ENVIRONMENT_COLOR = '#FFFFFF'
 
 const DRAFTS_DOCUMENT_NAME = 'drafts'
 
@@ -200,6 +203,7 @@ export const transformLegacyDataToWorkspace = async (legacyData: {
         if (environmentEntries.length > 0) {
           extensions['x-scalar-environments'] = {
             default: coerce(XScalarEnvironment, {
+              color: DEFAULT_ENVIRONMENT_COLOR,
               variables: environmentEntries.map(([name, value]) => ({
                 name,
                 value,
@@ -333,7 +337,7 @@ const transformLegacyEnvironments = (
     entries.map(([envName, env]) => [
       envName,
       coerce(XScalarEnvironment, {
-        color: env.color,
+        color: env.color ?? DEFAULT_ENVIRONMENT_COLOR,
         variables: Object.entries(env.variables || {}).map(([name, value]) => ({
           name,
           value: typeof value === 'string' ? value : value.default || '',

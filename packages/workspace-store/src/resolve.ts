@@ -1,6 +1,6 @@
 import { openapiSchemas } from '@scalar/schemas/openapi/3.1'
 import type { SchemaObject, SchemaReferenceType } from '@scalar/types/openapi/3.1'
-import { type IntersectionMember, coerce, intersection, object, optional, string } from '@scalar/validation'
+import { type IntersectionMember, coerce, intersection, object, optional, string, validate } from '@scalar/validation'
 
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 
@@ -20,6 +20,11 @@ export const resolve = {
     }
 
     const resolved = getResolvedRef(schema, mergeSiblingReferences)
+
+    if (validate(resolvedSchemaShape, resolved)) {
+      return resolved as ResolvedSchema<T>
+    }
+
     const result = coerce(resolvedSchemaShape, resolved) as ResolvedSchema<T>
 
     // We need to assign it to the original schema object
