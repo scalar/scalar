@@ -1,7 +1,13 @@
+import { generateHash } from '@scalar/helpers/string/generate-hash'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ApiClientConfigurationReact } from './use-api-client'
+
+const inlineOpenApiContent = {
+  openapi: '3.1.0',
+  info: { title: 'Inline API', version: '1.0.0' },
+}
 
 // Mock the style import so it doesn't fail in jsdom
 vi.mock('./style.css', () => ({}))
@@ -152,6 +158,52 @@ describe('use-api-client', () => {
     })
   })
 
+  it('calls workspaceStore.addDocument with document when content is configured', async () => {
+    const { useApiClient } = await import('./use-api-client')
+    const slug = generateHash(JSON.stringify(inlineOpenApiContent))
+
+    renderHook(() => useApiClient({ configuration: { content: inlineOpenApiContent } }))
+
+    await waitFor(() => expect(mockWorkspaceStore.addDocument).toHaveBeenCalled())
+
+    expect(mockWorkspaceStore.addDocument).toHaveBeenCalledWith({
+      name: slug,
+      document: inlineOpenApiContent,
+    })
+  })
+
+  it('registers url documents without a document field', async () => {
+    const { useApiClient } = await import('./use-api-client')
+    renderHook(() => useApiClient({ configuration: { url: 'https://api.example.com/openapi.json' } }))
+
+    await waitFor(() => expect(mockWorkspaceStore.addDocument).toHaveBeenCalled())
+
+    const urlRegistrationCall = mockWorkspaceStore.addDocument.mock.calls.find(
+      (call) => call[0].name === 'https://api.example.com/openapi.json',
+    )?.[0]
+
+    expect(urlRegistrationCall).toStrictEqual({
+      name: 'https://api.example.com/openapi.json',
+      url: 'https://api.example.com/openapi.json',
+    })
+  })
+
+  it('registers inline content without a url field', async () => {
+    const { useApiClient } = await import('./use-api-client')
+    const slug = generateHash(JSON.stringify(inlineOpenApiContent))
+
+    renderHook(() => useApiClient({ configuration: { content: inlineOpenApiContent } }))
+
+    await waitFor(() => expect(mockWorkspaceStore.addDocument).toHaveBeenCalled())
+
+    const contentRegistrationCall = mockWorkspaceStore.addDocument.mock.calls.find((call) => call[0].name === slug)?.[0]
+
+    expect(contentRegistrationCall).toStrictEqual({
+      name: slug,
+      document: inlineOpenApiContent,
+    })
+  })
+
   it('calls workspaceStore.addDocument with "default" slug when url is empty', async () => {
     const { useApiClient } = await import('./use-api-client')
     renderHook(() => useApiClient({ configuration: { url: '' } }))
@@ -169,6 +221,19 @@ describe('use-api-client', () => {
     renderHook(() => useApiClient({ configuration: { url: '' } }))
 
     await waitFor(() => expect(mockWorkspaceStore.addDocument).toHaveBeenCalledWith({ name: 'default', url: '' }))
+  })
+
+  it('does not register a content hash when url is an empty string', async () => {
+    const { useApiClient } = await import('./use-api-client')
+    const contentHashSlug = generateHash(JSON.stringify({}))
+
+    renderHook(() => useApiClient({ configuration: { url: '' } }))
+
+    await waitFor(() => expect(mockWorkspaceStore.addDocument).toHaveBeenCalled())
+
+    const registrationNames = mockWorkspaceStore.addDocument.mock.calls.map((call) => call[0].name)
+    expect(registrationNames).not.toContain(contentHashSlug)
+    expect(mockWorkspaceStore.addDocument).toHaveBeenCalledTimes(1)
   })
 
   it('calls addDocument with "default" slug when configuration has no url or content', async () => {

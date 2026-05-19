@@ -1,5 +1,11 @@
 # @scalar/sidebar
 
+## 0.9.14
+
+### Patch Changes
+
+- [#9228](https://github.com/scalar/scalar/pull/9228): fix: remove chevron
+
 ## 0.9.13
 
 ### Patch Changes

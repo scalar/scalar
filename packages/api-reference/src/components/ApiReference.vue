@@ -583,7 +583,7 @@ const changeSelectedDocument = async (
         ? {
             name: slug,
             url: normalized.source.url,
-            fetch: config.fetch,
+            fetch: config.customFetch,
           }
         : {
             name: slug,
@@ -671,7 +671,7 @@ watch(
           {
             name: updated.slug,
             url: updated.source.url,
-            fetch: updated.config.fetch,
+            fetch: updated.config.customFetch,
           },
           updated.config,
         )

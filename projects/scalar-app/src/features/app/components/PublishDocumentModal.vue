@@ -212,10 +212,11 @@ const handleSubmit = (): void => {
           </div>
         </template>
         <template v-else-if="hasMultipleNamespaces">
+          <!-- Teleport uses z-context; modal overlay is z-overlay, so options would sit behind it. -->
           <ScalarListbox
             v-model="selectedNamespace"
             :options="namespaceOptions"
-            teleport>
+            resize>
             <ScalarButton
               class="border-border text-c-1 hover:bg-b-2 flex h-8 w-full items-center justify-between gap-2 rounded border px-3 font-normal"
               fullWidth

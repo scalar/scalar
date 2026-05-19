@@ -1,8 +1,8 @@
 import { type ComputedRef, type MaybeRefOrGetter, computed } from 'vue'
 
-import type { RegistryDocument } from '@/types/configuration'
 import type { AppState } from '@/features/app'
 import { useSidebarDocuments } from '@/features/app/hooks/use-sidebar-documents'
+import type { RegistryDocument } from '@/types/configuration'
 
 /**
  * A loaded version of a registry-grouped document, surfaced inside a

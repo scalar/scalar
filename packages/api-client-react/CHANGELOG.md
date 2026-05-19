@@ -1,5 +1,7 @@
 # @scalar/api-client-react
 
+## 2.0.17
+
 ## 2.0.16
 
 ## 2.0.15
