@@ -32,21 +32,33 @@ type LeafRow = {
  * (`file` + `props.{name,description,created_at}`) yields four leaves.
  */
 const collectLeafProperties = (schema: SchemaObject, parentPath: string[] = [], parentRequired = true): LeafRow[] => {
+  // Nothing to walk if this is not an object schema or has no declared properties.
   if (!isObjectSchema(schema) || !schema.properties) {
     return []
   }
+
+  // `required` is a list of property names on *this* schema, so build it once per level.
   const requiredSet = new Set(schema.required ?? [])
   const leaves: LeafRow[] = []
+
   for (const [key, rawChildSchema] of objectEntries(schema.properties)) {
     const childSchema = resolve.schema(rawChildSchema)
     const path = [...parentPath, String(key)]
+
+    // A leaf is only required when *every* ancestor was also required — a non-required
+    // parent makes the whole subtree optional regardless of inner `required` lists.
     const isRequired = parentRequired && requiredSet.has(String(key))
+
+    // Nested objects with named properties recurse so each leaf gets its own row;
+    // everything else (primitives, arrays, files, additionalProperties placeholders)
+    // is treated as a leaf and stops the descent.
     if (childSchema && isObjectSchema(childSchema) && childSchema.properties) {
       leaves.push(...collectLeafProperties(childSchema, path, isRequired))
     } else {
       leaves.push({ path, schema: childSchema, isRequired })
     }
   }
+
   return leaves
 }
 
