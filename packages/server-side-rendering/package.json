@@ -44,7 +44,6 @@
     "@vitejs/plugin-vue": "catalog:*",
     "hono": "catalog:*",
     "tsx": "catalog:*",
-    "vite": "catalog:*",
-    "vue-tsc": "catalog:*"
+    "vite": "catalog:*"
   }
 }
