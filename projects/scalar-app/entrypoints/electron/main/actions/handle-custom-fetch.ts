@@ -12,6 +12,17 @@ const agent = new Agent()
 const X_SCALAR_SET_COOKIE = 'x-scalar-set-cookie'
 
 /**
+ * Schemes the custom fetch handler is allowed to request.
+ *
+ * Because this runs in the Node.js main process via undici (not Chromium's
+ * network stack), there is nothing else stopping a `file:`, `data:`, or other
+ * non-network URL from being read off the local machine and handed back to the
+ * renderer. Restricting to `http:`/`https:` keeps the engine to network
+ * requests only and blocks local file system escapes.
+ */
+const ALLOWED_PROTOCOLS = new Set(['http:', 'https:'])
+
+/**
  * Map of in-flight request abort IDs to their AbortControllers.
  * The main process's `customFetchAbort` IPC handler looks up the ID here
  * and calls `.abort()` to cancel the undici request.
@@ -42,6 +53,20 @@ export type IpcSender = {
  *   in unit tests for non-streaming paths), streaming is disabled.
  */
 export const handleCustomFetch = async (req: IpcFetchRequest, sender?: IpcSender): Promise<IpcFetchResponse> => {
+  // Enforce a strict scheme whitelist before doing anything else. Parsing with
+  // the native URL API rejects malformed URLs, and the protocol check blocks
+  // `file:`, `data:`, and other non-network schemes that could otherwise read
+  // local resources through undici.
+  let protocol: string
+  try {
+    protocol = new URL(req.url).protocol
+  } catch {
+    throw new Error(`Invalid URL: ${req.url}`)
+  }
+  if (!ALLOWED_PROTOCOLS.has(protocol)) {
+    throw new Error(`Disallowed protocol "${protocol}". Only http: and https: requests are permitted.`)
+  }
+
   const ac = new AbortController()
   if (req.abortId) {
     abortMap.set(req.abortId, ac)

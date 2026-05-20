@@ -138,6 +138,38 @@ describe('handleCustomFetch', () => {
   })
 
   // =========================================================================
+  describe('protocol whitelist', () => {
+    it.each(['http://example.com', 'https://example.com'])('allows %s', async (url) => {
+      await expect(handleCustomFetch({ url })).resolves.toBeDefined()
+      expect(mockRequest).toHaveBeenCalledTimes(1)
+    })
+
+    it.each([
+      'file:///etc/passwd',
+      'file:///C:/Windows/System32/drivers/etc/hosts',
+      'data:text/plain,hello',
+      'ftp://example.com/file',
+      'about:blank',
+      'scalar://import',
+    ])('rejects %s without calling undici', async (url) => {
+      await expect(handleCustomFetch({ url })).rejects.toThrow('Disallowed protocol')
+      expect(mockRequest).not.toHaveBeenCalled()
+    })
+
+    it('rejects a malformed URL without calling undici', async () => {
+      await expect(handleCustomFetch({ url: 'not a url' })).rejects.toThrow('Invalid URL')
+      expect(mockRequest).not.toHaveBeenCalled()
+    })
+
+    it('does not register an AbortController when the protocol is rejected', async () => {
+      await expect(handleCustomFetch({ url: 'file:///etc/passwd', abortId: 'blocked' })).rejects.toThrow(
+        'Disallowed protocol',
+      )
+      expect(abortMap.has('blocked')).toBe(false)
+    })
+  })
+
+  // =========================================================================
   describe('response serialization', () => {
     it('returns the correct status code', async () => {
       mockRequest.mockResolvedValue(createMockUndiciResponse({ statusCode: 404 }) as never)
