@@ -54,6 +54,25 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         content.Should().Match(expected);
     }
 
+    [Theory]
+    [InlineData("/scalar/robots.txt'-alert(1)-'")]
+    [InlineData("/scalar/scalar.js'-alert(1)-'")]
+    public async Task MapScalarApiReference_ShouldEscapeRequestPathForJavaScript_WhenPathContainsQuoteBreakout(string path)
+    {
+        // Arrange
+        var client = factory.CreateClient();
+
+        // Act
+        var response = await client.GetAsync(path, TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        // The verbatim breakout pattern (literal apostrophe) must not survive into the rendered
+        // <script>. URL-encoding (%27) and JSON Unicode-escaping (') both prevent execution.
+        content.Should().NotContain("'-alert(1)-'");
+    }
+
     [Fact]
     public async Task MapScalarApiReference_ShouldRedirectToTrailingSlash_WhenRequestedWithoutTrailingSlash()
     {
