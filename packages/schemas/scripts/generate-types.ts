@@ -24,7 +24,12 @@ import { type Schema, generateTypes } from '@scalar/validation'
 import { apiReferenceConfigurationSchema } from '../src/api-reference/api-reference-configuration'
 import { createAsyncApiObjectSchema } from '../src/asyncapi/3.1/asyncapi-object'
 import { recursiveRef } from '../src/asyncapi/3.1/reference'
-import { GENERATED_TYPE_OUTPUT_PATHS, getGeneratedTypeAbsolutePaths, getRepoRoot } from './generated-type-paths'
+import {
+  GENERATED_TYPE_EXTENSIONS_PATH,
+  GENERATED_TYPE_OUTPUT_PATHS,
+  getGeneratedTypeAbsolutePaths,
+  getRepoRoot,
+} from './generated-type-paths'
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
@@ -50,7 +55,7 @@ const EXTENSIONS_INPUT_ROOT = path.join(SCHEMAS_ROOT, 'extensions')
 const EXTENSIONS_OUTPUT_ROOT = path.join(TYPES_ROOT, 'extensions')
 
 /** Repo-root-relative paths handed to biome at the end of the run. */
-const BIOME_FORMAT_PATHS = [...GENERATED_TYPE_OUTPUT_PATHS, 'packages/types/src/extensions'] as const
+const BIOME_FORMAT_PATHS = [...GENERATED_TYPE_OUTPUT_PATHS, GENERATED_TYPE_EXTENSIONS_PATH] as const
 
 // ─── Generated file IO ─────────────────────────────────────────────────────────
 
