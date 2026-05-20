@@ -1,6 +1,6 @@
 import { literal, object, optional, string, union, unknown } from '@scalar/validation'
 
-import { normalRef } from './reference'
+import { type MaybeRefFn, normalRef } from './reference'
 
 export const asyncApiMultiFormatSchemaObject = object(
   {
@@ -29,9 +29,18 @@ const asyncApiSchemaJsonShape = union(
   { typeName: 'AsyncApiSchemaJsonShape' },
 )
 
-/** Multi Format Schema Object, Schema Object, or Reference Object. */
-export const asyncApiSchemaPayload = normalRef(
-  union([asyncApiMultiFormatSchemaObject, asyncApiSchemaJsonShape], {
-    typeName: 'AsyncApiMultiFormatSchemaOrSchemaObject',
-  }),
-)
+const asyncApiSchemaPayloadInner = union([asyncApiMultiFormatSchemaObject, asyncApiSchemaJsonShape], {
+  typeName: 'AsyncApiMultiFormatSchemaOrSchemaObject',
+})
+
+/**
+ * Builds the schema payload shape (Multi Format Schema or JSON Schema) for {@link generateSchema}.
+ *
+ * **Reference union:** Returns `Multi Format Schema Object | Schema Object | Reference Object`.
+ * Do not wrap the result in `maybeRef` again at the call site.
+ *
+ * @param maybeRef - `normalRef` or `recursiveRef` from `./reference`.
+ */
+export const createAsyncApiSchemaPayload = (maybeRef: MaybeRefFn) => maybeRef(asyncApiSchemaPayloadInner)
+
+export const asyncApiSchemaPayload = createAsyncApiSchemaPayload(normalRef)

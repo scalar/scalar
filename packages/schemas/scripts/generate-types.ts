@@ -1,23 +1,69 @@
 /**
  * Generate types for the schemas
  *
- * We will dump the types to the types package which is going to be pure types with no dependencies on the schemas package
+ * We dump the types to the types package which is pure types with no dependency on the schemas package.
  */
 
-import { generateTypes } from '@scalar/validation'
+import { spawnSync } from 'node:child_process'
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import { apiReferenceConfigurationSchema } from '../src/api-reference/api-reference-configuration'
 
-/** Generate the types */
+import { generateTypes } from '@scalar/validation'
+
+import { apiReferenceConfigurationSchema } from '../src/api-reference/api-reference-configuration'
+import { generateSchema } from '../src/asyncapi/3.1/asyncapi-object'
+import { recursiveRef } from '../src/asyncapi/3.1/reference'
+
+const generatedAt = new Date().toISOString()
+
 const apiReferenceConfigurationTypes = generateTypes(apiReferenceConfigurationSchema, {
-  generatedAt: new Date().toISOString(),
+  generatedAt,
   maxDepth: Number.POSITIVE_INFINITY,
   typeName: 'ApiReferenceConfiguration',
 })
 
-/** Write the types to the types package */
-const outDir = path.join(import.meta.dirname, '../../types/src/gen')
-// Create the directory if it doesn't exist
-await fs.mkdir(outDir, { recursive: true })
-await fs.writeFile(path.join(outDir, 'api-reference.d.ts'), apiReferenceConfigurationTypes)
+const asyncApi31Types = generateTypes(generateSchema(recursiveRef), {
+  generatedAt,
+  maxDepth: Number.POSITIVE_INFINITY,
+  typeName: 'AsyncApiDocument',
+})
+
+const repoRoot = path.join(import.meta.dirname, '../../..')
+const typesPackageSrc = path.join(repoRoot, 'packages/types/src')
+
+const genDir = path.join(typesPackageSrc, 'gen')
+const asyncApi31Dir = path.join(typesPackageSrc, 'asyncapi/3.1')
+
+const apiReferenceTypesPath = path.join(genDir, 'api-reference.d.ts')
+const asyncApi31TypesPath = path.join(asyncApi31Dir, 'index.generated.ts')
+
+await fs.mkdir(genDir, { recursive: true })
+await fs.mkdir(asyncApi31Dir, { recursive: true })
+
+await Promise.all([
+  fs.writeFile(apiReferenceTypesPath, apiReferenceConfigurationTypes),
+  fs.writeFile(asyncApi31TypesPath, asyncApi31Types),
+])
+
+const generatedPaths = [
+  path.relative(repoRoot, apiReferenceTypesPath),
+  path.relative(repoRoot, asyncApi31TypesPath),
+]
+
+const formatResult = spawnSync(
+  'pnpm',
+  [
+    'biome',
+    'check',
+    '--write',
+    '--diagnostic-level=error',
+    '--no-errors-on-unmatched',
+    '--files-ignore-unknown=true',
+    ...generatedPaths,
+  ],
+  { cwd: repoRoot, stdio: 'inherit' },
+)
+
+if (formatResult.status !== 0) {
+  process.exit(formatResult.status ?? 1)
+}

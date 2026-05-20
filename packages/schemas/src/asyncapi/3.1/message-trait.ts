@@ -1,20 +1,33 @@
-import { array, object, optional, string, union } from '@scalar/validation'
+import { array, object, optional, string } from '@scalar/validation'
 
 import { asyncApiMessageBindingsObject } from './bindings'
-import { asyncApiCorrelationIdObject } from './correlation-id'
-import { asyncApiExternalDocumentationObject } from './external-documentation'
+import { createAsyncApiCorrelationIdObject } from './correlation-id'
+import { createAsyncApiExternalDocumentationObject } from './external-documentation'
 import { asyncApiMessageExampleObject } from './message-example'
-import { asyncApiReferenceObject, normalRef } from './reference'
-import { asyncApiSchemaPayload } from './schema-payload'
-import { asyncApiTagsObject } from './tag'
+import { type MaybeRefFn, normalRef } from './reference'
+import { createAsyncApiSchemaPayload } from './schema-payload'
+import { createAsyncApiTagSchemas } from './tag'
 
-export const asyncApiMessageTraitObject = union(
-  [
-    asyncApiReferenceObject,
+/**
+ * Builds the Message Trait Object schema for {@link generateSchema}.
+ *
+ * **Reference union:** Returns `Message Trait Object | Reference Object`. Nested fields such as
+ * `correlationId` and `externalDocs` use other `create*` results that are already reference
+ * unions. Do not wrap the return value in `maybeRef` again.
+ *
+ * @param maybeRef - `normalRef` or `recursiveRef` from `./reference`.
+ */
+export const createAsyncApiMessageTraitObject = (maybeRef: MaybeRefFn) => {
+  const schemaPayload = createAsyncApiSchemaPayload(maybeRef)
+  const externalDocumentation = createAsyncApiExternalDocumentationObject(maybeRef)
+  const correlationId = createAsyncApiCorrelationIdObject(maybeRef)
+  const { tagsObject } = createAsyncApiTagSchemas(maybeRef)
+
+  return maybeRef(
     object(
       {
-        headers: optional(asyncApiSchemaPayload),
-        correlationId: optional(normalRef(asyncApiCorrelationIdObject)),
+        headers: optional(schemaPayload),
+        correlationId: optional(correlationId),
         contentType: optional(
           string({
             typeComment:
@@ -30,13 +43,14 @@ export const asyncApiMessageTraitObject = union(
               'A verbose explanation of the message. CommonMark syntax MAY be used for rich text representation.',
           }),
         ),
-        tags: optional(asyncApiTagsObject),
-        externalDocs: optional(normalRef(asyncApiExternalDocumentationObject)),
-        bindings: optional(normalRef(asyncApiMessageBindingsObject)),
-        examples: optional(array(normalRef(asyncApiMessageExampleObject))),
+        tags: optional(tagsObject),
+        externalDocs: optional(externalDocumentation),
+        bindings: optional(maybeRef(asyncApiMessageBindingsObject)),
+        examples: optional(array(maybeRef(asyncApiMessageExampleObject))),
       },
       { typeName: 'AsyncApiMessageTraitObject' },
     ),
-  ],
-  { typeName: 'AsyncApiMessageTraitOrReference' },
-)
+  )
+}
+
+export const asyncApiMessageTraitObject = createAsyncApiMessageTraitObject(normalRef)

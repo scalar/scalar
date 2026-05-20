@@ -1,11 +1,19 @@
-import { array, object, optional, string, union } from '@scalar/validation'
+import { array, object, optional, string } from '@scalar/validation'
 
-import { asyncApiExternalDocumentationObject } from './external-documentation'
-import { asyncApiReferenceObject, normalRef } from './reference'
+import { createAsyncApiExternalDocumentationObject } from './external-documentation'
+import { type MaybeRefFn, normalRef } from './reference'
 
-export const asyncApiTagObject = union(
-  [
-    asyncApiReferenceObject,
+/**
+ * Builds Tag-related schemas for {@link generateSchema}.
+ *
+ * @param maybeRef - `normalRef` or `recursiveRef` from `./reference`.
+ * @returns `tagObject` — **Reference union** (`Tag Object | Reference Object`). Do not wrap again.
+ * @returns `tagsObject` — Array of the same union (each item may be inline or `$ref`).
+ */
+export const createAsyncApiTagSchemas = (maybeRef: MaybeRefFn) => {
+  const externalDocumentation = createAsyncApiExternalDocumentationObject(maybeRef)
+
+  const tagObject = maybeRef(
     object(
       {
         name: string({ typeComment: 'REQUIRED. The name of the tag.' }),
@@ -14,15 +22,21 @@ export const asyncApiTagObject = union(
             typeComment: 'A short description for the tag. CommonMark syntax MAY be used for rich text representation.',
           }),
         ),
-        externalDocs: optional(normalRef(asyncApiExternalDocumentationObject)),
+        externalDocs: optional(externalDocumentation),
       },
       { typeName: 'AsyncApiTagObject' },
     ),
-  ],
-  { typeName: 'AsyncApiTagOrReference' },
-)
+  )
 
-export const asyncApiTagsObject = array(normalRef(asyncApiTagObject), {
-  typeName: 'AsyncApiTagsObject',
-  typeComment: 'A list of Tag Objects (entries MAY be Reference Objects).',
-})
+  const tagsObject = array(tagObject, {
+    typeName: 'AsyncApiTagsObject',
+    typeComment: 'A list of Tag Objects (entries MAY be Reference Objects).',
+  })
+
+  return { tagObject, tagsObject }
+}
+
+const defaultTagSchemas = createAsyncApiTagSchemas(normalRef)
+
+export const asyncApiTagObject = defaultTagSchemas.tagObject
+export const asyncApiTagsObject = defaultTagSchemas.tagsObject

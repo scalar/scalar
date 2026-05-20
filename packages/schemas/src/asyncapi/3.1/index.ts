@@ -1,4 +1,9 @@
-export { asyncApiA2sObjectSchema, asyncApiObjectSchema } from './asyncapi-object'
+export {
+  asyncApiA2sObjectSchema,
+  asyncApiObjectSchema,
+  createAsyncApiObjectSchema,
+  generateSchema,
+} from './asyncapi-object'
 export {
   asyncApiChannelBindingsObject,
   asyncApiMessageBindingsObject,
@@ -22,7 +27,7 @@ export { asyncApiOperationReplyAddressObject } from './operation-reply-address'
 export { asyncApiOperationTraitObject } from './operation-trait'
 export { asyncApiParameterObject } from './parameter'
 export { asyncApiParametersObject } from './parameters'
-export { asyncApiReferenceObject, normalRef } from './reference'
+export { type MaybeRefFn, asyncApiReferenceObject, normalRef, recursiveRef } from './reference'
 export { asyncApiMultiFormatSchemaObject, asyncApiSchemaPayload } from './schema-payload'
 export { asyncApiSecuritySchemeObject } from './security-scheme'
 export { asyncApiServerObject, asyncApiServersObject } from './server'

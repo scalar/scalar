@@ -1,23 +1,36 @@
-import { array, lazy, object, optional, record, string, union } from '@scalar/validation'
+import { array, lazy, object, optional, record, string } from '@scalar/validation'
 
 import { asyncApiMessageBindingsObject } from './bindings'
-import { asyncApiCorrelationIdObject } from './correlation-id'
-import { asyncApiExternalDocumentationObject } from './external-documentation'
+import { createAsyncApiCorrelationIdObject } from './correlation-id'
+import { createAsyncApiExternalDocumentationObject } from './external-documentation'
 import { asyncApiMessageExampleObject } from './message-example'
-import { asyncApiMessageTraitObject } from './message-trait'
-import { asyncApiReferenceObject, normalRef } from './reference'
-import { asyncApiSchemaPayload } from './schema-payload'
-import { asyncApiTagsObject } from './tag'
+import { createAsyncApiMessageTraitObject } from './message-trait'
+import { type MaybeRefFn, normalRef } from './reference'
+import { createAsyncApiSchemaPayload } from './schema-payload'
+import { createAsyncApiTagSchemas } from './tag'
 
-export const asyncApiMessageObject = lazy(() =>
-  union(
-    [
-      asyncApiReferenceObject,
+/**
+ * Builds Message-related schemas for {@link generateSchema}.
+ *
+ * @param maybeRef - `normalRef` or `recursiveRef` from `./reference`.
+ * @returns `messageObject` — **Reference union** (`Message Object | Reference Object`). Lazy for
+ *   circular dependencies. Do not wrap again.
+ * @returns `messagesObject` — Map whose values use the same union.
+ */
+export const createAsyncApiMessageSchemas = (maybeRef: MaybeRefFn) => {
+  const schemaPayload = createAsyncApiSchemaPayload(maybeRef)
+  const externalDocumentation = createAsyncApiExternalDocumentationObject(maybeRef)
+  const correlationId = createAsyncApiCorrelationIdObject(maybeRef)
+  const messageTrait = createAsyncApiMessageTraitObject(maybeRef)
+  const { tagsObject } = createAsyncApiTagSchemas(maybeRef)
+
+  const messageObject = lazy(() =>
+    maybeRef(
       object(
         {
-          headers: optional(asyncApiSchemaPayload),
-          payload: optional(asyncApiSchemaPayload),
-          correlationId: optional(normalRef(asyncApiCorrelationIdObject)),
+          headers: optional(schemaPayload),
+          payload: optional(schemaPayload),
+          correlationId: optional(correlationId),
           contentType: optional(
             string({
               typeComment:
@@ -33,20 +46,26 @@ export const asyncApiMessageObject = lazy(() =>
                 'A verbose explanation of the message. CommonMark syntax MAY be used for rich text representation.',
             }),
           ),
-          tags: optional(asyncApiTagsObject),
-          externalDocs: optional(normalRef(asyncApiExternalDocumentationObject)),
-          bindings: optional(normalRef(asyncApiMessageBindingsObject)),
-          examples: optional(array(normalRef(asyncApiMessageExampleObject))),
-          traits: optional(array(normalRef(asyncApiMessageTraitObject))),
+          tags: optional(tagsObject),
+          externalDocs: optional(externalDocumentation),
+          bindings: optional(maybeRef(asyncApiMessageBindingsObject)),
+          examples: optional(array(maybeRef(asyncApiMessageExampleObject))),
+          traits: optional(array(messageTrait)),
         },
         { typeName: 'AsyncApiMessageObject' },
       ),
-    ],
-    { typeName: 'AsyncApiMessageOrReference' },
-  ),
-)
+    ),
+  )
 
-export const asyncApiMessagesObject = record(string(), normalRef(asyncApiMessageObject), {
-  typeName: 'AsyncApiMessagesObject',
-  typeComment: 'Map of messageId to Message Object or Reference Object.',
-})
+  const messagesObject = record(string(), messageObject, {
+    typeName: 'AsyncApiMessagesObject',
+    typeComment: 'Map of messageId to Message Object or Reference Object.',
+  })
+
+  return { messageObject, messagesObject }
+}
+
+const defaultMessageSchemas = createAsyncApiMessageSchemas(normalRef)
+
+export const asyncApiMessageObject = defaultMessageSchemas.messageObject
+export const asyncApiMessagesObject = defaultMessageSchemas.messagesObject

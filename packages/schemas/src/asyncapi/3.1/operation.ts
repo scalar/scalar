@@ -1,17 +1,30 @@
 import { array, lazy, literal, object, optional, record, string, union } from '@scalar/validation'
 
 import { asyncApiOperationBindingsObject } from './bindings'
-import { asyncApiExternalDocumentationObject } from './external-documentation'
-import { asyncApiOperationReplyObject } from './operation-reply'
-import { asyncApiOperationTraitObject } from './operation-trait'
-import { asyncApiReferenceObject, normalRef } from './reference'
-import { asyncApiSecuritySchemeObject } from './security-scheme'
-import { asyncApiTagsObject } from './tag'
+import { createAsyncApiExternalDocumentationObject } from './external-documentation'
+import { createAsyncApiOperationReplyObject } from './operation-reply'
+import { createAsyncApiOperationTraitObject } from './operation-trait'
+import { type MaybeRefFn, asyncApiReferenceObject, normalRef } from './reference'
+import { createAsyncApiSecuritySchemeObject } from './security-scheme'
+import { createAsyncApiTagSchemas } from './tag'
 
-export const asyncApiOperationObject = lazy(() =>
-  union(
-    [
-      asyncApiReferenceObject,
+/**
+ * Builds Operation-related schemas for {@link generateSchema}.
+ *
+ * @param maybeRef - `normalRef` or `recursiveRef` from `./reference`.
+ * @returns `operationObject` — **Reference union** (`Operation Object | Reference Object`). The
+ *   `channel` field is a Reference Object only in the raw document. Do not wrap again.
+ * @returns `operationsObject` — Map whose values use the same union.
+ */
+export const createAsyncApiOperationSchemas = (maybeRef: MaybeRefFn) => {
+  const externalDocumentation = createAsyncApiExternalDocumentationObject(maybeRef)
+  const operationReply = createAsyncApiOperationReplyObject(maybeRef)
+  const operationTrait = createAsyncApiOperationTraitObject(maybeRef)
+  const securityScheme = createAsyncApiSecuritySchemeObject(maybeRef)
+  const { tagsObject } = createAsyncApiTagSchemas(maybeRef)
+
+  const operationObject = lazy(() =>
+    maybeRef(
       object(
         {
           action: union([literal('send'), literal('receive')], {
@@ -28,31 +41,37 @@ export const asyncApiOperationObject = lazy(() =>
             }),
           ),
           security: optional(
-            array(normalRef(asyncApiSecuritySchemeObject), {
+            array(securityScheme, {
               typeComment:
                 'Security schemes for this operation. Only one of the security scheme objects MUST be satisfied.',
             }),
           ),
-          tags: optional(asyncApiTagsObject),
-          externalDocs: optional(normalRef(asyncApiExternalDocumentationObject)),
-          bindings: optional(normalRef(asyncApiOperationBindingsObject)),
-          traits: optional(array(normalRef(asyncApiOperationTraitObject))),
+          tags: optional(tagsObject),
+          externalDocs: optional(externalDocumentation),
+          bindings: optional(maybeRef(asyncApiOperationBindingsObject)),
+          traits: optional(array(operationTrait)),
           messages: optional(
             array(asyncApiReferenceObject, {
               typeComment:
                 'Subset of channel messages as Reference Objects only. Omit to include all channel messages; use [] for none.',
             }),
           ),
-          reply: optional(normalRef(asyncApiOperationReplyObject)),
+          reply: optional(operationReply),
         },
         { typeName: 'AsyncApiOperationObject' },
       ),
-    ],
-    { typeName: 'AsyncApiOperationOrReference' },
-  ),
-)
+    ),
+  )
 
-export const asyncApiOperationsObject = record(string(), normalRef(asyncApiOperationObject), {
-  typeName: 'AsyncApiOperationsObject',
-  typeComment: 'Map of operationId to Operation Object or Reference Object.',
-})
+  const operationsObject = record(string(), operationObject, {
+    typeName: 'AsyncApiOperationsObject',
+    typeComment: 'Map of operationId to Operation Object or Reference Object.',
+  })
+
+  return { operationObject, operationsObject }
+}
+
+const defaultOperationSchemas = createAsyncApiOperationSchemas(normalRef)
+
+export const asyncApiOperationObject = defaultOperationSchemas.operationObject
+export const asyncApiOperationsObject = defaultOperationSchemas.operationsObject

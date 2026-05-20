@@ -42,6 +42,7 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
+    "@scalar/helpers": "workspace:*",
     "@scalar/validation": "workspace:*"
   },
   "devDependencies": {

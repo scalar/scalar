@@ -1,11 +1,21 @@
-import { array, object, optional, string, union } from '@scalar/validation'
+import { array, object, optional, string } from '@scalar/validation'
 
-import { asyncApiOAuthFlowsObject } from './oauth'
-import { asyncApiReferenceObject, normalRef } from './reference'
+import { createAsyncApiOAuthFlowsObject } from './oauth'
+import { type MaybeRefFn, normalRef } from './reference'
 
-export const asyncApiSecuritySchemeObject = union(
-  [
-    asyncApiReferenceObject,
+/**
+ * Builds the Security Scheme Object schema for {@link generateSchema}.
+ *
+ * **Reference union:** Returns `Security Scheme Object | Reference Object`. The `flows` field
+ * uses {@link createAsyncApiOAuthFlowsObject} (inline container); individual flows inside it
+ * are reference unions. Do not wrap the return value in `maybeRef` again.
+ *
+ * @param maybeRef - `normalRef` or `recursiveRef` from `./reference`.
+ */
+export const createAsyncApiSecuritySchemeObject = (maybeRef: MaybeRefFn) => {
+  const oauthFlows = createAsyncApiOAuthFlowsObject(maybeRef)
+
+  return maybeRef(
     object(
       {
         type: string({
@@ -36,7 +46,7 @@ export const asyncApiSecuritySchemeObject = union(
         bearerFormat: optional(
           string({ typeComment: 'A hint to the client to identify how the bearer token is formatted.' }),
         ),
-        flows: optional(normalRef(asyncApiOAuthFlowsObject)),
+        flows: optional(maybeRef(oauthFlows)),
         openIdConnectUrl: optional(
           string({
             typeComment:
@@ -49,6 +59,7 @@ export const asyncApiSecuritySchemeObject = union(
       },
       { typeName: 'AsyncApiSecuritySchemeObject' },
     ),
-  ],
-  { typeName: 'AsyncApiSecuritySchemeOrReference' },
-)
+  )
+}
+
+export const asyncApiSecuritySchemeObject = createAsyncApiSecuritySchemeObject(normalRef)
