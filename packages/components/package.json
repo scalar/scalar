@@ -22,7 +22,7 @@
     "clean:snapshots": "shx rm -rf \"**/snapshots\"",
     "dev": "storybook dev -p 5100 --ci",
     "lint:check": "pnpm lint:icons",
-    "lint:icons": "svglint src/components/icon/icons/*.svg --config src/components/icon/.svglintrc.js",
+    "lint:icons": "svglint src/components/ScalarIcon/icons/*.svg --config src/components/ScalarIcon/.svglintrc.js",
     "preview": "vite preview --outDir storybook-static -c test/vite.config.ts 1>&2",
     "test": "vitest --run",
     "test:e2e": "PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:5001/ playwright test",
