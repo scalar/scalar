@@ -16,12 +16,12 @@ export const GENERATED_TYPE_STAGED_PATHS = ['packages/types/src/asyncapi/3.1/ind
 export const getRepoRoot = (): string => path.join(import.meta.dirname, '../../..')
 
 /** Maps a readonly path tuple to a parallel absolute-path tuple (numeric indices only). */
-export type MapRelativePathsToAbsolute<T extends readonly string[]> = {
+type MapRelativePathsToAbsolute<T extends readonly string[]> = {
   readonly [Index in keyof T as T[Index] extends string ? Index : never]: string
 }
 
 /** Absolute paths parallel to {@link GENERATED_TYPE_OUTPUT_PATHS} (same tuple length and indices). */
-export type GeneratedTypeAbsolutePaths = MapRelativePathsToAbsolute<typeof GENERATED_TYPE_OUTPUT_PATHS>
+type GeneratedTypeAbsolutePaths = MapRelativePathsToAbsolute<typeof GENERATED_TYPE_OUTPUT_PATHS>
 
 const mapPathsToAbsolute = <const T extends readonly string[]>(
   repoRoot: string,

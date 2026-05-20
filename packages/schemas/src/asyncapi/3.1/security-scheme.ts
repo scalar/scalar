@@ -1,4 +1,4 @@
-import { array, object, optional, string } from '@scalar/validation'
+import { array, literal, object, optional, string, union } from '@scalar/validation'
 
 import { createAsyncApiOAuthFlowsObject } from './oauth'
 import { type MaybeRefFn, normalRef } from './reference'
@@ -18,10 +18,27 @@ export const createAsyncApiSecuritySchemeObject = (maybeRef: MaybeRefFn) => {
   return maybeRef(
     object(
       {
-        type: string({
-          typeComment:
-            'REQUIRED. Security scheme type: userPassword, apiKey, X509, symmetricEncryption, asymmetricEncryption, httpApiKey, http, oauth2, openIdConnect, plain, scramSha256, scramSha512, gssapi.',
-        }),
+        type: union(
+          [
+            literal('userPassword'),
+            literal('apiKey'),
+            literal('X509'),
+            literal('symmetricEncryption'),
+            literal('asymmetricEncryption'),
+            literal('httpApiKey'),
+            literal('http'),
+            literal('oauth2'),
+            literal('openIdConnect'),
+            literal('plain'),
+            literal('scramSha256'),
+            literal('scramSha512'),
+            literal('gssapi'),
+          ],
+          {
+            typeComment:
+              'REQUIRED. Security scheme type: userPassword, apiKey, X509, symmetricEncryption, asymmetricEncryption, httpApiKey, http, oauth2, openIdConnect, plain, scramSha256, scramSha512, gssapi.',
+          },
+        ),
         description: optional(
           string({
             typeComment:
@@ -32,7 +49,7 @@ export const createAsyncApiSecuritySchemeObject = (maybeRef: MaybeRefFn) => {
           string({ typeComment: 'REQUIRED for httpApiKey. The name of the header, query or cookie parameter.' }),
         ),
         'in': optional(
-          string({
+          union([literal('user'), literal('password'), literal('query'), literal('header'), literal('cookie')], {
             typeComment:
               'REQUIRED for apiKey and httpApiKey. Location of the API key: user, password, query, header, or cookie.',
           }),
