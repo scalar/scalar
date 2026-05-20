@@ -8,9 +8,7 @@ type ImportFromQueryOptions = {
   darkMode: boolean
 }
 
-const getImportOperationFromQuery = ():
-  | Pick<ImportEventData, 'operationPath' | 'operationMethod'>
-  | undefined => {
+const getImportOperationFromQuery = (): Pick<ImportEventData, 'operationPath' | 'operationMethod'> | undefined => {
   const operationPath = getUrlQueryParameter('operation_path')
   const operationMethodRaw = getUrlQueryParameter('operation_method')
 
@@ -34,18 +32,14 @@ const getImportOperationFromQuery = ():
  * Reads import-related URL query parameters (document URL, logos, operation target)
  * set when opening the client from API Reference or other integrations.
  */
-export const getImportFromQuery = ({
-  darkMode,
-}: ImportFromQueryOptions): ImportEventData | undefined => {
+export const getImportFromQuery = ({ darkMode }: ImportFromQueryOptions): ImportEventData | undefined => {
   const source = getUrlQueryParameter('url')
 
   if (!source?.length) {
     return undefined
   }
 
-  const companyLogo = darkMode
-    ? getUrlQueryParameter('dark_logo')
-    : getUrlQueryParameter('light_logo')
+  const companyLogo = darkMode ? getUrlQueryParameter('dark_logo') : getUrlQueryParameter('light_logo')
 
   const operation = getImportOperationFromQuery()
 

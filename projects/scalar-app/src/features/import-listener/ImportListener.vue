@@ -114,7 +114,11 @@ const directImport = async (
     return
   }
 
-  await handleImportDocument(draftStore.exportWorkspace(), 'drafts', importEventData)
+  await handleImportDocument(
+    draftStore.exportWorkspace(),
+    'drafts',
+    importEventData,
+  )
 }
 
 /**
