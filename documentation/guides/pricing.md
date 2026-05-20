@@ -694,6 +694,13 @@
   <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/utn6gGF3Iucolqx4jmXmY.svg">
 </div>
 <style>
+:root {
+  --scalar-text-decoration: none;
+  --scalar-text-decoration-hover: none;
+}
+.t-editor__anchor {
+  --font-visited: none;
+}
 .mobiletabs input {
   position: absolute;
   left: -200vw;
