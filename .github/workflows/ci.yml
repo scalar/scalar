@@ -971,7 +971,7 @@ jobs:
     needs: [required-jobs-main, build, check-changes, npm-publish]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 15
-    environment: production
+    environment: production-todesktop
     permissions:
       contents: read
     steps:
