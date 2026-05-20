@@ -1400,6 +1400,7 @@ jobs:
   aspire-publish:
     if: needs.npm-publish.outputs.published == 'true' && needs.check-changes.outputs.aspire_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-aspire
     timeout-minutes: 10
     concurrency:
       group: aspire-publish
