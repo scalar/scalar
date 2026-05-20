@@ -139,6 +139,19 @@ const dropdownRef = ref<InstanceType<
   typeof EnvironmentVariableDropdown
 > | null>(null)
 
+/** Id of the dropdown's `role="listbox"` element, for the combobox wiring. */
+const listboxId = computed((): string | undefined =>
+  componentId.value ? `${componentId.value}-listbox` : undefined,
+)
+
+/**
+ * Id of the option the dropdown currently highlights. Mirrors the dropdown's
+ * own selection so the editor can expose it via `aria-activedescendant`.
+ */
+const activeOptionId = computed(
+  (): string | undefined => dropdownRef.value?.activeOptionId,
+)
+
 const isFocused = ref(false)
 const isEmpty = ref(true)
 
@@ -819,12 +832,10 @@ defineExpose({
     <div
       ref="editorRef"
       :aria-activedescendant="
-        displayVariablesDropdown ? `${componentId}-listbox` : undefined
+        displayVariablesDropdown ? activeOptionId : undefined
       "
       :aria-autocomplete="withVariables ? 'list' : undefined"
-      :aria-controls="
-        displayVariablesDropdown ? `${componentId}-listbox` : undefined
-      "
+      :aria-controls="displayVariablesDropdown ? listboxId : undefined"
       :aria-expanded="displayVariablesDropdown ? 'true' : undefined"
       :aria-invalid="error ? 'true' : undefined"
       :aria-label="attrs['aria-label']"
@@ -871,6 +882,7 @@ defineExpose({
     :contextFunctionItems="contextFunctionDropdownItems"
     :dropdownPosition="dropdownPosition"
     :environment="environment"
+    :listboxId="listboxId"
     :query="dropdownQuery"
     @redirect="emit('navigate', { page: 'document', path: 'environment' })"
     @select="handleDropdownSelect" />
