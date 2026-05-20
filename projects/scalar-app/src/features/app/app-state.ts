@@ -1,3 +1,4 @@
+import type { ClientLayout } from '@scalar/api-client/types'
 import type { ScalarListboxOption } from '@scalar/components'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
@@ -16,7 +17,7 @@ import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-un
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import { createWorkspaceStorePersistence, generateWorkspaceUid } from '@scalar/workspace-store/persistence'
 import { persistencePlugin } from '@scalar/workspace-store/plugins/client'
-import { getActiveEnvironment } from '@scalar/workspace-store/request-example'
+import { getActiveEnvironment, getActiveProxyUrl } from '@scalar/workspace-store/request-example'
 import type { Workspace, WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -215,6 +216,11 @@ export type AppState = {
   document: ComputedRef<WorkspaceDocument | null>
   /** Whether the current color mode is dark */
   isDarkMode: ComputedRef<boolean>
+  /**
+   * Default CORS proxy for this client layout when a workspace has not set
+   * `x-scalar-active-proxy` (`null` means skip the proxy).
+   */
+  defaultProxyUrl: ComputedRef<string | null>
   telemetry: Ref<boolean>
 }
 
@@ -240,12 +246,15 @@ export const createAppState = async ({
   fileLoader,
   telemetryDefault,
   options,
+  layout,
 }: {
   router: Router
   fileLoader?: LoaderPlugin
   telemetryDefault?: boolean
   /** Runtime behaviour overrides */
   options?: ApiClientAppOptions
+  /** Client layout — drives default proxy selection for document fetching */
+  layout: Exclude<ClientLayout, 'modal'>
 }): Promise<AppState> => {
   /** Workspace event bus for handling workspace-level events. */
   const eventBus = createWorkspaceEventBus({
@@ -253,6 +262,12 @@ export const createAppState = async ({
   })
 
   const { workspace: persistence, meta: metaPersistence } = await createWorkspaceStorePersistence()
+
+  const defaultProxyUrl = computed(() => getActiveProxyUrl(undefined, layout === 'web' ? 'web' : 'other'))
+
+  const defaultWorkspaceProxyMeta = () => ({
+    'x-scalar-active-proxy': defaultProxyUrl.value,
+  })
 
   /**
    * Run migration from localStorage to IndexedDB if needed
@@ -370,6 +385,7 @@ export const createAppState = async ({
       ],
       fileLoader,
       fetch: options?.customFetch,
+      meta: defaultWorkspaceProxyMeta(),
     })
   }
 
@@ -518,7 +534,9 @@ export const createAppState = async ({
     teamSlug: string
     slug: string
   }) => {
-    const draftStore = createWorkspaceStore()
+    const draftStore = createWorkspaceStore({
+      meta: defaultWorkspaceProxyMeta(),
+    })
     const isTeam = teamUid !== 'local'
 
     if (!isTeam) {
@@ -1439,6 +1457,7 @@ export const createAppState = async ({
     environment,
     document: activeDocument,
     isDarkMode,
+    defaultProxyUrl,
     telemetry,
     options,
   }
