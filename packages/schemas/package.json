@@ -22,7 +22,8 @@
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "vitest --run",
     "types:check": "tsc --noEmit",
-    "types:generate": "tsx scripts/generate-types.ts"
+    "types:generate": "tsx scripts/generate-types.ts",
+    "types:generate:stage": "tsx scripts/stage-generated-types.ts"
   },
   "type": "module",
   "exports": {

@@ -1,7 +1,7 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import { type Schema, evaluate, intersection, object, string, union } from '@scalar/validation'
 
-import { referenceExtensions } from '@/general/bunder-extensions'
+import { referenceExtensions } from '@/general/bundler-extensions'
 
 /**
  * Wraps an inline schema so it may also be satisfied by an AsyncAPI Reference Object.
