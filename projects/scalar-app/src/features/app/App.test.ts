@@ -282,7 +282,10 @@ describe('App', () => {
       url: 'https://example.com/openapi.json',
     })
 
-    expect(globalFetchSpy).toHaveBeenCalledWith('https://example.com/openapi.json', { headers: undefined })
+    expect(globalFetchSpy).toHaveBeenCalledWith(
+      'https://proxy.scalar.com/?scalar_url=https%3A%2F%2Fexample.com%2Fopenapi.json',
+      { headers: undefined },
+    )
     globalFetchSpy.mockRestore()
   })
 })
