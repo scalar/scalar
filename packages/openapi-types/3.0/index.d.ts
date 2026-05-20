@@ -35,7 +35,6 @@ export type { ResponseObject } from './response'
 export type { ResponsesObject } from './responses'
 export type {
   Extensions,
-  MultiTypeObject,
   NumericFormat,
   PrimitiveSchemaType,
   SchemaObject,
