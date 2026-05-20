@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ScalarMarkdown } from '@scalar/components/scalar-markdown'
-import { ScalarPopover } from '@scalar/components/scalar-popover'
+import { ScalarMarkdown } from '@scalar/components/markdown'
+import { ScalarPopover } from '@scalar/components/popover'
 import { ScalarIconInfo, ScalarIconWarning } from '@scalar/icons'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'

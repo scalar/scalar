@@ -20,9 +20,9 @@ export default {}
 
 <script setup lang="ts">
 import { ScalarAsciiArt } from '@scalar/api-client/components/ScalarAsciiArt'
-import { ScalarButton } from '@scalar/components/scalar-button'
-import { ScalarHotkey } from '@scalar/components/scalar-hotkey'
-import { useModal } from '@scalar/components/scalar-modal'
+import { ScalarButton } from '@scalar/components/button'
+import { ScalarHotkey } from '@scalar/components/hotkey'
+import { useModal } from '@scalar/components/modal'
 import {
   ScalarIconBracketsCurly,
   ScalarIconDownloadSimple,

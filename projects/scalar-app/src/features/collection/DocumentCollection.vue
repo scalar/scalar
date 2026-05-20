@@ -13,7 +13,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components/scalar-button'
+import { ScalarButton } from '@scalar/components/button'
 import { ScalarIconDownload } from '@scalar/icons'
 import { LibraryIcon } from '@scalar/icons/library'
 import { computed } from 'vue'

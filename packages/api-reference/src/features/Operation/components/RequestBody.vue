@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarMarkdown } from '@scalar/components/scalar-markdown'
+import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'

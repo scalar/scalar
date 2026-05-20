@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { ScalarMarkdown } from '@scalar/components/scalar-markdown'
-import { ScalarWrappingText } from '@scalar/components/scalar-wrapping-text'
+import { ScalarMarkdown } from '@scalar/components/markdown'
+import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type {

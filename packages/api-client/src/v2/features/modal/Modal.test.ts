@@ -1,4 +1,4 @@
-import { useModal } from '@scalar/components/scalar-modal'
+import { useModal } from '@scalar/components/modal'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'

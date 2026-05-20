@@ -3,7 +3,7 @@ import {
   ScalarCard,
   ScalarCardHeader,
   ScalarCardSection,
-} from '@scalar/components/scalar-card'
+} from '@scalar/components/card'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { computed } from 'vue'

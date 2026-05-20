@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components/scalar-button'
-import { ScalarModal } from '@scalar/components/scalar-modal'
+import { ScalarButton } from '@scalar/components/button'
+import { ScalarModal } from '@scalar/components/modal'
 
 defineProps<{
   state: { open: boolean; show: () => void; hide: () => void }

@@ -20,8 +20,8 @@ export default {}
 </script>
 
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components/scalar-button'
-import { ScalarModal, type ModalState } from '@scalar/components/scalar-modal'
+import { ScalarButton } from '@scalar/components/button'
+import { ScalarModal, type ModalState } from '@scalar/components/modal'
 import { ScalarIconSparkle } from '@scalar/icons'
 import { computed, ref, watch } from 'vue'
 

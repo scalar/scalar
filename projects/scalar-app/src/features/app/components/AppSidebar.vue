@@ -2,20 +2,17 @@
 import { Resize } from '@scalar/api-client/components/resize'
 import { DeleteSidebarListElement } from '@scalar/api-client/components/Sidebar'
 import { DocumentSearchModal } from '@scalar/api-client/features/search'
-import { ScalarButton } from '@scalar/components/scalar-button'
-import {
-  ScalarDropdown,
-  ScalarDropdownItem,
-} from '@scalar/components/scalar-dropdown'
-import { ScalarIconButton } from '@scalar/components/scalar-icon-button'
-import { ScalarModal, useModal } from '@scalar/components/scalar-modal'
+import { ScalarButton } from '@scalar/components/button'
+import { ScalarDropdown, ScalarDropdownItem } from '@scalar/components/dropdown'
+import { ScalarIconButton } from '@scalar/components/icon-button'
+import { ScalarModal, useModal } from '@scalar/components/modal'
 import {
   ScalarSidebar,
   ScalarSidebarButton,
   ScalarSidebarItems,
   ScalarSidebarSearchInput,
   ScalarSidebarSection,
-} from '@scalar/components/scalar-sidebar'
+} from '@scalar/components/sidebar'
 import { safeRun } from '@scalar/helpers/types/safe-run'
 import {
   ScalarIconCaretUpDown,

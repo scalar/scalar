@@ -22,7 +22,7 @@ export default {}
 
 <script lang="ts" setup>
 import { ServerVariablesForm } from '@scalar/api-client/components/Server'
-import { ScalarMarkdown } from '@scalar/components/scalar-markdown'
+import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { useId } from 'vue'

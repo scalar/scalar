@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { CodeInput } from '@scalar/api-client/components/code-input'
 import { DeleteSidebarListElement } from '@scalar/api-client/components/Sidebar'
-import { ScalarButton } from '@scalar/components/scalar-button'
-import { ScalarMarkdown } from '@scalar/components/scalar-markdown'
-import { ScalarModal, useModal } from '@scalar/components/scalar-modal'
-import { ScalarToggle } from '@scalar/components/scalar-toggle'
+import { ScalarButton } from '@scalar/components/button'
+import { ScalarMarkdown } from '@scalar/components/markdown'
+import { ScalarModal, useModal } from '@scalar/components/modal'
+import { ScalarToggle } from '@scalar/components/toggle'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { ScalarIconPencil } from '@scalar/icons'
 import {

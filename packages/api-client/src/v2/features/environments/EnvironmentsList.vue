@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components/scalar-button'
-import { useModal } from '@scalar/components/scalar-modal'
+import { ScalarButton } from '@scalar/components/button'
+import { useModal } from '@scalar/components/modal'
 import { ScalarIconPlus } from '@scalar/icons'
 import type {
   CollectionType,

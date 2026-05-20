@@ -1,4 +1,4 @@
-import { useModal } from '@scalar/components/scalar-modal'
+import { useModal } from '@scalar/components/modal'
 import { apply, type merge } from '@scalar/json-magic/diff'
 import { useToasts } from '@scalar/use-toasts'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'

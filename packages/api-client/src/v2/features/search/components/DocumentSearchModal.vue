@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ScalarModal, type ModalState } from '@scalar/components/scalar-modal'
-import { ScalarSearchInput } from '@scalar/components/scalar-search-input'
-import { ScalarSearchResultList } from '@scalar/components/scalar-search-results'
+import { ScalarModal, type ModalState } from '@scalar/components/modal'
+import { ScalarSearchInput } from '@scalar/components/search-input'
+import { ScalarSearchResultList } from '@scalar/components/search-results'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { nanoid } from 'nanoid'
 import { computed, ref, watch } from 'vue'

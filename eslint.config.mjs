@@ -69,7 +69,7 @@ export default tslint.config(
             {
               name: '@scalar/components',
               message:
-                'Import from a component subpath (e.g. @scalar/components/scalar-button) instead of the package barrel.',
+                'Import from a component subpath (e.g. @scalar/components/button) instead of the package barrel.',
             },
           ],
         },

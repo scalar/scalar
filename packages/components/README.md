@@ -50,7 +50,7 @@ Then, you can use the components in your Vue components. For example:
 <script
   setup
   lang="ts">
-  import { ScalarButton } from '@scalar/components/scalar-button'
+  import { ScalarButton } from '@scalar/components/button'
 </script>
 <template>
   <ScalarButton />
@@ -118,7 +118,7 @@ All pull requests should include the following checklist:
 ```md
 ## Component Checklist
 
-- [ ] Exported from its subpath (e.g. `@scalar/components/scalar-example`) via `package.json` `exports` — not the barrel
+- [ ] Exported from its subpath (e.g. `@scalar/components/example`) via `package.json` `exports` — not the barrel
 - [ ] Has JSDocs for all:
   - [ ] Components (with examples)
   - [ ] Props

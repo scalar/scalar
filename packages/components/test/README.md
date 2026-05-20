@@ -33,7 +33,7 @@ From `packages/components`:
 pnpm test:e2e
 
 # Limit to one file (pass-through args after the script name)
-pnpm test:e2e -- src/components/ScalarCard/ScalarCard.e2e.ts
+pnpm test:e2e -- src/components/card/ScalarCard.e2e.ts
 
 # Update snapshots
 pnpm test:e2e --update-snapshots

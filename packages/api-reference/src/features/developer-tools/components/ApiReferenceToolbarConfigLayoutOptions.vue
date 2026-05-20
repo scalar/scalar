@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ScalarFormInputGroup } from '@scalar/components/scalar-form'
-import { ScalarToggleInput } from '@scalar/components/scalar-toggle'
+import { ScalarFormInputGroup } from '@scalar/components/form'
+import { ScalarToggleInput } from '@scalar/components/toggle'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 
 type LayoutOptions = {

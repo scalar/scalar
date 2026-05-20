@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { TabGroup, TabList } from '@headlessui/vue'
-import { ScalarCardHeader } from '@scalar/components/scalar-card'
+import { ScalarCardHeader } from '@scalar/components/card'
 
 const emit = defineEmits<{
   (e: 'change', index: number): void

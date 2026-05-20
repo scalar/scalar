@@ -11,9 +11,9 @@ export default {}
 import { SidebarToggle } from '@scalar/api-client/components/sidebar'
 import type { ClientLayout } from '@scalar/api-client/types'
 import { useGlobalHotKeys } from '@scalar/api-client/v2/hooks'
-import { type WorkspaceGroup } from '@scalar/components/scalar-menu'
-import { ScalarModal, useModal } from '@scalar/components/scalar-modal'
-import { ScalarTeleportRoot } from '@scalar/components/scalar-teleport'
+import { type WorkspaceGroup } from '@scalar/components/menu'
+import { ScalarModal, useModal } from '@scalar/components/modal'
+import { ScalarTeleportRoot } from '@scalar/components/teleport'
 import {
   subscribePluginEvents,
   type ClientPlugin,

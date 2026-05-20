@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarPopover } from '@scalar/components/scalar-popover'
+import { ScalarPopover } from '@scalar/components/popover'
 import { ScalarIconLockSimple, ScalarIconLockSimpleOpen } from '@scalar/icons'
 import { computed } from 'vue'
 

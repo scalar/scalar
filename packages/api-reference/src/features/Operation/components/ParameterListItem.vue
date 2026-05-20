@@ -3,8 +3,8 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import {
   ScalarMarkdown,
   ScalarMarkdownSummary,
-} from '@scalar/components/scalar-markdown'
-import { ScalarWrappingText } from '@scalar/components/scalar-wrapping-text'
+} from '@scalar/components/markdown'
+import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import { ScalarIconCaretRight } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'

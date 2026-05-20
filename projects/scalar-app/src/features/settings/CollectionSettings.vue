@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components/scalar-button'
-import { ScalarIcon } from '@scalar/components/scalar-icon'
-import { ScalarToggleInput } from '@scalar/components/scalar-toggle'
+import { ScalarButton } from '@scalar/components/button'
+import { ScalarIcon } from '@scalar/components/icon'
+import { ScalarToggleInput } from '@scalar/components/toggle'
 import {
   presets,
   themeLabels,

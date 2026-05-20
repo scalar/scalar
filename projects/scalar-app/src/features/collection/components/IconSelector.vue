@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
-import { ScalarPopover } from '@scalar/components/scalar-popover'
+import { ScalarPopover } from '@scalar/components/popover'
 import { LibraryIcon, libraryIcons } from '@scalar/icons/library'
 import { computed } from 'vue'
 

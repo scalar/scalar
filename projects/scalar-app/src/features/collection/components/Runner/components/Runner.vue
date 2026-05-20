@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components/scalar-button'
+import { ScalarButton } from '@scalar/components/button'
 import { ScalarIconArrowCounterClockwise, ScalarIconPlay } from '@scalar/icons'
 import { computed, toValue } from 'vue'
 

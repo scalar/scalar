@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { DeleteSidebarListElement } from '@scalar/api-client/components/Sidebar'
-import { ScalarButton } from '@scalar/components/scalar-button'
-import { ScalarIcon } from '@scalar/components/scalar-icon'
-import { ScalarModal, useModal } from '@scalar/components/scalar-modal'
-import { ScalarToggle } from '@scalar/components/scalar-toggle'
+import { ScalarButton } from '@scalar/components/button'
+import { ScalarIcon } from '@scalar/components/icon'
+import { ScalarModal, useModal } from '@scalar/components/modal'
+import { ScalarToggle } from '@scalar/components/toggle'
 
 import Section from './components/Section.vue'
 import DeleteRegistryConfirmModal from './DeleteRegistryConfirmModal.vue'

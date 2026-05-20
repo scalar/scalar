@@ -1,9 +1,6 @@
 <script lang="ts" setup>
-import { ScalarButton } from '@scalar/components/scalar-button'
-import {
-  ScalarLoading,
-  useLoadingState,
-} from '@scalar/components/scalar-loading'
+import { ScalarButton } from '@scalar/components/button'
+import { ScalarLoading, useLoadingState } from '@scalar/components/loading'
 import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
 import { CollapsibleSection } from '@/v2/components/layout'

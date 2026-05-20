@@ -4,10 +4,10 @@ import {
   ScalarDropdownButton,
   ScalarDropdownDivider,
   ScalarDropdownMenu,
-} from '@scalar/components/scalar-dropdown'
-import { ScalarFloating } from '@scalar/components/scalar-floating'
-import { ScalarHotkey } from '@scalar/components/scalar-hotkey'
-import { ScalarTooltip } from '@scalar/components/scalar-tooltip'
+} from '@scalar/components/dropdown'
+import { ScalarFloating } from '@scalar/components/floating'
+import { ScalarHotkey } from '@scalar/components/hotkey'
+import { ScalarTooltip } from '@scalar/components/tooltip'
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
 import {
   ScalarIconArrowUpRight,

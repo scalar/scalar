@@ -50,18 +50,20 @@ Follow these steps to add a new component to the library. Replace `ScalarExample
 
 ### 1. Create the component directory
 
-Create a new directory under `src/components/` using PascalCase matching the component name:
+Create a new directory under `src/components/` using kebab-case, **dropping the `Scalar` prefix** (e.g. the `ScalarExample` component lives in `example/`):
 
 ```
-src/components/ScalarExample/
+src/components/example/
 ```
+
+The directory is kebab-case, but the files inside and the exported component keep the `Scalar` prefix (`ScalarExample.vue`, `export { ScalarExample }`).
 
 ### 2. Create the minimum required files
 
 Every component needs at least these files:
 
 ```
-src/components/ScalarExample/
+src/components/example/
 ├── ScalarExample.vue          # Component implementation
 ├── ScalarExample.stories.ts   # Storybook stories
 ├── ScalarExample.test.ts      # Unit tests
@@ -139,21 +141,21 @@ export type { ExampleOption as ScalarExampleOption } from './types'
 
 ### 5. Register the component in the package entry
 
-Add a re-export line to `src/index.ts` in alphabetical order inside the `biome-ignore` block:
+Add a re-export line to `src/index.ts` in alphabetical order inside the `biome-ignore` block (the path is the kebab-case directory):
 
 ```ts
-export * from './components/ScalarExample'
+export * from './components/example'
 ```
 
 ### 6. Expose a subpath export in `package.json`
 
-Consumers must import components from their subpath (for example `@scalar/components/scalar-example`), not from the package barrel — importing from `@scalar/components` is blocked by lint so that bundles stay tree-shakeable. Add a matching entry to the `exports` map in `package.json`, keyed by the kebab-case component name:
+Consumers must import components from their subpath (for example `@scalar/components/example`), not from the package barrel — importing from `@scalar/components` is blocked by lint so that bundles stay tree-shakeable. Add a matching entry to the `exports` map in `package.json`, keyed by the kebab-case directory name:
 
 ```jsonc
-"./scalar-example": {
-  "types": "./dist/components/ScalarExample/index.d.ts",
-  "import": "./dist/components/ScalarExample/index.js",
-  "default": "./dist/components/ScalarExample/index.js"
+"./example": {
+  "types": "./dist/components/example/index.d.ts",
+  "import": "./dist/components/example/index.js",
+  "default": "./dist/components/example/index.js"
 }
 ```
 
@@ -284,11 +286,11 @@ export const EXAMPLE_VARIANT_STYLES = {
 ### Quick reference checklist
 
 ```
-- [ ] Folder created: src/components/ScalarExample/
+- [ ] Folder created: src/components/example/ (kebab-case, no `Scalar` prefix)
 - [ ] ScalarExample.vue with two-script-block pattern and JSDoc
 - [ ] index.ts with named exports
 - [ ] src/index.ts updated with re-export line
-- [ ] package.json `exports` updated with the `./scalar-example` subpath
+- [ ] package.json `exports` updated with the `./example` subpath
 - [ ] ScalarExample.stories.ts with autodocs
 - [ ] ScalarExample.test.ts with behavior tests
 - [ ] ScalarExample.e2e.ts with snapshot tests (if visually meaningful)

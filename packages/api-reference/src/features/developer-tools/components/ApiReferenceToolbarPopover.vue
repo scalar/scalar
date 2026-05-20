@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { ScalarFloatingBackdrop } from '@scalar/components/scalar-floating'
-import { ScalarPopover } from '@scalar/components/scalar-popover'
+import { ScalarFloatingBackdrop } from '@scalar/components/floating'
+import { ScalarPopover } from '@scalar/components/popover'
 import { ScalarIconCaretDown, ScalarIconInfo } from '@scalar/icons'
 </script>
 

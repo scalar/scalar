@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components/scalar-button'
+import { ScalarButton } from '@scalar/components/button'
 
 const { label = 'Save', variant = 'solid' } = defineProps<{
   /** The label of the submit button */

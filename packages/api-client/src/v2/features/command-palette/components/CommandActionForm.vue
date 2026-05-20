@@ -32,8 +32,8 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components/scalar-button'
-import type { LoadingState } from '@scalar/components/scalar-loading'
+import { ScalarButton } from '@scalar/components/button'
+import type { LoadingState } from '@scalar/components/loading'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
 const { loader, disabled = false } = defineProps<{

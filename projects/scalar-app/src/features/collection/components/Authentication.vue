@@ -3,7 +3,7 @@ import {
   AuthSelector,
   type OAuth2Options,
 } from '@scalar/api-client/blocks/scalar-auth-selector-block'
-import { ScalarToggle } from '@scalar/components/scalar-toggle'
+import { ScalarToggle } from '@scalar/components/toggle'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { AuthMeta } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'

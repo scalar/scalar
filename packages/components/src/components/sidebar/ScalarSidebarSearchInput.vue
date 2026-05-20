@@ -1,0 +1,79 @@
+<script lang="ts">
+/**
+ * Scalar Sidebar Search Input component
+ *
+ * An inline search input for the sidebar with a clear button
+ * and optional loading indicator.
+ *
+ * @example
+ * <ScalarSidebarSearchInput v-model="query" />
+ */
+export default {}
+</script>
+<script setup lang="ts">
+import { ScalarIconMagnifyingGlass, ScalarIconX } from '@scalar/icons'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
+import { onMounted, ref } from 'vue'
+
+import { ScalarIconButton } from '../icon-button'
+import { type LoadingState, ScalarLoading } from '../loading'
+
+const { autofocus } = defineProps<{
+  autofocus?: boolean
+  loader?: LoadingState
+  label?: string
+}>()
+
+const inputRef = ref<HTMLInputElement | null>(null)
+
+const model = defineModel<string>()
+
+function handleClear() {
+  model.value = ''
+  // Push focus back to the input
+  if (inputRef.value) {
+    inputRef.value.focus()
+  }
+}
+
+defineOptions({ inheritAttrs: false })
+const { stylingAttrsCx, otherAttrs } = useBindCx()
+
+onMounted(() => autofocus && inputRef.value?.focus())
+</script>
+<template>
+  <label
+    v-bind="
+      stylingAttrsCx(
+        'flex items-center rounded border text-base has-[:focus-visible]:bg-sidebar-b-1 has-[:focus-visible]:outline h-8 gap-1 pl-2 pr-1.5',
+        'bg-sidebar-b-search border-sidebar-border-search',
+        model ? 'text-sidebar-c-1' : 'text-sidebar-c-search',
+      )
+    ">
+    <ScalarIconMagnifyingGlass class="text-sidebar-c-search size-4" />
+    <input
+      ref="inputRef"
+      v-model="model"
+      :aria-label="label ?? 'Enter search query'"
+      autocapitalize="off"
+      autocomplete="off"
+      autocorrect="off"
+      class="flex-1 appearance-none rounded border-none bg-transparent outline-none"
+      placeholder="Search..."
+      spellcheck="false"
+      type="search"
+      v-bind="otherAttrs" />
+    <ScalarLoading
+      v-if="loader && loader.isActive"
+      class="mr-3 self-center"
+      :loader
+      size="md" />
+    <ScalarIconButton
+      v-else-if="model"
+      class="p-px size-4"
+      :icon="ScalarIconX"
+      label="Clear Search"
+      weight="bold"
+      @click.stop.prevent="handleClear" />
+  </label>
+</template>

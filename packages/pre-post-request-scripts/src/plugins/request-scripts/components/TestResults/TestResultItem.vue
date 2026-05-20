@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon, type Icon } from '@scalar/components/scalar-icon'
+import { ScalarIcon, type Icon } from '@scalar/components/icon'
 import { computed } from 'vue'
 
 import type { TestResult } from '@/libs/execute-scripts'

@@ -22,7 +22,7 @@ import {
   CommandActionForm,
   CommandActionInput,
 } from '@scalar/api-client/features/command-palette'
-import { ScalarButton } from '@scalar/components/scalar-button'
+import { ScalarButton } from '@scalar/components/button'
 import { LibraryIcon } from '@scalar/icons/library'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'

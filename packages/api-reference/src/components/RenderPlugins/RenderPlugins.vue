@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarErrorBoundary } from '@scalar/components/scalar-error-boundary'
+import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 
 import { usePluginManager } from '@/plugins'
 

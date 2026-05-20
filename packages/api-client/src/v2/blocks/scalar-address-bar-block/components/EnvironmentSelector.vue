@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components/scalar-button'
+import { ScalarButton } from '@scalar/components/button'
 import {
   ScalarDropdown,
   ScalarDropdownDivider,
   ScalarDropdownItem,
-} from '@scalar/components/scalar-dropdown'
-import { ScalarIcon } from '@scalar/components/scalar-icon'
+} from '@scalar/components/dropdown'
+import { ScalarIcon } from '@scalar/components/icon'
 import { computed } from 'vue'
 
 const { environments = [], activeEnvironment } = defineProps<{

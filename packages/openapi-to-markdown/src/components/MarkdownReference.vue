@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarMarkdown } from '@scalar/components/scalar-markdown'
+import { ScalarMarkdown } from '@scalar/components/markdown'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type {

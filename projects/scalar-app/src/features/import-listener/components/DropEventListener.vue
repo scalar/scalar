@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ScalarIcon } from '@scalar/components/scalar-icon'
+import { ScalarIcon } from '@scalar/components/icon'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 const emit = defineEmits<{

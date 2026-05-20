@@ -30,5 +30,5 @@ function generateTypes(folder: string, name: 'LOGOS' | 'ICONS') {
   })
 }
 
-generateTypes('./src/components/ScalarIcon/icons/', 'ICONS')
-generateTypes('./src/components/ScalarIcon/logos/', 'LOGOS')
+generateTypes('./src/components/icon/icons/', 'ICONS')
+generateTypes('./src/components/icon/logos/', 'LOGOS')

@@ -3,9 +3,9 @@ import {
   ScalarCombobox,
   type ScalarComboboxOption,
   type ScalarComboboxOptionGroup,
-} from '@scalar/components/scalar-combobox'
-import { type WorkspaceGroup } from '@scalar/components/scalar-menu'
-import { useModal } from '@scalar/components/scalar-modal'
+} from '@scalar/components/combobox'
+import { type WorkspaceGroup } from '@scalar/components/menu'
+import { useModal } from '@scalar/components/modal'
 import { safeRun } from '@scalar/helpers/types/safe-run'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { useToasts } from '@scalar/use-toasts'

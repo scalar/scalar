@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarListbox } from '@scalar/components/scalar-listbox'
+import { ScalarListbox } from '@scalar/components/listbox'
 import {
   getHttpMethodInfo,
   REQUEST_METHODS,

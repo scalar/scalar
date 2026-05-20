@@ -2,7 +2,7 @@
 import {
   ScalarListbox,
   type ScalarListboxOption,
-} from '@scalar/components/scalar-listbox'
+} from '@scalar/components/listbox'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'

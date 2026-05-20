@@ -7,7 +7,7 @@ import {
   DataTableHeader,
   DataTableRow,
 } from '@scalar/api-client/components/data-table'
-import { ScalarButton } from '@scalar/components/scalar-button'
+import { ScalarButton } from '@scalar/components/button'
 import { ScalarIconTrash } from '@scalar/icons'
 import type {
   CollectionType,

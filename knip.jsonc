@@ -152,7 +152,7 @@
         "test/**/*",
         "src/**/*.test.ts"
       ],
-      "ignoreFiles": ["src/components/ScalarIcon/.svglintrc.js"]
+      "ignoreFiles": ["src/components/icon/.svglintrc.js"]
     },
     "packages/core": {
       "entry": ["src/libs/html-rendering/index.ts"]

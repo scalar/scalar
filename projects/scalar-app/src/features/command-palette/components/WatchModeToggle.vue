@@ -19,8 +19,8 @@ export default {}
 </script>
 
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components/scalar-icon'
-import { ScalarToggle } from '@scalar/components/scalar-toggle'
+import { ScalarIcon } from '@scalar/components/icon'
+import { ScalarToggle } from '@scalar/components/toggle'
 import { computed } from 'vue'
 
 const { modelValue, disabled = false } = defineProps<{

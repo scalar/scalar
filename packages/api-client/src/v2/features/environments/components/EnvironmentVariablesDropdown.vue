@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components/scalar-button'
-import { ScalarTeleport } from '@scalar/components/scalar-teleport'
+import { ScalarButton } from '@scalar/components/button'
+import { ScalarTeleport } from '@scalar/components/teleport'
 import { ScalarIconPlus } from '@scalar/icons'
 import { POPULAR_CONTEXT_FUNCTION_KEYS } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'

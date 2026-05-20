@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ScalarIconButton } from '@scalar/components/scalar-icon-button'
+import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarIconNotePencil, ScalarIconTrash } from '@scalar/icons'
 import type {
   CollectionType,

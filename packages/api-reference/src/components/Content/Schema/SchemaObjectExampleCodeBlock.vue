@@ -4,8 +4,8 @@ import {
   ScalarCard,
   ScalarCardFooter,
   ScalarCardSection,
-} from '@scalar/components/scalar-card'
-import { ScalarCodeBlock } from '@scalar/components/scalar-code-block'
+} from '@scalar/components/card'
+import { ScalarCodeBlock } from '@scalar/components/code-block'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed, ref } from 'vue'
 

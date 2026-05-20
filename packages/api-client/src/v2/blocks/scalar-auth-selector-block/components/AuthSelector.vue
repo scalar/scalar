@@ -2,12 +2,12 @@
 import {
   ScalarButton,
   type ScalarButton as ScalarButtonType,
-} from '@scalar/components/scalar-button'
-import { ScalarComboboxMultiselect } from '@scalar/components/scalar-combobox'
-import type { Icon } from '@scalar/components/scalar-icon'
-import { ScalarIconButton } from '@scalar/components/scalar-icon-button'
-import { ScalarListboxCheckbox } from '@scalar/components/scalar-listbox'
-import { useModal } from '@scalar/components/scalar-modal'
+} from '@scalar/components/button'
+import { ScalarComboboxMultiselect } from '@scalar/components/combobox'
+import type { Icon } from '@scalar/components/icon'
+import { ScalarIconButton } from '@scalar/components/icon-button'
+import { ScalarListboxCheckbox } from '@scalar/components/listbox'
+import { useModal } from '@scalar/components/modal'
 import { ScalarIconCaretDown, ScalarIconTrash } from '@scalar/icons'
 import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
 import type {

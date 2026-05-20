@@ -15,8 +15,8 @@ export type AppProps = {
 
 <script setup lang="ts">
 import { PostHogClientPlugin } from '@scalar/api-client/plugins/posthog'
-import { ScalarHeaderButton } from '@scalar/components/scalar-header'
-import { ScalarMenuTeamProfile } from '@scalar/components/scalar-menu'
+import { ScalarHeaderButton } from '@scalar/components/header'
+import { ScalarMenuTeamProfile } from '@scalar/components/menu'
 import { safeRun } from '@scalar/helpers/types/safe-run'
 import { type LoaderPlugin } from '@scalar/json-magic/bundle'
 import { requestScriptsPlugin } from '@scalar/pre-post-request-scripts/plugins'

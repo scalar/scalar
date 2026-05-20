@@ -1,4 +1,4 @@
-import { useModal } from '@scalar/components/scalar-modal'
+import { useModal } from '@scalar/components/modal'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'

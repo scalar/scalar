@@ -4,8 +4,8 @@ export type OAuth2Options = Pick<ApiClientConfiguration, 'oauth2RedirectUri'>
 </script>
 
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components/scalar-button'
-import { useLoadingState } from '@scalar/components/scalar-loading'
+import { ScalarButton } from '@scalar/components/button'
+import { useLoadingState } from '@scalar/components/loading'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import { pkceOptions } from '@scalar/types/entities'
 import { useToasts } from '@scalar/use-toasts'

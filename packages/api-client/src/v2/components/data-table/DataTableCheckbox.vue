@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components/scalar-icon'
+import { ScalarIcon } from '@scalar/components/icon'
 import { cva } from '@scalar/use-hooks/useBindCx'
 
 import DataTableCell from './DataTableCell.vue'

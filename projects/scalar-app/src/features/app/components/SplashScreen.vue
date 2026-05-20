@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components/scalar-icon'
+import { ScalarIcon } from '@scalar/components/icon'
 </script>
 
 <template>

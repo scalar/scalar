@@ -45,8 +45,8 @@ export type HeaderProps = {
 </script>
 
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components/scalar-icon'
-import { ScalarIconButton } from '@scalar/components/scalar-icon-button'
+import { ScalarIcon } from '@scalar/components/icon'
+import { ScalarIconButton } from '@scalar/components/icon-button'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { ScalarIconGearSix } from '@scalar/icons'
 import type {

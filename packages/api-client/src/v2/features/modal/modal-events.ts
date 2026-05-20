@@ -1,4 +1,4 @@
-import type { ModalState } from '@scalar/components/scalar-modal'
+import type { ModalState } from '@scalar/components/modal'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'

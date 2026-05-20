@@ -21,14 +21,14 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components/scalar-button'
+import { ScalarButton } from '@scalar/components/button'
 import {
   ScalarCombobox,
   type ScalarComboboxFilterFunction,
   type ScalarComboboxOption,
   type ScalarComboboxOptionGroup,
-} from '@scalar/components/scalar-combobox'
-import { ScalarIcon } from '@scalar/components/scalar-icon'
+} from '@scalar/components/combobox'
+import { ScalarIcon } from '@scalar/components/icon'
 import { computed } from 'vue'
 
 import type { CommandPaletteDocument } from '../hooks/use-command-palette-documents'

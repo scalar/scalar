@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components/scalar-button'
-import { ScalarTooltip } from '@scalar/components/scalar-tooltip'
+import { ScalarButton } from '@scalar/components/button'
+import { ScalarTooltip } from '@scalar/components/tooltip'
 import type {
   ApiReferenceEvents,
   WorkspaceEventBus,

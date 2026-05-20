@@ -1,4 +1,4 @@
-import { useModal } from '@scalar/components/scalar-modal'
+import { useModal } from '@scalar/components/modal'
 import type { SidebarState } from '@scalar/sidebar'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getParentEntry } from '@scalar/workspace-store/navigation'

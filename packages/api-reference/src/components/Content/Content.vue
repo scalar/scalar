@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { generateClientOptions } from '@scalar/api-client/blocks/operation-code-sample'
 import { mapHiddenClientsConfig } from '@scalar/api-client/modal'
-import { ScalarErrorBoundary } from '@scalar/components/scalar-error-boundary'
+import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'

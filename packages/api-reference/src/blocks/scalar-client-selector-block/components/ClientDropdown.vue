@@ -7,8 +7,8 @@ import {
   type ClientOptionGroup,
   type CustomClientOption,
 } from '@scalar/api-client/blocks/operation-code-sample'
-import { ScalarCombobox } from '@scalar/components/scalar-combobox'
-import { ScalarIcon } from '@scalar/components/scalar-icon'
+import { ScalarCombobox } from '@scalar/components/combobox'
+import { ScalarIcon } from '@scalar/components/icon'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { AvailableClients, TargetId } from '@scalar/types/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'

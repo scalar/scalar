@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { ScalarButton } from '@scalar/components/scalar-button'
-import { useLoadingState } from '@scalar/components/scalar-loading'
-import { ScalarTextInputCopy } from '@scalar/components/scalar-text-input'
+import { ScalarButton } from '@scalar/components/button'
+import { useLoadingState } from '@scalar/components/loading'
+import { ScalarTextInputCopy } from '@scalar/components/text-input'
 import type { ExternalUrls } from '@scalar/types/api-reference'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
