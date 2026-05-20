@@ -147,7 +147,10 @@ public static class ScalarEndpointRouteBuilderExtensions
             var title = options.Documents.Count == 1 ? options.Title?.Replace(DocumentName, options.Documents[0].Name) : options.Title;
             var standaloneResourceUrl = string.IsNullOrEmpty(options.BundleUrl) ? ScalarJavaScriptFile : options.BundleUrl;
 
-            var escapedRequestPath = Uri.EscapeDataString(httpContext.Request.Path);
+            // Uri.EscapeDataString protects URL semantics, but the value lands in an inline <script>
+            // string literal — JavaScriptEncoder.Default neutralizes quote-breakout payloads there.
+            var escapedRequestPath = JavaScriptEncoder.Default.Encode(Uri.EscapeDataString(httpContext.Request.Path));
+            var javaScriptConfiguration = JavaScriptEncoder.Default.Encode(options.JavaScriptConfiguration ?? string.Empty);
 
             // Auto-generated values win when both are set — a per-request nonce is the secure path.
             var effectiveNonce = options.DynamicNonce
@@ -183,10 +186,10 @@ public static class ScalarEndpointRouteBuilderExtensions
                       <script type="module"{{nonceAttribute}}>
                           import { initialize } from './{{ScalarJavaScriptHelperFile}}'
                           initialize(
-                          '{{escapedRequestPath}}',
+                          "{{escapedRequestPath}}",
                           {{options.DynamicBaseServerUrl.ToString().ToLowerInvariant()}},
                           {{serializedConfiguration}},
-                          '{{options.JavaScriptConfiguration}}')
+                          "{{javaScriptConfiguration}}")
                       </script>
                   </body>
                   </html>

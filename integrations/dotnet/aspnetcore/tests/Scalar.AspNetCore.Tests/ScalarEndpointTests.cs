@@ -42,7 +42,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
                                     <script type="module">
                                         import { initialize } from './scalar.aspnetcore.js'
                                         initialize(
-                                        '%2Fscalar%2F',
+                                        "%2Fscalar%2F",
                                         false,
                                         *)
                                     </script>
