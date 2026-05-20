@@ -2,7 +2,6 @@ export {
   asyncApiA2sObjectSchema,
   asyncApiObjectSchema,
   createAsyncApiObjectSchema,
-  generateSchema,
 } from './asyncapi-object'
 export {
   asyncApiChannelBindingsObject,
