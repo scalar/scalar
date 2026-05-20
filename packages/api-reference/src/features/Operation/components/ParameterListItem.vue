@@ -13,11 +13,12 @@ import type {
   ResponseObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, ref } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 
 import { getRefName } from '@/components/Content/Schema/helpers/get-ref-name'
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
+import { RESPONSE_CONTENT_TYPE_SYMBOL } from '@/features/Operation/response-content-type'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import Headers from './Headers.vue'
@@ -59,6 +60,22 @@ const content = computed(() => {
 
 const selectedContentType = ref<string>(
   Object.keys(content.value || {})[0] ?? '',
+)
+
+const responseContentTypes = inject(RESPONSE_CONTENT_TYPE_SYMBOL, null)
+
+/** Sync content type selection into the shared map when this item is a response */
+watch(
+  selectedContentType,
+  (type) => {
+    if (responseContentTypes && !('in' in parameter)) {
+      responseContentTypes.value = {
+        ...responseContentTypes.value,
+        [name]: type,
+      }
+    }
+  },
+  { immediate: true },
 )
 
 /** Response headers */
