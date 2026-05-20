@@ -263,9 +263,7 @@ export const createAppState = async ({
 
   const { workspace: persistence, meta: metaPersistence } = await createWorkspaceStorePersistence()
 
-  const defaultProxyUrl = computed(() =>
-    getActiveProxyUrl(undefined, layout === 'web' ? 'web' : 'other'),
-  )
+  const defaultProxyUrl = computed(() => getActiveProxyUrl(undefined, layout === 'web' ? 'web' : 'other'))
 
   const defaultWorkspaceProxyMeta = () => ({
     'x-scalar-active-proxy': defaultProxyUrl.value,

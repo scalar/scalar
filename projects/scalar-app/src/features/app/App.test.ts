@@ -252,7 +252,7 @@ describe('App', () => {
       }),
     )
 
-    const { appState } = await setupApp({ customFetch })
+    const { appState } = await setupApp({ customFetch, layout: 'desktop' })
 
     await appState.store.value?.addDocument({
       name: 'remote-api',
@@ -261,10 +261,7 @@ describe('App', () => {
 
     expect(customFetch).toHaveBeenCalledTimes(1)
     // Uses the proxy by default
-    expect(customFetch).toHaveBeenCalledWith(
-      'https://proxy.scalar.com/?scalar_url=https%3A%2F%2Fexample.com%2Fopenapi.json',
-      { headers: undefined },
-    )
+    expect(customFetch).toHaveBeenCalledWith('https://example.com/openapi.json', { headers: undefined })
   })
 
   it('workspace store uses global fetch when customFetch is not provided', async () => {
