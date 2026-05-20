@@ -6,4 +6,5 @@ import { createAppState } from '@/features/app'
 export const appState = await createAppState({
   router,
   telemetryDefault: true,
+  layout: 'web',
 })
