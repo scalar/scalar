@@ -484,6 +484,10 @@
 </div>
 
 <style>
+  :root {
+    --scalar-text-decoration: none;
+    --scalar-text-decoration-hover: none;
+  }
   .t-editor__page-title,
   .t-editor__page-nav,
   .notify-container,
@@ -498,6 +502,9 @@
   }
   .t-doc .layout-header {
     z-index: 10000;
+  }
+  .t-editor__anchor {
+    --font-visited: none;
   }
   .t-editor__button {
     min-width: 160px;
