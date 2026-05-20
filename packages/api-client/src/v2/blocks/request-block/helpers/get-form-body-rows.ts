@@ -1,4 +1,3 @@
-import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import { resolve } from '@scalar/workspace-store/resolve'
@@ -60,6 +59,58 @@ const collectLeafProperties = (schema: SchemaObject, parentPath: string[] = [], 
   }
 
   return leaves
+}
+
+/**
+ * Walk a schema + example together and collect one row per leaf, including example-only
+ * keys that the schema does not declare. Schema-declared properties come first in schema
+ * order; extras present in the example follow in example order at each level.
+ *
+ * Unlike `collectLeafProperties` (which is schema-only and feeds the dotted-name index),
+ * this walker drives what the user actually sees in the form: a row for every leaf the
+ * example contains, even when the schema is partial or out of date.
+ */
+const collectExampleRows = (
+  example: unknown,
+  schema: SchemaObject | undefined,
+  parentPath: string[] = [],
+): { path: string[]; value: unknown }[] => {
+  const rows: { path: string[]; value: unknown }[] = []
+  const exampleEntries = isObject(example) ? objectEntries(example as Record<string, unknown>) : []
+  const exampleByKey = new Map<string, unknown>(exampleEntries.map(([key, value]) => [String(key), value]))
+  const declaredKeys = new Set<string>()
+  const schemaProperties = schema && isObjectSchema(schema) ? (schema.properties ?? {}) : {}
+
+  // Schema-declared properties first, in schema order. Nested object schemas recurse so
+  // each leaf gets its own row; otherwise the schema-declared key is a leaf and uses the
+  // matching example value (or `undefined` when the example does not provide one).
+  for (const [key, rawChildSchema] of objectEntries(schemaProperties)) {
+    const keyStr = String(key)
+    declaredKeys.add(keyStr)
+    const childSchema = resolve.schema(rawChildSchema)
+    const path = [...parentPath, keyStr]
+    const exampleSubvalue = exampleByKey.get(keyStr)
+
+    if (childSchema && isObjectSchema(childSchema) && childSchema.properties) {
+      rows.push(...collectExampleRows(exampleSubvalue, childSchema, path))
+    } else {
+      rows.push({ path, value: exampleSubvalue })
+    }
+  }
+
+  // Example-only properties at this level (preserve example order). Their inner shape is
+  // not descended into — without a schema saying "this is a nested object" we have no
+  // signal to flatten, so an object value becomes a single JSON-stringified row, matching
+  // the schema-less fallback below.
+  for (const [key, value] of exampleEntries) {
+    const keyStr = String(key)
+    if (declaredKeys.has(keyStr)) {
+      continue
+    }
+    rows.push({ path: [...parentPath, keyStr], value })
+  }
+
+  return rows
 }
 
 /** Build the table rows for the form data, optionally enriched with schema (e.g. enum) per property */
@@ -132,18 +183,17 @@ export const getFormBodyRows = (
   // back into a single JSON multipart part by `build-request-body.ts` before the request is
   // sent. Gated to `multipart/form-data` because urlencoded has no regrouping step on send,
   // so dotted leaves would otherwise reach the wire as separate `props.name`-style fields.
-  if (contentType === 'multipart/form-data' && leafByDottedName.size > 0 && typeof example.value === 'object') {
-    return Array.from(leafByDottedName.values()).map(({ path }) => {
-      const rawValue = getValueAtPath(example.value, path)
+  //
+  // We walk the example alongside the schema so example-only properties (top-level extras
+  // or undeclared keys inside a nested object) are still visible and editable instead of
+  // being silently dropped to whatever the schema happens to declare.
+  if (contentType === 'multipart/form-data' && schemaWithProperties && typeof example.value === 'object') {
+    return collectExampleRows(example.value, schemaWithProperties).map(({ path, value }) => {
       // Missing values and explicit `null` (e.g. for a nullable schema) render as empty
       // inputs so the user can type a value rather than seeing the string "null".
-      const value =
-        rawValue instanceof File
-          ? rawValue
-          : rawValue === undefined || rawValue === null
-            ? ''
-            : stringifyValue(rawValue)
-      return mapRow({ name: path.join('.'), value })
+      const rendered =
+        value instanceof File ? value : value === undefined || value === null ? '' : stringifyValue(value)
+      return mapRow({ name: path.join('.'), value: rendered })
     })
   }
 

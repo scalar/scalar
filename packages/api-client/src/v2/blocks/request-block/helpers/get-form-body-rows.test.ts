@@ -435,6 +435,37 @@ describe('getFormBodyRows', () => {
       expect(result[2]?.schema).toBeDefined()
     })
 
+    it('emits example properties that are not declared in the schema', () => {
+      // A schema-derived example can carry keys the schema does not declare — either at
+      // the top level or inside a nested object. Those rows still need to be visible and
+      // editable; otherwise the user has no way to inspect or change them from the UI.
+      const example: ExampleObject = {
+        value: {
+          file: '',
+          props: { name: 'Widget', extra: 'undeclared-inner' },
+          top_extra: 'undeclared-top',
+        },
+      }
+      const formBodySchema: SchemaObject = {
+        type: 'object',
+        properties: {
+          file: { type: 'string', format: 'binary' },
+          props: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+        },
+      }
+
+      const result = getFormBodyRows(example, 'multipart/form-data', formBodySchema)
+
+      expect(result.map((row) => row.name)).toEqual(['file', 'props.name', 'props.extra', 'top_extra'])
+      expect(result.find((row) => row.name === 'props.extra')?.value).toBe('undeclared-inner')
+      expect(result.find((row) => row.name === 'top_extra')?.value).toBe('undeclared-top')
+    })
+
     it('does not expand nested object properties into dotted rows for urlencoded bodies', () => {
       // Urlencoded has no spec-defined way to serialize one nested object across multiple
       // dotted-name keys (and `buildRequestBody` only regroups dotted rows for multipart),
