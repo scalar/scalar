@@ -6,8 +6,6 @@ import { type Page, expect } from '@playwright/test'
 import { waitForScalarAppShellReady } from './wait-for-scalar-app-shell-ready'
 
 const SCRIPT_TEST_DOCUMENT = 'e2e-request-scripts-csp'
-const SCRIPT_DOCUMENT_SIDEBAR_TITLE = 'E2E request scripts CSP'
-const SCRIPT_OPERATION_SIDEBAR_TITLE = 'Run scripts under CSP'
 const DOCUMENT_DRAFTS_OVERVIEW = '/@local/default/document/drafts/overview'
 const MOCK_SERVER_HOST = '127.0.0.1'
 
