@@ -1,0 +1,52 @@
+<script lang="ts">
+/**
+ * Scalar Menu Product component
+ *
+ * A selectable product entry within the ScalarMenu products list.
+ * Highlights the currently active product.
+ *
+ * @example
+ * <ScalarMenuProduct :icon="ScalarIconHouse" :selected="true">
+ *   Dashboard
+ * </ScalarMenuProduct>
+ */
+export default {}
+</script>
+
+<script setup lang="ts">
+import type { ScalarIconComponent } from '@scalar/icons/types'
+import { cva, useBindCx } from '@scalar/use-hooks/useBindCx'
+import type { Component } from 'vue'
+
+import type { Icon } from '../../'
+import { ScalarMenuLink } from './'
+
+const { is = 'a' } = defineProps<{
+  is?: string | Component
+  selected?: boolean
+  icon: Icon | ScalarIconComponent
+}>()
+
+defineOptions({ inheritAttrs: false })
+const { cx } = useBindCx()
+
+const variants = cva({
+  base: 'gap-1.5',
+  variants: {
+    selected: {
+      true: 'pointer-events-none bg-b-2 dark:bg-b-3',
+      false: 'cursor-pointer hover:bg-b-2 dark:hover:bg-b-3',
+    },
+  },
+})
+</script>
+<template>
+  <ScalarMenuLink
+    :is="is"
+    :icon="icon"
+    strong
+    target="_blank"
+    v-bind="cx(variants({ selected }))">
+    <slot />
+  </ScalarMenuLink>
+</template>

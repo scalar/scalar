@@ -1,0 +1,111 @@
+<script lang="ts">
+/**
+ * Scalar Markdown Summary component
+ *
+ * Displays a truncated preview of markdown content with
+ * a "More" / "Show Less" toggle to expand and collapse.
+ *
+ * @example
+ * <ScalarMarkdownSummary value="Long markdown text..." :clamp="2" />
+ */
+export default {}
+</script>
+
+<script setup lang="ts">
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
+import { useResizeObserver } from '@vueuse/core'
+import { onMounted, useId, useTemplateRef } from 'vue'
+
+import ScalarMarkdown from './ScalarMarkdown.vue'
+import type { ScalarMarkdownSummaryProps } from './types'
+
+const { clamp = 1, ...props } = defineProps<ScalarMarkdownSummaryProps>()
+
+const id = useId()
+
+/** * Whether the summary is open. */
+const open = defineModel<boolean>({ default: false })
+
+/** Whether the markdown is being truncated */
+const truncated = defineModel<boolean>('truncated', { default: false })
+
+const markdown = useTemplateRef('scalar-markdown')
+
+useResizeObserver(() => markdown.value?.el, checkTruncation)
+
+/** Check if the markdown is being truncated */
+function checkTruncation() {
+  const el = markdown.value?.el
+  if (!el) {
+    return
+  }
+  truncated.value =
+    el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth
+}
+
+onMounted(checkTruncation)
+
+const { cx } = useBindCx()
+defineOptions({ inheritAttrs: false })
+</script>
+<template>
+  <div
+    v-bind="
+      cx(
+        'group/summary flex gap-0.5',
+        open ? 'flex-col' : 'flex-row items-baseline',
+      )
+    ">
+    <ScalarMarkdown
+      v-bind="props"
+      :id="id"
+      ref="scalar-markdown"
+      :clamp="open ? undefined : clamp"
+      :class="{ 'markdown-summary truncate': !open }" />
+    <button
+      v-if="!controlled && (truncated || open)"
+      :aria-controls="id"
+      :aria-expanded="open"
+      class="whitespace-nowrap font-medium hover:underline"
+      :class="{ 'self-end': open }"
+      type="button"
+      @click="open = !open">
+      <slot
+        name="button"
+        :open="open">
+        {{ open ? ' Show Less' : 'More' }}
+      </slot>
+    </button>
+  </div>
+</template>
+<style>
+.scalar-app {
+  /*
+    Summarized markdown styles
+    Doubled up to bump specificity
+  */
+  .markdown.markdown-summary.markdown-summary {
+    /* Hide the before and after pseudo-elements for all elements */
+    *:before,
+    *:after {
+      content: none;
+    }
+
+    *:not(strong, em, a) {
+      /* Disable formatting for non-inline elements */
+      display: contents;
+      font-size: inherit;
+      font-weight: inherit;
+      line-height: var(--markdown-line-height);
+    }
+
+    /* Hide elements that don't make sense in the summary */
+    img,
+    svg,
+    hr,
+    pre {
+      display: none;
+    }
+  }
+}
+</style>
