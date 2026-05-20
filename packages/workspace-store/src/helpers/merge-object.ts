@@ -31,7 +31,7 @@ import type { UnknownObject } from '@/helpers/general'
  * const target = { age: 30 }
  * mergeObjects(target, obj) // Safely merges without infinite recursion
  */
-export const mergeObjects = <R>(
+export const mergeObjects = <R = unknown>(
   a: Record<string, unknown>,
   b: Record<string, unknown>,
   /**
