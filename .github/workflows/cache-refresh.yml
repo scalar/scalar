@@ -1,0 +1,75 @@
+name: Cache Refresh
+
+# Weekly cold rebuild of the main-branch turbo and pnpm-store caches.
+# Wipe the disks, run a full install + build, and let the stickydisk
+# mechanism snapshot the resulting fresh state. Bounds how long a stale
+# or poisoned cache entry can survive on the main stickydisks.
+
+on:
+  schedule:
+    # Sundays 03:00 UTC. Quiet time, no overlap with usual release flow.
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cache-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+          ref: main
+
+      - uses: ./.github/actions/setup-node
+
+      # Empty cache contents (do NOT `rm -rf` the directory itself: that
+      # is the stickydisk mount point and removing it can break the
+      # persistence binding).
+      - name: Clear existing cache contents
+        run: |
+          set -euo pipefail
+          echo "Cache state before clear:"
+          du -sh ./.turbo 2>/dev/null || echo "  ./.turbo: missing"
+          du -sh ~/.local/share/pnpm/store 2>/dev/null || echo "  pnpm store: missing"
+
+          if [ -d ./.turbo ]; then
+            find ./.turbo -mindepth 1 -delete
+          fi
+          if [ -d ~/.local/share/pnpm/store ]; then
+            find ~/.local/share/pnpm/store -mindepth 1 -delete
+          fi
+
+      - name: Install dependencies (cold)
+        run: pnpm install --frozen-lockfile
+
+      # `TURBO_FLAGS` MUST stay templated (`${{ env.TURBO_FLAGS }}`), not
+      # shell-expanded: its value embeds literal quotes around filter
+      # patterns and only the GHA templater handles those correctly.
+      - name: Build all packages (cold)
+        env:
+          TURBO_FLAGS: '--concurrency=100% --filter "!./integrations/{java,rust,dotnet,docker,fastapi,django-ninja}/**" --filter "!./projects/proxy-scalar-com/**"'
+        run: pnpm turbo ${{ env.TURBO_FLAGS }} --filter './{packages,integrations}/**' build
+
+      - name: Report cache footprints
+        run: |
+          {
+            echo "## Cache refresh summary"
+            echo ''
+            echo '| Path | Size |'
+            echo '|---|---|'
+            for p in ./.turbo ~/.local/share/pnpm/store; do
+              if [ -d "$p" ]; then
+                echo "| $p | $(du -sh "$p" | cut -f1) |"
+              fi
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
