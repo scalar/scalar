@@ -260,7 +260,11 @@ describe('App', () => {
     })
 
     expect(customFetch).toHaveBeenCalledTimes(1)
-    expect(customFetch).toHaveBeenCalledWith('https://example.com/openapi.json', { headers: undefined })
+    // Uses the proxy by default
+    expect(customFetch).toHaveBeenCalledWith(
+      'https://proxy.scalar.com/?scalar_url=https%3A%2F%2Fexample.com%2Fopenapi.json',
+      { headers: undefined },
+    )
   })
 
   it('workspace store uses global fetch when customFetch is not provided', async () => {
