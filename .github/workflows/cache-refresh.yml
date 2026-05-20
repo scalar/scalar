@@ -25,6 +25,19 @@ jobs:
     permissions:
       contents: read
     steps:
+      # Refuse non-main dispatches. setup-node scopes its stickydisk keys
+      # by `github.ref_name`, so a run dispatched from another branch
+      # would wipe and repopulate the WRONG branch's caches with main's
+      # build output. Fail loudly instead of silently corrupting state.
+      - name: Refuse non-main refs
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          if [ "$REF" != "refs/heads/main" ]; then
+            echo "::error::cache-refresh must run on main, got '$REF'"
+            exit 1
+          fi
+
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           persist-credentials: false
