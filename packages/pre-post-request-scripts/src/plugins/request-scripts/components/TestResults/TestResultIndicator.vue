@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { cva, ScalarIcon, useBindCx, type Icon } from '@scalar/components'
+import { ScalarIcon, type Icon } from '@scalar/components/scalar-icon'
+import { cva, useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed } from 'vue'
 
 import type { TestResult } from '@/libs/execute-scripts'

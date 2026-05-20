@@ -1,5 +1,5 @@
 import { type CustomFetch, type ResponseInstance, sendRequest } from '@scalar/api-client/blocks/operation-block'
-import { useLoadingState } from '@scalar/components'
+import { useLoadingState } from '@scalar/components/scalar-loading'
 import { isElectron } from '@scalar/helpers/general/is-electron'
 import { executePostResponseScript, executePreRequestScript, getScript } from '@scalar/pre-post-request-scripts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'

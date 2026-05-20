@@ -14,14 +14,13 @@ export default {}
 </script>
 
 <script setup lang="ts">
+import { ScalarButton } from '@scalar/components/scalar-button'
 import {
-  ScalarButton,
   ScalarListbox,
-  ScalarModal,
-  useLoadingState,
-  type ModalState,
   type ScalarListboxOption,
-} from '@scalar/components'
+} from '@scalar/components/scalar-listbox'
+import { useLoadingState } from '@scalar/components/scalar-loading'
+import { ScalarModal, type ModalState } from '@scalar/components/scalar-modal'
 import { slugify } from '@scalar/helpers/string/slugify'
 import { ScalarIconBuildings, ScalarIconCaretDown } from '@scalar/icons'
 import { computed, ref, watch } from 'vue'

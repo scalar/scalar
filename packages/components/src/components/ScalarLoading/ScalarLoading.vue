@@ -5,7 +5,7 @@
  * Displays a loading state for the application
  *
  * @example
- * import { ScalarLoading, useLoadingState } from '@scalar/components'
+ * import { ScalarLoading, useLoadingState } from '@scalar/components/scalar-loading'
  *
  * const loader = useLoadingState()
  * loader.start()

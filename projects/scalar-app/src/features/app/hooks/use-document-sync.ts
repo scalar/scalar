@@ -1,10 +1,9 @@
-import { useModal } from '@scalar/components'
+import { useModal } from '@scalar/components/scalar-modal'
 import { apply, type merge } from '@scalar/json-magic/diff'
 import { useToasts } from '@scalar/use-toasts'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 import { type ComputedRef, type Ref, computed, ref } from 'vue'
 
-import type { RegistryAdapter, RegistryDocumentsState, RegistryNamespacesState } from '@/types/configuration'
 import type { AppState } from '@/features/app/app-state'
 import {
   messageForFetchError,
@@ -13,6 +12,7 @@ import {
 } from '@/features/app/helpers/registry-error-messages'
 import { useActiveDocumentVersion } from '@/features/app/hooks/use-active-document-version'
 import { useNetworkStatus } from '@/features/app/hooks/use-network-status'
+import type { RegistryAdapter, RegistryDocumentsState, RegistryNamespacesState } from '@/types/configuration'
 
 /**
  * Default namespaces state surfaced when the host application has not

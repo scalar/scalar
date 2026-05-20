@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { ScalarButton } from '@scalar/components/scalar-button'
 import {
-  ScalarButton,
   ScalarLoading,
-  ScalarToggle,
   type LoadingState,
-} from '@scalar/components'
+} from '@scalar/components/scalar-loading'
+import { ScalarToggle } from '@scalar/components/scalar-toggle'
 import { computed } from 'vue'
 
 const { isAutoSaveEnabled, isDirty, saveLoader } = defineProps<{

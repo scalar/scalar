@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import {
-  cva,
-  cx,
-  ScalarButton,
-  ScalarIcon,
-  ScalarToggleInput,
-} from '@scalar/components'
+import { ScalarButton } from '@scalar/components/scalar-button'
+import { ScalarIcon } from '@scalar/components/scalar-icon'
+import { ScalarToggleInput } from '@scalar/components/scalar-toggle'
 import {
   presets,
   themeLabels,
@@ -13,6 +9,7 @@ import {
   type Theme,
   type ThemeId,
 } from '@scalar/themes'
+import { cva, cx } from '@scalar/use-hooks/useBindCx'
 import { computed } from 'vue'
 
 import IntegrationLogo from '@/features/settings/components/IntegrationLogo.vue'

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarHeaderButton } from '@scalar/components'
+import { ScalarButton } from '@scalar/components/scalar-button'
+import { ScalarHeaderButton } from '@scalar/components/scalar-header'
 import {
   ScalarIconArrowCounterClockwise,
   ScalarIconCloudArrowDown,

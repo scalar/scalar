@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIcon } from '@scalar/components/scalar-icon'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-scalar-tabs'
 import { computed } from 'vue'

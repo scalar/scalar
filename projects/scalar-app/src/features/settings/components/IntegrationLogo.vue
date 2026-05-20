@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIcon } from '@scalar/components/scalar-icon'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { computed } from 'vue'
 

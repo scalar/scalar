@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from 'vitest'
 import MarkdownReference from './MarkdownReference.vue'
 
 // Mock the ScalarMarkdown component
-vi.mock('@scalar/components', () => ({
+vi.mock('@scalar/components/scalar-markdown', () => ({
   ScalarMarkdown: {
     name: 'ScalarMarkdown',
     props: ['value'],

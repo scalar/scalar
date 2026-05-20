@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { cva, cx, ScalarButton, ScalarIcon } from '@scalar/components'
+import { ScalarButton } from '@scalar/components/scalar-button'
+import { ScalarIcon } from '@scalar/components/scalar-icon'
+import { cva, cx } from '@scalar/use-hooks/useBindCx'
 
 defineProps<{
   colorMode: 'system' | 'light' | 'dark'

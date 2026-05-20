@@ -6,7 +6,7 @@ export default {
 
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client/components/HttpMethod'
-import { ScalarCheckboxInput } from '@scalar/components'
+import { ScalarCheckboxInput } from '@scalar/components/scalar-checkbox-input'
 import { ScalarIconCaretRight, ScalarIconWarning } from '@scalar/icons'
 import { computed, ref } from 'vue'
 

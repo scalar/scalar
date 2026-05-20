@@ -1,9 +1,7 @@
 <script lang="ts" setup>
-import {
-  useModal,
-  type ScalarListboxOption,
-  type WorkspaceGroup,
-} from '@scalar/components'
+import { type ScalarListboxOption } from '@scalar/components/scalar-listbox'
+import { type WorkspaceGroup } from '@scalar/components/scalar-menu'
+import { useModal } from '@scalar/components/scalar-modal'
 import { type LoaderPlugin } from '@scalar/json-magic/bundle'
 import { useToasts } from '@scalar/use-toasts'
 import {

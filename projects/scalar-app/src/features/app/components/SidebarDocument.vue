@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { ScalarIconButton } from '@scalar/components/scalar-icon-button'
 import {
-  ScalarIconButton,
   ScalarSidebarButton,
   ScalarSidebarItem,
   ScalarSidebarNestedItems,
-} from '@scalar/components'
+} from '@scalar/components/scalar-sidebar'
 import {
   ScalarIconCaretLeft,
   ScalarIconDotsThree,

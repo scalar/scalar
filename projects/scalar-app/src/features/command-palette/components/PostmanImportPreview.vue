@@ -8,14 +8,14 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { ScalarButton } from '@scalar/components/scalar-button'
+import { ScalarCheckboxInput } from '@scalar/components/scalar-checkbox-input'
+import { ScalarIcon } from '@scalar/components/scalar-icon'
 import {
-  ScalarButton,
-  ScalarCheckboxInput,
-  ScalarIcon,
   ScalarListbox,
-  ScalarTooltip,
   type ScalarListboxOption,
-} from '@scalar/components'
+} from '@scalar/components/scalar-listbox'
+import { ScalarTooltip } from '@scalar/components/scalar-tooltip'
 import { computed } from 'vue'
 
 const props = defineProps<{

@@ -1,4 +1,4 @@
-import { useModal } from '@scalar/components'
+import { useModal } from '@scalar/components/scalar-modal'
 import {
   ScalarIconArrowSquareIn,
   ScalarIconArrowUpRight,

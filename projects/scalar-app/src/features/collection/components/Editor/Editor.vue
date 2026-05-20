@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarHotkey, useLoadingState } from '@scalar/components'
+import { ScalarButton } from '@scalar/components/scalar-button'
+import { ScalarHotkey } from '@scalar/components/scalar-hotkey'
+import { useLoadingState } from '@scalar/components/scalar-loading'
 import { debounce } from '@scalar/helpers/general/debounce'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { ScalarIconArrowsIn, ScalarIconArrowsOut } from '@scalar/icons'

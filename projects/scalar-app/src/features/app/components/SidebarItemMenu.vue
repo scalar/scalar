@@ -3,8 +3,8 @@ import {
   ScalarDropdown,
   ScalarDropdownDivider,
   ScalarDropdownItem,
-  ScalarIcon,
-} from '@scalar/components'
+} from '@scalar/components/scalar-dropdown'
+import { ScalarIcon } from '@scalar/components/scalar-icon'
 import { ScalarIconPencil } from '@scalar/icons'
 import type { SidebarState } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'

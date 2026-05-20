@@ -1,11 +1,11 @@
-import { useModal } from '@scalar/components'
+import { useModal } from '@scalar/components/scalar-modal'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 
 import type { CommandPaletteAction, CommandPaletteRoute } from './use-command-palette-state'
 import { useCommandPaletteState } from './use-command-palette-state'
 
-vi.mock('@scalar/components', () => ({
+vi.mock('@scalar/components/scalar-modal', () => ({
   useModal: vi.fn(),
 }))
 

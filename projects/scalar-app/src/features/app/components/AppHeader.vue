@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { ScalarHeader } from '@scalar/components/scalar-header'
 import {
-  ScalarHeader,
   ScalarMenu,
   ScalarMenuLink,
   ScalarMenuProducts,
@@ -8,7 +8,7 @@ import {
   ScalarMenuSection,
   ScalarMenuTeamPicker,
   type ScalarMenuTeamOption,
-} from '@scalar/components'
+} from '@scalar/components/scalar-menu'
 import { ScalarIconGear } from '@scalar/icons'
 import { computed } from 'vue'
 

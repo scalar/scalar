@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useSplitResize } from '@scalar/api-client/components/resize'
-import { ScalarButton } from '@scalar/components'
+import { ScalarButton } from '@scalar/components/scalar-button'
 import { type merge } from '@scalar/json-magic/diff'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, onMounted, onUnmounted, ref } from 'vue'

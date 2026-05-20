@@ -4,14 +4,11 @@
   for automatic updates when the source document changes.
 -->
 <script setup lang="ts">
-import {
-  ScalarButton,
-  ScalarIcon,
-  ScalarModal,
-  type ModalState,
-  type ScalarListboxOption,
-  type WorkspaceGroup,
-} from '@scalar/components'
+import { ScalarButton } from '@scalar/components/scalar-button'
+import { ScalarIcon } from '@scalar/components/scalar-icon'
+import { type ScalarListboxOption } from '@scalar/components/scalar-listbox'
+import { type WorkspaceGroup } from '@scalar/components/scalar-menu'
+import { ScalarModal, type ModalState } from '@scalar/components/scalar-modal'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import { isValidUrl } from '@scalar/helpers/url/is-valid-url'
 import { type LoaderPlugin } from '@scalar/json-magic/bundle'
