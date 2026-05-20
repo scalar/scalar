@@ -1,50 +1,27 @@
-# Default code owner (overwritten by more specific entries)
+# Default code owners (overwritten by more specific entries)
 * @hanspagel @amritk @geoffgscott @marclave
-
-# Root level code owners
-/.github @hanspagel @amritk @geoffgscott
-/*.md @hanspagel @marclave
-
-# Renovate
-/.github/renovate.json @hanspagel
 
 # Documentation
 /documentation @hanspagel @marclave @hwkr @cameronrohani
+/*.md @hanspagel @marclave @hwkr @cameronrohani
 
-# Changesets
-/.changeset
-
-# Cursor rules
-/.cursor @hanspagel @amritk
-
-# Packages
-/integrations/django-ninja @marclave
-/integrations/docusaurus @amritk @marclave
-/integrations/docker @marclave @hanspagel
-/integrations/dotnet @marclave @hanspagel
-/integrations/express @hanspagel @marclave
-/integrations/fastapi @marclave
-/integrations/fastify @hanspagel @marclave
-/integrations/hono @hanspagel @marclave
-/integrations/java @marclave @hanspagel
-/integrations/nestjs @marclave
-/integrations/nextjs @amritk @marclave
-/integrations/nuxt @amritk @marclave
+# Amrit + Redis
 /packages/api-client @amritk @hanspagel @marclave @DemonHa
-/packages/api-client-react @amritk @marclave
-/packages/api-reference @hanspagel @marclave
-/packages/api-reference-react @amritk @marclave
-/packages/code-highlight @geoffgscott @marclave
-/packages/components @hwkr @marclave
-/packages/draggable @amritk @marclave
-/packages/galaxy @hanspagel @marclave
-/packages/json-magic @DemonHa
-/packages/icons @hwkr @marclave
-/packages/mock-server @hanspagel @marclave
-/packages/oas-utils @amritk @hanspagel @marclave
-/packages/themes @hwkr @cameronrohani @marclave
-/packages/use-hooks @hwkr @hanspagel @marclave
-/packages/void-server @hanspagel @marclave
-/packages/workspace-store @DemonHa @amritk
+/packages/json-diff @amritk @hanspagel @marclave @DemonHa
+/packages/json-magic @amritk @hanspagel @marclave @DemonHa
+/packages/pre-post-request-scripts @amritk @hanspagel @marclave @DemonHa
+/packages/schemas @amritk @hanspagel @marclave @DemonHa
+/packages/types @amritk @hanspagel @marclave @DemonHa
+/packages/validation @amritk @hanspagel @marclave @DemonHa
+/packages/workspace-store @amritk @hanspagel @marclave @DemonHa
+
+# Brynn + Cam
+/packages/components @hanspagel @amritk @hwkr @cameronrohani @marclave
+/packages/icons @hanspagel @amritk @hwkr @cameronrohani @marclave
+/packages/sidebar @hanspagel @amritk @hwkr @cameronrohani @marclave
+/packages/themes @hanspagel @amritk @hwkr @cameronrohani @marclave
+/packages/use-hooks @hanspagel @amritk @hwkr @cameronrohani @marclave
+/packages/use-toasts @hanspagel @amritk @hwkr @cameronrohani @marclave
+
 
 
