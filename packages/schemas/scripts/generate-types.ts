@@ -11,7 +11,7 @@ import path from 'node:path'
 import { generateTypes } from '@scalar/validation'
 
 import { apiReferenceConfigurationSchema } from '../src/api-reference/api-reference-configuration'
-import { generateSchema } from '../src/asyncapi/3.1/asyncapi-object'
+import { createAsyncApiObjectSchema } from '../src/asyncapi/3.1/asyncapi-object'
 import { recursiveRef } from '../src/asyncapi/3.1/reference'
 
 const generatedAt = new Date().toISOString()
@@ -22,7 +22,7 @@ const apiReferenceConfigurationTypes = generateTypes(apiReferenceConfigurationSc
   typeName: 'ApiReferenceConfiguration',
 })
 
-const asyncApi31Types = generateTypes(generateSchema(recursiveRef), {
+const asyncApi31Types = generateTypes(createAsyncApiObjectSchema(recursiveRef), {
   generatedAt,
   maxDepth: Number.POSITIVE_INFINITY,
   typeName: 'AsyncApiDocument',
@@ -45,10 +45,7 @@ await Promise.all([
   fs.writeFile(asyncApi31TypesPath, asyncApi31Types),
 ])
 
-const generatedPaths = [
-  path.relative(repoRoot, apiReferenceTypesPath),
-  path.relative(repoRoot, asyncApi31TypesPath),
-]
+const generatedPaths = [path.relative(repoRoot, apiReferenceTypesPath), path.relative(repoRoot, asyncApi31TypesPath)]
 
 const formatResult = spawnSync(
   'pnpm',

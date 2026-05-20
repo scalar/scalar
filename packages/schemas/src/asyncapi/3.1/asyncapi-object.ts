@@ -54,9 +54,6 @@ export const createAsyncApiObjectSchema = (maybeRef: MaybeRefFn) => {
   )
 }
 
-/** Alias used by {@link generateSchema} and type-generation scripts. */
-export const generateSchema = createAsyncApiObjectSchema
-
 const defaultObjectSchema = createAsyncApiObjectSchema(normalRef)
 
 /**
