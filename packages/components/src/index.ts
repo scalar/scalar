@@ -1,37 +1,37 @@
 export { compose, cva, cx, tw, useBindCx } from '@scalar/use-hooks/useBindCx'
 
-export type { ScalarButtonSize, ScalarButtonVariant } from './components/button'
-export { ScalarButton } from './components/button'
-export { ScalarCard, ScalarCardFooter, ScalarCardHeader, ScalarCardSection } from './components/card'
-export type { ScalarCheckboxOption, ScalarCheckboxType } from './components/checkbox-input'
+export type { ScalarButtonSize, ScalarButtonVariant } from './components/ScalarButton'
+export { ScalarButton } from './components/ScalarButton'
+export { ScalarCard, ScalarCardFooter, ScalarCardHeader, ScalarCardSection } from './components/ScalarCard'
+export type { ScalarCheckboxOption, ScalarCheckboxType } from './components/ScalarCheckboxInput'
 export {
   ScalarCheckbox,
   ScalarCheckboxGroup,
   ScalarCheckboxInput,
   ScalarCheckboxRadioGroup,
-} from './components/checkbox-input'
-export { ScalarCodeBlock, ScalarCodeBlockCopy } from './components/code-block'
+} from './components/ScalarCheckboxInput'
+export { ScalarCodeBlock, ScalarCodeBlockCopy } from './components/ScalarCodeBlock'
 export {
   ScalarColorModeToggle,
   ScalarColorModeToggleButton,
   ScalarColorModeToggleIcon,
-} from './components/color-mode-toggle'
+} from './components/ScalarColorModeToggle'
 export type {
   ScalarComboboxFilterFunction,
   ScalarComboboxOption,
   ScalarComboboxOptionGroup,
   ScalarComboboxOptionsOrGroups,
-} from './components/combobox'
-export { ScalarCombobox, ScalarComboboxMultiselect, isScalarComboboxGroups } from './components/combobox'
-export { ScalarCopy, ScalarCopyBackdrop, ScalarCopyButton } from './components/copy'
+} from './components/ScalarCombobox'
+export { ScalarCombobox, ScalarComboboxMultiselect, isScalarComboboxGroups } from './components/ScalarCombobox'
+export { ScalarCopy, ScalarCopyBackdrop, ScalarCopyButton } from './components/ScalarCopy'
 export {
   ScalarDropdown,
   ScalarDropdownButton,
   ScalarDropdownDivider,
   ScalarDropdownItem,
   ScalarDropdownMenu,
-} from './components/dropdown'
-export { ScalarErrorBoundary } from './components/error-boundary'
+} from './components/ScalarDropdown'
+export { ScalarErrorBoundary } from './components/ScalarErrorBoundary'
 export {
   ScalarFileUpload,
   ScalarFileUploadDropTarget,
@@ -40,9 +40,9 @@ export {
   ScalarFileUploadInput,
   ScalarFileUploadInputCompact,
   ScalarFileUploadLoading,
-} from './components/file-upload'
-export type { ScalarFloatingOptions } from './components/floating'
-export { ScalarFloating, ScalarFloatingBackdrop } from './components/floating'
+} from './components/ScalarFileUpload'
+export type { ScalarFloatingOptions } from './components/ScalarFloating'
+export { ScalarFloating, ScalarFloatingBackdrop } from './components/ScalarFloating'
 export {
   ScalarForm,
   ScalarFormError,
@@ -50,19 +50,19 @@ export {
   ScalarFormInput,
   ScalarFormInputGroup,
   ScalarFormSection,
-} from './components/form'
-export { ScalarHeader, ScalarHeaderButton } from './components/header'
-export type { ScalarHotkeyModifier } from './components/hotkey'
-export { ScalarHotkey, formatHotkeySymbols } from './components/hotkey'
-export type { Icon } from './components/icon'
-export { ScalarIcon, ScalarIconLegacyAdapter } from './components/icon'
-export { ScalarIconButton } from './components/icon-button'
-export type { ScalarListboxOption } from './components/listbox'
-export { ScalarListbox, ScalarListboxCheckbox, ScalarListboxInput, ScalarListboxItem } from './components/listbox'
-export type { LoadingState } from './components/loading'
-export { ScalarLoading, useLoadingState } from './components/loading'
-export { ScalarMarkdown, ScalarMarkdownSummary } from './components/markdown'
-export type { ScalarMenuTeamOption, WorkspaceGroup } from './components/menu'
+} from './components/ScalarForm'
+export { ScalarHeader, ScalarHeaderButton } from './components/ScalarHeader'
+export type { ScalarHotkeyModifier } from './components/ScalarHotkey'
+export { ScalarHotkey, formatHotkeySymbols } from './components/ScalarHotkey'
+export type { Icon } from './components/ScalarIcon'
+export { ScalarIcon, ScalarIconLegacyAdapter } from './components/ScalarIcon'
+export { ScalarIconButton } from './components/ScalarIconButton'
+export type { ScalarListboxOption } from './components/ScalarListbox'
+export { ScalarListbox, ScalarListboxCheckbox, ScalarListboxInput, ScalarListboxItem } from './components/ScalarListbox'
+export type { LoadingState } from './components/ScalarLoading'
+export { ScalarLoading, useLoadingState } from './components/ScalarLoading'
+export { ScalarMarkdown, ScalarMarkdownSummary } from './components/ScalarMarkdown'
+export type { ScalarMenuTeamOption, WorkspaceGroup } from './components/ScalarMenu'
 export {
   ScalarMenu,
   ScalarMenuButton,
@@ -75,14 +75,14 @@ export {
   ScalarMenuTeamPicker,
   ScalarMenuTeamProfile,
   ScalarMenuWorkspacePicker,
-} from './components/menu'
-export type { ModalState } from './components/modal'
-export { ScalarModal, useModal } from './components/modal'
-export type { ScalarPopoverSlots } from './components/popover'
-export { ScalarPopover } from './components/popover'
-export { ScalarSavePrompt } from './components/save-prompt'
-export { ScalarSearchInput } from './components/search-input'
-export { ScalarSearchResultItem, ScalarSearchResultList } from './components/search-results'
+} from './components/ScalarMenu'
+export type { ModalState } from './components/ScalarModal'
+export { ScalarModal, useModal } from './components/ScalarModal'
+export type { ScalarPopoverSlots } from './components/ScalarPopover'
+export { ScalarPopover } from './components/ScalarPopover'
+export { ScalarSavePrompt } from './components/ScalarSavePrompt'
+export { ScalarSearchInput } from './components/ScalarSearchInput'
+export { ScalarSearchResultItem, ScalarSearchResultList } from './components/ScalarSearchResults'
 export {
   ScalarSidebar,
   ScalarSidebarButton,
@@ -97,20 +97,20 @@ export {
   ScalarSidebarSearchInput,
   ScalarSidebarSection,
   ScalarSidebarSpacer,
-} from './components/sidebar'
+} from './components/ScalarSidebar'
 export {
   ScalarTeleport,
   ScalarTeleportRoot,
   TELEPORT_SYMBOL,
   useProvideTeleport,
   useTeleport,
-} from './components/teleport'
-export { ScalarTextArea } from './components/text-area'
-export { ScalarTextInput, ScalarTextInputCopy } from './components/text-input'
-export { ScalarThemeSwatches, useThemeSwatches } from './components/theme-swatches'
-export { ScalarToggle, ScalarToggleGroup, ScalarToggleInput } from './components/toggle'
-export type { ScalarTooltipPlacement, TooltipConfiguration } from './components/tooltip'
-export { ScalarHotkeyTooltip, ScalarTooltip, useTooltip } from './components/tooltip'
-export { ScalarVirtualText } from './components/virtual-text'
-export { ScalarWrappingText } from './components/wrapping-text'
+} from './components/ScalarTeleport'
+export { ScalarTextArea } from './components/ScalarTextArea'
+export { ScalarTextInput, ScalarTextInputCopy } from './components/ScalarTextInput'
+export { ScalarThemeSwatches, useThemeSwatches } from './components/ScalarThemeSwatches'
+export { ScalarToggle, ScalarToggleGroup, ScalarToggleInput } from './components/ScalarToggle'
+export type { ScalarTooltipPlacement, TooltipConfiguration } from './components/ScalarTooltip'
+export { ScalarHotkeyTooltip, ScalarTooltip, useTooltip } from './components/ScalarTooltip'
+export { ScalarVirtualText } from './components/ScalarVirtualText'
+export { ScalarWrappingText } from './components/ScalarWrappingText'
 export { addScalarClassesToHeadless } from './helpers'
