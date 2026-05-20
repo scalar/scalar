@@ -41,7 +41,6 @@
   },
   "devDependencies": {
     "@hono/node-server": "catalog:*",
-    "@vitejs/plugin-vue": "catalog:*",
     "hono": "catalog:*",
     "tsx": "catalog:*",
     "vite": "catalog:*"
