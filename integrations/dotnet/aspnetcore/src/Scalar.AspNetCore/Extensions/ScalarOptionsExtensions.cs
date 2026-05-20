@@ -275,4 +275,43 @@ public static partial class ScalarOptionsExtensions
         options.JavaScriptConfiguration = javaScriptConfiguration;
         return options;
     }
+
+    /// <summary>
+    /// Sets a static cryptographic nonce to emit on the rendered script tags.
+    /// </summary>
+    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
+    /// <param name="nonce">The nonce value to emit on each script tag.</param>
+    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
+    /// <remarks>
+    /// A matching <c>Content-Security-Policy: script-src 'nonce-{value}'</c> header must be sent on the same response for the nonce
+    /// to have any effect. Because nonces must be unpredictable and used only once, prefer the parameterless
+    /// <see cref="WithNonce(ScalarOptions)" /> overload for automatic per-request generation, or compute a value from your own CSP
+    /// middleware via the <c>MapScalarApiReference(Action&lt;ScalarOptions, HttpContext&gt;)</c> overload. Passing a static value
+    /// at startup defeats CSP protection and is only appropriate when the value comes from a per-request source.
+    /// Emitting a nonce also sets <c>Cache-Control: no-store</c> on the response, overriding any prior value, since a nonced
+    /// response cannot be safely cached.
+    /// </remarks>
+    public static ScalarOptions WithNonce(this ScalarOptions options, string nonce)
+    {
+        options.Nonce = nonce;
+        return options;
+    }
+
+    /// <summary>
+    /// Configures Scalar to generate a fresh cryptographically random nonce on every request and emit it on each script tag.
+    /// </summary>
+    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
+    /// <returns>The configured <see cref="ScalarOptions" />.</returns>
+    /// <remarks>
+    /// The generated value is also stored on <c>HttpContext.Items</c> under the key
+    /// <see cref="ScalarOptions.NonceHttpContextItemKey" /> so downstream middleware can read it and emit a matching
+    /// <c>Content-Security-Policy: script-src 'nonce-{value}'</c> header (typically via <c>HttpResponse.OnStarting</c>, since this
+    /// endpoint runs at the end of the request pipeline). Emitting a nonce also sets <c>Cache-Control: no-store</c> on the response,
+    /// overriding any prior value, since a nonced response cannot be safely cached.
+    /// </remarks>
+    public static ScalarOptions WithNonce(this ScalarOptions options)
+    {
+        options.DynamicNonce = true;
+        return options;
+    }
 }
