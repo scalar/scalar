@@ -239,6 +239,54 @@ describe('CodeInputLite', () => {
     expect(wrapper.findComponent({ name: 'EnvironmentVariablesDropdown' }).exists()).toBe(false)
   })
 
+  describe('combobox accessibility', () => {
+    it('exposes combobox semantics on the editor when variables are enabled', () => {
+      const editor = mountInput({ modelValue: '' }).get('.code-input-lite__editor')
+      expect(editor.attributes('role')).toBe('combobox')
+      expect(editor.attributes('aria-autocomplete')).toBe('list')
+    })
+
+    it('falls back to a plain textbox role when variables are disabled', () => {
+      const editor = mountInput({ modelValue: '', withVariables: false }).get('.code-input-lite__editor')
+      expect(editor.attributes('role')).toBe('textbox')
+      expect(editor.attributes('aria-autocomplete')).toBeUndefined()
+    })
+
+    it('wires aria-controls and aria-activedescendant to a real listbox and option', async () => {
+      const wrapper = mountInput({ modelValue: '' })
+      api(wrapper).setContent('{{')
+      api(wrapper).focus('end')
+      await wrapper.get('.code-input-lite__editor').trigger('input')
+      await nextTick()
+      await nextTick()
+
+      const editor = wrapper.get('.code-input-lite__editor')
+
+      // aria-controls must reference an element that exists and is a listbox.
+      const listboxId = editor.attributes('aria-controls')
+      expect(listboxId).toBeTruthy()
+      const listbox = document.getElementById(listboxId as string)
+      expect(listbox?.getAttribute('role')).toBe('listbox')
+
+      // Every row is exposed as an option.
+      const options = listbox?.querySelectorAll('[role="option"]') ?? []
+      expect(options.length).toBeGreaterThan(0)
+
+      // aria-activedescendant must point at the highlighted, existing option.
+      const activeId = editor.attributes('aria-activedescendant')
+      expect(activeId).toBeTruthy()
+      const activeOption = document.getElementById(activeId as string)
+      expect(activeOption).not.toBeNull()
+      expect(activeOption?.getAttribute('aria-selected')).toBe('true')
+    })
+
+    it('does not set aria-controls or aria-activedescendant while the dropdown is closed', () => {
+      const editor = mountInput({ modelValue: '/users' }).get('.code-input-lite__editor')
+      expect(editor.attributes('aria-controls')).toBeUndefined()
+      expect(editor.attributes('aria-activedescendant')).toBeUndefined()
+    })
+  })
+
   it('exposes focus(), getValue(), setContent(), and cursorPosition()', () => {
     const wrapper = mountInput({ modelValue: 'hello' })
     const exposed = api(wrapper)

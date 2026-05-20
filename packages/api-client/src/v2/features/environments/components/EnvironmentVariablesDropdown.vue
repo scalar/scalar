@@ -16,12 +16,19 @@ const {
   environment,
   dropdownPosition,
   contextFunctionItems = [],
+  listboxId,
 } = defineProps<{
   query: string
   environment?: XScalarEnvironment
   dropdownPosition?: { left: number; top: number }
   /** Runtime placeholders such as `{{$guid}}`, shown with environment variables */
   contextFunctionItems?: { key: string; description: string }[]
+  /**
+   * Id for the `role="listbox"` element. When set, each option also receives a
+   * stable id so the owning combobox input can reference the active option via
+   * `aria-activedescendant` (W3C combobox pattern).
+   */
+  listboxId?: string
 }>()
 
 const emit = defineEmits<{
@@ -140,6 +147,19 @@ const filteredVariables = computed((): DropdownRow[] => {
   return [...envMatches, ...contextMatches]
 })
 
+const optionId = (index: number): string | undefined =>
+  listboxId ? `${listboxId}-option-${index}` : undefined
+
+/**
+ * Id of the currently highlighted option, for the combobox's
+ * `aria-activedescendant`. Undefined when there is no list to point at.
+ */
+const activeOptionId = computed((): string | undefined =>
+  filteredVariables.value.length
+    ? optionId(selectedVariableIndex.value)
+    : undefined,
+)
+
 const selectVariable = (variableKey: string): void => {
   emit('select', variableKey)
 }
@@ -169,6 +189,7 @@ const handleSelect = () => {
 defineExpose({
   handleArrowKey,
   handleSelect,
+  activeOptionId,
 })
 
 onMounted(() => {
@@ -202,13 +223,19 @@ onClickOutside(
       :style="dropdownStyle">
       <ul
         v-if="filteredVariables.length"
-        class="gap-1/2 flex flex-col">
+        :id="listboxId"
+        aria-label="Variable suggestions"
+        class="gap-1/2 flex flex-col"
+        role="listbox">
         <template
           v-for="(item, index) in filteredVariables"
           :key="`${item.kind}-${item.key}`">
           <li
+            :id="optionId(index)"
+            :aria-selected="index === selectedVariableIndex"
             class="font-code text-xxs hover:bg-b-3 flex h-8 cursor-pointer items-center justify-between gap-1.5 rounded p-1.5 transition-colors duration-150"
             :class="{ 'bg-b-3': index === selectedVariableIndex }"
+            role="option"
             @click="selectVariable(item.key)">
             <div class="flex items-center gap-2 whitespace-nowrap">
               <span
