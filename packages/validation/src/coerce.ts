@@ -137,6 +137,14 @@ const trackCycle = (
   }
 }
 
+/**
+ * Internal coercion implementation.
+ *
+ * Takes the wide `Schema` union and returns `unknown` so that
+ * recursive calls do not pay the cost of relating two generic `Static<S>` instantiations, which
+ * can overflow the type checker now that `LazyStatic` resolves recursive schemas without a depth
+ * cap. The public `coerce` wrapper preserves the typed surface.
+ */
 const coerceInner = (
   schema: Schema,
   value: unknown,

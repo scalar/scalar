@@ -814,6 +814,33 @@ describe('intersection', () => {
     expect(validate(outer, { a: 1, b: 'ok', c: true })).toBe(true)
     expect(validate(outer, { a: 1, b: 1, c: true })).toBe(false)
   })
+
+  it('re-validates a shared member schema across union branches that reuse it', () => {
+    // Both intersection branches share the same `base` schema reference. If the
+    // cycle-detection cache leaks across branches, branch 1's failed visit of
+    // `base` would short-circuit branch 2 into accepting an invalid value.
+    const base = object({ kind: string() })
+    const objA = object({ a: number() })
+    const objB = object({ b: number() })
+
+    const T = union([intersection([base, objA]), intersection([base, objB])])
+
+    expect(validate(T, { kind: 'a', a: 1 })).toBe(true)
+    expect(validate(T, { kind: 'b', b: 1 })).toBe(true)
+    // Missing `kind` so `base` must fail in both branches. Previously this
+    // returned `true` because branch 1 left a stale `(value, base)` entry in
+    // the cache that branch 2 mistook for a successful cycle short-circuit.
+    expect(validate(T, { b: 1 })).toBe(false)
+    expect(validate(T, { a: 1 })).toBe(false)
+  })
+
+  it('rejects a value when every union branch fails on a shared member schema', () => {
+    const base = object({ kind: string() })
+    const T = union([intersection([base, object({ a: number() })]), intersection([base, object({ b: number() })])])
+
+    expect(validate(T, { a: 1, b: 1 })).toBe(false)
+    expect(validate(T, {})).toBe(false)
+  })
 })
 
 describe('notDefined', () => {
