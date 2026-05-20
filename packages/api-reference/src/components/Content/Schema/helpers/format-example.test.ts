@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+
 import { formatExample } from './format-example'
 
 describe('formatExample', () => {
@@ -54,6 +55,17 @@ describe('formatExample', () => {
     const input = ['  leading', 'trailing  ', '  both  ']
     const result = formatExample(input)
     expect(result).toBe('["leading", "trailing", "both"]')
+  })
+
+  it('preserves whitespace-only strings inside arrays', () => {
+    const input = [' ', '  ']
+    const result = formatExample(input)
+    expect(result).toBe('[" ", "  "]')
+  })
+
+  it('preserves a whitespace-only string', () => {
+    const result = formatExample(' ')
+    expect(result).toBe(' ')
   })
 
   it('handles non-string/non-array input', () => {
