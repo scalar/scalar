@@ -117,8 +117,10 @@ export const getFormBodyRows = (
 
   // Schema-driven path: when the form body schema describes nested objects, emit one row
   // per leaf so users can edit individual fields. The dotted name (`props.name`) is folded
-  // back into a single JSON multipart part by `process-body.ts` before the request is sent.
-  if (leafByDottedName.size > 0 && typeof example.value === 'object') {
+  // back into a single JSON multipart part by `build-request-body.ts` before the request is
+  // sent. Gated to `multipart/form-data` because urlencoded has no regrouping step on send,
+  // so dotted leaves would otherwise reach the wire as separate `props.name`-style fields.
+  if (contentType === 'multipart/form-data' && leafByDottedName.size > 0 && typeof example.value === 'object') {
     return Array.from(leafByDottedName.values()).map(({ path }) => {
       const rawValue = getValueAtPath(example.value, path)
       // Missing values and explicit `null` (e.g. for a nullable schema) render as empty

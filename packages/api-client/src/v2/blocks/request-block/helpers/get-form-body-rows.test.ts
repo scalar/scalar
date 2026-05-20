@@ -435,6 +435,38 @@ describe('getFormBodyRows', () => {
       expect(result[2]?.schema).toBeDefined()
     })
 
+    it('does not expand nested object properties into dotted rows for urlencoded bodies', () => {
+      // Urlencoded has no spec-defined way to serialize one nested object across multiple
+      // dotted-name keys (and `buildRequestBody` only regroups dotted rows for multipart),
+      // so emitting `props.name`-style leaves here would round-trip into flat fields on send.
+      // Stay on a single top-level row per property; the inner object is JSON-stringified
+      // by the array branch when the example is saved back as a row array.
+      const example: ExampleObject = {
+        value: {
+          token: 'abc',
+          props: { name: 'Widget', description: 'A useful widget' },
+        },
+      }
+      const formBodySchema: SchemaObject = {
+        type: 'object',
+        properties: {
+          token: { type: 'string' },
+          props: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              description: { type: 'string' },
+            },
+          },
+        },
+      }
+
+      const result = getFormBodyRows(example, 'application/x-www-form-urlencoded', formBodySchema)
+
+      expect(result.map((row) => row.name)).toEqual(['token', 'props'])
+      expect(result[1]?.value).toBe(JSON.stringify({ name: 'Widget', description: 'A useful widget' }))
+    })
+
     it('preserves File values when walking nested schema', () => {
       const file = new File([''], 'avatar.png', { type: 'image/png' })
       const example: ExampleObject = {
