@@ -2,4 +2,4 @@
 'scalar-app': patch
 ---
 
-chore: remove unsafe-eval from csp
+fix: allow pre-request and post-response scripts in scalar app CSP
