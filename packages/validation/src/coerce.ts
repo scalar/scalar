@@ -178,9 +178,7 @@ const trackCycle = (
 }
 
 /**
- * Internal coercion implementation.
- *
- * Takes the wide `Schema` union and returns `unknown` so that
+ * Internal coercion implementation. Takes the wide `Schema` union and returns `unknown` so that
  * recursive calls do not pay the cost of relating two generic `Static<S>` instantiations, which
  * can overflow the type checker now that `LazyStatic` resolves recursive schemas without a depth
  * cap. The public `coerce` wrapper preserves the typed surface.
@@ -351,12 +349,6 @@ type SafeStatic<S extends Schema> = [Schema] extends [S] ? any : Static<S>
  *
  * The optional `cache` argument tracks visited object–schema pairs to stop infinite recursion
  * on cyclic graphs; callers normally omit it.
- */
-/**
- * Internal coercion implementation. Takes the wide `Schema` union and returns `unknown` so that
- * recursive calls do not pay the cost of relating two generic `Static<S>` instantiations, which
- * can overflow the type checker now that `LazyStatic` resolves recursive schemas without a depth
- * cap. The public `coerce` wrapper preserves the typed surface.
  */
 export const coerce = <S extends Schema>(
   schema: S,

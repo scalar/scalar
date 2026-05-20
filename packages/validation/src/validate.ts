@@ -21,14 +21,14 @@ const validateInner = (schema: Schema | undefined, value: unknown, cache: WeakMa
 
   // Short-circuit on cycles: this exact `(value, schema)` pair is already
   // being validated higher up the call stack.
-  if (isObject(value) && cache.get(value)?.has(schema)) {
+  const trackable = isObject(value) || Array.isArray(value)
+  if (trackable && cache.get(value)?.has(schema)) {
     return true
   }
 
   // Mark this `(value, schema)` pair as in-progress for the duration of this
-  // call. Only plain objects can form cycles, so primitives, arrays, and
-  // other non-plain objects do not need (or get) an entry.
-  const trackable = isObject(value) || Array.isArray(value)
+  // call. Plain objects and arrays can form cycles; primitives and other
+  // non-plain objects do not need (or get) an entry.
   if (trackable) {
     const schemas = cache.get(value) ?? new Set<Schema>()
     schemas.add(schema)

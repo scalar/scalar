@@ -1006,4 +1006,14 @@ describe('cyclic structures', () => {
     expect(() => validate(SchemaA, a)).not.toThrow()
     expect(validate(SchemaA, a)).toBe(true)
   })
+
+  it('terminates on a self-referential array paired with a recursive lazy schema', () => {
+    const T: ReturnType<typeof lazy> = lazy(() => array(lazy(() => T)))
+
+    const arr: unknown[] = []
+    arr.push(arr)
+
+    expect(() => validate(T, arr)).not.toThrow()
+    expect(validate(T, arr)).toBe(true)
+  })
 })
