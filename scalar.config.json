@@ -2529,15 +2529,6 @@
                     "type": "page"
                   }
                 }
-              },
-              "/api": {
-                "type": "openapi",
-                "namespace": "scalar",
-                "slug": "access-service",
-                "version": "latest",
-                "title": "Scalar API",
-                "icon": "phosphor/regular/database",
-                "mode": "nested"
               }
             }
           },
@@ -2833,7 +2824,7 @@
                 "type": "page",
                 "title": "Blog",
                 "icon": "phosphor/regular/newspaper",
-                "filepath": "documentation/blog/index.md",
+                "filepath": "documentation/blog/index.mdx",
                 "showInSidebar": true,
                 "layout": {
                   "toc": false

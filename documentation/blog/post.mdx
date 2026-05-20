@@ -1,0 +1,7 @@
+<article className="blog-post-list__item" data-file={props.filename}>
+  <a className="blog-post-list__link" href={`${props.href}`}>
+    <div className="blog-post-list__meta">{props.date}</div>
+    <h2 className="blog-post-list__title">{props.title}</h2>
+    {props.children}
+  </a>
+</article>
