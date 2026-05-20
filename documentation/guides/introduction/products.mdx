@@ -1,0 +1,132 @@
+import Product from './product.tsx'
+import Sticker from './sticker.tsx'
+
+<div>
+  <Product
+    reversed
+    label="Registry"
+    accentClass="text-green"
+    slug="scalar-registry"
+    title="The Centralized Repository for Your API Definitions"
+    description="Upload, manage and version OpenAPI Documents, JSON Schemas and Spectral Rules in a single place. Can pull from your repository, works with any CI workflow."
+    link={{
+      href: '/products/registry/getting-started',
+      ariaLabel: 'Connect your API for free with Registry',
+      label: 'Connect Your API for Free →',
+    }}
+    images={{
+      alt: 'Registry',
+      lightSrc: '/registry-static.svg',
+      darkSrc: '/registry-static-dark.svg',
+    }}
+    features={[
+      { icon: <Icon src="phosphor/bold/git-branch" />, label: 'Source of Truth' },
+      { icon: <Icon src="phosphor/bold/arrows-clockwise" />, label: 'Git Integration' },
+      { icon: <Icon src="phosphor/bold/arrow-up-right" />, label: 'OpenAPI Documents' },
+      { icon: <Icon src="phosphor/bold/brackets-curly" />, label: 'JSON Schema' },
+      { icon: <Icon src="phosphor/bold/warning-octagon" />, label: 'Spectral Rules' },
+      { icon: <Icon src="phosphor/bold/arrows-clockwise" />, label: 'AsyncAPI (coming soon)' },
+      { icon: <Icon src="phosphor/bold/lock-simple" />, label: 'Private or Public' },
+    ]}
+    sticker={
+      <Sticker
+        className="sticker-4"
+        src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/jgGF_IKsu-T_irS-6MMOy.svg"
+      />
+    }
+  />
+  <Product
+    label="API Client"
+    accentClass="text-orange"
+    slug="scalar-api-client"
+    title="The Postman Alternative Your Team Is Dreaming Of"
+    description="Fully open-source & offline first API Client built on the OpenAPI standard, by us & our community."
+    link={{
+      href: '/products/api-client/getting-started',
+      ariaLabel: 'Send your first API request with Scalar',
+      label: 'Send Your First Request →',
+    }}
+    images={{
+      alt: 'API Client',
+      lightSrc: '/api-client-static.svg',
+      darkSrc: '/api-client-static-dark.svg',
+    }}
+    features={[
+      { icon: <Icon src="phosphor/bold/wifi-slash" />, label: 'Offline-first' },
+      { icon: <Icon src="phosphor/bold/globe" />, label: 'Sync your local API' },
+      { icon: <Icon src="phosphor/bold/graph" />, label: 'OpenAPI by Heart' },
+      { icon: <Icon src="phosphor/bold/users" />, label: 'Collaborate with Others' },
+      { icon: <Icon src="phosphor/bold/lock-simple-open" />, label: 'No Vendor Lock-In' },
+      { icon: <Icon src="phosphor/bold/desktop-tower" />, label: 'Linux, Windows, macOS' },
+    ]}
+    sticker={
+      <Sticker
+        className="sticker-8"
+        src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/JXS6tZ4EbKIkeGpjP6QKc.svg"
+      />
+    }
+  />
+  <Product
+    reversed
+    label="Docs"
+    accentClass="text-blue"
+    slug="scalar-docs"
+    title="The Modern Documentation Platform for Your API and Everything Else"
+    description="Write documentation with our WYSIWYG, pull Markdown and MDX files from your repository or generate API References from your OpenAPI documents. No matter how you work, your new documentation will always be up to date."
+    link={{
+      href: '/products/docs/getting-started',
+      ariaLabel: 'Create your new API documentation with Scalar',
+      label: 'Create Your New Documentation →',
+    }}
+    images={{
+      alt: 'Docs',
+      lightSrc: '/api-docs-static-zoom.svg',
+      darkSrc: '/api-docs-static-zoom-dark.svg',
+    }}
+    features={[
+      { icon: <Icon src="phosphor/bold/brackets-angle" />, label: 'Markdown and MDX' },
+      { icon: <Icon src="phosphor/bold/arrow-up-right" />, label: 'OpenAPI Documents' },
+      { icon: <Icon src="phosphor/bold/brackets-curly" />, label: 'Custom HTML/CSS/JS' },
+      { icon: <Icon src="phosphor/bold/github-logo" />, label: 'GitHub Sync' },
+      { icon: <Icon src="phosphor/bold/palette" />, label: 'Customize Everything' },
+      { icon: <Icon src="phosphor/bold/users" />, label: 'Fine-grained Access' },
+    ]}
+    sticker={
+      <Sticker
+        className="sticker-3"
+        src="https://cdn.scalar.com/marketing/landing/sticker-3.v3.svg"
+      />
+    }
+  />
+  <Product
+    label="Scalar SDK Generation"
+    accentClass="text-purple"
+    slug="scalar-sdk-generation"
+    title="One Commit To Update All Your SDKs"
+    description="Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python, Golang, PHP, Java and Ruby with more languages coming soon."
+    link={{
+      href: '/products/sdks/getting-started',
+      ariaLabel: 'Generate your first SDK with Scalar',
+      label: 'Generate your first SDK →',
+    }}
+    images={{
+      alt: 'SDKs',
+      lightSrc: '/sdks-static.svg',
+      darkSrc: '/sdks-static-dark.svg',
+    }}
+    features={[
+      { icon: <Icon src="phosphor/bold/arrow-up-right" />, label: 'OpenAPI-First' },
+      { icon: <Icon src="phosphor/bold/brackets-square" />, label: 'Custom-code' },
+      { icon: <Icon src="phosphor/bold/code" />, label: 'Code Samples' },
+      { icon: <Icon src="phosphor/bold/fingerprint" />, label: 'OpenAPI Authentication' },
+      { icon: <Icon src="phosphor/bold/cloud-check" />, label: 'Syncs with Docs' },
+      { icon: <Icon src="phosphor/bold/file-cloud" />, label: 'File Streaming Support' },
+    ]}
+    sticker={
+      <Sticker
+        className="sticker-2"
+        src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/gM-mqYTBYMkqpnexTIr-r.svg"
+      />
+    }
+  />
+</div>

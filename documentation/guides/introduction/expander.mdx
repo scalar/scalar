@@ -1,0 +1,21 @@
+<div className="expander-hover">
+  <div className="expander-hover-preview">
+    <img alt={props.previewAlt} className="light-image" src={props.lightSrc} />
+    <img alt={props.previewAlt} className="dark-image" src={props.darkSrc} />
+  </div>
+  <div className="relative">
+    <div className="expander-hover-sticker">
+      <object
+        className={props.stickerClipClass}
+        width={props.stickerWidth}
+        height={props.stickerHeight}
+        data={props.stickerSrc}
+      ></object>
+    </div>
+    <div className="expander-hover-title">{props.title}</div>
+    <div className="expander">
+      <div className="expander-content">{props.content}</div>
+    </div>
+    <a className="expander-hover-link" href={props.linkHref} target={props.linkTarget} aria-label={props.linkAriaLabel}>Learn More</a>
+  </div>
+</div>

@@ -1,0 +1,17 @@
+import LandingButton from './landing-button.tsx'
+
+<div className="cta flex flex-col gap-3 small-test">
+  <h2 id="what-are-you-waiting-for" className="text-balance">What are you waiting for?</h2>
+  <p>We're committed to enabling developers and companies to practice the highest of API industry standards.</p>
+  <div className="flex gap-2 mb-11">
+    <LandingButton title="Get Started" href="https://dashboard.scalar.com/register" />
+    <LandingButton
+      title="Book a Demo"
+      href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a"
+      target="_blank"
+    />
+  </div>
+  <a className="expander-hover-link" href="https://discord.gg/scalar" target="_blank" aria-label="Join Scalar community on Discord">Community →</a>
+  <a className="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank" aria-label="View Scalar on GitHub">GitHub →</a>
+  <a className="expander-hover-link" href="mailto:support@scalar.com" target="_blank" aria-label="Contact Scalar support">Contact Us →</a>
+</div>

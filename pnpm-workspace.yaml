@@ -2,7 +2,7 @@ packages:
   - examples/**/*
   - integrations/**/*
   - packages/**/*
-  - playwright
+  - documentation
   - tooling/scripts
   - tooling/changelog-generator
   - projects/**/*

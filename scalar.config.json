@@ -737,7 +737,7 @@
         "children": {
           "": {
             "type": "page",
-            "filepath": "documentation/guides/introduction.md",
+            "filepath": "documentation/guides/introduction.mdx",
             "title": "Introduction",
             "icon": "phosphor/regular/house",
             "description": "Industry leading Developer Docs, SDKs, API Client & Registry that your APIs deserve.",
@@ -749,6 +749,11 @@
                 {
                   "rel": "canonical",
                   "href": "https://scalar.com"
+                }
+              ],
+              "styles": [
+                {
+                  "path": "documentation/guides/introduction/introduction.css"
                 }
               ],
               "meta": [
