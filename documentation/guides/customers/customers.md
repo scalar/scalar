@@ -16,10 +16,8 @@ Powering Docs, MCP servers & SDKs for the most ambitious API companies of the wo
 
   <scalar-button href="/customers/partech">Read Story</scalar-button>
 
-  <scalar-row>
-    <scalar-icon src="phosphor/regular/book"> </scalar-icon>
-    <scalar-icon src="../../assets/mcp.svg"> </scalar-icon>
-  </scalar-row>
+  <scalar-icon src="phosphor/regular/book"> </scalar-icon>
+  <scalar-icon src="../../assets/mcp.svg"> </scalar-icon>
 
 </scalar-card>
 
