@@ -780,6 +780,42 @@
               ]
             }
           },
+          "/customers": {
+            "title": "Customers",
+            "description": "Trusted by the world's best API teams.",
+            "icon": "phosphor/regular/heart",
+            "filepath": "documentation/guides/customers/customers.md",
+            "type": "page",
+            "layout": {
+              "toc": false
+            },
+            "head": {
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/pricing"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Trusted by the world's best API teams."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Customers - Scalar"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Trusted by the world's best API teams."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            }
+          },
           "/products": {
             "type": "group",
             "title": "Products",
