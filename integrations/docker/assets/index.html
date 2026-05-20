@@ -14,7 +14,7 @@
     <script>
       // Optional URL prefix when serving under a subpath (for example, "/docs").
       // Strip any trailing slash so the prefix concatenates cleanly.
-      const basePath = '{{env "BASE_PATH"}}'.replace(/\/$/, '')
+      const basePath = '{{env "BASE_PATH" | js}}'.replace(/\/$/, '')
 
       async function init() {
         let mountedDocuments = []
