@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Mime;
+using System.Security.Cryptography;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -147,6 +149,22 @@ public static class ScalarEndpointRouteBuilderExtensions
 
             var escapedRequestPath = Uri.EscapeDataString(httpContext.Request.Path);
 
+            // Auto-generated values win when both are set — a per-request nonce is the secure path.
+            var effectiveNonce = options.DynamicNonce
+                ? GenerateNonce()
+                : options.Nonce;
+
+            if (!string.IsNullOrWhiteSpace(effectiveNonce))
+            {
+                httpContext.Items[ScalarOptions.NonceHttpContextItemKey] = effectiveNonce;
+                // Prevent intermediaries and browsers from replaying a one-time nonce to another client.
+                httpContext.Response.Headers.CacheControl = "no-store";
+            }
+
+            var nonceAttribute = string.IsNullOrWhiteSpace(effectiveNonce)
+                ? string.Empty
+                : $" nonce=\"{HtmlEncoder.Default.Encode(effectiveNonce)}\"";
+
             return Results.Content(
                 $$"""
                   <!doctype html>
@@ -160,9 +178,9 @@ public static class ScalarEndpointRouteBuilderExtensions
                   <body>
                       {{options.HeaderContent}}
                       <div id="app"></div>
-                      <script src="{{standaloneResourceUrl}}"></script>
-                      <script type="module" src="{{ScalarJavaScriptHelperFile}}"></script>
-                      <script type="module">
+                      <script src="{{standaloneResourceUrl}}"{{nonceAttribute}}></script>
+                      <script type="module" src="{{ScalarJavaScriptHelperFile}}"{{nonceAttribute}}></script>
+                      <script type="module"{{nonceAttribute}}>
                           import { initialize } from './{{ScalarJavaScriptHelperFile}}'
                           initialize(
                           '{{escapedRequestPath}}',
@@ -235,6 +253,17 @@ public static class ScalarEndpointRouteBuilderExtensions
         // We don't have pre-compress files in Debug builds
         return resourceFile.CreateReadStream();
 #endif
+    }
+
+    private static string GenerateNonce()
+    {
+        Span<byte> bytes = stackalloc byte[32];
+        RandomNumberGenerator.Fill(bytes);
+        // Base64url avoids '+' and '/', which HtmlEncoder.Default would otherwise escape as numeric entities.
+        return Convert.ToBase64String(bytes)
+            .TrimEnd('=')
+            .Replace('+', '-')
+            .Replace('/', '_');
     }
 
     private static bool ShouldRedirectToTrailingSlash(HttpContext httpContext, string? documentName, [NotNullWhen(true)] out string? redirectUrl)

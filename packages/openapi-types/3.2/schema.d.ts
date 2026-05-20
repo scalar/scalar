@@ -144,7 +144,12 @@ export type MultiTypeObject = SharedProperties &
   StringKeywords &
   ArrayKeywords &
   ObjectKeywords & {
-    type?: PrimitiveSchemaType | PrimitiveSchemaType[]
+    /**
+     * MultiTypeObject only models the array form. Single-type schemas are
+     * covered by the dedicated variants (OtherTypes, NumericObject,
+     * StringObject, ObjectObject, ArrayObject) of the SchemaObject union.
+     */
+    type: PrimitiveSchemaType[]
     format?: StringFormat | NumericFormat
   } & Extensions
 export type SchemaObject =

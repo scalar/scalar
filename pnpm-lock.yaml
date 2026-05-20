@@ -2353,6 +2353,9 @@ importers:
 
   packages/snippetz:
     dependencies:
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../helpers
       '@scalar/types':
         specifier: workspace:*
         version: link:../types

@@ -247,6 +247,7 @@
     "CHANGELOG"
   ],
   "dependencies": {
+    "@scalar/helpers": "workspace:*",
     "@scalar/types": "workspace:*",
     "js-base64": "catalog:*",
     "stringify-object": "^6.0.0"

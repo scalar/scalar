@@ -93,20 +93,9 @@ type ObjectObject = SharedProperties &
   ObjectKeywords & {
     type: 'object'
   } & Extensions
-export type MultiTypeObject = SharedProperties &
-  NumericKeywords &
-  StringKeywords &
-  ArrayKeywords &
-  ObjectKeywords & {
-    type?: PrimitiveSchemaType
-    format?: StringFormat | NumericFormat | string
-  } & Extensions
-export type SchemaObject =
-  | UntypedObject
-  | OtherTypes
-  | NumericObject
-  | StringObject
-  | ObjectObject
-  | ArrayObject
-  | MultiTypeObject
+// OpenAPI 3.0 does not support multi-type schemas (`type` must be a single
+// string), so there is no MultiTypeObject variant. The single-type case is
+// already covered by OtherTypes, NumericObject, StringObject, ObjectObject,
+// and ArrayObject.
+export type SchemaObject = UntypedObject | OtherTypes | NumericObject | StringObject | ObjectObject | ArrayObject
 export {}

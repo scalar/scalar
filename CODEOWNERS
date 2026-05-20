@@ -9,10 +9,10 @@
 /.github/renovate.json @hanspagel
 
 # Documentation
-/documentation/* @hanspagel @marclave @hwkr @cameronrohani
+/documentation @hanspagel @marclave @hwkr @cameronrohani
 
 # Changesets
-/.changeset/*
+/.changeset
 
 # Cursor rules
 /.cursor @hanspagel @amritk

@@ -154,6 +154,13 @@ Validate contracts early so exploration and testing stay tied to the same API de
 </div>
 
 <style>
+  :root {
+    --scalar-text-decoration: none;
+    --scalar-text-decoration-hover: none;
+  }
+  .t-editor__anchor {
+    --font-visited: none;
+  }
   .enterprise-features-copy {
     max-width: 680px;
   }
