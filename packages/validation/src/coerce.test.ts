@@ -1333,11 +1333,16 @@ describe('cyclic structures', () => {
     // @ts-expect-error - we want to create a cyclic reference
     node.child = node
 
+    const expected = { name: 'root', child: null }
+    // @ts-expect-error - we want to create a cyclic reference
+    expected.child = expected
+
     expect(() => coerce(T, node)).not.toThrow()
     const result = coerce(T, node)
-    expect(result).toStrictEqual({ name: 'root', child: node })
+
+    expect(result).toStrictEqual(expected)
     expect(result).not.toBe(node)
-    expect(result.child).toBe(node)
+    expect(result.child).toStrictEqual(expected)
   })
 
   it('coerces properties before returning the original reference on a cycle', () => {
@@ -1348,8 +1353,13 @@ describe('cyclic structures', () => {
     node.child = node
 
     const result = coerce(T, node)
-    expect(result).toStrictEqual({ name: 'Marc', child: node })
-    expect(result.child).toBe(node)
+
+    const expected = { name: 'Marc', child: null }
+    // @ts-expect-error - we want to create a cyclic reference
+    expected.child = expected
+
+    expect(result).toStrictEqual(expected)
+    expect(result.child).toStrictEqual(expected)
   })
 
   it('terminates on mutually-recursive lazy schemas with cyclic data', () => {
@@ -1363,10 +1373,21 @@ describe('cyclic structures', () => {
     // @ts-expect-error - we want to create a cyclic reference
     b.next = a
 
+    const expected = {
+      kind: 'a',
+      next: {
+        kind: 'b',
+        next: null,
+      },
+    }
+
+    // @ts-expect-error - we want to create a cyclic reference
+    expected.next.next = expected
+
     expect(() => coerce(SchemaA, a)).not.toThrow()
     const result = coerce(SchemaA, a)
-    expect(result).toStrictEqual({ kind: 'a', next: { kind: 'b', next: a } })
-    expect(result.next?.next).toBe(a)
+    expect(result).toStrictEqual(expected)
+    expect(result.next?.next).toBe(result)
   })
 
   it('preserves a cyclic reference when a property uses any()', () => {
@@ -1423,15 +1444,11 @@ describe('cyclic structures', () => {
 
     const result = coerce(T, input)
 
-    expect(result).toStrictEqual({
-      name: '',
-      child: {
-        name: 'child',
-        child: {
-          name: 'grandchild',
-          child: { name: '', child: { name: 'child', child: { name: 'grandchild', child: '[Circular]' } } },
-        },
-      },
-    })
+    const expected = { name: '', child: { name: 'child', child: { name: 'grandchild' } } }
+
+    // @ts-expect-error - we want to create a cyclic reference
+    expected.child.child.child = expected
+
+    expect(result).toStrictEqual(expected)
   })
 })
