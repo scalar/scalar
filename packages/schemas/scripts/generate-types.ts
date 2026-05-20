@@ -76,11 +76,10 @@ const formatWithBiome = async (content: string, filePath: string, repoRoot: stri
   try {
     const tmpFile = path.join(tmpDir, path.basename(filePath))
     await fs.writeFile(tmpFile, content, 'utf8')
-    const result = spawnSync(
-      'pnpm',
-      ['biome', 'format', '--write', '--config-path', biomeConfigPath, tmpFile],
-      { cwd: repoRoot, stdio: 'pipe' },
-    )
+    const result = spawnSync('pnpm', ['biome', 'format', '--write', '--config-path', biomeConfigPath, tmpFile], {
+      cwd: repoRoot,
+      stdio: 'pipe',
+    })
     if (result.status !== 0) {
       return content
     }
