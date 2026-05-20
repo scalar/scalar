@@ -1451,4 +1451,53 @@ describe('cyclic structures', () => {
 
     expect(result).toStrictEqual(expected)
   })
+
+  it('terminates on a recursive lazy union scored against a cyclic value', () => {
+    // Without cycle detection inside scoreUnion the union branch score would
+    // recurse forever: lazy -> union -> object -> property -> lazy -> ...
+    const T: any = lazy(() => union([object({ child: optional(lazy(() => T)) }), string()]))
+
+    const node: { child?: unknown } = {}
+    node.child = node
+
+    expect(() => coerce(T, node)).not.toThrow()
+    const result = coerce(T, node)
+    expect(result).toBeDefined()
+    expect((result as { child?: unknown }).child).toBe(result)
+  })
+
+  it('terminates on a recursive lazy union with a discriminated branch', () => {
+    // Both branches contain the recursive `self` property, so naive scoring would
+    // descend through every branch ad infinitum even with a discriminator.
+    const T: any = lazy(() =>
+      union([
+        object({ kind: literal('a'), self: optional(lazy(() => T)) }),
+        object({ kind: literal('b'), self: optional(lazy(() => T)) }),
+      ]),
+    )
+
+    const node: { kind: string; self?: unknown } = { kind: 'a' }
+    node.self = node
+
+    expect(() => coerce(T, node)).not.toThrow()
+    const result = coerce(T, node) as { kind: 'a' | 'b'; self?: unknown }
+    expect(result.kind).toBe('a')
+    expect(result.self).toBe(result)
+  })
+
+  it('terminates on mutually-recursive lazy unions with cyclic data', () => {
+    const A: any = lazy(() => union([object({ tag: literal('a'), next: optional(lazy(() => B)) }), string()]))
+    const B: any = lazy(() => union([object({ tag: literal('b'), next: optional(lazy(() => A)) }), string()]))
+
+    const a: { tag: string; next?: unknown } = { tag: 'a' }
+    const b: { tag: string; next?: unknown } = { tag: 'b' }
+    a.next = b
+    b.next = a
+
+    expect(() => coerce(A, a)).not.toThrow()
+    const result = coerce(A, a) as { tag: 'a'; next?: { tag: 'b'; next?: unknown } }
+    expect(result.tag).toBe('a')
+    expect(result.next?.tag).toBe('b')
+    expect(result.next?.next).toBe(result)
+  })
 })

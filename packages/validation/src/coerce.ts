@@ -49,73 +49,113 @@ const isDiscriminatorProperty = (schema: Schema): boolean => {
  * Higher score means a closer match. Literals and matching object shapes
  * are weighted more heavily. Objects are scored by shape/literals;
  * arrays/records by structural type; primitives by validation; unions try all branches.
+ *
+ * The `scoringCache` tracks `(value, schema)` pairs that are currently being
+ * scored higher up the call stack. Without it, a recursive lazy schema such as
+ * `lazy(() => union([object({ child: optional(lazy(() => T)) }), …]))` scored
+ * against a self-referential value would recurse forever through
+ * `lazy → union → object → property → lazy → …` and overflow the stack.
+ *
+ * On re-entry of a pair we return `1` rather than `0` — a neutral positive
+ * score consistent with `validateInner` short-circuiting cycles to `true`.
+ * Markers are removed in `finally` so sibling union branches that share a
+ * schema reference are scored independently rather than inheriting a stale
+ * "in cycle" marker.
  */
-const scoreUnion = (schema: Schema, value: unknown, lazyCache: LazyCache): number => {
-  if (schema.type === 'object') {
-    if (!isObject(value)) {
-      return 0
-    }
+const scoreUnion = (
+  schema: Schema,
+  value: unknown,
+  lazyCache: LazyCache,
+  scoringCache: WeakMap<object, Set<Schema>> = new WeakMap(),
+): number => {
+  // Short-circuit on cycles: this exact (value, schema) pair is already being
+  // scored higher up the call stack. The enclosing call's score subsumes any
+  // contribution we could compute here, so return a neutral positive score.
+  if (isObject(value) && scoringCache.get(value)?.has(schema)) {
+    return 1
+  }
 
-    const keys = Object.keys(schema.properties)
+  const trackable = isObject(value)
+  if (trackable) {
+    const schemas = scoringCache.get(value) ?? new Set<Schema>()
+    schemas.add(schema)
+    scoringCache.set(value, schemas)
+  }
 
-    // If there are no properties, we want to score 1 since we want to outscore if there are inline primitives
-    if (keys.length === 0) {
-      return 1
-    }
-
-    // Missing keys contribute 0 (including optional keys — matches prior union heuristics).
-    // Discriminator properties (`literal` or `union` of literals): recurse with scoreUnion;
-    // matching values get a high weight (×10) so `type: literal('A')` beats unrelated fields
-    // on another branch; mismatches score 0 (no "key present" tie-break).
-    // Other properties: scoreUnion plus +1 when the value fails validation so `{ a: null }`
-    // can still prefer the branch that declares `a`.
-    return Object.keys(schema.properties).reduce<number>((acc, key) => {
-      if (!(key in value)) {
-        return acc
+  try {
+    if (schema.type === 'object') {
+      if (!isObject(value)) {
+        return 0
       }
-      const propSchema = schema.properties[key]
-      const raw = value[key as keyof typeof value]
-      const base = scoreUnion(propSchema, raw, lazyCache)
-      if (isDiscriminatorProperty(propSchema)) {
-        return acc + (base > 0 ? base * 10 : 0)
+
+      const keys = Object.keys(schema.properties)
+
+      // If there are no properties, we want to score 1 since we want to outscore if there are inline primitives
+      if (keys.length === 0) {
+        return 1
       }
-      return acc + (base > 0 ? base : 1)
-    }, 0)
-  }
-  if (schema.type === 'array') {
-    // Score 1 if value is an array, otherwise 0
-    return Array.isArray(value) ? 1 : 0
-  }
-  if (schema.type === 'record') {
-    // TODO: implement smarter scoring for records (just a placeholder for now)
-    return isObject(value) ? 1 : 0
-  }
-  if (schema.type === 'optional') {
-    return value === undefined ? 1 : scoreUnion(schema.schema, value, lazyCache)
-  }
-  if (schema.type === 'union') {
-    // For a union, use the highest score among all sub-schemas
-    return Math.max(...schema.schemas.map((schema) => scoreUnion(schema, value, lazyCache)))
-  }
-  if (schema.type === 'intersection') {
-    if (schema.schemas.length === 0) {
-      return 1
+
+      // Missing keys contribute 0 (including optional keys — matches prior union heuristics).
+      // Discriminator properties (`literal` or `union` of literals): recurse with scoreUnion;
+      // matching values get a high weight (×10) so `type: literal('A')` beats unrelated fields
+      // on another branch; mismatches score 0 (no "key present" tie-break).
+      // Other properties: scoreUnion plus +1 when the value fails validation so `{ a: null }`
+      // can still prefer the branch that declares `a`.
+      return keys.reduce<number>((acc, key) => {
+        if (!(key in value)) {
+          return acc
+        }
+        const propSchema = schema.properties[key]
+        const raw = value[key as keyof typeof value]
+        const base = scoreUnion(propSchema, raw, lazyCache, scoringCache)
+        if (isDiscriminatorProperty(propSchema)) {
+          return acc + (base > 0 ? base * 10 : 0)
+        }
+        return acc + (base > 0 ? base : 1)
+      }, 0)
     }
-    return schema.schemas.reduce((acc, sub) => acc + scoreUnion(sub, value, lazyCache), 0)
-  }
+    if (schema.type === 'array') {
+      // Score 1 if value is an array, otherwise 0
+      return Array.isArray(value) ? 1 : 0
+    }
+    if (schema.type === 'record') {
+      // TODO: implement smarter scoring for records (just a placeholder for now)
+      return isObject(value) ? 1 : 0
+    }
+    if (schema.type === 'optional') {
+      return value === undefined ? 1 : scoreUnion(schema.schema, value, lazyCache, scoringCache)
+    }
+    if (schema.type === 'union') {
+      // For a union, use the highest score among all sub-schemas
+      return Math.max(...schema.schemas.map((branch) => scoreUnion(branch, value, lazyCache, scoringCache)))
+    }
+    if (schema.type === 'intersection') {
+      if (schema.schemas.length === 0) {
+        return 1
+      }
+      return schema.schemas.reduce((acc, sub) => acc + scoreUnion(sub, value, lazyCache, scoringCache), 0)
+    }
 
-  if (schema.type === 'lazy') {
-    // For a lazy schema, evaluate the inner schema and recurse
-    return scoreUnion(resolveLazy(schema, lazyCache), value, lazyCache)
-  }
+    if (schema.type === 'lazy') {
+      // For a lazy schema, evaluate the inner schema and recurse
+      return scoreUnion(resolveLazy(schema, lazyCache), value, lazyCache, scoringCache)
+    }
 
-  if (schema.type === 'evaluate') {
-    // For an evaluate schema, evaluate the expression and recurse
-    return scoreUnion(schema.schema, schema.expression(value), lazyCache)
-  }
+    if (schema.type === 'evaluate') {
+      // For an evaluate schema, evaluate the expression and recurse
+      return scoreUnion(schema.schema, schema.expression(value), lazyCache, scoringCache)
+    }
 
-  // For primitives and any other type, return 1 if valid, otherwise 0
-  return validate(schema, value) ? 1 : 0
+    // For primitives and any other type, return 1 if valid, otherwise 0
+    return validate(schema, value) ? 1 : 0
+  } finally {
+    // Clear the in-progress marker so sibling union branches that reference
+    // the same schema are scored independently rather than short-circuiting
+    // to the cycle-neutral score.
+    if (trackable) {
+      scoringCache.get(value)?.delete(schema)
+    }
+  }
 }
 
 /**
