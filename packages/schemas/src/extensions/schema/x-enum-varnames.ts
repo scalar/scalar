@@ -1,5 +1,7 @@
 import { array, object, optional, string } from '@scalar/validation'
 
+import { typeCommentInlineCode, typeCommentWithExample } from '../type-comment'
+
 /**
  * x-enum-varnames / x-enumNames
  *
@@ -32,7 +34,13 @@ export const XEnumVarNames = object(
   },
   {
     typeName: 'XEnumVarNames',
-    typeComment:
-      'Display names for enum values. Must match the order of the `enum` array.\n\n@example\n```yaml\nenum: [moon, asteroid]\nx-enum-varnames: [Moon, Asteroid]\n```',
+    typeComment: typeCommentWithExample(
+      `Display names for enum values. Must match the order of the ${typeCommentInlineCode('enum')} array.`,
+      {
+        language: 'yaml',
+        body: `enum: [moon, asteroid]
+x-enum-varnames: [Moon, Asteroid]`,
+      },
+    ),
   },
 )

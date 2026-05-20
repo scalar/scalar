@@ -1,5 +1,7 @@
 import { boolean, object, optional } from '@scalar/validation'
 
+import { typeCommentInlineCode, typeCommentWithExample } from '../type-comment'
+
 /**
  * OpenAPI extension to control whether a parameter example is enabled (checkbox on) or disabled (checkbox off).
  *
@@ -23,7 +25,9 @@ export const XDisabled = object(
   },
   {
     typeName: 'XDisabled',
-    typeComment:
-      'Whether a parameter example is disabled in the API client (`true` = not sent).\n\n@example\n```yaml\nx-disabled: true\n```',
+    typeComment: typeCommentWithExample(
+      `Whether a parameter example is disabled in the API client (${typeCommentInlineCode('true')} = not sent).`,
+      { language: 'yaml', body: 'x-disabled: true' },
+    ),
   },
 )

@@ -1,5 +1,7 @@
 import { object, optional, string } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 /**
  * An OpenAPI extension to overwrite tag names with a display-friendly version.
  *
@@ -18,6 +20,9 @@ export const XDisplayName = object(
   },
   {
     typeName: 'XDisplayName',
-    typeComment: 'Display-friendly name for a tag.\n\n@example\n```yaml\nx-displayName: planets\n```',
+    typeComment: typeCommentWithExample('Display-friendly name for a tag.', {
+      language: 'yaml',
+      body: 'x-displayName: planets',
+    }),
   },
 )

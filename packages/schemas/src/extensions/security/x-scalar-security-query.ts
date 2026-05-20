@@ -1,5 +1,7 @@
 import { object, optional, record, string } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 /**
  * An OpenAPI extension to set any query parameters for the OAuth authorize request.
  *
@@ -20,7 +22,11 @@ export const XScalarSecurityQuery = object(
   },
   {
     typeName: 'XScalarSecurityQuery',
-    typeComment:
-      'Additional OAuth authorize query parameters.\n\n@example\n```yaml\nx-scalar-security-query:\n  prompt: consent\n  audience: scalar\n```',
+    typeComment: typeCommentWithExample('Additional OAuth authorize query parameters.', {
+      language: 'yaml',
+      body: `x-scalar-security-query:
+  prompt: consent
+  audience: scalar`,
+    }),
   },
 )

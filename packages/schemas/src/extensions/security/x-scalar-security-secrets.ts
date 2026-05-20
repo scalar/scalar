@@ -1,5 +1,7 @@
 import { object, optional, string } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 export const XScalarSecretToken = object(
   {
     'x-scalar-secret-token': string({
@@ -8,8 +10,10 @@ export const XScalarSecretToken = object(
   },
   {
     typeName: 'XScalarSecretToken',
-    typeComment:
-      'Persisted OAuth access token (sensitive). Do not export when exporting the document.\n\n@example\n```yaml\nx-scalar-secret-token: eyJhbG...\n```',
+    typeComment: typeCommentWithExample(
+      'Persisted OAuth access token (sensitive). Do not export when exporting the document.',
+      { language: 'yaml', body: 'x-scalar-secret-token: eyJhbG...' },
+    ),
   },
 )
 
@@ -50,8 +54,14 @@ export const XScalarSecretHTTP = object(
   },
   {
     typeName: 'XScalarSecretHTTP',
-    typeComment:
-      'Persisted HTTP basic credentials (sensitive). Do not export when exporting the document.\n\n@example\n```yaml\nx-scalar-secret-username: api-user\nx-scalar-secret-password: secret\n```',
+    typeComment: typeCommentWithExample(
+      'Persisted HTTP basic credentials (sensitive). Do not export when exporting the document.',
+      {
+        language: 'yaml',
+        body: `x-scalar-secret-username: api-user
+x-scalar-secret-password: secret`,
+      },
+    ),
   },
 )
 

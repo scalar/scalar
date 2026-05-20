@@ -1,5 +1,7 @@
 import { boolean, object, optional } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 export const XScalarWatchMode = object(
   {
     'x-scalar-watch-mode': optional(
@@ -8,7 +10,9 @@ export const XScalarWatchMode = object(
   },
   {
     typeName: 'XScalarWatchMode',
-    typeComment:
-      'Whether the document is in watch mode (reloads when the source file changes).\n\n@example\n```yaml\nx-scalar-watch-mode: true\n```',
+    typeComment: typeCommentWithExample(
+      'Whether the document is in watch mode (reloads when the source file changes).',
+      { language: 'yaml', body: 'x-scalar-watch-mode: true' },
+    ),
   },
 )

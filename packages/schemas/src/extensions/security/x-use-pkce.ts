@@ -1,5 +1,7 @@
 import { literal, object, union } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 /**
  * Use `x-usePkce` to enable Proof Key for Code Exchange (PKCE) for the OAuth2 authorization code flow.
  */
@@ -11,7 +13,9 @@ export const XusePkce = object(
   },
   {
     typeName: 'XusePkce',
-    typeComment:
-      'Enables Proof Key for Code Exchange (PKCE) for the OAuth2 authorization code flow.\n\n@example\n```yaml\nx-usePkce: SHA-256\n```',
+    typeComment: typeCommentWithExample(
+      'Enables Proof Key for Code Exchange (PKCE) for the OAuth2 authorization code flow.',
+      { language: 'yaml', body: 'x-usePkce: SHA-256' },
+    ),
   },
 )

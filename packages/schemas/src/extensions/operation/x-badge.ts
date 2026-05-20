@@ -1,5 +1,7 @@
 import { array, literal, object, optional, string, union } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 /**
  * Schema for individual badge configuration in the x-badges extension.
  * Badges are indicators that can be displayed in API documentation.
@@ -22,8 +24,12 @@ export const XBadge = object(
   },
   {
     typeName: 'XBadge',
-    typeComment:
-      'Configuration for a single badge in the x-badges extension.\n\n@example\n```yaml\nname: Beta\nposition: before\ncolor: "#ffcc00"\n```',
+    typeComment: typeCommentWithExample('Configuration for a single badge in the x-badges extension.', {
+      language: 'yaml',
+      body: `name: Beta
+position: before
+color: "#ffcc00"`,
+    }),
   },
 )
 
@@ -58,7 +64,15 @@ export const XBadges = object(
   },
   {
     typeName: 'XBadges',
-    typeComment:
-      'Badges for an operation in the Scalar UI. Use as visual indicators in documentation.\n\n@example\n```yaml\nx-badges:\n  - name: Alpha\n  - name: Beta\n    position: before\n```',
+    typeComment: typeCommentWithExample(
+      'Badges for an operation in the Scalar UI. Use as visual indicators in documentation.',
+      {
+        language: 'yaml',
+        body: `x-badges:
+  - name: Alpha
+  - name: Beta
+    position: before`,
+      },
+    ),
   },
 )

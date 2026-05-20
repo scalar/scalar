@@ -1,5 +1,7 @@
 import { boolean, object, optional, string } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 const XScalarRegistryMetaInner = object(
   {
     namespace: string({ typeComment: 'The namespace under which this registry meta is scoped.' }),
@@ -36,7 +38,12 @@ export const XScalarRegistryMeta = object(
   },
   {
     typeName: 'XScalarRegistryMeta',
-    typeComment:
-      'Registry sync metadata for a document published to Scalar Registry.\n\n@example\n```yaml\nx-scalar-registry-meta:\n  namespace: acme\n  slug: public-api\n  version: "1.0.0"\n```',
+    typeComment: typeCommentWithExample('Registry sync metadata for a document published to Scalar Registry.', {
+      language: 'yaml',
+      body: `x-scalar-registry-meta:
+  namespace: acme
+  slug: public-api
+  version: "1.0.0"`,
+    }),
   },
 )

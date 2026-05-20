@@ -1,5 +1,7 @@
 import { object, optional, string } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 /**
  * Pre-request scripts run before a request is sent. They are used to prepare or modify anything needed for the request to succeed.
  *
@@ -25,7 +27,14 @@ export const XPreRequest = object(
   },
   {
     typeName: 'XPreRequest',
-    typeComment:
-      'Pre-request script to run before the request is sent. Use to set variables, generate values, or modify headers.\n\n@example\n```yaml\nx-pre-request: |\n  var token = pm.environment.get("token")\n  pm.request.headers.set("Authorization", `Bearer ${token}`)\n```',
+    typeComment: typeCommentWithExample(
+      'Pre-request script to run before the request is sent. Use to set variables, generate values, or modify headers.',
+      {
+        language: 'yaml',
+        body: `x-pre-request: |
+  var token = pm.environment.get("token")
+  pm.request.headers.set("Authorization", \`Bearer \${token}\`)`,
+      },
+    ),
   },
 )

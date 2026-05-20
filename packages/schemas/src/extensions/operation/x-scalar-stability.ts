@@ -1,5 +1,7 @@
 import { literal, object, optional, union } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 export const XScalarStabilityValues = {
   Deprecated: 'deprecated',
   Experimental: 'experimental',
@@ -16,7 +18,9 @@ export const XScalarStability = object(
   },
   {
     typeName: 'XScalarStability',
-    typeComment:
-      'Indicates the stability of an operation in the Scalar UI.\n\n@example\n```yaml\nx-scalar-stability: deprecated\n```',
+    typeComment: typeCommentWithExample('Indicates the stability of an operation in the Scalar UI.', {
+      language: 'yaml',
+      body: 'x-scalar-stability: deprecated',
+    }),
   },
 )

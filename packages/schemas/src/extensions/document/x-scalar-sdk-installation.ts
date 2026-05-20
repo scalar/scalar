@@ -1,5 +1,7 @@
 import { array, object, optional, string } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 const XScalarSdkInstallationItem = object(
   {
     lang: string({ typeComment: 'Programming language or platform (for example `shell`, `javascript`)' }),
@@ -22,7 +24,11 @@ export const XScalarSdkInstallation = object(
   },
   {
     typeName: 'XScalarSdkInstallation',
-    typeComment:
-      'Scalar SDK installation instructions for the API description.\n\n@example\n```yaml\nx-scalar-sdk-installation:\n  - lang: shell\n    source: npm install @scalar/api-client\n```',
+    typeComment: typeCommentWithExample('Scalar SDK installation instructions for the API description.', {
+      language: 'yaml',
+      body: `x-scalar-sdk-installation:
+  - lang: shell
+    source: npm install @scalar/api-client`,
+    }),
   },
 )

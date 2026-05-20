@@ -1,5 +1,7 @@
 import { literal, object, optional, union } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 /**
  * An OpenAPI extension to specify where OAuth2 credentials should be sent.
  *
@@ -23,7 +25,9 @@ export const XScalarCredentialsLocation = object(
   },
   {
     typeName: 'XScalarCredentialsLocation',
-    typeComment:
-      'Where OAuth2 credentials are sent for this security scheme.\n\n@example\n```yaml\nx-scalar-credentials-location: header\n```',
+    typeComment: typeCommentWithExample('Where OAuth2 credentials are sent for this security scheme.', {
+      language: 'yaml',
+      body: 'x-scalar-credentials-location: header',
+    }),
   },
 )

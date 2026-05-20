@@ -1,5 +1,7 @@
 import { boolean, object, optional } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 export const XScalarIsDirty = object(
   {
     'x-scalar-is-dirty': optional(
@@ -10,7 +12,9 @@ export const XScalarIsDirty = object(
   },
   {
     typeName: 'XScalarIsDirty',
-    typeComment:
-      'Tracks whether the document has been modified since it was last saved.\n\n@example\n```yaml\nx-scalar-is-dirty: true\n```',
+    typeComment: typeCommentWithExample('Tracks whether the document has been modified since it was last saved.', {
+      language: 'yaml',
+      body: 'x-scalar-is-dirty: true',
+    }),
   },
 )

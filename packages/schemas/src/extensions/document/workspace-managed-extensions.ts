@@ -1,5 +1,7 @@
 import { object, optional, string } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 /**
  * Workspace-store-managed metadata extensions that apply to every document type in the workspace,
  * regardless of OpenAPI or AsyncAPI shape.
@@ -16,7 +18,9 @@ export const WorkspaceManagedExtensions = object(
   },
   {
     typeName: 'WorkspaceManagedExtensions',
-    typeComment:
-      'Workspace-managed metadata shared by OpenAPI and AsyncAPI documents.\n\n@example\n```yaml\nx-scalar-original-source-url: https://example.com/openapi.yaml\n```',
+    typeComment: typeCommentWithExample('Workspace-managed metadata shared by OpenAPI and AsyncAPI documents.', {
+      language: 'yaml',
+      body: 'x-scalar-original-source-url: https://example.com/openapi.yaml',
+    }),
   },
 )

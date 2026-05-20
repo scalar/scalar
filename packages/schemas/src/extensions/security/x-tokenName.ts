@@ -1,5 +1,7 @@
 import { object, optional, string } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 /**
  * An OpenAPI extension to specify a custom token name for OAuth2 flows.
  *
@@ -18,6 +20,9 @@ export const XTokenName = object(
   },
   {
     typeName: 'XTokenName',
-    typeComment: 'Custom OAuth2 access token field name.\n\n@example\n```yaml\nx-tokenName: custom_access_token\n```',
+    typeComment: typeCommentWithExample('Custom OAuth2 access token field name.', {
+      language: 'yaml',
+      body: 'x-tokenName: custom_access_token',
+    }),
   },
 )

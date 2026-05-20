@@ -1,5 +1,7 @@
 import { array, object, optional, string } from '@scalar/validation'
 
+import { typeCommentInlineCode, typeCommentWithExample } from '../type-comment'
+
 export const XCodeSample = object(
   {
     lang: optional(string({ typeComment: 'Programming language for syntax highlighting' })),
@@ -20,7 +22,15 @@ export const XCodeSamples = object(
   },
   {
     typeName: 'XCodeSamples',
-    typeComment:
-      'Code samples attached to an operation. Supports `x-codeSamples`, `x-code-samples`, and `x-custom-examples`.\n\n@example\n```yaml\nx-code-samples:\n  - lang: curl\n    label: cURL\n    source: curl https://api.example.com\n```',
+    typeComment: typeCommentWithExample(
+      `Code samples attached to an operation. Supports ${typeCommentInlineCode('x-codeSamples')}, ${typeCommentInlineCode('x-code-samples')}, and ${typeCommentInlineCode('x-custom-examples')}.`,
+      {
+        language: 'yaml',
+        body: `x-code-samples:
+  - lang: curl
+    label: cURL
+    source: curl https://api.example.com`,
+      },
+    ),
   },
 )

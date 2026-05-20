@@ -1,5 +1,7 @@
 import { array, object, optional, string } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 export const XDraftExamples = object(
   {
     'x-draft-examples': optional(
@@ -10,7 +12,14 @@ export const XDraftExamples = object(
   },
   {
     typeName: 'XDraftExamples',
-    typeComment:
-      'Draft example identifiers for an operation (in-progress examples not yet committed).\n\n@example\n```yaml\nx-draft-examples:\n  - default\n  - error-case\n```',
+    typeComment: typeCommentWithExample(
+      'Draft example identifiers for an operation (in-progress examples not yet committed).',
+      {
+        language: 'yaml',
+        body: `x-draft-examples:
+  - default
+  - error-case`,
+      },
+    ),
   },
 )

@@ -1,5 +1,7 @@
 import { object, optional, string } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 /** The currently selected environment for this API description */
 export const XScalarActiveEnvironment = object(
   {
@@ -7,7 +9,9 @@ export const XScalarActiveEnvironment = object(
   },
   {
     typeName: 'XScalarActiveEnvironment',
-    typeComment:
-      'The currently selected environment for this API description.\n\n@example\n```yaml\nx-scalar-active-environment: production\n```',
+    typeComment: typeCommentWithExample('The currently selected environment for this API description.', {
+      language: 'yaml',
+      body: 'x-scalar-active-environment: production',
+    }),
   },
 )

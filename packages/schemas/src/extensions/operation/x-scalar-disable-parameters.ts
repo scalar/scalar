@@ -1,40 +1,6 @@
 import { boolean, object, optional, record, string } from '@scalar/validation'
 
-/**
- * The name of a parameter (like "Content-Type" or "Authorization").
- * Used as keys in parameter state mappings.
- */
-type ParameterName = string
-
-/**
- * The key identifying an example (like "default" or "auth-example").
- * Used to separate parameter states across different examples.
- */
-type ExampleKey = string
-
-/**
- * Maps parameter names to their disabled state for a single example.
- * A parameter is disabled when its value is true, enabled when false.
- *
- * @example
- * {
- *   "Content-Type": true,  // This parameter is disabled
- *   "Accept": false         // This parameter is enabled
- * }
- */
-type ExampleParameterState = Record<ParameterName, boolean>
-
-/**
- * Maps example keys to their parameter disabled states.
- * Each example can have a different set of disabled parameters.
- *
- * @example
- * {
- *   "default": { "Content-Type": true },
- *   "auth-example": { "Authorization": false }
- * }
- */
-type ExamplesParameterStates = Record<ExampleKey, ExampleParameterState>
+import { typeCommentExample, typeCommentSections } from '../type-comment'
 
 /**
  * Custom OpenAPI extension to track which parameters are disabled across different contexts.
@@ -108,19 +74,19 @@ export const XScalarDisableParameters = object(
   },
   {
     typeName: 'XScalarDisableParameters',
-    typeComment: `Tracks which parameters are disabled across examples in the API client.
-
-Structure: category (global-cookies, global-headers, default-headers) → example key → parameter name → true if disabled.
-
-@example
-\`\`\`json
-{
+    typeComment: typeCommentSections(
+      'Tracks which parameters are disabled across examples in the API client.',
+      'Structure: category (global-cookies, global-headers, default-headers) → example key → parameter name → true if disabled.',
+      typeCommentExample(
+        'json',
+        `{
   "x-scalar-disable-parameters": {
     "default-headers": {
       "default": { "Content-Type": true, "Accept": false }
     }
   }
-}
-\`\`\``,
+}`,
+      ),
+    ),
   },
 )

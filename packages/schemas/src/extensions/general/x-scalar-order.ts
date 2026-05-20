@@ -1,5 +1,7 @@
 import { array, object, optional, string } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 export const XScalarOrder = object(
   {
     'x-scalar-order': optional(
@@ -10,7 +12,15 @@ export const XScalarOrder = object(
   },
   {
     typeName: 'XScalarOrder',
-    typeComment:
-      'Custom display order for elements in the Scalar UI (tags, operations, tag groups).\n\n@example\n```yaml\nx-scalar-order:\n  - users\n  - pets\n  - admin\n```',
+    typeComment: typeCommentWithExample(
+      'Custom display order for elements in the Scalar UI (tags, operations, tag groups).',
+      {
+        language: 'yaml',
+        body: `x-scalar-order:
+  - users
+  - pets
+  - admin`,
+      },
+    ),
   },
 )

@@ -1,5 +1,7 @@
 import { boolean, object, optional } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 /** Internal extension to mark an entity as ignored in the Scalar UI */
 export const XScalarIgnore = object(
   {
@@ -7,7 +9,9 @@ export const XScalarIgnore = object(
   },
   {
     typeName: 'XScalarIgnore',
-    typeComment:
-      'Internal extension to mark an entity as ignored in the Scalar UI.\n\n@example\n```yaml\nx-scalar-ignore: true\n```',
+    typeComment: typeCommentWithExample('Internal extension to mark an entity as ignored in the Scalar UI.', {
+      language: 'yaml',
+      body: 'x-scalar-ignore: true',
+    }),
   },
 )

@@ -1,5 +1,7 @@
 import { array, boolean, object, optional, string } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 export const XScalarCookie = object(
   {
     name: string({ typeComment: 'Cookie name' }),
@@ -24,7 +26,12 @@ export const XScalarCookies = object(
   },
   {
     typeName: 'XScalarCookies',
-    typeComment:
-      'Persisted workspace cookies shared across requests.\n\n@example\n```yaml\nx-scalar-cookies:\n  - name: session\n    value: abc123\n    path: /\n```',
+    typeComment: typeCommentWithExample('Persisted workspace cookies shared across requests.', {
+      language: 'yaml',
+      body: `x-scalar-cookies:
+  - name: session
+    value: abc123
+    path: /`,
+    }),
   },
 )

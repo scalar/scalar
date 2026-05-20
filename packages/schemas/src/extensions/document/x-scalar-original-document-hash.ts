@@ -1,5 +1,7 @@
 import { object, string } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 export const XScalarOriginalDocumentHash = object(
   {
     'x-scalar-original-document-hash': string({
@@ -8,7 +10,9 @@ export const XScalarOriginalDocumentHash = object(
   },
   {
     typeName: 'XScalarOriginalDocumentHash',
-    typeComment:
-      'Tracks the original document hash when loading from an external source. Used to detect modifications since last save.\n\n@example\n```yaml\nx-scalar-original-document-hash: "abc123"\n```',
+    typeComment: typeCommentWithExample(
+      'Tracks the original document hash when loading from an external source. Used to detect modifications since last save.',
+      { language: 'yaml', body: 'x-scalar-original-document-hash: "abc123"' },
+    ),
   },
 )

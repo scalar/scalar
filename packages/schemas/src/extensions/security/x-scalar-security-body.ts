@@ -1,5 +1,7 @@
 import { object, optional, record, string } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 /**
  * An OpenAPI extension to set any additional body parameters for the OAuth token request.
  *
@@ -20,7 +22,11 @@ export const XScalarSecurityBody = object(
   },
   {
     typeName: 'XScalarSecurityBody',
-    typeComment:
-      'Additional OAuth token request body parameters.\n\n@example\n```yaml\nx-scalar-security-body:\n  audience: https://api.example.com\n  resource: user-profile\n```',
+    typeComment: typeCommentWithExample('Additional OAuth token request body parameters.', {
+      language: 'yaml',
+      body: `x-scalar-security-body:
+  audience: https://api.example.com
+  resource: user-profile`,
+    }),
   },
 )

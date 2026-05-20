@@ -1,5 +1,7 @@
 import { object, optional, record, string } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 /**
  * Schema for the x-scalar-selected-content-type extension on an OpenAPI operation.
  *
@@ -16,7 +18,14 @@ export const XScalarSelectedContentType = object(
   },
   {
     typeName: 'XScalarSelectedContentType',
-    typeComment:
-      'Selected content type per example for request or response bodies. Keys are example names; values are media types.\n\n@example\n```yaml\nx-scalar-selected-content-type:\n  default: application/json\n  xml-example: application/xml\n```',
+    typeComment: typeCommentWithExample(
+      'Selected content type per example for request or response bodies. Keys are example names; values are media types.',
+      {
+        language: 'yaml',
+        body: `x-scalar-selected-content-type:
+  default: application/json
+  xml-example: application/xml`,
+      },
+    ),
   },
 )

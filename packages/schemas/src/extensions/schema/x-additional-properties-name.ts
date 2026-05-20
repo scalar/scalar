@@ -1,5 +1,7 @@
 import { object, optional, string } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 /**
  * x-additionalPropertiesName
  *
@@ -16,7 +18,9 @@ export const XAdditionalPropertiesName = object(
   },
   {
     typeName: 'XAdditionalPropertiesName',
-    typeComment:
-      'Display name for additional properties on a schema object.\n\n@example\n```yaml\nx-additionalPropertiesName: metadata\n```',
+    typeComment: typeCommentWithExample('Display name for additional properties on a schema object.', {
+      language: 'yaml',
+      body: 'x-additionalPropertiesName: metadata',
+    }),
   },
 )

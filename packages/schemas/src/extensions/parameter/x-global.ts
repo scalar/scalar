@@ -1,5 +1,7 @@
 import { boolean, object, optional } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 /**
  * OpenAPI extension used by the API client to determine if a parameter is global in scope
  * for the entire workspace. When set, this parameter is injected into every request automatically.
@@ -19,7 +21,9 @@ export const XGlobal = object(
   },
   {
     typeName: 'XGlobal',
-    typeComment:
-      'When true, the parameter is injected into every request for the workspace.\n\n@example\n```yaml\nx-global: true\n```',
+    typeComment: typeCommentWithExample('When true, the parameter is injected into every request for the workspace.', {
+      language: 'yaml',
+      body: 'x-global: true',
+    }),
   },
 )

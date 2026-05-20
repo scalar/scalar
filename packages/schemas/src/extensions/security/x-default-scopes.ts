@@ -1,5 +1,7 @@
 import { array, object, optional, string } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 /**
  * Default selected scopes for the OAuth flow.
  *
@@ -20,7 +22,9 @@ export const XDefaultScopes = object(
   },
   {
     typeName: 'XDefaultScopes',
-    typeComment:
-      'Default selected OAuth scopes.\n\n@example\n```json\n{ "x-default-scopes": ["profile", "email"] }\n```',
+    typeComment: typeCommentWithExample('Default selected OAuth scopes.', {
+      language: 'json',
+      body: '{ "x-default-scopes": ["profile", "email"] }',
+    }),
   },
 )

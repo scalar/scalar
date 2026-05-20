@@ -1,5 +1,7 @@
 import { nullable, object, optional, string, union } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 /**
  * Schema for the x-scalar-active-proxy extension.
  *
@@ -20,7 +22,9 @@ export const XScalarActiveProxy = object(
   },
   {
     typeName: 'XScalarActiveProxy',
-    typeComment:
-      'The currently selected proxy identifier for the workspace.\n\n@example\n```json\n{ "x-scalar-active-proxy": "my-proxy-id" }\n```',
+    typeComment: typeCommentWithExample('The currently selected proxy identifier for the workspace.', {
+      language: 'json',
+      body: '{ "x-scalar-active-proxy": "my-proxy-id" }',
+    }),
   },
 )

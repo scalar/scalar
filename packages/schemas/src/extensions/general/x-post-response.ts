@@ -1,5 +1,7 @@
 import { object, optional, string } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 /**
  * Post response scripts allow to execute arbitrary code after a response is received.
  *
@@ -25,7 +27,15 @@ export const XPostResponse = object(
   },
   {
     typeName: 'XPostResponse',
-    typeComment:
-      'Post-response script for an operation. Use to extract response data or assert on the response.\n\n@example\n```yaml\nx-post-response: |\n  pm.test("Status code is 200", () => {\n    pm.response.to.have.status(200)\n  })\n```',
+    typeComment: typeCommentWithExample(
+      'Post-response script for an operation. Use to extract response data or assert on the response.',
+      {
+        language: 'yaml',
+        body: `x-post-response: |
+  pm.test("Status code is 200", () => {
+    pm.response.to.have.status(200)
+  })`,
+      },
+    ),
   },
 )

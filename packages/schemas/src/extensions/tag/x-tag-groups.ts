@@ -1,6 +1,7 @@
 import { array, intersection, object, optional, string } from '@scalar/validation'
 
 import { XScalarOrder as XScalarOrderFields } from '../general/x-scalar-order'
+import { typeCommentWithExample } from '../type-comment'
 
 export const XTagGroup = intersection(
   [
@@ -36,7 +37,11 @@ export const XTagGroups = object(
   },
   {
     typeName: 'XTagGroups',
-    typeComment:
-      'Groups of tags for organizing the sidebar in the Scalar UI.\n\n@example\n```yaml\nx-tagGroups:\n  - name: Core API\n    tags: [users, auth]\n```',
+    typeComment: typeCommentWithExample('Groups of tags for organizing the sidebar in the Scalar UI.', {
+      language: 'yaml',
+      body: `x-tagGroups:
+  - name: Core API
+    tags: [users, auth]`,
+    }),
   },
 )

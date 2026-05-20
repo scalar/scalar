@@ -1,5 +1,7 @@
 import { array, number, object, optional, string } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 export const Tab = object(
   {
     path: string({ typeComment: 'Tab path or document identifier' }),
@@ -33,7 +35,15 @@ export const XScalarTabs = object(
   },
   {
     typeName: 'XScalarTabs',
-    typeComment:
-      'Workspace tab configuration. Persists open tabs and the active tab across sessions.\n\n@example\n```yaml\nx-scalar-tabs:\n  - path: /users\n    title: Users\nx-scalar-active-tab: 0\n```',
+    typeComment: typeCommentWithExample(
+      'Workspace tab configuration. Persists open tabs and the active tab across sessions.',
+      {
+        language: 'yaml',
+        body: `x-scalar-tabs:
+  - path: /users
+    title: Users
+x-scalar-active-tab: 0`,
+      },
+    ),
   },
 )

@@ -1,5 +1,7 @@
 import { array, object, optional, string } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 export const XTags = object(
   {
     'x-tags': optional(
@@ -10,7 +12,11 @@ export const XTags = object(
   },
   {
     typeName: 'XTags',
-    typeComment:
-      'Custom tag ordering hints for schema objects in the sidebar.\n\n@example\n```yaml\nx-tags:\n  - users\n  - admin\n```',
+    typeComment: typeCommentWithExample('Custom tag ordering hints for schema objects in the sidebar.', {
+      language: 'yaml',
+      body: `x-tags:
+  - users
+  - admin`,
+    }),
   },
 )

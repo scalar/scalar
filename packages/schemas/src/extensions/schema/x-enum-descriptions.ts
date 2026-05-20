@@ -1,5 +1,7 @@
 import { array, object, optional, record, string, union } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 const enumDescriptionValue = union([record(string(), string()), array(string())])
 
 /**
@@ -28,7 +30,10 @@ export const XEnumDescriptions = object(
   },
   {
     typeName: 'XEnumDescriptions',
-    typeComment:
-      'Descriptions for enum values. Keys must match enum values.\n\n@example\n```yaml\nx-enumDescriptions:\n  other: Other reason\n```',
+    typeComment: typeCommentWithExample('Descriptions for enum values. Keys must match enum values.', {
+      language: 'yaml',
+      body: `x-enumDescriptions:
+  other: Other reason`,
+    }),
   },
 )

@@ -1,5 +1,7 @@
 import { array, object, optional, record, string, union } from '@scalar/validation'
 
+import { typeCommentWithExample } from '../type-comment'
+
 /** A scalar environment variable */
 export const XScalarEnvVar = object(
   {
@@ -41,7 +43,17 @@ export const XScalarEnvironments = object(
   },
   {
     typeName: 'XScalarEnvironments',
-    typeComment:
-      'Named environments with variables for the API client (base URLs, tokens, etc.).\n\n@example\n```yaml\nx-scalar-environments:\n  production:\n    color: "#00ff00"\n    variables:\n      - name: apiKey\n        value: prod-key\n```',
+    typeComment: typeCommentWithExample(
+      'Named environments with variables for the API client (base URLs, tokens, etc.).',
+      {
+        language: 'yaml',
+        body: `x-scalar-environments:
+  production:
+    color: "#00ff00"
+    variables:
+      - name: apiKey
+        value: prod-key`,
+      },
+    ),
   },
 )
