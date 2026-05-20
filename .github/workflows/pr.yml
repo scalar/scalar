@@ -308,6 +308,7 @@ jobs:
   test-e2e-api-reference:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
+    environment: production-netlify
     container:
       image: scalarapi/playwright-runner:1.59.1
       options: --privileged
@@ -356,6 +357,7 @@ jobs:
   test-e2e-scalar-app:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
+    environment: production-netlify
     container:
       image: scalarapi/playwright-runner:1.59.1
       options: --privileged
@@ -400,6 +402,7 @@ jobs:
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'main'
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
+    environment: production-netlify
     container:
       image: scalarapi/playwright-runner:1.59.1
       options: --privileged
@@ -447,6 +450,7 @@ jobs:
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'main'
     needs: [build]
     runs-on: blacksmith-8vcpu-ubuntu-2204
+    environment: production-netlify
     container:
       image: scalarapi/playwright-runner:1.59.1
       options: --privileged

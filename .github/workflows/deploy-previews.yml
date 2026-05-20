@@ -47,6 +47,7 @@ permissions:
 jobs:
   deploy-examples:
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-netlify
     timeout-minutes: 10
     concurrency:
       group: deploy-examples-${{ github.ref }}
@@ -127,6 +128,7 @@ jobs:
 
   deploy-components:
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-netlify
     timeout-minutes: 10
     concurrency:
       group: deploy-components-${{ github.ref }}
