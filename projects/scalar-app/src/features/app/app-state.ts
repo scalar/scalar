@@ -1,3 +1,4 @@
+import type { ClientLayout } from '@scalar/api-client/types'
 import type { ScalarListboxOption } from '@scalar/components'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
@@ -16,7 +17,7 @@ import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-un
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import { createWorkspaceStorePersistence, generateWorkspaceUid } from '@scalar/workspace-store/persistence'
 import { persistencePlugin } from '@scalar/workspace-store/plugins/client'
-import { getActiveEnvironment } from '@scalar/workspace-store/request-example'
+import { getActiveEnvironment, getActiveProxyUrl } from '@scalar/workspace-store/request-example'
 import type { Workspace, WorkspaceDocument } from '@scalar/workspace-store/schemas'
 import { extensions } from '@scalar/workspace-store/schemas/extensions'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -240,12 +241,15 @@ export const createAppState = async ({
   fileLoader,
   telemetryDefault,
   options,
+  layout,
 }: {
   router: Router
   fileLoader?: LoaderPlugin
   telemetryDefault?: boolean
   /** Runtime behaviour overrides */
   options?: ApiClientAppOptions
+  /** Client layout — drives default proxy selection for document fetching */
+  layout: Exclude<ClientLayout, 'modal'>
 }): Promise<AppState> => {
   /** Workspace event bus for handling workspace-level events. */
   const eventBus = createWorkspaceEventBus({
@@ -370,6 +374,9 @@ export const createAppState = async ({
       ],
       fileLoader,
       fetch: options?.customFetch,
+      meta: {
+        'x-scalar-active-proxy': getActiveProxyUrl(undefined, layout === 'web' ? 'web' : 'other'),
+      },
     })
   }
 
@@ -518,7 +525,11 @@ export const createAppState = async ({
     teamSlug: string
     slug: string
   }) => {
-    const draftStore = createWorkspaceStore()
+    const draftStore = createWorkspaceStore({
+      meta: {
+        'x-scalar-active-proxy': getActiveProxyUrl(undefined, layout === 'web' ? 'web' : 'other'),
+      },
+    })
     const isTeam = teamUid !== 'local'
 
     if (!isTeam) {

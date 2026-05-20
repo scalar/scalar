@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { ClientLayout } from '@scalar/api-client/types'
 import {
   useModal,
   type ScalarListboxOption,
@@ -10,6 +11,7 @@ import {
   createWorkspaceStore,
   type WorkspaceStore,
 } from '@scalar/workspace-store/client'
+import { getActiveProxyUrl } from '@scalar/workspace-store/request-example'
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
 import { onMounted, ref } from 'vue'
 
@@ -25,7 +27,7 @@ import { getUrlQueryParameter } from './helpers/get-url-query-parameter'
 import { importDocumentToWorkspace } from './helpers/import-document-to-workspace'
 import { waitForCondition } from './helpers/wait-for-condition'
 
-const { workspaceStore, darkMode, fileLoader, isOnlyOneWorkspace } =
+const { workspaceStore, darkMode, fileLoader, isOnlyOneWorkspace, layout } =
   defineProps<{
     /**
      * Whether the user have only one workspace on the app.
@@ -51,6 +53,8 @@ const { workspaceStore, darkMode, fileLoader, isOnlyOneWorkspace } =
     workspaceGroups: WorkspaceGroup[]
     /** The active workspace */
     activeWorkspace: ScalarListboxOption | null
+    /** Client layout — drives default proxy selection when loading imports */
+    layout: Exclude<ClientLayout, 'modal'>
   }>()
 
 const emit = defineEmits<{
@@ -100,6 +104,12 @@ const directImport = async (
   // This is to get the title of the document so we can generate a unique slug for store
   const draftStore = createWorkspaceStore({
     fileLoader,
+    meta: {
+      'x-scalar-active-proxy': getActiveProxyUrl(
+        undefined,
+        layout === 'web' ? 'web' : 'other',
+      ),
+    },
   })
   const success = await loadDocumentFromSource(
     draftStore,
@@ -208,6 +218,7 @@ onMounted(() => {
     :fileLoader="fileLoader"
     :importEventData="data"
     :isLoading="workspaceStore === null"
+    :layout="layout"
     :modalState="modalState"
     :workspaceGroups="workspaceGroups"
     @create:workspace="(payload) => emit('create:workspace', payload)"

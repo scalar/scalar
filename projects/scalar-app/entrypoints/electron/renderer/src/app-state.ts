@@ -9,6 +9,7 @@ export const appState = await createAppState({
   router,
   fileLoader: readFiles(),
   telemetryDefault: true,
+  layout: 'desktop',
   options: {
     customFetch,
     oauth2RedirectUri: '',

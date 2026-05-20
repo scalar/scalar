@@ -260,6 +260,7 @@ const registry = reactive({
     :darkMode="app.isDarkMode.value"
     :fileLoader="fileLoader"
     :isOnlyOneWorkspace="filteredWorkspaces.length <= 1"
+    :layout="isDesktop ? 'desktop' : 'web'"
     :workspaceGroups
     :workspaceStore="app.store.value"
     @create:workspace="(payload) => app.workspace.create(payload)"

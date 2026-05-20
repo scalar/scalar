@@ -131,7 +131,7 @@ describe('App', () => {
       routes: ROUTES,
     })
 
-    const appState = await createAppState({ router, options: { oauth2RedirectUri, customFetch } })
+    const appState = await createAppState({ router, layout: 'web', options: { oauth2RedirectUri, customFetch } })
 
     await router.push({
       name: routeName,

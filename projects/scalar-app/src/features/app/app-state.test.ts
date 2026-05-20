@@ -86,7 +86,7 @@ describe('app-state', () => {
     })
 
     const router = setupRouter()
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, layout: 'web' })
 
     await router.push({
       name: 'document.overview',
@@ -107,7 +107,7 @@ describe('app-state', () => {
     await persistWorkspace({ slug: 'no-tabs' })
 
     const router = setupRouter()
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, layout: 'web' })
 
     await router.push({
       name: 'document.overview',
@@ -129,7 +129,7 @@ describe('app-state', () => {
     })
 
     const router = setupRouter()
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, layout: 'web' })
 
     await router.push({
       name: 'document.overview',
@@ -156,7 +156,7 @@ describe('app-state', () => {
     await persistWorkspace({ teamUid: 'acme-uid', teamSlug: 'acme', slug: 'first-team-workspace', name: 'First' })
 
     const router = setupRouter()
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, layout: 'web' })
 
     const result = await appState.workspace.create({
       teamUid: 'acme-uid',
@@ -185,7 +185,7 @@ describe('app-state', () => {
     await persistWorkspace({ slug: 'first-local', name: 'First' })
 
     const router = setupRouter()
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, layout: 'web' })
 
     const result = await appState.workspace.create({ name: 'Second Local' })
 
@@ -198,7 +198,7 @@ describe('app-state', () => {
     await persistWorkspace({ teamSlug: 'team-a', slug: 'a-workspace', name: 'A' })
 
     const router = setupRouter()
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, layout: 'web' })
 
     const result = await appState.workspace.create({ teamSlug: 'team-b', name: 'B' })
 
@@ -215,7 +215,7 @@ describe('app-state', () => {
     const router = setupRouter()
     // Use a team slug that no other test has persisted a workspace under so
     // only the synthetic default option appears in the team group.
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, layout: 'web' })
 
     // workspaceGroups is now computed in the shell (App.vue) using
     // groupWorkspacesByTeam, so we replicate that here.
@@ -243,7 +243,7 @@ describe('app-state', () => {
 
   it('creates the default team workspace on demand when navigating to a team workspace URL', async () => {
     const router = setupRouter()
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, layout: 'web' })
     const teamSlug = 'autocreate-team'
 
     expect(appState.workspace.workspaceList.value.some((w) => w.teamSlug === teamSlug)).toBe(false)
@@ -278,7 +278,7 @@ describe('app-state', () => {
     await persistWorkspace({ teamSlug, slug: 'default', name: 'Team Workspace' })
 
     const router = setupRouter()
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, layout: 'web' })
 
     await router.push({
       name: 'workspace.get-started',
@@ -301,7 +301,7 @@ describe('app-state', () => {
 
   it('navigates team workspaces to the get-started page instead of the drafts route', async () => {
     const router = setupRouter()
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, layout: 'web' })
 
     // Capture the initial push target before downstream tab-sync effects can
     // replace the route - tabs:update:tabs is wired to navigateToCurrentTab
@@ -323,7 +323,7 @@ describe('app-state', () => {
 
   it('still navigates local workspaces directly to the drafts example route', async () => {
     const router = setupRouter()
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, layout: 'web' })
 
     const pushed: { name?: string; params?: Record<string, unknown> }[] = []
     const originalPush = router.push.bind(router)
@@ -352,7 +352,7 @@ describe('app-state', () => {
     await persistWorkspace({ teamSlug, slug: 'team-default', name: 'Team Default' })
 
     const router = setupRouter()
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, layout: 'web' })
 
     await router.push({
       name: 'workspace.get-started',
@@ -394,7 +394,7 @@ describe('app-state', () => {
     await persistWorkspace({ teamSlug: 'foreign-team', slug: 'default', name: 'Foreign' })
 
     const router = setupRouter()
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, layout: 'web' })
 
     await router.push({
       name: 'workspace.get-started',
@@ -429,7 +429,7 @@ describe('app-state', () => {
     await persistWorkspace({ slug: 'switch-target' })
 
     const router = setupRouter()
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, layout: 'web' })
     const teamSlug = 'local'
 
     // Initial load on workspace A
@@ -473,7 +473,7 @@ describe('app-state', () => {
     await persistWorkspace({ teamUid, teamSlug: 'new-slug', slug: 'api', name: 'Renamed Workspace' })
 
     const router = setupRouter()
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, layout: 'web' })
 
     await router.push({
       name: 'workspace.get-started',
@@ -502,7 +502,7 @@ describe('app-state', () => {
     })
 
     const router = setupRouter()
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, layout: 'web' })
 
     await router.push({
       name: 'workspace.get-started',
@@ -533,7 +533,7 @@ describe('app-state', () => {
     })
 
     const router = setupRouter()
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, layout: 'web' })
 
     await appState.workspace.reconcileTeamSlug(teamUid, 'acme-corp')
 
@@ -551,7 +551,7 @@ describe('app-state', () => {
     await persistWorkspace({ slug: 'local-one', name: 'Local One' })
 
     const router = setupRouter()
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, layout: 'web' })
 
     const before = appState.workspace.workspaceList.value.map((w) => ({ ...w }))
     await appState.workspace.reconcileTeamSlug('local', 'whatever')
@@ -576,7 +576,7 @@ describe('app-state', () => {
     })
 
     const router = setupRouter()
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, layout: 'web' })
 
     await appState.workspace.reconcileTeamSlug(teamUid, 'acme-new')
 
@@ -604,7 +604,7 @@ describe('app-state', () => {
     // call falls through to `navigateToWorkspace('local', 'default')`
     // and silently bounces the user to the local workspace.
     const router = setupRouter()
-    const appState = await createAppState({ router })
+    const appState = await createAppState({ router, layout: 'web' })
 
     const placeholderId = getPlaceholderWorkspaceId('acme', 'default')
     await appState.workspace.resumeOrGetStarted({ workspaceUid: placeholderId })

@@ -4,6 +4,7 @@
   for automatic updates when the source document changes.
 -->
 <script setup lang="ts">
+import type { ClientLayout } from '@scalar/api-client/types'
 import {
   ScalarButton,
   ScalarIcon,
@@ -16,6 +17,7 @@ import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import { isValidUrl } from '@scalar/helpers/url/is-valid-url'
 import { type LoaderPlugin } from '@scalar/json-magic/bundle'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { getActiveProxyUrl } from '@scalar/workspace-store/request-example'
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
 import { computed, onUnmounted, ref, watch } from 'vue'
 
@@ -33,6 +35,7 @@ const {
   modalState,
   isLoading = false,
   fileLoader,
+  layout,
 } = defineProps<{
   /** The event data for the import */
   importEventData: ImportEventData | null
@@ -46,6 +49,8 @@ const {
   workspaceGroups: WorkspaceGroup[]
   /** The active workspace */
   activeWorkspace: ScalarListboxOption | null
+  /** Client layout — drives default proxy selection when loading imports */
+  layout: Exclude<ClientLayout, 'modal'>
 }>()
 
 const emit = defineEmits<{
@@ -66,6 +71,12 @@ const watchMode = ref(false)
 // Create the workspace store with the file loader in order to import files
 const workspaceStore = createWorkspaceStore({
   fileLoader,
+  meta: {
+    'x-scalar-active-proxy': getActiveProxyUrl(
+      undefined,
+      layout === 'web' ? 'web' : 'other',
+    ),
+  },
 })
 
 /** The title of the active document or a fallback */
