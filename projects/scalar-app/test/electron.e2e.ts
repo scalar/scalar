@@ -77,9 +77,11 @@ test.describe('Electron', () => {
   test('launch app', async () => {
     const app = await launchElectronApp()
 
-    await waitForMainWindow(app)
-
-    await app.close()
+    try {
+      await waitForMainWindow(app)
+    } finally {
+      await app.close()
+    }
   })
 
   test('pre-request and post-response scripts run under the Electron content security policy', async () => {
