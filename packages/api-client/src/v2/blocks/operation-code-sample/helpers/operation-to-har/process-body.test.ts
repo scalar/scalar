@@ -1,5 +1,5 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { EncodingObjectSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { processBody } from './process-body'
@@ -387,9 +387,9 @@ describe('processBody', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
-            user: {
+            user: coerceValue(EncodingObjectSchema, {
               contentType: 'application/json;charset=utf-8',
-            },
+            }),
           },
           examples: {
             default: {
@@ -469,9 +469,9 @@ describe('processBody', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
-            user: {
+            user: coerceValue(EncodingObjectSchema, {
               contentType: 'application/json;charset=utf-8',
-            },
+            }),
           },
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -819,10 +819,10 @@ describe('processBody', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
-            props: {
+            props: coerceValue(EncodingObjectSchema, {
               style: 'form',
               explode: true,
-            },
+            }),
           },
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -857,9 +857,9 @@ describe('processBody', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
-            props: {
+            props: coerceValue(EncodingObjectSchema, {
               explode: true,
-            },
+            }),
           },
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -890,10 +890,10 @@ describe('processBody', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
-            props: {
+            props: coerceValue(EncodingObjectSchema, {
               style: 'form',
               contentType: 'application/json',
-            },
+            }),
           },
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -924,10 +924,10 @@ describe('processBody', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
-            props: {
+            props: coerceValue(EncodingObjectSchema, {
               style: 'form',
               explode: false,
-            },
+            }),
           },
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -959,10 +959,10 @@ describe('processBody', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
-            tags: {
+            tags: coerceValue(EncodingObjectSchema, {
               style: 'form',
               explode: true,
-            },
+            }),
           },
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -996,10 +996,10 @@ describe('processBody', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
-            tags: {
+            tags: coerceValue(EncodingObjectSchema, {
               style: 'form',
               explode: false,
-            },
+            }),
           },
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1029,9 +1029,9 @@ describe('processBody', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
-            tags: {
+            tags: coerceValue(EncodingObjectSchema, {
               style: 'spaceDelimited',
-            },
+            }),
           },
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1061,9 +1061,9 @@ describe('processBody', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
-            props: {
+            props: coerceValue(EncodingObjectSchema, {
               style: 'spaceDelimited',
-            },
+            }),
           },
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1095,9 +1095,9 @@ describe('processBody', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
-            tags: {
+            tags: coerceValue(EncodingObjectSchema, {
               style: 'pipeDelimited',
-            },
+            }),
           },
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1127,9 +1127,9 @@ describe('processBody', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
-            props: {
+            props: coerceValue(EncodingObjectSchema, {
               style: 'pipeDelimited',
-            },
+            }),
           },
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1161,10 +1161,10 @@ describe('processBody', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
-            props: {
+            props: coerceValue(EncodingObjectSchema, {
               style: 'deepObject',
               explode: true,
-            },
+            }),
           },
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1208,10 +1208,10 @@ describe('processBody', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
-            props: {
+            props: coerceValue(EncodingObjectSchema, {
               style: 'form',
               explode: true,
-            },
+            }),
           },
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1251,10 +1251,10 @@ describe('processBody', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
-            tags: {
+            tags: coerceValue(EncodingObjectSchema, {
               style: 'deepObject',
               explode: true,
-            },
+            }),
           },
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1288,10 +1288,10 @@ describe('processBody', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
-            attachments: {
+            attachments: coerceValue(EncodingObjectSchema, {
               style: 'form',
               explode: true,
-            },
+            }),
           },
           examples: {
             default: {
@@ -1325,9 +1325,9 @@ describe('processBody', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
-            settings: {
+            settings: coerceValue(EncodingObjectSchema, {
               contentType: 'application/vnd.custom+json',
-            },
+            }),
           },
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1401,10 +1401,10 @@ describe('processBody', () => {
       const content = {
         'application/x-www-form-urlencoded': {
           encoding: {
-            props: {
+            props: coerceValue(EncodingObjectSchema, {
               style: 'form',
               explode: true,
-            },
+            }),
           },
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1764,9 +1764,9 @@ describe('processBody', () => {
       const content = {
         'application/x-www-form-urlencoded': {
           encoding: {
-            user: {
+            user: coerceValue(EncodingObjectSchema, {
               contentType: 'application/json;charset=utf-8',
-            },
+            }),
           },
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
