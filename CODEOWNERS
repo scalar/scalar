@@ -2,7 +2,7 @@
 * @hanspagel @amritk @geoffgscott @marclave
 
 # Root level code owners
-/.github @hanspagel @geoffgscott
+/.github @hanspagel @amritk @geoffgscott
 /*.md @hanspagel @marclave
 
 # Renovate
@@ -33,10 +33,7 @@
 /packages/api-client @amritk @hanspagel @marclave @DemonHa
 /packages/api-client-react @amritk @marclave
 /packages/api-reference @hanspagel @marclave
-/packages/api-reference-editor @geoffgscott @marclave
 /packages/api-reference-react @amritk @marclave
-/packages/build-tooling @geoffgscott @marclave
-/packages/build-watch @geoffgscott @marclave
 /packages/code-highlight @geoffgscott @marclave
 /packages/components @hwkr @marclave
 /packages/draggable @amritk @marclave
