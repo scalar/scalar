@@ -39,13 +39,36 @@ describe('SchemaPropertyExamples', () => {
     expect(wrapper.find('.property-example-value span').text()).toBe('')
   })
 
-  it('does not render a single example when the value is null', () => {
+  it('renders a single example when the value is null', () => {
     const wrapper = mount(SchemaPropertyExamples, {
       props: {
         example: null,
       },
     })
 
+    expect(wrapper.find('.property-example').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Example')
+    expect(wrapper.text()).toContain('null')
+  })
+
+  it('does not render a single example when the value is undefined', () => {
+    const wrapper = mount(SchemaPropertyExamples, {
+      props: {
+        example: undefined,
+      },
+    })
+
     expect(wrapper.find('.property-example').exists()).toBe(false)
+  })
+
+  it('renders a single example when the value is a whitespace-only string', () => {
+    const wrapper = mount(SchemaPropertyExamples, {
+      props: {
+        example: ' ',
+      },
+    })
+
+    expect(wrapper.find('.property-example').exists()).toBe(true)
+    expect(wrapper.find('.property-example-value span').text()).toBe('')
   })
 })

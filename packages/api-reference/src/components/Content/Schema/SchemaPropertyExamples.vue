@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
-import { isDefined } from '@scalar/helpers/array/is-defined'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed } from 'vue'
 
@@ -15,7 +14,9 @@ const { examples, example } = defineProps<{
 
 const { copyToClipboard } = useClipboard()
 
-const hasSingleExample = computed(() => isDefined(example))
+// `null` is a meaningful example value for nullable schemas, so only treat
+// `undefined` as "not provided".
+const hasSingleExample = computed(() => example !== undefined)
 
 const normalizedExamples = computed<Record<string, unknown>>(() => {
   if (examples && typeof examples === 'object') {
