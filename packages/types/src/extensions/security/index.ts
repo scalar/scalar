@@ -4,9 +4,9 @@
  * Generated at: 2026-05-20T20:41:54.922Z
  */
 
-/** 
+/**
  * Default selected OAuth scopes.
- * 
+ *
  * @example
  * ```json
  * { "x-default-scopes": ["profile", "email"] }
@@ -14,18 +14,18 @@
  */
 export type XDefaultScopes = {
   /** Scopes pre-selected in the OAuth consent UI */
-  "x-default-scopes"?: string[];
+  'x-default-scopes'?: string[]
 }
 
 /** Persisted OAuth authorization URL override. Do not export when exporting the document. */
 export type XScalarAuthUrl = {
   /** Override for the OAuth authorization endpoint URL */
-  "x-scalar-secret-auth-url"?: string;
+  'x-scalar-secret-auth-url'?: string
 }
 
-/** 
+/**
  * Where OAuth2 credentials are sent for this security scheme.
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-credentials-location: header
@@ -33,24 +33,24 @@ export type XScalarAuthUrl = {
  */
 export type XScalarCredentialsLocation = {
   /** Where OAuth2 credentials are sent (`header` or `body`) */
-  "x-scalar-credentials-location"?: "header" | "body";
+  'x-scalar-credentials-location'?: 'header' | 'body'
 }
 
 /** Persisted OAuth client ID. Do not export when exporting the document. */
 export type XScalarSecretClientId = {
   /** OAuth client ID */
-  "x-scalar-secret-client-id": string;
+  'x-scalar-secret-client-id': string
 }
 
 /** Persisted OAuth client secret (sensitive). Do not export when exporting the document. */
 export type XScalarSecretClientSecret = {
   /** OAuth client secret */
-  "x-scalar-secret-client-secret": string;
+  'x-scalar-secret-client-secret': string
 }
 
-/** 
+/**
  * Persisted HTTP basic credentials (sensitive). Do not export when exporting the document.
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-secret-username: api-user
@@ -59,26 +59,26 @@ export type XScalarSecretClientSecret = {
  */
 export type XScalarSecretHTTP = {
   /** HTTP basic auth username */
-  "x-scalar-secret-username": string;
+  'x-scalar-secret-username': string
   /** HTTP basic auth password */
-  "x-scalar-secret-password": string;
+  'x-scalar-secret-password': string
 }
 
 /** Persisted OAuth redirect URI. Do not export when exporting the document. */
 export type XScalarSecretRedirectUri = {
   /** OAuth redirect URI registered for this client */
-  "x-scalar-secret-redirect-uri": string;
+  'x-scalar-secret-redirect-uri': string
 }
 
 /** Persisted OAuth refresh token (sensitive). Do not export when exporting the document. */
 export type XScalarSecretRefreshToken = {
   /** Persisted OAuth refresh token */
-  "x-scalar-secret-refresh-token"?: string;
+  'x-scalar-secret-refresh-token'?: string
 }
 
-/** 
+/**
  * Persisted OAuth access token (sensitive). Do not export when exporting the document.
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-secret-token: eyJhbG...
@@ -86,12 +86,12 @@ export type XScalarSecretRefreshToken = {
  */
 export type XScalarSecretToken = {
   /** Persisted OAuth access token */
-  "x-scalar-secret-token": string;
+  'x-scalar-secret-token': string
 }
 
-/** 
+/**
  * Additional OAuth token request body parameters.
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-security-body:
@@ -101,12 +101,12 @@ export type XScalarSecretToken = {
  */
 export type XScalarSecurityBody = {
   /** Additional body parameters for the OAuth token request */
-  "x-scalar-security-body"?: Record<string, string>;
+  'x-scalar-security-body'?: Record<string, string>
 }
 
-/** 
+/**
  * Additional OAuth authorize query parameters.
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-security-query:
@@ -116,18 +116,18 @@ export type XScalarSecurityBody = {
  */
 export type XScalarSecurityQuery = {
   /** Additional query parameters for the OAuth authorize request */
-  "x-scalar-security-query"?: Record<string, string>;
+  'x-scalar-security-query'?: Record<string, string>
 }
 
 /** Persisted OAuth token URL override. Do not export when exporting the document. */
 export type XScalarTokenUrl = {
   /** Override for the OAuth token endpoint URL */
-  "x-scalar-secret-token-url"?: string;
+  'x-scalar-secret-token-url'?: string
 }
 
-/** 
+/**
  * Custom OAuth2 access token field name.
- * 
+ *
  * @example
  * ```yaml
  * x-tokenName: custom_access_token
@@ -135,12 +135,12 @@ export type XScalarTokenUrl = {
  */
 export type XTokenName = {
   /** Custom field name for the OAuth2 access token in responses */
-  "x-tokenName"?: string;
+  'x-tokenName'?: string
 }
 
-/** 
+/**
  * Enables Proof Key for Code Exchange (PKCE) for the OAuth2 authorization code flow.
- * 
+ *
  * @example
  * ```yaml
  * x-usePkce: SHA-256
@@ -148,5 +148,5 @@ export type XTokenName = {
  */
 export type XusePkce = {
   /** PKCE mode: `SHA-256`, `plain`, or `no` (disabled) */
-  "x-usePkce": "no" | "SHA-256" | "plain";
+  'x-usePkce': 'no' | 'SHA-256' | 'plain'
 }

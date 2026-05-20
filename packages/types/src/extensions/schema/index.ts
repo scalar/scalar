@@ -4,9 +4,9 @@
  * Generated at: 2026-05-20T20:41:54.922Z
  */
 
-/** 
+/**
  * Display name for additional properties on a schema object.
- * 
+ *
  * @example
  * ```yaml
  * x-additionalPropertiesName: metadata
@@ -14,12 +14,12 @@
  */
 export type XAdditionalPropertiesName = {
   /** Human-readable label for additional properties on this schema */
-  "x-additionalPropertiesName"?: string;
+  'x-additionalPropertiesName'?: string
 }
 
-/** 
+/**
  * Descriptions for enum values. Keys must match enum values.
- * 
+ *
  * @example
  * ```yaml
  * x-enumDescriptions:
@@ -28,14 +28,14 @@ export type XAdditionalPropertiesName = {
  */
 export type XEnumDescriptions = {
   /** Map or list of descriptions keyed by enum value (camelCase spelling) */
-  "x-enumDescriptions"?: (Record<string, string>) | (string[]);
+  'x-enumDescriptions'?: Record<string, string> | string[]
   /** Map or list of descriptions keyed by enum value (kebab-case spelling) */
-  "x-enum-descriptions"?: (Record<string, string>) | (string[]);
+  'x-enum-descriptions'?: Record<string, string> | string[]
 }
 
-/** 
+/**
  * Display names for enum values. Must match the order of the `enum` array.
- * 
+ *
  * @example
  * ```yaml
  * enum: [moon, asteroid]
@@ -44,14 +44,14 @@ export type XEnumDescriptions = {
  */
 export type XEnumVarNames = {
   /** Display names for enum values (same order as `enum`) */
-  "x-enum-varnames"?: string[];
+  'x-enum-varnames'?: string[]
   /** Alias for x-enum-varnames — display names for enum values */
-  "x-enumNames"?: string[];
+  'x-enumNames'?: string[]
 }
 
-/** 
+/**
  * Named examples attached to a schema. Keys are example names; values are the example payloads.
- * 
+ *
  * @example
  * ```yaml
  * x-examples:
@@ -62,12 +62,12 @@ export type XEnumVarNames = {
  */
 export type XExamples = {
   /** Map of example name to example value */
-  "x-examples"?: Record<string, any>;
+  'x-examples'?: Record<string, any>
 }
 
-/** 
+/**
  * References a variable for schema property substitution in the API client.
- * 
+ *
  * @example
  * ```yaml
  * x-variable: userId
@@ -75,5 +75,5 @@ export type XExamples = {
  */
 export type XVariable = {
   /** Variable name used for substitution in the API client */
-  "x-variable"?: string;
+  'x-variable'?: string
 }

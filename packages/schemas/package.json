@@ -22,7 +22,8 @@
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "vitest --run",
     "types:check": "tsc --noEmit",
-    "types:generate": "tsx scripts/generate-types.ts"
+    "types:generate": "tsx scripts/generate-types.ts",
+    "types:generate:stage": "tsx scripts/stage-generated-types.ts"
   },
   "type": "module",
   "exports": {
@@ -30,6 +31,11 @@
       "import": "./dist/api-reference/index.js",
       "types": "./dist/api-reference/index.d.ts",
       "default": "./dist/api-reference/index.js"
+    },
+    "./asyncapi/3.1": {
+      "import": "./dist/asyncapi/3.1/index.js",
+      "types": "./dist/asyncapi/3.1/index.d.ts",
+      "default": "./dist/asyncapi/3.1/index.js"
     }
   },
   "files": [
@@ -37,6 +43,7 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
+    "@scalar/helpers": "workspace:*",
     "@scalar/validation": "workspace:*"
   },
   "devDependencies": {

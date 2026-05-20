@@ -4,9 +4,9 @@
  * Generated at: 2026-05-20T20:41:54.922Z
  */
 
-/** 
+/**
  * The URL of the currently selected server for this API description.
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-selected-server: https://api.example.com
@@ -14,5 +14,5 @@
  */
 export type XScalarSelectedServer = {
   /** The URL of the currently selected server */
-  "x-scalar-selected-server"?: string;
+  'x-scalar-selected-server'?: string
 }

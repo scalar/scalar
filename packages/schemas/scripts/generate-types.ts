@@ -1,9 +1,10 @@
 /**
  * Generate types for the schemas
  *
- * We will dump the types to the types package which is going to be pure types with no dependencies on the schemas package
+ * We dump the types to the types package which is pure types with no dependency on the schemas package.
  */
 
+import { spawnSync } from 'node:child_process'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -11,6 +12,9 @@ import { pathToFileURL } from 'node:url'
 import { type Schema, generateTypes } from '@scalar/validation'
 
 import { apiReferenceConfigurationSchema } from '../src/api-reference/api-reference-configuration'
+import { createAsyncApiObjectSchema } from '../src/asyncapi/3.1/asyncapi-object'
+import { recursiveRef } from '../src/asyncapi/3.1/reference'
+import { GENERATED_TYPE_OUTPUT_PATHS, getGeneratedTypeAbsolutePaths, getRepoRoot } from './generated-type-paths'
 
 const generatedAt = new Date().toISOString()
 
@@ -94,13 +98,29 @@ const apiReferenceConfigurationTypes = generateTypes(apiReferenceConfigurationSc
   typeName: 'ApiReferenceConfiguration',
 })
 
-const genDir = path.join(typesRoot, 'gen')
-await fs.mkdir(genDir, { recursive: true })
+const asyncApi31Types = generateTypes(createAsyncApiObjectSchema(recursiveRef), {
+  ...typegenOptions,
+  typeName: 'AsyncApiDocument',
+})
+
+const repoRoot = getRepoRoot()
+const [apiReferenceTypesPath, asyncApi31TypesPath] = getGeneratedTypeAbsolutePaths(repoRoot)
 
 let writtenCount = 0
 let skippedCount = 0
 
-if (await writeGeneratedFile(path.join(genDir, 'api-reference.d.ts'), apiReferenceConfigurationTypes)) {
+await Promise.all([
+  fs.mkdir(path.dirname(apiReferenceTypesPath), { recursive: true }),
+  fs.mkdir(path.dirname(asyncApi31TypesPath), { recursive: true }),
+])
+
+if (await writeGeneratedFile(apiReferenceTypesPath, apiReferenceConfigurationTypes)) {
+  writtenCount++
+} else {
+  skippedCount++
+}
+
+if (await writeGeneratedFile(asyncApi31TypesPath, asyncApi31Types)) {
   writtenCount++
 } else {
   skippedCount++
@@ -151,3 +171,23 @@ if (await writeGeneratedFile(path.join(extensionsOutRoot, 'index.ts'), extension
 console.log(
   `Generated types for ${extensionFolders.length} extension folders in ${extensionsOutRoot} (${writtenCount} written, ${skippedCount} unchanged)`,
 )
+
+const formatPaths = [...GENERATED_TYPE_OUTPUT_PATHS, 'packages/types/src/extensions']
+
+const formatResult = spawnSync(
+  'pnpm',
+  [
+    'biome',
+    'check',
+    '--write',
+    '--diagnostic-level=error',
+    '--no-errors-on-unmatched',
+    '--files-ignore-unknown=true',
+    ...formatPaths,
+  ],
+  { cwd: repoRoot, stdio: 'inherit' },
+)
+
+if (formatResult.status !== 0) {
+  process.exit(formatResult.status ?? 1)
+}

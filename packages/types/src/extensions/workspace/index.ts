@@ -7,16 +7,16 @@
 /** An open tab in the workspace */
 export type Tab = {
   /** Tab path or document identifier */
-  path: string;
+  path: string
   /** Tab title shown in the UI */
-  title: string;
+  title: string
   /** Tab icon (`request` or `document`) */
-  icon?: string;
+  icon?: string
 }
 
-/** 
+/**
  * The currently selected proxy identifier for the workspace.
- * 
+ *
  * @example
  * ```json
  * { "x-scalar-active-proxy": "my-proxy-id" }
@@ -24,12 +24,12 @@ export type Tab = {
  */
 export type XScalarActiveProxy = {
   /** The currently selected proxy identifier, or null when none is selected */
-  "x-scalar-active-proxy"?: string | null;
+  'x-scalar-active-proxy'?: string | null
 }
 
-/** 
+/**
  * Workspace tab configuration. Persists open tabs and the active tab across sessions.
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-tabs:
@@ -40,7 +40,7 @@ export type XScalarActiveProxy = {
  */
 export type XScalarTabs = {
   /** Tabs that are open in the workspace */
-  "x-scalar-tabs"?: Tab[];
+  'x-scalar-tabs'?: Tab[]
   /** Index of the currently active or focused tab */
-  "x-scalar-active-tab"?: number;
+  'x-scalar-active-tab'?: number
 }

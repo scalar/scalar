@@ -4,9 +4,9 @@
  * Generated at: 2026-05-20T21:13:34.509Z
  */
 
-/** 
+/**
  * Marks an entity as internal (hidden from external consumers).
- * 
+ *
  * @example
  * ```yaml
  * x-internal: true
@@ -14,12 +14,12 @@
  */
 export type XInternal = {
   /** When true, hides the entity from public documentation */
-  "x-internal"?: boolean;
+  'x-internal'?: boolean
 }
 
-/** 
+/**
  * Original AsyncAPI Specification version of the source document before ingestion.
- * 
+ *
  * @example
  * ```yaml
  * x-original-aas-version: "3.0.0"
@@ -27,12 +27,12 @@ export type XInternal = {
  */
 export type XOriginalAasVersion = {
   /** Original AsyncAPI Specification version the document was loaded with. */
-  "x-original-aas-version"?: string;
+  'x-original-aas-version'?: string
 }
 
-/** 
+/**
  * Original OpenAPI Specification version of the source document before ingestion.
- * 
+ *
  * @example
  * ```yaml
  * x-original-oas-version: "3.1.0"
@@ -40,33 +40,35 @@ export type XOriginalAasVersion = {
  */
 export type XOriginalOasVersion = {
   /** Original OpenAPI Specification version of the source document. */
-  "x-original-oas-version"?: string;
+  'x-original-oas-version'?: string
 }
 
 /** An environment variable definition */
 export type XScalarEnvVar = {
   /** Variable name */
-  name: string;
+  name: string
   /** Variable value as a string, or an object with description and default */
-  value: ({
-    description?: string;
-    default: string;
-  }) | string;
+  value:
+    | {
+        description?: string
+        default: string
+      }
+    | string
 }
 
 /** A named environment with variables and display color */
 export type XScalarEnvironment = {
   /** Optional description for the environment */
-  description?: string;
+  description?: string
   /** Color for the environment (for example a hex value) */
-  color: string;
+  color: string
   /** Variables available in this environment */
-  variables: XScalarEnvVar[];
+  variables: XScalarEnvVar[]
 }
 
-/** 
+/**
  * Named environments with variables for the API client (base URLs, tokens, etc.).
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-environments:
@@ -79,12 +81,12 @@ export type XScalarEnvironment = {
  */
 export type XScalarEnvironments = {
   /** Environments keyed by name */
-  "x-scalar-environments"?: Record<string, XScalarEnvironment>;
+  'x-scalar-environments'?: Record<string, XScalarEnvironment>
 }
 
-/** 
+/**
  * A custom icon representing the API description in the Scalar UI.
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-icon: rocket
@@ -92,12 +94,12 @@ export type XScalarEnvironments = {
  */
 export type XScalarIcon = {
   /** Icon identifier or URL for the API description */
-  "x-scalar-icon"?: string;
+  'x-scalar-icon'?: string
 }
 
-/** 
+/**
  * Internal extension to mark an entity as ignored in the Scalar UI.
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-ignore: true
@@ -105,12 +107,12 @@ export type XScalarIcon = {
  */
 export type XScalarIgnore = {
   /** When true, the entity is hidden or ignored in the UI */
-  "x-scalar-ignore"?: boolean;
+  'x-scalar-ignore'?: boolean
 }
 
-/** 
+/**
  * Tracks whether the document has been modified since it was last saved.
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-is-dirty: true
@@ -118,18 +120,18 @@ export type XScalarIgnore = {
  */
 export type XScalarIsDirty = {
   /** When true, the document has unsaved changes */
-  "x-scalar-is-dirty"?: boolean;
+  'x-scalar-is-dirty'?: boolean
 }
 
 /** Client-side navigation tree persisted on the document. Matches `TraversedDocumentObjectRef` in strict OpenAPI schemas. */
 export type XScalarNavigation = {
   /** Serialized client navigation tree (`TraversedDocument`) for this API description */
-  "x-scalar-navigation"?: any;
+  'x-scalar-navigation'?: any
 }
 
-/** 
+/**
  * Tracks the original document hash when loading from an external source. Used to detect modifications since last save.
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-original-document-hash: "abc123"
@@ -137,12 +139,12 @@ export type XScalarNavigation = {
  */
 export type XScalarOriginalDocumentHash = {
   /** Hash of the document as originally loaded from an external source */
-  "x-scalar-original-document-hash": string;
+  'x-scalar-original-document-hash': string
 }
 
-/** 
+/**
  * Original document source URL when the API description was loaded from an external source.
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-original-source-url: https://example.com/openapi.yaml
@@ -150,28 +152,28 @@ export type XScalarOriginalDocumentHash = {
  */
 export type XScalarOriginalSourceUrl = {
   /** Original document source URL when loaded from an external source */
-  "x-scalar-original-source-url"?: string;
+  'x-scalar-original-source-url'?: string
 }
 
 /** Registry meta namespace and slug */
 export type XScalarRegistryMetaInner = {
   /** The namespace under which this registry meta is scoped. */
-  namespace: string;
+  namespace: string
   /** A unique slug identifier for this registry meta within the namespace. */
-  slug: string;
+  slug: string
   /** The version of the registry meta. */
-  version: string;
+  version: string
   /** Last known commit hash of this document. Is going to be used to track if the document has been modified since it was last saved. */
-  commitHash?: string;
+  commitHash?: string
   /** Registry commit hash that the cached `hasConflict` flag was computed against. When the registry advertises a different hash later, the cached result is stale and the conflict check must be re-run. */
-  conflictCheckedAgainstHash?: string;
+  conflictCheckedAgainstHash?: string
   /** Cached outcome of the last conflict check, valid only while `conflictCheckedAgainstHash` matches the registry current hash for this version. */
-  hasConflict?: boolean;
+  hasConflict?: boolean
 }
 
-/** 
+/**
  * Registry sync metadata for a document published to Scalar Registry.
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-registry-meta:
@@ -182,22 +184,22 @@ export type XScalarRegistryMetaInner = {
  */
 export type XScalarRegistryMeta = {
   /** Registry meta namespace and slug */
-  "x-scalar-registry-meta"?: XScalarRegistryMetaInner;
+  'x-scalar-registry-meta'?: XScalarRegistryMetaInner
 }
 
 /** One SDK installation instruction block */
 export type XScalarSdkInstallationItem = {
   /** Programming language or platform (for example `shell`, `javascript`) */
-  lang: string;
+  lang: string
   /** Installation command or snippet source */
-  source?: string;
+  source?: string
   /** Human-readable description of this installation option */
-  description?: string;
+  description?: string
 }
 
-/** 
+/**
  * Scalar SDK installation instructions for the API description.
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-sdk-installation:
@@ -207,12 +209,12 @@ export type XScalarSdkInstallationItem = {
  */
 export type XScalarSdkInstallation = {
   /** Installation instructions shown in the API reference */
-  "x-scalar-sdk-installation"?: XScalarSdkInstallationItem[];
+  'x-scalar-sdk-installation'?: XScalarSdkInstallationItem[]
 }
 
-/** 
+/**
  * Whether the document is in watch mode (reloads when the source file changes).
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-watch-mode: true
@@ -220,12 +222,12 @@ export type XScalarSdkInstallation = {
  */
 export type XScalarWatchMode = {
   /** When true, the document is watched for external file changes */
-  "x-scalar-watch-mode"?: boolean;
+  'x-scalar-watch-mode'?: boolean
 }
 
-/** 
+/**
  * Custom tag ordering hints for schema objects in the sidebar.
- * 
+ *
  * @example
  * ```yaml
  * x-tags:
@@ -235,5 +237,5 @@ export type XScalarWatchMode = {
  */
 export type XTags = {
   /** Ordered list of tag names for this schema object */
-  "x-tags"?: string[];
+  'x-tags'?: string[]
 }

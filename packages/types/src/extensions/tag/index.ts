@@ -4,9 +4,9 @@
  * Generated at: 2026-05-20T20:41:54.922Z
  */
 
-/** 
+/**
  * Display-friendly name for a tag.
- * 
+ *
  * @example
  * ```yaml
  * x-displayName: planets
@@ -14,19 +14,19 @@
  */
 export type XDisplayName = {
   /** Display-friendly name shown in the UI instead of the tag name */
-  "x-displayName"?: string;
+  'x-displayName'?: string
 }
 
 export type XTagGroupBase = {
   /** The group name. */
-  name: string;
+  name: string
   /** List of tags to include in this group. */
-  tags: string[];
+  tags: string[]
 }
 
-/** 
+/**
  * Custom display order for elements in the Scalar UI (tags, operations, tag groups).
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-order:
@@ -37,15 +37,15 @@ export type XTagGroupBase = {
  */
 export type XScalarOrder = {
   /** Ordered list of element identifiers (tags, operations, etc.) */
-  "x-scalar-order"?: string[];
+  'x-scalar-order'?: string[]
 }
 
 /** A tag group with optional custom ordering */
 export type XTagGroup = XTagGroupBase & XScalarOrder
 
-/** 
+/**
  * Groups of tags for organizing the sidebar in the Scalar UI.
- * 
+ *
  * @example
  * ```yaml
  * x-tagGroups:
@@ -55,5 +55,5 @@ export type XTagGroup = XTagGroupBase & XScalarOrder
  */
 export type XTagGroups = {
   /** Tag groups for organizing tags in the UI */
-  "x-tagGroups"?: XTagGroup[];
+  'x-tagGroups'?: XTagGroup[]
 }

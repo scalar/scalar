@@ -4,9 +4,9 @@
  * Generated at: 2026-05-20T20:41:54.922Z
  */
 
-/** 
+/**
  * Post-response script for an operation. Use to extract response data or assert on the response.
- * 
+ *
  * @example
  * ```yaml
  * x-post-response: |
@@ -17,12 +17,12 @@
  */
 export type XPostResponse = {
   /** Script executed after a response is received */
-  "x-post-response"?: string;
+  'x-post-response'?: string
 }
 
-/** 
+/**
  * Pre-request script to run before the request is sent. Use to set variables, generate values, or modify headers.
- * 
+ *
  * @example
  * ```yaml
  * x-pre-request: |
@@ -32,12 +32,12 @@ export type XPostResponse = {
  */
 export type XPreRequest = {
   /** Script executed before the request is sent */
-  "x-pre-request"?: string;
+  'x-pre-request'?: string
 }
 
-/** 
+/**
  * The currently selected environment for this API description.
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-active-environment: production
@@ -45,26 +45,26 @@ export type XPreRequest = {
  */
 export type XScalarActiveEnvironment = {
   /** The currently selected environment name */
-  "x-scalar-active-environment"?: string;
+  'x-scalar-active-environment'?: string
 }
 
 /** A persisted cookie definition for the workspace */
 export type XScalarCookie = {
   /** Cookie name */
-  name: string;
+  name: string
   /** Cookie value */
-  value: string;
+  value: string
   /** Domain scope (includes subdomains when set) */
-  domain?: string;
+  domain?: string
   /** Path scope — cookie is sent only for requests matching this path */
-  path?: string;
+  path?: string
   /** When true, the cookie is not sent with requests */
-  isDisabled?: boolean;
+  isDisabled?: boolean
 }
 
-/** 
+/**
  * Persisted workspace cookies shared across requests.
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-cookies:
@@ -75,12 +75,12 @@ export type XScalarCookie = {
  */
 export type XScalarCookies = {
   /** Cookies persisted for the workspace and injected into requests */
-  "x-scalar-cookies"?: XScalarCookie[];
+  'x-scalar-cookies'?: XScalarCookie[]
 }
 
-/** 
+/**
  * Custom display order for elements in the Scalar UI (tags, operations, tag groups).
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-order:
@@ -91,5 +91,5 @@ export type XScalarCookies = {
  */
 export type XScalarOrder = {
   /** Ordered list of element identifiers (tags, operations, etc.) */
-  "x-scalar-order"?: string[];
+  'x-scalar-order'?: string[]
 }

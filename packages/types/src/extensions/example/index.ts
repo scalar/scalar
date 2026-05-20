@@ -4,9 +4,9 @@
  * Generated at: 2026-05-20T20:41:54.922Z
  */
 
-/** 
+/**
  * Whether a parameter example is disabled in the API client (`true` = not sent).
- * 
+ *
  * @example
  * ```yaml
  * x-disabled: true
@@ -14,5 +14,5 @@
  */
 export type XDisabled = {
   /** When true, the parameter example is not sent with the request */
-  "x-disabled"?: boolean;
+  'x-disabled'?: boolean
 }

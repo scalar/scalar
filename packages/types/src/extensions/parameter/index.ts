@@ -4,9 +4,9 @@
  * Generated at: 2026-05-20T20:41:54.922Z
  */
 
-/** 
+/**
  * When true, the parameter is injected into every request for the workspace.
- * 
+ *
  * @example
  * ```yaml
  * x-global: true
@@ -14,5 +14,5 @@
  */
 export type XGlobal = {
   /** When true, the parameter is injected into every request for the workspace */
-  "x-global"?: boolean;
+  'x-global'?: boolean
 }

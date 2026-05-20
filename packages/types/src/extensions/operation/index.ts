@@ -4,9 +4,9 @@
  * Generated at: 2026-05-20T20:41:54.922Z
  */
 
-/** 
+/**
  * Configuration for a single badge in the x-badges extension.
- * 
+ *
  * @example
  * ```yaml
  * name: Beta
@@ -16,16 +16,16 @@
  */
 export type XBadge = {
   /** The text that displays in the badge. This is required for all badges. */
-  name: string;
+  name: string
   /** The position of the badge in relation to the header. Defaults to `after` when omitted. */
-  position?: "before" | "after";
+  position?: 'before' | 'after'
   /** The color of the badge in various formats (keywords, RGB, RGBA, HSL, HSLA, Hexadecimal) */
-  color?: string;
+  color?: string
 }
 
-/** 
+/**
  * Badges for an operation in the Scalar UI. Use as visual indicators in documentation.
- * 
+ *
  * @example
  * ```yaml
  * x-badges:
@@ -36,22 +36,22 @@ export type XBadge = {
  */
 export type XBadges = {
   /** Badges displayed for this operation in documentation */
-  "x-badges"?: XBadge[];
+  'x-badges'?: XBadge[]
 }
 
 /** A single code sample for documentation or examples */
 export type XCodeSample = {
   /** Programming language for syntax highlighting */
-  lang?: string;
+  lang?: string
   /** Label shown in the code sample picker */
-  label?: string;
+  label?: string
   /** Source code for the sample */
-  source: string;
+  source: string
 }
 
-/** 
+/**
  * Code samples attached to an operation. Supports `x-codeSamples`, `x-code-samples`, and `x-custom-examples`.
- * 
+ *
  * @example
  * ```yaml
  * x-code-samples:
@@ -62,16 +62,16 @@ export type XCodeSample = {
  */
 export type XCodeSamples = {
   /** Code samples (camelCase spelling) */
-  "x-codeSamples"?: XCodeSample[];
+  'x-codeSamples'?: XCodeSample[]
   /** Code samples (kebab-case spelling) */
-  "x-code-samples"?: XCodeSample[];
+  'x-code-samples'?: XCodeSample[]
   /** Custom code examples for the operation */
-  "x-custom-examples"?: XCodeSample[];
+  'x-custom-examples'?: XCodeSample[]
 }
 
-/** 
+/**
  * Draft example identifiers for an operation (in-progress examples not yet committed).
- * 
+ *
  * @example
  * ```yaml
  * x-draft-examples:
@@ -81,24 +81,24 @@ export type XCodeSamples = {
  */
 export type XDraftExamples = {
   /** Identifiers of draft examples attached to this operation */
-  "x-draft-examples"?: string[];
+  'x-draft-examples'?: string[]
 }
 
 /** Disabled parameter state by category and example */
 export type DisableParametersConfig = {
   /** Disabled state for global cookie parameters across examples */
-  "global-cookies"?: Record<string, Record<string, boolean>>;
+  'global-cookies'?: Record<string, Record<string, boolean>>
   /** Disabled state for global header parameters across examples */
-  "global-headers"?: Record<string, Record<string, boolean>>;
+  'global-headers'?: Record<string, Record<string, boolean>>
   /** Disabled state for default header parameters across examples */
-  "default-headers"?: Record<string, Record<string, boolean>>;
+  'default-headers'?: Record<string, Record<string, boolean>>
 }
 
-/** 
+/**
  * Tracks which parameters are disabled across examples in the API client.
- * 
+ *
  * Structure: category (global-cookies, global-headers, default-headers) → example key → parameter name → true if disabled.
- * 
+ *
  * @example
  * ```json
  * {
@@ -112,12 +112,12 @@ export type DisableParametersConfig = {
  */
 export type XScalarDisableParameters = {
   /** Disabled parameter state organized by category, example, and parameter name */
-  "x-scalar-disable-parameters"?: DisableParametersConfig;
+  'x-scalar-disable-parameters'?: DisableParametersConfig
 }
 
-/** 
+/**
  * Selected content type per example for request or response bodies. Keys are example names; values are media types.
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-selected-content-type:
@@ -127,12 +127,12 @@ export type XScalarDisableParameters = {
  */
 export type XScalarSelectedContentType = {
   /** Map of example name to selected content type (for example `application/json`) */
-  "x-scalar-selected-content-type"?: Record<string, string>;
+  'x-scalar-selected-content-type'?: Record<string, string>
 }
 
-/** 
+/**
  * Indicates the stability of an operation in the Scalar UI.
- * 
+ *
  * @example
  * ```yaml
  * x-scalar-stability: deprecated
@@ -140,5 +140,5 @@ export type XScalarSelectedContentType = {
  */
 export type XScalarStability = {
   /** Stability level: `deprecated`, `experimental`, or `stable` */
-  "x-scalar-stability"?: "deprecated" | "experimental" | "stable";
+  'x-scalar-stability'?: 'deprecated' | 'experimental' | 'stable'
 }
