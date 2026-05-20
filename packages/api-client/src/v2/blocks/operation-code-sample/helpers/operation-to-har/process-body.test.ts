@@ -1,5 +1,5 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { EncodingObjectSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { processBody } from './process-body'
@@ -387,9 +387,9 @@ describe('processBody', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
-            user: {
+            user: coerceValue(EncodingObjectSchema, {
               contentType: 'application/json;charset=utf-8',
-            },
+            }),
           },
           examples: {
             default: {
@@ -469,9 +469,9 @@ describe('processBody', () => {
       const content = {
         'multipart/form-data': {
           encoding: {
-            user: {
+            user: coerceValue(EncodingObjectSchema, {
               contentType: 'application/json;charset=utf-8',
-            },
+            }),
           },
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -576,8 +576,11 @@ describe('processBody', () => {
         mimeType: 'multipart/form-data',
         params: [
           { name: 'files', value: 'SGVsbG8gV29ybGQ=' },
-          { name: 'metadata.uploadDate', value: '2024-01-01' },
-          { name: 'metadata.category', value: 'images' },
+          {
+            name: 'metadata',
+            value: JSON.stringify({ uploadDate: '2024-01-01', category: 'images' }),
+            contentType: 'application/json',
+          },
         ],
       })
     })
@@ -630,8 +633,11 @@ describe('processBody', () => {
           { name: 'title', value: 'My Image' },
           { name: 'description', value: 'A beautiful image' },
           { name: 'tags', value: 'photo' },
-          { name: 'settings.public', value: 'true' },
-          { name: 'settings.quality', value: 'high' },
+          {
+            name: 'settings',
+            value: JSON.stringify({ public: true, quality: 'high' }),
+            contentType: 'application/json',
+          },
         ],
       })
     })
@@ -706,8 +712,11 @@ describe('processBody', () => {
           { name: 'file', value: '@mars.jpg' },
           { name: 'name', value: 'Mars Rover Photo' },
           { name: 'category', value: 'space' },
-          { name: 'metadata.location', value: 'Mars' },
-          { name: 'metadata.date', value: '2024-01-15' },
+          {
+            name: 'metadata',
+            value: JSON.stringify({ location: 'Mars', date: '2024-01-15' }),
+            contentType: 'application/json',
+          },
         ],
       })
     })
@@ -762,6 +771,595 @@ describe('processBody', () => {
       })
     })
 
+    it('encodes nested object property as a single JSON part (issue #4834)', () => {
+      const content = {
+        'multipart/form-data': {
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            required: ['file', 'props'],
+            properties: {
+              file: {
+                description: 'File to upload',
+                type: 'string',
+                format: 'binary',
+              },
+              props: {
+                type: 'object',
+                required: ['name', 'description'],
+                properties: {
+                  name: { type: 'string' },
+                  description: { type: 'string' },
+                  created_at: { type: ['string', 'null'], format: 'date-time' },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [
+          { name: 'file', value: '@filename' },
+          {
+            name: 'props',
+            value: JSON.stringify({ name: '', description: '', created_at: null }),
+            contentType: 'application/json',
+          },
+        ],
+      })
+    })
+
+    it('serializes style: form + explode: true on an object using inner property names as part names', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            props: coerceValue(EncodingObjectSchema, {
+              style: 'form',
+              explode: true,
+            }),
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              props: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'widget' },
+                  count: { type: 'integer', example: 3 },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [
+          { name: 'name', value: 'widget' },
+          { name: 'count', value: '3' },
+        ],
+      })
+    })
+
+    it('defaults style to form when only explode: true is set', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            props: coerceValue(EncodingObjectSchema, {
+              explode: true,
+            }),
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              props: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'widget' },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [{ name: 'name', value: 'widget' }],
+      })
+    })
+
+    it('ignores encoding.contentType when style is set', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            props: coerceValue(EncodingObjectSchema, {
+              style: 'form',
+              contentType: 'application/json',
+            }),
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              props: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'widget' },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [{ name: 'name', value: 'widget' }],
+      })
+    })
+
+    it('serializes style: form + explode: false on an object as a single comma-joined part', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            props: coerceValue(EncodingObjectSchema, {
+              style: 'form',
+              explode: false,
+            }),
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              props: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'widget' },
+                  count: { type: 'integer', example: 3 },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [{ name: 'props', value: 'name,widget,count,3' }],
+      })
+    })
+
+    it('serializes style: form + explode: true on an array as repeated parts', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            tags: coerceValue(EncodingObjectSchema, {
+              style: 'form',
+              explode: true,
+            }),
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              tags: {
+                type: 'array',
+                example: ['a', 'b', 'c'],
+                items: { type: 'string' },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [
+          { name: 'tags', value: 'a' },
+          { name: 'tags', value: 'b' },
+          { name: 'tags', value: 'c' },
+        ],
+      })
+    })
+
+    it('serializes style: form + explode: false on an array as a single comma-joined part', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            tags: coerceValue(EncodingObjectSchema, {
+              style: 'form',
+              explode: false,
+            }),
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              tags: {
+                type: 'array',
+                example: ['a', 'b', 'c'],
+                items: { type: 'string' },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [{ name: 'tags', value: 'a,b,c' }],
+      })
+    })
+
+    it('serializes style: spaceDelimited on an array', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            tags: coerceValue(EncodingObjectSchema, {
+              style: 'spaceDelimited',
+            }),
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              tags: {
+                type: 'array',
+                example: ['a', 'b', 'c'],
+                items: { type: 'string' },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [{ name: 'tags', value: 'a b c' }],
+      })
+    })
+
+    it('serializes style: spaceDelimited on an object', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            props: coerceValue(EncodingObjectSchema, {
+              style: 'spaceDelimited',
+            }),
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              props: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'widget' },
+                  count: { type: 'integer', example: 3 },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [{ name: 'props', value: 'name widget count 3' }],
+      })
+    })
+
+    it('serializes style: pipeDelimited on an array', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            tags: coerceValue(EncodingObjectSchema, {
+              style: 'pipeDelimited',
+            }),
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              tags: {
+                type: 'array',
+                example: ['a', 'b', 'c'],
+                items: { type: 'string' },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [{ name: 'tags', value: 'a|b|c' }],
+      })
+    })
+
+    it('serializes style: pipeDelimited on an object', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            props: coerceValue(EncodingObjectSchema, {
+              style: 'pipeDelimited',
+            }),
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              props: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'widget' },
+                  count: { type: 'integer', example: 3 },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [{ name: 'props', value: 'name|widget|count|3' }],
+      })
+    })
+
+    it('serializes style: deepObject + explode: true on a nested object', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            props: coerceValue(EncodingObjectSchema, {
+              style: 'deepObject',
+              explode: true,
+            }),
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              props: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'widget' },
+                  meta: {
+                    type: 'object',
+                    properties: {
+                      region: { type: 'string', example: 'eu' },
+                    },
+                  },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [
+          { name: 'props[name]', value: 'widget' },
+          { name: 'props[meta][region]', value: 'eu' },
+        ],
+      })
+    })
+
+    it('JSON-stringifies nested objects under style: form (spec-undefined fallback)', () => {
+      // RFC6570 form-style serialization only addresses one level of nesting.
+      // Deeper structures are spec-undefined; we JSON-stringify them so authors get
+      // readable output instead of the degenerate "[object Object]" from String(value).
+      // The cleaner documented alternative is style: deepObject + explode: true.
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            props: coerceValue(EncodingObjectSchema, {
+              style: 'form',
+              explode: true,
+            }),
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              props: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'widget' },
+                  meta: {
+                    type: 'object',
+                    properties: {
+                      region: { type: 'string', example: 'eu' },
+                    },
+                  },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [
+          { name: 'name', value: 'widget' },
+          { name: 'meta', value: '{"region":"eu"}' },
+        ],
+      })
+    })
+
+    it('falls back to repeated-name parts when style: deepObject is set on an array', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            tags: coerceValue(EncodingObjectSchema, {
+              style: 'deepObject',
+              explode: true,
+            }),
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              tags: {
+                type: 'array',
+                example: ['a', 'b', 'c'],
+                items: { type: 'string' },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [
+          { name: 'tags', value: 'a' },
+          { name: 'tags', value: 'b' },
+          { name: 'tags', value: 'c' },
+        ],
+      })
+    })
+
+    it('falls back to per-file parts when style is set on an array of Files', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            attachments: coerceValue(EncodingObjectSchema, {
+              style: 'form',
+              explode: true,
+            }),
+          },
+          examples: {
+            default: {
+              value: {
+                attachments: [
+                  new File(['a'], 'a.txt', { type: 'text/plain' }),
+                  new File(['b'], 'b.txt', { type: 'text/plain' }),
+                ],
+              },
+            },
+          },
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+        example: 'default',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [
+          { name: 'attachments', value: '@a.txt' },
+          { name: 'attachments', value: '@b.txt' },
+        ],
+      })
+    })
+
+    it('respects an explicit encoding.contentType over the application/json default', () => {
+      const content = {
+        'multipart/form-data': {
+          encoding: {
+            settings: coerceValue(EncodingObjectSchema, {
+              contentType: 'application/vnd.custom+json',
+            }),
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              settings: {
+                type: 'object',
+                properties: {
+                  enabled: { type: 'boolean', example: true },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'settings',
+            value: JSON.stringify({ enabled: true }),
+            contentType: 'application/vnd.custom+json',
+          },
+        ],
+      })
+    })
+
     it('handles file upload with comment', () => {
       const content = {
         'multipart/form-data': {
@@ -799,6 +1397,44 @@ describe('processBody', () => {
   })
 
   describe('application/x-www-form-urlencoded', () => {
+    it('serializes encoding.style "form" with explode: true on an object using inner property names', () => {
+      const content = {
+        'application/x-www-form-urlencoded': {
+          encoding: {
+            props: coerceValue(EncodingObjectSchema, {
+              style: 'form',
+              explode: true,
+            }),
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              props: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'widget' },
+                  count: { type: 'integer', example: 3 },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'application/x-www-form-urlencoded',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          { name: 'name', value: 'widget' },
+          { name: 'count', value: '3' },
+        ],
+      })
+    })
+
     it('extracts examples from form data schema', () => {
       const content = {
         'application/x-www-form-urlencoded': {
@@ -1116,6 +1752,47 @@ describe('processBody', () => {
         params: [
           { name: 'user.firstName', value: 'John' },
           { name: 'user.lastName', value: 'Doe' },
+        ],
+      })
+    })
+
+    // Per OAS 3.1.x Encoding Object, `contentType` SHALL be ignored when the request body
+    // media type is not a multipart. An object value with a `contentType`-only encoding
+    // entry should still fall through to the dotted-key flattening default, not be
+    // JSON-stringified into a single part.
+    it('ignores encoding.contentType on urlencoded bodies and keeps dotted-key flattening', () => {
+      const content = {
+        'application/x-www-form-urlencoded': {
+          encoding: {
+            user: coerceValue(EncodingObjectSchema, {
+              contentType: 'application/json;charset=utf-8',
+            }),
+          },
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              user: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'Scalar' },
+                  role: { type: 'string', example: 'maintainer' },
+                },
+              },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'application/x-www-form-urlencoded',
+      })
+
+      expect(result).toEqual({
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          { name: 'user.name', value: 'Scalar' },
+          { name: 'user.role', value: 'maintainer' },
         ],
       })
     })

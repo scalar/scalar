@@ -719,6 +719,58 @@ describe('parameter styles', () => {
         { name: 'color[B]', value: '150' },
       ])
     })
+
+    it('falls back to bracket notation when deepObject is used without explode', () => {
+      const result = runProcessParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'color',
+            in: 'query',
+            required: true,
+            style: 'deepObject',
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: {
+                R: { type: 'integer' },
+              },
+              example: { R: 100 },
+            }),
+          },
+        ],
+      })
+
+      // explode:false with deepObject is spec-undefined; we still emit bracket notation
+      // instead of silently dropping the parameter (mirrors process-body).
+      expect(result.queryString).toEqual([{ name: 'color[R]', value: '100' }])
+    })
+
+    it('falls back to repeated-name parts when deepObject is used on an array', () => {
+      const result = runProcessParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'tags',
+            in: 'query',
+            required: true,
+            style: 'deepObject',
+            explode: true,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'array',
+              items: { type: 'string' },
+              example: ['a', 'b', 'c'],
+            }),
+          },
+        ],
+      })
+
+      // deepObject-on-array is spec-undefined; fall back to form/explode:true repeated parts.
+      expect(result.queryString).toEqual([
+        { name: 'tags', value: 'a' },
+        { name: 'tags', value: 'b' },
+        { name: 'tags', value: 'c' },
+      ])
+    })
   })
 
   describe('header parameters', () => {
