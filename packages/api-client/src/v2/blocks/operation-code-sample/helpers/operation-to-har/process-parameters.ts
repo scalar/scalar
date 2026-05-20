@@ -196,7 +196,21 @@ export const processParameters = ({
             break
           }
           case 'deepObject': {
-            if (explode) {
+            // OAS marks deepObject-on-array and deepObject+explode:false as undefined.
+            // Mirror process-body: fall back to form/explode:true for arrays and always
+            // invoke the serializer for objects so authors get useful output instead of
+            // a silently-dropped parameter.
+            if (Array.isArray(paramValue)) {
+              const serialized = serializeFormStyle(paramValue, true)
+              if (Array.isArray(serialized)) {
+                for (const entry of serialized) {
+                  const key = entry.key || param.name
+                  newQueryString.push({ name: key, value: encodeQueryValue(String(entry.value), param) })
+                }
+              } else {
+                newQueryString.push({ name: param.name, value: encodeQueryValue(String(serialized), param) })
+              }
+            } else {
               const entries = serializeDeepObjectStyle(param.name, paramValue)
               for (const entry of entries) {
                 newQueryString.push({ name: entry.key, value: encodeQueryValue(entry.value, param) })

@@ -149,6 +149,8 @@ const handleAddEnvironment = () => {
         buttonSource="modal"
         class="!w-fit lg:-mr-1"
         :integration="integration ?? null"
+        :operationMethod="method"
+        :operationPath="path"
         :source="source ?? 'api-reference'"
         :url="documentUrl" />
 

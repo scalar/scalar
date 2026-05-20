@@ -17,11 +17,12 @@ import { loadDocumentFromSource } from '@/features/import-listener/helpers/load-
 import {
   type CreateWorkspacePayload,
   type ImportEventData,
+  type NavigateToDocumentPayload,
 } from '@/features/import-listener/types'
 
 import DropEventListener from './components/DropEventListener.vue'
 import ImportModal from './components/ImportModal.vue'
-import { getUrlQueryParameter } from './helpers/get-url-query-parameter'
+import { getImportFromQuery } from './helpers/get-import-from-query'
 import { importDocumentToWorkspace } from './helpers/import-document-to-workspace'
 import { waitForCondition } from './helpers/wait-for-condition'
 
@@ -64,8 +65,8 @@ const {
 }>()
 
 const emit = defineEmits<{
-  /** Emitted when the user wants to navigate to a document. */
-  (e: 'navigateToDocument', slug: string): void
+  /** Emitted when the user wants to navigate to a document (and optionally an operation). */
+  (e: 'navigateToDocument', payload: NavigateToDocumentPayload): void
   /** Emitted when the user wants to set the active workspace */
   (e: 'set:workspace', id: string): void
   /** Emitted when the user wants to create a new workspace */
@@ -126,7 +127,11 @@ const directImport = async (
     return
   }
 
-  await handleImportDocument(draftStore.exportWorkspace(), 'drafts')
+  await handleImportDocument(
+    draftStore.exportWorkspace(),
+    'drafts',
+    importEventData,
+  )
 }
 
 /**
@@ -170,6 +175,7 @@ const handleInput = async (importEventData: ImportEventData): Promise<void> => {
 const handleImportDocument = async (
   workspaceState: InMemoryWorkspace,
   name: string,
+  importContext?: ImportEventData | null,
 ): Promise<void> => {
   const result = await importDocumentToWorkspace({
     workspaceStore,
@@ -182,7 +188,13 @@ const handleImportDocument = async (
     return
   }
 
-  emit('navigateToDocument', result.slug)
+  const pendingOperation = importContext ?? data.value
+
+  emit('navigateToDocument', {
+    slug: result.slug,
+    operationPath: pendingOperation?.operationPath,
+    operationMethod: pendingOperation?.operationMethod,
+  })
   modalState.hide()
 }
 
@@ -191,18 +203,10 @@ const handleImportDocument = async (
  * If a URL is found, automatically triggers the import flow.
  */
 onMounted(() => {
-  const urlQueryParameter = getUrlQueryParameter('url')
+  const importFromQuery = getImportFromQuery({ darkMode })
 
-  const logo = darkMode
-    ? getUrlQueryParameter('dark_logo')
-    : getUrlQueryParameter('light_logo')
-
-  if (urlQueryParameter) {
-    void handleInput({
-      source: urlQueryParameter,
-      type: 'url',
-      companyLogo: logo,
-    })
+  if (importFromQuery) {
+    void handleInput(importFromQuery)
   }
 
   if (window.electron === true) {

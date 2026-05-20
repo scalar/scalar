@@ -20,7 +20,10 @@ import { traverseWebhooks } from './traverse-webhooks'
  * - Optional schema/model documentation
  */
 export const traverseDocument = (documentName: string, document: OpenApiDocument, options?: NavigationOptions) => {
-  const { hideModels, tagsSorter, operationsSorter, generateId } = getNavigationOptions(documentName, options)
+  const { hideModels, tagsSorter, operationsSorter, generateId, operationTitleSource } = getNavigationOptions(
+    documentName,
+    options,
+  )
 
   const documentId = generateId({
     type: 'document',
@@ -44,7 +47,13 @@ export const traverseDocument = (documentName: string, document: OpenApiDocument
   })
 
   /** Traverse all the document path  */
-  const { untaggedOperations } = traversePaths({ document, tagsMap, generateId, documentId })
+  const { untaggedOperations } = traversePaths({
+    document,
+    tagsMap,
+    generateId,
+    documentId,
+    operationTitleSource,
+  })
 
   const untaggedWebhooksParentId = generateId({
     type: 'webhook',

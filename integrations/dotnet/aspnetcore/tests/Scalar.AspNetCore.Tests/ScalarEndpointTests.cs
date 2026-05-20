@@ -1,6 +1,9 @@
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using System.Text.Encodings.Web;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -286,5 +289,138 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         content.Should().Contain("<title>Scalar API Reference | v1</title>");
+    }
+
+    [Fact]
+    public async Task MapScalarApiReference_ShouldUseNonce_WhenRequested()
+    {
+        // Arrange
+        var nonce = GenerateNonce();
+        var localFactory = factory.WithWebHostBuilder(builder =>
+        {
+            builder.Configure(options =>
+            {
+                options.UseRouting();
+                options.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapScalarApiReference(o => o.WithNonce(nonce));
+                });
+            });
+        });
+        var client = localFactory.CreateClient();
+
+        // Act
+        var index = await client.GetAsync("/scalar", TestContext.Current.CancellationToken);
+
+        // Assert
+        index.StatusCode.Should().Be(HttpStatusCode.OK);
+        var indexContent = await index.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        // HtmlEncoder escapes characters such as '+' (common in base64) as numeric entities, so match the encoded form.
+        var encodedNonce = HtmlEncoder.Default.Encode(nonce);
+        Regex.Count(indexContent, $" nonce=\"{Regex.Escape(encodedNonce)}\"").Should().Be(3);
+        index.Headers.CacheControl!.NoStore.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task MapScalarApiReference_ShouldNotEmitNonceAttribute_WhenNonceNotConfigured()
+    {
+        // Arrange
+        var client = factory.CreateClient();
+
+        // Act
+        var index = await client.GetAsync("/scalar", TestContext.Current.CancellationToken);
+
+        // Assert
+        index.StatusCode.Should().Be(HttpStatusCode.OK);
+        var indexContent = await index.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        indexContent.Should().NotContain(" nonce=\"");
+        index.Headers.CacheControl.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task MapScalarApiReference_ShouldGenerateNoncePerRequest_WhenWithNonceCalledWithoutArgs()
+    {
+        // Arrange
+        var localFactory = factory.WithWebHostBuilder(builder =>
+        {
+            builder.Configure(options =>
+            {
+                options.UseRouting();
+                options.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapScalarApiReference(o => o.WithNonce());
+                });
+            });
+        });
+        var client = localFactory.CreateClient();
+
+        // Act
+        var first = await client.GetAsync("/scalar", TestContext.Current.CancellationToken);
+        var second = await client.GetAsync("/scalar", TestContext.Current.CancellationToken);
+
+        // Assert
+        first.StatusCode.Should().Be(HttpStatusCode.OK);
+        second.StatusCode.Should().Be(HttpStatusCode.OK);
+        first.Headers.CacheControl!.NoStore.Should().BeTrue();
+        second.Headers.CacheControl!.NoStore.Should().BeTrue();
+
+        var firstHtml = await first.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var secondHtml = await second.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        var firstNonce = ExtractNonce(firstHtml);
+        var secondNonce = ExtractNonce(secondHtml);
+
+        firstNonce.Should().NotBeNullOrEmpty();
+        secondNonce.Should().NotBeNullOrEmpty();
+        firstNonce.Should().NotBe(secondNonce);
+
+        Regex.Count(firstHtml, $" nonce=\"{Regex.Escape(firstNonce!)}\"").Should().Be(3);
+        Regex.Count(secondHtml, $" nonce=\"{Regex.Escape(secondNonce!)}\"").Should().Be(3);
+    }
+
+    [Fact]
+    public async Task MapScalarApiReference_ShouldPreferDynamicNonceOverStaticValue_WhenBothAreSet()
+    {
+        // Arrange
+        const string staticNonce = "static-nonce-should-not-be-rendered";
+        var localFactory = factory.WithWebHostBuilder(builder =>
+        {
+            builder.Configure(options =>
+            {
+                options.UseRouting();
+                options.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapScalarApiReference(o => o.WithNonce(staticNonce).WithNonce());
+                });
+            });
+        });
+        var client = localFactory.CreateClient();
+
+        // Act
+        var index = await client.GetAsync("/scalar", TestContext.Current.CancellationToken);
+
+        // Assert
+        index.StatusCode.Should().Be(HttpStatusCode.OK);
+        var indexContent = await index.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        indexContent.Should().NotContain(staticNonce);
+        var rendered = ExtractNonce(indexContent);
+        rendered.Should().NotBeNullOrEmpty();
+        rendered.Should().NotBe(staticNonce);
+    }
+
+    private static string? ExtractNonce(string html)
+    {
+        var match = Regex.Match(html, " nonce=\"([^\"]+)\"");
+        return match.Success ? match.Groups[1].Value : null;
+    }
+
+    private static string GenerateNonce()
+    {
+        Span<byte> bytes = stackalloc byte[32];
+        RandomNumberGenerator.Fill(bytes);
+        return Convert.ToBase64String(bytes);
     }
 }

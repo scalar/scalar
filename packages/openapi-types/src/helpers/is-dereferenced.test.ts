@@ -1,6 +1,9 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { isDereferenced } from './is-dereferenced'
+
+import type { ReferenceObject as ReferenceObjectV3_1 } from '../../3.1/reference'
+import type { SchemaObject as SchemaObjectV3_1 } from '../../3.1/schema'
 import type { OpenAPIV3_1 } from '../openapi-types'
+import { isDereferenced } from './is-dereferenced'
 
 describe('isDereferenced', () => {
   it('returns true for objects without $ref', () => {
@@ -13,6 +16,10 @@ describe('isDereferenced', () => {
     const obj = { $ref: '#/components/schemas/Pet' }
     expect(isDereferenced(obj)).toBe(false)
     expectTypeOf(isDereferenced).returns.toBeBoolean()
+  })
+
+  it('returns false when $ref is present alongside other properties', () => {
+    expect(isDereferenced({ $ref: '#/components/schemas/Pet', description: 'a pet' })).toBe(false)
   })
 
   it('returns false for null', () => {
@@ -32,27 +39,30 @@ describe('isDereferenced', () => {
     expectTypeOf(isDereferenced).returns.toBeBoolean()
   })
 
-  it('narrows type correctly when used in type guard', () => {
-    const obj: OpenAPIV3_1.SchemaObject | OpenAPIV3_1.ReferenceObject = {
+  it('treats a non-string $ref as dereferenced', () => {
+    expect(isDereferenced({ $ref: 123 })).toBe(true)
+  })
+
+  it('narrows the loose OpenAPIV3_1 union to the SchemaObject', () => {
+    const value: OpenAPIV3_1.SchemaObject | OpenAPIV3_1.ReferenceObject = {
       type: 'string',
       format: 'email',
     }
 
-    if (isDereferenced(obj)) {
-      // Type should be narrowed to SchemaObject
-      expectTypeOf(obj).toMatchTypeOf<OpenAPIV3_1.SchemaObject>()
+    if (isDereferenced(value)) {
+      expectTypeOf(value).toExtend<OpenAPIV3_1.SchemaObject>()
+      expectTypeOf(value).not.toExtend<{ $ref: string }>()
     }
   })
 
-  it('narrows type correctly when used in type guard', () => {
-    const obj: OpenAPIV3_1.SchemaObject | OpenAPIV3_1.ReferenceObject = {
+  it('narrows the strict 3.1 union to the SchemaObject', () => {
+    const value: SchemaObjectV3_1 | ReferenceObjectV3_1 = {
       type: 'string',
-      format: 'email',
     }
 
-    if (isDereferenced(obj)) {
-      // Type should be narrowed to SchemaObject
-      expectTypeOf(obj).toMatchTypeOf<OpenAPIV3_1.SchemaObject>()
+    if (isDereferenced(value)) {
+      expectTypeOf(value).toExtend<SchemaObjectV3_1>()
+      expectTypeOf(value).not.toExtend<ReferenceObjectV3_1>()
     }
   })
 })

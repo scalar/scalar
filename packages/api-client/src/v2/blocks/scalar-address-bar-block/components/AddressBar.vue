@@ -307,12 +307,29 @@ const handleMethodChange = (newMethod: HttpMethodType): void =>
 /**
  * Save the path on blur and replay the click that caused the blur (so e.g. a
  * click on the Send button still fires after the async update resolves).
- * Tab-outs explicitly do not replay — tabbing to a button should not trigger
- * its click.
+ *
+ * Tab-outs do not replay — tabbing to a button should not trigger its click
+ * (`tabbedOut` is set on `@keydown.tab`).
+ *
+ * Programmatic focus moves also do not replay. On first navigation into a
+ * draft operation, `usePathMasking` focuses and clears the address bar while
+ * `ScalarSidebarNestedItems` focuses the drilled-in Back button in
+ * `nextTick`. That steals focus from CodeMirror, fires blur with a
+ * `relatedTarget` (the Back button), and without a guard we would treat it
+ * like a user click: capture the selector, then `refocusBlurTarget` would
+ * synthesize `.click()` on Back and navigate away.
+ *
+ * `FocusEvent.sourceCapabilities` is null when no input device caused the
+ * focus change (e.g. `element.focus()`). A real pointer click sets it on the
+ * blur that precedes the click, so we still replay Send and other buttons.
  */
 const handlePathBlur = (newPath: string, event: FocusEvent): void => {
   const relatedTarget = event.relatedTarget as Element | null
-  const blurTargetSelector = tabbedOut.value ? null : getSelector(relatedTarget)
+  const blurTargetSelector =
+    tabbedOut.value ||
+    ('sourceCapabilities' in event && event.sourceCapabilities === null)
+      ? null
+      : getSelector(relatedTarget)
   tabbedOut.value = false
 
   emitPathMethodUpdate(

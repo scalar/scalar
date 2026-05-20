@@ -12,6 +12,9 @@ type OperationSortValue = {
   httpVerb: string
 }
 
+/** Whether to use the operation summary or the operation path for sidebar and search titles */
+export type OperationTitleSource = 'summary' | 'path'
+
 /** Configuration options for traversing an OpenAPI specification document.
  *
  * These options control how the document is processed and organized, including:
@@ -28,6 +31,9 @@ export type TraverseSpecOptions = {
 
   /** Whether to hide model schemas from the navigation */
   hideModels: boolean
+
+  /** Whether to derive operation titles from the operation summary or the path */
+  operationTitleSource?: OperationTitleSource
 
   generateId: IdGenerator
 }

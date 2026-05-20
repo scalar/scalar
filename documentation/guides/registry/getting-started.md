@@ -254,12 +254,19 @@ All of this with just a couple clicks or a few API requests! You handle making y
   </div>
 </div>
 <style>
-    .resources-cta-container {
-      border-radius: var(--scalar-radius-lg);
-      border: var(--scalar-border-width) solid var(--scalar-border-color);
-      width: 100%;
-      padding: 12px 8px;
-    }
+  :root {
+    --scalar-text-decoration: none;
+    --scalar-text-decoration-hover: none;
+  }
+  .t-editor__anchor {
+    --font-visited: none;
+  }
+  .resources-cta-container {
+    border-radius: var(--scalar-radius-lg);
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    width: 100%;
+    padding: 12px 8px;
+  }
   .resources-cta {
     max-height: fit-content;
     width: 100%;
