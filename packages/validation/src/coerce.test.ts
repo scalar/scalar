@@ -1423,7 +1423,7 @@ describe('cyclic structures', () => {
     expect(result.right?.next).toBe(a)
   })
 
-  it('handle cyclic references when using intersection and union types', () => {
+  it('handles cyclic references when using intersection and union types', () => {
     const T = intersection([
       union([object({ type: literal('a'), a: string() }), object({ type: literal('b'), b: string() })]),
       object({ c: string() }),
@@ -1436,7 +1436,7 @@ describe('cyclic structures', () => {
     expect(result).toStrictEqual({ type: 'a', a: '', c: '' })
   })
 
-  it('correctly coerces a recursive schema', () => {
+  it('coerces a recursive schema', () => {
     const T = lazy(() => object({ name: string(), child: optional(lazy(() => T)) }))
     const input = { name: 1, child: { name: 'child', child: { name: 'grandchild' } } }
     // @ts-expect-error
