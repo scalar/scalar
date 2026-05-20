@@ -34,8 +34,16 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    * Custom fetch function for custom logic
    *
    * Can be used to add custom headers, handle auth, etc.
+   *
+   * @deprecated Use `customFetch` instead.
    */
   fetch: fetchLikeSchema.optional(),
+  /**
+   * Custom fetch function used both when loading the OpenAPI document and when sending requests from the API client.
+   *
+   * Can be used to add custom headers, attach credentials (for example `credentials: 'include'`), handle auth, etc.
+   */
+  customFetch: fetchLikeSchema.optional(),
   /**
    * Plugins for the API reference
    */
@@ -480,6 +488,17 @@ export const apiReferenceConfigurationWithSourceSchema: ZodType<
     }
 
     delete configuration.proxy
+  }
+
+  // Migrate fetch to customFetch
+  if (configuration.fetch) {
+    console.warn(`[DEPRECATED] You're using the deprecated 'fetch' attribute. Use 'customFetch' instead.`)
+
+    if (!configuration.customFetch) {
+      configuration.customFetch = configuration.fetch
+    }
+
+    delete configuration.fetch
   }
 
   if (configuration.proxyUrl === OLD_PROXY_URL) {

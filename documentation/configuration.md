@@ -1102,19 +1102,21 @@ By default we're using Inter and JetBrains Mono, served from our fonts CDN at `h
 
 Custom functions to control specific behaviors and URL generation.
 
-#### fetch
+#### customFetch
 
 **Type:** `(input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>`
 
-Custom [fetch function](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) to fetch documents with a custom logic. Can be used to add custom headers, handle auth, etc.
+Custom [fetch function](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) used both when loading the OpenAPI document and when sending "Test Request" calls from the API client. Can be used to add custom headers, attach credentials (for example `credentials: 'include'`), handle auth, etc.
 
 ```javascript
 {
-  fetch: (input: string | URL | globalThis.Request, init?: RequestInit) => {
-    return window.fetch(input, init)
+  customFetch: (input: string | URL | globalThis.Request, init?: RequestInit) => {
+    return window.fetch(input, { ...init, credentials: 'include' })
   }
 }
 ```
+
+> The previous `fetch` option is deprecated. It still works and is migrated automatically (with a console warning), but new code should use `customFetch`.
 
 #### generateHeadingSlug
 

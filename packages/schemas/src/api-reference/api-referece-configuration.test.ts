@@ -221,6 +221,34 @@ describe('api-reference-configuration', () => {
       expect(migratedConfig.proxy).toBeUndefined()
     })
 
+    it('migrates fetch to customFetch', () => {
+      const fetchFn = (() => Promise.resolve(new Response())) as typeof fetch
+
+      const config = {
+        fetch: fetchFn,
+      }
+
+      const migratedConfig = apiReferenceConfigurationWithSourceSchema(config)
+
+      expect(migratedConfig.customFetch).toBe(fetchFn)
+      expect(migratedConfig.fetch).toBeUndefined()
+    })
+
+    it('keeps customFetch if both fetch and customFetch are set', () => {
+      const fetchFn = (() => Promise.resolve(new Response())) as typeof fetch
+      const customFetchFn = (() => Promise.resolve(new Response())) as typeof fetch
+
+      const config = {
+        fetch: fetchFn,
+        customFetch: customFetchFn,
+      }
+
+      const migratedConfig = apiReferenceConfigurationWithSourceSchema(config)
+
+      expect(migratedConfig.customFetch).toBe(customFetchFn)
+      expect(migratedConfig.fetch).toBeUndefined()
+    })
+
     it('migrates spec.url to url', () => {
       const config = {
         spec: {
