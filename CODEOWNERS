@@ -1,27 +1,22 @@
 # Default code owners (overwritten by more specific entries)
-* @hanspagel @amritk @geoffgscott @marclave
-
-# Documentation
-/documentation @hanspagel @marclave @hwkr @cameronrohani
-/*.md @hanspagel @marclave @hwkr @cameronrohani
+* @marclave @hanspagel @amritk
 
 # Amrit + Redis
-/packages/api-client @amritk @hanspagel @marclave @DemonHa
-/packages/json-diff @amritk @hanspagel @marclave @DemonHa
-/packages/json-magic @amritk @hanspagel @marclave @DemonHa
-/packages/pre-post-request-scripts @amritk @hanspagel @marclave @DemonHa
-/packages/schemas @amritk @hanspagel @marclave @DemonHa
-/packages/types @amritk @hanspagel @marclave @DemonHa
-/packages/validation @amritk @hanspagel @marclave @DemonHa
-/packages/workspace-store @amritk @hanspagel @marclave @DemonHa
+/packages/api-client @marclave @hanspagel @amritk @DemonHa
+/packages/json-diff @marclave @hanspagel @amritk @DemonHa
+/packages/json-magic @marclave @hanspagel @amritk @DemonHa
+/packages/pre-post-request-scripts @marclave @hanspagel @amritk @DemonHa
+/packages/schemas @marclave @hanspagel @amritk @DemonHa
+/packages/types @marclave @hanspagel @amritk @DemonHa
+/packages/validation @marclave @hanspagel @amritk @DemonHa
+/packages/workspace-store @marclave @hanspagel @amritk @DemonHa
 
 # Brynn + Cam
-/packages/components @hanspagel @amritk @hwkr @cameronrohani @marclave
-/packages/icons @hanspagel @amritk @hwkr @cameronrohani @marclave
-/packages/sidebar @hanspagel @amritk @hwkr @cameronrohani @marclave
-/packages/themes @hanspagel @amritk @hwkr @cameronrohani @marclave
-/packages/use-hooks @hanspagel @amritk @hwkr @cameronrohani @marclave
-/packages/use-toasts @hanspagel @amritk @hwkr @cameronrohani @marclave
-
-
-
+/packages/components @marclave @hanspagel @amritk @hwkr @cameronrohani
+/packages/icons @marclave @hanspagel @amritk @hwkr @cameronrohani
+/packages/sidebar @marclave @hanspagel @amritk @hwkr @cameronrohani
+/packages/themes @marclave @hanspagel @amritk @hwkr @cameronrohani
+/packages/use-hooks @marclave @hanspagel @amritk @hwkr @cameronrohani
+/packages/use-toasts @marclave @hanspagel @amritk @hwkr @cameronrohani
+/documentation @marclave @hanspagel @hwkr @cameronrohani
+/*.md @marclave @hanspagel @hwkr @cameronrohani
