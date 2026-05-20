@@ -92,19 +92,23 @@ describe('formatExample', () => {
     expect(result).toBe('123.456')
   })
 
-  it('handles external value', () => {
-    const input = {
-      externalValue: 'https://example.com',
-    }
+  it('stringifies objects with a `value` property', () => {
+    // `value`/`externalValue` are OpenAPI Example Object keys that callers should
+    // unwrap before passing here. `formatExample` itself treats them as plain object keys.
+    const input = { value: '123' }
     const result = formatExample(input)
-    expect(result).toBe('https://example.com')
+    expect(result).toBe('{"value":"123"}')
   })
 
-  it('handles object value', () => {
-    const input = {
-      value: '123',
-    }
+  it('stringifies objects with an `externalValue` property', () => {
+    const input = { externalValue: 'https://example.com' }
     const result = formatExample(input)
-    expect(result).toBe('123')
+    expect(result).toBe('{"externalValue":"https://example.com"}')
+  })
+
+  it('stringifies arbitrary objects', () => {
+    const input = { testProperty: 'testValue' }
+    const result = formatExample(input)
+    expect(result).toBe('{"testProperty":"testValue"}')
   })
 })

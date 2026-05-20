@@ -40,14 +40,6 @@ export function formatExample(example: unknown): string | number {
   }
 
   if (typeof example === 'object') {
-    if ('value' in example) {
-      return example.value as string | number
-    }
-
-    if ('externalValue' in example) {
-      return example.externalValue as string | number
-    }
-
     return JSON.stringify(example)
   }
 
