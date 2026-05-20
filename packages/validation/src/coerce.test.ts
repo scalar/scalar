@@ -1272,6 +1272,68 @@ describe('lazy', () => {
     const result = coerce(T, value)
     expect(result).toEqual(value)
   })
+
+  it('invokes a lazy factory only once per coerce call and reuses the inner schema reference', () => {
+    let calls = 0
+    const resolved: object[] = []
+    const Self: any = lazy(() => {
+      calls++
+      const inner = object({ name: string(), child: optional(Self) })
+      resolved.push(inner)
+      return inner
+    })
+
+    const node: { name: string; child?: unknown } = { name: 'root' }
+    node.child = node
+
+    coerce(Self, node)
+
+    // The factory must be called exactly once even though the cyclic value
+    // re-enters `Self` during recursion — that is what makes the (value, schema)
+    // cycle cache keys line up and prevents infinite recursion.
+    expect(calls).toBe(1)
+    expect(resolved).toHaveLength(1)
+  })
+
+  it('caches each lazy schema factory independently within a single coerce call', () => {
+    let aCalls = 0
+    let bCalls = 0
+    const A: any = lazy(() => {
+      aCalls++
+      return object({ kind: literal('a'), next: optional(B) })
+    })
+    const B: any = lazy(() => {
+      bCalls++
+      return object({ kind: literal('b'), next: optional(A) })
+    })
+
+    const a: { kind: string; next?: unknown } = { kind: 'a' }
+    const b: { kind: string; next?: unknown } = { kind: 'b' }
+    a.next = b
+    b.next = a
+
+    coerce(A, a)
+
+    // Distinct lazy schemas get distinct cache slots — each factory runs once.
+    expect(aCalls).toBe(1)
+    expect(bCalls).toBe(1)
+  })
+
+  it('does not leak the lazy resolution cache across coerce calls', () => {
+    let calls = 0
+    const Reset = lazy(() => {
+      calls++
+      return object({ name: string() })
+    })
+
+    coerce(Reset, { name: 'first' })
+    expect(calls).toBe(1)
+
+    // A second top-level call must build a fresh lazyCache, so the factory
+    // runs again rather than reusing the resolved schema from the prior call.
+    coerce(Reset, { name: 'second' })
+    expect(calls).toBe(2)
+  })
 })
 
 describe('evaluate', () => {
