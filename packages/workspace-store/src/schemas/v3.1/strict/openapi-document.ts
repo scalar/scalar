@@ -3,10 +3,6 @@ import { type TSchema, Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import { extensions } from '@/schemas/extensions'
 import {
-  type WorkspaceManagedExtensions,
-  WorkspaceManagedExtensionsSchema,
-} from '@/schemas/extensions/document/workspace-managed-extensions'
-import {
   type XScalarEnvironments,
   xScalarEnvironmentsSchema,
 } from '@/schemas/extensions/document/x-scalar-environments'
@@ -16,6 +12,10 @@ import {
   type XScalarOriginalDocumentHash,
   XScalarOriginalDocumentHashSchema,
 } from '@/schemas/extensions/document/x-scalar-original-document-hash'
+import {
+  type XScalarOriginalSourceUrl,
+  XScalarOriginalSourceUrlSchema,
+} from '@/schemas/extensions/document/x-scalar-original-source-url'
 import {
   type XScalarRegistryMeta,
   XScalarRegistryMetaSchema,
@@ -92,10 +92,7 @@ export const OpenApiExtensionsSchema = compose(
       [extensions.document.navigation]: TraversedDocumentObjectRef,
     }),
   ),
-  // Shared workspace-store-managed metadata (source url, document hash) —
-  // defined once in `workspace-managed-extensions.ts` and composed into the
-  // AsyncAPI document too, so the two cannot drift apart.
-  WorkspaceManagedExtensionsSchema,
+  XScalarOriginalSourceUrlSchema,
   XTagGroupsSchema,
   xScalarEnvironmentsSchema,
   XScalarSelectedServerSchema,
@@ -115,7 +112,7 @@ export type OpenAPIExtensions = Partial<{
   'x-original-oas-version': string
   [extensions.document.navigation]: TraversedDocument
 }> &
-  WorkspaceManagedExtensions &
+  XScalarOriginalSourceUrl &
   XScalarOriginalDocumentHash &
   XTagGroups &
   XScalarEnvironments &

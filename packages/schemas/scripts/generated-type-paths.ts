@@ -6,12 +6,19 @@ export const GENERATED_TYPE_OUTPUT_PATHS = [
   'packages/types/src/asyncapi/3.1/index.generated.ts',
 ] as const
 
+/** Repo-root-relative directory for extension types merged from `schemas/src/extensions/`. */
+export const GENERATED_TYPE_EXTENSIONS_PATH = 'packages/types/src/extensions' as const
+
 /**
- * Subset of {@link GENERATED_TYPE_OUTPUT_PATHS} that are tracked in git and staged on pre-commit.
+ * Generated paths tracked in git and staged on pre-commit by `types:generate:stage`.
  *
- * `packages/types/src/gen/` is listed in `packages/types/.gitignore` (local-only output).
+ * Includes {@link GENERATED_TYPE_EXTENSIONS_PATH} (not listed in {@link GENERATED_TYPE_OUTPUT_PATHS}
+ * because it is a directory of per-entity files). Excludes `packages/types/src/gen/` (gitignored).
  */
-export const GENERATED_TYPE_STAGED_PATHS = ['packages/types/src/asyncapi/3.1/index.generated.ts'] as const
+export const GENERATED_TYPE_STAGED_PATHS = [
+  'packages/types/src/asyncapi/3.1/index.generated.ts',
+  GENERATED_TYPE_EXTENSIONS_PATH,
+] as const
 
 export const getRepoRoot = (): string => path.join(import.meta.dirname, '../../..')
 

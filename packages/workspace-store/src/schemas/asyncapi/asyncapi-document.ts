@@ -1,8 +1,8 @@
 import { intersection, object, optional, string } from '@scalar/validation'
 
-import { WorkspaceManagedExtensions } from '@/schemas/extensions/document/workspace-managed-extensions'
 import { XScalarIsDirty } from '@/schemas/extensions/document/x-scalar-is-dirty'
 import { XScalarOriginalDocumentHash } from '@/schemas/extensions/document/x-scalar-original-document-hash'
+import { XScalarOriginalSourceUrl } from '@/schemas/extensions/document/x-scalar-original-source-url'
 import { XScalarRegistryMeta } from '@/schemas/extensions/document/x-scalar-registry-meta'
 
 /**
@@ -79,9 +79,7 @@ export const AsyncApiDocument = intersection(
       { typeName: 'AsyncApiDocumentCore' },
     ),
     AsyncApiExtensions,
-    // Shared store-managed metadata. Composed from the same extension modules
-    // the OpenAPI side uses so the two document shapes cannot drift apart.
-    WorkspaceManagedExtensions,
+    XScalarOriginalSourceUrl,
     XScalarOriginalDocumentHash,
     XScalarIsDirty,
     XScalarRegistryMeta,
@@ -98,7 +96,7 @@ export type AsyncApiDocument = {
   /** REQUIRED. Provides metadata about the application. */
   info: AsyncApiInfoObject
 } & AsyncApiExtensions &
-  WorkspaceManagedExtensions &
+  XScalarOriginalSourceUrl &
   XScalarOriginalDocumentHash &
   XScalarIsDirty &
   XScalarRegistryMeta
