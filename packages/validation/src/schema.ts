@@ -79,10 +79,36 @@ export type ObjectSchema<Properties extends Record<string, Schema>> = {
 } & Documentation
 
 /** Schema that matches if any member schema matches (discriminated union when literals or object tags differ). */
-export type UnionSchema<Schemas extends Schema[]> = {
+export type UnionSchema<Schemas extends readonly Schema[]> = {
   type: 'union'
   schemas: Schemas
 } & Documentation
+
+/**
+ * Members that may appear inside a `union([...])`.
+ *
+ * Discriminant-only for the same reason as {@link IntersectionMember}: a full `Schema` constraint
+ * at the call site forces TypeScript to eagerly evaluate tuple elements and breaks circular
+ * inference when members use `lazy(() => self)` (for example recursive navigation trees).
+ */
+export type UnionMember =
+  | { type: 'number' }
+  | { type: 'string' }
+  | { type: 'boolean' }
+  | { type: 'nullable' }
+  | { type: 'notDefined' }
+  | { type: 'any' }
+  | { type: 'unknown' }
+  | { type: 'function' }
+  | { type: 'array' }
+  | { type: 'record' }
+  | { type: 'object' }
+  | { type: 'union' }
+  | { type: 'optional' }
+  | { type: 'intersection' }
+  | { type: 'literal' }
+  | { type: 'lazy' }
+  | { type: 'evaluate' }
 
 /**
  * Schema that accepts `undefined` or a value matching the inner schema.
@@ -94,10 +120,21 @@ export type OptionalSchema<S extends Schema> = {
 } & Documentation
 
 /**
- * `UnionSchema<any>` avoids a variance pitfall: `UnionSchema<[A, B]>` is not assignable to
- * `UnionSchema<ObjectSchema<any>[]>`, which breaks `infer` when resolving `Static`.
+ * Members that may appear inside an `intersection([...])`.
+ *
+ * This is intentionally a discriminant-only structural type rather than a union of the full
+ * schema types. If we use the full schema types here, the constraint check at the call site
+ * of `intersection` forces TypeScript to *eagerly* evaluate each tuple element, which breaks
+ * circular type inference when a member transitively contains a `lazy(() => self)` reference.
+ *
+ * The narrower discriminant shape only requires TypeScript to verify the `type` literal, which
+ * is cheap and does not trigger evaluation of nested schemas. Every `ObjectSchema`, `UnionSchema`,
+ * `IntersectionSchema`, and `LazySchema` is still assignable to this type because each carries
+ * the appropriate `type` field, so the public API and compile-time safety are preserved.
  */
-export type IntersectionSchema<Schemas extends readonly (ObjectSchema<any> | UnionSchema<any>)[]> = {
+export type IntersectionMember = { type: 'object' } | { type: 'union' } | { type: 'intersection' } | { type: 'lazy' }
+
+export type IntersectionSchema<Schemas extends readonly Schema[]> = {
   type: 'intersection'
   schemas: Schemas
 } & Documentation
@@ -140,9 +177,9 @@ export type Schema =
   | ArraySchema<any>
   | RecordSchema<any, any>
   | ObjectSchema<Record<string, any>>
-  | UnionSchema<any[]>
+  | UnionSchema<readonly Schema[]>
   | OptionalSchema<any>
-  | IntersectionSchema<readonly (ObjectSchema<any> | UnionSchema<ObjectSchema<any>[]>)[]>
+  | IntersectionSchema<readonly Schema[]>
   | LiteralSchema<any>
   | LazySchema<any>
   | EvaluateSchema<any>
@@ -229,22 +266,39 @@ const object = <Properties extends Record<string, Schema>>(
   typeComment: options?.typeComment,
 })
 
-const union = <Schemas extends Schema[]>(schemas: Schemas, options?: Documentation): UnionSchema<Schemas> => ({
-  type: 'union',
-  schemas,
-  typeName: options?.typeName,
-  typeComment: options?.typeComment,
-})
-
-const intersection = <const Schemas extends readonly (ObjectSchema<any> | UnionSchema<ObjectSchema<any>[]>)[]>(
+/**
+ * The conditional return type mirrors {@link intersection}: lightweight input constraint,
+ * precise `UnionSchema<Schemas>` output without re-triggering eager evaluation.
+ */
+const union = <const Schemas extends readonly UnionMember[]>(
   schemas: Schemas,
   options?: Documentation,
-): IntersectionSchema<Schemas> => ({
-  type: 'intersection',
-  schemas,
-  typeName: options?.typeName,
-  typeComment: options?.typeComment,
-})
+): Schemas extends readonly Schema[] ? UnionSchema<Schemas> : never =>
+  ({
+    type: 'union',
+    schemas,
+    typeName: options?.typeName,
+    typeComment: options?.typeComment,
+  }) as never
+
+/**
+ * The conditional return type is what unlocks circular `intersection([... lazy(() => self) ...])`.
+ *
+ * The input constraint is the lightweight `IntersectionMember` (discriminant-only) so the call-site
+ * constraint check does not force TypeScript to eagerly evaluate each tuple element. The conditional
+ * `Schemas extends readonly Schema[]` is always true in practice (every passed value is a real schema)
+ * and lets us produce a precise `IntersectionSchema<Schemas>` without re-introducing the heavy check.
+ */
+const intersection = <const Schemas extends readonly IntersectionMember[]>(
+  schemas: Schemas,
+  options?: Documentation,
+): Schemas extends readonly Schema[] ? IntersectionSchema<Schemas> : never =>
+  ({
+    type: 'intersection',
+    schemas,
+    typeName: options?.typeName,
+    typeComment: options?.typeComment,
+  }) as never
 
 const optional = <S extends Schema>(schema: S, options?: Documentation): OptionalSchema<S> => ({
   type: 'optional',
