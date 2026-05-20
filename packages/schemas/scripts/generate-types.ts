@@ -65,14 +65,22 @@ const hasSameBody = (a: string, b: string): boolean => stripBanner(a) === stripB
 /**
  * Format `content` the same way the post-generation biome pass would, so comparisons match on-disk files.
  *
+ * Biome resolves config by walking up from the file path, not from `cwd`. Temp files live under
+ * `os.tmpdir()`, so pass `--config-path` explicitly to use the repo `biome.json`.
+ *
  * Falls back to the raw string when biome fails (for example in a stripped-down environment).
  */
 const formatWithBiome = async (content: string, filePath: string, repoRoot: string): Promise<string> => {
+  const biomeConfigPath = path.join(repoRoot, 'biome.json')
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'scalar-types-'))
   try {
     const tmpFile = path.join(tmpDir, path.basename(filePath))
     await fs.writeFile(tmpFile, content, 'utf8')
-    const result = spawnSync('pnpm', ['biome', 'format', '--write', tmpFile], { cwd: repoRoot, stdio: 'pipe' })
+    const result = spawnSync(
+      'pnpm',
+      ['biome', 'format', '--write', '--config-path', biomeConfigPath, tmpFile],
+      { cwd: repoRoot, stdio: 'pipe' },
+    )
     if (result.status !== 0) {
       return content
     }
