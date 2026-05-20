@@ -145,7 +145,21 @@ Add a re-export line to `src/index.ts` in alphabetical order inside the `biome-i
 export * from './components/ScalarExample'
 ```
 
-### 6. Write Storybook stories (`ScalarExample.stories.ts`)
+### 6. Expose a subpath export in `package.json`
+
+Consumers must import components from their subpath (for example `@scalar/components/scalar-example`), not from the package barrel — importing from `@scalar/components` is blocked by lint so that bundles stay tree-shakeable. Add a matching entry to the `exports` map in `package.json`, keyed by the kebab-case component name:
+
+```jsonc
+"./scalar-example": {
+  "types": "./dist/components/ScalarExample/index.d.ts",
+  "import": "./dist/components/ScalarExample/index.js",
+  "default": "./dist/components/ScalarExample/index.js"
+}
+```
+
+These entries are maintained by hand; keep them in alphabetical order alongside the existing component exports.
+
+### 7. Write Storybook stories (`ScalarExample.stories.ts`)
 
 Use `@storybook/vue3-vite` with `Meta` and `StoryObj`. Always include `tags: ['autodocs']`.
 
@@ -184,7 +198,7 @@ Conventions:
 - Define `argTypes` with `control: 'select'` for union-type props.
 - Export one named story per meaningful variant (e.g., `Base`, `Disabled`, `WithIcon`).
 
-### 7. Write unit tests (`ScalarExample.test.ts`)
+### 8. Write unit tests (`ScalarExample.test.ts`)
 
 Use Vitest and `@vue/test-utils`. Top-level `describe` must match the component name.
 
@@ -209,7 +223,7 @@ Conventions:
 - Test **behavior and accessibility attributes**, not DOM structure or Tailwind classes.
 - Do not start test names with "should": use `it('renders with a label')` not `it('should render with a label')`.
 
-### 8. Write visual snapshot tests (`ScalarExample.e2e.ts`) — optional but recommended
+### 9. Write visual snapshot tests (`ScalarExample.e2e.ts`) — optional but recommended
 
 Use the extended `test` from `@test/helpers` which provides `snapshot()` and Storybook integration.
 
@@ -227,7 +241,7 @@ test.describe('ScalarExample', () => {
 
 Add `colorModes: ['light', 'dark']` in `test.use()` when the component has theme-dependent styling that warrants separate snapshots. Use `page.getByRole(...)` to interact with the component before taking additional snapshots (e.g., hover states).
 
-### 9. Define types (`types.ts`) — when needed
+### 10. Define types (`types.ts`) — when needed
 
 Extract shared types here when props are non-trivial or types are re-exported from `index.ts`.
 
@@ -253,7 +267,7 @@ Conventions:
 - JSDoc on every exported type and property (with `@default` and `@example` where appropriate).
 - Internal-only types stay unexported or in the `.vue` file.
 
-### 10. Define constants (`constants.ts`) — when needed
+### 11. Define constants (`constants.ts`) — when needed
 
 Use this for static variant maps or large configuration objects.
 
@@ -274,6 +288,7 @@ export const EXAMPLE_VARIANT_STYLES = {
 - [ ] ScalarExample.vue with two-script-block pattern and JSDoc
 - [ ] index.ts with named exports
 - [ ] src/index.ts updated with re-export line
+- [ ] package.json `exports` updated with the `./scalar-example` subpath
 - [ ] ScalarExample.stories.ts with autodocs
 - [ ] ScalarExample.test.ts with behavior tests
 - [ ] ScalarExample.e2e.ts with snapshot tests (if visually meaningful)
