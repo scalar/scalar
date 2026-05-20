@@ -216,6 +216,11 @@ export type AppState = {
   document: ComputedRef<WorkspaceDocument | null>
   /** Whether the current color mode is dark */
   isDarkMode: ComputedRef<boolean>
+  /**
+   * Default CORS proxy for this client layout when a workspace has not set
+   * `x-scalar-active-proxy` (`null` means skip the proxy).
+   */
+  defaultProxyUrl: ComputedRef<string | null>
   telemetry: Ref<boolean>
 }
 
@@ -257,6 +262,14 @@ export const createAppState = async ({
   })
 
   const { workspace: persistence, meta: metaPersistence } = await createWorkspaceStorePersistence()
+
+  const defaultProxyUrl = computed(() =>
+    getActiveProxyUrl(undefined, layout === 'web' ? 'web' : 'other'),
+  )
+
+  const defaultWorkspaceProxyMeta = () => ({
+    'x-scalar-active-proxy': defaultProxyUrl.value,
+  })
 
   /**
    * Run migration from localStorage to IndexedDB if needed
@@ -374,9 +387,7 @@ export const createAppState = async ({
       ],
       fileLoader,
       fetch: options?.customFetch,
-      meta: {
-        'x-scalar-active-proxy': getActiveProxyUrl(undefined, layout === 'web' ? 'web' : 'other'),
-      },
+      meta: defaultWorkspaceProxyMeta(),
     })
   }
 
@@ -526,9 +537,7 @@ export const createAppState = async ({
     slug: string
   }) => {
     const draftStore = createWorkspaceStore({
-      meta: {
-        'x-scalar-active-proxy': getActiveProxyUrl(undefined, layout === 'web' ? 'web' : 'other'),
-      },
+      meta: defaultWorkspaceProxyMeta(),
     })
     const isTeam = teamUid !== 'local'
 
@@ -1450,6 +1459,7 @@ export const createAppState = async ({
     environment,
     document: activeDocument,
     isDarkMode,
+    defaultProxyUrl,
     telemetry,
     options,
   }

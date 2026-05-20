@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import type { ClientLayout } from '@scalar/api-client/types'
 import {
   useModal,
   type ScalarListboxOption,
@@ -11,7 +10,6 @@ import {
   createWorkspaceStore,
   type WorkspaceStore,
 } from '@scalar/workspace-store/client'
-import { getActiveProxyUrl } from '@scalar/workspace-store/request-example'
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
 import { onMounted, ref } from 'vue'
 
@@ -27,35 +25,43 @@ import { getUrlQueryParameter } from './helpers/get-url-query-parameter'
 import { importDocumentToWorkspace } from './helpers/import-document-to-workspace'
 import { waitForCondition } from './helpers/wait-for-condition'
 
-const { workspaceStore, darkMode, fileLoader, isOnlyOneWorkspace, layout } =
-  defineProps<{
-    /**
-     * Whether the user have only one workspace on the app.
-     * This is used to determine if the import listener should direct import the document.
-     */
-    isOnlyOneWorkspace: boolean
-    /**
-     * The workspace store instance.
-     * This is null during initialization until the store is ready.
-     */
-    workspaceStore: WorkspaceStore | null
-    /**
-     * The dark mode setting.
-     * This is used to determine the color mode of the import modal.
-     */
-    darkMode: boolean
-    /**
-     * The file loader.
-     * This is used to load files from the disk (for examole when you are on an Electron app).
-     */
-    fileLoader?: LoaderPlugin
-    /** List of workspace groups */
-    workspaceGroups: WorkspaceGroup[]
-    /** The active workspace */
-    activeWorkspace: ScalarListboxOption | null
-    /** Client layout — drives default proxy selection when loading imports */
-    layout: Exclude<ClientLayout, 'modal'>
-  }>()
+const {
+  workspaceStore,
+  darkMode,
+  fileLoader,
+  isOnlyOneWorkspace,
+  defaultProxyUrl,
+} = defineProps<{
+  /**
+   * Whether the user have only one workspace on the app.
+   * This is used to determine if the import listener should direct import the document.
+   */
+  isOnlyOneWorkspace: boolean
+  /**
+   * The workspace store instance.
+   * This is null during initialization until the store is ready.
+   */
+  workspaceStore: WorkspaceStore | null
+  /**
+   * The dark mode setting.
+   * This is used to determine the color mode of the import modal.
+   */
+  darkMode: boolean
+  /**
+   * The file loader.
+   * This is used to load files from the disk (for examole when you are on an Electron app).
+   */
+  fileLoader?: LoaderPlugin
+  /** List of workspace groups */
+  workspaceGroups: WorkspaceGroup[]
+  /** The active workspace */
+  activeWorkspace: ScalarListboxOption | null
+  /**
+   * Default CORS proxy when loading imports (`null` means skip the proxy).
+   * Derived from client layout in app state.
+   */
+  defaultProxyUrl: string | null
+}>()
 
 const emit = defineEmits<{
   /** Emitted when the user wants to navigate to a document. */
@@ -105,10 +111,7 @@ const directImport = async (
   const draftStore = createWorkspaceStore({
     fileLoader,
     meta: {
-      'x-scalar-active-proxy': getActiveProxyUrl(
-        undefined,
-        layout === 'web' ? 'web' : 'other',
-      ),
+      'x-scalar-active-proxy': defaultProxyUrl,
     },
   })
   const success = await loadDocumentFromSource(
@@ -215,10 +218,10 @@ onMounted(() => {
   <!-- Import modal for workspace and document selection -->
   <ImportModal
     :activeWorkspace="activeWorkspace"
+    :defaultProxyUrl="defaultProxyUrl"
     :fileLoader="fileLoader"
     :importEventData="data"
     :isLoading="workspaceStore === null"
-    :layout="layout"
     :modalState="modalState"
     :workspaceGroups="workspaceGroups"
     @create:workspace="(payload) => emit('create:workspace', payload)"

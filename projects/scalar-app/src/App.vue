@@ -258,9 +258,9 @@ const registry = reactive({
   <ImportListener
     :activeWorkspace="app.workspace.activeWorkspace.value"
     :darkMode="app.isDarkMode.value"
+    :defaultProxyUrl="app.defaultProxyUrl.value"
     :fileLoader="fileLoader"
     :isOnlyOneWorkspace="filteredWorkspaces.length <= 1"
-    :layout="isDesktop ? 'desktop' : 'web'"
     :workspaceGroups
     :workspaceStore="app.store.value"
     @create:workspace="(payload) => app.workspace.create(payload)"

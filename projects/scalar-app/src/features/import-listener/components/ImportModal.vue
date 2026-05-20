@@ -4,7 +4,6 @@
   for automatic updates when the source document changes.
 -->
 <script setup lang="ts">
-import type { ClientLayout } from '@scalar/api-client/types'
 import {
   ScalarButton,
   ScalarIcon,
@@ -17,7 +16,6 @@ import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import { isValidUrl } from '@scalar/helpers/url/is-valid-url'
 import { type LoaderPlugin } from '@scalar/json-magic/bundle'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { getActiveProxyUrl } from '@scalar/workspace-store/request-example'
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
 import { computed, onUnmounted, ref, watch } from 'vue'
 
@@ -35,7 +33,7 @@ const {
   modalState,
   isLoading = false,
   fileLoader,
-  layout,
+  defaultProxyUrl,
 } = defineProps<{
   /** The event data for the import */
   importEventData: ImportEventData | null
@@ -49,8 +47,11 @@ const {
   workspaceGroups: WorkspaceGroup[]
   /** The active workspace */
   activeWorkspace: ScalarListboxOption | null
-  /** Client layout — drives default proxy selection when loading imports */
-  layout: Exclude<ClientLayout, 'modal'>
+  /**
+   * Default CORS proxy when loading imports (`null` means skip the proxy).
+   * Derived from client layout in app state.
+   */
+  defaultProxyUrl: string | null
 }>()
 
 const emit = defineEmits<{
@@ -72,10 +73,7 @@ const watchMode = ref(false)
 const workspaceStore = createWorkspaceStore({
   fileLoader,
   meta: {
-    'x-scalar-active-proxy': getActiveProxyUrl(
-      undefined,
-      layout === 'web' ? 'web' : 'other',
-    ),
+    'x-scalar-active-proxy': defaultProxyUrl,
   },
 })
 
