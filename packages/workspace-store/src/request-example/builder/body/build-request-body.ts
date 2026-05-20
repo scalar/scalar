@@ -81,19 +81,6 @@ const buildDottedNestedRowPredicate = (schema: unknown) => {
 }
 
 /**
- * Fold dotted-name row entries (e.g. `props.name`, `props.description`) back into a
- * single nested object so the wire shape stays one JSON multipart part per top-level
- * object property — even though the form UI displays one row per leaf.
- */
-const foldDottedRowsToObject = (rows: { name: string; value: unknown }[]): Record<string, unknown> => {
-  const root: Record<string, unknown> = {}
-  for (const { name, value } of rows) {
-    setValueAtPath(root, name.split('.'), value)
-  }
-  return root
-}
-
-/**
  * Create the fetch request body
  */
 export const buildRequestBody = (
@@ -144,33 +131,36 @@ export const buildRequestBody = (
     // OpenAPI 3.x multipart-as-JSON default. Url-encoded forms do not nest, so we
     // skip this for them. The predicate is schema-driven, so a user-named row like
     // `user.email` whose top-level prefix is not a nested object stays flat.
-    const isDottedNestedRow = buildDottedNestedRowPredicate(requestBody.content[bodyContentType]?.schema)
-    const shouldRegroupDotted =
-      result.mode === 'formdata' && exampleValue.some(({ name, value }) => isDottedNestedRow(name, value))
+    //
+    // Single pass: flat rows go into `entries` as-is; for each dotted-nested row, we
+    // lazily allocate the regrouped object for its top-level key and push it into
+    // `entries` at the position of the *first* matching row, then keep folding leaves
+    // into the same live object reference so interleaved flat rows keep their order.
+    const isDottedNestedRow =
+      result.mode === 'formdata'
+        ? buildDottedNestedRowPredicate(requestBody.content[bodyContentType]?.schema)
+        : () => false
 
-    type Entry = { name: string; value: unknown }
-    let entries: Entry[]
-    if (shouldRegroupDotted) {
-      // Emit the regrouped top-level object at the position of its first dotted row so
-      // interleaved flat rows stay in the order the user arranged them.
-      const dottedRows = exampleValue.filter(({ name, value }) => isDottedNestedRow(name, value))
-      const regrouped = foldDottedRowsToObject(dottedRows)
-      const emittedTopKeys = new Set<string>()
-      entries = []
-      for (const row of exampleValue) {
-        if (!isDottedNestedRow(row.name, row.value)) {
-          entries.push(row)
-          continue
-        }
-        const topKey = row.name.split('.')[0]
-        if (!topKey || emittedTopKeys.has(topKey)) {
-          continue
-        }
-        emittedTopKeys.add(topKey)
-        entries.push({ name: topKey, value: regrouped[topKey] })
+    const entries: { name: string; value: unknown }[] = []
+    const regroupedByTopKey = new Map<string, Record<string, unknown>>()
+
+    for (const row of exampleValue) {
+      if (!isDottedNestedRow(row.name, row.value)) {
+        entries.push(row)
+        continue
       }
-    } else {
-      entries = exampleValue
+      const segments = row.name.split('.')
+      const topKey = segments[0]
+      if (!topKey) {
+        continue
+      }
+      let target = regroupedByTopKey.get(topKey)
+      if (!target) {
+        target = {}
+        regroupedByTopKey.set(topKey, target)
+        entries.push({ name: topKey, value: target })
+      }
+      setValueAtPath(target, segments.slice(1), row.value)
     }
 
     // Loop over all entries and add them to the form
