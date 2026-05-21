@@ -22,9 +22,9 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "wrangler deploy --dry-run --outdir dist",
-    "deploy": "wrangler deploy",
-    "dev": "wrangler dev",
+    "build": "wrangler deploy src/_worker.ts --dry-run --outdir dist --name galaxy-scalar-com --compatibility-date 2026-04-28 --compatibility-flags nodejs_compat",
+    "deploy": "wrangler pages deploy dist --project-name=galaxy-scalar-com",
+    "dev": "pnpm build && wrangler pages dev dist --compatibility-date=2026-04-28 --compatibility-flags=nodejs_compat",
     "test": "vitest --run",
     "types:check": "tsc --noEmit"
   },

@@ -1,7 +1,6 @@
-// The OpenAPI document is imported as text via a wrangler "Text" module rule
-// (see wrangler.jsonc). Bundling it at build time avoids a filesystem read,
-// which is not available inside a Cloudflare Worker.
-import galaxyDocument from '@scalar/galaxy/3.1.yaml'
+// The OpenAPI document is bundled at build time as a JSON import. Reading it
+// from the filesystem is not possible inside the Cloudflare Pages worker.
+import galaxyDocument from '@scalar/galaxy/3.1.json'
 import { PETSTORE_URL_2_0, PETSTORE_URL_3_1 } from '@scalar/helpers/url/oas-document-fixtures'
 import { Scalar } from '@scalar/hono-api-reference'
 import { createMockServer } from '@scalar/mock-server'

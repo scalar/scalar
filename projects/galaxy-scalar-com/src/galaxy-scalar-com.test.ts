@@ -5,9 +5,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { configureApiReference, createApp } from './galaxy-scalar-com'
 
-// The OpenAPI document is bundled via a wrangler module rule; vitest cannot
-// load a raw .yaml file, so it is mocked here.
-vi.mock('@scalar/galaxy/3.1.yaml', () => ({ default: 'openapi: 3.1.0' }))
+// The OpenAPI document is mocked so the test stays isolated from the built
+// @scalar/galaxy package.
+vi.mock('@scalar/galaxy/3.1.json', () => ({ default: { openapi: '3.1.0' } }))
 // Scalar() returns a Hono request handler; the factory keeps that shape so the
 // route registered by configureApiReference is a function.
 vi.mock('@scalar/hono-api-reference', () => ({ Scalar: vi.fn(() => vi.fn()) }))
@@ -36,7 +36,7 @@ describe('galaxy-scalar-com', () => {
       const app = await createApp()
 
       expect(createMockServer).toHaveBeenCalledWith({
-        document: 'openapi: 3.1.0',
+        document: { openapi: '3.1.0' },
         onRequest: expect.any(Function),
       })
       expect(app).toBe(mockApp)
