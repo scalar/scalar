@@ -1,5 +1,17 @@
 # scalar-app
 
+## 1.1.1
+
+### Patch Changes
+
+- [#9248](https://github.com/scalar/scalar/pull/9248): feat: open the API client on the selected operation when launching from API Reference. The modal "Open API Client" link now includes `operation_path` and `operation_method` query params; scalar-app reads them after import and navigates to that request. Also fixes address bar blur replay when focus moves programmatically on first navigation into a draft operation.
+- [#9260](https://github.com/scalar/scalar/pull/9260): chore: remove `'unsafe-eval'` from the desktop/web app CSP
+
+  Pre-request and post-response scripts run through `postman-sandbox`, which relies on `eval`. Instead of allowing `'unsafe-eval'` in the main application CSP, script execution now happens inside an isolated sandbox iframe (`sandbox.html`) that is loaded from a real same-origin URL and carries its own permissive CSP. The host talks to it over `postMessage`, so the main `script-src` no longer needs `'unsafe-eval'`.
+
+- [#9263](https://github.com/scalar/scalar/pull/9263): chore: explicitly enable `contextIsolation` and `nodeIntegration: false` on the desktop app's BrowserWindow to satisfy the toDesktop static analysis check (these were already the secure Electron defaults at runtime)
+- [#9271](https://github.com/scalar/scalar/pull/9271): fix: apply layout-aware CORS proxy defaults when creating workspaces and loading imported documents, so the web client uses proxy.scalar.com and the desktop client skips the proxy unless configured in settings.
+
 ## 1.1.0
 
 ### Minor Changes

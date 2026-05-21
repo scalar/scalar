@@ -1,5 +1,11 @@
 # @scalar/openapi-to-markdown
 
+## 0.5.18
+
+### Patch Changes
+
+- [#9291](https://github.com/scalar/scalar/pull/9291): chore: import from `@scalar/components` subpaths instead of the package barrel for better tree-shaking
+
 ## 0.5.17
 
 ## 0.5.16

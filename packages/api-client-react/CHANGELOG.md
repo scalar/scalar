@@ -1,5 +1,11 @@
 # @scalar/api-client-react
 
+## 2.0.18
+
+### Patch Changes
+
+- [#9249](https://github.com/scalar/scalar/pull/9249): fix: restore inline OpenAPI document support via the `content` configuration field in `useApiClient`
+
 ## 2.0.17
 
 ## 2.0.16

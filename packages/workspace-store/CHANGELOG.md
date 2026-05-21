@@ -1,5 +1,19 @@
 # @scalar/workspace-store
 
+## 0.51.1
+
+### Patch Changes
+
+- [#9145](https://github.com/scalar/scalar/pull/9145): feat(workspace-store): expose `style`, `explode`, and `allowReserved` on the multipart Encoding Object schema and type, matching OpenAPI 3.1.1
+- [#9155](https://github.com/scalar/scalar/pull/9155): feat(api-client): expand nested object properties of multipart form-data schemas into individual editable rows (e.g. `props.name`, `props.description`); the wire still sends one `application/json` multipart part per top-level object property — both for the initial schema-derived example and for edited form rows
+- [#9292](https://github.com/scalar/scalar/pull/9292): refactor: move extensions to the schema package
+- [#9301](https://github.com/scalar/scalar/pull/9301): refactor: use AsyncAPI 3.1 schemas from `@scalar/schemas`
+  - Remove local minimal AsyncAPI document schema definitions
+  - Use `asyncApiObjectSchema` from `@scalar/schemas/asyncapi/3.1` for workspace document validation
+  - Use `AsyncApiDocument` type from `@scalar/types/asyncapi/3.1`
+
+- [#9256](https://github.com/scalar/scalar/pull/9256): Respect `operationTitleSource: 'path'` when building sidebar navigation so operation paths render instead of summaries.
+
 ## 0.51.0
 
 ### Minor Changes

@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.26.0
+
+### Minor Changes
+
+- [#9291](https://github.com/scalar/scalar/pull/9291): refactor: rename component subpath exports to kebab-case without the `Scalar` prefix (e.g. `@scalar/components/scalar-button` is now `@scalar/components/button`). The exported component names are unchanged (`ScalarButton`, etc.).
+
+### Patch Changes
+
+- [#9291](https://github.com/scalar/scalar/pull/9291): chore: add `./helpers` and individual component subpath exports so consumers can import directly from component subpaths instead of the package barrel, improving tree-shaking
+
 ## 0.25.0
 
 ### Minor Changes

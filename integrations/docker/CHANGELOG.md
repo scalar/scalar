@@ -1,5 +1,11 @@
 # @scalarapi/docker-api-reference
 
+## 0.5.39
+
+### Patch Changes
+
+- [#9257](https://github.com/scalar/scalar/pull/9257): feat(docker): add `BASE_PATH` environment variable so the Docker image can be hosted under a subpath (for example, `/docs`). When set, the container prefixes the client-side `configuration.json` fetch URL and the generated `openapi/*` document URLs so they resolve correctly behind a reverse proxy or ingress that exposes Scalar under a non-root path.
+
 ## 0.5.38
 
 ## 0.5.37

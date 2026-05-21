@@ -1,5 +1,27 @@
 # @scalar/api-client
 
+## 3.8.3
+
+### Patch Changes
+
+- [#9145](https://github.com/scalar/scalar/pull/9145): fix(api-client): ignore `encoding.contentType` on `application/x-www-form-urlencoded` request bodies
+
+  Per OAS 3.1.x Encoding Object, `contentType` SHALL be ignored when the request body media type is not a multipart. After the recent change that lifted the multipart gate on `encoding.style`/`explode`/`allowReserved`, the `encoding` map started being passed for urlencoded bodies too. As a side effect, a urlencoded encoding entry that only set `contentType` would JSON-stringify object values into a single part instead of keeping the spec-default dotted-key flattening. Suppress `contentType` for non-multipart bodies so the flattening branch is restored.
+
+- [#9145](https://github.com/scalar/scalar/pull/9145): fix(api-client): encode nested object properties in multipart/form-data as a single JSON part instead of flattening them with dotted keys
+- [#9145](https://github.com/scalar/scalar/pull/9145): fix(api-client): serialize `multipart/form-data` and `application/x-www-form-urlencoded` parts with form / spaceDelimited / pipeDelimited / deepObject styles per RFC6570 when `encoding.style` / `explode` / `allowReserved` is set, matching how query parameters are already serialized. Replaces the dotted-key flattening previously emitted for `style: form, explode: true`.
+- [#9145](https://github.com/scalar/scalar/pull/9145): fix(api-client): JSON-stringify nested object/array values under `style: form` instead of emitting `[object Object]` in `multipart/form-data` and `application/x-www-form-urlencoded` bodies. RFC 6570 form-style serialization only addresses one level of nesting and OpenAPI 3.1 leaves deeper structures undefined; readable JSON is more useful than `String(value)` garble. The documented escape hatch for cleaner output remains `style: deepObject` with `explode: true`.
+- [#9155](https://github.com/scalar/scalar/pull/9155): feat(api-client): expand nested object properties of multipart form-data schemas into individual editable rows (e.g. `props.name`, `props.description`); the wire still sends one `application/json` multipart part per top-level object property — both for the initial schema-derived example and for edited form rows
+- [#9248](https://github.com/scalar/scalar/pull/9248): feat: open the API client on the selected operation when launching from API Reference. The modal "Open API Client" link now includes `operation_path` and `operation_method` query params; scalar-app reads them after import and navigates to that request. Also fixes address bar blur replay when focus moves programmatically on first navigation into a draft operation.
+- [#9259](https://github.com/scalar/scalar/pull/9259): fix(api-client): harden response body preview against XSS and referrer leakage
+
+  The response body preview now validates `src` against an allow-list of safe
+  protocols (`blob:`, `http:`, `https:`, and `data:` URIs limited to known media
+  types) before rendering, replaces the `<object>` fallback with a fully
+  sandboxed `<iframe>` (`sandbox=""`), and sets `referrerpolicy="no-referrer"`
+  on all media elements so untrusted response URLs cannot execute script in the
+  app origin or leak the user's location to third-party hosts.
+
 ## 3.8.2
 
 ### Patch Changes
