@@ -75,7 +75,17 @@ export default defineConfig({
       },
       output: {
         entryFileNames: '[name].js',
-        chunkFileNames: 'chunks/[name]-[hash].js',
+        // Rolldown names a shared chunk after an arbitrary member module. The large
+        // eager chunk that holds the rendering core (highlight.js, zod, typebox, yaml,
+        // parse5, plus the shared workspace-store/components code) would otherwise be
+        // named after `map-hidden-clients-config` — a tiny helper that merely happens
+        // to anchor that chunk boundary — which is misleading in bundle stats. Give it
+        // a meaningful, stable name instead. This only renames the file; it does not
+        // change which modules land in the chunk.
+        chunkFileNames: (chunk) =>
+          chunk.moduleIds?.some((id) => id.includes('map-hidden-clients-config'))
+            ? 'chunks/vendor-[hash].js'
+            : 'chunks/[name]-[hash].js',
         // Enable code splitting so genuinely-async boundaries become real lazy
         // chunks: the API client modal (heaviest by far — pulls in CodeMirror),
         // the AgentScalar drawer, the YAML parser used for downloads, and the
