@@ -1,12 +1,5 @@
-import { coerce, literal, object, string, union } from '@scalar/validation'
+import { type ScalarAppEnv, assertScalarAppEnv } from '../assert-scalar-app-env'
 
-const deployEnvironments = union([literal('development'), literal('test'), literal('staging'), literal('production')])
+export type { ScalarAppEnv }
 
-const environmentSchema = object({
-  VITE_ENV: deployEnvironments,
-  VITE_API_URL: string(),
-  VITE_SERVICES_URL: string(),
-  VITE_DASHBOARD_URL: string(),
-})
-
-export const env = coerce(environmentSchema, import.meta.env)
+export const env = assertScalarAppEnv(import.meta.env)

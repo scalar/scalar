@@ -3,6 +3,8 @@
   "include": [
     "entrypoints/electron/shims.d.ts",
     "electron.vite.config.*",
+    "assert-scalar-app-env.ts",
+    "assert-scalar-app-env-plugin.ts",
     "monaco-vite-plugin-options.ts",
     "vite.config.ts",
     "entrypoints/electron/main/**/*",
