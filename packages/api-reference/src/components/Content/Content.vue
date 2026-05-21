@@ -3,9 +3,11 @@ import { generateClientOptions } from '@scalar/api-client/blocks/operation-code-
 import { mapHiddenClientsConfig } from '@scalar/api-client/modal'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
+import type { AsyncApiOperationObject } from '@scalar/types/asyncapi/3.1'
 import type { Heading } from '@scalar/types/legacy'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   getSelectedServer,
   getServers,
@@ -28,6 +30,7 @@ import { ClientSelector } from '@/blocks/scalar-client-selector-block'
 import { InfoBlock } from '@/blocks/scalar-info-block'
 import { IntroductionCardItem } from '@/blocks/scalar-info-block/'
 import { ServerSelector } from '@/blocks/scalar-server-selector-block'
+import { OperationSection } from '@/components/Content/AsyncApi'
 import { Auth } from '@/components/Content/Auth'
 import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
 import { RenderPlugins } from '@/components/RenderPlugins'
@@ -102,6 +105,24 @@ const specificationVersion = computed(() => {
   }
   return openApiDocument.value?.['x-original-oas-version']
 })
+
+/**
+ * Narrow to an AsyncAPI document. AsyncAPI operations render as their own
+ * content sections; the rest of the content area stays OpenAPI-only for now.
+ */
+const asyncApiDocument = computed(() =>
+  isAsyncApiDocument(document) ? document : undefined,
+)
+
+/** AsyncAPI operations, resolved and ready to render as content sections */
+const asyncApiOperations = computed(() =>
+  Object.entries(asyncApiDocument.value?.operations ?? {}).map(
+    ([id, operation]) => ({
+      id,
+      operation: getResolvedRef(operation) as AsyncApiOperationObject,
+    }),
+  ),
+)
 
 /** Computed property to get all OpenAPI extension fields from the root document object */
 const documentExtensions = computed(() => getXKeysFromObject(document))
@@ -225,6 +246,16 @@ onMounted(() => {
       :selectedClient="xScalarDefaultClient"
       :selectedServer>
     </TraversedEntry>
+
+    <!-- Render AsyncAPI operations as content sections -->
+    <template v-if="asyncApiDocument">
+      <OperationSection
+        v-for="{ id, operation } in asyncApiOperations"
+        :key="id"
+        :eventBus
+        :operation
+        :operationId="id" />
+    </template>
 
     <!-- Render plugins at content.end view -->
     <RenderPlugins
