@@ -1,158 +1,40 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-const { sandboxContextMock, createContextMock } = vi.hoisted(() => {
-  const sandboxContext = {
-    on: vi.fn(),
-    off: vi.fn(),
-    execute: vi.fn(),
-    dispose: vi.fn(),
-  }
+import { toPostmanResponse } from './sandbox-adapter'
 
-  return {
-    sandboxContextMock: sandboxContext,
-    createContextMock: vi.fn((callback: (error: unknown, context: typeof sandboxContext) => void) =>
-      callback(null, sandboxContext),
-    ),
-  }
-})
-
-vi.mock('postman-sandbox', () => ({
-  default: {
-    createContext: createContextMock,
-  },
-}))
-
-import { executeInPostmanSandbox } from './sandbox-adapter'
-
-describe('postman-sandbox-adapter', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('passes response headers as Postman header objects', async () => {
-    sandboxContextMock.execute.mockImplementation((_target, _options, callback) => callback(undefined))
-
+describe('sandbox-adapter', () => {
+  it('serializes a Response into a Postman response definition with header objects', async () => {
     const response = new Response('{"ok":true}', {
-      status: 200,
+      status: 201,
+      statusText: 'Created',
       headers: {
         'content-type': 'application/json',
         'x-request-id': 'req-123',
       },
     })
 
-    await executeInPostmanSandbox({
-      script: 'pm.test("noop", () => {})',
-      type: 'post-response',
-      context: {
-        response,
-        scriptConsole: {
-          log: vi.fn(),
-          error: vi.fn(),
-          warn: vi.fn(),
-          info: vi.fn(),
-          debug: vi.fn(),
-          trace: vi.fn(),
-          table: vi.fn(),
-        },
-      },
-    })
+    const result = await toPostmanResponse(response)
 
-    expect(sandboxContextMock.execute).toHaveBeenCalledWith(
-      expect.objectContaining({ listen: 'test' }),
-      expect.objectContaining({
-        context: expect.objectContaining({
-          response: expect.objectContaining({
-            header: expect.arrayContaining([
-              expect.objectContaining({ key: 'content-type', value: 'application/json' }),
-              expect.objectContaining({ key: 'x-request-id', value: 'req-123' }),
-            ]),
-          }),
-        }),
-      }),
-      expect.any(Function),
+    expect(result.code).toBe(201)
+    expect(result.status).toBe('Created')
+    expect(result.header).toEqual(
+      expect.arrayContaining([
+        { key: 'content-type', value: 'application/json' },
+        { key: 'x-request-id', value: 'req-123' },
+      ]),
     )
+    expect(result.stream).toEqual({ type: 'Buffer', data: Array.from(new TextEncoder().encode('{"ok":true}')) })
   })
 
-  it('uses prerequest listener for pre-request scripts and test listener for post-response', async () => {
-    sandboxContextMock.execute.mockImplementation((_target, _options, callback) => callback(undefined))
-
-    await executeInPostmanSandbox({
-      script: 'pm.globals.set("a", "1")',
-      type: 'pre-request',
-      context: {
-        scriptConsole: {
-          log: vi.fn(),
-          error: vi.fn(),
-          warn: vi.fn(),
-          info: vi.fn(),
-          debug: vi.fn(),
-          trace: vi.fn(),
-          table: vi.fn(),
-        },
-      },
-    })
-
-    expect(sandboxContextMock.execute).toHaveBeenCalledWith(
-      expect.objectContaining({ listen: 'prerequest' }),
-      expect.any(Object),
-      expect.any(Function),
-    )
-
-    vi.clearAllMocks()
-    sandboxContextMock.execute.mockImplementation((_target, _options, callback) => callback(undefined))
-
-    await executeInPostmanSandbox({
-      script: 'pm.test("noop", () => {})',
-      type: 'post-response',
-      context: {
-        response: new Response('{}', { status: 200 }),
-        scriptConsole: {
-          log: vi.fn(),
-          error: vi.fn(),
-          warn: vi.fn(),
-          info: vi.fn(),
-          debug: vi.fn(),
-          trace: vi.fn(),
-          table: vi.fn(),
-        },
-      },
-    })
-
-    expect(sandboxContextMock.execute).toHaveBeenCalledWith(
-      expect.objectContaining({ listen: 'test' }),
-      expect.any(Object),
-      expect.any(Function),
-    )
+  it('falls back to the numeric status when statusText is empty', async () => {
+    const result = await toPostmanResponse(new Response(null, { status: 204 }))
+    expect(result.status).toBe('204')
   })
 
-  it('cleans up sandbox listeners and context when response conversion fails', async () => {
+  it('rejects when the response body cannot be read', async () => {
     const response = new Response('payload', { status: 200 })
     response.text = () => Promise.reject(new Error('Body already used'))
 
-    await expect(
-      executeInPostmanSandbox({
-        script: 'pm.test("noop", () => {})',
-        type: 'post-response',
-        context: {
-          response,
-          scriptConsole: {
-            log: vi.fn(),
-            error: vi.fn(),
-            warn: vi.fn(),
-            info: vi.fn(),
-            debug: vi.fn(),
-            trace: vi.fn(),
-            table: vi.fn(),
-          },
-        },
-      }),
-    ).rejects.toThrow('Body already used')
-
-    expect(sandboxContextMock.on).toHaveBeenCalledWith('execution.assertion', expect.any(Function))
-    expect(sandboxContextMock.on).toHaveBeenCalledWith('console', expect.any(Function))
-    expect(sandboxContextMock.off).toHaveBeenCalledWith('execution.assertion', expect.any(Function))
-    expect(sandboxContextMock.off).toHaveBeenCalledWith('console', expect.any(Function))
-    expect(sandboxContextMock.execute).not.toHaveBeenCalled()
-    expect(sandboxContextMock.dispose).toHaveBeenCalledTimes(1)
+    await expect(toPostmanResponse(response)).rejects.toThrow('Body already used')
   })
 })
