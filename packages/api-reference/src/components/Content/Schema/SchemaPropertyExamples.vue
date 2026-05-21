@@ -41,7 +41,7 @@ const multipleExamplesLabel = computed(() =>
 function unwrapExampleObject(value: unknown): unknown {
   if (value && typeof value === 'object' && !Array.isArray(value)) {
     if ('value' in value) {
-      return (value as { value: unknown }).value
+      return value.value
     }
     if ('externalValue' in value) {
       return (value as { externalValue: unknown }).externalValue
