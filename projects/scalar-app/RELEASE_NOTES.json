@@ -1,5 +1,32 @@
 [
   {
+    "version": "1.1.1",
+    "date": "2026-05-21",
+    "title": "Improved multipart forms and better security",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release brings cleaner multipart form handling, better deep-linking from API Reference, and hardened security across the board."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Nested object properties in multipart forms now expand into individual editable rows and serialize as clean JSON parts",
+          "Opening the client from API Reference now lands you directly on the selected operation",
+          "Response previews are now protected against XSS and referrer leakage",
+          "Pre-request and post-response scripts run in an isolated sandbox, removing unsafe-eval from the main app",
+          "Web client now defaults to proxy.scalar.com while desktop skips the proxy unless you configure one"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#111",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "1.1.0",
     "date": "2026-05-16",
     "title": "Improved sidebar filtering and analytics fixes",

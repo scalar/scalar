@@ -10,6 +10,20 @@
   release - edits made directly here will be overwritten.
 -->
 
+## 1.1.1 (2026-05-21)
+
+### Improved multipart forms and better security
+
+This release brings cleaner multipart form handling, better deep-linking from API Reference, and hardened security across the board.
+
+- Nested object properties in multipart forms now expand into individual editable rows and serialize as clean JSON parts
+- Opening the client from API Reference now lands you directly on the selected operation
+- Response previews are now protected against XSS and referrer leakage
+- Pre-request and post-response scripts run in an isolated sandbox, removing unsafe-eval from the main app
+- Web client now defaults to proxy.scalar.com while desktop skips the proxy unless you configure one
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#111)
+
 ## 1.1.0 (2026-05-16)
 
 ### Improved sidebar filtering and analytics fixes
