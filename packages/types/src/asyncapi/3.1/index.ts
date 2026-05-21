@@ -1,1 +1,1 @@
-export type { AsyncApiDocument } from './index.generated'
+export type { AsyncApiDocument, AsyncApiInfoObject, AsyncApiLicenseObject } from './index.generated'

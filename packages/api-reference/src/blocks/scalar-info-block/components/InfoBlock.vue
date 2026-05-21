@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type { AsyncApiInfoObject } from '@scalar/types/asyncapi/3.1'
 import type { Heading } from '@scalar/types/legacy'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
@@ -26,7 +27,7 @@ const {
   /** Original specification version of the input document (OpenAPI or AsyncAPI). */
   specificationVersion?: string
   /** The Info object from the OpenAPI document. */
-  info: InfoObject | undefined
+  info: InfoObject | AsyncApiInfoObject | undefined
   /** The external documentation object from the OpenAPI document, if present. */
   externalDocs?: ExternalDocumentationObject
   /** OpenAPI extension fields at the document level. */

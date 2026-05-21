@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { AsyncApiInfoObject } from '@scalar/types/asyncapi/3.1'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   ExternalDocumentationObject,
   InfoObject,
@@ -9,7 +11,7 @@ import { ExternalDocs } from '@/features/external-docs'
 import { Contact, License, TermsOfService } from '@/features/info-object'
 
 defineProps<{
-  info: InfoObject
+  info: InfoObject | AsyncApiInfoObject
   externalDocs?: ExternalDocumentationObject
 }>()
 </script>
@@ -22,7 +24,7 @@ defineProps<{
       :value="info.contact" />
     <License
       v-if="info.license"
-      :value="info.license" />
+      :value="getResolvedRef(info.license)" />
     <TermsOfService
       v-if="info.termsOfService"
       :value="info.termsOfService" />

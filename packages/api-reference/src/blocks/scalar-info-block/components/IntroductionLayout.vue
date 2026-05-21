@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { AsyncApiInfoObject } from '@scalar/types/asyncapi/3.1'
 import type { Heading } from '@scalar/types/legacy'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
@@ -26,7 +27,7 @@ defineProps<{
   id: string | undefined
   documentType?: 'openapi' | 'asyncapi'
   specificationVersion: string | undefined
-  info: InfoObject | undefined
+  info: InfoObject | AsyncApiInfoObject | undefined
   externalDocs?: ExternalDocumentationObject
   documentExtensions?: Record<string, unknown>
   infoExtensions?: Record<string, unknown>
