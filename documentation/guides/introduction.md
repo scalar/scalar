@@ -17,9 +17,9 @@
       <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/JXS6tZ4EbKIkeGpjP6QKc.svg"></scalar-icon>
     </div>
     <div class="draggable sticker-6">
-      <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/sjRzU-qEfO5Y89jmLMyaF.svg"></scalar-icon>
+      <scalar-icon src="https://cdn.scalar.com/marketing/landing/sticker-6.svg"></scalar-icon>
     </div>
-    <div class="draggable sticker-7">
+    <div class="draggable sticker-7">s
       <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/-dJduqbPTJP5xwDRhB5VS.svg"></scalar-icon>
     </div>
   </div>
