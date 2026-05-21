@@ -1,6 +1,6 @@
 import { object, optional, string } from '@scalar/validation'
 
-export const openApiContactObject = object(
+export const contact = object(
   {
     name: optional(string({ typeComment: 'The name of the contact.' })),
     url: optional(string({ typeComment: 'The URI for the contact information. This MUST be in the form of a URI.' })),

@@ -1,8 +1,8 @@
 import { object, optional, record, string } from '@scalar/validation'
 
-import { openApiServerVariableObject } from './server-variable'
+import { serverVariable } from '@/openapi/3.1/server-variable'
 
-export const openApiServerObject = object(
+export const server = object(
   {
     url: string({
       typeComment:
@@ -15,7 +15,7 @@ export const openApiServerObject = object(
       }),
     ),
     variables: optional(
-      record(string(), openApiServerVariableObject, {
+      record(string(), serverVariable, {
         typeComment: `A map between a variable name and its value. The value is used for substitution in the server's URL template.`,
       }),
     ),

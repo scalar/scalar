@@ -1,6 +1,6 @@
 import { boolean, object, optional, string } from '@scalar/validation'
 
-export const openApiXmlObject = object(
+export const xml = object(
   {
     name: optional(
       string({

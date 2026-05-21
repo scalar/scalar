@@ -3,10 +3,9 @@ import { intersection, object, optional, string } from '@scalar/validation'
 import { XInternal, XScalarIgnore } from '@/extensions/document'
 import { XScalarOrder } from '@/extensions/general'
 import { XDisplayName } from '@/extensions/tag'
+import { externalDocs } from '@/openapi/3.1/external-docs'
 
-import { openApiExternalDocumentationObject } from './external-documentation'
-
-export const openApiTagObject = intersection(
+export const tag = intersection(
   [
     object({
       name: string({ typeComment: 'REQUIRED. The name of the tag.' }),
@@ -15,7 +14,7 @@ export const openApiTagObject = intersection(
           typeComment: 'A description for the tag. CommonMark syntax MAY be used for rich text representation.',
         }),
       ),
-      externalDocs: optional(openApiExternalDocumentationObject),
+      externalDocs: optional(externalDocs),
     }),
     XDisplayName,
     XInternal,

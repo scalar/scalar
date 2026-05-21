@@ -1,6 +1,6 @@
 import { object, optional, record, string } from '@scalar/validation'
 
-export const openApiDiscriminatorObject = object(
+export const discriminatorObject = object(
   {
     propertyName: string({
       typeComment:

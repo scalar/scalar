@@ -1,6 +1,6 @@
 import { array, object, optional, string } from '@scalar/validation'
 
-export const openApiServerVariableObject = object(
+export const serverVariable = object(
   {
     enum: optional(
       array(string(), {

@@ -1,6 +1,6 @@
 import { object, optional, string } from '@scalar/validation'
 
-export const openApiLicenseObject = object(
+export const license = object(
   {
     name: optional(string({ typeComment: 'REQUIRED. The license name used for the API.' })),
     identifier: optional(

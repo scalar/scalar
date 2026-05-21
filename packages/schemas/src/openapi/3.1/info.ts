@@ -1,11 +1,10 @@
 import { intersection, object, optional, string } from '@scalar/validation'
 
 import { XScalarSdkInstallation } from '@/extensions/document'
+import { contact } from '@/openapi/3.1/contact'
+import { license } from '@/openapi/3.1/license'
 
-import { openApiContactObject } from './contact'
-import { openApiLicenseObject } from './license'
-
-export const openApiInfoObject = intersection(
+export const info = intersection(
   [
     object({
       title: string({ typeComment: 'REQUIRED. The title of the API.' }),
@@ -22,8 +21,8 @@ export const openApiInfoObject = intersection(
       termsOfService: optional(
         string({ typeComment: 'A URI for the Terms of Service for the API. This MUST be in the form of a URI.' }),
       ),
-      contact: optional(openApiContactObject),
-      license: optional(openApiLicenseObject),
+      contact: optional(contact),
+      license: optional(license),
     }),
     XScalarSdkInstallation,
   ],

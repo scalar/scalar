@@ -2,7 +2,7 @@ import { any, intersection, object, optional, string } from '@scalar/validation'
 
 import { XDisabled } from '@/extensions/example'
 
-export const openApiExampleObject = intersection(
+export const example = intersection(
   [
     object({
       summary: optional(string({ typeComment: 'Short description for the example.' })),

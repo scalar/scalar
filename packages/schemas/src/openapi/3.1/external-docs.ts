@@ -1,6 +1,6 @@
 import { object, optional, string } from '@scalar/validation'
 
-export const openApiExternalDocumentationObject = object(
+export const externalDocs = object(
   {
     url: string({
       typeComment: 'REQUIRED. The URI for the target documentation. This MUST be in the form of a URI.',
