@@ -125,6 +125,7 @@ describe('OpenIDConnect', () => {
     expect(mockFetchOpenIDConnectDiscovery).toHaveBeenCalledWith(
       'https://issuer.example.com',
       'https://proxy.example.com',
+      undefined,
     )
     expect(mockOpenIDDiscoveryToFlows).toHaveBeenCalledWith(discovery)
     expect(emitted).toHaveBeenCalledTimes(1)

@@ -540,6 +540,7 @@ onBeforeUnmount(() => {
         <RequestBlock
           :authMeta
           :clientOptions
+          :customFetch="toValue(options)?.customFetch"
           :defaultHeaders
           :documentCookies
           :environment

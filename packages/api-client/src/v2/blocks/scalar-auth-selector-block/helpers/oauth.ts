@@ -8,6 +8,8 @@ import { getServerVariables } from '@scalar/workspace-store/request-example'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { encode, fromUint8Array } from 'js-base64'
 
+import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
+
 import { getOAuthCallbackData } from './oauth-callback'
 
 /** Oauth2 security schemes which are not implicit */
@@ -131,6 +133,11 @@ export const authorizeOauth2 = async (
   proxyUrl: string,
   /** Flattened environment variables used to resolve server URL templates like `{protocol}` */
   environmentVariables: Record<string, string> = {},
+  /**
+   * Fetch implementation used for the token request. Falls back to the global `fetch`, but the
+   * desktop app passes an IPC-backed fetch so token exchanges leave the renderer's network stack.
+   */
+  customFetch?: CustomFetch,
 ): Promise<ErrorResponse<OAuth2Tokens>> => {
   const flow = flows[type]
 
@@ -149,6 +156,7 @@ export const authorizeOauth2 = async (
         scopes,
         {
           proxyUrl,
+          customFetch,
         },
         activeServer,
         environmentVariables,
@@ -270,6 +278,7 @@ export const authorizeOauth2 = async (
                     code,
                     pkce,
                     proxyUrl,
+                    customFetch,
                   },
                   activeServer,
                   environmentVariables,
@@ -311,10 +320,12 @@ const authorizeServers = async (
     code,
     pkce,
     proxyUrl,
+    customFetch,
   }: {
     code?: string
     pkce?: PKCEState | null
     proxyUrl?: string
+    customFetch?: CustomFetch
   } = {},
   activeServer: ServerObject | null,
   environmentVariables: Record<string, string> = {},
@@ -403,7 +414,7 @@ const authorizeServers = async (
       : tokenUrl
 
     // Make the call
-    const resp = await fetch(url, {
+    const resp = await (customFetch ?? fetch)(url, {
       method: 'POST',
       headers,
       body: formData,
@@ -445,6 +456,11 @@ export const refreshOauth2Token = async (
   activeServer: ServerObject | null,
   /** Flattened environment variables used to resolve server URL templates */
   environmentVariables: Record<string, string> = {},
+  /**
+   * Fetch implementation used for the refresh request. Falls back to the global `fetch`, but the
+   * desktop app passes an IPC-backed fetch so token refreshes leave the renderer's network stack.
+   */
+  customFetch?: CustomFetch,
 ): Promise<ErrorResponse<OAuth2Tokens>> => {
   const flow = flows[type]
 
@@ -500,7 +516,7 @@ export const refreshOauth2Token = async (
       ? `${proxyUrl}?${new URLSearchParams([['scalar_url', absoluteRefreshUrl]]).toString()}`
       : absoluteRefreshUrl
 
-    const resp = await fetch(url, {
+    const resp = await (customFetch ?? fetch)(url, {
       method: 'POST',
       headers,
       body: formData,
