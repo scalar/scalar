@@ -1,5 +1,21 @@
 [
   {
+    "version": "1.1.2",
+    "date": "2026-05-21",
+    "title": "Logout now works correctly in the desktop app",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "We fixed a navigation issue that caused the Electron desktop app to break when logging out, and improved how environment variables are loaded across different build targets."
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#112",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "1.1.1",
     "date": "2026-05-21",
     "title": "Improved multipart forms and better security",
