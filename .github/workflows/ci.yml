@@ -770,8 +770,7 @@ jobs:
         run: npx @scalar/cli@latest registry publish --namespace scalar --slug galaxy --version ${{ steps.package-version.outputs.VERSION }} packages/galaxy/dist/latest.yaml
       - if: steps.changed-files.outputs.galaxy_any_changed == 'true'
         name: Push AsyncAPI Example to Scalar Registry
-        # We're uploading it as a schema, because for documents do not support AsyncAPI yet.
-        run: npx @scalar/cli@latest schema publish --namespace scalar --slug asyncapi --version ${{ steps.package-version.outputs.VERSION }} packages/galaxy/dist/asyncapi/latest.yaml
+        run: npx @scalar/cli@latest registry publish --namespace scalar --slug asyncapi --version ${{ steps.package-version.outputs.VERSION }} packages/galaxy/dist/asyncapi/latest.yaml
 
   deploy-examples:
     # Run only for PRs from the same repository
