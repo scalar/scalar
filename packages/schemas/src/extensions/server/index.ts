@@ -3,4 +3,5 @@
  *
  * Applied on OpenAPI `servers` entries or document-level server selection state.
  */
+export { XScalarSelectedAsyncapiServer } from './x-scalar-selected-asyncapi-server'
 export { XScalarSelectedServer } from './x-scalar-selected-server'
