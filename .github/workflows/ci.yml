@@ -1684,6 +1684,7 @@ jobs:
   rust-publish:
     if: needs.npm-publish.outputs.published == 'true' && needs.check-changes.outputs.rust_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-crates
     timeout-minutes: 10
     concurrency:
       group: rust-publish
