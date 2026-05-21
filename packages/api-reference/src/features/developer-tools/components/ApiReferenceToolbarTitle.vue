@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ScalarIconButton } from '@scalar/components'
+import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarIconCopy, ScalarIconInfo } from '@scalar/icons'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 

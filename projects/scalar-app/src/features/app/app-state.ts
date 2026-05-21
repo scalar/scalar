@@ -1,5 +1,5 @@
 import type { ClientLayout } from '@scalar/api-client/types'
-import type { ScalarListboxOption } from '@scalar/components'
+import type { ScalarListboxOption } from '@scalar/components/listbox'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'

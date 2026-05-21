@@ -8,7 +8,7 @@ import {
   ScalarMenuSupport,
   ScalarMenuWorkspacePicker,
   type WorkspaceGroup,
-} from '@scalar/components'
+} from '@scalar/components/menu'
 import { ScalarIconGear } from '@scalar/icons'
 
 const { activeWorkspace, workspaces } = defineProps<{

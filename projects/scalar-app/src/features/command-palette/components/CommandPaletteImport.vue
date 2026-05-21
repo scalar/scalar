@@ -19,13 +19,11 @@ import {
   CommandActionInput,
 } from '@scalar/api-client/features/command-palette'
 import { useFileDialog } from '@scalar/api-client/hooks/use-file-dialog'
-import {
-  ScalarButton,
-  ScalarCodeBlock,
-  ScalarIcon,
-  ScalarTooltip,
-  useLoadingState,
-} from '@scalar/components'
+import { ScalarButton } from '@scalar/components/button'
+import { ScalarCodeBlock } from '@scalar/components/code-block'
+import { ScalarIcon } from '@scalar/components/icon'
+import { useLoadingState } from '@scalar/components/loading'
+import { ScalarTooltip } from '@scalar/components/tooltip'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { isPostmanCollection } from '@scalar/postman-to-openapi'

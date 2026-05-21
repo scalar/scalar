@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarModal, type ModalState } from '@scalar/components'
+import { ScalarModal, type ModalState } from '@scalar/components/modal'
 import type {
   CollectionType,
   WorkspaceEventBus,

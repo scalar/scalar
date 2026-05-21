@@ -3,8 +3,8 @@ import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import {
   ScalarFloating,
   ScalarFloatingBackdrop,
-  ScalarIcon,
-} from '@scalar/components'
+} from '@scalar/components/floating'
+import { ScalarIcon } from '@scalar/components/icon'
 import { formatMilliseconds } from '@scalar/helpers/formatters/format-milliseconds'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'

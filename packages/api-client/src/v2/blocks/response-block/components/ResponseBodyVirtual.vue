@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarVirtualText } from '@scalar/components'
+import { ScalarVirtualText } from '@scalar/components/virtual-text'
 import { formatJsonOrYamlString } from '@scalar/oas-utils/helpers'
 import { computed } from 'vue'
 

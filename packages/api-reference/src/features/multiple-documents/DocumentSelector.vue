@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarListbox } from '@scalar/components'
+import { ScalarListbox } from '@scalar/components/listbox'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { computed } from 'vue'
 

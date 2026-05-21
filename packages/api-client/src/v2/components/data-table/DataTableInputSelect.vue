@@ -1,12 +1,12 @@
 <script setup lang="ts">
+import { ScalarButton } from '@scalar/components/button'
+import { ScalarComboboxMultiselect } from '@scalar/components/combobox'
 import {
-  ScalarButton,
-  ScalarComboboxMultiselect,
   ScalarDropdown,
   ScalarDropdownDivider,
   ScalarDropdownItem,
-  ScalarIcon,
-} from '@scalar/components'
+} from '@scalar/components/dropdown'
+import { ScalarIcon } from '@scalar/components/icon'
 import { computed, nextTick, ref, watch } from 'vue'
 
 import type { CodeInputModelValue } from '@/v2/components/code-input/CodeInput.vue'

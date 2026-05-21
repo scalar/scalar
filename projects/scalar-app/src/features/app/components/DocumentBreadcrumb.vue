@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import {
   ScalarCombobox,
-  useModal,
   type ScalarComboboxOption,
   type ScalarComboboxOptionGroup,
-  type WorkspaceGroup,
-} from '@scalar/components'
+} from '@scalar/components/combobox'
+import { type WorkspaceGroup } from '@scalar/components/menu'
+import { useModal } from '@scalar/components/modal'
 import { safeRun } from '@scalar/helpers/types/safe-run'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { useToasts } from '@scalar/use-toasts'

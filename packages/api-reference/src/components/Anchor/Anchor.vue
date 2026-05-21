@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ScalarButton, useBindCx } from '@scalar/components'
+import { ScalarButton } from '@scalar/components/button'
 import { ScalarIconHash } from '@scalar/icons'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { useId } from 'vue'
 
 import ScreenReader from '../ScreenReader.vue'

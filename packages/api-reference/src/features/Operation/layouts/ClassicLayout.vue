@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { OperationCodeSample } from '@scalar/api-client/blocks/operation-code-sample'
-import {
-  ScalarErrorBoundary,
-  ScalarIconButton,
-  ScalarMarkdown,
-} from '@scalar/components'
+import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
+import { ScalarIconButton } from '@scalar/components/icon-button'
+import { ScalarMarkdown } from '@scalar/components/markdown'
 import {
   ScalarIconCopy,
   ScalarIconPlay,

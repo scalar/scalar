@@ -17,11 +17,11 @@ import {
   type ApiClientModal,
 } from '@scalar/api-client/modal'
 import {
-  addScalarClassesToHeadless,
   ScalarColorModeToggleButton,
   ScalarColorModeToggleIcon,
-  ScalarSidebarFooter,
-} from '@scalar/components'
+} from '@scalar/components/color-mode-toggle'
+import { addScalarClassesToHeadless } from '@scalar/components/helpers'
+import { ScalarSidebarFooter } from '@scalar/components/sidebar'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
 import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import {

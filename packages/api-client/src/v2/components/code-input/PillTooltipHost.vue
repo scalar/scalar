@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTooltip } from '@scalar/components'
+import { useTooltip } from '@scalar/components/tooltip'
 import { computed, h, ref, render } from 'vue'
 
 import type { PillContext } from './pill-context'

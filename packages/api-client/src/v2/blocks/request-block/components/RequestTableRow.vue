@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon, ScalarIconButton } from '@scalar/components'
+import { ScalarButton } from '@scalar/components/button'
+import { ScalarIcon } from '@scalar/components/icon'
+import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarIconGlobe, ScalarIconTrash } from '@scalar/icons'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'

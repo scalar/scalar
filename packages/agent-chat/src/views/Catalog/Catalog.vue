@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import {
-  ScalarIcon,
-  ScalarModal,
-  ScalarSearchInput,
-  type ModalState,
-} from '@scalar/components'
+import { ScalarIcon } from '@scalar/components/icon'
+import { ScalarModal, type ModalState } from '@scalar/components/modal'
+import { ScalarSearchInput } from '@scalar/components/search-input'
 import { computed } from 'vue'
 
 import { useSearch } from '@/hooks/use-search'

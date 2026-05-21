@@ -5,7 +5,7 @@ import {
   DataTableRow,
 } from '@scalar/api-client/components/data-table'
 import { ViewLayoutSection } from '@scalar/api-client/components/ViewLayout'
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIcon } from '@scalar/components/icon'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { useId } from 'vue'
 

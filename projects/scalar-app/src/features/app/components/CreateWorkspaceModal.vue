@@ -3,7 +3,7 @@ import {
   CommandActionForm,
   CommandActionInput,
 } from '@scalar/api-client/features/command-palette'
-import { ScalarModal, type ModalState } from '@scalar/components'
+import { ScalarModal, type ModalState } from '@scalar/components/modal'
 import { computed, ref, watch, type ComputedRef, type Ref } from 'vue'
 
 const { state } = defineProps<{

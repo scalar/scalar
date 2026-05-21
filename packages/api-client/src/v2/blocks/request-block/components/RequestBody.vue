@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import { ScalarButton } from '@scalar/components/button'
+import { ScalarIcon } from '@scalar/components/icon'
+import { ScalarListbox } from '@scalar/components/listbox'
 import { CONTENT_TYPES } from '@scalar/helpers/http/content-types'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { objectEntries } from '@scalar/helpers/object/object-entries'

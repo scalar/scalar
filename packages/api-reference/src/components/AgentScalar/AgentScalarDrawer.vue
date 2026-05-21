@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIconButton } from '@scalar/components'
+import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarIconX } from '@scalar/icons'
 import type {
   ApiReferenceConfigurationWithSource,

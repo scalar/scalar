@@ -1,10 +1,8 @@
 <script lang="ts" setup>
-import {
-  ScalarCombobox,
-  ScalarFormInput,
-  ScalarListboxCheckbox,
-  ScalarThemeSwatches,
-} from '@scalar/components'
+import { ScalarCombobox } from '@scalar/components/combobox'
+import { ScalarFormInput } from '@scalar/components/form'
+import { ScalarListboxCheckbox } from '@scalar/components/listbox'
+import { ScalarThemeSwatches } from '@scalar/components/theme-swatches'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { presets, themeIds, themeLabels, type ThemeId } from '@scalar/themes'
 import { computed } from 'vue'

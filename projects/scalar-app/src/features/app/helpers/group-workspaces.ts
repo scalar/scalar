@@ -1,4 +1,5 @@
-import type { ScalarListboxOption, WorkspaceGroup } from '@scalar/components'
+import type { ScalarListboxOption } from '@scalar/components/listbox'
+import type { WorkspaceGroup } from '@scalar/components/menu'
 
 import { getPlaceholderWorkspaceId } from './placeholder-workspace-id'
 

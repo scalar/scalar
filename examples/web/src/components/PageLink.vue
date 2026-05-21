@@ -3,7 +3,7 @@ import {
   ScalarCard,
   ScalarCardHeader,
   ScalarCardSection,
-} from '@scalar/components'
+} from '@scalar/components/card'
 import { RouterLink } from 'vue-router'
 
 defineProps<{

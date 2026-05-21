@@ -1,4 +1,4 @@
-import type { ScalarComboboxOption, ScalarComboboxOptionGroup } from '@scalar/components'
+import type { ScalarComboboxOption, ScalarComboboxOptionGroup } from '@scalar/components/combobox'
 import type { AvailableClients, ClientId, TargetId } from '@scalar/snippetz'
 
 /**

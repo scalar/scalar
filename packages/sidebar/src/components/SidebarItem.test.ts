@@ -4,7 +4,7 @@ import {
   ScalarSidebarItem,
   ScalarSidebarItem as ScalarSidebarItemComponent,
   ScalarSidebarSection,
-} from '@scalar/components'
+} from '@scalar/components/sidebar'
 import { LibraryIcon } from '@scalar/icons/library'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'

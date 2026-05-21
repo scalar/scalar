@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIcon } from '@scalar/components/icon'
 import { computed } from 'vue'
 
 import { getMediaTypeConfig } from '@/v2/blocks/response-block/helpers/media-types'

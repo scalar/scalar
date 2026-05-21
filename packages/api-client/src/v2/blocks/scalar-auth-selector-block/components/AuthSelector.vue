@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import {
   ScalarButton,
-  ScalarComboboxMultiselect,
-  ScalarIconButton,
-  ScalarListboxCheckbox,
-  useModal,
-  type Icon,
   type ScalarButton as ScalarButtonType,
-} from '@scalar/components'
+} from '@scalar/components/button'
+import { ScalarComboboxMultiselect } from '@scalar/components/combobox'
+import type { Icon } from '@scalar/components/icon'
+import { ScalarIconButton } from '@scalar/components/icon-button'
+import { ScalarListboxCheckbox } from '@scalar/components/listbox'
+import { useModal } from '@scalar/components/modal'
 import { ScalarIconCaretDown, ScalarIconTrash } from '@scalar/icons'
 import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
 import type {

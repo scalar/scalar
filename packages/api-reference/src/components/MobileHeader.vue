@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { cva, ScalarIconButton } from '@scalar/components'
+import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarIconList, ScalarIconX } from '@scalar/icons'
+import { cva } from '@scalar/use-hooks/useBindCx'
 
 defineProps<{
   breadcrumb: string

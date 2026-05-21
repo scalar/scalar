@@ -62,6 +62,18 @@ export default tslint.config(
       'no-return-assign': 'warn',
       'radix': ['warn'],
       'no-duplicate-imports': 'warn',
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@scalar/components',
+              message:
+                'Import from a component subpath (e.g. @scalar/components/button) instead of the package barrel.',
+            },
+          ],
+        },
+      ],
       'vue/no-undef-components': [
         'warn',
         {

@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import {
-  ScalarIconButton,
-  ScalarLoading,
-  ScalarTooltip,
-} from '@scalar/components'
+import { ScalarIconButton } from '@scalar/components/icon-button'
+import { ScalarLoading } from '@scalar/components/loading'
+import { ScalarTooltip } from '@scalar/components/tooltip'
 import {
   ScalarIconArrowUp,
   ScalarIconCheck,

@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import {
-  ScalarModal,
-  ScalarSearchInput,
-  ScalarSearchResultList,
-  type ModalState,
-} from '@scalar/components'
+import { ScalarModal, type ModalState } from '@scalar/components/modal'
+import { ScalarSearchInput } from '@scalar/components/search-input'
+import { ScalarSearchResultList } from '@scalar/components/search-results'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { nanoid } from 'nanoid'

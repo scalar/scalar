@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIcon } from '@scalar/components/icon'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 
 import { formatValue } from './helpers/format-value'

@@ -43,7 +43,7 @@ import {
   CommandActionForm,
   CommandActionInput,
 } from '@scalar/api-client/features/command-palette'
-import { ScalarButton } from '@scalar/components'
+import { ScalarButton } from '@scalar/components/button'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'

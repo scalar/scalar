@@ -24,12 +24,9 @@ export default {}
 </script>
 
 <script setup lang="ts">
-import {
-  ScalarButton,
-  ScalarModal,
-  useLoadingState,
-  type ModalState,
-} from '@scalar/components'
+import { ScalarButton } from '@scalar/components/button'
+import { useLoadingState } from '@scalar/components/loading'
+import { ScalarModal, type ModalState } from '@scalar/components/modal'
 import {
   ScalarIconCheck,
   ScalarIconCheckCircle,

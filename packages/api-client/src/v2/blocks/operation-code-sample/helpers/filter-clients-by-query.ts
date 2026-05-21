@@ -1,4 +1,4 @@
-import type { ScalarComboboxFilterFunction } from '@scalar/components'
+import type { ScalarComboboxFilterFunction } from '@scalar/components/combobox'
 
 import type { CustomClientOptionGroup, CustomOrDefaultClientOption } from '@/v2/blocks/operation-code-sample/types'
 

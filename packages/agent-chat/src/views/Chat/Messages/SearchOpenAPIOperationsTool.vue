@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarPopover } from '@scalar/components'
+import { ScalarPopover } from '@scalar/components/popover'
 import { type ToolUIPart, type UIMessage } from 'ai'
 import { computed, ref, watch, type Reactive, type Ref } from 'vue'
 

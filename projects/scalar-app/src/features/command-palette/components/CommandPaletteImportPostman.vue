@@ -12,7 +12,7 @@ export default {
 
 <script setup lang="ts">
 import { CommandActionForm } from '@scalar/api-client/features/command-palette'
-import { useLoadingState } from '@scalar/components'
+import { useLoadingState } from '@scalar/components/loading'
 import type { ConvertOptions } from '@scalar/postman-to-openapi'
 import { useToasts } from '@scalar/use-toasts'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'

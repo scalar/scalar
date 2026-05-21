@@ -3,7 +3,7 @@ import {
   ScalarMenuLink,
   ScalarMenuWorkspacePicker,
   type WorkspaceGroup,
-} from '@scalar/components'
+} from '@scalar/components/menu'
 import {
   ScalarIconGear,
   ScalarIconSignIn,

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarLoading, useLoadingState } from '@scalar/components'
+import { ScalarLoading, useLoadingState } from '@scalar/components/loading'
 import { ScalarIconCheck, ScalarIconXCircle } from '@scalar/icons'
 import { computed } from 'vue'
 

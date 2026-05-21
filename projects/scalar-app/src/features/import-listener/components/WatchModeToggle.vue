@@ -19,7 +19,8 @@ export default {}
 </script>
 
 <script setup lang="ts">
-import { ScalarIcon, ScalarToggle } from '@scalar/components'
+import { ScalarIcon } from '@scalar/components/icon'
+import { ScalarToggle } from '@scalar/components/toggle'
 
 const { modelValue, disabled = false } = defineProps<{
   /** Whether watch mode is currently enabled */

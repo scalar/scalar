@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ScalarPopover, ScalarTextInput } from '@scalar/components'
+import { ScalarPopover } from '@scalar/components/popover'
+import { ScalarTextInput } from '@scalar/components/text-input'
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
 import { computed } from 'vue'
 

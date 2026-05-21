@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarMarkdownSummary } from '@scalar/components'
+import { ScalarMarkdownSummary } from '@scalar/components/markdown'
 import type {
   SecretsApiKey,
   SecretsHttp,

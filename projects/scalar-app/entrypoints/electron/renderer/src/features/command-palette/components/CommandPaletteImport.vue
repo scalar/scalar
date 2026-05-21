@@ -3,7 +3,7 @@
   instead of a file upload slot
 -->
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components'
+import { ScalarButton } from '@scalar/components/button'
 import { ScalarIconUpload } from '@scalar/icons'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'

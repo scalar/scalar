@@ -248,6 +248,30 @@
                   {
                     "group": ["@scalar/types"],
                     "message": "Import from specific entry points (`/api-reference`, ...)"
+                  },
+                  {
+                    "group": ["@scalar/components"],
+                    "message": "Import from a component subpath (e.g. `@scalar/components/button`) instead of the package barrel."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["projects/**/*.{ts,tsx}", "integrations/**/*.{ts,tsx}", "examples/**/*.{ts,tsx}", "!**/dist/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["@scalar/components"],
+                    "message": "Import from a component subpath (e.g. `@scalar/components/button`) instead of the package barrel."
                   }
                 ]
               }

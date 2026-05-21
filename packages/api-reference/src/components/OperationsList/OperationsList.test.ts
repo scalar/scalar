@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import OperationsList from './OperationsList.vue'
 
 // Mock Scalar components
-vi.mock('@scalar/components', () => ({
+vi.mock('@scalar/components/card', () => ({
   ScalarCard: {
     name: 'ScalarCard',
     template: '<div class="scalar-card"><slot /></div>',

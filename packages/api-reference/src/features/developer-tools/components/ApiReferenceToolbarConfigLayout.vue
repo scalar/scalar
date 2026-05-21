@@ -2,7 +2,7 @@
 import {
   ScalarCheckboxRadioGroup,
   type ScalarCheckboxOption,
-} from '@scalar/components'
+} from '@scalar/components/checkbox-input'
 import { computed } from 'vue'
 
 const ModernOption = { label: 'Modern', value: 'modern' } as const

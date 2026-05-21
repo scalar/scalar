@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import {
-  ScalarButton,
-  ScalarCodeBlock,
-  ScalarCombobox,
-  ScalarErrorBoundary,
-} from '@scalar/components'
+import { ScalarButton } from '@scalar/components/button'
+import { ScalarCodeBlock } from '@scalar/components/code-block'
+import { ScalarCombobox } from '@scalar/components/combobox'
+import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, watch } from 'vue'

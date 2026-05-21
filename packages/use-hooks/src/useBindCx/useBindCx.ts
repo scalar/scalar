@@ -15,7 +15,7 @@ type ClassValue = CXOptions[number]
  *
  * @example
  * <script setup>
- * import { useBindCx, cva } from '@scalar/components'
+ * import { useBindCx, cva } from '@scalar/use-hooks/useBindCx'
  *
  * defineProps<{ active?: boolean }>()
  *

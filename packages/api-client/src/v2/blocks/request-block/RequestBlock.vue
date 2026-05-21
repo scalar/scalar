@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarErrorBoundary } from '@scalar/components'
+import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'

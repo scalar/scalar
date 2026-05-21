@@ -32,7 +32,9 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ScalarButton, useBindCx, type LoadingState } from '@scalar/components'
+import { ScalarButton } from '@scalar/components/button'
+import type { LoadingState } from '@scalar/components/loading'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
 const { loader, disabled = false } = defineProps<{
   /** Loading state from useLoadingState composable to show spinner on submit button */

@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import { ServerVariablesForm } from '@scalar/api-client/components/Server'
 import { DeleteSidebarListElement } from '@scalar/api-client/components/Sidebar'
-import {
-  ScalarButton,
-  ScalarMarkdown,
-  ScalarModal,
-  ScalarToggle,
-  useModal,
-} from '@scalar/components'
+import { ScalarButton } from '@scalar/components/button'
+import { ScalarMarkdown } from '@scalar/components/markdown'
+import { ScalarModal, useModal } from '@scalar/components/modal'
+import { ScalarToggle } from '@scalar/components/toggle'
 import { debounce } from '@scalar/helpers/general/debounce'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { ScalarIconPlus, ScalarIconTrash } from '@scalar/icons'

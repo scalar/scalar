@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components'
+import { ScalarButton } from '@scalar/components/button'
 import { ScalarIconArrowRight } from '@scalar/icons'
 import {
   getActiveEnvironment,

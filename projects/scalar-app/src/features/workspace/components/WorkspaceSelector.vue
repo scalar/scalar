@@ -4,16 +4,16 @@
   and provides functionality to create new workspaces with namespace support.
 -->
 <script setup lang="ts">
+import { ScalarButton } from '@scalar/components/button'
 import {
-  ScalarButton,
   ScalarDropdown,
   ScalarDropdownDivider,
   ScalarDropdownItem,
-  ScalarIcon,
-  useModal,
-  type ScalarListboxOption,
-  type WorkspaceGroup,
-} from '@scalar/components'
+} from '@scalar/components/dropdown'
+import { ScalarIcon } from '@scalar/components/icon'
+import { type ScalarListboxOption } from '@scalar/components/listbox'
+import { type WorkspaceGroup } from '@scalar/components/menu'
+import { useModal } from '@scalar/components/modal'
 
 import { CreateWorkspaceModal } from '@/features/app'
 import { type CreateWorkspacePayload } from '@/features/import-listener/types'

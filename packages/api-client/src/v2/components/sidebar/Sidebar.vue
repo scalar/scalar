@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import {
-  ScalarIconButton,
-  ScalarSidebarSearchInput,
-  type WorkspaceGroup,
-} from '@scalar/components'
+import { ScalarIconButton } from '@scalar/components/icon-button'
+import type { WorkspaceGroup } from '@scalar/components/menu'
+import { ScalarSidebarSearchInput } from '@scalar/components/sidebar'
 import { ScalarIconFileDashed, ScalarIconMagnifyingGlass } from '@scalar/icons'
 import {
   ScalarSidebar,

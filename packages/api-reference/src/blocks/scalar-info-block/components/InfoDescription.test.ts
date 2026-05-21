@@ -1,4 +1,4 @@
-import { ScalarMarkdown } from '@scalar/components'
+import { ScalarMarkdown } from '@scalar/components/markdown'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 

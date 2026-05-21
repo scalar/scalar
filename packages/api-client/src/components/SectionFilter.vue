@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends string">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIcon } from '@scalar/components/icon'
 import { nextTick, ref } from 'vue'
 
 import SectionFilterButton from '@/components/SectionFilterButton.vue'

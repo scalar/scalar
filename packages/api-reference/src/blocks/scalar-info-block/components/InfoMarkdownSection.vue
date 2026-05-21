@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Node } from '@scalar/code-highlight'
-import { ScalarMarkdown } from '@scalar/components'
+import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { useTemplateRef } from 'vue'
 

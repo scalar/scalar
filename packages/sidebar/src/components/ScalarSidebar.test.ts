@@ -1,4 +1,4 @@
-import { ScalarSidebar, ScalarSidebarItems } from '@scalar/components'
+import { ScalarSidebar, ScalarSidebarItems } from '@scalar/components/sidebar'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 

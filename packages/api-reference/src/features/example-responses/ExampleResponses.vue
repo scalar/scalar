@@ -4,9 +4,9 @@ import {
   ScalarCard,
   ScalarCardFooter,
   ScalarCardSection,
-  ScalarIcon,
-  ScalarMarkdown,
-} from '@scalar/components'
+} from '@scalar/components/card'
+import { ScalarIcon } from '@scalar/components/icon'
+import { ScalarMarkdown } from '@scalar/components/markdown'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'

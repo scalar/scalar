@@ -28,12 +28,9 @@ import {
   CommandActionForm,
   CommandActionInput,
 } from '@scalar/api-client/features/command-palette'
-import {
-  ScalarButton,
-  ScalarDropdown,
-  ScalarDropdownItem,
-  ScalarIcon,
-} from '@scalar/components'
+import { ScalarButton } from '@scalar/components/button'
+import { ScalarDropdown, ScalarDropdownItem } from '@scalar/components/dropdown'
+import { ScalarIcon } from '@scalar/components/icon'
 import {
   HTTP_METHODS,
   type HttpMethod,

@@ -111,16 +111,16 @@ export default {}
 </script>
 
 <script setup lang="ts">
+import { ScalarButton } from '@scalar/components/button'
 import {
-  ScalarButton,
   ScalarCard,
   ScalarCardFooter,
   ScalarCardHeader,
   ScalarCardSection,
-  ScalarCodeBlock,
-  ScalarCombobox,
-  ScalarVirtualText,
-} from '@scalar/components'
+} from '@scalar/components/card'
+import { ScalarCodeBlock } from '@scalar/components/code-block'
+import { ScalarCombobox } from '@scalar/components/combobox'
+import { ScalarVirtualText } from '@scalar/components/virtual-text'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretDown } from '@scalar/icons'

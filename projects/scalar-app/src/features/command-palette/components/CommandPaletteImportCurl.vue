@@ -28,12 +28,10 @@ import {
   CommandActionForm,
   CommandActionInput,
 } from '@scalar/api-client/features/command-palette'
-import {
-  ScalarButton,
-  ScalarIcon,
-  ScalarListbox,
-  type ScalarComboboxOption,
-} from '@scalar/components'
+import { ScalarButton } from '@scalar/components/button'
+import { type ScalarComboboxOption } from '@scalar/components/combobox'
+import { ScalarIcon } from '@scalar/components/icon'
+import { ScalarListbox } from '@scalar/components/listbox'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
