@@ -1,5 +1,3 @@
-import { type ScalarAppEnv, assertScalarAppEnv } from '../assert-scalar-app-env'
-
-export type { ScalarAppEnv }
+import { assertScalarAppEnv } from '../assert-scalar-app-env'
 
 export const env = assertScalarAppEnv(import.meta.env)
