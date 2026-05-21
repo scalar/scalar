@@ -2629,9 +2629,9 @@ importers:
 
   projects/galaxy-scalar-com:
     devDependencies:
-      '@hono/node-server':
-        specifier: catalog:*
-        version: 1.19.11(hono@4.12.9)
+      '@scalar/galaxy':
+        specifier: workspace:*
+        version: link:../../packages/galaxy
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../../packages/helpers
@@ -2647,6 +2647,9 @@ importers:
       hono:
         specifier: catalog:*
         version: 4.12.9
+      wrangler:
+        specifier: ^4.84.1
+        version: 4.84.1
 
   projects/proxy-scalar-com:
     devDependencies:

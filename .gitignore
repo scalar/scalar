@@ -4,6 +4,7 @@ dist/
 .env
 .next
 .turbo
+.wrangler/
 *.tgz
 *.tsbuildinfo
 __pycache__/

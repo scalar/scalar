@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "galaxy-scalar-com",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  // The Galaxy OpenAPI document is a .yaml file with no JS loader, so it is
+  // imported as text: `import doc from '@scalar/galaxy/3.1.yaml'`. fallthrough
+  // keeps wrangler's built-in module rules (.txt, .html, .sql) intact.
+  "rules": [{ "type": "Text", "globs": ["**/*.yaml"], "fallthrough": true }],
+  // Serve the Worker on its public domain.
+  "routes": [{ "pattern": "galaxy.scalar.com", "custom_domain": true }],
+  "observability": { "enabled": true }
+}
