@@ -1,30 +1,7 @@
 import { isObject } from '@scalar/helpers/object/is-object'
-import {
-  type Schema,
-  boolean,
-  evaluate,
-  intersection,
-  literal,
-  object,
-  optional,
-  string,
-  union,
-} from '@scalar/validation'
+import { type Schema, evaluate, intersection, object, optional, string, union } from '@scalar/validation'
 
-const referenceExtensions = object(
-  {
-    '$status': optional(union([literal('loading'), literal('error')]), {
-      typeComment: `Indicates the current status of the reference resolution. Can be either 'loading' while fetching the reference or 'error' if the resolution failed.`,
-    }),
-    '$global': optional(
-      boolean({
-        typeComment:
-          'Indicates whether this reference should be resolved globally across all documents, rather than just within the current document context.',
-      }),
-    ),
-  },
-  { typeName: 'ReferenceObjectExtensions' },
-)
+import { referenceExtensions } from '@/general/bundler-extensions'
 
 const reference = object(
   {
@@ -47,7 +24,13 @@ const reference = object(
   },
 )
 
-export const normalRef = (schema: Schema): Schema => union([schema, reference])
+/**
+ * Wraps a JSON Schema so it may also be satisfied by a Reference Object (no resolved `$ref-value`).
+ *
+ * Use for `components.schemas` and schema composition (`allOf`, `properties`, `items`, and similar)
+ * where references follow JSON Schema / OpenAPI schema rules only.
+ */
+export const normalRef = (inner: Schema): Schema => union([inner, reference])
 
 const e = (value: unknown) => {
   if (isObject(value) && '$ref' in value) {
@@ -56,5 +39,12 @@ const e = (value: unknown) => {
 
   return value
 }
-export const recursiveRef = (schema: Schema): Schema =>
-  union([schema, intersection([reference, object({ '$ref-value': evaluate(e, schema) }), referenceExtensions])])
+
+/**
+ * Inline object or Reference Object with resolved `$ref-value` and bundle extensions.
+ *
+ * Schemas in this folder use {@link recursiveRef} directly. Use {@link recursiveRef} when generating
+ * types for resolved or proxy documents (see `generate-types.ts`).
+ */
+export const recursiveRef = (inner: Schema): Schema =>
+  union([inner, intersection([reference, object({ '$ref-value': evaluate(e, inner) }), referenceExtensions])])
