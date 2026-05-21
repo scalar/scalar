@@ -1,5 +1,7 @@
 import { type Schema, object, optional, unknown } from '@scalar/validation'
 
+import { asyncApiWsBindingObject } from './ws-binding'
+
 /**
  * Protocol keys listed for binding objects in AsyncAPI 3.1.0. Values are
  * protocol-specific; we accept any JSON-compatible structure.
@@ -37,7 +39,7 @@ const optionalBindingPayload = (): Schema =>
 const bindingObjectProperties = (): Record<string, Schema> => {
   const properties: Record<string, Schema> = {}
   for (const key of ASYNCAPI_3_1_BINDING_PROTOCOL_KEYS) {
-    properties[key] = optionalBindingPayload()
+    properties[key] = key === 'ws' ? optional(asyncApiWsBindingObject) : optionalBindingPayload()
   }
   return properties
 }

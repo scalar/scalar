@@ -29,6 +29,9 @@ const asyncApiSchemaJsonShape = union(
   { typeName: 'AsyncApiSchemaJsonShape' },
 )
 
+/** Schema Object | Reference Object */
+export const asyncApiSchemaObjectOrReference = recursiveRef(asyncApiSchemaJsonShape)
+
 /** Multi Format Schema Object | Schema Object | Reference Object */
 export const asyncApiSchemaPayload = recursiveRef(
   union([asyncApiMultiFormatSchemaObject, asyncApiSchemaJsonShape], {
