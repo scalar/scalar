@@ -1,5 +1,6 @@
 import { cwd } from 'node:process'
 
+import { isObject } from '@scalar/helpers/object/is-object'
 import { consoleErrorSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { getActiveOpenApiDocument, getOpenApiDocument } from '@test/helpers'
@@ -7,6 +8,7 @@ import fastify, { type FastifyInstance } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { type WorkspaceDocumentInput, createWorkspaceStore } from '@/client'
+import { isAsyncApiDocument } from '@/schemas'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import { createServerWorkspaceStore } from '@/server'
 
@@ -3850,14 +3852,93 @@ describe('create-workspace-store', () => {
       expect(document).not.toHaveProperty('x-scalar-navigation')
     })
 
+    it('does not upgrade the asyncapi version during ingestion', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        document: {
+          asyncapi: '2.6.0',
+          info: { title: 'Legacy API', version: '1.0.0' },
+        },
+        name: 'legacy',
+      })
+
+      const legacy = store.workspace.documents['legacy']
+      expect(isAsyncApiDocument(legacy)).toBe(true)
+      assert(isAsyncApiDocument(legacy))
+      expect(legacy.asyncapi).toBe('2.6.0')
+      expect(legacy['x-original-aas-version']).toBe('2.6.0')
+    })
+
+    it('bundles external channel references when the document is not preprocessed', async () => {
+      server.get('/channel', () => ({
+        address: 'user/signup',
+        messages: {
+          userSignedUp: {
+            payload: {
+              type: 'object',
+              properties: {
+                email: { type: 'string' },
+              },
+            },
+          },
+        },
+      }))
+      await server.listen({ port })
+
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'events',
+        document: {
+          asyncapi: '3.0.0',
+          info: { title: 'Events API', version: '1.0.0' },
+          channels: {
+            'user/signedup': {
+              $ref: `${url}/channel`,
+            },
+          },
+        },
+      })
+
+      const document = store.workspace.documents['events']
+
+      assert(isAsyncApiDocument(document))
+      assert('x-ext-urls' in document && isObject(document['x-ext-urls']))
+      assert('x-ext' in document && isObject(document['x-ext']))
+
+      const extKey = Object.keys(document['x-ext-urls'] ?? {})[0]!
+      const channel = document.channels?.['user/signedup']
+
+      expect(channel && '$ref' in channel).toBe(true)
+      assert(channel && '$ref' in channel)
+
+      expect(channel?.['$ref']).toBe(`#/x-ext/${extKey}`)
+      expect(document['x-ext-urls']?.[extKey]).toBe(`${url}/channel`)
+      expect(document['x-ext']?.[extKey]).toMatchObject({
+        address: 'user/signup',
+        messages: {
+          userSignedUp: {
+            payload: {
+              type: 'object',
+              properties: {
+                email: { type: 'string' },
+              },
+            },
+          },
+        },
+      })
+      expect(store.workspace.documents['events']).not.toHaveProperty('openapi')
+    })
+
     it('records the source url when the asyncapi document is loaded from a URL', async () => {
-      const fetch = vi.fn(
-        async () =>
+      const customFetch: typeof fetch = async () => {
+        return await Promise.resolve(
           new Response(JSON.stringify({ asyncapi: '3.0.0', info: { title: 'Remote', version: '1.0.0' } }), {
             headers: { 'content-type': 'application/json' },
           }),
-      ) as unknown as typeof globalThis.fetch
-      const store = createWorkspaceStore({ fetch })
+        )
+      }
+      const store = createWorkspaceStore({ fetch: customFetch })
 
       await store.addDocument({ url: 'https://example.com/asyncapi.json', name: 'remote' })
 
@@ -3865,6 +3946,122 @@ describe('create-workspace-store', () => {
         asyncapi: '3.0.0',
         'x-scalar-original-source-url': 'https://example.com/asyncapi.json',
       })
+    })
+
+    it('does coerces the values of the document and stores it on the original documents', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        document: {
+          'asyncapi': '3.0.0',
+          'info': {
+            'title': 'Simple Chat WebSocket API',
+            'version': '1.0.0',
+            'description': 'Basic AsyncAPI example for a chat service',
+          },
+          'servers': {
+            'production': {
+              'host': 'api.example.com',
+              'protocol': 'wss',
+              'description': 'Production WebSocket server',
+            },
+          },
+          'channels': {
+            'chat': {
+              'address': '/chat',
+              'messages': {
+                'sendMessage': {
+                  '$ref': '#/components/messages/SendMessage',
+                },
+                'receiveMessage': {
+                  '$ref': '#/components/messages/ReceiveMessage',
+                },
+              },
+            },
+          },
+          'operations': {
+            'sendChatMessage': {
+              'action': 'send',
+              'channel': {
+                '$ref': '#/channels/chat',
+              },
+              'messages': [
+                {
+                  '$ref': '#/channels/chat/messages/sendMessage',
+                },
+              ],
+            },
+            'receiveChatMessage': {
+              'action': 'receive',
+              'channel': {
+                '$ref': '#/channels/chat',
+              },
+              'messages': [
+                {
+                  '$ref': '#/channels/chat/messages/receiveMessage',
+                },
+              ],
+            },
+          },
+          'components': {
+            'messages': {
+              'SendMessage': {
+                'name': 'SendMessage',
+                'title': 'Send a chat message',
+                'payload': {
+                  'type': 'object',
+                  'properties': {
+                    'userId': {
+                      'type': 'string',
+                      'example': '123',
+                    },
+                    'message': {
+                      'type': 'string',
+                      'example': 'Hello world',
+                    },
+                    'timestamp': {
+                      'type': 'string',
+                      'format': 'date-time',
+                    },
+                  },
+                  'required': ['userId', 'message', 'timestamp'],
+                },
+              },
+              'ReceiveMessage': {
+                'name': 'ReceiveMessage',
+                'title': 'Receive a chat message',
+                'payload': {
+                  'type': 'object',
+                  'properties': {
+                    'id': {
+                      'type': 'string',
+                      'example': 'msg_001',
+                    },
+                    'userId': {
+                      'type': 'string',
+                      'example': '123',
+                    },
+                    'message': {
+                      'type': 'string',
+                      'example': 'Hello world',
+                    },
+                    'timestamp': {
+                      'type': 'string',
+                      'format': 'date-time',
+                    },
+                  },
+                  'required': ['id', 'userId', 'message', 'timestamp'],
+                },
+              },
+            },
+          },
+        },
+        name: 'chatapp',
+      })
+
+      expect(JSON.stringify(store.exportWorkspace())).toBe(
+        '{"documents":{"chatapp":{"asyncapi":"3.0.0","info":{"title":"Simple Chat WebSocket API","version":"1.0.0","description":"Basic AsyncAPI example for a chat service"},"servers":{"production":{"host":"api.example.com","protocol":"wss","description":"Production WebSocket server"}},"channels":{"chat":{"address":"/chat","messages":{"sendMessage":{"$ref":"#/components/messages/SendMessage"},"receiveMessage":{"$ref":"#/components/messages/ReceiveMessage"}}}},"operations":{"sendChatMessage":{"action":"send","channel":{"$ref":"#/channels/chat"},"messages":[{"$ref":"#/channels/chat/messages/sendMessage"}]},"receiveChatMessage":{"action":"receive","channel":{"$ref":"#/channels/chat"},"messages":[{"$ref":"#/channels/chat/messages/receiveMessage"}]}},"components":{"messages":{"SendMessage":{"name":"SendMessage","title":"Send a chat message","payload":{"type":"object","properties":{"userId":{"type":"string","example":"123"},"message":{"type":"string","example":"Hello world"},"timestamp":{"type":"string","format":"date-time"}},"required":["userId","message","timestamp"]}},"ReceiveMessage":{"name":"ReceiveMessage","title":"Receive a chat message","payload":{"type":"object","properties":{"id":{"type":"string","example":"msg_001"},"userId":{"type":"string","example":"123"},"message":{"type":"string","example":"Hello world"},"timestamp":{"type":"string","format":"date-time"}},"required":["id","userId","message","timestamp"]}}}},"x-original-aas-version":"3.0.0","x-scalar-original-document-hash":"9ee417dc08249dc6","x-ext-urls":{}}},"meta":{},"originalDocuments":{"chatapp":{"asyncapi":"3.0.0","info":{"title":"Simple Chat WebSocket API","version":"1.0.0","description":"Basic AsyncAPI example for a chat service"},"servers":{"production":{"host":"api.example.com","protocol":"wss","description":"Production WebSocket server"}},"channels":{"chat":{"address":"/chat","messages":{"sendMessage":{"$ref":"#/components/messages/SendMessage"},"receiveMessage":{"$ref":"#/components/messages/ReceiveMessage"}}}},"operations":{"sendChatMessage":{"action":"send","channel":{"$ref":"#/channels/chat"},"messages":[{"$ref":"#/channels/chat/messages/sendMessage"}]},"receiveChatMessage":{"action":"receive","channel":{"$ref":"#/channels/chat"},"messages":[{"$ref":"#/channels/chat/messages/receiveMessage"}]}},"components":{"messages":{"SendMessage":{"name":"SendMessage","title":"Send a chat message","payload":{"type":"object","properties":{"userId":{"type":"string","example":"123"},"message":{"type":"string","example":"Hello world"},"timestamp":{"type":"string","format":"date-time"}},"required":["userId","message","timestamp"]}},"ReceiveMessage":{"name":"ReceiveMessage","title":"Receive a chat message","payload":{"type":"object","properties":{"id":{"type":"string","example":"msg_001"},"userId":{"type":"string","example":"123"},"message":{"type":"string","example":"Hello world"},"timestamp":{"type":"string","format":"date-time"}},"required":["id","userId","message","timestamp"]}}}}}},"intermediateDocuments":{"chatapp":{"asyncapi":"3.0.0","info":{"title":"Simple Chat WebSocket API","version":"1.0.0","description":"Basic AsyncAPI example for a chat service"},"servers":{"production":{"host":"api.example.com","protocol":"wss","description":"Production WebSocket server"}},"channels":{"chat":{"address":"/chat","messages":{"sendMessage":{"$ref":"#/components/messages/SendMessage"},"receiveMessage":{"$ref":"#/components/messages/ReceiveMessage"}}}},"operations":{"sendChatMessage":{"action":"send","channel":{"$ref":"#/channels/chat"},"messages":[{"$ref":"#/channels/chat/messages/sendMessage"}]},"receiveChatMessage":{"action":"receive","channel":{"$ref":"#/channels/chat"},"messages":[{"$ref":"#/channels/chat/messages/receiveMessage"}]}},"components":{"messages":{"SendMessage":{"name":"SendMessage","title":"Send a chat message","payload":{"type":"object","properties":{"userId":{"type":"string","example":"123"},"message":{"type":"string","example":"Hello world"},"timestamp":{"type":"string","format":"date-time"}},"required":["userId","message","timestamp"]}},"ReceiveMessage":{"name":"ReceiveMessage","title":"Receive a chat message","payload":{"type":"object","properties":{"id":{"type":"string","example":"msg_001"},"userId":{"type":"string","example":"123"},"message":{"type":"string","example":"Hello world"},"timestamp":{"type":"string","format":"date-time"}},"required":["id","userId","message","timestamp"]}}}}}},"overrides":{"chatapp":{}},"history":{},"auth":{}}',
+      )
     })
   })
 })

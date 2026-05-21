@@ -8,6 +8,7 @@ import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { type Difference, apply, diff, merge } from '@scalar/json-magic/diff'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { upgrade } from '@scalar/openapi-upgrader'
+import { asyncApiObjectSchema } from '@scalar/schemas/asyncapi/3.1'
 import type { Record } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
@@ -985,6 +986,18 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
     })
 
+    const loaders = [
+      fetchUrls({
+        fetch: extraDocumentConfigurations[name]?.fetch ?? workspaceProps?.fetch,
+      }),
+    ]
+
+    // If a file loader plugin is provided, use it to resolve local file references
+    // This is useful for non browser environments
+    if (workspaceProps?.fileLoader) {
+      loaders.push(workspaceProps.fileLoader)
+    }
+
     // AsyncAPI ingestion: skip the OpenAPI-specific upgrade, bundle, coerce,
     // validate, and navigation pipeline. The OpenAPI `coerce` step would
     // otherwise inject an empty `openapi: ''` field and break the type
@@ -993,15 +1006,32 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // managed metadata (source url, document hash, spec version) is set so
     // change detection on rebase can compare hashes correctly.
     if (isAsyncApiDocument(clonedRawInputDocument)) {
-      const asyncApiDocument = {
+      const asyncApiDocument = createMagicProxy({
         ...clonedRawInputDocument,
         ...meta,
         'x-original-aas-version': clonedRawInputDocument.asyncapi,
         'x-scalar-original-document-hash': input.documentHash,
         'x-scalar-original-source-url': input.documentSource,
-      } satisfies AsyncApiDocument
+      }) satisfies AsyncApiDocument
 
-      workspace.documents[name] = createOverridesProxy(createMagicProxy(asyncApiDocument) as AsyncApiDocument, {
+      await withMeasurementAsync(
+        'bundle',
+        async () =>
+          await bundle(getRaw(asyncApiDocument), {
+            treeShake: false,
+            plugins: loaders,
+            urlMap: true,
+            origin: input.documentSource, // use the document origin (if provided) as the base URL for resolution
+          }),
+      )
+
+      // We coerce the values only when the document is not preprocessed by the server-side-store
+        const coerced = withMeasurementSync('coerceValue', () =>
+          coerce(asyncApiObjectSchema as Schema, deepClone(getRaw(asyncApiDocument))),
+        )
+        withMeasurementSync('mergeObjects', () => mergeObjects(asyncApiDocument, coerced))
+
+      workspace.documents[name] = createOverridesProxy(asyncApiDocument, {
         overrides: unpackProxyObject(overrides[name]),
       })
       return
@@ -1024,18 +1054,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // This typically applies when the document is not preprocessed by the server and needs local reference resolution.
     // We need to bundle document first before we validate, so we can also validate the external references
     if (strictDocument[extensions.document.navigation] === undefined) {
-      const loaders = [
-        fetchUrls({
-          fetch: extraDocumentConfigurations[name]?.fetch ?? workspaceProps?.fetch,
-        }),
-      ]
-
-      // If a file loader plugin is provided, use it to resolve local file references
-      // This is useful for non browser environments
-      if (workspaceProps?.fileLoader) {
-        loaders.push(workspaceProps.fileLoader)
-      }
-
       await withMeasurementAsync(
         'bundle',
         async () =>
