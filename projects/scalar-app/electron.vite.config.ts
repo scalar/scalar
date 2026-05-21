@@ -69,7 +69,11 @@ export default defineConfig({
       minify: true,
       outDir: 'dist/renderer',
       rollupOptions: {
-        input: resolve('entrypoints/electron/renderer/index.html'),
+        input: {
+          index: resolve('entrypoints/electron/renderer/index.html'),
+          // Isolated realm that runs pre/post-request scripts (postman-sandbox) with its own CSP.
+          sandbox: resolve('entrypoints/electron/renderer/sandbox.html'),
+        },
         output: {
           format: 'es',
         },

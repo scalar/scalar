@@ -34,7 +34,11 @@ export default defineConfig({
   build: {
     outDir: resolve('dist/web'),
     rolldownOptions: {
-      input: resolve('entrypoints/web/index.html'),
+      input: {
+        index: resolve('entrypoints/web/index.html'),
+        // Isolated realm that runs pre/post-request scripts (postman-sandbox) with its own CSP.
+        sandbox: resolve('entrypoints/web/sandbox.html'),
+      },
     },
   },
   server: {

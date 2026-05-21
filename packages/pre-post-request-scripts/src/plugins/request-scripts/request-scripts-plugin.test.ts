@@ -1,11 +1,16 @@
 import type { RequestFactory, VariableEntry, VariablesStore } from '@scalar/workspace-store/request-example'
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import type { Ref } from 'vue'
 
 import type { TestResult } from '@/libs/execute-scripts'
 import { executePostResponseScript } from '@/libs/execute-scripts/execute-post-response-script'
 import { executePreRequestScript } from '@/libs/execute-scripts/execute-pre-request-script'
+import { registerInProcessSandbox } from '@/libs/execute-scripts/postman-adapter/in-process-transport'
 import { requestScriptsPlugin } from '@/plugins/request-scripts/request-scripts-plugin'
+
+beforeAll(() => {
+  registerInProcessSandbox()
+})
 
 const createRequestBuilder = (): RequestFactory => ({
   options: {},
