@@ -1,0 +1,88 @@
+name: Deploy Galaxy
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Target GitHub environment — "production-galaxy-com" for release commits on main, "staging-galaxy-com" otherwise'
+        type: string
+        required: true
+      pr-number:
+        description: 'Pull request number (required for staging previews)'
+        type: string
+        required: false
+        default: ''
+      sha:
+        description: 'Commit SHA to deploy — PR head SHA for previews, git SHA for main'
+        type: string
+        required: true
+    secrets:
+      CLOUDFLARE_API_TOKEN:
+        required: true
+      CLOUDFLARE_ACCOUNT_ID:
+        required: true
+    outputs:
+      preview-url:
+        description: 'The Cloudflare Pages deployment URL (staging only)'
+        value: ${{ jobs.deploy.outputs.preview-url }}
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    # Setting environment here (not at the workflow level) is what grants access
+    # to the environment-scoped vars.* and secrets.* for staging or production.
+    environment: ${{ inputs.environment }}
+    timeout-minutes: 15
+    outputs:
+      preview-url: ${{ steps.set-output.outputs.url }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+
+      # Build galaxy-scalar-com and its workspace dependencies. The build script
+      # bundles the Pages worker into projects/galaxy-scalar-com/dist/_worker.js.
+      - name: Build workspace deps
+        uses: ./.github/actions/build
+        with:
+          packages: 'galaxy-scalar-com...'
+
+      # PR preview deploy — the branch name creates a unique Pages alias URL per PR.
+      - name: Deploy PR preview to Cloudflare Pages
+        if: inputs.pr-number != ''
+        id: deploy-preview
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ./projects/galaxy-scalar-com/dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT }} --branch=pr-${{ inputs.pr-number }} --commit-hash=${{ inputs.sha }}
+
+      # Main branch deploy — production (release) or staging (other commits),
+      # decided by the active environment's CLOUDFLARE_PAGES_PROJECT.
+      - name: Deploy to Cloudflare Pages
+        if: inputs.pr-number == ''
+        id: deploy-main
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ./projects/galaxy-scalar-com/dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT }} --branch=main --commit-hash=${{ inputs.sha }}
+
+      # Only set the preview URL when deploying from a PR — merge and release
+      # deploys have no PR comment to link back to.
+      - name: Set output
+        if: inputs.pr-number != ''
+        id: set-output
+        run: |
+          ALIAS_URL='${{ steps.deploy-preview.outputs.pages-deployment-alias-url }}'
+          DEPLOYMENT_URL='${{ steps.deploy-preview.outputs.deployment-url }}'
+          if [ -n "$ALIAS_URL" ]; then
+            echo "url=$ALIAS_URL" >> $GITHUB_OUTPUT
+          else
+            echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          fi

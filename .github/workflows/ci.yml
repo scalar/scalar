@@ -94,6 +94,7 @@ jobs:
       mock_server_docker_package_changed: ${{ steps.set-outputs.outputs.mock_server_docker_package_changed }}
       icons_changed: ${{ steps.set-outputs.outputs.icons_changed }}
       galaxy_changed: ${{ steps.set-outputs.outputs.galaxy_changed }}
+      galaxy_app_changed: ${{ steps.set-outputs.outputs.galaxy_app_changed }}
       api_client_changed: ${{ steps.set-outputs.outputs.api_client_changed }}
       api_reference_changed: ${{ steps.set-outputs.outputs.api_reference_changed }}
       scalar_app_package_changed: ${{ steps.set-outputs.outputs.scalar_app_package_changed }}
@@ -130,6 +131,8 @@ jobs:
               - packages/components/src/components/ScalarIcon/**
             galaxy_changed:
               - packages/galaxy/**
+            galaxy_app_changed:
+              - projects/galaxy-scalar-com/**
             api_client_changed:
               - packages/api-client/**
               - projects/scalar-app/**
@@ -179,6 +182,7 @@ jobs:
           echo "mock_server_docker_package_changed=${{ steps.changed-package-files.outputs.mock_server_docker_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "icons_changed=${{ steps.changed-packages-files.outputs.icons_changed_any_changed }}" >> $GITHUB_OUTPUT
           echo "galaxy_changed=${{ steps.changed-packages-files.outputs.galaxy_changed_any_changed }}" >> $GITHUB_OUTPUT
+          echo "galaxy_app_changed=${{ steps.changed-packages-files.outputs.galaxy_app_changed_any_changed }}" >> $GITHUB_OUTPUT
           echo "api_client_changed=${{ steps.changed-packages-files.outputs.api_client_changed_any_changed }}" >> $GITHUB_OUTPUT
           echo "api_reference_changed=${{ steps.changed-packages-files.outputs.api_reference_changed_any_changed }}" >> $GITHUB_OUTPUT
           echo "scalar_app_package_changed=${{ steps.changed-packages-files.outputs.scalar_app_package_any_changed }}" >> $GITHUB_OUTPUT
@@ -965,6 +969,41 @@ jobs:
       sha: ${{ github.event.pull_request.head.sha || github.sha }}
     secrets: inherit
 
+  # Deploy galaxy-scalar-com to Cloudflare Pages. Like deploy-api-client, this
+  # runs for PR previews and every main push, and waits for npm-publish so it
+  # knows whether this commit released a dependency (-> production) or not
+  # (-> staging). `!cancelled()` lets it proceed when npm-publish is skipped
+  # (PRs); the explicit build/check-changes success gates are re-added because
+  # `!cancelled()` overrides the implicit `success()` check on `needs`.
+  deploy-galaxy:
+    if: |
+      !cancelled() &&
+      needs.build.result == 'success' &&
+      needs.check-changes.result == 'success' &&
+      needs.npm-publish.result != 'failure' &&
+      (
+        (
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          !contains(github.actor, '[bot]') &&
+          needs.check-changes.outputs.galaxy_app_changed == 'true'
+        ) ||
+        github.ref == 'refs/heads/main'
+      )
+    needs: [build, check-changes, npm-publish]
+    concurrency:
+      group: deploy-galaxy-${{ github.ref }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+    uses: ./.github/workflows/deploy-galaxy.yml
+    with:
+      # Release commits (npm publish) target the production-galaxy-com
+      # environment — galaxy's dependencies ship with every release. Ordinary
+      # merges to main and PR previews target staging-galaxy-com.
+      environment: ${{ needs.npm-publish.outputs.published == 'true' && 'production-galaxy-com' || 'staging-galaxy-com' }}
+      pr-number: ${{ github.event.pull_request.number }}
+      sha: ${{ github.event.pull_request.head.sha || github.sha }}
+    secrets: inherit
+
   todesktop-build:
     # Run whenever scalar-app's version was bumped on this commit. scalar-app
     # is private, so `npm-publish.outputs.published` cannot be relied on here.
@@ -1057,6 +1096,7 @@ jobs:
        needs.deploy-api-reference.result == 'success' ||
        needs.deploy-components.result == 'success' ||
        needs.deploy-api-client.result == 'success' ||
+       needs.deploy-galaxy.result == 'success' ||
        needs.galaxy-registry-preview.result == 'success') &&
       github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
@@ -1067,6 +1107,7 @@ jobs:
         deploy-api-reference,
         deploy-components,
         deploy-api-client,
+        deploy-galaxy,
         galaxy-registry-preview,
       ]
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -1107,6 +1148,14 @@ jobs:
             MESSAGE="$MESSAGE**Preview API Client**
 
           ${{ needs.deploy-api-client.outputs.preview-url }}
+
+          "
+          fi
+
+          if [ "${{ needs.deploy-galaxy.result }}" == "success" ]; then
+            MESSAGE="$MESSAGE**Preview Galaxy**
+
+          ${{ needs.deploy-galaxy.outputs.preview-url }}
 
           "
           fi
