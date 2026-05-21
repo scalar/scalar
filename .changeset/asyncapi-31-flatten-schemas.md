@@ -2,7 +2,7 @@
 '@scalar/schemas': patch
 ---
 
-refactor(asyncapi): flatten AsyncAPI 3.1 schemas and validate resolved references
+refactor: flatten AsyncAPI 3.1 schemas and validate resolved references
 
 - Remove per-schema `create*` factories; export flat schemas using `recursiveRef` directly
 - Add `asyncApiResolvedReference` for reference-only fields (`operation.channel`, `channel.servers`, `operation.reply`, and similar) so `$ref-value` is always validated
