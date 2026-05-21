@@ -19,7 +19,7 @@ const securitySchemeBase = object({
   ),
 })
 
-export const apiKeySecurityScheme = object(
+const apiKeySecurityScheme = object(
   {
     ...securitySchemeBase.properties,
     type: literal('apiKey'),
@@ -31,7 +31,7 @@ export const apiKeySecurityScheme = object(
   { typeName: 'ApiKeySecuritySchemeObject' },
 )
 
-export const httpSecurityScheme = object(
+const httpSecurityScheme = object(
   {
     ...securitySchemeBase.properties,
     type: literal('http'),
@@ -73,7 +73,7 @@ const oauthFlowCore = object(
   { typeName: 'OAuthFlowBaseCore' },
 )
 
-export const implicitOAuth2Flow = intersection(
+const implicitOAuth2Flow = intersection(
   [
     oauthFlowCore,
     ...oauthFlowExtensionObjects,
@@ -87,7 +87,7 @@ export const implicitOAuth2Flow = intersection(
   { typeName: 'ImplicitOAuthFlowObject' },
 )
 
-export const passwordOAuth2Flow = intersection(
+const passwordOAuth2Flow = intersection(
   [
     oauthFlowCore,
     ...oauthFlowExtensionObjects,
@@ -102,7 +102,7 @@ export const passwordOAuth2Flow = intersection(
   { typeName: 'PasswordOAuthFlowObject' },
 )
 
-export const clientCredentialsOAuth2Flow = intersection(
+const clientCredentialsOAuth2Flow = intersection(
   [
     oauthFlowCore,
     ...oauthFlowExtensionObjects,
@@ -117,7 +117,7 @@ export const clientCredentialsOAuth2Flow = intersection(
   { typeName: 'ClientCredentialsOAuthFlowObject' },
 )
 
-export const authorizationCodeOAuth2Flow = intersection(
+const authorizationCodeOAuth2Flow = intersection(
   [
     oauthFlowCore,
     ...oauthFlowExtensionObjects,
@@ -137,7 +137,7 @@ export const authorizationCodeOAuth2Flow = intersection(
   { typeName: 'AuthorizationCodeOAuthFlowObject' },
 )
 
-export const oauth2Flows = object(
+const oauth2Flows = object(
   {
     implicit: optional(implicitOAuth2Flow),
     password: optional(passwordOAuth2Flow),
@@ -147,7 +147,7 @@ export const oauth2Flows = object(
   { typeName: 'OAuthFlowsObject' },
 )
 
-export const oauth2SecurityScheme = intersection(
+const oauth2SecurityScheme = intersection(
   [
     object({
       ...securitySchemeBase.properties,
@@ -159,7 +159,7 @@ export const oauth2SecurityScheme = intersection(
   { typeName: 'OAuth2SecuritySchemeObject' },
 )
 
-export const openIdConnectSecurityScheme = object(
+const openIdConnectSecurityScheme = object(
   {
     ...securitySchemeBase.properties,
     type: literal('openIdConnect'),
