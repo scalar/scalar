@@ -969,7 +969,7 @@ jobs:
       sha: ${{ github.event.pull_request.head.sha || github.sha }}
     secrets: inherit
 
-  # Deploy galaxy-scalar-com to Cloudflare Workers. Like deploy-api-client, this
+  # Deploy galaxy-scalar-com to Cloudflare Pages. Like deploy-api-client, this
   # runs for PR previews and every main push, and waits for npm-publish so it
   # knows whether this commit released a dependency (-> production) or not
   # (-> staging). `!cancelled()` lets it proceed when npm-publish is skipped

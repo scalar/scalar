@@ -2,4 +2,4 @@
 'galaxy-scalar-com': patch
 ---
 
-chore: deploy galaxy-scalar-com as a Cloudflare Worker
+chore: deploy galaxy-scalar-com to Cloudflare Pages
