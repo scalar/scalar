@@ -1026,10 +1026,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       )
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
-        const coerced = withMeasurementSync('coerceValue', () =>
-          coerce(asyncApiObjectSchema as Schema, deepClone(getRaw(asyncApiDocument))),
-        )
-        withMeasurementSync('mergeObjects', () => mergeObjects(asyncApiDocument, coerced))
+      const coerced = withMeasurementSync('coerceValue', () =>
+        coerce(asyncApiObjectSchema as Schema, deepClone(getRaw(asyncApiDocument))),
+      )
+      withMeasurementSync('mergeObjects', () => mergeObjects(asyncApiDocument, coerced))
 
       workspace.documents[name] = createOverridesProxy(asyncApiDocument, {
         overrides: unpackProxyObject(overrides[name]),
