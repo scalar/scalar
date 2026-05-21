@@ -657,7 +657,7 @@
         <span class="text-c-1">
           <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/qlPkhjY7Ec6E5g3SHMjEp.svg"></scalar-icon>
         </span>
-        <p class="mt-10 text-c-3 text-sm text-balance">The OpenAPI company.</p>
+        <p class="mt-10 text-c-3 text-sm text-balance">The API company.</p>
         <p class="mt-5 text-c-3 text-sm text-balance">© API Documentation, Inc.</p>
       </div>
       <div class="flex text-sm">
