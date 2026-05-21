@@ -1,3 +1,4 @@
+import { isElectron } from '@scalar/helpers/general/is-electron'
 import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
 
 import type { ConsoleContext } from '../context/console'
@@ -39,8 +40,23 @@ export const toPostmanResponse = async (response: Response): Promise<PostmanResp
   }
 }
 
-/** Resolves the sandbox iframe URL relative to the current document so it works for web and Electron `file://`. */
-const sandboxFrameUrl = (): string => new URL('sandbox.html', document.baseURI).href
+/**
+ * Resolves the sandbox iframe URL.
+ *
+ * On the web we anchor to the origin root because the SPA router owns the current path: a
+ * relative `sandbox.html` would resolve under the active route and get rewritten to `index.html`
+ * by the history fallback. In Electron the document path is literal, so a sibling resolution
+ * works — and we use the `isElectron` helper rather than a `file://` check because Electron's
+ * dev mode is served over `http://localhost`.
+ *
+ * Exported for tests; production code reaches it through `ensureSandboxFrame`.
+ */
+export const sandboxFrameUrl = (): string => {
+  if (isElectron()) {
+    return new URL('sandbox.html', document.baseURI).href
+  }
+  return new URL('/sandbox.html', window.location.origin).href
+}
 
 /**
  * Origin we pin `postMessage` exchanges to.
