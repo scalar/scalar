@@ -281,7 +281,13 @@
       ]
     },
     "packages/pre-post-request-scripts": {
-      "entry": ["src/index.ts", "src/plugins/index.ts"]
+      "entry": [
+        "src/index.ts",
+        "src/plugins/index.ts",
+        // Loaded by the sandbox iframe host page (sandbox.html) inside scalar-app.
+        // Exposed via the `./sandbox` subpath export, which knip cannot map back to src.
+        "src/libs/execute-scripts/postman-adapter/sandbox-frame-entry.ts"
+      ]
     },
     "packages/openapi-to-markdown": {
       "ignoreDependencies": ["vue"]
@@ -400,12 +406,16 @@
       "entry": [
         // Web app
         "entrypoints/web/src/main.ts",
+        // Web sandbox iframe entry (loaded by entrypoints/web/sandbox.html)
+        "entrypoints/web/src/sandbox.ts",
         // Electron main process
         "entrypoints/electron/main/index.ts",
         // Electron preload script
         "entrypoints/electron/preload/index.ts",
         // Electron renderer
         "entrypoints/electron/renderer/src/main.ts",
+        // Electron sandbox iframe entry (loaded by entrypoints/electron/renderer/sandbox.html)
+        "entrypoints/electron/renderer/src/sandbox.ts",
         // Vite configs
         "electron.vite.config.ts"
       ]
