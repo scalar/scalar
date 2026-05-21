@@ -23,7 +23,6 @@ import { type Schema, generateTypes } from '@scalar/validation'
 
 import { apiReferenceConfigurationSchema } from '../src/api-reference/api-reference-configuration'
 import { asyncApiObjectSchema } from '../src/asyncapi/3.1/asyncapi-object'
-import { recursiveRef } from '../src/asyncapi/3.1/reference'
 import {
   GENERATED_TYPE_EXTENSIONS_PATH,
   GENERATED_TYPE_OUTPUT_PATHS,
@@ -316,7 +315,7 @@ const main = async (): Promise<void> => {
         outputPath: generatedTypePaths[0],
       },
       {
-        schema: recursiveRef(asyncApiObjectSchema),
+        schema: asyncApiObjectSchema,
         typeName: 'AsyncApiDocument',
         outputPath: generatedTypePaths[1],
       },

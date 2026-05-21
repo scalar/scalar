@@ -2,18 +2,17 @@ import { array, object, optional, record, string } from '@scalar/validation'
 
 import { asyncApiServerBindingsObject } from './bindings'
 import { asyncApiExternalDocumentationObject } from './external-documentation'
-import { normalRef } from './reference'
+import { recursiveRef } from './reference'
 import { asyncApiSecuritySchemeObject } from './security-scheme'
 import { asyncApiServerVariableObject } from './server-variable'
 import { asyncApiTagsObject } from './tag'
 
 /** Server Object | Reference Object */
-export const asyncApiServerObject = normalRef(
+export const asyncApiServerObject = recursiveRef(
   object(
     {
       host: string({
-        typeComment:
-          'REQUIRED. The server host name. It MAY include the port. Supports Server Variables in {braces}.',
+        typeComment: 'REQUIRED. The server host name. It MAY include the port. Supports Server Variables in {braces}.',
       }),
       protocol: string({ typeComment: 'REQUIRED. The protocol this server supports for connection.' }),
       protocolVersion: optional(
@@ -45,7 +44,7 @@ export const asyncApiServerObject = normalRef(
       ),
       tags: optional(asyncApiTagsObject),
       externalDocs: optional(asyncApiExternalDocumentationObject),
-      bindings: optional(normalRef(asyncApiServerBindingsObject)),
+      bindings: optional(recursiveRef(asyncApiServerBindingsObject)),
     },
     { typeName: 'AsyncApiServerObject' },
   ),

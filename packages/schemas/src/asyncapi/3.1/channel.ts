@@ -4,12 +4,13 @@ import { asyncApiChannelBindingsObject } from './bindings'
 import { asyncApiExternalDocumentationObject } from './external-documentation'
 import { asyncApiMessagesObject } from './message'
 import { asyncApiParametersObject } from './parameters'
-import { asyncApiReferenceObject, normalRef } from './reference'
+import { asyncApiResolvedReference, recursiveRef } from './reference'
+import { asyncApiServerObject } from './server'
 import { asyncApiTagsObject } from './tag'
 
 /** Channel Object | Reference Object */
 export const asyncApiChannelObject = lazy(() =>
-  normalRef(
+  recursiveRef(
     object(
       {
         address: optional(union([string(), nullable()], { typeComment: 'Channel address or null when unknown.' })),
@@ -23,7 +24,7 @@ export const asyncApiChannelObject = lazy(() =>
           }),
         ),
         servers: optional(
-          array(asyncApiReferenceObject, {
+          array(asyncApiResolvedReference(asyncApiServerObject), {
             typeComment:
               'References to Server definitions where this channel is available (Reference Objects only in the raw document).',
           }),
@@ -31,7 +32,7 @@ export const asyncApiChannelObject = lazy(() =>
         parameters: optional(asyncApiParametersObject),
         tags: optional(asyncApiTagsObject),
         externalDocs: optional(asyncApiExternalDocumentationObject),
-        bindings: optional(normalRef(asyncApiChannelBindingsObject)),
+        bindings: optional(recursiveRef(asyncApiChannelBindingsObject)),
       },
       { typeName: 'AsyncApiChannelObject' },
     ),

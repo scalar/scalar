@@ -6,7 +6,7 @@ import { referenceExtensions } from '@/general/bundler-extensions'
 /**
  * Wraps an inline schema so it may also be satisfied by an AsyncAPI Reference Object.
  *
- * Schemas in this folder use {@link normalRef} directly. Use {@link recursiveRef} only when
+ * Schemas in this folder use {@link recursiveRef} directly. Use {@link recursiveRef} only when
  * generating types for resolved or proxy documents (see `generate-types.ts`).
  */
 export type MaybeRefFn = (inner: Schema) => Schema
@@ -22,9 +22,6 @@ export const asyncApiReferenceObject = object(
   { typeName: 'AsyncApiReferenceObject', typeComment: 'JSON Reference for AsyncAPI components.' },
 )
 
-/** Union of an inline schema and {@link asyncApiReferenceObject}. */
-export const normalRef = (schema: Schema): Schema => union([schema, asyncApiReferenceObject])
-
 const e = (value: unknown) => {
   if (isObject(value) && '$ref' in value) {
     return e(value['$ref-value'])
@@ -32,14 +29,15 @@ const e = (value: unknown) => {
 
   return value
 }
+
 /**
- * Like {@link normalRef}, but reference branches also carry `$ref-value` and bundle extensions.
+ * Reference Object with resolved `$ref-value` and bundle extensions.
  *
- * Used when generating `AsyncApiDocument` types for resolved or proxy documents, not for plain
- * AsyncAPI files on disk.
+ * Use when the specification allows only a Reference Object (not an inline object), for example
+ * `operation.channel` or `channel.servers`.
  */
-export const recursiveRef = (schema: Schema): Schema =>
-  union([
-    schema,
-    intersection([asyncApiReferenceObject, object({ '$ref-value': evaluate(e, schema) }), referenceExtensions]),
-  ])
+export const asyncApiResolvedReference = (schema: Schema): Schema =>
+  intersection([asyncApiReferenceObject, object({ '$ref-value': evaluate(e, schema) }), referenceExtensions])
+
+/** Inline object or Reference Object with resolved `$ref-value`. */
+export const recursiveRef = (schema: Schema): Schema => union([schema, asyncApiResolvedReference(schema)])

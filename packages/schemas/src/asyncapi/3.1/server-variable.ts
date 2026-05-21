@@ -1,9 +1,9 @@
 import { array, object, optional, string } from '@scalar/validation'
 
-import { normalRef } from './reference'
+import { recursiveRef } from './reference'
 
 /** Server Variable Object | Reference Object */
-export const asyncApiServerVariableObject = normalRef(
+export const asyncApiServerVariableObject = recursiveRef(
   object(
     {
       enum: optional(array(string(), { typeComment: 'An enumeration of string values for substitution.' })),

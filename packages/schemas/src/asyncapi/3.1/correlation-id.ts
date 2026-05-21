@@ -1,9 +1,9 @@
 import { object, optional, string } from '@scalar/validation'
 
-import { normalRef } from './reference'
+import { recursiveRef } from './reference'
 
 /** Correlation ID Object | Reference Object */
-export const asyncApiCorrelationIdObject = normalRef(
+export const asyncApiCorrelationIdObject = recursiveRef(
   object(
     {
       description: optional(

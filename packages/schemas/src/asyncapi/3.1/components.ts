@@ -16,7 +16,7 @@ import { asyncApiOperationReplyObject } from './operation-reply'
 import { asyncApiOperationReplyAddressObject } from './operation-reply-address'
 import { asyncApiOperationTraitObject } from './operation-trait'
 import { asyncApiParameterObject } from './parameter'
-import { normalRef } from './reference'
+import { recursiveRef } from './reference'
 import { asyncApiSchemaPayload } from './schema-payload'
 import { asyncApiSecuritySchemeObject } from './security-scheme'
 import { asyncApiServerObject } from './server'
@@ -45,10 +45,10 @@ export const asyncApiComponentsObject = lazy(() =>
       tags: optional(record(string(), asyncApiTagObject)),
       operationTraits: optional(record(string(), asyncApiOperationTraitObject)),
       messageTraits: optional(record(string(), asyncApiMessageTraitObject)),
-      serverBindings: optional(record(string(), normalRef(asyncApiServerBindingsObject))),
-      channelBindings: optional(record(string(), normalRef(asyncApiChannelBindingsObject))),
-      operationBindings: optional(record(string(), normalRef(asyncApiOperationBindingsObject))),
-      messageBindings: optional(record(string(), normalRef(asyncApiMessageBindingsObject))),
+      serverBindings: optional(record(string(), recursiveRef(asyncApiServerBindingsObject))),
+      channelBindings: optional(record(string(), recursiveRef(asyncApiChannelBindingsObject))),
+      operationBindings: optional(record(string(), recursiveRef(asyncApiOperationBindingsObject))),
+      messageBindings: optional(record(string(), recursiveRef(asyncApiMessageBindingsObject))),
     },
     {
       typeName: 'AsyncApiComponentsObject',

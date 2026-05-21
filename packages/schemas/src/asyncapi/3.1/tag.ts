@@ -1,10 +1,10 @@
 import { array, object, optional, string } from '@scalar/validation'
 
 import { asyncApiExternalDocumentationObject } from './external-documentation'
-import { normalRef } from './reference'
+import { recursiveRef } from './reference'
 
 /** Tag Object | Reference Object */
-export const asyncApiTagObject = normalRef(
+export const asyncApiTagObject = recursiveRef(
   object(
     {
       name: string({ typeComment: 'REQUIRED. The name of the tag.' }),

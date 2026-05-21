@@ -2,12 +2,12 @@ import { array, object, optional, string } from '@scalar/validation'
 
 import { asyncApiOperationBindingsObject } from './bindings'
 import { asyncApiExternalDocumentationObject } from './external-documentation'
-import { normalRef } from './reference'
+import { recursiveRef } from './reference'
 import { asyncApiSecuritySchemeObject } from './security-scheme'
 import { asyncApiTagsObject } from './tag'
 
 /** Operation Trait Object | Reference Object */
-export const asyncApiOperationTraitObject = normalRef(
+export const asyncApiOperationTraitObject = recursiveRef(
   object(
     {
       title: optional(string({ typeComment: 'A human-friendly title for the operation.' })),
@@ -26,7 +26,7 @@ export const asyncApiOperationTraitObject = normalRef(
       ),
       tags: optional(asyncApiTagsObject),
       externalDocs: optional(asyncApiExternalDocumentationObject),
-      bindings: optional(normalRef(asyncApiOperationBindingsObject)),
+      bindings: optional(recursiveRef(asyncApiOperationBindingsObject)),
     },
     { typeName: 'AsyncApiOperationTraitObject' },
   ),

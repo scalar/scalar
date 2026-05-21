@@ -5,13 +5,13 @@ import { asyncApiCorrelationIdObject } from './correlation-id'
 import { asyncApiExternalDocumentationObject } from './external-documentation'
 import { asyncApiMessageExampleObject } from './message-example'
 import { asyncApiMessageTraitObject } from './message-trait'
-import { normalRef } from './reference'
+import { recursiveRef } from './reference'
 import { asyncApiSchemaPayload } from './schema-payload'
 import { asyncApiTagsObject } from './tag'
 
 /** Message Object | Reference Object */
 export const asyncApiMessageObject = lazy(() =>
-  normalRef(
+  recursiveRef(
     object(
       {
         headers: optional(asyncApiSchemaPayload),
@@ -34,8 +34,8 @@ export const asyncApiMessageObject = lazy(() =>
         ),
         tags: optional(asyncApiTagsObject),
         externalDocs: optional(asyncApiExternalDocumentationObject),
-        bindings: optional(normalRef(asyncApiMessageBindingsObject)),
-        examples: optional(array(normalRef(asyncApiMessageExampleObject))),
+        bindings: optional(recursiveRef(asyncApiMessageBindingsObject)),
+        examples: optional(array(recursiveRef(asyncApiMessageExampleObject))),
         traits: optional(array(asyncApiMessageTraitObject)),
       },
       { typeName: 'AsyncApiMessageObject' },

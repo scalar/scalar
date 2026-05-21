@@ -1,6 +1,6 @@
 import { object, optional, record, string } from '@scalar/validation'
 
-import { normalRef } from './reference'
+import { recursiveRef } from './reference'
 
 export const asyncApiOAuthFlowObject = object(
   {
@@ -31,10 +31,10 @@ export const asyncApiOAuthFlowObject = object(
 
 export const asyncApiOAuthFlowsObject = object(
   {
-    implicit: optional(normalRef(asyncApiOAuthFlowObject)),
-    password: optional(normalRef(asyncApiOAuthFlowObject)),
-    clientCredentials: optional(normalRef(asyncApiOAuthFlowObject)),
-    authorizationCode: optional(normalRef(asyncApiOAuthFlowObject)),
+    implicit: optional(recursiveRef(asyncApiOAuthFlowObject)),
+    password: optional(recursiveRef(asyncApiOAuthFlowObject)),
+    clientCredentials: optional(recursiveRef(asyncApiOAuthFlowObject)),
+    authorizationCode: optional(recursiveRef(asyncApiOAuthFlowObject)),
   },
   { typeName: 'AsyncApiOAuthFlowsObject' },
 )

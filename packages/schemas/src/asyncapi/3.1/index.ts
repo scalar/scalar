@@ -22,7 +22,12 @@ export { asyncApiOperationReplyAddressObject } from './operation-reply-address'
 export { asyncApiOperationTraitObject } from './operation-trait'
 export { asyncApiParameterObject } from './parameter'
 export { asyncApiParametersObject } from './parameters'
-export { type MaybeRefFn, asyncApiReferenceObject, normalRef, recursiveRef } from './reference'
+export {
+  type MaybeRefFn,
+  asyncApiReferenceObject,
+  asyncApiResolvedReference,
+  recursiveRef,
+} from './reference'
 export { asyncApiMultiFormatSchemaObject, asyncApiSchemaPayload } from './schema-payload'
 export { asyncApiSecuritySchemeObject } from './security-scheme'
 export { asyncApiServerObject, asyncApiServersObject } from './server'

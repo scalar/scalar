@@ -1,9 +1,9 @@
 import { object, optional, string } from '@scalar/validation'
 
-import { normalRef } from './reference'
+import { recursiveRef } from './reference'
 
 /** License Object | Reference Object */
-export const asyncApiLicenseObject = normalRef(
+export const asyncApiLicenseObject = recursiveRef(
   object(
     {
       name: string({ typeComment: 'REQUIRED. The license name used for the API.' }),

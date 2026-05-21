@@ -4,7 +4,7 @@ import { asyncApiChannelsObject } from './channel'
 import { asyncApiComponentsObject } from './components'
 import { asyncApiInfoObject } from './info'
 import { asyncApiOperationsObject } from './operation'
-import { normalRef } from './reference'
+import { recursiveRef } from './reference'
 import { asyncApiServersObject } from './server'
 
 /**
@@ -31,7 +31,7 @@ export const asyncApiObjectSchema = object(
     ),
     channels: optional(asyncApiChannelsObject),
     operations: optional(asyncApiOperationsObject),
-    components: optional(normalRef(asyncApiComponentsObject)),
+    components: optional(recursiveRef(asyncApiComponentsObject)),
   },
   {
     typeName: 'AsyncApiObject',

@@ -1,9 +1,9 @@
 import { object, optional, string } from '@scalar/validation'
 
-import { normalRef } from './reference'
+import { recursiveRef } from './reference'
 
 /** External Documentation Object | Reference Object */
-export const asyncApiExternalDocumentationObject = normalRef(
+export const asyncApiExternalDocumentationObject = recursiveRef(
   object(
     {
       description: optional(

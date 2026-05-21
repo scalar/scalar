@@ -1,6 +1,6 @@
 import { literal, object, optional, string, union, unknown } from '@scalar/validation'
 
-import { normalRef } from './reference'
+import { recursiveRef } from './reference'
 
 export const asyncApiMultiFormatSchemaObject = object(
   {
@@ -30,7 +30,7 @@ const asyncApiSchemaJsonShape = union(
 )
 
 /** Multi Format Schema Object | Schema Object | Reference Object */
-export const asyncApiSchemaPayload = normalRef(
+export const asyncApiSchemaPayload = recursiveRef(
   union([asyncApiMultiFormatSchemaObject, asyncApiSchemaJsonShape], {
     typeName: 'AsyncApiMultiFormatSchemaOrSchemaObject',
   }),

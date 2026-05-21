@@ -1,10 +1,10 @@
 import { array, literal, object, optional, string, union } from '@scalar/validation'
 
 import { asyncApiOAuthFlowsObject } from './oauth'
-import { normalRef } from './reference'
+import { recursiveRef } from './reference'
 
 /** Security Scheme Object | Reference Object */
-export const asyncApiSecuritySchemeObject = normalRef(
+export const asyncApiSecuritySchemeObject = recursiveRef(
   object(
     {
       type: union(
@@ -52,7 +52,7 @@ export const asyncApiSecuritySchemeObject = normalRef(
       bearerFormat: optional(
         string({ typeComment: 'A hint to the client to identify how the bearer token is formatted.' }),
       ),
-      flows: optional(normalRef(asyncApiOAuthFlowsObject)),
+      flows: optional(recursiveRef(asyncApiOAuthFlowsObject)),
       openIdConnectUrl: optional(
         string({
           typeComment:

@@ -1,9 +1,9 @@
 import { object, optional, string } from '@scalar/validation'
 
-import { normalRef } from './reference'
+import { recursiveRef } from './reference'
 
 /** Operation Reply Address Object | Reference Object */
-export const asyncApiOperationReplyAddressObject = normalRef(
+export const asyncApiOperationReplyAddressObject = recursiveRef(
   object(
     {
       description: optional(

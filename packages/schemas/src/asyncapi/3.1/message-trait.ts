@@ -4,12 +4,12 @@ import { asyncApiMessageBindingsObject } from './bindings'
 import { asyncApiCorrelationIdObject } from './correlation-id'
 import { asyncApiExternalDocumentationObject } from './external-documentation'
 import { asyncApiMessageExampleObject } from './message-example'
-import { normalRef } from './reference'
+import { recursiveRef } from './reference'
 import { asyncApiSchemaPayload } from './schema-payload'
 import { asyncApiTagsObject } from './tag'
 
 /** Message Trait Object | Reference Object */
-export const asyncApiMessageTraitObject = normalRef(
+export const asyncApiMessageTraitObject = recursiveRef(
   object(
     {
       headers: optional(asyncApiSchemaPayload),
@@ -31,8 +31,8 @@ export const asyncApiMessageTraitObject = normalRef(
       ),
       tags: optional(asyncApiTagsObject),
       externalDocs: optional(asyncApiExternalDocumentationObject),
-      bindings: optional(normalRef(asyncApiMessageBindingsObject)),
-      examples: optional(array(normalRef(asyncApiMessageExampleObject))),
+      bindings: optional(recursiveRef(asyncApiMessageBindingsObject)),
+      examples: optional(array(recursiveRef(asyncApiMessageExampleObject))),
     },
     { typeName: 'AsyncApiMessageTraitObject' },
   ),

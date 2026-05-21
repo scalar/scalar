@@ -1,23 +1,25 @@
 import { array, lazy, literal, object, optional, record, string, union } from '@scalar/validation'
 
 import { asyncApiOperationBindingsObject } from './bindings'
+import { asyncApiChannelObject } from './channel'
 import { asyncApiExternalDocumentationObject } from './external-documentation'
+import { asyncApiMessageObject } from './message'
 import { asyncApiOperationReplyObject } from './operation-reply'
 import { asyncApiOperationTraitObject } from './operation-trait'
-import { asyncApiReferenceObject, normalRef } from './reference'
+import { asyncApiResolvedReference, recursiveRef } from './reference'
 import { asyncApiSecuritySchemeObject } from './security-scheme'
 import { asyncApiTagsObject } from './tag'
 
 /** Operation Object | Reference Object */
 export const asyncApiOperationObject = lazy(() =>
-  normalRef(
+  recursiveRef(
     object(
       {
         action: union([literal('send'), literal('receive')], {
           typeComment:
             'REQUIRED. send when the application sends to the channel; receive when it receives from the channel.',
         }),
-        channel: asyncApiReferenceObject,
+        channel: asyncApiResolvedReference(asyncApiChannelObject),
         title: optional(string({ typeComment: 'A human-friendly title for the operation.' })),
         summary: optional(string({ typeComment: 'A short summary of what the operation is about.' })),
         description: optional(
@@ -34,10 +36,10 @@ export const asyncApiOperationObject = lazy(() =>
         ),
         tags: optional(asyncApiTagsObject),
         externalDocs: optional(asyncApiExternalDocumentationObject),
-        bindings: optional(normalRef(asyncApiOperationBindingsObject)),
+        bindings: optional(recursiveRef(asyncApiOperationBindingsObject)),
         traits: optional(array(asyncApiOperationTraitObject)),
         messages: optional(
-          array(asyncApiReferenceObject, {
+          array(asyncApiResolvedReference(asyncApiMessageObject), {
             typeComment:
               'Subset of channel messages as Reference Objects only. Omit to include all channel messages; use [] for none.',
           }),
