@@ -60,6 +60,8 @@
     "integrations/nuxt/src/runtime/pages/ScalarPage.vue": ["unresolved"],
     // Public AsyncAPI type namespaces are consumed by downstream packages, but knip cannot infer external type usage
     "packages/types/src/asyncapi/3.1/index.generated.ts": ["types"],
+    // Public OpenAPI type namespaces are consumed by downstream packages, but knip cannot infer external type usage
+    "packages/types/src/openapi/3.1/index.generated.ts": ["types"],
     // Public extension type namespaces are consumed via @scalar/types/extensions/* package exports
     "packages/types/src/extensions/**/*.ts": ["types", "exports"]
   },
@@ -181,6 +183,7 @@
       "entry": [
         "src/api-reference/index.ts",
         "src/asyncapi/3.1/index.ts",
+        "src/openapi/3.1/index.ts",
         // Extension barrels are consumed by scripts/generate-types.ts via dynamic import
         "src/extensions/**/index.ts",
         "src/extensions/**/*.test.ts"
@@ -235,6 +238,7 @@
         "src/api-reference/base-configuration.ts",
         "src/api-reference/api-reference-configuration.ts",
         "src/asyncapi/3.1/index.ts",
+        "src/openapi/3.1/index.ts",
         // Generated extension types are public API via package.json exports
         "src/extensions/index.ts",
         "src/extensions/**/index.ts"

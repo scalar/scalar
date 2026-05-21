@@ -125,4 +125,9 @@ export const createOpenApiDocumentSchema = (maybeRef: MaybeRefFn): Schema => {
   })
 }
 
-export const defaultDocumentSchema = createOpenApiDocumentSchema(normalRef)
+/**
+ * Root OpenAPI 3.1 document object using {@link normalRef}.
+ *
+ * @see https://spec.openapis.org/oas/v3.1.0
+ */
+export const openApiDocumentSchema = createOpenApiDocumentSchema(normalRef)

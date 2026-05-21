@@ -19,7 +19,7 @@ export {
   openApiOAuthFlowsObject,
   openApiPasswordOAuth2FlowObject,
 } from './oauth'
-export { createOpenApiDocumentSchema } from './openapi-object'
+export { createOpenApiDocumentSchema, openApiDocumentSchema } from './openapi-object'
 export {
   createOpenApiOperationSchemas,
   openApiCallbackObject,
