@@ -39,7 +39,7 @@ const multipleExamplesLabel = computed(() =>
  * to the actual sample. Plain values pass through untouched.
  */
 function unwrapExampleObject(value: unknown): unknown {
-  if (value && typeof value === 'object' && !Array.isArray(value)) {
+  if (isObject(value)) {
     if ('value' in value) {
       return value.value
     }
