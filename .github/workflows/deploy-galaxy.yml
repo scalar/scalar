@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       environment:
-        description: 'Deployment environment — "staging" for PR previews, "production" for main'
+        description: 'Target environment — "production" for release commits on main, "staging" otherwise'
         type: string
         required: true
       pr-number:
@@ -53,8 +53,9 @@ jobs:
           packages: 'galaxy-scalar-com...'
 
       # PR preview — `wrangler versions upload` creates an immutable Worker
-      # version with its own preview URL. It does not touch the live route,
-      # so galaxy.scalar.com keeps serving the previously deployed version.
+      # version with its own preview URL. It does not touch a live route, so
+      # galaxy.scalar.com and galaxy.staging.scalar.com keep serving their
+      # deployed versions. Previews are uploaded to the staging Worker.
       - name: Upload Worker preview version
         if: inputs.pr-number != ''
         id: deploy-preview
@@ -63,19 +64,28 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: projects/galaxy-scalar-com
-          command: versions upload
+          command: versions upload --env staging
 
-      # Main branch deploy — used for both staging (merge) and production
-      # (release). The active environment determines which secrets are used.
-      - name: Deploy Worker
-        if: inputs.pr-number == ''
-        id: deploy-main
+      # Release commit on main — deploy the production Worker (galaxy.scalar.com).
+      - name: Deploy Worker to production
+        if: inputs.pr-number == '' && inputs.environment == 'production'
         uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: projects/galaxy-scalar-com
           command: deploy
+
+      # Non-release commit on main — deploy the staging Worker
+      # (galaxy.staging.scalar.com).
+      - name: Deploy Worker to staging
+        if: inputs.pr-number == '' && inputs.environment == 'staging'
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: projects/galaxy-scalar-com
+          command: deploy --env staging
 
       # `wrangler versions upload` has no dedicated wrangler-action output, so
       # parse the workers.dev preview URL out of the command output. Fail the

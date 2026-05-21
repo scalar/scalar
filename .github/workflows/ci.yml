@@ -969,25 +969,37 @@ jobs:
       sha: ${{ github.event.pull_request.head.sha || github.sha }}
     secrets: inherit
 
-  # Deploy galaxy-scalar-com to Cloudflare Workers:
-  # - same-repo PR previews upload a preview version (staging)
-  # - merges to main deploy the live Worker (production)
+  # Deploy galaxy-scalar-com to Cloudflare Workers. Like deploy-api-client, this
+  # runs for PR previews and every main push, and waits for npm-publish so it
+  # knows whether this commit released a dependency (-> production) or not
+  # (-> staging). `!cancelled()` lets it proceed when npm-publish is skipped
+  # (PRs); the explicit build/check-changes success gates are re-added because
+  # `!cancelled()` overrides the implicit `success()` check on `needs`.
   deploy-galaxy:
     if: |
+      !cancelled() &&
+      needs.build.result == 'success' &&
+      needs.check-changes.result == 'success' &&
+      needs.npm-publish.result != 'failure' &&
       (
-        github.event_name == 'pull_request' &&
-        github.event.pull_request.head.repo.full_name == github.repository &&
-        !contains(github.actor, '[bot]') &&
-        needs.check-changes.outputs.galaxy_app_changed == 'true'
-      ) ||
-      github.ref == 'refs/heads/main'
-    needs: [build, check-changes]
+        (
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          !contains(github.actor, '[bot]') &&
+          needs.check-changes.outputs.galaxy_app_changed == 'true'
+        ) ||
+        github.ref == 'refs/heads/main'
+      )
+    needs: [build, check-changes, npm-publish]
     concurrency:
       group: deploy-galaxy-${{ github.ref }}
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     uses: ./.github/workflows/deploy-galaxy.yml
     with:
-      environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+      # 'production' when this commit released packages to npm — galaxy's
+      # dependencies ship with every release. 'staging' for ordinary merges to
+      # main and for PR previews.
+      environment: ${{ needs.npm-publish.outputs.published == 'true' && 'production' || 'staging' }}
       pr-number: ${{ github.event.pull_request.number }}
       sha: ${{ github.event.pull_request.head.sha || github.sha }}
     secrets: inherit

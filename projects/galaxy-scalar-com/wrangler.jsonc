@@ -8,7 +8,16 @@
   // imported as text: `import doc from '@scalar/galaxy/3.1.yaml'`. fallthrough
   // keeps wrangler's built-in module rules (.txt, .html, .sql) intact.
   "rules": [{ "type": "Text", "globs": ["**/*.yaml"], "fallthrough": true }],
-  // Serve the Worker on its public domain.
+  // Production Worker — serves galaxy.scalar.com.
   "routes": [{ "pattern": "galaxy.scalar.com", "custom_domain": true }],
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  // Staging Worker — serves galaxy.staging.scalar.com and hosts PR preview
+  // versions. main, compatibility settings, rules, and observability are
+  // inherited from the top-level config above.
+  "env": {
+    "staging": {
+      "name": "galaxy-scalar-com-staging",
+      "routes": [{ "pattern": "galaxy.staging.scalar.com", "custom_domain": true }]
+    }
+  }
 }
