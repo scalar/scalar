@@ -1,5 +1,15 @@
 # scalar-app
 
+## 1.1.2
+
+### Patch Changes
+
+- [#9314](https://github.com/scalar/scalar/pull/9314): fix(scalar-app): redirect to the correct HTML file on logout in Electron
+
+  On Electron the app loads from a `file://` URL and uses hash-based routing, so the previous `window.location.href = '/'` resolved to the filesystem root and broke the app. Logout now resets the hash on the current HTML file and reloads on Electron, while the web build still hard routes to `/`.
+
+- [#9316](https://github.com/scalar/scalar/pull/9316): chore: load env vars correctly
+
 ## 1.1.1
 
 ### Patch Changes
