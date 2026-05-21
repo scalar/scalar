@@ -16,7 +16,6 @@
       "!**/test-results/**",
       "!**/build/**",
       "!**/cdn/**",
-      "!**/cloudbuild.json",
       "!**/fixtures/**",
       "!**/node_modules/**",
       "!**/dist/**",
