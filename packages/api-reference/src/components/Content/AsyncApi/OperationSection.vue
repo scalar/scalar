@@ -95,7 +95,7 @@ const messages = computed(() => {
           </SectionHeaderTag>
         </Anchor>
         <Badge
-          class="action-badge font-code uppercase"
+          class="font-code ml-2 align-middle uppercase"
           :class="actionBadge.class">
           {{ actionBadge.label }}
         </Badge>
@@ -117,11 +117,3 @@ const messages = computed(() => {
     </Section>
   </SectionContainer>
 </template>
-
-<style scoped>
-/* Sit the action badge inline next to the heading, centered against the text */
-.action-badge {
-  margin-left: 8px;
-  vertical-align: middle;
-}
-</style>

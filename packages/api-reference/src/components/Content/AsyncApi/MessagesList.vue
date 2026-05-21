@@ -17,7 +17,8 @@ defineProps<{
 
 <template>
   <template v-if="messages.length > 0">
-    <ScalarCard class="messages-card">
+    <ScalarCard
+      class="sticky top-[calc(var(--refs-viewport-offset)+24px)] text-base">
       <ScalarCardHeader muted>
         <ScreenReader>{{ title }}</ScreenReader>
         Messages
@@ -25,11 +26,11 @@ defineProps<{
       <ScalarCardSection class="custom-scroll max-h-[60vh]">
         <ul
           :aria-label="`${title} messages`"
-          class="messages">
+          class="bg-b-2 w-full overflow-auto px-3 py-2.5">
           <li
             v-for="message in messages"
             :key="message.id"
-            class="message">
+            class="text-c-1 font-code flex text-[length:var(--scalar-small)] leading-[1.55] whitespace-nowrap">
             {{ message.label }}
           </li>
         </ul>
@@ -37,25 +38,3 @@ defineProps<{
     </ScalarCard>
   </template>
 </template>
-
-<style scoped>
-.messages-card {
-  position: sticky;
-  top: calc(var(--refs-viewport-offset) + 24px);
-  font-size: var(--scalar-font-size-3);
-}
-.messages {
-  overflow: auto;
-  background: var(--scalar-background-2);
-  padding: 10px 12px;
-  width: 100%;
-}
-.message {
-  display: flex;
-  white-space: nowrap;
-  color: var(--scalar-color-1);
-  line-height: 1.55;
-  font-family: var(--scalar-font-code);
-  font-size: var(--scalar-small);
-}
-</style>
