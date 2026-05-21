@@ -739,6 +739,7 @@ jobs:
   push-to-scalar-registry:
     if: needs.npm-publish.outputs.published == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-scalar-registry
     timeout-minutes: 10
     needs: [build, test-packages, npm-publish]
 
@@ -1008,6 +1009,7 @@ jobs:
       needs.check-changes.outputs.galaxy_changed == 'true'
     needs: [build, check-changes]
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: staging-scalar-registry
     timeout-minutes: 10
     permissions:
       contents: read
