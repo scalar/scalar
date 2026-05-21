@@ -390,6 +390,11 @@
         "@scalar/api-client" // referenced in /src/runtime/components/nuxt-theme.css
       ]
     },
+    "projects/galaxy-scalar-com": {
+      // src/_worker.ts is the Cloudflare Pages worker entry, bundled by the
+      // build script; knip cannot infer it without a wrangler config file.
+      "entry": ["src/_worker.ts"]
+    },
     "projects/scalar-app": {
       "ignoreDependencies": [
         // Used as a Vite/Vitest alias target, not imported directly
