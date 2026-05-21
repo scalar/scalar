@@ -35,6 +35,9 @@ ENV API_REFERENCE_CONFIG=undefined
 # Environment variable for CDN URL
 ENV CDN_URL=scalar.js
 
+# Environment variable for the URL prefix when serving under a subpath (for example, "/docs")
+ENV BASE_PATH=""
+
 
 # Use the startup script as entrypoint
 ENTRYPOINT ["/usr/local/bin/start.sh"]
