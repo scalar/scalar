@@ -2,4 +2,4 @@
 '@scalar/schemas': patch
 ---
 
-refactor: flatten OpenAPI 3.1 schemas
+refactor: flatten and split OpenAPI 3.1 schemas into separate files
