@@ -1,53 +1,38 @@
-# Default code owner (overwritten by more specific entries)
-* @hanspagel @amritk @geoffgscott @marclave
+# Scalar OSS Codeowners
+#
+# By default most of the repository only requires review from a
+# member of the Scalar Engineering team. We want to keep this
+# open where possible to avoid blocking PRs unnecessarily.
 
-# Root level code owners
-/.github @hanspagel @geoffgscott
-/*.md @hanspagel @marclave
+# Base owners (overwritten by more specific entries)
+* @scalar/engineers
 
-# Renovate
-/.github/renovate.json @hanspagel
-
-# Documentation
-/documentation @hanspagel @marclave @hwkr @cameronrohani
-
-# Changesets
+# Changesets - no special review required
 /.changeset
 
-# Cursor rules
-/.cursor @hanspagel @amritk
+# Important repo & ci changes must be approved by Hans
+/.github/ @hanspagel
+/*.md @hanspagel
 
-# Packages
-/integrations/django-ninja @marclave
-/integrations/docusaurus @amritk @marclave
-/integrations/docker @marclave @hanspagel
-/integrations/dotnet @marclave @hanspagel
-/integrations/express @hanspagel @marclave
-/integrations/fastapi @marclave
-/integrations/fastify @hanspagel @marclave
-/integrations/hono @hanspagel @marclave
-/integrations/java @marclave @hanspagel
-/integrations/nestjs @marclave
-/integrations/nextjs @amritk @marclave
-/integrations/nuxt @amritk @marclave
-/packages/api-client @amritk @hanspagel @marclave @DemonHa
-/packages/api-client-react @amritk @marclave
-/packages/api-reference @hanspagel @marclave
-/packages/api-reference-editor @geoffgscott @marclave
-/packages/api-reference-react @amritk @marclave
-/packages/build-tooling @geoffgscott @marclave
-/packages/build-watch @geoffgscott @marclave
-/packages/code-highlight @geoffgscott @marclave
-/packages/components @hwkr @marclave
-/packages/draggable @amritk @marclave
-/packages/galaxy @hanspagel @marclave
+# Project & Package Specific Owners
+#
+# These should be added sparingly for portions of the
+# codebase where a small group of devs have specific
+# domain knowledge and need to be consulted on changes.
+/packages/api-client @amritk @hanspagel @DemonHa
+/packages/api-client-react @amritk
+/packages/api-reference @hanspagel
+/packages/api-reference-react @amritk
+/packages/components @hwkr
+/packages/core @hanspagel
 /packages/json-magic @DemonHa
-/packages/icons @hwkr @marclave
-/packages/mock-server @hanspagel @marclave
-/packages/oas-utils @amritk @hanspagel @marclave
-/packages/themes @hwkr @cameronrohani @marclave
-/packages/use-hooks @hwkr @hanspagel @marclave
-/packages/void-server @hanspagel @marclave
+/packages/icons @hwkr
+/packages/mock-server @hanspagel
+/packages/oas-utils @amritk @hanspagel
+/packages/openapi-parser @hanspagel @DemonHa
+/packages/pre-post-request-scripts @amritk @hanspagel @DemonHa
+/packages/sidebar @hwkr @hanspagel
+/packages/themes @hwkr @cameronrohani
+/packages/use-hooks @hwkr
+/packages/void-server @hanspagel
 /packages/workspace-store @DemonHa @amritk
-
-
