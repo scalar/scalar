@@ -1,6 +1,6 @@
 import { object, optional, record, string } from '@scalar/validation'
 
-import { type MaybeRefFn, normalRef } from './reference'
+import { recursiveRef } from './reference'
 
 export const asyncApiOAuthFlowObject = object(
   {
@@ -29,23 +29,12 @@ export const asyncApiOAuthFlowObject = object(
   { typeName: 'AsyncApiOAuthFlowObject' },
 )
 
-/**
- * Builds the OAuth Flows Object schema for {@link generateSchema}.
- *
- * **Not a reference union:** The flows container is always inline. Each flow property
- * (`implicit`, `password`, and so on) is `OAuth Flow Object | Reference Object` via `maybeRef`.
- *
- * @param maybeRef - `normalRef` or `recursiveRef` from `./reference`.
- */
-export const createAsyncApiOAuthFlowsObject = (maybeRef: MaybeRefFn) =>
-  object(
-    {
-      implicit: optional(maybeRef(asyncApiOAuthFlowObject)),
-      password: optional(maybeRef(asyncApiOAuthFlowObject)),
-      clientCredentials: optional(maybeRef(asyncApiOAuthFlowObject)),
-      authorizationCode: optional(maybeRef(asyncApiOAuthFlowObject)),
-    },
-    { typeName: 'AsyncApiOAuthFlowsObject' },
-  )
-
-export const asyncApiOAuthFlowsObject = createAsyncApiOAuthFlowsObject(normalRef)
+export const asyncApiOAuthFlowsObject = object(
+  {
+    implicit: optional(recursiveRef(asyncApiOAuthFlowObject)),
+    password: optional(recursiveRef(asyncApiOAuthFlowObject)),
+    clientCredentials: optional(recursiveRef(asyncApiOAuthFlowObject)),
+    authorizationCode: optional(recursiveRef(asyncApiOAuthFlowObject)),
+  },
+  { typeName: 'AsyncApiOAuthFlowsObject' },
+)
