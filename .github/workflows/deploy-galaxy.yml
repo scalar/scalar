@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       environment:
-        description: 'Target environment — "production" for release commits on main, "staging" otherwise'
+        description: 'Target GitHub environment — "production-galaxy-com" for release commits on main, "staging-galaxy-com" otherwise'
         type: string
         required: true
       pr-number:

@@ -996,10 +996,10 @@ jobs:
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     uses: ./.github/workflows/deploy-galaxy.yml
     with:
-      # 'production' when this commit released packages to npm — galaxy's
-      # dependencies ship with every release. 'staging' for ordinary merges to
-      # main and for PR previews.
-      environment: ${{ needs.npm-publish.outputs.published == 'true' && 'production' || 'staging' }}
+      # Release commits (npm publish) target the production-galaxy-com
+      # environment — galaxy's dependencies ship with every release. Ordinary
+      # merges to main and PR previews target staging-galaxy-com.
+      environment: ${{ needs.npm-publish.outputs.published == 'true' && 'production-galaxy-com' || 'staging-galaxy-com' }}
       pr-number: ${{ github.event.pull_request.number }}
       sha: ${{ github.event.pull_request.head.sha || github.sha }}
     secrets: inherit

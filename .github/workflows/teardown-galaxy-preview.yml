@@ -14,7 +14,7 @@ jobs:
       github.event.pull_request.base.ref == 'main' &&
       github.event.pull_request.head.repo.full_name == github.repository
     runs-on: blacksmith-2vcpu-ubuntu-2204
-    environment: staging
+    environment: staging-galaxy-com
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
