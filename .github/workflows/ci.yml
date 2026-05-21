@@ -1168,6 +1168,7 @@ jobs:
   docker-publish:
     if: needs.npm-publish.outputs.published == 'true' && needs.check-changes.outputs.docker_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-dockerhub
     timeout-minutes: 10
     concurrency:
       group: docker-publish
@@ -1232,6 +1233,7 @@ jobs:
   mock-server-docker-publish:
     if: needs.npm-publish.outputs.published == 'true' && needs.check-changes.outputs.mock_server_docker_package_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-dockerhub
     timeout-minutes: 10
     concurrency:
       group: mock-server-docker-publish
