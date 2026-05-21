@@ -1,5 +1,11 @@
 # @scalar/server-side-rendering
 
+## 0.1.18
+
+### Patch Changes
+
+- [#9274](https://github.com/scalar/scalar/pull/9274): fix(server-side-rendering): update build script to correct import path
+
 ## 0.1.17
 
 ## 0.1.16

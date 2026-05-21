@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.57.3
+
+### Patch Changes
+
+- [#9169](https://github.com/scalar/scalar/pull/9169): feat: add `customFetch` to the api-reference configuration and forward it to the API client so requests (including "Test Request" calls) use the custom fetch — enabling things like `credentials: 'include'`. The previous `fetch` option is deprecated and migrated automatically with a console warning.
+- [#9273](https://github.com/scalar/scalar/pull/9273): fix: render `null`, whitespace-only, and `value`/`externalValue`-shaped schema examples correctly
+
 ## 1.57.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.9.9
+
+### Patch Changes
+
+- [#9145](https://github.com/scalar/scalar/pull/9145): feat(snippetz): pretty-print JSON values inside cURL `--data` bodies and `--form` multipart parts, including RFC 6839 `+json` structured-syntax types (e.g. `application/vnd.api+json`) and parameterized variants (e.g. `application/json;charset=utf-8`)
+
 ## 0.9.8
 
 ### Patch Changes

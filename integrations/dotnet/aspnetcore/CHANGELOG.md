@@ -1,5 +1,11 @@
 # @scalar/aspnetcore
 
+## 2.15.0
+
+### Minor Changes
+
+- [#9240](https://github.com/scalar/scalar/pull/9240): Support cryptographic nonce for script tags, with automatic per-request generation via the parameterless `WithNonce()` extension.
+
 ## 2.14.15
 
 ## 2.14.14

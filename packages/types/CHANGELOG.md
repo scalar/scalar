@@ -1,5 +1,18 @@
 # @scalar/types
 
+## 0.12.0
+
+### Minor Changes
+
+- [#9264](https://github.com/scalar/scalar/pull/9264): feat: add AsyncAPI 3.1 types and `@scalar/types/asyncapi/3.1` export
+- [#9297](https://github.com/scalar/scalar/pull/9297): feat: add asyncapi extensions
+
+### Patch Changes
+
+- [#9169](https://github.com/scalar/scalar/pull/9169): feat: add `customFetch` to the api-reference configuration and forward it to the API client so requests (including "Test Request" calls) use the custom fetch — enabling things like `credentials: 'include'`. The previous `fetch` option is deprecated and migrated automatically with a console warning.
+- [#9294](https://github.com/scalar/scalar/pull/9294): refactor: move the schemas to the schemas folder and generate the types from schemas
+- [#9292](https://github.com/scalar/scalar/pull/9292): refactor: move extensions to the schema package
+
 ## 0.11.0
 
 ### Minor Changes
