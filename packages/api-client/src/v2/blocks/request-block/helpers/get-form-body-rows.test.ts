@@ -302,6 +302,225 @@ describe('getFormBodyRows', () => {
       expect(result[1].isRequired).toBe(true)
     })
 
+    it('expands nested object properties into dotted rows (widget #4834 example)', () => {
+      const example: ExampleObject = {
+        value: {
+          file: '',
+          props: { name: '', description: '', created_at: null },
+        },
+      }
+      const formBodySchema: SchemaObject = {
+        type: 'object',
+        required: ['file', 'props'],
+        properties: {
+          file: {
+            description: 'File to upload',
+            type: 'string',
+            format: 'binary',
+          },
+          props: {
+            type: 'object',
+            required: ['name', 'description'],
+            properties: {
+              name: { type: 'string' },
+              description: { type: 'string' },
+              created_at: { type: 'string', format: 'date-time' },
+            },
+          },
+        },
+      }
+
+      const result = getFormBodyRows(example, 'multipart/form-data', formBodySchema)
+
+      expect(result.map((row) => row.name)).toEqual(['file', 'props.name', 'props.description', 'props.created_at'])
+      expect(result[0]?.description).toBe('File to upload')
+      expect(result[0]?.isRequired).toBe(true)
+      expect(result[1]?.isRequired).toBe(true)
+      expect(result[2]?.isRequired).toBe(true)
+      expect(result[3]?.isRequired).toBe(false)
+      expect(result[1]?.value).toBe('')
+      // `created_at` is null in the example (its schema allows `null`); the row should
+      // render as an empty input rather than the literal string "null".
+      expect(result[3]?.value).toBe('')
+      expect(result[3]?.schema).toBeDefined()
+    })
+
+    it('walks deeper than one level of nesting', () => {
+      const example: ExampleObject = {
+        value: { a: { b: { c: 'leaf' } } },
+      }
+      const formBodySchema: SchemaObject = {
+        type: 'object',
+        properties: {
+          a: {
+            type: 'object',
+            properties: {
+              b: {
+                type: 'object',
+                properties: {
+                  c: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const result = getFormBodyRows(example, 'multipart/form-data', formBodySchema)
+      expect(result).toHaveLength(1)
+      expect(result[0]?.name).toBe('a.b.c')
+      expect(result[0]?.value).toBe('leaf')
+    })
+
+    it('cascades required: a leaf is required only when every ancestor is required', () => {
+      const formBodySchema: SchemaObject = {
+        type: 'object',
+        required: [],
+        properties: {
+          props: {
+            type: 'object',
+            required: ['name'],
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+        },
+      }
+      const example: ExampleObject = { value: { props: { name: '' } } }
+
+      const result = getFormBodyRows(example, 'multipart/form-data', formBodySchema)
+      expect(result).toHaveLength(1)
+      // `props` is not required, so `props.name` cannot be required either
+      expect(result[0]?.isRequired).toBe(false)
+    })
+
+    it('keeps the leaf schema + required flag on dotted-name array rows (after edits)', () => {
+      // Once the user edits any row, `example.value` is stored as a flat row array. The
+      // dotted name still needs to resolve to its nested leaf in the schema so the
+      // `Required` badge and per-field schema metadata survive across re-renders.
+      const example: ExampleObject = {
+        value: [
+          { name: 'file', value: '@filename', isDisabled: false },
+          { name: 'props.name', value: 'edited', isDisabled: false },
+          { name: 'props.description', value: '', isDisabled: false },
+          { name: 'props.created_at', value: '', isDisabled: false },
+        ],
+      }
+      const formBodySchema: SchemaObject = {
+        type: 'object',
+        required: ['file', 'props'],
+        properties: {
+          file: { type: 'string', format: 'binary' },
+          props: {
+            type: 'object',
+            required: ['name', 'description'],
+            properties: {
+              name: { type: 'string' },
+              description: { type: 'string' },
+              created_at: { type: 'string', format: 'date-time' },
+            },
+          },
+        },
+      }
+
+      const result = getFormBodyRows(example, 'multipart/form-data', formBodySchema)
+
+      expect(result.map((row) => [row.name, row.isRequired])).toEqual([
+        ['file', true],
+        ['props.name', true],
+        ['props.description', true],
+        ['props.created_at', false],
+      ])
+      expect(result[1]?.schema).toBeDefined()
+      expect(result[2]?.schema).toBeDefined()
+    })
+
+    it('emits example properties that are not declared in the schema', () => {
+      // A schema-derived example can carry keys the schema does not declare — either at
+      // the top level or inside a nested object. Those rows still need to be visible and
+      // editable; otherwise the user has no way to inspect or change them from the UI.
+      const example: ExampleObject = {
+        value: {
+          file: '',
+          props: { name: 'Widget', extra: 'undeclared-inner' },
+          top_extra: 'undeclared-top',
+        },
+      }
+      const formBodySchema: SchemaObject = {
+        type: 'object',
+        properties: {
+          file: { type: 'string', format: 'binary' },
+          props: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+        },
+      }
+
+      const result = getFormBodyRows(example, 'multipart/form-data', formBodySchema)
+
+      expect(result.map((row) => row.name)).toEqual(['file', 'props.name', 'props.extra', 'top_extra'])
+      expect(result.find((row) => row.name === 'props.extra')?.value).toBe('undeclared-inner')
+      expect(result.find((row) => row.name === 'top_extra')?.value).toBe('undeclared-top')
+    })
+
+    it('does not expand nested object properties into dotted rows for urlencoded bodies', () => {
+      // Urlencoded has no spec-defined way to serialize one nested object across multiple
+      // dotted-name keys (and `buildRequestBody` only regroups dotted rows for multipart),
+      // so emitting `props.name`-style leaves here would round-trip into flat fields on send.
+      // Stay on a single top-level row per property; the inner object is JSON-stringified
+      // by the array branch when the example is saved back as a row array.
+      const example: ExampleObject = {
+        value: {
+          token: 'abc',
+          props: { name: 'Widget', description: 'A useful widget' },
+        },
+      }
+      const formBodySchema: SchemaObject = {
+        type: 'object',
+        properties: {
+          token: { type: 'string' },
+          props: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              description: { type: 'string' },
+            },
+          },
+        },
+      }
+
+      const result = getFormBodyRows(example, 'application/x-www-form-urlencoded', formBodySchema)
+
+      expect(result.map((row) => row.name)).toEqual(['token', 'props'])
+      expect(result[1]?.value).toBe(JSON.stringify({ name: 'Widget', description: 'A useful widget' }))
+    })
+
+    it('preserves File values when walking nested schema', () => {
+      const file = new File([''], 'avatar.png', { type: 'image/png' })
+      const example: ExampleObject = {
+        value: { upload: { file } },
+      }
+      const formBodySchema: SchemaObject = {
+        type: 'object',
+        properties: {
+          upload: {
+            type: 'object',
+            properties: {
+              file: { type: 'string', format: 'binary' },
+            },
+          },
+        },
+      }
+
+      const result = getFormBodyRows(example, 'multipart/form-data', formBodySchema)
+      expect(result).toHaveLength(1)
+      expect(result[0]?.name).toBe('upload.file')
+      expect(result[0]?.value).toBe(file)
+    })
+
     it('handles empty required array', () => {
       const example: ExampleObject = {
         value: [{ name: 'optionalField', value: 'x', isDisabled: false }],

@@ -52,7 +52,7 @@
         },
         {
           "property": "og:title",
-          "content": "Scalar - The OpenAPI Company"
+          "content": "Scalar - The API Company"
         },
         {
           "property": "og:description",
@@ -76,7 +76,7 @@
         },
         {
           "name": "twitter:title",
-          "content": "Scalar - The OpenAPI Company"
+          "content": "Scalar - The API Company"
         },
         {
           "name": "twitter:description",

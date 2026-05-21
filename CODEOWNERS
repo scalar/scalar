@@ -1,53 +1,24 @@
-# Default code owner (overwritten by more specific entries)
-* @hanspagel @amritk @geoffgscott @marclave
-
-# Root level code owners
-/.github @hanspagel @geoffgscott
-/*.md @hanspagel @marclave
-
-# Renovate
-/.github/renovate.json @hanspagel
-
-# Documentation
-/documentation @hanspagel @marclave @hwkr @cameronrohani
+# Default code owners (overwritten by more specific entries)
+* @marclave @hanspagel @amritk
 
 # Changesets
 /.changeset
 
-# Cursor rules
-/.cursor @hanspagel @amritk
+# Amrit + Redis
+/packages/api-client @marclave @hanspagel @amritk @DemonHa
+/packages/json-magic @marclave @hanspagel @amritk @DemonHa
+/packages/pre-post-request-scripts @marclave @hanspagel @amritk @DemonHa
+/packages/schemas @marclave @hanspagel @amritk @DemonHa
+/packages/types @marclave @hanspagel @amritk @DemonHa
+/packages/validation @marclave @hanspagel @amritk @DemonHa
+/packages/workspace-store @marclave @hanspagel @amritk @DemonHa
 
-# Packages
-/integrations/django-ninja @marclave
-/integrations/docusaurus @amritk @marclave
-/integrations/docker @marclave @hanspagel
-/integrations/dotnet @marclave @hanspagel
-/integrations/express @hanspagel @marclave
-/integrations/fastapi @marclave
-/integrations/fastify @hanspagel @marclave
-/integrations/hono @hanspagel @marclave
-/integrations/java @marclave @hanspagel
-/integrations/nestjs @marclave
-/integrations/nextjs @amritk @marclave
-/integrations/nuxt @amritk @marclave
-/packages/api-client @amritk @hanspagel @marclave @DemonHa
-/packages/api-client-react @amritk @marclave
-/packages/api-reference @hanspagel @marclave
-/packages/api-reference-editor @geoffgscott @marclave
-/packages/api-reference-react @amritk @marclave
-/packages/build-tooling @geoffgscott @marclave
-/packages/build-watch @geoffgscott @marclave
-/packages/code-highlight @geoffgscott @marclave
-/packages/components @hwkr @marclave
-/packages/draggable @amritk @marclave
-/packages/galaxy @hanspagel @marclave
-/packages/json-magic @DemonHa
-/packages/icons @hwkr @marclave
-/packages/mock-server @hanspagel @marclave
-/packages/oas-utils @amritk @hanspagel @marclave
-/packages/themes @hwkr @cameronrohani @marclave
-/packages/use-hooks @hwkr @hanspagel @marclave
-/packages/void-server @hanspagel @marclave
-/packages/workspace-store @DemonHa @amritk
-
-
+# Brynn + Cam
+/packages/components @marclave @hanspagel @amritk @hwkr @cameronrohani
+/packages/icons @marclave @hanspagel @amritk @hwkr @cameronrohani
+/packages/sidebar @marclave @hanspagel @amritk @hwkr @cameronrohani @DemonHa
+/packages/themes @marclave @hanspagel @amritk @hwkr @cameronrohani
+/packages/use-hooks @marclave @hanspagel @amritk @hwkr @cameronrohani
+/packages/use-toasts @marclave @hanspagel @amritk @hwkr @cameronrohani
+/documentation @marclave @hanspagel @hwkr @cameronrohani
+/*.md @marclave @hanspagel @hwkr @cameronrohani

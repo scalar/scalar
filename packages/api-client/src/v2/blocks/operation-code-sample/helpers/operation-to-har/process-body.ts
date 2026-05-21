@@ -67,8 +67,8 @@ const objectToFormParams = (
   const params: Param[] = []
 
   /** Ensure we do not include disabled items */
-  const entries = Array.isArray(obj)
-    ? obj.filter((item) => !item.isDisabled).map((item) => [item.name, item.value])
+  const entries: [string, unknown][] = Array.isArray(obj)
+    ? obj.filter((item) => !item.isDisabled).map((item) => [String(item.name), item.value])
     : Object.entries(obj)
 
   for (const [key, value] of entries) {

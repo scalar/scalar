@@ -244,13 +244,24 @@ const displayType = computed(() => {
 })
 
 const exampleValue = computed(() => {
-  if (isDefined(props.value?.example)) {
+  // Treat only `undefined` as "not set" — `null` is a valid example value on a nullable schema.
+  if (
+    props.value &&
+    'example' in props.value &&
+    props.value.example !== undefined
+  ) {
     return props.value.example
   }
 
   if (props.value && isArraySchema(props.value)) {
-    const itemsExample = resolve.schema(props.value.items)?.example
-    return isDefined(itemsExample) ? itemsExample : undefined
+    const itemsSchema = resolve.schema(props.value.items)
+    if (
+      itemsSchema &&
+      'example' in itemsSchema &&
+      itemsSchema.example !== undefined
+    ) {
+      return itemsSchema.example
+    }
   }
 
   return undefined

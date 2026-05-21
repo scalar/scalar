@@ -43,6 +43,61 @@
       "types": "./dist/entities/index.d.ts",
       "default": "./dist/entities/index.js"
     },
+    "./extensions": {
+      "import": "./dist/extensions/index.js",
+      "types": "./dist/extensions/index.d.ts",
+      "default": "./dist/extensions/index.js"
+    },
+    "./extensions/document": {
+      "import": "./dist/extensions/document/index.js",
+      "types": "./dist/extensions/document/index.d.ts",
+      "default": "./dist/extensions/document/index.js"
+    },
+    "./extensions/example": {
+      "import": "./dist/extensions/example/index.js",
+      "types": "./dist/extensions/example/index.d.ts",
+      "default": "./dist/extensions/example/index.js"
+    },
+    "./extensions/general": {
+      "import": "./dist/extensions/general/index.js",
+      "types": "./dist/extensions/general/index.d.ts",
+      "default": "./dist/extensions/general/index.js"
+    },
+    "./extensions/operation": {
+      "import": "./dist/extensions/operation/index.js",
+      "types": "./dist/extensions/operation/index.d.ts",
+      "default": "./dist/extensions/operation/index.js"
+    },
+    "./extensions/parameter": {
+      "import": "./dist/extensions/parameter/index.js",
+      "types": "./dist/extensions/parameter/index.d.ts",
+      "default": "./dist/extensions/parameter/index.js"
+    },
+    "./extensions/schema": {
+      "import": "./dist/extensions/schema/index.js",
+      "types": "./dist/extensions/schema/index.d.ts",
+      "default": "./dist/extensions/schema/index.js"
+    },
+    "./extensions/security": {
+      "import": "./dist/extensions/security/index.js",
+      "types": "./dist/extensions/security/index.d.ts",
+      "default": "./dist/extensions/security/index.js"
+    },
+    "./extensions/server": {
+      "import": "./dist/extensions/server/index.js",
+      "types": "./dist/extensions/server/index.d.ts",
+      "default": "./dist/extensions/server/index.js"
+    },
+    "./extensions/tag": {
+      "import": "./dist/extensions/tag/index.js",
+      "types": "./dist/extensions/tag/index.d.ts",
+      "default": "./dist/extensions/tag/index.js"
+    },
+    "./extensions/workspace": {
+      "import": "./dist/extensions/workspace/index.js",
+      "types": "./dist/extensions/workspace/index.d.ts",
+      "default": "./dist/extensions/workspace/index.js"
+    },
     "./legacy": {
       "import": "./dist/legacy/index.js",
       "types": "./dist/legacy/index.d.ts",
@@ -57,6 +112,16 @@
       "import": "./dist/utils/index.js",
       "types": "./dist/utils/index.d.ts",
       "default": "./dist/utils/index.js"
+    },
+    "./asyncapi/3.1": {
+      "import": "./dist/asyncapi/3.1/index.js",
+      "types": "./dist/asyncapi/3.1/index.d.ts",
+      "default": "./dist/asyncapi/3.1/index.js"
+    },
+    "./openapi/3.1": {
+      "import": "./dist/openapi/3.1/index.js",
+      "types": "./dist/openapi/3.1/index.d.ts",
+      "default": "./dist/openapi/3.1/index.js"
     }
   },
   "files": [
