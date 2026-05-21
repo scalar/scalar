@@ -1,0 +1,97 @@
+name: Deploy Galaxy
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Deployment environment — "staging" for PR previews, "production" for main'
+        type: string
+        required: true
+      pr-number:
+        description: 'Pull request number (required for staging previews)'
+        type: string
+        required: false
+        default: ''
+      sha:
+        description: 'Commit SHA to deploy — PR head SHA for previews, git SHA for main'
+        type: string
+        required: true
+    secrets:
+      CLOUDFLARE_API_TOKEN:
+        required: true
+      CLOUDFLARE_ACCOUNT_ID:
+        required: true
+    outputs:
+      preview-url:
+        description: 'The Cloudflare Workers version preview URL (staging only)'
+        value: ${{ jobs.deploy.outputs.preview-url }}
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    # Setting environment here (not at the workflow level) is what grants access
+    # to the environment-scoped secrets.* for staging or production.
+    environment: ${{ inputs.environment }}
+    timeout-minutes: 15
+    outputs:
+      preview-url: ${{ steps.set-output.outputs.url }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+
+      # Build galaxy-scalar-com and its workspace dependencies. wrangler bundles
+      # the Worker itself during the deploy step below.
+      - name: Build workspace deps
+        uses: ./.github/actions/build
+        with:
+          packages: 'galaxy-scalar-com...'
+
+      # PR preview — `wrangler versions upload` creates an immutable Worker
+      # version with its own preview URL. It does not touch the live route,
+      # so galaxy.scalar.com keeps serving the previously deployed version.
+      - name: Upload Worker preview version
+        if: inputs.pr-number != ''
+        id: deploy-preview
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: projects/galaxy-scalar-com
+          command: versions upload
+
+      # Main branch deploy — used for both staging (merge) and production
+      # (release). The active environment determines which secrets are used.
+      - name: Deploy Worker
+        if: inputs.pr-number == ''
+        id: deploy-main
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: projects/galaxy-scalar-com
+          command: deploy
+
+      # `wrangler versions upload` has no dedicated wrangler-action output, so
+      # parse the workers.dev preview URL out of the command output. Fail the
+      # step rather than post an empty PR comment if it cannot be found.
+      - name: Set output
+        if: inputs.pr-number != ''
+        id: set-output
+        env:
+          COMMAND_OUTPUT: ${{ steps.deploy-preview.outputs.command-output }}
+        run: |
+          URL="$(printf '%s\n' "$COMMAND_OUTPUT" \
+            | grep -oE 'https://[a-zA-Z0-9.-]+\.workers\.dev[^[:space:]]*' \
+            | head -n 1)"
+          if [ -z "$URL" ]; then
+            echo "Could not parse a Workers preview URL from wrangler output" >&2
+            printf '%s\n' "$COMMAND_OUTPUT" >&2
+            exit 1
+          fi
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
