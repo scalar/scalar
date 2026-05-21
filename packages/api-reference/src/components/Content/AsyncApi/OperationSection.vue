@@ -11,6 +11,7 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import { computed, useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
+import { Badge } from '@/components/Badge'
 import {
   Section,
   SectionColumn,
@@ -38,6 +39,16 @@ const id = computed(() => `operation/${slugify(operationId)}`)
 
 /** Human-friendly heading, falling back to the operation key */
 const title = computed(() => operation.title ?? operationId)
+
+/**
+ * Badge describing the operation's action, mirroring the HTTP method badge on
+ * OpenAPI operations. `receive` is read-like (blue), `send` is write-like (green).
+ */
+const actionBadge = computed(() =>
+  operation.action === 'send'
+    ? { label: 'Send', class: 'text-green' }
+    : { label: 'Receive', class: 'text-blue' },
+)
 
 const toMessage = (key: string, message: AsyncApiMessageObject) => ({
   id: key,
@@ -83,6 +94,11 @@ const messages = computed(() => {
             {{ title }}
           </SectionHeaderTag>
         </Anchor>
+        <Badge
+          class="action-badge font-code uppercase"
+          :class="actionBadge.class">
+          {{ actionBadge.label }}
+        </Badge>
       </SectionHeader>
       <SectionContent>
         <SectionColumns>
@@ -101,3 +117,11 @@ const messages = computed(() => {
     </Section>
   </SectionContainer>
 </template>
+
+<style scoped>
+/* Sit the action badge inline next to the heading, centered against the text */
+.action-badge {
+  margin-left: 8px;
+  vertical-align: middle;
+}
+</style>

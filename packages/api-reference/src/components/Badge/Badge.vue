@@ -50,6 +50,10 @@ const badgeStyle = computed(() =>
   background: color-mix(in srgb, var(--scalar-color-purple), transparent 90%);
   border: transparent;
 }
+:where(.badge).text-blue {
+  background: color-mix(in srgb, var(--scalar-color-blue), transparent 90%);
+  border: transparent;
+}
 :where(.badge).text-green {
   background: color-mix(in srgb, var(--scalar-color-green), transparent 90%);
   border: transparent;

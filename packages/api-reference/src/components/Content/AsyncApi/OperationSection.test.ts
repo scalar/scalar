@@ -89,6 +89,30 @@ describe('OperationSection', () => {
     expect(wrapper.text()).not.toContain('Messages')
   })
 
+  it('shows a Send badge for send operations', () => {
+    const wrapper = mount(OperationSection, {
+      props: {
+        eventBus: null,
+        operationId: 'sendLightMeasurement',
+        operation: createOperation({ action: 'send' }),
+      },
+    })
+
+    expect(wrapper.findComponent({ name: 'Badge' }).text()).toBe('Send')
+  })
+
+  it('shows a Receive badge for receive operations', () => {
+    const wrapper = mount(OperationSection, {
+      props: {
+        eventBus: null,
+        operationId: 'receiveLightMeasurement',
+        operation: createOperation({ action: 'receive' }),
+      },
+    })
+
+    expect(wrapper.findComponent({ name: 'Badge' }).text()).toBe('Receive')
+  })
+
   it('renders the section with a deep-link id derived from the operation id', () => {
     const wrapper = mount(OperationSection, {
       props: {
