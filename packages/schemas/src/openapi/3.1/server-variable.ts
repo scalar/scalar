@@ -8,11 +8,9 @@ export const serverVariable = object(
           'An enumeration of string values to be used if the substitution options are from a limited set. The array MUST NOT be empty.',
       }),
     ),
-    default: optional(
-      string({
-        typeComment: `The default value to use for substitution, which SHALL be sent if an alternate value is not supplied. If the enum is defined, the value MUST exist in the enum\'s values. Note that this behavior is different from the Schema Object's default keyword, which documents the receiver's behavior rather than inserting the value into the data.`,
-      }),
-    ),
+    default: string({
+      typeComment: `REQUIRED. The default value to use for substitution, which SHALL be sent if an alternate value is not supplied. If the enum is defined, the value MUST exist in the enum\'s values. Note that this behavior is different from the Schema Object's default keyword, which documents the receiver's behavior rather than inserting the value into the data.`,
+    }),
     description: optional(
       string({
         typeComment:
