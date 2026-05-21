@@ -63,10 +63,7 @@ const sandboxOrigin = (): string => window.location.origin
  * unit tests can run the real execution in-process (`runSandboxExecution`) without a DOM, and without
  * the production host bundle ever importing `postman-sandbox`.
  */
-export type SandboxTransport = (
-  request: SandboxExecuteRequest,
-  onMessage: (message: SandboxOutboundMessage) => void,
-) => void
+type SandboxTransport = (request: SandboxExecuteRequest, onMessage: (message: SandboxOutboundMessage) => void) => void
 
 let framePromise: Promise<Window> | undefined
 
