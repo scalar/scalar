@@ -894,7 +894,7 @@ describe('SchemaPropertyHeading', () => {
       expect(examplesElement.props('example')).toBe(false)
     })
 
-    it('does not pass null from items.example when value.example is not available', () => {
+    it('passes null from items.example when value.example is not available', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
           value: coerceValue(SchemaObjectSchema, {
@@ -906,7 +906,7 @@ describe('SchemaPropertyHeading', () => {
       })
 
       const examplesElement = wrapper.findComponent({ name: 'SchemaPropertyExamples' })
-      expect(examplesElement.props('example')).toBeUndefined()
+      expect(examplesElement.props('example')).toBeNull()
     })
   })
 

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
-import { isDefined } from '@scalar/helpers/array/is-defined'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed } from 'vue'
 
@@ -15,7 +14,9 @@ const { examples, example } = defineProps<{
 
 const { copyToClipboard } = useClipboard()
 
-const hasSingleExample = computed(() => isDefined(example))
+// `null` is a meaningful example value for nullable schemas, so only treat
+// `undefined` as "not provided".
+const hasSingleExample = computed(() => example !== undefined)
 
 const normalizedExamples = computed<Record<string, unknown>>(() => {
   if (examples && typeof examples === 'object') {
@@ -32,6 +33,22 @@ const hasMultipleExamples = computed(
 const multipleExamplesLabel = computed(() =>
   Object.keys(normalizedExamples.value).length === 1 ? 'Example' : 'Examples',
 )
+
+/**
+ * Unwrap an OpenAPI 3 Example Object (`{ value, externalValue, summary, description }`)
+ * to the actual sample. Plain values pass through untouched.
+ */
+function unwrapExampleObject(value: unknown): unknown {
+  if (isObject(value)) {
+    if ('value' in value) {
+      return value.value
+    }
+    if ('externalValue' in value) {
+      return (value as { externalValue: unknown }).externalValue
+    }
+  }
+  return value
+}
 </script>
 <template>
   <!-- single example (deprecated) -->
@@ -67,8 +84,8 @@ const multipleExamplesLabel = computed(() =>
           :key="key"
           class="property-example-value group"
           type="button"
-          @click="copyToClipboard(formatExample(ex))">
-          <span>{{ formatExample(ex) }} </span>
+          @click="copyToClipboard(formatExample(unwrapExampleObject(ex)))">
+          <span>{{ formatExample(unwrapExampleObject(ex)) }} </span>
           <ScalarIcon
             class="text-c-3 group-hover:text-c-1 ml-auto min-h-3 min-w-3"
             icon="Clipboard"
