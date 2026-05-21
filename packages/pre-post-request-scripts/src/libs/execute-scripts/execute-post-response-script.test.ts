@@ -1,8 +1,13 @@
 import type { RequestFactory } from '@scalar/workspace-store/request-example'
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import type { TestResult } from './execute-post-response-script'
 import { executePostResponseScript } from './execute-post-response-script'
+import { registerInProcessSandbox } from './postman-adapter/in-process-transport'
+
+beforeAll(() => {
+  registerInProcessSandbox()
+})
 
 const createRequestBuilder = (): RequestFactory => ({
   options: {},

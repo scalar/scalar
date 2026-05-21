@@ -48,6 +48,11 @@
       "import": "./dist/plugins/index.js",
       "types": "./dist/plugins/index.d.ts",
       "default": "./dist/plugins/index.js"
+    },
+    "./sandbox": {
+      "import": "./dist/libs/execute-scripts/postman-adapter/sandbox-frame-entry.js",
+      "types": "./dist/libs/execute-scripts/postman-adapter/sandbox-frame-entry.d.ts",
+      "default": "./dist/libs/execute-scripts/postman-adapter/sandbox-frame-entry.js"
     }
   },
   "files": [
@@ -58,6 +63,7 @@
     "@codemirror/lang-javascript": "^6.2.5",
     "@headlessui/vue": "catalog:*",
     "@scalar/components": "workspace:*",
+    "@scalar/helpers": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/workspace-store": "workspace:*",

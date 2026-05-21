@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!--
+      Isolated realm for executing user pre/post-request scripts via postman-sandbox.
+
+      This page is intentionally loaded in an iframe from a real (network-scheme) URL so it does NOT
+      inherit the main application's CSP. It carries its own permissive CSP that allows 'unsafe-eval'
+      (postman-sandbox/uvm needs it, and runs the script in a nested blob worker that inherits this
+      policy). Keeping eval confined here is what lets the main app drop 'unsafe-eval'. The realm has
+      no DOM access to the parent and no privileged bridge.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; worker-src 'self' blob:; connect-src 'self' ws: wss:; style-src 'self' 'unsafe-inline'; img-src 'self' data:" />
+    <title>Scalar Script Sandbox</title>
+  </head>
+  <body>
+    <script
+      type="module"
+      src="./src/sandbox.ts"></script>
+  </body>
+</html>

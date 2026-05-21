@@ -1,7 +1,7 @@
-import type { VariableEntry, VariablesStore } from '@scalar/workspace-store/request-example'
+import type { VariableEntry } from '@scalar/workspace-store/request-example'
 import { VariableList, VariableScope } from 'postman-collection'
 
-import { getVariableScopesFromStore } from './variables-store'
+import type { SerializableScopes } from './postman-adapter/sandbox-protocol'
 
 function toVariableList(entries: VariableEntry[]): VariableList {
   if (entries.length === 0) {
@@ -15,19 +15,23 @@ function toVariableList(entries: VariableEntry[]): VariableList {
   )
 }
 
-/**
- * Builds the Postman sandbox context object for variables (globals, environment,
- * collection, data, _variables) from a VariablesStore. Used so pm.variables.get/set
- * and precedence match Postman behavior.
- */
-export function buildSandboxContextFromStore(store: VariablesStore): {
+type SandboxVariableContext = {
   globals: VariableScope
   collectionVariables: VariableScope
   environment: VariableScope
   data: Record<string, string>
   _variables: VariableScope
-} {
-  const scopes = getVariableScopesFromStore(store)
+}
+
+/**
+ * Builds the Postman sandbox context object for variables (globals, environment,
+ * collection, data, _variables) from plain key/value scopes. Used so pm.variables.get/set
+ * and precedence match Postman behavior.
+ *
+ * This depends on postman-collection (`VariableScope`) but not on postman-sandbox, and is meant
+ * to run inside the sandbox iframe after the scopes have crossed the `postMessage` boundary.
+ */
+export function buildSandboxContextFromScopes(scopes: SerializableScopes): SandboxVariableContext {
   return {
     globals: new VariableScope(toVariableList(scopes.globals)),
     collectionVariables: new VariableScope(toVariableList(scopes.collectionVariables)),

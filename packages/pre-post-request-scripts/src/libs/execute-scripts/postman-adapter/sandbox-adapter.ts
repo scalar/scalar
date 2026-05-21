@@ -1,24 +1,33 @@
+import { isElectron } from '@scalar/helpers/general/is-electron'
 import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
-import type { ExecutionResult, SandboxContext } from 'postman-sandbox'
-import Sandbox from 'postman-sandbox'
 
-import { buildSandboxContextFromStore } from '../build-sandbox-context'
 import type { ConsoleContext } from '../context/console'
 import type { TestResult } from '../execute-post-response-script'
-import { toVariableEntries } from '../variables-store'
+import { getVariableScopesFromStore, toVariableEntries } from '../variables-store'
 import { createPostmanRequestFromFactory, syncPlainPostmanRequestToRequestFactory } from './request-factory-adapter'
+import {
+  type PostmanResponseDefinition,
+  SANDBOX_CHANNEL,
+  type SandboxExecuteRequest,
+  type SandboxOutboundMessage,
+} from './sandbox-protocol'
 
-type AssertionEvent = {
-  name: string
-  index: number
-  passed: boolean
-  skipped: boolean
-  error: { message?: string } | null
-}
-
-const toPostmanResponse = async (response: Response) => {
-  const responseText = await response.text()
-  const responseBytes = Array.from(new TextEncoder().encode(responseText))
+/**
+ * Host-side adapter for pre/post-request scripts.
+ *
+ * The actual script execution happens in `postman-sandbox`, which requires `eval`. To keep
+ * `'unsafe-eval'` out of the main application CSP, that execution is delegated to an iframe loaded
+ * from a real same-origin `.html` file with its own permissive CSP (see `sandbox-frame-server.ts`).
+ * This module therefore must NOT import `postman-sandbox`; it only serializes inputs, talks to the
+ * iframe over `postMessage`, and applies the results back to the live store/request.
+ */
+export const toPostmanResponse = async (response: Response): Promise<PostmanResponseDefinition> => {
+  // Read as ArrayBuffer (not text) so binary payloads — gzipped JSON, images, PDFs, protobuf —
+  // survive the trip through `postMessage` byte-for-byte. Round-tripping through `response.text()`
+  // + `TextEncoder` corrupts any sequence that is not valid UTF-8 because the decoder replaces
+  // invalid units with U+FFFD before we ever encode them back to bytes.
+  const buffer = await response.arrayBuffer()
+  const responseBytes = Array.from(new Uint8Array(buffer))
 
   return {
     code: response.status,
@@ -31,45 +40,200 @@ const toPostmanResponse = async (response: Response) => {
   }
 }
 
-const createContext = (): Promise<SandboxContext> =>
-  new Promise((resolve, reject) => {
-    Sandbox.createContext((error: unknown, context: SandboxContext) => {
-      if (error) {
-        reject(error)
+/**
+ * Resolves the sandbox iframe URL.
+ *
+ * On the web we anchor to the origin root because the SPA router owns the current path: a
+ * relative `sandbox.html` would resolve under the active route and get rewritten to `index.html`
+ * by the history fallback. In Electron the document path is literal, so a sibling resolution
+ * works — and we use the `isElectron` helper rather than a `file://` check because Electron's
+ * dev mode is served over `http://localhost`.
+ *
+ * Exported for tests; production code reaches it through `ensureSandboxFrame`.
+ */
+export const sandboxFrameUrl = (): string => {
+  if (isElectron()) {
+    return new URL('sandbox.html', document.baseURI).href
+  }
+  return new URL('/sandbox.html', window.location.origin).href
+}
+
+/**
+ * Origin we pin `postMessage` exchanges to.
+ *
+ * The sandbox iframe is served from the same origin as the host (see `sandbox.html`), so we lock
+ * every send and receive to `window.location.origin`. Pinning the send origin prevents the payload
+ * from leaking if the frame is ever navigated away to another origin; pinning the receive origin
+ * prevents another window (for example a cross-origin opener) from spoofing sandbox messages.
+ *
+ * For `file://` documents (Electron), `window.location.origin` is the string `'file://'`, which is
+ * the same value `postMessage` reports on `event.origin`, so the pin still holds.
+ */
+const sandboxOrigin = (): string => window.location.origin
+
+/**
+ * Delivers a single execute request to the sandbox and forwards every message it produces (test
+ * results, console output, and the final `done`) to `onMessage`.
+ *
+ * The default transport is the iframe (see {@link iframeTransport}). It is injectable so that node
+ * unit tests can run the real execution in-process (`runSandboxExecution`) without a DOM, and without
+ * the production host bundle ever importing `postman-sandbox`.
+ */
+type SandboxTransport = (request: SandboxExecuteRequest, onMessage: (message: SandboxOutboundMessage) => void) => void
+
+let framePromise: Promise<Window> | undefined
+
+/**
+ * Maximum time we wait for a freshly created sandbox iframe to post its `ready` handshake.
+ *
+ * The iframe `error` event fires only when the `.html` document itself fails to load. If the
+ * document loads (HTTP 200) but the script inside never reaches `startSandboxFrameServer` — a
+ * 404 on the bundle, an import error, a CSP block, a crash during boot — no `ready` message is
+ * posted and no `error` event fires. Without this ceiling the readiness promise hangs forever;
+ * because it is module-cached, every later call awaits the same dead promise and all script
+ * execution freezes for the session. The window is generous: readiness only requires loading one
+ * same-origin HTML file plus the sandbox bundle, so timing out means the bundle is genuinely
+ * broken rather than slow.
+ */
+const SANDBOX_READY_TIMEOUT_MS = 30 * 1000
+
+/** Lazily creates a single hidden sandbox iframe and resolves once it reports readiness. */
+const ensureSandboxFrame = (): Promise<Window> => {
+  if (framePromise) {
+    return framePromise
+  }
+
+  framePromise = new Promise<Window>((resolve, reject) => {
+    const iframe = document.createElement('iframe')
+    iframe.setAttribute('aria-hidden', 'true')
+    iframe.style.display = 'none'
+    iframe.src = sandboxFrameUrl()
+
+    const expectedOrigin = sandboxOrigin()
+
+    // Cleanup shared by the success, load-error, and readiness-timeout paths: cancel the timer and
+    // drop the window listener so exactly one of the three settles the promise without leaking.
+    let readyTimeoutId: ReturnType<typeof setTimeout>
+    const stopWaiting = () => {
+      clearTimeout(readyTimeoutId)
+      window.removeEventListener('message', onReady)
+    }
+
+    const onReady = (event: MessageEvent) => {
+      // Same-origin iframe: reject anything that does not come from our own origin and our own frame.
+      if (event.origin !== expectedOrigin || event.source !== iframe.contentWindow) {
         return
       }
+      const data = event.data as SandboxOutboundMessage | null
+      if (!data || data.channel !== SANDBOX_CHANNEL || data.kind !== 'ready') {
+        return
+      }
+      stopWaiting()
+      if (!iframe.contentWindow) {
+        // Tear the orphaned node down so a retry can append a fresh frame without piling up.
+        iframe.remove()
+        framePromise = undefined
+        reject(new Error('Sandbox iframe has no content window'))
+        return
+      }
+      resolve(iframe.contentWindow)
+    }
 
-      resolve(context)
+    iframe.addEventListener('error', () => {
+      stopWaiting()
+      // Drop the broken iframe from the DOM. Without this, a transient failure (network blip, bad
+      // bundle path, etc.) leaves a dead `<iframe>` attached, and every retry appends another one,
+      // growing the DOM unboundedly across the session.
+      iframe.remove()
+      framePromise = undefined
+      reject(new Error('Failed to load the script sandbox iframe'))
     })
+
+    // Catch the silent failure mode the `error` event cannot see: the document loaded but its
+    // script never announced readiness. Drop the dead frame and clear the cache so the next call
+    // retries with a fresh iframe instead of awaiting this one forever.
+    readyTimeoutId = setTimeout(() => {
+      window.removeEventListener('message', onReady)
+      iframe.remove()
+      framePromise = undefined
+      reject(new Error(`Sandbox iframe did not report readiness within ${SANDBOX_READY_TIMEOUT_MS}ms`))
+    }, SANDBOX_READY_TIMEOUT_MS)
+
+    window.addEventListener('message', onReady)
+    document.body.appendChild(iframe)
   })
 
-const toErrorMessage = (error: unknown): string => {
-  if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
-    return error.message
-  }
-
-  return String(error)
+  return framePromise
 }
 
-const upsertTestResult = (testResults: TestResult[], assertion: AssertionEvent, duration: number): void => {
-  const title = assertion.name || `Assertion ${assertion.index + 1}`
+/**
+ * Maximum time we wait for the iframe to emit `kind: 'done'` for a given execute request.
+ *
+ * postman-sandbox enforces its own per-script timeout inside the sandbox, so reaching this ceiling
+ * means the iframe itself wedged (renderer OOM, hard crash, blocking infinite loop in a worker,
+ * messages dropped). The default is generous on purpose — this is a circuit-breaker for crashes,
+ * not a budget for user scripts.
+ */
+const SANDBOX_EXECUTION_TIMEOUT_MS = 5 * 60 * 1000
 
-  const nextResult: TestResult = {
-    title,
-    passed: assertion.passed,
-    duration,
-    error: assertion.error?.message,
-    status: assertion.passed ? 'passed' : 'failed',
-  }
+const iframeTransport: SandboxTransport = (request, onMessage) => {
+  ensureSandboxFrame()
+    .then((frame) => {
+      const expectedOrigin = sandboxOrigin()
 
-  const existingResultIndex = testResults.findIndex((result) => result.title === title)
-  if (existingResultIndex === -1) {
-    testResults.push(nextResult)
-    return
-  }
+      // Defensive circuit-breaker: if the iframe dies mid-execution we would otherwise wait on a
+      // `done` message that will never arrive, leaking the listener and leaving the caller's
+      // promise unresolved. The timer is cancelled the moment `done` is observed below.
+      const timeoutId = setTimeout(() => {
+        window.removeEventListener('message', handleMessage)
+        onMessage({
+          channel: SANDBOX_CHANNEL,
+          kind: 'done',
+          id: request.id,
+          error: `Script execution timed out after ${SANDBOX_EXECUTION_TIMEOUT_MS}ms`,
+        })
+      }, SANDBOX_EXECUTION_TIMEOUT_MS)
 
-  testResults[existingResultIndex] = nextResult
+      const handleMessage = (event: MessageEvent) => {
+        // Reject anything that is not from our own origin and our own frame. Without this guard,
+        // any window in the same browsing context group could send fabricated `done`/`test-results`
+        // messages and trick the host into applying attacker-controlled variables and requests.
+        if (event.origin !== expectedOrigin || event.source !== frame) {
+          return
+        }
+        const data = event.data as SandboxOutboundMessage | null
+        if (!data || data.channel !== SANDBOX_CHANNEL || !('id' in data) || data.id !== request.id) {
+          return
+        }
+        if (data.kind === 'done') {
+          clearTimeout(timeoutId)
+          window.removeEventListener('message', handleMessage)
+        }
+        onMessage(data)
+      }
+
+      window.addEventListener('message', handleMessage)
+      // Pin the target origin: the execute payload contains environments, headers, secrets, and
+      // potentially auth tokens, so we must never broadcast it with `'*'`.
+      frame.postMessage(request, expectedOrigin)
+    })
+    .catch((error: unknown) => {
+      onMessage({
+        channel: SANDBOX_CHANNEL,
+        kind: 'done',
+        id: request.id,
+        error: error instanceof Error ? error.message : String(error),
+      })
+    })
 }
+let transport: SandboxTransport = iframeTransport
+
+/** Override how the host reaches the sandbox (e.g. an in-process transport for tests). */
+export const setSandboxTransport = (next: SandboxTransport): void => {
+  transport = next
+}
+
+let nextExecutionId = 0
 
 export const executeInPostmanSandbox = async ({
   script,
@@ -88,118 +252,63 @@ export const executeInPostmanSandbox = async ({
   }
   onTestResultsUpdate?: ((results: TestResult[]) => void) | undefined
 }): Promise<VariablesStore | undefined> => {
-  const testResults: TestResult[] = []
-  let lastAssertionTime = 0
-  let scriptExecutionStartedAt = 0
-  const sandboxContext = await createContext()
+  // Serialize everything that crosses the iframe boundary on the host, so the iframe only deals with
+  // plain, structured-cloneable data. The response body is read here (it requires the live Response).
+  const requestDefinition = requestBuilder ? createPostmanRequestFromFactory(requestBuilder).toJSON() : undefined
+  const responseDefinition = response ? await toPostmanResponse(response) : undefined
+  const scopes = variablesStore ? getVariableScopesFromStore(variablesStore) : undefined
 
-  const handleAssertion = (_cursor: unknown, assertions: AssertionEvent[]) => {
-    assertions.forEach((assertion) => {
-      const duration = Number((performance.now() - lastAssertionTime).toFixed(2))
-      lastAssertionTime = performance.now()
-      upsertTestResult(testResults, assertion, duration)
-    })
-    onTestResultsUpdate?.([...testResults])
+  const request: SandboxExecuteRequest = {
+    channel: SANDBOX_CHANNEL,
+    kind: 'execute',
+    id: String(nextExecutionId++),
+    listen: type === 'pre-request' ? 'prerequest' : 'test',
+    script,
+    scopes,
+    request: requestDefinition,
+    response: responseDefinition,
   }
 
-  const variablesContext = variablesStore ? buildSandboxContextFromStore(variablesStore) : undefined
+  await new Promise<void>((resolve) => {
+    const onMessage = (data: SandboxOutboundMessage) => {
+      if (data.kind === 'test-results') {
+        onTestResultsUpdate?.(data.results)
+        return
+      }
 
-  const handleConsole = (_cursor: unknown, level: keyof ConsoleContext, ...args: unknown[]) => {
-    const consoleMethod = scriptConsole[level] ?? scriptConsole.log
-    ;(consoleMethod as (...params: unknown[]) => void)(...args)
-  }
+      if (data.kind === 'console') {
+        const consoleMethod = scriptConsole[data.level] ?? scriptConsole.log
+        ;(consoleMethod as (...params: unknown[]) => void)(...data.args)
+        return
+      }
 
-  try {
-    sandboxContext.on('execution.assertion', handleAssertion)
-    sandboxContext.on('console', handleConsole)
+      if (data.kind === 'done') {
+        if (variablesStore && data.variables) {
+          const { local, collection, globals, environment } = data.variables
+          if (local) {
+            variablesStore.setLocalVariables(toVariableEntries(local))
+          }
+          if (collection) {
+            variablesStore.setCollectionVariables?.(toVariableEntries(collection))
+          }
+          if (globals) {
+            variablesStore.setGlobals?.(toVariableEntries(globals))
+          }
+          if (environment) {
+            variablesStore.setEnvironment?.(toVariableEntries(environment))
+          }
+        }
 
-    const postmanRequest = requestBuilder ? createPostmanRequestFromFactory(requestBuilder) : undefined
-    const postmanResponse = response ? await toPostmanResponse(response) : undefined
+        if (!data.error && type === 'pre-request' && requestBuilder && data.request !== undefined) {
+          syncPlainPostmanRequestToRequestFactory(data.request, requestBuilder)
+        }
 
-    scriptExecutionStartedAt = performance.now()
-    lastAssertionTime = scriptExecutionStartedAt
-
-    /**
-     * Lodash `_.has(context, 'response')` is true even when the value is `undefined`,
-     * which makes the sandbox run `new Response(undefined)` and breaks `pm.request`.
-     * Only set keys that are actually present.
-     */
-    const context: Record<string, unknown> = {
-      ...(variablesContext ?? {}),
+        resolve()
+      }
     }
 
-    // We need to pass the postman request to the sandbox so it can be mutated by the script.
-    if (postmanRequest !== undefined) {
-      context.request = postmanRequest
-    }
-    // We need to pass the postman response to the sandbox so it can be used by the script.
-    if (postmanResponse !== undefined) {
-      context.response = postmanResponse
-    }
-
-    /** Pre-request scripts must use the prerequest listener so pm.globals / pm.environment / collection mutations appear on ExecutionResult. */
-    const listen = type === 'pre-request' ? 'prerequest' : 'test'
-
-    await new Promise<void>((resolve) => {
-      sandboxContext.execute(
-        {
-          listen,
-          script: {
-            exec: [script],
-          },
-        },
-        {
-          disableLegacyAPIs: true,
-          context,
-        },
-        (error: unknown, execution?: ExecutionResult) => {
-          if (variablesStore && execution) {
-            if (execution._variables?.values) {
-              const localVariables = toVariableEntries(execution._variables.values)
-              variablesStore.setLocalVariables(localVariables)
-            }
-            if (execution.collectionVariables?.values) {
-              const collectionVariables = toVariableEntries(execution.collectionVariables.values)
-              variablesStore.setCollectionVariables?.(collectionVariables)
-            }
-            if (execution.globals?.values) {
-              const globals = toVariableEntries(execution.globals.values)
-              variablesStore.setGlobals?.(globals)
-            }
-            if (execution.environment?.values) {
-              const environmentVariables = toVariableEntries(execution.environment.values)
-              variablesStore.setEnvironment?.(environmentVariables)
-            }
-          }
-
-          if (!error && type === 'pre-request' && requestBuilder && execution?.request !== undefined) {
-            syncPlainPostmanRequestToRequestFactory(execution.request, requestBuilder)
-          }
-          if (error) {
-            const duration = Number((performance.now() - scriptExecutionStartedAt).toFixed(2))
-            const errorMessage = toErrorMessage(error)
-
-            scriptConsole.error(`[${type.toUpperCase()} Script] Error (${duration}ms):`, errorMessage)
-
-            testResults.push({
-              title: 'Script Execution',
-              passed: false,
-              duration,
-              error: errorMessage,
-              status: 'failed',
-            })
-            onTestResultsUpdate?.([...testResults])
-          }
-
-          resolve()
-        },
-      )
-    })
-  } finally {
-    sandboxContext.off('execution.assertion', handleAssertion)
-    sandboxContext.off('console', handleConsole)
-    sandboxContext.dispose()
-  }
+    transport(request, onMessage)
+  })
 
   return variablesStore
 }
