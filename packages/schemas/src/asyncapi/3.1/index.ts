@@ -28,8 +28,13 @@ export {
   asyncApiResolvedReference,
   recursiveRef,
 } from './reference'
-export { asyncApiMultiFormatSchemaObject, asyncApiSchemaPayload } from './schema-payload'
+export {
+  asyncApiMultiFormatSchemaObject,
+  asyncApiSchemaObjectOrReference,
+  asyncApiSchemaPayload,
+} from './schema-payload'
 export { asyncApiSecuritySchemeObject } from './security-scheme'
 export { asyncApiServerObject, asyncApiServersObject } from './server'
 export { asyncApiServerVariableObject } from './server-variable'
 export { asyncApiTagObject, asyncApiTagsObject } from './tag'
+export { asyncApiWsBindingObject } from './ws-binding'
