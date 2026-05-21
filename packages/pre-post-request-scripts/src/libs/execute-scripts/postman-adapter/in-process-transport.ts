@@ -1,5 +1,6 @@
 import { setSandboxTransport } from './sandbox-adapter'
 import { runSandboxExecution } from './sandbox-frame-server'
+import { SANDBOX_CHANNEL } from './sandbox-protocol'
 
 /**
  * Routes the host adapter to run scripts in-process via {@link runSandboxExecution} instead of an
@@ -8,6 +9,16 @@ import { runSandboxExecution } from './sandbox-frame-server'
  */
 export const registerInProcessSandbox = (): void => {
   setSandboxTransport((request, onMessage) => {
-    void runSandboxExecution(request, onMessage)
+    // Mirror the iframe transport: a rejection from `runSandboxExecution` (for example a failed
+    // `createContext`) must surface as a `done` message, otherwise the host's awaiting promise
+    // in `executeInPostmanSandbox` hangs forever.
+    runSandboxExecution(request, onMessage).catch((error: unknown) => {
+      onMessage({
+        channel: SANDBOX_CHANNEL,
+        kind: 'done',
+        id: request.id,
+        error: error instanceof Error ? error.message : String(error),
+      })
+    })
   })
 }
