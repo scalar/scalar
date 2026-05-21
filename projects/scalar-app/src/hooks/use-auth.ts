@@ -80,7 +80,15 @@ const logout = () => {
   queryClient.clear()
 
   // Lets hard route to ensure we are no longer on the team workspace
-  window.location.href = '/'
+  if (window.electron === true) {
+    // Electron loads from a file:// URL and uses hash routing, so navigating to
+    // '/' would resolve to the filesystem root. Reset the hash on the current
+    // HTML file instead and reload to drop any in-memory team workspace state.
+    window.location.href = `${window.location.pathname}#/`
+    window.location.reload()
+  } else {
+    window.location.href = '/'
+  }
 }
 
 /**
