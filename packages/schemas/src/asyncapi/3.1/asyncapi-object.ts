@@ -38,6 +38,3 @@ export const asyncApiObjectSchema = object(
     typeComment: 'Root AsyncAPI 3.1.0 document combining resource listing and API declaration.',
   },
 )
-
-/** Alias matching the specification term “A2S” (AsyncAPI Specification) root object. */
-export const asyncApiA2sObjectSchema = asyncApiObjectSchema
