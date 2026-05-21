@@ -16,7 +16,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "vite build && vue-tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "tsx playground/server.ts",
     "test": "vitest --run",
     "types:check": "tsc --noEmit"
@@ -41,10 +41,8 @@
   },
   "devDependencies": {
     "@hono/node-server": "catalog:*",
-    "@vitejs/plugin-vue": "catalog:*",
     "hono": "catalog:*",
     "tsx": "catalog:*",
-    "vite": "catalog:*",
-    "vue-tsc": "catalog:*"
+    "vite": "catalog:*"
   }
 }
