@@ -109,7 +109,7 @@ export const getSelectedAsyncApiServer = (
     return servers[0] ?? null
   }
 
-  const selectedName = document['x-scalar-selected-asyncapi-server']
+  const selectedName = document['x-scalar-selected-server']
 
   if (selectedName == null) {
     return servers[0] ?? null

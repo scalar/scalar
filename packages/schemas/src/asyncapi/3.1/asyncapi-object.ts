@@ -9,7 +9,7 @@ import {
   XScalarRegistryMeta,
   XScalarWatchMode,
 } from '@/extensions/document'
-import { XScalarSelectedAsyncapiServer } from '@/extensions/server'
+import { XScalarSelectedServer } from '@/extensions/server'
 
 import { asyncApiChannelsObject } from './channel'
 import { asyncApiComponentsObject } from './components'
@@ -27,7 +27,7 @@ const asyncApiExtensions = intersection(
     XScalarIsDirty,
     XScalarWatchMode,
     XScalarRegistryMeta,
-    XScalarSelectedAsyncapiServer,
+    XScalarSelectedServer,
   ],
   {
     typeName: 'AsyncApiExtensions',

@@ -109,10 +109,10 @@ describe('getSelectedAsyncApiServer', () => {
     expect(getSelectedAsyncApiServer(galaxyAsyncApiDocument, servers)?.name).toBe('production')
   })
 
-  it('returns the server matching x-scalar-selected-asyncapi-server', () => {
+  it('returns the server matching x-scalar-selected-server', () => {
     const document: AsyncApiDocument = {
       ...galaxyAsyncApiDocument,
-      'x-scalar-selected-asyncapi-server': 'development',
+      'x-scalar-selected-server': 'development',
     }
     const servers = getAsyncApiServers(document)
 
@@ -122,7 +122,7 @@ describe('getSelectedAsyncApiServer', () => {
   it('falls back to the first server when the selection does not match', () => {
     const document: AsyncApiDocument = {
       ...galaxyAsyncApiDocument,
-      'x-scalar-selected-asyncapi-server': 'missing',
+      'x-scalar-selected-server': 'missing',
     }
     const servers = getAsyncApiServers(document)
 
