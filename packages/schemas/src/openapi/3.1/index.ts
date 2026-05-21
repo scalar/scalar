@@ -15,7 +15,6 @@ import {
 } from '@scalar/validation'
 
 import {
-  WorkspaceManagedExtensions,
   XInternal,
   XOriginalOasVersion,
   XScalarEnvironments,
@@ -24,6 +23,7 @@ import {
   XScalarIsDirty,
   XScalarNavigation,
   XScalarOriginalDocumentHash,
+  XScalarOriginalSourceUrl,
   XScalarRegistryMeta,
   XScalarSdkInstallation,
   XScalarWatchMode,
@@ -1055,9 +1055,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema): OpenapiSche
     [
       XOriginalOasVersion,
       XScalarNavigation,
-      // Shared with AsyncAPI — see workspace-managed-extensions.ts.
-      // TODO: remove this doesn't make sense flattening the extensions here
-      WorkspaceManagedExtensions,
+      XScalarOriginalSourceUrl,
       XTagGroups,
       XScalarEnvironments,
       XScalarSelectedServer,

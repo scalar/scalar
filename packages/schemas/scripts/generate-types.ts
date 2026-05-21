@@ -5,7 +5,7 @@
  * dependency-free (pure types, no runtime). This script is the single source of truth for those files.
  *
  * Steps:
- *   1. Top-level schemas: API reference configuration and AsyncAPI 3.1 document.
+ *   1. Top-level schemas: API reference configuration, AsyncAPI 3.1 document, and OpenAPI 3.1 document.
  *   2. Extension folders: one merged `.ts` per entity folder in `schemas/src/extensions/`,
  *      plus a barrel that re-exports each entity as a namespace.
  *   3. Format every output path with biome so emitted files match repo style.
@@ -23,7 +23,8 @@ import { type Schema, generateTypes } from '@scalar/validation'
 
 import { apiReferenceConfigurationSchema } from '../src/api-reference/api-reference-configuration'
 import { createAsyncApiObjectSchema } from '../src/asyncapi/3.1/asyncapi-object'
-import { recursiveRef } from '../src/asyncapi/3.1/reference'
+import { recursiveRef as asyncApiRecursiveRef } from '../src/asyncapi/3.1/reference'
+import { openapiSchemas } from '../src/openapi/3.1/index'
 import {
   GENERATED_TYPE_EXTENSIONS_PATH,
   GENERATED_TYPE_OUTPUT_PATHS,
@@ -316,9 +317,14 @@ const main = async (): Promise<void> => {
         outputPath: generatedTypePaths[0],
       },
       {
-        schema: createAsyncApiObjectSchema(recursiveRef),
+        schema: createAsyncApiObjectSchema(asyncApiRecursiveRef),
         typeName: 'AsyncApiDocument',
         outputPath: generatedTypePaths[1],
+      },
+      {
+        schema: openapiSchemas.openapi,
+        typeName: 'OpenApiDocument',
+        outputPath: generatedTypePaths[2],
       },
     ],
     tally,
