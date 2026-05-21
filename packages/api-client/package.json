@@ -314,9 +314,6 @@
     "dist",
     "CHANGELOG.md"
   ],
-  "sideEffects": [
-    "**/*.css"
-  ],
   "dependencies": {
     "@headlessui/tailwindcss": "catalog:*",
     "@headlessui/vue": "catalog:*",

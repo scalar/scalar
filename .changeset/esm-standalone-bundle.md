@@ -11,4 +11,4 @@ Add an ESM standalone build (`dist/browser/standalone.esm.js`) alongside the exi
 
 Net effect: initial sync load drops from ~3.32 MB (UMD) to ~2.73 MB (ESM) — a ~570 KB improvement — while total bundle size shrinks by ~140 KB.
 
-Also declares `sideEffects` in both packages' `package.json` so downstream bundlers can tree-shake unused exports, and adds an `@scalar/api-client/modal/map-hidden-clients-config` deep export so consumers that only need the lightweight client-list helper don't pull the full modal barrel into their static graph.
+Also adds an `@scalar/api-client/modal/map-hidden-clients-config` deep export so consumers that only need the lightweight client-list helper don't pull the full modal barrel into their static graph.
