@@ -65,11 +65,11 @@ export default defineConfig({
       formats: ['es'],
     },
     rolldownOptions: {
-      // Match the UMD config: ScalarMenu (the only radix-vue consumer) is never
-      // mounted in the standalone reference, so radix-vue can be safely externalized.
-      external: [/^radix-vue/, /^@scalar\/openapi-parser/],
-      // Treat every non-CSS module as side-effect-free so Rolldown can drop
-      // unreachable code paths from the single-file standalone bundle.
+      // Unlike the UMD bundle (which maps externals to global stubs), an ESM bundle
+      // loaded via `<script type="module">` / `import` cannot resolve bare specifiers
+      // like `radix-vue/namespaced` in the browser — they throw "Failed to resolve
+      // module specifier". So the ESM build must be fully self-contained: bundle
+      // everything and let tree-shaking drop whatever is genuinely unreachable.
       treeshake: {
         moduleSideEffects: (id) => id.includes('.css'),
       },
@@ -99,10 +99,6 @@ export default defineConfig({
         // it by enabling Rolldown's native minifier on the output. This produces a
         // fully-minified bundle equivalent to what UMD already gets from Rolldown.
         minify: true,
-        globals: {
-          'radix-vue': '{}',
-          'radix-vue/namespaced': '{}',
-        },
       },
     },
   },
