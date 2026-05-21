@@ -1,22 +1,59 @@
 name: 'Build'
-description: 'Build packages using blacksmith runners with persistent turbo cache'
+description: |
+  Install workspace deps and run a turbo build with the branch-scoped
+  caches from setup-node. When `archive-output: true`, also tar up every
+  workspace `dist/` directory into `./workspace-dist.tar.gz` so downstream
+  jobs can fan out via the `restore-build` composite instead of rebuilding.
+
+  gzip rather than zstd because the `scalarapi/playwright-runner` container
+  (used by integration and e2e tests) does not ship the zstd binary.
 inputs:
-  node-version:
-    description: 'Node.js version to use (optional, defaults to reading from .nvmrc)'
-    required: false
   packages:
     description: 'Package glob pattern to build (e.g., "@scalar/api-reference" or "packages/*")'
     required: true
+  archive-output:
+    description: 'When true, write ./workspace-dist.tar.gz alongside the build.'
+    required: false
+    default: 'false'
 runs:
   using: 'composite'
   steps:
-    - name: Setup Node
-      uses: ./.github/actions/setup-node
-      with:
-        node-version: ${{ inputs.node-version }}
+    - uses: ./.github/actions/setup-node
+
     - name: Install dependencies
       shell: bash
-      run: pnpm install --frozen-lockfile
+      run: pnpm install --frozen-lockfile --prefer-offline
+
+    # `inputs.packages` goes through an env var so a malformed input
+    # containing a single quote cannot break out of shell quoting.
+    # `TURBO_FLAGS` MUST stay templated (`${{ env.TURBO_FLAGS }}`), not
+    # shell-expanded: its value embeds literal double quotes around filter
+    # patterns, which only the GHA templater handles correctly.
     - name: Build packages
       shell: bash
-      run: pnpm turbo ${{ env.TURBO_FLAGS }} --filter '${{inputs.packages}}' build
+      env:
+        PACKAGES_FILTER: ${{ inputs.packages }}
+      run: pnpm turbo ${{ env.TURBO_FLAGS }} --filter "$PACKAGES_FILTER" build
+
+    # NUL-delimited find + tar so paths with spaces/newlines survive.
+    # Atomic rename so a partial tar never reaches the upload step.
+    - if: inputs.archive-output == 'true'
+      name: Archive workspace dist directories
+      shell: bash
+      run: |
+        set -euo pipefail
+        find packages integrations projects \
+          -mindepth 2 -maxdepth 2 -type d -name dist -print0 2>/dev/null \
+          | sort -zu > .workspace-dist.list
+
+        if [ ! -s .workspace-dist.list ]; then
+          echo "No dist directories found to archive" >&2
+          exit 1
+        fi
+
+        echo "Archiving:"
+        tr '\0' '\n' < .workspace-dist.list
+
+        tar --null -czf workspace-dist.tar.gz.tmp -T .workspace-dist.list
+        mv workspace-dist.tar.gz.tmp workspace-dist.tar.gz
+        ls -lh workspace-dist.tar.gz
