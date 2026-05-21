@@ -83,6 +83,20 @@ type SandboxTransport = (request: SandboxExecuteRequest, onMessage: (message: Sa
 
 let framePromise: Promise<Window> | undefined
 
+/**
+ * Maximum time we wait for a freshly created sandbox iframe to post its `ready` handshake.
+ *
+ * The iframe `error` event fires only when the `.html` document itself fails to load. If the
+ * document loads (HTTP 200) but the script inside never reaches `startSandboxFrameServer` — a
+ * 404 on the bundle, an import error, a CSP block, a crash during boot — no `ready` message is
+ * posted and no `error` event fires. Without this ceiling the readiness promise hangs forever;
+ * because it is module-cached, every later call awaits the same dead promise and all script
+ * execution freezes for the session. The window is generous: readiness only requires loading one
+ * same-origin HTML file plus the sandbox bundle, so timing out means the bundle is genuinely
+ * broken rather than slow.
+ */
+const SANDBOX_READY_TIMEOUT_MS = 30 * 1000
+
 /** Lazily creates a single hidden sandbox iframe and resolves once it reports readiness. */
 const ensureSandboxFrame = (): Promise<Window> => {
   if (framePromise) {
@@ -97,6 +111,14 @@ const ensureSandboxFrame = (): Promise<Window> => {
 
     const expectedOrigin = sandboxOrigin()
 
+    // Cleanup shared by the success, load-error, and readiness-timeout paths: cancel the timer and
+    // drop the window listener so exactly one of the three settles the promise without leaking.
+    let readyTimeoutId: ReturnType<typeof setTimeout>
+    const stopWaiting = () => {
+      clearTimeout(readyTimeoutId)
+      window.removeEventListener('message', onReady)
+    }
+
     const onReady = (event: MessageEvent) => {
       // Same-origin iframe: reject anything that does not come from our own origin and our own frame.
       if (event.origin !== expectedOrigin || event.source !== iframe.contentWindow) {
@@ -106,7 +128,7 @@ const ensureSandboxFrame = (): Promise<Window> => {
       if (!data || data.channel !== SANDBOX_CHANNEL || data.kind !== 'ready') {
         return
       }
-      window.removeEventListener('message', onReady)
+      stopWaiting()
       if (!iframe.contentWindow) {
         // Tear the orphaned node down so a retry can append a fresh frame without piling up.
         iframe.remove()
@@ -118,7 +140,7 @@ const ensureSandboxFrame = (): Promise<Window> => {
     }
 
     iframe.addEventListener('error', () => {
-      window.removeEventListener('message', onReady)
+      stopWaiting()
       // Drop the broken iframe from the DOM. Without this, a transient failure (network blip, bad
       // bundle path, etc.) leaves a dead `<iframe>` attached, and every retry appends another one,
       // growing the DOM unboundedly across the session.
@@ -126,6 +148,16 @@ const ensureSandboxFrame = (): Promise<Window> => {
       framePromise = undefined
       reject(new Error('Failed to load the script sandbox iframe'))
     })
+
+    // Catch the silent failure mode the `error` event cannot see: the document loaded but its
+    // script never announced readiness. Drop the dead frame and clear the cache so the next call
+    // retries with a fresh iframe instead of awaiting this one forever.
+    readyTimeoutId = setTimeout(() => {
+      window.removeEventListener('message', onReady)
+      iframe.remove()
+      framePromise = undefined
+      reject(new Error(`Sandbox iframe did not report readiness within ${SANDBOX_READY_TIMEOUT_MS}ms`))
+    }, SANDBOX_READY_TIMEOUT_MS)
 
     window.addEventListener('message', onReady)
     document.body.appendChild(iframe)

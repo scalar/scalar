@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { sandboxFrameUrl, toPostmanResponse } from './sandbox-adapter'
+import { createConsoleContext } from '../context/console'
+import { executeInPostmanSandbox, sandboxFrameUrl, toPostmanResponse } from './sandbox-adapter'
 
 describe('sandbox-adapter', () => {
   it('serializes a Response into a Postman response definition with header objects', async () => {
@@ -128,5 +129,35 @@ describe('sandboxFrameUrl', () => {
     stubLocation('http://localhost:5066/')
 
     expect(sandboxFrameUrl()).toBe('http://localhost:5066/sandbox.html')
+  })
+})
+
+describe('executeInPostmanSandbox', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+    document.querySelectorAll('iframe').forEach((frame) => frame.remove())
+  })
+
+  it('recovers instead of hanging when the sandbox iframe never reports readiness', async () => {
+    // jsdom never loads the iframe `src`, so the frame neither posts `ready` nor fires an `error`
+    // event — exactly the silent failure (bundle 404, CSP block, boot crash) the readiness timeout
+    // guards against. Without that timeout these promises would never settle and the test would
+    // time out.
+    vi.useFakeTimers()
+
+    const runOnce = async () => {
+      const execution = executeInPostmanSandbox({
+        script: 'pm.test("noop", () => {})',
+        type: 'pre-request',
+        context: { scriptConsole: createConsoleContext() },
+      })
+      await vi.runAllTimersAsync()
+      await expect(execution).resolves.toBeUndefined()
+    }
+
+    await runOnce()
+    // A second call must retry with a fresh frame: the timeout clears the cached frame promise, so
+    // one broken boot does not freeze script execution for the rest of the session.
+    await runOnce()
   })
 })
