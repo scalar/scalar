@@ -194,14 +194,40 @@ export const runSandboxExecution = async (
 /**
  * Boots the sandbox bridge: listens for {@link SandboxExecuteRequest} messages from the host window
  * and announces readiness. Called by the sandbox `.html` entry point.
+ *
+ * Returns a teardown function that removes the `message` listener it registered. Production code
+ * does not need to call it (the iframe lives for the lifetime of the document), but tests and any
+ * future hot-reload path can use it to avoid leaking listeners across reboots.
  */
-export const startSandboxFrameServer = (): void => {
+export const startSandboxFrameServer = (): (() => void) => {
+  /**
+   * Origin we pin `postMessage` exchanges to.
+   *
+   * The iframe is loaded same-origin with its host (see `sandbox.html`), so both the parent we
+   * post to and the parent we accept from are pinned to `window.location.origin`. This prevents
+   * a hostile cross-origin opener from feeding fake execute requests into the sandbox, and stops
+   * sandbox output (which can include user secrets returned via `pm.environment`) from leaking
+   * to a different origin if the parent is ever swapped out.
+   *
+   * For `file://` documents (Electron) this resolves to `'file://'`, which is the same value
+   * `postMessage` exposes on `event.origin`, so the pin still holds.
+   */
+  const expectedOrigin = window.location.origin
+
   const post = (message: SandboxOutboundMessage) => {
-    // The host validates `event.source`; the iframe content is our own served file, so target '*'.
-    window.parent?.postMessage(message, '*')
+    // Always target the host's origin explicitly instead of `'*'`. The host also validates
+    // `event.source` and `event.origin`, but defense-in-depth is cheap here.
+    window.parent?.postMessage(message, expectedOrigin)
   }
 
-  window.addEventListener('message', (event: MessageEvent) => {
+  const handleMessage = (event: MessageEvent) => {
+    // Reject anything that is not from our parent on our own origin. Without this guard, any
+    // window that obtains a reference to this iframe could send fabricated execute payloads and
+    // run arbitrary scripts inside the eval-permitted realm.
+    if (event.origin !== expectedOrigin || event.source !== window.parent) {
+      return
+    }
+
     const data = event.data as Partial<SandboxExecuteRequest> | null
     if (!data || data.channel !== SANDBOX_CHANNEL || data.kind !== 'execute') {
       return
@@ -215,7 +241,10 @@ export const startSandboxFrameServer = (): void => {
         error: toErrorMessage(error),
       })
     })
-  })
+  }
 
+  window.addEventListener('message', handleMessage)
   post({ channel: SANDBOX_CHANNEL, kind: 'ready' })
+
+  return () => window.removeEventListener('message', handleMessage)
 }

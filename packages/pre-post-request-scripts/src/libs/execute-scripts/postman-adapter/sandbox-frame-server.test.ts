@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { sandboxContextMock, createContextMock } = vi.hoisted(() => {
@@ -22,7 +23,7 @@ vi.mock('postman-sandbox', () => ({
   },
 }))
 
-import { runSandboxExecution } from './sandbox-frame-server'
+import { runSandboxExecution, startSandboxFrameServer } from './sandbox-frame-server'
 import { SANDBOX_CHANNEL, type SandboxExecuteRequest, type SandboxOutboundMessage } from './sandbox-protocol'
 
 const baseRequest = (overrides: Partial<SandboxExecuteRequest>): SandboxExecuteRequest => ({
@@ -142,5 +143,120 @@ describe('sandbox-frame-server', () => {
 
     const done = messages.find((message) => message.kind === 'done')
     expect(done?.kind === 'done' && done.error).toBe('kaboom')
+  })
+})
+
+describe('startSandboxFrameServer', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  /**
+   * `startSandboxFrameServer` posts a `ready` message and registers a `message` listener. We
+   * stub the bare minimum off `window.parent` (target of `postMessage`) and dispatch synthetic
+   * `MessageEvent`s with controlled `origin`/`source` so we can prove the listener enforces the
+   * same-origin pin without spinning up a real iframe.
+   *
+   * We rely on the teardown returned by `startSandboxFrameServer` so each test cleans up its
+   * own listener; without that, listeners from earlier tests would still see dispatched events
+   * and call into the parent stub of the current test, contaminating assertions.
+   */
+  const setupServer = () => {
+    const parentPostMessage = vi.fn()
+    const originalParentDescriptor = Object.getOwnPropertyDescriptor(window, 'parent')
+
+    // Replace `window.parent` with our stub. Captured here so the teardown can restore exactly
+    // what was there before, even if the original was the engine-provided non-configurable
+    // descriptor (in which case `originalParentDescriptor` is `undefined` and `delete` is the
+    // correct restore).
+    Object.defineProperty(window, 'parent', {
+      configurable: true,
+      get: () =>
+        ({
+          postMessage: parentPostMessage,
+        }) as unknown as Window,
+    })
+
+    const teardown = startSandboxFrameServer()
+
+    return {
+      parentPostMessage,
+      restore: () => {
+        teardown()
+        if (originalParentDescriptor) {
+          Object.defineProperty(window, 'parent', originalParentDescriptor)
+        } else {
+          // No own descriptor existed (the property came from the prototype chain) — drop ours
+          // so the original lookup path is re-exposed.
+          delete (window as unknown as { parent?: unknown }).parent
+        }
+      },
+    }
+  }
+
+  const dispatchExecute = (overrides: Partial<MessageEventInit<unknown>>) => {
+    const request: SandboxExecuteRequest = {
+      channel: SANDBOX_CHANNEL,
+      kind: 'execute',
+      id: '1',
+      listen: 'test',
+      script: 'pm.test("noop", () => {})',
+    }
+
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        data: request,
+        origin: window.location.origin,
+        source: window.parent,
+        ...overrides,
+      }),
+    )
+  }
+
+  it('announces readiness to the parent pinned to the current origin (not wildcard)', () => {
+    const { parentPostMessage, restore } = setupServer()
+
+    try {
+      expect(parentPostMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ channel: SANDBOX_CHANNEL, kind: 'ready' }),
+        window.location.origin,
+      )
+      expect(parentPostMessage).not.toHaveBeenCalledWith(expect.anything(), '*')
+    } finally {
+      restore()
+    }
+  })
+
+  it('ignores execute messages from a foreign origin', () => {
+    const { parentPostMessage, restore } = setupServer()
+
+    try {
+      parentPostMessage.mockClear()
+
+      // Synthetic message from `https://evil.example`. The server must drop it without invoking
+      // the sandbox, so no `test-results`/`done` are ever posted back.
+      dispatchExecute({ origin: 'https://evil.example' })
+
+      expect(createContextMock).not.toHaveBeenCalled()
+      expect(parentPostMessage).not.toHaveBeenCalled()
+    } finally {
+      restore()
+    }
+  })
+
+  it('ignores execute messages whose source is not the parent window', () => {
+    const { parentPostMessage, restore } = setupServer()
+
+    try {
+      parentPostMessage.mockClear()
+
+      // Correct origin but a different window object (for example a sibling frame).
+      dispatchExecute({ source: window as unknown as MessageEventSource })
+
+      expect(createContextMock).not.toHaveBeenCalled()
+      expect(parentPostMessage).not.toHaveBeenCalled()
+    } finally {
+      restore()
+    }
   })
 })

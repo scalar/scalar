@@ -20,10 +20,13 @@ import {
  * This module therefore must NOT import `postman-sandbox`; it only serializes inputs, talks to the
  * iframe over `postMessage`, and applies the results back to the live store/request.
  */
-
 export const toPostmanResponse = async (response: Response): Promise<PostmanResponseDefinition> => {
-  const responseText = await response.text()
-  const responseBytes = Array.from(new TextEncoder().encode(responseText))
+  // Read as ArrayBuffer (not text) so binary payloads — gzipped JSON, images, PDFs, protobuf —
+  // survive the trip through `postMessage` byte-for-byte. Round-tripping through `response.text()`
+  // + `TextEncoder` corrupts any sequence that is not valid UTF-8 because the decoder replaces
+  // invalid units with U+FFFD before we ever encode them back to bytes.
+  const buffer = await response.arrayBuffer()
+  const responseBytes = Array.from(new Uint8Array(buffer))
 
   return {
     code: response.status,
@@ -38,6 +41,19 @@ export const toPostmanResponse = async (response: Response): Promise<PostmanResp
 
 /** Resolves the sandbox iframe URL relative to the current document so it works for web and Electron `file://`. */
 const sandboxFrameUrl = (): string => new URL('sandbox.html', document.baseURI).href
+
+/**
+ * Origin we pin `postMessage` exchanges to.
+ *
+ * The sandbox iframe is served from the same origin as the host (see `sandbox.html`), so we lock
+ * every send and receive to `window.location.origin`. Pinning the send origin prevents the payload
+ * from leaking if the frame is ever navigated away to another origin; pinning the receive origin
+ * prevents another window (for example a cross-origin opener) from spoofing sandbox messages.
+ *
+ * For `file://` documents (Electron), `window.location.origin` is the string `'file://'`, which is
+ * the same value `postMessage` reports on `event.origin`, so the pin still holds.
+ */
+const sandboxOrigin = (): string => window.location.origin
 
 /**
  * Delivers a single execute request to the sandbox and forwards every message it produces (test
@@ -66,8 +82,11 @@ const ensureSandboxFrame = (): Promise<Window> => {
     iframe.style.display = 'none'
     iframe.src = sandboxFrameUrl()
 
+    const expectedOrigin = sandboxOrigin()
+
     const onReady = (event: MessageEvent) => {
-      if (event.source !== iframe.contentWindow) {
+      // Same-origin iframe: reject anything that does not come from our own origin and our own frame.
+      if (event.origin !== expectedOrigin || event.source !== iframe.contentWindow) {
         return
       }
       const data = event.data as SandboxOutboundMessage | null
@@ -76,6 +95,9 @@ const ensureSandboxFrame = (): Promise<Window> => {
       }
       window.removeEventListener('message', onReady)
       if (!iframe.contentWindow) {
+        // Tear the orphaned node down so a retry can append a fresh frame without piling up.
+        iframe.remove()
+        framePromise = undefined
         reject(new Error('Sandbox iframe has no content window'))
         return
       }
@@ -84,6 +106,10 @@ const ensureSandboxFrame = (): Promise<Window> => {
 
     iframe.addEventListener('error', () => {
       window.removeEventListener('message', onReady)
+      // Drop the broken iframe from the DOM. Without this, a transient failure (network blip, bad
+      // bundle path, etc.) leaves a dead `<iframe>` attached, and every retry appends another one,
+      // growing the DOM unboundedly across the session.
+      iframe.remove()
       framePromise = undefined
       reject(new Error('Failed to load the script sandbox iframe'))
     })
@@ -95,11 +121,39 @@ const ensureSandboxFrame = (): Promise<Window> => {
   return framePromise
 }
 
+/**
+ * Maximum time we wait for the iframe to emit `kind: 'done'` for a given execute request.
+ *
+ * postman-sandbox enforces its own per-script timeout inside the sandbox, so reaching this ceiling
+ * means the iframe itself wedged (renderer OOM, hard crash, blocking infinite loop in a worker,
+ * messages dropped). The default is generous on purpose — this is a circuit-breaker for crashes,
+ * not a budget for user scripts.
+ */
+const SANDBOX_EXECUTION_TIMEOUT_MS = 5 * 60 * 1000
+
 const iframeTransport: SandboxTransport = (request, onMessage) => {
   ensureSandboxFrame()
     .then((frame) => {
+      const expectedOrigin = sandboxOrigin()
+
+      // Defensive circuit-breaker: if the iframe dies mid-execution we would otherwise wait on a
+      // `done` message that will never arrive, leaking the listener and leaving the caller's
+      // promise unresolved. The timer is cancelled the moment `done` is observed below.
+      const timeoutId = setTimeout(() => {
+        window.removeEventListener('message', handleMessage)
+        onMessage({
+          channel: SANDBOX_CHANNEL,
+          kind: 'done',
+          id: request.id,
+          error: `Script execution timed out after ${SANDBOX_EXECUTION_TIMEOUT_MS}ms`,
+        })
+      }, SANDBOX_EXECUTION_TIMEOUT_MS)
+
       const handleMessage = (event: MessageEvent) => {
-        if (event.source !== frame) {
+        // Reject anything that is not from our own origin and our own frame. Without this guard,
+        // any window in the same browsing context group could send fabricated `done`/`test-results`
+        // messages and trick the host into applying attacker-controlled variables and requests.
+        if (event.origin !== expectedOrigin || event.source !== frame) {
           return
         }
         const data = event.data as SandboxOutboundMessage | null
@@ -107,13 +161,16 @@ const iframeTransport: SandboxTransport = (request, onMessage) => {
           return
         }
         if (data.kind === 'done') {
+          clearTimeout(timeoutId)
           window.removeEventListener('message', handleMessage)
         }
         onMessage(data)
       }
 
       window.addEventListener('message', handleMessage)
-      frame.postMessage(request, '*')
+      // Pin the target origin: the execute payload contains environments, headers, secrets, and
+      // potentially auth tokens, so we must never broadcast it with `'*'`.
+      frame.postMessage(request, expectedOrigin)
     })
     .catch((error: unknown) => {
       onMessage({
@@ -124,7 +181,6 @@ const iframeTransport: SandboxTransport = (request, onMessage) => {
       })
     })
 }
-
 let transport: SandboxTransport = iframeTransport
 
 /** Override how the host reaches the sandbox (e.g. an in-process transport for tests). */
