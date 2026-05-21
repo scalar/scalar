@@ -1,5 +1,9 @@
 pre-commit:
   commands:
+    schemas-types-generate:
+      glob: 'packages/schemas/**/*'
+      run: pnpm --filter @scalar/schemas types:generate:stage
+      stage_fixed: true
     packages-format:
       glob: 'pnpm-lock.yaml'
       run: pnpm script packages format; git add \*package.json pnpm-lock.yaml;

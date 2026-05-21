@@ -33,6 +33,7 @@ const {
   modalState,
   isLoading = false,
   fileLoader,
+  defaultProxyUrl,
 } = defineProps<{
   /** The event data for the import */
   importEventData: ImportEventData | null
@@ -46,6 +47,11 @@ const {
   workspaceGroups: WorkspaceGroup[]
   /** The active workspace */
   activeWorkspace: ScalarListboxOption | null
+  /**
+   * Default CORS proxy when loading imports (`null` means skip the proxy).
+   * Derived from client layout in app state.
+   */
+  defaultProxyUrl: string | null
 }>()
 
 const emit = defineEmits<{
@@ -66,6 +72,9 @@ const watchMode = ref(false)
 // Create the workspace store with the file loader in order to import files
 const workspaceStore = createWorkspaceStore({
   fileLoader,
+  meta: {
+    'x-scalar-active-proxy': defaultProxyUrl,
+  },
 })
 
 /** The title of the active document or a fallback */

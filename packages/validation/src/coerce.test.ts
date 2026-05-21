@@ -1043,6 +1043,13 @@ describe('union', () => {
     })
   })
 
+  it('prefers property-less object schema over boolean for empty objects', () => {
+    const T = union([boolean(), object({})])
+    expect(coerce(T, {})).toEqual({})
+    expect(coerce(T, true)).toBe(true)
+    expect(coerce(T, false)).toBe(false)
+  })
+
   it('picks the branch whose type discriminator matches a union of literals', () => {
     const T = union([
       object({
@@ -1118,6 +1125,52 @@ describe('intersection', () => {
     ])
     expect(coerce(T, { a: 'a' })).toEqual({ type: 'a', a: 'a' })
     expect(coerce(T, { a: 'a', c: 'c' })).toEqual({ type: 'a', a: 'a', c: 'c' })
+  })
+
+  it('merges coerced properties through nested intersection members', () => {
+    const extensions = intersection([object({ env: optional(string()) }), object({ order: optional(number()) })], {
+      typeName: 'Extensions',
+    })
+    const document = intersection([
+      object({
+        openapi: literal('3.1.0'),
+        info: object({ title: string(), version: string() }),
+      }),
+      object({ navigation: optional(boolean()) }),
+      extensions,
+    ])
+
+    expect(
+      coerce(document, {
+        openapi: '3.1.0',
+        info: { title: 'API', version: '1.0.0' },
+        navigation: true,
+        env: 'staging',
+        order: 2,
+      }),
+    ).toStrictEqual({
+      openapi: '3.1.0',
+      info: { title: 'API', version: '1.0.0' },
+      navigation: true,
+      env: 'staging',
+      order: 2,
+    })
+    expect(coerce(document, { openapi: '3.1.0', info: { title: 'API' }, order: 'nope' })).toStrictEqual({
+      openapi: '3.1.0',
+      info: { title: 'API', version: '' },
+      order: 0,
+    })
+  })
+
+  it('accumulates scores from nested intersection members in unions', () => {
+    const extensions = intersection([object({ shared: number() }), object({ extra: string() })])
+    const document = intersection([object({ id: literal('doc') }), extensions])
+    const T = union([object({ id: literal('other') }), document])
+    expect(coerce(T, { id: 'doc', shared: 1, extra: 'ok' })).toStrictEqual({
+      id: 'doc',
+      shared: 1,
+      extra: 'ok',
+    })
   })
 })
 
@@ -1219,6 +1272,68 @@ describe('lazy', () => {
     const result = coerce(T, value)
     expect(result).toEqual(value)
   })
+
+  it('invokes a lazy factory only once per coerce call and reuses the inner schema reference', () => {
+    let calls = 0
+    const resolved: object[] = []
+    const Self: any = lazy(() => {
+      calls++
+      const inner = object({ name: string(), child: optional(Self) })
+      resolved.push(inner)
+      return inner
+    })
+
+    const node: { name: string; child?: unknown } = { name: 'root' }
+    node.child = node
+
+    coerce(Self, node)
+
+    // The factory must be called exactly once even though the cyclic value
+    // re-enters `Self` during recursion — that is what makes the (value, schema)
+    // cycle cache keys line up and prevents infinite recursion.
+    expect(calls).toBe(1)
+    expect(resolved).toHaveLength(1)
+  })
+
+  it('caches each lazy schema factory independently within a single coerce call', () => {
+    let aCalls = 0
+    let bCalls = 0
+    const A: any = lazy(() => {
+      aCalls++
+      return object({ kind: literal('a'), next: optional(B) })
+    })
+    const B: any = lazy(() => {
+      bCalls++
+      return object({ kind: literal('b'), next: optional(A) })
+    })
+
+    const a: { kind: string; next?: unknown } = { kind: 'a' }
+    const b: { kind: string; next?: unknown } = { kind: 'b' }
+    a.next = b
+    b.next = a
+
+    coerce(A, a)
+
+    // Distinct lazy schemas get distinct cache slots — each factory runs once.
+    expect(aCalls).toBe(1)
+    expect(bCalls).toBe(1)
+  })
+
+  it('does not leak the lazy resolution cache across coerce calls', () => {
+    let calls = 0
+    const Reset = lazy(() => {
+      calls++
+      return object({ name: string() })
+    })
+
+    coerce(Reset, { name: 'first' })
+    expect(calls).toBe(1)
+
+    // A second top-level call must build a fresh lazyCache, so the factory
+    // runs again rather than reusing the resolved schema from the prior call.
+    coerce(Reset, { name: 'second' })
+    expect(calls).toBe(2)
+  })
 })
 
 describe('evaluate', () => {
@@ -1268,5 +1383,183 @@ describe('evaluate', () => {
     const value = { x: 1 }
     const result = coerce(T, value)
     expect(result).toEqual(value)
+  })
+})
+
+describe('cyclic structures', () => {
+  it('terminates on a self-referential value paired with a recursive lazy schema', () => {
+    // Cyclic reference to the same schema
+    const T = lazy(() => object({ name: string(), child: optional(lazy(() => T)) }))
+
+    const node = { name: 'root' }
+    // @ts-expect-error - we want to create a cyclic reference
+    node.child = node
+
+    const expected = { name: 'root', child: null }
+    // @ts-expect-error - we want to create a cyclic reference
+    expected.child = expected
+
+    expect(() => coerce(T, node)).not.toThrow()
+    const result = coerce(T, node)
+
+    expect(result).toStrictEqual(expected)
+    expect(result).not.toBe(node)
+    expect(result.child).toStrictEqual(expected)
+  })
+
+  it('coerces properties before returning the original reference on a cycle', () => {
+    const T = lazy(() => object({ name: string({ default: 'Marc' }), child: optional(lazy(() => T)) }))
+
+    const node = { name: 42 }
+    // @ts-expect-error - we want to create a cyclic reference
+    node.child = node
+
+    const result = coerce(T, node)
+
+    const expected = { name: 'Marc', child: null }
+    // @ts-expect-error - we want to create a cyclic reference
+    expected.child = expected
+
+    expect(result).toStrictEqual(expected)
+    expect(result.child).toStrictEqual(expected)
+  })
+
+  it('terminates on mutually-recursive lazy schemas with cyclic data', () => {
+    const SchemaA = lazy(() => object({ kind: literal('a'), next: optional(lazy(() => SchemaB)) }))
+    const SchemaB = lazy(() => object({ kind: literal('b'), next: optional(lazy(() => SchemaA)) }))
+
+    const a = { kind: 'a' }
+    const b = { kind: 'b' }
+    // @ts-expect-error - we want to create a cyclic reference
+    a.next = b
+    // @ts-expect-error - we want to create a cyclic reference
+    b.next = a
+
+    const expected = {
+      kind: 'a',
+      next: {
+        kind: 'b',
+        next: null,
+      },
+    }
+
+    // @ts-expect-error - we want to create a cyclic reference
+    expected.next.next = expected
+
+    expect(() => coerce(SchemaA, a)).not.toThrow()
+    const result = coerce(SchemaA, a)
+    expect(result).toStrictEqual(expected)
+    expect(result.next?.next).toBe(result)
+  })
+
+  it('preserves a cyclic reference when a property uses any()', () => {
+    const T = object({
+      id: number(),
+      parent: optional(any()),
+    })
+
+    const node = { id: 1, parent: undefined as { id: number; parent?: unknown } | undefined }
+    node.parent = node
+
+    const result = coerce(T, node)
+    expect(result).toStrictEqual({ id: 1, parent: node })
+    expect(result).not.toBe(node)
+    expect(result.parent).toBe(node)
+  })
+
+  it('terminates when record values form a cycle', () => {
+    const nodeSchema = object({ next: optional(any()) })
+    const T = record(string(), nodeSchema)
+
+    const a: { next?: unknown } = {}
+    const b: { next?: unknown } = { next: a }
+    a.next = b
+
+    expect(() => coerce(T, { left: a, right: b })).not.toThrow()
+    const result = coerce(T, { left: a, right: b })
+    expect(result).toStrictEqual({
+      left: { next: b },
+      right: { next: a },
+    })
+    expect(result.left?.next).toBe(b)
+    expect(result.right?.next).toBe(a)
+  })
+
+  it('handles cyclic references when using intersection and union types', () => {
+    const T = intersection([
+      union([object({ type: literal('a'), a: string() }), object({ type: literal('b'), b: string() })]),
+      object({ c: string() }),
+    ])
+    const input = { hello: '', a: undefined }
+    // @ts-expect-error
+    input.a = input
+    expect(() => coerce(T, input)).not.toThrow()
+    const result = coerce(T, input)
+    expect(result).toStrictEqual({ type: 'a', a: '', c: '' })
+  })
+
+  it('coerces a recursive schema', () => {
+    const T = lazy(() => object({ name: string(), child: optional(lazy(() => T)) }))
+    const input = { name: 1, child: { name: 'child', child: { name: 'grandchild' } } }
+    // @ts-expect-error
+    input.child.child.child = input
+
+    const result = coerce(T, input)
+
+    const expected = { name: '', child: { name: 'child', child: { name: 'grandchild' } } }
+
+    // @ts-expect-error - we want to create a cyclic reference
+    expected.child.child.child = expected
+
+    expect(result).toStrictEqual(expected)
+  })
+
+  it('terminates on a recursive lazy union scored against a cyclic value', () => {
+    // Without cycle detection inside scoreUnion the union branch score would
+    // recurse forever: lazy -> union -> object -> property -> lazy -> ...
+    const T: any = lazy(() => union([object({ child: optional(lazy(() => T)) }), string()]))
+
+    const node: { child?: unknown } = {}
+    node.child = node
+
+    expect(() => coerce(T, node)).not.toThrow()
+    const result = coerce(T, node)
+    expect(result).toBeDefined()
+    expect((result as { child?: unknown }).child).toBe(result)
+  })
+
+  it('terminates on a recursive lazy union with a discriminated branch', () => {
+    // Both branches contain the recursive `self` property, so naive scoring would
+    // descend through every branch ad infinitum even with a discriminator.
+    const T: any = lazy(() =>
+      union([
+        object({ kind: literal('a'), self: optional(lazy(() => T)) }),
+        object({ kind: literal('b'), self: optional(lazy(() => T)) }),
+      ]),
+    )
+
+    const node: { kind: string; self?: unknown } = { kind: 'a' }
+    node.self = node
+
+    expect(() => coerce(T, node)).not.toThrow()
+    const result = coerce(T, node) as { kind: 'a' | 'b'; self?: unknown }
+    expect(result.kind).toBe('a')
+    expect(result.self).toBe(result)
+  })
+
+  it('terminates on mutually-recursive lazy unions with cyclic data', () => {
+    const A: any = lazy(() => union([object({ tag: literal('a'), next: optional(lazy(() => B)) }), string()]))
+    const B: any = lazy(() => union([object({ tag: literal('b'), next: optional(lazy(() => A)) }), string()]))
+
+    const a: { tag: string; next?: unknown } = { tag: 'a' }
+    const b: { tag: string; next?: unknown } = { tag: 'b' }
+    a.next = b
+    b.next = a
+
+    expect(() => coerce(A, a)).not.toThrow()
+    const result = coerce(A, a) as { tag: 'a'; next?: { tag: 'b'; next?: unknown } }
+    expect(result.tag).toBe('a')
+    expect(result.next?.tag).toBe('b')
+    expect(result.next?.next).toBe(result)
   })
 })

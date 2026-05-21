@@ -15,13 +15,13 @@ import {
 } from '@scalar/validation'
 
 import { extensions } from '@/schemas/extensions'
-import { WorkspaceManagedExtensions } from '@/schemas/extensions/document/workspace-managed-extensions'
 import { XInternal } from '@/schemas/extensions/document/x-internal'
 import { XScalarEnvironments } from '@/schemas/extensions/document/x-scalar-environments'
 import { XScalarIcon } from '@/schemas/extensions/document/x-scalar-icon'
 import { XScalarIgnore } from '@/schemas/extensions/document/x-scalar-ignore'
 import { XScalarIsDirty } from '@/schemas/extensions/document/x-scalar-is-dirty'
 import { XScalarOriginalDocumentHash } from '@/schemas/extensions/document/x-scalar-original-document-hash'
+import { XScalarOriginalSourceUrl } from '@/schemas/extensions/document/x-scalar-original-source-url'
 import { XScalarRegistryMeta } from '@/schemas/extensions/document/x-scalar-registry-meta'
 import { XScalarSdkInstallation } from '@/schemas/extensions/document/x-scalar-sdk-installation'
 import { XScalarWatchMode } from '@/schemas/extensions/document/x-scalar-watch-mode'
@@ -1069,8 +1069,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     [
       openApiDocumentCore,
       openApiExtensionsPartial,
-      // Shared with AsyncAPI — see workspace-managed-extensions.ts.
-      WorkspaceManagedExtensions,
+      XScalarOriginalSourceUrl,
       XTagGroups,
       XScalarEnvironments,
       XScalarSelectedServer,
