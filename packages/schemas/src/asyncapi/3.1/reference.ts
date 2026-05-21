@@ -6,9 +6,8 @@ import { referenceExtensions } from '@/general/bundler-extensions'
 /**
  * Wraps an inline schema so it may also be satisfied by an AsyncAPI Reference Object.
  *
- * Passed into every `create*` factory in this folder and into {@link generateSchema}.
- * Use `normalRef` for validation of raw documents, or `recursiveRef` when types should
- * include a resolved `$ref-value` alongside `$ref`.
+ * Schemas in this folder use {@link normalRef} directly. Use {@link recursiveRef} only when
+ * generating types for resolved or proxy documents (see `generate-types.ts`).
  */
 export type MaybeRefFn = (inner: Schema) => Schema
 
@@ -23,12 +22,7 @@ export const asyncApiReferenceObject = object(
   { typeName: 'AsyncApiReferenceObject', typeComment: 'JSON Reference for AsyncAPI components.' },
 )
 
-/**
- * Union of an inline schema and {@link asyncApiReferenceObject}.
- *
- * This is the default `maybeRef` implementation for `create*` factories that return a
- * **Reference union** (`T | Reference Object`).
- */
+/** Union of an inline schema and {@link asyncApiReferenceObject}. */
 export const normalRef = (schema: Schema): Schema => union([schema, asyncApiReferenceObject])
 
 const e = (value: unknown) => {
@@ -41,8 +35,8 @@ const e = (value: unknown) => {
 /**
  * Like {@link normalRef}, but reference branches also carry `$ref-value` and bundle extensions.
  *
- * Use as `maybeRef` in {@link generateSchema} when generating types for resolved or proxy
- * documents, not for plain AsyncAPI files on disk.
+ * Used when generating `AsyncApiDocument` types for resolved or proxy documents, not for plain
+ * AsyncAPI files on disk.
  */
 export const recursiveRef = (schema: Schema): Schema =>
   union([

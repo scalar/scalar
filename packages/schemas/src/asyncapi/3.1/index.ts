@@ -1,8 +1,4 @@
-export {
-  asyncApiA2sObjectSchema,
-  asyncApiObjectSchema,
-  createAsyncApiObjectSchema,
-} from './asyncapi-object'
+export { asyncApiA2sObjectSchema, asyncApiObjectSchema } from './asyncapi-object'
 export {
   asyncApiChannelBindingsObject,
   asyncApiMessageBindingsObject,

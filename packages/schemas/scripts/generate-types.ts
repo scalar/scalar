@@ -22,7 +22,7 @@ import { pathToFileURL } from 'node:url'
 import { type Schema, generateTypes } from '@scalar/validation'
 
 import { apiReferenceConfigurationSchema } from '../src/api-reference/api-reference-configuration'
-import { createAsyncApiObjectSchema } from '../src/asyncapi/3.1/asyncapi-object'
+import { asyncApiObjectSchema } from '../src/asyncapi/3.1/asyncapi-object'
 import { recursiveRef } from '../src/asyncapi/3.1/reference'
 import {
   GENERATED_TYPE_EXTENSIONS_PATH,
@@ -316,7 +316,7 @@ const main = async (): Promise<void> => {
         outputPath: generatedTypePaths[0],
       },
       {
-        schema: createAsyncApiObjectSchema(recursiveRef),
+        schema: recursiveRef(asyncApiObjectSchema),
         typeName: 'AsyncApiDocument',
         outputPath: generatedTypePaths[1],
       },
