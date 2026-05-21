@@ -2580,6 +2580,9 @@ importers:
       '@scalar/openapi-upgrader':
         specifier: workspace:*
         version: link:../openapi-upgrader
+      '@scalar/schemas':
+        specifier: workspace:*
+        version: link:../schemas
       '@scalar/snippetz':
         specifier: workspace:*
         version: link:../snippetz
