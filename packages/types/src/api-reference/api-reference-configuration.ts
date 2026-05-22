@@ -287,14 +287,25 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     })
     .optional(),
   /**
-   * Customize document page title
-   * @param item - The sidebar item object
-   * @returns A string ID used to generate the URL hash
+   * Customize the browser tab title.
+   *
+   * Called whenever the section in view changes — on sidebar clicks, on scroll, and when switching documents.
+   *
+   * @param input - The section currently in view and the active OpenAPI document
+   * @returns The string to use as the browser tab title
    * @default undefined
    */
   setPageTitle: z
     .function({
-      input: [z.object({ title: z.string() })],
+      input: [
+        z.object({
+          title: z.string(),
+          document: z.object({
+            title: z.string(),
+            slug: z.string(),
+          }),
+        }),
+      ],
       output: z.string(),
     })
     .optional(),
