@@ -209,22 +209,24 @@ export const startSandboxFrameServer = (): (() => void) => {
    * sandbox output (which can include user secrets returned via `pm.environment`) from leaking
    * to a different origin if the parent is ever swapped out.
    *
-   * For `file://` documents (Electron) this resolves to `'file://'`, which is the same value
-   * `postMessage` exposes on `event.origin`, so the pin still holds.
+   * For `file://` documents (Electron), Chromium reports message origins as `'null'` and does not
+   * allow `'file://'` as a `postMessage` target origin. In that case we target `'*'` and rely on the
+   * exact parent/source-window checks on both sides for isolation.
    */
   const expectedOrigin = window.location.origin
+  const targetOrigin = expectedOrigin === 'file://' ? '*' : expectedOrigin
+  const isExpectedOrigin = (origin: string) =>
+    expectedOrigin === 'file://' ? origin === 'null' : origin === expectedOrigin
 
   const post = (message: SandboxOutboundMessage) => {
-    // Always target the host's origin explicitly instead of `'*'`. The host also validates
-    // `event.source` and `event.origin`, but defense-in-depth is cheap here.
-    window.parent?.postMessage(message, expectedOrigin)
+    window.parent?.postMessage(message, targetOrigin)
   }
 
   const handleMessage = (event: MessageEvent) => {
     // Reject anything that is not from our parent on our own origin. Without this guard, any
     // window that obtains a reference to this iframe could send fabricated execute payloads and
     // run arbitrary scripts inside the eval-permitted realm.
-    if (event.origin !== expectedOrigin || event.source !== window.parent) {
+    if (!isExpectedOrigin(event.origin) || event.source !== window.parent) {
       return
     }
 

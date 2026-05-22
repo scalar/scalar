@@ -12,6 +12,8 @@ import { openAppLink } from './actions/open-app-link'
 import { buildMenu } from './application/menu'
 import { createWindow } from './application/window'
 
+const isProductionApp = !is.dev || process.env.SCALAR_ELECTRON_E2E === 'production'
+
 todesktop.init({
   updateReadyAction: {
     showNotification: 'never',
@@ -81,7 +83,7 @@ app.on('open-url', async (_, appLink: string) => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  const mainWindow = createWindow({ isDev: is.dev })
+  const mainWindow = createWindow({ isDev: !isProductionApp })
 
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
@@ -129,7 +131,7 @@ app.whenReady().then(() => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow({ isDev: is.dev })
+      createWindow({ isDev: !isProductionApp })
     }
   })
 })

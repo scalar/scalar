@@ -66,10 +66,15 @@ export const sandboxFrameUrl = (): string => {
  * from leaking if the frame is ever navigated away to another origin; pinning the receive origin
  * prevents another window (for example a cross-origin opener) from spoofing sandbox messages.
  *
- * For `file://` documents (Electron), `window.location.origin` is the string `'file://'`, which is
- * the same value `postMessage` reports on `event.origin`, so the pin still holds.
+ * For `file://` documents (Electron), Chromium reports message origins as `'null'` and does not allow
+ * `'file://'` as a `postMessage` target origin, so the adapter falls back to `'*'` while still checking
+ * `event.source` against the exact sandbox frame window.
  */
-const sandboxOrigin = (): string => window.location.origin
+const sandboxOrigins = (): { receive: string; send: string } => {
+  const origin = window.location.origin
+
+  return origin === 'file://' ? { receive: 'null', send: '*' } : { receive: origin, send: origin }
+}
 
 /**
  * Delivers a single execute request to the sandbox and forwards every message it produces (test
@@ -109,7 +114,7 @@ const ensureSandboxFrame = (): Promise<Window> => {
     iframe.style.display = 'none'
     iframe.src = sandboxFrameUrl()
 
-    const expectedOrigin = sandboxOrigin()
+    const { receive: expectedOrigin } = sandboxOrigins()
 
     // Cleanup shared by the success, load-error, and readiness-timeout paths: cancel the timer and
     // drop the window listener so exactly one of the three settles the promise without leaking.
@@ -179,7 +184,7 @@ const SANDBOX_EXECUTION_TIMEOUT_MS = 5 * 60 * 1000
 const iframeTransport: SandboxTransport = (request, onMessage) => {
   ensureSandboxFrame()
     .then((frame) => {
-      const expectedOrigin = sandboxOrigin()
+      const { receive: expectedOrigin, send: targetOrigin } = sandboxOrigins()
 
       // Defensive circuit-breaker: if the iframe dies mid-execution we would otherwise wait on a
       // `done` message that will never arrive, leaking the listener and leaving the caller's
@@ -213,9 +218,10 @@ const iframeTransport: SandboxTransport = (request, onMessage) => {
       }
 
       window.addEventListener('message', handleMessage)
-      // Pin the target origin: the execute payload contains environments, headers, secrets, and
-      // potentially auth tokens, so we must never broadcast it with `'*'`.
-      frame.postMessage(request, expectedOrigin)
+      // Pin the target origin for web origins. `file://` is the only exception: Chromium does not
+      // accept it as a target origin, so Electron file builds use `'*'` and rely on the source-window
+      // checks above for receive-side isolation.
+      frame.postMessage(request, targetOrigin)
     })
     .catch((error: unknown) => {
       onMessage({
