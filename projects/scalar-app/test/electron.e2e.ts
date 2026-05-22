@@ -33,6 +33,42 @@ type LaunchElectronAppResult = {
   userDataDir: string
 }
 
+const ELECTRON_E2E_ENV_KEYS = [
+  'PATH',
+  'HOME',
+  'TMPDIR',
+  'TMP',
+  'TEMP',
+  'DISPLAY',
+  'WAYLAND_DISPLAY',
+  'XAUTHORITY',
+  'LANG',
+  'LC_ALL',
+  'HTTP_PROXY',
+  'HTTPS_PROXY',
+  'NO_PROXY',
+  'http_proxy',
+  'https_proxy',
+  'no_proxy',
+] as const
+
+const electronE2eEnv = (): Record<string, string> => {
+  const env: Record<string, string> = {}
+
+  for (const key of ELECTRON_E2E_ENV_KEYS) {
+    const value = process.env[key]
+
+    if (value !== undefined) {
+      env[key] = value
+    }
+  }
+
+  return {
+    ...env,
+    SCALAR_ELECTRON_E2E: 'production',
+  }
+}
+
 const launchElectronApp = async (): Promise<LaunchElectronAppResult> => {
   const cwd = findFolder()
   const userDataDir = mkdtempSync(join(tmpdir(), 'scalar-app-electron-e2e-'))
@@ -44,10 +80,7 @@ const launchElectronApp = async (): Promise<LaunchElectronAppResult> => {
   const app = await _electron.launch({
     args: [`--user-data-dir=${userDataDir}`, cwd],
     cwd,
-    env: {
-      ...process.env,
-      SCALAR_ELECTRON_E2E: 'production',
-    },
+    env: electronE2eEnv(),
   })
 
   return {

@@ -27,7 +27,9 @@ const startScriptMockServer = async (): Promise<ScriptMockServer> => {
       return
     }
 
-    if (request.method === 'GET' && request.url?.startsWith('/scripts')) {
+    const requestPath = request.url ? new URL(request.url, `http://${MOCK_SERVER_HOST}`).pathname : undefined
+
+    if (request.method === 'GET' && (requestPath === '/' || requestPath === '/scripts')) {
       response.writeHead(200, { 'content-type': 'application/json' })
       response.end(JSON.stringify({ ok: true }))
       return
@@ -188,7 +190,7 @@ export const runSandboxPostMessageSmokeScenario = async (page: Page): Promise<vo
       const { results } = await waitForMessage<{
         kind: 'test-results'
         id: string
-        results: { title: string; passed: boolean }[]
+        results: { title: string; passed: boolean; duration: number; status: 'pending' | 'passed' | 'failed' }[]
       }>('test-results')
       await waitForMessage('done')
 

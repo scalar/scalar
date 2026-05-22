@@ -5,6 +5,7 @@ import Sandbox from 'postman-sandbox'
 import { buildSandboxContextFromScopes } from '../build-sandbox-context'
 import type { ConsoleContext } from '../context/console'
 import type { TestResult } from '../execute-post-response-script'
+import { getSandboxOrigins } from './sandbox-origins'
 import { SANDBOX_CHANNEL, type SandboxExecuteRequest, type SandboxOutboundMessage } from './sandbox-protocol'
 
 /**
@@ -213,9 +214,7 @@ export const startSandboxFrameServer = (): (() => void) => {
    * allow `'file://'` as a `postMessage` target origin. In that case we target `'*'` and rely on the
    * exact parent/source-window checks on both sides for isolation.
    */
-  const origin = window.location.origin
-  const expectedOrigin = origin === 'file://' ? 'null' : origin
-  const targetOrigin = origin === 'file://' ? '*' : origin
+  const { receive: expectedOrigin, send: targetOrigin } = getSandboxOrigins()
 
   const post = (message: SandboxOutboundMessage) => {
     window.parent?.postMessage(message, targetOrigin)
