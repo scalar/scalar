@@ -53,6 +53,18 @@ const createContainer = (configuration: unknown, cdn?: string): HTMLElement => {
 /** Let pending microtasks (the async CDN/mount chain) settle. */
 const flush = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0))
 
+/** Append a `<style>` to the current document head. */
+const addHeadStyle = (css: string): void => {
+  const style = document.createElement('style')
+  style.textContent = css
+  document.head.appendChild(style)
+}
+
+/** Dispatch `astro:before-swap`, optionally carrying the incoming document. */
+const dispatchBeforeSwap = (newDocument?: Document): void => {
+  document.dispatchEvent(Object.assign(new Event('astro:before-swap'), { newDocument }))
+}
+
 describe('client', () => {
   beforeEach(() => {
     document.body.replaceChildren()
@@ -186,5 +198,26 @@ describe('client', () => {
 
     expect(created).toHaveLength(0)
     expect(console.error).toHaveBeenCalled()
+  })
+
+  it("carries Scalar's stylesheet into the next page during a view transition", () => {
+    addHeadStyle(':root { --scalar-background-1: #fff; }')
+    const newDocument = document.implementation.createHTMLDocument()
+
+    initScalarClient()
+    dispatchBeforeSwap(newDocument)
+
+    const carried = Array.from(newDocument.head.querySelectorAll('style'))
+    expect(carried.some((style) => style.textContent?.includes('--scalar-'))).toBe(true)
+  })
+
+  it('leaves non-Scalar styles behind during a view transition', () => {
+    addHeadStyle('body { margin: 0; }')
+    const newDocument = document.implementation.createHTMLDocument()
+
+    initScalarClient()
+    dispatchBeforeSwap(newDocument)
+
+    expect(newDocument.head.querySelectorAll('style')).toHaveLength(0)
   })
 })

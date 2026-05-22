@@ -140,6 +140,50 @@ const unmountAll = (): void => {
   instances.clear()
 }
 
+/** The `astro:before-swap` event, narrowed to the part this module uses. */
+type BeforeSwapEvent = Event & { newDocument?: Document }
+
+/**
+ * Carry Scalar's stylesheet into the next page during a view transition.
+ *
+ * The standalone bundle injects its CSS into `<head>` once, when the CDN
+ * script first runs. Astro replaces `<head>` on every navigation, which would
+ * drop that `<style>` and leave the reference unstyled after a client-side
+ * navigation. Cloning it into the incoming document keeps the styles in place.
+ *
+ * This runs on every navigation, even to pages without a reference: that
+ * `<style>` is the only copy, so a page in between (an "About" page, say) has
+ * to carry it along, otherwise it is gone for good once the user navigates on.
+ */
+const persistScalarStyles = (newDocument: Document): void => {
+  document.head.querySelectorAll('style').forEach((style) => {
+    // Scalar's design tokens are namespaced `--scalar-*`, which reliably
+    // fingerprints the (otherwise unmarked) `<style>` the bundle injects.
+    if (!style.textContent?.includes('--scalar-')) {
+      return
+    }
+
+    const alreadyThere = Array.from(newDocument.head.querySelectorAll('style')).some((candidate) =>
+      candidate.isEqualNode(style),
+    )
+
+    if (!alreadyThere) {
+      newDocument.head.appendChild(style.cloneNode(true))
+    }
+  })
+}
+
+/** Persist styles and tear down instances before Astro swaps the page out. */
+const handleBeforeSwap = (event: Event): void => {
+  const { newDocument } = event as BeforeSwapEvent
+
+  if (newDocument) {
+    persistScalarStyles(newDocument)
+  }
+
+  unmountAll()
+}
+
 /**
  * Mount client-rendered API references and keep them working across Astro
  * view transitions. Safe to call repeatedly — the listeners register once.
@@ -158,6 +202,6 @@ export const initScalarClient = (): void => {
 
   // `astro:before-swap` fires before the outgoing page is replaced, and
   // `astro:page-load` once the new page is in place — destroy, then re-mount.
-  document.addEventListener('astro:before-swap', unmountAll)
+  document.addEventListener('astro:before-swap', handleBeforeSwap)
   document.addEventListener('astro:page-load', mountAll)
 }
