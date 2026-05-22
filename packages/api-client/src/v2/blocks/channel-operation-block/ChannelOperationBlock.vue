@@ -1,7 +1,6 @@
 <script lang="ts">
 /**
- * ChannelOperationBlock orchestrates the AsyncAPI channel operation view:
- * connection bar, request parameters, auth, message editor, and live message log.
+ * Channel connection block: Postman-style WebSocket testing for one AsyncAPI channel at a time.
  */
 export default {
   name: 'ChannelOperationBlock',
@@ -12,9 +11,10 @@ export type ChannelOperationBlockProps = {
   documentSlug: string
   layout: ClientLayout
   workspaceStore: WorkspaceStore
-  operationName: string
-  operation: AsyncApiOperationObject
+  channelName: string
   channel: AsyncApiChannelObject
+  channelAddress: string
+  operations: ChannelOperationSummary[]
   connectionUrl: string
   parameters: ChannelParametersContext
   messages: ChannelMessageEntry[]
@@ -34,16 +34,14 @@ export type ChannelOperationBlockProps = {
 
 <script setup lang="ts">
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import type {
-  AsyncApiChannelObject,
-  AsyncApiOperationObject,
-} from '@scalar/types/asyncapi/3.1'
+import type { AsyncApiChannelObject } from '@scalar/types/asyncapi/3.1'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useToasts } from '@scalar/use-toasts'
 import {
   buildConnectionUrl,
   type AsyncApiServerEntry,
   type ChannelMessageEntry,
+  type ChannelOperationSummary,
   type ChannelParametersContext,
 } from '@scalar/workspace-store/channel-example'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -80,29 +78,7 @@ import ChannelRequestBlock from './components/ChannelRequestBlock.vue'
 import ConnectionBar from './components/ConnectionBar.vue'
 import ConnectionPanel from './components/ConnectionPanel.vue'
 
-const {
-  authMeta,
-  channel,
-  connectionUrl: initialConnectionUrl,
-  documentSlug,
-  workspaceStore,
-  environment,
-  eventBus,
-  layout,
-  messages,
-  operation,
-  operationName,
-  options,
-  parameters,
-  plugins,
-  selectedMessage,
-  selectedSecurity,
-  selectedSecuritySchemes,
-  securityRequirements,
-  securitySchemes,
-  selectedServer,
-  servers,
-} = defineProps<ChannelOperationBlockProps>()
+const props = defineProps<ChannelOperationBlockProps>()
 
 const { toast } = useToasts()
 const { copyToClipboard } = useClipboard()
@@ -112,22 +88,23 @@ const wsSession = shallowRef(createWebSocketSession())
 const sessionState = ref(wsSession.value.state)
 const messageFrames = ref<WebSocketFrame[]>([])
 
-const pathParameters = ref({ ...parameters.path })
-const queryParameters = ref({ ...parameters.query })
+const pathParameters = ref({ ...props.parameters.path })
+const queryParameters = ref({ ...props.parameters.query })
 const connectionUrlOverride = ref<string | null>(null)
 const selectedMessageName = ref(
-  selectedMessage?.name ?? messages[0]?.name ?? null,
+  props.selectedMessage?.name ?? props.messages[0]?.name ?? null,
 )
 const outgoingPayload = ref(
-  selectedMessage ? getMessagePayloadExample(selectedMessage.message) : '{}',
+  props.selectedMessage
+    ? getMessagePayloadExample(props.selectedMessage.message)
+    : '{}',
 )
 
-const operationAction = computed(() => operation.action ?? 'receive')
-/** Show the message editor when the operation sends, or when outbound messages exist on the channel. */
-const canSend = computed(() => operationAction.value === 'send' || messages.length > 0)
+/** Always allow sending while testing a channel (Postman-style). */
+const canSend = computed(() => true)
 
 const environmentVariables = computed(() =>
-  getEnvironmentVariables(environment),
+  getEnvironmentVariables(props.environment),
 )
 
 const resolvedConnectionUrl = computed(() => {
@@ -135,17 +112,17 @@ const resolvedConnectionUrl = computed(() => {
     return connectionUrlOverride.value
   }
 
-  const server = selectedServer?.server ?? servers[0]?.server
+  const server = props.selectedServer?.server ?? props.servers[0]?.server
   if (!server) {
-    return initialConnectionUrl
+    return props.connectionUrl
   }
 
   return (
-    selectedServer?.connectionUrl ??
+    props.selectedServer?.connectionUrl ??
     buildConnectionUrl({
       server,
-      channel,
-      operation,
+      channel: props.channel,
+      operation: null,
       pathParameters: pathParameters.value,
       queryParameters: queryParameters.value,
       environmentVariables: environmentVariables.value,
@@ -154,10 +131,10 @@ const resolvedConnectionUrl = computed(() => {
 })
 
 const authServer = computed((): ServerObject | null =>
-  selectedServer
+  props.selectedServer
     ? {
         url: resolvedConnectionUrl.value,
-        description: selectedServer.description,
+        description: props.selectedServer.description,
       }
     : null,
 )
@@ -168,7 +145,7 @@ const syncSessionState = (): void => {
 }
 
 const handleConnect = async (): Promise<void> => {
-  eventBus.flushDebouncedEmits?.()
+  props.eventBus.flushDebouncedEmits?.()
 
   const missingPathParam = Object.entries(pathParameters.value).find(
     ([, value]) => !value?.trim(),
@@ -186,7 +163,7 @@ const handleConnect = async (): Promise<void> => {
   const result = await connectWebSocket({
     connectionUrl: resolvedConnectionUrl.value,
     session: wsSession.value,
-    plugins,
+    plugins: props.plugins,
     callbacks: {
       onFrame: () => syncSessionState(),
       onStateChange: () => syncSessionState(),
@@ -240,20 +217,29 @@ const handleCopyUrl = async (): Promise<void> => {
 }
 
 const handleSelectServer = (serverName: string): void => {
-  workspaceStore.updateDocument(
-    documentSlug,
+  connectionUrlOverride.value = null
+  props.workspaceStore.updateDocument(
+    props.documentSlug,
     'x-scalar-selected-server',
     serverName,
   )
 }
 
-watch([() => operationName, () => parameters], () => {
-  pathParameters.value = { ...parameters.path }
-  queryParameters.value = { ...parameters.query }
+watch(
+  () => props.selectedServer?.name,
+  () => {
+    connectionUrlOverride.value = null
+  },
+)
+
+watch([() => props.channelName, () => props.parameters], () => {
+  pathParameters.value = { ...props.parameters.path }
+  queryParameters.value = { ...props.parameters.query }
   connectionUrlOverride.value = null
-  selectedMessageName.value = selectedMessage?.name ?? messages[0]?.name ?? null
-  outgoingPayload.value = selectedMessage
-    ? getMessagePayloadExample(selectedMessage.message)
+  selectedMessageName.value =
+    props.selectedMessage?.name ?? props.messages[0]?.name ?? null
+  outgoingPayload.value = props.selectedMessage
+    ? getMessagePayloadExample(props.selectedMessage.message)
     : '{}'
   handleDisconnect()
 })
@@ -270,7 +256,6 @@ onBeforeUnmount(() => {
       <div class="hidden flex-1 @3xl:flex"></div>
       <ConnectionBar
         ref="connectionBarRef"
-        :action="operationAction"
         :connectionUrl="resolvedConnectionUrl"
         :environment="environment"
         :layout="layout"
@@ -290,13 +275,15 @@ onBeforeUnmount(() => {
         <ChannelRequestBlock
           :authMeta="authMeta"
           :canSend="canSend"
+          :channel="channel"
+          :channelAddress="channelAddress"
+          :channelName="channelName"
           :environment="environment"
           :eventBus="eventBus"
           :isConnected="sessionState === 'open'"
           :layout="layout"
           :messages="messages"
-          :operation="operation"
-          :operationName="operationName"
+          :operations="operations"
           :options="options"
           :outgoingPayload="outgoingPayload"
           :parameters="{

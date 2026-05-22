@@ -67,10 +67,10 @@ const collectSecurityRequirements = (
  */
 export const getAsyncApiSecurityRequirements = (
   document: AsyncApiDocument,
-  operation: AsyncApiOperationObject,
+  operation?: AsyncApiOperationObject | null,
   server?: AsyncApiServerObject | null,
 ): SecurityRequirementObject[] => {
-  const operationRequirements = collectSecurityRequirements(document, operation.security)
+  const operationRequirements = collectSecurityRequirements(document, operation?.security)
   const serverRequirements = collectSecurityRequirements(document, server?.security)
 
   const combined =

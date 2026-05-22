@@ -18,7 +18,6 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import { computed, ref, useId } from 'vue'
 
 import { useLoadingAnimation } from '@/v2/blocks/scalar-address-bar-block/hooks/use-loading-animation'
-import { getChannelActionInfo } from '@/v2/blocks/channel-operation-block/helpers/channel-action-info'
 import {
   mergeConnectionUrl,
   splitConnectionUrl,
@@ -28,10 +27,9 @@ import type { WebSocketSessionState } from '@/v2/blocks/channel-operation-block/
 import type { ClientLayout } from '@/v2/types/layout'
 
 import AsyncApiServerDropdown from './AsyncApiServerDropdown.vue'
-import ChannelActionBadge from './ChannelActionBadge.vue'
+import WebSocketProtocolBadge from './WebSocketProtocolBadge.vue'
 
 const {
-  action,
   connectionUrl,
   environment,
   layout,
@@ -39,8 +37,6 @@ const {
   servers,
   sessionState,
 } = defineProps<{
-  /** AsyncAPI operation action */
-  action: 'send' | 'receive'
   /** Resolved WebSocket connection URL */
   connectionUrl: string
   /** Environment variables for URL substitution display */
@@ -78,14 +74,14 @@ const serverBaseUrl = computed(() => selectedServer?.url ?? '')
 
 const connectionPath = computed(() => splitConnectionUrl(connectionUrl, serverBaseUrl.value).path)
 
-const actionColorVar = computed(() => getChannelActionInfo(action).colorVar)
+const addressBarAccentVar = 'var(--scalar-color-purple)'
 
 const addressBarScrollMargins = EditorView.scrollMargins.of(() => ({
   right: 24,
 }))
 
 const style = computed(() => ({
-  backgroundColor: `color-mix(in srgb, transparent 90%, ${actionColorVar.value})`,
+  backgroundColor: `color-mix(in srgb, transparent 90%, ${addressBarAccentVar})`,
   transform: `translate3d(-${percentage.value}%,0,0)`,
 }))
 
@@ -131,35 +127,43 @@ defineExpose({
           :style />
       </div>
 
-      <div class="hidden @3xl:flex">
-        <ChannelActionBadge :action="action" />
-      </div>
+      <div class="relative z-10 flex h-full min-w-0 flex-1 items-center">
+        <div class="hidden shrink-0 @3xl:flex">
+          <WebSocketProtocolBadge />
+        </div>
 
-      <div
-        class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full bg-blend-normal">
         <AsyncApiServerDropdown
           v-if="servers.length"
+          class="shrink-0 self-center"
           :selectedServer="selectedServer"
           :servers="servers"
           :target="id"
-          @select:server="(name) => emit('select:server', name)"
+          @select:server="
+            (name) => {
+              isServerDropdownOpen = false
+              emit('select:server', name)
+            }
+          "
           @update:open="(value) => (isServerDropdownOpen = value)" />
 
-        <CodeInput
-          alwaysEmitChange
-          aria-label="Connection path"
-          class="ml-1 min-w-fit pl-px outline-none"
-          disableCloseBrackets
-          :disabled="layout === 'modal'"
-          disableEnter
-          disableTabIndent
-          :emitOnBlur="false"
-          :environment="environment"
-          :extensions="[addressBarScrollMargins]"
-          :layout="layout"
-          :modelValue="connectionPath"
-          :placeholder="serverBaseUrl ? '' : 'Enter a WebSocket URL'"
-          @update:modelValue="handlePathUpdate" />
+        <div
+          class="channel-connection-path scroll-timeline-x scroll-timeline-x-address scroll-timeline-x-hidden relative flex h-full min-w-0 flex-1 items-center bg-blend-normal">
+          <CodeInput
+            alwaysEmitChange
+            aria-label="Connection path"
+            class="ml-1 h-full min-w-0 w-full pl-px leading-[27px] outline-none"
+            disableCloseBrackets
+            :disabled="layout === 'modal'"
+            disableEnter
+            disableTabIndent
+            :emitOnBlur="false"
+            :environment="environment"
+            :extensions="[addressBarScrollMargins]"
+            :layout="layout"
+            :modelValue="connectionPath"
+            :placeholder="serverBaseUrl ? 'Channel path or query' : 'Enter a WebSocket URL'"
+            @update:modelValue="handlePathUpdate" />
+        </div>
       </div>
 
       <ScalarButton
@@ -198,8 +202,21 @@ defineExpose({
     </div>
 
     <div
-      class="mt-2 flex h-(--scalar-address-bar-height) w-full items-stretch gap-1 @3xl:hidden">
-      <ChannelActionBadge :action="action" />
+      class="mt-2 flex h-(--scalar-address-bar-height) w-full min-w-0 items-stretch gap-1 @3xl:hidden">
+      <WebSocketProtocolBadge />
+      <AsyncApiServerDropdown
+        v-if="servers.length"
+        class="min-w-0 shrink-0"
+        :selectedServer="selectedServer"
+        :servers="servers"
+        :target="id"
+        @select:server="
+          (name) => {
+            isServerDropdownOpen = false
+            emit('select:server', name)
+          }
+        "
+        @update:open="(value) => (isServerDropdownOpen = value)" />
       <ScalarButton
         class="hover:bg-b-3 ml-auto"
         size="xs"
@@ -234,26 +251,43 @@ defineExpose({
 </template>
 
 <style scoped>
-:deep(.cm-editor) {
+/* Override CodeInput defaults (max-height / padding) so path text aligns with the server control. */
+.channel-connection-path :deep(.cm-editor) {
   height: 100%;
   outline: none;
   width: 100%;
 }
-:deep(.cm-line) {
+.channel-connection-path :deep(.cm-line) {
   padding: 0;
 }
-:deep(.cm-content) {
+.channel-connection-path :deep(.cm-content) {
   padding: 0;
+  max-height: none;
   display: flex;
   align-items: center;
   font-size: var(--scalar-small);
+  line-height: 27px;
 }
-.scroll-timeline-x {
+.channel-connection-path :deep(.cm-scroller) {
+  display: flex;
+  align-items: center;
+  min-height: 100%;
+}
+.channel-connection-path :deep(> div) {
+  display: flex;
+  height: 100%;
+  align-items: center;
+}
+.scroll-timeline-x-address {
+  line-height: 27px;
+  scrollbar-width: none;
+}
+/* Fade only the path field on the right — server control sits outside this mask. */
+.channel-connection-path.scroll-timeline-x {
   -ms-overflow-style: none;
   mask-image: linear-gradient(
     to right,
-    transparent 0,
-    black 6px,
+    black 0,
     black calc(100% - 24px),
     transparent 100%
   );

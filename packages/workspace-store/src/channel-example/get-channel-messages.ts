@@ -1,4 +1,3 @@
-import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type {
   AsyncApiChannelObject,
   AsyncApiDocument,
@@ -6,6 +5,7 @@ import type {
   AsyncApiOperationObject,
 } from '@scalar/types/asyncapi/3.1'
 
+import { getAllChannelMessages } from '@/channel-example/get-all-channel-messages'
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 
 export type ChannelMessageEntry = {
@@ -80,14 +80,5 @@ export const getChannelMessages = (
       .filter((entry): entry is ChannelMessageEntry => entry != null)
   }
 
-  if (!channel.messages) {
-    return []
-  }
-
-  return objectEntries(channel.messages)
-    .map(([name, messageRef]) => {
-      const message = getResolvedRef(messageRef, mergeSiblingReferences)
-      return { name, message }
-    })
-    .filter((entry): entry is ChannelMessageEntry => entry.message != null)
+  return getAllChannelMessages(document, channel)
 }

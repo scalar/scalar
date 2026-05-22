@@ -13,19 +13,16 @@ import { initializeWorkspaceEventHandlers } from '@/v2/workspace-events'
 
 import {
   ECHO_WEBSOCKET_CONNECTION_URL,
-  ECHO_WEBSOCKET_DEFAULT_OPERATION,
+  ECHO_WEBSOCKET_DEFAULT_CHANNEL,
   ECHO_WEBSOCKET_DOCUMENT_SLUG,
   echoWebsocketAsyncApiDocument,
 } from './fixtures/echo-websocket.asyncapi'
 
 const DOCUMENT_SLUG = ECHO_WEBSOCKET_DOCUMENT_SLUG
 
-const operationOptions = [
-  { id: 'sendEchoMessage', label: 'Send echo message (SEND)' },
-  { id: 'listenOnEcho', label: 'Listen on echo (RECV)' },
-] as const
+const channelOptions = [{ id: 'echo', label: 'echo — WebSocket.org echo' }] as const
 
-const operationName = ref<string>(ECHO_WEBSOCKET_DEFAULT_OPERATION)
+const channelName = ref<string>(ECHO_WEBSOCKET_DEFAULT_CHANNEL)
 
 const workspaceStore = createWorkspaceStore({
   meta: {
@@ -76,26 +73,29 @@ const environment = computed(() => getActiveEnvironment(workspaceStore, document
   <div class="bg-b-1 text-c-1 flex min-h-0 flex-1 flex-col">
     <header class="border-b px-4 py-2">
       <h1 class="text-c-1 text-sm font-medium">
-        Channel operation playground
+        Channel connection playground
       </h1>
       <p class="text-c-3 text-xs">
-        {{ DOCUMENT_SLUG }} ·
-        <code class="font-code">{{ operationName }}</code>
+        {{ DOCUMENT_SLUG }} · channel
+        <code class="font-code">{{ channelName }}</code>
         ·
         <code class="font-code">{{ ECHO_WEBSOCKET_CONNECTION_URL }}</code>
       </p>
+      <p class="text-c-3 mt-1 text-xs">
+        One connection per channel — connect once, send and receive on the same session (like Postman).
+      </p>
       <div class="mt-2 flex flex-wrap gap-2">
         <button
-          v-for="option in operationOptions"
+          v-for="option in channelOptions"
           :key="option.id"
           class="text-xxs rounded border px-2 py-1"
           :class="
-            operationName === option.id
+            channelName === option.id
               ? 'border-c-1 bg-b-2 text-c-1'
               : 'text-c-3 border-transparent hover:bg-b-2'
           "
           type="button"
-          @click="operationName = option.id">
+          @click="channelName = option.id">
           {{ option.label }}
         </button>
       </div>
@@ -117,12 +117,12 @@ const environment = computed(() => getActiveEnvironment(workspaceStore, document
       <ChannelOperation
         v-else-if="document"
         class="min-h-0 flex-1"
+        :channelName="channelName"
         :document="document"
         :documentSlug="DOCUMENT_SLUG"
         :environment="environment"
         :eventBus="eventBus"
         layout="web"
-        :operationName="operationName"
         :plugins="[]"
         :workspaceStore="workspaceStore" />
 

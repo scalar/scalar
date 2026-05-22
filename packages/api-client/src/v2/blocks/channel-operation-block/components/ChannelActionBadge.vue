@@ -14,19 +14,24 @@ import { computed } from 'vue'
 
 import { getChannelActionInfo } from '@/v2/blocks/channel-operation-block/helpers/channel-action-info'
 
-const { action } = defineProps<{
+const { action, variant = 'bar' } = defineProps<{
   /** AsyncAPI operation action */
   action: 'send' | 'receive'
+  /**
+   * `bar` — address bar cell (border-right, centered).
+   * `inline` — compact label in lists and reference sections.
+   */
+  variant?: 'bar' | 'inline'
 }>()
 
 const actionInfo = computed(() => getChannelActionInfo(action))
 
 const variants = cva({
-  base: 'text-center font-code text-3xs justify-center items-center flex',
+  base: 'font-code text-3xs flex shrink-0 items-center justify-center whitespace-nowrap font-bold',
   variants: {
-    isSquare: {
-      true: 'px-2.5 whitespace-nowrap font-bold border-r h-fit m-auto',
-      false: 'rounded-full',
+    variant: {
+      bar: 'text-center border-r h-fit m-auto px-2.5',
+      inline: 'rounded px-1.5 py-0.5',
     },
   },
 })
@@ -34,8 +39,8 @@ const variants = cva({
 
 <template>
   <div
-    class="relative gap-1 whitespace-nowrap"
-    :class="cx(variants({ isSquare: true }), actionInfo.colorClass)"
+    class="relative"
+    :class="cx(variants({ variant }), actionInfo.colorClass)"
     :title="`Operation action: ${action}`">
     {{ actionInfo.short }}
   </div>

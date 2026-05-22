@@ -19,6 +19,11 @@ export const echoWebsocketAsyncApiDocument = {
       protocol: 'wss',
       description: 'WebSocket.org echo service',
     },
+    local: {
+      host: 'localhost:8080',
+      protocol: 'ws',
+      description: 'Local WebSocket server (for server switching)',
+    },
   },
   'x-scalar-selected-server': 'echo',
   channels: {
@@ -74,7 +79,10 @@ export const echoWebsocketAsyncApiDocument = {
 
 export const ECHO_WEBSOCKET_DOCUMENT_SLUG = 'echo-websocket'
 
-/** Default operation for the playground (send + echo round-trip). */
+/** Default channel for the playground (single echo endpoint). */
+export const ECHO_WEBSOCKET_DEFAULT_CHANNEL = 'echo'
+
+/** @deprecated Use channel-centric navigation with {@link ECHO_WEBSOCKET_DEFAULT_CHANNEL}. */
 export const ECHO_WEBSOCKET_DEFAULT_OPERATION = 'sendEchoMessage'
 
 export const ECHO_WEBSOCKET_CONNECTION_URL = 'wss://echo.websocket.org'

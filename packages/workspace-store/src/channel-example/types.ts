@@ -8,11 +8,16 @@ import type { XScalarEnvironment } from '@/schemas/extensions/document/x-scalar-
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 
 import type { ChannelMessageEntry } from './get-channel-messages'
+import type { ChannelOperationSummary } from './get-channel-operations'
 import type { ChannelParametersContext } from './get-channel-parameters'
 import type { AsyncApiServerEntry } from './servers'
 
 export type ChannelExampleMeta = {
   operationName: string
+}
+
+export type ChannelConnectionMeta = {
+  channelName: string
 }
 
 export type BuildChannelExampleContext = {
@@ -39,4 +44,22 @@ export type BuildChannelExampleContext = {
     name: string | null
     environment: XScalarEnvironment
   }
+}
+
+export type BuildChannelConnectionContext = {
+  channel: AsyncApiChannelObject
+  channelName: string
+  channelAddress: string
+  /** Operations on this channel from the AsyncAPI description (reference only). */
+  operations: ChannelOperationSummary[]
+  messages: ChannelMessageEntry[]
+  selectedMessage: ChannelMessageEntry | null
+  servers: {
+    list: AsyncApiServerEntry[]
+    selected: AsyncApiServerEntry | null
+  }
+  connectionUrl: string
+  parameters: ChannelParametersContext
+  security: BuildChannelExampleContext['security']
+  environment: BuildChannelExampleContext['environment']
 }

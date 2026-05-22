@@ -6,7 +6,11 @@ export default {
 
 <script setup lang="ts">
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import type { ChannelMessageEntry, ChannelParametersContext } from '@scalar/workspace-store/channel-example'
+import type {
+  ChannelMessageEntry,
+  ChannelOperationSummary,
+  ChannelParametersContext,
+} from '@scalar/workspace-store/channel-example'
 import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
 import type { AuthMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import {
@@ -18,7 +22,7 @@ import type {
   OpenApiDocument,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { AsyncApiOperationObject } from '@scalar/types/asyncapi/3.1'
+import type { AsyncApiChannelObject } from '@scalar/types/asyncapi/3.1'
 import { computed, ref, useId } from 'vue'
 
 import SectionFilter from '@/components/SectionFilter.vue'
@@ -32,8 +36,9 @@ import { CollapsibleSection } from '@/v2/components/layout'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import ChannelMessageEditor from './ChannelMessageEditor.vue'
+import ChannelOperationsReference from './ChannelOperationsReference.vue'
 
-const CHANNEL_SECTIONS = ['Params', 'Query', 'Auth', 'Message'] as const
+const CHANNEL_SECTIONS = ['Params', 'Query', 'Auth', 'Operations', 'Message'] as const
 type Filter = 'All' | (typeof CHANNEL_SECTIONS)[number]
 
 const {
@@ -41,8 +46,10 @@ const {
   environment,
   eventBus,
   layout,
-  operation,
-  operationName,
+  channel,
+  channelName,
+  channelAddress,
+  operations,
   parameters,
   messages,
   selectedMessageName,
@@ -61,14 +68,15 @@ const {
   environment: XScalarEnvironment
   eventBus: WorkspaceEventBus
   layout: ClientLayout
-  operation: AsyncApiOperationObject
-  operationName: string
+  channel: AsyncApiChannelObject
+  channelName: string
+  channelAddress: string
+  operations: ChannelOperationSummary[]
   parameters: ChannelParametersContext
   messages: ChannelMessageEntry[]
   selectedMessageName: string | null
   outgoingPayload: string
   canSend: boolean
-  /** Whether the WebSocket session is open */
   isConnected: boolean
   proxyUrl: string
   securityRequirements: OpenApiDocument['security']
@@ -100,7 +108,11 @@ const filters = computed<Filter[]>(() => {
     available.delete('Query')
   }
 
-  if (!canSend || !messages.length) {
+  if (!operations.length) {
+    available.delete('Operations')
+  }
+
+  if (!canSend) {
     available.delete('Message')
   }
 
@@ -154,13 +166,33 @@ const handleMessageSelect = (messageName: string): void => {
   }
 }
 
-const requestNamePlaceholder = computed(() => operation.title ?? operationName)
+const channelTitle = computed(
+  () => channel.title ?? channelName,
+)
+
+const channelSubtitle = computed(() => {
+  const parts: string[] = []
+  if (channel.description) {
+    parts.push(channel.description)
+  }
+  if (channelAddress) {
+    parts.push(channelAddress)
+  }
+  return parts.join(' · ')
+})
 </script>
 
 <template>
-  <ViewLayoutSection :aria-label="`Channel request: ${operation.title ?? operationName}`">
+  <ViewLayoutSection :aria-label="`Channel: ${channelTitle}`">
     <template #title>
-      <span class="text-c-1">{{ operation.summary ?? requestNamePlaceholder }}</span>
+      <div class="flex min-w-0 flex-col gap-0.5">
+        <span class="text-c-1 truncate">{{ channelTitle }}</span>
+        <span
+          v-if="channelSubtitle"
+          class="text-c-3 truncate text-xs font-normal">
+          {{ channelSubtitle }}
+        </span>
+      </div>
       <SectionFilter
         v-model="selectedFilter"
         :filterIds="filterIds"
@@ -211,8 +243,22 @@ const requestNamePlaceholder = computed(() => operation.title ?? operationName)
         :server="server"
         title="Authentication" />
 
+      <CollapsibleSection
+        v-show="isSectionVisible('Operations') && operations.length"
+        :id="filterIds.Operations"
+        :defaultOpen="false"
+        :itemCount="operations.length">
+        <template #title>Operations</template>
+        <div class="px-3 pb-3">
+          <p class="text-c-3 mb-3 text-xs">
+            Defined on this channel in your AsyncAPI description (reference only).
+          </p>
+          <ChannelOperationsReference :operations="operations" />
+        </div>
+      </CollapsibleSection>
+
       <ChannelMessageEditor
-        v-show="isSectionVisible('Message') && canSend && messages.length"
+        v-show="isSectionVisible('Message') && canSend"
         :id="filterIds.Message"
         :canSend="canSend && isConnected"
         :environment="environment"

@@ -13,6 +13,7 @@ import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { AsyncApiServerEntry } from '@scalar/workspace-store/channel-example'
 import { computed } from 'vue'
 
+import ValueEmitter from '@/v2/components/layout/ValueEmitter.vue'
 import { stripTrailingSlash } from '@/v2/blocks/channel-operation-block/helpers/connection-bar-url'
 
 const { target, servers, selectedServer } = defineProps<{
@@ -37,29 +38,30 @@ const serverUrlWithoutTrailingSlash = computed(() => {
 
 <template>
   <ScalarPopover
-    v-if="servers.length"
     class="max-h-[inherit] p-0 text-base"
     focus
     :offset="0"
     placement="bottom"
     resize
     :target="target"
-    :teleport="`#${target}`"
-    @update:open="(value: boolean) => emit('update:open', value)">
+    :teleport="`#${target}`">
     <ScalarButton
-      class="hover:bg-b-2 font-code text-c-2 h-auto gap-0.75 rounded border px-1.5 text-base whitespace-nowrap @3xl:ml-0.75"
+      class="hover:bg-b-2 font-code text-c-2 relative z-10 flex h-full max-w-[min(50vw,280px)] shrink-0 items-center gap-0.75 truncate rounded border px-1.5 py-0 text-base leading-none whitespace-nowrap"
       variant="ghost">
       <template v-if="selectedServer">
         <span class="sr-only">Server:</span>
-        {{ serverUrlWithoutTrailingSlash }}
+        <span class="truncate">{{ serverUrlWithoutTrailingSlash }}</span>
       </template>
       <template v-else>
         <span class="sr-only">Select server</span>
         Select server
       </template>
     </ScalarButton>
-    <template #content>
-      <ScalarFloatingBackdrop class="flex flex-col gap-1 p-1">
+
+    <template #popover="{ close }">
+      <div
+        class="custom-scroll flex max-h-[inherit] flex-col gap-1 p-1"
+        @click="close">
         <button
           v-for="entry in servers"
           :key="entry.name"
@@ -82,7 +84,16 @@ const serverUrlWithoutTrailingSlash = computed(() => {
           class="text-c-3 border-t px-2 py-1.5 text-xs">
           <ScalarMarkdown :value="selectedServer.server.description" />
         </div>
-      </ScalarFloatingBackdrop>
+      </div>
+    </template>
+
+    <template #backdrop="{ open }">
+      <ValueEmitter
+        :value="open"
+        @change="(value) => emit('update:open', value)"
+        @unmount="emit('update:open', false)" />
+
+      <ScalarFloatingBackdrop class="inset-x-px rounded-none rounded-b-lg" />
     </template>
   </ScalarPopover>
 </template>

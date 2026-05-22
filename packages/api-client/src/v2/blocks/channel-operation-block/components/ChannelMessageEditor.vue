@@ -69,15 +69,7 @@ const selectedMessageOption = computed<ScalarListboxOption | undefined>({
       </button>
     </template>
 
-    <div
-      v-if="!messages.length"
-      class="text-c-3 p-4 text-sm">
-      No outbound messages defined for this operation.
-    </div>
-
-    <div
-      v-else
-      class="flex flex-col gap-3 p-3">
+    <div class="flex flex-col gap-3 p-3">
       <ScalarListbox
         v-if="messageOptions.length > 1"
         v-model="selectedMessageOption"
