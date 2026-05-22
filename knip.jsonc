@@ -360,6 +360,9 @@
     "integrations/fastify": {
       "ignoreDependencies": [
         "@scalar/api-reference" // build step copy standalone file from this package
+      ],
+      "ignoreUnresolved": [
+        "../assets/standalone.generated" // generated at build time by scripts/inline-standalone.js
       ]
     },
     "integrations/java": {
