@@ -18,8 +18,8 @@ export const getClients = (
 ): CustomClientOptionGroup[] => {
   // Handle custom code examples
   if (customCodeSamples.length) {
-    const customClients = customCodeSamples.map((sample) => {
-      const id = generateCustomId(sample)
+    const customClients = customCodeSamples.map((sample, index) => {
+      const id = generateCustomId(index)
       const label = sample.label || sample.lang || id
       const lang = (sample.lang as TargetId) || 'plaintext'
 

@@ -51,27 +51,27 @@ describe('generateCodeSnippet', () => {
     expect(result).toBe("fetch('https://api.example.com/users/{userId}')")
   })
 
-  it('returns custom code sample source when clientId starts with "custom"', () => {
+  it('resolves each custom code sample by its index, even when languages match', () => {
     const customCodeSamples: XCodeSample[] = [
       {
         lang: 'python',
-        label: 'Python Example',
-        source: 'import requests\nresponse = requests.get("https://api.example.com")',
+        label: 'Python',
+        source: 'response = svix.application.list()',
       },
       {
-        lang: 'javascript',
-        label: 'JavaScript Example',
-        source: 'fetch("https://api.example.com")',
+        lang: 'python',
+        label: 'Python (Async)',
+        source: 'response = await svix.application.list()',
       },
     ]
 
-    const result = generateCodeSnippet({
-      ...baseParams,
-      clientId: 'custom/python',
-      customCodeSamples,
-    })
-
-    expect(result).toBe('import requests\nresponse = requests.get("https://api.example.com")')
+    // Two samples share a language, but each index resolves to its own source
+    expect(generateCodeSnippet({ ...baseParams, clientId: 'custom/0', customCodeSamples })).toBe(
+      'response = svix.application.list()',
+    )
+    expect(generateCodeSnippet({ ...baseParams, clientId: 'custom/1', customCodeSamples })).toBe(
+      'response = await svix.application.list()',
+    )
   })
 
   it('returns "Custom example not found" when custom clientId does not match any custom code sample', () => {
@@ -85,7 +85,7 @@ describe('generateCodeSnippet', () => {
 
     const result = generateCodeSnippet({
       ...baseParams,
-      clientId: 'custom/ruby',
+      clientId: 'custom/99',
       customCodeSamples,
     })
 
