@@ -1,0 +1,20 @@
+---
+import { ClientRouter } from 'astro:transitions'
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Scalar Astro Playground</title>
+    <!-- Enables Astro view transitions, so navigation happens client-side. -->
+    <ClientRouter />
+  </head>
+  <body>
+    <nav style="font-family: sans-serif; padding: 1rem;">
+      <a href="/">API Reference</a> &middot; <a href="/about">About</a>
+    </nav>
+    <slot />
+  </body>
+</html>
