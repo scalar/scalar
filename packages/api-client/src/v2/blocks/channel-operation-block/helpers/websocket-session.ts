@@ -51,6 +51,7 @@ export type WebSocketSession = {
   connect: (options: WebSocketConnectOptions) => void
   send: (data: string) => void
   close: (code?: number, reason?: string) => void
+  clearFrames: () => void
   destroy: () => void
 }
 
@@ -173,6 +174,10 @@ export const createWebSocketSession = (): WebSocketSession => {
     }
   }
 
+  const clearFrames = (): void => {
+    frames.length = 0
+  }
+
   const destroy = (): void => {
     if (socket && (currentState === 'connecting' || currentState === 'open')) {
       socket.close(1000, '')
@@ -197,6 +202,7 @@ export const createWebSocketSession = (): WebSocketSession => {
     connect,
     send,
     close,
+    clearFrames,
     destroy,
   }
 }

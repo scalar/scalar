@@ -1,3 +1,4 @@
+export { default as ChannelOperationBlock } from './ChannelOperationBlock.vue'
 export {
   type ConnectWebSocketData,
   type ConnectWebSocketFailureCode,

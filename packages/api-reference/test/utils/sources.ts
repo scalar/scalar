@@ -33,6 +33,59 @@ export const sources = [
     url: 'https://registry.scalar.com/@scalar/schemas/asyncapi?format=json',
   },
   {
+    title: 'WebSocket Echo Test (AsyncAPI)',
+    slug: 'echo-websocket',
+    content: {
+      asyncapi: '3.0.0',
+      info: {
+        title: 'WebSocket Echo Test',
+        version: '1.0.0',
+        description:
+          'Connects to wss://echo.websocket.org — a public echo server that returns every message you send.',
+      },
+      defaultContentType: 'application/json',
+      servers: {
+        echo: {
+          host: 'echo.websocket.org',
+          protocol: 'wss',
+          description: 'WebSocket.org echo service',
+        },
+      },
+      channels: {
+        echo: {
+          address: '',
+          description: 'Bidirectional echo endpoint',
+          messages: {
+            echoPayload: {
+              name: 'echoPayload',
+              title: 'Echo payload',
+              payload: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string', example: 'Hello from Scalar' },
+                },
+                required: ['message'],
+              },
+            },
+          },
+        },
+      },
+      operations: {
+        sendEchoMessage: {
+          action: 'send',
+          channel: { $ref: '#/channels/echo' },
+          title: 'Send echo message',
+          messages: [{ $ref: '#/channels/echo/messages/echoPayload' }],
+        },
+        listenOnEcho: {
+          action: 'receive',
+          channel: { $ref: '#/channels/echo' },
+          title: 'Listen on echo',
+        },
+      },
+    },
+  },
+  {
     title: 'Tag Groups',
     slug: 'tag-groups',
     content: {
