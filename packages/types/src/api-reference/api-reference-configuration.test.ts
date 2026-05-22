@@ -418,17 +418,16 @@ describe('api-reference-configuration', () => {
 
     it('uses custom setPageTitle', () => {
       const config = {
-        setPageTitle: ({ title }) => `API Reference | ${title}`,
+        setPageTitle: ({ title, document }) => `${document.title} | ${title}`,
       } satisfies Partial<ApiReferenceConfiguration>
       const migratedConfig = apiReferenceConfigurationSchema.parse(config)
 
-      const item = { title: 'Authentication' }
-
       const result = migratedConfig.setPageTitle?.({
-        title: item.title,
+        title: 'Authentication',
+        document: { title: 'My API', slug: 'my-api' },
       })
 
-      expect(result).toBe('API Reference | Authentication')
+      expect(result).toBe('My API | Authentication')
     })
   })
 })
