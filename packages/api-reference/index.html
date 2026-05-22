@@ -25,7 +25,7 @@
         persistAuth: true,
         // Avoid CORS issues
         proxyUrl: 'https://proxy.scalar.com',
-        setPageTitle: (item) => `Test: ${item.title}`,
+        setPageTitle: ({ title, document }) => `${document.title} – ${title}`,
       })
     </script>
   </body>
