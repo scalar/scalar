@@ -283,6 +283,27 @@ export const setSandboxTransport = (next: SandboxTransport): void => {
   transport = next
 }
 
+/**
+ * Eagerly creates the sandbox iframe so the first script execution does not pay the cold-start
+ * cost of loading `sandbox.html` and the `postman-sandbox` bundle (noticeably slow on Electron).
+ *
+ * This is a best-effort optimization: it only runs in a DOM context, reuses the same module-cached
+ * frame {@link executeInPostmanSandbox} later awaits, and swallows failures so a warm-up problem can
+ * never surface to the caller — the real execution path retries and reports errors on its own.
+ *
+ * Call this only when scripts are actually present; warming the sandbox for a request without
+ * scripts would defeat the lazy creation that keeps script-free requests cheap.
+ */
+export const prewarmSandboxFrame = (): void => {
+  if (typeof document === 'undefined') {
+    return
+  }
+
+  ensureSandboxFrame().catch(() => {
+    // Ignored on purpose: warm-up is opportunistic and the execution path handles real errors.
+  })
+}
+
 let nextExecutionId = 0
 
 export const executeInPostmanSandbox = async ({
