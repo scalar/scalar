@@ -1,5 +1,12 @@
 # scalar-app
 
+## 1.1.3
+
+### Patch Changes
+
+- [#9332](https://github.com/scalar/scalar/pull/9332): fix: running scripts on electron
+- [#9315](https://github.com/scalar/scalar/pull/9315): fix: fail Vite and electron-vite builds when required VITE\_\* environment variables are missing
+
 ## 1.1.2
 
 ### Patch Changes
