@@ -22,7 +22,8 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "cd playground && pnpm dev"
+    "dev": "cd playground && pnpm dev",
+    "test": "vitest --run"
   },
   "type": "module",
   "exports": {
