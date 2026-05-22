@@ -1,5 +1,7 @@
 # @scalar/api-client
 
+## 3.8.4
+
 ## 3.8.3
 
 ### Patch Changes

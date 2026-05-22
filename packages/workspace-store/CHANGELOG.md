@@ -1,5 +1,7 @@
 # @scalar/workspace-store
 
+## 0.51.2
+
 ## 0.51.1
 
 ### Patch Changes
