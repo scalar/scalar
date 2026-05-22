@@ -10,6 +10,14 @@
   release - edits made directly here will be overwritten.
 -->
 
+## 1.1.2 (2026-05-21)
+
+### Logout now works correctly in the desktop app
+
+We fixed a navigation issue that caused the Electron desktop app to break when logging out, and improved how environment variables are loaded across different build targets.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#112)
+
 ## 1.1.1 (2026-05-21)
 
 ### Improved multipart forms and better security

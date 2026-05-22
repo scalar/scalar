@@ -129,6 +129,35 @@ describe('useAuth', () => {
     // email: '' is falsy, so isLoggedIn should not be true
     expect(isLoggedIn.value).toBe(false)
   })
+
+  describe('logout redirect', () => {
+    afterEach(() => {
+      // Clean up the Electron flag so it does not leak into other tests
+      delete (window as unknown as { electron?: boolean }).electron
+      vi.unstubAllGlobals()
+    })
+
+    it('hard routes to the root path on web', () => {
+      const location = { pathname: '/some/team/workspace', href: '', reload: vi.fn() }
+      vi.stubGlobal('location', location)
+
+      useAuth().logout()
+
+      expect(location.href).toBe('/')
+      expect(location.reload).not.toHaveBeenCalled()
+    })
+
+    it('resets the hash on the current HTML file and reloads on Electron', () => {
+      ;(window as unknown as { electron?: boolean }).electron = true
+      const location = { pathname: '/path/to/index.html', href: '', reload: vi.fn() }
+      vi.stubGlobal('location', location)
+
+      useAuth().logout()
+
+      expect(location.href).toBe('/path/to/index.html#/')
+      expect(location.reload).toHaveBeenCalledOnce()
+    })
+  })
 })
 
 // Tokens returned by a successful /core/login/refresh response

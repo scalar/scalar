@@ -1,5 +1,14 @@
 # @scalar/schemas
 
+## 0.3.1
+
+### Patch Changes
+
+- [#9311](https://github.com/scalar/scalar/pull/9311): feat: add typed AsyncAPI WebSocket binding schema
+  - Add `asyncApiWsBindingObject` for `bindings.ws` with `method`, `query`, `headers`, and `bindingVersion`
+  - Add `asyncApiSchemaObjectOrReference` (Schema Object | Reference Object) for WebSocket binding fields that exclude Multi Format Schema Object
+  - Regenerate `@scalar/types/asyncapi/3.1` types
+
 ## 0.3.0
 
 ### Minor Changes
