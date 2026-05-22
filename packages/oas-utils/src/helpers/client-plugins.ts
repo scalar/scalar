@@ -48,6 +48,43 @@ type ClientPluginHooks = {
   }) => void | Promise<void>
 }
 
+/** Direction of a WebSocket message frame */
+export type WebSocketFrameDirection = 'incoming' | 'outgoing'
+
+/** Opcode classification for a WebSocket frame */
+export type WebSocketFrameType = 'text' | 'binary' | 'close'
+
+/** A single WebSocket message frame (sent or received) */
+export type WebSocketPluginFrame = {
+  direction: WebSocketFrameDirection
+  timestamp: number
+  data: string | ArrayBuffer
+  opcode: WebSocketFrameType
+}
+
+/** Close event metadata for WebSocket plugin hooks */
+export type WebSocketPluginCloseInfo = {
+  code: number
+  reason: string
+  wasClean: boolean
+}
+
+/**
+ * WebSocket-specific plugin hooks for AsyncAPI channel operations.
+ *
+ * These are intentionally separate from the HTTP `ClientPluginHooks` because
+ * the WebSocket lifecycle (long-lived connection, bidirectional frames) does
+ * not map onto request/response semantics.
+ */
+export type ClientPluginWebSocketHooks = {
+  /** Runs before the WebSocket handshake. Return a modified URL to override. */
+  beforeConnect: (payload: { url: string }) => string | void | Promise<string | void>
+  /** Runs for every incoming or outgoing frame on an open connection. */
+  onWebSocketMessage: (payload: { frame: WebSocketPluginFrame }) => void | Promise<void>
+  /** Runs when the connection closes (cleanly or due to error). */
+  onWebSocketClose: (payload: { info: WebSocketPluginCloseInfo }) => void | Promise<void>
+}
+
 /** A vue component which accepts the specified props */
 type ClientPluginComponent<
   Props extends Record<string, unknown>,
@@ -118,6 +155,8 @@ type ClientPluginLifecycle = {
 
 export type ClientPlugin = {
   hooks?: Partial<ClientPluginHooks>
+  /** WebSocket-specific hooks for AsyncAPI channel operations */
+  webSocketHooks?: Partial<ClientPluginWebSocketHooks>
   components?: Partial<ClientPluginComponents>
   /** Lifecycle hooks for app-level concerns */
   lifecycle?: ClientPluginLifecycle
@@ -199,6 +238,37 @@ export const executeHook = async <K extends keyof HookPayloadMap>(
     if (hook) {
       const modifiedPayload = await hook(currentPayload as any)
       currentPayload = (modifiedPayload ?? currentPayload) as HookPayloadMap[K]
+    }
+  }
+
+  return currentPayload
+}
+
+type WebSocketHookPayloadMap = {
+  [K in keyof ClientPluginWebSocketHooks]: Parameters<ClientPluginWebSocketHooks[K]>[0]
+}
+
+/**
+ * Execute a WebSocket plugin hook across all plugins.
+ *
+ * For `beforeConnect`, the returned URL string (if any) is threaded through
+ * sequentially so each plugin can transform the URL. For fire-and-forget hooks
+ * (`onWebSocketMessage`, `onWebSocketClose`) the return value is ignored.
+ */
+export const executeWebSocketHook = async <K extends keyof WebSocketHookPayloadMap>(
+  payload: WebSocketHookPayloadMap[K],
+  hookName: K,
+  plugins: ClientPlugin[],
+): Promise<WebSocketHookPayloadMap[K]> => {
+  let currentPayload = payload
+
+  for (const plugin of plugins) {
+    const hook = plugin.webSocketHooks?.[hookName]
+    if (hook) {
+      const result = await (hook as (p: WebSocketHookPayloadMap[K]) => unknown)(currentPayload)
+      if (hookName === 'beforeConnect' && typeof result === 'string') {
+        currentPayload = { ...currentPayload, url: result } as WebSocketHookPayloadMap[K]
+      }
     }
   }
 
