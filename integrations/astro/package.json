@@ -31,6 +31,8 @@
   },
   "files": [
     "src",
+    "!src/**/*.test.*",
+    "!src/**/*.spec.*",
     "index.ts"
   ],
   "readme": {
