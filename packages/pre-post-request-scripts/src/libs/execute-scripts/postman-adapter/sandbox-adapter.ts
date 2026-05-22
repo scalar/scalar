@@ -91,6 +91,18 @@ let framePromise: Promise<SandboxFrame> | undefined
  */
 const SANDBOX_READY_TIMEOUT_MS = 30 * 1000
 
+const toThrownMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  try {
+    return JSON.stringify(error) ?? String(error)
+  } catch {
+    return String(error)
+  }
+}
+
 const invalidateSandboxFrame = (element: HTMLIFrameElement): void => {
   framePromise = undefined
   element.remove()
@@ -113,7 +125,7 @@ const assertSandboxFrameLocation = ({ element, url, window: frameWindow }: Sandb
     currentUrl = frameWindow.location.href
   } catch (error) {
     invalidateSandboxFrame(element)
-    const message = error instanceof Error ? error.message : String(error)
+    const message = toThrownMessage(error)
     throw new Error(`Could not verify sandbox iframe location before script execution: ${message}`)
   }
 
