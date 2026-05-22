@@ -6,16 +6,25 @@ export const XScalarSelectedServerSchema = Type.Object({
 })
 
 export type XScalarSelectedServer = {
-  /** The URL of the currently selected server */
+  /**
+   * The currently selected server. For OpenAPI documents this is the server URL; for AsyncAPI documents this is the
+   * server name (key in `document.servers`).
+   */
   'x-scalar-selected-server'?: string
 }
 
 export const XScalarSelectedServer = object(
   {
-    'x-scalar-selected-server': optional(string({ typeComment: 'The URL of the currently selected server' })),
+    'x-scalar-selected-server': optional(
+      string({
+        typeComment:
+          'The currently selected server. For OpenAPI documents this is the server URL; for AsyncAPI documents this is the server name (key in `document.servers`).',
+      }),
+    ),
   },
   {
     typeName: 'XScalarSelectedServer',
-    typeComment: 'The URL of the currently selected server',
+    typeComment:
+      'The currently selected server. For OpenAPI documents this is the server URL; for AsyncAPI documents this is the server name (key in `document.servers`).',
   },
 )

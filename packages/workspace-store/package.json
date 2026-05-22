@@ -30,6 +30,11 @@
   },
   "type": "module",
   "exports": {
+    "./channel-example": {
+      "import": "./dist/channel-example/index.js",
+      "types": "./dist/channel-example/index.d.ts",
+      "default": "./dist/channel-example/index.js"
+    },
     "./client": {
       "import": "./dist/client.js",
       "types": "./dist/client.d.ts",

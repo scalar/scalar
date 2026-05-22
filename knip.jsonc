@@ -258,6 +258,7 @@
     },
     "packages/workspace-store": {
       "entry": [
+        "./src/channel-example/index.ts",
         "./src/client.ts",
         "./src/events/index.ts",
         "./src/entities/auth/index.ts",
