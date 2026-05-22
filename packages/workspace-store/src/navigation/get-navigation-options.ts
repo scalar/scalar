@@ -124,6 +124,19 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
       return `${props.parentId}/example/${slugify(props.name)}`
     }
 
+    // -------- AsyncAPI message id generation logic --------
+    if (props.type === 'messages') {
+      return `${documentId}/messages`
+    }
+
+    if (props.type === 'message') {
+      if (!props.name) {
+        return `${documentId}/message`
+      }
+
+      return `${documentId}/message/${slugify(props.name, { preserveCase: true })}`
+    }
+
     if (props.type === 'document') {
       // -------- Default document id generation logic --------
       return documentId

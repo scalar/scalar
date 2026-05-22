@@ -38,6 +38,8 @@ import {
   scheduleInitialLoadComplete,
 } from '@/helpers/lazy-bus'
 
+import MessagesSection from './Messages/MessagesSection.vue'
+
 const {
   document,
   clientDocument,
@@ -102,6 +104,23 @@ const specificationVersion = computed(() => {
   }
   return openApiDocument.value?.['x-original-oas-version']
 })
+
+/** Narrows the active document to AsyncAPI, used by the Messages section render. */
+const asyncApiDocument = computed(() =>
+  isAsyncApiDocument(document) ? document : undefined,
+)
+
+/**
+ * Find the `TraversedMessages` nav entry for the active AsyncAPI document.
+ * The body Messages section is driven by this so sidebar entries and body
+ * anchors share a single source of ids.
+ */
+const messagesContainer = computed(() =>
+  items.find(
+    (entry): entry is TraversedEntryType & { type: 'messages' } =>
+      entry.type === 'messages',
+  ),
+)
 
 /** Computed property to get all OpenAPI extension fields from the root document object */
 const documentExtensions = computed(() => getXKeysFromObject(document))
@@ -225,6 +244,16 @@ onMounted(() => {
       :selectedClient="xScalarDefaultClient"
       :selectedServer>
     </TraversedEntry>
+
+    <!-- AsyncAPI: Messages section. Driven by the nav entries built in the
+         workspace-store so sidebar entries and body anchors share ids. -->
+    <MessagesSection
+      v-if="asyncApiDocument && messagesContainer"
+      :container="messagesContainer"
+      :document="asyncApiDocument"
+      :eventBus
+      :expandedItems
+      :options />
 
     <!-- Render plugins at content.end view -->
     <RenderPlugins

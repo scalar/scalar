@@ -357,9 +357,15 @@ const itemsFromWorkspace = computed<TraversedEntry[]>(() => {
       description: document.info.description,
       name: document.info.title ?? slug,
       title: document.info.title ?? slug,
-      children: isOpenApiDocument(document)
-        ? (document['x-scalar-navigation']?.children ?? [])
-        : [],
+      // Both OpenAPI and AsyncAPI documents carry an x-scalar-navigation tree
+      // built during ingestion. The shape is cast loosely on the AsyncAPI side
+      // to keep its runtime schema lenient — the tree itself is the same.
+      children:
+        (
+          document as {
+            'x-scalar-navigation'?: { children?: TraversedEntry[] }
+          }
+        )['x-scalar-navigation']?.children ?? [],
     }),
   )
 })
@@ -372,7 +378,11 @@ const sidebarState = createSidebarState<TraversedEntry>(itemsFromWorkspace, {
 /** Recursively set all children of the given items to open */
 const setChildrenOpen = (items: TraversedEntry[]): void => {
   items.forEach((item) => {
-    if (item.type === 'tag' || item.type === 'models') {
+    if (
+      item.type === 'tag' ||
+      item.type === 'models' ||
+      item.type === 'messages'
+    ) {
       sidebarState.setExpanded(item.id, true)
     }
     if ('children' in item && item.children) {
@@ -841,6 +851,7 @@ const handleSelectSidebarEntry = (id: string, caller?: 'sidebar') => {
   if (
     (item?.type === 'tag' ||
       item?.type === 'models' ||
+      item?.type === 'messages' ||
       item?.type === 'text') &&
     sidebarState.isExpanded(id) && // Only close if the item is expanded
     sidebarState.selectedItem.value === id // Only close if the item is not the currently selected item
@@ -855,8 +866,12 @@ const handleSelectSidebarEntry = (id: string, caller?: 'sidebar') => {
     return
   }
 
-  // Close the mobile menu upon selecting any item that's not a tag or model
-  if (item?.type !== 'tag' && item?.type !== 'models') {
+  // Close the mobile menu upon selecting any item that's not a tag or container
+  if (
+    item?.type !== 'tag' &&
+    item?.type !== 'models' &&
+    item?.type !== 'messages'
+  ) {
     isSidebarOpen.value = false
   }
 

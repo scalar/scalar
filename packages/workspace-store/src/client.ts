@@ -28,6 +28,7 @@ import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { createNavigation } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
+import { traverseAsyncDocument } from '@/navigation/helpers/traverse-async-document'
 import {
   externalValueResolver,
   loadingStatus,
@@ -998,13 +999,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       loaders.push(workspaceProps.fileLoader)
     }
 
-    // AsyncAPI ingestion: skip the OpenAPI-specific upgrade, bundle, coerce,
-    // validate, and navigation pipeline. The OpenAPI `coerce` step would
-    // otherwise inject an empty `openapi: ''` field and break the type
-    // discriminator. Reference resolution and navigation generation for
-    // AsyncAPI are out of scope for the MVP — only the workspace-store
-    // managed metadata (source url, document hash, spec version) is set so
-    // change detection on rebase can compare hashes correctly.
+    // AsyncAPI ingestion: skip the OpenAPI-specific upgrade and validate steps
+    // (the OpenAPI `coerce` step would otherwise inject an empty `openapi: ''`
+    // field and break the type discriminator). The document is still bundled
+    // and coerced against the AsyncAPI schema, and a small navigation tree
+    // (Introduction + Messages) is generated so the sidebar can surface
+    // `components.messages`.
     if (isAsyncApiDocument(clonedRawInputDocument)) {
       const asyncApiDocument = createMagicProxy({
         ...clonedRawInputDocument,
@@ -1012,6 +1012,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         'x-original-aas-version': clonedRawInputDocument.asyncapi,
         'x-scalar-original-document-hash': input.documentHash,
         'x-scalar-original-source-url': input.documentSource,
+        'x-scalar-navigation': traverseAsyncDocument(name, clonedRawInputDocument, navigationOptions),
       }) satisfies AsyncApiDocument
 
       await withMeasurementAsync(

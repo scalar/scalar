@@ -1,4 +1,5 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { assert, describe, expect, it } from 'vitest'
 
@@ -525,7 +526,8 @@ describe('importDocumentToWorkspace', () => {
 
     assert(result.ok)
     const importedDoc = workspaceStore.workspace.documents[result.slug]
-    expect(importedDoc?.['x-scalar-navigation']).toBeDefined()
-    expect(importedDoc?.['x-scalar-navigation']?.name).toBe('api-with-navigation')
+    assert(importedDoc && isOpenApiDocument(importedDoc))
+    expect(importedDoc['x-scalar-navigation']).toBeDefined()
+    expect(importedDoc['x-scalar-navigation']?.name).toBe('api-with-navigation')
   })
 })

@@ -188,6 +188,47 @@ export type TraversedModels = BaseSchema & {
   children?: TraversedEntry[]
 }
 
+export const TraversedMessageSchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('message'),
+    ref: Type.String(),
+    name: Type.String(),
+  }),
+)
+
+/**
+ * An entry representing an AsyncAPI message in the navigation structure.
+ *
+ * `ref` points into `components.messages` (for example `#/components/messages/PlanetCreated`).
+ */
+export type TraversedMessage = BaseSchema & {
+  type: 'message'
+  ref: string
+  name: string
+}
+
+export const TraversedMessagesSchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('messages'),
+    name: Type.String(),
+    children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
+  }),
+)
+
+/**
+ * Top level AsyncAPI messages container in the navigation structure.
+ *
+ * Mirrors {@link TraversedModels} — a single sibling under the document with the
+ * individual messages as children.
+ */
+export type TraversedMessages = BaseSchema & {
+  type: 'messages'
+  name: string
+  children?: TraversedEntry[]
+}
+
 export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedDescriptionSchemaDefinition,
   TraversedOperationSchemaDefinition,
@@ -197,6 +238,8 @@ export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedExampleSchemaDefinition,
   TraversedDocumentSchemaDefinition,
   TraversedModelsSchemaDefinition,
+  TraversedMessageSchemaDefinition,
+  TraversedMessagesSchemaDefinition,
 ])
 
 export type TraversedEntry =
@@ -208,6 +251,8 @@ export type TraversedEntry =
   | TraversedExample
   | TraversedDocument
   | TraversedModels
+  | TraversedMessage
+  | TraversedMessages
 
 /**
  * Type helper for when we are storing the parent entry in the entry itself.
@@ -275,6 +320,17 @@ type ModelProps = {
   parentTag?: ParentTag
 }
 
+type MessageProps = {
+  parentId: string
+  name?: string
+  type: 'message'
+}
+
+type MessagesContainerProps = {
+  parentId: string
+  type: 'messages'
+}
+
 type ExampleProps = {
   parentId: string
   name: string
@@ -288,6 +344,8 @@ export type IdGeneratorProps =
   | OperationProps
   | WebhookProps
   | ModelProps
+  | MessageProps
+  | MessagesContainerProps
   | ExampleProps
 
 export type IdGenerator = (props: IdGeneratorProps) => string
