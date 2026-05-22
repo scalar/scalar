@@ -27,6 +27,9 @@ describe('sanitizeEventPayload', () => {
     expect(sanitize('log:login-click', {})).toEqual({})
     expect(sanitize('log:user-login', { uid: '123', email: 'test@example.com', teamUid: 't1' })).toEqual({})
     expect(sanitize('log:user-logout', undefined)).toEqual({})
+    expect(sanitize('log:save-document', undefined)).toEqual({})
+    expect(sanitize('log:sync-pull-document', undefined)).toEqual({})
+    expect(sanitize('log:sync-push-document', undefined)).toEqual({})
     expect(sanitize('hooks:on:request:sent', {})).toEqual({})
   })
 
@@ -199,6 +202,9 @@ describe('TRACKED_EVENTS', () => {
     'log:register-click',
     'log:user-login',
     'log:user-logout',
+    'log:save-document',
+    'log:sync-pull-document',
+    'log:sync-push-document',
   ]
 
   it('has an extractor function for every tracked event', () => {

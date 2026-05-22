@@ -241,6 +241,7 @@ export const useDocumentSync = ({
       return
     }
     await app.store.value.saveDocument(slug)
+    app.eventBus.emit('log:save-document', undefined)
   }
 
   const handleRevertDocument = async (): Promise<void> => {
@@ -323,6 +324,8 @@ export const useDocumentSync = ({
     if (!meta || !slug || !registry || !store) {
       return
     }
+
+    app.eventBus.emit('log:sync-pull-document', undefined)
 
     const fetched = await registry.fetchDocument({
       namespace: meta.namespace,
@@ -545,6 +548,8 @@ export const useDocumentSync = ({
     })
 
     await store.saveDocument(slug)
+
+    app.eventBus.emit('log:sync-push-document', undefined)
 
     // Ask the host to refetch its registry listing so the cached
     // registry commit hash catches up with the one we just wrote
