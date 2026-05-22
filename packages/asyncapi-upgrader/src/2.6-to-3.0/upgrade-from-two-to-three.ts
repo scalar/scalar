@@ -1,3 +1,4 @@
+import { isObject } from '@scalar/helpers/object/is-object'
 import type { UnknownObject } from '@scalar/types/utils'
 
 /** The AsyncAPI version produced by this upgrade step. */
@@ -13,12 +14,7 @@ export function upgradeFromTwoToThree(originalDocument: UnknownObject): UnknownO
   const document = originalDocument
 
   // Skip anything that is not an AsyncAPI 2.x document
-  if (
-    document === null ||
-    typeof document !== 'object' ||
-    typeof document.asyncapi !== 'string' ||
-    !document.asyncapi.startsWith('2.')
-  ) {
+  if (!isObject(document) || typeof document.asyncapi !== 'string' || !document.asyncapi.startsWith('2.')) {
     return document
   }
 

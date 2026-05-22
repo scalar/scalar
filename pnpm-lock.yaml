@@ -1583,6 +1583,10 @@ importers:
         version: 8.0.0(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.8.3)
 
   packages/asyncapi-upgrader:
+    dependencies:
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../helpers
     devDependencies:
       '@scalar/types':
         specifier: workspace:*

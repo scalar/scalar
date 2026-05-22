@@ -75,6 +75,9 @@
     "documentation": "https://scalar.com/tools/asyncapi-upgrader/getting-started"
   },
   "sideEffects": false,
+  "dependencies": {
+    "@scalar/helpers": "workspace:*"
+  },
   "devDependencies": {
     "@scalar/types": "workspace:*",
     "vite": "catalog:*"
