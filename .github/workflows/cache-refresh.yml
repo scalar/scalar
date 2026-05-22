@@ -15,7 +15,19 @@ permissions:
   contents: read
 
 concurrency:
-  group: cache-refresh
+  # Share CI's main-branch concurrency group. This job wipes and rebuilds
+  # the branch-scoped stickydisks that `CI` also mounts for main (keyed by
+  # `github.ref_name` in .github/actions/setup-node). A refresh overlapping
+  # a CI run lets the last job to finish persist a partial or empty cache
+  # snapshot, so the two must never run at the same time. Both this job and
+  # CI-on-main use `cancel-in-progress: false`, so they queue instead of
+  # cancelling each other.
+  #
+  # This must stay equal to CI's group, which is
+  # `${{ github.workflow }}-${{ github.ref_name }}-base-ci` in ci.yml.
+  # cache-refresh only ever runs on main (see the "Refuse non-main refs"
+  # guard below), so the value is hardcoded rather than templated.
+  group: CI-main-base-ci
   cancel-in-progress: false
 
 jobs:
