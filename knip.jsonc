@@ -393,7 +393,10 @@
     "projects/galaxy-scalar-com": {
       // src/_worker.ts is the Cloudflare Pages worker entry, bundled by the
       // build script; knip cannot infer it without a wrangler config file.
-      "entry": ["src/_worker.ts"]
+      "entry": ["src/_worker.ts"],
+      // @scalar/api-reference is consumed by the build script (it copies the
+      // standalone bundle into the deploy output), not imported in source.
+      "ignoreDependencies": ["@scalar/api-reference"]
     },
     "projects/scalar-app": {
       "ignoreDependencies": [
