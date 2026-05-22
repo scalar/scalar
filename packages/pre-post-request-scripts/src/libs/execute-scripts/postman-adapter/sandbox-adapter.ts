@@ -115,10 +115,7 @@ const clearActiveFrame = (id: number): void => {
 
 const invalidateSandboxFrame = ({ element, id }: SandboxFrame): void => {
   clearActiveFrame(id)
-
-  if (element.isConnected) {
-    element.remove()
-  }
+  element.remove()
 }
 
 const assertSandboxFrameLocation = (sandboxFrame: SandboxFrame): void => {
@@ -156,9 +153,9 @@ const ensureSandboxFrame = (): Promise<SandboxFrame> => {
   }
 
   const pendingFrameId = nextFrameId++
-  activeFrameId = pendingFrameId
 
   framePromise = new Promise<SandboxFrame>((resolve, reject) => {
+    activeFrameId = pendingFrameId
     const frameId = pendingFrameId
     const iframe = document.createElement('iframe')
     iframe.setAttribute('aria-hidden', 'true')
