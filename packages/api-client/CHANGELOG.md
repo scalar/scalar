@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 3.8.5
+
+### Patch Changes
+
+- [#9334](https://github.com/scalar/scalar/pull/9334): Add analytics events for document save and registry sync (pull/push) actions
+
 ## 3.8.4
 
 ## 3.8.3

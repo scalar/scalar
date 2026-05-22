@@ -1,5 +1,11 @@
 # @scalar/scripts
 
+## 0.4.18
+
+### Patch Changes
+
+- [#9332](https://github.com/scalar/scalar/pull/9332): fix: running scripts on electron
+
 ## 0.4.17
 
 ## 0.4.16

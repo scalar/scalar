@@ -1,5 +1,16 @@
 # @scalar/workspace-store
 
+## 0.52.0
+
+### Minor Changes
+
+- [#9313](https://github.com/scalar/scalar/pull/9313): feat: add AsyncAPI connection URL builder and server list helpers
+
+### Patch Changes
+
+- [#9334](https://github.com/scalar/scalar/pull/9334): Add analytics events for document save and registry sync (pull/push) actions
+- [#9333](https://github.com/scalar/scalar/pull/9333): feat: respect the `x-order` extension when building schema examples
+
 ## 0.51.2
 
 ## 0.51.1
