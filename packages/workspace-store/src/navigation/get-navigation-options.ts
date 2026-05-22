@@ -55,6 +55,19 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
       return `${documentId}/${tagPrefix}/${slugify(props.tag.name ?? '')}`
     }
 
+    // -------- Default AsyncAPI operation id generation logic --------
+    if (props.type === 'asyncapi-operation') {
+      const prefixTag = props.parentTag
+        ? `${generateId({
+            type: 'tag',
+            tag: props.parentTag.tag,
+            parentId: props.parentTag.id,
+          })}/`
+        : `${documentId}/`
+
+      return `${prefixTag}asyncapi-operation/${slugify(props.operationName)}`
+    }
+
     // -------- Default operation id generation logic --------
     if (props.type === 'operation') {
       const prefixTag = props.parentTag

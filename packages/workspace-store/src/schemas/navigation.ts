@@ -103,6 +103,31 @@ export type TraversedOperation = BaseSchema & {
   children?: TraversedEntry[]
 }
 
+export const TraversedAsyncApiOperationSchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('asyncapi-operation'),
+    operationName: Type.String(),
+    action: Type.Union([Type.Literal('send'), Type.Literal('receive')]),
+    channelName: Type.String(),
+    channelAddress: Type.String(),
+  }),
+)
+
+/**
+ * An entry representing an AsyncAPI operation in the navigation structure.
+ */
+export type TraversedAsyncApiOperation = BaseSchema & {
+  type: 'asyncapi-operation'
+  /** Key in `document.operations` */
+  operationName: string
+  action: 'send' | 'receive'
+  /** Resolved channel key in `document.channels` */
+  channelName: string
+  /** Channel address for display and routing */
+  channelAddress: string
+}
+
 export const TraversedSchemaSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
   Type.Object({
@@ -191,6 +216,7 @@ export type TraversedModels = BaseSchema & {
 export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedDescriptionSchemaDefinition,
   TraversedOperationSchemaDefinition,
+  TraversedAsyncApiOperationSchemaDefinition,
   TraversedSchemaSchemaDefinition,
   TraversedTagSchemaDefinition,
   TraversedWebhookSchemaDefinition,
@@ -202,6 +228,7 @@ export const TraversedEntrySchemaDefinition = Type.Union([
 export type TraversedEntry =
   | TraversedDescription
   | TraversedOperation
+  | TraversedAsyncApiOperation
   | TraversedSchema
   | TraversedTag
   | TraversedWebhook
@@ -281,11 +308,19 @@ type ExampleProps = {
   type: 'example'
 }
 
+type AsyncApiOperationProps = {
+  parentId: string
+  operationName: string
+  type: 'asyncapi-operation'
+  parentTag?: ParentTag
+}
+
 export type IdGeneratorProps =
   | DocumentIdProps
   | DescriptionIdProps
   | TagProps
   | OperationProps
+  | AsyncApiOperationProps
   | WebhookProps
   | ModelProps
   | ExampleProps
