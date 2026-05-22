@@ -2,11 +2,16 @@ name: CI
 
 # This workflow runs on:
 # 1. Push events to the main branch
-# 2. Pull request events
+# 2. Push events to changeset-release/main (the release PR branch created by
+#    changesets/action). Because changesets uses GITHUB_TOKEN to create/update
+#    the release PR, GitHub suppresses the pull_request event and the CI never
+#    runs unless we also listen for pushes to this branch directly.
+# 3. Pull request events
 on:
   push:
     branches:
       - main
+      - changeset-release/main
   pull_request:
   workflow_dispatch: null
 # Workflow-level default: read-only. Individual jobs widen as needed.
@@ -14,7 +19,7 @@ permissions:
   contents: read
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}-base-ci
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/changeset-release/main' }}
 env:
   # Exclude these packages from turbo as they are handled by dedicated jobs
   TURBO_FLAGS: '--concurrency=100% --filter "!./integrations/{java,rust,dotnet,docker,fastapi,django-ninja}/**" --filter "!./projects/proxy-scalar-com/**"'
@@ -188,7 +193,7 @@ jobs:
           echo "scalar_app_package_changed=${{ steps.changed-packages-files.outputs.scalar_app_package_any_changed }}" >> $GITHUB_OUTPUT
 
   format:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/changeset-release/main')
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
@@ -245,7 +250,7 @@ jobs:
         run: pnpm turbo ${{ env.TURBO_FLAGS }} types:check
 
   knip:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/changeset-release/main')
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
@@ -1865,7 +1870,7 @@ jobs:
   # Other jobs
 
   required-jobs-pull-requests:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/changeset-release/main')
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 1
     permissions: {}
