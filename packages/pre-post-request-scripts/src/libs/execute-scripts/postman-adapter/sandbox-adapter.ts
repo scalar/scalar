@@ -141,11 +141,9 @@ const ensureSandboxFrame = (): Promise<SandboxFrame> => {
     return framePromise
   }
 
-  const pendingFrameId = nextFrameId++
-
   framePromise = new Promise<SandboxFrame>((resolve, reject) => {
-    activeFrameId = pendingFrameId
-    const frameId = pendingFrameId
+    const frameId = nextFrameId++
+    activeFrameId = frameId
     const iframe = document.createElement('iframe')
     iframe.setAttribute('aria-hidden', 'true')
     iframe.style.display = 'none'
