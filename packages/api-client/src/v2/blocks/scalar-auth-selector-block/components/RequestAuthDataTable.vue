@@ -9,6 +9,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { computed } from 'vue'
 
+import type { AuthenticationPlaceholders } from '@scalar/types/api-reference'
 import type { OAuth2Options } from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
 import type { SecuritySchemeOption } from '@/v2/blocks/scalar-auth-selector-block/helpers/security-scheme'
 import { DataTable } from '@/v2/components/data-table'
@@ -25,6 +26,7 @@ const {
   eventBus,
   meta,
   options,
+  placeholders,
 } = defineProps<{
   /** The current environment configuration */
   environment: XScalarEnvironment
@@ -46,6 +48,8 @@ const {
   meta: AuthMeta
   /**  Any config options required for the OAuth2 flow */
   options?: OAuth2Options
+  /** Custom placeholder text for auth input fields */
+  placeholders?: AuthenticationPlaceholders
 }>()
 
 /** Currently selected authentication scheme based on the active tab index */
@@ -135,6 +139,7 @@ defineExpose({
         :eventBus
         :isStatic
         :options
+        :placeholders
         :proxyUrl
         :securitySchemes
         :selectedSecuritySchemas="activeScheme.value"

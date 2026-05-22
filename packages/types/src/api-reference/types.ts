@@ -132,6 +132,22 @@ export type SecurityScheme =
   | SecuritySchemeOauth2
 
 /**
+ * Placeholder text configuration for authentication input fields.
+ */
+export type AuthenticationPlaceholders = {
+  /** Placeholder for the API key value input */
+  apiKeyValue?: string
+  /** Placeholder for the API key name input */
+  apiKeyName?: string
+  /** Placeholder for the bearer token input */
+  bearerToken?: string
+  /** Placeholder for the HTTP basic username input */
+  username?: string
+  /** Placeholder for the HTTP basic password input */
+  password?: string
+}
+
+/**
  * Authentication configuration for the API reference.
  * This config is not validated so does not need a zod schema
  */
@@ -187,6 +203,23 @@ export type AuthenticationConfiguration = {
    * @default false
    */
   createAnySecurityScheme?: boolean
+
+  /**
+   * Custom placeholder text for authentication input fields.
+   *
+   * @example
+   * ```ts
+   * {
+   *   authentication: {
+   *     placeholders: {
+   *       apiKeyValue: 'Enter your API key',
+   *       bearerToken: 'Enter your token',
+   *     },
+   *   }
+   * }
+   * ```
+   */
+  placeholders?: AuthenticationPlaceholders
 }
 
 export type SpecificationExtension = {

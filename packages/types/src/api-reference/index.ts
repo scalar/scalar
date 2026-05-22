@@ -9,6 +9,7 @@ export type {
   ApiReferenceConfigurationWithSource,
   ApiReferencePlugin,
   AuthenticationConfiguration,
+  AuthenticationPlaceholders,
   BaseConfiguration,
   ExternalUrls,
   LifecycleHooks,

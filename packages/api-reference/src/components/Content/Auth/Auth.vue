@@ -68,6 +68,7 @@ const selectedSecurity = computed(() =>
     layout="reference"
     :meta="{ type: 'document' }"
     :persistAuth="options.persistAuth"
+    :placeholders="options.authentication?.placeholders"
     :proxyUrl="options.proxyUrl ?? ''"
     :securityRequirements
     :securitySchemes

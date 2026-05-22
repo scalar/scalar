@@ -9,6 +9,7 @@ import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarListboxCheckbox } from '@scalar/components/listbox'
 import { useModal } from '@scalar/components/modal'
 import { ScalarIconCaretDown, ScalarIconTrash } from '@scalar/icons'
+import type { AuthenticationPlaceholders } from '@scalar/types/api-reference'
 import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
 import type {
   AuthMeta,
@@ -47,6 +48,7 @@ const {
   defaultOpen = true,
   isStatic = false,
   meta,
+  placeholders,
   proxyUrl,
   securityRequirements,
   securitySchemes,
@@ -64,6 +66,8 @@ const {
   /** Creates a static disclosure that cannot be collapsed */
   isStatic?: boolean
   meta: AuthMeta
+  /** Custom placeholder text for auth input fields */
+  placeholders?: AuthenticationPlaceholders
   proxyUrl: string
   securityRequirements: OpenApiDocument['security']
   securitySchemes: MergedSecuritySchemes
@@ -72,7 +76,7 @@ const {
   title: string
   /**  Any config options required for the OAuth2 flow */
   options?: OAuth2Options
-}>()
+})()
 
 const titleId = useId()
 const comboboxButtonRef = ref<typeof ScalarButtonType | null>(null)
@@ -302,6 +306,7 @@ defineExpose({
       :isStatic
       :meta
       :options
+      :placeholders
       :proxyUrl
       :securitySchemes
       :selectedSchemeOptions="activeSchemeOptions"
