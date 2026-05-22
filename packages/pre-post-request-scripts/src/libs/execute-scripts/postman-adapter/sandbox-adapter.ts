@@ -1,3 +1,4 @@
+import { normalizeError } from '@scalar/helpers/errors/normalize-error'
 import { isElectron } from '@scalar/helpers/general/is-electron'
 import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
 
@@ -94,18 +95,6 @@ let nextFrameId = 0
  */
 const SANDBOX_READY_TIMEOUT_MS = 30 * 1000
 
-const toThrownMessage = (error: unknown): string => {
-  if (error instanceof Error) {
-    return error.message
-  }
-
-  try {
-    return JSON.stringify(error) || String(error)
-  } catch {
-    return String(error)
-  }
-}
-
 const clearActiveFrame = (id: number): void => {
   if (activeFrameId === id) {
     framePromise = undefined
@@ -136,7 +125,7 @@ const assertSandboxFrameLocation = (sandboxFrame: SandboxFrame): void => {
     currentUrl = frameWindow.location.href
   } catch (error) {
     invalidateSandboxFrame(sandboxFrame)
-    const message = toThrownMessage(error)
+    const message = normalizeError(error).message
     throw new Error(`Could not verify sandbox iframe location before script execution: ${message}`)
   }
 
