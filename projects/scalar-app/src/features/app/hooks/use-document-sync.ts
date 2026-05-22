@@ -325,8 +325,6 @@ export const useDocumentSync = ({
       return
     }
 
-    app.eventBus.emit('log:sync-pull-document', undefined)
-
     const fetched = await registry.fetchDocument({
       namespace: meta.namespace,
       slug: meta.slug,
@@ -366,6 +364,7 @@ export const useDocumentSync = ({
         app.eventBus.emit('hooks:on:rebase:document:complete', {
           meta: { documentName: slug },
         })
+        app.eventBus.emit('log:sync-pull-document', undefined)
         toast('Already up to date with the registry.', 'info')
         return
       }
@@ -410,6 +409,7 @@ export const useDocumentSync = ({
     app.eventBus.emit('hooks:on:rebase:document:complete', {
       meta: { documentName: slug },
     })
+    app.eventBus.emit('log:sync-pull-document', undefined)
 
     toast('Pulled latest changes from the registry.', 'info')
   }
@@ -445,6 +445,7 @@ export const useDocumentSync = ({
     app.eventBus.emit('hooks:on:rebase:document:complete', {
       meta: { documentName: pending.slug },
     })
+    app.eventBus.emit('log:sync-pull-document', undefined)
     pendingPullState.value = null
 
     toast('Pulled latest changes from the registry.', 'info')
