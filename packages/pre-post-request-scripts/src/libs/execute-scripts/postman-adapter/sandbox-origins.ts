@@ -11,9 +11,10 @@ type SandboxOriginConfig = {
  * pinned to their exact origin to avoid leaking script payloads or accepting spoofed messages.
  */
 export const getSandboxOrigins = (): SandboxOriginConfig => {
-  const origin = window.location.origin
+  const { origin, protocol } = window.location
+  const isFileProtocol = protocol === 'file:' || origin === 'file://' || origin === 'null' || origin === ''
 
-  if (origin === 'file://') {
+  if (isFileProtocol) {
     return {
       receive: 'null',
       send: '*',

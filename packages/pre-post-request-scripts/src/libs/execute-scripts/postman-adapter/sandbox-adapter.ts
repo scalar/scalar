@@ -91,26 +91,35 @@ let framePromise: Promise<SandboxFrame> | undefined
  */
 const SANDBOX_READY_TIMEOUT_MS = 30 * 1000
 
+const invalidateSandboxFrame = (element: HTMLIFrameElement): void => {
+  framePromise = undefined
+  element.remove()
+}
+
 const assertSandboxFrameLocation = ({ element, url, window: frameWindow }: SandboxFrame): void => {
+  if (!element.isConnected || !document.body.contains(element)) {
+    invalidateSandboxFrame(element)
+    throw new Error('Sandbox iframe was detached before script execution')
+  }
+
   if (element.contentWindow !== frameWindow) {
+    invalidateSandboxFrame(element)
     throw new Error('Sandbox iframe window changed before script execution')
   }
 
+  let currentUrl: string
+
   try {
-    if (frameWindow.location.href !== url) {
-      framePromise = undefined
-      element.remove()
-      throw new Error('Sandbox iframe navigated before script execution')
-    }
+    currentUrl = frameWindow.location.href
   } catch (error) {
-    framePromise = undefined
-    element.remove()
+    invalidateSandboxFrame(element)
+    const message = error instanceof Error ? error.message : String(error)
+    throw new Error(`Could not verify sandbox iframe location before script execution: ${message}`)
+  }
 
-    if (error instanceof Error && error.message === 'Sandbox iframe navigated before script execution') {
-      throw error
-    }
-
-    throw new Error('Could not verify sandbox iframe location before script execution')
+  if (currentUrl !== url) {
+    invalidateSandboxFrame(element)
+    throw new Error('Sandbox iframe navigated before script execution')
   }
 }
 

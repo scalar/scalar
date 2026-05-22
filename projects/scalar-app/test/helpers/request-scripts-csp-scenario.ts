@@ -27,7 +27,7 @@ const startScriptMockServer = async (): Promise<ScriptMockServer> => {
       return
     }
 
-    const requestPath = request.url ? new URL(request.url, `http://${MOCK_SERVER_HOST}`).pathname : undefined
+    const requestPath = request.url?.split('?')[0]
 
     if (request.method === 'GET' && (requestPath === '/' || requestPath === '/scripts')) {
       response.writeHead(200, { 'content-type': 'application/json' })
@@ -150,7 +150,7 @@ export const runSandboxPostMessageSmokeScenario = async (page: Page): Promise<vo
         const timeoutId = window.setTimeout(() => {
           window.removeEventListener('message', onMessage)
           reject(new Error(`Sandbox iframe did not send ${kind}`))
-        }, 30_000)
+        }, 10_000)
 
         const onMessage = (event: MessageEvent) => {
           const data = event.data as (T & { channel?: string }) | null
