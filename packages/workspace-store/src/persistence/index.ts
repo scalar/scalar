@@ -4,6 +4,7 @@ import type { PathMethodHistory } from '@/entities/history/schema'
 import { createIndexDbConnection } from '@/persistence/indexdb'
 import { v1InitialMigration } from '@/persistence/migrations/v1-initial'
 import { v2TeamToLocalMigration } from '@/persistence/migrations/v2-team-to-local'
+import { v3RepairUidSchemaMigration } from '@/persistence/migrations/v3-repair-uid-schema'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import type { WorkspaceMeta } from '@/schemas/workspace'
 
@@ -64,7 +65,7 @@ export const createWorkspaceStorePersistence = async () => {
   // fresh installs and upgrades converge on exactly the same state.
   const connection = await createIndexDbConnection({
     name: 'scalar-workspace-store',
-    migrations: [v1InitialMigration, v2TeamToLocalMigration],
+    migrations: [v1InitialMigration, v2TeamToLocalMigration, v3RepairUidSchemaMigration],
     tables: {
       workspace: {
         schema: Type.Object({
