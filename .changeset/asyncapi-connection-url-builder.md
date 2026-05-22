@@ -4,4 +4,4 @@
 '@scalar/types': patch
 ---
 
-feat(workspace-store): add AsyncAPI connection URL builder and server list helpers
+feat: add AsyncAPI connection URL builder and server list helpers
