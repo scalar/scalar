@@ -419,6 +419,37 @@ public class ScalarResourceConfiguratorTests
         JsonDocument.Parse(decoded).RootElement.ValueKind.Should().Be(JsonValueKind.Array);
     }
 
+    [Fact]
+    public async Task EnvironmentVariables_AreAllStrings_SoAzureContainerAppsPublishCanSerializeThem()
+    {
+        // Aspire's Azure Container Apps publisher only serializes strings and a few reference types.
+        // A raw bool env var aborts `aspire publish` with "Unsupported value type System.Boolean",
+        // so every value the configurator adds must be a string. See scalar/scalar#9308.
+        var scalarResource = new ScalarResource(ScalarResourceName);
+        scalarResource.Annotations.Add(DefaultAnnotation(HttpApiResource()));
+
+        var services = new ServiceCollection();
+        services.AddOptions<ScalarAspireOptions>(ScalarResourceName);
+        var serviceProvider = services.BuildServiceProvider();
+
+        var executionContext = new DistributedApplicationExecutionContext(
+            new DistributedApplicationExecutionContextOptions(DistributedApplicationOperation.Publish)
+            {
+                ServiceProvider = serviceProvider
+            });
+
+        var envVars = new Dictionary<string, object>();
+        await ScalarResourceConfigurator.ConfigureScalarResourceAsync(
+            new EnvironmentCallbackContext(executionContext, scalarResource, envVars));
+
+        envVars.Values.Should().AllBeOfType<string>();
+
+        // The three boolean options are serialized as lowercase strings the container parses back.
+        envVars[EnvironmentVariables.DefaultProxy].Should().Be("true");
+        envVars[EnvironmentVariables.AllowSelfSignedCertificates].Should().Be("false");
+        envVars[EnvironmentVariables.ForwardOriginalHostHeader].Should().Be("false");
+    }
+
     // ---------------------------------------------------------------------------
     // Service-discovery environment variable tests
     //
