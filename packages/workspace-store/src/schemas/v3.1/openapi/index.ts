@@ -43,6 +43,7 @@ import { XAdditionalPropertiesName } from '@/schemas/extensions/schema/x-additio
 import { XEnumDescriptions } from '@/schemas/extensions/schema/x-enum-descriptions'
 import { XEnumVarNames } from '@/schemas/extensions/schema/x-enum-varnames'
 import { XExamples } from '@/schemas/extensions/schema/x-examples'
+import { XOrder } from '@/schemas/extensions/schema/x-order'
 import { XVariable } from '@/schemas/extensions/schema/x-variable'
 import { XDefaultScopes } from '@/schemas/extensions/security/x-default-scopes'
 import { XScalarCredentialsLocation } from '@/schemas/extensions/security/x-scalar-credentials-location'
@@ -250,6 +251,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema) => {
     XEnumDescriptions,
     XEnumVarNames,
     XAdditionalPropertiesName,
+    XOrder,
     XTags,
   ] as const
 
