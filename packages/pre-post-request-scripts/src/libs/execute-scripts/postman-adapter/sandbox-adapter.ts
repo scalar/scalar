@@ -71,11 +71,14 @@ type SandboxTransport = (request: SandboxExecuteRequest, onMessage: (message: Sa
 
 type SandboxFrame = {
   element: HTMLIFrameElement
+  id: number
   url: string
   window: Window
 }
 
 let framePromise: Promise<SandboxFrame> | undefined
+let activeFrameId: number | undefined
+let nextFrameId = 0
 
 /**
  * Maximum time we wait for a freshly created sandbox iframe to post its `ready` handshake.
@@ -97,25 +100,36 @@ const toThrownMessage = (error: unknown): string => {
   }
 
   try {
-    return JSON.stringify(error) ?? String(error)
+    return JSON.stringify(error) || String(error)
   } catch {
     return String(error)
   }
 }
 
-const invalidateSandboxFrame = (element: HTMLIFrameElement): void => {
-  framePromise = undefined
-  element.remove()
+const clearActiveFrame = (id: number): void => {
+  if (activeFrameId === id) {
+    framePromise = undefined
+    activeFrameId = undefined
+  }
 }
 
-const assertSandboxFrameLocation = ({ element, url, window: frameWindow }: SandboxFrame): void => {
+const invalidateSandboxFrame = ({ element, id }: SandboxFrame): void => {
+  clearActiveFrame(id)
+
+  if (element.isConnected) {
+    element.remove()
+  }
+}
+
+const assertSandboxFrameLocation = (sandboxFrame: SandboxFrame): void => {
+  const { element, url, window: frameWindow } = sandboxFrame
   if (!element.isConnected || !document.body.contains(element)) {
-    invalidateSandboxFrame(element)
+    invalidateSandboxFrame(sandboxFrame)
     throw new Error('Sandbox iframe was detached before script execution')
   }
 
   if (element.contentWindow !== frameWindow) {
-    invalidateSandboxFrame(element)
+    invalidateSandboxFrame(sandboxFrame)
     throw new Error('Sandbox iframe window changed before script execution')
   }
 
@@ -124,13 +138,13 @@ const assertSandboxFrameLocation = ({ element, url, window: frameWindow }: Sandb
   try {
     currentUrl = frameWindow.location.href
   } catch (error) {
-    invalidateSandboxFrame(element)
+    invalidateSandboxFrame(sandboxFrame)
     const message = toThrownMessage(error)
     throw new Error(`Could not verify sandbox iframe location before script execution: ${message}`)
   }
 
   if (currentUrl !== url) {
-    invalidateSandboxFrame(element)
+    invalidateSandboxFrame(sandboxFrame)
     throw new Error('Sandbox iframe navigated before script execution')
   }
 }
@@ -141,7 +155,11 @@ const ensureSandboxFrame = (): Promise<SandboxFrame> => {
     return framePromise
   }
 
+  const pendingFrameId = nextFrameId++
+  activeFrameId = pendingFrameId
+
   framePromise = new Promise<SandboxFrame>((resolve, reject) => {
+    const frameId = pendingFrameId
     const iframe = document.createElement('iframe')
     iframe.setAttribute('aria-hidden', 'true')
     iframe.style.display = 'none'
@@ -171,12 +189,13 @@ const ensureSandboxFrame = (): Promise<SandboxFrame> => {
       if (!iframe.contentWindow) {
         // Tear the orphaned node down so a retry can append a fresh frame without piling up.
         iframe.remove()
-        framePromise = undefined
+        clearActiveFrame(frameId)
         reject(new Error('Sandbox iframe has no content window'))
         return
       }
       resolve({
         element: iframe,
+        id: frameId,
         url: iframeUrl,
         window: iframe.contentWindow,
       })
@@ -188,7 +207,7 @@ const ensureSandboxFrame = (): Promise<SandboxFrame> => {
       // bundle path, etc.) leaves a dead `<iframe>` attached, and every retry appends another one,
       // growing the DOM unboundedly across the session.
       iframe.remove()
-      framePromise = undefined
+      clearActiveFrame(frameId)
       reject(new Error('Failed to load the script sandbox iframe'))
     })
 
@@ -198,7 +217,7 @@ const ensureSandboxFrame = (): Promise<SandboxFrame> => {
     readyTimeoutId = setTimeout(() => {
       window.removeEventListener('message', onReady)
       iframe.remove()
-      framePromise = undefined
+      clearActiveFrame(frameId)
       reject(new Error(`Sandbox iframe did not report readiness within ${SANDBOX_READY_TIMEOUT_MS}ms`))
     }, SANDBOX_READY_TIMEOUT_MS)
 
