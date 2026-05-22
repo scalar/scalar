@@ -63,6 +63,7 @@ test.describe('setPageTitle', () => {
       setPageTitle: ({ document }) => `Docs: ${document.title}`,
       sources: [
         {
+          title: 'First API',
           slug: 'first',
           content: {
             openapi: '3.1.1',
@@ -71,6 +72,7 @@ test.describe('setPageTitle', () => {
           },
         },
         {
+          title: 'Second API',
           slug: 'second',
           content: {
             openapi: '3.1.1',
