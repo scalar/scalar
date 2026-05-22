@@ -1,7 +1,6 @@
 import { mkdtempSync, statSync } from 'node:fs'
-import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
-import { isAbsolute, join } from 'node:path'
+import { join } from 'node:path'
 
 import type { ElectronApplication } from '@playwright/test'
 import { _electron, expect, test } from '@playwright/test'
@@ -34,25 +33,8 @@ type LaunchElectronAppResult = {
   userDataDir: string
 }
 
-const findElectronExecutable = (cwd: string): string => {
-  const require = createRequire(join(cwd, 'package.json'))
-  const electronPath = require.resolve('electron')
-  const executable = require(electronPath)
-
-  if (typeof executable !== 'string') {
-    throw new TypeError('Expected Electron to resolve to an executable path')
-  }
-
-  const electronExecutable = isAbsolute(executable) ? executable : join(electronPath, '..', executable)
-
-  statSync(electronExecutable)
-
-  return electronExecutable
-}
-
 const launchElectronApp = async (): Promise<LaunchElectronAppResult> => {
   const cwd = findFolder()
-  const electronExecutable = findElectronExecutable(cwd)
   const userDataDir = mkdtempSync(join(tmpdir(), 'scalar-app-electron-e2e-'))
 
   statSync(join(cwd, 'dist/main/index.js'))
@@ -66,7 +48,6 @@ const launchElectronApp = async (): Promise<LaunchElectronAppResult> => {
       ...process.env,
       SCALAR_ELECTRON_E2E: 'production',
     },
-    executablePath: electronExecutable,
   })
 
   return {

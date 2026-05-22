@@ -174,13 +174,7 @@ describe('startSandboxFrameServer', () => {
       },
     })
 
-    // Replace `window.parent` with our stub. Captured here so the teardown can restore exactly
-    // what was there before, even if the original was the engine-provided non-configurable
-    // descriptor (in which case `originalParentDescriptor` is `undefined` and `delete` is the
-    // correct restore).
-    const parentWindow = {
-      postMessage: parentPostMessage,
-    } as unknown as Window
+    const parentWindow = { postMessage: parentPostMessage } as unknown as Window
 
     Object.defineProperty(window, 'parent', {
       configurable: true,
@@ -240,7 +234,8 @@ describe('startSandboxFrameServer', () => {
     }
   })
 
-  it('announces readiness from file origins with a wildcard target origin', () => {
+  it('accepts file-origin messages and replies with a wildcard target origin', async () => {
+    sandboxContextMock.execute.mockImplementation((_target, _options, callback) => callback(undefined))
     const { parentPostMessage, restore } = setupServer('file://')
 
     try {
@@ -248,16 +243,6 @@ describe('startSandboxFrameServer', () => {
         expect.objectContaining({ channel: SANDBOX_CHANNEL, kind: 'ready' }),
         '*',
       )
-    } finally {
-      restore()
-    }
-  })
-
-  it('accepts execute messages from the file origin null message origin', async () => {
-    sandboxContextMock.execute.mockImplementation((_target, _options, callback) => callback(undefined))
-    const { parentPostMessage, restore } = setupServer('file://')
-
-    try {
       parentPostMessage.mockClear()
       dispatchExecute({ origin: 'null' })
       await vi.waitFor(() => expect(createContextMock).toHaveBeenCalled())

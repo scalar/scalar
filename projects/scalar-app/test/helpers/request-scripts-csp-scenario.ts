@@ -87,16 +87,15 @@ const seedScriptDocument = async (page: Page, serverUrl: string): Promise<void> 
             title: 'E2E request scripts CSP',
             version: '1.0.0',
           },
-          'x-scalar-selected-server': serverUrl,
           servers: [{ url: serverUrl }],
           paths: {
-            '/': {
+            '/scripts': {
               get: {
                 summary: 'Run scripts under CSP',
-                'x-pre-request': 'pm.globals.set("preRequestRan", "yes")',
+                'x-pre-request': 'pm.environment.set("preRequestRan", "yes")',
                 'x-post-response': `
                   pm.test("pre-request script ran", () => {
-                    pm.expect(pm.globals.get("preRequestRan")).to.eq("yes")
+                    pm.expect(pm.environment.get("preRequestRan")).to.eq("yes")
                   })
                   pm.test("post-response script ran", () => {
                     pm.response.to.have.status(200)
@@ -136,106 +135,74 @@ const navigateToDraftsOverview = async (page: Page): Promise<void> => {
 }
 
 export const runSandboxPostMessageSmokeScenario = async (page: Page): Promise<void> => {
-  await page.evaluate(async () => {
-    const isFileUrl = window.location.protocol === 'file:'
-    const expectedOrigin = isFileUrl ? 'null' : window.location.origin
-    const iframe = document.createElement('iframe')
-    iframe.src = new URL('sandbox.html', document.baseURI).href
-    document.body.appendChild(iframe)
-
+  const result = await page.evaluate(async () => {
     const channel = 'scalar-pre-post-request-scripts-sandbox'
+    const expectedOrigin = window.location.protocol === 'file:' ? 'null' : window.location.origin
+    const executionId = 'sandbox-smoke-test'
+    const iframe = document.body.appendChild(document.createElement('iframe'))
 
-    await new Promise<void>((resolve, reject) => {
-      const timeoutId = window.setTimeout(() => {
-        window.removeEventListener('message', onMessage)
-        reject(new Error('Sandbox iframe did not report readiness'))
-      }, 30_000)
+    iframe.src = new URL('sandbox.html', document.baseURI).href
 
-      const onMessage = (event: MessageEvent) => {
-        if (event.source !== iframe.contentWindow) {
-          return
-        }
-
-        if (event.origin !== expectedOrigin) {
-          reject(new Error(`Expected sandbox message origin to be ${expectedOrigin}, received ${event.origin}`))
-          return
-        }
-
-        const data = event.data as { channel?: string; kind?: string } | null
-        if (data?.channel === channel && data.kind === 'ready') {
-          window.clearTimeout(timeoutId)
+    const waitForMessage = <T extends { kind?: string; id?: string }>(kind: string): Promise<T> =>
+      new Promise((resolve, reject) => {
+        const timeoutId = window.setTimeout(() => {
           window.removeEventListener('message', onMessage)
-          resolve()
-        }
-      }
+          reject(new Error(`Sandbox iframe did not send ${kind}`))
+        }, 30_000)
 
-      window.addEventListener('message', onMessage)
-    })
+        const onMessage = (event: MessageEvent) => {
+          const data = event.data as (T & { channel?: string }) | null
 
-    const testResults = await new Promise<{ title: string; passed: boolean }[]>((resolve, reject) => {
-      const id = crypto.randomUUID()
-      const results: { title: string; passed: boolean }[] = []
-      const timeoutId = window.setTimeout(() => {
-        window.removeEventListener('message', onMessage)
-        reject(new Error('Sandbox iframe did not complete script execution'))
-      }, 30_000)
-
-      const onMessage = (event: MessageEvent) => {
-        if (event.source !== iframe.contentWindow) {
-          return
-        }
-
-        if (event.origin !== expectedOrigin) {
-          reject(new Error(`Expected sandbox message origin to be ${expectedOrigin}, received ${event.origin}`))
-          return
-        }
-
-        const data = event.data as {
-          channel?: string
-          kind?: string
-          id?: string
-          results?: { title: string; passed: boolean }[]
-          error?: string
-        } | null
-        if (data?.channel !== channel || data.id !== id) {
-          return
-        }
-
-        if (data.kind === 'test-results' && data.results) {
-          results.splice(0, results.length, ...data.results)
-        }
-
-        if (data.kind === 'done') {
-          window.clearTimeout(timeoutId)
-          window.removeEventListener('message', onMessage)
-
-          if (data.error) {
-            reject(new Error(data.error))
+          if (
+            event.source !== iframe.contentWindow ||
+            event.origin !== expectedOrigin ||
+            data?.channel !== channel ||
+            data.kind !== kind ||
+            (data.id !== undefined && data.id !== executionId)
+          ) {
             return
           }
 
-          resolve(results)
+          window.clearTimeout(timeoutId)
+          window.removeEventListener('message', onMessage)
+          resolve(data)
         }
-      }
 
-      window.addEventListener('message', onMessage)
+        window.addEventListener('message', onMessage)
+      })
+
+    try {
+      await waitForMessage('ready')
+
       iframe.contentWindow?.postMessage(
         {
           channel,
           kind: 'execute',
-          id,
+          id: executionId,
           listen: 'test',
           script: 'pm.test("file origin sandbox executed", () => pm.expect(true).to.eq(true))',
         },
         '*',
       )
-    })
 
-    iframe.remove()
+      const { results } = await waitForMessage<{
+        kind: 'test-results'
+        id: string
+        results: { title: string; passed: boolean }[]
+      }>('test-results')
+      await waitForMessage('done')
 
-    if (!testResults.some((result) => result.title === 'file origin sandbox executed' && result.passed)) {
-      throw new Error('Sandbox script did not report the expected passing test result')
+      return results
+    } finally {
+      iframe.remove()
     }
+  })
+
+  expect(result).toContainEqual({
+    title: 'file origin sandbox executed',
+    passed: true,
+    duration: expect.any(Number),
+    status: 'passed',
   })
 }
 
@@ -256,7 +223,7 @@ export const runRequestScriptsCspScenario = async (page: Page): Promise<void> =>
     await seedScriptDocument(page, mockServer.origin)
 
     await page.evaluate((documentName) => {
-      const path = `/@local/default/document/${documentName}/path/%252F/method/get/example/default`
+      const path = `/@local/default/document/${documentName}/path/%252Fscripts/method/get/example/default`
       if (window.location.href.startsWith('file:')) {
         window.location.hash = path
         return

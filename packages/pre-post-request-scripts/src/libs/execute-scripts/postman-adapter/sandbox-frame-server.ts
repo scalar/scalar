@@ -213,10 +213,9 @@ export const startSandboxFrameServer = (): (() => void) => {
    * allow `'file://'` as a `postMessage` target origin. In that case we target `'*'` and rely on the
    * exact parent/source-window checks on both sides for isolation.
    */
-  const expectedOrigin = window.location.origin
-  const targetOrigin = expectedOrigin === 'file://' ? '*' : expectedOrigin
-  const isExpectedOrigin = (origin: string) =>
-    expectedOrigin === 'file://' ? origin === 'null' : origin === expectedOrigin
+  const origin = window.location.origin
+  const expectedOrigin = origin === 'file://' ? 'null' : origin
+  const targetOrigin = origin === 'file://' ? '*' : origin
 
   const post = (message: SandboxOutboundMessage) => {
     window.parent?.postMessage(message, targetOrigin)
@@ -226,7 +225,7 @@ export const startSandboxFrameServer = (): (() => void) => {
     // Reject anything that is not from our parent on our own origin. Without this guard, any
     // window that obtains a reference to this iframe could send fabricated execute payloads and
     // run arbitrary scripts inside the eval-permitted realm.
-    if (!isExpectedOrigin(event.origin) || event.source !== window.parent) {
+    if (event.origin !== expectedOrigin || event.source !== window.parent) {
       return
     }
 
