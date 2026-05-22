@@ -9,7 +9,9 @@ type ScalarTestWindow = Window & {
   }
   __scalarAstroClient?: {
     instances: Map<unknown, unknown>
+    pending: Set<unknown>
     cdnLoads: Map<unknown, unknown>
+    generation: number
   }
 }
 
@@ -74,8 +76,13 @@ describe('client', () => {
     delete win.Scalar
     // Reset live state between tests, but keep the (idempotent) view-transition
     // listeners registered — exactly as they stay registered on a real page.
-    win.__scalarAstroClient?.instances.clear()
-    win.__scalarAstroClient?.cdnLoads.clear()
+    const state = win.__scalarAstroClient
+    if (state) {
+      state.instances.clear()
+      state.pending.clear()
+      state.cdnLoads.clear()
+      state.generation = 0
+    }
 
     vi.spyOn(console, 'error').mockImplementation(() => {})
   })
@@ -219,5 +226,81 @@ describe('client', () => {
     dispatchBeforeSwap(newDocument)
 
     expect(newDocument.head.querySelectorAll('style')).toHaveLength(0)
+  })
+
+  it('re-mounts a container that survives a view transition', async () => {
+    const created = installScalar()
+    const element = createContainer({ url: 'https://example.com/openapi.json' })
+
+    initScalarClient()
+    await flush()
+    expect(created).toHaveLength(1)
+
+    // The same element survives the swap, e.g. via `transition:persist`.
+    dispatchBeforeSwap()
+    document.dispatchEvent(new Event('astro:page-load'))
+    await flush()
+
+    expect(created[0]?.destroy).toHaveBeenCalledOnce()
+    expect(created).toHaveLength(2)
+    expect(created[1]?.element).toBe(element)
+  })
+
+  it('retries a container after a failed mount attempt', async () => {
+    const created = installScalar()
+    const element = createContainer({ url: 'https://example.com/openapi.json' })
+    // Corrupt the configuration so the first mount attempt fails.
+    element.dataset.configuration = '{ not json'
+
+    initScalarClient()
+    await flush()
+    expect(created).toHaveLength(0)
+
+    // A later navigation supplies valid configuration.
+    element.dataset.configuration = JSON.stringify({ url: 'https://example.com/openapi.json' })
+    document.dispatchEvent(new Event('astro:page-load'))
+    await flush()
+
+    expect(created).toHaveLength(1)
+  })
+
+  it('does not mount a reference whose page was swapped away while the CDN loaded', async () => {
+    // `window.Scalar` is not installed yet, so the mount waits on the CDN script.
+    createContainer({ url: 'https://example.com/openapi.json' })
+
+    initScalarClient()
+    await flush()
+    expect(document.head.querySelector('script')).not.toBeNull()
+
+    // The user navigates away before the CDN finishes loading.
+    dispatchBeforeSwap()
+
+    // Only now does the CDN resolve.
+    const created = installScalar()
+    document.head.querySelector('script')?.dispatchEvent(new Event('load'))
+    await flush()
+
+    // The mount belonged to the page that was swapped away — no instance.
+    expect(created).toHaveLength(0)
+  })
+
+  it('retries the CDN after a failed load', async () => {
+    createContainer({ url: 'https://example.com/openapi.json' })
+
+    initScalarClient()
+    await flush()
+
+    // The CDN load fails.
+    document.head.querySelector('script')?.dispatchEvent(new Event('error'))
+    await flush()
+
+    // The dead tag and the cached failure are both gone.
+    expect(document.head.querySelector('script')).toBeNull()
+
+    // A later navigation can load the CDN again.
+    document.dispatchEvent(new Event('astro:page-load'))
+    await flush()
+
+    expect(document.head.querySelector('script')).not.toBeNull()
   })
 })

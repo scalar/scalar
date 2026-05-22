@@ -29,8 +29,16 @@ type ScalarGlobal = {
 type ClientState = {
   /** Whether the view-transition listeners have been registered. */
   initialized: boolean
+  /**
+   * Bumped by every `unmountAll`. A mount started before the bump belongs to
+   * a page that has since been swapped away, so its (async) CDN load must not
+   * create an instance once it finally resolves.
+   */
+  generation: number
   /** Live instances, keyed by their container element. */
-  instances: Map<Element, ScalarInstance>
+  instances: Map<HTMLElement, ScalarInstance>
+  /** Containers with a mount currently in flight, so it is not started twice. */
+  pending: Set<HTMLElement>
   /** CDN script loads in flight (or settled), keyed by their resolved URL. */
   cdnLoads: Map<string, Promise<void>>
 }
@@ -51,7 +59,9 @@ const getState = (): ClientState => {
 
   win.__scalarAstroClient ??= {
     initialized: false,
+    generation: 0,
     instances: new Map(),
+    pending: new Set(),
     cdnLoads: new Map(),
   }
 
@@ -71,7 +81,17 @@ const loadCdn = (cdn: string): Promise<void> => {
     const script = document.createElement('script')
     script.src = cdn
     script.addEventListener('load', () => resolve(), { once: true })
-    script.addEventListener('error', () => reject(new Error(`[@scalar/astro] Could not load ${cdn}`)), { once: true })
+    script.addEventListener(
+      'error',
+      () => {
+        // Drop the cached failure (and the dead tag) so a later mount or
+        // navigation can retry, instead of replaying this rejection forever.
+        cdnLoads.delete(cdn)
+        script.remove()
+        reject(new Error(`[@scalar/astro] Could not load ${cdn}`))
+      },
+      { once: true },
+    )
     document.head.appendChild(script)
   })
 
@@ -89,35 +109,52 @@ const ensureScalar = async (cdn: string): Promise<ScalarGlobal | undefined> => {
   return (window as ScalarWindow).Scalar
 }
 
-/** Mount a single container, unless it has already been mounted. */
+/** Mount a single container, unless it is already mounted or mounting. */
 const mountContainer = (element: HTMLElement): void => {
-  // Marking the element synchronously keeps a second `mountAll()` in the same
-  // tick a no-op. The initial page load triggers both our own call and
-  // `astro:page-load`, and both would otherwise mount the same container.
-  if (element.dataset.scalarMounted) {
+  const state = getState()
+
+  // Skip containers that are already mounted, or have a mount in flight. This
+  // also dedupes the two `mountAll()` calls the initial page load triggers
+  // (our own call in `initScalarClient`, plus `astro:page-load`).
+  if (state.instances.has(element) || state.pending.has(element)) {
     return
   }
-  element.dataset.scalarMounted = 'true'
 
-  let configuration: unknown = {}
+  let configuration: unknown
 
   try {
     configuration = JSON.parse(element.dataset.configuration || '{}')
   } catch (error) {
+    // A bad configuration is left untracked, so a corrected one on a later
+    // navigation still gets a chance to mount.
     console.error('[@scalar/astro] Could not parse the configuration.', error)
     return
   }
 
   const cdn = element.dataset.cdn || DEFAULT_CDN
+  // Remember which lifecycle this mount belongs to (see `ClientState`).
+  const { generation } = state
 
-  ensureScalar(cdn)
+  state.pending.add(element)
+
+  void ensureScalar(cdn)
     .then((Scalar) => {
-      // The element may have been swapped out while the CDN was loading.
-      if (Scalar?.createApiReference && element.isConnected) {
-        getState().instances.set(element, Scalar.createApiReference(element, configuration))
+      const current = getState()
+
+      // Mount only if this page is still live (no view transition happened
+      // while the CDN loaded) and the element is still in the document.
+      if (current.generation === generation && element.isConnected && Scalar?.createApiReference) {
+        current.instances.set(element, Scalar.createApiReference(element, configuration))
       }
     })
     .catch((error) => console.error('[@scalar/astro] Could not mount the API reference.', error))
+    .finally(() => {
+      // Release the pending slot — but only if a view transition has not
+      // already cleared it, in which case the slot belongs to a newer attempt.
+      if (getState().generation === generation) {
+        getState().pending.delete(element)
+      }
+    })
 }
 
 /** Mount every client-rendered container currently in the document. */
@@ -127,9 +164,9 @@ const mountAll = (): void => {
 
 /** Destroy every mounted instance, e.g. before Astro swaps the page out. */
 const unmountAll = (): void => {
-  const { instances } = getState()
+  const state = getState()
 
-  instances.forEach((instance) => {
+  state.instances.forEach((instance) => {
     try {
       instance.destroy()
     } catch (error) {
@@ -137,7 +174,14 @@ const unmountAll = (): void => {
     }
   })
 
-  instances.clear()
+  state.instances.clear()
+  state.pending.clear()
+
+  // Invalidate in-flight mounts: their CDN load may still resolve, but it
+  // belongs to the page being swapped away. The next `astro:page-load` then
+  // mounts every container afresh — including any that survive the swap via
+  // `transition:persist`, which are no longer tracked as mounted.
+  state.generation += 1
 }
 
 /** The `astro:before-swap` event, narrowed to the part this module uses. */
