@@ -30,9 +30,13 @@ internal static class ScalarResourceConfigurator
         var environmentVariables = context.EnvironmentVariables;
         environmentVariables.Add(ApiReferenceConfig, configurations);
         environmentVariables.Add(CdnUrl, scalarAspireOptions.BundleUrl);
-        environmentVariables.Add(AllowSelfSignedCertificates, scalarAspireOptions.AllowSelfSignedCertificates);
-        environmentVariables.Add(ForwardOriginalHostHeader, scalarAspireOptions.ForwardOriginalHostHeader);
-        environmentVariables.Add(DefaultProxy, scalarAspireOptions.DefaultProxy);
+        // Booleans must be stored as strings. Aspire's Azure Container Apps publisher only serializes
+        // strings and a few reference types, so a raw bool aborts `aspire publish` with
+        // "Unsupported value type System.Boolean". The container reads these back with GetValue<bool>,
+        // which parses case-insensitively, so this is a no-op for runtime behavior.
+        environmentVariables.Add(AllowSelfSignedCertificates, scalarAspireOptions.AllowSelfSignedCertificates ? "true" : "false");
+        environmentVariables.Add(ForwardOriginalHostHeader, scalarAspireOptions.ForwardOriginalHostHeader ? "true" : "false");
+        environmentVariables.Add(DefaultProxy, scalarAspireOptions.DefaultProxy ? "true" : "false");
     }
 
     private static async IAsyncEnumerable<ScalarOptions> CreateConfigurationsAsync(string scalarResourceName, IServiceProvider serviceProvider, IEnumerable<ScalarAnnotation> annotations, [EnumeratorCancellation] CancellationToken cancellationToken)
