@@ -5,15 +5,17 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 import monacoEditorPlugin from 'vite-plugin-monaco-editor-esm'
 
+import { assertScalarAppEnvPlugin } from './assert-scalar-app-env-plugin'
 import { devLocalhostCspPlugin } from './dev-localhost-csp-plugin'
 import { scalarAppMonacoEditorPluginOptions } from './monaco-vite-plugin-options'
 import packageJson from './package.json' with { type: 'json' }
 
 const { version: scalarAppVersion } = packageJson
+const envDir = resolve('.')
 
 export default defineConfig({
   root: resolve('entrypoints/web'),
-  envDir: resolve('.'),
+  envDir,
   define: {
     OVERRIDE_PACKAGE_VERSION: JSON.stringify(scalarAppVersion),
   },
@@ -30,7 +32,13 @@ export default defineConfig({
     exclude: ['monaco-editor', 'monaco-yaml'],
   },
   publicDir: resolve('public-web'),
-  plugins: [vue(), tailwindcss(), monacoEditorPlugin(scalarAppMonacoEditorPluginOptions), devLocalhostCspPlugin()],
+  plugins: [
+    assertScalarAppEnvPlugin(envDir),
+    vue(),
+    tailwindcss(),
+    monacoEditorPlugin(scalarAppMonacoEditorPluginOptions),
+    devLocalhostCspPlugin(),
+  ],
   build: {
     outDir: resolve('dist/web'),
     rolldownOptions: {
