@@ -5,14 +5,18 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import monacoEditorPlugin from 'vite-plugin-monaco-editor-esm'
 
+import { assertScalarAppEnvPlugin } from './assert-scalar-app-env-plugin'
 import { devLocalhostCspPlugin } from './dev-localhost-csp-plugin'
 import { scalarAppMonacoEditorPluginOptions } from './monaco-vite-plugin-options'
 import packageJson from './package.json' with { type: 'json' }
 
 const { version: scalarAppVersion } = packageJson
+const envDir = resolve('.')
 
 export default defineConfig({
   main: {
+    envDir,
+    plugins: [assertScalarAppEnvPlugin(envDir)],
     resolve: {
       alias: {
         '@electron': resolve('entrypoints/electron'),
@@ -47,6 +51,7 @@ export default defineConfig({
     },
   },
   renderer: {
+    envDir,
     root: resolve('entrypoints/electron/renderer'),
     define: {
       OVERRIDE_PACKAGE_VERSION: JSON.stringify(scalarAppVersion),
@@ -61,7 +66,13 @@ export default defineConfig({
       },
       dedupe: ['vue', 'monaco-editor', 'monaco-yaml'],
     },
-    plugins: [vue(), tailwindcss(), monacoEditorPlugin(scalarAppMonacoEditorPluginOptions), devLocalhostCspPlugin()],
+    plugins: [
+      assertScalarAppEnvPlugin(envDir),
+      vue(),
+      tailwindcss(),
+      monacoEditorPlugin(scalarAppMonacoEditorPluginOptions),
+      devLocalhostCspPlugin(),
+    ],
     optimizeDeps: {
       exclude: ['monaco-editor', 'monaco-yaml'],
     },
