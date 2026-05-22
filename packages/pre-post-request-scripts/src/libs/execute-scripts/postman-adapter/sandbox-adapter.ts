@@ -1,3 +1,4 @@
+import { normalizeError } from '@scalar/helpers/errors/normalize-error'
 import { isElectron } from '@scalar/helpers/general/is-electron'
 import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
 
@@ -5,6 +6,7 @@ import type { ConsoleContext } from '../context/console'
 import type { TestResult } from '../execute-post-response-script'
 import { getVariableScopesFromStore, toVariableEntries } from '../variables-store'
 import { createPostmanRequestFromFactory, syncPlainPostmanRequestToRequestFactory } from './request-factory-adapter'
+import { getSandboxOrigins } from './sandbox-origins'
 import {
   type PostmanResponseDefinition,
   SANDBOX_CHANNEL,
@@ -59,19 +61,6 @@ export const sandboxFrameUrl = (): string => {
 }
 
 /**
- * Origin we pin `postMessage` exchanges to.
- *
- * The sandbox iframe is served from the same origin as the host (see `sandbox.html`), so we lock
- * every send and receive to `window.location.origin`. Pinning the send origin prevents the payload
- * from leaking if the frame is ever navigated away to another origin; pinning the receive origin
- * prevents another window (for example a cross-origin opener) from spoofing sandbox messages.
- *
- * For `file://` documents (Electron), `window.location.origin` is the string `'file://'`, which is
- * the same value `postMessage` reports on `event.origin`, so the pin still holds.
- */
-const sandboxOrigin = (): string => window.location.origin
-
-/**
  * Delivers a single execute request to the sandbox and forwards every message it produces (test
  * results, console output, and the final `done`) to `onMessage`.
  *
@@ -81,7 +70,16 @@ const sandboxOrigin = (): string => window.location.origin
  */
 type SandboxTransport = (request: SandboxExecuteRequest, onMessage: (message: SandboxOutboundMessage) => void) => void
 
-let framePromise: Promise<Window> | undefined
+type SandboxFrame = {
+  element: HTMLIFrameElement
+  id: number
+  url: string
+  window: Window
+}
+
+let framePromise: Promise<SandboxFrame> | undefined
+let activeFrameId: number | undefined
+let nextFrameId = 0
 
 /**
  * Maximum time we wait for a freshly created sandbox iframe to post its `ready` handshake.
@@ -97,19 +95,62 @@ let framePromise: Promise<Window> | undefined
  */
 const SANDBOX_READY_TIMEOUT_MS = 30 * 1000
 
+const clearActiveFrame = (id: number): void => {
+  if (activeFrameId === id) {
+    framePromise = undefined
+    activeFrameId = undefined
+  }
+}
+
+const invalidateSandboxFrame = ({ element, id }: SandboxFrame): void => {
+  clearActiveFrame(id)
+  element.remove()
+}
+
+const assertSandboxFrameLocation = (sandboxFrame: SandboxFrame): void => {
+  const { element, url, window: frameWindow } = sandboxFrame
+  if (!element.isConnected || !document.body.contains(element)) {
+    invalidateSandboxFrame(sandboxFrame)
+    throw new Error('Sandbox iframe was detached before script execution')
+  }
+
+  if (element.contentWindow !== frameWindow) {
+    invalidateSandboxFrame(sandboxFrame)
+    throw new Error('Sandbox iframe window changed before script execution')
+  }
+
+  let currentUrl: string
+
+  try {
+    currentUrl = frameWindow.location.href
+  } catch (error) {
+    invalidateSandboxFrame(sandboxFrame)
+    const message = normalizeError(error).message
+    throw new Error(`Could not verify sandbox iframe location before script execution: ${message}`)
+  }
+
+  if (currentUrl !== url) {
+    invalidateSandboxFrame(sandboxFrame)
+    throw new Error('Sandbox iframe navigated before script execution')
+  }
+}
+
 /** Lazily creates a single hidden sandbox iframe and resolves once it reports readiness. */
-const ensureSandboxFrame = (): Promise<Window> => {
+const ensureSandboxFrame = (): Promise<SandboxFrame> => {
   if (framePromise) {
     return framePromise
   }
 
-  framePromise = new Promise<Window>((resolve, reject) => {
+  framePromise = new Promise<SandboxFrame>((resolve, reject) => {
+    const frameId = nextFrameId++
+    activeFrameId = frameId
     const iframe = document.createElement('iframe')
     iframe.setAttribute('aria-hidden', 'true')
     iframe.style.display = 'none'
-    iframe.src = sandboxFrameUrl()
+    const iframeUrl = sandboxFrameUrl()
+    iframe.src = iframeUrl
 
-    const expectedOrigin = sandboxOrigin()
+    const { receive: expectedOrigin } = getSandboxOrigins()
 
     // Cleanup shared by the success, load-error, and readiness-timeout paths: cancel the timer and
     // drop the window listener so exactly one of the three settles the promise without leaking.
@@ -132,11 +173,16 @@ const ensureSandboxFrame = (): Promise<Window> => {
       if (!iframe.contentWindow) {
         // Tear the orphaned node down so a retry can append a fresh frame without piling up.
         iframe.remove()
-        framePromise = undefined
+        clearActiveFrame(frameId)
         reject(new Error('Sandbox iframe has no content window'))
         return
       }
-      resolve(iframe.contentWindow)
+      resolve({
+        element: iframe,
+        id: frameId,
+        url: iframeUrl,
+        window: iframe.contentWindow,
+      })
     }
 
     iframe.addEventListener('error', () => {
@@ -145,7 +191,7 @@ const ensureSandboxFrame = (): Promise<Window> => {
       // bundle path, etc.) leaves a dead `<iframe>` attached, and every retry appends another one,
       // growing the DOM unboundedly across the session.
       iframe.remove()
-      framePromise = undefined
+      clearActiveFrame(frameId)
       reject(new Error('Failed to load the script sandbox iframe'))
     })
 
@@ -155,7 +201,7 @@ const ensureSandboxFrame = (): Promise<Window> => {
     readyTimeoutId = setTimeout(() => {
       window.removeEventListener('message', onReady)
       iframe.remove()
-      framePromise = undefined
+      clearActiveFrame(frameId)
       reject(new Error(`Sandbox iframe did not report readiness within ${SANDBOX_READY_TIMEOUT_MS}ms`))
     }, SANDBOX_READY_TIMEOUT_MS)
 
@@ -178,8 +224,11 @@ const SANDBOX_EXECUTION_TIMEOUT_MS = 5 * 60 * 1000
 
 const iframeTransport: SandboxTransport = (request, onMessage) => {
   ensureSandboxFrame()
-    .then((frame) => {
-      const expectedOrigin = sandboxOrigin()
+    .then((sandboxFrame) => {
+      assertSandboxFrameLocation(sandboxFrame)
+
+      const frame = sandboxFrame.window
+      const { receive: expectedOrigin, send: targetOrigin } = getSandboxOrigins()
 
       // Defensive circuit-breaker: if the iframe dies mid-execution we would otherwise wait on a
       // `done` message that will never arrive, leaking the listener and leaving the caller's
@@ -213,9 +262,10 @@ const iframeTransport: SandboxTransport = (request, onMessage) => {
       }
 
       window.addEventListener('message', handleMessage)
-      // Pin the target origin: the execute payload contains environments, headers, secrets, and
-      // potentially auth tokens, so we must never broadcast it with `'*'`.
-      frame.postMessage(request, expectedOrigin)
+      // Pin the target origin for web origins. `file://` is the only exception: Chromium does not
+      // accept it as a target origin, so Electron file builds use `'*'` and rely on the source-window
+      // checks above for receive-side isolation.
+      frame.postMessage(request, targetOrigin)
     })
     .catch((error: unknown) => {
       onMessage({
