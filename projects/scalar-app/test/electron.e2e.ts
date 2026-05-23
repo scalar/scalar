@@ -2,9 +2,10 @@ import { mkdtempSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
+import type { ElectronApplication } from '@playwright/test'
 import { _electron, expect, test } from '@playwright/test'
 
-import { runRequestScriptsCspScenario } from './helpers/request-scripts-csp-scenario'
+import { runSandboxPostMessageSmokeScenario } from './helpers/request-scripts-csp-scenario'
 
 /**
  * Helper function to find the frontend build
@@ -27,20 +28,69 @@ const findFolder = () => {
   throw new Error('Could not find Electron app entry point')
 }
 
-const launchElectronApp = async () => {
-  const cwd = findFolder()
-  const entryPoint = join(cwd, 'dist/main/index.js')
-  const userDataDir = mkdtempSync(join(tmpdir(), 'scalar-app-electron-e2e-'))
-
-  statSync(entryPoint)
-
-  return await _electron.launch({
-    args: [`--user-data-dir=${userDataDir}`, entryPoint],
-    cwd,
-  })
+type LaunchElectronAppResult = {
+  app: ElectronApplication
+  userDataDir: string
 }
 
-const waitForMainWindow = async (app: Awaited<ReturnType<typeof launchElectronApp>>) => {
+const ELECTRON_E2E_ENV_KEYS = [
+  'PATH',
+  'HOME',
+  'TMPDIR',
+  'TMP',
+  'TEMP',
+  'DISPLAY',
+  'WAYLAND_DISPLAY',
+  'XAUTHORITY',
+  'XDG_RUNTIME_DIR',
+  'LANG',
+  'LC_ALL',
+  'HTTP_PROXY',
+  'HTTPS_PROXY',
+  'NO_PROXY',
+  'http_proxy',
+  'https_proxy',
+  'no_proxy',
+] as const
+
+const electronE2eEnv = (): Record<string, string> => {
+  const env: Record<string, string> = {}
+
+  for (const key of ELECTRON_E2E_ENV_KEYS) {
+    const value = process.env[key]
+
+    if (value !== undefined) {
+      env[key] = value
+    }
+  }
+
+  return {
+    ...env,
+    SCALAR_ELECTRON_E2E: 'production',
+  }
+}
+
+const launchElectronApp = async (): Promise<LaunchElectronAppResult> => {
+  const cwd = findFolder()
+  const userDataDir = mkdtempSync(join(tmpdir(), 'scalar-app-electron-e2e-'))
+
+  statSync(join(cwd, 'dist/main/index.js'))
+  statSync(join(cwd, 'dist/preload/index.mjs'))
+  statSync(join(cwd, 'dist/renderer/index.html'))
+
+  const app = await _electron.launch({
+    args: [`--user-data-dir=${userDataDir}`, cwd],
+    cwd,
+    env: electronE2eEnv(),
+  })
+
+  return {
+    app,
+    userDataDir,
+  }
+}
+
+const waitForMainWindow = async (app: ElectronApplication) => {
   await expect
     .poll(
       () => {
@@ -70,14 +120,15 @@ test.describe('Electron', () => {
     // GitHub Actions and the Playwright Docker image are headless Linux: Electron needs X11/Wayland.
     test.skip(
       Boolean(process.env.CI),
-      'Electron needs a display server. Run locally: pnpm --filter scalar-app exec playwright test test/electron.e2e.ts',
+      'Electron needs a display server. Run locally: pnpm --filter scalar-app test:e2e:app',
     )
   })
 
   test('launch app', async () => {
-    const app = await launchElectronApp()
+    const { app, userDataDir } = await launchElectronApp()
 
     try {
+      expect(userDataDir).toContain('scalar-app-electron-e2e-')
       await waitForMainWindow(app)
     } finally {
       await app.close()
@@ -85,11 +136,11 @@ test.describe('Electron', () => {
   })
 
   test('pre-request and post-response scripts run under the Electron content security policy', async () => {
-    const app = await launchElectronApp()
+    const { app } = await launchElectronApp()
 
     try {
       const page = await waitForMainWindow(app)
-      await runRequestScriptsCspScenario(page)
+      await runSandboxPostMessageSmokeScenario(page)
     } finally {
       await app.close()
     }

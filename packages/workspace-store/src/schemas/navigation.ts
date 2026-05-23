@@ -111,6 +111,7 @@ export const TraversedAsyncApiOperationSchemaDefinition = compose(
     action: Type.Union([Type.Literal('send'), Type.Literal('receive')]),
     channelName: Type.String(),
     channelAddress: Type.String(),
+    children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
   }),
 )
 
@@ -126,6 +127,51 @@ export type TraversedAsyncApiOperation = BaseSchema & {
   channelName: string
   /** Channel address for display and routing */
   channelAddress: string
+  /** Messages available on this operation */
+  children?: TraversedEntry[]
+}
+
+export const TraversedAsyncApiChannelSchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('asyncapi-channel'),
+    channelName: Type.String(),
+    channelAddress: Type.String(),
+    children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
+  }),
+)
+
+/**
+ * An entry representing an AsyncAPI channel in the navigation structure.
+ */
+export type TraversedAsyncApiChannel = BaseSchema & {
+  type: 'asyncapi-channel'
+  /** Key in `document.channels` */
+  channelName: string
+  /** Channel address for display and routing */
+  channelAddress: string
+  /** Operations on the channel */
+  children?: TraversedEntry[]
+}
+
+export const TraversedAsyncApiMessageSchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('asyncapi-message'),
+    messageName: Type.String(),
+    channelName: Type.String(),
+  }),
+)
+
+/**
+ * An entry representing an AsyncAPI message in the navigation structure.
+ */
+export type TraversedAsyncApiMessage = BaseSchema & {
+  type: 'asyncapi-message'
+  /** Key in `channel.messages` */
+  messageName: string
+  /** Parent channel key in `document.channels` */
+  channelName: string
 }
 
 export const TraversedSchemaSchemaDefinition = compose(
@@ -217,6 +263,8 @@ export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedDescriptionSchemaDefinition,
   TraversedOperationSchemaDefinition,
   TraversedAsyncApiOperationSchemaDefinition,
+  TraversedAsyncApiChannelSchemaDefinition,
+  TraversedAsyncApiMessageSchemaDefinition,
   TraversedSchemaSchemaDefinition,
   TraversedTagSchemaDefinition,
   TraversedWebhookSchemaDefinition,
@@ -229,6 +277,8 @@ export type TraversedEntry =
   | TraversedDescription
   | TraversedOperation
   | TraversedAsyncApiOperation
+  | TraversedAsyncApiChannel
+  | TraversedAsyncApiMessage
   | TraversedSchema
   | TraversedTag
   | TraversedWebhook
@@ -315,12 +365,28 @@ type AsyncApiOperationProps = {
   parentTag?: ParentTag
 }
 
+type AsyncApiChannelProps = {
+  parentId: string
+  channelName: string
+  type: 'asyncapi-channel'
+  parentTag?: ParentTag
+}
+
+type AsyncApiMessageProps = {
+  parentId: string
+  messageName: string
+  channelName: string
+  type: 'asyncapi-message'
+}
+
 export type IdGeneratorProps =
   | DocumentIdProps
   | DescriptionIdProps
   | TagProps
   | OperationProps
   | AsyncApiOperationProps
+  | AsyncApiChannelProps
+  | AsyncApiMessageProps
   | WebhookProps
   | ModelProps
   | ExampleProps

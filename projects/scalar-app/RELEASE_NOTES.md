@@ -10,6 +10,18 @@
   release - edits made directly here will be overwritten.
 -->
 
+## 1.1.3 (2026-05-22)
+
+### Script execution and build reliability improvements
+
+This release fixes script execution in production builds and strengthens environment configuration validation to catch missing variables before deployment.
+
+- Fixed pre-request and post-request scripts not running in production Electron builds
+- Build now fails early when required environment variables are missing
+- Added analytics tracking for document saves and registry sync operations
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#113)
+
 ## 1.1.2 (2026-05-21)
 
 ### Logout now works correctly in the desktop app

@@ -241,6 +241,7 @@ export const useDocumentSync = ({
       return
     }
     await app.store.value.saveDocument(slug)
+    app.eventBus.emit('log:save-document', undefined)
   }
 
   const handleRevertDocument = async (): Promise<void> => {
@@ -363,6 +364,7 @@ export const useDocumentSync = ({
         app.eventBus.emit('hooks:on:rebase:document:complete', {
           meta: { documentName: slug },
         })
+        app.eventBus.emit('log:sync-pull-document', undefined)
         toast('Already up to date with the registry.', 'info')
         return
       }
@@ -407,6 +409,7 @@ export const useDocumentSync = ({
     app.eventBus.emit('hooks:on:rebase:document:complete', {
       meta: { documentName: slug },
     })
+    app.eventBus.emit('log:sync-pull-document', undefined)
 
     toast('Pulled latest changes from the registry.', 'info')
   }
@@ -442,6 +445,7 @@ export const useDocumentSync = ({
     app.eventBus.emit('hooks:on:rebase:document:complete', {
       meta: { documentName: pending.slug },
     })
+    app.eventBus.emit('log:sync-pull-document', undefined)
     pendingPullState.value = null
 
     toast('Pulled latest changes from the registry.', 'info')
@@ -545,6 +549,8 @@ export const useDocumentSync = ({
     })
 
     await store.saveDocument(slug)
+
+    app.eventBus.emit('log:sync-push-document', undefined)
 
     // Ask the host to refetch its registry listing so the cached
     // registry commit hash catches up with the one we just wrote

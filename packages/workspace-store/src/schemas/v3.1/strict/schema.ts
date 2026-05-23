@@ -11,6 +11,7 @@ import {
 import { type XEnumDescriptions, XEnumDescriptionsSchema } from '@/schemas/extensions/schema/x-enum-descriptions'
 import { type XEnumVarNames, XEnumVarNamesSchema } from '@/schemas/extensions/schema/x-enum-varnames'
 import { type XExamples, XExamplesSchema } from '@/schemas/extensions/schema/x-examples'
+import { type XOrder, XOrderSchema } from '@/schemas/extensions/schema/x-order'
 import { type XVariable, XVariableSchema } from '@/schemas/extensions/schema/x-variable'
 import type { ExternalDocumentationObject } from '@/schemas/v3.1/strict/external-documentation'
 import type { XMLObject } from '@/schemas/v3.1/strict/xml'
@@ -75,6 +76,7 @@ const Extensions = compose(
   XEnumDescriptionsSchema,
   XEnumVarNamesSchema,
   XAdditionalPropertiesNameSchema,
+  XOrderSchema,
   XTagsSchema,
 )
 
@@ -85,6 +87,7 @@ type Extensions = XScalarIgnore &
   XEnumVarNames &
   XExamples &
   XAdditionalPropertiesName &
+  XOrder &
   XTags
 
 const CorePropertiesWithSchema = Type.Object({

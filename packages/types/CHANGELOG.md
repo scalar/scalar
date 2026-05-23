@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.12.2
+
+### Patch Changes
+
+- [#9313](https://github.com/scalar/scalar/pull/9313): feat: add AsyncAPI connection URL builder and server list helpers
+
 ## 0.12.1
 
 ### Patch Changes

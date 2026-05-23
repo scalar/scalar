@@ -3849,11 +3849,13 @@ describe('create-workspace-store', () => {
       })
       expect(document?.['x-scalar-original-document-hash']).not.toBe('')
       expect(document).not.toHaveProperty('openapi')
-      expect(document?.['x-scalar-navigation']).toMatchObject({
-        type: 'document',
+      expect(document?.['x-scalar-navigation']).toEqual({
+        children: [],
+        icon: undefined,
+        id: 'streetlights',
         name: 'streetlights',
         title: 'Streetlights API',
-        children: [],
+        type: 'document',
       })
     })
 
@@ -4068,22 +4070,59 @@ describe('create-workspace-store', () => {
       assert(isAsyncApiDocument(document))
 
       const navigation = document['x-scalar-navigation']
-      expect(navigation?.children).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            type: 'asyncapi-operation',
-            operationName: 'sendChatMessage',
-            action: 'send',
-            channelName: 'chat',
-            channelAddress: '/chat',
-          }),
-          expect.objectContaining({
-            type: 'asyncapi-operation',
-            operationName: 'receiveChatMessage',
-            action: 'receive',
-          }),
-        ]),
-      )
+      expect(navigation).toEqual({
+        'children': [
+          {
+            'channelAddress': '/chat',
+            'channelName': 'chat',
+            'children': [
+              {
+                'action': 'send',
+                'channelAddress': '/chat',
+                'channelName': 'chat',
+                'children': [
+                  {
+                    'channelName': 'chat',
+                    'id': 'chatapp/asyncapi-channel/chat/asyncapi-operation/sendchatmessage/asyncapi-message/sendmessage',
+                    'messageName': 'sendMessage',
+                    'title': 'Send a chat message',
+                    'type': 'asyncapi-message',
+                  },
+                ],
+                'id': 'chatapp/asyncapi-channel/chat/asyncapi-operation/sendchatmessage',
+                'operationName': 'sendChatMessage',
+                'title': 'sendChatMessage',
+                'type': 'asyncapi-operation',
+              },
+              {
+                'action': 'receive',
+                'channelAddress': '/chat',
+                'channelName': 'chat',
+                'children': [
+                  {
+                    'channelName': 'chat',
+                    'id': 'chatapp/asyncapi-channel/chat/asyncapi-operation/receivechatmessage/asyncapi-message/receivemessage',
+                    'messageName': 'receiveMessage',
+                    'title': 'Receive a chat message',
+                    'type': 'asyncapi-message',
+                  },
+                ],
+                'id': 'chatapp/asyncapi-channel/chat/asyncapi-operation/receivechatmessage',
+                'operationName': 'receiveChatMessage',
+                'title': 'receiveChatMessage',
+                'type': 'asyncapi-operation',
+              },
+            ],
+            'id': 'chatapp/asyncapi-channel/chat',
+            'title': '/chat',
+            'type': 'asyncapi-channel',
+          },
+        ],
+        'id': 'chatapp',
+        'name': 'chatapp',
+        'title': 'Simple Chat WebSocket API',
+        'type': 'document',
+      })
     })
   })
 })

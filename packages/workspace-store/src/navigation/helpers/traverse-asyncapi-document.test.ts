@@ -2,7 +2,12 @@ import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
-import type { TraversedAsyncApiOperation, TraversedEntry } from '@/schemas/navigation'
+import type {
+  TraversedAsyncApiChannel,
+  TraversedAsyncApiMessage,
+  TraversedAsyncApiOperation,
+  TraversedEntry,
+} from '@/schemas/navigation'
 
 import { traverseAsyncApiDocument } from './traverse-asyncapi-document'
 
@@ -18,6 +23,10 @@ const galaxyAsyncApiDocument = {
   channels: {
     planetEvents: {
       address: 'planets/{planetId}/events',
+      messages: {
+        planetCreated: { title: 'Planet Created' },
+        planetUpdated: { title: 'Planet Updated' },
+      },
     },
     userEvents: {
       address: 'users/{userId}/events',
@@ -60,6 +69,9 @@ const chatAsyncApiDocument = {
   channels: {
     chat: {
       address: '/chat',
+      messages: {
+        chatMessage: { title: 'Chat Message' },
+      },
     },
   },
   operations: {
@@ -76,23 +88,43 @@ const chatAsyncApiDocument = {
   },
 } as unknown as AsyncApiDocument
 
-const collectAsyncApiOperations = (children: TraversedEntry[] | undefined): TraversedAsyncApiOperation[] => {
+const collectEntries = <Entry extends TraversedEntry>(
+  children: TraversedEntry[] | undefined,
+  type: Entry['type'],
+): Entry[] => {
   if (!children) {
     return []
   }
 
   return children.flatMap((entry) => {
-    if (entry.type === 'asyncapi-operation') {
-      return [entry]
+    if (entry.type === type) {
+      return [entry as Entry]
     }
 
     if (entry.type === 'tag' && entry.children) {
-      return collectAsyncApiOperations(entry.children)
+      return collectEntries(entry.children, type)
+    }
+
+    if (entry.type === 'asyncapi-channel' && entry.children && type !== 'asyncapi-channel') {
+      return collectEntries(entry.children, type)
+    }
+
+    if (entry.type === 'asyncapi-operation' && entry.children) {
+      return collectEntries(entry.children, type)
     }
 
     return []
   })
 }
+
+const collectAsyncApiChannels = (children: TraversedEntry[] | undefined): TraversedAsyncApiChannel[] =>
+  collectEntries(children, 'asyncapi-channel')
+
+const collectAsyncApiOperations = (children: TraversedEntry[] | undefined): TraversedAsyncApiOperation[] =>
+  collectEntries(children, 'asyncapi-operation')
+
+const collectAsyncApiMessages = (children: TraversedEntry[] | undefined): TraversedAsyncApiMessage[] =>
+  collectEntries(children, 'asyncapi-message')
 
 describe('traverseAsyncApiDocument', () => {
   it('returns an empty document when there are no operations', () => {
@@ -113,51 +145,131 @@ describe('traverseAsyncApiDocument', () => {
     })
   })
 
-  it('lists Galaxy subscribe operations with channel metadata', () => {
+  it('lists Galaxy channels with operations and nests messages under operations', () => {
     const result = traverseAsyncApiDocument('galaxy', galaxyAsyncApiDocument, mockOptions)
+    const channels = collectAsyncApiChannels(result.children)
     const operations = collectAsyncApiOperations(result.children)
+    const messages = collectAsyncApiMessages(result.children)
 
+    expect(channels).toHaveLength(4)
     expect(operations).toHaveLength(4)
-    expect(operations).toEqual(
-      expect.arrayContaining([
+    expect(messages).toHaveLength(2)
+
+    const planetEventsChannel = channels.find((channel) => channel.channelName === 'planetEvents')
+    const planetOperation = planetEventsChannel?.children?.find(
+      (child): child is TraversedAsyncApiOperation => child.type === 'asyncapi-operation',
+    )
+
+    expect(planetEventsChannel).toMatchObject({
+      type: 'asyncapi-channel',
+      channelName: 'planetEvents',
+      channelAddress: 'planets/{planetId}/events',
+      children: [
         expect.objectContaining({
           type: 'asyncapi-operation',
           operationName: 'subscribeToPlanetEvents',
           action: 'receive',
-          channelName: 'planetEvents',
-          channelAddress: 'planets/{planetId}/events',
           title: 'Subscribe to Planet Events',
         }),
-        expect.objectContaining({
-          operationName: 'subscribeToCelestialBodyEvents',
-          channelAddress: 'celestial-bodies/{bodyId}/events',
-        }),
-      ]),
-    )
-  })
+      ],
+    })
 
-  it('lists chat send and receive operations', () => {
-    const result = traverseAsyncApiDocument('chatapp', chatAsyncApiDocument, mockOptions)
-    const operations = collectAsyncApiOperations(result.children)
-
-    expect(operations).toEqual([
+    expect(planetOperation?.children).toEqual([
       expect.objectContaining({
-        type: 'asyncapi-operation',
-        operationName: 'receiveChatMessage',
-        action: 'receive',
-        channelName: 'chat',
-        channelAddress: '/chat',
-        title: 'Receive a chat message',
+        type: 'asyncapi-message',
+        messageName: 'planetCreated',
+        title: 'Planet Created',
       }),
       expect.objectContaining({
-        operationName: 'sendChatMessage',
-        action: 'send',
-        title: 'Send a chat message',
+        type: 'asyncapi-message',
+        messageName: 'planetUpdated',
+        title: 'Planet Updated',
       }),
     ])
   })
 
-  it('groups operations under tags when present', () => {
+  it('nests messages under each chat operation on a shared channel', () => {
+    const result = traverseAsyncApiDocument('chatapp', chatAsyncApiDocument, mockOptions)
+    const channels = collectAsyncApiChannels(result.children)
+    const operations = collectAsyncApiOperations(result.children)
+
+    expect(channels).toEqual([
+      expect.objectContaining({
+        type: 'asyncapi-channel',
+        channelName: 'chat',
+        channelAddress: '/chat',
+        children: [
+          expect.objectContaining({
+            type: 'asyncapi-operation',
+            operationName: 'receiveChatMessage',
+            action: 'receive',
+            title: 'Receive a chat message',
+            children: [
+              expect.objectContaining({
+                type: 'asyncapi-message',
+                messageName: 'chatMessage',
+                title: 'Chat Message',
+              }),
+            ],
+          }),
+          expect.objectContaining({
+            operationName: 'sendChatMessage',
+            action: 'send',
+            title: 'Send a chat message',
+            children: [
+              expect.objectContaining({
+                type: 'asyncapi-message',
+                messageName: 'chatMessage',
+              }),
+            ],
+          }),
+        ],
+      }),
+    ])
+
+    expect(operations).toEqual([
+      expect.objectContaining({ operationName: 'receiveChatMessage' }),
+      expect.objectContaining({ operationName: 'sendChatMessage' }),
+    ])
+  })
+
+  it('respects operation.messages when filtering nested messages', () => {
+    const document = {
+      asyncapi: '3.0.0',
+      info: { title: 'Filtered Messages API', version: '1.0.0' },
+      'x-scalar-original-document-hash': 'filtered-messages-fixture',
+      channels: {
+        events: {
+          address: '/events',
+          messages: {
+            eventA: { title: 'Event A' },
+            eventB: { title: 'Event B' },
+          },
+        },
+      },
+      operations: {
+        listen: {
+          action: 'receive',
+          channel: { $ref: '#/channels/events' },
+          title: 'Listen',
+          messages: [{ $ref: '#/channels/events/messages/eventA' }],
+        },
+      },
+    } as unknown as AsyncApiDocument
+
+    const result = traverseAsyncApiDocument('filtered', document, mockOptions)
+    const operation = collectAsyncApiOperations(result.children)[0]
+
+    expect(operation?.children).toEqual([
+      expect.objectContaining({
+        type: 'asyncapi-message',
+        messageName: 'eventA',
+        title: 'Event A',
+      }),
+    ])
+  })
+
+  it('groups channels under tags when operations are tagged', () => {
     const document = {
       asyncapi: '3.0.0',
       info: { title: 'Tagged API', version: '1.0.0' },
@@ -183,9 +295,16 @@ describe('traverseAsyncApiDocument', () => {
         name: 'Realtime',
         children: [
           expect.objectContaining({
-            type: 'asyncapi-operation',
-            operationName: 'listen',
-            id: 'tagged/tag/realtime/asyncapi-operation/listen',
+            type: 'asyncapi-channel',
+            channelName: 'events',
+            channelAddress: '/events',
+            children: [
+              expect.objectContaining({
+                type: 'asyncapi-operation',
+                operationName: 'listen',
+                id: 'tagged/tag/realtime/asyncapi-channel/events/asyncapi-operation/listen',
+              }),
+            ],
           }),
         ],
       }),

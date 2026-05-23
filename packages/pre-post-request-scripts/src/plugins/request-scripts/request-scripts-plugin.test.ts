@@ -1,12 +1,19 @@
 import type { RequestFactory, VariableEntry, VariablesStore } from '@scalar/workspace-store/request-example'
-import { beforeAll, describe, expect, it } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Ref } from 'vue'
 
-import type { TestResult } from '@/libs/execute-scripts'
+import { type TestResult, prewarmSandboxFrame } from '@/libs/execute-scripts'
 import { executePostResponseScript } from '@/libs/execute-scripts/execute-post-response-script'
 import { executePreRequestScript } from '@/libs/execute-scripts/execute-pre-request-script'
 import { registerInProcessSandbox } from '@/libs/execute-scripts/postman-adapter/in-process-transport'
 import { requestScriptsPlugin } from '@/plugins/request-scripts/request-scripts-plugin'
+
+// Keep the real execute functions; only stub the warm-up so we can assert the mount hook's
+// decision without creating a real sandbox iframe.
+vi.mock('@/libs/execute-scripts', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/libs/execute-scripts')>()
+  return { ...actual, prewarmSandboxFrame: vi.fn() }
+})
 
 beforeAll(() => {
   registerInProcessSandbox()
@@ -74,6 +81,42 @@ const createVariablesStore = (): VariablesStore => {
 }
 
 describe('request-scripts-plugin', () => {
+  describe('onRequestMount', () => {
+    beforeEach(() => {
+      vi.mocked(prewarmSandboxFrame).mockClear()
+    })
+
+    it('warms up the sandbox when the operation defines scripts', () => {
+      const plugin = requestScriptsPlugin()
+
+      plugin.hooks?.onRequestMount?.({
+        document: {},
+        operation: { 'x-post-response': 'pm.test("noop", () => pm.expect(true).to.be.true)' },
+      } as never)
+
+      expect(prewarmSandboxFrame).toHaveBeenCalledTimes(1)
+    })
+
+    it('warms up the sandbox when only the document defines scripts', () => {
+      const plugin = requestScriptsPlugin()
+
+      plugin.hooks?.onRequestMount?.({
+        document: { 'x-pre-request': 'pm.environment.set("ready", "yes")' },
+        operation: {},
+      } as never)
+
+      expect(prewarmSandboxFrame).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not warm up the sandbox when there are no scripts', () => {
+      const plugin = requestScriptsPlugin()
+
+      plugin.hooks?.onRequestMount?.({ document: {}, operation: {} } as never)
+
+      expect(prewarmSandboxFrame).not.toHaveBeenCalled()
+    })
+  })
+
   it('persists pm.globals between pre-request and post-response scripts', async () => {
     const variablesStore = createVariablesStore()
     const requestBuilder = createRequestBuilder()
