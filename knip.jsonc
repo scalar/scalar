@@ -79,6 +79,7 @@
         "src/v2/workspace-events.ts",
         "src/v2/helpers/test-utils.ts",
         "src/v2/blocks/operation-block/index.ts",
+        "src/v2/blocks/channel-operation-block/index.ts",
         "src/v2/blocks/operation-code-sample/index.ts",
         "src/v2/blocks/request-block/index.ts",
         "src/v2/blocks/response-block/index.ts",
