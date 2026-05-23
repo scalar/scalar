@@ -290,8 +290,28 @@ describe('createWebSocketSession', () => {
       customWebSocket: mock.MockWS,
     })
 
+    expect(firstInstance.close).toHaveBeenCalledWith(1000, '')
     expect(session.frames).toHaveLength(0)
     expect(session.url).toBe('wss://example.com/v2')
+  })
+
+  it('closes an in-progress connection when reconnecting', () => {
+    const session = createWebSocketSession()
+
+    session.connect({
+      url: 'wss://example.com',
+      customWebSocket: mock.MockWS,
+    })
+
+    const firstInstance = mock.instance!
+    expect(session.state).toBe('connecting')
+
+    session.connect({
+      url: 'wss://example.com/v2',
+      customWebSocket: mock.MockWS,
+    })
+
+    expect(firstInstance.close).toHaveBeenCalledWith(1000, '')
   })
 
   it('calls onOpen callback', () => {

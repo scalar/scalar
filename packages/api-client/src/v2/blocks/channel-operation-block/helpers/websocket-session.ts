@@ -84,18 +84,22 @@ export const createWebSocketSession = (): WebSocketSession => {
     callbacks.onFrame?.(frame)
   }
 
-  const teardown = (): void => {
-    if (socket) {
-      socket.onopen = null
-      socket.onmessage = null
-      socket.onerror = null
-      socket.onclose = null
-      socket = null
+  const releaseSocket = (): void => {
+    if (!socket) {
+      return
     }
+
+    const activeSocket = socket
+    socket = null
+    activeSocket.onopen = null
+    activeSocket.onmessage = null
+    activeSocket.onerror = null
+    activeSocket.onclose = null
+    activeSocket.close(1000, '')
   }
 
   const connect = (options: WebSocketConnectOptions): void => {
-    teardown()
+    releaseSocket()
 
     frames.length = 0
     closeInfo = null
@@ -143,7 +147,7 @@ export const createWebSocketSession = (): WebSocketSession => {
       }
       setState('closed')
       callbacks.onClose?.(closeInfo)
-      teardown()
+      releaseSocket()
     }
   }
 
@@ -174,10 +178,7 @@ export const createWebSocketSession = (): WebSocketSession => {
   }
 
   const destroy = (): void => {
-    if (socket && (currentState === 'connecting' || currentState === 'open')) {
-      socket.close(1000, '')
-    }
-    teardown()
+    releaseSocket()
     setState('closed')
   }
 
