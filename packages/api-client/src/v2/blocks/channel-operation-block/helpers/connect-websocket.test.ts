@@ -290,4 +290,50 @@ describe('connectWebSocket', () => {
 
     expect(mock.constructorCalls[0]).toEqual({ url: 'wss://example.com', protocols: ['graphql-ws'] })
   })
+
+  it('returns failure when the session is destroyed while connecting', async () => {
+    const mock = createMockWebSocket()
+    const session = createWebSocketSession()
+
+    const promise = connectWebSocket({
+      connectionUrl: 'wss://example.com',
+      session,
+      customWebSocket: mock.MockWS,
+    })
+
+    await mock.waitForInstance()
+    session.destroy()
+
+    const result = await promise
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.error).toBe(WEBSOCKET_CONNECTION_FAILED)
+    }
+  })
+
+  it('returns failure when session.connect replaces an in-flight connection', async () => {
+    const mock = createMockWebSocket()
+    const session = createWebSocketSession()
+
+    const promise = connectWebSocket({
+      connectionUrl: 'wss://example.com',
+      session,
+      customWebSocket: mock.MockWS,
+    })
+
+    await mock.waitForInstance()
+
+    session.connect({
+      url: 'wss://example.com/other',
+      customWebSocket: mock.MockWS,
+    })
+
+    const result = await promise
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.error).toBe(WEBSOCKET_CONNECTION_FAILED)
+    }
+  })
 })

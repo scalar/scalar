@@ -358,6 +358,40 @@ describe('createWebSocketSession', () => {
     expect(mock.closedWith).toEqual({ code: 1000, reason: '' })
   })
 
+  it('destroy() invokes onClose while connecting', () => {
+    const session = createWebSocketSession()
+    const closeCallback = vi.fn()
+
+    session.connect({
+      url: 'wss://example.com',
+      customWebSocket: mock.MockWS,
+      callbacks: { onClose: closeCallback },
+    })
+
+    session.destroy()
+
+    expect(closeCallback).toHaveBeenCalledWith({ code: 1000, reason: '', wasClean: false })
+    expect(session.state).toBe('closed')
+  })
+
+  it('notifies previous callbacks when reconnecting during connecting', () => {
+    const session = createWebSocketSession()
+    const firstClose = vi.fn()
+
+    session.connect({
+      url: 'wss://example.com',
+      customWebSocket: mock.MockWS,
+      callbacks: { onClose: firstClose },
+    })
+
+    session.connect({
+      url: 'wss://example.com/v2',
+      customWebSocket: mock.MockWS,
+    })
+
+    expect(firstClose).toHaveBeenCalledWith({ code: 1000, reason: '', wasClean: false })
+  })
+
   it('uses default close code 1000 when close() is called without arguments', () => {
     const session = createWebSocketSession()
 

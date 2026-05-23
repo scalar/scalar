@@ -99,8 +99,23 @@ export const createWebSocketSession = (): WebSocketSession => {
     activeSocket.close(1000, '')
   }
 
+  const isInFlight = (): boolean =>
+    currentState === 'connecting' || currentState === 'open' || currentState === 'closing'
+
+  const notifyAborted = (targetCallbacks: WebSocketSessionCallbacks): void => {
+    const info: WebSocketCloseInfo = { code: 1000, reason: '', wasClean: false }
+    targetCallbacks.onClose?.(info)
+  }
+
   const connect = (options: WebSocketConnectOptions): void => {
+    const previousCallbacks = callbacks
+    const wasInFlight = isInFlight()
+
     releaseSocket()
+
+    if (wasInFlight) {
+      notifyAborted(previousCallbacks)
+    }
 
     frames.length = 0
     closeInfo = null
@@ -183,7 +198,15 @@ export const createWebSocketSession = (): WebSocketSession => {
   }
 
   const destroy = (): void => {
+    const wasInFlight = isInFlight()
+
     releaseSocket()
+
+    if (wasInFlight) {
+      closeInfo = { code: 1000, reason: '', wasClean: false }
+      callbacks.onClose?.(closeInfo)
+    }
+
     setState('closed')
   }
 
