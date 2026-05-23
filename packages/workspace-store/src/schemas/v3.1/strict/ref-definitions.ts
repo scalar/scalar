@@ -40,6 +40,8 @@ export const REF_DEFINITIONS = {
   TraversedDescriptionObject: 'TraversedDescriptionObject',
   TraversedOperationObject: 'TraversedOperationObject',
   TraversedAsyncApiOperationObject: 'TraversedAsyncApiOperationObject',
+  TraversedAsyncApiChannelObject: 'TraversedAsyncApiChannelObject',
+  TraversedAsyncApiMessageObject: 'TraversedAsyncApiMessageObject',
   TraversedSchemaObject: 'TraversedSchemaObject',
   TraversedWebhookObject: 'TraversedWebhookObject',
   TraversedTagObject: 'TraversedTagObject',
