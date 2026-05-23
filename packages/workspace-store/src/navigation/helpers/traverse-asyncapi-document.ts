@@ -40,11 +40,15 @@ type AsyncApiMessageLike = {
 /** One tag on a channel or operation — inline object or `$ref` wrapper. */
 type AsyncApiTagEntry = NonNullable<AsyncApiChannelObject['tags']>[number]
 
-/** One operation collected during the first pass, before navigation entries are built. */
+/**
+ * One operation collected during the first pass, before navigation entries are built.
+ *
+ * Operation-level tags are intentionally not collected here yet — only channel-level tags
+ * drive the sidebar grouping for now.
+ */
 type OperationBucketEntry = {
   operationName: string
   operation: AsyncApiOperationObject
-  tags: TagObject[]
 }
 
 /**
@@ -231,13 +235,6 @@ const sortMessages = (entries: TraversedAsyncApiMessage[]): void => {
 }
 
 /**
- * Returns only `asyncapi-operation` children from a channel or tag child list.
- * Used when merging tagged channels so we do not touch unrelated entry types.
- */
-const extractOperationChildren = (children: TraversedEntry[] | undefined): TraversedAsyncApiOperation[] =>
-  (children ?? []).filter((child): child is TraversedAsyncApiOperation => child.type === 'asyncapi-operation')
-
-/**
  * Builds nested message entries for one operation.
  * Resolves each message ref, skips hidden messages, and sorts the result by title.
  */
@@ -338,8 +335,8 @@ const createOperationEntry = ({
 }
 
 /**
- * Builds a channel navigation entry from a bucket and a subset of its operations.
- * The same channel may appear multiple times under different tags with different operation subsets.
+ * Builds a channel navigation entry from a bucket and the operations to render under it.
+ * The same channel may appear at the document root and under each of its channel-level tags.
  * Writes `x-scalar-order` on the source channel (when it is not a bare `$ref`) so other code can reuse the order.
  * Returns `undefined` when the channel is hidden or every requested operation was filtered out.
  */
@@ -566,10 +563,11 @@ const collectChannelBuckets = (document: AsyncApiDocument): Map<string, ChannelB
 
     const bucket = getOrCreateChannelBucket(channelBuckets, resolved.channelName, resolved.channel)
 
+    // Operation-level tags are deliberately ignored here. Tag grouping is driven by
+    // channel-level tags only until operation-tag grouping is reintroduced.
     bucket.operations.push({
       operationName,
       operation,
-      tags: operation.tags?.map(toTagObject) ?? [],
     })
   }
 
@@ -577,35 +575,16 @@ const collectChannelBuckets = (document: AsyncApiDocument): Map<string, ChannelB
 }
 
 /**
- * Merges two channel entries for the same channel under the same tag, deduping
- * operations by name and preferring the freshly-built operation entry.
- */
-const mergeTaggedChannelOperations = (
-  existing: TraversedAsyncApiChannel,
-  next: TraversedAsyncApiChannel,
-  operationsSorter: TraverseSpecOptions['operationsSorter'],
-): void => {
-  const merged = new Map(
-    extractOperationChildren(existing.children).map((operation) => [operation.operationName, operation]),
-  )
-  for (const operation of extractOperationChildren(next.children)) {
-    merged.set(operation.operationName, operation)
-  }
-
-  const operations = [...merged.values()]
-  sortOperations(operations, operationsSorter)
-  existing.children = operations
-}
-
-/**
  * Entry point: walks an AsyncAPI document and produces the sidebar tree.
  *
  * High-level flow:
- * 1. `collectChannelBuckets` — resolve refs, group operations by channel, collect tags.
- * 2. For each bucket — build untagged channels at document root; build tagged channels under tag nodes.
- * 3. Merge duplicate channel nodes when several operations on the same channel share a tag.
- * 4. Apply channel tags so a channel can appear under a tag even when only the channel (not operations) is tagged.
- * 5. Sort tags and top-level entries, then persist `x-scalar-order` on the document for stable ordering.
+ * 1. `collectChannelBuckets` — resolve refs, group operations by channel, collect channel tags.
+ * 2. For each bucket — build the channel entry at the document root with all of its operations.
+ * 3. Apply channel-level tags so a channel can also appear under each of its tags.
+ * 4. Sort tags and top-level entries, then persist `x-scalar-order` on the document for stable ordering.
+ *
+ * Operation-level tags are intentionally not used to group channels yet; only channel-level
+ * tags drive tag grouping.
  */
 export const traverseAsyncApiDocument = (
   documentName: string,
@@ -625,52 +604,20 @@ export const traverseAsyncApiDocument = (
   const untaggedChannels: TraversedAsyncApiChannel[] = []
 
   for (const bucket of channelBuckets.values()) {
-    const untaggedOperations = bucket.operations.filter((entry) => entry.tags.length === 0)
-    const taggedOperations = bucket.operations.filter((entry) => entry.tags.length > 0)
+    // Operation-level tags are intentionally skipped for now: every operation is rendered
+    // under its channel, and only the channel's own tags drive tag grouping below.
+    if (bucket.channelTags.length === 0) {
+      const untaggedChannel = createChannelEntry({
+        bucket,
+        operationEntries: bucket.operations,
+        generateId,
+        parentId: documentId,
+        operationsSorter,
+        document,
+      })
 
-    const untaggedChannel = createChannelEntry({
-      bucket,
-      operationEntries: untaggedOperations,
-      generateId,
-      parentId: documentId,
-      operationsSorter,
-      document,
-    })
-
-    if (untaggedChannel) {
-      untaggedChannels.push(untaggedChannel)
-    }
-
-    for (const operationEntry of taggedOperations) {
-      for (const tag of operationEntry.tags) {
-        const tagName = tag.name ?? 'Untitled Tag'
-        const { tag: registeredTag, id: tagId, entries } = getTag({ tagsMap, name: tagName, documentId, generateId })
-
-        const taggedChannel = createChannelEntry({
-          bucket,
-          operationEntries: [operationEntry],
-          generateId,
-          parentId: tagId,
-          parentTag: { tag: registeredTag, id: tagId },
-          operationsSorter,
-          document,
-        })
-
-        if (!taggedChannel) {
-          continue
-        }
-
-        const existingChannel = entries.find(
-          (entry): entry is TraversedAsyncApiChannel =>
-            entry.type === 'asyncapi-channel' && entry.channelName === bucket.channelName,
-        )
-
-        if (existingChannel) {
-          mergeTaggedChannelOperations(existingChannel, taggedChannel, operationsSorter)
-          continue
-        }
-
-        entries.push(taggedChannel)
+      if (untaggedChannel) {
+        untaggedChannels.push(untaggedChannel)
       }
     }
 

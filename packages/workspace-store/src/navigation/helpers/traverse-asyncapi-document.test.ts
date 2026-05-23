@@ -269,7 +269,7 @@ describe('traverseAsyncApiDocument', () => {
     ])
   })
 
-  it('groups channels under tags when operations are tagged', () => {
+  it('ignores operation-level tags and keeps the channel at the document root', () => {
     const document = {
       asyncapi: '3.0.0',
       info: { title: 'Tagged API', version: '1.0.0' },
@@ -291,23 +291,59 @@ describe('traverseAsyncApiDocument', () => {
 
     expect(result.children).toEqual([
       expect.objectContaining({
-        type: 'tag',
-        name: 'Realtime',
+        type: 'asyncapi-channel',
+        channelName: 'events',
+        channelAddress: '/events',
         children: [
           expect.objectContaining({
-            type: 'asyncapi-channel',
-            channelName: 'events',
-            channelAddress: '/events',
-            children: [
-              expect.objectContaining({
-                type: 'asyncapi-operation',
-                operationName: 'listen',
-                id: 'tagged/tag/realtime/asyncapi-channel/events/asyncapi-operation/listen',
-              }),
-            ],
+            type: 'asyncapi-operation',
+            operationName: 'listen',
           }),
         ],
       }),
     ])
+  })
+
+  it('groups channels under tags when the channel itself is tagged', () => {
+    const document = {
+      asyncapi: '3.0.0',
+      info: { title: 'Channel Tagged API', version: '1.0.0' },
+      'x-scalar-original-document-hash': 'channel-tagged-fixture',
+      channels: {
+        events: {
+          address: '/events',
+          tags: [{ name: 'Realtime' }],
+        },
+      },
+      operations: {
+        listen: {
+          action: 'receive',
+          channel: { $ref: '#/channels/events' },
+          title: 'Listen',
+        },
+      },
+    } as unknown as AsyncApiDocument
+
+    const result = traverseAsyncApiDocument('tagged', document, mockOptions)
+
+    const tag = result.children?.find((entry) => entry.type === 'tag' && entry.name === 'Realtime')
+
+    expect(tag).toMatchObject({
+      type: 'tag',
+      name: 'Realtime',
+      children: [
+        expect.objectContaining({
+          type: 'asyncapi-channel',
+          channelName: 'events',
+          channelAddress: '/events',
+          children: [
+            expect.objectContaining({
+              type: 'asyncapi-operation',
+              operationName: 'listen',
+            }),
+          ],
+        }),
+      ],
+    })
   })
 })
