@@ -29,6 +29,13 @@ export type ResponseBodyHandler = ResponseBodyHandlerBase &
 
 /** A type representing the hooks that a client plugin can define */
 type ClientPluginHooks = {
+  /**
+   * Runs when an operation view mounts, before any request is sent. Useful for warming up
+   * resources that would otherwise add latency to the first request (for example, lazily
+   * created sandboxes). Receives the current document and operation so plugins can decide
+   * whether the work is needed at all.
+   */
+  onRequestMount: (payload: { document: OpenApiDocument; operation: OperationObject }) => void | Promise<void>
   beforeRequest: (payload: {
     /** Workspace-store request spec; mutable by pre-request scripts (headers, method). */
     requestBuilder: RequestFactory
