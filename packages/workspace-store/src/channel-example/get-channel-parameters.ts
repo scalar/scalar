@@ -1,4 +1,5 @@
 import { objectEntries } from '@scalar/helpers/object/object-entries'
+import { findVariables } from '@scalar/helpers/regex/find-variables'
 import type {
   AsyncApiChannelObject,
   AsyncApiOperationObject,
@@ -7,8 +8,6 @@ import type {
 
 import { buildWsQueryParams, mergeWsBindings } from '@/channel-example/build-connection-url'
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
-
-const PATH_PARAM_PATTERN = /\{([^}]+)\}/g
 
 export type ChannelParametersContext = {
   /** Resolved channel parameter definitions keyed by name. */
@@ -23,15 +22,12 @@ const getPathParameterNames = (address: string | null | undefined): string[] => 
   if (address == null || address === '') {
     return []
   }
-
   const names: string[] = []
-  for (const match of address.matchAll(PATH_PARAM_PATTERN)) {
-    const name = match[1]
+  for (const name of findVariables(address, { includePath: true, includeEnv: false })) {
     if (name && !names.includes(name)) {
       names.push(name)
     }
   }
-
   return names
 }
 
