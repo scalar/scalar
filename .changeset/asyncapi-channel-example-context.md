@@ -3,6 +3,6 @@
 '@scalar/types': patch
 ---
 
-feat: add getChannelExampleContext for AsyncAPI channel operations
+feat: add getChannelConnectionContext for AsyncAPI WebSocket channels
 
-Add channel example context helpers that resolve operation, channel, messages, parameters, servers, security, and connection URL for WebSocket client UI.
+Add channel connection context helpers that resolve channel, messages, parameters, servers, security, and connection URL for WebSocket client UI.
