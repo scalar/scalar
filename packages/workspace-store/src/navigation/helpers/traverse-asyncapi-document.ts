@@ -21,17 +21,36 @@ import type {
 } from '@/schemas/navigation'
 import type { InfoObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
-type AsyncApiTagLike = {
-  name: string
-  description?: string
+/** Anything that may carry the navigation visibility extensions. */
+type Hideable = XInternal & XScalarIgnore
+
+/** AsyncAPI document plus Scalar navigation extensions written during traversal. */
+type AsyncApiDocumentWithNavigationExtensions = AsyncApiDocument & {
+  'x-scalar-order'?: string[]
+  'x-scalar-icon'?: string
 }
 
+/** Minimal message fields used when choosing a sidebar title. */
+type AsyncApiMessageLike = {
+  title?: string
+  summary?: string
+  name?: string
+}
+
+/** One tag on a channel or operation — inline object or `$ref` wrapper. */
+type AsyncApiTagEntry = NonNullable<AsyncApiChannelObject['tags']>[number]
+
+/** One operation collected during the first pass, before navigation entries are built. */
 type OperationBucketEntry = {
   operationName: string
   operation: AsyncApiOperationObject
   tags: TagObject[]
 }
 
+/**
+ * Working set for a single channel while the document is traversed.
+ * Operations and tags are grouped here first, then turned into sidebar entries.
+ */
 type ChannelBucket = {
   channelName: string
   channel: AsyncApiChannelObject
@@ -40,161 +59,137 @@ type ChannelBucket = {
   operations: OperationBucketEntry[]
 }
 
-type AsyncApiDocumentWithNavigationExtensions = AsyncApiDocument & {
-  'x-scalar-order'?: string[]
-  'x-scalar-icon'?: string
-}
-
-const getChannelNameFromRef = (ref: string): string | undefined => {
-  const match = ref.match(/^#\/channels\/(.+)$/)
-  return match?.[1]
-}
-
-const findChannelName = (document: AsyncApiDocument, channel: AsyncApiChannelObject): string | undefined => {
-  if (!document.channels) {
-    return undefined
-  }
-
-  for (const [channelName, channelNode] of Object.entries(document.channels)) {
-    const resolved = getResolvedRef(channelNode, mergeSiblingReferences)
-    if (resolved === channel) {
-      return channelName
+/**
+ * Picks the first display candidate that is non-empty after trimming.
+ * Used by title helpers so we prefer `title`, then `summary`, then a fallback.
+ */
+const pickNonEmpty = (...candidates: Array<string | undefined>): string | undefined => {
+  for (const candidate of candidates) {
+    const trimmed = candidate?.trim()
+    if (trimmed) {
+      return trimmed
     }
   }
-
-  return undefined
-}
-
-const resolveChannelNode = (
-  document: AsyncApiDocument,
-  channelNode: AsyncApiOperationObject['channel'],
-): { channelName: string; channel: AsyncApiChannelObject } | undefined => {
-  if (!channelNode) {
-    return undefined
-  }
-
-  const channelNameFromRef = '$ref' in channelNode ? getChannelNameFromRef(channelNode.$ref) : undefined
-
-  if (channelNameFromRef && document.channels?.[channelNameFromRef]) {
-    const channel = getResolvedRef(document.channels[channelNameFromRef], mergeSiblingReferences)
-    return { channelName: channelNameFromRef, channel }
-  }
-
-  const channel = getResolvedRef(channelNode, mergeSiblingReferences) as AsyncApiChannelObject
-  const channelName = channelNameFromRef ?? findChannelName(document, channel)
-
-  if (!channelName) {
-    return undefined
-  }
-
-  return { channelName, channel }
-}
-
-const getChannelAddress = (channelName: string, channel: AsyncApiChannelObject): string => {
-  return typeof channel.address === 'string' && channel.address.length > 0 ? channel.address : channelName
-}
-
-const getChannelTitle = (channel: AsyncApiChannelObject, channelName: string): string => {
-  if (channel.title?.trim()) {
-    return channel.title.trim()
-  }
-
-  if (channel.summary?.trim()) {
-    return channel.summary.trim()
-  }
-
-  return getChannelAddress(channelName, channel)
-}
-
-const getOperationTitle = (operation: AsyncApiOperationObject, operationName: string): string => {
-  if (operation.title?.trim()) {
-    return operation.title.trim()
-  }
-
-  if (operation.summary?.trim()) {
-    return operation.summary.trim()
-  }
-
-  return operationName
-}
-
-type AsyncApiMessageLike = {
-  title?: string
-  summary?: string
-  name?: string
-}
-
-const getMessageNameFromRef = (ref: string, channelName: string): string | undefined => {
-  const channelMessageMatch = ref.match(new RegExp(`^#/channels/${channelName}/messages/(.+)$`))
-  if (channelMessageMatch?.[1]) {
-    return channelMessageMatch[1]
-  }
-
   return undefined
 }
 
 /**
- * Resolves message keys for an operation.
- * Omit `operation.messages` → all channel messages; `[]` → none; refs → subset.
+ * Returns the channel address shown in the sidebar and routing.
+ * Falls back to the channel map key when `channel.address` is missing or empty.
+ */
+const getChannelAddress = (channelName: string, channel: AsyncApiChannelObject): string =>
+  typeof channel.address === 'string' && channel.address.length > 0 ? channel.address : channelName
+
+/**
+ * Sidebar label for a channel: `title`, then `summary`, then the resolved address.
+ */
+const getChannelTitle = (channel: AsyncApiChannelObject, channelName: string): string =>
+  pickNonEmpty(channel.title, channel.summary) ?? getChannelAddress(channelName, channel)
+
+/**
+ * Sidebar label for an operation: `title`, then `summary`, then the operation map key.
+ */
+const getOperationTitle = (operation: AsyncApiOperationObject, operationName: string): string =>
+  pickNonEmpty(operation.title, operation.summary) ?? operationName
+
+/**
+ * Sidebar label for a message: `title`, then `summary`, then `name`, then the message map key.
+ */
+const getMessageTitle = (message: AsyncApiMessageLike, messageName: string): string =>
+  pickNonEmpty(message.title, message.summary, message.name) ?? messageName
+
+/**
+ * Parses a channel JSON pointer (`#/channels/<name>`) into the key used in `document.channels`.
+ */
+const getChannelNameFromRef = (ref: string): string | undefined => ref.match(/^#\/channels\/([^/]+)$/)?.[1]
+
+/**
+ * Resolves the channel referenced by an operation.
+ *
+ * The AsyncAPI 3 spec requires `operation.channel` to be a Reference Object,
+ * so we read the channel key straight from the JSON pointer rather than trying
+ * to match against the resolved channel by identity.
+ */
+const resolveOperationChannel = (
+  document: AsyncApiDocument,
+  operation: AsyncApiOperationObject,
+): { channelName: string; channel: AsyncApiChannelObject } | undefined => {
+  const channelRef = operation.channel
+  if (!channelRef || !('$ref' in channelRef)) {
+    return undefined
+  }
+
+  const channelName = getChannelNameFromRef(channelRef.$ref)
+  if (!channelName) {
+    return undefined
+  }
+
+  const channelEntry = document.channels?.[channelName]
+  if (!channelEntry) {
+    return undefined
+  }
+
+  return {
+    channelName,
+    channel: getResolvedRef(channelEntry, mergeSiblingReferences),
+  }
+}
+
+/**
+ * Resolves which channel message names an operation references.
+ *
+ * - `operation.messages === undefined` → every channel message is included.
+ * - `operation.messages === []` → no channel messages are included.
+ * - Otherwise → the channel messages that the operation explicitly references.
  */
 const resolveOperationMessageNames = (
   operation: AsyncApiOperationObject,
   channel: AsyncApiChannelObject,
   channelName: string,
 ): string[] => {
-  if (operation.messages !== undefined) {
-    if (operation.messages.length === 0) {
-      return []
-    }
+  const channelMessages = channel.messages ?? {}
 
-    const names = new Set<string>()
-
-    for (const messageRef of operation.messages) {
-      if ('$ref' in messageRef) {
-        const fromRef = getMessageNameFromRef(messageRef.$ref, channelName)
-        if (fromRef && channel.messages?.[fromRef]) {
-          names.add(fromRef)
-          continue
-        }
-
-        if (channel.messages) {
-          for (const messageName of objectKeys(channel.messages)) {
-            const messageNode = channel.messages[messageName]
-            if (messageNode && '$ref' in messageNode && messageNode.$ref === messageRef.$ref) {
-              names.add(messageName)
-            }
-          }
-        }
-      }
-    }
-
-    return [...names]
+  if (operation.messages === undefined) {
+    return objectKeys(channelMessages)
   }
 
-  if (!channel.messages) {
+  if (operation.messages.length === 0) {
     return []
   }
 
-  return objectKeys(channel.messages)
+  const channelScopePrefix = `#/channels/${channelName}/messages/`
+  const names = new Set<string>()
+
+  for (const messageRef of operation.messages) {
+    if (!('$ref' in messageRef)) {
+      continue
+    }
+
+    // Common case: a channel-scoped reference like `#/channels/<name>/messages/<id>`.
+    if (messageRef.$ref.startsWith(channelScopePrefix)) {
+      const candidate = messageRef.$ref.slice(channelScopePrefix.length)
+      if (channelMessages[candidate]) {
+        names.add(candidate)
+        continue
+      }
+    }
+
+    // Fallback: a channel-level message that points to the same target.
+    for (const [name, entry] of Object.entries(channelMessages)) {
+      if (entry && '$ref' in entry && entry.$ref === messageRef.$ref) {
+        names.add(name)
+      }
+    }
+  }
+
+  return [...names]
 }
 
-const getMessageTitle = (message: AsyncApiMessageLike, messageName: string): string => {
-  if (message.title?.trim()) {
-    return message.title.trim()
-  }
-
-  if (message.summary?.trim()) {
-    return message.summary.trim()
-  }
-
-  if (message.name?.trim()) {
-    return message.name.trim()
-  }
-
-  return messageName
-}
-
-const toTagObject = (tag: AsyncApiTagLike): TagObject => {
+/**
+ * Normalizes an AsyncAPI tag (inline object or `$ref`) into the OpenAPI-style `TagObject`
+ * used by the shared tag navigation helpers.
+ */
+const toTagObject = (tag: AsyncApiTagEntry): TagObject => {
   const resolved = getResolvedRef(tag, mergeSiblingReferences)
   return {
     name: resolved.name,
@@ -202,7 +197,11 @@ const toTagObject = (tag: AsyncApiTagLike): TagObject => {
   }
 }
 
-const sortAsyncApiOperations = (
+/**
+ * Sorts operation navigation entries in place using the workspace `operationsSorter` option.
+ * Maps AsyncAPI `action` to the HTTP-style sorter fields so OpenAPI and AsyncAPI share the same API.
+ */
+const sortOperations = (
   entries: TraversedAsyncApiOperation[],
   operationsSorter: TraverseSpecOptions['operationsSorter'],
 ): void => {
@@ -226,11 +225,23 @@ const sortAsyncApiOperations = (
   }
 }
 
-const sortAsyncApiMessages = (entries: TraversedAsyncApiMessage[]): void => {
+/** Sorts message navigation entries alphabetically by display title. */
+const sortMessages = (entries: TraversedAsyncApiMessage[]): void => {
   entries.sort((a, b) => a.title.localeCompare(b.title))
 }
 
-const createAsyncApiMessageEntries = ({
+/**
+ * Returns only `asyncapi-operation` children from a channel or tag child list.
+ * Used when merging tagged channels so we do not touch unrelated entry types.
+ */
+const extractOperationChildren = (children: TraversedEntry[] | undefined): TraversedAsyncApiOperation[] =>
+  (children ?? []).filter((child): child is TraversedAsyncApiOperation => child.type === 'asyncapi-operation')
+
+/**
+ * Builds nested message entries for one operation.
+ * Resolves each message ref, skips hidden messages, and sorts the result by title.
+ */
+const createMessageEntries = ({
   channelName,
   channel,
   operationId,
@@ -243,21 +254,20 @@ const createAsyncApiMessageEntries = ({
   messageNames: string[]
   generateId: TraverseSpecOptions['generateId']
 }): TraversedAsyncApiMessage[] => {
-  const messages = messageNames.flatMap((messageName) => {
+  const messages = messageNames.flatMap((messageName): TraversedAsyncApiMessage[] => {
     const messageNode = channel.messages?.[messageName]
     if (!messageNode) {
       return []
     }
 
     const message = getResolvedRef(messageNode, mergeSiblingReferences)
-
-    if (isHidden(message as XInternal & XScalarIgnore)) {
+    if (isHidden(message as Hideable)) {
       return []
     }
 
     return [
       {
-        type: 'asyncapi-message' as const,
+        type: 'asyncapi-message',
         id: generateId({
           type: 'asyncapi-message',
           messageName,
@@ -271,11 +281,16 @@ const createAsyncApiMessageEntries = ({
     ]
   })
 
-  sortAsyncApiMessages(messages)
+  sortMessages(messages)
   return messages
 }
 
-const createAsyncApiOperationEntry = ({
+/**
+ * Builds a single operation navigation entry under a channel.
+ * Includes nested messages when the operation references channel messages (or all of them by default).
+ * Returns `undefined` when the operation is hidden via `x-internal` or `x-scalar-ignore`.
+ */
+const createOperationEntry = ({
   operationName,
   operation,
   channel,
@@ -292,7 +307,7 @@ const createAsyncApiOperationEntry = ({
   generateId: TraverseSpecOptions['generateId']
   parentId: string
 }): TraversedAsyncApiOperation | undefined => {
-  if (isHidden(operation as XInternal & XScalarIgnore)) {
+  if (isHidden(operation as Hideable)) {
     return undefined
   }
 
@@ -302,12 +317,11 @@ const createAsyncApiOperationEntry = ({
     parentId,
   })
 
-  const messageNames = resolveOperationMessageNames(operation, channel, channelName)
-  const messageEntries = createAsyncApiMessageEntries({
+  const messageEntries = createMessageEntries({
     channelName,
     channel,
     operationId,
-    messageNames,
+    messageNames: resolveOperationMessageNames(operation, channel, channelName),
     generateId,
   })
 
@@ -323,7 +337,13 @@ const createAsyncApiOperationEntry = ({
   }
 }
 
-const createAsyncApiChannelEntry = ({
+/**
+ * Builds a channel navigation entry from a bucket and a subset of its operations.
+ * The same channel may appear multiple times under different tags with different operation subsets.
+ * Writes `x-scalar-order` on the source channel (when it is not a bare `$ref`) so other code can reuse the order.
+ * Returns `undefined` when the channel is hidden or every requested operation was filtered out.
+ */
+const createChannelEntry = ({
   bucket,
   operationEntries,
   generateId,
@@ -340,7 +360,7 @@ const createAsyncApiChannelEntry = ({
   operationsSorter: TraverseSpecOptions['operationsSorter']
   document: AsyncApiDocument
 }): TraversedAsyncApiChannel | undefined => {
-  if (isHidden(bucket.channel as XInternal & XScalarIgnore)) {
+  if (isHidden(bucket.channel as Hideable)) {
     return undefined
   }
 
@@ -352,7 +372,7 @@ const createAsyncApiChannelEntry = ({
   })
 
   const operations = operationEntries.flatMap(({ operationName, operation }) => {
-    const entry = createAsyncApiOperationEntry({
+    const entry = createOperationEntry({
       operationName,
       operation,
       channel: bucket.channel,
@@ -365,16 +385,19 @@ const createAsyncApiChannelEntry = ({
     return entry ? [entry] : []
   })
 
-  sortAsyncApiOperations(operations, operationsSorter)
+  sortOperations(operations, operationsSorter)
 
   if (operations.length === 0) {
     return undefined
   }
 
+  // Persist the rendered order back onto the source channel for downstream consumers.
+  // We skip channels that are stored as references, since the order should live on the target.
   const channelNode = document.channels?.[bucket.channelName]
-  if (channelNode && typeof channelNode === 'object' && !('$ref' in channelNode)) {
-    const channelWithOrder = channelNode as AsyncApiChannelObject & { 'x-scalar-order'?: string[] }
-    channelWithOrder['x-scalar-order'] = operations.map((child) => child.id)
+  if (channelNode && !('$ref' in channelNode)) {
+    ;(channelNode as AsyncApiChannelObject & { 'x-scalar-order'?: string[] })['x-scalar-order'] = operations.map(
+      (child) => child.id,
+    )
   }
 
   return {
@@ -387,6 +410,10 @@ const createAsyncApiChannelEntry = ({
   }
 }
 
+/**
+ * Wraps collected channel entries in a tag navigation node.
+ * Persists child order on the tag via `x-scalar-order` for later reordering in the UI.
+ */
 const createTagEntry = ({
   tag,
   generateId,
@@ -420,6 +447,11 @@ const createTagEntry = ({
   }
 }
 
+/**
+ * Turns the in-memory `tagsMap` into top-level tag navigation entries.
+ * Respects per-tag `x-scalar-order`, document-level `x-scalar-order`, and `tagsSorter` (alpha or custom).
+ * Skips tags marked hidden.
+ */
 const getSortedTagEntries = ({
   tagKeys,
   tagsMap,
@@ -440,12 +472,12 @@ const getSortedTagEntries = ({
       return []
     }
 
-    const sortOrder = tag['x-scalar-order']
+    const tagOrder = tag['x-scalar-order']
 
     return createTagEntry({
       tag,
       generateId,
-      children: sortOrder ? sortByOrder(tagEntries, sortOrder, (item) => item.id) : tagEntries,
+      children: tagOrder ? sortByOrder(tagEntries, tagOrder, (item) => item.id) : tagEntries,
       parentId: documentId,
     })
   })
@@ -468,15 +500,15 @@ const getSortedTagEntries = ({
   return entries
 }
 
-const getOrCreateChannelBucket = ({
-  channelBuckets,
-  channelName,
-  channel,
-}: {
-  channelBuckets: Map<string, ChannelBucket>
-  channelName: string
-  channel: AsyncApiChannelObject
-}): ChannelBucket => {
+/**
+ * Returns the existing bucket for a channel name or creates one with address and channel-level tags.
+ * Buckets are shared across the traversal so operations on the same channel accumulate together.
+ */
+const getOrCreateChannelBucket = (
+  channelBuckets: Map<string, ChannelBucket>,
+  channelName: string,
+  channel: AsyncApiChannelObject,
+): ChannelBucket => {
   const existing = channelBuckets.get(channelName)
   if (existing) {
     return existing
@@ -486,7 +518,7 @@ const getOrCreateChannelBucket = ({
     channelName,
     channel,
     channelAddress: getChannelAddress(channelName, channel),
-    channelTags: channel.tags?.map((tag) => toTagObject(getResolvedRef(tag, mergeSiblingReferences))) ?? [],
+    channelTags: channel.tags?.map(toTagObject) ?? [],
     operations: [],
   }
 
@@ -495,8 +527,85 @@ const getOrCreateChannelBucket = ({
 }
 
 /**
- * Traverses an AsyncAPI document to generate sidebar navigation for channels,
- * operations, and operation messages.
+ * Builds the channel/operation registry used to drive the rest of the traversal.
+ *
+ * Channels are seeded first so that they can appear in the sidebar even when no
+ * operations reference them. Operations are then assigned to the bucket of the
+ * channel they reference; operations with no resolvable channel are skipped.
+ */
+const collectChannelBuckets = (document: AsyncApiDocument): Map<string, ChannelBucket> => {
+  const channelBuckets = new Map<string, ChannelBucket>()
+
+  for (const [channelName, channelNode] of Object.entries(document.channels ?? {})) {
+    if (!channelNode) {
+      continue
+    }
+
+    const channel = getResolvedRef(channelNode, mergeSiblingReferences)
+    if (isHidden(channel as Hideable)) {
+      continue
+    }
+
+    getOrCreateChannelBucket(channelBuckets, channelName, channel)
+  }
+
+  for (const [operationName, operationNode] of Object.entries(document.operations ?? {})) {
+    if (!operationNode) {
+      continue
+    }
+
+    const operation = getResolvedRef(operationNode, mergeSiblingReferences)
+    if (isHidden(operation as Hideable)) {
+      continue
+    }
+
+    const resolved = resolveOperationChannel(document, operation)
+    if (!resolved) {
+      continue
+    }
+
+    const bucket = getOrCreateChannelBucket(channelBuckets, resolved.channelName, resolved.channel)
+
+    bucket.operations.push({
+      operationName,
+      operation,
+      tags: operation.tags?.map(toTagObject) ?? [],
+    })
+  }
+
+  return channelBuckets
+}
+
+/**
+ * Merges two channel entries for the same channel under the same tag, deduping
+ * operations by name and preferring the freshly-built operation entry.
+ */
+const mergeTaggedChannelOperations = (
+  existing: TraversedAsyncApiChannel,
+  next: TraversedAsyncApiChannel,
+  operationsSorter: TraverseSpecOptions['operationsSorter'],
+): void => {
+  const merged = new Map(
+    extractOperationChildren(existing.children).map((operation) => [operation.operationName, operation]),
+  )
+  for (const operation of extractOperationChildren(next.children)) {
+    merged.set(operation.operationName, operation)
+  }
+
+  const operations = [...merged.values()]
+  sortOperations(operations, operationsSorter)
+  existing.children = operations
+}
+
+/**
+ * Entry point: walks an AsyncAPI document and produces the sidebar tree.
+ *
+ * High-level flow:
+ * 1. `collectChannelBuckets` — resolve refs, group operations by channel, collect tags.
+ * 2. For each bucket — build untagged channels at document root; build tagged channels under tag nodes.
+ * 3. Merge duplicate channel nodes when several operations on the same channel share a tag.
+ * 4. Apply channel tags so a channel can appear under a tag even when only the channel (not operations) is tagged.
+ * 5. Sort tags and top-level entries, then persist `x-scalar-order` on the document for stable ordering.
  */
 export const traverseAsyncApiDocument = (
   documentName: string,
@@ -511,54 +620,7 @@ export const traverseAsyncApiDocument = (
     name: documentName,
   })
 
-  const channelBuckets = new Map<string, ChannelBucket>()
-
-  if (document.channels) {
-    for (const channelName of objectKeys(document.channels)) {
-      const channelNode = document.channels[channelName]
-      if (!channelNode) {
-        continue
-      }
-
-      const channel = getResolvedRef(channelNode, mergeSiblingReferences)
-      if (isHidden(channel as XInternal & XScalarIgnore)) {
-        continue
-      }
-
-      getOrCreateChannelBucket({ channelBuckets, channelName, channel })
-    }
-  }
-
-  if (document.operations) {
-    for (const operationName of objectKeys(document.operations)) {
-      const operationNode = document.operations[operationName]
-      if (!operationNode) {
-        continue
-      }
-
-      const operation = getResolvedRef(operationNode, mergeSiblingReferences)
-      if (isHidden(operation as XInternal & XScalarIgnore)) {
-        continue
-      }
-
-      const resolvedChannel = resolveChannelNode(document, operation.channel)
-      if (!resolvedChannel) {
-        continue
-      }
-
-      const { channelName, channel } = resolvedChannel
-      const bucket = getOrCreateChannelBucket({ channelBuckets, channelName, channel })
-
-      const operationTags = operation.tags?.map((tag) => toTagObject(getResolvedRef(tag, mergeSiblingReferences))) ?? []
-
-      bucket.operations.push({
-        operationName,
-        operation,
-        tags: operationTags,
-      })
-    }
-  }
-
+  const channelBuckets = collectChannelBuckets(document)
   const tagsMap: TagsMap = new Map()
   const untaggedChannels: TraversedAsyncApiChannel[] = []
 
@@ -566,7 +628,7 @@ export const traverseAsyncApiDocument = (
     const untaggedOperations = bucket.operations.filter((entry) => entry.tags.length === 0)
     const taggedOperations = bucket.operations.filter((entry) => entry.tags.length > 0)
 
-    const untaggedChannel = createAsyncApiChannelEntry({
+    const untaggedChannel = createChannelEntry({
       bucket,
       operationEntries: untaggedOperations,
       generateId,
@@ -582,16 +644,14 @@ export const traverseAsyncApiDocument = (
     for (const operationEntry of taggedOperations) {
       for (const tag of operationEntry.tags) {
         const tagName = tag.name ?? 'Untitled Tag'
-        const tagObject = toTagObject(tag)
-        const { id: tagId } = getTag({ tagsMap, name: tagName, documentId, generateId })
-        const parentTag: ParentTag = { tag: tagObject, id: tagId }
+        const { tag: registeredTag, id: tagId, entries } = getTag({ tagsMap, name: tagName, documentId, generateId })
 
-        const taggedChannel = createAsyncApiChannelEntry({
+        const taggedChannel = createChannelEntry({
           bucket,
           operationEntries: [operationEntry],
           generateId,
           parentId: tagId,
-          parentTag,
+          parentTag: { tag: registeredTag, id: tagId },
           operationsSorter,
           document,
         })
@@ -600,26 +660,13 @@ export const traverseAsyncApiDocument = (
           continue
         }
 
-        const { entries } = getTag({ tagsMap, name: tagName, documentId, generateId })
         const existingChannel = entries.find(
           (entry): entry is TraversedAsyncApiChannel =>
             entry.type === 'asyncapi-channel' && entry.channelName === bucket.channelName,
         )
 
         if (existingChannel) {
-          const mergedOperations = [
-            ...(existingChannel.children ?? []).filter(
-              (child): child is TraversedAsyncApiOperation => child.type === 'asyncapi-operation',
-            ),
-            ...(taggedChannel.children ?? []).filter(
-              (child): child is TraversedAsyncApiOperation => child.type === 'asyncapi-operation',
-            ),
-          ]
-          const uniqueOperations = new Map(mergedOperations.map((operation) => [operation.operationName, operation]))
-          const mergedChannelOperations = [...uniqueOperations.values()]
-
-          sortAsyncApiOperations(mergedChannelOperations, operationsSorter)
-          existingChannel.children = mergedChannelOperations
+          mergeTaggedChannelOperations(existingChannel, taggedChannel, operationsSorter)
           continue
         }
 
@@ -627,15 +674,19 @@ export const traverseAsyncApiDocument = (
       }
     }
 
+    // Channels can declare their own tags independently of any operation tags.
     for (const tag of bucket.channelTags) {
       const tagName = tag.name ?? 'Untitled Tag'
       const { id: tagId, entries } = getTag({ tagsMap, name: tagName, documentId, generateId })
 
-      if (entries.some((entry) => entry.type === 'asyncapi-channel' && entry.channelName === bucket.channelName)) {
+      const alreadyRegistered = entries.some(
+        (entry) => entry.type === 'asyncapi-channel' && entry.channelName === bucket.channelName,
+      )
+      if (alreadyRegistered) {
         continue
       }
 
-      const taggedChannel = createAsyncApiChannelEntry({
+      const taggedChannel = createChannelEntry({
         bucket,
         operationEntries: bucket.operations,
         generateId,
@@ -672,27 +723,16 @@ export const traverseAsyncApiDocument = (
   entries.push(...untaggedChannels)
 
   const sortOrder = document['x-scalar-order']
+  const orderedEntries = sortOrder ? sortByOrder(entries, sortOrder, (entry) => entry.id) : entries
 
-  if (sortOrder) {
-    entries.sort((a, b) => {
-      const indexA = sortOrder.indexOf(a.id)
-      const indexB = sortOrder.indexOf(b.id)
-      const safeIndexA = indexA === -1 ? Number.POSITIVE_INFINITY : indexA
-      const safeIndexB = indexB === -1 ? Number.POSITIVE_INFINITY : indexB
-      return safeIndexA - safeIndexB
-    })
-  }
-
-  document['x-scalar-order'] = unpackProxyObject(entries.map((entry) => entry.id))
-
-  const documentTitle = document.info?.title?.trim() || 'Untitled Document'
+  document['x-scalar-order'] = unpackProxyObject(orderedEntries.map((entry) => entry.id))
 
   return {
     id: documentId,
     type: 'document',
-    title: documentTitle,
+    title: document.info?.title?.trim() || 'Untitled Document',
     name: documentName,
-    children: entries,
+    children: orderedEntries,
     icon: document['x-scalar-icon'],
   }
 }
