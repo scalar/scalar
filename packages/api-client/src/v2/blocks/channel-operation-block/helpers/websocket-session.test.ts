@@ -241,7 +241,7 @@ describe('createWebSocketSession', () => {
     expect(closeCallback).toHaveBeenCalledWith({ code: 1000, reason: '', wasClean: true })
   })
 
-  it('transitions to error on socket error', () => {
+  it('transitions to error on socket error while connecting', () => {
     const session = createWebSocketSession()
     const errorCallback = vi.fn()
 
@@ -255,6 +255,33 @@ describe('createWebSocketSession', () => {
 
     expect(session.state).toBe('error')
     expect(errorCallback).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps open state and allows send after socket error once connected', () => {
+    const session = createWebSocketSession()
+    const errorCallback = vi.fn()
+
+    session.connect({
+      url: 'wss://example.com',
+      customWebSocket: mock.MockWS,
+      callbacks: { onError: errorCallback },
+    })
+
+    mock.instance!.onopen?.(new Event('open'))
+    mock.instance!.onerror?.(new Event('error'))
+
+    expect(session.state).toBe('open')
+    expect(errorCallback).toHaveBeenCalledTimes(1)
+
+    session.send('still works')
+
+    expect(mock.sentMessages).toStrictEqual(['still works'])
+    expect(session.frames).toHaveLength(1)
+    expect(session.frames[0]).toMatchObject({
+      direction: 'outgoing',
+      data: 'still works',
+      opcode: 'text',
+    })
   })
 
   it('transitions to error when constructor throws', () => {

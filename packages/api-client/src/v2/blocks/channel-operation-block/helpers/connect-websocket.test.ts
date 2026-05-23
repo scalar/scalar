@@ -202,6 +202,29 @@ describe('connectWebSocket', () => {
     )
   })
 
+  it('keeps session open after connect resolves when a later socket error fires', async () => {
+    const mock = createMockWebSocket()
+    const session = createWebSocketSession()
+    const onError = vi.fn()
+
+    const promise = connectWebSocket({
+      connectionUrl: 'wss://example.com',
+      session,
+      customWebSocket: mock.MockWS,
+      callbacks: { onError },
+    })
+
+    const ws = await mock.waitForInstance()
+    ws.onopen?.(new Event('open'))
+    const result = await promise
+
+    expect(result.ok).toBe(true)
+    ws.onerror?.(new Event('error'))
+
+    expect(session.state).toBe('open')
+    expect(onError).toHaveBeenCalledTimes(1)
+  })
+
   it('calls user callbacks alongside plugin hooks', async () => {
     const mock = createMockWebSocket()
     const session = createWebSocketSession()

@@ -151,7 +151,11 @@ export const createWebSocketSession = (): WebSocketSession => {
     }
 
     socket.onerror = (event: Event): void => {
-      setState('error')
+      // Errors after open are advisory; onclose owns terminal state. Transitioning
+      // to `error` here would block send() while the socket may still be connected.
+      if (currentState === 'connecting') {
+        setState('error')
+      }
       callbacks.onError?.(event)
     }
 
