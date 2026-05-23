@@ -1973,4 +1973,46 @@ describe('getExampleFromSchema', () => {
       expect((secondCall as any).user).toBe((thirdCall as any).user)
     })
   })
+
+  describe('x-order', () => {
+    it('orders properties by their x-order value', () => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        properties: {
+          name: { type: 'string', 'x-order': 1 },
+          description: { type: 'string', 'x-order': 3 },
+          diameter: { type: 'number', 'x-order': 2 },
+        },
+      })
+
+      expect(Object.keys(getExampleFromSchema(schema) as object)).toEqual(['name', 'diameter', 'description'])
+    })
+
+    it('places properties with x-order before those without, keeping insertion order for the rest', () => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        properties: {
+          alpha: { type: 'string' },
+          beta: { type: 'string', 'x-order': 2 },
+          gamma: { type: 'string' },
+          delta: { type: 'string', 'x-order': 1 },
+        },
+      })
+
+      expect(Object.keys(getExampleFromSchema(schema) as object)).toEqual(['delta', 'beta', 'alpha', 'gamma'])
+    })
+
+    it('sorts x-order numerically, not lexically', () => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        properties: {
+          a: { type: 'string', 'x-order': 10 },
+          b: { type: 'string', 'x-order': 2 },
+          c: { type: 'string', 'x-order': 1 },
+        },
+      })
+
+      expect(Object.keys(getExampleFromSchema(schema) as object)).toEqual(['c', 'b', 'a'])
+    })
+  })
 })

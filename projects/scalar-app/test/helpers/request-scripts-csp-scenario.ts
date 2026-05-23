@@ -27,7 +27,9 @@ const startScriptMockServer = async (): Promise<ScriptMockServer> => {
       return
     }
 
-    if (request.method === 'GET' && request.url?.startsWith('/scripts')) {
+    const requestPath = request.url?.split('?')[0]
+
+    if (request.method === 'GET' && (requestPath === '/' || requestPath === '/scripts')) {
       response.writeHead(200, { 'content-type': 'application/json' })
       response.end(JSON.stringify({ ok: true }))
       return
@@ -132,6 +134,78 @@ const navigateToDraftsOverview = async (page: Page): Promise<void> => {
 
   await page.goto(DOCUMENT_DRAFTS_OVERVIEW, { waitUntil: 'load', timeout: 60_000 })
   await expect(page).toHaveURL(/\/document\/drafts\//)
+}
+
+export const runSandboxPostMessageSmokeScenario = async (page: Page): Promise<void> => {
+  const result = await page.evaluate(async () => {
+    const channel = 'scalar-pre-post-request-scripts-sandbox'
+    const expectedOrigin = window.location.protocol === 'file:' ? 'null' : window.location.origin
+    const executionId = 'sandbox-smoke-test'
+    const iframe = document.body.appendChild(document.createElement('iframe'))
+
+    iframe.src = new URL('sandbox.html', document.baseURI).href
+
+    const waitForMessage = <T extends { kind?: string; id?: string }>(kind: string): Promise<T> =>
+      new Promise((resolve, reject) => {
+        const timeoutId = window.setTimeout(() => {
+          window.removeEventListener('message', onMessage)
+          reject(new Error(`Sandbox iframe did not send ${kind}`))
+        }, 10_000)
+
+        const onMessage = (event: MessageEvent) => {
+          const data = event.data as (T & { channel?: string }) | null
+
+          if (
+            event.source !== iframe.contentWindow ||
+            event.origin !== expectedOrigin ||
+            data?.channel !== channel ||
+            data.kind !== kind ||
+            (data.id !== undefined && data.id !== executionId)
+          ) {
+            return
+          }
+
+          window.clearTimeout(timeoutId)
+          window.removeEventListener('message', onMessage)
+          resolve(data)
+        }
+
+        window.addEventListener('message', onMessage)
+      })
+
+    try {
+      await waitForMessage('ready')
+
+      iframe.contentWindow?.postMessage(
+        {
+          channel,
+          kind: 'execute',
+          id: executionId,
+          listen: 'test',
+          script: 'pm.test("file origin sandbox executed", () => pm.expect(true).to.eq(true))',
+        },
+        '*',
+      )
+
+      const { results } = await waitForMessage<{
+        kind: 'test-results'
+        id: string
+        results: { title: string; passed: boolean; duration: number; status: 'pending' | 'passed' | 'failed' }[]
+      }>('test-results')
+      await waitForMessage('done')
+
+      return results
+    } finally {
+      iframe.remove()
+    }
+  })
+
+  expect(result).toContainEqual({
+    title: 'file origin sandbox executed',
+    passed: true,
+    duration: expect.any(Number),
+    status: 'passed',
+  })
 }
 
 export const runRequestScriptsCspScenario = async (page: Page): Promise<void> => {
