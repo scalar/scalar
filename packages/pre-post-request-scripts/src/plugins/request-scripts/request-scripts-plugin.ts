@@ -2,7 +2,12 @@ import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ref } from 'vue'
 
 import { getScript } from '@/helpers/get-script'
-import { type TestResult, executePostResponseScript, executePreRequestScript } from '@/libs/execute-scripts'
+import {
+  type TestResult,
+  executePostResponseScript,
+  executePreRequestScript,
+  prewarmSandboxFrame,
+} from '@/libs/execute-scripts'
 import { TestResults } from '@/plugins/request-scripts/components/TestResults'
 
 import ScriptsSection from './components/ScriptsSection.vue'
@@ -32,6 +37,21 @@ export const requestScriptsPlugin = (): ClientPlugin => {
     },
 
     hooks: {
+      onRequestMount: ({ document, operation }) => {
+        // Only warm up the sandbox when this operation actually has scripts. Requests without
+        // scripts never touch the sandbox, so creating the iframe for them would waste work.
+        const script = getScript(
+          document['x-pre-request'],
+          operation['x-pre-request'],
+          document['x-post-response'],
+          operation['x-post-response'],
+        )
+
+        if (script) {
+          prewarmSandboxFrame()
+        }
+      },
+
       beforeRequest: async ({ requestBuilder, document, operation, variablesStore }) => {
         // Reset test results when a new request is sent
         results.value = []

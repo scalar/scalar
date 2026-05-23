@@ -362,6 +362,40 @@ const getCompositionSelectionIndex = (
 }
 
 /**
+ * Read the numeric `x-order` extension value from a raw property entry, if present.
+ * The entry may be a schema or a `$ref` object, so we check membership before reading.
+ */
+const getXOrder = (property: unknown): number | undefined => {
+  if (property && typeof property === 'object' && 'x-order' in property) {
+    const order = Number((property as Record<string, unknown>)['x-order'])
+    return Number.isNaN(order) ? undefined : order
+  }
+  return undefined
+}
+
+/**
+ * Sort property names by the `x-order` extension.
+ * Properties with `x-order` come first, ascending by value; the rest keep their
+ * original insertion order thanks to a stable sort.
+ */
+const sortPropertyNamesByXOrder = (properties: Record<string, unknown>): string[] =>
+  Object.keys(properties).sort((a, b) => {
+    const aOrder = getXOrder(properties[a])
+    const bOrder = getXOrder(properties[b])
+
+    if (aOrder !== undefined && bOrder !== undefined) {
+      return aOrder - bOrder
+    }
+    if (aOrder !== undefined) {
+      return -1
+    }
+    if (bOrder !== undefined) {
+      return 1
+    }
+    return 0
+  })
+
+/**
  * Build an example for an object schema, including properties, patternProperties,
  * additionalProperties, and composition (allOf/oneOf/anyOf) merging.
  */
@@ -376,12 +410,13 @@ const handleObjectSchema = (
   const response: Record<string, unknown> = {}
 
   if ('properties' in schema && schema.properties) {
-    const propertyNames = Object.keys(schema.properties)
+    const properties = schema.properties
+    const propertyNames = sortPropertyNamesByXOrder(properties)
     const limit = propertyNames.length
 
     for (let i = 0; i < limit; i++) {
       const propertyName = propertyNames[i]!
-      const propertySchema = resolve.schema(schema.properties[propertyName])
+      const propertySchema = resolve.schema(properties[propertyName])
       if (!propertySchema) {
         continue
       }

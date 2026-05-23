@@ -364,6 +364,10 @@ onMounted(() => {
   eventBus.on('operation:send:request:hotkey', handleExecute)
   eventBus.on('operation:cancel:request', cancelRequest)
   eventBus.on('copy-url:address-bar', copyAddressBarUrl)
+
+  // Let plugins warm up per-operation resources (e.g. the scripts sandbox) so the first request
+  // does not pay their cold-start cost.
+  void executeHook({ document, operation }, 'onRequestMount', plugins)
 })
 onBeforeUnmount(() => {
   eventBus.off('operation:send:request:hotkey', handleExecute)

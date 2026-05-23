@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.57.5
+
+### Patch Changes
+
+- [#9318](https://github.com/scalar/scalar/pull/9318): fix: restore response content type selector when expandAllResponses is enabled
+
+  Move the content type picker after the disclosure panel so it stacks above expanded response content and remains clickable when `expandAllResponses` is true.
+
 ## 1.57.4
 
 ## 1.57.3
