@@ -1,7 +1,7 @@
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { AsyncApiChannelObject, AsyncApiDocument, AsyncApiMessageObject } from '@scalar/types/asyncapi/3.1'
 
-import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 
 export type ChannelMessageEntry = {
   name: string
@@ -21,7 +21,7 @@ export const getAllChannelMessages = (
 
   return objectEntries(channel.messages)
     .map(([name, messageRef]) => {
-      const message = getResolvedRef(messageRef, mergeSiblingReferences)
+      const message = getResolvedRef(messageRef)
       return { name, message }
     })
     .filter((entry): entry is ChannelMessageEntry => entry.message != null)

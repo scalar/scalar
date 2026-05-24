@@ -1,6 +1,6 @@
 import type { AsyncApiChannelObject, AsyncApiDocument, AsyncApiOperationObject } from '@scalar/types/asyncapi/3.1'
 
-import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 
 export type ResolvedOperationChannel = {
   channelName: string
@@ -19,7 +19,7 @@ const findChannelName = (document: AsyncApiDocument, channel: AsyncApiChannelObj
   }
 
   for (const [channelName, channelNode] of Object.entries(document.channels)) {
-    const resolved = getResolvedRef(channelNode, mergeSiblingReferences)
+    const resolved = getResolvedRef(channelNode)
     if (resolved === channel) {
       return channelName
     }
@@ -35,7 +35,7 @@ export const resolveOperationChannel = (
   document: AsyncApiDocument,
   operation: AsyncApiOperationObject,
 ): ResolvedOperationChannel | undefined => {
-  const channelNode = operation.channel
+  const channelNode = getResolvedRef(operation.channel)
   if (!channelNode) {
     return undefined
   }
@@ -43,14 +43,14 @@ export const resolveOperationChannel = (
   const channelNameFromRef = '$ref' in channelNode ? getChannelNameFromRef(channelNode.$ref) : undefined
 
   if (channelNameFromRef && document.channels?.[channelNameFromRef]) {
-    const channel = getResolvedRef(document.channels[channelNameFromRef], mergeSiblingReferences)
+    const channel = getResolvedRef(document.channels[channelNameFromRef])
     const channelAddress =
       typeof channel.address === 'string' && channel.address.length > 0 ? channel.address : channelNameFromRef
 
     return { channelName: channelNameFromRef, channel, channelAddress }
   }
 
-  const channel = getResolvedRef(channelNode, mergeSiblingReferences) as AsyncApiChannelObject
+  const channel = getResolvedRef(channelNode)
   const channelName =
     channelNameFromRef ??
     findChannelName(document, channel) ??

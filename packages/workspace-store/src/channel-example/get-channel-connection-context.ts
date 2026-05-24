@@ -10,7 +10,7 @@ import { getAsyncApiServers, getSelectedAsyncApiServer } from '@/channel-example
 import type { BuildChannelConnectionContext, ChannelConnectionMeta } from '@/channel-example/types'
 import type { WorkspaceStore } from '@/client'
 import type { AuthMeta } from '@/events'
-import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { getEnvironmentVariables } from '@/request-example/builder/helpers/get-environment-variables'
 import { getActiveEnvironment } from '@/request-example/context/environment'
 import { getSecuritySchemes } from '@/request-example/context/security/get-security-schemes'
@@ -116,7 +116,7 @@ export const getChannelConnectionContext = (
     method: ASYNCAPI_CHANNEL_AUTH_METHOD,
   })
 
-  const components = document.components ? getResolvedRef(document.components, mergeSiblingReferences) : undefined
+  const components = document.components ? getResolvedRef(document.components) : undefined
 
   const securitySchemes = mergeSecurity(
     (components?.securitySchemes ?? {}) as ComponentsObject['securitySchemes'],

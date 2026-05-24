@@ -2,6 +2,7 @@ import type { AsyncApiOperationObject } from '@scalar/types/asyncapi/3.1'
 import { describe, expect, it } from 'vitest'
 
 import { resolveOperationWithTraits } from '@/channel-example/resolve-operation-with-traits'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 
 describe('resolveOperationWithTraits', () => {
   it('lets operation WebSocket bindings override trait bindings on conflicts', () => {
@@ -37,7 +38,7 @@ describe('resolveOperationWithTraits', () => {
 
     const resolved = resolveOperationWithTraits(operation)
 
-    expect(resolved.bindings?.ws).toStrictEqual({
+    expect(getResolvedRef(resolved.bindings)?.ws).toStrictEqual({
       method: 'POST',
       query: {
         type: 'object',
@@ -64,7 +65,7 @@ describe('resolveOperationWithTraits', () => {
 
     const resolved = resolveOperationWithTraits(operation)
 
-    expect(resolved.bindings?.ws).toStrictEqual({
+    expect(getResolvedRef(resolved.bindings)?.ws).toStrictEqual({
       method: 'GET',
     })
   })

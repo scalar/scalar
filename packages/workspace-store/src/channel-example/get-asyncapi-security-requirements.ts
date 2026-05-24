@@ -6,7 +6,7 @@ import type {
   AsyncApiServerObject,
 } from '@scalar/types/asyncapi/3.1'
 
-import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 
 type AsyncApiSecurityEntry = NonNullable<AsyncApiOperationObject['security']>[number]
@@ -17,8 +17,11 @@ const getSecuritySchemeNameFromRef = (ref: string): string | undefined => {
 }
 
 /** Strips requirement-only `scopes` so inline entries can match component scheme definitions. */
-const getSecuritySchemeDefinition = (entry: AsyncApiSecurityEntry): AsyncApiSecuritySchemeObject => {
-  const resolved = getResolvedRef(entry, mergeSiblingReferences) as AsyncApiSecuritySchemeObject
+const getSecuritySchemeDefinition = (entry: AsyncApiSecurityEntry): AsyncApiSecuritySchemeObject | undefined => {
+  const resolved = getResolvedRef(entry) as AsyncApiSecuritySchemeObject | undefined
+  if (resolved == null) {
+    return undefined
+  }
 
   if (!('scopes' in resolved)) {
     return resolved
@@ -37,12 +40,15 @@ const getSecuritySchemeName = (document: AsyncApiDocument, entry: AsyncApiSecuri
   }
 
   const resolvedDefinition = getSecuritySchemeDefinition(entry)
+  if (resolvedDefinition == null) {
+    return undefined
+  }
 
-  const components = document.components ? getResolvedRef(document.components, mergeSiblingReferences) : undefined
+  const components = document.components ? getResolvedRef(document.components) : undefined
 
   if (components?.securitySchemes) {
     for (const [name, schemeRef] of Object.entries(components.securitySchemes)) {
-      const scheme = getResolvedRef(schemeRef, mergeSiblingReferences)
+      const scheme = getResolvedRef(schemeRef)
       if (scheme === resolvedDefinition || isObjectEqual(scheme, resolvedDefinition)) {
         return name
       }
@@ -61,8 +67,8 @@ const securityEntryToRequirement = (
     return undefined
   }
 
-  const resolved = getResolvedRef(entry, mergeSiblingReferences)
-  const scopes = 'scopes' in resolved && Array.isArray(resolved.scopes) ? [...resolved.scopes] : []
+  const resolved = getResolvedRef(entry)
+  const scopes = resolved != null && 'scopes' in resolved && Array.isArray(resolved.scopes) ? [...resolved.scopes] : []
 
   return { [schemeName]: scopes }
 }

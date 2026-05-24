@@ -7,7 +7,7 @@ import type {
 } from '@scalar/types/asyncapi/3.1'
 
 import { buildWsQueryParams, mergeWsBindings } from '@/channel-example/build-connection-url'
-import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 
 export type ChannelParametersContext = {
   /** Resolved channel parameter definitions keyed by name. */
@@ -59,7 +59,7 @@ export const getChannelParameters = (
 
   if (channel.parameters) {
     for (const [name, parameterRef] of objectEntries(channel.parameters)) {
-      definitions[name] = getResolvedRef(parameterRef, mergeSiblingReferences)
+      definitions[name] = getResolvedRef(parameterRef)
     }
   }
 
