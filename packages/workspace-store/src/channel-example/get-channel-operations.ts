@@ -1,6 +1,6 @@
 import type { AsyncApiDocument, AsyncApiOperationObject } from '@scalar/types/asyncapi/3.1'
 
-import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 
 import { resolveOperationChannel } from './resolve-operation-channel'
 import { resolveOperationWithTraits } from './resolve-operation-with-traits'
@@ -19,7 +19,7 @@ export const getChannelOperations = (document: AsyncApiDocument, channelName: st
 
   return Object.entries(operations)
     .map(([operationName, operationRef]) => {
-      const operation = resolveOperationWithTraits(getResolvedRef(operationRef))
+      const operation = resolveOperationWithTraits(getResolvedRef(operationRef, mergeSiblingReferences))
       const resolved = resolveOperationChannel(document, operation)
       if (resolved?.channelName !== channelName) {
         return undefined
