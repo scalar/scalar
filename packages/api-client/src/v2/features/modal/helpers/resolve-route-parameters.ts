@@ -1,6 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getOperationEntries } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry, TraversedExample } from '@scalar/workspace-store/schemas/navigation'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
@@ -101,8 +102,12 @@ export const resolveMethod = (
   }
 
   if (method === 'default') {
-    const pathMethods = Object.keys(document.paths?.[path] ?? {})
-    return pathMethods.find(isHttpMethod)
+    const pathItem = getResolvedRef(document.paths?.[path])
+    if (!pathItem) {
+      return undefined
+    }
+    const pathMethods = Object.keys(pathItem).filter(isHttpMethod)
+    return pathMethods[0]
   }
 
   return isHttpMethod(method) ? method : undefined

@@ -1,8 +1,7 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
-import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 
+import { forEachPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { isHidden } from '@/helpers/is-hidden'
 import { traverseOperationExamples } from '@/navigation/helpers/traverse-examples'
@@ -122,18 +121,15 @@ export const traversePaths = ({
   const untaggedOperations: TraversedOperation[] = []
 
   // Traverse paths
-  Object.entries(document.paths ?? {}).forEach(([path, pathItemObject]) => {
-    const pathKeys = objectKeys(pathItemObject ?? {}).filter((key) => isHttpMethod(key))
-
-    pathKeys.forEach((method) => {
-      const _operation = pathItemObject?.[method]
-      const operation = getResolvedRef(_operation, mergeSiblingReferences)
+  Object.entries(document.paths ?? {}).forEach(([path, pathItemRef]) => {
+    forEachPathItemOperation(pathItemRef, (method, operationRef) => {
+      const operation = getResolvedRef(operationRef, mergeSiblingReferences)
       if (!operation) {
         return
       }
 
       // Skip if the operation is internal or scalar-ignore
-      if (isHidden(operation) || !isHttpMethod(method)) {
+      if (isHidden(operation)) {
         return
       }
 

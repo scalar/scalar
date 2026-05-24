@@ -1,5 +1,5 @@
-import { HTTP_METHODS } from '@scalar/helpers/http/http-methods'
 import { extractPathFromUrl, normalizePath } from '@scalar/postman-to-openapi'
+import { forEachPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 
 import { extractRequestMethod } from '@/features/command-palette/helpers/postman-request-tree'
@@ -15,17 +15,11 @@ export const getOpenApiMergeKeys = (document: OpenApiDocument): Set<string> => {
     return keys
   }
 
-  for (const [path, pathItem] of Object.entries(document.paths)) {
-    if (!pathItem) {
-      continue
-    }
-
-    for (const method of HTTP_METHODS) {
-      if (method in pathItem && pathItem[method]) {
-        const mergeKey = `${method}\0${path}`
-        keys.add(mergeKey)
-      }
-    }
+  for (const [path, pathItemRef] of Object.entries(document.paths)) {
+    forEachPathItemOperation(pathItemRef, (method) => {
+      const mergeKey = `${method}\0${path}`
+      keys.add(mergeKey)
+    })
   }
 
   return keys

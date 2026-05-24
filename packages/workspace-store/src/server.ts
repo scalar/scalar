@@ -8,6 +8,8 @@ import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import { upgrade } from '@scalar/openapi-upgrader'
 
+import { forEachPathItemOperation } from '@/helpers/for-each-path-item-operation'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { keyOf } from '@/helpers/general'
 import { createNavigation } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
@@ -81,18 +83,14 @@ export function filterHttpMethodsOnly(paths: PathsObject): Record<string, Record
   const result: Record<string, Record<string, OperationObject>> = {}
 
   // Todo: skip extension properties
-  for (const [path, methods] of Object.entries(paths)) {
-    if (!methods) {
-      continue
-    }
+  for (const [path, pathItemRef] of Object.entries(paths)) {
+    const filteredMethods: Record<string, OperationObject> = {}
 
-    const filteredMethods: Record<string, any> = {}
-
-    for (const [method, operation] of Object.entries(methods)) {
+    forEachPathItemOperation(pathItemRef, (method, operation) => {
       if (httpMethods.has(method.toLowerCase())) {
-        filteredMethods[method] = operation
+        filteredMethods[method] = getResolvedRef(operation) ?? operation
       }
-    }
+    })
 
     if (Object.keys(filteredMethods).length > 0) {
       result[path] = filteredMethods
@@ -170,7 +168,8 @@ export function externalizePathReferences(
     return result
   }
 
-  Object.entries(document.paths).forEach(([path, pathItem]) => {
+  Object.entries(document.paths).forEach(([path, pathItemRef]) => {
+    const pathItem = getResolvedRef(pathItemRef)
     if (!pathItem || typeof pathItem !== 'object') {
       return
     }

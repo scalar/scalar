@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components/markdown'
+import { forEachPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type {
@@ -143,38 +144,22 @@ const getParameters = (
   return Array.from(parameters.values())
 }
 
-const HTTP_METHODS = new Set([
-  'get',
-  'put',
-  'post',
-  'delete',
-  'options',
-  'head',
-  'patch',
-  'trace',
-])
-
 const operations = computed<OperationEntry[]>(() => {
   const paths = content?.paths ?? {}
+  const entries: OperationEntry[] = []
 
-  return Object.entries(paths).flatMap(([path, pathItem]) => {
-    if (!pathItem || typeof pathItem !== 'object') {
-      return []
-    }
+  for (const [path, pathItemRef] of Object.entries(paths)) {
+    const resolvedPathItem = getResolvedRef(pathItemRef)
 
-    return Object.entries(pathItem).flatMap(([method, operation]) => {
-      if (!HTTP_METHODS.has(method)) {
-        return []
-      }
-
+    forEachPathItemOperation(pathItemRef, (method, operation) => {
       const resolvedOperation = resolveOperation(operation)
 
       if (!resolvedOperation) {
-        return []
+        return
       }
 
       const parameters = getParameters(
-        pathItem.parameters,
+        resolvedPathItem?.parameters,
         resolvedOperation.parameters,
       )
       const requestBody = toRequestBodyView(resolvedOperation.requestBody)
@@ -190,42 +175,37 @@ const operations = computed<OperationEntry[]>(() => {
         return [{ statusCode, response: resolvedResponse }]
       })
 
-      return [
-        {
-          path,
-          method,
-          operation: resolvedOperation,
-          parameters,
-          requestBody,
-          responses,
-        },
-      ]
+      entries.push({
+        path,
+        method,
+        operation: resolvedOperation,
+        parameters,
+        requestBody,
+        responses,
+      })
     })
-  })
+  }
+
+  return entries
 })
 
 const webhooks = computed(() => {
   const webhookItems = content?.webhooks ?? {}
+  const entries: { name: string; method: string; operation: OperationObject }[] = []
 
-  return Object.entries(webhookItems).flatMap(([name, pathItem]) => {
-    if (!pathItem || typeof pathItem !== 'object') {
-      return []
-    }
-
-    return Object.entries(pathItem).flatMap(([method, operation]) => {
-      if (!HTTP_METHODS.has(method)) {
-        return []
-      }
-
+  for (const [name, pathItemRef] of Object.entries(webhookItems)) {
+    forEachPathItemOperation(pathItemRef, (method, operation) => {
       const resolvedOperation = resolveOperation(operation)
 
       if (!resolvedOperation) {
-        return []
+        return
       }
 
-      return [{ name, method, operation: resolvedOperation }]
+      entries.push({ name, method, operation: resolvedOperation })
     })
-  })
+  }
+
+  return entries
 })
 
 const componentSchemas = computed(() => {

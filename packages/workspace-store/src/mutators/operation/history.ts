@@ -1,6 +1,7 @@
 import type { WorkspaceStore } from '@/client'
 import type { HooksEvents } from '@/events/definitions/hooks'
 import type { OperationEvents } from '@/events/definitions/operation'
+import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { WorkspaceDocument } from '@/schemas'
 import { isOpenApiDocument } from '@/schemas/type-guards'
@@ -23,7 +24,7 @@ export const addResponseToHistory = async (
     return
   }
 
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+  const operation = getResolvedRef(getPathItemOperation(document.paths?.[meta.path], meta.method))
   if (!operation) {
     return
   }
@@ -69,7 +70,7 @@ export const reloadOperationHistory = (
     return
   }
 
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+  const operation = getResolvedRef(getPathItemOperation(document.paths?.[meta.path], meta.method))
   if (!operation) {
     console.error('Operation not found', meta.path, meta.method)
     return

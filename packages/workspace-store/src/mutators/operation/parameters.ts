@@ -1,4 +1,5 @@
 import type { OperationEvents } from '@/events/definitions/operation'
+import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { WorkspaceDocument } from '@/schemas'
@@ -56,7 +57,7 @@ export const upsertOperationParameter = (
   if (!isOpenApiDocument(document)) {
     return
   }
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+  const operation = getResolvedRef(getPathItemOperation(document.paths?.[meta.path], meta.method))
   if (!operation) {
     console.error('Operation not found', { meta, document })
     return
@@ -107,7 +108,7 @@ export const updateOperationExtraParameters = (
   }
 
   // Resolve the referenced operation from the document using the path and method
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+  const operation = getResolvedRef(getPathItemOperation(document.paths?.[meta.path], meta.method))
   if (!operation) {
     return
   }
@@ -163,7 +164,7 @@ export const deleteOperationParameter = (
   if (!isOpenApiDocument(document)) {
     return
   }
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+  const operation = getResolvedRef(getPathItemOperation(document.paths?.[meta.path], meta.method))
 
   // Lets check if its on the operation first as its more likely
   const operationIndex = operation?.parameters?.findIndex((it) => getResolvedRef(it) === originalParameter) ?? -1
@@ -210,7 +211,7 @@ export const deleteAllOperationParameters = (
     return
   }
 
-  const operation = getResolvedRef(document.paths?.[meta.path]?.[meta.method])
+  const operation = getResolvedRef(getPathItemOperation(document.paths?.[meta.path], meta.method))
   if (!operation) {
     return
   }

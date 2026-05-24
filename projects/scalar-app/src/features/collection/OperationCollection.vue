@@ -5,6 +5,7 @@ export default {}
 
 <script setup lang="ts">
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
+import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { computed, ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
@@ -21,7 +22,7 @@ const operation = computed(() => {
     return undefined
   }
 
-  return getResolvedRef(props.document?.paths?.[props.path]?.[props.method])
+  return getResolvedRef(getPathItemOperation(props.document?.paths?.[props.path], props.method))
 })
 
 /**

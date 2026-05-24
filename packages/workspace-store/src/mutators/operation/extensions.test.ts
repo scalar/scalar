@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
@@ -31,7 +32,7 @@ describe('updateOperationExtension', () => {
       payload: { 'x-post-response': 'console.log(response)' },
     })
 
-    const operation = document.paths?.['/users']?.get
+    const operation = getPathItemOperation(document.paths?.['/users'], 'get')
     if (!operation) {
       throw new Error('Expected operation in test setup')
     }
@@ -55,7 +56,7 @@ describe('updateOperationExtension', () => {
       payload: { 'x-post-response': 'console.log(new)' },
     })
 
-    expect(getResolvedRef(document.paths?.['/users']?.get)?.['x-post-response']).toBe('console.log(new)')
+    expect(getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'get'))?.['x-post-response']).toBe('console.log(new)')
   })
 
   it('deep merges extension objects without dropping existing nested keys', () => {
@@ -89,7 +90,7 @@ describe('updateOperationExtension', () => {
       },
     })
 
-    const operation = document.paths?.['/users']?.get
+    const operation = getPathItemOperation(document.paths?.['/users'], 'get')
     if (!operation) {
       throw new Error('Expected operation in test setup')
     }
@@ -123,7 +124,7 @@ describe('updateOperationExtension', () => {
       payload: { 'x-post-response': 'console.log(ref)' },
     })
 
-    const operationRef = document.paths?.['/users']?.get
+    const operationRef = getPathItemOperation(document.paths?.['/users'], 'get')
     if (typeof operationRef === 'object' && operationRef !== null && '$ref-value' in operationRef) {
       expect(operationRef['$ref-value']?.['x-post-response']).toBe('console.log(ref)')
       return
