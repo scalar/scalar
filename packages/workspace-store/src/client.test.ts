@@ -1,5 +1,4 @@
 import { cwd } from 'node:process'
-import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 
 import { isObject } from '@scalar/helpers/object/is-object'
 import { consoleErrorSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
@@ -9,6 +8,7 @@ import fastify, { type FastifyInstance } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { type WorkspaceDocumentInput, createWorkspaceStore } from '@/client'
+import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { isAsyncApiDocument } from '@/schemas'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import { createServerWorkspaceStore } from '@/server'
@@ -427,8 +427,8 @@ describe('create-workspace-store', () => {
     })
 
     expect(
-      (getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get') as any)?.responses?.[200]?.content['application/json']
-        .schema.items['$ref-value'].properties.name,
+      (getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get') as any)?.responses?.[200]
+        ?.content['application/json'].schema.items['$ref-value'].properties.name,
     ).toEqual({
       type: 'string',
       description: 'The user name',
@@ -473,14 +473,13 @@ describe('create-workspace-store', () => {
     await store.resolve(['paths', '/users', 'get'])
 
     // We expect the ref to have been resolved with the correct contents
-    expect((getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get') as any)['$ref-value'].summary).toEqual(
-      getDocument().paths['/users'].get.summary,
-    )
+    expect(
+      (getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get') as any)['$ref-value'].summary,
+    ).toEqual(getDocument().paths['/users'].get.summary)
 
     expect(
-      (getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get') as any)['$ref-value']?.responses?.[200]?.content[
-        'application/json'
-      ]?.schema?.items['$ref-value']['$ref-value'],
+      (getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get') as any)['$ref-value']
+        ?.responses?.[200]?.content['application/json']?.schema?.items['$ref-value']['$ref-value'],
     ).toEqual({
       ...getDocument().components.schemas.User,
     })
@@ -886,7 +885,7 @@ describe('create-workspace-store', () => {
         'c9f3677': 'http://localhost:9988',
       },
       'x-original-oas-version': undefined,
-      'x-scalar-order': ['default/description/introduction'],
+      'x-scalar-order': ['default/description/introduction', 'default/GET/ping'],
       'x-scalar-navigation': {
         type: 'document',
         id: 'default',
@@ -897,6 +896,15 @@ describe('create-workspace-store', () => {
             id: 'default/description/introduction',
             title: 'Introduction',
             type: 'text',
+          },
+          {
+            id: 'default/GET/ping',
+            isDeprecated: false,
+            method: 'get',
+            path: '/ping',
+            ref: '#/paths/~1ping/get',
+            title: 'Ping the remote server',
+            type: 'operation',
           },
         ],
       },

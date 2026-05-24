@@ -22,7 +22,9 @@ const operation = computed(() => {
     return undefined
   }
 
-  return getResolvedRef(getPathItemOperation(props.document?.paths?.[props.path], props.method))
+  return getResolvedRef(
+    getPathItemOperation(props.document?.paths?.[props.path], props.method),
+  )
 })
 
 /**

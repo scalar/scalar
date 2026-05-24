@@ -411,7 +411,10 @@ describe('editTag', () => {
 
     const document = getOpenApiDocument(store, 'test-doc')
     expect(document?.tags?.map((tag) => tag.name)).toEqual(['customers', 'admin'])
-    expect(getResolvedRef(getPathItemOperation(document?.paths?.['/users'], 'get'))?.tags).toEqual(['customers', 'admin'])
+    expect(getResolvedRef(getPathItemOperation(document?.paths?.['/users'], 'get'))?.tags).toEqual([
+      'customers',
+      'admin',
+    ])
     expect(getResolvedRef(getPathItemOperation(document?.paths?.['/users'], 'post'))?.tags).toEqual(['customers'])
     expect(getResolvedRef(getPathItemOperation(document?.paths?.['/admin'], 'get'))?.tags).toEqual(['admin'])
     expect(getResolvedRef(getPathItemOperation(document?.webhooks?.userUpdated, 'post'))?.tags).toEqual(['customers'])

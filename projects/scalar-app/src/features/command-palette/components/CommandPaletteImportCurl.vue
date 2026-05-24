@@ -98,7 +98,10 @@ const errorMessage: ComputedRef<string | null> = computed(() => {
     return `"${selectedDocument.value.label}" is an AsyncAPI document. cURL imports can only target OpenAPI documents.`
   }
 
-  if (isOpenApiDocument(document) && getPathItemOperation(document.paths?.[path], method)) {
+  if (
+    isOpenApiDocument(document) &&
+    getPathItemOperation(document.paths?.[path], method)
+  ) {
     return `A ${method.toUpperCase()} operation at "${path}" already exists in "${selectedDocument.value.label}". Importing this cURL would conflict with it.`
   }
 

@@ -191,7 +191,11 @@ const operations = computed<OperationEntry[]>(() => {
 
 const webhooks = computed(() => {
   const webhookItems = content?.webhooks ?? {}
-  const entries: { name: string; method: string; operation: OperationObject }[] = []
+  const entries: {
+    name: string
+    method: string
+    operation: OperationObject
+  }[] = []
 
   for (const [name, pathItemRef] of Object.entries(webhookItems)) {
     forEachPathItemOperation(pathItemRef, (method, operation) => {

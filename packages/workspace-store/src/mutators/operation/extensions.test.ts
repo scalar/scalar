@@ -56,7 +56,9 @@ describe('updateOperationExtension', () => {
       payload: { 'x-post-response': 'console.log(new)' },
     })
 
-    expect(getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'get'))?.['x-post-response']).toBe('console.log(new)')
+    expect(getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'get'))?.['x-post-response']).toBe(
+      'console.log(new)',
+    )
   })
 
   it('deep merges extension objects without dropping existing nested keys', () => {
