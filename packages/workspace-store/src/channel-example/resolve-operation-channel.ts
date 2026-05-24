@@ -35,7 +35,7 @@ export const resolveOperationChannel = (
   document: AsyncApiDocument,
   operation: AsyncApiOperationObject,
 ): ResolvedOperationChannel | undefined => {
-  const channelNode = getResolvedRef(operation.channel)
+  const channelNode = operation.channel
   if (!channelNode) {
     return undefined
   }
