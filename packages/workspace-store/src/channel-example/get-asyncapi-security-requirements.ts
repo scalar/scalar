@@ -1,4 +1,10 @@
-import type { AsyncApiDocument, AsyncApiOperationObject, AsyncApiServerObject } from '@scalar/types/asyncapi/3.1'
+import { isObjectEqual } from '@scalar/helpers/object/is-object-equal'
+import type {
+  AsyncApiDocument,
+  AsyncApiOperationObject,
+  AsyncApiSecuritySchemeObject,
+  AsyncApiServerObject,
+} from '@scalar/types/asyncapi/3.1'
 
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
@@ -10,6 +16,18 @@ const getSecuritySchemeNameFromRef = (ref: string): string | undefined => {
   return match?.[1]
 }
 
+/** Strips requirement-only `scopes` so inline entries can match component scheme definitions. */
+const getSecuritySchemeDefinition = (entry: AsyncApiSecurityEntry): AsyncApiSecuritySchemeObject => {
+  const resolved = getResolvedRef(entry, mergeSiblingReferences) as AsyncApiSecuritySchemeObject
+
+  if (!('scopes' in resolved)) {
+    return resolved
+  }
+
+  const { scopes: _scopes, ...scheme } = resolved
+  return scheme
+}
+
 const getSecuritySchemeName = (document: AsyncApiDocument, entry: AsyncApiSecurityEntry): string | undefined => {
   if ('$ref' in entry) {
     const nameFromRef = getSecuritySchemeNameFromRef(entry.$ref)
@@ -18,14 +36,14 @@ const getSecuritySchemeName = (document: AsyncApiDocument, entry: AsyncApiSecuri
     }
   }
 
-  const resolved = getResolvedRef(entry, mergeSiblingReferences)
+  const resolvedDefinition = getSecuritySchemeDefinition(entry)
 
   const components = document.components ? getResolvedRef(document.components, mergeSiblingReferences) : undefined
 
   if (components?.securitySchemes) {
     for (const [name, schemeRef] of Object.entries(components.securitySchemes)) {
       const scheme = getResolvedRef(schemeRef, mergeSiblingReferences)
-      if (scheme === resolved) {
+      if (scheme === resolvedDefinition || isObjectEqual(scheme, resolvedDefinition)) {
         return name
       }
     }
