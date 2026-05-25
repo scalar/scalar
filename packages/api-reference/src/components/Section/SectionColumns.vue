@@ -11,7 +11,7 @@
 }
 @container narrow-references-container (max-width: 900px) {
   .section-columns {
-    flex-direction: column;
+    flex-direction: column-reverse;
     gap: 24px;
   }
 }
