@@ -1,5 +1,6 @@
 import type { AsyncApiChannelObject, AsyncApiDocument, AsyncApiOperationObject } from '@scalar/types/asyncapi/3.1'
 
+import { getNameFromRef } from '@/helpers/get-name-from-ref'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 
 export type ResolvedOperationChannel = {
@@ -8,10 +9,7 @@ export type ResolvedOperationChannel = {
   channelAddress: string
 }
 
-const getChannelNameFromRef = (ref: string): string | undefined => {
-  const match = ref.match(/^#\/channels\/(.+)$/)
-  return match?.[1]
-}
+const getChannelNameFromRef = (ref: string): string | undefined => getNameFromRef(ref, ['channels'])
 
 const findChannelName = (document: AsyncApiDocument, channel: AsyncApiChannelObject): string | undefined => {
   if (!document.channels) {

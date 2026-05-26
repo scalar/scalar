@@ -6,15 +6,14 @@ import type {
   AsyncApiServerObject,
 } from '@scalar/types/asyncapi/3.1'
 
+import { getNameFromRef } from '@/helpers/get-name-from-ref'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 
 type AsyncApiSecurityEntry = NonNullable<AsyncApiOperationObject['security']>[number]
 
-const getSecuritySchemeNameFromRef = (ref: string): string | undefined => {
-  const match = ref.match(/^#\/components\/securitySchemes\/(.+)$/)
-  return match?.[1]
-}
+const getSecuritySchemeNameFromRef = (ref: string): string | undefined =>
+  getNameFromRef(ref, ['components', 'securitySchemes'])
 
 /** Strips requirement-only `scopes` so inline entries can match component scheme definitions. */
 const getSecuritySchemeDefinition = (entry: AsyncApiSecurityEntry): AsyncApiSecuritySchemeObject | undefined => {

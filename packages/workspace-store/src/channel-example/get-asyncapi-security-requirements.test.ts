@@ -87,4 +87,61 @@ describe('getAsyncApiSecurityRequirements', () => {
 
     expect(requirements).toStrictEqual([{ apiKey: [] }])
   })
+
+  it('decodes JSON Pointer escapes in security scheme $refs', () => {
+    // Scheme name contains both `/` (escaped as `~1`) and `~` (escaped as `~0`).
+    const schemeName = 'tenant/admin~v2'
+    const document = {
+      asyncapi: '3.0.0',
+      info: { title: 'Pointer escapes', version: '1.0.0' },
+      components: {
+        securitySchemes: {
+          [schemeName]: {
+            type: 'apiKey',
+            in: 'user',
+            name: 'api-key',
+          },
+        },
+      },
+      servers: {
+        production: {
+          host: 'example.com',
+          protocol: 'wss',
+          security: [{ $ref: '#/components/securitySchemes/tenant~1admin~0v2' }],
+        },
+      },
+    } as unknown as AsyncApiDocument
+
+    const server = document.servers?.production as AsyncApiServerObject
+    const requirements = getAsyncApiSecurityRequirements(document, null, server)
+
+    expect(requirements).toStrictEqual([{ [schemeName]: [] }])
+  })
+
+  it('ignores security $refs outside of components.securitySchemes', () => {
+    const document = {
+      asyncapi: '3.0.0',
+      info: { title: 'Invalid ref', version: '1.0.0' },
+      components: {
+        securitySchemes: {
+          apiKey: {
+            type: 'apiKey',
+            in: 'user',
+            name: 'api-key',
+          },
+        },
+      },
+      servers: {
+        production: {
+          host: 'example.com',
+          protocol: 'wss',
+          security: [{ $ref: '#/components/securitySchemes/apiKey/scheme' }],
+        },
+      },
+    } as unknown as AsyncApiDocument
+
+    const server = document.servers?.production as AsyncApiServerObject
+
+    expect(getAsyncApiSecurityRequirements(document, null, server)).toStrictEqual([])
+  })
 })

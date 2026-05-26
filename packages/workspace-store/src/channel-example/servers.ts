@@ -1,6 +1,4 @@
-import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
-import { safeRun } from '@scalar/helpers/types/safe-run'
 import type {
   AsyncApiChannelObject,
   AsyncApiDocument,
@@ -14,6 +12,7 @@ import {
   buildConnectionUrl,
   isWebSocketProtocol,
 } from '@/channel-example/build-connection-url'
+import { getNameFromRef } from '@/helpers/get-name-from-ref'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isAsyncApiDocument } from '@/schemas/type-guards'
 import type { WorkspaceDocument } from '@/schemas/workspace'
@@ -47,24 +46,7 @@ export type AsyncApiServerEntry = {
 const resolveServer = (server: NonNullable<AsyncApiDocument['servers']>[string]): AsyncApiServerObject =>
   getResolvedRef(server)
 
-const getServerNameFromRef = (ref: string): string | undefined => {
-  if (!ref.startsWith('#/servers/')) {
-    return undefined
-  }
-
-  const segmentsResult = safeRun(() => parseJsonPointerSegments(ref.slice(1)))
-  if (!segmentsResult.ok) {
-    return undefined
-  }
-
-  const segments = segmentsResult.data
-  const [section, name, ...rest] = segments
-  if (section !== 'servers' || !name || rest.length > 0) {
-    return undefined
-  }
-
-  return name
-}
+const getServerNameFromRef = (ref: string): string | undefined => getNameFromRef(ref, ['servers'])
 
 /**
  * Collects the names of `document.servers` entries that the channel is restricted to.
