@@ -5,12 +5,10 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { computed, ref, useId } from 'vue'
+import { computed } from 'vue'
 
-import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type {
-  WebSocketCloseInfo,
   WebSocketConnectionLogEntry,
   WebSocketFrame,
   WebSocketSessionState,
@@ -18,33 +16,17 @@ import type {
 
 import MessageLog from './MessageLog.vue'
 
-const { sessionState, frames, closeInfo, connectionLogEntries } = defineProps<{
+const { sessionState, frames, connectionLogEntries } = defineProps<{
   /** WebSocket session state */
   sessionState: WebSocketSessionState
   /** Message frames */
   frames: WebSocketFrame[]
   /** Connection lifecycle entries */
   connectionLogEntries: WebSocketConnectionLogEntry[]
-  /** Close event details when disconnected */
-  closeInfo: WebSocketCloseInfo | null
 }>()
 const emit = defineEmits<{
   (e: 'clear:messages'): void
 }>()
-const CONNECTION_SECTIONS = ['Messages', 'Info'] as const
-type Filter = 'All' | (typeof CONNECTION_SECTIONS)[number]
-
-const selectedFilter = ref<Filter>('All')
-const filters = computed<Filter[]>(() => ['All', ...CONNECTION_SECTIONS])
-const filterIds = computed(
-  () =>
-    Object.fromEntries(
-      filters.value.map((section) => [section, useId()]),
-    ) as Record<Filter, string>,
-)
-
-const isSectionVisible = (section: Filter): boolean =>
-  selectedFilter.value === 'All' || selectedFilter.value === section
 
 const stateLabel = computed(() => {
   switch (sessionState) {
@@ -93,47 +75,13 @@ const stateColorClass = computed(() => {
           {{ frames.length === 1 ? 'message' : 'messages' }}
         </span>
       </div>
-      <SectionFilter
-        v-model="selectedFilter"
-        :filterIds="filterIds"
-        :filters="filters" />
     </template>
 
-    <div
-      :id="filterIds.All"
-      class="custom-scroll relative flex min-h-0 flex-1 flex-col"
-      :role="selectedFilter === 'All' ? 'tabpanel' : 'none'">
+    <div class="relative flex min-h-0 flex-1 flex-col">
       <MessageLog
-        v-show="isSectionVisible('Messages')"
-        :id="filterIds.Messages"
         :connectionLogEntries="connectionLogEntries"
         :frames="frames"
         @clear="emit('clear:messages')" />
-
-      <div
-        v-show="isSectionVisible('Info')"
-        :id="filterIds.Info"
-        class="text-c-2 flex flex-col gap-3 p-4 text-sm">
-        <p>
-          Browser WebSocket handshakes cannot set arbitrary HTTP headers. Apply
-          authentication via query parameters from the spec, or use the Auth tab
-          where supported.
-        </p>
-        <p>
-          WebSocket connections go directly to the target host; the HTTP proxy
-          is not used.
-        </p>
-        <dl
-          v-if="closeInfo"
-          class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
-          <dt class="text-c-3">Close code</dt>
-          <dd>{{ closeInfo.code }}</dd>
-          <dt class="text-c-3">Reason</dt>
-          <dd>{{ closeInfo.reason || '—' }}</dd>
-          <dt class="text-c-3">Clean</dt>
-          <dd>{{ closeInfo.wasClean ? 'Yes' : 'No' }}</dd>
-        </dl>
-      </div>
     </div>
   </ViewLayoutSection>
 </template>

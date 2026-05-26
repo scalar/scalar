@@ -389,7 +389,6 @@ onBeforeUnmount(() => {
           " />
 
         <ConnectionPanel
-          :closeInfo="wsSession.closeInfo"
           :connectionLogEntries="connectionLogEntries"
           :frames="messageFrames"
           :sessionState="sessionState"

@@ -11,7 +11,12 @@ import {
   ScalarListbox,
   type ScalarListboxOption,
 } from '@scalar/components/listbox'
-import { ScalarIconArrowUp, ScalarIconCaretDown } from '@scalar/icons'
+import {
+  ScalarIconArrowUp,
+  ScalarIconCaretDown,
+  ScalarIconMagnifyingGlass,
+  ScalarIconTrash,
+} from '@scalar/icons'
 import { computed, ref } from 'vue'
 
 import {
@@ -23,7 +28,7 @@ import type {
   WebSocketFrame,
 } from '@/v2/blocks/channel-operation-block/helpers/websocket-session'
 
-type MessageLogFilter = 'All' | 'Input' | 'Output'
+type MessageLogFilter = 'all' | 'input' | 'output'
 
 const { frames, connectionLogEntries } = defineProps<{
   /** Chronological WebSocket frames */
@@ -36,7 +41,11 @@ const emit = defineEmits<{
   (e: 'clear'): void
 }>()
 
-const MESSAGE_LOG_FILTERS = ['All', 'Input', 'Output'] as const
+const MESSAGE_LOG_FILTER_OPTIONS = [
+  { id: 'all', label: 'All Messages' },
+  { id: 'input', label: 'Input' },
+  { id: 'output', label: 'Output' },
+] satisfies ScalarListboxOption[]
 const MESSAGE_DISPLAY_FORMAT_OPTIONS = [
   { id: 'text', label: 'Text' },
   { id: 'html', label: 'HTML' },
@@ -51,13 +60,25 @@ const selectedMessageDisplayFormats = ref<
   Record<string, WebSocketFrameDisplayFormat>
 >({})
 const showJumpToLatest = ref(false)
-const selectedFilter = ref<MessageLogFilter>('All')
+const selectedFilter = ref<MessageLogFilter>('all')
+const searchQuery = ref('')
 
 type WebSocketMessageLogEntry = WebSocketFrame & {
   type: 'message'
 }
 
 type WebSocketLogEntry = WebSocketMessageLogEntry | WebSocketConnectionLogEntry
+type FormattedWebSocketMessageLogEntry = WebSocketMessageLogEntry & {
+  formatted: string
+  time: string
+}
+type FormattedWebSocketConnectionLogEntry = WebSocketConnectionLogEntry & {
+  formatted: string
+  time: string
+}
+type FormattedWebSocketLogEntry =
+  | FormattedWebSocketMessageLogEntry
+  | FormattedWebSocketConnectionLogEntry
 
 const logEntries = computed<WebSocketLogEntry[]>(() =>
   [
@@ -70,13 +91,13 @@ const logEntries = computed<WebSocketLogEntry[]>(() =>
 )
 
 const visibleLogEntries = computed(() => {
-  if (selectedFilter.value === 'Input') {
+  if (selectedFilter.value === 'input') {
     return logEntries.value.filter(
       (entry) => entry.type === 'message' && entry.direction === 'incoming',
     )
   }
 
-  if (selectedFilter.value === 'Output') {
+  if (selectedFilter.value === 'output') {
     return logEntries.value.filter(
       (entry) => entry.type === 'message' && entry.direction === 'outgoing',
     )
@@ -111,6 +132,10 @@ const getMessageDisplayFormatOption = (
     ({ id }) => id === getMessageDisplayFormat(entry),
   )
 
+const selectedFilterOption = computed(() =>
+  MESSAGE_LOG_FILTER_OPTIONS.find(({ id }) => id === selectedFilter.value),
+)
+
 const getMessageHighlightLanguage = (
   entry: WebSocketMessageLogEntry,
 ): string => {
@@ -133,22 +158,84 @@ const handleSelectDisplayFormat = (
   }
 }
 
+const isMessageLogFilter = (
+  value: ScalarListboxOption['id'] | undefined,
+): value is MessageLogFilter =>
+  value === 'all' || value === 'input' || value === 'output'
+
+const handleSelectFilter = (option: ScalarListboxOption | undefined): void => {
+  if (!isMessageLogFilter(option?.id)) {
+    return
+  }
+
+  selectedFilter.value = option.id
+}
+
+const getSearchableLogEntryText = (
+  entry: FormattedWebSocketLogEntry,
+): string => {
+  if (entry.type === 'message') {
+    return [entry.direction, entry.opcode, entry.formatted, entry.time].join(
+      '\n',
+    )
+  }
+
+  return [
+    entry.status,
+    entry.message,
+    entry.detail,
+    entry.time,
+    ...(entry.details ?? []).flatMap(({ label, value }) => [label, value]),
+  ]
+    .filter(Boolean)
+    .join('\n')
+}
+
+const matchesSearchQuery = (entry: FormattedWebSocketLogEntry): boolean => {
+  const query = searchQuery.value.trim().toLowerCase()
+
+  if (!query) {
+    return true
+  }
+
+  return getSearchableLogEntryText(entry).toLowerCase().includes(query)
+}
+
 const formattedLogEntries = computed(() =>
-  [...visibleLogEntries.value].reverse().map((entry) => ({
-    ...entry,
-    formatted:
-      entry.type === 'message'
-        ? formatFrameData(entry.data, getMessageDisplayFormat(entry))
-        : entry.message,
-    time: new Date(entry.timestamp).toLocaleTimeString(),
-  })),
+  [...visibleLogEntries.value]
+    .reverse()
+    .map((entry): FormattedWebSocketLogEntry => {
+      if (entry.type === 'message') {
+        return {
+          ...entry,
+          formatted: formatFrameData(
+            entry.data,
+            getMessageDisplayFormat(entry),
+          ),
+          time: new Date(entry.timestamp).toLocaleTimeString(),
+        }
+      }
+
+      return {
+        ...entry,
+        formatted: entry.message,
+        time: new Date(entry.timestamp).toLocaleTimeString(),
+      }
+    })
+    .filter(matchesSearchQuery),
 )
 
 const hasLogEntries = computed(() => logEntries.value.length > 0)
 
-const emptyFilterMessage = computed(
-  () => `No ${selectedFilter.value.toLowerCase()} messages`,
-)
+const emptyFilterMessage = computed(() => {
+  if (searchQuery.value.trim()) {
+    return `No messages match "${searchQuery.value.trim()}"`
+  }
+
+  return selectedFilter.value === 'all'
+    ? 'No messages'
+    : `No ${selectedFilterOption.value?.label.toLowerCase()} messages`
+})
 
 const jumpToTop = (): void => {
   if (contentContainer.value) {
@@ -164,10 +251,6 @@ const handleScroll = (event: Event): void => {
   }
 
   showJumpToLatest.value = target.scrollTop > 48
-}
-
-const handleSelectFilter = (filter: MessageLogFilter): void => {
-  selectedFilter.value = filter
 }
 
 const isConnectionEntryExpanded = (id: string): boolean =>
@@ -205,13 +288,55 @@ const toggleMessageEntry = (entry: WebSocketMessageLogEntry): void => {
 <template>
   <div class="relative flex min-h-0 flex-1 flex-col">
     <div
+      v-if="hasLogEntries"
+      class="flex flex-wrap items-center gap-2 border-b p-2">
+      <label
+        class="bg-b-2 focus-within:border-c-3/40 focus-within:bg-b-1 flex h-7 w-56 max-w-full items-center gap-1.5 rounded border border-transparent px-2 text-xs transition-colors">
+        <span class="sr-only">Search messages</span>
+        <ScalarIconMagnifyingGlass class="text-c-3 size-3.5 shrink-0" />
+        <input
+          v-model="searchQuery"
+          class="placeholder:text-c-3 text-c-1 min-w-0 flex-1 border-0 bg-transparent p-0 outline-none"
+          placeholder="Search"
+          spellcheck="false"
+          type="search" />
+      </label>
+      <ScalarListbox
+        :modelValue="selectedFilterOption"
+        :options="MESSAGE_LOG_FILTER_OPTIONS"
+        placement="bottom-start"
+        teleport
+        @update:modelValue="handleSelectFilter">
+        <ScalarButton
+          class="text-c-2 hover:text-c-1 flex gap-1.5 px-2 py-1 text-xs font-normal"
+          size="sm"
+          variant="ghost">
+          {{ selectedFilterOption?.label ?? 'All Messages' }}
+          <ScalarIconCaretDown
+            class="ui-open:rotate-180 size-3 transition-transform duration-100"
+            weight="bold" />
+        </ScalarButton>
+      </ScalarListbox>
+      <div class="flex-1" />
+      <ScalarButton
+        class="text-c-2 hover:text-c-1 gap-1.5 px-2 py-1 text-xs font-normal"
+        size="sm"
+        variant="ghost"
+        @click="emit('clear')">
+        <template #icon>
+          <ScalarIconTrash class="size-3.5" />
+        </template>
+        Clear Messages
+      </ScalarButton>
+    </div>
+    <div
       v-if="!hasLogEntries"
       class="text-c-3 flex flex-1 items-center justify-center p-4 text-sm">
       Connect to start receiving messages
     </div>
     <ScalarButton
       v-if="hasLogEntries && showJumpToLatest"
-      class="absolute top-3 left-1/2 z-10 -translate-x-1/2 rounded-full shadow-lg"
+      class="absolute top-14 left-1/2 z-10 -translate-x-1/2 rounded-full shadow-lg"
       size="sm"
       variant="outlined"
       @click="jumpToTop">
@@ -338,33 +463,6 @@ const toggleMessageEntry = (entry: WebSocketMessageLogEntry): void => {
           </div>
         </div>
       </div>
-    </div>
-    <div
-      v-if="hasLogEntries"
-      class="flex items-center justify-between gap-2 border-t p-2">
-      <div
-        aria-label="Message direction filter"
-        class="flex items-center gap-1"
-        role="group">
-        <button
-          v-for="filter in MESSAGE_LOG_FILTERS"
-          :key="filter"
-          :aria-pressed="selectedFilter === filter"
-          class="hover:bg-b-2 flex w-fit cursor-pointer items-center rounded p-1 px-2 text-center text-xs font-medium whitespace-nowrap has-[:focus-visible]:outline"
-          :class="{
-            'text-c-1 bg-b-2 pointer-events-none': selectedFilter === filter,
-          }"
-          type="button"
-          @click="handleSelectFilter(filter)">
-          {{ filter }}
-        </button>
-      </div>
-      <ScalarButton
-        size="sm"
-        variant="outlined"
-        @click="emit('clear')">
-        Clear log
-      </ScalarButton>
     </div>
   </div>
 </template>
