@@ -152,13 +152,13 @@ const authServer = computed((): ServerObject | null =>
 
 const syncSessionState = (): void => {
   sessionState.value = wsSession.value.state
-  messageFrames.value = [...wsSession.value.frames]
 }
 
 const addConnectionLogEntry = (
   status: WebSocketConnectionLogEntry['status'],
   message: string,
   detail?: string,
+  details?: WebSocketConnectionLogEntry['details'],
 ): void => {
   connectionLogEntries.value.push({
     id: `${Date.now()}-${connectionLogEntries.value.length}`,
@@ -167,6 +167,7 @@ const addConnectionLogEntry = (
     timestamp: Date.now(),
     message,
     detail,
+    details,
   })
 }
 
@@ -184,7 +185,6 @@ const handleConnect = async (): Promise<void> => {
 
   wsSession.value.destroy()
   wsSession.value = createWebSocketSession()
-  connectionLogEntries.value = []
   syncSessionState()
 
   const result = await connectWebSocket({
@@ -192,13 +192,27 @@ const handleConnect = async (): Promise<void> => {
     session: wsSession.value,
     plugins: props.plugins,
     callbacks: {
-      onFrame: () => syncSessionState(),
+      onFrame: (frame) => {
+        messageFrames.value = [...messageFrames.value, frame]
+        syncSessionState()
+      },
       onStateChange: () => syncSessionState(),
       onOpen: () => {
+        const connectionUrl = resolvedConnectionUrl.value
         addConnectionLogEntry(
           'connected',
-          'Connected',
-          resolvedConnectionUrl.value,
+          `Connected to ${connectionUrl}`,
+          undefined,
+          [
+            { label: 'Request URL', value: connectionUrl },
+            { label: 'Request Method', value: 'GET' },
+            { label: 'Status Code', value: '101 Switching Protocols' },
+            {
+              label: 'Headers',
+              value:
+                'Browser WebSocket handshake headers are managed by the browser and are not exposed.',
+            },
+          ],
         )
         syncSessionState()
         connectionBarRef.value?.stopLoading()
@@ -208,6 +222,11 @@ const handleConnect = async (): Promise<void> => {
           'disconnected',
           'Disconnected',
           info.reason || `Code ${info.code}`,
+          [
+            { label: 'Close Code', value: String(info.code) },
+            { label: 'Reason', value: info.reason || 'No reason provided' },
+            { label: 'Clean Close', value: info.wasClean ? 'Yes' : 'No' },
+          ],
         )
         syncSessionState()
       },
@@ -223,6 +242,12 @@ const handleConnect = async (): Promise<void> => {
         'error',
         'Connection failed',
         result.message ?? WEBSOCKET_CONNECTION_FAILED_MESSAGE,
+        [
+          {
+            label: 'Error',
+            value: result.message ?? WEBSOCKET_CONNECTION_FAILED_MESSAGE,
+          },
+        ],
       )
     }
     toast(result.message ?? WEBSOCKET_CONNECTION_FAILED_MESSAGE, 'error')
@@ -255,6 +280,7 @@ const handleSendMessage = (): void => {
 
 const handleClearMessages = (): void => {
   wsSession.value.clearFrames()
+  messageFrames.value = []
   connectionLogEntries.value = []
   syncSessionState()
 }

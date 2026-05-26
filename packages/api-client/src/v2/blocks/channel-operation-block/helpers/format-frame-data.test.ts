@@ -7,6 +7,15 @@ describe('formatFrameData', () => {
     expect(formatFrameData('{"type":"ping"}')).toBe('{\n  "type": "ping"\n}')
   })
 
+  it('pretty-prints JSONC strings', () => {
+    expect(formatFrameData('{"type":"ping",// comment\n}')).toBe('{\n  "type": "ping", // comment\n}')
+  })
+
+  it('returns raw text for non-JSON display formats', () => {
+    expect(formatFrameData('{"type":"ping"}', 'text')).toBe('{"type":"ping"}')
+    expect(formatFrameData('<message>hello</message>', 'xml')).toBe('<message>hello</message>')
+  })
+
   it('returns plain text when JSON parsing fails', () => {
     expect(formatFrameData('hello')).toBe('hello')
   })

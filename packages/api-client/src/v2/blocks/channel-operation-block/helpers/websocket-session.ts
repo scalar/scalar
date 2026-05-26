@@ -28,6 +28,10 @@ export type WebSocketConnectionLogEntry = {
   timestamp: number
   message: string
   detail?: string
+  details?: {
+    label: string
+    value: string
+  }[]
 }
 
 export type WebSocketCloseInfo = {

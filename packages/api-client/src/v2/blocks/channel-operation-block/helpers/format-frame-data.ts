@@ -1,13 +1,14 @@
 /**
  * Formats WebSocket frame payload for display in the message log.
  */
-export const formatFrameData = (data: string | ArrayBuffer): string => {
+
+import { prettifyJsoncString } from '@/v2/blocks/response-block/helpers/prettify-jsonc-string'
+
+export type WebSocketFrameDisplayFormat = 'text' | 'html' | 'json' | 'xml'
+
+export const formatFrameData = (data: string | ArrayBuffer, format: WebSocketFrameDisplayFormat = 'json'): string => {
   if (typeof data === 'string') {
-    try {
-      return JSON.stringify(JSON.parse(data), null, 2)
-    } catch {
-      return data
-    }
+    return format === 'json' ? prettifyJsoncString(data) : data
   }
 
   return `[Binary ${data.byteLength} bytes]`
