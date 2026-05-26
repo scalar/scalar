@@ -43,23 +43,42 @@ const emit = defineEmits<{
   (e: 'send'): void
 }>()
 
-const messageOptions = computed<ScalarListboxOption[]>(() =>
-  messages.map(({ name, message }) => ({
+const CUSTOM_MESSAGE_ID = 'scalar-custom-message'
+const CUSTOM_MESSAGE_OPTION = {
+  id: CUSTOM_MESSAGE_ID,
+  label: 'Custom message',
+} satisfies ScalarListboxOption
+
+const messageOptions = computed<ScalarListboxOption[]>(() => [
+  ...messages.map(({ name, message }) => ({
     id: name,
     label: message.title ?? name,
   })),
-)
+  CUSTOM_MESSAGE_OPTION,
+])
+
+const handleMessageSelect = (option?: ScalarListboxOption): void => {
+  if (!option?.id) {
+    return
+  }
+
+  emit('update:selectedMessageName', option.id)
+
+  if (option.id === CUSTOM_MESSAGE_ID) {
+    emit('update:payload', '{}')
+  }
+}
 
 const selectedMessageOption = computed<ScalarListboxOption | undefined>({
   get: () =>
     messageOptions.value.find(({ id }) => id === selectedMessageName) ??
     messageOptions.value[0],
-  set: (option) => {
-    if (option?.id) {
-      emit('update:selectedMessageName', option.id)
-    }
-  },
+  set: handleMessageSelect,
 })
+
+const isCustomMessageSelected = computed(
+  () => selectedMessageOption.value?.id === CUSTOM_MESSAGE_ID,
+)
 </script>
 
 <template>
@@ -100,20 +119,30 @@ const selectedMessageOption = computed<ScalarListboxOption | undefined>({
           {{ selectedMessageOption?.label ?? 'Message body' }}
         </span>
 
-        <ScalarButton
-          class="mr-1 h-6 shrink-0 px-2 text-xs"
-          :disabled="!canSend"
-          size="sm"
-          type="button"
-          @click="emit('send')">
-          Send message
-        </ScalarButton>
+        <div class="mr-1 flex shrink-0 items-center gap-1">
+          <ScalarButton
+            v-if="!isCustomMessageSelected"
+            class="h-6 px-2 text-xs"
+            size="sm"
+            type="button"
+            variant="ghost"
+            @click="handleMessageSelect(CUSTOM_MESSAGE_OPTION)">
+            New message
+          </ScalarButton>
+          <ScalarButton
+            class="h-6 px-2 text-xs"
+            :disabled="!canSend"
+            size="sm"
+            type="button"
+            @click="emit('send')">
+            Send message
+          </ScalarButton>
+        </div>
       </DataTableHeader>
 
       <DataTableRow>
         <CodeInput
           class="border-t px-3"
-          disableEnter
           :environment="environment"
           language="json"
           lineNumbers
