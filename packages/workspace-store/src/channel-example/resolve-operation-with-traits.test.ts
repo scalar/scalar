@@ -83,6 +83,63 @@ describe('resolveOperationWithTraits', () => {
     ])
   })
 
+  it('uses later trait security instead of combining trait security arrays', () => {
+    const operation = {
+      action: 'receive',
+      traits: [
+        {
+          security: [
+            {
+              type: 'apiKey',
+              in: 'user',
+              name: 'first-key',
+            },
+          ],
+        },
+        {
+          security: [
+            {
+              type: 'http',
+              scheme: 'bearer',
+            },
+          ],
+        },
+      ],
+    } as AsyncApiOperationObject
+
+    const resolved = resolveOperationWithTraits(operation)
+
+    expect(resolved.security).toStrictEqual([
+      {
+        type: 'http',
+        scheme: 'bearer',
+      },
+    ])
+  })
+
+  it('keeps empty later trait security to clear earlier trait security', () => {
+    const operation = {
+      action: 'receive',
+      traits: [
+        {
+          security: [
+            {
+              type: 'http',
+              scheme: 'bearer',
+            },
+          ],
+        },
+        {
+          security: [],
+        },
+      ],
+    } as AsyncApiOperationObject
+
+    const resolved = resolveOperationWithTraits(operation)
+
+    expect(resolved.security).toStrictEqual([])
+  })
+
   it('lets operation WebSocket bindings override trait bindings on conflicts', () => {
     const operation = {
       action: 'send',

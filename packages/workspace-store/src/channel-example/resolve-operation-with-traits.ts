@@ -2,6 +2,14 @@ import type { AsyncApiOperationObject } from '@scalar/types/asyncapi/3.1'
 
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 
+type AsyncApiSecurity = NonNullable<AsyncApiOperationObject['security']>
+
+const getTraitSecurity = (traits: NonNullable<AsyncApiOperationObject['traits']>): AsyncApiSecurity | undefined =>
+  traits.reduce<AsyncApiSecurity | undefined>((security, traitRef) => {
+    const trait = getResolvedRef(traitRef)
+    return trait.security !== undefined ? trait.security : security
+  }, undefined)
+
 /**
  * Merges operation traits into a single operation view, while keeping operation fields highest priority.
  */
@@ -11,10 +19,7 @@ export const resolveOperationWithTraits = (operation: AsyncApiOperationObject): 
     return operation
   }
 
-  const traitSecurity = traits.flatMap((traitRef) => {
-    const trait = getResolvedRef(traitRef)
-    return trait.security?.length ? trait.security : []
-  })
+  const traitSecurity = getTraitSecurity(traits)
 
   const traitBindings = traits.reduce<AsyncApiOperationObject['bindings'] | undefined>((accumulated, traitRef) => {
     const trait = getResolvedRef(traitRef)
@@ -44,7 +49,7 @@ export const resolveOperationWithTraits = (operation: AsyncApiOperationObject): 
 
   return {
     ...operation,
-    ...(security.length > 0 || hasOperationSecurity ? { security } : {}),
+    ...(security !== undefined || hasOperationSecurity ? { security } : {}),
     ...(bindings !== operation.bindings ? { bindings } : {}),
   }
 }
