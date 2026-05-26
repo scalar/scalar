@@ -89,6 +89,42 @@ describe('getAsyncApiServers', () => {
     expect(servers.find(({ name }) => name === 'kafka')?.isWebSocket).toBe(false)
   })
 
+  it('restricts servers to channel.servers references', () => {
+    const developmentServer = galaxyAsyncApiDocument.servers?.development
+    if (!developmentServer || '$ref' in developmentServer) {
+      throw new Error('Expected inline development server fixture')
+    }
+
+    const document = {
+      ...galaxyAsyncApiDocument,
+      channels: {
+        restricted: {
+          address: '/restricted',
+          servers: [
+            {
+              $ref: '#/servers/development',
+              '$ref-value': developmentServer,
+            },
+          ],
+        },
+      },
+    } as unknown as AsyncApiDocument
+
+    const channel = document.channels?.restricted
+    if (!channel || '$ref' in channel) {
+      throw new Error('Expected inline restricted channel fixture')
+    }
+
+    const servers = getAsyncApiServers(document, { channel })
+
+    expect(servers.map(({ name, connectionUrl }) => ({ name, connectionUrl }))).toStrictEqual([
+      {
+        name: 'development',
+        connectionUrl: 'ws://localhost:8080/restricted',
+      },
+    ])
+  })
+
   it('builds chat fixture connection URLs', () => {
     const channel = chatAsyncApiDocument.channels?.chat
     if (!channel || '$ref' in channel) {
