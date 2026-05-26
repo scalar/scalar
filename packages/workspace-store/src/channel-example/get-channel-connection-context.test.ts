@@ -75,4 +75,43 @@ describe('getChannelConnectionContext', () => {
 
     expect(result.error).toContain('Channel missing not found')
   })
+
+  it('ignores a selected server outside the channel server list', async () => {
+    const store = createWorkspaceStore()
+    const slug = 'restricted-doc'
+    const document = {
+      asyncapi: '3.0.0',
+      info: { title: 'Restricted channel', version: '1.0.0' },
+      'x-scalar-selected-server': 'production',
+      servers: {
+        production: {
+          host: 'api.example.com',
+          protocol: 'wss',
+        },
+        sandbox: {
+          host: 'sandbox.example.com',
+          protocol: 'wss',
+        },
+      },
+      channels: {
+        notifications: {
+          address: '/notifications',
+          servers: [{ $ref: '#/servers/sandbox' }],
+        },
+      },
+    } as unknown as AsyncApiDocument
+
+    await store.addDocument({ name: slug, document })
+
+    const result = getChannelConnectionContext(store, slug, { channelName: 'notifications' })
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) {
+      return
+    }
+
+    expect(result.data.servers.list.map(({ name }) => name)).toStrictEqual(['sandbox'])
+    expect(result.data.servers.selected?.name).toBe('sandbox')
+    expect(result.data.connectionUrl).toBe('wss://sandbox.example.com/notifications')
+  })
 })

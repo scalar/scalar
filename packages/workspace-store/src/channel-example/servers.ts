@@ -1,4 +1,6 @@
+import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
+import { safeRun } from '@scalar/helpers/types/safe-run'
 import type {
   AsyncApiChannelObject,
   AsyncApiDocument,
@@ -45,6 +47,49 @@ export type AsyncApiServerEntry = {
 const resolveServer = (server: NonNullable<AsyncApiDocument['servers']>[string]): AsyncApiServerObject =>
   getResolvedRef(server)
 
+const getServerNameFromRef = (ref: string): string | undefined => {
+  if (!ref.startsWith('#/servers/')) {
+    return undefined
+  }
+
+  const segmentsResult = safeRun(() => parseJsonPointerSegments(ref.slice(1)))
+  if (!segmentsResult.ok) {
+    return undefined
+  }
+
+  const segments = segmentsResult.data
+  const [section, name, ...rest] = segments
+  if (section !== 'servers' || !name || rest.length > 0) {
+    return undefined
+  }
+
+  return name
+}
+
+/**
+ * Collects the names of `document.servers` entries that the channel is restricted to.
+ *
+ * Returns `undefined` when the channel does not declare `servers`, signaling that every
+ * top-level server is allowed.
+ */
+const getChannelServerNames = (
+  document: AsyncApiDocument,
+  channel: AsyncApiChannelObject | null,
+): Set<string> | undefined => {
+  if (!channel?.servers) {
+    return undefined
+  }
+
+  const names = new Set<string>()
+  for (const serverRef of channel.servers) {
+    const name = getServerNameFromRef(serverRef.$ref)
+    if (name && document.servers?.[name]) {
+      names.add(name)
+    }
+  }
+  return names
+}
+
 /**
  * Returns a normalized list of AsyncAPI servers with computed base `url` and optional `connectionUrl`.
  */
@@ -62,8 +107,10 @@ export const getAsyncApiServers = (
   } = options
 
   const servers = document.servers ?? {}
+  const channelServerNames = getChannelServerNames(document, channel)
 
   return objectEntries(servers)
+    .filter(([name]) => channelServerNames?.has(name) ?? true)
     .map(([name, serverRef]) => {
       const server = resolveServer(serverRef)
       const protocol = server.protocol.trim().toLowerCase()
