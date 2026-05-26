@@ -11,6 +11,7 @@ export {
 export {
   type WebSocketCloseInfo,
   type WebSocketConnectOptions,
+  type WebSocketConnectionLogEntry,
   type WebSocketFrame,
   type WebSocketFrameOpcode,
   type WebSocketSession,

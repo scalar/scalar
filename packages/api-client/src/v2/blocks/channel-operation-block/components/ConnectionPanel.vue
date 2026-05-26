@@ -11,17 +11,20 @@ import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type {
   WebSocketCloseInfo,
+  WebSocketConnectionLogEntry,
   WebSocketFrame,
   WebSocketSessionState,
 } from '@/v2/blocks/channel-operation-block/helpers/websocket-session'
 
 import MessageLog from './MessageLog.vue'
 
-const { sessionState, frames, closeInfo } = defineProps<{
+const { sessionState, frames, closeInfo, connectionLogEntries } = defineProps<{
   /** WebSocket session state */
   sessionState: WebSocketSessionState
   /** Message frames */
   frames: WebSocketFrame[]
+  /** Connection lifecycle entries */
+  connectionLogEntries: WebSocketConnectionLogEntry[]
   /** Close event details when disconnected */
   closeInfo: WebSocketCloseInfo | null
 }>()
@@ -103,6 +106,7 @@ const stateColorClass = computed(() => {
       <MessageLog
         v-show="isSectionVisible('Messages')"
         :id="filterIds.Messages"
+        :connectionLogEntries="connectionLogEntries"
         :frames="frames"
         @clear="emit('clear:messages')" />
 

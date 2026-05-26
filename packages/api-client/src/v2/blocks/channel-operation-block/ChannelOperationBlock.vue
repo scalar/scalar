@@ -60,7 +60,14 @@ import type {
   OpenApiDocument,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef, watch } from 'vue'
+import {
+  computed,
+  onBeforeUnmount,
+  ref,
+  shallowRef,
+  useTemplateRef,
+  watch,
+} from 'vue'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
@@ -70,7 +77,10 @@ import {
   WEBSOCKET_CONNECTION_FAILED_MESSAGE,
 } from '@/v2/blocks/channel-operation-block'
 import { getMessagePayloadExample } from '@/v2/blocks/channel-operation-block/helpers/get-message-payload-example'
-import type { WebSocketFrame } from '@/v2/blocks/channel-operation-block/helpers/websocket-session'
+import type {
+  WebSocketConnectionLogEntry,
+  WebSocketFrame,
+} from '@/v2/blocks/channel-operation-block/helpers/websocket-session'
 import type { ClientLayout } from '@/v2/types/layout'
 import type { ApiClientOptions } from '@/v2/types/options'
 
@@ -87,6 +97,7 @@ const connectionBarRef = useTemplateRef('connectionBarRef')
 const wsSession = shallowRef(createWebSocketSession())
 const sessionState = ref(wsSession.value.state)
 const messageFrames = ref<WebSocketFrame[]>([])
+const connectionLogEntries = ref<WebSocketConnectionLogEntry[]>([])
 
 const pathParameters = ref({ ...props.parameters.path })
 const queryParameters = ref({ ...props.parameters.query })
@@ -144,6 +155,21 @@ const syncSessionState = (): void => {
   messageFrames.value = [...wsSession.value.frames]
 }
 
+const addConnectionLogEntry = (
+  status: WebSocketConnectionLogEntry['status'],
+  message: string,
+  detail?: string,
+): void => {
+  connectionLogEntries.value.push({
+    id: `${Date.now()}-${connectionLogEntries.value.length}`,
+    type: 'connection',
+    status,
+    timestamp: Date.now(),
+    message,
+    detail,
+  })
+}
+
 const handleConnect = async (): Promise<void> => {
   props.eventBus.flushDebouncedEmits?.()
 
@@ -158,6 +184,7 @@ const handleConnect = async (): Promise<void> => {
 
   wsSession.value.destroy()
   wsSession.value = createWebSocketSession()
+  connectionLogEntries.value = []
   syncSessionState()
 
   const result = await connectWebSocket({
@@ -168,10 +195,22 @@ const handleConnect = async (): Promise<void> => {
       onFrame: () => syncSessionState(),
       onStateChange: () => syncSessionState(),
       onOpen: () => {
+        addConnectionLogEntry(
+          'connected',
+          'Connected',
+          resolvedConnectionUrl.value,
+        )
         syncSessionState()
         connectionBarRef.value?.stopLoading()
       },
-      onClose: () => syncSessionState(),
+      onClose: (info) => {
+        addConnectionLogEntry(
+          'disconnected',
+          'Disconnected',
+          info.reason || `Code ${info.code}`,
+        )
+        syncSessionState()
+      },
       onError: () => syncSessionState(),
     },
   })
@@ -179,6 +218,13 @@ const handleConnect = async (): Promise<void> => {
   connectionBarRef.value?.stopLoading()
 
   if (!result.ok) {
+    if (connectionLogEntries.value.length === 0) {
+      addConnectionLogEntry(
+        'error',
+        'Connection failed',
+        result.message ?? WEBSOCKET_CONNECTION_FAILED_MESSAGE,
+      )
+    }
     toast(result.message ?? WEBSOCKET_CONNECTION_FAILED_MESSAGE, 'error')
     syncSessionState()
   }
@@ -209,6 +255,7 @@ const handleSendMessage = (): void => {
 
 const handleClearMessages = (): void => {
   wsSession.value.clearFrames()
+  connectionLogEntries.value = []
   syncSessionState()
 }
 
@@ -317,6 +364,7 @@ onBeforeUnmount(() => {
 
         <ConnectionPanel
           :closeInfo="wsSession.closeInfo"
+          :connectionLogEntries="connectionLogEntries"
           :frames="messageFrames"
           :sessionState="sessionState"
           @clear:messages="handleClearMessages" />
