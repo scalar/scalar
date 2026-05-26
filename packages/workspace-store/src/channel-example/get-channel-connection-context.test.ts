@@ -21,6 +21,10 @@ const echoChannelDocument = {
           name: 'echoPayload',
           payload: { type: 'object', properties: { message: { type: 'string' } } },
         },
+        receivedPayload: {
+          name: 'receivedPayload',
+          payload: { type: 'object', properties: { received: { type: 'boolean' } } },
+        },
       },
     },
   },
@@ -33,6 +37,7 @@ const echoChannelDocument = {
     listenOnEcho: {
       action: 'receive',
       channel: { $ref: '#/channels/echo' },
+      messages: [{ $ref: '#/channels/echo/messages/receivedPayload' }],
     },
   },
 } as unknown as AsyncApiDocument
