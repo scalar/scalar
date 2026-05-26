@@ -6,7 +6,8 @@ export default {
 
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components/button'
-import { computed, nextTick, ref, watch } from 'vue'
+import { ScalarIconArrowUp } from '@scalar/icons'
+import { computed, ref } from 'vue'
 
 import { formatFrameData } from '@/v2/blocks/channel-operation-block/helpers/format-frame-data'
 import type { WebSocketFrame } from '@/v2/blocks/channel-operation-block/helpers/websocket-session'
@@ -21,38 +22,56 @@ const emit = defineEmits<{
 }>()
 
 const contentContainer = ref<HTMLElement | null>(null)
+const showJumpToLatest = ref(false)
 
 const formattedFrames = computed(() =>
-  frames.map((frame) => ({
+  [...frames].reverse().map((frame) => ({
     ...frame,
     formatted: formatFrameData(frame.data),
     time: new Date(frame.timestamp).toLocaleTimeString(),
   })),
 )
 
-watch(
-  () => frames.length,
-  async () => {
-    await nextTick(() => {
-      if (contentContainer.value) {
-        contentContainer.value.scrollTop = contentContainer.value.scrollHeight
-      }
-    })
-  },
-)
+const jumpToTop = (): void => {
+  if (contentContainer.value) {
+    contentContainer.value.scrollTop = 0
+  }
+  showJumpToLatest.value = false
+}
+
+const handleScroll = (event: Event): void => {
+  const target = event.currentTarget
+  if (!(target instanceof HTMLElement)) {
+    return
+  }
+
+  showJumpToLatest.value = target.scrollTop > 48
+}
 </script>
 
 <template>
-  <div class="flex min-h-0 flex-1 flex-col">
+  <div class="relative flex min-h-0 flex-1 flex-col">
     <div
       v-if="frames.length === 0"
       class="text-c-3 flex flex-1 items-center justify-center p-4 text-sm">
       Connect to start receiving messages
     </div>
+    <ScalarButton
+      v-if="frames.length && showJumpToLatest"
+      class="absolute top-3 left-1/2 z-10 -translate-x-1/2 rounded-full shadow-lg"
+      size="sm"
+      variant="outlined"
+      @click="jumpToTop">
+      <template #icon>
+        <ScalarIconArrowUp class="size-full" />
+      </template>
+      Jump to latest
+    </ScalarButton>
     <div
-      v-else
+      v-if="frames.length"
       ref="contentContainer"
-      class="custom-scroll flex flex-1 flex-col gap-2 overflow-y-auto p-3">
+      class="custom-scroll flex flex-1 flex-col gap-2 overflow-y-auto p-3"
+      @scroll="handleScroll">
       <div
         v-for="(frame, index) in formattedFrames"
         :key="`${frame.timestamp}-${index}`"
