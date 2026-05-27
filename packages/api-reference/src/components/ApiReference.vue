@@ -12,10 +12,7 @@ if (version && typeof window !== 'undefined') {
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'
-import {
-  createApiClientModal,
-  type ApiClientModal,
-} from '@scalar/api-client/modal'
+import type { ApiClientModal } from '@scalar/api-client/modal'
 import {
   ScalarColorModeToggleButton,
   ScalarColorModeToggleIcon,
@@ -357,9 +354,8 @@ const itemsFromWorkspace = computed<TraversedEntry[]>(() => {
       description: document.info.description,
       name: document.info.title ?? slug,
       title: document.info.title ?? slug,
-      children: isOpenApiDocument(document)
-        ? (document['x-scalar-navigation']?.children ?? [])
-        : [],
+      // Both OpenAPI and AsyncAPI documents carry an `x-scalar-navigation` tree.
+      children: document['x-scalar-navigation']?.children ?? [],
     }),
   )
 })
@@ -778,10 +774,20 @@ provide(AGENT_CONTEXT_SYMBOL, agent)
 // --------------------------------------------------------------------------- */
 // Api Client Modal
 
-// Setup the ApiClient on mount
+// Setup the ApiClient on mount.
+// The modal is dynamic-imported so its dependency graph (CodeMirror, the request
+// editor, the response viewer, etc.) becomes a separate chunk that loads
+// asynchronously after the API reference paints.
 const modal = useTemplateRef<HTMLElement>('modal')
 const apiClient = ref<ApiClientModal | null>(null)
-onMounted(() => {
+onMounted(async () => {
+  if (!modal.value) {
+    return
+  }
+
+  const { createApiClientModal } = await import('@scalar/api-client/modal')
+
+  // Bail if the component unmounted while the chunk was loading.
   if (!modal.value) {
     return
   }

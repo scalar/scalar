@@ -1,0 +1,13 @@
+{
+  "$schema": "../../node_modules/turbo/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"],
+      // The CI deploy workflow sets GALAXY_IS_PRODUCTION per environment; it is
+      // baked into the worker bundle, so it must be part of the build hash.
+      "env": ["GALAXY_IS_PRODUCTION"]
+    }
+  }
+}

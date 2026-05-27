@@ -2,11 +2,16 @@ name: CI
 
 # This workflow runs on:
 # 1. Push events to the main branch
-# 2. Pull request events
+# 2. Push events to changeset-release/main (the release PR branch created by
+#    changesets/action). Because changesets uses GITHUB_TOKEN to create/update
+#    the release PR, GitHub suppresses the pull_request event and the CI never
+#    runs unless we also listen for pushes to this branch directly.
+# 3. Pull request events
 on:
   push:
     branches:
       - main
+      - changeset-release/main
   pull_request:
   workflow_dispatch: null
 # Workflow-level default: read-only. Individual jobs widen as needed.
@@ -14,7 +19,7 @@ permissions:
   contents: read
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}-base-ci
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/changeset-release/main' }}
 env:
   # Exclude these packages from turbo as they are handled by dedicated jobs
   TURBO_FLAGS: '--concurrency=100% --filter "!./integrations/{java,rust,dotnet,docker,fastapi,django-ninja}/**" --filter "!./projects/proxy-scalar-com/**"'
@@ -94,7 +99,7 @@ jobs:
       mock_server_docker_package_changed: ${{ steps.set-outputs.outputs.mock_server_docker_package_changed }}
       icons_changed: ${{ steps.set-outputs.outputs.icons_changed }}
       galaxy_changed: ${{ steps.set-outputs.outputs.galaxy_changed }}
-      galaxy_app_changed: ${{ steps.set-outputs.outputs.galaxy_app_changed }}
+      galaxy_preview_changed: ${{ steps.set-outputs.outputs.galaxy_preview_changed }}
       api_client_changed: ${{ steps.set-outputs.outputs.api_client_changed }}
       api_reference_changed: ${{ steps.set-outputs.outputs.api_reference_changed }}
       scalar_app_package_changed: ${{ steps.set-outputs.outputs.scalar_app_package_changed }}
@@ -131,7 +136,11 @@ jobs:
               - packages/components/src/components/ScalarIcon/**
             galaxy_changed:
               - packages/galaxy/**
-            galaxy_app_changed:
+            # Any package can feed into the @scalar/api-reference bundle that
+            # galaxy serves, so a preview deploy is worthwhile for every package
+            # change, not just changes to galaxy itself.
+            galaxy_preview_changed:
+              - packages/**
               - projects/galaxy-scalar-com/**
             api_client_changed:
               - packages/api-client/**
@@ -182,13 +191,13 @@ jobs:
           echo "mock_server_docker_package_changed=${{ steps.changed-package-files.outputs.mock_server_docker_package_any_changed }}" >> $GITHUB_OUTPUT
           echo "icons_changed=${{ steps.changed-packages-files.outputs.icons_changed_any_changed }}" >> $GITHUB_OUTPUT
           echo "galaxy_changed=${{ steps.changed-packages-files.outputs.galaxy_changed_any_changed }}" >> $GITHUB_OUTPUT
-          echo "galaxy_app_changed=${{ steps.changed-packages-files.outputs.galaxy_app_changed_any_changed }}" >> $GITHUB_OUTPUT
+          echo "galaxy_preview_changed=${{ steps.changed-packages-files.outputs.galaxy_preview_changed_any_changed }}" >> $GITHUB_OUTPUT
           echo "api_client_changed=${{ steps.changed-packages-files.outputs.api_client_changed_any_changed }}" >> $GITHUB_OUTPUT
           echo "api_reference_changed=${{ steps.changed-packages-files.outputs.api_reference_changed_any_changed }}" >> $GITHUB_OUTPUT
           echo "scalar_app_package_changed=${{ steps.changed-packages-files.outputs.scalar_app_package_any_changed }}" >> $GITHUB_OUTPUT
 
   format:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/changeset-release/main')
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
@@ -245,7 +254,7 @@ jobs:
         run: pnpm turbo ${{ env.TURBO_FLAGS }} types:check
 
   knip:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/changeset-release/main')
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
@@ -969,12 +978,14 @@ jobs:
       sha: ${{ github.event.pull_request.head.sha || github.sha }}
     secrets: inherit
 
-  # Deploy galaxy-scalar-com to Cloudflare Pages. Like deploy-api-client, this
-  # runs for PR previews and every main push, and waits for npm-publish so it
-  # knows whether this commit released a dependency (-> production) or not
-  # (-> staging). `!cancelled()` lets it proceed when npm-publish is skipped
-  # (PRs); the explicit build/check-changes success gates are re-added because
-  # `!cancelled()` overrides the implicit `success()` check on `needs`.
+  # Deploy galaxy-scalar-com to Cloudflare Pages. On PRs it deploys a preview
+  # whenever any package — or galaxy itself — changed, so the branch-built
+  # @scalar/api-reference bundle galaxy serves can be reviewed; it also runs on
+  # every main push. Waits for npm-publish so it knows whether this commit
+  # released a dependency (-> production) or not (-> staging). `!cancelled()`
+  # lets it proceed when npm-publish is skipped (PRs); the explicit
+  # build/check-changes success gates are re-added because `!cancelled()`
+  # overrides the implicit `success()` check on `needs`.
   deploy-galaxy:
     if: |
       !cancelled() &&
@@ -986,7 +997,7 @@ jobs:
           github.event_name == 'pull_request' &&
           github.event.pull_request.head.repo.full_name == github.repository &&
           !contains(github.actor, '[bot]') &&
-          needs.check-changes.outputs.galaxy_app_changed == 'true'
+          needs.check-changes.outputs.galaxy_preview_changed == 'true'
         ) ||
         github.ref == 'refs/heads/main'
       )
@@ -1865,7 +1876,7 @@ jobs:
   # Other jobs
 
   required-jobs-pull-requests:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/changeset-release/main')
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 1
     permissions: {}

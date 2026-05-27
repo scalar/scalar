@@ -127,7 +127,7 @@ const collectAsyncApiMessages = (children: TraversedEntry[] | undefined): Traver
   collectEntries(children, 'asyncapi-message')
 
 describe('traverseAsyncApiDocument', () => {
-  it('returns an empty document when there are no operations', () => {
+  it('emits only the default Introduction entry when there are no operations or description', () => {
     const document = {
       asyncapi: '3.0.0',
       info: { title: 'Streetlights API', version: '1.0.0' },
@@ -141,8 +141,30 @@ describe('traverseAsyncApiDocument', () => {
       type: 'document',
       title: 'Streetlights API',
       name: 'streetlights',
-      children: [],
+      children: [{ type: 'text', title: 'Introduction' }],
     })
+  })
+
+  it('extracts headings from info.description as children of Introduction', () => {
+    const document = {
+      asyncapi: '3.0.0',
+      info: {
+        title: 'Streetlights API',
+        version: '1.0.0',
+        description:
+          'Some leading text.\n\n## Event-Driven Features\n\n- bullet a\n- bullet b\n\n## Resources\n\n- link a\n',
+      },
+      'x-scalar-original-document-hash': 'streetlights-fixture',
+    } as unknown as AsyncApiDocument
+
+    const result = traverseAsyncApiDocument('streetlights', document, mockOptions)
+    const intro = result.children?.[0]
+
+    expect(intro).toMatchObject({ type: 'text', title: 'Introduction' })
+    expect('children' in (intro ?? {}) ? (intro as { children?: unknown }).children : undefined).toEqual([
+      { id: expect.any(String), title: 'Event-Driven Features', type: 'text', children: [] },
+      { id: expect.any(String), title: 'Resources', type: 'text', children: [] },
+    ])
   })
 
   it('lists Galaxy channels with operations and nests messages under operations', () => {
@@ -290,6 +312,7 @@ describe('traverseAsyncApiDocument', () => {
     const result = traverseAsyncApiDocument('tagged', document, mockOptions)
 
     expect(result.children).toEqual([
+      expect.objectContaining({ type: 'text', title: 'Introduction' }),
       expect.objectContaining({
         type: 'asyncapi-channel',
         channelName: 'events',
