@@ -1,5 +1,6 @@
 import { Command } from 'commander'
 
+import { getChangedPathsForReleaseFiltering } from './detect-versioned-changelog-paths'
 import { RELEASE_NOTES_PRODUCTS } from './products'
 import { resolveUserPath } from './resolve-user-path'
 import { runReleaseNotesGeneratorForProduct } from './run-release-notes-generator'
@@ -17,12 +18,15 @@ type CommandOptions = {
   date?: string
   model?: string
   dryRun?: boolean
+  force?: boolean
 }
 
 const runAllProducts = async (
-  options: Pick<CommandOptions, 'date' | 'model' | 'dryRun'>,
+  options: Pick<CommandOptions, 'date' | 'model' | 'dryRun' | 'force'>,
   apiKey: string,
 ): Promise<void> => {
+  const changedPaths = options.force ? null : await getChangedPathsForReleaseFiltering()
+
   for (const product of RELEASE_NOTES_PRODUCTS) {
     await runReleaseNotesGeneratorForProduct({
       product,
@@ -30,6 +34,7 @@ const runAllProducts = async (
       date: options.date,
       model: options.model,
       dryRun: options.dryRun,
+      changedPaths,
     })
   }
 
@@ -72,6 +77,11 @@ export const releaseNotesGenerator = new Command('release-notes-generator')
   .option('--date <YYYY-MM-DD>', 'Release date (defaults to today in UTC)')
   .option('--model <id>', 'Anthropic model to use (defaults to claude-sonnet-4-5)')
   .option('--dry-run', 'Print the generated note instead of writing it', false)
+  .option(
+    '--force',
+    'With --all, generate release notes for every registered product even when git reports no version bump',
+    false,
+  )
   .action(async (options: CommandOptions) => {
     const apiKey = process.env.ANTHROPIC_API_KEY
     if (!apiKey) {

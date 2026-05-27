@@ -3,6 +3,7 @@ import { dirname, resolve } from 'node:path'
 
 import { buildReleaseNotesPreamble } from '@scalar/helpers/markdown/release-notes'
 
+import { shouldGenerateReleaseNotesForProduct, wasChangelogVersioned } from './detect-versioned-changelog-paths'
 import { extractChangelogSection } from './extract-changelog-section'
 import { extractPullRequestNumbers, fetchPullRequests } from './fetch-pull-requests'
 import { type DependencyChangelog, generateReleaseNote } from './generate-release-note'
@@ -110,6 +111,12 @@ export type RunReleaseNotesGeneratorOptions = {
   dryRun?: boolean
   /** When false, skip markdown regeneration (used by `--all` when JSON is unchanged). */
   writeMarkdown?: boolean
+  /**
+   * Repo-relative paths changed since `HEAD` (from git diff). When set,
+   * skip products and dependencies that were not versioned in this run.
+   * `null` disables filtering (`--force` or git unavailable).
+   */
+  changedPaths?: ReadonlySet<string> | null
 }
 
 export type RunReleaseNotesGeneratorResult = {
@@ -128,9 +135,15 @@ export const runReleaseNotesGeneratorForProduct = async (
   options: RunReleaseNotesGeneratorOptions,
 ): Promise<RunReleaseNotesGeneratorResult> => {
   const { product, apiKey } = options
+  const changedPaths = options.changedPaths ?? null
   const changelogPath = resolveUserPath(product.changelogPath)
   const outputPath = resolveUserPath(product.outputPath)
   const markdownPath = resolveUserPath(product.markdownPath ?? deriveMarkdownPath(product.outputPath))
+
+  if (changedPaths !== null && !shouldGenerateReleaseNotesForProduct(product, changedPaths)) {
+    console.warn(`Skipping ${product.slug}: no version bump in this release.`)
+    return { generated: false, outputPath }
+  }
 
   const version = options.version ?? (await readPackageJsonNextToChangelog(changelogPath)).version
   if (!version) {
@@ -146,6 +159,9 @@ export const runReleaseNotesGeneratorForProduct = async (
   const dependencyChangelogPaths = product.dependencyChangelogPaths ?? []
   const dependencyChangelogs: DependencyChangelog[] = []
   for (const path of dependencyChangelogPaths) {
+    if (changedPaths !== null && !wasChangelogVersioned(path, changedPaths)) {
+      continue
+    }
     const resolved = await loadDependencyChangelog(path)
     if (resolved) {
       dependencyChangelogs.push(resolved)

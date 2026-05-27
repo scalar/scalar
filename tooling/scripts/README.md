@@ -198,10 +198,15 @@ The shared JSON Schema lives at `tooling/scripts/schemas/RELEASE_NOTES.schema.js
 8. Updates the shared `RELEASE_NOTES.schema.json` when not using `--dry-run`.
 
 **Usage (all products — default in CI):**
+
+With `--all`, the command reads `git diff --name-only HEAD` (run immediately after `changeset version`) and only calls the AI for products whose `CHANGELOG.md` or `package.json` changed, or whose configured dependency changelogs changed. Unchanged products are skipped so a single-package release does not regenerate notes for every product.
+
 ```bash
 ANTHROPIC_API_KEY=sk-ant-... \
   pnpm --filter @scalar-internal/build-scripts start release-notes-generator --all
 ```
+
+Pass `--force` with `--all` to regenerate release notes for every registered product regardless of git diff (local debugging).
 
 **Usage (single product):**
 ```bash
