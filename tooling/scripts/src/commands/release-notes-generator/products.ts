@@ -1,3 +1,5 @@
+import { relative, resolve } from 'node:path'
+
 /**
  * Curated release-notes products wired into `release-notes-generator --all`.
  *
@@ -68,3 +70,17 @@ export const RELEASE_NOTES_PRODUCTS: readonly ReleaseNotesProduct[] = [
     outputPath: 'packages/mock-server/RELEASE_NOTES.json',
   },
 ] as const
+
+const normalizeRepoRelativePath = (absolutePath: string): string => {
+  const repoRoot = process.env.INIT_CWD ?? process.cwd()
+  return relative(repoRoot, resolve(absolutePath)).replace(/\\/g, '/')
+}
+
+/**
+ * Resolve a registered product from an on-disk `RELEASE_NOTES.json` path.
+ * Accepts absolute or repo-relative paths after `resolveUserPath`.
+ */
+export const findReleaseNotesProductByJsonPath = (jsonPath: string): ReleaseNotesProduct | undefined => {
+  const normalized = normalizeRepoRelativePath(jsonPath)
+  return RELEASE_NOTES_PRODUCTS.find((product) => product.outputPath === normalized)
+}

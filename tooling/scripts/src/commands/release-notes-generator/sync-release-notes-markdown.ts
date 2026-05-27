@@ -1,5 +1,7 @@
+import { GENERIC_RELEASE_NOTES_PREAMBLE, buildReleaseNotesPreamble } from '@scalar/helpers/markdown/release-notes'
 import { Command } from 'commander'
 
+import { findReleaseNotesProductByJsonPath } from './products'
 import { resolveUserPath } from './resolve-user-path'
 import { readReleaseNotesJsonFile } from './write-release-notes-json'
 import { writeReleaseNotesMarkdown } from './write-release-notes-markdown'
@@ -23,6 +25,8 @@ export const syncReleaseNotesMarkdown = new Command('sync-release-notes-markdown
     const jsonPath = resolveUserPath(options.json)
     const markdownPath = resolveUserPath(options.markdown)
     const entries = await readReleaseNotesJsonFile(jsonPath)
-    const result = await writeReleaseNotesMarkdown({ path: markdownPath, entries })
+    const product = findReleaseNotesProductByJsonPath(jsonPath)
+    const preamble = product ? buildReleaseNotesPreamble(product.displayName) : GENERIC_RELEASE_NOTES_PREAMBLE
+    const result = await writeReleaseNotesMarkdown({ path: markdownPath, entries, preamble })
     console.log(`${result.created ? 'Created' : 'Updated'} ${result.path}`)
   })
