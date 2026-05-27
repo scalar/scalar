@@ -7,6 +7,8 @@ import {
   ScalarIconGitBranch,
   ScalarIconGlobeSimple,
   ScalarIconLockSimple,
+  ScalarIconPlugsConnected,
+  ScalarIconSparkle,
   ScalarIconWarningOctagon,
 } from '@scalar/icons'
 import { type ScalarIconComponent } from '@scalar/icons/types'
@@ -30,6 +32,8 @@ const FEATURES = [
   { icon: ScalarIconFileMd, label: 'Markdown/MDX' },
   { icon: ScalarIconWarningOctagon, label: 'Spectral Linting' },
   { icon: ScalarIconBracketsCurly, label: 'JSON Schema Hosting' },
+  { icon: ScalarIconSparkle, label: 'Ask AI' },
+  { icon: ScalarIconPlugsConnected, label: 'MCP Servers' },
 ] as const satisfies ReadonlyArray<{
   icon: ScalarIconComponent
   label: string
