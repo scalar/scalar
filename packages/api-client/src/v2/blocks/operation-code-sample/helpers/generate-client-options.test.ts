@@ -1,5 +1,4 @@
 import { AVAILABLE_CLIENTS } from '@scalar/snippetz'
-import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import { describe, expect, it } from 'vitest'
 
 import { generateClientOptions, generateCustomId } from './generate-client-options'
@@ -228,25 +227,15 @@ describe('generateClientOptions', () => {
 })
 
 describe('generateCustomId', () => {
-  it('should generate correct custom ID for code samples', () => {
-    const sample: XCodeSample = {
-      lang: 'typescript',
-      label: 'TypeScript Example',
-      source: 'console.log("Hello World")',
-    }
-
-    const result = generateCustomId(sample)
-    expect(result).toBe('custom/typescript')
+  it('generates a custom ID from the sample index', () => {
+    expect(generateCustomId(0)).toBe('custom/0')
+    expect(generateCustomId(3)).toBe('custom/3')
   })
 
-  it('should handle different language types', () => {
-    const samples: XCodeSample[] = [
-      { lang: 'javascript', source: 'console.log("test")' },
-      { lang: 'python', source: 'print("test")' },
-      { lang: 'curl', source: 'curl -X GET https://api.example.com' },
-    ]
+  it('generates distinct IDs so samples sharing a language stay separate', () => {
+    const results = [0, 1, 2].map((index) => generateCustomId(index))
 
-    const results = samples.map((sample) => generateCustomId(sample))
-    expect(results).toEqual(['custom/javascript', 'custom/python', 'custom/curl'])
+    expect(results).toEqual(['custom/0', 'custom/1', 'custom/2'])
+    expect(new Set(results).size).toBe(results.length)
   })
 })

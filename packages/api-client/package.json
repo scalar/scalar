@@ -289,6 +289,11 @@
       "types": "./dist/v2/features/modal/index.d.ts",
       "default": "./dist/v2/features/modal/index.js"
     },
+    "./modal/map-hidden-clients-config": {
+      "import": "./dist/v2/features/modal/helpers/map-hidden-clients-config.js",
+      "types": "./dist/v2/features/modal/helpers/map-hidden-clients-config.d.ts",
+      "default": "./dist/v2/features/modal/helpers/map-hidden-clients-config.js"
+    },
     "./features/operation": {
       "import": "./dist/v2/features/operation/index.js",
       "types": "./dist/v2/features/operation/index.d.ts",
