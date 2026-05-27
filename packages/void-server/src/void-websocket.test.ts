@@ -62,6 +62,26 @@ describe('attachVoidWebSocket', () => {
     client.close()
   })
 
+  it('handles server socket errors without throwing', async () => {
+    const app = createVoidServer()
+    httpServer = createServer(getRequestListener(app.fetch))
+    const webSocketServer = attachVoidWebSocket(httpServer)
+    port = await listen(httpServer)
+
+    const client = new WebSocket(`ws://127.0.0.1:${port}/`)
+    await waitForOpen(client)
+
+    const serverSocket = [...webSocketServer.clients][0]
+    expect(serverSocket).toBeDefined()
+    expect(serverSocket?.listenerCount('error')).toBeGreaterThan(0)
+
+    expect(() => {
+      serverSocket?.emit('error', Object.assign(new Error('read ECONNRESET'), { code: 'ECONNRESET' }))
+    }).not.toThrow()
+
+    client.close()
+  })
+
   it('echoes binary frames unchanged', async () => {
     await startServer()
 

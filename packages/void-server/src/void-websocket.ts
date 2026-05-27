@@ -60,6 +60,10 @@ const bindEchoHandlers = (ws: WebSocket, connectionTimeoutMs: number): void => {
     ws.send(data, { binary: isBinary })
   })
 
+  ws.on('error', () => {
+    clearTimeout(timeoutId)
+  })
+
   ws.on('close', () => {
     clearTimeout(timeoutId)
   })
