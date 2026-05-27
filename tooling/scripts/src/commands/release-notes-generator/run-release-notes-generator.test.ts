@@ -63,5 +63,6 @@ describe('runReleaseNotesGeneratorForProduct', () => {
     expect(result).toEqual({ generated: false, outputPath })
     expect(exitSpy).not.toHaveBeenCalled()
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('No changelog section found for version 2.0.0'))
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('no dependency changelog sections were found'))
   })
 })

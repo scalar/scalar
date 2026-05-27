@@ -121,8 +121,8 @@ export type RunReleaseNotesGeneratorResult = {
 
 /**
  * Generate a release note for one product and append it to that product's
- * `RELEASE_NOTES.json`. Soft-skips when no changelog section exists for
- * the resolved version.
+ * `RELEASE_NOTES.json`. Soft-skips when neither the product nor any
+ * configured dependency has a changelog section for the resolved version.
  */
 export const runReleaseNotesGeneratorForProduct = async (
   options: RunReleaseNotesGeneratorOptions,
@@ -142,13 +142,6 @@ export const runReleaseNotesGeneratorForProduct = async (
 
   const changelog = await readFile(changelogPath, 'utf-8')
   const section = extractChangelogSection(changelog, version)
-  if (!section) {
-    console.warn(`No changelog section found for version ${version} in ${product.changelogPath}; skipping.`)
-    return { generated: false, outputPath }
-  }
-
-  const date = options.date ?? new Date().toISOString().slice(0, 10)
-  const releaseUrl = buildChangelogUrl(product.changelogPath, version)
 
   const dependencyChangelogPaths = product.dependencyChangelogPaths ?? []
   const dependencyChangelogs: DependencyChangelog[] = []
@@ -159,8 +152,27 @@ export const runReleaseNotesGeneratorForProduct = async (
     }
   }
 
+  if (!section && dependencyChangelogs.length === 0) {
+    console.warn(
+      `No changelog section found for version ${version} in ${product.changelogPath} and no dependency changelog sections were found; skipping.`,
+    )
+    return { generated: false, outputPath }
+  }
+
+  if (!section) {
+    console.warn(
+      `No changelog section found for version ${version} in ${product.changelogPath}; continuing with dependency changelog context only.`,
+    )
+  }
+
+  const date = options.date ?? new Date().toISOString().slice(0, 10)
+  const releaseUrl = buildChangelogUrl(product.changelogPath, version)
+
+  const changelogSection = section ?? ''
   const dependencyChangelogText = dependencyChangelogs.map((entry) => entry.changelogSection).join('\n')
-  const pullRequestNumbers = extractPullRequestNumbers([section, dependencyChangelogText].filter(Boolean).join('\n'))
+  const pullRequestNumbers = extractPullRequestNumbers(
+    [changelogSection, dependencyChangelogText].filter(Boolean).join('\n'),
+  )
   const pullRequests = pullRequestNumbers.length
     ? await fetchPullRequests({
         numbers: pullRequestNumbers,
@@ -180,7 +192,7 @@ export const runReleaseNotesGeneratorForProduct = async (
     packageName: product.packageName,
     version,
     date,
-    changelogSection: section,
+    changelogSection,
     releaseUrl,
     apiKey,
     model: options.model,
