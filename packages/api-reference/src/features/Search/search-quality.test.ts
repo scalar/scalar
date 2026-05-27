@@ -7,6 +7,7 @@ import { createSearchIndex } from './helpers/create-search-index'
 
 function search(query: string, document: Partial<OpenApiDocument>) {
   const doc = {
+    openapi: '3.1.0',
     info: {
       title: 'Test API',
       version: '1.0.0',

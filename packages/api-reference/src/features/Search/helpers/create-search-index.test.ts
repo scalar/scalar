@@ -1,4 +1,5 @@
-import { createNavigation } from '@scalar/workspace-store/navigation'
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import { createNavigation, traverseAsyncApiDocument } from '@scalar/workspace-store/navigation'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
@@ -20,6 +21,7 @@ const introductionSearchEntry = {
 
 function createMockDocument(document: Partial<OpenApiDocument>) {
   const doc = {
+    openapi: '3.1.0',
     info: {
       title: 'Test API',
       version: '1.0.0',
@@ -909,6 +911,27 @@ describe('createSearchIndex', () => {
       expect(tagEntries.length).toBeGreaterThanOrEqual(2)
       expect(operationEntries.length).toBeGreaterThanOrEqual(3)
       expect(modelEntries.length).toBeGreaterThanOrEqual(2)
+    })
+  })
+
+  describe('AsyncAPI documents', () => {
+    it('indexes the Introduction entry and headings from info.description', () => {
+      const document = {
+        asyncapi: '3.0.0',
+        info: {
+          title: 'Streaming API',
+          version: '1.0.0',
+          description: 'Welcome to the streaming API.\n\n## Getting started\n\nConnect to a channel and subscribe.',
+        },
+        'x-scalar-original-document-hash': '',
+      } as AsyncApiDocument
+
+      document['x-scalar-navigation'] = traverseAsyncApiDocument('test', document)
+
+      const index = createSearchIndex(document)
+
+      const headings = index.filter((item) => item.type === 'heading')
+      expect(headings.map((item) => item.title)).toEqual(expect.arrayContaining(['Introduction', 'Getting started']))
     })
   })
 })
