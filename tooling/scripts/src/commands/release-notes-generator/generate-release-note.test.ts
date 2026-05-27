@@ -17,25 +17,38 @@ const buildAnthropicResponse = (text: string): Response => {
   )
 }
 
+const defaultProduct = {
+  displayName: 'Scalar API Client',
+  description: 'a Vue-based open-source API testing client with desktop and web apps',
+}
+
 describe('buildSystemPrompt', () => {
   it('mentions the JSON-only output contract', () => {
-    const prompt = buildSystemPrompt()
+    const prompt = buildSystemPrompt(defaultProduct)
     expect(prompt).toContain('JSON object')
     expect(prompt).toContain('No markdown fences')
   })
 
   it('matches the Scalar house style guidance', () => {
-    const prompt = buildSystemPrompt()
+    const prompt = buildSystemPrompt(defaultProduct)
     expect(prompt).toContain('Do not use contractions')
   })
 
+  it('includes the product display name', () => {
+    const prompt = buildSystemPrompt({
+      displayName: 'Scalar Mock Server',
+      description: 'a Node.js mock server',
+    })
+    expect(prompt).toContain('Scalar Mock Server')
+  })
+
   it('mentions the optional pull request context block', () => {
-    const prompt = buildSystemPrompt()
+    const prompt = buildSystemPrompt(defaultProduct)
     expect(prompt).toContain('Pull request context')
   })
 
   it('mentions the optional dependency CHANGELOG context block', () => {
-    const prompt = buildSystemPrompt()
+    const prompt = buildSystemPrompt(defaultProduct)
     expect(prompt).toContain('Dependency CHANGELOG')
   })
 })

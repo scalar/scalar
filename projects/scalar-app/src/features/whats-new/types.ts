@@ -10,8 +10,9 @@
  * The on-disk shape is mirrored as `releaseNoteSchema` in
  * `tooling/scripts/src/commands/release-notes-generator/types.ts`. The
  * generator validates model JSON against a smaller `aiReleaseNoteSchema`
- * first, then `buildReleaseNoteFromAiOutput` maps into this shape;
- * `RELEASE_NOTES.schema.json` describes the full entry type for manual edits.
+ * first, then `buildReleaseNoteFromAiOutput` maps into this shape.
+ * `RELEASE_NOTES.schema.json` at `tooling/scripts/schemas/RELEASE_NOTES.schema.json`
+ * describes the full entry type for manual edits.
  * Keep both TS types and `releaseNoteSchema` in sync.
  */
 

@@ -43,7 +43,7 @@ describe('writeReleaseNotesMarkdown', () => {
 
     expect(result.created).toBe(true)
     const written = await readFile(path, 'utf-8')
-    expect(written).toContain('# Release notes')
+    expect(written).toContain('# Scalar API Client release notes')
     expect(written).toContain('Source of truth: `RELEASE_NOTES.json`')
     expect(written).toContain('## 1.0.0 (2026-01-01)')
     expect(written).toContain('Hello world.')

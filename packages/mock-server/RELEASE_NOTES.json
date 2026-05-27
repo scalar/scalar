@@ -1,0 +1,34 @@
+[
+  {
+    "version": "0.10.2",
+    "date": "2026-04-21",
+    "title": "OAuth refresh endpoints in mock authentication routes",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Mock Server now generates authentication routes for OAuth refreshUrl endpoints defined in your OpenAPI security schemes."
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0102",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "0.10.0",
+    "date": "2026-04-15",
+    "title": "Random data generation for mock responses",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Mock Server can now generate random but schema-aware data for responses, making local testing feel closer to real API behavior."
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0100",
+        "label": "Read full release notes"
+      }
+    ]
+  }
+]
