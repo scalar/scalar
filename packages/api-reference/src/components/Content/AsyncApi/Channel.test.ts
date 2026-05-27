@@ -30,6 +30,15 @@ function createDocument(channelDescription?: string): AsyncApiDocument {
   } as AsyncApiDocument
 }
 
+function createDocumentWithChannel(channel: Record<string, unknown>): AsyncApiDocument {
+  return {
+    asyncapi: '3.0.0',
+    info: { title: 'Streaming API', version: '1.0.0' },
+    'x-scalar-original-document-hash': '',
+    channels: { userSignedUp: channel },
+  } as AsyncApiDocument
+}
+
 describe('Channel', () => {
   it('renders the channel address as the heading and the description below', () => {
     const wrapper = mount(Channel, {
@@ -60,6 +69,39 @@ describe('Channel', () => {
 
     const heading = wrapper.find('h2')
     expect(heading.text()).toContain('user/signedup')
+  })
+
+  it('prefers channel.title over the address when present', () => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel(),
+        document: createDocumentWithChannel({
+          address: 'user/signedup',
+          title: 'User signups',
+        }),
+        layout: 'modern',
+        isCollapsed: false,
+        eventBus: null,
+      },
+    })
+
+    expect(wrapper.find('h2').text()).toContain('User signups')
+    expect(wrapper.find('h2').text()).not.toContain('user/signedup')
+  })
+
+  it('falls back to the channel key when neither title nor address is set', () => {
+    const wrapper = mount(Channel, {
+      props: {
+        // Simulate the traversal fallback: address-less channels get `channelName` as `channelAddress`.
+        channel: createChannel({ channelAddress: 'userSignedUp' }),
+        document: createDocumentWithChannel({}),
+        layout: 'modern',
+        isCollapsed: false,
+        eventBus: null,
+      },
+    })
+
+    expect(wrapper.find('h2').text()).toContain('userSignedUp')
   })
 
   it('renders an accordion wrapper for the classic layout', () => {

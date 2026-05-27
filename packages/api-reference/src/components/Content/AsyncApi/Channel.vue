@@ -42,12 +42,25 @@ const resolvedChannel = computed<AsyncApiChannelObject | undefined>(() => {
 })
 
 const description = computed(() => resolvedChannel.value?.description ?? '')
+
+/**
+ * Heading shown above each channel section.
+ *
+ * Prefers the human-friendly `channel.title` when it is set, then falls back
+ * to `channel.address`, and finally to the channel map key.
+ * `channel.channelAddress` already encodes the address-or-key fallback during
+ * navigation traversal, so we only need to overlay `title` on top of it.
+ */
+const headingText = computed(() => {
+  const title = resolvedChannel.value?.title?.trim()
+  return title || channel.channelAddress
+})
 </script>
 
 <template>
   <SectionContainerAccordion
     v-if="layout === 'classic'"
-    :aria-label="channel.channelAddress"
+    :aria-label="headingText"
     class="channel-section"
     :modelValue="!isCollapsed"
     @update:modelValue="
@@ -61,7 +74,7 @@ const description = computed(() => resolvedChannel.value?.description ?? '')
             () => eventBus?.emit('copy-url:nav-item', { id: channel.id })
           ">
           <SectionHeaderTag :level="2">
-            {{ channel.channelAddress }}
+            {{ headingText }}
           </SectionHeaderTag>
         </Anchor>
       </SectionHeader>
@@ -90,7 +103,7 @@ const description = computed(() => resolvedChannel.value?.description ?? '')
           <SectionHeaderTag
             :id="headerId"
             :level="2">
-            {{ channel.channelAddress }}
+            {{ headingText }}
           </SectionHeaderTag>
         </Anchor>
       </SectionHeader>
