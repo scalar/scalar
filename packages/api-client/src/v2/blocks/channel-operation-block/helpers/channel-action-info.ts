@@ -1,5 +1,5 @@
 /** Visual styling for AsyncAPI channel operation action badges in the connection bar. */
-export type ChannelActionInfo = {
+type ChannelActionInfo = {
   short: string
   colorClass: `text-${string}`
   colorVar: `var(--scalar-color-${string})`

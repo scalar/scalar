@@ -6,7 +6,7 @@ export default {
   name: 'ChannelOperationBlock',
 }
 
-export type ChannelOperationBlockProps = {
+type ChannelOperationBlockProps = {
   eventBus: WorkspaceEventBus
   documentSlug: string
   layout: ClientLayout

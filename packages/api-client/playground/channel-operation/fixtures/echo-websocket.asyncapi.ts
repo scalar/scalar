@@ -140,7 +140,4 @@ export const ECHO_WEBSOCKET_DOCUMENT_SLUG = 'echo-websocket'
 /** Default channel for the playground (single echo endpoint). */
 export const ECHO_WEBSOCKET_DEFAULT_CHANNEL = 'echo'
 
-/** @deprecated Use channel-centric navigation with {@link ECHO_WEBSOCKET_DEFAULT_CHANNEL}. */
-export const ECHO_WEBSOCKET_DEFAULT_OPERATION = 'sendEchoMessage'
-
 export const ECHO_WEBSOCKET_CONNECTION_URL = 'wss://echo.websocket.org'

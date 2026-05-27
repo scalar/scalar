@@ -9,7 +9,7 @@ export default {
   name: 'ChannelOperation',
 }
 
-export type ChannelOperationProps = {
+type ChannelOperationProps = {
   /** The slug of the currently selected document in the workspace */
   documentSlug: string
   /** The currently active document - AsyncAPI-only, the channel page has no OpenAPI path */
