@@ -76,6 +76,7 @@ import {
   createWebSocketSession,
   WEBSOCKET_CONNECTION_FAILED_MESSAGE,
 } from '@/v2/blocks/channel-operation-block'
+import { applyAuthToWebSocketUrl } from '@/v2/blocks/channel-operation-block/helpers/apply-auth-to-websocket-url'
 import { getMessagePayloadExample } from '@/v2/blocks/channel-operation-block/helpers/get-message-payload-example'
 import type {
   WebSocketConnectionLogEntry,
@@ -193,8 +194,33 @@ const handleConnect = async (): Promise<void> => {
   wsSession.value = createWebSocketSession()
   syncSessionState()
 
+  // Apply selected security to the URL before opening the socket. Browser
+  // WebSocket cannot send custom headers, so credentials must travel in the
+  // URL itself (api-key query params, basic auth userinfo, bearer/access_token).
+  const { url: authedConnectionUrl, unsupported: unsupportedAuth } =
+    applyAuthToWebSocketUrl(
+      resolvedConnectionUrl.value,
+      props.selectedSecuritySchemes,
+    )
+
+  if (unsupportedAuth.length > 0) {
+    const summary = unsupportedAuth.map(({ name }) => `"${name}"`).join(', ')
+    addConnectionLogEntry(
+      'error',
+      `Authentication ${summary} could not be applied`,
+      'Browser WebSocket clients cannot send custom request headers.',
+      unsupportedAuth.map(({ name, reason }) => ({
+        label: name,
+        value: reason,
+      })),
+    )
+    for (const { name, reason } of unsupportedAuth) {
+      toast(`Authentication "${name}" was skipped: ${reason}`, 'warn')
+    }
+  }
+
   const result = await connectWebSocket({
-    connectionUrl: resolvedConnectionUrl.value,
+    connectionUrl: authedConnectionUrl,
     session: wsSession.value,
     plugins: props.plugins,
     callbacks: {
