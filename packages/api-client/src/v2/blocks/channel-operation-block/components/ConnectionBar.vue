@@ -17,13 +17,13 @@ import type { AsyncApiServerEntry } from '@scalar/workspace-store/channel-exampl
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { computed, ref, useId } from 'vue'
 
-import { useLoadingAnimation } from '@/v2/blocks/scalar-address-bar-block/hooks/use-loading-animation'
 import {
   mergeConnectionUrl,
   splitConnectionUrl,
 } from '@/v2/blocks/channel-operation-block/helpers/connection-bar-url'
-import { CodeInput } from '@/v2/components/code-input'
 import type { WebSocketSessionState } from '@/v2/blocks/channel-operation-block/helpers/websocket-session'
+import { useLoadingAnimation } from '@/v2/blocks/scalar-address-bar-block/hooks/use-loading-animation'
+import { CodeInput } from '@/v2/components/code-input'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import AsyncApiServerDropdown from './AsyncApiServerDropdown.vue'
@@ -62,17 +62,23 @@ const emit = defineEmits<{
 const id = useId()
 const isServerDropdownOpen = ref(false)
 
-const { percentage, startLoading, stopLoading, isLoading } = useLoadingAnimation()
+const { percentage, startLoading, stopLoading, isLoading } =
+  useLoadingAnimation()
 
 const isConnected = computed(() => sessionState === 'open')
 const isConnecting = computed(() => sessionState === 'connecting')
 const canDisconnect = computed(
-  () => sessionState === 'open' || sessionState === 'connecting' || sessionState === 'closing',
+  () =>
+    sessionState === 'open' ||
+    sessionState === 'connecting' ||
+    sessionState === 'closing',
 )
 
 const serverBaseUrl = computed(() => selectedServer?.url ?? '')
 
-const connectionPath = computed(() => splitConnectionUrl(connectionUrl, serverBaseUrl.value).path)
+const connectionPath = computed(
+  () => splitConnectionUrl(connectionUrl, serverBaseUrl.value).path,
+)
 
 const addressBarAccentVar = 'var(--scalar-color-purple)'
 
@@ -151,7 +157,7 @@ defineExpose({
           <CodeInput
             alwaysEmitChange
             aria-label="Connection path"
-            class="ml-1 h-full min-w-0 w-full pl-px leading-[27px] outline-none"
+            class="ml-1 h-full w-full min-w-0 pl-px leading-[27px] outline-none"
             disableCloseBrackets
             :disabled="layout === 'modal'"
             disableEnter
@@ -161,7 +167,9 @@ defineExpose({
             :extensions="[addressBarScrollMargins]"
             :layout="layout"
             :modelValue="connectionPath"
-            :placeholder="serverBaseUrl ? 'Channel path or query' : 'Enter a WebSocket URL'"
+            :placeholder="
+              serverBaseUrl ? 'Channel path or query' : 'Enter a WebSocket URL'
+            "
             @update:modelValue="handlePathUpdate" />
         </div>
       </div>

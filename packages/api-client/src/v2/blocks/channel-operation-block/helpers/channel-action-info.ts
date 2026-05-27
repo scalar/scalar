@@ -18,5 +18,4 @@ const CHANNEL_ACTIONS = {
   },
 } as const satisfies Record<'send' | 'receive', ChannelActionInfo>
 
-export const getChannelActionInfo = (action: 'send' | 'receive'): ChannelActionInfo =>
-  CHANNEL_ACTIONS[action]
+export const getChannelActionInfo = (action: 'send' | 'receive'): ChannelActionInfo => CHANNEL_ACTIONS[action]

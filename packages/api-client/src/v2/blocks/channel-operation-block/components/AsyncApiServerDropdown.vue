@@ -7,14 +7,14 @@ export default {
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarFloatingBackdrop } from '@scalar/components/floating'
-import { ScalarPopover } from '@scalar/components/popover'
 import { ScalarListboxCheckbox } from '@scalar/components/listbox'
 import { ScalarMarkdown } from '@scalar/components/markdown'
+import { ScalarPopover } from '@scalar/components/popover'
 import type { AsyncApiServerEntry } from '@scalar/workspace-store/channel-example'
 import { computed } from 'vue'
 
-import ValueEmitter from '@/v2/components/layout/ValueEmitter.vue'
 import { stripTrailingSlash } from '@/v2/blocks/channel-operation-block/helpers/connection-bar-url'
+import ValueEmitter from '@/v2/components/layout/ValueEmitter.vue'
 
 const { target, servers, selectedServer } = defineProps<{
   /** Popover target element id */
@@ -66,15 +66,22 @@ const serverUrlWithoutTrailingSlash = computed(() => {
           v-for="entry in servers"
           :key="entry.name"
           class="flex min-h-8 cursor-pointer items-center gap-1.5 rounded px-1.5"
-          :class="entry.name === selectedServer?.name ? 'text-c-1 bg-b-2' : 'hover:bg-b-2'"
+          :class="
+            entry.name === selectedServer?.name
+              ? 'text-c-1 bg-b-2'
+              : 'hover:bg-b-2'
+          "
           type="button"
           @click="emit('select:server', entry.name)">
-          <ScalarListboxCheckbox :selected="entry.name === selectedServer?.name" />
+          <ScalarListboxCheckbox
+            :selected="entry.name === selectedServer?.name" />
           <span class="flex min-w-0 flex-col text-left">
-            <span class="overflow-hidden text-ellipsis whitespace-nowrap font-medium">
+            <span
+              class="overflow-hidden font-medium text-ellipsis whitespace-nowrap">
               {{ entry.title ?? entry.name }}
             </span>
-            <span class="text-c-3 overflow-hidden text-ellipsis whitespace-nowrap text-xs">
+            <span
+              class="text-c-3 overflow-hidden text-xs text-ellipsis whitespace-nowrap">
               {{ entry.connectionUrl ?? entry.url }}
             </span>
           </span>

@@ -28,7 +28,7 @@ const { operations } = defineProps<{
       <ChannelActionBadge
         :action="action"
         variant="inline" />
-      <div class="min-w-0 flex flex-1 flex-col gap-0.5">
+      <div class="flex min-w-0 flex-1 flex-col gap-0.5">
         <span class="text-c-2 text-sm leading-snug font-medium">
           {{ operation.title ?? operationName }}
         </span>

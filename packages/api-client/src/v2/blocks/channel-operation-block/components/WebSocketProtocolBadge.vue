@@ -23,7 +23,7 @@ const variants = cva({
 
 <template>
   <div
-    class="relative gap-1 whitespace-nowrap text-purple"
+    class="text-purple relative gap-1 whitespace-nowrap"
     :class="cx(variants({ isSquare: true }))"
     title="WebSocket channel">
     WS
