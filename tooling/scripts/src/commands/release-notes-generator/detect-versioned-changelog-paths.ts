@@ -11,7 +11,7 @@ const getRepoRoot = (): string => process.env.INIT_CWD ?? process.cwd()
 /**
  * Normalize a path to a repo-relative forward-slash form for set lookups.
  */
-export const normalizeRepoRelativePath = (inputPath: string): string => {
+const normalizeRepoRelativePath = (inputPath: string): string => {
   const repoRoot = getRepoRoot()
   const absolute = resolve(repoRoot, inputPath)
   return relative(repoRoot, absolute).replace(/\\/g, '/')
@@ -66,7 +66,7 @@ export const shouldGenerateReleaseNotesForProduct = (
  * Returns `null` when git is unavailable so callers fall back to
  * generating for every product rather than failing the release pipeline.
  */
-export const getPathsChangedSinceHead = async (): Promise<Set<string> | null> => {
+const getPathsChangedSinceHead = async (): Promise<Set<string> | null> => {
   try {
     const { stdout } = await execFileAsync('git', ['diff', '--name-only', 'HEAD'], {
       cwd: getRepoRoot(),
@@ -89,7 +89,7 @@ export const getPathsChangedSinceHead = async (): Promise<Set<string> | null> =>
  * Resolve product and dependency changelog paths to repo-relative form
  * before comparing against git output.
  */
-export const normalizeChangedPathsForComparison = (changedPaths: ReadonlySet<string>): Set<string> => {
+const normalizeChangedPathsForComparison = (changedPaths: ReadonlySet<string>): Set<string> => {
   return new Set([...changedPaths].map((path) => path.replace(/\\/g, '/')))
 }
 

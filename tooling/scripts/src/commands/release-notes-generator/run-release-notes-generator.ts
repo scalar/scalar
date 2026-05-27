@@ -24,7 +24,7 @@ import { writeReleaseNotesMarkdown } from './write-release-notes-markdown'
  * so `## 3.5.1` becomes `#351`. Changesets writes one such heading per
  * release, which keeps this stable across releases.
  */
-export const buildChangelogUrl = (changelogPath: string, version: string): string => {
+const buildChangelogUrl = (changelogPath: string, version: string): string => {
   const repoRelativePath = changelogPath.replace(/^\.\/+/, '').replace(/\\/g, '/')
   const anchor = version.replace(/[^a-zA-Z0-9]/g, '')
   return `https://github.com/scalar/scalar/blob/main/${repoRelativePath}#${anchor}`
@@ -44,7 +44,7 @@ type PackageJsonInfo = {
  * `package.json` already has the canonical value, and lets dependency
  * CHANGELOGs auto-derive the package name for prompt labelling.
  */
-export const readPackageJsonNextToChangelog = async (changelogPath: string): Promise<PackageJsonInfo> => {
+const readPackageJsonNextToChangelog = async (changelogPath: string): Promise<PackageJsonInfo> => {
   const packageJsonPath = resolve(dirname(changelogPath), 'package.json')
   try {
     const contents = await readFile(packageJsonPath, 'utf-8')
@@ -68,7 +68,7 @@ export const readPackageJsonNextToChangelog = async (changelogPath: string): Pro
  * release pipeline, matching the soft-fail philosophy used elsewhere
  * in this command.
  */
-export const loadDependencyChangelog = async (changelogPath: string): Promise<DependencyChangelog | null> => {
+const loadDependencyChangelog = async (changelogPath: string): Promise<DependencyChangelog | null> => {
   const resolvedPath = resolveUserPath(changelogPath)
   const info = await readPackageJsonNextToChangelog(resolvedPath)
 
@@ -102,7 +102,7 @@ export const loadDependencyChangelog = async (changelogPath: string): Promise<De
   }
 }
 
-export type RunReleaseNotesGeneratorOptions = {
+type RunReleaseNotesGeneratorOptions = {
   product: ReleaseNotesProduct
   apiKey: string
   version?: string
@@ -119,7 +119,7 @@ export type RunReleaseNotesGeneratorOptions = {
   changedPaths?: ReadonlySet<string> | null
 }
 
-export type RunReleaseNotesGeneratorResult = {
+type RunReleaseNotesGeneratorResult = {
   /** True when a note was generated (or printed in dry-run mode). */
   generated: boolean
   /** Path to the JSON file that was written or would be written. */
