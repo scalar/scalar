@@ -7,9 +7,53 @@ import { mergeObjects } from '@/helpers/merge-object'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getSelectedSecurity } from '@/request-example/context/security/get-selected-security'
 import type { WorkspaceDocument } from '@/schemas'
-import { isOpenApiDocument } from '@/schemas/type-guards'
+import { isOpenApiDocument, isWorkspaceDocument } from '@/schemas/type-guards'
 import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
 import type { OAuth2Object } from '@/schemas/v3.1/strict/security-scheme'
+
+/**
+ * Resolve the document name used to key the auth store.
+ *
+ * Returns `undefined` when the value is not a workspace document, when
+ * navigation has not been populated yet, or when the navigation does not
+ * carry a `name`. All auth mutators bail out in those cases because there
+ * is no stable key to write under.
+ */
+const getAuthDocumentName = (document: WorkspaceDocument | null): string | undefined => {
+  if (!isWorkspaceDocument(document)) {
+    return undefined
+  }
+  return document['x-scalar-navigation']?.name
+}
+
+/**
+ * Read-only view of the `securitySchemes` map on a workspace document.
+ *
+ * AsyncAPI types permit `components` to be a `$ref` wrapper while OpenAPI keeps
+ * it inline. This helper resolves either shape so callers can address a plain
+ * map without juggling the union, and returns `undefined` when there is nothing
+ * to read.
+ */
+const getComponentsSecuritySchemes = (document: WorkspaceDocument): Record<string, unknown> | undefined => {
+  if (!document.components) {
+    return undefined
+  }
+  const components = getResolvedRef(document.components) as { securitySchemes?: Record<string, unknown> }
+  return components.securitySchemes
+}
+
+/**
+ * Like {@link getComponentsSecuritySchemes}, but lazily creates the `components`
+ * and `securitySchemes` containers on the document when they are missing. Used
+ * by mutators that need a writable map to attach new schemes to.
+ */
+const ensureComponentsSecuritySchemes = (document: WorkspaceDocument): Record<string, unknown> => {
+  const mutable = document
+  mutable.components ??= {}
+  const components = getResolvedRef(mutable.components)
+  components.securitySchemes ??= {}
+  return components.securitySchemes
+}
 
 /**
  * Updates the selected security schemes for either the entire document or a specific operation.
@@ -40,11 +84,14 @@ export const updateSelectedSecuritySchemes = async (
   document: WorkspaceDocument | null,
   { selectedRequirements, newSchemes, meta }: AuthEvents['auth:update:selected-security-schemes'],
 ) => {
-  if (!isOpenApiDocument(document)) {
+  const documentName = getAuthDocumentName(document)
+  if (!document || !documentName) {
     return
   }
-  const documentName = document['x-scalar-navigation']?.name
-  if (!documentName) {
+
+  // Operation-level selection assumes OpenAPI `paths` semantics. AsyncAPI
+  // documents only support document-level authentication for now.
+  if (meta.type === 'operation' && !isOpenApiDocument(document)) {
     return
   }
 
@@ -57,11 +104,16 @@ export const updateSelectedSecuritySchemes = async (
     return store?.auth.getAuthSelectedSchemas({ type: 'operation', documentName, path: meta.path, method: meta.method })
   }
 
+  // Both OpenAPI and AsyncAPI store security schemes under `components.securitySchemes`.
+  // The value shapes differ between specs, but the assignment is structural and the auth
+  // store treats them opaquely.
+  const securitySchemes = ensureComponentsSecuritySchemes(document)
+
   const createdSecurityRequirements = await Promise.all(
     newSchemes.map(async (newScheme) => {
       const uniqueSchemeName = await generateUniqueValue({
         defaultValue: newScheme.name,
-        validation: (value) => !document.components?.securitySchemes?.[value],
+        validation: (value) => !securitySchemes[value],
         maxRetries: 100,
       })
 
@@ -69,16 +121,8 @@ export const updateSelectedSecuritySchemes = async (
         return
       }
 
-      // Ensure components and securitySchemes exist
-      if (!document.components) {
-        document.components = {}
-      }
-      if (!document.components.securitySchemes) {
-        document.components.securitySchemes = {}
-      }
-
       // Add the new security scheme definition
-      document.components.securitySchemes[uniqueSchemeName] = newScheme.scheme
+      securitySchemes[uniqueSchemeName] = newScheme.scheme
 
       // Return an OpenAPI Security Requirement Object for this new scheme (empty scope array)
       return {
@@ -130,11 +174,13 @@ const clearSelectedSecuritySchemes = (
   document: WorkspaceDocument | null,
   { meta }: AuthEvents['auth:clear:selected-security-schemes'],
 ) => {
-  if (!isOpenApiDocument(document)) {
+  const documentName = getAuthDocumentName(document)
+  if (!document || !documentName) {
     return
   }
-  const documentName = document['x-scalar-navigation']?.name
-  if (!documentName) {
+
+  // Operation-level selection is OpenAPI-only for now.
+  if (meta.type === 'operation' && !isOpenApiDocument(document)) {
     return
   }
 
@@ -171,10 +217,10 @@ export const updateSecurityScheme = (
   document: WorkspaceDocument | null,
   { payload, name }: AuthEvents['auth:update:security-scheme'],
 ) => {
-  if (!isOpenApiDocument(document)) {
+  if (!isWorkspaceDocument(document)) {
     return
   }
-  const target = getResolvedRef(document.components?.securitySchemes?.[name])
+  const target = getResolvedRef(getComponentsSecuritySchemes(document)?.[name]) as { type?: string } | undefined
   if (!target) {
     console.error(`Security scheme ${name} not found`)
     return
@@ -193,10 +239,7 @@ const updateSecuritySchemeSecrets = (
   document: WorkspaceDocument | null,
   { payload, name, overwrite = false }: AuthEvents['auth:update:security-scheme-secrets'],
 ) => {
-  if (!isOpenApiDocument(document)) {
-    return
-  }
-  const documentName = document['x-scalar-navigation']?.name
+  const documentName = getAuthDocumentName(document)
   if (!documentName) {
     return
   }
@@ -220,10 +263,7 @@ const clearSecuritySchemeSecrets = (
   document: WorkspaceDocument | null,
   { name }: AuthEvents['auth:clear:security-scheme-secrets'],
 ) => {
-  if (!isOpenApiDocument(document)) {
-    return
-  }
-  const documentName = document['x-scalar-navigation']?.name
+  const documentName = getAuthDocumentName(document)
   if (!documentName) {
     return
   }
@@ -262,17 +302,20 @@ export const updateSelectedAuthTab = (
   document: WorkspaceDocument | null,
   { index, meta }: AuthEvents['auth:update:active-index'],
 ) => {
-  if (!isOpenApiDocument(document)) {
-    return
-  }
-  const documentName = document['x-scalar-navigation']?.name
-  if (!documentName) {
+  const documentName = getAuthDocumentName(document)
+  if (!document || !documentName) {
     return
   }
 
-  // Ensure the path/method exists in the document
-  if (meta.type === 'operation' && document.paths?.[meta.path]?.[meta.method] === undefined) {
-    return
+  if (meta.type === 'operation') {
+    // Operation-level selection is OpenAPI-only for now (AsyncAPI does not use `paths`).
+    if (!isOpenApiDocument(document)) {
+      return
+    }
+    // Ensure the path/method exists in the document
+    if (document.paths?.[meta.path]?.[meta.method] === undefined) {
+      return
+    }
   }
 
   // Determine the target object for setting the auth tab index:
@@ -360,11 +403,13 @@ export const updateSelectedScopes = (
   document: WorkspaceDocument | null,
   { id, name, scopes, meta }: AuthEvents['auth:update:selected-scopes'],
 ) => {
-  if (!isOpenApiDocument(document)) {
+  const documentName = getAuthDocumentName(document)
+  if (!document || !documentName) {
     return
   }
-  const documentName = document['x-scalar-navigation']?.name
-  if (!documentName) {
+
+  // Operation-level selection is OpenAPI-only for now.
+  if (meta.type === 'operation' && !isOpenApiDocument(document)) {
     return
   }
 
@@ -387,7 +432,7 @@ export const updateSelectedScopes = (
       undefined,
       undefined,
       [],
-      (document.components?.securitySchemes ?? {}) as Record<
+      (getComponentsSecuritySchemes(document) ?? {}) as Record<
         string,
         { type?: string; 'x-default-scopes'?: string[] } | undefined
       >,
@@ -416,10 +461,10 @@ export const updateSelectedScopes = (
  * Returns `null` when the scheme or flow cannot be found, or the scheme is not an OAuth2 / OpenID Connect scheme.
  */
 const resolveOAuthFlow = (document: WorkspaceDocument, name: string, flowType: keyof OAuth2Object['flows']) => {
-  if (!isOpenApiDocument(document)) {
+  if (!isWorkspaceDocument(document)) {
     return null
   }
-  const securityScheme = getResolvedRef(document.components?.securitySchemes?.[name])
+  const securityScheme = getResolvedRef(getComponentsSecuritySchemes(document)?.[name]) as { type?: string } | undefined
   if (!securityScheme) {
     return null
   }
@@ -440,7 +485,7 @@ const walkSelectedSchemes = (
   document: WorkspaceDocument,
   transform: (selectedSchemes: SecurityRequirementObject[]) => void,
 ) => {
-  if (!isOpenApiDocument(document) || !store) {
+  if (!isWorkspaceDocument(document) || !store) {
     return
   }
   const documentName = document['x-scalar-navigation']?.name
@@ -466,6 +511,11 @@ const walkSelectedSchemes = (
   }
 
   apply({ type: 'document', documentName })
+
+  // Path-level selection storage is OpenAPI-only (AsyncAPI does not use `paths`).
+  if (!isOpenApiDocument(document)) {
+    return
+  }
 
   Object.entries(document.paths ?? {}).forEach(([path, pathItemObject]) => {
     Object.entries(pathItemObject).forEach(([method, operation]) => {
@@ -493,7 +543,7 @@ export const upsertScope = (
   document: WorkspaceDocument | null,
   { name, flowType, scope, description, oldScope, enable }: AuthEvents['auth:upsert:scopes'],
 ) => {
-  if (!isOpenApiDocument(document)) {
+  if (!isWorkspaceDocument(document)) {
     return
   }
   const flow = resolveOAuthFlow(document, name, flowType)
@@ -557,7 +607,7 @@ export const deleteScope = (
   document: WorkspaceDocument | null,
   { name, flowType, scope }: AuthEvents['auth:delete:scopes'],
 ) => {
-  if (!isOpenApiDocument(document)) {
+  if (!isWorkspaceDocument(document)) {
     return
   }
   const flow = resolveOAuthFlow(document, name, flowType)
@@ -604,17 +654,14 @@ export const deleteSecurityScheme = (
   document: WorkspaceDocument | null,
   { names }: AuthEvents['auth:delete:security-scheme'],
 ) => {
-  if (!isOpenApiDocument(document)) {
+  const documentName = getAuthDocumentName(document)
+  if (!document || !documentName) {
     // Early exit if there is no document to modify
-    return
-  }
-  const documentName = document['x-scalar-navigation']?.name
-  if (!documentName) {
     return
   }
 
   // Get the mutable reference to securitySchemes in components (may be a proxy/resolved reference)
-  const target = getResolvedRef(document.components?.securitySchemes)
+  const target = getComponentsSecuritySchemes(document)
 
   if (!target) {
     // If there are no security schemes to delete from, return early
@@ -649,6 +696,12 @@ export const deleteSecurityScheme = (
         selectedSchemes: filtered,
       },
     )
+  }
+
+  // The remaining work walks OpenAPI `paths`. AsyncAPI documents don't carry path-level
+  // security or selection state today, so document-level cleanup above is all we need.
+  if (!isOpenApiDocument(document)) {
+    return
   }
 
   // -- Remove from document-level `security` property, if present

@@ -20,7 +20,9 @@ import {
 
 const DOCUMENT_SLUG = ECHO_WEBSOCKET_DOCUMENT_SLUG
 
-const channelOptions = [{ id: 'echo', label: 'echo — WebSocket.org echo' }] as const
+const channelOptions = [
+  { id: 'echo', label: 'echo — WebSocket.org echo' },
+] as const
 
 const channelName = ref<string>(ECHO_WEBSOCKET_DEFAULT_CHANNEL)
 
@@ -29,6 +31,9 @@ const workspaceStore = createWorkspaceStore({
     'x-scalar-active-document': DOCUMENT_SLUG,
   },
 })
+
+// @ts-expect-error - For debugging purposes expose the store
+window.dataDumpWorkspace = () => workspaceStore
 
 const eventBus = createWorkspaceEventBus({
   debug: import.meta.env.DEV,
@@ -54,7 +59,10 @@ onMounted(async () => {
       document: echoWebsocketAsyncApiDocument,
     })
   } catch (error) {
-    loadError.value = error instanceof Error ? error.message : 'Failed to load AsyncAPI document'
+    loadError.value =
+      error instanceof Error
+        ? error.message
+        : 'Failed to load AsyncAPI document'
   } finally {
     isLoading.value = false
   }
@@ -65,7 +73,9 @@ const document = computed(() => {
   return entry && isAsyncApiDocument(entry) ? entry : null
 })
 
-const environment = computed(() => getActiveEnvironment(workspaceStore, document.value).environment)
+const environment = computed(
+  () => getActiveEnvironment(workspaceStore, document.value).environment,
+)
 </script>
 
 <template>
@@ -82,7 +92,8 @@ const environment = computed(() => getActiveEnvironment(workspaceStore, document
         <code class="font-code">{{ ECHO_WEBSOCKET_CONNECTION_URL }}</code>
       </p>
       <p class="text-c-3 mt-1 text-xs">
-        One connection per channel — connect once, send and receive on the same session (like Postman).
+        One connection per channel — connect once, send and receive on the same
+        session (like Postman).
       </p>
       <div class="mt-2 flex flex-wrap gap-2">
         <button
@@ -92,7 +103,7 @@ const environment = computed(() => getActiveEnvironment(workspaceStore, document
           :class="
             channelName === option.id
               ? 'border-c-1 bg-b-2 text-c-1'
-              : 'text-c-3 border-transparent hover:bg-b-2'
+              : 'text-c-3 hover:bg-b-2 border-transparent'
           "
           type="button"
           @click="channelName = option.id">
@@ -116,8 +127,8 @@ const environment = computed(() => getActiveEnvironment(workspaceStore, document
 
       <ChannelOperation
         v-else-if="document"
-        class="min-h-0 flex-1"
         :channelName="channelName"
+        class="min-h-0 flex-1"
         :document="document"
         :documentSlug="DOCUMENT_SLUG"
         :environment="environment"
