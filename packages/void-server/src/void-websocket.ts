@@ -18,7 +18,8 @@ export type VoidWebSocketOptions = {
    * Maximum connection lifetime in milliseconds.
    *
    * Falls back to the `VOID_WEBSOCKET_TIMEOUT_MS` env var, then to
-   * {@link DEFAULT_VOID_WEBSOCKET_TIMEOUT_MS}. Idle connections are closed to
+   * {@link DEFAULT_VOID_WEBSOCKET_TIMEOUT_MS} when omitted, zero, or negative.
+   * Idle connections are closed to
    * prevent sockets from accumulating in long-running deployments.
    */
   connectionTimeoutMs?: number
@@ -29,7 +30,7 @@ const isWebSocketUpgrade = (request: IncomingMessage): boolean => {
 }
 
 const resolveConnectionTimeoutMs = (overrideMs?: number): number => {
-  if (overrideMs !== undefined) {
+  if (overrideMs !== undefined && overrideMs > 0) {
     return overrideMs
   }
 
@@ -39,6 +40,13 @@ const resolveConnectionTimeoutMs = (overrideMs?: number): number => {
   }
 
   return DEFAULT_VOID_WEBSOCKET_TIMEOUT_MS
+}
+
+/** Marks an HTTP server that already has void WebSocket echo attached. */
+const VOID_WEBSOCKET_SERVER = Symbol('@scalar/void-server/websocket')
+
+type HttpServerWithVoidWebSocket = (HttpServer | ServerType) & {
+  [VOID_WEBSOCKET_SERVER]?: WebSocketServer
 }
 
 const bindEchoHandlers = (ws: WebSocket, connectionTimeoutMs: number): void => {
@@ -64,6 +72,10 @@ const bindEchoHandlers = (ws: WebSocket, connectionTimeoutMs: number): void => {
  * client uses (unless {@link VoidWebSocketOptions.path} is set). Incoming text
  * and binary frames are echoed back unchanged.
  *
+ * Calling this more than once on the same HTTP server is a no-op: the first
+ * call registers the upgrade listener and later calls return the existing
+ * {@link WebSocketServer} without applying new options.
+ *
  * @example
  * ```ts
  * import { serve } from '@hono/node-server'
@@ -79,11 +91,18 @@ export const attachVoidWebSocket = (
   httpServer: HttpServer | ServerType,
   options: VoidWebSocketOptions = {},
 ): WebSocketServer => {
+  const server = httpServer as HttpServerWithVoidWebSocket
+  const existing = server[VOID_WEBSOCKET_SERVER]
+  if (existing) {
+    return existing
+  }
+
   const webSocketServer = new WebSocketServer({ noServer: true })
   const connectionTimeoutMs = resolveConnectionTimeoutMs(options.connectionTimeoutMs)
 
   httpServer.on('upgrade', (request: IncomingMessage, socket, head) => {
     if (!isWebSocketUpgrade(request)) {
+      socket.destroy()
       return
     }
 
@@ -99,6 +118,8 @@ export const attachVoidWebSocket = (
       bindEchoHandlers(ws, connectionTimeoutMs)
     })
   })
+
+  server[VOID_WEBSOCKET_SERVER] = webSocketServer
 
   return webSocketServer
 }

@@ -52,6 +52,8 @@ attachVoidWebSocket(httpServer)
 
 Call `attachVoidWebSocket(httpServer)` to enable the WebSocket echo on an existing Node HTTP server. Connect with any path (for example `ws://localhost:3000/chat`) and the server echoes any text or binary frame back unchanged.
 
+Calling `attachVoidWebSocket` more than once on the same HTTP server is ignored: the first call registers the upgrade listener and later calls return the same `WebSocketServer` without adding another listener. Options passed on later calls are not applied.
+
 | Option | Description |
 | --- | --- |
 | `path` | Restrict accepted upgrades to a specific path. Defaults to accepting any path. |

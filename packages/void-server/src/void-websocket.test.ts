@@ -1,4 +1,5 @@
 import { type Server as HttpServer, createServer } from 'node:http'
+import { connect } from 'node:net'
 
 import { getRequestListener } from '@hono/node-server'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -78,6 +79,23 @@ describe('attachVoidWebSocket', () => {
     client.close()
   })
 
+  it('destroys the socket for non-WebSocket upgrade requests', async () => {
+    await startServer()
+
+    const closed = await new Promise<boolean>((resolve) => {
+      const socket = connect(port, '127.0.0.1', () => {
+        socket.write(
+          'GET / HTTP/1.1\r\n' + 'Host: localhost\r\n' + 'Connection: Upgrade\r\n' + 'Upgrade: h2c\r\n' + '\r\n',
+        )
+      })
+
+      socket.on('close', () => resolve(true))
+      setTimeout(() => resolve(false), 500)
+    })
+
+    expect(closed).toBe(true)
+  })
+
   it('rejects upgrades on paths other than the configured one', async () => {
     await startServer({ path: '/ws' })
 
@@ -111,5 +129,70 @@ describe('attachVoidWebSocket', () => {
 
   it('falls back to the default timeout when none is provided', () => {
     expect(DEFAULT_VOID_WEBSOCKET_TIMEOUT_MS).toBe(60_000)
+  })
+
+  it('falls back to the default timeout when connectionTimeoutMs is zero or negative', async () => {
+    vi.useFakeTimers()
+    await startServer({ connectionTimeoutMs: 0 })
+
+    const client = new WebSocket(`ws://127.0.0.1:${port}/`)
+    const echoed = new Promise<string>((resolve, reject) => {
+      client.on('message', (data) => resolve(data.toString()))
+      client.on('error', reject)
+    })
+
+    await waitForOpen(client)
+    await vi.advanceTimersByTimeAsync(100)
+
+    client.send('still open')
+    await expect(echoed).resolves.toBe('still open')
+
+    await vi.advanceTimersByTimeAsync(DEFAULT_VOID_WEBSOCKET_TIMEOUT_MS)
+
+    const closed = new Promise<{ code: number; reason: string }>((resolve) => {
+      client.on('close', (code, reason) => {
+        resolve({ code, reason: reason.toString() })
+      })
+    })
+
+    await expect(closed).resolves.toMatchObject({
+      code: 1000,
+      reason: 'Connection timeout',
+    })
+  })
+
+  it('registers only one upgrade listener when called multiple times', async () => {
+    const app = createVoidServer()
+    httpServer = createServer(getRequestListener(app.fetch))
+
+    const first = attachVoidWebSocket(httpServer)
+    const second = attachVoidWebSocket(httpServer)
+
+    expect(first).toBe(second)
+    expect(httpServer.listenerCount('upgrade')).toBe(1)
+
+    port = await listen(httpServer)
+
+    const client = new WebSocket(`ws://127.0.0.1:${port}/`)
+    const messages: string[] = []
+    const echoed = new Promise<string>((resolve, reject) => {
+      client.on('message', (data) => {
+        messages.push(data.toString())
+        if (messages.length === 1) {
+          resolve(data.toString())
+        }
+      })
+      client.on('error', reject)
+    })
+
+    await waitForOpen(client)
+    client.send('once')
+
+    await expect(echoed).resolves.toBe('once')
+
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(messages).toEqual(['once'])
+
+    client.close()
   })
 })
