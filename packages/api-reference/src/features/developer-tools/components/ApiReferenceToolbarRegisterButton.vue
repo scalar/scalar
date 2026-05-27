@@ -10,12 +10,14 @@ import { uploadTempDocument } from '@/helpers/upload-temp-document'
 
 const {
   sdks = [],
+  extraParams = {},
   workspace,
   externalUrls,
 } = defineProps<{
   workspace: WorkspaceStore
   externalUrls: ExternalUrls
   sdks?: string[]
+  extraParams?: Record<string, string>
 }>()
 
 const tempDocUrl = defineModel<string>('url')
@@ -28,6 +30,9 @@ function openRegisterLink(docUrl: string) {
   const url = new URL(`${externalUrls.dashboardUrl}/register`)
   url.searchParams.set('url', docUrl)
   sdks.forEach((sdk) => url.searchParams.append('sdk', sdk))
+  Object.entries(extraParams).forEach(([key, value]) =>
+    url.searchParams.set(key, value),
+  )
 
   window.open(url.toString(), '_blank')
 }
