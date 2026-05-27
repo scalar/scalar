@@ -63,8 +63,7 @@ export const generateCodeSnippet = ({
     // Use the selected custom example
     if (clientId.startsWith('custom')) {
       return (
-        customCodeSamples.find((example) => generateCustomId(example) === clientId)?.source ??
-        'Custom example not found'
+        customCodeSamples.find((_, index) => generateCustomId(index) === clientId)?.source ?? 'Custom example not found'
       )
     }
 

@@ -54,14 +54,14 @@ describe('getClients', () => {
       key: 'custom',
       options: [
         {
-          id: 'custom/python',
+          id: 'custom/0',
           lang: 'python',
           clientKey: 'custom',
           title: 'Custom Python Example',
           label: 'Custom Python Example',
         },
         {
-          id: 'custom/js',
+          id: 'custom/1',
           lang: 'js',
           clientKey: 'custom',
           title: 'Custom JS Example',
@@ -108,17 +108,17 @@ describe('getClients', () => {
     const firstOption = result[0]?.options[0]
     expect(firstOption).toBeDefined()
     expect(firstOption).toMatchObject({
-      id: 'custom/undefined',
+      id: 'custom/0',
       lang: 'plaintext',
-      title: 'custom/undefined',
-      label: 'custom/undefined',
+      title: 'custom/0',
+      label: 'custom/0',
     })
 
     // When label is missing, should use lang
     const secondOption = result[0]?.options[1]
     expect(secondOption).toBeDefined()
     expect(secondOption).toMatchObject({
-      id: 'custom/ruby',
+      id: 'custom/1',
       lang: 'ruby',
       title: 'ruby',
       label: 'ruby',
@@ -128,7 +128,7 @@ describe('getClients', () => {
     const thirdOption = result[0]?.options[2]
     expect(thirdOption).toBeDefined()
     expect(thirdOption).toMatchObject({
-      id: 'custom/undefined',
+      id: 'custom/2',
       lang: 'plaintext',
       title: 'Special Example',
       label: 'Special Example',
@@ -246,11 +246,11 @@ describe('getClients', () => {
     expect(result[0]?.label).toBe('Code Examples')
     expect(result[0]?.options).toHaveLength(4)
 
-    // Both python examples should be included with the same ID but different labels
+    // Both python examples must get distinct IDs so they stay individually selectable
     const firstPythonOption = result[0]?.options[0]
     expect(firstPythonOption).toBeDefined()
     expect(firstPythonOption).toMatchObject({
-      id: 'custom/python',
+      id: 'custom/0',
       lang: 'python',
       label: 'Python Example 1',
     })
@@ -258,16 +258,18 @@ describe('getClients', () => {
     const secondPythonOption = result[0]?.options[1]
     expect(secondPythonOption).toBeDefined()
     expect(secondPythonOption).toMatchObject({
-      id: 'custom/python',
+      id: 'custom/1',
       lang: 'python',
       label: 'Python Example 2',
     })
 
-    // Special characters in language names should be preserved
+    expect(firstPythonOption?.id).not.toBe(secondPythonOption?.id)
+
+    // Languages with special characters should still produce unique IDs
     const cppOption = result[0]?.options[2]
     expect(cppOption).toBeDefined()
     expect(cppOption).toMatchObject({
-      id: 'custom/c++',
+      id: 'custom/2',
       lang: 'c++',
       label: 'C++ Example',
     })
@@ -275,7 +277,7 @@ describe('getClients', () => {
     const objcOption = result[0]?.options[3]
     expect(objcOption).toBeDefined()
     expect(objcOption).toMatchObject({
-      id: 'custom/objective-c',
+      id: 'custom/3',
       lang: 'objective-c',
       label: 'Objective-C Example',
     })
