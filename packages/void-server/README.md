@@ -18,6 +18,7 @@ It's running on <https://void.scalar.com>, feel free to use it.
 - https://void.scalar.com/foobar.xml
 - https://void.scalar.com/foobar.zip
 - https://void.scalar.com/?foo=bar&foo=rab
+- ws://localhost:5052/any-path (WebSocket echo on any path; closes after 60s by default)
 
 ## Installation
 
@@ -29,22 +30,34 @@ npm add @scalar/void-server
 
 ```ts
 import { serve } from '@hono/node-server'
-import { createVoidServer } from '@scalar/void-server'
+import {
+  attachVoidWebSocketEcho,
+  createVoidServer,
+  createVoidWebSocketServer,
+} from '@scalar/void-server'
 
 // Create the server instance
-const app = await createVoidServer()
+const app = createVoidServer()
+const webSocketServer = createVoidWebSocketServer()
 
 // Start the server
-serve(
+const httpServer = serve(
   {
     fetch: app.fetch,
     port: 3000,
   },
   (info) => {
     console.log(`Listening on http://localhost:${info.port}`)
+    console.log(`WebSocket echo at ws://localhost:${info.port}/<any-path>`)
   },
 )
+
+attachVoidWebSocketEcho(httpServer, webSocketServer)
 ```
+
+### WebSocket echo
+
+Connect with any path (for example `ws://localhost:3000/chat`) — the server detects `Upgrade: websocket` and echoes any text or binary frame back. Connections close automatically after 60 seconds (override with `VOID_WEBSOCKET_TIMEOUT_MS` or the `connectionTimeoutMs` option) so idle sockets do not accumulate.
 
 ## Community
 
