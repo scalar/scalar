@@ -26,7 +26,7 @@ import { getFetch } from '@/helpers/get-fetch'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
-import { createNavigation } from '@/navigation'
+import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import {
   externalValueResolver,
@@ -998,13 +998,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       loaders.push(workspaceProps.fileLoader)
     }
 
-    // AsyncAPI ingestion: skip the OpenAPI-specific upgrade, bundle, coerce,
-    // validate, and navigation pipeline. The OpenAPI `coerce` step would
-    // otherwise inject an empty `openapi: ''` field and break the type
-    // discriminator. Reference resolution and navigation generation for
-    // AsyncAPI are out of scope for the MVP — only the workspace-store
-    // managed metadata (source url, document hash, spec version) is set so
-    // change detection on rebase can compare hashes correctly.
+    // AsyncAPI ingestion: skip the OpenAPI-specific upgrade and validation pipeline.
+    // The OpenAPI `coerce` step would otherwise inject an empty `openapi: ''` field
+    // and break the type discriminator.
     if (isAsyncApiDocument(clonedRawInputDocument)) {
       const asyncApiDocument = createMagicProxy({
         ...clonedRawInputDocument,
@@ -1030,6 +1026,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         coerce(asyncApiObjectSchema as Schema, deepClone(getRaw(asyncApiDocument))),
       )
       withMeasurementSync('mergeObjects', () => mergeObjects(asyncApiDocument, coerced))
+
+      if (asyncApiDocument[extensions.document.navigation] === undefined) {
+        const navigation = traverseAsyncApiDocument(name, asyncApiDocument, navigationOptions)
+        asyncApiDocument[extensions.document.navigation] = navigation
+      }
 
       workspace.documents[name] = createOverridesProxy(asyncApiDocument, {
         overrides: unpackProxyObject(overrides[name]),
