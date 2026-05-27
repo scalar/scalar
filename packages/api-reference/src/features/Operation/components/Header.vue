@@ -8,7 +8,15 @@ import type {
 
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 
-const { name, header, breadcrumb, document } = defineProps<{
+const {
+  name,
+  header,
+  breadcrumb,
+  document,
+  orderSchemaPropertiesBy,
+  orderRequiredPropertiesFirst,
+  expandAllSchemaProperties,
+} = defineProps<{
   header: HeaderObject
   name: string
   breadcrumb?: string[]
@@ -17,6 +25,7 @@ const { name, header, breadcrumb, document } = defineProps<{
   document?: OpenApiDocument
   orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
   orderRequiredPropertiesFirst: boolean | undefined
+  expandAllSchemaProperties: boolean | undefined
 }>()
 </script>
 <template>
@@ -29,6 +38,7 @@ const { name, header, breadcrumb, document } = defineProps<{
     :options="{
       orderRequiredPropertiesFirst: orderRequiredPropertiesFirst,
       orderSchemaPropertiesBy: orderSchemaPropertiesBy,
+      expandAllSchemaProperties: expandAllSchemaProperties,
       document,
     }"
     :schema="getResolvedRef(header.schema)" />

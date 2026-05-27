@@ -448,6 +448,8 @@ type ExtendedConfiguration = {
   expandAllModelSections: boolean
   /** Whether to expand all responses by default. Warning: this can cause performance issues on big documents */
   expandAllResponses: boolean
+  /** Whether to expand all nested schema properties. Warning: this can cause performance issues on big documents */
+  expandAllSchemaProperties: boolean
   /** Function to sort tags */
   tagsSorter?: 'alpha' | ((a: any, b: any) => number)
   /** Function to sort operations */

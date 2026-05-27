@@ -215,6 +215,11 @@ export const apiReferenceConfigurationSchema = intersection([
       typeComment:
         'Whether to expand all responses by default. Warning: this can cause performance issues on big documents',
     }),
+    expandAllSchemaProperties: boolean({
+      default: false,
+      typeComment:
+        'Whether to expand all nested schema properties. When true, the Show/Hide Child Attributes toggle is not rendered and nested object properties are always visible. Warning: this can cause performance issues on big documents',
+    }),
     tagsSorter: optional(union([literal('alpha'), fn<(a: any, b: any) => number>()]), {
       typeComment: 'Function to sort tags',
     }),

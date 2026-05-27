@@ -64,14 +64,43 @@ const {
   /** Internal path used to sync nested request body compositions with the code sample */
   compositionPath?: string[]
 }>()
+/**
+ * Safety cap for `expandAllSchemaProperties`.
+ *
+ * We still auto-expand common schema nesting levels, but stop forcing nested
+ * disclosures open once we get deep in the tree. Deep levels are where
+ * recursive/circular schemas can explode render depth and hide sections.
+ *
+ * `6` is a pragmatic threshold: high enough to cover normal API payload
+ * structures while preventing runaway expansion on self-referential models.
+ */
+const MAX_AUTO_EXPAND_DEPTH = 6
+
+const shouldForceExpand = computed(
+  (): boolean =>
+    !!options.expandAllSchemaProperties && level < MAX_AUTO_EXPAND_DEPTH,
+)
 
 /**
  * Determines whether to show the collapse/expand toggle button.
  * We hide the toggle for non-collapsible schemas and root-level schemas.
  */
 const shouldShowToggle = computed((): boolean => {
+  if (shouldForceExpand.value) {
+    return false
+  }
+
   return !noncollapsible && level > 0
 })
+
+/**
+ * Whether the disclosure starts expanded. Non-collapsible schemas are always
+ * open, and when child properties are always shown there is no toggle to expand
+ * them, so they must start open too.
+ */
+const defaultOpen = computed(
+  (): boolean => noncollapsible || shouldForceExpand.value,
+)
 
 /** Gets the description to show for the schema */
 const schemaDescription = computed(() => {
@@ -107,14 +136,18 @@ const schemaDescription = computed(() => {
   return schema.description
 })
 
-// Prevent click action if noncollapsible
-const handleClick = (e: MouseEvent) => noncollapsible && e.stopPropagation()
+// Prevent click action if noncollapsible or child properties are always shown
+const handleClick = (e: MouseEvent) => {
+  if (noncollapsible || shouldForceExpand.value) {
+    e.stopPropagation()
+  }
+}
 </script>
 <template>
   <Disclosure
     v-if="typeof schema === 'object' && Object.keys(schema).length"
     v-slot="{ open }"
-    :defaultOpen="noncollapsible">
+    :defaultOpen="defaultOpen">
     <div
       class="schema-card"
       :class="[

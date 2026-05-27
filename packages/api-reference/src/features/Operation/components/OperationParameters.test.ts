@@ -11,6 +11,7 @@ describe('OperationParameters', () => {
     hideModels: false,
     orderRequiredPropertiesFirst: false,
     orderSchemaPropertiesBy: 'alpha' as const,
+    expandAllSchemaProperties: false,
   }
 
   describe('path parameters', () => {

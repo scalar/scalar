@@ -29,6 +29,7 @@ const { requestBody, options, document } = defineProps<{
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
     hideModels: boolean | undefined
+    expandAllSchemaProperties: boolean | undefined
   }
 }>()
 
@@ -184,6 +185,7 @@ const shouldRenderRequestBody = computed(
           hideReadOnly: true,
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+          expandAllSchemaProperties: options.expandAllSchemaProperties,
           document,
         }"
         :schema="partitionedSchema.visibleProperties"
@@ -201,6 +203,7 @@ const shouldRenderRequestBody = computed(
           hideReadOnly: true,
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+          expandAllSchemaProperties: options.expandAllSchemaProperties,
           document,
         }"
         :schema="partitionedSchema.collapsedProperties"
@@ -223,6 +226,7 @@ const shouldRenderRequestBody = computed(
           hideReadOnly: true,
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+          expandAllSchemaProperties: options.expandAllSchemaProperties,
           document,
         }"
         :schema="schema"

@@ -1,5 +1,5 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -731,6 +731,77 @@ describe('Schema', () => {
 
       // Check that the oneOf schema is inheiriting the description correctly
       expect(text).toContain('The date the object was closed in YYYY-MM-DD or ISO 8601 format.')
+    })
+  })
+  describe('expandAllSchemaProperties', () => {
+    it('does not render the toggle and shows nested properties when expandAllSchemaProperties is true', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          schema: {
+            type: 'object',
+            properties: {
+              foo: {
+                type: 'object',
+                properties: {
+                  bar: { type: 'string' },
+                },
+              },
+            },
+          },
+          level: 1,
+          eventBus: null,
+          options: { expandAllSchemaProperties: true },
+        },
+      })
+
+      expect(wrapper.find('button').exists()).toBe(false)
+      expect(wrapper.text()).toContain('bar')
+    })
+
+    it('renders the toggle when expandAllSchemaProperties is false', () => {
+      const wrapper = mount(Schema, {
+        props: {
+          schema: {
+            type: 'object',
+            properties: {
+              foo: {
+                type: 'object',
+                properties: {
+                  bar: { type: 'string' },
+                },
+              },
+            },
+          },
+          level: 1,
+          eventBus: null,
+          options: {},
+        },
+      })
+
+      expect(wrapper.find('button').exists()).toBe(true)
+    })
+
+    it('does not infinitely expand circular schema references when expandAllSchemaProperties is true', () => {
+      const circularSchema = {
+        type: 'object',
+        properties: {},
+      } as Extract<SchemaObject, { type: 'object' }>
+
+      circularSchema.properties = {
+        self: circularSchema,
+      }
+
+      const wrapper = mount(Schema, {
+        props: {
+          schema: circularSchema,
+          level: 1,
+          eventBus: null,
+          options: { expandAllSchemaProperties: true },
+        },
+      })
+
+      expect(wrapper.text()).toContain('self')
+      expect(wrapper.find('button').exists()).toBe(true)
     })
   })
 })

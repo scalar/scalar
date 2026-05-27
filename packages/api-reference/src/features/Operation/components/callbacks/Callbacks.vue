@@ -23,7 +23,10 @@ const { path, callbacks, options } = defineProps<{
   document?: OpenApiDocument
   options: Pick<
     OperationProps['options'],
-    'hideModels' | 'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
+    | 'hideModels'
+    | 'orderRequiredPropertiesFirst'
+    | 'orderSchemaPropertiesBy'
+    | 'expandAllSchemaProperties'
   >
 }>()
 

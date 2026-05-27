@@ -12,6 +12,7 @@ describe('ParameterList', () => {
     hideModels: false,
     orderRequiredPropertiesFirst: true,
     orderSchemaPropertiesBy: 'alpha' as const,
+    expandAllSchemaProperties: false,
   }
 
   const createParameter = (name: string, overrides?: Partial<ParameterObject>): ParameterObject => ({
@@ -94,6 +95,7 @@ describe('ParameterList', () => {
       hideModels: false,
       orderRequiredPropertiesFirst: false,
       orderSchemaPropertiesBy: 'preserve' as const,
+      expandAllSchemaProperties: false,
     }
 
     const wrapper = mount(ParameterList, {

@@ -20,6 +20,7 @@ const { schema, isCollapsed, id, options, eventBus, document } = defineProps<{
     | 'layout'
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
+    | 'expandAllSchemaProperties'
     | 'hideModels'
   >
   schema: SchemaObject | undefined

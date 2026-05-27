@@ -16,6 +16,7 @@ export type OperationProps = {
     | 'layout'
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
+    | 'expandAllSchemaProperties'
     | 'showOperationId'
   >
   /** Document object */

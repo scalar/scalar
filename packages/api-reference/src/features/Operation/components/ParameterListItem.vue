@@ -34,7 +34,10 @@ const { name, parameter, options, collapsableItems, document } = defineProps<{
   document?: OpenApiDocument
   options: Pick<
     OperationProps['options'],
-    'hideModels' | 'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy'
+    | 'hideModels'
+    | 'orderRequiredPropertiesFirst'
+    | 'orderSchemaPropertiesBy'
+    | 'expandAllSchemaProperties'
   >
 }>()
 
@@ -166,6 +169,7 @@ const shouldCollapse = computed<boolean>(() =>
           :breadcrumb="breadcrumb"
           :document="document"
           :eventBus="eventBus"
+          :expandAllSchemaProperties="options.expandAllSchemaProperties"
           :headers="headers"
           :orderRequiredPropertiesFirst="options.orderRequiredPropertiesFirst"
           :orderSchemaPropertiesBy="options.orderSchemaPropertiesBy" />
@@ -185,6 +189,7 @@ const shouldCollapse = computed<boolean>(() =>
             hideWriteOnly: true,
             orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
             orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
+            expandAllSchemaProperties: options.expandAllSchemaProperties,
             document,
           }"
           :required="'required' in parameter && parameter.required"
