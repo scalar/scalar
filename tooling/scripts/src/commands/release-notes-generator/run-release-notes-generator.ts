@@ -134,10 +134,10 @@ export const runReleaseNotesGeneratorForProduct = async (
 
   const version = options.version ?? (await readPackageJsonNextToChangelog(changelogPath)).version
   if (!version) {
-    console.error(
-      `Could not determine the release version for ${product.slug}. Pass --version explicitly or ensure ${dirname(changelogPath)}/package.json has a "version" field.`,
+    console.warn(
+      `Could not determine the release version for ${product.slug}. Pass --version explicitly or ensure ${dirname(changelogPath)}/package.json has a "version" field; skipping.`,
     )
-    process.exit(1)
+    return { generated: false, outputPath }
   }
 
   const changelog = await readFile(changelogPath, 'utf-8')
