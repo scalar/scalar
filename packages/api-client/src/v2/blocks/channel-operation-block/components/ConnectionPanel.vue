@@ -81,6 +81,7 @@ const stateColorClass = computed(() => {
       <MessageLog
         :connectionLogEntries="connectionLogEntries"
         :frames="frames"
+        :sessionState="sessionState"
         @clear="emit('clear:messages')" />
     </div>
   </ViewLayoutSection>

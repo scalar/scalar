@@ -111,12 +111,18 @@ const outgoingPayload = ref(
     : '{}',
 )
 
-/** Always allow sending while testing a channel (Postman-style). */
-const canSend = computed(() => true)
+const canComposeMessage = true
+const isConnected = computed(() => sessionState.value === 'open')
 
 const environmentVariables = computed(() =>
   getEnvironmentVariables(props.environment),
 )
+
+const channelParameters = computed<ChannelParametersContext>(() => ({
+  definitions: props.parameters.definitions,
+  path: pathParameters.value,
+  query: queryParameters.value,
+}))
 
 const resolvedConnectionUrl = computed(() => {
   if (connectionUrlOverride.value != null) {
@@ -298,14 +304,39 @@ const handleSelectServer = (serverName: string): void => {
   )
 }
 
-watch(
-  () => props.selectedServer?.name,
-  () => {
-    connectionUrlOverride.value = null
-  },
-)
+const handleConnectionUrlUpdate = (value: string): void => {
+  connectionUrlOverride.value = value
+}
 
-watch([() => props.channelName, () => props.parameters], () => {
+const handlePathParameterUpdate = ({
+  name,
+  value,
+}: {
+  name: string
+  value: string
+}): void => {
+  pathParameters.value[name] = value
+}
+
+const handleQueryParameterUpdate = ({
+  name,
+  value,
+}: {
+  name: string
+  value: string
+}): void => {
+  queryParameters.value[name] = value
+}
+
+const handleSelectedMessageNameUpdate = (value: string): void => {
+  selectedMessageName.value = value
+}
+
+const handleOutgoingPayloadUpdate = (value: string): void => {
+  outgoingPayload.value = value
+}
+
+const resetChannelDraft = (): void => {
   pathParameters.value = { ...props.parameters.path }
   queryParameters.value = { ...props.parameters.query }
   connectionUrlOverride.value = null
@@ -314,6 +345,17 @@ watch([() => props.channelName, () => props.parameters], () => {
   outgoingPayload.value = props.selectedMessage
     ? getMessagePayloadExample(props.selectedMessage.message)
     : '{}'
+}
+
+watch(
+  () => props.selectedServer?.name,
+  () => {
+    connectionUrlOverride.value = null
+  },
+)
+
+watch([() => props.channelName, () => props.parameters], () => {
+  resetChannelDraft()
   handleDisconnect()
 })
 
@@ -339,7 +381,7 @@ onBeforeUnmount(() => {
         @copy:url="handleCopyUrl"
         @disconnect="handleDisconnect"
         @select:server="handleSelectServer"
-        @update:connectionUrl="(value) => (connectionUrlOverride = value)" />
+        @update:connectionUrl="handleConnectionUrlUpdate" />
       <div class="mb-2 hidden flex-1 @3xl:mb-0 @3xl:flex"></div>
     </div>
 
@@ -347,23 +389,19 @@ onBeforeUnmount(() => {
       <ViewLayoutContent class="flex-1">
         <ChannelRequestBlock
           :authMeta="authMeta"
-          :canSend="canSend"
+          :canSend="canComposeMessage"
           :channel="channel"
           :channelAddress="channelAddress"
           :channelName="channelName"
           :environment="environment"
           :eventBus="eventBus"
-          :isConnected="sessionState === 'open'"
+          :isConnected="isConnected"
           :layout="layout"
           :messages="messages"
           :operations="operations"
           :options="options"
           :outgoingPayload="outgoingPayload"
-          :parameters="{
-            definitions: parameters.definitions,
-            path: pathParameters,
-            query: queryParameters,
-          }"
+          :parameters="channelParameters"
           :plugins="plugins"
           proxyUrl=""
           :securityRequirements="securityRequirements"
@@ -373,20 +411,10 @@ onBeforeUnmount(() => {
           :selectedSecuritySchemes="selectedSecuritySchemes"
           :server="authServer"
           @send:message="handleSendMessage"
-          @update:outgoingPayload="(value) => (outgoingPayload = value)"
-          @update:pathParameter="
-            ({ name, value }) => {
-              pathParameters[name] = value
-            }
-          "
-          @update:queryParameter="
-            ({ name, value }) => {
-              queryParameters[name] = value
-            }
-          "
-          @update:selectedMessageName="
-            (value) => (selectedMessageName = value)
-          " />
+          @update:outgoingPayload="handleOutgoingPayloadUpdate"
+          @update:pathParameter="handlePathParameterUpdate"
+          @update:queryParameter="handleQueryParameterUpdate"
+          @update:selectedMessageName="handleSelectedMessageNameUpdate" />
 
         <ConnectionPanel
           :connectionLogEntries="connectionLogEntries"

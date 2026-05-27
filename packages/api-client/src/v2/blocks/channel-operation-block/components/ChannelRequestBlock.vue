@@ -6,13 +6,17 @@ export default {
 
 <script setup lang="ts">
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
+import type { AsyncApiChannelObject } from '@scalar/types/asyncapi/3.1'
 import type {
   ChannelMessageEntry,
   ChannelOperationSummary,
   ChannelParametersContext,
 } from '@scalar/workspace-store/channel-example'
 import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
-import type { AuthMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type {
+  AuthMeta,
+  WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
 import {
   type MergedSecuritySchemes,
   type SecuritySchemeObjectSecret,
@@ -22,7 +26,6 @@ import type {
   OpenApiDocument,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { AsyncApiChannelObject } from '@scalar/types/asyncapi/3.1'
 import { computed, ref, useId } from 'vue'
 
 import SectionFilter from '@/components/SectionFilter.vue'
@@ -31,15 +34,12 @@ import { createChannelParameterRows } from '@/v2/blocks/channel-operation-block/
 import { getMessagePayloadExample } from '@/v2/blocks/channel-operation-block/helpers/get-message-payload-example'
 import RequestTable from '@/v2/blocks/request-block/components/RequestTable.vue'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
-import type { ApiClientOptions } from '@/v2/types/options'
 import { CollapsibleSection } from '@/v2/components/layout'
 import type { ClientLayout } from '@/v2/types/layout'
+import type { ApiClientOptions } from '@/v2/types/options'
 
 import ChannelMessageEditor from './ChannelMessageEditor.vue'
 import ChannelOperationsReference from './ChannelOperationsReference.vue'
-
-const CHANNEL_SECTIONS = ['Params', 'Query', 'Auth', 'Operations', 'Message'] as const
-type Filter = 'All' | (typeof CHANNEL_SECTIONS)[number]
 
 const {
   authMeta,
@@ -87,7 +87,6 @@ const {
   plugins: ClientPlugin[]
   options?: ApiClientOptions
 }>()
-
 const emit = defineEmits<{
   (e: 'update:pathParameter', payload: { name: string; value: string }): void
   (e: 'update:queryParameter', payload: { name: string; value: string }): void
@@ -95,6 +94,22 @@ const emit = defineEmits<{
   (e: 'update:outgoingPayload', value: string): void
   (e: 'send:message'): void
 }>()
+const CHANNEL_SECTIONS = [
+  'Params',
+  'Query',
+  'Auth',
+  'Operations',
+  'Message',
+] as const
+type Filter = 'All' | (typeof CHANNEL_SECTIONS)[number]
+const FILTER_IDS = {
+  All: useId(),
+  Params: useId(),
+  Query: useId(),
+  Auth: useId(),
+  Operations: useId(),
+  Message: useId(),
+} satisfies Record<Filter, string>
 
 const selectedFilter = ref<Filter>('All')
 const filters = computed<Filter[]>(() => {
@@ -119,11 +134,6 @@ const filters = computed<Filter[]>(() => {
   return [...available]
 })
 
-const filterIds = computed(
-  () =>
-    Object.fromEntries(filters.value.map((section) => [section, useId()])) as Record<Filter, string>,
-)
-
 const isSectionVisible = (section: Filter): boolean =>
   selectedFilter.value === 'All' || selectedFilter.value === section
 
@@ -143,7 +153,10 @@ const handlePathUpsert = (
     return
   }
 
-  emit('update:pathParameter', { name: payload.name, value: payload.value ?? '' })
+  emit('update:pathParameter', {
+    name: payload.name,
+    value: payload.value ?? '',
+  })
 }
 
 const handleQueryUpsert = (
@@ -154,7 +167,10 @@ const handleQueryUpsert = (
     return
   }
 
-  emit('update:queryParameter', { name: payload.name, value: payload.value ?? '' })
+  emit('update:queryParameter', {
+    name: payload.name,
+    value: payload.value ?? '',
+  })
 }
 
 const handleMessageSelect = (messageName: string): void => {
@@ -166,9 +182,7 @@ const handleMessageSelect = (messageName: string): void => {
   }
 }
 
-const channelTitle = computed(
-  () => channel.title ?? channelName,
-)
+const channelTitle = computed(() => channel.title ?? channelName)
 
 const channelSubtitle = computed(() => {
   const parts: string[] = []
@@ -195,17 +209,17 @@ const channelSubtitle = computed(() => {
       </div>
       <SectionFilter
         v-model="selectedFilter"
-        :filterIds="filterIds"
+        :filterIds="FILTER_IDS"
         :filters="filters" />
     </template>
 
     <div
-      :id="filterIds.All"
+      :id="FILTER_IDS.All"
       class="request-section-content custom-scroll relative flex flex-1 flex-col"
       :role="selectedFilter === 'All' ? 'tabpanel' : 'none'">
       <CollapsibleSection
         v-show="isSectionVisible('Params') && pathRows.length"
-        :id="filterIds.Params"
+        :id="FILTER_IDS.Params"
         :itemCount="pathRows.length">
         <template #title>Params</template>
         <RequestTable
@@ -217,7 +231,7 @@ const channelSubtitle = computed(() => {
 
       <CollapsibleSection
         v-show="isSectionVisible('Query') && queryRows.length"
-        :id="filterIds.Query"
+        :id="FILTER_IDS.Query"
         :itemCount="queryRows.length">
         <template #title>Query</template>
         <RequestTable
@@ -229,7 +243,7 @@ const channelSubtitle = computed(() => {
 
       <AuthSelector
         v-show="isSectionVisible('Auth')"
-        :id="filterIds.Auth"
+        :id="FILTER_IDS.Auth"
         :createAnySecurityScheme="layout !== 'modal'"
         :environment="environment"
         :eventBus="eventBus"
@@ -245,13 +259,14 @@ const channelSubtitle = computed(() => {
 
       <CollapsibleSection
         v-show="isSectionVisible('Operations') && operations.length"
-        :id="filterIds.Operations"
+        :id="FILTER_IDS.Operations"
         :defaultOpen="false"
         :itemCount="operations.length">
         <template #title>Operations</template>
         <div class="px-3 pb-3">
           <p class="text-c-3 mb-3 text-xs">
-            Defined on this channel in your AsyncAPI description (reference only).
+            Defined on this channel in your AsyncAPI description (reference
+            only).
           </p>
           <ChannelOperationsReference :operations="operations" />
         </div>
@@ -259,7 +274,7 @@ const channelSubtitle = computed(() => {
 
       <ChannelMessageEditor
         v-show="isSectionVisible('Message') && canSend"
-        :id="filterIds.Message"
+        :id="FILTER_IDS.Message"
         :canSend="canSend && isConnected"
         :environment="environment"
         :messages="messages"

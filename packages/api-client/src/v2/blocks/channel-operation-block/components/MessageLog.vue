@@ -26,15 +26,18 @@ import {
 import type {
   WebSocketConnectionLogEntry,
   WebSocketFrame,
+  WebSocketSessionState,
 } from '@/v2/blocks/channel-operation-block/helpers/websocket-session'
 
-type MessageLogFilter = 'all' | 'input' | 'output'
+type MessageLogFilter = 'all' | 'incoming' | 'outgoing'
 
-const { frames, connectionLogEntries } = defineProps<{
+const { frames, connectionLogEntries, sessionState } = defineProps<{
   /** Chronological WebSocket frames */
   frames: WebSocketFrame[]
   /** Connection lifecycle entries */
   connectionLogEntries: WebSocketConnectionLogEntry[]
+  /** Current WebSocket session state */
+  sessionState: WebSocketSessionState
 }>()
 
 const emit = defineEmits<{
@@ -43,8 +46,8 @@ const emit = defineEmits<{
 
 const MESSAGE_LOG_FILTER_OPTIONS = [
   { id: 'all', label: 'All Messages' },
-  { id: 'input', label: 'Input' },
-  { id: 'output', label: 'Output' },
+  { id: 'incoming', label: 'Incoming' },
+  { id: 'outgoing', label: 'Outgoing' },
 ] satisfies ScalarListboxOption[]
 const MESSAGE_DISPLAY_FORMAT_OPTIONS = [
   { id: 'text', label: 'Text' },
@@ -91,13 +94,13 @@ const logEntries = computed<WebSocketLogEntry[]>(() =>
 )
 
 const visibleLogEntries = computed(() => {
-  if (selectedFilter.value === 'input') {
+  if (selectedFilter.value === 'incoming') {
     return logEntries.value.filter(
       (entry) => entry.type === 'message' && entry.direction === 'incoming',
     )
   }
 
-  if (selectedFilter.value === 'output') {
+  if (selectedFilter.value === 'outgoing') {
     return logEntries.value.filter(
       (entry) => entry.type === 'message' && entry.direction === 'outgoing',
     )
@@ -161,7 +164,7 @@ const handleSelectDisplayFormat = (
 const isMessageLogFilter = (
   value: ScalarListboxOption['id'] | undefined,
 ): value is MessageLogFilter =>
-  value === 'all' || value === 'input' || value === 'output'
+  value === 'all' || value === 'incoming' || value === 'outgoing'
 
 const handleSelectFilter = (option: ScalarListboxOption | undefined): void => {
   if (!isMessageLogFilter(option?.id)) {
@@ -226,6 +229,21 @@ const formattedLogEntries = computed(() =>
 )
 
 const hasLogEntries = computed(() => logEntries.value.length > 0)
+const hasMessageFrames = computed(() => frames.length > 0)
+
+const emptyLogMessage = computed(() =>
+  sessionState === 'open'
+    ? 'Waiting for messages...'
+    : 'Connect to start receiving messages',
+)
+
+const showWaitingForMessages = computed(
+  () =>
+    sessionState === 'open' &&
+    !hasMessageFrames.value &&
+    selectedFilter.value === 'all' &&
+    !searchQuery.value.trim(),
+)
 
 const emptyFilterMessage = computed(() => {
   if (searchQuery.value.trim()) {
@@ -332,7 +350,7 @@ const toggleMessageEntry = (entry: WebSocketMessageLogEntry): void => {
     <div
       v-if="!hasLogEntries"
       class="text-c-3 flex flex-1 items-center justify-center p-4 text-sm">
-      Connect to start receiving messages
+      {{ emptyLogMessage }}
     </div>
     <ScalarButton
       v-if="hasLogEntries && showJumpToLatest"
@@ -350,6 +368,11 @@ const toggleMessageEntry = (entry: WebSocketMessageLogEntry): void => {
       ref="contentContainer"
       class="custom-scroll flex flex-1 flex-col gap-2 overflow-y-auto p-3"
       @scroll="handleScroll">
+      <div
+        v-if="showWaitingForMessages"
+        class="text-c-3 bg-b-2/60 rounded p-3 text-center text-xs">
+        Waiting for messages...
+      </div>
       <div
         v-if="formattedLogEntries.length === 0"
         class="text-c-3 flex flex-1 items-center justify-center p-4 text-sm">

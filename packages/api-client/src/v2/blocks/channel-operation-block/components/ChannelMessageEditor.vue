@@ -79,6 +79,14 @@ const selectedMessageOption = computed<ScalarListboxOption | undefined>({
 const isCustomMessageSelected = computed(
   () => selectedMessageOption.value?.id === CUSTOM_MESSAGE_ID,
 )
+
+const sendMessageLabel = computed(() =>
+  canSend ? 'Send message' : 'Connect to send',
+)
+
+const sendMessageTitle = computed(() =>
+  canSend ? 'Send message' : 'Connect before sending a message',
+)
 </script>
 
 <template>
@@ -133,9 +141,10 @@ const isCustomMessageSelected = computed(
             class="h-6 px-2 text-xs"
             :disabled="!canSend"
             size="sm"
+            :title="sendMessageTitle"
             type="button"
             @click="emit('send')">
-            Send message
+            {{ sendMessageLabel }}
           </ScalarButton>
         </div>
       </DataTableHeader>
