@@ -30,17 +30,10 @@ npm add @scalar/void-server
 
 ```ts
 import { serve } from '@hono/node-server'
-import {
-  attachVoidWebSocketEcho,
-  createVoidServer,
-  createVoidWebSocketServer,
-} from '@scalar/void-server'
+import { attachVoidWebSocket, createVoidServer } from '@scalar/void-server'
 
-// Create the server instance
 const app = createVoidServer()
-const webSocketServer = createVoidWebSocketServer()
 
-// Start the server
 const httpServer = serve(
   {
     fetch: app.fetch,
@@ -52,12 +45,24 @@ const httpServer = serve(
   },
 )
 
-attachVoidWebSocketEcho(httpServer, webSocketServer)
+attachVoidWebSocket(httpServer)
 ```
 
 ### WebSocket echo
 
-Connect with any path (for example `ws://localhost:3000/chat`) — the server detects `Upgrade: websocket` and echoes any text or binary frame back. Connections close automatically after 60 seconds (override with `VOID_WEBSOCKET_TIMEOUT_MS` or the `connectionTimeoutMs` option) so idle sockets do not accumulate.
+Call `attachVoidWebSocket(httpServer)` to enable the WebSocket echo on an existing Node HTTP server. Connect with any path (for example `ws://localhost:3000/chat`) and the server echoes any text or binary frame back unchanged.
+
+| Option | Description |
+| --- | --- |
+| `path` | Restrict accepted upgrades to a specific path. Defaults to accepting any path. |
+| `connectionTimeoutMs` | Maximum connection lifetime. Falls back to the `VOID_WEBSOCKET_TIMEOUT_MS` env var, then to 60 seconds. |
+
+```ts
+attachVoidWebSocket(httpServer, {
+  path: '/ws',
+  connectionTimeoutMs: 30_000,
+})
+```
 
 ## Community
 

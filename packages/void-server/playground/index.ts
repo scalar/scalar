@@ -1,16 +1,13 @@
 import { serve } from '@hono/node-server'
 
 import { createVoidServer } from '../src/create-void-server'
-import { attachVoidWebSocketEcho, createVoidWebSocketServer } from '../src/utils/void-websocket'
+import { attachVoidWebSocket } from '../src/void-websocket'
 
 const host = process.env.HOST || '0.0.0.0'
 const port = process.env.PORT || 8080
 
-// Create the server instance
 const app = createVoidServer()
-const webSocketServer = createVoidWebSocketServer()
 
-// Start the server
 const httpServer = serve(
   {
     fetch: app.fetch,
@@ -25,4 +22,4 @@ const httpServer = serve(
   },
 )
 
-attachVoidWebSocketEcho(httpServer, webSocketServer)
+attachVoidWebSocket(httpServer)
