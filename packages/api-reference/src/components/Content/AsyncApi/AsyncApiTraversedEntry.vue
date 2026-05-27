@@ -28,12 +28,20 @@ const {
   level?: number
 }>()
 
-const isTag = (entry: TraversedEntry): entry is TraversedTag =>
-  entry.type === 'tag'
 const isTagGroup = (
   entry: TraversedEntry,
 ): entry is TraversedTag & { isGroup: true } =>
   entry.type === 'tag' && entry.isGroup === true
+/**
+ * Narrow to a regular (non-group) tag. Tag groups go through a separate branch
+ * and must not inflate the sibling-tag count used for `moreThanOneTag`,
+ * otherwise `ModernLayout` shows a "Show more" button for a lone tag whenever
+ * it sits next to a tag group.
+ */
+const isTag = (
+  entry: TraversedEntry,
+): entry is TraversedTag & { isGroup: false } =>
+  entry.type === 'tag' && !isTagGroup(entry)
 const isChannel = (entry: TraversedEntry): entry is TraversedAsyncApiChannel =>
   entry.type === 'asyncapi-channel'
 </script>
@@ -54,7 +62,7 @@ const isChannel = (entry: TraversedEntry): entry is TraversedAsyncApiChannel =>
 
     <Tag
       v-else-if="
-        isTag(entry) && (!isTagGroup(entry) || options.layout === 'classic')
+        isTag(entry) || (isTagGroup(entry) && options.layout === 'classic')
       "
       :eventBus="eventBus"
       :isCollapsed="!expandedItems[entry.id]"
