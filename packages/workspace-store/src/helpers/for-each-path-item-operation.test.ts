@@ -1,6 +1,34 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { forEachPathItemOperation } from '@/helpers/for-each-path-item-operation'
+import { forEachPathItemOperation, getResolvedPathItem } from '@/helpers/for-each-path-item-operation'
+
+describe('getResolvedPathItem', () => {
+  it('includes parameters declared alongside a path $ref on the paths map', () => {
+    const resolved = getResolvedPathItem({
+      $ref: '#/components/pathItems/UsersPath',
+      '$ref-value': {
+        get: { summary: 'Get users' },
+      },
+      parameters: [{ name: 'fromPath', in: 'header' }],
+    })
+
+    expect(resolved?.parameters).toEqual([{ name: 'fromPath', in: 'header' }])
+    expect(resolved?.get).toEqual({ summary: 'Get users' })
+  })
+
+  it('lets path-level siblings override the referenced path item', () => {
+    const resolved = getResolvedPathItem({
+      $ref: '#/components/pathItems/UsersPath',
+      '$ref-value': {
+        get: { summary: 'Get users' },
+        parameters: [{ name: 'fromComponent', in: 'query' }],
+      },
+      parameters: [{ name: 'fromPath', in: 'header' }],
+    })
+
+    expect(resolved?.parameters).toEqual([{ name: 'fromPath', in: 'header' }])
+  })
+})
 
 describe('forEachPathItemOperation', () => {
   it('invokes the callback for each HTTP method on an inline path item', () => {

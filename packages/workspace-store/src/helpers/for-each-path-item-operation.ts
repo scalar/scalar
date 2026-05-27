@@ -6,13 +6,26 @@ import type { OperationObject } from '@/schemas/v3.1/strict/operation'
 import type { PathItemObject } from '@/schemas/v3.1/strict/path-item'
 
 /**
+ * Resolves a path item (or webhook path item), merging sibling properties alongside `$ref`.
+ */
+export const getResolvedPathItem = (
+  pathItem: NodeInput<PathItemObject> | undefined,
+): PathItemObject | undefined => {
+  if (!pathItem || typeof pathItem !== 'object') {
+    return undefined
+  }
+
+  return getResolvedRef(pathItem, mergeSiblingReferences)
+}
+
+/**
  * Returns an operation from a path item, resolving $ref wrappers on the path item first.
  */
 export const getPathItemOperation = (
   pathItem: NodeInput<PathItemObject> | undefined,
   method: HttpMethod,
 ): NodeInput<OperationObject> | undefined => {
-  const resolvedPathItem = getResolvedRef(pathItem, mergeSiblingReferences)
+  const resolvedPathItem = getResolvedPathItem(pathItem)
   if (!resolvedPathItem) {
     return undefined
   }
@@ -63,7 +76,7 @@ export const forEachPathItemOperation = (
   pathItem: NodeInput<PathItemObject> | undefined,
   callback: (method: HttpMethod, operation: NodeInput<OperationObject>) => void,
 ): void => {
-  const resolvedPathItem = getResolvedRef(pathItem, mergeSiblingReferences)
+  const resolvedPathItem = getResolvedPathItem(pathItem)
   if (!resolvedPathItem) {
     return
   }

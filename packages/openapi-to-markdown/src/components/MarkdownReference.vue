@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components/markdown'
-import { forEachPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
+import {
+  forEachPathItemOperation,
+  getResolvedPathItem,
+} from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type {
@@ -149,7 +152,7 @@ const operations = computed<OperationEntry[]>(() => {
   const entries: OperationEntry[] = []
 
   for (const [path, pathItemRef] of Object.entries(paths)) {
-    const resolvedPathItem = getResolvedRef(pathItemRef)
+    const resolvedPathItem = getResolvedPathItem(pathItemRef)
 
     forEachPathItemOperation(pathItemRef, (method, operation) => {
       const resolvedOperation = resolveOperation(operation)

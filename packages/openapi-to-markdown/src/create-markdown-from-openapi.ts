@@ -4,8 +4,10 @@ import { readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { normalize } from '@scalar/json-magic/helpers/normalize'
 import type { OpenApiDocument, PathItemObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import {
+  getPathItemOperation,
+  getResolvedPathItem,
+} from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { minify } from 'html-minifier-terser'
 import rehypeParse from 'rehype-parse'
 import rehypeRemark from 'rehype-remark'
@@ -135,7 +137,7 @@ const getPathEntries = (document: OpenApiDocument): Array<[string, PathItemObjec
   }
 
   return Object.entries(paths).flatMap(([path, pathItemRef]) => {
-    const pathItem = getResolvedRef(pathItemRef)
+    const pathItem = getResolvedPathItem(pathItemRef)
 
     return pathItem ? [[path, pathItem]] : []
   })

@@ -8,7 +8,7 @@ import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import { upgrade } from '@scalar/openapi-upgrader'
 
-import { forEachPathItemOperation } from '@/helpers/for-each-path-item-operation'
+import { forEachPathItemOperation, getResolvedPathItem } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { keyOf } from '@/helpers/general'
 import { createNavigation } from '@/navigation'
@@ -169,7 +169,7 @@ export function externalizePathReferences(
   }
 
   Object.entries(document.paths).forEach(([path, pathItemRef]) => {
-    const pathItem = getResolvedRef(pathItemRef)
+    const pathItem = getResolvedPathItem(pathItemRef)
     if (!pathItem || typeof pathItem !== 'object') {
       return
     }
