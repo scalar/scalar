@@ -35,6 +35,9 @@ import {
 } from '@/schemas/extensions/server/x-scalar-selected-server'
 import { type XTagGroups, XTagGroupsSchema } from '@/schemas/extensions/tag/x-tag-groups'
 import {
+  TraversedAsyncApiChannelSchemaDefinition,
+  TraversedAsyncApiMessageSchemaDefinition,
+  TraversedAsyncApiOperationSchemaDefinition,
   TraversedDescriptionSchemaDefinition,
   type TraversedDocument,
   TraversedDocumentSchemaDefinition,
@@ -216,6 +219,9 @@ const module = Type.Module({
   // Navigation schemas
   [REF_DEFINITIONS.TraversedDescriptionObject]: TraversedDescriptionSchemaDefinition,
   [REF_DEFINITIONS.TraversedOperationObject]: TraversedOperationSchemaDefinition,
+  [REF_DEFINITIONS.TraversedAsyncApiOperationObject]: TraversedAsyncApiOperationSchemaDefinition,
+  [REF_DEFINITIONS.TraversedAsyncApiChannelObject]: TraversedAsyncApiChannelSchemaDefinition,
+  [REF_DEFINITIONS.TraversedAsyncApiMessageObject]: TraversedAsyncApiMessageSchemaDefinition,
   [REF_DEFINITIONS.TraversedSchemaObject]: TraversedSchemaSchemaDefinition,
   [REF_DEFINITIONS.TraversedWebhookObject]: TraversedWebhookSchemaDefinition,
   [REF_DEFINITIONS.TraversedTagObject]: TraversedTagSchemaDefinition,
