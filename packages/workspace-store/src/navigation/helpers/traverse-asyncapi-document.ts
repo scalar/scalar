@@ -7,6 +7,7 @@ import { isHidden } from '@/helpers/is-hidden'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { type NavigationOptions, getNavigationOptions } from '@/navigation/get-navigation-options'
 import { getTag } from '@/navigation/helpers/get-tag'
+import { traverseDescription } from '@/navigation/helpers/traverse-description'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { XInternal } from '@/schemas/extensions/document/x-internal'
 import type { XScalarIgnore } from '@/schemas/extensions/document/x-scalar-ignore'
@@ -19,7 +20,7 @@ import type {
   TraversedEntry,
   TraversedTag,
 } from '@/schemas/navigation'
-import type { InfoObject, TagObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { TagObject } from '@/schemas/v3.1/strict/openapi-document'
 
 /** Anything that may carry the navigation visibility extensions. */
 type Hideable = XInternal & XScalarIgnore
@@ -595,7 +596,7 @@ export const traverseAsyncApiDocument = (
 
   const documentId = generateId({
     type: 'document',
-    info: document.info as InfoObject,
+    info: document.info,
     name: documentName,
   })
 
@@ -649,7 +650,13 @@ export const traverseAsyncApiDocument = (
     }
   }
 
-  const entries: TraversedEntry[] = []
+  // Surface the Introduction entry plus any headings extracted from `info.description`
+  // before the channel/tag entries, mirroring how OpenAPI documents are traversed.
+  const entries: TraversedEntry[] = traverseDescription({
+    generateId,
+    parentId: documentId,
+    info: document.info,
+  })
 
   if (tagsMap.size > 0) {
     entries.push(

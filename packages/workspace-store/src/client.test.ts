@@ -3849,13 +3849,15 @@ describe('create-workspace-store', () => {
       })
       expect(document?.['x-scalar-original-document-hash']).not.toBe('')
       expect(document).not.toHaveProperty('openapi')
-      expect(document?.['x-scalar-navigation']).toEqual({
-        children: [],
-        icon: undefined,
+      // AsyncAPI docs always carry an `x-scalar-navigation` tree so the sidebar can
+      // surface `info.description`. Without channels, tags, or a description, the only
+      // entry is the default Introduction.
+      expect(document?.['x-scalar-navigation']).toMatchObject({
         id: 'streetlights',
         name: 'streetlights',
         title: 'Streetlights API',
         type: 'document',
+        children: [{ type: 'text', title: 'Introduction' }],
       })
     })
 
@@ -4072,6 +4074,11 @@ describe('create-workspace-store', () => {
       const navigation = document['x-scalar-navigation']
       expect(navigation).toEqual({
         'children': [
+          {
+            'id': 'chatapp/description/introduction',
+            'title': 'Introduction',
+            'type': 'text',
+          },
           {
             'channelAddress': '/chat',
             'channelName': 'chat',
