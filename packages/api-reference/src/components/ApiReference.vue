@@ -357,9 +357,8 @@ const itemsFromWorkspace = computed<TraversedEntry[]>(() => {
       description: document.info.description,
       name: document.info.title ?? slug,
       title: document.info.title ?? slug,
-      children: isOpenApiDocument(document)
-        ? (document['x-scalar-navigation']?.children ?? [])
-        : [],
+      // Both OpenAPI and AsyncAPI documents carry an `x-scalar-navigation` tree.
+      children: document['x-scalar-navigation']?.children ?? [],
     }),
   )
 })
